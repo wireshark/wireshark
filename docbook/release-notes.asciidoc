@@ -212,58 +212,94 @@ PCAPNG
 
 === New Protocol Support
 
+// Items in --sort-and-group-- blocks will be sorted and comma-separated.
 --sort-and-group--
+Aeron
+AllJoyn Reliable Datagram Protocol
+Android Debug Bridge
+Android Debug Bridge Service
+Android Logcat text
+Apache Tribes Heartbeat
+APT-X Codec
+B.A.T.M.A.N. GW
+B.A.T.M.A.N. Vis
+BGP Monitoring Prototol (BMP)
+Bluetooth Broadcom HCI
+Bluetooth GATT Attributes (*many*)
+Bluetooth OBEX Applications (*many*)
+BSSAP2
+C15 Call History Protocol (C15ch) and others
+Celerra VNX
+Ceph
+Chargen
+Classical IP
+Concise Binary Object Representation (CBOR) (RFC 7049)
+Corosync Totemnet
+Corosync Totem Single Ring Protocol
+Couchbase
+CP ``Cooper'' 2179
+CSN.1
+dCache
+DJI UAV Drone Control Protocol
+Dynamic Source Routing (RFC 4728)
+Elasticsearch
+ETSI Card Application Toolkit - Transport Protocol
+eXpressive Internet Protocol (XIP)
+GDB Remote Serial Protocol
 Generic Network Virtualization Encapsulation (Geneve)
+Geospatial and Imagery Access Service (GIAS)
+Gias Dissector Using GIOP API
+GPRS Tunneling Protocol Prim
+GVSP GigE Vision (TM) Streaming Protocol
+H.225 RAS
+Harman HiQnet
+HCrt
+Hotline Command-Response Transaction Protocol
+IEEE 802.11 radio information
+IP Detail Record (IPDR)
 IPMI Trace
 iSER
-OptoMMP
-corosync/totemnet  corosync cluster engine ( lowest levelencryption/decryption protocol)
-corosync/totemsrp corosync cluster engine ( totem single ring protocol)
-ceph
-GVSP GigE Vision (TM) Streaming Protocol
-HCrt
-Stateless Transport Tunneling
-CP ``Cooper'' 2179
-S7 Communication
 KNXnetIP
-Dynamic Source Routing (RFC 4728)
-MCPE (Minecraft Pocket Edition)
-RakNet games library
-(LISP) TCP Control Message
-Android ADB
-Android Logcat text
-Couchbase
-AllJoyn Reliable Datagram Protocol
-HiQnet
-Elasticsearch
-Shared Memory Communications - RDMA
-Remote Shared Virtual Disk - RSVD
-Riemann
+Link Aggregation Control Protocol
+Link Aggregation Marker Protocol
+Locator/ID Separation Protocol (Reliable Transport)
+Link-local Multicast Name Resolution
+Link Layer Topology Discovery
+LISP TCP Control Message
 MACsec Key Agreement - EAPoL-MKA
-DJI UAV Drone Control Protocol
-ZVT Kassenschnittstelle
-ETSI Card Application Toolkit - Transport Protocol
-Apache Tribes Heartbeat
-QNEX6 (QNET)
-Secure Socket Tunnel Protocol (SSTP)
-BGP Monitoring Prototol (BMP)
-Video Services over IP (VSIP)
-OCFS2
-Geospatial and Imagery Access Service (GIAS)
-C15 Call History Protocol dissection (C15ch)
-Thrift
-IP Detail Record (IPDR)
-Performance Co-Pilot Proxy
-Aeron
-Network File System over Remote Direct Memory Access (NFSoRDMA)
-eXpressive Internet Protocol (XIP)
-Windows Search Protocol (MS-WSP)
+MCPE (Minecraft Pocket Edition)
 Message Queuing Telemetry Transport For Sensor Networks (MQTT-SN)
-Time Division Multiplexing over Packet Network (TDMoP)
-Concise Binary Object Representation (CBOR) (RFC 7049)
-XIP Serval
-TCP based Robot Operating System protocol (TCPROS)
+Minecraft Pocket Edition
+MQ Telemetry Transport Protocol for Sensor Networks
+Multicast Domain Name Service (mDNS)
 Neighborhood Watch Protocol (NWP)
+Network File System over Remote Direct Memory Access (NFSoRDMA)
+OAMPDU
+OCFS2
+OptoMMP
+Organization Specific Slow Protocol (OSSP)
+Packet Cable Lawful Intercept (timestamp)
+Packet Cable Lawful Intercept (timestamp, case ID)
+Packet Cable Lawful Intercept (8 byte CCCID)
+PacketCable MTA FQDN
+Performance Co-Pilot Proxy
+QNEX6 (QNET)
+RakNet games library
+Remote Shared Virtual Disk (RSVD)
+Riemann
+RPC over RDMA (RPCoRDMA)
+S7 Communication
+Secure Socket Tunnel Protocol (SSTP)
+Shared Memory Communications - RDMA (SMCR)
+Stateless Transport Tunneling
+TCP based Robot Operating System protocol (TCPROS)
+Thrift
+Time Division Multiplexing over Packet Network (TDMoP)
+Video Services over IP (VSIP)
+Windows Search Protocol (MS-WSP)
+XIP Serval
+ZigBee ZCL (*many*)
+ZVT Kassenschnittstelle
 --sort-and-group--
 
 === Updated Protocol Support
@@ -274,17 +310,21 @@ Too many protocols have been updated to list here.
 
 --sort-and-group--
 Android Logcat text files
-Wireshark now supports nanosecond timestamp resolution in PCAP-NG files.
 Colasoft Capsa files
 Netscaler 3.5
 3GPP TS 32.423 Trace
+Symbian OS BTSNOOP File Format
 --sort-and-group--
+
+Additionally, Wireshark now supports nanosecond timestamp resolution in PCAP-NG files.
 
 === New and Updated Capture Interfaces support
 
---sort-and-group--
-Androiddump - provide interfaces to capture (Logcat, Bluetooth and WiFi) from connected Android devices
---sort-and-group--
+Androiddump support now provides interfaces to capture (Logcat, Bluetooth and
+WiFi) from connected Android devices.
+
+//--sort-and-group--
+//--sort-and-group--
 
 === Major API Changes
 
