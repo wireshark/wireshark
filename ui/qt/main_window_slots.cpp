@@ -29,6 +29,12 @@
 #include <unistd.h>
 #endif
 
+// Qt 5.5.0 + Visual C++ 2013
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable:4996)
+#endif
+
 #include "main_window.h"
 #include <ui_main_window.h>
 
@@ -3536,6 +3542,10 @@ void MainWindow::on_actionContextFilterFieldReference_triggered()
             .arg(proto_abbrev);
     QDesktopServices::openUrl(dfref_url);
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 /*
  * Editor modelines
