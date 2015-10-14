@@ -92,8 +92,9 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     cbcs->addItem(tr("C Arrays"), SHOW_CARRAY);
     cbcs->addItem(tr("EBCDIC"), SHOW_EBCDIC);
     cbcs->addItem(tr("Hex Dump"), SHOW_HEXDUMP);
-    cbcs->addItem(tr("UTF-8"), SHOW_RAW);
+    cbcs->addItem(tr("UTF-8"), SHOW_UTF8);
     cbcs->addItem(tr("YAML"), SHOW_YAML);
+    cbcs->addItem(tr("Raw"), SHOW_RAW);
     cbcs->blockSignals(false);
 
     b_filter_out_ = ui->buttonBox->addButton(tr("Hide this stream"), QDialogButtonBox::ActionRole);
@@ -226,7 +227,7 @@ void FollowStreamDialog::saveAs()
 
     readStream();
 
-    if (follow_info_.show_type != SHOW_RAW)
+    if ((follow_info_.show_type != SHOW_RAW) && (follow_info_.show_type != SHOW_UTF8))
     {
         out << ui->teStreamContent->toPlainText();
     }
@@ -541,7 +542,12 @@ void FollowStreamDialog::addText(QString text, gboolean is_from_server, guint32 
         size_t nwritten;
         int FileDescriptor = file_.handle();
         FILE* fh = fdopen(dup(FileDescriptor), "wb");
-        nwritten = fwrite(text.toUtf8().constData(), text.length(), 1, fh);
+        if (follow_info_.show_type == SHOW_RAW) {
+            QByteArray binstream = QByteArray::fromHex(text.toUtf8());
+            nwritten = fwrite(binstream.constData(), binstream.length(), 1, fh);
+        } else {
+            nwritten = fwrite(text.toUtf8().constData(), text.length(), 1, fh);
+        }
         fclose(fh);
         if ((int)nwritten != text.length()) {
 #if 0
@@ -681,7 +687,7 @@ FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_ser
         break;
     }
 
-    case SHOW_RAW: // UTF-8
+    case SHOW_UTF8: // UTF-8
     {
         // The QString docs say that invalid characters will be replaced with
         // replacement characters or removed. It would be nice if we could
@@ -805,6 +811,14 @@ FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_ser
             (*global_pos) += len;
         }
         addText(yaml_text, is_from_server, packet_num);
+        break;
+    }
+
+    case SHOW_RAW:
+    {
+        QByteArray ba = QByteArray(buffer, (int)nchars).toHex();
+        ba += '\n';
+        addText(ba, is_from_server, packet_num);
         break;
     }
     }
