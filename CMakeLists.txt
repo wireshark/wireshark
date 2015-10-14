@@ -896,6 +896,10 @@ elseif(QT_FOUND)
 	include_directories(${QT_INCLUDE_DIR})
 	message(STATUS "Qt includes: ${QT_INCLUDE_DIR}")
 	message(STATUS "Qt libs: ${QT_LIBRARIES}")
+	if(QT_QTMULTIMEDIA_FOUND)
+		# That's the name autofoo uses
+		set(QT_MULTIMEDIA_LIB 1)
+	endif()
 endif()
 
 message(STATUS "C-Flags: ${CMAKE_C_FLAGS}")
