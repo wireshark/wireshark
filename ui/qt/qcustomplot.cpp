@@ -7155,7 +7155,11 @@ bool QCPAbstractPlottable::addToLegend()
 
   if (!mParentPlot->legend->hasItemWithPlottable(this))
   {
-    mParentPlot->legend->addItem(new QCPPlottableLegendItem(mParentPlot->legend, this));
+    QCPPlottableLegendItem* newitem(new QCPPlottableLegendItem(mParentPlot->legend, this));
+    if (!mParentPlot->legend->addItem(newitem)) {
+      delete newitem;
+      return false;
+    }
     return true;
   } else
     return false;
