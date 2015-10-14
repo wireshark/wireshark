@@ -693,6 +693,8 @@ endif()
 # GNU crypto
 if(ENABLE_GCRYPT)
 	set(PACKAGELIST ${PACKAGELIST} GCRYPT)
+	# Minimum version needed.
+	set(GCRYPT_OPTIONS "1.4.2")
 endif()
 
 # GNU SSL/TLS support

@@ -28,10 +28,20 @@ SET(GCRYPT_NAMES gcrypt libgcrypt-20)
 FIND_LIBRARY(GCRYPT_LIBRARY NAMES ${GCRYPT_NAMES} libgcc_s_sjlj-1 HINTS "${GCRYPT_HINTS}/bin")
 FIND_LIBRARY(GCRYPT_ERROR_LIBRARY NAMES gpg-error libgpg-error-0 libgpg-error6-0 HINTS "${GCRYPT_HINTS}/bin")
 
+# Try to retrieve version from header if found (available since libgcrypt 1.3.0)
+if(GCRYPT_INCLUDE_DIR)
+  set(_version_regex "^#define[ \t]+GCRYPT_VERSION[ \t]+\"([^\"]+)\".*")
+  file(STRINGS "${GCRYPT_INCLUDE_DIR}/gcrypt.h" GCRYPT_VERSION REGEX "${_version_regex}")
+  string(REGEX REPLACE "${_version_regex}" "\\1" GCRYPT_VERSION "${GCRYPT_VERSION}")
+  unset(_version_regex)
+endif()
+
 # handle the QUIETLY and REQUIRED arguments and set GCRYPT_FOUND to TRUE if
-# all listed variables are TRUE
+# all listed variables are TRUE and the requested version matches.
 INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(GCRYPT DEFAULT_MSG GCRYPT_LIBRARY GCRYPT_INCLUDE_DIR)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(GCRYPT
+  REQUIRED_VARS   GCRYPT_LIBRARY GCRYPT_INCLUDE_DIR
+  VERSION_VAR     GCRYPT_VERSION)
 
 IF(GCRYPT_FOUND)
   SET( GCRYPT_LIBRARIES ${GCRYPT_LIBRARY} ${GCRYPT_ERROR_LIBRARY})

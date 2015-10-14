@@ -607,9 +607,9 @@ AC_ARG_WITH([gcrypt],
   [ with_gcrypt="$withval"; want_gcrypt="yes" ], with_gcrypt="yes")
 
 if test "x$with_gcrypt" = "xyes"; then
-  AM_PATH_LIBGCRYPT(1.1.92,
+  AM_PATH_LIBGCRYPT(1.4.2,
 	[
-		echo "libgcrypt found, enabling ipsec decryption"
+		echo "libgcrypt found, enabling decryption for ipsec, ssl, etc."
 		AC_DEFINE(HAVE_LIBGCRYPT, 1, [Define to use libgcrypt])
 		gcrypt_message="yes"
 	]
@@ -617,7 +617,7 @@ if test "x$with_gcrypt" = "xyes"; then
 		if test x$libgcrypt_config_prefix != x ; then
 			AC_MSG_ERROR([[libgcrypt not found; install libgcrypt-devel package for your system]])
 		else
-			echo "libgcrypt not found, disabling ipsec decryption"
+			echo "libgcrypt not found, disabling decryption for ipsec, ssl, etc."
 			gcrypt_message="no"
 		fi
 
