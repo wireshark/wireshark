@@ -1252,7 +1252,7 @@ install_lua() {
         [ -f lua-$LUA_VERSION.tar.gz ] || curl -L -O http://www.lua.org/ftp/lua-$LUA_VERSION.tar.gz || exit 1
         gzcat lua-$LUA_VERSION.tar.gz | tar xf - || exit 1
         cd lua-$LUA_VERSION
-        make $MAKE_BUILD_OPTS macosx || exit 1
+        make MYCFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" MYLDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" $MAKE_BUILD_OPTS macosx || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
         touch lua-$LUA_VERSION-done
