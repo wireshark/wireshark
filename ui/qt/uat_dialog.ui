@@ -96,6 +96,13 @@
     </layout>
    </item>
    <item>
+    <widget class="QLabel" name="hintLabel">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
