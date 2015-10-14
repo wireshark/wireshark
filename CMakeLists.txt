@@ -897,6 +897,8 @@ elseif(QT_FOUND)
 	message(STATUS "Qt includes: ${QT_INCLUDE_DIR}")
 	message(STATUS "Qt libs: ${QT_LIBRARIES}")
 	if(QT_QTMULTIMEDIA_FOUND)
+		include_directories(${QT_QTMULTIMEDIA_INCLUDE_DIR})
+		message(STATUS "QtMultimedia includes: ${QT_INCLUDE_DIR}")
 		# That's the name autofoo uses
 		set(QT_MULTIMEDIA_LIB 1)
 	endif()
