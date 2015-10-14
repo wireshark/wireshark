@@ -61,7 +61,8 @@ typedef enum {
     SHOW_HEXDUMP,
     SHOW_CARRAY,
     SHOW_RAW,
-    SHOW_YAML
+    SHOW_YAML,
+    SHOW_UTF8
 } show_type_t;
 
 typedef enum {
