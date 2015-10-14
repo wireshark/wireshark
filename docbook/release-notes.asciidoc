@@ -19,7 +19,7 @@ Pcapng file parser crash. Discovered by Dario Lombardo and Shannon Sabens.
 // Fixed in master: g7249791
 // Fixed in master-1.12: g21ec666
 (ws-buglink:11455[])
-//cve-idlink:2015-XXXX[]
+cve-idlink:2015-7830[]
 
 
 The following bugs have been fixed:
