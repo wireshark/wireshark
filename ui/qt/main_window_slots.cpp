@@ -1234,7 +1234,7 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
             field_id = proto_registrar_get_parent(fi->hfinfo->id);
         }
 
-        if (field_id >= 0 && !proto_is_private(field_id)) {
+        if (field_id >= 0) {
             can_open_url = true;
             main_ui_->actionContextWikiProtocolPage->setData(field_id);
             main_ui_->actionContextFilterFieldReference->setData(field_id);

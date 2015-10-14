@@ -949,7 +949,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_get_protocol_name@Base 1.9.1
  proto_get_protocol_short_name@Base 1.9.1
  proto_initialize_all_prefixes@Base 1.9.1
- proto_is_private@Base 1.9.1
  proto_is_protocol_enabled@Base 1.9.1
  proto_is_frame_protocol@Base 1.99.1
  proto_item_add_subtree@Base 1.9.1
@@ -964,7 +963,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_item_set_end@Base 1.9.1
  proto_item_set_len@Base 1.9.1
  proto_item_set_text@Base 1.9.1
- proto_mark_private@Base 1.9.1
  proto_register_field_array@Base 1.9.1
  proto_register_fields_manual@Base 1.12.0~rc1
  proto_register_fields_section@Base 1.12.0~rc1
