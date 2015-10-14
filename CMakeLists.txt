@@ -710,6 +710,8 @@ endif()
 # GNU SSL/TLS support
 if(ENABLE_GNUTLS)
 	set(PACKAGELIST ${PACKAGELIST} GNUTLS)
+	# Minimum version needed.
+	set(GNUTLS_OPTIONS "2.12.0")
 endif()
 
 # Kerberos

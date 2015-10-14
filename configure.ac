@@ -578,8 +578,8 @@ if test "x$with_gnutls" = "xyes"; then
   )
 
   if test "x$have_license_compatible_gnutls" != "xyes"; then
-    PKG_CHECK_MODULES([LIBGNUTLS], [gnutls >= 1.2.0 gnutls < 3],
-      [ have_license_compatible_gnutls="yes" ] , [ echo "GnuTLS >= 1.2.0, < 3.0 not found " ]
+    PKG_CHECK_MODULES([LIBGNUTLS], [gnutls >= 2.12.0 gnutls < 3],
+      [ have_license_compatible_gnutls="yes" ] , [ echo "GnuTLS >= 2.12.0, < 3.0 not found " ]
     )
   fi
 

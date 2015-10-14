@@ -20,9 +20,9 @@ FindWSWinLibs("gnutls-.*" "GNUTLS_HINTS")
 find_package(PkgConfig)
 pkg_search_module(GNUTLS gnutls)
 
+# sources include gnutls/gnutls.h, look for that location instead of gnutls.h.
 FIND_PATH(GNUTLS_INCLUDE_DIR
   NAMES
-    gnutls.h
     gnutls/gnutls.h
   PATH_SUFFIXES
     include
@@ -42,10 +42,23 @@ FIND_LIBRARY(GNUTLS_LIBRARY
     "${GNUTLS_HINTS}/bin"
 )
 
+# On systems without pkg-config (e.g. Windows), search its header
+# (available since GnuTLS 0.1.3)
+if(NOT GNUTLS_VERSION)
+  if(GNUTLS_INCLUDE_DIR)
+    set(_version_regex "^#define[ \t]+GNUTLS_VERSION[ \t]+\"([^\"]+)\".*")
+    file(STRINGS "${GNUTLS_INCLUDE_DIR}/gnutls/gnutls.h" GNUTLS_VERSION REGEX "${_version_regex}")
+    string(REGEX REPLACE "${_version_regex}" "\\1" GNUTLS_VERSION "${GNUTLS_VERSION}")
+    unset(_version_regex)
+  endif()
+endif()
+
 # handle the QUIETLY and REQUIRED arguments and set GNUTLS_FOUND to TRUE if
-# all listed variables are TRUE
+# all listed variables are TRUE and the requested version matches.
 INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(GNUTLS DEFAULT_MSG GNUTLS_LIBRARY GNUTLS_INCLUDE_DIR)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(GNUTLS
+  REQUIRED_VARS   GNUTLS_LIBRARY GNUTLS_INCLUDE_DIR
+  VERSION_VAR     GNUTLS_VERSION)
 
 IF(GNUTLS_FOUND)
   SET( GNUTLS_LIBRARIES ${GNUTLS_LIBRARY} )
