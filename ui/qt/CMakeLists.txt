@@ -426,7 +426,6 @@ set(WIRESHARK_QT_QRC
 	../../image/about.qrc
 	../../image/languages/languages.qrc
 	../../image/layout.qrc
-	../../image/status.qrc
 	../../image/toolbar.qrc
 	../../image/wsicon.qrc
 	i18n.qrc

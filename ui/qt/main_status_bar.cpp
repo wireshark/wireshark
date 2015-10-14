@@ -25,24 +25,26 @@
 
 #include "file.h"
 
-#include "epan/expert.h"
-#include "wsutil/filesystem.h"
+#include <epan/expert.h>
+
+#include <wsutil/filesystem.h>
+#include <wsutil/utf8_entities.h>
 
 #include "ui/main_statusbar.h"
 #include "ui/profile.h"
 #include "ui/qt/qt_ui_utils.h"
-#include <wsutil/utf8_entities.h>
+
 
 #include "capture_file.h"
 #include "main_status_bar.h"
 #include "profile_dialog.h"
-
-#include <QSplitter>
-#include <QHBoxLayout>
-#include <QAction>
-
+#include "stock_icon.h"
 #include "tango_colors.h"
 
+#include <QAction>
+#include <QHBoxLayout>
+#include <QSplitter>
+#include <QToolButton>
 
 // XXX - The GTK+ code assigns priorities to these and pushes/pops accordingly.
 
@@ -116,28 +118,41 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
                                 "  border-right: 1px solid palette(mid);"
                                 "}"
                                 ));
-#elif defined(Q_OS_MAC)
-    expert_status_.setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
-    expert_status_.setTextFormat(Qt::RichText);
-    expert_status_.hide();
+    QString button_ss =
+            "QToolButton {"
+            "  border: none;"
+            "  background: transparent;" // Disables platform style on Windows.
+            "  padding: 0px;"
+            "  margin: 0px;"
+            "}";
+
+    expert_button_ = new QToolButton(this);
+    expert_button_->setIconSize(QSize(14, 14));
+    expert_button_->setStyleSheet(button_ss);
+    expert_button_->hide();
 
     // We just want a clickable image. Using a QPushButton or QToolButton would require
     // a lot of adjustment.
-    comment_label_.setText("<a href><img src=\":/comment/capture_comment_update.png\"></img></a>");
-    comment_label_.setToolTip(tr("Open the Capture File Properties dialog"));
-    comment_label_.setEnabled(false);
-    connect(&expert_status_, SIGNAL(linkActivated(QString)), this, SIGNAL(showExpertInfo()));
-    connect(&comment_label_, SIGNAL(linkActivated(QString)), this, SIGNAL(editCaptureComment()));
+    StockIcon comment_icon("x-capture-comment-update");
+    comment_button_ = new QToolButton(this);
+    comment_button_->setIcon(comment_icon);
+    comment_button_->setIconSize(QSize(14, 14));
+    comment_button_->setStyleSheet(button_ss);
+
+    comment_button_->setToolTip(tr("Open the Capture File Properties dialog"));
+    comment_button_->setEnabled(false);
+    connect(expert_button_, SIGNAL(clicked(bool)), this, SIGNAL(showExpertInfo()));
+    connect(comment_button_, SIGNAL(clicked(bool)), this, SIGNAL(editCaptureComment()));
 
     info_progress_hb->setContentsMargins(0, 0, 0, 0);
 
     info_status_.setTemporaryContext(STATUS_CTX_TEMPORARY);
     info_status_.setShrinkable(true);
 
-    info_progress_hb->addWidget(&expert_status_);
-    info_progress_hb->addWidget(&comment_label_);
+    info_progress_hb->addWidget(expert_button_);
+    info_progress_hb->addWidget(comment_button_);
     info_progress_hb->addWidget(&info_status_);
     info_progress_hb->addWidget(&progress_frame_);
     info_progress_hb->addStretch(10);
@@ -197,46 +212,46 @@ void MainStatusBar::showExpert() {
 }
 
 void MainStatusBar::captureFileClosing() {
-    expert_status_.hide();
+    expert_button_->hide();
     progress_frame_.captureFileClosing();
 }
 
 void MainStatusBar::expertUpdate() {
     // <img> won't load @2x versions in Qt versions earlier than 5.4.
     // We might have to switch to a QPushButton.
-    QString img_text = "<a href><img src=\":/expert/expert_";
+    QString stock_name = "x-expert-";
     QString tt_text = tr(" is the highest expert information level");
 
     switch(expert_get_highest_severity()) {
     case(PI_ERROR):
-        img_text.append("error");
+        stock_name.append("error");
         tt_text.prepend(tr("ERROR"));
         break;
     case(PI_WARN):
-        img_text.append("warn");
+        stock_name.append("warn");
         tt_text.prepend(tr("WARNING"));
         break;
     case(PI_NOTE):
-        img_text.append("note");
+        stock_name.append("note");
         tt_text.prepend(tr("NOTE"));
         break;
     case(PI_CHAT):
-        img_text.append("chat");
+        stock_name.append("chat");
         tt_text.prepend(tr("CHAT"));
         break;
 //    case(PI_COMMENT):
 //        m_expertStatus.setText("<img src=\":/expert/expert_comment.png\"></img>");
 //        break;
     default:
-        img_text.append("none");
+        stock_name.append("none");
         tt_text = tr("No expert information");
         break;
     }
 
-    img_text.append(".png\"></img></a>");
-    expert_status_.setText(img_text);
-    expert_status_.setToolTip(tt_text);
-    expert_status_.show();
+    StockIcon expert_icon(stock_name);
+    expert_button_->setIcon(expert_icon);
+    expert_button_->setToolTip(tt_text);
+    expert_button_->show();
 }
 
 // ui/gtk/main_statusbar.c
@@ -254,7 +269,7 @@ void MainStatusBar::setFileName(CaptureFile &cf)
 void MainStatusBar::setCaptureFile(capture_file *cf)
 {
     cap_file_ = cf;
-    comment_label_.setEnabled(cap_file_ != NULL);
+    comment_button_->setEnabled(cap_file_ != NULL);
 }
 
 void MainStatusBar::pushTemporaryStatus(const QString &message) {

@@ -491,7 +491,6 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     Q_INIT_RESOURCE(about);
     Q_INIT_RESOURCE(i18n);
     Q_INIT_RESOURCE(layout);
-    Q_INIT_RESOURCE(status);
     Q_INIT_RESOURCE(toolbar);
     Q_INIT_RESOURCE(wsicon);
     Q_INIT_RESOURCE(languages);
