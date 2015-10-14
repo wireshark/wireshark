@@ -872,6 +872,11 @@ if(HAVE_LIBZLIB)
 	include_directories(BEFORE ${ZLIB_INCLUDE_DIRS})
 endif()
 if (Qt5Widgets_FOUND)
+	# Qt5CoreConfigExtras.cmake in Qt 5.5.0 sets -fPIC unconditionally.
+	# https://bugreports.qt.io/browse/QTBUG-47942
+	if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+		list(REMOVE_ITEM Qt5Widgets_EXECUTABLE_COMPILE_FLAGS "-fPIC")
+	endif() # MSVC
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 	set (QT_FOUND ON)
 	set (QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5PrintSupport_LIBRARIES})
