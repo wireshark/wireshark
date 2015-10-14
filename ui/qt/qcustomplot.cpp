@@ -18276,7 +18276,7 @@ double QCPBarsGroup::keyPixelOffset(const QCPBars *bars, double keyCoord)
   if (index >= 0)
   {
     int startIndex;
-    double lowerPixelWidth, upperPixelWidth;
+    double lowerPixelWidth = 0, upperPixelWidth = 0;
     if (baseBars.size() % 2 == 1 && index == (baseBars.size()-1)/2) // is center bar (int division on purpose)
     {
       return result;
@@ -18914,7 +18914,7 @@ QPolygonF QCPBars::getBarPolygon(double key, double value) const
   if (!keyAxis || !valueAxis) { qDebug() << Q_FUNC_INFO << "invalid key or value axis"; return QPolygonF(); }
 
   QPolygonF result;
-  double lowerPixelWidth, upperPixelWidth;
+  double lowerPixelWidth = 0, upperPixelWidth = 0;
   getPixelWidth(key, lowerPixelWidth, upperPixelWidth);
   double base = getStackedBaseValue(key, value >= 0);
   double basePixel = valueAxis->coordToPixel(base);
@@ -19090,7 +19090,7 @@ QCPRange QCPBars::getKeyRange(bool &foundRange, SignDomain inSignDomain) const
   // determine exact range of bars by including bar width and barsgroup offset:
   if (haveLower && mKeyAxis)
   {
-    double lowerPixelWidth, upperPixelWidth, keyPixel;
+    double lowerPixelWidth, upperPixelWidth = 0, keyPixel;
     getPixelWidth(range.lower, lowerPixelWidth, upperPixelWidth);
     keyPixel = mKeyAxis.data()->coordToPixel(range.lower) + lowerPixelWidth;
     if (mBarsGroup)
@@ -19099,7 +19099,7 @@ QCPRange QCPBars::getKeyRange(bool &foundRange, SignDomain inSignDomain) const
   }
   if (haveUpper && mKeyAxis)
   {
-    double lowerPixelWidth, upperPixelWidth, keyPixel;
+    double lowerPixelWidth, upperPixelWidth = 0, keyPixel;
     getPixelWidth(range.upper, lowerPixelWidth, upperPixelWidth);
     keyPixel = mKeyAxis.data()->coordToPixel(range.upper) + upperPixelWidth;
     if (mBarsGroup)
@@ -19410,7 +19410,7 @@ double QCPStatisticalBox::selectTest(const QPointF &pos, bool onlySelectable, QV
 
   if (mKeyAxis.data()->axisRect()->rect().contains(pos.toPoint()))
   {
-    double posKey, posValue;
+    double posKey = 0, posValue = 0;
     pixelsToCoords(pos, posKey, posValue);
     // quartile box:
     QCPRange keyRange(mKey-mWidth*0.5, mKey+mWidth*0.5);
@@ -20339,7 +20339,7 @@ double QCPColorMap::selectTest(const QPointF &pos, bool onlySelectable, QVariant
 
   if (mKeyAxis.data()->axisRect()->rect().contains(pos.toPoint()))
   {
-    double posKey, posValue;
+    double posKey = 0, posValue = 0;
     pixelsToCoords(pos, posKey, posValue);
     if (mMapData->keyRange().contains(posKey) && mMapData->valueRange().contains(posValue))
       return mParentPlot->selectionTolerance()*0.99;
@@ -21334,7 +21334,7 @@ double QCPFinancial::candlestickSelectTest(const QPointF &pos, const QCPFinancia
       // determine whether pos is in open-close-box:
       QCPRange boxKeyRange(it.value().key-mWidth*0.5, it.value().key+mWidth*0.5);
       QCPRange boxValueRange(it.value().close, it.value().open);
-      double posKey, posValue;
+      double posKey = 0, posValue = 0;
       pixelsToCoords(pos, posKey, posValue);
       if (boxKeyRange.contains(posKey) && boxValueRange.contains(posValue)) // is in open-close-box
       {
@@ -21358,7 +21358,7 @@ double QCPFinancial::candlestickSelectTest(const QPointF &pos, const QCPFinancia
       // determine whether pos is in open-close-box:
       QCPRange boxKeyRange(it.value().key-mWidth*0.5, it.value().key+mWidth*0.5);
       QCPRange boxValueRange(it.value().close, it.value().open);
-      double posKey, posValue;
+      double posKey = 0, posValue = 0;
       pixelsToCoords(pos, posKey, posValue);
       if (boxKeyRange.contains(posKey) && boxValueRange.contains(posValue)) // is in open-close-box
       {
