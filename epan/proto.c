@@ -289,7 +289,6 @@ struct _protocol {
 	int         proto_id;     /* field ID for this protocol */
 	gboolean    is_enabled;   /* TRUE if protocol is enabled */
 	gboolean    can_toggle;   /* TRUE if is_enabled can be changed */
-	gboolean    is_private;   /* TRUE is protocol is private */
 	GList      *heur_list;    /* Heuristic dissectors associated with this protocol */
 };
 
@@ -5301,7 +5300,6 @@ proto_register_protocol(const char *name, const char *short_name,
 	protocol->fields = g_ptr_array_new();
 	protocol->is_enabled = TRUE; /* protocol is enabled by default */
 	protocol->can_toggle = TRUE;
-	protocol->is_private = FALSE;
 	protocol->heur_list = NULL;
 	/* list will be sorted later by name, when all protocols completed registering */
 	protocols = g_list_prepend(protocols, protocol);
@@ -5366,24 +5364,6 @@ proto_deregister_protocol(const char *short_name)
     last_field_name = NULL;
 
     return TRUE;
-}
-
-void
-proto_mark_private(const int proto_id)
-{
-	protocol_t *protocol = find_protocol_by_id(proto_id);
-	if (protocol)
-		protocol->is_private = TRUE;
-}
-
-gboolean
-proto_is_private(const int proto_id)
-{
-	protocol_t *protocol = find_protocol_by_id(proto_id);
-	if (protocol)
-		return protocol->is_private;
-	else
-		return FALSE;
 }
 
 /*

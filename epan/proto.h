@@ -2015,18 +2015,6 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
 WS_DLL_PUBLIC gboolean
 proto_deregister_protocol(const char *short_name);
 
-/** Mark protocol as private
- @param proto_id the handle of the protocol */
-WS_DLL_PUBLIC
-void
-proto_mark_private(const int proto_id);
-
-/** Return if protocol is private
- @param proto_id the handle of the protocol
- @return TRUE if it is a private protocol, FALSE is not. */
-WS_DLL_PUBLIC gboolean
-proto_is_private(const int proto_id);
-
 /** This type of function can be registered to get called whenever
     a given field was not found but a its prefix is matched;
     It can be used to procrastinate the hf array registration.
