@@ -375,18 +375,35 @@ void UatDialog::enumPrefCurrentIndexChanged(int index)
     const QByteArray& enum_txt = cur_combo_box_->itemText(index).toUtf8();
     char *err = NULL;
 
-    if (field->cb.chk && field->cb.chk(rec, enum_txt.constData(), (unsigned) enum_txt.size(), field->cbdata.chk, field->fld_data, &err)) {
-        field->cb.set(rec, enum_txt.constData(), (unsigned) enum_txt.size(), field->cbdata.set, field->fld_data);
-        ok_button_->setEnabled(true);
-        uat_update_record(uat_, rec, TRUE);
-    } else {
-        /* XXX - do something useful with the error message string */
+    if (field->cb.chk && !field->cb.chk(rec, enum_txt.constData(), (unsigned) enum_txt.size(), field->cbdata.chk, field->fld_data, &err)) {
+        QString err_string = "<font color='red'>%1</font>";
+        ui->hintLabel->setText(err_string.arg(err));
         g_free(err);
         ok_button_->setEnabled(false);
         uat_update_record(uat_, rec, FALSE);
+    } else {
+        ui->hintLabel->clear();
+        field->cb.set(rec, enum_txt.constData(), (unsigned) enum_txt.size(), field->cbdata.set, field->fld_data);
+        ok_button_->setEnabled(true);
+        uat_update_record(uat_, rec, TRUE);
     }
     uat_->changed = TRUE;
 }
+
+const QByteArray UatDialog::unhexbytes(const QString input, QString &qt_err) {
+    if (input.size() % 2) {
+        qt_err = tr("Uneven number of chars hex string (%1)").arg(input.size());
+        return NULL;
+    }
+
+    QByteArray output = QByteArray::fromHex(input.toUtf8());
+
+    if (output.size() != (input.size()/2)) {
+        qt_err = tr("Error parsing hex string");
+    }
+    return output;
+}
+
 
 void UatDialog::stringPrefTextChanged(const QString &text)
 {
@@ -398,32 +415,31 @@ void UatDialog::stringPrefTextChanged(const QString &text)
     guint row = item->data(0, Qt::UserRole).toUInt();
     void *rec = UAT_INDEX_PTR(uat_, row);
     uat_field_t *field = &uat_->fields[cur_column_];
-    const QByteArray& txt = text.toUtf8();
-    char *err = NULL;
-    bool enable_ok = true;
     SyntaxLineEdit::SyntaxState ss = SyntaxLineEdit::Empty;
-
-    if (field->cb.chk) {
-        if (field->cb.chk(rec, txt.constData(), (unsigned) txt.size(), field->cbdata.chk, field->fld_data, &err)) {
-            field->cb.set(rec, txt.constData(), (unsigned) txt.size(), field->cbdata.set, field->fld_data);
-            saved_string_pref_ = text;
-            ss = SyntaxLineEdit::Valid;
-            uat_update_record(uat_, rec, TRUE);
-        } else {
-            /* XXX - do something useful with the error message string */
+    bool enable_ok = true;
+    QString qt_err;
+    const QByteArray &txt = (field->mode == PT_TXTMOD_HEXBYTES) ? unhexbytes(text, qt_err) : text.toUtf8();
+    QString err_string = "<font color='red'>%1</font>";
+    if (!qt_err.isEmpty()) {
+        ui->hintLabel->setText(err_string.arg(qt_err));
+        enable_ok = false;
+        ss = SyntaxLineEdit::Invalid;
+    } else {
+        char *err = NULL;
+        if (field->cb.chk && !field->cb.chk(rec, txt.constData(), (unsigned) txt.size(), field->cbdata.chk, field->fld_data, &err)) {
+            ui->hintLabel->setText(err_string.arg(err));
             g_free(err);
             enable_ok = false;
             ss = SyntaxLineEdit::Invalid;
             uat_update_record(uat_, rec, FALSE);
+        } else {
+            ui->hintLabel->clear();
+            field->cb.set(rec, txt.constData(), (unsigned) txt.size(), field->cbdata.set, field->fld_data);
+            saved_string_pref_ = text;
+            ss = SyntaxLineEdit::Valid;
+            uat_update_record(uat_, rec, TRUE);
         }
     }
-    if (uat_->update_cb) {
-        gchar *err;
-        if (!uat_->update_cb(rec, &err)) {
-            g_free(err); // XXX Handle this.
-        }
-    }
-
 
     ok_button_->setEnabled(enable_ok);
     cur_line_edit_->setSyntaxState(ss);
@@ -438,6 +454,19 @@ void UatDialog::stringPrefEditingFinished()
     item->setText(cur_column_, saved_string_pref_);
     ok_button_->setEnabled(true);
 
+    if (uat_ && uat_->update_cb) {
+        gchar *err;
+        void *rec = UAT_INDEX_PTR(uat_, item->data(0, Qt::UserRole).toUInt());
+        if (!uat_->update_cb(rec, &err)) {
+            QString err_string = "<font color='red'>%1</font>";
+            ui->hintLabel->setText(err_string.arg(err));
+            g_free(err);
+            ok_button_->setEnabled(false);
+        } else {
+            ui->hintLabel->clear();
+        }
+    }
+
     updateItem(*item);
 }
 
@@ -447,12 +476,21 @@ void UatDialog::addRecord(bool copy_from_current)
 
     void *rec = g_malloc0(uat_->record_size);
 
-    if (copy_from_current) {
+    if (copy_from_current && uat_->copy_cb) {
         QTreeWidgetItem *item = ui->uatTreeWidget->currentItem();
         if (!item) return;
         guint row = item->data(0, Qt::UserRole).toUInt();
-        if (uat_->copy_cb) {
-            uat_->copy_cb(rec, UAT_INDEX_PTR(uat_, row), uat_->record_size);
+        uat_->copy_cb(rec, UAT_INDEX_PTR(uat_, row), uat_->record_size);
+    } else {
+        for (guint col = 0; col < uat_->ncols; col++) {
+            uat_field_t *field = &uat_->fields[col];
+            if (field->mode == PT_TXTMOD_ENUM) {
+                guint length;
+                const char *str;
+                field->cb.tostr(rec, &str, &length, field->cbdata.tostr, field->fld_data);
+                field->cb.set(rec, str, length, field->cbdata.set, field->fld_data);
+                g_free((char*)str);
+            }
         }
     }
 
