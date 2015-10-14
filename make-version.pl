@@ -117,8 +117,6 @@ sub read_repo_info {
 	my $in_entries = 0;
 	my $svn_name;
 	my $repo_version;
-	my $repo_root = undef;
-	my $repo_url = undef;
 	my $do_hack = 1;
 	my $info_source = "Unknown";
 
@@ -186,11 +184,6 @@ sub read_repo_info {
 				$commit_id = $parts[-1];
 			}
 
-			chomp($line = qx{git --git-dir=$srcdir/.git ls-remote --get-url origin});
-			if (defined($line)) {
-				$repo_url = $line;
-			}
-
 			# This will break in some cases. Hopefully not during
 			# official package builds.
 			chomp($line = qx{$git_executable --git-dir="$srcdir"/.git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\}});
@@ -201,10 +194,12 @@ sub read_repo_info {
 			1;
 		};
 
-		if ($last_change && $num_commits && $repo_url && $repo_branch) {
+		if ($last_change && $num_commits && $repo_branch) {
 			$do_hack = 0;
 		}
 	} elsif ($version_pref{"svn_client"}) {
+		my $repo_root = undef;
+		my $repo_url = undef;
 		eval {
 			use warnings "all";
 			no warnings "all";
@@ -226,6 +221,10 @@ sub read_repo_info {
 			}
 			1;
 		};
+
+		if ($repo_url && $repo_root && index($repo_url, $repo_root) == 0) {
+			$repo_branch = substr($repo_url, length($repo_root));
+		}
 
 		if ($last_change && $num_commits && $repo_url && $repo_root) {
 			$do_hack = 0;
@@ -323,7 +322,7 @@ sub read_repo_info {
 	if ($do_hack) {
 		# Start of ugly internal SVN file hack
 		if (! open (ENTRIES, "< $srcdir/.svn/entries")) {
-			print ("Unable to open $srcdir/.svn/entries\n");
+			print STDERR "Unable to open $srcdir/.svn/entries\n";
 		} else {
 			$info_source = "Prodding .svn";
 			# We need to find out whether our parser can handle the entries file
@@ -371,10 +370,6 @@ sub read_repo_info {
 		$version_format =~ s/%#/$num_commits/;
 		$package_format =~ s/%#/$num_commits-$commit_id/;
 		$package_string = strftime($package_format, gmtime($last_change));
-	}
-
-	if ($repo_url && $repo_root && index($repo_url, $repo_root) == 0) {
-		$repo_branch = substr($repo_url, length($repo_root));
 	}
 
 	if ($get_vcs) {
