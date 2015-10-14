@@ -36,7 +36,6 @@
 #include "ui/capture_ui_utils.h"
 #include "ui/ui_util.h"
 
-#include <cstdio>
 #include <epan/prefs-int.h>
 
 CapturePreferencesFrame::CapturePreferencesFrame(QWidget *parent) :
@@ -50,7 +49,6 @@ CapturePreferencesFrame::CapturePreferencesFrame(QWidget *parent) :
     pref_pcap_ng_ = prefFromPrefPtr(&prefs.capture_pcap_ng);
     pref_real_time_ = prefFromPrefPtr(&prefs.capture_real_time);
     pref_auto_scroll_ = prefFromPrefPtr(&prefs.capture_auto_scroll);
-    pref_show_info_ = prefFromPrefPtr(&prefs.capture_show_info);
 
     // Setting the left margin via a style sheet clobbers its
     // appearance.
@@ -108,7 +106,6 @@ void CapturePreferencesFrame::updateWidgets()
     ui->capturePcapNgCheckBox->setChecked(pref_pcap_ng_->stashed_val.boolval);
     ui->captureRealTimeCheckBox->setChecked(pref_real_time_->stashed_val.boolval);
     ui->captureAutoScrollCheckBox->setChecked(pref_auto_scroll_->stashed_val.boolval);
-    ui->captureShowInfoCheckBox->setChecked(pref_show_info_->stashed_val.boolval);
 #endif // HAVE_LIBPCAP
 }
 
@@ -136,11 +133,6 @@ void CapturePreferencesFrame::on_captureRealTimeCheckBox_toggled(bool checked)
 void CapturePreferencesFrame::on_captureAutoScrollCheckBox_toggled(bool checked)
 {
     pref_auto_scroll_->stashed_val.boolval = checked;
-}
-
-void CapturePreferencesFrame::on_captureShowInfoCheckBox_toggled(bool checked)
-{
-    pref_show_info_->stashed_val.boolval = checked;
 }
 
 /*

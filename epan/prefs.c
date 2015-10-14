@@ -2280,6 +2280,7 @@ prefs_register_modules(void)
                                    "Save window maximized state at exit?",
                                    &prefs.gui_geometry_save_maximized);
 
+    /* GTK+ only */
     prefs_register_bool_preference(gui_module, "macosx_style",
                                    "Use OS X style",
                                    "Use OS X style (OS X with native GTK only)?",
@@ -2474,6 +2475,7 @@ prefs_register_modules(void)
     prefs_register_bool_preference(capture_module, "auto_scroll", "Scroll packet list during capture",
         "Scroll packet list during capture?", &prefs.capture_auto_scroll);
 
+    /* GTK+ only */
     prefs_register_bool_preference(capture_module, "show_info", "Show capture info dialog while capturing",
         "Show capture info dialog while capturing?", &prefs.capture_show_info);
 

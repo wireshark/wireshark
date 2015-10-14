@@ -28,6 +28,9 @@
 #include "capture_info_dialog.h"
 #include "capture_info.h"
 
+// This is effectively GTK+ only.
+// If we implement this here we should modernize the staticstis we show.
+
 /* create the capture info dialog */
 /* will keep pointers to the fields in the counts parameter */
 void capture_info_ui_create(

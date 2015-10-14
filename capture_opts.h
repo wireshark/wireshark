@@ -295,7 +295,7 @@ typedef struct capture_options_tag {
 
     /* GUI related */
     gboolean           real_time_mode;        /**< Update list of packets in real time */
-    gboolean           show_info;             /**< show the info dialog */
+    gboolean           show_info;             /**< show the info dialog. GTK+ only. */
     gboolean           quit_after_cap;        /**< Makes a "capture only mode". Implies -k */
     gboolean           restart;               /**< restart after closing is done */
     gchar             *orig_save_file;        /**< the original capture file name (saved for a restart) */

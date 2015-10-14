@@ -23,8 +23,14 @@
 
 /** @file
  *
- * capture info functions
+ * Capture info functions.
  *
+ */
+
+/*
+ * GTK+ only.
+ * If we add this to the Qt UI we should modernize the statistics we show.
+ * At the very least we should remove or hide IPX and VINES.
  */
 
 #ifndef __CAPTURE_INFO_H__

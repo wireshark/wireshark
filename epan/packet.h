@@ -56,6 +56,11 @@ struct epan_range;
 	((guint)(offset) + (guint)(len) > (guint)(offset) && \
 	 (guint)(offset) + (guint)(len) <= (guint)(captured_len))
 
+/*
+ * GTK+ only.
+ * If we add this to the Qt UI we should modernize the statistics we show.
+ * At the very least we should remove or hide IPX and VINES.
+ */
 typedef struct _packet_counts {
   gint           sctp;
   gint           tcp;

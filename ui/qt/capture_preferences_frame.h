@@ -47,7 +47,6 @@ private slots:
     void on_capturePcapNgCheckBox_toggled(bool checked);
     void on_captureRealTimeCheckBox_toggled(bool checked);
     void on_captureAutoScrollCheckBox_toggled(bool checked);
-    void on_captureShowInfoCheckBox_toggled(bool checked);
 
 private:
     Ui::CapturePreferencesFrame *ui;
@@ -57,7 +56,6 @@ private:
     pref_t *pref_pcap_ng_;
     pref_t *pref_real_time_;
     pref_t *pref_auto_scroll_;
-    pref_t *pref_show_info_;
 
     void updateWidgets();
 };
