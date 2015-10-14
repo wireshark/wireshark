@@ -1,7 +1,6 @@
-                         Wireshark 1.99.9 Release Notes
+                         Wireshark 2.0.0 Release Notes
 
-   This is a semi-experimental release intended to test new features for
-   Wireshark 2.0.
+   This is the first release candidate for Wireshark 2.0.
      __________________________________________________________________
 
 What is Wireshark?
@@ -12,7 +11,25 @@ What is Wireshark?
 
 What's New
 
+   Wireshark 2.0 features a new user interface which should provide a
+   smoother, faster user experience.
+
   New and Updated Features
+
+   The following features are new (or have been significantly updated)
+   since version 1.99.9:
+     * Qt port:
+          + The LTE RLC Graph dialog has been added.
+          + The LTE MAC Statistics dialog has been added.
+          + The LTE RLC Statistics dialog has been added.
+          + The IAX2 Analysis dialog has been added.
+          + The Conversation Hash Tables dialog has been added.
+          + The Dissector Tables dialog has been added.
+          + The Supported Protocols dialog has been added.
+          + You can now zoom the I/O and TCP Stream graph X and Y axes
+            independently.
+          + The RTP Player dialog has been added.
+          + Several memory leaks have been fixed.
 
    The following features are new (or have been significantly updated)
    since version 1.99.8:
@@ -166,28 +183,42 @@ What's New
 
   New Protocol Support
 
-   (LISP) TCP Control Message, Aeron, AllJoyn Reliable Datagram Protocol,
-   Android ADB, Android Logcat text, Apache Tribes Heartbeat, BGP
-   Monitoring Prototol (BMP), C15 Call History Protocol dissection
-   (C15ch), ceph, Concise Binary Object Representation (CBOR) (RFC 7049),
-   corosync/totemnet corosync cluster engine ( lowest
-   levelencryption/decryption protocol), corosync/totemsrp corosync
-   cluster engine ( totem single ring protocol), Couchbase, CP "Cooper"
-   2179, DJI UAV Drone Control Protocol, Dynamic Source Routing (RFC
-   4728), Elasticsearch, ETSI Card Application Toolkit - Transport
-   Protocol, eXpressive Internet Protocol (XIP), Generic Network
-   Virtualization Encapsulation (Geneve), Geospatial and Imagery Access
-   Service (GIAS), GVSP GigE Vision (TM) Streaming Protocol, HCrt, HiQnet,
-   IP Detail Record (IPDR), IPMI Trace, iSER, KNXnetIP, MACsec Key
+   Aeron, AllJoyn Reliable Datagram Protocol, Android Debug Bridge,
+   Android Debug Bridge Service, Android Logcat text, Apache Tribes
+   Heartbeat, APT-X Codec, B.A.T.M.A.N. GW, B.A.T.M.A.N. Vis, BGP
+   Monitoring Prototol (BMP), Bluetooth Broadcom HCI, Bluetooth GATT
+   Attributes (many), Bluetooth OBEX Applications (many), BSSAP2, C15 Call
+   History Protocol (C15ch) and others, Celerra VNX, Ceph, Chargen,
+   Classical IP, Concise Binary Object Representation (CBOR) (RFC 7049),
+   Corosync Totem Single Ring Protocol, Corosync Totemnet, Couchbase, CP
+   "Cooper" 2179, CSN.1, dCache, DJI UAV Drone Control Protocol, Dynamic
+   Source Routing (RFC 4728), Elasticsearch, ETSI Card Application Toolkit
+   - Transport Protocol, eXpressive Internet Protocol (XIP), GDB Remote
+   Serial Protocol, Generic Network Virtualization Encapsulation (Geneve),
+   Geospatial and Imagery Access Service (GIAS), Gias Dissector Using GIOP
+   API, GPRS Tunneling Protocol Prim, GVSP GigE Vision (TM) Streaming
+   Protocol, H.225 RAS, Harman HiQnet, HCrt, Hotline Command-Response
+   Transaction Protocol, IEEE 802.11 radio information, IP Detail Record
+   (IPDR), IPMI Trace, iSER, KNXnetIP, Link Aggregation Control Protocol,
+   Link Aggregation Marker Protocol, Link Layer Topology Discovery,
+   Link-local Multicast Name Resolution, LISP TCP Control Message,
+   Locator/ID Separation Protocol (Reliable Transport), MACsec Key
    Agreement - EAPoL-MKA, MCPE (Minecraft Pocket Edition), Message Queuing
-   Telemetry Transport For Sensor Networks (MQTT-SN), Network File System
-   over Remote Direct Memory Access (NFSoRDMA), OCFS2, OptoMMP,
-   Performance Co-Pilot Proxy, QNEX6 (QNET), RakNet games library, Remote
-   Shared Virtual Disk - RSVD, Riemann, S7 Communication, Secure Socket
-   Tunnel Protocol (SSTP), Shared Memory Communications - RDMA, Stateless
-   Transport Tunneling, Thrift, Time Division Multiplexing over Packet
-   Network (TDMoP), Video Services over IP (VSIP), Windows Search Protocol
-   (MS-WSP), and ZVT Kassenschnittstelle
+   Telemetry Transport For Sensor Networks (MQTT-SN), Minecraft Pocket
+   Edition, MQ Telemetry Transport Protocol for Sensor Networks, Multicast
+   Domain Name Service (mDNS), Neighborhood Watch Protocol (NWP), Network
+   File System over Remote Direct Memory Access (NFSoRDMA), OAMPDU, OCFS2,
+   OptoMMP, Organization Specific Slow Protocol (OSSP), Packet Cable
+   Lawful Intercept (8 byte CCCID), Packet Cable Lawful Intercept
+   (timestamp), Packet Cable Lawful Intercept (timestamp case ID),
+   PacketCable MTA FQDN, Performance Co-Pilot Proxy, QNEX6 (QNET), RakNet
+   games library, Remote Shared Virtual Disk (RSVD), Riemann, RPC over
+   RDMA (RPCoRDMA), S7 Communication, Secure Socket Tunnel Protocol
+   (SSTP), Shared Memory Communications - RDMA (SMCR), Stateless Transport
+   Tunneling, TCP based Robot Operating System protocol (TCPROS), Thrift,
+   Time Division Multiplexing over Packet Network (TDMoP), Video Services
+   over IP (VSIP), Windows Search Protocol (MS-WSP), XIP Serval, ZigBee
+   ZCL (many), and ZVT Kassenschnittstelle
 
   Updated Protocol Support
 
@@ -196,13 +227,15 @@ What's New
   New and Updated Capture File Support
 
    3GPP TS 32.423 Trace, Android Logcat text files, Colasoft Capsa files,
-   Netscaler 3.5, and Wireshark now supports nanosecond timestamp
-   resolution in PCAP-NG files.
+   Netscaler 3.5, and Symbian OS BTSNOOP File Format
+
+   Additionally, Wireshark now supports nanosecond timestamp resolution in
+   PCAP-NG files.
 
   New and Updated Capture Interfaces support
 
-   and Androiddump - provide interfaces to capture (Logcat and Bluetooth)
-   from connected Android devices
+   Androiddump support now provides interfaces to capture (Logcat,
+   Bluetooth and WiFi) from connected Android devices.
 
   Major API Changes
 
@@ -216,6 +249,7 @@ What's New
      * Heuristic dissectors can now be globally enabled/disabled so
        heur_dissector_add() has a few more parameters to make that
        possible
+     * proto_tree_add_text has been removed.
      __________________________________________________________________
 
 Getting Wireshark
@@ -285,7 +319,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [19]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2015-09-01 18:01:23 UTC
+   Last updated 2015-10-13 21:32:36 UTC
 
 References
 
