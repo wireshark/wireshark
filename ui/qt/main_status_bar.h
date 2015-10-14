@@ -37,6 +37,7 @@
 #include <QStatusBar>
 
 class CaptureFile;
+class QToolButton;
 
 class MainStatusBar : public QStatusBar
 {
@@ -49,8 +50,8 @@ public:
     void setFileName(CaptureFile &cf);
 
 private:
-    QLabel expert_status_;
-    QLabel comment_label_;
+    QToolButton *expert_button_;
+    QToolButton *comment_button_;
     LabelStack info_status_;
     ProgressFrame progress_frame_;
     LabelStack packet_status_;

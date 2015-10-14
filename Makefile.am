@@ -893,23 +893,11 @@ EXTRA_DIST = \
 	image/capture_comment_disabled.png	\
 	image/capture_comment_update.png	\
 	image/capture_comment_update.svg	\
-	image/capture_comment_update@2x.png	\
 	image/clist_ascend.xpm			\
 	image/clist_descend.xpm			\
 	image/copy-8.png			\
 	image/dumpcap.rc.in	\
 	image/editcap.rc.in	\
-	image/expert_chat.png	\
-	image/expert_chat@2x.png	\
-	image/expert_error.png	\
-	image/expert_error@2x.png	\
-	image/expert_indicators.svg	\
-	image/expert_none.png	\
-	image/expert_none@2x.png	\
-	image/expert_note.png	\
-	image/expert_note@2x.png	\
-	image/expert_warn.png	\
-	image/expert_warn@2x.png	\
 	image/file_dlg_win32.rc \
 	image/hi16-app-wireshark.png	\
 	image/hi32-app-wireshark.png	\
@@ -949,7 +937,6 @@ EXTRA_DIST = \
 	image/README.image			\
 	image/reordercap.rc.in			\
 	image/rubberband-16.png			\
-	image/status.qrc			\
 	image/stock_dialog_error_48.xpm		\
 	image/stock_dialog_info_48.xpm		\
 	image/stock_dialog_question_48.xpm	\
@@ -957,6 +944,20 @@ EXTRA_DIST = \
 	image/stock_dialog_warning_48.xpm	\
 	image/text2pcap.rc.in			\
 	image/tfshark.rc.in			\
+	image/toolbar/14x14/x-capture-comment-update.png	\
+	image/toolbar/14x14/x-capture-comment-update.svg	\
+	image/toolbar/14x14/x-capture-comment-update@2x.png	\
+	image/toolbar/14x14/x-expert-chat.png	\
+	image/toolbar/14x14/x-expert-chat@2x.png	\
+	image/toolbar/14x14/x-expert-error.png	\
+	image/toolbar/14x14/x-expert-error@2x.png	\
+	image/toolbar/14x14/x-expert-indicators.svg	\
+	image/toolbar/14x14/x-expert-none.png	\
+	image/toolbar/14x14/x-expert-none@2x.png	\
+	image/toolbar/14x14/x-expert-note.png	\
+	image/toolbar/14x14/x-expert-note@2x.png	\
+	image/toolbar/14x14/x-expert-warn.png	\
+	image/toolbar/14x14/x-expert-warn@2x.png	\
 	image/toolbar/14x14/x-filter-bookmark.active.png \
 	image/toolbar/14x14/x-filter-bookmark.active.svg \
 	image/toolbar/14x14/x-filter-bookmark.active@2x.png \
