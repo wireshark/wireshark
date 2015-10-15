@@ -279,10 +279,6 @@ void ProtocolPreferencesMenu::addMenuItem(preference *pref)
         connect(mpa, SIGNAL(triggered(bool)), this, SLOT(modulePreferencesTriggered()));
         break;
     }
-
-    if (pref->type != PREF_ENUM) {
-    } else {
-    }
 }
 
 void ProtocolPreferencesMenu::disableProtocolTriggered()
