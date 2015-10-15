@@ -33,10 +33,9 @@ $template = "manuf.tmpl";
 $wkatmpl  = "wka.tmpl";
 $outfile  = "manuf";
 $inheader = 1;
-# According to http://standards.ieee.org/regauthmaint.html
-# the IEEE is adding OUI-28 in January 2014.
 $oui_url  = "http://standards.ieee.org/develop/regauth/oui/oui.txt";
 $iab_url  = "http://standards.ieee.org/develop/regauth/iab/iab.txt";
+$oui28_url = "http://standards.ieee.org/develop/regauth/oui28/oui28.txt";
 $oui36_url = "http://standards.ieee.org/develop/regauth/oui36/oui36.txt";
 $cb_url   = "http://www.cavebear.com/archive/cavebear/Ethernet/Ethernet.txt";
 %oui_list = ();
@@ -57,6 +56,9 @@ $oui_total     = 0;
 $iab_added     = 0;
 $iab_skipped   = 0;
 $iab_total     = 0;
+$oui28_added   = 0;
+$oui28_skipped = 0;
+$oui28_total   = 0;
 $oui36_added   = 0;
 $oui36_skipped = 0;
 $oui36_total   = 0;
@@ -145,6 +147,34 @@ foreach $line (split(/\n/, $ieee_list)) {
 }
 
 if ($iab_total < $min_entries) { die "Too few IAB entries ($iab_total)\n"; }
+
+# Add IEEE entries for OUI-28
+
+$ieee_list = fetch($oui28_url);
+
+foreach $line (split(/\n/, $ieee_list)) {
+  # determine the OUI used for OUI-28
+  if (($oui28_tmp, $manuf) = ($line =~ /^\s*($ieee_re)\s+\(hex\)\s+(\S.*)$/)) {
+      $oui28_base = $oui28_tmp;
+  }
+  # determine next two bytes
+  if (($oui28_4, $oui28_5, $manuf) = ($line =~ /^\s*($hp)($hp)$hp-$hp$hp$hp\s+\(base\s16\)\s+(\S.*)$/)) {
+    $oui28 = "$oui28_base:$oui28_4:$oui28_5:00/28";
+    $oui28 =~ tr /-/:/; # The IEEE bytes are separated by dashes.
+    # Ensure OUI-28 is all upper-case
+    $oui28 =~ tr/a-f/A-F/;
+    if (exists $oui_list{$oui28}) {
+      printf "$oui28 - Skipping IEEE \"$manuf\" in favor of \"$oui_list{$oui28}\"\n";
+      $oui28_skipped++;
+    } else {
+      $oui_list{$oui28} = &shorten($manuf);
+      $oui28_added++;
+    }
+  }
+  $oui28_total++;
+}
+
+if ($oui28_total < $min_entries) { die "Too few OUI-28 entries ($oui28_total)\n"; }
 
 # Add IEEE entries for OUI-36
 
@@ -254,12 +284,14 @@ print <<"Fin"
 Original entries : $tmpl_added
 IEEE OUI added   : $oui_added
 IEEE IAB added   : $iab_added
+IEEE OUI28 added : $oui28_added
 IEEE OUI36 added : $oui36_added
 CaveBear added   : $cb_added
 Total            : $total_added
 
 IEEE OUI skipped : $oui_skipped
 IEEE IAB skipped : $iab_skipped
+IEEE OUI28 skipd : $oui28_skipped
 IEEE OUI36 skipd : $oui36_skipped
 CaveBear skipped : $cb_skipped
 Fin
