@@ -222,7 +222,7 @@ struct mptcp_subflow {
 typedef enum {
 	MPTCP_HMAC_NOT_SET = 0,
 	MPTCP_HMAC_SHA1 = 1,
-	MPTCP_HMAC_LAST,
+	MPTCP_HMAC_LAST
 } mptcp_hmac_algorithm_t;
 
 
