@@ -13,4 +13,4 @@ EXTRA_DIST = \
 	portableapps/Makefile.nmake		\
 	portableapps/readme.txt			\
 	portableapps/WiresharkPortable.ini	\
-	packaging/portableapps/xcopy-deploy-exclude.txt
+	portableapps/xcopy-deploy-exclude.txt
