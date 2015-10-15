@@ -1308,9 +1308,11 @@ EXTRA_DIST = \
 	cmake/modules/FindLYNX.cmake		\
 	cmake/modules/FindM.cmake		\
 	cmake/modules/FindNL.cmake		\
+	cmake/modules/FindNSIS.cmake		\
 	cmake/modules/FindOS_X_FRAMEWORKS.cmake	\
 	cmake/modules/FindPCAP.cmake		\
 	cmake/modules/FindPOD.cmake		\
+	cmake/modules/FindPortableApps.cmake	\
 	cmake/modules/FindPORTAUDIO.cmake	\
 	cmake/modules/FindPowerShell.cmake	\
 	cmake/modules/FindSBC.cmake		\
@@ -1318,7 +1320,7 @@ EXTRA_DIST = \
 	cmake/modules/FindSETCAP.cmake		\
 	cmake/modules/FindSH.cmake		\
 	cmake/modules/FindSMI.cmake		\
-	cmake/modules/FindWinSparkle.cmake		\
+	cmake/modules/FindWinSparkle.cmake	\
 	cmake/modules/FindWireshark.cmake	\
 	cmake/modules/FindWSWinLibs.cmake	\
 	cmake/modules/FindXMLLINT.cmake		\
@@ -1354,6 +1356,7 @@ EXTRA_DIST = \
 	ui/win32/print_win32.c			\
 	ui/win32/print_win32.h			\
 	ui/win32/settings.ini			\
+	version.h.in				\
 	CPackConfig.txt
 
 install-exec-hook:

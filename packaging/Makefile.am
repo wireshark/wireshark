@@ -6,9 +6,11 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST = \
 	Makefile.nmake				\
-	macosx/Info.plist.in		\
-	portableapps/appinfo.tmpl			\
+	macosx/Info.plist.in			\
+	portableapps/appinfo.tmpl		\
+	portableapps/CMakeLists.txt		\
 	portableapps/help.html			\
 	portableapps/Makefile.nmake		\
 	portableapps/readme.txt			\
-	portableapps/WiresharkPortable.ini
+	portableapps/WiresharkPortable.ini	\
+	packaging/portableapps/xcopy-deploy-exclude.txt
