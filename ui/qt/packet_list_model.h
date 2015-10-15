@@ -72,6 +72,7 @@ public:
     void setDisplayedFrameIgnore(gboolean set);
     void toggleFrameRefTime(const QModelIndex &rt_index);
     void unsetAllFrameRefTime();
+    void applyTimeShift();
 
     void setMaximiumRowHeight(int height);
 

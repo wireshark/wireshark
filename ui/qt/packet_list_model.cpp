@@ -244,6 +244,12 @@ void PacketListModel::unsetAllFrameRefTime()
     dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
+void PacketListModel::applyTimeShift()
+{
+    resetColumns();
+    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+}
+
 void PacketListModel::setMaximiumRowHeight(int height)
 {
     max_row_height_ = height;

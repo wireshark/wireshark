@@ -1972,6 +1972,7 @@ void MainWindow::on_actionEditTimeShift_triggered()
     TimeShiftDialog ts_dialog(this, capture_file_.capFile());
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             &ts_dialog, SLOT(setCaptureFile(capture_file*)));
+    connect(&ts_dialog, SIGNAL(timeShifted()), packet_list_, SLOT(applyTimeShift()));
     ts_dialog.exec();
 }
 

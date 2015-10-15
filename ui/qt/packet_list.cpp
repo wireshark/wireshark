@@ -615,18 +615,22 @@ void PacketList::initHeaderContextMenu()
     }
 }
 
+void PacketList::drawCurrentPacket()
+{
+    QModelIndex current_index = currentIndex();
+    setCurrentIndex(QModelIndex());
+    if (current_index.isValid()) {
+        setCurrentIndex(current_index);
+    }
+}
+
 // Redraw the packet list and detail. Called from many places.
 // XXX We previously re-selected the packet here, but that seems to cause
 // automatic scrolling problems.
 void PacketList::redrawVisiblePackets() {
-    if (!cap_file_) return;
-
-    if (cap_file_->edt && cap_file_->edt->tree) {
-        proto_tree_->fillProtocolTree(cap_file_->edt->tree);
-    }
-
     update();
     header()->update();
+    drawCurrentPacket();
 }
 
 // prefs.col_list has changed.
@@ -1065,6 +1069,13 @@ void PacketList::unsetAllTimeReferences()
     if (!cap_file_ || !packet_list_model_) return;
     packet_list_model_->unsetAllFrameRefTime();
     create_far_overlay_ = true;
+}
+
+void PacketList::applyTimeShift()
+{
+    packet_list_model_->applyTimeShift();
+    redrawVisiblePackets();
+    // XXX emit packetDissectionChanged(); ?
 }
 
 void PacketList::showHeaderMenu(QPoint pos)

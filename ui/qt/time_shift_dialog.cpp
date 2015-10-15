@@ -262,7 +262,13 @@ void TimeShiftDialog::applyTimeShift()
     } else if (ts_ui_->unshiftAllButton->isChecked()) {
         err_str = time_shift_undo(cap_file_);
     }
-    if (err_str) syntax_err_ = err_str;
+
+    if (err_str) {
+        syntax_err_ = err_str;
+    } else {
+        emit timeShifted();
+    }
+
     enableWidgets();
 }
 
