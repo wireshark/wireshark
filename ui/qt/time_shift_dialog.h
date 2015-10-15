@@ -48,6 +48,9 @@ public:
 public slots:
     void setCaptureFile(capture_file *cf) { cap_file_ = cf; }
 
+signals:
+    void timeShifted();
+
 private:
     Ui::TimeShiftDialog *ts_ui_;
     capture_file *cap_file_;

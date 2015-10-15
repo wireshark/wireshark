@@ -122,6 +122,7 @@ private:
     void setColumnVisibility();
     int sizeHintForColumn(int column) const;
     void initHeaderContextMenu();
+    void drawCurrentPacket();
 
 signals:
     void packetDissectionChanged();
@@ -147,6 +148,7 @@ public slots:
     void ignoreAllDisplayedFrames(bool set);
     void setTimeReference();
     void unsetAllTimeReferences();
+    void applyTimeShift();
     void redrawVisiblePackets();
     void columnsChanged();
     void fieldsChanged(capture_file *cf);
