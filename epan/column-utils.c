@@ -41,6 +41,7 @@
 #include <epan/strutil.h>
 #include <epan/epan.h>
 #include <epan/dfilter/dfilter.h>
+#include <wsutil/utf8_entities.h>
 
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */
@@ -418,19 +419,29 @@ col_append_str_uint(column_info *cinfo, const gint col, const gchar *abbrev, gui
   col_append_lstr(cinfo, col, sep ? sep : "", abbrev, "=", buf, COL_ADD_LSTR_TERMINATOR);
 }
 
-void
-col_append_port(column_info *cinfo, const gint col, port_type typ, guint16 val, const gchar *sep)
+static int
+col_snprint_port(gchar *buf, gulong buf_siz, port_type typ, guint16 val)
 {
   const char *str;
-  char buf[32];
+  int n;
 
   if (gbl_resolv_flags.transport_name &&
         (str = try_serv_name_lookup(typ, val)) != NULL) {
-    g_snprintf(buf, sizeof(buf), "%s(%u)", str, val);
+    n = g_snprintf(buf, buf_siz, "%s(%"G_GUINT16_FORMAT")", str, val);
   } else {
-    g_snprintf(buf, sizeof(buf), "%u", val);
+    n = g_snprintf(buf, buf_siz, "%"G_GUINT16_FORMAT, val);
   }
-  col_append_lstr(cinfo, col, sep ? sep : "", buf, COL_ADD_LSTR_TERMINATOR);
+  return n;
+}
+
+void
+col_append_ports(column_info *cinfo, const gint col, port_type typ, guint16 src, guint16 dst)
+{
+  char buf_src[32], buf_dst[32];
+
+  col_snprint_port(buf_src, 32, typ, src);
+  col_snprint_port(buf_dst, 32, typ, dst);
+  col_append_lstr(cinfo, col, buf_src, UTF8_RIGHTWARDS_ARROW, buf_dst, COL_ADD_LSTR_TERMINATOR);
 }
 
 static void

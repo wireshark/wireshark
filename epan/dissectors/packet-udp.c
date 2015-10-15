@@ -717,9 +717,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, (ip_proto == IP_PROTO_UDP) ? "UDP" : "UDP-Lite");
   col_clear(pinfo->cinfo, COL_INFO);
-
-  col_append_port(pinfo->cinfo, COL_INFO, PT_UDP, udph->uh_sport, NULL);
-  col_append_port(pinfo->cinfo, COL_INFO, PT_UDP, udph->uh_dport, UTF8_RIGHTWARDS_ARROW);
+  col_append_ports(pinfo->cinfo, COL_INFO, PT_UDP, udph->uh_sport, udph->uh_dport);
 
   reported_len = tvb_reported_length(tvb);
   len = tvb_captured_length(tvb);

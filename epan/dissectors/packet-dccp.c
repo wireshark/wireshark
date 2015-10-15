@@ -618,9 +618,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCCP");
     col_clear(pinfo->cinfo, COL_INFO);
-
-    col_append_port(pinfo->cinfo, COL_INFO, PT_DCCP, dccph->sport, NULL);
-    col_append_port(pinfo->cinfo, COL_INFO, PT_DCCP, dccph->dport, UTF8_RIGHTWARDS_ARROW);
+    col_append_ports(pinfo->cinfo, COL_INFO, PT_DCCP, dccph->sport, dccph->dport);
 
     dccp_item = proto_tree_add_item(tree, proto_dccp, tvb, offset, -1, ENC_NA);
     if (dccp_summary_in_tree) {

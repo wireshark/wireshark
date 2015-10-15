@@ -4849,9 +4849,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCP");
     col_clear(pinfo->cinfo, COL_INFO);
-
-    col_append_port(pinfo->cinfo, COL_INFO, PT_TCP, tcph->th_sport, NULL);
-    col_append_port(pinfo->cinfo, COL_INFO, PT_TCP, tcph->th_dport, UTF8_RIGHTWARDS_ARROW);
+    col_append_ports(pinfo->cinfo, COL_INFO, PT_TCP, tcph->th_sport, tcph->th_dport);
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_tcp, tvb, 0, -1, ENC_NA);
