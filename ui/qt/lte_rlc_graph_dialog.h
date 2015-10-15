@@ -61,10 +61,7 @@ private:
 
     // Data
     QMap<double, struct rlc_segment *> time_stamp_map_;
-    double ts_offset_;
     QMap<double, struct rlc_segment *> sequence_num_map_;
-    double seq_offset_;
-    bool seq_origin_zero_;
 
     QCPGraph *base_graph_; // Clickable packets
     QCPGraph *reseg_graph_;
