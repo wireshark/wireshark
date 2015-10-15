@@ -4839,7 +4839,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *checksum_tree;
     gchar *src_port_str, *dst_port_str;
 
-    tcph=wmem_new(wmem_packet_scope(), struct tcpheader);
+    tcph=wmem_new0(wmem_packet_scope(), struct tcpheader);
     COPY_ADDRESS_SHALLOW(&tcph->ip_src, &pinfo->src);
     COPY_ADDRESS_SHALLOW(&tcph->ip_dst, &pinfo->dst);
 
