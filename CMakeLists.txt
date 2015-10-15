@@ -872,11 +872,46 @@ if(HAVE_LIBZLIB)
 	include_directories(BEFORE ${ZLIB_INCLUDE_DIRS})
 endif()
 if (Qt5Widgets_FOUND)
+	#
 	# Qt5CoreConfigExtras.cmake in Qt 5.5.0 sets -fPIC unconditionally.
 	# https://bugreports.qt.io/browse/QTBUG-47942
-	if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+	#
+	# This *should* be done the same way we do it for autotools, by
+	# checking whether we can compile a simple file that with just
+	# "#include <QtCore>", and whatever else is necessary to let it
+	# make it through check_cxx_source_compiles(), but doing that
+	# is a bit of a pain - we'd need to somehow arrange that
+	# the right include flags get passed to a compile done by
+	# CMake rather than done in a Makefile or whatever generated
+	# *by* CMake.
+	#
+	# So, for now, based on our knowledge that the "you have to build
+	# everything with -fPIC" test only happens on systems using ELF
+	# (which rules out Windows, OS X, AIX, 32-bit HP-UX, Tru64 UNIX,
+	# and IRIX) with systems that claim to be GCC 5.0 or later, we
+	# remove -fPIC for other systems.  Checking for 32-bit HP-UX is
+	# tricky, so we don't do it, and we hope that checking for
+	# "Tru64" and "OSF1" handles that OS under all three of its
+	# names (DEC OSF/1, Digital UNIX, Tru64 UNIX).  It's also
+	# some work to check the GCC version, so we don't do it for
+	# now.
+	#
+	# Ultimately, we want *Qt* to fix the bug above.  Our goal is
+	# to suppress as many complaints that come from unnecessary
+	# use of -fPIC, whether it's compiles failing because that
+	# option is there or just Clang annoyingly whining that
+	# -fPIC is being ignored.
+	#
+	if(CMAKE_CXX_PLATFORM_ID MATCHES "Cygwin" OR
+	   CMAKE_CXX_PLATFORM_ID MATCHES "MinGW" OR
+	   CMAKE_CXX_PLATFORM_ID MATCHES "Darwin"
+	   CMAKE_CXX_PLATFORM_ID MATCHES "Windows"
+	   CMAKE_CXX_PLATFORM_ID MATCHES "AIX"
+	   CMAKE_CXX_PLATFORM_ID MATCHES "IRIX"
+	   CMAKE_CXX_PLATFORM_ID MATCHES "Tru64"
+	   CMAKE_CXX_PLATFORM_ID MATCHES "OSF1")
 		list(REMOVE_ITEM Qt5Widgets_EXECUTABLE_COMPILE_FLAGS "-fPIC")
-	endif() # MSVC
+	endif()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 	set (QT_FOUND ON)
 	set (QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5PrintSupport_LIBRARIES})
