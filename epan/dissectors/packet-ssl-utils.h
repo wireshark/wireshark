@@ -37,14 +37,11 @@
 #ifdef HAVE_LIBGNUTLS
 #include <gnutls/x509.h>
 #include <gnutls/pkcs12.h>
-
-#include "ws_symbol_export.h"
-
-#define SSL_DECRYPT_DEBUG
 #endif /* HAVE_LIBGNUTLS */
 
 #ifdef HAVE_LIBGCRYPT
 #define SSL_CIPHER_CTX gcry_cipher_hd_t
+#define SSL_DECRYPT_DEBUG
 #else  /* HAVE_LIBGCRYPT */
 #define SSL_CIPHER_CTX void*
 #endif /* HAVE_LIBGCRYPT */
@@ -529,12 +526,7 @@ ssl_decrypt_record(SslDecryptSession* ssl,SslDecoder* decoder, gint ct,
 
 
 /* Common part bitween SSL and DTLS dissectors */
-/* Hash Functions for TLS/DTLS sessions table and private keys table */
-extern gint
-ssl_equal (gconstpointer v, gconstpointer v2);
-
-extern guint
-ssl_hash  (gconstpointer v);
+/* Hash Functions for RSA private keys table */
 
 extern gboolean
 ssl_private_key_equal (gconstpointer v, gconstpointer v2);
@@ -546,6 +538,7 @@ ssl_private_key_hash  (gconstpointer v);
  * so we can't rely on wmem_file_scope function */
 extern void
 ssl_private_key_free(gpointer key);
+
 
 /* handling of association between tls/dtls ports and clear text protocol */
 extern void
@@ -601,8 +594,15 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
 extern void
 ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash);
 
+#ifdef  HAVE_LIBGCRYPT
 extern void
 ssl_finalize_decryption(SslDecryptSession *ssl, ssl_master_key_map_t *mk_map);
+#else /* ! HAVE_LIBGCRYPT */
+static inline void
+ssl_finalize_decryption(SslDecryptSession *ssl _U_, ssl_master_key_map_t *mk_map _U_)
+{
+}
+#endif /* ! HAVE_LIBGCRYPT */
 
 extern gboolean
 ssl_is_valid_content_type(guint8 type);
