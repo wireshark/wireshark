@@ -199,11 +199,6 @@ void LteRlcGraphDialog::fillGraph()
     acks_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, pkt_point_size_));
     nacks_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, pkt_point_size_*2));
 
-
-    ts_offset_ = 0;
-    seq_offset_ = 0;  // TODO: needed?
-    bool first = true;
-
     // Map timestamps -> segments in first pass.
     time_stamp_map_.clear();
     for (struct rlc_segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
@@ -211,14 +206,8 @@ void LteRlcGraphDialog::fillGraph()
             continue;
         }
         double ts = seg->rel_secs + seg->rel_usecs / 1000000.0;
-        if (first) {
-            // Take note of first sequence number seen.
-            if (seq_origin_zero_) {
-                seq_offset_ = seg->SN;
-            }
-            first = false;
-        }
-        time_stamp_map_.insertMulti(ts - ts_offset_, seg);
+
+        time_stamp_map_.insertMulti(ts, seg);
     }
 
     // Now sequence numbers.
@@ -227,17 +216,17 @@ void LteRlcGraphDialog::fillGraph()
                     acks_time, acks,
                     nacks_time, nacks;
     for (struct rlc_segment *seg = graph_.segments; seg != NULL; seg = seg->next) {
-        double ts = (seg->rel_secs + seg->rel_usecs / 1000000.0) - ts_offset_;
+        double ts = seg->rel_secs + seg->rel_usecs / 1000000.0;
         if (compareHeaders(seg)) {
             if (!seg->isControlPDU) {
                 // Data
                 if (seg->isResegmented) {
                     reseg_seq_time.append(ts);
-                    reseg_seq.append(seg->SN - seq_offset_);
+                    reseg_seq.append(seg->SN);
                 }
                 else {
                     seq_time.append(ts);
-                    seq.append(seg->SN - seq_offset_);
+                    seq.append(seg->SN);
                 }
             }
             else {
