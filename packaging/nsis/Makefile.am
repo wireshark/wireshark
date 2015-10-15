@@ -3,6 +3,7 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST = \
 	AdditionalTasksPage.ini \
+	CMakeLists.txt	\
 	common.nsh	\
 	config.nsh.in	\
 	Custom.nmake \

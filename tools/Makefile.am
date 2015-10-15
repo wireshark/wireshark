@@ -187,6 +187,7 @@ EXTRA_DIST = \
 	usb-ptp-extract-models.txt			\
 	valgrind-wireshark.sh				\
 	vg-suppressions					\
+	win-setup.ps1					\
 	win-setup.sh					\
 	wireshark_be.py					\
 	wireshark_gen.py				\
