@@ -42,8 +42,11 @@ public:
     // TODO: will need to add another constructor option to give channel explicitly,
     // rather than find in currently selected packet, for when launch graph from
     // RLC statistics dialog.
-    explicit LteRlcGraphDialog(QWidget &parent, CaptureFile &cf);
+    explicit LteRlcGraphDialog(QWidget &parent, CaptureFile &cf, bool channelKnown);
     ~LteRlcGraphDialog();
+
+    void setChannelInfo(guint16 ueid, guint8 rlcMode,
+                        guint16 channelType, guint16 channelId, guint8 direction);
 
 protected:
     void showEvent(QShowEvent *event);
@@ -67,6 +70,8 @@ private:
     QCPGraph *reseg_graph_;
     QCPGraph *acks_graph_;
     QCPGraph *nacks_graph_;
+
+    void completeGraph();
 
     bool compareHeaders(rlc_segment *seg);
 

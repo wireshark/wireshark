@@ -53,13 +53,14 @@ public:
     LteMacStatisticsDialog(QWidget &parent, CaptureFile &cf, const char *filter);
     ~LteMacStatisticsDialog();
 
+protected:
+
+private:
     // Extra controls needed for this dialog.
     QLabel *commonStatsLabel_;
     QCheckBox *showSRFilterCheckBox_;
     QCheckBox *showRACHFilterCheckBox_;
-protected:
 
-private:
     mac_lte_common_stats commonStats_;
     bool commonStatsCurrent_;
 

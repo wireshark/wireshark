@@ -27,9 +27,12 @@
 
 #include <epan/dissectors/packet-rlc-lte.h>
 
+#include <QFormLayout>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
+#include <QPushButton>
 
+#include "lte_rlc_graph_dialog.h"
 #include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
@@ -123,10 +126,12 @@ typedef struct rlc_channel_stats {
 class RlcChannelTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    RlcChannelTreeWidgetItem(QTreeWidgetItem *parent, unsigned ueid,
+    RlcChannelTreeWidgetItem(QTreeWidgetItem *parent, QWidget &dialog,
+                             unsigned ueid,
                              unsigned mode,
                              unsigned channelType, unsigned channelId) :
-        QTreeWidgetItem (parent, rlc_channel_row_type_),
+        QTreeWidgetItem(parent, rlc_channel_row_type_),
+        dialog_(dialog),
         ueid_(ueid),
         channelType_(channelType),
         channelId_(channelId),
@@ -280,7 +285,17 @@ public:
         return filter_expr;
     }
 
+    // Create an RLC Graph and populate it with this channel's details.
+    void launchGraph(guint8 direction, CaptureFile &cf)
+    {
+        LteRlcGraphDialog *graph_dialog = new LteRlcGraphDialog(dialog_, cf, true);
+        graph_dialog->setChannelInfo(ueid_, mode_, channelType_, channelId_, direction);
+        graph_dialog->show();
+    }
+
 private:
+    QWidget &dialog_;
+
     unsigned ueid_;
     unsigned channelType_;
     unsigned channelId_;
@@ -333,8 +348,9 @@ typedef struct rlc_ue_stats {
 class RlcUeTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    RlcUeTreeWidgetItem(QTreeWidget *parent, const rlc_lte_tap_info *rlt_info) :
+    RlcUeTreeWidgetItem(QTreeWidget *parent, QWidget *dialog, const rlc_lte_tap_info *rlt_info) :
         QTreeWidgetItem (parent, rlc_ue_row_type_),
+        dialog_(dialog),
         ueid_(0)
     {
         ueid_ = rlt_info->ueid;
@@ -423,7 +439,7 @@ public:
                 channel_item = CCCH_stats_;
                 if (channel_item == NULL) {
                     channel_item = CCCH_stats_ =
-                            new RlcChannelTreeWidgetItem(this, tap_info->ueid, RLC_TM_MODE,
+                            new RlcChannelTreeWidgetItem(this, *dialog_, tap_info->ueid, RLC_TM_MODE,
                                                          tap_info->channelType, tap_info->channelId);
                 }
                 break;
@@ -432,7 +448,7 @@ public:
                 channel_item = srb_stats_[tap_info->channelId-1];
                 if (channel_item == NULL) {
                     channel_item = srb_stats_[tap_info->channelId-1] =
-                            new RlcChannelTreeWidgetItem(this, tap_info->ueid, RLC_AM_MODE,
+                            new RlcChannelTreeWidgetItem(this, *dialog_, tap_info->ueid, RLC_AM_MODE,
                                                          tap_info->channelType, tap_info->channelId);
                 }
                 break;
@@ -441,7 +457,7 @@ public:
                 channel_item = drb_stats_[tap_info->channelId-1];
                 if (channel_item == NULL) {
                     channel_item = drb_stats_[tap_info->channelId-1] =
-                            new RlcChannelTreeWidgetItem(this, tap_info->ueid, tap_info->rlcMode,
+                            new RlcChannelTreeWidgetItem(this, *dialog_, tap_info->ueid, tap_info->rlcMode,
                                                          tap_info->channelType, tap_info->channelId);
                 }
                 break;
@@ -522,6 +538,8 @@ public:
     }
 
 private:
+    QWidget *dialog_;
+
     unsigned ueid_;
 
     rlc_ue_stats stats_;
@@ -545,12 +563,34 @@ static const QString channel_col_2_title_ = QObject::tr("Priority");
 // Constructor.
 LteRlcStatisticsDialog::LteRlcStatisticsDialog(QWidget &parent, CaptureFile &cf, const char *filter) :
     TapParameterDialog(parent, cf, HELP_STATS_LTE_MAC_TRAFFIC_DIALOG),
+    cf_(cf),
     packet_count_(0)
 {
     setWindowSubtitle(tr("LTE RLC Statistics"));
 
     // XXX Use recent settings instead
     resize((parent.width() * 5) / 5, (parent.height() * 3) / 4);
+
+    // Create a grid for filtering-related widgetsto also appear in layout.
+    int filter_controls_layout_idx = verticalLayout()->indexOf(filterLayout()->widget());
+    QGridLayout *filter_controls_grid = new QGridLayout();
+    // Insert into the vertical layout
+    verticalLayout()->insertLayout(filter_controls_layout_idx, filter_controls_grid);
+    int one_em = fontMetrics().height();
+    filter_controls_grid->setColumnMinimumWidth(2, one_em * 2);
+    filter_controls_grid->setColumnStretch(2, 1);
+    filter_controls_grid->setColumnMinimumWidth(5, one_em * 2);
+    filter_controls_grid->setColumnStretch(5, 1);
+
+    // Add individual controls into the grid
+    launchULGraph_ = new QPushButton(QString("Launch UL Graph"));
+    launchULGraph_->setEnabled(false);
+    filter_controls_grid->addWidget(launchULGraph_);
+    connect(launchULGraph_, SIGNAL(pressed()), this, SLOT(launchULGraphButtonClicked()));
+    launchDLGraph_ = new QPushButton(QString("Launch DL Graph"));
+    launchDLGraph_->setEnabled(false);
+    filter_controls_grid->addWidget(launchDLGraph_);
+    connect(launchDLGraph_, SIGNAL(pressed()), this, SLOT(launchDLGraphButtonClicked()));
 
     QStringList header_labels = QStringList()
             << "" << "" << ""
@@ -564,7 +604,6 @@ LteRlcStatisticsDialog::LteRlcStatisticsDialog(QWidget &parent, CaptureFile &cf,
     statsTreeWidget()->sortByColumn(col_ueid_, Qt::AscendingOrder);
 
     // resizeColumnToContents doesn't work well here, so set sizes manually.
-    int one_em = fontMetrics().height();
     for (int col = 0; col < statsTreeWidget()->columnCount() - 1; col++) {
         switch (col) {
             case col_ueid_:
@@ -606,7 +645,7 @@ LteRlcStatisticsDialog::LteRlcStatisticsDialog(QWidget &parent, CaptureFile &cf,
 
     // Set handler for when the tree item changes to set the appropriate labels.
     connect(statsTreeWidget(), SIGNAL(itemSelectionChanged()),
-            this, SLOT(updateHeaderLabels()));
+            this, SLOT(updateItemSelectionChanged()));
 }
 
 // Destructor.
@@ -650,7 +689,7 @@ gboolean LteRlcStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info
 
     if (!ue_ti) {
         // Existing UE wasn't found so create a new one.
-        ue_ti = new RlcUeTreeWidgetItem(ws_dlg->statsTreeWidget(), rlt_info);
+        ue_ti = new RlcUeTreeWidgetItem(ws_dlg->statsTreeWidget(), ws_dlg, rlt_info);
         for (int col = 0; col < ws_dlg->statsTreeWidget()->columnCount(); col++) {
             ue_ti->setTextAlignment(col, ws_dlg->statsTreeWidget()->headerItem()->textAlignment(col));
         }
@@ -719,6 +758,20 @@ void LteRlcStatisticsDialog::fillTree()
 
 }
 
+void LteRlcStatisticsDialog::updateItemSelectionChanged()
+{
+    updateHeaderLabels();
+
+    bool enableGraphButtons = false;
+    if (statsTreeWidget()->selectedItems().count() > 0 && statsTreeWidget()->selectedItems()[0]->type() == rlc_channel_row_type_) {
+        enableGraphButtons = true;
+    }
+
+    // Only enable graph buttons for channel entries.
+    launchULGraph_->setEnabled(enableGraphButtons);
+    launchDLGraph_->setEnabled(enableGraphButtons);
+}
+
 void LteRlcStatisticsDialog::updateHeaderLabels()
 {
     if (statsTreeWidget()->selectedItems().count() > 0 && statsTreeWidget()->selectedItems()[0]->type() == rlc_channel_row_type_) {
@@ -736,6 +789,26 @@ void LteRlcStatisticsDialog::captureFileClosing()
 {
     remove_tap_listener(this);
     updateWidgets();
+}
+
+// Launch a UL graph for the currently-selected channel.
+void LteRlcStatisticsDialog::launchULGraphButtonClicked()
+{
+    if (statsTreeWidget()->selectedItems().count() > 0 && statsTreeWidget()->selectedItems()[0]->type() == rlc_channel_row_type_) {
+        QTreeWidgetItem *ti = statsTreeWidget()->selectedItems()[0];
+        RlcChannelTreeWidgetItem *rc_ti = static_cast<RlcChannelTreeWidgetItem*>(ti);
+        rc_ti->launchGraph(DIRECTION_UPLINK, cf_);
+    }
+}
+
+// Launch a DL graph for the currently-selected channel.
+void LteRlcStatisticsDialog::launchDLGraphButtonClicked()
+{
+    if (statsTreeWidget()->selectedItems().count() > 0 && statsTreeWidget()->selectedItems()[0]->type() == rlc_channel_row_type_) {
+        QTreeWidgetItem *ti = statsTreeWidget()->selectedItems()[0];
+        RlcChannelTreeWidgetItem *rc_ti = static_cast<RlcChannelTreeWidgetItem*>(ti);
+        rc_ti->launchGraph(DIRECTION_DOWNLINK, cf_);
+    }
 }
 
 // Stat command + args

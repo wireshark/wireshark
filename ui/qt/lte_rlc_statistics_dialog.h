@@ -35,9 +35,14 @@ public:
     unsigned getFrameCount() { return packet_count_; }
     void     incFrameCount() { ++packet_count_; }
 
+    // Extra controls needed for this dialog.
+    QPushButton *launchULGraph_;
+    QPushButton *launchDLGraph_;
+
 protected:
 
 private:
+    CaptureFile &cf_;
     int packet_count_;
 
     // Callbacks for register_tap_listener
@@ -45,12 +50,18 @@ private:
     static gboolean tapPacket(void *ws_dlg_ptr, struct _packet_info *, struct epan_dissect *, const void *rlc_lte_tap_info_ptr);
     static void tapDraw(void *ws_dlg_ptr);
 
+    void updateHeaderLabels();
+
     virtual const QString filterExpression();
 
 private slots:
     virtual void fillTree();
-    void updateHeaderLabels();
+    void updateItemSelectionChanged();
+
     void captureFileClosing();
+
+    void launchULGraphButtonClicked();
+    void launchDLGraphButtonClicked();
 };
 
 #endif // __LTE_RLC_STATISTICS_DIALOG_H__

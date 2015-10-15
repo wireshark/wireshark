@@ -3034,7 +3034,7 @@ void MainWindow::on_actionTelephonyLteRlcStatistics_triggered()
 
 void MainWindow::on_actionTelephonyLteRlcGraph_triggered()
 {
-    LteRlcGraphDialog *lrg_dialog = new LteRlcGraphDialog(*this, capture_file_);
+    LteRlcGraphDialog *lrg_dialog = new LteRlcGraphDialog(*this, capture_file_, false);
     lrg_dialog->show();
 }
 

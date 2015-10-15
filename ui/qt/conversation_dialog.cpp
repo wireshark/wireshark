@@ -244,7 +244,9 @@ void ConversationDialog::graphTcp()
         return;
     }
 
+    // Apply the filter for this conversation.
     emit filterAction(filter, FilterAction::ActionApply, FilterAction::ActionTypePlain);
+    // This action will now find a packet from the intended conversation/stream.
     openTcpStreamGraph(GRAPH_TSEQ_TCPTRACE);
 }
 

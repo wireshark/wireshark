@@ -60,7 +60,7 @@ const double pkt_point_size_ = 3.0;
 
 
 // Constructor.
-LteRlcGraphDialog::LteRlcGraphDialog(QWidget &parent, CaptureFile &cf) :
+LteRlcGraphDialog::LteRlcGraphDialog(QWidget &parent, CaptureFile &cf, bool channelKnown) :
     WiresharkDialog(parent, cf),
     ui(new Ui::LteRlcGraphDialog),
     mouse_drags_(true),
@@ -101,6 +101,38 @@ LteRlcGraphDialog::LteRlcGraphDialog(QWidget &parent, CaptureFile &cf) :
     // Zero out this struct.
     memset(&graph_, 0, sizeof(graph_));
 
+    // If channel is known, details will be supplied by setChannelInfo().
+    if (!channelKnown) {
+        completeGraph();
+    }
+
+}
+
+// Destructor
+LteRlcGraphDialog::~LteRlcGraphDialog()
+{
+    delete ui;
+}
+
+// Set the channel information that this graph should show.
+void LteRlcGraphDialog::setChannelInfo(guint16 ueid, guint8 rlcMode,
+                                       guint16 channelType, guint16 channelId, guint8 direction)
+{
+    graph_.ueid = ueid;
+    graph_.rlcMode = rlcMode;
+    graph_.channelType = channelType;
+    graph_.channelId = channelId;
+    graph_.channelSet = TRUE;
+    graph_.direction = direction;
+
+    completeGraph();
+}
+
+// Once channel details are known, complete the graph with details that depend upon the channel.
+void LteRlcGraphDialog::completeGraph()
+{
+    QCustomPlot *rp = ui->rlcPlot;
+
     // If no channel chosen already, try to use currently selected frame.
     findChannel();
 
@@ -138,12 +170,6 @@ LteRlcGraphDialog::LteRlcGraphDialog(QWidget &parent, CaptureFile &cf) :
 
     // Extract the data that the graph can use.
     fillGraph();
-}
-
-// Destructor
-LteRlcGraphDialog::~LteRlcGraphDialog()
-{
-    delete ui;
 }
 
 // See if the given segment matches the channel this graph is plotting.
