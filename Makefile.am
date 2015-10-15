@@ -1333,6 +1333,7 @@ EXTRA_DIST = \
 	cmake/modules/gmxTestLargeFiles.cmake	\
 	cmake/modules/hhc.cmake	\
 	cmake/modules/LICENSE.txt		\
+	cmake/modules/LocatePythonExecutable.cmake	\
 	cmake/modules/LocatePythonModule.cmake	\
 	cmake/modules/readme.txt		\
 	cmake/modules/UseABICheck.cmake		\

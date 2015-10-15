@@ -90,15 +90,13 @@ How to do an out of tree build using Visual C++ 2013:
 1c) set QT5_BASE_DIR=C:\Qt\5.4.1\5.4\msvc2013_opengl (must match the Qt component path
     on your system)
 1d) If you want to use Visual Studio to build rather than msbuild from the command line,
-    make sure that the paths to Python and Cygwin are available to GUI applications.
-    The Python path MUST come first.
+    make sure that the path to Cygwin is available to GUI applications.
 2) mkdir c:\wireshark\build or as appropriate for you.
    You will need one build directory for each bitness (win32, win64) you wish to build.
 3) cd into the directory from 2) above.
 4) Run the following to generate the build files:
-   cmake -DPYTHON_EXECUTABLE=/path/to/python -DENABLE_CHM_GUIDES=on xxx path\to\sources
-   where /path/to/python is the path to your Windows python executable, e.g. C:/Python27/python
-   and path\to\sources is the absolute or relative path to the wireshark source tree
+   cmake -DENABLE_CHM_GUIDES=on xxx path\to\sources
+   where path\to\sources is the absolute or relative path to the wireshark source tree
    and xxx is replaced with one of the following:
        nothing - This will build a VS solution for win32 using the latest version of VS found (preferred).
        -G "Visual Studio 12" ("12" builds for VS2013. Use "11" for VS2012 or "10" for VS2010.)

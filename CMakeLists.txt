@@ -134,6 +134,9 @@ if(WIN32)
 	endif()
 
 	# XXX Add a dependency on ${_ws_lib_dir}/current_tag.txt?
+
+	# Head off any attempts to use Cygwin's Python.
+	include(LocatePythonExecutable)
 endif(WIN32)
 
 include(UseCustomIncludes)
@@ -769,10 +772,10 @@ endif()
 
 set(PROGLIST)
 
-#Sort the package list
+# Sort the package list
 list(SORT PACKAGELIST)
 message(STATUS "Packagelist: ${PACKAGELIST}")
-#Let's loop the package list
+# Let's loop the package list
 foreach(PACKAGE ${PACKAGELIST})
 	if(${PACKAGE} STREQUAL "Qt4")
 		set(PACKAGE_VAR "QT")
