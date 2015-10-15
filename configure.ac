@@ -3073,7 +3073,7 @@ if test "x$have_qt" = "xyes" ; then
 		RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with qt"
 	fi
 else
-	RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --without qt"
+	RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --without qt --without qt5"
 fi
 if test "x$have_lua" = "xyes" ; then
 	RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --with lua"
