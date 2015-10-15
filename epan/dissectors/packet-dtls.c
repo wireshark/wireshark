@@ -147,7 +147,7 @@ static FILE               *dtls_keylog_file          = NULL;
 static uat_t *dtlsdecrypt_uat      = NULL;
 static const gchar *dtls_keys_list = NULL;
 static ssl_common_options_t dtls_options = { NULL, NULL};
-#ifdef HAVE_LIBGNUTLS
+#ifdef HAVE_LIBGCRYPT
 static const gchar *dtls_debug_file_name = NULL;
 #endif
 
@@ -1606,7 +1606,7 @@ looks_like_dtls(tvbuff_t *tvb, guint32 offset)
 
 /* UAT */
 
-#ifdef HAVE_LIBGNUTLS
+#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
 static void
 dtlsdecrypt_free_cb(void* r)
 {
@@ -1628,7 +1628,7 @@ dtlsdecrypt_update_cb(void* r _U_, const char** err _U_)
 }
 #endif
 
-#ifdef HAVE_LIBGNUTLS
+#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
 static void *
 dtlsdecrypt_copy_cb(void* dest, const void* orig, size_t len _U_)
 {
@@ -1862,10 +1862,11 @@ proto_register_dtls(void)
   expert_dtls = expert_register_protocol(proto_dtls);
   expert_register_field_array(expert_dtls, ei, array_length(ei));
 
-#ifdef HAVE_LIBGNUTLS
+#ifdef HAVE_LIBGCRYPT
   {
     module_t *dtls_module = prefs_register_protocol(proto_dtls, proto_reg_handoff_dtls);
 
+#ifdef HAVE_LIBGNUTLS
     static uat_field_t dtlskeylist_uats_flds[] = {
       UAT_FLD_CSTRING_OTHER(sslkeylist_uats, ipaddr, "IP address", ssldecrypt_uat_fld_ip_chk_cb, "IPv4 or IPv6 address"),
       UAT_FLD_CSTRING_OTHER(sslkeylist_uats, port, "Port", ssldecrypt_uat_fld_port_chk_cb, "Port Number"),
@@ -1893,6 +1894,7 @@ proto_register_dtls(void)
                                   "RSA keys list",
                                   "A table of RSA keys for DTLS decryption",
                                   dtlsdecrypt_uat);
+#endif /* HAVE_LIBGNUTLS */
 
     prefs_register_filename_preference(dtls_module, "debug_file", "DTLS debug file",
                                        "redirect dtls debug to file name; leave empty to disable debug, "

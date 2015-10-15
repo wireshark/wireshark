@@ -322,7 +322,7 @@ static ssl_common_options_t ssl_options = { NULL, NULL};
 /* List of dissectors to call for SSL data */
 static heur_dissector_list_t ssl_heur_subdissector_list;
 
-#if defined(SSL_DECRYPT_DEBUG) || defined(HAVE_LIBGNUTLS)
+#ifdef HAVE_LIBGCRYPT
 static const gchar *ssl_debug_file_name     = NULL;
 #endif
 
@@ -3640,7 +3640,7 @@ ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, const guint32 offset,
 
 /* UAT */
 
-#ifdef HAVE_LIBGNUTLS
+#if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
 static void
 ssldecrypt_free_cb(void *r)
 {
@@ -4127,8 +4127,8 @@ proto_register_ssl(void)
     {
         module_t *ssl_module = prefs_register_protocol(proto_ssl, proto_reg_handoff_ssl);
 
+#ifdef HAVE_LIBGCRYPT
 #ifdef HAVE_LIBGNUTLS
-
         static uat_field_t sslkeylist_uats_flds[] = {
             UAT_FLD_CSTRING_OTHER(sslkeylist_uats, ipaddr, "IP address", ssldecrypt_uat_fld_ip_chk_cb, "IPv4 or IPv6 address"),
             UAT_FLD_CSTRING_OTHER(sslkeylist_uats, port, "Port", ssldecrypt_uat_fld_port_chk_cb, "Port Number"),
@@ -4156,6 +4156,7 @@ proto_register_ssl(void)
             "RSA keys list",
             "A table of RSA keys for SSL decryption",
             ssldecrypt_uat);
+#endif /* HAVE_LIBGNUTLS */
 
         prefs_register_filename_preference(ssl_module, "debug_file", "SSL debug file",
             "Redirect SSL debug to the file specified. Leave empty to disable debugging "
@@ -4166,7 +4167,7 @@ proto_register_ssl(void)
              "Semicolon-separated list of private RSA keys used for SSL decryption. "
              "Used by versions of Wireshark prior to 1.6",
              &ssl_keys_list);
-#endif
+#endif /* HAVE_LIBGCRYPT */
 
         prefs_register_bool_preference(ssl_module,
              "desegment_ssl_records",
@@ -4184,9 +4185,7 @@ proto_register_ssl(void)
              "Message Authentication Code (MAC), ignore \"mac failed\"",
              "For troubleshooting ignore the mac check result and decrypt also if the Message Authentication Code (MAC) fails.",
              &ssl_ignore_mac_failed);
-#ifdef HAVE_LIBGNUTLS
         ssl_common_register_options(ssl_module, &ssl_options);
-#endif
     }
 
     /* heuristic dissectors for any premable e.g. CredSSP before RDP */
