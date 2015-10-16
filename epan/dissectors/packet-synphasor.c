@@ -32,6 +32,8 @@
 #include <epan/expert.h>
 #include "packet-tcp.h"
 
+#include <wsutil/utf8_entities.h>
+
 #define PROTOCOL_NAME	    "IEEE C37.118 Synchrophasor Protocol"
 #define PROTOCOL_SHORT_NAME "SYNCHROPHASOR"
 #define PROTOCOL_ABBREV	    "synphasor"
@@ -947,14 +949,12 @@ static gint dissect_PHASORS(tvbuff_t *tvb, proto_tree *tree, config_block *block
 			mag = (mag * pi->conv) * 0.00001;
 
 		#define SYNP_ANGLE  "/_"
-		#define SYNP_DEGREE "\xC2\xB0" /* DEGREE signs in UTF-8 */
 
-		proto_item_append_text(temp_item, ", %10.2f%c" SYNP_ANGLE "%7.2f" SYNP_DEGREE,
+		proto_item_append_text(temp_item, ", %10.2f%c" SYNP_ANGLE "%7.2f" UTF8_DEGREE_SIGN,
 						  mag,
 						  V == pi->unit ? 'V' : 'A',
 						  phase *180.0/G_PI);
 		#undef SYNP_ANGLE
-		#undef SYNP_DEGREE
 	}
 	return offset;
 }

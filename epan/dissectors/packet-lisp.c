@@ -30,6 +30,9 @@
 #include <epan/to_str.h>
 #include <epan/afn.h>
 #include <epan/expert.h>
+
+#include <wsutil/utf8_entities.h>
+
 void proto_register_lisp(void);
 void proto_reg_handoff_lisp(void);
 
@@ -1011,9 +1014,9 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
                 "Invalid latitude seconds value (%d)", min);
     offset += 1;
 
-    proto_item_append_text(ti_lat, ": %s %d\302\260 %d' %d\"",
+    proto_item_append_text(ti_lat, ": %s %d" UTF8_DEGREE_SIGN "%d' %d\"",
             val_to_str_const(north, lat_typevals, ""), deg, min, sec);
-    proto_item_append_text(tir, ": (%s%d\302\260%d'%d\"",
+    proto_item_append_text(tir, ": (%s%d" UTF8_DEGREE_SIGN "%d'%d\"",
             val_to_str_const(north, lat_typevals, ""), deg, min, sec);
 
     /* PROCESS LONGITUDE */
@@ -1048,9 +1051,9 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
                 "Invalid longitude seconds value (%d)", min);
     offset += 1;
 
-    proto_item_append_text(ti_lon, ": %s %d\302\260 %d' %d\"",
+    proto_item_append_text(ti_lon, ": %s %d" UTF8_DEGREE_SIGN " %d' %d\"",
             val_to_str_const(east, lon_typevals, ""), deg, min, sec);
-    proto_item_append_text(tir, ", %s%d\302\260%d'%d\")",
+    proto_item_append_text(tir, ", %s%d" UTF8_DEGREE_SIGN "%d'%d\")",
             val_to_str_const(east, lon_typevals, ""), deg, min, sec);
 
     /* PROCESS ALTITUDE */
