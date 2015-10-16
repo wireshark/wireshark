@@ -24,6 +24,8 @@
 
 #include "tap_parameter_dialog.h"
 
+#include <QCheckBox>
+
 class LteRlcStatisticsDialog : public TapParameterDialog
 {
     Q_OBJECT
@@ -35,13 +37,16 @@ public:
     unsigned getFrameCount() { return packet_count_; }
     void     incFrameCount() { ++packet_count_; }
 
-    // Extra controls needed for this dialog.
-    QPushButton *launchULGraph_;
-    QPushButton *launchDLGraph_;
-
 protected:
 
 private:
+    // Extra controls needed for this dialog.
+    QCheckBox *useRLCFramesFromMacCheckBox_;
+    QCheckBox *showSRFilterCheckBox_;
+    QCheckBox *showRACHFilterCheckBox_;
+    QPushButton *launchULGraph_;
+    QPushButton *launchDLGraph_;
+
     CaptureFile &cf_;
     int packet_count_;
 
@@ -60,6 +65,7 @@ private slots:
 
     void captureFileClosing();
 
+    void useRLCFramesFromMacCheckBoxToggled(bool state);
     void launchULGraphButtonClicked();
     void launchDLGraphButtonClicked();
 };

@@ -36,9 +36,8 @@
 #include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
-// To do:
-// - Checkbox for packet source
-// - Add missing controls
+#include "ui/recent.h"
+
 
 enum {
     col_ueid_,
@@ -274,14 +273,42 @@ public:
         return QTreeWidgetItem::operator< (other);
     }
 
-    const QString filterExpression() {
+    const QString filterExpression(bool showSR, bool showRACH) {
         // Create an expression to match with all traffic for this UE.
-        QString filter_expr =  QString("rlc-lte.ueid==%1 and rlc-lte.channel-type == %2").
-                arg(ueid_).arg(channelType_);
+        QString filter_expr;
 
+        // Are we taking RLC PDUs from MAC, or not?
+        if (!recent.gui_rlc_use_pdus_from_mac) {
+            filter_expr += QString("not mac-lte and ");
+        }
+        else {
+            filter_expr += QString("mac-lte and ");
+        }
+
+        if (showSR) {
+            filter_expr += QString("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
+        }
+
+        if (showRACH) {
+            filter_expr += QString("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
+        }
+
+        // Main part of expression.
+        filter_expr += QString("rlc-lte.ueid==%1 and rlc-lte.channel-type == %2").
+                                  arg(ueid_).arg(channelType_);
         if ((channelType_ == CHANNEL_TYPE_SRB) || (channelType_ == CHANNEL_TYPE_DRB)) {
             filter_expr += QString(" and rlc-lte.channel-id == %1").arg(channelId_);
         }
+
+        // Close () if open because of SR
+        if (showSR) {
+            filter_expr += QString(")");
+        }
+        // Close () if open because of RACH
+        if (showRACH) {
+            filter_expr += QString(")");
+        }
+
         return filter_expr;
     }
 
@@ -377,8 +404,12 @@ public:
     // Update UE/channels from tap info.
     void update(const rlc_lte_tap_info *tap_info) {
 
-        // TODO: need to create and use a checkbox to control this.
-        // For now just use all frames.
+        // Are we ignoring RLC frames that were found in MAC frames, or only those
+        // that were logged separately?
+        if ((!recent.gui_rlc_use_pdus_from_mac && tap_info->loggedInMACFrame) ||
+            (recent.gui_rlc_use_pdus_from_mac  && !tap_info->loggedInMACFrame)) {
+            return;
+        }
 
         // TODO: update title with number of UEs and frames like MAC does?
 
@@ -532,9 +563,38 @@ public:
         return QTreeWidgetItem::operator< (other);
     }
 
-    const QString filterExpression() {
+    const QString filterExpression(bool showSR, bool showRACH) {
         // Create an expression to match with all traffic for this UE.
-        return QString("rlc-lte.ueid==%1").arg(ueid_);
+        QString filter_expr;
+
+        // Are we taking RLC PDUs from MAC, or not?
+        if (!recent.gui_rlc_use_pdus_from_mac) {
+            filter_expr += QString("not mac-lte and ");
+        }
+        else {
+            filter_expr += QString("mac-lte and ");
+        }
+
+        if (showSR) {
+            filter_expr += QString("(mac-lte.sr-req and mac-lte.ueid == %1) or (").arg(ueid_);
+        }
+
+        if (showRACH) {
+            filter_expr += QString("(mac-lte.rar or (mac-lte.preamble-sent and mac-lte.ueid == %1)) or (").arg(ueid_);
+        }
+
+        filter_expr += QString("rlc-lte.ueid==%1").arg(ueid_);
+
+        // Close () if open because of SR
+        if (showSR) {
+            filter_expr += QString(")");
+        }
+        // Close () if open because of RACH
+        if (showRACH) {
+            filter_expr += QString(")");
+        }
+
+        return filter_expr;
     }
 
 private:
@@ -591,6 +651,19 @@ LteRlcStatisticsDialog::LteRlcStatisticsDialog(QWidget &parent, CaptureFile &cf,
     launchDLGraph_->setEnabled(false);
     filter_controls_grid->addWidget(launchDLGraph_);
     connect(launchDLGraph_, SIGNAL(pressed()), this, SLOT(launchDLGraphButtonClicked()));
+
+    showSRFilterCheckBox_ = new QCheckBox(tr("Include SR frames in filter"));
+    filter_controls_grid->addWidget(showSRFilterCheckBox_);
+    showRACHFilterCheckBox_ = new QCheckBox(tr("Include RACH frames in filter"));
+    filter_controls_grid->addWidget(showRACHFilterCheckBox_);
+
+    useRLCFramesFromMacCheckBox_ = new QCheckBox(tr("Use RLC frames only from MAC frames"));
+    useRLCFramesFromMacCheckBox_->setCheckState(recent.gui_rlc_use_pdus_from_mac ?
+                                                    Qt::Checked :
+                                                    Qt::Unchecked);
+    connect(useRLCFramesFromMacCheckBox_, SIGNAL(clicked(bool)), this,
+            SLOT(useRLCFramesFromMacCheckBoxToggled(bool)));
+    filter_controls_grid->addWidget(useRLCFramesFromMacCheckBox_);
 
     QStringList header_labels = QStringList()
             << "" << "" << ""
@@ -721,6 +794,15 @@ void LteRlcStatisticsDialog::tapDraw(void *ws_dlg_ptr)
                                   arg(ws_dlg->statsTreeWidget()->topLevelItemCount()).arg(ws_dlg->getFrameCount()));
 }
 
+void LteRlcStatisticsDialog::useRLCFramesFromMacCheckBoxToggled(bool state)
+{
+    // Update state to be stored in recent preferences
+    recent.gui_rlc_use_pdus_from_mac = state;
+
+    // Retap to get updated list of PDUs
+    fillTree();
+}
+
 const QString LteRlcStatisticsDialog::filterExpression()
 {
     QString filter_expr;
@@ -730,10 +812,12 @@ const QString LteRlcStatisticsDialog::filterExpression()
         // Generate expression according to what type of item is selected.
         if (ti->type() == rlc_ue_row_type_) {
             RlcUeTreeWidgetItem *ru_ti = static_cast<RlcUeTreeWidgetItem*>(ti);
-            filter_expr = ru_ti->filterExpression();
+            filter_expr = ru_ti->filterExpression(showSRFilterCheckBox_->checkState() > Qt::Unchecked,
+                                                  showRACHFilterCheckBox_->checkState() > Qt::Unchecked);
         } else if (ti->type() == rlc_channel_row_type_) {
             RlcChannelTreeWidgetItem *rc_ti = static_cast<RlcChannelTreeWidgetItem*>(ti);
-            filter_expr = rc_ti->filterExpression();
+            filter_expr = rc_ti->filterExpression(showSRFilterCheckBox_->checkState() > Qt::Unchecked,
+                                                  showRACHFilterCheckBox_->checkState() > Qt::Unchecked);
         }
     }
     return filter_expr;
