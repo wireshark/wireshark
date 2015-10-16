@@ -37,6 +37,7 @@
 #include <epan/charsets.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/ws_version_info.h>
+#include <wsutil/utf8_entities.h>
 #include <ftypes/ftypes-int.h>
 
 #define PDML_VERSION "0"
@@ -654,7 +655,7 @@ static gchar *csv_massage_str(const gchar *source, const gchar *exceptions)
     csv_str = g_strescape(source, exceptions);
     tmp_str = csv_str;
     /* Locate the UTF-8 right arrow character and replace it by an ASCII equivalent */
-    while ( (tmp_str = strstr(tmp_str, "\xe2\x86\x92")) != NULL ) {
+    while ( (tmp_str = strstr(tmp_str, UTF8_RIGHTWARDS_ARROW)) != NULL ) {
         tmp_str[0] = ' ';
         tmp_str[1] = '>';
         tmp_str[2] = ' ';
@@ -669,8 +670,8 @@ static void csv_write_str(const char *str, char sep, FILE *fh)
 {
     gchar *csv_str;
 
-    /* Do not escape the UTF-8 righ arrow character */
-    csv_str = csv_massage_str(str, "\xe2\x86\x92");
+    /* Do not escape the UTF-8 right arrow character */
+    csv_str = csv_massage_str(str, UTF8_RIGHTWARDS_ARROW);
     fprintf(fh, "\"%s\"%c", csv_str, sep);
     g_free(csv_str);
 }
