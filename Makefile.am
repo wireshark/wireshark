@@ -951,7 +951,7 @@ EXTRA_DIST = \
 	image/toolbar/14x14/x-expert-chat@2x.png	\
 	image/toolbar/14x14/x-expert-error.png	\
 	image/toolbar/14x14/x-expert-error@2x.png	\
-	image/toolbar/14x14/x-expert-indicators.svg	\
+	image/toolbar/14x14/x-expert-indicators-all.svg	\
 	image/toolbar/14x14/x-expert-none.png	\
 	image/toolbar/14x14/x-expert-none@2x.png	\
 	image/toolbar/14x14/x-expert-note.png	\
