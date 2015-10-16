@@ -884,11 +884,55 @@ if(HAVE_LIBZLIB)
 	include_directories(BEFORE ${ZLIB_INCLUDE_DIRS})
 endif()
 if (Qt5Widgets_FOUND)
+	#
 	# Qt5CoreConfigExtras.cmake in Qt 5.5.0 sets -fPIC unconditionally.
 	# https://bugreports.qt.io/browse/QTBUG-47942
-	if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+	#
+	# If it was added, we remove it, and then check whether it's
+	# necessary the same way we do for autotools, by checking
+	# whether we can compile and link a simple file with just
+	#
+	#	#include <QtCore>
+	#	int main() {}
+	#
+	# (Yes, check_XXX_source_compiles() should be renamed
+	# check_XXX_source_compiles_and_links().)
+	#
+	if ("${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}" MATCHES ".*-fPIC.*")
 		list(REMOVE_ITEM Qt5Widgets_EXECUTABLE_COMPILE_FLAGS "-fPIC")
-	endif() # MSVC
+		set(CMAKE_REQUIRED_FLAGS ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS})
+		set(CMAKE_REQUIRED_INCLUDES ${Qt5Core_INCLUDE_DIRS})
+		set(CMAKE_REQUIRED_LIBS ${Qt5Core_LIBRARIES})
+		check_cxx_source_compiles(
+		      "#include <QtCore>
+		      int main() {}"
+		    WORKS_WITHOUT_FPIC)
+		if (NOT WORKS_WITHOUT_FPIC)
+			#
+			# OK, it won't compile without -fPIC.  Try adding it.
+			#
+			set(CMAKE_REQUIRED_FLAGS "-fPIC")
+			check_cxx_source_compiles(
+			      "#include <QtCore>
+			      int main() {}"
+			    WORKS_WITH_FPIC)
+			if (NOT WORKS_WITH_FPIC)
+				#
+				# It won't build with -fPIC or without -fPIC,
+				# so we're hosed.
+				#
+				message(FATAL_ERROR "Couldn't compile Qt without -fPIC nor with -fPIC")
+			endif()
+
+			#
+			# It compiles with -fPIC, so add it back.
+			#
+			list(APPEND Qt5Widgets_EXECUTABLE_COMPILE_FLAGS "-fPIC")
+		endif()
+		set(CMAKE_REQUIRED_FLAGS "")
+		set(CMAKE_REQUIRED_INCLUDES "")
+		set(CMAKE_REQUIRED_LIBS "")
+	endif()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 	set (QT_FOUND ON)
 	set (QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5PrintSupport_LIBRARIES})
