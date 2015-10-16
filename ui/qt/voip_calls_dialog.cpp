@@ -352,7 +352,11 @@ void VoipCallsDialog::prepareFilter()
     /* Build a new filter based on frame numbers */
     const char *or_prepend = "";
     foreach (QTreeWidgetItem *ti, ui->callTreeWidget->selectedItems()) {
-        voip_calls_info_t *call_info = ti->data(0, Qt::UserRole).value<voip_calls_info_t*>();
+        VoipCallsTreeWidgetItem *vc_ti = static_cast<VoipCallsTreeWidgetItem *>(ti);
+        voip_calls_info_t *call_info = vc_ti->callInfo();
+        if (!call_info) {
+            return;
+        }
         selected_calls << call_info->call_num;
     }
 
@@ -463,7 +467,11 @@ void VoipCallsDialog::showSequence()
 
     QSet<guint16> selected_calls;
     foreach (QTreeWidgetItem *ti, ui->callTreeWidget->selectedItems()) {
-        voip_calls_info_t *call_info = ti->data(0, Qt::UserRole).value<voip_calls_info_t*>();
+        VoipCallsTreeWidgetItem *vc_ti = static_cast<VoipCallsTreeWidgetItem *>(ti);
+        voip_calls_info_t *call_info = vc_ti->callInfo();
+        if (!call_info) {
+            return;
+        }
         selected_calls << call_info->call_num;
     }
 
@@ -513,7 +521,8 @@ void VoipCallsDialog::showPlayer()
 
 void VoipCallsDialog::on_callTreeWidget_itemActivated(QTreeWidgetItem *item, int)
 {
-    voip_calls_info_t *call_info = item->data(0, Qt::UserRole).value<voip_calls_info_t*>();
+    VoipCallsTreeWidgetItem *vc_ti = static_cast<VoipCallsTreeWidgetItem *>(item);
+    voip_calls_info_t *call_info = vc_ti->callInfo();
     if (!call_info) {
         return;
     }
