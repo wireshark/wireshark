@@ -30,7 +30,15 @@ since version 2.0.0:
 _Non-empty section placeholder._
 //=== Removed Dissectors
 
-=== New File Format Support
+=== New File Format Decoding Support
+
+Wireshark is able to display the format of some types of files (rather than
+displaying the contents of those files). This is useful when you're curious
+about, or debugging, a file and its format.  To open a capture file (such as
+PCAP) in this mode specify "MIME Files Format" as the file's format in the
+Open File dialog.
+
+New files that Wireshark can open in this mode include:
 
 _Non-empty section placeholder._
 --sort-and-group--
