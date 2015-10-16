@@ -64,7 +64,7 @@ public:
     /** Add an RTP stream to play.
      * MUST be called before exec().
      *
-     * @param rtp_stream
+     * @param rtp_stream struct with rtp_stream info
      */
     void addRtpStream(struct _rtp_stream_info *rtp_stream);
 
