@@ -2405,7 +2405,7 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         nstime_t nsuptime;
 
         nsuptime.secs = sysuptime / 1000;
-        nsuptime.nsecs = sysuptime * 1000;
+        nsuptime.nsecs = (sysuptime % 1000) * 1000000;
         proto_tree_add_time(netflow_tree, hf_cflow_sysuptime, tvb,
                             offset, 4, &nsuptime);
         offset += 4;
