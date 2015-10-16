@@ -41,7 +41,6 @@ use strict;
 # language with a proper compatibility document, such as
 # http://golang.org/doc/go1compat
 no if $] >= 5.018, warnings => "experimental::smartmatch";
-no 5.20.0;
 
 use IO::File;
 use XML::Twig;
