@@ -69,7 +69,7 @@ public:
      * Requires src_addr, src_port, dest_addr, dest_port, ssrc, packet_count,
      * setup_frame_number, and start_rel_time.
      *
-     * @param rtp_stream
+     * @param rtp_stream struct with rtp_stream info
      */
     void addRtpStream(struct _rtp_stream_info *rtp_stream);
 
