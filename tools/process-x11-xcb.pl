@@ -998,7 +998,10 @@ sub struct {
 		}
 	    }
 	    when ('field') { }
-	    when ('switch') { } # New field in xcbproto/src/xinput.xml
+	    when ('switch') {
+                $dynamic = 1;
+                next;
+            }
 	    default { die("unrecognized field: $_\n"); }
 	}
 
