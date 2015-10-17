@@ -389,9 +389,7 @@ dissect_v2_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
   if ((gint) message_data_length < 1) {
     proto_tree_add_expert_format(m2pa_tree, pinfo, &ei_length, message_tvb, V2_LENGTH_OFFSET, 4,
         "Invalid message data length: %u", message_data_length);
-    /* XXX - is this really necessary?  Can we just return since the expert info can
-       still find the "malformed" packet? */
-    THROW(ReportedBoundsError);
+    return;
   }
 
   message_data_tvb    = tvb_new_subset_length(message_tvb, V2_MESSAGE_DATA_OFFSET, message_data_length);
@@ -422,9 +420,7 @@ dissect_v8_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
   if ((gint) message_data_length < 1) {
     proto_tree_add_expert_format(m2pa_tree, pinfo, &ei_length, message_tvb, V8_LENGTH_OFFSET, 4,
         "Invalid message data length: %u", message_data_length);
-    /* XXX - is this really necessary?  Can we just return since the expert info can
-       still find the "malformed" packet? */
-    THROW(ReportedBoundsError);
+    return;
   }
   message_data_tvb    = tvb_new_subset_length(message_tvb, V8_MESSAGE_DATA_OFFSET, message_data_length);
   type                = tvb_get_guint8(message_tvb, V8_TYPE_OFFSET);
