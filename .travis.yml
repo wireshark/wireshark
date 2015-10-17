@@ -1,4 +1,6 @@
 language: cpp
+sudo: required
+dist: trusty
 compiler:
   - clang
   - gcc
@@ -10,11 +12,12 @@ before_install:
   - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
   - sudo apt-get update -qq
     #libstdc++-4.8 is needed by Clang to build
-  - sudo apt-get -qq install  libstdc++-4.8-dev
-  - sudo apt-get build-dep wireshark
-  - sudo apt-get install cmake libgtk-3-0 libglib2.0-0 libgdk-pixbuf2.0-0 libcairo2 libqt4-dev
+  - sudo apt-get -qq install libstdc++-4.8-dev
+  - sudo apt-get -qq build-dep wireshark
+  - sudo apt-get -qq install cmake libgtk-3-0 libglib2.0-0 libgdk-pixbuf2.0-0 libcairo2
+  - sudo apt-get -qq install qt5-default qttools5-dev qttools5-dev-tools
   - $CC --version
 before_script:
-  if [ ${BUILD_CMAKE} == "yes" ]; then mkdir build && cd build && cmake ..; else ./autogen.sh && ./configure --with-gtk2; fi
+  if [ ${BUILD_CMAKE} == "yes" ]; then mkdir build && cd build && cmake ..; else ./autogen.sh && ./configure ; fi
 script:
   - make
