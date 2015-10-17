@@ -48,6 +48,9 @@ public:
     void setChannelInfo(guint16 ueid, guint8 rlcMode,
                         guint16 channelType, guint16 channelId, guint8 direction);
 
+signals:
+    void goToPacket(int packet_num);
+
 protected:
     void showEvent(QShowEvent *event);
     void keyPressEvent(QKeyEvent *event);
@@ -70,6 +73,8 @@ private:
     QCPGraph *reseg_graph_;
     QCPGraph *acks_graph_;
     QCPGraph *nacks_graph_;
+    QCPItemTracer *tracer_;
+    guint32 packet_num_;
 
     void completeGraph();
 
@@ -81,6 +86,8 @@ private:
     void zoomAxes(bool in);
     void panAxes(int x_pixels, int y_pixels);
     QRectF getZoomRanges(QRect zoom_rect);
+
+    void toggleTracerStyle(bool force_default);
 
 private slots:
     void graphClicked(QMouseEvent *event);
@@ -102,6 +109,8 @@ private slots:
     void on_actionDragZoom_triggered();
     void on_actionMoveUp100_triggered();
     void on_actionMoveDown100_triggered();
+
+    void on_actionGoToPacket_triggered();
 };
 
 #endif // LTE_RLC_GRAPH_DIALOG_H

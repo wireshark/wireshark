@@ -3037,6 +3037,11 @@ void MainWindow::statCommandLteRlcStatistics(const char *arg, void *)
     LteRlcStatisticsDialog *lte_rlc_stats_dlg = new LteRlcStatisticsDialog(*this, capture_file_, arg);
     connect(lte_rlc_stats_dlg, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
             this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    // N.B. It is necessary for the RLC Statistics window to launch the RLC graph in this way, to ensure
+    // that the goToPacket() signal/slot connection gets set up...
+    connect(lte_rlc_stats_dlg, SIGNAL(launchRLCGraph(bool, guint16, guint8, guint16, guint16, guint8)),
+            this, SLOT(launchRLCGraph(bool, guint16, guint8, guint16, guint16, guint8)));
+
     lte_rlc_stats_dlg->show();
 }
 
@@ -3045,10 +3050,24 @@ void MainWindow::on_actionTelephonyLteRlcStatistics_triggered()
     statCommandLteRlcStatistics(NULL, NULL);
 }
 
+void MainWindow::launchRLCGraph(bool channelKnown,
+                                guint16 ueid, guint8 rlcMode,
+                                guint16 channelType, guint16 channelId, guint8 direction)
+{
+    LteRlcGraphDialog *lrg_dialog = new LteRlcGraphDialog(*this, capture_file_, channelKnown);
+    connect(lrg_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
+    // This is a bit messy, but wanted to hide these parameters from users of
+    // on_actionTelephonyLteRlcGraph_triggered().
+    if (channelKnown) {
+        lrg_dialog->setChannelInfo(ueid, rlcMode, channelType, channelId, direction);
+    }
+    lrg_dialog->show();
+}
+
 void MainWindow::on_actionTelephonyLteRlcGraph_triggered()
 {
-    LteRlcGraphDialog *lrg_dialog = new LteRlcGraphDialog(*this, capture_file_, false);
-    lrg_dialog->show();
+    // We don't yet know the channel.
+    launchRLCGraph(false, 0, 0, 0, 0, 0);
 }
 
 void MainWindow::on_actionTelephonyMtp3Summary_triggered()

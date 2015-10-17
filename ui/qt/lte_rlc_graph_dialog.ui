@@ -228,6 +228,17 @@
     <string>PgDown</string>
    </property>
   </action>
+  <action name="actionGoToPacket">
+   <property name="text">
+    <string>Go To Packet Under Cursor</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to packet currently under the cursor</string>
+   </property>
+   <property name="shortcut">
+    <string>G</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

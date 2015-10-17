@@ -245,6 +245,9 @@ public slots:
 
     void filterExpressionsChanged();
 
+    void launchRLCGraph(bool channelKnown, guint16 ueid, guint8 rlcMode,
+                        guint16 channelType, guint16 channelId, guint8 direction);
+
 private slots:
     // Manually connected slots (no "on_<object>_<signal>").
 

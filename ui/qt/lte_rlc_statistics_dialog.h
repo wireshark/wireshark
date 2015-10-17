@@ -39,6 +39,12 @@ public:
 
 protected:
 
+signals:
+    void launchRLCGraph(bool channelKnown,
+                        guint16 ueid, guint8 rlcMode,
+                        guint16 channelType, guint16 channelId,
+                        guint8 direction);
+
 private:
     // Extra controls needed for this dialog.
     QCheckBox *useRLCFramesFromMacCheckBox_;

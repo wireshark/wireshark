@@ -312,13 +312,11 @@ public:
         return filter_expr;
     }
 
-    // Create an RLC Graph and populate it with this channel's details.
-    void launchGraph(guint8 direction, CaptureFile &cf)
-    {
-        LteRlcGraphDialog *graph_dialog = new LteRlcGraphDialog(dialog_, cf, true);
-        graph_dialog->setChannelInfo(ueid_, mode_, channelType_, channelId_, direction);
-        graph_dialog->show();
-    }
+    // Accessors (queried for launching graph)
+    unsigned get_ueid() { return ueid_; }
+    unsigned get_channelType() { return channelType_; }
+    unsigned get_channelId() { return channelId_; }
+    unsigned get_mode() { return mode_; }
 
 private:
     QWidget &dialog_;
@@ -879,9 +877,15 @@ void LteRlcStatisticsDialog::captureFileClosing()
 void LteRlcStatisticsDialog::launchULGraphButtonClicked()
 {
     if (statsTreeWidget()->selectedItems().count() > 0 && statsTreeWidget()->selectedItems()[0]->type() == rlc_channel_row_type_) {
+        // Get the channel item.
         QTreeWidgetItem *ti = statsTreeWidget()->selectedItems()[0];
         RlcChannelTreeWidgetItem *rc_ti = static_cast<RlcChannelTreeWidgetItem*>(ti);
-        rc_ti->launchGraph(DIRECTION_UPLINK, cf_);
+        emit launchRLCGraph(true,
+                            rc_ti->get_ueid(),
+                            rc_ti->get_mode(),
+                            rc_ti->get_channelType(),
+                            rc_ti->get_channelId(),
+                            DIRECTION_UPLINK);
     }
 }
 
@@ -889,9 +893,15 @@ void LteRlcStatisticsDialog::launchULGraphButtonClicked()
 void LteRlcStatisticsDialog::launchDLGraphButtonClicked()
 {
     if (statsTreeWidget()->selectedItems().count() > 0 && statsTreeWidget()->selectedItems()[0]->type() == rlc_channel_row_type_) {
+        // Get the channel item.
         QTreeWidgetItem *ti = statsTreeWidget()->selectedItems()[0];
         RlcChannelTreeWidgetItem *rc_ti = static_cast<RlcChannelTreeWidgetItem*>(ti);
-        rc_ti->launchGraph(DIRECTION_DOWNLINK, cf_);
+        emit launchRLCGraph(true,
+                            rc_ti->get_ueid(),
+                            rc_ti->get_mode(),
+                            rc_ti->get_channelType(),
+                            rc_ti->get_channelId(),
+                            DIRECTION_DOWNLINK);
     }
 }
 

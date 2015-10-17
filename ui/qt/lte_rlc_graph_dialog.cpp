@@ -48,9 +48,7 @@
 
 // TODO:
 // - better handling of zooming (select area like TCP and/or Jim's patch for 1 dimension at a time)
-// - get launched from RLC stats for a pre-known channel
 // - how to avoid panning or zooming out to -ve (x or y axis)
-// - goto packet functionality when click on segments
 
 const QRgb graph_color_ack =         tango_sky_blue_4;    // Blue for ACK lines
 const QRgb graph_color_nack =        tango_scarlet_red_3; // Red for NACKs
@@ -91,8 +89,8 @@ LteRlcGraphDialog::LteRlcGraphDialog(QWidget &parent, CaptureFile &cf, bool chan
     ctx_menu_->addAction(ui->actionMoveLeft1);
     ctx_menu_->addAction(ui->actionMoveUp1);
     ctx_menu_->addAction(ui->actionMoveDown1);
-//    ctx_menu_.addSeparator();
-//    ctx_menu_->addAction(ui->actionGoToPacket);
+    ctx_menu_->addSeparator();
+    ctx_menu_->addAction(ui->actionGoToPacket);
     ctx_menu_->addSeparator();
     ctx_menu_->addAction(ui->actionDragZoom);
 //    ctx_menu_->addAction(ui->actionToggleTimeOrigin);
@@ -164,6 +162,12 @@ void LteRlcGraphDialog::completeGraph()
     nacks_graph_ = sp->addGraph();
     nacks_graph_->setPen(QPen(QBrush(graph_color_nack), 0.25));
 
+    // Create tracer
+    tracer_ = new QCPItemTracer(sp);
+    sp->addItem(tracer_);
+    tracer_->setVisible(false);
+    toggleTracerStyle(true);
+
     connect(rp, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(graphClicked(QMouseEvent*)));
     connect(rp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
     connect(rp, SIGNAL(mouseRelease(QMouseEvent*)), this, SLOT(mouseReleased(QMouseEvent*)));
@@ -185,8 +189,14 @@ bool LteRlcGraphDialog::compareHeaders(rlc_segment *seg)
 // Look for channel to plot based upon currently selected frame.
 void LteRlcGraphDialog::findChannel()
 {
+    // Temporarily disconnect mouse move signals.
+    QCustomPlot *rp = ui->rlcPlot;
+    disconnect(rp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
+
     char *err_string = NULL;
     gboolean free_err_string = FALSE;
+
+    // Rescan for channel data.
     rlc_graph_segment_list_free(&graph_);
     if (!rlc_graph_segment_list_get(cap_file_.capFile(), &graph_, graph_.channelSet,
                                     &err_string, &free_err_string)) {
@@ -196,6 +206,9 @@ void LteRlcGraphDialog::findChannel()
             g_free(err_string);
         }
     }
+
+    // Reconnect mouse move signal.
+    connect(rp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
 }
 
 // Fill in graph data based upon what was read into the rlc_graph struct.
@@ -207,6 +220,8 @@ void LteRlcGraphDialog::fillGraph()
     if (sp->graphCount() < 1) {
         return;
     }
+
+    tracer_->setGraph(NULL);
 
     base_graph_->setLineStyle(QCPGraph::lsNone);       // dot
     reseg_graph_->setLineStyle(QCPGraph::lsNone);      // dot
@@ -279,6 +294,8 @@ void LteRlcGraphDialog::fillGraph()
     mouseMoved(NULL);
     resetAxes();
 
+    tracer_->setGraph(base_graph_);
+
     // XXX QCustomPlot doesn't seem to draw any sort of focus indicator.
     sp->setFocus();
 }
@@ -342,7 +359,7 @@ void LteRlcGraphDialog::keyPressEvent(QKeyEvent *event)
         break;
 
     case Qt::Key_G:
-//        on_actionGoToPacket_triggered();
+        on_actionGoToPacket_triggered();
         break;
     case Qt::Key_T:
 //        on_actionToggleTimeOrigin_triggered();
@@ -430,7 +447,7 @@ void LteRlcGraphDialog::graphClicked(QMouseEvent *event)
         if (rp->axisRect()->rect().contains(event->pos())) {
             rp->setCursor(QCursor(Qt::ClosedHandCursor));
         }
-//        on_actionGoToPacket_triggered();
+        on_actionGoToPacket_triggered();
     } else {
         if (!rubber_band_) {
             rubber_band_ = new QRubberBand(QRubberBand::Rectangle, rp);
@@ -448,6 +465,7 @@ void LteRlcGraphDialog::mouseMoved(QMouseEvent *event)
     QString hint;
     Qt::CursorShape shape = Qt::ArrowCursor;
 
+    // Set the cursor shape.
     if (event) {
         if (event->buttons().testFlag(Qt::LeftButton)) {
             if (mouse_drags_) {
@@ -465,41 +483,41 @@ void LteRlcGraphDialog::mouseMoved(QMouseEvent *event)
         rp->setCursor(QCursor(shape));
     }
 
+
     if (mouse_drags_) {
-//        double ts = 0;
-//        packet_num_ = 0;
-//        int interval_packet = -1;
+        double tr_key = tracer_->position->key();
+        struct rlc_segment *packet_seg = NULL;
+        packet_num_ = 0;
 
-//        if (event && tracer_->graph()) {
-//            tracer_->setGraphKey(rp->xAxis->pixelToCoord(event->pos().x()));
-//            ts = tracer_->position->key();
+        // XXX If we have multiple packets with the same timestamp tr_key
+        // may not return the packet we want. It might be possible to fudge
+        // unique keys using nextafter().
+        //printf("testing here (event=%p, tracer_->graph()=%p\n", event, tracer_->graph());
+        if (event && tracer_->graph() && tracer_->position->axisRect()->rect().contains(event->pos())) {
+            packet_seg = time_stamp_map_.value(tr_key, NULL);
+        }
 
-//            QTreeWidgetItem *ti = ui->graphTreeWidget->topLevelItem(0);
-//            IOGraph *iog = NULL;
-//            if (ti) {
-//                iog = ti->data(name_col_, Qt::UserRole).value<IOGraph *>();
-//                interval_packet = iog->packetFromTime(ts);
-//            }
-//        }
+        if (!packet_seg) {
+            tracer_->setVisible(false);
+//            hint += "Hover over the graph for details. " + stream_desc_ + "</i></small>";
+//            ui->hintLabel->setText(hint);
+//            ui->streamPlot->replot();
+            return;
+        }
 
-//        if (interval_packet < 0) {
-//            hint += tr("Hover over the graph for details.");
-//        } else {
-//            QString msg = tr("No packets in interval");
-//            QString val;
-//            if (interval_packet > 0) {
-//                packet_num_ = (guint32) interval_packet;
-//                msg = tr("%1 %2")
-//                        .arg(!file_closed_ ? tr("Click to select packet") : tr("Packet"))
-//                        .arg(packet_num_);
-//                val = " = " + QString::number(tracer_->position->value(), 'g', 4);
-//            }
-//            hint += tr("%1 (%2s%3).")
-//                    .arg(msg)
-//                    .arg(QString::number(ts, 'g', 4))
-//                    .arg(val);
-//        }
+        tracer_->setVisible(true);
+        packet_num_ = packet_seg->num;
+//        hint += tr("%1 %2 (%3s len %4 seq %5 ack %6 win %7)")
+//                .arg(cap_file_ ? tr("Click to select packet") : tr("Packet"))
+//                .arg(packet_num_)
+//                .arg(QString::number(packet_seg->rel_secs + packet_seg->rel_usecs / 1000000.0, 'g', 4))
+//                .arg(packet_seg->th_seglen)
+//                .arg(packet_seg->th_seq)
+//                .arg(packet_seg->th_ack)
+//                .arg(packet_seg->th_win);
+        tracer_->setGraphKey(ui->rlcPlot->xAxis->pixelToCoord(event->pos().x()));
         rp->replot();
+
     } else {
         if (event && rubber_band_ && rubber_band_->isVisible()) {
             rubber_band_->setGeometry(QRect(rb_origin_, event->pos()).normalized());
@@ -562,6 +580,38 @@ void LteRlcGraphDialog::resetAxes()
     rp->yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, rp->yAxis->range().center());
 
     rp->replot();
+}
+
+void LteRlcGraphDialog::on_actionGoToPacket_triggered()
+{
+    if (tracer_->visible() && cap_file_.capFile() && (packet_num_ > 0)) {
+        // Signal to the packetlist which frame we want to show.
+        emit goToPacket(packet_num_);
+    }
+}
+
+void LteRlcGraphDialog::toggleTracerStyle(bool force_default)
+{
+    if (!tracer_->visible() && !force_default) return;
+
+    QPen sp_pen = ui->rlcPlot->graph(0)->pen();
+    QCPItemTracer::TracerStyle tstyle = QCPItemTracer::tsCrosshair;
+    QPen tr_pen = QPen(tracer_->pen());
+    QColor tr_color = sp_pen.color();
+
+    if (force_default || tracer_->style() != QCPItemTracer::tsCircle) {
+        tstyle = QCPItemTracer::tsCircle;
+        tr_color.setAlphaF(1.0);
+        tr_pen.setWidthF(1.5);
+    } else {
+        tr_color.setAlphaF(0.5);
+        tr_pen.setWidthF(1.0);
+    }
+
+    tracer_->setStyle(tstyle);
+    tr_pen.setColor(tr_color);
+    tracer_->setPen(tr_pen);
+    ui->rlcPlot->replot();
 }
 
 void LteRlcGraphDialog::on_actionReset_triggered()
