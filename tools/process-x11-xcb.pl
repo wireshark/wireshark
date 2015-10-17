@@ -633,6 +633,14 @@ sub reference_elements($$)
             }
         }
         when ('list') {
+            my $type = $e->att('type');
+            my $info = getinfo($type);
+            if (defined $info->{paramref}) {
+                for my $pref (keys %{$info->{paramref}}) {
+                    $refref->{field}{$pref} = 1;
+                }
+            }
+
 	    my $lentype = $e->first_child();
 	    if (defined $lentype) {
 		given ($lentype->name()) {
@@ -834,6 +842,7 @@ sub dissect_element($$$$$;$$)
 		given ($lentype->name()) {
 		    when ('value') { $lencalc = $lentype->text(); }
 		    when ('fieldref') { $lencalc = 'f_'.$lentype->text(); }
+		    when ('paramref') { $lencalc = 'p_'.$lentype->text(); }
 		    when ('op') { $lencalc = get_op($lentype); }
 		    when (['unop','popcount']) { $lencalc = get_unop($lentype); }
 		    when ('sumof') { $lencalc = 'sumof_'.$lentype->att('ref'); }
@@ -857,7 +866,13 @@ sub dissect_element($$$$$;$$)
 
 		print $impl $indent."$list(tvb, offsetp, t, $regname, $lencalc, byte_order);\n";
 	    } elsif (get_struct_info($type)) {
-		print $impl $indent."struct_$info->{'name'}(tvb, offsetp, t, byte_order, $lencalc);\n";
+                my $si = get_struct_info($type);
+                my $prefs = "";
+                foreach my $pref (sort keys %{$si->{paramref}}) {
+                    $prefs .= ", f_$pref";
+                }
+
+		print $impl $indent."struct_$info->{'name'}(tvb, offsetp, t, byte_order, $lencalc$prefs);\n";
 	    } else {
 		die ("Unrecognized type: $type\n");
 	    }
@@ -946,6 +961,7 @@ sub struct {
     $name =~ s/:/_/;
 
     my %refs;
+    my %paramrefs;
     my $size = 0;
     my $dynamic = 0;
     my $needi = 0;
@@ -981,6 +997,11 @@ sub struct {
 			$count = 0;
 			$dynamic = 1;
 		    }
+		    when ('paramref') {
+			$paramrefs{$value->text()} = $value->att('type');
+			$count = 0;
+			$dynamic = 1;
+		    }
 		    when ('op') {
 			get_op($value, \%refs);
 			$count = 0;
@@ -1011,11 +1032,18 @@ sub struct {
 	$size += $info->{'size'} * $count;
     }
 
+    my $prefs = "";
+
     if ($dynamic) {
 	$size = 0;
+
+	foreach my $pref (sort keys %paramrefs) {
+            $prefs .= ", int p_$pref";
+        }
+
 	print $impl <<eot
 
-static int struct_size_$name(tvbuff_t *tvb, int *offsetp, guint byte_order _U_)
+static int struct_size_$name(tvbuff_t *tvb _U_, int *offsetp _U_, guint byte_order _U_$prefs)
 {
     int size = 0;
 eot
@@ -1052,6 +1080,7 @@ eot
 			when ('op') { $sizemul = get_op($len, \%refs); }
 			when (['unop','popcount']) { $sizemul = get_unop($len, \%refs); }
 			when ('fieldref') { $sizemul = 'f_'.$len->text(); }
+			when ('paramref') { $sizemul = 'p_'.$len->text(); }
 			when ('value') {
 			    if ($infosize) {
 				$size += $infosize * $len->text();
@@ -1091,7 +1120,7 @@ eot
 
     print $impl <<eot
 
-static void struct_$name(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count)
+static void struct_$name(tvbuff_t *tvb, int *offsetp, proto_tree *root, guint byte_order _U_, int count$prefs)
 {
     int i;
     for (i = 0; i < count; i++) {
@@ -1111,8 +1140,13 @@ eot
 	register_element($e, $varpat, $humanpat, $refs, "\t");
     }
 
+    $prefs = "";
+    foreach my $pref (sort keys %paramrefs) {
+        $prefs .= ", p_$pref";
+    }
+
     my $sizecalc = $size;
-    $size or $sizecalc = "struct_size_$name(tvb, offsetp, byte_order)";
+    $size or $sizecalc = "struct_size_$name(tvb, offsetp, byte_order$prefs)";
 
     print $impl <<eot
 
@@ -1126,7 +1160,7 @@ eot
     }
 
     print $impl "    }\n}\n";
-    $struct{$qualname} = { size => $size, name => $name };
+    $struct{$qualname} = { size => $size, name => $name, paramref => \%paramrefs };
     $t->purge;
 }
 
