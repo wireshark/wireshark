@@ -3884,12 +3884,9 @@ static void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo _U_, pro
   /* return if zero length sequence */
 
   if (seqlen == 0) {
-    if (tf) {
-      if (*offset - start_offset <= 0)
-        THROW(ReportedBoundsError);
+    if (*offset-start_offset > 0) {
       proto_item_set_len(tf, *offset - start_offset);
     }
-
     return;
   }
 
