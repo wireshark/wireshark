@@ -44,7 +44,7 @@ and xcbproto provides:
   
 Or, if you have already cloned those repositories, "git pull" each one to bring
 it up to date. Please be aware that the Mesa repository is rather large; it is
-slightly more than 53MB as of this writing.
+slightly more than 200MB as of this writing.
 
 Run the following:
  make x11-dissector
