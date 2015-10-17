@@ -496,6 +496,16 @@ set( CPP_FLAG_TESTS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_CPP_ONLY_FLAGS} )
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 
+if(ENABLE_STATIC)
+	set(BUILD_SHARED_LIBS 0)
+	set(LINK_MODE_LIB STATIC)
+	set(LINK_MODE_MODULE STATIC)
+else()
+	set(BUILD_SHARED_LIBS 1)
+	set(LINK_MODE_LIB SHARED)
+	set(LINK_MODE_MODULE MODULE)
+endif()
+
 # Sigh: Have to use THIS_FLAG instead of ${F} for some reason
 foreach(THIS_FLAG ${C_FLAG_TESTS})
 	string( REGEX REPLACE "[^a-zA-Z0-9_]+" "_" F ${THIS_FLAG} )
@@ -602,16 +612,6 @@ foreach(THIS_FLAG ${WIRESHARK_LD_FLAGS})
 	endif()
 	math(EXPR _C "${_C} + 1")
 endforeach()
-
-if(ENABLE_STATIC)
-	set(BUILD_SHARED_LIBS 0)
-	set(LINK_MODE_LIB STATIC)
-	set(LINK_MODE_MODULE STATIC)
-else()
-	set(BUILD_SHARED_LIBS 1)
-	set(LINK_MODE_LIB SHARED)
-	set(LINK_MODE_MODULE MODULE)
-endif()
 
 if(APPLE AND EXISTS /usr/local/opt/gettext)
 	# GLib on OS X requires libintl. Homebrew installs gettext (and
