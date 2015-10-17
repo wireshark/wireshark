@@ -971,7 +971,6 @@ sub struct {
 	    when ('list') {
 		my $type = $e->att('type');
 		my $info = getinfo($type);
-		my $count;
 
 		$needi = 1 if ($info->{'size'} == 0);
 
