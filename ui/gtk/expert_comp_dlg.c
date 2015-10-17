@@ -41,10 +41,11 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/expert_comp_dlg.h"
 #include "ui/gtk/main.h"
-#include "ui/gtk/expert_indicators.h"
+#ifndef HAVE_GRESOURCE
+#include "ui/gtk/pixbuf-csource.h"
+#endif
 #include "ui/gtk/packet_panes.h"
 #include "ui/gtk/edit_packet_comment_dlg.h"
-#include "ui/gtk/capture_comment_icons.h"
 #include "ui/gtk/gtkglobals.h"
 
 void register_tap_listener_expert_comp(void);
@@ -833,7 +834,11 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     gtk_widget_show(ss->error_label);
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     if ( prefs.gui_expert_composite_eyecandy ) {
+#ifdef HAVE_GRESOURCE
+        image = pixbuf_to_widget("/org/wireshark/image/toolbar/14x14/x-expert-error.png");
+#else
         image = pixbuf_to_widget(expert_error_pb_data);
+#endif
         gtk_widget_show(image);
         gtk_box_pack_start(GTK_BOX(hbox), image, TRUE, TRUE, 0);
     }
@@ -847,7 +852,11 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     gtk_widget_show(ss->warn_label);
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     if ( prefs.gui_expert_composite_eyecandy ) {
+#ifdef HAVE_GRESOURCE
+        image = pixbuf_to_widget("/org/wireshark/image/toolbar/14x14/x-expert-warn.png");
+#else
         image = pixbuf_to_widget(expert_warn_pb_data);
+#endif
         gtk_widget_show(image);
         gtk_box_pack_start(GTK_BOX(hbox), image, TRUE, TRUE, 0);
 
@@ -862,7 +871,11 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     gtk_widget_show(ss->note_label);
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     if ( prefs.gui_expert_composite_eyecandy ) {
+#ifdef HAVE_GRESOURCE
+        image = pixbuf_to_widget("/org/wireshark/image/toolbar/14x14/x-expert-note.png");
+#else
         image = pixbuf_to_widget(expert_note_pb_data);
+#endif
         gtk_widget_show(image);
         gtk_box_pack_start(GTK_BOX(hbox), image, TRUE, TRUE, 0);
     }
@@ -876,7 +889,11 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     gtk_widget_show(ss->chat_label);
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     if ( prefs.gui_expert_composite_eyecandy ) {
+#ifdef HAVE_GRESOURCE
+        image = pixbuf_to_widget("/org/wireshark/image/toolbar/14x14/x-expert-chat.png");
+#else
         image = pixbuf_to_widget(expert_chat_pb_data);
+#endif
         gtk_widget_show(image);
         gtk_box_pack_start(GTK_BOX(hbox), image, TRUE, TRUE, 0);
     }
@@ -890,7 +907,11 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     gtk_widget_show(ss->all_label);
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     if ( prefs.gui_expert_composite_eyecandy ) {
+#ifdef HAVE_GRESOURCE
+        image = pixbuf_to_widget("/org/wireshark/image/capture_comment_disabled.png");
+#else
         image = pixbuf_to_widget(capture_comment_disabled_pb_data);
+#endif
         gtk_widget_show(image);
         gtk_box_pack_start(GTK_BOX(hbox), image, TRUE, TRUE, 0);
     }
@@ -903,7 +924,11 @@ expert_comp_init(const char *opt_arg _U_, void* userdata _U_)
     gtk_widget_show(ss->pkt_comments_label);
     hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
     if ( prefs.gui_expert_composite_eyecandy ) {
+#ifdef HAVE_GRESOURCE
+        image = pixbuf_to_widget("/org/wireshark/image/capture_comment_update.png");
+#else
         image = pixbuf_to_widget(capture_comment_update_pb_data);
+#endif
         gtk_widget_show(image);
         gtk_box_pack_start(GTK_BOX(hbox), image, TRUE, TRUE, 0);
     }

@@ -193,13 +193,13 @@
 #include "ui/gtk/response_time_delay_table.h"
 #include "ui/gtk/simple_stattable.h"
 #include "simple_dialog.h"
+#ifdef HAVE_GRESOURCE
+#include "wireshark-gresources.h"
+#else
+#include "ui/gtk/pixbuf-csource.h"
+#endif
 
 #include "ui/gtk/old-gtk-compat.h"
-
-#ifdef HAVE_LIBPCAP
-#include "wsicon.h"
-#include "wsiconcap.h"
-#endif
 
 #ifdef HAVE_AIRPCAP
 #include <caputils/airpcap.h>
@@ -1474,41 +1474,52 @@ main_cf_cb_file_rescan_finished(capture_file *cf)
 
 #ifdef HAVE_LIBPCAP
 static GList *icon_list_create(
+#ifdef HAVE_GRESOURCE
+    const gchar *icon16_path,
+    const gchar *icon32_path,
+    const gchar *icon48_path,
+    const gchar *icon64_path)
+#else
     const guint8 *icon16_pb,
     const guint8 *icon32_pb,
     const guint8 *icon48_pb,
     const guint8 *icon64_pb)
+#endif
 {
     GList *icon_list = NULL;
-    GdkPixbuf * pixbuf16;
-    GdkPixbuf * pixbuf32;
-    GdkPixbuf * pixbuf48;
-    GdkPixbuf * pixbuf64;
+    GdkPixbuf *pixbuf16 = NULL;
+    GdkPixbuf *pixbuf32 = NULL;
+    GdkPixbuf *pixbuf48 = NULL;
+    GdkPixbuf *pixbuf64 = NULL;
 
-
-    if(icon16_pb != NULL) {
+#ifdef HAVE_GRESOURCE
+    if (icon16_path != NULL)
+        pixbuf16 = ws_gdk_pixbuf_new_from_resource(icon16_path);
+    if (icon32_path != NULL)
+        pixbuf32 = ws_gdk_pixbuf_new_from_resource(icon32_path);
+    if (icon48_path != NULL)
+        pixbuf48 = ws_gdk_pixbuf_new_from_resource(icon48_path);
+    if (icon64_path != NULL)
+        pixbuf64 = ws_gdk_pixbuf_new_from_resource(icon64_path);
+#else
+    if (icon16_pb != NULL)
         pixbuf16 = gdk_pixbuf_new_from_inline(-1, icon16_pb, FALSE, NULL);
-        g_assert(pixbuf16);
-        icon_list = g_list_append(icon_list, pixbuf16);
-  }
-
-    if(icon32_pb != NULL) {
+    if (icon32_pb != NULL)
         pixbuf32 = gdk_pixbuf_new_from_inline(-1, icon32_pb, FALSE, NULL);
-        g_assert(pixbuf32);
-        icon_list = g_list_append(icon_list, pixbuf32);
-    }
-
-    if(icon48_pb != NULL) {
+    if (icon48_pb != NULL)
         pixbuf48 = gdk_pixbuf_new_from_inline(-1, icon48_pb, FALSE, NULL);
-        g_assert(pixbuf48);
-        icon_list = g_list_append(icon_list, pixbuf48);
-    }
-
-    if(icon64_pb != NULL) {
+    if (icon64_pb != NULL)
         pixbuf64 = gdk_pixbuf_new_from_inline(-1, icon64_pb, FALSE, NULL);
-        g_assert(pixbuf64);
+#endif
+
+    if (pixbuf16 != NULL)
+        icon_list = g_list_append(icon_list, pixbuf16);
+    if (pixbuf32 != NULL)
+        icon_list = g_list_append(icon_list, pixbuf32);
+    if (pixbuf48 != NULL)
+        icon_list = g_list_append(icon_list, pixbuf48);
+    if (pixbuf64 != NULL)
         icon_list = g_list_append(icon_list, pixbuf64);
-    }
 
     return icon_list;
 }
@@ -1521,7 +1532,17 @@ main_capture_cb_capture_prepared(capture_session *cap_session)
     set_titlebar_for_capture_in_progress((capture_file *)cap_session->cf);
 
     if(icon_list == NULL) {
-        icon_list = icon_list_create(wsiconcap_16_pb_data, wsiconcap_32_pb_data, wsiconcap_48_pb_data, wsiconcap_64_pb_data);
+#ifdef HAVE_GRESOURCE
+        icon_list = icon_list_create("/org/wireshark/image/wsiconcap16.png",
+                                        "/org/wireshark/image/wsiconcap32.png",
+                                        "/org/wireshark/image/wsiconcap48.png",
+                                        "/org/wireshark/image/wsiconcap64.png");
+#else
+        icon_list = icon_list_create(wsiconcap_16_pb_data,
+                                        wsiconcap_32_pb_data,
+                                        wsiconcap_48_pb_data,
+                                        wsiconcap_64_pb_data);
+#endif
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 
@@ -1581,7 +1602,17 @@ main_capture_cb_capture_update_finished(capture_session *cap_session)
     main_set_for_capture_file(TRUE);
 
     if(icon_list == NULL) {
-        icon_list = icon_list_create(wsicon_16_pb_data, wsicon_32_pb_data, wsicon_48_pb_data, wsicon_64_pb_data);
+#ifdef HAVE_GRESOURCE
+        icon_list = icon_list_create("/org/wireshark/image/wsicon16.png",
+                                        "/org/wireshark/image/wsicon32.png",
+                                        "/org/wireshark/image/wsicon48.png",
+                                        "/org/wireshark/image/wsicon64.png");
+#else
+        icon_list = icon_list_create(wsicon_16_pb_data,
+                                        wsicon_32_pb_data,
+                                        wsicon_48_pb_data,
+                                        wsicon_64_pb_data);
+#endif
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 
@@ -1622,7 +1653,17 @@ main_capture_cb_capture_fixed_finished(capture_session *cap_session _U_)
     set_titlebar_for_capture_file(NULL);
 
     if(icon_list == NULL) {
-        icon_list = icon_list_create(wsicon_16_pb_data, wsicon_32_pb_data, wsicon_48_pb_data, wsicon_64_pb_data);
+#ifdef HAVE_GRESOURCE
+        icon_list = icon_list_create("/org/wireshark/image/wsicon16.png",
+                                        "/org/wireshark/image/wsicon32.png",
+                                        "/org/wireshark/image/wsicon48.png",
+                                        "/org/wireshark/image/wsicon64.png");
+#else
+        icon_list = icon_list_create(wsicon_16_pb_data,
+                                        wsicon_32_pb_data,
+                                        wsicon_48_pb_data,
+                                        wsicon_64_pb_data);
+#endif
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 
@@ -1666,7 +1707,17 @@ main_capture_cb_capture_failed(capture_session *cap_session _U_)
     main_set_for_capture_file(FALSE);
 
     if(icon_list == NULL) {
-        icon_list = icon_list_create(wsicon_16_pb_data, wsicon_32_pb_data, wsicon_48_pb_data, wsicon_64_pb_data);
+#ifdef HAVE_GRESOURCE
+        icon_list = icon_list_create("/org/wireshark/image/wsicon16.png",
+                                        "/org/wireshark/image/wsicon32.png",
+                                        "/org/wireshark/image/wsicon48.png",
+                                        "/org/wireshark/image/wsicon64.png");
+#else
+        icon_list = icon_list_create(wsicon_16_pb_data,
+                                        wsicon_32_pb_data,
+                                        wsicon_48_pb_data,
+                                        wsicon_64_pb_data);
+#endif
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 
@@ -1834,7 +1885,11 @@ main_capture_callback(gint event, capture_session *cap_session, gpointer user_da
         main_capture_cb_capture_update_started(cap_session);
 #ifdef HAVE_GTKOSXAPPLICATION
         theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
-        gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsiconcap_48_pb_data, FALSE, NULL));
+#ifdef HAVE_GRESOURCE
+        gtkosx_application_set_dock_icon_pixbuf(theApp, ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/wsicon48.png"));
+#else
+        gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsicon_48_pb_data, FALSE, NULL));
+#endif
 #endif
         break;
     case(capture_cb_capture_update_continue):
@@ -1861,7 +1916,11 @@ main_capture_callback(gint event, capture_session *cap_session, gpointer user_da
          * closes the capturing on its own! */
 #ifdef HAVE_GTKOSXAPPLICATION
         theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
+#ifdef HAVE_GRESOURCE
+        gtkosx_application_set_dock_icon_pixbuf(theApp, ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/wsicon64.png"));
+#else
         gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsicon_64_pb_data, FALSE, NULL));
+#endif
 #endif
         main_capture_cb_capture_stopping(cap_session);
         break;
@@ -2184,6 +2243,10 @@ DIAG_OFF(cast-qual)
     };
 DIAG_ON(cast-qual)
     static const char optstring[] = OPTSTRING;
+
+#ifdef HAVE_GRESOURCE
+    main_register_resource();
+#endif
 
     cmdarg_err_init(wireshark_cmdarg_err, wireshark_cmdarg_err_cont);
 
@@ -3278,7 +3341,11 @@ DIAG_ON(cast-qual)
 
 #ifdef HAVE_GTKOSXAPPLICATION
     theApp = (GtkosxApplication *)g_object_new(GTKOSX_TYPE_APPLICATION, NULL);
+#ifdef HAVE_GRESOURCE
+    gtkosx_application_set_dock_icon_pixbuf(theApp, ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/wsicon64.png"));
+#else
     gtkosx_application_set_dock_icon_pixbuf(theApp, gdk_pixbuf_new_from_inline(-1, wsicon_64_pb_data, FALSE, NULL));
+#endif
     gtkosx_application_ready(theApp);
 #endif
 
@@ -3323,6 +3390,10 @@ DIAG_ON(cast-qual)
        doesn't arrange that "destroy_console()" be called when we exit,
        so we call it here if a console was created. */
     destroy_console();
+#endif
+
+#ifdef HAVE_GRESOURCE
+    main_unregister_resource();
 #endif
 
     exit(0);

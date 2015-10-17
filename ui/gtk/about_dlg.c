@@ -54,7 +54,9 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/plugins_dlg.h"
 #include "ui/gtk/stock_icons.h"
-#include "ui/gtk/wssplash.h"
+#ifndef HAVE_GRESOURCE
+#include "ui/gtk/pixbuf-csource.h"
+#endif
 
 #include "webbrowser.h"
 
@@ -83,7 +85,11 @@ about_wireshark(GtkWidget *parent _U_, GtkWidget *main_vb)
   const char *title = "Network Protocol Analyzer";
 
   /*icon = xpm_to_widget_from_parent(parent, wssplash_xpm);*/
+#ifdef HAVE_GRESOURCE
+  icon = pixbuf_to_widget("/org/wireshark/image/wssplash_dev.png");
+#else
   icon = pixbuf_to_widget(wssplash_pb_data);
+#endif
 
   gtk_box_pack_start(GTK_BOX(main_vb), icon, TRUE, TRUE, 0);
 

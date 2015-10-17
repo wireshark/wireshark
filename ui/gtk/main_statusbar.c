@@ -57,9 +57,10 @@
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/expert_comp_dlg.h"
 #include "ui/gtk/stock_icons.h"
+#ifndef HAVE_GRESOURCE
+#include "ui/gtk/pixbuf-csource.h"
+#endif
 #include "ui/gtk/profile_dlg.h"
-#include "ui/gtk/expert_indicators.h"
-#include "ui/gtk/capture_comment_icons.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/menus.h"
 #include "ui/gtk/edit_packet_comment_dlg.h"
@@ -573,28 +574,28 @@ status_expert_new(void)
 {
     GtkWidget *expert_image;
 
-    expert_image = pixbuf_to_widget(expert_error_pb_data);
+    expert_image = PIXBUF_TO_WIDGET(expert_error_pb_data, "/org/wireshark/image/toolbar/14x14/x-expert-error.png");
     gtk_widget_set_tooltip_text(expert_image, "ERROR is the highest expert info level");
     gtk_widget_show(expert_image);
     expert_info_error = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_error), expert_image);
     g_signal_connect(expert_info_error, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
 
-    expert_image = pixbuf_to_widget(expert_warn_pb_data);
+    expert_image = PIXBUF_TO_WIDGET(expert_warn_pb_data, "/org/wireshark/image/toolbar/14x14/x-expert-warn.png");
     gtk_widget_set_tooltip_text(expert_image, "WARNING is the highest expert info level");
     gtk_widget_show(expert_image);
     expert_info_warn = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_warn), expert_image);
     g_signal_connect(expert_info_warn, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
 
-    expert_image = pixbuf_to_widget(expert_note_pb_data);
+    expert_image = PIXBUF_TO_WIDGET(expert_note_pb_data, "/org/wireshark/image/toolbar/14x14/x-expert-note.png");
     gtk_widget_set_tooltip_text(expert_image, "NOTE is the highest expert info level");
     gtk_widget_show(expert_image);
     expert_info_note = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_note), expert_image);
     g_signal_connect(expert_info_note, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
 
-    expert_image = pixbuf_to_widget(expert_chat_pb_data);
+    expert_image = PIXBUF_TO_WIDGET(expert_chat_pb_data, "/org/wireshark/image/toolbar/14x14/x-expert-chat.png");
     gtk_widget_set_tooltip_text(expert_image, "CHAT is the highest expert info level");
     gtk_widget_show(expert_image);
     expert_info_chat = gtk_event_box_new();
@@ -608,14 +609,14 @@ status_expert_new(void)
     gtk_container_add(GTK_CONTAINER(expert_info_comment), expert_image);
     g_signal_connect(expert_info_comment, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
 
-    expert_image = pixbuf_to_widget(expert_none_pb_data);
+    expert_image = PIXBUF_TO_WIDGET(expert_none_pb_data, "/org/wireshark/image/toolbar/14x14/x-expert-none.png");
     gtk_widget_set_tooltip_text(expert_image, "No expert info");
     gtk_widget_show(expert_image);
     expert_info_none = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_none), expert_image);
     g_signal_connect(expert_info_none, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
 
-    expert_image = pixbuf_to_widget(expert_none_pb_data);
+    expert_image = PIXBUF_TO_WIDGET(expert_none_pb_data, "/org/wireshark/image/toolbar/14x14/x-expert-none.png");
     gtk_widget_show(expert_image);
     expert_info_placeholder = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_placeholder), expert_image);
@@ -673,28 +674,28 @@ status_capture_comment_new(void)
 {
     GtkWidget *comment_image;
 
-    comment_image = pixbuf_to_widget(capture_comment_update_pb_data);
+    comment_image = PIXBUF_TO_WIDGET(capture_comment_update_pb_data, "/org/wireshark/image/capture_comment_update.png");
     gtk_widget_set_tooltip_text(comment_image, "Read or edit the comment for this capture file");
     gtk_widget_show(comment_image);
     capture_comment = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(capture_comment), comment_image);
     g_signal_connect(capture_comment, "button_press_event", G_CALLBACK(edit_capture_comment_dlg_event_cb), NULL);
 
-    comment_image = pixbuf_to_widget(capture_comment_add_pb_data);
+    comment_image = PIXBUF_TO_WIDGET(capture_comment_add_pb_data, "/org/wireshark/image/capture_comment_add.png");
     gtk_widget_set_tooltip_text(comment_image, "Add a comment to this capture file");
     gtk_widget_show(comment_image);
     capture_comment_none = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(capture_comment_none), comment_image);
     g_signal_connect(capture_comment_none, "button_press_event", G_CALLBACK(edit_capture_comment_dlg_event_cb), NULL);
 
-    comment_image = pixbuf_to_widget(capture_comment_add_pb_data);
+    comment_image = PIXBUF_TO_WIDGET(capture_comment_add_pb_data, "/org/wireshark/image/capture_comment_add.png");
     gtk_widget_show(comment_image);
     capture_comment_placeholder = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(capture_comment_placeholder), comment_image);
     gtk_widget_set_sensitive(capture_comment_placeholder, FALSE);
 
     gtk_widget_show(capture_comment_placeholder);
-    /* comment_image = pixbuf_to_widget(capture_comment_disabled_pb_data); ... */
+    /* comment_image = PIXBUF_TO_WIDGET(capture_comment_disabled_pb_data, "/org/wireshark/image/toolbar/capture_comment_disabled.png"); ... */
 
 }
 

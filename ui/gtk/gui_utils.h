@@ -277,11 +277,25 @@ extern GtkWidget *xpm_to_widget(const char ** xpm);
 extern GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm);
 #endif
 
-/** Convert an pixbuf data to a GtkWidget
+#ifdef HAVE_GRESOURCE
+/** Convert pixbuf data to a GtkWidget
  *
- * @param pb_data Inline pixbuf data. This should be created with "gdk-pixbuf-csource --raw"
+ * @param pb_path GResource pixbuf path.
  */
+extern GtkWidget *pixbuf_to_widget(const char *pb_path);
+
+#define PIXBUF_TO_WIDGET(pb, path) \
+  pixbuf_to_widget(path)
+#else
+ /** Convert an pixbuf data to a GtkWidget
+  *
+  * @param pb_data Inline pixbuf data. This should be created with "gdk-pixbuf-csource --raw"
+  */
 extern GtkWidget *pixbuf_to_widget(const guint8 * pb_data);
+
+#define PIXBUF_TO_WIDGET(pb, path) \
+  pixbuf_to_widget(pb)
+#endif /* HAVE_GRESOURCE */
 
 /** Copy a GString to the clipboard.
  *
@@ -515,6 +529,16 @@ void ws_combo_box_set_active(GtkComboBox *combo_box, gint idx);
 void
 ws_combo_box_set_active_iter(GtkComboBox *combo_box, GtkTreeIter *iter);
 
+#ifdef HAVE_GRESOURCE
+/**
+ * ws_gdk_pixbuf_new_from_resource:
+ * @param path A GResource path
+ * @return The GdkPixbuf object
+ */
+GdkPixbuf *
+ws_gdk_pixbuf_new_from_resource(const char *path);
+#endif /* HAVE_GRESOURCE */
+
 #if GTK_CHECK_VERSION(2,22,0)
 #if !GTK_CHECK_VERSION(3,0,0)
 GdkPixbuf *gdk_pixbuf_get_from_surface (cairo_surface_t *surface,
@@ -651,7 +675,6 @@ extern void ws_gtk_grid_set_homogeneous(GtkGrid *grid, gboolean homogeneous);
 
 #define ws_gtk_grid_set_column_spacing(grid, spacing) \
     gtk_grid_set_column_spacing(grid, spacing)
-
 
 #endif /* GTK_CHECK_VERSION(3,0,0) */
 

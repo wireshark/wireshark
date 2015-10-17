@@ -55,23 +55,24 @@
 #include "ui/gtk/filter_dlg.h"
 #include "ui/gtk/dlg_utils.h"
 #include "ui/gtk/file_dlg.h"
-#include "ui/gtk/stock_icons.h"
 #include "ui/gtk/capture_file_dlg.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/cfilter_combo_utils.h"
 #include "ui/gtk/capture_if_dlg.h"
 #include "ui/gtk/main_welcome.h"
-#include "ui/gtk/network_icons.h"
 #include "ui/gtk/menus.h"
 #include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/main_80211_toolbar.h"
+#include "ui/gtk/stock_icons.h"
+#ifndef HAVE_GRESOURCE
+#include "ui/gtk/pixbuf-csource.h"
+#endif
 #include "simple_dialog.h"
 
 #include "ui/gtk/keys.h"
 
 #include "ui/gtk/old-gtk-compat.h"
-#include "ui/gtk/expert_indicators.h"
 
 #ifdef HAVE_AIRPCAP
 #include <caputils/airpcap.h>
@@ -1970,10 +1971,18 @@ add_page(gchar *name, gchar *text, gboolean error)
   model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
   gtk_list_store_append (GTK_LIST_STORE(model), &iter);
   if (error) {
+#ifdef HAVE_GRESOURCE
+    icon = pixbuf_to_widget("/org/wireshark/image/toolbar/14x14/x-expert-error.png");
+#else
     icon = pixbuf_to_widget(expert_error_pb_data);
+#endif
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, COMPILE_ERROR, 1, SIGN, gtk_image_get_pixbuf(GTK_IMAGE(icon)), INAME, name, -1);
   } else {
+#ifdef HAVE_GRESOURCE
+    icon = pixbuf_to_widget("/org/wireshark/image/expert_ok.png");
+#else
     icon = pixbuf_to_widget(expert_ok_pb_data);
+#endif
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, COMPILE_ERROR, 0, SIGN, gtk_image_get_pixbuf(GTK_IMAGE(icon)), INAME, name, -1);
   }
   g_hash_table_insert(compile_results, name, text);

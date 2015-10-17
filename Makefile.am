@@ -943,6 +943,7 @@ EXTRA_DIST = \
 	image/stock_dialog_warning_48.xpm	\
 	image/text2pcap.rc.in			\
 	image/tfshark.rc.in			\
+	image/expert_ok.png			\
 	image/toolbar/14x14/x-capture-comment-update.png	\
 	image/toolbar/14x14/x-capture-comment-update.svg	\
 	image/toolbar/14x14/x-capture-comment-update@2x.png	\

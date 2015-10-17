@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+    <gresource prefix="/org/wireshark">
+        <file>image/wsicon16.png</file>
+        <file>image/wsicon24.png</file>
+        <file>image/wsicon32.png</file>
+        <file>image/wsicon48.png</file>
+        <file>image/wsicon64.png</file>
+
+        <file>image/wsiconcap16.png</file>
+        <file>image/wsiconcap24.png</file>
+        <file>image/wsiconcap32.png</file>
+        <file>image/wsiconcap48.png</file>
+        <file>image/wsiconcap64.png</file>
+
+        <file>image/wssplash.png</file>
+        <file>image/wssplash_dev.png</file>
+
+        <file>image/layout_1.png</file>
+        <file>image/layout_2.png</file>
+        <file>image/layout_3.png</file>
+        <file>image/layout_4.png</file>
+        <file>image/layout_5.png</file>
+        <file>image/layout_6.png</file>
+
+        <file>image/capture_comment_add.png</file>
+        <file>image/capture_comment_update.png</file>
+        <file>image/capture_comment_disabled.png</file>
+
+        <file>image/toolbar/network_bluetooth_16.png</file>
+        <file>image/toolbar/network_usb_16.png</file>
+        <file>image/toolbar/network_wired_16.png</file>
+        <file>image/toolbar/network_wireless_16.png</file>
+
+        <file>image/toolbar/remote_arrow_16.png</file>
+        <file>image/toolbar/remote_globe_16.png</file>
+        <file>image/toolbar/remote_sat_16.png</file>
+
+        <file>image/toolbar/pipe_16.png</file>
+
+        <file>image/toolbar/capture_interfaces_16.png</file>
+        <file>image/toolbar/gnome_emblem_web_16.png</file>
+        <file>image/toolbar/capture_interfaces_24.png</file>
+        <file>image/toolbar/gnome_emblem_web_24.png</file>
+
+        <file>image/toolbar/14x14/x-expert-chat.png</file>
+        <file>image/toolbar/14x14/x-expert-error.png</file>
+        <file>image/toolbar/14x14/x-expert-none.png</file>
+        <file>image/toolbar/14x14/x-expert-note.png</file>
+        <file>image/toolbar/14x14/x-expert-warn.png</file>
+        <file>image/expert_ok.png</file>
+
+        <file>image/toolbar/16x16/x-capture-file-save.png</file>
+        <file>image/toolbar/16x16/x-capture-options.png</file>
+        <file>image/toolbar/16x16/x-capture-restart.png</file>
+        <file>image/toolbar/16x16/x-capture-start.png</file>
+        <file>image/toolbar/16x16/x-capture-stop.png</file>
+
+        <file>image/toolbar/24x24/x-capture-file-save.png</file>
+        <file>image/toolbar/24x24/x-capture-options.png</file>
+        <file>image/toolbar/24x24/x-capture-restart.png</file>
+        <file>image/toolbar/24x24/x-capture-start.png</file>
+        <file>image/toolbar/24x24/x-capture-stop.png</file>
+    </gresource>
+</gresources>

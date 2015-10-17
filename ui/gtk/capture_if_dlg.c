@@ -46,6 +46,9 @@
 #endif
 
 #include "ui/gtk/stock_icons.h"
+#ifndef HAVE_GRESOURCE
+#include "ui/gtk/pixbuf-csource.h"
+#endif
 #include "ui/gtk/capture_dlg.h"
 #include "ui/gtk/capture_if_dlg.h"
 #include "ui/gtk/gui_utils.h"
@@ -55,8 +58,6 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/webbrowser.h"
-#include "ui/gtk/network_icons.h"
-#include "ui/gtk/pipe_icon.h"
 #include "ui/gtk/main_welcome.h"
 
 #include "ui/gtk/old-gtk-compat.h"
@@ -65,10 +66,6 @@
 
 #ifdef HAVE_AIRPCAP
 #include "../../image/toolbar/capture_airpcap_16.xpm"
-#endif
-
-#if defined(HAVE_PCAP_REMOTE)
-#include "ui/gtk/remote_icons.h"
 #endif
 
 #include "../../image/toolbar/modem_16.xpm"
@@ -399,44 +396,44 @@ GtkWidget * capture_get_if_icon(interface_t *device)
 {
 #ifdef HAVE_PCAP_REMOTE
   if (!device->local) {
-    return pixbuf_to_widget(remote_sat_pb_data);
+    return PIXBUF_TO_WIDGET(remote_sat_pb_data, "/org/wireshark/image/toolbar/remote_sat_16.png");
   }
 #endif
   if (device->display_name && strstr(device->display_name,"Wi-Fi") != NULL) {
-    return pixbuf_to_widget(network_wireless_pb_data);
+    return PIXBUF_TO_WIDGET(network_wireless_pb_data, "/org/wireshark/image/toolbar/network_wireless_16.png");
   }
   switch (device->type) {
   case IF_DIALUP:
     return xpm_to_widget(modem_16_xpm);
   case IF_WIRELESS:
-    return pixbuf_to_widget(network_wireless_pb_data);
+    return PIXBUF_TO_WIDGET(network_wireless_pb_data, "/org/wireshark/image/toolbar/network_wireless_16.png");
 #ifdef HAVE_AIRPCAP
   case IF_AIRPCAP:
     return xpm_to_widget(capture_airpcap_16_xpm);
 #endif
   case IF_BLUETOOTH:
-    return pixbuf_to_widget(network_bluetooth_pb_data);
+    return PIXBUF_TO_WIDGET(network_bluetooth_pb_data, "/org/wireshark/image/toolbar/network_bluetooth_16.png");
   case IF_USB:
-    return pixbuf_to_widget(network_usb_pb_data);
+    return PIXBUF_TO_WIDGET(network_usb_pb_data, "/org/wireshark/image/toolbar/network_usb_16.png");
   case IF_VIRTUAL:
     return xpm_to_widget(network_virtual_16_xpm);
   case IF_WIRED:
-    return pixbuf_to_widget(network_wired_pb_data);
+    return PIXBUF_TO_WIDGET(network_wired_pb_data, "/org/wireshark/image/toolbar/network_wired_16.png");
 #ifdef HAVE_EXTCAP
   case IF_EXTCAP:
 #ifdef _WIN32
     if (strncmp(device->friendly_name, "USBPcap", 7) == 0) {
-      return pixbuf_to_widget(network_usb_pb_data);
+      return PIXBUF_TO_WIDGET(network_usb_pb_data, "/org/wireshark/image/toolbar/network_usb_16.png");
     }
 #endif
 #endif
   case IF_PIPE:
   case IF_STDIN:
-    return pixbuf_to_widget(pipe_pb_data);
+    return PIXBUF_TO_WIDGET(pipe_pb_data, "/org/wireshark/image/toolbar/pipe_16.png");
   default:
     printf("unknown device type\n");
   }
-  return pixbuf_to_widget(network_wired_pb_data);
+  return PIXBUF_TO_WIDGET(network_wired_pb_data, "/org/wireshark/image/toolbar/network_wired_16.png");
 }
 
 

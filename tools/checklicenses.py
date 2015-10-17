@@ -209,7 +209,13 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'tools/fix_pragma_wdocumentation.sh': [
         'UNKNOWN',
     ],
-
+    # Generated files for GTK pixbuf binary bundling
+    'ui/gtk/wireshark-gresources.h': [
+        'UNKNOWN',
+    ],
+    'ui/gtk/wireshark-gresources.c': [
+        'UNKNOWN',
+    ],
 }
 
 

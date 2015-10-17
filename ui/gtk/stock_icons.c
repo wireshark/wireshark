@@ -28,8 +28,10 @@
 #include <string.h>
 
 #include "ui/gtk/stock_icons.h"
-#include "ui/gtk/toolbar_icons.h"
-#include "ui/gtk/wsicon.h"
+#ifndef HAVE_GRESOURCE
+#include "ui/gtk/pixbuf-csource.h"
+#endif
+#include "ui/gtk/gui_utils.h"
 
 #include <wsutil/utf8_entities.h>
 
@@ -90,8 +92,15 @@ typedef struct stock_pixmap_tag{
 
 typedef struct stock_pixbuf_tag{
     const char    * name;
+#ifdef HAVE_GRESOURCE
+    struct {
+        const char *p16; /* Optional */
+        const char *p24; /* Mandatory */
+    } path;
+#else
     const guint8 * pb_data16; /* Optional */
     const guint8 * pb_data24; /* Mandatory */
+#endif
 } stock_pixbuf_t;
 
 /*
@@ -314,6 +323,41 @@ void stock_icons_init(void) {
 #endif
 
     static const stock_pixbuf_t pixbufs[] = {
+#ifdef HAVE_GRESOURCE
+        { WIRESHARK_STOCK_ABOUT,
+            { "/org/wireshark/image/wsicon16.png",
+              "/org/wireshark/image/wsicon24.png" }
+        },
+        { WIRESHARK_STOCK_CAPTURE_INTERFACES,
+            { "/org/wireshark/image/toolbar/capture_interfaces_16.png",
+              "/org/wireshark/image/toolbar/capture_interfaces_24.png" }
+        },
+        { WIRESHARK_STOCK_CAPTURE_OPTIONS,
+            { "/org/wireshark/image/toolbar/16x16/x-capture-options.png",
+              "/org/wireshark/image/toolbar/24x24/x-capture-options.png" }
+        },
+        { WIRESHARK_STOCK_CAPTURE_RESTART,
+            { "/org/wireshark/image/toolbar/16x16/x-capture-restart.png",
+              "/org/wireshark/image/toolbar/24x24/x-capture-restart.png" }
+        },
+        { WIRESHARK_STOCK_CAPTURE_START,
+            { "/org/wireshark/image/toolbar/16x16/x-capture-start.png",
+              "/org/wireshark/image/toolbar/24x24/x-capture-start.png" }
+        },
+        { WIRESHARK_STOCK_CAPTURE_STOP,
+            { "/org/wireshark/image/toolbar/16x16/x-capture-stop.png",
+              "/org/wireshark/image/toolbar/24x24/x-capture-stop.png" }
+        },
+        { WIRESHARK_STOCK_SAVE,
+            { "/org/wireshark/image/toolbar/16x16/x-capture-file-save.png",
+              "/org/wireshark/image/toolbar/24x24/x-capture-file-save.png" }
+        },
+        { WIRESHARK_STOCK_WIKI,
+            { "/org/wireshark/image/toolbar/gnome_emblem_web_16.png",
+              "/org/wireshark/image/toolbar/gnome_emblem_web_24.png" }
+        },
+        { NULL, { NULL, NULL } }
+#else
         { WIRESHARK_STOCK_ABOUT,              wsicon_16_pb_data, wsicon_24_pb_data },
         { WIRESHARK_STOCK_CAPTURE_INTERFACES, capture_interfaces_16_pb_data, capture_interfaces_24_pb_data },
         { WIRESHARK_STOCK_CAPTURE_OPTIONS,    capture_options_alt1_16_pb_data, capture_options_alt1_24_pb_data },
@@ -323,6 +367,7 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_SAVE,               toolbar_wireshark_file_16_pb_data, toolbar_wireshark_file_24_pb_data},
         { WIRESHARK_STOCK_WIKI,               gnome_emblem_web_16_pb_data, gnome_emblem_web_24_pb_data },
         { NULL, NULL, NULL }
+#endif
     };
 
     /* New images should be PNGs + pixbufs above. Please don't add to this list. */
@@ -409,8 +454,12 @@ void stock_icons_init(void) {
 
     /* Add pixbufs as builtin theme icons */
     for (i = 0; pixbufs[i].name != NULL; i++) {
+#ifdef HAVE_GRESOURCE
+        GdkPixbuf * pixbuf24 = ws_gdk_pixbuf_new_from_resource(pixbufs[i].path.p24);
+#else
         GdkPixbuf * pixbuf24 = gdk_pixbuf_new_from_inline(-1, pixbufs[i].pb_data24, FALSE, NULL);
         g_assert(pixbuf24);
+#endif
 #if !GTK_CHECK_VERSION(3, WS_GTK3_MINOR_STOCK_DEPRECATION_STARTS, 0)
         icon_set = gtk_icon_set_new_from_pixbuf(pixbuf24);
         gtk_icon_factory_add (factory, pixbufs[i].name, icon_set);
@@ -419,10 +468,14 @@ void stock_icons_init(void) {
         /* Default image */
         gtk_icon_theme_add_builtin_icon(pixbufs[i].name, 24, pixbuf24);
 
-
+#ifdef HAVE_GRESOURCE
+        if (pixbufs[i].path.p16 != NULL) {
+            GdkPixbuf * pixbuf16 = ws_gdk_pixbuf_new_from_resource(pixbufs[i].path.p16);
+#else
         if (pixbufs[i].pb_data16) {
             GdkPixbuf * pixbuf16 = gdk_pixbuf_new_from_inline(-1, pixbufs[i].pb_data16, FALSE, NULL);
             g_assert(pixbuf16);
+#endif
 #if !GTK_CHECK_VERSION(3, WS_GTK3_MINOR_STOCK_DEPRECATION_STARTS, 0)
             source16 = gtk_icon_source_new();
             gtk_icon_source_set_pixbuf(source16, pixbuf16);

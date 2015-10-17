@@ -278,12 +278,48 @@ if(WIN32)
 	set(PORTAUDIO_OBJ $<TARGET_OBJECTS:portaudio>)
 endif()
 
+find_file(GLIB_COMPILE_RESOURCES
+	glib-compile-resources${CMAKE_EXECUTABLE_SUFFIX}
+	HINTS
+		"${GLIB2_HINTS}/bin"
+)
+
+pkg_check_modules(GRESOURCE QUIET gio-2.0>=2.32 gdk-pixbuf-2.0>=2.26)
+
+macro(WIRESHARK_GRESOURCES _outputfile _resourcefile)
+	add_custom_command(
+		OUTPUT ${_outputfile}
+		COMMAND ${GLIB_COMPILE_RESOURCES} --sourcedir=${CMAKE_SOURCE_DIR} --target=${_outputfile} --generate --manual-register ${CMAKE_CURRENT_SOURCE_DIR}/${_resourcefile}
+		DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${_resourcefile}
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	)
+endmacro(WIRESHARK_GRESOURCES)
+
+WIRESHARK_GRESOURCES(wireshark-gresources.h main.gresources.xml)
+
+WIRESHARK_GRESOURCES(wireshark-gresources.c main.gresources.xml)
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
+if(GRESOURCE_FOUND AND NOT WIN32)
+	set(PIXBUF_SRC
+		wireshark-gresources.c
+		wireshark-gresources.h
+	)
+	add_definitions(-DHAVE_GRESOURCE)
+else()
+	set(PIXBUF_SRC
+		pixbuf-csource.c
+	)
+endif()
+
 add_library(gtkui STATIC
 	${WIRESHARK_GTK_SRC}
 	${WIRESHARK_TAP_SRC}
 	${PLATFORM_UI_SRC}
 	${PORTAUDIO_OBJ}
 	wireshark-tap-register.c
+	${PIXBUF_SRC}
 )
 set_target_properties(gtkui PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"

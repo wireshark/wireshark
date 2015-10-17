@@ -34,8 +34,9 @@
 #include "ui/gtk/main_titlebar.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/main.h"
-
-#include "layouts.h"
+#ifndef HAVE_GRESOURCE
+#include "ui/gtk/pixbuf-csource.h"
+#endif
 
 #define LAYOUT_QTY (layout_type_max - 1)
 
@@ -311,6 +312,7 @@ layout_prefs_show(void)
     GtkWidget   *filter_toolbar_style_om;
     GtkWidget   *filter_toolbar_placement_om;
     GtkWidget   *window_title_te;
+    GdkPixbuf   *pixbuf[6];
 
     GtkWidget ** layout_type_buttons = (GtkWidget **)g_malloc (sizeof(GtkWidget*) * LAYOUT_QTY);
     GtkWidget *layout_pixbufs[LAYOUT_QTY];
@@ -340,12 +342,29 @@ layout_prefs_show(void)
     gtk_box_pack_start (GTK_BOX(pane_vb), button_hb, FALSE, FALSE, 0);
 
     /* pane layout */
-    layout_pixbufs[0] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_5_pb_data, FALSE, NULL));
-    layout_pixbufs[1] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_2_pb_data, FALSE, NULL));
-    layout_pixbufs[2] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_1_pb_data, FALSE, NULL));
-    layout_pixbufs[3] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_4_pb_data, FALSE, NULL));
-    layout_pixbufs[4] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_3_pb_data, FALSE, NULL));
-    layout_pixbufs[5] = gtk_image_new_from_pixbuf(gdk_pixbuf_new_from_inline(-1, layout_6_pb_data, FALSE, NULL));
+#ifdef HAVE_GRESOURCE
+    pixbuf[0] = ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/layout_5.png");
+    pixbuf[1] = ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/layout_2.png");
+    pixbuf[2] = ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/layout_1.png");
+    pixbuf[3] = ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/layout_4.png");
+    pixbuf[4] = ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/layout_3.png");
+    pixbuf[5] = ws_gdk_pixbuf_new_from_resource("/org/wireshark/image/layout_6.png");
+#else
+    pixbuf[0] = gdk_pixbuf_new_from_inline(-1, layout_5_pb_data, FALSE, NULL);
+    pixbuf[1] = gdk_pixbuf_new_from_inline(-1, layout_2_pb_data, FALSE, NULL);
+    pixbuf[2] = gdk_pixbuf_new_from_inline(-1, layout_1_pb_data, FALSE, NULL);
+    pixbuf[3] = gdk_pixbuf_new_from_inline(-1, layout_4_pb_data, FALSE, NULL);
+    pixbuf[4] = gdk_pixbuf_new_from_inline(-1, layout_3_pb_data, FALSE, NULL);
+    pixbuf[5] = gdk_pixbuf_new_from_inline(-1, layout_6_pb_data, FALSE, NULL);
+#endif
+
+    layout_pixbufs[0] = gtk_image_new_from_pixbuf(pixbuf[0]);
+    layout_pixbufs[1] = gtk_image_new_from_pixbuf(pixbuf[1]);
+    layout_pixbufs[2] = gtk_image_new_from_pixbuf(pixbuf[2]);
+    layout_pixbufs[3] = gtk_image_new_from_pixbuf(pixbuf[3]);
+    layout_pixbufs[4] = gtk_image_new_from_pixbuf(pixbuf[4]);
+    layout_pixbufs[5] = gtk_image_new_from_pixbuf(pixbuf[5]);
+
     for (i=0; i<LAYOUT_QTY; ++i)
     {
         type_tb = gtk_toggle_button_new ();

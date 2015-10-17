@@ -32,7 +32,8 @@ WIRESHARK_CLEAN_LIBGTKUI_SRC = \
 	$(WIRESHARK_GTK_SRC) \
 	$(WIRESHARK_TAP_SRC) \
 	$(GENERATED_C_FILES) \
-	capture_if_details_dlg_win32.c
+	capture_if_details_dlg_win32.c \
+	pixbuf-csource.c
 
 WIRESHARK_LIBGTKUI_SRC = \
 	$(WIRESHARK_CLEAN_LIBGTKUI_SRC)
@@ -65,24 +66,6 @@ WIRESHARK_LIBGTKUI_OBJECTS = \
 
 libgtkui.lib: ..\..\config.h $(WIRESHARK_LIBGTKUI_OBJECTS)
 	link /lib /out:libgtkui.lib $(WIRESHARK_LIBGTKUI_OBJECTS) winmm.lib
-
-
-layouts.h:
-	echo /* This file was automatically generated. DO NOT EDIT. */ > $@
-	echo. $@
-	for %n in (1 2 3 4 5 6) do \
-	gdk-pixbuf-csource --raw --name=layout_%n_pb_data ../../image/layout_%n.png >> $@
-
-wsicon.h:
-	echo /* This file was automatically generated. DO NOT EDIT. */ > $@
-	echo. $@
-	for %n in (16 24 32 48 64) do \
-	gdk-pixbuf-csource --raw --name=wsicon_%n_pb_data ../../image/wsicon%n.png >> $@
-wsiconcap.h:
-	echo /* This file was automatically generated. DO NOT EDIT. */ > $@
-	echo. $@
-	for %n in (16 24 32 48 64) do \
-	gdk-pixbuf-csource --raw --name=wsiconcap_%n_pb_data ../../image/wsiconcap%n.png >> $@
 
 # The first argument is the directory in which the source files live.
 # The second argument is "taps", to indicate that we should build

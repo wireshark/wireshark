@@ -59,6 +59,8 @@ wiretap/ascend.h
 wiretap/k12text.c
 wireshark-tap-register.c
 wireshark-tap-register-cache.pkl
+ui/gtk/wireshark-gresources.c
+ui/gtk/wireshark-gresources.h
 
 # Generated makefile system #
 #############################
