@@ -80,26 +80,26 @@ while(<>) {
     $subfield = $1;
 
     if (length $subfield != $subfieldStringLength) {
-	if (!length $subfield) {
-	    $prefix = '';
-	} elsif (length $subfield > $subfieldStringLength) {
-	    $prefix .= "$lastAbbrev.";
-	} else {
-	    $prefix =~ s/^(.*)\.[^\.]+\.$/$1./o;
-	}
-	$subfieldStringLength = length $subfield;
+        if (!length $subfield) {
+            $prefix = '';
+        } elsif (length $subfield > $subfieldStringLength) {
+            $prefix .= "$lastAbbrev.";
+        } else {
+            $prefix =~ s/^(.*)\.[^\.]+\.$/$1./o;
+        }
+        $subfieldStringLength = length $subfield;
     }
 
     @fields = split /\s+/o ;
     if ($fields[0] eq '#') {
-	#
-	# If the line begins with "#", treat it as a comment, by
-	# ignoring it.
-	#
-	# (We don't support comments at the end of a line; that would
-	# require some more pain in our simple parser.)
-	#
-	next;
+        #
+        # If the line begins with "#", treat it as a comment, by
+        # ignoring it.
+        #
+        # (We don't support comments at the end of a line; that would
+        # require some more pain in our simple parser.)
+        #
+        next;
     }
     $abbrev = shift @fields;
     $type = shift @fields;
@@ -108,47 +108,47 @@ while(<>) {
     $field = $prefix.$abbrev;
 
     if ($fields[0] =~ /^\d+$/o) {
-	#
-	# This is presumably a Boolean bitfield, and this is the number
-	# of bits in the parent field.
-	#
-	$fieldDisplay = shift @fields;
+        #
+        # This is presumably a Boolean bitfield, and this is the number
+        # of bits in the parent field.
+        #
+        $fieldDisplay = shift @fields;
     } else {
-	#
-	# The next token is the base for the field.
-	#
-	$fieldDisplay = "BASE_".shift @fields;
+        #
+        # The next token is the base for the field.
+        #
+        $fieldDisplay = "BASE_".shift @fields;
     }
 
     if ($fields[0] eq 'VALS') {
-	#
-	# It's an enumerated field, with the value_string table having a
-	# name based on the field's name.
-	#
-	shift @fields;
-	$fieldStrings = "VALS(${abbrev}_vals)";
-	$fieldStrings =~ s/-/_/go;
+        #
+        # It's an enumerated field, with the value_string table having a
+        # name based on the field's name.
+        #
+        shift @fields;
+        $fieldStrings = "VALS(${abbrev}_vals)";
+        $fieldStrings =~ s/-/_/go;
     } elsif ($fields[0] =~ /^VALS\(/o) {
-	#
-	# It's an enumerated field, with a specified name for the
-	# value_string table.
-	#
-	$fieldStrings = shift @fields;
-	$fieldStrings =~ s/\)/_vals\)/o;
+        #
+        # It's an enumerated field, with a specified name for the
+        # value_string table.
+        #
+        $fieldStrings = shift @fields;
+        $fieldStrings =~ s/\)/_vals\)/o;
     } else {
-	#
-	# It's not an enumerated field.
-	#
-	$fieldStrings = 'NULL';
+        #
+        # It's not an enumerated field.
+        #
+        $fieldStrings = 'NULL';
     }
 
     if ($fields[0] =~ /^0x/) {
-	#
-	# The next token looks like a bitmask for a bitfield.
-	#
-	$mask = shift @fields;
+        #
+        # The next token looks like a bitmask for a bitfield.
+        #
+        $mask = shift @fields;
     } else {
-	$mask = 0;
+        $mask = 0;
     }
 
     $rest = join(' ', @fields);
@@ -167,3 +167,16 @@ while(<>) {
 { &hf_x11_$variable, { "$abbrev", "x11.$field", FT_$type, $fieldDisplay, $fieldStrings, $mask, $longName, HFILL }},
 END
 }
+
+#
+#  Editor modelines
+#
+#  Local Variables:
+#  c-basic-offset: 4
+#  tab-width: 8
+#  indent-tabs-mode: nil
+#  End:
+#
+#  ex: set shiftwidth=4 tabstop=8 expandtab:
+#  :indentSize=4:tabSize=8:noTabs=true:
+#
