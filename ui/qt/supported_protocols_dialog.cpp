@@ -19,6 +19,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+// warning C4267: 'argument' : conversion from 'size_t' to 'int', possible loss of data
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4267)
+#endif
+
 #include "supported_protocols_dialog.h"
 #include "ui_supported_protocols_dialog.h"
 
@@ -33,6 +39,10 @@
 #include <QElapsedTimer>
 
 #include "wireshark_application.h"
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 enum { name_col_, filter_col_, type_col_, descr_col_ };
 
