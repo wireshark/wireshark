@@ -1260,12 +1260,13 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                         tvb_get_guint8(tvb, offset2+l+1), ENC_NA);
                     break;
                 }
-                if (tvb_get_guint8(tvb, offset2+l+1) < 1)
-                    THROW(ReportedBoundsError);
+                if (tvb_get_guint8(tvb, offset2+l+1) == 0)
+                    break;
+
                 l += tvb_get_guint8(tvb, offset2+l+1);
             }
         }
-            break;
+        break;
 
         case LMP_CLASS_CHANNEL_STATUS:
 
@@ -1850,8 +1851,9 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                             tvb_get_guint8(tvb, offset2+l+1), ENC_NA);
                         break;
                     }
-                    if (tvb_get_guint8(tvb, offset2+l+1) < 1)
-                        THROW(ReportedBoundsError);
+                    if (tvb_get_guint8(tvb, offset2+l+1) == 0)
+                        break;
+
                     l += tvb_get_guint8(tvb, offset2+l+1);
                 }
 
