@@ -1920,6 +1920,7 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	gchar ip[4];
 
 	memset(&ipid, 0, sizeof(ipid));
+	memset(ip, 0, sizeof(ip));
 
 	/* add subtree header */
 	sub_item = proto_tree_add_item(tree, hf_dcom_objref, tvb, offset, 0, ENC_NA);
