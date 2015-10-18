@@ -60,6 +60,8 @@ static wmem_tree_t *localhost_name          = NULL;
 static wmem_tree_t *localhost_bdaddr        = NULL;
 static wmem_tree_t *hci_vendors             = NULL;
 
+wmem_tree_t *bluetooth_uuids = NULL;
+
 static int bluetooth_tap = -1;
 int bluetooth_device_tap = -1;
 int bluetooth_hci_summary_tap = -1;
@@ -578,20 +580,6 @@ const value_string bluetooth_uuid_vals[] = {
     { 0, NULL }
 };
 value_string_ext bluetooth_uuid_vals_ext = VALUE_STRING_EXT_INIT(bluetooth_uuid_vals);
-
-const bluetooth_uuid_custom_t bluetooth_uuid_custom[] = {
-    { {0x00, 0x00, 0x00, 0x01,    0x00, 0x00,   0x10, 0x00,   0x80, 0x00,   0x00, 0x02, 0xEE, 0x00, 0x00, 0x02}, 16, "SyncML Server" },
-    { {0x00, 0x00, 0x00, 0x02,    0x00, 0x00,   0x10, 0x00,   0x80, 0x00,   0x00, 0x02, 0xEE, 0x00, 0x00, 0x02}, 16, "SyncML Client" },
-    { {0x6E, 0x40, 0x00, 0x01,    0xB5, 0xA3,   0xF3, 0x93,   0xE0, 0xA9,   0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0x9E}, 16, "Nordic UART Service" },
-    { {0x6E, 0x40, 0x00, 0x02,    0xB5, 0xA3,   0xF3, 0x93,   0xE0, 0xA9,   0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0x9E}, 16, "Nordic UART Tx" },
-    { {0x6E, 0x40, 0x00, 0x03,    0xB5, 0xA3,   0xF3, 0x93,   0xE0, 0xA9,   0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0x9E}, 16, "Nordic UART Rx" },
-    { {0x00, 0x00, 0x15, 0x30,    0x12, 0x12,   0xEF, 0xDE,   0x15, 0x23,   0x78, 0x5F, 0xEA, 0xBC, 0xD1, 0x23}, 16, "Nordic DFU Service" },
-    { {0x00, 0x00, 0x15, 0x31,    0x12, 0x12,   0xEF, 0xDE,   0x15, 0x23,   0x78, 0x5F, 0xEA, 0xBC, 0xD1, 0x23}, 16, "Nordic DFU Control Point" },
-    { {0x00, 0x00, 0x15, 0x32,    0x12, 0x12,   0xEF, 0xDE,   0x15, 0x23,   0x78, 0x5F, 0xEA, 0xBC, 0xD1, 0x23}, 16, "Nordic DFU Packet" },
-
-    { {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0, NULL},
-};
-
 
 /* Taken from https://www.bluetooth.org/technical/assignednumbers/identifiers.htm */
 static const value_string bluetooth_company_id_vals[] = {
@@ -1318,33 +1306,26 @@ print_numeric_uuid(bluetooth_uuid_t *uuid)
 gchar *
 print_uuid(bluetooth_uuid_t *uuid)
 {
+    gchar *description;
+
     if (uuid->bt_uuid) {
-        return wmem_strdup(wmem_packet_scope(), val_to_str_ext_const(uuid->bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
-    } else {
-        guint  i_uuid;
-        gchar *description;
+        gchar *name;
 
-        i_uuid = 0;
-        while (bluetooth_uuid_custom[i_uuid].name) {
-            if (bluetooth_uuid_custom[i_uuid].size != uuid->size) {
-                i_uuid += 1;
-                continue;
-            }
+        name =  wmem_strdup(wmem_packet_scope(), val_to_str_ext_const(uuid->bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
 
-            if (memcmp(uuid->data, bluetooth_uuid_custom[i_uuid].uuid, uuid->size) == 0) {
-                return wmem_strdup(wmem_packet_scope(), bluetooth_uuid_custom[i_uuid].name);
-            }
+        if (strcmp(name , "Unknown"))
+            return name;
+    }
 
-            i_uuid += 1;
-        }
+    description = print_numeric_uuid(uuid);
 
-        description = print_numeric_uuid(uuid);
-
+    if (description) {
+        description = (gchar *) wmem_tree_lookup_string(bluetooth_uuids, description, 0);
         if (description)
             return description;
-        else
-            return (gchar *) "Unknown";
     }
+
+    return (gchar *) "Unknown";
 }
 
 static bluetooth_data_t *
@@ -1621,6 +1602,7 @@ proto_register_bluetooth(void)
     hci_vendors              = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     hci_vendor_table = register_dissector_table("bluetooth.vendor", "HCI Vendor", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    bluetooth_uuids          = wmem_tree_new(wmem_epan_scope());
 
     bluetooth_tap = register_tap("bluetooth");
     bluetooth_device_tap = register_tap("bluetooth.device");
@@ -1666,6 +1648,10 @@ proto_reg_handoff_bluetooth(void)
     dissector_add_uint("usb.protocol", 0xE00104, bluetooth_usb_handle);
 
     dissector_add_for_decode_as("usb.device", bluetooth_usb_handle);
+
+    wmem_tree_insert_string(bluetooth_uuids, "00000001-0000-1000-8000-0002EE000002", (gchar *) "SyncML Server", 0);
+    wmem_tree_insert_string(bluetooth_uuids, "00000002-0000-1000-8000-0002EE000002", (gchar *) "SyncML Client", 0);
+/* TODO: Add UUID128 verion of UUID16; UUID32? UUID16? */
 }
 
 /*

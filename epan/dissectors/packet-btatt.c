@@ -10799,8 +10799,10 @@ proto_reg_handoff_btgatt(void)
 
         int (*dissect_func)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
     } uuid_dissectors[] = {
+        { "6e400001-b5a3-f393-e0a9-e50e24dcca9e", "Bluetooth GATT Nordic UART Service",      "Nordic UART Service",      "btgatt.nordic.uart",               NULL},
         { "6e400002-b5a3-f393-e0a9-e50e24dcca9e", "Bluetooth GATT Nordic UART Tx",           "Nordic UART Tx",           "btgatt.nordic.uart_tx",            dissect_btgatt_nordic_uart_tx},
         { "6e400003-b5a3-f393-e0a9-e50e24dcca9e", "Bluetooth GATT Nordic UART Rx",           "Nordic UART Rx",           "btgatt.nordic.uart_rx",            dissect_btgatt_nordic_uart_rx},
+        { "00001530-1212-efde-1523-785feabcd123", "Bluetooth GATT Nordic DFU Service",       "Nordic DFU Service",       "btgatt.nordic.dfu",                NULL},
         { "00001531-1212-efde-1523-785feabcd123", "Bluetooth GATT Nordic DFU Control Point", "Nordic DFU Control Point", "btgatt.nordic.dfu.control_point",  dissect_btgatt_nordic_dfu_control_point},
         { "00001532-1212-efde-1523-785feabcd123", "Bluetooth GATT Nordic DFU Packet",        "Nordic DFU Packet",        "btgatt.nordic.dfu.packet",         dissect_btgatt_nordic_dfu_packet},
 
@@ -10812,6 +10814,8 @@ proto_reg_handoff_btgatt(void)
     while (uuid_dissectors[i_array].uuid) {
         dissector_handle_t  handle_tmp;
         gint                proto_tmp;
+
+        wmem_tree_insert_string(bluetooth_uuids, uuid_dissectors[i_array].uuid, (gchar *) uuid_dissectors[i_array].short_name, 0);
 
         if (!uuid_dissectors[i_array].dissect_func) {
             i_array += 1;

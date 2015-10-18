@@ -73,7 +73,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ber_decode_as_foreach@Base 1.9.1
  ber_set_filename@Base 1.9.1
  bluetooth_company_id_vals_ext@Base 1.99.6
- bluetooth_uuid_custom@Base 1.99.2
  bluetooth_uuid_vals@Base 1.99.2
  bluetooth_uuid_vals_ext@Base 1.99.2
  bssgp_cause_vals_ext@Base 1.9.1
@@ -939,6 +938,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  print_stream_ps_stdio_new@Base 1.12.0~rc1
  print_stream_text_new@Base 1.12.0~rc1
  print_stream_text_stdio_new@Base 1.12.0~rc1
+ print_uuid@Base 2.0.0
+ print_numeric_uuid@Base 2.0.0
  process_reassembled_data@Base 1.9.1
  process_stat_cmd_arg@Base 1.9.1
  proto_all_finfos@Base 1.9.1
