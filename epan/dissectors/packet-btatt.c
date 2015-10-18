@@ -10677,22 +10677,6 @@ void
 proto_reg_handoff_btatt(void)
 {
     gint                i_array;
-    struct uuid_dissectors_t {
-        const gchar *uuid;
-
-        const gchar *name;
-        const gchar *short_name;
-        const gchar *abbrev_name;
-
-        int (*dissect_func)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
-    } uuid_dissectors[] = {
-        { "6e400002-b5a3-f393-e0a9-e50e24dcca9e", "Bluetooth GATT Nordic UART Tx",           "Nordic UART Tx",           "btgatt.nordic.uart_tx",            dissect_btgatt_nordic_uart_tx},
-        { "6e400003-b5a3-f393-e0a9-e50e24dcca9e", "Bluetooth GATT Nordic UART Rx",           "Nordic UART Rx",           "btgatt.nordic.uart_rx",            dissect_btgatt_nordic_uart_rx},
-        { "00001531-1212-efde-1523-785feabcd123", "Bluetooth GATT Nordic DFU Control Point", "Nordic DFU Control Point", "btgatt.nordic.dfu.control_point",  dissect_btgatt_nordic_dfu_control_point},
-        { "00001532-1212-efde-1523-785feabcd123", "Bluetooth GATT Nordic DFU Packet",        "Nordic DFU Packet",        "btgatt.nordic.dfu.packet",         dissect_btgatt_nordic_dfu_packet},
-
-        { NULL, NULL, NULL, NULL, NULL},
-    };
 
     usb_hid_boot_keyboard_input_report_handle  = find_dissector("usbhid.boot_report.keyboard.input");
     usb_hid_boot_keyboard_output_report_handle = find_dissector("usbhid.boot_report.keyboard.output");
@@ -10729,25 +10713,6 @@ proto_reg_handoff_btatt(void)
         handle_tmp = new_register_dissector(abbrev, dissect_btgatt, proto_tmp);
 
         dissector_add_for_decode_as("btatt.handle", handle_tmp);
-    }
-
-    i_array = 0;
-
-    while (uuid_dissectors[i_array].uuid) {
-        dissector_handle_t  handle_tmp;
-        gint                proto_tmp;
-
-        if (!uuid_dissectors[i_array].dissect_func) {
-            i_array += 1;
-            continue;
-        }
-
-        proto_tmp  = proto_register_protocol(uuid_dissectors[i_array].name, uuid_dissectors[i_array].short_name, uuid_dissectors[i_array].abbrev_name);
-        handle_tmp = new_register_dissector(uuid_dissectors[i_array].abbrev_name, uuid_dissectors[i_array].dissect_func, proto_tmp);
-
-        dissector_add_string("bluetooth.uuid", uuid_dissectors[i_array].uuid, handle_tmp);
-        dissector_add_for_decode_as("btatt.handle", handle_tmp);
-        i_array += 1;
     }
 }
 
@@ -10824,8 +10789,44 @@ proto_register_btgatt(void)
 void
 proto_reg_handoff_btgatt(void)
 {
+    gint                i_array;
+    struct uuid_dissectors_t {
+        const gchar *uuid;
 
+        const gchar *name;
+        const gchar *short_name;
+        const gchar *abbrev_name;
+
+        int (*dissect_func)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
+    } uuid_dissectors[] = {
+        { "6e400002-b5a3-f393-e0a9-e50e24dcca9e", "Bluetooth GATT Nordic UART Tx",           "Nordic UART Tx",           "btgatt.nordic.uart_tx",            dissect_btgatt_nordic_uart_tx},
+        { "6e400003-b5a3-f393-e0a9-e50e24dcca9e", "Bluetooth GATT Nordic UART Rx",           "Nordic UART Rx",           "btgatt.nordic.uart_rx",            dissect_btgatt_nordic_uart_rx},
+        { "00001531-1212-efde-1523-785feabcd123", "Bluetooth GATT Nordic DFU Control Point", "Nordic DFU Control Point", "btgatt.nordic.dfu.control_point",  dissect_btgatt_nordic_dfu_control_point},
+        { "00001532-1212-efde-1523-785feabcd123", "Bluetooth GATT Nordic DFU Packet",        "Nordic DFU Packet",        "btgatt.nordic.dfu.packet",         dissect_btgatt_nordic_dfu_packet},
+
+        { NULL, NULL, NULL, NULL, NULL},
+    };
+
+    i_array = 0;
+
+    while (uuid_dissectors[i_array].uuid) {
+        dissector_handle_t  handle_tmp;
+        gint                proto_tmp;
+
+        if (!uuid_dissectors[i_array].dissect_func) {
+            i_array += 1;
+            continue;
+        }
+
+        proto_tmp  = proto_register_protocol(uuid_dissectors[i_array].name, uuid_dissectors[i_array].short_name, uuid_dissectors[i_array].abbrev_name);
+        handle_tmp = new_register_dissector(uuid_dissectors[i_array].abbrev_name, uuid_dissectors[i_array].dissect_func, proto_tmp);
+
+        dissector_add_string("bluetooth.uuid", uuid_dissectors[i_array].uuid, handle_tmp);
+        dissector_add_for_decode_as("btatt.handle", handle_tmp);
+        i_array += 1;
+    }
 }
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
