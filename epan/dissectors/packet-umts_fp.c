@@ -3812,7 +3812,7 @@ heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     return TRUE;
 }
 static guint8 fakes =5; /*[] ={1,5,8};*/
-static guint8 fake_map[31];
+static guint8 fake_map[256];
 
  /*
  * TODO: This need to be fixed!
