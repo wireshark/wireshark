@@ -23,6 +23,7 @@
 
 #include "config.h"
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 #include <glib.h>
 
@@ -191,6 +192,8 @@ static int hf_alljoyn_string = -1;
 static int hf_alljoyn_string_size_8bit = -1;    /* 8-bit size of string */
 static int hf_alljoyn_string_size_32bit = -1;   /* 32-bit size of string */
 static int hf_alljoyn_string_data = -1;         /* string characters */
+
+static expert_field ei_alljoyn_empty_arg = EI_INIT;
 
 /* These are the ids of the subtrees we will be creating */
 static gint ett_alljoyn_ns = -1;    /* This is the top NS tree. */
@@ -655,6 +658,7 @@ parse_arg(tvbuff_t     *tvb,
           guint8       *signature_length)
 {
     gint length;
+    gint saved_offset = offset;
     const gchar *header_type_name = NULL;
 
     switch(type_id)
@@ -1029,6 +1033,11 @@ parse_arg(tvbuff_t     *tvb,
 
     /* Make sure we never return something longer than the buffer for an offset. */
     if(offset > (gint)tvb_reported_length(tvb)) {
+        offset = (gint)tvb_reported_length(tvb);
+    } else if (offset == saved_offset) {
+        /* The argument has a null size. Let's report the packet length to avoid an infinite loop. */
+        /*expert_add_info(pinfo, header_item, &ei_alljoyn_empty_arg);*/
+        proto_tree_add_expert(field_tree, pinfo, &ei_alljoyn_empty_arg, tvb, offset, 0);
         offset = (gint)tvb_reported_length(tvb);
     }
 
@@ -1822,6 +1831,8 @@ dissect_AllJoyn_name_server(tvbuff_t    *tvb,
 void
 proto_register_AllJoyn(void)
 {
+    expert_module_t* expert_alljoyn;
+
     /* A header field is something you can search/filter on.
      *
      * We create a structure to register our fields. It consists of an
@@ -2287,6 +2298,12 @@ proto_register_AllJoyn(void)
         &ett_alljoyn_mess_body_parameters
     };
 
+    static ei_register_info ei[] = {
+        { &ei_alljoyn_empty_arg,
+            { "alljoyn.empty_arg", PI_MALFORMED, PI_ERROR,
+                "Argument is empty", EXPFILL }}
+    };
+
     /* The following are protocols as opposed to data within a protocol. These appear
      * in Wireshark a divider/header between different groups of data.
      */
@@ -2299,6 +2316,8 @@ proto_register_AllJoyn(void)
 
     proto_register_field_array(proto_AllJoyn_ns, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_alljoyn = expert_register_protocol(proto_AllJoyn_mess);
+    expert_register_field_array(expert_alljoyn, ei, array_length(ei));
 }
 
 void
