@@ -1168,20 +1168,6 @@ get_systemfile_dir(void)
 #endif
 }
 
-/*
- * Name of directory, under the user's home directory, in which
- * personal configuration files are stored.
- */
-#ifdef _WIN32
-#define PF_DIR "Wireshark"
-#else
-/*
- * XXX - should this be ".libepan"? For backwards-compatibility, I'll keep
- * it ".wireshark" for now.
- */
-#define PF_DIR ".wireshark"
-#endif
-
 void
 set_profile_name(const gchar *profilename)
 {
@@ -1250,22 +1236,33 @@ profile_store_persconffiles(gboolean store)
 }
 
 /*
- * Get the directory in which personal configuration files reside;
- * in UNIX-compatible systems, it's ".wireshark", under the user's home
- * directory, and on Windows systems, it's "Wireshark", under %APPDATA%
- * or, if %APPDATA% isn't set, it's "%USERPROFILE%\Application Data"
- * (which is what %APPDATA% normally is on Windows 2000).
+ * Get the directory in which personal configuration files reside.
+ *
+ * On Windows, it's "Wireshark", under %APPDATA% or, if %APPDATA% isn't set,
+ * it's "%USERPROFILE%\Application Data" (which is what %APPDATA% normally
+ * is on Windows 2000).
+ *
+ * On UNIX-compatible systems, we first look in XDG_CONFIG_HOME/wireshark
+ * and, if that doesn't exist, ~/.wireshark, for backwards compatibility.
+ * If neither exists, we use XDG_CONFIG_HOME/wireshark, so that the directory
+ * is initially created as XDG_CONFIG_HOME/wireshark.  We use that regardless
+ * of whether the user is running under an XDG desktop or not, so that
+ * if the user's home directory is on a server and shared between
+ * different desktop environments on different machines, they can all
+ * share the same configuration file directory.
+ *
+ * XXX - what about stuff that shouldn't be shared between machines,
+ * such as plugins in the form of shared loadable images?
  */
 static const char *
 get_persconffile_dir_no_profile(void)
 {
 #ifdef _WIN32
-    char *appdatadir;
-    char *userprofiledir;
-    char *altappdatapath;
+    const char *env;
 #else
-    const char *homedir;
+    char *xdg_path, *path;
     struct passwd *pwd;
+    const char *homedir;
 #endif
 
     /* Return the cached value, if available */
@@ -1276,62 +1273,79 @@ get_persconffile_dir_no_profile(void)
     /*
      * See if the user has selected an alternate environment.
      */
-    altappdatapath = getenv_utf8("WIRESHARK_APPDATA");
-    if (altappdatapath != NULL) {
-        persconffile_dir = altappdatapath;
+    env = getenv_utf8("WIRESHARK_APPDATA");
+    if (env != NULL) {
+        persconffile_dir = g_strdup(env);
         return persconffile_dir;
     }
 
     /*
      * See if we are running in a U3 environment.
      */
-    altappdatapath = getenv_utf8("U3_APP_DATA_PATH");
-    if (altappdatapath != NULL) {
+    env = getenv_utf8("U3_APP_DATA_PATH");
+    if (env != NULL) {
         /*
          * We are; use the U3 application data path.
          */
-        persconffile_dir = altappdatapath;
-    } else {
-        /*
-         * Use %APPDATA% or %USERPROFILE%, so that configuration
-         * files are stored in the user profile, rather than in
-         * the home directory.  The Windows convention is to store
-         * configuration information in the user profile, and doing
-         * so means you can use Wireshark even if the home directory
-         * is an inaccessible network drive.
-         */
-        appdatadir = getenv_utf8("APPDATA");
-        if (appdatadir != NULL) {
-            /*
-             * Concatenate %APPDATA% with "\Wireshark".
-             */
-            persconffile_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
-                               appdatadir, PF_DIR);
-        } else {
-            /*
-             * OK, %APPDATA% wasn't set, so use
-             * %USERPROFILE%\Application Data.
-             */
-            userprofiledir = getenv_utf8("USERPROFILE");
-            if (userprofiledir != NULL) {
-                persconffile_dir = g_strdup_printf(
-                    "%s" G_DIR_SEPARATOR_S "Application Data" G_DIR_SEPARATOR_S "%s",
-                    userprofiledir, PF_DIR);
-            } else {
-                /*
-                 * Give up and use "C:".
-                 */
-                persconffile_dir = g_strdup_printf("C:" G_DIR_SEPARATOR_S "%s", PF_DIR);
-            }
-        }
+        persconffile_dir = g_strdup(env);
+        return persconffile_dir;
     }
+
+    /*
+     * Use %APPDATA% or %USERPROFILE%, so that configuration
+     * files are stored in the user profile, rather than in
+     * the home directory.  The Windows convention is to store
+     * configuration information in the user profile, and doing
+     * so means you can use Wireshark even if the home directory
+     * is an inaccessible network drive.
+     */
+    env = getenv_utf8("APPDATA");
+    if (env != NULL) {
+        /*
+         * Concatenate %APPDATA% with "\Wireshark".
+         */
+        persconffile_dir = g_build_filename(env, "Wireshark", NULL);
+        return persconffile_dir;
+    }
+
+    /*
+     * OK, %APPDATA% wasn't set, so use %USERPROFILE%\Application Data.
+     */
+    env = getenv_utf8("USERPROFILE");
+    if (env != NULL) {
+        persconffile_dir = g_build_filename(env, "Application Data", "Wireshark", NULL);
+        return persconffile_dir;
+    }
+
+    /*
+     * Give up and use "C:".
+     */
+    persconffile_dir = g_build_filename("C:", "Wireshark", NULL);
+    return persconffile_dir;
 #else
     /*
-     * If $HOME is set, use that.
+     * Check if XDG_CONFIG_HOME/wireshark exists and is a directory.
+     */
+    xdg_path = g_build_filename(g_get_user_config_dir(), "wireshark", NULL);
+    if (g_file_test(xdg_path, G_FILE_TEST_IS_DIR)) {
+        persconffile_dir = xdg_path;
+        return persconffile_dir;
+    }
+
+    /*
+     * It doesn't exist, or it does but isn't a directory, so try
+     * ~/.wireshark.
+     *
+     * If $HOME is set, use that for ~.
+     *
+     * (Note: before GLib 2.36, g_get_home_dir() didn't look at $HOME,
+     * but we always want to do so, so we don't use g_get_home_dir().)
      */
     homedir = getenv("HOME");
     if (homedir == NULL) {
         /*
+         * It's not set.
+         *
          * Get their home directory from the password file.
          * If we can't even find a password file entry for them,
          * use "/tmp".
@@ -1343,10 +1357,21 @@ get_persconffile_dir_no_profile(void)
             homedir = "/tmp";
         }
     }
-    persconffile_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", homedir, PF_DIR);
-#endif
+    path = g_build_filename(homedir, ".wireshark", NULL);
+    if (g_file_test(path, G_FILE_TEST_IS_DIR)) {
+        g_free(xdg_path);
+        persconffile_dir = path;
+        return persconffile_dir;
+    }
 
+    /*
+     * Neither are directories that exist; use the XDG path, so we'll
+     * create that as necessary.
+     */
+    g_free(path);
+    persconffile_dir = xdg_path;
     return persconffile_dir;
+#endif
 }
 
 void
