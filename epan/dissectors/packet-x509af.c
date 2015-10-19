@@ -350,14 +350,14 @@ dissect_x509af_SubjectName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_x509af_T_subjectPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 91 "../../asn1/x509af/x509af.cnf"
-  tvbuff_t *bs_tvb;
+  tvbuff_t *bs_tvb = NULL;
 
   dissect_ber_bitstring(FALSE, actx, NULL, tvb, offset,
                         NULL, -1, -1, &bs_tvb);
 
   /* See RFC 3279 for possible subjectPublicKey values given an Algorithm ID.
    * The contents of subjectPublicKey are always explicitly tagged. */
-  if (!g_strcmp0(algorithm_id, "1.2.840.113549.1.1.1")) { /* id-rsa */
+  if (bs_tvb && !g_strcmp0(algorithm_id, "1.2.840.113549.1.1.1")) { /* id-rsa */
     offset += dissect_pkcs1_RSAPublicKey(FALSE, bs_tvb, 0, actx, tree, hf_index);
 
   } else {
