@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0,0">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0,0,0">
    <item>
     <widget class="QCustomPlot" name="rlcPlot" native="true"/>
    </item>
@@ -51,6 +51,66 @@
       <string/>
      </property>
     </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="mouseLabel">
+       <property name="text">
+        <string>Mouse</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="dragRadioButton">
+       <property name="toolTip">
+        <string>Drag using the mouse button.</string>
+       </property>
+       <property name="text">
+        <string>drags</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="zoomRadioButton">
+       <property name="toolTip">
+        <string>Select using the mouse button.</string>
+       </property>
+       <property name="text">
+        <string>zooms</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="resetButton">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the graph to its initial state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Reset</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -237,6 +297,50 @@
    </property>
    <property name="shortcut">
     <string>G</string>
+   </property>
+  </action>
+  <action name="actionZoomInX">
+   <property name="text">
+    <string>Zoom In X Axis</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom In X Axis</string>
+   </property>
+   <property name="shortcut">
+    <string>X</string>
+   </property>
+  </action>
+  <action name="actionZoomOutY">
+   <property name="text">
+    <string>Zoom Out Y Axis</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom Out Y Axis</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Y</string>
+   </property>
+  </action>
+  <action name="actionZoomInY">
+   <property name="text">
+    <string>Zoom In Y Axis</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom In Y Axis</string>
+   </property>
+   <property name="shortcut">
+    <string>Y</string>
+   </property>
+  </action>
+  <action name="actionZoomOutX">
+   <property name="text">
+    <string>Zoom Out X Axis</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom Out X Axis</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+X</string>
    </property>
   </action>
  </widget>

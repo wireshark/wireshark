@@ -73,10 +73,15 @@ LteRlcGraphDialog::LteRlcGraphDialog(QWidget &parent, CaptureFile &cf, bool chan
     rp->xAxis->setLabel(tr("Time"));
     rp->yAxis->setLabel(tr("Sequence Number"));
 
-    // TODO: don't want all of these...
+    ui->dragRadioButton->setChecked(mouse_drags_);
+
     ctx_menu_ = new QMenu(this);
     ctx_menu_->addAction(ui->actionZoomIn);
+    ctx_menu_->addAction(ui->actionZoomInX);
+    ctx_menu_->addAction(ui->actionZoomInY);
     ctx_menu_->addAction(ui->actionZoomOut);
+    ctx_menu_->addAction(ui->actionZoomOutX);
+    ctx_menu_->addAction(ui->actionZoomOutY);
     ctx_menu_->addAction(ui->actionReset);
     ctx_menu_->addSeparator();
     ctx_menu_->addAction(ui->actionMoveRight10);
@@ -324,6 +329,21 @@ void LteRlcGraphDialog::keyPressEvent(QKeyEvent *event)
         zoomAxes(true);
         break;
 
+    case Qt::Key_X:             // Zoom X axis only
+        if(event->modifiers() & Qt::ShiftModifier){
+            zoomXAxis(false);   // upper case X -> Zoom out
+        } else {
+            zoomXAxis(true);    // lower case x -> Zoom in
+        }
+        break;
+    case Qt::Key_Y:             // Zoom Y axis only
+        if(event->modifiers() & Qt::ShiftModifier){
+            zoomYAxis(false);   // upper case Y -> Zoom out
+        } else {
+            zoomYAxis(true);    // lower case y -> Zoom in
+        }
+        break;
+
     case Qt::Key_Right:
     case Qt::Key_L:
         panAxes(pan_pixels, 0);
@@ -383,7 +403,59 @@ void LteRlcGraphDialog::zoomAxes(bool in)
         v_factor = pow(v_factor, -1);
     }
 
+    if (in) {
+        // Don't want to zoom in *too* far on y axis.
+        if (rp->yAxis->range().size() < 10) {
+            return;
+        }
+    }
+    else {
+        // Don't want to zoom out *too* far on y axis.
+        if (rp->yAxis->range().size() > (1024+10)) {
+            return;
+        }
+    }
+
     rp->xAxis->scaleRange(h_factor, rp->xAxis->range().center());
+    rp->yAxis->scaleRange(v_factor, rp->yAxis->range().center());
+    rp->replot();
+}
+
+void LteRlcGraphDialog::zoomXAxis(bool in)
+{
+    QCustomPlot *rp = ui->rlcPlot;
+    double h_factor = rp->axisRect()->rangeZoomFactor(Qt::Horizontal);
+
+    if (!in) {
+        h_factor = pow(h_factor, -1);
+    }
+
+    rp->xAxis->scaleRange(h_factor, rp->xAxis->range().center());
+    rp->replot();
+}
+
+void LteRlcGraphDialog::zoomYAxis(bool in)
+{
+    QCustomPlot *rp = ui->rlcPlot;
+    double v_factor = rp->axisRect()->rangeZoomFactor(Qt::Vertical);
+
+    if (in) {
+        // Don't want to zoom in *too* far on y axis.
+        if (rp->yAxis->range().size() < 10) {
+            return;
+        }
+    }
+    else {
+        // Don't want to zoom out *too* far on y axis.
+        if (rp->yAxis->range().size() > (1024+10)) {
+            return;
+        }
+    }
+
+    if (!in) {
+        v_factor = pow(v_factor, -1);
+    }
+
     rp->yAxis->scaleRange(v_factor, rp->yAxis->range().center());
     rp->replot();
 }
@@ -394,8 +466,19 @@ void LteRlcGraphDialog::panAxes(int x_pixels, int y_pixels)
     double h_pan = 0.0;
     double v_pan = 0.0;
 
+    // Don't scroll up beyond max range, or below 0
+    if (((y_pixels > 0) && (rp->yAxis->range().upper > 1024)) ||
+        ((y_pixels < 0) && (rp->yAxis->range().lower < 0))) {
+        return;
+    }
+    // Don't scroll left beyond 0.  Arguably should be time of first segment.
+    if ((x_pixels < 0) && (rp->xAxis->range().lower < 0)) {
+        return;
+    }
+
     h_pan = rp->xAxis->range().size() * x_pixels / rp->xAxis->axisRect()->width();
     v_pan = rp->yAxis->range().size() * y_pixels / rp->yAxis->axisRect()->height();
+
     // The GTK+ version won't pan unless we're zoomed. Should we do the same here?
     if (h_pan) {
         rp->xAxis->moveRange(h_pan);
@@ -462,7 +545,6 @@ void LteRlcGraphDialog::graphClicked(QMouseEvent *event)
 void LteRlcGraphDialog::mouseMoved(QMouseEvent *event)
 {
     QCustomPlot *rp = ui->rlcPlot;
-    QString hint;
     Qt::CursorShape shape = Qt::ArrowCursor;
 
     // Set the cursor shape.
@@ -483,6 +565,10 @@ void LteRlcGraphDialog::mouseMoved(QMouseEvent *event)
         rp->setCursor(QCursor(shape));
     }
 
+    // Trying to let 'hint' grow efficiently.  Still pretty slow for a dense graph...
+    QString hint;
+    hint.reserve(128);
+    hint = "<small><i>";
 
     if (mouse_drags_) {
         double tr_key = tracer_->position->key();
@@ -492,29 +578,25 @@ void LteRlcGraphDialog::mouseMoved(QMouseEvent *event)
         // XXX If we have multiple packets with the same timestamp tr_key
         // may not return the packet we want. It might be possible to fudge
         // unique keys using nextafter().
-        //printf("testing here (event=%p, tracer_->graph()=%p\n", event, tracer_->graph());
         if (event && tracer_->graph() && tracer_->position->axisRect()->rect().contains(event->pos())) {
             packet_seg = time_stamp_map_.value(tr_key, NULL);
         }
 
         if (!packet_seg) {
             tracer_->setVisible(false);
-//            hint += "Hover over the graph for details. " + stream_desc_ + "</i></small>";
-//            ui->hintLabel->setText(hint);
-//            ui->streamPlot->replot();
+            hint += "Hover over the graph for details. </i></small>";
+            ui->hintLabel->setText(hint);
+            ui->rlcPlot->replot();
             return;
         }
 
         tracer_->setVisible(true);
         packet_num_ = packet_seg->num;
-//        hint += tr("%1 %2 (%3s len %4 seq %5 ack %6 win %7)")
-//                .arg(cap_file_ ? tr("Click to select packet") : tr("Packet"))
-//                .arg(packet_num_)
-//                .arg(QString::number(packet_seg->rel_secs + packet_seg->rel_usecs / 1000000.0, 'g', 4))
-//                .arg(packet_seg->th_seglen)
-//                .arg(packet_seg->th_seq)
-//                .arg(packet_seg->th_ack)
-//                .arg(packet_seg->th_win);
+        hint += tr("%1 %2 (%3s seq %4)")
+                .arg(cap_file_.capFile() ? tr("Click to select packet") : tr("Packet"))
+                .arg(packet_num_)
+                .arg(QString::number(packet_seg->rel_secs + packet_seg->rel_usecs / 1000000.0, 'g', 4))
+                .arg(packet_seg->SN);
         tracer_->setGraphKey(ui->rlcPlot->xAxis->pixelToCoord(event->pos().x()));
         rp->replot();
 
@@ -536,7 +618,6 @@ void LteRlcGraphDialog::mouseMoved(QMouseEvent *event)
         }
     }
 
-    hint.prepend("<small><i>");
     hint.append("</i></small>");
     ui->hintLabel->setText(hint);
 }
@@ -679,15 +760,34 @@ void LteRlcGraphDialog::on_actionMoveDown1_triggered()
     panAxes(0, -1);
 }
 
+// Switch between zoom/drag.
 void LteRlcGraphDialog::on_actionDragZoom_triggered()
 {
-//    if (mouse_drags_) {
-//        ui->zoomRadioButton->toggle();
-//    } else {
-//        ui->dragRadioButton->toggle();
-//    }
+    if (mouse_drags_) {
+        ui->zoomRadioButton->toggle();
+    } else {
+        ui->dragRadioButton->toggle();
+    }
 }
 
+void LteRlcGraphDialog::on_dragRadioButton_toggled(bool checked)
+{
+    if (checked) {
+        mouse_drags_ = true;
+    }
+    ui->rlcPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
+}
+
+void LteRlcGraphDialog::on_zoomRadioButton_toggled(bool checked)
+{
+    if (checked) mouse_drags_ = false;
+    ui->rlcPlot->setInteractions(0);
+}
+
+void LteRlcGraphDialog::on_resetButton_clicked()
+{
+    resetAxes();
+}
 
 // No need to register tap listeners here.  This is done
 // in calls to the common functions in ui/tap-rlc-graph.c

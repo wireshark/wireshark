@@ -84,6 +84,9 @@ private:
     void fillGraph();
 
     void zoomAxes(bool in);
+    void zoomXAxis(bool in);
+    void zoomYAxis(bool in);
+
     void panAxes(int x_pixels, int y_pixels);
     QRectF getZoomRanges(QRect zoom_rect);
 
@@ -94,6 +97,10 @@ private slots:
     void mouseMoved(QMouseEvent *event);
     void mouseReleased(QMouseEvent *event);
     void resetAxes();
+
+    void on_dragRadioButton_toggled(bool checked);
+    void on_zoomRadioButton_toggled(bool checked);
+    void on_resetButton_clicked();
 
     void on_actionReset_triggered();
     void on_actionZoomIn_triggered();
