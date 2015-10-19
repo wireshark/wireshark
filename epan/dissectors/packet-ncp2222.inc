@@ -6150,8 +6150,8 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 offset
 {
     guint32 string_len, str_length, buffer_offset;
     gint i;
-    guint16 c_char;
-    char *string_buf;
+    guint8 c_char;
+    wmem_strbuf_t *string_buf;
     gint length_remaining = 0;
 
     length_remaining = tvb_captured_length_remaining(tvb, offset);
@@ -6171,8 +6171,7 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 offset
         THROW(ReportedBoundsError);
     }
 
-    string_buf = (char *)wmem_alloc(wmem_packet_scope(), 255);
-    string_buf[0] = '\0';
+    string_buf = wmem_strbuf_new(wmem_packet_scope(), NULL);
     offset++;
     buffer_offset = offset;
 
@@ -6193,38 +6192,38 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 offset
                         if (c_char == 0x3f)
                         {
                             c_char = '?';
-                            string_buf[i] = c_char & 0xff;
+                            wmem_strbuf_append_c(string_buf, c_char);
                             proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "Wildcard Question");
                         }
                         if (c_char == 0x2a)
                         {
                             c_char = '*';
-                            string_buf[i] = c_char & 0xff;
+                            wmem_strbuf_append_c(string_buf, c_char);
                             proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "Wildcard Asterisk");
                         }
                         if (c_char == 0xbf)
                         {
                             c_char = '?';
-                            string_buf[i] = c_char & 0xff;
+                            wmem_strbuf_append_c(string_buf, c_char);
                             proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Question");
                         }
                         if (c_char == 0xaa)
                         {
                             c_char = '*';
-                            string_buf[i] = c_char & 0xff;
+                            wmem_strbuf_append_c(string_buf, c_char);
                             proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Asterisk");
                         }
                         if (c_char == 0xae)
                         {
                             c_char = '.';
-                            string_buf[i] = c_char & 0xff;
+                            wmem_strbuf_append_c(string_buf, c_char);
                             proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Period");
                         }
                     }
                     else
                     {
                         c_char = '.';
-                        string_buf[i] = (char) c_char;
+                        wmem_strbuf_append_c(string_buf, c_char);
                     }
                 }
                 if (c_char == 0xef)
@@ -6240,31 +6239,31 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 offset
                         if (c_char == 0xbb)
                         {
                             c_char = '?';
-                            string_buf[i] = c_char & 0xff;
+                            wmem_strbuf_append_c(string_buf, c_char);
                             proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "Wildcard Question");
                         }
                         if (c_char == 0xbc)
                         {
                             c_char = '*';
-                            string_buf[i] = c_char & 0xff;
+                            wmem_strbuf_append_c(string_buf, c_char);
                             proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "Wildcard Asterisk");
                         }
                         if (c_char == 0xbd)
                         {
                             c_char = '?';
-                            string_buf[i] = c_char & 0xff;
+                            wmem_strbuf_append_c(string_buf, c_char);
                             proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Question");
                         }
                         if (c_char == 0xbe)
                         {
                             c_char = '*';
-                            string_buf[i] = c_char & 0xff;
+                            wmem_strbuf_append_c(string_buf, c_char);
                             proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Asterisk");
                         }
                         if (c_char == 0xbf)
                         {
                             c_char = '.';
-                            string_buf[i] = c_char & 0xff;
+                            wmem_strbuf_append_c(string_buf, c_char);
                             proto_tree_add_uint_format_value(ncp_tree, hf_search_modifier, tvb, buffer_offset-1, 2, c_char, "DOS Wildcard Period");
                         }
                     }
@@ -6275,7 +6274,7 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 offset
                 if (c_char != 0x00)
                 {
                     c_char = '.';
-                    string_buf[i] = (char) c_char;
+                    wmem_strbuf_append_c(string_buf, c_char);
                 }
                 else
                 {
@@ -6287,7 +6286,7 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 offset
         }
         else
         {
-            string_buf[i] = c_char & 0xff;
+            wmem_strbuf_append_c(string_buf, c_char);
         }
         buffer_offset++;
         length_remaining--;
@@ -6300,12 +6299,8 @@ dissect_ncp_8x20req(tvbuff_t *tvb, proto_tree *volatile ncp_tree, guint32 offset
             break;       /* If string is too long just return the first 1K. */
         }
     }
-    if (i < 0) {
-        i = 0;
-    }
-    string_buf[i+1] = '\0';
 
-    proto_tree_add_string(ncp_tree, hf_search_pattern, tvb, offset, string_len, string_buf);
+    proto_tree_add_string(ncp_tree, hf_search_pattern, tvb, offset, string_len, wmem_strbuf_get_str(string_buf));
 }
 
 static void
