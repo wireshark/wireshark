@@ -26,17 +26,6 @@
 #include <glib.h>
 
 /**
- * word_to_hex()
- *
- * Output guint16 hex represetation to 'out', and return pointer after last character (out + 4).
- * It always output full representation (padded with 0).
- *
- * String is not NUL terminated by this routine.
- * There needs to be at least 4 bytes in the buffer.
- */
-char *word_to_hex(char *out, guint16 word);
-
-/**
  * word_to_hex_punct()
  *
  * Output guint16 hex represetation to 'out', and return pointer after last character.
@@ -58,17 +47,6 @@ char *word_to_hex_punct(char *out, guint16 word, char punct);
  * There needs to be at least 4 bytes in the buffer.
  */
 char *word_to_hex_npad(char *out, guint16 word);
-
-/**
- * dword_to_hex()
- *
- * Output guint32 hex represetation to 'out', and return pointer after last character.
- * It always output full representation (padded with 0).
- *
- * String is not NUL terminated by this routine.
- * There needs to be at least 8 bytes in the buffer.
- */
-char *dword_to_hex(char *out, guint32 dword);
 
 /**
  * dword_to_hex_punct()
@@ -104,17 +82,6 @@ char *qword_to_hex(char *out, guint64 qword);
  * There needs to be at least 22 bytes in the buffer.
  */
 char *qword_to_hex_punct(char *out, guint64 qword, char punct);
-
-/**
- * bytes_to_hexstr()
- *
- * Output hex represetation of guint8 ad array, and return pointer after last character.
- * It always output full representation (padded with 0).
- *
- * String is not NUL terminated by this routine.
- * There needs to be at least len * 2 bytes in the buffer.
- */
-char *bytes_to_hexstr(char *out, const guint8 *ad, guint32 len);
 
 /**
  * bytes_to_hexstr_punct()
@@ -173,17 +140,6 @@ char *hex_to_str_back(char *ptr, int len, guint32 value);
  * There needs to be at least 2 + MAX(16, len) bytes in the buffer.
  */
 char *hex64_to_str_back(char *ptr, int len, guint64 value);
-
-/**
- * uint_to_str_back()
- *
- * Output guint32 decimal representation backward (last character will be written on ptr - 1),
- * and return pointer to first character.
- *
- * String is not NUL terminated by this routine.
- * There needs to be at least 10 bytes in the buffer.
- */
-char *uint_to_str_back(char *ptr, guint32 value);
 
 /**
  * uint64_str_back()

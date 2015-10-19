@@ -99,7 +99,7 @@
 #include <epan/conversation_table.h>
 #include <epan/uat.h>
 #include <epan/eapol_keydes_types.h>
-#include <epan/to_str-int.h>
+#include <epan/to_str.h>
 
 #include "packet-wps.h"
 #include "packet-e212.h"

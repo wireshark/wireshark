@@ -36,7 +36,6 @@
 #include <epan/reassemble.h>
 #include <epan/address_types.h>
 #include <epan/to_str.h>
-#include <epan/to_str-int.h>
 #include <wiretap/wtap.h>
 #include "packet-atalk.h"
 #include "packet-afp.h"

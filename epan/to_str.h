@@ -142,6 +142,28 @@ WS_DLL_PUBLIC gchar* tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, 
  */
 WS_DLL_PUBLIC gchar* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_type type, const gint offset, int length);
 
+/**
+ * word_to_hex()
+ *
+ * Output guint16 hex represetation to 'out', and return pointer after last character (out + 4).
+ * It always output full representation (padded with 0).
+ *
+ * String is not NUL terminated by this routine.
+ * There needs to be at least 4 bytes in the buffer.
+ */
+WS_DLL_PUBLIC char *word_to_hex(char *out, guint16 word);
+
+/**
+ * dword_to_hex()
+ *
+ * Output guint32 hex represetation to 'out', and return pointer after last character.
+ * It always output full representation (padded with 0).
+ *
+ * String is not NUL terminated by this routine.
+ * There needs to be at least 8 bytes in the buffer.
+ */
+WS_DLL_PUBLIC char *dword_to_hex(char *out, guint32 dword);
+
 /** Turn an array of bytes into a string showing the bytes in hex.
  *
  * @param scope memory allocation scheme used
@@ -164,8 +186,27 @@ WS_DLL_PUBLIC char *bytes_to_str(wmem_allocator_t *scope, const guint8 *bd, int 
  */
 WS_DLL_PUBLIC const gchar *bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, const char punct);
 
-WS_DLL_PUBLIC char *
-bytes_to_hexstr(char *out, const guint8 *ad, guint32 len);
+/**
+ * bytes_to_hexstr()
+ *
+ * Output hex represetation of guint8 ad array, and return pointer after last character.
+ * It always output full representation (padded with 0).
+ *
+ * String is not NUL terminated by this routine.
+ * There needs to be at least len * 2 bytes in the buffer.
+ */
+WS_DLL_PUBLIC char *bytes_to_hexstr(char *out, const guint8 *ad, guint32 len);
+
+/**
+ * uint_to_str_back()
+ *
+ * Output guint32 decimal representation backward (last character will be written on ptr - 1),
+ * and return pointer to first character.
+ *
+ * String is not NUL terminated by this routine.
+ * There needs to be at least 10 bytes in the buffer.
+ */
+WS_DLL_PUBLIC char *uint_to_str_back(char *ptr, guint32 value);
 
 #ifdef __cplusplus
 }

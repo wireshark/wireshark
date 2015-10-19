@@ -70,7 +70,7 @@
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <epan/strutil.h>
-#include <epan/to_str-int.h>
+#include <epan/to_str.h>
 #include <epan/show_exception.h>
 #include <wsutil/pint.h>
 

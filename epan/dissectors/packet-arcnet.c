@@ -28,7 +28,7 @@
 #include "packet-arcnet.h"
 #include <epan/address_types.h>
 #include <epan/arcnet_pids.h>
-#include <epan/to_str-int.h>
+#include <epan/to_str.h>
 #include "packet-ip.h"
 
 void proto_register_arcnet(void);

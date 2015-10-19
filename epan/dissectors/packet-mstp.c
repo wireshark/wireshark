@@ -35,7 +35,7 @@
 #include <wiretap/wtap.h>
 #include <epan/expert.h>
 #include <epan/address_types.h>
-#include <epan/to_str-int.h>
+#include <epan/to_str.h>
 #include "packet-mstp.h"
 
 void proto_register_mstp(void);

@@ -26,7 +26,7 @@
 
 #include <epan/packet.h>
 #include <epan/address_types.h>
-#include <epan/to_str-int.h>
+#include <epan/to_str.h>
 
 void proto_register_j1939(void);
 void proto_reg_handoff_j1939(void);

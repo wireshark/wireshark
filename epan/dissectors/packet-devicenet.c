@@ -31,7 +31,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/address_types.h>
-#include <epan/to_str-int.h>
+#include <epan/to_str.h>
 #include "packet-cip.h"
 
 void proto_register_devicenet(void);
