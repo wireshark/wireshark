@@ -566,6 +566,7 @@ static int add_android_interfaces(struct interface_t **interface_list,
     const char            *adb_api_level          = "0022""shell:getprop ro.build.version.sdk";
     const char            *adb_hcidump_version    = "0017""shell:hcidump --version";
     const char            *adb_ps_droid_bluetooth = "0018""shell:ps droid.bluetooth";
+    const char            *adb_ps_bluetooth_app   = "001E""shell:ps com.android.bluetooth";
     const char            *adb_tcpdump_help       = "0010""shell:tcpdump -h";
     char                   serial_number[512];
     int                    result;
@@ -833,7 +834,6 @@ static int add_android_interfaces(struct interface_t **interface_list,
                 return 1;
             }
 
-
             response = adb_send_and_read(sock, adb_ps_droid_bluetooth, helpful_packet, sizeof(helpful_packet), &data_length);
             closesocket(sock);
             if (!response || data_length < 1) {
@@ -913,8 +913,10 @@ static int add_android_interfaces(struct interface_t **interface_list,
                 return 1;
             }
 
-
-            response = adb_send_and_read(sock, adb_ps_droid_bluetooth, helpful_packet, sizeof(helpful_packet), &data_length);
+            if (api_level >= 23) {
+                response = adb_send_and_read(sock, adb_ps_bluetooth_app, helpful_packet, sizeof(helpful_packet), &data_length);
+            }  else
+                response = adb_send_and_read(sock, adb_ps_droid_bluetooth, helpful_packet, sizeof(helpful_packet), &data_length);
             closesocket(sock);
             if (!response || data_length < 1) {
                 if (verbose) {
