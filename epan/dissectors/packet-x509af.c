@@ -357,7 +357,7 @@ dissect_x509af_T_subjectPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   /* See RFC 3279 for possible subjectPublicKey values given an Algorithm ID.
    * The contents of subjectPublicKey are always explicitly tagged. */
-  if (!strcmp(algorithm_id, "1.2.840.113549.1.1.1")) { /* id-rsa */
+  if (!g_strcmp0(algorithm_id, "1.2.840.113549.1.1.1")) { /* id-rsa */
     offset += dissect_pkcs1_RSAPublicKey(FALSE, bs_tvb, 0, actx, tree, hf_index);
 
   } else {

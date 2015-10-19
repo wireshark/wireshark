@@ -96,15 +96,15 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
 
   /* See RFC 3279 for possible subjectPublicKey values given an Algorithm ID.
    * The contents of subjectPublicKey are always explicitly tagged. */
-  if (!strcmp(algorithm_id, "1.2.840.113549.1.1.1")) { /* id-rsa */
+  if (!g_strcmp0(algorithm_id, "1.2.840.113549.1.1.1")) { /* id-rsa */
     offset += dissect_pkcs1_RSAPublicKey(FALSE, bs_tvb, 0, actx, tree, hf_index);
 
 # TODO: PKCS#1 only defines RSA; DH and DSA are from PKIX1Algorithms2008
-# } else if (!strcmp(algorithm_id, "1.2.840.10040.4.1")) { /* id-dsa */
+# } else if (!g_strcmp0(algorithm_id, "1.2.840.10040.4.1")) { /* id-dsa */
 #   subtree = proto_item_add_subtree(actx->created_item, ett_subjectpublickey);
 #   offset += dissect_DSAPublicKey(FALSE, bs_tvb, 0, actx, subtree, hf_dsa_y);
 #
-# } else if (!strcmp(algorithm_id, "1.2.840.10046.2.1")) { /* dhpublicnumber */
+# } else if (!g_strcmp0(algorithm_id, "1.2.840.10046.2.1")) { /* dhpublicnumber */
 #   subtree = proto_item_add_subtree(actx->created_item, ett_subjectpublickey);
 #   offset += dissect_DHPublicKey(FALSE, bs_tvb, 0, actx, subtree, hf_dh_y);
 #
