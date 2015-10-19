@@ -3258,7 +3258,6 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
             proto_tree_add_item(mptcp_tree, hf_tcp_option_mptcp_version, tvb,
                         offset, 1, ENC_BIG_ENDIAN);
-            ipver = tvb_get_guint8(tvb, offset) & 0x0F;
             offset += 1;
 
             item = proto_tree_add_bitmask(mptcp_tree, tvb, offset, hf_tcp_option_mptcp_flags,
@@ -3277,7 +3276,7 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
             if (optlen == 12 || optlen == 20) {
 
                 mph->mh_key = tvb_get_ntoh64(tvb,offset);
-                item = proto_tree_add_uint64(mptcp_tree, hf_tcp_option_mptcp_sender_key, tvb, offset, 8, mph->mh_key);
+                proto_tree_add_uint64(mptcp_tree, hf_tcp_option_mptcp_sender_key, tvb, offset, 8, mph->mh_key);
                 offset += 8;
 
                 mptcpd = get_or_create_mptcpd_from_key(tcpd, tcpd->fwd, mph->mh_key, mph->mh_capable_flags & MPTCP_CAPABLE_CRYPTO_MASK);
