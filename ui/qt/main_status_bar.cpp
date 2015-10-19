@@ -93,6 +93,7 @@ packets_bar_update(void)
     cur_main_status_bar_->updateCaptureStatistics(NULL);
 }
 
+static const int icon_size = 14; // px
 MainStatusBar::MainStatusBar(QWidget *parent) :
     QStatusBar(parent),
     cap_file_(NULL),
@@ -129,7 +130,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
             "}";
 
     expert_button_ = new QToolButton(this);
-    expert_button_->setIconSize(QSize(14, 14));
+    expert_button_->setIconSize(QSize(icon_size, icon_size));
     expert_button_->setStyleSheet(button_ss);
     expert_button_->hide();
 
@@ -138,7 +139,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     StockIcon comment_icon("x-capture-comment-update");
     comment_button_ = new QToolButton(this);
     comment_button_->setIcon(comment_icon);
-    comment_button_->setIconSize(QSize(14, 14));
+    comment_button_->setIconSize(QSize(icon_size, icon_size));
     comment_button_->setStyleSheet(button_ss);
 
     comment_button_->setToolTip(tr("Open the Capture File Properties dialog"));
@@ -146,7 +147,7 @@ MainStatusBar::MainStatusBar(QWidget *parent) :
     connect(expert_button_, SIGNAL(clicked(bool)), this, SIGNAL(showExpertInfo()));
     connect(comment_button_, SIGNAL(clicked(bool)), this, SIGNAL(editCaptureComment()));
 
-    info_progress_hb->setContentsMargins(0, 0, 0, 0);
+    info_progress_hb->setContentsMargins(icon_size / 2, 0, 0, 0);
 
     info_status_.setTemporaryContext(STATUS_CTX_TEMPORARY);
     info_status_.setShrinkable(true);
