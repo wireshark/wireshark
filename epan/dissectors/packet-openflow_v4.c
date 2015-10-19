@@ -4728,52 +4728,52 @@ proto_register_openflow_v4(void)
                NULL, HFILL }
         },
         { &hf_openflow_v4_oxm_value_etheraddr,
-            { "Value", "openflow_v4.oxm.value",
+            { "Value", "openflow_v4.oxm.value_etheraddr",
                FT_ETHER, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_oxm_value_ethertype,
-            { "Value", "openflow_v4.oxm.value",
+            { "Value", "openflow_v4.oxm.value_ethertype",
                FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_oxm_value_vlan_present,
-            { "OFPVID_PRESENT", "openflow_v4.oxm.value",
+            { "OFPVID_PRESENT", "openflow_v4.oxm.value_vlan_present",
                FT_BOOLEAN, 16, NULL, OFPVID_PRESENT,
                NULL, HFILL }
         },
         { &hf_openflow_v4_oxm_value_vlan_vid,
-            { "Value", "openflow_v4.oxm.value",
+            { "Value", "openflow_v4.oxm.value_vlan_vid",
                FT_UINT16, BASE_DEC, NULL, 0x0fff,
                NULL, HFILL }
         },
         { &hf_openflow_v4_oxm_value_ipv4addr,
-            { "Value", "openflow_v4.oxm.value",
+            { "Value", "openflow_v4.oxm.value_ipv4addr",
                FT_IPv4, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_oxm_value_ipv6addr,
-            { "Value", "openflow_v4.oxm.value",
+            { "Value", "openflow_v4.oxm.value_ipv6addr",
                FT_IPv6, BASE_NONE, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_oxm_value_ipproto,
-            { "Value", "openflow_v4.oxm.value",
+            { "Value", "openflow_v4.oxm.value_ipproto",
                FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ipproto_val_ext, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_oxm_value_uint16,
-            { "Value", "openflow_v4.oxm.value",
+            { "Value", "openflow_v4.oxm.value_uint16",
                FT_UINT16, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_oxm_value_uint24,
-            { "Value", "openflow_v4.oxm.value",
+            { "Value", "openflow_v4.oxm.value_uint24",
                FT_UINT24, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_oxm_value_uint32,
-            { "Value", "openflow_v4.oxm.value",
+            { "Value", "openflow_v4.oxm.value_uint32",
                FT_UINT32, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
