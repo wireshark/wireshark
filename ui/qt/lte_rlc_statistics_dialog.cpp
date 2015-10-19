@@ -125,12 +125,11 @@ typedef struct rlc_channel_stats {
 class RlcChannelTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    RlcChannelTreeWidgetItem(QTreeWidgetItem *parent, QWidget &dialog,
+    RlcChannelTreeWidgetItem(QTreeWidgetItem *parent,
                              unsigned ueid,
                              unsigned mode,
                              unsigned channelType, unsigned channelId) :
         QTreeWidgetItem(parent, rlc_channel_row_type_),
-        dialog_(dialog),
         ueid_(ueid),
         channelType_(channelType),
         channelId_(channelId),
@@ -319,8 +318,6 @@ public:
     unsigned get_mode() { return mode_; }
 
 private:
-    QWidget &dialog_;
-
     unsigned ueid_;
     unsigned channelType_;
     unsigned channelId_;
@@ -373,9 +370,8 @@ typedef struct rlc_ue_stats {
 class RlcUeTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    RlcUeTreeWidgetItem(QTreeWidget *parent, QWidget *dialog, const rlc_lte_tap_info *rlt_info) :
+    RlcUeTreeWidgetItem(QTreeWidget *parent, const rlc_lte_tap_info *rlt_info) :
         QTreeWidgetItem (parent, rlc_ue_row_type_),
-        dialog_(dialog),
         ueid_(0)
     {
         ueid_ = rlt_info->ueid;
@@ -468,7 +464,7 @@ public:
                 channel_item = CCCH_stats_;
                 if (channel_item == NULL) {
                     channel_item = CCCH_stats_ =
-                            new RlcChannelTreeWidgetItem(this, *dialog_, tap_info->ueid, RLC_TM_MODE,
+                            new RlcChannelTreeWidgetItem(this, tap_info->ueid, RLC_TM_MODE,
                                                          tap_info->channelType, tap_info->channelId);
                 }
                 break;
@@ -477,7 +473,7 @@ public:
                 channel_item = srb_stats_[tap_info->channelId-1];
                 if (channel_item == NULL) {
                     channel_item = srb_stats_[tap_info->channelId-1] =
-                            new RlcChannelTreeWidgetItem(this, *dialog_, tap_info->ueid, RLC_AM_MODE,
+                            new RlcChannelTreeWidgetItem(this, tap_info->ueid, RLC_AM_MODE,
                                                          tap_info->channelType, tap_info->channelId);
                 }
                 break;
@@ -486,7 +482,7 @@ public:
                 channel_item = drb_stats_[tap_info->channelId-1];
                 if (channel_item == NULL) {
                     channel_item = drb_stats_[tap_info->channelId-1] =
-                            new RlcChannelTreeWidgetItem(this, *dialog_, tap_info->ueid, tap_info->rlcMode,
+                            new RlcChannelTreeWidgetItem(this, tap_info->ueid, tap_info->rlcMode,
                                                          tap_info->channelType, tap_info->channelId);
                 }
                 break;
@@ -596,8 +592,6 @@ public:
     }
 
 private:
-    QWidget *dialog_;
-
     unsigned ueid_;
 
     rlc_ue_stats stats_;
@@ -760,7 +754,7 @@ gboolean LteRlcStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info
 
     if (!ue_ti) {
         // Existing UE wasn't found so create a new one.
-        ue_ti = new RlcUeTreeWidgetItem(ws_dlg->statsTreeWidget(), ws_dlg, rlt_info);
+        ue_ti = new RlcUeTreeWidgetItem(ws_dlg->statsTreeWidget(), rlt_info);
         for (int col = 0; col < ws_dlg->statsTreeWidget()->columnCount(); col++) {
             ue_ti->setTextAlignment(col, ws_dlg->statsTreeWidget()->headerItem()->textAlignment(col));
         }
