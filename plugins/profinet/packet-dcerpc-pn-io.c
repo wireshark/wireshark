@@ -153,6 +153,7 @@ static int hf_pn_io_frame_data_properties_FastForwardingMulticastMACAdd = -1;
 static int hf_pn_io_frame_data_properties_FragmentMode = -1;
 static int hf_pn_io_frame_data_properties_reserved_1 = -1;
 static int hf_pn_io_frame_data_properties_reserved_2 = -1;
+static int hf_pn_io_watchdog_factor = -1;
 static int hf_pn_io_data_hold_factor = -1;
 static int hf_pn_io_iocr_tag_header = -1;
 static int hf_pn_io_iocr_multicast_mac_add = -1;
@@ -7176,7 +7177,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_frame_send_offset, &u32FrameSendOffset);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_data_hold_factor, &u16WatchdogFactor);
+                        hf_pn_io_watchdog_factor, &u16WatchdogFactor);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_data_hold_factor, &u16DataHoldFactor);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
@@ -10183,6 +10184,11 @@ proto_register_pn_io (void)
     { &hf_pn_io_frame_data_properties_reserved_2,
       { "Reserved_2", "pn_io.frame_data.reserved_2",
         FT_UINT32, BASE_HEX, NULL, 0xFFFF0000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_watchdog_factor,
+      { "WatchdogFactor", "pn_io.watchdog_factor",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_data_hold_factor,
