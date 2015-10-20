@@ -1609,6 +1609,56 @@ get_time_value(tvbuff_t *tvb, const gint start, const gint length, const guint e
 				time_stamp->nsecs = 0;
 			}
 			break;
+        case ENC_TIME_NTP_BASE_ZERO|ENC_BIG_ENDIAN:
+            /*
+             * DDS NTP time stamp, big-endian.
+             */
+
+#define NTP_BASETIME_ZERO G_GUINT64_CONSTANT(0)
+
+            tmpsecs  = tvb_get_ntohl(tvb, start);
+            if (tmpsecs)
+                time_stamp->secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME_ZERO);
+            else
+                time_stamp->secs = tmpsecs; /* 0 */
+
+            if (length == 8) {
+                /*
+                 * We're using nanoseconds here (and we will
+                 * display nanoseconds), but NTP's timestamps
+                 * have a precision in microseconds or greater.
+                 * Round to 1 microsecond.
+                 */
+                time_stamp->nsecs = (int)(1000000*(tvb_get_ntohl(tvb, start+4)/4294967296.0));
+                time_stamp->nsecs *= 1000;
+            } else {
+                time_stamp->nsecs = 0;
+            }
+            break;
+
+        case ENC_TIME_NTP_BASE_ZERO|ENC_LITTLE_ENDIAN:
+            /*
+             * NTP time stamp, big-endian.
+             */
+            tmpsecs  = tvb_get_letohl(tvb, start);
+            if (tmpsecs)
+                time_stamp->secs = (time_t)(tmpsecs - (guint32)NTP_BASETIME_ZERO);
+            else
+                time_stamp->secs = tmpsecs; /* 0 */
+                        time_stamp->secs  = (time_t)tvb_get_letohl(tvb, start);
+            if (length == 8) {
+                /*
+                 * We're using nanoseconds here (and we will
+                 * display nanoseconds), but NTP's timestamps
+                 * have a precision in microseconds or greater.
+                 * Round to 1 microsecond.
+                 */
+                time_stamp->nsecs = (int)(1000000*(tvb_get_letohl(tvb, start+4)/4294967296.0));
+                time_stamp->nsecs *= 1000;
+            } else {
+                time_stamp->nsecs = 0;
+            }
+            break;
 
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();

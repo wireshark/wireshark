@@ -368,10 +368,10 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
  * For backwards compatibility, we interpret an encoding of 1 as meaning
  * "little-endian timespec", so that passing TRUE is interpreted as that.
  */
-#define ENC_TIME_TIMESPEC	0x00000000	/* "struct timespec" */
-#define ENC_TIME_NTP		0x00000002	/* NTP times */
-#define ENC_TIME_TOD		0x00000004	/* System/3xx and z/Architecture time-of-day clock */
-
+#define ENC_TIME_TIMESPEC           0x00000000	/* "struct timespec" */
+#define ENC_TIME_NTP                0x00000002	/* NTP times */
+#define ENC_TIME_TOD                0x00000004	/* System/3xx and z/Architecture time-of-day clock */
+#define ENC_TIME_NTP_BASE_ZERO      0x00000008  /* NTP times with different BASETIME */
 /*
  * Historically, the only place the representation mattered for strings
  * was with FT_UINT_STRINGs, where we had FALSE for the string length

@@ -1723,8 +1723,9 @@ void rtps_util_add_ntp_time(proto_tree *tree,
                         gboolean   little_endian,
                         int hf_time) {
 
+  /* ENC_TIME_NTP_BASE_ZERO applies the BASETIME specified by the standard (zero)*/
   proto_tree_add_item(tree, hf_time, tvb, offset, 8,
-                      ENC_TIME_NTP|(little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN));
+                      ENC_TIME_NTP_BASE_ZERO|(little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN));
 
 }
 
@@ -7642,7 +7643,7 @@ void proto_register_rtps(void) {
   static hf_register_info hf[] = {
 
     { &hf_rtps_magic, {
-        "magic",
+        "Magic",
         "rtps.magic",
         FT_STRING,
         BASE_NONE,
