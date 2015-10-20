@@ -902,17 +902,30 @@ sub dissect_element($$$$$;$$)
                             for my $foo (keys %{$enum{$enum_name{$enum_ref}}{rbit}}) { say "'$foo'"; }
                             die ("Field '$field' not found in '$enum_ref'");
                         }
-                        push @test , "($switchon & (1U << $bit))";
+                        push @test , "$switchon & (1U << $bit)";
                     } else {
                         my $val = $enum{$enum_name{$enum_ref}}{rvalue}{$field};
                         if (! defined($val)) {
                             for my $foo (keys %{$enum{$enum_name{$enum_ref}}{rvalue}}) { say "'$foo'"; }
                             die ("Field '$field' not found in '$enum_ref'");
                         }
-                        push @test , "($switchon == $val)";
+                        push @test , "$switchon == $val";
                     }
                 }
-                my $list = join ' || ', @test;
+
+		if (@test > 1) {
+		    # We have more than one conditional, add parentheses to them.
+		    # We don't add parentheses to all the conditionals because
+		    # clang complains about the extra parens if you do "if ((x == y))".
+		    my @tests_with_parens;
+		    foreach my $conditional (@test) {
+			push @tests_with_parens, "($conditional)";
+		    }
+
+		    @test = @tests_with_parens;
+		}
+
+		my $list = join ' || ', @test;
                 say $impl $indent."if ($list) {";
 
 		my $vp = $varpat;
