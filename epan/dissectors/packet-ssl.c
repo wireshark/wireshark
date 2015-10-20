@@ -1984,19 +1984,16 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
         if (!msg_type_str)
             return;
 
-        /* PAOLO: if we are doing ssl decryption we must dissect some requests type */
-        if (ssl_hand_tree || ssl)
-        {
-            /* add nodes for the message type and message length */
-            proto_tree_add_uint(ssl_hand_tree, hf_ssl_handshake_type,
-                    tvb, offset, 1, msg_type);
-            offset += 1;
-            proto_tree_add_uint(ssl_hand_tree, hf_ssl_handshake_length,
-                    tvb, offset, 3, length);
-            offset += 3;
+        /* add nodes for the message type and message length */
+        proto_tree_add_uint(ssl_hand_tree, hf_ssl_handshake_type,
+                tvb, offset, 1, msg_type);
+        offset += 1;
+        proto_tree_add_uint(ssl_hand_tree, hf_ssl_handshake_length,
+                tvb, offset, 3, length);
+        offset += 3;
 
-            /* now dissect the handshake message, if necessary */
-            switch ((HandshakeType) msg_type) {
+        /* now dissect the handshake message, if necessary */
+        switch ((HandshakeType) msg_type) {
             case SSL_HND_HELLO_REQUEST:
                 /* hello_request has no fields, so nothing to do! */
                 break;
@@ -2007,13 +2004,13 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                     ssl_set_server(session, &pinfo->dst, pinfo->ptype, pinfo->destport);
                 }
                 ssl_dissect_hnd_cli_hello(&dissect_ssl3_hf, tvb, pinfo,
-                                          ssl_hand_tree, offset, length, session, ssl,
-                                          NULL);
+                        ssl_hand_tree, offset, length, session, ssl,
+                        NULL);
                 break;
 
             case SSL_HND_SERVER_HELLO:
                 ssl_dissect_hnd_srv_hello(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree,
-                                          offset, length, session, ssl);
+                        offset, length, session, ssl);
                 break;
 
             case SSL_HND_HELLO_VERIFY_REQUEST:
@@ -2024,8 +2021,8 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 /* no need to load keylog file here as it only links a previous
                  * master key with this Session Ticket */
                 ssl_dissect_hnd_new_ses_ticket(&dissect_ssl3_hf, tvb,
-                                               ssl_hand_tree, offset, ssl,
-                                               ssl_master_key_map.session);
+                        ssl_hand_tree, offset, ssl,
+                        ssl_master_key_map.session);
                 break;
 
             case SSL_HND_CERTIFICATE:
@@ -2056,18 +2053,18 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                     break;
 
                 ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file,
-                                 &ssl_master_key_map);
+                        &ssl_master_key_map);
                 /* try to find master key from pre-master key */
                 if (!ssl_generate_pre_master_secret(ssl, length, tvb, offset,
-                                                    ssl_options.psk,
-                                                    &ssl_master_key_map)) {
+                            ssl_options.psk,
+                            &ssl_master_key_map)) {
                     ssl_debug_printf("dissect_ssl3_handshake can't generate pre master secret\n");
                 }
                 break;
 
             case SSL_HND_FINISHED:
                 ssl_dissect_hnd_finished(&dissect_ssl3_hf, tvb, ssl_hand_tree,
-                                         offset, session, &ssl_hfs);
+                        offset, session, &ssl_hfs);
                 break;
 
             case SSL_HND_CERT_URL:
@@ -2085,11 +2082,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             case SSL_HND_ENCRYPTED_EXTS:
                 dissect_ssl3_hnd_encrypted_exts(tvb, ssl_hand_tree, offset);
                 break;
-            }
-
         }
-        else
-            offset += 4;        /* skip the handshake header when handshake is not processed*/
 
         offset += length;
         first_iteration = FALSE; /* set up for next pass, if any */

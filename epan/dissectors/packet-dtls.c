@@ -1104,6 +1104,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
   guint32      fragment_length;
   gboolean     first_iteration;
   guint32      reassembled_length;
+  tvbuff_t     *sub_tvb;
 
   msg_type_str    = NULL;
   first_iteration = TRUE;
@@ -1302,35 +1303,31 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             }
         }
 
-      if (ssl_hand_tree || ssl)
+        if (fragmented && !new_tvb)
         {
-          tvbuff_t *sub_tvb = NULL;
+          /* Skip fragmented messages not reassembled yet */
+          continue;
+        }
 
-          if (fragmented && !new_tvb)
-            {
-              /* Skip fragmented messages not reassembled yet */
-              continue;
-            }
+        if (new_tvb)
+        {
+          sub_tvb = new_tvb;
+        }
+        else
+        {
+          sub_tvb = tvb_new_subset_length(tvb, offset, fragment_length);
+        }
 
-          if (new_tvb)
-            {
-              sub_tvb = new_tvb;
-            }
-          else
-            {
-              sub_tvb = tvb_new_subset_length(tvb, offset, fragment_length);
-            }
-
-          /* now dissect the handshake message, if necessary */
-          switch ((HandshakeType) msg_type) {
+        /* now dissect the handshake message, if necessary */
+        switch ((HandshakeType) msg_type) {
           case SSL_HND_HELLO_REQUEST:
             /* hello_request has no fields, so nothing to do! */
             break;
 
           case SSL_HND_CLIENT_HELLO:
             if (ssl) {
-                /* ClientHello is first packet so set direction */
-                ssl_set_server(session, &pinfo->dst, pinfo->ptype, pinfo->destport);
+              /* ClientHello is first packet so set direction */
+              ssl_set_server(session, &pinfo->dst, pinfo->ptype, pinfo->destport);
             }
             ssl_dissect_hnd_cli_hello(&dissect_dtls_hf, sub_tvb, pinfo,
                                       ssl_hand_tree, 0, length, session, ssl,
@@ -1401,8 +1398,6 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           case SSL_HND_ENCRYPTED_EXTS:
             /* TODO: does this need further dissection? */
             break;
-          }
-
         }
     }
 }

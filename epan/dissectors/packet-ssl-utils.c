@@ -5312,60 +5312,58 @@ ssl_dissect_hnd_hello_common(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     guint8       sessid_length;
     proto_tree  *rnd_tree;
 
-    if (tree || ssl) {
-        if (ssl) {
-            StringInfo *rnd;
-            if (from_server)
-                rnd = &ssl->server_random;
-            else
-                rnd = &ssl->client_random;
+    if (ssl) {
+        StringInfo *rnd;
+        if (from_server)
+            rnd = &ssl->server_random;
+        else
+            rnd = &ssl->client_random;
 
-            /* save provided random for later keyring generation */
-            tvb_memcpy(tvb, rnd->data, offset, 32);
-            rnd->data_len = 32;
-            if (from_server)
-                ssl->state |= SSL_SERVER_RANDOM;
-            else
-                ssl->state |= SSL_CLIENT_RANDOM;
-            ssl_debug_printf("%s found %s RANDOM -> state 0x%02X\n", G_STRFUNC,
-                             from_server ? "SERVER" : "CLIENT", ssl->state);
+        /* save provided random for later keyring generation */
+        tvb_memcpy(tvb, rnd->data, offset, 32);
+        rnd->data_len = 32;
+        if (from_server)
+            ssl->state |= SSL_SERVER_RANDOM;
+        else
+            ssl->state |= SSL_CLIENT_RANDOM;
+        ssl_debug_printf("%s found %s RANDOM -> state 0x%02X\n", G_STRFUNC,
+                from_server ? "SERVER" : "CLIENT", ssl->state);
+    }
+
+    rnd_tree = proto_tree_add_subtree(tree, tvb, offset, 32,
+            hf->ett.hs_random, NULL, "Random");
+
+    /* show the time */
+    gmt_unix_time.secs  = tvb_get_ntohl(tvb, offset);
+    gmt_unix_time.nsecs = 0;
+    proto_tree_add_time(rnd_tree, hf->hf.hs_random_time,
+            tvb, offset, 4, &gmt_unix_time);
+    offset += 4;
+
+    /* show the random bytes */
+    proto_tree_add_item(rnd_tree, hf->hf.hs_random_bytes,
+            tvb, offset, 28, ENC_NA);
+    offset += 28;
+
+    /* show the session id (length followed by actual Session ID) */
+    sessid_length = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf->hf.hs_session_id_len,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (ssl) {
+        /* save the authorative SID for later use in ChangeCipherSpec.
+         * (D)TLS restricts the SID to 32 chars, it does not make sense to
+         * save more, so ignore larger ones. */
+        if (from_server && sessid_length <= 32) {
+            tvb_memcpy(tvb, ssl->session_id.data, offset, sessid_length);
+            ssl->session_id.data_len = sessid_length;
         }
-
-        rnd_tree = proto_tree_add_subtree(tree, tvb, offset, 32,
-                                          hf->ett.hs_random, NULL, "Random");
-
-        /* show the time */
-        gmt_unix_time.secs  = tvb_get_ntohl(tvb, offset);
-        gmt_unix_time.nsecs = 0;
-        proto_tree_add_time(rnd_tree, hf->hf.hs_random_time,
-                            tvb, offset, 4, &gmt_unix_time);
-        offset += 4;
-
-        /* show the random bytes */
-        proto_tree_add_item(rnd_tree, hf->hf.hs_random_bytes,
-                            tvb, offset, 28, ENC_NA);
-        offset += 28;
-
-        /* show the session id (length followed by actual Session ID) */
-        sessid_length = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf->hf.hs_session_id_len,
-                            tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
-
-        if (ssl) {
-            /* save the authorative SID for later use in ChangeCipherSpec.
-             * (D)TLS restricts the SID to 32 chars, it does not make sense to
-             * save more, so ignore larger ones. */
-            if (from_server && sessid_length <= 32) {
-                tvb_memcpy(tvb, ssl->session_id.data, offset, sessid_length);
-                ssl->session_id.data_len = sessid_length;
-            }
-        }
-        if (sessid_length > 0) {
-            proto_tree_add_item(tree, hf->hf.hs_session_id,
-                                tvb, offset, sessid_length, ENC_NA);
-            offset += sessid_length;
-        }
+    }
+    if (sessid_length > 0) {
+        proto_tree_add_item(tree, hf->hf.hs_session_id,
+                tvb, offset, sessid_length, ENC_NA);
+        offset += sessid_length;
     }
 
     return offset;
