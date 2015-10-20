@@ -12186,51 +12186,51 @@ static void renderCreatePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
         proto_tree_add_item(bitmask_tree, hf_x11_render_CreatePicture_value_mask_mask_ComponentAlpha, tvb, *offsetp, 4, byte_order);
     }
     *offsetp += 4;
-    if ((f_value_mask & (1U << 0))) {
+    if (f_value_mask & (1U << 0)) {
         field32(tvb, offsetp, t, hf_x11_render_CreatePicture_Repeat_repeat, byte_order);
     }
-    if ((f_value_mask & (1U << 1))) {
+    if (f_value_mask & (1U << 1)) {
         proto_tree_add_item(t, hf_x11_render_CreatePicture_AlphaMap_alphamap, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 2))) {
+    if (f_value_mask & (1U << 2)) {
         proto_tree_add_item(t, hf_x11_render_CreatePicture_AlphaXOrigin_alphaxorigin, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 3))) {
+    if (f_value_mask & (1U << 3)) {
         proto_tree_add_item(t, hf_x11_render_CreatePicture_AlphaYOrigin_alphayorigin, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 4))) {
+    if (f_value_mask & (1U << 4)) {
         proto_tree_add_item(t, hf_x11_render_CreatePicture_ClipXOrigin_clipxorigin, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 5))) {
+    if (f_value_mask & (1U << 5)) {
         proto_tree_add_item(t, hf_x11_render_CreatePicture_ClipYOrigin_clipyorigin, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 6))) {
+    if (f_value_mask & (1U << 6)) {
         proto_tree_add_item(t, hf_x11_render_CreatePicture_ClipMask_clipmask, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 7))) {
+    if (f_value_mask & (1U << 7)) {
         proto_tree_add_item(t, hf_x11_render_CreatePicture_GraphicsExposure_graphicsexposure, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 8))) {
+    if (f_value_mask & (1U << 8)) {
         field32(tvb, offsetp, t, hf_x11_render_CreatePicture_SubwindowMode_subwindowmode, byte_order);
     }
-    if ((f_value_mask & (1U << 9))) {
+    if (f_value_mask & (1U << 9)) {
         field32(tvb, offsetp, t, hf_x11_render_CreatePicture_PolyEdge_polyedge, byte_order);
     }
-    if ((f_value_mask & (1U << 10))) {
+    if (f_value_mask & (1U << 10)) {
         field32(tvb, offsetp, t, hf_x11_render_CreatePicture_PolyMode_polymode, byte_order);
     }
-    if ((f_value_mask & (1U << 11))) {
+    if (f_value_mask & (1U << 11)) {
         proto_tree_add_item(t, hf_x11_render_CreatePicture_Dither_dither, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 12))) {
+    if (f_value_mask & (1U << 12)) {
         proto_tree_add_item(t, hf_x11_render_CreatePicture_ComponentAlpha_componentalpha, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
@@ -12260,51 +12260,51 @@ static void renderChangePicture(tvbuff_t *tvb, packet_info *pinfo _U_, int *offs
         proto_tree_add_item(bitmask_tree, hf_x11_render_ChangePicture_value_mask_mask_ComponentAlpha, tvb, *offsetp, 4, byte_order);
     }
     *offsetp += 4;
-    if ((f_value_mask & (1U << 0))) {
+    if (f_value_mask & (1U << 0)) {
         field32(tvb, offsetp, t, hf_x11_render_ChangePicture_Repeat_repeat, byte_order);
     }
-    if ((f_value_mask & (1U << 1))) {
+    if (f_value_mask & (1U << 1)) {
         proto_tree_add_item(t, hf_x11_render_ChangePicture_AlphaMap_alphamap, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 2))) {
+    if (f_value_mask & (1U << 2)) {
         proto_tree_add_item(t, hf_x11_render_ChangePicture_AlphaXOrigin_alphaxorigin, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 3))) {
+    if (f_value_mask & (1U << 3)) {
         proto_tree_add_item(t, hf_x11_render_ChangePicture_AlphaYOrigin_alphayorigin, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 4))) {
+    if (f_value_mask & (1U << 4)) {
         proto_tree_add_item(t, hf_x11_render_ChangePicture_ClipXOrigin_clipxorigin, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 5))) {
+    if (f_value_mask & (1U << 5)) {
         proto_tree_add_item(t, hf_x11_render_ChangePicture_ClipYOrigin_clipyorigin, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 6))) {
+    if (f_value_mask & (1U << 6)) {
         proto_tree_add_item(t, hf_x11_render_ChangePicture_ClipMask_clipmask, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 7))) {
+    if (f_value_mask & (1U << 7)) {
         proto_tree_add_item(t, hf_x11_render_ChangePicture_GraphicsExposure_graphicsexposure, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 8))) {
+    if (f_value_mask & (1U << 8)) {
         field32(tvb, offsetp, t, hf_x11_render_ChangePicture_SubwindowMode_subwindowmode, byte_order);
     }
-    if ((f_value_mask & (1U << 9))) {
+    if (f_value_mask & (1U << 9)) {
         field32(tvb, offsetp, t, hf_x11_render_ChangePicture_PolyEdge_polyedge, byte_order);
     }
-    if ((f_value_mask & (1U << 10))) {
+    if (f_value_mask & (1U << 10)) {
         field32(tvb, offsetp, t, hf_x11_render_ChangePicture_PolyMode_polymode, byte_order);
     }
-    if ((f_value_mask & (1U << 11))) {
+    if (f_value_mask & (1U << 11)) {
         proto_tree_add_item(t, hf_x11_render_ChangePicture_Dither_dither, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 12))) {
+    if (f_value_mask & (1U << 12)) {
         proto_tree_add_item(t, hf_x11_render_ChangePicture_ComponentAlpha_componentalpha, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
@@ -13317,46 +13317,46 @@ static void screensaverSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
         proto_tree_add_item(bitmask_tree, hf_x11_screensaver_SetAttributes_value_mask_mask_Cursor, tvb, *offsetp, 4, byte_order);
     }
     *offsetp += 4;
-    if ((f_value_mask & (1U << 0))) {
+    if (f_value_mask & (1U << 0)) {
         field32(tvb, offsetp, t, hf_x11_screensaver_SetAttributes_BackPixmap_background_pixmap, byte_order);
     }
-    if ((f_value_mask & (1U << 1))) {
+    if (f_value_mask & (1U << 1)) {
         proto_tree_add_item(t, hf_x11_screensaver_SetAttributes_BackPixel_background_pixel, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 2))) {
+    if (f_value_mask & (1U << 2)) {
         field32(tvb, offsetp, t, hf_x11_screensaver_SetAttributes_BorderPixmap_border_pixmap, byte_order);
     }
-    if ((f_value_mask & (1U << 3))) {
+    if (f_value_mask & (1U << 3)) {
         proto_tree_add_item(t, hf_x11_screensaver_SetAttributes_BorderPixel_border_pixel, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 4))) {
+    if (f_value_mask & (1U << 4)) {
         field32(tvb, offsetp, t, hf_x11_screensaver_SetAttributes_BitGravity_bit_gravity, byte_order);
     }
-    if ((f_value_mask & (1U << 5))) {
+    if (f_value_mask & (1U << 5)) {
         field32(tvb, offsetp, t, hf_x11_screensaver_SetAttributes_WinGravity_win_gravity, byte_order);
     }
-    if ((f_value_mask & (1U << 6))) {
+    if (f_value_mask & (1U << 6)) {
         field32(tvb, offsetp, t, hf_x11_screensaver_SetAttributes_BackingStore_backing_store, byte_order);
     }
-    if ((f_value_mask & (1U << 7))) {
+    if (f_value_mask & (1U << 7)) {
         proto_tree_add_item(t, hf_x11_screensaver_SetAttributes_BackingPlanes_backing_planes, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 8))) {
+    if (f_value_mask & (1U << 8)) {
         proto_tree_add_item(t, hf_x11_screensaver_SetAttributes_BackingPixel_backing_pixel, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 9))) {
+    if (f_value_mask & (1U << 9)) {
         proto_tree_add_item(t, hf_x11_screensaver_SetAttributes_OverrideRedirect_override_redirect, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 10))) {
+    if (f_value_mask & (1U << 10)) {
         proto_tree_add_item(t, hf_x11_screensaver_SetAttributes_SaveUnder_save_under, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 11))) {
+    if (f_value_mask & (1U << 11)) {
         {
             proto_item *ti = proto_tree_add_item(t, hf_x11_screensaver_SetAttributes_EventMask_event_mask, tvb, *offsetp, 4, byte_order);
             proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -13388,7 +13388,7 @@ static void screensaverSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
         }
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 12))) {
+    if (f_value_mask & (1U << 12)) {
         {
             proto_item *ti = proto_tree_add_item(t, hf_x11_screensaver_SetAttributes_DontPropagate_do_not_propogate_mask, tvb, *offsetp, 4, byte_order);
             proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -13420,10 +13420,10 @@ static void screensaverSetAttributes(tvbuff_t *tvb, packet_info *pinfo _U_, int 
         }
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 13))) {
+    if (f_value_mask & (1U << 13)) {
         field32(tvb, offsetp, t, hf_x11_screensaver_SetAttributes_Colormap_colormap, byte_order);
     }
-    if ((f_value_mask & (1U << 14))) {
+    if (f_value_mask & (1U << 14)) {
         field32(tvb, offsetp, t, hf_x11_screensaver_SetAttributes_Cursor_cursor, byte_order);
     }
 }
@@ -14117,23 +14117,23 @@ static void syncCreateAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         proto_tree_add_item(bitmask_tree, hf_x11_sync_CreateAlarm_value_mask_mask_Events, tvb, *offsetp, 4, byte_order);
     }
     *offsetp += 4;
-    if ((f_value_mask & (1U << 0))) {
+    if (f_value_mask & (1U << 0)) {
         proto_tree_add_item(t, hf_x11_sync_CreateAlarm_Counter_counter, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 1))) {
+    if (f_value_mask & (1U << 1)) {
         field32(tvb, offsetp, t, hf_x11_sync_CreateAlarm_ValueType_valueType, byte_order);
     }
-    if ((f_value_mask & (1U << 2))) {
+    if (f_value_mask & (1U << 2)) {
         struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
     }
-    if ((f_value_mask & (1U << 3))) {
+    if (f_value_mask & (1U << 3)) {
         field32(tvb, offsetp, t, hf_x11_sync_CreateAlarm_TestType_testType, byte_order);
     }
-    if ((f_value_mask & (1U << 4))) {
+    if (f_value_mask & (1U << 4)) {
         struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
     }
-    if ((f_value_mask & (1U << 5))) {
+    if (f_value_mask & (1U << 5)) {
         proto_tree_add_item(t, hf_x11_sync_CreateAlarm_Events_events, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
@@ -14156,23 +14156,23 @@ static void syncChangeAlarm(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         proto_tree_add_item(bitmask_tree, hf_x11_sync_ChangeAlarm_value_mask_mask_Events, tvb, *offsetp, 4, byte_order);
     }
     *offsetp += 4;
-    if ((f_value_mask & (1U << 0))) {
+    if (f_value_mask & (1U << 0)) {
         proto_tree_add_item(t, hf_x11_sync_ChangeAlarm_Counter_counter, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_value_mask & (1U << 1))) {
+    if (f_value_mask & (1U << 1)) {
         field32(tvb, offsetp, t, hf_x11_sync_ChangeAlarm_ValueType_valueType, byte_order);
     }
-    if ((f_value_mask & (1U << 2))) {
+    if (f_value_mask & (1U << 2)) {
         struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
     }
-    if ((f_value_mask & (1U << 3))) {
+    if (f_value_mask & (1U << 3)) {
         field32(tvb, offsetp, t, hf_x11_sync_ChangeAlarm_TestType_testType, byte_order);
     }
-    if ((f_value_mask & (1U << 4))) {
+    if (f_value_mask & (1U << 4)) {
         struct_sync_INT64(tvb, offsetp, t, byte_order, 1);
     }
-    if ((f_value_mask & (1U << 5))) {
+    if (f_value_mask & (1U << 5)) {
         proto_tree_add_item(t, hf_x11_sync_ChangeAlarm_Events_events, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
@@ -17018,7 +17018,7 @@ static void struct_xinput_InputInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 	f_class_id = field8(tvb, offsetp, t, hf_x11_struct_xinput_InputInfo_class_id, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_len, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
-	if ((f_class_id == 0)) {
+	if (f_class_id == 0) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Key_min_keycode, tvb, *offsetp, 1, byte_order);
 	    *offsetp += 1;
 	    proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Key_max_keycode, tvb, *offsetp, 1, byte_order);
@@ -17027,11 +17027,11 @@ static void struct_xinput_InputInfo(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 	    *offsetp += 2;
 	    UNUSED(2);
 	}
-	if ((f_class_id == 1)) {
+	if (f_class_id == 1) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Button_num_buttons, tvb, *offsetp, 2, byte_order);
 	    *offsetp += 2;
 	}
-	if ((f_class_id == 2)) {
+	if (f_class_id == 2) {
 	    int f_axes_len;
 	    f_axes_len = VALUE8(tvb, *offsetp);
 	    proto_tree_add_item(t, hf_x11_struct_xinput_InputInfo_Valuator_axes_len, tvb, *offsetp, 1, byte_order);
@@ -17590,7 +17590,7 @@ static void struct_xinput_FeedbackState(tvbuff_t *tvb, int *offsetp, proto_tree 
 	*offsetp += 1;
 	proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_len, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
-	if ((f_class_id == 0)) {
+	if (f_class_id == 0) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_pitch, tvb, *offsetp, 2, byte_order);
 	    *offsetp += 2;
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Keyboard_duration, tvb, *offsetp, 2, byte_order);
@@ -17608,7 +17608,7 @@ static void struct_xinput_FeedbackState(tvbuff_t *tvb, int *offsetp, proto_tree 
 	    UNUSED(1);
 	    listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackState_Keyboard_auto_repeats, 32, byte_order);
 	}
-	if ((f_class_id == 1)) {
+	if (f_class_id == 1) {
 	    UNUSED(2);
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Pointer_accel_num, tvb, *offsetp, 2, byte_order);
 	    *offsetp += 2;
@@ -17617,7 +17617,7 @@ static void struct_xinput_FeedbackState(tvbuff_t *tvb, int *offsetp, proto_tree 
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Pointer_threshold, tvb, *offsetp, 2, byte_order);
 	    *offsetp += 2;
 	}
-	if ((f_class_id == 2)) {
+	if (f_class_id == 2) {
 	    int f_num_keysyms;
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_String_max_symbols, tvb, *offsetp, 2, byte_order);
 	    *offsetp += 2;
@@ -17626,7 +17626,7 @@ static void struct_xinput_FeedbackState(tvbuff_t *tvb, int *offsetp, proto_tree 
 	    *offsetp += 2;
 	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackState_String_keysyms, hf_x11_struct_xinput_FeedbackState_String_keysyms_item, f_num_keysyms, byte_order);
 	}
-	if ((f_class_id == 3)) {
+	if (f_class_id == 3) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Integer_resolution, tvb, *offsetp, 4, byte_order);
 	    *offsetp += 4;
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Integer_min_value, tvb, *offsetp, 4, byte_order);
@@ -17634,13 +17634,13 @@ static void struct_xinput_FeedbackState(tvbuff_t *tvb, int *offsetp, proto_tree 
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Integer_max_value, tvb, *offsetp, 4, byte_order);
 	    *offsetp += 4;
 	}
-	if ((f_class_id == 4)) {
+	if (f_class_id == 4) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Led_led_mask, tvb, *offsetp, 4, byte_order);
 	    *offsetp += 4;
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Led_led_values, tvb, *offsetp, 4, byte_order);
 	    *offsetp += 4;
 	}
-	if ((f_class_id == 5)) {
+	if (f_class_id == 5) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackState_Bell_percent, tvb, *offsetp, 1, byte_order);
 	    *offsetp += 1;
 	    UNUSED(3);
@@ -17702,7 +17702,7 @@ static void struct_xinput_FeedbackCtl(tvbuff_t *tvb, int *offsetp, proto_tree *r
 	*offsetp += 1;
 	proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_len, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
-	if ((f_class_id == 0)) {
+	if (f_class_id == 0) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_key, tvb, *offsetp, 1, byte_order);
 	    *offsetp += 1;
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_auto_repeat_mode, tvb, *offsetp, 1, byte_order);
@@ -17720,7 +17720,7 @@ static void struct_xinput_FeedbackCtl(tvbuff_t *tvb, int *offsetp, proto_tree *r
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Keyboard_led_values, tvb, *offsetp, 4, byte_order);
 	    *offsetp += 4;
 	}
-	if ((f_class_id == 1)) {
+	if (f_class_id == 1) {
 	    UNUSED(2);
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Pointer_num, tvb, *offsetp, 2, byte_order);
 	    *offsetp += 2;
@@ -17729,7 +17729,7 @@ static void struct_xinput_FeedbackCtl(tvbuff_t *tvb, int *offsetp, proto_tree *r
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Pointer_threshold, tvb, *offsetp, 2, byte_order);
 	    *offsetp += 2;
 	}
-	if ((f_class_id == 2)) {
+	if (f_class_id == 2) {
 	    int f_num_keysyms;
 	    UNUSED(2);
 	    f_num_keysyms = VALUE16(tvb, *offsetp);
@@ -17737,17 +17737,17 @@ static void struct_xinput_FeedbackCtl(tvbuff_t *tvb, int *offsetp, proto_tree *r
 	    *offsetp += 2;
 	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_FeedbackCtl_String_keysyms, hf_x11_struct_xinput_FeedbackCtl_String_keysyms_item, f_num_keysyms, byte_order);
 	}
-	if ((f_class_id == 3)) {
+	if (f_class_id == 3) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Integer_int_to_display, tvb, *offsetp, 4, byte_order);
 	    *offsetp += 4;
 	}
-	if ((f_class_id == 4)) {
+	if (f_class_id == 4) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Led_led_mask, tvb, *offsetp, 4, byte_order);
 	    *offsetp += 4;
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Led_led_values, tvb, *offsetp, 4, byte_order);
 	    *offsetp += 4;
 	}
-	if ((f_class_id == 5)) {
+	if (f_class_id == 5) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_FeedbackCtl_Bell_percent, tvb, *offsetp, 1, byte_order);
 	    *offsetp += 1;
 	    UNUSED(3);
@@ -17975,19 +17975,19 @@ static void struct_xinput_InputState(tvbuff_t *tvb, int *offsetp, proto_tree *ro
 	f_class_id = field8(tvb, offsetp, t, hf_x11_struct_xinput_InputState_class_id, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xinput_InputState_len, tvb, *offsetp, 1, byte_order);
 	*offsetp += 1;
-	if ((f_class_id == 0)) {
+	if (f_class_id == 0) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Key_num_keys, tvb, *offsetp, 1, byte_order);
 	    *offsetp += 1;
 	    UNUSED(1);
 	    listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_InputState_Key_keys, 32, byte_order);
 	}
-	if ((f_class_id == 1)) {
+	if (f_class_id == 1) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Button_num_buttons, tvb, *offsetp, 1, byte_order);
 	    *offsetp += 1;
 	    UNUSED(1);
 	    listOfByte(tvb, offsetp, t, hf_x11_struct_xinput_InputState_Button_buttons, 32, byte_order);
 	}
-	if ((f_class_id == 2)) {
+	if (f_class_id == 2) {
 	    int f_num_valuators;
 	    f_num_valuators = VALUE8(tvb, *offsetp);
 	    proto_tree_add_item(t, hf_x11_struct_xinput_InputState_Valuator_num_valuators, tvb, *offsetp, 1, byte_order);
@@ -18120,7 +18120,7 @@ static void struct_xinput_DeviceState(tvbuff_t *tvb, int *offsetp, proto_tree *r
 	f_control_id = field16(tvb, offsetp, t, hf_x11_struct_xinput_DeviceState_control_id, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_len, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
-	if ((f_control_id == 1)) {
+	if (f_control_id == 1) {
 	    int f_num_valuators;
 	    f_num_valuators = VALUE32(tvb, *offsetp);
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_resolution_num_valuators, tvb, *offsetp, 4, byte_order);
@@ -18129,7 +18129,7 @@ static void struct_xinput_DeviceState(tvbuff_t *tvb, int *offsetp, proto_tree *r
 	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceState_resolution_resolution_min, hf_x11_struct_xinput_DeviceState_resolution_resolution_min_item, f_num_valuators, byte_order);
 	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceState_resolution_resolution_max, hf_x11_struct_xinput_DeviceState_resolution_resolution_max_item, f_num_valuators, byte_order);
 	}
-	if ((f_control_id == 2)) {
+	if (f_control_id == 2) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_min_x, tvb, *offsetp, 4, byte_order);
 	    *offsetp += 4;
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_max_x, tvb, *offsetp, 4, byte_order);
@@ -18147,19 +18147,19 @@ static void struct_xinput_DeviceState(tvbuff_t *tvb, int *offsetp, proto_tree *r
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_calib_button_threshold, tvb, *offsetp, 4, byte_order);
 	    *offsetp += 4;
 	}
-	if ((f_control_id == 3)) {
+	if (f_control_id == 3) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_core_status, tvb, *offsetp, 1, byte_order);
 	    *offsetp += 1;
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_core_iscore, tvb, *offsetp, 1, byte_order);
 	    *offsetp += 1;
 	    UNUSED(2);
 	}
-	if ((f_control_id == 4)) {
+	if (f_control_id == 4) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_enable_enable, tvb, *offsetp, 1, byte_order);
 	    *offsetp += 1;
 	    UNUSED(3);
 	}
-	if ((f_control_id == 5)) {
+	if (f_control_id == 5) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_area_offset_x, tvb, *offsetp, 4, byte_order);
 	    *offsetp += 4;
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceState_abs_area_offset_y, tvb, *offsetp, 4, byte_order);
@@ -18222,7 +18222,7 @@ static void struct_xinput_DeviceCtl(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 	f_control_id = field16(tvb, offsetp, t, hf_x11_struct_xinput_DeviceCtl_control_id, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_len, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
-	if ((f_control_id == 1)) {
+	if (f_control_id == 1) {
 	    int f_num_valuators;
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_resolution_first_valuator, tvb, *offsetp, 1, byte_order);
 	    *offsetp += 1;
@@ -18232,7 +18232,7 @@ static void struct_xinput_DeviceCtl(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 	    UNUSED(2);
 	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceCtl_resolution_resolution_values, hf_x11_struct_xinput_DeviceCtl_resolution_resolution_values_item, f_num_valuators, byte_order);
 	}
-	if ((f_control_id == 2)) {
+	if (f_control_id == 2) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_min_x, tvb, *offsetp, 4, byte_order);
 	    *offsetp += 4;
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_max_x, tvb, *offsetp, 4, byte_order);
@@ -18250,17 +18250,17 @@ static void struct_xinput_DeviceCtl(tvbuff_t *tvb, int *offsetp, proto_tree *roo
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_calib_button_threshold, tvb, *offsetp, 4, byte_order);
 	    *offsetp += 4;
 	}
-	if ((f_control_id == 3)) {
+	if (f_control_id == 3) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_core_status, tvb, *offsetp, 1, byte_order);
 	    *offsetp += 1;
 	    UNUSED(3);
 	}
-	if ((f_control_id == 4)) {
+	if (f_control_id == 4) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_enable_enable, tvb, *offsetp, 1, byte_order);
 	    *offsetp += 1;
 	    UNUSED(3);
 	}
-	if ((f_control_id == 5)) {
+	if (f_control_id == 5) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_area_offset_x, tvb, *offsetp, 4, byte_order);
 	    *offsetp += 4;
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceCtl_abs_area_offset_y, tvb, *offsetp, 4, byte_order);
@@ -18349,7 +18349,7 @@ static void xinputChangeDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, in
     f_num_items = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_ChangeDeviceProperty_num_items, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    if ((f_format == 8)) {
+    if (f_format == 8) {
         listOfByte(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceProperty_8Bits_data8, f_num_items, byte_order);
         length -= f_num_items * 1;
         if (*offsetp % 4) {
@@ -18357,7 +18357,7 @@ static void xinputChangeDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, in
         }
         length = ((length + 3) & ~3);
     }
-    if ((f_format == 16)) {
+    if (f_format == 16) {
         listOfCard16(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceProperty_16Bits_data16, hf_x11_xinput_ChangeDeviceProperty_16Bits_data16_item, f_num_items, byte_order);
         length -= f_num_items * 2;
         if (*offsetp % 4) {
@@ -18365,7 +18365,7 @@ static void xinputChangeDeviceProperty(tvbuff_t *tvb, packet_info *pinfo _U_, in
         }
         length = ((length + 3) & ~3);
     }
-    if ((f_format == 32)) {
+    if (f_format == 32) {
         listOfCard32(tvb, offsetp, t, hf_x11_xinput_ChangeDeviceProperty_32Bits_data32, hf_x11_xinput_ChangeDeviceProperty_32Bits_data32_item, f_num_items, byte_order);
         length -= f_num_items * 4;
     }
@@ -18424,19 +18424,19 @@ static void xinputGetDeviceProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int
     proto_tree_add_item(t, hf_x11_xinput_GetDeviceProperty_reply_device_id, tvb, *offsetp, 1, byte_order);
     *offsetp += 1;
     UNUSED(10);
-    if ((f_format == 8)) {
+    if (f_format == 8) {
         listOfByte(tvb, offsetp, t, hf_x11_xinput_GetDeviceProperty_reply_8Bits_data8, f_num_items, byte_order);
         if (*offsetp % 4) {
             UNUSED(4 - *offsetp % 4);
         }
     }
-    if ((f_format == 16)) {
+    if (f_format == 16) {
         listOfCard16(tvb, offsetp, t, hf_x11_xinput_GetDeviceProperty_reply_16Bits_data16, hf_x11_xinput_GetDeviceProperty_reply_16Bits_data16_item, f_num_items, byte_order);
         if (*offsetp % 4) {
             UNUSED(4 - *offsetp % 4);
         }
     }
-    if ((f_format == 32)) {
+    if (f_format == 32) {
         listOfCard32(tvb, offsetp, t, hf_x11_xinput_GetDeviceProperty_reply_32Bits_data32, hf_x11_xinput_GetDeviceProperty_reply_32Bits_data32_item, f_num_items, byte_order);
     }
 }
@@ -18577,7 +18577,7 @@ static void struct_xinput_HierarchyChange(tvbuff_t *tvb, int *offsetp, proto_tre
 	f_type = field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_type, byte_order);
 	proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyChange_len, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
-	if ((f_type == 1)) {
+	if (f_type == 1) {
 	    int f_name_len;
 	    f_name_len = VALUE16(tvb, *offsetp);
 	    proto_tree_add_item(t, hf_x11_struct_xinput_HierarchyChange_AddMaster_name_len, tvb, *offsetp, 2, byte_order);
@@ -18591,18 +18591,18 @@ static void struct_xinput_HierarchyChange(tvbuff_t *tvb, int *offsetp, proto_tre
 	        UNUSED(4 - *offsetp % 4);
 	    }
 	}
-	if ((f_type == 2)) {
+	if (f_type == 2) {
 	    field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_RemoveMaster_deviceid, byte_order);
 	    field8(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_RemoveMaster_return_mode, byte_order);
 	    UNUSED(1);
 	    field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_RemoveMaster_return_pointer, byte_order);
 	    field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_RemoveMaster_return_keyboard, byte_order);
 	}
-	if ((f_type == 3)) {
+	if (f_type == 3) {
 	    field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_AttachSlave_deviceid, byte_order);
 	    field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_AttachSlave_master, byte_order);
 	}
-	if ((f_type == 4)) {
+	if (f_type == 4) {
 	    field16(tvb, offsetp, t, hf_x11_struct_xinput_HierarchyChange_DetachSlave_deviceid, byte_order);
 	    UNUSED(2);
 	}
@@ -18743,14 +18743,14 @@ static void struct_xinput_DeviceClass(tvbuff_t *tvb, int *offsetp, proto_tree *r
 	*offsetp += 2;
 	proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_sourceid, tvb, *offsetp, 2, byte_order);
 	*offsetp += 2;
-	if ((f_type == 0)) {
+	if (f_type == 0) {
 	    int f_num_keys;
 	    f_num_keys = VALUE16(tvb, *offsetp);
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Key_num_keys, tvb, *offsetp, 2, byte_order);
 	    *offsetp += 2;
 	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Key_keys, hf_x11_struct_xinput_DeviceClass_Key_keys_item, f_num_keys, byte_order);
 	}
-	if ((f_type == 1)) {
+	if (f_type == 1) {
 	    int f_num_buttons;
 	    f_num_buttons = VALUE16(tvb, *offsetp);
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Button_num_buttons, tvb, *offsetp, 2, byte_order);
@@ -18758,7 +18758,7 @@ static void struct_xinput_DeviceClass(tvbuff_t *tvb, int *offsetp, proto_tree *r
 	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Button_state, hf_x11_struct_xinput_DeviceClass_Button_state_item, ((f_num_buttons + 31) / 32), byte_order);
 	    listOfCard32(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Button_labels, hf_x11_struct_xinput_DeviceClass_Button_labels_item, f_num_buttons, byte_order);
 	}
-	if ((f_type == 2)) {
+	if (f_type == 2) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Valuator_number, tvb, *offsetp, 2, byte_order);
 	    *offsetp += 2;
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Valuator_label, tvb, *offsetp, 4, byte_order);
@@ -18771,7 +18771,7 @@ static void struct_xinput_DeviceClass(tvbuff_t *tvb, int *offsetp, proto_tree *r
 	    field8(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Valuator_mode, byte_order);
 	    UNUSED(3);
 	}
-	if ((f_type == 3)) {
+	if (f_type == 3) {
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Scroll_number, tvb, *offsetp, 2, byte_order);
 	    *offsetp += 2;
 	    field16(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Scroll_scroll_type, byte_order);
@@ -18785,7 +18785,7 @@ static void struct_xinput_DeviceClass(tvbuff_t *tvb, int *offsetp, proto_tree *r
 	    *offsetp += 4;
 	    struct_xinput_FP3232(tvb, offsetp, t, byte_order, 1);
 	}
-	if ((f_type == 8)) {
+	if (f_type == 8) {
 	    field8(tvb, offsetp, t, hf_x11_struct_xinput_DeviceClass_Touch_mode, byte_order);
 	    proto_tree_add_item(t, hf_x11_struct_xinput_DeviceClass_Touch_num_touches, tvb, *offsetp, 1, byte_order);
 	    *offsetp += 1;
@@ -19080,7 +19080,7 @@ static void xinputXIChangeProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
     f_num_items = VALUE32(tvb, *offsetp);
     proto_tree_add_item(t, hf_x11_xinput_XIChangeProperty_num_items, tvb, *offsetp, 4, byte_order);
     *offsetp += 4;
-    if ((f_format == 8)) {
+    if (f_format == 8) {
         listOfByte(tvb, offsetp, t, hf_x11_xinput_XIChangeProperty_8Bits_data8, f_num_items, byte_order);
         length -= f_num_items * 1;
         if (*offsetp % 4) {
@@ -19088,7 +19088,7 @@ static void xinputXIChangeProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
         }
         length = ((length + 3) & ~3);
     }
-    if ((f_format == 16)) {
+    if (f_format == 16) {
         listOfCard16(tvb, offsetp, t, hf_x11_xinput_XIChangeProperty_16Bits_data16, hf_x11_xinput_XIChangeProperty_16Bits_data16_item, f_num_items, byte_order);
         length -= f_num_items * 2;
         if (*offsetp % 4) {
@@ -19096,7 +19096,7 @@ static void xinputXIChangeProperty(tvbuff_t *tvb, packet_info *pinfo _U_, int *o
         }
         length = ((length + 3) & ~3);
     }
-    if ((f_format == 32)) {
+    if (f_format == 32) {
         listOfCard32(tvb, offsetp, t, hf_x11_xinput_XIChangeProperty_32Bits_data32, hf_x11_xinput_XIChangeProperty_32Bits_data32_item, f_num_items, byte_order);
         length -= f_num_items * 4;
     }
@@ -19150,19 +19150,19 @@ static void xinputXIGetProperty_Reply(tvbuff_t *tvb, packet_info *pinfo, int *of
     *offsetp += 4;
     f_format = field8(tvb, offsetp, t, hf_x11_xinput_XIGetProperty_reply_format, byte_order);
     UNUSED(11);
-    if ((f_format == 8)) {
+    if (f_format == 8) {
         listOfByte(tvb, offsetp, t, hf_x11_xinput_XIGetProperty_reply_8Bits_data8, f_num_items, byte_order);
         if (*offsetp % 4) {
             UNUSED(4 - *offsetp % 4);
         }
     }
-    if ((f_format == 16)) {
+    if (f_format == 16) {
         listOfCard16(tvb, offsetp, t, hf_x11_xinput_XIGetProperty_reply_16Bits_data16, hf_x11_xinput_XIGetProperty_reply_16Bits_data16_item, f_num_items, byte_order);
         if (*offsetp % 4) {
             UNUSED(4 - *offsetp % 4);
         }
     }
-    if ((f_format == 32)) {
+    if (f_format == 32) {
         listOfCard32(tvb, offsetp, t, hf_x11_xinput_XIGetProperty_reply_32Bits_data32, hf_x11_xinput_XIGetProperty_reply_32Bits_data32_item, f_num_items, byte_order);
     }
 }
@@ -21750,7 +21750,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         proto_tree_add_item(bitmask_tree, hf_x11_xkb_SelectEvents_map_mask_VirtualModMap, tvb, *offsetp, 2, byte_order);
     }
     *offsetp += 2;
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 0))) {
+    if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 0)) {
         {
             proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_NewKeyboardNotify_affectNewKeyboard, tvb, *offsetp, 2, byte_order);
             proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -21768,7 +21768,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 2;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 2))) {
+    if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 2)) {
         {
             proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_StateNotify_affectState, tvb, *offsetp, 2, byte_order);
             proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -21808,7 +21808,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 2;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 3))) {
+    if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 3)) {
         {
             proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_ControlsNotify_affectCtrls, tvb, *offsetp, 4, byte_order);
             proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -21830,19 +21830,19 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 4;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 4))) {
+    if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 4)) {
         proto_tree_add_item(t, hf_x11_xkb_SelectEvents_IndicatorStateNotify_affectIndicatorState, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_xkb_SelectEvents_IndicatorStateNotify_indicatorStateDetails, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 5))) {
+    if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 5)) {
         proto_tree_add_item(t, hf_x11_xkb_SelectEvents_IndicatorMapNotify_affectIndicatorMap, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
         proto_tree_add_item(t, hf_x11_xkb_SelectEvents_IndicatorMapNotify_indicatorMapDetails, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 6))) {
+    if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 6)) {
         {
             proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_NamesNotify_affectNames, tvb, *offsetp, 2, byte_order);
             proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -21882,7 +21882,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 2;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 7))) {
+    if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 7)) {
         {
             proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_CompatMapNotify_affectCompat, tvb, *offsetp, 1, byte_order);
             proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -21898,19 +21898,19 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 1;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 8))) {
+    if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 8)) {
         proto_tree_add_item(t, hf_x11_xkb_SelectEvents_BellNotify_affectBell, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_SelectEvents_BellNotify_bellDetails, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 9))) {
+    if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 9)) {
         proto_tree_add_item(t, hf_x11_xkb_SelectEvents_ActionMessage_affectMsgDetails, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_SelectEvents_ActionMessage_msgDetails, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 10))) {
+    if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 10)) {
         {
             proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_AccessXNotify_affectAccessX, tvb, *offsetp, 2, byte_order);
             proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -21936,7 +21936,7 @@ static void xkbSelectEvents(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp,
         }
         *offsetp += 2;
     }
-    if (((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 11))) {
+    if ((f_affectWhich & ((~f_clear) & (~f_selectAll))) & (1U << 11)) {
         {
             proto_item *ti = proto_tree_add_item(t, hf_x11_xkb_SelectEvents_ExtensionDeviceNotify_affectExtDev, tvb, *offsetp, 2, byte_order);
             proto_tree *bitmask_tree = proto_item_add_subtree(ti, ett_x11_rectangle);
@@ -22977,41 +22977,41 @@ static void xkbGetMap_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, pro
         proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetMap_reply_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
     }
     *offsetp += 2;
-    if ((f_present & (1U << 0))) {
+    if (f_present & (1U << 0)) {
         struct_xkb_KeyType(tvb, offsetp, t, byte_order, f_nTypes);
     }
-    if ((f_present & (1U << 1))) {
+    if (f_present & (1U << 1)) {
         struct_xkb_KeySymMap(tvb, offsetp, t, byte_order, f_nKeySyms);
     }
-    if ((f_present & (1U << 4))) {
+    if (f_present & (1U << 4)) {
         listOfByte(tvb, offsetp, t, hf_x11_xkb_GetMap_reply_KeyActions_acts_rtrn_count, f_nKeyActions, byte_order);
         if (*offsetp % 4) {
             UNUSED(4 - *offsetp % 4);
         }
         struct_xkb_Action(tvb, offsetp, t, byte_order, f_totalActions);
     }
-    if ((f_present & (1U << 5))) {
+    if (f_present & (1U << 5)) {
         struct_xkb_SetBehavior(tvb, offsetp, t, byte_order, f_totalKeyBehaviors);
     }
-    if ((f_present & (1U << 6))) {
+    if (f_present & (1U << 6)) {
         listOfByte(tvb, offsetp, t, hf_x11_xkb_GetMap_reply_VirtualMods_vmods_rtrn, popcount(f_virtualMods), byte_order);
         if (*offsetp % 4) {
             UNUSED(4 - *offsetp % 4);
         }
     }
-    if ((f_present & (1U << 3))) {
+    if (f_present & (1U << 3)) {
         struct_xkb_SetExplicit(tvb, offsetp, t, byte_order, f_totalKeyExplicit);
         if (*offsetp % 4) {
             UNUSED(4 - *offsetp % 4);
         }
     }
-    if ((f_present & (1U << 2))) {
+    if (f_present & (1U << 2)) {
         struct_xkb_KeyModMap(tvb, offsetp, t, byte_order, f_totalModMapKeys);
         if (*offsetp % 4) {
             UNUSED(4 - *offsetp % 4);
         }
     }
-    if ((f_present & (1U << 7))) {
+    if (f_present & (1U << 7)) {
         struct_xkb_KeyVModMap(tvb, offsetp, t, byte_order, f_totalVModMapKeys);
     }
 }
@@ -23125,37 +23125,37 @@ static void xkbSetMap(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, proto
         proto_tree_add_item(bitmask_tree, hf_x11_xkb_SetMap_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
     }
     *offsetp += 2;
-    if ((f_present & (1U << 0))) {
+    if (f_present & (1U << 0)) {
         struct_xkb_SetKeyType(tvb, offsetp, t, byte_order, f_nTypes);
         length -= f_nTypes * 0;
     }
-    if ((f_present & (1U << 1))) {
+    if (f_present & (1U << 1)) {
         struct_xkb_KeySymMap(tvb, offsetp, t, byte_order, f_nKeySyms);
         length -= f_nKeySyms * 0;
     }
-    if ((f_present & (1U << 4))) {
+    if (f_present & (1U << 4)) {
         listOfByte(tvb, offsetp, t, hf_x11_xkb_SetMap_KeyActions_actionsCount, f_nKeyActions, byte_order);
         length -= f_nKeyActions * 1;
         struct_xkb_Action(tvb, offsetp, t, byte_order, f_totalActions);
         length -= f_totalActions * 8;
     }
-    if ((f_present & (1U << 5))) {
+    if (f_present & (1U << 5)) {
         struct_xkb_SetBehavior(tvb, offsetp, t, byte_order, f_totalKeyBehaviors);
         length -= f_totalKeyBehaviors * 4;
     }
-    if ((f_present & (1U << 6))) {
+    if (f_present & (1U << 6)) {
         listOfByte(tvb, offsetp, t, hf_x11_xkb_SetMap_VirtualMods_vmods, popcount(f_virtualMods), byte_order);
         length -= popcount(f_virtualMods) * 1;
     }
-    if ((f_present & (1U << 3))) {
+    if (f_present & (1U << 3)) {
         struct_xkb_SetExplicit(tvb, offsetp, t, byte_order, f_totalKeyExplicit);
         length -= f_totalKeyExplicit * 2;
     }
-    if ((f_present & (1U << 2))) {
+    if (f_present & (1U << 2)) {
         struct_xkb_KeyModMap(tvb, offsetp, t, byte_order, f_totalModMapKeys);
         length -= f_totalModMapKeys * 2;
     }
-    if ((f_present & (1U << 7))) {
+    if (f_present & (1U << 7)) {
         struct_xkb_KeyVModMap(tvb, offsetp, t, byte_order, f_totalVModMapKeys);
         length -= f_totalVModMapKeys * 4;
     }
@@ -23700,34 +23700,34 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
     proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_nKTLevels, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
     UNUSED(4);
-    if ((f_which & (1U << 0))) {
+    if (f_which & (1U << 0)) {
         proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_Keycodes_keycodesName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1U << 1))) {
+    if (f_which & (1U << 1)) {
         proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_Geometry_geometryName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1U << 2))) {
+    if (f_which & (1U << 2)) {
         proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_Symbols_symbolsName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1U << 3))) {
+    if (f_which & (1U << 3)) {
         proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_PhysSymbols_physSymbolsName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1U << 4))) {
+    if (f_which & (1U << 4)) {
         proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_Types_typesName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1U << 5))) {
+    if (f_which & (1U << 5)) {
         proto_tree_add_item(t, hf_x11_xkb_GetNames_reply_Compat_compatName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1U << 6))) {
+    if (f_which & (1U << 6)) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_KeyTypeNames_typeNames, hf_x11_xkb_GetNames_reply_KeyTypeNames_typeNames_item, f_nTypes, byte_order);
     }
-    if ((f_which & (1U << 7))) {
+    if (f_which & (1U << 7)) {
         int sumof_nLevelsPerType = 0;
         {
             int i;
@@ -23739,22 +23739,22 @@ static void xkbGetNames_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offsetp, p
         listOfByte(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_KTLevelNames_alignment_pad, (((f_nTypes + 3) & (~3)) - f_nTypes), byte_order);
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_KTLevelNames_ktLevelNames, hf_x11_xkb_GetNames_reply_KTLevelNames_ktLevelNames_item, sumof_nLevelsPerType, byte_order);
     }
-    if ((f_which & (1U << 8))) {
+    if (f_which & (1U << 8)) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_IndicatorNames_indicatorNames, hf_x11_xkb_GetNames_reply_IndicatorNames_indicatorNames_item, popcount(f_indicators), byte_order);
     }
-    if ((f_which & (1U << 11))) {
+    if (f_which & (1U << 11)) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_VirtualModNames_virtualModNames, hf_x11_xkb_GetNames_reply_VirtualModNames_virtualModNames_item, popcount(f_virtualMods), byte_order);
     }
-    if ((f_which & (1U << 12))) {
+    if (f_which & (1U << 12)) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_GroupNames_groups, hf_x11_xkb_GetNames_reply_GroupNames_groups_item, popcount(f_groupNames), byte_order);
     }
-    if ((f_which & (1U << 9))) {
+    if (f_which & (1U << 9)) {
         struct_xkb_KeyName(tvb, offsetp, t, byte_order, f_nKeys);
     }
-    if ((f_which & (1U << 10))) {
+    if (f_which & (1U << 10)) {
         struct_xkb_KeyAlias(tvb, offsetp, t, byte_order, f_nKeyAliases);
     }
-    if ((f_which & (1U << 13))) {
+    if (f_which & (1U << 13)) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetNames_reply_RGNames_radioGroupNames, hf_x11_xkb_GetNames_reply_RGNames_radioGroupNames_item, f_nRadioGroups, byte_order);
     }
 }
@@ -23849,35 +23849,35 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
     UNUSED(1);
     proto_tree_add_item(t, hf_x11_xkb_SetNames_totalKTLevelNames, tvb, *offsetp, 2, byte_order);
     *offsetp += 2;
-    if ((f_which & (1U << 0))) {
+    if (f_which & (1U << 0)) {
         proto_tree_add_item(t, hf_x11_xkb_SetNames_Keycodes_keycodesName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1U << 1))) {
+    if (f_which & (1U << 1)) {
         proto_tree_add_item(t, hf_x11_xkb_SetNames_Geometry_geometryName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1U << 2))) {
+    if (f_which & (1U << 2)) {
         proto_tree_add_item(t, hf_x11_xkb_SetNames_Symbols_symbolsName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1U << 3))) {
+    if (f_which & (1U << 3)) {
         proto_tree_add_item(t, hf_x11_xkb_SetNames_PhysSymbols_physSymbolsName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1U << 4))) {
+    if (f_which & (1U << 4)) {
         proto_tree_add_item(t, hf_x11_xkb_SetNames_Types_typesName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1U << 5))) {
+    if (f_which & (1U << 5)) {
         proto_tree_add_item(t, hf_x11_xkb_SetNames_Compat_compatName, tvb, *offsetp, 4, byte_order);
         *offsetp += 4;
     }
-    if ((f_which & (1U << 6))) {
+    if (f_which & (1U << 6)) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_SetNames_KeyTypeNames_typeNames, hf_x11_xkb_SetNames_KeyTypeNames_typeNames_item, f_nTypes, byte_order);
         length -= f_nTypes * 4;
     }
-    if ((f_which & (1U << 7))) {
+    if (f_which & (1U << 7)) {
         int sumof_nLevelsPerType = 0;
         {
             int i;
@@ -23890,27 +23890,27 @@ static void xkbSetNames(tvbuff_t *tvb, packet_info *pinfo _U_, int *offsetp, pro
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_SetNames_KTLevelNames_ktLevelNames, hf_x11_xkb_SetNames_KTLevelNames_ktLevelNames_item, sumof_nLevelsPerType, byte_order);
         length -= sumof_nLevelsPerType * 4;
     }
-    if ((f_which & (1U << 8))) {
+    if (f_which & (1U << 8)) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_SetNames_IndicatorNames_indicatorNames, hf_x11_xkb_SetNames_IndicatorNames_indicatorNames_item, popcount(f_indicators), byte_order);
         length -= popcount(f_indicators) * 4;
     }
-    if ((f_which & (1U << 11))) {
+    if (f_which & (1U << 11)) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_SetNames_VirtualModNames_virtualModNames, hf_x11_xkb_SetNames_VirtualModNames_virtualModNames_item, popcount(f_virtualMods), byte_order);
         length -= popcount(f_virtualMods) * 4;
     }
-    if ((f_which & (1U << 12))) {
+    if (f_which & (1U << 12)) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_SetNames_GroupNames_groups, hf_x11_xkb_SetNames_GroupNames_groups_item, popcount(f_groupNames), byte_order);
         length -= popcount(f_groupNames) * 4;
     }
-    if ((f_which & (1U << 9))) {
+    if (f_which & (1U << 9)) {
         struct_xkb_KeyName(tvb, offsetp, t, byte_order, f_nKeys);
         length -= f_nKeys * 4;
     }
-    if ((f_which & (1U << 10))) {
+    if (f_which & (1U << 10)) {
         struct_xkb_KeyAlias(tvb, offsetp, t, byte_order, f_nKeyAliases);
         length -= f_nKeyAliases * 8;
     }
-    if ((f_which & (1U << 13))) {
+    if (f_which & (1U << 13)) {
         listOfCard32(tvb, offsetp, t, hf_x11_xkb_SetNames_RGNames_radioGroupNames, hf_x11_xkb_SetNames_RGNames_radioGroupNames_item, f_nRadioGroups, byte_order);
         length -= f_nRadioGroups * 4;
     }
@@ -24324,33 +24324,33 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
             proto_tree_add_item(bitmask_tree, hf_x11_xkb_GetKbdByName_reply_Types_virtualMods_mask_15, tvb, *offsetp, 2, byte_order);
         }
         *offsetp += 2;
-        if ((f_present & (1U << 0))) {
+        if (f_present & (1U << 0)) {
             struct_xkb_KeyType(tvb, offsetp, t, byte_order, f_nTypes);
         }
-        if ((f_present & (1U << 1))) {
+        if (f_present & (1U << 1)) {
             struct_xkb_KeySymMap(tvb, offsetp, t, byte_order, f_nKeySyms);
         }
-        if ((f_present & (1U << 4))) {
+        if (f_present & (1U << 4)) {
             listOfByte(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_Types_KeyActions_acts_rtrn_count, f_nKeyActions, byte_order);
             struct_xkb_Action(tvb, offsetp, t, byte_order, f_totalActions);
         }
-        if ((f_present & (1U << 5))) {
+        if (f_present & (1U << 5)) {
             struct_xkb_SetBehavior(tvb, offsetp, t, byte_order, f_totalKeyBehaviors);
         }
-        if ((f_present & (1U << 6))) {
+        if (f_present & (1U << 6)) {
             listOfByte(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_Types_VirtualMods_vmods_rtrn, popcount(f_virtualMods), byte_order);
         }
-        if ((f_present & (1U << 3))) {
+        if (f_present & (1U << 3)) {
             struct_xkb_SetExplicit(tvb, offsetp, t, byte_order, f_totalKeyExplicit);
         }
-        if ((f_present & (1U << 2))) {
+        if (f_present & (1U << 2)) {
             struct_xkb_KeyModMap(tvb, offsetp, t, byte_order, f_totalModMapKeys);
         }
-        if ((f_present & (1U << 7))) {
+        if (f_present & (1U << 7)) {
             struct_xkb_KeyVModMap(tvb, offsetp, t, byte_order, f_totalVModMapKeys);
         }
     }
-    if ((f_reported & (1U << 1))) {
+    if (f_reported & (1U << 1)) {
         int f_groupsRtrn;
         int f_nSIRtrn;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_CompatMap_compatmap_type, tvb, *offsetp, 1, byte_order);
@@ -24383,7 +24383,7 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         struct_xkb_SymInterpret(tvb, offsetp, t, byte_order, f_nSIRtrn);
         struct_xkb_ModDef(tvb, offsetp, t, byte_order, popcount(f_groupsRtrn));
     }
-    if ((f_reported & (1U << 4))) {
+    if (f_reported & (1U << 4)) {
         int f_nIndicators;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_IndicatorMaps_indicatormap_type, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
@@ -24496,34 +24496,34 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_nKTLevels, tvb, *offsetp, 2, byte_order);
         *offsetp += 2;
         UNUSED(4);
-        if ((f_which & (1U << 0))) {
+        if (f_which & (1U << 0)) {
             proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_Keycodes_keycodesName, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
         }
-        if ((f_which & (1U << 1))) {
+        if (f_which & (1U << 1)) {
             proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_Geometry_geometryName, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
         }
-        if ((f_which & (1U << 2))) {
+        if (f_which & (1U << 2)) {
             proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_Symbols_symbolsName, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
         }
-        if ((f_which & (1U << 3))) {
+        if (f_which & (1U << 3)) {
             proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_PhysSymbols_physSymbolsName, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
         }
-        if ((f_which & (1U << 4))) {
+        if (f_which & (1U << 4)) {
             proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_Types_typesName, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
         }
-        if ((f_which & (1U << 5))) {
+        if (f_which & (1U << 5)) {
             proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_KeyNames_Compat_compatName, tvb, *offsetp, 4, byte_order);
             *offsetp += 4;
         }
-        if ((f_which & (1U << 6))) {
+        if (f_which & (1U << 6)) {
             listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_KeyTypeNames_typeNames, hf_x11_xkb_GetKbdByName_reply_KeyNames_KeyTypeNames_typeNames_item, f_nTypes, byte_order);
         }
-        if ((f_which & (1U << 7))) {
+        if (f_which & (1U << 7)) {
             int sumof_nLevelsPerType = 0;
             {
                 int i;
@@ -24534,26 +24534,26 @@ static void xkbGetKbdByName_Reply(tvbuff_t *tvb, packet_info *pinfo, int *offset
             listOfByte(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_KTLevelNames_nLevelsPerType, f_nTypes, byte_order);
             listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_KTLevelNames_ktLevelNames, hf_x11_xkb_GetKbdByName_reply_KeyNames_KTLevelNames_ktLevelNames_item, sumof_nLevelsPerType, byte_order);
         }
-        if ((f_which & (1U << 8))) {
+        if (f_which & (1U << 8)) {
             listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_IndicatorNames_indicatorNames, hf_x11_xkb_GetKbdByName_reply_KeyNames_IndicatorNames_indicatorNames_item, popcount(f_indicators), byte_order);
         }
-        if ((f_which & (1U << 11))) {
+        if (f_which & (1U << 11)) {
             listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_VirtualModNames_virtualModNames, hf_x11_xkb_GetKbdByName_reply_KeyNames_VirtualModNames_virtualModNames_item, popcount(f_virtualMods), byte_order);
         }
-        if ((f_which & (1U << 12))) {
+        if (f_which & (1U << 12)) {
             listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_GroupNames_groups, hf_x11_xkb_GetKbdByName_reply_KeyNames_GroupNames_groups_item, popcount(f_groupNames), byte_order);
         }
-        if ((f_which & (1U << 9))) {
+        if (f_which & (1U << 9)) {
             struct_xkb_KeyName(tvb, offsetp, t, byte_order, f_nKeys);
         }
-        if ((f_which & (1U << 10))) {
+        if (f_which & (1U << 10)) {
             struct_xkb_KeyAlias(tvb, offsetp, t, byte_order, f_nKeyAliases);
         }
-        if ((f_which & (1U << 13))) {
+        if (f_which & (1U << 13)) {
             listOfCard32(tvb, offsetp, t, hf_x11_xkb_GetKbdByName_reply_KeyNames_RGNames_radioGroupNames, hf_x11_xkb_GetKbdByName_reply_KeyNames_RGNames_radioGroupNames_item, f_nRadioGroups, byte_order);
         }
     }
-    if ((f_reported & (1U << 6))) {
+    if (f_reported & (1U << 6)) {
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Geometry_geometry_type, tvb, *offsetp, 1, byte_order);
         *offsetp += 1;
         proto_tree_add_item(t, hf_x11_xkb_GetKbdByName_reply_Geometry_geometryDeviceID, tvb, *offsetp, 1, byte_order);
