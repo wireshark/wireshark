@@ -1956,7 +1956,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                     dblvalue = dblvalue / 10;
                 }
 
-                tv.secs = dblvalue;
+                tv.secs = (guint32)dblvalue;
                 tv.nsecs = (dblvalue - tv.secs) * 1000000000;
                 proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_reltime, tvb, *offset, length, &tv);
 
@@ -2034,7 +2034,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
 
                 value = dblvalue;
                 tv.secs = secs + value;
-                dblvalue = dblvalue - value;
+                dblvalue = dblvalue - (guint32)value;
                 tv.nsecs = dblvalue * 1000000000;
                 proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
 
@@ -2082,7 +2082,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
 
                 value = dblvalue;
                 tv.secs = secs + value;
-                dblvalue = dblvalue - value;
+                dblvalue = dblvalue - (guint32)value;
                 tv.nsecs = dblvalue * 1000000000;
                 timeitem = proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
 
