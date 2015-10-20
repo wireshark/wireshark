@@ -40,6 +40,7 @@
 class QAudioOutput;
 class QTemporaryFile;
 
+struct _rtp_info;
 struct _rtp_stream_info;
 struct _rtp_sample;
 
@@ -54,6 +55,7 @@ public:
     void addRtpStream(const struct _rtp_stream_info *rtp_stream);
     void addRtpPacket(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info);
     void reset(double start_rel_time);
+    void decode();
 
     double startRelTime() const { return start_rel_time_; }
     double stopRelTime() const { return stop_rel_time_; }
@@ -103,11 +105,15 @@ public slots:
     void stopPlaying();
 
 private:
+    // Used to identify unique streams.
+    // The GTK+ UI also uses the call number + current channel.
     address src_addr_;
     quint16 src_port_;
     address dst_addr_;
     quint16 dst_port_;
     quint32 ssrc_;
+
+    QVector<struct _rtp_packet *>rtp_packets_;
     int last_sequence_;
     QTemporaryFile *tempfile_;
     struct _GHashTable *decoders_hash_;
@@ -130,7 +136,6 @@ private:
 private slots:
     void outputStateChanged();
     void outputNotify();
-
 };
 
 #endif // QT_MULTIMEDIA_LIB

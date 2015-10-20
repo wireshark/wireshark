@@ -19,7 +19,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-
 #include "rtp_audio_stream.h"
 
 #ifdef QT_MULTIMEDIA_LIB
@@ -39,6 +38,9 @@
 #include <QAudioOutput>
 #include <QDir>
 #include <QTemporaryFile>
+
+// To do:
+// - Only allow one rtp_stream_info_t per RtpAudioStream?
 
 static spx_int16_t default_audio_sample_rate_ = 8000;
 static const spx_int16_t visual_sample_rate_ = 1000;
@@ -77,6 +79,12 @@ RtpAudioStream::RtpAudioStream(QObject *parent, _rtp_stream_info *rtp_stream) :
 
 RtpAudioStream::~RtpAudioStream()
 {
+    for (int i = 0; i < rtp_packets_.size(); i++) {
+        rtp_packet_t *rtp_packet = rtp_packets_[i];
+        g_free(rtp_packet->info);
+        g_free(rtp_packet->payload_data);
+        g_free(rtp_packet);
+    }
     g_hash_table_destroy(decoders_hash_);
     if (audio_resampler_) ws_codec_resampler_destroy (audio_resampler_);
     ws_codec_resampler_destroy (visual_resampler_);
@@ -115,125 +123,27 @@ void RtpAudioStream::addRtpStream(const _rtp_stream_info *rtp_stream)
 
     // RTP_STREAM_DEBUG("added %d:%u packets", g_list_length(rtp_stream->rtp_packet_list), rtp_stream->packet_count);
     rtp_streams_ << rtp_stream;
-
-    double stream_srt = nstime_to_sec(&rtp_stream->start_rel_time);
-    if (rtp_streams_.length() < 2 || stream_srt > start_rel_time_) {
-        start_rel_time_ = stop_rel_time_ = stream_srt;
-        start_abs_offset_ = nstime_to_sec(&rtp_stream->start_fd->abs_ts) - start_rel_time_;
-    }
 }
 
-static const int sample_bytes_ = sizeof(SAMPLE) / sizeof(char);
-void RtpAudioStream::addRtpPacket(const struct _packet_info *pinfo, const _rtp_info *rtp_info)
+void RtpAudioStream::addRtpPacket(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info)
 {
+    // gtk/rtp_player.c:decode_rtp_packet
     if (!rtp_info) return;
 
-    // Combination of gtk/rtp_player.c:decode_rtp_stream + decode_rtp_packet
-    // XXX This is more messy than it should be.
-
-    SAMPLE *decode_buff = NULL;
-    SAMPLE *resample_buff = NULL;
-    spx_uint32_t cur_in_rate, visual_out_rate;
-    char *write_buff;
-    qint64 write_bytes;
-    unsigned channels;
-    unsigned sample_rate;
-    rtp_packet_t rtp_packet;
-
-    stop_rel_time_ = nstime_to_sec(&pinfo->rel_ts);
-    ws_codec_resampler_get_rate(visual_resampler_, &cur_in_rate, &visual_out_rate);
-
-    QString payload_name;
-    if (rtp_info->info_payload_type_str) {
-        payload_name = rtp_info->info_payload_type_str;
-    } else {
-        payload_name = try_val_to_str_ext(rtp_info->info_payload_type, &rtp_payload_type_short_vals_ext);
-    }
-    if (!payload_name.isEmpty()) {
-        payload_names_ << payload_name;
-    }
-
-    // First, decode the payload.
-    rtp_packet.info = (_rtp_info *) g_memdup(rtp_info, sizeof(struct _rtp_info));
-    rtp_packet.arrive_offset = start_rel_time_;
+    rtp_packet_t *rtp_packet = g_new0(rtp_packet_t, 1);
+    rtp_packet->info = (struct _rtp_info *) g_memdup(rtp_info, sizeof(struct _rtp_info));
     if (rtp_info->info_all_data_present && (rtp_info->info_payload_len != 0)) {
-        rtp_packet.payload_data = (guint8 *)g_malloc(rtp_info->info_payload_len);
-        memcpy(rtp_packet.payload_data, rtp_info->info_data + rtp_info->info_payload_offset, rtp_info->info_payload_len);
-    } else {
-        rtp_packet.payload_data = NULL;
+        rtp_packet->payload_data = (guint8 *) g_memdup(&(rtp_info->info_data[rtp_info->info_payload_offset]), rtp_info->info_payload_len);
     }
 
-    //size_t decoded_bytes =
-    decode_rtp_packet(&rtp_packet, &decode_buff, decoders_hash_, &channels, &sample_rate);
-    write_buff = (char *) decode_buff;
-    write_bytes = rtp_info->info_payload_len * sample_bytes_;
-
-    if (tempfile_->pos() == 0) {
-        // First packet. Let it determine our sample rate.
-        audio_out_rate_ = sample_rate;
-
-        last_sequence_ = rtp_info->info_seq_num - 1;
-
-        // Prepend silence to match our sibling streams.
-        int prepend_samples = (start_rel_time_ - global_start_rel_time_) * audio_out_rate_;
-        if (prepend_samples > 0) {
-            int prepend_bytes = prepend_samples * sample_bytes_;
-            char *prepend_buff = (char *) g_malloc(prepend_bytes);
-            SAMPLE silence = 0;
-            memccpy(prepend_buff, &silence, prepend_samples, sample_bytes_);
-            tempfile_->write(prepend_buff, prepend_bytes);
-        }
-    } else if (audio_out_rate_ != sample_rate) {
-        // Resample the audio to match our previous output rate.
-        if (!audio_resampler_) {
-            audio_resampler_ = ws_codec_resampler_init(1, sample_rate, audio_out_rate_, 10, NULL);
-            ws_codec_resampler_skip_zeros(audio_resampler_);
-            // RTP_STREAM_DEBUG("Started resampling from %u to (out) %u Hz.", sample_rate, audio_out_rate_);
-        } else {
-            spx_uint32_t audio_out_rate;
-            ws_codec_resampler_get_rate(audio_resampler_, &cur_in_rate, &audio_out_rate);
-
-            // Adjust rates if needed.
-            if (sample_rate != cur_in_rate) {
-                ws_codec_resampler_set_rate(audio_resampler_, sample_rate, audio_out_rate);
-                ws_codec_resampler_set_rate(visual_resampler_, sample_rate, visual_out_rate);
-                // RTP_STREAM_DEBUG("Changed input rate from %u to %u Hz. Out is %u.", cur_in_rate, sample_rate, audio_out_rate_);
-            }
-        }
-        spx_uint32_t in_len = (spx_uint32_t)rtp_info->info_payload_len;
-        spx_uint32_t out_len = (audio_out_rate_ * (spx_uint32_t)rtp_info->info_payload_len / sample_rate) + (audio_out_rate_ % sample_rate != 0);
-        resample_buff = (SAMPLE *) g_malloc(out_len * sample_bytes_);
-
-        ws_codec_resampler_process_int(audio_resampler_, 0, decode_buff, &in_len, resample_buff, &out_len);
-        write_buff = (char *) decode_buff;
-        write_bytes = out_len * sample_bytes_;
+    if (rtp_packets_.size() < 1) { // First packet
+        start_abs_offset_ = nstime_to_sec(&pinfo->fd->abs_ts) - start_rel_time_;
+        start_rel_time_ = stop_rel_time_ = nstime_to_sec(&pinfo->rel_ts);
     }
+    rtp_packet->frame_num = pinfo->fd->num;
+    rtp_packet->arrive_offset = nstime_to_sec(&pinfo->rel_ts) - start_rel_time_;
 
-    if (rtp_info->info_seq_num != last_sequence_+1) {
-        out_of_seq_timestamps_.append(stop_rel_time_);
-        // XXX Add silence to tempfile_ and visual_samples_
-    }
-    last_sequence_ = rtp_info->info_seq_num;
-
-    // Write the decoded, possibly-resampled audio to our temp file.
-    tempfile_->write(write_buff, write_bytes);
-
-    // Collect our visual samples.
-    spx_uint32_t in_len = (spx_uint32_t)rtp_info->info_payload_len;
-    spx_uint32_t out_len = (visual_out_rate * in_len / sample_rate) + (visual_out_rate % sample_rate != 0);
-    resample_buff = (SAMPLE *) g_realloc(resample_buff, out_len * sizeof(SAMPLE));
-
-    ws_codec_resampler_process_int(visual_resampler_, 0, decode_buff, &in_len, resample_buff, &out_len);
-    for (unsigned i = 0; i < out_len; i++) {
-        packet_timestamps_[stop_rel_time_ + (double) i / visual_out_rate] = pinfo->fd->num;
-        if (qAbs(resample_buff[i]) > max_sample_val_) max_sample_val_ = qAbs(resample_buff[i]);
-        visual_samples_.append(resample_buff[i]);
-    }
-
-    // Finally, write the resampled audio to our temp file and clean up.
-    g_free(rtp_packet.payload_data);
-    g_free(decode_buff);
-    g_free(resample_buff);
+    rtp_packets_ << rtp_packet;
 }
 
 void RtpAudioStream::reset(double start_rel_time)
@@ -254,6 +164,118 @@ void RtpAudioStream::reset(double start_rel_time)
         ws_codec_resampler_reset_mem(visual_resampler_);
     }
     tempfile_->seek(0);
+}
+
+static const int sample_bytes_ = sizeof(SAMPLE) / sizeof(char);
+void RtpAudioStream::decode()
+{
+    // gtk/rtp_player.c:decode_rtp_stream
+    // XXX This is more messy than it should be.
+
+    SAMPLE *decode_buff = NULL;
+    gsize resample_buff_len = 0x1000;
+    SAMPLE *resample_buff = (SAMPLE *) g_malloc(resample_buff_len);
+    spx_uint32_t cur_in_rate, visual_out_rate;
+    char *write_buff;
+    qint64 write_bytes;
+    unsigned channels;
+    unsigned sample_rate;
+
+    for (int i = 0; i < rtp_packets_.size(); i++) {
+        rtp_packet_t *rtp_packet = rtp_packets_[i];
+
+        stop_rel_time_ = start_rel_time_ + rtp_packet->arrive_offset;
+        ws_codec_resampler_get_rate(visual_resampler_, &cur_in_rate, &visual_out_rate);
+
+        QString payload_name;
+        if (rtp_packet->info->info_payload_type_str) {
+            payload_name = rtp_packet->info->info_payload_type_str;
+        } else {
+            payload_name = try_val_to_str_ext(rtp_packet->info->info_payload_type, &rtp_payload_type_short_vals_ext);
+        }
+        if (!payload_name.isEmpty()) {
+            payload_names_ << payload_name;
+        }
+
+        //size_t decoded_bytes =
+        decode_rtp_packet(rtp_packet, &decode_buff, decoders_hash_, &channels, &sample_rate);
+        write_buff = (char *) decode_buff;
+        write_bytes = rtp_packet->info->info_payload_len * sample_bytes_;
+
+        if (tempfile_->pos() == 0) {
+            // First packet. Let it determine our sample rate.
+            audio_out_rate_ = sample_rate;
+
+            last_sequence_ = rtp_packet->info->info_seq_num - 1;
+
+            // Prepend silence to match our sibling streams.
+            int prepend_samples = (start_rel_time_ - global_start_rel_time_) * audio_out_rate_;
+            if (prepend_samples > 0) {
+                int prepend_bytes = prepend_samples * sample_bytes_;
+                char *prepend_buff = (char *) g_malloc(prepend_bytes);
+                SAMPLE silence = 0;
+                memccpy(prepend_buff, &silence, prepend_samples, sample_bytes_);
+                tempfile_->write(prepend_buff, prepend_bytes);
+            }
+        } else if (audio_out_rate_ != sample_rate) {
+            // Resample the audio to match our previous output rate.
+            if (!audio_resampler_) {
+                audio_resampler_ = ws_codec_resampler_init(1, sample_rate, audio_out_rate_, 10, NULL);
+                ws_codec_resampler_skip_zeros(audio_resampler_);
+                // RTP_STREAM_DEBUG("Started resampling from %u to (out) %u Hz.", sample_rate, audio_out_rate_);
+            } else {
+                spx_uint32_t audio_out_rate;
+                ws_codec_resampler_get_rate(audio_resampler_, &cur_in_rate, &audio_out_rate);
+
+                // Adjust rates if needed.
+                if (sample_rate != cur_in_rate) {
+                    ws_codec_resampler_set_rate(audio_resampler_, sample_rate, audio_out_rate);
+                    ws_codec_resampler_set_rate(visual_resampler_, sample_rate, visual_out_rate);
+                    // RTP_STREAM_DEBUG("Changed input rate from %u to %u Hz. Out is %u.", cur_in_rate, sample_rate, audio_out_rate_);
+                }
+            }
+            spx_uint32_t in_len = (spx_uint32_t)rtp_packet->info->info_payload_len;
+            spx_uint32_t out_len = (audio_out_rate_ * (spx_uint32_t)rtp_packet->info->info_payload_len / sample_rate) + (audio_out_rate_ % sample_rate != 0);
+            if (out_len * sample_bytes_ > resample_buff_len) {
+                while ((out_len * sample_bytes_ > resample_buff_len))
+                    resample_buff_len *= 2;
+                resample_buff = (SAMPLE *) g_realloc(resample_buff, resample_buff_len);
+            }
+
+            ws_codec_resampler_process_int(audio_resampler_, 0, decode_buff, &in_len, resample_buff, &out_len);
+            write_buff = (char *) decode_buff;
+            write_bytes = out_len * sample_bytes_;
+        }
+
+        if (rtp_packet->info->info_seq_num != last_sequence_+1) {
+            out_of_seq_timestamps_.append(stop_rel_time_);
+            // XXX Add silence to tempfile_ and visual_samples_
+        }
+        last_sequence_ = rtp_packet->info->info_seq_num;
+
+        // Write the decoded, possibly-resampled audio to our temp file.
+        tempfile_->write(write_buff, write_bytes);
+
+        // Collect our visual samples.
+        spx_uint32_t in_len = (spx_uint32_t)rtp_packet->info->info_payload_len;
+        spx_uint32_t out_len = (visual_out_rate * in_len / sample_rate) + (visual_out_rate % sample_rate != 0);
+        if (out_len * sample_bytes_ > resample_buff_len) {
+            while ((out_len * sample_bytes_ > resample_buff_len))
+                resample_buff_len *= 2;
+            resample_buff = (SAMPLE *) g_realloc(resample_buff, resample_buff_len);
+        }
+
+        ws_codec_resampler_process_int(visual_resampler_, 0, decode_buff, &in_len, resample_buff, &out_len);
+        for (unsigned i = 0; i < out_len; i++) {
+            packet_timestamps_[stop_rel_time_ + (double) i / visual_out_rate] = rtp_packet->frame_num;
+            if (qAbs(resample_buff[i]) > max_sample_val_) max_sample_val_ = qAbs(resample_buff[i]);
+            visual_samples_.append(resample_buff[i]);
+        }
+
+        // Finally, write the resampled audio to our temp file and clean up.
+        g_free(decode_buff);
+    }
+    g_free(resample_buff);
 }
 
 const QStringList RtpAudioStream::payloadNames() const

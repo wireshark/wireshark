@@ -79,9 +79,12 @@ protected:
 
 private slots:
     /** Retap the capture file, adding RTP packets that match the
-     * streams added using ::addRtpStream and display the dialog.
+     * streams added using ::addRtpStream.
      */
-    void retapPackets(bool rescale_axes = true);
+    void retapPackets();
+    /** Clear, decode, and redraw each stream.
+     */
+    void rescanPackets(bool rescale_axes = true);
     void updateWidgets();
     void graphClicked(QMouseEvent *event);
     void mouseMoved(QMouseEvent *);
