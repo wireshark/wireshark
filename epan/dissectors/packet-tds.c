@@ -1926,7 +1926,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                 days += tvb_get_guint8(tvb, *offset + 1) << 8;
                 days += tvb_get_guint8(tvb, *offset);
 
-                tv.secs = (days * G_GUINT64_CONSTANT(86400)) - G_GUINT64_CONSTANT(62135596800); /* 62135596800 - seconds between Jan 1, 1 and Jan 1, 1970 */
+                tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) - G_GUINT64_CONSTANT(62135596800)); /* 62135596800 - seconds between Jan 1, 1 and Jan 1, 1970 */
                 tv.nsecs = 0;
                 proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
             }
@@ -1957,7 +1957,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                     dblvalue = dblvalue / 10;
                 }
 
-                tv.secs = (guint64)dblvalue;
+                tv.secs = (time_t)dblvalue;
                 tv.nsecs = (guint)(dblvalue - tv.secs) * 1000000000;
                 proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_reltime, tvb, *offset, length, &tv);
 
@@ -1978,7 +1978,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                     guint days = tvb_get_guint16(tvb, *offset, encoding);
                     guint minutes = tvb_get_guint16(tvb, *offset + 2, encoding);
 
-                    tv.secs = (days * G_GUINT64_CONSTANT(86400)) + (minutes * 60) - G_GUINT64_CONSTANT(2208988800); /* 2208988800 - seconds between Jan 1, 1900 and Jan 1, 1970 */
+                    tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) + (minutes * 60) - G_GUINT64_CONSTANT(2208988800)); /* 2208988800 - seconds between Jan 1, 1900 and Jan 1, 1970 */
                     tv.nsecs = 0;
                     proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
                 }
@@ -1989,7 +1989,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                     guint days = tvb_get_guint32(tvb, *offset, encoding);
                     guint threehndths = tvb_get_guint32(tvb, *offset + 4, encoding);
 
-                    tv.secs = (days * G_GUINT64_CONSTANT(86400)) + (threehndths/300) - G_GUINT64_CONSTANT(2208988800); /* 2208988800 - seconds between Jan 1, 1900 and Jan 1, 1970 */
+                    tv.secs = (time_t)((days * G_GUINT64_CONSTANT(86400)) + (threehndths/300) - G_GUINT64_CONSTANT(2208988800)); /* 2208988800 - seconds between Jan 1, 1900 and Jan 1, 1970 */
                     tv.nsecs = (threehndths%300) * 10000000 / 3;
                     proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
                 }
@@ -2034,7 +2034,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                 secs = (days * G_GUINT64_CONSTANT(86400)) - G_GUINT64_CONSTANT(62135596800); /* 62135596800 - seconds between Jan 1, 1 and Jan 1, 1970 */
 
                 value = (guint64)dblvalue;
-                tv.secs = secs + value;
+                tv.secs = (time_t)(secs + value);
                 dblvalue = dblvalue - value;
                 tv.nsecs = (guint)dblvalue * 1000000000;
                 proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
@@ -2082,7 +2082,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                 secs = (days * G_GUINT64_CONSTANT(86400)) - G_GUINT64_CONSTANT(62135596800); /* 62135596800 - seconds between Jan 1, 1 and Jan 1, 1970 */
 
                 value = (guint64)dblvalue;
-                tv.secs = secs + value;
+                tv.secs = (time_t)(secs + value);
                 dblvalue = dblvalue - value;
                 tv.nsecs = (guint)dblvalue * 1000000000;
                 timeitem = proto_tree_add_time(sub_tree, hf_tds_type_varbyte_data_absdatetime, tvb, *offset, length, &tv);
