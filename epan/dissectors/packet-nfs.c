@@ -6731,8 +6731,9 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 	if (num_bitmaps) {
 		if (num_bitmaps > MAX_BITMAPS) {
-			proto_tree_add_uint(tree, hf_nfs4_huge_bitmap_length, tvb, offset, 4, num_bitmaps);
-			THROW(ReportedBoundsError);
+			proto_tree_add_uint(tree, hf_nfs4_huge_bitmap_length, tvb, offset-4, 4, num_bitmaps);
+			expert_add_info(pinfo, tree, &ei_nfs_too_many_bitmaps);
+			return offset;
 		}
 
 		bitmaps = (guint32 *)wmem_alloc(wmem_packet_scope(), num_bitmaps * sizeof(guint32));
@@ -7791,7 +7792,7 @@ dissect_nfs4_modified_limit(tvbuff_t *tvb, int offset, proto_tree *tree)
  */
 static int
 dissect_nfs4_state_protect_bitmap(tvbuff_t *tvb, int offset,
-				  proto_tree *tree)
+				  packet_info *pinfo, proto_tree *tree)
 {
 	guint32     num_bitmaps;
 	proto_tree *newftree;
@@ -7803,8 +7804,9 @@ dissect_nfs4_state_protect_bitmap(tvbuff_t *tvb, int offset,
 
 	num_bitmaps = tvb_get_ntohl(tvb, offset);
 	if (num_bitmaps > MAX_BITMAPS) {
-		proto_tree_add_uint(tree, hf_nfs4_huge_bitmap_length, tvb, offset, 4, num_bitmaps);
-		THROW(ReportedBoundsError);
+		proto_tree_add_uint(tree, hf_nfs4_huge_bitmap_length, tvb, offset-4, 4, num_bitmaps);
+		expert_add_info(pinfo, tree, &ei_nfs_too_many_bitmaps);
+		return offset;
 	}
 	newftree = proto_tree_add_subtree(tree, tvb, offset, 4 + num_bitmaps * 4,
 				    ett_nfs4_bitmap, NULL, "operation mask");
@@ -7840,18 +7842,19 @@ static const value_string names_state_protect_how4[] = {
 };
 
 static int
-dissect_nfs4_state_protect_ops(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_nfs4_state_protect_ops(tvbuff_t *tvb, int offset,
+		packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_nfs4_state_protect_bitmap(tvb, offset, tree);
-	offset = dissect_nfs4_state_protect_bitmap(tvb, offset, tree);
+	offset = dissect_nfs4_state_protect_bitmap(tvb, offset, pinfo, tree);
+	offset = dissect_nfs4_state_protect_bitmap(tvb, offset, pinfo, tree);
 	return offset;
 }
 
 
 static int
-dissect_nfs4_ssv_sp_parms(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_nfs4_ssv_sp_parms(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_nfs4_state_protect_ops(tvb, offset, tree);
+	offset = dissect_nfs4_state_protect_ops(tvb, offset, pinfo, tree);
 	offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
 				hf_nfs4_sec_oid, FALSE, 0, FALSE, NULL, NULL);
 	offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
@@ -7863,9 +7866,10 @@ dissect_nfs4_ssv_sp_parms(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 
 static int
-dissect_nfs4_ssv_prot_info(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_nfs4_ssv_prot_info(tvbuff_t *tvb, int offset,
+		packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_nfs4_state_protect_ops(tvb, offset, tree);
+	offset = dissect_nfs4_state_protect_ops(tvb, offset, pinfo, tree);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_prot_info_hash_alg, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_prot_info_encr_alg, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_prot_info_svv_length, offset);
@@ -7876,7 +7880,8 @@ dissect_nfs4_ssv_prot_info(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 
 static int
-dissect_nfs4_state_protect_a(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_nfs4_state_protect_a(tvbuff_t *tvb, int offset,
+		packet_info *pinfo, proto_tree *tree)
 {
 	guint stateprotect;
 
@@ -7887,10 +7892,10 @@ dissect_nfs4_state_protect_a(tvbuff_t *tvb, int offset, proto_tree *tree)
 		case SP4_NONE:
 			break;
 		case SP4_MACH_CRED:
-			offset = dissect_nfs4_state_protect_ops(tvb, offset, tree);
+			offset = dissect_nfs4_state_protect_ops(tvb, offset, pinfo, tree);
 			break;
 		case SP4_SSV:
-			offset = dissect_nfs4_ssv_sp_parms(tvb, offset, tree);
+			offset = dissect_nfs4_ssv_sp_parms(tvb, offset, pinfo, tree);
 			break;
 		default:
 			break;
@@ -7900,7 +7905,8 @@ dissect_nfs4_state_protect_a(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 
 static int
-dissect_nfs4_state_protect_r(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_nfs4_state_protect_r(tvbuff_t *tvb, int offset,
+		packet_info *pinfo, proto_tree *tree)
 {
 	guint stateprotect;
 
@@ -7912,10 +7918,10 @@ dissect_nfs4_state_protect_r(tvbuff_t *tvb, int offset, proto_tree *tree)
 		case SP4_NONE:
 			break;
 		case SP4_MACH_CRED:
-			offset = dissect_nfs4_state_protect_ops(tvb, offset, tree);
+			offset = dissect_nfs4_state_protect_ops(tvb, offset, pinfo, tree);
 			break;
 		case SP4_SSV:
-			offset = dissect_nfs4_ssv_prot_info(tvb, offset, tree);
+			offset = dissect_nfs4_ssv_prot_info(tvb, offset, pinfo, tree);
 			break;
 		default:
 			break;
@@ -8258,7 +8264,7 @@ dissect_nfs4_io_hints(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 		return offset;
 
 	if (num_bitmaps > MAX_BITMAPS) {
-		proto_tree_add_uint(tree, hf_nfs4_huge_bitmap_length, tvb, offset, 4, num_bitmaps);
+		proto_tree_add_uint(tree, hf_nfs4_huge_bitmap_length, tvb, offset-4, 4, num_bitmaps);
 		expert_add_info(pinfo, tree, &ei_nfs_too_many_bitmaps);
 		return offset;
 	}
@@ -9708,7 +9714,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			proto_tree_add_bitmask(eia_clientowner_tree, tvb, offset, hf_nfs4_exchid_call_flags, ett_nfs4_exchangeid_call_flags, nfs4_exchid_flags, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			offset = dissect_nfs4_state_protect_a(tvb, offset, newftree);
+			offset = dissect_nfs4_state_protect_a(tvb, offset, pinfo, newftree);
 			offset = dissect_rpc_nfs_impl_id4(tvb, offset, newftree, "eia_client_impl_id");
 			}
 			break;
@@ -10293,7 +10299,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 				proto_tree_add_bitmask(newftree, tvb, offset, hf_nfs4_exchid_reply_flags, ett_nfs4_exchangeid_reply_flags, nfs4_exchid_flags, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				offset = dissect_nfs4_state_protect_r(tvb, offset, newftree);
+				offset = dissect_nfs4_state_protect_r(tvb, offset, pinfo, newftree);
 
 				eir_server_owner_tree = proto_tree_add_subtree(newftree, tvb, offset, 0, ett_nfs4_server_owner, NULL, "eir_server_owner");
 				offset = dissect_rpc_serverowner4(tvb, offset, eir_server_owner_tree);
