@@ -142,7 +142,7 @@ nettrace_close(wtap *wth)
  * </rawMsg>
  */
 static wtap_open_return_val
-write_packet_data(wtap_dumper *wdh, struct wtap_pkthdr *phdr, int *err, gchar **err_info, guint8 *file_buf)
+write_packet_data(wtap_dumper *wdh, struct wtap_pkthdr *phdr, int *err, gchar **err_info, guint8 *file_buf, time_t start_time, int ms)
 {
 	char *curr_pos, *next_pos;
 	char proto_name_str[16];
@@ -237,13 +237,18 @@ write_packet_data(wtap_dumper *wdh, struct wtap_pkthdr *phdr, int *err, gchar **
 	/* Construct the phdr */
 	memset(phdr, 0, sizeof(struct wtap_pkthdr));
 	phdr->rec_type = REC_TYPE_PACKET;
-	phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
+	if (start_time == 0) {
+		phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
+		phdr->ts.secs = 0;
+		phdr->ts.nsecs = 0;
+	} else {
+		phdr->presence_flags = WTAP_HAS_TS;
+		phdr->ts.secs = start_time;
+		phdr->ts.nsecs = ms * 1000000;
+	}
 
 	phdr->caplen = pkt_data_len + exp_pdu_tags_len;
 	phdr->len = pkt_data_len + exp_pdu_tags_len;
-
-	phdr->ts.secs = 0;
-	phdr->ts.nsecs = 0;
 
 	if (!wtap_dump(wdh, phdr, packet_buf, err, err_info)) {
 		switch (*err) {
@@ -289,7 +294,14 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	struct wtap_pkthdr phdr;
 
 	gboolean do_random = FALSE;
-	char *curr_pos, *next_pos;
+	char *curr_pos, *next_pos, *prev_pos;
+
+	/* Time vars*/
+	int year, month, day, hour, minute, second, ms, UTCdiffh, UTCdiffm;
+	int scan_found;
+	struct tm tm;
+	time_t start_time;
+
 
 	import_file_fd = create_tempfile(&(file_info->tmpname), "Wireshark_PDU_");
 
@@ -398,14 +410,67 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 
 	/* Create the packet header */
 	memset(&phdr, 0, sizeof(struct wtap_pkthdr));
+
+	/* Read the file header of the input file, currently we only need the beginTime*/
+
+	/* Advance *packet_buf to point at the raw file data */
+	curr_pos = packet_buf + 12;
+	/* Find the file header */
+	curr_pos = strstr(curr_pos, "<fileHeader");
+	curr_pos = curr_pos + 11;
+
+	/* Find start time */
+	curr_pos = strstr(curr_pos, "<traceCollec beginTime=");
+	curr_pos = curr_pos + 24;
+	/* This attribute specification contains a timestamp that refers to the start of the
+	* first trace data that is stored in this file.
+	* It is a complete timestamp including day, time and delta UTC hour. E.g.
+	* "2001-09-11T09:30:47-05:00".
+	*/
+
+	/* Scan for all fields                                  */
+	scan_found = sscanf(curr_pos, "%4u-%2u-%2uT%2u:%2u:%2u%3d:%2u",
+		&year, &month, &day,  &hour, &minute, &second, &UTCdiffh, &UTCdiffm);
+
+	if (scan_found == 8) {
+		guint UTCdiffsec;
+		/* Only set time if we managed to parse it*/
+		/* Fill in remaining fields and return it in a time_t */
+		tm.tm_year  = year - 1900;
+		tm.tm_mon   = month - 1; /* Zero count*/
+		tm.tm_mday  = day;
+		tm.tm_hour  = hour;
+		tm.tm_min   = minute;
+		tm.tm_sec   = second;
+		tm.tm_isdst = -1;    /* daylight saving time info not known */
+
+		/* Get seconds from this time */
+		phdr.presence_flags = WTAP_HAS_TS;
+		phdr.ts.secs = mktime(&tm);
+
+		UTCdiffsec = (abs(UTCdiffh) * 60 * 60) + (UTCdiffm * 60);
+
+		if (UTCdiffh < 0) {
+			phdr.ts.secs = phdr.ts.secs - UTCdiffsec;
+		} else {
+			phdr.ts.secs = phdr.ts.secs + UTCdiffsec;
+		}
+		phdr.ts.nsecs = 0;
+
+	} else {
+		phdr.presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
+		phdr.ts.secs = 0;
+		phdr.ts.nsecs = 0;
+		g_warning("Failed to parse time , scan_found %u", scan_found);
+	}
+
+	start_time = phdr.ts.secs;
+	/* set rest of the pkt hdr data */
 	phdr.rec_type = REC_TYPE_PACKET;
-	phdr.presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
 
 	phdr.caplen = packet_size + 12;
 	phdr.len = packet_size + 12;
 
-	phdr.ts.secs = 0;
-	phdr.ts.nsecs = 0;
 
 	/* XXX: report errors! */
 	if (!wtap_dump(wdh_exp_pdu, &phdr, packet_buf, &wrt_err, &wrt_err_info)) {
@@ -423,8 +488,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		goto end;
 	}
 
-	/* Advance *packet_buf to point at the raw file data */
-	curr_pos = packet_buf + 12;
+
 	/* Lets add the raw messages as packets after the main "packet" with the whole file */
 	while ((curr_pos = strstr(curr_pos, "<msg")) != NULL){
 		wtap_open_return_val temp_val;
@@ -436,6 +500,22 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 			break;
 		}
 		next_pos = next_pos + 6;
+		/* Check if we have a time stamp "changeTime"
+		 * expressed in number of seconds and milliseconds (nbsec.ms).
+		 */
+		prev_pos = curr_pos;
+		ms = 0;
+		curr_pos = strstr(curr_pos, "changeTime");
+		if (curr_pos) {
+			curr_pos = curr_pos + 12;
+			scan_found = sscanf(curr_pos, "%u.%u",&second, &ms);
+
+			if ((scan_found == 2) && (start_time != 0)) {
+				start_time = start_time + second;
+			}
+		} else {
+			curr_pos = prev_pos;
+		}
 		/* Do we have a raw msg?) */
 		curr_pos = strstr(curr_pos, "<rawMsg");
 		if (!curr_pos){
@@ -445,7 +525,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		}
 		curr_pos = curr_pos + 7;
 		/* Add the raw msg*/
-		temp_val = write_packet_data(wdh_exp_pdu, &phdr, &wrt_err, &wrt_err_info, curr_pos);
+		temp_val = write_packet_data(wdh_exp_pdu, &phdr, &wrt_err, &wrt_err_info, curr_pos, start_time, ms);
 		if (temp_val != WTAP_OPEN_MINE){
 			result = temp_val;
 			goto end;
