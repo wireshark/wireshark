@@ -2735,13 +2735,16 @@ static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     int length_remaining;
     aeron_conversation_info_t * cinfo;
 
-    /* Get enough information to determine the conversation info */
+    /* Get enough information to determine the conversation info.
+       Make sure that we don't throw an exception before we know that
+       this packet contains our protocol. */
+    if (tvb_captured_length_remaining(tvb, offset) < 2)
+        return 0;
     frame_type = tvb_get_letohs(tvb, offset + O_AERON_BASIC_TYPE);
     cinfo = aeron_setup_conversation_info(pinfo, frame_type);
-    if (cinfo == NULL)
-    {
-        return (-1);
-    }
+    if (!cinfo)
+        return 0;
+
     col_add_str(pinfo->cinfo, COL_PROTOCOL, "Aeron");
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_str(pinfo->cinfo, COL_INFO, aeron_format_transport_uri(cinfo));
@@ -2856,7 +2859,7 @@ static gboolean test_aeron_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
         }
     }
     rc = dissect_aeron(tvb, pinfo, tree, user_data);
-    if (rc == -1)
+    if (rc == 0)
     {
         return (FALSE);
     }
