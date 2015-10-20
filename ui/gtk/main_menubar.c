@@ -4524,7 +4524,7 @@ set_menus_for_selected_packet(capture_file *cf)
     gboolean    properties = FALSE;
     const char *abbrev     = NULL;
     char       *prev_abbrev;
-    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_ssl = FALSE;
+    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_ssl = FALSE, is_lte_rlc = FALSE;
 
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
@@ -4547,7 +4547,7 @@ set_menus_for_selected_packet(capture_file *cf)
            than one time reference frame or the current frame isn't a
            time reference frame). (XXX - why check frame_selected?) */
     if (cf->edt)
-        proto_get_frame_protocols(cf->edt->pi.layers, &is_ip, &is_tcp, &is_udp, &is_sctp, &is_ssl, NULL);
+        proto_get_frame_protocols(cf->edt->pi.layers, &is_ip, &is_tcp, &is_udp, &is_sctp, &is_ssl, NULL, &is_lte_rlc);
 
     if (cf->edt && cf->edt->tree) {
         GPtrArray          *ga;
@@ -4702,6 +4702,8 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/TCPStreamGraphMenu",
                          is_tcp);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/TelephonyMenu/LTEmenu/LTE_RLC_Graph",
+                         is_lte_rlc);
 
     while (list_entry != NULL) {
         dissector_filter_t *filter_entry;

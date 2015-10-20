@@ -35,8 +35,6 @@
 #include "qt_ui_utils.h"
 #include "wireshark_application.h"
 
-// To do:
-// - Add missing controls (RACH, SR checkboxes)
 
 // Whole-UE headings.
 enum {
@@ -192,7 +190,7 @@ public:
         setText(col_type_, type_ == C_RNTI ? QObject::tr("C-RNTI") : QObject::tr("SPS-RNTI"));
         setText(col_ueid_, QString::number(ueid_));
 
-        // TODO: OK to do this here?
+        // Add UL/DL packet/byte count subitems.
         addDetails();
     }
 
@@ -205,7 +203,6 @@ public:
 
     // Update this UE according to the tap info
     void update(const mac_lte_tap_info *mlt_info) {
-        // Update stats for this UE.
 
         // Uplink.
         if (mlt_info->direction == DIRECTION_UPLINK) {
@@ -232,7 +229,7 @@ public:
             ul_raw_bytes_ += mlt_info->raw_length;
             ul_padding_bytes_ += mlt_info->padding_bytes;
 
-            // N.B. Not going to support predefined data in Qt version.
+            // N.B. Not going to support predefined data in Qt version..
             if (!mlt_info->isPredefinedData) {
                 for (int n=0; n < 11; n++) {
                     // Update UL child items
@@ -276,7 +273,7 @@ public:
             dl_raw_bytes_ += mlt_info->raw_length;
             dl_padding_bytes_ += mlt_info->padding_bytes;
 
-            // N.B. Not going to support predefined data in Qt version.
+            // N.B. Not going to support predefined data in Qt version..
             if (!mlt_info->isPredefinedData) {
                 for (int n=0; n < 11; n++) {
                     // Update DL child items
@@ -309,7 +306,7 @@ public:
                                (((double)stop_time->nsecs - (double)start_time->nsecs) / 1000000);
 
             // Only really meaningful if have a few frames spread over time...
-            //   For now at least avoid dividing by something very close to 0.0
+            // For now at least avoid dividing by something very close to 0.0
             if (elapsed_ms < 2.0) {
                return 0.0f;
             }
@@ -320,6 +317,7 @@ public:
         }
     }
 
+    // Draw this UE.
     void draw() {
         // Fixed fields (rnti, type, ueid) won't change during lifetime of UE entry.
 
@@ -352,7 +350,7 @@ public:
         setText(col_dl_crc_failed_, QString::number(dl_crc_failed_));
         setText(col_dl_retx_, QString::number(dl_retx_));
 
-        // Draw child items with channel counts.
+        // Draw child items with per-channel counts.
         ul_frames_item_->draw();
         ul_bytes_item_->draw();
         dl_frames_item_->draw();

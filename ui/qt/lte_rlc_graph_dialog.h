@@ -116,8 +116,8 @@ private slots:
     void on_actionDragZoom_triggered();
     void on_actionMoveUp100_triggered();
     void on_actionMoveDown100_triggered();
-
     void on_actionGoToPacket_triggered();
+    void on_actionCrosshairs_triggered();
 };
 
 #endif // LTE_RLC_GRAPH_DIALOG_H

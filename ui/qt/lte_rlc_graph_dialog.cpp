@@ -47,8 +47,6 @@
 #include <ui/tap-rlc-graph.h>
 
 // TODO:
-// - better handling of zooming (select area like TCP and/or Jim's patch for 1 dimension at a time)
-// - how to avoid panning or zooming out to -ve (x or y axis)
 
 const QRgb graph_color_ack =         tango_sky_blue_4;    // Blue for ACK lines
 const QRgb graph_color_nack =        tango_scarlet_red_3; // Red for NACKs
@@ -210,6 +208,7 @@ void LteRlcGraphDialog::findChannel()
         if (free_err_string) {
             g_free(err_string);
         }
+        return;
     }
 
     // Reconnect mouse move signal.
@@ -239,10 +238,13 @@ void LteRlcGraphDialog::fillGraph()
         sp->graph(i)->setVisible(true);
     }
 
-    // NACKs are shown bigger than others.
+    // N.B. ssDisc is really too slow. TODO: work out how to turn off aliasing, or experiment
+    // with ssCustom.  Other styles tried didn't look right.
+    // GTK version was speeded up noticibly by turning down aliasing level...
     base_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, pkt_point_size_));
     reseg_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, pkt_point_size_));
     acks_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, pkt_point_size_));
+    // NACKs are shown bigger than others.
     nacks_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, pkt_point_size_*2));
 
     // Map timestamps -> segments in first pass.
@@ -369,7 +371,7 @@ void LteRlcGraphDialog::keyPressEvent(QKeyEvent *event)
         break;
 
     case Qt::Key_Space:
-//        toggleTracerStyle();
+        toggleTracerStyle(false);
         break;
 
     case Qt::Key_0:
@@ -592,12 +594,16 @@ void LteRlcGraphDialog::mouseMoved(QMouseEvent *event)
 
         tracer_->setVisible(true);
         packet_num_ = packet_seg->num;
-        hint += tr("%1 %2 (%3s seq %4)")
+        hint += tr("%1 %2 (%3s seq %4 len %5)")
                 .arg(cap_file_.capFile() ? tr("Click to select packet") : tr("Packet"))
                 .arg(packet_num_)
                 .arg(QString::number(packet_seg->rel_secs + packet_seg->rel_usecs / 1000000.0, 'g', 4))
-                .arg(packet_seg->SN);
+                .arg(packet_seg->SN)
+                .arg(packet_seg->pduLength);
         tracer_->setGraphKey(ui->rlcPlot->xAxis->pixelToCoord(event->pos().x()));
+        // Redrawing the whole graph is making the update *very* slow!
+        // TODO: Is there a way just to draw the parts that may have changed?
+        // In the GTK version, we displayed the stored pixbuf and draw temporary items on top...
         rp->replot();
 
     } else {
@@ -671,9 +677,16 @@ void LteRlcGraphDialog::on_actionGoToPacket_triggered()
     }
 }
 
+void LteRlcGraphDialog::on_actionCrosshairs_triggered()
+{
+    toggleTracerStyle(false);
+}
+
 void LteRlcGraphDialog::toggleTracerStyle(bool force_default)
 {
-    if (!tracer_->visible() && !force_default) return;
+    if (!tracer_->visible() && !force_default) {
+        return;
+    }
 
     QPen sp_pen = ui->rlcPlot->graph(0)->pen();
     QCPItemTracer::TracerStyle tstyle = QCPItemTracer::tsCrosshair;

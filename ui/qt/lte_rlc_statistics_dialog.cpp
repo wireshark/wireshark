@@ -38,6 +38,8 @@
 
 #include "ui/recent.h"
 
+// TODO: have lost the ability to filter on only UL or DL of a channel.
+// - can we override the context menu inherited from TapParameterDialog?
 
 enum {
     col_ueid_,
@@ -167,6 +169,7 @@ public:
             case CHANNEL_TYPE_DRB:
                 setText(col_ueid_, QObject::tr("DRB-%1").arg(channelId));
                 break;
+
             default:
                 setText(col_ueid_, QObject::tr("Unknown"));
                 break;
@@ -183,15 +186,21 @@ public:
     void update(const rlc_lte_tap_info *tap_info) {
 
         // Copy these fields into UE stats.
-        stats_.rlcMode = tap_info->rlcMode;
+        if (tap_info->rlcMode != stats_.rlcMode) {
+            stats_.rlcMode = tap_info->rlcMode;
+            // TODO: update the column string!
+        }
+
+        // TODO: these 2 really shouldn't change!!
         stats_.channelType = tap_info->channelType;
         stats_.channelId = tap_info->channelId;
+
         if (tap_info->priority != 0) {
             priority_ = tap_info->priority;
         }
 
         if (tap_info->direction == DIRECTION_UPLINK) {
-            /* Update time range */
+            // Update time range.
             if (stats_.UL_frames == 0) {
                 stats_.UL_time_start = tap_info->rlc_lte_time;
             }
@@ -206,7 +215,7 @@ public:
             }
         }
         else {
-            /* Update time range */
+            // Update time range.
             if (stats_.DL_frames == 0) {
                 stats_.DL_time_start = tap_info->rlc_lte_time;
             }
@@ -223,7 +232,7 @@ public:
     }
 
     void draw() {
-        /* Calculate bandwidth */
+        // Calculate bandwidth.
         float UL_bw = calculate_bw(&stats_.UL_time_start,
                                    &stats_.UL_time_stop,
                                    stats_.UL_bytes);
@@ -312,10 +321,10 @@ public:
     }
 
     // Accessors (queried for launching graph)
-    unsigned get_ueid() { return ueid_; }
-    unsigned get_channelType() { return channelType_; }
-    unsigned get_channelId() { return channelId_; }
-    unsigned get_mode() { return mode_; }
+    unsigned get_ueid() const { return ueid_; }
+    unsigned get_channelType() const { return channelType_; }
+    unsigned get_channelId() const { return channelId_; }
+    unsigned get_mode() const { return mode_; }
 
 private:
     unsigned ueid_;
@@ -376,11 +385,10 @@ public:
     {
         ueid_ = rlt_info->ueid;
         setText(col_ueid_, QString::number(ueid_));
-        // We create RlcChannelTreeWidgetItems later
-        // update when first data on new channel is seen.
+
+        // We create RlcChannelTreeWidgetItems when first data on new channel is seen.
         // Of course, there will be a channel associated with the PDU
         // that causes this UE item to be created...
-
         memset(&stats_, 0, sizeof(stats_));
         CCCH_stats_ = NULL;
         for (int srb=0; srb < 2; srb++) {
@@ -392,7 +400,7 @@ public:
     }
 
     bool isMatch(const rlc_lte_tap_info *rlt_info) {
-        return (ueid_ == rlt_info->ueid);
+        return ueid_ == rlt_info->ueid;
     }
 
     // Update UE/channels from tap info.
@@ -407,7 +415,7 @@ public:
 
         // TODO: update title with number of UEs and frames like MAC does?
 
-        // N.B. not expecting to see common stats - ignoring them.
+        // N.B. not really expecting to see common stats - ignoring them.
         switch (tap_info->channelType) {
             case CHANNEL_TYPE_BCCH_BCH:
             case CHANNEL_TYPE_BCCH_DL_SCH:
@@ -415,6 +423,7 @@ public:
                 return;
 
             default:
+                // Drop through for UE-specific.
                 break;
         }
 
@@ -438,7 +447,7 @@ public:
             stats_.UL_total_missing += tap_info->missingSNs;
         }
         else {
-            /* Update time range */
+            // Update time range.
             if (stats_.DL_frames == 0) {
                 stats_.DL_time_start = tap_info->rlc_lte_time;
             }
@@ -526,7 +535,7 @@ public:
         setText(col_dl_nacks_,   QString::number(stats_.DL_total_nacks));
         setText(col_dl_missing_, QString::number(stats_.DL_total_missing));
 
-        // Call draw() for each channel..
+        // Call draw() for each channel present.
         if (CCCH_stats_ != NULL) {
             CCCH_stats_->draw();
         }
@@ -593,9 +602,9 @@ public:
 
 private:
     unsigned ueid_;
-
     rlc_ue_stats stats_;
 
+    // Channel counters stored in channel sub-items.
     RlcChannelTreeWidgetItem* CCCH_stats_;
     RlcChannelTreeWidgetItem* srb_stats_[2];
     RlcChannelTreeWidgetItem* drb_stats_[32];
@@ -611,6 +620,10 @@ static const QString channel_col_0_title_ = QObject::tr("Name");
 static const QString channel_col_1_title_ = QObject::tr("Mode");
 static const QString channel_col_2_title_ = QObject::tr("Priority");
 
+
+
+//------------------------------------------------------------------------------------------
+// Dialog
 
 // Constructor.
 LteRlcStatisticsDialog::LteRlcStatisticsDialog(QWidget &parent, CaptureFile &cf, const char *filter) :
@@ -721,13 +734,16 @@ LteRlcStatisticsDialog::~LteRlcStatisticsDialog()
 void LteRlcStatisticsDialog::tapReset(void *ws_dlg_ptr)
 {
     LteRlcStatisticsDialog *ws_dlg = static_cast<LteRlcStatisticsDialog *>(ws_dlg_ptr);
-    if (!ws_dlg) return;
+    if (!ws_dlg) {
+        return;
+    }
 
     // Clears/deletes all UEs.
     ws_dlg->statsTreeWidget()->clear();
     ws_dlg->packet_count_ = 0;
 }
 
+// Process the tap info from a dissected RLC PDU.
 gboolean LteRlcStatisticsDialog::tapPacket(void *ws_dlg_ptr, struct _packet_info *, epan_dissect *, const void *rlc_lte_tap_info_ptr)
 {
     // Look up dialog.
@@ -843,7 +859,7 @@ void LteRlcStatisticsDialog::updateItemSelectionChanged()
         enableGraphButtons = true;
     }
 
-    // Only enable graph buttons for channel entries.
+    // Only enabling graph buttons for channel entries.
     launchULGraph_->setEnabled(enableGraphButtons);
     launchDLGraph_->setEnabled(enableGraphButtons);
 }

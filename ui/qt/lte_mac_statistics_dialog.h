@@ -61,9 +61,6 @@ private:
     QCheckBox *showSRFilterCheckBox_;
     QCheckBox *showRACHFilterCheckBox_;
 
-    mac_lte_common_stats commonStats_;
-    bool commonStatsCurrent_;
-
     // Callbacks for register_tap_listener
     static void tapReset(void *ws_dlg_ptr);
     static gboolean tapPacket(void *ws_dlg_ptr, struct _packet_info *, struct epan_dissect *, const void *mac_lte_tap_info_ptr);
@@ -71,6 +68,9 @@ private:
 
     virtual const QString filterExpression();
 
+    // Common stats.
+    mac_lte_common_stats commonStats_;
+    bool commonStatsCurrent_;          // TODO: may not be worth it.
     void updateCommonStats(const struct mac_lte_tap_info *mlt_info);
     void drawCommonStats();
     void clearCommonStats();

@@ -1024,7 +1024,7 @@ void MainWindow::recentActionTriggered() {
 
 void MainWindow::setMenusForSelectedPacket()
 {
-    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_ssl = FALSE, is_rtp = FALSE;
+    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_ssl = FALSE, is_rtp = FALSE, is_lte_rlc = FALSE;
 
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
@@ -1075,7 +1075,9 @@ void MainWindow::setMenusForSelectedPacket()
 
         if (capture_file_.capFile()->edt)
         {
-            proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers, &is_ip, &is_tcp, &is_udp, &is_sctp, &is_ssl, &is_rtp);
+            proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers,
+                                      &is_ip, &is_tcp, &is_udp, &is_sctp,
+                                      &is_ssl, &is_rtp, &is_lte_rlc);
         }
     }
 
@@ -1186,6 +1188,7 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionSCTPShowAllAssociations->setEnabled(is_sctp);
     main_ui_->actionSCTPFilterThisAssociation->setEnabled(is_sctp);
     main_ui_->actionTelephonyRTPStreamAnalysis->setEnabled(is_rtp);
+    main_ui_->actionTelephonyLteRlcGraph->setEnabled(is_lte_rlc);
 }
 
 void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {

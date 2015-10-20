@@ -48,6 +48,7 @@ struct rlc_segment {
     #define MAX_NACKs 128
     guint16         noOfNACKs;
     guint16         NACKs[MAX_NACKs];
+    guint16         pduLength;
 
     guint16         ueid;
     guint16         channelType;

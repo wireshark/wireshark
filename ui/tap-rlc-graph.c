@@ -37,10 +37,10 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 
-
+/* Return TRUE if the 2 sets of parameters refer to the same channel. */
 int compare_rlc_headers(guint16 ueid1, guint16 channelType1, guint16 channelId1, guint8 rlcMode1, guint8 direction1,
-                    guint16 ueid2, guint16 channelType2, guint16 channelId2, guint8 rlcMode2, guint8 direction2,
-                    gboolean frameIsControl)
+                        guint16 ueid2, guint16 channelType2, guint16 channelId2, guint8 rlcMode2, guint8 direction2,
+                        gboolean frameIsControl)
 {
     /* Same direction, data - OK. */
     if (!frameIsControl) {
@@ -63,7 +63,8 @@ int compare_rlc_headers(guint16 ueid1, guint16 channelType1, guint16 channelId1,
     }
 }
 
-
+/* This is the tap function used to identify a list of channels found in the current frame.  It is only used for the single,
+   currently selected frame. */
 static int
 tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
@@ -103,7 +104,8 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
 }
 
 /* Return an array of tap_info structs that were found while dissecting the current frame
-   in the packet list */
+ * in the packet list. Errors are passed back to the caller, as they will be reported differently
+ * depending upon which GUI toolkit is being used. */
 rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
                                          struct rlc_segment *hdrs,
                                          gchar **err_msg, gboolean *free_err_msg)
@@ -129,7 +131,7 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
         return NULL;
     }
 
-    /* Dissect the current record */
+    /* Dissect the data from the current frame. */
     if (!cf_read_record(cf, fdata)) {
         return NULL;  /* error reading the record */
     }
@@ -151,17 +153,15 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
     remove_tap_listener(&th);
 
     if (th.num_hdrs == 0){
-        /* This "shouldn't happen", as our menu items shouldn't
-         * even be enabled if the selected packet isn't an RLC PDU
-         * as rlc_lte_graph_selected_packet_enabled() is used
-         * to determine whether to enable any of our menu items. */
+        /* This "shouldn't happen", as the graph menu items won't
+         * even be enabled if the selected packet isn't an RLC PDU.
+         */
         *err_msg = (char*)"Selected packet doesn't have an RLC PDU";
         *free_err_msg = FALSE;
         return NULL;
     }
     /* XXX fix this later, we should show a dialog allowing the user
-       to select which session he wants here
-         */
+     * to select which session he wants here */
     if (th.num_hdrs>1){
         /* Can only handle a single RLC channel yet */
         *err_msg = (char*)"The selected packet has more than one LTE RLC channel in it.";
@@ -186,7 +186,7 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
     return th.rlchdrs[0];
 }
 
-
+/* This is the tapping function to update stats when dissecting the whole packet list */
 int rlc_lte_tap_for_graph_data(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
     struct rlc_graph *graph  = (struct rlc_graph *)pct;
@@ -219,6 +219,7 @@ int rlc_lte_tap_for_graph_data(void *pct, packet_info *pinfo, epan_dissect_t *ed
             /* Data */
             segment->SN = rlchdr->sequenceNumber;
             segment->isResegmented = rlchdr->isResegmented;
+            segment->pduLength = rlchdr->pduLength;
         }
         else {
             /* Status PDU */
@@ -247,7 +248,7 @@ int rlc_lte_tap_for_graph_data(void *pct, packet_info *pinfo, epan_dissect_t *ed
 }
 
 /* If don't have a channel, try to get one from current frame, then read all frames looking for data
-   for that channel. */
+ * for that channel. */
 gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gboolean stream_known,
                                     char **err_string, gboolean *free_err_string)
 {
@@ -291,6 +292,12 @@ gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gbool
     }
     cf_retap_packets(cf);
     remove_tap_listener(g);
+
+    if (g->last_segment == NULL) {
+        *err_string = (char*)"No packets found";
+        *free_err_string = FALSE;
+        return FALSE;
+    }
 
     return TRUE;
 }
