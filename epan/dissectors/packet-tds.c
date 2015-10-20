@@ -1467,16 +1467,17 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree)
     gint offset = 0;
     guint16 tokenoffset, tokenlen;
     proto_tree *prelogin_tree = NULL, *option_tree;
-    proto_item * ti;
+    proto_item *ti, *item;
+
+    item = proto_tree_add_item(tree, hf_tds_prelogin, tvb, 0, -1, ENC_NA);
 
     if(detect_tls(tvb))
     {
-        proto_tree_add_subtree(tree, tvb, offset, -1, ett_tds7_prelogin, NULL, "TDS Pre-Login Packet - TLS exchange");
+        proto_item_append_text(item, " - TLS exchange");
         return;
     }
 
-    prelogin_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_tds7_prelogin, NULL, "TDS Pre-Login Packet");
-
+    prelogin_tree = proto_item_add_subtree(item, ett_tds_message);
     while(tvb_reported_length_remaining(tvb, offset) > 0)
     {
         token = tvb_get_guint8(tvb, offset);
@@ -3784,7 +3785,8 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(detect_tls(tvb))
     {
-        proto_tree_add_subtree(tree, tvb, offset, -1, ett_tds7_prelogin, NULL, "TDS Pre-Login Packet - TLS exchange");
+        tds_item = proto_tree_add_item(tree, hf_tds_prelogin, tvb, 0, -1, ENC_NA);
+        proto_item_append_text(tds_item, " - TLS exchange");
         return;
     }
 
