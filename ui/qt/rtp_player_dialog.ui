@@ -54,7 +54,7 @@
       </column>
       <column>
        <property name="text">
-        <string>First Packet</string>
+        <string>Setup Frame</string>
        </property>
       </column>
       <column>

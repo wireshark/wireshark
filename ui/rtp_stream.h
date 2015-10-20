@@ -117,7 +117,7 @@ struct _rtpstream_tapinfo {
     g_free(RTP_STREAM_DEBUG_MSG); \
 }
 #else
-#define RTP_STREAM_DEBUG()
+#define RTP_STREAM_DEBUG(...)
 #endif
 
 /****************************************************************************/
