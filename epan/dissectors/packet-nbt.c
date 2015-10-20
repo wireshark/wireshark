@@ -586,7 +586,7 @@ nbns_add_nb_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset)
     tf = proto_tree_add_bitmask(rr_tree, tvb, offset, hf_nbns_nb_flags, ett_nbns_nb_flags, flags, ENC_BIG_ENDIAN);
 
     flag = tvb_get_ntohs(tvb, offset);
-    proto_item_append_text(tf, "(%s, %s",
+    proto_item_append_text(tf, " (%s, %s)",
                 val_to_str_const(flag & NB_FLAGS_ONT, nb_flags_ont_vals, "Unknown"),
                 (flag & NB_FLAGS_G) ? "group" : "unique");
 }
@@ -612,7 +612,7 @@ nbns_add_name_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset)
     flag = tvb_get_ntohs(tvb, offset);
     tf = proto_tree_add_bitmask(rr_tree, tvb, offset, hf_nbns_name_flags, ett_nbns_name_flags, flags, ENC_BIG_ENDIAN);
 
-    proto_item_append_text(tf, "(%s, %s",
+    proto_item_append_text(tf, " (%s, %s",
                 val_to_str_const(flag & NAME_FLAGS_ONT, name_flags_ont_vals, "Unknown"),
                 (flag & NAME_FLAGS_G) ? "group" : "unique");
     if (flag & NAME_FLAGS_DRG)
