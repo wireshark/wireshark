@@ -1286,11 +1286,12 @@ dissect_tds_all_headers(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_
         /* dissect a stream header */
         proto_tree *header_sub_tree = NULL;
         proto_item *length_item = NULL, *type_item = NULL;
-        guint32 header_length;
+        guint32 header_length = 0;
         guint16 header_type;
 
         header_sub_tree = proto_tree_add_subtree(sub_tree, tvb, *offset, header_length, ett_tds_all_headers_header, NULL, "Header");
         length_item = proto_tree_add_item_ret_uint(header_sub_tree, hf_tds_all_headers_header_length, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &header_length);
+        proto_item_set_len(header_sub_tree, header_length);
         if(header_length == 0 ) {
             expert_add_info_format(pinfo, length_item, &ei_tds_invalid_length, "Empty header");
             break;
