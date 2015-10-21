@@ -60,7 +60,8 @@ LteRlcGraphDialog::LteRlcGraphDialog(QWidget &parent, CaptureFile &cf, bool chan
     WiresharkDialog(parent, cf),
     ui(new Ui::LteRlcGraphDialog),
     mouse_drags_(true),
-    rubber_band_(NULL)
+    rubber_band_(NULL),
+    packet_num_(0)
 {
     ui->setupUi(this);
 
