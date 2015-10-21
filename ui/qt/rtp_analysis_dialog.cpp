@@ -1537,9 +1537,9 @@ void RtpAnalysisDialog::findStreams()
 
     for (GList *strinfo_list = g_list_first(tapinfo_.strinfo_list); strinfo_list; strinfo_list = g_list_next(strinfo_list)) {
         rtp_stream_info_t * strinfo = (rtp_stream_info_t*)(strinfo_list->data);
-        if (ADDRESSES_EQUAL(&(strinfo->src_addr), &(src_fwd_))
+        if (addresses_equal(&(strinfo->src_addr), &(src_fwd_))
             && (strinfo->src_port == port_src_fwd_)
-            && (ADDRESSES_EQUAL(&(strinfo->dest_addr), &(dst_fwd_)))
+            && (addresses_equal(&(strinfo->dest_addr), &(dst_fwd_)))
             && (strinfo->dest_port == port_dst_fwd_))
         {
             packet_count_fwd_ = strinfo->packet_count;
@@ -1548,9 +1548,9 @@ void RtpAnalysisDialog::findStreams()
             num_streams_++;
         }
 
-        if (ADDRESSES_EQUAL(&(strinfo->src_addr), &(src_rev_))
+        if (addresses_equal(&(strinfo->src_addr), &(src_rev_))
             && (strinfo->src_port == port_src_rev_)
-            && (ADDRESSES_EQUAL(&(strinfo->dest_addr), &(dst_rev_)))
+            && (addresses_equal(&(strinfo->dest_addr), &(dst_rev_)))
             && (strinfo->dest_port == port_dst_rev_))
         {
             packet_count_rev_ = strinfo->packet_count;

@@ -253,7 +253,7 @@ call_foreach_new_order(gpointer key _U_, gpointer value, gpointer arg)
 	fInfoTemp = (frame_info *)g_hash_table_lookup(cs->nr_set, GINT_TO_POINTER((gint)fInfo->id));
 	if (fInfoTemp == NULL) {
 		if (TTL_method == FALSE) {
-			if ((ADDRESSES_EQUAL(&cs->eth_dst, &fInfo->dl_dst)) || (ADDRESSES_EQUAL(&cs->eth_src, &fInfo->dl_dst))) {
+			if ((addresses_equal(&cs->eth_dst, &fInfo->dl_dst)) || (addresses_equal(&cs->eth_src, &fInfo->dl_dst))) {
 				g_hash_table_insert(cs->nr_set, GINT_TO_POINTER((gint)fInfo->id), fInfo);
 				fInfo->zebra_time = cs->zebra_time;
 				cs->zebra_time.nsecs = cs->zebra_time.nsecs + MERGED_FILES;
@@ -278,7 +278,7 @@ call_foreach_new_order(gpointer key _U_, gpointer value, gpointer arg)
 		}
 	} else {
 		if (TTL_method == FALSE) {
-			if (((ADDRESSES_EQUAL(&cs->eth_dst, &fInfo->dl_dst)) || (ADDRESSES_EQUAL(&cs->eth_src, &fInfo->dl_dst))) && (!fmod(fInfoTemp->zebra_time.nsecs, MERGED_FILES))) {
+			if (((addresses_equal(&cs->eth_dst, &fInfo->dl_dst)) || (addresses_equal(&cs->eth_src, &fInfo->dl_dst))) && (!fmod(fInfoTemp->zebra_time.nsecs, MERGED_FILES))) {
 				fInfo->zebra_time.nsecs = fInfoTemp->zebra_time.nsecs;
 			} else {
 				fInfo->zebra_time.nsecs = fInfoTemp->zebra_time.nsecs+1;

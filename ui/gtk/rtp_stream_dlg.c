@@ -516,23 +516,23 @@ rtpstream_on_analyse(GtkButton *button _U_, gpointer user_data _U_)
         return;
     }
 
-    SET_ADDRESS(&src_fwd,AT_NONE,0,NULL);
-    SET_ADDRESS(&dst_fwd,AT_NONE,0,NULL);
-    SET_ADDRESS(&src_rev,AT_NONE,0,NULL);
-    SET_ADDRESS(&dst_rev,AT_NONE,0,NULL);
+    set_address(&src_fwd,AT_NONE,0,NULL);
+    set_address(&dst_fwd,AT_NONE,0,NULL);
+    set_address(&src_rev,AT_NONE,0,NULL);
+    set_address(&dst_rev,AT_NONE,0,NULL);
 
     if (selected_stream_fwd) {
-        COPY_ADDRESS(&(src_fwd), &(selected_stream_fwd->src_addr));
+        copy_address(&(src_fwd), &(selected_stream_fwd->src_addr));
         port_src_fwd = selected_stream_fwd->src_port;
-        COPY_ADDRESS(&(dst_fwd), &(selected_stream_fwd->dest_addr));
+        copy_address(&(dst_fwd), &(selected_stream_fwd->dest_addr));
         port_dst_fwd = selected_stream_fwd->dest_port;
         ssrc_fwd = selected_stream_fwd->ssrc;
     }
 
     if (selected_stream_rev) {
-        COPY_ADDRESS(&(src_rev), &(selected_stream_rev->src_addr));
+        copy_address(&(src_rev), &(selected_stream_rev->src_addr));
         port_src_rev = selected_stream_rev->src_port;
-        COPY_ADDRESS(&(dst_rev), &(selected_stream_rev->dest_addr));
+        copy_address(&(dst_rev), &(selected_stream_rev->dest_addr));
         port_dst_rev = selected_stream_rev->dest_port;
         ssrc_rev = selected_stream_rev->ssrc;
     }

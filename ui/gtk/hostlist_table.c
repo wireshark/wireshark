@@ -169,7 +169,7 @@ hostlist_sort_column(GtkTreeModel *model,
 
     switch(data_column){
     case ENDP_COLUMN_ADDR: /* Address */
-        return(CMP_ADDRESS(&host1->myaddress, &host2->myaddress));
+        return(cmp_address(&host1->myaddress, &host2->myaddress));
     case ENDP_COLUMN_PORT: /* (Port) */
         CMP_INT(host1->port, host2->port);
 #ifdef HAVE_GEOIP

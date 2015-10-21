@@ -240,7 +240,7 @@ alloc_wlan_ep (const struct _wlan_hdr *si, const packet_info *pinfo _U_)
 
     ep = (wlan_ep_t *)g_malloc (sizeof(wlan_ep_t));
 
-    COPY_ADDRESS (&ep->bssid, &si->bssid);
+    copy_address (&ep->bssid, &si->bssid);
     ep->stats.channel      = si->stats.channel;
     memcpy (ep->stats.ssid, si->stats.ssid, MAX_SSID_LEN);
     ep->stats.ssid_len     = si->stats.ssid_len;
@@ -267,7 +267,7 @@ alloc_wlan_details_ep (const address *addr)
     if (!(d_ep = (wlan_details_ep_t *)g_malloc (sizeof(wlan_details_ep_t))))
         return NULL;
 
-    COPY_ADDRESS (&d_ep->addr, addr);
+    copy_address (&d_ep->addr, addr);
     d_ep->probe_req         = 0;
     d_ep->probe_rsp         = 0;
     d_ep->auth              = 0;
@@ -292,7 +292,7 @@ get_details_ep (wlan_ep_t *te, const address *addr)
         d_te = te->details;
     } else {
         for (tmp = te->details; tmp; tmp = tmp->next) {
-            if (!CMP_ADDRESS (&tmp->addr, addr)) {
+            if (!cmp_address (&tmp->addr, addr)) {
                 d_te = tmp;
                 break;
             }
@@ -369,7 +369,7 @@ is_broadcast(const address *addr)
 
     /* doesn't work if MAC resolution is disable */
     return cmp_addr;
-    return ADDRESSES_EQUAL(&broadcast, addr);
+    return addresses_equal(&broadcast, addr);
 }
 #endif
 
@@ -408,7 +408,7 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
                       || ((si->stats.ssid_len != 0) && (ssid_equal(&tmp->stats, &si->stats)))
                       )))
                 ||
-                ((si->type != MGT_PROBE_REQ) && !CMP_ADDRESS(&tmp->bssid, &si->bssid))) {
+                ((si->type != MGT_PROBE_REQ) && !cmp_address(&tmp->bssid, &si->bssid))) {
                 te = tmp;
                 break;
             }

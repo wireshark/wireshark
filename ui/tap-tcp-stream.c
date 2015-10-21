@@ -61,9 +61,9 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
          * We only know the stream number. Fill in our connection data.
          * We assume that the server response is more interesting.
          */
-        COPY_ADDRESS(&tg->src_address, &tcphdr->ip_dst);
+        copy_address(&tg->src_address, &tcphdr->ip_dst);
         tg->src_port = tcphdr->th_dport;
-        COPY_ADDRESS(&tg->dst_address, &tcphdr->ip_src);
+        copy_address(&tg->dst_address, &tcphdr->ip_src);
         tg->dst_port = tcphdr->th_sport;
     }
 
@@ -90,8 +90,8 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
         segment->th_sport  = tcphdr->th_sport;
         segment->th_dport  = tcphdr->th_dport;
         segment->th_seglen = tcphdr->th_seglen;
-        COPY_ADDRESS(&segment->ip_src, &tcphdr->ip_src);
-        COPY_ADDRESS(&segment->ip_dst, &tcphdr->ip_dst);
+        copy_address(&segment->ip_src, &tcphdr->ip_src);
+        copy_address(&segment->ip_dst, &tcphdr->ip_dst);
 
         segment->num_sack_ranges = MIN(MAX_TCP_SACK_RANGES, tcphdr->num_sack_ranges);
         if (segment->num_sack_ranges > 0) {
@@ -132,9 +132,9 @@ graph_segment_list_get(capture_file *cf, struct tcp_graph *tg, gboolean stream_k
             ts.direction = COMPARE_ANY_DIR;
 
         /* Remember stream info in graph */
-        COPY_ADDRESS(&tg->src_address, &current.ip_src);
+        copy_address(&tg->src_address, &current.ip_src);
         tg->src_port = current.th_sport;
-        COPY_ADDRESS(&tg->dst_address, &current.ip_dst);
+        copy_address(&tg->dst_address, &current.ip_dst);
         tg->dst_port = current.th_dport;
         tg->stream = header->th_stream;
     }
@@ -178,16 +178,16 @@ compare_headers(address *saddr1, address *daddr1, guint16 sport1, guint16 dport1
 {
     int dir1, dir2;
 
-    dir1 = ((!(CMP_ADDRESS(saddr1, saddr2))) &&
-            (!(CMP_ADDRESS(daddr1, daddr2))) &&
+    dir1 = ((!(cmp_address(saddr1, saddr2))) &&
+            (!(cmp_address(daddr1, daddr2))) &&
             (sport1==sport2)                 &&
             (dport1==dport2));
 
     if (dir == COMPARE_CURR_DIR) {
         return dir1;
     } else {
-        dir2 = ((!(CMP_ADDRESS(saddr1, daddr2))) &&
-                (!(CMP_ADDRESS(daddr1, saddr2))) &&
+        dir2 = ((!(cmp_address(saddr1, daddr2))) &&
+                (!(cmp_address(daddr1, saddr2))) &&
                 (sport1 == dport2)               &&
                 (dport1 == sport2));
         return dir1 || dir2;
@@ -268,8 +268,8 @@ tap_tcpip_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
            to read after this function returns? */
         th->tcphdrs[th->num_hdrs] = (struct tcpheader *)g_malloc(sizeof(struct tcpheader));
         *(th->tcphdrs[th->num_hdrs]) = *header;
-        COPY_ADDRESS(&th->tcphdrs[th->num_hdrs]->ip_src, &header->ip_src);
-        COPY_ADDRESS(&th->tcphdrs[th->num_hdrs]->ip_dst, &header->ip_dst);
+        copy_address(&th->tcphdrs[th->num_hdrs]->ip_src, &header->ip_src);
+        copy_address(&th->tcphdrs[th->num_hdrs]->ip_dst, &header->ip_dst);
 
         th->num_hdrs++;
     }
@@ -359,8 +359,8 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     hdrs->th_sport  = th.tcphdrs[0]->th_sport;
     hdrs->th_dport  = th.tcphdrs[0]->th_dport;
     hdrs->th_seglen = th.tcphdrs[0]->th_seglen;
-    COPY_ADDRESS(&hdrs->ip_src, &th.tcphdrs[0]->ip_src);
-    COPY_ADDRESS(&hdrs->ip_dst, &th.tcphdrs[0]->ip_dst);
+    copy_address(&hdrs->ip_src, &th.tcphdrs[0]->ip_src);
+    copy_address(&hdrs->ip_dst, &th.tcphdrs[0]->ip_dst);
     return th.tcphdrs[0];
 }
 

@@ -143,9 +143,9 @@ gboolean rtp_stream_info_is_reverse(const rtp_stream_info_t *stream_a, rtp_strea
     if (stream_a == NULL || stream_b == NULL)
         return FALSE;
 
-    if ((ADDRESSES_EQUAL(&(stream_a->src_addr), &(stream_b->dest_addr)))
+    if ((addresses_equal(&(stream_a->src_addr), &(stream_b->dest_addr)))
         && (stream_a->src_port == stream_b->dest_port)
-        && (ADDRESSES_EQUAL(&(stream_a->dest_addr), &(stream_b->src_addr)))
+        && (addresses_equal(&(stream_a->dest_addr), &(stream_b->src_addr)))
         && (stream_a->dest_port == stream_b->src_port))
         return TRUE;
     else

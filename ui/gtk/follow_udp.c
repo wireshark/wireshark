@@ -57,10 +57,10 @@ udp_queue_packet_data(void *tapdata, packet_info *pinfo,
 
     if (follow_info->client_port == 0) {
         follow_info->client_port = pinfo->srcport;
-        COPY_ADDRESS(&follow_info->client_ip, &pinfo->src);
+        copy_address(&follow_info->client_ip, &pinfo->src);
     }
 
-    if (ADDRESSES_EQUAL(&follow_info->client_ip, &pinfo->src) && follow_info->client_port == pinfo->srcport)
+    if (addresses_equal(&follow_info->client_ip, &pinfo->src) && follow_info->client_port == pinfo->srcport)
         follow_record->is_server = FALSE;
     else
         follow_record->is_server = TRUE;

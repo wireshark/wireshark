@@ -197,13 +197,13 @@ scan_local_interfaces(void (*update_cb)(void))
                 switch (addr->ifat_type) {
                     case IF_AT_IPv4:
                         temp_addr->addr.ip4_addr = addr->addr.ip4_addr;
-                        SET_ADDRESS(&addr_str, AT_IPv4, 4, &addr->addr.ip4_addr);
+                        set_address(&addr_str, AT_IPv4, 4, &addr->addr.ip4_addr);
                         temp_addr_str = address_to_str(NULL, &addr_str);
                         g_string_append(ip_str, temp_addr_str);
                         break;
                     case IF_AT_IPv6:
                         memcpy(temp_addr->addr.ip6_addr, addr->addr.ip6_addr, sizeof(addr->addr));
-                        SET_ADDRESS(&addr_str, AT_IPv6, 16, addr->addr.ip6_addr);
+                        set_address(&addr_str, AT_IPv6, 16, addr->addr.ip6_addr);
                         temp_addr_str = address_to_str(NULL, &addr_str);
                         g_string_append(ip_str, temp_addr_str);
                         break;

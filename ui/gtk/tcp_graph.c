@@ -642,9 +642,9 @@ void tcp_graph_known_stream_launch(address *src_address, guint16 src_port,
     graph_initialize_values(g);
 
     /* Can set stream info for graph now */
-    COPY_ADDRESS(&g->tg.src_address, src_address);
+    copy_address(&g->tg.src_address, src_address);
     g->tg.src_port = src_port;
-    COPY_ADDRESS(&g->tg.dst_address, dst_address);
+    copy_address(&g->tg.dst_address, dst_address);
     g->tg.dst_port = dst_port;
     g->tg.stream = stream;
 

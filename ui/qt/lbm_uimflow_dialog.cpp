@@ -90,7 +90,7 @@ static gboolean lbm_uimflow_add_to_graph(seq_analysis_info_t * seq_info, packet_
         {
             int compare;
 
-            compare = CMP_ADDRESS(&(stream_info->endpoint_a.stream_info.dest.addr), &(stream_info->endpoint_b.stream_info.dest.addr));
+            compare = cmp_address(&(stream_info->endpoint_a.stream_info.dest.addr), &(stream_info->endpoint_b.stream_info.dest.addr));
             if (compare < 0)
             {
                 swap_endpoints = FALSE;
@@ -123,8 +123,8 @@ static gboolean lbm_uimflow_add_to_graph(seq_analysis_info_t * seq_info, packet_
         epa = stream_info->endpoint_b;
     }
     item = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
-    COPY_ADDRESS(&(item->src_addr), &(pinfo->src));
-    COPY_ADDRESS(&(item->dst_addr), &(pinfo->dst));
+    copy_address(&(item->src_addr), &(pinfo->src));
+    copy_address(&(item->dst_addr), &(pinfo->dst));
     item->fd = pinfo->fd;
     item->port_src = pinfo->srcport;
     item->port_dst = pinfo->destport;

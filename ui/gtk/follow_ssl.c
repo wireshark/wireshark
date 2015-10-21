@@ -78,9 +78,9 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     /* Compute the packet's sender. */
     if (follow_info->client_port == 0) {
         follow_info->client_port = pinfo->srcport;
-        COPY_ADDRESS(&follow_info->client_ip, &pinfo->src);
+        copy_address(&follow_info->client_ip, &pinfo->src);
     }
-    if (ADDRESSES_EQUAL(&follow_info->client_ip, &pinfo->src) &&
+    if (addresses_equal(&follow_info->client_ip, &pinfo->src) &&
             follow_info->client_port == pinfo->srcport) {
         from = FROM_CLIENT;
     } else {

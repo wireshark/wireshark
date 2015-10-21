@@ -302,8 +302,8 @@ followAlloc(
   fp = (follow_t *)g_malloc0(sizeof *fp);
 
   fp->type = type;
-  SET_ADDRESS(&fp->addr[0], AT_NONE, 0, fp->addrBuf[0]);
-  SET_ADDRESS(&fp->addr[1], AT_NONE, 0, fp->addrBuf[1]);
+  set_address(&fp->addr[0], AT_NONE, 0, fp->addrBuf[0]);
+  set_address(&fp->addr[1], AT_NONE, 0, fp->addrBuf[1]);
 
   return fp;
 }
@@ -376,12 +376,12 @@ followSslPacket(
   if (fp->addr[0].type == AT_NONE)
   {
     memcpy(fp->addrBuf[0], pip->net_src.data, pip->net_src.len);
-    SET_ADDRESS(&fp->addr[0], pip->net_src.type, pip->net_src.len,
+    set_address(&fp->addr[0], pip->net_src.type, pip->net_src.len,
                 fp->addrBuf[0]);
     fp->port[0] = pip->srcport;
 
     memcpy(fp->addrBuf[1], pip->net_dst.data, pip->net_dst.len);
-    SET_ADDRESS(&fp->addr[1], pip->net_dst.type, pip->net_dst.len,
+    set_address(&fp->addr[1], pip->net_dst.type, pip->net_dst.len,
                 fp->addrBuf[1]);
     fp->port[1] = pip->destport;
   }
@@ -549,7 +549,7 @@ followDraw(
     for (node = 0; node < 2; node++)
     {
       memcpy(fp->addrBuf[node], stats.ip_address[node], len);
-      SET_ADDRESS(&fp->addr[node], type, len, fp->addrBuf[node]);
+      set_address(&fp->addr[node], type, len, fp->addrBuf[node]);
       fp->port[node] = stats.port[node];
     }
   }
@@ -815,7 +815,7 @@ followArgFilter(
         {
           followExit("Can't get IPv6 address");
         }
-        SET_ADDRESS(&fp->addr[ii], AT_IPv6, 16, fp->addrBuf[ii]);
+        set_address(&fp->addr[ii], AT_IPv6, 16, fp->addrBuf[ii]);
       }
       else
       {
@@ -823,7 +823,7 @@ followArgFilter(
         {
           followExit("Can't get IPv4 address");
         }
-        SET_ADDRESS(&fp->addr[ii], AT_IPv4, 4, fp->addrBuf[ii]);
+        set_address(&fp->addr[ii], AT_IPv4, 4, fp->addrBuf[ii]);
       }
 
       *opt_argp += len;

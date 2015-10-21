@@ -91,15 +91,15 @@ seq_analysis_frame_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U
         if (sainfo->any_addr) {
             if (pinfo->net_src.type!=AT_NONE && pinfo->net_dst.type!=AT_NONE) {
                 sai = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
-                COPY_ADDRESS(&(sai->src_addr),&(pinfo->net_src));
-                COPY_ADDRESS(&(sai->dst_addr),&(pinfo->net_dst));
+                copy_address(&(sai->src_addr),&(pinfo->net_src));
+                copy_address(&(sai->dst_addr),&(pinfo->net_dst));
             }
 
         } else {
             if (pinfo->src.type!=AT_NONE && pinfo->dst.type!=AT_NONE) {
                 sai = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
-                COPY_ADDRESS(&(sai->src_addr),&(pinfo->src));
-                COPY_ADDRESS(&(sai->dst_addr),&(pinfo->dst));
+                copy_address(&(sai->src_addr),&(pinfo->src));
+                copy_address(&(sai->dst_addr),&(pinfo->dst));
             }
         }
 
@@ -199,11 +199,11 @@ seq_analysis_tcp_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt 
         sai = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
         sai->fd = pinfo->fd;
         if (sainfo->any_addr) {
-            COPY_ADDRESS(&(sai->src_addr),&(pinfo->net_src));
-            COPY_ADDRESS(&(sai->dst_addr),&(pinfo->net_dst));
+            copy_address(&(sai->src_addr),&(pinfo->net_src));
+            copy_address(&(sai->dst_addr),&(pinfo->net_dst));
         } else {
-            COPY_ADDRESS(&(sai->src_addr),&(pinfo->src));
-            COPY_ADDRESS(&(sai->dst_addr),&(pinfo->dst));
+            copy_address(&(sai->src_addr),&(pinfo->src));
+            copy_address(&(sai->dst_addr),&(pinfo->dst));
         }
         sai->port_src=pinfo->srcport;
         sai->port_dst=pinfo->destport;
@@ -436,14 +436,14 @@ static guint add_or_get_node(seq_analysis_info_t *sainfo, address *node) {
     if (node->type == AT_NONE) return NODE_OVERFLOW;
 
     for (i=0; i<MAX_NUM_NODES && i < sainfo->num_nodes ; i++) {
-        if ( CMP_ADDRESS(&(sainfo->nodes[i]), node) == 0 ) return i; /* it is in the array */
+        if ( cmp_address(&(sainfo->nodes[i]), node) == 0 ) return i; /* it is in the array */
     }
 
     if (i >= MAX_NUM_NODES) {
         return  NODE_OVERFLOW;
     } else {
         sainfo->num_nodes++;
-        COPY_ADDRESS(&(sainfo->nodes[i]), node);
+        copy_address(&(sainfo->nodes[i]), node);
         return i;
     }
 }

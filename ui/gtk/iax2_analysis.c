@@ -458,9 +458,9 @@ iax2_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		return FALSE;
 
 	/* is it the forward direction?  */
-	else if ((CMP_ADDRESS(&(user_data->ip_src_fwd), &(pinfo->net_src)) == 0)
+	else if ((cmp_address(&(user_data->ip_src_fwd), &(pinfo->net_src)) == 0)
 		 && (user_data->port_src_fwd == pinfo->srcport)
-		 && (CMP_ADDRESS(&(user_data->ip_dst_fwd), &(pinfo->net_dst)) == 0)
+		 && (cmp_address(&(user_data->ip_dst_fwd), &(pinfo->net_dst)) == 0)
 		 && (user_data->port_dst_fwd == pinfo->destport))  {
 		iax2_packet_analyse(&(user_data->forward.statinfo), pinfo, iax2info);
 		iax2_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_JITTER]),
@@ -477,9 +477,9 @@ iax2_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, co
 					 &(user_data->forward.statinfo), pinfo, iax2info);
 	}
 	/* is it the reversed direction? */
-	else if (CMP_ADDRESS(&(user_data->ip_src_rev), &(pinfo->net_src)) == 0
+	else if (cmp_address(&(user_data->ip_src_rev), &(pinfo->net_src)) == 0
 		 && user_data->port_src_rev == pinfo->srcport
-		 && CMP_ADDRESS(&(user_data->ip_dst_rev), &(pinfo->net_dst)) == 0
+		 && cmp_address(&(user_data->ip_dst_rev), &(pinfo->net_dst)) == 0
 		 && user_data->port_dst_rev == pinfo->destport)  {
 		iax2_packet_analyse(&(user_data->reversed.statinfo), pinfo, iax2info);
 		iax2_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_JITTER]),
@@ -3515,13 +3515,13 @@ iax2_analysis(
 	/* init */
 	user_data = (user_data_t *)g_malloc(sizeof(user_data_t));
 
-	COPY_ADDRESS(&(user_data->ip_src_fwd), ip_src_fwd);
+	copy_address(&(user_data->ip_src_fwd), ip_src_fwd);
 	user_data->port_src_fwd = port_src_fwd;
-	COPY_ADDRESS(&(user_data->ip_dst_fwd), ip_dst_fwd);
+	copy_address(&(user_data->ip_dst_fwd), ip_dst_fwd);
 	user_data->port_dst_fwd = port_dst_fwd;
-	COPY_ADDRESS(&(user_data->ip_src_rev), ip_src_rev);
+	copy_address(&(user_data->ip_src_rev), ip_src_rev);
 	user_data->port_src_rev = port_src_rev;
-	COPY_ADDRESS(&(user_data->ip_dst_rev), ip_dst_rev);
+	copy_address(&(user_data->ip_dst_rev), ip_dst_rev);
 	user_data->port_dst_rev = port_dst_rev;
 
 
@@ -3658,14 +3658,14 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 #endif
 
 	/* ok, it is a IAX2 frame, so let's get the ip and port values */
-	COPY_ADDRESS(&(ip_src_fwd), &(edt.pi.src));
-	COPY_ADDRESS(&(ip_dst_fwd), &(edt.pi.dst));
+	copy_address(&(ip_src_fwd), &(edt.pi.src));
+	copy_address(&(ip_dst_fwd), &(edt.pi.dst));
 	port_src_fwd = edt.pi.srcport;
 	port_dst_fwd = edt.pi.destport;
 
 	/* assume the inverse ip/port combination for the reverse direction */
-	COPY_ADDRESS(&(ip_src_rev), &(edt.pi.dst));
-	COPY_ADDRESS(&(ip_dst_rev), &(edt.pi.src));
+	copy_address(&(ip_src_rev), &(edt.pi.dst));
+	copy_address(&(ip_dst_rev), &(edt.pi.src));
 	port_src_rev = edt.pi.destport;
 	port_dst_rev = edt.pi.srcport;
 
@@ -3677,17 +3677,17 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	while (strinfo_list)
 	{
 		strinfo = (rtp_stream_info_t*)(strinfo_list->data);
-		if (ADDRESSES_EQUAL(&(strinfo->src_addr),&(ip_src_fwd))
+		if (addresses_equal(&(strinfo->src_addr),&(ip_src_fwd))
 			&& strinfo->src_port == port_src_fwd
-			&& ADDRESSES_EQUAL(&(strinfo->dest_addr),&(ip_dst_fwd))
+			&& addresses_equal(&(strinfo->dest_addr),&(ip_dst_fwd))
 			&& strinfo->dest_port == port_dst_fwd)
 		{
 			filtered_list = g_list_prepend(filtered_list, strinfo);
 		}
 
-		if (ADDRESSES_EQUAL(&(strinfo->src_addr),&(ip_src_rev))
+		if (addresses_equal(&(strinfo->src_addr),&(ip_src_rev))
 			&& strinfo->src_port == port_src_rev
-			&& ADDRESSES_EQUAL(&(strinfo->dest_addr),&(ip_dst_rev))
+			&& addresses_equal(&(strinfo->dest_addr),&(ip_dst_rev))
 			&& strinfo->dest_port == port_dst_rev)
 		{
 			++nfound;

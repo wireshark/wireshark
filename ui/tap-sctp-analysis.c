@@ -247,7 +247,7 @@ add_chunk_count(address *vadd, sctp_assoc_info_t *info, guint32 direction, guint
 		if (ch->direction == direction)
 		{
 			v = (address *) (ch->addr);
-			if (ADDRESSES_EQUAL(vadd, v))
+			if (addresses_equal(vadd, v))
 			{
 				if (IS_SCTP_CHUNK_TYPE(type))
 					ch->addr_count[type]++;
@@ -297,7 +297,7 @@ add_address(address *vadd, sctp_assoc_info_t *info, guint16 direction)
 	while (list)
 	{
 		v = (address *) (list->data);
-		if (ADDRESSES_EQUAL(vadd, v)) {
+		if (addresses_equal(vadd, v)) {
 			g_free(vadd);
 			return info;
 		}

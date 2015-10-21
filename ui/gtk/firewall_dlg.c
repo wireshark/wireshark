@@ -194,10 +194,10 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     guint i;
 
     rule_info = g_new0(rule_info_t, 1);
-    COPY_ADDRESS(&(rule_info->dl_src), &(pinfo->dl_src));
-    COPY_ADDRESS(&(rule_info->dl_dst), &(pinfo->dl_dst));
-    COPY_ADDRESS(&(rule_info->net_src), &(pinfo->net_src));
-    COPY_ADDRESS(&(rule_info->net_dst), &(pinfo->net_dst));
+    copy_address(&(rule_info->dl_src), &(pinfo->dl_src));
+    copy_address(&(rule_info->dl_dst), &(pinfo->dl_dst));
+    copy_address(&(rule_info->net_src), &(pinfo->net_src));
+    copy_address(&(rule_info->net_dst), &(pinfo->net_dst));
     rule_info->ptype = pinfo->ptype;
     rule_info->srcport = pinfo->srcport;
     rule_info->destport = pinfo->destport;

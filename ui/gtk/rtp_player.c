@@ -339,9 +339,9 @@ add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 	/* if it is not in the hash table, create a new stream */
 	if (stream_info==NULL) {
 		stream_info = g_new0(rtp_stream_info_t, 1);
-		COPY_ADDRESS(&(stream_info->src_addr), &(pinfo->src));
+		copy_address(&(stream_info->src_addr), &(pinfo->src));
 		stream_info->src_port = pinfo->srcport;
-		COPY_ADDRESS(&(stream_info->dest_addr), &(pinfo->dst));
+		copy_address(&(stream_info->dest_addr), &(pinfo->dst));
 		stream_info->dest_port = pinfo->destport;
 		stream_info->ssrc = rtp_info->info_sync_src;
 		stream_info->start_fd = pinfo->fd;

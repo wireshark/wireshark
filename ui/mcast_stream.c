@@ -75,9 +75,9 @@ mcast_stream_info_cmp(gconstpointer aa, gconstpointer bb)
         return 0;
     if (a==NULL || b==NULL)
         return 1;
-    if (ADDRESSES_EQUAL(&(a->src_addr), &(b->src_addr))
+    if (addresses_equal(&(a->src_addr), &(b->src_addr))
         && (a->src_port == b->src_port)
-        && ADDRESSES_EQUAL(&(a->dest_addr), &(b->dest_addr))
+        && addresses_equal(&(a->dest_addr), &(b->dest_addr))
         && (a->dest_port == b->dest_port))
         return 0;
     else
@@ -178,9 +178,9 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
     }
 
     /* gather infos on the stream this packet is part of */
-    COPY_ADDRESS(&(tmp_strinfo.src_addr), &(pinfo->net_src));
+    copy_address(&(tmp_strinfo.src_addr), &(pinfo->net_src));
     tmp_strinfo.src_port = pinfo->srcport;
-    COPY_ADDRESS(&(tmp_strinfo.dest_addr), &(pinfo->net_dst));
+    copy_address(&(tmp_strinfo.dest_addr), &(pinfo->net_dst));
     tmp_strinfo.dest_port = pinfo->destport;
 
     /* check whether we already have a stream with these parameters in the list */

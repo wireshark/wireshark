@@ -110,8 +110,8 @@ alloc_sctp_ep(const struct _sctp_info *si)
 	if (!(ep = g_new(sctp_ep_t, 1)))
 		return NULL;
 
-	COPY_ADDRESS(&ep->src, &si->ip_src);
-	COPY_ADDRESS(&ep->dst, &si->ip_dst);
+	copy_address(&ep->src, &si->ip_src);
+	copy_address(&ep->dst, &si->ip_dst);
 	ep->sport = si->sport;
 	ep->dport = si->dport;
 	ep->next  = NULL;
@@ -144,8 +144,8 @@ sctpstat_packet(void *phs, packet_info *pinfo _U_, epan_dissect_t *edt _U_, cons
 	} else {
 		for (tmp = hs->ep_list; tmp; tmp = tmp->next)
 		{
-			if ((!CMP_ADDRESS(&tmp->src, &si->ip_src)) &&
-			   (!CMP_ADDRESS(&tmp->dst, &si->ip_dst)) &&
+			if ((!cmp_address(&tmp->src, &si->ip_src)) &&
+			   (!cmp_address(&tmp->dst, &si->ip_dst)) &&
 			   (tmp->sport == si->sport) &&
 			   (tmp->dport == si->dport))
 			{

@@ -499,9 +499,9 @@ rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		return FALSE;
 	/* is it the forward direction?  */
 	else if (user_data->ssrc_fwd == rtpinfo->info_sync_src
-		 && (CMP_ADDRESS(&(user_data->src_fwd), &(pinfo->src)) == 0)
+		 && (cmp_address(&(user_data->src_fwd), &(pinfo->src)) == 0)
 		 && (user_data->port_src_fwd == pinfo->srcport)
-		 && (CMP_ADDRESS(&(user_data->dst_fwd), &(pinfo->dst)) == 0)
+		 && (cmp_address(&(user_data->dst_fwd), &(pinfo->dst)) == 0)
 		 && (user_data->port_dst_fwd == pinfo->destport))  {
 		rtp_packet_analyse(&(user_data->forward.statinfo), pinfo, rtpinfo);
 		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_JITTER]),
@@ -521,9 +521,9 @@ rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	}
 	/* is it the reversed direction? */
 	else if (user_data->ssrc_rev == rtpinfo->info_sync_src
-		 && (CMP_ADDRESS(&(user_data->src_rev), &(pinfo->src)) == 0)
+		 && (cmp_address(&(user_data->src_rev), &(pinfo->src)) == 0)
 		 && (user_data->port_src_rev == pinfo->srcport)
-		 && (CMP_ADDRESS(&(user_data->dst_rev), &(pinfo->dst)) == 0)
+		 && (cmp_address(&(user_data->dst_rev), &(pinfo->dst)) == 0)
 		 && (user_data->port_dst_rev == pinfo->destport))  {
 		rtp_packet_analyse(&(user_data->reversed.statinfo), pinfo, rtpinfo);
 		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_JITTER]),
@@ -3833,14 +3833,14 @@ rtp_analysis(address *src_fwd,
 	/* init */
 	user_data = (user_data_t *)g_malloc(sizeof(user_data_t));
 
-	COPY_ADDRESS(&(user_data->src_fwd), src_fwd);
+	copy_address(&(user_data->src_fwd), src_fwd);
 	user_data->port_src_fwd = port_src_fwd;
-	COPY_ADDRESS(&(user_data->dst_fwd), dst_fwd);
+	copy_address(&(user_data->dst_fwd), dst_fwd);
 	user_data->port_dst_fwd = port_dst_fwd;
 	user_data->ssrc_fwd = ssrc_fwd;
-	COPY_ADDRESS(&(user_data->src_rev), src_rev);
+	copy_address(&(user_data->src_rev), src_rev);
 	user_data->port_src_rev = port_src_rev;
-	COPY_ADDRESS(&(user_data->dst_rev), dst_rev);
+	copy_address(&(user_data->dst_rev), dst_rev);
 	user_data->port_dst_rev = port_dst_rev;
 	user_data->ssrc_rev = ssrc_rev;
 
@@ -3972,14 +3972,14 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	}
 
 	/* ok, it is a RTP frame, so let's get the ip and port values */
-	COPY_ADDRESS(&(src_fwd), &(edt.pi.src));
-	COPY_ADDRESS(&(dst_fwd), &(edt.pi.dst));
+	copy_address(&(src_fwd), &(edt.pi.src));
+	copy_address(&(dst_fwd), &(edt.pi.dst));
 	port_src_fwd = edt.pi.srcport;
 	port_dst_fwd = edt.pi.destport;
 
 	/* assume the inverse ip/port combination for the reverse direction */
-	COPY_ADDRESS(&(src_rev), &(edt.pi.dst));
-	COPY_ADDRESS(&(dst_rev), &(edt.pi.src));
+	copy_address(&(src_rev), &(edt.pi.dst));
+	copy_address(&(dst_rev), &(edt.pi.src));
 	port_src_rev = edt.pi.destport;
 	port_dst_rev = edt.pi.srcport;
 
@@ -4005,17 +4005,17 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	while (strinfo_list)
 	{
 		strinfo = (rtp_stream_info_t*)(strinfo_list->data);
-		if (ADDRESSES_EQUAL(&(strinfo->src_addr), &(src_fwd))
+		if (addresses_equal(&(strinfo->src_addr), &(src_fwd))
 		    && (strinfo->src_port == port_src_fwd)
-		    && (ADDRESSES_EQUAL(&(strinfo->dest_addr), &(dst_fwd)))
+		    && (addresses_equal(&(strinfo->dest_addr), &(dst_fwd)))
 		    && (strinfo->dest_port == port_dst_fwd))
 		{
 			filtered_list = g_list_prepend(filtered_list, strinfo);
 		}
 
-		if (ADDRESSES_EQUAL(&(strinfo->src_addr), &(src_rev))
+		if (addresses_equal(&(strinfo->src_addr), &(src_rev))
 		    && (strinfo->src_port == port_src_rev)
-		    && (ADDRESSES_EQUAL(&(strinfo->dest_addr), &(dst_rev)))
+		    && (addresses_equal(&(strinfo->dest_addr), &(dst_rev)))
 		    && (strinfo->dest_port == port_dst_rev))
 		{
 			++nfound;
