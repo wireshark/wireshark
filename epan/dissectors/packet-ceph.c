@@ -1560,7 +1560,7 @@ c_pkt_data_init(c_pkt_data *d, packet_info *pinfo, guint off)
 	}
 
 	/*** Set up src and dst pointers correctly. ***/
-	if (ADDRESSES_EQUAL(&d->convd->client.addr, &pinfo->src) &&
+	if (addresses_equal(&d->convd->client.addr, &pinfo->src) &&
 	    d->convd->client.port == pinfo->srcport)
 	{
 		d->src = &d->convd->client;

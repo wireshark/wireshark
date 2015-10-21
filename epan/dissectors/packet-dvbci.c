@@ -1650,15 +1650,15 @@ dvbci_set_addrs(guint8 event, packet_info *pinfo)
         return -1;
 
     if (event == DVBCI_EVT_DATA_HOST_TO_CAM) {
-        SET_ADDRESS(&pinfo->src, AT_STRINGZ,
+        set_address(&pinfo->src, AT_STRINGZ,
                 (int)strlen(ADDR_HOST)+1, ADDR_HOST);
-        SET_ADDRESS(&pinfo->dst, AT_STRINGZ,
+        set_address(&pinfo->dst, AT_STRINGZ,
                 (int)strlen(ADDR_CAM)+1 , ADDR_CAM);
     }
     else {
-        SET_ADDRESS(&pinfo->src, AT_STRINGZ,
+        set_address(&pinfo->src, AT_STRINGZ,
                 (int)strlen(ADDR_CAM)+1 , ADDR_CAM);
-        SET_ADDRESS(&pinfo->dst, AT_STRINGZ,
+        set_address(&pinfo->dst, AT_STRINGZ,
                 (int)strlen(ADDR_HOST)+1, ADDR_HOST);
     }
 
@@ -1673,12 +1673,12 @@ dvbci_get_evt_from_addrs(packet_info *pinfo)
     static const address a_cam  = { AT_STRINGZ, sizeof(ADDR_CAM), ADDR_CAM };
     static const address a_host = { AT_STRINGZ, sizeof(ADDR_HOST), ADDR_HOST };
 
-    if ( ADDRESSES_EQUAL(&(pinfo->src), &a_cam) &&
-         ADDRESSES_EQUAL(&(pinfo->dst), &a_host) ) {
+    if ( addresses_equal(&(pinfo->src), &a_cam) &&
+         addresses_equal(&(pinfo->dst), &a_host) ) {
         return DVBCI_EVT_DATA_CAM_TO_HOST;
     }
-    else if ( ADDRESSES_EQUAL(&(pinfo->src), &a_host) &&
-              ADDRESSES_EQUAL(&(pinfo->dst), &a_cam) ) {
+    else if ( addresses_equal(&(pinfo->src), &a_host) &&
+              addresses_equal(&(pinfo->dst), &a_cam) ) {
         return DVBCI_EVT_DATA_HOST_TO_CAM;
     }
     else

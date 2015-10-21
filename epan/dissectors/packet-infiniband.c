@@ -1626,7 +1626,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     /* Set destination in packet view. */
     dst_addr = wmem_alloc(pinfo->pool, sizeof(guint16));
     *((guint16*) dst_addr) = tvb_get_ntohs(tvb, offset);
-    SET_ADDRESS(&pinfo->dst, AT_IB, sizeof(guint16), dst_addr);
+    set_address(&pinfo->dst, AT_IB, sizeof(guint16), dst_addr);
 
     offset += 2;
 
@@ -1643,7 +1643,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     /* Set Source in packet view. */
     src_addr = wmem_alloc(pinfo->pool, sizeof(guint16));
     *((guint16*) src_addr) = tvb_get_ntohs(tvb, offset);
-    SET_ADDRESS(&pinfo->src, AT_IB, sizeof(guint16), src_addr);
+    set_address(&pinfo->src, AT_IB, sizeof(guint16), src_addr);
 
     offset += 2;
     packetLength -= 8; /* Shave 8 bytes for the LRH. */
@@ -1743,7 +1743,7 @@ skip_lrh:
         case IP_NON_IBA:
             /* Raw IPv6 Packet */
             dst_addr = wmem_strdup(pinfo->pool, "IPv6 over IB Packet");
-            SET_ADDRESS(&pinfo->dst,  AT_STRINGZ, (int)strlen((char *)dst_addr)+1, dst_addr);
+            set_address(&pinfo->dst,  AT_STRINGZ, (int)strlen((char *)dst_addr)+1, dst_addr);
 
             parse_IPvSix(all_headers_tree, tvb, &offset, pinfo);
             break;
@@ -3106,8 +3106,8 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                        each side of the Reliable Connection. */
 
                     /* first register the conversation using the GIDs */
-                    SET_ADDRESS(&req_addr, AT_IB, GID_SIZE, connection->req_gid);
-                    SET_ADDRESS(&resp_addr, AT_IB, GID_SIZE, connection->resp_gid);
+                    set_address(&req_addr, AT_IB, GID_SIZE, connection->req_gid);
+                    set_address(&resp_addr, AT_IB, GID_SIZE, connection->resp_gid);
 
                     conv = conversation_new(pinfo->fd->num, &req_addr, &req_addr,
                                             PT_IBQP, connection->req_qp, connection->req_qp, NO_ADDR2|NO_PORT2);
@@ -3117,8 +3117,8 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
                     conversation_add_proto_data(conv, proto_infiniband, proto_data);
 
                     /* next, register the conversation using the LIDs */
-                    SET_ADDRESS(&req_addr, AT_IB, sizeof(guint16), &(connection->req_lid));
-                    SET_ADDRESS(&resp_addr, AT_IB, sizeof(guint16), &(connection->resp_lid));
+                    set_address(&req_addr, AT_IB, sizeof(guint16), &(connection->req_lid));
+                    set_address(&resp_addr, AT_IB, sizeof(guint16), &(connection->resp_lid));
 
                     conv = conversation_new(pinfo->fd->num, &req_addr, &req_addr,
                                             PT_IBQP, connection->req_qp, connection->req_qp, NO_ADDR2|NO_PORT2);
@@ -4946,14 +4946,14 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     /* Set destination in packet view. */
     dst_addr = wmem_alloc(pinfo->pool, sizeof(guint16));
     *((guint16*) dst_addr) = tvb_get_ntohs(tvb, offset);
-    SET_ADDRESS(&pinfo->dst, AT_IB, sizeof(guint16), dst_addr);
+    set_address(&pinfo->dst, AT_IB, sizeof(guint16), dst_addr);
 
     offset += 4;
 
     /* Set Source in packet view. */
     src_addr = wmem_alloc(pinfo->pool, sizeof(guint16));
     *((guint16*) src_addr) = tvb_get_ntohs(tvb, offset);
-    SET_ADDRESS(&pinfo->src, AT_IB, sizeof(guint16), src_addr);
+    set_address(&pinfo->src, AT_IB, sizeof(guint16), src_addr);
 
     offset += 2;
 
@@ -4999,7 +4999,7 @@ skip_lrh:
         case IP_NON_IBA:
             /* Raw IPv6 Packet */
             dst_addr = wmem_strdup(pinfo->pool, "IPv6 over IB Packet");
-            SET_ADDRESS(&pinfo->dst,  AT_STRINGZ, (int)strlen((char *)dst_addr)+1, dst_addr);
+            set_address(&pinfo->dst,  AT_STRINGZ, (int)strlen((char *)dst_addr)+1, dst_addr);
             break;
         case RAW:
             break;

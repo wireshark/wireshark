@@ -4222,7 +4222,7 @@ dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (p_conv_data) {
             /*Figure out the direction of the link*/
-            if (ADDRESSES_EQUAL(&(pinfo->net_dst), (&p_conv_data->crnc_address))) {
+            if (addresses_equal(&(pinfo->net_dst), (&p_conv_data->crnc_address))) {
 
                 proto_item *item= proto_tree_add_uint(fp_tree, hf_fp_ul_setup_frame,
                                                       tvb, 0, 0, p_conv_data->ul_frame_number);
@@ -4503,8 +4503,8 @@ umts_fp_init_protocol(void)
             if ((uat_umts_fp_ep_and_ch_records[i].dstIP) && (!str_to_ip(uat_umts_fp_ep_and_ch_records[i].dstIP, &hostb_addr))) {
                 continue; /* parsing failed, skip this entry */
             }
-            SET_ADDRESS(&src_addr, AT_IPv4, 4, &hosta_addr);
-            SET_ADDRESS(&dst_addr, AT_IPv4, 4, &hostb_addr);
+            set_address(&src_addr, AT_IPv4, 4, &hosta_addr);
+            set_address(&dst_addr, AT_IPv4, 4, &hostb_addr);
         } else {
             continue; /* Not implemented yet */
         }

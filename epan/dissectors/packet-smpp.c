@@ -1978,17 +1978,17 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         {
             DebugLog(("UDHI present - set addresses\n"));
             /* Save original addresses */
-            COPY_ADDRESS_SHALLOW(&save_src, &pinfo->src);
-            COPY_ADDRESS_SHALLOW(&save_dst, &pinfo->dst);
+            copy_address_shallow(&save_src, &pinfo->src);
+            copy_address_shallow(&save_dst, &pinfo->dst);
             /* Set SMPP source and destination address */
-            SET_ADDRESS(&(pinfo->src), AT_STRINGZ, 1+(int)strlen(src_str), src_str);
-            SET_ADDRESS(&(pinfo->dst), AT_STRINGZ, 1+(int)strlen(dst_str), dst_str);
+            set_address(&(pinfo->src), AT_STRINGZ, 1+(int)strlen(src_str), src_str);
+            set_address(&(pinfo->dst), AT_STRINGZ, 1+(int)strlen(dst_str), dst_str);
             tvb_msg = tvb_new_subset (tvb, offset,
                     MIN(length, tvb_reported_length(tvb) - offset), length);
             call_dissector (gsm_sms_handle, tvb_msg, pinfo, top_tree);
             /* Restore original addresses */
-            COPY_ADDRESS_SHALLOW(&pinfo->src, &save_src);
-            COPY_ADDRESS_SHALLOW(&pinfo->dst, &save_dst);
+            copy_address_shallow(&pinfo->src, &save_src);
+            copy_address_shallow(&pinfo->dst, &save_dst);
         }
         offset += length;
     }

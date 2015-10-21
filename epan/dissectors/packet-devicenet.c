@@ -461,7 +461,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* Set source address */
         src_address = (guint8*)wmem_alloc(pinfo->pool, 1);
         *src_address = (guint8)(can_id.id & MESSAGE_GROUP_1_MAC_ID_MASK);
-        SET_ADDRESS(&pinfo->src, devicenet_address_type, 1, (const void*)src_address);
+        set_address(&pinfo->src, devicenet_address_type, 1, (const void*)src_address);
 
         message_id = can_id.id & MESSAGE_GROUP_1_MSG_MASK;
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_id, devicenet_grp_msg1_vals, "Other Group 1 Message"));
@@ -486,7 +486,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* Set source address */
         src_address = (guint8*)wmem_alloc(pinfo->pool, 1);
         *src_address = (guint8)((can_id.id & MESSAGE_GROUP_2_MAC_ID_MASK) >> 3);
-        SET_ADDRESS(&pinfo->src, devicenet_address_type, 1, (const void*)src_address);
+        set_address(&pinfo->src, devicenet_address_type, 1, (const void*)src_address);
 
         content_tree = proto_tree_add_subtree(devicenet_tree, tvb, offset, -1, ett_devicenet_contents, NULL, "Contents");
 
@@ -532,7 +532,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* Set source address */
         src_address = (guint8*)wmem_alloc(pinfo->pool, 1);
         *src_address = (guint8)(can_id.id & MESSAGE_GROUP_3_MAC_ID_MASK);
-        SET_ADDRESS(&pinfo->src, devicenet_address_type, 1, (const void*)src_address);
+        set_address(&pinfo->src, devicenet_address_type, 1, (const void*)src_address);
 
         message_id = can_id.id & MESSAGE_GROUP_3_MSG_MASK;
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_id, devicenet_grp_msg3_vals, "Unknown"));
@@ -547,7 +547,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* XXX - This may be source address depending on message type.  Need to adjust accordingly) */
         dest_address = (guint8*)wmem_alloc(pinfo->pool, 1);
         *dest_address = (guint8)source_mac;
-        SET_ADDRESS(&pinfo->dst, devicenet_address_type, 1, (const void*)dest_address);
+        set_address(&pinfo->dst, devicenet_address_type, 1, (const void*)dest_address);
         offset++;
 
         if (byte1 & MESSAGE_GROUP_3_FRAG_MASK)

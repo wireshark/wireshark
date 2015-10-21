@@ -1845,7 +1845,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
             usb_addr->bus_id = ((const usb_address_t *)(pinfo->src.data))->bus_id;
             usb_addr->device = ((const usb_address_t *)(pinfo->src.data))->device;
             usb_addr->endpoint = GUINT32_TO_LE(endpoint);
-            SET_ADDRESS(&tmp_addr, AT_USB, USB_ADDR_LEN, (char *)usb_addr);
+            set_address(&tmp_addr, AT_USB, USB_ADDR_LEN, (char *)usb_addr);
             conversation = get_usb_conversation(pinfo, &tmp_addr, &pinfo->dst, usb_addr->endpoint, pinfo->destport);
         }
 
@@ -2824,7 +2824,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
                     dst_addr->bus_id = usb_conv_info->bus_id;
                     dst_addr->device = usb_conv_info->device_address;
                     dst_addr->endpoint = dst_endpoint = GUINT32_TO_LE(endpoint);
-                    SET_ADDRESS(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)dst_addr);
+                    set_address(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)dst_addr);
 
                     conversation = get_usb_conversation(pinfo, &pinfo->src, &endpoint_addr, pinfo->srcport, dst_endpoint);
                 }
@@ -2833,7 +2833,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
                     src_addr->bus_id = usb_conv_info->bus_id;
                     src_addr->device = usb_conv_info->device_address;
                     src_addr->endpoint = src_endpoint = GUINT32_TO_LE(endpoint);
-                    SET_ADDRESS(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)src_addr);
+                    set_address(&endpoint_addr, AT_USB, USB_ADDR_LEN, (char *)src_addr);
 
                     conversation  = get_usb_conversation(pinfo, &endpoint_addr, &pinfo->dst, src_endpoint, pinfo->destport);
                 }
@@ -3234,10 +3234,10 @@ usb_set_addr(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint16 bus_id
     src_addr->bus_id = GUINT16_TO_LE(bus_id);
     dst_addr->bus_id = GUINT16_TO_LE(bus_id);
 
-    SET_ADDRESS(&pinfo->net_src, AT_USB, USB_ADDR_LEN, (char *)src_addr);
-    COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
-    SET_ADDRESS(&pinfo->net_dst, AT_USB, USB_ADDR_LEN, (char *)dst_addr);
-    COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+    set_address(&pinfo->net_src, AT_USB, USB_ADDR_LEN, (char *)src_addr);
+    copy_address_shallow(&pinfo->src, &pinfo->net_src);
+    set_address(&pinfo->net_dst, AT_USB, USB_ADDR_LEN, (char *)dst_addr);
+    copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
     pinfo->ptype = PT_USB;
     pinfo->srcport = src_addr->endpoint;

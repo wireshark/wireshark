@@ -244,7 +244,7 @@ static lbtrdma_transport_t * lbtrdma_transport_find(const address * source_addre
     wmem_tree_key_t tkey[2];
 
     memset((void *)&key, 0, sizeof(lbtrdma_transport_t));
-    COPY_ADDRESS_SHALLOW(&(key.source_address), source_address);
+    copy_address_shallow(&(key.source_address), source_address);
     key.session_id = session_id;
     key.port = port;
     lbtrdma_transport_build_key(keyval, tkey, &key);

@@ -7371,7 +7371,7 @@ dissect_nfs4_clientaddr(tvbuff_t *tvb, int offset, proto_tree *tree)
 			/* IPv4: h1.h2.h3.h4.p1.p2 */
 			port = (b5<<8) | b6;
 			ipv4 = g_htonl((b1<<24) | (b2<<16) | (b3<<8) | b4);
-			SET_ADDRESS(&addr, AT_IPv4, 4, &ipv4);
+			set_address(&addr, AT_IPv4, 4, &ipv4);
 			ti = proto_tree_add_ipv4_format(tree, hf_nfs4_universal_address_ipv4, tvb, addr_offset, offset-addr_offset, ipv4, "IPv4 address %s, protocol=%s, port=%u",
 				address_to_str(wmem_packet_scope(), &addr), protocol, port);
 			PROTO_ITEM_SET_GENERATED(ti);
@@ -7388,7 +7388,7 @@ dissect_nfs4_clientaddr(tvbuff_t *tvb, int offset, proto_tree *tree)
 			memset(&ipv6, 0, sizeof(ipv6));
 			ipv6.bytes[0] = b1; ipv6.bytes[1] = b2; ipv6.bytes[2] = b3; ipv6.bytes[3] = b4;
 			ipv6.bytes[4] = b5; ipv6.bytes[5] = b6; ipv6.bytes[6] = b7; ipv6.bytes[7] = b8;
-			SET_ADDRESS(&addr, AT_IPv6, 16, &ipv6);
+			set_address(&addr, AT_IPv6, 16, &ipv6);
 			ti = proto_tree_add_ipv6_format(tree, hf_nfs4_universal_address_ipv6, tvb, addr_offset, offset-addr_offset, &ipv6, "IPv6 address %s, protocol=%s, port=%u",
 				address_to_str(wmem_packet_scope(), &addr), protocol, port);
 			PROTO_ITEM_SET_GENERATED(ti);

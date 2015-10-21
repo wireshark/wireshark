@@ -612,8 +612,8 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     dccph = wmem_new0(wmem_packet_scope(), e_dccphdr);
     dccph->sport = tvb_get_ntohs(tvb, offset);
     dccph->dport = tvb_get_ntohs(tvb, offset + 2);
-    COPY_ADDRESS_SHALLOW(&dccph->ip_src, &pinfo->src);
-    COPY_ADDRESS_SHALLOW(&dccph->ip_dst, &pinfo->dst);
+    copy_address_shallow(&dccph->ip_src, &pinfo->src);
+    copy_address_shallow(&dccph->ip_dst, &pinfo->dst);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCCP");
     col_clear(pinfo->cinfo, COL_INFO);

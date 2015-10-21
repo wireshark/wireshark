@@ -58,7 +58,7 @@ static void lbmtcp_order_key(lbmtcp_transport_t * transport)
     int compare;
 
     /* Order the key so that addr1:port1 <= addr2:port2 */
-    compare = CMP_ADDRESS(&(transport->addr1), &(transport->addr2));
+    compare = cmp_address(&(transport->addr1), &(transport->addr2));
     if (compare > 0)
     {
         swap = TRUE;
@@ -75,9 +75,9 @@ static void lbmtcp_order_key(lbmtcp_transport_t * transport)
         address addr;
         guint16 port;
 
-        COPY_ADDRESS_SHALLOW(&addr, &(transport->addr1));
-        COPY_ADDRESS_SHALLOW(&(transport->addr2), &(transport->addr1));
-        COPY_ADDRESS_SHALLOW(&(transport->addr1), &addr);
+        copy_address_shallow(&addr, &(transport->addr1));
+        copy_address_shallow(&(transport->addr2), &(transport->addr1));
+        copy_address_shallow(&(transport->addr1), &addr);
         port = transport->port2;
         transport->port2 = transport->port1;
         transport->port1 = port;

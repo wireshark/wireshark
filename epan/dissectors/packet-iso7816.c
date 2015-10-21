@@ -719,17 +719,17 @@ dissect_iso7816(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     /* per our definition, sent/received is from the perspective of the interface
        i.e sent is from interface to card, received is from card to interface */
     if (pinfo->p2p_dir==P2P_DIR_SENT) {
-        SET_ADDRESS(&pinfo->src, AT_STRINGZ,
+        set_address(&pinfo->src, AT_STRINGZ,
                 (int)strlen(ADDR_INTF)+1, ADDR_INTF);
-        SET_ADDRESS(&pinfo->dst, AT_STRINGZ,
+        set_address(&pinfo->dst, AT_STRINGZ,
                 (int)strlen(ADDR_CARD)+1, ADDR_CARD);
         proto_item_append_text(tree_ti, " Command APDU");
         offset = dissect_iso7816_cmd_apdu(tvb, pinfo, iso7816_tree);
     }
     else if (pinfo->p2p_dir==P2P_DIR_RECV) {
-        SET_ADDRESS(&pinfo->src, AT_STRINGZ,
+        set_address(&pinfo->src, AT_STRINGZ,
                 (int)strlen(ADDR_CARD)+1, ADDR_CARD);
-        SET_ADDRESS(&pinfo->dst, AT_STRINGZ,
+        set_address(&pinfo->dst, AT_STRINGZ,
                 (int)strlen(ADDR_INTF)+1, ADDR_INTF);
 
         if (iso7816_atr_handle) {

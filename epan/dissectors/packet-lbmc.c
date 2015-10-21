@@ -257,9 +257,9 @@ static lbm_istream_substream_entry_t * lbm_stream_istream_substream_find(lbm_ist
     wmem_tree_key_t tkey[2];
 
     memset((void *)&key, 0, sizeof(lbm_istream_substream_entry_t));
-    COPY_ADDRESS_SHALLOW(&(key.src_addr), src_addr);
+    copy_address_shallow(&(key.src_addr), src_addr);
     key.src_port = src_port;
-    COPY_ADDRESS_SHALLOW(&(key.dst_addr), dst_addr);
+    copy_address_shallow(&(key.dst_addr), dst_addr);
     key.dst_port = dst_port;
     key.lbm_stream_id = stream_id;
     lbm_istream_substream_build_key(keyval, tkey, &key);
@@ -357,7 +357,7 @@ static void lbm_stream_order_dstream_key(lbm_dstream_entry_t * stream)
     {
         int compare;
 
-        compare = CMP_ADDRESS(&(stream->addr_1), &(stream->addr_2));
+        compare = cmp_address(&(stream->addr_1), &(stream->addr_2));
         if (compare > 0)
         {
             swap_items = TRUE;
@@ -373,15 +373,15 @@ static void lbm_stream_order_dstream_key(lbm_dstream_entry_t * stream)
     if (swap_items)
     {
         domain = stream->domain_1;
-        COPY_ADDRESS_SHALLOW(&addr, &(stream->addr_1));
+        copy_address_shallow(&addr, &(stream->addr_1));
         port = stream->port_1;
 
         stream->domain_1 = stream->domain_2;
-        COPY_ADDRESS_SHALLOW(&(stream->addr_1), &(stream->addr_2));
+        copy_address_shallow(&(stream->addr_1), &(stream->addr_2));
         stream->port_1 = stream->port_2;
 
         stream->domain_2 = domain;
-        COPY_ADDRESS_SHALLOW(&(stream->addr_2), &addr);
+        copy_address_shallow(&(stream->addr_2), &addr);
         stream->port_2 = port;
     }
 }
@@ -394,10 +394,10 @@ static lbm_dstream_entry_t * lbm_stream_dstream_find(const lbm_uim_stream_destin
     wmem_tree_key_t tkey[2];
 
     key.domain_1 = endpoint_a->domain;
-    COPY_ADDRESS_SHALLOW(&(key.addr_1), &(endpoint_a->addr));
+    copy_address_shallow(&(key.addr_1), &(endpoint_a->addr));
     key.port_1 = endpoint_a->port;
     key.domain_2 = endpoint_b->domain;
-    COPY_ADDRESS_SHALLOW(&(key.addr_2), &(endpoint_b->addr));
+    copy_address_shallow(&(key.addr_2), &(endpoint_b->addr));
     key.port_2 = endpoint_b->port;
     lbm_stream_order_dstream_key(&key);
     lbm_dstream_stream_build_key(keyval, tkey, &key);
@@ -466,9 +466,9 @@ static lbm_dstream_substream_entry_t * lbm_stream_dstream_substream_find(lbm_dst
     wmem_tree_key_t tkey[2];
 
     memset((void *)&key, 0, sizeof(lbm_dstream_substream_entry_t));
-    COPY_ADDRESS_SHALLOW(&(key.src_addr), src_addr);
+    copy_address_shallow(&(key.src_addr), src_addr);
     key.src_port = src_port;
-    COPY_ADDRESS_SHALLOW(&(key.dst_addr), dst_addr);
+    copy_address_shallow(&(key.dst_addr), dst_addr);
     key.dst_port = dst_port;
     key.lbm_stream_id = stream_id;
     lbm_dstream_substream_build_key(keyval, tkey, &key);
@@ -6135,7 +6135,7 @@ static lbmc_message_entry_t * lbmc_message_find(guint64 channel, const address *
 
     memset((void *)&key, 0, sizeof(lbmc_message_entry_t));
     key.channel = channel;
-    COPY_ADDRESS_SHALLOW(&(key.addr), dest_address);
+    copy_address_shallow(&(key.addr), dest_address);
     key.port = port;
     key.first_sqn = info->first_sqn;
     lbmc_message_build_key(keyval, tkey, &key);
@@ -11052,12 +11052,12 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
         tcp_address_valid = TRUE;
         if (lbm_channel_is_unknown_transport_source_lbttcp(channel))
         {
-            COPY_ADDRESS_SHALLOW(&tcp_addr, &(pinfo->src));
+            copy_address_shallow(&tcp_addr, &(pinfo->src));
             tcp_port = (guint16)pinfo->srcport;
         }
         else if (lbm_channel_is_unknown_transport_client_lbttcp(channel))
         {
-            COPY_ADDRESS_SHALLOW(&tcp_addr, &(pinfo->dst));
+            copy_address_shallow(&tcp_addr, &(pinfo->dst));
             tcp_port = (guint16)pinfo->destport;
         }
         else

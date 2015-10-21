@@ -333,11 +333,11 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	set_actual_length(tvb, ipxh->ipx_length);
 
 	TVB_SET_ADDRESS(&pinfo->net_src,	AT_IPX, tvb, 18, 10);
-    COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
-    COPY_ADDRESS_SHALLOW(&ipxh->ipx_src, &pinfo->net_src);
+    copy_address_shallow(&pinfo->src, &pinfo->net_src);
+    copy_address_shallow(&ipxh->ipx_src, &pinfo->net_src);
 	TVB_SET_ADDRESS(&pinfo->net_dst,	AT_IPX, tvb, 6,  10);
-    COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
-    COPY_ADDRESS_SHALLOW(&ipxh->ipx_dst, &pinfo->net_dst);
+    copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+    copy_address_shallow(&ipxh->ipx_dst, &pinfo->net_dst);
 
 	col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(ipxh->ipx_dsocket, &ipx_socket_vals_ext, "Unknown (0x%04x)"));
 

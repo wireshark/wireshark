@@ -1119,7 +1119,7 @@ dissect_eigrp_ipv4_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
             proto_tree_add_item(tree, hf_eigrp_ipv4_prefixlen, tvb, offset, 1,
                                 ENC_BIG_ENDIAN);
             offset += 1;
-            SET_ADDRESS(&addr, AT_IPv4, 4, ip_addr);
+            set_address(&addr, AT_IPv4, 4, ip_addr);
             ti_dst = proto_tree_add_ipv4(tree, hf_eigrp_ipv4_destination, tvb, offset, addr_len, *ip_addr);
 
             /* add it to the top level line */
@@ -1178,7 +1178,7 @@ dissect_eigrp_ipv6_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
                 addr_len++;
             }
 
-            SET_ADDRESS(&addr_str, AT_IPv6, 16, addr.bytes);
+            set_address(&addr_str, AT_IPv6, 16, addr.bytes);
             ti_dst = proto_tree_add_ipv6(tree, hf_eigrp_ipv6_destination, tvb, offset, addr_len, &addr);
 
             /* add it to the top level line */

@@ -2335,8 +2335,8 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8
         memcpy(siid, src_ifcid, LOWPAN_IFC_ID_LEN);
         offset += 2;
     }
-    SET_ADDRESS(&pinfo->src,  AT_EUI64, 8, src_ifcid);
-    SET_ADDRESS(&pinfo->net_src,  AT_EUI64, 8, src_ifcid);
+    set_address(&pinfo->src,  AT_EUI64, 8, src_ifcid);
+    set_address(&pinfo->net_src,  AT_EUI64, 8, src_ifcid);
 
     /* Get and display the destination address. */
     if (!(mesh_header & LOWPAN_MESH_HEADER_F)) {
@@ -2375,8 +2375,8 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8
         memcpy(diid, dst_ifcid, LOWPAN_IFC_ID_LEN);
         offset += 2;
     }
-    SET_ADDRESS(&pinfo->dst,  AT_EUI64, 8, dst_ifcid);
-    SET_ADDRESS(&pinfo->net_dst,  AT_EUI64, 8, dst_ifcid);
+    set_address(&pinfo->dst,  AT_EUI64, 8, dst_ifcid);
+    set_address(&pinfo->net_dst,  AT_EUI64, 8, dst_ifcid);
 
     /* Adjust the mesh header length. */
     if (tree) {

@@ -1376,8 +1376,8 @@ static gint dmp_id_hash_equal (gconstpointer k1, gconstpointer k2)
   if (dmp1->id != dmp2->id)
     return 0;
 
-  return (ADDRESSES_EQUAL (&dmp1->src, &dmp2->src) &&
-          ADDRESSES_EQUAL (&dmp1->dst, &dmp2->dst));
+  return (addresses_equal (&dmp1->src, &dmp2->src) &&
+          addresses_equal (&dmp1->dst, &dmp2->dst));
 }
 
 static void register_dmp_id (packet_info *pinfo, guint8 reason)

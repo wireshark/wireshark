@@ -1779,7 +1779,7 @@ decode_path_prefix4(proto_tree *tree, packet_info *pinfo, int hf_path_id, int hf
         return -1;
     }
     /* put prefix into protocol tree */
-    SET_ADDRESS(&addr, AT_IPv4, 4, ip_addr.addr_bytes);
+    set_address(&addr, AT_IPv4, 4, ip_addr.addr_bytes);
     prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,  4 + 1 + length,
                             ett_bgp_prefix, NULL, "%s/%u PathId %u ",
                             address_to_str(wmem_packet_scope(), &addr), plen, path_identifier);
@@ -1815,7 +1815,7 @@ decode_prefix4(proto_tree *tree, packet_info *pinfo, proto_item *parent_item, in
     }
 
     /* put prefix into protocol tree */
-    SET_ADDRESS(&addr, AT_IPv4, 4, ip_addr.addr_bytes);
+    set_address(&addr, AT_IPv4, 4, ip_addr.addr_bytes);
     prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,
             tlen != 0 ? tlen : 1 + length, ett_bgp_prefix, NULL,
             "%s/%u", address_to_str(wmem_packet_scope(), &addr), plen);
@@ -1853,7 +1853,7 @@ decode_prefix6(proto_tree *tree, packet_info *pinfo, int hf_addr, tvbuff_t *tvb,
     }
 
     /* put prefix into protocol tree */
-    SET_ADDRESS(&addr_str, AT_IPv6, 16, addr.bytes);
+    set_address(&addr_str, AT_IPv6, 16, addr.bytes);
     prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,
             tlen != 0 ? tlen : 1 + length, ett_bgp_prefix, NULL, "%s/%u",
             address_to_str(wmem_packet_scope(), &addr_str), plen);
@@ -1890,7 +1890,7 @@ decode_fspec_match_prefix6(proto_tree *tree, proto_item *parent_item, int hf_add
     }
 
     /* put prefix into protocol tree */
-    SET_ADDRESS(&addr_str, AT_IPv6, 16, addr.bytes);
+    set_address(&addr_str, AT_IPv6, 16, addr.bytes);
     prefix_tree = proto_tree_add_subtree_format(tree, tvb, offset,
             tlen != 0 ? tlen : 1 + length, ett_bgp_prefix, NULL, "%s/%u",
             address_to_str(wmem_packet_scope(), &addr_str), plen);
@@ -4041,7 +4041,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                     return -1;
                 }
 
-                SET_ADDRESS(&addr, AT_IPv4, 4, ip4addr.addr_bytes);
+                set_address(&addr, AT_IPv4, 4, ip4addr.addr_bytes);
                 prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                          (offset + length) - start_offset,
                                          ett_bgp_prefix, NULL,
@@ -4147,7 +4147,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                         tag, plen + 16);
                     return -1;
                 }
-                SET_ADDRESS(&addr, AT_IPv4, 4, ip4addr.addr_bytes);
+                set_address(&addr, AT_IPv4, 4, ip4addr.addr_bytes);
                 prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                          (offset + length) - start_offset,
                                          ett_bgp_prefix, NULL,
@@ -4194,7 +4194,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                              tag, plen + (labnum * 3*8) + 8*8);
                      return -1;
                 }
-                SET_ADDRESS(&addr, AT_IPv4, 4, ip4addr.addr_bytes);
+                set_address(&addr, AT_IPv4, 4, ip4addr.addr_bytes);
                 prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                                  (offset + 8 + length) - start_offset,
                                                  ett_bgp_prefix, NULL, "BGP Prefix");
@@ -4255,7 +4255,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 }
 
                 /* XXX - break off IPv6 into its own field */
-                SET_ADDRESS(&addr, AT_IPv6, 16, ip6addr.bytes);
+                set_address(&addr, AT_IPv6, 16, ip6addr.bytes);
                 proto_tree_add_string_format(tree, hf_bgp_label_stack, tvb, start_offset,
                                     (offset + length) - start_offset,
                                     wmem_strbuf_get_str(stack_strbuf), "Label Stack=%s, IPv6=%s/%u",
@@ -4295,7 +4295,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                         tag, plen + 16);
                     return -1;
                 }
-                SET_ADDRESS(&addr, AT_IPv6, 16, ip6addr.bytes);
+                set_address(&addr, AT_IPv6, 16, ip6addr.bytes);
                 prefix_tree = proto_tree_add_subtree_format(tree, tvb, start_offset,
                                     (offset + length) - start_offset,
                                     ett_bgp_prefix, NULL,
@@ -4346,7 +4346,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         }
 
                         /* XXX - break up into multiple fields */
-                        SET_ADDRESS(&addr, AT_IPv6, 16, ip6addr.bytes);
+                        set_address(&addr, AT_IPv6, 16, ip6addr.bytes);
                         proto_tree_add_string_format(tree, hf_bgp_label_stack, tvb, start_offset,
                                             (offset + 8 + length) - start_offset,
                                             wmem_strbuf_get_str(stack_strbuf), "Label Stack=%s RD=%u:%u, IPv6=%s/%u",
@@ -4367,7 +4367,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         }
 
                         /* XXX - break up into multiple fields */
-                        SET_ADDRESS(&addr, AT_IPv6, 16, &ip6addr);
+                        set_address(&addr, AT_IPv6, 16, &ip6addr);
                         proto_tree_add_string_format(tree, hf_bgp_label_stack, tvb, start_offset,
                                             (offset + 8 + length) - start_offset,
                                             wmem_strbuf_get_str(stack_strbuf), "Label Stack=%s RD=%s:%u, IPv6=%s/%u",
@@ -4388,7 +4388,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         }
 
                         /* XXX - break up into multiple fields */
-                        SET_ADDRESS(&addr, AT_IPv6, 16, ip6addr.bytes);
+                        set_address(&addr, AT_IPv6, 16, ip6addr.bytes);
                         proto_tree_add_string_format(tree, hf_bgp_label_stack, tvb, start_offset,
                                             (offset + 8 + length) - start_offset,
                                             "Label Stack=%s RD=%u.%u:%u, IPv6=%s/%u",

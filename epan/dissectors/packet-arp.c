@@ -385,14 +385,14 @@ arpproaddr_to_str(const guint8 *ad, int ad_len, guint16 type)
     return "<No address>";
   if (ARP_PRO_IS_IPv4(type, ad_len)) {
     /* IPv4 address.  */
-    SET_ADDRESS(&addr, AT_IPv4, 4, ad);
+    set_address(&addr, AT_IPv4, 4, ad);
 
     return address_to_str(wmem_packet_scope(), &addr);
   }
   if (ARP_HW_IS_AX25(type, ad_len)) {
     {
     /* AX.25 address */
-    SET_ADDRESS(&addr, AT_AX25, AX25_ADDR_LEN, ad);
+    set_address(&addr, AT_AX25, AX25_ADDR_LEN, ad);
 
     return address_to_str(wmem_packet_scope(), &addr);
     }
@@ -701,8 +701,8 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     address mac_addr, result_mac_addr;
 
-    SET_ADDRESS(&mac_addr, AT_ETHER, 6, mac);
-    SET_ADDRESS(&result_mac_addr, AT_ETHER, 6, result->mac);
+    set_address(&mac_addr, AT_ETHER, 6, mac);
+    set_address(&result_mac_addr, AT_ETHER, 6, result->mac);
 
     /* Create subtree */
     duplicate_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_arp_duplicate_address, &ti,

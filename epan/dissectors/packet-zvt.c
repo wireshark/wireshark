@@ -504,15 +504,15 @@ zvt_set_addresses(packet_info *pinfo, zvt_transaction_t *zvt_trans)
     }
 
     if (dir  == DIRECTION_ECR_TO_PT) {
-        SET_ADDRESS(&pinfo->src, AT_STRINGZ,
+        set_address(&pinfo->src, AT_STRINGZ,
                 (int)strlen(ADDR_ECR)+1, ADDR_ECR);
-        SET_ADDRESS(&pinfo->dst, AT_STRINGZ,
+        set_address(&pinfo->dst, AT_STRINGZ,
                 (int)strlen(ADDR_PT)+1, ADDR_PT);
     }
     else if (dir  == DIRECTION_PT_TO_ECR) {
-        SET_ADDRESS(&pinfo->src, AT_STRINGZ,
+        set_address(&pinfo->src, AT_STRINGZ,
                 (int)strlen(ADDR_PT)+1, ADDR_PT);
-        SET_ADDRESS(&pinfo->dst, AT_STRINGZ,
+        set_address(&pinfo->dst, AT_STRINGZ,
                 (int)strlen(ADDR_ECR)+1, ADDR_ECR);
     }
 }

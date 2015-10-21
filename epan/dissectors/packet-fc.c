@@ -752,8 +752,8 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         pinfo->srcport=0;
         pinfo->destport=0;
     }
-    SET_ADDRESS(&fchdr->d_id, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
-    SET_ADDRESS(&fchdr->s_id, pinfo->src.type, pinfo->src.len, pinfo->src.data);
+    set_address(&fchdr->d_id, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
+    set_address(&fchdr->s_id, pinfo->src.type, pinfo->src.len, pinfo->src.data);
 
     fchdr->cs_ctl = tvb_get_guint8 (tvb, offset+4);
     fchdr->type  = tvb_get_guint8 (tvb, offset+8);
@@ -918,7 +918,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     /* XXX - use "fc_wka_vals[]" on this? */
-    SET_ADDRESS(&addr, AT_FC, 3, fchdr->d_id.data);
+    set_address(&addr, AT_FC, 3, fchdr->d_id.data);
     proto_tree_add_item(fc_tree, hf_fc_did, tvb, offset+1, 3, ENC_NA);
     hidden_item = proto_tree_add_item (fc_tree, hf_fc_id, tvb, offset+1, 3, ENC_NA);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -926,7 +926,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     proto_tree_add_uint (fc_tree, hf_fc_csctl, tvb, offset+4, 1, fchdr->cs_ctl);
 
     /* XXX - use "fc_wka_vals[]" on this? */
-    SET_ADDRESS(&addr, AT_FC, 3, fchdr->s_id.data);
+    set_address(&addr, AT_FC, 3, fchdr->s_id.data);
     proto_tree_add_item(fc_tree, hf_fc_sid, tvb, offset+5, 3, ENC_NA);
     hidden_item = proto_tree_add_item (fc_tree, hf_fc_id, tvb, offset+5, 3, ENC_NA);
     PROTO_ITEM_SET_HIDDEN(hidden_item);

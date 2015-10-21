@@ -368,9 +368,9 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvb_memcpy(tvb, dst, FDDI_P_DHOST + FDDI_PADDING, 6);
   swap_mac_addr(dst_swapped, tvb, FDDI_P_DHOST + FDDI_PADDING);
 
-  SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dst);
-  COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->dl_dst);
-  COPY_ADDRESS_SHALLOW(&fddihdr->dst, &pinfo->dl_dst);
+  set_address(&pinfo->dl_dst, AT_ETHER, 6, dst);
+  copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
+  copy_address_shallow(&fddihdr->dst, &pinfo->dl_dst);
 
   if (fh_tree) {
     proto_tree_add_ether(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST + FDDI_PADDING, 6, dst);
@@ -391,9 +391,9 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tvb_memcpy(tvb, src, FDDI_P_SHOST + FDDI_PADDING, 6);
   swap_mac_addr(src_swapped, tvb, FDDI_P_SHOST + FDDI_PADDING);
 
-  SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, src);
-  COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->dl_src);
-  COPY_ADDRESS_SHALLOW(&fddihdr->src, &pinfo->dl_src);
+  set_address(&pinfo->dl_src, AT_ETHER, 6, src);
+  copy_address_shallow(&pinfo->src, &pinfo->dl_src);
+  copy_address_shallow(&fddihdr->src, &pinfo->dl_src);
 
   if (fh_tree) {
     proto_tree_add_ether(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST + FDDI_PADDING, 6, src);

@@ -123,8 +123,8 @@ static int get_tag(const gchar *frame, const gchar *token, tvbuff_t *tvb,
 
     proto_tree_add_string(maintree, hf_logcat_text_tag, tvb, offset, tok_len,
             token);
-    SET_ADDRESS(&pinfo->src, AT_STRINGZ, tok_len + 1, src_addr);
-    SET_ADDRESS(&pinfo->dst, AT_STRINGZ, sizeof(dissector_name), dissector_name);
+    set_address(&pinfo->src, AT_STRINGZ, tok_len + 1, src_addr);
+    set_address(&pinfo->dst, AT_STRINGZ, sizeof(dissector_name), dissector_name);
     return offset + tok_len;
 }
 
@@ -256,8 +256,8 @@ static int dissect_logcat_text_process(tvbuff_t *tvb, packet_info *pinfo, proto_
     dissect_info_t dinfo = { &process_regex, getters, array_length(getters) };
 
     add_exported_pdu(tvb,pinfo,"logcat_text_process");
-    SET_ADDRESS(&pinfo->dst, AT_STRINGZ, 0, "");
-    SET_ADDRESS(&pinfo->src, AT_STRINGZ, 0, "");
+    set_address(&pinfo->dst, AT_STRINGZ, 0, "");
+    set_address(&pinfo->src, AT_STRINGZ, 0, "");
 
     return dissect_logcat_text(tvb, tree, pinfo, &dinfo);
 }
@@ -277,8 +277,8 @@ static int dissect_logcat_text_thread(tvbuff_t *tvb, packet_info *pinfo, proto_t
     dissect_info_t dinfo = { &thread_regex, getters, array_length(getters) };
 
     add_exported_pdu(tvb,pinfo,"logcat_text_brief");
-    SET_ADDRESS(&pinfo->dst, AT_STRINGZ, 0, "");
-    SET_ADDRESS(&pinfo->src, AT_STRINGZ, 0, "");
+    set_address(&pinfo->dst, AT_STRINGZ, 0, "");
+    set_address(&pinfo->src, AT_STRINGZ, 0, "");
 
     return dissect_logcat_text(tvb, tree, pinfo, &dinfo);
 }

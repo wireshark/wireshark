@@ -3046,7 +3046,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		/*
 		 * Determine the direction of the flow, so we can use the correct fragment tree
 		 */
-		direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
+		direction=cmp_address(&pinfo->src, &pinfo->dst);
 		if(direction==0) {
 			direction= (pinfo->srcport > pinfo->destport) ? 1 : -1;
 		}

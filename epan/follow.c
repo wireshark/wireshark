@@ -242,8 +242,8 @@ follow_addr(stream_type stream, const address *addr0, guint port0,
 
   if (stream == TCP_STREAM) {
     find_index[TCP_STREAM] = TRUE;
-    SET_ADDRESS(&tcp_addr[0], addr0->type, addr0->len, ip_address[0]);
-    SET_ADDRESS(&tcp_addr[1], addr1->type, addr1->len, ip_address[1]);
+    set_address(&tcp_addr[0], addr0->type, addr0->len, ip_address[0]);
+    set_address(&tcp_addr[1], addr1->type, addr1->len, ip_address[1]);
   }
 
   return TRUE;
@@ -295,12 +295,12 @@ reassemble_tcp( guint32 tcp_stream, guint32 sequence, guint32 acknowledgement,
   /* First, check if this packet should be processed. */
   if (find_index[TCP_STREAM]) {
     if ((port[0] == srcport && port[1] == dstport &&
-         ADDRESSES_EQUAL(&tcp_addr[0], net_src) &&
-         ADDRESSES_EQUAL(&tcp_addr[1], net_dst))
+         addresses_equal(&tcp_addr[0], net_src) &&
+         addresses_equal(&tcp_addr[1], net_dst))
         ||
         (port[1] == srcport && port[0] == dstport &&
-         ADDRESSES_EQUAL(&tcp_addr[1], net_src) &&
-         ADDRESSES_EQUAL(&tcp_addr[0], net_dst))) {
+         addresses_equal(&tcp_addr[1], net_src) &&
+         addresses_equal(&tcp_addr[0], net_dst))) {
       find_index[TCP_STREAM] = FALSE;
       stream_to_follow[TCP_STREAM] = tcp_stream;
     }

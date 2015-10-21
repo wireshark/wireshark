@@ -463,8 +463,8 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         dst_addr = wmem_strdup_printf(pinfo->pool, "0x%04x", packet.dst);
     }
 
-    SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, (int)strlen(dst_addr)+1, dst_addr);
-    COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+    set_address(&pinfo->net_dst, AT_STRINGZ, (int)strlen(dst_addr)+1, dst_addr);
+    copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
     proto_item_append_text(proto_root, ", Dst: %s", dst_addr);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", dst_addr);
@@ -490,8 +490,8 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         unicast_src = TRUE;
     }
 
-    SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, (int)strlen(src_addr)+1, src_addr);
-    COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+    set_address(&pinfo->net_src, AT_STRINGZ, (int)strlen(src_addr)+1, src_addr);
+    copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
     proto_item_append_text(proto_root, ", Src: %s", src_addr);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", src_addr);

@@ -827,8 +827,8 @@ dcerpc_value(packet_info *pinfo)
 
     /* clone binding */
     binding = g_new(decode_dcerpc_bind_values_t,1);
-    COPY_ADDRESS(&binding->addr_a, &pinfo->src);
-    COPY_ADDRESS(&binding->addr_b, &pinfo->dst);
+    copy_address(&binding->addr_a, &pinfo->src);
+    copy_address(&binding->addr_b, &pinfo->dst);
     binding->ptype = pinfo->ptype;
     binding->port_a = pinfo->srcport;
     binding->port_b = pinfo->destport;
@@ -880,8 +880,8 @@ decode_dcerpc_binding_cmp(gconstpointer a, gconstpointer b)
 
     /* don't compare uuid and ver! */
     if (
-        ADDRESSES_EQUAL(&binding_a->addr_a, &binding_b->addr_a) &&
-        ADDRESSES_EQUAL(&binding_a->addr_b, &binding_b->addr_b) &&
+        addresses_equal(&binding_a->addr_a, &binding_b->addr_a) &&
+        addresses_equal(&binding_a->addr_b, &binding_b->addr_b) &&
         binding_a->ptype == binding_b->ptype &&
         binding_a->port_a == binding_b->port_a &&
         binding_a->port_b == binding_b->port_b &&
@@ -940,8 +940,8 @@ dcerpc_decode_as_change(const char *name, const gpointer pattern, gpointer handl
     /* clone the new binding and append it to the list */
     stored_binding = g_new(decode_dcerpc_bind_values_t,1);
     *stored_binding = *binding;
-    COPY_ADDRESS(&stored_binding->addr_a, &binding->addr_a);
-    COPY_ADDRESS(&stored_binding->addr_b, &binding->addr_b);
+    copy_address(&stored_binding->addr_a, &binding->addr_a);
+    copy_address(&stored_binding->addr_b, &binding->addr_b);
     stored_binding->ifname = g_string_new(binding->ifname->str);
 
     decode_dcerpc_bindings = g_slist_append (decode_dcerpc_bindings, stored_binding);
@@ -1021,8 +1021,8 @@ dcerpc_fragment_equal(gconstpointer k1, gconstpointer k2)
       the comparison of addresses.
     */
     return (((key1->id == key2->id)
-             && (ADDRESSES_EQUAL(&key1->src, &key2->src))
-             && (ADDRESSES_EQUAL(&key1->dst, &key2->dst))
+             && (addresses_equal(&key1->src, &key2->src))
+             && (addresses_equal(&key1->dst, &key2->dst))
              && (memcmp (&key1->act_id, &key2->act_id, sizeof (e_guid_t)) == 0))
             ? TRUE : FALSE);
 }
@@ -1051,8 +1051,8 @@ dcerpc_fragment_persistent_key(const packet_info *pinfo, const guint32 id,
     dcerpc_fragment_key *key = g_slice_new(dcerpc_fragment_key);
     e_dce_dg_common_hdr_t *hdr = (e_dce_dg_common_hdr_t *)data;
 
-    COPY_ADDRESS(&key->src, &pinfo->src);
-    COPY_ADDRESS(&key->dst, &pinfo->dst);
+    copy_address(&key->src, &pinfo->src);
+    copy_address(&key->dst, &pinfo->dst);
     key->id = id;
     key->act_id = hdr->act_id;
 

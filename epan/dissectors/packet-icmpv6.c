@@ -1948,7 +1948,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                         memset(&prefix, 0, sizeof(prefix));
                         tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 8);
                         proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_prefix, tvb, opt_offset, 8, &prefix);
-                        SET_ADDRESS(&prefix_addr, AT_IPv6, 16, prefix.bytes);
+                        set_address(&prefix_addr, AT_IPv6, 16, prefix.bytes);
                         proto_item_append_text(ti, " %s/%d", address_to_str(wmem_packet_scope(), &prefix_addr), prefix_len);
                         opt_offset += 8;
                         break;
@@ -2247,7 +2247,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     case 16:
                         tvb_memcpy(tvb, (guint8 *)&context_prefix.bytes, opt_offset, 8);
                         proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_opt_6co_context_prefix, tvb, opt_offset, 8, &context_prefix);
-                        SET_ADDRESS(&context_prefix_addr, AT_IPv6, 16, context_prefix.bytes);
+                        set_address(&context_prefix_addr, AT_IPv6, 16, context_prefix.bytes);
                         proto_item_append_text(ti, " %s/%d", address_to_str(wmem_packet_scope(), &context_prefix_addr), context_len);
                         opt_offset += 8;
                         break;
@@ -2423,7 +2423,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                         memset(&prefix, 0, sizeof(prefix));
                         tvb_memcpy(tvb, (guint8 *)&prefix.bytes, opt_offset, 8);
                         proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_rpl_opt_route_prefix, tvb, opt_offset, 8, &prefix);
-                        SET_ADDRESS(&prefix_addr, AT_IPv6, 16, prefix.bytes);
+                        set_address(&prefix_addr, AT_IPv6, 16, prefix.bytes);
                         proto_item_append_text(ti, " %s/%d", address_to_str(wmem_packet_scope(), &prefix_addr), prefix_len);
                         opt_offset += 8;
                         break;
@@ -2510,7 +2510,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                         memset(&target_prefix, 0, sizeof(target_prefix));
                         tvb_memcpy(tvb, (guint8 *)&target_prefix.bytes, opt_offset, 8);
                         proto_tree_add_ipv6(icmp6opt_tree, hf_icmpv6_rpl_opt_target_prefix, tvb, opt_offset, 8, &target_prefix);
-                        SET_ADDRESS(&target_prefix_addr, AT_IPv6, 16, target_prefix.bytes);
+                        set_address(&target_prefix_addr, AT_IPv6, 16, target_prefix.bytes);
                         proto_item_append_text(ti, " %s/%d", address_to_str(wmem_packet_scope(), &target_prefix_addr), prefix_len);
                         opt_offset += 8;
                         break;

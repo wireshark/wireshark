@@ -1042,7 +1042,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             if ( prefix_len % 8 )
                 addr[ax-1] = addr[ax-1]&(0xFF<<(8-prefix_len%8));
 
-            SET_ADDRESS(&addr_str, addr_type, addr_size, addr);
+            set_address(&addr_str, addr_type, addr_size, addr);
             str = address_to_str(wmem_packet_scope(), &addr_str);
             proto_tree_add_string_format(fec_tree, hf_ldp_tlv_fec_pfval, tvb, offset, prefix_len_octets,
                                          str, "Prefix: %s", str);
@@ -1115,7 +1115,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
             for(ax=0; ax+1 <= host_len; ax++)
                 addr[ax]=tvb_get_guint8(tvb, offset+ax);
 
-            SET_ADDRESS(&addr_str, addr_type, addr_size, addr);
+            set_address(&addr_str, addr_type, addr_size, addr);
             str = address_to_str(wmem_packet_scope(), &addr_str);
             proto_tree_add_string_format(fec_tree, hf_ldp_tlv_fec_hoval, tvb, offset, host_len,
                                          str, "Address: %s", str);
@@ -1403,7 +1403,7 @@ dissect_tlv_address_list(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_
              == NULL)
             break;
 
-        SET_ADDRESS(&addr_str, addr_type, addr_size, addr);
+        set_address(&addr_str, addr_type, addr_size, addr);
         str = address_to_str(wmem_packet_scope(), &addr_str);
         proto_tree_add_string_format(val_tree,
                                      hf_ldp_tlv_addrl_addr, tvb, offset, addr_size, str,

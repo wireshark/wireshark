@@ -1558,8 +1558,8 @@ main(int argc _U_, char **argv _U_)
     /* other test stuff */
     pinfo.fd = &fd;
     fd.flags.visited = 0;
-    SET_ADDRESS(&pinfo.src,AT_IPv4,4,src);
-    SET_ADDRESS(&pinfo.dst,AT_IPv4,4,dst);
+    set_address(&pinfo.src,AT_IPv4,4,src);
+    set_address(&pinfo.dst,AT_IPv4,4,dst);
 
     /*************************************************************************/
     for(i=0; i < sizeof(tests)/sizeof(tests[0]); i++ ) {

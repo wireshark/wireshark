@@ -390,7 +390,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     nsel     = tvb_get_guint8(tvb, offset + dst_len - 1);
     TVB_SET_ADDRESS(&pinfo->net_dst, get_osi_address_type(), tvb, offset, dst_len);
-    COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+    copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
     proto_tree_add_bytes_format_value(clnp_tree, hf_clnp_dest, tvb, offset, dst_len,
             NULL,
             "%s",
@@ -426,7 +426,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
     TVB_SET_ADDRESS(&pinfo->net_src, get_osi_address_type(), tvb, offset, src_len);
-    COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+    copy_address_shallow(&pinfo->src, &pinfo->net_src);
     proto_tree_add_bytes_format_value(clnp_tree, hf_clnp_src, tvb,
             offset, src_len,
             NULL,

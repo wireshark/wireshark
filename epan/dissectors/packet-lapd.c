@@ -254,15 +254,15 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else if (conversation) {
 		convo_data = (lapd_convo_data_t*)conversation_get_proto_data(conversation, proto_lapd);
 		if (NULL != convo_data) {
-			if (ADDRESSES_EQUAL(&convo_data->addr_a, &pinfo->src)
-					&& ADDRESSES_EQUAL(&convo_data->addr_b, &pinfo->dst)
+			if (addresses_equal(&convo_data->addr_a, &pinfo->src)
+					&& addresses_equal(&convo_data->addr_b, &pinfo->dst)
 					&& convo_data-> port_a == pinfo->srcport
 					&& convo_data-> port_b == pinfo->destport) {
 				/* "forward" direction */
 				forward_stream = TRUE;
 				prev_byte_state = convo_data->byte_state_a;
-			} else if (ADDRESSES_EQUAL(&convo_data-> addr_b, &pinfo->src)
-					&& ADDRESSES_EQUAL(&convo_data->addr_a, &pinfo->dst)
+			} else if (addresses_equal(&convo_data-> addr_b, &pinfo->src)
+					&& addresses_equal(&convo_data->addr_a, &pinfo->dst)
 					&& convo_data-> port_b == pinfo->srcport
 					&& convo_data-> port_a == pinfo->destport) {
 				/* "backward" direction */
@@ -391,8 +391,8 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					lapd_byte_state = wmem_new(wmem_file_scope(), lapd_byte_state_t);
 					fill_lapd_byte_state(lapd_byte_state, state, full_byte, bit_offset, ones, data, data_len);
 					convo_data = wmem_new(wmem_file_scope(), lapd_convo_data_t);
-					COPY_ADDRESS(&convo_data->addr_a, &pinfo->src);
-					COPY_ADDRESS(&convo_data->addr_b, &pinfo->dst);
+					copy_address(&convo_data->addr_a, &pinfo->src);
+					copy_address(&convo_data->addr_b, &pinfo->dst);
 					convo_data->port_a = pinfo->srcport;
 					convo_data->port_b = pinfo->destport;
 					convo_data->byte_state_a = lapd_byte_state;

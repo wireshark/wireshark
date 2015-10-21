@@ -1578,7 +1578,7 @@ eth_addr_resolve(hashether_t *tp) {
         }
 
         /* No match whatsoever. */
-        SET_ADDRESS(&ether_addr, AT_ETHER, 6, addr);
+        set_address(&ether_addr, AT_ETHER, 6, addr);
         address_to_str_buf(&ether_addr, tp->resolved_name, MAXNAMELEN);
         tp->status = HASHETHER_STATUS_RESOLVED_DUMMY;
         return tp;

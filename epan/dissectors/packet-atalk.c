@@ -1448,10 +1448,10 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
   src->node = snode;
   dst->net = 0;
   dst->node = dnode;
-  SET_ADDRESS(&pinfo->net_src, atalk_address_type, sizeof(struct atalk_ddp_addr), src);
-  COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
-  SET_ADDRESS(&pinfo->net_dst, atalk_address_type, sizeof(struct atalk_ddp_addr), dst);
-  COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+  set_address(&pinfo->net_src, atalk_address_type, sizeof(struct atalk_ddp_addr), src);
+  copy_address_shallow(&pinfo->src, &pinfo->net_src);
+  set_address(&pinfo->net_dst, atalk_address_type, sizeof(struct atalk_ddp_addr), dst);
+  copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
   pinfo->ptype = PT_DDP;
   pinfo->destport = dport;
@@ -1499,10 +1499,10 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   src->node = ddp.snode;
   dst->net = ddp.dnet;
   dst->node = ddp.dnode;
-  SET_ADDRESS(&pinfo->net_src, atalk_address_type, sizeof(struct atalk_ddp_addr), src);
-  COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
-  SET_ADDRESS(&pinfo->net_dst, atalk_address_type, sizeof(struct atalk_ddp_addr), dst);
-  COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+  set_address(&pinfo->net_src, atalk_address_type, sizeof(struct atalk_ddp_addr), src);
+  copy_address_shallow(&pinfo->src, &pinfo->net_src);
+  set_address(&pinfo->net_dst, atalk_address_type, sizeof(struct atalk_ddp_addr), dst);
+  copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
   pinfo->ptype = PT_DDP;
   pinfo->destport = ddp.dport;

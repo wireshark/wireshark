@@ -157,7 +157,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 
 	proto_tree_add_item( ax25_tree, hf_ax25_dst, tvb, offset, AX25_ADDR_LEN, ENC_NA);
 	TVB_SET_ADDRESS( &pinfo->dl_dst, AT_AX25, tvb, offset, AX25_ADDR_LEN );
-	COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->dl_dst);
+	copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 	dst_ssid = tvb_get_guint8(tvb, offset+6);
 
 	/* step over dst addr point at src addr */
@@ -165,7 +165,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 
 	proto_tree_add_item( ax25_tree, hf_ax25_src, tvb, offset, AX25_ADDR_LEN, ENC_NA);
 	TVB_SET_ADDRESS( &pinfo->dl_src, AT_AX25, tvb, offset, AX25_ADDR_LEN );
-	COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->dl_src);
+	copy_address_shallow(&pinfo->src, &pinfo->dl_src);
 	src_ssid = tvb_get_guint8(tvb, offset+6);
 
 	/* step over src addr point at either 1st via addr or control byte */

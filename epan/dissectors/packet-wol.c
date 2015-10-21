@@ -166,7 +166,7 @@ dissect_wol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     col_clear(pinfo->cinfo, COL_INFO);
 
    */
-    SET_ADDRESS(&mac_addr, AT_ETHER, 6, mac);
+    set_address(&mac_addr, AT_ETHER, 6, mac);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "MagicPacket for %s",
         address_with_resolution_to_str(wmem_packet_scope(), &mac_addr));

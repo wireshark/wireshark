@@ -770,7 +770,7 @@ WSLUA_METHOD TvbRange_ipv4(lua_State* L) {
     ip_addr = (guint32 *)g_malloc(sizeof(guint32));
     *ip_addr = tvb_get_ipv4(tvbr->tvb->ws_tvb,tvbr->offset);
 
-    SET_ADDRESS(addr, AT_IPv4, 4, ip_addr);
+    set_address(addr, AT_IPv4, 4, ip_addr);
     pushAddress(L,addr);
 
     WSLUA_RETURN(1); /* The IPv4 `Address` object. */
@@ -799,7 +799,7 @@ WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
     *ip_addr = tvb_get_ipv4(tvbr->tvb->ws_tvb,tvbr->offset);
     *((guint32 *)ip_addr) = GUINT32_SWAP_LE_BE(*((guint32 *)ip_addr));
 
-    SET_ADDRESS(addr, AT_IPv4, 4, ip_addr);
+    set_address(addr, AT_IPv4, 4, ip_addr);
     pushAddress(L,addr);
 
     WSLUA_RETURN(1); /* The IPv4 `Address` object. */
@@ -826,7 +826,7 @@ WSLUA_METHOD TvbRange_ether(lua_State* L) {
 
     buff = (guint8 *)tvb_memdup(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len);
 
-    SET_ADDRESS(addr, AT_ETHER, 6, buff);
+    set_address(addr, AT_ETHER, 6, buff);
     pushAddress(L,addr);
 
     WSLUA_RETURN(1); /* The Ethernet `Address` object. */

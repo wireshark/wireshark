@@ -848,7 +848,7 @@ if (h245_pi != NULL)
 
   if (upcoming_channel && upcoming_channel->upcoming_addr) {
     tvb_memcpy(value_tvb, upcoming_channel->upcoming_addr->addr_buf, 0, 4);
-    SET_ADDRESS(&upcoming_channel->upcoming_addr->addr, AT_IPv4, 4, upcoming_channel->upcoming_addr->addr_buf);
+    set_address(&upcoming_channel->upcoming_addr->addr, AT_IPv4, 4, upcoming_channel->upcoming_addr->addr_buf);
   }
 #.END
 #----------------------------------------------------------------------------------------
@@ -869,7 +869,7 @@ if (h245_pi != NULL)
 
   if (upcoming_channel && upcoming_channel->upcoming_addr) {
     tvb_memcpy(value_tvb, upcoming_channel->upcoming_addr->addr_buf, 0, 16);
-    SET_ADDRESS(&upcoming_channel->upcoming_addr->addr, AT_IPv6, 16, upcoming_channel->upcoming_addr->addr_buf);
+    set_address(&upcoming_channel->upcoming_addr->addr, AT_IPv6, 16, upcoming_channel->upcoming_addr->addr_buf);
   }
 #.END
 #----------------------------------------------------------------------------------------

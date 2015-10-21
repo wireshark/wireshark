@@ -259,7 +259,7 @@ get_udp_conversation_data(conversation_t *conv, packet_info *pinfo)
   }
 
   /* check direction and get ua lists */
-  direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
+  direction=cmp_address(&pinfo->src, &pinfo->dst);
   /* if the addresses are equal, match the ports instead */
   if (direction == 0) {
     direction= (pinfo->srcport > pinfo->destport) ? 1 : -1;
@@ -421,9 +421,9 @@ add_udp_process_info(guint32 frame_num, address *local_addr, address *remote_add
     return;
   }
 
-  if ((CMP_ADDRESS(local_addr, &conv->key_ptr->addr1) == 0) && (local_port == conv->key_ptr->port1)) {
+  if ((cmp_address(local_addr, &conv->key_ptr->addr1) == 0) && (local_port == conv->key_ptr->port1)) {
     flow = &udpd->flow1;
-  } else if ((CMP_ADDRESS(remote_addr, &conv->key_ptr->addr1) == 0) && (remote_port == conv->key_ptr->port1)) {
+  } else if ((cmp_address(remote_addr, &conv->key_ptr->addr1) == 0) && (remote_port == conv->key_ptr->port1)) {
     flow = &udpd->flow2;
   }
   if (!flow || flow->command) {
@@ -693,8 +693,8 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   udph = wmem_new0(wmem_packet_scope(), e_udphdr);
   udph->uh_sport = tvb_get_ntohs(tvb, offset);
   udph->uh_dport = tvb_get_ntohs(tvb, offset + 2);
-  COPY_ADDRESS_SHALLOW(&udph->ip_src, &pinfo->src);
-  COPY_ADDRESS_SHALLOW(&udph->ip_dst, &pinfo->dst);
+  copy_address_shallow(&udph->ip_src, &pinfo->src);
+  copy_address_shallow(&udph->ip_dst, &pinfo->dst);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, (ip_proto == IP_PROTO_UDP) ? "UDP" : "UDP-Lite");
   col_clear(pinfo->cinfo, COL_INFO);

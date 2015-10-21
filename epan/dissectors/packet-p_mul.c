@@ -320,7 +320,7 @@ static gint p_mul_id_hash_equal (gconstpointer k1, gconstpointer k2)
   if (p_mul1->seq != p_mul2->seq)
     return 0;
 
-  return (ADDRESSES_EQUAL (&p_mul1->addr, &p_mul2->addr));
+  return (addresses_equal (&p_mul1->addr, &p_mul2->addr));
 }
 
 static p_mul_seq_val *lookup_seq_val (guint32 message_id, guint16 seq_no,

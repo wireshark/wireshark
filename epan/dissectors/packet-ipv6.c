@@ -424,8 +424,8 @@ ipv6_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
     address dst;
 
     /* Addresses aren't implemented as 'address' type in struct ip6_hdr */
-    SET_ADDRESS(&src, AT_IPv6, sizeof(struct e_in6_addr), &ip6h->ip6_src);
-    SET_ADDRESS(&dst, AT_IPv6, sizeof(struct e_in6_addr), &ip6h->ip6_dst);
+    set_address(&src, AT_IPv6, sizeof(struct e_in6_addr), &ip6h->ip6_src);
+    set_address(&dst, AT_IPv6, sizeof(struct e_in6_addr), &ip6h->ip6_dst);
 
     add_hostlist_table_data(hash, &src, 0, TRUE, 1, pinfo->fd->pkt_len, &ipv6_host_dissector_info, PT_NONE);
     add_hostlist_table_data(hash, &dst, 0, FALSE, 1, pinfo->fd->pkt_len, &ipv6_host_dissector_info, PT_NONE);
@@ -1050,7 +1050,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
 
     if (dst_addr != NULL && rt.ip6r_segleft > 0) {
-        SET_ADDRESS(&pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, dst_addr);
+        set_address(&pinfo->dst, AT_IPv6, IPv6_ADDR_SIZE, dst_addr);
     }
 
     ipv6_info->exthdr_count++;
@@ -2052,9 +2052,9 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     plen = g_ntohs(ipv6->ip6_plen);
 
     TVB_SET_ADDRESS(&pinfo->net_src, AT_IPv6, tvb, offset + IP6H_SRC, 16);
-    COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+    copy_address_shallow(&pinfo->src, &pinfo->net_src);
     TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv6, tvb, offset + IP6H_DST, 16);
-    COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+    copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
     ipv6_info = wmem_new0(wmem_packet_scope(), ipv6_meta_t);
     p_add_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_META, ipv6_info);
@@ -2094,7 +2094,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_HIDDEN(ti);
         name = address_to_display(wmem_packet_scope(), &pinfo->src);
         if (ipv6_summary_in_tree) {
-            SET_ADDRESS(&addr, AT_IPv6, 16, ipv6->ip6_src.bytes);
+            set_address(&addr, AT_IPv6, 16, ipv6->ip6_src.bytes);
             proto_item_append_text(ipv6_item, ", Src: %s", address_with_resolution_to_str(wmem_packet_scope(), &addr));
         }
         ti = proto_tree_add_string(ipv6_tree, hf_ipv6_src_host, tvb,
@@ -2182,7 +2182,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         PROTO_ITEM_SET_HIDDEN(ti);
         name = address_to_display(wmem_packet_scope(), &pinfo->dst);
         if (ipv6_summary_in_tree) {
-            SET_ADDRESS(&addr, AT_IPv6, 16, ipv6->ip6_dst.bytes);
+            set_address(&addr, AT_IPv6, 16, ipv6->ip6_dst.bytes);
             proto_item_append_text(ipv6_item, ", Dst: %s", address_with_resolution_to_str(wmem_packet_scope(), &addr));
         }
         ti = proto_tree_add_string(ipv6_tree, hf_ipv6_dst_host, tvb,

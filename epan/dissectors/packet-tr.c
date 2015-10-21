@@ -540,10 +540,10 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ENDTRY;
 	}
 
-	SET_ADDRESS(&pinfo->dl_src,	AT_ETHER, 6, trn_shost_nonsr);
-	COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->dl_src);
-	SET_ADDRESS(&pinfo->dl_dst,	AT_ETHER, 6, trh->dst.data);
-	COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->dl_dst);
+	set_address(&pinfo->dl_src,	AT_ETHER, 6, trn_shost_nonsr);
+	copy_address_shallow(&pinfo->src, &pinfo->dl_src);
+	set_address(&pinfo->dl_dst,	AT_ETHER, 6, trh->dst.data);
+	copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 
 	/* protocol analysis tree */
 	if (tree) {

@@ -5308,10 +5308,10 @@ add_tn3270_conversation(packet_info *pinfo, int tn3270e, gint model)
      */
     tn3270_info = wmem_new(wmem_file_scope(), tn3270_conv_info_t);
 
-    COPY_ADDRESS(&(tn3270_info->outbound_addr), &(pinfo->dst));
+    copy_address(&(tn3270_info->outbound_addr), &(pinfo->dst));
     tn3270_info->outbound_port = pinfo->destport;
 
-    COPY_ADDRESS(&(tn3270_info->inbound_addr), &(pinfo->src));
+    copy_address(&(tn3270_info->inbound_addr), &(pinfo->src));
     tn3270_info->inbound_port  = pinfo->srcport;
 
     conversation_add_proto_data(conversation, proto_tn3270, tn3270_info);

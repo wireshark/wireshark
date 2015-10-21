@@ -1869,7 +1869,7 @@ rsvp_equal(gconstpointer k1, gconstpointer k2)
 
     switch (key1->session_type) {
     case RSVP_SESSION_TYPE_IPV4:
-        if (ADDRESSES_EQUAL(&key1->u.session_ipv4.destination,
+        if (addresses_equal(&key1->u.session_ipv4.destination,
                             &key2->u.session_ipv4.destination) == FALSE)
             return 0;
 
@@ -1886,7 +1886,7 @@ rsvp_equal(gconstpointer k1, gconstpointer k2)
         break;
 
     case RSVP_SESSION_TYPE_IPV4_LSP:
-        if (ADDRESSES_EQUAL(&key1->u.session_ipv4_lsp.destination,
+        if (addresses_equal(&key1->u.session_ipv4_lsp.destination,
                             &key2->u.session_ipv4_lsp.destination) == FALSE)
             return 0;
 
@@ -1902,7 +1902,7 @@ rsvp_equal(gconstpointer k1, gconstpointer k2)
         break;
 
     case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
-        if (ADDRESSES_EQUAL(&key1->u.session_agg_ipv4.destination,
+        if (addresses_equal(&key1->u.session_agg_ipv4.destination,
                             &key2->u.session_agg_ipv4.destination) == FALSE)
             return 0;
 
@@ -1916,7 +1916,7 @@ rsvp_equal(gconstpointer k1, gconstpointer k2)
         break;
 
     case RSVP_SESSION_TYPE_IPV4_UNI:
-        if (ADDRESSES_EQUAL(&key1->u.session_ipv4_uni.destination,
+        if (addresses_equal(&key1->u.session_ipv4_uni.destination,
                             &key2->u.session_ipv4_uni.destination) == FALSE)
             return 0;
 
@@ -1932,7 +1932,7 @@ rsvp_equal(gconstpointer k1, gconstpointer k2)
         break;
 
     case RSVP_SESSION_TYPE_IPV4_E_NNI:
-        if (ADDRESSES_EQUAL(&key1->u.session_ipv4_enni.destination,
+        if (addresses_equal(&key1->u.session_ipv4_enni.destination,
                             &key2->u.session_ipv4_enni.destination) == FALSE)
             return 0;
 
@@ -1952,7 +1952,7 @@ rsvp_equal(gconstpointer k1, gconstpointer k2)
         break;
     }
 
-    if (ADDRESSES_EQUAL(&key1->source_info.source,
+    if (addresses_equal(&key1->source_info.source,
                         &key2->source_info.source) == FALSE)
         return 0;
 
@@ -7441,8 +7441,8 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     rsvph = wmem_new0(wmem_packet_scope(), rsvp_conversation_info);
 
     /* Copy over the source and destination addresses from the pinfo strucutre */
-    SET_ADDRESS(&rsvph->source, pinfo->src.type, pinfo->src.len, pinfo->src.data);
-    SET_ADDRESS(&rsvph->destination, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
+    set_address(&rsvph->source, pinfo->src.type, pinfo->src.len, pinfo->src.data);
+    set_address(&rsvph->destination, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
     col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str_ext(message_type, &message_type_vals_ext, "Unknown (%u). "));
@@ -7479,7 +7479,7 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 
     switch (request_key.session_type) {
     case RSVP_SESSION_TYPE_IPV4:
-        SET_ADDRESS(&request_key.u.session_ipv4.destination,
+        set_address(&request_key.u.session_ipv4.destination,
                     rsvph->destination.type, rsvph->destination.len,
                     rsvph->destination.data);
         request_key.u.session_ipv4.protocol = rsvph->protocol;
@@ -7491,7 +7491,7 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         break;
 
     case RSVP_SESSION_TYPE_IPV4_LSP:
-        SET_ADDRESS(&request_key.u.session_ipv4_lsp.destination,
+        set_address(&request_key.u.session_ipv4_lsp.destination,
                     rsvph->destination.type, rsvph->destination.len,
                     rsvph->destination.data);
         request_key.u.session_ipv4_lsp.udp_dest_port = rsvph->udp_dest_port;
@@ -7499,14 +7499,14 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         break;
 
     case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
-        SET_ADDRESS(&request_key.u.session_agg_ipv4.destination,
+        set_address(&request_key.u.session_agg_ipv4.destination,
                     rsvph->destination.type, rsvph->destination.len,
                     rsvph->destination.data);
         request_key.u.session_agg_ipv4.dscp = rsvph->dscp;
         break;
 
     case RSVP_SESSION_TYPE_IPV4_UNI:
-        SET_ADDRESS(&request_key.u.session_ipv4_uni.destination,
+        set_address(&request_key.u.session_ipv4_uni.destination,
                     rsvph->destination.type, rsvph->destination.len,
                     rsvph->destination.data);
         request_key.u.session_ipv4_uni.udp_dest_port = rsvph->udp_dest_port;
@@ -7514,7 +7514,7 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         break;
 
     case RSVP_SESSION_TYPE_IPV4_E_NNI:
-        SET_ADDRESS(&request_key.u.session_ipv4_enni.destination,
+        set_address(&request_key.u.session_ipv4_enni.destination,
                     rsvph->destination.type, rsvph->destination.len,
                     rsvph->destination.data);
         request_key.u.session_ipv4_enni.udp_dest_port = rsvph->udp_dest_port;

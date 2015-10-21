@@ -226,7 +226,7 @@ dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ 
       if (dest_ig) {
         address      ether_addr;
 
-        SET_ADDRESS(&ether_addr, AT_ETHER, 6, dst_addr);
+        set_address(&ether_addr, AT_ETHER, 6, dst_addr);
 
         ti = proto_tree_add_protocol_format(tree, proto_fp, tvb, 0, FP_HEADER_SIZE,
                                             "Cisco FabricPath, Src: %03x.%02x.%04x, Dst: %s",

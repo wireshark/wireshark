@@ -466,7 +466,7 @@ static void update_unicast_addr(unicast_addr_t *req_addr, unicast_addr_t *ack_ad
 {
   if (ack_addr->addr.type!=AT_NONE && ack_addr->port!=0) {
     memcpy(req_addr->addr_buf, ack_addr->addr_buf, sizeof(req_addr->addr_buf));
-    SET_ADDRESS(&req_addr->addr, ack_addr->addr.type, ack_addr->addr.len, req_addr->addr_buf);
+    set_address(&req_addr->addr, ack_addr->addr.type, ack_addr->addr.len, req_addr->addr_buf);
     req_addr->port = ack_addr->port;
   }
 }
@@ -8015,7 +8015,7 @@ dissect_h245_Ipv4_network(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
   if (upcoming_channel && upcoming_channel->upcoming_addr) {
     tvb_memcpy(value_tvb, upcoming_channel->upcoming_addr->addr_buf, 0, 4);
-    SET_ADDRESS(&upcoming_channel->upcoming_addr->addr, AT_IPv4, 4, upcoming_channel->upcoming_addr->addr_buf);
+    set_address(&upcoming_channel->upcoming_addr->addr, AT_IPv4, 4, upcoming_channel->upcoming_addr->addr_buf);
   }
 
 
@@ -8115,7 +8115,7 @@ dissect_h245_T_ip6_network(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
   if (upcoming_channel && upcoming_channel->upcoming_addr) {
     tvb_memcpy(value_tvb, upcoming_channel->upcoming_addr->addr_buf, 0, 16);
-    SET_ADDRESS(&upcoming_channel->upcoming_addr->addr, AT_IPv6, 16, upcoming_channel->upcoming_addr->addr_buf);
+    set_address(&upcoming_channel->upcoming_addr->addr, AT_IPv6, 16, upcoming_channel->upcoming_addr->addr_buf);
   }
 
 

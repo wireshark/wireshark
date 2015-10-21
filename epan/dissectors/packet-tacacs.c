@@ -772,9 +772,9 @@ cmp_conv_address( gconstpointer p1, gconstpointer p2 )
 	printf("p2=>");
 	tacplus_print_key_entry( p2, NULL );
 	*/
-	ret=CMP_ADDRESS( a1->s, a2->s );
+	ret=cmp_address( a1->s, a2->s );
 	if( !ret ) {
-		ret=CMP_ADDRESS( a1->c, a2->c );
+		ret=cmp_address( a1->c, a2->c );
 		/*
 		if(ret)
 			printf("No Client found!"); */
@@ -812,9 +812,9 @@ mkipv4_address( address **addr, const char *str_addr )
 	addr_data=(char *)g_malloc( 4 );
 	ret = str_to_ip(str_addr, addr_data);
 	if (ret)
-		SET_ADDRESS(*addr, AT_IPv4, 4, addr_data);
+		set_address(*addr, AT_IPv4, 4, addr_data);
 	else
-		SET_ADDRESS(*addr, AT_STRINGZ, (int)strlen(ADDR_INVLD)+1, ADDR_INVLD);
+		set_address(*addr, AT_STRINGZ, (int)strlen(ADDR_INVLD)+1, ADDR_INVLD);
 }
 static void
 parse_tuple( char *key_from_option )

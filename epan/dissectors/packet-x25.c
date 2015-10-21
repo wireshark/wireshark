@@ -2022,7 +2022,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * sides of the conversation, based on the addresses and
      * ports.
      */
-    direction = CMP_ADDRESS(&pinfo->src, &pinfo->dst);
+    direction = cmp_address(&pinfo->src, &pinfo->dst);
     if (direction == 0)
         direction = (pinfo->srcport > pinfo->destport)*2 - 1;
     dissect_x25_common(tvb, pinfo, tree, X25_UNKNOWN, direction > 0);

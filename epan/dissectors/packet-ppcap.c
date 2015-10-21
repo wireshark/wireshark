@@ -280,8 +280,8 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 		mtp3_addr_opc->pc = (guint32 )tvb_get_ntoh24(tvb, offset);
 		mtp3_addr_opc->type = ITU_STANDARD;
 		mtp3_addr_opc->ni = 0;
-		/*SET_ADDRESS(&pinfo->net_src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);*/
-		SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);
+		/*set_address(&pinfo->net_src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);*/
+		set_address(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);
 		if (msg_len%4)
 			msg_len = msg_len + (4 - (msg_len%4));
 
@@ -297,7 +297,7 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 		mtp3_addr_opc->pc = tvb_get_ntohl(tvb, offset);
 		mtp3_addr_opc->type = ITU_STANDARD;
 		mtp3_addr_opc->ni = 0;
-		SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);
+		set_address(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);
 	}
 	else if (key1 == 3)
 	{
@@ -306,7 +306,7 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 
 			proto_tree_add_ipv4(ppcap_tree1, hf_ppcap_source_ip_address1, tvb, offset, msg_len, tvb_get_ipv4(tvb, offset));
 			TVB_SET_ADDRESS(&pinfo->net_src, AT_IPv4, tvb, offset, 4);
-			COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+			copy_address_shallow(&pinfo->src, &pinfo->net_src);
 		}
 		else
 		{
@@ -314,7 +314,7 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 			tvb_get_ipv6(tvb, offset, &value);
 			proto_tree_add_ipv6(ppcap_tree1, hf_ppcap_source_ip_address2, tvb, offset, msg_len, &value);
 			TVB_SET_ADDRESS(&pinfo->net_src, AT_IPv6, tvb, offset, 6);
-			COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+			copy_address_shallow(&pinfo->src, &pinfo->net_src);
 		}
 	}
 
@@ -323,7 +323,7 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 	{
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_source_nodeid, tvb, offset, msg_len, ENC_ASCII|ENC_NA);
 		TVB_SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, tvb, offset, msg_len);
-		COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+		copy_address_shallow(&pinfo->src, &pinfo->net_src);
 	}
 	if (msg_len%4)
 		msg_len = msg_len + (4 - (msg_len%4));
@@ -372,7 +372,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 		mtp3_addr_dpc->pc = (guint32)tvb_get_ntoh24(tvb, offset);
 		mtp3_addr_dpc->type = ITU_STANDARD;
 		mtp3_addr_dpc->ni = 0;
-		SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
+		set_address(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
 
 		if (msg_len%4)
 			msg_len = msg_len + (4 - (msg_len%4));
@@ -390,7 +390,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 		mtp3_addr_dpc->pc = tvb_get_ntohl(tvb, offset);
 		mtp3_addr_dpc->type = ITU_STANDARD;
 		mtp3_addr_dpc->ni = 0;
-		SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
+		set_address(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
 	}
 	else if (key2 == 3)
 	{
@@ -398,7 +398,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 		{
 			proto_tree_add_ipv4(ppcap_tree1, hf_ppcap_destination_ip_address1, tvb, offset, msg_len, tvb_get_ipv4(tvb, offset));
 			TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv4, tvb, offset, 4);
-			COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+			copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 		}
 		else
 		{
@@ -407,7 +407,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 			tvb_get_ipv6(tvb, offset,&value);
 			proto_tree_add_ipv6(ppcap_tree1, hf_ppcap_destination_ip_address2, tvb, offset, msg_len, &value);
 			TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv6, tvb, offset, 6);
-			COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+			copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 		}
 	}
 
@@ -417,7 +417,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 		string = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, msg_len, ENC_UTF_8|ENC_NA);
 		proto_tree_add_string(ppcap_tree1, hf_ppcap_destination_nodeid, tvb, offset, msg_len, string);
 		TVB_SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, tvb, offset, msg_len);
-		COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+		copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 	}
 
 	if (msg_len%4)

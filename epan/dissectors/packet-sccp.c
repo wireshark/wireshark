@@ -1647,9 +1647,9 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, packet_info *pinfo,
 
   if (set_addresses) {
     if (called) {
-      SET_ADDRESS(&pinfo->dst, AT_STRINGZ, 1+(int)strlen(gt_digits), gt_digits);
+      set_address(&pinfo->dst, AT_STRINGZ, 1+(int)strlen(gt_digits), gt_digits);
     } else {
-      SET_ADDRESS(&pinfo->src, AT_STRINGZ, 1+(int)strlen(gt_digits), gt_digits);
+      set_address(&pinfo->src, AT_STRINGZ, 1+(int)strlen(gt_digits), gt_digits);
     }
   }
 

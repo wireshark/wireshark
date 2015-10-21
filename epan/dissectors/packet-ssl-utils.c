@@ -4026,7 +4026,7 @@ ssl_get_session(conversation_t *conversation, dissector_handle_t ssl_handle)
 
     /* Initialize parameters which are not necessary specific to decryption. */
     ssl_session->session.version = SSL_VER_UNKNOWN;
-    SET_ADDRESS(&ssl_session->session.srv_addr, AT_NONE, 0, NULL);
+    set_address(&ssl_session->session.srv_addr, AT_NONE, 0, NULL);
     ssl_session->session.srv_ptype = PT_NONE;
     ssl_session->session.srv_port = 0;
 
@@ -4228,7 +4228,7 @@ ssl_packet_from_server(SslSession *session, GTree *associations, packet_info *pi
     if (session->srv_ptype != PT_NONE) {
         ret = (session->srv_ptype == pinfo->ptype) &&
               (session->srv_port == pinfo->srcport) &&
-              ADDRESSES_EQUAL(&session->srv_addr, &pinfo->src);
+              addresses_equal(&session->srv_addr, &pinfo->src);
     } else {
         ret = ssl_association_find(associations, pinfo->srcport, pinfo->ptype != PT_UDP) != 0;
     }

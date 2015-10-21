@@ -219,7 +219,7 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     /* Set source address */
     src_addr = (guint8*)wmem_alloc(pinfo->pool, 1);
     *src_addr = (guint8)(can_id.id & 0xFF);
-    SET_ADDRESS(&pinfo->src, j1939_address_type, 1, (const void*)src_addr);
+    set_address(&pinfo->src, j1939_address_type, 1, (const void*)src_addr);
 
     pgn = (can_id.id & 0x3FFFF00) >> 8;
 
@@ -240,7 +240,7 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     /* Fill in "destination" address even if its "broadcast" */
     dest_addr = (guint8*)wmem_alloc(pinfo->pool, 1);
     *dest_addr = (guint8)((can_id.id & 0xFF00) >> 8);
-    SET_ADDRESS(&pinfo->dst, j1939_address_type, 1, (const void*)dest_addr);
+    set_address(&pinfo->dst, j1939_address_type, 1, (const void*)dest_addr);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "PGN: %d", pgn);
 

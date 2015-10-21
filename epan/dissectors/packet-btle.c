@@ -444,13 +444,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case 0x06: /* ADV_SCAN_IND */
             offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, TRUE, interface_id, adapter_id, src_bd_addr);
 
-            SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &pinfo->net_src);
-            COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+            set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+            copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
+            copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
-            SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, 10, "broadcast");
-            COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &pinfo->net_dst);
-            COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+            set_address(&pinfo->net_dst, AT_STRINGZ, 10, "broadcast");
+            copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+            copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
             if (!pinfo->fd->flags.visited) {
                 address *addr;
@@ -479,13 +479,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, TRUE, interface_id, adapter_id, src_bd_addr);
             offset = dissect_bd_addr(hf_initiator_addresss, pinfo, btle_tree, tvb, offset, FALSE, interface_id, adapter_id, dst_bd_addr);
 
-            SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &pinfo->net_src);
-            COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+            set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+            copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
+            copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
-            SET_ADDRESS(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
-            COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &pinfo->net_dst);
-            COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+            set_address(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
+            copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+            copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
             if (!pinfo->fd->flags.visited) {
                 address *addr;
@@ -504,13 +504,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset = dissect_bd_addr(hf_scanning_address, pinfo, btle_tree, tvb, offset, TRUE, interface_id, adapter_id, src_bd_addr);
             offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, FALSE, interface_id, adapter_id, dst_bd_addr);
 
-            SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &pinfo->net_src);
-            COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+            set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+            copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
+            copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
-            SET_ADDRESS(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
-            COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &pinfo->net_dst);
-            COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+            set_address(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
+            copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+            copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
             if (!pinfo->fd->flags.visited) {
                 address *addr;
@@ -528,13 +528,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case 0x04: /* SCAN_RSP */
             offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, TRUE, interface_id, adapter_id, src_bd_addr);
 
-            SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &pinfo->net_src);
-            COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+            set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+            copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
+            copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
-            SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, 10, "broadcast");
-            COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &pinfo->net_dst);
-            COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+            set_address(&pinfo->net_dst, AT_STRINGZ, 10, "broadcast");
+            copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+            copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
             if (!pinfo->fd->flags.visited) {
                 address *addr;
@@ -566,13 +566,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset = dissect_bd_addr(hf_initiator_addresss, pinfo, btle_tree, tvb, offset, FALSE, interface_id, adapter_id, src_bd_addr);
             offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, TRUE, interface_id, adapter_id, dst_bd_addr);
 
-            SET_ADDRESS(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
-            COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &pinfo->net_src);
-            COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+            set_address(&pinfo->net_src, AT_ETHER, 6, src_bd_addr);
+            copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
+            copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
-            SET_ADDRESS(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
-            COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &pinfo->net_dst);
-            COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+            set_address(&pinfo->net_dst, AT_ETHER, 6, dst_bd_addr);
+            copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+            copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
             if (!pinfo->fd->flags.visited) {
                 address *addr;
@@ -683,13 +683,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 g_snprintf(str_addr, str_addr_len, "unknown_0x%08x", connection_address->access_address);
 
-                SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, str_addr_len, str_addr);
-                COPY_ADDRESS_SHALLOW(&pinfo->dl_src, &pinfo->net_src);
-                COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+                set_address(&pinfo->net_src, AT_STRINGZ, str_addr_len, str_addr);
+                copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
+                copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
-                SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, str_addr_len, str_addr);
-                COPY_ADDRESS_SHALLOW(&pinfo->dl_dst, &pinfo->net_dst);
-                COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+                set_address(&pinfo->net_dst, AT_STRINGZ, str_addr_len, str_addr);
+                copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+                copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
                 if (!pinfo->fd->flags.visited) {
                     address *addr;

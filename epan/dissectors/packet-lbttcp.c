@@ -533,16 +533,16 @@ static int dissect_lbttcp_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
 
         if (from_source)
         {
-            COPY_ADDRESS_SHALLOW(&source_address, &(pinfo->src));
+            copy_address_shallow(&source_address, &(pinfo->src));
             srcport = pinfo->srcport;
-            COPY_ADDRESS_SHALLOW(&client_address, &(pinfo->dst));
+            copy_address_shallow(&client_address, &(pinfo->dst));
             clntport = pinfo->destport;
         }
         else
         {
-            COPY_ADDRESS_SHALLOW(&source_address, &(pinfo->dst));
+            copy_address_shallow(&source_address, &(pinfo->dst));
             srcport = pinfo->destport;
-            COPY_ADDRESS_SHALLOW(&client_address, &(pinfo->src));
+            copy_address_shallow(&client_address, &(pinfo->src));
             clntport = pinfo->srcport;
         }
         /* See if we have a matching transport with no session ID. */

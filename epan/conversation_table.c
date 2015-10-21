@@ -255,15 +255,15 @@ conversation_equal(gconstpointer key1, gconstpointer key2)
     {
         if (ck1->port1 == ck2->port1 &&
             ck1->port2 == ck2->port2 &&
-            ADDRESSES_EQUAL(&ck1->addr1, &ck2->addr1) &&
-            ADDRESSES_EQUAL(&ck1->addr2, &ck2->addr2)) {
+            addresses_equal(&ck1->addr1, &ck2->addr1) &&
+            addresses_equal(&ck1->addr2, &ck2->addr2)) {
             return TRUE;
         }
 
         if (ck1->port2 == ck2->port1 &&
             ck1->port1 == ck2->port2 &&
-            ADDRESSES_EQUAL(&ck1->addr2, &ck2->addr1) &&
-            ADDRESSES_EQUAL(&ck1->addr1, &ck2->addr2)) {
+            addresses_equal(&ck1->addr2, &ck2->addr1) &&
+            addresses_equal(&ck1->addr1, &ck2->addr2)) {
             return TRUE;
         }
     }
@@ -614,7 +614,7 @@ add_conversation_table_data_with_conv_id(
         addr1 = dst;
         port2 = src_port;
         port1 = dst_port;
-    } else if (CMP_ADDRESS(src, dst) < 0) {
+    } else if (cmp_address(src, dst) < 0) {
         addr1 = src;
         addr2 = dst;
         port1 = src_port;
@@ -656,8 +656,8 @@ add_conversation_table_data_with_conv_id(
         conv_key_t *new_key;
         conv_item_t new_conv_item;
 
-        COPY_ADDRESS(&new_conv_item.src_address, addr1);
-        COPY_ADDRESS(&new_conv_item.dst_address, addr2);
+        copy_address(&new_conv_item.src_address, addr1);
+        copy_address(&new_conv_item.dst_address, addr2);
         new_conv_item.dissector_info = ct_info;
         new_conv_item.ptype = ptype;
         new_conv_item.src_port = port1;
@@ -684,8 +684,8 @@ add_conversation_table_data_with_conv_id(
 
         /* ct->conversations address is not a constant but src/dst_address.data are */
         new_key = g_new(conv_key_t, 1);
-        SET_ADDRESS(&new_key->addr1, conv_item->src_address.type, conv_item->src_address.len, conv_item->src_address.data);
-        SET_ADDRESS(&new_key->addr2, conv_item->dst_address.type, conv_item->dst_address.len, conv_item->dst_address.data);
+        set_address(&new_key->addr1, conv_item->src_address.type, conv_item->src_address.len, conv_item->src_address.data);
+        set_address(&new_key->addr2, conv_item->dst_address.type, conv_item->dst_address.len, conv_item->dst_address.data);
         new_key->port1 = port1;
         new_key->port2 = port2;
         new_key->conv_id = conv_id;
@@ -694,7 +694,7 @@ add_conversation_table_data_with_conv_id(
 
     /* update the conversation struct */
     conv_item->modified = TRUE;
-    if ( (!CMP_ADDRESS(src, addr1)) && (!CMP_ADDRESS(dst, addr2)) && (src_port==port1) && (dst_port==port2) ) {
+    if ( (!cmp_address(src, addr1)) && (!cmp_address(dst, addr2)) && (src_port==port1) && (dst_port==port2) ) {
         conv_item->tx_frames += num_frames;
         conv_item->tx_bytes += num_bytes;
     } else {
@@ -738,7 +738,7 @@ host_match(gconstpointer v, gconstpointer w)
     const host_key_t *v2 = (const host_key_t *)w;
 
     if (v1->port == v2->port &&
-        ADDRESSES_EQUAL(&v1->myaddress, &v2->myaddress)) {
+        addresses_equal(&v1->myaddress, &v2->myaddress)) {
         return 1;
     }
     /*
@@ -782,7 +782,7 @@ add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboo
         host_key_t *new_key;
         hostlist_talker_t host;
 
-        COPY_ADDRESS(&host.myaddress, addr);
+        copy_address(&host.myaddress, addr);
         host.dissector_info = host_info;
         host.ptype=port_type_val;
         host.port=port;
@@ -798,7 +798,7 @@ add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboo
 
         /* hl->hosts address is not a constant but address.data is */
         new_key = g_new(host_key_t,1);
-        SET_ADDRESS(&new_key->myaddress, talker->myaddress.type, talker->myaddress.len, talker->myaddress.data);
+        set_address(&new_key->myaddress, talker->myaddress.type, talker->myaddress.len, talker->myaddress.data);
         new_key->port = port;
         g_hash_table_insert(ch->hashtable, new_key, GUINT_TO_POINTER(talker_idx));
     }

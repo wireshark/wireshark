@@ -895,8 +895,8 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
                         /* Address is even, so it's the control group (in addr1). Decrement the last byte of addr2 for the data group. */
                         addr2[addr_len - 1]--;
                     }
-                    SET_ADDRESS(cinfo->addr1, AT_IPv4, addr_len, (void *) addr1);
-                    SET_ADDRESS(cinfo->addr2, AT_IPv4, addr_len, (void *) addr2);
+                    set_address(cinfo->addr1, AT_IPv4, addr_len, (void *) addr1);
+                    set_address(cinfo->addr2, AT_IPv4, addr_len, (void *) addr2);
                     cinfo->port1 = pinfo->destport;
                     cinfo->port2 = cinfo->port1;
                 }
@@ -952,8 +952,8 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
                         /* Address is even, so it's the control group (in addr1). Decrement the last byte of addr2 for the data group. */
                         addr2[addr_len - 1]--;
                     }
-                    SET_ADDRESS(cinfo->addr1, AT_IPv6, addr_len, (void *) addr1);
-                    SET_ADDRESS(cinfo->addr2, AT_IPv6, addr_len, (void *) addr2);
+                    set_address(cinfo->addr1, AT_IPv6, addr_len, (void *) addr1);
+                    set_address(cinfo->addr2, AT_IPv6, addr_len, (void *) addr2);
                     cinfo->port1 = pinfo->destport;
                     cinfo->port2 = cinfo->port1;
                 }

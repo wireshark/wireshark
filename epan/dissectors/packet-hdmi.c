@@ -168,13 +168,13 @@ dissect_hdmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     hdmi_tree = proto_item_add_subtree(pi, ett_hdmi);
 
     if (addr&0x01) {
-        SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(ADDR_RCV)+1, ADDR_RCV);
-        SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(ADDR_TRX)+1, ADDR_TRX);
+        set_address(&pinfo->src, AT_STRINGZ, (int)strlen(ADDR_RCV)+1, ADDR_RCV);
+        set_address(&pinfo->dst, AT_STRINGZ, (int)strlen(ADDR_TRX)+1, ADDR_TRX);
         pinfo->p2p_dir = P2P_DIR_RECV;
     }
     else {
-        SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(ADDR_TRX)+1, ADDR_TRX);
-        SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(ADDR_RCV)+1, ADDR_RCV);
+        set_address(&pinfo->src, AT_STRINGZ, (int)strlen(ADDR_TRX)+1, ADDR_TRX);
+        set_address(&pinfo->dst, AT_STRINGZ, (int)strlen(ADDR_RCV)+1, ADDR_RCV);
         pinfo->p2p_dir = P2P_DIR_SENT;
     }
 

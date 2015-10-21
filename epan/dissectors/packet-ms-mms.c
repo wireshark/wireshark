@@ -1127,7 +1127,7 @@ static void msmms_data_add_address(packet_info *pinfo, address *addr, port_type 
         return;
     }
 
-    SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+    set_address(&null_addr, AT_NONE, 0, NULL);
 
     /* Check if the ip address and port combination is not
      * already registered as a conversation. */

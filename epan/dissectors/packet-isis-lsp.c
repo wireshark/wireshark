@@ -827,7 +827,7 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
         subtree = proto_tree_add_subtree(tree, tvb, offset, 5+byte_length+subclvs_len,
                             ett_isis_lsp_part_of_clv_ext_ip_reachability, NULL, "Ext. IP Reachability");
 
-        SET_ADDRESS(&prefix_addr, AT_IPv4, 4, prefix);
+        set_address(&prefix_addr, AT_IPv4, 4, prefix);
         proto_tree_add_ipv4_format_value(subtree, hf_isis_lsp_ext_ip_reachability_ipv4_prefix, tvb, offset+5, byte_length,
                              tvb_get_ntohl(tvb, offset+5), "%s/%u", address_to_str(wmem_packet_scope(), &prefix_addr), bit_length);
         proto_tree_add_item(subtree, hf_isis_lsp_ext_ip_reachability_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1456,7 +1456,7 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
         subtree = proto_tree_add_subtree(tree, tvb, offset, 6+byte_length+subclvs_len,
             ett_isis_lsp_part_of_clv_ipv6_reachability, NULL, "IPv6 Reachability");
 
-        SET_ADDRESS(&prefix_addr, AT_IPv6, 16, prefix.bytes);
+        set_address(&prefix_addr, AT_IPv6, 16, prefix.bytes);
         proto_tree_add_ipv6_format_value(subtree, hf_isis_lsp_ipv6_reachability_ipv6_prefix, tvb, offset+6, byte_length,
                             &prefix, "IPv6 prefix: %s/%u", address_to_str(wmem_packet_scope(), &prefix_addr), bit_length);
 

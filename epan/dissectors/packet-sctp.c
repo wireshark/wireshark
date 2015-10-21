@@ -4721,8 +4721,8 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   sctp_info.sport = pinfo->srcport;
   sctp_info.dport = pinfo->destport;
-  SET_ADDRESS(&sctp_info.ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
-  SET_ADDRESS(&sctp_info.ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
+  set_address(&sctp_info.ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
+  set_address(&sctp_info.ip_dst, pinfo->dst.type, pinfo->dst.len, pinfo->dst.data);
 
   dissect_sctp_packet(tvb, pinfo, tree, FALSE);
   if (!pinfo->flags.in_error_pkt && sctp_info.number_of_tvbs > 0)

@@ -918,7 +918,7 @@ get_tcp_conversation_data(conversation_t *conv, packet_info *pinfo)
     }
 
     /* check direction and get ua lists */
-    direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
+    direction=cmp_address(&pinfo->src, &pinfo->dst);
     /* if the addresses are equal, match the ports instead */
     if(direction==0) {
         direction= (pinfo->srcport > pinfo->destport) ? 1 : -1;
@@ -955,9 +955,9 @@ add_tcp_process_info(guint32 frame_num, address *local_addr, address *remote_add
         return;
     }
 
-    if (CMP_ADDRESS(local_addr, &conv->key_ptr->addr1) == 0 && local_port == conv->key_ptr->port1) {
+    if (cmp_address(local_addr, &conv->key_ptr->addr1) == 0 && local_port == conv->key_ptr->port1) {
         flow = &tcpd->flow1;
-    } else if (CMP_ADDRESS(remote_addr, &conv->key_ptr->addr1) == 0 && remote_port == conv->key_ptr->port1) {
+    } else if (cmp_address(remote_addr, &conv->key_ptr->addr1) == 0 && remote_port == conv->key_ptr->port1) {
         flow = &tcpd->flow2;
     }
     if (!flow || flow->command) {
@@ -3553,11 +3553,11 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
      */
     if(tcpd->fwd->mptcp_subflow->meta->ip_src.len == 0) {
 
-        COPY_ADDRESS(&tcpd->fwd->mptcp_subflow->meta->ip_src, &tcph->ip_src);
-        COPY_ADDRESS(&tcpd->fwd->mptcp_subflow->meta->ip_dst, &tcph->ip_dst);
+        copy_address(&tcpd->fwd->mptcp_subflow->meta->ip_src, &tcph->ip_src);
+        copy_address(&tcpd->fwd->mptcp_subflow->meta->ip_dst, &tcph->ip_dst);
 
-        COPY_ADDRESS_SHALLOW(&tcpd->rev->mptcp_subflow->meta->ip_src, &tcpd->fwd->mptcp_subflow->meta->ip_dst);
-        COPY_ADDRESS_SHALLOW(&tcpd->rev->mptcp_subflow->meta->ip_dst, &tcpd->fwd->mptcp_subflow->meta->ip_src);
+        copy_address_shallow(&tcpd->rev->mptcp_subflow->meta->ip_src, &tcpd->fwd->mptcp_subflow->meta->ip_dst);
+        copy_address_shallow(&tcpd->rev->mptcp_subflow->meta->ip_dst, &tcpd->fwd->mptcp_subflow->meta->ip_src);
 
         tcpd->fwd->mptcp_subflow->meta->sport = tcph->th_sport;
         tcpd->fwd->mptcp_subflow->meta->dport = tcph->th_dport;
@@ -3629,7 +3629,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     tcpd = get_tcp_conversation_data(NULL,pinfo);
 
     /* check direction and get ua lists */
-    direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
+    direction=cmp_address(&pinfo->src, &pinfo->dst);
 
     /* if the addresses are equal, match the ports instead */
     if(direction==0) {
@@ -4840,8 +4840,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tcph = wmem_new0(wmem_packet_scope(), struct tcpheader);
     tcph->th_sport = tvb_get_ntohs(tvb, offset);
     tcph->th_dport = tvb_get_ntohs(tvb, offset + 2);
-    COPY_ADDRESS_SHALLOW(&tcph->ip_src, &pinfo->src);
-    COPY_ADDRESS_SHALLOW(&tcph->ip_dst, &pinfo->dst);
+    copy_address_shallow(&tcph->ip_src, &pinfo->src);
+    copy_address_shallow(&tcph->ip_dst, &pinfo->dst);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCP");
     col_clear(pinfo->cinfo, COL_INFO);

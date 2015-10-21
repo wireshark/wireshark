@@ -396,7 +396,7 @@ dissect_dbus_field_signature(tvbuff_t *tvb, packet_info *pinfo, dbus_info_t *din
 
 				offset = dissect_dbus_sig(tvb, dinfo, tree, offset, 's', &addr_val);
 				if (offset != -1)
-					SET_ADDRESS((field_code == DBUS_HEADER_FIELD_DESTINATION) ? &dinfo->pinfo->dst : &dinfo->pinfo->src,
+					set_address((field_code == DBUS_HEADER_FIELD_DESTINATION) ? &dinfo->pinfo->dst : &dinfo->pinfo->src,
 					            AT_STRINGZ, (int)strlen(addr_val.str)+1, wmem_strdup(pinfo->pool, addr_val.str));
 				return offset;
 			}

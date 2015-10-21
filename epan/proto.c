@@ -4723,26 +4723,26 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 					case FT_IPv4:
 						ipv4 = (ipv4_addr *)fvalue_get(&finfo->value);
 						n_addr = ipv4_get_net_order_addr(ipv4);
-						SET_ADDRESS (&addr, AT_IPv4, 4, &n_addr);
+						set_address (&addr, AT_IPv4, 4, &n_addr);
 						address_to_str_buf(&addr, result+offset_r, size-offset_r);
 						offset_r = (int)strlen(result);
 						break;
 
 					case FT_IPv6:
 						ipv6 = (struct e_in6_addr *)fvalue_get(&finfo->value);
-						SET_ADDRESS (&addr, AT_IPv6, sizeof(struct e_in6_addr), ipv6);
+						set_address (&addr, AT_IPv6, sizeof(struct e_in6_addr), ipv6);
 						address_to_str_buf(&addr, result+offset_r, size-offset_r);
 						offset_r = (int)strlen(result);
 						break;
 
 					case FT_FCWWN:
-						SET_ADDRESS (&addr, AT_FCWWN, FCWWN_ADDR_LEN, fvalue_get(&finfo->value));
+						set_address (&addr, AT_FCWWN, FCWWN_ADDR_LEN, fvalue_get(&finfo->value));
 						address_to_str_buf(&addr, result+offset_r, size-offset_r);
 						offset_r = (int)strlen(result);
 						break;
 
 					case FT_ETHER:
-						SET_ADDRESS (&addr, AT_ETHER, FT_ETHER_LEN, fvalue_get(&finfo->value));
+						set_address (&addr, AT_ETHER, FT_ETHER_LEN, fvalue_get(&finfo->value));
 						address_to_str_buf(&addr, result+offset_r, size-offset_r);
 						offset_r = (int)strlen(result);
 						break;

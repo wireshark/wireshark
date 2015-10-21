@@ -581,11 +581,11 @@ netlogon_auth_equal (gconstpointer k1, gconstpointer k2)
     const netlogon_auth_key *key1 = (const netlogon_auth_key *)k1;
     const netlogon_auth_key *key2 = (const netlogon_auth_key *)k2;
     if(key1->name == NULL || key2->name ==NULL)
-        return ((key1->srcport == key2->srcport) && (key1->dstport == key2->dstport) && ADDRESSES_EQUAL(&key1->src,&key2->src) &&
-                ADDRESSES_EQUAL(&key1->dst,&key2->dst));
+        return ((key1->srcport == key2->srcport) && (key1->dstport == key2->dstport) && addresses_equal(&key1->src,&key2->src) &&
+                addresses_equal(&key1->dst,&key2->dst));
     else
-        return ((strcmp(key1->name,key2->name)==0) && ADDRESSES_EQUAL(&key1->src,&key2->src) &&
-                ADDRESSES_EQUAL(&key1->dst,&key2->dst));
+        return ((strcmp(key1->name,key2->name)==0) && addresses_equal(&key1->src,&key2->src) &&
+                addresses_equal(&key1->dst,&key2->dst));
 }
 
 static guint
@@ -2392,14 +2392,14 @@ static void generate_hash_key(packet_info *pinfo,unsigned char is_server,netlogo
     if(is_server) {
         key->dstport = pinfo->srcport;
         key->srcport = pinfo->destport;
-        COPY_ADDRESS(&key->dst,&pinfo->src);
-        COPY_ADDRESS(&key->src,&pinfo->dst);
+        copy_address(&key->dst,&pinfo->src);
+        copy_address(&key->src,&pinfo->dst);
         /* name has been durably allocated */
         key->name = name;
     }
     else {
-        COPY_ADDRESS(&key->dst,&pinfo->dst);
-        COPY_ADDRESS(&key->src,&pinfo->src);
+        copy_address(&key->dst,&pinfo->dst);
+        copy_address(&key->src,&pinfo->src);
         key->dstport = pinfo->destport;
         key->srcport = pinfo->srcport;
         /* name has been durably allocated */

@@ -553,9 +553,9 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			vip_tctl);
 
 	TVB_SET_ADDRESS(&pinfo->net_src, AT_VINES, tvb, offset+12, VINES_ADDR_LEN);
-	COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+	copy_address_shallow(&pinfo->src, &pinfo->net_src);
 	TVB_SET_ADDRESS(&pinfo->net_dst, AT_VINES, tvb, offset+6, VINES_ADDR_LEN);
-	COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+	copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
 	/* helpers to transport control */
 	if (tvb_memeql(tvb, offset+6, bcast_addr, VINES_ADDR_LEN) == 0)

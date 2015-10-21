@@ -840,7 +840,7 @@ static void md5_hmac_digest(l2tpv3_tunnel_t *tunnel,
 
     if (msg_type != MESSAGE_TYPE_SCCRQ) {
         if (tunnel->lcce1_nonce != NULL && tunnel->lcce2_nonce != NULL) {
-            if (ADDRESSES_EQUAL(&tunnel->lcce1, &pinfo->src)) {
+            if (addresses_equal(&tunnel->lcce1, &pinfo->src)) {
                 md5_hmac_append(&ms, tunnel->lcce1_nonce, tunnel->lcce1_nonce_len);
                 md5_hmac_append(&ms, tunnel->lcce2_nonce, tunnel->lcce2_nonce_len);
             } else {
@@ -880,7 +880,7 @@ static void sha1_hmac_digest(l2tpv3_tunnel_t *tunnel,
 
     if (msg_type != MESSAGE_TYPE_SCCRQ) {
         if (tunnel->lcce1_nonce != NULL && tunnel->lcce2_nonce != NULL) {
-            if (ADDRESSES_EQUAL(&tunnel->lcce1, &pinfo->src)) {
+            if (addresses_equal(&tunnel->lcce1, &pinfo->src)) {
                 sha1_hmac_update(&ms, tunnel->lcce1_nonce, tunnel->lcce1_nonce_len);
                 sha1_hmac_update(&ms, tunnel->lcce2_nonce, tunnel->lcce2_nonce_len);
             } else {
@@ -2021,7 +2021,7 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     idx += 4;
 
     if (tunnel) {
-        if (ADDRESSES_EQUAL(&tunnel->lcce1, &pinfo->dst)) {
+        if (addresses_equal(&tunnel->lcce1, &pinfo->dst)) {
             session = find_session(tunnel, sid, 0);
             if (session)
                 lcce = &session->lcce1;

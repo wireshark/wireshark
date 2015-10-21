@@ -232,7 +232,7 @@ void t38_add_address(packet_info *pinfo,
                 return;
         }
 
-        SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+        set_address(&null_addr, AT_NONE, 0, NULL);
 
         /*
          * Check if the ip address and port combination is not
@@ -488,7 +488,7 @@ init_t38_info_conv(packet_info *pinfo)
 		p_add_proto_data(wmem_file_scope(), pinfo, proto_t38, 0, p_t38_packet_conv);
 	}
 
-	if (ADDRESSES_EQUAL(&p_conv->key_ptr->addr1, &pinfo->net_src)) {
+	if (addresses_equal(&p_conv->key_ptr->addr1, &pinfo->net_src)) {
 		p_t38_conv_info = &(p_t38_conv->src_t38_info);
 		p_t38_packet_conv_info = &(p_t38_packet_conv->src_t38_info);
 	} else {

@@ -1705,9 +1705,9 @@ dissect_h225_H245TransportAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
     conversation_t *conv=NULL;
 
     if (ipv4_address!=0) {
-      SET_ADDRESS(&src_addr, AT_IPv4, 4, &ipv4_address);
+      set_address(&src_addr, AT_IPv4, 4, &ipv4_address);
     } else if (memcmp(ipv6_address.bytes, ipv6_address_zeros.bytes, sizeof(ipv6_address.bytes))!=0) {
-      SET_ADDRESS(&src_addr, AT_IPv6, 16, ipv6_address.bytes);
+      set_address(&src_addr, AT_IPv6, 16, ipv6_address.bytes);
     } else {
       return offset;
     }

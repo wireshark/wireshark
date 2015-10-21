@@ -690,8 +690,8 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     tvb, pasv_offset + (tokenlen+1) , ftp_ip_len, ftp_ip);
             proto_tree_add_uint(reqresp_tree, hf_ftp_active_port,
                     tvb, pasv_offset + 1 + (tokenlen+1) + ftp_ip_len, ftp_port_len, ftp_port);
-            SET_ADDRESS(&ftp_ip_address, AT_IPv4, 4, (const guint8 *)&ftp_ip);
-            ftp_nat = !ADDRESSES_EQUAL(&pinfo->src, &ftp_ip_address);
+            set_address(&ftp_ip_address, AT_IPv4, 4, (const guint8 *)&ftp_ip);
+            ftp_nat = !addresses_equal(&pinfo->src, &ftp_ip_address);
             if (ftp_nat) {
                 proto_tree_add_boolean(reqresp_tree, hf_ftp_active_nat,
                         tvb, 0, 0, ftp_nat);
@@ -710,9 +710,9 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         tvb, pasv_offset + 4, ftp_ip_len, pasv_ip);
                 proto_tree_add_uint(reqresp_tree, hf_ftp_pasv_port,
                         tvb, pasv_offset + 4 + 1 + ftp_ip_len, ftp_port_len, ftp_port);
-                SET_ADDRESS(&ftp_ip_address, AT_IPv4, 4,
+                set_address(&ftp_ip_address, AT_IPv4, 4,
                     (const guint8 *)&pasv_ip);
-                ftp_nat = !ADDRESSES_EQUAL(&pinfo->src, &ftp_ip_address);
+                ftp_nat = !addresses_equal(&pinfo->src, &ftp_ip_address);
                 if (ftp_nat) {
                     proto_tree_add_boolean(reqresp_tree, hf_ftp_pasv_nat,
                             tvb, 0, 0, ftp_nat);
@@ -778,13 +778,13 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (eprt_af == EPRT_AF_IPv4) {
                 proto_tree_add_ipv4(reqresp_tree, hf_ftp_eprt_ip,
                         tvb, eprt_offset, eprt_ip_len, eprt_ip);
-                SET_ADDRESS(&ftp_ip_address, AT_IPv4, 4,
+                set_address(&ftp_ip_address, AT_IPv4, 4,
                         (const guint8 *)&eprt_ip);
             }
             else if (eprt_af == EPRT_AF_IPv6) {
                 proto_tree_add_ipv6(reqresp_tree, hf_ftp_eprt_ipv6,
                         tvb, eprt_offset, eprt_ip_len, (const struct e_in6_addr *)eprt_ipv6);
-                SET_ADDRESS(&ftp_ip_address, AT_IPv6, 16, eprt_ipv6);
+                set_address(&ftp_ip_address, AT_IPv6, 16, eprt_ipv6);
             }
             eprt_offset += eprt_ip_len + 1; /* addr, 3rd delimiter */
 

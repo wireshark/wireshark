@@ -317,7 +317,7 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     if (bnep_type == BNEP_TYPE_GENERAL_ETHERNET || bnep_type == BNEP_TYPE_COMPRESSED_ETHERNET_DESTINATION_ONLY) {
         TVB_SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, tvb, offset, 6);
-        COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->dl_dst);
+        copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 
         addr_item = proto_tree_add_item(btbnep_tree, hf_btbnep_dst, tvb, offset, 6, ENC_NA);
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
@@ -329,7 +329,7 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     if (bnep_type == BNEP_TYPE_GENERAL_ETHERNET || bnep_type == BNEP_TYPE_COMPRESSED_ETHERNET_SOURCE_ONLY) {
         TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, offset, 6);
-        COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->dl_src);
+        copy_address_shallow(&pinfo->src, &pinfo->dl_src);
 
         addr_item = proto_tree_add_item(btbnep_tree, hf_btbnep_src, tvb, offset, 6, ENC_NA);
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);

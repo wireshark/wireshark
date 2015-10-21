@@ -422,7 +422,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		data->file->digest_type = digest_type;
 
 		data->broadcaster = wmem_new0(wmem_file_scope(), ldss_broadcaster_t);
-		COPY_ADDRESS(&data->broadcaster->addr, &pinfo->src);
+		copy_address(&data->broadcaster->addr, &pinfo->src);
 		data->broadcaster->port = port;
 
 		/* Dissect any future pushes/pulls */
@@ -786,8 +786,8 @@ is_broadcast(address* addr)
 		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 	};
 
-	SET_ADDRESS(&broadcast_addr, AT_ETHER, 6, broadcast_addr_bytes);
-	return ADDRESSES_EQUAL(addr, &broadcast_addr);
+	set_address(&broadcast_addr, AT_ETHER, 6, broadcast_addr_bytes);
+	return addresses_equal(addr, &broadcast_addr);
 }
 
 static int

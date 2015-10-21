@@ -121,7 +121,7 @@ gcp_msg_t* gcp_msg(packet_info* pinfo, int o, gboolean keep_persistent_data) {
         m->committed = FALSE;
     }
 
-    if (CMP_ADDRESS(src, dst) < 0)  {
+    if (cmp_address(src, dst) < 0)  {
         lo_addr = src;
         hi_addr = dst;
     } else {

@@ -182,7 +182,7 @@ static void dissect_vektor_igrp (tvbuff_t *tvb, proto_tree *igrp_vektor_tree, gu
     addr.addr_bytes[3]=0;
   }
 
-  SET_ADDRESS(&ip_addr, AT_IPv4, 4, &addr);
+  set_address(&ip_addr, AT_IPv4, 4, &addr);
   igrp_vektor_tree = proto_tree_add_subtree_format(igrp_vektor_tree, tvb, 0 ,14,
                                                    ett_igrp_net, NULL, "Entry for network %s", address_to_str(wmem_packet_scope(), &ip_addr));
   proto_tree_add_ipv4(igrp_vektor_tree, hf_igrp_network, tvb, 0, 3, addr.addr_word);

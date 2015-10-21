@@ -488,13 +488,13 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         expert_add_info(pinfo, bthci_acl_itam, &ei_invalid_session);
     }
 
-    SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, (int)strlen(src_name) + 1, src_name);
-    SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, src_bd_addr);
-    SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(src_addr_name) + 1, src_addr_name);
+    set_address(&pinfo->net_src, AT_STRINGZ, (int)strlen(src_name) + 1, src_name);
+    set_address(&pinfo->dl_src, AT_ETHER, 6, src_bd_addr);
+    set_address(&pinfo->src, AT_STRINGZ, (int)strlen(src_addr_name) + 1, src_addr_name);
 
-    SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, (int)strlen(dst_name) + 1, dst_name);
-    SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dst_bd_addr);
-    SET_ADDRESS(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr_name) + 1, dst_addr_name);
+    set_address(&pinfo->net_dst, AT_STRINGZ, (int)strlen(dst_name) + 1, dst_name);
+    set_address(&pinfo->dl_dst, AT_ETHER, 6, dst_bd_addr);
+    set_address(&pinfo->dst, AT_STRINGZ, (int)strlen(dst_addr_name) + 1, dst_addr_name);
 
     if (!pinfo->fd->flags.visited) {
         address *addr;

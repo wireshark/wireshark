@@ -2305,8 +2305,8 @@ dissect_rtmpt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                 rconv = rtmpt_init_rconv(conv);
         }
 
-        cdir = (ADDRESSES_EQUAL(&conv->key_ptr->addr1, &pinfo->src) &&
-                ADDRESSES_EQUAL(&conv->key_ptr->addr2, &pinfo->dst) &&
+        cdir = (addresses_equal(&conv->key_ptr->addr1, &pinfo->src) &&
+                addresses_equal(&conv->key_ptr->addr2, &pinfo->dst) &&
                 conv->key_ptr->port1 == pinfo->srcport &&
                 conv->key_ptr->port2 == pinfo->destport) ? 0 : 1;
 

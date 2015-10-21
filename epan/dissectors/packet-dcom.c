@@ -337,7 +337,7 @@ dcom_interface_t *dcom_interface_new(packet_info *pinfo, const address *addr, e_
 	dcom_iter = dcom_machines;
 	while(dcom_iter != NULL) {
 		machine = (dcom_machine_t *)dcom_iter->data;
-		if(CMP_ADDRESS(&machine->ip, addr) == 0) {
+		if(cmp_address(&machine->ip, addr) == 0) {
 			break;
 		}
 		dcom_iter = g_list_next(dcom_iter);
@@ -346,7 +346,7 @@ dcom_interface_t *dcom_interface_new(packet_info *pinfo, const address *addr, e_
 	/* create new machine if not found */
 	if(dcom_iter == NULL) {
 		machine = g_new(dcom_machine_t,1);
-		COPY_ADDRESS(&machine->ip, addr);
+		copy_address(&machine->ip, addr);
 		machine->objects = NULL;
 		machine->first_packet = pinfo->fd->num;
 		dcom_machines = g_list_append(dcom_machines, machine);
@@ -1840,8 +1840,8 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 					if(first_ip != curr_ip) {
 						address first_ip_addr, curr_ip_addr;
 
-						SET_ADDRESS(&first_ip_addr, AT_IPv4, 4, &first_ip);
-						SET_ADDRESS(&curr_ip_addr, AT_IPv4, 4, &curr_ip);
+						set_address(&first_ip_addr, AT_IPv4, 4, &first_ip);
+						set_address(&curr_ip_addr, AT_IPv4, 4, &curr_ip);
 						expert_add_info_format(pinfo, pi, &ei_dcom_dualstringarray_mult_ip,
 								       "DUALSTRINGARRAY: multiple IP's %s %s",
 								       address_to_str(wmem_packet_scope(), &first_ip_addr), address_to_str(wmem_packet_scope(), &curr_ip_addr));
@@ -2101,7 +2101,7 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		if(pinfo->net_src.type == AT_IPv4) {
 			address addr;
 
-			SET_ADDRESS(&addr, AT_IPv4, 4, ip);
+			set_address(&addr, AT_IPv4, 4, ip);
 			dcom_if = dcom_interface_new(pinfo,
 						     &addr,
 						     &iid, oxid, oid, &ipid);

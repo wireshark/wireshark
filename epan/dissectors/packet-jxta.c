@@ -687,7 +687,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                           address_to_str(wmem_packet_scope(), &tpt_conv_data->initiator_tpt_address), tpt_conv_data->initiator_tpt_port,
                           address_to_str(wmem_packet_scope(), &tpt_conv_data->receiver_tpt_address), tpt_conv_data->receiver_tpt_port); */
 
-                if (ADDRESSES_EQUAL(&pinfo->src, &tpt_conv_data->initiator_tpt_address)
+                if (addresses_equal(&pinfo->src, &tpt_conv_data->initiator_tpt_address)
                     && tpt_conv_data->initiator_tpt_port == pinfo->srcport) {
                     /* g_message("%d From initiator : %s -> %s ", pinfo->fd->num,
                               address_to_str(wmem_packet_scope(), &tpt_conv_data->initiator_address),
@@ -697,7 +697,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                     pinfo->dst = tpt_conv_data->receiver_address;
                     pinfo->destport = 0;
                     pinfo->ptype = PT_NONE;
-                } else if (ADDRESSES_EQUAL(&pinfo->src, &tpt_conv_data->receiver_tpt_address) &&
+                } else if (addresses_equal(&pinfo->src, &tpt_conv_data->receiver_tpt_address) &&
                            tpt_conv_data->receiver_tpt_port == pinfo->srcport) {
                     /* g_message("%d From receiver : %s -> %s ", pinfo->fd->num,
                               address_to_str(wmem_packet_scope(), &tpt_conv_data->receiver_address),

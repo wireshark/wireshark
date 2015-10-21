@@ -529,14 +529,14 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
 
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = TRUE;
-    COPY_ADDRESS_SHALLOW(&save_src, &pinfo->src);
-    COPY_ADDRESS_SHALLOW(&save_dst, &pinfo->dst);
+    copy_address_shallow(&save_src, &pinfo->src);
+    copy_address_shallow(&save_dst, &pinfo->dst);
 
     /* It's possible that a fragment in the same packet set an address already
      * This will change the hash value, we need to make sure it's NULL */
 
-    SET_ADDRESS(&pinfo->src, mp2t_no_address_type, 0, NULL);
-    SET_ADDRESS(&pinfo->dst, mp2t_no_address_type, 0, NULL);
+    set_address(&pinfo->src, mp2t_no_address_type, 0, NULL);
+    set_address(&pinfo->dst, mp2t_no_address_type, 0, NULL);
 
     /* check length; send frame for reassembly */
     frag_msg = fragment_add_check(&mp2t_reassembly_table,
@@ -550,8 +550,8 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
             frag_msg, &mp2t_msg_frag_items,
             NULL, tree);
 
-    COPY_ADDRESS_SHALLOW(&pinfo->src, &save_src);
-    COPY_ADDRESS_SHALLOW(&pinfo->dst, &save_dst);
+    copy_address_shallow(&pinfo->src, &save_src);
+    copy_address_shallow(&pinfo->dst, &save_dst);
 
     if (new_tvb) {
         /* ti = */ proto_tree_add_item(tree, hf_msg_ts_packet_reassembled, tvb, 0, 0, ENC_NA);

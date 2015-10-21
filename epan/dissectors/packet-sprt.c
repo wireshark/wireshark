@@ -782,7 +782,7 @@ void sprt_add_address(packet_info *pinfo,
         return;
     }
 
-    SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
+    set_address(&null_addr, AT_NONE, 0, NULL);
 
     /*
      * Check if the ip address and port combination is not

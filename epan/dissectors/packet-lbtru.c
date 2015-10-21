@@ -1406,16 +1406,16 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     /* Find (or create) the transport and client entries */
     if (from_source)
     {
-        COPY_ADDRESS_SHALLOW(&source_address, &(pinfo->src));
+        copy_address_shallow(&source_address, &(pinfo->src));
         source_port = pinfo->srcport;
-        COPY_ADDRESS_SHALLOW(&receiver_address, &(pinfo->dst));
+        copy_address_shallow(&receiver_address, &(pinfo->dst));
         receiver_port = pinfo->destport;
     }
     else
     {
-        COPY_ADDRESS_SHALLOW(&source_address, &(pinfo->dst));
+        copy_address_shallow(&source_address, &(pinfo->dst));
         source_port = pinfo->destport;
-        COPY_ADDRESS_SHALLOW(&receiver_address, &(pinfo->src));
+        copy_address_shallow(&receiver_address, &(pinfo->src));
         receiver_port = pinfo->srcport;
     }
     if (pinfo->fd->flags.visited == 0)

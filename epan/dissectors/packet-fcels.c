@@ -1938,7 +1938,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             addrdata[0] = addrdata[1] = 0;
             addrdata[2] = dstfc[2];
-            SET_ADDRESS (&dstaddr, AT_FC, 3, addrdata);
+            set_address (&dstaddr, AT_FC, 3, addrdata);
             conversation = find_conversation (pinfo->fd->num, &dstaddr, &pinfo->src,
                                               pinfo->ptype, fchdr->oxid,
                                               fchdr->rxid, options);

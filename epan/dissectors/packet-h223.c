@@ -546,12 +546,12 @@ find_or_create_call_info_conv(packet_info * pinfo)
         conversation_add_proto_data(conv, proto_h223, datax);
         /* add the source details so we can distinguish directions
          * in future */
-        COPY_ADDRESS(&(datax -> srcaddress), &(pinfo->src));
+        copy_address(&(datax -> srcaddress), &(pinfo->src));
         datax -> srcport = pinfo->srcport;
     }
 
     /* work out what direction we're really going in */
-    if( ADDRESSES_EQUAL( &(pinfo->src), &(datax->srcaddress))
+    if( addresses_equal( &(pinfo->src), &(datax->srcaddress))
         && pinfo->srcport == datax->srcport )
         pinfo->p2p_dir = P2P_DIR_SENT;
     else

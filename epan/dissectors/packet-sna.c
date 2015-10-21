@@ -1729,13 +1729,13 @@ dissect_fid0_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Set DST addr */
 	TVB_SET_ADDRESS(&pinfo->net_dst, sna_address_type, tvb, 2, SNA_FID01_ADDR_LEN);
-	COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+	copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
 	proto_tree_add_item(tree, hf_sna_th_oaf, tvb, 4, 2, ENC_BIG_ENDIAN);
 
 	/* Set SRC addr */
 	TVB_SET_ADDRESS(&pinfo->net_src, sna_address_type, tvb, 4, SNA_FID01_ADDR_LEN);
-	COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+	copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
 	proto_tree_add_item(tree, hf_sna_th_snf, tvb, 6, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_sna_th_dcf, tvb, 8, 2, ENC_BIG_ENDIAN);
@@ -1781,14 +1781,14 @@ dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* Set DST addr */
 	TVB_SET_ADDRESS(&pinfo->net_dst, sna_address_type, tvb, 2, SNA_FID2_ADDR_LEN);
-	COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+	copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
 	/* Byte 3 */
 	proto_tree_add_item(tree, hf_sna_th_oaf, tvb, 3, 1, ENC_BIG_ENDIAN);
 
 	/* Set SRC addr */
 	TVB_SET_ADDRESS(&pinfo->net_src, sna_address_type, tvb, 3, SNA_FID2_ADDR_LEN);
-	COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+	copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
 	id = tvb_get_ntohs(tvb, 4);
 	proto_tree_add_item(tree, hf_sna_th_snf, tvb, 4, 2, ENC_BIG_ENDIAN);
@@ -1978,8 +1978,8 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dst = wmem_new0(pinfo->pool, struct sna_fid_type_4_addr);
 	dst->saf = dsaf;
 	dst->ef = def;
-	SET_ADDRESS(&pinfo->net_dst, sna_address_type, SNA_FID_TYPE_4_ADDR_LEN, dst);
-	COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);
+	set_address(&pinfo->net_dst, sna_address_type, SNA_FID_TYPE_4_ADDR_LEN, dst);
+	copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
 	oef = tvb_get_ntohs(tvb, 20);
 	proto_tree_add_uint(tree, hf_sna_th_oef, tvb, offset+2, 2, oef);
@@ -1988,8 +1988,8 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	src = wmem_new0(pinfo->pool, struct sna_fid_type_4_addr);
 	src->saf = osaf;
 	src->ef = oef;
-	SET_ADDRESS(&pinfo->net_src, sna_address_type, SNA_FID_TYPE_4_ADDR_LEN, src);
-	COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->net_src);
+	set_address(&pinfo->net_src, sna_address_type, SNA_FID_TYPE_4_ADDR_LEN, src);
+	copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
 	proto_tree_add_item(tree, hf_sna_th_snf, tvb, offset+4, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_sna_th_dcf, tvb, offset+6, 2, ENC_BIG_ENDIAN);

@@ -173,14 +173,14 @@ static int Pinfo__tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1
 #define PINFO_ADDRESS_GETTER(name) \
     WSLUA_ATTRIBUTE_GET(Pinfo,name, { \
       Address addr = g_new(address,1); \
-      COPY_ADDRESS(addr, &(obj->ws_pinfo->name)); \
+      copy_address(addr, &(obj->ws_pinfo->name)); \
       pushAddress(L,addr); \
     })
 
 #define PINFO_ADDRESS_SETTER(name) \
     WSLUA_ATTRIBUTE_SET(Pinfo,name, { \
       const address* from = checkAddress(L,-1); \
-      COPY_ADDRESS(&(obj->ws_pinfo->name),from); \
+      copy_address(&(obj->ws_pinfo->name),from); \
     })
 
 #define PINFO_NAMED_BOOLEAN_GETTER(name,member) \
@@ -374,10 +374,10 @@ static int Pinfo_get_hi(lua_State *L) {
     Address addr;
 
     addr = (Address)g_malloc(sizeof(address));
-    if (CMP_ADDRESS(&(pinfo->ws_pinfo->src), &(pinfo->ws_pinfo->dst) ) >= 0) {
-        COPY_ADDRESS(addr, &(pinfo->ws_pinfo->src));
+    if (cmp_address(&(pinfo->ws_pinfo->src), &(pinfo->ws_pinfo->dst) ) >= 0) {
+        copy_address(addr, &(pinfo->ws_pinfo->src));
     } else {
-        COPY_ADDRESS(addr, &(pinfo->ws_pinfo->dst));
+        copy_address(addr, &(pinfo->ws_pinfo->dst));
     }
 
     pushAddress(L,addr);
@@ -390,10 +390,10 @@ static int Pinfo_get_lo(lua_State *L) {
     Address addr;
 
     addr = (Address)g_malloc(sizeof(address));
-    if (CMP_ADDRESS(&(pinfo->ws_pinfo->src), &(pinfo->ws_pinfo->dst) ) < 0) {
-        COPY_ADDRESS(addr, &(pinfo->ws_pinfo->src));
+    if (cmp_address(&(pinfo->ws_pinfo->src), &(pinfo->ws_pinfo->dst) ) < 0) {
+        copy_address(addr, &(pinfo->ws_pinfo->src));
     } else {
-        COPY_ADDRESS(addr, &(pinfo->ws_pinfo->dst));
+        copy_address(addr, &(pinfo->ws_pinfo->dst));
     }
 
     pushAddress(L,addr);

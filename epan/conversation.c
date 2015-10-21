@@ -236,8 +236,8 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
 	 */
 	if (v1->port1 == v2->port1 &&
 	    v1->port2 == v2->port2 &&
-	    ADDRESSES_EQUAL(&v1->addr1, &v2->addr1) &&
-	    ADDRESSES_EQUAL(&v1->addr2, &v2->addr2)) {
+	    addresses_equal(&v1->addr1, &v2->addr1) &&
+	    addresses_equal(&v1->addr2, &v2->addr2)) {
 		/*
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in the same direction.
@@ -253,8 +253,8 @@ conversation_match_exact(gconstpointer v, gconstpointer w)
 	 */
 	if (v1->port2 == v2->port1 &&
 	    v1->port1 == v2->port2 &&
-	    ADDRESSES_EQUAL(&v1->addr2, &v2->addr1) &&
-	    ADDRESSES_EQUAL(&v1->addr1, &v2->addr2)) {
+	    addresses_equal(&v1->addr2, &v2->addr1) &&
+	    addresses_equal(&v1->addr1, &v2->addr2)) {
 		/*
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in opposite directions.
@@ -319,7 +319,7 @@ conversation_match_no_addr2(gconstpointer v, gconstpointer w)
 	 */
 	if (v1->port1 == v2->port1 &&
 	    v1->port2 == v2->port2 &&
-	    ADDRESSES_EQUAL(&v1->addr1, &v2->addr1)) {
+	    addresses_equal(&v1->addr1, &v2->addr1)) {
 		/*
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in the same direction.
@@ -382,8 +382,8 @@ conversation_match_no_port2(gconstpointer v, gconstpointer w)
 	 * address 2 values the same?
 	 */
 	if (v1->port1 == v2->port1 &&
-	    ADDRESSES_EQUAL(&v1->addr1, &v2->addr1) &&
-	    ADDRESSES_EQUAL(&v1->addr2, &v2->addr2)) {
+	    addresses_equal(&v1->addr1, &v2->addr1) &&
+	    addresses_equal(&v1->addr2, &v2->addr2)) {
 		/*
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in the same direction.
@@ -443,7 +443,7 @@ conversation_match_no_addr2_or_port2(gconstpointer v, gconstpointer w)
 	 * and second address 1 values the same?
 	 */
 	if (v1->port1 == v2->port1 &&
-	    ADDRESSES_EQUAL(&v1->addr1, &v2->addr1)) {
+	    addresses_equal(&v1->addr1, &v2->addr1)) {
 		/*
 		 * Yes.  It's the same conversation, and the two
 		 * address/port pairs are going in the same direction.

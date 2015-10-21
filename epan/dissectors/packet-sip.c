@@ -1003,9 +1003,9 @@ static gint sip_equal(gconstpointer v, gconstpointer v2)
     }
 
     /* Addresses must match */
-    return  (ADDRESSES_EQUAL(&(val1->source_address), &(val2->source_address))) &&
+    return  (addresses_equal(&(val1->source_address), &(val2->source_address))) &&
         (val1->source_port == val2->source_port) &&
-        (ADDRESSES_EQUAL(&(val1->dest_address), &(val2->dest_address))) &&
+        (addresses_equal(&(val1->dest_address), &(val2->dest_address))) &&
         (val1->dest_port == val2->dest_port);
 }
 
@@ -4349,9 +4349,9 @@ guint sip_is_packet_resend(packet_info *pinfo,
     /*  We're only using these addresses locally (for the hash lookup) so
      *  there is no need to make a (g_malloc'd) copy of them.
      */
-    SET_ADDRESS(&key.dest_address, pinfo->net_dst.type, pinfo->net_dst.len,
+    set_address(&key.dest_address, pinfo->net_dst.type, pinfo->net_dst.len,
             pinfo->net_dst.data);
-    SET_ADDRESS(&key.source_address, pinfo->net_src.type,
+    set_address(&key.source_address, pinfo->net_src.type,
             pinfo->net_src.len, pinfo->net_src.data);
     key.dest_port = pinfo->destport;
     if (sip_retrans_the_same_sport) {
@@ -4545,9 +4545,9 @@ guint sip_find_request(packet_info *pinfo,
     g_strlcpy(key.call_id, call_id, MAX_CALL_ID_SIZE);
 
     /* Looking for matching request, so reverse addresses for this lookup */
-    SET_ADDRESS(&key.dest_address, pinfo->net_src.type, pinfo->net_src.len,
+    set_address(&key.dest_address, pinfo->net_src.type, pinfo->net_src.len,
             pinfo->net_src.data);
-    SET_ADDRESS(&key.source_address, pinfo->net_dst.type, pinfo->net_dst.len,
+    set_address(&key.source_address, pinfo->net_dst.type, pinfo->net_dst.len,
             pinfo->net_dst.data);
     key.dest_port = pinfo->srcport;
     key.source_port = pinfo->destport;
@@ -4659,9 +4659,9 @@ guint sip_find_invite(packet_info *pinfo,
     g_strlcpy(key.call_id, call_id, MAX_CALL_ID_SIZE);
 
     /* Looking for matching INVITE */
-    SET_ADDRESS(&key.dest_address, pinfo->net_dst.type, pinfo->net_dst.len,
+    set_address(&key.dest_address, pinfo->net_dst.type, pinfo->net_dst.len,
             pinfo->net_dst.data);
-    SET_ADDRESS(&key.source_address, pinfo->net_src.type, pinfo->net_src.len,
+    set_address(&key.source_address, pinfo->net_src.type, pinfo->net_src.len,
             pinfo->net_src.data);
     key.dest_port = pinfo->destport;
     key.source_port = pinfo->srcport;

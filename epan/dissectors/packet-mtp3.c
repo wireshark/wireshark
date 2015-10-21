@@ -610,11 +610,11 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
 
   mtp3_addr_opc->type = (Standard_Type)mtp3_standard;
   mtp3_addr_opc->pc = opc;
-  SET_ADDRESS(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);
+  set_address(&pinfo->src, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_opc);
 
   mtp3_addr_dpc->type = (Standard_Type)mtp3_standard;
   mtp3_addr_dpc->pc = dpc;
-  SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
+  set_address(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
 }
 
 static void

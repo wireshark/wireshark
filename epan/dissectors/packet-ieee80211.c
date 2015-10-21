@@ -16697,14 +16697,14 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
        * All management frame types have the same header.
        */
       TVB_SET_ADDRESS(&pinfo->dl_src, wlan_address_type, tvb, 10, 6);
-      COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->dl_src);
+      copy_address_shallow(&pinfo->src, &pinfo->dl_src);
       TVB_SET_ADDRESS(&pinfo->dl_dst, wlan_address_type, tvb, 4, 6);
-      COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->dl_dst);
+      copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 
       /* for tap */
       TVB_SET_ADDRESS(&whdr->bssid, wlan_bssid_address_type, tvb, 16, 6);
-      COPY_ADDRESS_SHALLOW(&whdr->src, &pinfo->dl_src);
-      COPY_ADDRESS_SHALLOW(&whdr->dst, &pinfo->dl_dst);
+      copy_address_shallow(&whdr->src, &pinfo->dl_src);
+      copy_address_shallow(&whdr->dst, &pinfo->dl_dst);
 
       seq_control = tvb_get_letohs(tvb, 22);
       frag_number = SEQCTL_FRAGMENT_NUMBER(seq_control);
@@ -17365,15 +17365,15 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 
 
       TVB_SET_ADDRESS(&pinfo->dl_src, wlan_address_type, tvb, sa_offset, 6);
-      COPY_ADDRESS_SHALLOW(&pinfo->src, &pinfo->dl_src);
+      copy_address_shallow(&pinfo->src, &pinfo->dl_src);
       TVB_SET_ADDRESS(&pinfo->dl_dst, wlan_address_type, tvb, da_offset, 6);
-      COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->dl_dst);
+      copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 
       /* for tap */
       TVB_SET_ADDRESS(&whdr->bssid, wlan_bssid_address_type, tvb, bssid_offset, 6);
 
-      COPY_ADDRESS_SHALLOW(&whdr->src, &pinfo->dl_src);
-      COPY_ADDRESS_SHALLOW(&whdr->dst, &pinfo->dl_dst);
+      copy_address_shallow(&whdr->src, &pinfo->dl_src);
+      copy_address_shallow(&whdr->dst, &pinfo->dl_dst);
 
       seq_control = tvb_get_letohs(tvb, 22);
       frag_number = SEQCTL_FRAGMENT_NUMBER(seq_control);

@@ -77,8 +77,8 @@ fragment_addresses_equal(gconstpointer k1, gconstpointer k2)
 	 * the comparison of addresses.
 	 */
 	return (key1->id == key2->id) &&
-	       (ADDRESSES_EQUAL(&key1->src, &key2->src)) &&
-	       (ADDRESSES_EQUAL(&key1->dst, &key2->dst));
+	       (addresses_equal(&key1->src, &key2->src)) &&
+	       (addresses_equal(&key1->dst, &key2->dst));
 }
 
 /*
@@ -115,8 +115,8 @@ fragment_addresses_persistent_key(const packet_info *pinfo, const guint32 id,
 	/*
 	 * Do a deep copy of the addresses.
 	 */
-	COPY_ADDRESS(&key->src, &pinfo->src);
-	COPY_ADDRESS(&key->dst, &pinfo->dst);
+	copy_address(&key->src, &pinfo->src);
+	copy_address(&key->dst, &pinfo->dst);
 	key->id = id;
 
 	return (gpointer)key;
@@ -209,8 +209,8 @@ fragment_addresses_ports_equal(gconstpointer k1, gconstpointer k2)
 	 * the comparison of addresses and ports.
 	 */
 	return (key1->id == key2->id) &&
-	       (ADDRESSES_EQUAL(&key1->src_addr, &key2->src_addr)) &&
-	       (ADDRESSES_EQUAL(&key1->dst_addr, &key2->dst_addr)) &&
+	       (addresses_equal(&key1->src_addr, &key2->src_addr)) &&
+	       (addresses_equal(&key1->dst_addr, &key2->dst_addr)) &&
 	       (key1->src_port == key2->src_port) &&
 	       (key1->dst_port == key2->dst_port);
 }
@@ -251,8 +251,8 @@ fragment_addresses_ports_persistent_key(const packet_info *pinfo,
 	/*
 	 * Do a deep copy of the addresses.
 	 */
-	COPY_ADDRESS(&key->src_addr, &pinfo->src);
-	COPY_ADDRESS(&key->dst_addr, &pinfo->dst);
+	copy_address(&key->src_addr, &pinfo->src);
+	copy_address(&key->dst_addr, &pinfo->dst);
 	key->src_port = pinfo->srcport;
 	key->dst_port = pinfo->destport;
 	key->id = id;

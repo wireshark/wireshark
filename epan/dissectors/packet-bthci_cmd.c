@@ -3098,12 +3098,12 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
     }
 
-    SET_ADDRESS(&pinfo->src,     AT_STRINGZ,  5, "host");
-    SET_ADDRESS(&pinfo->dst,     AT_STRINGZ, 11, "controller");
-    SET_ADDRESS(&pinfo->net_src, AT_STRINGZ,  5, "host");
-    SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, 11, "controller");
-    SET_ADDRESS(&pinfo->dl_src,  AT_STRINGZ,  5, "host");
-    SET_ADDRESS(&pinfo->dl_dst,  AT_STRINGZ, 11, "controller");
+    set_address(&pinfo->src,     AT_STRINGZ,  5, "host");
+    set_address(&pinfo->dst,     AT_STRINGZ, 11, "controller");
+    set_address(&pinfo->net_src, AT_STRINGZ,  5, "host");
+    set_address(&pinfo->net_dst, AT_STRINGZ, 11, "controller");
+    set_address(&pinfo->dl_src,  AT_STRINGZ,  5, "host");
+    set_address(&pinfo->dl_dst,  AT_STRINGZ, 11, "controller");
     if (!pinfo->fd->flags.visited) {
         address *addr;
 
