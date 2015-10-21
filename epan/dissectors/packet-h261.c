@@ -124,7 +124,7 @@ proto_register_h261(void)
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
-				0x0,
+				0xe0,
 				NULL, HFILL
 			}
 		},
@@ -136,7 +136,7 @@ proto_register_h261(void)
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
-				0x0,
+				0x1c,
 				NULL, HFILL
 			}
 		},
@@ -146,9 +146,9 @@ proto_register_h261(void)
 				"Intra frame encoded data flag",
 				"h261.i",
 				FT_BOOLEAN,
-				BASE_NONE,
+				8,
 				NULL,
-				0x0,
+				0x02,
 				NULL, HFILL
 			}
 		},
@@ -158,9 +158,9 @@ proto_register_h261(void)
 				"Motion vector flag",
 				"h261.v",
 				FT_BOOLEAN,
-				BASE_NONE,
+				8,
 				NULL,
-				0x0,
+				0x01,
 				NULL, HFILL
 			}
 		},
