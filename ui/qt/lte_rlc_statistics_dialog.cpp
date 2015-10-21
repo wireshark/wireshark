@@ -105,11 +105,13 @@ typedef struct rlc_channel_stats {
     guint32  UL_bytes;
     nstime_t UL_time_start;
     nstime_t UL_time_stop;
+    gboolean UL_has_data; // i.e. not just ACKs for DL.
 
     guint32  DL_frames;
     guint32  DL_bytes;
     nstime_t DL_time_start;
     nstime_t DL_time_stop;
+    gboolean DL_has_data;  // i.e. not just ACKs for UL.
 
     guint32  UL_acks;
     guint32  UL_nacks;
@@ -213,6 +215,9 @@ public:
             if (tap_info->isControlPDU) {
                 stats_.UL_acks++;
             }
+            else {
+                stats_.UL_has_data = TRUE;
+            }
         }
         else {
             // Update time range.
@@ -227,6 +232,9 @@ public:
             stats_.DL_missing += tap_info->missingSNs;
             if (tap_info->isControlPDU) {
                 stats_.DL_acks++;
+            }
+            else {
+                stats_.DL_has_data = TRUE;
             }
         }
     }
@@ -325,6 +333,9 @@ public:
     unsigned get_channelType() const { return channelType_; }
     unsigned get_channelId() const { return channelId_; }
     unsigned get_mode() const { return mode_; }
+
+    bool     hasULData() const { return stats_.UL_has_data != 0; }
+    bool     hasDLData() const { return stats_.DL_has_data != 0; }
 
 private:
     unsigned ueid_;
@@ -854,14 +865,17 @@ void LteRlcStatisticsDialog::updateItemSelectionChanged()
 {
     updateHeaderLabels();
 
-    bool enableGraphButtons = false;
+    bool enableULGraphButton = false, enableDLGraphButton = false;
     if (statsTreeWidget()->selectedItems().count() > 0 && statsTreeWidget()->selectedItems()[0]->type() == rlc_channel_row_type_) {
-        enableGraphButtons = true;
+        QTreeWidgetItem *ti = statsTreeWidget()->selectedItems()[0];
+        RlcChannelTreeWidgetItem *rc_ti = static_cast<RlcChannelTreeWidgetItem*>(ti);
+        enableULGraphButton = rc_ti->hasULData();
+        enableDLGraphButton = rc_ti->hasDLData();
     }
 
     // Only enabling graph buttons for channel entries.
-    launchULGraph_->setEnabled(enableGraphButtons);
-    launchDLGraph_->setEnabled(enableGraphButtons);
+    launchULGraph_->setEnabled(enableULGraphButton);
+    launchDLGraph_->setEnabled(enableDLGraphButton);
 }
 
 void LteRlcStatisticsDialog::updateHeaderLabels()
