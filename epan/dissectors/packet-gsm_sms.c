@@ -1933,13 +1933,16 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         }
         else if (eight_bit)
         {
-            /* proto_tree_add_format_text(subtree, tvb, offset, length); */
-            if (! dissector_try_uint(gsm_sms_dissector_tbl, udh_fields.port_src, sm_tvb, pinfo, subtree))
-            {
-                if (! dissector_try_uint(gsm_sms_dissector_tbl, udh_fields.port_dst,sm_tvb, pinfo, subtree))
+            if (!is_fragmented || (reassembled && pinfo->fd->num == reassembled_in)) {
+                if (! dissector_try_uint(gsm_sms_dissector_tbl, udh_fields.port_src, sm_tvb, pinfo, subtree))
                 {
-                    proto_tree_add_item(subtree, hf_gsm_sms_body, tvb, offset, length, ENC_NA);
+                    if (! dissector_try_uint(gsm_sms_dissector_tbl, udh_fields.port_dst,sm_tvb, pinfo, subtree))
+                    {
+                        proto_tree_add_item(subtree, hf_gsm_sms_body, tvb, offset, length, ENC_NA);
+                    }
                 }
+            } else {
+                proto_tree_add_item(subtree, hf_gsm_sms_body, tvb, offset, length, ENC_NA);
             }
         }
         else if (ucs2)
