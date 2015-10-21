@@ -230,6 +230,10 @@ if( NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" AND
 endif()
 
 # Always enable -fPIE (or -fPIC). -pie is added below for non-MSVC.
+# Needed when either:
+# - Qt5_POSITION_INDEPENDENT_CODE is set and CMake < 2.8.11
+# - PIE is wanted (-pie) and you want to add -fPIC/-fPIE automatically.
+# This option only has an effect on CMake >= 2.8.9
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
@@ -592,11 +596,17 @@ endif()
 if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	set(WIRESHARK_LD_FLAGS
 		-Wl,--as-needed
-		-pie
 		# -flto
 		# -fwhopr
 		# -fwhole-program
 	)
+	# CMAKE_POSITION_INDEPENDENT_CODE is only supported starting with CMake
+	# 2.8.9. Do not add -pie automatically for older versions.
+	if(NOT CMAKE_VERSION VERSION_LESS "2.8.9")
+		set(WIRESHARK_LD_FLAGS ${WIRESHARK_LD_FLAGS}
+			-pie
+		)
+	endif()
 endif()
 
 include(CheckCLinkerFlag)
