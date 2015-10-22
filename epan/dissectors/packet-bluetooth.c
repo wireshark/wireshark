@@ -208,6 +208,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x1820,   "Internet Protocol Support" },
     { 0x1821,   "Indoor Positioning" },
     { 0x1822,   "Pulse Oximeter" },
+    { 0x1823,   "HTTP Proxy" },
     /* Units - https://developer.bluetooth.org/gatt/units/Pages/default.aspx */
     { 0x2700,   "unitless" },
     { 0x2701,   "length (metre)" },
@@ -500,6 +501,12 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2AB3,   "Altitude" },
     { 0x2AB4,   "Uncertainty" },
     { 0x2AB5,   "Location Name" },
+    { 0x2AB6,   "URI" },
+    { 0x2AB7,   "HTTP Headers" },
+    { 0x2AB8,   "HTTP Status Code" },
+    { 0x2AB9,   "HTTP Entity Body" },
+    { 0x2ABA,   "HTTP Control Point" },
+    { 0x2ABB,   "HTTPS Security" },
     /*  16-bit UUID for Members - https://www.bluetooth.org/en-us/Pages/LoginRestrictedAll/16-bit-UUIDs-member.aspx */
     { 0XFEB6, "Vencer Co, Ltd" },
     { 0XFEB7, "Facebook, Inc." },

@@ -326,7 +326,7 @@ static heur_dissector_list_t heur_subdissector_list;
 
 /* --- HTTP Status Codes */
 /* Note: The reference for uncommented entries is RFC 2616 */
-static const value_string vals_status_code[] = {
+const value_string vals_http_status_code[] = {
 	{ 100, "Continue" },
 	{ 101, "Switching Protocols" },
 	{ 102, "Processing" },                     /* RFC 2518 */
@@ -576,7 +576,7 @@ http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 		tick_stat_node(st, resp_str, st_node_responses, FALSE);
 
 		g_snprintf(str, sizeof(str), "%u %s", i,
-			   val_to_str(i, vals_status_code, "Unknown (%d)"));
+			   val_to_str(i, vals_http_status_code, "Unknown (%d)"));
 		tick_stat_node(st, str, resp_grp, FALSE);
 	} else if (v->request_method) {
 		stats_tree_tick_pivot(st,st_node_requests,v->request_method);

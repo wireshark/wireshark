@@ -40,6 +40,7 @@
 #include "packet-btatt.h"
 #include "packet-btl2cap.h"
 #include "packet-btsdp.h"
+#include "packet-http.h"
 #include "packet-usb-hid.h"
 
 /* Initialize the protocol and registered fields */
@@ -824,6 +825,18 @@ static int hf_btatt_cgm_specific_ops_control_point_operand_alert_level = -1;
 static int hf_btatt_cgm_specific_ops_control_point_operand_alert_level_rate = -1;
 static int hf_btatt_cgm_specific_ops_control_point_request_opcode = -1;
 static int hf_btatt_cgm_specific_ops_control_point_response_code = -1;
+static int hf_btatt_uri = -1;
+static int hf_btatt_http_headers = -1;
+static int hf_btatt_http_status_code = -1;
+static int hf_btatt_http_data_status = -1;
+static int hf_btatt_http_data_status_reserved = -1;
+static int hf_btatt_http_data_status_body_truncated = -1;
+static int hf_btatt_http_data_status_body_received = -1;
+static int hf_btatt_http_data_status_headers_truncated = -1;
+static int hf_btatt_http_data_status_headers_received = -1;
+static int hf_btatt_http_entity_body = -1;
+static int hf_btatt_http_control_point_opcode = -1;
+static int hf_btatt_https_security = -1;
 static int hf_gatt_nordic_uart_tx = -1;
 static int hf_gatt_nordic_uart_rx = -1;
 static int hf_gatt_nordic_dfu_packet = -1;
@@ -1482,6 +1495,15 @@ static const int *hfx_btatt_cgm_specific_ops_control_point_calibration_status[] 
     NULL
 };
 
+static const int *hfx_btatt_http_data_status[] = {
+    &hf_btatt_http_data_status_reserved,
+    &hf_btatt_http_data_status_body_truncated,
+    &hf_btatt_http_data_status_body_received,
+    &hf_btatt_http_data_status_headers_truncated,
+    &hf_btatt_http_data_status_headers_received,
+    NULL
+};
+
 /* Initialize the subtree pointers */
 static gint ett_btatt = -1;
 static gint ett_btatt_list = -1;
@@ -1509,6 +1531,7 @@ static wmem_tree_t *handle_to_uuid = NULL;
 
 static dissector_handle_t btatt_handle;
 static dissector_handle_t btgatt_handle;
+static dissector_handle_t http_handle;
 static dissector_handle_t usb_hid_boot_keyboard_input_report_handle;
 static dissector_handle_t usb_hid_boot_keyboard_output_report_handle;
 static dissector_handle_t usb_hid_boot_mouse_input_report_handle;
@@ -2844,6 +2867,27 @@ static const value_string nordic_dfu_control_point_response_value_vals[] = {
     { 0x04,   "Data Size Exceeds Limit"},
     { 0x05,   "CRC Error"},
     { 0x06,   "Operation Failed"},
+    {0x0, NULL}
+};
+
+static const value_string https_security_vals[] = {
+    { 0x00,   "False"},
+    { 0x01,   "True"},
+    {0x0, NULL}
+};
+
+static const value_string http_control_point_opcode_vals[] = {
+    { 0x01,   "HTTP GET Request"},
+    { 0x02,   "HTTP HEAD Request"},
+    { 0x03,   "HTTP POST Request"},
+    { 0x04,   "HTTP PUT Request"},
+    { 0x05,   "HTTP DELETE Request"},
+    { 0x06,   "HTTPS GET Request"},
+    { 0x07,   "HTTPS HEAD Request"},
+    { 0x08,   "HTTPS POST Request"},
+    { 0x09,   "HTTPS PUT Request"},
+    { 0x0A,   "HTTPS DELETE Request"},
+    { 0x0B,   "HTTP Request Cancel"},
     {0x0, NULL}
 };
 
@@ -5743,6 +5787,44 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         offset += tvb_captured_length_remaining(tvb, offset);
 
         break;
+    case 0x2AB6: /* URI */
+        proto_tree_add_item(tree, hf_btatt_uri, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        offset += tvb_captured_length_remaining(tvb, offset);
+
+        break;
+    case 0x2AB7: /* HTTP Headers */
+        sub_item = proto_tree_add_item(tree, hf_btatt_http_headers, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        sub_tree = proto_item_add_subtree(sub_item, ett_btatt_value);
+
+        call_dissector(http_handle, tvb_new_subset_remaining(tvb, offset), pinfo, sub_tree);
+
+        offset += tvb_captured_length_remaining(tvb, offset);
+
+        break;
+    case 0x2AB8: /* HTTP Status Code */
+        proto_tree_add_item(tree, hf_btatt_http_status_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_http_data_status, ett_btatt_value, hfx_btatt_http_data_status, ENC_NA);
+        offset += 1;
+
+        break;
+    case 0x2AB9: /* HTTP Entity Body */
+        proto_tree_add_item(tree, hf_btatt_http_entity_body, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA | ENC_UTF_8);
+        offset += tvb_captured_length_remaining(tvb, offset);
+
+        break;
+    case 0x2ABA: /* HTTP Control Point */
+        proto_tree_add_item(tree, hf_btatt_http_control_point_opcode, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        break;
+    case 0x2ABB: /* HTTPS Security */
+        proto_tree_add_item(tree, hf_btatt_https_security, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        break;
+
 
     case 0x2906: /* Valid Range */
     case 0x2A2A: /* IEEE 11073-20601 Regulatory Certification Data List */
@@ -5804,6 +5886,9 @@ is_long_attribute_value(bluetooth_uuid_t uuid)
     case 0x2A90: /* Last Name */
     case 0x2AA4: /* Bond Management Control Point */
     case 0x2AB5: /* Location Name */
+    case 0x2AB6: /* URI */
+    case 0x2AB7: /* HTTP Headers */
+    case 0x2AB9: /* HTTP Entity Body */
         return TRUE;
     }
 
@@ -10606,6 +10691,66 @@ proto_register_btatt(void)
             FT_UINT8, BASE_HEX, VALS(cgm_specific_ops_control_point_response_code_vals), 0x0,
             NULL, HFILL}
         },
+        {&hf_btatt_uri,
+            {"URI", "btatt.uri",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_http_headers,
+            {"HTTP Headers", "btatt.http_headers",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_http_status_code,
+            {"HTTP Status Code", "btatt.http_status_code",
+            FT_UINT16, BASE_DEC, VALS(vals_http_status_code), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_http_data_status,
+            {"HTTP Data Status", "btatt.http_data_status",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_http_data_status_headers_received,
+            {"Headers Received", "btatt.http_data_status.headers_received",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+        {&hf_btatt_http_data_status_headers_truncated,
+            {"Headers Truncated", "btatt.http_data_status.headers_truncated",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_http_data_status_body_received,
+            {"Body Received", "btatt.http_data_status.body_received",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_http_data_status_body_truncated,
+            {"Body Truncated", "btatt.http_data_status.body_truncated",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL}
+        },
+        {&hf_btatt_http_data_status_reserved,
+            {"Reserved", "btatt.http_data_status.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xF0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_http_entity_body,
+            {"HTTP Entity Body", "btatt.http_entity_body",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_http_control_point_opcode,
+            {"Opcode", "btatt.control_point.opcode",
+            FT_UINT8, BASE_HEX, VALS(http_control_point_opcode_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_https_security,
+            {"HTTPS Security", "btatt.https_security",
+            FT_UINT8, BASE_HEX, VALS(https_security_vals), 0x0,
+            NULL, HFILL}
+        },
         {&hf_request_in_frame,
             {"Request in Frame", "btatt.request_in_frame",
             FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
@@ -10678,6 +10823,7 @@ proto_reg_handoff_btatt(void)
 {
     gint                i_array;
 
+    http_handle = find_dissector("http");
     usb_hid_boot_keyboard_input_report_handle  = find_dissector("usbhid.boot_report.keyboard.input");
     usb_hid_boot_keyboard_output_report_handle = find_dissector("usbhid.boot_report.keyboard.output");
     usb_hid_boot_mouse_input_report_handle     = find_dissector("usbhid.boot_report.mouse.input");
