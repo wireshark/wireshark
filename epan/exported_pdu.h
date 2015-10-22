@@ -102,7 +102,7 @@ WS_DLL_PUBLIC GSList *get_export_pdu_tap_list(void);
 #define EXP_PDU_TAG_IPV6_SRC        22
 #define EXP_PDU_TAG_IPV6_DST        23
 
-#define EXP_PDU_TAG_PORT_TYPE       24
+#define EXP_PDU_TAG_PORT_TYPE       24  /**< value part is port_type enum from epan/address.h */
 #define EXP_PDU_TAG_SRC_PORT        25
 #define EXP_PDU_TAG_DST_PORT        26
 
