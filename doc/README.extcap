@@ -1,0 +1,187 @@
+EXTCAP: DEVELOPER GUIDE
+=======================
+
+The extcap interface is a versatile plugin interface that allows external binaries
+to act as capture interfaces directly in wireshark. It is used in scenarios, where
+the source of the capture is not a traditional capture model
+(live capture from an interface, from a pipe, from a file, etc). The typical
+example is connecting esoteric hardware of some kind to the main wireshark app.
+
+Without extcap, a capture can always be achieved by directly writing to a capture file:
+
+the-esoteric-binary --the-strange-flag --interface=stream1 --file dumpfile.pcap &
+wireshark dumpfile.pcap
+
+but the extcap interface allows for such a connection to be easily established and
+configured using the wireshark GUI.
+
+The extcap subsystem is made of multiple extcap binaries that are automatically
+called by the GUI in a row. In the following chapters we will refer to them as
+"the extcaps".
+
+Extcaps may be any binary or script within the extcap directory. Please note, that scripts
+need to be executable without prefacing a script interpreter before the call.
+
+WINDOWS USER: Because of restrictions directly calling the script may not always work.
+In such a case, a batch file may be provided, which then in turn executes the script. Please
+refer to doc/extcap_example.py for more information.
+
+THE CAPTURE PROCESS
+===================
+The actual capture is run after a setup process that can be made manually by the
+user or automatically by the GUI. All the steps performed are done for every extcap.
+
+Let's go through those steps.
+
+STEP1: the extcap is queried for its interfaces.
+
+extcapbin --extcap-interfaces
+
+This call must print the existing interfaces for this extcap and must return 0.
+The output must conform to the grammar specified for extcap, and it is specified
+in the doc/extcap.4 generated man page (in the build dir).
+
+Example:
+
+$ extcapbin --extcap-interfaces
+interface {value=example1}{display=Example interface 1 for extcap}
+interface {value=example2}{display=Example interface 2 for extcap}
+
+The value for each interface will be used in subsequent calls as the interface
+name IFACE.
+
+
+STEP2: the extcap is queried for valid DLTs (Data Link Types) for all the
+interfaces returned by the step 1.
+
+extcapbin --extcap-dlts --extcap-interface IFACE
+
+This call must print the valid DLTs for the interface specified. This call is
+made for all the interfaces and must return 0.
+
+Example:
+
+$ extcapbin --extcap-interface IFACE --extcap-dlts
+dlt {number=147}{name=USER1}{display=Demo Implementation for Extcap}
+
+A binary or script, which neither provides an interface list or a DLT list will
+not show up in the extcap interfaces list.
+
+
+STEP3: the extcap is queried for the configuration options for an interface.
+
+extcapbin --extcap-interface IFACE --extcap-config
+
+Each interface can have custom options that are valid for this interface only.
+Those config options are specified on the command line when running the actual
+capture. To allow an end-user to specify certain options, such options may be
+provided using the extcap config argument.
+
+To share which options are available for an interface, the extcap responds to
+the command --config, that shows all the available options (aka additional command
+line options).
+
+Those options are automatically presented via a dialog to the user for the individual
+interface.
+
+Example:
+
+$ extcapbin --extcap-interface IFACE --extcap-config
+arg {number=0}{call=--delay}{display=Time delay}{tooltip=Time delay between packages}{type=integer}{range=1,15}
+arg {number=1}{call=--message}{display=Message}{tooltip=Package message content}{type=string}
+arg {number=2}{call=--verify}{display=Verify}{tooltip=Verify package content}{type=boolflag}
+arg {number=3}{call=--remote}{display=Remote Channel}{tooltip=Remote Channel Selector}{type=selector}
+value {arg=3}{value=if1}{display=Remote1}{default=true}
+value {arg=3}{value=if2}{display=Remote2}{default=false}
+
+Now the user can click on the options and change them. They are sent to the
+extcap when the capture is launched.
+
+There are two kind of options available:
+
+* file, integer, string, boolean, boolflag - are value based options and each expect a single value
+  via the command-line call
+* selector, checkbox - are selections and can be presented multiple times in the command line. Both
+  expect subsequent "value" items in the config list, with the corresponding argument selected via arg
+
+
+STEP4: the capture. Once the interfaces are listed and configuration is customized
+by the user, the capture is run.
+
+extcapbin --extcap-interface IFACE [params] --capture --fifo FIFO
+
+To run the capture, the extcap must implement the --capture and --fifo option.
+They are automatically added by wireshark that opens the fifo for reading. All
+the other options are automatically added to run the capture. The extcap interface
+is used like all other interfaces (meaning that capture on multiple interfaces, as
+well as stopping and restarting the capture is supported).
+
+
+ARGUMENTS
+==========
+The extcap interface provides the possibility for generating a GUI dialog to
+set and adapt settings for the extcap binary.
+
+All options must provide a number, by which they are identified. No NUMBER may be
+provided twice. Also all options must present the elements CALL and DISPLAY, where
+call provides the arguments name on the command-line and display the name in the GUI.
+
+Additionally TOOLTIP may be provided, which will give the user an explanation within
+the GUI, about what to enter into this field.
+
+These options do have types, for which the following types are being supported:
+
+ * INTEGER, UNSIGNED, LONG, DOUBLE - this provides a field for entering a numeric value
+   of the given data type. A DEFAULT value may be provided, as well as a RANGE
+
+   arg {number=0}{call=--delay}{display=Time delay}{tooltip=Time delay between packages}{type=integer}{range=1,15}{default=0}
+
+ * STRING - Let the user provide a string to the capture
+
+   arg {number=1}{call=--message}{display=Message}{tooltip=Package message content}{type=string}
+
+ * BOOLEAN,BOOLFLAG - this provides the possibility to set a true/false value.
+   BOOLFLAG values will only appear in the command-line if set to true, otherwise they
+   will not be added to the command-line call for the extcap interface
+
+   arg {number=2}{call=--verify}{display=Verify}{tooltip=Verify package content}{type=boolflag}
+
+ * LOGFILE - Let the user provide a filepath to the capture. If FILE_MUSTEXIST is being provided,
+   the GUI checks if the file exists
+
+   arg {number=3}{call=--logfile}{display=Logfile}{tooltip=A file for log messages}{type=fileselect}{file_mustexist=false}
+
+ * SELECTOR, RADIO, MULTICHECK - an optionfield, where the user may choose one or more options from.
+   If PARENT is provided for the value items, the option fields for MULTICHECK and SELECTOR are being
+   presented in a tree-like structure. SELECTOR and RADIO values must present a default value, which will
+   be the value provided to the extcap binary for this argument
+
+   arg {number=3}{call=--remote}{display=Remote Channel}{tooltip=Remote Channel Selector}{type=selector}
+   value {arg=3}{value=if1}{display=Remote1}{default=true}
+   value {arg=3}{value=if2}{display=Remote2}{default=false}
+
+
+DEVELOPMENT
+===========
+To have extcap support, extcap must be enabled. Moreover the specific extcap must
+be compiled. Examples for autotools and cmake compiling the extcap plugin androiddump
+are provided within wireshark.
+
+autotools: ./configure --with-extcap --enable-androiddump
+cmake: cmake -DENABLE_EXTCAP=ON -DBUILD_androiddump ..
+
+Additionally there is an example python script available in doc/extcap_example.py.
+
+When developing a new extcap, it must be created under extcap/ directory and
+added to the makefiles. Once compiled it will be under the extcap/ directory
+in the build dir.
+
+If the current extcaps configuration is copied, the new extcap will need specific
+configuration flags like --enable-<newextcap> or -DBUILD_<newextcap>
+
+Since this is a plugin, the developer must ensure that the extcap dir will be
+loaded. To see which dir is loaded, they must open HELP->ABOUT->FOLDER and look
+for "Extcap Path". If there is a system path (like /usr/local/lib/wireshark/extcap/)
+the extcaps in the build dir are not loaded. To load them, wireshark must be
+loaded with WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1. Now the "Extcap path" should
+point to the extcap dir under your build environment.
