@@ -424,6 +424,14 @@ if [ "$create_bundle" = "true" ]; then
 	create_bundle
 fi
 
+if [ -z "$cs_binary_list" ]; then
+	# Assumes Qt.
+	for binary in $binary_list ; do
+		cs_binary_list="$cs_binary_list $pkgexec/$binary"
+	done
+fi
+
+
 echo -e "\nFixing up $bundle...\n"
 
 # Find out libs we need from Fink, MacPorts, or from a custom install
@@ -707,21 +715,29 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	security find-identity -v -s "$CODE_SIGN_IDENTITY" -p codesigning
 
 	echo "Signing executables"
+	if [ -z "$cs_binary_list" ] ; then
+		echo "No executables specified for code signing."
+		exit 1
+	fi
 	for binary in $cs_binary_list ; do
 		codesign_file "$binary"
 	done
+
 	echo "Signing frameworks"
 	for framework in $pkglib/*.framework/Versions/*/* ; do
 		codesign_file "$framework"
 	done
+
 	echo "Signing libraries"
 	for library in $pkglib/*.dylib ; do
 		codesign_file "$library"
 	done
+
 	echo "Signing plugins"
 	for plugin in $pkgplugin/*.so ; do
 		codesign_file "$plugin"
 	done
+
 	echo "Signing $bundle"
 	codesign_file "$bundle"
 else
