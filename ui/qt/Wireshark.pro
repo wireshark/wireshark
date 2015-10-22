@@ -563,7 +563,7 @@ win32 {
     # Currently the QT bin dir has to be on the path for windeployqt to work
     isEqual(QT_MAJOR_VERSION, 5):greaterThan(QT_MINOR_VERSION, 2) {
       QMAKE_POST_LINK +=$$quote(set PATH=%PATH%;$${QT5_BASE_DIR}\\bin$$escape_expand(\\n\\t))
-      QMAKE_POST_LINK +=$$quote(windeployqt --release --no-compiler-runtime $(DESTDIR)wireshark.exe)$$escape_expand(\\n\\t))
+      QMAKE_POST_LINK +=$$quote(windeployqt --release --no-compiler-runtime --verbose 10 $(DESTDIR)wireshark.exe)$$escape_expand(\\n\\t))
     }
 }
 

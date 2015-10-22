@@ -1841,6 +1841,7 @@ if(BUILD_wireshark AND QT_FOUND)
 					$<$<CONFIG:Debug>:--debug>
 					$<$<NOT:$<CONFIG:Debug>>:--release>
 					--no-compiler-runtime
+					--verbose 10
 					"$<TARGET_FILE:wireshark>"
 			)
 			add_dependencies(copy_qt_dlls wireshark)
