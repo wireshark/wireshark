@@ -163,6 +163,7 @@ if [ "$create_bundle" = "true" ]; then
 	echo -e "\nCREATE WIRESHARK APP BUNDLE\n"
 
 	for binary in $wireshark_bin_name $binary_list ; do
+		binary=$( basename $binary )
 		if [ ! -x "$binary_path/$binary" ]; then
 			echo "Couldn't find $binary (or it's not executable)" >&2
 			exit 1
