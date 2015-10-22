@@ -261,6 +261,7 @@ create_bundle() {
 	fi
 
 	mkdir -p "$pkgexec"
+	mkdir -p "$pkgexec/extcap"
 	mkdir -p "$pkgbin"
 	mkdir -p "$pkgplugin"
 
@@ -300,9 +301,15 @@ create_bundle() {
 		done
 	elif [ "$ui_toolkit" = "qt" ] ; then
 		for binary in $binary_list ; do
+			bin_dest="$pkgexec"
+			if [ "$( dirname $binary )" == "extcap" ] ; then
+				binary=$( basename $binary )
+				bin_dest="$pkgexec/$( dirname $binary )"
+			fi
+
 			# Copy the binary to its destination
-			cp -v "$binary_path/$binary" "$pkgexec"
-			cs_binary_list="$cs_binary_list $pkgexec/$binary"
+			cp -v "$binary_path/$binary" "$bin_dest"
+			cs_binary_list="$cs_binary_list $bin_dest/$binary"
 		done
 	fi
 
