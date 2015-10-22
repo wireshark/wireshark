@@ -433,7 +433,7 @@ fi
 
 if [ -z "$cs_binary_list" ]; then
 	# Assumes Qt.
-	for binary in $binary_list ; do
+	for binary in Wireshark $binary_list ; do
 		cs_binary_list="$cs_binary_list $pkgexec/$binary"
 	done
 fi
