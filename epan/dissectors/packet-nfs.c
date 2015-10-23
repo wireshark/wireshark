@@ -1580,6 +1580,7 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 		&hf_nfs_fh_file_flag_vbn_access,
 		&hf_nfs_fh_file_flag_multivolume,
 		&hf_nfs_fh_file_flag_metadata,
+		NULL
 	};
 
 	if (tree) {
