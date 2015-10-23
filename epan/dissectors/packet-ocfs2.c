@@ -480,7 +480,8 @@ static int dlm_lkm_flags_handler(proto_tree *tree, tvbuff_t *tvb, guint offset)
 		&hf_dlm_lock_flag_migration,
 		&hf_dlm_lock_flag_put_lvb,
 		&hf_dlm_lock_flag_get_lvb,
-		&hf_dlm_lock_flag_recovery
+		&hf_dlm_lock_flag_recovery,
+		NULL
 	};
 
 	proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_dlm_lock_flags,
