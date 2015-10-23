@@ -130,8 +130,6 @@ const guint8 *ByteViewText::dataAndLength(guint *data_len_ptr)
 void ByteViewText::setMonospaceFont(const QFont &mono_font)
 {
     mono_font_ = mono_font;
-//    mono_bold_font_ = QFont(mono_font);
-//    mono_bold_font_.setBold(true);
 
     const QFontMetricsF fm(mono_font);
     font_width_  = fm.width('M');
@@ -149,6 +147,7 @@ void ByteViewText::paintEvent(QPaintEvent *)
 {
     QPainter painter(viewport());
     painter.translate(-horizontalScrollBar()->value() * font_width_, 0);
+    painter.setFont(font());
 
     // Pixel offset of this row
     int row_y = 0;
