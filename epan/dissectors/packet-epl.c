@@ -1659,6 +1659,29 @@ gboolean show_soc_flags = FALSE;
 /* Define the tap for epl */
 /*static gint epl_tap = -1;*/
 
+guint16
+epl_get_sequence_nr(packet_info *pinfo)
+{
+	guint16 seqnum = 0x00;
+	gpointer data = NULL;
+
+	if ( ( data = p_get_proto_data ( wmem_file_scope(), pinfo, proto_epl, ETHERTYPE_EPL_V2 ) ) == NULL )
+		p_add_proto_data ( wmem_file_scope(), pinfo, proto_epl, ETHERTYPE_EPL_V2, GUINT_TO_POINTER(seqnum) );
+	else
+		seqnum = GPOINTER_TO_UINT(data);
+
+	return seqnum;
+}
+
+void
+epl_set_sequence_nr(packet_info *pinfo, guint16 seqnum)
+{
+	if ( p_get_proto_data ( wmem_file_scope(), pinfo, proto_epl, ETHERTYPE_EPL_V2 ) != NULL )
+		p_remove_proto_data( wmem_file_scope(), pinfo, proto_epl, ETHERTYPE_EPL_V2 );
+
+	p_add_proto_data ( wmem_file_scope(), pinfo, proto_epl, ETHERTYPE_EPL_V2, GUINT_TO_POINTER(seqnum) );
+}
+
 static void
 elp_version( gchar *result, guint32 version )
 {
@@ -2628,10 +2651,13 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 gint
 dissect_epl_asnd_sdo(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
+	guint16 seqnum = 0x00;
 	offset = dissect_epl_sdo_sequence(epl_tree, tvb, pinfo, offset);
 
+	seqnum = epl_get_sequence_nr(pinfo);
+
 	/* if a frame is duplicated don't show the command layer */
-	if(pinfo->fd->subnum == 0x00 || show_cmd_layer_for_duplicated == TRUE )
+	if(seqnum == 0x00 || show_cmd_layer_for_duplicated == TRUE )
 	{
 		if (tvb_reported_length_remaining(tvb, offset) > 0)
 		{
@@ -2652,6 +2678,7 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 	guint8 duplication = 0x00;
 	gpointer key;
 	guint32 saved_frame;
+	guint16 seqnum = 0;
 
 	/* read buffer */
 	seq_recv = tvb_get_guint8(tvb, offset);
@@ -2684,7 +2711,7 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 		/* remove all the keys of the specified src and dest address*/
 		epl_duplication_remove(epl_duplication_table,epl_segmentation.src,epl_segmentation.dest);
 		/* There is no cmd layer */
-		pinfo->fd->subnum = 0x02;
+		epl_set_sequence_nr(pinfo, 0x02);
 	}
 	/* if cooked/fuzzed capture*/
 	else if(seq_recv >= EPL_MAX_SEQUENCE || seq_send >= EPL_MAX_SEQUENCE
@@ -2707,7 +2734,7 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 			expert_add_info(pinfo, epl_tree, &ei_sendcon_value);
 		}
 		duplication = 0x00;
-		pinfo->fd->subnum = 0x00;
+		epl_set_sequence_nr(pinfo, 0x00);
 	}
 	else
 	{
@@ -2743,9 +2770,11 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 		}
 	}
 	/* if the frame is a duplicated frame */
-	if((duplication == 0x01 && pinfo->fd->subnum == 0x00)||(pinfo->fd->subnum == 0x01))
+	seqnum = epl_get_sequence_nr(pinfo);
+	if((duplication == 0x01 && seqnum == 0x00)||(seqnum == 0x01))
 	{
-		pinfo->fd->subnum = 0x01;
+		seqnum = 0x01;
+		epl_set_sequence_nr(pinfo, seqnum);
 		expert_add_info_format(pinfo, epl_tree, &ei_duplicated_frame,
 			"Duplication of Frame: %d ReceiveSequenceNumber: %d and SendSequenceNumber: %d ",
 			saved_frame,seq_recv,seq_send );
