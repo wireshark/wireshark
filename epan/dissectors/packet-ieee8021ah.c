@@ -299,10 +299,9 @@ void
 dissect_ieee8021ah(tvbuff_t *tvb, packet_info *pinfo,
                    proto_tree *tree)
 {
-    proto_tree *ptree;
+    proto_item *pi;
     guint32     tci;
     int         proto_tree_index;
-
     proto_tree *volatile ieee8021ah_tree;
 
     /* set tree index */
@@ -319,14 +318,13 @@ dissect_ieee8021ah(tvbuff_t *tvb, packet_info *pinfo,
                      (tci >> 29), ((tci >> 28) & 1), ((tci >> 27) & 1),
                      ((tci >> 26) & 1), ((tci >> 24) & 3), (tci & 0x00FFFFFF));
 
-    /* create the protocol tree */
-    ieee8021ah_tree = NULL;
+    pi = proto_tree_add_item(tree, proto_tree_index, tvb, 0, IEEE8021AH_LEN, ENC_NA);
+    ieee8021ah_tree = proto_item_add_subtree(pi, ett_ieee8021ah);
 
-    if (tree) {
-        ptree = proto_tree_add_item(tree, proto_tree_index, tvb, 0, IEEE8021AH_LEN, ENC_NA);
-        ieee8021ah_tree = proto_item_add_subtree(ptree, ett_ieee8021ah);
-
+    if (ieee8021ah_tree) {
         dissect_ieee8021ah_common(tvb, pinfo, ieee8021ah_tree, tree, proto_tree_index);
+    } else {
+        dissect_ieee8021ah_common(tvb, pinfo, tree, NULL, proto_tree_index);
     }
 }
 
