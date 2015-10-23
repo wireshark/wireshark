@@ -106,7 +106,7 @@ static void dissect_wimax_fch_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 	/* save the base station address (once) */
 	if(!bs_address.len)
-		COPY_ADDRESS(&bs_address, &(pinfo->src));
+		copy_address(&bs_address, &(pinfo->src));
 	/* update the info column */
 	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "FCH");
 	if (tree)

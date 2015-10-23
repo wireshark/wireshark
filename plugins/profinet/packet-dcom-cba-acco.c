@@ -425,7 +425,7 @@ cba_object_dump(void)
 
     for(pdevs = cba_pdevs; pdevs != NULL; pdevs = g_list_next(pdevs)) {
         pdev = pdevs->data;
-        SET_ADDRESS(&addr, AT_IPv4, 4, pdev->ip);
+        set_address(&addr, AT_IPv4, 4, pdev->ip);
         g_warning("PDev #%5u: %s IFs:%u", pdev->first_packet, address_to_str(wmem_packet_scope(), &addr),
             pdev->object ? g_list_length(pdev->object->interfaces) : 0);
 
@@ -641,7 +641,7 @@ cba_acco_add(packet_info *pinfo, const char *acco)
         return NULL;
     }
 
-    SET_ADDRESS(&addr, AT_IPv4, 4, &ip);
+    set_address(&addr, AT_IPv4, 4, &ip);
     pdev = cba_pdev_add(pinfo, &addr);
     delim++;
 

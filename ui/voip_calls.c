@@ -3160,7 +3160,7 @@ unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
                 }
             } else {
                 /* If no term id use ips / port to find entry */
-                if(addresses_equal(&tmp_unistim_info->it_ip, &pinfo->dst) && ADDRESSES_EQUAL(&tmp_unistim_info->ni_ip,&pinfo->src) && (tmp_unistim_info->it_port == pinfo->destport)) {
+                if(addresses_equal(&tmp_unistim_info->it_ip, &pinfo->dst) && addresses_equal(&tmp_unistim_info->ni_ip,&pinfo->src) && (tmp_unistim_info->it_port == pinfo->destport)) {
                     if(tmp_listinfo->call_state == VOIP_COMPLETED || tmp_listinfo->call_state == VOIP_UNKNOWN) {
                         /* Do nothing previous call */
                     } else {
@@ -3168,7 +3168,7 @@ unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
                         break;
                     }
                 }
-                else if(addresses_equal(&tmp_unistim_info->it_ip, &pinfo->src) && ADDRESSES_EQUAL(&tmp_unistim_info->ni_ip,&pinfo->dst) && (tmp_unistim_info->it_port == pinfo->srcport)) {
+                else if(addresses_equal(&tmp_unistim_info->it_ip, &pinfo->src) && addresses_equal(&tmp_unistim_info->ni_ip,&pinfo->dst) && (tmp_unistim_info->it_port == pinfo->srcport)) {
                     if(tmp_listinfo->call_state == VOIP_COMPLETED || tmp_listinfo->call_state == VOIP_UNKNOWN) {
                         /* Do nothing, it ain't our call.. */
                     } else {

@@ -267,7 +267,7 @@ gboolean is_down_link(packet_info *pinfo)
 	if (pinfo->p2p_dir == P2P_DIR_RECV)
 		return TRUE;
 	if (pinfo->p2p_dir == P2P_DIR_UNKNOWN)
-		if(bs_address.len && !CMP_ADDRESS(&bs_address, &pinfo->src))
+		if(bs_address.len && !cmp_address(&bs_address, &pinfo->src))
 			return TRUE;
 	return FALSE;
 }

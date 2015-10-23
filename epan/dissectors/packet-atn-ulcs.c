@@ -1914,10 +1914,10 @@ atn_conversation_t * find_atn_conversation(
     guint32 key = 0;
     guint32 tmp = 0;
 
-    ADD_ADDRESS_TO_HASH( tmp, address1);
+    add_address_to_hash( tmp, address1);
     key = (tmp << 16) | clnp_ref1 ;
 
-    ADD_ADDRESS_TO_HASH( tmp, address2);
+    add_address_to_hash( tmp, address2);
     key = (tmp << 24) | key ;
 
     /* search for atn conversation */
@@ -1940,10 +1940,10 @@ atn_conversation_t * create_atn_conversation(
     guint32 key = 0;
     guint32 tmp = 0;
 
-    ADD_ADDRESS_TO_HASH( tmp, address1);
+    add_address_to_hash( tmp, address1);
     key = (tmp << 16) | clnp_ref1 ;
 
-    ADD_ADDRESS_TO_HASH( tmp, address2);
+    add_address_to_hash( tmp, address2);
     key = (tmp << 24) | key ;
 
     /* search for aircraft entry */

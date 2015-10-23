@@ -53,41 +53,41 @@ conversation_hash_exact(gconstpointer v)
     const conversation_key *key = (const conversation_key *)v;
     guint hash_val;
     int i;
-    const guint8 *ADD_ADDRESS_TO_HASH_data;
+    const guint8 *add_address_to_hash_data;
 
     hash_val = 0;
 #if 0
-    ADD_ADDRESS_TO_HASH(hash_val, &key->addr1);
+    add_address_to_hash(hash_val, &key->addr1);
     hash_val += key->port1;
-    ADD_ADDRESS_TO_HASH(hash_val, &key->addr2);
+    add_address_to_hash(hash_val, &key->addr2);
     hash_val += key->port2;
 
     return hash_val;
 #endif
     for ( i = 0; i < key->addr1.len; i++ ) {
-        ADD_ADDRESS_TO_HASH_data = (const guint8 *)((&key->addr1)->data);
-        hash_val += ADD_ADDRESS_TO_HASH_data[i];
+        add_address_to_hash_data = (const guint8 *)((&key->addr1)->data);
+        hash_val += add_address_to_hash_data[i];
         hash_val += ( hash_val << 10 );
         hash_val ^= ( hash_val >> 6 );
     }
 
     for ( i = 0; i < 4; i++ ) {
-        ADD_ADDRESS_TO_HASH_data = (const guint8 *)(&key->port1);
-        hash_val += ADD_ADDRESS_TO_HASH_data[i];
+        add_address_to_hash_data = (const guint8 *)(&key->port1);
+        hash_val += add_address_to_hash_data[i];
         hash_val += ( hash_val << 10 );
         hash_val ^= ( hash_val >> 6 );
     }
 
     for ( i = 0; i < key->addr2.len; i++ ) {
-        ADD_ADDRESS_TO_HASH_data = (const guint8 *)((&key->addr2)->data);
-        hash_val += ADD_ADDRESS_TO_HASH_data[i];
+        add_address_to_hash_data = (const guint8 *)((&key->addr2)->data);
+        hash_val += add_address_to_hash_data[i];
         hash_val += ( hash_val << 10 );
         hash_val ^= ( hash_val >> 6 );
     }
 
     for ( i = 0; i < 4; i++ ) {
-        ADD_ADDRESS_TO_HASH_data = (const guint8 *)(&key->port2);
-        hash_val += ADD_ADDRESS_TO_HASH_data[i];
+        add_address_to_hash_data = (const guint8 *)(&key->port2);
+        hash_val += add_address_to_hash_data[i];
         hash_val += ( hash_val << 10 );
         hash_val ^= ( hash_val >> 6 );
     }
@@ -106,9 +106,9 @@ conversation_hash_exact_old(gconstpointer v)
     guint hash_val;
 
     hash_val = 0;
-    ADD_ADDRESS_TO_HASH(hash_val, &key->addr1);
+    add_address_to_hash(hash_val, &key->addr1);
     hash_val += key->port1;
-    ADD_ADDRESS_TO_HASH(hash_val, &key->addr2);
+    add_address_to_hash(hash_val, &key->addr2);
     hash_val += key->port2;
 
     return hash_val;

@@ -439,17 +439,17 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         /* IPAddress */
         offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_ip, &ip);
-        SET_ADDRESS(&addr, AT_IPv4, 4, &ip);
+        set_address(&addr, AT_IPv4, 4, &ip);
         proto_item_append_text(block_item, ", IP: %s", address_to_str(wmem_packet_scope(), &addr));
 
         /* Subnetmask */
         offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_subnetmask, &ip);
-        SET_ADDRESS(&addr, AT_IPv4, 4, &ip);
+        set_address(&addr, AT_IPv4, 4, &ip);
         proto_item_append_text(block_item, ", Subnet: %s", address_to_str(wmem_packet_scope(), &addr));
 
         /* StandardGateway */
         offset = dissect_pn_ipv4(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_standard_gateway, &ip);
-        SET_ADDRESS(&addr, AT_IPv4, 4, &ip);
+        set_address(&addr, AT_IPv4, 4, &ip);
         proto_item_append_text(block_item, ", Gateway: %s", address_to_str(wmem_packet_scope(), &addr));
         break;
     default:

@@ -2676,8 +2676,8 @@ pnio_ar_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pnio_ar_t *ar)
         proto_tree *sub_tree;
         address   controllermac_addr, devicemac_addr;
 
-        SET_ADDRESS(&controllermac_addr, AT_ETHER, 6, ar->controllermac);
-        SET_ADDRESS(&devicemac_addr, AT_ETHER, 6, ar->devicemac);
+        set_address(&controllermac_addr, AT_ETHER, 6, ar->controllermac);
+        set_address(&devicemac_addr, AT_ETHER, 6, ar->devicemac);
 
         sub_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_pn_io_ar_info, &sub_item,
             "ARUUID:%s ContrMAC:%s ContrAlRef:0x%x DevMAC:%s DevAlRef:0x%x InCR:0x%x OutCR=0x%x",
@@ -9683,8 +9683,8 @@ pn_io_ar_conv_filter(packet_info *pinfo)
         return NULL;
     }
 
-    SET_ADDRESS(&controllermac_addr, AT_ETHER, 6, ar->controllermac);
-    SET_ADDRESS(&devicemac_addr, AT_ETHER, 6, ar->devicemac);
+    set_address(&controllermac_addr, AT_ETHER, 6, ar->controllermac);
+    set_address(&devicemac_addr, AT_ETHER, 6, ar->devicemac);
 
     guid_str = guid_to_str(wmem_packet_scope(), (const e_guid_t*) &ar->aruuid);
     buf = g_strdup_printf(
@@ -9710,8 +9710,8 @@ pn_io_ar_conv_data_filter(packet_info *pinfo)
         return NULL;
     }
 
-    SET_ADDRESS(&controllermac_addr, AT_ETHER, 6, ar->controllermac);
-    SET_ADDRESS(&devicemac_addr, AT_ETHER, 6, ar->devicemac);
+    set_address(&controllermac_addr, AT_ETHER, 6, ar->controllermac);
+    set_address(&devicemac_addr, AT_ETHER, 6, ar->devicemac);
 
     controllermac_str = address_to_str(wmem_packet_scope(), &controllermac_addr);
     devicemac_str = address_to_str(wmem_packet_scope(), &devicemac_addr);

@@ -229,9 +229,9 @@ conversation_hash(gconstpointer v)
     guint hash_val;
 
     hash_val = 0;
-    ADD_ADDRESS_TO_HASH(hash_val, &key->addr1);
+    add_address_to_hash(hash_val, &key->addr1);
     hash_val += key->port1;
-    ADD_ADDRESS_TO_HASH(hash_val, &key->addr2);
+    add_address_to_hash(hash_val, &key->addr2);
     hash_val += key->port2;
     hash_val ^= key->conv_id;
 
@@ -723,7 +723,7 @@ host_hash(gconstpointer v)
     guint hash_val;
 
     hash_val = 0;
-    ADD_ADDRESS_TO_HASH(hash_val, &key->myaddress);
+    add_address_to_hash(hash_val, &key->myaddress);
     hash_val += key->port;
     return hash_val;
 }

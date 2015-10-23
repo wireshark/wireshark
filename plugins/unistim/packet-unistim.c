@@ -231,8 +231,8 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree,void *data _U_
    uinfo->set_termid = -1;
    uinfo->string_data = NULL;
    uinfo->key_buffer = NULL;
-   SET_ADDRESS(&uinfo->it_ip, AT_NONE, 0, NULL);
-   SET_ADDRESS(&uinfo->ni_ip, AT_NONE, 0, NULL);
+   set_address(&uinfo->it_ip, AT_NONE, 0, NULL);
+   set_address(&uinfo->ni_ip, AT_NONE, 0, NULL);
    uinfo->it_port = 0;
 
    offset+=4;
@@ -288,15 +288,15 @@ dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, gint offset, pac
    /*UNISTIM only so no term id but further payload work*/
          /* Collect info for tap */
          /* If no term id then packet sourced from NI */
-         COPY_ADDRESS(&(uinfo->ni_ip), &(pinfo->src));
-         COPY_ADDRESS(&(uinfo->it_ip), &(pinfo->dst));
+         copy_address(&(uinfo->ni_ip), &(pinfo->src));
+         copy_address(&(uinfo->it_ip), &(pinfo->dst));
          uinfo->it_port = pinfo->destport;
          break;
       case 0x02:
    /*UNISTIM with term id*/
          /* Termid packs are always sourced from the it, so collect relevant infos */
-         COPY_ADDRESS(&(uinfo->ni_ip),&(pinfo->dst));
-         COPY_ADDRESS(&(uinfo->it_ip),&(pinfo->src));
+         copy_address(&(uinfo->ni_ip),&(pinfo->dst));
+         copy_address(&(uinfo->it_ip),&(pinfo->src));
          uinfo->it_port = pinfo->srcport;
          uinfo->termid = tvb_get_ntohl(tvb,offset);
 
@@ -2314,7 +2314,7 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
                guint16 far_port;
 
                far_ip_addr = tvb_get_ipv4(tvb, offset-4);
-               SET_ADDRESS(&far_addr, AT_IPv4, 4, &far_ip_addr);
+               set_address(&far_addr, AT_IPv4, 4, &far_ip_addr);
 
                far_port = tvb_get_ntohs(tvb, offset-8);
                rtp_add_address(pinfo, &far_addr, far_port, 0, "UNISTIM", pinfo->fd->num, FALSE, NULL);
