@@ -25,7 +25,7 @@
      <item>
       <widget class="QToolButton" name="newToolButton">
        <property name="toolTip">
-        <string>Create a new profile using default settings.</string>
+        <string>Create a new entry.</string>
        </property>
        <property name="text">
         <string/>
@@ -39,7 +39,7 @@
      <item>
       <widget class="QToolButton" name="deleteToolButton">
        <property name="toolTip">
-        <string>Remove this profile.</string>
+        <string>Remove this entry.</string>
        </property>
        <property name="icon">
         <iconset resource="../../image/toolbar.qrc">
@@ -50,7 +50,7 @@
      <item>
       <widget class="QToolButton" name="copyToolButton">
        <property name="toolTip">
-        <string>Copy this profile.</string>
+        <string>Copy this entry.</string>
        </property>
        <property name="text">
         <string/>
