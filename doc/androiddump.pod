@@ -184,7 +184,7 @@ To see interface DLTs:
 
 To see interface configuration options:
 
-    androiddump --extcap-interface=android-bluetooth-hcidump-MSM7627A --extcap-dlts
+    androiddump --extcap-interface=android-bluetooth-hcidump-MSM7627A --extcap-config
 
   Example output:
     arg {number=0}{call=--adb-server-ip}{display=ADB Server IP Address}{type=string}{default=127.0.0.1}
