@@ -2627,7 +2627,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Free the remainded hash tables not used */
     /* XXX - more placeholder functionality */
     if (transport_info == &local_transport_info) {
-        for (n = transport_info->media_count; n < SDP_MAX_RTP_CHANNELS; n++)
+        for (n = MAX(transport_info->media_count, 0); n < SDP_MAX_RTP_CHANNELS; n++)
         {
             if (!transport_info->media[n].set_rtp)
             {
