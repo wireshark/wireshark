@@ -431,6 +431,7 @@ static gint hf_btcommon_eir_ad_oob_flags_address_type = -1;
 static gint hf_btcommon_eir_ad_oob_flags_reserved = -1;
 static gint hf_btcommon_eir_ad_connection_interval_min = -1;
 static gint hf_btcommon_eir_ad_connection_interval_max = -1;
+static gint hf_btcommon_eir_ad_uri = -1;
 static gint hf_btcommon_cod_class_of_device = -1;
 static gint hf_btcommon_cod_format_type = -1;
 static gint hf_btcommon_cod_major_service_class_information = -1;
@@ -5170,12 +5171,19 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             break;
         case 0x22: /* LE Secure Connections Confirmation Value" */
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_le_secure_confirmation_value, tvb, offset, 16, ENC_NA);
+            offset += 16;
 
             break;
         case 0x23: /* LE Secure Connections Random Value" */
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_le_secure_random_value, tvb, offset, 16, ENC_NA);
+            offset += 16;
 
             break;
+        case 0x24: /* URI */
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uri, tvb, offset, length, ENC_UTF_8 | ENC_NA);
+            offset += length;
+
+                break;
         case 0x3D: /* 3D Information Data */
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_3ds_factory_test_mode, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_3ds_reserved, tvb, offset, 1, ENC_NA);
@@ -5737,6 +5745,11 @@ proto_register_btcommon(void)
           { "Connection Interval Max",           "btcommon.eir_ad.entry.connection_interval_max",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_uri,
+          {"URI",                                "btcommon.eir_ad.entry.uri",
+           FT_STRING, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
         },
         { &hf_btcommon_cod_class_of_device,
           { "Class of Device", "btcommon.cod.class_of_device",
