@@ -1356,9 +1356,7 @@ static void
 dissect_tds_transmgr_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *request_tree;
-    proto_item *token_item;
     guint offset = 0, len;
-    guint16 requesttype;
 
     request_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_tds7_query, NULL, "Transaction Manager Request Packet");
     dissect_tds_all_headers(tvb, &offset, pinfo, request_tree);
@@ -1366,9 +1364,7 @@ dissect_tds_transmgr_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(len >= 2)
     {
-        requesttype = tvb_get_letohs(tvb, offset);
-        token_item = proto_tree_add_item(request_tree, hf_tds_transmgr, tvb, offset, 2, ENC_NA);
-        proto_item_append_text(token_item, " (%s)", val_to_str(requesttype, transmgr_types, "Unknown"));
+        proto_tree_add_item(request_tree, hf_tds_transmgr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
         if(len > 2)
         {
@@ -1467,7 +1463,7 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree)
     gint offset = 0;
     guint16 tokenoffset, tokenlen;
     proto_tree *prelogin_tree = NULL, *option_tree;
-    proto_item *ti, *item;
+    proto_item *item;
 
     item = proto_tree_add_item(tree, hf_tds_prelogin, tvb, 0, -1, ENC_NA);
 
@@ -1482,8 +1478,7 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree)
     {
         token = tvb_get_guint8(tvb, offset);
         option_tree = proto_tree_add_subtree(prelogin_tree, tvb, offset, token == 0xff ? 1 : 5, ett_tds_prelogin_option, NULL, "Option");
-        ti = proto_tree_add_item(option_tree, hf_tds_prelogin_option_token, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_item_append_text(ti, " (%s)", val_to_str(token, prelogin_token_names, "Unknown"));
+        proto_tree_add_item(option_tree, hf_tds_prelogin_option_token, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
         if(token == 0xff)
@@ -1507,8 +1502,7 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree)
                     break;
                 }
                 case 1: {
-                    ti = proto_tree_add_item(option_tree, hf_tds_prelogin_option_encryption, tvb, tokenoffset, tokenlen, ENC_LITTLE_ENDIAN);
-                    proto_item_append_text(ti, " (%s)", val_to_str(tvb_get_guint8(tvb, tokenoffset), prelogin_encryption_options, "Unknown value"));
+                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_encryption, tvb, tokenoffset, 1, ENC_LITTLE_ENDIAN);
                     break;
                 }
                 case 2: {
@@ -1516,11 +1510,11 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree)
                     break;
                 }
                 case 3: {
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_threadid, tvb, tokenoffset, tokenlen, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_threadid, tvb, tokenoffset, 4, ENC_BIG_ENDIAN);
                     break;
                 }
                 case 4: {
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_mars, tvb, tokenoffset, tokenlen, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_mars, tvb, tokenoffset, 1, ENC_LITTLE_ENDIAN);
                     break;
                 }
                 case 5: {
@@ -1528,7 +1522,7 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree)
                     break;
                 }
                 case 6: {
-                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_fedauthrequired, tvb, tokenoffset, tokenlen, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(option_tree, hf_tds_prelogin_option_fedauthrequired, tvb, tokenoffset, 1, ENC_LITTLE_ENDIAN);
                     break;
                 }
                 case 7: {
@@ -3522,7 +3516,7 @@ dissect_tds_featureextack_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
     guint8 featureid;
     gint featureackdatalen;
     proto_tree *feature_tree = NULL;
-    proto_item * ti, * feature_item;
+    proto_item * feature_item;
     guint cur = offset;
 
     while(tvb_reported_length_remaining(tvb, cur) > 0)
@@ -3533,8 +3527,7 @@ dissect_tds_featureextack_token(tvbuff_t *tvb, guint offset, proto_tree *tree)
         feature_item = proto_tree_add_item(tree, hf_tds_featureextack_feature, tvb, cur, featureid == 0xff ? 1 : 5 + featureackdatalen, ENC_NA);
         feature_tree = proto_item_add_subtree(feature_item, ett_tds_col);
 
-        ti = proto_tree_add_item(feature_tree, hf_tds_featureextack_featureid, tvb, cur, 1, ENC_LITTLE_ENDIAN);
-        proto_item_append_text(ti, " (%s)", val_to_str(featureid, featureextack_feature_names, "Unknown"));
+        proto_tree_add_item(feature_tree, hf_tds_featureextack_featureid, tvb, cur, 1, ENC_LITTLE_ENDIAN);
         cur += 1;
 
         if(featureid == 0xff)
@@ -4656,7 +4649,7 @@ proto_register_tds(void)
         },
         { &hf_tds_featureextack_featureid,
           { "Feature ID", "tds.featureextack.featureid",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC, VALS(featureextack_feature_names), 0x0,
             NULL, HFILL }
         },
         { &hf_tds_featureextack_featureackdatalen,
@@ -5004,7 +4997,7 @@ proto_register_tds(void)
         },
         { &hf_tds_prelogin_option_token,
           { "Option Token", "tds.prelogin.option.token",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC, VALS(prelogin_token_names), 0x0,
             NULL, HFILL }
         },
         { &hf_tds_prelogin_option_offset,
@@ -5029,7 +5022,7 @@ proto_register_tds(void)
         },
         { &hf_tds_prelogin_option_encryption,
           { "Encryption", "tds.prelogin.option.encryption",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC, VALS(prelogin_encryption_options), 0x0,
             NULL, HFILL }
         },
         { &hf_tds_prelogin_option_instopt,
@@ -5163,7 +5156,7 @@ proto_register_tds(void)
         /* Transaction Manager Request Stream */
         { &hf_tds_transmgr,
           { "Transaction Manager Request", "tds.transmgr",
-            FT_NONE, BASE_NONE, NULL, 0x0,
+            FT_UINT16, BASE_DEC, VALS(transmgr_types), 0x0,
             NULL, HFILL }
         },
         { &hf_tds_transmgr_payload,
