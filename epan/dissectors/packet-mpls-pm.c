@@ -1053,7 +1053,7 @@ proto_register_mpls_pm(void)
             {
                 "Origin Timestamp",
                 "mpls_pm.origin.timestamp.ntp",
-                FT_RELATIVE_TIME, BASE_NONE,
+                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
                 NULL, 0x0,
                 NULL, HFILL
             }
@@ -1223,7 +1223,7 @@ proto_register_mpls_pm(void)
             {
                 "Timestamp 1 (T1)",
                 "mpls_pm.timestamp1.ntp",
-                FT_RELATIVE_TIME, BASE_NONE,
+                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
                 NULL, 0x0,
                 NULL, HFILL
             }
@@ -1233,7 +1233,7 @@ proto_register_mpls_pm(void)
             {
                 "Timestamp 1 (T3)",
                 "mpls_pm.timestamp1.ntp",
-                FT_RELATIVE_TIME, BASE_NONE,
+                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
                 NULL, 0x0,
                 NULL, HFILL
             }
@@ -1313,7 +1313,7 @@ proto_register_mpls_pm(void)
             {
                 "Timestamp 2 (T2)",
                 "mpls_pm.timestamp2.ntp",
-                FT_RELATIVE_TIME, BASE_NONE,
+                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
                 NULL, 0x0,
                 NULL, HFILL
             }
@@ -1323,7 +1323,7 @@ proto_register_mpls_pm(void)
             {
                 "Timestamp 2 (T4)",
                 "mpls_pm.timestamp2.ntp",
-                FT_RELATIVE_TIME, BASE_NONE,
+                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
                 NULL, 0x0,
                 NULL, HFILL
             }
@@ -1393,7 +1393,7 @@ proto_register_mpls_pm(void)
             {
                 "Timestamp 3 (T1)",
                 "mpls_pm.timestamp3.ntp",
-                FT_RELATIVE_TIME, BASE_NONE,
+                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
                 NULL, 0x0,
                 NULL, HFILL
             }
@@ -1453,7 +1453,7 @@ proto_register_mpls_pm(void)
             {
                 "Timestamp 4 (T2)",
                 "mpls_pm.timestamp4.ntp",
-                FT_RELATIVE_TIME, BASE_NONE,
+                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC,
                 NULL, 0x0,
                 NULL, HFILL
             }
