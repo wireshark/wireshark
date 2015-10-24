@@ -1081,7 +1081,7 @@ guint32
 dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint32 *value)
 {
 	guint32 i, length;
-	gint32 val;
+	guint32 val;
 	proto_item *it=NULL;
 	header_field_info *hfi;
 
