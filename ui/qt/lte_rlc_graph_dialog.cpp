@@ -72,6 +72,8 @@ LteRlcGraphDialog::LteRlcGraphDialog(QWidget &parent, CaptureFile &cf, bool chan
     rp->xAxis->setLabel(tr("Time"));
     rp->yAxis->setLabel(tr("Sequence Number"));
 
+    // TODO: couldn't work out how to tell rp->xAxis not to label fractions of a SN...
+
     ui->dragRadioButton->setChecked(mouse_drags_);
 
     ctx_menu_ = new QMenu(this);
@@ -421,7 +423,7 @@ void LteRlcGraphDialog::zoomAxes(bool in)
 
     rp->xAxis->scaleRange(h_factor, rp->xAxis->range().center());
     rp->yAxis->scaleRange(v_factor, rp->yAxis->range().center());
-    rp->replot();
+    rp->replot(QCustomPlot::rpQueued);
 }
 
 void LteRlcGraphDialog::zoomXAxis(bool in)
@@ -434,7 +436,7 @@ void LteRlcGraphDialog::zoomXAxis(bool in)
     }
 
     rp->xAxis->scaleRange(h_factor, rp->xAxis->range().center());
-    rp->replot();
+    rp->replot(QCustomPlot::rpQueued);
 }
 
 void LteRlcGraphDialog::zoomYAxis(bool in)
@@ -460,7 +462,7 @@ void LteRlcGraphDialog::zoomYAxis(bool in)
     }
 
     rp->yAxis->scaleRange(v_factor, rp->yAxis->range().center());
-    rp->replot();
+    rp->replot(QCustomPlot::rpQueued);
 }
 
 void LteRlcGraphDialog::panAxes(int x_pixels, int y_pixels)
@@ -485,11 +487,11 @@ void LteRlcGraphDialog::panAxes(int x_pixels, int y_pixels)
     // The GTK+ version won't pan unless we're zoomed. Should we do the same here?
     if (h_pan) {
         rp->xAxis->moveRange(h_pan);
-        rp->replot();
+        rp->replot(QCustomPlot::rpQueued);
     }
     if (v_pan) {
         rp->yAxis->moveRange(v_pan);
-        rp->replot();
+        rp->replot(QCustomPlot::rpQueued);
     }
 }
 
@@ -589,7 +591,7 @@ void LteRlcGraphDialog::mouseMoved(QMouseEvent *event)
             tracer_->setVisible(false);
             hint += "Hover over the graph for details. </i></small>";
             ui->hintLabel->setText(hint);
-            ui->rlcPlot->replot();
+            ui->rlcPlot->replot(QCustomPlot::rpQueued);
             return;
         }
 
@@ -605,7 +607,7 @@ void LteRlcGraphDialog::mouseMoved(QMouseEvent *event)
         // Redrawing the whole graph is making the update *very* slow!
         // TODO: Is there a way just to draw the parts that may have changed?
         // In the GTK version, we displayed the stored pixbuf and draw temporary items on top...
-        rp->replot();
+        rp->replot(QCustomPlot::rpQueued);
 
     } else {
         if (event && rubber_band_ && rubber_band_->isVisible()) {
@@ -667,7 +669,7 @@ void LteRlcGraphDialog::resetAxes()
     axis_pixels = rp->yAxis->axisRect()->height();
     rp->yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, rp->yAxis->range().center());
 
-    rp->replot();
+    rp->replot(QCustomPlot::rpQueued);
 }
 
 void LteRlcGraphDialog::on_actionGoToPacket_triggered()
