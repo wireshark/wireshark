@@ -39,6 +39,9 @@
 #include <epan/prefs.h>
 #include <wsutil/type_util.h>
 
+void proto_register_nasdaq_itch(void);
+void proto_reg_handoff_nasdaq_itch(void);
+
 /* Chi-X version */
 static gboolean nasdaq_itch_chi_x = TRUE;
 
@@ -432,9 +435,6 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* Register the protocol with Wireshark */
-
-void proto_register_nasdaq_itch(void);
-
 void
 proto_register_nasdaq_itch(void)
 {
@@ -587,6 +587,15 @@ proto_register_nasdaq_itch(void)
                                  &nasdaq_itch_chi_x);
 
   register_dissector("nasdaq-itch", dissect_nasdaq_itch, proto_nasdaq_itch);
+}
+
+void
+proto_reg_handoff_nasdaq_itch(void)
+{
+  dissector_handle_t nasdaq_itch_handle;
+
+  nasdaq_itch_handle = create_dissector_handle( dissect_nasdaq_itch, proto_nasdaq_itch );
+  dissector_add_for_decode_as("moldudp64.payload", nasdaq_itch_handle );
 }
 
 /*
