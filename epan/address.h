@@ -77,12 +77,10 @@ set_address(address *addr, int addr_type, int addr_len, const void * addr_data) 
     addr->type = addr_type;
     addr->len  = addr_len;
 }
-#define SET_ADDRESS(addr, addr_type, addr_len, addr_data) \
-    set_address((addr), (addr_type), (addr_len), (addr_data))
 
 /** Initialize an address from TVB data.
  *
- * Same as SET_ADDRESS but it takes a TVB and an offset. This is preferred
+ * Same as set_address but it takes a TVB and an offset. This is preferred
  * over passing the return value of tvb_get_ptr() to set_address().
  *
  * This calls tvb_get_ptr() (including throwing any exceptions) before
@@ -117,7 +115,6 @@ cmp_address(const address *addr1, const address *addr2) {
     if (addr1->len  < addr2->len) return -1;
     return memcmp(addr1->data, addr2->data, addr1->len);
 }
-#define CMP_ADDRESS(addr1, addr2) cmp_address((addr1), (addr2))
 
 /** Check two addresses for equality.
  *
@@ -141,7 +138,6 @@ addresses_equal(const address *addr1, const address *addr2) {
             ) return TRUE;
     return FALSE;
 }
-#define ADDRESSES_EQUAL(addr1, addr2) addresses_equal((addr1), (addr2))
 
 /** Check the data of two addresses for equality.
  *
@@ -178,7 +174,6 @@ copy_address(address *to, const address *from) {
         memcpy(to_data, from->data, from->len);
     to->data = to_data;
 }
-#define COPY_ADDRESS(to, from) copy_address((to), (from))
 
 /** Perform a shallow copy of the address (both addresses point to the same
  * memory location).
@@ -195,7 +190,6 @@ copy_address_shallow(address *to, const address *from) {
     to->data = from->data;
     */
 }
-#define COPY_ADDRESS_SHALLOW(to, from) copy_address_shallow((to), (from))
 
 /** Copy an address, allocating a new buffer for the address data
  *  using wmem-scoped memory.
@@ -233,7 +227,6 @@ add_address_to_hash(guint hash_val, const address *addr) {
     }
     return hash_val;
 }
-#define ADD_ADDRESS_TO_HASH(hash_val, addr) do { hash_val = add_address_to_hash(hash_val, (addr)); } while (0)
 
 /** Hash an address into a hash value (which must already have been set).
  *  64-bit version of add_address_to_hash().
