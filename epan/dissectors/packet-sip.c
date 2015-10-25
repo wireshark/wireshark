@@ -34,12 +34,14 @@
 #include "config.h"
 
 #include <epan/packet.h>
+
 #include <epan/exceptions.h>
-#include <epan/prefs.h>
-#include <epan/req_resp_hdrs.h>
-#include <epan/tap.h>
 #include <epan/exported_pdu.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
+#include <epan/req_resp_hdrs.h>
+#include <epan/stat_tap_ui.h>
+#include <epan/tap.h>
 
 #include <wsutil/str_util.h>
 
@@ -4720,6 +4722,297 @@ guint sip_find_invite(packet_info *pinfo,
     return result;
 }
 
+/* TAP STAT INFO */
+
+/*
+ * Much of this is from ui/gtk/sip_stat.c:
+ * sip_stat   2004 Martin Mathieson
+ */
+
+/* TODO: extra codes to be added from SIP extensions? */
+static const value_string response_code_vals[] = {
+    { 999, "Unknown response"}, /* Must be first */
+
+    { 100, "Trying"},
+    { 180, "Ringing"},
+    { 181, "Call Is Being Forwarded"},
+    { 182, "Queued"},
+    { 183, "Session Progress"},
+    { 199, "Informational - Others" },
+
+    { 200, "OK"},
+    { 202, "Accepted"},
+    { 204, "No Notification"},
+    { 299, "Success - Others"}, /* used to keep track of other Success packets */
+
+    { 300, "Multiple Choices"},
+    { 301, "Moved Permanently"},
+    { 302, "Moved Temporarily"},
+    { 305, "Use Proxy"},
+    { 380, "Alternative Service"},
+    { 399, "Redirection - Others"},
+
+    { 400, "Bad Request"},
+    { 401, "Unauthorized"},
+    { 402, "Payment Required"},
+    { 403, "Forbidden"},
+    { 404, "Not Found"},
+    { 405, "Method Not Allowed"},
+    { 406, "Not Acceptable"},
+    { 407, "Proxy Authentication Required"},
+    { 408, "Request Timeout"},
+    { 410, "Gone"},
+    { 412, "Conditional Request Failed"},
+    { 413, "Request Entity Too Large"},
+    { 414, "Request-URI Too Long"},
+    { 415, "Unsupported Media Type"},
+    { 416, "Unsupported URI Scheme"},
+    { 420, "Bad Extension"},
+    { 421, "Extension Required"},
+    { 422, "Session Timer Too Small"},
+    { 423, "Interval Too Brief"},
+    { 428, "Use Identity Header"},
+    { 429, "Provide Referrer Identity"},
+    { 430, "Flow Failed"},
+    { 433, "Anonymity Disallowed"},
+    { 436, "Bad Identity-Info"},
+    { 437, "Unsupported Certificate"},
+    { 438, "Invalid Identity Header"},
+    { 439, "First Hop Lacks Outbound Support"},
+    { 440, "Max-Breadth Exceeded"},
+    { 470, "Consent Needed"},
+    { 480, "Temporarily Unavailable"},
+    { 481, "Call/Transaction Does Not Exist"},
+    { 482, "Loop Detected"},
+    { 483, "Too Many Hops"},
+    { 484, "Address Incomplete"},
+    { 485, "Ambiguous"},
+    { 486, "Busy Here"},
+    { 487, "Request Terminated"},
+    { 488, "Not Acceptable Here"},
+    { 489, "Bad Event"},
+    { 491, "Request Pending"},
+    { 493, "Undecipherable"},
+    { 494, "Security Agreement Required"},
+    { 499, "Client Error - Others"},
+
+    { 500, "Server Internal Error"},
+    { 501, "Not Implemented"},
+    { 502, "Bad Gateway"},
+    { 503, "Service Unavailable"},
+    { 504, "Server Time-out"},
+    { 505, "Version Not Supported"},
+    { 513, "Message Too Large"},
+    { 599, "Server Error - Others"},
+
+    { 600, "Busy Everywhere"},
+    { 603, "Decline"},
+    { 604, "Does Not Exist Anywhere"},
+    { 606, "Not Acceptable"},
+    { 699, "Global Failure - Others"},
+
+    { 0, NULL}
+};
+#define RESPONSE_CODE_MIN 100
+#define RESPONSE_CODE_MAX 699
+
+typedef enum
+{
+    REQ_RESP_METHOD_COLUMN,
+    COUNT_COLUMN,
+    RESENT_COLUMN,
+    MIN_SETUP_COLUMN,
+    AVG_SETUP_COLUMN,
+    MAX_SETUP_COLUMN
+} sip_stat_columns;
+
+static stat_tap_table_item sip_stat_fields[] = {
+    {TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Request Method / Response Code", "%-25s"},
+    {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "%d"},
+    {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Resent", "%d"},
+    {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Min Setup (s)", "%8.2f"},
+    {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg Setup (s)", "%8.2f"},
+    {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Max Setup (s)", "%8.2f"},
+};
+
+static void sip_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+{
+    /* XXX Should we have a single request + response table instead? */
+    int num_fields = sizeof(sip_stat_fields)/sizeof(stat_tap_table_item);
+    new_stat_tap_table *req_table = new_stat_tap_init_table("SIP Requests", num_fields, 0, NULL, gui_callback, gui_data);
+    new_stat_tap_table *resp_table = new_stat_tap_init_table("SIP Responses", num_fields, 0, NULL, gui_callback, gui_data);
+    stat_tap_table_item_type items[sizeof(sip_stat_fields)/sizeof(stat_tap_table_item)];
+    guint i;
+
+    new_stat_tap_add_table(new_stat, req_table);
+    new_stat_tap_add_table(new_stat, resp_table);
+
+    items[REQ_RESP_METHOD_COLUMN].type = TABLE_ITEM_STRING;
+    items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
+    items[COUNT_COLUMN].value.uint_value = 0;
+    items[RESENT_COLUMN].type = TABLE_ITEM_UINT;
+    items[RESENT_COLUMN].value.uint_value = 0;
+    items[MIN_SETUP_COLUMN].type = TABLE_ITEM_FLOAT;
+    items[MIN_SETUP_COLUMN].value.float_value = 0.0f;
+    items[AVG_SETUP_COLUMN].type = TABLE_ITEM_FLOAT;
+    items[AVG_SETUP_COLUMN].value.float_value = 0.0f;
+    items[MAX_SETUP_COLUMN].type = TABLE_ITEM_FLOAT;
+    items[MAX_SETUP_COLUMN].value.float_value = 0.0f;
+
+    for (i = 0; i < array_length(sip_methods); i++) {
+        items[REQ_RESP_METHOD_COLUMN].value.string_value = g_strdup(sip_methods[i]);
+        new_stat_tap_init_table_row(req_table, i, num_fields, items);
+    }
+
+    for (i = 0; response_code_vals[i].strptr; i++) {
+        unsigned response_code = response_code_vals[i].value;
+        items[REQ_RESP_METHOD_COLUMN].value.string_value =
+                g_strdup_printf("%u %s", response_code, response_code_vals[i].strptr);
+        items[REQ_RESP_METHOD_COLUMN].user_data.uint_value = response_code;
+        new_stat_tap_init_table_row(resp_table, i, num_fields, items);
+    }
+}
+
+static gboolean
+sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *siv_ptr)
+{
+    new_stat_data_t* stat_data = (new_stat_data_t*) tapdata;
+    const sip_info_value_t *info_value = (const sip_info_value_t *) siv_ptr;
+    new_stat_tap_table *cur_table = NULL;
+    guint cur_row = 0;  /* 0 = Unknown for both tables */
+
+    if (info_value->request_method && info_value->response_code < 1) {
+        /* Request table */
+        new_stat_tap_table *req_table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, 0);
+        stat_tap_table_item_type *item_data;
+        guint element;
+
+        cur_table = req_table;
+        for (element = 0; element < req_table->num_elements; element++) {
+            item_data = new_stat_tap_get_field_data(req_table, element, REQ_RESP_METHOD_COLUMN);
+            if (g_ascii_strcasecmp(info_value->request_method, item_data->value.string_value) == 0) {
+                cur_row = element;
+                break;
+            }
+        }
+
+    } else if (info_value->response_code > 0) {
+        /* Response table */
+        new_stat_tap_table *resp_table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, 1);
+        guint response_code = info_value->response_code;
+        stat_tap_table_item_type *item_data;
+        guint element;
+
+        cur_table = resp_table;
+        if (response_code < RESPONSE_CODE_MIN || response_code > RESPONSE_CODE_MAX) {
+            response_code = 999;
+        } else if (!try_val_to_str(response_code, response_code_vals)) {
+            response_code = ((response_code / 100) * 100) + 99;
+        }
+
+        for (element = 0; element < resp_table->num_elements; element++) {
+            item_data = new_stat_tap_get_field_data(resp_table, element, REQ_RESP_METHOD_COLUMN);
+            if (item_data->user_data.uint_value == response_code) {
+                cur_row = element;
+                break;
+            }
+        }
+
+    } else {
+        return FALSE;
+    }
+
+    if (cur_table) {
+        stat_tap_table_item_type *item_data;
+
+        item_data = new_stat_tap_get_field_data(cur_table, cur_row, COUNT_COLUMN);
+        item_data->value.uint_value++;
+        new_stat_tap_set_field_data(cur_table, cur_row, COUNT_COLUMN, item_data);
+
+        if (info_value->resend) {
+            item_data = new_stat_tap_get_field_data(cur_table, cur_row, RESENT_COLUMN);
+            item_data->value.uint_value++;
+            new_stat_tap_set_field_data(cur_table, cur_row, RESENT_COLUMN, item_data);
+        }
+
+        if (info_value->setup_time > 0) {
+            stat_tap_table_item_type *min_item_data = new_stat_tap_get_field_data(cur_table, cur_row, MIN_SETUP_COLUMN);
+            stat_tap_table_item_type *avg_item_data = new_stat_tap_get_field_data(cur_table, cur_row, AVG_SETUP_COLUMN);
+            stat_tap_table_item_type *max_item_data = new_stat_tap_get_field_data(cur_table, cur_row, MAX_SETUP_COLUMN);
+            double setup_time = (double) info_value->setup_time / 1000;
+            unsigned count;
+
+            min_item_data->user_data.uint_value++; /* We store the setup count in MIN_SETUP_COLUMN */
+            count = min_item_data->user_data.uint_value;
+            avg_item_data->user_data.float_value += setup_time; /* We store the total setup time in AVG_SETUP_COLUMN */
+
+            if (count <= 1) {
+                min_item_data->value.float_value = setup_time;
+                avg_item_data->value.float_value = setup_time;
+                max_item_data->value.float_value = setup_time;
+            } else {
+                if (setup_time < min_item_data->value.float_value) {
+                    min_item_data->value.float_value = setup_time;
+                }
+                avg_item_data->value.float_value = avg_item_data->user_data.float_value / count;
+                if (setup_time > max_item_data->value.float_value) {
+                    max_item_data->value.float_value = setup_time;
+                }
+            }
+
+            new_stat_tap_set_field_data(cur_table, cur_row, MIN_SETUP_COLUMN, min_item_data);
+            new_stat_tap_set_field_data(cur_table, cur_row, AVG_SETUP_COLUMN, avg_item_data);
+            new_stat_tap_set_field_data(cur_table, cur_row, MAX_SETUP_COLUMN, max_item_data);
+        }
+    }
+
+    return TRUE;
+}
+
+static void
+sip_stat_reset(new_stat_tap_table* table)
+{
+    guint element;
+    stat_tap_table_item_type* item_data;
+
+    for (element = 0; element < table->num_elements; element++)
+    {
+        item_data = new_stat_tap_get_field_data(table, element, COUNT_COLUMN);
+        item_data->value.uint_value = 0;
+        new_stat_tap_set_field_data(table, element, COUNT_COLUMN, item_data);
+
+        item_data = new_stat_tap_get_field_data(table, element, RESENT_COLUMN);
+        item_data->value.uint_value = 0;
+        new_stat_tap_set_field_data(table, element, RESENT_COLUMN, item_data);
+
+        item_data = new_stat_tap_get_field_data(table, element, RESENT_COLUMN);
+        item_data->value.uint_value = 0;
+        new_stat_tap_set_field_data(table, element, RESENT_COLUMN, item_data);
+
+        item_data = new_stat_tap_get_field_data(table, element, MIN_SETUP_COLUMN);
+        item_data->user_data.uint_value = 0;
+        item_data->value.float_value = 0.0f;
+        new_stat_tap_set_field_data(table, element, MIN_SETUP_COLUMN, item_data);
+
+        item_data = new_stat_tap_get_field_data(table, element, AVG_SETUP_COLUMN);
+        item_data->user_data.float_value = 0;
+        item_data->value.float_value = 0.0f;
+        new_stat_tap_set_field_data(table, element, AVG_SETUP_COLUMN, item_data);
+
+        item_data = new_stat_tap_get_field_data(table, element, MAX_SETUP_COLUMN);
+        item_data->value.float_value = 0.0f;
+        new_stat_tap_set_field_data(table, element, MAX_SETUP_COLUMN, item_data);
+    }
+}
+
+static void
+sip_stat_free_table_item(new_stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
+{
+    if (column != REQ_RESP_METHOD_COLUMN) return;
+    g_free((char*)field_data->value.string_value);
+    field_data->value.string_value = NULL;
+}
+
 /* Register the protocol with Wireshark */
 void proto_register_sip(void)
 {
@@ -6003,6 +6296,25 @@ void proto_register_sip(void)
     module_t *sip_module;
     expert_module_t* expert_sip;
 
+    static tap_param sip_stat_params[] = {
+      { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+    };
+
+    static new_stat_tap_ui sip_stat_table = {
+      REGISTER_STAT_GROUP_TELEPHONY,
+      "SIP Statistics",
+      "sip",
+      "sip,stat",
+      sip_stat_init,
+      sip_stat_packet,
+      sip_stat_reset,
+      sip_stat_free_table_item,
+      NULL,
+      sizeof(sip_stat_fields)/sizeof(stat_tap_table_item), sip_stat_fields,
+      sizeof(sip_stat_params)/sizeof(tap_param), sip_stat_params,
+      NULL
+    };
+
     /* Register the protocol name and description */
     proto_sip = proto_register_protocol("Session Initiation Protocol",
                                         "SIP", "sip");
@@ -6096,6 +6408,8 @@ void proto_register_sip(void)
     sip_tap = register_tap("sip");
 
     ext_hdr_subdissector_table = register_dissector_table("sip.hdr", "SIP Extension header", FT_STRING, BASE_NONE);
+
+    register_new_stat_tap_ui(&sip_stat_table);
 
     /* compile patterns */
     ws_mempbrk_compile(&pbrk_comma_semi, ",;");

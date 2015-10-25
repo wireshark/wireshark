@@ -565,7 +565,6 @@
     <addaction name="menuTelephonySCTP"/>
     <addaction name="actionTelephonySMPPOperations"/>
     <addaction name="actionTelephonyUCPMessages"/>
-    <addaction name="actionTelephonySipFlows"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">

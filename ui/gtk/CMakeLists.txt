@@ -219,7 +219,6 @@ set(WIRESHARK_TAP_SRC
 	sctp_chunk_stat.c
 	sctp_chunk_stat_dlg.c
 	sctp_stat_dlg.c
-	sip_stat.c
 	stats_tree_stat.c
 	tcp_graph.c
 	voip_calls_dlg.c
