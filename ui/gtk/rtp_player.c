@@ -399,7 +399,7 @@ mark_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U
 	while (graph_list)
 	{
 		graph_item = (seq_analysis_item_t *)graph_list->data;
-		if (rsi->start_fd->num == graph_item->fd->num) {
+		if (rsi->start_fd->num == graph_item->frame_number) {
 			rsi->call_num = graph_item->conv_num;
 			/* if it is in the graph list, then check if the voip_call is selected */
 			voip_calls_list = g_queue_peek_nth_link(voip_calls->callsinfos, 0);

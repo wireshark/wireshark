@@ -267,7 +267,7 @@ void SequenceDialog::mouseMoved(QMouseEvent *event)
     if (event) {
         seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
         if (sai) {
-            packet_num_ = sai->fd->num;
+            packet_num_ = sai->frame_number;
             hint = QString("Packet %1: %2").arg(packet_num_).arg(sai->comment);
         }
     }

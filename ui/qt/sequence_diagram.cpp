@@ -203,7 +203,7 @@ void SequenceDiagram::draw(QCPPainter *painter)
         seq_analysis_item_t *sai = it.value().value;
         QPen fg_pen(mainPen());
 
-        if (sai->fd->num == selected_packet_) {
+        if (sai->frame_number == selected_packet_) {
             // Highlighted background
             painter->save();
             QRect bg_rect(

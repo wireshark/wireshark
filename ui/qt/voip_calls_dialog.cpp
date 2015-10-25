@@ -277,7 +277,7 @@ void VoipCallsDialog::tapDraw(void *tapinfo_ptr)
             seq_analysis_item_t * sai = (seq_analysis_item_t *)graph_item->data;
             rtp_stream_info_t *rsi = (rtp_stream_info_t *)rsi_entry->data;
 
-            if (rsi->start_fd->num == sai->fd->num) {
+            if (rsi->start_fd->num == sai->frame_number) {
                 rsi->call_num = sai->conv_num;
                 // VOIP_CALLS_DEBUG("setting conv num %u for frame %u", sai->conv_num, sai->fd->num);
             }
@@ -366,7 +366,7 @@ void VoipCallsDialog::prepareFilter()
     while (cur_ga_item && cur_ga_item->data) {
         seq_analysis_item_t *ga_item = (seq_analysis_item_t*) cur_ga_item->data;
         if (selected_calls.contains(ga_item->conv_num)) {
-            filter_str += QString("%1frame.number == %2").arg(or_prepend).arg(ga_item->fd->num);
+            filter_str += QString("%1frame.number == %2").arg(or_prepend).arg(ga_item->frame_number);
             or_prepend = " or ";
         }
         cur_ga_item = g_list_next(cur_ga_item);

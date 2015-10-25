@@ -310,7 +310,7 @@ add_to_graph(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *
     }
 
     gai = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
-    gai->fd = pinfo->fd;
+    gai->frame_number = pinfo->fd->num;
     copy_address(&(gai->src_addr),src_addr);
     copy_address(&(gai->dst_addr),dst_addr);
 
@@ -330,12 +330,12 @@ add_to_graph(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *
 
     gai->conv_num=call_num;
     gai->line_style=line_style;
-    set_fd_time(edt->session, gai->fd, time_str);
+    set_fd_time(edt->session, pinfo->fd, time_str);
     gai->time_str = g_strdup(time_str);
     gai->display=FALSE;
 
     g_queue_push_tail(tapinfo->graph_analysis->items, gai);
-    g_hash_table_insert(tapinfo->graph_analysis->ht, &gai->fd->num, gai);
+    g_hash_table_insert(tapinfo->graph_analysis->ht, &gai->frame_number, gai);
 }
 
 /****************************************************************************/
@@ -431,7 +431,7 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinf
     gchar     time_str[COL_MAX_LEN];
 
     new_gai = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
-    new_gai->fd = packet_list_get_row_data(frame_num);
+    new_gai->frame_number = frame_num;
     copy_address(&(new_gai->src_addr),src_addr);
     copy_address(&(new_gai->dst_addr),dst_addr);
 
@@ -449,7 +449,7 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinf
         new_gai->comment = g_strdup("");
     new_gai->conv_num=call_num;
     new_gai->line_style=line_style;
-    set_fd_time(edt->session, new_gai->fd, time_str);
+    set_fd_time(edt->session, packet_list_get_row_data(frame_num), time_str);
     new_gai->time_str = g_strdup(time_str);
     new_gai->display=FALSE;
 
@@ -460,9 +460,9 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinf
         while (list)
         {
             gai = (seq_analysis_item_t *)list->data;
-            if (gai->fd->num > frame_num) {
+            if (gai->frame_number > frame_num) {
                 g_queue_insert_before(tapinfo->graph_analysis->items, list, new_gai);
-                g_hash_table_insert(tapinfo->graph_analysis->ht, &new_gai->fd->num, new_gai);
+                g_hash_table_insert(tapinfo->graph_analysis->ht, &new_gai->frame_number, new_gai);
                 inserted = TRUE;
                 break;
             }
@@ -472,7 +472,7 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinf
 
         if (!inserted) {
             g_queue_push_tail(tapinfo->graph_analysis->items, new_gai);
-            g_hash_table_insert(tapinfo->graph_analysis->ht, &new_gai->fd->num, new_gai);
+            g_hash_table_insert(tapinfo->graph_analysis->ht, &new_gai->frame_number, new_gai);
         }
     }
 }
@@ -695,7 +695,7 @@ rtp_draw(void *tap_offset_ptr)
                         duration/1000,(duration%1000), rtp_listinfo->ssrc);
             } else {
                 new_gai = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
-                new_gai->fd = rtp_listinfo->start_fd;
+                new_gai->frame_number = rtp_listinfo->start_fd->num;
                 copy_address(&(new_gai->src_addr),&(rtp_listinfo->src_addr));
                 copy_address(&(new_gai->dst_addr),&(rtp_listinfo->dest_addr));
                 new_gai->port_src = rtp_listinfo->src_port;
@@ -710,7 +710,7 @@ rtp_draw(void *tap_offset_ptr)
                         (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->packet_count,
                         duration/1000,(duration%1000), rtp_listinfo->ssrc);
                 new_gai->conv_num = conv_num;
-                set_fd_time(tapinfo->session, new_gai->fd, time_str);
+                set_fd_time(tapinfo->session, rtp_listinfo->start_fd, time_str);
                 new_gai->time_str = g_strdup(time_str);
                 new_gai->display=FALSE;
                 new_gai->line_style = 2;  /* the arrow line will be 2 pixels width */
@@ -753,14 +753,14 @@ rtp_packet_draw(void *tap_offset_ptr)
             gai = voip_calls_graph_list->data;
             conv_num = gai->conv_num;
             /* if we get the setup frame number, then get the time position to graph the RTP arrow */
-            if (rtp_listinfo->setup_frame_number == gai->fd->num) {
+            if (rtp_listinfo->setup_frame_number == gai->frame_number) {
                 /* look again from the beginning because there are cases where the Setup frame is after the RTP */
                 voip_calls_graph_list = g_list_first(tapinfo->graph_analysis->list);
                 item = 0;
                 while(voip_calls_graph_list) {
                     gai = voip_calls_graph_list->data;
                     /* if RTP was already in the Graph, just update the comment information */
-                    if (rtp_listinfo->start_fd->num == gai->fd->num) {
+                    if (rtp_listinfo->start_fd->num == gai->frame_number) {
                         duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_fd->rel_ts) - nstime_to_msec(&rtp_listinfo->start_fd->rel_ts));
                         g_free(gai->comment);
                         gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
@@ -774,9 +774,9 @@ rtp_packet_draw(void *tap_offset_ptr)
                     if (!voip_calls_graph_list) item++;
 
                     /* add the RTP item to the graph if was not there*/
-                    if (rtp_listinfo->start_fd->num<gai->fd->num || !voip_calls_graph_list) {
+                    if (rtp_listinfo->start_fd->num<gai->frame_number || !voip_calls_graph_list) {
                         new_gai = g_malloc0(sizeof(seq_analysis_item_t));
-                        new_gai->fd = rtp_listinfo->start_fd;
+                        new_gai->frame_number = rtp_listinfo->start_fd->num;
                         copy_address(&(new_gai->src_addr),&(rtp_listinfo->src_addr));
                         copy_address(&(new_gai->dst_addr),&(rtp_listinfo->dest_addr));
                         new_gai->port_src = rtp_listinfo->src_port;
@@ -792,7 +792,7 @@ rtp_packet_draw(void *tap_offset_ptr)
                                                            (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
                                                            duration/1000,(duration%1000), rtp_listinfo->ssrc);
                         new_gai->conv_num = conv_num;
-                        set_fd_time(cfile.epan, new_gai->fd, time_str);
+                        set_fd_time(cfile.epan, rtp_listinfo->start_fd, time_str);
                         new_gai->time_str = g_strdup(time_str);
                         new_gai->display=FALSE;
                         new_gai->line_style = 2;  /* the arrow line will be 2 pixels width */
@@ -869,7 +869,7 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
         while (voip_calls_graph_list)
         {
             tmp_gai = (seq_analysis_item_t *)voip_calls_graph_list->data;
-            if (t38_info->setup_frame_number == tmp_gai->fd->num) {
+            if (t38_info->setup_frame_number == tmp_gai->frame_number) {
                 gai = tmp_gai;
                 break;
             }
@@ -2486,7 +2486,7 @@ mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         while (listGraph)
         {
             gai = (seq_analysis_item_t *)listGraph->data;
-            if (gai->fd->num == pi->req_num) {
+            if (gai->frame_number == pi->req_num) {
                 /* there is a request that match, so look the associated call with this call_num */
                 list = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
                 while (list)
