@@ -50,7 +50,7 @@ typedef enum seq_analysis_type_ {
 
 /** defines an entry for the graph analysis */
 typedef struct _seq_analysis_item {
-    frame_data *fd;                     /**< Holds the frame number and time information */
+    guint32 frame_number;
     address src_addr;
     guint16 port_src;
     address dst_addr;

@@ -39,7 +39,7 @@
 #define NUM_DISPLAY_ITEMS 1000
 
 typedef struct _display_items {
-	frame_data *fd;				/**< Holds the frame number and time information */
+	guint32 frame_number;		/**< frame number */
 	guint16 port_src;
 	guint16 port_dst;
 	gchar *frame_label;			/**< the label on top of the arrow */

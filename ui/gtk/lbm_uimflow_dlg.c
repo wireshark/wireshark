@@ -166,7 +166,7 @@ static int lbmc_uim_flow_graph_add_to_graph(packet_info * pinfo, const lbm_uim_s
     item = (seq_analysis_item_t *)g_malloc0(sizeof(seq_analysis_item_t));
     COPY_ADDRESS(&(item->src_addr), &(pinfo->src));
     COPY_ADDRESS(&(item->dst_addr), &(pinfo->dst));
-    item->fd = pinfo->fd;
+    item->frame_number = pinfo->fd->num;
     item->port_src = pinfo->srcport;
     item->port_dst = pinfo->destport;
     item->protocol = g_strdup(port_type_to_str(pinfo->ptype));
@@ -263,7 +263,7 @@ static void lbmc_uim_flow_graph_on_ok_cb(GtkButton * button _U_, gpointer user_d
     while (list != NULL)
     {
         seq_analysis_item_t * seq_item = (seq_analysis_item_t *)list->data;
-        set_fd_time(cfile.epan, seq_item->fd, time_str);
+        set_fd_time(cfile.epan, frame_data_sequence_find(cfile.frames, seq_item->frame_number), time_str);
         seq_item->time_str = g_strdup(time_str);
         list = g_list_next(list);
     }

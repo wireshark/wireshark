@@ -442,7 +442,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		if (gai->display) {
 			if (current_item>=display_items) break;		/* the item is outside the display */
 			if (i>=first_item) {
-				user_data->dlg.items[current_item].fd = gai->fd;
+				user_data->dlg.items[current_item].frame_number = gai->frame_number;
 				user_data->dlg.items[current_item].port_src = gai->port_src;
 				user_data->dlg.items[current_item].port_dst = gai->port_dst;
 				user_data->dlg.items[current_item].frame_label = gai->frame_label;
@@ -1000,7 +1000,7 @@ static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event,
 	user_data->dlg.needs_redraw = TRUE;
 	dialog_graph_draw(user_data);
 
-	cf_goto_frame(&cfile, user_data->dlg.items[item].fd->num);
+	cf_goto_frame(&cfile, user_data->dlg.items[item].frame_number);
 
 	return TRUE;
 }
@@ -1035,7 +1035,7 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
 	user_data->dlg.needs_redraw = TRUE;
 	dialog_graph_draw(user_data);
 
-	cf_goto_frame(&cfile, user_data->dlg.items[user_data->dlg.selected_item-user_data->dlg.first_item].fd->num);
+	cf_goto_frame(&cfile, user_data->dlg.items[user_data->dlg.selected_item-user_data->dlg.first_item].frame_number);
 
 	return TRUE;
 }

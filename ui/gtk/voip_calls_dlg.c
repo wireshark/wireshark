@@ -232,7 +232,7 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 			while (listb) {
 				gai = (seq_analysis_item_t *)listb->data;
 				if (gai->conv_num == listinfo->call_num) {
-					g_string_append_printf(filter_string_fwd, "%sframe.number == %u", is_first?"":" or ", gai->fd->num);
+					g_string_append_printf(filter_string_fwd, "%sframe.number == %u", is_first?"":" or ", gai->frame_number);
 					is_first = FALSE;
 				}
 				listb = g_list_next(listb);
