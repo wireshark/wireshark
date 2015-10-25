@@ -214,8 +214,10 @@ VoipCallsDialog::~VoipCallsDialog()
 {
     delete ui;
 
+    voip_calls_reset_all_taps(&tapinfo_);
     voip_calls_remove_all_tap_listeners(&tapinfo_);
     sequence_analysis_info_free(tapinfo_.graph_analysis);
+    g_queue_free(tapinfo_.callsinfos);
 }
 
 void VoipCallsDialog::captureFileClosing()
