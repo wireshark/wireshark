@@ -8469,6 +8469,7 @@ actifio-c2c      5103/tcp # Actifio C2C [Ravi_Kollipara] [Ravi_Kollipara] 2010-0
 tinymessage      5104/udp # TinyMessage [Josip_Medved] [Josip_Medved] 2010-10-20
 hughes-ap        5105/udp # Hughes Association Protocol [Varun_Santosh] [Varun_Santosh] 2010-10-20
 actifioudsagent  5106/tcp # Actifio UDS Agent [Actifio] [Madhav_Mutalik] 2014-06-05
+actifioreplic    5107/tcp # Disk to Disk replication between Actifio Clusters [Actifio] [Madhav_Mutalik] 2015-10-23
 taep-as-svc      5111/tcp # TAEP AS service [Liu_Changchun] [Liu_Changchun] 2008-11-05
 taep-as-svc      5111/udp # TAEP AS service [Liu_Changchun] [Liu_Changchun] 2008-11-05
 pm-cmdsvr        5112/tcp # PeerMe Msg Cmd Service [Marcos_Della] [Marcos_Della] 2005-08

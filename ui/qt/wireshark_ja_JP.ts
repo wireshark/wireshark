@@ -58,7 +58,7 @@
     <message>
         <location filename="address_editor_frame.ui" line="14"/>
         <source>Frame</source>
-        <translation type="unfinished">フレーム</translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <location filename="address_editor_frame.ui" line="32"/>
@@ -79,12 +79,12 @@
     <message>
         <location filename="address_editor_frame.ui" line="111"/>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <location filename="address_editor_frame.ui" line="118"/>
         <source>Cancel</source>
-        <translation type="unfinished">キャンセル</translation>
+        <translation>キャンセル</translation>
     </message>
     <message>
         <location filename="address_editor_frame.cpp" line="145"/>
@@ -180,7 +180,7 @@
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="64"/>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <location filename="bluetooth_devices_dialog.ui" line="69"/>
@@ -269,7 +269,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="87"/>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="92"/>
@@ -295,13 +295,13 @@
         <location filename="bluetooth_hci_summary_dialog.ui" line="112"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="451"/>
         <source>Status</source>
-        <translation type="unfinished">状態</translation>
+        <translation>状態</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="117"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="480"/>
         <source>Reason</source>
-        <translation type="unfinished">原因</translation>
+        <translation>原因</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="122"/>
@@ -337,7 +337,7 @@
         <location filename="bluetooth_hci_summary_dialog.ui" line="475"/>
         <location filename="bluetooth_hci_summary_dialog.ui" line="533"/>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.ui" line="161"/>
@@ -467,7 +467,7 @@
     <message>
         <location filename="bluetooth_hci_summary_dialog.cpp" line="305"/>
         <source>Unknown</source>
-        <translation type="unfinished">不明</translation>
+        <translation>不明</translation>
     </message>
     <message>
         <location filename="bluetooth_hci_summary_dialog.cpp" line="323"/>
@@ -521,12 +521,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="248"/>
+        <location filename="byte_view_text.cpp" line="247"/>
         <source>Byte %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="251"/>
+        <location filename="byte_view_text.cpp" line="250"/>
         <source>Bytes %1-%2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -802,7 +802,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="156"/>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="161"/>
@@ -822,7 +822,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="184"/>
         <source>Encapsulation</source>
-        <translation type="unfinished">カプセル化</translation>
+        <translation>カプセル化</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="190"/>
@@ -852,7 +852,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="241"/>
         <source>Capture</source>
-        <translation type="unfinished">キャプチャ</translation>
+        <translation>キャプチャ</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="250"/>
@@ -877,7 +877,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="280"/>
         <source>Interface</source>
-        <translation type="unfinished">インタフェース</translation>
+        <translation>インタフェース</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="281"/>
@@ -912,7 +912,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="333"/>
         <source>Statistics</source>
-        <translation type="unfinished">統計</translation>
+        <translation>統計</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="337"/>
@@ -922,12 +922,12 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="338"/>
         <source>Captured</source>
-        <translation type="unfinished">キャプチャされたパケット</translation>
+        <translation>キャプチャされたパケット</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="339"/>
         <source>Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>表示</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="340"/>
@@ -962,7 +962,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="434"/>
         <source>Bytes</source>
-        <translation type="unfinished">バイト</translation>
+        <translation>バイト</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="455"/>
@@ -1502,12 +1502,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="coloring_rules_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.ui" line="39"/>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.ui" line="44"/>
@@ -1620,22 +1620,22 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="column_editor_frame.ui" line="14"/>
         <source>Frame</source>
-        <translation type="unfinished">フレーム</translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <location filename="column_editor_frame.ui" line="32"/>
         <source>Title</source>
-        <translation type="unfinished">題名</translation>
+        <translation>題名</translation>
     </message>
     <message>
         <location filename="column_editor_frame.ui" line="55"/>
         <source>Type</source>
-        <translation type="unfinished">種別</translation>
+        <translation>種別</translation>
     </message>
     <message>
         <location filename="column_editor_frame.ui" line="78"/>
         <source>Field Name</source>
-        <translation type="unfinished">フィールド名</translation>
+        <translation>フィールド名</translation>
     </message>
     <message>
         <location filename="column_editor_frame.ui" line="101"/>
@@ -1679,7 +1679,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="column_preferences_frame.ui" line="45"/>
         <source>Field Name</source>
         <oldsource>Field name</oldsource>
-        <translation type="unfinished">フィールド名</translation>
+        <translation>フィールド名</translation>
     </message>
     <message>
         <location filename="column_preferences_frame.ui" line="50"/>
@@ -1712,7 +1712,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="conversation_dialog.cpp" line="63"/>
         <source>Follow Stream</source>
         <oldsource>Follow Stream...</oldsource>
-        <translation type="unfinished">ストリームを追跡</translation>
+        <translation>ストリームを追跡</translation>
     </message>
     <message>
         <location filename="conversation_dialog.cpp" line="64"/>
@@ -1736,7 +1736,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="conversation_hash_tables_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="conversation_hash_tables_dialog.cpp" line="41"/>
@@ -1901,7 +1901,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="24"/>
@@ -1911,7 +1911,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="27"/>
         <source>Field Name</source>
-        <translation type="unfinished">フィールド名</translation>
+        <translation>フィールド名</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="51"/>
@@ -1947,7 +1947,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="111"/>
         <source>Value</source>
-        <translation type="unfinished">値</translation>
+        <translation>値</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="125"/>
@@ -2000,7 +2000,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="dissector_tables_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="dissector_tables_dialog.ui" line="21"/>
@@ -2048,7 +2048,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="dissector_tables_dialog.cpp" line="262"/>
         <location filename="dissector_tables_dialog.cpp" line="268"/>
         <source>String</source>
-        <translation type="unfinished">文字列</translation>
+        <translation>文字列</translation>
     </message>
     <message>
         <location filename="dissector_tables_dialog.cpp" line="262"/>
@@ -2078,7 +2078,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="enabled_protocols_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="enabled_protocols_dialog.ui" line="21"/>
@@ -2088,7 +2088,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="enabled_protocols_dialog.ui" line="26"/>
         <source>Description</source>
-        <translation type="unfinished">記述</translation>
+        <translation>記述</translation>
     </message>
     <message>
         <location filename="enabled_protocols_dialog.ui" line="42"/>
@@ -2098,7 +2098,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="enabled_protocols_dialog.ui" line="54"/>
         <source>Search:</source>
-        <translation type="unfinished">検索:</translation>
+        <translation>検索:</translation>
     </message>
     <message>
         <location filename="enabled_protocols_dialog.ui" line="77"/>
@@ -2144,7 +2144,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="expert_info_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="expert_info_dialog.ui" line="27"/>
@@ -2164,7 +2164,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="expert_info_dialog.ui" line="42"/>
         <source>Count</source>
-        <translation type="unfinished">カウント</translation>
+        <translation>カウント</translation>
     </message>
     <message>
         <location filename="expert_info_dialog.ui" line="50"/>
@@ -2196,7 +2196,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="expert_info_dialog.ui" line="131"/>
         <source>Error</source>
-        <translation type="unfinished">エラー</translation>
+        <translation>エラー</translation>
     </message>
     <message>
         <location filename="expert_info_dialog.ui" line="134"/>
@@ -2236,7 +2236,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="expert_info_dialog.ui" line="175"/>
         <source>Comment</source>
-        <translation type="unfinished">コメント</translation>
+        <translation>コメント</translation>
     </message>
     <message>
         <location filename="expert_info_dialog.ui" line="178"/>
@@ -2286,7 +2286,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="export_dissection_dialog.cpp" line="65"/>
         <source>Export Packet Dissections</source>
         <oldsource>Wireshark: Export Packet Dissections</oldsource>
-        <translation type="unfinished">エキスパートパケット解析</translation>
+        <translation>エキスパートパケット解析</translation>
     </message>
     <message>
         <location filename="export_dissection_dialog.cpp" line="67"/>
@@ -2411,7 +2411,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="extcap_argument_file.cpp" line="97"/>
         <source>All Files (*.*)</source>
-        <translation type="unfinished">すべてのファイル (*.*)</translation>
+        <translation>すべてのファイル (*.*)</translation>
     </message>
 </context>
 <context>
@@ -2486,12 +2486,12 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="filter_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="33"/>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="38"/>
@@ -2500,17 +2500,23 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="48"/>
+        <source>Create a new filter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Create a new profile using default settings.</source>
-        <translation type="unfinished">デフォルトの設定を用いて新規プロファイルを作成</translation>
+        <translation type="vanished">デフォルトの設定を用いて新規プロファイルを作成</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="62"/>
-        <source>Remove this profile.</source>
+        <source>Remove this filter.</source>
+        <oldsource>Remove this profile.</oldsource>
         <translation type="unfinished">このプロファイルを削除</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="73"/>
-        <source>Copy this profile.</source>
+        <source>Copy this filter.</source>
+        <oldsource>Copy this profile.</oldsource>
         <translation type="unfinished">このプロファイルをコピー</translation>
     </message>
     <message>
@@ -2896,7 +2902,7 @@ for filter files: %2.</source>
     <message>
         <location filename="funnel_string_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
 </context>
 <context>
@@ -2904,7 +2910,7 @@ for filter files: %2.</source>
     <message>
         <location filename="funnel_text_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="funnel_text_dialog.ui" line="25"/>
@@ -2923,7 +2929,7 @@ for filter files: %2.</source>
     <message>
         <location filename="gsm_map_summary_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="gsm_map_summary_dialog.cpp" line="65"/>
@@ -2938,7 +2944,7 @@ for filter files: %2.</source>
     <message>
         <location filename="gsm_map_summary_dialog.cpp" line="111"/>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <location filename="gsm_map_summary_dialog.cpp" line="116"/>
@@ -2963,7 +2969,7 @@ for filter files: %2.</source>
     <message>
         <location filename="gsm_map_summary_dialog.cpp" line="139"/>
         <source>Data</source>
-        <translation type="unfinished">データ</translation>
+        <translation>データ</translation>
     </message>
     <message>
         <location filename="gsm_map_summary_dialog.cpp" line="147"/>
@@ -2988,7 +2994,7 @@ for filter files: %2.</source>
     <message>
         <location filename="gsm_map_summary_dialog.cpp" line="188"/>
         <source>N/A</source>
-        <translation type="unfinished"></translation>
+        <translation>N/A</translation>
     </message>
     <message>
         <location filename="gsm_map_summary_dialog.cpp" line="239"/>
@@ -3613,7 +3619,7 @@ for filter files: %2.</source>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="24"/>
@@ -3628,7 +3634,7 @@ for filter files: %2.</source>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="69"/>
         <source>Packet</source>
-        <translation type="unfinished">パケット</translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="74"/>
@@ -3648,7 +3654,7 @@ for filter files: %2.</source>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="89"/>
         <source>Status</source>
-        <translation type="unfinished">状態</translation>
+        <translation>状態</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="94"/>
@@ -3773,7 +3779,7 @@ for filter files: %2.</source>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="310"/>
         <source>Save Graph</source>
-        <translation type="unfinished">グラフを保存</translation>
+        <translation>グラフを保存</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="313"/>
@@ -3783,7 +3789,7 @@ for filter files: %2.</source>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="318"/>
         <source>Go to Packet</source>
-        <translation type="unfinished">パケットへ移動</translation>
+        <translation>パケットへ移動</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="321"/>
@@ -3793,7 +3799,7 @@ for filter files: %2.</source>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="324"/>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="329"/>
@@ -3843,22 +3849,22 @@ for filter files: %2.</source>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="563"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished">PDF形式 (*.pdf)</translation>
+        <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="564"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished">PNG形式 (*.png)</translation>
+        <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="565"/>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished">ビットマップ形式 (*.bmp)</translation>
+        <translation>ビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="567"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished">JPEG形式 (*.jpeg *.jpg)</translation>
+        <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="578"/>
@@ -3904,7 +3910,7 @@ for filter files: %2.</source>
         <location filename="iax2_analysis_dialog.cpp" line="900"/>
         <location filename="iax2_analysis_dialog.cpp" line="915"/>
         <source>Warning</source>
-        <translation type="unfinished">警告</translation>
+        <translation>警告</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="900"/>
@@ -5106,7 +5112,7 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="827"/>
         <source>Show the NCF frames/count/bytes column</source>
-        <translation type="unfinished">NCFフレーム数/カウント/バイト数列を表示</translation>
+        <translation>NCFフレーム数/カウント/バイト数列を表示</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="838"/>
@@ -5705,17 +5711,17 @@ for filter files: %2.</source>
 <context>
     <name>LteMacStatisticsDialog</name>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="473"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="471"/>
         <source>LTE Mac Statistics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="507"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="505"/>
         <source>Include SR frames in filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="509"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="507"/>
         <source>Include RACH frames in filter</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5725,7 +5731,7 @@ for filter files: %2.</source>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="23"/>
@@ -5758,312 +5764,406 @@ for filter files: %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="68"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="60"/>
+        <source>Mouse</source>
+        <translation type="unfinished">マウス</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="67"/>
+        <source>Drag using the mouse button.</source>
+        <translation type="unfinished">マウスボタンを使ってドラッグ</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="70"/>
+        <source>drags</source>
+        <translation type="unfinished">ドラッグ</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="80"/>
+        <source>Select using the mouse button.</source>
+        <translation type="unfinished">マウスボタンを使うことを選択</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="83"/>
+        <source>zooms</source>
+        <translation type="unfinished">ズーム</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="106"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the graph to its initial state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;グラフを初期状態にリセット&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="109"/>
+        <source>Reset</source>
+        <translation type="unfinished">リセット</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="128"/>
         <source>Reset Graph</source>
-        <translation type="unfinished">グラフをリセット</translation>
+        <translation>グラフをリセット</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="71"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="131"/>
         <source>Reset the graph to its initial state.</source>
-        <translation type="unfinished">グラフを初期状態にリセット</translation>
-    </message>
-    <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="74"/>
-        <source>0</source>
-        <translation type="unfinished">0</translation>
-    </message>
-    <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="79"/>
-        <location filename="lte_rlc_graph_dialog.ui" line="82"/>
-        <source>Zoom In</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="85"/>
-        <source>+</source>
-        <translation type="unfinished">+</translation>
-    </message>
-    <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="90"/>
-        <location filename="lte_rlc_graph_dialog.ui" line="93"/>
-        <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="96"/>
-        <source>-</source>
-        <translation type="unfinished">-</translation>
-    </message>
-    <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="101"/>
-        <location filename="lte_rlc_graph_dialog.ui" line="104"/>
-        <source>Move Up 10 Pixels</source>
-        <translation type="unfinished">上に10ピクセル移動</translation>
-    </message>
-    <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="107"/>
-        <source>Up</source>
-        <translation type="unfinished">上</translation>
-    </message>
-    <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="112"/>
-        <location filename="lte_rlc_graph_dialog.ui" line="115"/>
-        <source>Move Left 10 Pixels</source>
-        <translation type="unfinished">左に10ピクセル移動</translation>
-    </message>
-    <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="118"/>
-        <source>Left</source>
-        <translation type="unfinished">左</translation>
-    </message>
-    <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="123"/>
-        <location filename="lte_rlc_graph_dialog.ui" line="126"/>
-        <source>Move Right 10 Pixels</source>
-        <translation type="unfinished">右に10ピクセル移動</translation>
-    </message>
-    <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="129"/>
-        <source>Right</source>
-        <translation type="unfinished">右</translation>
+        <translation>グラフを初期状態にリセット</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="134"/>
-        <location filename="lte_rlc_graph_dialog.ui" line="137"/>
-        <source>Move Down 10 Pixels</source>
-        <translation type="unfinished">下に10ピクセル移動</translation>
+        <source>0</source>
+        <translation>0</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="140"/>
-        <source>Down</source>
-        <translation type="unfinished">下</translation>
+        <location filename="lte_rlc_graph_dialog.ui" line="139"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="142"/>
+        <source>Zoom In</source>
+        <translation>拡大</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="145"/>
-        <location filename="lte_rlc_graph_dialog.ui" line="148"/>
-        <source>Move Up 1 Pixel</source>
-        <translation type="unfinished">上に1ピクセル移動</translation>
+        <source>+</source>
+        <translation>+</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="151"/>
-        <source>Shift+Up</source>
-        <translation type="unfinished"></translation>
+        <location filename="lte_rlc_graph_dialog.ui" line="150"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="153"/>
+        <source>Zoom Out</source>
+        <translation>縮小</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="156"/>
-        <location filename="lte_rlc_graph_dialog.ui" line="159"/>
-        <source>Move Left 1 Pixel</source>
-        <translation type="unfinished">左に1ピクセル移動</translation>
+        <source>-</source>
+        <translation>-</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="162"/>
-        <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <location filename="lte_rlc_graph_dialog.ui" line="161"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="164"/>
+        <source>Move Up 10 Pixels</source>
+        <translation>上に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="167"/>
-        <location filename="lte_rlc_graph_dialog.ui" line="170"/>
-        <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <source>Up</source>
+        <translation>上</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="173"/>
-        <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <location filename="lte_rlc_graph_dialog.ui" line="172"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="175"/>
+        <source>Move Left 10 Pixels</source>
+        <translation>左に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="178"/>
-        <source>Move Down 1 Pixel</source>
-        <translation type="unfinished">下に1ピクセル移動</translation>
+        <source>Left</source>
+        <translation>左</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="181"/>
-        <source>Move down 1 Pixel</source>
-        <translation type="unfinished">下に1ピクセル移動</translation>
-    </message>
-    <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="184"/>
-        <source>Shift+Down</source>
-        <translation type="unfinished"></translation>
+        <location filename="lte_rlc_graph_dialog.ui" line="183"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="186"/>
+        <source>Move Right 10 Pixels</source>
+        <translation>右に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="189"/>
-        <source>Drag / Zoom</source>
-        <translation type="unfinished">ドラッグ / ズーム</translation>
+        <source>Right</source>
+        <translation>右</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="192"/>
-        <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished">マウスのドラッグ/ズームの振る舞いを切替</translation>
-    </message>
-    <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="195"/>
-        <source>Z</source>
-        <translation type="unfinished">Z</translation>
+        <location filename="lte_rlc_graph_dialog.ui" line="194"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="197"/>
+        <source>Move Down 10 Pixels</source>
+        <translation>下に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="200"/>
-        <source>Crosshairs</source>
-        <translation type="unfinished">十字</translation>
+        <source>Down</source>
+        <translation>下</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="203"/>
-        <source>Toggle crosshairs</source>
-        <translation type="unfinished">十字の表示切替</translation>
-    </message>
-    <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="206"/>
-        <source>Space</source>
-        <translation type="unfinished">スペース</translation>
+        <location filename="lte_rlc_graph_dialog.ui" line="205"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="208"/>
+        <source>Move Up 1 Pixel</source>
+        <translation>上に1ピクセル移動</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="211"/>
-        <location filename="lte_rlc_graph_dialog.ui" line="214"/>
+        <source>Shift+Up</source>
+        <translation>Shift+上</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="216"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="219"/>
+        <source>Move Left 1 Pixel</source>
+        <translation>左に1ピクセル移動</translation>
+    </message>
+    <message>
         <location filename="lte_rlc_graph_dialog.ui" line="222"/>
-        <location filename="lte_rlc_graph_dialog.ui" line="225"/>
+        <source>Shift+Left</source>
+        <translation>Shift+左</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="227"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="230"/>
+        <source>Move Right 1 Pixel</source>
+        <translation>1ピクセル右に移動</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="233"/>
+        <source>Shift+Right</source>
+        <translation>Shift+右</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="238"/>
+        <source>Move Down 1 Pixel</source>
+        <translation>下に1ピクセル移動</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="241"/>
+        <source>Move down 1 Pixel</source>
+        <translation>下に1ピクセル移動</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="244"/>
+        <source>Shift+Down</source>
+        <translation>Shift+下</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="249"/>
+        <source>Drag / Zoom</source>
+        <translation>ドラッグ / ズーム</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="252"/>
+        <source>Toggle mouse drag / zoom behavior</source>
+        <translation>マウスのドラッグ/ズームの振る舞いを切替</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="255"/>
+        <source>Z</source>
+        <translation>Z</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="260"/>
+        <source>Crosshairs</source>
+        <translation>十字</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="263"/>
+        <source>Toggle crosshairs</source>
+        <translation>十字の表示切替</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="266"/>
+        <source>Space</source>
+        <translation>スペース</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="271"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="274"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="282"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="285"/>
         <source>Move Up 100 Pixels</source>
         <translation type="unfinished">上に10ピクセル移動 {100 ?}</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="217"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="277"/>
         <source>PgUp</source>
-        <translation type="unfinished">ページアップ</translation>
+        <translation>ページアップ</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="228"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="288"/>
         <source>PgDown</source>
-        <translation type="unfinished">ページダウン</translation>
+        <translation>ページダウン</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="233"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="293"/>
         <source>Go To Packet Under Cursor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="236"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="296"/>
         <source>Go to packet currently under the cursor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.ui" line="239"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="299"/>
         <source>G</source>
         <translation type="unfinished">G</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="73"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="304"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="307"/>
+        <source>Zoom In X Axis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="310"/>
+        <source>X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="315"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="318"/>
+        <source>Zoom Out Y Axis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="321"/>
+        <source>Shift+Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="326"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="329"/>
+        <source>Zoom In Y Axis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="332"/>
+        <source>Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="337"/>
+        <location filename="lte_rlc_graph_dialog.ui" line="340"/>
+        <source>Zoom Out X Axis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.ui" line="343"/>
+        <source>Shift+X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.cpp" line="72"/>
         <source>Time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="74"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="73"/>
         <source>Sequence Number</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="139"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="145"/>
         <source>LTE RLC Graph (UE=%1 chan=%2%3 %4 - %5)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="148"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="154"/>
         <source>LTE RLC Graph - no channel selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="526"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="600"/>
+        <source>%1 %2 (%3s seq %4 len %5)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.cpp" line="601"/>
+        <source>Click to select packet</source>
+        <translation type="unfinished">クリックしてパケットを選んでください</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.cpp" line="601"/>
+        <source>Packet</source>
+        <translation type="unfinished">パケット</translation>
+    </message>
+    <message>
+        <location filename="lte_rlc_graph_dialog.cpp" line="617"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation type="unfinished">離してズーム, x = %1 から %2, y = %3 から %4</translation>
+        <translation>離してズーム, x = %1 から %2, y = %3 から %4</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="532"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="623"/>
         <source>Unable to select range.</source>
-        <translation type="unfinished">範囲を選択できません</translation>
+        <translation>範囲を選択できません</translation>
     </message>
     <message>
-        <location filename="lte_rlc_graph_dialog.cpp" line="535"/>
+        <location filename="lte_rlc_graph_dialog.cpp" line="626"/>
         <source>Click to select a portion of the graph.</source>
-        <translation type="unfinished">クリックしてグラフの割合を選びます</translation>
+        <translation>クリックしてグラフの割合を選びます</translation>
     </message>
 </context>
 <context>
     <name>LteRlcStatisticsDialog</name>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="627"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="645"/>
         <source>LTE RLC Statistics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="653"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="671"/>
         <source>Include SR frames in filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="655"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="673"/>
         <source>Include RACH frames in filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="658"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="676"/>
         <source>Use RLC frames only from MAC frames</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="668"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="686"/>
         <source>UL Frames</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="668"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="686"/>
         <source>UL Bytes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="668"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="686"/>
         <source>UL MB/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="669"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="687"/>
         <source>UL ACKs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="669"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="687"/>
         <source>UL NACKs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="669"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="687"/>
         <source>UL Missing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="670"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="688"/>
         <source>DL Frames</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="670"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="688"/>
         <source>DL Bytes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="670"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="688"/>
         <source>DL MB/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="671"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="689"/>
         <source>DL ACKs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="671"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="689"/>
         <source>DL NACKs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="671"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="689"/>
         <source>DL Missing</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6071,120 +6171,120 @@ for filter files: %2.</source>
 <context>
     <name>MainStatusBar</name>
     <message>
-        <location filename="main_status_bar.cpp" line="104"/>
+        <location filename="main_status_bar.cpp" line="105"/>
         <source>Ready to load or capture</source>
         <translation>読み込みもしくはキャプチャの準備</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="106"/>
+        <location filename="main_status_bar.cpp" line="107"/>
         <source>Ready to load file</source>
         <translation>ファイル読み込み準備</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="144"/>
+        <location filename="main_status_bar.cpp" line="145"/>
         <source>Open the Capture File Properties dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="176"/>
+        <location filename="main_status_bar.cpp" line="177"/>
         <source>Manage Profiles</source>
         <oldsource>Manage Profiles...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="180"/>
+        <location filename="main_status_bar.cpp" line="181"/>
         <source>New</source>
         <oldsource>New...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="183"/>
+        <location filename="main_status_bar.cpp" line="184"/>
         <source>Edit</source>
         <oldsource>Edit...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="186"/>
+        <location filename="main_status_bar.cpp" line="187"/>
         <source>Delete</source>
         <translation>削除</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="190"/>
+        <location filename="main_status_bar.cpp" line="191"/>
         <source>Switch to</source>
         <translation>切替</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="224"/>
+        <location filename="main_status_bar.cpp" line="225"/>
         <source> is the highest expert information level</source>
         <oldsource> is the highest expert info level</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="229"/>
+        <location filename="main_status_bar.cpp" line="230"/>
         <source>ERROR</source>
         <translation>エラー</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="233"/>
+        <location filename="main_status_bar.cpp" line="234"/>
         <source>WARNING</source>
         <translation>注意</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="237"/>
+        <location filename="main_status_bar.cpp" line="238"/>
         <source>NOTE</source>
         <translation>ノート</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="241"/>
+        <location filename="main_status_bar.cpp" line="242"/>
         <source>CHAT</source>
         <translation>チャット</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="248"/>
+        <location filename="main_status_bar.cpp" line="249"/>
         <source>No expert information</source>
         <oldsource>No expert info</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="345"/>
+        <location filename="main_status_bar.cpp" line="346"/>
         <source>Profile: </source>
         <translation>プロファイル:</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="403"/>
+        <location filename="main_status_bar.cpp" line="404"/>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
         <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="409"/>
+        <location filename="main_status_bar.cpp" line="410"/>
         <source> %1 Marked: %2 (%3%)</source>
         <oldsource> %1 Dropped: %2</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="415"/>
+        <location filename="main_status_bar.cpp" line="416"/>
         <source> %1 Dropped: %2 (%3%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="421"/>
+        <location filename="main_status_bar.cpp" line="422"/>
         <source> %1 Ignored: %2 (%3%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="429"/>
+        <location filename="main_status_bar.cpp" line="430"/>
         <source> %1  Load time: %2:%3.%4</source>
         <translation> %1  読込時間: %2:%3.%4</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="437"/>
-        <location filename="main_status_bar.cpp" line="459"/>
+        <location filename="main_status_bar.cpp" line="438"/>
+        <location filename="main_status_bar.cpp" line="460"/>
         <source>No Packets</source>
         <translation>パケットなし</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="455"/>
+        <location filename="main_status_bar.cpp" line="456"/>
         <source>Packets: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6300,7 +6400,7 @@ a:hover {
     <message>
         <location filename="main_welcome.cpp" line="206"/>
         <source>.</source>
-        <translation type="unfinished">.</translation>
+        <translation>.</translation>
     </message>
     <message>
         <location filename="main_welcome.cpp" line="209"/>
@@ -8127,7 +8227,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2039"/>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>縮小</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2045"/>
@@ -8908,7 +9008,7 @@ a:hover {
     <message>
         <location filename="main_window_slots.cpp" line="663"/>
         <source>%1: %2</source>
-        <translation type="unfinished">%1: %2</translation>
+        <translation>%1: %2</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="755"/>
@@ -8931,72 +9031,72 @@ a:hover {
         <translation>メニューをクリア</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1491"/>
+        <location filename="main_window_slots.cpp" line="1494"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1642"/>
+        <location filename="main_window_slots.cpp" line="1645"/>
         <source>Export Selected Packet Bytes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1644"/>
+        <location filename="main_window_slots.cpp" line="1647"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
         <translation>Raw形式 (*.bin *.dat *.raw);;すべてのファイル (*.*</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1701"/>
+        <location filename="main_window_slots.cpp" line="1704"/>
         <source>No Keys</source>
         <translation>キーはありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1702"/>
+        <location filename="main_window_slots.cpp" line="1705"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>保存する SSLセッション鍵はありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1708"/>
+        <location filename="main_window_slots.cpp" line="1711"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1713"/>
+        <location filename="main_window_slots.cpp" line="1716"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation>SSLセッション鍵 (*.keys *.txt);;すべてのファイル (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1851"/>
+        <location filename="main_window_slots.cpp" line="1854"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>テキストコピーできません 別に試してください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2242"/>
+        <location filename="main_window_slots.cpp" line="2246"/>
         <source>Unable to build conversation filter.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2396"/>
+        <location filename="main_window_slots.cpp" line="2400"/>
         <source>No filter available. Try another </source>
         <translation>フィルタが利用できません 別に試してください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3338"/>
+        <location filename="main_window_slots.cpp" line="3342"/>
         <source>No Interface Selected</source>
         <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3345"/>
+        <location filename="main_window_slots.cpp" line="3349"/>
         <source> before starting a new capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3548"/>
+        <location filename="main_window_slots.cpp" line="3552"/>
         <source>Wiki Page for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3549"/>
+        <location filename="main_window_slots.cpp" line="3553"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9263,7 +9363,7 @@ a:hover {
     <message>
         <location filename="mtp3_summary_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="69"/>
@@ -9278,7 +9378,7 @@ a:hover {
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="116"/>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="121"/>
@@ -9303,7 +9403,7 @@ a:hover {
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="144"/>
         <source>Data</source>
-        <translation type="unfinished">データ</translation>
+        <translation>データ</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="152"/>
@@ -9328,7 +9428,7 @@ a:hover {
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="193"/>
         <source>N/A</source>
-        <translation type="unfinished"></translation>
+        <translation>N/A</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="199"/>
@@ -9354,7 +9454,7 @@ a:hover {
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="206"/>
         <source>Bytes</source>
-        <translation type="unfinished">バイト</translation>
+        <translation>バイト</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="207"/>
@@ -9364,7 +9464,7 @@ a:hover {
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="208"/>
         <source>Bytes/s</source>
-        <translation type="unfinished">バイト/秒</translation>
+        <translation>バイト/秒</translation>
     </message>
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="260"/>
@@ -9427,7 +9527,7 @@ a:hover {
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="186"/>
         <source>Packets/s</source>
-        <translation type="unfinished">パケット/秒</translation>
+        <translation>パケット/秒</translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="187"/>
@@ -9528,12 +9628,12 @@ a:hover {
     <message>
         <location filename="packet_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="packet_dialog.ui" line="33"/>
         <source>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished">&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation>&lt;small&gt;&lt;i&gt;&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="packet_dialog.cpp" line="57"/>
@@ -9667,14 +9767,14 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="935"/>
+        <location filename="packet_list.cpp" line="939"/>
         <source>Frame %1: %2
 
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="939"/>
+        <location filename="packet_list.cpp" line="943"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ コメントテキスト %1 停止中 ]</translation>
     </message>
@@ -9682,12 +9782,12 @@ a:hover {
 <context>
     <name>PacketListModel</name>
     <message>
-        <location filename="packet_list_model.cpp" line="290"/>
+        <location filename="packet_list_model.cpp" line="296"/>
         <source>Dissecting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list_model.cpp" line="312"/>
+        <location filename="packet_list_model.cpp" line="318"/>
         <source>Sorting &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9779,7 +9879,7 @@ a:hover {
     <message>
         <location filename="preference_editor_frame.ui" line="14"/>
         <source>Frame</source>
-        <translation type="unfinished">フレーム</translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <location filename="preference_editor_frame.ui" line="32"/>
@@ -9794,12 +9894,12 @@ a:hover {
     <message>
         <location filename="preference_editor_frame.ui" line="82"/>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation>OK</translation>
     </message>
     <message>
         <location filename="preference_editor_frame.ui" line="89"/>
         <source>Cancel</source>
-        <translation type="unfinished">キャンセル</translation>
+        <translation>キャンセル</translation>
     </message>
     <message>
         <location filename="preference_editor_frame.cpp" line="71"/>
@@ -9921,7 +10021,7 @@ a:hover {
     <message>
         <location filename="print_dialog.cpp" line="84"/>
         <source>Print</source>
-        <translation type="unfinished">印刷</translation>
+        <translation>印刷</translation>
     </message>
     <message>
         <location filename="print_dialog.cpp" line="78"/>
@@ -9954,7 +10054,7 @@ a:hover {
     <message>
         <location filename="profile_dialog.ui" line="36"/>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <location filename="profile_dialog.ui" line="46"/>
@@ -9997,7 +10097,7 @@ a:hover {
     <message>
         <location filename="progress_frame.ui" line="14"/>
         <source>Frame</source>
-        <translation type="unfinished">フレーム</translation>
+        <translation>フレーム</translation>
     </message>
 </context>
 <context>
@@ -10028,7 +10128,7 @@ a:hover {
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="27"/>
@@ -10053,12 +10153,12 @@ a:hover {
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="47"/>
         <source>Bytes</source>
-        <translation type="unfinished">バイト</translation>
+        <translation>バイト</translation>
     </message>
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="52"/>
         <source>Bits/s</source>
-        <translation type="unfinished">ビット/秒</translation>
+        <translation>ビット/秒</translation>
     </message>
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="57"/>
@@ -10083,7 +10183,7 @@ a:hover {
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="92"/>
         <source>Copy as CSV</source>
-        <translation type="unfinished">CSVとしてコピー</translation>
+        <translation>CSVとしてコピー</translation>
     </message>
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="95"/>
@@ -10093,7 +10193,7 @@ a:hover {
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="100"/>
         <source>Copy as YAML</source>
-        <translation type="unfinished">YAMLとしてコピー</translation>
+        <translation>YAMLとしてコピー</translation>
     </message>
     <message>
         <location filename="protocol_hierarchy_dialog.ui" line="103"/>
@@ -10108,7 +10208,7 @@ a:hover {
     <message>
         <location filename="protocol_hierarchy_dialog.cpp" line="232"/>
         <source>Copy</source>
-        <translation type="unfinished">コピー</translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <location filename="protocol_hierarchy_dialog.cpp" line="236"/>
@@ -10406,14 +10506,14 @@ a:hover {
         <translation>新規パイプ</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="124"/>
+        <location filename="rtp_stream_dialog.cpp" line="128"/>
         <source>%1 (%L2%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="87"/>
         <source>Error</source>
-        <translation type="unfinished">エラー</translation>
+        <translation>エラー</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="120"/>
@@ -10488,7 +10588,7 @@ a:hover {
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="460"/>
         <source>Address</source>
-        <translation type="unfinished">アドレス</translation>
+        <translation>アドレス</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="461"/>
@@ -10503,7 +10603,7 @@ a:hover {
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="463"/>
         <source>Comment</source>
-        <translation type="unfinished">コメント</translation>
+        <translation>コメント</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="101"/>
@@ -10526,197 +10626,197 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="192"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="190"/>
         <source>C-RNTI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="192"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="190"/>
         <source>SPS-RNTI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="447"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="445"/>
         <source>RNTI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="447"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="445"/>
         <source>Type</source>
-        <translation type="unfinished">種別</translation>
+        <translation>種別</translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="447"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="445"/>
         <source>UEId</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="448"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="446"/>
         <source>UL Frames</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="448"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="446"/>
         <source>UL Bytes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="448"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="446"/>
         <source>UL MB/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="449"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="447"/>
         <source>UL Padding %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="449"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="447"/>
         <source>UL Re TX</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="450"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="448"/>
         <source>DL Frames</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="450"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="448"/>
         <source>DL Bytes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="450"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="448"/>
         <source>DL MB/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="451"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="449"/>
         <source>DL Padding %</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="451"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="449"/>
         <source>DL CRC Failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="452"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="450"/>
         <source>DL ReTX</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="455"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="453"/>
         <source>LCID 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="455"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="453"/>
         <source>LCID 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="456"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="454"/>
         <source>LCID 3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="456"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="454"/>
         <source>LCID 4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="456"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="454"/>
         <source>LCID 5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="457"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="455"/>
         <source>LCID 6</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="458"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="456"/>
         <source>LCID 7</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="458"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="456"/>
         <source>LCID 8</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="458"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="456"/>
         <source>LCID 9</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="459"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="457"/>
         <source>LCID 10</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="143"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="146"/>
         <source>TM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="146"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="149"/>
         <source>UM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="149"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="152"/>
         <source>AM</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="152"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="155"/>
         <source>Predef</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="156"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="159"/>
         <source>Unknown (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="163"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="166"/>
         <source>CCCH</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="166"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="169"/>
         <source>SRB-%1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="169"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="172"/>
         <source>DRB-%1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="172"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="176"/>
         <source>Unknown</source>
-        <translation type="unfinished">不明</translation>
+        <translation>不明</translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="612"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="626"/>
         <source>UE Id</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="616"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="630"/>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="617"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="631"/>
         <source>Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="lte_rlc_statistics_dialog.cpp" line="618"/>
+        <location filename="lte_rlc_statistics_dialog.cpp" line="632"/>
         <source>Priority</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10734,7 +10834,7 @@ a:hover {
 <context>
     <name>QObject::QObject</name>
     <message>
-        <location filename="lte_mac_statistics_dialog.cpp" line="455"/>
+        <location filename="lte_mac_statistics_dialog.cpp" line="453"/>
         <source>CCCH</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10862,12 +10962,12 @@ a:hover {
     <message>
         <location filename="resolved_addresses_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="39"/>
         <source>Comment</source>
-        <translation type="unfinished">コメント</translation>
+        <translation>コメント</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="42"/>
@@ -10978,7 +11078,7 @@ a:hover {
     <message>
         <location filename="resolved_addresses_dialog.cpp" line="267"/>
         <source>Show</source>
-        <translation type="unfinished">表示</translation>
+        <translation>表示</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.cpp" line="296"/>
@@ -11064,12 +11164,12 @@ a:hover {
     <message>
         <location filename="response_time_delay_dialog.cpp" line="169"/>
         <source>Type</source>
-        <translation type="unfinished">種別</translation>
+        <translation>種別</translation>
     </message>
     <message>
         <location filename="response_time_delay_dialog.cpp" line="169"/>
         <source>Messages</source>
-        <translation type="unfinished">メッセージ</translation>
+        <translation>メッセージ</translation>
     </message>
     <message>
         <location filename="response_time_delay_dialog.cpp" line="170"/>
@@ -11150,7 +11250,7 @@ a:hover {
     <message>
         <location filename="rtp_analysis_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="24"/>
@@ -11165,7 +11265,7 @@ a:hover {
     <message>
         <location filename="rtp_analysis_dialog.ui" line="69"/>
         <source>Packet</source>
-        <translation type="unfinished">パケット</translation>
+        <translation>パケット</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="74"/>
@@ -11201,7 +11301,7 @@ a:hover {
     <message>
         <location filename="rtp_analysis_dialog.ui" line="104"/>
         <source>Status</source>
-        <translation type="unfinished">状態</translation>
+        <translation>状態</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="116"/>
@@ -11341,7 +11441,7 @@ a:hover {
     <message>
         <location filename="rtp_analysis_dialog.ui" line="366"/>
         <source>Save Graph</source>
-        <translation type="unfinished">グラフを保存</translation>
+        <translation>グラフを保存</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="369"/>
@@ -11351,7 +11451,7 @@ a:hover {
     <message>
         <location filename="rtp_analysis_dialog.ui" line="374"/>
         <source>Go to Packet</source>
-        <translation type="unfinished">パケットへ移動</translation>
+        <translation>パケットへ移動</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="377"/>
@@ -11361,7 +11461,7 @@ a:hover {
     <message>
         <location filename="rtp_analysis_dialog.ui" line="380"/>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="385"/>
@@ -11379,164 +11479,164 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="258"/>
+        <location filename="rtp_analysis_dialog.cpp" line="261"/>
         <source>RTP Stream Analysis</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="327"/>
+        <location filename="rtp_analysis_dialog.cpp" line="332"/>
         <source>Unable to save RTP data.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="350"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1470"/>
         <source>No RTP packets found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="372"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1492"/>
         <source>Please select an RTP packet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="396"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1516"/>
         <source>RTP version %1 found. Only version 2 is supported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="404"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1524"/>
         <source>SSRC value not found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="444"/>
+        <location filename="rtp_analysis_dialog.cpp" line="376"/>
         <source>No streams found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="479"/>
+        <location filename="rtp_analysis_dialog.cpp" line="411"/>
         <source>%1 streams found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="494"/>
+        <location filename="rtp_analysis_dialog.cpp" line="426"/>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="513"/>
+        <location filename="rtp_analysis_dialog.cpp" line="445"/>
         <source>No Audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="632"/>
+        <location filename="rtp_analysis_dialog.cpp" line="564"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished">PDF形式 (*.pdf)</translation>
+        <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="633"/>
+        <location filename="rtp_analysis_dialog.cpp" line="565"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished">PNG形式 (*.png)</translation>
+        <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="634"/>
+        <location filename="rtp_analysis_dialog.cpp" line="566"/>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished">ビットマップ形式 (*.bmp)</translation>
+        <translation>ビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="636"/>
+        <location filename="rtp_analysis_dialog.cpp" line="568"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished">JPEG形式 (*.jpeg *.jpg)</translation>
+        <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="647"/>
+        <location filename="rtp_analysis_dialog.cpp" line="579"/>
         <source>Save Graph As</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="820"/>
+        <location filename="rtp_analysis_dialog.cpp" line="752"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="830"/>
+        <location filename="rtp_analysis_dialog.cpp" line="762"/>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="865"/>
-        <location filename="rtp_analysis_dialog.cpp" line="893"/>
+        <location filename="rtp_analysis_dialog.cpp" line="797"/>
+        <location filename="rtp_analysis_dialog.cpp" line="825"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="881"/>
+        <location filename="rtp_analysis_dialog.cpp" line="813"/>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1029"/>
         <source>Save forward stream audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1077"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1032"/>
         <source>Save reverse stream audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1081"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1036"/>
         <source>Save audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1085"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1040"/>
         <source>Sun Audio (*.au)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1087"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1042"/>
         <source>;;Raw (*.raw)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1104"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1119"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1059"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
         <source>Warning</source>
-        <translation type="unfinished">警告</translation>
+        <translation>警告</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1104"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1059"/>
         <source>Unable to save in that format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1119"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
         <source>Unable to save %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1123"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1078"/>
         <source>Saving %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1345"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1300"/>
         <source>Save forward stream CSV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1348"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1303"/>
         <source>Save reverse stream CSV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1352"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1307"/>
         <source>Save CSV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1358"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1313"/>
         <source>Comma-separated values (*.csv)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11575,9 +11675,13 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.ui" line="57"/>
         <source>First Packet</source>
-        <translation type="unfinished">最初のパケット</translation>
+        <translation type="vanished">最初のパケット</translation>
+    </message>
+    <message>
+        <location filename="rtp_player_dialog.ui" line="57"/>
+        <source>Setup Frame</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="62"/>
@@ -11633,7 +11737,7 @@ a:hover {
     <message>
         <location filename="rtp_player_dialog.ui" line="159"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="162"/>
@@ -11692,61 +11796,61 @@ a:hover {
     <message>
         <location filename="rtp_player_dialog.ui" line="266"/>
         <source>Reset Graph</source>
-        <translation type="unfinished">グラフをリセット</translation>
+        <translation>グラフをリセット</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="269"/>
         <source>Reset the graph to its initial state.</source>
-        <translation type="unfinished">グラフを初期状態にリセット</translation>
+        <translation>グラフを初期状態にリセット</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="272"/>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="277"/>
         <location filename="rtp_player_dialog.ui" line="280"/>
         <source>Zoom In</source>
-        <translation type="unfinished"></translation>
+        <translation>拡大</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="283"/>
         <source>+</source>
-        <translation type="unfinished">+</translation>
+        <translation>+</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="288"/>
         <location filename="rtp_player_dialog.ui" line="291"/>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>縮小</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="294"/>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="299"/>
         <location filename="rtp_player_dialog.ui" line="302"/>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished">左に10ピクセル移動</translation>
+        <translation>左に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="305"/>
         <source>Left</source>
-        <translation type="unfinished">左</translation>
+        <translation>左</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="310"/>
         <location filename="rtp_player_dialog.ui" line="313"/>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished">右に10ピクセル移動</translation>
+        <translation>右に10ピクセル移動</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="316"/>
         <source>Right</source>
-        <translation type="unfinished">右</translation>
+        <translation>右</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="321"/>
@@ -11757,7 +11861,7 @@ a:hover {
     <message>
         <location filename="rtp_player_dialog.ui" line="327"/>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+左</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="332"/>
@@ -11768,67 +11872,67 @@ a:hover {
     <message>
         <location filename="rtp_player_dialog.ui" line="338"/>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+右</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="343"/>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>カーソルの下のパケットに移動</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="346"/>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>現在カーソルの下のパケットに移動</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="349"/>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="354"/>
         <source>Drag / Zoom</source>
-        <translation type="unfinished">ドラッグ / ズーム</translation>
+        <translation>ドラッグ / ズーム</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="357"/>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished">マウスのドラッグ/ズームの振る舞いを切替</translation>
+        <translation>マウスのドラッグ/ズームの振る舞いを切替</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="360"/>
         <source>Z</source>
-        <translation type="unfinished">Z</translation>
+        <translation>Z</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="365"/>
         <source>Capture / Session Time Origin</source>
-        <translation type="unfinished">キャプチャ / 元のセッション時間</translation>
+        <translation>キャプチャ / 元のセッション時間</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="368"/>
         <source>Toggle capture / session time origin</source>
-        <translation type="unfinished">キャプチャ / 元のセッション時間 の切替</translation>
+        <translation>キャプチャ / 元のセッション時間 の切替</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="371"/>
         <source>T</source>
-        <translation type="unfinished">T</translation>
+        <translation>T</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="376"/>
         <source>Crosshairs</source>
-        <translation type="unfinished">十字</translation>
+        <translation>十字</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="379"/>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished">十字の表示切替</translation>
+        <translation>十字の表示切替</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="382"/>
         <source>Space</source>
-        <translation type="unfinished">スペース</translation>
+        <translation>スペース</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.cpp" line="169"/>
@@ -11836,19 +11940,19 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="236"/>
+        <location filename="rtp_player_dialog.cpp" line="243"/>
         <source>Out of Sequence</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="405"/>
+        <location filename="rtp_player_dialog.cpp" line="416"/>
         <source>%1. Press &quot;G&quot; to go to packet %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="589"/>
+        <location filename="rtp_player_dialog.cpp" line="600"/>
         <source>Unknown</source>
-        <translation type="unfinished">不明</translation>
+        <translation>不明</translation>
     </message>
 </context>
 <context>
@@ -11856,7 +11960,7 @@ a:hover {
     <message>
         <location filename="rtp_stream_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="45"/>
@@ -11916,7 +12020,7 @@ a:hover {
     <message>
         <location filename="rtp_stream_dialog.ui" line="100"/>
         <source>Status</source>
-        <translation type="unfinished">状態</translation>
+        <translation>状態</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="108"/>
@@ -11976,7 +12080,7 @@ a:hover {
     <message>
         <location filename="rtp_stream_dialog.ui" line="161"/>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="166"/>
@@ -12011,7 +12115,7 @@ a:hover {
     <message>
         <location filename="rtp_stream_dialog.ui" line="188"/>
         <source>Analyze</source>
-        <translation type="unfinished">分析</translation>
+        <translation>分析</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="191"/>
@@ -12021,7 +12125,7 @@ a:hover {
     <message>
         <location filename="rtp_stream_dialog.ui" line="196"/>
         <source>Copy as CSV</source>
-        <translation type="unfinished">CSVとしてコピー</translation>
+        <translation>CSVとしてコピー</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="199"/>
@@ -12031,7 +12135,7 @@ a:hover {
     <message>
         <location filename="rtp_stream_dialog.ui" line="204"/>
         <source>Copy as YAML</source>
-        <translation type="unfinished">YAMLとしてコピー</translation>
+        <translation>YAMLとしてコピー</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="207"/>
@@ -12047,12 +12151,12 @@ a:hover {
         <location filename="rtp_stream_dialog.cpp" line="250"/>
         <source>Export</source>
         <oldsource>Export...</oldsource>
-        <translation type="unfinished">エクスポート</translation>
+        <translation>エクスポート</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.cpp" line="252"/>
         <source>Copy</source>
-        <translation type="unfinished">コピー</translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.cpp" line="258"/>
@@ -12075,7 +12179,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="506"/>
+        <location filename="rtp_stream_dialog.cpp" line="521"/>
         <source>Save RTPDump As</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13507,12 +13611,12 @@ a:hover {
     <message>
         <location filename="supported_protocols_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="supported_protocols_dialog.ui" line="21"/>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <location filename="supported_protocols_dialog.ui" line="26"/>
@@ -13522,12 +13626,12 @@ a:hover {
     <message>
         <location filename="supported_protocols_dialog.ui" line="31"/>
         <source>Type</source>
-        <translation type="unfinished">種別</translation>
+        <translation>種別</translation>
     </message>
     <message>
         <location filename="supported_protocols_dialog.ui" line="36"/>
         <source>Description</source>
-        <translation type="unfinished">記述</translation>
+        <translation>記述</translation>
     </message>
     <message>
         <location filename="supported_protocols_dialog.ui" line="46"/>
@@ -13537,7 +13641,7 @@ a:hover {
     <message>
         <location filename="supported_protocols_dialog.ui" line="49"/>
         <source>Search:</source>
-        <translation type="unfinished">検索:</translation>
+        <translation>検索:</translation>
     </message>
     <message>
         <location filename="supported_protocols_dialog.ui" line="74"/>
@@ -14172,7 +14276,7 @@ a:hover {
     <message>
         <location filename="tap_parameter_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">ダイアログ</translation>
+        <translation>ダイアログ</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="24"/>
@@ -14187,23 +14291,23 @@ a:hover {
     <message>
         <location filename="tap_parameter_dialog.ui" line="41"/>
         <source>Display filter:</source>
-        <translation type="unfinished">表示フィルタ:</translation>
+        <translation>表示フィルタ:</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="51"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>表示フィルタを用いて統計を再作成</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="54"/>
         <source>Apply</source>
-        <translation type="unfinished">適用</translation>
+        <translation>適用</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="73"/>
         <location filename="tap_parameter_dialog.cpp" line="93"/>
         <source>Copy</source>
-        <translation type="unfinished">コピー</translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="76"/>
@@ -14213,7 +14317,7 @@ a:hover {
     <message>
         <location filename="tap_parameter_dialog.ui" line="79"/>
         <source>Ctrl+C</source>
-        <translation type="unfinished">Ctrl+C</translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="84"/>
@@ -14229,7 +14333,7 @@ a:hover {
     <message>
         <location filename="tap_parameter_dialog.ui" line="90"/>
         <source>Ctrl+S</source>
-        <translation type="unfinished">Ctrl+S</translation>
+        <translation>Ctrl+S</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.cpp" line="96"/>
@@ -14357,7 +14461,7 @@ a:hover {
     <message>
         <location filename="traffic_table_dialog.cpp" line="74"/>
         <source>Copy</source>
-        <translation type="unfinished">コピー</translation>
+        <translation>コピー</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.cpp" line="75"/>
@@ -14382,25 +14486,31 @@ a:hover {
     <message>
         <location filename="traffic_table_dialog.h" line="109"/>
         <source>Unknown</source>
-        <translation type="unfinished">不明</translation>
+        <translation>不明</translation>
     </message>
 </context>
 <context>
     <name>UatDialog</name>
     <message>
-        <location filename="uat_dialog.ui" line="28"/>
         <source>Create a new profile using default settings.</source>
-        <translation>デフォルトの設定を用いて新規プロファイルを作成</translation>
+        <translation type="vanished">デフォルトの設定を用いて新規プロファイルを作成</translation>
+    </message>
+    <message>
+        <location filename="uat_dialog.ui" line="28"/>
+        <source>Create a new entry.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="uat_dialog.ui" line="42"/>
-        <source>Remove this profile.</source>
-        <translation>このプロファイルを削除</translation>
+        <source>Remove this entry.</source>
+        <oldsource>Remove this profile.</oldsource>
+        <translation type="unfinished">このプロファイルを削除</translation>
     </message>
     <message>
         <location filename="uat_dialog.ui" line="53"/>
-        <source>Copy this profile.</source>
-        <translation>このプロファイルをコピー</translation>
+        <source>Copy this entry.</source>
+        <oldsource>Copy this profile.</oldsource>
+        <translation type="unfinished">このプロファイルをコピー</translation>
     </message>
     <message>
         <location filename="uat_dialog.cpp" line="88"/>
@@ -14522,12 +14632,12 @@ a:hover {
     <message>
         <location filename="wireless_frame.ui" line="14"/>
         <source>Frame</source>
-        <translation type="unfinished">フレーム</translation>
+        <translation>フレーム</translation>
     </message>
     <message>
         <location filename="wireless_frame.ui" line="42"/>
         <source>Interface</source>
-        <translation type="unfinished">インタフェース</translation>
+        <translation>インタフェース</translation>
     </message>
     <message>
         <location filename="wireless_frame.ui" line="69"/>
