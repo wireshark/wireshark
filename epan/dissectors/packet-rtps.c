@@ -41,7 +41,10 @@
  * RTPS protocol was developed by Real-Time Innovations, Inc. as wire
  * protocol for Data Distribution System.
  * Additional information at:
- *   Full OMG DDS Standard Specification:
+ *
+ *   OMG DDS standards: http://portals.omg.org/dds/omg-dds-standard/
+ *
+ *   Older OMG DDS specification:
  *                             http://www.omg.org/cgi-bin/doc?ptc/2003-07-07
  *
  *   NDDS and RTPS information: http://www.rti.com/resources.html
