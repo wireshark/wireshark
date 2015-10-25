@@ -26,19 +26,19 @@
 
 typedef struct _sip_info_value_t
 {
-    gchar	*request_method;
-    guint	 response_code;
-	guchar	resend;
-	guint32 setup_time;
+    gchar    *request_method;
+    guint     response_code;
+    gboolean  resend;
+    guint32   setup_time;
     /* added for VoIP calls analysis, see ui/voip_calls.c*/
-    gchar   *tap_call_id;
-    gchar   *tap_from_addr;
-    gchar   *tap_to_addr;
-    guint32 tap_cseq_number;
-    gchar   *reason_phrase;
+    gchar    *tap_call_id;
+    gchar    *tap_from_addr;
+    gchar    *tap_to_addr;
+    guint32   tap_cseq_number;
+    gchar    *reason_phrase;
 } sip_info_value_t;
 
-extern void dfilter_store_sip_from_addr(tvbuff_t *tvb,proto_tree *tree,guint parameter_offset,
-					  guint parameter_len);
+extern void dfilter_store_sip_from_addr(tvbuff_t *tvb, proto_tree *tree,
+    guint parameter_offset, guint parameter_len);
 
 #endif
