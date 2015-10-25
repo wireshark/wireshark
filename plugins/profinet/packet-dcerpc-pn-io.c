@@ -50,7 +50,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
-#include <epan/dissector_filters.h>
+#include <epan/color_dissector_filters.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include "packet-pn.h"
@@ -9671,7 +9671,7 @@ pn_io_ar_conv_valid(packet_info *pinfo)
     return ((profinet_type != NULL) && (GPOINTER_TO_UINT(profinet_type) == 10));
 }
 
-static const gchar *
+static gchar *
 pn_io_ar_conv_filter(packet_info *pinfo)
 {
     pnio_ar_t *ar = (pnio_ar_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pn_io, 0);
@@ -9698,7 +9698,7 @@ pn_io_ar_conv_filter(packet_info *pinfo)
     return buf;
 }
 
-static const gchar *
+static gchar *
 pn_io_ar_conv_data_filter(packet_info *pinfo)
 {
     pnio_ar_t *ar = (pnio_ar_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pn_io, 0);
@@ -12260,8 +12260,8 @@ proto_register_pn_io (void)
 
     register_cleanup_routine(pnio_cleanup);
 
-    register_dissector_filter("PN-IO AR", pn_io_ar_conv_valid, pn_io_ar_conv_filter);
-    register_dissector_filter("PN-IO AR (with data)", pn_io_ar_conv_valid, pn_io_ar_conv_data_filter);
+    register_color_conversation_filter("pn_io", "PN-IO AR", pn_io_ar_conv_valid, pn_io_ar_conv_filter);
+    register_color_conversation_filter("pn_io", "PN-IO AR (with data)", pn_io_ar_conv_valid, pn_io_ar_conv_data_filter);
 }
 
 void
