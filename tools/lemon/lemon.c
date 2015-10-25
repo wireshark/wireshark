@@ -2707,7 +2707,7 @@ void Parse(struct lemon *gp)
   filesize = ftell(fp);
   rewind(fp);
   filebuf = (char *)malloc( filesize+1 );
-  if( filesize>100000000 || filebuf==NULL ){
+  if( filesize>100000000 || filebuf==0 ){
     ErrorMsg(ps.filename,0,"Input file too large.");
     gp->errorcnt++;
     free(filebuf);
@@ -3174,10 +3174,9 @@ void ReportOutput(struct lemon *lemp)
 PRIVATE char *pathsearch(char *argv0, char *name, int modemask)
 {
   const char *pathlist;
-  char *pathbufptr = NULL;
-  char *pathbuf = NULL;
-  char *path = NULL;
-  char *cp;
+  char *pathbufptr;
+  char *pathbuf;
+  char *path,*cp;
   char c;
 
 #ifdef __WIN32__
@@ -3193,15 +3192,17 @@ PRIVATE char *pathsearch(char *argv0, char *name, int modemask)
     *cp = c;
   }else{
     pathlist = getenv("PATH");
-    if( pathlist==NULL ) pathlist = ".:/bin:/usr/bin";
+    if( pathlist==0 ) pathlist = ".:/bin:/usr/bin";
     pathbuf = (char *) malloc( lemonStrlen(pathlist) + 1 );
+    if( pathbuf == 0 )
+      return NULL;
     pathbufptr = pathbuf;
     path = (char *)malloc( lemonStrlen(pathlist)+lemonStrlen(name)+2 );
-    if( (pathbuf != NULL) && (path!=NULL) ){
+    if( (path!=0) ){
       lemon_strcpy(pathbuf, pathlist);
       while( *pathbuf ){
         cp = strchr(pathbuf,':');
-        if( cp==NULL ) cp = &pathbuf[lemonStrlen(pathbuf)];
+        if( cp==0 ) cp = &pathbuf[lemonStrlen(pathbuf)];
         c = *cp;
         *cp = 0;
         lemon_sprintf(path,"%s/%s",pathbuf,name);
@@ -3211,10 +3212,8 @@ PRIVATE char *pathsearch(char *argv0, char *name, int modemask)
         if( access(path,modemask)==0 ) break;
       }
     }
-  }
-  if (pathbufptr)
     free(pathbufptr);
-
+  }
   return path;
 }
 
