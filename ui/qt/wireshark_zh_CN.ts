@@ -521,12 +521,12 @@
         <translation>以二进制显示字节</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="248"/>
+        <location filename="byte_view_text.cpp" line="247"/>
         <source>Byte %1</source>
         <translation>字节 %1</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="251"/>
+        <location filename="byte_view_text.cpp" line="250"/>
         <source>Bytes %1-%2</source>
         <translation>字节 %1-%2</translation>
     </message>
@@ -2507,18 +2507,20 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="48"/>
-        <source>Create a new profile using default settings.</source>
-        <translation>使用默认设置创建一个新的配置文件。</translation>
+        <source>Create a new filter.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="62"/>
-        <source>Remove this profile.</source>
-        <translation>移除此配置文件。</translation>
+        <source>Remove this filter.</source>
+        <oldsource>Remove this profile.</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="73"/>
-        <source>Copy this profile.</source>
-        <translation>复制此配置文件。</translation>
+        <source>Copy this filter.</source>
+        <oldsource>Copy this profile.</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="74"/>
@@ -5487,7 +5489,7 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="169"/>
         <source>Up</source>
-        <translation>上键</translation>
+        <translation>上方向键</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="174"/>
@@ -5502,7 +5504,7 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="180"/>
         <source>Left</source>
-        <translation>左键</translation>
+        <translation>左方向键</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="185"/>
@@ -5517,7 +5519,7 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="191"/>
         <source>Right</source>
-        <translation>右键</translation>
+        <translation>右方向键</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="196"/>
@@ -5532,7 +5534,7 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="202"/>
         <source>Down</source>
-        <translation>下键</translation>
+        <translation>下方向键</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="207"/>
@@ -5547,7 +5549,7 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="213"/>
         <source>Shift+Up</source>
-        <translation>Shift+上键</translation>
+        <translation>Shift+上方向键</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="218"/>
@@ -5562,7 +5564,7 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="224"/>
         <source>Shift+Left</source>
-        <translation>Shift+右键</translation>
+        <translation>Shift+右方向键</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="229"/>
@@ -5577,7 +5579,7 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="235"/>
         <source>Shift+Right</source>
-        <translation>Shift+右键</translation>
+        <translation>Shift+右方向键</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="240"/>
@@ -5592,7 +5594,7 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="246"/>
         <source>Shift+Down</source>
-        <translation>Shift+下键</translation>
+        <translation>Shift+下方向键</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="251"/>
@@ -5852,7 +5854,7 @@ for filter files: %2.</source>
         <location filename="lte_rlc_graph_dialog.ui" line="90"/>
         <location filename="lte_rlc_graph_dialog.ui" line="93"/>
         <source>Zoom Out</source>
-        <translation type="unfinished">缩小</translation>
+        <translation>缩小</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="96"/>
@@ -5874,112 +5876,112 @@ for filter files: %2.</source>
         <location filename="lte_rlc_graph_dialog.ui" line="112"/>
         <location filename="lte_rlc_graph_dialog.ui" line="115"/>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished">左移10像素</translation>
+        <translation>左移10像素</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="118"/>
         <source>Left</source>
-        <translation type="unfinished">左键</translation>
+        <translation>左方向键</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="123"/>
         <location filename="lte_rlc_graph_dialog.ui" line="126"/>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished">右移10像素</translation>
+        <translation>右移10像素</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="129"/>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>右方向键</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="134"/>
         <location filename="lte_rlc_graph_dialog.ui" line="137"/>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished">下移10像素</translation>
+        <translation>下移10像素</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="140"/>
         <source>Down</source>
-        <translation type="unfinished">下键</translation>
+        <translation>下方向键</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="145"/>
         <location filename="lte_rlc_graph_dialog.ui" line="148"/>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished">上移1像素</translation>
+        <translation>上移1像素</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="151"/>
         <source>Shift+Up</source>
-        <translation type="unfinished">Shift+上键</translation>
+        <translation>Shift+上方向键</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="156"/>
         <location filename="lte_rlc_graph_dialog.ui" line="159"/>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished">左移1像素</translation>
+        <translation>左移1像素</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="162"/>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+左方向键</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="167"/>
         <location filename="lte_rlc_graph_dialog.ui" line="170"/>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished">右移1像素</translation>
+        <translation>右移1像素</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="173"/>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Shift+右方向键</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="178"/>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished">下移1像素</translation>
+        <translation>下移1像素</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="181"/>
         <source>Move down 1 Pixel</source>
-        <translation type="unfinished">下移1像素</translation>
+        <translation>下移1像素</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="184"/>
         <source>Shift+Down</source>
-        <translation type="unfinished">Shift+下键</translation>
+        <translation>Shift+下方向键</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="189"/>
         <source>Drag / Zoom</source>
-        <translation type="unfinished">拖拽/缩放</translation>
+        <translation>拖拽/缩放</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="192"/>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>切换鼠标拖拽/缩放行为</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="195"/>
         <source>Z</source>
-        <translation type="unfinished">Z</translation>
+        <translation>Z</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="200"/>
         <source>Crosshairs</source>
-        <translation type="unfinished">十字线</translation>
+        <translation>十字线</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="203"/>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished">切换十字线</translation>
+        <translation>切换十字线</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="206"/>
         <source>Space</source>
-        <translation type="unfinished">空格键</translation>
+        <translation>空格键</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="211"/>
@@ -5987,52 +5989,52 @@ for filter files: %2.</source>
         <location filename="lte_rlc_graph_dialog.ui" line="222"/>
         <location filename="lte_rlc_graph_dialog.ui" line="225"/>
         <source>Move Up 100 Pixels</source>
-        <translation type="unfinished">上移10像素 {100 ?}</translation>
+        <translation>上移100像素</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="217"/>
         <source>PgUp</source>
-        <translation type="unfinished">PgUp</translation>
+        <translation>PgUp</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="228"/>
         <source>PgDown</source>
-        <translation type="unfinished">PgDown</translation>
+        <translation>PgDown</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.cpp" line="75"/>
         <source>Time</source>
-        <translation type="unfinished">时间</translation>
+        <translation>时间</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.cpp" line="76"/>
         <source>Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>序列号</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.cpp" line="109"/>
         <source>LTE RLC Graph (UE=%1 chan=%2%3 %4 - %5)</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE RLC 图表 (UE=%1 chan=%2%3 %4 - %5)</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.cpp" line="118"/>
         <source>LTE RLC Graph - no channel selected</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE RLC 图表 - 没有选择信道</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.cpp" line="482"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation type="unfinished">释放缩放, x = % 到 %2, y = %3 到 %4</translation>
+        <translation>释放缩放, x = % 到 %2, y = %3 到 %4</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.cpp" line="488"/>
         <source>Unable to select range.</source>
-        <translation type="unfinished">无法选择范围。</translation>
+        <translation>无法选择范围。</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.cpp" line="491"/>
         <source>Click to select a portion of the graph.</source>
-        <translation type="unfinished"></translation>
+        <translation>点击选择图形的一部分。</translation>
     </message>
 </context>
 <context>
@@ -6041,14 +6043,6 @@ for filter files: %2.</source>
         <location filename="lte_rlc_statistics_dialog.cpp" line="550"/>
         <source>LTE RLC Statistics</source>
         <translation>LTE RLC 统计</translation>
-    </message>
-    <message>
-        <source>Include SR frames in filter</source>
-        <translation type="vanished">筛选器中包括 SR 帧</translation>
-    </message>
-    <message>
-        <source>Include RACH frames in filter</source>
-        <translation type="vanished">筛选器中包括 RACH 帧</translation>
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="557"/>
@@ -6114,120 +6108,120 @@ for filter files: %2.</source>
 <context>
     <name>MainStatusBar</name>
     <message>
-        <location filename="main_status_bar.cpp" line="104"/>
+        <location filename="main_status_bar.cpp" line="105"/>
         <source>Ready to load or capture</source>
         <translation>已准备好加载或捕获</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="106"/>
+        <location filename="main_status_bar.cpp" line="107"/>
         <source>Ready to load file</source>
         <translation>已准备好加载文件</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="144"/>
+        <location filename="main_status_bar.cpp" line="145"/>
         <source>Open the Capture File Properties dialog</source>
         <translation>打开捕获文件属性对话框</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="176"/>
+        <location filename="main_status_bar.cpp" line="177"/>
         <source>Manage Profiles</source>
         <oldsource>Manage Profiles...</oldsource>
         <translation>管理配置文件</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="180"/>
+        <location filename="main_status_bar.cpp" line="181"/>
         <source>New</source>
         <oldsource>New...</oldsource>
         <translation>新建</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="183"/>
+        <location filename="main_status_bar.cpp" line="184"/>
         <source>Edit</source>
         <oldsource>Edit...</oldsource>
         <translation>编辑</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="186"/>
+        <location filename="main_status_bar.cpp" line="187"/>
         <source>Delete</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="190"/>
+        <location filename="main_status_bar.cpp" line="191"/>
         <source>Switch to</source>
         <translation>切换到</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="223"/>
+        <location filename="main_status_bar.cpp" line="224"/>
         <source> is the highest expert information level</source>
         <oldsource> is the highest expert info level</oldsource>
         <translation>为最高专家信息级别</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="228"/>
+        <location filename="main_status_bar.cpp" line="229"/>
         <source>ERROR</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="232"/>
+        <location filename="main_status_bar.cpp" line="233"/>
         <source>WARNING</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="236"/>
+        <location filename="main_status_bar.cpp" line="237"/>
         <source>NOTE</source>
         <translation>通知</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="240"/>
+        <location filename="main_status_bar.cpp" line="241"/>
         <source>CHAT</source>
         <translation>会话</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="247"/>
+        <location filename="main_status_bar.cpp" line="248"/>
         <source>No expert information</source>
         <oldsource>No expert info</oldsource>
         <translation>无专家信息</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="344"/>
+        <location filename="main_status_bar.cpp" line="345"/>
         <source>Profile: </source>
         <translation>配置文件: </translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="402"/>
+        <location filename="main_status_bar.cpp" line="403"/>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
         <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
         <translation>分组: %1 %4 已显示: %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="408"/>
+        <location filename="main_status_bar.cpp" line="409"/>
         <source> %1 Marked: %2 (%3%)</source>
         <oldsource> %1 Dropped: %2</oldsource>
         <translation> %1 已标记: %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="414"/>
+        <location filename="main_status_bar.cpp" line="415"/>
         <source> %1 Dropped: %2 (%3%)</source>
         <translation> %1 已丢弃: %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="420"/>
+        <location filename="main_status_bar.cpp" line="421"/>
         <source> %1 Ignored: %2 (%3%)</source>
         <translation> %1 已忽略: %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="428"/>
+        <location filename="main_status_bar.cpp" line="429"/>
         <source> %1  Load time: %2:%3.%4</source>
         <translation> %1  加载时间: %2:%3.%4</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="436"/>
-        <location filename="main_status_bar.cpp" line="458"/>
+        <location filename="main_status_bar.cpp" line="437"/>
+        <location filename="main_status_bar.cpp" line="459"/>
         <source>No Packets</source>
         <translation>无分组</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="454"/>
+        <location filename="main_status_bar.cpp" line="455"/>
         <source>Packets: %1</source>
         <translation>分组: %1</translation>
     </message>
@@ -6242,7 +6236,7 @@ for filter files: %2.</source>
     <message>
         <location filename="main_welcome.ui" line="57"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Welcome to Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;欢迎使用 Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="117"/>
@@ -6393,7 +6387,7 @@ text-decoration: underline;
     <message>
         <location filename="main_welcome.cpp" line="347"/>
         <source>Copy file path</source>
-        <translation type="unfinished"></translation>
+        <translation>复制文件路径</translation>
     </message>
 </context>
 <context>
@@ -7855,12 +7849,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2455"/>
         <source>RLC Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>RLC 图表</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2458"/>
         <source>LTE RLC graph</source>
-        <translation type="unfinished"></translation>
+        <translation>LTE RLC 图表</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2463"/>
@@ -9038,32 +9032,32 @@ text-decoration: underline;
         <translation>无法复制文本。请尝试其他对象。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2242"/>
+        <location filename="main_window_slots.cpp" line="2243"/>
         <source>Unable to build conversation filter.</source>
         <translation>无法建立对话筛选器。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2383"/>
+        <location filename="main_window_slots.cpp" line="2384"/>
         <source>No filter available. Try another </source>
         <translation>无筛选器可用。请尝试其他 </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3306"/>
+        <location filename="main_window_slots.cpp" line="3307"/>
         <source>No Interface Selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3313"/>
+        <location filename="main_window_slots.cpp" line="3314"/>
         <source> before starting a new capture</source>
         <translation>在开始新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3516"/>
+        <location filename="main_window_slots.cpp" line="3517"/>
         <source>Wiki Page for %1</source>
         <translation>%1 的 Wiki 页面</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3517"/>
+        <location filename="main_window_slots.cpp" line="3518"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wireshark Wiki 由社区进行维护。&lt;/p&gt;&lt;p&gt;您即将加载的页面可能是良好的、不完整的、有错误的，甚至不存在的。&lt;/p&gt;&lt;p&gt;继续访问该 Wiki？&lt;/p&gt;</translation>
     </message>
@@ -9734,7 +9728,7 @@ text-decoration: underline;
         <translation>删除此列</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="935"/>
+        <location filename="packet_list.cpp" line="939"/>
         <source>Frame %1: %2
 
 </source>
@@ -9742,7 +9736,7 @@ text-decoration: underline;
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="939"/>
+        <location filename="packet_list.cpp" line="943"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ 注释文本超过 %1。正在停止。 ]</translation>
     </message>
@@ -9750,12 +9744,12 @@ text-decoration: underline;
 <context>
     <name>PacketListModel</name>
     <message>
-        <location filename="packet_list_model.cpp" line="290"/>
+        <location filename="packet_list_model.cpp" line="296"/>
         <source>Dissecting</source>
         <translation>剖析</translation>
     </message>
     <message>
-        <location filename="packet_list_model.cpp" line="312"/>
+        <location filename="packet_list_model.cpp" line="318"/>
         <source>Sorting &quot;%1&quot;</source>
         <translation>正在排序“%1”</translation>
     </message>
@@ -10474,7 +10468,7 @@ text-decoration: underline;
         <translation>新管道</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="124"/>
+        <location filename="rtp_stream_dialog.cpp" line="128"/>
         <source>%1 (%L2%)</source>
         <translation>%1 (%L2%)</translation>
     </message>
@@ -10791,12 +10785,12 @@ text-decoration: underline;
     <message>
         <location filename="main_welcome.cpp" line="330"/>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation>在 Finder 中显示</translation>
     </message>
     <message>
         <location filename="main_welcome.cpp" line="332"/>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>在 Finder 中显示</translation>
     </message>
 </context>
 <context>
@@ -11465,164 +11459,164 @@ text-decoration: underline;
         <translation>N</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="258"/>
+        <location filename="rtp_analysis_dialog.cpp" line="261"/>
         <source>RTP Stream Analysis</source>
         <translation>RTP 流分析</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="327"/>
+        <location filename="rtp_analysis_dialog.cpp" line="332"/>
         <source>Unable to save RTP data.</source>
         <translation>无法保存 RTP 数据。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="350"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1470"/>
         <source>No RTP packets found</source>
         <translation>没有找到 RTP 分组</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="372"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1492"/>
         <source>Please select an RTP packet</source>
         <translation>请选择一个 RTP 分组</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="396"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1516"/>
         <source>RTP version %1 found. Only version 2 is supported.</source>
         <translation>发现 RTP 版本 %1。只有版本 2 受到支持。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="404"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1524"/>
         <source>SSRC value not found.</source>
         <translation>未找到 SSRC 值。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="444"/>
+        <location filename="rtp_analysis_dialog.cpp" line="376"/>
         <source>No streams found.</source>
         <translation>没有找到流。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="479"/>
+        <location filename="rtp_analysis_dialog.cpp" line="411"/>
         <source>%1 streams found.</source>
         <translation>找到 %1 个流。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="494"/>
+        <location filename="rtp_analysis_dialog.cpp" line="426"/>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation>G: 转到分组，N: 转到问题分组</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="513"/>
+        <location filename="rtp_analysis_dialog.cpp" line="445"/>
         <source>No Audio</source>
         <translation>无音频</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="632"/>
+        <location filename="rtp_analysis_dialog.cpp" line="564"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>便携式文档格式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="633"/>
+        <location filename="rtp_analysis_dialog.cpp" line="565"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>便携式网络图形格式 (*.png)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="634"/>
+        <location filename="rtp_analysis_dialog.cpp" line="566"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows 位图 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="636"/>
+        <location filename="rtp_analysis_dialog.cpp" line="568"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG 文件交换格式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="647"/>
+        <location filename="rtp_analysis_dialog.cpp" line="579"/>
         <source>Save Graph As</source>
         <translation>图形保存为</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="820"/>
+        <location filename="rtp_analysis_dialog.cpp" line="752"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>无法保存到一个文件：捕获到的分组长度错误。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="830"/>
+        <location filename="rtp_analysis_dialog.cpp" line="762"/>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
         <translation>无法保存在一个文件中：带有填充字节的 RTP 数据。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="865"/>
-        <location filename="rtp_analysis_dialog.cpp" line="893"/>
+        <location filename="rtp_analysis_dialog.cpp" line="797"/>
+        <location filename="rtp_analysis_dialog.cpp" line="825"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation>无法保存到一个文件：文件 I/O 问题。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="881"/>
+        <location filename="rtp_analysis_dialog.cpp" line="813"/>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
         <translation>无法保存到一个文件：并非所有分组的所有数据被捕获。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1029"/>
         <source>Save forward stream audio</source>
         <translation>保存正向音频流</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1077"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1032"/>
         <source>Save reverse stream audio</source>
         <translation>保存反向音频流</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1081"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1036"/>
         <source>Save audio</source>
         <translation>保存音频</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1085"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1040"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun 音频 (*.au)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1087"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1042"/>
         <source>;;Raw (*.raw)</source>
         <translation>;;原始数据 (*.raw)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1104"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1119"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1059"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1104"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1059"/>
         <source>Unable to save in that format</source>
         <translation>无法保存到该格式</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1119"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
         <source>Unable to save %1</source>
         <translation>无法保存 %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1123"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1078"/>
         <source>Saving %1</source>
         <translation>正在保存 %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1345"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1300"/>
         <source>Save forward stream CSV</source>
         <translation>保存正向流 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1348"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1303"/>
         <source>Save reverse stream CSV</source>
         <translation>保存反向流 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1352"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1307"/>
         <source>Save CSV</source>
         <translation>保存 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1358"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1313"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>逗号分隔值 (*.csv)</translation>
     </message>
@@ -11662,8 +11656,8 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="57"/>
-        <source>First Packet</source>
-        <translation>首个分组</translation>
+        <source>Setup Frame</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="62"/>
@@ -11947,17 +11941,17 @@ text-decoration: underline;
         <translation>播放流</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="236"/>
+        <location filename="rtp_player_dialog.cpp" line="243"/>
         <source>Out of Sequence</source>
         <translation>乱序</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="405"/>
+        <location filename="rtp_player_dialog.cpp" line="416"/>
         <source>%1. Press &quot;G&quot; to go to packet %2</source>
         <translation>%1. 按 &quot;G&quot; 去到数据包 %2</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="589"/>
+        <location filename="rtp_player_dialog.cpp" line="600"/>
         <source>Unknown</source>
         <translation>未知</translation>
     </message>
@@ -12186,7 +12180,7 @@ text-decoration: underline;
         <translation>, %1 项已选中, 总计 %2 项分组</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="506"/>
+        <location filename="rtp_stream_dialog.cpp" line="521"/>
         <source>Save RTPDump As</source>
         <translation>保存RTPDump为</translation>
     </message>
@@ -14535,18 +14529,20 @@ text-decoration: underline;
     <name>UatDialog</name>
     <message>
         <location filename="uat_dialog.ui" line="28"/>
-        <source>Create a new profile using default settings.</source>
-        <translation>用默认设置创建新的配置文件。</translation>
+        <source>Create a new entry.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="uat_dialog.ui" line="42"/>
-        <source>Remove this profile.</source>
-        <translation>移除该配置文件。</translation>
+        <source>Remove this entry.</source>
+        <oldsource>Remove this profile.</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="uat_dialog.ui" line="53"/>
-        <source>Copy this profile.</source>
-        <translation>复制该配置文件。</translation>
+        <source>Copy this entry.</source>
+        <oldsource>Copy this profile.</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="uat_dialog.cpp" line="88"/>
@@ -14561,12 +14557,12 @@ text-decoration: underline;
     <message>
         <location filename="uat_dialog.cpp" line="395"/>
         <source>Uneven number of chars hex string (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>字符十六进制字符串 (%1) 的奇数</translation>
     </message>
     <message>
         <location filename="uat_dialog.cpp" line="402"/>
         <source>Error parsing hex string</source>
-        <translation type="unfinished"></translation>
+        <translation>解析十六进制字符串出错</translation>
     </message>
 </context>
 <context>

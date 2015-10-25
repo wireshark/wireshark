@@ -521,12 +521,12 @@
         <translation>Mostra byte come bit</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="248"/>
+        <location filename="byte_view_text.cpp" line="247"/>
         <source>Byte %1</source>
         <translation>Byte %1</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="251"/>
+        <location filename="byte_view_text.cpp" line="250"/>
         <source>Bytes %1-%2</source>
         <translation>Byte %1-%2</translation>
     </message>
@@ -2508,18 +2508,20 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="48"/>
-        <source>Create a new profile using default settings.</source>
-        <translation>Crea un nuovo profilo usando le impostazioni predefinite.</translation>
+        <source>Create a new filter.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="62"/>
-        <source>Remove this profile.</source>
-        <translation>Rimuovi questo profilo.</translation>
+        <source>Remove this filter.</source>
+        <oldsource>Remove this profile.</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="73"/>
-        <source>Copy this profile.</source>
-        <translation>Copia questo profilo.</translation>
+        <source>Copy this filter.</source>
+        <oldsource>Copy this profile.</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="74"/>
@@ -2675,7 +2677,7 @@ per i file di filtro: %2.</translation>
     <message>
         <location filename="follow_stream_dialog.cpp" line="97"/>
         <source>Raw</source>
-        <translation type="unfinished"></translation>
+        <translation>Grezzo</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="150"/>
@@ -5761,12 +5763,12 @@ per i file di filtro: %2.</translation>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="507"/>
         <source>Include SR frames in filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Includi i frame SR nel filtro</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="509"/>
         <source>Include RACH frames in filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Includi i frame RACH nel filtro</translation>
     </message>
 </context>
 <context>
@@ -5774,7 +5776,7 @@ per i file di filtro: %2.</translation>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="14"/>
         <source>Dialog</source>
-        <translation type="unfinished">Finestra</translation>
+        <translation>Finestra</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="23"/>
@@ -5804,166 +5806,191 @@ per i file di filtro: %2.</translation>
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Scorciatoie di tastiera preziose e che risparmiano tempo&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Ingrandisci&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Rimpicciolisci&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Ripristina il grafico al suo stato iniziale&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Sposta a destra di 10 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Sposta a sinistra di 10 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Sposta in su di 10 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Sposta in giù di 10 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Maiusc+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Sposta a destra di 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Maiusc+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Sposta a sinistra di 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Maiusc+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Sposta in su di 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Maiusc+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Sposta in giù di 1 pixel&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Vai al pacchetto sotto il cursore&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Inverti il trascinamento / ingrandimento del mouse&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Commuta l&apos;origine dell&apos;orario della cattura / sessione&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Spazio&lt;/th&gt;&lt;td&gt;Commuta il reticolo&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="68"/>
         <source>Reset Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Ripristina grafico</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="71"/>
         <source>Reset the graph to its initial state.</source>
-        <translation type="unfinished">Ripristina il grafico al suo stato iniziale.</translation>
+        <translation>Ripristina il grafico al suo stato iniziale.</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="74"/>
         <source>0</source>
-        <translation type="unfinished">0</translation>
+        <translation>0</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="79"/>
         <location filename="lte_rlc_graph_dialog.ui" line="82"/>
         <source>Zoom In</source>
-        <translation type="unfinished">Ingrandisci</translation>
+        <translation>Ingrandisci</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="85"/>
         <source>+</source>
-        <translation type="unfinished">+</translation>
+        <translation>+</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="90"/>
         <location filename="lte_rlc_graph_dialog.ui" line="93"/>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimpicciolisci</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="96"/>
         <source>-</source>
-        <translation type="unfinished">-</translation>
+        <translation>-</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="101"/>
         <location filename="lte_rlc_graph_dialog.ui" line="104"/>
         <source>Move Up 10 Pixels</source>
-        <translation type="unfinished">Sposta in su di 10 pixel</translation>
+        <translation>Sposta in su di 10 pixel</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="107"/>
         <source>Up</source>
-        <translation type="unfinished">Su</translation>
+        <translation>Su</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="112"/>
         <location filename="lte_rlc_graph_dialog.ui" line="115"/>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished">Sposta a sinistra di 10 pixel</translation>
+        <translation>Sposta a sinistra di 10 pixel</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="118"/>
         <source>Left</source>
-        <translation type="unfinished">Sinistra</translation>
+        <translation>Sinistra</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="123"/>
         <location filename="lte_rlc_graph_dialog.ui" line="126"/>
         <source>Move Right 10 Pixels</source>
-        <translation type="unfinished">Sposta a destra di 10 pixel</translation>
+        <translation>Sposta a destra di 10 pixel</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="129"/>
         <source>Right</source>
-        <translation type="unfinished">Destra</translation>
+        <translation>Destra</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="134"/>
         <location filename="lte_rlc_graph_dialog.ui" line="137"/>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished">Sposta in giù di 10 pixel</translation>
+        <translation>Sposta in giù di 10 pixel</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="140"/>
         <source>Down</source>
-        <translation type="unfinished">Giù</translation>
+        <translation>Giù</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="145"/>
         <location filename="lte_rlc_graph_dialog.ui" line="148"/>
         <source>Move Up 1 Pixel</source>
-        <translation type="unfinished">Sposta in su di 1 pixel</translation>
+        <translation>Sposta in su di 1 pixel</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="151"/>
         <source>Shift+Up</source>
-        <translation type="unfinished">Shift+Su</translation>
+        <translation>Maiusc+Su</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="156"/>
         <location filename="lte_rlc_graph_dialog.ui" line="159"/>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished">Sposta a sinistra di 1 pixel</translation>
+        <translation>Sposta a sinistra di 1 pixel</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="162"/>
         <source>Shift+Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Maiusc+Sinistra</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="167"/>
         <location filename="lte_rlc_graph_dialog.ui" line="170"/>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
+        <translation>Sposta a destra di 1 pixel</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="173"/>
         <source>Shift+Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Maiusc+Destra</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="178"/>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished">Sposta in giù di 1 pixel</translation>
+        <translation>Sposta in giù di 1 pixel</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="181"/>
         <source>Move down 1 Pixel</source>
-        <translation type="unfinished">Sposta in giù di 1 pixel</translation>
+        <translation>Sposta in giù di 1 pixel</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="184"/>
         <source>Shift+Down</source>
-        <translation type="unfinished">Shift+Giù</translation>
+        <translation>Maiusc+Giù</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="189"/>
         <source>Drag / Zoom</source>
-        <translation type="unfinished"></translation>
+        <translation>Trascina / Ingrandisci</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="192"/>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished"></translation>
+        <translation>Commuta il comportamento di trascinamento/ingrandimento del mouse</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="195"/>
         <source>Z</source>
-        <translation type="unfinished">Z</translation>
+        <translation>Z</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="200"/>
         <source>Crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Reticolo</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="203"/>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished"></translation>
+        <translation>Inverti reticolo</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="206"/>
         <source>Space</source>
-        <translation type="unfinished">Spazio</translation>
+        <translation>Spazio</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="211"/>
@@ -5971,52 +5998,52 @@ per i file di filtro: %2.</translation>
         <location filename="lte_rlc_graph_dialog.ui" line="222"/>
         <location filename="lte_rlc_graph_dialog.ui" line="225"/>
         <source>Move Up 100 Pixels</source>
-        <translation type="unfinished">Sposta in su di 10 pixel {100 ?}</translation>
+        <translation>Sposta in su di 100 pixel</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="217"/>
         <source>PgUp</source>
-        <translation type="unfinished">PgSu</translation>
+        <translation>PgSu</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="228"/>
         <source>PgDown</source>
-        <translation type="unfinished">PgGiù</translation>
+        <translation>PgGiù</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.cpp" line="75"/>
         <source>Time</source>
-        <translation type="unfinished">Tempo</translation>
+        <translation>Tempo</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.cpp" line="76"/>
         <source>Sequence Number</source>
-        <translation type="unfinished"></translation>
+        <translation>Numero di sequenza</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.cpp" line="109"/>
         <source>LTE RLC Graph (UE=%1 chan=%2%3 %4 - %5)</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafico RLC LTE (UE=%1 can=%2%3 %4 - %5)</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.cpp" line="118"/>
         <source>LTE RLC Graph - no channel selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafico RLC LTE - nessun canale selezionato</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.cpp" line="482"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
-        <translation type="unfinished">Rilascia per lo zoom, x = %1 a %2, y = %3 a %4</translation>
+        <translation>Rilascia per lo zoom, x = %1 a %2, y = %3 a %4</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.cpp" line="488"/>
         <source>Unable to select range.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile selezionare l&apos;intervallo.</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.cpp" line="491"/>
         <source>Click to select a portion of the graph.</source>
-        <translation type="unfinished">Fai clic per selezionare una porzione del grafico.</translation>
+        <translation>Fai clic per selezionare una porzione del grafico.</translation>
     </message>
 </context>
 <context>
@@ -6090,120 +6117,120 @@ per i file di filtro: %2.</translation>
 <context>
     <name>MainStatusBar</name>
     <message>
-        <location filename="main_status_bar.cpp" line="104"/>
+        <location filename="main_status_bar.cpp" line="105"/>
         <source>Ready to load or capture</source>
         <translation>Pronto per caricare o catturare</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="106"/>
+        <location filename="main_status_bar.cpp" line="107"/>
         <source>Ready to load file</source>
         <translation>Pronto per caricare file</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="144"/>
+        <location filename="main_status_bar.cpp" line="145"/>
         <source>Open the Capture File Properties dialog</source>
         <translation>Apri la finestra delle proprietà del file di cattura</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="176"/>
+        <location filename="main_status_bar.cpp" line="177"/>
         <source>Manage Profiles</source>
         <oldsource>Manage Profiles...</oldsource>
         <translation>Gestisci i profili</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="180"/>
+        <location filename="main_status_bar.cpp" line="181"/>
         <source>New</source>
         <oldsource>New...</oldsource>
         <translation>Nuovo</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="183"/>
+        <location filename="main_status_bar.cpp" line="184"/>
         <source>Edit</source>
         <oldsource>Edit...</oldsource>
         <translation>Modifica</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="186"/>
+        <location filename="main_status_bar.cpp" line="187"/>
         <source>Delete</source>
         <translation>Elimina</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="190"/>
+        <location filename="main_status_bar.cpp" line="191"/>
         <source>Switch to</source>
         <translation>Passa a</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="223"/>
+        <location filename="main_status_bar.cpp" line="224"/>
         <source> is the highest expert information level</source>
         <oldsource> is the highest expert info level</oldsource>
         <translation> è il livello più alto di informazione per esperti</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="228"/>
+        <location filename="main_status_bar.cpp" line="229"/>
         <source>ERROR</source>
         <translation>ERRORE</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="232"/>
+        <location filename="main_status_bar.cpp" line="233"/>
         <source>WARNING</source>
         <translation>AVVISO</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="236"/>
+        <location filename="main_status_bar.cpp" line="237"/>
         <source>NOTE</source>
         <translation>NOTA</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="240"/>
+        <location filename="main_status_bar.cpp" line="241"/>
         <source>CHAT</source>
         <translation>CHAT</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="247"/>
+        <location filename="main_status_bar.cpp" line="248"/>
         <source>No expert information</source>
         <oldsource>No expert info</oldsource>
         <translation>Nessuna informazione per esperti</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="344"/>
+        <location filename="main_status_bar.cpp" line="345"/>
         <source>Profile: </source>
         <translation>Profilo: </translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="402"/>
+        <location filename="main_status_bar.cpp" line="403"/>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
         <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
         <translation>Pacchetti: %1 %4 visualizzati: %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="408"/>
+        <location filename="main_status_bar.cpp" line="409"/>
         <source> %1 Marked: %2 (%3%)</source>
         <oldsource> %1 Dropped: %2</oldsource>
         <translation> %1 marcati: %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="414"/>
+        <location filename="main_status_bar.cpp" line="415"/>
         <source> %1 Dropped: %2 (%3%)</source>
         <translation> %1 scartati: %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="420"/>
+        <location filename="main_status_bar.cpp" line="421"/>
         <source> %1 Ignored: %2 (%3%)</source>
         <translation> %1 ignorati: %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="428"/>
+        <location filename="main_status_bar.cpp" line="429"/>
         <source> %1  Load time: %2:%3.%4</source>
         <translation> %1  Tempo di caricamento: %2:%3.%4</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="436"/>
-        <location filename="main_status_bar.cpp" line="458"/>
+        <location filename="main_status_bar.cpp" line="437"/>
+        <location filename="main_status_bar.cpp" line="459"/>
         <source>No Packets</source>
         <translation>Nessun pacchetto</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="454"/>
+        <location filename="main_status_bar.cpp" line="455"/>
         <source>Packets: %1</source>
         <translation>Pacchetti: %1</translation>
     </message>
@@ -6218,7 +6245,7 @@ per i file di filtro: %2.</translation>
     <message>
         <location filename="main_welcome.ui" line="57"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Welcome to Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:large;&quot;&gt;Benvenuto in Wireshark&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="117"/>
@@ -6369,7 +6396,7 @@ a:hover {
     <message>
         <location filename="main_welcome.cpp" line="347"/>
         <source>Copy file path</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia percorso del file</translation>
     </message>
 </context>
 <context>
@@ -6691,7 +6718,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="868"/>
         <source>Downloads</source>
-        <translation>Download</translation>
+        <translation>Scaricamenti</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="877"/>
@@ -7831,12 +7858,12 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2455"/>
         <source>RLC Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafico RLC</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2458"/>
         <source>LTE RLC graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafico RLC LTE</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2463"/>
@@ -9014,32 +9041,32 @@ a:hover {
         <translation>Non riesco a copiare il testo. Prova un&apos;altra voce.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2242"/>
+        <location filename="main_window_slots.cpp" line="2243"/>
         <source>Unable to build conversation filter.</source>
         <translation>Impossibile creare il filtro di conversazione.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2383"/>
+        <location filename="main_window_slots.cpp" line="2384"/>
         <source>No filter available. Try another </source>
         <translation>Nessun filtro disponibile. Provane un altro </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3306"/>
+        <location filename="main_window_slots.cpp" line="3307"/>
         <source>No Interface Selected</source>
         <translation>Nessuna interfaccia selezionata</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3313"/>
+        <location filename="main_window_slots.cpp" line="3314"/>
         <source> before starting a new capture</source>
         <translation>prima di iniziare una nuova cattura</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3516"/>
+        <location filename="main_window_slots.cpp" line="3517"/>
         <source>Wiki Page for %1</source>
         <translation>Pagina wiki per %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3517"/>
+        <location filename="main_window_slots.cpp" line="3518"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Il Wiki di Wireshark è gestito dalla comunità.&lt;/p&gt;&lt;p&gt;La pagina che stai per caricare potrebbe essere perfetta, incompleta, errata o inesistente.&lt;/p&gt;&lt;p&gt;Vuoi proseguire?&lt;/p&gt;</translation>
     </message>
@@ -9710,7 +9737,7 @@ a:hover {
         <translation>Rimuovi questa colonna</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="935"/>
+        <location filename="packet_list.cpp" line="939"/>
         <source>Frame %1: %2
 
 </source>
@@ -9719,7 +9746,7 @@ a:hover {
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="939"/>
+        <location filename="packet_list.cpp" line="943"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Il testo del commento supera %1. Interruzione. ]</translation>
     </message>
@@ -9727,12 +9754,12 @@ a:hover {
 <context>
     <name>PacketListModel</name>
     <message>
-        <location filename="packet_list_model.cpp" line="290"/>
+        <location filename="packet_list_model.cpp" line="296"/>
         <source>Dissecting</source>
         <translation>Decodifica</translation>
     </message>
     <message>
-        <location filename="packet_list_model.cpp" line="312"/>
+        <location filename="packet_list_model.cpp" line="318"/>
         <source>Sorting &quot;%1&quot;</source>
         <translation>Ordinamento di &quot;%1&quot;</translation>
     </message>
@@ -10451,7 +10478,7 @@ a:hover {
         <translation>Nuova pipe</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="124"/>
+        <location filename="rtp_stream_dialog.cpp" line="128"/>
         <source>%1 (%L2%)</source>
         <translation>%1 (%L2%)</translation>
     </message>
@@ -10768,12 +10795,12 @@ a:hover {
     <message>
         <location filename="main_welcome.cpp" line="330"/>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra in Finder</translation>
     </message>
     <message>
         <location filename="main_welcome.cpp" line="332"/>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra nella cartella</translation>
     </message>
 </context>
 <context>
@@ -11442,164 +11469,164 @@ a:hover {
         <translation>N</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="258"/>
+        <location filename="rtp_analysis_dialog.cpp" line="261"/>
         <source>RTP Stream Analysis</source>
         <translation>Analisi flusso RTP</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="327"/>
+        <location filename="rtp_analysis_dialog.cpp" line="332"/>
         <source>Unable to save RTP data.</source>
         <translation>Impossibile salvare i dati RTP.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="350"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1470"/>
         <source>No RTP packets found</source>
         <translation>Nessun pacchetto RTP trovato</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="372"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1492"/>
         <source>Please select an RTP packet</source>
         <translation>Seleziona un pacchetto RTP</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="396"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1516"/>
         <source>RTP version %1 found. Only version 2 is supported.</source>
         <translation>Versione %1 di RTP trovata. Solo la versione 2 è supportata. </translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="404"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1524"/>
         <source>SSRC value not found.</source>
         <translation>Valore SSRC non trovato.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="444"/>
+        <location filename="rtp_analysis_dialog.cpp" line="376"/>
         <source>No streams found.</source>
         <translation>Nessun flusso trovato.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="479"/>
+        <location filename="rtp_analysis_dialog.cpp" line="411"/>
         <source>%1 streams found.</source>
         <translation>%1 flussi trovati.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="494"/>
+        <location filename="rtp_analysis_dialog.cpp" line="426"/>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation> G: Vai al pacchetto, N: Pacchetto problematico successivo</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="513"/>
+        <location filename="rtp_analysis_dialog.cpp" line="445"/>
         <source>No Audio</source>
         <translation>Nessun audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="632"/>
+        <location filename="rtp_analysis_dialog.cpp" line="564"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="633"/>
+        <location filename="rtp_analysis_dialog.cpp" line="565"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="634"/>
+        <location filename="rtp_analysis_dialog.cpp" line="566"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="636"/>
+        <location filename="rtp_analysis_dialog.cpp" line="568"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG File Interchange Format (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="647"/>
+        <location filename="rtp_analysis_dialog.cpp" line="579"/>
         <source>Save Graph As</source>
         <translation>Salva grafico come</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="820"/>
+        <location filename="rtp_analysis_dialog.cpp" line="752"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>Impossibile salvare in un file: lunghezza errata dei pacchetti catturati. </translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="830"/>
+        <location filename="rtp_analysis_dialog.cpp" line="762"/>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
         <translation>Impossibile salvare in un file: dati RTP con padding.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="865"/>
-        <location filename="rtp_analysis_dialog.cpp" line="893"/>
+        <location filename="rtp_analysis_dialog.cpp" line="797"/>
+        <location filename="rtp_analysis_dialog.cpp" line="825"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation>Impossibile salvare in un file: problemi di I/O sul file.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="881"/>
+        <location filename="rtp_analysis_dialog.cpp" line="813"/>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
         <translation>Impossibile salvare in un file: non sono stati catturati tutti i dati di tutti i pacchetti.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1029"/>
         <source>Save forward stream audio</source>
         <translation>Salva l&apos;audio del flusso diretto</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1077"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1032"/>
         <source>Save reverse stream audio</source>
         <translation>Salva l&apos;audio del flusso inverso</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1081"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1036"/>
         <source>Save audio</source>
         <translation>Salva audio</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1085"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1040"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun Audio (*.au)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1087"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1042"/>
         <source>;;Raw (*.raw)</source>
         <translation>;;Raw (*.raw)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1104"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1119"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1059"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
         <source>Warning</source>
         <translation>Avviso</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1104"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1059"/>
         <source>Unable to save in that format</source>
         <translation>Impossibile salvare in quel formato</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1119"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
         <source>Unable to save %1</source>
         <translation>Impossibile salvare %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1123"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1078"/>
         <source>Saving %1</source>
         <translation>Salvataggio di %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1345"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1300"/>
         <source>Save forward stream CSV</source>
         <translation>Salva CSV del flusso diretto</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1348"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1303"/>
         <source>Save reverse stream CSV</source>
         <translation>Salva CSV del flusso inverso</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1352"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1307"/>
         <source>Save CSV</source>
         <translation>Salva CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1358"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1313"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>Valori separati da virgola (*.csv)</translation>
     </message>
@@ -11639,8 +11666,8 @@ a:hover {
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="57"/>
-        <source>First Packet</source>
-        <translation>Primo pacchetto</translation>
+        <source>Setup Frame</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="62"/>
@@ -11924,17 +11951,17 @@ a:hover {
         <translation>Riproduci flussi</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="236"/>
+        <location filename="rtp_player_dialog.cpp" line="243"/>
         <source>Out of Sequence</source>
         <translation>Fuori sequenza</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="405"/>
+        <location filename="rtp_player_dialog.cpp" line="416"/>
         <source>%1. Press &quot;G&quot; to go to packet %2</source>
         <translation>%1. Premi &quot;G&quot; per andare al pacchetto %2</translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="589"/>
+        <location filename="rtp_player_dialog.cpp" line="600"/>
         <source>Unknown</source>
         <translation>Sconosciuto</translation>
     </message>
@@ -12163,7 +12190,7 @@ a:hover {
         <translation>, selezionati %1, pacchetti totali %2</translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="506"/>
+        <location filename="rtp_stream_dialog.cpp" line="521"/>
         <source>Save RTPDump As</source>
         <translation>Salva RTPDump come</translation>
     </message>
@@ -14513,18 +14540,20 @@ a:hover {
     <name>UatDialog</name>
     <message>
         <location filename="uat_dialog.ui" line="28"/>
-        <source>Create a new profile using default settings.</source>
-        <translation>Crea un nuovo profilo utilizzando le impostazioni predefinite.</translation>
+        <source>Create a new entry.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="uat_dialog.ui" line="42"/>
-        <source>Remove this profile.</source>
-        <translation>Rimuovi questo profilo.</translation>
+        <source>Remove this entry.</source>
+        <oldsource>Remove this profile.</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="uat_dialog.ui" line="53"/>
-        <source>Copy this profile.</source>
-        <translation>Copia questo profilo.</translation>
+        <source>Copy this entry.</source>
+        <oldsource>Copy this profile.</oldsource>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="uat_dialog.cpp" line="88"/>
@@ -14539,12 +14568,12 @@ a:hover {
     <message>
         <location filename="uat_dialog.cpp" line="395"/>
         <source>Uneven number of chars hex string (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Numero irregolare di caratteri della stringa esadecimale (%1)</translation>
     </message>
     <message>
         <location filename="uat_dialog.cpp" line="402"/>
         <source>Error parsing hex string</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore di elaborazione della stringa esadecimale</translation>
     </message>
 </context>
 <context>
@@ -14562,7 +14591,7 @@ a:hover {
     <message>
         <location filename="voip_calls_dialog.ui" line="43"/>
         <source>Initial Speaker</source>
-        <translation>Speaker iniziale</translation>
+        <translation>Oratore iniziale</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.ui" line="48"/>

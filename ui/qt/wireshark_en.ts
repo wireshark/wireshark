@@ -521,12 +521,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="248"/>
+        <location filename="byte_view_text.cpp" line="247"/>
         <source>Byte %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="251"/>
+        <location filename="byte_view_text.cpp" line="250"/>
         <source>Bytes %1-%2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2499,17 +2499,19 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="48"/>
-        <source>Create a new profile using default settings.</source>
+        <source>Create a new filter.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="62"/>
-        <source>Remove this profile.</source>
+        <source>Remove this filter.</source>
+        <oldsource>Remove this profile.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="73"/>
-        <source>Copy this profile.</source>
+        <source>Copy this filter.</source>
+        <oldsource>Copy this profile.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6029,120 +6031,120 @@ for filter files: %2.</source>
 <context>
     <name>MainStatusBar</name>
     <message>
-        <location filename="main_status_bar.cpp" line="104"/>
+        <location filename="main_status_bar.cpp" line="105"/>
         <source>Ready to load or capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="106"/>
+        <location filename="main_status_bar.cpp" line="107"/>
         <source>Ready to load file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="144"/>
+        <location filename="main_status_bar.cpp" line="145"/>
         <source>Open the Capture File Properties dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="176"/>
+        <location filename="main_status_bar.cpp" line="177"/>
         <source>Manage Profiles</source>
         <oldsource>Manage Profiles...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="180"/>
+        <location filename="main_status_bar.cpp" line="181"/>
         <source>New</source>
         <oldsource>New...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="183"/>
+        <location filename="main_status_bar.cpp" line="184"/>
         <source>Edit</source>
         <oldsource>Edit...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="186"/>
+        <location filename="main_status_bar.cpp" line="187"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="190"/>
+        <location filename="main_status_bar.cpp" line="191"/>
         <source>Switch to</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="223"/>
+        <location filename="main_status_bar.cpp" line="224"/>
         <source> is the highest expert information level</source>
         <oldsource> is the highest expert info level</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="228"/>
+        <location filename="main_status_bar.cpp" line="229"/>
         <source>ERROR</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="232"/>
+        <location filename="main_status_bar.cpp" line="233"/>
         <source>WARNING</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="236"/>
+        <location filename="main_status_bar.cpp" line="237"/>
         <source>NOTE</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="240"/>
+        <location filename="main_status_bar.cpp" line="241"/>
         <source>CHAT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="247"/>
+        <location filename="main_status_bar.cpp" line="248"/>
         <source>No expert information</source>
         <oldsource>No expert info</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="344"/>
+        <location filename="main_status_bar.cpp" line="345"/>
         <source>Profile: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="402"/>
+        <location filename="main_status_bar.cpp" line="403"/>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
         <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="408"/>
+        <location filename="main_status_bar.cpp" line="409"/>
         <source> %1 Marked: %2 (%3%)</source>
         <oldsource> %1 Dropped: %2</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="414"/>
+        <location filename="main_status_bar.cpp" line="415"/>
         <source> %1 Dropped: %2 (%3%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="420"/>
+        <location filename="main_status_bar.cpp" line="421"/>
         <source> %1 Ignored: %2 (%3%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="428"/>
+        <location filename="main_status_bar.cpp" line="429"/>
         <source> %1  Load time: %2:%3.%4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="436"/>
-        <location filename="main_status_bar.cpp" line="458"/>
+        <location filename="main_status_bar.cpp" line="437"/>
+        <location filename="main_status_bar.cpp" line="459"/>
         <source>No Packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="454"/>
+        <location filename="main_status_bar.cpp" line="455"/>
         <source>Packets: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8923,32 +8925,32 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2242"/>
+        <location filename="main_window_slots.cpp" line="2243"/>
         <source>Unable to build conversation filter.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2383"/>
+        <location filename="main_window_slots.cpp" line="2384"/>
         <source>No filter available. Try another </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3306"/>
+        <location filename="main_window_slots.cpp" line="3307"/>
         <source>No Interface Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3313"/>
+        <location filename="main_window_slots.cpp" line="3314"/>
         <source> before starting a new capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3516"/>
+        <location filename="main_window_slots.cpp" line="3517"/>
         <source>Wiki Page for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3517"/>
+        <location filename="main_window_slots.cpp" line="3518"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9619,14 +9621,14 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="935"/>
+        <location filename="packet_list.cpp" line="939"/>
         <source>Frame %1: %2
 
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="939"/>
+        <location filename="packet_list.cpp" line="943"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9634,12 +9636,12 @@ a:hover {
 <context>
     <name>PacketListModel</name>
     <message>
-        <location filename="packet_list_model.cpp" line="290"/>
+        <location filename="packet_list_model.cpp" line="296"/>
         <source>Dissecting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list_model.cpp" line="312"/>
+        <location filename="packet_list_model.cpp" line="318"/>
         <source>Sorting &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10358,7 +10360,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="124"/>
+        <location filename="rtp_stream_dialog.cpp" line="128"/>
         <source>%1 (%L2%)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11331,164 +11333,164 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="258"/>
+        <location filename="rtp_analysis_dialog.cpp" line="261"/>
         <source>RTP Stream Analysis</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="327"/>
+        <location filename="rtp_analysis_dialog.cpp" line="332"/>
         <source>Unable to save RTP data.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="350"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1470"/>
         <source>No RTP packets found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="372"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1492"/>
         <source>Please select an RTP packet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="396"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1516"/>
         <source>RTP version %1 found. Only version 2 is supported.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="404"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1524"/>
         <source>SSRC value not found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="444"/>
+        <location filename="rtp_analysis_dialog.cpp" line="376"/>
         <source>No streams found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="479"/>
+        <location filename="rtp_analysis_dialog.cpp" line="411"/>
         <source>%1 streams found.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="494"/>
+        <location filename="rtp_analysis_dialog.cpp" line="426"/>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="513"/>
+        <location filename="rtp_analysis_dialog.cpp" line="445"/>
         <source>No Audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="632"/>
+        <location filename="rtp_analysis_dialog.cpp" line="564"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="633"/>
+        <location filename="rtp_analysis_dialog.cpp" line="565"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="634"/>
+        <location filename="rtp_analysis_dialog.cpp" line="566"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="636"/>
+        <location filename="rtp_analysis_dialog.cpp" line="568"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="647"/>
+        <location filename="rtp_analysis_dialog.cpp" line="579"/>
         <source>Save Graph As</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="820"/>
+        <location filename="rtp_analysis_dialog.cpp" line="752"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="830"/>
+        <location filename="rtp_analysis_dialog.cpp" line="762"/>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="865"/>
-        <location filename="rtp_analysis_dialog.cpp" line="893"/>
+        <location filename="rtp_analysis_dialog.cpp" line="797"/>
+        <location filename="rtp_analysis_dialog.cpp" line="825"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="881"/>
+        <location filename="rtp_analysis_dialog.cpp" line="813"/>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1029"/>
         <source>Save forward stream audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1077"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1032"/>
         <source>Save reverse stream audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1081"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1036"/>
         <source>Save audio</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1085"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1040"/>
         <source>Sun Audio (*.au)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1087"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1042"/>
         <source>;;Raw (*.raw)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1104"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1119"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1059"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
         <source>Warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1104"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1059"/>
         <source>Unable to save in that format</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1119"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
         <source>Unable to save %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1123"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1078"/>
         <source>Saving %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1345"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1300"/>
         <source>Save forward stream CSV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1348"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1303"/>
         <source>Save reverse stream CSV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1352"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1307"/>
         <source>Save CSV</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1358"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1313"/>
         <source>Comma-separated values (*.csv)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11528,7 +11530,7 @@ a:hover {
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="57"/>
-        <source>First Packet</source>
+        <source>Setup Frame</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11788,17 +11790,17 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="236"/>
+        <location filename="rtp_player_dialog.cpp" line="243"/>
         <source>Out of Sequence</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="405"/>
+        <location filename="rtp_player_dialog.cpp" line="416"/>
         <source>%1. Press &quot;G&quot; to go to packet %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_player_dialog.cpp" line="589"/>
+        <location filename="rtp_player_dialog.cpp" line="600"/>
         <source>Unknown</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12027,7 +12029,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rtp_stream_dialog.cpp" line="506"/>
+        <location filename="rtp_stream_dialog.cpp" line="521"/>
         <source>Save RTPDump As</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14324,17 +14326,19 @@ a:hover {
     <name>UatDialog</name>
     <message>
         <location filename="uat_dialog.ui" line="28"/>
-        <source>Create a new profile using default settings.</source>
+        <source>Create a new entry.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="uat_dialog.ui" line="42"/>
-        <source>Remove this profile.</source>
+        <source>Remove this entry.</source>
+        <oldsource>Remove this profile.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="uat_dialog.ui" line="53"/>
-        <source>Copy this profile.</source>
+        <source>Copy this entry.</source>
+        <oldsource>Copy this profile.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
