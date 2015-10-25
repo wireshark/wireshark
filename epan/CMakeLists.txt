@@ -1604,7 +1604,6 @@ set(LIBWIRESHARK_FILES
 	crc8-tvb.c
 	decode_as.c
 	disabled_protos.c
-	dissector_filters.c
 	dvb_chartbl.c
 	dwarf.c
 	epan.c

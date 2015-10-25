@@ -31,7 +31,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
-#include <epan/dissector_filters.h>
 #include <epan/color_dissector_filters.h>
 #include <epan/epan_dissect.h>
 #include <epan/column.h>
@@ -2558,7 +2557,7 @@ main_menu_new(GtkAccelGroup ** table)
 static void
 menu_dissector_filter_cb(GtkAction *action _U_,  gpointer callback_data)
 {
-    dissector_filter_t      *filter_entry = (dissector_filter_t *)callback_data;
+    color_conversation_filter_t  *filter_entry = (color_conversation_filter_t *)callback_data;
     GtkWidget               *filter_te;
     const char              *buf;
 
@@ -2581,7 +2580,7 @@ menu_dissector_filter_cb(GtkAction *action _U_,  gpointer callback_data)
 static gboolean
 menu_dissector_filter_spe_cb(frame_data *fd _U_, epan_dissect_t *edt, gpointer callback_data)
 {
-    dissector_filter_t *filter_entry = (dissector_filter_t *)callback_data;
+    color_conversation_filter_t *filter_entry = (color_conversation_filter_t*)callback_data;
 
     /* XXX - this gets the packet_info of the last dissected packet, */
     /* which is not necessarily the last selected packet */
@@ -2592,8 +2591,8 @@ menu_dissector_filter_spe_cb(frame_data *fd _U_, epan_dissect_t *edt, gpointer c
 static void
 menu_dissector_filter(capture_file *cf)
 {
-    GList *list_entry = dissector_filter_list;
-    dissector_filter_t *filter_entry;
+    GList *list_entry = color_conv_filter_list;
+    color_conversation_filter_t *filter_entry;
 
     guint merge_id;
     GtkActionGroup *action_group;
@@ -2639,12 +2638,12 @@ menu_dissector_filter(capture_file *cf)
     }
 
     while (list_entry != NULL) {
-        filter_entry = (dissector_filter_t *)list_entry->data;
+        filter_entry = (color_conversation_filter_t *)list_entry->data;
         action_name = g_strdup_printf ("filter-%u", i);
         /*g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);*/
         action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
                  "name", action_name,
-                 "label", filter_entry->name,
+                 "label", filter_entry->display_name,
                  "sensitive", menu_dissector_filter_spe_cb(/* frame_data *fd _U_*/ NULL, cf->edt, filter_entry),
                  NULL);
         g_signal_connect (action, "activate",
@@ -4518,7 +4517,6 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
 void
 set_menus_for_selected_packet(capture_file *cf)
 {
-    GList      *list_entry = dissector_filter_list;
     GList      *color_list_entry = color_conv_filter_list;
     guint       i          = 0;
     gboolean    properties = FALSE;
@@ -4703,21 +4701,24 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/TCPStreamGraphMenu",
                          is_tcp);
 
-    while (list_entry != NULL) {
-        dissector_filter_t *filter_entry;
+    i = 0;
+    color_list_entry = color_conv_filter_list;
+    while (color_list_entry != NULL) {
+        color_conversation_filter_t *filter_entry;
         gchar *path;
 
-        filter_entry = (dissector_filter_t *)list_entry->data;
+        filter_entry = (color_conversation_filter_t *)color_list_entry->data;
         path = g_strdup_printf("/Menubar/AnalyzeMenu/ConversationFilterMenu/Filters/filter-%u", i);
 
         set_menu_sensitivity(ui_manager_main_menubar, path,
             menu_dissector_filter_spe_cb(/* frame_data *fd _U_*/ NULL, cf->edt, filter_entry));
         g_free(path);
         i++;
-        list_entry = g_list_next(list_entry);
+        color_list_entry = g_list_next(color_list_entry);
     }
 
     i = 0;
+    color_list_entry = color_conv_filter_list;
     while (color_list_entry != NULL) {
         color_conversation_filter_t* color_filter;
         gchar *path;
