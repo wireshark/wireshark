@@ -579,7 +579,7 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 		return wmem_strdup_printf(wmem_packet_scope(), "Wrong attribute length %d", len);
 	}
 
-	filterstr=wmem_strbuf_sized_new(wmem_packet_scope(), 64, 64);
+	filterstr=wmem_strbuf_sized_new(wmem_packet_scope(), 128, 128);
 
 	proto_tree_add_item(tree, hf_radius_ascend_data_filter, tvb, 0, -1, ENC_NA);
 	type = tvb_get_guint8(tvb, 0);
