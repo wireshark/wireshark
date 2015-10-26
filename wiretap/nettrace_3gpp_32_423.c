@@ -352,7 +352,6 @@ write_packet_data(wtap_dumper *wdh, struct wtap_pkthdr *phdr, int *err, gchar **
 	if ((exported_pdu_info->precense_flags & EXP_PDU_TAG_DST_PORT_BIT) == EXP_PDU_TAG_DST_PORT_BIT) {
 		if (!port_type_defined) {
 			exp_pdu_tags_len += 4 + EXP_PDU_TAG_PORT_TYPE_LEN;
-			port_type_defined = TRUE;
 		}
 		exp_pdu_tags_len += 4 + EXP_PDU_TAG_SRC_PORT_LEN;
 	}
@@ -450,7 +449,6 @@ write_packet_data(wtap_dumper *wdh, struct wtap_pkthdr *phdr, int *err, gchar **
 
 	if ((exported_pdu_info->precense_flags & EXP_PDU_TAG_DST_PORT_BIT) == EXP_PDU_TAG_DST_PORT_BIT) {
 		if (!port_type_defined) {
-			port_type_defined = TRUE;
 			packet_buf[i] = 0;
 			i++;
 			packet_buf[i] = EXP_PDU_TAG_PORT_TYPE;
