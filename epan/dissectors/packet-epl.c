@@ -1659,7 +1659,7 @@ gboolean show_soc_flags = FALSE;
 /* Define the tap for epl */
 /*static gint epl_tap = -1;*/
 
-guint16
+static guint16
 epl_get_sequence_nr(packet_info *pinfo)
 {
 	guint16 seqnum = 0x00;
@@ -1673,7 +1673,7 @@ epl_get_sequence_nr(packet_info *pinfo)
 	return seqnum;
 }
 
-void
+static void
 epl_set_sequence_nr(packet_info *pinfo, guint16 seqnum)
 {
 	if ( p_get_proto_data ( wmem_file_scope(), pinfo, proto_epl, ETHERTYPE_EPL_V2 ) != NULL )
