@@ -788,7 +788,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 				/* Excample from one trace, unsure if it's generic...
 				 * {address == 192.168.73.1, port == 5062, transport == Udp}
 				 */
-				scan_found = sscanf(curr_pos, "%*s %3u.%3u.%3u.%3u, %*s %*s %4u, %*s %*s %4s",
+				scan_found = sscanf(curr_pos, "%*s %3u.%3u.%3u.%3u, %*s %*s %5u, %*s %*s %4s",
 					&d1, &d2, &d3, &d4, &port, transp_str);
 				if (scan_found == 6) {
 					exported_pdu_info.precense_flags = exported_pdu_info.precense_flags + EXP_PDU_TAG_IP_SRC_BIT + EXP_PDU_TAG_SRC_PORT_BIT;
@@ -835,7 +835,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 				/* Excample from one trace, unsure if it's generic...
 				* {address == 192.168.73.1, port == 5062, transport == Udp}
 				*/
-				scan_found = sscanf(curr_pos, "%*s %3u.%3u.%3u.%3u, %*s %*s %4u, %*s %*s %4s",
+				scan_found = sscanf(curr_pos, "%*s %3u.%3u.%3u.%3u, %*s %*s %5u, %*s %*s %4s",
 					&d1, &d2, &d3, &d4, &port, transp_str);
 				if (scan_found == 6) {
 					exported_pdu_info.precense_flags = exported_pdu_info.precense_flags + EXP_PDU_TAG_IP_DST_BIT + EXP_PDU_TAG_DST_PORT_BIT;
