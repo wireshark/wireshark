@@ -1,7 +1,7 @@
 = Wireshark wireshark-version:[] Release Notes
 // AsciiDoc quick reference: http://powerman.name/doc/asciidoc
 
-This is a semi-experimental release intended to test new features for Wireshark 2.0.
+This is a semi-experimental release intended to test new features for Wireshark 2.2.
 
 == What is Wireshark?
 
@@ -25,9 +25,9 @@ _Non-empty section placeholder._
 
 The following features are new (or have been significantly updated)
 since version 2.0.0:
-** Add ability to switch between Capture and File Format of current capture
+** You can now switch between between Capture and File Format dissection of
+the current capture file via the View menu in the Qt GUI.
 
-_Non-empty section placeholder._
 //=== Removed Dissectors
 
 === New File Format Decoding Support
@@ -71,8 +71,8 @@ _Non-empty section placeholder._
 
 The libwireshark API has undergone some major changes:
 
-* The entire API is only accessible via COBOL-74 or VAX BLISS.
-* All integers are VAX-endian.
+* The address macros (e.g., SET_ADDRESS) have been removed.  Use the
+(lower case) functions of the same names instead.
 
 
 == Getting Wireshark
