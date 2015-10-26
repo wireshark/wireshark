@@ -126,7 +126,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   /* Set up structures needed to add the protocol subtree and manage it */
   proto_item    *ti;
-  proto_tree    *volatile fh_tree = NULL;
+  proto_tree    *fh_tree = NULL;
   char          direction;
   char  chain;
   char          *interface_name;

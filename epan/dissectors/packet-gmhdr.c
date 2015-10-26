@@ -219,12 +219,12 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
 static void
 dissect_gmhdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree          *ti;
-  gint16               length;
-  volatile guint16     encap_proto;
-  volatile gboolean    is_802_2;
-  proto_tree *volatile gmhdr_tree = NULL;
-  volatile guint       offset = 0;
+  proto_tree *ti;
+  gint16      length;
+  guint16     encap_proto;
+  gboolean    is_802_2;
+  proto_tree *gmhdr_tree = NULL;
+  guint       offset = 0;
 
   length = tvb_get_guint8(tvb, offset); /* Length of the Gigamon header */
 

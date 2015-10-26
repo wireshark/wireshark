@@ -3132,7 +3132,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	guint32 seq;
 	guint32 rpc_rm;
-	volatile guint32 len;
+	guint32 len;
 	gint32 seglen;
 	gint tvb_len, tvb_reported_len;
 	tvbuff_t *frag_tvb;

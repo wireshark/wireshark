@@ -1025,7 +1025,7 @@ dissect_cast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
    * CAST-Packet: {Header(Size, Reserved)|Data(MessageID, Message-Data)}
    */
   /* Header fields */
-  volatile guint32 hdr_data_length;
+  guint32 hdr_data_length;
   guint32 hdr_marker;
 
   /* check, if this is really an SKINNY packet, they start with a length + 0 */

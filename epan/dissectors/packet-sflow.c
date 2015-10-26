@@ -2253,7 +2253,7 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     struct sflow_address_type     addr_type;
 
     guint32        numsamples;
-    volatile guint offset = 0;
+    guint          offset = 0;
     guint          i      = 0;
 
     addr_type.hf_addr_v4 = hf_sflow_agent_address_v4;

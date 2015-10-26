@@ -885,7 +885,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 }
 
 static void
-process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
+process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree *tree, SslSession *session);
 
 static void
@@ -1310,7 +1310,7 @@ export_pdu_packet(tvbuff_t *tvb, packet_info *pinfo, guint tag, const gchar *nam
 }
 
 static void
-process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
+process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree *tree, SslSession *session)
 {
     tvbuff_t *next_tvb;

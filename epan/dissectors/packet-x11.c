@@ -1296,27 +1296,27 @@ static const value_string zero_is_none_vals[] = {
 
 static void
 dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  const char *sep, x11_conv_data_t *volatile state,
+                  const char *sep, x11_conv_data_t *state,
                   guint byte_order);
 
 static void
 dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  const char *volatile sep, x11_conv_data_t *volatile state,
+                  const char *sep, x11_conv_data_t *state,
                   guint byte_order);
 
 static void
 dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  const char *volatile sep, x11_conv_data_t *volatile state,
+                  const char *sep, x11_conv_data_t *state,
                   guint byte_order);
 
 static void
 dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  const char *volatile sep, x11_conv_data_t *volatile state,
+                  const char *sep, x11_conv_data_t *state,
                   guint byte_order);
 
 static void
 decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
-                 proto_tree *t, x11_conv_data_t *volatile state,
+                 proto_tree *t, x11_conv_data_t *state,
                  guint byte_order);
 
 static x11_conv_data_t *
@@ -3118,7 +3118,7 @@ static void dissect_x11_initial_conn(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree, const char _U_ *sep, x11_conv_data_t *volatile state,
+    proto_tree *tree, const char _U_ *sep, x11_conv_data_t *state,
     guint byte_order)
 {
       int offset = 0, *offsetp = &offset, left;
@@ -4814,7 +4814,7 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 /* Set up structures we will need to add the protocol subtree and manage it */
       volatile int offset, plen;
-      tvbuff_t * volatile next_tvb;
+      tvbuff_t *volatile next_tvb;
       conversation_t *conversation;
       x11_conv_data_t *volatile state;
       volatile guint byte_order;
@@ -4944,7 +4944,7 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void
 dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  const char *volatile sep, x11_conv_data_t *volatile state,
+                  const char *sep, x11_conv_data_t *state,
                   guint byte_order)
 {
       int offset = 0, *offsetp = &offset, length, left, opcode;
@@ -5341,7 +5341,7 @@ same_screen_focus(tvbuff_t *tvb, int *offsetp, proto_tree *t)
 
 static void
 dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  const char *volatile sep, x11_conv_data_t *volatile state,
+                  const char *sep, x11_conv_data_t *state,
                   guint byte_order)
 {
       unsigned char eventcode;
@@ -5375,7 +5375,7 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static void
 decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
-                 proto_tree *t, x11_conv_data_t *volatile state,
+                 proto_tree *t, x11_conv_data_t *state,
                  guint byte_order)
 {
       int offset = 0, *offsetp = &offset, left;
@@ -5689,7 +5689,7 @@ decode_x11_event(tvbuff_t *tvb, unsigned char eventcode, const char *sent,
 
 static void
 dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  const char *volatile sep, x11_conv_data_t *volatile state _U_,
+                  const char *sep, x11_conv_data_t *state _U_,
                   guint byte_order)
 {
       int offset = 0, *offsetp = &offset, left;

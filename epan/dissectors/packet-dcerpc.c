@@ -1162,7 +1162,7 @@ static void dissect_auth_verf(tvbuff_t *auth_tvb, packet_info *pinfo,
                               e_dce_cn_common_hdr_t *hdr,
                               dcerpc_auth_info *auth_info)
 {
-    dcerpc_dissect_fnct_t *volatile fn = NULL;
+    dcerpc_dissect_fnct_t *fn = NULL;
     /* XXX - "stub" a fake DCERPC INFO STRUCTURE
        If a dcerpc_info is really needed, update
        the call stacks to include it

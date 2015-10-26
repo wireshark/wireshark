@@ -13316,7 +13316,7 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo,
   guint32 sub_tag_length;
   proto_item *parent_item;
   proto_tree *bssid_info_subtree, *bssid_info_cap_subtree, *sub_tag_tree;
-  tvbuff_t *volatile sub_tag_tvb = NULL;
+  tvbuff_t *sub_tag_tvb = NULL;
 
   if (tag_len < 13) {
     expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length,
@@ -16470,10 +16470,10 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
                                 IS_80211AD(phdr->frequency) :
                                 FALSE);
 
-  volatile encap_t encap_type;
-  proto_tree *volatile hdr_tree = NULL;
-  tvbuff_t   *volatile next_tvb = NULL;
-  wlan_hdr_t   *volatile whdr;
+  encap_t     encap_type;
+  proto_tree *hdr_tree = NULL;
+  tvbuff_t   *next_tvb = NULL;
+  wlan_hdr_t *whdr;
 
   AIRPDCAP_KEY_ITEM  used_key;
 

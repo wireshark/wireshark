@@ -2066,7 +2066,8 @@ static guint8 get_mac_lte_channel_priority(guint16 ueid _U_, guint8 lcid,
                                            guint8 direction);
 
 
-static void call_with_catch_all(dissector_handle_t handle, tvbuff_t* tvb, packet_info *pinfo, proto_tree *tree)
+static void
+call_with_catch_all(dissector_handle_t handle, tvbuff_t* tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Call it (catch exceptions so that stats will be updated) */
     TRY {
@@ -2984,7 +2985,7 @@ static void call_rlc_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 
 /* For DL frames, look for previous Tx. Add link back if found */
-static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int length,
+static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, int length,
                                       proto_tree *tree, mac_lte_info *p_mac_lte_info)
 {
     DLHARQResult *result = NULL;
@@ -3138,7 +3139,7 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction)
 /* Track UL frames, so that when a retx is indicated, we can search for
    the original tx.  We will either find it, and provide a link back to it,
    or flag that we couldn't find as an expert error */
-static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatile int offset,
+static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, int offset,
                                       proto_tree *tree, mac_lte_info *p_mac_lte_info,
                                       proto_item *retx_ti)
 {
@@ -3704,18 +3705,18 @@ static void lookup_rlc_channel_from_lcid(guint16 ueid,
 /* UL-SCH and DL-SCH formats have much in common, so handle them in a common
    function */
 static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                   proto_item *pdu_ti, volatile guint32 offset,
+                                   proto_item *pdu_ti, guint32 offset,
                                    mac_lte_info *p_mac_lte_info, mac_lte_tap_info *tap_info,
                                    proto_item *retx_ti, proto_tree *context_tree,
                                    guint pdu_instance)
 {
     guint8            extension;
-    volatile guint16  n;
+    guint16           n;
     proto_item       *truncated_ti;
     proto_item       *padding_length_ti;
 
     /* Keep track of LCIDs and lengths as we dissect the header */
-    volatile guint16 number_of_headers = 0;
+    guint16          number_of_headers = 0;
     guint8           lcids[MAX_HEADERS_IN_PDU];
     gint16           pdu_lengths[MAX_HEADERS_IN_PDU];
 
@@ -3727,7 +3728,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     gboolean   have_seen_non_padding_control = FALSE;
     gboolean   have_seen_bsr = FALSE;
     gboolean   expecting_body_data = FALSE;
-    volatile   guint32    is_truncated = FALSE;
+    guint32    is_truncated = FALSE;
 
     /* Maintain/show UEs/TTI count */
     tap_info->ueInTTI = count_ues_tti(p_mac_lte_info, pinfo);
@@ -5002,7 +5003,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Data SDUs treated identically for Uplink or downlink channels */
         proto_item *sdu_ti;
-        volatile guint16 data_length;
+        guint16 data_length;
         gboolean rlc_called_for_sdu = FALSE;
 
         /* Break out if meet padding */
@@ -5051,7 +5052,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             tvbuff_t *rrc_tvb = tvb_new_subset_length(tvb, offset, data_length);
 
             /* Get appropriate dissector handle */
-            volatile dissector_handle_t protocol_handle = 0;
+            dissector_handle_t protocol_handle = 0;
             if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
                 protocol_handle = find_dissector("lte_rrc.ul_ccch");
             }
@@ -5213,16 +5214,16 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *pdu_ti,
-                        volatile guint32 offset, mac_lte_info *p_mac_lte_info)
+                        guint32 offset, mac_lte_info *p_mac_lte_info)
 {
     guint8            extension;
-    volatile guint16  n;
+    guint16           n;
     proto_item       *truncated_ti;
     proto_item       *padding_length_ti;
     proto_item       *hidden_root_ti;
 
     /* Keep track of LCIDs and lengths as we dissect the header */
-    volatile guint16 number_of_headers = 0;
+    guint16 number_of_headers = 0;
     guint8  lcids[MAX_HEADERS_IN_PDU];
     gint16  pdu_lengths[MAX_HEADERS_IN_PDU];
 
@@ -5233,7 +5234,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     guint8     number_of_padding_subheaders = 0;
     gboolean   have_seen_non_padding_control = FALSE;
     gboolean   expecting_body_data = FALSE;
-    volatile   guint32    is_truncated = FALSE;
+    guint32    is_truncated = FALSE;
 
     write_pdu_label_and_info_literal(pdu_ti, NULL, pinfo, "MCH: ");
 
@@ -5537,7 +5538,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     for (; n < number_of_headers; n++) {
 
         proto_item *sdu_ti;
-        volatile guint16 data_length;
+        guint16 data_length;
 
         /* Break out if meet padding */
         if (lcids[n] == PADDING_LCID) {

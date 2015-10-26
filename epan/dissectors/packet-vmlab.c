@@ -74,7 +74,7 @@ static const value_string fragment_vals[] = {
 static void
 dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree*     volatile vmlab_tree;
+    proto_tree*     vmlab_tree;
     proto_item*     ti;
 
     guint32         offset=0;
@@ -83,7 +83,7 @@ dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8          portgroup;
     ethertype_data_t ethertype_data;
 
-    volatile guint16 encap_proto;
+    guint16         encap_proto;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VMLAB");
     col_clear(pinfo->cinfo, COL_INFO);

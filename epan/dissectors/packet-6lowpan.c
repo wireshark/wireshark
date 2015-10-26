@@ -995,12 +995,12 @@ dissect_6lowpan_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 static int
 dissect_6lowpan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_tree *volatile    lowpan_tree = NULL;
-    proto_item *volatile    lowpan_root = NULL;
-    tvbuff_t *              next = tvb;
+    proto_tree *lowpan_tree = NULL;
+    proto_item *lowpan_root = NULL;
+    tvbuff_t   *next = tvb;
     /* Interface identifier of the encapsulating layer. */
-    guint8                  src_iid[LOWPAN_IFC_ID_LEN];
-    guint8                  dst_iid[LOWPAN_IFC_ID_LEN];
+    guint8      src_iid[LOWPAN_IFC_ID_LEN];
+    guint8      dst_iid[LOWPAN_IFC_ID_LEN];
 
     /* Get the interface identifiers from the encapsulating layer. */
     lowpan_dlsrc_to_ifcid(pinfo, src_iid);

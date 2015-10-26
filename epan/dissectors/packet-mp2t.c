@@ -1085,13 +1085,13 @@ dissect_mp2t_adaptation_field(tvbuff_t *tvb, gint offset, proto_tree *tree)
 }
 
 static void
-dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
+dissect_tsp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree, conversation_t *conv)
 {
     guint32              header;
     guint                afc;
     gint                 start_offset = offset;
-    volatile gint        payload_len;
+    gint                 payload_len;
     mp2t_analysis_data_t *mp2t_data;
     pid_analysis_data_t *pid_analysis;
 

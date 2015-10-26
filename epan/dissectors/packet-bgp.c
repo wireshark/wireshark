@@ -6480,7 +6480,7 @@ dissect_bgp_capability(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 }
 
 static void
-dissect_bgp_pdu(tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
+dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 gboolean first)
 {
     guint16       bgp_len;          /* Message length             */
@@ -6634,7 +6634,6 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         bgp_tree = proto_item_add_subtree(ti, ett_bgp);
 
         proto_tree_add_item(bgp_tree, hf_bgp_continuation, tvb, 0, offset, ENC_NA);
-;
     }
 
     /*
