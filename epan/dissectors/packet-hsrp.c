@@ -136,6 +136,7 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
+#include <epan/expert.h>
 
 void proto_register_hsrp(void);
 void proto_reg_handoff_hsrp(void);
@@ -194,6 +195,8 @@ static gint ett_hsrp2_group_state_tlv = -1;
 static gint ett_hsrp2_interface_state_tlv = -1;
 static gint ett_hsrp2_text_auth_tlv = -1;
 static gint ett_hsrp2_md5_auth_tlv = -1;
+
+static expert_field ei_hsrp_unknown_tlv = EI_INIT;
 
 #define UDP_PORT_HSRP   1985
 #define UDP_PORT_HSRP2_V6   2029
@@ -322,6 +325,32 @@ static const value_string hsrp2_md5_algorithm_vals[] = {
         {0, NULL}
 };
 
+static void
+process_hsrp_md5_tlv_sequence(tvbuff_t *tvb, proto_tree *hsrp_tree, guint offset)
+{
+        guint8 type = tvb_get_guint8(tvb, offset);
+        guint8 len = tvb_get_guint8(tvb, offset+1);
+        proto_item *ti;
+        proto_tree *md5_auth_tlv;
+
+        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_md5_auth_tlv, tvb, offset, 1, type, "Type=%d Len=%d", type, len);
+        offset+=2;
+
+        /* Making MD5 Authentication TLV subtree */
+        md5_auth_tlv = proto_item_add_subtree(ti, ett_hsrp2_md5_auth_tlv);
+        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_algorithm, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        /* Skip padding field */
+        offset++;
+        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
+        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_key_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4; /* this now points to the start of the MD5 hash */
+        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_auth_data, tvb, offset, 16, ENC_NA);
+}
+
 static int
 dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -342,6 +371,11 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         if (pinfo->dst.type == AT_IPv4 && memcmp(pinfo->dst.data, &hsrpv1, 4) == 0) {
                 /* HSRPv1 */
                 guint8 opcode, state = 0;
+                proto_item *ti;
+                proto_tree *hsrp_tree;
+                gint offset;
+                guint8 hellotime, holdtime;
+                gchar auth_buf[8 + 1];
 
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSRP");
 
@@ -359,69 +393,76 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                         val_to_str_const(state, hsrp_adv_state_vals, "Unknown"));
                 }
 
-                if (tree) {
-                        proto_item *ti;
-                        proto_tree *hsrp_tree;
-                        gint offset;
-                        guint8 hellotime, holdtime;
-                        gchar auth_buf[8 + 1];
+                offset = 0;
+                ti = proto_tree_add_item(tree, proto_hsrp, tvb, offset, -1, ENC_NA);
+                hsrp_tree = proto_item_add_subtree(ti, ett_hsrp);
 
-                        offset = 0;
-                        ti = proto_tree_add_item(tree, proto_hsrp, tvb, offset, -1, ENC_NA);
-                        hsrp_tree = proto_item_add_subtree(ti, ett_hsrp);
-
-                        proto_tree_add_item(hsrp_tree, hf_hsrp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(hsrp_tree, hf_hsrp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+                proto_tree_add_uint(hsrp_tree, hf_hsrp_opcode, tvb, offset, 1, opcode);
+                offset++;
+                if (opcode < 3) {
+                        proto_tree_add_uint(hsrp_tree, hf_hsrp_state, tvb, offset, 1, state);
                         offset++;
-                        proto_tree_add_uint(hsrp_tree, hf_hsrp_opcode, tvb, offset, 1, opcode);
+                        hellotime = tvb_get_guint8(tvb, offset);
+                        proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp_hellotime, tvb, offset, 1, hellotime,
+                                           "%sDefault (%u)",
+                                           (hellotime == HSRP_DEFAULT_HELLOTIME) ? "" : "Non-",
+                                           hellotime);
                         offset++;
-                        if (opcode < 3) {
-                                proto_tree_add_uint(hsrp_tree, hf_hsrp_state, tvb, offset, 1, state);
-                                offset++;
-                                hellotime = tvb_get_guint8(tvb, offset);
-                                proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp_hellotime, tvb, offset, 1, hellotime,
-                                                   "%sDefault (%u)",
-                                                   (hellotime == HSRP_DEFAULT_HELLOTIME) ? "" : "Non-",
-                                                   hellotime);
-                                offset++;
-                                holdtime = tvb_get_guint8(tvb, offset);
-                                proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp_holdtime, tvb, offset, 1, holdtime,
-                                                   "%sDefault (%u)",
-                                                   (holdtime == HSRP_DEFAULT_HOLDTIME) ? "" : "Non-",
-                                                   holdtime);
-                                offset++;
-                                proto_tree_add_item(hsrp_tree, hf_hsrp_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                offset++;
-                                proto_tree_add_item(hsrp_tree, hf_hsrp_group, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                offset++;
-                                proto_tree_add_item(hsrp_tree, hf_hsrp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                offset++;
-                                tvb_memcpy(tvb, auth_buf, offset, 8);
-                                auth_buf[sizeof auth_buf - 1] = '\0';
-                                proto_tree_add_string_format_value(hsrp_tree, hf_hsrp_auth_data, tvb, offset, 8, auth_buf,
-                                                     "%sDefault (%s)",
-                                                     (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
-                                                     auth_buf);
-                                offset += 8;
-                                proto_tree_add_item(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-                                /* offset += 4; */
-                        } else if (opcode == 3) {
-                                proto_tree_add_item(hsrp_tree, hf_hsrp_adv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-                                offset += 2;
-                                proto_tree_add_item(hsrp_tree, hf_hsrp_adv_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-                                offset += 2;
-                                proto_tree_add_item(hsrp_tree, hf_hsrp_adv_state, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                offset += 1;
-                                proto_tree_add_item(hsrp_tree, hf_hsrp_adv_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                offset += 1;
-                                proto_tree_add_item(hsrp_tree, hf_hsrp_adv_activegrp, tvb, offset, 2, ENC_BIG_ENDIAN);
-                                offset += 2;
-                                proto_tree_add_item(hsrp_tree, hf_hsrp_adv_passivegrp, tvb, offset, 2, ENC_BIG_ENDIAN);
-                                offset += 2;
-                                proto_tree_add_item(hsrp_tree, hf_hsrp_adv_reserved2, tvb, offset, 4, ENC_BIG_ENDIAN);
-                                /* offset += 4; */
+                        holdtime = tvb_get_guint8(tvb, offset);
+                        proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp_holdtime, tvb, offset, 1, holdtime,
+                                           "%sDefault (%u)",
+                                           (holdtime == HSRP_DEFAULT_HOLDTIME) ? "" : "Non-",
+                                           holdtime);
+                        offset++;
+                        proto_tree_add_item(hsrp_tree, hf_hsrp_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset++;
+                        proto_tree_add_item(hsrp_tree, hf_hsrp_group, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset++;
+                        proto_tree_add_item(hsrp_tree, hf_hsrp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset++;
+                        tvb_memcpy(tvb, auth_buf, offset, 8);
+                        auth_buf[sizeof auth_buf - 1] = '\0';
+                        proto_tree_add_string_format_value(hsrp_tree, hf_hsrp_auth_data, tvb, offset, 8, auth_buf,
+                                             "%sDefault (%s)",
+                                             (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
+                                             auth_buf);
+                        offset += 8;
+                        proto_tree_add_item(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+                        /* offset += 4; */
+                } else if (opcode == 3) {
+                        proto_tree_add_item(hsrp_tree, hf_hsrp_adv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        proto_tree_add_item(hsrp_tree, hf_hsrp_adv_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        proto_tree_add_item(hsrp_tree, hf_hsrp_adv_state, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset += 1;
+                        proto_tree_add_item(hsrp_tree, hf_hsrp_adv_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset += 1;
+                        proto_tree_add_item(hsrp_tree, hf_hsrp_adv_activegrp, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        proto_tree_add_item(hsrp_tree, hf_hsrp_adv_passivegrp, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        proto_tree_add_item(hsrp_tree, hf_hsrp_adv_reserved2, tvb, offset, 4, ENC_BIG_ENDIAN);
+                        /* offset += 4; */
+                } else {
+                        next_tvb = tvb_new_subset_remaining(tvb, offset);
+                        call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
+                }
+                /* is MD5 authentication being used with HSRPv1? */
+                if (tvb_captured_length(tvb) == 50) { /* 20 bytes of regular HSRP data + 30 bytes of authentication payload */
+                        guint offset2 = offset + 4; /* this now points to the start of a possible TLV sequence */
+                        guint8 type = tvb_get_guint8(tvb, offset2);
+                        guint8 len = tvb_get_guint8(tvb, offset2+1);
+                        if (type == 4 && len == 28) {
+                                /* MD5 Authentication TLV */
+                                if (tree) {
+                                        process_hsrp_md5_tlv_sequence(tvb, hsrp_tree, offset2);
+                                }
                         } else {
-                                next_tvb = tvb_new_subset_remaining(tvb, offset);
-                                call_dissector(data_handle, next_tvb, pinfo, hsrp_tree);
+                                expert_add_info_format(pinfo, ti, &ei_hsrp_unknown_tlv,
+                                                "Unknown TLV sequence in HSRPv1 dissection, Type=(%d) Len=(%d)", type, len);
                         }
                 }
         } else if ((pinfo->dst.type == AT_IPv4 && memcmp(pinfo->dst.data, &hsrpv2, 4) == 0) ||
@@ -554,25 +595,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                         } else if (type == 4 && len == 28) {
                                 /* MD5 Authentication TLV */
                                 if (tree) {
-                                        proto_tree *md5_auth_tlv;
-
-                                        ti = proto_tree_add_uint_format_value(hsrp_tree, hf_hsrp2_md5_auth_tlv, tvb, offset, 1, type,
-                                        "Type=%d Len=%d", type, len);
-                                        offset+=2;
-
-                                        /* Making MD5 Authentication TLV subtree */
-                                        md5_auth_tlv = proto_item_add_subtree(ti, ett_hsrp2_md5_auth_tlv);
-                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_algorithm, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                        offset++;
-                                        /* Skip padding field */
-                                        offset++;
-                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
-                                        offset+=2;
-                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN);
-                                        offset+=4;
-                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_key_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-                                        offset+=4;
-                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_auth_data, tvb, offset, 16, ENC_NA);
+                                        process_hsrp_md5_tlv_sequence(tvb, hsrp_tree, offset);
                                         /* offset += 16; */
                                 }
                         } else {
@@ -592,6 +615,8 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 void proto_register_hsrp(void)
 {
+        expert_module_t* expert_hsrp;
+
         static hf_register_info hf[] = {
                 { &hf_hsrp_version,
                   { "Version", "hsrp.version",
@@ -802,10 +827,16 @@ void proto_register_hsrp(void)
                 &ett_hsrp2_md5_auth_tlv
         };
 
+        static ei_register_info ei[] = {
+                { &ei_hsrp_unknown_tlv, { "hsrp.unknown_tlv", PI_UNDECODED, PI_WARN, "Unknown TLV sequence (HSRPv1)", EXPFILL }},
+        };
+
         proto_hsrp = proto_register_protocol("Cisco Hot Standby Router Protocol",
             "HSRP", "hsrp");
         proto_register_field_array(proto_hsrp, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
+        expert_hsrp = expert_register_protocol(proto_hsrp);
+        expert_register_field_array(expert_hsrp, ei, array_length(ei));
 
         return;
 }
