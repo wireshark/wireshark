@@ -272,6 +272,7 @@ static int hf_framed_ipv6_prefix_length = -1;
 static int hf_framed_ipv6_prefix_bytes = -1;
 static int hf_framed_ipv6_prefix_ipv6 = -1;
 static int hf_diameter_3gpp2_exp_res = -1;
+static int hf_diameter_other_vendor_exp_res = -1;
 
 static gint ett_diameter = -1;
 static gint ett_diameter_flags = -1;
@@ -464,7 +465,8 @@ static const value_string diameter_3gpp2_exp_res_vals[]= {
 };
 
 static int
-dissect_diameter_3gpp2_exp_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data) {
+dissect_diameter_3gpp2_exp_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
 	proto_item *pi;
 	diam_sub_dis_t *diam_sub_dis;
 
@@ -481,6 +483,19 @@ dissect_diameter_3gpp2_exp_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	}
 
 	return 4;
+}
+
+static void
+dissect_diameter_other_vendor_exp_res(tvbuff_t *tvb, proto_tree *tree, diam_sub_dis_t *diam_sub_dis)
+{
+	proto_item *pi;
+
+	if (tree) {
+		pi = proto_tree_add_item(tree, hf_diameter_other_vendor_exp_res, tvb, 0, 4, ENC_BIG_ENDIAN);
+		diam_sub_dis->avp_str = (char *)wmem_alloc(wmem_packet_scope(), ITEM_LABEL_LENGTH+1);
+		proto_item_fill_label(PITEM_FINFO(pi), diam_sub_dis->avp_str);
+		diam_sub_dis->avp_str = strstr(diam_sub_dis->avp_str,": ")+2;
+	}
 }
 
 /* From RFC 3162 section 2.3 */
@@ -770,7 +785,12 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 		&& (diam_sub_dis_inf->vendor_id != VENDOR_THE3GPP))
 	{
 		/* call subdissector */
-		dissector_try_uint_new(diameter_expr_result_vnd_table, diam_sub_dis_inf->vendor_id, subtvb, c->pinfo, avp_tree, FALSE, diam_sub_dis_inf);
+		if (!dissector_try_uint_new(diameter_expr_result_vnd_table, diam_sub_dis_inf->vendor_id,
+					    subtvb, c->pinfo, avp_tree, FALSE, diam_sub_dis_inf)) {
+			/* No subdissector for this vendor ID, use the generic one */
+			dissect_diameter_other_vendor_exp_res(subtvb, avp_tree, diam_sub_dis_inf);
+		}
+
 		if (diam_sub_dis_inf->avp_str) {
 			proto_item_append_text(avp_item," val=%s", diam_sub_dis_inf->avp_str);
 		}
@@ -2200,9 +2220,10 @@ real_proto_register_diameter(void)
 	    FT_IPv6, BASE_NONE, NULL, 0, "This field is present only if the prefix length is 128", HFILL }},
 	{ &hf_diameter_3gpp2_exp_res,
 		{ "Experimental-Result-Code", "diameter.3gpp2.exp_res",
-		FT_UINT32, BASE_DEC, VALS(diameter_3gpp2_exp_res_vals), 0x0,	NULL, HFILL }
-		},
-
+		FT_UINT32, BASE_DEC, VALS(diameter_3gpp2_exp_res_vals), 0x0,	NULL, HFILL }},
+	{ &hf_diameter_other_vendor_exp_res,
+		{ "Experimental-Result-Code", "diameter.other_vendor.Experimental-Result-Code",
+		FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }}
 	};
 
 	gint *ett_base[] = {
