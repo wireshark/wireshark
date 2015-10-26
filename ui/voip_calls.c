@@ -291,6 +291,10 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
     tapinfo->rtp_stream_list = NULL;
 
     if (!tapinfo->h245_labels) {
+        /*
+         * XXX - given that we set this in fff, will this ever be
+         * the case?
+         */
         tapinfo->h245_labels = g_new0(h245_labels_t, 1);
     } else {
         memset(tapinfo->h245_labels, 0, sizeof(h245_labels_t));
@@ -2217,6 +2221,8 @@ void
 h245dg_calls_init_tap(voip_calls_tapinfo_t *tap_id_base)
 {
     GString *error_string;
+
+    tap_id_base->h245_labels = g_new0(h245_labels_t, 1);
 
     error_string = register_tap_listener("h245dg", tap_base_to_id(tap_id_base, tap_id_offset_h245dg_), NULL,
             0,
