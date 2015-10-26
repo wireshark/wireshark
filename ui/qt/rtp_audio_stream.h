@@ -48,6 +48,8 @@ class RtpAudioStream : public QObject
 {
     Q_OBJECT
 public:
+    enum TimingMode { JitterBuffer, RtpTimestamp, Uninterrupted };
+
     explicit RtpAudioStream(QObject *parent, struct _rtp_stream_info *rtp_stream);
     ~RtpAudioStream();
     bool isMatch(const struct _rtp_stream_info *rtp_stream) const;
@@ -88,12 +90,54 @@ public:
      */
     const QVector<double> outOfSequenceSamples(int y_offset = 0);
 
+    /**
+     * @brief Return a list of jitter dropped timestamps.
+     * @return A set of timestamps suitable for passing to QCPGraph::setData.
+     */
+    const QVector<double> jitterDroppedTimestamps(bool relative = true);
+    int jitterDropped() { return jitter_drop_timestamps_.size(); }
+    /**
+     * @brief Return a list of jitter dropped samples. Y value is constant.
+     * @param y_offset Y axis offset to be used for stacking graphs.
+     * @return A set of values suitable for passing to QCPGraph::setData.
+     */
+    const QVector<double> jitterDroppedSamples(int y_offset = 0);
+
+    /**
+     * @brief Return a list of wrong timestamps.
+     * @return A set of timestamps suitable for passing to QCPGraph::setData.
+     */
+    const QVector<double> wrongTimestampTimestamps(bool relative = true);
+    int wrongTimestamps() { return wrong_timestamp_timestamps_.size(); }
+    /**
+     * @brief Return a list of wrong timestamp samples. Y value is constant.
+     * @param y_offset Y axis offset to be used for stacking graphs.
+     * @return A set of values suitable for passing to QCPGraph::setData.
+     */
+    const QVector<double> wrongTimestampSamples(int y_offset = 0);
+
+    /**
+     * @brief Return a list of inserted silence timestamps.
+     * @return A set of timestamps suitable for passing to QCPGraph::setData.
+     */
+    const QVector<double> insertedSilenceTimestamps(bool relative = true);
+    int insertedSilences() { return silence_timestamps_.size(); }
+    /**
+     * @brief Return a list of wrong timestamp samples. Y value is constant.
+     * @param y_offset Y axis offset to be used for stacking graphs.
+     * @return A set of values suitable for passing to QCPGraph::setData.
+     */
+    const QVector<double> insertedSilenceSamples(int y_offset = 0);
+
     quint32 nearestPacket(double timestamp, bool is_relative = true);
 
     QRgb color() { return color_; }
     void setColor(QRgb color) { color_ = color; }
 
     QAudio::State outputState() const;
+
+    void setJitterBufferSize(int jitter_buffer_size) { jitter_buffer_size_ = jitter_buffer_size; }
+    void setTimingMode(TimingMode timing_mode) { timing_mode_ = timing_mode; }
 
 signals:
     void startedPlaying();
@@ -114,7 +158,6 @@ private:
     quint32 ssrc_;
 
     QVector<struct _rtp_packet *>rtp_packets_;
-    int last_sequence_;
     QTemporaryFile *tempfile_;
     struct _GHashTable *decoders_hash_;
     QList<const struct _rtp_stream_info *>rtp_streams_;
@@ -130,8 +173,16 @@ private:
     QMap<double, quint32> packet_timestamps_;
     QVector<qint16> visual_samples_;
     QVector<double> out_of_seq_timestamps_;
+    QVector<double> jitter_drop_timestamps_;
+    QVector<double> wrong_timestamp_timestamps_;
+    QVector<double> silence_timestamps_;
     qint16 max_sample_val_;
     QRgb color_;
+
+    int jitter_buffer_size_;
+    TimingMode timing_mode_;
+
+    void writeSilence(int samples);
 
 private slots:
     void outputStateChanged();

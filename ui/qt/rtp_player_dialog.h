@@ -86,7 +86,7 @@ private slots:
     void retapPackets();
     /** Clear, decode, and redraw each stream.
      */
-    void rescanPackets(bool rescale_axes = true);
+    void rescanPackets(bool rescale_axes = false);
     void updateWidgets();
     void graphClicked(QMouseEvent *event);
     void mouseMoved(QMouseEvent *);
@@ -104,6 +104,8 @@ private slots:
     void on_actionMoveRight1_triggered();
     void on_actionGoToPacket_triggered();
     void on_streamTreeWidget_itemSelectionChanged();
+    void on_jitterSpinBox_valueChanged(double);
+    void on_timingComboBox_currentIndexChanged(int);
     void on_todCheckBox_toggled(bool checked);
     void on_buttonBox_helpRequested();
 
@@ -129,7 +131,6 @@ private:
     int getHoveredPacket();
 
 #else // QT_MULTIMEDIA_LIB
-
 private:
     Ui::RtpPlayerDialog *ui;
 #endif // QT_MULTIMEDIA_LIB
