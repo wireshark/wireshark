@@ -47,7 +47,6 @@ static const spx_int16_t visual_sample_rate_ = 1000;
 
 RtpAudioStream::RtpAudioStream(QObject *parent, _rtp_stream_info *rtp_stream) :
     QObject(parent),
-    last_sequence_(0),
     decoders_hash_(rtp_decoder_hash_table_new()),
     global_start_rel_time_(0.0),
     start_abs_offset_(0.0),
@@ -57,7 +56,9 @@ RtpAudioStream::RtpAudioStream(QObject *parent, _rtp_stream_info *rtp_stream) :
     audio_resampler_(0),
     audio_output_(0),
     max_sample_val_(1),
-    color_(0)
+    color_(0),
+    jitter_buffer_size_(50),
+    timing_mode_(RtpAudioStream::JitterBuffer)
 {
     copy_address(&src_addr_, &rtp_stream->src_addr);
     src_port_ = rtp_stream->src_port;
@@ -148,7 +149,6 @@ void RtpAudioStream::addRtpPacket(const struct _packet_info *pinfo, const struct
 
 void RtpAudioStream::reset(double start_rel_time)
 {
-    last_sequence_ = 0;
     global_start_rel_time_ = start_rel_time;
     stop_rel_time_ = start_rel_time_;
     audio_out_rate_ = 0;
@@ -156,6 +156,7 @@ void RtpAudioStream::reset(double start_rel_time)
     packet_timestamps_.clear();
     visual_samples_.clear();
     out_of_seq_timestamps_.clear();
+    jitter_drop_timestamps_.clear();
 
     if (audio_resampler_) {
         ws_codec_resampler_reset_mem(audio_resampler_);
@@ -167,22 +168,39 @@ void RtpAudioStream::reset(double start_rel_time)
 }
 
 static const int sample_bytes_ = sizeof(SAMPLE) / sizeof(char);
+/* Fix for bug 4119/5902: don't insert too many silence frames.
+ * XXX - is there a better thing to do here?
+ */
+static const int max_silence_samples_ = 240000;
 void RtpAudioStream::decode()
 {
+    if (rtp_packets_.size() < 1) return;
+
     // gtk/rtp_player.c:decode_rtp_stream
     // XXX This is more messy than it should be.
 
-    SAMPLE *decode_buff = NULL;
     gsize resample_buff_len = 0x1000;
     SAMPLE *resample_buff = (SAMPLE *) g_malloc(resample_buff_len);
-    spx_uint32_t cur_in_rate, visual_out_rate;
-    char *write_buff;
-    qint64 write_bytes;
-    unsigned channels;
-    unsigned sample_rate;
+    spx_uint32_t cur_in_rate = 0, visual_out_rate = 0;
+    char *write_buff = NULL;
+    qint64 write_bytes = 0;
+    unsigned channels = 0;
+    unsigned sample_rate = 0;
+    int last_sequence = 0;
 
-    for (int i = 0; i < rtp_packets_.size(); i++) {
-        rtp_packet_t *rtp_packet = rtp_packets_[i];
+    double rtp_time_prev = 0.0;
+    double arrive_time_prev = 0.0;
+    double pack_period = 0.0;
+    double start_time = 0.0;
+    double start_rtp_time = 0.0;
+    guint32 start_timestamp = 0;
+
+    size_t decoded_bytes_prev = 0;
+
+    for (int cur_packet = 0; cur_packet < rtp_packets_.size(); cur_packet++) {
+        SAMPLE *decode_buff = NULL;
+        // XXX The GTK+ UI updates a progress bar here.
+        rtp_packet_t *rtp_packet = rtp_packets_[cur_packet];
 
         stop_rel_time_ = start_rel_time_ + rtp_packet->arrive_offset;
         ws_codec_resampler_get_rate(visual_resampler_, &cur_in_rate, &visual_out_rate);
@@ -197,33 +215,118 @@ void RtpAudioStream::decode()
             payload_names_ << payload_name;
         }
 
+        if (cur_packet < 1) { // First packet
+            start_timestamp = rtp_packet->info->info_timestamp;
+            start_rtp_time = 0;
+            rtp_time_prev = 0;
+            last_sequence = rtp_packet->info->info_seq_num - 1;
+        }
+
         size_t decoded_bytes = decode_rtp_packet(rtp_packet, &decode_buff, decoders_hash_, &channels, &sample_rate);
-        if (decoded_bytes == 0)
-            continue;  /* Didn't decode anything */
+
+        if (decoded_bytes == 0 || sample_rate == 0) {
+            // We didn't decode anything. Clean up and prep for the next packet.
+            last_sequence = rtp_packet->info->info_seq_num;
+
+            continue;
+        }
+
+        if (audio_out_rate_ == 0) { // First non-zero wins
+            audio_out_rate_ = sample_rate;
+            RTP_STREAM_DEBUG("Audio sample rate is %u", audio_out_rate_);
+
+            // Prepend silence to match our sibling streams.
+            tempfile_->seek(0);
+            int prepend_samples = (start_rel_time_ - global_start_rel_time_) * audio_out_rate_;
+            if (prepend_samples > 0) {
+                writeSilence(prepend_samples);
+            }
+        }
+
+        if (rtp_packet->info->info_seq_num != last_sequence+1) {
+            out_of_seq_timestamps_.append(stop_rel_time_);
+        }
+        last_sequence = rtp_packet->info->info_seq_num;
+
+        double rtp_time = (double)(rtp_packet->info->info_timestamp-start_timestamp)/sample_rate - start_rtp_time;
+        double arrive_time;
+        if (timing_mode_ == Uninterrupted) {
+            arrive_time = rtp_time;
+        } else {
+            arrive_time = (double)rtp_packet->arrive_offset/1000 - start_time;
+        }
+
+        double diff = qAbs(arrive_time - rtp_time);
+        if (diff*1000 > jitter_buffer_size_ && timing_mode_ == Uninterrupted) {
+            // rtp_player.c:628
+
+            jitter_drop_timestamps_.append(stop_rel_time_);
+            RTP_STREAM_DEBUG("Packet drop by jitter buffer exceeded %f > %d", diff*1000, jitter_buffer_size_);
+
+            /* if there was a silence period (more than two packetization period) resync the source */
+            if ( (rtp_time - rtp_time_prev) > pack_period*2 ){
+                int silence_samples;
+                RTP_STREAM_DEBUG("Resync...");
+
+                silence_samples = (int)((arrive_time - arrive_time_prev)*sample_rate - decoded_bytes_prev / sample_bytes_);
+                /* Fix for bug 4119/5902: don't insert too many silence frames.
+                 * XXX - is there a better thing to do here?
+                 */
+                silence_samples = qMin(silence_samples, max_silence_samples_);
+                writeSilence(silence_samples);
+                silence_timestamps_.append(stop_rel_time_);
+
+                decoded_bytes_prev = 0;
+/* defined start_timestmp to avoid overflow in timestamp. TODO: handle the timestamp correctly */
+/* XXX: if timestamps (RTP) are missing/ignored try use packet arrive time only (see also "rtp_time") */
+                start_timestamp = rtp_packet->info->info_timestamp;
+                start_rtp_time = 0;
+                start_time = (double)rtp_packet->arrive_offset/1000;
+                rtp_time_prev = 0;
+            }
+
+        } else {
+            // rtp_player.c:664
+            /* Add silence if it is necessary */
+            int silence_samples;
+
+            if (timing_mode_ == Uninterrupted) {
+                silence_samples = 0;
+            } else {
+                silence_samples = (int)((rtp_time - rtp_time_prev)*sample_rate - decoded_bytes_prev / sample_bytes_);
+            }
+
+            if (silence_samples != 0) {
+                wrong_timestamp_timestamps_.append(stop_rel_time_);
+            }
+
+            if (silence_samples > 0) {
+                /* Fix for bug 4119/5902: don't insert too many silence frames.
+                 * XXX - is there a better thing to do here?
+                 */
+                silence_samples = qMin(silence_samples, max_silence_samples_);
+                writeSilence(silence_samples);
+                silence_timestamps_.append(stop_rel_time_);
+            }
+
+            // XXX rtp_player.c:696 adds audio here.
+
+            rtp_time_prev = rtp_time;
+            pack_period = (double) decoded_bytes / sample_bytes_ / sample_rate;
+            decoded_bytes_prev = decoded_bytes;
+            arrive_time_prev = arrive_time;
+        }
+
+        // Write samples to our file.
         write_buff = (char *) decode_buff;
         write_bytes = rtp_packet->info->info_payload_len * sample_bytes_;
 
-        if (tempfile_->pos() == 0) {
-            // First packet. Let it determine our sample rate.
-            audio_out_rate_ = sample_rate;
-
-            last_sequence_ = rtp_packet->info->info_seq_num - 1;
-
-            // Prepend silence to match our sibling streams.
-            int prepend_samples = (start_rel_time_ - global_start_rel_time_) * audio_out_rate_;
-            if (prepend_samples > 0) {
-                int prepend_bytes = prepend_samples * sample_bytes_;
-                char *prepend_buff = (char *) g_malloc(prepend_bytes);
-                SAMPLE silence = 0;
-                memccpy(prepend_buff, &silence, prepend_samples, sample_bytes_);
-                tempfile_->write(prepend_buff, prepend_bytes);
-            }
-        } else if (audio_out_rate_ != sample_rate) {
+        if (audio_out_rate_ != sample_rate) {
             // Resample the audio to match our previous output rate.
             if (!audio_resampler_) {
                 audio_resampler_ = ws_codec_resampler_init(1, sample_rate, audio_out_rate_, 10, NULL);
                 ws_codec_resampler_skip_zeros(audio_resampler_);
-                // RTP_STREAM_DEBUG("Started resampling from %u to (out) %u Hz.", sample_rate, audio_out_rate_);
+                RTP_STREAM_DEBUG("Started resampling from %u to (out) %u Hz.", sample_rate, audio_out_rate_);
             } else {
                 spx_uint32_t audio_out_rate;
                 ws_codec_resampler_get_rate(audio_resampler_, &cur_in_rate, &audio_out_rate);
@@ -232,7 +335,7 @@ void RtpAudioStream::decode()
                 if (sample_rate != cur_in_rate) {
                     ws_codec_resampler_set_rate(audio_resampler_, sample_rate, audio_out_rate);
                     ws_codec_resampler_set_rate(visual_resampler_, sample_rate, visual_out_rate);
-                    // RTP_STREAM_DEBUG("Changed input rate from %u to %u Hz. Out is %u.", cur_in_rate, sample_rate, audio_out_rate_);
+                    RTP_STREAM_DEBUG("Changed input rate from %u to %u Hz. Out is %u.", cur_in_rate, sample_rate, audio_out_rate_);
                 }
             }
             spx_uint32_t in_len = (spx_uint32_t)rtp_packet->info->info_payload_len;
@@ -247,12 +350,6 @@ void RtpAudioStream::decode()
             write_buff = (char *) decode_buff;
             write_bytes = out_len * sample_bytes_;
         }
-
-        if (rtp_packet->info->info_seq_num != last_sequence_+1) {
-            out_of_seq_timestamps_.append(stop_rel_time_);
-            // XXX Add silence to tempfile_ and visual_samples_
-        }
-        last_sequence_ = rtp_packet->info->info_seq_num;
 
         // Write the decoded, possibly-resampled audio to our temp file.
         tempfile_->write(write_buff, write_bytes);
@@ -328,8 +425,71 @@ const QVector<double> RtpAudioStream::outOfSequenceTimestamps(bool relative)
 const QVector<double> RtpAudioStream::outOfSequenceSamples(int y_offset)
 {
     QVector<double> adj_samples;
-    double scaled_offset = y_offset * stack_offset_;
+    double scaled_offset = y_offset * stack_offset_;  // XXX Should be different for seq, jitter, wrong & silence
     for (int i = 0; i < out_of_seq_timestamps_.size(); i++) {
+        adj_samples.append(scaled_offset);
+    }
+    return adj_samples;
+}
+
+const QVector<double> RtpAudioStream::jitterDroppedTimestamps(bool relative)
+{
+    if (relative) return jitter_drop_timestamps_;
+
+    QVector<double> adj_timestamps;
+    for (int i = 0; i < jitter_drop_timestamps_.size(); i++) {
+        adj_timestamps.append(jitter_drop_timestamps_[i] + start_abs_offset_);
+    }
+    return adj_timestamps;
+}
+
+const QVector<double> RtpAudioStream::jitterDroppedSamples(int y_offset)
+{
+    QVector<double> adj_samples;
+    double scaled_offset = y_offset * stack_offset_; // XXX Should be different for seq, jitter, wrong & silence
+    for (int i = 0; i < jitter_drop_timestamps_.size(); i++) {
+        adj_samples.append(scaled_offset);
+    }
+    return adj_samples;
+}
+
+const QVector<double> RtpAudioStream::wrongTimestampTimestamps(bool relative)
+{
+    if (relative) return wrong_timestamp_timestamps_;
+
+    QVector<double> adj_timestamps;
+    for (int i = 0; i < wrong_timestamp_timestamps_.size(); i++) {
+        adj_timestamps.append(wrong_timestamp_timestamps_[i] + start_abs_offset_);
+    }
+    return adj_timestamps;
+}
+
+const QVector<double> RtpAudioStream::wrongTimestampSamples(int y_offset)
+{
+    QVector<double> adj_samples;
+    double scaled_offset = y_offset * stack_offset_; // XXX Should be different for seq, jitter, wrong & silence
+    for (int i = 0; i < wrong_timestamp_timestamps_.size(); i++) {
+        adj_samples.append(scaled_offset);
+    }
+    return adj_samples;
+}
+
+const QVector<double> RtpAudioStream::insertedSilenceTimestamps(bool relative)
+{
+    if (relative) return silence_timestamps_;
+
+    QVector<double> adj_timestamps;
+    for (int i = 0; i < silence_timestamps_.size(); i++) {
+        adj_timestamps.append(silence_timestamps_[i] + start_abs_offset_);
+    }
+    return adj_timestamps;
+}
+
+const QVector<double> RtpAudioStream::insertedSilenceSamples(int y_offset)
+{
+    QVector<double> adj_samples;
+    double scaled_offset = y_offset * stack_offset_;  // XXX Should be different for seq, jitter, wrong & silence
+    for (int i = 0; i < silence_timestamps_.size(); i++) {
         adj_samples.append(scaled_offset);
     }
     return adj_samples;
@@ -383,6 +543,23 @@ void RtpAudioStream::stopPlaying()
         audio_output_ = NULL;
     }
     emit finishedPlaying();
+}
+
+void RtpAudioStream::writeSilence(int samples)
+{
+    if (samples < 1 || audio_out_rate_ == 0) return;
+
+    unsigned silence_bytes = samples * sample_bytes_;
+    char *silence_buff = (char *) g_malloc(silence_bytes);
+    SAMPLE silence = 0;
+
+    RTP_STREAM_DEBUG("Writing %u silence samples", samples);
+    memccpy(silence_buff, &silence, samples, sample_bytes_);
+    tempfile_->write(silence_buff, silence_bytes);
+    g_free(silence_buff);
+
+    QVector<qint16> visual_fill(samples * visual_sample_rate_ / audio_out_rate_, 0);
+    visual_samples_ += visual_fill;
 }
 
 void RtpAudioStream::outputStateChanged()

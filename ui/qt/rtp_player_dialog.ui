@@ -164,9 +164,12 @@
       </widget>
      </item>
      <item>
-      <widget class="QDoubleSpinBox" name="doubleSpinBox">
+      <widget class="QDoubleSpinBox" name="jitterSpinBox">
        <property name="toolTip">
         <string>The simulated jitter buffer in milliseconds.</string>
+       </property>
+       <property name="decimals">
+        <number>0</number>
        </property>
        <property name="maximum">
         <double>500.000000000000000</double>
@@ -200,7 +203,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboBox">
+      <widget class="QComboBox" name="timingComboBox">
        <property name="toolTip">
         <string>&lt;strong&gt;Jitter Buffer&lt;/strong&gt;: Use jitter buffer to simulate the RTP stream as heard by the end user.
 &lt;br/&gt;
