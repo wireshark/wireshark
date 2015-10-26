@@ -1,4 +1,4 @@
-/* rtp_audio_frame.h
+/* rtp_audio_frame.cpp
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -197,8 +197,9 @@ void RtpAudioStream::decode()
             payload_names_ << payload_name;
         }
 
-        //size_t decoded_bytes =
-        decode_rtp_packet(rtp_packet, &decode_buff, decoders_hash_, &channels, &sample_rate);
+        size_t decoded_bytes = decode_rtp_packet(rtp_packet, &decode_buff, decoders_hash_, &channels, &sample_rate);
+        if (decoded_bytes == 0)
+            continue;  /* Didn't decode anything */
         write_buff = (char *) decode_buff;
         write_bytes = rtp_packet->info->info_payload_len * sample_bytes_;
 
