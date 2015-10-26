@@ -38,8 +38,6 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 
-#include <epan/oui.h>
-
 #define TURBOCELL_TYPE_BEACON_NON_POLLING  0x00
 #define TURBOCELL_TYPE_BEACON_NORMAL       0x40
 #define TURBOCELL_TYPE_BEACON_POLLING      0x80
@@ -51,17 +49,8 @@
 #define TURBOCELL_SATTELITE_MODE_DENY  0x1
 #define TURBOCELL_SATTELITE_MODE_ALLOW 0x2
 
-#define STATION(i) \
-            { &hf_turbocell_station[i], \
-            { "Station " #i , "turbocell.station", \
-            FT_ETHER, BASE_NONE, NULL, 0, \
-            "connected stations / satellites ?", HFILL } \
-        }
-
 void proto_register_turbocell(void);
 void proto_reg_handoff_turbocell(void);
-
-/* Initialize the protocol and registered fields */
 
 static int proto_turbocell = -1;
 static int proto_aggregate = -1;
@@ -73,8 +62,8 @@ static int hf_turbocell_name = -1;
 static int hf_turbocell_nwid = -1;
 static int hf_turbocell_satmode = -1;
 static int hf_turbocell_unknown = -1;
-static int hf_turbocell_timestamp  = -1;
-static int hf_turbocell_station[32]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+static int hf_turbocell_timestamp = -1;
+static int hf_turbocell_station = -1;
 static int hf_turbocell_ip = -1;
 
 static int hf_turbocell_aggregate_msdu_header_text = -1;
@@ -83,7 +72,6 @@ static int hf_turbocell_aggregate_unknown1 = -1;
 static int hf_turbocell_aggregate_unknown2 = -1;
 static int hf_turbocell_aggregate_len = -1;
 
-/* Initialize the subtree pointers */
 static gint ett_turbocell = -1;
 static gint ett_network = -1;
 static gint ett_msdu_aggregation_parent_tree = -1;
@@ -111,7 +99,8 @@ static const value_string turbocell_satmode_values[] = {
 };
 
 
-static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
     proto_item *ti, *name_item;
@@ -182,7 +171,7 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             col_append_fstr(pinfo->cinfo, COL_INFO, ", Network=\"%s\"",format_text(str_name, str_len-1));
 
             while(tvb_get_guint8(tvb, 0x34 + 8*i)==0x00 && (tvb_reported_length_remaining(tvb,0x34 + 8*i) > 6) && (i<32)) {
-                proto_tree_add_item(network_tree, hf_turbocell_station[i], tvb, 0x34+8*i, 6, ENC_NA);
+                proto_tree_add_item(network_tree, hf_turbocell_station, tvb, 0x34+8*i, 6, ENC_NA);
                 i++;
             }
 
@@ -293,10 +282,11 @@ void proto_register_turbocell(void)
             FT_STRINGZ, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
-        STATION(0),STATION(1),STATION(2),STATION(3),STATION(4),STATION(5),STATION(6),STATION(7),STATION(8),STATION(9),
-        STATION(10),STATION(11),STATION(12),STATION(13),STATION(14),STATION(15),STATION(16),STATION(17),STATION(18),STATION(19),
-        STATION(20),STATION(21),STATION(22),STATION(23),STATION(24),STATION(25),STATION(26),STATION(27),STATION(28),STATION(29),
-        STATION(30),STATION(31)
+        { &hf_turbocell_station,
+            { "Station", "turbocell.station",
+            FT_ETHER, BASE_NONE, NULL, 0,
+            "connected stations / satellites ?", HFILL },
+        }
     };
 
     static hf_register_info aggregate_fields[] = {
