@@ -601,6 +601,7 @@ static int hf_nfs4_fattr_space_freed = -1;
 static int hf_nfs4_fattr_change_attr_type = -1;
 static int hf_nfs4_ff_layout_flags = -1;
 static int hf_nfs4_ff_layout_flags_no_layoutcommit = -1;
+static int hf_nfs4_ff_layout_flags_no_io_thru_mds = -1;
 static int hf_nfs4_ff_synthetic_owner = -1;
 static int hf_nfs4_ff_synthetic_owner_group = -1;
 static int hf_nfs4_ff_bytes_completed = -1;
@@ -8986,6 +8987,7 @@ dissect_nfs4_layoutget(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 	static const int * layout_flags[] = {
 		&hf_nfs4_ff_layout_flags_no_layoutcommit,
+		&hf_nfs4_ff_layout_flags_no_io_thru_mds,
 		NULL
 	};
 
@@ -13236,6 +13238,10 @@ proto_register_nfs(void)
 		{ &hf_nfs4_ff_layout_flags_no_layoutcommit, {
 			"FLAG_NO_LAYOUTCOMMIT", "nfs.ff.layout_flags.no_layoutcommit", FT_BOOLEAN, 32,
 			TFS(&tfs_set_notset), 0x00000001, NULL, HFILL}},
+
+		{ &hf_nfs4_ff_layout_flags_no_io_thru_mds, {
+			"FLAG_NO_IO_THRU_MDS", "nfs.ff.layout_flags.no_io_thru_mds", FT_BOOLEAN, 32,
+			TFS(&tfs_set_notset), 0x00000002, NULL, HFILL}},
 
 		{ &hf_nfs4_fattr_clone_blocksize, {
 			"clone block size", "nfs.fattr4.clone_block_size", FT_UINT32, BASE_DEC,
