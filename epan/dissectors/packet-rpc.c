@@ -564,20 +564,26 @@ rpc_init_prog(int proto, guint32 prog, int ett, size_t nvers,
 				    proto_get_protocol_long_name(value->proto),
 				    versions[versidx].vers,
 				    proc->strptr);
+
+				/* Abort out if desired - but don't throw an exception here! */
 				if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
-					abort();
+					REPORT_DISSECTOR_BUG("RPC: No call handler!");
+
 				continue;
 			}
 			dissector_add_custom_table_handle("rpc.call", g_memdup(&key, sizeof(rpc_proc_info_key)),
 						new_create_dissector_handle_with_name(proc->dissect_call, value->proto_id, proc->strptr));
 
 			if (proc->dissect_reply == NULL) {
-				fprintf(stderr, "OOPS: No call handler for %s version %u procedure %s\n",
+				fprintf(stderr, "OOPS: No reply handler for %s version %u procedure %s\n",
 				    proto_get_protocol_long_name(value->proto),
 				    versions[versidx].vers,
 				    proc->strptr);
+
+				/* Abort out if desired - but don't throw an exception here! */
 				if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
-					abort();
+					REPORT_DISSECTOR_BUG("RPC: No reply handler!");
+
 				continue;
 			}
 			dissector_add_custom_table_handle("rpc.reply", g_memdup(&key, sizeof(rpc_proc_info_key)),
