@@ -31,6 +31,7 @@
  * - RFC 5766, formerly draft-ietf-behave-turn-16
  * - draft-ietf-behave-turn-ipv6-11
  * - RFC 3489, http://www.faqs.org/rfcs/rfc3489.html  (Addition of deprecated attributes for diagnostics purpose)
+ * - RFC 6062
  *
  * From MS (Lync)
  * MS-TURN: Traversal Using Relay NAT (TURN) Extensions http://msdn.microsoft.com/en-us/library/cc431507.aspx
@@ -168,6 +169,10 @@ typedef struct _stun_conv_info_t {
 /* Indications */
 #define SEND                    0x0006 /* draft-ietf-behave-turn-10*/
 #define DATA_IND                0x0007 /* draft-ietf-behave-turn-10*/
+/* TCP specific */
+#define CONNECT                 0x000a /* rfc6062 */
+#define CONNECTION_BIND         0x000b /* rfc6062 */
+#define CONNECTION_ATTEMPT      0x000c /* rfc6062 */
 
 
 /* Attribute Types */
@@ -204,6 +209,7 @@ typedef struct _stun_conv_info_t {
 #define PADDING                 0x0026 /* draft-ietf-behave-nat-behavior-discovery-03 */
 #define XOR_RESPONSE_TARGET     0x0027 /* draft-ietf-behave-nat-behavior-discovery-03 */
 #define XOR_REFLECTED_FROM      0x0028 /* draft-ietf-behave-nat-behavior-discovery-03 */
+#define CONNECTION_ID           0x002a /* rfc6062 */
 #define ICMP                    0x0030 /* Moved from TURN to a future I-D */
 /* Comprehension-optional range (0x8000-0xFFFF) */
 #define MS_VERSION              0x8008 /* MS-TURN */
@@ -268,14 +274,17 @@ static const value_string classes[] = {
 };
 
 static const value_string methods[] = {
-    {BINDING      , "Binding"},
-    {ALLOCATE     , "Allocate"},
-    {REFRESH      , "Refresh"},
-    {CHANNELBIND  , "Channel-Bind"},
-    {SEND          , "Send"},
-    {DATA_IND      , "Data"},
-    {CREATE_PERMISSION, "CreatePermission"},
-    {0x00          , NULL}
+    {BINDING           , "Binding"},
+    {ALLOCATE          , "Allocate"},
+    {REFRESH           , "Refresh"},
+    {SEND              , "Send"},
+    {DATA_IND          , "Data"},
+    {CREATE_PERMISSION , "CreatePermission"},
+    {CHANNELBIND       , "Channel-Bind"},
+    {CONNECT           , "Connect"},
+    {CONNECTION_BIND   , "ConnectionBind"},
+    {CONNECTION_ATTEMPT, "ConnectionAttempt"},
+    {0x00              , NULL}
 };
 
 
@@ -312,6 +321,7 @@ static const value_string attributes[] = {
     {PADDING               , "PADDING"},
     {XOR_RESPONSE_TARGET   , "XOR-RESPONSE-TARGET"},
     {XOR_REFLECTED_FROM    , "XOR-REFELECTED-FROM"},
+    {CONNECTION_ID         , "CONNECTION-ID"},
     {ICMP                  , "ICMP"},
 
     {MS_VERSION            , "MS-VERSION"},
