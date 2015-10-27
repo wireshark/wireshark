@@ -223,6 +223,8 @@ typedef struct _e_prefs {
   gboolean     gui_qt_packet_list_separator;
   gboolean     gui_packet_editor; /* Enable Packet Editor */
   elide_mode_e gui_packet_list_elide_mode;
+  gboolean     gui_packet_list_show_related;
+  gboolean     gui_packet_list_show_minimap;
   gboolean     st_enable_burstinfo;
   gboolean     st_burst_showcount;
   gint         st_burst_resolution;

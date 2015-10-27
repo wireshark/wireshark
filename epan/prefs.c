@@ -2391,6 +2391,16 @@ prefs_register_modules(void)
                        "The position of \"...\" in packet list text.",
                        (gint*)(void*)(&prefs.gui_packet_list_elide_mode), gui_packet_list_elide_mode, FALSE);
 
+    prefs_register_bool_preference(gui_layout_module, "packet_list_show_related",
+                                   "Show Related Packets",
+                                   "Show related packet indicators in the first column",
+                                   &prefs.gui_packet_list_show_related);
+
+    prefs_register_bool_preference(gui_layout_module, "packet_list_show_minimap",
+                                   "Enable Intelligent Scroll Bar",
+                                   "Show the intelligent scroll bar (a minimap of packet list colors in the scrollbar)",
+                                   &prefs.gui_packet_list_show_minimap);
+
     /* Console
      * These are preferences that can be read/written using the
      * preference module API.  These preferences still use their own
@@ -3025,6 +3035,8 @@ pre_init_prefs(void)
     prefs.gui_layout_content_3       = layout_pane_content_pbytes;
     prefs.gui_packet_editor          = FALSE;
     prefs.gui_packet_list_elide_mode = ELIDE_RIGHT;
+    prefs.gui_packet_list_show_related = TRUE;
+    prefs.gui_packet_list_show_minimap = TRUE;
 
     prefs.gui_qt_packet_list_separator = FALSE;
 
