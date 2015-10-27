@@ -153,7 +153,7 @@ public slots:
     void columnsChanged();
     void fieldsChanged(capture_file *cf);
     void applyRecentColumnWidths();
-    void elideModeChanged();
+    void preferencesChanged();
 
 private slots:
     void showHeaderMenu(QPoint pos);

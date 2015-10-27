@@ -244,6 +244,7 @@ PacketList::PacketList(QWidget *parent) :
     cap_file_(NULL),
     decode_as_(NULL),
     ctx_column_(-1),
+    overlay_timer_id_(0),
     create_near_overlay_(true),
     create_far_overlay_(true),
     capture_in_progress_(false),
@@ -258,11 +259,9 @@ PacketList::PacketList(QWidget *parent) :
     setSortingEnabled(true);
     setUniformRowHeights(true);
     setAccessibleName("Packet list");
-    setItemDelegateForColumn(0, &related_packet_delegate_);
 
     overlay_sb_ = new OverlayScrollBar(Qt::Vertical, this);
     setVerticalScrollBar(overlay_sb_);
-    overlay_timer_id_ = startTimer(overlay_update_interval_);
 
     packet_list_model_ = new PacketListModel(this, cap_file_);
     setModel(packet_list_model_);
@@ -691,11 +690,31 @@ void PacketList::applyRecentColumnWidths()
     column_state_ = header()->saveState();
 }
 
-// This sets the mode for the entire view. If we want to make this setting
-// per-column we'll either have to generalize RelatedPacketDelegate so that
-// we can set it for entire rows or create another delegate.
-void PacketList::elideModeChanged()
+void PacketList::preferencesChanged()
 {
+    // Related packet delegate
+    if (prefs.gui_packet_list_show_related) {
+        setItemDelegateForColumn(0, &related_packet_delegate_);
+    } else {
+        setItemDelegateForColumn(0, 0);
+    }
+
+    // Intelligent scroll bar (minimap)
+    if (prefs.gui_packet_list_show_minimap) {
+        if (overlay_timer_id_ == 0) {
+            overlay_timer_id_ = startTimer(overlay_update_interval_);
+        }
+    } else {
+        if (overlay_timer_id_ != 0) {
+            killTimer(overlay_timer_id_);
+            overlay_timer_id_ = 0;
+        }
+    }
+
+    // Elide mode.
+    // This sets the mode for the entire view. If we want to make this setting
+    // per-column we'll either have to generalize RelatedPacketDelegate so that
+    // we can set it for entire rows or create another delegate.
     Qt::TextElideMode elide_mode = Qt::ElideRight;
     switch (prefs.gui_packet_list_elide_mode) {
     case ELIDE_LEFT:
@@ -1325,11 +1344,13 @@ void PacketList::vScrollBarActionTriggered(int)
 const int height_multiplier_ = 7;
 void PacketList::drawNearOverlay()
 {
-    if (!cap_file_ || cap_file_->state != FILE_READ_DONE) return;
-
     if (create_near_overlay_) {
         create_near_overlay_ = false;
     }
+
+    if (!cap_file_ || cap_file_->state != FILE_READ_DONE) return;
+
+    if (!prefs.gui_packet_list_show_minimap) return;
 
     qreal dp_ratio = 1.0;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)
@@ -1411,11 +1432,13 @@ void PacketList::drawNearOverlay()
 
 void PacketList::drawFarOverlay()
 {
-    if (!cap_file_ || cap_file_->state != FILE_READ_DONE) return;
-
     if (create_far_overlay_) {
         create_far_overlay_ = false;
     }
+
+    if (!cap_file_ || cap_file_->state != FILE_READ_DONE) return;
+
+    if (!prefs.gui_packet_list_show_minimap) return;
 
     qreal dp_ratio = 1.0;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 1, 0)

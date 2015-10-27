@@ -449,7 +449,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(columnsChanged()),
             packet_list_, SLOT(columnsChanged()));
     connect(wsApp, SIGNAL(preferencesChanged()),
-            packet_list_, SLOT(elideModeChanged()));
+            packet_list_, SLOT(preferencesChanged()));
     connect(wsApp, SIGNAL(recentFilesRead()),
             this, SLOT(applyRecentPaneGeometry()));
     connect(wsApp, SIGNAL(packetDissectionChanged()),
