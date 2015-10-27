@@ -325,9 +325,6 @@ gboolean uat_fld_chk_enum(void*, const char*, unsigned, const void*, const void*
 WS_DLL_PUBLIC
 gboolean uat_fld_chk_range(void*, const char*, unsigned, const void*, const void*, char**);
 
-#define CHK_STR_IS_DECL(what) \
-gboolean uat_fld_chk_str_ ## what (void*, const char*, unsigned, const void*, const void*, char**)
-
 typedef void (*uat_cb_t)(void* uat,void* user_data);
 WS_DLL_PUBLIC
 void uat_foreach_table(uat_cb_t cb,void* user_data);
@@ -338,31 +335,22 @@ char* uat_unbinstring(const char* si, guint in_len, guint* len_p);
 char* uat_unesc(const char* si, guint in_len, guint* len_p);
 char* uat_esc(const char* buf, guint len);
 
-#ifdef __cplusplus
-#define UNUSED_PARAMETER(n)
-#else
-#define UNUSED_PARAMETER(n) n _U_
-#endif
-
 /* Some strings entirely made of ... already declared */
-WS_DLL_PUBLIC
-CHK_STR_IS_DECL(isprint);
-WS_DLL_PUBLIC
-CHK_STR_IS_DECL(isalpha);
-WS_DLL_PUBLIC
-CHK_STR_IS_DECL(isalnum);
-WS_DLL_PUBLIC
-CHK_STR_IS_DECL(isdigit);
-WS_DLL_PUBLIC
-CHK_STR_IS_DECL(isxdigit);
 
-#define CHK_STR_IS_DEF(what) \
-gboolean uat_fld_chk_str_ ## what (void* UNUSED_PARAMETER(u1), const char* strptr, guint len, const void* UNUSED_PARAMETER(u2), const void* UNUSED_PARAMETER(u3), char** err) { \
-	guint i; for (i=0;i<len;i++) { \
-		char c = strptr[i]; \
-			if (! g_ascii_ ## what(c)) { \
-				*err = g_strdup_printf("invalid char pos=%d value=%.2x",i,c); return FALSE;  } } \
-		*err = NULL; return TRUE; }
+WS_DLL_PUBLIC
+gboolean uat_fld_chk_str_isprint(void*, const char*, unsigned, const void*, const void*, char**);
+
+WS_DLL_PUBLIC
+gboolean uat_fld_chk_str_isalpha(void*, const char*, unsigned, const void*, const void*, char**);
+
+WS_DLL_PUBLIC
+gboolean uat_fld_chk_str_isalnum(void*, const char*, unsigned, const void*, const void*, char**);
+
+WS_DLL_PUBLIC
+gboolean uat_fld_chk_str_isdigit(void*, const char*, unsigned, const void*, const void*, char**);
+
+WS_DLL_PUBLIC
+gboolean uat_fld_chk_str_isxdigit(void*, const char*, unsigned, const void*, const void*, char**);
 
 
 /*
@@ -370,6 +358,12 @@ gboolean uat_fld_chk_str_ ## what (void* UNUSED_PARAMETER(u1), const char* strpt
  *   to define basic uat_fld_set_cbs, uat_fld_tostr_cbs
  *   for those elements in uat_field_t array
  */
+
+#ifdef __cplusplus
+#define UNUSED_PARAMETER(n)
+#else
+#define UNUSED_PARAMETER(n) n _U_
+#endif
 
 /*
  * CSTRING macros,
@@ -504,7 +498,6 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 
 #define UAT_FLD_HEX(basename,field_name,title,desc) \
 {#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_num_hex,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
-
 
 /*
  * ENUM macros

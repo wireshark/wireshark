@@ -747,11 +747,76 @@ char* uat_esc(const char* buf, guint len) {
 
 }
 
-CHK_STR_IS_DEF(isprint)
-CHK_STR_IS_DEF(isalpha)
-CHK_STR_IS_DEF(isalnum)
-CHK_STR_IS_DEF(isdigit)
-CHK_STR_IS_DEF(isxdigit)
+gboolean uat_fld_chk_str_isprint(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err) {
+    guint i;
+
+    for (i = 0; i < len; i++) {
+	char c = strptr[i];
+	if (! g_ascii_isprint(c)) {
+	    *err = g_strdup_printf("invalid char pos=%d value=%.2x",i,c);
+            return FALSE;
+        }
+    }
+    *err = NULL;
+    return TRUE;
+}
+
+gboolean uat_fld_chk_str_isalpha(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err) {
+    guint i;
+
+    for (i = 0; i < len; i++) {
+	char c = strptr[i];
+	if (! g_ascii_isalpha(c)) {
+	    *err = g_strdup_printf("invalid char pos=%d value=%.2x",i,c);
+            return FALSE;
+        }
+    }
+    *err = NULL;
+    return TRUE;
+}
+
+gboolean uat_fld_chk_str_isalnum(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err) {
+    guint i;
+
+    for (i = 0; i < len; i++) {
+	char c = strptr[i];
+	if (! g_ascii_isalnum(c)) {
+	    *err = g_strdup_printf("invalid char pos=%d value=%.2x",i,c);
+            return FALSE;
+        }
+    }
+    *err = NULL;
+    return TRUE;
+}
+
+gboolean uat_fld_chk_str_isdigit(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err) {
+    guint i;
+
+    for (i = 0; i < len; i++) {
+	char c = strptr[i];
+	if (! g_ascii_isdigit(c)) {
+	    *err = g_strdup_printf("invalid char pos=%d value=%.2x",i,c);
+            return FALSE;
+        }
+    }
+    *err = NULL;
+    return TRUE;
+}
+
+gboolean uat_fld_chk_str_isxdigit(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err) {
+    guint i;
+
+    for (i = 0; i < len; i++) {
+	char c = strptr[i];
+	if (! g_ascii_isxdigit(c)) {
+	    *err = g_strdup_printf("invalid char pos=%d value=%.2x",i,c);
+            return FALSE;
+        }
+    }
+    *err = NULL;
+    return TRUE;
+}
+
 
 /*
  * Editor modelines
