@@ -31,7 +31,6 @@ extern int hf_opcua_Alias;
 extern int hf_opcua_AnnotationTime;
 extern int hf_opcua_ApplicationUri;
 extern int hf_opcua_ArrayDimensions;
-extern int hf_opcua_AttributeId;
 extern int hf_opcua_AuditEntryId;
 extern int hf_opcua_AuthenticationMechanism;
 extern int hf_opcua_AvailableSequenceNumbers;

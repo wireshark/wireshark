@@ -1049,7 +1049,7 @@ void parseQueryDataDescription(proto_tree *tree, tvbuff_t *tvb, packet_info *pin
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_QueryDataDescription, &ti, "%s: QueryDataDescription", szFieldName);
   parseRelativePath(subtree, tvb, pinfo, pOffset, "RelativePath");
-  parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_AttributeId);
+  parseAttributeId(subtree, tvb, pinfo, pOffset);
   parseString(subtree, tvb, pinfo, pOffset, hf_opcua_IndexRange);
   proto_item_set_end(ti, tvb, *pOffset);
 }
@@ -1122,7 +1122,7 @@ void parseAttributeOperand(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, 
   parseNodeId(subtree, tvb, pinfo, pOffset, "NodeId");
   parseString(subtree, tvb, pinfo, pOffset, hf_opcua_Alias);
   parseRelativePath(subtree, tvb, pinfo, pOffset, "BrowsePath");
-  parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_AttributeId);
+  parseAttributeId(subtree, tvb, pinfo, pOffset);
   parseString(subtree, tvb, pinfo, pOffset, hf_opcua_IndexRange);
   proto_item_set_end(ti, tvb, *pOffset);
 }
@@ -1133,7 +1133,7 @@ void parseSimpleAttributeOperand(proto_tree *tree, tvbuff_t *tvb, packet_info *p
   parseNodeId(subtree, tvb, pinfo, pOffset, "TypeDefinitionId");
   /* Array length field ignored: NoOfBrowsePath */
   parseArrayComplex(subtree, tvb, pinfo, pOffset, "BrowsePath", "QualifiedName", parseQualifiedName, ett_opcua_array_QualifiedName);
-  parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_AttributeId);
+  parseAttributeId(subtree, tvb, pinfo, pOffset);
   parseString(subtree, tvb, pinfo, pOffset, hf_opcua_IndexRange);
   proto_item_set_end(ti, tvb, *pOffset);
 }
@@ -1174,7 +1174,7 @@ void parseReadValueId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint 
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_ReadValueId, &ti, "%s: ReadValueId", szFieldName);
   parseNodeId(subtree, tvb, pinfo, pOffset, "NodeId");
-  parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_AttributeId);
+  parseAttributeId(subtree, tvb, pinfo, pOffset);
   parseString(subtree, tvb, pinfo, pOffset, hf_opcua_IndexRange);
   parseQualifiedName(subtree, tvb, pinfo, pOffset, "DataEncoding");
   proto_item_set_end(ti, tvb, *pOffset);
@@ -1280,7 +1280,7 @@ void parseWriteValue(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_WriteValue, &ti, "%s: WriteValue", szFieldName);
   parseNodeId(subtree, tvb, pinfo, pOffset, "NodeId");
-  parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_AttributeId);
+  parseAttributeId(subtree, tvb, pinfo, pOffset);
   parseString(subtree, tvb, pinfo, pOffset, hf_opcua_IndexRange);
   parseDataValue(subtree, tvb, pinfo, pOffset, "Value");
   proto_item_set_end(ti, tvb, *pOffset);
@@ -1390,7 +1390,7 @@ void parseDataChangeFilter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, 
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_DataChangeFilter, &ti, "%s: DataChangeFilter", szFieldName);
   parseDataChangeTrigger(subtree, tvb, pinfo, pOffset);
-  parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_DeadbandType);
+  parseDeadbandType(subtree, tvb, pinfo, pOffset);
   parseDouble(subtree, tvb, pinfo, pOffset, hf_opcua_DeadbandValue);
   proto_item_set_end(ti, tvb, *pOffset);
 }

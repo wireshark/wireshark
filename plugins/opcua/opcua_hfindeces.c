@@ -33,7 +33,6 @@ int hf_opcua_Alias = -1;
 int hf_opcua_AnnotationTime = -1;
 int hf_opcua_ApplicationUri = -1;
 int hf_opcua_ArrayDimensions = -1;
-int hf_opcua_AttributeId = -1;
 int hf_opcua_AuditEntryId = -1;
 int hf_opcua_AuthenticationMechanism = -1;
 int hf_opcua_AvailableSequenceNumbers = -1;
@@ -339,7 +338,6 @@ void registerFieldTypes(int proto)
        { &hf_opcua_AnnotationTime, { "AnnotationTime", "opcua.AnnotationTime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_ApplicationUri, { "ApplicationUri", "opcua.ApplicationUri", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_ArrayDimensions, { "ArrayDimensions", "opcua.ArrayDimensions", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-       { &hf_opcua_AttributeId, { "AttributeId", "opcua.AttributeId", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_AuditEntryId, { "AuditEntryId", "opcua.AuditEntryId", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_AuthenticationMechanism, { "AuthenticationMechanism", "opcua.AuthenticationMechanism", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
        { &hf_opcua_AvailableSequenceNumbers, { "AvailableSequenceNumbers", "opcua.AvailableSequenceNumbers", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },

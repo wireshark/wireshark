@@ -522,6 +522,38 @@ void parseExceptionDeviationFormat(proto_tree *tree, tvbuff_t *tvb, packet_info 
 {
     proto_tree_add_item(tree, hf_opcua_ExceptionDeviationFormat, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
+/** AttributeId enum table */
+static const value_string g_AttributeIdTable[] = {
+    {1, "NodeId"},
+    {2, "NodeClass"},
+    {3, "BrowseName"},
+    {4, "DisplayName"},
+    {5, "Description"},
+    {6, "WriteMask"},
+    {7, "UserWriteMask"},
+    {8, "IsAbstract"},
+    {9, "Symmetric"},
+    {10, "InverseName"},
+    {11, "ContainsNoLoops"},
+    {12, "EventNotifier"},
+    {13, "Value"},
+    {14, "DataType"},
+    {15, "ValueRank"},
+    {16, "ArrayDimensions"},
+    {17, "AccessLevel"},
+    {18, "UserAccessLevel"},
+    {19, "MinimumSamplingInterval"},
+    {20, "Historizing"},
+    {21, "Executable"},
+    {22, "UserExecutable"},
+    {0, NULL}
+};
+static int hf_opcua_AttributeId = -1;
+
+void parseAttributeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint *pOffset)
+{
+    proto_tree_add_item(tree, hf_opcua_AttributeId, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset += 4;
+}
 
 /** Setup enum subtree array */
 static gint *ett[] =
@@ -645,6 +677,9 @@ void registerEnumTypes(int proto)
         },
         { &hf_opcua_ExceptionDeviationFormat,
         {  "ExceptionDeviationFormat", "opcua.ExceptionDeviationFormat", FT_UINT32, BASE_HEX,  VALS(g_ExceptionDeviationFormatTable), 0x0, NULL, HFILL }
+        },
+        { &hf_opcua_AttributeId,
+        {  "AttributeId", "opcua.AttributeId", FT_UINT32, BASE_HEX,  VALS(g_AttributeIdTable), 0x0, NULL, HFILL }
         },
     };
 
