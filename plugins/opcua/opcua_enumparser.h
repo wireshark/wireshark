@@ -51,6 +51,7 @@ extern gint ett_opcua_array_ServerState;
 extern gint ett_opcua_array_ModelChangeStructureVerbMask;
 extern gint ett_opcua_array_AxisScaleEnumeration;
 extern gint ett_opcua_array_ExceptionDeviationFormat;
+extern gint ett_opcua_array_AttributeId;
 
 void parseNodeIdType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 void parseNamingRuleType(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
@@ -80,4 +81,5 @@ void parseServerState(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint 
 void parseModelChangeStructureVerbMask(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 void parseAxisScaleEnumeration(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 void parseExceptionDeviationFormat(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
+void parseAttributeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset);
 void registerEnumTypes(int proto);
