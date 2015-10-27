@@ -484,12 +484,19 @@ void UatDialog::addRecord(bool copy_from_current)
     } else {
         for (guint col = 0; col < uat_->ncols; col++) {
             uat_field_t *field = &uat_->fields[col];
-            if (field->mode == PT_TXTMOD_ENUM) {
+            switch (field->mode) {
+            case PT_TXTMOD_ENUM:
                 guint length;
                 const char *str;
                 field->cb.tostr(rec, &str, &length, field->cbdata.tostr, field->fld_data);
                 field->cb.set(rec, str, length, field->cbdata.set, field->fld_data);
                 g_free((char*)str);
+                break;
+            case PT_TXTMOD_NONE:
+                break;
+            default:
+                field->cb.set(rec, "", 0, field->cbdata.set, field->fld_data);
+                break;
             }
         }
     }
