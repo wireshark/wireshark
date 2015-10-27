@@ -1952,7 +1952,14 @@ static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 				address_string = get_register_name_from_address(*((guint32*)wmem_array_index(gvcp_trans->addr_list, 0)), &is_custom_register);
 			}
 
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s Value=0x%08X", address_string, tvb_get_ntohl(tvb, offset));
+			if (num_registers)
+			{
+				col_append_fstr(pinfo->cinfo, COL_INFO, "%s Value=0x%08X", address_string, tvb_get_ntohl(tvb, offset));
+			}
+			else
+			{
+				col_append_fstr(pinfo->cinfo, COL_INFO, "%s", address_string);
+			}
 		}
 	}
 
