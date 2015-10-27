@@ -559,7 +559,7 @@ static const gchar *dissect_login_ip_host(proto_tree* tree, tvbuff_t* tvb, packe
 	return str;
 }
 
-static const value_string ascenddf_filtertype[] = { {0, "generic"}, {1, "ip"}, {0, NULL} };
+static const value_string ascenddf_filtertype[] = { {0, "generic"}, {1, "ipv4"}, {3, "ipv6"}, {0, NULL} };
 static const value_string ascenddf_filteror[]   = { {0, "drop"}, {1, "forward"}, {0, NULL} };
 static const value_string ascenddf_inout[]      = { {0, "out"}, {1, "in"}, {0, NULL} };
 static const value_string ascenddf_proto[]      = { {1, "icmp"}, {6, "tcp"}, {17, "udp"}, {0, NULL} };
@@ -568,51 +568,63 @@ static const value_string ascenddf_portq[]      = { {1, "lt"}, {2, "eq"}, {3, "g
 static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
 	wmem_strbuf_t *filterstr;
 	int len;
-	guint8 proto, srclen, dstlen;
-	guint32 srcip, dstip;
+	guint8 type,proto, srclen, dstlen;
+	address srcip, dstip;
 	guint16 srcport, dstport;
 	guint8 srcportq, dstportq;
-
+	guint8 iplen = 4;
 	len=tvb_reported_length(tvb);
 
-	if (len != 24) {
+	if (len != 24 && len != 48) {
 		return wmem_strdup_printf(wmem_packet_scope(), "Wrong attribute length %d", len);
 	}
 
 	filterstr=wmem_strbuf_sized_new(wmem_packet_scope(), 64, 64);
 
 	proto_tree_add_item(tree, hf_radius_ascend_data_filter, tvb, 0, -1, ENC_NA);
+	type = tvb_get_guint8(tvb, 0);
 
 	wmem_strbuf_append_printf(filterstr, "%s %s %s",
-		val_to_str(tvb_get_guint8(tvb, 0), ascenddf_filtertype, "%u"),
+		val_to_str(type, ascenddf_filtertype, "%u"),
 		val_to_str(tvb_get_guint8(tvb, 2), ascenddf_inout, "%u"),
 		val_to_str(tvb_get_guint8(tvb, 1), ascenddf_filteror, "%u"));
 
+	if (type == 3) { /* IPv6 */
+		iplen = 16;
+	}
 	proto=tvb_get_guint8(tvb, 14);
 	if (proto) {
 		wmem_strbuf_append_printf(filterstr, " %s",
 				val_to_str(proto, ascenddf_proto, "%u"));
 	}
 
-	srcip=tvb_get_ipv4(tvb, 4);
-	srclen=tvb_get_guint8(tvb, 12);
-	srcport=tvb_get_ntohs(tvb, 16);
-	srcportq=tvb_get_guint8(tvb, 20);
+	if (type == 3) { /* IPv6 */
+		TVB_SET_ADDRESS(&srcip, AT_IPv6, tvb, 4, 16);
+	} else {
+		TVB_SET_ADDRESS(&srcip, AT_IPv4, tvb, 4, 4);
+	}
+	srclen=tvb_get_guint8(tvb, 4+iplen*2);
+	srcport=tvb_get_ntohs(tvb, 9+iplen*2);
+	srcportq=tvb_get_guint8(tvb, 12+iplen*2);
 
-	if (srcip || srclen || srcportq) {
-		wmem_strbuf_append_printf(filterstr, " srcip %s/%d", tvb_ip_to_str(tvb, 4), srclen);
+	if (srclen || srcportq) {
+		wmem_strbuf_append_printf(filterstr, " srcip %s/%d", address_to_display(wmem_packet_scope(), &srcip), srclen);
 		if (srcportq)
 			wmem_strbuf_append_printf(filterstr, " srcport %s %d",
 				val_to_str(srcportq, ascenddf_portq, "%u"), srcport);
 	}
 
-	dstip=tvb_get_ipv4(tvb, 8);
-	dstlen=tvb_get_guint8(tvb, 13);
-	dstport=tvb_get_ntohs(tvb, 18);
-	dstportq=tvb_get_guint8(tvb, 21);
+	if (type == 3) { /* IPv6-*/
+		TVB_SET_ADDRESS(&dstip, AT_IPv6, tvb, 4+iplen, 16);
+	} else {
+		TVB_SET_ADDRESS(&dstip, AT_IPv4, tvb, 4+iplen, 4);
+	}
+	dstlen=tvb_get_guint8(tvb, 5+iplen*2);
+	dstport=tvb_get_ntohs(tvb, 10+iplen*2);
+	dstportq=tvb_get_guint8(tvb, 13+iplen*2);
 
-	if (dstip || dstlen || dstportq) {
-		wmem_strbuf_append_printf(filterstr, " dstip %s/%d", tvb_ip_to_str(tvb, 8), dstlen);
+	if (dstlen || dstportq) {
+		wmem_strbuf_append_printf(filterstr, " dstip %s/%d", address_to_display(wmem_packet_scope(), &dstip), dstlen);
 		if (dstportq)
 			wmem_strbuf_append_printf(filterstr, " dstport %s %d",
 				val_to_str(dstportq, ascenddf_portq, "%u"), dstport);
