@@ -26,7 +26,7 @@
      </column>
      <column>
       <property name="text">
-       <string>Label</string>
+       <string>Button Label</string>
       </property>
      </column>
      <column>

@@ -334,6 +334,8 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
         connect(save_action, SIGNAL(triggered(bool)), this, SLOT(saveFilter()));
         QAction *manage_action = bb_menu->addAction(tr("Manage Display Filters"));
         connect(manage_action, SIGNAL(triggered(bool)), this, SLOT(showFilters()));
+        QAction *expr_action = bb_menu->addAction(tr("Manage Filter Expressions"));
+        connect(expr_action, SIGNAL(triggered(bool)), this, SLOT(showExpressionPrefs()));
 
         QAction *first_filter = NULL;
         for (GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = g_list_next(df_item)) {
@@ -542,6 +544,11 @@ void DisplayFilterEdit::showFilters()
 {
     FilterDialog display_filter_dlg(window(), FilterDialog::DisplayFilter);
     display_filter_dlg.exec();
+}
+
+void DisplayFilterEdit::showExpressionPrefs()
+{
+    emit showPreferencesDialog(PreferencesDialog::ppFilterExpressions);
 }
 
 void DisplayFilterEdit::prepareFilter()

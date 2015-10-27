@@ -22,6 +22,7 @@
 #ifndef DISPLAYFILTEREDIT_H
 #define DISPLAYFILTEREDIT_H
 
+#include "preferences_dialog.h"
 #include "syntax_line_edit.h"
 
 class QEvent;
@@ -53,6 +54,7 @@ private slots:
     void saveFilter();
     void removeFilter();
     void showFilters();
+    void showExpressionPrefs();
     void prepareFilter();
 
 private:
@@ -69,6 +71,7 @@ signals:
     void popFilterSyntaxStatus();
     void pushFilterSyntaxWarning(const QString&);
     void filterPackets(QString new_filter, bool force);
+    void showPreferencesDialog(PreferencesDialog::PreferencesPane start_pane);
 };
 
 #endif // DISPLAYFILTEREDIT_H
