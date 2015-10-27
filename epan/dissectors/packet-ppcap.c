@@ -304,15 +304,13 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 		if (msg_len%16 != 0)
 		{
 
-			proto_tree_add_ipv4(ppcap_tree1, hf_ppcap_source_ip_address1, tvb, offset, msg_len, tvb_get_ipv4(tvb, offset));
+			proto_tree_add_item(ppcap_tree1, hf_ppcap_source_ip_address1, tvb, offset, msg_len, ENC_NA);
 			TVB_SET_ADDRESS(&pinfo->net_src, AT_IPv4, tvb, offset, 4);
 			copy_address_shallow(&pinfo->src, &pinfo->net_src);
 		}
 		else
 		{
-			struct e_in6_addr value;
-			tvb_get_ipv6(tvb, offset, &value);
-			proto_tree_add_ipv6(ppcap_tree1, hf_ppcap_source_ip_address2, tvb, offset, msg_len, &value);
+			proto_tree_add_item(ppcap_tree1, hf_ppcap_source_ip_address2, tvb, offset, msg_len, ENC_NA);
 			TVB_SET_ADDRESS(&pinfo->net_src, AT_IPv6, tvb, offset, 6);
 			copy_address_shallow(&pinfo->src, &pinfo->net_src);
 		}
@@ -396,16 +394,13 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 	{
 		if (msg_len%16 != 0)
 		{
-			proto_tree_add_ipv4(ppcap_tree1, hf_ppcap_destination_ip_address1, tvb, offset, msg_len, tvb_get_ipv4(tvb, offset));
+			proto_tree_add_item(ppcap_tree1, hf_ppcap_destination_ip_address1, tvb, offset, msg_len, ENC_NA);
 			TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv4, tvb, offset, 4);
 			copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 		}
 		else
 		{
-			struct e_in6_addr value;
-
-			tvb_get_ipv6(tvb, offset,&value);
-			proto_tree_add_ipv6(ppcap_tree1, hf_ppcap_destination_ip_address2, tvb, offset, msg_len, &value);
+			proto_tree_add_item(ppcap_tree1, hf_ppcap_destination_ip_address2, tvb, offset, msg_len, ENC_NA);
 			TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv6, tvb, offset, 6);
 			copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 		}
