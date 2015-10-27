@@ -73,6 +73,7 @@ any "error" symbols are shifted, if possible. */
 
 	if (!TOKEN) {
 		dfilter_fail(dfw, "Unexpected end of filter string.");
+		dfw->syntax_error = TRUE;
 		return;
 	}
 
@@ -115,6 +116,7 @@ any "error" symbols are shifted, if possible. */
 			g_assert_not_reached();
 			break;
 	}
+	dfw->syntax_error = TRUE;
 }
 
 /* When a parse fails, mark an error. This occurs after
