@@ -51,7 +51,7 @@ private:
     QLineEdit *cur_line_edit_;
     QString saved_col_string_;
 
-    void addExpression(bool enabled, const char *label, char *expression);
+    void addExpression(bool enabled, const QString label, const QString expression);
 
 private slots:
     void updateWidgets(void);

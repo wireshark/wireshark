@@ -154,7 +154,7 @@ void FilterExpressionsPreferencesFrame::keyPressEvent(QKeyEvent *evt)
     QFrame::keyPressEvent(evt);
 }
 
-void FilterExpressionsPreferencesFrame::addExpression(bool enabled, const char *label, char *expression)
+void FilterExpressionsPreferencesFrame::addExpression(bool enabled, const QString label, const QString expression)
 {
     QTreeWidgetItem *item = new QTreeWidgetItem(ui->expressionTreeWidget);
 
@@ -267,9 +267,10 @@ void FilterExpressionsPreferencesFrame::expressionEditingFinished()
     ui->expressionTreeWidget->removeItemWidget(item, expression_col_);
 }
 
+static const QString new_button_label_ = QObject::tr("My Filter");
 void FilterExpressionsPreferencesFrame::on_newToolButton_clicked()
 {
-    addExpression(true, "My Filter", NULL); //TODO : Fix Translate
+    addExpression(true, new_button_label_, QString());
 }
 
 void FilterExpressionsPreferencesFrame::on_deleteToolButton_clicked()
