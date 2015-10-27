@@ -83,15 +83,18 @@ enum {
 };
 
 typedef struct {
-	const char	*abbrev;
-	const char	*longname;
-	int		produceable_type;
-	int		sample_wtap_encap;
-	guint8		*sample_buffer;
-	int		sample_length;
-	guint8		*pseudo_buffer;
-	int		pseudo_length;
-} pkt_example;
+	const char*  abbrev;
+	const char*  longname;
+	int          produceable_type;
+	int          sample_wtap_encap;
+	guint8*      sample_buffer;
+	int          sample_length;
+	guint8*      pseudo_buffer;
+	guint        pseudo_length;
+	wtap_dumper* dump;
+	guint        produce_max_bytes;
+
+} randpkt_example;
 
 /* Ethernet, indicating ARP */
 guint8 pkt_arp[] = {
@@ -374,345 +377,191 @@ guint8 pkt_megaco[] = {
 };
 
 /* This little data table drives the whole program */
-pkt_example examples[] = {
+randpkt_example examples[] = {
 	{ "arp", "Address Resolution Protocol",
 		PKT_ARP,	WTAP_ENCAP_ETHERNET,
 		pkt_arp,	array_length(pkt_arp),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "bgp", "Border Gateway Protocol",
 		PKT_BGP,	WTAP_ENCAP_ETHERNET,
 		pkt_bgp,	array_length(pkt_bgp),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "bvlc", "BACnet Virtual Link Control",
 		PKT_BVLC,	WTAP_ENCAP_ETHERNET,
 		pkt_bvlc,	array_length(pkt_bvlc),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "dns", "Domain Name Service",
 		PKT_DNS,	WTAP_ENCAP_ETHERNET,
 		pkt_dns,	array_length(pkt_dns),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "eth", "Ethernet",
 		PKT_ETHERNET,	WTAP_ENCAP_ETHERNET,
 		NULL,		0,
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "fddi", "Fiber Distributed Data Interface",
 		PKT_FDDI,	WTAP_ENCAP_FDDI,
 		NULL,		0,
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "giop", "General Inter-ORB Protocol",
 		PKT_GIOP,	WTAP_ENCAP_ETHERNET,
 		pkt_giop,	array_length(pkt_giop),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "icmp", "Internet Control Message Protocol",
 		PKT_ICMP,	WTAP_ENCAP_ETHERNET,
 		pkt_icmp,	array_length(pkt_icmp),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "ip", "Internet Protocol",
 		PKT_IP,		WTAP_ENCAP_ETHERNET,
 		pkt_ip,		array_length(pkt_ip),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "llc", "Logical Link Control",
 		PKT_LLC,	WTAP_ENCAP_TOKEN_RING,
 		pkt_llc,	array_length(pkt_llc),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "m2m", "WiMAX M2M Encapsulation Protocol",
 		PKT_M2M,	WTAP_ENCAP_ETHERNET,
 		pkt_m2m,	array_length(pkt_m2m),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "megaco", "MEGACO",
 		PKT_MEGACO,	WTAP_ENCAP_ETHERNET,
 		pkt_megaco,	array_length(pkt_megaco),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "nbns", "NetBIOS-over-TCP Name Service",
 		PKT_NBNS,	WTAP_ENCAP_ETHERNET,
 		pkt_nbns,	array_length(pkt_nbns),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "ncp2222", "NetWare Core Protocol",
 		PKT_NCP2222,	WTAP_ENCAP_TOKEN_RING,
 		pkt_ncp2222,	array_length(pkt_ncp2222),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "sctp", "Stream Control Transmission Protocol",
 		PKT_SCTP,	WTAP_ENCAP_ETHERNET,
 		pkt_sctp,	array_length(pkt_sctp),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "syslog", "Syslog message",
 		PKT_SYSLOG,	WTAP_ENCAP_ETHERNET,
 		pkt_syslog,	array_length(pkt_syslog),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "tds", "TDS NetLib",
 		PKT_TDS,	WTAP_ENCAP_ETHERNET,
 		pkt_tds,	array_length(pkt_tds),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "tcp", "Transmission Control Protocol",
 		PKT_TCP,	WTAP_ENCAP_TOKEN_RING,
 		pkt_tcp,	array_length(pkt_tcp),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "tr",	 "Token-Ring",
 		PKT_TR,		WTAP_ENCAP_TOKEN_RING,
 		NULL,		0,
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "udp", "User Datagram Protocol",
 		PKT_UDP,	WTAP_ENCAP_ETHERNET,
 		pkt_udp,	array_length(pkt_udp),
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "usb", "Universal Serial Bus",
 		PKT_USB,	WTAP_ENCAP_USB,
 		NULL,		0,
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 	{ "usb-linux", "Universal Serial Bus with Linux specific header",
 		PKT_USB_LINUX,	WTAP_ENCAP_USB_LINUX,
 		NULL,		0,
-		NULL,		0 },
+		NULL,		0,
+		NULL,		1000,
+	},
 
 };
 
-
-
-static int parse_type(char *string);
-static void usage(gboolean is_error);
-static void seed(void);
-
-static pkt_example* find_example(int type);
-
-int
-main(int argc, char **argv)
-{
-
-	wtap_dumper		*dump;
-	struct wtap_pkthdr	pkthdr;
-	union wtap_pseudo_header *ps_header = &pkthdr.pseudo_header;
-	int 			i, j, len_this_pkt, len_random, err;
-	gchar                   *err_info;
-	guint8			buffer[65536];
-
-	int			opt;
-
-	int			produce_count = 1000; /* number of pkts to produce */
-	int			produce_type = PKT_ETHERNET;
-	char			*produce_filename = NULL;
-	int			produce_max_bytes = 5000;
-	pkt_example		*example;
-DIAG_OFF(cast-qual)
-	static const struct option long_options[] = {
-		{(char *)"help", no_argument, NULL, 'h'},
-		{0, 0, 0, 0 }
-	};
-DIAG_ON(cast-qual)
-
-#ifdef _WIN32
-	arg_list_utf_16to8(argc, argv);
-	create_app_running_mutex();
-#endif /* _WIN32 */
-
-	while ((opt = getopt_long(argc, argv, "b:c:ht:", long_options, NULL)) != -1) {
-		switch (opt) {
-			case 'b':	/* max bytes */
-				produce_max_bytes = atoi(optarg);
-				if (produce_max_bytes > 65536) {
-					fprintf(stderr,
-					    "randpkt: Max bytes is 65536\n");
-					exit(1);
-				}
-				break;
-
-			case 'c':	/* count */
-				produce_count = atoi(optarg);
-				break;
-
-			case 't':	/* type of packet to produce */
-				produce_type = parse_type(optarg);
-				break;
-
-			case 'h':
-				usage(FALSE);
-				break;
-			default:
-				usage(TRUE);
-				break;
-		}
-	}
-
-	/* any more command line parameters? */
-	if (argc > optind) {
-		produce_filename = argv[optind];
-	}
-	else {
-		usage(TRUE);
-	}
-
-	example = find_example(produce_type);
-
-
-	dump = wtap_dump_open(produce_filename, WTAP_FILE_TYPE_SUBTYPE_PCAP,
-		example->sample_wtap_encap, produce_max_bytes, FALSE /* compressed */, &err);
-	if (!dump) {
-		fprintf(stderr,
-		    "randpkt: Error writing to %s\n", produce_filename);
-		exit(2);
-	}
-
-	seed();
-
-	/* reduce max_bytes by # of bytes already in sample */
-	if (produce_max_bytes <= example->sample_length) {
-		fprintf(stderr,
-		    "randpkt: Sample packet length is %d, which is greater than or equal to\n",
-		    example->sample_length);
-		fprintf(stderr, "your requested max_bytes value of %d\n",
-		    produce_max_bytes);
-		exit(1);
-	}
-	else {
-		produce_max_bytes -= example->sample_length;
-	}
-
-	memset(&pkthdr, 0, sizeof(pkthdr));
-	memset(buffer, 0, sizeof(buffer));
-
-	pkthdr.rec_type = REC_TYPE_PACKET;
-	pkthdr.presence_flags = WTAP_HAS_TS;
-	pkthdr.pkt_encap = example->sample_wtap_encap;
-
-	/* Load the sample pseudoheader into our pseudoheader buffer */
-	if (example->pseudo_buffer)
-		memcpy(ps_header, example->pseudo_buffer, example->pseudo_length);
-
-	/* Load the sample into our buffer */
-	if (example->sample_buffer)
-		memcpy(&buffer[0], example->sample_buffer, example->sample_length);
-
-	/* Produce random packets */
-	for (i = 0; i < produce_count; i++) {
-		if (produce_max_bytes > 0) {
-			len_random = (rand() % produce_max_bytes + 1);
-		}
-		else {
-			len_random = 0;
-		}
-
-		len_this_pkt = example->sample_length + len_random;
-
-		pkthdr.caplen = len_this_pkt;
-		pkthdr.len = len_this_pkt;
-		pkthdr.ts.secs = i; /* just for variety */
-
-		for (j = example->pseudo_length; j < (int) sizeof(*ps_header); j++) {
-			((guint8*)ps_header)[j] = (rand() % 0x100);
-		}
-
-		for (j = example->sample_length; j < len_this_pkt; j++) {
-			/* Add format strings here and there */
-			if ((int) (100.0*rand()/(RAND_MAX+1.0)) < 3 && j < (len_random - 3)) {
-				memcpy(&buffer[j], "%s", 3);
-				j += 2;
-			} else {
-				buffer[j] = (rand() % 0x100);
-			}
-		}
-
-		/* XXX - report errors! */
-		if (!wtap_dump(dump, &pkthdr, &buffer[0], &err, &err_info)) {
-			if (err_info != NULL)
-				g_free(err_info);
-		}
-	}
-
-	wtap_dump_close(dump, &err);
-
-	return 0;
-
-}
-
-/* Print usage statement and exit program */
-static void
-usage(gboolean is_error)
-{
-	FILE 	*output;
-	int	 num_entries = array_length(examples);
-	int	 i;
-
-	if (!is_error) {
-		output = stdout;
-	}
-	else {
-		output = stderr;
-	}
-
-	fprintf(output, "Usage: randpkt [-b maxbytes] [-c count] [-t type] filename\n");
-	fprintf(output, "Default max bytes (per packet) is 5000\n");
-	fprintf(output, "Default count is 1000.\n");
-	fprintf(output, "Types:\n");
-
-	for (i = 0; i < num_entries; i++) {
-		fprintf(output, "\t%-16s%s\n", examples[i].abbrev, examples[i].longname);
-	}
-
-	fprintf(output, "\n");
-
-	exit(is_error ? 1 : 0);
-}
-
 /* Parse command-line option "type" and return enum type */
 static
-int parse_type(char *string)
+int randpkt_parse_type(char *string)
 {
 	int	num_entries = array_length(examples);
 	int	i;
 
+	/* Called with NULL, choose a random packet */
+	if (!string) {
+		return examples[rand() % num_entries].produceable_type;
+	}
+
 	for (i = 0; i < num_entries; i++) {
-		if (strcmp(examples[i].abbrev, string) == 0) {
+		if (g_strcmp0(examples[i].abbrev, string) == 0) {
 			return examples[i].produceable_type;
 		}
 	}
 
 	/* Complain */
 	fprintf(stderr, "randpkt: Type %s not known.\n", string);
-	exit(1);
+	return -1;
 }
 
-/* Find pkt_example record and return pointer to it */
-static
-pkt_example* find_example(int type)
-{
-	int	num_entries = array_length(examples);
-	int	i;
-
-	for (i = 0; i < num_entries; i++) {
-		if (examples[i].produceable_type == type) {
-			return &examples[i];
-		}
-	}
-
-	fprintf(stderr,
-	    "randpkt: Internal error. Type %d has no entry in examples table.\n",
-	    type);
-	exit(1);
-}
+static void usage(gboolean is_error);
 
 /* Seed the random-number generator */
 void
-seed(void)
+randpkt_seed(void)
 {
 	unsigned int	randomness;
 	time_t		now;
@@ -762,6 +611,261 @@ fallback:
 	randomness = (unsigned int) now;
 
 	srand(randomness);
+}
+
+static randpkt_example* randpkt_find_example(int type);
+
+void randpkt_example_init(randpkt_example* example, char* produce_filename, int produce_max_bytes)
+{
+	int err;
+
+	example->dump = wtap_dump_open(produce_filename, WTAP_FILE_TYPE_SUBTYPE_PCAP,
+		example->sample_wtap_encap, produce_max_bytes, FALSE /* compressed */, &err);
+	if (!example->dump) {
+		fprintf(stderr, "randpkt: Error writing to %s\n", produce_filename);
+		exit(2);
+	}
+
+	/* reduce max_bytes by # of bytes already in sample */
+	if (produce_max_bytes <= example->sample_length) {
+		fprintf(stderr, "randpkt: Sample packet length is %d, which is greater than "
+			"or equal to\n", example->sample_length);
+		fprintf(stderr, "your requested max_bytes value of %d\n", produce_max_bytes);
+		exit(1);
+	} else {
+		example->produce_max_bytes -= example->sample_length;
+	}
+}
+
+void randpkt_example_close(randpkt_example* example)
+{
+	int err;
+	wtap_dump_close(example->dump, &err);
+}
+
+void randpkt_loop(randpkt_example* example, guint64 produce_count)
+{
+	guint i;
+	int j;
+	int err;
+	int len_random;
+	int len_this_pkt;
+	gchar* err_info;
+	union wtap_pseudo_header* ps_header;
+	guint8 buffer[65536];
+	struct wtap_pkthdr* pkthdr;
+
+	pkthdr = g_new0(struct wtap_pkthdr, 1);
+
+	pkthdr->rec_type = REC_TYPE_PACKET;
+	pkthdr->presence_flags = WTAP_HAS_TS;
+	pkthdr->pkt_encap = example->sample_wtap_encap;
+
+	memset(pkthdr, 0, sizeof(struct wtap_pkthdr));
+	memset(buffer, 0, sizeof(buffer));
+
+	ps_header = &pkthdr->pseudo_header;
+
+	/* Load the sample pseudoheader into our pseudoheader buffer */
+	if (example->pseudo_buffer)
+		memcpy(ps_header, example->pseudo_buffer, example->pseudo_length);
+
+	/* Load the sample into our buffer */
+	if (example->sample_buffer)
+		memcpy(buffer, example->sample_buffer, example->sample_length);
+
+	/* Produce random packets */
+	for (i = 0; i < produce_count; i++) {
+		if (example->produce_max_bytes > 0) {
+			len_random = (rand() % example->produce_max_bytes + 1);
+		}
+		else {
+			len_random = 0;
+		}
+
+		len_this_pkt = example->sample_length + len_random;
+
+		pkthdr->caplen = len_this_pkt;
+		pkthdr->len = len_this_pkt;
+		pkthdr->ts.secs = i; /* just for variety */
+
+		for (j = example->pseudo_length; j < (int) sizeof(*ps_header); j++) {
+			((guint8*)ps_header)[j] = (rand() % 0x100);
+		}
+
+		for (j = example->sample_length; j < len_this_pkt; j++) {
+			/* Add format strings here and there */
+			if ((int) (100.0*rand()/(RAND_MAX+1.0)) < 3 && j < (len_random - 3)) {
+				memcpy(&buffer[j], "%s", 3);
+				j += 2;
+			} else {
+				buffer[j] = (rand() % 0x100);
+			}
+		}
+
+		/* XXX - report errors! */
+		if (!wtap_dump(example->dump, pkthdr, buffer, &err, &err_info)) {
+			if (err_info != NULL)
+				g_free(err_info);
+		}
+	}
+
+	g_free(pkthdr);
+}
+
+int
+main(int argc, char **argv)
+{
+	int				opt;
+	int				produce_type = -1;
+	char			*produce_filename = NULL;
+	int				produce_max_bytes = 5000;
+	int				produce_count = 1000;
+	randpkt_example	*example;
+	guint8*			type = NULL;
+	int 			allrandom = FALSE;
+	wtap_dumper		*savedump;
+DIAG_OFF(cast-qual)
+	static const struct option long_options[] = {
+		{(char *)"help", no_argument, NULL, 'h'},
+		{0, 0, 0, 0 }
+	};
+DIAG_ON(cast-qual)
+
+#ifdef _WIN32
+	arg_list_utf_16to8(argc, argv);
+	create_app_running_mutex();
+#endif /* _WIN32 */
+
+	while ((opt = getopt_long(argc, argv, "b:c:ht:r", long_options, NULL)) != -1) {
+		switch (opt) {
+			case 'b':	/* max bytes */
+				produce_max_bytes = atoi(optarg);
+				if (produce_max_bytes > 65536) {
+					fprintf(stderr, "randpkt: Max bytes is 65536\n");
+					return 1;
+				}
+				break;
+
+			case 'c':	/* count */
+				produce_count = atoi(optarg);
+				break;
+
+			case 't':	/* type of packet to produce */
+				type = g_strdup(optarg);
+				break;
+
+			case 'h':
+				usage(FALSE);
+				break;
+
+			case 'r':
+				allrandom = TRUE;
+				break;
+
+			default:
+				usage(TRUE);
+				break;
+		}
+	}
+
+	/* any more command line parameters? */
+	if (argc > optind) {
+		produce_filename = argv[optind];
+	}
+	else {
+		usage(TRUE);
+	}
+
+	randpkt_seed();
+
+	if (!allrandom) {
+		produce_type = randpkt_parse_type(type);
+		g_free(type);
+
+		example = randpkt_find_example(produce_type);
+		if (!example)
+			return 1;
+
+		randpkt_example_init(example, produce_filename, produce_max_bytes);
+		randpkt_loop(example, produce_count);
+		randpkt_example_close(example);
+	} else {
+		if (type) {
+			fprintf(stderr, "Can't set type in random mode\n");
+			return 2;
+		}
+
+		produce_type = randpkt_parse_type(NULL);
+		example = randpkt_find_example(produce_type);
+		if (!example)
+			return 1;
+		randpkt_example_init(example, produce_filename, produce_max_bytes);
+
+		while (produce_count-- > 0) {
+			randpkt_loop(example, 1);
+			produce_type = randpkt_parse_type(NULL);
+
+			savedump = example->dump;
+
+			example = randpkt_find_example(produce_type);
+			if (!example)
+				return 1;
+			example->dump = savedump;
+		}
+		randpkt_example_close(example);
+	}
+	return 0;
+
+}
+
+/* Print usage statement and exit program */
+static void
+usage(gboolean is_error)
+{
+	FILE 	*output;
+	int	 num_entries = array_length(examples);
+	int	 i;
+
+	if (!is_error) {
+		output = stdout;
+	}
+	else {
+		output = stderr;
+	}
+
+	fprintf(output, "Usage: randpkt [-b maxbytes] [-c count] [-t type] [-r] filename\n");
+	fprintf(output, "Default max bytes (per packet) is 5000\n");
+	fprintf(output, "Default count is 1000.\n");
+	fprintf(output, "-r: random packet type selection\n");
+	fprintf(output, "\n");
+	fprintf(output, "Types:\n");
+
+	for (i = 0; i < num_entries; i++) {
+		fprintf(output, "\t%-16s%s\n", examples[i].abbrev, examples[i].longname);
+	}
+
+	fprintf(output, "\nIf type is not specified, a random packet will be chosen\n\n");
+
+	exit(is_error ? 1 : 0);
+}
+
+/* Find pkt_example record and return pointer to it */
+static
+randpkt_example* randpkt_find_example(int type)
+{
+	int	num_entries = array_length(examples);
+	int	i;
+
+	for (i = 0; i < num_entries; i++) {
+		if (examples[i].produceable_type == type) {
+			return &examples[i];
+		}
+	}
+
+	fprintf(stderr, "randpkt: Internal error. Type %d has no entry in examples table.\n",
+	    type);
+	return NULL;
 }
 
 /*
