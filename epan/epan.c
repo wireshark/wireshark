@@ -97,7 +97,7 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	  register_cb cb,
 	  gpointer client_data)
 {
-	gboolean status = TRUE;
+	volatile gboolean status = TRUE;
 
 	/* initialize memory allocation subsystem */
 	wmem_init();
