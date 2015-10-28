@@ -323,6 +323,7 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->addressEditorFrame->hide();
     main_ui_->columnEditorFrame->hide();
     main_ui_->preferenceEditorFrame->hide();
+    main_ui_->filterExpressionFrame->hide();
 
 #ifndef HAVE_LIBPCAP
     main_ui_->menuCapture->setEnabled(false);
@@ -481,6 +482,10 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(showPreferencesDialog(QString)));
     connect(main_ui_->preferenceEditorFrame, SIGNAL(showProtocolPreferences(QString)),
             this, SLOT(showPreferencesDialog(QString)));
+    connect(main_ui_->filterExpressionFrame, SIGNAL(showPreferencesDialog(PreferencesDialog::PreferencesPane)),
+            this, SLOT(showPreferencesDialog(PreferencesDialog::PreferencesPane)));
+    connect(main_ui_->filterExpressionFrame, SIGNAL(filterExpressionsChanged()),
+            this, SLOT(filterExpressionsChanged()));
 
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             main_ui_->searchFrame, SLOT(setCaptureFile(capture_file*)));

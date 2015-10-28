@@ -44,16 +44,10 @@ filter_expression_new(const gchar *label, const gchar *expr,
 	struct filter_expression *expression;
 	struct filter_expression *prev;
 
-	expression = (struct filter_expression *)g_malloc(sizeof(struct filter_expression));
-	memset(expression, '\0', sizeof(struct filter_expression));
-	expression->button = NULL;
+    expression = (struct filter_expression *)g_malloc0(sizeof(struct filter_expression));
 	expression->label = g_strdup(label);
 	expression->expression = g_strdup(expr);
 	expression->enabled = enabled;
-	expression->deleted = FALSE;
-	expression->index = 0;
-
-	expression->next = NULL;
 
 	/* Add it at the end so the button order is always the same*/
 	if (*pfilter_expression_head == NULL) {

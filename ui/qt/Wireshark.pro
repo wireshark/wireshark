@@ -231,6 +231,7 @@ FORMS += \
     extcap_options_dialog.ui \
     file_set_dialog.ui \
     filter_dialog.ui \
+    filter_expression_frame.ui \
     filter_expressions_preferences_frame.ui \
     follow_stream_dialog.ui \
     font_color_preferences_frame.ui \
@@ -316,6 +317,7 @@ HEADERS += $$HEADERS_WS_C \
     extcap_argument_file.h \
     extcap_options_dialog.h \
     filter_action.h \
+    filter_expression_frame.h \
     filter_expressions_preferences_frame.h \
     follow_stream_dialog.h \
     follow_stream_text.h \
@@ -704,6 +706,7 @@ SOURCES += \
     file_set_dialog.cpp \
     filter_action.cpp \
     filter_dialog.cpp \
+    filter_expression_frame.cpp \
     filter_expressions_preferences_frame.cpp \
     follow_stream_dialog.cpp \
     follow_stream_text.cpp \

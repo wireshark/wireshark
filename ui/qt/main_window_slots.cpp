@@ -760,13 +760,13 @@ void MainWindow::filterExpressionsChanged()
     // Recreate filter buttons
     foreach (QAction *act, main_ui_->displayFilterToolBar->actions()) {
         // Permanent actions shouldn't have data
-        if (act->property(dfe_property_).isValid() || act->isSeparator()) {
+        if (act->property(dfe_property_).isValid()) {
             main_ui_->displayFilterToolBar->removeAction(act);
             delete act;
         }
     }
 
-    bool first = true;
+    // XXX Add a context menu for removing and changing buttons.
     for (struct filter_expression *fe = *pfilter_expression_head; fe != NULL; fe = fe->next) {
         if (!fe->enabled) continue;
         QAction *dfb_action = new QAction(fe->label, main_ui_->displayFilterToolBar);
@@ -775,10 +775,6 @@ void MainWindow::filterExpressionsChanged()
         dfb_action->setProperty(dfe_property_, true);
         main_ui_->displayFilterToolBar->addAction(dfb_action);
         connect(dfb_action, SIGNAL(triggered()), this, SLOT(displayFilterButtonClicked()));
-        if (first) {
-            first = false;
-            main_ui_->displayFilterToolBar->insertSeparator(dfb_action);
-        }
     }
 }
 
@@ -1505,6 +1501,12 @@ void MainWindow::on_actionDisplayFilterExpression_triggered()
             df_combo_box_->lineEdit(), SLOT(insertFilter(const QString &)));
 
     dfe_dialog->show();
+}
+
+void MainWindow::on_actionNewDisplayFilterExpression_triggered()
+{
+    main_ui_->filterExpressionFrame->addExpression(df_combo_box_->lineEdit()->text());
+    showAccordionFrame(main_ui_->filterExpressionFrame);
 }
 
 // On Qt4 + OS X with unifiedTitleAndToolBarOnMac set it's possible to make
