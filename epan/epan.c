@@ -21,6 +21,8 @@
 
 #include "config.h"
 
+#include <stdarg.h>
+
 #ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
@@ -30,6 +32,10 @@
 #endif /* HAVE_LIBGNUTLS */
 
 #include <glib.h>
+
+#include <wsutil/report_err.h>
+
+#include <epan/exceptions.h>
 
 #include "epan-int.h"
 #include "epan.h"
@@ -85,12 +91,14 @@ epan_register_plugin_types(void)
 #endif
 }
 
-void
+gboolean
 epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_data),
 	  void (*register_all_handoffs_func)(register_cb cb, gpointer client_data),
 	  register_cb cb,
 	  gpointer client_data)
 {
+	gboolean status = TRUE;
+
 	/* initialize memory allocation subsystem */
 	wmem_init();
 
@@ -110,20 +118,42 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 #ifdef HAVE_LIBGNUTLS
 	gnutls_global_init();
 #endif
-	tap_init();
-	prefs_init();
-	expert_init();
-	packet_init();
-	proto_init(register_all_protocols_func, register_all_handoffs_func,
-	    cb, client_data);
-	packet_cache_proto_handles();
-	dfilter_init();
-	final_registration_all_protocols();
-	print_cache_field_handles();
-	expert_packet_init();
+	TRY {
+		tap_init();
+		prefs_init();
+		expert_init();
+		packet_init();
+		proto_init(register_all_protocols_func, register_all_handoffs_func,
+		    cb, client_data);
+		packet_cache_proto_handles();
+		dfilter_init();
+		final_registration_all_protocols();
+		print_cache_field_handles();
+		expert_packet_init();
 #ifdef HAVE_LUA
-	wslua_init(cb, client_data);
+		wslua_init(cb, client_data);
 #endif
+	}
+	CATCH(DissectorError) {
+		/*
+		 * This is probably a dissector, or something it calls,
+		 * calling REPORT_DISSECTOR_ERROR() in a registration
+		 * routine or something else outside the normal dissection
+		 * code path.
+		 */
+		const char *exception_message = GET_MESSAGE;
+		static const char dissector_error_nomsg[] =
+		    "Dissector writer didn't bother saying what the error was";
+
+		report_failure("Dissector bug: %s",
+			       exception_message == NULL ?
+				 dissector_error_nomsg : exception_message);
+		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+			abort();
+		status = FALSE;
+	}
+	ENDTRY;
+	return status;
 }
 
 void

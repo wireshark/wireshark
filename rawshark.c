@@ -529,7 +529,9 @@ DIAG_ON(cast-qual)
        "-G" flag, as the "-G" flag dumps information registered by the
        dissectors, and we must do it before we read the preferences, in
        case any dissectors register preferences. */
-    epan_init(register_all_protocols, register_all_protocol_handoffs, NULL, NULL);
+    if (!epan_init(register_all_protocols, register_all_protocol_handoffs,
+                   NULL, NULL))
+        return 2;
 
     prefs_p = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
                          &pf_open_errno, &pf_read_errno, &pf_path);
