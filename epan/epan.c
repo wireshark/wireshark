@@ -105,8 +105,8 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	/* initialize the GUID to name mapping table */
 	guids_init();
 
-        /* initialize name resolution (addr_resolv.c) */
-        addr_resolv_init();
+	/* initialize name resolution (addr_resolv.c) */
+	addr_resolv_init();
 
 	except_init();
 #ifdef HAVE_LIBGCRYPT
@@ -352,8 +352,8 @@ epan_dissect_fake_protocols(epan_dissect_t *edt, const gboolean fake_protocols)
 
 void
 epan_dissect_run(epan_dissect_t *edt, int file_type_subtype,
-        struct wtap_pkthdr *phdr, tvbuff_t *tvb, frame_data *fd,
-        column_info *cinfo)
+	struct wtap_pkthdr *phdr, tvbuff_t *tvb, frame_data *fd,
+	column_info *cinfo)
 {
 #ifdef HAVE_LUA
 	wslua_prime_dfilter(edt); /* done before entering wmem scope */
@@ -367,8 +367,8 @@ epan_dissect_run(epan_dissect_t *edt, int file_type_subtype,
 
 void
 epan_dissect_run_with_taps(epan_dissect_t *edt, int file_type_subtype,
-        struct wtap_pkthdr *phdr, tvbuff_t *tvb, frame_data *fd,
-        column_info *cinfo)
+	struct wtap_pkthdr *phdr, tvbuff_t *tvb, frame_data *fd,
+	column_info *cinfo)
 {
 	wmem_enter_packet_scope();
 	tap_queue_init(edt);
@@ -381,7 +381,7 @@ epan_dissect_run_with_taps(epan_dissect_t *edt, int file_type_subtype,
 
 void
 epan_dissect_file_run(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
-        tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
+	tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
 {
 #ifdef HAVE_LUA
 	wslua_prime_dfilter(edt); /* done before entering wmem scope */
@@ -395,7 +395,7 @@ epan_dissect_file_run(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 
 void
 epan_dissect_file_run_with_taps(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
-        tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
+	tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
 {
 	wmem_enter_packet_scope();
 	tap_queue_init(edt);
@@ -451,37 +451,37 @@ epan_dissect_prime_dfilter(epan_dissect_t *edt, const dfilter_t* dfcode)
 /* ----------------------- */
 const gchar *
 epan_custom_set(epan_dissect_t *edt, GSList *field_ids,
-                             gint occurrence,
-                             gchar *result,
-                             gchar *expr, const int size )
+			     gint occurrence,
+			     gchar *result,
+			     gchar *expr, const int size )
 {
-    return proto_custom_set(edt->tree, field_ids, occurrence, result, expr, size);
+	return proto_custom_set(edt->tree, field_ids, occurrence, result, expr, size);
 }
 
 void
 epan_dissect_fill_in_columns(epan_dissect_t *edt, const gboolean fill_col_exprs, const gboolean fill_fd_colums)
 {
-    col_custom_set_edt(edt, edt->pi.cinfo);
-    col_fill_in(&edt->pi, fill_col_exprs, fill_fd_colums);
+	col_custom_set_edt(edt, edt->pi.cinfo);
+	col_fill_in(&edt->pi, fill_col_exprs, fill_fd_colums);
 }
 
 gboolean
 epan_dissect_packet_contains_field(epan_dissect_t* edt,
-                                   const char *field_name)
+				   const char *field_name)
 {
-    GPtrArray* array;
-    int        field_id;
-    gboolean   contains_field;
+	GPtrArray* array;
+	int field_id;
+	gboolean contains_field;
 
-    if (!edt || !edt->tree)
-        return FALSE;
-    field_id = proto_get_id_by_filter_name(field_name);
-    if (field_id < 0)
-        return FALSE;
-    array = proto_find_finfo(edt->tree, field_id);
-    contains_field = (array->len > 0) ? TRUE : FALSE;
-    g_ptr_array_free(array, TRUE);
-    return contains_field;
+	if (!edt || !edt->tree)
+		return FALSE;
+	field_id = proto_get_id_by_filter_name(field_name);
+	if (field_id < 0)
+		return FALSE;
+	array = proto_find_finfo(edt->tree, field_id);
+	contains_field = (array->len > 0) ? TRUE : FALSE;
+	g_ptr_array_free(array, TRUE);
+	return contains_field;
 }
 
 /*
@@ -490,7 +490,7 @@ epan_dissect_packet_contains_field(epan_dissect_t* edt,
 void
 epan_get_compiled_version_info(GString *str)
 {
-        /* SNMP */
+	/* SNMP */
 	g_string_append(str, ", ");
 #ifdef HAVE_LIBSMI
 	g_string_append(str, "with SMI " SMI_VERSION_STRING);
@@ -514,7 +514,7 @@ epan_get_compiled_version_info(GString *str)
 #endif /* HAVE_GNU_ADNS */
 #endif /* HAVE_C_ARES */
 
-        /* LUA */
+	/* LUA */
 	g_string_append(str, ", ");
 #ifdef HAVE_LUA
 	g_string_append(str, "with ");
@@ -523,7 +523,7 @@ epan_get_compiled_version_info(GString *str)
 	g_string_append(str, "without Lua");
 #endif /* HAVE_LUA */
 
-        /* GnuTLS */
+	/* GnuTLS */
 	g_string_append(str, ", ");
 #ifdef HAVE_LIBGNUTLS
 	g_string_append(str, "with GnuTLS " LIBGNUTLS_VERSION);
@@ -531,7 +531,7 @@ epan_get_compiled_version_info(GString *str)
 	g_string_append(str, "without GnuTLS");
 #endif /* HAVE_LIBGNUTLS */
 
-        /* Gcrypt */
+	/* Gcrypt */
 	g_string_append(str, ", ");
 #ifdef HAVE_LIBGCRYPT
 	g_string_append(str, "with Gcrypt " GCRYPT_VERSION);
@@ -539,14 +539,14 @@ epan_get_compiled_version_info(GString *str)
 	g_string_append(str, "without Gcrypt");
 #endif /* HAVE_LIBGCRYPT */
 
-        /* Kerberos */
-        /* XXX - I don't see how to get the version number, at least for KfW */
+	/* Kerberos */
+	/* XXX - I don't see how to get the version number, at least for KfW */
 	g_string_append(str, ", ");
 #ifdef HAVE_KERBEROS
 #ifdef HAVE_MIT_KERBEROS
 	g_string_append(str, "with MIT Kerberos");
 #else
-        /* HAVE_HEIMDAL_KERBEROS */
+	/* HAVE_HEIMDAL_KERBEROS */
 	g_string_append(str, "with Heimdal Kerberos");
 #endif
 #else
@@ -573,12 +573,12 @@ _U_
 #endif
 )
 {
-        /* GnuTLS */
+	/* GnuTLS */
 #ifdef HAVE_LIBGNUTLS
 	g_string_append_printf(str, ", with GnuTLS %s", gnutls_check_version(NULL));
 #endif /* HAVE_LIBGNUTLS */
 
-        /* Gcrypt */
+	/* Gcrypt */
 #ifdef HAVE_LIBGCRYPT
 	g_string_append_printf(str, ", with Gcrypt %s", gcry_check_version(NULL));
 #endif /* HAVE_LIBGCRYPT */
