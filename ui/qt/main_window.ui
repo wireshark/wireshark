@@ -101,6 +101,9 @@
      <widget class="PreferenceEditorFrame" name="preferenceEditorFrame"/>
     </item>
     <item>
+     <widget class="FilterExpressionFrame" name="filterExpressionFrame"/>
+    </item>
+    <item>
      <widget class="QStackedWidget" name="mainStack">
       <property name="enabled">
        <bool>true</bool>
@@ -697,6 +700,12 @@
    <property name="movable">
     <bool>false</bool>
    </property>
+   <property name="iconSize">
+    <size>
+     <width>14</width>
+     <height>14</height>
+    </size>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -704,6 +713,8 @@
     <bool>true</bool>
    </attribute>
    <addaction name="actionDisplayFilterExpression"/>
+   <addaction name="separator"/>
+   <addaction name="actionNewDisplayFilterExpression"/>
   </widget>
   <widget class="QToolBar" name="wirelessToolBar">
    <property name="windowTitle">
@@ -1231,11 +1242,11 @@
    <property name="text">
     <string>As Filter</string>
    </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+C</string>
-   </property>
    <property name="toolTip">
     <string>Copy this item as a display filter</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+C</string>
    </property>
   </action>
   <action name="actionAnalyzeAAFSelected">
@@ -2797,6 +2808,21 @@
     <string>Show IEEE 802.11 wireless LAN statistics.</string>
    </property>
   </action>
+  <action name="actionNewDisplayFilterExpression">
+   <property name="icon">
+    <iconset resource="../../image/toolbar.qrc">
+     <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
+   </property>
+   <property name="text">
+    <string>Add a filter button</string>
+   </property>
+   <property name="iconText">
+    <string>Expression…</string>
+   </property>
+   <property name="toolTip">
+    <string>Add a display filter button.</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -2838,6 +2864,12 @@
    <class>AddressEditorFrame</class>
    <extends>QFrame</extends>
    <header>address_editor_frame.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FilterExpressionFrame</class>
+   <extends>QFrame</extends>
+   <header>filter_expression_frame.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

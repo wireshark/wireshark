@@ -282,6 +282,7 @@ private slots:
     void setFeaturesEnabled(bool enabled = true);
 
     void on_actionDisplayFilterExpression_triggered();
+    void on_actionNewDisplayFilterExpression_triggered();
     void displayFilterButtonClicked();
 
     // Handle FilterAction signals

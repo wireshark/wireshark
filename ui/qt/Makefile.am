@@ -174,6 +174,8 @@ file_set_dialog.$(OBJEXT): ui_file_set_dialog.h
 
 filter_dialog.$(OBJEXT): ui_filter_dialog.h
 
+filter_expression_frame.$(OBJEXT): ui_filter_expression_frame.h
+
 filter_expressions_preferences_frame.$(OBJEXT): ui_filter_expressions_preferences_frame.h
 
 follow_stream_dialog.$(OBJEXT): ui_follow_stream_dialog.h
