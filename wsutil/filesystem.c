@@ -1525,10 +1525,8 @@ int
 create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 {
     const char *pf_dir_path;
-#ifdef _WIN32
     char *pf_dir_path_copy, *pf_dir_parent_path;
     size_t pf_dir_parent_path_len;
-#endif
     ws_statb64 s_buf;
     int ret;
 
@@ -1556,23 +1554,25 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 
     pf_dir_path = get_persconffile_dir(profilename);
     if (ws_stat64(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
-#ifdef _WIN32
         /*
          * Does the parent directory of that directory
          * exist?  %APPDATA% may not exist even though
-         * %USERPROFILE% does.
+         * %USERPROFILE% does, and ~/.config might not exist
+         * even though ~ exists.
          *
          * We check for the existence of the directory
-         * by first checking whether the parent directory
-         * is just a drive letter and, if it's not, by
-         * doing a "stat()" on it.  If it's a drive letter,
-         * or if the "stat()" succeeds, we assume it exists.
+         * by doing a ws_stat64() on it (unless this
+         * is on Windows and it's just a drive letter)
+         * If it's a drive letter on Windows, or if the
+	 * ws_stat64 succeeds, we assume it exists.
          */
         pf_dir_path_copy = g_strdup(pf_dir_path);
         pf_dir_parent_path = get_dirname(pf_dir_path_copy);
         pf_dir_parent_path_len = strlen(pf_dir_parent_path);
         if (pf_dir_parent_path_len > 0
+#ifdef _WIN32
             && pf_dir_parent_path[pf_dir_parent_path_len - 1] != ':'
+#endif
             && ws_stat64(pf_dir_parent_path, &s_buf) != 0) {
             /*
              * No, it doesn't exist - make it first.
@@ -1585,9 +1585,6 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
         }
         g_free(pf_dir_path_copy);
         ret = ws_mkdir(pf_dir_path, 0755);
-#else
-        ret = ws_mkdir(pf_dir_path, 0755);
-#endif
     } else {
         /*
          * Something with that pathname exists; if it's not
