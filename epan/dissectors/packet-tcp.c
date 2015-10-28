@@ -4295,7 +4295,7 @@ dissect_tcpopt_rvbd_trpy(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                 &pinfo->src, &pinfo->dst, pinfo->ptype,
                 pinfo->srcport, pinfo->destport, 0);
         }
-        if (conversation->dissector_handle != sport_handle) {
+        if (conversation_get_dissector(conversation, pinfo->fd->num) != sport_handle) {
             conversation_set_dissector(conversation, sport_handle);
         }
     } else if (data_handle != NULL) {
@@ -4308,7 +4308,7 @@ dissect_tcpopt_rvbd_trpy(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
                 &pinfo->src, &pinfo->dst, pinfo->ptype,
                 pinfo->srcport, pinfo->destport, 0);
         }
-        if (conversation->dissector_handle != data_handle) {
+        if (conversation_get_dissector(conversation, pinfo->fd->num) != data_handle) {
             conversation_set_dissector(conversation, data_handle);
         }
     }

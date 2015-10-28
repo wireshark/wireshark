@@ -853,7 +853,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       call_dissector_with_data(zip_atp_handle, new_tvb, pinfo, tree, &aspinfo);
     else {
       /* XXX need a conversation_get_dissector function ? */
-      if (!aspinfo.reply && !conversation->dissector_handle) {
+      if (!aspinfo.reply && !conversation_get_dissector(conversation, pinfo->fd->num)) {
         dissector_handle_t sub;
 
         /* if it's a known ASP function call ASP dissector

@@ -2415,7 +2415,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                              pinfo->srcport, pinfo->destport, 0);
     }
 
-    if ((conv == NULL) || (conv->dissector_handle != l2tp_udp_handle)) {
+    if ((conv == NULL) || (conversation_get_dissector(conv, pinfo->fd->num) != l2tp_udp_handle)) {
         conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
                         pinfo->srcport, 0, NO_PORT2);
         conversation_set_dissector(conv, l2tp_udp_handle);
