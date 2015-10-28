@@ -65,7 +65,7 @@ endif()
 if(WIN32)
 	find_package(PowerShell REQUIRED)
 
-	if("${CMAKE_GENERATOR}" MATCHES "Win64")
+	if(${CMAKE_CL_64} OR "${CMAKE_GENERATOR}" MATCHES "Win64")
 		set(WIRESHARK_TARGET_PLATFORM win64)
 	elseif("${CMAKE_GENERATOR}" MATCHES "Visual Studio")
 		set(WIRESHARK_TARGET_PLATFORM win32)
