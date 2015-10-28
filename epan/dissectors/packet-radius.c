@@ -121,8 +121,8 @@ static int hf_radius_id = -1;
 static int hf_radius_code = -1;
 static int hf_radius_length = -1;
 static int hf_radius_authenticator = -1;
-static int hf_radius_authenticator_valid = -1 ;
-static int hf_radius_authenticator_invalid = -1 ;
+static int hf_radius_authenticator_valid = -1;
+static int hf_radius_authenticator_invalid = -1;
 
 static int hf_radius_chap_password = -1;
 static int hf_radius_chap_ident = -1;
@@ -143,7 +143,7 @@ static int hf_radius_3gpp_ms_tmime_zone = -1;
 
 static gint ett_radius = -1;
 static gint ett_radius_avp = -1;
-static gint ett_radius_authenticator = -1 ;
+static gint ett_radius_authenticator = -1;
 static gint ett_eap = -1;
 static gint ett_chap = -1;
 
@@ -1542,21 +1542,21 @@ valid_authenticator(tvbuff_t *tvb, guint8 request_authenticator[])
 	guint tvb_length;
 	guint8 * payload;
 
-	tvb_length = tvb_captured_length(tvb) ; /* should it be tvb_reported_length ? */
+	tvb_length = tvb_captured_length(tvb); /* should it be tvb_reported_length ? */
 
 	/* copy response into payload */
-	payload = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_length) ;
+	payload = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_length);
 
 	/* replace authenticator in reply with the one in request*/
 	memcpy(payload+4, request_authenticator, AUTHENTICATOR_LENGTH);
 
 	/* calculate MD5 hash (payload+shared_secret) */
 	md5_init(&md_ctx);
-	md5_append(&md_ctx, payload, tvb_length) ;
-	md5_append(&md_ctx, shared_secret, strlen(shared_secret)) ;
+	md5_append(&md_ctx, payload, tvb_length);
+	md5_append(&md_ctx, shared_secret, strlen(shared_secret));
 	md5_finish(&md_ctx, digest);
 
-	return !memcmp(digest, authenticator, AUTHENTICATOR_LENGTH) ;
+	return !memcmp(digest, authenticator, AUTHENTICATOR_LENGTH);
 }
 
 static int
@@ -1840,9 +1840,9 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 							/* Resonse Authenticator Validation */
 							if (validate_authenticator && *shared_secret != '\0')
 							{
-								proto_item * authenticator_tree ;
-								int valid ;
-								valid = valid_authenticator(tvb, radius_call->req_authenticator) ;
+								proto_item * authenticator_tree;
+								int valid;
+								valid = valid_authenticator(tvb, radius_call->req_authenticator);
 
 								proto_item_append_text(authenticator_item, " [%s]", valid? "correct" : "incorrect");
 								authenticator_tree = proto_item_add_subtree(authenticator_item, ett_radius_authenticator);
@@ -1854,7 +1854,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 								if (!valid)
 								{
 									/* FIXME: this information disappears when a display filter is enterred */
-									col_append_fstr(pinfo->cinfo,COL_INFO," [incorrect authenticator]") ;
+									col_append_fstr(pinfo->cinfo,COL_INFO," [incorrect authenticator]");
 								}
 							}
 						}
