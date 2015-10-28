@@ -186,6 +186,7 @@ static gint hf_hsrp2_auth_data = -1;
 static gint hf_hsrp2_active_group = -1;
 static gint hf_hsrp2_passive_group = -1;
 static gint hf_hsrp2_md5_algorithm = -1;
+static gint hf_hsrp2_md5_padding = -1;
 static gint hf_hsrp2_md5_flags = -1;
 static gint hf_hsrp2_md5_ip_address= -1;
 static gint hf_hsrp2_md5_key_id= -1;
@@ -340,7 +341,8 @@ process_hsrp_md5_tlv_sequence(tvbuff_t *tvb, proto_tree *hsrp_tree, guint offset
         md5_auth_tlv = proto_item_add_subtree(ti, ett_hsrp2_md5_auth_tlv);
         proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_algorithm, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
-        /* Skip padding field */
+        /* padding field */
+        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_padding, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset+=2;
@@ -797,6 +799,11 @@ void proto_register_hsrp(void)
                   { "MD5 Algorithm", "hsrp2.md5_algorithm",
                     FT_UINT8, BASE_DEC, VALS(hsrp2_md5_algorithm_vals), 0x0,
                     "Hash Algorithm used by this group", HFILL }},
+
+                { &hf_hsrp2_md5_padding,
+                  { "Padding", "hsrp2.md5_padding",
+                    FT_UINT8, BASE_HEX, NULL, 0x0,
+                    "Must be zero", HFILL }},
 
                 { &hf_hsrp2_md5_flags,
                   { "MD5 Flags", "hsrp2.md5_flags",
