@@ -3190,7 +3190,7 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 	gboolean lastentry = FALSE;
 	const gchar *index_str, *sub_str, *sub_index_str;
 	proto_item *psf_item;
-	proto_tree *psf_tree;
+	proto_tree *psf_tree, *psf_od_tree;
 
 
 	/* Offset is calculated simply by only applying EPL payload offset, not packet offset.
@@ -3262,12 +3262,15 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 
 			dataoffset = offset + 4;
 
+			/* add object subtree */
+			psf_od_tree = proto_tree_add_subtree(epl_tree, tvb, offset+4, 4+size, 0, NULL , "OD");
+
 			if (segmented <= EPL_ASND_SDO_CMD_SEGMENTATION_INITIATE_TRANSFER)
 			{
 				/* get SDO index value */
 				idx = tvb_get_letohs(tvb, dataoffset);
 				/* add index item */
-				psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset+4, 2, ENC_LITTLE_ENDIAN);
+				psf_item = proto_tree_add_item(psf_od_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset+4, 2, ENC_LITTLE_ENDIAN);
 				/* value to string */
 				index_str = rval_to_str_const(idx, sod_cmd_str, "unknown");
 				/* get index string value */
@@ -3306,8 +3309,11 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 
 				dataoffset += 2;
 
+				proto_item_append_text(psf_od_tree, " Idx: 0x%04X", idx);
+
 				/* get subindex offset */
 				subindex = tvb_get_guint8(tvb, dataoffset);
+				proto_item_append_text(psf_od_tree, " SubIdx: 0x%02X", subindex);
 				/* get subindex string */
 				sub_str = val_to_str_ext_const(idx, &sod_cmd_sub_str, "unknown");
 				/* get string value */
@@ -3343,7 +3349,7 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 				/* if the subindex has the value 0x00 */
 				else if(subindex == entries)
 				{
-					psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, ENC_LITTLE_ENDIAN);
+					psf_item = proto_tree_add_item(psf_od_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, ENC_LITTLE_ENDIAN);
 					proto_item_append_text(psf_item, " (NumberOfEntries)");
 				}
 				/* subindex */
@@ -3365,10 +3371,14 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 
 
 				dataoffset += 1;
-				proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_data_padding, tvb, dataoffset, 1, padding);
+				proto_tree_add_uint(psf_od_tree, hf_epl_asnd_sdo_cmd_data_padding, tvb, dataoffset, 1, padding);
 				dataoffset += 1;
 				objectcnt++;
 			}
+
+			/* size of embedded data */
+			psf_item = proto_tree_add_uint_format(psf_od_tree, hf_epl_asnd_sdo_cmd_data_size, tvb, dataoffset, size, size, "Data size: %d byte", size);
+			PROTO_ITEM_SET_GENERATED(psf_item);
 
 			/* if the frame is a PDO Mapping and the subindex is bigger than 0x00 */
 			if((idx == EPL_SOD_PDO_TX_MAPP && subindex > entries) ||(idx == EPL_SOD_PDO_RX_MAPP && subindex > entries))
@@ -3390,7 +3400,7 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 			else
 			{
 				/* dissect the payload */
-				dissect_epl_payload ( epl_tree, tvb, pinfo, dataoffset, size, EPL_ASND);
+				dissect_epl_payload ( psf_od_tree, tvb, pinfo, dataoffset, size, EPL_ASND);
 			}
 
 			offset += datalength;
