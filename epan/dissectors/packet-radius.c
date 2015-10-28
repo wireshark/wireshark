@@ -136,6 +136,24 @@ static int hf_radius_cosine_vpi = -1;
 static int hf_radius_cosine_vci = -1;
 
 static int hf_radius_ascend_data_filter = -1;
+static int hf_radius_ascend_data_filter_type = -1;
+static int hf_radius_ascend_data_filter_filteror = -1;
+static int hf_radius_ascend_data_filter_inout = -1;
+static int hf_radius_ascend_data_filter_spare = -1;
+static int hf_radius_ascend_data_filter_src_ipv4 = -1;
+static int hf_radius_ascend_data_filter_dst_ipv4 = -1;
+static int hf_radius_ascend_data_filter_src_ipv6 = -1;
+static int hf_radius_ascend_data_filter_dst_ipv6 = -1;
+static int hf_radius_ascend_data_filter_src_ip_prefix = -1;
+static int hf_radius_ascend_data_filter_dst_ip_prefix = -1;
+static int hf_radius_ascend_data_filter_protocol = -1;
+static int hf_radius_ascend_data_filter_established = -1;
+static int hf_radius_ascend_data_filter_src_port = -1;
+static int hf_radius_ascend_data_filter_dst_port = -1;
+static int hf_radius_ascend_data_filter_src_port_qualifier = -1;
+static int hf_radius_ascend_data_filter_dst_port_qualifier = -1;
+static int hf_radius_ascend_data_filter_reserved = -1;
+
 static int hf_radius_vsa_fragment = -1;
 static int hf_radius_eap_fragment = -1;
 static int hf_radius_avp = -1;
@@ -143,7 +161,10 @@ static int hf_radius_3gpp_ms_tmime_zone = -1;
 
 static gint ett_radius = -1;
 static gint ett_radius_avp = -1;
+
 static gint ett_radius_authenticator = -1;
+static gint ett_radius_ascend = -1;
+
 static gint ett_eap = -1;
 static gint ett_chap = -1;
 
@@ -567,12 +588,15 @@ static const value_string ascenddf_portq[]      = { {1, "lt"}, {2, "eq"}, {3, "g
 
 static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
 	wmem_strbuf_t *filterstr;
+	proto_item *ti;
+	proto_tree *ascend_tree;
 	int len;
 	guint8 type,proto, srclen, dstlen;
 	address srcip, dstip;
 	guint16 srcport, dstport;
 	guint8 srcportq, dstportq;
 	guint8 iplen = 4;
+	guint offset = 0;
 	len=tvb_reported_length(tvb);
 
 	if (len != 24 && len != 48) {
@@ -581,17 +605,66 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 
 	filterstr=wmem_strbuf_sized_new(wmem_packet_scope(), 128, 128);
 
-	proto_tree_add_item(tree, hf_radius_ascend_data_filter, tvb, 0, -1, ENC_NA);
+	ti = proto_tree_add_item(tree, hf_radius_ascend_data_filter, tvb, 0, -1, ENC_NA);
+	ascend_tree = proto_item_add_subtree(ti, ett_radius_ascend);
+
+	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	type = tvb_get_guint8(tvb, 0);
+	offset += 1;
+	if (type == 3) { /* IPv6 */
+		iplen = 16;
+	}
+
+	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_filteror, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_inout, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	if(type == 3) { /* IPv6 */
+		proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_src_ipv6, tvb, offset, 16, ENC_NA);
+		offset  += 16;
+		proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_dst_ipv6, tvb, offset, 16, ENC_NA);
+		offset  += 16;
+	} else{ /* IPv4 */
+		proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_src_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset  += 4;
+		proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_dst_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset  += 4;
+	}
+	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_src_ip_prefix, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_dst_ip_prefix, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_established, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_src_port_qualifier, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_dst_port_qualifier, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
 
 	wmem_strbuf_append_printf(filterstr, "%s %s %s",
 		val_to_str(type, ascenddf_filtertype, "%u"),
 		val_to_str(tvb_get_guint8(tvb, 2), ascenddf_inout, "%u"),
 		val_to_str(tvb_get_guint8(tvb, 1), ascenddf_filteror, "%u"));
 
-	if (type == 3) { /* IPv6 */
-		iplen = 16;
-	}
+
 	proto=tvb_get_guint8(tvb, 14);
 	if (proto) {
 		wmem_strbuf_append_printf(filterstr, " %s",
@@ -2230,6 +2303,57 @@ static void register_radius_fields(const char* unused _U_) {
 		 { &hf_radius_ascend_data_filter,
 		 { "Ascend Data Filter", "radius.ascenddatafilter", FT_BYTES, BASE_NONE, NULL, 0x0,
 			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_type,
+		 { "Type", "radius.ascenddatafilter.type", FT_UINT8, BASE_DEC, VALS(ascenddf_filtertype), 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_filteror,
+		 { "Filter or forward", "radius.ascenddatafilter.filteror", FT_UINT8, BASE_DEC, VALS(ascenddf_filteror), 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_inout,
+		 { "Indirection", "radius.ascenddatafilter.inout", FT_UINT8, BASE_DEC, VALS(ascenddf_inout), 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_spare,
+		 { "Spare", "radius.ascenddatafilter.spare", FT_UINT8, BASE_DEC, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_src_ipv4,
+		 { "Source IPv4 address", "radius.ascenddatafilter.src_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_dst_ipv4,
+		 { "Destination IPv4 address", "radius.ascenddatafilter.dst_ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_src_ipv6,
+		 { "Source IPv6 address", "radius.ascenddatafilter.src_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_dst_ipv6,
+		 { "Destination IPv6 address", "radius.ascenddatafilter.dst_ipv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_src_ip_prefix,
+		 { "Source IP prefix", "radius.ascenddatafilter.src_prefix_ip", FT_UINT8, BASE_DEC, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_dst_ip_prefix,
+		 { "Destination IP prefix", "radius.ascenddatafilter.dst_prefix_ip", FT_UINT8, BASE_DEC, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_protocol,
+		 { "Protocol", "radius.ascenddatafilter.protocol", FT_UINT8, BASE_DEC, VALS(ascenddf_proto), 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_established,
+		 { "Established", "radius.ascenddatafilter.established", FT_UINT8, BASE_DEC, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_src_port,
+		 { "Source Port", "radius.ascenddatafilter.src_port", FT_UINT16, BASE_DEC, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_dst_port,
+		 { "Destination Port", "radius.ascenddatafilter.dst_port", FT_UINT16, BASE_DEC, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_src_port_qualifier,
+		 { "Source Port Qualifier", "radius.ascenddatafilter.src_port_qualifier", FT_UINT8, BASE_DEC, VALS(ascenddf_portq), 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_dst_port_qualifier,
+		 { "Destination Port Qualifier", "radius.ascenddatafilter.dst_port_qualifier", FT_UINT8, BASE_DEC, VALS(ascenddf_portq), 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_ascend_data_filter_reserved,
+		 { "Reserved", "radius.ascenddatafilter.reserved", FT_UINT16, BASE_HEX, NULL, 0x0,
+			 NULL, HFILL }},
 		 { &hf_radius_vsa_fragment,
 		 { "VSA fragment", "radius.vsa_fragment", FT_BYTES, BASE_NONE, NULL, 0x0,
 			 NULL, HFILL }},
@@ -2248,6 +2372,7 @@ static void register_radius_fields(const char* unused _U_) {
 		 &ett_radius,
 		 &ett_radius_avp,
 		 &ett_radius_authenticator,
+		 &ett_radius_ascend,
 		 &ett_eap,
 		 &ett_chap,
 		 &(no_dictionary_entry.ett),
