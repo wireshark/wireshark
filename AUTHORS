@@ -3646,7 +3646,7 @@ Enrico Jorns		<ejo[AT]pengutronix.de> {
 	CANopen dissector enhancements and fixes
 }
 
-Hitesh K Maisheri       <maisheri.hitesh[AT]gmail.com> {
+Hitesh K Maisheri	<maisheri.hitesh[AT]gmail.com> {
         EAPOL-MKA support
 }
 
@@ -3656,18 +3656,18 @@ Dario Lombardo		<lomato[AT]gmail.com> {
 	HCrt (Hotline Command-Response Transaction) dissector
 }
 
-
-Manuel Hofer <manuel[AT]mnlhfr.at> {
+Manuel Hofer		<manuel[AT]mnlhfr.at> {
   SSTP Dissection
 }
 
-Pratik Yeole  	<pyeole[AT]ncsu.edu> {
+Pratik Yeole		<pyeole[AT]ncsu.edu> {
          Fixed incorrect decoding of Network Layer Reachability Information (NLRI) in BGP UPDATE message with add-path support
 }
 
-Guillaume Autran <gautran[AT]clearpathrobotics.com> {
+Guillaume Autran	<gautran[AT]clearpathrobotics.com> {
 	TCPROS support
 }
+
 
 and by:
 
