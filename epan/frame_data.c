@@ -374,6 +374,7 @@ void
 frame_data_reset(frame_data *fdata)
 {
   fdata->flags.visited = 0;
+  fdata->subnum = 0;
 
   if (fdata->pfd) {
     g_slist_free(fdata->pfd);
