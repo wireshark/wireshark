@@ -650,6 +650,9 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         case DATA_IND:
         case CREATE_PERMISSION:
         case CHANNELBIND:
+        case CONNECT:
+        case CONNECTION_BIND:
+        case CONNECTION_ATTEMPT:
             is_turn = TRUE;
             break;
     }
