@@ -1343,6 +1343,13 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         }
     }
 
+    if (!PINFO_FD_VISITED(pinfo) && is_turn && (pinfo->ptype == PT_TCP)
+        && (msg_type_method == CONNECTION_BIND) && (msg_type_class == RESPONSE)) {
+        /* RFC 6062: after the ConnectionBind exchange, the connection is no longer framed as TURN;
+           instead, it is an unframed pass-through.
+           Starting from next frame set conversation dissector to data */
+        conversation_set_dissector_from_frame_number(conversation, pinfo->fd->num+1, data_handle);
+    }
     return reported_length;
 }
 

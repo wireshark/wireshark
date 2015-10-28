@@ -815,7 +815,7 @@ hartip_set_conversation(packet_info *pinfo)
                                      &pinfo->src, &pinfo->dst, pinfo->ptype,
                                      pinfo->srcport, 0, NO_PORT_B);
     if( (conversation == NULL) ||
-        (conversation->dissector_handle != hartip_udp_handle) ) {
+        (conversation_get_dissector(conversation, pinfo->fd->num) != hartip_udp_handle) ) {
       conversation = conversation_new(pinfo->fd->num,
                                       &pinfo->src, &pinfo->dst, pinfo->ptype,
                                       pinfo->srcport, 0, NO_PORT2);

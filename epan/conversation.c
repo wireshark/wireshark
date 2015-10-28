@@ -172,7 +172,7 @@ conversation_create_from_template(conversation_t *conversation, const address *a
 		 * Set the protocol dissector used for the template conversation as
 		 * the handler of the new conversation as well.
 		 */
-		new_conversation_from_template->dissector_handle = conversation->dissector_handle;
+		new_conversation_from_template->dissector_tree = conversation->dissector_tree;
 
 		return new_conversation_from_template;
 	}
@@ -712,8 +712,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	conversation->setup_frame = conversation->last_frame = setup_frame;
 	conversation->data_list = NULL;
 
-	/* clear dissector handle */
-	conversation->dissector_handle = NULL;
+	conversation->dissector_tree = wmem_tree_new(wmem_file_scope());
 
 	/* set the options and key pointer */
 	conversation->options = options;
@@ -1280,9 +1279,22 @@ conversation_delete_proto_data(conversation_t *conv, const int proto)
 }
 
 void
+conversation_set_dissector_from_frame_number(conversation_t *conversation,
+	const guint32 starting_frame_num, const dissector_handle_t handle)
+{
+	wmem_tree_insert32(conversation->dissector_tree, starting_frame_num, (void *)handle);
+}
+
+void
 conversation_set_dissector(conversation_t *conversation, const dissector_handle_t handle)
 {
-	conversation->dissector_handle = handle;
+	conversation_set_dissector_from_frame_number(conversation, 0, handle);
+}
+
+dissector_handle_t
+conversation_get_dissector(conversation_t *conversation, const guint32 frame_num)
+{
+	return (dissector_handle_t)wmem_tree_lookup32_le(conversation->dissector_tree, frame_num);
 }
 
 /*
@@ -1307,10 +1319,10 @@ try_conversation_dissector(const address *addr_a, const address *addr_b, const p
 
 	if (conversation != NULL) {
 		int ret;
-		if (conversation->dissector_handle == NULL)
+		dissector_handle_t handle = (dissector_handle_t)wmem_tree_lookup32_le(conversation->dissector_tree, pinfo->fd->num);
+		if (handle == NULL)
 			return FALSE;
-		ret=call_dissector_only(conversation->dissector_handle, tvb, pinfo,
-		    tree, data);
+		ret=call_dissector_only(handle, tvb, pinfo, tree, data);
 		if(!ret) {
 			/* this packet was rejected by the dissector
 			 * so return FALSE in case our caller wants

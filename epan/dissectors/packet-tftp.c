@@ -568,7 +568,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       (pinfo->match_uint == pinfo->destport)) {
     conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
                                      pinfo->srcport, 0, NO_PORT_B);
-    if( (conversation == NULL) || (conversation->dissector_handle != tftp_handle) ){
+    if( (conversation == NULL) || (conversation_get_dissector(conversation, pinfo->fd->num) != tftp_handle) ){
       conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
                                       pinfo->srcport, 0, NO_PORT2);
       conversation_set_dissector(conversation, tftp_handle);
@@ -576,7 +576,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } else {
     conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                      pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-    if( (conversation == NULL) || (conversation->dissector_handle != tftp_handle) ){
+    if( (conversation == NULL) || (conversation_get_dissector(conversation, pinfo->fd->num) != tftp_handle) ){
       conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, PT_UDP,
                                       pinfo->destport, pinfo->srcport, 0);
       conversation_set_dissector(conversation, tftp_handle);

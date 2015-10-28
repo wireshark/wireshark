@@ -2046,7 +2046,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 		 * conversation (e.g., one we detected heuristically or via Decode-As) call the data
 		 * dissector directly.
 		 */
-		if (value_is_in_range(http_tcp_range, uri_port) || (conv && conv->dissector_handle == http_handle)) {
+		if (value_is_in_range(http_tcp_range, uri_port) || (conv && conversation_get_dissector(conv, pinfo->fd->num) == http_handle)) {
 			call_dissector(data_handle, tvb, pinfo, tree);
 		} else {
 			/* set pinfo->{src/dst port} and call the TCP sub-dissector lookup */

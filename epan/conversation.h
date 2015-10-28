@@ -79,8 +79,8 @@ typedef struct conversation {
 	/* Assume that setup_frame is also the lowest frame number for now. */
 	guint32 last_frame;		/** highest frame number in this conversation */
 	GSList *data_list;			/** list of data associated with conversation */
-	dissector_handle_t dissector_handle;
-								/** handle for protocol dissector client associated with conversation */
+	wmem_tree_t *dissector_tree;
+								/** tree containing protocol dissector client associated with conversation */
 	guint	options;			/** wildcard flags */
 	conversation_key *key_ptr;	/** pointer to the key for this conversation */
 } conversation_t;
@@ -161,6 +161,13 @@ WS_DLL_PUBLIC void conversation_delete_proto_data(conversation_t *conv, const in
 
 WS_DLL_PUBLIC void conversation_set_dissector(conversation_t *conversation,
     const dissector_handle_t handle);
+
+WS_DLL_PUBLIC void conversation_set_dissector_from_frame_number(conversation_t *conversation,
+    const guint32 starting_frame_num, const dissector_handle_t handle);
+
+WS_DLL_PUBLIC dissector_handle_t conversation_get_dissector(conversation_t *conversation,
+    const guint32 frame_num);
+
 /**
  * Given two address/port pairs for a packet, search for a matching
  * conversation and, if found and it has a conversation dissector,
