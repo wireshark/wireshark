@@ -44,6 +44,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/report_err.h>
 #include <wsutil/pint.h>
+#include <wsutil/ws_version_info.h>
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 #include "packet-ssl-utils.h"
@@ -3184,14 +3185,14 @@ ssl_decrypt_pre_master_secret(SslDecryptSession*ssl_session,
 
     if (!encrypted_pre_master)
         return FALSE;
-    if(ssl_session->cipher_suite.kex == KEX_DHE_DSS ||
-            ssl_session->cipher_suite.kex == KEX_DHE_PSK ||
-            ssl_session->cipher_suite.kex == KEX_DHE_RSA ||
-            ssl_session->cipher_suite.kex == KEX_DH_ANON ||
-            ssl_session->cipher_suite.kex == KEX_DH_DSS ||
-            ssl_session->cipher_suite.kex == KEX_DH_RSA) {
-        ssl_debug_printf("%s: session uses DH (%d) key exchange, which is "
-                         "impossible to decrypt\n", G_STRFUNC, ssl_session->cipher_suite.kex);
+
+    if (KEX_IS_DH(ssl_session->cipher_suite.kex)) {
+        ssl_debug_printf("%s: session uses Diffie-Hellman key exchange "
+                         "(cipher suite 0x%04X %s) and cannot be decrypted "
+                         "using a RSA private key file.\n",
+                         G_STRFUNC, ssl_session->session.cipher,
+                         val_to_str_ext_const(ssl_session->session.cipher,
+                             &ssl_31_ciphersuite_ext, "unknown"));
         return FALSE;
     } else if(ssl_session->cipher_suite.kex != KEX_RSA) {
          ssl_debug_printf("%s key exchange %d different from KEX_RSA (%d)\n",
@@ -4454,14 +4455,6 @@ ssl_parse_key_list(const ssldecrypt_assoc_t *uats _U_, GHashTable *key_hash _U_,
 }
 #endif
 
-void
-ssl_lib_init(void)
-{
-#ifdef HAVE_LIBGNUTLS
-    ssl_debug_printf("gnutls version: %s\n", gnutls_check_version(NULL));
-#endif
-}
-
 
 #ifdef HAVE_LIBGCRYPT /* useless without decryption support. */
 /* Store/load a known (pre-)master secret from/for this SSL session. {{{ */
@@ -4803,6 +4796,14 @@ ssl_set_debug(const gchar* name)
         debug_file_must_be_closed = 1;
 
     ssl_debug_printf("Wireshark SSL debug log \n\n");
+    ssl_debug_printf("Wireshark version: %s\n", get_ws_vcs_version_info());
+#ifdef HAVE_LIBGNUTLS
+    ssl_debug_printf("GnuTLS version:    %s\n", gnutls_check_version(NULL));
+#endif
+#ifdef HAVE_LIBGCRYPT
+    ssl_debug_printf("Libgcrypt version: %s\n", gcry_check_version(NULL));
+#endif
+    ssl_debug_printf("\n");
 }
 
 void
@@ -5717,8 +5718,11 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
         } else {
             /* Cipher found, save this for the delayed decoder init */
             ssl->state |= SSL_CIPHER;
-            ssl_debug_printf("%s found CIPHER 0x%04X -> state 0x%02X\n",
-                             G_STRFUNC, ssl->session.cipher, ssl->state);
+            ssl_debug_printf("%s found CIPHER 0x%04X %s -> state 0x%02X\n",
+                             G_STRFUNC, ssl->session.cipher,
+                             val_to_str_ext_const(ssl->session.cipher,
+                                 &ssl_31_ciphersuite_ext, "unknown"),
+                             ssl->state);
         }
     }
 

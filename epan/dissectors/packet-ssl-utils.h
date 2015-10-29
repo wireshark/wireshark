@@ -306,6 +306,7 @@ typedef struct _SslDecoder {
 #define KEX_SRP_SHA     0x20
 #define KEX_SRP_SHA_DSS 0x21
 #define KEX_SRP_SHA_RSA 0x22
+#define KEX_IS_DH(n)    ((n) >= KEX_DHE_DSS && (n) <= KEX_ECDH_RSA)
 
 #define ENC_DES         0x30
 #define ENC_3DES        0x31
@@ -447,10 +448,6 @@ gboolean ssldecrypt_uat_fld_port_chk_cb(void*, const char*, unsigned, const void
 gboolean ssldecrypt_uat_fld_protocol_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
 gboolean ssldecrypt_uat_fld_fileopen_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
 gboolean ssldecrypt_uat_fld_password_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
-
-/** Initialize decryption engine/ssl layer. To be called once per execution */
-extern void
-ssl_lib_init(void);
 
 /** Retrieve a SslSession, creating it if it did not already exist.
  * @param conversation The SSL conversation.
