@@ -2828,6 +2828,8 @@ menu_color_dissector_filter_spe_cb(frame_data *fd _U_, epan_dissect_t *edt, gpoi
     return (edt != NULL) ? filter_entry->is_filter_valid(&edt->pi) : FALSE;
 }
 
+#define MAX_NUM_COLOR_CONVERSATION_COLORS       10
+
 static void
 menu_color_conversation_filter(capture_file *cf)
 {
