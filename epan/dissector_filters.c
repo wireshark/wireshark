@@ -33,7 +33,7 @@ GList *conv_filter_list = NULL;
 
 
 void register_conversation_filter(const char *proto_name, const char *display_name,
-                                        is_conv_valid_func is_filter_valid, build_conv_string_func build_filter_string) {
+                                        is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string) {
     conversation_filter_t *entry;
 
     entry = (conversation_filter_t *)g_malloc(sizeof(conversation_filter_t));
