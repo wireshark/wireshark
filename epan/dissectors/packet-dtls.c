@@ -1916,7 +1916,6 @@ proto_register_dtls(void)
 
   register_init_routine(dtls_init);
   register_cleanup_routine(dtls_cleanup);
-  ssl_lib_init();
   dtls_tap = register_tap("dtls");
   ssl_debug_printf("proto_register_dtls: registered tap %s:%d\n",
                    "dtls", dtls_tap);

@@ -4204,7 +4204,6 @@ proto_register_ssl(void)
 
     register_init_routine(ssl_init);
     register_cleanup_routine(ssl_cleanup);
-    ssl_lib_init();
     ssl_tap = register_tap("ssl");
     ssl_debug_printf("proto_register_ssl: registered tap %s:%d\n",
         "ssl", ssl_tap);
