@@ -305,13 +305,13 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 		{
 
 			proto_tree_add_item(ppcap_tree1, hf_ppcap_source_ip_address1, tvb, offset, msg_len, ENC_NA);
-			TVB_SET_ADDRESS(&pinfo->net_src, AT_IPv4, tvb, offset, 4);
+			set_address_tvb(&pinfo->net_src, AT_IPv4, 4, tvb, offset);
 			copy_address_shallow(&pinfo->src, &pinfo->net_src);
 		}
 		else
 		{
 			proto_tree_add_item(ppcap_tree1, hf_ppcap_source_ip_address2, tvb, offset, msg_len, ENC_NA);
-			TVB_SET_ADDRESS(&pinfo->net_src, AT_IPv6, tvb, offset, 6);
+			set_address_tvb(&pinfo->net_src, AT_IPv6, 6, tvb, offset);
 			copy_address_shallow(&pinfo->src, &pinfo->net_src);
 		}
 	}
@@ -320,7 +320,7 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 
 	{
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_source_nodeid, tvb, offset, msg_len, ENC_ASCII|ENC_NA);
-		TVB_SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, tvb, offset, msg_len);
+		set_address_tvb(&pinfo->net_src, AT_STRINGZ, msg_len, tvb, offset);
 		copy_address_shallow(&pinfo->src, &pinfo->net_src);
 	}
 	if (msg_len%4)
@@ -395,13 +395,13 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 		if (msg_len%16 != 0)
 		{
 			proto_tree_add_item(ppcap_tree1, hf_ppcap_destination_ip_address1, tvb, offset, msg_len, ENC_NA);
-			TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv4, tvb, offset, 4);
+			set_address_tvb(&pinfo->net_dst, AT_IPv4, 4, tvb, offset);
 			copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 		}
 		else
 		{
 			proto_tree_add_item(ppcap_tree1, hf_ppcap_destination_ip_address2, tvb, offset, msg_len, ENC_NA);
-			TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv6, tvb, offset, 6);
+			set_address_tvb(&pinfo->net_dst, AT_IPv6, 6, tvb, offset);
 			copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 		}
 	}
@@ -411,7 +411,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 		char *string;
 		string = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, msg_len, ENC_UTF_8|ENC_NA);
 		proto_tree_add_string(ppcap_tree1, hf_ppcap_destination_nodeid, tvb, offset, msg_len, string);
-		TVB_SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, tvb, offset, msg_len);
+		set_address_tvb(&pinfo->net_dst, AT_STRINGZ, msg_len, tvb, offset);
 		copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 	}
 

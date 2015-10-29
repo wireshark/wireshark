@@ -1674,12 +1674,12 @@ skip_lrh:
             proto_tree_add_item(global_route_header_tree, hf_infiniband_source_gid,         tvb, offset, 16, ENC_NA);
 
             /* set source GID in packet view*/
-            TVB_SET_ADDRESS(&pinfo->src, AT_IB, tvb, offset, GID_SIZE);
+            set_address_tvb(&pinfo->src, AT_IB, GID_SIZE, tvb, offset);
             offset += 16;
 
             proto_tree_add_item(global_route_header_tree, hf_infiniband_destination_gid,    tvb, offset, 16, ENC_NA);
             /* set destination GID in packet view*/
-            TVB_SET_ADDRESS(&pinfo->dst, AT_IB, tvb, offset, GID_SIZE);
+            set_address_tvb(&pinfo->dst, AT_IB, GID_SIZE, tvb, offset);
 
             offset += 16;
             packetLength -= 40; /* Shave 40 bytes for GRH */
@@ -4967,11 +4967,11 @@ skip_lrh:
             offset += 2;
 
             /* Set source GID in packet view. */
-            TVB_SET_ADDRESS(&pinfo->src, AT_IB, tvb, offset, GID_SIZE);
+            set_address_tvb(&pinfo->src, AT_IB, GID_SIZE, tvb, offset);
             offset += 16;
 
             /* Set destination GID in packet view. */
-            TVB_SET_ADDRESS(&pinfo->dst, AT_IB, tvb, offset, GID_SIZE);
+            set_address_tvb(&pinfo->dst, AT_IB, GID_SIZE, tvb, offset);
             offset += 16;
 
             if (nxtHdr != 0x1B)

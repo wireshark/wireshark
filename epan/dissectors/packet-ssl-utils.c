@@ -4217,7 +4217,7 @@ ssl_assoc_from_key_list(gpointer key _U_, gpointer data, gpointer user_data)
 void
 ssl_set_server(SslSession *session, address *addr, port_type ptype, guint32 port)
 {
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &session->srv_addr, addr);
+    copy_address_wmem(wmem_file_scope(), &session->srv_addr, addr);
     session->srv_ptype = ptype;
     session->srv_port = port;
 }

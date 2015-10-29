@@ -244,12 +244,12 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	switch (halen) {
 	case 4:
-		TVB_SET_ADDRESS(&pinfo->dl_src, AT_IPv4, tvb, 6, 4);
+		set_address_tvb(&pinfo->dl_src, AT_IPv4, 4, tvb, 6);
 		copy_address_shallow(&pinfo->src, &pinfo->dl_src);
 		proto_tree_add_item(fh_tree, &hfi_sll_src_ipv4, tvb, 6, 4, ENC_BIG_ENDIAN);
 		break;
 	case 6:
-		TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, 6, 6);
+		set_address_tvb(&pinfo->dl_src, AT_ETHER, 6, tvb, 6);
 		copy_address_shallow(&pinfo->src, &pinfo->dl_src);
 		proto_tree_add_item(fh_tree, &hfi_sll_src_eth, tvb, 6, 6, ENC_NA);
 		break;

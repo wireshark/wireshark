@@ -1401,8 +1401,8 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
   {
     /* Try to match corresponding message */
     dmp_key->id = (guint) dmp.subj_id;
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &dmp_key->src, &(pinfo->dst));
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &dmp_key->dst, &(pinfo->src));
+    copy_address_wmem(wmem_file_scope(), &dmp_key->src, &(pinfo->dst));
+    copy_address_wmem(wmem_file_scope(), &dmp_key->dst, &(pinfo->src));
 
     dmp_data = (dmp_id_val *) g_hash_table_lookup (dmp_id_hash_table, dmp_key);
 
@@ -1419,12 +1419,12 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
 
   if (dmp.msg_type == ACK) {
     dmp_key->id = (guint) dmp.subj_id;
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &dmp_key->src, &(pinfo->dst));
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &dmp_key->dst, &(pinfo->src));
+    copy_address_wmem(wmem_file_scope(), &dmp_key->src, &(pinfo->dst));
+    copy_address_wmem(wmem_file_scope(), &dmp_key->dst, &(pinfo->src));
   } else {
     dmp_key->id = (guint) dmp.msg_id;
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &dmp_key->src, &(pinfo->src));
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &dmp_key->dst, &(pinfo->dst));
+    copy_address_wmem(wmem_file_scope(), &dmp_key->src, &(pinfo->src));
+    copy_address_wmem(wmem_file_scope(), &dmp_key->dst, &(pinfo->dst));
   }
 
   dmp_data = (dmp_id_val *) g_hash_table_lookup (dmp_id_hash_table, dmp_key);

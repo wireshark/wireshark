@@ -607,11 +607,11 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     break;
                 }
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-                TVB_SET_ADDRESS(&addr, AT_IPv4, tvb, offset, 4);
+                set_address_tvb(&addr, AT_IPv4, 4, tvb, offset);
                 offset += 4;
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_ipv4_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
-                TVB_SET_ADDRESS(&addr_mask, AT_IPv4, tvb, offset, 4);
+                set_address_tvb(&addr_mask, AT_IPv4, 4, tvb, offset);
                 offset += 4;
 
                 str = wmem_strdup_printf(wmem_packet_scope(), "%s/%s",
@@ -626,7 +626,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_ipv6, tvb, offset, 16, ENC_NA);
-                TVB_SET_ADDRESS(&addr, AT_IPv6, tvb, offset, 16);
+                set_address_tvb(&addr, AT_IPv6, 16, tvb, offset);
                 offset += 16;
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_ipv6_mask, tvb, offset, 1, ENC_NA);
@@ -656,7 +656,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_eui_address, tvb, offset, 8, encoding);
-                TVB_SET_ADDRESS(&addr, AT_EUI64, tvb, offset, 8);
+                set_address_tvb(&addr, AT_EUI64, 8, tvb, offset);
                 offset += 8;
 
                 str = address_to_display(wmem_packet_scope(),  &addr);
@@ -824,7 +824,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-                TVB_SET_ADDRESS(&addr, AT_IPv4, tvb, offset, 4);
+                set_address_tvb(&addr, AT_IPv4, 4, tvb, offset);
                 offset += 4;
 
                 str = wmem_strdup_printf(wmem_packet_scope(), "%s",
@@ -839,7 +839,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_ipv6, tvb, offset, 16, ENC_NA);
-                TVB_SET_ADDRESS(&addr, AT_IPv6, tvb, offset, 16);
+                set_address_tvb(&addr, AT_IPv6, 16, tvb, offset);
                 offset += 16;
 
                 str = wmem_strdup_printf(wmem_packet_scope(), "%s",
@@ -1269,7 +1269,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 }
 
                 proto_tree_add_item(record_tree, hf_pcapng_record_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-                TVB_SET_ADDRESS(&addr, AT_IPv4, tvb, offset, 4);
+                set_address_tvb(&addr, AT_IPv4, 4, tvb, offset);
                 offset += 4;
 
                 offset_string_start = offset;
@@ -1295,7 +1295,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 }
 
                 proto_tree_add_item(record_tree, hf_pcapng_record_ipv6, tvb, offset, 16, ENC_NA);
-                TVB_SET_ADDRESS(&addr, AT_IPv6, tvb, offset, 16);
+                set_address_tvb(&addr, AT_IPv6, 16, tvb, offset);
                 offset += 16;
 
                 offset_string_start = offset;

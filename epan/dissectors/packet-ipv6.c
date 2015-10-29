@@ -1286,7 +1286,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, co
             }
             proto_tree_add_item(opt_tree, hf_ipv6_opt_mipv6_home_address, tvb,
                                 offset, 16, ENC_NA);
-            TVB_SET_ADDRESS(&pinfo->src, AT_IPv6, tvb, offset, 16);
+            set_address_tvb(&pinfo->src, AT_IPv6, 16, tvb, offset);
             offset += 16;
             break;
         }
@@ -2051,9 +2051,9 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Get extension header and payload length */
     plen = g_ntohs(ipv6->ip6_plen);
 
-    TVB_SET_ADDRESS(&pinfo->net_src, AT_IPv6, tvb, offset + IP6H_SRC, 16);
+    set_address_tvb(&pinfo->net_src, AT_IPv6, 16, tvb, offset + IP6H_SRC);
     copy_address_shallow(&pinfo->src, &pinfo->net_src);
-    TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv6, tvb, offset + IP6H_DST, 16);
+    set_address_tvb(&pinfo->net_dst, AT_IPv6, 16, tvb, offset + IP6H_DST);
     copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
     ipv6_info = wmem_new0(wmem_packet_scope(), ipv6_meta_t);

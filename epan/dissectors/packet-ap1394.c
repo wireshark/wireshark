@@ -72,9 +72,9 @@ dissect_ap1394(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP/IEEE1394");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  TVB_SET_ADDRESS(&pinfo->dl_src,   AT_EUI64, tvb, 8, 8);
+  set_address_tvb(&pinfo->dl_src,   AT_EUI64, 8, tvb, 8);
   copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-  TVB_SET_ADDRESS(&pinfo->dl_dst,   AT_EUI64, tvb, 0, 8);
+  set_address_tvb(&pinfo->dl_dst,   AT_EUI64, 8, tvb, 0);
   copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 
   if (tree) {

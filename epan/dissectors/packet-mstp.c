@@ -354,9 +354,9 @@ dissect_mstp_wtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 
 	/* set the MS/TP MAC address in the source/destination */
-	TVB_SET_ADDRESS(&pinfo->dl_dst,	mstp_address_type, tvb, offset+3, 1);
+	set_address_tvb(&pinfo->dl_dst,	mstp_address_type, 1, tvb, offset+3);
 	copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
-	TVB_SET_ADDRESS(&pinfo->dl_src,	mstp_address_type, tvb, offset+4, 1);
+	set_address_tvb(&pinfo->dl_src,	mstp_address_type, 1, tvb, offset+4);
 	copy_address_shallow(&pinfo->src, &pinfo->dl_src);
 
 #ifdef BACNET_MSTP_SUMMARY_IN_TREE

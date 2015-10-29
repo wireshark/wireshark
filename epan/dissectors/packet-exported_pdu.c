@@ -131,22 +131,22 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             case EXP_PDU_TAG_IPV4_SRC:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv4_src, tvb, offset, 4, ENC_BIG_ENDIAN);
-                TVB_SET_ADDRESS(&pinfo->net_src, AT_IPv4, tvb, offset, 4);
+                set_address_tvb(&pinfo->net_src, AT_IPv4, 4, tvb, offset);
                 copy_address_shallow(&pinfo->src, &pinfo->net_src);
                 break;
             case EXP_PDU_TAG_IPV4_DST:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv4_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
-                TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv4, tvb, offset, 4);
+                set_address_tvb(&pinfo->net_dst, AT_IPv4, 4, tvb, offset);
                 copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
                 break;
             case EXP_PDU_TAG_IPV6_SRC:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv6_src, tvb, offset, 16, ENC_NA);
-                TVB_SET_ADDRESS(&pinfo->net_src, AT_IPv6, tvb, offset, 16);
+                set_address_tvb(&pinfo->net_src, AT_IPv6, 16, tvb, offset);
                 copy_address_shallow(&pinfo->src, &pinfo->net_src);
                 break;
             case EXP_PDU_TAG_IPV6_DST:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv6_dst, tvb, offset, 16, ENC_NA);
-                TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv6, tvb, offset, 16);
+                set_address_tvb(&pinfo->net_dst, AT_IPv6, 16, tvb, offset);
                 copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
                 break;
             case EXP_PDU_TAG_PORT_TYPE:

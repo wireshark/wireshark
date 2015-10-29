@@ -374,7 +374,7 @@ static void add_hsdsch_bind(packet_info *pinfo){
 					umts_fp_conversation_info->channel           = CHANNEL_HSDSCH;
 					umts_fp_conversation_info->dl_frame_number   = 0;
 					umts_fp_conversation_info->ul_frame_number   = pinfo->fd->num;
-					WMEM_COPY_ADDRESS(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &nbap_hsdsch_channel_info[i].crnc_address);
+					copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &nbap_hsdsch_channel_info[i].crnc_address);
 					umts_fp_conversation_info->crnc_port         = nbap_hsdsch_channel_info[i].crnc_port;
 
 					/*Added june 3, normally just the iterator variable*/

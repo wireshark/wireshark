@@ -156,9 +156,9 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   col_clear(pinfo->cinfo, COL_INFO);
 
-  TVB_SET_ADDRESS (&pinfo->dl_src, AT_ETHER, tvb, 6, 6);
+  set_address_tvb (&pinfo->dl_src, AT_ETHER, 6, tvb, 6);
   copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-  TVB_SET_ADDRESS (&pinfo->dl_dst, AT_ETHER, tvb, 0, 6);
+  set_address_tvb (&pinfo->dl_dst, AT_ETHER, 6, tvb, 0);
   copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 
   if (tree)

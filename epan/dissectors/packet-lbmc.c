@@ -279,9 +279,9 @@ static lbm_istream_substream_entry_t * lbm_stream_istream_substream_add(lbm_istr
         return (entry);
     }
     entry = wmem_new(wmem_file_scope(), lbm_istream_substream_entry_t);
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->src_addr), src_addr);
+    copy_address_wmem(wmem_file_scope(), &(entry->src_addr), src_addr);
     entry->src_port = src_port;
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->dst_addr), dst_addr);
+    copy_address_wmem(wmem_file_scope(), &(entry->dst_addr), dst_addr);
     entry->dst_port = dst_port;
     entry->lbm_stream_id = stream_id;
     entry->parent = stream;
@@ -418,10 +418,10 @@ static lbm_dstream_entry_t * lbm_stream_dstream_add(const lbm_uim_stream_destina
     }
     entry = wmem_new(wmem_file_scope(), lbm_dstream_entry_t);
     entry->domain_1 = endpoint_a->domain;
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->addr_1), &(endpoint_a->addr));
+    copy_address_wmem(wmem_file_scope(), &(entry->addr_1), &(endpoint_a->addr));
     entry->port_1 = endpoint_a->port;
     entry->domain_2 = endpoint_b->domain;
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->addr_2), &(endpoint_b->addr));
+    copy_address_wmem(wmem_file_scope(), &(entry->addr_2), &(endpoint_b->addr));
     entry->port_2 = endpoint_b->port;
     lbm_stream_order_dstream_key(entry);
     entry->channel = lbm_channel_assign(LBM_CHANNEL_STREAM_TCP);
@@ -488,9 +488,9 @@ static lbm_dstream_substream_entry_t * lbm_stream_dstream_substream_add(lbm_dstr
         return (entry);
     }
     entry = wmem_new(wmem_file_scope(), lbm_dstream_substream_entry_t);
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->src_addr), src_addr);
+    copy_address_wmem(wmem_file_scope(), &(entry->src_addr), src_addr);
     entry->src_port = src_port;
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->dst_addr), dst_addr);
+    copy_address_wmem(wmem_file_scope(), &(entry->dst_addr), dst_addr);
     entry->dst_port = dst_port;
     entry->lbm_stream_id = stream_id;
     entry->parent = stream;
@@ -6156,7 +6156,7 @@ static lbmc_message_entry_t * lbmc_message_create(guint64 channel, const address
     }
     entry = wmem_new(wmem_file_scope(), lbmc_message_entry_t);
     entry->channel = channel;
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->addr), dest_address);
+    copy_address_wmem(wmem_file_scope(), &(entry->addr), dest_address);
     entry->port = port;
     entry->first_sqn = info->first_sqn;
     entry->fragment_count = 0;
@@ -9733,10 +9733,10 @@ static int dissect_nhdr_destination(tvbuff_t * tvb, int offset, packet_info * pi
     {
         info->set = TRUE;
         info->endpoint_a.domain = tvb_get_ntohl(tvb, offset + O_LBMC_DESTINATION_HDR_T_DOMAIN_ID);
-        TVB_SET_ADDRESS(&(info->endpoint_a.addr), AT_IPv4, tvb, offset + O_LBMC_DESTINATION_HDR_T_IPADDR, L_LBMC_DESTINATION_HDR_T_IPADDR);
+        set_address_tvb(&(info->endpoint_a.addr), AT_IPv4, L_LBMC_DESTINATION_HDR_T_IPADDR, tvb, offset + O_LBMC_DESTINATION_HDR_T_IPADDR);
         info->endpoint_a.port = tvb_get_ntohs(tvb, offset + O_LBMC_DESTINATION_HDR_T_PORT);
         info->endpoint_b.domain = tvb_get_ntohl(tvb, offset + O_LBMC_DESTINATION_HDR_T_ORIG_DOMAIN_ID);
-        TVB_SET_ADDRESS(&(info->endpoint_b.addr), AT_IPv4, tvb, offset + O_LBMC_DESTINATION_HDR_T_ORIG_IPADDR, L_LBMC_DESTINATION_HDR_T_ORIG_IPADDR);
+        set_address_tvb(&(info->endpoint_b.addr), AT_IPv4, L_LBMC_DESTINATION_HDR_T_ORIG_IPADDR, tvb, offset + O_LBMC_DESTINATION_HDR_T_ORIG_IPADDR);
         info->endpoint_b.port = tvb_get_ntohs(tvb, offset + O_LBMC_DESTINATION_HDR_T_ORIG_PORT);
     }
     return (L_LBMC_DESTINATION_HDR_T);

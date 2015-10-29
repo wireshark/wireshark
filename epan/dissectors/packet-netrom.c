@@ -206,14 +206,14 @@ dissect_netrom_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = 0;
 
 	/* source */
-	TVB_SET_ADDRESS(&pinfo->dl_src,	AT_AX25, tvb, offset, AX25_ADDR_LEN);
-	TVB_SET_ADDRESS(&pinfo->src,	AT_AX25, tvb, offset, AX25_ADDR_LEN);
+	set_address_tvb(&pinfo->dl_src,	AT_AX25, AX25_ADDR_LEN, tvb, offset);
+	set_address_tvb(&pinfo->src,	AT_AX25, AX25_ADDR_LEN, tvb, offset);
 	/* src_ssid = tvb_get_guint8(tvb, offset+6); */
 	offset += AX25_ADDR_LEN; /* step over src addr */
 
 	/* destination */
-	TVB_SET_ADDRESS(&pinfo->dl_dst,	AT_AX25, tvb, offset, AX25_ADDR_LEN);
-	TVB_SET_ADDRESS(&pinfo->dst,	AT_AX25, tvb, offset, AX25_ADDR_LEN);
+	set_address_tvb(&pinfo->dl_dst,	AT_AX25, AX25_ADDR_LEN, tvb, offset);
+	set_address_tvb(&pinfo->dst,	AT_AX25, AX25_ADDR_LEN, tvb, offset);
 	/* dst_ssid = tvb_get_guint8(tvb, offset+6); */
 	offset += AX25_ADDR_LEN; /* step over dst addr */
 

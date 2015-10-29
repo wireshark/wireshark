@@ -699,8 +699,8 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	new_key = wmem_new(wmem_file_scope(), struct conversation_key);
 	new_key->next = conversation_keys;
 	conversation_keys = new_key;
-	WMEM_COPY_ADDRESS(wmem_file_scope(), &new_key->addr1, addr1);
-	WMEM_COPY_ADDRESS(wmem_file_scope(), &new_key->addr2, addr2);
+	copy_address_wmem(wmem_file_scope(), &new_key->addr1, addr1);
+	copy_address_wmem(wmem_file_scope(), &new_key->addr2, addr2);
 	new_key->ptype = ptype;
 	new_key->port1 = port1;
 	new_key->port2 = port2;
@@ -789,7 +789,7 @@ conversation_set_addr2(conversation_t *conv, const address *addr)
 		conversation_remove_from_hashtable(conversation_hashtable_no_port2, conv);
 	}
 	conv->options &= ~NO_ADDR2;
-	WMEM_COPY_ADDRESS(wmem_file_scope(), &conv->key_ptr->addr2, addr);
+	copy_address_wmem(wmem_file_scope(), &conv->key_ptr->addr2, addr);
 	if (conv->options & NO_PORT2) {
 		conversation_insert_into_hashtable(conversation_hashtable_no_port2, conv);
 	} else {

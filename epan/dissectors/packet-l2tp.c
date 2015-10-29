@@ -2343,8 +2343,8 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
                 tunnel = &tmp_tunnel;
                 memset(tunnel, 0, sizeof(l2tpv3_tunnel_t));
                 tunnel->conv = l2tp_conv;
-                WMEM_COPY_ADDRESS(wmem_file_scope(), &tunnel->lcce1, &pinfo->src);
-                WMEM_COPY_ADDRESS(wmem_file_scope(), &tunnel->lcce2, &pinfo->dst);
+                copy_address_wmem(wmem_file_scope(), &tunnel->lcce1, &pinfo->src);
+                copy_address_wmem(wmem_file_scope(), &tunnel->lcce2, &pinfo->dst);
             }
         }
     }

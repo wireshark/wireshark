@@ -175,9 +175,9 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
   src = tvb_get_guint8 (tvb, 0);
   dst = tvb_get_guint8 (tvb, 1);
-  TVB_SET_ADDRESS(&pinfo->dl_src,   arcnet_address_type, tvb, 0, 1);
+  set_address_tvb(&pinfo->dl_src,   arcnet_address_type, 1, tvb, 0);
   copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-  TVB_SET_ADDRESS(&pinfo->dl_dst,   arcnet_address_type, tvb, 1, 1);
+  set_address_tvb(&pinfo->dl_dst,   arcnet_address_type, 1, tvb, 1);
   copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 
   ti = proto_tree_add_item (tree, proto_arcnet, tvb, 0, -1, ENC_NA);

@@ -1097,7 +1097,7 @@ tvb_address_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int type, const gint 
         return NULL;
     }
 
-    TVB_SET_ADDRESS(&addr, type, tvb, offset, at->addr_fixed_len());
+    set_address_tvb(&addr, type, at->addr_fixed_len(), tvb, offset);
 
     return address_to_str(scope, &addr);
 }
@@ -1106,7 +1106,7 @@ gchar* tvb_address_var_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, address_ty
 {
     address addr;
 
-    TVB_SET_ADDRESS(&addr, type, tvb, offset, length);
+    set_address_tvb(&addr, type, length, tvb, offset);
 
     return address_to_str(scope, &addr);
 }
@@ -1132,7 +1132,7 @@ tvb_address_with_resolution_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int t
         return NULL;
     }
 
-    TVB_SET_ADDRESS(&addr, type, tvb, offset, at->addr_fixed_len());
+    set_address_tvb(&addr, type, at->addr_fixed_len(), tvb, offset);
 
     return address_with_resolution_to_str(scope, &addr);
 }

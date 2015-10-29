@@ -26,6 +26,9 @@
 
 #include <string.h>     /* for memcmp */
 
+#include "tvbuff.h"
+#include "wmem/wmem.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -72,7 +75,7 @@ typedef struct _address {
  * @param addr_data [in] Pointer to the address data.
  */
 static inline void
-set_address(address *addr, int addr_type, int addr_len, const void * addr_data) {
+set_address(address *addr, int addr_type, int addr_len, const void *addr_data) {
     addr->data = addr_data;
     addr->type = addr_type;
     addr->len  = addr_len;
@@ -93,11 +96,13 @@ set_address(address *addr, int addr_type, int addr_len, const void * addr_data) 
  * @param addr_len [in] The length in bytes of the address data. For example, 4 for
  *                     AT_IPv4 or sizeof(struct e_in6_addr) for AT_IPv6.
  */
-#define TVB_SET_ADDRESS(addr, addr_type, tvb, offset, addr_len) \
-    do {                            \
-        const void *TVB_SET_ADDRESS_data = (const void *)tvb_get_ptr(tvb, offset, addr_len); \
-        set_address((addr), (addr_type), (addr_len), TVB_SET_ADDRESS_data); \
-    } while (0)
+static inline void
+set_address_tvb(address *addr, int addr_type, int addr_len, tvbuff_t *tvb, int offset) {
+    const void *p;
+
+    p = tvb_get_ptr(tvb, offset, addr_len);
+    set_address(addr, addr_type, addr_len, p);
+}
 
 /** Compare two addresses.
  *
@@ -198,16 +203,17 @@ copy_address_shallow(address *to, const address *from) {
  * @param to [in,out] The destination address.
  * @param from [in] The source address.
  */
-#define WMEM_COPY_ADDRESS(scope, to, from)     \
-    do {                              \
-        void *WMEM_COPY_ADDRESS_data; \
-        copy_address_shallow((to), (from)); \
-        WMEM_COPY_ADDRESS_data = wmem_alloc(scope, (from)->len); \
-        if ((from)->len != 0) \
-            memcpy(WMEM_COPY_ADDRESS_data, (from)->data, (from)->len); \
-        (to)->data = WMEM_COPY_ADDRESS_data; \
-    } while (0)
+static inline void
+copy_address_wmem(wmem_allocator_t *scope, address *to, const address *from) {
+    void *to_data;
 
+    to->type = from->type;
+    to->len = from->len;
+    to_data = wmem_alloc(scope, from->len);
+    if (from->len != 0)
+        memcpy(to_data, from->data, from->len);
+    to->data = to_data;
+}
 
 /** Hash an address into a hash value (which must already have been set).
  *

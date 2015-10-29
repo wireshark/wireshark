@@ -4525,7 +4525,7 @@ umts_fp_init_protocol(void)
                 umts_fp_conversation_info->channel           = uat_umts_fp_ep_and_ch_records[i].channel_type;
                 umts_fp_conversation_info->dl_frame_number   = 0;
                 umts_fp_conversation_info->ul_frame_number   = 1;
-                WMEM_COPY_ADDRESS(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &src_addr);
+                copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &src_addr);
                 umts_fp_conversation_info->crnc_port         = uat_umts_fp_ep_and_ch_records[i].src_port;
                 umts_fp_conversation_info->rlc_mode          = (enum fp_rlc_mode) uat_umts_fp_ep_and_ch_records[i].rlc_mode;
                 /*Save unique UE-identifier */

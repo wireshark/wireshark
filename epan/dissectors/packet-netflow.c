@@ -5716,28 +5716,28 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         case VENDOR_CACE << 16 | 0: /* caceLocalIPv4Address */
             ti = proto_tree_add_item(pdutree, hf_pie_cace_local_ipv4_address,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
-            TVB_SET_ADDRESS(&local_addr, AT_IPv4, tvb, offset, 4);
+            set_address_tvb(&local_addr, AT_IPv4, 4, tvb, offset);
             got_flags |= GOT_LOCAL_ADDR;
             break;
 
         case VENDOR_CACE << 16 | 1: /* caceRemoteIPv4Address */
             ti = proto_tree_add_item(pdutree, hf_pie_cace_remote_ipv4_address,
                                      tvb, offset, length, ENC_BIG_ENDIAN);
-            TVB_SET_ADDRESS(&remote_addr, AT_IPv4, tvb, offset, 4);
+            set_address_tvb(&remote_addr, AT_IPv4, 4, tvb, offset);
             got_flags |= GOT_REMOTE_ADDR;
             break;
 
         case VENDOR_CACE << 16 | 2: /* caceLocalIPv6Address */
             ti = proto_tree_add_item(pdutree, hf_pie_cace_local_ipv6_address,
                                      tvb, offset, length, ENC_NA);
-            TVB_SET_ADDRESS(&local_addr, AT_IPv6, tvb, offset, 16);
+            set_address_tvb(&local_addr, AT_IPv6, 16, tvb, offset);
             got_flags |= GOT_LOCAL_ADDR;
             break;
 
         case VENDOR_CACE << 16 | 3: /* caceRemoteIPv6Address */
             ti = proto_tree_add_item(pdutree, hf_pie_cace_remote_ipv6_address,
                                      tvb, offset, length, ENC_NA);
-            TVB_SET_ADDRESS(&remote_addr, AT_IPv6, tvb, offset, 16);
+            set_address_tvb(&remote_addr, AT_IPv6, 16, tvb, offset);
             got_flags |= GOT_REMOTE_ADDR;
             break;
 
@@ -7172,8 +7172,8 @@ dissect_v9_v10_options_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
         if ((tmplt_p == NULL) && (tmplt.fields_p[TF_SCOPES] || tmplt.fields_p[TF_ENTRIES])) {
             /* create permanent template copy for storage in template table */
             tmplt_p = (v9_v10_tmplt_t *)wmem_memdup(wmem_file_scope(), &tmplt, sizeof(tmplt));
-            WMEM_COPY_ADDRESS(wmem_file_scope(), &tmplt_p->src_addr, &pinfo->net_src);
-            WMEM_COPY_ADDRESS(wmem_file_scope(), &tmplt_p->dst_addr, &pinfo->net_dst);
+            copy_address_wmem(wmem_file_scope(), &tmplt_p->src_addr, &pinfo->net_src);
+            copy_address_wmem(wmem_file_scope(), &tmplt_p->dst_addr, &pinfo->net_dst);
             /* Remember when we saw this template */
             tmplt_p->template_frame_number = pinfo->fd->num;
             /* Add completed entry into table */
@@ -7272,8 +7272,8 @@ dissect_v9_v10_data_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdut
 
             /* create permanent template copy for storage in template table */
             tmplt_p = (v9_v10_tmplt_t *)wmem_memdup(wmem_file_scope(), &tmplt, sizeof(tmplt));
-            WMEM_COPY_ADDRESS(wmem_file_scope(), &tmplt_p->src_addr, &pinfo->net_src);
-            WMEM_COPY_ADDRESS(wmem_file_scope(), &tmplt_p->dst_addr, &pinfo->net_dst);
+            copy_address_wmem(wmem_file_scope(), &tmplt_p->src_addr, &pinfo->net_src);
+            copy_address_wmem(wmem_file_scope(), &tmplt_p->dst_addr, &pinfo->net_dst);
             /* Remember when we saw this template */
             tmplt_p->template_frame_number = pinfo->fd->num;
             g_hash_table_insert(v9_v10_tmplt_table, tmplt_p, tmplt_p);

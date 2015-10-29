@@ -2282,7 +2282,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     }
   }
   src32 = tvb_get_ntohl(tvb, offset + IPH_SRC);
-  TVB_SET_ADDRESS(&pinfo->net_src, AT_IPv4, tvb, offset + IPH_SRC, 4);
+  set_address_tvb(&pinfo->net_src, AT_IPv4, 4, tvb, offset + IPH_SRC);
   copy_address_shallow(&pinfo->src, &pinfo->net_src);
   copy_address_shallow(&iph->ip_src, &pinfo->src);
   if (tree) {
@@ -2324,7 +2324,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     dst_off = 0;
 
   dst32 = tvb_get_ntohl(tvb, offset + IPH_DST + dst_off);
-  TVB_SET_ADDRESS(&pinfo->net_dst, AT_IPv4, tvb, offset + IPH_DST + dst_off, 4);
+  set_address_tvb(&pinfo->net_dst, AT_IPv4, 4, tvb, offset + IPH_DST + dst_off);
   copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
   copy_address_shallow(&iph->ip_dst, &pinfo->net_dst);
 

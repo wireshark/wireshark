@@ -1728,13 +1728,13 @@ dissect_fid0_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Set DST addr */
-	TVB_SET_ADDRESS(&pinfo->net_dst, sna_address_type, tvb, 2, SNA_FID01_ADDR_LEN);
+	set_address_tvb(&pinfo->net_dst, sna_address_type, SNA_FID01_ADDR_LEN, tvb, 2);
 	copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
 	proto_tree_add_item(tree, hf_sna_th_oaf, tvb, 4, 2, ENC_BIG_ENDIAN);
 
 	/* Set SRC addr */
-	TVB_SET_ADDRESS(&pinfo->net_src, sna_address_type, tvb, 4, SNA_FID01_ADDR_LEN);
+	set_address_tvb(&pinfo->net_src, sna_address_type, SNA_FID01_ADDR_LEN, tvb, 4);
 	copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
 	proto_tree_add_item(tree, hf_sna_th_snf, tvb, 6, 2, ENC_BIG_ENDIAN);
@@ -1780,14 +1780,14 @@ dissect_fid2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/* Set DST addr */
-	TVB_SET_ADDRESS(&pinfo->net_dst, sna_address_type, tvb, 2, SNA_FID2_ADDR_LEN);
+	set_address_tvb(&pinfo->net_dst, sna_address_type, SNA_FID2_ADDR_LEN, tvb, 2);
 	copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
 	/* Byte 3 */
 	proto_tree_add_item(tree, hf_sna_th_oaf, tvb, 3, 1, ENC_BIG_ENDIAN);
 
 	/* Set SRC addr */
-	TVB_SET_ADDRESS(&pinfo->net_src, sna_address_type, tvb, 3, SNA_FID2_ADDR_LEN);
+	set_address_tvb(&pinfo->net_src, sna_address_type, SNA_FID2_ADDR_LEN, tvb, 3);
 	copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
 	id = tvb_get_ntohs(tvb, 4);

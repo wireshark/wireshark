@@ -18670,7 +18670,7 @@ BindingID_port = 0;
                 umts_fp_conversation_info->channel           = CHANNEL_EDCH;
                 umts_fp_conversation_info->dl_frame_number   = 0;
                 umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
-                WMEM_COPY_ADDRESS(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
+                copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
                 umts_fp_conversation_info->crnc_port         = BindingID_port;
 
 
@@ -23362,7 +23362,7 @@ int i;
 
                 umts_fp_conversation_info->dl_frame_number   = 0;
                 umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
-                WMEM_COPY_ADDRESS(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &nbap_common_channel_info[i].crnc_address);
+                copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &nbap_common_channel_info[i].crnc_address);
                 umts_fp_conversation_info->crnc_port         = nbap_common_channel_info[i].crnc_port;
 
                 /*umts_fp_conversation_info->hsdsch_macdflow_id = i ;*/ /*hsdsch_macdflow_ids[i];*/ /* hsdsch_macdflow_id;*/
@@ -23814,7 +23814,7 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
                     umts_fp_conversation_info->channel           = CHANNEL_HSDSCH;
                     umts_fp_conversation_info->dl_frame_number   = 0;
                     umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
-                    WMEM_COPY_ADDRESS(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &nbap_hsdsch_channel_info[i].crnc_address);
+                    copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &nbap_hsdsch_channel_info[i].crnc_address);
                     umts_fp_conversation_info->crnc_port         = nbap_hsdsch_channel_info[i].crnc_port;
 
                     /*Added june 3, normally just the iterator variable*/
@@ -24152,7 +24152,7 @@ dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn
                     umts_fp_conversation_info->channel           = CHANNEL_HSDSCH;
                     umts_fp_conversation_info->dl_frame_number   = 0;
                     umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
-                    WMEM_COPY_ADDRESS(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &nbap_hsdsch_channel_info[i].crnc_address);
+                    copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &nbap_hsdsch_channel_info[i].crnc_address);
                     umts_fp_conversation_info->crnc_port         = nbap_hsdsch_channel_info[i].crnc_port;
 
                     /*Added june 3, normally just the iterator variable*/
@@ -28682,7 +28682,7 @@ dch_id = 0xFFFFFFFF;
                 umts_fp_conversation_info->channel           = CHANNEL_DCH;
                 umts_fp_conversation_info->dl_frame_number   = 0;
                 umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
-                WMEM_COPY_ADDRESS(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
+                copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
                 umts_fp_conversation_info->crnc_port         = BindingID_port;
                 umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 
@@ -28828,7 +28828,7 @@ BindingID_port = 0;
                 umts_fp_conversation_info->channel           = CHANNEL_EDCH;
                 umts_fp_conversation_info->dl_frame_number   = 0;
                 umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
-                WMEM_COPY_ADDRESS(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
+                copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
                 umts_fp_conversation_info->crnc_port         = BindingID_port;
 
 
@@ -32388,7 +32388,7 @@ transportFormatSet_type = NBAP_CPCH;
                 umts_fp_conversation_info->channel           = CHANNEL_FACH_FDD;
                 umts_fp_conversation_info->dl_frame_number   = 0;
                 umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
-                WMEM_COPY_ADDRESS(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
+                copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
                 umts_fp_conversation_info->crnc_port         = BindingID_port;
                 umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
                 /*Save unique UE-identifier */
@@ -32553,7 +32553,7 @@ num_items = 1;
                 umts_fp_conversation_info->channel            = CHANNEL_PCH;
                 umts_fp_conversation_info->dl_frame_number    = 0;
                 umts_fp_conversation_info->ul_frame_number    = actx->pinfo->fd->num;
-                WMEM_COPY_ADDRESS(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
+                copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
                 umts_fp_conversation_info->crnc_port          = BindingID_port;
                 umts_fp_conversation_info->paging_indications = paging_indications;
                 umts_fp_conversation_info->rlc_mode           = FP_RLC_MODE_UNKNOWN;
@@ -32696,7 +32696,7 @@ transportFormatSet_type = NBAP_CPCH;
                 umts_fp_conversation_info->channel           = CHANNEL_RACH_FDD;
                 umts_fp_conversation_info->dl_frame_number   = 0;
                 umts_fp_conversation_info->ul_frame_number   = actx->pinfo->fd->num;
-                WMEM_COPY_ADDRESS(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
+                copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &dst_addr);
                 umts_fp_conversation_info->crnc_port         = BindingID_port;
                 umts_fp_conversation_info->rlc_mode          = FP_RLC_MODE_UNKNOWN;
 
@@ -55228,7 +55228,7 @@ static void add_hsdsch_bind(packet_info *pinfo){
 					umts_fp_conversation_info->channel           = CHANNEL_HSDSCH;
 					umts_fp_conversation_info->dl_frame_number   = 0;
 					umts_fp_conversation_info->ul_frame_number   = pinfo->fd->num;
-					WMEM_COPY_ADDRESS(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &nbap_hsdsch_channel_info[i].crnc_address);
+					copy_address_wmem(wmem_file_scope(), &(umts_fp_conversation_info->crnc_address), &nbap_hsdsch_channel_info[i].crnc_address);
 					umts_fp_conversation_info->crnc_port         = nbap_hsdsch_channel_info[i].crnc_port;
 
 					/*Added june 3, normally just the iterator variable*/

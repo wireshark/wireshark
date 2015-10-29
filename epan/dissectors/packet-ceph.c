@@ -1552,9 +1552,9 @@ c_pkt_data_init(c_pkt_data *d, packet_info *pinfo, guint off)
 
 		/* Note: Server sends banner first. */
 
-		WMEM_COPY_ADDRESS(wmem_file_scope(), &d->convd->server.addr, &pinfo->src);
+		copy_address_wmem(wmem_file_scope(), &d->convd->server.addr, &pinfo->src);
 		d->convd->server.port = pinfo->srcport;
-		WMEM_COPY_ADDRESS(wmem_file_scope(), &d->convd->client.addr, &pinfo->dst);
+		copy_address_wmem(wmem_file_scope(), &d->convd->client.addr, &pinfo->dst);
 		d->convd->client.port = pinfo->destport;
 		conversation_add_proto_data(d->conv, proto_ceph, d->convd);
 	}

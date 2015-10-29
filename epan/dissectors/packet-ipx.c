@@ -332,10 +332,10 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Adjust the tvbuff length to include only the IPX datagram. */
 	set_actual_length(tvb, ipxh->ipx_length);
 
-	TVB_SET_ADDRESS(&pinfo->net_src,	AT_IPX, tvb, 18, 10);
+	set_address_tvb(&pinfo->net_src, AT_IPX, 10, tvb, 18);
     copy_address_shallow(&pinfo->src, &pinfo->net_src);
     copy_address_shallow(&ipxh->ipx_src, &pinfo->net_src);
-	TVB_SET_ADDRESS(&pinfo->net_dst,	AT_IPX, tvb, 6,  10);
+	set_address_tvb(&pinfo->net_dst, AT_IPX, 10, tvb, 6);
     copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
     copy_address_shallow(&ipxh->ipx_dst, &pinfo->net_dst);
 

@@ -114,7 +114,7 @@ lbtru_transport_t * lbtru_transport_add(const address * source_address, guint16 
         return (entry);
     }
     entry = wmem_new(wmem_file_scope(), lbtru_transport_t);
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->source_address), source_address);
+    copy_address_wmem(wmem_file_scope(), &(entry->source_address), source_address);
     entry->source_port = source_port;
     entry->session_id = session_id;
     entry->channel = lbm_channel_assign(LBM_CHANNEL_TRANSPORT_LBTRU);
@@ -163,7 +163,7 @@ static lbtru_client_transport_t * lbtru_client_transport_add(lbtru_transport_t *
         return (entry);
     }
     entry = wmem_new0(wmem_file_scope(), lbtru_client_transport_t);
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->receiver_address), receiver_address);
+    copy_address_wmem(wmem_file_scope(), &(entry->receiver_address), receiver_address);
     entry->receiver_port = receiver_port;
     entry->transport = transport;
     entry->id = transport->next_client_id++;

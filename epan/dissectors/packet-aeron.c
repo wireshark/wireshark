@@ -430,8 +430,8 @@ static aeron_transport_t * aeron_transport_add(const aeron_conversation_info_t *
     transport->channel_id = aeron_channel_id_assign();
     transport->stream = wmem_map_new(wmem_file_scope(), aeron_guint32_hash_func, aeron_guint32_compare_func);
     transport->last_frame = NULL;
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(transport->addr1), cinfo->addr1);
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(transport->addr2), cinfo->addr2);
+    copy_address_wmem(wmem_file_scope(), &(transport->addr1), cinfo->addr1);
+    copy_address_wmem(wmem_file_scope(), &(transport->addr2), cinfo->addr2);
     transport->session_id = session_id;
     transport->port1 = cinfo->port1;
     transport->port2 = cinfo->port2;
@@ -547,7 +547,7 @@ static aeron_stream_rcv_t * aeron_stream_rcv_add(aeron_stream_t * stream, const 
         return (rcv);
     }
     rcv = wmem_new0(wmem_file_scope(), aeron_stream_rcv_t);
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(rcv->addr), addr);
+    copy_address_wmem(wmem_file_scope(), &(rcv->addr), addr);
     rcv->port = port;
     rcv->completed.term_id = 0;
     rcv->completed.term_offset = 0;
@@ -908,17 +908,17 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
                         case HDR_TYPE_DATA:
                         case HDR_TYPE_SETUP:
                             /* Destination is a receiver */
-                            WMEM_COPY_ADDRESS(wmem_packet_scope(), cinfo->addr1, &(pinfo->src));
+                            copy_address_wmem(wmem_packet_scope(), cinfo->addr1, &(pinfo->src));
                             cinfo->port1 = pinfo->srcport;
-                            WMEM_COPY_ADDRESS(wmem_packet_scope(), cinfo->addr2, &(pinfo->dst));
+                            copy_address_wmem(wmem_packet_scope(), cinfo->addr2, &(pinfo->dst));
                             cinfo->port2 = pinfo->destport;
                             break;
                         case HDR_TYPE_NAK:
                         case HDR_TYPE_SM:
                             /* Destination is the source */
-                            WMEM_COPY_ADDRESS(wmem_packet_scope(), cinfo->addr1, &(pinfo->dst));
+                            copy_address_wmem(wmem_packet_scope(), cinfo->addr1, &(pinfo->dst));
                             cinfo->port1 = pinfo->destport;
-                            WMEM_COPY_ADDRESS(wmem_packet_scope(), cinfo->addr2, &(pinfo->src));
+                            copy_address_wmem(wmem_packet_scope(), cinfo->addr2, &(pinfo->src));
                             cinfo->port2 = pinfo->srcport;
                             break;
                         default:
@@ -965,17 +965,17 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
                         case HDR_TYPE_DATA:
                         case HDR_TYPE_SETUP:
                             /* Destination is a receiver */
-                            WMEM_COPY_ADDRESS(wmem_packet_scope(), cinfo->addr1, &(pinfo->src));
+                            copy_address_wmem(wmem_packet_scope(), cinfo->addr1, &(pinfo->src));
                             cinfo->port1 = pinfo->srcport;
-                            WMEM_COPY_ADDRESS(wmem_packet_scope(), cinfo->addr2, &(pinfo->dst));
+                            copy_address_wmem(wmem_packet_scope(), cinfo->addr2, &(pinfo->dst));
                             cinfo->port2 = pinfo->destport;
                             break;
                         case HDR_TYPE_NAK:
                         case HDR_TYPE_SM:
                             /* Destination is the source */
-                            WMEM_COPY_ADDRESS(wmem_packet_scope(), cinfo->addr1, &(pinfo->dst));
+                            copy_address_wmem(wmem_packet_scope(), cinfo->addr1, &(pinfo->dst));
                             cinfo->port1 = pinfo->destport;
-                            WMEM_COPY_ADDRESS(wmem_packet_scope(), cinfo->addr2, &(pinfo->src));
+                            copy_address_wmem(wmem_packet_scope(), cinfo->addr2, &(pinfo->src));
                             cinfo->port2 = pinfo->srcport;
                             break;
                         default:

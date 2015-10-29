@@ -76,7 +76,7 @@ static lbttcp_transport_t * lbttcp_transport_create(const address * source_addre
     lbttcp_transport_t * transport = NULL;
 
     transport = wmem_new(wmem_file_scope(), lbttcp_transport_t);
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(transport->source_address), source_address);
+    copy_address_wmem(wmem_file_scope(), &(transport->source_address), source_address);
     transport->source_port = source_port;
     transport->session_id = session_id;
     transport->channel = lbm_channel_assign(LBM_CHANNEL_TRANSPORT_LBTTCP);
@@ -154,7 +154,7 @@ static lbttcp_client_transport_t * lbttcp_client_transport_add(lbttcp_transport_
         return (entry);
     }
     entry = wmem_new(wmem_file_scope(), lbttcp_client_transport_t);
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->receiver_address), receiver_address);
+    copy_address_wmem(wmem_file_scope(), &(entry->receiver_address), receiver_address);
     entry->receiver_port = receiver_port;
     entry->id = transport->next_client_id++;
 

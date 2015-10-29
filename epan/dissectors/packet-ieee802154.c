@@ -744,7 +744,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             ieee_hints->dst16 = packet->dst16;
         }
 
-        TVB_SET_ADDRESS(&pinfo->dl_dst, ieee802_15_4_short_address_type, tvb, offset, 2);
+        set_address_tvb(&pinfo->dl_dst, ieee802_15_4_short_address_type, 2, tvb, offset);
         copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 
         if (tree) {
@@ -838,7 +838,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             }
         }
 
-        TVB_SET_ADDRESS(&pinfo->dl_src, ieee802_15_4_short_address_type, tvb, offset, 2);
+        set_address_tvb(&pinfo->dl_src, ieee802_15_4_short_address_type, 2, tvb, offset);
         copy_address_shallow(&pinfo->src, &pinfo->dl_src);
 
         /* Add the addressing info to the tree. */

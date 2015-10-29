@@ -295,16 +295,16 @@ static int get_address_v5(tvbuff_t *tvb, int offset,
     {
     case 1: /* IPv4 address */
         if ( hash_info) {
-            TVB_SET_ADDRESS(&addr, AT_IPv4, tvb, offset, 4);
-            WMEM_COPY_ADDRESS(wmem_file_scope(), &hash_info->dst_addr, &addr);
+            set_address_tvb(&addr, AT_IPv4, 4, tvb, offset);
+            copy_address_wmem(wmem_file_scope(), &hash_info->dst_addr, &addr);
         }
         offset += 4;
         break;
 
     case 4: /* IPv6 address */
         if ( hash_info) {
-            TVB_SET_ADDRESS(&addr, AT_IPv6, tvb, offset, 16);
-            WMEM_COPY_ADDRESS(wmem_file_scope(), &hash_info->dst_addr, &addr);
+            set_address_tvb(&addr, AT_IPv6, 16, tvb, offset);
+            copy_address_wmem(wmem_file_scope(), &hash_info->dst_addr, &addr);
         }
         offset += 16;
         break;
@@ -698,8 +698,8 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
             hash_info->port =  tvb_get_ntohs(tvb, offset + 2);
 
         /* get remote address */
-        TVB_SET_ADDRESS(&addr, AT_IPv4, tvb, offset, 4);
-        WMEM_COPY_ADDRESS(wmem_file_scope(), &hash_info->dst_addr, &addr);
+        set_address_tvb(&addr, AT_IPv4, 4, tvb, offset);
+        copy_address_wmem(wmem_file_scope(), &hash_info->dst_addr, &addr);
 
         hash_info->clientState = clientDone;
     }

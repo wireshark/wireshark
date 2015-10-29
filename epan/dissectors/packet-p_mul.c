@@ -331,7 +331,7 @@ static p_mul_seq_val *lookup_seq_val (guint32 message_id, guint16 seq_no,
 
   p_mul_key->id = message_id;
   p_mul_key->seq = seq_no;
-  WMEM_COPY_ADDRESS(wmem_file_scope(), &p_mul_key->addr, addr);
+  copy_address_wmem(wmem_file_scope(), &p_mul_key->addr, addr);
 
   pkg_data = (p_mul_seq_val *) g_hash_table_lookup (p_mul_id_hash_table, p_mul_key);
 
@@ -391,7 +391,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
     /* Try to match corresponding address PDU */
     p_mul_key->id = message_id;
     p_mul_key->seq = 0;
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &p_mul_key->addr, addr);
+    copy_address_wmem(wmem_file_scope(), &p_mul_key->addr, addr);
     need_set_address = TRUE;
 
     p_mul_data = (p_mul_seq_val *) g_hash_table_lookup (p_mul_id_hash_table, p_mul_key);
@@ -445,7 +445,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
     p_mul_key->id = message_id;
     p_mul_key->seq = seq_no;
     if (!need_set_address) {
-      WMEM_COPY_ADDRESS(wmem_file_scope(), &p_mul_key->addr, addr);
+      copy_address_wmem(wmem_file_scope(), &p_mul_key->addr, addr);
     }
     p_mul_data = (p_mul_seq_val *) g_hash_table_lookup (p_mul_id_hash_table, p_mul_key);
 
@@ -949,7 +949,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
   if (pdu_type == Ack_PDU) {
     /* Source ID of Ack Sender */
-    TVB_SET_ADDRESS (&dst, AT_IPv4, tvb, offset, 4);
+    set_address_tvb (&dst, AT_IPv4, 4, tvb, offset);
     proto_tree_add_item (p_mul_tree, hf_source_id_ack, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
@@ -959,7 +959,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     offset += 2;
   } else {
     /* Source Id */
-    TVB_SET_ADDRESS (&src, AT_IPv4, tvb, offset, 4);
+    set_address_tvb (&src, AT_IPv4, 4, tvb, offset);
     proto_tree_add_item (p_mul_tree, hf_source_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
@@ -1034,7 +1034,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
       field_tree = proto_item_add_subtree (en, ett_dest_entry);
 
       /* Destination Id */
-      TVB_SET_ADDRESS (&dst, AT_IPv4, tvb, offset, 4);
+      set_address_tvb (&dst, AT_IPv4, 4, tvb, offset);
       proto_tree_add_item (field_tree, hf_dest_id, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
 
@@ -1095,7 +1095,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
       }
 
       /* Source Id */
-      TVB_SET_ADDRESS (&src, AT_IPv4, tvb, offset, 4);
+      set_address_tvb (&src, AT_IPv4, 4, tvb, offset);
       proto_tree_add_item (field_tree, hf_source_id, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
 

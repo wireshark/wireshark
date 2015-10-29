@@ -2599,9 +2599,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     if (source_addr_offset != 0) {
                         proto_item *addr_ti;
 
-                        TVB_SET_ADDRESS(&pinfo->net_src,
+                        set_address_tvb(&pinfo->net_src,
                                     (source_addr_length == 4) ? AT_IPv4 : AT_IPv6,
-                                    tvb, source_addr_offset, source_addr_length);
+                                    source_addr_length, tvb, source_addr_offset);
                         copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
                         proto_tree_add_item(ipprim_tree,
@@ -2640,9 +2640,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     if (dest_addr_offset != 0) {
                         proto_item *addr_ti;
 
-                        TVB_SET_ADDRESS(&pinfo->net_dst,
+                        set_address_tvb(&pinfo->net_dst,
                                     (dest_addr_length == 4) ? AT_IPv4 : AT_IPv6,
-                                    tvb, dest_addr_offset, dest_addr_length);
+                                    dest_addr_length, tvb, dest_addr_offset);
                         copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
                         proto_tree_add_item(ipprim_tree,
                                             (dest_addr_length == 4) ?
@@ -2749,9 +2749,9 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     if (dest_addr_offset != 0) {
                         proto_item *addr_ti;
 
-                        TVB_SET_ADDRESS(&pinfo->net_dst,
+                        set_address_tvb(&pinfo->net_dst,
                                     (dest_addr_length == 4) ? AT_IPv4 : AT_IPv6,
-                                    tvb, dest_addr_offset, dest_addr_length);
+                                    dest_addr_length, tvb, dest_addr_offset);
                         copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
                         proto_tree_add_item(sctpprim_tree,
                                             (dest_addr_length == 4) ?

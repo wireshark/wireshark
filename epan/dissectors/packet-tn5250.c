@@ -5180,9 +5180,9 @@ add_tn5250_conversation(packet_info *pinfo, int tn5250e)
      * it to the list of information structures.
      */
     tn5250_info = wmem_new(wmem_file_scope(), tn5250_conv_info_t);
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(tn5250_info->outbound_addr),&(pinfo->dst));
+    copy_address_wmem(wmem_file_scope(), &(tn5250_info->outbound_addr),&(pinfo->dst));
     tn5250_info->outbound_port = pinfo->destport;
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(tn5250_info->inbound_addr),&(pinfo->src));
+    copy_address_wmem(wmem_file_scope(), &(tn5250_info->inbound_addr),&(pinfo->src));
     tn5250_info->inbound_port = pinfo->srcport;
     conversation_add_proto_data(conversation, proto_tn5250, tn5250_info);
     tn5250_info->next = tn5250_info_items;

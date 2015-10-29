@@ -158,7 +158,7 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     string_length = tvb_strsize(tvb, offset);
     proto_tree_add_item(maintree, hf_logcat_tag, tvb, offset, string_length, ENC_ASCII | ENC_NA);
 
-    TVB_SET_ADDRESS(&pinfo->src, AT_STRINGZ, tvb, offset, string_length + 1);
+    set_address_tvb(&pinfo->src, AT_STRINGZ, string_length + 1, tvb, offset);
     set_address(&pinfo->dst, AT_STRINGZ, 7, "Logcat");
 
     offset += string_length;

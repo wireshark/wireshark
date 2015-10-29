@@ -264,7 +264,7 @@ static lbtrdma_transport_t * lbtrdma_transport_add(const address * source_addres
         return (entry);
     }
     entry = wmem_new(wmem_file_scope(), lbtrdma_transport_t);
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->source_address), source_address);
+    copy_address_wmem(wmem_file_scope(), &(entry->source_address), source_address);
     entry->session_id = session_id;
     entry->port = port;
     entry->channel = lbm_channel_assign(LBM_CHANNEL_TRANSPORT_LBTRDMA);
@@ -3954,7 +3954,7 @@ static int dissect_lbmr_tir_transport(tvbuff_t * tvb, int offset, lbm_uint8_t tr
 
                 lbtrm_item = proto_tree_add_item(tree, hf_lbmr_tir_lbtrm, tvb, offset, (gint)transport_len, ENC_NA);
                 lbtrm_tree = proto_item_add_subtree(lbtrm_item, ett_lbmr_tir_lbtrm);
-                TVB_SET_ADDRESS(&multicast_group, AT_IPv4, tvb, offset + O_LBMR_TIR_LBTRM_T_MCAST_ADDR, L_LBMR_TIR_LBTRM_T_MCAST_ADDR);
+                set_address_tvb(&multicast_group, AT_IPv4, L_LBMR_TIR_LBTRM_T_MCAST_ADDR, tvb, offset + O_LBMR_TIR_LBTRM_T_MCAST_ADDR);
                 session_id = tvb_get_ntohl(tvb, offset + O_LBMR_TIR_LBTRM_T_SESSION_ID);
                 udp_dest_port = tvb_get_ntohs(tvb, offset + O_LBMR_TIR_LBTRM_T_UDP_DEST_PORT);
                 src_ucast_port = tvb_get_ntohs(tvb, offset + O_LBMR_TIR_LBTRM_T_SRC_UCAST_PORT);
@@ -4054,7 +4054,7 @@ static int dissect_lbmr_tir_transport(tvbuff_t * tvb, int offset, lbm_uint8_t tr
                     expert_add_info_format(pinfo, transport_len_item, &ei_lbmr_analysis_length_incorrect, "Wrong transport length for LBMR TIR LBTRDMA info");
                     return (0);
                 }
-                TVB_SET_ADDRESS(&source_addr, AT_IPv4, tvb, offset + O_LBMR_TIR_LBTRDMA_T_IP, L_LBMR_TIR_LBTRDMA_T_IP);
+                set_address_tvb(&source_addr, AT_IPv4, L_LBMR_TIR_LBTRDMA_T_IP, tvb, offset + O_LBMR_TIR_LBTRDMA_T_IP);
                 session_id = tvb_get_ntohl(tvb, offset + O_LBMR_TIR_LBTRDMA_T_SESSION_ID);
                 port = tvb_get_ntohs(tvb, offset + O_LBMR_TIR_LBTRDMA_T_PORT);
                 proto_tree_add_item(lbtrdma_tree, hf_lbmr_tir_lbtrdma_ip, tvb, offset + O_LBMR_TIR_LBTRDMA_T_IP, L_LBMR_TIR_LBTRDMA_T_IP, ENC_BIG_ENDIAN);

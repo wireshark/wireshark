@@ -1532,7 +1532,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (http_type == HTTP_RESPONSE && pinfo->desegment_offset<=0 && pinfo->desegment_len<=0) {
 		conv_data->upgrade = headers.upgrade;
 		conv_data->startframe = pinfo->fd->num + 1;
-		WMEM_COPY_ADDRESS(wmem_file_scope(), &conv_data->server_addr, &pinfo->src);
+		copy_address_wmem(wmem_file_scope(), &conv_data->server_addr, &pinfo->src);
 		conv_data->server_port = pinfo->srcport;
 	}
 

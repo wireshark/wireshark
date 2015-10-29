@@ -16372,7 +16372,7 @@ set_src_addr_cols(packet_info *pinfo, tvbuff_t *tvb, int offset, const char *typ
 {
   address      ether_addr;
 
-  TVB_SET_ADDRESS(&ether_addr, AT_ETHER, tvb, offset, 6);
+  set_address_tvb(&ether_addr, AT_ETHER, 6, tvb, offset);
 
   col_add_fstr(pinfo->cinfo, COL_RES_DL_SRC, "%s (%s)",
         address_with_resolution_to_str(wmem_packet_scope(), &ether_addr), type);
@@ -16383,7 +16383,7 @@ set_dst_addr_cols(packet_info *pinfo, tvbuff_t *tvb, int offset, const char *typ
 {
   address      ether_addr;
 
-  TVB_SET_ADDRESS(&ether_addr, AT_ETHER, tvb, offset, 6);
+  set_address_tvb(&ether_addr, AT_ETHER, 6, tvb, offset);
 
   col_add_fstr(pinfo->cinfo, COL_RES_DL_DST, "%s (%s)",
         address_with_resolution_to_str(wmem_packet_scope(), &ether_addr), type);
@@ -16697,13 +16697,13 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       /*
        * All management frame types have the same header.
        */
-      TVB_SET_ADDRESS(&pinfo->dl_src, wlan_address_type, tvb, 10, 6);
+      set_address_tvb(&pinfo->dl_src, wlan_address_type, 6, tvb, 10);
       copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-      TVB_SET_ADDRESS(&pinfo->dl_dst, wlan_address_type, tvb, 4, 6);
+      set_address_tvb(&pinfo->dl_dst, wlan_address_type, 6, tvb, 4);
       copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 
       /* for tap */
-      TVB_SET_ADDRESS(&whdr->bssid, wlan_bssid_address_type, tvb, 16, 6);
+      set_address_tvb(&whdr->bssid, wlan_bssid_address_type, 6, tvb, 16);
       copy_address_shallow(&whdr->src, &pinfo->dl_src);
       copy_address_shallow(&whdr->dst, &pinfo->dl_dst);
 
@@ -17365,13 +17365,13 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 
 
 
-      TVB_SET_ADDRESS(&pinfo->dl_src, wlan_address_type, tvb, sa_offset, 6);
+      set_address_tvb(&pinfo->dl_src, wlan_address_type, 6, tvb, sa_offset);
       copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-      TVB_SET_ADDRESS(&pinfo->dl_dst, wlan_address_type, tvb, da_offset, 6);
+      set_address_tvb(&pinfo->dl_dst, wlan_address_type, 6, tvb, da_offset);
       copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 
       /* for tap */
-      TVB_SET_ADDRESS(&whdr->bssid, wlan_bssid_address_type, tvb, bssid_offset, 6);
+      set_address_tvb(&whdr->bssid, wlan_bssid_address_type, 6, tvb, bssid_offset);
 
       copy_address_shallow(&whdr->src, &pinfo->dl_src);
       copy_address_shallow(&whdr->dst, &pinfo->dl_dst);

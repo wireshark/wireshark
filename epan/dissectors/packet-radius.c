@@ -599,9 +599,9 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 	}
 
 	if (type == 3) { /* IPv6 */
-		TVB_SET_ADDRESS(&srcip, AT_IPv6, tvb, 4, 16);
+		set_address_tvb(&srcip, AT_IPv6, 16, tvb, 4);
 	} else {
-		TVB_SET_ADDRESS(&srcip, AT_IPv4, tvb, 4, 4);
+		set_address_tvb(&srcip, AT_IPv4, 4, tvb, 4);
 	}
 	srclen=tvb_get_guint8(tvb, 4+iplen*2);
 	srcport=tvb_get_ntohs(tvb, 9+iplen*2);
@@ -615,9 +615,9 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 	}
 
 	if (type == 3) { /* IPv6-*/
-		TVB_SET_ADDRESS(&dstip, AT_IPv6, tvb, 4+iplen, 16);
+		set_address_tvb(&dstip, AT_IPv6, 16, tvb, 4+iplen);
 	} else {
-		TVB_SET_ADDRESS(&dstip, AT_IPv4, tvb, 4+iplen, 4);
+		set_address_tvb(&dstip, AT_IPv4, 4, tvb, 4+iplen);
 	}
 	dstlen=tvb_get_guint8(tvb, 5+iplen*2);
 	dstport=tvb_get_ntohs(tvb, 10+iplen*2);

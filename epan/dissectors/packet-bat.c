@@ -251,9 +251,9 @@ static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	batman_packeth->seqno = tvb_get_ntohs(tvb, offset+4);
 	batman_packeth->gwport = tvb_get_ntohs(tvb, offset+6);
 	orig = tvb_get_ipv4(tvb, offset+8);
-	TVB_SET_ADDRESS(&batman_packeth->orig, AT_IPv4, tvb, offset+8, 4);
+	set_address_tvb(&batman_packeth->orig, AT_IPv4, 4, tvb, offset+8);
 	old_orig = tvb_get_ipv4(tvb, offset+12);
-	TVB_SET_ADDRESS(&batman_packeth->old_orig, AT_IPv4, tvb, offset+12, 4);
+	set_address_tvb(&batman_packeth->old_orig, AT_IPv4, 4, tvb, offset+12);
 	batman_packeth->tq = tvb_get_guint8(tvb, offset+16);
 	batman_packeth->hna_len = tvb_get_guint8(tvb, offset+17);
 
@@ -457,7 +457,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	vis_packeth = wmem_new(wmem_packet_scope(), struct vis_packet_v22);
 
 	sender_ip = tvb_get_ipv4(tvb, 0);
-	TVB_SET_ADDRESS(&vis_packeth->sender_ip, AT_IPv4, tvb, 0, 4);
+	set_address_tvb(&vis_packeth->sender_ip, AT_IPv4, 4, tvb, 0);
 	vis_packeth->version = tvb_get_guint8(tvb, 4);
 	vis_packeth->gw_class = tvb_get_guint8(tvb, 5);
 	vis_packeth->tq_max = tvb_get_ntohs(tvb, 6);
@@ -534,7 +534,7 @@ static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	vis_datah->type = tvb_get_guint8(tvb, 0);
 	vis_datah->data = tvb_get_ntohs(tvb, 1);
 	ip = tvb_get_ipv4(tvb, 3);
-	TVB_SET_ADDRESS(&vis_datah->ip, AT_IPv4, tvb, 3, 4);
+	set_address_tvb(&vis_datah->ip, AT_IPv4, 4, tvb, 3);
 
 
 	/* Set tree info */
@@ -578,7 +578,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	vis_packeth = wmem_new(wmem_packet_scope(), struct vis_packet_v23);
 
 	sender_ip = tvb_get_ipv4(tvb, 0);
-	TVB_SET_ADDRESS(&vis_packeth->sender_ip, AT_IPv4, tvb, 0, 4);
+	set_address_tvb(&vis_packeth->sender_ip, AT_IPv4, 4, tvb, 0);
 	vis_packeth->version = tvb_get_guint8(tvb, 4);
 	vis_packeth->gw_class = tvb_get_guint8(tvb, 5);
 	vis_packeth->tq_max = tvb_get_guint8(tvb, 6);
@@ -655,7 +655,7 @@ static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	vis_datah->type = tvb_get_guint8(tvb, 0);
 	vis_datah->data = tvb_get_guint8(tvb, 1);
 	ip = tvb_get_ipv4(tvb, 2);
-	TVB_SET_ADDRESS(&vis_datah->ip, AT_IPv4, tvb, 2, 4);
+	set_address_tvb(&vis_datah->ip, AT_IPv4, 4, tvb, 2);
 
 
 	/* Set tree info */

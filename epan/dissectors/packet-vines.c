@@ -552,9 +552,9 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			val_to_str_const(vip_tctl, proto_vals, "Unknown VIP protocol"),
 			vip_tctl);
 
-	TVB_SET_ADDRESS(&pinfo->net_src, AT_VINES, tvb, offset+12, VINES_ADDR_LEN);
+	set_address_tvb(&pinfo->net_src, AT_VINES, VINES_ADDR_LEN, tvb, offset+12);
 	copy_address_shallow(&pinfo->src, &pinfo->net_src);
-	TVB_SET_ADDRESS(&pinfo->net_dst, AT_VINES, tvb, offset+6, VINES_ADDR_LEN);
+	set_address_tvb(&pinfo->net_dst, AT_VINES, VINES_ADDR_LEN, tvb, offset+6);
 	copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
 	/* helpers to transport control */

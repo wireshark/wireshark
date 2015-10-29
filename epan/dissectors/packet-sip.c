@@ -4394,8 +4394,8 @@ guint sip_is_packet_resend(packet_info *pinfo,
 
         /* Fill in key and value details */
         g_snprintf(p_key->call_id, MAX_CALL_ID_SIZE, "%s", call_id);
-        WMEM_COPY_ADDRESS(wmem_file_scope(), &(p_key->dest_address), &pinfo->net_dst);
-        WMEM_COPY_ADDRESS(wmem_file_scope(), &(p_key->source_address), &pinfo->net_src);
+        copy_address_wmem(wmem_file_scope(), &(p_key->dest_address), &pinfo->net_dst);
+        copy_address_wmem(wmem_file_scope(), &(p_key->source_address), &pinfo->net_src);
         p_key->dest_port = pinfo->destport;
         if (sip_retrans_the_same_sport) {
             p_key->source_port = pinfo->srcport;

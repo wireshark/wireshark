@@ -747,8 +747,8 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
      * will use ip addresses instead and still work.
      */
     if(!is_ifcp){
-        TVB_SET_ADDRESS (&pinfo->dst, AT_FC, tvb, offset+1, 3);
-        TVB_SET_ADDRESS (&pinfo->src, AT_FC, tvb, offset+5, 3);
+        set_address_tvb (&pinfo->dst, AT_FC, 3, tvb, offset+1);
+        set_address_tvb (&pinfo->src, AT_FC, 3, tvb, offset+5);
         pinfo->srcport=0;
         pinfo->destport=0;
     }

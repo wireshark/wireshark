@@ -156,10 +156,10 @@ lbtrm_transport_t * lbtrm_transport_add(const address * source_address, guint16 
         return (entry);
     }
     entry = wmem_new(wmem_file_scope(), lbtrm_transport_t);
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->source_address), source_address);
+    copy_address_wmem(wmem_file_scope(), &(entry->source_address), source_address);
     entry->source_port = source_port;
     entry->session_id = session_id;
-    WMEM_COPY_ADDRESS(wmem_file_scope(), &(entry->multicast_group), multicast_group);
+    copy_address_wmem(wmem_file_scope(), &(entry->multicast_group), multicast_group);
     entry->dest_port = dest_port;
     entry->channel = lbm_channel_assign(LBM_CHANNEL_TRANSPORT_LBTRM);
     entry->frame = wmem_tree_new(wmem_file_scope());

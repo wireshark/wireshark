@@ -1055,10 +1055,10 @@ static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinf
 	batman_packeth->gwflags = tvb_get_guint8(tvb, offset+4);
 	batman_packeth->tq = tvb_get_guint8(tvb, offset+5);
 	batman_packeth->seqno = tvb_get_ntohs(tvb, offset+6);
-	TVB_SET_ADDRESS(&batman_packeth->orig, AT_ETHER, tvb, offset+8, 6);
+	set_address_tvb(&batman_packeth->orig, AT_ETHER, 6, tvb, offset+8);
 	copy_address_shallow(&pinfo->dl_src, &batman_packeth->orig);
 	copy_address_shallow(&pinfo->src, &batman_packeth->orig);
-	TVB_SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, tvb, offset+14, 6);
+	set_address_tvb(&batman_packeth->prev_sender, AT_ETHER, 6, tvb, offset+14);
 
 	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+20);
 	batman_packeth->pad = tvb_get_guint8(tvb, offset+21);
@@ -1151,10 +1151,10 @@ static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinf
 	batman_packeth->flags = tvb_get_guint8(tvb, offset+2);
 	batman_packeth->tq = tvb_get_guint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohs(tvb, offset+4);
-	TVB_SET_ADDRESS(&batman_packeth->orig, AT_ETHER, tvb, offset+6, 6);
+	set_address_tvb(&batman_packeth->orig, AT_ETHER, 6, tvb, offset+6);
 	copy_address_shallow(&pinfo->dl_src, &batman_packeth->orig);
 	copy_address_shallow(&pinfo->src, &batman_packeth->orig);
-	TVB_SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, tvb, offset+12, 6);
+	set_address_tvb(&batman_packeth->prev_sender, AT_ETHER, 6, tvb, offset+12);
 	batman_packeth->ttl = tvb_get_guint8(tvb, offset+18);
 	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+19);
 
@@ -1240,10 +1240,10 @@ static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinf
 	batman_packeth->flags = tvb_get_guint8(tvb, offset+2);
 	batman_packeth->tq = tvb_get_guint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohs(tvb, offset+4);
-	TVB_SET_ADDRESS(&batman_packeth->orig, AT_ETHER, tvb, offset+6, 6);
+	set_address_tvb(&batman_packeth->orig, AT_ETHER, 6, tvb, offset+6);
 	copy_address_shallow(&pinfo->dl_src, &batman_packeth->orig);
 	copy_address_shallow(&pinfo->src, &batman_packeth->orig);
-	TVB_SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, tvb, offset+12, 6);
+	set_address_tvb(&batman_packeth->prev_sender, AT_ETHER, 6, tvb, offset+12);
 	batman_packeth->ttl = tvb_get_guint8(tvb, offset+18);
 	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+19);
 	batman_packeth->gwflags = tvb_get_guint8(tvb, offset+20);
@@ -1337,10 +1337,10 @@ static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pin
 	batman_packeth->flags = tvb_get_guint8(tvb, offset+2);
 	batman_packeth->tq = tvb_get_guint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohl(tvb, offset+4);
-	TVB_SET_ADDRESS(&batman_packeth->orig, AT_ETHER, tvb, offset+8, 6);
+	set_address_tvb(&batman_packeth->orig, AT_ETHER, 6, tvb, offset+8);
 	copy_address_shallow(&pinfo->dl_src, &batman_packeth->orig);
 	copy_address_shallow(&pinfo->src, &batman_packeth->orig);
-	TVB_SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, tvb, offset+14, 6);
+	set_address_tvb(&batman_packeth->prev_sender, AT_ETHER, 6, tvb, offset+14);
 	batman_packeth->ttl = tvb_get_guint8(tvb, offset+20);
 	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+21);
 	batman_packeth->gwflags = tvb_get_guint8(tvb, offset+22);
@@ -1433,10 +1433,10 @@ static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pin
 	batman_packeth->flags = tvb_get_guint8(tvb, offset+2);
 	batman_packeth->tq = tvb_get_guint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohl(tvb, offset+4);
-	TVB_SET_ADDRESS(&batman_packeth->orig, AT_ETHER, tvb, offset+8, 6);
+	set_address_tvb(&batman_packeth->orig, AT_ETHER, 6, tvb, offset+8);
 	copy_address_shallow(&pinfo->dl_src, &batman_packeth->orig);
 	copy_address_shallow(&pinfo->src, &batman_packeth->orig);
-	TVB_SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, tvb, offset+14, 6);
+	set_address_tvb(&batman_packeth->prev_sender, AT_ETHER, 6, tvb, offset+14);
 	batman_packeth->ttl = tvb_get_guint8(tvb, offset+20);
 	batman_packeth->num_tt = tvb_get_guint8(tvb, offset+21);
 
@@ -1523,10 +1523,10 @@ static int dissect_batadv_batman_v14(tvbuff_t *tvb, int offset, packet_info *pin
 	batman_packeth->ttl = tvb_get_guint8(tvb, offset+2);
 	batman_packeth->flags = tvb_get_guint8(tvb, offset+3);
 	batman_packeth->seqno = tvb_get_ntohl(tvb, offset+4);
-	TVB_SET_ADDRESS(&batman_packeth->orig, AT_ETHER, tvb, offset+8, 6);
+	set_address_tvb(&batman_packeth->orig, AT_ETHER, 6, tvb, offset+8);
 	copy_address_shallow(&pinfo->dl_src, &batman_packeth->orig);
 	copy_address_shallow(&pinfo->src, &batman_packeth->orig);
-	TVB_SET_ADDRESS(&batman_packeth->prev_sender, AT_ETHER, tvb, offset+14, 6);
+	set_address_tvb(&batman_packeth->prev_sender, AT_ETHER, 6, tvb, offset+14);
 	batman_packeth->gw_flags = tvb_get_guint8(tvb, offset+20);
 	batman_packeth->tq = tvb_get_guint8(tvb, offset+21);
 	batman_packeth->tt_num_changes = tvb_get_guint8(tvb, offset+22);
@@ -1700,14 +1700,14 @@ static int dissect_batadv_iv_ogm_v15(tvbuff_t *tvb, int offset,
 			    offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
-	TVB_SET_ADDRESS(&iv_ogm_packeth->orig, AT_ETHER, tvb, offset, 6);
-	TVB_SET_ADDRESS(&pinfo->dl_src, AT_ETHER, tvb, offset, 6);
-	TVB_SET_ADDRESS(&pinfo->src, AT_ETHER, tvb, offset, 6);
+	set_address_tvb(&iv_ogm_packeth->orig, AT_ETHER, 6, tvb, offset);
+	set_address_tvb(&pinfo->dl_src, AT_ETHER, 6, tvb, offset);
+	set_address_tvb(&pinfo->src, AT_ETHER, 6, tvb, offset);
 	proto_tree_add_item(batadv_iv_ogm_tree, hf_batadv_iv_ogm_orig, tvb,
 			    offset, 6, ENC_NA);
 	offset += 6;
 
-	TVB_SET_ADDRESS(&iv_ogm_packeth->prev_sender, AT_ETHER, tvb, offset, 6);
+	set_address_tvb(&iv_ogm_packeth->prev_sender, AT_ETHER, 6, tvb, offset);
 	proto_tree_add_item(batadv_iv_ogm_tree, hf_batadv_iv_ogm_prev_sender, tvb,
 			    offset, 6, ENC_NA);
 	offset += 6;
@@ -1801,7 +1801,7 @@ static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	bcast_packeth = (struct bcast_packet_v6 *)wmem_alloc(wmem_packet_scope(), sizeof(struct bcast_packet_v6));
 
 	bcast_packeth->version = tvb_get_guint8(tvb, 1);
-	TVB_SET_ADDRESS(&bcast_packeth->orig, AT_ETHER, tvb, 2, 6);
+	set_address_tvb(&bcast_packeth->orig, AT_ETHER, 6, tvb, 2);
 	copy_address_shallow(&pinfo->dl_src, &bcast_packeth->orig);
 	copy_address_shallow(&pinfo->src, &bcast_packeth->orig);
 	bcast_packeth->seqno = tvb_get_ntohs(tvb, 8);
@@ -1858,7 +1858,7 @@ static void dissect_batadv_bcast_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	bcast_packeth = (struct bcast_packet_v10 *)wmem_alloc(wmem_packet_scope(), sizeof(struct bcast_packet_v10));
 
 	bcast_packeth->version = tvb_get_guint8(tvb, 1);
-	TVB_SET_ADDRESS(&bcast_packeth->orig, AT_ETHER, tvb, 2, 6);
+	set_address_tvb(&bcast_packeth->orig, AT_ETHER, 6, tvb, 2);
 	copy_address_shallow(&pinfo->dl_src, &bcast_packeth->orig);
 	copy_address_shallow(&pinfo->src, &bcast_packeth->orig);
 	bcast_packeth->ttl = tvb_get_guint8(tvb, 8);
@@ -1924,7 +1924,7 @@ static void dissect_batadv_bcast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	bcast_packeth->ttl = tvb_get_guint8(tvb, 2);
 	bcast_packeth->reserved = tvb_get_guint8(tvb, 3);
 	bcast_packeth->seqno = tvb_get_ntohl(tvb, 4);
-	TVB_SET_ADDRESS(&bcast_packeth->orig, AT_ETHER, tvb, 8, 6);
+	set_address_tvb(&bcast_packeth->orig, AT_ETHER, 6, tvb, 8);
 	copy_address_shallow(&pinfo->dl_src, &bcast_packeth->orig);
 	copy_address_shallow(&pinfo->src, &bcast_packeth->orig);
 
@@ -2024,8 +2024,8 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 	icmp_packeth->version = tvb_get_guint8(tvb, 1);
 	icmp_packeth->msg_type = tvb_get_guint8(tvb, 2);
-	TVB_SET_ADDRESS(&icmp_packeth->dst, AT_ETHER, tvb, 3, 6);
-	TVB_SET_ADDRESS(&icmp_packeth->orig, AT_ETHER, tvb, 9, 6);
+	set_address_tvb(&icmp_packeth->dst, AT_ETHER, 6, tvb, 3);
+	set_address_tvb(&icmp_packeth->orig, AT_ETHER, 6, tvb, 9);
 
 	copy_address_shallow(&pinfo->dl_src, &icmp_packeth->orig);
 	copy_address_shallow(&pinfo->src, &icmp_packeth->orig);
@@ -2152,8 +2152,8 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	icmp_packeth->version = tvb_get_guint8(tvb, 1);
 	icmp_packeth->msg_type = tvb_get_guint8(tvb, 2);
 	icmp_packeth->ttl = tvb_get_guint8(tvb, 3);
-	TVB_SET_ADDRESS(&icmp_packeth->dst, AT_ETHER, tvb, 4, 6);
-	TVB_SET_ADDRESS(&icmp_packeth->orig, AT_ETHER, tvb, 10, 6);
+	set_address_tvb(&icmp_packeth->dst, AT_ETHER, 6, tvb, 4);
+	set_address_tvb(&icmp_packeth->orig, AT_ETHER, 6, tvb, 10);
 
 	copy_address_shallow(&pinfo->dl_src, &icmp_packeth->orig);
 	copy_address_shallow(&pinfo->src, &icmp_packeth->orig);
@@ -2234,8 +2234,8 @@ static void dissect_batadv_icmp_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	icmp_packeth->version = tvb_get_guint8(tvb, 1);
 	icmp_packeth->ttl = tvb_get_guint8(tvb, 2);
 	icmp_packeth->msg_type = tvb_get_guint8(tvb, 3);
-	TVB_SET_ADDRESS(&icmp_packeth->dst, AT_ETHER, tvb, 4, 6);
-	TVB_SET_ADDRESS(&icmp_packeth->orig, AT_ETHER, tvb, 10, 6);
+	set_address_tvb(&icmp_packeth->dst, AT_ETHER, 6, tvb, 4);
+	set_address_tvb(&icmp_packeth->orig, AT_ETHER, 6, tvb, 10);
 
 	copy_address_shallow(&pinfo->dl_src, &icmp_packeth->orig);
 	copy_address_shallow(&pinfo->src, &icmp_packeth->orig);
@@ -2361,7 +2361,7 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	TVB_SET_ADDRESS(&icmp_packeth->dst, AT_ETHER, tvb, offset, 6);
+	set_address_tvb(&icmp_packeth->dst, AT_ETHER, 6, tvb, offset);
 	copy_address_shallow(&pinfo->dl_dst, &icmp_packeth->dst);
 	copy_address_shallow(&pinfo->dst, &icmp_packeth->dst);
 
@@ -2369,7 +2369,7 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 			    6, ENC_NA);
 	offset += 6;
 
-	TVB_SET_ADDRESS(&icmp_packeth->orig, AT_ETHER, tvb, offset, 6);
+	set_address_tvb(&icmp_packeth->orig, AT_ETHER, 6, tvb, offset);
 	copy_address_shallow(&pinfo->dl_src, &icmp_packeth->orig);
 	copy_address_shallow(&pinfo->src, &icmp_packeth->orig);
 	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_orig, tvb, offset,
@@ -2450,7 +2450,7 @@ static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	unicast_packeth = (struct unicast_packet_v6 *)wmem_alloc(wmem_packet_scope(), sizeof(struct unicast_packet_v6));
 
 	unicast_packeth->version = tvb_get_guint8(tvb, 1);
-	TVB_SET_ADDRESS(&unicast_packeth->dest, AT_ETHER, tvb, 2, 6);
+	set_address_tvb(&unicast_packeth->dest, AT_ETHER, 6, tvb, 2);
 	copy_address_shallow(&pinfo->dl_dst, &unicast_packeth->dest);
 	copy_address_shallow(&pinfo->dst, &unicast_packeth->dest);
 
@@ -2512,7 +2512,7 @@ static void dissect_batadv_unicast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_
 	unicast_packeth->version = tvb_get_guint8(tvb, 1);
 	unicast_packeth->ttl = tvb_get_guint8(tvb, 2);
 	unicast_packeth->ttvn = tvb_get_guint8(tvb, 3);
-	TVB_SET_ADDRESS(&unicast_packeth->dest, AT_ETHER, tvb, 4, 6);
+	set_address_tvb(&unicast_packeth->dest, AT_ETHER, 6, tvb, 4);
 	copy_address_shallow(&pinfo->dl_dst, &unicast_packeth->dest);
 	copy_address_shallow(&pinfo->dst, &unicast_packeth->dest);
 
@@ -2599,11 +2599,11 @@ static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, 
 	unicast_4addr_packeth->version = tvb_get_guint8(tvb, 1);
 	unicast_4addr_packeth->ttl = tvb_get_guint8(tvb, 2);
 	unicast_4addr_packeth->ttvn = tvb_get_guint8(tvb, 3);
-	TVB_SET_ADDRESS(&unicast_4addr_packeth->dest, AT_ETHER, tvb, 4, 6);
+	set_address_tvb(&unicast_4addr_packeth->dest, AT_ETHER, 6, tvb, 4);
 	copy_address_shallow(&pinfo->dl_dst, &unicast_4addr_packeth->dest);
 	copy_address_shallow(&pinfo->dst, &unicast_4addr_packeth->dest);
 
-	TVB_SET_ADDRESS(&unicast_4addr_packeth->src, AT_ETHER, tvb, 10, 6);
+	set_address_tvb(&unicast_4addr_packeth->src, AT_ETHER, 6, tvb, 10);
 	copy_address_shallow(&pinfo->dl_src, &unicast_4addr_packeth->src);
 	copy_address_shallow(&pinfo->src, &unicast_4addr_packeth->src);
 	unicast_4addr_packeth->subtype = tvb_get_guint8(tvb, 16);
@@ -2707,12 +2707,12 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 	unicast_frag_packeth = (struct unicast_frag_packet_v12 *)wmem_alloc(wmem_packet_scope(), sizeof(struct unicast_frag_packet_v12));
 
 	unicast_frag_packeth->version = tvb_get_guint8(tvb, 1);
-	TVB_SET_ADDRESS(&unicast_frag_packeth->dest, AT_ETHER, tvb, 2, 6);
+	set_address_tvb(&unicast_frag_packeth->dest, AT_ETHER, 6, tvb, 2);
 	copy_address_shallow(&pinfo->dl_dst, &unicast_frag_packeth->dest);
 	copy_address_shallow(&pinfo->dst, &unicast_frag_packeth->dest);
 	unicast_frag_packeth->ttl = tvb_get_guint8(tvb, 8);
 	unicast_frag_packeth->flags = tvb_get_guint8(tvb, 9);
-	TVB_SET_ADDRESS(&unicast_frag_packeth->orig, AT_ETHER, tvb, 10, 6);
+	set_address_tvb(&unicast_frag_packeth->orig, AT_ETHER, 6, tvb, 10);
 	copy_address_shallow(&pinfo->dl_src, &unicast_frag_packeth->orig);
 	copy_address_shallow(&pinfo->src, &unicast_frag_packeth->orig);
 	unicast_frag_packeth->seqno = tvb_get_ntohs(tvb, 16);
@@ -2801,12 +2801,12 @@ static void dissect_batadv_unicast_frag_v14(tvbuff_t *tvb, packet_info *pinfo, p
 	unicast_frag_packeth->version = tvb_get_guint8(tvb, 1);
 	unicast_frag_packeth->ttl = tvb_get_guint8(tvb, 2);
 	unicast_frag_packeth->ttvn = tvb_get_guint8(tvb, 3);
-	TVB_SET_ADDRESS(&unicast_frag_packeth->dest, AT_ETHER, tvb, 4, 6);
+	set_address_tvb(&unicast_frag_packeth->dest, AT_ETHER, 6, tvb, 4);
 	copy_address_shallow(&pinfo->dl_dst, &unicast_frag_packeth->dest);
 	copy_address_shallow(&pinfo->dst, &unicast_frag_packeth->dest);
 	unicast_frag_packeth->flags = tvb_get_guint8(tvb, 10);
 	unicast_frag_packeth->align = tvb_get_guint8(tvb, 11);
-	TVB_SET_ADDRESS(&unicast_frag_packeth->orig, AT_ETHER, tvb, 12, 6);
+	set_address_tvb(&unicast_frag_packeth->orig, AT_ETHER, 6, tvb, 12);
 	copy_address_shallow(&pinfo->dl_src, &unicast_frag_packeth->orig);
 	copy_address_shallow(&pinfo->src, &unicast_frag_packeth->orig);
 	unicast_frag_packeth->seqno = tvb_get_ntohs(tvb, 18);
@@ -2945,14 +2945,14 @@ static void dissect_batadv_unicast_frag_v15(tvbuff_t *tvb, packet_info *pinfo,
 			    tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	TVB_SET_ADDRESS(&unicast_frag_packeth->dest, AT_ETHER, tvb, offset, 6);
+	set_address_tvb(&unicast_frag_packeth->dest, AT_ETHER, 6, tvb, offset);
 	copy_address_shallow(&pinfo->dl_dst, &unicast_frag_packeth->dest);
 	copy_address_shallow(&pinfo->dst, &unicast_frag_packeth->dest);
 	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_dst,
 			    tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	TVB_SET_ADDRESS(&unicast_frag_packeth->orig, AT_ETHER, tvb, offset, 6);
+	set_address_tvb(&unicast_frag_packeth->orig, AT_ETHER, 6, tvb, offset);
 	copy_address_shallow(&pinfo->dl_src, &unicast_frag_packeth->orig);
 	copy_address_shallow(&pinfo->src, &unicast_frag_packeth->orig);
 	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_orig,
@@ -3053,12 +3053,12 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	vis_packeth->entries = tvb_get_guint8(tvb, 4);
 	vis_packeth->ttl = tvb_get_guint8(tvb, 5);
 
-	TVB_SET_ADDRESS(&vis_packeth->vis_orig, AT_ETHER, tvb, 6, 6);
+	set_address_tvb(&vis_packeth->vis_orig, AT_ETHER, 6, tvb, 6);
 	copy_address_shallow(&pinfo->src, &vis_packeth->vis_orig);
-	TVB_SET_ADDRESS(&vis_packeth->target_orig, AT_ETHER, tvb, 12, 6);
+	set_address_tvb(&vis_packeth->target_orig, AT_ETHER, 6, tvb, 12);
 	copy_address_shallow(&pinfo->dl_dst, &vis_packeth->target_orig);
 	copy_address_shallow(&pinfo->dst, &vis_packeth->target_orig);
-	TVB_SET_ADDRESS(&vis_packeth->sender_orig, AT_ETHER, tvb, 18, 6);
+	set_address_tvb(&vis_packeth->sender_orig, AT_ETHER, 6, tvb, 18);
 	copy_address_shallow(&pinfo->dl_src, &vis_packeth->sender_orig);
 
 
@@ -3172,12 +3172,12 @@ static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	vis_packeth->seqno = tvb_get_ntohl(tvb, 4);
 	vis_packeth->ttl = tvb_get_guint8(tvb, 8);
 
-	TVB_SET_ADDRESS(&vis_packeth->vis_orig, AT_ETHER, tvb, 9, 6);
+	set_address_tvb(&vis_packeth->vis_orig, AT_ETHER, 6, tvb, 9);
 	copy_address_shallow(&pinfo->src, &vis_packeth->vis_orig);
-	TVB_SET_ADDRESS(&vis_packeth->target_orig, AT_ETHER, tvb, 15, 6);
+	set_address_tvb(&vis_packeth->target_orig, AT_ETHER, 6, tvb, 15);
 	copy_address_shallow(&pinfo->dl_dst, &vis_packeth->target_orig);
 	copy_address_shallow(&pinfo->dst, &vis_packeth->target_orig);
-    TVB_SET_ADDRESS(&vis_packeth->sender_orig, AT_ETHER, tvb, 21, 6);
+    set_address_tvb(&vis_packeth->sender_orig, AT_ETHER, 6, tvb, 21);
 	copy_address_shallow(&pinfo->dl_src, &vis_packeth->sender_orig);
 
 
@@ -3268,12 +3268,12 @@ static void dissect_batadv_vis_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	vis_packeth->entries = tvb_get_guint8(tvb, 8);
 	vis_packeth->reserved = tvb_get_guint8(tvb, 9);
 
-	TVB_SET_ADDRESS(&vis_packeth->vis_orig, AT_ETHER, tvb, 10, 6);
+	set_address_tvb(&vis_packeth->vis_orig, AT_ETHER, 6, tvb, 10);
 	copy_address_shallow(&pinfo->src, &vis_packeth->vis_orig);
-	TVB_SET_ADDRESS(&vis_packeth->target_orig, AT_ETHER, tvb, 16, 6);
+	set_address_tvb(&vis_packeth->target_orig, AT_ETHER, 6, tvb, 16);
 	copy_address_shallow(&pinfo->dl_dst, &vis_packeth->target_orig);
 	copy_address_shallow(&pinfo->dst, &vis_packeth->target_orig);
-	TVB_SET_ADDRESS(&vis_packeth->sender_orig, AT_ETHER, tvb, 22, 6);
+	set_address_tvb(&vis_packeth->sender_orig, AT_ETHER, 6, tvb, 22);
 	copy_address_shallow(&pinfo->dl_src, &vis_packeth->sender_orig);
 
 	/* Set info column */
@@ -3412,11 +3412,11 @@ static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo _U_, p
 	tt_query_packeth->ttl = tvb_get_guint8(tvb, 2);
 	tt_query_packeth->flags = tvb_get_guint8(tvb, 3);
 
-	TVB_SET_ADDRESS(&tt_query_packeth->dst, AT_ETHER, tvb, 4, 6);
+	set_address_tvb(&tt_query_packeth->dst, AT_ETHER, 6, tvb, 4);
 	copy_address_shallow(&pinfo->dl_dst, &tt_query_packeth->dst);
 	copy_address_shallow(&pinfo->dst, &tt_query_packeth->dst);
 
-	TVB_SET_ADDRESS(&tt_query_packeth->src, AT_ETHER, tvb, 10, 6);
+	set_address_tvb(&tt_query_packeth->src, AT_ETHER, 6, tvb, 10);
 	copy_address_shallow(&pinfo->dl_src, &tt_query_packeth->src);
 	copy_address_shallow(&pinfo->src, &tt_query_packeth->src);
 
@@ -3558,13 +3558,13 @@ static void dissect_batadv_roam_adv_v14(tvbuff_t *tvb, packet_info *pinfo, proto
 
 	roam_adv_packeth->version = tvb_get_guint8(tvb, 1);
 	roam_adv_packeth->ttl = tvb_get_guint8(tvb, 2);
-	TVB_SET_ADDRESS(&roam_adv_packeth->dst, AT_ETHER, tvb, 4, 6);
+	set_address_tvb(&roam_adv_packeth->dst, AT_ETHER, 6, tvb, 4);
 	copy_address_shallow(&pinfo->dl_dst, &roam_adv_packeth->dst);
 	copy_address_shallow(&pinfo->dst, &roam_adv_packeth->dst);
-	TVB_SET_ADDRESS(&roam_adv_packeth->src, AT_ETHER, tvb, 10, 6);
+	set_address_tvb(&roam_adv_packeth->src, AT_ETHER, 6, tvb, 10);
 	copy_address_shallow(&pinfo->dl_src, &roam_adv_packeth->src);
 	copy_address_shallow(&pinfo->src, &roam_adv_packeth->src);
-	TVB_SET_ADDRESS(&roam_adv_packeth->client, AT_ETHER, tvb, 16, 6);
+	set_address_tvb(&roam_adv_packeth->client, AT_ETHER, 6, tvb, 16);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Client %s", address_with_resolution_to_str(wmem_packet_scope(), &roam_adv_packeth->client));
@@ -3684,14 +3684,14 @@ static void dissect_batadv_coded_v15(tvbuff_t *tvb, packet_info *pinfo,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	TVB_SET_ADDRESS(&coded_packeth->first_source, AT_ETHER, tvb, offset, 6);
+	set_address_tvb(&coded_packeth->first_source, AT_ETHER, 6, tvb, offset);
 	copy_address_shallow(&pinfo->dl_src, &coded_packeth->first_source);
 	copy_address_shallow(&pinfo->src, &coded_packeth->first_source);
 	proto_tree_add_item(batadv_coded_tree, hf_batadv_coded_first_source,
 			    tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	TVB_SET_ADDRESS(&coded_packeth->first_orig_dest, AT_ETHER, tvb, offset, 6);
+	set_address_tvb(&coded_packeth->first_orig_dest, AT_ETHER, 6, tvb, offset);
 	copy_address_shallow(&pinfo->dl_dst, &coded_packeth->first_orig_dest);
 	copy_address_shallow(&pinfo->dst, &coded_packeth->first_orig_dest);
 	proto_tree_add_item(batadv_coded_tree, hf_batadv_coded_first_orig_dest,
@@ -3713,17 +3713,17 @@ static void dissect_batadv_coded_v15(tvbuff_t *tvb, packet_info *pinfo,
 			    offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	TVB_SET_ADDRESS(&coded_packeth->second_dest, AT_ETHER, tvb, offset, 6);
+	set_address_tvb(&coded_packeth->second_dest, AT_ETHER, 6, tvb, offset);
 	proto_tree_add_item(batadv_coded_tree, hf_batadv_coded_second_dest,
 			    tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	TVB_SET_ADDRESS(&coded_packeth->second_source, AT_ETHER, tvb, offset, 6);
+	set_address_tvb(&coded_packeth->second_source, AT_ETHER, 6, tvb, offset);
 	proto_tree_add_item(batadv_coded_tree, hf_batadv_coded_second_source,
 			    tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	TVB_SET_ADDRESS(&coded_packeth->second_orig_dest, AT_ETHER, tvb, offset, 6);
+	set_address_tvb(&coded_packeth->second_orig_dest, AT_ETHER, 6, tvb, offset);
 	proto_tree_add_item(batadv_coded_tree, hf_batadv_coded_second_orig_dest,
 			    tvb, offset, 6, ENC_NA);
 	offset += 6;
@@ -3825,14 +3825,14 @@ static void dissect_batadv_unicast_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 	/* Skip 1 byte of padding. */
 	offset += 1;
 
-	TVB_SET_ADDRESS(&unicast_tvlv_packeth->dest, AT_ETHER, tvb, offset, 6);
+	set_address_tvb(&unicast_tvlv_packeth->dest, AT_ETHER, 6, tvb, offset);
 	copy_address_shallow(&pinfo->dl_dst, &unicast_tvlv_packeth->dest);
 	copy_address_shallow(&pinfo->dst, &unicast_tvlv_packeth->dest);
 	proto_tree_add_item(batadv_unicast_tvlv_tree, hf_batadv_unicast_tvlv_dst,
 			    tvb, offset, 6, ENC_NA);
 	offset += 6;
 
-	TVB_SET_ADDRESS(&unicast_tvlv_packeth->src, AT_ETHER, tvb, offset, 6);
+	set_address_tvb(&unicast_tvlv_packeth->src, AT_ETHER, 6, tvb, offset);
 	copy_address_shallow(&pinfo->dl_src, &unicast_tvlv_packeth->src);
 	copy_address_shallow(&pinfo->src, &unicast_tvlv_packeth->src);
 	proto_tree_add_item(batadv_unicast_tvlv_tree, hf_batadv_unicast_tvlv_src,

@@ -757,10 +757,10 @@ dissect_sflow_245_address_type(tvbuff_t *tvb, packet_info *pinfo,
     if (addr) {
         switch (len) {
         case 4:
-            TVB_SET_ADDRESS(addr, AT_IPv4, tvb, offset, len);
+            set_address_tvb(addr, AT_IPv4, len, tvb, offset);
             break;
         case 16:
-            TVB_SET_ADDRESS(addr, AT_IPv6, tvb, offset, len);
+            set_address_tvb(addr, AT_IPv6, len, tvb, offset);
             break;
         }
     }
