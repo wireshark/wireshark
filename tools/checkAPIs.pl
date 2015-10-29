@@ -1738,27 +1738,27 @@ sub check_hf_entries($$)
                         $errorCount++;
                 }
                 if ($name eq $abbrev) {
-                        print STDERR "Error: the abbreviation for $hf matches the field name in $filename\n";
+                        print STDERR "Error: the abbreviation for $hf ($abbrev) matches the field name ($name) in $filename\n";
                         $errorCount++;
                 }
                 if (lc($name) eq lc($blurb)) {
-                        print STDERR "Error: the blurb for $hf ($abbrev) matches the field name in $filename\n";
+                        print STDERR "Error: the blurb for $hf ($blurb) matches the field name ($name) in $filename\n";
                         $errorCount++;
                 }
                 if ($name =~ m/"\s+/) {
-                        print STDERR "Error: the name for $hf ($abbrev) has leading space in $filename\n";
+                        print STDERR "Error: the name for $hf ($name) has leading space in $filename\n";
                         $errorCount++;
                 }
                 if ($name =~ m/\s+"/) {
-                        print STDERR "Error: the name for $hf ($abbrev) has trailing space in $filename\n";
+                        print STDERR "Error: the name for $hf ($name) has trailing space in $filename\n";
                         $errorCount++;
                 }
                 if ($blurb =~ m/"\s+/) {
-                        print STDERR "Error: the blurb for $hf ($abbrev) has leading space in $filename\n";
+                        print STDERR "Error: the blurb for $hf ($blurb) has leading space in $filename\n";
                         $errorCount++;
                 }
                 if ($blurb =~ m/\s+"/) {
-                        print STDERR "Error: the blurb for $hf ($abbrev) has trailing space in $filename\n";
+                        print STDERR "Error: the blurb for $hf ($blurb) has trailing space in $filename\n";
                         $errorCount++;
                 }
                 if ($abbrev =~ m/\s+/) {
