@@ -47,6 +47,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  address_to_str@Base 1.12.0~rc1
  address_with_resolution_to_str@Base 1.99.3
  address_to_str_buf@Base 1.9.1
+ address_type_dissector_register@Base 2.1.0
  addresses_ports_reassembly_table_functions@Base 1.9.1
  addresses_reassembly_table_functions@Base 1.9.1
  airpdcap_ctx@Base 1.9.1
@@ -83,6 +84,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  build_follow_index_filter@Base 1.12.0~rc1
  byte_array_dup@Base 1.9.1
  byte_array_equal@Base 1.9.1
+ bytes_to_hexstr@Base 2.1.0
  bytes_to_str@Base 1.99.2
  bytestring_to_str@Base 1.9.1
  call_ber_oid_callback@Base 1.9.1
@@ -128,9 +130,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  col_add_str@Base 1.9.1
  col_append_fstr@Base 1.9.1
  col_append_lstr@Base 1.99.0
+ col_append_port@Base 2.1.0
  col_append_sep_fstr@Base 1.9.1
  col_append_sep_str@Base 1.9.1
  col_append_str@Base 1.9.1
+ col_append_str_uint@Base 2.1.0
  col_based_on_frame_data@Base 1.9.1
  col_cleanup@Base 1.9.1
  col_clear@Base 1.9.1
@@ -141,6 +145,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  col_fill_in_frame_data@Base 1.9.1
  col_format_desc@Base 1.9.1
  col_format_to_string@Base 1.9.1
+ col_get_text@Base 2.1.0
  col_get_writable@Base 1.9.1
  col_has_time_fmt@Base 1.9.1
  col_prepend_fence_fstr@Base 1.9.1
@@ -150,8 +155,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  col_set_time@Base 1.9.1
  col_set_writable@Base 1.9.1
  col_setup@Base 1.9.1
- color_conv_filter_list@Base 1.99.1
  column_dump_column_formats@Base 1.12.0~rc1
+ conv_filter_list@Base 2.1.0
  conversation_add_proto_data@Base 1.9.1
  conversation_delete_proto_data@Base 1.9.1
  conversation_get_proto_data@Base 1.9.1
@@ -440,17 +445,21 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissector_try_uint@Base 1.9.1
  dissector_try_uint_new@Base 1.12.0~rc1
  draw_tap_listeners@Base 1.9.1
+ dscp_short_vals_ext@Base 2.1.0
  dscp_vals_ext@Base 1.9.1
  dtbl_entry_get_handle@Base 1.9.1
  dtbl_entry_get_initial_handle@Base 1.9.1
  dvb_add_chartbl@Base 1.12.0~rc1
  dvb_analyze_string_charset@Base 1.12.0~rc1
  dvb_enc_to_item_enc@Base 1.12.0~rc1
+ dword_to_hex@Base 2.1.0
  eap_aka_subtype_vals@Base 1.9.1
  eap_code_vals@Base 1.9.1
  eap_ms_chap_v2_opcode_vals@Base 1.9.1
  eap_sim_subtype_vals@Base 1.9.1
  eap_type_vals_ext@Base 1.9.1
+ ecn_short_vals_ext@Base 2.1.0
+ ecn_vals_ext@Base 2.1.0
  elem_lv@Base 1.9.1
  elem_t@Base 1.9.1
  elem_tlv@Base 1.9.1
@@ -523,14 +532,15 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ext_menubar_add_website@Base 1.99.8
  ext_menubar_get_entries@Base 1.99.8
  ext_menubar_register_menu@Base 1.99.8
+ ext_menubar_set_parentmenu@Base 2.1.0
  fc_fc4_val@Base 1.9.1
  fetch_tapped_data@Base 1.9.1
  filter_expression_new@Base 1.9.1
  filter_expression_free@Base 1.99.3
  find_and_mark_frame_depended_upon@Base 1.12.0~rc1
  find_circuit@Base 1.9.1
- find_color_conversation_filter@Base 1.99.2
  find_conversation@Base 1.9.1
+ find_conversation_filter@Base 2.1.0
  find_dissector@Base 1.9.1
  find_dissector_table@Base 1.9.1
  find_heur_dissector_by_unique_short_name@Base 1.99.8
@@ -695,6 +705,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_mac_lte_proto_data@Base 1.9.1
  get_manuf_hashtable@Base 1.12.0~rc1
  get_manuf_name_if_known@Base 1.9.1
+ get_mptcp_stream_count@Base 2.1.0
  get_node_field_value@Base 1.12.0~rc1
  get_rose_ctx@Base 1.9.1
  get_rtd_num_tables@Base 1.99.8
@@ -738,6 +749,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  gsm_a_rr_short_pd_msg_strings@Base 1.9.1
  gsm_map_opr_code_strings@Base 1.9.1
  gtcap_StatSRT@Base 1.9.1
+ guid_cmp@Base 2.1.0
  guid_to_str@Base 1.99.2
  guids_add_guid@Base 1.9.1
  guids_get_guid_name@Base 1.9.1
@@ -779,6 +791,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ipprotostr@Base 1.9.1
  ipv4_get_net_order_addr@Base 1.9.1
  is_big_endian@Base 1.9.1
+ is_broadcast_bssid@Base 2.1.0
  is_tpkt@Base 1.9.1
  isup_calling_partys_category_value_ext@Base 1.9.1
  isup_message_type_value_acro_ext@Base 1.9.1
@@ -864,9 +877,12 @@ libwireshark.so.0 libwireshark0 #MINVER#
  parse_key_string@Base 1.9.1
  pfilter_expression_head@Base 1.9.1
  plugin_if_apply_filter@Base 1.99.8
+ plugin_if_goto_frame@Base 2.1.0
  plugin_if_register_gui_cb@Base 1.99.8
  plugin_if_save_preference@Base 1.99.8
  port_type_to_str@Base 1.12.0~rc1
+ port_with_resolution_to_str@Base 2.1.0
+ port_with_resolution_to_str_buf@Base 2.1.0
  postseq_cleanup_all_protocols@Base 1.9.1
  prefs@Base 1.9.1
  prefs_apply@Base 1.9.1
@@ -947,6 +963,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_get_protocol_long_name@Base 1.9.1
  proto_get_protocol_name@Base 1.9.1
  proto_get_protocol_short_name@Base 1.9.1
+ proto_heuristic_dissector_foreach@Base 2.1.0
  proto_initialize_all_prefixes@Base 1.9.1
  proto_is_protocol_enabled@Base 1.9.1
  proto_is_frame_protocol@Base 1.99.1
@@ -968,6 +985,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_register_prefix@Base 1.9.1
  proto_register_protocol@Base 1.9.1
  proto_register_subtree_array@Base 1.9.1
+ proto_registrar_dump_fieldcount@Base 2.1.0
  proto_registrar_dump_fields@Base 1.9.1
  proto_registrar_dump_ftypes@Base 1.9.1
  proto_registrar_dump_protocols@Base 1.9.1
@@ -1110,7 +1128,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_ber_syntax_dissector@Base 1.9.1
  register_count@Base 1.9.1
  register_custom_dissector_table@Base 1.99.8
- register_color_conversation_filter@Base 1.99.1
+ register_conversation_filter@Base 2.1.0
  register_custom_dissector_table@Base 1.99.8
  register_decode_as@Base 1.12.0~rc1
  register_dissector@Base 1.9.1
@@ -1149,7 +1167,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  reset_udp_follow@Base 1.99.2
  rose_ctx_clean_data@Base 1.9.1
  rose_ctx_init@Base 1.9.1
-#MISSING: 1.99.8# rpc_init_proc_table@Base 1.9.1
  rpc_init_prog@Base 1.9.1
  rpc_proc_name@Base 1.9.1
  rpc_prog_hf@Base 1.9.1
@@ -1195,6 +1212,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  scsi_smc_vals_ext@Base 1.12.0~rc1
  scsi_ssc_vals_ext@Base 1.12.0~rc1
  sctp_port_to_display@Base 1.99.2
+ serv_name_lookup@Base 2.1.0
  set_actual_length@Base 1.9.1
  set_column_custom_field@Base 1.9.1
  set_column_custom_occurrence@Base 1.9.1
@@ -1280,6 +1298,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  t38_T30_indicator_vals@Base 1.9.1
  t38_add_address@Base 1.9.1
  tap_build_interesting@Base 1.9.1
+ tap_listeners_dfilter_recompile@Base 2.1.0
  tap_listeners_require_dissection@Base 1.9.1
  tap_queue_packet@Base 1.9.1
  tcp_dissect_pdus@Base 1.9.1
@@ -1358,6 +1377,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tree_expanded_set@Base 1.12.0~rc1
  try_rval_to_str@Base 1.9.1
  try_rval_to_str_idx@Base 1.9.1
+ try_serv_name_lookup@Base 2.1.0
  try_str_to_str@Base 1.9.1
  try_str_to_str_idx@Base 1.9.1
  try_val64_to_str@Base 1.12.0~rc1
@@ -1528,6 +1548,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  uat_update_record@Base 1.99.3
  udp_dissect_pdus@Base 1.99.3
  udp_port_to_display@Base 1.99.2
+ uint_to_str_back@Base 2.1.0
  union_of_tap_listener_flags@Base 1.9.1
  update_crc10_by_bytes_tvb@Base 1.99.0
  uri_str_to_bytes@Base 1.9.1
@@ -1617,6 +1638,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_tree_new_autoreset@Base 1.12.0~rc1
  wmem_tree_remove_string@Base 1.99.9
  wmem_unregister_callback@Base 1.12.0~rc1
+ word_to_hex@Base 2.1.0
  write_carrays_hex_data@Base 1.99.1
  write_csv_column_titles@Base 1.99.1
  write_csv_columns@Base 1.99.1
