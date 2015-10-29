@@ -85,8 +85,11 @@ private:
     static gboolean tapPacket(void *eid_ptr, struct _packet_info *pinfo, struct epan_dissect *, const void *data);
     static void tapDraw(void *eid_ptr);
 
+    void addPacketTreeItems();
+
 private slots:
     void retapPackets();
+    void retapFinished();
 
     void updateWidgets();
 

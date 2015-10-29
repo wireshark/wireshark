@@ -48,17 +48,18 @@
 //   down to one item, make sure it uses a single (or a few) base color(s), and generate
 //   icons on the fly.
 
-const int severity_col_ = 0;
-const int group_col_    = 1;
-const int protocol_col_ = 2;
-const int count_col_    = 3;
+enum {
+    severity_col_,
+    group_col_,
+    protocol_col_,
+    count_col_,
 
-const int packet_col_ = 0;
+    packet_col_ = severity_col_
+};
 
-const int group_type_ = 1000;
-const int packet_type_ = 1001;
+enum { group_type_ = 1000, packet_type_ = 1001 };
 
-const int auto_expand_threshold_ = 20; // Arbitrary
+static const int auto_expand_threshold_ = 20; // Arbitrary
 
 class ExpertGroupTreeWidgetItem : public QTreeWidgetItem
 {
@@ -201,6 +202,8 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file) :
         connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
     }
 
+    connect(&cap_file_, SIGNAL(captureFileRetapFinished()),
+            this, SLOT(retapFinished()));
     setDisplayFilter();
     QTimer::singleShot(0, this, SLOT(retapPackets()));
 }
@@ -258,23 +261,17 @@ void ExpertInfoDialog::retapPackets()
     }
 
     cap_file_.retapPackets();
+}
 
-    setUpdatesEnabled(false);
-    // Adding a list of ExpertPacketTreeWidgetItems is much faster than
-    // adding them individually. We still add ExpertGroupTreeWidgetItems
-    // individually since that gives us a nice progress indicator.
+void ExpertInfoDialog::retapFinished()
+{
+    addPacketTreeItems();
     for (int i = 0; i < ui->expertInfoTreeWidget->topLevelItemCount(); i++) {
         QTreeWidgetItem *group_ti = ui->expertInfoTreeWidget->topLevelItem(i);
-        if (gti_packets_.contains(group_ti)) {
-            group_ti->addChildren(gti_packets_[group_ti]);
-            if (group_ti->childCount() <= auto_expand_threshold_) {
-                group_ti->setExpanded(true);
-            }
+        if (group_ti->childCount() <= auto_expand_threshold_) {
+            group_ti->setExpanded(true);
         }
     }
-    setUpdatesEnabled(true);
-
-    updateWidgets();
 }
 
 void ExpertInfoDialog::addExpertInfo(struct expert_info_s *expert_info)
@@ -390,7 +387,25 @@ void ExpertInfoDialog::tapDraw(void *eid_ptr)
     ExpertInfoDialog *eid = static_cast<ExpertInfoDialog *>(eid_ptr);
     if (!eid) return;
 
-    eid->updateWidgets();
+    eid->addPacketTreeItems();
+}
+
+void ExpertInfoDialog::addPacketTreeItems()
+{
+    setUpdatesEnabled(false);
+    // Adding a list of ExpertPacketTreeWidgetItems is much faster than
+    // adding them individually. We still add ExpertGroupTreeWidgetItems
+    // individually since that gives us a nice progress indicator.
+    for (int i = 0; i < ui->expertInfoTreeWidget->topLevelItemCount(); i++) {
+        QTreeWidgetItem *group_ti = ui->expertInfoTreeWidget->topLevelItem(i);
+        if (gti_packets_.contains(group_ti)) {
+            group_ti->addChildren(gti_packets_[group_ti]);
+            gti_packets_[group_ti].clear();
+        }
+    }
+    setUpdatesEnabled(true);
+
+    updateWidgets();
 }
 
 void ExpertInfoDialog::updateWidgets()
