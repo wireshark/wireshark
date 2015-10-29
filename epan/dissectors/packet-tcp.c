@@ -33,7 +33,7 @@
 #include <epan/prefs.h>
 #include <epan/show_exception.h>
 #include <epan/conversation_table.h>
-#include <epan/color_dissector_filters.h>
+#include <epan/dissector_filters.h>
 #include <epan/reassemble.h>
 #include <epan/decode_as.h>
 #include <epan/in_cksum.h>
@@ -717,13 +717,13 @@ tcpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
 }
 
 static gboolean
-tcp_color_filter_valid(packet_info *pinfo)
+tcp_filter_valid(packet_info *pinfo)
 {
     return proto_is_frame_protocol(pinfo->layers, "tcp");
 }
 
 static gchar*
-tcp_build_color_filter(packet_info *pinfo)
+tcp_build_filter(packet_info *pinfo)
 {
     if( pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4 ) {
         /* TCP over IPv4 */
@@ -6615,7 +6615,7 @@ proto_register_tcp(void)
     register_decode_as(&tcp_da);
 
     register_conversation_table(proto_tcp, FALSE, tcpip_conversation_packet, tcpip_hostlist_packet);
-    register_color_conversation_filter("tcp", "TCP", tcp_color_filter_valid, tcp_build_color_filter);
+    register_conversation_filter("tcp", "TCP", tcp_filter_valid, tcp_build_filter);
 
 
     /* considers MPTCP as a distinct protocol (even if it's a TCP option) */

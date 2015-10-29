@@ -27,7 +27,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
-#include <epan/color_dissector_filters.h>
+#include <epan/dissector_filters.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-dcom.h>
 #include "packet-dcom-cba-acco.h"
@@ -336,7 +336,7 @@ GList *cba_pdevs;
 const true_false_string acco_flags_set_truth = { "Set", "Not set" };
 
 static gboolean
-cba_color_filter_valid(packet_info *pinfo)
+cba_filter_valid(packet_info *pinfo)
 {
     void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0);
 
@@ -344,7 +344,7 @@ cba_color_filter_valid(packet_info *pinfo)
 }
 
 static gchar*
-cba_build_color_filter(packet_info *pinfo)
+cba_build_filter(packet_info *pinfo)
 {
     gboolean is_tcp = proto_is_frame_protocol(pinfo->layers, "tcp");
     void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_ICBAAccoMgt, 0);
@@ -5113,7 +5113,7 @@ proto_register_dcom_cba_acco (void)
     proto_ICBAAccoSync = proto_register_protocol ("ICBAAccoSync", "ICBAAccoSync", "cba_acco_sync");
     proto_register_subtree_array (ett5, array_length (ett5));
 
-    register_color_conversation_filter("cba", "PN-CBA", cba_color_filter_valid, cba_build_color_filter);
+    register_conversation_filter("cba", "PN-CBA", cba_filter_valid, cba_build_filter);
 }
 
 

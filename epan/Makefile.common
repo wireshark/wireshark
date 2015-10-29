@@ -31,7 +31,6 @@ LIBWIRESHARK_SRC =		\
 	asn1.c			\
 	charsets.c		\
 	circuit.c		\
-	color_dissector_filters.c	\
 	column.c		\
 	column-utils.c		\
 	conversation.c		\
@@ -43,6 +42,7 @@ LIBWIRESHARK_SRC =		\
 	crc8-tvb.c		\
 	decode_as.c		\
 	disabled_protos.c	\
+	dissector_filters.c	\
 	dvb_chartbl.c		\
 	dwarf.c			\
 	epan.c			\
@@ -159,7 +159,6 @@ LIBWIRESHARK_INCLUDES =		\
 	charsets.h		\
 	chdlctypes.h		\
 	circuit.h		\
-	color_dissector_filters.h	\
 	column.h		\
 	column-info.h		\
 	column-utils.h		\
@@ -175,6 +174,7 @@ LIBWIRESHARK_INCLUDES =		\
 	decode_as.h		\
 	diam_dict.h		\
 	disabled_protos.h	\
+	dissector_filters.h	\
 	dtd.h			\
 	dtd_parse.h		\
 	dvb_chartbl.h		\

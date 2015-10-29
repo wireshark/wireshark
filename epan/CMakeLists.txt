@@ -1594,7 +1594,6 @@ set(LIBWIRESHARK_FILES
 	circuit.c
 	column.c
 	column-utils.c
-	color_dissector_filters.c
 	conversation.c
 	conversation_table.c
 	crc10-tvb.c
@@ -1604,6 +1603,7 @@ set(LIBWIRESHARK_FILES
 	crc8-tvb.c
 	decode_as.c
 	disabled_protos.c
+	dissector_filters.c
 	dvb_chartbl.c
 	dwarf.c
 	epan.c

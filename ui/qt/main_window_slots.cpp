@@ -54,7 +54,7 @@
 #include <wsutil/str_util.h>
 
 #include "epan/addr_resolv.h"
-#include "epan/color_dissector_filters.h"
+#include "epan/dissector_filters.h"
 #include "epan/column.h"
 #include "epan/dfilter/dfilter-macro.h"
 #include "epan/epan_dissect.h"
@@ -1142,16 +1142,16 @@ void MainWindow::setMenusForSelectedPacket()
     packet_list_->conversationMenu()->clear();
     packet_list_->colorizeMenu()->clear();
 
-    for (GList *color_list_entry = color_conv_filter_list; color_list_entry; color_list_entry = g_list_next(color_list_entry)) {
+    for (GList *conv_filter_list_entry = conv_filter_list; conv_filter_list_entry; conv_filter_list_entry = g_list_next(conv_filter_list_entry)) {
         // Main menu items
-        color_conversation_filter_t* color_filter = (color_conversation_filter_t *)color_list_entry->data;
-        QAction *conv_action = main_ui_->menuConversationFilter->addAction(color_filter->display_name);
+        conversation_filter_t* conv_filter = (conversation_filter_t *)conv_filter_list_entry->data;
+        QAction *conv_action = main_ui_->menuConversationFilter->addAction(conv_filter->display_name);
 
         bool enable = false;
         QString filter;
         if (capture_file_.capFile()->edt) {
-            enable = color_filter->is_filter_valid(&capture_file_.capFile()->edt->pi);
-            filter = gchar_free_to_qstring(color_filter->build_filter_string(&capture_file_.capFile()->edt->pi));
+            enable = conv_filter->is_filter_valid(&capture_file_.capFile()->edt->pi);
+            filter = gchar_free_to_qstring(conv_filter->build_filter_string(&capture_file_.capFile()->edt->pi));
         }
         conv_action->setEnabled(enable);
         conv_action->setData(filter);
@@ -1277,18 +1277,18 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
     if (!proto_tree_ || !proto_tree_->hasFocus()) return;
 
     main_ui_->menuConversationFilter->clear();
-    for (GList *color_list_entry = color_conv_filter_list; color_list_entry; color_list_entry = g_list_next(color_list_entry)) {
-        color_conversation_filter_t* color_filter = (color_conversation_filter_t *)color_list_entry->data;
-        QAction *conv_action = main_ui_->menuConversationFilter->addAction(color_filter->display_name);
+    for (GList *conv_filter_list_entry = conv_filter_list; conv_filter_list_entry; conv_filter_list_entry = g_list_next(conv_filter_list_entry)) {
+        conversation_filter_t* conv_filter = (conversation_filter_t *)conv_filter_list_entry->data;
+        QAction *conv_action = main_ui_->menuConversationFilter->addAction(conv_filter->display_name);
 
-        bool conv_enable = false;
-        QString conv_filter;
+        bool enable = false;
+        QString filter;
         if (capture_file_.capFile() && capture_file_.capFile()->edt) {
-            conv_enable = color_filter->is_filter_valid(&capture_file_.capFile()->edt->pi);
-            conv_filter = color_filter->build_filter_string(&capture_file_.capFile()->edt->pi);
+            enable = conv_filter->is_filter_valid(&capture_file_.capFile()->edt->pi);
+            filter = conv_filter->build_filter_string(&capture_file_.capFile()->edt->pi);
         }
-        conv_action->setEnabled(conv_enable);
-        conv_action->setData(conv_filter);
+        conv_action->setEnabled(enable);
+        conv_action->setData(filter);
         connect(conv_action, SIGNAL(triggered()), this, SLOT(applyConversationFilter()));
     }
 
@@ -2216,26 +2216,26 @@ void MainWindow::colorizeConversation(bool create_rule)
         guint8 cc_num = cc_action->data().toUInt();
         gchar *filter = NULL;
 
-        const color_conversation_filter_t *color_filter = find_color_conversation_filter("tcp");
+        const conversation_filter_t *color_filter = find_conversation_filter("tcp");
         if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
             filter = color_filter->build_filter_string(pi);
         if (filter == NULL) {
-            color_filter = find_color_conversation_filter("udp");
+            color_filter = find_conversation_filter("udp");
             if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
                 filter = color_filter->build_filter_string(pi);
         }
         if (filter == NULL) {
-            color_filter = find_color_conversation_filter("ip");
+            color_filter = find_conversation_filter("ip");
             if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
                 filter = color_filter->build_filter_string(pi);
         }
         if (filter == NULL) {
-            color_filter = find_color_conversation_filter("ipv6");
+            color_filter = find_conversation_filter("ipv6");
             if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
                 filter = color_filter->build_filter_string(pi);
         }
         if (filter == NULL) {
-            color_filter = find_color_conversation_filter("eth");
+            color_filter = find_conversation_filter("eth");
             if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
                 filter = color_filter->build_filter_string(pi);
         }

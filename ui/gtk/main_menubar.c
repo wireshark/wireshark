@@ -31,7 +31,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
-#include <epan/color_dissector_filters.h>
+#include <epan/dissector_filters.h>
 #include <epan/epan_dissect.h>
 #include <epan/column.h>
 #include <epan/stats_tree_priv.h>
@@ -189,7 +189,7 @@ edit_window_cb(GtkWidget *widget _U_)
 #endif
 
 static void
-colorize_conversation_cb(color_conversation_filter_t* color_filter, int action_num)
+colorize_conversation_cb(conversation_filter_t* color_filter, int action_num)
 {
     gchar *filter = NULL;
     packet_info *pi = &cfile.edt->pi;
@@ -203,26 +203,26 @@ colorize_conversation_cb(color_conversation_filter_t* color_filter, int action_n
                 * or through an accelerator key. Try to build a conversation
                 * filter in the order TCP, UDP, IP, Ethernet and apply the
                 * coloring */
-            color_filter = find_color_conversation_filter("tcp");
+            color_filter = find_conversation_filter("tcp");
             if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
                 filter = color_filter->build_filter_string(pi);
             if (filter == NULL) {
-                color_filter = find_color_conversation_filter("udp");
+                color_filter = find_conversation_filter("udp");
                 if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
                     filter = color_filter->build_filter_string(pi);
             }
             if (filter == NULL) {
-                color_filter = find_color_conversation_filter("ip");
+                color_filter = find_conversation_filter("ip");
                 if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
                     filter = color_filter->build_filter_string(pi);
             }
             if (filter == NULL) {
-                color_filter = find_color_conversation_filter("ipv6");
+                color_filter = find_conversation_filter("ipv6");
                 if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
                     filter = color_filter->build_filter_string(pi);
             }
             if (filter == NULL) {
-                color_filter = find_color_conversation_filter("eth");
+                color_filter = find_conversation_filter("eth");
                 if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
                     filter = color_filter->build_filter_string(pi);
             }
@@ -254,23 +254,23 @@ goto_conversation_frame(gboolean dir)
     dfilter_t *dfcode       = NULL;
     gboolean   found_packet = FALSE;
     packet_info *pi = &cfile.edt->pi;
-    color_conversation_filter_t* color_filter;
+    conversation_filter_t* conv_filter;
 
     /* Try to build a conversation
      * filter in the order TCP, UDP, IP, Ethernet and apply the
      * coloring */
-    color_filter = find_color_conversation_filter("tcp");
-    if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
-        filter = color_filter->build_filter_string(pi);
-    color_filter = find_color_conversation_filter("udp");
-    if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
-        filter = color_filter->build_filter_string(pi);
-    color_filter = find_color_conversation_filter("ip");
-    if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
-        filter = color_filter->build_filter_string(pi);
-    color_filter = find_color_conversation_filter("ipv6");
-    if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
-        filter = color_filter->build_filter_string(pi);
+    conv_filter = find_conversation_filter("tcp");
+    if ((conv_filter != NULL) && (conv_filter->is_filter_valid(pi)))
+        filter = conv_filter->build_filter_string(pi);
+    conv_filter = find_conversation_filter("udp");
+    if ((conv_filter != NULL) && (conv_filter->is_filter_valid(pi)))
+        filter = conv_filter->build_filter_string(pi);
+    conv_filter = find_conversation_filter("ip");
+    if ((conv_filter != NULL) && (conv_filter->is_filter_valid(pi)))
+        filter = conv_filter->build_filter_string(pi);
+    conv_filter = find_conversation_filter("ipv6");
+    if ((conv_filter != NULL) && (conv_filter->is_filter_valid(pi)))
+        filter = conv_filter->build_filter_string(pi);
 
     if( filter == NULL ) {
         statusbar_push_temporary_msg("Unable to build conversation filter.");
@@ -1886,77 +1886,77 @@ typedef void (*packet_list_menu_color_conv_color_cb_t)(GtkAction *action, gpoint
 static void
 packet_list_menu_color_conv_color1_cb(GtkAction *action _U_, gpointer user_data)
 {
-    color_conversation_filter_t* color_filter = (color_conversation_filter_t*)user_data;
+    conversation_filter_t* color_filter = (conversation_filter_t*)user_data;
     colorize_conversation_cb(color_filter, 1);
 }
 
 static void
 packet_list_menu_color_conv_color2_cb(GtkAction *action _U_, gpointer user_data)
 {
-    color_conversation_filter_t* color_filter = (color_conversation_filter_t*)user_data;
+    conversation_filter_t* color_filter = (conversation_filter_t*)user_data;
     colorize_conversation_cb(color_filter, 2);
 }
 
 static void
 packet_list_menu_color_conv_color3_cb(GtkAction *action _U_, gpointer user_data)
 {
-    color_conversation_filter_t* color_filter = (color_conversation_filter_t*)user_data;
+    conversation_filter_t* color_filter = (conversation_filter_t*)user_data;
     colorize_conversation_cb(color_filter, 3);
 }
 
 static void
 packet_list_menu_color_conv_color4_cb(GtkAction *action _U_, gpointer user_data)
 {
-    color_conversation_filter_t* color_filter = (color_conversation_filter_t*)user_data;
+    conversation_filter_t* color_filter = (conversation_filter_t*)user_data;
     colorize_conversation_cb(color_filter, 4);
 }
 
 static void
 packet_list_menu_color_conv_color5_cb(GtkAction *action _U_, gpointer user_data)
 {
-    color_conversation_filter_t* color_filter = (color_conversation_filter_t*)user_data;
+    conversation_filter_t* color_filter = (conversation_filter_t*)user_data;
     colorize_conversation_cb(color_filter, 5);
 }
 
 static void
 packet_list_menu_color_conv_color6_cb(GtkAction *action _U_, gpointer user_data)
 {
-    color_conversation_filter_t* color_filter = (color_conversation_filter_t*)user_data;
+    conversation_filter_t* color_filter = (conversation_filter_t*)user_data;
     colorize_conversation_cb(color_filter, 6);
 }
 
 static void
 packet_list_menu_color_conv_color7_cb(GtkAction *action _U_, gpointer user_data)
 {
-    color_conversation_filter_t* color_filter = (color_conversation_filter_t*)user_data;
+    conversation_filter_t* color_filter = (conversation_filter_t*)user_data;
     colorize_conversation_cb(color_filter, 7);
 }
 
 static void
 packet_list_menu_color_conv_color8_cb(GtkAction *action _U_, gpointer user_data)
 {
-    color_conversation_filter_t* color_filter = (color_conversation_filter_t*)user_data;
+    conversation_filter_t* color_filter = (conversation_filter_t*)user_data;
     colorize_conversation_cb(color_filter, 8);
 }
 
 static void
 packet_list_menu_color_conv_color9_cb(GtkAction *action _U_, gpointer user_data)
 {
-    color_conversation_filter_t* color_filter = (color_conversation_filter_t*)user_data;
+    conversation_filter_t* color_filter = (conversation_filter_t*)user_data;
     colorize_conversation_cb(color_filter, 9);
 }
 
 static void
 packet_list_menu_color_conv_color10_cb(GtkAction *action _U_, gpointer user_data)
 {
-    color_conversation_filter_t* color_filter = (color_conversation_filter_t*)user_data;
+    conversation_filter_t* color_filter = (conversation_filter_t*)user_data;
     colorize_conversation_cb(color_filter, 10);
 }
 
 static void
 packet_list_menu_color_conv_new_rule_cb(GtkAction *action _U_, gpointer user_data)
 {
-    color_conversation_filter_t* color_filter = (color_conversation_filter_t*)user_data;
+    conversation_filter_t* color_filter = (conversation_filter_t*)user_data;
     colorize_conversation_cb(color_filter, 0);
 }
 
@@ -2557,7 +2557,7 @@ main_menu_new(GtkAccelGroup ** table)
 static void
 menu_dissector_filter_cb(GtkAction *action _U_,  gpointer callback_data)
 {
-    color_conversation_filter_t  *filter_entry = (color_conversation_filter_t *)callback_data;
+    conversation_filter_t  *filter_entry = (conversation_filter_t *)callback_data;
     GtkWidget               *filter_te;
     const char              *buf;
 
@@ -2580,7 +2580,7 @@ menu_dissector_filter_cb(GtkAction *action _U_,  gpointer callback_data)
 static gboolean
 menu_dissector_filter_spe_cb(frame_data *fd _U_, epan_dissect_t *edt, gpointer callback_data)
 {
-    color_conversation_filter_t *filter_entry = (color_conversation_filter_t*)callback_data;
+    conversation_filter_t *filter_entry = (conversation_filter_t*)callback_data;
 
     /* XXX - this gets the packet_info of the last dissected packet, */
     /* which is not necessarily the last selected packet */
@@ -2591,8 +2591,8 @@ menu_dissector_filter_spe_cb(frame_data *fd _U_, epan_dissect_t *edt, gpointer c
 static void
 menu_dissector_filter(capture_file *cf)
 {
-    GList *list_entry = color_conv_filter_list;
-    color_conversation_filter_t *filter_entry;
+    GList *list_entry = conv_filter_list;
+    conversation_filter_t *filter_entry;
 
     guint merge_id;
     GtkActionGroup *action_group;
@@ -2638,7 +2638,7 @@ menu_dissector_filter(capture_file *cf)
     }
 
     while (list_entry != NULL) {
-        filter_entry = (color_conversation_filter_t *)list_entry->data;
+        filter_entry = (conversation_filter_t *)list_entry->data;
         action_name = g_strdup_printf ("filter-%u", i);
         /*g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);*/
         action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
@@ -2795,9 +2795,9 @@ menu_hostlist_list(capture_file *cf)
 }
 
 static void
-menu_color_conversation_filter_cb(GtkAction *action _U_, gpointer data)
+menu_conversation_display_filter_cb(GtkAction *action _U_, gpointer data)
 {
-    color_conversation_filter_t *filter_entry = (color_conversation_filter_t *)data;
+    conversation_filter_t *filter_entry = (conversation_filter_t *)data;
 
     gchar     *filter;
     GtkWidget *filter_te;
@@ -2820,7 +2820,7 @@ menu_color_conversation_filter_cb(GtkAction *action _U_, gpointer data)
 static gboolean
 menu_color_dissector_filter_spe_cb(frame_data *fd _U_, epan_dissect_t *edt, gpointer callback_data)
 {
-    color_conversation_filter_t *filter_entry = (color_conversation_filter_t *)callback_data;
+    conversation_filter_t *filter_entry = (conversation_filter_t *)callback_data;
 
     /* XXX - this gets the packet_info of the last dissected packet, */
     /* which is not necessarily the last selected packet */
@@ -2834,8 +2834,8 @@ menu_color_conversation_filter(capture_file *cf)
     GtkWidget *submenu_conv_filters, *submenu_color_conv_filters;
     guint merge_id, color_merge_id;
     GtkActionGroup *action_group, *color_action_group;
-    GList *list_entry = color_conv_filter_list;
-    color_conversation_filter_t* color_filter;
+    GList *list_entry = conv_filter_list;
+    conversation_filter_t* color_filter;
     int conv_counter = 0;
 
     static packet_list_menu_color_conv_color_cb_t callbacks[MAX_NUM_COLOR_CONVERSATION_COLORS] = {
@@ -2891,7 +2891,7 @@ menu_color_conversation_filter(capture_file *cf)
         GtkAction *action, *color_action;
         GtkWidget *color_conv_filter_menuitem, *color_conv_filter_submenu, *color_conv_widget;
 
-        color_filter = (color_conversation_filter_t*)list_entry->data;
+        color_filter = (conversation_filter_t*)list_entry->data;
 
         /* Create conversation filter menu item for each registered protocol */
         action_name = g_strdup_printf ("color_conversation-%u", conv_counter);
@@ -2901,7 +2901,7 @@ menu_color_conversation_filter(capture_file *cf)
                  "label", color_filter->display_name,
                  "sensitive", menu_color_dissector_filter_spe_cb(NULL, cf->edt, color_filter),
                  NULL);
-        g_signal_connect (action, "activate", G_CALLBACK (menu_color_conversation_filter_cb), color_filter);
+        g_signal_connect (action, "activate", G_CALLBACK (menu_conversation_display_filter_cb), color_filter);
         gtk_action_group_add_action (action_group, action);
         g_object_unref (action);
 
@@ -4517,7 +4517,7 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
 void
 set_menus_for_selected_packet(capture_file *cf)
 {
-    GList      *color_list_entry = color_conv_filter_list;
+    GList      *conv_filter_list_entry;
     guint       i          = 0;
     gboolean    properties = FALSE;
     const char *abbrev     = NULL;
@@ -4701,41 +4701,27 @@ set_menus_for_selected_packet(capture_file *cf)
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/TCPStreamGraphMenu",
                          is_tcp);
 
-    i = 0;
-    color_list_entry = color_conv_filter_list;
-    while (color_list_entry != NULL) {
-        color_conversation_filter_t *filter_entry;
+    for (i = 0, conv_filter_list_entry = conv_filter_list;
+         conv_filter_list_entry != NULL;
+         conv_filter_list_entry = g_list_next(conv_filter_list_entry), i++) {
+        conversation_filter_t *filter_entry;
         gchar *path;
 
-        filter_entry = (color_conversation_filter_t *)color_list_entry->data;
+        filter_entry = (conversation_filter_t *)conv_filter_list_entry->data;
         path = g_strdup_printf("/Menubar/AnalyzeMenu/ConversationFilterMenu/Filters/filter-%u", i);
-
         set_menu_sensitivity(ui_manager_main_menubar, path,
             menu_dissector_filter_spe_cb(/* frame_data *fd _U_*/ NULL, cf->edt, filter_entry));
         g_free(path);
-        i++;
-        color_list_entry = g_list_next(color_list_entry);
-    }
 
-    i = 0;
-    color_list_entry = color_conv_filter_list;
-    while (color_list_entry != NULL) {
-        color_conversation_filter_t* color_filter;
-        gchar *path;
-
-        color_filter = (color_conversation_filter_t *)color_list_entry->data;
         path = g_strdup_printf("/PacketListMenuPopup/ConversationFilter/Conversations/color_conversation-%d", i);
-        i++;
-
         set_menu_sensitivity(ui_manager_packet_list_menu, path,
-            menu_color_dissector_filter_spe_cb(NULL, cf->edt, color_filter));
+            menu_color_dissector_filter_spe_cb(NULL, cf->edt, filter_entry));
         g_free(path);
 
-        path = g_strdup_printf("/PacketListMenuPopup/ColorizeConversation/Colorize/%s", color_filter->display_name);
+        path = g_strdup_printf("/PacketListMenuPopup/ColorizeConversation/Colorize/%s", filter_entry->display_name);
         set_menu_sensitivity(ui_manager_packet_list_menu, path,
-            menu_color_dissector_filter_spe_cb(NULL, cf->edt, color_filter));
+            menu_color_dissector_filter_spe_cb(NULL, cf->edt, filter_entry));
         g_free(path);
-        color_list_entry = g_list_next(color_list_entry);
     }
 }
 
