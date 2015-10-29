@@ -101,7 +101,7 @@ static guint g_gtpv1c_port = GTPv1C_PORT;
 static guint g_gtpv1u_port = GTPv1U_PORT;
 
 static int proto_gtp = -1;
-static int proto_gtpprim = -1;
+static int proto_gtpprime = -1;
 
 /*KTi*/
 static int hf_gtp_ie_id = -1;
@@ -8575,7 +8575,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 }
 
 static int
-dissect_gtpprim(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
+dissect_gtpprime(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                 void *private_data _U_)
 {
     return dissect_gtp_common(tvb, pinfo, tree);
@@ -9758,7 +9758,7 @@ proto_register_gtp(void)
 
     proto_gtp = proto_register_protocol("GPRS Tunneling Protocol", "GTP", "gtp");
     /* Created to remove Decode As confusion */
-    proto_gtpprim = proto_register_protocol("GPRS Tunneling Protocol Prim", "GTP (Prim)", "gtpprim");
+    proto_gtpprime = proto_register_protocol("GPRS Tunneling Protocol Prime", "GTP (Prime)", "gtpprime");
 
     proto_register_field_array(proto_gtp, hf_gtp, array_length(hf_gtp));
     proto_register_subtree_array(ett_gtp_array, array_length(ett_gtp_array));
@@ -9792,7 +9792,7 @@ proto_register_gtp(void)
     prefs_register_bool_preference(gtp_module, "dissect_gtp_over_tcp", "Dissect GTP over TCP", "Dissect GTP over TCP", &g_gtp_over_tcp);
 
     new_register_dissector("gtp", dissect_gtp, proto_gtp);
-    new_register_dissector("gtpprim", dissect_gtpprim, proto_gtpprim);
+    new_register_dissector("gtpprime", dissect_gtpprime, proto_gtpprime);
 
     gtp_priv_ext_dissector_table = register_dissector_table("gtp.priv_ext", "GTP PRIVATE EXT", FT_UINT16, BASE_DEC);
     gtp_cdr_fmt_dissector_table = register_dissector_table("gtp.cdr_fmt", "GTP DATA RECORD TYPE", FT_UINT16, BASE_DEC);
@@ -9818,7 +9818,7 @@ void
 proto_reg_handoff_gtp(void)
 {
     static gboolean           Initialized = FALSE;
-    static dissector_handle_t gtp_handle, gtp_prim_handle;
+    static dissector_handle_t gtp_handle, gtp_prime_handle;
     static gboolean           gtp_over_tcp;
     static guint              gtpv0_port;
     static guint              gtpv1c_port;
@@ -9826,7 +9826,7 @@ proto_reg_handoff_gtp(void)
 
     if (!Initialized) {
         gtp_handle = find_dissector("gtp");
-        gtp_prim_handle = find_dissector("gtpprim");
+        gtp_prime_handle = find_dissector("gtpprime");
         ppp_subdissector_table = find_dissector_table("ppp.protocol");
 
         radius_register_avp_dissector(VENDOR_THE3GPP, 5, dissect_radius_qos_umts);
@@ -9856,12 +9856,12 @@ proto_reg_handoff_gtp(void)
 
         Initialized = TRUE;
     } else {
-        dissector_delete_uint("udp.port", gtpv0_port,  gtp_prim_handle);
+        dissector_delete_uint("udp.port", gtpv0_port,  gtp_prime_handle);
         dissector_delete_uint("udp.port", gtpv1c_port, gtp_handle);
         dissector_delete_uint("udp.port", gtpv1u_port, gtp_handle);
 
         if (gtp_over_tcp) {
-            dissector_delete_uint("tcp.port", gtpv0_port,  gtp_prim_handle);
+            dissector_delete_uint("tcp.port", gtpv0_port,  gtp_prime_handle);
             dissector_delete_uint("tcp.port", gtpv1c_port, gtp_handle);
             dissector_delete_uint("tcp.port", gtpv1u_port, gtp_handle);
         }
@@ -9872,12 +9872,12 @@ proto_reg_handoff_gtp(void)
     gtpv1c_port  = g_gtpv1c_port;
     gtpv1u_port  = g_gtpv1u_port;
 
-    dissector_add_uint("udp.port", g_gtpv0_port, gtp_prim_handle);
+    dissector_add_uint("udp.port", g_gtpv0_port, gtp_prime_handle);
     dissector_add_uint("udp.port", g_gtpv1c_port, gtp_handle);
     dissector_add_uint("udp.port", g_gtpv1u_port, gtp_handle);
 
     if (g_gtp_over_tcp) {
-        dissector_add_uint("tcp.port", g_gtpv0_port, gtp_prim_handle);
+        dissector_add_uint("tcp.port", g_gtpv0_port, gtp_prime_handle);
         dissector_add_uint("tcp.port", g_gtpv1c_port, gtp_handle);
         dissector_add_uint("tcp.port", g_gtpv1u_port, gtp_handle);
     }
