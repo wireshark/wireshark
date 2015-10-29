@@ -42,7 +42,7 @@
 
 #include <epan/conversation.h>
 #include <epan/conversation_table.h>
-#include <epan/color_dissector_filters.h>
+#include <epan/dissector_filters.h>
 #include <epan/decode_as.h>
 
 void proto_register_udp(void);
@@ -371,13 +371,13 @@ udpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
 }
 
 static gboolean
-udp_color_filter_valid(packet_info *pinfo)
+udp_filter_valid(packet_info *pinfo)
 {
     return proto_is_frame_protocol(pinfo->layers, "udp");
 }
 
 static gchar*
-udp_build_color_filter(packet_info *pinfo)
+udp_build_filter(packet_info *pinfo)
 {
     if( pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4 ) {
         /* UDP over IPv4 */
@@ -1103,7 +1103,7 @@ proto_register_udp(void)
 
   register_decode_as(&udp_da);
   register_conversation_table(proto_udp, FALSE, udpip_conversation_packet, udpip_hostlist_packet);
-  register_color_conversation_filter("udp", "UDP", udp_color_filter_valid, udp_build_color_filter);
+  register_conversation_filter("udp", "UDP", udp_filter_valid, udp_build_filter);
 
   register_init_routine(udp_init);
 

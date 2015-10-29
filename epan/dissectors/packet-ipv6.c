@@ -33,7 +33,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/conversation_table.h>
-#include <epan/color_dissector_filters.h>
+#include <epan/dissector_filters.h>
 #include <epan/reassemble.h>
 #include <epan/ipproto.h>
 #include <epan/etypes.h>
@@ -434,13 +434,13 @@ ipv6_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
 }
 
 static gboolean
-ipv6_color_filter_valid(packet_info *pinfo)
+ipv6_filter_valid(packet_info *pinfo)
 {
     return proto_is_frame_protocol(pinfo->layers, "ipv6");
 }
 
 static gchar*
-ipv6_build_color_filter(packet_info *pinfo)
+ipv6_build_filter(packet_info *pinfo)
 {
     return g_strdup_printf("ipv6.addr eq %s and ipv6.addr eq %s",
                 address_to_str(pinfo->pool, &pinfo->net_src),
@@ -3505,7 +3505,7 @@ proto_register_ipv6(void)
     register_decode_as(&ipv6_next_header_da);
 
     register_conversation_table(proto_ipv6, TRUE, ipv6_conversation_packet, ipv6_hostlist_packet);
-    register_color_conversation_filter("ipv6", "IPv6", ipv6_color_filter_valid, ipv6_build_color_filter);
+    register_conversation_filter("ipv6", "IPv6", ipv6_filter_valid, ipv6_build_filter);
 }
 
 void

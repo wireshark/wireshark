@@ -50,7 +50,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
-#include <epan/color_dissector_filters.h>
+#include <epan/dissector_filters.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
 #include "packet-pn.h"
@@ -12260,8 +12260,8 @@ proto_register_pn_io (void)
 
     register_cleanup_routine(pnio_cleanup);
 
-    register_color_conversation_filter("pn_io", "PN-IO AR", pn_io_ar_conv_valid, pn_io_ar_conv_filter);
-    register_color_conversation_filter("pn_io", "PN-IO AR (with data)", pn_io_ar_conv_valid, pn_io_ar_conv_data_filter);
+    register_conversation_filter("pn_io", "PN-IO AR", pn_io_ar_conv_valid, pn_io_ar_conv_filter);
+    register_conversation_filter("pn_io", "PN-IO AR (with data)", pn_io_ar_conv_valid, pn_io_ar_conv_data_filter);
 }
 
 void
