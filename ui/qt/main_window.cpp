@@ -1977,6 +1977,11 @@ void MainWindow::setMenusForFileSet(bool enable_list_files) {
     main_ui_->actionFileSetPreviousFile->setEnabled(enable_prev);
 }
 
+void MainWindow::setWindowIcon(const QIcon &icon) {
+    wsApp->setWindowIcon(icon);
+    QMainWindow::setWindowIcon(icon);
+}
+
 void MainWindow::updateForUnsavedChanges() {
     setTitlebarForCaptureFile();
     setMenusForCaptureFile();
