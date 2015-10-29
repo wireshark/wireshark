@@ -545,7 +545,7 @@ static int dissect_pcp_message_error(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     /* add the error item to the tree and column */
     proto_tree_add_item(tree, hf_pcp_pdu_error, tvb, offset, 4, ENC_BIG_ENDIAN);
-    error_num = tvb_get_ntohl(tvb, 4);
+    error_num = tvb_get_ntohl(tvb, offset);
     col_append_fstr(pinfo->cinfo, COL_INFO, "error=%s ",
                     val_to_str(error_num, packettypenames_errors, "Unknown Error:%i"));
     offset += 4;
