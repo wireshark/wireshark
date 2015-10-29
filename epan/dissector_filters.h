@@ -40,8 +40,6 @@ typedef gboolean (*is_filter_valid_func)(packet_info *pinfo);
     Filter needs to be freed after use */
 typedef gchar* (*build_filter_string_func)(packet_info *pinfo);
 
-#define MAX_NUM_COLOR_CONVERSATION_COLORS       10
-
 /** register a dissector filter */
 WS_DLL_PUBLIC void register_conversation_filter(const char *proto_name, const char *display_name,
                                                       is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string);
