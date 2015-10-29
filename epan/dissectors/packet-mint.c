@@ -47,7 +47,7 @@ void proto_register_mint(void);
 void proto_reg_handoff_mint(void);
 
 #define PROTO_SHORT_NAME "MiNT"
-#define PROTO_LONG_NAME "Media indepentend Network Transport"
+#define PROTO_LONG_NAME "Media independent Network Transport"
 
 /* 0x8783 ETHERTYPE_MINT */
 /* 0x6000 */
@@ -722,7 +722,7 @@ proto_register_mint(void)
 
 	proto_mint = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "mint");
 	/* Created to remove Decode As confusion */
-	proto_mint_data = proto_register_protocol("Media indepentend Network Transport Data", "MiNT (Data)", "mint_data");
+	proto_mint_data = proto_register_protocol("Media independent Network Transport Data", "MiNT (Data)", "mint_data");
 
 	hfi_mint = proto_registrar_get_nth(proto_mint);
 	proto_register_fields(proto_mint, hfi, array_length(hfi));
