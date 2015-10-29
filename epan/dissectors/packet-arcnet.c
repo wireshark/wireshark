@@ -376,7 +376,7 @@ proto_register_arcnet (void)
 
   arcnet_dissector_table = register_dissector_table ("arcnet.protocol_id",
                                                      "ARCNET Protocol ID",
-                                                     FT_UINT8, BASE_HEX);
+                                                     FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 /* Register the protocol name and description */
   proto_arcnet = proto_register_protocol ("ARCNET", "ARCNET", "arcnet");

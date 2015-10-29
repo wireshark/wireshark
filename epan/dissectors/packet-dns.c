@@ -5564,7 +5564,7 @@ proto_register_dns(void)
                                         "DNS address resolution settings can be changed in the Name Resolution preferences",
                                         "DNS address resolution settings can be changed in the Name Resolution preferences");
 
-  dns_tsig_dissector_table = register_dissector_table("dns.tsig.mac", "DNS TSIG MAC Dissectors", FT_STRING, BASE_NONE);
+  dns_tsig_dissector_table = register_dissector_table("dns.tsig.mac", "DNS TSIG MAC Dissectors", FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
   dns_tap = register_tap("dns");
 }

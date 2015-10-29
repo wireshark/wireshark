@@ -293,7 +293,7 @@ proto_register_rtacser(void)
     /* Registering protocol to be called by another dissector */
     new_register_dissector("rtacser", dissect_rtacser, proto_rtacser);
 
-    subdissector_table = register_dissector_table("rtacser.data", "RTAC Serial Data Subdissector", FT_UINT32, BASE_HEX);
+    subdissector_table = register_dissector_table("rtacser.data", "RTAC Serial Data Subdissector", FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_rtacser, rtacser_hf, array_length(rtacser_hf));

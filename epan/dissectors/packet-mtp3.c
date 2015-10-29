@@ -1056,7 +1056,7 @@ proto_register_mtp3(void)
 
   mtp3_sio_dissector_table = register_dissector_table("mtp3.service_indicator",
                   "MTP3 Service indicator",
-                  FT_UINT8, BASE_HEX);
+                  FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
   mtp3_tap = register_tap("mtp3");
 

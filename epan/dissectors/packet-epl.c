@@ -4352,7 +4352,7 @@ proto_register_epl(void)
 	heur_epl_subdissector_list = register_heur_dissector_list("epl");
 	heur_epl_data_subdissector_list = register_heur_dissector_list("epl_data");
 	epl_asnd_dissector_table = register_dissector_table("epl.asnd",
-		"Manufacturer specific ASND service", FT_UINT8, BASE_DEC);
+		"Manufacturer specific ASND service", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	/* Registering protocol to be called by another dissector */
 	epl_handle = new_register_dissector("epl", dissect_epl, proto_epl);

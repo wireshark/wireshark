@@ -190,14 +190,14 @@ void proto_register_pcap(void) {
   register_dissector("pcap", dissect_pcap, proto_pcap);
 
   /* Register dissector tables */
-  pcap_ies_dissector_table = register_dissector_table("pcap.ies", "PCAP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
-  pcap_ies_p1_dissector_table = register_dissector_table("pcap.ies.pair.first", "PCAP-PROTOCOL-IES-PAIR FirstValue", FT_UINT32, BASE_DEC);
-  pcap_ies_p2_dissector_table = register_dissector_table("pcap.ies.pair.second", "PCAP-PROTOCOL-IES-PAIR SecondValue", FT_UINT32, BASE_DEC);
-  pcap_extension_dissector_table = register_dissector_table("pcap.extension", "PCAP-PROTOCOL-EXTENSION", FT_UINT32, BASE_DEC);
-  pcap_proc_imsg_dissector_table = register_dissector_table("pcap.proc.imsg", "PCAP-ELEMENTARY-PROCEDURE InitiatingMessage", FT_UINT32, BASE_DEC);
-  pcap_proc_sout_dissector_table = register_dissector_table("pcap.proc.sout", "PCAP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_UINT32, BASE_DEC);
-  pcap_proc_uout_dissector_table = register_dissector_table("pcap.proc.uout", "PCAP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_UINT32, BASE_DEC);
-  pcap_proc_out_dissector_table = register_dissector_table("pcap.proc.out", "PCAP-ELEMENTARY-PROCEDURE Outcome", FT_UINT32, BASE_DEC);
+  pcap_ies_dissector_table = register_dissector_table("pcap.ies", "PCAP-PROTOCOL-IES", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+  pcap_ies_p1_dissector_table = register_dissector_table("pcap.ies.pair.first", "PCAP-PROTOCOL-IES-PAIR FirstValue", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+  pcap_ies_p2_dissector_table = register_dissector_table("pcap.ies.pair.second", "PCAP-PROTOCOL-IES-PAIR SecondValue", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+  pcap_extension_dissector_table = register_dissector_table("pcap.extension", "PCAP-PROTOCOL-EXTENSION", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+  pcap_proc_imsg_dissector_table = register_dissector_table("pcap.proc.imsg", "PCAP-ELEMENTARY-PROCEDURE InitiatingMessage", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+  pcap_proc_sout_dissector_table = register_dissector_table("pcap.proc.sout", "PCAP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+  pcap_proc_uout_dissector_table = register_dissector_table("pcap.proc.uout", "PCAP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+  pcap_proc_out_dissector_table = register_dissector_table("pcap.proc.out", "PCAP-ELEMENTARY-PROCEDURE Outcome", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
 
   /* Preferences */

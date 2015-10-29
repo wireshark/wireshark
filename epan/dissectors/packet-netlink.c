@@ -416,7 +416,7 @@ proto_register_netlink(void)
 		"netlink.protocol",
 		"Linux netlink protocol type",
 		FT_UINT16,
-		BASE_HEX
+		BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE
 	);
 }
 

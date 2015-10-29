@@ -224,7 +224,7 @@ proto_register_rmcp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	rmcp_dissector_table = register_dissector_table(
-		"rmcp.class", "RMCP Class", FT_UINT8, BASE_HEX);
+		"rmcp.class", "RMCP Class", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
 
 void

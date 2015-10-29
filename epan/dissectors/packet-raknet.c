@@ -644,7 +644,7 @@ proto_register_raknet(void)
 
     raknet_dissector_table =
         register_dissector_table("raknet.packet_id", "RakNet libs packet ids",
-                                 FT_UINT8, BASE_HEX);
+                                 FT_UINT8, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
     /*
      * Raknet subdissector for use by external protocols.
      */

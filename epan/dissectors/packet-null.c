@@ -535,7 +535,7 @@ proto_register_null(void)
 
   /* subdissector code */
   null_dissector_table = register_dissector_table("null.type",
-                                                  "Null type", FT_UINT32, BASE_DEC);
+                                                  "Null type", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
 
 void

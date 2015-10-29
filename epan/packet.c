@@ -95,6 +95,7 @@ struct dissector_table {
 	ftenum_t	type;
 	int		param;
 	GHashFunc hash_func;
+	dissector_table_allow_e allow_dup_proto; /* XXX - Could be converted to a flag-like field */
 };
 
 static GHashTable *dissector_tables = NULL;
@@ -1711,6 +1712,7 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 {
 	dissector_table_t  sub_dissectors = find_dissector_table( name);
 	GSList            *entry;
+	dissector_handle_t dup_handle;
 
 	/*
 	 * Make sure the dissector table exists.
@@ -1734,6 +1736,22 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 		return;
 	}
 
+	/* Ensure the protocol is unique.  This prevents confusion when using Decode As
+	   with duplicative entires */
+	if (sub_dissectors->allow_dup_proto == DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE)
+	{
+		for (entry = sub_dissectors->dissector_handles; entry != NULL; entry = g_slist_next(entry))
+		{
+			dup_handle = (dissector_handle_t)entry->data;
+			if (dup_handle->protocol == handle->protocol)
+			{
+				fprintf(stderr, "Duplicative protocol %s in %s\n", proto_get_protocol_short_name(handle->protocol), name);
+				if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+					abort();
+			}
+		}
+	}
+
 	/* Add it to the list. */
 	sub_dissectors->dissector_handles =
 		g_slist_insert_sorted(sub_dissectors->dissector_handles, (gpointer)handle, (GCompareFunc)dissector_compare_filter_name);
@@ -1755,6 +1773,13 @@ ftenum_t
 dissector_table_get_type(dissector_table_t dissector_table) {
 	if (!dissector_table) return FT_NONE;
 	return dissector_table->type;
+}
+
+dissector_table_allow_e
+dissector_table_get_proto_allowed(dissector_table_t dissector_table)
+{
+	if (!dissector_table) return DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE;
+	return dissector_table->allow_dup_proto;
 }
 
 static gint
@@ -2015,7 +2040,7 @@ dissector_all_tables_foreach_table (DATFunc_table func,
 
 dissector_table_t
 register_dissector_table(const char *name, const char *ui_name, const ftenum_t type,
-			 const int param)
+			 const int param, dissector_table_allow_e allow_dup)
 {
 	dissector_table_t	sub_dissectors;
 
@@ -2066,12 +2091,13 @@ register_dissector_table(const char *name, const char *ui_name, const ftenum_t t
 	sub_dissectors->ui_name = ui_name;
 	sub_dissectors->type    = type;
 	sub_dissectors->param   = param;
+	sub_dissectors->allow_dup_proto   = allow_dup;
 	g_hash_table_insert( dissector_tables, (gpointer)name, (gpointer) sub_dissectors );
 	return sub_dissectors;
 }
 
 dissector_table_t register_custom_dissector_table(const char *name,
-    const char *ui_name, GHashFunc hash_func, GEqualFunc key_equal_func)
+	const char *ui_name, GHashFunc hash_func, GEqualFunc key_equal_func, dissector_table_allow_e allow_dup)
 {
 	dissector_table_t	sub_dissectors;
 
@@ -2093,6 +2119,7 @@ dissector_table_t register_custom_dissector_table(const char *name,
 	sub_dissectors->ui_name = ui_name;
 	sub_dissectors->type    = FT_BYTES; /* Consider key a "blob" of data, no need to really create new type */
 	sub_dissectors->param   = BASE_NONE;
+	sub_dissectors->allow_dup_proto   = allow_dup;
 	g_hash_table_insert( dissector_tables, (gpointer)name, (gpointer) sub_dissectors );
 	return sub_dissectors;
 }

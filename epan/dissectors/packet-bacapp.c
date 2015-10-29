@@ -11318,7 +11318,7 @@ proto_register_bacapp(void)
 
     bacapp_dissector_table = register_dissector_table("bacapp.vendor_identifier",
                                                       "BACapp Vendor Identifier",
-                                                      FT_UINT8, BASE_HEX);
+                                                      FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     /* Register BACnet Statistic trees */
     register_bacapp_stat_trees();

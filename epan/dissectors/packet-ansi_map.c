@@ -19531,15 +19531,15 @@ void proto_register_ansi_map(void) {
 
     is637_tele_id_dissector_table =
         register_dissector_table("ansi_map.tele_id", "IS-637 Teleservice ID",
-                                 FT_UINT8, BASE_DEC);
+                                 FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     is683_dissector_table =
         register_dissector_table("ansi_map.ota", "IS-683-A (OTA)",
-                                 FT_UINT8, BASE_DEC);
+                                 FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     is801_dissector_table =
         register_dissector_table("ansi_map.pld", "IS-801 (PLD)",
-                                 FT_UINT8, BASE_DEC);
+                                 FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     ansi_map_tap = register_tap("ansi_map");
 

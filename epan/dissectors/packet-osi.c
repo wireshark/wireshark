@@ -582,13 +582,13 @@ proto_register_osi(void)
      should register here
   */
   osinl_incl_subdissector_table = register_dissector_table("osinl.incl",
-                                                           "OSI incl NLPID", FT_UINT8, BASE_HEX);
+                                                           "OSI incl NLPID", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
   /* This dissector table is for those protocols whose PDUs
    * aren't* defined to begin with an NLPID.
    * (typically non OSI protocols like IP,IPv6,PPP */
   osinl_excl_subdissector_table = register_dissector_table("osinl.excl",
-                                                           "OSI excl NLPID", FT_UINT8, BASE_HEX);
+                                                           "OSI excl NLPID", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
   proto_osi = proto_register_protocol("OSI", "OSI", "osi");
   proto_register_field_array(proto_osi, hf, array_length(hf));

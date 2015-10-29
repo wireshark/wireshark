@@ -590,7 +590,7 @@ proto_register_mpls(void)
     /* FF: mpls subdissector table is indexed by label */
     mpls_subdissector_table = register_dissector_table("mpls.label",
                                                        "MPLS protocol",
-                                                       FT_UINT32, BASE_DEC);
+                                                       FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
     proto_mpls = proto_register_protocol("MultiProtocol Label Switching Header",
                                          "MPLS", "mpls");
     proto_pw_ach = proto_register_protocol(PW_ACH,
@@ -605,7 +605,7 @@ proto_register_mpls(void)
 
     register_dissector("mpls", dissect_mpls, proto_mpls);
 
-    pw_ach_subdissector_table  = register_dissector_table("pwach.channel_type", "PW Associated Channel Type", FT_UINT16, BASE_HEX);
+    pw_ach_subdissector_table  = register_dissector_table("pwach.channel_type", "PW Associated Channel Type", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     module_mpls = prefs_register_protocol( proto_mpls, NULL );
 

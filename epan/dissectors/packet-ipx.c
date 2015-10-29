@@ -1580,11 +1580,11 @@ proto_register_ipx(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	ipx_type_dissector_table = register_dissector_table("ipx.packet_type",
-	    "IPX packet type", FT_UINT8, BASE_HEX);
+	    "IPX packet type", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 	ipx_socket_dissector_table = register_dissector_table("ipx.socket",
-	    "IPX socket", FT_UINT16, BASE_HEX);
+	    "IPX socket", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 	spx_socket_dissector_table = register_dissector_table("spx.socket",
-	    "SPX socket", FT_UINT16, BASE_HEX);
+	    "SPX socket", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	register_init_routine(&spx_init_protocol);
 	register_postseq_cleanup_routine(&spx_postseq_cleanup);

@@ -201,7 +201,7 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
             name = g_strdup(name);
             ui_name = g_strdup(ui_name);
 
-            dt->table = register_dissector_table(name, ui_name, type, base);
+            dt->table = register_dissector_table(name, ui_name, type, base, DISSECTOR_TABLE_ALLOW_DUPLICATE);
             dt->name = name;
             dt->ui_name = ui_name;
             dt->created = TRUE;

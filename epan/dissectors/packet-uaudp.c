@@ -642,7 +642,7 @@ void proto_reg_handoff_uaudp(void)
             register_dissector_table("uaudp.opcode",
                                      "UAUDP opcode",
                                      FT_UINT8,
-                                     BASE_DEC);
+                                     BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 #endif
         prefs_initialized     = TRUE;
     }

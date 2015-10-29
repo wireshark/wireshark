@@ -267,7 +267,7 @@ proto_register_pcli(void)
 
     pcli_subdissector_table = register_dissector_table(
         "pcli.payload", "PCLI payload dissector",
-        FT_UINT32, BASE_DEC);
+        FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     register_decode_as(&pcli_payload_da);
 }

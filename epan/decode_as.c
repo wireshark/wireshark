@@ -26,15 +26,39 @@
 
 #include "decode_as.h"
 #include "packet.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 GList *decode_as_list = NULL;
 
 void register_decode_as(decode_as_t* reg)
 {
+    dissector_table_t decode_table;
+
     /* Ensure valid functions */
     DISSECTOR_ASSERT(reg->populate_list);
     DISSECTOR_ASSERT(reg->reset_value);
     DISSECTOR_ASSERT(reg->change_value);
+
+    /* Ensure the dissector table can't have duplicate protocols
+       that could confuse users */
+    decode_table = find_dissector_table(reg->table_name);
+    /* XXX - This should really be a DISSECTOR_ASSERT but a Bluetooth
+     * dissector is registering for "media_type" dissector table before it
+     * can be created
+     * There is also the "fake" DCE/RPC dissector table that needs to be fixed
+     */
+    if (decode_table != NULL)
+    {
+        /* FT_STRING can at least show the string value in the dialog, so don't penalize them */
+        if ((dissector_table_get_type(decode_table) != FT_STRING) &&
+            (dissector_table_get_proto_allowed(decode_table) != DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE))
+        {
+            fprintf(stderr, "%s allows duplicates, which can lead to confuse in the Decode As dialog\n", reg->table_name);
+            if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+                abort();
+        }
+    }
 
     decode_as_list = g_list_append(decode_as_list, reg);
 }

@@ -3467,7 +3467,7 @@ proto_register_ipv6(void)
     proto_ipv6_fraghdr = proto_register_protocol("IPv6 Fragment", "IPv6 Fragment", "ipv6.fraghdr");
     proto_ipv6_shim6 = proto_register_protocol("IPv6 SHIM6", "SHIM6", "ipv6.shim6");
     proto_ipv6_dstopts = proto_register_protocol("IPv6 Destination Options", "IPv6 Destination", "ipv6.dstopts");
-    ipv6_next_header_dissector_table = register_dissector_table("ipv6.nxt", "IPv6 Next Header", FT_UINT32, BASE_DEC);
+    ipv6_next_header_dissector_table = register_dissector_table("ipv6.nxt", "IPv6 Next Header", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     /* Register configuration options */
     ipv6_module = prefs_register_protocol(proto_ipv6, NULL);

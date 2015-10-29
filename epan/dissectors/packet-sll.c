@@ -339,7 +339,7 @@ proto_register_sll(void)
 		"sll.ltype",
 		"Linux SLL protocol type",
 		FT_UINT16,
-		BASE_HEX
+		BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE
 	);
 }
 

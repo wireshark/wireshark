@@ -10652,7 +10652,7 @@ proto_register_btatt(void)
 
     btatt_handle = new_register_dissector("btatt", dissect_btatt, proto_btatt);
 
-    att_handle_dissector_table = register_dissector_table("btatt.handle",  "BT ATT Handle",  FT_UINT16,  BASE_HEX);
+    att_handle_dissector_table = register_dissector_table("btatt.handle",  "BT ATT Handle",  FT_UINT16,  BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btatt, hf, array_length(hf));

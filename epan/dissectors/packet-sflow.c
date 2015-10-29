@@ -3468,7 +3468,7 @@ proto_register_sflow(void) {
     expert_sflow = expert_register_protocol(proto_sflow);
     expert_register_field_array(expert_sflow, ei, array_length(ei));
 
-    header_subdissector_table  = register_dissector_table("sflow_245.header_protocol", "SFLOW header protocol", FT_UINT32, BASE_DEC);
+    header_subdissector_table  = register_dissector_table("sflow_245.header_protocol", "SFLOW header protocol", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     /* Register our configuration options for sFlow */
     sflow_245_module = prefs_register_protocol(proto_sflow, proto_reg_handoff_sflow_245);

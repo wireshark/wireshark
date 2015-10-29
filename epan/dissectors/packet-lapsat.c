@@ -764,7 +764,7 @@ proto_register_lapsat(void)
 
 	register_dissector("lapsat", dissect_lapsat, proto_lapsat);
 
-	lapsat_sapi_dissector_table = register_dissector_table("lapsat.sapi", "LAPSat SAPI", FT_UINT8, BASE_DEC);
+	lapsat_sapi_dissector_table = register_dissector_table("lapsat.sapi", "LAPSat SAPI", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	register_init_routine (lapsat_defragment_init);
 	register_cleanup_routine (lapsat_defragment_cleanup);

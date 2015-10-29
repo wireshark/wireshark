@@ -3129,7 +3129,7 @@ proto_register_ip(void)
 
   /* subdissector code */
   ip_dissector_table = register_dissector_table("ip.proto", "IP protocol",
-                                                FT_UINT8, BASE_DEC);
+                                                FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
   heur_subdissector_list = register_heur_dissector_list("ip");
 
   /* Register configuration options */

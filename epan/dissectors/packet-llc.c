@@ -236,7 +236,7 @@ llc_add_oui(guint32 oui, const char *table_name, const char *table_ui_name,
 
 	new_info = (oui_info_t *)g_malloc(sizeof (oui_info_t));
 	new_info->table = register_dissector_table(table_name,
-	    table_ui_name, FT_UINT16, BASE_HEX);
+	    table_ui_name, FT_UINT16, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 	new_info->field_info = hf_item;
 
 	/*
@@ -856,9 +856,9 @@ proto_register_llc(void)
 
 	/* subdissector code */
 	dsap_subdissector_table = register_dissector_table("llc.dsap",
-	  "LLC SAP", FT_UINT8, BASE_HEX);
+	  "LLC SAP", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 	xid_subdissector_table = register_dissector_table("llc.xid_dsap",
-	  "LLC XID SAP", FT_UINT8, BASE_HEX);
+	  "LLC XID SAP", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	register_dissector("llc", dissect_llc, proto_llc);
 }

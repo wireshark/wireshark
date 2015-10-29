@@ -789,7 +789,7 @@ proto_register_docsis (void)
 #if 0
   docsis_dissector_table = register_dissector_table ("docsis",
                                                      "DOCSIS Encapsulation Type",
-                                                     FT_UINT8, BASE_DEC);
+                                                     FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 #endif
 
   proto_docsis = proto_register_protocol ("DOCSIS 1.1", "DOCSIS", "docsis");

@@ -161,11 +161,11 @@ void proto_register_rnsap(void) {
   new_register_dissector("rnsap", dissect_rnsap, proto_rnsap);
 
   /* Register dissector tables */
-  rnsap_ies_dissector_table = register_dissector_table("rnsap.ies", "RNSAP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
-  rnsap_extension_dissector_table = register_dissector_table("rnsap.extension", "RNSAP-PROTOCOL-EXTENSION", FT_UINT32, BASE_DEC);
-  rnsap_proc_imsg_dissector_table = register_dissector_table("rnsap.proc.imsg", "RNSAP-ELEMENTARY-PROCEDURE InitiatingMessage", FT_STRING, BASE_NONE);
-  rnsap_proc_sout_dissector_table = register_dissector_table("rnsap.proc.sout", "RNSAP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_STRING, BASE_NONE);
-  rnsap_proc_uout_dissector_table = register_dissector_table("rnsap.proc.uout", "RNSAP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_STRING, BASE_NONE);
+  rnsap_ies_dissector_table = register_dissector_table("rnsap.ies", "RNSAP-PROTOCOL-IES", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+  rnsap_extension_dissector_table = register_dissector_table("rnsap.extension", "RNSAP-PROTOCOL-EXTENSION", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+  rnsap_proc_imsg_dissector_table = register_dissector_table("rnsap.proc.imsg", "RNSAP-ELEMENTARY-PROCEDURE InitiatingMessage", FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+  rnsap_proc_sout_dissector_table = register_dissector_table("rnsap.proc.sout", "RNSAP-ELEMENTARY-PROCEDURE SuccessfulOutcome", FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+  rnsap_proc_uout_dissector_table = register_dissector_table("rnsap.proc.uout", "RNSAP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
 }
 

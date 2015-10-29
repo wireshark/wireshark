@@ -3820,7 +3820,7 @@ proto_register_btobex(void)
 
     btobex_handle = new_register_dissector("btobex", dissect_btobex, proto_btobex);
 
-    btobex_profile = register_dissector_table("btobex.profile", "BTOBEX Profile", FT_UINT8, BASE_DEC);
+    btobex_profile = register_dissector_table("btobex.profile", "BTOBEX Profile", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btobex, hf, array_length(hf));

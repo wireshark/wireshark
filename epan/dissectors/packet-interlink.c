@@ -217,7 +217,7 @@ proto_register_interlink(void)
 
 	/* Probably someone will write sub-dissectors. You can never know. */
 	subdissector_table = register_dissector_table("interlink.type_version",
-		"Interlink type_version", FT_UINT16, BASE_HEX);
+		"Interlink type_version", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
 
 

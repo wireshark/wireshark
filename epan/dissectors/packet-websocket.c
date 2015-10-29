@@ -534,7 +534,7 @@ proto_register_websocket(void)
   heur_subdissector_list = register_heur_dissector_list("ws");
 
   port_subdissector_table = register_dissector_table("ws.port",
-      "TCP port for protocols using WebSocket", FT_UINT16, BASE_DEC);
+      "TCP port for protocols using WebSocket", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
   proto_register_field_array(proto_websocket, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

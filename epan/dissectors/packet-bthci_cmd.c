@@ -4853,7 +4853,7 @@ proto_register_bthci_cmd(void)
 
     bthci_cmds = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
-    vendor_dissector_table = register_dissector_table("bthci_cmd.vendor", "BT HCI Vendor", FT_UINT16, BASE_HEX);
+    vendor_dissector_table = register_dissector_table("bthci_cmd.vendor", "BT HCI Vendor", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     module = prefs_register_protocol(proto_bthci_cmd, NULL);
     prefs_register_static_text_preference(module, "hci_cmd.version",

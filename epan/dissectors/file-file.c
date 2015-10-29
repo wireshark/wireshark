@@ -388,7 +388,7 @@ proto_register_file(void)
 #endif
 
 	file_encap_dissector_table = register_dissector_table("ftap_encap",
-	    "Filetap encapsulation type", FT_UINT32, BASE_DEC);
+	    "Filetap encapsulation type", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	proto_file = proto_register_protocol("File", "File", "file");
 	proto_register_field_array(proto_file, hf, array_length(hf));

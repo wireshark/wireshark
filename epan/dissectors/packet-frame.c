@@ -876,9 +876,9 @@ proto_register_frame(void)
 	}
 
 	wtap_encap_dissector_table = register_dissector_table("wtap_encap",
-	    "Wiretap encapsulation type", FT_UINT32, BASE_DEC);
+	    "Wiretap encapsulation type", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 	wtap_fts_rec_dissector_table = register_dissector_table("wtap_fts_rec",
-	    "Wiretap file type for file-type-specific records", FT_UINT32, BASE_DEC);
+	    "Wiretap file type for file-type-specific records", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
 	proto_frame = proto_register_protocol("Frame", "Frame", "frame");
 	proto_pkt_comment = proto_register_protocol("Packet comments", "Pkt_Comment", "pkt_comment");

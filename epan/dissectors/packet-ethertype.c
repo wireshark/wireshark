@@ -397,7 +397,7 @@ proto_register_ethertype(void)
 
 	/* subdissector code */
 	ethertype_dissector_table = register_dissector_table("ethertype",
-								"Ethertype", FT_UINT16, BASE_HEX);
+								"Ethertype", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	register_decode_as(&ethertype_da);
 }

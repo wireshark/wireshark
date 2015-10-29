@@ -6891,9 +6891,9 @@ proto_register_cip(void)
    expert_register_field_array(expert_cip, ei, array_length(ei));
 
    subdissector_class_table = register_dissector_table("cip.class.iface",
-      "CIP Class Interface Handle", FT_UINT32, BASE_HEX);
+      "CIP Class Interface Handle", FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
    subdissector_symbol_table = register_dissector_table("cip.data_segment.iface",
-      "CIP Data Segment Interface Handle", FT_UINT32, BASE_HEX);
+      "CIP Data Segment Interface Handle", FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
    /* Register the protocol name and description */
    proto_cip_class_generic = proto_register_protocol("CIP Class Generic",

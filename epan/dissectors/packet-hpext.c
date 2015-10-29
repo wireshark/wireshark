@@ -129,7 +129,7 @@ proto_register_hpext(void)
 
 /* subdissector code */
 	subdissector_table = register_dissector_table("hpext.dxsap",
-	  "HPEXT XSAP", FT_UINT16, BASE_HEX);
+	  "HPEXT XSAP", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	hpext_handle = register_dissector("hpext", dissect_hpext, proto_hpext);
 }

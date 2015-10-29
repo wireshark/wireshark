@@ -4515,21 +4515,21 @@ proto_register_usb(void)
 
     device_to_product_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     device_to_protocol_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
-    device_to_dissector = register_dissector_table("usb.device",     "USB device",   FT_UINT32, BASE_HEX);
-    protocol_to_dissector = register_dissector_table("usb.protocol", "USB protocol", FT_UINT32, BASE_HEX);
-    product_to_dissector = register_dissector_table("usb.product",   "USB product",  FT_UINT32, BASE_HEX);
+    device_to_dissector = register_dissector_table("usb.device",     "USB device",   FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    protocol_to_dissector = register_dissector_table("usb.protocol", "USB protocol", FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    product_to_dissector = register_dissector_table("usb.product",   "USB product",  FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     usb_bulk_dissector_table = register_dissector_table("usb.bulk",
-        "USB bulk endpoint", FT_UINT8, BASE_DEC);
+        "USB bulk endpoint", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
     heur_bulk_subdissector_list = register_heur_dissector_list("usb.bulk");
     usb_control_dissector_table = register_dissector_table("usb.control",
-        "USB control endpoint", FT_UINT8, BASE_DEC);
+        "USB control endpoint", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
     heur_control_subdissector_list = register_heur_dissector_list("usb.control");
     usb_interrupt_dissector_table = register_dissector_table("usb.interrupt",
-        "USB interrupt endpoint", FT_UINT8, BASE_DEC);
+        "USB interrupt endpoint", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
     heur_interrupt_subdissector_list = register_heur_dissector_list("usb.interrupt");
     usb_descriptor_dissector_table = register_dissector_table("usb.descriptor",
-        "USB descriptor", FT_UINT8, BASE_DEC);
+        "USB descriptor", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     usb_module = prefs_register_protocol(proto_usb, NULL);
     prefs_register_bool_preference(usb_module, "try_heuristics",

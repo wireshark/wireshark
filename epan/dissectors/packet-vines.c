@@ -486,7 +486,7 @@ proto_register_vines_llc(void)
 
 	/* subdissector code */
 	vines_llc_dissector_table = register_dissector_table("vines_llc.ptype",
-	    "Vines LLC protocol", FT_UINT8, BASE_HEX);
+	    "Vines LLC protocol", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
 
 void
@@ -688,7 +688,7 @@ proto_register_vines_ip(void)
 
 	/* subdissector code */
 	vines_ip_dissector_table = register_dissector_table("vines_ip.protocol",
-	    "Vines protocol", FT_UINT8, BASE_HEX);
+	    "Vines protocol", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	vines_ip_handle = create_dissector_handle(dissect_vines_ip,
 	    proto_vines_ip);

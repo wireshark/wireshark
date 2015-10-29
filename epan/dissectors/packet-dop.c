@@ -3056,7 +3056,7 @@ void proto_register_dop(void) {
 
   new_register_dissector("dop", dissect_dop, proto_dop);
 
-  dop_dissector_table = register_dissector_table("dop.oid", "DOP OID Dissectors", FT_STRING, BASE_NONE);
+  dop_dissector_table = register_dissector_table("dop.oid", "DOP OID Dissectors", FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_dop, hf, array_length(hf));

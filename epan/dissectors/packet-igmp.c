@@ -1108,7 +1108,7 @@ proto_register_igmp(void)
 	proto_register_field_array(proto_igmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	subdissector_table = register_dissector_table("igmp.type", "IGMP commands", FT_UINT32, BASE_HEX);
+	subdissector_table = register_dissector_table("igmp.type", "IGMP commands", FT_UINT32, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
 }
 

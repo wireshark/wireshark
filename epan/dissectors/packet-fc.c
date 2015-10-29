@@ -1579,7 +1579,7 @@ proto_register_fc(void)
      */
     fcftype_dissector_table = register_dissector_table ("fc.ftype",
                                                         "FC Frame Type",
-                                                        FT_UINT8, BASE_HEX);
+                                                        FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     /* Register preferences */
     fc_module = prefs_register_protocol (proto_fc, NULL);

@@ -5355,7 +5355,7 @@ proto_register_mip6(void)
     expert_mip6 = expert_register_protocol(proto_mip6);
     expert_register_field_array(expert_mip6, ei, array_length(ei));
 
-    mip6_vsm_dissector_table = register_dissector_table("mip6.vsm", "Mobile IPv6 vendor specific option", FT_UINT32, BASE_DEC);
+    mip6_vsm_dissector_table = register_dissector_table("mip6.vsm", "Mobile IPv6 vendor specific option", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
 
 void

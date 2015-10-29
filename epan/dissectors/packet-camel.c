@@ -10683,13 +10683,13 @@ void proto_register_camel(void) {
   /* Register dissector tables */
   camel_rose_ctx.arg_local_dissector_table = register_dissector_table("camel.ros.local.arg",
                                                                       "CAMEL Operation Argument (local opcode)",
-                                                                      FT_UINT32, BASE_HEX);
+                                                                      FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
   camel_rose_ctx.res_local_dissector_table = register_dissector_table("camel.ros.local.res",
                                                                       "CAMEL Operation Result (local opcode)",
-                                                                      FT_UINT32, BASE_HEX);
+                                                                      FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
   camel_rose_ctx.err_local_dissector_table = register_dissector_table("camel.ros.local.err",
                                                                       "CAMEL Error (local opcode)",
-                                                                      FT_UINT32, BASE_HEX);
+                                                                      FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
   /* Register our configuration options, particularly our SSNs */
   /* Set default SSNs */

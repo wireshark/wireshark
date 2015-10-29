@@ -8000,7 +8000,7 @@ proto_register_mbim(void)
     new_register_dissector("mbim.descriptor", dissect_mbim_descriptor, proto_mbim);
     new_register_dissector("mbim.bulk", dissect_mbim_bulk, proto_mbim);
     dss_dissector_table = register_dissector_table("mbim.dss_session_id",
-        "MBIM DSS Session Id", FT_UINT8, BASE_DEC);
+        "MBIM DSS Session Id", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     mbim_module = prefs_register_protocol(proto_mbim, proto_reg_handoff_mbim);
     prefs_register_obsolete_preference(mbim_module, "bulk_heuristic");

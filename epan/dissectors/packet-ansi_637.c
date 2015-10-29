@@ -3344,7 +3344,7 @@ proto_register_ansi_637(void)
 
     tele_dissector_table =
         register_dissector_table("ansi_637.tele_id",
-            "ANSI IS-637-A Teleservice ID", FT_UINT8, BASE_DEC);
+            "ANSI IS-637-A Teleservice ID", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
 
 

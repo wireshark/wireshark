@@ -8332,7 +8332,7 @@ proto_register_gsm_a_dtap(void)
     /* subdissector code */
     new_register_dissector("gsm_a_dtap", dissect_dtap, proto_a_dtap);
     u2u_dissector_table = register_dissector_table("gsm_a.dtap.u2u_prot_discr", "GSM User to User Signalling",
-                                                  FT_UINT8, BASE_DEC);
+                                                  FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
 
 void

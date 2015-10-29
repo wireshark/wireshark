@@ -2546,8 +2546,8 @@ proto_register_bssap(void)
                        "Subsystem number used for BSSAP",
                        "Set Subsystem number used for BSSAP/BSSAP+",
                        10, &global_bssap_ssn);
-    bssap_dissector_table = register_dissector_table("bssap.pdu_type", "BSSAP Message Type", FT_UINT8, BASE_DEC);
-    bsap_dissector_table  = register_dissector_table("bsap.pdu_type", "BSAP Message Type", FT_UINT8, BASE_DEC);
+    bssap_dissector_table = register_dissector_table("bssap.pdu_type", "BSSAP Message Type", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    bsap_dissector_table  = register_dissector_table("bsap.pdu_type", "BSAP Message Type", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
 
 void
