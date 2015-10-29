@@ -1,5 +1,6 @@
 /* dissector_filters.c
- * Routines for dissector-generated conversation display filters
+ * Routines for dissector-generated conversation filters for use as
+ * display and color filters
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
