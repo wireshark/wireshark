@@ -3666,7 +3666,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         "Link-local Multicast Name Resolution (%s)", (flags & F_RESPONSE) ? "response" : "query");
     } else if (is_mdns){
       ti = proto_tree_add_protocol_format(tree, proto_mdns, tvb, 0, -1,
-        "Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
+        "Multicast Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
     } else {
       ti = proto_tree_add_protocol_format(tree, proto_dns, tvb, 0, -1,
         "Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
@@ -5528,8 +5528,8 @@ proto_register_dns(void)
   module_t *dns_module;
   expert_module_t* expert_dns;
 
-  proto_dns = proto_register_protocol("Domain Name Service", "DNS", "dns");
-  proto_mdns = proto_register_protocol("Multicast Domain Name Service", "mDNS", "mdns");
+  proto_dns = proto_register_protocol("Domain Name System", "DNS", "dns");
+  proto_mdns = proto_register_protocol("Multicast Domain Name System", "mDNS", "mdns");
   proto_llmnr = proto_register_protocol("Link-local Multicast Name Resolution", "LLMNR", "llmnr");
   proto_register_field_array(proto_dns, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
