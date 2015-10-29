@@ -34,17 +34,17 @@ extern "C" {
  */
 
 /** callback function definition: is a filter available for this packet? */
-typedef gboolean (*is_conv_valid_func)(packet_info *pinfo);
+typedef gboolean (*is_filter_valid_func)(packet_info *pinfo);
 
 /** callback function definition: return the available filter for this packet or NULL if no filter is available,
     Filter needs to be freed after use */
-typedef gchar* (*build_conv_string_func)(packet_info *pinfo);
+typedef gchar* (*build_filter_string_func)(packet_info *pinfo);
 
 #define MAX_NUM_COLOR_CONVERSATION_COLORS       10
 
 /** register a dissector filter */
 WS_DLL_PUBLIC void register_conversation_filter(const char *proto_name, const char *display_name,
-                                                      is_conv_valid_func is_filter_valid, build_conv_string_func build_filter_string);
+                                                      is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string);
 
 WS_DLL_PUBLIC struct conversation_filter_s* find_conversation_filter(const char *proto_name);
 
@@ -53,8 +53,8 @@ WS_DLL_PUBLIC struct conversation_filter_s* find_conversation_filter(const char 
 typedef struct conversation_filter_s {
     const char *              proto_name;
     const char *              display_name;
-    is_conv_valid_func        is_filter_valid;
-    build_conv_string_func    build_filter_string;
+    is_filter_valid_func      is_filter_valid;
+    build_filter_string_func  build_filter_string;
 } conversation_filter_t;
 
 WS_DLL_PUBLIC GList *conv_filter_list;
