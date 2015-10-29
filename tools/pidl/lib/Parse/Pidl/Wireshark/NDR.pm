@@ -743,8 +743,11 @@ sub Struct($$$$)
 	}
 	$self->deindent;
 	$self->pidl_code("}");
+	$self->pidl_code("");
 
-	$self->pidl_code("\n$res");
+	$self->deindent;
+	$self->pidl_code("$res");
+	$self->indent;
 
 	$self->pidl_code("proto_item_set_len(item, offset-old_offset);\n");
 	if (defined($doalign) and $doalign == 1) {
