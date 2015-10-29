@@ -1647,13 +1647,14 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	char       *fid_name;
 	guint32     open_frame = 0, close_frame = 0;
 	smb2_eo_file_info_t	*eo_file_info;
-	smb2_fid_info_t sfi_key = { .name = NULL, };
+	smb2_fid_info_t sfi_key;
 	smb2_fid_info_t *sfi = NULL;
 
 	sfi_key.fid_persistent = tvb_get_letoh64(tvb, offset);
 	sfi_key.fid_volatile = tvb_get_letoh64(tvb, offset+8);
 	sfi_key.sesid = si->sesid;
 	sfi_key.tid = si->tid;
+	sfi_key.name = NULL;
 
 	di.conformant_run = 0;
 	/* we need di->call_data->flags.NDR64 == 0 */
