@@ -1718,7 +1718,7 @@ void proto_register_ecat_mailbox(void)
       FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL },
       },
       { &hf_ecat_mailbox_coe_sdoinfovalueinfo,
-      { "Info Obj SubIdx", "ecat_mailbox.coe.sdoinfovalueinfo",
+      { "Info Obj ValueInfo", "ecat_mailbox.coe.sdoinfovalueinfo",
       FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL },
       },
       { &hf_ecat_mailbox_coe_sdoinfoerrorcode,
