@@ -122,6 +122,7 @@ void proto_register_rsvp(void);
 void proto_reg_handoff_rsvp(void);
 
 static int proto_rsvp = -1;
+static int proto_rsvp_e2e1 = -1;
 
 static int hf_rsvp_error_flags = -1;
 static int hf_rsvp_error_flags_path_state_removed = -1;
@@ -9531,6 +9532,8 @@ proto_register_rsvp(void)
         ett_tree[i] = &(ett_treelist[i]);
     }
     proto_rsvp = proto_register_protocol("Resource ReserVation Protocol (RSVP)", "RSVP", "rsvp");
+    /* Created to remove Decode As confusion */
+    proto_rsvp_e2e1 = proto_register_protocol("Resource ReserVation Protocol (RSVP-E2EI)", "RSVP-E2EI", "rsvp-e2ei");
 
     proto_register_field_array(proto_rsvp, rsvpf_info, array_length(rsvpf_info));
     proto_register_subtree_array(ett_tree, array_length(ett_tree));
@@ -9551,7 +9554,7 @@ proto_reg_handoff_rsvp(void)
     dissector_handle_t rsvp_handle, rsvpe2ei_handle;
 
     rsvp_handle = new_create_dissector_handle(dissect_rsvp, proto_rsvp);
-    rsvpe2ei_handle = new_create_dissector_handle(dissect_rsvp_e2ei, proto_rsvp);
+    rsvpe2ei_handle = new_create_dissector_handle(dissect_rsvp_e2ei, proto_rsvp_e2e1);
     dissector_add_uint("ip.proto", IP_PROTO_RSVP, rsvp_handle);
     dissector_add_uint("ip.proto", IP_PROTO_RSVPE2EI, rsvpe2ei_handle);
     dissector_add_uint("udp.port", UDP_PORT_PRSVP, rsvp_handle);
