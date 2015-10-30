@@ -2288,7 +2288,7 @@ dissect_opensafety_siii(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *t
      * a dissector loop. */
     if ( bDissector_Called_Once_Before == FALSE )
     {
-        udp = pinfo->srcport == OPENSAFETY_UDP_PORT_SIII;
+        udp = pinfo->destport == OPENSAFETY_UDP_PORT_SIII;
 
         bDissector_Called_Once_Before = TRUE;
         /* No frames can be sent in AT messages, therefore those get filtered right away */
@@ -2345,6 +2345,9 @@ dissect_opensafety_udpdata(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
     static guint32 frameNum = 0;
     static guint32 frameIdx = 0;
 
+    if ( pinfo->destport == OPENSAFETY_UDP_PORT_SIII )
+        return dissect_opensafety_siii(message_tvb, pinfo, tree, data);
+
     if ( ! global_enable_udp )
         return result;
 
@@ -2360,10 +2363,8 @@ dissect_opensafety_udpdata(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
         frameNum = pinfo->fd->num;
     }
 
-    result = opensafety_package_dissector((pinfo->destport == OPENSAFETY_UDP_PORT_SIII ? "openSAFETY/SercosIII" : "openSAFETY/UDP" ),
-                                          "", pinfo->destport == OPENSAFETY_UDP_PORT_SIII ? global_siii_udp_frame2_first : global_udp_frame2_first,
-                                          FALSE, frameIdx, message_tvb, pinfo, tree,
-                                          pinfo->destport == OPENSAFETY_UDP_PORT_SIII ? OPENSAFETY_ACYCLIC_DATA : 0 );
+    result = opensafety_package_dissector("openSAFETY/UDP", "", global_udp_frame2_first,
+                                          FALSE, frameIdx, message_tvb, pinfo, tree, OPENSAFETY_ACYCLIC_DATA );
 
     if ( result )
         frameIdx++;
@@ -2375,7 +2376,6 @@ static void
 apply_prefs ( void )
 {
     static dissector_handle_t opensafety_udpdata_handle = NULL;
-    static dissector_handle_t opensafety_siii_handle = NULL;
     static guint    opensafety_udp_port_number;
     static guint    opensafety_udp_siii_port_number;
     static gboolean opensafety_init = FALSE;
@@ -2384,28 +2384,22 @@ apply_prefs ( void )
     if ( !opensafety_init )
     {
         opensafety_udpdata_handle = find_dissector("opensafety_udpdata");
-        opensafety_siii_handle    = find_dissector("opensafety_siii");
         opensafety_init = TRUE;
     }
     else
     {
         /* Delete dissectors in preparation of a changed config setting */
         dissector_delete_uint ("udp.port", opensafety_udp_port_number, opensafety_udpdata_handle);
-        dissector_delete_uint ("udp.port", opensafety_udp_siii_port_number, opensafety_siii_handle);
+        dissector_delete_uint ("udp.port", opensafety_udp_siii_port_number, opensafety_udpdata_handle);
     }
-
 
     /* Storing the port numbers locally, to being able to delete the old associations */
     opensafety_udp_port_number = global_network_udp_port;
     opensafety_udp_siii_port_number = global_network_udp_port_sercosiii;
 
-    /* Default UDP only based dissector */
+    /* Default UDP only based dissector, will hand traffic to SIII dissector if needed */
     dissector_add_uint("udp.port", opensafety_udp_port_number, opensafety_udpdata_handle);
-
-    /* Sercos III dissector does not handle UDP transport, has to be handled
-     *  separately, everything else should be caught by the heuristic dissector
-     */
-    dissector_add_uint("udp.port", opensafety_udp_siii_port_number, opensafety_siii_handle);
+    dissector_add_uint("udp.port", opensafety_udp_siii_port_number, opensafety_udpdata_handle);
 
 }
 
@@ -2826,7 +2820,6 @@ proto_register_opensafety(void)
     /* Registering default and ModBus/TCP dissector */
     new_register_dissector("opensafety_udpdata", dissect_opensafety_udpdata, proto_opensafety );
     new_register_dissector("opensafety_mbtcp", dissect_opensafety_mbtcp, proto_opensafety );
-    new_register_dissector("opensafety_siii", dissect_opensafety_siii, proto_opensafety );
     new_register_dissector("opensafety_pnio", dissect_opensafety_pn_io, proto_opensafety);
 }
 
