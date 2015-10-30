@@ -539,6 +539,7 @@ static expert_field ei_lmp_checksum_incorrect = EI_INIT;
 static expert_field ei_lmp_invalid_msg_type = EI_INIT;
 static expert_field ei_lmp_invalid_class = EI_INIT;
 static expert_field ei_lmp_trace_len = EI_INIT;
+static expert_field ei_lmp_obj_len = EI_INIT;
 
 static int
 lmp_valid_class(int lmp_class)
@@ -792,6 +793,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         proto_item* trace_item;
 
         obj_length = tvb_get_ntohs(tvb, offset+2);
+        if (obj_length == 0) {
+            proto_tree_add_expert(tree, pinfo, &ei_lmp_obj_len, tvb, offset+2, 2);
+            break;
+        }
         lmp_class = tvb_get_guint8(tvb, offset+1);
         type = tvb_get_guint8(tvb, offset);
         negotiable = (type >> 7); type &= 0x7f;
@@ -1872,8 +1877,6 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             break;
         }
 
-        if (obj_length < 1)
-            THROW(ReportedBoundsError);
         offset += obj_length;
         len += obj_length;
 
@@ -1882,6 +1885,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     return tvb_captured_length(tvb);
 }
+
 static void
 lmp_prefs_applied (void)
 {
@@ -2629,6 +2633,7 @@ proto_register_lmp(void)
         { &ei_lmp_invalid_msg_type, { "lmp.invalid_msg_type", PI_PROTOCOL, PI_WARN, "Invalid message type", EXPFILL }},
         { &ei_lmp_invalid_class, { "lmp.invalid_class", PI_PROTOCOL, PI_WARN, "Invalid class", EXPFILL }},
         { &ei_lmp_trace_len, { "lmp.trace.len_invalid", PI_PROTOCOL, PI_WARN, "Invalid Trace Length", EXPFILL }},
+        { &ei_lmp_obj_len, { "lmp.obj.len_invalid", PI_PROTOCOL, PI_WARN, "Invalid Object Length", EXPFILL }}
     };
 
     expert_module_t* expert_lmp;
