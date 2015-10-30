@@ -2991,6 +2991,7 @@ static const value_string ff_vht_mimo_cntrl_feedback_vals[] = {
 
 
 static int proto_wlan = -1;
+static int proto_centrino = -1;
 static int proto_aggregate = -1;
 static gboolean ieee80211_tvb_invalid = FALSE;
 
@@ -27010,8 +27011,9 @@ proto_register_ieee80211 (void)
       "IEEE 802.11 Aggregate Data", "wlan_aggregate");
   proto_register_field_array(proto_aggregate, aggregate_fields, array_length(aggregate_fields));
 
-  proto_wlan = proto_register_protocol("IEEE 802.11 wireless LAN",
-      "IEEE 802.11", "wlan");
+  proto_wlan = proto_register_protocol("IEEE 802.11 wireless LAN", "IEEE 802.11", "wlan");
+  /* Created to remove Decode As confusion */
+  proto_centrino = proto_register_protocol("IEEE 802.11 wireless LAN (Centrino)", "IEEE 802.11 (Centrino)", "wlan_centrino");
   proto_register_field_array(proto_wlan, hf, array_length (hf));
 
   proto_wlan_mgt = proto_register_protocol("IEEE 802.11 wireless LAN management frame",
@@ -27255,7 +27257,7 @@ proto_reg_handoff_ieee80211(void)
   ieee80211_handle = find_dissector("wlan");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11, ieee80211_handle);
 
-  centrino_handle = create_dissector_handle( dissect_ieee80211_centrino, proto_wlan );
+  centrino_handle = create_dissector_handle( dissect_ieee80211_centrino, proto_centrino );
   dissector_add_uint("ethertype", ETHERTYPE_CENTRINO_PROMISC, centrino_handle);
 
   /* Register handoff to Aruba GRE */

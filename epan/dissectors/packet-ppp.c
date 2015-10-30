@@ -388,6 +388,10 @@ static gint ett_ipv6cp_if_id_opt = -1;
 static gint ett_ipv6cp_compress_opt = -1;
 
 static int proto_iphc_crtp = -1;            /* CRTP vars */
+static int proto_iphc_crtp_cudp16 = -1;
+static int proto_iphc_crtp_cudp8 = -1;
+static int proto_iphc_crtp_cs = -1;
+
 static int hf_iphc_crtp_cid8 = -1;
 static int hf_iphc_crtp_cid16 = -1;
 static int hf_iphc_crtp_gen = -1;
@@ -5104,10 +5108,9 @@ proto_reg_handoff_ppp_raw_hdlc(void)
 {
     dissector_handle_t ppp_raw_hdlc_handle;
 
-    ppp_raw_hdlc_handle = create_dissector_handle(dissect_ppp_raw_hdlc,
-        proto_ppp);
-    dissector_add_uint("gre.proto", ETHERTYPE_CDMA2000_A10_UBS,
-        ppp_raw_hdlc_handle);
+    ppp_raw_hdlc_handle = create_dissector_handle(dissect_ppp_raw_hdlc, proto_ppp);
+
+    dissector_add_uint("gre.proto", ETHERTYPE_CDMA2000_A10_UBS, ppp_raw_hdlc_handle);
     dissector_add_uint("gre.proto", ETHERTYPE_3GPP2, ppp_raw_hdlc_handle);
 
     heur_dissector_add("usb.bulk", dissect_ppp_usb, "PPP USB bulk endpoint", "ppp_usb_bulk", proto_ppp, HEURISTIC_ENABLE);
@@ -6833,6 +6836,11 @@ proto_register_iphc_crtp(void)
     expert_module_t* expert_iphc_crtp;
 
     proto_iphc_crtp = proto_register_protocol("CRTP", "CRTP", "crtp");
+    /* Created to remove Decode As confusion */
+    proto_iphc_crtp_cudp16 = proto_register_protocol("CRTP (CUDP 16)", "CRTP (CUDP 16)", "crtp_cudp16");
+    proto_iphc_crtp_cudp8 = proto_register_protocol("CRTP (CUDP 8)", "CRTP (CUDP 8)", "crtp_cudp8");
+    proto_iphc_crtp_cs = proto_register_protocol("CRTP (CS)", "CRTP (CS)", "crtp_cs");
+
     proto_register_field_array(proto_iphc_crtp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_iphc_crtp = expert_register_protocol(proto_iphc_crtp);
@@ -6850,15 +6858,13 @@ proto_reg_handoff_iphc_crtp(void)
     fh_handle = create_dissector_handle(dissect_iphc_crtp_fh, proto_iphc_crtp);
     dissector_add_uint("ppp.protocol", PPP_RTP_FH, fh_handle);
 
-    cudp16_handle = create_dissector_handle(dissect_iphc_crtp_cudp16,
-        proto_iphc_crtp);
+    cudp16_handle = create_dissector_handle(dissect_iphc_crtp_cudp16, proto_iphc_crtp_cudp16);
     dissector_add_uint("ppp.protocol", PPP_RTP_CUDP16, cudp16_handle);
 
-    cudp8_handle = create_dissector_handle(dissect_iphc_crtp_cudp8,
-        proto_iphc_crtp);
+    cudp8_handle = create_dissector_handle(dissect_iphc_crtp_cudp8, proto_iphc_crtp_cudp8);
     dissector_add_uint("ppp.protocol", PPP_RTP_CUDP8, cudp8_handle);
 
-    cs_handle = create_dissector_handle(dissect_iphc_crtp_cs, proto_iphc_crtp);
+    cs_handle = create_dissector_handle(dissect_iphc_crtp_cs, proto_iphc_crtp_cs);
     dissector_add_uint("ppp.protocol", PPP_RTP_CS, cs_handle);
 
     /*
