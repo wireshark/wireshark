@@ -27,10 +27,19 @@ smoother, faster user experience.
 The following features are new (or have been significantly updated)
 since version 2.0.0rc1:
 
-* For new installations on UN*X, the directory for user preferences is
-$HOME/.config/wireshark rather than $HOME/.wireshark.  If that directory
+* For new installations on UN$$*$$X, the directory for user preferences is
+`$HOME/.config/wireshark` rather than `$HOME/.wireshark`.  If that directory
 is absent, preferences will still be found and stored under
-$HOME/.wireshark.
+`$HOME/.wireshark`.
+
+* Qt port:
+** The SIP Statistics dialog has been added.
+** You can now create filter expressions from the display filter toolbar.
+** Bugs in the UAT prefererences dialog has been fixed.
+
+* Several dissector and Qt UI crash bugs have been fixed.
+
+* Problems with the Mac OS X application bundle have been fixed.
 
 The following features are new (or have been significantly updated)
 since version 1.99.9:
