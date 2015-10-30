@@ -607,6 +607,7 @@ static gint ett_tx_in_outp = -1;
 static gint ett_tx_out_list = -1;
 
 static expert_field ei_bitcoin_command_unknown = EI_INIT;
+static expert_field ei_bitcoin_script_len = EI_INIT;
 
 
 static gboolean bitcoin_desegment  = TRUE;
@@ -1093,14 +1094,12 @@ dissect_bitcoin_msg_getheaders(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
  * Handler for tx message body
  */
 static guint32
-dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tree *tree, guint msgnum)
+dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, guint msgnum)
 {
   proto_item *rti;
   gint        count_length;
   guint64     in_count;
   guint64     out_count;
-
-  DISSECTOR_ASSERT(tree != NULL);
 
   if (msgnum == 0) {
     rti  = proto_tree_add_item(tree, &hfi_bitcoin_msg_tx, tvb, offset, -1, ENC_NA);
@@ -1137,8 +1136,10 @@ dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo 
     proto_item *ti;
     proto_item *pti;
     guint64     script_length;
+    guint32     scr_len_offset;
 
-    get_varint(tvb, offset+36, &count_length, &script_length);
+    scr_len_offset = offset+36;
+    get_varint(tvb, scr_len_offset, &count_length, &script_length);
 
     /* A funny script_length won't cause an exception since the field type is FT_NONE */
     ti = proto_tree_add_item(tree, &hfi_msg_tx_in, tvb, offset,
@@ -1161,8 +1162,11 @@ dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo 
 
     offset += count_length;
 
-    if ((offset + script_length) > G_MAXINT)
-      THROW(ReportedBoundsError);  /* special check since script_length is guint64 */
+    if ((offset + script_length) > G_MAXINT) {
+      proto_tree_add_expert(tree, pinfo, &ei_bitcoin_script_len,
+          tvb, scr_len_offset, count_length);
+      return G_MAXINT;
+    }
 
     proto_tree_add_item(subtree, &hfi_msg_tx_in_sig_script, tvb, offset, (guint)script_length, ENC_NA);
     offset += (guint)script_length;
@@ -1188,8 +1192,10 @@ dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo 
     proto_item *ti;
     proto_tree *subtree;
     guint64     script_length;
+    guint32     scr_len_offset;
 
-    get_varint(tvb, offset+8, &count_length, &script_length);
+    scr_len_offset = offset+8;
+    get_varint(tvb, scr_len_offset, &count_length, &script_length);
 
     /* A funny script_length won't cause an exception since the field type is FT_NONE */
     ti = proto_tree_add_item(tree, &hfi_msg_tx_out, tvb, offset,
@@ -1204,8 +1210,11 @@ dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo 
 
     offset += count_length;
 
-    if ((offset + script_length) > G_MAXINT)
-      THROW(ReportedBoundsError);  /* special check since script_length is guint64 */
+    if ((offset + script_length) > G_MAXINT) {
+      proto_tree_add_expert(tree, pinfo, &ei_bitcoin_script_len,
+          tvb, scr_len_offset, count_length);
+      return G_MAXINT;
+    }
 
     proto_tree_add_item(subtree, &hfi_msg_tx_out_script, tvb, offset, (guint)script_length, ENC_NA);
     offset += (guint)script_length;
@@ -1281,7 +1290,7 @@ dissect_bitcoin_msg_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   offset += length;
 
   msgnum = 0;
-  for (; count > 0; count--)
+  for (; count>0 && offset<G_MAXINT; count--)
   {
     msgnum += 1;
     offset = dissect_bitcoin_msg_tx_common(tvb, offset, pinfo, tree, msgnum);
@@ -1835,6 +1844,7 @@ proto_register_bitcoin(void)
 
   static ei_register_info ei[] = {
      { &ei_bitcoin_command_unknown, { "bitcoin.command.unknown", PI_PROTOCOL, PI_WARN, "Unknown command", EXPFILL }},
+     { &ei_bitcoin_script_len, { "bitcoin.script_length.invalid", PI_MALFORMED, PI_ERROR, "script_len too large", EXPFILL }}
   };
 
   module_t *bitcoin_module;
