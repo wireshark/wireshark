@@ -365,11 +365,11 @@ heur_dissector_add() has a few more parameters to make that possible
 * proto_tree_add_text has been removed.
 * tvb_length() has been removed in favor of tvb_reported_length() and
 tvb_captured_length().
-* The API for RPC-based dissectors has changed significantly: the procedure
-dissectors no longer take an offset, void-argument procedures now need to be
-declared with a function (use dissect_rpc_void()), and rpc_init_prog()
-now handles procedure registration too (it takes additional arguments to
-handle this; rpc_init_proc_table() was removed).
+* The API for ONC RPC-based dissectors has changed significantly: the
+procedure dissectors no longer take an offset, void-argument procedures
+now need to be declared with a function (use dissect_rpc_void()), and
+rpc_init_prog() now handles procedure registration too (it takes
+additional arguments to handle this; rpc_init_proc_table() was removed).
 
 == Getting Wireshark
 
