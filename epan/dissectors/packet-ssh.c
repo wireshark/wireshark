@@ -323,7 +323,7 @@ static void
 dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-    proto_tree  *ssh_tree = NULL;
+    proto_tree  *ssh_tree;
     proto_item  *ti;
     conversation_t *conversation;
     int     last_offset, offset = 0;
@@ -350,10 +350,8 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     peer_data = &global_data->peer_data[is_response];
 
-    if (tree) {
-          ti = proto_tree_add_item(tree, proto_ssh, tvb, offset, -1, ENC_NA);
-          ssh_tree = proto_item_add_subtree(ti, ett_ssh);
-    }
+    ti = proto_tree_add_item(tree, proto_ssh, tvb, offset, -1, ENC_NA);
+    ssh_tree = proto_item_add_subtree(ti, ett_ssh);
 
     version = global_data->version;
 
@@ -548,10 +546,8 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
     offset+=4;
 /* padding length */
 
-    if (tree) {
-          proto_tree_add_uint(ssh1_tree, hf_ssh_padding_length, tvb,
+    proto_tree_add_uint(ssh1_tree, hf_ssh_padding_length, tvb,
             offset, padding_length, padding_length);
-    }
     offset += padding_length;
 
     /* msg_code */
@@ -588,15 +584,11 @@ ssh_tree_add_mpint(tvbuff_t *tvb, int offset, proto_tree *tree,
     int hf_ssh_mpint_selection)
 {
     guint len = tvb_get_ntohl(tvb, offset);
-    if (tree) {
-        proto_tree_add_uint(tree, hf_ssh_mpint_length, tvb,
+    proto_tree_add_uint(tree, hf_ssh_mpint_length, tvb,
             offset, 4, len);
-    }
     offset+=4;
-    if (tree) {
-        proto_tree_add_item(tree, hf_ssh_mpint_selection,
+    proto_tree_add_item(tree, hf_ssh_mpint_selection,
             tvb, offset, len, ENC_NA);
-    }
     return 4+len;
 }
 
@@ -605,15 +597,11 @@ ssh_tree_add_string(tvbuff_t *tvb, int offset, proto_tree *tree,
     int hf_ssh_string, int hf_ssh_string_length)
 {
     guint len = tvb_get_ntohl(tvb, offset);
-    if (tree) {
-        proto_tree_add_uint(tree, hf_ssh_string_length, tvb,
+    proto_tree_add_uint(tree, hf_ssh_string_length, tvb,
             offset, 4, len);
-    }
     offset+=4;
-    if (tree) {
-        proto_tree_add_item(tree, hf_ssh_string,
+    proto_tree_add_item(tree, hf_ssh_string,
             tvb, offset, len, ENC_NA);
-    }
     return 4+len;
 }
 
