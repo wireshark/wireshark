@@ -18354,7 +18354,35 @@ dissect_ieee80211_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 /*
- * Dissect 802.11 with a variable-length link-layer header.
+ * Dissect 802.11 from an Intel 2200BG adapter in a Centrino laptop
+ * running Windows XP.
+ *
+ * From
+ *
+ *   https://www.wireshark.org/lists/ethereal-dev/200407/msg00184.html
+ *
+ * and
+ *
+ *   https://www.wireshark.org/lists/ethereal-dev/200407/msg00393.html:
+ *
+ *  I tried capturing from a Centrino laptop with the Intel 2200BG 802.11g
+ *  chipset. I saw a lot of "Ethernet II" frames with 0x2452 as ethertype.
+ *
+ *    ...
+ *
+ *  This behaviour has been observed on Windows XP. In my opinion it is
+ *  a "proprietary" behaviour of either the Centrino driver or the Centrino
+ *  hardware. Currently I have no Linux distro installed on the machine to
+ *  verify whether it is also the case.
+ *
+ *  These packets are seen only in a promiscuous capture:
+ *    - Packets normally received by the Centrino computer have the normal
+ *      structure (no 802.11/LLC header but directly IP header).
+ *    - Packets that are supposed to be received by another computer have
+ *      the 802.11/LLC headers. ... Also I noticed that when WEP is enabled,
+ *      the 802.11 header has the flag "WEP" set to true, but the packet
+ *      is already decrypted. I added a test in the code to accomodate this.
+ *      For TKIP it seems to stay encrypted.
  */
 static void
 dissect_ieee80211_centrino(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
