@@ -419,8 +419,11 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (need_desegmentation)
             return;
-        if (offset <= last_offset)
-            THROW(ReportedBoundsError);
+        if (offset <= last_offset) {
+            /* XXX - add an expert info in the function
+               that decrements offset */
+            break;
+        }
     }
 
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s: ", is_response ? "Server" : "Client");
