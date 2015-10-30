@@ -36,9 +36,7 @@
 /* We require libgcrpyt in order to decrypt ZigBee packets. Without it the best
  * we can do is parse the security header and give up.
  */
-#ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
-#endif /* HAVE_LIBGCRYPT */
 
 #include "packet-ieee802154.h"
 #include "packet-zbee.h"

@@ -48,10 +48,7 @@
 #include "packet-x509af.h"
 #include "packet-x509ce.h"
 #include "packet-ber.h"
-
-#ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
-#endif
 
 void proto_register_dvbci(void);
 void proto_reg_handoff_dvbci(void);

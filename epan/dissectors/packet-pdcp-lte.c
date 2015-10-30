@@ -29,10 +29,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
-
-#ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
-#endif /* HAVE_LIBGCRYPT */
 
 /* Define this symbol if you have a working implementation of SNOW3G f8() and f9() available.
    Note that the use of this algorithm is restricted, and that an administrative charge

@@ -67,9 +67,7 @@
 #include "packet-ber.h"
 #include "packet-snmp.h"
 
-#ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
-#endif
 
 /* Take a pointer that may be null and return a pointer that's not null
    by turning null pointers into pointers to the above null string,

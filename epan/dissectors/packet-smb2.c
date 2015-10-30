@@ -47,10 +47,7 @@
 #include "packet-smb-common.h"
 #include "packet-dcerpc-nt.h"
 
-/* Use libgcrypt for cipher libraries. */
-#ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
-#endif /* HAVE_LIBGCRYPT */
 
 #define NT_STATUS_PENDING	0x00000103
 

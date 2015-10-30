@@ -75,9 +75,7 @@
 #include <wsutil/pint.h>
 
 /* Use libgcrypt for cipher libraries. */
-#ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
-#endif /* HAVE_LIBGCRYPT */
 
 #include "packet-ieee802154.h"
 #include "packet-sll.h"

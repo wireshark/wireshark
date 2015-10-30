@@ -31,10 +31,7 @@
 #include "packet-ieee802154.h"
 #include <epan/prefs.h>
 #include <epan/strutil.h>
-
-#ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
-#endif
 
 /*LwMesh lengths*/
 #define LWM_HEADER_BASE_LEN            7

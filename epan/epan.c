@@ -23,9 +23,7 @@
 
 #include <stdarg.h>
 
-#ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
-#endif /* HAVE_LIBGCRYPT */
 
 #ifdef HAVE_LIBGNUTLS
 #include <gnutls/gnutls.h>

@@ -39,9 +39,7 @@
 #include "packet-x509if.h"
 #include "packet-cms.h"
 
-#ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
-#endif
 
 #define PNAME  "PKCS#12: Personal Information Exchange"
 #define PSNAME "PKCS12"
