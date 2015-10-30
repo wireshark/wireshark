@@ -89,7 +89,6 @@ EXTRA_DIST = \
 	$(PIDL_FILES)					\
 	asn2deb						\
 	asn2wrs.py					\
-	build-qt-sdk.bat				\
 	checkfiltername.pl				\
 	checkhf.pl					\
 	checklicenses.py				\
