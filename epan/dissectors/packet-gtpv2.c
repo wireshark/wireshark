@@ -547,6 +547,7 @@ static gint ett_gtpv2_preaa_ecgis = -1;
 static gint ett_gtpv2_preaa_rais = -1;
 static gint ett_gtpv2_preaa_sais = -1;
 static gint ett_gtpv2_preaa_cgis = -1;
+static gint ett_gtpv2_load_control_inf = -1;
 
 static expert_field ei_gtpv2_ie_data_not_dissected = EI_INIT;
 static expert_field ei_gtpv2_ie_len_invalid = EI_INIT;
@@ -5734,7 +5735,15 @@ dissect_gtpv2_overload_control_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 static void
 dissect_gtpv2_load_control_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, 0, length);
+    int         offset = 0;
+    tvbuff_t   *new_tvb;
+    proto_tree *grouped_tree;
+
+    proto_item_append_text(item, "[Grouped IE]");
+    grouped_tree = proto_item_add_subtree(item, ett_gtpv2_load_control_inf);
+
+    new_tvb = tvb_new_subset_length(tvb, offset, length);
+    dissect_gtpv2_ie_common(new_tvb, pinfo, grouped_tree, 0, message_type);
 }
 /*
  * 8.113        Metric
@@ -5742,12 +5751,15 @@ dissect_gtpv2_load_control_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 static void
 dissect_gtpv2_metric(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-   guint8 oct;
+   guint32 oct;
 
-   oct = tvb_get_guint8(tvb, 0);
-   proto_tree_add_item(tree, hf_gtpv2_metric, tvb, 0, 1, ENC_BIG_ENDIAN);
-   if(oct > 0x64)
+   proto_tree_add_item_ret_uint(tree, hf_gtpv2_metric, tvb, 0, 1, ENC_BIG_ENDIAN, &oct);
+   if (oct > 0x64) {
        proto_item_append_text(item, "Metric: value beyond 100 is considered as 0");
+   } else {
+       proto_item_append_text(item, "%u", oct);
+
+   }
 }
 /*
  * 8.114        Sequence Number
@@ -5755,7 +5767,9 @@ dissect_gtpv2_metric(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
 static void
 dissect_gtpv2_seq_no(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_)
 {
-    proto_tree_add_item(tree, hf_gtpv2_sequence_number, tvb, 0, 4, ENC_BIG_ENDIAN);
+    guint32 seq;
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_sequence_number, tvb, 0, 4, ENC_BIG_ENDIAN, &seq);
+    proto_item_append_text(item, "%u", seq);
 }
 /*
  * 8.115        APN and Relative Capacity
@@ -8062,6 +8076,7 @@ void proto_register_gtpv2(void)
         &ett_gtpv2_preaa_rais,
         &ett_gtpv2_preaa_sais,
         &ett_gtpv2_preaa_cgis,
+        &ett_gtpv2_load_control_inf,
     };
 
     static ei_register_info ei[] = {
