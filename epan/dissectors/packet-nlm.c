@@ -119,7 +119,7 @@ nlm_msg_res_unmatched_free_all(gpointer key_arg _U_, gpointer value, gpointer us
 {
 	nlm_msg_res_unmatched_data *umd = (nlm_msg_res_unmatched_data *)value;
 
-	g_free((gpointer)umd->cookie);
+	wmem_free(NULL, (gpointer)umd->cookie);
 	g_free(umd);
 
 	return TRUE;
@@ -255,17 +255,18 @@ nlm_register_unmatched_res(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	/* have we seen this cookie before? */
 	old_umd=(nlm_msg_res_unmatched_data *)g_hash_table_lookup(nlm_msg_res_unmatched, (gconstpointer)&umd);
 	if(old_umd){
-		nlm_msg_res_matched_data *md;
+		nlm_msg_res_matched_data *md_req, *md_rep;
 
-		md=(nlm_msg_res_matched_data *)g_malloc(sizeof(nlm_msg_res_matched_data));
-		md->req_frame=old_umd->req_frame;
-		md->rep_frame=pinfo->fd->num;
-		md->ns=old_umd->ns;
-		g_hash_table_insert(nlm_msg_res_matched, GINT_TO_POINTER(md->req_frame), (gpointer)md);
-		g_hash_table_insert(nlm_msg_res_matched, GINT_TO_POINTER(md->rep_frame), (gpointer)md);
+		md_req=(nlm_msg_res_matched_data *)g_malloc(sizeof(nlm_msg_res_matched_data));
+		md_req->req_frame=old_umd->req_frame;
+		md_req->rep_frame=pinfo->fd->num;
+		md_req->ns=old_umd->ns;
+		md_rep=(nlm_msg_res_matched_data *)g_memdup(md_req, sizeof(nlm_msg_res_matched_data));
+		g_hash_table_insert(nlm_msg_res_matched, GINT_TO_POINTER(md_req->req_frame), (gpointer)md_req);
+		g_hash_table_insert(nlm_msg_res_matched, GINT_TO_POINTER(md_rep->rep_frame), (gpointer)md_rep);
 
 		g_hash_table_remove(nlm_msg_res_unmatched, (gconstpointer)old_umd);
-		g_free((gpointer)old_umd->cookie);
+		wmem_free(NULL, (gpointer)old_umd->cookie);
 		g_free(old_umd);
 	}
 }
@@ -287,7 +288,7 @@ nlm_register_unmatched_msg(packet_info *pinfo, tvbuff_t *tvb, int offset)
 	old_umd=(nlm_msg_res_unmatched_data *)g_hash_table_lookup(nlm_msg_res_unmatched, (gconstpointer)umd);
 	if(old_umd){
 		g_hash_table_remove(nlm_msg_res_unmatched, (gconstpointer)old_umd);
-		g_free((gpointer)old_umd->cookie);
+		wmem_free(NULL, (gpointer)old_umd->cookie);
 		g_free(old_umd);
 	}
 
