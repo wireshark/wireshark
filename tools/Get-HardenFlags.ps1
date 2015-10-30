@@ -28,6 +28,21 @@
 #   on all the binaries in the distribution, and then filters
 #   for the NXCOMPAT and DYNAMICBASE flags.
 
+# This script will probably fail for the forseeable future.
+#
+# Many of our third-party libraries are compiled using MinGW-w64. Its version
+# of `ld` doesn't enable the dynamicbase, nxcompat, or high-entropy-va flags
+# by default. When you *do* pass --dynamicbase it strips the relocation
+# section of the executable:
+#
+#   https://sourceware.org/bugzilla/show_bug.cgi?id=19011
+#
+# As a result, none of the distributions that produce Windows applications
+# and libraries have any sort of hardening flags enabled:
+#
+#   http://mingw-w64.org/doku.php/download
+#
+
 <#
 .SYNOPSIS
 Checks the NXCOMPAT and DYNAMICBASE flags on all the binaries.
