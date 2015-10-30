@@ -171,6 +171,8 @@
 #define PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_START    0x46
 #define PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_END      0x47
 
+#define PROTOCOL_BINARY_CMD_GET_ALL_VB_SEQNOS       0x48
+
  /* Commands from EP (eventually persistent) and bucket engines */
 #define PROTOCOL_BINARY_CMD_STOP_PERSISTENCE        0x80
 #define PROTOCOL_BINARY_CMD_START_PERSISTENCE       0x81
@@ -325,6 +327,7 @@ static int hf_extras_rev_seqno = -1;
 static int hf_extras_lock_time = -1;
 static int hf_extras_nmeta = -1;
 static int hf_extras_nru = -1;
+static int hf_extras_bytes_to_ack = -1;
 static int hf_extras_pathlen = -1;
 static int hf_key = -1;
 static int hf_path = -1;
@@ -341,6 +344,12 @@ static int hf_failover_log = -1;
 static int hf_failover_log_size = -1;
 static int hf_failover_log_vbucket_uuid = -1;
 static int hf_failover_log_vbucket_seqno = -1;
+
+static int hf_vbucket_states = -1;
+static int hf_vbucket_states_state = -1;
+static int hf_vbucket_states_size = -1;
+static int hf_vbucket_states_id = -1;
+static int hf_vbucket_states_seqno = -1;
 
 static int hf_multipath = -1;
 static int hf_multipath_opcode = -1;
@@ -368,6 +377,7 @@ static gint ett_extras = -1;
 static gint ett_extras_flags = -1;
 static gint ett_observe = -1;
 static gint ett_failover_log = -1;
+static gint ett_vbucket_states = -1;
 static gint ett_multipath = -1;
 
 static const value_string magic_vals[] = {
@@ -490,6 +500,7 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_TAP_VBUCKET_SET,            "TAP VBucket Set"          },
   { PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_START,       "TAP Checkpoint Start"     },
   { PROTOCOL_BINARY_CMD_TAP_CHECKPOINT_END,         "TAP Checkpoint End"       },
+  { PROTOCOL_BINARY_CMD_GET_ALL_VB_SEQNOS,          "Get All VBucket Seqnos"   },
   { PROTOCOL_BINARY_DCP_OPEN_CONNECTION,            "DCP Open Connection"      },
   { PROTOCOL_BINARY_DCP_ADD_STREAM,                 "DCP Add Stream"           },
   { PROTOCOL_BINARY_DCP_CLOSE_STREAM,               "DCP Close Stream"         },
@@ -583,6 +594,14 @@ const value_string dcp_connection_type_vals[] = {
   {0, "Consumer"},
   {1, "Producer"},
   {2, "Notifier"},
+  {0, NULL}
+};
+
+const value_string vbucket_states_vals[] = {
+  {1, "Active"},
+  {2, "Replica"},
+  {3, "Pending"},
+  {4, "Dead"},
   {0, NULL}
 };
 
@@ -754,6 +773,19 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Must not have extras */
     if (extlen) {
       illegal = TRUE;
+    }
+    break;
+
+  case PROTOCOL_BINARY_CMD_GET_ALL_VB_SEQNOS:
+    if (extlen) {
+      if (request) {
+        /* May have extras */
+        proto_tree_add_item(extras_tree, hf_vbucket_states_state, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+      } else {
+        /* Must not have extras */
+        illegal = TRUE;
+      }
     }
     break;
 
@@ -952,6 +984,20 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     break;
 
+  case PROTOCOL_BINARY_DCP_BUFFER_ACKNOWLEDGEMENT:
+    if (extlen) {
+      if (request) {
+        proto_tree_add_item(extras_tree, hf_extras_bytes_to_ack, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+      } else {
+        illegal = TRUE;
+      }
+    } else if (request) {
+      /* Request must have extras */
+      missing = TRUE;
+    }
+    break;
+
   case PROTOCOL_BINARY_CMD_SUBDOC_GET:
   case PROTOCOL_BINARY_CMD_SUBDOC_EXISTS:
   case PROTOCOL_BINARY_CMD_SUBDOC_DICT_ADD:
@@ -1036,6 +1082,8 @@ dissect_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case PROTOCOL_BINARY_CMD_NOOP:
     case PROTOCOL_BINARY_CMD_VERSION:
     case PROTOCOL_BINARY_DCP_FAILOVER_LOG_REQUEST:
+    case PROTOCOL_BINARY_DCP_BUFFER_ACKNOWLEDGEMENT:
+    case PROTOCOL_BINARY_CMD_GET_ALL_VB_SEQNOS:
       /* Request and Response must not have key */
       illegal = TRUE;
       break;
@@ -1261,7 +1309,7 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       }
     } else if (!request && opcode == PROTOCOL_BINARY_DCP_STREAM_REQUEST) {
       if (value_len % 16 != 0) {
-        expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Response with bad failouver log length");
+        expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Response with bad failover log length");
       } else {
         proto_tree *failover_log_tree;
         gint cur = offset, end = offset + value_len;
@@ -1273,6 +1321,23 @@ dissect_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           proto_tree_add_item(failover_log_tree, hf_failover_log_vbucket_uuid, tvb, cur, 8, ENC_BIG_ENDIAN);
           cur += 8;
           proto_tree_add_item(failover_log_tree, hf_failover_log_vbucket_seqno, tvb, cur, 8, ENC_BIG_ENDIAN);
+          cur += 8;
+        }
+      }
+    } else if (!request && opcode == PROTOCOL_BINARY_CMD_GET_ALL_VB_SEQNOS) {
+      if (value_len % 10 != 0) {
+        expert_add_info_format(pinfo, ti, &ef_warn_illegal_value_length, "Response with bad body length");
+      } else {
+        proto_tree *vbucket_states_tree;
+        gint cur = offset, end = offset + value_len;
+        ti = proto_tree_add_item(tree, hf_vbucket_states, tvb, offset, value_len, ENC_ASCII|ENC_NA);
+        vbucket_states_tree = proto_item_add_subtree(ti, ett_vbucket_states);
+        ti = proto_tree_add_uint(vbucket_states_tree, hf_vbucket_states_size, tvb, offset, 0, (end - cur) / 10);
+        PROTO_ITEM_SET_GENERATED(ti);
+        while (cur < end) {
+          proto_tree_add_item(vbucket_states_tree, hf_vbucket_states_id, tvb, cur, 2, ENC_BIG_ENDIAN);
+          cur += 2;
+          proto_tree_add_item(vbucket_states_tree, hf_vbucket_states_seqno, tvb, cur, 8, ENC_BIG_ENDIAN);
           cur += 8;
         }
       }
@@ -1623,11 +1688,18 @@ proto_register_couchbase(void)
     { &hf_extras_lock_time, { "lock_time", "couchbase.extras.lock_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_nmeta, { "nmeta", "couchbase.extras.nmeta", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_nru, { "nru", "couchbase.extras.nru", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_bytes_to_ack, { "bytes_to_ack", "couchbase.extras.bytes_to_ack", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
     { &hf_failover_log, { "Failover Log", "couchbase.dcp.failover_log", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_failover_log_size, { "Size", "couchbase.dcp.failover_log.size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_failover_log_vbucket_uuid, { "VBucket UUID", "couchbase.dcp.failover_log.vbucket_uuid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_failover_log_vbucket_seqno, { "Sequence Number", "couchbase.dcp.failover_log.seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+    { &hf_vbucket_states, { "VBucket States", "couchbase.vbucket_states", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+    { &hf_vbucket_states_state, { "State", "couchbase.vbucket_states.state", FT_UINT32, BASE_HEX, VALS(vbucket_states_vals), 0x0, NULL, HFILL } },
+    { &hf_vbucket_states_size, { "Size", "couchbase.vbucket_states.size", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_vbucket_states_id, { "VBucket", "couchbase.vbucket_states.id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_vbucket_states_seqno, { "Sequence Number", "couchbase.vbucket_states.seqno", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
     { &hf_extras_expiration, { "Expiration", "couchbase.extras.expiration", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_delta, { "Amount to Add", "couchbase.extras.delta", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
@@ -1673,6 +1745,7 @@ proto_register_couchbase(void)
     &ett_extras_flags,
     &ett_observe,
     &ett_failover_log,
+    &ett_vbucket_states,
     &ett_multipath
   };
 
