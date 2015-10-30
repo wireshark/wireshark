@@ -97,6 +97,8 @@ void proto_reg_handoff_bitcoin(void);
 
 static dissector_handle_t bitcoin_handle;
 
+static dissector_table_t bitcoin_command_table;
+
 static header_field_info *hfi_bitcoin = NULL;
 
 #define BITCOIN_HFI_INIT HFI_INIT(proto_bitcoin)
@@ -820,15 +822,12 @@ create_data_tree(proto_tree *tree, header_field_info* hfi, tvbuff_t *tvb, guint3
 /**
  * Handler for version messages
  */
-static void
-dissect_bitcoin_msg_version(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bitcoin_msg_version(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   guint32     version;
   guint32     offset = 0;
-
-  if (!tree)
-    return;
 
   ti   = proto_tree_add_item(tree, &hfi_bitcoin_msg_version, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
@@ -870,23 +869,22 @@ dissect_bitcoin_msg_version(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
   if (version >= 70002)
   {
     proto_tree_add_item(tree, &hfi_msg_version_relay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    /* offset += 1; */
+    offset += 1;
   }
+
+  return offset;
 }
 
 /**
  * Handler for address messages
  */
-static void
-dissect_bitcoin_msg_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bitcoin_msg_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   gint        length;
   guint64     count;
   guint32     offset = 0;
-
-  if (!tree)
-    return;
 
   ti   = proto_tree_add_item(tree, &hfi_bitcoin_msg_addr, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
@@ -907,21 +905,20 @@ dissect_bitcoin_msg_addr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     offset += 26;
     offset += 4;
   }
+
+  return offset;
 }
 
 /**
  * Handler for inventory messages
  */
-static void
-dissect_bitcoin_msg_inv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bitcoin_msg_inv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   gint        length;
   guint64     count;
   guint32     offset = 0;
-
-  if (!tree)
-    return;
 
   ti   = proto_tree_add_item(tree, &hfi_bitcoin_msg_inv, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
@@ -944,21 +941,20 @@ dissect_bitcoin_msg_inv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     proto_tree_add_item(subtree, &hfi_msg_inv_hash, tvb, offset, 32, ENC_NA);
     offset += 32;
   }
+
+  return offset;
 }
 
 /**
  * Handler for getdata messages
  */
-static void
-dissect_bitcoin_msg_getdata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bitcoin_msg_getdata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   gint        length;
   guint64     count;
   guint32     offset = 0;
-
-  if (!tree)
-    return;
 
   ti   = proto_tree_add_item(tree, &hfi_bitcoin_msg_getdata, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
@@ -981,21 +977,20 @@ dissect_bitcoin_msg_getdata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     proto_tree_add_item(subtree, &hfi_msg_getdata_hash, tvb, offset, 32, ENC_NA);
     offset += 32;
   }
+
+  return offset;
 }
 
 /**
  * Handler for notfound messages
  */
-static void
-dissect_bitcoin_msg_notfound(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bitcoin_msg_notfound(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   gint        length;
   guint64     count;
   guint32     offset = 0;
-
-  if (!tree)
-    return;
 
   ti   = proto_tree_add_item(tree, &hfi_bitcoin_msg_notfound, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
@@ -1018,21 +1013,20 @@ dissect_bitcoin_msg_notfound(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     proto_tree_add_item(subtree, &hfi_msg_notfound_hash, tvb, offset, 32, ENC_NA);
     offset += 32;
   }
+
+  return offset;
 }
 
 /**
  * Handler for getblocks messages
  */
-static void
-dissect_bitcoin_msg_getblocks(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bitcoin_msg_getblocks(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   gint        length;
   guint64     count;
   guint32     offset = 0;
-
-  if (!tree)
-    return;
 
   ti   = proto_tree_add_item(tree, &hfi_bitcoin_msg_getblocks, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
@@ -1054,22 +1048,22 @@ dissect_bitcoin_msg_getblocks(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
   }
 
   proto_tree_add_item(tree, &hfi_msg_getblocks_stop, tvb, offset, 32, ENC_NA);
+  offset += 32;
+
+  return offset;
 }
 
 /**
  * Handler for getheaders messages
  * UNTESTED
  */
-static void
-dissect_bitcoin_msg_getheaders(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bitcoin_msg_getheaders(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   gint        length;
   guint64     count;
   guint32     offset = 0;
-
-  if (!tree)
-    return;
 
   ti   = proto_tree_add_item(tree, &hfi_bitcoin_msg_getheaders, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
@@ -1090,6 +1084,9 @@ dissect_bitcoin_msg_getheaders(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
   }
 
   proto_tree_add_item(tree, &hfi_msg_getheaders_stop, tvb, offset, 32, ENC_NA);
+  offset += 32;
+
+  return offset;
 }
 
 /**
@@ -1226,30 +1223,24 @@ dissect_bitcoin_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo 
 /**
  * Handler for tx message
  */
-static void
-dissect_bitcoin_msg_tx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bitcoin_msg_tx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  if (!tree)
-    return;
-
-  dissect_bitcoin_msg_tx_common(tvb, 0, pinfo, tree, 0);
+  return dissect_bitcoin_msg_tx_common(tvb, 0, pinfo, tree, 0);
 }
 
 
 /**
  * Handler for block messages
  */
-static void
-dissect_bitcoin_msg_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bitcoin_msg_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   gint        length;
   guint64     count;
   guint       msgnum;
   guint32     offset = 0;
-
-  if (!tree)
-    return;
 
   /*  Block
    *    [ 4] version         uint32_t
@@ -1295,21 +1286,20 @@ dissect_bitcoin_msg_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     msgnum += 1;
     offset = dissect_bitcoin_msg_tx_common(tvb, offset, pinfo, tree, msgnum);
   }
+
+  return offset;
 }
 
 /**
  * Handler for headers messages
  */
-static void
-dissect_bitcoin_msg_headers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bitcoin_msg_headers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   gint        length;
   guint64     count;
   guint32     offset = 0;
-
-  if (!tree)
-    return;
 
   ti   = proto_tree_add_item(tree, &hfi_bitcoin_msg_headers, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
@@ -1354,57 +1344,54 @@ dissect_bitcoin_msg_headers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
     proto_item_set_len(subtree, 80 + length);
   }
+
+  return offset;
 }
 
 /**
  * Handler for ping messages
  */
-static void
-dissect_bitcoin_msg_ping(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bitcoin_msg_ping(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   guint32     offset = 0;
-
-  if (!tree)
-    return;
 
   ti   = proto_tree_add_item(tree, &hfi_bitcoin_msg_ping, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
 
   proto_tree_add_item(tree, &hfi_msg_ping_nonce, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-  /* offset += 8; */
+  offset += 8;
+
+  return offset;
 }
 
 /**
  * Handler for pong messages
  */
-static void
-dissect_bitcoin_msg_pong(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bitcoin_msg_pong(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   guint32     offset = 0;
-
-  if (!tree)
-    return;
 
   ti   = proto_tree_add_item(tree, &hfi_bitcoin_msg_pong, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
 
   proto_tree_add_item(tree, &hfi_msg_pong_nonce, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-  /* offset += 8; */
+  offset += 8;
+
+  return offset;
 }
 
 /**
  * Handler for reject messages
  */
-static void
-dissect_bitcoin_msg_reject(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bitcoin_msg_reject(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   guint32     offset = 0;
-
-  if (!tree)
-    return;
 
   ti   = proto_tree_add_item(tree, &hfi_bitcoin_msg_reject, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
@@ -1420,19 +1407,18 @@ dissect_bitcoin_msg_reject(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
   {
     proto_tree_add_item(tree, &hfi_msg_reject_data,  tvb, offset, tvb_reported_length(tvb) - offset, ENC_NA);
   }
+
+  return offset;
 }
 
 /**
  * Handler for filterload messages
  */
-static void
-dissect_bitcoin_msg_filterload(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bitcoin_msg_filterload(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   guint32     offset = 0;
-
-  if (!tree)
-    return;
 
   ti   = proto_tree_add_item(tree, &hfi_bitcoin_msg_filterload, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
@@ -1446,42 +1432,40 @@ dissect_bitcoin_msg_filterload(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
   offset += 4;
 
   proto_tree_add_item(tree, &hfi_msg_filterload_nflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  /* offset += 1; */
+  offset += 1;
+
+  return offset;
 }
 
 /**
  * Handler for filteradd messages
  */
-static void
-dissect_bitcoin_msg_filteradd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bitcoin_msg_filteradd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   guint32     offset = 0;
-
-  if (!tree)
-    return;
 
   ti   = proto_tree_add_item(tree, &hfi_bitcoin_msg_filteradd, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
 
   create_data_tree(tree, &hfi_msg_filteradd_data, tvb, &offset);
+
+  return offset;
 }
 
 /**
  * Handler for merkleblock messages
  */
 
-static void
-dissect_bitcoin_msg_merkleblock(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_bitcoin_msg_merkleblock(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
   proto_item *subtree;
   gint        length;
   guint64     count;
   guint32     offset = 0;
-
-  if (!tree)
-    return;
 
   ti   = proto_tree_add_item(tree, &hfi_bitcoin_msg_merkleblock, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree(ti, ett_bitcoin_msg);
@@ -1531,62 +1515,26 @@ dissect_bitcoin_msg_merkleblock(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
   /* The cast to guint is save because bitcoin messages are always smaller than 0x02000000 bytes. */
   proto_tree_add_item(subtree, &hfi_msg_merkleblock_flags_data, tvb, offset, (guint)count, ENC_ASCII|ENC_NA);
-  /* offset += count; */
+  offset += (guint32)count;
+
+  return offset;
 }
 
 /**
  * Handler for unimplemented or payload-less messages
  */
-static void
-dissect_bitcoin_msg_empty(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+static int
+dissect_bitcoin_msg_empty(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
 {
+    return tvb_captured_length(tvb);
 }
-
-typedef void (*msg_dissector_func_t)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-typedef struct msg_dissector
-{
-  const gchar *command;
-  msg_dissector_func_t function;
-} msg_dissector_t;
-
-static msg_dissector_t msg_dissectors[] =
-{
-  {"version",     dissect_bitcoin_msg_version},
-  {"addr",        dissect_bitcoin_msg_addr},
-  {"inv",         dissect_bitcoin_msg_inv},
-  {"getdata",     dissect_bitcoin_msg_getdata},
-  {"getblocks",   dissect_bitcoin_msg_getblocks},
-  {"getheaders",  dissect_bitcoin_msg_getheaders},
-  {"tx",          dissect_bitcoin_msg_tx},
-  {"block",       dissect_bitcoin_msg_block},
-  {"ping",        dissect_bitcoin_msg_ping},
-  {"pong",        dissect_bitcoin_msg_pong},
-  {"notfound",    dissect_bitcoin_msg_notfound},
-  {"reject",      dissect_bitcoin_msg_reject},
-  {"headers",     dissect_bitcoin_msg_headers},
-  {"filterload",  dissect_bitcoin_msg_filterload},
-  {"filteradd",   dissect_bitcoin_msg_filteradd},
-  {"merkleblock", dissect_bitcoin_msg_merkleblock},
-
-  /* messages with no payload */
-  {"verack",      dissect_bitcoin_msg_empty},
-  {"getaddr",     dissect_bitcoin_msg_empty},
-  {"mempool",     dissect_bitcoin_msg_empty},
-  {"filterclear", dissect_bitcoin_msg_empty},
-
-  /* messages not implemented */
-  {"checkorder",  dissect_bitcoin_msg_empty},
-  {"submitorder", dissect_bitcoin_msg_empty},
-  {"reply",       dissect_bitcoin_msg_empty},
-  {"alert",       dissect_bitcoin_msg_empty}
-};
 
 static int dissect_bitcoin_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item *ti;
-  guint32     i;
   guint32     offset = 0;
+  guint8*     command;
+  dissector_handle_t command_handle;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "Bitcoin");
 
@@ -1601,26 +1549,25 @@ static int dissect_bitcoin_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
   offset = 24;
 
-  /* handle command specific message part */
-  for (i = 0; i < array_length(msg_dissectors); i++)
+  command = tvb_get_string_enc(wmem_packet_scope(), tvb, 4, 12, ENC_ASCII|ENC_NA);
+  command_handle = dissector_get_string_handle(bitcoin_command_table, command);
+  if (command_handle != NULL)
   {
-    if (tvb_memeql(tvb, 4, msg_dissectors[i].command,
-          strlen(msg_dissectors[i].command)) == 0)
-    {
-      tvbuff_t *tvb_sub;
+    /* handle command specific message part */
+    tvbuff_t *tvb_sub;
 
-      col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", msg_dissectors[i].command);
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", command);
+    tvb_sub = tvb_new_subset_remaining(tvb, offset);
+    call_dissector(command_handle, tvb_sub, pinfo, tree);
+  }
+  else
+  {
+    /* no handler found */
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "[unknown command]");
 
-      tvb_sub = tvb_new_subset_remaining(tvb, offset);
-      msg_dissectors[i].function(tvb_sub, pinfo, tree);
-      return tvb_reported_length(tvb);
-    }
+    expert_add_info(pinfo, ti, &ei_bitcoin_command_unknown);
   }
 
-  /* no handler found */
-  col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "[unknown command]");
-
-  expert_add_info(pinfo, ti, &ei_bitcoin_command_unknown);
   return tvb_reported_length(tvb);
 }
 
@@ -1895,7 +1842,6 @@ proto_register_bitcoin(void)
 
   int proto_bitcoin;
 
-
   proto_bitcoin = proto_register_protocol("Bitcoin protocol", "Bitcoin", "bitcoin");
   hfi_bitcoin = proto_registrar_get_nth(proto_bitcoin);
 
@@ -1904,6 +1850,8 @@ proto_register_bitcoin(void)
 
   expert_bitcoin = expert_register_protocol(proto_bitcoin);
   expert_register_field_array(expert_bitcoin, ei, array_length(ei));
+
+  bitcoin_command_table = register_dissector_table("bitcoin.command", "Bitcoin Command", FT_STRING, BASE_NONE);
 
   bitcoin_handle = new_register_dissector("bitcoin", dissect_bitcoin, proto_bitcoin);
 
@@ -1919,9 +1867,59 @@ proto_register_bitcoin(void)
 void
 proto_reg_handoff_bitcoin(void)
 {
+  dissector_handle_t command_handle;
+
   dissector_add_for_decode_as("tcp.port", bitcoin_handle);
 
   heur_dissector_add( "tcp", dissect_bitcoin_heur, "Bitcoin over TCP", "bitcoin_tcp", hfi_bitcoin->id, HEURISTIC_ENABLE);
+
+  /* Register all of the commands */
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_version, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "version", command_handle);
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_addr, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "addr", command_handle);
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_inv, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "inv", command_handle);
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_getdata, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "getdata", command_handle);
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_getblocks, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "getblocks", command_handle);
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_getheaders, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "getheaders", command_handle);
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_tx, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "tx", command_handle);
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_block, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "block", command_handle);
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_ping, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "ping", command_handle);
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_pong, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "pong", command_handle);
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_notfound, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "notfound", command_handle);
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_reject, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "reject", command_handle);
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_headers, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "headers", command_handle);
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_filterload, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "filterload", command_handle);
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_filteradd, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "filteradd", command_handle);
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_merkleblock, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "merkleblock", command_handle);
+
+  /* messages with no payload */
+  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_empty, hfi_bitcoin->id );
+  dissector_add_string("bitcoin.command", "verack", command_handle);
+  dissector_add_string("bitcoin.command", "getaddr", command_handle);
+  dissector_add_string("bitcoin.command", "mempool", command_handle);
+  dissector_add_string("bitcoin.command", "filterclear", command_handle);
+
+  /* messages not implemented */
+  /* command_handle = new_create_dissector_handle( dissect_bitcoin_msg_empty, hfi_bitcoin->id ); */
+  dissector_add_string("bitcoin.command", "checkorder", command_handle);
+  dissector_add_string("bitcoin.command", "submitorder", command_handle);
+  dissector_add_string("bitcoin.command", "reply", command_handle);
+  dissector_add_string("bitcoin.command", "alert", command_handle);
 }
 
 /*
