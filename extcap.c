@@ -583,6 +583,10 @@ extcaps_init_initerfaces(capture_options *capture_opts)
         add_arg(EXTCAP_ARGUMENT_RUN_CAPTURE);
         add_arg(EXTCAP_ARGUMENT_INTERFACE);
         add_arg(interface_opts.name);
+        if (interface_opts.cfilter) {
+            add_arg(EXTCAP_ARGUMENT_CAPTURE_FILTER);
+            add_arg(interface_opts.cfilter);
+        }
         add_arg(EXTCAP_ARGUMENT_RUN_PIPE);
         add_arg(interface_opts.extcap_fifo);
         if (interface_opts.extcap_args == NULL)

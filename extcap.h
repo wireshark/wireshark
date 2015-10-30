@@ -46,6 +46,7 @@
 #define EXTCAP_ARGUMENT_LIST_DLTS               "--extcap-dlts"
 
 #define EXTCAP_ARGUMENT_RUN_CAPTURE             "--capture"
+#define EXTCAP_ARGUMENT_CAPTURE_FILTER          "--extcap-capture-filter"
 #define EXTCAP_ARGUMENT_RUN_PIPE                "--fifo"
 
 #ifdef __cplusplus

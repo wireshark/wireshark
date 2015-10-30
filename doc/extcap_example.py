@@ -208,7 +208,7 @@ def extcap_capture(interface, fifo, delay, verify, message, remote):
 ####
 
 def usage():
-	print ( "Usage: %s <--extcap-interfaces | --extcap-dlts | --extcap-interface | --extcap-config | --capture | --fifo>" % sys.argv[0] )
+	print ( "Usage: %s <--extcap-interfaces | --extcap-dlts | --extcap-interface | --extcap-config | --capture | --extcap-capture-filter | --fifo>" % sys.argv[0] )
 
 if __name__ == '__main__':
 	interface = ""
@@ -228,6 +228,7 @@ if __name__ == '__main__':
 	parser.add_argument("--extcap-interface", help="Provide the interface to capture from")
 	parser.add_argument("--extcap-dlts", help="Provide a list of dlts for the given interface", action="store_true")
 	parser.add_argument("--extcap-config", help="Provide a list of configurations for the given interface", action="store_true")
+	parser.add_argument("--extcap-capture-filter", help="Used together with capture to provide a capture filter")
 	parser.add_argument("--fifo", help="Use together with capture to provide the fifo to dump data to")
 
 	# Interface Arguments
