@@ -143,6 +143,7 @@ enum {
     OPT_INTERFACE,
     OPT_CONFIG,
     OPT_CAPTURE,
+    OPT_CAPTURE_FILTER,
     OPT_FIFO,
     OPT_CONFIG_ADB_SERVER_IP,
     OPT_CONFIG_ADB_SERVER_TCP_PORT,
@@ -164,6 +165,7 @@ static struct option longopts[] = {
     { "extcap-interface",  required_argument, NULL, OPT_INTERFACE},
     { "extcap-config",     no_argument,       NULL, OPT_CONFIG},
     { "capture",           no_argument,       NULL, OPT_CAPTURE},
+    { "extcap-capture-filter", required_argument, NULL, OPT_CAPTURE_FILTER},
     { "fifo",              required_argument, NULL, OPT_FIFO},
 /* Interfaces options */
     { "adb-server-ip",        required_argument, NULL, OPT_CONFIG_ADB_SERVER_IP},
@@ -2559,6 +2561,9 @@ int main(int argc, char **argv) {
             break;
         case OPT_CAPTURE:
             do_capture = 1;
+            break;
+        case OPT_CAPTURE_FILTER:
+            /* currently unused */
             break;
         case OPT_FIFO:
             fifo = strdup(optarg);

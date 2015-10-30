@@ -108,9 +108,10 @@ There are two kind of options available:
 STEP4: the capture. Once the interfaces are listed and configuration is customized
 by the user, the capture is run.
 
-extcapbin --extcap-interface IFACE [params] --capture --fifo FIFO
+extcapbin --extcap-interface IFACE [params] --capture [--extcap-capture-filter CFILTER] --fifo FIFO
 
-To run the capture, the extcap must implement the --capture and --fifo option.
+To run the capture, the extcap must implement the --capture, --extcap-capture-filter
+and --fifo option.
 They are automatically added by wireshark that opens the fifo for reading. All
 the other options are automatically added to run the capture. The extcap interface
 is used like all other interfaces (meaning that capture on multiple interfaces, as
