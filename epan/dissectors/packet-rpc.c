@@ -389,7 +389,7 @@ rpc_proc_name(guint32 prog, guint32 vers, guint32 proc)
 	else {
 		/* happens only with strange program versions or
 		   non-existing dissectors */
-		procname = wmem_strdup_printf(wmem_packet_scope(), "proc-%u", key.proc);
+		procname = wmem_strdup_printf(wmem_epan_scope(), "proc-%u", key.proc);
 	}
 	return procname;
 }
