@@ -1,6 +1,6 @@
                          Wireshark 2.0.0 Release Notes
 
-   This is the first release candidate for Wireshark 2.0.
+   This is the second release candidate for Wireshark 2.0.
      __________________________________________________________________
 
 What is Wireshark?
@@ -15,6 +15,20 @@ What's New
    smoother, faster user experience.
 
   New and Updated Features
+
+   The following features are new (or have been significantly updated)
+   since version 2.0.0rc1:
+     * For new installations on UN*X, the directory for user preferences
+       is $HOME/.config/wireshark rather than $HOME/.wireshark. If that
+       directory is absent, preferences will still be found and stored
+       under $HOME/.wireshark.
+     * Qt port:
+          + The SIP Statistics dialog has been added.
+          + You can now create filter expressions from the display filter
+            toolbar.
+          + Bugs in the UAT prefererences dialog has been fixed.
+     * Several dissector and Qt UI crash bugs have been fixed.
+     * Problems with the Mac OS X application bundle have been fixed.
 
    The following features are new (or have been significantly updated)
    since version 1.99.9:
@@ -177,7 +191,15 @@ What's New
           + Most toolbar actions are in place and work.
           + More command line options are now supported
 
-  New File Format Support
+  New File Format Decoding Support
+
+   Wireshark is able to display the format of some types of files (rather
+   than displaying the contents of those files). This is useful when
+   you're curious about, or debugging, a file and its format. To open a
+   capture file (such as PCAP) in this mode specify "MIME Files Format" as
+   the file's format in the Open File dialog.
+
+   New files that Wireshark can open in this mode include:
 
    BTSNOOP, PCAP, and PCAPNG
 
@@ -250,6 +272,14 @@ What's New
        heur_dissector_add() has a few more parameters to make that
        possible
      * proto_tree_add_text has been removed.
+     * tvb_length() has been removed in favor of tvb_reported_length() and
+       tvb_captured_length().
+     * The API for RPC-based dissectors has changed significantly: the
+       procedure dissectors no longer take an offset, void-argument
+       procedures now need to be declared with a function (use
+       dissect_rpc_void()), and rpc_init_prog() now handles procedure
+       registration too (it takes additional arguments to handle this;
+       rpc_init_proc_table() was removed).
      __________________________________________________________________
 
 Getting Wireshark
@@ -319,7 +349,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [19]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2015-10-13 21:32:36 UTC
+   Last updated 2015-10-30 18:40:28 UTC
 
 References
 
