@@ -1188,8 +1188,6 @@ TODO: is useful but not perfect, what is appended is truncated when displayed in
                 comment = g_strdup_printf("SIP Request CANCEL CSeq:%d", pi->tap_cseq_number);
             } else {
                 /* comment = g_strdup_printf("SIP %s", pi->request_method); */
-                tmp_sipinfo->invite_cseq = pi->tap_cseq_number;
-                callsinfo->call_state = VOIP_CALL_SETUP;
                 comment = g_strdup_printf("SIP %s From: %s To:%s CSeq:%d",
                         pi->request_method,
                         callsinfo->from_identity,
