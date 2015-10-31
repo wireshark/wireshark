@@ -493,6 +493,13 @@ static int hf_tds7login_collation = -1;
 static int hf_tds7login_offset = -1;
 static int hf_tds7login_length = -1;
 static int hf_tds7login_password = -1;
+static int hf_tds7login_clientname = -1;
+static int hf_tds7login_username = -1;
+static int hf_tds7login_appname = -1;
+static int hf_tds7login_servername = -1;
+static int hf_tds7login_libraryname = -1;
+static int hf_tds7login_locale = -1;
+static int hf_tds7login_databasename = -1;
 
 /* PRELOGIN stream */
 static int hf_tds_prelogin = -1;
@@ -1537,7 +1544,7 @@ dissect_tds7_prelogin_packet(tvbuff_t *tvb, proto_tree *tree)
 static void
 dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint offset, i, j, k, offset2, len;
+    guint offset, i, j, k, offset2, len, login_hf = 0;
     char *val, *val2;
 
     proto_tree *login_tree;
@@ -1605,13 +1612,39 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             len, "%s length: %u",
                             val_to_str_const(i, login_field_names, "Unknown"),
                             len);
+
+        switch(i) {
+            case 0:
+                login_hf = hf_tds7login_clientname;
+                break;
+            case 1:
+                login_hf = hf_tds7login_username;
+                break;
+            case 2:
+                login_hf = hf_tds7login_password;
+                break;
+            case 3:
+                login_hf = hf_tds7login_appname;
+                break;
+            case 4:
+                login_hf = hf_tds7login_servername;
+                break;
+            case 6:
+                login_hf = hf_tds7login_libraryname;
+                break;
+            case 7:
+                login_hf = hf_tds7login_locale;
+                break;
+            case 8:
+                login_hf = hf_tds7login_databasename;
+                break;
+        }
+
         if (len != 0) {
             if( i != 2) {
                 /* tds 7 is always unicode */
                 len *= 2;
-                val = tvb_get_string_enc(wmem_packet_scope(), tvb, offset2, len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
-                proto_tree_add_string_format(login_tree, hf_tds7login_password, tvb, offset2, len, val,
-                                "%s: %s", val_to_str_const(i, login_field_names, "Unknown"), val);
+                proto_tree_add_item(login_tree, login_hf, tvb, offset2, len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
             } else {
                 /* This field is the password.  We retrieve it from the packet
                  * as a non-unicode string and then perform two operations on it
@@ -1634,8 +1667,7 @@ dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
                 val2[k] = '\0'; /* Null terminate our new string */
 
-                proto_tree_add_string_format(login_tree, hf_tds7login_password, tvb, offset2, len, val2,
-                        "%s: %s", val_to_str_const(i, login_field_names, "Unknown"), val2);
+                proto_tree_add_string_format_value(login_tree, login_hf, tvb, offset2, len, val2, "%s", val2);
             }
         }
     }
@@ -4984,6 +5016,41 @@ proto_register_tds(void)
         },
         { &hf_tds7login_password,
           { "Password", "tds.7login.password",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds7login_clientname,
+          { "Client name", "tds.7login.clientname",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds7login_username,
+          { "Username", "tds.7login.username",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds7login_appname,
+          { "App name", "tds.7login.appname",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds7login_servername,
+          { "Server name", "tds.7login.servername",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds7login_libraryname,
+          { "Library name", "tds.7login.libraryname",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds7login_locale,
+          { "Locale", "tds.7login.locale",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds7login_databasename,
+          { "Database name", "tds.7login.databasename",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
