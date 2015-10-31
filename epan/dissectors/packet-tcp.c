@@ -1966,8 +1966,9 @@ mptcp_add_analysis_subtree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent
     proto_item *item;
     proto_tree *tree;
 
-    DISSECTOR_ASSERT(mptcpd != NULL);
-
+    if(mptcpd == NULL) {
+        return;
+    }
 
     item=proto_tree_add_item(parent_tree, hf_mptcp_analysis, tvb, 0, 0, ENC_NA);
     PROTO_ITEM_SET_GENERATED(item);
@@ -3545,8 +3546,9 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
             break;
     }
 
-    DISSECTOR_ASSERT(mptcpd);
-    DISSECTOR_ASSERT(tcpd->mptcp_analysis);
+    if(!mptcpd || !tcpd->mptcp_analysis) {
+        return;
+    }
 
     /* if mptcpd just got allocated, remember the initial addresses
      * which will serve as identifiers for the conversation filter
