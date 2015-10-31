@@ -24,6 +24,7 @@
 
 #include "config.h"
 
+#include <string.h>
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/conversation_table.h>
@@ -1242,11 +1243,9 @@ get_uuid(tvbuff_t *tvb, gint offset, gint size)
 {
     bluetooth_uuid_t  uuid;
 
-    uuid.bt_uuid = 0;
+    memset(&uuid, 0, sizeof(uuid));
 
     if (size != 2 && size != 16) {
-        uuid.size = 0;
-        uuid.data[0] = 0;
         return uuid;
     }
 
