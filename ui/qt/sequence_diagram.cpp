@@ -115,18 +115,20 @@ void SequenceDiagram::setData(_seq_analysis_info *sainfo)
 
     for (GList *cur = g_queue_peek_nth_link(sainfo->items, 0); cur; cur = g_list_next(cur)) {
         seq_analysis_item_t *sai = (seq_analysis_item_t *) cur->data;
-        WSCPSeqData new_data;
+        if (sai->display) {
+            WSCPSeqData new_data;
 
-        new_data.key = cur_key;
-        new_data.value = sai;
-        data_->insertMulti(new_data.key, new_data);
+            new_data.key = cur_key;
+            new_data.value = sai;
+            data_->insertMulti(new_data.key, new_data);
 
-        key_ticks.append(cur_key);
-        key_labels.append(sai->time_str);
+            key_ticks.append(cur_key);
+            key_labels.append(sai->time_str);
 
-        com_labels.append(com_fm.elidedText(sai->comment, Qt::ElideRight, elide_w));
+            com_labels.append(com_fm.elidedText(sai->comment, Qt::ElideRight, elide_w));
 
-        cur_key++;
+            cur_key++;
+        }
     }
 
     for (unsigned int i = 0; i < sainfo_->num_nodes; i++) {
