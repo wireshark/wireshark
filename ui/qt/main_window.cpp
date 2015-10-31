@@ -1997,6 +1997,8 @@ void MainWindow::changeEvent(QEvent* event)
         {
         case QEvent::LanguageChange:
             main_ui_->retranslateUi(this);
+            // make sure that the "Clear Menu" item is retranslated
+            updateRecentFiles();
             break;
         case QEvent::LocaleChange:{
             QString locale = QLocale::system().name();
