@@ -2437,7 +2437,7 @@ again:
 void
 proto_register_ipv6(void)
 {
-    static hf_register_info hf[] = {
+    static hf_register_info hf_ipv6[] = {
         { &hf_ipv6_version,
             { "Version", "ipv6.version",
                 FT_UINT8, BASE_DEC, NULL, 0xF0,
@@ -2727,26 +2727,6 @@ proto_register_ipv6(void)
         },
 #endif /* HAVE_GEOIP_V6 */
 
-        { &hf_ipv6_dstopts_nxt,
-            { "Next Header", "ipv6.dstopts.nxt",
-                FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
-                NULL, HFILL }
-        },
-        { &hf_ipv6_dstopts_length,
-            { "Length", "ipv6.dstopts.length",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Extension Header Length", HFILL }
-        },
-        { &hf_ipv6_hopopts_nxt,
-            { "Next Header", "ipv6.hopopts.nxt",
-                FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
-                NULL, HFILL }
-        },
-        { &hf_ipv6_hopopts_length,
-            { "Length", "ipv6.hopopts.length",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Extension Header Length", HFILL }
-        },
         { &hf_ipv6_unknown_hdr,
             { "Unknown Extension Header", "ipv6.unknown_hdr",
                 FT_NONE, BASE_NONE, NULL, 0x0,
@@ -2952,36 +2932,6 @@ proto_register_ipv6(void)
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_ipv6_fraghdr_nxt,
-            { "Next header", "ipv6.fraghdr.nxt",
-                FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
-                NULL, HFILL }
-        },
-        { &hf_ipv6_fraghdr_reserved_octet,
-            { "Reserved octet", "ipv6.fraghdr.reserved_octet",
-                FT_UINT16, BASE_HEX, NULL, 0x0,
-                "Should always be 0", HFILL }
-        },
-        { &hf_ipv6_fraghdr_offset,
-            { "Offset", "ipv6.fraghdr.offset",
-                FT_UINT16, BASE_DEC, NULL, IP6F_OFF_MASK,
-                "Fragment Offset", HFILL }
-        },
-        { &hf_ipv6_fraghdr_reserved_bits,
-            { "Reserved bits", "ipv6.fraghdr.reserved_bits",
-                FT_UINT16, BASE_DEC, NULL, IP6F_RESERVED_MASK,
-                NULL, HFILL }
-        },
-        { &hf_ipv6_fraghdr_more,
-            { "More Fragments", "ipv6.fraghdr.more",
-                FT_BOOLEAN, 16, TFS(&tfs_yes_no), IP6F_MORE_FRAG,
-                NULL, HFILL }
-        },
-        { &hf_ipv6_fraghdr_ident,
-            { "Identification", "ipv6.fraghdr.ident",
-                FT_UINT32, BASE_HEX, NULL, 0x0,
-                "Fragment Identification", HFILL }
-        },
         { &hf_ipv6_fragment,
             { "IPv6 Fragment", "ipv6.fragment",
                 FT_FRAMENUM, BASE_NONE, NULL, 0x0,
@@ -3041,7 +2991,23 @@ proto_register_ipv6(void)
             { "Padding", "ipv6.padding",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
+        }
+    };
+
+    static hf_register_info hf_ipv6_hopopts[] = {
+        { &hf_ipv6_dstopts_nxt,
+            { "Next Header", "ipv6.dstopts.nxt",
+                FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
+                NULL, HFILL }
         },
+        { &hf_ipv6_dstopts_length,
+            { "Length", "ipv6.dstopts.length",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Extension Header Length", HFILL }
+        }
+    };
+
+    static hf_register_info hf_ipv6_routing[] = {
 
         /* IPv6 Routing Header */
         { &hf_ipv6_routing_nxt,
@@ -3124,8 +3090,42 @@ proto_register_ipv6(void)
                 FT_IPv6, BASE_NONE, NULL, 0,
                 "Uncompressed IPv6 Address", HFILL }
         },
+    };
 
-        /* SHIM6 */
+    static hf_register_info hf_ipv6_fraghdr[] = {
+        { &hf_ipv6_fraghdr_nxt,
+            { "Next header", "ipv6.fraghdr.nxt",
+                FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_fraghdr_reserved_octet,
+            { "Reserved octet", "ipv6.fraghdr.reserved_octet",
+                FT_UINT16, BASE_HEX, NULL, 0x0,
+                "Should always be 0", HFILL }
+        },
+        { &hf_ipv6_fraghdr_offset,
+            { "Offset", "ipv6.fraghdr.offset",
+                FT_UINT16, BASE_DEC, NULL, IP6F_OFF_MASK,
+                "Fragment Offset", HFILL }
+        },
+        { &hf_ipv6_fraghdr_reserved_bits,
+            { "Reserved bits", "ipv6.fraghdr.reserved_bits",
+                FT_UINT16, BASE_DEC, NULL, IP6F_RESERVED_MASK,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_fraghdr_more,
+            { "More Fragments", "ipv6.fraghdr.more",
+                FT_BOOLEAN, 16, TFS(&tfs_yes_no), IP6F_MORE_FRAG,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_fraghdr_ident,
+            { "Identification", "ipv6.fraghdr.ident",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                "Fragment Identification", HFILL }
+        }
+    };
+
+    static hf_register_info hf_ipv6_shim6[] = {
         { &hf_ipv6_shim6_nxt,
             { "Next Header", "ipv6.shim6.nxt",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -3315,7 +3315,20 @@ proto_register_ipv6(void)
             { "CGA Signature", "ipv6.shim6.cga_signature",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
+        }
+    };
+
+    static hf_register_info hf_ipv6_dstopts[] = {
+        { &hf_ipv6_hopopts_nxt,
+            { "Next Header", "ipv6.hopopts.nxt",
+                FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
+                NULL, HFILL }
         },
+        { &hf_ipv6_hopopts_length,
+            { "Length", "ipv6.hopopts.length",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                "Extension Header Length", HFILL }
+        }
     };
 
     static gint *ett[] = {
@@ -3469,7 +3482,7 @@ proto_register_ipv6(void)
     expert_module_t* expert_ipv6;
 
     proto_ipv6 = proto_register_protocol("Internet Protocol Version 6", "IPv6", "ipv6");
-    proto_register_field_array(proto_ipv6, hf, array_length(hf));
+    proto_register_field_array(proto_ipv6, hf_ipv6, array_length(hf_ipv6));
     proto_register_subtree_array(ett, array_length(ett));
     expert_ipv6 = expert_register_protocol(proto_ipv6);
     expert_register_field_array(expert_ipv6, ei, array_length(ei));
@@ -3479,6 +3492,13 @@ proto_register_ipv6(void)
     proto_ipv6_fraghdr = proto_register_protocol("Fragment Header for IPv6", "IPv6 Fragment", "ipv6.fraghdr");
     proto_ipv6_shim6 = proto_register_protocol("Shim6 Protocol", "Shim6", "ipv6.shim6");
     proto_ipv6_dstopts = proto_register_protocol("Destination Options for IPv6", "IPv6 Destination", "ipv6.dstopts");
+
+    proto_register_field_array(proto_ipv6_hopopts, hf_ipv6_hopopts, array_length(hf_ipv6_hopopts));
+    proto_register_field_array(proto_ipv6_routing, hf_ipv6_routing, array_length(hf_ipv6_routing));
+    proto_register_field_array(proto_ipv6_fraghdr, hf_ipv6_fraghdr, array_length(hf_ipv6_fraghdr));
+    proto_register_field_array(proto_ipv6_shim6, hf_ipv6_shim6, array_length(hf_ipv6_shim6));
+    proto_register_field_array(proto_ipv6_dstopts, hf_ipv6_dstopts, array_length(hf_ipv6_dstopts));
+
     ipv6_next_header_dissector_table = register_dissector_table("ipv6.nxt", "IPv6 Next Header", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     /* Register configuration options */
