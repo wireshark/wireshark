@@ -93,6 +93,8 @@ Also the 64 bit Windows version are now supported by Wireshark. Although
 not all libraries are made 64 bit ready yet, basic operations are all
 available.
 
+* Windows 10
+
 * Windows 8.1 / Windows Server 2012 R2
 
 * Windows 8 / Windows Server 2012
@@ -102,6 +104,9 @@ available.
 * Windows Vista / Windows Server 2008
 
 * Windows XP / Windows Server 2003
+
+Support for XP / Server 2003 is best efforts for Wireshark 2.0 and later, it may fail to run
+at any time due to 3rd party library compatibility.
 
 [[ChIntroDevelopment]]
 

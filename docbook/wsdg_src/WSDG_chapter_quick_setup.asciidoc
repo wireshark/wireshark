@@ -38,9 +38,8 @@ Known traps are:
 
 . Not using the correct (x86 or x64) version of the Visual Studio command prompt.
 
-. Not copying win32.mak to the newer versions of the SDK.
-
 . Not copying/downloading the correct version of vcredist_xYY.exe.
+
 ====
 
 [[ChSetupPowerShell]]
@@ -94,18 +93,6 @@ to build the development releases and is the preferred option.
 It's possible to compile Wireshark with a wide range
 of Microsoft C compiler variants. For details see
 <<ChToolsMSChain>>.
-
-[TIP]
-.Is Win32.Mak missing?
-====
-For VS2013 (and later) Microsoft has left out a required file from the
-include files to build with nmake. To fix this copy Win32.Mak from the Win 7 SDK
-into an appropriate path for use with VS2013, e.g.
-----
-C:\> xcopy "C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include\Win32.Mak" ^
-           "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\include"
-----
-====
 
 You may have to do this as Administrator.
 
@@ -173,16 +160,10 @@ http://qt-project.org/downloads[download page] and select a component that
 matches your target system and compiler. For example, the ``msvc2013 64-bit
 OpenGL'' component is used to build the official 64-bit packages.
 
-Note that the Qt package also includes the Qt Creator IDE, which is useful
-for designing graphical components and includes an interactive debugger.
-You'll need to build Wireshark using nmake before you'll be able to build the
-Wireshark project (uiqtWireshark.pro), however.
-
-You can also use Chocolatey to install Qt (there are packages for x86 & x64 and various MSVC compilers, e.g.
-
-----
-PS$>choco install qt-sdk-windows-x86-msvc2013_opengl
-----
+Note that separate installations (into different directories) of Qt
+are required for 32 bit and 64 bit builds.  The environment variable QT5_BASE_DIR should be
+set as appropriate for your environment and should point to the Qt directory that contains the
+bin directory, e.g. C:\Qt\Qt5.5.0\5.5\msvc2013
 
 [[ChSetupCygwin]]
 
@@ -312,6 +293,22 @@ PS$> choco install git
 A list of other GUI interfaces for Git can be found at
 http://git-scm.com/downloads/guis
 
+
+[[ChSetupCMake]]
+
+=== Install CMake
+
+Get the CMake installer from https://cmake.org/download/[] and install CMake into
+the default location.  Ensure the directory containing cmake.exe is added to your path.
+
+Alternatively you can install CMake using Chocolatey:
+
+----
+PS$>choco install cmake.portable
+----
+
+Chocolatey ensures cmake.exe is on your path.
+
 ==== Install and Prepare Sources
 
 [TIP]
@@ -364,7 +361,8 @@ Make sure your repository path doesn't contain spaces.
 
 From the Start Menu (or Start Screen), navigate to the Visual Studio 2013 ->
 Visual Studio Tools directory and choose the Command Prompt appropriate for
-the build you wish to make, e.g. VS2013 x86 Native Tools Command Prompt for a 32-bit version, VS2013 x64 Native Tools Command Prompt for a 64-bit version.
+the build you wish to make, e.g. VS2013 x86 Native Tools Command Prompt for a 32-bit version,
+VS2013 x64 Native Tools Command Prompt for a 64-bit version.
 
 [TIP]
 .Pin the items to the Task Bar
@@ -381,9 +379,9 @@ Set the following environment variables, using paths and values suitable for you
 
 ----
 > set CYGWIN=nodosfilewarning
-> set WIRESHARK_BASE_DIR=C:\Development
+> set WIRESHARK_BASE_DIR=C:\Development or set WIRESHARK_LIB_DIR to the appropriate library directory for your build.
 > set WIRESHARK_TARGET_PLATFORM=win32 or win64 as required
-> set QT5_BASE_DIR=C:\Qt\Qt5.3.0\5.3\msvc2013
+> set QT5_BASE_DIR=C:\Qt\Qt5.5.0\5.5\msvc2013
 
 > set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 ----
@@ -396,103 +394,60 @@ Setting these variables could be added to a batch file to be run after you open
 the Visual Studio Tools Command Prompt.
 --
 
-. Change to the correct source directory
+. Create and change to the correct build directory.  CMake is best used in an out-of-tree build configuration
+where the build is done in a separate directory to the source tree, leaving the source tree in a pristine
+state.  32 and 64 bit builds require a separate build directory.  Create (if required) and change to the appropriate
+build directory.
 +
 --
 ----
-> cd C:\Development\wireshark
+> mkdir C:\Development\wsbuild32
+> cd C:\Development\wsbuild32
 ----
-to jump into the source directory
+to create and jump into the build directory.
+
+The build directory can be deleted at any time and the build files regenerated as detailed in <<ChWin32Generate>>.
 --
 
-[[ChToolsWin32Verify]]
+[[ChWin32Generate]]
 
-==== Verify installed tools
+==== Generate the build files
 
-After you've installed the Wireshark sources (see <<ChSrcObtain>>), you can
-check the correct installation of all tools by using the `verify_tools` target of
-the `Makefile.nmake` from the source package.
+CMake is used to process the CMakeLists.txt files in the source tree and produce build files appropriate
+for your system.
 
-[WARNING]
-.Dependencies ahead
-====
-You will need the Wireshark sources and some tools
-(nmake, bash) installed, before this verification is able
-to work.
-====
+You can generate Visual Studio solution files to build either from within Visual Studio, or from the command
+line with MSBuild.  CMake can also generate other build types but they aren't supported.
 
-Enter at the Visual Studio Command prompt line:
+The initial generation step is only required the first time a build directory is created.  Subsequent
+builds will regenerate the build files as required.
 
+If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again.
+
+To generate the build files enter the following at the Visual Studio command prompt:
 ----
-> nmake -f Makefile.nmake verify_tools
+> cmake -DPYTHON_EXECUTABLE=c:/Python27/python -DENABLE_CHM_GUIDES=on -G "Visual Studio 12" ..\wireshark
 ----
 
-This will check for the various tools needed to build Wireshark:
+Adjusting the paths as required to Python and the wireshark source tree.  To use a different generator
+modify the -G parameter, cmake -G lists all the CMake supported generators, but only Visual Studio is
+supported for Wireshark builds.
 
+The CMake generation process will download the required 3rd party libraries (apart from Qt)
+as required, then test each library for usability before generating the build files.
+
+At the end of the CMake generation process the following should be displayed:
+----
+-- Configuring done
+-- Generating done
+-- Build files have been written to: C:/Development/wsbuild32
 ----
 
-Microsoft (R) Program Maintenance Utility Version 12.00.21005.1
-Copyright (C) Microsoft Corporation.  All rights reserved.
+If you get any other output, there is an issue in your envirnment that must be rectified before building.
+Check the parameters passed to CMake, especially the -G option and the path to the Wireshark sources and
+the environment variables WIRESHARK_BASE_DIR, WIRESHARK_TARGET_PLATFORM and QT5_BASE_DIR.
 
-
-ERROR: The contents of 'E:\Wireshark\Wireshark-win32-libs\current_tag.txt' is (unknown).
-It should be 2014-10-01.
-
-Checking for required applications:
-        cl: /cygdrive/c/Program Files (x86)/Microsoft Visual Studio 12.0/VC/BIN/cl
-        link: /cygdrive/c/Program Files (x86)/Microsoft Visual Studio 12.0/VC/BIN/link
-        nmake: /cygdrive/c/Program Files (x86)/Microsoft Visual Studio 12.0/VC/BIN/nmake
-        bash: /usr/bin/bash
-        bison: /usr/bin/bison
-        flex: /usr/bin/flex
-        env: /usr/bin/env
-        grep: /usr/bin/grep
-        /usr/bin/find: /usr/bin/find
-        peflags: /usr/bin/peflags
-        perl: /usr/bin/perl
-        C:\Python27\python.exe: /cygdrive/c/Python27/python.exe
-        C:\Qt\Qt5.3.0\5.3\msvc2013\bin\qmake: /cygdrive/c/Qt/Qt5.3.0/5.3/msvc2013/bin/qmake
-        sed: /usr/bin/sed
-        unzip: /usr/bin/unzip
-        wget: /usr/bin/wget
-----
-
-The "ERROR" at the start occurs because you haven't yet downloaded the third
-party libraries and it can be ignored at this stage.
-If you have problems with all the first three items (cl, link, nmake), check
-that you opened a Visual Studio Command Prompt <<ChSetupPrepareCommandCom>>.
-
-Unfortunately, the `link` command is defined both in Cygwin and in MSVC, each
-with completely different functionality. You'll need the MSVC link. If your link
-command looks something like: `/usr/bin/link` the link command of Cygwin takes
-precedence over the MSVC one. To fix this, you can change your `PATH` environment
-setting or simply rename `link.exe` in Cygwin. If you rename it, make sure to
-remember that a Cygwin update may provide a new version of it.
-
-Make sure that the other tools found are the Cygwin versions. Some build
-problems have been caused by incompatible versions of `grep` and `unzip` provided by other installed applications.
-
-==== Install Libraries
-
-. If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again.
-
-. Run
-+
---
-----
-> nmake -f Makefile.nmake setup
-----
-to download and install libraries using `wget`. This may take a while.
---
-
-. If the download fails you may be behind a restrictive firewall. See the proxy
-comment in <<ChToolsWget>>.
-
-Note that 32-bit versions of the software require 32-bit versions of the
-libraries and that 64-bit versions require 64-bit libraries. The build process
-creates independent directories for each as needed. See
-<<ChSetupPrepareCommandCom>>for how to open the required Visual Studio Command Prompt and
-`WIRESHARK_TARGET_PLATFORM` to select either a 32- or 64-bit build.
+[[ChWin32Build]]
 
 ==== Build Wireshark
 
@@ -504,24 +459,28 @@ Now it's time to build Wireshark!
 +
 --
 ----
-> nmake -f Makefile.nmake all
+> msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln
 ----
 to build Wireshark.
 --
 
 . Wait for Wireshark to compile. This will take a while, and there will be a lot of text output in the command prompt window
 
-. For the QT version run `C:\Development\wireshark\wireshark-qt-release\Wireshark.exe` and make sure it starts.
+. For the QT version run `C:\Development\wsbuild32\run\RelWithDebInfo\Wireshark.exe` and make sure it starts.
 
-. For the older GTK version run `C:\Development\wireshark\wireshark-gtk2\Wireshark-gtk.exe`.
+. For the older GTK version run `C:\Development\wsbuild32\run\RelWithDebInfo\wireshark-gtk.exe`.
 
 . Open 'Help -> About'. If it shows your "private" program
 version, e.g.: Version wireshark-major-minor-version:[].x-myprotocol123
 congratulations! You have compiled your own version of Wireshark!
 
-TIP: If compilation fails for suspicious
-reasons after you changed some source files try to "distclean"
-the sources and make "all" again
+You may also open the Wireshark solution file (Wireshark.sln) in the Visual Studio IDE and build there.
+
+TIP: If compilation fails for suspicious reasons after you changed some source
+files try to clean the build files by running msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln /t:Clean
+and then building the solution again.
+
+The build files produced by CMake will regenerate themselves if required by changes in the source tree.
 
 ==== Debug Environment Setup
 
@@ -545,8 +504,7 @@ you'll need NSIS.
 . NSIS:
 http://nsis.sourceforge.net[Download] and install NSIS
 +
-You may check the `MAKENSIS` setting in the file 'config.nmake' in the Wireshark
-sources. Note that the 32-bit version of NSIS will work for both 32-bit and
+Note that the 32-bit version of NSIS will work for both 32-bit and
 64-bit versions of Wireshark.
 
 Note: If you do not yet have a copy of vcredist_x86.exe or vcredist_x64.exe in ./wireshark-winXX-libs (where XX is 32 or 64) you will need to download the appropriate file and place it in ./wireshark-winXX-libs before starting this step.
@@ -563,7 +521,8 @@ Note you must use the correct version of vcredist for your compiler, unfortunate
 +
 --
 ----
-> nmake -f Makefile.nmake packaging
+> msbuild /m /p:Configuration=RelWithDebInfo nsis_package_prep.vcxproj
+> msbuild /m /p:Configuration=RelWithDebInfo nsis_package.vcxproj
 ----
 to build a Wireshark installer.
 --
