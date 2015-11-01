@@ -296,7 +296,7 @@ struct mptcp_analysis {
 
 	guint32 stream; /* Keep track of unique mptcp stream (per MP_CAPABLE handshake) */
 	guint8 hmac_algo;  /* hmac decided after negociation */
-	GSList* subflows;	/* List of subflows, (tcp_analysis)*/
+	wmem_list_t* subflows;	/* List of subflows, (tcp_analysis)*/
 
 	/* identifier of the tcp stream that saw the initial 3WHS with MP_CAPABLE option */
 	struct tcp_analysis *master;
