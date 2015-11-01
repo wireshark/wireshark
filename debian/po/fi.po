@@ -4,7 +4,6 @@
 # 
 # Translators:
 # edu28b5088de91f4c05 <edu@iki.fi>, 2009
-# edu28b5088de91f4c05 <edu@iki.fi>, 2009
 msgid ""
 msgstr ""
 "Project-Id-Version: Wireshark\n"

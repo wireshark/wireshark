@@ -4,14 +4,13 @@
 # 
 # Translators:
 # Uli Heilmeier, 2015
-# Uli Heilmeier, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: Wireshark\n"
 "Report-Msgid-Bugs-To: wireshark@packages.debian.org\n"
 "POT-Creation-Date: 2010-06-20 16:35+0200\n"
 "PO-Revision-Date: 2015-10-22 07:58+0000\n"
-"Last-Translator: Uli Heilmeier\n"
+"Last-Translator: Alexis La Goutte <alexis.lagoutte@gmail.com>\n"
 "Language-Team: German (http://www.transifex.com/wireshark/wireshark/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"

@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-#       Francisco Javier Cuadrado <fcocuadrado@gmail.com>, 2009-2010
 msgid ""
 msgstr ""
 "Project-Id-Version: Wireshark\n"
