@@ -90,8 +90,8 @@ a capture file. See <<ChUseTabGo>> for additional navigation keystrokes.
 [options="header"]
 |===============
 |Accelerator               |Description
-|kbd:[Tab], kbd:[Shift+Tab]| Move between screen elements, e.g. from the toolbars to the packet list to the packet detail.
-|kbd:[Down]                | Move to the next packet or detail item.
+|kbd:[Tab], kbd:[Shift+Tab]|Move between screen elements, e.g. from the toolbars to the packet list to the packet detail.
+|kbd:[Down]                |Move to the next packet or detail item.
 |kbd:[Up]                  |Move to the previous packet or detail item.
 |kbd:[Ctrl+Down], kbd:[F8] |Move to the next packet, even if the packet list isn't focused.
 |kbd:[Ctrl+Up], kbd:[F7]   |Move to the previous packet, even if the packet list isn't focused.
@@ -106,7 +106,9 @@ a capture file. See <<ChUseTabGo>> for additional navigation keystrokes.
 |kbd:[Return], kbd:[Enter] |In the packet detail, toggles the selected tree item.
 |===============
 
-Additionally, typing anywhere in the main window will start filling in a display filter.
+menu:Help[About Wireshark,Keyboard Shortcuts] will show a list of all shortcuts
+in the main window. Additionally, typing anywhere in the main window will start
+filling in a display filter.
 
 [[ChUseMenuSection]]
 
@@ -130,8 +132,8 @@ image::wsug_graphics/ws-menu.png[]
 The main menu contains the following items:
 
 menu:File[]::
-This menu contains items to open and merge capture files, save / print / export
-capture files in whole or in part, and to quit from Wireshark. See
+This menu contains items to open and merge capture files, save, print, or export
+capture files in whole or in part, and to quit the Wireshark application. See
 <<ChUseFileMenuSection>>.
 
 menu:Edit[]::
@@ -166,13 +168,12 @@ This menu contains items to display various telephony related statistic windows,
 including a media analysis, flow diagrams, display protocol hierarchy statistics
 and much more. See <<ChUseTelephonyMenuSection>>.
 
+menu:Wireless[]::
+The items in this menu show Bluetooth and IEEE 802.11 wireless statistics.
+
 menu:Tools[]::
 This menu contains various tools available in Wireshark, such as creating
 Firewall ACL Rules. See <<ChUseToolsMenuSection>>.
-
-menu:Internals[]::
-This menu contains items that show information about the internals of Wireshark.
-See <<ChUseInternalsMenuSection>>.
 
 menu:Help[]::
 This menu contains items to help the user, e.g. access to some basic help,
@@ -182,11 +183,11 @@ webpages, and the usual about dialog. See <<ChUseHelpMenuSection>>.
 Each of these menu items is described in more detail in the sections that follow.
 
 [TIP]
-.Power user tip
+.Shortcuts make life easier
 ====
-Most commonl menu items have keyboard shortcuts. For example, you can
+Most common menu items have keyboard shortcuts. For example, you can
 press the Control (or Strg in German) and the K keys together to open the
-capture dialog.
+``Capture Options'' dialog.
 ====
 
 [[ChUseFileMenuSection]]
@@ -204,12 +205,33 @@ image::wsug_graphics/ws-file-menu.png[]
 [options="header"]
 |===============
 |Menu Item                            |Accelerator |Description
-|menu:Open...[]                       |kbd:[Ctrl+O]|This menu item brings up the file open dialog box that allows you to load a capture file for viewing. It is discussed in more detail in <<ChIOOpen>>.
-|menu:Open Recent[]                   |            |This menu item shows a submenu containing the recently opened capture files. Clicking on one of the submenu items will open the corresponding capture file directly.
-|menu:Merge...[]                      |            |This menu item brings up the merge file dialog box that allows you to merge a capture file into the currently loaded one. It is discussed in more detail in <<ChIOMergeSection>>.
-|menu:Import from Hex Dump...[]       |            |This menu item brings up the import file dialog box that allows you to import a text file containing a hex dump into a new temporary capture. It is discussed in more detail in <<ChIOImportSection>>.
-|menu:Close[]                         |kbd:[Ctrl+W]|This menu item closes the current capture. If you haven't saved the capture, you will be asked to do so first (this can be disabled by a preference setting).
-|menu:Save[]                          |kbd:[Ctrl+S]| This menu item saves the current capture. If you have not set a default capture file name (perhaps with the -w &lt;capfile&gt; option), Wireshark pops up the Save Capture File As dialog box (which is discussed further in <<ChIOSaveAs>>).
+
+|menu:Open...[]                       |kbd:[Ctrl+O]|
+This shows the file open dialog box that allows you to load a
+capture file for viewing. It is discussed in more detail in <<ChIOOpen>>.
+
+|menu:Open Recent[]                   |            |
+This lets you open recently opened capture files.
+Clicking on one of the submenu items will open the corresponding capture file
+directly.
+
+|menu:Merge...[]                      |            |
+This menu item lets you merge a capture file into the currently loaded one. It
+is discussed in more detail in <<ChIOMergeSection>>.
+
+|menu:Import from Hex Dump...[]       |            |
+This menu item brings up the import file dialog box that allows you to import a
+text file containing a hex dump into a new temporary capture. It is discussed in
+more detail in <<ChIOImportSection>>.
+
+|menu:Close[]                         |kbd:[Ctrl+W]|
+This menu item closes the current capture. If you haven't saved the capture, you
+will be asked to do so first (this can be disabled by a preference setting).
+
+|menu:Save[]                          |kbd:[Ctrl+S]|
+This menu item saves the current capture. If you have not set a default capture
+file name (perhaps with the -w &lt;capfile&gt; option), Wireshark pops up the
+Save Capture File As dialog box (which is discussed further in <<ChIOSaveAs>>).
 
 If you have already saved the current capture, this menu item will be greyed
 out.
@@ -217,17 +239,51 @@ out.
 You cannot save a live capture while the capture is in progress. You must
 stop the capture in order to save.
 
-|menu:Save As...[]                    |kbd:[Shift+Ctrl+S]| This menu item allows you to save the current capture file to whatever file you would like. It pops up the Save Capture File As dialog box (which is discussed further in <<ChIOSaveAs>>).
-|menu:File Set[List Files]            || This menu item allows you to show a list of files in a file set. It pops up the Wireshark List File Set dialog box (which is discussed further in <<ChIOFileSetSection>>).
-|menu:File Set[Next File]             || If the currently loaded file is part of a file set, jump to the next file in the set. If it isn't part of a file set or just the last file in that set, this item is greyed out.
-|menu:File Set[Previous File]         || If the currently loaded file is part of a file set, jump to the previous file in the set. If it isn't part of a file set or just the first file in that set, this item is greyed out.
-|menu:Export[File...]                 || This menu item allows you to export all (or some) of the packets in the capture file to file. It pops up the Wireshark Export dialog box (which is discussed further in <<ChIOExportSection>>).
-|menu:Export[Selected Packet Bytes...]|kbd:[Ctrl+H]| This menu item allows you to export the currently selected bytes in the packet bytes pane to a binary file. It pops up the Wireshark Export dialog box (which is discussed further in <<ChIOExportSelectedDialog>>)
-|menu:Export[Objects,HTTP]            || This menu item allows you to export all or some of the captured HTTP objects into local files. It pops up the Wireshark HTTP object list (which is discussed further in <<ChIOExportObjectsDialog>>)
-|menu:Export[Objects,DICOM]           || This menu item allows you to export all or some of the captured DICOM objects into local files. It pops up the Wireshark DICOM object list (which is discussed further in <<ChIOExportObjectsDialog>>)
-|menu:Export[Objects,SMB]             || This menu item allows you to export all or some of the captured SMB objects into local files. It pops up the Wireshark SMB object list (which is discussed further in <<ChIOExportObjectsDialog>>)
-|menu:Print...[]                      |kbd:[Ctrl+P]| This menu item allows you to print all (or some) of the packets in the capture file. It pops up the Wireshark Print dialog box (which is discussed further in <<ChIOPrintSection>>).
-|menu:Quit[]                          |kbd:[Ctrl+Q]| This menu item allows you to quit from Wireshark. Wireshark will ask to save your capture file if you haven't previously saved it (this can be disabled by a preference setting).
+|menu:Save As...[]                    |kbd:[Shift+Ctrl+S]|
+This menu item allows you to save the current capture file to whatever file you
+would like. It pops up the Save Capture File As dialog box (which is discussed
+further in <<ChIOSaveAs>>).
+
+|menu:File Set[List Files]            ||
+This menu item allows you to show a list of files in a file set. It pops up the
+Wireshark List File Set dialog box (which is discussed further in
+<<ChIOFileSetSection>>).
+
+|menu:File Set[Next File]             ||
+If the currently loaded file is part of a file set, jump to the next file in the
+set. If it isn't part of a file set or just the last file in that set, this item
+is greyed out.
+
+|menu:File Set[Previous File]         ||
+If the currently loaded file is part of a file set, jump to the previous file in
+the set. If it isn't part of a file set or just the first file in that set, this
+item is greyed out.
+
+|menu:Export Specified Packets...[]                 ||
+This menu item allows you to export all (or some) of the packets in the capture
+file to file. It pops up the Wireshark Export dialog box (which is discussed
+further in <<ChIOExportSection>>).
+
+|menu:Export Packet Dissections...[]|kbd:[Ctrl+H]|
+These menu items allow you to export the currently selected bytes in the packet
+bytes pane to a text file file in a number of formats including plain, CSV,
+and XML. It is discussed further in <<ChIOExportSelectedDialog>>.
+
+|menu:Export Objects[]           ||
+These menu items allow you to export captured DICOM, HTTP, SMB, or TFTP objects
+into local files. It pops up a corresponding object list (which is discussed
+further in <<ChIOExportObjectsDialog>>)
+
+|menu:Print...[]                      |kbd:[Ctrl+P]|
+This menu item allows you to print all (or some) of the packets in the capture
+file. It pops up the Wireshark Print dialog box (which is discussed further in
+<<ChIOPrintSection>>).
+
+|menu:Quit[]                          |kbd:[Ctrl+Q]|
+This menu item allows you to quit from Wireshark. Wireshark will ask to save
+your capture file if you haven't previously saved it (this can be disabled by a
+preference setting).
+
 |===============
 
 [[ChUseEditMenuSection]]
@@ -245,27 +301,82 @@ image::wsug_graphics/ws-edit-menu.png[]
 [options="header"]
 |===============
 |Menu Item                                    |Accelerator       |Description
-|menu:Copy[Description]                       |kbd:[Shift+Ctrl+D]|This menu item will copy the description of the selected item in the detail view to the clipboard.
-|menu:Copy[Fieldname]                         |kbd:[Shift+Ctrl+F]|This menu item will copy the fieldname of the selected item in the detail view to the clipboard.
-|menu:Copy[Value]                             |kbd:[Shift+Ctrl+V]|This menu item will copy the value of the selected item in the detail view to the clipboard.
-|menu:Copy[As Filter]                         |kbd:[Shift+Ctrl+C]|This menu item will use the selected item in the detail view to create a display filter. This display filter is then copied to the clipboard.
-|menu:Find Packet...[]                        |kbd:[Ctrl+F]      |This menu item brings up a dialog box that allows you to find a packet by many criteria. There is further information on finding packets in <<ChWorkFindPacketSection>>.
-|menu:Find Next[]                             |kbd:[Ctrl+N]      |This menu item tries to find the next packet matching the settings from ``Find Packet...''.
-|menu:Find Previous[]                         |kbd:[Ctrl+B]      |This menu item tries to find the previous packet matching the settings from ``Find Packet...''.
-|menu:Mark/Unmark Packet[]                    |kbd:[Ctrl+M]      |This menu item marks the currently selected packet. See <<ChWorkMarkPacketSection>> for details.
-|menu:Mark All Displayed Packets[]            |kbd:[Shift+Ctrl+M]|This menu item marks all displayed packets.
-|menu:Unmark All Displayed Packets[]          |kbd:[Ctrl+Alt+M]  |This menu item unmarks all displayed packets.
-|menu:Next Mark[]                             |kbd:[Shift+Alt+N] |Find the next marked packet.
-|menu:Previous Mark[]                         |kbd:[Shift+Alt+B] |Find the previous marked packet.
-|menu:Ignore/Unignore Packet[]                |kbd:[Ctrl+D]      |This menu item marks the currently selected packet as ignored. See <<ChWorkIgnorePacketSection>> for details.
-|menu:Ignore All Displayed[]                  |kbd:[Shift+Ctrl+D]|This menu item marks all displayed packets as ignored.
-|menu:Unignore All Displayed[]                |kbd:[Ctrl+Alt+D]  |This menu item unmarks all ignored packets.
-|menu:Set/Unset Time Reference[]              |kbd:[Ctrl+T]      |This menu item set a time reference on the currently selected packet. See <<ChWorkTimeReferencePacketSection>> for more information about the time referenced packets.
-|menu:Unset All Time References[]             |kbd:[Ctrl+Alt+T]  |This menu item removes all time references on the packets.
-|menu:Next Time Reference[]                   |kbd:[Ctrl+Alt+N]  |This menu item tries to find the next time referenced packet.
-|menu:Previous Time Reference[]               |kbd:[Ctrl+Alt+B]  |This menu item tries to find the previous time referenced packet.
-|menu:Configuration Profiles...[]             |kbd:[Shift+Ctrl+A]|This menu item brings up a dialog box for handling configuration profiles.  More detail is provided in <<ChCustConfigProfilesSection>>.
-|menu:Preferences...[]                        |kbd:[Shift+Ctrl+P]|This menu item brings up a dialog box that allows you to set preferences for many parameters that control Wireshark.  You can also save your preferences so Wireshark will use them the next time you start it. More detail is provided in <<ChCustPreferencesSection>>.
+|menu:Copy[]                                  ||
+These menu items will copy the packet list, packet detail, or properties of
+the currently selected packet to the clipboard.
+
+|menu:Find Packet...[]                        |kbd:[Ctrl+F]      |
+This menu item brings up a toolbar that allows you to find a packet by many
+criteria. There is further information on finding packets in
+<<ChWorkFindPacketSection>>.
+
+|menu:Find Next[]                             |kbd:[Ctrl+N]      |
+This menu item tries to find the next packet matching the settings from ``Find
+Packet...''.
+
+|menu:Find Previous[]                         |kbd:[Ctrl+B]      |
+This menu item tries to find the previous packet matching the settings from
+``Find Packet...''.
+
+|menu:Mark/Unmark Packet[]                    |kbd:[Ctrl+M]      |
+This menu item marks the currently selected packet. See
+<<ChWorkMarkPacketSection>> for details.
+
+|menu:Mark All Displayed Packets[]            |kbd:[Shift+Ctrl+M]|
+This menu item marks all displayed packets.
+
+|menu:Unmark All Displayed Packets[]          |kbd:[Ctrl+Alt+M]  |
+This menu item unmarks all displayed packets.
+
+|menu:Next Mark[]                             |kbd:[Shift+Alt+N] |
+Find the next marked packet.
+
+|menu:Previous Mark[]                         |kbd:[Shift+Alt+B] |
+Find the previous marked packet.
+
+|menu:Ignore/Unignore Packet[]                |kbd:[Ctrl+D]      |
+This menu item marks the currently selected packet as ignored. See
+<<ChWorkIgnorePacketSection>> for details.
+
+|menu:Ignore All Displayed[]                  |kbd:[Shift+Ctrl+D]|
+This menu item marks all displayed packets as ignored.
+
+|menu:Unignore All Displayed[]                |kbd:[Ctrl+Alt+D]  |
+This menu item unmarks all ignored packets.
+
+|menu:Set/Unset Time Reference[]              |kbd:[Ctrl+T]      |
+This menu item set a time reference on the currently selected packet. See
+<<ChWorkTimeReferencePacketSection>> for more information about the time
+referenced packets.
+
+|menu:Unset All Time References[]             |kbd:[Ctrl+Alt+T]  |
+This menu item removes all time references on the packets.
+
+|menu:Next Time Reference[]                   |kbd:[Ctrl+Alt+N]  |
+This menu item tries to find the next time referenced packet.
+
+|menu:Previous Time Reference[]               |kbd:[Ctrl+Alt+B]  |
+This menu item tries to find the previous time referenced packet.
+
+|menu:Time Shift[]               |kbd:[Ctrl+Shift+T]  |
+This will show the Time Shift dialog, which allows you to adjust the
+timestamps of some or all packets.
+
+|menu:Packet Comment...[]               ||
+This will let you add a comment to a single packet. Note that the ability
+to save packet comments depends on your file format. E.g. pcapng supports
+comments, pcap does not.
+
+|menu:Configuration Profiles...[]             |kbd:[Shift+Ctrl+A]|
+This menu item brings up a dialog box for handling configuration profiles.  More
+detail is provided in <<ChCustConfigProfilesSection>>.
+
+|menu:Preferences...[]                        |kbd:[Shift+Ctrl+P] or kbd:[Cmd+,] (OS X)|
+This menu item brings up a dialog box that allows you to set preferences for
+many parameters that control Wireshark.  You can also save your preferences so
+Wireshark will use them the next time you start it. More detail is provided in
+<<ChCustPreferencesSection>>.
+
 |===============
 
 [[ChUseViewMenuSection]]

@@ -98,10 +98,10 @@ programs. For a list of input formats see <<ChIOInputFormatsSection>>.
 Wireshark can save packets captured in a large number of formats of other
 capture programs. For a list of output formats see <<ChIOOutputFormatsSection>>.
 
-==== Many protocol decoders
+==== Many protocol dissectors
 
-There are protocol decoders (or dissectors, as they are known in Wireshark) for
-a great many protocols: see <<AppProtocols>>.
+There are protocol dissectors (or decoders, as they are known in other products)
+for a great many protocols: see <<AppProtocols>>.
 
 ==== Open Source Software
 
@@ -155,18 +155,18 @@ is single-threaded and won't benefit much from multi-core systems.
 
 * The current version of Wireshark should support any version of Windows that is
   still within its http://windows.microsoft.com/en-us/windows/lifecycle[extended
-  support lifetime]. At the time of writing this includes Windows 8, 7, Vista,
-  Server 2012, Server 2008 R2, Server 2008, and Server 2003.
+  support lifetime]. At the time of writing this includes Windows 10, 8, 7, Vista,
+  Server 2016, Server 2012, Server 2008 R2, Server 2008, and Server 2003.
 
-* Any modern 32-bit x86 or 64-bit AMD64/x86-64 processor.
+* Any modern 64-bit AMD64/x86-64 or 32-bit x86 processor.
 
-* 200 MB available RAM. Larger capture files require more RAM.
+* 400 MB available RAM. Larger capture files require more RAM.
 
-* 75 MB available disk space. Capture files require additional disk space.
+* 300 MB available disk space. Capture files require additional disk space.
 
 * 1024&#xd7;768 (1280&#xd7;1024 or higher recommended) resolution with at
   least 16 bit color. 8 bit color should work but user experience will be
-  degraded.
+  degraded. Power users will find multiple monitors useful.
 
 * A supported network card for capturing
 
@@ -195,8 +195,9 @@ for more details.
 
 ==== UNIX / Linux
 
-Wireshark currently runs on most UNIX platforms. The system requirements should
-be comparable to the Windows values listed above.
+Wireshark runs on most UNIX and UNIX-like platforms including Mac OS X and
+Linux. The system requirements should be comparable to the Windows values listed
+above.
 
 Binary packages are available for most Unices and Linux distributions including
 the following platforms:
@@ -236,7 +237,8 @@ mailto:wireshark-dev-list-email:[][wireshark-dev-list-email:[]].
 You can get the latest copy of the program from the Wireshark website at
 wireshark-download-page:[][wireshark-download-page:[]]. The download page should
 automatically highlight the appropriate download for your platform and direct you
-to the nearest mirror.
+to the nearest mirror. Official Windows and Mac OS X installers are signed by
+the *Wireshark Foundation*.
 
 A new Wireshark version typically becomes available each month or two.
 
@@ -280,8 +282,9 @@ In 2008, after ten years of development, Wireshark finally arrived at version
 implemented. Its release coincided with the first Wireshark Developer and User
 Conference, called Sharkfest.
 
-[[ChIntroMaintenance]]
+In 2015 Wireshark 2.0 was released, which featured a new user interface.
 
+[[ChIntroMaintenance]]
 
 === Development and maintenance of Wireshark
 
@@ -363,7 +366,8 @@ easily. If your question hasn't been discussed before you can post one yourself.
 
 ==== FAQ
 
-The Frequently Asked Questions lists often asked questions and their corresponding answers.
+The Frequently Asked Questions lists often asked questions and their
+corresponding answers.
 
 [NOTE]
 .Read the FAQ
@@ -389,15 +393,16 @@ to use.
 There are several mailing lists of specific Wireshark topics available:
 
 _wireshark-announce_::
-    This mailing list will inform you about new program releases, which usually appear about every 4-8 weeks.
-
+    This mailing list will inform you about new program releases, which usually
+    appear about every 4-8 weeks.
 
 _wireshark-users_::
-    This list is for users of Wireshark.  People post questions about building and using Wireshark, others (hopefully) provide answers.
-
+    This list is for users of Wireshark.  People post questions about building
+    and using Wireshark, others (hopefully) provide answers.
 
 _wireshark-dev_::
-    This list is for Wireshark developers. If you want to start developing a protocol dissector, join this list.
+    This list is for Wireshark developers. If you want to start
+    developing a protocol dissector, join this list.
 
 You can subscribe to each of these lists from the Wireshark web site:
 wireshark-mailing-lists-url:[][wireshark-mailing-lists-url:[]]. From
@@ -440,7 +445,7 @@ When reporting problems with Wireshark please supply the following information:
 [NOTE]
 .Don't send large files
 ====
-Do not send large files (&gt;500KB) to the mailing lists. Just place a note that
+Do not send large files (&gt; 1 MB) to the mailing lists. Just place a note that
 further data is available on request. Large files will only annoy a lot of
 people on the list who are not interested in your specific problem. If required
 you will be asked for further data by the persons who really can help you.
@@ -459,7 +464,8 @@ information (PII).
 When reporting crashes with Wireshark it is helpful if you supply the traceback
 information along with the information mentioned in "Reporting Problems".
 
-You can obtain this traceback information with the following commands on UNIX or Linux (note the backticks):
+You can obtain this traceback information with the following commands on UNIX or
+Linux (note the backticks):
 
 ----
 $ gdb `whereis wireshark | cut -f2 -d: | cut -d' ' -f2` core >& backtrace.txt
