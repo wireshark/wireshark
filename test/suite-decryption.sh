@@ -89,6 +89,22 @@ decryption_step_80211_wpa_eap() {
 	fi
 	test_step_ok
 }
+# WPA decode with message1+2 only and secure bit set on message 2
+# Included in git sources test/captures/wpa-test-decode.pcap.gz
+decryption_step_80211_wpa_eapol_incomplete_rekeys() {
+        $TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+                -o "wlan.enable_decryption: TRUE" \
+                -r "$CAPTURE_DIR/wpa-test-decode.pcap.gz" \
+                -Y "icmp.resp_to == 4263" \
+                 | grep "Echo"  > /dev/null 2>&1
+        RETURNVALUE=$?
+        if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+                test_step_failed "Not able to follow rekey with missing eapol frames"
+                return
+        fi
+        test_step_ok
+}
+
 
 # DTLS
 # https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil.tgz
@@ -266,6 +282,7 @@ decryption_step_http2() {
 
 tshark_decryption_suite() {
 	test_step_add "IEEE 802.11 WPA PSK Decryption" decryption_step_80211_wpa_psk
+	test_step_add "IEEE 802.11 WPA PSK Decryption2 (EAPOL frames missing for Win 10 client)" decryption_step_80211_wpa_eapol_incomplete_rekeys
 	test_step_add "IEEE 802.11 WPA EAP Decryption" decryption_step_80211_wpa_eap
 	test_step_add "DTLS Decryption" decryption_step_dtls
 	test_step_add "SSL Decryption (private key)" decryption_step_ssl

@@ -233,8 +233,7 @@ extern INT AirPDcapPacketProcess(
 	UCHAR *decrypt_data,
 	guint32 *decrypt_len,
 	PAIRPDCAP_KEY_ITEM key,
-	gboolean mngHandshake,
-	gboolean mngDecrypt)
+	gboolean scanHandshake)
 	;
 
 /**

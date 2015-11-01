@@ -89,7 +89,7 @@ void print_debug_line(const CHAR *function, const CHAR *msg, const INT level);
 #endif
 #endif
 
-static inline void DEBUG_DUMP(x,y,z)
+static inline void DEBUG_DUMP(const char* x, guint8* y, int z)
 {
     char* tmp_str = bytes_to_str(NULL, (const guint8 *) y, (z));
     g_warning("%s: %s", x, tmp_str);
