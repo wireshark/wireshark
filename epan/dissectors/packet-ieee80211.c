@@ -17098,7 +17098,8 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
       /* and WPA2 decryption                                  */
       if (enable_decryption && !pinfo->fd->flags.visited) {
         const guint8 *enc_data = tvb_get_ptr(tvb, 0, hdr_len+reported_len);
-        AirPDcapPacketProcess(&airpdcap_ctx, enc_data, hdr_len, hdr_len+reported_len, NULL, 0, NULL, TRUE, FALSE);
+        AirPDcapPacketProcess(&airpdcap_ctx, enc_data, hdr_len, hdr_len+reported_len, NULL, 0, NULL, TRUE);
+
       }
       /* Davide Schiera --------------------------------------------------------  */
 
@@ -17880,7 +17881,7 @@ static gint ett_wlan_rsna_eapol_keydes_data = -1;
 static const true_false_string keyinfo_key_type_tfs = { "Pairwise Key", "Group Key" };
 
 static int
-dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_rsn)
+dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   int         offset = 0;
   guint16     keyinfo;
@@ -17901,54 +17902,32 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Request, Error)");
   } else if (keyinfo & KEY_INFO_KEY_TYPE_MASK) {
     guint16 masked;
+    /* At least Windows is incorrectly setting Secure bit on message 2 when rekeying
+     * we'll ignore the secure bit also for RSN and use the key nonce to differentiate between message 2 and 4 */
     masked = keyinfo &
-      (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK |
-       KEY_INFO_KEY_MIC_MASK | KEY_INFO_SECURE_MASK);
+      (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK | KEY_INFO_KEY_MIC_MASK);
 
-    if (!is_rsn) {
-      /* WPA */
-      switch (masked) {
-      case KEY_INFO_KEY_ACK_MASK:
-        col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 1 of 4)");
-        break;
+    switch (masked) {
+    case KEY_INFO_KEY_ACK_MASK:
+      col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 1 of 4)");
+      break;
 
-      case KEY_INFO_KEY_MIC_MASK:
-        /* Check start of nonce for check if it is message 2 or 4
-        According to the IEEE specification, sections 11.6.6.3 and 11.6.6.5
-        define the value for the WPA Key Nonce as following:
-        Message #2, Key Nonce = SNonce (Supplicant Nonce)
-        Message #4, Key Nonce = 0 */
-        start_nonce = tvb_get_ntohl(tvb, offset+12);
-        if (start_nonce)
-          col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
-        else
-          col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 4 of 4)");
-        break;
+    case KEY_INFO_KEY_MIC_MASK:
+      /* Check start of nonce for check if it is message 2 or 4
+      According to the IEEE specification, sections 11.6.6.3 and 11.6.6.5
+      define the value for the WPA Key Nonce as following:
+      Message #2, Key Nonce = SNonce (Supplicant Nonce)
+      Message #4, Key Nonce = 0 */
+      start_nonce = tvb_get_ntohl(tvb, offset+12);
+      if (start_nonce)
+        col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
+      else
+        col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 4 of 4)");
+      break;
 
-      case (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK | KEY_INFO_KEY_MIC_MASK):
-        col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 3 of 4)");
-        break;
-      }
-    } else {
-      /* RSN */
-      switch (masked) {
-
-      case KEY_INFO_KEY_ACK_MASK:
-        col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 1 of 4)");
-        break;
-
-      case KEY_INFO_KEY_MIC_MASK:
-         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
-         break;
-
-      case (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK | KEY_INFO_KEY_MIC_MASK | KEY_INFO_SECURE_MASK):
-         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 3 of 4)");
-         break;
-
-      case (KEY_INFO_KEY_MIC_MASK | KEY_INFO_SECURE_MASK):
-         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 4 of 4)");
-         break;
-       }
+    case (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK | KEY_INFO_KEY_MIC_MASK):
+      col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 3 of 4)");
+      break;
     }
   } else {
     if (keyinfo & KEY_INFO_KEY_ACK_MASK)
@@ -18019,18 +17998,6 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   return tvb_captured_length(tvb);
 }
 
-static int
-dissect_wlan_rsna_eapol_wpa_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{
-  return dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvb, pinfo, tree, FALSE);
-}
-
-static int
-dissect_wlan_rsna_eapol_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{
-  return dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvb, pinfo, tree, TRUE);
-}
-
 /* Davide Schiera (2006-11-26): this function will try to decrypt with WEP or  */
 /* WPA and return a tvb to the caller to add a new tab. It returns the    */
 /* algorithm used for decryption (WEP, TKIP, CCMP) and the header and    */
@@ -18051,7 +18018,7 @@ try_decrypt(tvbuff_t *tvb, guint offset, guint len, guint8 *algorithm, guint32 *
 
   /*  process packet with AirPDcap                              */
   if (AirPDcapPacketProcess(&airpdcap_ctx, enc_data, offset, offset+len, dec_data, &dec_caplen,
-                            used_key, FALSE, TRUE)==AIRPDCAP_RET_SUCCESS)
+                            used_key, FALSE)==AIRPDCAP_RET_SUCCESS)
   {
     guint8 *tmp;
     *algorithm=used_key->KeyType;
@@ -26273,10 +26240,10 @@ proto_reg_handoff_ieee80211(void)
   /*
    * EAPOL key descriptor types.
    */
-  wlan_rsna_eapol_wpa_key_handle = new_create_dissector_handle(dissect_wlan_rsna_eapol_wpa_key,
+  wlan_rsna_eapol_wpa_key_handle = new_create_dissector_handle(dissect_wlan_rsna_eapol_wpa_or_rsn_key,
                                                                proto_wlan_rsna_eapol);
   dissector_add_uint("eapol.keydes.type", EAPOL_WPA_KEY, wlan_rsna_eapol_wpa_key_handle);
-  wlan_rsna_eapol_rsn_key_handle = new_create_dissector_handle(dissect_wlan_rsna_eapol_rsn_key,
+  wlan_rsna_eapol_rsn_key_handle = new_create_dissector_handle(dissect_wlan_rsna_eapol_wpa_or_rsn_key,
                                                                proto_wlan_rsna_eapol);
   dissector_add_uint("eapol.keydes.type", EAPOL_RSN_KEY, wlan_rsna_eapol_rsn_key_handle);
 }
