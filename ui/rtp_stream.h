@@ -110,7 +110,7 @@ struct _rtpstream_tapinfo {
     gboolean           is_registered; /**< if the tap listener is currently registered or not */
 };
 
-#if 1
+#if 0
 #define RTP_STREAM_DEBUG(...) { \
     char *RTP_STREAM_DEBUG_MSG = g_strdup_printf(__VA_ARGS__); \
     g_warning("rtp_stream: %s:%d %s", G_STRFUNC, __LINE__, RTP_STREAM_DEBUG_MSG); \
