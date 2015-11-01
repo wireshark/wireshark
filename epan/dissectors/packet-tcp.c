@@ -1896,37 +1896,26 @@ tcp_sequence_number_analysis_print_bytes_in_flight(packet_info * pinfo _U_,
     }
 }
 
-
-
-/* Generate the initial data sequence number and MPTCP connection token from
- the key. MPTCP only standardizes Sha1 for now */
-static gboolean
-mptcp_cache_cryptodata(guint8 algo _U_, const guint64 key,
-    guint32 *token, guint64 *idsn)
+/* Generate the initial data sequence number and MPTCP connection token from the key. */
+static void
+mptcp_cryptodata_sha1(const guint64 key, guint32 *token, guint64 *idsn)
 {
     guint8 digest_buf[SHA1_DIGEST_LEN];
-    tvbuff_t *tvb;
-    guint64 pseudokey = GUINT64_SWAP_LE_BE(key);
-
+    guint64 pseudokey = GUINT64_TO_BE(key);
     sha1_context sha1_ctx;
-
-    if(algo != MPTCP_HMAC_SHA1) {
-        return FALSE;
-    }
+    guint32 _token;
+    guint64 _isdn;
 
     sha1_starts(&sha1_ctx);
-
-    sha1_update(&sha1_ctx,(const guint8*)&pseudokey , 8);
+    sha1_update(&sha1_ctx, (const guint8 *)&pseudokey, 8);
     sha1_finish(&sha1_ctx, digest_buf);
 
-    tvb = tvb_new_real_data( (const guint8*)&digest_buf, SHA1_DIGEST_LEN, SHA1_DIGEST_LEN);
-
-    *token = tvb_get_ntohl(tvb,0);
-    *idsn = tvb_get_ntoh64(tvb, SHA1_DIGEST_LEN-8);
-
-    return TRUE;
+    /* memcpy to prevent -Wstrict-aliasing errors with GCC 4 */
+    memcpy(&_token, &digest_buf[0], sizeof(_token));
+    *token = GUINT32_FROM_BE(_token);
+    memcpy(&_isdn, &digest_buf[SHA1_DIGEST_LEN-8], sizeof(_isdn));
+    *idsn = GUINT64_FROM_BE(_isdn);
 }
-
 
 /* print list of subflows */
 static void
@@ -3163,7 +3152,7 @@ mptcp_get_meta_from_token(struct tcp_analysis* tcpd, tcp_flow_t *tcp_flow, guint
 /* setup from_key */
 static
 struct mptcp_analysis*
-get_or_create_mptcpd_from_key(struct tcp_analysis* tcpd, tcp_flow_t *fwd, guint64 key, guint8 hmac_algo) {
+get_or_create_mptcpd_from_key(struct tcp_analysis *tcpd, tcp_flow_t *fwd, guint64 key, guint8 hmac_algo _U_) {
 
     guint32 token = 0;
     guint64 expected_idsn= 0;
@@ -3173,17 +3162,15 @@ get_or_create_mptcpd_from_key(struct tcp_analysis* tcpd, tcp_flow_t *fwd, guint6
         return mptcpd;
     }
 
-    if(!mptcp_cache_cryptodata(hmac_algo, key, &token, &expected_idsn))
-    {
-        /* unknown algorithm */
-    }
+    /* MPTCP only standardizes SHA1 for now. */
+    mptcp_cryptodata_sha1(key, &token, &expected_idsn);
 
     mptcpd = mptcp_get_meta_from_token(tcpd, fwd, token);
-
 
     fwd->mptcp_subflow->meta->key = key;
     fwd->mptcp_subflow->meta->static_flags |= MPTCP_META_HAS_KEY;
     fwd->mptcp_subflow->meta->expected_idsn = expected_idsn;
+
     return mptcpd;
 }
 
