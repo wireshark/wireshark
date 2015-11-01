@@ -163,6 +163,10 @@ QString DecodeAsDialog::entryString(const gchar *table_name, gpointer value)
         entry_str = (char *)value;
         break;
 
+    case FT_GUID:
+        //TODO: DCE/RPC dissector table
+        break;
+
     default:
         g_assert_not_reached();
         break;

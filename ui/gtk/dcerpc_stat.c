@@ -290,9 +290,9 @@ static e_guid_t          *dcerpc_uuid_program;
 static guint16            dcerpc_version;
 static GtkWidget         *dlg = NULL;
 static GtkWidget         *filter_entry;
-static dcerpc_uuid_key   *current_uuid_key;
+static guid_key   *current_uuid_key;
 static dcerpc_uuid_value *current_uuid_value;
-static dcerpc_uuid_key   *new_uuid_key;
+static guid_key   *new_uuid_key;
 static dcerpc_uuid_value *new_uuid_value;
 
 static void
@@ -328,7 +328,7 @@ dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 static void
 dcerpcstat_version_select(GtkWidget *vers_combo_box, gpointer user_data _U_)
 {
-	dcerpc_uuid_key *k;
+	guid_key *k;
 
 	if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(vers_combo_box), (gpointer *)&k)) {
 		g_assert_not_reached();  /* Programming error: somehow no active item */
@@ -340,11 +340,11 @@ dcerpcstat_version_select(GtkWidget *vers_combo_box, gpointer user_data _U_)
 static void
 dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer user_data)
 {
-	dcerpc_uuid_key *k = (dcerpc_uuid_key *)key;
+	guid_key *k = (guid_key *)key;
 	GtkWidget       *vers_combo_box = (GtkWidget *)user_data;
 	char vs[5];
 
-	if(guid_cmp(&(k->uuid), dcerpc_uuid_program)){
+	if(guid_cmp(&(k->guid), dcerpc_uuid_program)){
 		return;
 	}
 	g_snprintf(vs, sizeof(vs), "%u", k->ver);
@@ -354,7 +354,7 @@ dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer user_data)
 static void
 dcerpcstat_program_select(GtkWidget *prog_combo_box, gpointer user_data)
 {
-	dcerpc_uuid_key *k;
+	guid_key *k;
 	GtkWidget *vers_combo_box;
 
 	vers_combo_box = (GtkWidget *)user_data;
@@ -368,7 +368,7 @@ dcerpcstat_program_select(GtkWidget *prog_combo_box, gpointer user_data)
 
 	/* dcerpc_stat: invalid selection... somehow selected top level ?? */
 	g_assert(k != NULL);
-	dcerpc_uuid_program = &(k->uuid);
+	dcerpc_uuid_program = &(k->guid);
 
 	/* re-create version menu */
 	g_signal_handlers_disconnect_by_func(vers_combo_box, G_CALLBACK(dcerpcstat_version_select), NULL );
@@ -382,7 +382,7 @@ dcerpcstat_program_select(GtkWidget *prog_combo_box, gpointer user_data)
 }
 
 static GtkTreeIter
-dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v, GtkWidget *prog_combo_box, int program_item_index)
+dcerpcstat_add_program_to_menu(guid_key *k, dcerpc_uuid_value *v, GtkWidget *prog_combo_box, int program_item_index)
 {
 	static GtkTreeIter iter;
 	char str[64];
@@ -405,7 +405,7 @@ dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v, GtkWidg
 static void
 dcerpcstat_find_next_program(gpointer *key, gpointer *value, gpointer *user_data _U_)
 {
-	dcerpc_uuid_key   *k = (dcerpc_uuid_key *)key;
+	guid_key   *k = (guid_key *)key;
 	dcerpc_uuid_value *v = (dcerpc_uuid_value *)value;
 
 	/* first time called, just set new_uuid to this one */

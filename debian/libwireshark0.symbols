@@ -191,7 +191,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  crc6_compute_tvb@Base 1.99.0
  create_dissector_handle@Base 1.9.1
  data_out_file@Base 1.9.1
- dcerpc_get_proto_hf_opnum@Base 1.9.1
  dcerpc_get_proto_name@Base 1.9.1
  dcerpc_get_proto_sub_dissector@Base 1.9.1
  dcerpc_get_transport_salt@Base 1.9.1

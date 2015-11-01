@@ -26,7 +26,7 @@
 
 class QComboBox;
 
-struct _dcerpc_uuid_key;
+struct _guid_key;
 struct _dcerpc_uuid_value;
 struct _e_guid_t;
 struct _rpc_prog_info_value;
@@ -45,8 +45,8 @@ public:
     static TapParameterDialog *createDceRpcSrtDialog(QWidget &parent, const QString, const QString opt_arg, CaptureFile &cf);
     static TapParameterDialog *createOncRpcSrtDialog(QWidget &parent, const QString, const QString opt_arg, CaptureFile &cf);
 
-    void addDceRpcProgram(_dcerpc_uuid_key *key, struct _dcerpc_uuid_value *value);
-    void addDceRpcProgramVersion(_dcerpc_uuid_key *key);
+    void addDceRpcProgram(_guid_key *key, struct _dcerpc_uuid_value *value);
+    void addDceRpcProgramVersion(_guid_key *key);
     void addOncRpcProgram(guint32 program, struct _rpc_prog_info_value *value);
     void addOncRpcProgramVersion(guint32 program, guint32 version);
     void updateOncRpcProcedureCount(guint32 program, guint32 version, int procedure);
@@ -69,7 +69,7 @@ private:
     QList<unsigned> versions_;
 
     // DCE-RPC
-    QMap<QString, struct _dcerpc_uuid_key *> dce_name_to_uuid_key_;
+    QMap<QString, struct _guid_key *> dce_name_to_uuid_key_;
 
     // ONC-RPC
     QMap<QString, guint32> onc_name_to_program_;

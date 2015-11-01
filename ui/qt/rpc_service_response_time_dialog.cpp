@@ -61,7 +61,7 @@ dce_rpc_add_program(gpointer key_ptr, gpointer value_ptr, gpointer rsrtd_ptr)
     RpcServiceResponseTimeDialog *rsrt_dlg = dynamic_cast<RpcServiceResponseTimeDialog *>((RpcServiceResponseTimeDialog *)rsrtd_ptr);
     if (!rsrt_dlg) return;
 
-    dcerpc_uuid_key *key = (dcerpc_uuid_key *)key_ptr;
+    guid_key *key = (guid_key *)key_ptr;
     dcerpc_uuid_value *value = (dcerpc_uuid_value *)value_ptr;
 
     rsrt_dlg->addDceRpcProgram(key, value);
@@ -73,7 +73,7 @@ dce_rpc_find_versions(gpointer key_ptr, gpointer, gpointer rsrtd_ptr)
     RpcServiceResponseTimeDialog *rsrt_dlg = dynamic_cast<RpcServiceResponseTimeDialog *>((RpcServiceResponseTimeDialog *)rsrtd_ptr);
     if (!rsrt_dlg) return;
 
-    dcerpc_uuid_key *key = (dcerpc_uuid_key *)key_ptr;
+    guid_key *key = (guid_key *)key_ptr;
     rsrt_dlg->addDceRpcProgramVersion(key);
 }
 
@@ -240,14 +240,14 @@ TapParameterDialog *RpcServiceResponseTimeDialog::createOncRpcSrtDialog(QWidget 
     return onc_rpc_dlg;
 }
 
-void RpcServiceResponseTimeDialog::addDceRpcProgram(_dcerpc_uuid_key *key, _dcerpc_uuid_value *value)
+void RpcServiceResponseTimeDialog::addDceRpcProgram(_guid_key *key, _dcerpc_uuid_value *value)
 {
     dce_name_to_uuid_key_.insert(value->name, key);
 }
 
-void RpcServiceResponseTimeDialog::addDceRpcProgramVersion(_dcerpc_uuid_key *key)
+void RpcServiceResponseTimeDialog::addDceRpcProgramVersion(_guid_key *key)
 {
-    if (guid_cmp(&(dce_name_to_uuid_key_[program_combo_->currentText()]->uuid), &(key->uuid))) return;
+    if (guid_cmp(&(dce_name_to_uuid_key_[program_combo_->currentText()]->guid), &(key->guid))) return;
 
     versions_ << key->ver;
     std::sort(versions_.begin(), versions_.end());
@@ -286,7 +286,7 @@ void RpcServiceResponseTimeDialog::setDceRpcUuidAndVersion(_e_guid_t *uuid, int 
 {
     bool found = false;
     for (int pi = 0; pi < program_combo_->count(); pi++) {
-        if (guid_cmp(uuid, &(dce_name_to_uuid_key_[program_combo_->itemText(pi)]->uuid)) == 0) {
+        if (guid_cmp(uuid, &(dce_name_to_uuid_key_[program_combo_->itemText(pi)]->guid)) == 0) {
             program_combo_->setCurrentIndex(pi);
 
             for (int vi = 0; vi < version_combo_->count(); vi++) {
@@ -394,13 +394,13 @@ void RpcServiceResponseTimeDialog::fillTree()
     {
         if (!dce_name_to_uuid_key_.contains(program_name)) return;
 
-        dcerpc_uuid_key *dkey = dce_name_to_uuid_key_[program_name];
+        guid_key *dkey = dce_name_to_uuid_key_[program_name];
         dcerpcstat_tap_data_t *dtap_data = g_new0(dcerpcstat_tap_data_t, 1);
-        dtap_data->uuid = dkey->uuid;
+        dtap_data->uuid = dkey->guid;
         dtap_data->prog = program_name_cptr;
         dtap_data->ver = (guint16) version_combo_->itemData(version_combo_->currentIndex()).toUInt();
 
-        dcerpc_sub_dissector *procs = dcerpc_get_proto_sub_dissector(&(dkey->uuid), dtap_data->ver);
+        dcerpc_sub_dissector *procs = dcerpc_get_proto_sub_dissector(&(dkey->guid), dtap_data->ver);
         for (int i = 0; procs[i].name; i++) {
             if (procs[i].num > max_procs) max_procs = procs[i].num;
         }

@@ -854,7 +854,7 @@ decode_dcerpc_add_to_list(gpointer key, gpointer value, gpointer user_data)
 {
     struct dcerpc_decode_as_populate* populate = (struct dcerpc_decode_as_populate*)user_data;
 
-    /*dcerpc_uuid_key *k = key;*/
+    /*guid_key *k = key;*/
     dcerpc_uuid_value *v = (dcerpc_uuid_value *)value;
 
     if (strcmp(v->name, "(none)"))
@@ -929,11 +929,11 @@ dcerpc_decode_as_change(const char *name, const gpointer pattern, gpointer handl
 {
     decode_dcerpc_bind_values_t *binding = (decode_dcerpc_bind_values_t*)pattern;
     decode_dcerpc_bind_values_t *stored_binding;
-    dcerpc_uuid_key     *key = *((dcerpc_uuid_key**)handle);
+    guid_key     *key = *((guid_key**)handle);
 
 
     binding->ifname = g_string_new(list_name);
-    binding->uuid = key->uuid;
+    binding->uuid = key->guid;
     binding->ver = key->ver;
 
     /* remove a probably existing old binding */
@@ -1255,9 +1255,20 @@ static tvbuff_t *decode_encrypted_data(tvbuff_t *data_tvb,
     return NULL;
 }
 
+typedef struct _dcerpc_dissector_data
+{
+    dcerpc_uuid_value *sub_proto;
+    dcerpc_info *info;
+    gboolean decrypted;
+    dcerpc_auth_info *auth_info;
+    guint8 *drep;
+} dcerpc_dissector_data_t;
+
 /*
  * Subdissectors
  */
+
+dissector_table_t   uuid_dissector_table;
 
 /* the registered subdissectors */
 GHashTable *dcerpc_uuids = NULL;
@@ -1265,32 +1276,272 @@ GHashTable *dcerpc_uuids = NULL;
 static gint
 dcerpc_uuid_equal(gconstpointer k1, gconstpointer k2)
 {
-    const dcerpc_uuid_key *key1 = (const dcerpc_uuid_key *)k1;
-    const dcerpc_uuid_key *key2 = (const dcerpc_uuid_key *)k2;
-    return ((memcmp(&key1->uuid, &key2->uuid, sizeof (e_guid_t)) == 0)
+    const guid_key *key1 = (const guid_key *)k1;
+    const guid_key *key2 = (const guid_key *)k2;
+    return ((memcmp(&key1->guid, &key2->guid, sizeof (e_guid_t)) == 0)
             && (key1->ver == key2->ver));
 }
 
 static guint
 dcerpc_uuid_hash(gconstpointer k)
 {
-    const dcerpc_uuid_key *key = (const dcerpc_uuid_key *)k;
+    const guid_key *key = (const guid_key *)k;
     /* This isn't perfect, but the Data1 part of these is almost always
        unique. */
-    return key->uuid.data1;
+    return key->guid.data1;
+}
+
+static void
+show_stub_data(tvbuff_t *tvb, gint offset, proto_tree *dcerpc_tree,
+               dcerpc_auth_info *auth_info, gboolean is_encrypted)
+{
+    int   length, plain_length, auth_pad_len;
+    guint auth_pad_offset;
+
+    /*
+     * We don't show stub data unless we have some in the tvbuff;
+     * however, in the protocol tree, we show, as the number of
+     * bytes, the reported number of bytes, not the number of bytes
+     * that happen to be in the tvbuff.
+     */
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
+        auth_pad_len = auth_info?auth_info->auth_pad_len:0;
+        length = tvb_reported_length_remaining(tvb, offset);
+
+        /* if auth_pad_len is larger than length then we ignore auth_pad_len totally */
+        plain_length = length - auth_pad_len;
+        if (plain_length < 1) {
+            plain_length = length;
+            auth_pad_len = 0;
+        }
+        auth_pad_offset = offset + plain_length;
+
+        if ((auth_info != NULL) &&
+            (auth_info->auth_level == DCE_C_AUTHN_LEVEL_PKT_PRIVACY)) {
+            if (is_encrypted) {
+                proto_tree_add_item(dcerpc_tree, hf_dcerpc_encrypted_stub_data, tvb, offset, length, ENC_NA);
+                /* is the padding is still inside the encrypted blob, don't display it explicit */
+                auth_pad_len = 0;
+            } else {
+                proto_tree_add_item(dcerpc_tree, hf_dcerpc_decrypted_stub_data, tvb, offset, plain_length, ENC_NA);
+            }
+        } else {
+            proto_tree_add_item(dcerpc_tree, hf_dcerpc_stub_data, tvb, offset, plain_length, ENC_NA);
+        }
+        /* If there is auth padding at the end of the stub, display it */
+        if (auth_pad_len != 0) {
+            proto_tree_add_item(dcerpc_tree, hf_dcerpc_auth_padding, tvb, auth_pad_offset, auth_pad_len, ENC_NA);
+        }
+    }
+}
+
+static int
+dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    dcerpc_dissector_data_t* dissector_data = (dcerpc_dissector_data_t*)data;
+    const gchar          *name     = NULL;
+    dcerpc_sub_dissector *proc;
+    dcerpc_dissect_fnct_t *sub_dissect = NULL;
+    proto_item           *pi, *sub_item;
+    proto_tree           *sub_tree;
+    guint                 length, reported_length;
+    volatile gint         offset   = 0;
+    tvbuff_t *volatile    stub_tvb;
+    volatile guint        auth_pad_len;
+    volatile int          auth_pad_offset;
+    const char *volatile  saved_proto;
+
+    for (proc = dissector_data->sub_proto->procs; proc->name; proc++) {
+        if (proc->num == dissector_data->info->call_data->opnum) {
+            name = proc->name;
+            break;
+        }
+    }
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, dissector_data->sub_proto->name);
+
+    if (!name)
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown operation %u %s",
+                     dissector_data->info->call_data->opnum,
+                     (dissector_data->info->ptype == PDU_REQ) ? "request" : "response");
+    else
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+                     name, (dissector_data->info->ptype == PDU_REQ) ? "request" : "response");
+
+    sub_dissect = (dissector_data->info->ptype == PDU_REQ) ?
+        proc->dissect_rqst : proc->dissect_resp;
+
+    sub_item = proto_tree_add_item(tree, dissector_data->sub_proto->proto_id,
+                                       tvb,//(decrypted_tvb != NULL)?decrypted_tvb:tvb,
+                                       0, -1, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, dissector_data->sub_proto->ett);
+    if (!name)
+        proto_item_append_text(sub_item, ", unknown operation %u",
+                                dissector_data->info->call_data->opnum);
+    else
+        proto_item_append_text(sub_item, ", %s", name);
+
+    if (tree) {
+        /*
+         * Put the operation number into the tree along with
+         * the operation's name.
+         */
+        if (dissector_data->sub_proto->opnum_hf != -1)
+            proto_tree_add_uint_format(sub_tree, dissector_data->sub_proto->opnum_hf,
+                                       tvb, 0, 0, dissector_data->info->call_data->opnum,
+                                       "Operation: %s (%u)",
+                                       name ? name : "Unknown operation",
+                                       dissector_data->info->call_data->opnum);
+        else
+            proto_tree_add_uint_format_value(sub_tree, hf_dcerpc_op, tvb,
+                                       0, 0, dissector_data->info->call_data->opnum,
+                                       "%s (%u)",
+                                       name ? name : "Unknown operation",
+                                       dissector_data->info->call_data->opnum);
+
+        if ((dissector_data->info->ptype == PDU_REQ) && (dissector_data->info->call_data->rep_frame != 0)) {
+            pi = proto_tree_add_uint(sub_tree, hf_dcerpc_response_in,
+                                     tvb, 0, 0, dissector_data->info->call_data->rep_frame);
+            PROTO_ITEM_SET_GENERATED(pi);
+        }
+        if ((dissector_data->info->ptype == PDU_RESP) && (dissector_data->info->call_data->req_frame != 0)) {
+            pi = proto_tree_add_uint(sub_tree, hf_dcerpc_request_in,
+                                     tvb, 0, 0, dissector_data->info->call_data->req_frame);
+            PROTO_ITEM_SET_GENERATED(pi);
+        }
+    } /* tree */
+
+    if (dissector_data->decrypted || (sub_dissect == NULL))
+    {
+        show_stub_data(tvb, 0, sub_tree, dissector_data->auth_info, !dissector_data->decrypted);
+        return tvb_captured_length(tvb);
+    }
+
+    /* Either there was no encryption or we successfully decrypted
+        the encrypted payload. */
+
+    /* We have a subdissector - call it. */
+    saved_proto          = pinfo->current_proto;
+    pinfo->current_proto = dissector_data->sub_proto->name;
+
+    init_ndr_pointer_list(dissector_data->info);
+
+    length = tvb_captured_length(tvb);
+    reported_length = tvb_reported_length(tvb);
+
+    /*
+    * Remove the authentication padding from the stub data.
+    */
+    if ((dissector_data->auth_info != NULL) && (dissector_data->auth_info->auth_pad_len != 0)) {
+        if (reported_length >= dissector_data->auth_info->auth_pad_len) {
+            /*
+                * OK, the padding length isn't so big that it
+                * exceeds the stub length.  Trim the reported
+                * length of the tvbuff.
+                */
+            reported_length -= dissector_data->auth_info->auth_pad_len;
+
+            /*
+                * If that exceeds the actual amount of data in
+                * the tvbuff (which means we have at least one
+                * byte of authentication padding in the tvbuff),
+                * trim the actual amount.
+                */
+            if (length > reported_length)
+                length = reported_length;
+
+            stub_tvb = tvb_new_subset(tvb, 0, length, reported_length);
+            auth_pad_len = dissector_data->auth_info->auth_pad_len;
+            auth_pad_offset = reported_length;
+        } else {
+            /*
+                * The padding length exceeds the stub length.
+                * Don't bother dissecting the stub, trim the padding
+                * length to what's in the stub data, and show the
+                * entire stub as authentication padding.
+                */
+            stub_tvb = NULL;
+            auth_pad_len = reported_length;
+            auth_pad_offset = 0;
+            length = 0;
+        }
+    } else {
+        /*
+            * No authentication padding.
+            */
+        stub_tvb = tvb;
+        auth_pad_len = 0;
+        auth_pad_offset = 0;
+    }
+
+    if (sub_item) {
+        proto_item_set_len(sub_item, length);
+    }
+
+    if (stub_tvb != NULL) {
+        /*
+            * Catch all exceptions other than BoundsError, so that even
+            * if the stub data is bad, we still show the authentication
+            * padding, if any.
+            *
+            * If we get BoundsError, it means the frame was cut short
+            * by a snapshot length, so there's nothing more to
+            * dissect; just re-throw that exception.
+            */
+        TRY {
+            int remaining;
+
+            offset = sub_dissect(stub_tvb, 0, pinfo, sub_tree,
+                                    dissector_data->info, dissector_data->drep);
+
+            /* If we have a subdissector and it didn't dissect all
+                data in the tvb, make a note of it. */
+            remaining = tvb_reported_length_remaining(stub_tvb, offset);
+            if (remaining > 0) {
+                proto_tree_add_expert(sub_tree, pinfo, &ei_dcerpc_long_frame, stub_tvb, offset, remaining);
+                col_append_fstr(pinfo->cinfo, COL_INFO,
+                                    "[Long frame (%d byte%s)]",
+                                    remaining,
+                                    plurality(remaining, "", "s"));
+
+            }
+        } CATCH_NONFATAL_ERRORS {
+            /*
+                * Somebody threw an exception that means that there
+                * was a problem dissecting the payload; that means
+                * that a dissector was found, so we don't need to
+                * dissect the payload as data or update the protocol
+                * or info columns.
+                *
+                * Just show the exception and then drive on to show
+                * the authentication padding.
+                */
+            show_exception(stub_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+        } ENDTRY;
+    }
+
+    /* If there is auth padding at the end of the stub, display it */
+    if (auth_pad_len != 0) {
+        proto_tree_add_item(sub_tree, hf_dcerpc_auth_padding, tvb, auth_pad_offset, auth_pad_len, ENC_NA);
+    }
+
+    pinfo->current_proto = saved_proto;
+
+    return tvb_captured_length(tvb);
 }
 
 void
 dcerpc_init_uuid(int proto, int ett, e_guid_t *uuid, guint16 ver,
                  dcerpc_sub_dissector *procs, int opnum_hf)
 {
-    dcerpc_uuid_key   *key         = (dcerpc_uuid_key *)g_malloc(sizeof (*key));
+    guid_key   *key         = (guid_key *)g_malloc(sizeof (*key));
     dcerpc_uuid_value *value       = (dcerpc_uuid_value *)g_malloc(sizeof (*value));
     header_field_info *hf_info;
     module_t          *samr_module;
     const char        *filter_name = proto_get_protocol_filter_name(proto);
+    dissector_handle_t guid_handle;
 
-    key->uuid = *uuid;
+    key->guid = *uuid;
     key->ver = ver;
 
     value->proto    = find_protocol_by_id(proto);
@@ -1304,6 +1555,10 @@ dcerpc_init_uuid(int proto, int ett, e_guid_t *uuid, guint16 ver,
 
     hf_info = proto_registrar_get_nth(opnum_hf);
     hf_info->strings = value_string_from_subdissectors(procs);
+
+    /* Register the GUID with the dissector table */
+    guid_handle = new_create_dissector_handle( dissect_dcerpc_guid, proto);
+    dissector_add_guid( "dcerpc.uuid", key, guid_handle );
 
     /* add this GUID to the global name resolving */
     guids_add_uuid(uuid, proto_get_protocol_short_name(value->proto));
@@ -1322,15 +1577,12 @@ dcerpc_init_uuid(int proto, int ett, e_guid_t *uuid, guint16 ver,
 const char *
 dcerpc_get_proto_name(e_guid_t *uuid, guint16 ver)
 {
-    dcerpc_uuid_key    key;
-    dcerpc_uuid_value *sub_proto;
+    guid_key    key;
 
-    key.uuid = *uuid;
+    key.guid = *uuid;
     key.ver = ver;
-    if (!(sub_proto = (dcerpc_uuid_value *)g_hash_table_lookup(dcerpc_uuids, &key))) {
-        return NULL;
-    }
-    return sub_proto->name;
+
+    return dissector_handle_get_short_name(dissector_get_guid_handle(uuid_dissector_table, &key));
 }
 
 /* Function to find the opnum hf-field of a registered protocol
@@ -1339,10 +1591,10 @@ dcerpc_get_proto_name(e_guid_t *uuid, guint16 ver)
 int
 dcerpc_get_proto_hf_opnum(e_guid_t *uuid, guint16 ver)
 {
-    dcerpc_uuid_key    key;
+    guid_key    key;
     dcerpc_uuid_value *sub_proto;
 
-    key.uuid = *uuid;
+    key.guid = *uuid;
     key.ver = ver;
     if (!(sub_proto = (dcerpc_uuid_value *)g_hash_table_lookup(dcerpc_uuids, &key))) {
         return -1;
@@ -1385,10 +1637,10 @@ again:
 dcerpc_sub_dissector *
 dcerpc_get_proto_sub_dissector(e_guid_t *uuid, guint16 ver)
 {
-    dcerpc_uuid_key    key;
+    guid_key    key;
     dcerpc_uuid_value *sub_proto;
 
-    key.uuid = *uuid;
+    key.guid = *uuid;
     key.ver = ver;
     if (!(sub_proto = (dcerpc_uuid_value *)g_hash_table_lookup(dcerpc_uuids, &key))) {
         return NULL;
@@ -2973,78 +3225,32 @@ dissect_ndr_embedded_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     return ret;
 }
 
-static void
-show_stub_data(tvbuff_t *tvb, gint offset, proto_tree *dcerpc_tree,
-               dcerpc_auth_info *auth_info, gboolean is_encrypted)
-{
-    int   length, plain_length, auth_pad_len;
-    guint auth_pad_offset;
-
-    /*
-     * We don't show stub data unless we have some in the tvbuff;
-     * however, in the protocol tree, we show, as the number of
-     * bytes, the reported number of bytes, not the number of bytes
-     * that happen to be in the tvbuff.
-     */
-    if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        auth_pad_len = auth_info?auth_info->auth_pad_len:0;
-        length = tvb_reported_length_remaining(tvb, offset);
-
-        /* if auth_pad_len is larger than length then we ignore auth_pad_len totally */
-        plain_length = length - auth_pad_len;
-        if (plain_length < 1) {
-            plain_length = length;
-            auth_pad_len = 0;
-        }
-        auth_pad_offset = offset + plain_length;
-
-        if ((auth_info != NULL) &&
-            (auth_info->auth_level == DCE_C_AUTHN_LEVEL_PKT_PRIVACY)) {
-            if (is_encrypted) {
-                proto_tree_add_item(dcerpc_tree, hf_dcerpc_encrypted_stub_data, tvb, offset, length, ENC_NA);
-                /* is the padding is still inside the encrypted blob, don't display it explicit */
-                auth_pad_len = 0;
-            } else {
-                proto_tree_add_item(dcerpc_tree, hf_dcerpc_decrypted_stub_data, tvb, offset, plain_length, ENC_NA);
-            }
-        } else {
-            proto_tree_add_item(dcerpc_tree, hf_dcerpc_stub_data, tvb, offset, plain_length, ENC_NA);
-        }
-        /* If there is auth padding at the end of the stub, display it */
-        if (auth_pad_len != 0) {
-            proto_tree_add_item(dcerpc_tree, hf_dcerpc_auth_padding, tvb, auth_pad_offset, auth_pad_len, ENC_NA);
-        }
-    }
-}
-
 static int
 dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
                    proto_tree *dcerpc_tree,
-                   tvbuff_t *volatile tvb, tvbuff_t *decrypted_tvb,
+                   tvbuff_t *volatile tvb, gboolean decrypted,
                    guint8 *drep, dcerpc_info *info,
                    dcerpc_auth_info *auth_info)
 {
     volatile gint         offset   = 0;
-    dcerpc_uuid_key       key;
-    dcerpc_uuid_value    *sub_proto;
-    proto_tree *volatile  sub_tree = NULL;
-    dcerpc_sub_dissector *proc;
-    const gchar          *name     = NULL;
-    const char *volatile  saved_proto;
-    guint                 length   = 0, reported_length = 0;
-    tvbuff_t *volatile    stub_tvb;
-    volatile guint        auth_pad_len;
-    volatile int          auth_pad_offset;
-    proto_item           *sub_item = NULL;
-    proto_item           *pi, *hidden_item;
+    guid_key              key;
+    dcerpc_dissector_data_t dissector_data;
+    proto_item           *hidden_item;
 
-    dcerpc_dissect_fnct_t *volatile sub_dissect;
-
-    key.uuid = info->call_data->uuid;
+    /* GUID and UUID are same size, but compiler complains about structure "name" differences */
+    memcpy(&key.guid, &info->call_data->uuid, sizeof(key.guid));
     key.ver = info->call_data->ver;
 
-    if ((sub_proto = (dcerpc_uuid_value *)g_hash_table_lookup(dcerpc_uuids, &key)) == NULL
-        || !proto_is_protocol_enabled(sub_proto->proto)) {
+    dissector_data.sub_proto = (dcerpc_uuid_value *)g_hash_table_lookup(dcerpc_uuids, &key);
+    dissector_data.info = info;
+    dissector_data.decrypted = decrypted;
+    dissector_data.auth_info = auth_info;
+    dissector_data.drep = drep;
+
+    /* Check the dissector table before the hash table.  Hopefully the hash table entries can
+       all be converted to use dissector table */
+    if ((dissector_data.sub_proto == NULL) ||
+        (!dissector_try_guid_new(uuid_dissector_table, &key, tvb, pinfo, tree, FALSE, &dissector_data))) {
         /*
          * We don't have a dissector for this UUID, or the protocol
          * for that UUID is disabled.
@@ -3056,197 +3262,9 @@ dcerpc_try_handoff(packet_info *pinfo, proto_tree *tree,
         col_append_fstr(pinfo->cinfo, COL_INFO, " %s V%u",
         guids_resolve_guid_to_str(&info->call_data->uuid), info->call_data->ver);
 
-        if (decrypted_tvb != NULL) {
-            show_stub_data(decrypted_tvb, 0, dcerpc_tree, auth_info,
-                           FALSE);
-        } else
-            show_stub_data(tvb, 0, dcerpc_tree, auth_info, TRUE);
+        show_stub_data(tvb, 0, dcerpc_tree, auth_info, !decrypted);
         return -1;
     }
-
-    for (proc = sub_proto->procs; proc->name; proc++) {
-        if (proc->num == info->call_data->opnum) {
-            name = proc->name;
-            break;
-        }
-    }
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, sub_proto->name);
-
-    if (!name)
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown operation %u %s",
-                     info->call_data->opnum,
-                     (info->ptype == PDU_REQ) ? "request" : "response");
-    else
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-                     name, (info->ptype == PDU_REQ) ? "request" : "response");
-
-    sub_dissect = (info->ptype == PDU_REQ) ?
-        proc->dissect_rqst : proc->dissect_resp;
-
-    if (tree) {
-        sub_item = proto_tree_add_item(tree, sub_proto->proto_id,
-                                       (decrypted_tvb != NULL)?decrypted_tvb:tvb,
-                                       0, -1, ENC_NA);
-
-        if (sub_item) {
-            sub_tree = proto_item_add_subtree(sub_item, sub_proto->ett);
-            if (!name)
-                proto_item_append_text(sub_item, ", unknown operation %u",
-                                       info->call_data->opnum);
-            else
-                proto_item_append_text(sub_item, ", %s", name);
-        }
-
-        /*
-         * Put the operation number into the tree along with
-         * the operation's name.
-         */
-        if (sub_proto->opnum_hf != -1)
-            proto_tree_add_uint_format(sub_tree, sub_proto->opnum_hf,
-                                       tvb, 0, 0, info->call_data->opnum,
-                                       "Operation: %s (%u)",
-                                       name ? name : "Unknown operation",
-                                       info->call_data->opnum);
-        else
-            proto_tree_add_uint_format_value(sub_tree, hf_dcerpc_op, tvb,
-                                       0, 0, info->call_data->opnum,
-                                       "%s (%u)",
-                                       name ? name : "Unknown operation",
-                                       info->call_data->opnum);
-
-        if ((info->ptype == PDU_REQ) && (info->call_data->rep_frame != 0)) {
-            pi = proto_tree_add_uint(sub_tree, hf_dcerpc_response_in,
-                                     tvb, 0, 0, info->call_data->rep_frame);
-            PROTO_ITEM_SET_GENERATED(pi);
-        }
-        if ((info->ptype == PDU_RESP) && (info->call_data->req_frame != 0)) {
-            pi = proto_tree_add_uint(sub_tree, hf_dcerpc_request_in,
-                                     tvb, 0, 0, info->call_data->req_frame);
-            PROTO_ITEM_SET_GENERATED(pi);
-        }
-    } /* tree */
-
-    if (decrypted_tvb != NULL) {
-        /* Either there was no encryption or we successfully decrypted
-           the encrypted payload. */
-        if (sub_dissect) {
-            /* We have a subdissector - call it. */
-            saved_proto          = pinfo->current_proto;
-            pinfo->current_proto = sub_proto->name;
-
-            init_ndr_pointer_list(info);
-
-            length = tvb_captured_length(decrypted_tvb);
-            reported_length = tvb_reported_length(decrypted_tvb);
-
-            /*
-             * Remove the authentication padding from the stub data.
-             */
-            if ((auth_info != NULL) && (auth_info->auth_pad_len != 0)) {
-                if (reported_length >= auth_info->auth_pad_len) {
-                    /*
-                     * OK, the padding length isn't so big that it
-                     * exceeds the stub length.  Trim the reported
-                     * length of the tvbuff.
-                     */
-                    reported_length -= auth_info->auth_pad_len;
-
-                    /*
-                     * If that exceeds the actual amount of data in
-                     * the tvbuff (which means we have at least one
-                     * byte of authentication padding in the tvbuff),
-                     * trim the actual amount.
-                     */
-                    if (length > reported_length)
-                        length = reported_length;
-
-                    stub_tvb = tvb_new_subset(decrypted_tvb, 0, length, reported_length);
-                    auth_pad_len = auth_info->auth_pad_len;
-                    auth_pad_offset = reported_length;
-                } else {
-                    /*
-                     * The padding length exceeds the stub length.
-                     * Don't bother dissecting the stub, trim the padding
-                     * length to what's in the stub data, and show the
-                     * entire stub as authentication padding.
-                     */
-                    stub_tvb = NULL;
-                    auth_pad_len = reported_length;
-                    auth_pad_offset = 0;
-                    length = 0;
-                }
-            } else {
-                /*
-                 * No authentication padding.
-                 */
-                stub_tvb = decrypted_tvb;
-                auth_pad_len = 0;
-                auth_pad_offset = 0;
-            }
-
-            if (sub_item) {
-                proto_item_set_len(sub_item, length);
-            }
-
-            if (stub_tvb != NULL) {
-                /*
-                 * Catch all exceptions other than BoundsError, so that even
-                 * if the stub data is bad, we still show the authentication
-                 * padding, if any.
-                 *
-                 * If we get BoundsError, it means the frame was cut short
-                 * by a snapshot length, so there's nothing more to
-                 * dissect; just re-throw that exception.
-                 */
-                TRY {
-                    int remaining;
-
-                    offset = sub_dissect(stub_tvb, 0, pinfo, sub_tree,
-                                          info, drep);
-
-                    /* If we have a subdissector and it didn't dissect all
-                       data in the tvb, make a note of it. */
-                    remaining = tvb_reported_length_remaining(stub_tvb, offset);
-                    if (remaining > 0) {
-                        proto_tree_add_expert(sub_tree, pinfo, &ei_dcerpc_long_frame, stub_tvb, offset, remaining);
-                        col_append_fstr(pinfo->cinfo, COL_INFO,
-                                            "[Long frame (%d byte%s)]",
-                                            remaining,
-                                            plurality(remaining, "", "s"));
-
-                    }
-                } CATCH_NONFATAL_ERRORS {
-                    /*
-                     * Somebody threw an exception that means that there
-                     * was a problem dissecting the payload; that means
-                     * that a dissector was found, so we don't need to
-                     * dissect the payload as data or update the protocol
-                     * or info columns.
-                     *
-                     * Just show the exception and then drive on to show
-                     * the authentication padding.
-                     */
-                    show_exception(stub_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
-                } ENDTRY;
-            }
-
-            /* If there is auth padding at the end of the stub, display it */
-            if (auth_pad_len != 0) {
-                proto_tree_add_item(dcerpc_tree, hf_dcerpc_auth_padding, decrypted_tvb, auth_pad_offset, auth_pad_len, ENC_NA);
-            }
-
-            pinfo->current_proto = saved_proto;
-        } else {
-            /* No subdissector - show it as stub data. */
-            if (decrypted_tvb) {
-                show_stub_data(decrypted_tvb, 0, sub_tree, auth_info, FALSE);
-            } else {
-                show_stub_data(tvb, 0, sub_tree, auth_info, TRUE);
-            }
-        }
-    } else
-        show_stub_data(tvb, 0, sub_tree, auth_info, TRUE);
 
     tap_queue_packet(dcerpc_tap, pinfo, info);
     return 0;
@@ -3797,10 +3815,11 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
     gboolean       save_fragmented;
     fragment_head *fd_head = NULL;
 
-    tvbuff_t *auth_tvb, *payload_tvb, *decrypted_tvb;
+    tvbuff_t *auth_tvb, *payload_tvb, *decrypted_tvb = NULL;
     proto_item *pi;
     proto_item *parent_pi;
     proto_item *dcerpc_tree_item;
+    gboolean decrypted = FALSE;
 
     save_fragmented = pinfo->fragmented;
 
@@ -3840,7 +3859,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
         dcerpc_auth_subdissector_fns *auth_fns;
 
         /* Start out assuming we won't succeed in decrypting. */
-        decrypted_tvb = NULL;
+
         /* Schannel needs information into the footer (verifier) in order to setup decryption keys
          * so we call it in order to have a chance to decipher the data
          */
@@ -3857,8 +3876,8 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 hdr->ptype == PDU_REQ, auth_info);
 
             if (result) {
-                if (dcerpc_tree)
-                    proto_tree_add_item(dcerpc_tree, hf_dcerpc_encrypted_stub_data, payload_tvb, 0, -1, ENC_NA);
+                decrypted = TRUE;
+                proto_tree_add_item(dcerpc_tree, hf_dcerpc_encrypted_stub_data, payload_tvb, 0, -1, ENC_NA);
 
                 add_new_data_source(
                     pinfo, result, "Decrypted stub data");
@@ -3874,8 +3893,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (PFC_NOT_FRAGMENTED(hdr)) {
         pinfo->fragmented = FALSE;
 
-        dcerpc_try_handoff(
-            pinfo, tree, dcerpc_tree, payload_tvb, decrypted_tvb,
+        dcerpc_try_handoff(pinfo, tree, dcerpc_tree, ((decrypted_tvb != NULL) ? decrypted_tvb : payload_tvb), decrypted,
             hdr->drep, di, auth_info);
 
         pinfo->fragmented = save_fragmented;
@@ -3897,8 +3915,7 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
     */
     if ( (!dcerpc_reassemble) && (hdr->flags & PFC_FIRST_FRAG) ) {
 
-        dcerpc_try_handoff(
-            pinfo, tree, dcerpc_tree, payload_tvb, decrypted_tvb,
+        dcerpc_try_handoff(pinfo, tree, dcerpc_tree, ((decrypted_tvb != NULL) ? decrypted_tvb : payload_tvb), decrypted,
             hdr->drep, di, auth_info);
 
         expert_add_info_format(pinfo, NULL, &ei_dcerpc_fragment, "%s fragment", fragment_type(hdr->flags));
@@ -3983,8 +4000,7 @@ end_cn_stub:
 
             expert_add_info_format(pinfo, frag_tree_item, &ei_dcerpc_fragment_reassembled, "%s fragment, reassembled", fragment_type(hdr->flags));
 
-            dcerpc_try_handoff(pinfo, tree, dcerpc_tree, next_tvb,
-                               next_tvb, hdr->drep, di, auth_info);
+            dcerpc_try_handoff(pinfo, tree, dcerpc_tree, next_tvb, TRUE, hdr->drep, di, auth_info);
 
         } else {
             if (decrypted_tvb) {
@@ -5549,8 +5565,7 @@ dissect_dcerpc_dg_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
             pinfo->fragmented = (hdr->flags1 & PFCL1_FRAG);
             next_tvb = tvb_new_subset(tvb, offset, length,
                                       reported_length);
-            dcerpc_try_handoff(pinfo, tree, dcerpc_tree, next_tvb,
-                               next_tvb, hdr->drep, di, NULL);
+            dcerpc_try_handoff(pinfo, tree, dcerpc_tree, next_tvb, TRUE, hdr->drep, di, NULL);
         } else {
             /* PDU is fragmented and this isn't the first fragment */
             if (length > 0) {
@@ -5584,8 +5599,7 @@ dissect_dcerpc_dg_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
                  * XXX - authentication info?
                  */
                 pinfo->fragmented = FALSE;
-                dcerpc_try_handoff(pinfo, tree, dcerpc_tree, next_tvb,
-                                   next_tvb, hdr->drep, di, NULL);
+                dcerpc_try_handoff(pinfo, tree, dcerpc_tree, next_tvb, TRUE, hdr->drep, di, NULL);
             } else {
                 /* ...and this isn't the reassembled RPC PDU */
                 pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_reassembled_in,
@@ -6524,10 +6538,7 @@ proto_register_dcerpc(void)
     /* Decode As handling */
     static build_valid_func dcerpc_da_build_value[1] = {dcerpc_value};
     static decode_as_value_t dcerpc_da_values = {dcerpc_prompt, 1, dcerpc_da_build_value};
-    static decode_as_t dcerpc_da = {"dcerpc", "DCE-RPC",
-                                    /* XXX - DCE/RPC doesn't have a true (sub)dissector table, so
-                                     provide a "fake" one to fit the Decode As algorithm */
-                                    "dcerpc.fake",
+    static decode_as_t dcerpc_da = {"dcerpc", "DCE-RPC", "dcerpc.uuid",
                                     1, 0, &dcerpc_da_values, NULL, NULL,
                                     dcerpc_populate_list, decode_dcerpc_binding_reset, dcerpc_decode_as_change, dcerpc_decode_as_free};
 
@@ -6539,6 +6550,8 @@ proto_register_dcerpc(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_dcerpc = expert_register_protocol(proto_dcerpc);
     expert_register_field_array(expert_dcerpc, ei, array_length(ei));
+
+    uuid_dissector_table = register_dissector_table("dcerpc.uuid", "DCE/RPC UUIDs", FT_GUID, BASE_HEX);
 
     register_init_routine(dcerpc_init_protocol);
     register_cleanup_routine(dcerpc_cleanup_protocol);

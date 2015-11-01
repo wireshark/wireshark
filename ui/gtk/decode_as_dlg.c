@@ -1327,8 +1327,7 @@ decode_add_notebook (GtkWidget *format_hb)
             entry = (decode_as_t *)list_entry->data;
             if (!strcmp(proto_name, entry->name))
             {
-                if ((find_dissector_table(entry->table_name) != NULL) ||
-                    (!strcmp(proto_name, "dcerpc")))
+                if (find_dissector_table(entry->table_name) != NULL)
                 {
                     page = decode_add_simple_page(entry);
                     label = gtk_label_new(entry->title);
