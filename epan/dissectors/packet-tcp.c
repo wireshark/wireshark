@@ -3555,8 +3555,8 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
      */
     if(tcpd->fwd->mptcp_subflow->meta->ip_src.len == 0) {
 
-        copy_address(&tcpd->fwd->mptcp_subflow->meta->ip_src, &tcph->ip_src);
-        copy_address(&tcpd->fwd->mptcp_subflow->meta->ip_dst, &tcph->ip_dst);
+        copy_address_wmem(wmem_file_scope(), &tcpd->fwd->mptcp_subflow->meta->ip_src, &tcph->ip_src);
+        copy_address_wmem(wmem_file_scope(), &tcpd->fwd->mptcp_subflow->meta->ip_dst, &tcph->ip_dst);
 
         copy_address_shallow(&tcpd->rev->mptcp_subflow->meta->ip_src, &tcpd->fwd->mptcp_subflow->meta->ip_dst);
         copy_address_shallow(&tcpd->rev->mptcp_subflow->meta->ip_dst, &tcpd->fwd->mptcp_subflow->meta->ip_src);
