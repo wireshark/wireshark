@@ -117,6 +117,13 @@ static int hf_le_multi_advertising_channel_map_reserved;
 static int hf_le_multi_advertising_channel_map_39 = -1;
 static int hf_le_multi_advertising_channel_map_38 = -1;
 static int hf_le_multi_advertising_channel_map_37 = -1;
+static int hf_hid_emulation_mode = -1;
+static int hf_vid = -1;
+static int hf_pid = -1;
+static int hf_chip_id = -1;
+static int hf_target_id = -1;
+static int hf_build_base = -1;
+static int hf_build_number = -1;
 static int hf_data = -1;
 
 static const int *hfx_le_multi_advertising_channel_map[] = {
@@ -145,16 +152,19 @@ static const value_string opcode_ocf_vals[] = {
     { 0x001C,  "Write SCO PCM INT Parameter" },
     { 0x001E,  "Write PCM Data Format Parameter" },
     { 0x0027,  "Write Sleep Mode" },
-    { 0x002E,  "Download MiniDrv" },
+    { 0x002E,  "Download MiniDriver" },
+    { 0x003B,  "Enable USB HID Emulation" },
     { 0x0045,  "Write UART Clock Setting" },
     { 0x004C,  "Write Firmware" }, /* Unknown name, but it is part of firmware,
                                       which is set of this command and one
                                       "Launch RAM" at the end of file.
                                       Procedure of load firmware seems to be
-                                      initiated by command "Download MiniDrv" */
+                                      initiated by command "Download MiniDriver" */
     { 0x004E,  "Launch RAM" },
     { 0x0057,  "Set ACL Priority" },
+    { 0x005A,  "Read VID PID" },
     { 0x006D,  "Write I2S PCM Interface Parameter" },
+    { 0x0079,  "Read Verbose Config Version Info" },
     { 0x007E,  "Enable WBS" },
     { 0x0102,  "Enable WBS Modified" },
     { 0x0111,  "Set ConnectionLess Broadcast Stream" },
@@ -345,6 +355,19 @@ static const value_string le_filter_policy_vals[] = {
     { 0x03,  "Whitelist Connections" },
     { 0, NULL }
 };
+
+static const value_string hid_emulation_mode_vals[] = {
+    { 0x00,  "Bluetooth" },
+    { 0x01,  "HID" },
+    { 0, NULL }
+};
+
+static const value_string target_id_vals[] = {
+    { 0xFE,  "Invalid" },
+    { 0xFF,  "Undefined" },
+    { 0, NULL }
+};
+
 
 void proto_register_bthci_vendor_broadcom(void);
 void proto_reg_handoff_bthci_vendor_broadcom(void);
@@ -543,6 +566,11 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             offset += 1;
 
             proto_tree_add_item(main_tree, hf_pulsed_host_wake, tvb, offset, 1, ENC_NA);
+            offset += 1;
+
+            break;
+        case 0x003B: /* Enable USB HID Emulation */
+            proto_tree_add_item(main_tree, hf_hid_emulation_mode, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             break;
@@ -758,7 +786,9 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
             break;
 
-        case 0x002E: /* Download MiniDrv */
+        case 0x002E: /* Download MiniDriver */
+        case 0x005A: /* Read VID PID */
+        case 0x0079: /* Read Verbose Config Version Info */
         case 0x0153: /* LE Get Vendor Capabilities */
         case 0x0159: /* LE Energy Info */
             if (tvb_captured_length_remaining(tvb, offset) > 0) {
@@ -812,7 +842,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         switch (event_code) {
         case 0x0e: /* Command Complete */
-            proto_tree_add_item(main_tree, hf_number_of_allowed_command_packets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(main_tree, hf_number_of_allowed_command_packets, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             opcode_item = proto_tree_add_item(main_tree, hf_opcode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -857,6 +887,28 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             offset += 1;
 
             switch (ocf) {
+            case 0x005A: /* Read VID PID */
+                proto_tree_add_item(main_tree, hf_vid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(main_tree, hf_pid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                break;
+            case 0x0079: /* Read Verbose Config Version Info */
+                proto_tree_add_item(main_tree, hf_chip_id, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(main_tree, hf_target_id, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(main_tree, hf_build_base, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(main_tree, hf_build_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                break;
             case 0x0153: /* LE Get Vendor Capabilities */
                 if (status != STATUS_SUCCESS)
                     break;
@@ -866,7 +918,7 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 proto_tree_add_item(main_tree, hf_resolvable_private_address_offloading, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
-                proto_tree_add_item(main_tree, hf_total_scan_results, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(main_tree, hf_total_scan_results, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
                 proto_tree_add_item(main_tree, hf_max_irk_list, tvb, offset, 1, ENC_NA);
@@ -948,7 +1000,8 @@ dissect_bthci_vendor_broadcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             case 0x001C: /* Write SCO PCM INT Parameter */
             case 0x001E: /* Write PCM Data Format Parameter */
             case 0x0027: /* Write Sleep Mode */
-            case 0x002E: /* Download MiniDrv */
+            case 0x002E: /* Download MiniDriver */
+            case 0x003B: /* Enable USB HID Emulation */
             case 0x0045: /* Write UART Clock Setting */
             case 0x004C: /* Write Firmware*/
             case 0x004E: /* Launch RAM */
@@ -1087,7 +1140,7 @@ proto_register_bthci_vendor_broadcom(void)
         },
         { &hf_total_scan_results,
             { "Total Scan Results",                        "bthci_vendor.broadcom.total_scan_results",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_max_irk_list,
@@ -1411,13 +1464,48 @@ proto_register_bthci_vendor_broadcom(void)
             NULL, HFILL }
         },
         { &hf_le_multi_advertising_filter_policy,
-            { "Filter Policy",                               "bthci_vendor.broadcom.le.multi_advertising.filter_policy",
+            { "Filter Policy",                             "bthci_vendor.broadcom.le.multi_advertising.filter_policy",
             FT_UINT8, BASE_HEX, VALS(le_filter_policy_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_le_multi_advertising_tx_power,
             { "Tx power",                                  "bthci_vendor.broadcom.le.multi_advertising.tx_power",
             FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_hid_emulation_mode,
+            { "Emulation Mode",                            "bthci_vendor.broadcom.hid_emulation_mode",
+            FT_UINT8, BASE_HEX, VALS(hid_emulation_mode_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_vid,
+            { "VID",                                       "bthci_vendor.broadcom.vid",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pid,
+            { "PID",                                       "bthci_vendor.broadcom.pid",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_chip_id,
+            { "Chip ID",                                   "bthci_vendor.broadcom.chip_id",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_target_id,
+            { "Target ID",                                 "bthci_vendor.broadcom.target_id",
+            FT_UINT8, BASE_HEX, VALS(target_id_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_build_base,
+            { "Build Base",                                "bthci_vendor.broadcom.build_base",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_build_number,
+            { "Build Number",                              "bthci_vendor.broadcom.build_number",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_data,
