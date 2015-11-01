@@ -49,6 +49,7 @@ Nokia Intelligent Service Interface (ISI)
 
 // Items in --sort-and-group-- blocks will be sorted and comma-separated.
 --sort-and-group--
+ISO14443
 --sort-and-group--
 
 === Updated Protocol Support
