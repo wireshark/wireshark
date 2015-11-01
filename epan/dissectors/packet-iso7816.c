@@ -701,10 +701,10 @@ dissect_iso7816_resp_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_iso7816(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint        offset       = 0;
-    proto_item *tree_ti      = NULL;
-    proto_tree *iso7816_tree = NULL;
-    gboolean    is_atr       = FALSE;
+    gint        offset = 0;
+    proto_item *tree_ti;
+    proto_tree *iso7816_tree;
+    gboolean    is_atr = FALSE;
 
     if (pinfo->p2p_dir!=P2P_DIR_SENT && pinfo->p2p_dir!=P2P_DIR_RECV)
         return 0;
