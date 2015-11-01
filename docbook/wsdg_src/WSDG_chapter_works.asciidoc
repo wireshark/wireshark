@@ -1,7 +1,7 @@
 ++++++++++++++++++++++++++++++++++++++
 <!-- WSDG Chapter Works -->
 ++++++++++++++++++++++++++++++++++++++
-    
+
 [[ChapterWorks]]
 
 == How Wireshark Works
@@ -29,10 +29,10 @@ the Qt UI in 'ui/qt'.
 ****
 
 The function blocks in more detail:
-$$GTK+ 2$$:: Handling of all user input/output (all windows, dialogs and such). 
+$$GTK+ 2$$:: Handling of all user input/output (all windows, dialogs and such).
 Source code can be found in the 'ui/gtk' directory.
 
-Core:: Main "glue code" that holds the other blocks together. Source 
+Core:: Main "glue code" that holds the other blocks together. Source
 code can be found in the root directory.
 
 Epan:: Ethereal Packet ANalyzer -- the packet analyzing engine.
@@ -41,13 +41,13 @@ the following APIs:
 
 * Protocol Tree. Dissection information for an individual packet.
 
-* Dissectors. The various protocol dissectors in 
+* Dissectors. The various protocol dissectors in
 'epan/dissectors'.
 
 * Dissector Plugins - Support for implementing dissectors as separate modules.
 Source code can be found in 'plugins'.
 
-* Display Filters - The display filter engine at 
+* Display Filters - The display filter engine at
 'epan/dfilter'.
 
 Wiretap:: The wiretap library is used to read and write capture files in libpcap,
@@ -71,8 +71,8 @@ capture filter syntaxes.
 
 === Capturing packets
 
-Capturing takes packets from a network adapter and saves them to a file 
-on your hard disk. 
+Capturing takes packets from a network adapter and saves them to a file
+on your hard disk.
 
 Since raw network adapter access requires elevated privileges these functions
 are isolated into the `dumpcap` program. It's only this program that needs these
@@ -94,7 +94,7 @@ In addition to this, as one of its strengths, Wireshark can read and write files
 in many different file formats of other network capturing tools. The wiretap
 library, developed together with Wireshark, provides a general purpose interface
 to read and write all the file formats. If you need to add support for another
-capture file format this is the place to start. 
+capture file format this is the place to start.
 
 [[ChWorksDissectPackets]]
 
@@ -103,7 +103,7 @@ capture file format this is the place to start.
 While Wireshark is loading packets from a file each packet is dissected.
 Wireshark tries to detect the packet type and gets as much information from the
 packet as possible. In this run though, only the information shown in the packet
-list pane is needed. 
+list pane is needed.
 
 As the user selects a specific packet in the packet list pane this packet will
 be dissected again. This time, Wireshark tries to get every single piece of
@@ -112,4 +112,4 @@ information and put it into the packet details pane.
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSDG Chapter Works -->
 ++++++++++++++++++++++++++++++++++++++
-    
+

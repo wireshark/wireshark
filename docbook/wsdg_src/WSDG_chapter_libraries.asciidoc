@@ -71,83 +71,42 @@ for Wireshark suitable for cygwin's gcc compiler.
 
 === Win32: Automated library download
 
-[[ChLibsSetupInitial]]
+The required libraries (apart from Qt) are automatically downloaded as part of
+the CMake generation step, and subsequently as required when libraries are updated.
 
+The libraries are downloaded into the directory indicated by the environment
+variable WIRESHARK_BASE_DIR, this must be set appropriately for your environment.
+The libraries are downloaded and extracted into WIRESHARK_BASE_DIR\wireshark-win32-libs
+and WIRESHARK_BASE_DIR\wireshark-win64-libs for 32 and 64 bit builds respectively.
 
-==== Initial download
+You may also directly set the library directory with the environment variable
+WIRESHARK_LIB_DIR, but if you switch between 32 bit and 64 bit builds, the value of this
+must be set appropriately.
 
-You can download and install all required libraries by using the `setup` target
-of 'Makefile.nmake' from the source package.
+[[ChLibsQt]]
 
-[TIP]
-.Use the setup target
-====
-It's a really good idea to use the Win32 automated library download to
-install the required libraries as it makes this download very easy.
+=== Qt
 
-Before you start the download, you must have installed both the required tools
-(see <<ChapterTools>>) and the Wireshark sources (see <<ChSrcObtain>>).
-====
+The Qt library is used to build the UI for Wireshark and is used to provide a
+platform independant UI.
+For more information on the Qt libraries, see <<ChUIQt>>.
 
-By default the libraries will be downloaded and installed into
-'C:\wireshark-win32-libs' for x86 builds and 'C:\wireshark-win64-libs' for x86_64 builds.
-You can change this to any other location by editing
-'config.nmake' and changing the line containing
-WIRESHARK_LIB_DIR to your favourite place. You must use an absolute path.
+[[ChLibsUnixQt]]
 
-Then run the command
+==== Unix
 
-----
-> nmake -f Makefile.nmake setup
-----
+TBD.
 
-This will first check for all the various tools needed to build Wireshark
-as described in <<ChToolsWin32Verify>>.
+[[ChLibsWin32Qt]]
 
-Then it will download the zipped libraries (together around 45MB for x86 and 52MB for x64) from the
-server location at
-https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] into the
-directory specified by WIRESHARK_LIB_DIR and install (unzip) all required
-library files there.
+==== Win32 MSVC
 
-If you have problems downloading the library files, you might be connected to
-the internet through a proxy. In this case see the wget proxy comment in
-<<ChToolsWget>>.
-
-[[ChLibsSetupUpdate]]
-
-==== Update of a previous download
-
-As new versions of the libraries become available, maybe with bugfixes or
-some new functionality, your libraries get outdated.
-
-You could simply remove everything in the WIRESHARK_LIB_DIR dir and call the
-`setup` target again, but that would require a download of every file again,
-which isn't necessary.
-
-The following will bring your libraries up to date:
-
-* Update your Wireshark sources to the latest SVN files (see <<ChSrcObtain>>), so the zip filenames in the setup target
-of Makefile.nmake are in sync with the library zip files on the server.
-
-* Execute the library setup command as described above.
-+
---
-----
-> nmake -f Makefile.nmake setup
-----
-
-Note that this command will automatically do a `clean-setup` which will
-remove all files previously unzipped from the downloaded files in your
-WIRESHARK_LIB_DIR library path (all the subdirs, e.g.
-'$$c:\wireshark-win32-libs\gtk+$$'),
-except for the zip files located at the toplevel, which are the files
-downloaded the last time(s).
-
-Also note that as wget will download only the
-missing (updated) files, existing zip files in the WIRESHARK_LIB_DIR dir won't be
-downloaded again. Remaining (outdated) zip files shouldn't do any harm.
---
+Qt5 must be installed maunally, from the Qt installers page
+http://www.qt.io/download-open-source/#section-2[], using the version of Qt
+appropriate for your compiler.  Note that separate installations (into different directories) of Qt
+are required for 32 bit and 64 bit builds.  The environment variable QT5_BASE_DIR should be
+set as appropriate for your environment and should point to the Qt directory that contains the
+bin directory, e.g. C:\Qt\Qt5.5.0\5.5\msvc2013
 
 [[ChLibsGtk]]
 
@@ -157,7 +116,7 @@ The Glib library is used as a basic platform abstraction library, it's
 not related to graphical user interface (GUI) things. For a detailed
 description about GLib, see <<ChCodeGLib>>.
 
-The GTK and its dependent libraries are used to build Wireshark's GUI.
+The GTK and its dependent libraries are used to build the older, deprecated, Wireshark GUI.
 For a detailed description of the GTK libraries, see <<ChUIGTK>>.
 
 All other libraries are dependent on the two libraries mentioned above,
@@ -169,7 +128,6 @@ the required additional libraries depend on the GLib/GTK versions you have.
 The 2.x versions require all mentioned libs.
 
 [[ChLibsUnixGTK]]
-
 
 ==== Unix
 
@@ -408,6 +366,19 @@ http://www.maxmind.com/app/c[].
 ==== Win32 MSVC
 
 We provide a package cross-compiled using MinGW32 at
+https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+
+[[ChLibsWinSparkle]]
+
+=== WinSparkle (optional)
+
+WinSparkle is an easy-to-use software update library for Windows developers.
+
+[[ChLibsWin32WinSparkle]]
+
+==== Win32 MSVC
+
+We provide a copy of the WinSparkle package at
 https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 ++++++++++++++++++++++++++++++++++++++

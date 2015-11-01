@@ -396,29 +396,10 @@ to see what options you have.
 
 ==== Win32 native
 
-Ensure you have correctly set your build environment as discussed in
-<<ChSetupPrepareCommandCom>>
-
-You should then cleanup any intermediate files, which are shipped for
-convenience of Unix users, by typing at the command line prompt:
-
-----
-> nmake -f Makefile.nmake distclean
-----
-
-After doing this, typing at the command line prompt:
-
-----
-> nmake -f Makefile.nmake all
-----
-
-will start the whole Wireshark build process.
-
+Follow the build procedure in <<ChWin32Build>> to build Wireshark.
 
 After the build process has successfully finished, you should find a
-`wireshark.exe` and some other files
-in the root directory.
-
+`Wireshark.exe` and some other files in the `run\RelWithDebInfo` directory.
 
 [[ChSrcRunFirstTime]]
 
@@ -467,12 +448,12 @@ be informative when things don't work as expected.
 ==== Win32 native
 
 During the build all relevant program files are collected in a subdirectory
-'wireshark-qt-release'. You can run the program from there by
+`run\RelWithDebInfo`. You can run the program from there by
 launching the Wireshark.exe executable.
 
-The older GTK based version is also available in the 'wireshark-gtk'
+The older GTK based version is also available in the same
 subdirectory.  You can run the program from there by launching the
-Wireshark-gtk.exe executable.
+wireshark-gtk.exe executable.
 
 
 [[ChSrcDebug]]
@@ -1139,21 +1120,11 @@ When building with CMake you must first build the 'nsis_package_prep' target,
 followed by the 'nsis_package' target, e.g.
 
 ----
-> msbuild nsis_package_prep.vcxproj
-> msbuild nsis_package.vcxproj
+> msbuild /m /p:Configuration=RelWithDebInfo nsis_package_prep.vcxproj
+> msbuild /m /p:Configuration=RelWithDebInfo nsis_package.vcxproj
 ----
 
 Splitting the packaging projects in this way allows for code signing.
-
-For Nmake you will probably have to modify the MAKENSIS setting in the
-'config.nmake' file to specify where the NSIS binaries are installed. In the
-top-level source directory type:
-
-----
-> nmake -f makefile.nmake packaging
-----
-
-to build the installer.
 
 [TIP]
 .This might take a while
@@ -1164,7 +1135,7 @@ It might take some time, even on fast machines.
 
 If everything went well, you will now find something like:
 'wireshark-setup-wireshark-version:[].exe' in
-the 'packaging/nsis' directory.
+the 'packaging/nsis' directory in the source tree.
 
 [[ChSrcPortableApps]]
 
@@ -1173,7 +1144,7 @@ the 'packaging/nsis' directory.
 _PortableApps.com_ is an environment that lets users run popular applications
 from portable media such as flash drives and cloud drive services.
 
-Install the 'PortableApps.com Platform'. Install for ``all users,'' which
+Install the 'PortableApps.com Platform'. Install for ``all users``, which
 will place it in `C:\PortableApps`. Add the following apps:
 
 - NSIS Portable (Unicode)
@@ -1186,17 +1157,9 @@ When building with CMake you must first build the 'nsis_package_prep' target
 'portableapps_package' target, e.g.
 
 ----
-> msbuild nsis_package_prep.vcxproj
-> msbuild portableapps_package.vcxproj
+> msbuild /m /p:Configuration=RelWithDebInfo nsis_package_prep.vcxproj
+> msbuild /m /p:Configuration=RelWithDebInfo portableapps_package.vcxproj
 ----
-
-For Nmake, type the following in the top-level source directory
-
-----
-> nmake -f makefile.nmake packaging_papps
-----
-
-to build the installer.
 
 [TIP]
 .This might take a while

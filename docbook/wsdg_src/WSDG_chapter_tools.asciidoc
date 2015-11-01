@@ -314,8 +314,6 @@ compiler, you'll need:
 
 . Linker (`link.exe`)
 
-. Make (`nmake.exe`)
-
 . C runtime headers and libraries (e.g. 'stdio.h', 'msvcrt.lib')
 
 . Windows platform headers and libraries (e.g.
@@ -326,7 +324,7 @@ compiler, you'll need:
 
 ==== Toolchain Package Alternatives
 
-The Wireshark 1.99.x releases are compiled using Microsoft Visual $$C++$$ 2013.
+The Wireshark 2.0.x releases are compiled using Microsoft Visual $$C++$$ 2013.
 The official Wireshark 1.12.x and 1.10.x releases are compiled using
 Microsoft Visual $$C++$$ 2010 SP1.
 The official 1.8 releases were compiled using
@@ -358,7 +356,7 @@ Purchase required?:: http://www.visualstudio.com/en-us/downloads/download-visual
 
 SDK required for 64-bit builds?:: No
 
-config.nmake MSVC_VARIANT:: MSVC2013
+CMake Generator: `Visual Studio 12`
 
 .Visual C++ 2010 Express Edition
 
@@ -368,7 +366,7 @@ Purchase required?:: http://www.microsoft.com/express/Downloads/#Visual_Studio_2
 
 SDK required for 64-bit builds?:: Yes.
 
-config.nmake MSVC_VARIANT:: MSVC2010EE
+CMake Generator: `Visual Studio 10`
 
 Remarks:: Installers created using express editions require a $$C++$$ redistributable
 '$$vcredist_x86.exe$$' (3MB free
@@ -387,7 +385,7 @@ Purchase required?:: Yes
 
 SDK required for 64-bit builds?:: No
 
-config.nmake MSVC_VARIANT:: MSVC2010
+CMake Generator: `Visual Studio 10`
 
 Remarks:: Building a 64-bit installer
 requires a a $$C++$$ redistributable
@@ -432,41 +430,6 @@ However, the version string may vary.
 
 Documentation on the compiler can be found at
 http://msdn.microsoft.com/en-us/library/wk21sfcf.aspx[Microsoft MSDN]
-
-[[ChToolsNMake]]
-
-==== nmake.exe (Make)
-
-Nmake is part of the toolchain packages described
-above.
-
-Instead of using the workspace (.dsw) and projects (.dsp) files, the traditional
-nmake makefiles are used. This has one main reason: it makes it much easier to
-maintain changes simultaneously with the GCC toolchain makefile.am files as both
-file formats are similar. However, as no Visual Studio workspace/project files
-are available, this makes it hard to use the Visual Studio IDE e.g. for using
-the integrated debugging feature.
-
-After correct installation, typing at the Visual Studio Command line prompt (cmd.exe):
-
-----
-> nmake
-----
-
-should result in something like:
-
-----
-Microsoft (R) Program Maintenance Utility Version 12.00.21005.1
-Copyright (C) Microsoft Corporation.  All rights reserved.
-
-NMAKE : fatal error U1064: MAKEFILE not found and no target specified
-Stop.
-----
-
-However, the version string may vary.
-
-Documentation on nmake can be found at
-http://msdn.microsoft.com/en-us/library/dd9y37ha.aspx[Microsoft MSDN]
 
 ==== link.exe (Linker)
 
@@ -532,9 +495,8 @@ interested reader:
 In all cases where '$$vcredist_x86.exe$$' or '$$vcredist_x64.exe$$' is
 downloaded it should be downloaded to the directory into which the support
 libraries for Wireshark have been downloaded and installed. This directory is
-specified by the WIRESHARK_LIB_DIR setting in the 'config.nmake'. By default it
-is 'C:\Development\wireshark-win32-libs'. It need not, and should not, be run after being
-downloaded.
+specified by the WIRESHARK_BASE_DIR or WIRESHARK_LIB_DIR environment variables.
+It need not, and should not, be run after being downloaded.
 
 ===== msvcr120.dll / vcredist_x86.exe / vcredist_x64.exe - Version 12.0 (2013)
 
@@ -609,8 +571,6 @@ be able to open .chm files from Wireshark and show the
 online help. Both files are part of the SDK (standalone (P)SDK or MSVC
 since 2002).
 
-Simply set HHC_DIR in 'config.nmake' to use it.
-
 [[ChToolsDebugger]]
 
 ==== Debugger
@@ -625,19 +585,14 @@ otherwise the debugger will simply fail or you will only see a lot of garbage.
 ===== Visual Studio integrated debugger
 
 You can use the integrated debugger of Visual Studio if your toolchain includes
-it.  As described on http://msdn.microsoft.com/en-us/library/0bxe8ytt.aspx[MSDN],
-create an EXE project for your built copy,
-i.e. C:\Development\Wireshark\wireshark-qt-release\Wireshark.exe, and then
-start the debugger in the mormal way.  To set a breakpoint, open the required
-source file using the File -> Open -> File menu and set the breakpoint as normal.
+it.  Open the solution in your build directory and build and debug as normal with a
+Visual Studio solution.
 
 The normal build is an optimised release version so debugging can be a bit
 difficult as variables are optimised out into registers and the execution
 order of statements can jump around.
 
-If you require a non-optimised version, then edit config.nmake and replace the /O2
-flag from LOCAL_CFLAGS with /Od, clean up the build (nmake -f Makefile.nmake clean)
-and then rebuild.
+If you require a non-optimised version, then build using a debug configuration.
 
 [[ChToolsMSDebuggingTools]]
 
@@ -659,10 +614,13 @@ PS:\> choco install windbg
 
 To debug Wireshark using WinDbg, open the built copy of Wireshark using
 the File -> Open Executable... menu,
-i.e. C:\Development\Wireshark\wireshark-qt-release\Wireshark.exe.  To set a
+i.e. C:\Development\wsbuild32\run\RelWithDebInfo\Wireshark.exe.  To set a
 breakpoint open the required source file using the File -> Open Source File...
 menu and then click on the required line and press F9.  To run the program,
 press F5.
+
+If you require a non-optimised version, then build using a debug configuration, e.g.
+`msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln`.
 
 [[ChToolsBash]]
 
@@ -1145,60 +1103,6 @@ The Windows native Git tools provide patch. A native Windows patch package can b
 http://gnuwin32.sourceforge.net/[]. The
 installation should be straightforward.
 
-[[ChToolsWget]]
-
-=== Windows: GNU wget (optional)
-
-GNU wget is used by the Nmake toolchain to download files from the internet
-using the command line. It is not needed when building with CMake.
-
-GNU wget is available for most of the UNIX-like platforms and as the wget
-package from the <<ChToolsCygwin,Cygwin setup>> and also using Chocolatey.
-At the time of writing the native Chocolatey wget package had incomplete
-CA certificate support. As a result the Cygwin package is recommended:
-
-----
-PS$> choco install wget -source cygwin
-----
-
-You will only need wget if you want to use the Windows automated library
-download. See <<ChLibsSetup>>for details.
-
-If GNU wget isn't already installed or available as a package for your platform
-(well, for Windows it is available as a Cygwin package), you can get it at
-http://www.gnu.org/software/wget/wget.html[].
-
-If wget is trying to download files but fails to do so, your Internet connection
-might use an HTTP proxy. Some Internet providers use such a proxy and it is
-common in many company networks today. Wireshark's setup script will try to
-discover your proxy settings automatically, but you may need to set the
-environment variable 'HTTP_PROXY' by hand before using wget. For example, if you
-are behind proxy.com which is listening on port 8080, you have to set it to
-something like:
-
-----
-set HTTP_PROXY=http://proxy.com:8080/
-----
-
-If you are unsure about the settings, you might ask your system administrator.
-
-[[ChToolsUnzip]]
-
-=== Windows: GNU unzip (optional)
-
-GNU unzip is used to, well, unzip the zip files downloaded using the wget tool.
-As with wget it is not needed when building with CMake.
-
-GNU unzip is available for most of the UNIX-like platforms and as the unzip
-package from the <<ChToolsCygwin,Cygwin setup>>.
-
-You will only need unzip if you want to use the Windows automated library
-download. See <<ChLibsSetup>>for details.
-
-If GNU unzip isn't already installed or available as a package for your platform
-(well, for Windows it is available as a Cygwin package), you can get it at
-http://gnuwin32.sourceforge.net/packages/unzip.htm[].
-
 [[ChToolsNSIS]]
 
 === Windows: NSIS (optional)
@@ -1229,8 +1133,7 @@ files.
 To install it, do the following:
 
 * Download the latest PortableApps.com Platform release from
-  http://portableapps.com/[]. `config.nmake` uses the ``Local
-  All Users'' install location (`C:`) by default.
+  http://portableapps.com/[].
 
 * Install the following applications in the PortableApps.com environment:
 
