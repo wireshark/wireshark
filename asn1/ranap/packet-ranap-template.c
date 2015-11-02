@@ -39,6 +39,7 @@
 #include "packet-sccp.h"
 #include "packet-gsm_a_common.h"
 #include "packet-isup.h"
+#include "packet-s1ap.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */

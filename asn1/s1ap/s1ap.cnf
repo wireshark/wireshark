@@ -28,6 +28,8 @@ SONtransferRequestContainer
 SONtransferResponseContainer_PDU
 SONtransferResponseContainer
 SONtransferCause_PDU
+UE-HistoryInformation_PDU
+
 
 #.PDU_NEW
 S1AP-PDU
@@ -38,6 +40,7 @@ SONtransferApplicationIdentity
 SONtransferRequestContainer
 SONtransferResponseContainer
 SONtransferCause
+UE-HistoryInformation
 
 #.MAKE_ENUM
 ProcedureCode

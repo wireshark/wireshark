@@ -36,6 +36,7 @@
 #include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-s1ap.h"
+#include "packet-ranap.h"
 #include "packet-bssgp.h"
 #include "packet-ntp.h"
 #include "packet-gtpv2.h"
@@ -531,6 +532,8 @@ static gint ett_gtpv2_ms_mark = -1;
 static gint ett_gtpv2_stn_sr = -1;
 static gint ett_gtpv2_supp_codec_list = -1;
 static gint ett_gtpv2_bss_con = -1;
+static gint ett_gtpv2_utran_con = -1;
+static gint ett_gtpv2_eutran_con = -1;
 static gint ett_gtpv2_mm_context_auth_qua = -1;
 static gint ett_gtpv2_mm_context_auth_qui = -1;
 static gint ett_gtpv2_mm_context_auth_tri = -1;
@@ -4085,6 +4088,18 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
         || (message_type == GTPV2_CONTEXT_RESPONSE)
         || (message_type == GTPV2_RAN_INFORMATION_RELAY)) {
         switch (container_type) {
+        case 1:
+            /* UTRAN transparent container (1)
+             * Contains the "Source to Target
+             * Transparent Container", if the message is used for PS
+             * handover to UTRAN Iu mode procedures, SRNS relocation
+             * procedure and E-UTRAN to UTRAN inter RAT handover
+             * procedure.
+             */
+            sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_gtpv2_utran_con, NULL, "UTRAN transparent container");
+            new_tvb = tvb_new_subset_remaining(tvb, offset);
+            dissect_ranap_Source_ToTarget_TransparentContainer_PDU(new_tvb, pinfo, sub_tree, NULL);
+            return;
         case 2:
             /* BSS container */
             sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_gtpv2_bss_con, NULL, "BSS container");
@@ -4120,6 +4135,18 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
                 offset += 1;
                 proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_xid, tvb, offset, xid_len, ENC_NA);
             }
+            return;
+        case 3:
+            /* E-UTRAN transparent container
+            * This IE shall be included to contain the "Source to Target
+            * Transparent Container", if the message is used for
+            * UTRAN/GERAN to E-UTRAN inter RAT handover
+            * procedure, E-UTRAN intra RAT handover procedure and
+            * 3G SGSN to MME combined hard handover and SRNS
+            * relocation procedure. The Container Type shall be set to 3.
+            */
+            sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_gtpv2_eutran_con, NULL, "E-UTRAN transparent container");
+            proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length - offset);
             return;
         default:
             break;
@@ -8060,6 +8087,8 @@ void proto_register_gtpv2(void)
         &ett_gtpv2_ms_mark,
         &ett_gtpv2_supp_codec_list,
         &ett_gtpv2_bss_con,
+        &ett_gtpv2_utran_con,
+        &ett_gtpv2_eutran_con,
         &ett_gtpv2_mm_context_auth_qua,
         &ett_gtpv2_mm_context_auth_qui,
         &ett_gtpv2_mm_context_auth_tri,
