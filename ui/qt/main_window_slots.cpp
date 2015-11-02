@@ -735,6 +735,7 @@ void MainWindow::captureFileClosed() {
 
     file_set_dialog_.fileClosed();
     setMenusForFileSet(false);
+    setWindowModified(false);
 
     // Reset expert information indicator
     main_ui_->statusBar->captureFileClosing();
