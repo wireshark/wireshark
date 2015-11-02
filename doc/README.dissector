@@ -3232,7 +3232,43 @@ The arguments to udp_dissect_pdus are:
     a void pointer to user data that is passed to the length-determining
     routine, and the dissector routine referenced in the previous parameter.
 
-2.9 ptvcursors.
+2.9 Creating Decode As functionality.
+
+While the Decode As functionality is available through the GUI, the underlying
+functionality is controlled by dissectors themselves. To create Decode As
+functionality for a dissector, two things are required:
+    1. A dissector table
+    2. A series of structures to assist the GUI in how to present the dissector
+       table data.
+
+Consider the following example using IP dissection, stolen from packet-ip.c:
+
+    static build_valid_func ip_da_build_value[1] = {ip_value};
+    static decode_as_value_t ip_da_values = {ip_prompt, 1, ip_da_build_value};
+    static decode_as_t ip_da = {"ip", "Network", "ip.proto", 1, 0, &ip_da_values, NULL, NULL,
+                              decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+    ...
+    ip_dissector_table = register_dissector_table("ip.proto", "IP protocol", FT_UINT8, BASE_DEC);
+    ...
+    register_decode_as(&ip_da);
+
+ip_da_build_value contains all of the function pointers (typically just 1) that
+can be used to retrieve the value(s) that go into the dissector table.  This is
+usually data saved by the dissector during packet dissector with an API like
+p_add_proto_data and retrieved in the "value" function with p_get_proto_data.
+
+ip_da_values contains all of the function pointers (typically just 1) that
+provide the text explaining the name and use of the value field that will
+be passed to the dissector table to change the dissection output.
+
+ip_da pulls everything together including the dissector (protocol) name, the
+"layer type" of the dissector, the dissector table name, the function pointer
+values as well as handlers for populating, applying and reseting the changes
+to the dissector table through Decode As GUI functionality.  For dissector
+tables that are an integer or string type, the provided "default" handling
+functions shown in the example should suffice.
+
+2.10 ptvcursors.
 
 The ptvcursor API allows a simpler approach to writing dissectors for
 simple protocols. The ptvcursor API works best for protocols whose fields
@@ -3265,7 +3301,7 @@ To use the ptvcursor API, include the "ptvcursor.h" file. The PGM dissector
 is an example of how to use it. You don't need to look at it as a guide;
 instead, the API description here should be good enough.
 
-2.9.1 ptvcursor API.
+2.10.1 ptvcursor API.
 
 ptvcursor_t*
 ptvcursor_new(proto_tree* tree, tvbuff_t* tvb, gint offset)
@@ -3344,7 +3380,7 @@ ptvcursor_set_subtree(ptvcursor_t* ptvc, proto_item* it, gint ett_subtree);
     Creates a subtree and adds it to the cursor as the working tree but does
 not save the old working tree.
 
-2.10 Optimizations
+2.11 Optimizations
 
 A protocol dissector may be called in 2 different ways - with, or
 without a non-null "tree" argument.
