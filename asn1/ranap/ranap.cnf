@@ -16,6 +16,7 @@ TargetRNC-ToSourceRNC-TransparentContainer_PDU
 TargetRNC-ID
 TargetRNC-ID_PDU
 InterSystemInformation-TransparentContainer_PDU
+Source-ToTarget-TransparentContainer_PDU
 
 #.PDU_NEW
 RANAP-PDU
@@ -380,6 +381,12 @@ dissect_ranap_TargetRNC_ToSourceRNC_TransparentContainer(tvb , offset, actx ,tre
     proto_item_append_text(actx->created_item, " (%%u)", port_number);
   }
 
+#.FN_BODY UE-History-Information VAL_PTR=&value_tvb
+  tvbuff_t *value_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (value_tvb)
+      dissect_s1ap_UE_HistoryInformation_PDU(value_tvb,  %(ACTX)s->pinfo, tree, NULL);
 
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &ranap_ProtocolIE_ID_vals_ext
