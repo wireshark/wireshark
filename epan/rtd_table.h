@@ -69,6 +69,7 @@ typedef void (*rtd_filter_check_cb)(const char *opt_arg, const char **filter, ch
  *
  * @param proto_id is the protocol with conversation
  * @param tap_listener string for register_tap_listener (NULL to just use protocol name)
+ * @param num_tables number of tables
  * @param num_timestats number of timestamps in the table
  * @param vs_type value_string for the stat types
  * @param rtd_packet_func the tap processing function
