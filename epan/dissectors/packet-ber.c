@@ -4160,10 +4160,6 @@ dissect_ber_external_U(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ct
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                   external_U_sequence, hf_index, ett_ber_EXTERNAL);
 
-    if (actx->external.u.ber.ber_callback) {
-      offset = actx->external.u.ber.ber_callback(FALSE, tvb, offset, actx, tree, hf_index);
-    }
-
     return offset;
 }
 
