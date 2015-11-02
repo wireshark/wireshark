@@ -1425,7 +1425,7 @@ void set_pdcp_lte_security_algorithms_failed(guint16 ueid)
 /* Decipher payload if algorithm is supported and plausible inputs are available */
 static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset,
                                   pdu_security_settings_t *pdu_security_settings,
-                                  enum pdcp_plane plane, gboolean will_be_deciphered,
+                                  struct pdcp_lte_info *p_pdcp_info, gboolean will_be_deciphered,
                                   gboolean *deciphered)
 {
     guint8* decrypted_data = NULL;
@@ -1460,13 +1460,18 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
     }
 
     /* Don't decipher if turned off in preferences */
-    if (((plane == SIGNALING_PLANE) &&  !global_pdcp_decipher_signalling) ||
-        ((plane == USER_PLANE) &&       !global_pdcp_decipher_userplane)) {
+    if (((p_pdcp_info->plane == SIGNALING_PLANE) &&  !global_pdcp_decipher_signalling) ||
+        ((p_pdcp_info->plane == USER_PLANE) &&       !global_pdcp_decipher_userplane)) {
         return tvb;
     }
 
     /* Don't decipher control messages */
-    if ((plane == USER_PLANE) && ((tvb_get_guint8(tvb, 0) & 0x80) == 0x00)) {
+    if ((p_pdcp_info->plane == USER_PLANE) && ((tvb_get_guint8(tvb, 0) & 0x80) == 0x00)) {
+        return tvb;
+    }
+
+    /* Don't decipher common control messages */
+    if ((p_pdcp_info->plane == SIGNALING_PLANE) && (p_pdcp_info->channelType != Channel_DCCH)) {
         return tvb;
     }
 
@@ -2040,7 +2045,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Check pdu_security_settings - may need to do deciphering before calling
        further dissectors on payload */
-    payload_tvb = decipher_payload(tvb, pinfo, &offset, &pdu_security_settings, p_pdcp_info->plane,
+    payload_tvb = decipher_payload(tvb, pinfo, &offset, &pdu_security_settings, p_pdcp_info,
                                    pdu_security ? pdu_security->seen_next_ul_pdu: FALSE, &payload_deciphered);
 
     if (p_pdcp_info->plane == SIGNALING_PLANE) {
@@ -2050,8 +2055,11 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         guint32  calculated_digest = 0;
         gboolean digest_was_calculated = FALSE;
 
+        /* Compute payload length (no MAC on common control channels) */
+        data_length = tvb_reported_length_remaining(payload_tvb, offset) - ((p_pdcp_info->channelType == Channel_DCCH) ? 4 : 0);
+
         /* Try to calculate digest so we can check it */
-        if (global_pdcp_check_integrity) {
+        if (global_pdcp_check_integrity && (p_pdcp_info->channelType == Channel_DCCH)) {
             calculated_digest = calculate_digest(&pdu_security_settings, tvb_get_guint8(tvb, 0), payload_tvb,
                                                  offset, &digest_was_calculated);
         }
@@ -2065,9 +2073,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             if (rrc_handle != 0) {
                 /* Call RRC dissector if have one */
-                tvbuff_t *rrc_payload_tvb = tvb_new_subset(payload_tvb, offset,
-                                                           tvb_captured_length_remaining(payload_tvb, offset) - 4,
-                                                           tvb_reported_length_remaining(payload_tvb, offset) - 4);
+                tvbuff_t *rrc_payload_tvb = tvb_new_subset_length(payload_tvb, offset, data_length);
                 gboolean was_writable = col_get_writable(pinfo->cinfo);
 
                 /* We always want to see this in the info column */
@@ -2081,7 +2087,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             else {
                  /* Just show data */
                     proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, payload_tvb, offset,
-                                        tvb_reported_length_remaining(tvb, offset) - 4, ENC_NA);
+                                        data_length, ENC_NA);
             }
 
             if (!pinfo->fd->flags.visited &&
@@ -2096,31 +2102,34 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         else {
             /* Just show as unparsed data */
             proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, payload_tvb, offset,
-                                tvb_reported_length_remaining(tvb, offset) - 4, ENC_NA);
+                                data_length, ENC_NA);
         }
 
-        data_length = tvb_reported_length_remaining(payload_tvb, offset) - 4;
         offset += data_length;
 
-        /* Last 4 bytes are MAC */
-        mac = tvb_get_ntohl(payload_tvb, offset);
-        mac_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_mac, payload_tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
+        if (p_pdcp_info->channelType == Channel_DCCH) {
+            /* Last 4 bytes are MAC */
+            mac = tvb_get_ntohl(payload_tvb, offset);
+            mac_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_mac, payload_tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
 
-        if (digest_was_calculated) {
-            /* Compare what was found with calculated value! */
-            if (mac != calculated_digest) {
-                expert_add_info_format(pinfo, mac_ti, &ei_pdcp_lte_digest_wrong,
-                                       "MAC-I Digest wrong expected %08x but found %08x",
-                                       calculated_digest, mac);
+            if (digest_was_calculated) {
+                /* Compare what was found with calculated value! */
+                if (mac != calculated_digest) {
+                    expert_add_info_format(pinfo, mac_ti, &ei_pdcp_lte_digest_wrong,
+                                           "MAC-I Digest wrong expected %08x but found %08x",
+                                           calculated_digest, mac);
+                }
+                else {
+                    proto_item_append_text(mac_ti, " [Matches calculated result]");
+                }
             }
-            else {
-                proto_item_append_text(mac_ti, " [Matches calculated result]");
-            }
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, " MAC=0x%08x (%u bytes data)",
+                            mac, data_length);
+        } else {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "(%u bytes data)", data_length);
         }
-
-        col_append_fstr(pinfo->cinfo, COL_INFO, " MAC=0x%08x (%u bytes data)",
-                        mac, data_length);
     }
     else if (tvb_captured_length_remaining(payload_tvb, offset)) {
         /* User-plane payload here */
