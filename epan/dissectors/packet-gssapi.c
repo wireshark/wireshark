@@ -523,16 +523,54 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return return_offset;
 }
 
-static void
-dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gssapi_work_wrapper(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gssapi_encrypt_info_t* encrypt_info, gboolean is_verifier)
 {
-	dissect_gssapi_work(tvb, pinfo, tree, FALSE);
+	int ret;
+
+	/* XXX - This is setup to hopefully remove the need for these members in packet_info
+	 * Setup the dissector to take them as arguments and for now, convert to
+	 * packet_info
+	 */
+	if (encrypt_info != NULL)
+	{
+		pinfo->decrypt_gssapi_tvb = encrypt_info->decrypt_gssapi_tvb;
+		pinfo->gssapi_wrap_tvb = encrypt_info->gssapi_wrap_tvb;
+		pinfo->gssapi_encrypted_tvb = encrypt_info->gssapi_encrypted_tvb;
+		pinfo->gssapi_decrypted_tvb = encrypt_info->gssapi_decrypted_tvb;
+		pinfo->gssapi_data_encrypted = encrypt_info->gssapi_data_encrypted;
+	}
+
+	ret = dissect_gssapi_work(tvb, pinfo, tree, is_verifier);
+
+	if (encrypt_info != NULL)
+	{
+		/* Reassign the data from packet_info and clean up */
+		encrypt_info->gssapi_data_encrypted = pinfo->gssapi_data_encrypted;
+		encrypt_info->decrypt_gssapi_tvb = pinfo->decrypt_gssapi_tvb;
+		encrypt_info->gssapi_wrap_tvb = pinfo->gssapi_wrap_tvb;
+		encrypt_info->gssapi_encrypted_tvb = pinfo->gssapi_encrypted_tvb;
+		encrypt_info->gssapi_decrypted_tvb = pinfo->gssapi_decrypted_tvb;
+
+		pinfo->decrypt_gssapi_tvb=0;
+		pinfo->gssapi_wrap_tvb=NULL;
+		pinfo->gssapi_encrypted_tvb=NULL;
+		pinfo->gssapi_decrypted_tvb=NULL;
+	}
+
+	return ret;
 }
 
 static int
-dissect_gssapi_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	return dissect_gssapi_work(tvb, pinfo, tree, TRUE);
+	return dissect_gssapi_work_wrapper(tvb, pinfo, tree, (gssapi_encrypt_info_t*)data, FALSE);
+}
+
+static int
+dissect_gssapi_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	return dissect_gssapi_work_wrapper(tvb, pinfo, tree, (gssapi_encrypt_info_t*)data, TRUE);
 }
 
 void
@@ -610,7 +648,7 @@ proto_register_gssapi(void)
 	expert_gssapi = expert_register_protocol(proto_gssapi);
 	expert_register_field_array(expert_gssapi, ei, array_length(ei));
 
-	register_dissector("gssapi", dissect_gssapi, proto_gssapi);
+	new_register_dissector("gssapi", dissect_gssapi, proto_gssapi);
 	new_register_dissector("gssapi_verf", dissect_gssapi_verf, proto_gssapi);
 
 	gssapi_oids = g_hash_table_new(gssapi_oid_hash, gssapi_oid_equal);
@@ -626,7 +664,7 @@ wrap_dissect_gssapi(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	auth_tvb = tvb_new_subset_remaining(tvb, offset);
 
-	dissect_gssapi(auth_tvb, pinfo, tree);
+	dissect_gssapi(auth_tvb, pinfo, tree, NULL);
 
 	return tvb_captured_length_remaining(tvb, offset);
 }
@@ -648,6 +686,7 @@ wrap_dissect_gssapi_payload(tvbuff_t *data_tvb, tvbuff_t *auth_tvb,
 			    dcerpc_auth_info *auth_info _U_)
 {
 	tvbuff_t *result;
+	gssapi_encrypt_info_t gssapi_encrypt;
 
 	/* we need a full auth and a full data tvb or else we can't
 	   decrypt anything
@@ -656,17 +695,12 @@ wrap_dissect_gssapi_payload(tvbuff_t *data_tvb, tvbuff_t *auth_tvb,
 		return NULL;
 	}
 
-	pinfo->decrypt_gssapi_tvb=DECRYPT_GSSAPI_DCE;
-	pinfo->gssapi_wrap_tvb=NULL;
-	pinfo->gssapi_encrypted_tvb=data_tvb;
-	pinfo->gssapi_decrypted_tvb=NULL;
-	dissect_gssapi(auth_tvb, pinfo, NULL);
-	result=pinfo->gssapi_decrypted_tvb;
-
-	pinfo->decrypt_gssapi_tvb=0;
-	pinfo->gssapi_wrap_tvb=NULL;
-	pinfo->gssapi_encrypted_tvb=NULL;
-	pinfo->gssapi_decrypted_tvb=NULL;
+	gssapi_encrypt.decrypt_gssapi_tvb=DECRYPT_GSSAPI_DCE;
+	gssapi_encrypt.gssapi_wrap_tvb=NULL;
+	gssapi_encrypt.gssapi_encrypted_tvb=data_tvb;
+	gssapi_encrypt.gssapi_decrypted_tvb=NULL;
+	dissect_gssapi(auth_tvb, pinfo, NULL, &gssapi_encrypt);
+	result=gssapi_encrypt.gssapi_decrypted_tvb;
 
 	return result;
 }

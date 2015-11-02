@@ -112,6 +112,7 @@
 #include "packet-ssl.h"
 #include "packet-ssl-utils.h"
 #include "packet-smb-common.h"
+#include "packet-gssapi.h"
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -343,7 +344,7 @@ static int hf_ldap_graceAuthNsRemaining = -1;     /* INTEGER_0_maxInt */
 static int hf_ldap_error = -1;                    /* T_error */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 193 "../../asn1/ldap/packet-ldap-template.c"
+#line 194 "../../asn1/ldap/packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -415,7 +416,7 @@ static gint ett_ldap_PasswordPolicyResponseValue = -1;
 static gint ett_ldap_T_warning = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 205 "../../asn1/ldap/packet-ldap-template.c"
+#line 206 "../../asn1/ldap/packet-ldap-template.c"
 
 static expert_field ei_ldap_exceeded_filter_length = EI_INIT;
 static expert_field ei_ldap_too_many_filter_elements = EI_INIT;
@@ -3835,7 +3836,7 @@ static int dissect_PasswordPolicyResponseValue_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 920 "../../asn1/ldap/packet-ldap-template.c"
+#line 921 "../../asn1/ldap/packet-ldap-template.c"
 static int dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ldap_conv_info_t *ldap_info) {
 
   int offset = 0;
@@ -4132,6 +4133,7 @@ static void
 				tvbuff_t *gssapi_tvb, *plain_tvb = NULL, *decr_tvb= NULL;
 				int ver_len;
 				int tmp_length;
+				gssapi_encrypt_info_t gssapi_encrypt;
 
 				/*
 				* This is GSS-API (using SPNEGO, but we should be done with
@@ -4147,22 +4149,18 @@ static void
 				gssapi_tvb = tvb_new_subset(sasl_tvb, 4, tmp_length, sasl_len);
 
 				/* Attempt decryption of the GSSAPI wrapped data if possible */
-				pinfo->decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
-				pinfo->gssapi_wrap_tvb=NULL;
-				pinfo->gssapi_encrypted_tvb=NULL;
-				pinfo->gssapi_decrypted_tvb=NULL;
-				ver_len = call_dissector(gssapi_wrap_handle, gssapi_tvb, pinfo, sasl_tree);
+				gssapi_encrypt.gssapi_data_encrypted = FALSE;
+				gssapi_encrypt.decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
+				gssapi_encrypt.gssapi_wrap_tvb=NULL;
+				gssapi_encrypt.gssapi_encrypted_tvb=NULL;
+				gssapi_encrypt.gssapi_decrypted_tvb=NULL;
+				ver_len = call_dissector_with_data(gssapi_wrap_handle, gssapi_tvb, pinfo, sasl_tree, &gssapi_encrypt);
 				/* if we could unwrap, do a tvb shuffle */
-				if(pinfo->gssapi_decrypted_tvb){
-					decr_tvb=pinfo->gssapi_decrypted_tvb;
-				} else if (pinfo->gssapi_wrap_tvb) {
-					plain_tvb=pinfo->gssapi_wrap_tvb;
+				if(gssapi_encrypt.gssapi_decrypted_tvb){
+					decr_tvb=gssapi_encrypt.gssapi_decrypted_tvb;
+				} else if (gssapi_encrypt.gssapi_wrap_tvb) {
+					plain_tvb=gssapi_encrypt.gssapi_wrap_tvb;
 				}
-				/* tidy up */
-				pinfo->decrypt_gssapi_tvb=0;
-				pinfo->gssapi_wrap_tvb=NULL;
-				pinfo->gssapi_encrypted_tvb=NULL;
-				pinfo->gssapi_decrypted_tvb=NULL;
 
 				/*
 				* if len is 0 it probably mean that we got a PDU that is not
@@ -4178,7 +4176,7 @@ static void
 				* data; if not, just use the plaintext data.
 				*/
 				if (!decr_tvb && !plain_tvb) {
-					if(!pinfo->gssapi_data_encrypted){
+					if(!gssapi_encrypt.gssapi_data_encrypted){
 						plain_tvb = tvb_new_subset_remaining(gssapi_tvb,  ver_len);
 					}
 				}
@@ -5701,7 +5699,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2217 "../../asn1/ldap/packet-ldap-template.c"
+#line 2215 "../../asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5775,7 +5773,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2231 "../../asn1/ldap/packet-ldap-template.c"
+#line 2229 "../../asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5942,7 +5940,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2381 "../../asn1/ldap/packet-ldap-template.c"
+#line 2379 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }
