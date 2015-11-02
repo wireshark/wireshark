@@ -52,6 +52,7 @@ Windows Cluster Management API (clusapi)
 RFTap Protocol
 M2 Application Protocol
 CAN FD
+Bluetooth HCI Vendor Intel
 --sort-and-group--
 
 === Updated Protocol Support
