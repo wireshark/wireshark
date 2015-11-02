@@ -61,7 +61,7 @@ private:
 
 class FunnelStringDialogHelper : public QObject
 {
-    Q_OBJECT;
+    Q_OBJECT
 
 public slots:
     void emitCloseDialogs();
