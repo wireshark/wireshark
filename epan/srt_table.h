@@ -72,6 +72,7 @@ typedef struct register_srt register_srt_t;
  *
  * @param proto_id is the protocol with conversation
  * @param tap_listener string for register_tap_listener (NULL to just use protocol name)
+ * @param max_tables maximum number of tables
  * @param srt_packet_func the tap processing function
  * @param init_cb initialize dissector SRT function
  * @param param_cb handles dissection of parameters to optional arguments of tap string
@@ -196,6 +197,7 @@ WS_DLL_PUBLIC gchar* srt_table_get_tap_string(register_srt_t* srt);
  * @param filter_string table filter string or NULL
  * @param gui_callback optional GUI callback
  * @param gui_data GUI content data
+ * @param table_specific_data Table specific data
  * @return newly created srt_stat_table
  */
 WS_DLL_PUBLIC srt_stat_table* init_srt_table(const char *name, const char *short_name, GArray *srt_array, int num_procs, const char* proc_column_name,
