@@ -323,6 +323,12 @@ reassembled_hash(gconstpointer k)
 	return key->frame;
 }
 
+static void
+reassembled_key_free(gpointer ptr)
+{
+	g_slice_free(reassembled_key, (reassembled_key *)ptr);
+}
+
 /*
  * For a fragment hash table entry, free the associated fragments.
  * The entry value (fd_chain) is freed herein and the entry is freed
@@ -370,7 +376,7 @@ static fragment_head *new_head(const guint32 flags)
  * to which the value refers and also the key itself.
  */
 static gboolean
-free_all_reassembled_fragments(gpointer key_arg, gpointer value,
+free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
 				   gpointer user_data)
 {
 	GPtrArray *allocated_fragments = (GPtrArray *) user_data;
@@ -391,8 +397,6 @@ free_all_reassembled_fragments(gpointer key_arg, gpointer value,
 			fd_head->flags = FD_VISITED_FREE;
 		}
 	}
-
-	g_slice_free(reassembled_key, (reassembled_key *)key_arg);
 
 	return TRUE;
 }
@@ -456,8 +460,8 @@ reassembly_table_init(reassembly_table *table,
 		g_ptr_array_free(allocated_fragments, TRUE);
 	} else {
 		/* The fragment table does not exist. Create it */
-		table->reassembled_table = g_hash_table_new(reassembled_hash,
-		    reassembled_equal);
+		table->reassembled_table = g_hash_table_new_full(reassembled_hash,
+		    reassembled_equal, reassembled_key_free, NULL);
 	}
 }
 
