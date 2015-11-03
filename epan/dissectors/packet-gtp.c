@@ -7953,7 +7953,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     proto_tree      *gtp_tree = NULL, *ext_tree;
     proto_item      *ti = NULL, *tf, *ext_hdr_len_item;
     int              i, offset = 0, checked_field, mandatory;
-    gboolean         gtp_prime;
+    gboolean         gtp_prime, has_SN;
     int              seq_no           = 0;
     int              flow_label       = 0;
     guint8           pdu_no, next_hdr = 0;
@@ -8111,8 +8111,11 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }
     offset += 2;
 
+    /* We initialize the sequence number*/
+    has_SN = FALSE;
     if (gtp_prime) {
         seq_no = tvb_get_ntohs(tvb, offset);
+        has_SN = TRUE;
         proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
         offset += 2;
         /* If GTP' version is 0 and bit 1 is 0 20 bytes header is used, dissect it */
@@ -8136,6 +8139,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         switch (gtp_version) {
         case 0:
             seq_no = tvb_get_ntohs(tvb, offset);
+            has_SN = TRUE;
             proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
             offset += 2;
 
@@ -8171,6 +8175,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                    particular flag for the field is set. */
                 if (gtp_hdr->flags & GTP_S_MASK) {
                     seq_no = tvb_get_ntohs(tvb, offset);
+                    has_SN = TRUE;
                     proto_tree_add_uint(gtp_tree, hf_gtp_seq_number, tvb, offset, 2, seq_no);
                 }
                 offset += 2;
@@ -8307,7 +8312,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         }
 
         /*Use sequence number to track Req/Resp pairs*/
-        if (seq_no) {
+        if (has_SN) {
             gcrp = gtp_match_response(tvb, pinfo, gtp_tree, seq_no, gtp_hdr->message, gtp_info);
             /*pass packet to tap for response time reporting*/
             if (gcrp) {
