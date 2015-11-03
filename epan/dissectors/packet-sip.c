@@ -4058,22 +4058,22 @@ dfilter_sip_status_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gin
      * We also know that we have a version string followed by a
      * space at the beginning of the line, for the same reason.
      */
-    response_code = atoi((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset + SIP2_HDR_LEN + 1, 3, ENC_UTF_8|ENC_NA));
+    offset = offset + SIP2_HDR_LEN + 1;
+    response_code = atoi((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 3, ENC_UTF_8|ENC_NA));
 
     /* Add numerical response code to tree */
     if (tree) {
-        proto_tree_add_uint(tree, hf_sip_Status_Code, tvb, offset + SIP2_HDR_LEN + 1,
-                            3, response_code);
+        proto_tree_add_uint(tree, hf_sip_Status_Code, tvb, offset, 3, response_code);
     }
 
     /* Add response code for sending to tap */
     stat_info->response_code = response_code;
 
     /* Skip past the responce code and possible trailing space */
-    offset =  SIP2_HDR_LEN + 1 + 3 + 1;
+    offset = offset + 3 + 1;
 
     /* Check for diagnostics */
-    diag_len = line_end - offset;
+    diag_len = line_end - (SIP2_HDR_LEN + 1 + 3 + 1);
     if((diag_len) <= 0)
         return;
 
