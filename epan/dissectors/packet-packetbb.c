@@ -455,7 +455,7 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   }
   else if ((address_flags & ADDR_HASZEROTAIL) != 0) {
     /* add zero tail */
-    proto_tree_add_item(addr_tree, hf_packetbb_addr_head, tvb, tail_index, 1, ENC_NA);
+    proto_tree_add_item(addr_tree, hf_packetbb_addr_tail, tvb, tail_index, 1, ENC_NA);
   }
   for (i=0; i<numAddr; i++) {
     guint32 ipv4 = (addr[0] << 24) + (addr[1] << 16) + (addr[2] << 8) + addr[3];
