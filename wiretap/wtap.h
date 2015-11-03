@@ -1433,6 +1433,23 @@ typedef struct wtapng_name_res_s {
     /* XXX */
 } wtapng_name_res_t;
 
+#ifndef MAXNAMELEN
+#define MAXNAMELEN  	64	/* max name length (hostname and port name) */
+#endif
+
+typedef struct hashipv4 {
+    guint             addr;
+    guint8            flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
+    gchar             ip[16];
+    gchar             name[MAXNAMELEN];
+} hashipv4_t;
+
+typedef struct hashipv6 {
+    guint8            addr[16];
+    guint8            flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
+    gchar             ip6[40];
+    gchar             name[MAXNAMELEN];
+} hashipv6_t;
 
 /** A struct with lists of resolved addresses.
  *  Used when writing name resoultion blocks (NRB)

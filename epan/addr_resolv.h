@@ -89,20 +89,7 @@ typedef struct serv_port {
 
 #define DUMMY_AND_RESOLVE_FLGS   (DUMMY_ADDRESS_ENTRY | TRIED_RESOLVE_ADDRESS)
 #define USED_AND_RESOLVED_MASK   (DUMMY_ADDRESS_ENTRY | RESOLVED_ADDRESS_USED)
-typedef struct hashipv4 {
-    guint             addr;
-    guint8            flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
-    gchar             ip[16];
-    gchar             name[MAXNAMELEN];
-} hashipv4_t;
 
-
-typedef struct hashipv6 {
-    struct e_in6_addr addr;
-    guint8            flags;          /* B0 dummy_entry, B1 resolve, B2 If the address is used in the trace */
-    gchar             ip6[MAX_IP6_STR_LEN]; /* XX */
-    gchar             name[MAXNAMELEN];
-} hashipv6_t;
 /*
  * Flag controlling what names to resolve.
  */

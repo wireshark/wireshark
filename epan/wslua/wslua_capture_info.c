@@ -424,7 +424,7 @@ static int CaptureInfoConst_get_hosts(lua_State* L) {
                 /* create the entry table */
                 lua_newtable(L);
                 /* addr is in network order already */
-                lua_pushlstring(L, (char*)(&ipv6_hash_list_entry->addr.bytes[0]), 16);
+                lua_pushlstring(L, (char*)(&ipv6_hash_list_entry->addr[0]), 16);
                 lua_setfield(L, -2, "addr");
                 lua_pushstring(L, ipv6_hash_list_entry->name);
                 lua_setfield(L, -2, "name");
