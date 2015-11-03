@@ -86,6 +86,7 @@ PIDL_DISSECTOR_INCLUDES = \
 	packet-dcerpc-rfr.h	\
 	packet-dcerpc-srvsvc.h	\
 	packet-dcerpc-winreg.h	\
+	packet-dcerpc-witness.h	\
 	packet-dcerpc-wkssvc.h	\
 	packet-dcerpc-wzcsvc.h	\
 	packet-dcerpc-frstrans.h
