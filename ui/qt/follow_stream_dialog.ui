@@ -35,6 +35,9 @@
      <property name="text">
       <string>Hint.</string>
      </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
@@ -131,5 +134,6 @@
    <header>follow_stream_text.h</header>
   </customwidget>
  </customwidgets>
+ <resources/>
  <connections/>
 </ui>
