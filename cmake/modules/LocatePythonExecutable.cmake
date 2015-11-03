@@ -7,11 +7,13 @@ if(WIN32)
     if(NOT PYTHON_EXECUTABLE)
         get_filename_component(PYTHON_EXECUTABLE
             "[HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Python.exe]"
+            ABSOLUTE CACHE
         )
     endif()
     if(NOT PYTHON_EXECUTABLE)
         get_filename_component(PYTHON_EXECUTABLE
             "[HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\Python.exe]"
+            ABSOLUTE CACHE
         )
     endif()
     if(NOT PYTHON_EXECUTABLE)
