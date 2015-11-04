@@ -9721,6 +9721,8 @@ proto_register_skinny(void)
     " \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &skinny_desegment);
 
+  skinny_handle = new_register_dissector("skinny", dissect_skinny, proto_skinny);
+
   skinny_tap = register_tap("skinny");
 }
 
@@ -9729,7 +9731,6 @@ proto_reg_handoff_skinny(void)
 {
   /* Skinny content type and internet media type used by other dissectors are the same */
   media_type_dissector_table = find_dissector_table("media_type");
-  skinny_handle = new_create_dissector_handle(dissect_skinny, proto_skinny);
   dissector_add_uint("tcp.port", TCP_PORT_SKINNY, skinny_handle);
   ssl_dissector_add(SSL_PORT_SKINNY, "skinny", TRUE);
 }
