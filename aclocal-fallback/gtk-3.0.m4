@@ -6,17 +6,21 @@ dnl Test for GTK+, and define GTK_CFLAGS and GTK_LIBS, if gthread is specified i
 dnl pass to pkg-config
 dnl
 AC_DEFUN([AM_PATH_GTK_3_0],
-[dnl
+[m4_warn([obsolete], [AM_PATH_GTK_3_0 is deprecated, use PKG_CHECK_MODULES([GTK], [gtk+-3.0]) instead])
 dnl Get the cflags and libraries from pkg-config
 dnl
 AC_ARG_ENABLE(gtktest, [  --disable-gtktest       do not try to compile and run a test GTK+ program],
 		    , enable_gtktest=yes)
+  min_gtk_version=ifelse([$1], [], [3.0.0], [$1])
 
-  pkg_config_module=gtk+-3.0
+  pkg_config_args="gtk+-3.0 >= $min_gtk_version"
   for module in . $4
   do
-      # No modules to check for now
-      :
+      case "$module" in
+         gthread)
+             pkg_config_args="$pkg_config_args gthread-2.0"
+         ;;
+      esac
   done
 
   no_gtk=""
@@ -35,17 +39,16 @@ AC_ARG_ENABLE(gtktest, [  --disable-gtktest       do not try to compile and run 
     no_gtk=yes
   fi
 
-  min_gtk_version=ifelse([$1], ,3.0.0,$1)
   AC_MSG_CHECKING(for GTK+ - version >= $min_gtk_version)
 
   if test x$PKG_CONFIG != xno ; then
     ## don't try to run the test against uninstalled libtool libs
-    if $PKG_CONFIG --uninstalled $pkg_config_module; then
+    if $PKG_CONFIG --uninstalled $pkg_config_args; then
 	  echo "Will use uninstalled version of GTK+ found in PKG_CONFIG_PATH"
 	  enable_gtktest=no
     fi
 
-    if $PKG_CONFIG --atleast-version $min_gtk_version $pkg_config_module; then
+    if $PKG_CONFIG $pkg_config_args; then
 	  :
     else
 	  no_gtk=yes
@@ -53,13 +56,13 @@ AC_ARG_ENABLE(gtktest, [  --disable-gtktest       do not try to compile and run 
   fi
 
   if test x"$no_gtk" = x ; then
-    GTK_CFLAGS=`$PKG_CONFIG $pkg_config_module --cflags`
-    GTK_LIBS=`$PKG_CONFIG $pkg_config_module --libs`
-    gtk_config_major_version=`$PKG_CONFIG --modversion $pkg_config_module | \
+    GTK_CFLAGS=`$PKG_CONFIG $pkg_config_args --cflags`
+    GTK_LIBS=`$PKG_CONFIG $pkg_config_args --libs`
+    gtk_config_major_version=`$PKG_CONFIG --modversion gtk+-3.0 | \
            sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
-    gtk_config_minor_version=`$PKG_CONFIG --modversion $pkg_config_module | \
+    gtk_config_minor_version=`$PKG_CONFIG --modversion gtk+-3.0 | \
            sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`
-    gtk_config_micro_version=`$PKG_CONFIG --modversion $pkg_config_module | \
+    gtk_config_micro_version=`$PKG_CONFIG --modversion gtk+-3.0 | \
            sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
     if test "x$enable_gtktest" = "xyes" ; then
       ac_save_CFLAGS="$CFLAGS"
@@ -79,14 +82,11 @@ dnl
 int
 main ()
 {
-  int major, minor, micro;
-  char *tmp_version;
+  unsigned int major, minor, micro;
 
   fclose (fopen ("conf.gtktest", "w"));
 
-  /* HP/UX 9 (%@#!) writes to sscanf strings */
-  tmp_version = g_strdup("$min_gtk_version");
-  if (sscanf(tmp_version, "%d.%d.%d", &major, &minor, &micro) != 3) {
+  if (sscanf("$min_gtk_version", "%u.%u.%u", &major, &minor, &micro) != 3) {
      printf("%s, bad version string\n", "$min_gtk_version");
      exit(1);
    }
@@ -95,7 +95,7 @@ main ()
       (gtk_minor_version != $gtk_config_minor_version) ||
       (gtk_micro_version != $gtk_config_micro_version))
     {
-      printf("\n*** 'pkg-config --modversion $pkg_config_module' returned %d.%d.%d, but GTK+ (%d.%d.%d)\n",
+      printf("\n*** 'pkg-config --modversion gtk+-3.0' returned %d.%d.%d, but GTK+ (%d.%d.%d)\n",
              $gtk_config_major_version, $gtk_config_minor_version, $gtk_config_micro_version,
              gtk_major_version, gtk_minor_version, gtk_micro_version);
       printf ("*** was found! If pkg-config was correct, then it is best\n");
@@ -125,9 +125,9 @@ main ()
        }
      else
       {
-        printf("\n*** An old version of GTK+ (%d.%d.%d) was found.\n",
+        printf("\n*** An old version of GTK+ (%u.%u.%u) was found.\n",
                gtk_major_version, gtk_minor_version, gtk_micro_version);
-        printf("*** You need a version of GTK+ newer than %d.%d.%d. The latest version of\n",
+        printf("*** You need a version of GTK+ newer than %u.%u.%u. The latest version of\n",
 	       major, minor, micro);
         printf("*** GTK+ is always available from ftp://ftp.gtk.org.\n");
         printf("***\n");
@@ -190,4 +190,28 @@ main ()
   AC_SUBST(GTK_CFLAGS)
   AC_SUBST(GTK_LIBS)
   rm -f conf.gtktest
+])
+
+dnl GTK_CHECK_BACKEND(BACKEND-NAME [, MINIMUM-VERSION [, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]]])
+dnl   Tests for BACKEND-NAME in the GTK targets list
+dnl
+AC_DEFUN([GTK_CHECK_BACKEND],
+[m4_warn([obsolete], [GTK_CHECK_BACKEND is deprecated, use PKG_CHECK_MODULES([GTK_X11], [gtk+-x11-3.0]) or similar instead])
+  pkg_config_args=ifelse([$1],,gtk+-3.0, gtk+-$1-3.0)
+  min_gtk_version=ifelse([$2],,3.0.0,$2)
+  pkg_config_args="$pkg_config_args >= $min_gtk_version"
+
+  AC_PATH_PROG(PKG_CONFIG, [pkg-config], [AC_MSG_ERROR([No pkg-config found])])
+
+  if $PKG_CONFIG $pkg_config_args ; then
+    target_found=yes
+  else
+    target_found=no
+  fi
+
+  if test "x$target_found" = "xno"; then
+    ifelse([$4],,[AC_MSG_ERROR([Backend $backend not found.])],[$4])
+  else
+    ifelse([$3],,[:],[$3])
+  fi
 ])
