@@ -3988,7 +3988,7 @@
 				<gavp name="Final-Unit-Indication"/>
 			</grouped>
 		</avp>
-		<avp name="Application-Detection-Information" code="1098" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGP     P">
+		<avp name="Application-Detection-Information" code="1098" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="TDF-Application-Identifier"/>
 				<gavp name="TDF-Application-Instance-Identifier"/>
