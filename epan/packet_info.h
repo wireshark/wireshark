@@ -140,8 +140,6 @@ typedef struct _packet_info {
      whether the data was modified by a man in the middle) but not sealed
      (i.e., the data itself wasn't encrypted).
   */
-#define DECRYPT_GSSAPI_NORMAL   1
-#define DECRYPT_GSSAPI_DCE  2
   guint16 decrypt_gssapi_tvb;
   tvbuff_t *gssapi_wrap_tvb;
   tvbuff_t *gssapi_encrypted_tvb;

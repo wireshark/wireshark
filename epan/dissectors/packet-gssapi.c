@@ -182,7 +182,7 @@ gssapi_lookup_oid_str(const char *oid_key)
 
 static int
 dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		    gboolean is_verifier)
+		    gboolean is_verifier, gssapi_encrypt_info_t* encrypt_info)
 {
 	proto_item *volatile item;
 	proto_tree *volatile subtree;
@@ -212,7 +212,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * not, for now.  The subdissector must set gssapi_data_encrypted
 	 * if it is.
 	 */
-	pinfo->gssapi_data_encrypted = FALSE;
+	encrypt_info->gssapi_data_encrypted = FALSE;
 
 
 	/*
@@ -325,7 +325,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				return_offset = call_dissector(ntlmssp_payload_handle,
 							tvb_new_subset_remaining(gss_tvb, start_offset),
 							pinfo, subtree);
-				pinfo->gssapi_data_encrypted = TRUE;
+				encrypt_info->gssapi_data_encrypted = TRUE;
 				goto done;
 			}
 			if ((tvb_captured_length_remaining(gss_tvb, start_offset)==16) &&
@@ -335,11 +335,11 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 									tvb_new_subset_remaining(gss_tvb, start_offset),
 									pinfo, subtree);
 				}
-				else if( pinfo->gssapi_encrypted_tvb ) {
+				else if( encrypt_info->gssapi_encrypted_tvb ) {
 					return_offset = call_dissector(ntlmssp_data_only_handle,
-									tvb_new_subset_remaining(pinfo->gssapi_encrypted_tvb, 0),
+									tvb_new_subset_remaining(encrypt_info->gssapi_encrypted_tvb, 0),
 									pinfo, subtree);
-					pinfo->gssapi_data_encrypted = TRUE;
+					encrypt_info->gssapi_data_encrypted = TRUE;
 				}
 		   		goto done;
 		  	}
@@ -348,9 +348,9 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		  if ((tvb_captured_length_remaining(gss_tvb, start_offset)>2) &&
 		      ((tvb_memeql(gss_tvb, start_offset, "\04\x04", 2) == 0) ||
 		       (tvb_memeql(gss_tvb, start_offset, "\05\x04", 2) == 0))) {
-		    return_offset = call_dissector(spnego_krb5_wrap_handle,
+		    return_offset = call_dissector_with_data(spnego_krb5_wrap_handle,
 						   tvb_new_subset_remaining(gss_tvb, start_offset),
-						   pinfo, subtree);
+						   pinfo, subtree, encrypt_info);
 		    goto done;
 		  }
 
@@ -397,7 +397,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			handle = oidvalue->wrap_handle;
 		    else
 			handle = oidvalue->handle;
-		    len = call_dissector(handle, oid_tvb_local, pinfo, subtree);
+		    len = call_dissector_with_data(handle, oid_tvb_local, pinfo, subtree, encrypt_info);
 		    if (len == 0)
 			return_offset = tvb_captured_length(gss_tvb);
 		    else
@@ -475,8 +475,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			handle = oidvalue->wrap_handle;
 			if (handle != NULL) {
 				oid_tvb = tvb_new_subset_remaining(gss_tvb, offset);
-				len = call_dissector(handle, oid_tvb, pinfo,
-				    subtree);
+				len = call_dissector_with_data(handle, oid_tvb, pinfo, subtree, encrypt_info);
 				if (len == 0)
 					return_offset = tvb_captured_length(gss_tvb);
 				else
@@ -489,8 +488,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			handle = oidvalue->handle;
 			if (handle != NULL) {
 				oid_tvb = tvb_new_subset_remaining(gss_tvb, offset);
-				len = call_dissector(handle, oid_tvb, pinfo,
-				    subtree);
+				len = call_dissector_with_data(handle, oid_tvb, pinfo, subtree, encrypt_info);
 				if (len == 0)
 					return_offset = tvb_captured_length(gss_tvb);
 				else
@@ -523,10 +521,21 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return return_offset;
 }
 
+/* XXX - This should be TEMPORARY until these members in are removed from packet_info */
+static void packet_info_to_gssapi_encrypt(packet_info *pinfo, gssapi_encrypt_info_t* encrypt_info)
+{
+	encrypt_info->decrypt_gssapi_tvb = pinfo->decrypt_gssapi_tvb;
+	encrypt_info->gssapi_wrap_tvb = pinfo->gssapi_wrap_tvb;
+	encrypt_info->gssapi_encrypted_tvb = pinfo->gssapi_encrypted_tvb;
+	encrypt_info->gssapi_decrypted_tvb = pinfo->gssapi_decrypted_tvb;
+	encrypt_info->gssapi_data_encrypted = pinfo->gssapi_data_encrypted;
+}
+
 static int
 dissect_gssapi_work_wrapper(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gssapi_encrypt_info_t* encrypt_info, gboolean is_verifier)
 {
 	int ret;
+	gssapi_encrypt_info_t pass_encrypt_info;
 
 	/* XXX - This is setup to hopefully remove the need for these members in packet_info
 	 * Setup the dissector to take them as arguments and for now, convert to
@@ -534,24 +543,22 @@ dissect_gssapi_work_wrapper(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	if (encrypt_info != NULL)
 	{
-		pinfo->decrypt_gssapi_tvb = encrypt_info->decrypt_gssapi_tvb;
-		pinfo->gssapi_wrap_tvb = encrypt_info->gssapi_wrap_tvb;
-		pinfo->gssapi_encrypted_tvb = encrypt_info->gssapi_encrypted_tvb;
-		pinfo->gssapi_decrypted_tvb = encrypt_info->gssapi_decrypted_tvb;
-		pinfo->gssapi_data_encrypted = encrypt_info->gssapi_data_encrypted;
+		pass_encrypt_info = *encrypt_info;
+	}
+	else
+	{
+		packet_info_to_gssapi_encrypt(pinfo, &pass_encrypt_info);
 	}
 
-	ret = dissect_gssapi_work(tvb, pinfo, tree, is_verifier);
+	ret = dissect_gssapi_work(tvb, pinfo, tree, is_verifier, &pass_encrypt_info);
 
 	if (encrypt_info != NULL)
 	{
-		/* Reassign the data from packet_info and clean up */
-		encrypt_info->gssapi_data_encrypted = pinfo->gssapi_data_encrypted;
-		encrypt_info->decrypt_gssapi_tvb = pinfo->decrypt_gssapi_tvb;
-		encrypt_info->gssapi_wrap_tvb = pinfo->gssapi_wrap_tvb;
-		encrypt_info->gssapi_encrypted_tvb = pinfo->gssapi_encrypted_tvb;
-		encrypt_info->gssapi_decrypted_tvb = pinfo->gssapi_decrypted_tvb;
-
+		*encrypt_info = pass_encrypt_info;
+	}
+	else
+	{
+		/* Just clean up */
 		pinfo->decrypt_gssapi_tvb=0;
 		pinfo->gssapi_wrap_tvb=NULL;
 		pinfo->gssapi_encrypted_tvb=NULL;

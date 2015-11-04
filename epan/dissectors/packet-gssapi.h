@@ -36,6 +36,9 @@ typedef struct _gssapi_oid_value {
 
 /* Created as an attempt to remove members out of packet_info.
    Data structure to be passed between dissectors */
+#define DECRYPT_GSSAPI_NORMAL   1
+#define DECRYPT_GSSAPI_DCE  2
+
 typedef struct _gssapi_encrypt_info
 {
 	guint16 decrypt_gssapi_tvb;

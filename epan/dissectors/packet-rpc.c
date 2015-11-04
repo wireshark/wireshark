@@ -42,6 +42,8 @@
 #include "packet-rpc.h"
 #include "packet-tcp.h"
 #include "packet-nfs.h"
+#include "packet-dcerpc.h"
+#include "packet-gssapi.h"
 
 /*
  * See:
@@ -1591,7 +1593,7 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 
 static int
 dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, int offset,
-			      packet_info *pinfo _U_)
+			      packet_info *pinfo, gssapi_encrypt_info_t* gssapi_encrypt)
 {
 	int length;
 	/* int return_offset; */
@@ -1611,11 +1613,11 @@ dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, int offset,
 		return offset;
 	}
 
-	/* return_offset = */ call_dissector(spnego_krb5_wrap_handle,
+	/* return_offset = */ call_dissector_with_data(spnego_krb5_wrap_handle,
 		             tvb_new_subset_remaining(tvb, offset),
-			     pinfo, tree);
+			     pinfo, tree, gssapi_encrypt);
 
-	if (!pinfo->gssapi_decrypted_tvb) {
+	if (!gssapi_encrypt->gssapi_decrypted_tvb) {
 		/* failed to decrypt the data */
 		offset += length;
 		return offset;
@@ -1994,7 +1996,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gboolean dissect_rpc_flag = TRUE;
 
 	rpc_conv_info_t *rpc_conv_info=NULL;
-
+	gssapi_encrypt_info_t gssapi_encrypt;
 
 	/*
 	 * Check to see whether this looks like an RPC call or reply.
@@ -2728,24 +2730,23 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* If this is encrypted data we have to try to decrypt the data first before we
 	 * we create a tree.
 	 * the reason for this is because if we can decrypt the data we must create the
-	 * item/tree for the next protocol using the decrypted tdb and not the current
+	 * item/tree for the next protocol using the decrypted tvb and not the current
 	 * tvb.
 	 */
-	pinfo->decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
-	pinfo->gssapi_wrap_tvb=NULL;
-	pinfo->gssapi_encrypted_tvb=NULL;
-	pinfo->gssapi_decrypted_tvb=NULL;
+	memset(&gssapi_encrypt, 0, sizeof(gssapi_encrypt));
+	gssapi_encrypt.decrypt_gssapi_tvb=DECRYPT_GSSAPI_NORMAL;
+
 	if (flavor == FLAVOR_GSSAPI && gss_proc == RPCSEC_GSS_DATA && gss_svc == RPCSEC_GSS_SVC_PRIVACY) {
 		proto_tree *gss_tree;
 
 		gss_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gss_wrap, NULL, "GSS-Wrap");
 
-		offset = dissect_rpc_authgss_priv_data(tvb, gss_tree, offset, pinfo);
-		if (pinfo->gssapi_decrypted_tvb) {
-			proto_tree_add_item(gss_tree, hf_rpc_authgss_seq, pinfo->gssapi_decrypted_tvb, 0, 4, ENC_BIG_ENDIAN);
+		offset = dissect_rpc_authgss_priv_data(tvb, gss_tree, offset, pinfo, &gssapi_encrypt);
+		if (gssapi_encrypt.gssapi_decrypted_tvb) {
+			proto_tree_add_item(gss_tree, hf_rpc_authgss_seq, gssapi_encrypt.gssapi_decrypted_tvb, 0, 4, ENC_BIG_ENDIAN);
 
 			/* Switcheroo to the new tvb that contains the decrypted payload */
-			tvb = pinfo->gssapi_decrypted_tvb;
+			tvb = gssapi_encrypt.gssapi_decrypted_tvb;
 			offset = 4;
 		}
 	}
@@ -2860,13 +2861,13 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						progname, rpc_call);
 			}
 			else if (gss_svc == RPCSEC_GSS_SVC_PRIVACY) {
-				if (pinfo->gssapi_decrypted_tvb) {
+				if (gssapi_encrypt.gssapi_decrypted_tvb) {
 					call_dissect_function(
-						pinfo->gssapi_decrypted_tvb,
+						gssapi_encrypt.gssapi_decrypted_tvb,
 						pinfo, ptree, 4,
 						dissect_function,
 						progname, rpc_call);
-					offset = tvb_reported_length(pinfo->gssapi_decrypted_tvb);
+					offset = tvb_reported_length(gssapi_encrypt.gssapi_decrypted_tvb);
 				}
 			}
 			break;
