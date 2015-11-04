@@ -1411,7 +1411,7 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         }
     } /* tree */
 
-    if (dissector_data->decrypted || (sub_dissect == NULL))
+    if (!dissector_data->decrypted || (sub_dissect == NULL))
     {
         show_stub_data(tvb, 0, sub_tree, dissector_data->auth_info, !dissector_data->decrypted);
         return tvb_captured_length(tvb);
@@ -3819,7 +3819,6 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_item *pi;
     proto_item *parent_pi;
     proto_item *dcerpc_tree_item;
-    gboolean decrypted = FALSE;
 
     save_fragmented = pinfo->fragmented;
 
@@ -3876,7 +3875,6 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 hdr->ptype == PDU_REQ, auth_info);
 
             if (result) {
-                decrypted = TRUE;
                 proto_tree_add_item(dcerpc_tree, hf_dcerpc_encrypted_stub_data, payload_tvb, 0, -1, ENC_NA);
 
                 add_new_data_source(
@@ -3893,7 +3891,9 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (PFC_NOT_FRAGMENTED(hdr)) {
         pinfo->fragmented = FALSE;
 
-        dcerpc_try_handoff(pinfo, tree, dcerpc_tree, ((decrypted_tvb != NULL) ? decrypted_tvb : payload_tvb), decrypted,
+        dcerpc_try_handoff(pinfo, tree, dcerpc_tree,
+            ((decrypted_tvb != NULL) ? decrypted_tvb : payload_tvb),
+            ((decrypted_tvb != NULL) ? TRUE : FALSE),
             hdr->drep, di, auth_info);
 
         pinfo->fragmented = save_fragmented;
@@ -3915,7 +3915,9 @@ dissect_dcerpc_cn_stub(tvbuff_t *tvb, int offset, packet_info *pinfo,
     */
     if ( (!dcerpc_reassemble) && (hdr->flags & PFC_FIRST_FRAG) ) {
 
-        dcerpc_try_handoff(pinfo, tree, dcerpc_tree, ((decrypted_tvb != NULL) ? decrypted_tvb : payload_tvb), decrypted,
+        dcerpc_try_handoff(pinfo, tree, dcerpc_tree,
+            ((decrypted_tvb != NULL) ? decrypted_tvb : payload_tvb),
+            ((decrypted_tvb != NULL) ? TRUE : FALSE),
             hdr->drep, di, auth_info);
 
         expert_add_info_format(pinfo, NULL, &ei_dcerpc_fragment, "%s fragment", fragment_type(hdr->flags));
