@@ -4164,10 +4164,9 @@ ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, 
             dissector_add_uint("tcp.port", port, handle);
         else
             dissector_add_uint("udp.port", port, handle);
+        dissector_add_uint("sctp.port", port, handle);
     }
     g_tree_insert(associations, assoc, assoc);
-
-    dissector_add_uint("sctp.port", port, handle);
 }
 
 void
@@ -4175,8 +4174,10 @@ ssl_association_remove(GTree* associations, SslAssociation *assoc)
 {
     ssl_debug_printf("ssl_association_remove removing %s %u - %s handle %p\n",
                      (assoc->tcp)?"TCP":"UDP", assoc->ssl_port, assoc->info, (void *)(assoc->handle));
-    if (assoc->handle)
+    if (assoc->handle) {
         dissector_delete_uint((assoc->tcp)?"tcp.port":"udp.port", assoc->ssl_port, assoc->handle);
+        dissector_delete_uint("sctp.port", assoc->ssl_port, assoc->handle);
+    }
 
     g_free(assoc->info);
 
