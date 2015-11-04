@@ -59,6 +59,9 @@ void proto_register_pn_io(void);
 void proto_reg_handoff_pn_io(void);
 
 static int proto_pn_io = -1;
+static int proto_pn_io_controller = -1;
+static int proto_pn_io_supervisor = -1;
+static int proto_pn_io_parameterserver = -1;
 
 static int hf_pn_io_opnum = -1;
 static int hf_pn_io_reserved16 = -1;
@@ -12249,6 +12252,12 @@ proto_register_pn_io (void)
     expert_module_t* expert_pn_io;
 
     proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");
+
+    /* Created to remove Decode As confusion */
+    proto_pn_io_controller = proto_register_protocol ("PROFINET IO (Controller)", "PNIO (Controller)", "pn_io_controller");
+    proto_pn_io_supervisor = proto_register_protocol ("PROFINET IO (Supervisor)", "PNIO (Supervisor)", "pn_io_supervisor");
+    proto_pn_io_parameterserver = proto_register_protocol ("PROFINET IO (Parameter Server)", "PNIO (Parameter Server)", "pn_io_parameterserver");
+
     proto_register_field_array (proto_pn_io, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
     expert_pn_io = expert_register_protocol(proto_pn_io);
@@ -12269,9 +12278,9 @@ proto_reg_handoff_pn_io (void)
 {
     /* Register the protocols as dcerpc */
     dcerpc_init_uuid (proto_pn_io, ett_pn_io, &uuid_pn_io_device, ver_pn_io_device, pn_io_dissectors, hf_pn_io_opnum);
-    dcerpc_init_uuid (proto_pn_io, ett_pn_io, &uuid_pn_io_controller, ver_pn_io_controller, pn_io_dissectors, hf_pn_io_opnum);
-    dcerpc_init_uuid (proto_pn_io, ett_pn_io, &uuid_pn_io_supervisor, ver_pn_io_supervisor, pn_io_dissectors, hf_pn_io_opnum);
-    dcerpc_init_uuid (proto_pn_io, ett_pn_io, &uuid_pn_io_parameterserver, ver_pn_io_parameterserver, pn_io_dissectors, hf_pn_io_opnum);
+    dcerpc_init_uuid (proto_pn_io_controller, ett_pn_io, &uuid_pn_io_controller, ver_pn_io_controller, pn_io_dissectors, hf_pn_io_opnum);
+    dcerpc_init_uuid (proto_pn_io_supervisor, ett_pn_io, &uuid_pn_io_supervisor, ver_pn_io_supervisor, pn_io_dissectors, hf_pn_io_opnum);
+    dcerpc_init_uuid (proto_pn_io_parameterserver, ett_pn_io, &uuid_pn_io_parameterserver, ver_pn_io_parameterserver, pn_io_dissectors, hf_pn_io_opnum);
 
     heur_dissector_add("pn_rt", dissect_PNIO_heur, "PROFINET IO", "pn_io_pn_rt", proto_pn_io, HEURISTIC_ENABLE);
 }
