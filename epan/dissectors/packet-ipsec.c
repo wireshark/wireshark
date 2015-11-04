@@ -1678,7 +1678,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           crypt_algo_libgcrypt = GCRY_CIPHER_3DES;
           crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
 
-          decrypted_len = len - (int)sizeof(struct newesp);
+          decrypted_len = len - 8;
 
           if (decrypted_len <= 0)
             decrypt_ok = FALSE;
@@ -1713,7 +1713,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           esp_iv_len = 16;
           crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
 
-          decrypted_len = len - (int)sizeof(struct newesp);
+          decrypted_len = len - 8;
 
           if (decrypted_len <= 0)
             decrypt_ok = FALSE;
@@ -1761,7 +1761,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           esp_iv_len = 8;
           crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
 
-          decrypted_len = len - (int)sizeof(struct newesp);
+          decrypted_len = len - 8;
 
           if (decrypted_len <= 0)
             decrypt_ok = FALSE;
@@ -1798,7 +1798,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           esp_iv_len = 8;
           crypt_algo_libgcrypt = GCRY_CIPHER_DES;
           crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
-          decrypted_len = len - (int)sizeof(struct newesp);
+          decrypted_len = len - 8;
 
           if (decrypted_len <= 0)
             decrypt_ok = FALSE;
@@ -1834,7 +1834,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           esp_iv_len = 8;
           crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CTR;
 
-          decrypted_len = len - (int)sizeof(struct newesp);
+          decrypted_len = len - 8;
 
           if (decrypted_len <= 0)
             decrypt_ok = FALSE;
@@ -1881,7 +1881,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           esp_iv_len = 16;
           crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
 
-          decrypted_len = len - (int)sizeof(struct newesp);
+          decrypted_len = len - 8;
 
           if (decrypted_len <= 0)
             decrypt_ok = FALSE;
@@ -1927,7 +1927,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           crypt_algo_libgcrypt = GCRY_CIPHER_BLOWFISH;
           crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
 
-          decrypted_len = len - (int)sizeof(struct newesp);
+          decrypted_len = len - 8;
 
           if (decrypted_len <= 0)
             decrypt_ok = FALSE;
@@ -1953,7 +1953,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         default :
           /* Fix parameters */
           esp_iv_len = 0;
-          decrypted_len = len - (int)sizeof(struct newesp);
+          decrypted_len = len - 8;
 
           if (decrypted_len <= 0)
             decrypt_ok = FALSE;
@@ -2160,7 +2160,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   */
   if(!g_esp_enable_encryption_decode && g_esp_enable_authentication_check && sad_is_present)
   {
-    next_tvb = tvb_new_subset(tvb, (int)sizeof(struct newesp), len - (int)sizeof(struct newesp) - esp_auth_len, -1);
+    next_tvb = tvb_new_subset(tvb, 8, len - 8 - esp_auth_len, -1);
     export_ipsec_pdu(data_handle, pinfo, next_tvb);
     call_dissector(data_handle, next_tvb, pinfo, esp_tree);
 
@@ -2189,8 +2189,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (dissector_handle) {
           saved_match_uint  = pinfo->match_uint;
           pinfo->match_uint = encapsulated_protocol;
-          next_tvb = tvb_new_subset(tvb, (int)sizeof(struct newesp), -1,
-                                    len - (int)sizeof(struct newesp) - 14 - esp_pad_len);
+          next_tvb = tvb_new_subset_length(tvb, 8, len - 8 - 14 - esp_pad_len);
           export_ipsec_pdu(dissector_handle, pinfo, next_tvb);
           call_dissector(dissector_handle, next_tvb, pinfo, tree);
           pinfo->match_uint = saved_match_uint;
