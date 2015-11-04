@@ -5209,6 +5209,7 @@ dissect_openflow_flow_update_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 
 
+#define OFPMPF_REPLY_MORE  1 << 0
 static void
 dissect_openflow_multipart_reply_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length)
 {
@@ -9171,8 +9172,8 @@ proto_register_openflow_v5(void)
                NULL, HFILL }
         },
         { &hf_openflow_v5_multipart_reply_flags_more,
-            { "OFPMPF_REQ_MORE", "openflow_v5.multipart_reply.flags.more",
-               FT_UINT16, BASE_HEX, NULL, OFPMPF_REQ_MORE,
+            { "OFPMPF_REPLY_MORE", "openflow_v5.multipart_reply.flags.more",
+               FT_UINT16, BASE_HEX, NULL, OFPMPF_REPLY_MORE,
                NULL, HFILL }
         },
         { &hf_openflow_v5_multipart_reply_pad,
