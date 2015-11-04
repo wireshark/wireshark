@@ -34,6 +34,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <wsutil/str_util.h>
 #include "packet-bssap.h"
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"

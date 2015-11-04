@@ -35,12 +35,13 @@
 
 #include <string.h>
 
-
 #include <epan/packet.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/addr_resolv.h>
 #include <epan/dissectors/packet-h225.h>
 #include <epan/dissectors/packet-h248.h>
+
+#include <wsutil/str_util.h>
 
 #include "../globals.h"
 

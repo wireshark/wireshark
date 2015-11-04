@@ -24,7 +24,6 @@
 #define __RINGBUFFER_H__
 
 #include <stdio.h>
-#include "file.h"
 #include "wiretap/wtap.h"
 
 #define RINGBUFFER_UNLIMITED_FILES 0

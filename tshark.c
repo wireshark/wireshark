@@ -86,7 +86,6 @@
 #ifdef HAVE_LUA
 #include <epan/wslua/init_wslua.h>
 #endif
-#include "file.h"
 #include "frame_tvbuff.h"
 #include <epan/disabled_protos.h>
 #include <epan/prefs.h>
@@ -129,6 +128,8 @@
 #endif /* HAVE_LIBPCAP */
 #include "log.h"
 #include <epan/funnel.h>
+
+#include <wsutil/str_util.h>
 
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>

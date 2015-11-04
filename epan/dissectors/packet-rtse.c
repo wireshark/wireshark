@@ -38,6 +38,8 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 
+#include <wsutil/str_util.h>
+
 #include "packet-ber.h"
 #include "packet-pres.h"
 #include "packet-acse.h"
@@ -91,7 +93,7 @@ static int hf_rtse_t61String = -1;                /* T_t61String */
 static int hf_rtse_octetString = -1;              /* T_octetString */
 
 /*--- End of included file: packet-rtse-hf.c ---*/
-#line 58 "../../asn1/rtse/packet-rtse-template.c"
+#line 60 "../../asn1/rtse/packet-rtse-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_rtse = -1;
@@ -108,7 +110,7 @@ static gint ett_rtse_SessionConnectionIdentifier = -1;
 static gint ett_rtse_CallingSSuserReference = -1;
 
 /*--- End of included file: packet-rtse-ett.c ---*/
-#line 62 "../../asn1/rtse/packet-rtse-template.c"
+#line 64 "../../asn1/rtse/packet-rtse-template.c"
 
 static expert_field ei_rtse_dissector_oid_not_implemented = EI_INIT;
 static expert_field ei_rtse_unknown_rtse_pdu = EI_INIT;
@@ -735,7 +737,7 @@ dissect_rtse_RTSE_apdus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 /*--- End of included file: packet-rtse-fn.c ---*/
-#line 192 "../../asn1/rtse/packet-rtse-template.c"
+#line 194 "../../asn1/rtse/packet-rtse-template.c"
 
 /*
 * Dissect RTSE PDUs inside a PPDU.
@@ -1007,7 +1009,7 @@ void proto_register_rtse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 363 "../../asn1/rtse/packet-rtse-template.c"
+#line 365 "../../asn1/rtse/packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -1029,7 +1031,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 372 "../../asn1/rtse/packet-rtse-template.c"
+#line 374 "../../asn1/rtse/packet-rtse-template.c"
   };
 
   static ei_register_info ei[] = {

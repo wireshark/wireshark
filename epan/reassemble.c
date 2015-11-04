@@ -29,6 +29,8 @@
 #include <epan/reassemble.h>
 #include <epan/tvbuff-int.h>
 
+#include <wsutil/str_util.h>
+
 /*
  * Functions for reassembly tables where the endpoint addresses, and a
  * fragment ID, are used as the key.

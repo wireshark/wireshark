@@ -51,6 +51,7 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/conversation.h>
+#include <wsutil/str_util.h>
 #include "packet-x509if.h"
 #include "packet-x509af.h"
 #include "packet-isakmp.h"

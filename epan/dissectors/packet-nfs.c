@@ -36,6 +36,7 @@
 #include <epan/decode_as.h>
 #include <wsutil/crc16.h>
 #include <wsutil/crc32.h>
+#include <wsutil/str_util.h>
 #include "packet-nfs.h"
 
 void proto_register_nfs(void);

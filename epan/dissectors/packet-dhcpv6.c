@@ -58,6 +58,7 @@
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <epan/arptypes.h>
+#include <wsutil/str_util.h>
 #include "packet-tcp.h"
 #include "packet-arp.h"
 

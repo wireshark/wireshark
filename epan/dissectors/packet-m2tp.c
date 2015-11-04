@@ -31,6 +31,8 @@
 
 #include <epan/packet.h>
 
+#include <wsutil/str_util.h>
+
 #define M2TP_PAYLOAD_PROTOCOL_ID                       99    /* s-link, not IANA-registered */
 
 void proto_register_m2tp(void);

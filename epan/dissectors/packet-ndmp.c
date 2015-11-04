@@ -32,6 +32,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <wsutil/str_util.h>
 #include "packet-rpc.h"
 #include "packet-ndmp.h"
 #include "packet-tcp.h"

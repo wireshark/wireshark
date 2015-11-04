@@ -46,6 +46,7 @@
 #include <epan/tap.h>
 #include <epan/to_str.h>
 #include <wiretap/wtap.h>
+#include <wsutil/str_util.h>
 #include "packet-mtp3.h"
 #include "packet-tcap.h"
 #include "packet-sccp.h"

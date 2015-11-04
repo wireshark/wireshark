@@ -43,6 +43,8 @@
 #include <epan/to_str.h>
 #include <epan/sctpppids.h>
 
+#include <wsutil/str_util.h>
+
 void proto_register_enrp(void);
 void proto_reg_handoff_enrp(void);
 

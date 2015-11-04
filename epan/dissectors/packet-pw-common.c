@@ -24,6 +24,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <wsutil/str_util.h>
 #include "packet-pw-common.h"
 
 void proto_register_pw_padding(void);

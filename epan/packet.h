@@ -56,9 +56,6 @@ struct epan_range;
 	((guint)(offset) + (guint)(len) > (guint)(offset) && \
 	 (guint)(offset) + (guint)(len) <= (guint)(captured_len))
 
-/* To pass one of two strings, singular or plural */
-#define plurality(d,s,p) ((d) == 1 ? (s) : (p))
-
 typedef struct _packet_counts {
   gint           sctp;
   gint           tcp;

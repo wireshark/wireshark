@@ -29,6 +29,7 @@
 
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
+#include <wsutil/str_util.h>
 
 #define	SOH	(0x01)
 #define	STX	(0x02)

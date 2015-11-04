@@ -30,6 +30,8 @@
 
 #include <epan/packet.h>
 
+#include <wsutil/str_util.h>
+
 void proto_register_media(void);
 
 /* proto_media cannot be static because it's referenced in the

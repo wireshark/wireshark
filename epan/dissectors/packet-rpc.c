@@ -30,6 +30,7 @@
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <wsutil/pint.h>
+#include <wsutil/str_util.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tap.h>

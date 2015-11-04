@@ -40,6 +40,7 @@
 #include <epan/to_str.h>
 #include <epan/crc16-tvb.h>
 #include <wsutil/crc16.h>
+#include <wsutil/str_util.h>
 
 /*
  * See

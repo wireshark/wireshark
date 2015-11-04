@@ -34,6 +34,7 @@
 
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
+#include <wsutil/str_util.h>
 
 void proto_register_dua(void);
 void proto_reg_handoff_dua(void);

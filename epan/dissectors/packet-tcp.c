@@ -37,8 +37,9 @@
 #include <epan/reassemble.h>
 #include <epan/decode_as.h>
 #include <epan/in_cksum.h>
-#include <wsutil/utf8_entities.h>
 
+#include <wsutil/utf8_entities.h>
+#include <wsutil/str_util.h>
 #include <wsutil/sha1.h>
 
 #include "packet-tcp.h"

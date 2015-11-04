@@ -133,6 +133,7 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
+#include <wsutil/str_util.h>
 #include "packet-tcp.h"
 #include "packet-udp.h"
 #include "packet-ntp.h"

@@ -30,8 +30,8 @@
 
 #include <gtk/gtk.h>
 
-#include "file.h"
 #include <wsutil/filesystem.h>
+#include <wsutil/str_util.h>
 
 #include "../fileset.h"
 

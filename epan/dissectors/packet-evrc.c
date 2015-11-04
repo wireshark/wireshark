@@ -42,6 +42,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
+#include <wsutil/str_util.h>
 
 /* PROTOTYPES/FORWARDS */
 

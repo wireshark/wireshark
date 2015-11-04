@@ -56,6 +56,7 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
+#include <wsutil/str_util.h>
 #include <wsutil/utf8_entities.h>
 
 #include "packet-dccp.h"

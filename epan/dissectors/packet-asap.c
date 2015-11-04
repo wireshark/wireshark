@@ -44,6 +44,8 @@
 #include <epan/to_str.h>
 #include <epan/sctpppids.h>
 
+#include <wsutil/str_util.h>
+
 void proto_register_asap(void);
 void proto_reg_handoff_asap(void);
 

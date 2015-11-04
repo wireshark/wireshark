@@ -31,6 +31,7 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 #include <wiretap/wtap.h>
+#include <wsutil/str_util.h>
 
 #include "packet-frame.h"
 #include "packet-tcp.h"

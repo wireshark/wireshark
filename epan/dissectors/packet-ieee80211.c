@@ -83,6 +83,7 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <wsutil/pint.h>
+#include <wsutil/str_util.h>
 #include <epan/addr_resolv.h>
 #include <epan/address_types.h>
 #include <epan/strutil.h>

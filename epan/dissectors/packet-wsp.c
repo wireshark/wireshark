@@ -47,6 +47,8 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 
+#include <wsutil/str_util.h>
+
 #include "packet-wap.h"
 #include "packet-wsp.h"
 

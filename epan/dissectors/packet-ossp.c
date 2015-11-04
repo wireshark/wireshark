@@ -33,6 +33,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 
+#include <wsutil/str_util.h>
+
 /* General declarations */
 void proto_register_ossp(void);
 void proto_reg_handoff_ossp(void);

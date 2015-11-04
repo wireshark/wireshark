@@ -32,6 +32,8 @@
 #include <epan/ipproto.h>
 #include <epan/strutil.h>
 
+#include <wsutil/str_util.h>
+
 #include "packet-tcp.h"
 
 #include "packet-ber.h"

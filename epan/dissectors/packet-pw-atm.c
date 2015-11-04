@@ -40,6 +40,8 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 
+#include <wsutil/str_util.h>
+
 #include <wiretap/wtap.h> /*for atm pseudo header*/
 #include "packet-mpls.h"
 #include "packet-atm.h"

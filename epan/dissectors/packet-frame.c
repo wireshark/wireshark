@@ -38,6 +38,7 @@
 #include <epan/tap.h>
 #include <epan/expert.h>
 #include <wsutil/md5.h>
+#include <wsutil/str_util.h>
 
 #include "packet-frame.h"
 #include "log.h"

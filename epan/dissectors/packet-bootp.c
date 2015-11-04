@@ -121,6 +121,7 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 #include <epan/oui.h>
+#include <wsutil/str_util.h>
 void proto_register_bootp(void);
 void proto_reg_handoff_bootp(void);
 

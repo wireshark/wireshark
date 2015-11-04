@@ -31,6 +31,8 @@
 #include <epan/conversation.h>
 #include <epan/reassemble.h>
 
+#include <wsutil/str_util.h>
+
 #include "packet-ber.h"
 #include "packet-ses.h"
 

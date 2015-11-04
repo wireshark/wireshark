@@ -29,6 +29,7 @@
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <wsutil/md5.h>
+#include <wsutil/str_util.h>
 
 /* proto_data cannot be static because it's referenced in the
  * print routines

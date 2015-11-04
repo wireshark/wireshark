@@ -54,6 +54,7 @@
 #include "ui/ui_util.h"
 
 #include "wsutil/file_util.h"
+#include "wsutil/str_util.h"
 #include "log.h"
 
 typedef struct if_stat_cache_item_s {

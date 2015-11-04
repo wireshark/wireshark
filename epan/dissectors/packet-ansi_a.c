@@ -39,7 +39,6 @@
 
 #include "config.h"
 
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
@@ -48,6 +47,8 @@
 #include <epan/strutil.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
+
+#include <wsutil/str_util.h>
 
 #include "packet-rtp.h"
 #include "packet-bssap.h"

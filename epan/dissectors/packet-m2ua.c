@@ -33,6 +33,8 @@
 #include <epan/prefs.h>
 #include <epan/sctpppids.h>
 
+#include <wsutil/str_util.h>
+
 void proto_register_m2ua(void);
 void proto_reg_handoff_m2ua(void);
 

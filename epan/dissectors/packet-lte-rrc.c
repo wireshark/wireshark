@@ -45,6 +45,8 @@
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 
+#include <wsutil/str_util.h>
+
 #include "packet-per.h"
 #include "packet-rrc.h"
 #include "packet-gsm_a_common.h"
@@ -199,7 +201,7 @@ typedef enum _SI_OrPSI_GERAN_enum {
 } SI_OrPSI_GERAN_enum;
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 79 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 81 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -3076,7 +3078,7 @@ static int hf_lte_rrc_reserved_r12 = -1;          /* BIT_STRING_SIZE_19 */
 static int dummy_hf_lte_rrc_eag_field = -1; /* never registered */
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 84 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 86 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -4667,7 +4669,7 @@ static gint ett_lte_rrc_SBCCH_SL_BCH_Message = -1;
 static gint ett_lte_rrc_MasterInformationBlock_SL = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 266 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 268 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
@@ -45261,7 +45263,7 @@ static int dissect_UE_EUTRA_Capability_v9a0_IEs_PDU(tvbuff_t *tvb _U_, packet_in
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2668 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2670 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -56906,7 +56908,7 @@ void proto_register_lte_rrc(void) {
         "BIT_STRING_SIZE_19", HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2844 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2846 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -59026,7 +59028,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_MasterInformationBlock_SL,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 3555 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3557 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -59105,7 +59107,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 3617 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 3619 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
   register_cleanup_routine(&lte_rrc_cleanup_protocol);

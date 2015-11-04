@@ -33,6 +33,7 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <wsutil/str_util.h>
 #include "packet-ssl.h"
 #include "packet-ssl-utils.h"
 

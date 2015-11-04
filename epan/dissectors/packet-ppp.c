@@ -27,6 +27,7 @@
 
 #include <epan/packet.h>
 #include <wsutil/pint.h>
+#include <wsutil/str_util.h>
 #include <epan/prefs.h>
 #include "packet-ppp.h"
 #include <epan/ppptypes.h>

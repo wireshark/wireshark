@@ -35,6 +35,8 @@ Short description of the SML protocol on the SML Wireshark Wiki page:  https://w
 #include <epan/crc16-tvb.h>
 #include <epan/expert.h>
 
+#include <wsutil/str_util.h>
+
 #define TCP_PORT_SML		0
 #define UDP_PORT_SML		0
 

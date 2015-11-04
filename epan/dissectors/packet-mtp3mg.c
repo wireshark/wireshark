@@ -40,6 +40,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+#include <wsutil/str_util.h>
+
 #include "packet-mtp3.h"
 
 void proto_register_mtp3mg(void);

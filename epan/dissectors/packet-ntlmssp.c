@@ -42,6 +42,7 @@
 #include <wsutil/md5.h>
 #include <wsutil/des.h>
 #include <wsutil/crc32.h>
+#include <wsutil/str_util.h>
 
 #include "packet-windows-common.h"
 #include "packet-smb-common.h"

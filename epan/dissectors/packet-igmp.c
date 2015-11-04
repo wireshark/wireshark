@@ -113,6 +113,7 @@
 #include <epan/to_str.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
+#include <wsutil/str_util.h>
 #include "packet-igmp.h"
 
 void proto_register_igmp(void);

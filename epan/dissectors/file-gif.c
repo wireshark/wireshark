@@ -37,8 +37,9 @@
 
 #include "config.h"
 
-
 #include <epan/packet.h>
+
+#include <wsutil/str_util.h>
 
 void proto_register_gif(void);
 void proto_reg_handoff_gif(void);

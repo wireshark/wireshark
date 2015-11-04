@@ -50,6 +50,8 @@
 #include <epan/range.h>
 #include <epan/asm_utils.h>
 
+#include <wsutil/str_util.h>
+
 static gint proto_malformed = -1;
 static dissector_handle_t frame_handle = NULL;
 static dissector_handle_t file_handle = NULL;

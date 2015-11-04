@@ -28,6 +28,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <wsutil/str_util.h>
 void proto_register_ipars(void);
 
 static int      proto_ipars     = -1;

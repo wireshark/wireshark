@@ -47,6 +47,8 @@
 #include <epan/strutil.h>
 #include <epan/uat.h>
 
+#include <wsutil/str_util.h>
+
 #include "packet-p1.h"
 #include "packet-p22.h"
 #include "packet-s5066sis.h"

@@ -43,6 +43,8 @@
 #include <epan/asn1.h>
 #include <epan/in_cksum.h>
 
+#include <wsutil/str_util.h>
+
 #include "packet-cdt.h"
 #include "packet-ber.h"
 #include "packet-s5066sis.h"

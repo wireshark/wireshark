@@ -37,6 +37,8 @@
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 
+#include <wsutil/str_util.h>
+
 #include "packet-per.h"
 #include "packet-rrc.h"
 #include "packet-gsm_a_common.h"

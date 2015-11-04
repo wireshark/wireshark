@@ -53,6 +53,7 @@
 #include <epan/reassemble.h>
 #include <wsutil/frequency-utils.h>
 #include <wsutil/pint.h>
+#include <wsutil/str_util.h>
 
 /* Needed for wtap_pcap_encap_to_wtap_encap(). */
 #include <wiretap/pcap-encap.h>

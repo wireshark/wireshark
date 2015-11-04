@@ -36,6 +36,7 @@ proper helper routines
 #include <epan/to_str.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
+#include <wsutil/str_util.h>
 #include "packet-per.h"
 
 void proto_register_per(void);

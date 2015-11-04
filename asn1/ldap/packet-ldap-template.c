@@ -94,6 +94,7 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
+#include <wsutil/str_util.h>
 #include "packet-frame.h"
 #include "packet-tcp.h"
 #include "packet-windows-common.h"

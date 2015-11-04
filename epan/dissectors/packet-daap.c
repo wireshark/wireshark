@@ -25,6 +25,7 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
+#include <wsutil/str_util.h>
 #include "packet-http.h"
 
 #define TCP_PORT_DAAP 3689

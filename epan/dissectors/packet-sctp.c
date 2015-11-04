@@ -67,6 +67,7 @@
 #include <wsutil/crc32.h>
 #include <wsutil/adler32.h>
 #include <wsutil/utf8_entities.h>
+#include <wsutil/str_util.h>
 
 #include "packet-sctp.h"
 

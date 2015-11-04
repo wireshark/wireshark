@@ -46,6 +46,7 @@
 #include <epan/ax25_pids.h>
 #include <epan/decode_as.h>
 #include <wiretap/erf.h>
+#include <wsutil/str_util.h>
 
 #include "packet-ip.h"
 #include "packet-juniper.h"

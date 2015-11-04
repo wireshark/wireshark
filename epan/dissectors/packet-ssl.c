@@ -89,6 +89,7 @@
 #include <epan/tap.h>
 #include <epan/uat.h>
 #include <epan/exported_pdu.h>
+#include <wsutil/str_util.h>
 #include "packet-tcp.h"
 #include "packet-x509af.h"
 #include "packet-ocsp.h"

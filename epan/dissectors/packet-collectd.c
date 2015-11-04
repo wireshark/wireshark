@@ -31,6 +31,8 @@
 #include <epan/stats_tree.h>
 #include <epan/to_str.h>
 
+#include <wsutil/str_util.h>
+
 #define STR_NONNULL(str) ((str) ? (str) : "(null)")
 
 #define TYPE_HOST            0x0000

@@ -39,6 +39,8 @@
 #include <epan/aftypes.h>
 #include <epan/tap.h>
 
+#include <wsutil/str_util.h>
+
 #include "packet-iax2.h"
 #include <epan/iax2_codec_type.h>
 

@@ -27,9 +27,11 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
+#include <epan/oui.h>
+
+#include <wsutil/str_util.h>
 
 #include "packet-ieee802a.h"
-#include "oui.h"
 
 void proto_register_ecp_oui(void);
 void proto_reg_handoff_ecp(void);

@@ -31,6 +31,7 @@
 #include <epan/tap.h>
 #include <epan/stat_tap_ui.h>
 
+#include <wsutil/str_util.h>
 
 #include "ui/simple_dialog.h"
 

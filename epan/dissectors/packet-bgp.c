@@ -59,7 +59,6 @@
 
 #include "config.h"
 
-
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/addr_and_mask.h>
@@ -69,6 +68,7 @@
 #include <epan/expert.h>
 #include <epan/etypes.h>
 #include <epan/to_str.h>
+#include <wsutil/str_util.h>
 #include "packet-ip.h"
 #include "packet-ldp.h"
 #include "packet-bgp.h"

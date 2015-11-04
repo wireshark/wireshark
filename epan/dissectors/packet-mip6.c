@@ -58,6 +58,8 @@
 #include <epan/ip_opts.h>
 #include <epan/sminmpec.h>
 
+#include <wsutil/str_util.h>
+
 #include "packet-ntp.h"
 #include "packet-gtpv2.h"
 #include "packet-e164.h"

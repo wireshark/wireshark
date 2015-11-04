@@ -28,6 +28,7 @@
 #include <epan/nlpid.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include <wsutil/str_util.h>
 #include "packet-q931.h"
 #include "packet-arp.h"
 

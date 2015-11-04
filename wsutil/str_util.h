@@ -113,6 +113,9 @@ gchar *format_size(gint64 size, format_size_flags_e flags);
 WS_DLL_PUBLIC
 gchar printable_char_or_period(gchar c);
 
+/* To pass one of two strings, singular or plural */
+#define plurality(d,s,p) ((d) == 1 ? (s) : (p))
+
 #ifdef __cplusplus
 }
 

@@ -160,6 +160,7 @@
 #include "log.h"
 #include "wsutil/file_util.h"
 #include "wsutil/os_version_info.h"
+#include "wsutil/str_util.h"
 
 #include "caputils/ws80211_utils.h"
 

@@ -35,6 +35,8 @@
 #include <epan/tap.h>
 #include <epan/to_str.h>
 
+#include <wsutil/str_util.h>
+
 #include "packet-mtp3.h"
 #include "packet-sccp.h"
 void proto_register_sua(void);
