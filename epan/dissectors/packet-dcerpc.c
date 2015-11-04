@@ -1341,7 +1341,7 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     dcerpc_dissector_data_t* dissector_data = (dcerpc_dissector_data_t*)data;
     const gchar          *name     = NULL;
     dcerpc_sub_dissector *proc;
-    dcerpc_dissect_fnct_t *sub_dissect = NULL;
+    volatile dcerpc_dissect_fnct_t *sub_dissect = NULL;
     proto_item           *pi, *sub_item;
     proto_tree           *sub_tree;
     guint                 length, reported_length;
@@ -1418,7 +1418,7 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     }
 
     /* Either there was no encryption or we successfully decrypted
-        the encrypted payload. */
+       the encrypted payload. */
 
     /* We have a subdissector - call it. */
     saved_proto          = pinfo->current_proto;
@@ -1430,23 +1430,23 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     reported_length = tvb_reported_length(tvb);
 
     /*
-    * Remove the authentication padding from the stub data.
-    */
+     * Remove the authentication padding from the stub data.
+     */
     if ((dissector_data->auth_info != NULL) && (dissector_data->auth_info->auth_pad_len != 0)) {
         if (reported_length >= dissector_data->auth_info->auth_pad_len) {
             /*
-                * OK, the padding length isn't so big that it
-                * exceeds the stub length.  Trim the reported
-                * length of the tvbuff.
-                */
+             * OK, the padding length isn't so big that it
+             * exceeds the stub length.  Trim the reported
+             * length of the tvbuff.
+             */
             reported_length -= dissector_data->auth_info->auth_pad_len;
 
             /*
-                * If that exceeds the actual amount of data in
-                * the tvbuff (which means we have at least one
-                * byte of authentication padding in the tvbuff),
-                * trim the actual amount.
-                */
+             * If that exceeds the actual amount of data in
+             * the tvbuff (which means we have at least one
+             * byte of authentication padding in the tvbuff),
+             * trim the actual amount.
+             */
             if (length > reported_length)
                 length = reported_length;
 
@@ -1455,11 +1455,11 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             auth_pad_offset = reported_length;
         } else {
             /*
-                * The padding length exceeds the stub length.
-                * Don't bother dissecting the stub, trim the padding
-                * length to what's in the stub data, and show the
-                * entire stub as authentication padding.
-                */
+             * The padding length exceeds the stub length.
+             * Don't bother dissecting the stub, trim the padding
+             * length to what's in the stub data, and show the
+             * entire stub as authentication padding.
+             */
             stub_tvb = NULL;
             auth_pad_len = reported_length;
             auth_pad_offset = 0;
@@ -1467,8 +1467,8 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         }
     } else {
         /*
-            * No authentication padding.
-            */
+         * No authentication padding.
+         */
         stub_tvb = tvb;
         auth_pad_len = 0;
         auth_pad_offset = 0;
@@ -1480,14 +1480,14 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
     if (stub_tvb != NULL) {
         /*
-            * Catch all exceptions other than BoundsError, so that even
-            * if the stub data is bad, we still show the authentication
-            * padding, if any.
-            *
-            * If we get BoundsError, it means the frame was cut short
-            * by a snapshot length, so there's nothing more to
-            * dissect; just re-throw that exception.
-            */
+         * Catch all exceptions other than BoundsError, so that even
+         * if the stub data is bad, we still show the authentication
+         * padding, if any.
+         *
+         * If we get BoundsError, it means the frame was cut short
+         * by a snapshot length, so there's nothing more to
+         * dissect; just re-throw that exception.
+         */
         TRY {
             int remaining;
 
@@ -1507,15 +1507,15 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             }
         } CATCH_NONFATAL_ERRORS {
             /*
-                * Somebody threw an exception that means that there
-                * was a problem dissecting the payload; that means
-                * that a dissector was found, so we don't need to
-                * dissect the payload as data or update the protocol
-                * or info columns.
-                *
-                * Just show the exception and then drive on to show
-                * the authentication padding.
-                */
+             * Somebody threw an exception that means that there
+             * was a problem dissecting the payload; that means
+             * that a dissector was found, so we don't need to
+             * dissect the payload as data or update the protocol
+             * or info columns.
+             *
+             * Just show the exception and then drive on to show
+             * the authentication padding.
+             */
             show_exception(stub_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
         } ENDTRY;
     }
