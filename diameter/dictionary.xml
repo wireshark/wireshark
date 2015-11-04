@@ -3656,15 +3656,15 @@
 			<enum name="PS_TO_CS_HANDOVER"			code="13"/>
 			<enum name="Unused code value"			code="14"/>
 			<enum name="NO_BEARER_BOUND"			code="15"/>
-			<enum name="FILTER_RESTRICTIONS" code="16"/>
-			<enum name="AN_GW_FAILED" code="17"/>
-			<enum name="MISSING_REDIRECT_SERVER_ADDRESS" code="18"/>
-			<enum name="CM_END_USER_SERVICE_DENIED" code="19"/>
-			<enum name="CM_CREDIT_CONTROL_NOT_APPLICABLE" code="20"/>
-			<enum name="CM_AUTHORIZATION_REJECTED" code="21"/>
-			<enum name="CM_USER_UNKNOWN" code="22"/>
-			<enum name="CM_RATING_FAILED" code="23"/>
-			<enum name="ROUTING_RULE_REJECTION" code="24"/>
+			<enum name="FILTER_RESTRICTIONS"		code="16"/>
+			<enum name="AN_GW_FAILED"			code="17"/>
+			<enum name="MISSING_REDIRECT_SERVER_ADDRESS"	code="18"/>
+			<enum name="CM_END_USER_SERVICE_DENIED"		code="19"/>
+			<enum name="CM_CREDIT_CONTROL_NOT_APPLICABLE"	code="20"/>
+			<enum name="CM_AUTHORIZATION_REJECTED"		code="21"/>
+			<enum name="CM_USER_UNKNOWN"			code="22"/>
+			<enum name="CM_RATING_FAILED"			code="23"/>
+			<enum name="ROUTING_RULE_REJECTION"		code="24"/>
 		</avp>
 		<avp name="RAT-Type" code="1032" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated" />
