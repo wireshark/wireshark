@@ -899,10 +899,10 @@ QString PacketList::getFilterFromRowAndColumn()
                 strlen(cap_file_->cinfo.col_expr.col_expr_val[ctx_column_]) != 0) {
                 if (cap_file_->cinfo.columns[ctx_column_].col_fmt == COL_CUSTOM) {
                     header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.columns[ctx_column_].col_custom_field);
-                    if (hfi->parent == -1) {
+                    if (hfi && hfi->parent == -1) {
                         /* Protocol only */
                         filter.append(cap_file_->cinfo.col_expr.col_expr[ctx_column_]);
-                    } else if (hfi->type == FT_STRING) {
+                    } else if (hfi && hfi->type == FT_STRING) {
                         /* Custom string, add quotes */
                         filter.append(QString("%1 == \"%2\"")
                                       .arg(cap_file_->cinfo.col_expr.col_expr[ctx_column_])
