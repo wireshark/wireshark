@@ -1686,7 +1686,7 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             break;
 
         case ZBEE_ZCL_40_BIT_UINT:
-            proto_tree_add_item(tree, hf_zbee_zcl_attr_uint64, tvb, *offset, 5, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_zbee_zcl_attr_uint40, tvb, *offset, 5, ENC_LITTLE_ENDIAN);
             proto_item_append_text(tree, ", Uint: %" G_GINT64_MODIFIER "u", tvb_get_letoh40(tvb, *offset));
             (*offset) += 5;
             break;
