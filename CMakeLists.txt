@@ -355,7 +355,6 @@ else()
 		-Wformat-security
 		-fwrapv
 		-fno-strict-overflow
-		-fno-delete-null-pointer-checks
 		-Wvla
 		-Waddress
 		-Wattributes
@@ -432,6 +431,10 @@ else()
 		# (about glib library not using Doxygen)
 		#
 		-Wdocumentation
+		#
+		# No longer supported by El Capitan clang on C++
+		#
+		-fno-delete-null-pointer-checks
 	)
 
 	set(WIRESHARK_EXTRA_COMPILER_C_ONLY_FLAGS
