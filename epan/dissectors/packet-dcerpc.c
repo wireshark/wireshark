@@ -1577,12 +1577,18 @@ dcerpc_init_uuid(int proto, int ett, e_guid_t *uuid, guint16 ver,
 const char *
 dcerpc_get_proto_name(e_guid_t *uuid, guint16 ver)
 {
+    dissector_handle_t handle;
     guid_key    key;
 
     key.guid = *uuid;
     key.ver = ver;
 
-    return dissector_handle_get_short_name(dissector_get_guid_handle(uuid_dissector_table, &key));
+    handle = dissector_get_guid_handle(uuid_dissector_table, &key);
+    if (handle == NULL) {
+        return NULL;
+    }
+
+    return dissector_handle_get_short_name(handle);
 }
 
 /* Function to find the opnum hf-field of a registered protocol
