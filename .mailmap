@@ -1,9 +1,11 @@
+Alan Partis <alpartis@thundernet.com> alpartis <alpartis@thundernet.com>
 Alexander Gärtner <sphinxs1988@googlemail.com> alage <sphinxs1988@googlemail.com>
 Alexander Wetzel <alexander.wetzel@web.de> deagol
 Anders Broman <anders.broman@ericsson.com> <a.broman58@gmail.com>
 Anders Broman <anders.broman@ericsson.com> <a.broman@bredband.net>
 Anders Broman <anders.broman@ericsson.com> Anders <anders.broman@ericsson.com>
 Anders Broman <anders.broman@ericsson.com> AndersBroman <anders.broman@ericsson.com>
+Andy Ling <andy.ling@s-a-m.com> AndyL <andy.ling@s-a-m.com>
 Balint Reczey <balint@balintreczey.hu> <balint.reczey@ericsson.com>
 Cal Turney <cturney@charter.net> Cal Turney <cal.turney@emc.com>
 Cal Turney <cturney@charter.net> cturney <cturney@charter.net>
@@ -23,6 +25,9 @@ Evan Huus <eapache@gmail.com> <evan.huus@jadedpixel.com>
 Francesco Fondelli <francesco.fondelli@gmail.com> ff <francesco.fondelli@gmail.com>
 Gerald Combs <gerald@wireshark.org> <gerald@zing.org>
 Gilbert Ramirez <gram@alumni.rice.edu> <gilramir@cisco.com>
+Graeme Lunt <graeme.lunt@smhs.co.uk> gal <graeme.lunt@smhs.co.uk>
+Greg Morris <GMORRIS@novell.com> gmor1207@gmail.com <gmor1207@gmail.com>
+Guy Davies <aguydavies@gmail.com> guydavies <aguydavies@gmail.com>
 Hadriel Kaplan <hadrielk@yahoo.com> <hadriel@128technology.com>
 Hannes R. Boehm <hannes@boehm.org> hannes <hannes@localhost>
 Hitesh K Maisheri <maisheri.hitesh@gmail.com> <hmaisher@cisco.com>
@@ -36,9 +41,11 @@ Jakub Zawadzki <darkjames-ws@darkjames.pl> <darkjames@darkjames.pl>
 Jeff Morriss <jeff.morriss.ws@gmail.com> <jeff.morriss@ulticom.com>
 Jeff Morriss <jeff.morriss.ws@gmail.com> <morriss@ulticom.com>
 Jiří Engelthaler <engycz@gmail.com> Jiri Engelthaler <engycz@gmail.com>
+John Miner <optommp@gmail.com> John <optommp@gmail.com>
 Jorge Power <jpower@rsscorp.org> jorge power
-Juan Jose Martin Carrascosa <juanjo@rti.com> Juanjo <juanjo@rti.com>
 Joseph Huffman <jhuffman@codeaurora.org> <jhuffman@qce.qualcomm.com>
+Juan Jose Martin Carrascosa <juanjo@rti.com> Juanjo <juanjo@rti.com>
+Krishna Chaitanya <chaitanya.mgit@gmail.com> tkc <chaitanya.mgit@gmail.com>
 Lukas Emersberger <lukas.emersberger@gmail.com> <lukas.emersberger@br-automation.co.at>
 Lukas Emersberger <lukas.emersberger@gmail.com> <lukas.emersberger@br-automation.com>
 Marcel Essig <marcel.essig@gmx.de> <essig.marcel@gmail.com>
@@ -46,28 +53,36 @@ Marian Ďurkovič <md@bts.sk> Marian Durkovic
 Martin Kaiser <wireshark@kaiser.cx> <martin@reykholt.kaiser.cx>
 Martin Kaiser <wireshark@kaiser.cx> <martin@skogar.kaiser.cx>
 Martin Tibensky <martin.tibensky@alcatel-lucent.com> matibens
+Martin Tibenský <martin.tibensky@alcatel-lucent.com> matibens <martin.tibensky@alcatel-lucent.com>
 Martin Tibensky <martin.tibensky@alcatel-lucent.com> Mato <tibensky233@gmail.com>
+Michael Oed <michael.oed@gmail.com> Mike78 <michael.oed@gmail.com>
 Michael Tüxen <tuexen@wireshark.org> <tuexen@fh-muenster.de>
 Michael Tüxen <tuexen@wireshark.org> <tuexen@mba.local>
 Michał Orynicz <michal.orynicz@tieto.com> michal.orynicz
 Mikhail Koreshkov <drkor@hotbox.ru> unknown <drkor@hotbox.ru>
 Moraney Jalil <moraney.jalil@outlook.com> moraney.jalil
+Moshe Kaplan <me@moshekaplan.com> moshekaplan <me@moshekaplan.com>
 Øyvind Rønningstad <ronningstad@gmail.com> oyv <ronningstad@gmail.com>
 Pascal Quantin <pascal.quantin@gmail.com> <pascal@localhost>
 Patrick Servello <patrick.servello@gmail.com> Patrick <patrick.servello@gmail.com>
 Peter Ross <peter.ross@dsto.defence.gov.au> <peter.ross@rmit.edu.au>
 Peter Wu <peter@lekensteyn.nl> <lekensteyn@gmail.com>
+Pratik Yeole <pyeole@ncsu.edu> Pyeole <pyeole@ncsu.edu>
 Qiaoyin Yang <qiaoyin.yang@gmail.com> <qiaoyin.yang[AT]gmail.com>
 Remi Vichery <remi.vichery@gmail.com>
+Richard Kuemmel <kuemmel.ric@googlemail.com> richardk <kuemmel.ric@googlemail.com>
 Richard Sharpe <realrichardsharpe@gmail.com> <sharpe@ns.aus.com>
 Robert Grange <robionekenobi@bluewin.ch> robioneknobi
 Ronnie Sahlberg <ronniesahlberg@gmail.com> <ronnie_sahlberg@ozemail.com.au>
+Russel Howe <russel@appliedinvention.com> Russel <russel@appliedinvention.com>
+Selva Kumar <v.selvamuthukumar@gmail.com> Selva <v.selvamuthukumar@gmail.com>
 Shekhar Chandra <ranushekhar@gmail.com> ranushekhar
 Stephen Donnelly <stephen.donnelly@emulex.com> sfd
 Stephen Fisher <stephenfisher@centurylink.net> <sfisher@panix.com>
+Stephen Fisher <stephenfisher@centurylink.net> <sfisher@sdf.org>
 Stephen Fisher <stephenfisher@centurylink.net> <stephenfisher-wireshark@outlook.com>
 Stephen Fisher <stephenfisher@centurylink.net> <steve@stephen-fisher.com>
-Stephen Fisher <stephenfisher@centurylink.net> <sfisher@sdf.org>
 Warren Moxam <warrenmptgrey@gmail.com> warrenm <warrenmptgrey@gmail.com>
 Warren Moxam <warrenmptgrey@gmail.com> <warren@peter-ubuntu32.(none)>
+Wido Kelling <kellingwido@aol.com> Widok <kellingwido@aol.com>
 Yaniv Kaul <mykaul@gmail.com> <yaniv.kaul@emc.com>
