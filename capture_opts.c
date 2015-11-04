@@ -37,9 +37,6 @@
 
 #include <glib.h>
 
-#include <epan/packet.h>
-#include <epan/prefs.h>
-
 #include "capture_opts.h"
 #include "ringbuffer.h"
 
