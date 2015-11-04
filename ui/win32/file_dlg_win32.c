@@ -34,8 +34,8 @@
 #include "file.h"
 
 #include "wsutil/file_util.h"
+#include "wsutil/str_util.h"
 #include "wsutil/unicode-utils.h"
-
 
 #include "wsutil/filesystem.h"
 #include "epan/addr_resolv.h"
