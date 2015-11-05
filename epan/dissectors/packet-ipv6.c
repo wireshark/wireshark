@@ -512,6 +512,9 @@ static gboolean g_ipv6_rpl_srh_strict_rfc_checking = FALSE;
 /* Use heuristics to determine subdissector */
 static gboolean try_heuristic_first = FALSE;
 
+/* Display IPv6 extension headers under the root tree */
+static gboolean ipv6_exthdr_under_root = FALSE;
+
 #ifndef offsetof
 #define offsetof(type, member)  ((size_t)(&((type *)0)->member))
 #endif
@@ -1985,7 +1988,7 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _
 static void
 dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree    *ipv6_tree, *pt;
+    proto_tree    *ipv6_tree, *ipv6_exthdr_tree, *pt;
     proto_item    *ipv6_item, *ti, *pi;
     proto_item    *ti_ipv6_plen = NULL, *ti_ipv6_version;
     guint8         nxt, tfc;
@@ -2017,7 +2020,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPv6");
     col_clear(pinfo->cinfo, COL_INFO);
-    ipv6_item = proto_tree_add_item(tree, proto_ipv6, tvb, offset, -1, ENC_NA);
+    ipv6_item = proto_tree_add_item(tree, proto_ipv6, tvb, offset,
+                    ipv6_exthdr_under_root ? IPv6_HDR_SIZE : -1, ENC_NA);
 
     if (tvb_reported_length(tvb) < IPv6_HDR_SIZE) {
         col_add_fstr(pinfo->cinfo, COL_INFO,
@@ -2275,6 +2279,12 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Yes, there is not TTL in IPv6 Header... but it is the same of Hop Limit...*/
     iph.ip_ttl = tvb_get_guint8(tvb, offset + IP6H_CTL_HLIM);
 
+    if (ipv6_exthdr_under_root) {
+        ipv6_exthdr_tree = tree;
+    } else {
+        ipv6_exthdr_tree = ipv6_tree;
+    }
+
     /* start of the new header (could be a extension header) */
     nxt = tvb_get_guint8(tvb, offset + 6);
     /* Save next header value for Decode As dialog */
@@ -2284,7 +2294,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (nxt == IP_PROTO_HOPOPTS) {
         options_tvb = tvb_new_subset_remaining(tvb, offset);
-        advance = dissect_hopopts(options_tvb, pinfo, ipv6_tree, &iph);
+        advance = dissect_hopopts(options_tvb, pinfo, ipv6_exthdr_tree, &iph);
         if (advance > 0) {
             nxt = tvb_get_guint8(tvb, offset);
             offset += advance;
@@ -2339,7 +2349,7 @@ again:
     nxt_handle = dissector_get_uint_handle(ipv6_next_header_dissector_table, nxt);
 
     if ((nxt_handle) &&
-        ((advance = call_dissector_with_data(nxt_handle, options_tvb, pinfo, ipv6_tree, &iph)) > 0)) {
+        ((advance = call_dissector_with_data(nxt_handle, options_tvb, pinfo, ipv6_exthdr_tree, &iph)) > 0)) {
         nxt = tvb_get_guint8(tvb, offset);
         offset += advance;
         plen -= advance;
@@ -2347,7 +2357,7 @@ again:
     } else {
         switch (nxt) {
         case IP_PROTO_FRAGMENT:
-            advance = dissect_frag6(tvb, offset, pinfo, ipv6_tree,
+            advance = dissect_frag6(tvb, offset, pinfo, ipv6_exthdr_tree,
                                     &frag_off, &frag_flg, &frag_ident);
             nxt = tvb_get_guint8(tvb, offset);
             offset += advance;
@@ -2386,7 +2396,7 @@ again:
 
         default:
             if (ipv6_exthdr_check(nxt) && !dissector_get_uint_handle(ip_dissector_table, nxt)) {
-                advance = dissect_unknown_exthdr(tvb, offset, ipv6_tree);
+                advance = dissect_unknown_exthdr(tvb, offset, ipv6_exthdr_tree);
                 nxt = tvb_get_guint8(tvb, offset);
                 offset += advance;
                 plen -= advance;
@@ -2396,7 +2406,9 @@ again:
         }
     }
 
-    proto_item_set_len (ipv6_item, offset);
+    if (!ipv6_exthdr_under_root) {
+        proto_item_set_len (ipv6_item, offset);
+    }
     iph.ip_p = nxt;
 
     /* collect packet info */
@@ -3462,11 +3474,11 @@ proto_register_ipv6(void)
     expert_ipv6 = expert_register_protocol(proto_ipv6);
     expert_register_field_array(expert_ipv6, ei, array_length(ei));
 
-    proto_ipv6_hopopts = proto_register_protocol("IPv6 Hop-by-Hop Options", "IPv6 Hop-by-Hop", "ipv6.hopopts");
-    proto_ipv6_routing = proto_register_protocol("IPv6 Routing", "IPv6 Routing", "ipv6.routing");
-    proto_ipv6_fraghdr = proto_register_protocol("IPv6 Fragment", "IPv6 Fragment", "ipv6.fraghdr");
-    proto_ipv6_shim6 = proto_register_protocol("IPv6 SHIM6", "SHIM6", "ipv6.shim6");
-    proto_ipv6_dstopts = proto_register_protocol("IPv6 Destination Options", "IPv6 Destination", "ipv6.dstopts");
+    proto_ipv6_hopopts = proto_register_protocol("IPv6 Hop-by-Hop Option", "IPv6 Hop-by-Hop", "ipv6.hopopts");
+    proto_ipv6_routing = proto_register_protocol("Routing Header for IPv6", "IPv6 Routing", "ipv6.routing");
+    proto_ipv6_fraghdr = proto_register_protocol("Fragment Header for IPv6", "IPv6 Fragment", "ipv6.fraghdr");
+    proto_ipv6_shim6 = proto_register_protocol("Shim6 Protocol", "Shim6", "ipv6.shim6");
+    proto_ipv6_dstopts = proto_register_protocol("Destination Options for IPv6", "IPv6 Destination", "ipv6.dstopts");
     ipv6_next_header_dissector_table = register_dissector_table("ipv6.nxt", "IPv6 Next Header", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     /* Register configuration options */
@@ -3496,6 +3508,11 @@ proto_register_ipv6(void)
                                    "Try heuristic sub-dissectors first",
                                    "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
                                    &try_heuristic_first);
+
+    prefs_register_bool_preference(ipv6_module, "exthdr_under_root_protocol_tree",
+                                   "Display IPv6 extension headers under the root protocol tree",
+                                   "Whether to display IPv6 extension headers as a separate protocol or a sub-protocol of the IPv6 packet",
+                                   &ipv6_exthdr_under_root);
 
     register_dissector("ipv6", dissect_ipv6, proto_ipv6);
     register_init_routine(ipv6_reassemble_init);
