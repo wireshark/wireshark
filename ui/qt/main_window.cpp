@@ -775,7 +775,7 @@ void MainWindow::dropEvent(QDropEvent *event)
 // position and size preference are enabled.
 void MainWindow::loadWindowGeometry()
 {
-    int min_sensible_dimension_ = 200;
+    int min_sensible_dimension = 200;
 
 #ifndef Q_OS_MAC
     if (recent.gui_geometry_main_maximized) {
@@ -783,14 +783,21 @@ void MainWindow::loadWindowGeometry()
     } else
 #endif
     {
+        QRect recent_geom(recent.gui_geometry_main_x, recent.gui_geometry_main_y,
+                          recent.gui_geometry_main_width, recent.gui_geometry_main_height);
+        if (!rect_on_screen(recent_geom)) {
+            // We're not visible on any screens. Give up and use the default geometry.
+            return;
+        }
+
 //        if (prefs.gui_geometry_save_position) {
-            move(recent.gui_geometry_main_x, recent.gui_geometry_main_y);
+            move(recent_geom.topLeft());
 //        }
 
         if (// prefs.gui_geometry_save_size &&
-                recent.gui_geometry_main_width > min_sensible_dimension_ &&
-                recent.gui_geometry_main_height > min_sensible_dimension_) {
-            resize(recent.gui_geometry_main_width, recent.gui_geometry_main_height);
+                recent_geom.width() > min_sensible_dimension &&
+                recent_geom.height() > min_sensible_dimension) {
+            resize(recent_geom.size());
         }
     }
 }

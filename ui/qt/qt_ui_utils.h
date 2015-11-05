@@ -37,6 +37,7 @@
 
 class QAction;
 class QFont;
+class QRect;
 
 #ifdef __cplusplus
 extern "C" {
@@ -193,6 +194,14 @@ bool qStringCaseLessThan(const QString &s1, const QString &s2);
  */
 void desktop_show_in_folder(const QString file_path);
 
+/**
+ * Test to see if a rect is visible on screen.
+ *
+ * @param rect
+ * @return true if the rect is completely enclosed by one of the display
+ * screens, false otherwise.
+ */
+bool rect_on_screen(const QRect &rect);
 #endif /* __QT_UI_UTILS__H__ */
 
 // XXX Add a routine to fetch the HWND corresponding to a widget using QPlatformIntegration
