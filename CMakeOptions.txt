@@ -16,6 +16,7 @@ option(BUILD_randpkt       "Build randpkt" ON)
 option(BUILD_dftest        "Build dftest" ON)
 option(BUILD_androiddump   "Build androiddump" ON)
 option(BUILD_sshdump       "Build sshdump" ON)
+option(BUILD_randpktdump   "Build randpktdump" ON)
 option(AUTOGEN_dcerpc      "Autogenerate DCE RPC dissectors" OFF)
 option(AUTOGEN_pidl        "Autogenerate pidl dissectors" OFF)
 

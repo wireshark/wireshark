@@ -1,0 +1,142 @@
+
+=head1 NAME
+
+randpktdump - Provide an interface to generate random captures using randpkt
+
+=head1 SYNOPSIS
+
+B<randpktdump>
+S<[ B<--help> ]>
+S<[ B<--version> ]>
+S<[ B<--extcap-interfaces> ]>
+S<[ B<--extcap-dlts> ]>
+S<[ B<--extcap-interface>=E<lt>interfaceE<gt> ]>
+S<[ B<--extcap-config> ]>
+S<[ B<--capture> ]>
+S<[ B<--fifo>=E<lt>path to file or pipeE<gt> ]>
+S<[ B<--maxbytes>=E<lt>bytesE<gt> ]>
+S<[ B<--random-type>=E<lt>true|falseE<gt> ]>
+S<[ B<--all-random>=E<lt>true|falseE<gt> ]>
+S<[ B<--type>=E<lt>packet typeE<gt> ]>
+
+=head1 DESCRIPTION
+
+B<randpktdump> is a extcap tool that provides access to the random
+packet generator (randpkt). It is mainly used for testing and
+educational purpose.
+
+=head1 OPTIONS
+
+=over 4
+
+=item --help
+
+Print program arguments.
+
+=item --version
+
+Print program version.
+
+=item --extcap-interfaces
+
+List available interfaces.
+
+=item --extcap-interface=E<lt>interfaceE<gt>
+
+Use specified interfaces.
+
+=item --extcap-dlts
+
+List DLTs of specified interface.
+
+=item --extcap-config
+
+List configuration options of specified interface.
+
+=item --capture
+
+Start capturing from specified interface save saved it in place specified by --fifo.
+
+=item --fifo=E<lt>path to file or pipeE<gt>
+
+Save captured packet to file or send it through pipe.
+
+=item --maxbytes=E<lt>bytesE<gt>
+
+Set the max number of bytes per packet.
+
+=item --random-type
+
+Choose a random packet type for all packets if set to true.
+
+=item --all-random
+
+Choose a different random packet type for each packet if set to true.
+
+=item --type=E<lt>packet typeE<gt>
+
+Use the selected packet type. To list all the available packet type, run randpktdump --help.
+
+=back
+
+=head1 EXAMPLES
+
+To see program arguments:
+
+    randpktdump --help
+
+To see program version:
+
+    randpktdump --version
+
+To see interfaces:
+
+    randpktdump --extcap-interfaces
+
+  Example output:
+    interface {value=randpkt}{display=Random packet generator}
+
+To see interface DLTs:
+
+    randpktdump --extcap-interface=randpkt --extcap-dlts
+
+  Example output:
+    dlt {number=1}{name=randpkt}{display=Ethernet}
+
+To see interface configuration options:
+
+    randpktdump --extcap-interface=randpkt --extcap-config
+
+  Example output:
+    arg {number=0}{call=--maxbytes}{display=Max bytes in a packet}{type=unsigned}{range=1,5000}{default=5000}{tooltip=The max number of bytes in a packet}
+    arg {number=1}{call=--count}{display=Number of packets}{type=long}{default=1000}{tooltip=Number of packets to generate (-1 for infinite)}
+    arg {number=2}{call=--random-type}{display=Random type}{type=boolean}{default=false}{tooltip=The packets type is randomly choosen}
+    arg {number=3}{call=--all-random}{display=All random packets}{type=boolean}{default=false}{tooltip=Packet type for each packet is randomly choosen}
+    arg {number=4}{call=--type}{display=Type of packet}{type=selector}{tooltip=Type of packet to generate}
+    value {arg=4}{value=arp}{display=Address Resolution Protocol}
+    [...]
+    value {arg=4}{value=usb-linux}{display=Universal Serial Bus with Linux specific header}
+
+To capture:
+
+    randpktdump --extcap-interface=randpkt --fifo=/tmp/randpkt.pcapng --capture
+
+NOTE: To stop capturing CTRL+C/kill/terminate application.
+
+=head1 SEE ALSO
+
+wireshark(1), tshark(1), dumpcap(1), extcap(4), randpkt(1)
+
+=head1 NOTES
+
+B<randpktdump> is part of the B<Wireshark> distribution.  The latest version
+of B<Wireshark> can be found at L<https://www.wireshark.org>.
+
+HTML versions of the Wireshark project man pages are available at:
+L<https://www.wireshark.org/docs/man-pages>.
+
+=head1 AUTHORS
+
+  Original Author
+  ---------------
+  Dario Lombardo             <lomato[AT]gmail.com>

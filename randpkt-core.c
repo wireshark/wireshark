@@ -707,7 +707,7 @@ void randpkt_example_init(randpkt_example* example, char* produce_filename, int 
 		fprintf(stderr, "your requested max_bytes value of %d\n", produce_max_bytes);
 		exit(1);
 	} else {
-		example->produce_max_bytes -= example->sample_length;
+		example->produce_max_bytes = produce_max_bytes - example->sample_length;
 	}
 }
 

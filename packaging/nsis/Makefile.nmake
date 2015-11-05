@@ -26,6 +26,7 @@ DOC=../../doc/ws.css				\
 	../../doc/editcap.html			\
 	../../doc/extcap.html			\
 	../../doc/mergecap.html			\
+	../../doc/randpktdump.html		\
 	../../doc/rawshark.html			\
 	../../doc/text2pcap.html		\
 	../../doc/tshark.html			\

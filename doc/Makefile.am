@@ -72,7 +72,9 @@ man1_MANS = \
 	@dftest_man@		\
 	@randpkt_man@		\
 	@androiddump_man@	\
-	@sshdump_man@
+	@sshdump_man@		\
+	@randpktdump_man@
+
 man4_MANS = @wiresharkfilter_man@
 man_MANS =
 
@@ -84,7 +86,7 @@ noinst_DATA = asn2deb.1 asn2deb.html idl2deb.1 idl2deb.html idl2wrs.1 idl2wrs.ht
 pkgdata_DATA = AUTHORS-SHORT $(top_srcdir)/docbook/ws.css wireshark.html \
 	tshark.html wireshark-filter.html capinfos.html editcap.html \
 	mergecap.html reordercap.html text2pcap.html dumpcap.html androiddump.html \
-	sshdump.html rawshark.html dftest.html randpkt.html
+	sshdump.html randpktdump.html rawshark.html dftest.html randpkt.html
 
 #
 # Build the short version of the authors file for the about dialog
@@ -219,6 +221,13 @@ sshdump.html: sshdump.pod ../config.h $(top_srcdir)/docbook/ws.css
 	--css=$(POD_CSS_URL)						\
 	--noindex							\
 	$(srcdir)/sshdump.pod > sshdump.html
+
+randpktdump.html: randpktdump.pod ../config.h $(top_srcdir)/docbook/ws.css
+	$(AM_V_POD2HTML)$(POD2HTML)                     \
+	--title="randpktdump - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=$(POD_CSS_URL)						\
+	--noindex							\
+	$(srcdir)/randpktdump.pod > randpktdump.html
 
 rawshark.html: rawshark.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(AM_V_POD2HTML)$(POD2HTML)                     \

@@ -1306,6 +1306,7 @@ set(INSTALL_FILES
 	${CMAKE_BINARY_DIR}/mergecap.html
 	pdml2html.xsl
 	${CMAKE_BINARY_DIR}/randpkt.html
+	${CMAKE_BINARY_DIR}/randpktdump.html
 	${CMAKE_BINARY_DIR}/rawshark.html
 	${CMAKE_BINARY_DIR}/reordercap.html
 	services
@@ -1337,6 +1338,7 @@ set(MAN1_FILES
 	${CMAKE_BINARY_DIR}/idl2wrs.1
 	${CMAKE_BINARY_DIR}/mergecap.1
 	${CMAKE_BINARY_DIR}/randpkt.1
+	${CMAKE_BINARY_DIR}/androiddump.1
 	${CMAKE_BINARY_DIR}/rawshark.1
 	${CMAKE_BINARY_DIR}/reordercap.1
 	${CMAKE_BINARY_DIR}/sshdump.1
@@ -2368,6 +2370,24 @@ elseif (BUILD_sshdump)
 	#message( WARNING "Cannot find libssh, cannot build sshdump" )
 endif()
 
+if(BUILD_randpktdump)
+	set(randpktdump_LIBS
+		wiretap
+		${GLIB2_LIBRARIES}
+		${CMAKE_DL_LIBS}
+	)
+	set(randpktdump_FILES
+		extcap/randpktdump.c
+		randpkt-core.c
+	)
+
+	add_executable(randpktdump WIN32 ${randpktdump_FILES})
+	# XXX Shouldn't we add wsutil to randpktdump_LIBS instead?
+	set_extcap_executable_properties(randpktdump)
+	target_link_libraries(randpktdump ${randpktdump_LIBS})
+	install(TARGETS randpktdump RUNTIME DESTINATION ${EXTCAP_DIR})
+endif()
+
 ADD_CUSTOM_COMMAND(
 	OUTPUT	${CMAKE_BINARY_DIR}/AUTHORS-SHORT
 	COMMAND ${PERL_EXECUTABLE}
@@ -2487,6 +2507,7 @@ pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/idl2deb 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/idl2wrs 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/mergecap 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/randpkt 1 )
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/randpktdump 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/rawshark 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/reordercap 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/sshdump 1 )
@@ -2510,6 +2531,7 @@ add_custom_target(
 		idl2wrs.html
 		mergecap.html
 		randpkt.html
+		randpktdump.html
 		rawshark.html
 		reordercap.html
 		sshdump.html
@@ -2526,6 +2548,7 @@ set(CLEAN_FILES
 	${rawshark_FILES}
 	${dftest_FILES}
 	${randpkt_FILES}
+	${randpktdump_FILES}
 	${text2pcap_CLEAN_FILES}
 	${mergecap_FILES}
 	${capinfos_FILES}

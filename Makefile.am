@@ -44,11 +44,12 @@ bin_PROGRAMS = \
 	@rawshark_bin@		\
 	@androiddump_bin@	\
 	@sshdump_bin@		\
+	@randpktdump_bin@	\
 	@echld_test_bin@
 
 EXTRA_PROGRAMS = wireshark-gtk wireshark tshark tfshark capinfos captype editcap \
 	mergecap dftest randpkt text2pcap dumpcap reordercap rawshark androiddump \
-	sshdump	echld_test
+	sshdump	randpktdump echld_test
 
 #
 # Wireshark configuration files are put in $(pkgdatadir).
@@ -564,6 +565,20 @@ sshdump_LDADD = \
 
 sshdump_CFLAGS = $(AM_CLEAN_CFLAGS)
 
+if ENABLE_STATIC
+	randpktdump_LDFLAGS = -Wl,-static -all-static
+else
+	randpktdump_LDFLAGS = -export-dynamic
+endif
+
+# Libraries and plugin flags with which to link randpktdump.
+randpktdump_LDADD = \
+	wiretap/libwiretap.la		\
+	wsutil/libwsutil.la		\
+	@GLIB_LIBS@			\
+	@SOCKET_LIBS@
+
+randpktdump_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries with which to link text2pcap.
 text2pcap_LDADD = \

@@ -103,6 +103,11 @@ androiddump_SOURCES =	\
 sshdump_SOURCES =	\
 	extcap/sshdump.c
 
+# randpktdump specifics
+randpktdump_SOURCES =	\
+	randpkt-core.c \
+	extcap/randpktdump.c
+
 # text2pcap specifics
 text2pcap_SOURCES = \
 	pcapio.c		\

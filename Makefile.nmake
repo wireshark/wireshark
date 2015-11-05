@@ -186,6 +186,10 @@ sshdump_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
 	wsutil\libwsutil.lib \
 	$(LIBSSH_LIBS) \
+
+randpktdump_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+	wsock32.lib user32.lib \
+	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)
 
 dumpcap_LIBS= \
@@ -218,7 +222,8 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 
 EXECUTABLES=$(PROGRAM_NAME_GTK).exe tshark.exe tfshark.exe rawshark.exe \
 	capinfos.exe captype.exe editcap.exe mergecap.exe text2pcap.exe \
-	randpkt.exe reordercap.exe dumpcap.exe androiddump.exe dftest.exe
+	randpkt.exe reordercap.exe dumpcap.exe androiddump.exe randpktdump.exe \
+	dftest.exe
 
 !IFDEF LIBSSH_DIR
 EXECUTABLES += sshdump.exe
@@ -458,6 +463,14 @@ sshdump.exe	: $(LIBS_CHECK) config.h sshdump.obj wsutil\libwsutil.lib wiretap\wi
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "sshdump.exe.manifest" -outputresource:sshdump.exe;1
 !ENDIF
+
+randpktdump.exe	: $(LIBS_CHECK) config.h randpktdump.obj randpkt-core.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:randpktdump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS randpktdump.obj randpkt-core.obj $(randpktdump_LIBS)
+<<
+!IFDEF MANIFEST_INFO_REQUIRED
+	mt.exe -nologo -manifest "randpktdump.exe.manifest" -outputresource:randpktdump.exe;1
 !ENDIF
 
 dumpcap.exe	: $(LIBS_CHECK) config.h $(dumpcap_OBJECTS) caputils wsutil\libwsutil.lib image\dumpcap.res
@@ -598,6 +611,9 @@ androiddump.obj : extcap/androiddump.c
 sshdump.obj : extcap/sshdump.c
 	$(CC) $(CFLAGS) -Fd.\ -c $?
 
+randpktdump.obj : extcap/randpktdump.c randpkt-core.c
+	$(CC) $(CFLAGS) -Fd.\ -c $?
+
 test-programs:
 	cd epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake test-programs
@@ -606,7 +622,7 @@ test-programs:
 clean-local:
 	rm -f $(wireshark_gtk_OBJECTS) $(tshark_OBJECTS) $(tfshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
 		$(EXECUTABLES) *.nativecodeanalysis.xml *.pdb *.sbr *.exe.manifest \
-		androiddump.obj sshdump.obj \
+		androiddump.obj sshdump.obj randpktdump.obj \
 		capinfos.obj capinfos.exp capinfos.lib \
 		captype.obj captype.exp captype.lib \
 		editcap.obj editcap.exp editcap.lib \
@@ -1271,11 +1287,15 @@ install-generated-files: doc
 	if exist androiddump.pdb xcopy androiddump.pdb $(INSTALL_DIR)\extcap /d
 	if exist sshdump.exe xcopy sshdump.exe $(INSTALL_DIR)\extcap /d
 	if exist sshdump.pdb xcopy sshdump.pdb $(INSTALL_DIR)\extcap /d
+	if exist randpktdump.exe xcopy randpktdump.exe $(INSTALL_DIR)\extcap /d
+	if exist randpktdump.pdb xcopy randpktdump.pdb $(INSTALL_DIR)\extcap /d
 	if not exist $(INSTALL_DIR_QT)\extcap mkdir $(INSTALL_DIR_QT)\extcap
 	if exist androiddump.exe xcopy androiddump.exe $(INSTALL_DIR_QT)\extcap /d
 	if exist androiddump.pdb xcopy androiddump.pdb $(INSTALL_DIR_QT)\extcap /d
 	if exist sshdump.exe xcopy sshdump.exe $(INSTALL_DIR_QT)\extcap /d
 	if exist sshdump.pdb xcopy sshdump.pdb $(INSTALL_DIR_QT)\extcap /d
+	if exist randpktdump.exe xcopy randpktdump.exe $(INSTALL_DIR_QT)\extcap /d
+	if exist randpktdump.pdb xcopy randpktdump.pdb $(INSTALL_DIR_QT)\extcap /d
 	if exist capinfos.exe xcopy capinfos.exe $(INSTALL_DIR) /d
 	if exist capinfos.pdb xcopy capinfos.pdb $(INSTALL_DIR) /d
 	if exist captype.exe xcopy captype.exe $(INSTALL_DIR) /d

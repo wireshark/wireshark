@@ -98,6 +98,7 @@ mergecap
 missing
 oids_test
 randpkt
+randpktdump
 rawshark
 reordercap
 reassemble_test
