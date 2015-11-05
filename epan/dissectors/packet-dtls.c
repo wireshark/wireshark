@@ -87,7 +87,6 @@ static gint hf_dtls_record_epoch                = -1;
 static gint hf_dtls_record_sequence_number      = -1;
 static gint hf_dtls_record_length               = -1;
 static gint hf_dtls_record_appdata              = -1;
-static gint hf_dtls_change_cipher_spec          = -1;
 static gint hf_dtls_alert_message               = -1;
 static gint hf_dtls_alert_message_level         = -1;
 static gint hf_dtls_alert_message_description   = -1;
@@ -286,12 +285,6 @@ static gint dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                                 proto_tree *tree, guint32 offset,
                                 SslSession *session, gint is_from_server,
                                 SslDecryptSession *conv_data);
-
-/* change cipher spec dissector */
-static void dissect_dtls_change_cipher_spec(tvbuff_t *tvb,
-                                            proto_tree *tree,
-                                            guint32 offset,
-                                            const SslSession *session, guint8 content_type);
 
 /* alert message dissector */
 static void dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
@@ -802,8 +795,9 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   switch ((ContentType) content_type) {
   case SSL_ID_CHG_CIPHER_SPEC:
     col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
-    dissect_dtls_change_cipher_spec(tvb, dtls_record_tree,
-                                    offset, session, content_type);
+    ssl_dissect_change_cipher_spec(&dissect_dtls_hf, tvb, pinfo,
+                                   dtls_record_tree, offset, session,
+                                   is_from_server, ssl);
     if (ssl) {
         ssl_load_keyfile(dtls_options.keylog_filename, &dtls_keylog_file,
                          &dtls_master_key_map);
@@ -969,29 +963,6 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   offset += record_length; /* skip to end of record */
 
   return offset;
-}
-
-/* dissects the change cipher spec protocol, filling in the tree */
-static void
-dissect_dtls_change_cipher_spec(tvbuff_t *tvb,
-                                proto_tree *tree, guint32 offset,
-                                const SslSession *session, guint8 content_type)
-{
-  /*
-   * struct {
-   *     enum { change_cipher_spec(1), (255) } type;
-   * } ChangeCipherSpec;
-   *
-   */
-  if (tree)
-    {
-      proto_item_set_text(tree,
-                          "%s Record Layer: %s Protocol: Change Cipher Spec",
-                          val_to_str_const(session->version, ssl_version_short_names, "SSL"),
-                          val_to_str_const(content_type, ssl_31_content_type, "unknown"));
-      proto_tree_add_item(tree, hf_dtls_change_cipher_spec, tvb,
-                          offset, 1, ENC_NA);
-    }
 }
 
 /* dissects the alert message, filling in the tree */
@@ -1366,7 +1337,8 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_SVR_HELLO_DONE:
-            /* server_hello_done has no fields, so nothing to do! */
+            if (ssl)
+              ssl->state |= SSL_SERVER_HELLO_DONE;
             break;
 
           case SSL_HND_CERT_VERIFY:
@@ -1699,11 +1671,6 @@ proto_register_dtls(void)
       { "Encrypted Application Data", "dtls.app_data",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "Payload is encrypted application data", HFILL }
-    },
-    { &hf_dtls_change_cipher_spec,
-      { "Change Cipher Spec Message", "dtls.change_cipher_spec",
-        FT_NONE, BASE_NONE, NULL, 0x0,
-        "Signals a change in cipher specifications", HFILL }
     },
     { & hf_dtls_alert_message,
       { "Alert Message", "dtls.alert_message",

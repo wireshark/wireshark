@@ -127,7 +127,6 @@ static gint hf_ssl2_record_is_escape          = -1;
 static gint hf_ssl2_record_padding_length     = -1;
 static gint hf_ssl2_msg_type                  = -1;
 static gint hf_pct_msg_type                   = -1;
-static gint hf_ssl_change_cipher_spec         = -1;
 static gint hf_ssl_alert_message              = -1;
 static gint hf_ssl_alert_message_level        = -1;
 static gint hf_ssl_alert_message_description  = -1;
@@ -492,12 +491,6 @@ static gint dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                                 gboolean *need_desegmentation,
                                 SslDecryptSession *conv_data,
                                 const gboolean first_record_in_frame);
-
-/* change cipher spec dissector */
-static void dissect_ssl3_change_cipher_spec(tvbuff_t *tvb,
-                                            proto_tree *tree,
-                                            guint32 offset,
-                                            const SslSession *session, const guint8 content_type);
 
 /* alert message dissector */
 static void dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
@@ -1638,10 +1631,10 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
     switch ((ContentType) content_type) {
     case SSL_ID_CHG_CIPHER_SPEC:
-        ssl_debug_printf("dissect_ssl3_change_cipher_spec\n");
         col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
-        dissect_ssl3_change_cipher_spec(tvb, ssl_record_tree,
-                                        offset, session, content_type);
+        ssl_dissect_change_cipher_spec(&dissect_ssl3_hf, tvb, pinfo,
+                                       ssl_record_tree, offset, session,
+                                       is_from_server, ssl);
         if (ssl) {
             ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file,
                              &ssl_master_key_map);
@@ -1769,29 +1762,6 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     offset += record_length; /* skip to end of record */
 
     return offset;
-}
-
-/* dissects the change cipher spec procotol, filling in the tree */
-static void
-dissect_ssl3_change_cipher_spec(tvbuff_t *tvb,
-                                proto_tree *tree, guint32 offset,
-                                const SslSession *session, const guint8 content_type)
-{
-    /*
-     * struct {
-     *     enum { change_cipher_spec(1), (255) } type;
-     * } ChangeCipherSpec;
-     *
-     */
-    if (tree)
-    {
-        proto_item_set_text(tree,
-                            "%s Record Layer: %s Protocol: Change Cipher Spec",
-                            val_to_str_const(session->version, ssl_version_short_names, "SSL"),
-                            val_to_str_const(content_type, ssl_31_content_type, "unknown"));
-        proto_tree_add_item(tree, hf_ssl_change_cipher_spec, tvb,
-                            offset++, 1, ENC_NA);
-    }
 }
 
 /* dissects the alert message, filling in the tree */
@@ -2040,7 +2010,8 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_SVR_HELLO_DONE:
-                /* server_hello_done has no fields, so nothing to do! */
+                if (ssl)
+                    ssl->state |= SSL_SERVER_HELLO_DONE;
                 break;
 
             case SSL_HND_CERT_VERIFY:
@@ -3743,11 +3714,6 @@ proto_register_ssl(void)
           { "Padding Length", "ssl.record.padding_length",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "Length of padding at end of record", HFILL }
-        },
-        { &hf_ssl_change_cipher_spec,
-          { "Change Cipher Spec Message", "ssl.change_cipher_spec",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            "Signals a change in cipher specifications", HFILL }
         },
         { &hf_ssl_alert_message,
           { "Alert Message", "ssl.alert_message",

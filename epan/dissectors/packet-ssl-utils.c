@@ -4976,6 +4976,55 @@ ssldecrypt_uat_fld_password_chk_cb(void *r _U_, const char *p _U_, guint len _U_
 
 /** Begin of code related to dissection of wire data. */
 
+/* change_cipher_spec(20) dissection */
+void
+ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                               packet_info *pinfo, proto_tree *tree,
+                               guint32 offset, SslSession *session,
+                               gboolean is_from_server,
+                               const SslDecryptSession *ssl)
+{
+    /*
+     * struct {
+     *     enum { change_cipher_spec(1), (255) } type;
+     * } ChangeCipherSpec;
+     */
+    proto_item *ti;
+    proto_item_set_text(tree,
+            "%s Record Layer: %s Protocol: Change Cipher Spec",
+            val_to_str_const(session->version, ssl_version_short_names, "SSL"),
+            val_to_str_const(SSL_ID_CHG_CIPHER_SPEC, ssl_31_content_type, "unknown"));
+    ti = proto_tree_add_item(tree, hf->hf.change_cipher_spec, tvb, offset, 1, ENC_NA);
+
+    /* Use heuristics to detect an abbreviated handshake, assume that missing
+     * ServerHelloDone implies reusing previously negotiating keys. Then when
+     * a Session ID or ticket is present, it must be a resumed session.
+     * Normally this should be done at the Finished message, but that may be
+     * encrypted so we do it here, at the last cleartext message. */
+    if (is_from_server && ssl) {
+        if (!(ssl->state & SSL_SERVER_HELLO_DONE)) {
+            const char *resumed = NULL;
+            if (ssl->session_ticket.data_len) {
+                resumed = "Session Ticket";
+            } else if (ssl->session_id.data_len) {
+                resumed = "Session ID";
+            }
+            if (resumed) {
+                ssl_debug_printf("%s Session resumption using %s\n", G_STRFUNC, resumed);
+                session->is_session_resumed = TRUE;
+            } else {
+                /* Can happen if the capture somehow starts in the middle */
+                ssl_debug_printf("%s No Session resumption, missing packets?\n", G_STRFUNC);
+            }
+        } else {
+            ssl_debug_printf("%s Not using Session resumption\n", G_STRFUNC);
+        }
+    }
+    if (is_from_server && session->is_session_resumed)
+        expert_add_info(pinfo, ti, &hf->ei.resumed);
+}
+
+/** Begin of handshake(22) record dissections */
 /* dissect a list of hash algorithms, return the number of bytes dissected
    this is used for the signature algorithms extension and for the
    TLS1.2 certificate request. {{{ */
