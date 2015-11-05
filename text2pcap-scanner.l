@@ -10,6 +10,11 @@
  */
 %option nounput
 
+/*
+ * We don't read interactively from the terminal.
+ */
+%option never-interactive
+
 %{
 
 /********************************************************************************

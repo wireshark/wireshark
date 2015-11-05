@@ -1,5 +1,5 @@
 /*
- * We don't read from the terminal.
+ * We don't read interactively from the terminal.
  */
 %option never-interactive
 
@@ -35,10 +35,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#ifdef HAVE_IO_H
-#include <io.h>		/* for isatty() on win32 */
-#endif
 
 #include "wtap-int.h"
 #include "ascendtext.h"

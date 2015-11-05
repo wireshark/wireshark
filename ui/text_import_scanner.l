@@ -6,7 +6,7 @@
 %option nounput noinput
 
 /*
- * We don't read from the terminal.
+ * We don't read interactively from the terminal.
  */
 %option never-interactive
 
