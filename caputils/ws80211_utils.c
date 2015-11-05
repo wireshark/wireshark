@@ -1188,22 +1188,6 @@ void ws80211_free_interfaces(GArray *interfaces)
 	g_array_free(interfaces, TRUE);
 }
 
-int ws80211_frequency_to_channel(int freq)
-{
-	if (freq == 2484)
-		return 14;
-
-	if (freq < 2484)
-		return (freq - 2407) / 5;
-
-	/* 4.9 GHz. https://en.wikipedia.org/wiki/List_of_WLAN_channels, fetched
-	 * 2015-06-15 */
-	if (freq < 5000)
-		return freq / 5 - 800;
-
-	return freq / 5 - 1000;
-}
-
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *

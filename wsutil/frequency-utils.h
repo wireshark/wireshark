@@ -25,6 +25,10 @@
 
 #include "ws_symbol_export.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /** @file
  * Frequency and channel conversion utilities.
  */
@@ -59,6 +63,10 @@ ieee80211_mhz_to_str(guint freq);
 
 /* Should this be "(freq < 4920)", or something else? */
 #define FREQ_IS_BG(freq) (freq <= 2484)
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __FREQUENCY_UTILS_H__ */
 

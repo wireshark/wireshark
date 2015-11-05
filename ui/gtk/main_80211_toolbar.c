@@ -43,6 +43,8 @@
 #include <capchild/capture_session.h>
 #include <capchild/capture_sync.h>
 
+#include <wsutil/frequency-utils.h>
+
 static GtkWidget *tb80211_tb, *tb80211_iface_list_box, *tb80211_freq_list_box, *tb80211_chan_type_box, *tb80211_info_label;
 
 static GArray *tb80211_interfaces;
@@ -123,7 +125,7 @@ void tb80211_update_freq(void)
     for (i = 0; i < tb80211_freq_cnt; i++) {
         int freq;
         freq = g_array_index(tb80211_current_iface->frequencies, int, i);
-        str = g_strdup_printf("%d MHz (%d)", freq, ws80211_frequency_to_channel(freq));
+        str = g_strdup_printf("%d MHz (%d)", freq, ieee80211_mhz_to_chan(freq));
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(tb80211_freq_list_box), str);
         g_free(str);
 
@@ -216,7 +218,7 @@ tb80211_set_channel(void)
         }
     }
     else {
-        info = g_strdup_printf("%s Switched to %d MHz (%d)", tb80211_current_iface->ifname, new_freq, ws80211_frequency_to_channel(new_freq));
+        info = g_strdup_printf("%s Switched to %d MHz (%d)", tb80211_current_iface->ifname, new_freq, ieee80211_mhz_to_chan(new_freq));
         tb80211_current_freq = new_freq;
         tb80211_current_type = new_type;
     }

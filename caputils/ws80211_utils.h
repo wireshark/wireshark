@@ -87,13 +87,6 @@ int ws80211_get_iface_info(const char *name, struct ws80211_iface_info *iface_in
  */
 void ws80211_free_interfaces(GArray *interfaces);
 
-/** Convert a frequency to a channel number
- *
- * @param freq Frequency in MHz.
- * @return The 802.11 channel number matching the provided frequency.
- */
-int ws80211_frequency_to_channel(int freq);
-
 /** Set the frequency and channel width for an interface.
  *
  * @param name The interface name.

@@ -33,6 +33,7 @@
 
 #include <ui/ui_util.h>
 #include <wsutil/utf8_entities.h>
+#include <wsutil/frequency-utils.h>
 
 #include <QProcess>
 
@@ -208,7 +209,7 @@ void WirelessFrame::getInterfaceInfo()
                 guint32 frequency = g_array_index(iface->frequencies, guint32, i);
                 double ghz = frequency / 1000.0;
                 QString chan_str = QString("%1 " UTF8_MIDDLE_DOT " %2%3")
-                        .arg(ws80211_frequency_to_channel(frequency))
+                        .arg(ieee80211_mhz_to_chan(frequency))
                         .arg(ghz, 0, 'f', 3)
                         .arg(units);
                 ui->channelComboBox->addItem(chan_str, frequency);
