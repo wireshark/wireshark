@@ -45,8 +45,8 @@ _Non-empty section placeholder._
 --sort-and-group--
 
 === New Protocol Support
+Nokia Intelligent Service Interface (ISI)
 
-_Non-empty section placeholder._
 // Items in --sort-and-group-- blocks will be sorted and comma-separated.
 --sort-and-group--
 --sort-and-group--

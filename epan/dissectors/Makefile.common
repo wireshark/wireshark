@@ -793,6 +793,7 @@ DISSECTOR_SRC = \
 	packet-iscsi.c		\
 	packet-isdn.c		\
 	packet-iser.c		\
+	packet-isi.c		\
 	packet-isis-clv.c	\
 	packet-isis-hello.c	\
 	packet-isis-lsp.c	\

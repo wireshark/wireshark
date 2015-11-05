@@ -69,6 +69,7 @@ static const value_string ltype_vals[] = {
 	{ LINUX_SLL_P_PPPHDLC,	"PPP (HDLC)" },
 	{ LINUX_SLL_P_CAN,	"CAN" },
 	{ LINUX_SLL_P_IRDA_LAP,	"IrDA LAP" },
+	{ LINUX_SLL_P_ISI,	"ISI" },
 	{ LINUX_SLL_P_IEEE802154,	"IEEE 802.15.4" },
 	{ 0,			NULL }
 };
