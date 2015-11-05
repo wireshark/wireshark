@@ -982,6 +982,11 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     }
   }
 
+  if (udph->uh_ulen == 8) {
+    /* Empty UDP payload, nothing left to do. */
+    return;
+  }
+
   /*
    * Call sub-dissectors.
    *
