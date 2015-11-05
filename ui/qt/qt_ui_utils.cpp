@@ -41,7 +41,9 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QFontDatabase>
+#include <QGuiApplication>
 #include <QProcess>
+#include <QScreen>
 #include <QUrl>
 #include <QUuid>
 
@@ -229,6 +231,16 @@ void desktop_show_in_folder(const QString file_path)
         QFileInfo file_info = file_path;
         QDesktopServices::openUrl(QUrl::fromLocalFile(file_info.dir().absolutePath()));
     }
+}
+
+bool rect_on_screen(const QRect &rect)
+{
+    foreach (const QScreen *screen, QGuiApplication::screens()) {
+        if (screen->availableGeometry().contains(rect))
+            return true;
+    }
+
+    return false;
 }
 
 /*
