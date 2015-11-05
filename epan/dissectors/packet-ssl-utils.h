@@ -236,6 +236,7 @@ typedef struct _StringInfo {
 #define SSL_PRE_MASTER_SECRET   (1<<6)
 #define SSL_CLIENT_EXTENDED_MASTER_SECRET (1<<7)
 #define SSL_SERVER_EXTENDED_MASTER_SECRET (1<<8)
+#define SSL_SERVER_HELLO_DONE   (1<<9)
 
 #define SSL_EXTENDED_MASTER_SECRET_MASK (SSL_CLIENT_EXTENDED_MASTER_SECRET|SSL_SERVER_EXTENDED_MASTER_SECRET)
 
@@ -368,6 +369,7 @@ typedef struct _SslSession {
     /* The Application layer protocol if known (for STARTTLS support) */
     dissector_handle_t   app_handle;
     guint32              last_nontls_frame;
+    gboolean             is_session_resumed;
 } SslSession;
 
 /* RFC 5246, section 8.1 says that the master secret is always 48 bytes */
@@ -613,6 +615,7 @@ ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, guin
 /* common header fields, subtrees and expert info for SSL and DTLS dissectors */
 typedef struct ssl_common_dissect {
     struct {
+        gint change_cipher_spec;
         gint hs_exts_len;
         gint hs_ext_alpn_len;
         gint hs_ext_alpn_list;
@@ -744,6 +747,7 @@ typedef struct ssl_common_dissect {
         expert_field hs_sig_hash_alg_len_bad;
         expert_field hs_cipher_suites_len_bad;
         expert_field hs_sig_hash_algs_bad;
+        expert_field resumed;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_EI_LIST! */
     } ei;
@@ -764,6 +768,13 @@ typedef struct {
 
     /* Do not forget to initialize ssl_hfs to -1 in packet-ssl.c! */
 } ssl_hfs_t;
+
+void
+ssl_dissect_change_cipher_spec(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                               packet_info *pinfo, proto_tree *tree,
+                               guint32 offset, SslSession *session,
+                               gboolean is_from_server,
+                               const SslDecryptSession *ssl);
 
 extern void
 ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
@@ -827,20 +838,25 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1                                                      \
+        -1, -1, -1, -1,                                                 \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1,                                                 \
     },                                                                  \
     /* ei */ {                                                          \
-        EI_INIT, EI_INIT, EI_INIT, EI_INIT,                             \
+        EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,                    \
     },                                                                  \
 }
 /* }}} */
 
 /* {{{ */
 #define SSL_COMMON_HF_LIST(name, prefix)                                \
+    { & name .hf.change_cipher_spec,                                    \
+      { "Change Cipher Spec Message", prefix ".change_cipher_spec",     \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        "Signals a change in cipher specifications", HFILL }            \
+    },                                                                  \
     { & name .hf.hs_exts_len,                                           \
       { "Extensions Length", prefix ".handshake.extensions_length",     \
         FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
@@ -1380,6 +1396,10 @@ ssl_common_dissect_t name = {   \
     { & name .ei.hs_sig_hash_algs_bad, \
         { prefix ".handshake.sig_hash_algs.mult2", PI_MALFORMED, PI_ERROR, \
         "Hash Algorithm length must be a multiple of 2", EXPFILL } \
+    }, \
+    { & name .ei.resumed, \
+        { prefix ".resumed", PI_SEQUENCE, PI_NOTE, \
+        "This session reuses previously negotiated keys (Session resumption)", EXPFILL } \
     }
 /* }}} */
 
