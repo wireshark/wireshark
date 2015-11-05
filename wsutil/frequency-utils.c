@@ -36,21 +36,33 @@ typedef struct freq_cvt_s {
 #define FREQ_STEP 5     /* MHz. This seems to be consistent, thankfully */
 
 /*
- * From "802.11 Wireless Networks: The Definitive Guide", 2nd Ed. by
- * Matthew Gast.
+ * From IEEE Std 802.11-2012:
  *
- * XXX - what about Japanese channels 182 through 196, also in the 4.9 GHz
- * band, with frequencies of 4910 + (chan - 182)*5 MHz?
+ *    section 16.4.6.3 "Channel Numbering of operating channels";
+ *
+ *    section 17.4.6.3 "Channel Numbering of operating channels";
+ *
+ *    section 18.3.8.4.2 "Channel numbering";
+ *
+ *    Annex E.
+ *
+ * XXX - Japanese channels 182 through 196 actually have center
+ * frequencies that are off by 2.5 MHz from these values, according
+ * to the IEEE standard, although the table in ARIB STD T-71 version 5.2:
+ *
+ *     http://www.arib.or.jp/english/html/overview/doc/1-STD-T71v5_2.pdf
+ *
+ * section 5.3.8.3.3 doesn't show that.
  *
  * XXX - what about the U.S. public safety 4.9 GHz band?
  *
  * XXX - what about 802.11ad?
  */
 static freq_cvt_t freq_cvt[] = {
-    { 2412, 2472,   1, TRUE },   /* Table 12-1, p 257 */
-    { 2484, 2484,  14, TRUE },   /* Table 12-1, p 257 */
-    { 5000, 5995,   0, FALSE },  /* Table 13-1, p 289 */
-    { 4920, 4995, 240, FALSE }   /* Table 13-1, p 289 */
+    { 2412, 2472,   1, TRUE },
+    { 2484, 2484,  14, TRUE },
+    { 5000, 5995,   0, FALSE },
+    { 4910, 4980, 182, FALSE }
 };
 
 #define NUM_FREQ_CVT (sizeof(freq_cvt) / sizeof(freq_cvt_t))
