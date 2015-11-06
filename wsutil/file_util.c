@@ -20,13 +20,40 @@
  *
  */
 
-/* file wrapper functions to prevent the file functions from GLib like g_open(),
- * as code compiled with MSVC 7 and above will collide with libs linked with msvcrt.dll (MSVC 6), lib GLib is
+/*
+ * File wrapper functions to replace the file functions from GLib like
+ * g_open().
  *
- * DO NOT USE THESE FUNCTIONS DIRECTLY, USE ws_open() AND ALIKE FUNCTIONS FROM file_util.h INSTEAD!!!
+ * With MSVC, code using the C support library from one version of MSVC
+ * cannot use file descriptors or FILE *'s returned from code using
+ * the C support library from another version of MSVC.
  *
- * the following code is stripped down code copied from the GLib file glib/gstdio.h
- * stripped down, because this is used on _WIN32 only and we use only wide char functions */
+ * We therefore provide our own versions of the routines to open files,
+ * so that they're built to use the same C support library as our code
+ * that reads them.
+ *
+ * (If both were built to use the Universal CRT:
+ *
+ *    http://blogs.msdn.com/b/vcblog/archive/2015/03/03/introducing-the-universal-crt.aspx
+ *
+ * this would not be a problem.)
+ *
+ * DO NOT USE THESE FUNCTIONS DIRECTLY, USE ws_open() AND ALIKE FUNCTIONS
+ * FROM file_util.h INSTEAD!!!
+ *
+ * The following code is stripped down code copied from the GLib file
+ * glib/gstdio.h - stripped down because this is used only on Windows
+ * and we use only wide char functions.
+ *
+ * In addition, we have our own ws_stdio_stat64(), which uses
+ * _wstati64(), so that we can get file sizes for files > 4 GB in size.
+ *
+ * XXX - is there any reason why we supply our own versions of routines
+ * that *don't* return file descriptors, other than ws_stdio_stat64()?
+ * Is there an issue with UTF-16 support in _wmkdir() with some versions
+ * of the C runtime, so that if GLib is built to use that version, it
+ * won't handle UTF-16 paths?
+ */
 
 #ifndef _WIN32
 #error "This is only for Windows"
@@ -40,8 +67,6 @@
 #include <errno.h>
 #include <wchar.h>
 #include <tchar.h>
-/*#include <direct.h>*/
-#include <io.h>
 #include <stdlib.h>
 
 #include "file_util.h"
