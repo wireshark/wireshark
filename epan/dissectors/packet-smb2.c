@@ -4503,15 +4503,21 @@ static void
 smb2_set_dcerpc_file_id(packet_info *pinfo, smb2_info_t *si)
 {
 	guint64 persistent;
+	smb2_fid_info_t *file = NULL;
 
 	if (si == NULL) {
 		return;
 	}
-	if (si->file == NULL) {
+	if (si->file != NULL) {
+		file = si->file;
+	} else if (si->saved != NULL) {
+		file = si->saved->file;
+	}
+	if (file == NULL) {
 		return;
 	}
 
-	persistent = GPOINTER_TO_UINT(si->file);
+	persistent = GPOINTER_TO_UINT(file);
 
 	dcerpc_set_transport_salt(persistent, pinfo);
 }
@@ -7849,6 +7855,11 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 					0, 0, &deltat);
 					PROTO_ITEM_SET_GENERATED(tmp_item);
 				}
+			}
+			if (si->file != NULL) {
+				ssi->file = si->file;
+			} else {
+				si->file = ssi->file;
 			}
 		}
 		/* if we don't have ssi yet we must fake it */
