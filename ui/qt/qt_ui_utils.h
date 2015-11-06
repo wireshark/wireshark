@@ -197,7 +197,7 @@ void desktop_show_in_folder(const QString file_path);
 /**
  * Test to see if a rect is visible on screen.
  *
- * @param rect
+ * @param rect The rect to test, typically a "recent.gui_geometry_*" setting.
  * @return true if the rect is completely enclosed by one of the display
  * screens, false otherwise.
  */
