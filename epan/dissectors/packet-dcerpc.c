@@ -3482,8 +3482,8 @@ dissect_verification_trailer_impl(packet_info *pinfo, tvbuff_t *tvb, int stub_of
 
     proto_tree_add_item(tree, hf_dcerpc_sec_vt_signature,
                         tvb, offset, sizeof(TRAILER_SIGNATURE), ENC_NA);
-    offset += sizeof(TRAILER_SIGNATURE);
-    remaining -= sizeof(TRAILER_SIGNATURE);
+    offset += (int)sizeof(TRAILER_SIGNATURE);
+    remaining -= (int)sizeof(TRAILER_SIGNATURE);
 
     while (remaining >= 4) {
         sec_vt_command cmd;
@@ -3564,7 +3564,7 @@ static int
 dissect_verification_trailer(packet_info *pinfo, tvbuff_t *tvb, int stub_offset,
                              proto_tree *parent_tree, int *signature_offset)
 {
-    int ret = -1;
+    volatile int ret = -1;
     TRY {
         /*
          * Even if we found a signature we can't be sure to have a
