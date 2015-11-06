@@ -1810,7 +1810,7 @@ proto_register_ansi_tcap(void)
         register_dissector("ansi_tcap", dissect_ansi_tcap, proto_ansi_tcap);
 
    /* Note the high bit should be masked off when registering in this table (0x7fff)*/
-   ansi_tcap_national_opcode_table = register_dissector_table("ansi_tcap.nat.opcode", "ANSI TCAP National Opcodes", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+   ansi_tcap_national_opcode_table = register_dissector_table("ansi_tcap.nat.opcode", "ANSI TCAP National Opcodes", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ansi_tcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
