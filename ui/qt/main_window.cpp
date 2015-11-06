@@ -1620,13 +1620,15 @@ void MainWindow::captureStop() {
 
 void MainWindow::initMainToolbarIcons()
 {
-#if defined(Q_OS_WIN)
-    // Current GTK+ and other Windows app behavior.
-    main_ui_->mainToolBar->setIconSize(QSize(16, 16));
-#else
+    // Normally 16 px. Reflects current GTK+ behavior and other Windows apps.
+    int icon_size = style()->pixelMetric(QStyle::PM_SmallIconSize);
+#if !defined(Q_OS_WIN)
     // Force icons to 24x24 for now, otherwise actionFileOpen looks wonky.
-    main_ui_->mainToolBar->setIconSize(QSize(24, 24));
+    // The OS X HIG specifies 32-pixel icons but they're a little too
+    // large IMHO.
+    icon_size = icon_size * 3 / 2;
 #endif
+    main_ui_->mainToolBar->setIconSize(QSize(icon_size, icon_size));
 
     // Toolbar actions. The GNOME HIG says that we should have a menu icon for each
     // toolbar item but that clutters up our menu. Set menu icons sparingly.
