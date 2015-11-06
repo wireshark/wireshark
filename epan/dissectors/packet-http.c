@@ -63,6 +63,7 @@ static int http_eo_tap = -1;
 
 static int proto_http = -1;
 static int proto_http2 = -1;
+static int proto_ssdp = -1;
 static int hf_http_notification = -1;
 static int hf_http_response = -1;
 static int hf_http_request = -1;
@@ -698,9 +699,8 @@ static http_info_value_t	*stat_info;
 
 static int
 dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		     proto_tree *tree, http_conv_t *conv_data)
+		     proto_tree *tree, http_conv_t *conv_data, const char* proto_tag, int proto)
 {
-	const char	*proto_tag;
 	proto_tree	*http_tree = NULL;
 	proto_item	*ti = NULL;
 	proto_item	*hidden_item;
@@ -824,17 +824,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	stat_info->request_method = NULL;
 	stat_info->request_uri = NULL;
 	stat_info->http_host = NULL;
-
-	switch (pinfo->match_uint) {
-
-	case TCP_PORT_SSDP:	/* TCP_PORT_SSDP = UDP_PORT_SSDP */
-		proto_tag = "SSDP";
-		break;
-
-	default:
-		proto_tag = "HTTP";
-		break;
-	}
 
 	orig_offset = offset;
 
@@ -1010,7 +999,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 
 		if ((tree) && (http_tree == NULL)) {
-			ti = proto_tree_add_item(tree, proto_http, tvb, orig_offset, -1, ENC_NA);
+			ti = proto_tree_add_item(tree, proto, tvb, orig_offset, -1, ENC_NA);
 			http_tree = proto_item_add_subtree(ti, ett_http);
 			if(leading_crlf){
 				proto_tree_add_expert(http_tree, pinfo, &ei_http_leading_crlf, tvb, orig_offset-2, 2);
@@ -2947,7 +2936,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 				call_dissector_only(next_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
 				break;
 			}
-			len = dissect_http_message(tvb, offset, pinfo, tree, conv_data);
+			len = dissect_http_message(tvb, offset, pinfo, tree, conv_data, "HTTP", proto_http);
 			if (len == -1)
 				break;
 			offset += len;
@@ -2994,15 +2983,14 @@ dissect_http_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 }
 
 static void
-dissect_http_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ssdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	conversation_t  *conversation;
 	http_conv_t	*conv_data;
 
 	conv_data = get_http_conversation_data(pinfo, &conversation);
-	dissect_http_message(tvb, 0, pinfo, tree, conv_data);
+	dissect_http_message(tvb, 0, pinfo, tree, conv_data, "SSDP", proto_ssdp);
 }
-
 
 static void
 range_delete_http_ssl_callback(guint32 port) {
@@ -3306,8 +3294,9 @@ proto_register_http(void)
 	expert_module_t* expert_http;
 	uat_t* headers_uat;
 
-	proto_http = proto_register_protocol("Hypertext Transfer Protocol",
-	    "HTTP", "http");
+	proto_http = proto_register_protocol("Hypertext Transfer Protocol", "HTTP", "http");
+	proto_ssdp = proto_register_protocol("Simple Service Discovery Protocol", "SSDP", "ssdp");
+
 	proto_register_field_array(proto_http, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_http = expert_register_protocol(proto_http);
@@ -3446,7 +3435,7 @@ http_port_add(guint32 port)
 void
 proto_reg_handoff_http(void)
 {
-	dissector_handle_t http_udp_handle;
+	dissector_handle_t ssdp_handle;
 
 	data_handle = find_dissector("data");
 	media_handle = find_dissector("media");
@@ -3456,8 +3445,8 @@ proto_reg_handoff_http(void)
 	 * XXX - is there anything to dissect in the body of an SSDP
 	 * request or reply?  I.e., should there be an SSDP dissector?
 	 */
-	http_udp_handle = create_dissector_handle(dissect_http_udp, proto_http);
-	dissector_add_uint("udp.port", UDP_PORT_SSDP, http_udp_handle);
+	ssdp_handle = create_dissector_handle(dissect_ssdp, proto_ssdp);
+	dissector_add_uint("udp.port", UDP_PORT_SSDP, ssdp_handle);
 
 	ntlmssp_handle = find_dissector("ntlmssp");
 	gssapi_handle = find_dissector("gssapi");
