@@ -458,7 +458,12 @@ typedef enum {
 #define NDDS_TRANSPORT_CLASSID_PCIE         (12)
 #define NDDS_TRANSPORT_CLASSID_ITP          (13)
 
-
+#define TOPIC_INFO_ADD_GUID                      (1)
+#define TOPIC_INFO_ADD_TYPE_NAME                 (2)
+#define TOPIC_INFO_ADD_TOPIC_NAME                (4)
+#define TOPIC_INFO_ALL_SET                       (TOPIC_INFO_ADD_GUID | \
+                                                  TOPIC_INFO_ADD_TYPE_NAME | \
+                                                  TOPIC_INFO_ADD_TOPIC_NAME)
 /* Utilities to add elements to the protocol tree for packet-rtps.h and packet-rtps2.h */
 extern guint16 rtps_util_add_protocol_version(proto_tree *tree, tvbuff_t* tvb, gint offset);
 extern guint16 rtps_util_add_vendor_id(proto_tree *tree, tvbuff_t * tvb, gint offset);
