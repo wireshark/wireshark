@@ -2994,12 +2994,12 @@ dissect_ssdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void
 range_delete_http_ssl_callback(guint32 port) {
-	ssl_dissector_delete(port, "http", TRUE);
+	ssl_dissector_delete(port, http_handle);
 }
 
 static void
 range_add_http_ssl_callback(guint32 port) {
-	ssl_dissector_add(port, "http", TRUE);
+	ssl_dissector_add(port, http_handle);
 }
 
 static void reinit_http(void) {

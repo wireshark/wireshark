@@ -308,7 +308,8 @@ GHashTable *ssl_session_hash;
 GHashTable *ssl_crandom_hash;
 
 static GHashTable         *ssl_key_hash             = NULL;
-static GTree              *ssl_associations         = NULL;
+static wmem_stack_t       *key_list_stack            = NULL;
+static dissector_table_t   ssl_associations         = NULL;
 static dissector_handle_t  ssl_handle               = NULL;
 static StringInfo          ssl_compressed_data      = {NULL, 0};
 static StringInfo          ssl_decrypted_data       = {NULL, 0};
@@ -363,6 +364,10 @@ ssl_init(void)
 static void
 ssl_cleanup(void)
 {
+    if (key_list_stack != NULL) {
+        wmem_destroy_stack(key_list_stack);
+        key_list_stack = NULL;
+    }
     reassembly_table_destroy(&ssl_reassembly_table);
     ssl_common_cleanup(&ssl_master_key_map, &ssl_keylog_file,
                        &ssl_decrypted_data, &ssl_compressed_data);
@@ -377,8 +382,8 @@ ssl_cleanup(void)
 static void
 ssl_parse_uat(void)
 {
-    wmem_stack_t   *tmp_stack;
-    guint           i;
+    guint            i, port;
+    dissector_handle_t handle;
 
     ssl_set_debug(ssl_debug_file_name);
 
@@ -388,22 +393,27 @@ ssl_parse_uat(void)
     }
 
     /* remove only associations created from key list */
-    tmp_stack = wmem_stack_new(NULL);
-    g_tree_foreach(ssl_associations, ssl_assoc_from_key_list, tmp_stack);
-    while (wmem_stack_count(tmp_stack) > 0) {
-        ssl_association_remove(ssl_associations, (SslAssociation *)wmem_stack_pop(tmp_stack));
+    if (key_list_stack != NULL) {
+        while (wmem_stack_count(key_list_stack) > 0) {
+          port = GPOINTER_TO_UINT(wmem_stack_pop(key_list_stack));
+          handle = dissector_get_uint_handle(ssl_associations, port);
+          if (handle != NULL)
+              ssl_association_remove("ssl.port", ssl_handle, handle, port, FALSE);
+        }
     }
-    wmem_destroy_stack(tmp_stack);
-
     /* parse private keys string, load available keys and put them in key hash*/
     ssl_key_hash = g_hash_table_new_full(ssl_private_key_hash,
             ssl_private_key_equal, g_free, ssl_private_key_free);
 
 
     if (nssldecrypt > 0) {
+        if (key_list_stack == NULL)
+            key_list_stack = wmem_stack_new(NULL);
         for (i = 0; i < nssldecrypt; i++) {
             ssldecrypt_assoc_t *ssl_uat = &(sslkeylist_uats[i]);
-            ssl_parse_key_list(ssl_uat, ssl_key_hash, ssl_associations, ssl_handle, TRUE);
+            ssl_parse_key_list(ssl_uat, ssl_key_hash, "ssl.port", ssl_handle, TRUE);
+            if (key_list_stack)
+                wmem_stack_push(key_list_stack, GUINT_TO_POINTER(atoi(ssl_uat->port)));
         }
     }
 
@@ -439,39 +449,6 @@ ssl_parse_old_keys(void)
         }
         wmem_free(NULL, old_keys);
     }
-}
-
-/*********************************************************************
- *
- * SSL Associations tree
- *
- *********************************************************************/
-
-/** maximum size of ssl_association_info() string */
-#define SSL_ASSOC_MAX_LEN 8192
-
-/**
- * callback function used by ssl_association_info() to traverse the SSL associations.
- */
-static gboolean
-ssl_association_info_(gpointer key_ _U_, gpointer value_, gpointer s_)
-{
-    SslAssociation *value = (SslAssociation *)value_;
-    gchar *s = (gchar *)s_;
-    const int l = (const int)strlen(s);
-    g_snprintf(s+l, SSL_ASSOC_MAX_LEN-l, "'%s' %s %i\n", value->info, value->tcp ? "TCP":"UDP", value->ssl_port);
-    return FALSE;
-}
-
-/**
- * @return an information string on the SSL protocol associations. The string has ephemeral lifetime/scope.
- */
-gchar*
-ssl_association_info(void)
-{
-    gchar *s = (gchar *)g_malloc0(SSL_ASSOC_MAX_LEN);
-    g_tree_foreach(ssl_associations, ssl_association_info_, s);
-    return s;
 }
 
 /*********************************************************************
@@ -1709,11 +1686,10 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         if (!session->app_handle) {
             /* Unknown protocol handle, ssl_starttls_ack was not called before.
              * Try to find an appropriate dissection handle and cache it. */
-            SslAssociation *association;
-            association = ssl_association_find(ssl_associations, pinfo->srcport, pinfo->ptype != PT_UDP);
-            association = association ? association: ssl_association_find(ssl_associations, pinfo->destport, pinfo->ptype != PT_UDP);
-            association = association ? association: ssl_association_find(ssl_associations, 0, pinfo->ptype != PT_UDP);
-            if (association) session->app_handle = association->handle;
+            dissector_handle_t handle;
+            handle = dissector_get_uint_handle(ssl_associations, pinfo->srcport);
+            handle = handle ? handle : dissector_get_uint_handle(ssl_associations, pinfo->destport);
+            if (handle) session->app_handle = handle;
         }
 
         proto_item_set_text(ssl_record_tree,
@@ -3651,6 +3627,31 @@ UAT_CSTRING_CB_DEF(sslkeylist_uats,port,ssldecrypt_assoc_t)
 UAT_CSTRING_CB_DEF(sslkeylist_uats,protocol,ssldecrypt_assoc_t)
 UAT_FILENAME_CB_DEF(sslkeylist_uats,keyfile,ssldecrypt_assoc_t)
 UAT_CSTRING_CB_DEF(sslkeylist_uats,password,ssldecrypt_assoc_t)
+
+static gboolean
+ssldecrypt_uat_fld_protocol_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
+{
+    if (!p || strlen(p) == 0u) {
+        *err = g_strdup_printf("No protocol given.");
+        return FALSE;
+    }
+
+    if (!find_dissector(p)) {
+        if (proto_get_id_by_filter_name(p) != -1) {
+            *err = g_strdup_printf("While '%s' is a valid dissector filter name, that dissector is not configured"
+                                   " to support SSL decryption.\n\n"
+                                   "If you need to decrypt '%s' over SSL, please contact the Wireshark development team.", p, p);
+        } else {
+            char* ssl_str = ssl_association_info("ssl.port", "TCP");
+            *err = g_strdup_printf("Could not find dissector for: '%s'\nCommonly used SSL dissectors include:\n%s", p, ssl_str);
+            g_free(ssl_str);
+        }
+        return FALSE;
+    }
+
+    *err = NULL;
+    return TRUE;
+}
 #endif
 
 /*********************************************************************
@@ -4090,6 +4091,8 @@ proto_register_ssl(void)
     proto_ssl = proto_register_protocol("Secure Sockets Layer",
                                         "SSL", "ssl");
 
+    ssl_associations = register_dissector_table("ssl.port", "SSL TCP Dissector", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+
     /* Required function calls to register the header fields and
      * subtrees used */
     proto_register_field_array(proto_ssl, hf, array_length(hf));
@@ -4167,8 +4170,6 @@ proto_register_ssl(void)
     new_register_dissector("ssl", dissect_ssl, proto_ssl);
     ssl_handle = find_dissector("ssl");
 
-    ssl_associations = g_tree_new(ssl_association_cmp);
-
     register_init_routine(ssl_init);
     register_cleanup_routine(ssl_cleanup);
     ssl_tap = register_tap("ssl");
@@ -4191,27 +4192,15 @@ proto_reg_handoff_ssl(void)
 }
 
 void
-ssl_dissector_add(guint port, const gchar *protocol, gboolean tcp)
+ssl_dissector_add(guint port, dissector_handle_t handle)
 {
-    SslAssociation *assoc;
-
-    assoc = ssl_association_find(ssl_associations, port, tcp);
-    if (assoc) {
-        ssl_association_remove(ssl_associations, assoc);
-    }
-
-    ssl_association_add(ssl_associations, ssl_handle, port, protocol, tcp, FALSE);
+    ssl_association_add("ssl.port", ssl_handle, handle, port, TRUE);
 }
 
 void
-ssl_dissector_delete(guint port, const gchar *protocol, gboolean tcp)
+ssl_dissector_delete(guint port, dissector_handle_t handle)
 {
-    SslAssociation *assoc;
-
-    assoc = ssl_association_find(ssl_associations, port, tcp);
-    if (assoc && (assoc->handle == find_dissector(protocol))) {
-        ssl_association_remove(ssl_associations, assoc);
-    }
+    ssl_association_remove("ssl.port", ssl_handle, handle, port, TRUE);
 }
 
 /*

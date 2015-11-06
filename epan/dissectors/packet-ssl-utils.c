@@ -4137,82 +4137,37 @@ ssl_private_key_hash (gconstpointer v)
 
 /* Handling of association between tls/dtls ports and clear text protocol. {{{ */
 void
-ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, const gchar *protocol, gboolean tcp, gboolean from_key_list)
+ssl_association_add(const char* dissector_table_name, dissector_handle_t main_handle, dissector_handle_t subdissector_handle, guint port, gboolean tcp)
 {
+    DISSECTOR_ASSERT(main_handle);
+    DISSECTOR_ASSERT(subdissector_handle);
+    ssl_debug_printf("association_add %s port %d handle %p\n", dissector_table_name, port, (void *)subdissector_handle);
 
-    SslAssociation* assoc;
-    assoc = (SslAssociation *)g_malloc(sizeof(SslAssociation));
-
-    assoc->tcp = tcp;
-    assoc->ssl_port = port;
-    assoc->info=g_strdup(protocol);
-    assoc->handle = find_dissector(protocol);
-    assoc->from_key_list = from_key_list;
-
-    ssl_debug_printf("association_add %s port %d protocol %s handle %p\n",
-                     (assoc->tcp)?"TCP":"UDP", port, protocol, (void *)(assoc->handle));
-
-
-    if (!assoc->handle) {
-        ssl_debug_printf("association_add could not find handle for protocol '%s', try to find 'data' dissector\n", protocol);
-        assoc->handle = find_dissector("data");
-    }
-
-    DISSECTOR_ASSERT(assoc->handle != NULL);
     if (port) {
+        dissector_add_uint(dissector_table_name, port, subdissector_handle);
         if (tcp)
-            dissector_add_uint("tcp.port", port, handle);
+            dissector_add_uint("tcp.port", port, main_handle);
         else
-            dissector_add_uint("udp.port", port, handle);
-        dissector_add_uint("sctp.port", port, handle);
+            dissector_add_uint("udp.port", port, main_handle);
+        dissector_add_uint("sctp.port", port, main_handle);
+    } else {
+        dissector_add_for_decode_as(dissector_table_name, subdissector_handle);
     }
-    g_tree_insert(associations, assoc, assoc);
 }
 
 void
-ssl_association_remove(GTree* associations, SslAssociation *assoc)
+ssl_association_remove(const char* dissector_table_name, dissector_handle_t main_handle, dissector_handle_t subdissector_handle, guint port, gboolean tcp)
 {
-    ssl_debug_printf("ssl_association_remove removing %s %u - %s handle %p\n",
-                     (assoc->tcp)?"TCP":"UDP", assoc->ssl_port, assoc->info, (void *)(assoc->handle));
-    if (assoc->handle) {
-        dissector_delete_uint((assoc->tcp)?"tcp.port":"udp.port", assoc->ssl_port, assoc->handle);
-        dissector_delete_uint("sctp.port", assoc->ssl_port, assoc->handle);
+    ssl_debug_printf("ssl_association_remove removing %s %u - handle %p\n",
+                     tcp?"TCP":"UDP", port, (void *)subdissector_handle);
+    if (main_handle) {
+        dissector_delete_uint(tcp?"tcp.port":"udp.port", port, main_handle);
+        dissector_delete_uint("sctp.port", port, main_handle);
     }
 
-    g_free(assoc->info);
-
-    g_tree_remove(associations, assoc);
-    g_free(assoc);
-}
-
-gint
-ssl_association_cmp(gconstpointer a, gconstpointer b)
-{
-    const SslAssociation *assoc_a=(const SslAssociation *)a, *assoc_b=(const SslAssociation *)b;
-    if (assoc_a->tcp != assoc_b->tcp) return (assoc_a->tcp)?1:-1;
-    return assoc_a->ssl_port - assoc_b->ssl_port;
-}
-
-SslAssociation*
-ssl_association_find(GTree * associations, guint port, gboolean tcp)
-{
-    register SslAssociation* ret;
-    SslAssociation           assoc_tmp;
-
-    assoc_tmp.tcp = tcp;
-    assoc_tmp.ssl_port = port;
-    ret = (SslAssociation *)g_tree_lookup(associations, &assoc_tmp);
-
-    ssl_debug_printf("association_find: %s port %d found %p\n", (tcp)?"TCP":"UDP", port, (void *)ret);
-    return ret;
-}
-
-gint
-ssl_assoc_from_key_list(gpointer key _U_, gpointer data, gpointer user_data)
-{
-    if (((SslAssociation*)data)->from_key_list)
-        wmem_stack_push((wmem_stack_t*)user_data, data);
-    return FALSE;
+    if (port) {
+        dissector_delete_uint(dissector_table_name, port, subdissector_handle);
+    }
 }
 
 void
@@ -4224,7 +4179,7 @@ ssl_set_server(SslSession *session, address *addr, port_type ptype, guint32 port
 }
 
 int
-ssl_packet_from_server(SslSession *session, GTree *associations, packet_info *pinfo)
+ssl_packet_from_server(SslSession *session, dissector_table_t table, packet_info *pinfo)
 {
     gint ret;
     if (session->srv_ptype != PT_NONE) {
@@ -4232,7 +4187,7 @@ ssl_packet_from_server(SslSession *session, GTree *associations, packet_info *pi
               (session->srv_port == pinfo->srcport) &&
               addresses_equal(&session->srv_addr, &pinfo->src);
     } else {
-        ret = ssl_association_find(associations, pinfo->srcport, pinfo->ptype != PT_UDP) != 0;
+        ret = (dissector_get_uint_handle(table, pinfo->srcport) != 0);
     }
 
     ssl_debug_printf("packet_from_server: is from server - %s\n", (ret)?"TRUE":"FALSE");
@@ -4382,7 +4337,7 @@ ssl_common_cleanup(ssl_master_key_map_t *mk_map, FILE **ssl_keylog_file,
 #if defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT)
 /* Load a single RSA key file item from preferences. {{{ */
 void
-ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, GTree* associations, dissector_handle_t handle, gboolean tcp)
+ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, const char* dissector_table_name, dissector_handle_t main_handle, gboolean tcp)
 {
     gnutls_x509_privkey_t priv_key;
     gcry_sexp_t        private_key;
@@ -4390,7 +4345,7 @@ ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, GTree* 
     int                ret;
     size_t             key_id_len = 20;
     guchar            *key_id = NULL;
-
+    dissector_handle_t handle;
     /* try to load keys file first */
     fp = ws_fopen(uats->keyfile, "rb");
     if (!fp) {
@@ -4439,7 +4394,9 @@ ssl_parse_key_list(const ssldecrypt_assoc_t *uats, GHashTable *key_hash, GTree* 
         int port = atoi(uats->port); /* Also maps "start_tls" -> 0 (wildcard) */
         ssl_debug_printf("ssl_init port '%d' filename '%s' password(only for p12 file) '%s'\n",
             port, uats->keyfile, uats->password);
-        ssl_association_add(associations, handle, port, uats->protocol, tcp, TRUE);
+
+        handle = find_dissector(uats->protocol);
+        ssl_association_add(dissector_table_name, main_handle, handle, port, tcp);
     }
 
 end:
@@ -4449,7 +4406,7 @@ end:
 /* }}} */
 #else
 void
-ssl_parse_key_list(const ssldecrypt_assoc_t *uats _U_, GHashTable *key_hash _U_, GTree* associations _U_, dissector_handle_t handle _U_, gboolean tcp _U_)
+ssl_parse_key_list(const ssldecrypt_assoc_t *uats _U_, GHashTable *key_hash _U_, const char* dissector_table_name _U_, dissector_handle_t main_handle _U_, gboolean tcp _U_)
 {
     report_failure("Can't load private key files, support is not compiled in.");
 }
@@ -4894,31 +4851,6 @@ ssldecrypt_uat_fld_port_chk_cb(void* r _U_, const char* p, guint len _U_, const 
 }
 
 gboolean
-ssldecrypt_uat_fld_protocol_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
-{
-    if (!p || strlen(p) == 0u) {
-        *err = g_strdup_printf("No protocol given.");
-        return FALSE;
-    }
-
-    if (!find_dissector(p)) {
-        if (proto_get_id_by_filter_name(p) != -1) {
-            *err = g_strdup_printf("While '%s' is a valid dissector filter name, that dissector is not configured"
-                                   " to support SSL decryption.\n\n"
-                                   "If you need to decrypt '%s' over SSL, please contact the Wireshark development team.", p, p);
-        } else {
-            char* ssl_str = ssl_association_info();
-            *err = g_strdup_printf("Could not find dissector for: '%s'\nCommonly used SSL dissectors include:\n%s", p, ssl_str);
-            g_free(ssl_str);
-        }
-        return FALSE;
-    }
-
-    *err = NULL;
-    return TRUE;
-}
-
-gboolean
 ssldecrypt_uat_fld_fileopen_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
 {
     ws_statb64 st;
@@ -4972,6 +4904,40 @@ ssldecrypt_uat_fld_password_chk_cb(void *r _U_, const char *p _U_, guint len _U_
 #endif
 }
 /* UAT preferences callbacks. }}} */
+
+/** maximum size of ssl_association_info() string */
+#define SSL_ASSOC_MAX_LEN 8192
+
+typedef struct ssl_association_info_callback_data
+{
+    gchar *str;
+    const char *table_protocol;
+} ssl_association_info_callback_data_t;
+
+/**
+ * callback function used by ssl_association_info() to traverse the SSL associations.
+ */
+static void
+ssl_association_info_(const gchar *table _U_, gpointer handle, gpointer user_data)
+{
+    ssl_association_info_callback_data_t* data = (ssl_association_info_callback_data_t*)user_data;
+    const int l = (const int)strlen(data->str);
+    g_snprintf(data->str+l, SSL_ASSOC_MAX_LEN-l, "'%s' %s\n", dissector_handle_get_short_name((dissector_handle_t)handle), data->table_protocol);
+}
+
+/**
+ * @return an information string on the SSL protocol associations. The string has ephemeral lifetime/scope.
+ */
+gchar*
+ssl_association_info(const char* dissector_table_name, const char* table_protocol)
+{
+    ssl_association_info_callback_data_t data;
+
+    data.str = (gchar *)g_malloc0(SSL_ASSOC_MAX_LEN);
+    data.table_protocol = table_protocol;
+    dissector_table_foreach_handle(dissector_table_name, ssl_association_info_, &data);
+    return data.str;
+}
 
 
 /** Begin of code related to dissection of wire data. */

@@ -6453,13 +6453,13 @@ proto_reg_handoff_sip(void)
     } else {
         dissector_delete_uint_range("tcp.port", sip_tcp_port_range, sip_tcp_handle);
         g_free(sip_tcp_port_range);
-        ssl_dissector_delete(saved_sip_tls_port, "sip.tcp", TRUE);
+        ssl_dissector_delete(saved_sip_tls_port, sip_tcp_handle);
     }
     /* Set our port number for future use */
     sip_tcp_port_range = range_copy(global_sip_tcp_port_range);
     dissector_add_uint_range("tcp.port", sip_tcp_port_range, sip_tcp_handle);
     saved_sip_tls_port = sip_tls_port;
-    ssl_dissector_add(saved_sip_tls_port, "sip.tcp", TRUE);
+    ssl_dissector_add(saved_sip_tls_port, sip_tcp_handle);
 
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 }

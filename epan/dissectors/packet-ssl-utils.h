@@ -410,14 +410,6 @@ typedef struct _SslDecryptSession {
 
 } SslDecryptSession;
 
-typedef struct _SslAssociation {
-    gboolean tcp;
-    guint ssl_port;
-    dissector_handle_t handle;
-    gchar* info;
-    gboolean from_key_list;
-} SslAssociation;
-
 /* User Access Table */
 typedef struct _ssldecrypt_assoc_t {
     char* ipaddr;
@@ -447,9 +439,9 @@ gint ssl_get_keyex_alg(gint cipher);
 
 gboolean ssldecrypt_uat_fld_ip_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
 gboolean ssldecrypt_uat_fld_port_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
-gboolean ssldecrypt_uat_fld_protocol_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
 gboolean ssldecrypt_uat_fld_fileopen_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
 gboolean ssldecrypt_uat_fld_password_chk_cb(void*, const char*, unsigned, const void*, const void*, char** err);
+gchar* ssl_association_info(const char* dissector_table_name, const char* table_protocol);
 
 /** Retrieve a SslSession, creating it if it did not already exist.
  * @param conversation The SSL conversation.
@@ -541,22 +533,13 @@ ssl_private_key_free(gpointer key);
 
 /* handling of association between tls/dtls ports and clear text protocol */
 extern void
-ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, const gchar *protocol, gboolean tcp, gboolean from_key_list);
+ssl_association_add(const char* dissector_table_name, dissector_handle_t main_handle, dissector_handle_t subdissector_handle, guint port, gboolean tcp);
 
 extern void
-ssl_association_remove(GTree* associations, SslAssociation *assoc);
+ssl_association_remove(const char* dissector_table_name, dissector_handle_t main_handle, dissector_handle_t subdissector_handle, guint port, gboolean tcp);
 
 extern gint
-ssl_association_cmp(gconstpointer a, gconstpointer b);
-
-extern SslAssociation*
-ssl_association_find(GTree * associations, guint port, gboolean tcp);
-
-extern gint
-ssl_assoc_from_key_list(gpointer key _U_, gpointer data, gpointer user_data);
-
-extern gint
-ssl_packet_from_server(SslSession *session, GTree *associations, packet_info *pinfo);
+ssl_packet_from_server(SslSession *session, dissector_table_t table, packet_info *pinfo);
 
 /* add to packet data a copy of the specified real data */
 extern void
@@ -587,7 +570,7 @@ ssl_load_keyfile(const gchar *ssl_keylog_filename, FILE **keylog_file,
 
 /* parse ssl related preferences (private keys and ports association strings) */
 extern void
-ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree* associations, dissector_handle_t handle, gboolean tcp);
+ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, const char* dissector_table_name, dissector_handle_t main_handle, gboolean tcp);
 
 /* store master secret into session data cache */
 extern void

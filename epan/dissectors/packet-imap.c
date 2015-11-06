@@ -359,7 +359,7 @@ void
 proto_reg_handoff_imap(void)
 {
   dissector_add_uint("tcp.port", TCP_PORT_IMAP, imap_handle);
-  ssl_dissector_add(TCP_PORT_SSL_IMAP, "imap", TRUE);
+  ssl_dissector_add(TCP_PORT_SSL_IMAP, imap_handle);
   ssl_handle = find_dissector("ssl");
 }
 /*

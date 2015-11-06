@@ -24,14 +24,15 @@
 #define __PACKET_SSL_H__
 
 #include "ws_symbol_export.h"
+#include <epan/packet.h>
 
 /** Maps Session-ID to pre-master secrets. */
 WS_DLL_PUBLIC GHashTable *ssl_session_hash;
 /** Maps Client Random to pre-master secrets. */
 WS_DLL_PUBLIC GHashTable *ssl_crandom_hash;
 
-WS_DLL_PUBLIC void ssl_dissector_add(guint port, const gchar *protocol, gboolean tcp);
-WS_DLL_PUBLIC void ssl_dissector_delete(guint port, const gchar *protocol, gboolean tcp);
+WS_DLL_PUBLIC void ssl_dissector_add(guint port, dissector_handle_t handle);
+WS_DLL_PUBLIC void ssl_dissector_delete(guint port, dissector_handle_t handle);
 
 WS_DLL_PUBLIC void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_cli,
                                   port_type ptype, guint32 port_srv, guint32 port_cli,
@@ -40,7 +41,5 @@ WS_DLL_PUBLIC void ssl_set_master_secret(guint32 frame_num, address *addr_srv, a
                                   guint32 client_seq, guint32 server_seq);
 
 extern gboolean ssl_ignore_mac_failed;
-
-gchar* ssl_association_info(void);
 
 #endif  /* __PACKET_SSL_H__ */

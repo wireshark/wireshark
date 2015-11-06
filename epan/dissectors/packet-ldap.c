@@ -5964,13 +5964,13 @@ prefs_register_ldap(void)
 
   if(ssl_port != global_ldaps_tcp_port) {
     if(ssl_port)
-      ssl_dissector_delete(ssl_port, "ldap", TRUE);
+      ssl_dissector_delete(ssl_port, ldap_handle);
 
     /* Set our port number for future use */
     ssl_port = global_ldaps_tcp_port;
 
     if(ssl_port)
-      ssl_dissector_add(ssl_port, "ldap", TRUE);
+      ssl_dissector_add(ssl_port, ldap_handle);
   }
 
 }

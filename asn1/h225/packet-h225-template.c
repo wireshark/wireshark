@@ -940,7 +940,7 @@ void
 proto_reg_handoff_h225(void)
 {
   static gboolean h225_prefs_initialized = FALSE;
-  static dissector_handle_t h225ras_handle;
+  static dissector_handle_t h225ras_handle, q931_tpkt_handle;
   static guint saved_h225_tls_port;
 
   if (!h225_prefs_initialized) {
@@ -953,12 +953,13 @@ proto_reg_handoff_h225(void)
     h4501_handle = find_dissector("h4501");
     data_handle = find_dissector("data");
     h225_prefs_initialized = TRUE;
+    q931_tpkt_handle = find_dissector("q931.tpkt");
   } else {
-    ssl_dissector_delete(saved_h225_tls_port, "q931.tpkt", TRUE);
+    ssl_dissector_delete(saved_h225_tls_port, q931_tpkt_handle);
   }
 
   saved_h225_tls_port = h225_tls_port;
-  ssl_dissector_add(saved_h225_tls_port, "q931.tpkt", TRUE);
+  ssl_dissector_add(saved_h225_tls_port, q931_tpkt_handle);
 }
 
 

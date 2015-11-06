@@ -1298,7 +1298,7 @@ proto_reg_handoff_smtp(void)
 {
   smtp_handle = find_dissector("smtp");
   dissector_add_uint("tcp.port", TCP_PORT_SMTP, smtp_handle);
-  ssl_dissector_add(TCP_PORT_SSL_SMTP, "smtp", TRUE);
+  ssl_dissector_add(TCP_PORT_SSL_SMTP, smtp_handle);
   dissector_add_uint("tcp.port", TCP_PORT_SUBMISSION, smtp_handle);
 
   /* find the IMF dissector */

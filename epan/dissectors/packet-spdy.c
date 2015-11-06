@@ -1940,7 +1940,7 @@ void proto_reg_handoff_spdy(void) {
 
   dissector_add_uint("tcp.port", TCP_PORT_SPDY, spdy_handle);
   /* Use "0" to avoid overwriting HTTPS port and still offer support over SSL */
-  ssl_dissector_add(0, "spdy", TRUE);
+  ssl_dissector_add(0, spdy_handle);
 
   data_handle = find_dissector("data");
   media_handle = find_dissector("media");

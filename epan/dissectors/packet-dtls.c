@@ -136,8 +136,9 @@ static expert_field ei_dtls_heartbeat_payload_length = EI_INIT;
 
 static ssl_master_key_map_t dtls_master_key_map;
 static GHashTable         *dtls_key_hash             = NULL;
+static wmem_stack_t       *key_list_stack            = NULL;
 static reassembly_table    dtls_reassembly_table;
-static GTree*              dtls_associations         = NULL;
+static dissector_table_t   dtls_associations         = NULL;
 static dissector_handle_t  dtls_handle               = NULL;
 static StringInfo          dtls_compressed_data      = {NULL, 0};
 static StringInfo          dtls_decrypted_data       = {NULL, 0};
@@ -201,6 +202,10 @@ dtls_init(void)
 static void
 dtls_cleanup(void)
 {
+  if (key_list_stack != NULL) {
+    wmem_destroy_stack(key_list_stack);
+    key_list_stack = NULL;
+  }
   reassembly_table_destroy(&dtls_reassembly_table);
   ssl_common_cleanup(&dtls_master_key_map, &dtls_keylog_file,
                      &dtls_decrypted_data, &dtls_compressed_data);
@@ -210,8 +215,8 @@ dtls_cleanup(void)
 static void
 dtls_parse_uat(void)
 {
-  wmem_stack_t    *tmp_stack;
-  guint            i;
+  guint            i, port;
+  dissector_handle_t handle;
 
   if (dtls_key_hash)
   {
@@ -219,12 +224,14 @@ dtls_parse_uat(void)
   }
 
   /* remove only associations created from key list */
-  tmp_stack = wmem_stack_new(NULL);
-  g_tree_foreach(dtls_associations, ssl_assoc_from_key_list, tmp_stack);
-  while (wmem_stack_count(tmp_stack) > 0) {
-    ssl_association_remove(dtls_associations, (SslAssociation *)wmem_stack_pop(tmp_stack));
+  if (key_list_stack != NULL) {
+    while (wmem_stack_count(key_list_stack) > 0) {
+      port = GPOINTER_TO_UINT(wmem_stack_pop(key_list_stack));
+      handle = dissector_get_uint_handle(dtls_associations, port);
+      if (handle != NULL)
+        ssl_association_remove("dtls.port", dtls_handle, handle, port, FALSE);
+    }
   }
-  wmem_destroy_stack(tmp_stack);
 
   /* parse private keys string, load available keys and put them in key hash*/
   dtls_key_hash = g_hash_table_new_full(ssl_private_key_hash,
@@ -234,10 +241,15 @@ dtls_parse_uat(void)
 
   if (ndtlsdecrypt > 0)
   {
+    if (key_list_stack == NULL)
+      key_list_stack = wmem_stack_new(NULL);
+
     for (i = 0; i < ndtlsdecrypt; i++)
     {
       ssldecrypt_assoc_t *d = &(dtlskeylist_uats[i]);
-      ssl_parse_key_list(d, dtls_key_hash, dtls_associations, dtls_handle, FALSE);
+      ssl_parse_key_list(d, dtls_key_hash, "dtls.port", dtls_handle, FALSE);
+      if (key_list_stack)
+        wmem_stack_push(key_list_stack, GUINT_TO_POINTER(atoi(d->port)));
     }
   }
 
@@ -869,10 +881,10 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     if (!session->app_handle) {
       /* Unknown protocol handle, ssl_starttls_ack was not called before.
        * Try to find an appropriate dissection handle and cache it. */
-      SslAssociation *association;
-      association = ssl_association_find(dtls_associations, pinfo->srcport, pinfo->ptype == PT_TCP);
-      association = association ? association : ssl_association_find(dtls_associations, pinfo->destport, pinfo->ptype == PT_TCP);
-      if (association) session->app_handle = association->handle;
+      dissector_handle_t handle;
+      handle = dissector_get_uint_handle(dtls_associations, pinfo->srcport);
+      handle = handle ? handle : dissector_get_uint_handle(dtls_associations, pinfo->destport);
+      if (handle) session->app_handle = handle;
     }
 
     proto_item_set_text(dtls_record_tree,
@@ -1622,6 +1634,31 @@ UAT_CSTRING_CB_DEF(sslkeylist_uats,port,ssldecrypt_assoc_t)
 UAT_CSTRING_CB_DEF(sslkeylist_uats,protocol,ssldecrypt_assoc_t)
 UAT_FILENAME_CB_DEF(sslkeylist_uats,keyfile,ssldecrypt_assoc_t)
 UAT_CSTRING_CB_DEF(sslkeylist_uats,password,ssldecrypt_assoc_t)
+
+static gboolean
+dtlsdecrypt_uat_fld_protocol_chk_cb(void* r _U_, const char* p, guint len _U_, const void* u1 _U_, const void* u2 _U_, char** err)
+{
+    if (!p || strlen(p) == 0u) {
+        *err = g_strdup_printf("No protocol given.");
+        return FALSE;
+    }
+
+    if (!find_dissector(p)) {
+        if (proto_get_id_by_filter_name(p) != -1) {
+            *err = g_strdup_printf("While '%s' is a valid dissector filter name, that dissector is not configured"
+                                   " to support DTLS decryption.\n\n"
+                                   "If you need to decrypt '%s' over DTLS, please contact the Wireshark development team.", p, p);
+        } else {
+            char* ssl_str = ssl_association_info("dtls.port", "UDP");
+            *err = g_strdup_printf("Could not find dissector for: '%s'\nCommonly used DTLS dissectors include:\n%s", p, ssl_str);
+            g_free(ssl_str);
+        }
+        return FALSE;
+    }
+
+    *err = NULL;
+    return TRUE;
+}
 #endif
 
 void proto_reg_handoff_dtls(void);
@@ -1823,6 +1860,8 @@ proto_register_dtls(void)
   proto_dtls = proto_register_protocol("Datagram Transport Layer Security",
                                        "DTLS", "dtls");
 
+  dtls_associations = register_dissector_table("dtls.port", "DTLS UDP Dissector", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+
   /* Required function calls to register the header fields and
    * subtrees used */
   proto_register_field_array(proto_dtls, hf, array_length(hf));
@@ -1838,7 +1877,7 @@ proto_register_dtls(void)
     static uat_field_t dtlskeylist_uats_flds[] = {
       UAT_FLD_CSTRING_OTHER(sslkeylist_uats, ipaddr, "IP address", ssldecrypt_uat_fld_ip_chk_cb, "IPv4 or IPv6 address"),
       UAT_FLD_CSTRING_OTHER(sslkeylist_uats, port, "Port", ssldecrypt_uat_fld_port_chk_cb, "Port Number"),
-      UAT_FLD_CSTRING_OTHER(sslkeylist_uats, protocol, "Protocol", ssldecrypt_uat_fld_protocol_chk_cb, "Protocol"),
+      UAT_FLD_CSTRING_OTHER(sslkeylist_uats, protocol, "Protocol", dtlsdecrypt_uat_fld_protocol_chk_cb, "Protocol"),
       UAT_FLD_FILENAME_OTHER(sslkeylist_uats, keyfile, "Key File", ssldecrypt_uat_fld_fileopen_chk_cb, "Path to the keyfile."),
       UAT_FLD_CSTRING_OTHER(sslkeylist_uats, password," Password (p12 file)", ssldecrypt_uat_fld_password_chk_cb, "Password"),
       UAT_END_FIELDS
@@ -1879,8 +1918,6 @@ proto_register_dtls(void)
 
   register_dissector("dtls", dissect_dtls, proto_dtls);
   dtls_handle = find_dissector("dtls");
-
-  dtls_associations = g_tree_new(ssl_association_cmp);
 
   register_init_routine(dtls_init);
   register_cleanup_routine(dtls_cleanup);

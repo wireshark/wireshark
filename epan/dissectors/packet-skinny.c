@@ -9732,7 +9732,7 @@ proto_reg_handoff_skinny(void)
   /* Skinny content type and internet media type used by other dissectors are the same */
   media_type_dissector_table = find_dissector_table("media_type");
   dissector_add_uint("tcp.port", TCP_PORT_SKINNY, skinny_handle);
-  ssl_dissector_add(SSL_PORT_SKINNY, "skinny", TRUE);
+  ssl_dissector_add(SSL_PORT_SKINNY, skinny_handle);
 }
 
 /*
