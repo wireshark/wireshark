@@ -259,10 +259,12 @@ static const value_string isi_gss_message_id[] = {
 	{0x00, NULL }
 };
 
+#if 0
 static const value_string isi_gss_subblock[] = {
 	{0x0B, "GSS_RAT_INFO"},
 	{0x00, NULL }
 };
+#endif
 
 static const value_string isi_gss_operation[] = {
 	{0x0E, "GSS_SELECTED_RAT_WRITE"},
@@ -589,7 +591,9 @@ static int hf_isi_sim_imsi_length = -1;
 
 static int hf_isi_gss_payload = -1;
 static int hf_isi_gss_message_id = -1;
-/* static int hf_isi_gss_subblock = -1; */
+#if 0
+static int hf_isi_gss_subblock = -1;
+#endif
 static int hf_isi_gss_operation = -1;
 static int hf_isi_gss_subblock_count = -1;
 static int hf_isi_gss_cause = -1;
