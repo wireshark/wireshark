@@ -1951,6 +1951,18 @@ proto_reg_handoff_dtls(void)
   initialized = TRUE;
 }
 
+void
+dtls_dissector_add(guint port, dissector_handle_t handle)
+{
+  ssl_association_add("dtls.port", dtls_handle, handle, port, FALSE);
+}
+
+void
+dtls_dissector_delete(guint port, dissector_handle_t handle)
+{
+  ssl_association_remove("dtls.port", dtls_handle, handle, port, FALSE);
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *

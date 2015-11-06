@@ -1487,6 +1487,7 @@ DISSECTOR_INCLUDES =	\
 	packet-dns.h	\
 	packet-dop.h	\
 	packet-dsp.h	\
+	packet-dtls.h	\
 	packet-dtn.h	\
 	packet-dvbci.h	\
 	packet-enip.h	\
