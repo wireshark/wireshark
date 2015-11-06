@@ -1193,12 +1193,12 @@ static void dissect_isi_gps_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_it
 		switch(sptype) {
 			case 0x02: /* Position */
 				tmp_double = tvb_get_ntohl(tvb, offset+0);
-				tmp_double = (tmp_double*360)/4294967296;
+				tmp_double = (tmp_double*360)/4294967296.0;
 				if(tmp_double > 180.0) tmp_double -= 360.0;
 				proto_tree_add_double(subtree, hf_isi_gps_latitude, tvb, offset+0, 4, tmp_double);
 
 				tmp_double = tvb_get_ntohl(tvb, offset+4);
-				tmp_double = (tmp_double*360)/4294967296;
+				tmp_double = (tmp_double*360)/4294967296.0;
 				if(tmp_double > 180.0) tmp_double -= 360.0;
 				proto_tree_add_double(subtree, hf_isi_gps_longitude, tvb, offset+4, 4, tmp_double);
 
