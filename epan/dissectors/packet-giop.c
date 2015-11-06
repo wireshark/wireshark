@@ -915,6 +915,8 @@ struct comp_req_list_entry {
   giop_sub_handle_t *subh;      /* handle to sub dissector */
   guint32            reqid;     /* request id */
   gchar             *repoid;    /* repository ID */
+  address            src;       /* source address */
+  guint32            srcport;   /* source port */
 };
 
 typedef struct comp_req_list_entry comp_req_list_entry_t;
@@ -1086,7 +1088,7 @@ static const char *giop_ior_file = "IOR.txt";
  * Insert FN, reqid, operation and sub handle in list. DOES not check for duplicates yet.
  */
 
-static GList *insert_in_comp_req_list(GList *list, guint32 fn, guint32 reqid, const gchar * op, giop_sub_handle_t *sh ) {
+static GList *insert_in_comp_req_list(GList *list, guint32 fn, guint32 reqid, const gchar * op, giop_sub_handle_t *sh, address *addr, guint32 port ) {
   comp_req_list_entry_t *entry;
 
   entry =  wmem_new(wmem_file_scope(), comp_req_list_entry_t);
@@ -1096,6 +1098,8 @@ static GList *insert_in_comp_req_list(GList *list, guint32 fn, guint32 reqid, co
   entry->subh      = sh;
   entry->operation = wmem_strdup(wmem_file_scope(), op); /* duplicate operation for storage */
   entry->repoid    = NULL;      /* don't have yet */
+  entry->srcport   = port ;
+  copy_address_wmem (wmem_file_scope (), &entry->src, addr) ;
 
   return g_list_append (list, entry); /* append */
 }
@@ -1229,7 +1233,7 @@ static guint32 get_mfn_from_fn(guint32 fn) {
  * only used when we are building
  */
 
-static guint32 get_mfn_from_fn_and_reqid(guint32 fn, guint32 reqid) {
+static guint32 get_mfn_from_fn_and_reqid(guint32 fn, guint32 reqid, address *addr, guint32 pnum) {
 
   GList                 *element; /* last entry in list */
   comp_req_list_entry_t *entry_ptr = NULL;
@@ -1255,7 +1259,7 @@ static guint32 get_mfn_from_fn_and_reqid(guint32 fn, guint32 reqid) {
 
   while (element) {                      /* valid list entry */
     entry_ptr = (comp_req_list_entry_t *)element->data;  /* grab data pointer */
-    if (entry_ptr->reqid == reqid) {    /* similar reqid  */
+    if (entry_ptr->reqid == reqid && cmp_address (&entry_ptr->src, addr) == 0 && entry_ptr->srcport == pnum) {    /* similar reqid  */
       return entry_ptr->fn;     /* return MFN */
     }
     element = g_list_previous(element); /* try next previous */
@@ -4175,7 +4179,7 @@ static void dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
    */
 
   if (! pinfo->fd->flags.visited) {
-    mfn = get_mfn_from_fn_and_reqid(pinfo->fd->num, request_id); /* find MFN for this FN */
+    mfn = get_mfn_from_fn_and_reqid(pinfo->fd->num, request_id, &pinfo->dst, pinfo->destport); /* find MFN for this FN */
     if (mfn != pinfo->fd->num) { /* if mfn is not fn, good */
       insert_in_complete_reply_hash(pinfo->fd->num, mfn);
     }
@@ -4241,7 +4245,7 @@ static void dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
    */
 
   if (! pinfo->fd->flags.visited) {
-    mfn = get_mfn_from_fn_and_reqid(pinfo->fd->num, request_id); /* find MFN for this FN */
+    mfn = get_mfn_from_fn_and_reqid(pinfo->fd->num, request_id, &pinfo->dst, pinfo->destport); /* find MFN for this FN */
     if (mfn != pinfo->fd->num) { /* if mfn is not fn, good */
       insert_in_complete_reply_hash(pinfo->fd->num, mfn);
     }
@@ -4405,7 +4409,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
    */
   if (! pinfo->fd->flags.visited)
     giop_complete_request_list = insert_in_comp_req_list(giop_complete_request_list, pinfo->fd->num,
-                                                         request_id, operation, NULL);
+                                                         request_id, operation, NULL, &pinfo->src, pinfo->srcport);
 
 
   /*
@@ -4528,7 +4532,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
 
   if (! pinfo->fd->flags.visited)
     giop_complete_request_list = insert_in_comp_req_list(giop_complete_request_list, pinfo->fd->num,
-                                                         request_id, operation, NULL);
+                                                         request_id, operation, NULL, &pinfo->src, pinfo->srcport);
 
   /*
    *
