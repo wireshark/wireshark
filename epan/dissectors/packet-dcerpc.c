@@ -1395,7 +1395,8 @@ dissect_dcerpc_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     int (*volatile sub_dissect)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep) = NULL;
     proto_item           *pi, *sub_item;
     proto_tree           *sub_tree;
-    guint                 length, reported_length;
+    volatile guint        length;
+    guint                 reported_length;
     volatile gint         offset   = 0;
     tvbuff_t *volatile    stub_tvb;
     tvbuff_t *volatile    payload_tvb = NULL;
