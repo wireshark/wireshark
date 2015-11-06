@@ -36,14 +36,14 @@
 #include <wsutil/str_util.h>
 
 #include <QAction>
+#include <QApplication>
 #include <QDateTime>
 #include <QDesktopServices>
+#include <QDesktopWidget>
 #include <QDir>
 #include <QFileInfo>
 #include <QFontDatabase>
-#include <QGuiApplication>
 #include <QProcess>
-#include <QScreen>
 #include <QUrl>
 #include <QUuid>
 
@@ -235,8 +235,9 @@ void desktop_show_in_folder(const QString file_path)
 
 bool rect_on_screen(const QRect &rect)
 {
-    foreach (const QScreen *screen, QGuiApplication::screens()) {
-        if (screen->availableGeometry().contains(rect))
+    QDesktopWidget *desktop = qApp->desktop();
+    for (int i = 0; i < desktop->screenCount(); i++) {
+        if (desktop->availableGeometry(i).contains(rect))
             return true;
     }
 
