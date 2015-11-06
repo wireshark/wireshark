@@ -149,13 +149,6 @@ if( NOT CMAKE_BUILD_TYPE )
 		FORCE)
 endif()
 message(STATUS "Configuration types: ${CMAKE_CONFIGURATION_TYPES}")
-
-# Override optimization and other flags for make based generators
-foreach (_BT DEBUG RELEASE RELWITHDEBINFO SIZEREL)
-	set( CMAKE_C_FLAGS_${_BT} "${CMAKE_C_FLAGS_${_BT}} ${CMAKE_C_FLAGS}" )
-	set( CMAKE_CXX_FLAGS_${_BT} "${CMAKE_C_FLAGS_${_BT}} ${CMAKE_C_FLAGS}" )
-endforeach()
-
 message(STATUS "${CMAKE_BUILD_TYPE}: ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
 
 # Where to put executables and libraries in the build tree
