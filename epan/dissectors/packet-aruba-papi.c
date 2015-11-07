@@ -24,13 +24,6 @@
 
 #include "config.h"
 
-#if 0
-/* Include only as needed */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#endif
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
