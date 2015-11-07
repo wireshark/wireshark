@@ -23,15 +23,9 @@
 
 #include <string.h>
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#ifdef _WIN32
-#include <io.h>
-#endif
-
 #include <glib.h>
+
+#include <wsutil/file_util.h>
 
 #include "sync_pipe.h"
 
