@@ -92,18 +92,29 @@ static gboolean json_read(wtap *wth, int *err, gchar **err_info, gint64 *data_of
     return json_read_file(wth, wth->fh, &wth->phdr, wth->frame_buffer, err, err_info);
 }
 
-wtap_open_return_val json_open(wtap *wth, int *err, gchar **err_info _U_)
+wtap_open_return_val json_open(wtap *wth, int *err, gchar **err_info)
 {
     guint8* filebuf;
-    guint read;
+    int bytes_read;
 
     filebuf = (guint8*)g_malloc0(MAX_FILE_SIZE);
     if (!filebuf)
         return WTAP_OPEN_ERROR;
 
-    read = file_read(filebuf, MAX_FILE_SIZE, wth->fh);
+    bytes_read = file_read(filebuf, MAX_FILE_SIZE, wth->fh);
+    if (bytes_read < 0) {
+        /* Read error. */
+        *err = file_error(wth->fh, err_info);
+        g_free(filebuf);
+        return WTAP_OPEN_ERROR;
+    }
+    if (bytes_read == 0) {
+        /* empty file, not *anybody's* */
+        g_free(filebuf);
+        return WTAP_OPEN_NOT_MINE;
+    }
 
-    if (jsmn_is_json(filebuf, read) == FALSE) {
+    if (jsmn_is_json(filebuf, bytes_read) == FALSE) {
         g_free(filebuf);
         return WTAP_OPEN_NOT_MINE;
     }
