@@ -41,9 +41,6 @@
 
 #include <errno.h>
 #include <stdio.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
 #include "wsutil/filesystem.h"
 #include "wsutil/file_util.h"
 #include "wsutil/tempfile.h"

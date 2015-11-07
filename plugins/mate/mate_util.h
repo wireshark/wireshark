@@ -26,10 +26,6 @@
 #define __AVP_H_
 #include "epan/proto.h"
 #include <sys/types.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
 
 /* #define _AVP_DEBUGGING */
 

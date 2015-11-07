@@ -94,10 +94,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>

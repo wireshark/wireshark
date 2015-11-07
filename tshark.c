@@ -30,26 +30,14 @@
 #include <locale.h>
 #include <limits.h>
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #endif
 
 #include <errno.h>
 
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-
 #ifndef _WIN32
 #include <signal.h>
-#endif
-
-#ifdef HAVE_SYS_STAT_H
-# include <sys/stat.h>
 #endif
 
 #ifdef HAVE_LIBZ

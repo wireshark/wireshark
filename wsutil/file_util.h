@@ -32,12 +32,20 @@ extern "C" {
 #include <glib.h>
 
 #ifdef _WIN32
-#include <io.h>
+#include <io.h>		/* for _read(), _write(), etc. */
 #include <gmodule.h>
 #endif
 
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>	/* for open() */
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>	/* for read(), write(), close(), etc. */
+#endif
+
 #ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
+#include <sys/stat.h>	/* for stat() and struct stat */
 #endif
 
 /*
@@ -58,6 +66,8 @@ extern "C" {
 #ifndef S_ISDIR
 #define S_ISDIR(mode)   (((mode) & S_IFMT) == S_IFDIR)
 #endif
+
+#include <stdio.h>
 
 #ifdef _WIN32
 
@@ -80,8 +90,6 @@ extern "C" {
  *  MOVEFILE_REPLACE_EXISTING, so that it acts like UN*X rename(),
  *  removing the target if necessary.
  */
-
-#include <stdio.h>
 
 WS_DLL_PUBLIC int ws_stdio_open (const gchar *filename, int flags, int mode);
 WS_DLL_PUBLIC int ws_stdio_rename (const gchar *oldfilename, const gchar *newfilename);
@@ -192,9 +200,7 @@ WS_DLL_PUBLIC void create_app_running_mutex();
 #define ws_dir_rewind			g_dir_rewind
 #define ws_dir_close			g_dir_close
 
-/* XXX - remove include "dirent.h" */
-/* XXX - remove include "direct.h" */
-/* XXX - remove include "sys/stat.h" */
+/* XXX - remove include "sys/stat.h" from files that include this header */
 /* XXX - update docs (e.g. README.developer) */
 
 #ifdef __cplusplus

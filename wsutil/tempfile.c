@@ -26,14 +26,6 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>
 #endif

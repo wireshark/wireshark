@@ -23,20 +23,12 @@
 
 #include <config.h>
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #endif
 
 #ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"
-#endif
-
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
 #endif
 
 #include <time.h>

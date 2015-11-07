@@ -21,14 +21,6 @@
 
 #include <config.h>
 
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
 // Qt 5.5.0 + Visual C++ 2013
 #ifdef _MSC_VER
 #pragma warning(push)

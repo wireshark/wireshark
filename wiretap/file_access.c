@@ -23,14 +23,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
 #include <errno.h>
 
 #include <wsutil/file_util.h>

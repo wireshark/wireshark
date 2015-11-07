@@ -38,14 +38,6 @@
 #include <string.h>
 #include <locale.h>
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-
 #include <gtk/gtk.h>
 
 #include <wsutil/file_util.h>

@@ -27,10 +27,6 @@
 #include <sys/types.h>
 #endif
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
 #ifdef HAVE_LIBZ
 #include <zlib.h>
 #endif

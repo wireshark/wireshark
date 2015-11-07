@@ -25,10 +25,6 @@
 
 #include <string.h>
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
 #include <gtk/gtk.h>
 
 #include <epan/follow.h>

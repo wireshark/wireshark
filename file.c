@@ -22,10 +22,6 @@
 
 #include <config.h>
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
 #include <time.h>
 
 #include <stdlib.h>
@@ -33,10 +29,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
-
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
 
 #include <wsutil/tempfile.h>
 #include <wsutil/file_util.h>

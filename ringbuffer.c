@@ -44,14 +44,6 @@
 
 #ifdef HAVE_LIBPCAP
 
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <time.h>

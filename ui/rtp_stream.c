@@ -28,10 +28,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-
 #include "file.h"
 
 #include <epan/epan.h>

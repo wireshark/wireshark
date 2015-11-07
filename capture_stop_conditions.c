@@ -25,7 +25,6 @@
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/stat.h>
 #include <stdarg.h>
 #include "conditions.h"
 #include "capture_stop_conditions.h"
