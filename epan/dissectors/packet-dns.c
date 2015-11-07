@@ -44,6 +44,7 @@
 #include <epan/afn.h>
 #include <epan/tap.h>
 #include <epan/stats_tree.h>
+#include "packet-ssl.h"
 
 void proto_register_dns(void);
 void proto_reg_handoff_dns(void);
@@ -449,6 +450,8 @@ typedef struct _dns_conv_info_t {
 #define UDP_PORT_MDNS           5353
 #define TCP_PORT_MDNS           5353
 #define UDP_PORT_LLMNR          5355
+#define TCP_PORT_DNS_TLS         853
+#define UDP_PORT_DNS_DTLS        853
 #if 0
 /* PPID used for DNS/SCTP (will be changed when IANA assigned) */
 #define DNS_PAYLOAD_PROTOCOL_ID 1000
@@ -3911,15 +3914,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_dns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
-
-  dissect_dns_common(tvb, pinfo, tree, FALSE, FALSE, FALSE);
-}
-
-static void
-dissect_dns_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dns_udp_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
 
@@ -3973,6 +3968,17 @@ dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   tcp_dissect_pdus(tvb, pinfo, tree, dns_desegment, 2, get_dns_pdu_len,
                    dissect_dns_tcp_pdu, data);
   return tvb_reported_length(tvb);
+}
+
+static int
+dissect_dns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    if (pinfo->ptype == PT_TCP) {
+        return dissect_dns_tcp(tvb, pinfo, tree, data);
+    } else {
+        dissect_dns_udp_sctp(tvb, pinfo, tree);
+        return tvb_captured_length(tvb);
+    }
 }
 
 static void dns_stats_tree_init(stats_tree* st)
@@ -4058,8 +4064,9 @@ proto_reg_handoff_dns(void)
     dissector_handle_t mdns_udp_handle;
     dissector_handle_t llmnr_udp_handle;
 
-    dns_udp_handle = create_dissector_handle(dissect_dns_udp, proto_dns);
-    dns_sctp_handle  = create_dissector_handle(dissect_dns_sctp, proto_dns);
+    dns_udp_handle = create_dissector_handle(dissect_dns_udp_sctp, proto_dns);
+    dns_tcp_handle = new_create_dissector_handle(dissect_dns_tcp, proto_dns);
+    dns_sctp_handle  = create_dissector_handle(dissect_dns_udp_sctp, proto_dns);
     mdns_udp_handle  = create_dissector_handle(dissect_mdns_udp, proto_mdns);
     llmnr_udp_handle = create_dissector_handle(dissect_llmnr_udp, proto_llmnr);
     dissector_add_uint("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
@@ -4072,6 +4079,8 @@ proto_reg_handoff_dns(void)
     stats_tree_register("dns", "dns", "DNS", 0, dns_stats_tree_packet, dns_stats_tree_init, NULL);
     gssapi_handle  = find_dissector("gssapi");
     ntlmssp_handle = find_dissector("ntlmssp");
+    ssl_dissector_add(TCP_PORT_DNS_TLS, "dns", TRUE);
+    ssl_dissector_add(UDP_PORT_DNS_DTLS, "dns", FALSE);
     Initialized    = TRUE;
 
   } else {
@@ -5562,7 +5571,7 @@ proto_register_dns(void)
 
   dns_tsig_dissector_table = register_dissector_table("dns.tsig.mac", "DNS TSIG MAC Dissectors", FT_STRING, BASE_NONE);
 
-  dns_tcp_handle = new_register_dissector("dns", dissect_dns_tcp, proto_dns);
+  new_register_dissector("dns", dissect_dns, proto_dns);
 
   dns_tap = register_tap("dns");
 }
