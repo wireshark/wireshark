@@ -318,15 +318,15 @@ typedef struct {
  * out a block.
  */
 typedef struct {
-    block_reader read;
-    block_writer write;
+    block_reader reader;
+    block_writer writer;
 } block_handler;
 
 static GHashTable *block_handlers;
 
 void
-register_pcapng_block_type_handler(guint block_type, block_reader read,
-                                   block_writer write)
+register_pcapng_block_type_handler(guint block_type, block_reader reader,
+                                   block_writer writer)
 {
     block_handler *handler;
 
@@ -342,8 +342,8 @@ register_pcapng_block_type_handler(guint block_type, block_reader read,
                                                NULL, g_free);
     }
     handler = (block_handler *)g_malloc(sizeof *handler);
-    handler->read = read;
-    handler->write = write;
+    handler->reader = reader;
+    handler->writer = writer;
     (void)g_hash_table_insert(block_handlers, GUINT_TO_POINTER(block_type),
                               handler);
 }
@@ -2190,9 +2190,9 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_
         (handler = (block_handler *)g_hash_table_lookup(block_handlers,
                                                         GUINT_TO_POINTER(bh->block_type))) != NULL) {
         /* Yes - call it to read this block type. */
-        if (!handler->read(fh, block_read, pn->byte_swapped,
-                           wblock->packet_header, wblock->frame_buffer,
-                           err, err_info))
+        if (!handler->reader(fh, block_read, pn->byte_swapped,
+                             wblock->packet_header, wblock->frame_buffer,
+                             err, err_info))
             return FALSE;
     } else
 #endif
@@ -3889,7 +3889,7 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
                 (handler = (block_handler *)g_hash_table_lookup(block_handlers,
                                                                 GUINT_TO_POINTER(pseudo_header->ftsrec.record_type))) != NULL) {
                 /* Yes. Call it to write out this record. */
-                if (!handler->write(wdh, phdr, pd, err))
+                if (!handler->writer(wdh, phdr, pd, err))
                     return FALSE;
             } else
 #endif
