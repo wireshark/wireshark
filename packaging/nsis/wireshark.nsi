@@ -199,6 +199,9 @@ Var TMP_UNINSTALLER
 ; ============================================================================
 !include x64.nsh
 
+!include "GetWindowsVersion.nsh"
+!include WinMessages.nsh
+
 Function .onInit
   !if ${WIRESHARK_TARGET_PLATFORM} == "win64"
     ; http://forums.winamp.com/printthread.php?s=16ffcdd04a8c8d52bee90c0cae273ac5&threadid=262873
@@ -1219,8 +1222,6 @@ FunctionEnd
 !endif
 
 
-!include "GetWindowsVersion.nsh"
-!include WinMessages.nsh
 !include "VersionCompare.nsh"
 
 Var WINPCAP_NAME ; DisplayName from WinPcap installation
@@ -1242,6 +1243,7 @@ Function myShowCallback
     WriteINIStr "$PLUGINSDIR\AdditionalTasksPage.ini" "Field 10" "Flags" ""
 !endif
 
+    ClearErrors
     ; detect if WinPcap should be installed
     WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap ${PCAP_DISPLAY_VERSION}"
     ReadRegStr $WINPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
