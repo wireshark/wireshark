@@ -23,8 +23,6 @@
 
 #include "config.h"
 
-#include <stdio.h>
-
 #include <epan/packet.h>
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>

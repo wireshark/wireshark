@@ -28,11 +28,7 @@
 
 #include "config.h"
 
-#include <stdio.h>
-
 #include <epan/packet.h>
-
-
 
 void proto_register_abis_om2000(void);
 

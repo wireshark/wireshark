@@ -22,8 +22,9 @@
 
 #include "config.h"
 
+#ifdef DUMP_DFILTER_MACRO
 #include <stdio.h>
-#include <errno.h>
+#endif
 #include <string.h>
 
 #include "dfilter-int.h"

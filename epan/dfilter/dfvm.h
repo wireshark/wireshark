@@ -21,7 +21,6 @@
 #ifndef DFVM_H
 #define DFVM_H
 
-#include <stdio.h>
 #include <epan/proto.h>
 #include "dfilter-int.h"
 #include "syntax-tree.h"

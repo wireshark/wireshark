@@ -30,7 +30,6 @@
 #include "config.h"
 
 #include <stdio.h>
-#include <stdlib.h>
 
 #include <epan/packet.h>
 #include <epan/req_resp_hdrs.h>

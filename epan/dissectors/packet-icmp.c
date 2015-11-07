@@ -922,7 +922,6 @@ dissect_extensions(tvbuff_t * tvb, gint offset, proto_tree * tree)
 	}
 }
 
-#include <stdio.h>
 /* ======================================================================= */
 static icmp_transaction_t *transaction_start(packet_info * pinfo,
 					     proto_tree * tree,

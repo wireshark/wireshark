@@ -30,9 +30,6 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <string.h>
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <wsutil/file_util.h>
