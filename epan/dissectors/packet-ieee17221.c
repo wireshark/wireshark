@@ -32,8 +32,6 @@
 
 #include "config.h"
 
-/* #include <stdio.h> */
-
 #include <epan/packet.h>
 
 void proto_register_17221(void);
@@ -4702,8 +4700,6 @@ dissect_17221(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    proto_tree *ieee17221_tree;
    subtype = tvb_get_guint8(tvb, 0);
    subtype &= 0x7F;
-
-   /* fprintf(stderr, "subtype: %d\n", subtype); */
 
    /* Make entries in Protocol column and Info column on summary display */
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE1722-1");
