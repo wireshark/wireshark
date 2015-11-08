@@ -42,7 +42,6 @@
 #include "config.h"
 
 #include <errno.h>
-#include <stdio.h>
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"

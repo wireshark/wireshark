@@ -22,7 +22,6 @@
 #define __WTAP_INT_H__
 
 #include <glib.h>
-#include <stdio.h>
 #include <time.h>
 
 #ifdef HAVE_WINSOCK2_H
