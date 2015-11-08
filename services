@@ -7288,8 +7288,8 @@ sops             3944/tcp # S-Ops Management [Stefan_Hochuli] [Stefan_Hochuli] 2
 sops             3944/udp # S-Ops Management [Stefan_Hochuli] [Stefan_Hochuli] 2003-12
 emcads           3945/tcp # EMCADS Server Port [Lars_Struwe_Christen] [Lars_Struwe_Christen] 2004-01
 emcads           3945/udp # EMCADS Server Port [Lars_Struwe_Christen] [Lars_Struwe_Christen] 2004-01
-backupedge       3946/tcp # BackupEDGE Server [Frank_Liberato] [Frank_Liberato] 2004-06
-backupedge       3946/udp # BackupEDGE Server [Frank_Liberato] [Frank_Liberato] 2004-06
+backupedge       3946/tcp # BackupEDGE Server [Microlite_Corporation] [D_Thomas_Podnar] 2004-06
+backupedge       3946/udp # BackupEDGE Server [Microlite_Corporation] [D_Thomas_Podnar] 2004-06
 ccp              3947/tcp # Connect and Control Protocol for Consumer, Commercial, and Industrial Electronic Devices [Aaron_Myer] [Aaron_Myer] 2004-06
 ccp              3947/udp # Connect and Control Protocol for Consumer, Commercial, and Industrial Electronic Devices [Aaron_Myer] [Aaron_Myer] 2004-06
 apdap            3948/tcp # Anton Paar Device Administration Protocol [Martin_Leitner] [Martin_Leitner] 2004-06
@@ -10073,7 +10073,7 @@ fmtp             8500/udp # Flight Message Transfer Protocol [Eivan_Cerasi] [Eiv
 cmtp-mgt         8501/tcp # CYTEL Message Transfer Management
 cmtp-av          8501/udp # CYTEL Message Transfer Audio and Video [Frank_Jakel] [Frank_Jakel] 2011-04-29
 ftnmtp           8502/tcp # FTN Message Transfer Protocol [Yuri_Myakotin] [Yuri_Myakotin] 2014-01-07
-lsp-self-ping    8503/udp # MPLS LSP Self Ping [Juniper_Networks_2] [Ron_Bonica] 2015-06-11 [draft-ietf-mpls-self-ping]
+lsp-self-ping    8503/udp # MPLS LSP Self-Ping [IESG] [IETF_Chair] 2015-06-11 2015-11-03 [RFC-ietf-mpls-self-ping-06]
 rtsp-alt         8554/tcp # RTSP Alternate (see port 554) [Stephen_Casner_2] [Stephen_Casner_2]
 rtsp-alt         8554/udp # RTSP Alternate (see port 554) [Stephen_Casner_2] [Stephen_Casner_2]
 d-fence          8555/tcp # SYMAX D-FENCE [Thomas_Geisel] [Thomas_Geisel] 2003-01
