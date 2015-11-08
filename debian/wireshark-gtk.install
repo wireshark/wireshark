@@ -1,4 +1,4 @@
 usr/bin/wireshark-gtk
-wireshark.desktop usr/share/applications/
+wireshark-gtk.desktop usr/share/applications/
 usr/share/icons/
 usr/share/mime/packages/

@@ -1269,6 +1269,7 @@ EXTRA_DIST = \
 	text2pcap.h		\
 	services		\
 	wireshark.desktop	\
+	wireshark-gtk.desktop	\
 	wireshark-mime-package.xml \
 	wireshark.appdata.xml	\
 	wireshark.pc.in		\
@@ -1496,9 +1497,9 @@ if NOT_OS_X
 	install -m 644 $(srcdir)/wireshark.appdata.xml $(DESTDIR)$(datadir)/appdata/wireshark.appdata.xml
 	mkdir -p $(DESTDIR)$(datadir)/applications
 	if test x$(DESKTOP_FILE_INSTALL) != x ; then \
-		$(DESKTOP_FILE_INSTALL) --dir $(DESTDIR)$(datadir)/applications $(srcdir)/wireshark.desktop; \
+		$(DESKTOP_FILE_INSTALL) --dir $(DESTDIR)$(datadir)/applications $(srcdir)/wireshark.desktop  $(srcdir)/wireshark-gtk.desktop ; \
 	else \
-		install -m 644 $(srcdir)/wireshark.desktop $(DESTDIR)$(datadir)/applications/wireshark.desktop; \
+		install -m 644 $(srcdir)/wireshark.desktop $(DESTDIR)$(datadir)/applications/wireshark.desktop $(DESTDIR)$(datadir)/applications/wireshark-gtk.desktop; \
 	fi
 	for size in 16 24 32 48 64 128 256; \
 	do \
@@ -1517,6 +1518,7 @@ if BUILDING_WIRESHARK
 if NOT_OS_X
 	rm -f $(DESTDIR)$(datadir)/appdata/wireshark.appdata.xml
 	rm -f $(DESTDIR)$(datadir)/applications/wireshark.desktop
+	rm -f $(DESTDIR)$(datadir)/applications/wireshark-gtk.desktop
 	rm -f $(DESTDIR)$(datadir)/mime/packages/wireshark.xml
 	for size in 16 24 32 48 64 128 256; \
 	do \
