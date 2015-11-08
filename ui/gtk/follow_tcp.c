@@ -142,7 +142,7 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
         return;
     }
 
-    data_out_file = fdopen(tmp_fd, "w+b");
+    data_out_file = ws_fdopen(tmp_fd, "w+b");
     if (data_out_file == NULL) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "Could not create temporary file %s: %s",

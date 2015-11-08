@@ -797,12 +797,12 @@ win32_export_raw_file(HWND h_wnd, capture_file *cf) {
             open_failure_alert_box(file_name8, errno, TRUE);
             return;
         }
-        if (write(fd, data_p, cf->finfo_selected->length) < 0) {
+        if (ws_write(fd, data_p, cf->finfo_selected->length) < 0) {
             write_failure_alert_box(file_name8, errno);
-            close(fd);
+            ws_close(fd);
             return;
         }
-        if (close(fd) < 0) {
+        if (ws_close(fd) < 0) {
             write_failure_alert_box(file_name8, errno);
             return;
         }

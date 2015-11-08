@@ -2364,7 +2364,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			case SAVE_FORWARD_DIRECTION_MASK: {
 				progbar_count = user_data->forward.saveinfo.count;
 				progbar_quantum = user_data->forward.saveinfo.count/100;
-				while ((fread_cnt = read(forw_fd, f_pd, 1)) > 0) {
+				while ((fread_cnt = ws_read(forw_fd, f_pd, 1)) > 0) {
 					if (stop_flag)
 						break;
 					if ((count > progbar_nextstep) && (count <= progbar_count)) {
@@ -2405,7 +2405,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			case SAVE_REVERSE_DIRECTION_MASK: {
 				progbar_count   = user_data->reversed.saveinfo.count;
 				progbar_quantum = user_data->reversed.saveinfo.count/100;
-				while ((rread = read(rev_fd, r_pd, 1)) > 0) {
+				while ((rread = ws_read(rev_fd, r_pd, 1)) > 0) {
 					if (stop_flag)
 						break;
 					if ((count > progbar_nextstep) && (count <= progbar_count)) {
@@ -2468,7 +2468,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					}
 					count++;
 					if (f_write_silence > 0) {
-						rread = read(rev_fd, r_pd, 1);
+						rread = ws_read(rev_fd, r_pd, 1);
 						switch (user_data->forward.statinfo.reg_pt) {
 						case AST_FORMAT_ULAW:
 							*f_pd = SILENCE_PCMU;
@@ -2481,7 +2481,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						f_write_silence--;
 					}
 					else if (r_write_silence > 0) {
-						fread_cnt = read(forw_fd, f_pd, 1);
+						fread_cnt = ws_read(forw_fd, f_pd, 1);
 						switch (user_data->reversed.statinfo.reg_pt) {
 						case AST_FORMAT_ULAW:
 							*r_pd = SILENCE_PCMU;
@@ -2494,8 +2494,8 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						r_write_silence--;
 					}
 					else {
-						fread_cnt = read(forw_fd, f_pd, 1);
-						rread = read(rev_fd, r_pd, 1);
+						fread_cnt = ws_read(forw_fd, f_pd, 1);
+						rread = ws_read(rev_fd, r_pd, 1);
 					}
 					if ((rread == 0) && (fread_cnt == 0))
 						break;
@@ -2561,7 +2561,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 
 
 		/* XXX how do you just copy the file? */
-		while ((rread = read(fd, pd, 1)) > 0) {
+		while ((rread = ws_read(fd, pd, 1)) > 0) {
 			if (stop_flag)
 				break;
 			if ((count > progbar_nextstep) && (count <= progbar_count)) {

@@ -830,7 +830,7 @@ DIAG_ON(cast-qual)
             size_t bytes_left = sizeof(struct pcap_hdr) + sizeof(guint32);
             gchar buf[sizeof(struct pcap_hdr) + sizeof(guint32)];
             while (bytes_left != 0) {
-                ssize_t bytes = read(fd, buf, (int)bytes_left);
+                ssize_t bytes = ws_read(fd, buf, (int)bytes_left);
                 if (bytes <= 0) {
                     cmdarg_err("Not enough bytes for pcap header.");
                     exit(2);
@@ -883,7 +883,7 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info,
 
     /* Copied from capture_loop.c */
     while (bytes_needed > 0) {
-        bytes_read = read(fd, ptr, (int)bytes_needed);
+        bytes_read = ws_read(fd, ptr, (int)bytes_needed);
         if (bytes_read == 0) {
             *err = 0;
             *err_info = NULL;
@@ -929,7 +929,7 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info,
 
     ptr = pd;
     while (bytes_needed > 0) {
-        bytes_read = read(fd, ptr, (int)bytes_needed);
+        bytes_read = ws_read(fd, ptr, (int)bytes_needed);
         if (bytes_read == 0) {
             *err = WTAP_ERR_SHORT_READ;
             *err_info = NULL;

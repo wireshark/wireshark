@@ -272,7 +272,7 @@ followFileOpen(
     followExit("Error duping temp file name.");
   }
 
-  fp->filep = fdopen(fd, "w+b");
+  fp->filep = ws_fdopen(fd, "w+b");
   if (fp->filep == NULL)
   {
     ws_close(fd);

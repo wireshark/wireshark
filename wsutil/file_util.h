@@ -182,7 +182,14 @@ WS_DLL_PUBLIC void create_app_running_mutex();
 
 #define ws_read    read
 #define ws_write   write
+#ifdef __cplusplus
+/*
+ * Just in case this is used in a class with a close method or member.
+ */
+#define ws_close   ::close
+#else
 #define ws_close   close
+#endif
 #define ws_dup     dup
 #define ws_fstat64 fstat	/* AC_SYS_LARGEFILE should make off_t 64-bit */
 #define ws_lseek64 lseek	/* AC_SYS_LARGEFILE should make off_t 64-bit */

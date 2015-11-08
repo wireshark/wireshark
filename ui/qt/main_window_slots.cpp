@@ -1652,12 +1652,12 @@ void MainWindow::on_actionFileExportPacketBytes_triggered()
             open_failure_alert_box(file_name.toUtf8().constData(), errno, TRUE);
             return;
         }
-        if (write(fd, data_p, capture_file_.capFile()->finfo_selected->length) < 0) {
+        if (ws_write(fd, data_p, capture_file_.capFile()->finfo_selected->length) < 0) {
             write_failure_alert_box(file_name.toUtf8().constData(), errno);
-            ::close(fd);
+            ws_close(fd);
             return;
         }
-        if (::close(fd) < 0) {
+        if (ws_close(fd) < 0) {
             write_failure_alert_box(file_name.toUtf8().constData(), errno);
             return;
         }
@@ -1726,11 +1726,11 @@ void MainWindow::on_actionFileExportSSLSessionKeys_triggered()
          */
         if (ws_write(fd, keylist, (unsigned int)strlen(keylist)) < 0) {
             write_failure_alert_box(file_name.toUtf8().constData(), errno);
-            ::close(fd);
+            ws_close(fd);
             g_free(keylist);
             return;
         }
-        if (::close(fd) < 0) {
+        if (ws_close(fd) < 0) {
             write_failure_alert_box(file_name.toUtf8().constData(), errno);
             g_free(keylist);
             return;

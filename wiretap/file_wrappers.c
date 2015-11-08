@@ -146,7 +146,7 @@ raw_read(FILE_T state, unsigned char *buf, unsigned int count, guint *have)
 
     *have = 0;
     do {
-        ret = read(state->fd, buf + *have, count - *have);
+        ret = ws_read(state->fd, buf + *have, count - *have);
         if (ret <= 0)
             break;
         *have += (unsigned)ret;
@@ -1498,7 +1498,7 @@ gzwfile_open(const char *path)
     state = gzwfile_fdopen(fd);
     if (state == NULL) {
         save_errno = errno;
-        close(fd);
+        ws_close(fd);
         errno = save_errno;
     }
     return state;
@@ -1603,7 +1603,7 @@ gz_comp(GZWFILE_T state, int flush)
                                      (flush != Z_FINISH || ret == Z_STREAM_END))) {
             have = strm->next_out - state->next;
             if (have) {
-                got = write(state->fd, state->next, (unsigned int)have);
+                got = ws_write(state->fd, state->next, (unsigned int)have);
                 if (got < 0) {
                     state->err = errno;
                     return -1;
@@ -1732,7 +1732,7 @@ gzwfile_close(GZWFILE_T state)
     g_free(state->out);
     g_free(state->in);
     state->err = Z_OK;
-    if (close(state->fd) == -1 && ret == 0)
+    if (ws_close(state->fd) == -1 && ret == 0)
         ret = errno;
     g_free(state);
     return ret;

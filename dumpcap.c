@@ -220,9 +220,9 @@ enable_kernel_bpf_jit_compiler(void)
     if (fd < 0)
         return;
 
-    written = write(fd, "1", strlen("1"));
+    written = ws_write(fd, "1", strlen("1"));
 
-    close(fd);
+    ws_close(fd);
 }
 #endif
 

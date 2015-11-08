@@ -2513,14 +2513,14 @@ wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
 	if(wdh->compressed) {
 		return gzwfile_fdopen(fd);
 	} else {
-		return fdopen(fd, "wb");
+		return ws_fdopen(fd, "wb");
 	}
 }
 #else
 static WFILE_T
 wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
 {
-	return fdopen(fd, "wb");
+	return ws_fdopen(fd, "wb");
 }
 #endif
 
