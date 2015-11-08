@@ -33,7 +33,6 @@
 #include <ftypes/ftypes-int.h>
 #include <epan/uat-int.h>
 #include <epan/proto.h>
-#include <wsutil/file_util.h>
 
 typedef struct {
 	const char* name;
