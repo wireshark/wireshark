@@ -718,7 +718,7 @@ catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
     /* Protocol name */
     if (is_comment) {
-        is_sprint = strcmp((const char *)pd+n, "sprint") == 0;
+        is_sprint = (strcmp((const char *)pd+n, "sprint") == 0);
     }
     for (; pd[n] != '\0'; n++);
     n++;
@@ -1579,7 +1579,7 @@ get_file_time_stamp(gchar *linebuff, time_t *secs, guint32 *usecs)
 
     /********************************************************/
     /* Scan for all fields                                  */
-    scan_found = sscanf(linebuff, "%9s %2d, %4d     %2d:%2d:%2d.%4u",
+    scan_found = sscanf(linebuff, "%10s %2d, %4d     %2d:%2d:%2d.%4u",
                         month, &day, &year, &hour, &minute, &second, usecs);
     if (scan_found != 7) {
         /* Give up if not all found */
