@@ -14,16 +14,19 @@ if ! dpkg-statoverride --list $PROGRAM > /dev/null; then
 	    chmod u=rwx,go=rx $PROGRAM
 	else
 	    if ! addgroup --quiet --system $GROUP; then
-		echo "Executing \"addgroup --quiet --system $GROUP\" failed."
-		echo "Most probably the $GROUP group exists, but is not a system group."
-		echo "Please delete the existing group or re-create it as a system group and try configuring wireshark-common again."
-		exit 1
+	        if ! getent group wireshark > /dev/null; then
+		    echo "Error: $GROUP group does not exist and executing \"addgroup --quiet --system $GROUP\" failed which prevents configuring Wireshark for capturing traffic as an unprivileged user."
+                    echo "Please create the $GROUP system (or user) group and try configuring wireshark-common again."
+                    exit 1
+                else
+                    echo "Note: $GROUP is a user group, but the preferred configuration is setting it up as a system group. Purging wireshark-common will not remove the $GROUP group as a result, but otherwise everything should work properly."
+                fi
 	    fi
 	    chown root:$GROUP $PROGRAM
 	    if which setcap > /dev/null ; then
                 chmod u=rwx,g=rx,o=r $PROGRAM
                 if ! setcap cap_net_raw,cap_net_admin=eip $PROGRAM; then
-		    echo "Setting capabilities for dumpcap using Linux Capabilities failed."
+		    echo "Error: Setting capabilities for dumpcap using Linux Capabilities failed."
 		    echo "Falling back to setting set-user-id bit."
 		    chmod u=rwxs,g=rx,o=r $PROGRAM
                 fi
