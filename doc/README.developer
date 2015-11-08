@@ -296,34 +296,19 @@ are little-endian, even though PCs are.  Fetch those values using
 Don't put a comma after the last element of an enum - some compilers may
 either warn about it (producing extra noise) or refuse to accept it.
 
-Don't include <unistd.h> without protecting it with
-
-    #ifdef HAVE_UNISTD_H
-
-        ...
-
-    #endif
-
-and, if you're including it to get routines such as "open()", "close()",
-"read()", and "write()" declared, also include <io.h> if present:
-
-    #ifdef HAVE_IO_H
-    #include <io.h>
-    #endif
-
-in order to declare the Windows C library routines "_open()",
-"_close()", "_read()", and "_write()".  Your file must include <glib.h>
-- which many of the Wireshark header files include, so you might not have
-to include it explicitly - in order to get "open()", "close()",
-"read()", "write()", etc. mapped to "_open()", "_close()", "_read()",
-"_write()", etc..
-
 Do not use "open()", "rename()", "mkdir()", "stat()", "unlink()", "remove()",
 "fopen()", "freopen()" directly.  Instead use "ws_open()", "ws_rename()",
 "ws_mkdir()", "ws_stat()", "ws_unlink()", "ws_remove()", "ws_fopen()",
 "ws_freopen()": these wrapper functions change the path and file name from
 UTF8 to UTF16 on Windows allowing the functions to work correctly when the
 path or file name contain non-ASCII characters.
+
+Also, use ws_read(), ws_write(), ws_lseek(), ws_dup(), ws_fstat(), and
+ws_fdopen(), rather than read(), write(), lseek(), dup(), fstat(), and
+fdopen() on descriptors returned by ws_open().
+
+Those functions are declared in <wsutil/file_util.h>; include that
+header in any code that uses any of those routines.
 
 When opening a file with "ws_fopen()", "ws_freopen()", or "ws_fdopen()", if
 the file contains ASCII text, use "r", "w", "a", and so on as the open mode
@@ -338,15 +323,21 @@ carriage return/line feed).
 
 In addition, that also means that when opening or creating a binary
 file, you must use "ws_open()" (with O_CREAT and possibly O_TRUNC if the
-file is to be created if it doesn't exist), and OR in the O_BINARY flag.
-That flag is not present on most, if not all, UNIX systems, so you must
-also do
+file is to be created if it doesn't exist), and OR in the O_BINARY flag,
+even on UN*X - O_BINARY is defined by <wsutil/file_util.h> as 0 on UN*X.
 
-    #ifndef O_BINARY
-    #define O_BINARY    0
+Do not include <unistd.h>, <fcntl.h>, or <io.h> to declare any of the
+routines listed as replaced by routines in <wsutil/file_util.h>;
+instead, just include <wsutil/file_util.h>.
+
+If you need the declarations of other functions defined by <unistd.h>,
+don't include it without protecting it with
+
+    #ifdef HAVE_UNISTD_H
+
+        ...
+
     #endif
-
-to properly define it for UNIX (it's not necessary on UNIX).
 
 Don't use forward declarations of static arrays without a specified size
 in a fashion such as this:
