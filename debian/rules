@@ -27,8 +27,6 @@ override_dh_auto_build:
 	# some architectures may not support all hardening options but at least
 	# log the build's hardening results
 	-$(MAKE) hardening-check
-	# create menu icon
-	convert image/wsicon32.png image/wsicon32.xpm
 	# fix links in documentation
 	sed -i "s|$(CURDIR)/docbook|..|" obj-*/docbook/ws*g_html_chunked/*.html
 
