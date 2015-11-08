@@ -23,6 +23,7 @@
 #include "config.h"
 
 #include <stdio.h>
+#include <stdlib.h>	/* for atoi() */
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
