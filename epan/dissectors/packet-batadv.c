@@ -843,7 +843,7 @@ static reassembly_table msg_reassembly_table;
 
 static unsigned int batadv_ethertype = ETH_P_BATMAN;
 
-static void dissect_batadv_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_batadv_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint8 version;
 
@@ -854,6 +854,8 @@ static void dissect_batadv_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		dissect_batadv_v5(tvb, pinfo, tree);
 	else
 		dissect_batadv_v15(tvb, pinfo, tree);
+
+	return tvb_captured_length(tvb);
 }
 
 static void dissect_batadv_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -5019,7 +5021,7 @@ void proto_register_batadv(void)
 				      "batadv"           /* abbrev */
 			      );
 
-	register_dissector("batadv",dissect_batadv_plugin,proto_batadv_plugin);
+	new_register_dissector("batadv",dissect_batadv_plugin,proto_batadv_plugin);
 
 	batadv_module = prefs_register_protocol(proto_batadv_plugin,
 						proto_reg_handoff_batadv);
@@ -5045,7 +5047,7 @@ void proto_reg_handoff_batadv(void)
 	static unsigned int old_batadv_ethertype;
 
 	if (!inited) {
-		batman_handle = create_dissector_handle(dissect_batadv_plugin, proto_batadv_plugin);
+		batman_handle = new_create_dissector_handle(dissect_batadv_plugin, proto_batadv_plugin);
 
 		data_handle = find_dissector("data");
 		eth_handle = find_dissector("eth");

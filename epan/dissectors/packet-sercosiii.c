@@ -1161,8 +1161,8 @@ static void dissect_siii_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* Main dissector entry */
-static void
-dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *ti;
   proto_tree *siii_tree;
@@ -1182,7 +1182,7 @@ dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * to dissect it as a normal SercosIII packet.
    */
   if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, NULL))
-    return;
+    return tvb_captured_length(tvb);
 
   /* check what we got on our hand */
   type = tvb_get_guint8(tvb, 0);
@@ -1209,6 +1209,8 @@ dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_siii_at(tvb, pinfo, siii_tree);
   else
     dissect_siii_mdt(tvb, pinfo, siii_tree);
+
+  return tvb_captured_length(tvb);
 }
 
 static void
@@ -1617,7 +1619,7 @@ proto_register_sercosiii(void)
   proto_siii = proto_register_protocol("SERCOS III V1.1",
       "SERCOS III V1.1", "siii");
 
-  register_dissector("sercosiii", dissect_siii, proto_siii);
+  new_register_dissector("sercosiii", dissect_siii, proto_siii);
 
   /* subdissector code */
   heur_subdissector_list = register_heur_dissector_list("sercosiii");
@@ -1634,7 +1636,7 @@ proto_reg_handoff_sercosiii(void)
 {
   dissector_handle_t siii_handle;
 
-  siii_handle = create_dissector_handle(dissect_siii, proto_siii);
+  siii_handle = new_create_dissector_handle(dissect_siii, proto_siii);
   dissector_add_uint("ethertype", ETHERTYPE_SERCOS, siii_handle);
 }
 

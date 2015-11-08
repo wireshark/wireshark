@@ -75,8 +75,8 @@ static const value_string hscsi_opcodes[] = {
 
 #define OPCODE_MASK 0x7F
 
-static void
-dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint      hs_hdr1, hs_hdr2, hs_hdr3;
   guint8     hs_res;
@@ -144,6 +144,7 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(hs_pdu_tree, hf_hs_cmd, tvb, 4, 1, hs_cmd);
   }
 
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -185,7 +186,7 @@ proto_register_hyperscsi(void)
   proto_register_field_array(proto_hyperscsi, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector("hyperscsi", dissect_hyperscsi, proto_hyperscsi);
+  new_register_dissector("hyperscsi", dissect_hyperscsi, proto_hyperscsi);
 }
 
 /* XXX <epan/etypes.h> */

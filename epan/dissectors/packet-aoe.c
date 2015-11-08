@@ -365,20 +365,18 @@ dissect_aoe_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 }
 
-static void
-dissect_aoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_aoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
-  proto_item *item=NULL;
-  proto_tree *tree=NULL;
+  proto_item *item;
+  proto_tree *tree;
   guint8 version;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AoE");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  if (parent_tree) {
-    item = proto_tree_add_item(parent_tree, proto_aoe, tvb, 0, -1, ENC_NA);
-    tree = proto_item_add_subtree(item, ett_aoe);
-  }
+  item = proto_tree_add_item(parent_tree, proto_aoe, tvb, 0, -1, ENC_NA);
+  tree = proto_item_add_subtree(item, ett_aoe);
 
   version=tvb_get_guint8(tvb, 0)>>4;
   proto_tree_add_uint(tree, hf_aoe_version, tvb, 0, 1, version);
@@ -387,6 +385,8 @@ dissect_aoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     dissect_aoe_v1(tvb, pinfo, tree);
     break;
   }
+
+  return tvb_captured_length(tvb);
 }
 
 static void
@@ -469,7 +469,7 @@ proto_register_aoe(void)
   proto_register_field_array(proto_aoe, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  aoe_handle = register_dissector("aoe", dissect_aoe, proto_aoe);
+  aoe_handle = new_register_dissector("aoe", dissect_aoe, proto_aoe);
 
   register_init_routine(ata_init);
   register_cleanup_routine(ata_cleanup);
