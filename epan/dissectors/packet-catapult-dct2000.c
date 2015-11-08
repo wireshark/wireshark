@@ -521,9 +521,9 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
     offset += 2;
 
     /* Only interested in data requests or indications */
-    switch ((top_tag != 0x0400) &&  /* SendDataReq */
-            (top_tag != 0x6200)) {  /* DataInd */
-            return FALSE;
+    if ((top_tag != 0x0400) &&  /* SendDataReq */
+       (top_tag != 0x6200)) {  /* DataInd */
+        return FALSE;
     }
 
     /* Overall length field is next 2 bytes */
