@@ -505,6 +505,7 @@ static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offs
 }
 
 /* Look for the protocol data within an sctpprim (variant 3) packet.
+   Return value indicates whether this header found.
    Only set *data_offset if data field found. */
 static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offset,
                                                    guint32 *dest_addr_offset,
@@ -520,12 +521,8 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
     offset += 2;
 
     /* Only interested in data requests or indications */
-    switch (top_tag) {
-        case 0x0400:  /* SendDataReq */
-        case 0x6200:  /* DataInd */
-            break;
-
-        default:
+    switch ((top_tag != 0x0400) &&  /* SendDataReq */
+            (top_tag != 0x6200)) {  /* DataInd */
             return FALSE;
     }
 
@@ -592,9 +589,9 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
         }
     }
 
-    /***************/
-    /* SendDataReq */
-    else if (top_tag == 0x0400) {
+    /***********************************/
+    /* SendDataReq (top_tag == 0x0400) */
+    else {
         /* AssociateId should follow - check tag */
         tag = tvb_get_ntohs(tvb, offset);
         if (tag != 0x2400) {
@@ -688,8 +685,6 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
             return FALSE;
         }
     }
-
-    return FALSE;
 }
 
 
