@@ -29,7 +29,8 @@
 
 #include "config.h"
 
-#include <stdio.h>
+#include <stdio.h>	/* for sscanf() */
+#include <stdlib.h>	/* for atoi() and strtoul() */
 
 #include <epan/packet.h>
 #include <epan/req_resp_hdrs.h>

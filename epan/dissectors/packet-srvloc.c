@@ -34,7 +34,8 @@
 
 #include "config.h"
 
-#include <stdio.h>
+#include <stdio.h>	/* for sscanf() */
+#include <stdlib.h>	/* for strtoul() */
 
 #include <epan/packet.h>
 #include <epan/prefs.h>

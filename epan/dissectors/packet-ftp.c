@@ -27,6 +27,7 @@
 #include "config.h"
 
 #include <stdio.h>
+#include <stdlib.h>	/* for atoi() and strtoul() */
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
