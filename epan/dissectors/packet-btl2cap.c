@@ -1883,6 +1883,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     gint              offset       = 0;
     proto_item       *ti;
     proto_tree       *btl2cap_tree;
+    proto_item       *length_item;
     guint16           length;
     guint16           cid;
     guint16           psm;
@@ -1912,7 +1913,13 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     length  = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(btl2cap_tree, hf_btl2cap_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    length_item = proto_tree_add_item(btl2cap_tree, hf_btl2cap_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    if (tvb_captured_length_remaining(tvb, offset) < length) {
+        expert_add_info(pinfo, length_item, &ei_btl2cap_length_bad);
+        /* Try to dissect as more as possible */
+        length = tvb_captured_length_remaining(tvb, offset) - 4;
+    }
+
     offset += 2;
 
     cid = tvb_get_letohs(tvb, offset);
@@ -1959,7 +1966,8 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (cid == BTL2CAP_FIXED_CID_SIGNAL || cid == BTL2CAP_FIXED_CID_LE_SIGNAL) {
         /* This is a command packet*/
-        while (offset < (length + 4)) {
+        while (offset < length + 4) {
+
             proto_item  *ti_command;
             proto_tree  *btl2cap_cmd_tree;
             guint8       cmd_code;
@@ -2798,7 +2806,7 @@ proto_register_btl2cap(void)
     static ei_register_info ei[] = {
         { &ei_btl2cap_parameter_mismatch, { "btl2cap.parameter_mismatch", PI_PROTOCOL, PI_WARN, "Unexpected frame", EXPFILL }},
         { &ei_btl2cap_sdulength_bad, { "btl2cap.sdulength.bad", PI_MALFORMED, PI_WARN, "SDU length bad", EXPFILL }},
-        { &ei_btl2cap_length_bad, { "btl2cap.length.bad", PI_MALFORMED, PI_WARN, "Length bad", EXPFILL }},
+        { &ei_btl2cap_length_bad, { "btl2cap.length.bad", PI_MALFORMED, PI_WARN, "Length too short", EXPFILL }},
         { &ei_btl2cap_unknown_command_code, { "btl2cap.unknown_command_code", PI_PROTOCOL, PI_WARN, "Unknown Command Code", EXPFILL }},
     };
 

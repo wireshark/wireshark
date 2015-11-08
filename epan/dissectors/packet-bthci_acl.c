@@ -60,6 +60,7 @@ static int hf_bthci_acl_mode_last_change_in_frame = -1;
 static gint ett_bthci_acl = -1;
 
 static expert_field ei_invalid_session = EI_INIT;
+static expert_field ei_length_bad = EI_INIT;
 
 static dissector_handle_t bthci_acl_handle;
 static dissector_handle_t btl2cap_handle = NULL;
@@ -123,6 +124,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item               *bthci_acl_itam;
     proto_tree               *bthci_acl_tree;
     proto_item               *sub_item;
+    proto_item               *length_item;
     guint16                   flags;
     guint16                   length;
     gboolean                  fragmented;
@@ -390,7 +392,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     length = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(bthci_acl_tree, hf_bthci_acl_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    length_item = proto_tree_add_item(bthci_acl_tree, hf_bthci_acl_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     /* determine if packet is fragmented */
@@ -413,6 +415,12 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         /* call L2CAP dissector for PDUs that are not fragmented
          * also for the first fragment if reassembly is disabled
          */
+        if (length < tvb_captured_length_remaining(tvb, offset)) {
+            expert_add_info(pinfo, length_item, &ei_length_bad);
+            /* Try to dissect as more as possible */
+            length = tvb_captured_length_remaining(tvb, offset);
+        }
+
         next_tvb = tvb_new_subset(tvb, offset, tvb_captured_length_remaining(tvb, offset), length);
         offset += call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
     } else if (fragmented && acl_reassembly) {
@@ -648,7 +656,8 @@ proto_register_bthci_acl(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_invalid_session, { "bthci_acl.invalid_session", PI_PROTOCOL, PI_ERROR, "Frame is out of any \"connection handle\" session", EXPFILL }},
+        { &ei_invalid_session, { "bthci_acl.invalid_session", PI_PROTOCOL,  PI_ERROR, "Frame is out of any \"connection handle\" session", EXPFILL }},
+        { &ei_length_bad,      { "bthci_acl.length.bad",      PI_MALFORMED, PI_WARN, "Length too short", EXPFILL }},
     };
 
     /* Register the protocol name and description */
