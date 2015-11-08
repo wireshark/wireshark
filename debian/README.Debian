@@ -20,7 +20,9 @@ I. Capturing packets with Wireshark/Tshark
       thanks to the privilege separation[1].
 
       Note that no user will be added to group wireshark automatically, the
-      system administrator has to add them manually.
+      system administrator has to add them manually. After a user is added
+      to the wireshark group she/he may need to log in again to make her/his new
+      group membership take effect and be able to capture packets.
 
       The additional privileges are provided using the Linux Capabilities
       system where it is available and resort to setting the set-user-id bit
