@@ -260,7 +260,7 @@ Age: some number of minutes (a bit older than the Git access).
 
 The buildbot server will automatically start to generate a snapshot of
 Wireshark's source tree after a source code change is committed.
-These snapshots can be found at wireshark-download-page:[]automated/src/[].
+These snapshots can be found at wireshark-snapshots-url:[].
 
 If Git access isn't possible, e.g. if the connection to the server
 isn't possible because of a corporate firewall, the sources can be
