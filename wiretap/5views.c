@@ -105,7 +105,7 @@ static int _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *h
     struct wtap_pkthdr *phdr, int *err, gchar **err_info);
 
 static gboolean _5views_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr, const guint8 *pd, int *err, gchar **err_info);
-static gboolean _5views_dump_close(wtap_dumper *wdh, int *err);
+static gboolean _5views_dump_finish(wtap_dumper *wdh, int *err);
 
 
 wtap_open_return_val
@@ -337,7 +337,7 @@ gboolean _5views_dump_open(wtap_dumper *wdh, int *err)
 
 	/* This is a 5Views file */
 	wdh->subtype_write = _5views_dump;
-	wdh->subtype_close = _5views_dump_close;
+	wdh->subtype_finish = _5views_dump_finish;
 	_5views = (_5views_dump_t *)g_malloc(sizeof(_5views_dump_t));
 	wdh->priv = (void *)_5views;
 	_5views->nframes = 0;
@@ -395,7 +395,7 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 	return TRUE;
 }
 
-static gboolean _5views_dump_close(wtap_dumper *wdh, int *err)
+static gboolean _5views_dump_finish(wtap_dumper *wdh, int *err)
 {
 	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;
 	t_5VW_Capture_Header file_hdr;

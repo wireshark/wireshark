@@ -527,7 +527,7 @@ static void ngsniffer_sequential_close(wtap *wth);
 static void ngsniffer_close(wtap *wth);
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err, gchar **err_info);
-static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err);
+static gboolean ngsniffer_dump_finish(wtap_dumper *wdh, int *err);
 static int SnifferDecompress( unsigned char * inbuf, size_t inlen,
     unsigned char * outbuf, size_t outlen, int *err, gchar **err_info );
 static gboolean ng_read_bytes_or_eof(wtap *wth, void *buffer,
@@ -1970,7 +1970,7 @@ ngsniffer_dump_open(wtap_dumper *wdh, int *err)
 
 	/* This is a sniffer file */
 	wdh->subtype_write = ngsniffer_dump;
-	wdh->subtype_close = ngsniffer_dump_close;
+	wdh->subtype_finish = ngsniffer_dump_finish;
 
 	ngsniffer = (ngsniffer_dump_t *)g_malloc(sizeof(ngsniffer_dump_t));
 	wdh->priv = (void *)ngsniffer;
@@ -2128,7 +2128,7 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 /* Finish writing to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean
-ngsniffer_dump_close(wtap_dumper *wdh, int *err)
+ngsniffer_dump_finish(wtap_dumper *wdh, int *err)
 {
 	/* EOF record */
 	char buf[6] = {REC_EOF, 0x00, 0x00, 0x00, 0x00, 0x00};

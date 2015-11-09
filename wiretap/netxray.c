@@ -412,11 +412,11 @@ static void netxray_guess_atm_type(wtap *wth, struct wtap_pkthdr *phdr,
 static gboolean netxray_dump_1_1(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err, gchar **err_info);
-static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err);
+static gboolean netxray_dump_finish_1_1(wtap_dumper *wdh, int *err);
 static gboolean netxray_dump_2_0(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err, gchar **err_info);
-static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err);
+static gboolean netxray_dump_finish_2_0(wtap_dumper *wdh, int *err);
 
 wtap_open_return_val
 netxray_open(wtap *wth, int *err, gchar **err_info)
@@ -1709,7 +1709,7 @@ netxray_dump_open_1_1(wtap_dumper *wdh, int *err)
 	netxray_dump_t *netxray;
 
 	wdh->subtype_write = netxray_dump_1_1;
-	wdh->subtype_close = netxray_dump_close_1_1;
+	wdh->subtype_finish = netxray_dump_finish_1_1;
 
 	/* We can't fill in all the fields in the file header, as we
 	   haven't yet written any packets.  As we'll have to rewrite
@@ -1797,7 +1797,7 @@ netxray_dump_1_1(wtap_dumper *wdh,
 /* Finish writing to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean
-netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
+netxray_dump_finish_1_1(wtap_dumper *wdh, int *err)
 {
 	char hdr_buf[CAPTUREFILE_HEADER_SIZE - sizeof(netxray_magic)];
 	netxray_dump_t *netxray = (netxray_dump_t *)wdh->priv;
@@ -1886,7 +1886,7 @@ netxray_dump_open_2_0(wtap_dumper *wdh, int *err)
 	netxray_dump_t *netxray;
 
 	wdh->subtype_write = netxray_dump_2_0;
-	wdh->subtype_close = netxray_dump_close_2_0;
+	wdh->subtype_finish = netxray_dump_finish_2_0;
 
 	/* We can't fill in all the fields in the file header, as we
 	   haven't yet written any packets.  As we'll have to rewrite
@@ -2006,7 +2006,7 @@ netxray_dump_2_0(wtap_dumper *wdh,
 /* Finish writing to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean
-netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
+netxray_dump_finish_2_0(wtap_dumper *wdh, int *err)
 {
 	char hdr_buf[CAPTUREFILE_HEADER_SIZE - sizeof(netxray_magic)];
 	netxray_dump_t *netxray = (netxray_dump_t *)wdh->priv;

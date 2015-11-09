@@ -658,7 +658,6 @@ gboolean nettl_dump_open(wtap_dumper *wdh, int *err)
 
     /* This is a nettl file */
     wdh->subtype_write = nettl_dump;
-    wdh->subtype_close = NULL;
 
     /* Write the file header. */
     memset(&file_hdr,0,sizeof(file_hdr));

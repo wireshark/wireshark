@@ -290,7 +290,7 @@ struct _wslua_filehandler {
     int can_write_encap_ref;
     int write_open_ref;
     int write_ref;
-    int write_close_ref;
+    int write_finish_ref;
     int file_type;
     gboolean registered;
 };

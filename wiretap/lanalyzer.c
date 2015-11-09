@@ -273,7 +273,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err);
+static gboolean lanalyzer_dump_finish(wtap_dumper *wdh, int *err);
 
 wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -740,9 +740,9 @@ gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err)
             }
 
       ((LA_TmpInfo*)tmp)->init = FALSE;
-      wdh->priv          = tmp;
-      wdh->subtype_write = lanalyzer_dump;
-      wdh->subtype_close = lanalyzer_dump_close;
+      wdh->priv           = tmp;
+      wdh->subtype_write  = lanalyzer_dump;
+      wdh->subtype_finish = lanalyzer_dump_finish;
 
       /* Some of the fields in the file header aren't known yet so
        just skip over it for now.  It will be created after all
@@ -894,7 +894,7 @@ static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
  * Finish writing to a dump file.
  * Returns TRUE on success, FALSE on failure.
  *---------------------------------------------------*/
-static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err)
+static gboolean lanalyzer_dump_finish(wtap_dumper *wdh, int *err)
 {
       lanalyzer_dump_header(wdh,err);
       return *err ? FALSE : TRUE;

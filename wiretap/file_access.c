@@ -2444,9 +2444,9 @@ wtap_dump_close(wtap_dumper *wdh, int *err)
 {
 	gboolean ret = TRUE;
 
-	if (wdh->subtype_close != NULL) {
-		/* There's a close routine for this dump stream. */
-		if (!(wdh->subtype_close)(wdh, err))
+	if (wdh->subtype_finish != NULL) {
+		/* There's a finish routine for this dump stream. */
+		if (!(wdh->subtype_finish)(wdh, err))
 			ret = FALSE;
 	}
 	errno = WTAP_ERR_CANT_CLOSE;

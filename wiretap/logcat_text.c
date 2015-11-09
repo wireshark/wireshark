@@ -548,7 +548,6 @@ static gboolean logcat_text_dump_open(wtap_dumper *wdh, guint dump_type, int *er
 
     wdh->priv = dumper;
     wdh->subtype_write = logcat_text_dump_text;
-    wdh->subtype_close = NULL;
 
     return TRUE;
 }
