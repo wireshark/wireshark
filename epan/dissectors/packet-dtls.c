@@ -58,6 +58,7 @@
 #include <epan/exported_pdu.h>
 #include <wsutil/str_util.h>
 #include "packet-ssl-utils.h"
+#include "packet-dtls.h"
 
 void proto_register_dtls(void);
 
