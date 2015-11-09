@@ -552,7 +552,7 @@ int randpkt_parse_type(char *string)
 static void usage(gboolean is_error);
 
 /* Seed the random-number generator */
-void
+static void
 randpkt_seed(void)
 {
 	unsigned int	randomness;
@@ -607,7 +607,7 @@ fallback:
 
 static randpkt_example* randpkt_find_example(int type);
 
-void randpkt_example_init(randpkt_example* example, char* produce_filename, int produce_max_bytes)
+static void randpkt_example_init(randpkt_example* example, char* produce_filename, int produce_max_bytes)
 {
 	int err;
 
@@ -629,13 +629,13 @@ void randpkt_example_init(randpkt_example* example, char* produce_filename, int 
 	}
 }
 
-void randpkt_example_close(randpkt_example* example)
+static void randpkt_example_close(randpkt_example* example)
 {
 	int err;
 	wtap_dump_close(example->dump, &err);
 }
 
-void randpkt_loop(randpkt_example* example, guint64 produce_count)
+static void randpkt_loop(randpkt_example* example, guint64 produce_count)
 {
 	guint i;
 	int j;
