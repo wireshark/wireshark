@@ -302,7 +302,7 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
 
 static void extcap_dumper_dump(struct extcap_dumper extcap_dumper, char *buffer,
         gssize captured_length, gssize reported_length,
-        time_t seconds, long nanoseconds) {
+        time_t seconds, int nanoseconds) {
 #ifdef ANDROIDDUMP_USE_LIBPCAP
     struct pcap_pkthdr  pcap_header;
 
