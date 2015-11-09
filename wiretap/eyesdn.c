@@ -359,7 +359,6 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 gboolean eyesdn_dump_open(wtap_dumper *wdh, int *err)
 {
 	wdh->subtype_write=eyesdn_dump;
-	wdh->subtype_close=NULL;
 
 	if (!wtap_dump_file_write(wdh, eyesdn_hdr_magic,
 	    EYESDN_HDR_MAGIC_SIZE, err))

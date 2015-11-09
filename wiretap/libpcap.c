@@ -824,7 +824,6 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 
 	/* This is a libpcap file */
 	wdh->subtype_write = libpcap_dump;
-	wdh->subtype_close = NULL;
 
 	/* Write the file header. */
 	switch (wdh->file_type_subtype) {

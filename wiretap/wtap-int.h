@@ -91,7 +91,7 @@ typedef void *WFILE_T;
 typedef gboolean (*subtype_write_func)(struct wtap_dumper*,
                                        const struct wtap_pkthdr*,
                                        const guint8*, int*, gchar**);
-typedef gboolean (*subtype_close_func)(struct wtap_dumper*, int*);
+typedef gboolean (*subtype_finish_func)(struct wtap_dumper*, int*);
 
 struct wtap_dumper {
     WFILE_T                 fh;
@@ -101,19 +101,19 @@ struct wtap_dumper {
     gboolean                compressed;
     gint64                  bytes_dumped;
 
-    void                    *priv;       /* this one holds per-file state and is free'd automatically by wtap_dump_close() */
-    void                    *wslua_data; /* this one holds wslua state info and is not free'd */
+    void                    *priv;          /* this one holds per-file state and is free'd automatically by wtap_dump_close() */
+    void                    *wslua_data;    /* this one holds wslua state info and is not free'd */
 
-    subtype_write_func      subtype_write;
-    subtype_close_func      subtype_close;
+    subtype_write_func      subtype_write;  /* write out a record */
+    subtype_finish_func     subtype_finish; /* write out information to finish writing file */
 
     int                     tsprecision;    /**< timestamp precision of the lower 32bits
                                              * e.g. WTAP_TSPREC_USEC
                                              */
-    addrinfo_lists_t        *addrinfo_lists;    /**< Struct containing lists of resolved addresses */
+    addrinfo_lists_t        *addrinfo_lists; /**< Struct containing lists of resolved addresses */
     wtapng_section_t        *shb_hdr;
-    wtapng_name_res_t       *nrb_hdr;           /**< name resolution comment/custom_opt, or NULL */
-    GArray                  *interface_data;    /**< An array holding the interface data from pcapng IDB:s or equivalent(?) NULL if not present.*/
+    wtapng_name_res_t       *nrb_hdr;        /**< name resolution comment/custom_opt, or NULL */
+    GArray                  *interface_data; /**< An array holding the interface data from pcapng IDB:s or equivalent(?) NULL if not present.*/
 };
 
 WS_DLL_PUBLIC gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf,

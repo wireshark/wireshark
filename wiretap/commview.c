@@ -390,7 +390,6 @@ int commview_dump_can_write_encap(int encap)
 gboolean commview_dump_open(wtap_dumper *wdh, int *err _U_)
 {
 	wdh->subtype_write = commview_dump;
-	wdh->subtype_close = NULL;
 
 	/* There is no file header to write out */
 	wdh->bytes_dumped = 0;

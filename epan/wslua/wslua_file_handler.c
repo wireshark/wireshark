@@ -464,7 +464,7 @@ static gboolean
 wslua_filehandler_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                       const guint8 *pd, int *err, gchar **err_info);
 static gboolean
-wslua_filehandler_dump_close(wtap_dumper *wdh, int *err);
+wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err);
 
 
 /* The classic wtap dump_open function.
@@ -514,11 +514,11 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err)
             return 0;
         }
 
-        /* it's ok to not have a close routine */
-        if (fh->write_close_ref != LUA_NOREF)
-            wdh->subtype_close = wslua_filehandler_dump_close;
+        /* it's ok to not have a finish routine */
+        if (fh->write_finish_ref != LUA_NOREF)
+            wdh->subtype_finish = wslua_filehandler_dump_finish;
         else
-            wdh->subtype_close = NULL;
+            wdh->subtype_finish = NULL;
     }
     else {
         /* not our file type? */
@@ -570,11 +570,11 @@ wslua_filehandler_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     return (retval == 1);
 }
 
-/* The classic wtap dump_close routine.  This returns TRUE if it closes cleanly,
- * else FALSE.
+/* The classic wtap dump_finish routine.  This returns TRUE if it
+ * writes out the last information cleanly, else FALSE.
 */
 static gboolean
-wslua_filehandler_dump_close(wtap_dumper *wdh, int *err)
+wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err)
 {
     FileHandler fh = (FileHandler)(wdh->wslua_data);
     int retval = -1;
@@ -582,7 +582,7 @@ wslua_filehandler_dump_close(wtap_dumper *wdh, int *err)
     File *fp = NULL;
     CaptureInfoConst *fc = NULL;
 
-    INIT_FILEHANDLER_ROUTINE(write_close,FALSE);
+    INIT_FILEHANDLER_ROUTINE(write_finish,FALSE);
 
     /* Reset errno */
     if (err) {
@@ -597,7 +597,7 @@ wslua_filehandler_dump_close(wtap_dumper *wdh, int *err)
         case 0:
             retval = wslua_optboolint(L,-1,0);
             break;
-        CASE_ERROR("write_close")
+        CASE_ERROR("write_finish")
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -656,7 +656,7 @@ WSLUA_CONSTRUCTOR FileHandler_new(lua_State* L) {
     fh->seq_read_close_ref = LUA_NOREF;
     fh->write_open_ref = LUA_NOREF;
     fh->write_ref = LUA_NOREF;
-    fh->write_close_ref = LUA_NOREF;
+    fh->write_finish_ref = LUA_NOREF;
     fh->can_write_encap_ref = LUA_NOREF;
 
     fh->registered = FALSE;
@@ -795,7 +795,7 @@ WSLUA_FUNCTION wslua_deregister_filehandler(lua_State* L) {
     int can_write_encap_ref;
     int write_open_ref;
     int write_ref;
-    int write_close_ref;
+    int write_finish_ref;
 */
 
 /* WSLUA_ATTRIBUTE FileHandler_read_open WO The Lua function to be called when Wireshark opens a file for reading.
@@ -884,7 +884,7 @@ WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,can_write_encap);
 
     The called Lua function should return true on success, or false if it hit an error.
 
-    Also make sure to set the `FileHandler.write` (and potentially `FileHandler.write_close`) functions before
+    Also make sure to set the `FileHandler.write` (and potentially `FileHandler.write_finish`) functions before
     returning true from this function. */
 WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,write_open);
 
@@ -900,7 +900,7 @@ WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,write_open);
     The called Lua function should return true on success, or false if it hit an error. */
 WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,write);
 
-/* WSLUA_ATTRIBUTE FileHandler_write_close WO The Lua function to be called when Wireshark wants to close the written file.
+/* WSLUA_ATTRIBUTE FileHandler_write_finish WO The Lua function to be called when Wireshark wants to close the written file.
 
     When later called by Wireshark, the Lua function will be given:
         1. A `File` object
@@ -908,7 +908,7 @@ WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,write);
 
     It is not necessary to set this field to a Lua function - `FileHandler` can be registered without doing so - it is available
     in case there is memory/state to clear in your script when the file is closed. */
-WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,write_close);
+WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,write_finish);
 
 /* generate other member accessors setters/getters */
 
@@ -957,7 +957,7 @@ WSLUA_ATTRIBUTES FileHandler_attributes[] = {
     WSLUA_ATTRIBUTE_WOREG(FileHandler,can_write_encap),
     WSLUA_ATTRIBUTE_WOREG(FileHandler,write_open),
     WSLUA_ATTRIBUTE_WOREG(FileHandler,write),
-    WSLUA_ATTRIBUTE_WOREG(FileHandler,write_close),
+    WSLUA_ATTRIBUTE_WOREG(FileHandler,write_finish),
     WSLUA_ATTRIBUTE_ROREG(FileHandler,type),
     WSLUA_ATTRIBUTE_RWREG(FileHandler,extensions),
     WSLUA_ATTRIBUTE_RWREG(FileHandler,writing_must_seek),

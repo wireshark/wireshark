@@ -3912,7 +3912,7 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 
 /* Finish writing to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean pcapng_dump_close(wtap_dumper *wdh, int *err)
+static gboolean pcapng_dump_finish(wtap_dumper *wdh, int *err)
 {
     guint i, j;
 
@@ -3929,14 +3929,14 @@ static gboolean pcapng_dump_close(wtap_dumper *wdh, int *err)
             wtapng_if_stats_t if_stats;
 
             if_stats = g_array_index(int_data.interface_statistics, wtapng_if_stats_t, j);
-            pcapng_debug("pcapng_dump_close: write ISB for interface %u",if_stats.interface_id);
+            pcapng_debug("pcapng_dump_finish: write ISB for interface %u",if_stats.interface_id);
             if (!pcapng_write_interface_statistics_block(wdh, &if_stats, err)) {
                 return FALSE;
             }
         }
     }
 
-    pcapng_debug("pcapng_dump_close");
+    pcapng_debug("pcapng_dump_finish");
     return TRUE;
 }
 
@@ -3951,7 +3951,7 @@ pcapng_dump_open(wtap_dumper *wdh, int *err)
     pcapng_debug("pcapng_dump_open");
     /* This is a pcapng file */
     wdh->subtype_write = pcapng_dump;
-    wdh->subtype_close = pcapng_dump_close;
+    wdh->subtype_finish = pcapng_dump_finish;
 
     if (wdh->interface_data->len == 0) {
         pcapng_debug("There are no interfaces. Can't handle that...");

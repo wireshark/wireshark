@@ -1302,7 +1302,7 @@ static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 static const guint8 k12_eof[] = {0xff,0xff};
 
-static gboolean k12_dump_close(wtap_dumper *wdh, int *err) {
+static gboolean k12_dump_finish(wtap_dumper *wdh, int *err) {
     k12_dump_t *k12 = (k12_dump_t *)wdh->priv;
     union {
         guint8 b[sizeof(guint32)];
@@ -1360,7 +1360,7 @@ gboolean k12_dump_open(wtap_dumper *wdh, int *err) {
         return FALSE;
 
     wdh->subtype_write = k12_dump;
-    wdh->subtype_close = k12_dump_close;
+    wdh->subtype_finish = k12_dump_finish;
 
     k12 = (k12_dump_t *)g_malloc(sizeof(k12_dump_t));
     wdh->priv = (void *)k12;

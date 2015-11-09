@@ -165,7 +165,7 @@ static gboolean visual_read_packet(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err, gchar **err_info);
-static gboolean visual_dump_close(wtap_dumper *wdh, int *err);
+static gboolean visual_dump_finish(wtap_dumper *wdh, int *err);
 static void visual_dump_free(wtap_dumper *wdh);
 
 
@@ -612,7 +612,7 @@ gboolean visual_dump_open(wtap_dumper *wdh, int *err)
 
     /* Set the write routines for a visual file. */
     wdh->subtype_write = visual_dump;
-    wdh->subtype_close = visual_dump_close;
+    wdh->subtype_finish = visual_dump_finish;
 
     /* Create a struct to hold file information for the duration
        of the write */
@@ -760,7 +760,7 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 /* Finish writing to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
+static gboolean visual_dump_finish(wtap_dumper *wdh, int *err)
 {
     struct visual_write_info * visual = (struct visual_write_info *)wdh->priv;
     size_t n_to_write;

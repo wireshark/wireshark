@@ -722,7 +722,6 @@ int erf_dump_can_write_encap(int encap)
 int erf_dump_open(wtap_dumper *wdh, int *err)
 {
   wdh->subtype_write = erf_dump;
-  wdh->subtype_close = NULL;
 
   switch(wdh->file_type_subtype){
     case WTAP_FILE_TYPE_SUBTYPE_ERF:

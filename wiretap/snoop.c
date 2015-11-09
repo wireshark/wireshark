@@ -796,7 +796,6 @@ gboolean snoop_dump_open(wtap_dumper *wdh, int *err)
 
 	/* This is a snoop file */
 	wdh->subtype_write = snoop_dump;
-	wdh->subtype_close = NULL;
 
 	/* Write the file header. */
 	if (!wtap_dump_file_write(wdh, &snoop_magic, sizeof snoop_magic, err))
