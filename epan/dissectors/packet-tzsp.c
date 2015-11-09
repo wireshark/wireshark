@@ -284,8 +284,8 @@ tzsp_encap_to_wtap_encap(guint16 encap)
 /*                Dissect a TZSP packet                                      */
 /* ************************************************************************* */
 
-static void
-dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree         *tzsp_tree     = NULL;
     proto_item         *ti            = NULL;
@@ -371,6 +371,8 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             call_dissector(data_handle, next_tvb, pinfo, tree);
         }
     }
+
+    return tvb_captured_length(tvb);
 }
 
 /* ************************************************************************* */
@@ -532,7 +534,7 @@ proto_register_tzsp(void)
     proto_register_field_array(proto_tzsp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    tzsp_handle = register_dissector("tzsp", dissect_tzsp, proto_tzsp);
+    tzsp_handle = new_register_dissector("tzsp", dissect_tzsp, proto_tzsp);
 }
 
 void

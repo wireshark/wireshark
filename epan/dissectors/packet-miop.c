@@ -83,10 +83,8 @@ static expert_field ei_miop_unique_id_len_exceed_max_value = EI_INIT;
 
 #define MIOP_MAGIC   0x4d494f50 /* "MIOP" */
 
-static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
-
 static gboolean
-dissect_miop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_) {
+dissect_miop_heur_check (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree _U_, void * data _U_) {
 
   guint tot_len;
   guint32 magic;
@@ -109,20 +107,11 @@ dissect_miop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
         return FALSE;
     }
 
-  if (pinfo->ptype != PT_UDP)
-    return FALSE;
-
-  dissect_miop (tvb, pinfo, tree);
-
-  /* TODO: make reasembly */
-
   return TRUE;
-
 }
 
-
 /* Main entry point */
-static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
+static int dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_) {
   guint offset = 0;
 
   proto_tree *miop_tree = NULL;
@@ -144,6 +133,9 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
   wmem_strbuf_t *flags_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
   wmem_strbuf_append(flags_strbuf, "none");
 
+  if (!dissect_miop_heur_check(tvb, pinfo, tree, data))
+      return 0;
+
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "MIOP");
   /* Clear out stuff in the info column */
   col_clear(pinfo->cinfo, COL_INFO);
@@ -164,7 +156,7 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
                                tvb, 0, -1,
                                "MIOP version %u.%u not supported",
                                version_major, version_minor);
-      return;
+      return 5;
   }
 
   flags = tvb_get_guint8(tvb, 5);
@@ -224,7 +216,7 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
         expert_add_info_format(pinfo, ti, &ei_miop_unique_id_len_exceed_max_value,
                        "Unique Id length (%u) exceeds max value (%u)",
                        unique_id_len, MIOP_MAX_UNIQUE_ID_LENGTH);
-        return;
+        return offset;
       }
 
       offset += 4;
@@ -244,9 +236,21 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
       }
     }
 
-
+   return tvb_captured_length(tvb);
 }
 
+static gboolean
+dissect_miop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_) {
+
+  if (!dissect_miop_heur_check(tvb, pinfo, tree, data))
+      return FALSE;
+
+  dissect_miop (tvb, pinfo, tree, data);
+
+  /* TODO: make reasembly */
+  return TRUE;
+
+}
 
 void proto_register_miop (void) {
 
@@ -302,7 +306,7 @@ void proto_register_miop (void) {
   expert_miop = expert_register_protocol(proto_miop);
   expert_register_field_array(expert_miop, ei, array_length(ei));
 
-  register_dissector("miop", dissect_miop, proto_miop);
+  new_register_dissector("miop", dissect_miop, proto_miop);
 
 }
 

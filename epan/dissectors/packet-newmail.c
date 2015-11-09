@@ -40,8 +40,8 @@ static int hf_newmail_payload = -1;
 static gint ett_newmail = -1;
 
 /* Code to actually dissect the packets */
-static void
-dissect_newmail(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_newmail(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -59,6 +59,8 @@ dissect_newmail(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(newmail_tree, hf_newmail_payload, tvb, 0, 8, ENC_NA);
 	}
+
+	return tvb_captured_length(tvb);
 }
 
 
@@ -89,7 +91,7 @@ proto_register_newmail(void)
 	proto_register_field_array(proto_newmail, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("newmail", dissect_newmail, proto_newmail);
+	new_register_dissector("newmail", dissect_newmail, proto_newmail);
 
 	newmail_module = prefs_register_protocol(proto_newmail,
 						 proto_reg_handoff_newmail);

@@ -312,8 +312,8 @@ check_valid_version(const gchar *version) {
 }
 
 
-static void
-dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree    *zrtp_tree;
   proto_tree    *zrtp_msg_tree;
@@ -437,6 +437,7 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     PROTO_ITEM_SET_GENERATED(ti);
   }
 
+  return tvb_captured_length(tvb);
 }
 
 static void
@@ -1158,7 +1159,7 @@ proto_register_zrtp(void)
   proto_zrtp = proto_register_protocol("ZRTP", "ZRTP", "zrtp");
   proto_register_field_array(proto_zrtp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  register_dissector("zrtp", dissect_zrtp, proto_zrtp);
+  new_register_dissector("zrtp", dissect_zrtp, proto_zrtp);
 }
 
 void

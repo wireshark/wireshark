@@ -335,7 +335,7 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
 }
 }
 
-static void dissect_sscop(tvbuff_t* tvb, packet_info* pinfo,proto_tree* tree)
+static int dissect_sscop(tvbuff_t* tvb, packet_info* pinfo,proto_tree* tree, void* data _U_)
 {
   struct _sscop_payload_info  *p_sscop_info;
   dissector_handle_t subdissector;
@@ -353,6 +353,8 @@ static void dissect_sscop(tvbuff_t* tvb, packet_info* pinfo,proto_tree* tree)
     dissect_sscop_and_payload(tvb,pinfo,tree,subdissector);
   else
     dissect_sscop_and_payload(tvb,pinfo,tree,default_handle);
+
+  return tvb_captured_length(tvb);
 }
 
 /* Make sure handles for various protocols are initialized */
@@ -438,7 +440,7 @@ proto_register_sscop(void)
   proto_register_field_array(proto_sscop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  sscop_handle = register_dissector("sscop", dissect_sscop, proto_sscop);
+  sscop_handle = new_register_dissector("sscop", dissect_sscop, proto_sscop);
 
   sscop_module = prefs_register_protocol(proto_sscop, proto_reg_handoff_sscop);
 

@@ -2703,7 +2703,6 @@ struct AsterixField_s {
 };
 DIAG_ON(pedantic)
 
-static void dissect_asterix (tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_asterix_packet (tvbuff_t *, proto_tree *);
 static void dissect_asterix_data_block (tvbuff_t *tvb, guint, proto_tree *, guint8, gint);
 static gint dissect_asterix_fields (tvbuff_t *, guint, proto_tree *, guint8, const AsterixField *[]);
@@ -8226,7 +8225,7 @@ static const AsterixField ****categories[] = {
 };
 
 
-static void dissect_asterix (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_asterix (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     col_set_str (pinfo->cinfo, COL_PROTOCOL, "ASTERIX");
     col_clear (pinfo->cinfo, COL_INFO);
@@ -8234,6 +8233,8 @@ static void dissect_asterix (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if (tree) { /* we are being asked for details */
         dissect_asterix_packet (tvb, tree);
     }
+
+    return tvb_captured_length(tvb);
 }
 
 static void dissect_asterix_packet (tvbuff_t *tvb, proto_tree *tree)
@@ -11171,7 +11172,7 @@ void proto_register_asterix (void)
     proto_register_field_array (proto_asterix, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
 
-    asterix_handle = register_dissector ("asterix", dissect_asterix, proto_asterix);
+    asterix_handle = new_register_dissector ("asterix", dissect_asterix, proto_asterix);
 
     asterix_prefs_module = prefs_register_protocol (proto_asterix, proto_reg_handoff_asterix);
 

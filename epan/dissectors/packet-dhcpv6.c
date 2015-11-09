@@ -2001,14 +2001,15 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         off += dhcpv6_option(tvb, pinfo, bp_tree, off, eoff, &at_end, proto_dhcpv6, hpi);
 }
 
-static void
-dissect_dhcpv6_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dhcpv6_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     hopcount_info hpi;
     initialize_hopount_info(&hpi);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPv6");
     col_clear(pinfo->cinfo, COL_INFO);
     dissect_dhcpv6(tvb, pinfo, tree, 0, tvb_reported_length(tvb), hpi);
+    return tvb_captured_length(tvb);
 }
 
 static guint
@@ -2397,7 +2398,7 @@ proto_register_dhcpv6(void)
     expert_register_field_array(expert_dhcpv6_bulk_leasequery, ei_bulk_leasequery, array_length(ei_bulk_leasequery));
 
     /* Allow other dissectors to find this one by name. */
-    register_dissector("dhcpv6", dissect_dhcpv6_stream, proto_dhcpv6);
+    new_register_dissector("dhcpv6", dissect_dhcpv6_stream, proto_dhcpv6);
 
     dhcpv6_module = prefs_register_protocol(proto_dhcpv6, NULL);
     prefs_register_bool_preference(dhcpv6_module, "cablelabs_interface_id",
@@ -2417,7 +2418,7 @@ proto_reg_handoff_dhcpv6(void)
 {
     dissector_handle_t dhcpv6_handle, dhcpv6_bulkquery_handle;
 
-    dhcpv6_handle = create_dissector_handle(dissect_dhcpv6_stream, proto_dhcpv6);
+    dhcpv6_handle = new_create_dissector_handle(dissect_dhcpv6_stream, proto_dhcpv6);
     dissector_add_uint("udp.port", UDP_PORT_DHCPV6_DOWNSTREAM, dhcpv6_handle);
     dissector_add_uint("udp.port", UDP_PORT_DHCPV6_UPSTREAM, dhcpv6_handle);
 

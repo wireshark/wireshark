@@ -5344,8 +5344,8 @@ static const value_string op_vals[] = {
 	{ 0,		NULL }
 };
 
-static void
-dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree   *bp_tree;
 	proto_item   *bp_ti, *ti;
@@ -5432,7 +5432,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (offset_delta <= 0) {
 			proto_tree_add_expert(bp_tree, pinfo, &ei_bootp_option_parse_err,
 					tvb, tmpvoff, eoff);
-			return;
+			return tmpvoff;
 		}
 		tmpvoff += offset_delta;
 	}
@@ -5573,7 +5573,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (offset_delta <= 0) {
 			proto_tree_add_expert(bp_tree, pinfo, &ei_bootp_option_parse_err,
 					tvb, voff, eoff);
-			return;
+			return voff;
 		}
 		voff += offset_delta;
 	}
@@ -5587,6 +5587,8 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		proto_tree_add_item(bp_tree, hf_bootp_option_padding, tvb, voff, eoff - voff, ENC_NA);
 	}
+
+	return tvb_captured_length(tvb);
 }
 
 static void
@@ -7857,7 +7859,7 @@ proto_register_bootp(void)
 	register_init_routine(&bootp_init_protocol);
 
 	/* Allow dissector to find be found by name. */
-	bootp_handle = register_dissector("bootp", dissect_bootp, proto_bootp);
+	bootp_handle = new_register_dissector("bootp", dissect_bootp, proto_bootp);
 
 	bootp_module = prefs_register_protocol(proto_bootp, NULL);
 

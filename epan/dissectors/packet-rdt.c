@@ -169,9 +169,6 @@ static guint    global_rdt_udp_port = 6970;
 void proto_register_rdt(void);
 void proto_reg_handoff_rdt(void);
 
-/* Main dissection function */
-static void dissect_rdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 /* Parse individual packet types */
 static guint dissect_rdt_data_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 static guint dissect_rdt_asm_action_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
@@ -284,7 +281,7 @@ void rdt_add_address(packet_info *pinfo,
 /****************************************************************************/
 /* Main dissection function                                                 */
 /****************************************************************************/
-static void dissect_rdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_rdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint       previous_offset = 0;
     gint        offset = 0;
@@ -387,6 +384,8 @@ static void dissect_rdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         previous_offset = offset;
     }
+
+    return tvb_captured_length(tvb);
 }
 
 
@@ -2162,7 +2161,7 @@ void proto_register_rdt(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_rdt = expert_register_protocol(proto_rdt);
     expert_register_field_array(expert_rdt, ei, array_length(ei));
-    register_dissector("rdt", dissect_rdt, proto_rdt);
+    new_register_dissector("rdt", dissect_rdt, proto_rdt);
 
     /* Preference settings */
     rdt_module = prefs_register_protocol(proto_rdt, proto_reg_handoff_rdt);

@@ -298,8 +298,8 @@ static const char* embedded_time_to_string ( int coarse_time, int fine_time )
 
 
 /* Code to actually dissect the packets */
-static void
-dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int          offset          = 0;
     proto_item  *ccsds_packet;
@@ -503,6 +503,7 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Give the data dissector any bytes past the CCSDS packet length */
     call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -706,7 +707,7 @@ proto_register_ccsds(void)
     expert_ccsds = expert_register_protocol(proto_ccsds);
     expert_register_field_array(expert_ccsds, ei, array_length(ei));
 
-    register_dissector ( "ccsds", dissect_ccsds, proto_ccsds );
+    new_register_dissector ( "ccsds", dissect_ccsds, proto_ccsds );
 
     /* Register preferences module */
     ccsds_module = prefs_register_protocol(proto_ccsds, NULL);

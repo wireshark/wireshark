@@ -259,8 +259,8 @@ smex_time_to_string (int pb5_days_since_midnight_9_10_oct_1995, int pb5_seconds,
 }
 
 
-static void
-dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int offset           = 0;
     gboolean ccsds_tree_added = FALSE;
@@ -451,6 +451,8 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* add "Data" section if ccsds parsing did not do so already */
         proto_tree_add_item(vcdu_tree, hf_vcdu_data, tvb, offset, -1, ENC_NA);
     }
+
+    return tvb_captured_length(tvb);
 }
 
 
@@ -637,7 +639,7 @@ proto_register_vcdu(void)
     expert_register_field_array(expert_vcdu, ei, array_length(ei));
 
     /* XX: Does this dissector need to be publicly registered ?? */
-    vcdu_handle = register_dissector("vcdu", dissect_vcdu, proto_vcdu);
+    vcdu_handle = new_register_dissector("vcdu", dissect_vcdu, proto_vcdu);
 
     vcdu_module = prefs_register_protocol(proto_vcdu, vcdu_prefs_apply_cb);
 
