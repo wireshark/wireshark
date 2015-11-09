@@ -3907,7 +3907,7 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
 }
 
 static int
-dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item           *ti;
   proto_tree           *reload_tree;
@@ -4353,16 +4353,10 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   return dgram_msg_length;
 }
 
-static void
-dissect_reload_message_no_return(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  dissect_reload_message(tvb, pinfo, tree);
-}
-
 static gboolean
 dissect_reload_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  if (dissect_reload_message(tvb, pinfo, tree) == 0) {
+  if (dissect_reload_message(tvb, pinfo, tree, data) == 0) {
     /*
      * It wasn't a valid RELOAD message, and wasn't
      * dissected as such.
@@ -5894,7 +5888,7 @@ proto_register_reload(void)
 
   /* Register the protocol name and description */
   proto_reload = proto_register_protocol("REsource LOcation And Discovery", "RELOAD", "reload");
-  register_dissector("reload", dissect_reload_message_no_return, proto_reload);
+  new_register_dissector("reload", dissect_reload_message, proto_reload);
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_reload, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

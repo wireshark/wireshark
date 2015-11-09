@@ -161,8 +161,8 @@ dissect_db_lsp_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   return tvb_reported_length(tvb);
 }
 
-static void
-dissect_db_lsp_disc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_db_lsp_disc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree *db_lsp_tree;
   proto_item *db_lsp_item;
@@ -180,12 +180,13 @@ dissect_db_lsp_disc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (try_heuristic) {
     data_subtree = proto_item_add_subtree(db_lsp_item, ett_db_lsp);
     if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, data_subtree, &hdtbl_entry, NULL)) {
-      return;
+      return tvb_captured_length(tvb);
     }
   }
 
   /* heuristic failed. Print remaining bytes as text */
   proto_tree_add_item (db_lsp_tree, hf_text, tvb, offset, -1, ENC_ASCII|ENC_NA);
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -237,7 +238,7 @@ proto_register_db_lsp (void)
   proto_db_lsp = proto_register_protocol (PNAME, PSNAME, PFNAME);
   proto_db_lsp_disc = proto_register_protocol (PNAME_DISC, PSNAME_DISC, PFNAME_DISC);
   new_register_dissector ("db-lsp.tcp", dissect_db_lsp_tcp, proto_db_lsp);
-  register_dissector ("db-lsp.udp", dissect_db_lsp_disc, proto_db_lsp_disc);
+  new_register_dissector ("db-lsp.udp", dissect_db_lsp_disc, proto_db_lsp_disc);
 
   heur_subdissector_list = register_heur_dissector_list("db-lsp");
 

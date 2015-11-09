@@ -605,8 +605,8 @@ dissect_kt_error(tvbuff_t *tvb, proto_tree *tree, gint offset)
     return new_offset;
 }
 
-static void
-dissect_kt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_kt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     gint      magic;
     proto_item *ti;
@@ -620,7 +620,7 @@ dissect_kt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* If the magic is not one of the known values, exit */
         if (try_val_to_str(magic, kt_magic_vals) == NULL)
-            return;
+            return offset;
 
         /* Otherwise, the magic value is known. Continue */
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "KT");
@@ -657,6 +657,8 @@ dissect_kt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_item_set_len(ti, offset-offset_start);
     }
+
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -778,7 +780,7 @@ proto_register_kt(void)
     };
 
     proto_kt = proto_register_protocol("Kyoto Tycoon Protocol", "Kyoto Tycoon", "kt");
-    register_dissector("kt", dissect_kt, proto_kt);
+    new_register_dissector("kt", dissect_kt, proto_kt);
     proto_register_field_array(proto_kt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

@@ -784,8 +784,8 @@ dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, g
 	return offset;
 }
 
-static void
-dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	gint        offset = 0;
 	proto_item *coap_root;
@@ -862,7 +862,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* process options */
 	offset = dissect_coap_options(tvb, pinfo, coap_tree, offset, coap_length);
 	if (offset == -1)
-		return;
+		return tvb_captured_length(tvb);
 
 	/* add informations to the packet list */
 	if (coap_token_str != NULL)
@@ -919,6 +919,8 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		dissector_try_string(media_type_dissector_table, coap_ctype_str_dis,
 				     payload_tvb, pinfo, payload_tree, NULL);
 	}
+
+	return tvb_captured_length(tvb);
 }
 
 /*
@@ -1124,7 +1126,7 @@ proto_register_coap(void)
 	expert_coap = expert_register_protocol(proto_coap);
 	expert_register_field_array(expert_coap, ei, array_length(ei));
 
-	register_dissector("coap", dissect_coap, proto_coap);
+	new_register_dissector("coap", dissect_coap, proto_coap);
 
 	/* Register our configuration options */
 	coap_module = prefs_register_protocol (proto_coap, proto_reg_handoff_coap);

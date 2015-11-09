@@ -60,8 +60,8 @@ typedef struct imap_state {
   gboolean  ssl_requested;
 } imap_state_t;
 
-static void
-dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   gboolean        is_request;
   proto_tree      *imap_tree, *reqresp_tree;
@@ -283,6 +283,8 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset = next_offset; /* Skip over last line and \r\n at the end of it */
     }
   }
+
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -349,7 +351,7 @@ proto_register_imap(void)
 
   proto_imap = proto_register_protocol("Internet Message Access Protocol", "IMAP", "imap");
 
-  imap_handle = register_dissector("imap", dissect_imap, proto_imap);
+  imap_handle = new_register_dissector("imap", dissect_imap, proto_imap);
 
   proto_register_field_array(proto_imap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

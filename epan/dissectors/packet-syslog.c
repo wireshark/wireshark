@@ -224,8 +224,8 @@ mtp3_msu_present(tvbuff_t *tvb, packet_info *pinfo, gint fac, gint level, const 
 }
 
 /* The message format is defined in RFC 3164 */
-static void
-dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   gint pri = -1, lev = -1, fac = -1;
   gint msg_off = 0, msg_len, reported_msg_len;
@@ -302,7 +302,7 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_dissector(mtp_handle, mtp3_tvb, pinfo, tree);
   }
 
-  return;
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -346,7 +346,7 @@ void proto_register_syslog(void)
   proto_register_field_array(proto_syslog, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  syslog_handle = register_dissector("syslog", dissect_syslog, proto_syslog);
+  syslog_handle = new_register_dissector("syslog", dissect_syslog, proto_syslog);
 }
 
 void

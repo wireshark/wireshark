@@ -511,8 +511,8 @@ parse_extended_pasv_response(const guchar *line, gint linelen, guint16 *ftp_port
 }
 
 
-static void
-dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     gboolean        is_request;
     proto_tree     *ftp_tree;
@@ -876,10 +876,12 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 next_offset - offset);
         offset = next_offset;
     }
+
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     int         data_length;
@@ -912,6 +914,8 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Assume binary, just show the number of bytes */
         proto_item_append_text(ti, " (%u bytes data)", data_length);
     }
+
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -1028,9 +1032,9 @@ proto_register_ftp(void)
 
     proto_ftp = proto_register_protocol("File Transfer Protocol (FTP)", "FTP", "ftp");
 
-    register_dissector("ftp", dissect_ftp, proto_ftp);
+    new_register_dissector("ftp", dissect_ftp, proto_ftp);
     proto_ftp_data = proto_register_protocol("FTP Data", "FTP-DATA", "ftp-data");
-    register_dissector("ftp-data", dissect_ftpdata, proto_ftp_data);
+    new_register_dissector("ftp-data", dissect_ftpdata, proto_ftp_data);
     proto_register_field_array(proto_ftp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_ftp = expert_register_protocol(proto_ftp);

@@ -135,8 +135,8 @@ static void dissect_synergy_eicv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 
 /* Code to actually dissect the packets */
-static void
-dissect_synergy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_synergy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "synergy");
@@ -205,7 +205,9 @@ dissect_synergy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(synergy_tree,hf_synergy_ebad,tvb,offset+4,-1,ENC_NA);
         else
             proto_tree_add_item(synergy_tree,hf_synergy_unknown,tvb,offset+4,-1,ENC_NA);
-        }
+    }
+
+    return tvb_captured_length(tvb);
 }
 
 static void dissect_synergy_handshake( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )
@@ -560,7 +562,7 @@ proto_register_synergy(void)
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_synergy, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("synergy", dissect_synergy, proto_synergy);
+    new_register_dissector("synergy", dissect_synergy, proto_synergy);
 }
 
 void

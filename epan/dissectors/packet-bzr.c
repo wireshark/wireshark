@@ -224,8 +224,8 @@ dissect_bzr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*offset +=*/ dissect_body(tvb, offset, pinfo, bzr_tree);
 }
 
-static void
-dissect_bzr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bzr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     gint      offset = 0, pdu_len;
     tvbuff_t *next_tvb;
@@ -240,7 +240,7 @@ dissect_bzr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (pinfo->can_desegment && bzr_desegment) {
                 pinfo->desegment_offset = offset;
                 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-                return;
+                return tvb_captured_length(tvb);
             } else {
                 pdu_len = tvb_reported_length_remaining(tvb, offset);
             }
@@ -249,6 +249,8 @@ dissect_bzr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissect_bzr_pdu(next_tvb, pinfo, tree);
         offset += pdu_len;
     }
+
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -300,7 +302,7 @@ proto_register_bzr(void)
 
     module_t *bzr_module;
     proto_bzr = proto_register_protocol("Bazaar Smart Protocol", "Bazaar", "bzr");
-    register_dissector("bzr", dissect_bzr, proto_bzr);
+    new_register_dissector("bzr", dissect_bzr, proto_bzr);
     proto_register_field_array(proto_bzr, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

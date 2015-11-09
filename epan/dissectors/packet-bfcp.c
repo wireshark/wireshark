@@ -386,71 +386,9 @@ dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	return offset;
 }
 
-/* Code to actually dissect BFCP packets */
-static void
-dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	int          offset = 0;
-	guint8       primitive;
-	const gchar *str;
-	gint         bfcp_payload_length;
-	proto_tree  *bfcp_tree = NULL;
-
-	primitive = tvb_get_guint8(tvb, 1);
-	str = try_val_to_str(primitive, map_bfcp_primitive);
-
-	/* Make entries in Protocol column and Info column on summary display*/
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BFCP");
-	col_add_str(pinfo->cinfo, COL_INFO, str);
-
-	if (tree) {
-		proto_item	*ti;
-
-		ti = proto_tree_add_item(tree, proto_bfcp, tvb, 0, -1, ENC_NA);
-		bfcp_tree = proto_item_add_subtree(ti, ett_bfcp);
-/*
-  The following is the format of the common header.
-
-     0                   1                   2                   3
-     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    | Ver |R|F| Res |  Primitive    |        Payload Length         |
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |                         Conference ID                         |
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    |         Transaction ID        |            User ID            |
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    | Fragment Offset (if F is set) | Fragment Length (if F is set) |
-    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-
-*/
-		/* Add items to BFCP tree */
-		proto_tree_add_item(bfcp_tree, hf_bfcp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(bfcp_tree, hf_bfcp_hdr_r_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(bfcp_tree, hf_bfcp_hdr_f_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
-		proto_tree_add_item(bfcp_tree, hf_bfcp_primitive, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
-		proto_tree_add_item(bfcp_tree, hf_bfcp_payload_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
-		proto_tree_add_item(bfcp_tree, hf_bfcp_conference_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
-		proto_tree_add_item(bfcp_tree, hf_bfcp_transaction_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
-		proto_tree_add_item(bfcp_tree, hf_bfcp_user_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
-
-		bfcp_payload_length = tvb_get_ntohs(tvb,
-							BFCP_OFFSET_PAYLOAD_LENGTH) * 4;
-
-		/*offset = */dissect_bfcp_attributes(tvb, pinfo, bfcp_tree, offset, bfcp_payload_length);
-
-	} /* if(tree) */
-}
 
 static gboolean
-dissect_bfcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_bfcp_heur_check(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_)
 {
 	guint8       primitive;
 	guint8      first_byte;
@@ -480,7 +418,80 @@ dissect_bfcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	if (NULL == str)
 		return FALSE;
 
-	dissect_bfcp(tvb, pinfo, tree);
+	return TRUE;
+}
+
+/* Code to actually dissect BFCP packets */
+static int
+dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	int          offset = 0;
+	guint8       primitive;
+	const gchar *str;
+	gint         bfcp_payload_length;
+	proto_tree  *bfcp_tree;
+	proto_item	*ti;
+
+	if (!dissect_bfcp_heur_check(tvb, pinfo, tree, data))
+		return 0;
+
+	primitive = tvb_get_guint8(tvb, 1);
+	str = try_val_to_str(primitive, map_bfcp_primitive);
+
+	/* Make entries in Protocol column and Info column on summary display*/
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BFCP");
+	col_add_str(pinfo->cinfo, COL_INFO, str);
+
+	ti = proto_tree_add_item(tree, proto_bfcp, tvb, 0, -1, ENC_NA);
+	bfcp_tree = proto_item_add_subtree(ti, ett_bfcp);
+/*
+  The following is the format of the common header.
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | Ver |R|F| Res |  Primitive    |        Payload Length         |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                         Conference ID                         |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |         Transaction ID        |            User ID            |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | Fragment Offset (if F is set) | Fragment Length (if F is set) |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+*/
+	/* Add items to BFCP tree */
+	proto_tree_add_item(bfcp_tree, hf_bfcp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(bfcp_tree, hf_bfcp_hdr_r_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(bfcp_tree, hf_bfcp_hdr_f_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+	proto_tree_add_item(bfcp_tree, hf_bfcp_primitive, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+	proto_tree_add_item(bfcp_tree, hf_bfcp_payload_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset+=2;
+	proto_tree_add_item(bfcp_tree, hf_bfcp_conference_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset+=4;
+	proto_tree_add_item(bfcp_tree, hf_bfcp_transaction_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset+=2;
+	proto_tree_add_item(bfcp_tree, hf_bfcp_user_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset+=2;
+
+	bfcp_payload_length = tvb_get_ntohs(tvb,
+						BFCP_OFFSET_PAYLOAD_LENGTH) * 4;
+
+	/*offset = */dissect_bfcp_attributes(tvb, pinfo, bfcp_tree, offset, bfcp_payload_length);
+
+	return tvb_captured_length(tvb);
+}
+
+static gboolean
+dissect_bfcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+	if (!dissect_bfcp_heur_check(tvb, pinfo, tree, data))
+		return FALSE;
+
+	dissect_bfcp(tvb, pinfo, tree, data);
 	return TRUE;
 }
 
@@ -679,7 +690,7 @@ void proto_register_bfcp(void)
 	proto_bfcp = proto_register_protocol("Binary Floor Control Protocol",
 				"BFCP", "bfcp");
 
-	bfcp_handle = register_dissector("bfcp", dissect_bfcp, proto_bfcp);
+	bfcp_handle = new_register_dissector("bfcp", dissect_bfcp, proto_bfcp);
 
 	bfcp_module = prefs_register_protocol(proto_bfcp,
 				proto_reg_handoff_bfcp);

@@ -348,8 +348,8 @@ decode_plain_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 }
 
-static void
-dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   struct smtp_proto_data    *spd_frame_data;
   proto_tree                *smtp_tree = NULL;
@@ -463,7 +463,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            */
           pinfo->desegment_offset = loffset;
           pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-          return;
+          return tvb_captured_length(tvb);
         } else {
           linelen = tvb_reported_length_remaining(tvb, loffset);
           next_offset = loffset + linelen;
@@ -1138,6 +1138,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     }
   }
+
+  return tvb_captured_length(tvb);
 }
 
 static void
@@ -1268,7 +1270,7 @@ proto_register_smtp(void)
   register_cleanup_routine (&smtp_data_reassemble_cleanup);
 
   /* Allow dissector to find be found by name. */
-  register_dissector("smtp", dissect_smtp, proto_smtp);
+  new_register_dissector("smtp", dissect_smtp, proto_smtp);
 
   /* Preferences */
   smtp_module = prefs_register_protocol(proto_smtp, NULL);
