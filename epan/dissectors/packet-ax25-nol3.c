@@ -78,8 +78,8 @@ static gint ett_dx		= -1;
 
 
 /* Code to actually dissect the packets */
-static void
-dissect_dx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_dx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_tree *dx_tree;
@@ -104,6 +104,8 @@ dissect_dx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 		proto_tree_add_item( dx_tree, hf_dx_report, tvb, offset, data_len, ENC_ASCII|ENC_NA );
 	}
+
+	return tvb_captured_length(tvb);
 }
 
 static gboolean
@@ -208,7 +210,7 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 			if ( tvb_get_guint8( tvb, offset ) == 'D' && tvb_get_guint8( tvb, offset + 1 ) == 'X' )
 				{
 				dissected = TRUE;
-				dissect_dx( next_tvb, pinfo, ax25_nol3_tree );
+				dissect_dx( next_tvb, pinfo, ax25_nol3_tree, NULL );
 				}
 			}
 		if ( ! dissected )
@@ -272,7 +274,7 @@ proto_register_ax25_nol3(void)
 	proto_dx = proto_register_protocol("DX cluster", "DX", "dx");
 
 	/* Register the dissector */
-	register_dissector( "dx", dissect_dx, proto_dx);
+	new_register_dissector( "dx", dissect_dx, proto_dx);
 
 	/* Register the header fields */
 	proto_register_field_array( proto_dx, hf_dx, array_length( hf_dx ) );

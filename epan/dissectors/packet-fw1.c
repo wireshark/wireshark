@@ -121,8 +121,8 @@ fw1_init(void)
   interface_anzahl = 0;
 }
 
-static void
-dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   /* Set up structures needed to add the protocol subtree and manage it */
   proto_item    *ti;
@@ -219,6 +219,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ethertype_data.fcs_len = 0;
 
   call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -279,7 +280,7 @@ proto_register_fw1(void)
                                  "Whether the interface list includes the chain position",
                                  &fw1_iflist_with_chain);
 
-  register_dissector("fw1", dissect_fw1, proto_fw1);
+  new_register_dissector("fw1", dissect_fw1, proto_fw1);
 
   for (i=0; i<MAX_INTERFACES; i++) {
     p_interfaces[i] = NULL;

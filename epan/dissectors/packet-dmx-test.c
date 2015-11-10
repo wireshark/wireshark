@@ -51,8 +51,8 @@ static int hf_dmx_test_data_bad = -1;
 
 static int ett_dmx_test = -1;
 
-static void
-dissect_dmx_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dmx_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DMX Test Frame");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -109,6 +109,7 @@ dissect_dmx_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			PROTO_ITEM_SET_GENERATED(item);
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -138,7 +139,7 @@ proto_register_dmx_test(void)
 	proto_dmx_test = proto_register_protocol("DMX Test Frame", "DMX Test Frame", "dmx-test");
 	proto_register_field_array(proto_dmx_test, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("dmx-test", dissect_dmx_test, proto_dmx_test);
+	new_register_dissector("dmx-test", dissect_dmx_test, proto_dmx_test);
 }
 
 /*

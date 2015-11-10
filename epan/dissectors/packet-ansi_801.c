@@ -1554,8 +1554,8 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 }
 
-static void
-dissect_ansi_801(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ansi_801(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ansi_801_item;
 	proto_tree *ansi_801_tree = NULL;
@@ -1588,6 +1588,7 @@ dissect_ansi_801(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_ansi_801_rev_message(tvb, pinfo, ansi_801_tree);
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 
@@ -2308,7 +2309,7 @@ proto_register_ansi_801(void)
 	expert_register_field_array(expert_ansi_801, ei, array_length(ei));
 
 	/* subdissector code */
-	ansi_801_handle = register_dissector("ansi_801", dissect_ansi_801, proto_ansi_801);
+	ansi_801_handle = new_register_dissector("ansi_801", dissect_ansi_801, proto_ansi_801);
 }
 
 

@@ -55,8 +55,8 @@ static int hf_bpq_len		= -1;
 
 static gint ett_bpq = -1;
 
-static void
-dissect_bpq( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
+static int
+dissect_bpq( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_ )
 {
 	proto_item *ti;
 	proto_tree *bpq_tree;
@@ -98,6 +98,7 @@ dissect_bpq( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 	/* XXX - use the length */
 	next_tvb = tvb_new_subset_remaining( tvb, offset );
 	call_dissector( ax25_handle, next_tvb, pinfo, parent_tree );
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -137,7 +138,7 @@ proto_register_bpq(void)
 	proto_bpq = proto_register_protocol( "Amateur Radio BPQ", "BPQ", "bpq" );
 
 	/* Register the dissector */
-	register_dissector( "bpq", dissect_bpq, proto_bpq );
+	new_register_dissector( "bpq", dissect_bpq, proto_bpq );
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_bpq, hf, array_length( hf ) );
@@ -149,7 +150,7 @@ proto_reg_handoff_bpq(void)
 {
 	dissector_handle_t bpq_handle;
 
-	bpq_handle = create_dissector_handle( dissect_bpq, proto_bpq );
+	bpq_handle = new_create_dissector_handle( dissect_bpq, proto_bpq );
 	dissector_add_uint("ethertype", ETHERTYPE_BPQ, bpq_handle);
 
 	/* BPQ is only implemented for AX.25 */

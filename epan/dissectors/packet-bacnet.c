@@ -165,8 +165,8 @@ static int hf_bacnet_term_time_value = -1;
 static gint ett_bacnet = -1;
 static gint ett_bacnet_control = -1;
 
-static void
-dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_tree *bacnet_tree;
@@ -440,6 +440,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* APDU - call the APDU dissector */
 		call_dissector(bacapp_handle, next_tvb, pinfo, tree);
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -617,7 +618,7 @@ proto_register_bacnet(void)
 	proto_register_field_array(proto_bacnet, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("bacnet", dissect_bacnet, proto_bacnet);
+	new_register_dissector("bacnet", dissect_bacnet, proto_bacnet);
 
 	bacnet_dissector_table = register_dissector_table("bacnet.vendor",
 							  "BACnet Vendor Identifier",

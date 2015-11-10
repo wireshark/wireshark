@@ -48,8 +48,8 @@ static int hf_cimetrics_mstp_timer = -1;
 static int hf_cimetrics_mstp_value = -1;
 
 
-static void
-dissect_cimetrics_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cimetrics_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_tree *subtree;
@@ -79,6 +79,7 @@ dissect_cimetrics_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(subtree, hf_cimetrics_mstp_value, tvb,
 			offset++, 1, ENC_LITTLE_ENDIAN);
 	dissect_mstp(tvb, pinfo, tree, subtree, offset);
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -113,7 +114,7 @@ proto_register_cimetrics(void)
 	proto_register_field_array(proto_cimetrics_mstp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("cimetrics", dissect_cimetrics_mstp,
+	new_register_dissector("cimetrics", dissect_cimetrics_mstp,
 			   proto_cimetrics_mstp);
 
 	llc_add_oui(OUI_CIMETRICS, "llc.cimetrics_pid",

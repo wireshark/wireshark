@@ -251,18 +251,6 @@ static void
 dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bpdu_pvst);
 
 static void
-dissect_bpdu_cisco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  dissect_bpdu(tvb, pinfo, tree, TRUE);
-}
-
-static void
-dissect_bpdu_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  dissect_bpdu(tvb, pinfo, tree, FALSE);
-}
-
-static void
 dissect_bpdu_pvst_tlv(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb) {
   gboolean pvst_tlv_origvlan_present = FALSE;
   guint16 tlv_type, tlv_length;
@@ -1034,6 +1022,20 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
     }
 }
 
+static int
+dissect_bpdu_cisco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  dissect_bpdu(tvb, pinfo, tree, TRUE);
+  return tvb_captured_length(tvb);
+}
+
+static int
+dissect_bpdu_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  dissect_bpdu(tvb, pinfo, tree, FALSE);
+  return tvb_captured_length(tvb);
+}
+
 void
 proto_register_bpdu(void)
 {
@@ -1355,8 +1357,8 @@ proto_register_bpdu(void)
   proto_register_field_array(proto_bpdu, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector("bpdu", dissect_bpdu_generic, proto_bpdu);
-  register_dissector("bpdu_cisco", dissect_bpdu_cisco, proto_bpdu);
+  new_register_dissector("bpdu", dissect_bpdu_generic, proto_bpdu);
+  new_register_dissector("bpdu_cisco", dissect_bpdu_cisco, proto_bpdu);
 
   expert_bpdu = expert_register_protocol(proto_bpdu);
   expert_register_field_array(expert_bpdu, ei, array_length(ei));

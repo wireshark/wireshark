@@ -71,8 +71,6 @@ static int bacapp_tap = -1;
  * @param pinfo the packet info of the current data
  * @param tree the tree to append this item to
  **/
-static void
-dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /**
  * ConfirmedRequest-PDU ::= SEQUENCE {
@@ -10796,8 +10794,8 @@ do_the_dissection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return offset;
 }
 
-static void
-dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8      flag, bacapp_type;
     guint       save_fragmented  = FALSE, data_offset = 0, /*bacapp_apdu_size,*/ fragment = FALSE;
@@ -11060,6 +11058,7 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* tapping */
     tap_queue_packet(bacapp_tap, pinfo, &bacinfo);
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -11312,7 +11311,7 @@ proto_register_bacapp(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_bacapp = expert_register_protocol(proto_bacapp);
     expert_register_field_array(expert_bacapp, ei, array_length(ei));
-    register_dissector("bacapp", dissect_bacapp, proto_bacapp);
+    new_register_dissector("bacapp", dissect_bacapp, proto_bacapp);
     register_init_routine(&bacapp_init_routine);
     register_cleanup_routine(&bacapp_cleanup_routine);
 

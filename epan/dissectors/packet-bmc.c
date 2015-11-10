@@ -148,7 +148,7 @@ dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     offset += 1;
 
     cell_broadcast_tvb = tvb_new_subset_remaining(tvb, offset);
-    dissect_umts_cell_broadcast_message(cell_broadcast_tvb, pinfo, tree);
+    dissect_umts_cell_broadcast_message(cell_broadcast_tvb, pinfo, tree, NULL);
     offset = tvb_reported_length(cell_broadcast_tvb);
 
     return offset;

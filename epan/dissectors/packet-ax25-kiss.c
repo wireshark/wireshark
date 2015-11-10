@@ -210,8 +210,8 @@ capture_ax25_kiss( const guchar *pd, int offset, int len, packet_counts *ld)
 }
 
 /* Code to actually dissect the packets */
-static void
-dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
+static int
+dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_ )
 {
 	proto_item *ti;
 	proto_tree *kiss_tree;
@@ -354,6 +354,8 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 		next_tvb = tvb_new_subset_remaining( tvb, offset );
 		call_dissector( ax25_handle, next_tvb, pinfo, parent_tree );
 		}
+
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -424,7 +426,7 @@ proto_register_ax25_kiss(void)
 	proto_ax25_kiss = proto_register_protocol( "AX.25 KISS", "AX.25 KISS", "ax25_kiss" );
 
 	/* Register the dissector */
-	kiss_handle = register_dissector( "ax25_kiss", dissect_ax25_kiss, proto_ax25_kiss );
+	kiss_handle = new_register_dissector( "ax25_kiss", dissect_ax25_kiss, proto_ax25_kiss );
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_ax25_kiss, hf, array_length( hf ) );

@@ -125,8 +125,8 @@ static dissector_handle_t ax25_handle;
 
 static dissector_handle_t data_handle;
 
-static void
-dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
+static int
+dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_ )
 {
 	proto_item *ti;
 	proto_tree *ax25_tree;
@@ -249,6 +249,8 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 		}
 	else
 		proto_item_set_end(ti, tvb, offset);
+
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -418,7 +420,7 @@ proto_register_ax25(void)
 	proto_ax25 = proto_register_protocol("Amateur Radio AX.25", "AX.25", "ax25");
 
 	/* Register the dissector */
-	ax25_handle = register_dissector( "ax25", dissect_ax25, proto_ax25 );
+	ax25_handle = new_register_dissector( "ax25", dissect_ax25, proto_ax25 );
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_ax25, hf, array_length(hf ) );

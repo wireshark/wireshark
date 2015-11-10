@@ -76,8 +76,8 @@ dmx_sip_checksum(tvbuff_t *tvb, guint length)
 	return sum;
 }
 
-static void
-dissect_dmx_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dmx_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DMX SIP");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -191,6 +191,7 @@ dissect_dmx_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(dmx_sip_tree, hf_dmx_sip_trailer, tvb,
 					offset, -1, ENC_NA);
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -300,7 +301,7 @@ proto_register_dmx_sip(void)
 	proto_dmx_sip = proto_register_protocol("DMX SIP", "DMX SIP", "dmx-sip");
 	proto_register_field_array(proto_dmx_sip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("dmx-sip", dissect_dmx_sip, proto_dmx_sip);
+	new_register_dissector("dmx-sip", dissect_dmx_sip, proto_dmx_sip);
 }
 
 /*

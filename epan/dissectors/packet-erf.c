@@ -1186,8 +1186,8 @@ guint64* erf_get_ehdr(packet_info *pinfo, guint8 hdrtype, gint* afterindex) {
   return NULL;
 }
 
-static void
-dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint8              flags;
   guint8              erf_type;
@@ -1463,6 +1463,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   default:
     break;
   } /* erf type */
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -1896,7 +1897,7 @@ proto_register_erf(void)
   expert_module_t* expert_erf;
 
   proto_erf = proto_register_protocol("Extensible Record Format", "ERF", "erf");
-  erf_handle = register_dissector("erf", dissect_erf, proto_erf);
+  erf_handle = new_register_dissector("erf", dissect_erf, proto_erf);
 
   proto_register_field_array(proto_erf, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

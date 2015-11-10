@@ -443,16 +443,18 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 } /* dissect_fddi */
 
 
-static void
-dissect_fddi_bitswapped(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fddi_bitswapped(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   dissect_fddi(tvb, pinfo, tree, TRUE);
+  return tvb_captured_length(tvb);
 }
 
-static void
-dissect_fddi_not_bitswapped(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fddi_not_bitswapped(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   dissect_fddi(tvb, pinfo, tree, FALSE);
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -509,7 +511,7 @@ proto_register_fddi(void)
    * Called from various dissectors for encapsulated FDDI frames.
    * We assume the MAC addresses in them aren't bitswapped.
    */
-  register_dissector("fddi", dissect_fddi_not_bitswapped, proto_fddi);
+  new_register_dissector("fddi", dissect_fddi_not_bitswapped, proto_fddi);
 
   fddi_module = prefs_register_protocol(proto_fddi, NULL);
   prefs_register_bool_preference(fddi_module, "padding",
@@ -538,7 +540,7 @@ proto_reg_handoff_fddi(void)
   dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_FDDI, fddi_handle);
 
   fddi_bitswapped_handle =
-    create_dissector_handle(dissect_fddi_bitswapped, proto_fddi);
+    new_create_dissector_handle(dissect_fddi_bitswapped, proto_fddi);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED,
                      fddi_bitswapped_handle);
 }

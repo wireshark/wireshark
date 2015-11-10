@@ -373,7 +373,7 @@ static void dissect_fcsp_auth_rjt(tvbuff_t *tvb, proto_tree *tree)
     }
 }
 
-static void dissect_fcsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_fcsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti        = NULL;
     guint8      opcode;
@@ -429,6 +429,7 @@ static void dissect_fcsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -606,7 +607,7 @@ proto_register_fcsp(void)
     /* Register the protocol name and description */
     proto_fcsp = proto_register_protocol("Fibre Channel Security Protocol", "FC-SP", "fcsp");
 
-    register_dissector("fcsp", dissect_fcsp, proto_fcsp);
+    new_register_dissector("fcsp", dissect_fcsp, proto_fcsp);
 
     proto_register_field_array(proto_fcsp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

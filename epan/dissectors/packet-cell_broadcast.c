@@ -293,8 +293,8 @@ tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree
    return tvb_out;
 }
 
-static void
-dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    guint8 sms_encoding, total_pages, current_page;
    guint32       offset = 0;
@@ -382,9 +382,11 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       proto_tree_add_string(cbs_msg_tree, hf_gsm_cbs_message_content, cbs_msg_tvb, 0, len, tvb_get_string_enc(wmem_packet_scope(), cbs_msg_tvb, 0, len, ENC_ASCII));
    }
+
+   return tvb_captured_length(tvb);
 }
 
-void dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+int dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    guint8 sms_encoding;
    guint32       offset = 0;
@@ -412,6 +414,7 @@ void dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, prot
                     ett_cbs_msg, NULL, "Cell Broadcast Message Contents (length: %d)", msg_len);
    msg = tvb_get_string_enc(wmem_packet_scope(), cbs_msg_tvb, 0, msg_len, ENC_ASCII);
    proto_tree_add_string_format(cbs_subtree, hf_gsm_cbs_message_content, cbs_msg_tvb, 0, -1, msg, "%s", msg);
+   return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -574,8 +577,8 @@ proto_register_cbs(void)
    register_cleanup_routine(gsm_cbs_message_reassembly_cleanup);
 
    /* subdissector code */
-   register_dissector("gsm_cbs", dissect_gsm_cell_broadcast, proto_cell_broadcast);
-   register_dissector("umts_cell_broadcast", dissect_umts_cell_broadcast_message, proto_cell_broadcast);
+   new_register_dissector("gsm_cbs", dissect_gsm_cell_broadcast, proto_cell_broadcast);
+   new_register_dissector("umts_cell_broadcast", dissect_umts_cell_broadcast_message, proto_cell_broadcast);
 
    /* subtree array */
    proto_register_subtree_array(ett, array_length(ett));

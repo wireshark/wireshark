@@ -486,13 +486,13 @@ static void attach_info(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, guint
     }
 }
 
-static void dissect_fp_hint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_fp_hint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8 frame_type, channel_type;
     guint16 hdrlen;
     guint32 atm_hdr, aal2_ext;
     tvbuff_t *next_tvb;
-    dissector_handle_t *next_dissector;
+    dissector_handle_t next_dissector;
     proto_item *ti;
     proto_tree *fph_tree = NULL;
 
@@ -523,17 +523,18 @@ static void dissect_fp_hint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
             pinfo->pseudo_header->atm.aal2_cid = aal2_ext & 0x000000ff;
             pinfo->pseudo_header->atm.type = TRAF_UMTS_FP;
-            next_dissector = &atm_untrunc_handle;
+            next_dissector = atm_untrunc_handle;
             break;
         case FPH_FRAME_ETHERNET:
-            next_dissector = &ethwithfcs_handle;
+            next_dissector = ethwithfcs_handle;
             break;
         default:
-            next_dissector = &data_handle;
+            next_dissector = data_handle;
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, hdrlen);
-    call_dissector(*next_dissector, next_tvb, pinfo, tree);
+    call_dissector(next_dissector, next_tvb, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -582,7 +583,7 @@ proto_register_fp_hint(void)
     expert_module_t* expert_fp_hint;
 
     proto_fp_hint = proto_register_protocol("FP Hint", "FP Hint", "fp_hint");
-    register_dissector("fp_hint", dissect_fp_hint, proto_fp_hint);
+    new_register_dissector("fp_hint", dissect_fp_hint, proto_fp_hint);
 
     proto_register_field_array(proto_fp_hint, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

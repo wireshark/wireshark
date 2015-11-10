@@ -264,8 +264,8 @@ static dissector_handle_t q931_handle;
 static dissector_handle_t data_handle;
 
 /* Code to actually dissect the packets */
-static void
-dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *sm_tree;
@@ -299,9 +299,6 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         switch(protocol){
         /* start case RUDP BSM v.1  ---------------------------------------------------------- */
         case SM_PROTOCOL_X004:
-            if (!tree)
-                return;
-
             proto_tree_add_item(sm_tree, hf_sm_msg_id, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset = offset +2;
             msg_type = tvb_get_ntohs(tvb,offset);
@@ -334,8 +331,6 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case SM_PROTOCOL_X100:
         case SM_PROTOCOL_X122:
-            if (!tree)
-                return;
             /* Protocol 0x100/0x122 only contains a length and then an EISUP packet */
             proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, ENC_BIG_ENDIAN);
             length = tvb_get_ntohs(tvb,offset);
@@ -349,8 +344,6 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             break;
         case SM_PROTOCOL_X101:
-            if (!tree)
-                return;
             /* XXX Reverse enginered so this may not be correct!!!
              * EISUP - used between Cisco HSI and Cisco PGW devices,
              * uses RUDP with default port number 8003.
@@ -387,8 +380,6 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /*return;*/
             break;
         case SM_PROTOCOL_X114:
-            if (!tree)
-                return;
             /* XXX Reverse enginered so this may not be correct!!! */
             proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, ENC_BIG_ENDIAN);
             length = tvb_get_ntohs(tvb,offset);
@@ -483,6 +474,8 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
+
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -602,7 +595,7 @@ proto_register_sm(void)
     proto_sm = proto_register_protocol("Cisco Session Management",
         "SM", "sm");
 
-    register_dissector("sm", dissect_sm, proto_sm);
+    new_register_dissector("sm", dissect_sm, proto_sm);
 
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_sm, hf, array_length(hf));

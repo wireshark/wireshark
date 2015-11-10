@@ -48,8 +48,8 @@ static int hf_dmx_text_string = -1;
 
 static int ett_dmx_text = -1;
 
-static void
-dissect_dmx_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dmx_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DMX Text");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -75,6 +75,7 @@ dissect_dmx_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(dmx_text_tree, hf_dmx_text_string, tvb,
 							offset, size, ENC_ASCII|ENC_NA);
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -105,7 +106,7 @@ proto_register_dmx_text(void)
 	proto_dmx_text = proto_register_protocol("DMX Text Frame", "DMX Text Frame", "dmx-text");
 	proto_register_field_array(proto_dmx_text, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("dmx-text", dissect_dmx_text, proto_dmx_text);
+	new_register_dissector("dmx-text", dissect_dmx_text, proto_dmx_text);
 }
 
 /*

@@ -374,8 +374,8 @@ dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-static void
-dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint flags;
     guint bfd_version;
@@ -572,7 +572,7 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    return;
+    return tvb_captured_length(tvb);
 }
 
 /* BFD CV Source MEP-ID TLV Decoder,
@@ -905,7 +905,7 @@ proto_register_bfd(void)
     proto_bfd = proto_register_protocol("Bidirectional Forwarding Detection Control Message",
                                         "BFD Control",
                                         "bfd");
-    register_dissector("bfd", dissect_bfd_control, proto_bfd);
+    new_register_dissector("bfd", dissect_bfd_control, proto_bfd);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bfd, hf, array_length(hf));

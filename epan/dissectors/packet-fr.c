@@ -617,27 +617,29 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 }
 
-static void
-dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   dissect_fr_common(tvb, pinfo, tree, FALSE, TRUE );
+  return tvb_captured_length(tvb);
 }
 
-static void
-dissect_fr_phdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fr_phdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   dissect_fr_common(tvb, pinfo, tree, TRUE, TRUE );
+  return tvb_captured_length(tvb);
 }
 
-static void
-dissect_fr_stripped_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fr_stripped_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   dissect_fr_common(tvb, pinfo, tree, TRUE, FALSE );
+  return tvb_captured_length(tvb);
 }
 
-static void
-dissect_fr_uncompressed(tvbuff_t *tvb, packet_info *pinfo,
-                                    proto_tree *tree)
+static int
+dissect_fr_uncompressed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *ti;
   proto_tree *fr_tree;
@@ -649,6 +651,7 @@ dissect_fr_uncompressed(tvbuff_t *tvb, packet_info *pinfo,
   fr_tree = proto_item_add_subtree(ti, ett_fr);
 
   dissect_fr_nlpid(tvb, 0, pinfo, tree, ti, fr_tree, XDLC_U);
+  return tvb_captured_length(tvb);
 }
 
 static void
@@ -982,9 +985,9 @@ proto_register_fr(void)
   fr_osinl_subdissector_table = register_dissector_table("fr.osinl",
                                                          "Frame Relay OSI NLPID", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-  register_dissector("fr_uncompressed", dissect_fr_uncompressed, proto_fr);
-  register_dissector("fr", dissect_fr, proto_fr);
-  register_dissector("fr_stripped_address", dissect_fr_stripped_address, proto_fr);
+  new_register_dissector("fr_uncompressed", dissect_fr_uncompressed, proto_fr);
+  new_register_dissector("fr", dissect_fr, proto_fr);
+  new_register_dissector("fr_stripped_address", dissect_fr_stripped_address, proto_fr);
 
   frencap_module = prefs_register_protocol(proto_fr, NULL);
   /*
@@ -1013,7 +1016,7 @@ proto_reg_handoff_fr(void)
   dissector_add_uint("atm.aal5.type", TRAF_FR, fr_handle);
   dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_FR, fr_handle);
 
-  fr_phdr_handle = create_dissector_handle(dissect_fr_phdr, proto_fr);
+  fr_phdr_handle = new_create_dissector_handle(dissect_fr_phdr, proto_fr);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FRELAY_WITH_PHDR, fr_phdr_handle);
 
   eth_withfcs_handle = find_dissector("eth_withfcs");

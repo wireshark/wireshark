@@ -222,8 +222,8 @@ static const true_false_string amr_sti_vals = {
 };
 
 /* See 3GPP TS 26.101 chapter 4 for AMR-NB IF1 */
-static void
-dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     int         offset = 0;
     guint8      octet;
     proto_item *ti;
@@ -238,7 +238,7 @@ dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree_add_item(tree, hf_amr_speech_data, tvb, offset+2, 5, ENC_NA);
         proto_tree_add_item(tree, hf_amr_if1_sti, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_amr_nb_if1_sti_mode_ind, tvb, offset+7, 1, ENC_BIG_ENDIAN);
-        return;
+        return offset+8;
     }
 
     proto_tree_add_item(tree, hf_amr_nb_if1_mode_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -248,11 +248,12 @@ dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         expert_add_info(pinfo, ti, &ei_amr_spare_bit_not0);
     offset += 1;
     proto_tree_add_item(tree, hf_amr_speech_data, tvb, offset, -1, ENC_NA);
+    return tvb_captured_length(tvb);
 }
 
 /* See 3GPP TS 26.201 for AMR-WB */
-static void
-dissect_amr_wb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_amr_wb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     int         offset = 0;
     guint8      octet;
     proto_item *ti;
@@ -267,7 +268,7 @@ dissect_amr_wb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree_add_item(tree, hf_amr_speech_data, tvb, offset+2, 4, ENC_NA);
         proto_tree_add_item(tree, hf_amr_if1_sti, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_amr_wb_if1_sti_mode_ind, tvb, offset+7, 1, ENC_BIG_ENDIAN);
-        return;
+        return offset+8;
     }
 
     offset += 1;
@@ -275,10 +276,11 @@ dissect_amr_wb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree_add_item(tree, hf_amr_wb_if1_mode_req, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     proto_tree_add_item(tree, hf_amr_speech_data, tvb, offset, -1, ENC_NA);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_amr_nb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_amr_nb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     int    offset = 0;
     guint8 octet;
 
@@ -289,18 +291,19 @@ dissect_amr_nb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree_add_item(tree, hf_amr_speech_data, tvb, offset+1, 3, ENC_NA);
         proto_tree_add_item(tree, hf_amr_if2_sti, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_amr_nb_if2_sti_mode_ind, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-        return;
+        return offset+6;
     }
     if (octet == AMR_NO_TRANS)
-        return;
+        return 1;
     proto_tree_add_item(tree, hf_amr_speech_data, tvb, offset+1, -1, ENC_NA);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
             val_to_str_ext(octet, &amr_nb_codec_mode_request_vals_ext, "Unknown (%d)" ));
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_amr_wb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_amr_wb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     int    offset = 0;
     guint8 octet;
 
@@ -311,14 +314,15 @@ dissect_amr_wb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree_add_item(tree, hf_amr_speech_data, tvb, offset+1, 4, ENC_NA);
         proto_tree_add_item(tree, hf_amr_if2_sti, tvb, offset+5, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_amr_wb_if2_sti_mode_ind, tvb, offset+5, 1, ENC_BIG_ENDIAN);
-        return;
+        return offset+6;
     }
     if (octet == AMR_NO_TRANS)
-        return;
+        return 1;
     proto_tree_add_item(tree, hf_amr_speech_data, tvb, offset+1, -1, ENC_NA);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
             val_to_str_ext(octet, &amr_wb_codec_mode_request_vals_ext, "Unknown (%d)" ));
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -459,15 +463,15 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
         return;
     case 2: /* AMR IF1 */
         if (amr_mode == AMR_NB)
-            dissect_amr_nb_if1(tvb, pinfo, amr_tree);
+            dissect_amr_nb_if1(tvb, pinfo, amr_tree, NULL);
         else
-            dissect_amr_wb_if1(tvb, pinfo, amr_tree);
+            dissect_amr_wb_if1(tvb, pinfo, amr_tree, NULL);
         return;
     case 3: /* AMR IF2 */
         if (amr_mode == AMR_NB)
-            dissect_amr_nb_if2(tvb, pinfo, amr_tree);
+            dissect_amr_nb_if2(tvb, pinfo, amr_tree, NULL);
         else
-            dissect_amr_wb_if2(tvb, pinfo, amr_tree);
+            dissect_amr_wb_if2(tvb, pinfo, amr_tree, NULL);
         return;
     default:
         break;
@@ -530,23 +534,25 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
 }
 
 /* Code to actually dissect the packets */
-static void
-dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
 /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMR");
 
     dissect_amr_common(tvb, pinfo, tree, pref_amr_mode);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_amr_wb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_amr_wb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
 /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMR-WB");
     dissect_amr_common(tvb, pinfo, tree, AMR_WB);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -808,12 +814,12 @@ proto_register_amr(void)
                        "The AMR mode",
                        &pref_amr_mode, modes, AMR_NB);
 
-    amr_handle = register_dissector("amr", dissect_amr, proto_amr);
-    amr_wb_handle = register_dissector("amr-wb", dissect_amr_wb, proto_amr);
-    register_dissector("amr_if1_nb", dissect_amr_nb_if1, proto_amr);
-    register_dissector("amr_if1_wb", dissect_amr_wb_if1, proto_amr);
-    register_dissector("amr_if2_nb", dissect_amr_nb_if2, proto_amr);
-    register_dissector("amr_if2_wb", dissect_amr_wb_if2, proto_amr);
+    amr_handle = new_register_dissector("amr", dissect_amr, proto_amr);
+    amr_wb_handle = new_register_dissector("amr-wb", dissect_amr_wb, proto_amr);
+    new_register_dissector("amr_if1_nb", dissect_amr_nb_if1, proto_amr);
+    new_register_dissector("amr_if1_wb", dissect_amr_wb_if1, proto_amr);
+    new_register_dissector("amr_if2_nb", dissect_amr_nb_if2, proto_amr);
+    new_register_dissector("amr_if2_wb", dissect_amr_wb_if2, proto_amr);
 
     oid_add_from_string("G.722.2 (AMR-WB) audio capability","0.0.7.7222.1.0");
 }

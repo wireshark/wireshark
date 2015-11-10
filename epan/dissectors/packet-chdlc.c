@@ -160,8 +160,8 @@ chdlctype(guint16 chdlc_type, tvbuff_t *tvb, int offset_after_chdlctype,
 
 static gint chdlc_fcs_decode = 0; /* 0 = No FCS, 1 = 16 bit FCS, 2 = 32 bit FCS */
 
-static void
-dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *ti;
   proto_tree *fh_tree = NULL;
@@ -201,6 +201,7 @@ dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   decode_fcs(tvb, fh_tree, chdlc_fcs_decode, 2);
 
   chdlctype(proto, tvb, 4, pinfo, tree, fh_tree, hf_chdlc_proto);
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -236,7 +237,7 @@ proto_register_chdlc(void)
                                                 "Cisco HDLC protocol",
                                                 FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-  register_dissector("chdlc", dissect_chdlc, proto_chdlc);
+  new_register_dissector("chdlc", dissect_chdlc, proto_chdlc);
 
   /* Register the preferences for the chdlc protocol */
   chdlc_module = prefs_register_protocol(proto_chdlc, NULL);

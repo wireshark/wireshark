@@ -2070,8 +2070,8 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
 /*****************************************/
 /* Main dissection function.             */
 /*****************************************/
-static void
-dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree         *dct2000_tree = NULL;
     proto_item         *ti           = NULL;
@@ -2403,7 +2403,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 (strcmp(protocol_name, "rlc_r9") == 0)) {
 
                 dissect_rlc_umts(tvb, offset, pinfo, tree, direction);
-                return;
+                return tvb_captured_length(tvb);
             }
 
             else
@@ -2426,7 +2426,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 (strcmp(protocol_name, "pdcp_r10_lte") == 0)) {
                 /* Dissect proprietary header, then pass remainder to PDCP */
                 dissect_pdcp_lte(tvb, offset, pinfo, tree);
-                return;
+                return tvb_captured_length(tvb);
             }
 
 
@@ -2441,7 +2441,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else
             if (strcmp(protocol_name, "tty") == 0) {
                 dissect_tty_lines(tvb, pinfo, dct2000_tree, offset);
-                return;
+                return tvb_captured_length(tvb);
             }
 
             else
@@ -2474,7 +2474,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                           "%s", string);
                 }
 
-                return;
+                return tvb_captured_length(tvb);
             }
 
             else
@@ -2487,7 +2487,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                 offset, -1, ENC_ASCII|ENC_NA);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s", string);
 
-                return;
+                return tvb_captured_length(tvb);
             }
 
 
@@ -2502,7 +2502,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* Dissect proprietary header, then pass remainder
                    to RRC (depending upon direction and channel type) */
                 dissect_rrc_lte(tvb, offset, pinfo, tree);
-                return;
+                return tvb_captured_length(tvb);
             }
 
             else
@@ -2511,7 +2511,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Dissect proprietary header, then pass remainder to lapb */
                 dissect_ccpri_lte(tvb, offset, pinfo, tree);
-                return;
+                return tvb_captured_length(tvb);
             }
 
             /* Many DCT2000 protocols have at least one IPPrim variant. If the
@@ -2794,7 +2794,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                this dissector and the wiretap module catapult_dct2000.c !!
             */
             DISSECTOR_ASSERT_NOT_REACHED();
-            return;
+            return 0;
     }
 
     /* Set selection length of dct2000 tree */
@@ -2835,6 +2835,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             PROTO_ITEM_SET_GENERATED(ti_local);
         }
     }
+
+    return tvb_captured_length(tvb);
 }
 
 
@@ -3293,7 +3295,7 @@ void proto_register_catapult_dct2000(void)
     expert_register_field_array(expert_catapult_dct2000, ei, array_length(ei));
 
     /* Allow dissector to find be found by name. */
-    register_dissector("dct2000", dissect_catapult_dct2000, proto_catapult_dct2000);
+    new_register_dissector("dct2000", dissect_catapult_dct2000, proto_catapult_dct2000);
 
     /* Preferences */
     catapult_dct2000_module = prefs_register_protocol(proto_catapult_dct2000, NULL);

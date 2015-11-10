@@ -55,8 +55,8 @@ static gint global_disp_chan_val_type = 0;
 static gint global_disp_col_count     = 16;
 static gint global_disp_chan_nr_type  = 0;
 
-static void
-dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DMX Channels");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -114,6 +114,7 @@ dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						offset, length, ENC_NA );
 		PROTO_ITEM_SET_HIDDEN(item);
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -164,7 +165,7 @@ proto_register_dmx_chan(void)
 	proto_dmx_chan = proto_register_protocol("DMX Channels","DMX Channels", "dmx-chan");
 	proto_register_field_array(proto_dmx_chan, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("dmx-chan", dissect_dmx_chan, proto_dmx_chan);
+	new_register_dissector("dmx-chan", dissect_dmx_chan, proto_dmx_chan);
 
 	dmx_chan_module = prefs_register_protocol(proto_dmx_chan, NULL);
 

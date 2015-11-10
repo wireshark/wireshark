@@ -281,9 +281,10 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo _U_,
    return -1;
 }
 
-static void dissect_bencoding(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_bencoding(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    dissect_bencoding_rec(tvb, pinfo, 0, tvb_reported_length(tvb), tree, 0, NULL, 0);
+   return tvb_captured_length(tvb);
 }
 
 void
@@ -332,7 +333,7 @@ proto_register_bencode(void)
    expert_module_t* expert_bencode;
 
    proto_bencode = proto_register_protocol("Bencode", "Bencode", "bencode");
-   register_dissector("bencode", dissect_bencoding, proto_bencode);
+   new_register_dissector("bencode", dissect_bencoding, proto_bencode);
    proto_register_field_array(proto_bencode, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
    expert_bencode = expert_register_protocol(proto_bencode);

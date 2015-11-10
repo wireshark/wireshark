@@ -108,8 +108,8 @@ enum {
 static dissector_handle_t sub_handles[SUB_MAX];
 
 /* Code to actually dissect the packets */
-static void
-dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int  offset = 4;
 
@@ -200,6 +200,7 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			len = 1;
 		offset += len;
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -312,7 +313,7 @@ proto_register_ehdlc(void)
 	proto_register_field_array(proto_ehdlc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("ehdlc", dissect_ehdlc, proto_ehdlc);
+	new_register_dissector("ehdlc", dissect_ehdlc, proto_ehdlc);
 }
 
 void
@@ -324,7 +325,7 @@ proto_reg_handoff_ehdlc(void)
 	sub_handles[SUB_OML]  = find_dissector("gsm_abis_oml");
 	sub_handles[SUB_DATA] = find_dissector("data");
 
-    ehdlc_handle = create_dissector_handle( dissect_ehdlc, proto_ehdlc );
+    ehdlc_handle = new_create_dissector_handle( dissect_ehdlc, proto_ehdlc );
 	dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_ERICSSON, ehdlc_handle);
 }
 

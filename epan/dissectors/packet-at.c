@@ -33,9 +33,6 @@ void proto_reg_handoff_at_command(void);
 static int proto_at = -1;
 static int hf_at_command = -1;
 
-/* Forward-declare the dissector functions */
-static void dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 /* Subtree handles: set by register_subtree_array */
 static gint ett_at = -1;
 
@@ -53,25 +50,8 @@ static gboolean allowed_chars(tvbuff_t *tvb)
     return (TRUE);
 }
 
-/* Experimental approach based upon the one used for PPP */
-static gboolean heur_dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-{
-    const gchar at_magic1[2] = {0x0d, 0x0a};
-    const gchar at_magic2[3] = {0x0d, 0x0d, 0x0a};
-    const gchar at_magic3[2] = {'A', 'T'};
-
-    if (((tvb_memeql(tvb, 0, at_magic1, sizeof(at_magic1)) == 0) ||
-         (tvb_memeql(tvb, 0, at_magic2, sizeof(at_magic2)) == 0) ||
-         (tvb_memeql(tvb, 0, at_magic3, sizeof(at_magic3)) == 0)) &&
-         allowed_chars(tvb)) {
-        dissect_at(tvb, pinfo, tree);
-        return (TRUE);
-    }
-    return (FALSE);
-}
-
 /* The dissector itself */
-static void dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *item;
     proto_tree *at_tree;
@@ -91,6 +71,25 @@ static void dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(at_tree, hf_at_command, tvb, 0, len, ENC_ASCII|ENC_NA);
         proto_item_append_text(item, ": %s", tvb_format_text_wsp(tvb, 0, len));
     }
+    return tvb_captured_length(tvb);
+}
+
+
+/* Experimental approach based upon the one used for PPP */
+static gboolean heur_dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    const gchar at_magic1[2] = {0x0d, 0x0a};
+    const gchar at_magic2[3] = {0x0d, 0x0d, 0x0a};
+    const gchar at_magic3[2] = {'A', 'T'};
+
+    if (((tvb_memeql(tvb, 0, at_magic1, sizeof(at_magic1)) == 0) ||
+         (tvb_memeql(tvb, 0, at_magic2, sizeof(at_magic2)) == 0) ||
+         (tvb_memeql(tvb, 0, at_magic3, sizeof(at_magic3)) == 0)) &&
+         allowed_chars(tvb)) {
+        dissect_at(tvb, pinfo, tree, data);
+        return (TRUE);
+    }
+    return (FALSE);
 }
 
 void
@@ -109,7 +108,7 @@ proto_register_at_command(void)
     proto_at = proto_register_protocol("AT Command", "AT", "at");
     proto_register_field_array(proto_at, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("at", dissect_at, proto_at);
+    new_register_dissector("at", dissect_at, proto_at);
 }
 
 /* Handler registration */

@@ -1107,8 +1107,8 @@ static guint32 dissect_cfdp_keep_alive_pdu(tvbuff_t *tvb, proto_tree *tree, guin
 }
 
 /* Code to actually dissect the packets */
-static void
-dissect_cfdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cfdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int          offset          = 0;
     proto_item  *cfdp_packet;
@@ -1270,6 +1270,7 @@ dissect_cfdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     /* Give the data dissector any bytes past the CFDP packet length */
     call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -1624,7 +1625,7 @@ proto_register_cfdp(void)
     expert_cfdp = expert_register_protocol(proto_cfdp);
     expert_register_field_array(expert_cfdp, ei, array_length(ei));
 
-    register_dissector ( "cfdp", dissect_cfdp, proto_cfdp );
+    new_register_dissector ( "cfdp", dissect_cfdp, proto_cfdp );
 }
 
 void
@@ -1632,7 +1633,7 @@ proto_reg_handoff_cfdp(void)
 {
     static dissector_handle_t cfdp_handle;
 
-    cfdp_handle = create_dissector_handle(dissect_cfdp, proto_cfdp);
+    cfdp_handle = new_create_dissector_handle(dissect_cfdp, proto_cfdp);
     dissector_add_uint("ccsds.apid", CFDP_APID, cfdp_handle);
     dissector_add_for_decode_as ( "udp.port", cfdp_handle );
     data_handle = find_dissector("data");

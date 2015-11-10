@@ -93,8 +93,8 @@ static const value_string dpnss_link_frameType_vals[] = {
 static int ett_dpnss_link = -1;
 
 /* Code to actually dissect the packets */
-static void
-dissect_dpnss_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dpnss_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *item;
 	proto_tree *dpnss_link_tree;
@@ -149,6 +149,7 @@ dissect_dpnss_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	default:
 	    break;
 	}
+	return tvb_captured_length(tvb);
 }
 
 
@@ -205,7 +206,7 @@ proto_register_dpnss_link(void)
 	/* Register the protocol name and description */
 	proto_dpnss_link = proto_register_protocol("Digital Private Signalling System No 1 Link Layer",
 						   "DPNSS Link", "dpnss_link");
-	register_dissector("dpnss_link", dissect_dpnss_link, proto_dpnss_link);
+	new_register_dissector("dpnss_link", dissect_dpnss_link, proto_dpnss_link);
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_dpnss_link, hf, array_length(hf));

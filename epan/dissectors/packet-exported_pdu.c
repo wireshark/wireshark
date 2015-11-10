@@ -88,8 +88,8 @@ static const value_string exported_pdu_tag_vals[] = {
 };
 
 /* Code to actually dissect the packets */
-static void
-dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *exported_pdu_tree, *tag_tree;
@@ -223,6 +223,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     proto_tree_add_item(exported_pdu_tree, hf_exported_pdu_exported_pdu, payload_tvb, 0, -1, ENC_NA);
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark.
@@ -338,7 +339,7 @@ proto_register_exported_pdu(void)
     proto_exported_pdu = proto_register_protocol("EXPORTED_PDU",
             "exported_pdu", "exported_pdu");
 
-    register_dissector("exported_pdu", dissect_exported_pdu, proto_exported_pdu);
+    new_register_dissector("exported_pdu", dissect_exported_pdu, proto_exported_pdu);
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_exported_pdu, hf, array_length(hf));

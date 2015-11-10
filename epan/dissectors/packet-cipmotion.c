@@ -1776,8 +1776,8 @@ dissect_var_devce_conn_header(tvbuff_t* tvb, proto_tree* tree, guint32* inst_cou
  *
  * Returns: void
  */
-static void
-dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
+static int
+dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
    guint32     con_format;
 /*   guint32     seq_number; */
@@ -1878,6 +1878,8 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
          } /* End of instance for( ) loop */
       }
    }
+
+   return tvb_captured_length(tvb);
 }
 
 /*
@@ -2919,7 +2921,7 @@ proto_register_cipmotion(void)
    /* Register the subtrees for the protocol dissection */
    proto_register_subtree_array(cip_subtree, array_length(cip_subtree));
 
-   register_dissector( "cipmotion", dissect_cipmotion, proto_cipmotion);
+   new_register_dissector( "cipmotion", dissect_cipmotion, proto_cipmotion);
 }
 
 void proto_reg_handoff_cipmotion(void)
@@ -2927,7 +2929,7 @@ void proto_reg_handoff_cipmotion(void)
    dissector_handle_t cipmotion_handle;
 
    /* Create and register dissector for I/O data handling */
-   cipmotion_handle = create_dissector_handle( dissect_cipmotion, proto_cipmotion );
+   cipmotion_handle = new_create_dissector_handle( dissect_cipmotion, proto_cipmotion );
    dissector_add_for_decode_as("enip.io", cipmotion_handle );
 }
 

@@ -714,8 +714,8 @@ dissect_dua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree,
   dissect_parameters(parameters_tvb, pinfo, tree, dua_tree);
 }
 
-static void
-dissect_dua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *dua_item;
   proto_tree *dua_tree;
@@ -723,17 +723,13 @@ dissect_dua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   /* make entry in the Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DUA");
 
-  /* In the interest of speed, if "tree" is NULL, don't do any work not
-     necessary to generate protocol tree items. */
-  if (tree) {
-    /* create the m3ua protocol tree */
-    dua_item = proto_tree_add_item(tree, proto_dua, message_tvb, 0, -1, ENC_NA);
-    dua_tree = proto_item_add_subtree(dua_item, ett_dua);
-  } else {
-    dua_tree = NULL;
-  };
+  /* create the m3ua protocol tree */
+  dua_item = proto_tree_add_item(tree, proto_dua, message_tvb, 0, -1, ENC_NA);
+  dua_tree = proto_item_add_subtree(dua_item, ett_dua);
+
   /* dissect the message */
   dissect_dua_message(message_tvb, pinfo, tree, dua_tree);
+  return tvb_captured_length(message_tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -908,7 +904,7 @@ proto_register_dua(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Allow other dissectors to find this one by name. */
-  register_dissector("dua", dissect_dua, proto_dua);
+  new_register_dissector("dua", dissect_dua, proto_dua);
 }
 
 void

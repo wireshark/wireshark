@@ -45,8 +45,8 @@ static gint hf_cert = -1;
 static gint ett_cert = -1;
 
 
-static void
-dissect_cert(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_cert(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
         proto_tree *subtree = NULL;
         proto_item *ti;
@@ -61,7 +61,7 @@ dissect_cert(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
         }
 
         dissect_x509af_Certificate(FALSE, tvb, 0, &asn1_ctx, subtree, hf_cert);
-        return;
+        return tvb_captured_length(tvb);
 }
 
 
@@ -99,7 +99,7 @@ proto_register_cert(void)
         proto_register_field_array(proto_cert, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 
-        register_dissector("application/pkix-cert", dissect_cert, proto_cert);
+        new_register_dissector("application/pkix-cert", dissect_cert, proto_cert);
 }
 
 
@@ -108,7 +108,7 @@ proto_reg_handoff_cert(void)
 {
         dissector_handle_t cert_handle;
 
-        cert_handle = create_dissector_handle(dissect_cert, proto_cert);
+        cert_handle = new_create_dissector_handle(dissect_cert, proto_cert);
 
         /* Register the PKIX-CERT media type */
         dissector_add_string("media_type", "application/pkix-cert", cert_handle);

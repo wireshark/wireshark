@@ -1271,8 +1271,8 @@ dissect_fc_ifcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     return tvb_captured_length(tvb);
 }
 
-static void
-dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
 
     proto_item *it = NULL;
     proto_tree *fcsof_tree = NULL;
@@ -1353,6 +1353,7 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     /* Call FC dissector */
     call_dissector_with_data(fc_handle, next_tvb, pinfo, tree, &fc_data);
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -1605,7 +1606,7 @@ proto_register_fc(void)
     proto_register_field_array(proto_fcsof, sof_hf, array_length(sof_hf));
     proto_register_subtree_array(sof_ett, array_length(sof_ett));
 
-    fcsof_handle = register_dissector("fcsof", dissect_fcsof, proto_fcsof);
+    fcsof_handle = new_register_dissector("fcsof", dissect_fcsof, proto_fcsof);
 
     register_conversation_table(proto_fc, TRUE, fc_conversation_packet, fc_hostlist_packet);
     register_srt_table(proto_fc, NULL, 1, fcstat_packet, fcstat_init, NULL);

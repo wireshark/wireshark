@@ -1603,8 +1603,8 @@ dissect_cip_safety_data( proto_tree *tree, proto_item *item, tvbuff_t *tvb, int 
    }
 }
 
-static void
-dissect_cipsafety(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cipsafety(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    proto_item *ti;
    proto_tree *safety_tree;
@@ -1614,6 +1614,7 @@ dissect_cipsafety(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    safety_tree = proto_item_add_subtree( ti, ett_cip_safety);
 
    dissect_cip_safety_data(safety_tree, ti, tvb, tvb_reported_length(tvb), pinfo );
+   return tvb_captured_length(tvb);
 }
 
 static int dissect_sercosiii_link_error_count_p1p2(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
@@ -2581,7 +2582,7 @@ proto_register_cipsafety(void)
    expert_cip_safety = expert_register_protocol(proto_cipsafety);
    expert_register_field_array(expert_cip_safety, ei, array_length(ei));
 
-   register_dissector( "cipsafety", dissect_cipsafety, proto_cipsafety);
+   new_register_dissector( "cipsafety", dissect_cipsafety, proto_cipsafety);
 
    /* Register CIP Safety objects */
    proto_cip_class_s_supervisor = proto_register_protocol("CIP Safety Supervisor",
@@ -2622,7 +2623,7 @@ proto_reg_handoff_cipsafety(void)
    heur_dissector_add("cip.sc", dissect_class_svalidator_heur, "CIP Safety Validator", "s_validator_cip", proto_cip_class_s_validator, HEURISTIC_ENABLE);
 
    /* Create and register dissector for I/O data handling */
-   cipsafety_handle = create_dissector_handle( dissect_cipsafety, proto_cipsafety );
+   cipsafety_handle = new_create_dissector_handle( dissect_cipsafety, proto_cipsafety );
    dissector_add_for_decode_as("enip.io", cipsafety_handle );
 
    proto_cip = proto_get_id_by_filter_name( "cip" );

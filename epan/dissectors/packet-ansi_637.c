@@ -2389,8 +2389,8 @@ dissect_ansi_637_tele_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ans
     }
 }
 
-static void
-dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item  *ansi_637_item;
     proto_tree  *ansi_637_tree = NULL;
@@ -2495,6 +2495,7 @@ dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         dissect_ansi_637_tele_message(tvb, pinfo, ansi_637_tree, &has_private_data);
     }
+    return tvb_captured_length(tvb);
 }
 
 static gboolean
@@ -2565,8 +2566,8 @@ dissect_ansi_637_trans_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 
-static void
-dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item  *ansi_637_item;
     proto_tree  *ansi_637_tree = NULL;
@@ -2642,16 +2643,17 @@ dissect_ansi_637_trans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 
 /* Dissect SMS embedded in SIP */
-static void
-dissect_ansi_637_trans_app(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ansi_637_trans_app(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "/");
     col_set_fence(pinfo->cinfo, COL_INFO);
-    dissect_ansi_637_trans(tvb, pinfo, tree);
+    return dissect_ansi_637_trans(tvb, pinfo, tree, data);
 }
 
 
@@ -3330,8 +3332,8 @@ proto_register_ansi_637(void)
     proto_ansi_637_trans =
         proto_register_protocol(ansi_proto_name_trans, "ANSI IS-637-A Transport", "ansi_637_trans");
 
-    ansi_637_tele_handle = register_dissector("ansi_637_tele", dissect_ansi_637_tele, proto_ansi_637_tele);
-    ansi_637_trans_handle = register_dissector("ansi_637_trans", dissect_ansi_637_trans, proto_ansi_637_trans);
+    ansi_637_tele_handle = new_register_dissector("ansi_637_tele", dissect_ansi_637_tele, proto_ansi_637_tele);
+    ansi_637_trans_handle = new_register_dissector("ansi_637_trans", dissect_ansi_637_trans, proto_ansi_637_trans);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ansi_637_tele, hf_tele, array_length(hf_tele));
@@ -3354,7 +3356,7 @@ proto_reg_handoff_ansi_637(void)
     dissector_handle_t  ansi_637_trans_app_handle;
     guint               i;
 
-    ansi_637_trans_app_handle = create_dissector_handle(dissect_ansi_637_trans_app, proto_ansi_637_trans);
+    ansi_637_trans_app_handle = new_create_dissector_handle(dissect_ansi_637_trans_app, proto_ansi_637_trans);
 
     /* Dissect messages embedded in SIP */
     dissector_add_string("media_type", "application/vnd.3gpp2.sms", ansi_637_trans_app_handle);

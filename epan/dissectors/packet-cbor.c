@@ -696,8 +696,8 @@ dissect_cbor_main_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree,
 	return NULL;
 }
 
-static void
-dissect_cbor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_cbor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	gint        offset = 0;
 	proto_item *cbor_root;
@@ -706,6 +706,8 @@ dissect_cbor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	cbor_root = proto_tree_add_item(parent_tree, proto_cbor, tvb, offset, -1, ENC_NA);
 	cbor_tree = proto_item_add_subtree(cbor_root, ett_cbor);
 	dissect_cbor_main_type(tvb, pinfo, cbor_tree, &offset);
+
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -851,7 +853,7 @@ proto_register_cbor(void)
 	expert_cbor = expert_register_protocol(proto_cbor);
 	expert_register_field_array(expert_cbor, ei, array_length(ei));
 
-	register_dissector("cbor", dissect_cbor, proto_cbor);
+	new_register_dissector("cbor", dissect_cbor, proto_cbor);
 }
 
 void
@@ -859,7 +861,7 @@ proto_reg_handoff_cbor(void)
 {
 	static dissector_handle_t cbor_handle;
 
-	cbor_handle = create_dissector_handle(dissect_cbor, proto_cbor);
+	cbor_handle = new_create_dissector_handle(dissect_cbor, proto_cbor);
 	dissector_add_string("media_type", "application/cbor", cbor_handle); /* RFC 7049 */
 }
 

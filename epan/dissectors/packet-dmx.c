@@ -69,8 +69,8 @@ static dissector_handle_t dmx_sip_handle;
 static dissector_handle_t data_handle;
 
 
-static void
-dissect_dmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	tvbuff_t *next_tvb;
 	guint     offset = 0;
@@ -107,6 +107,7 @@ dissect_dmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			call_dissector(data_handle, next_tvb, pinfo, tree);
 		break;
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -121,7 +122,7 @@ proto_register_dmx(void)
 
 	proto_dmx = proto_register_protocol("DMX", "DMX", "dmx");
 	proto_register_field_array(proto_dmx, hf, array_length(hf));
-	register_dissector("dmx", dissect_dmx, proto_dmx);
+	new_register_dissector("dmx", dissect_dmx, proto_dmx);
 }
 
 void
