@@ -140,6 +140,8 @@ private:
     QActionGroup *time_display_actions_;
     QActionGroup *time_precision_actions_;
     FunnelStatistics *funnel_statistics_;
+    QList<QPair<QAction *, bool> > freeze_actions_;
+    QWidget *freeze_focus_;
 
     bool capture_stopping_;
     bool capture_filter_valid_;
@@ -161,6 +163,9 @@ private:
 
     QWidget* getLayoutWidget(layout_pane_content_e type);
 
+    void freeze();
+    void thaw();
+
     void mergeCaptureFile();
     void importCaptureFile();
     void saveCaptureFile(capture_file *cf, bool dont_reopen);
@@ -176,6 +181,7 @@ private:
     void initShowHideMainWidgets();
     void initTimeDisplayFormatMenu();
     void initTimePrecisionFormatMenu();
+    void initFreezeActions();
 
     void setTitlebarForSelectedTreeRow();
     void setTitlebarForCaptureFile();

@@ -223,6 +223,7 @@ MainWindow::MainWindow(QWidget *parent) :
     time_display_actions_(NULL),
     time_precision_actions_(NULL),
     funnel_statistics_(new FunnelStatistics(this, capture_file_)),
+    freeze_focus_(NULL),
     capture_stopping_(false),
     capture_filter_valid_(false),
 #ifdef _WIN32
@@ -375,6 +376,7 @@ MainWindow::MainWindow(QWidget *parent) :
     initShowHideMainWidgets();
     initTimeDisplayFormatMenu();
     initTimePrecisionFormatMenu();
+    initFreezeActions();
     updatePreferenceActions();
     setForCaptureInProgress(false);
 
@@ -844,6 +846,38 @@ QWidget* MainWindow::getLayoutWidget(layout_pane_content_e type) {
             g_assert_not_reached();
             return NULL;
     }
+}
+
+// Our event loop becomes nested whenever we call update_progress_dlg, which
+// includes several places in file.c. The GTK+ UI stays out of trouble by
+// showing a modal progress dialog. We attempt to do the equivalent below by
+// disabling parts of the main window. At a minumum the ProgressFrame in the
+// main status bar must remain accessible.
+//
+// We might want to do this any time the main status bar progress frame is
+// shown and hidden.
+void MainWindow::freeze()
+{
+    freeze_focus_ = wsApp->focusWidget();
+
+    // XXX Alternatively we could just disable and enable the main menu.
+    for (int i = 0; i < freeze_actions_.size(); i++) {
+        QAction *action = freeze_actions_[i].first;
+        freeze_actions_[i].second = action->isEnabled();
+        action->setEnabled(false);
+    }
+    main_ui_->centralWidget->setEnabled(false);
+}
+
+void MainWindow::thaw()
+{
+    main_ui_->centralWidget->setEnabled(true);
+    for (int i = 0; i < freeze_actions_.size(); i++) {
+        freeze_actions_[i].first->setEnabled(freeze_actions_[i].second);
+    }
+
+    if (freeze_focus_) freeze_focus_->setFocus();
+    freeze_focus_ = NULL;
 }
 
 void MainWindow::mergeCaptureFile()
@@ -1762,6 +1796,27 @@ void MainWindow::initTimePrecisionFormatMenu()
     }
 
     connect(time_precision_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setTimestampPrecision(QAction*)));
+}
+
+// Menu items which will be disabled when we freeze() and whose state will
+// be restored when we thaw(). Add to the list as needed.
+void MainWindow::initFreezeActions()
+{
+    QList<QAction *> freeze_actions = QList<QAction *>()
+            << main_ui_->actionFileClose
+            << main_ui_->actionViewReload
+            << main_ui_->actionEditMarkPacket
+            << main_ui_->actionEditMarkAllDisplayed
+            << main_ui_->actionEditUnmarkAllDisplayed
+            << main_ui_->actionEditIgnorePacket
+            << main_ui_->actionEditIgnoreAllDisplayed
+            << main_ui_->actionEditUnignoreAllDisplayed
+            << main_ui_->actionEditSetTimeReference
+            << main_ui_->actionEditUnsetAllTimeReferences;
+
+    foreach (QAction *action, freeze_actions) {
+        freeze_actions_ << QPair<QAction *, bool>(action, false);
+    }
 }
 
 // Titlebar

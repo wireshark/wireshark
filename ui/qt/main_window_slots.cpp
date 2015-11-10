@@ -693,27 +693,15 @@ void MainWindow::captureFileReadFinished() {
     emit setDissectedCaptureFile(capture_file_.capFile());
 }
 
-// Our event loop becomes nested whenever we call update_progress_dlg, which
-// includes several places in file.c. The GTK+ UI stays out of trouble by
-// showing a modal progress dialog. We attempt to do the equivalent below by
-// disabling parts of the main window. At a minumum the ProgressFrame in the
-// main status bar must remain accessible.
-//
-// We might want to do this any time the main status bar progress frame is
-// shown and hidden.
 void MainWindow::captureFileRetapStarted()
 {
     // XXX Push a status message?
-    main_ui_->actionFileClose->setEnabled(false);
-    main_ui_->actionViewReload->setEnabled(false);
-    main_ui_->centralWidget->setEnabled(false);
+    freeze();
 }
 
 void MainWindow::captureFileRetapFinished()
 {
-    main_ui_->actionFileClose->setEnabled(true);
-    main_ui_->actionViewReload->setEnabled(true);
-    main_ui_->centralWidget->setEnabled(true);
+    thaw();
 }
 
 void MainWindow::captureFileClosing() {
@@ -1908,17 +1896,23 @@ void MainWindow::on_actionEditFindPrevious_triggered()
 
 void MainWindow::on_actionEditMarkPacket_triggered()
 {
+    freeze();
     packet_list_->markFrame();
+    thaw();
 }
 
 void MainWindow::on_actionEditMarkAllDisplayed_triggered()
 {
+    freeze();
     packet_list_->markAllDisplayedFrames(true);
+    thaw();
 }
 
 void MainWindow::on_actionEditUnmarkAllDisplayed_triggered()
 {
+    freeze();
     packet_list_->markAllDisplayedFrames(false);
+    thaw();
 }
 
 void MainWindow::on_actionEditNextMark_triggered()
@@ -1935,17 +1929,23 @@ void MainWindow::on_actionEditPreviousMark_triggered()
 
 void MainWindow::on_actionEditIgnorePacket_triggered()
 {
+    freeze();
     packet_list_->ignoreFrame();
+    thaw();
 }
 
 void MainWindow::on_actionEditIgnoreAllDisplayed_triggered()
 {
+    freeze();
     packet_list_->ignoreAllDisplayedFrames(true);
+    thaw();
 }
 
 void MainWindow::on_actionEditUnignoreAllDisplayed_triggered()
 {
+    freeze();
     packet_list_->ignoreAllDisplayedFrames(false);
+    thaw();
 }
 
 void MainWindow::on_actionEditSetTimeReference_triggered()
