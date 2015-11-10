@@ -84,6 +84,7 @@ typedef struct {
 	guint8*      pseudo_buffer;
 	guint        pseudo_length;
 	wtap_dumper* dump;
+	const char*  filename;
 	guint        produce_max_bytes;
 
 } randpkt_example;
@@ -374,154 +375,176 @@ randpkt_example examples[] = {
 		PKT_ARP,	WTAP_ENCAP_ETHERNET,
 		pkt_arp,	array_length(pkt_arp),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "bgp", "Border Gateway Protocol",
 		PKT_BGP,	WTAP_ENCAP_ETHERNET,
 		pkt_bgp,	array_length(pkt_bgp),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "bvlc", "BACnet Virtual Link Control",
 		PKT_BVLC,	WTAP_ENCAP_ETHERNET,
 		pkt_bvlc,	array_length(pkt_bvlc),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "dns", "Domain Name Service",
 		PKT_DNS,	WTAP_ENCAP_ETHERNET,
 		pkt_dns,	array_length(pkt_dns),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "eth", "Ethernet",
 		PKT_ETHERNET,	WTAP_ENCAP_ETHERNET,
 		NULL,		0,
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "fddi", "Fiber Distributed Data Interface",
 		PKT_FDDI,	WTAP_ENCAP_FDDI,
 		NULL,		0,
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "giop", "General Inter-ORB Protocol",
 		PKT_GIOP,	WTAP_ENCAP_ETHERNET,
 		pkt_giop,	array_length(pkt_giop),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "icmp", "Internet Control Message Protocol",
 		PKT_ICMP,	WTAP_ENCAP_ETHERNET,
 		pkt_icmp,	array_length(pkt_icmp),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "ip", "Internet Protocol",
 		PKT_IP,		WTAP_ENCAP_ETHERNET,
 		pkt_ip,		array_length(pkt_ip),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "llc", "Logical Link Control",
 		PKT_LLC,	WTAP_ENCAP_TOKEN_RING,
 		pkt_llc,	array_length(pkt_llc),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "m2m", "WiMAX M2M Encapsulation Protocol",
 		PKT_M2M,	WTAP_ENCAP_ETHERNET,
 		pkt_m2m,	array_length(pkt_m2m),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "megaco", "MEGACO",
 		PKT_MEGACO,	WTAP_ENCAP_ETHERNET,
 		pkt_megaco,	array_length(pkt_megaco),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "nbns", "NetBIOS-over-TCP Name Service",
 		PKT_NBNS,	WTAP_ENCAP_ETHERNET,
 		pkt_nbns,	array_length(pkt_nbns),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "ncp2222", "NetWare Core Protocol",
 		PKT_NCP2222,	WTAP_ENCAP_TOKEN_RING,
 		pkt_ncp2222,	array_length(pkt_ncp2222),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "sctp", "Stream Control Transmission Protocol",
 		PKT_SCTP,	WTAP_ENCAP_ETHERNET,
 		pkt_sctp,	array_length(pkt_sctp),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "syslog", "Syslog message",
 		PKT_SYSLOG,	WTAP_ENCAP_ETHERNET,
 		pkt_syslog,	array_length(pkt_syslog),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "tds", "TDS NetLib",
 		PKT_TDS,	WTAP_ENCAP_ETHERNET,
 		pkt_tds,	array_length(pkt_tds),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "tcp", "Transmission Control Protocol",
 		PKT_TCP,	WTAP_ENCAP_TOKEN_RING,
 		pkt_tcp,	array_length(pkt_tcp),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "tr",	 "Token-Ring",
 		PKT_TR,		WTAP_ENCAP_TOKEN_RING,
 		NULL,		0,
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "udp", "User Datagram Protocol",
 		PKT_UDP,	WTAP_ENCAP_ETHERNET,
 		pkt_udp,	array_length(pkt_udp),
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "usb", "Universal Serial Bus",
 		PKT_USB,	WTAP_ENCAP_USB,
 		NULL,		0,
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 	{ "usb-linux", "Universal Serial Bus with Linux specific header",
 		PKT_USB_LINUX,	WTAP_ENCAP_USB_LINUX,
 		NULL,		0,
 		NULL,		0,
-		NULL,		1000,
+		NULL,		NULL,
+		1000,
 	},
 
 };
@@ -611,10 +634,18 @@ static void randpkt_example_init(randpkt_example* example, char* produce_filenam
 {
 	int err;
 
-	example->dump = wtap_dump_open(produce_filename, WTAP_FILE_TYPE_SUBTYPE_PCAP,
-		example->sample_wtap_encap, produce_max_bytes, FALSE /* compressed */, &err);
+	if (strcmp(produce_filename, "-") == 0) {
+		/* Write to the standard output. */
+		example->dump = wtap_dump_fdopen(1, WTAP_FILE_TYPE_SUBTYPE_PCAP,
+			example->sample_wtap_encap, produce_max_bytes, FALSE /* compressed */, &err);
+		example->filename = "the standard output";
+	} else {
+		example->dump = wtap_dump_open(produce_filename, WTAP_FILE_TYPE_SUBTYPE_PCAP,
+			example->sample_wtap_encap, produce_max_bytes, FALSE /* compressed */, &err);
+		example->filename = produce_filename;
+	}
 	if (!example->dump) {
-		fprintf(stderr, "randpkt: Error writing to %s\n", produce_filename);
+		fprintf(stderr, "randpkt: Error writing to %s\n", example->filename);
 		exit(2);
 	}
 
@@ -629,10 +660,16 @@ static void randpkt_example_init(randpkt_example* example, char* produce_filenam
 	}
 }
 
-static void randpkt_example_close(randpkt_example* example)
+static gboolean randpkt_example_close(randpkt_example* example)
 {
 	int err;
-	wtap_dump_close(example->dump, &err);
+
+	if (!wtap_dump_close(example->dump, &err)) {
+		fprintf(stderr, "Error writing to %s: %s\n",
+		    example->filename, wtap_strerror(err));
+		return FALSE;
+        }
+        return TRUE;
 }
 
 static void randpkt_loop(randpkt_example* example, guint64 produce_count)
@@ -695,10 +732,64 @@ static void randpkt_loop(randpkt_example* example, guint64 produce_count)
 			}
 		}
 
-		/* XXX - report errors! */
 		if (!wtap_dump(example->dump, pkthdr, buffer, &err, &err_info)) {
-			if (err_info != NULL)
+			fprintf(stderr, "randpkt: Error writing to %s: %s\n",
+			    example->filename, wtap_strerror(err));
+			switch (err) {
+
+			case WTAP_ERR_UNWRITABLE_ENCAP:
+				/*
+				 * This is a problem with the particular
+				 * frame we're writing and the file type
+				 * and subtype we're writing; note that,
+				 * and report the file type/subtype.
+				 */
+				fprintf(stderr,
+				    "Frame has a network type that can't be saved in a \"%s\" file.\n",
+				    wtap_file_type_subtype_short_string(WTAP_FILE_TYPE_SUBTYPE_PCAP));
+				break;
+
+			case WTAP_ERR_PACKET_TOO_LARGE:
+				/*
+				 * This is a problem with the particular
+				 * frame we're writing and the file type
+				 * and subtype we're writing; note that,
+				 * and report the file type/subtype.
+				 */
+				fprintf(stderr,
+				    "Frame is too large for a \"%s\" file.\n",
+				    wtap_file_type_subtype_short_string(WTAP_FILE_TYPE_SUBTYPE_PCAP));
+				break;
+
+			case WTAP_ERR_UNWRITABLE_REC_TYPE:
+				/*
+				 * This is a problem with the particular
+				 * record we're writing and the file type
+				 * and subtype we're writing; note that,
+				 * and report the file type/subtype.
+				 */
+				fprintf(stderr,
+				    "Record has a record type that can't be saved in a \"%s\" file.\n",
+				    wtap_file_type_subtype_short_string(WTAP_FILE_TYPE_SUBTYPE_PCAP));
+				break;
+
+			case WTAP_ERR_UNWRITABLE_REC_DATA:
+				/*
+				 * This is a problem with the particular
+				 * record we're writing and the file type
+				 * and subtype we're writing; note that,
+				 * and report the file type/subtype.
+				 */
+				fprintf(stderr,
+				    "Record has data that can't be saved in a \"%s\" file.\n(%s)\n",
+				    wtap_file_type_subtype_short_string(WTAP_FILE_TYPE_SUBTYPE_PCAP),
+				    err_info != NULL ? err_info : "no information supplied");
 				g_free(err_info);
+				break;
+
+			default:
+				break;
+			}
 		}
 	}
 
@@ -708,12 +799,12 @@ static void randpkt_loop(randpkt_example* example, guint64 produce_count)
 int
 main(int argc, char **argv)
 {
-	int				opt;
-	int				produce_type = -1;
+	int			opt;
+	int			produce_type = -1;
 	char			*produce_filename = NULL;
-	int				produce_max_bytes = 5000;
-	int				produce_count = 1000;
-	randpkt_example	*example;
+	int			produce_max_bytes = 5000;
+	int			produce_count = 1000;
+	randpkt_example		*example;
 	guint8*			type = NULL;
 	int 			allrandom = FALSE;
 	wtap_dumper		*savedump;
@@ -781,7 +872,6 @@ DIAG_ON(cast-qual)
 
 		randpkt_example_init(example, produce_filename, produce_max_bytes);
 		randpkt_loop(example, produce_count);
-		randpkt_example_close(example);
 	} else {
 		if (type) {
 			fprintf(stderr, "Can't set type in random mode\n");
@@ -805,8 +895,9 @@ DIAG_ON(cast-qual)
 				return 1;
 			example->dump = savedump;
 		}
-		randpkt_example_close(example);
 	}
+	if (!randpkt_example_close(example))
+		return 2;
 	return 0;
 
 }

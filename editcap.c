@@ -888,6 +888,29 @@ get_editcap_runtime_info(GString *str)
 #endif
 }
 
+static wtap_dumper *
+editcap_dump_open(const char *filename, guint32 snaplen,
+                  wtapng_section_t *shb_hdr,
+                  wtapng_iface_descriptions_t *idb_inf,
+                  wtapng_name_res_t *nrb_hdr, int *write_err)
+{
+  wtap_dumper *pdh;
+
+  if (strcmp(filename, "-") == 0) {
+    /* Write to the standard output. */
+    pdh = wtap_dump_fdopen_ng(1, out_file_type_subtype, out_frame_type,
+                              snaplen, FALSE /* compressed */,
+                              shb_hdr, idb_inf, nrb_hdr,
+                              write_err);
+  } else {
+    pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
+                            snaplen, FALSE /* compressed */,
+                            shb_hdr, idb_inf, nrb_hdr,
+			    write_err);
+  }
+  return pdh;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -1334,9 +1357,9 @@ DIAG_ON(cast-qual)
                     shb_hdr->shb_user_appl = g_strdup("Editcap " VERSION);
                 }
 
-                pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
+                pdh = editcap_dump_open(filename,
                                         snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-                                        FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &write_err);
+                                        shb_hdr, idb_inf, nrb_hdr, &write_err);
 
                 if (pdh == NULL) {
                     fprintf(stderr, "editcap: Can't open or create %s: %s\n",
@@ -1376,9 +1399,9 @@ DIAG_ON(cast-qual)
                         if (verbose)
                             fprintf(stderr, "Continuing writing in file %s\n", filename);
 
-                        pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
+                        pdh = editcap_dump_open(filename,
                                                 snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-                                                FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &write_err);
+                                                shb_hdr, idb_inf, nrb_hdr, &write_err);
 
                         if (pdh == NULL) {
                             fprintf(stderr, "editcap: Can't open or create %s: %s\n",
@@ -1405,9 +1428,9 @@ DIAG_ON(cast-qual)
                     if (verbose)
                         fprintf(stderr, "Continuing writing in file %s\n", filename);
 
-                    pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
+                    pdh = editcap_dump_open(filename,
                                             snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-                                            FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &write_err);
+                                            shb_hdr, idb_inf, nrb_hdr, &write_err);
                     if (pdh == NULL) {
                         fprintf(stderr, "editcap: Can't open or create %s: %s\n",
                                 filename, wtap_strerror(write_err));
@@ -1776,9 +1799,9 @@ DIAG_ON(cast-qual)
             g_free (filename);
             filename = g_strdup(argv[optind+1]);
 
-            pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
+            pdh = editcap_dump_open(filename,
                                     snaplen ? MIN(snaplen, wtap_snapshot_length(wth)): wtap_snapshot_length(wth),
-                                    FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &write_err);
+                                    shb_hdr, idb_inf, nrb_hdr, &write_err);
             if (pdh == NULL) {
                 fprintf(stderr, "editcap: Can't open or create %s: %s\n",
                         filename, wtap_strerror(write_err));

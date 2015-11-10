@@ -204,7 +204,7 @@ DIAG_OFF(cast-qual)
 DIAG_ON(cast-qual)
     int file_count;
     char *infile;
-    char *outfile;
+    const char *outfile;
 
     /* Get the compile-time version information string */
     comp_info_str = get_compiled_version_info(NULL, get_reordercap_compiled_info);
@@ -275,8 +275,14 @@ DIAG_ON(cast-qual)
     nrb_hdr = wtap_file_get_nrb_for_new_file(wth);
 
     /* Open outfile (same filetype/encap as input file) */
-    pdh = wtap_dump_open_ng(outfile, wtap_file_type_subtype(wth), wtap_file_encap(wth),
-                            65535, FALSE, shb_hdr, idb_inf, nrb_hdr, &err);
+    if (strcmp(outfile, "-") == 0) {
+      pdh = wtap_dump_fdopen_ng(1, wtap_file_type_subtype(wth), wtap_file_encap(wth),
+                                65535, FALSE, shb_hdr, idb_inf, nrb_hdr, &err);
+      outfile = "standard output";
+    } else {
+      pdh = wtap_dump_open_ng(outfile, wtap_file_type_subtype(wth), wtap_file_encap(wth),
+                              65535, FALSE, shb_hdr, idb_inf, nrb_hdr, &err);
+    }
     g_free(idb_inf);
     idb_inf = NULL;
 

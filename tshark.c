@@ -3199,13 +3199,25 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     if (linktype != WTAP_ENCAP_PER_PACKET &&
         out_file_type == WTAP_FILE_TYPE_SUBTYPE_PCAP) {
         tshark_debug("tshark: writing PCAP format to %s", save_file);
-        pdh = wtap_dump_open(save_file, out_file_type, linktype,
-            snapshot_length, FALSE /* compressed */, &err);
+        if (strcmp(save_file, "-")) {
+          /* Write to the standard output. */
+          pdh = wtap_dump_fdopen(1, out_file_type, linktype,
+              snapshot_length, FALSE /* compressed */, &err);
+        } else {
+          pdh = wtap_dump_open(save_file, out_file_type, linktype,
+              snapshot_length, FALSE /* compressed */, &err);
+        }
     }
     else {
         tshark_debug("tshark: writing format type %d, to %s", out_file_type, save_file);
-        pdh = wtap_dump_open_ng(save_file, out_file_type, linktype,
-            snapshot_length, FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &err);
+        if (strcmp(save_file, "-")) {
+          /* Write to the standard output. */
+          pdh = wtap_dump_fdopen_ng(1, out_file_type, linktype,
+              snapshot_length, FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &err);
+        } else {
+          pdh = wtap_dump_open_ng(save_file, out_file_type, linktype,
+              snapshot_length, FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &err);
+        }
     }
 
     g_free(idb_inf);
