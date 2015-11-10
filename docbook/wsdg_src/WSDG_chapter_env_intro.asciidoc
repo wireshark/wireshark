@@ -43,7 +43,7 @@ others:
 
 ==== Unix
 
-* Apple Mac OS X
+* Apple OS X
 
 * FreeBSD
 
@@ -210,8 +210,8 @@ Binary distributions are usually easy to install (as simply starting
 the appropriate file is usually the only thing to do). They are available
 for the following systems:
 
-* Windows (.exe file). The typical Windows end user is used to get a setup.exe
-  file which will install all the required things for him.
+* Windows (.exe file). The typical Windows end user is used to getting
+  a setup.exe file which will install all the required things for him.
 
 * Win32 PAF (.paf.exe file). Another Windows end user method is to get a
   portable application file which will install all the required things for him.
@@ -224,9 +224,8 @@ for the following systems:
   obtains an .rpm file from which the package manager checks the dependencies
   and installs the software.
 
-* Mac OS X (.dmg file). The typical Mac OS X end user is used to get a .dmg file
-  which will install all the required things for him. The other requirement is
-  to have the X11.app installed.
+* OS X (.dmg file). The typical OS X end user is used to getting a .dmg file
+  which will install all the required things for him.
 
 * Solaris. A Solaris user obtains a file from which the package manager (PKG)
   checks the dependencies and installs the software.
@@ -317,9 +316,9 @@ The Buildbot runs on a platform collection that represents the different
 
 * Solaris SPARC (Solaris, big endian, gcc)
 
-* Mac OS-X x86 (BSD, little endian, Clang)
+* OS X x86 (BSD, little endian, Clang)
 
-* Mac OS-X x86-64 (BSD, little endian, Clang)
+* OS X x86-64 (BSD, little endian, Clang)
 
 and two buildslaves that run static code analysis to help spot coding issues:
 

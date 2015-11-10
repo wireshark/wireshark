@@ -826,7 +826,7 @@ AC_SUBST(HAVE_RPM)
 # Debian
 AC_CHECK_PROG(HAVE_DPKG_BUILDPACKAGE, dpkg-buildpackage, "yes", "no")
 
-# Mac OS X
+# OS X
 AC_CHECK_PROG(HAVE_XCODEBUILD, xcodebuild, "yes", "no")
 AC_CHECK_PROG(HAVE_HDIUTIL, hdiutil, "yes", "no")
 AC_CHECK_PROG(HAVE_BLESS, bless, "yes", "no")
@@ -3273,7 +3273,7 @@ if test "x$have_gtk" = "xyes"; then
 		gtk_lib_message=" (with GTK+ 2"
 	fi
 	if test "x$have_ige_mac" = "xyes"; then
-		gtk_lib_message="$gtk_lib_message and Mac OS X integration)"
+		gtk_lib_message="$gtk_lib_message and OS X integration)"
 	else
 		gtk_lib_message="$gtk_lib_message)"
 	fi

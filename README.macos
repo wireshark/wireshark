@@ -34,10 +34,10 @@ environment variable's setting includes both /usr/X11/lib/pkgconfig and
 
 If you wish to build the legacy (GTK+) UI you must have X11 and the X11
 developer headers and libraries installed; otherwise, you will not be
-able to build or install GTK+.  The X11 and X11 SDK that come with Mac
-OS X releases for releases from Panther to Lion can be used to build and
-run Wireshark.  Mountain Lion does not include X11; you should install
-X11 from elsewhere, such as
+able to build or install GTK+.  The X11 and X11 SDK that come with OS X
+releases for releases from Panther to Lion can be used to build and run
+Wireshark.  Mountain Lion does not include X11; you should install X11
+from elsewhere, such as
 
 	http://xquartz.macosforge.org/
 
@@ -100,7 +100,7 @@ GTK+ with the CUPS printing backend disabled.
 libgcrypt - the libgcrypt configuration script attempts to determine
 which flavor of assembler-language routines to use based on the platform
 type determined by standard autoconf code.  That code uses uname to
-determine the processor type; however, in Mac OS X, uname always reports
+determine the processor type; however, in OS X, uname always reports
 "i386" as the processor type on Intel machines, even Intel machines with
 64-bit processors, so it will attempt to assemble the 32-bit x86
 assembler-language routines, which will fail.  The workaround for this

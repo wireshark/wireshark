@@ -651,7 +651,7 @@ image::wsug_graphics/ws-decode-as-show.png[]
 === Preferences
 
 There are a number of preferences you can set. Simply select the
-menu:Edit[Preferences...] (menu:Wireshark[Preferences...] on Mac OS X) and
+menu:Edit[Preferences...] (menu:Wireshark[Preferences...] on OS X) and
 Wireshark will pop up the Preferences dialog box as shown in
 <<ChCustGUIPrefPage>>, with the ``User Interface'' page as default. On the left
 side is a tree where you can select the page to be shown.

@@ -11,7 +11,7 @@
 === Introduction
 
 As with all things there must be a beginning and so it is with Wireshark. To
-use Wireshark you must first install it. If you are running Windows or Mac OS X
+use Wireshark you must first install it. If you are running Windows or OS X
 you can download an official release at wireshark-download-page:[], install it,
 and skip the rest of this chapter.
 
@@ -242,9 +242,9 @@ WinPcap you won't be able to capture anything with Wireshark.
 
 [[ChBuildInstallOSXInstall]]
 
-=== Installing Wireshark under Mac OS X
+=== Installing Wireshark under OS X
 
-The official Mac OS X packages are distributed as disk images (.dmg) containing
+The official OS X packages are distributed as disk images (.dmg) containing
 the application installer. To install Wireshark simply open the disk image and
 run the enclosed installer.
 

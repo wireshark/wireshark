@@ -729,7 +729,7 @@ with version 4.2.2 or a later version.
 """)
 
 question("""
-I've installed Wireshark from Fink on Mac OS X; why is it very slow to
+I've installed Wireshark from Fink on OS X; why is it very slow to
 start up?
 """)
 
@@ -1204,7 +1204,7 @@ Most OSes do <strong>not</strong> support capturing the FCS of a frame
 on Ethernet, and probably do not support it on most other link-layer
 types.  Some drivres on some OSes do support it, such as some (all?)
 Ethernet drivers on NetBSD and possibly the driver for Apple's gigabit
-Ethernet interface in Mac OS X; in those OSes, you might always get the
+Ethernet interface in OS X; in those OSes, you might always get the
 FCS, or you might only get the FCS if you capture in promiscuous mode
 (you'd have to determine which is the case).
 

@@ -57,7 +57,7 @@ Note 1:
   # http://public.kitware.com/Bug/view.php?id=13818
   -DPYTHON_EXECUTABLE=c:/Python27/python
 
-  # Disable building an application bundle (Wireshark.app) on Mac OS X
+  # Disable building an application bundle (Wireshark.app) on OS X
   -DENABLE_APPLICATION_BUNDLE=OFF
 
   # Qt Creator expects .cbp files when used with CMake.
