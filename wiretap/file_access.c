@@ -2148,6 +2148,11 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 	wtap_dumper *wdh;
 	wtapng_if_descr_t descr, *file_int_data;
 
+	/* Check whether we can open a capture file with that file type
+	   and that encapsulation. */
+	if (!wtap_dump_open_check(file_type_subtype, encap, compressed, err))
+		return NULL;
+
 	/* Allocate a data structure for the output stream. */
 	wdh = wtap_dump_alloc_wdh(file_type_subtype, encap, snaplen, compressed, err);
 	if (wdh == NULL)
@@ -2206,11 +2211,6 @@ wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
 	wtap_dumper *wdh;
 	WFILE_T fh;
 
-	/* Check whether we can open a capture file with that file type
-	   and that encapsulation. */
-	if (!wtap_dump_open_check(file_type_subtype, encap, compressed, err))
-		return NULL;
-
 	/* Allocate and initialize a data structure for the output stream. */
 	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
 	    shb_hdr, idb_inf, nrb_hdr, err);
@@ -2254,11 +2254,6 @@ wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
 	wtap_dumper *wdh;
 	WFILE_T fh;
 
-	/* Check whether we can open a capture file with that file type
-	   and that encapsulation. */
-	if (!wtap_dump_open_check(file_type_subtype, encap, compressed, err))
-		return NULL;
-
 	/* Allocate and initialize a data structure for the output stream. */
 	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
 	    shb_hdr, idb_inf, nrb_hdr, err);
@@ -2299,11 +2294,6 @@ wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
-
-	/* Check whether we can open a capture file with that file type
-	   and that encapsulation. */
-	if (!wtap_dump_open_check(file_type_subtype, encap, compressed, err))
-		return NULL;
 
 	/* Allocate and initialize a data structure for the output stream. */
 	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
