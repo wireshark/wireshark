@@ -2225,34 +2225,16 @@ wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
 	if (wdh == NULL)
 		return NULL;
 
-	/* "-" means stdout */
-	if (strcmp(filename, "-") == 0) {
-		if (compressed) {
-			*err = EINVAL;	/* XXX - return a Wiretap error code for this */
-			g_free(wdh);
-			return NULL;	/* compress won't work on stdout */
-		}
-#ifdef _WIN32
-		if (_setmode(fileno(stdout), O_BINARY) == -1) {
-			/* "Should not happen" */
-			*err = errno;
-			g_free(wdh);
-			return NULL;	/* couldn't put standard output in binary mode */
-		}
-#endif
-		wdh->fh = stdout;
-	} else {
-		/* In case "fopen()" fails but doesn't set "errno", set "errno"
-		   to a generic "the open failed" error. */
-		errno = WTAP_ERR_CANT_OPEN;
-		fh = wtap_dump_file_open(wdh, filename);
-		if (fh == NULL) {
-			*err = errno;
-			g_free(wdh);
-			return NULL;	/* can't create file */
-		}
-		wdh->fh = fh;
+	/* In case "fopen()" fails but doesn't set "errno", set "errno"
+	   to a generic "the open failed" error. */
+	errno = WTAP_ERR_CANT_OPEN;
+	fh = wtap_dump_file_open(wdh, filename);
+	if (fh == NULL) {
+		*err = errno;
+		g_free(wdh);
+		return NULL;	/* can't create file */
 	}
+	wdh->fh = fh;
 
 	if (!wtap_dump_open_finish(wdh, file_type_subtype, compressed, err)) {
 		/* Get rid of the file we created; we couldn't finish
