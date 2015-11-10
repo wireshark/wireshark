@@ -37,26 +37,40 @@
 
 
 #include "config.h"
-
+#include <math.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+/* Proximity Integrated Circuit Card, i.e. the smartcard */
+#define ADDR_PICC "PICC"
+/* Proximity Coupling Device, i.e. the card reader */
+#define ADDR_PCD  "PCD"
+
 /* event byte in the PCAP ISO14443 pseudo-header */
-#define ISO14443_EVT_DATA_PICC_TO_PCD  0xFF
-#define ISO14443_EVT_DATA_PCD_TO_PICC  0xFE
-#define ISO14443_EVT_FIELD_OFF         0xFD
-#define ISO14443_EVT_FIELD_ON          0xFC
+#define ISO14443_EVT_DATA_PICC_TO_PCD              0xFF
+#define ISO14443_EVT_DATA_PCD_TO_PICC              0xFE
+#define ISO14443_EVT_FIELD_OFF                     0xFD
+#define ISO14443_EVT_FIELD_ON                      0xFC
+#define ISO14443_EVT_DATA_PICC_TO_PCD_CRC_DROPPED  0xFB
+#define ISO14443_EVT_DATA_PCD_TO_PICC_CRC_DROPPED  0xFA
 
 static const value_string iso14443_event[] = {
     { ISO14443_EVT_DATA_PICC_TO_PCD, "Data transfer PICC -> PCD" },
     { ISO14443_EVT_DATA_PCD_TO_PICC, "Data transfer PCD -> PICC" },
     { ISO14443_EVT_FIELD_ON,         "Field on" },
     { ISO14443_EVT_FIELD_OFF,        "Field off" },
+    { ISO14443_EVT_DATA_PICC_TO_PCD_CRC_DROPPED,
+        "Data transfer PICC -> PCD (CRC bytes were dropped)" },
+    { ISO14443_EVT_DATA_PCD_TO_PICC_CRC_DROPPED,
+        "Data transfer PCD -> PICC (CRC bytes were dropped)" },
     { 0, NULL }
 };
 
 #define IS_DATA_TRANSFER(e) \
-    ((e)==ISO14443_EVT_DATA_PICC_TO_PCD || (e)==ISO14443_EVT_DATA_PCD_TO_PICC)
+    ((e)==ISO14443_EVT_DATA_PICC_TO_PCD || \
+     (e)==ISO14443_EVT_DATA_PCD_TO_PICC || \
+     (e)==ISO14443_EVT_DATA_PICC_TO_PCD_CRC_DROPPED || \
+     (e)==ISO14443_EVT_DATA_PCD_TO_PICC_CRC_DROPPED)
 
 typedef enum _iso14443_cmd_t {
     CMD_TYPE_WUPA,    /* REQA, WUPA or ATQA */
@@ -84,7 +98,20 @@ static const value_string iso14443_short_frame[] = {
     { 0, NULL }
 };
 
+static const value_string iso14443_block_type[] = {
+    { 0x00 , "I-block" },
+    { 0x02 , "R-block" },
+    { 0x03 , "S-block" },
+    { 0, NULL }
+};
+
 const true_false_string tfs_wupb_reqb = { "WUPB", "REQB" };
+const true_false_string tfs_compliant_not_compliant = { "Compliant", "Not compliant" };
+const true_false_string tfs_incomplete_complete = { "Incomplete", "Complete" };
+
+#define CT_BYTE 0x88
+
+#define CRC_LEN 2
 
 void proto_register_iso14443(void);
 void proto_reg_handoff_iso14443(void);
@@ -95,6 +122,8 @@ static dissector_table_t iso14443_cmd_type_table;
 
 static int ett_iso14443 = -1;
 static int ett_iso14443_hdr = -1;
+static int ett_iso14443_msg = -1;
+static int ett_iso14443_pcb = -1;
 
 static int hf_iso14443_hdr_ver = -1;
 static int hf_iso14443_event = -1;
@@ -102,125 +131,395 @@ static int hf_iso14443_len_field = -1;
 static int hf_iso14443_resp_to = -1;
 static int hf_iso14443_resp_in = -1;
 static int hf_iso14443_short_frame = -1;
+static int hf_iso14443_propr_coding = -1;
+static int hf_iso14443_uid_size = -1;
+static int hf_iso14443_bit_frame_anticoll = -1;
 static int hf_iso14443_apf = -1;
 static int hf_iso14443_afi = -1;
 static int hf_iso14443_ext_atqb = -1;
 /* if this is present but unset, we have a REQB */
 static int hf_iso14443_wupb = -1;
-
+static int hf_iso14443_n = -1;
+static int hf_iso14443_atqb_start = -1;
+static int hf_iso14443_app_data = -1;
+static int hf_iso14443_proto_info = -1;
+static int hf_iso14443_hlta = -1;
+static int hf_iso14443_sel = -1;
+static int hf_iso14443_nvb = -1;
+static int hf_iso14443_4_compliant = -1;
+static int hf_iso14443_uid_complete = -1;
+static int hf_iso14443_ct = -1;
+static int hf_iso14443_uid_cln = -1;
+static int hf_iso14443_bcc = -1;
+static int hf_iso14443_rats_start = -1;
+static int hf_iso14443_fsdi = -1;
+static int hf_iso14443_cid = -1;
+static int hf_iso14443_tl = -1;
+static int hf_iso14443_attrib_start = -1;
+static int hf_iso14443_pupi = -1;
+static int hf_iso14443_param1 = -1;
+static int hf_iso14443_param2 = -1;
+static int hf_iso14443_param3 = -1;
+static int hf_iso14443_param4 = -1;
+static int hf_iso14443_mbli = -1;
+static int hf_iso14443_pcb = -1;
+static int hf_iso14443_block_type = -1;
+static int hf_iso14443_inf = -1;
+static int hf_iso14443_crc = -1;
 
 static expert_field ei_iso14443_unknown_cmd = EI_INIT;
 
-/* Proximity Integrated Circuit Card, i.e. the smartcard */
-#define ADDR_PICC "PICC"
-/* Proximity Coupling Device, i.e. the card reader */
-#define ADDR_PCD  "PCD"
 
-
-static int dissect_iso14443_cmd_type_wupa(
-        tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        void *data)
+static int
+dissect_iso14443_cmd_type_wupa(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, void *data _U_)
 {
-    guint8 direction = GPOINTER_TO_UINT(data);
+    proto_item *ti = proto_tree_get_parent(tree);
+    gint offset = 0;
+    guint8 uid_bits, uid_size = 0;
 
-    if (direction == ISO14443_EVT_DATA_PCD_TO_PICC) {
+    if (pinfo->p2p_dir == P2P_DIR_SENT) {
         const gchar *sf_str;
         sf_str = try_val_to_str(
             tvb_get_guint8(tvb, 0), iso14443_short_frame);
         proto_tree_add_item(tree, hf_iso14443_short_frame,
-                tvb, 0, 1, ENC_BIG_ENDIAN);
-        if (sf_str)
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        if (sf_str) {
+            proto_item_append_text(ti, ": %s", sf_str);
             col_set_str(pinfo->cinfo, COL_INFO, sf_str);
+        }
     }
-    else if (direction == ISO14443_EVT_DATA_PICC_TO_PCD) {
+    else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         col_set_str(pinfo->cinfo, COL_INFO, "ATQA");
+        proto_item_append_text(ti, ": ATQA");
+
+        proto_tree_add_item(tree, hf_iso14443_propr_coding,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+
+        uid_bits = (tvb_get_guint8(tvb, offset) & 0xC0) >> 6;
+        if (uid_bits == 0x00)
+            uid_size = 4;
+        else if (uid_bits == 0x01)
+            uid_size = 7;
+        else if (uid_bits == 0x02)
+            uid_size = 10;
+        /* XXX- expert info for invalid uid size */
+        proto_tree_add_uint_bits_format_value(tree, hf_iso14443_uid_size,
+                tvb, offset*8, 2, uid_size, "%d", uid_size);
+        proto_tree_add_item(tree, hf_iso14443_bit_frame_anticoll,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
     }
 
-    return tvb_captured_length(tvb);
+    return offset;
 }
 
 
-static int dissect_iso14443_cmd_type_wupb(
-        tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        void *data)
+static int
+dissect_iso14443_cmd_type_wupb(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, void *data)
 {
-    guint8 direction = GPOINTER_TO_UINT(data);
+    gboolean crc_dropped = (gboolean)GPOINTER_TO_UINT(data);
+    proto_item *ti = proto_tree_get_parent(tree);
     gint offset = 0;
+    guint8 param;
+    const char *msg_type;
+    gint rem_len;
+    guint8 proto_info_len = 0;
 
-    if (direction == ISO14443_EVT_DATA_PCD_TO_PICC) {
-        guint8 param;
-
+    if (pinfo->p2p_dir == P2P_DIR_SENT) {
         proto_tree_add_item(tree, hf_iso14443_apf,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         proto_tree_add_item(tree, hf_iso14443_afi,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
+
         param = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_iso14443_ext_atqb,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_iso14443_wupb,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
-        col_set_str(pinfo->cinfo, COL_INFO,
-                (param & 0x08) ? tfs_wupb_reqb.true_string :
-                tfs_wupb_reqb.false_string);
+        msg_type = (param & 0x08) ?
+            tfs_wupb_reqb.true_string : tfs_wupb_reqb.false_string;
+        col_set_str(pinfo->cinfo, COL_INFO, msg_type);
+        proto_item_append_text(ti, ": %s", msg_type);
+        proto_tree_add_uint_bits_format_value(tree, hf_iso14443_n,
+                tvb, offset*8+5, 3, (guint8)pow(2, param&0x07),
+                "%d", (guint8)pow(2, param&0x07));
+        offset++;
+
+        if (!crc_dropped) {
+            proto_tree_add_item(tree, hf_iso14443_crc,
+                    tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
+            offset += CRC_LEN;
+        }
     }
-    else if (direction == ISO14443_EVT_DATA_PICC_TO_PCD) {
+    else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         col_set_str(pinfo->cinfo, COL_INFO, "ATQB");
+        proto_item_append_text(ti, ": ATQB");
+        proto_tree_add_item(tree, hf_iso14443_atqb_start,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+
+        proto_tree_add_item(tree, hf_iso14443_pupi,
+                tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        /* XXX - add a subtree and dissect the components */
+        proto_tree_add_item(tree, hf_iso14443_app_data,
+                tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        /* we should not link the protocol info length to the "extended
+           ATQB supported" field in the WUPB - even if the PCD supports
+           extended ATQB, the PICC may still send a basic one */
+        rem_len = tvb_reported_length_remaining(tvb, offset);
+        if (!crc_dropped) {
+            if (rem_len == 5 || rem_len == 6)
+                proto_info_len = rem_len - 2;
+        }
+        else if (rem_len == 3 || rem_len == 4)
+            proto_info_len = rem_len;
+
+        /* XXX - exception if (proto_info_len==0) */
+        /* XXX - add a subtree and dissect the components */
+        proto_tree_add_item(tree, hf_iso14443_proto_info,
+                tvb, offset, proto_info_len, ENC_BIG_ENDIAN);
+        offset += proto_info_len;
+
+        if (!crc_dropped) {
+            proto_tree_add_item(tree, hf_iso14443_crc,
+                    tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
+            offset += CRC_LEN;
+        }
     }
 
-    return tvb_captured_length(tvb);
+    return offset;
 }
 
 
 static int
 dissect_iso14443_cmd_type_hlta(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree _U_, void *data _U_)
+        proto_tree *tree, void *data)
 {
-    col_set_str(pinfo->cinfo, COL_INFO, "HLTA");
+    gboolean crc_dropped = (gboolean)GPOINTER_TO_UINT(data);
+    proto_item *ti = proto_tree_get_parent(tree);
+    gint offset = 0;
 
-    return tvb_captured_length(tvb);
+    col_set_str(pinfo->cinfo, COL_INFO, "HLTA");
+    proto_item_append_text(ti, ": HLTA");
+    proto_tree_add_item(tree, hf_iso14443_hlta,
+            tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* XXX - is the CRC calculation different for type A and type B? */
+    if (!crc_dropped) {
+        proto_tree_add_item(tree, hf_iso14443_crc,
+                tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
+        offset += CRC_LEN;
+    }
+
+    return offset;
+}
+
+
+static int dissect_iso14443_uid_part(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    guint8 uid_len = 4;
+
+    if (tvb_get_guint8(tvb, offset) == CT_BYTE) {
+        proto_tree_add_item(tree, hf_iso14443_ct, tvb, offset, 1, ENC_NA);
+        offset++;
+        uid_len = 3;
+    }
+
+    proto_tree_add_item(tree, hf_iso14443_uid_cln, tvb, offset, uid_len, ENC_NA);
+    offset += uid_len;
+    proto_tree_add_item(tree, hf_iso14443_bcc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    return offset;
 }
 
 
 static int
 dissect_iso14443_cmd_type_uid(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree _U_, void *data _U_)
+        proto_tree *tree, void *data)
 {
-    col_set_str(pinfo->cinfo, COL_INFO, "UID");
+    gboolean crc_dropped = (gboolean)GPOINTER_TO_UINT(data);
+    proto_item *ti = proto_tree_get_parent(tree);
+    gint offset = 0;
 
-    return tvb_captured_length(tvb);
+    if (pinfo->p2p_dir == P2P_DIR_SENT) {
+        proto_tree_add_item(tree, hf_iso14443_sel,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        proto_tree_add_item(tree, hf_iso14443_nvb,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+
+        if (tvb_reported_length_remaining(tvb, offset) == 0) {
+            col_set_str(pinfo->cinfo, COL_INFO, "Anticollision");
+            proto_item_append_text(ti, ": Anticollision");
+        }
+        else {
+            col_set_str(pinfo->cinfo, COL_INFO, "Select");
+            proto_item_append_text(ti, ": Select");
+            offset = dissect_iso14443_uid_part(tvb, offset, pinfo, tree);
+            if (!crc_dropped) {
+                proto_tree_add_item(tree, hf_iso14443_crc,
+                        tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
+                offset += CRC_LEN;
+            }
+        }
+    }
+    else if (pinfo->p2p_dir == P2P_DIR_RECV) {
+        if (tvb_reported_length_remaining(tvb, offset) <= 3) {
+            col_set_str(pinfo->cinfo, COL_INFO, "SAK");
+            proto_item_append_text(ti, ": SAK");
+            proto_tree_add_item(tree, hf_iso14443_4_compliant,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_iso14443_uid_complete,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            if (!crc_dropped) {
+                proto_tree_add_item(tree, hf_iso14443_crc,
+                        tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
+                offset += CRC_LEN;
+            }
+        }
+        else if (tvb_reported_length_remaining(tvb, offset) == 5) {
+            col_set_str(pinfo->cinfo, COL_INFO, "UID");
+            offset = dissect_iso14443_uid_part(tvb, offset, pinfo, tree);
+        }
+    }
+
+    return offset;
 }
 
 
-static int dissect_iso14443_cmd_type_ats(
-        tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_,
-        void *data)
+static int
+dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, void *data)
 {
-    guint8 direction = GPOINTER_TO_UINT(data);
+    gboolean crc_dropped = (gboolean)GPOINTER_TO_UINT(data);
+    proto_item *ti = proto_tree_get_parent(tree);
+    gint offset = 0;
+    guint8 fsdi, cid;
+    guint8 tl;
 
-    if (direction == ISO14443_EVT_DATA_PCD_TO_PICC) {
+    if (pinfo->p2p_dir == P2P_DIR_SENT) {
         col_set_str(pinfo->cinfo, COL_INFO, "RATS");
+        proto_item_append_text(ti, ": RATS");
+
+        proto_tree_add_item(tree, hf_iso14443_rats_start,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        fsdi = tvb_get_guint8(tvb, offset) >> 4;
+        proto_tree_add_uint_bits_format_value(tree, hf_iso14443_fsdi,
+                tvb, offset*8, 4, fsdi, "%d", fsdi);
+        cid = tvb_get_guint8(tvb, offset) & 0x0F;
+        proto_tree_add_uint_bits_format_value(tree, hf_iso14443_cid,
+                tvb, offset*8+4, 4, cid, "%d", cid);
+        offset++;
+        if (!crc_dropped) {
+            proto_tree_add_item(tree, hf_iso14443_crc,
+                    tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
+            offset += CRC_LEN;
+        }
     }
-    else if (direction == ISO14443_EVT_DATA_PICC_TO_PCD) {
+    else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         col_set_str(pinfo->cinfo, COL_INFO, "ATS");
+        proto_item_append_text(ti, ": ATS");
+        tl = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(tree, hf_iso14443_tl,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        /* TL includes itself */
+        offset += tl;
+        if (!crc_dropped) {
+            proto_tree_add_item(tree, hf_iso14443_crc,
+                    tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
+            offset += CRC_LEN;
+        }
     }
 
-    return tvb_captured_length(tvb);
+    return offset;
 }
 
 
-static int dissect_iso14443_cmd_type_attrib(
-        tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_,
-        void *data)
+static int
+dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, void *data)
 {
-    guint8 direction = GPOINTER_TO_UINT(data);
+    gboolean crc_dropped = (gboolean)GPOINTER_TO_UINT(data);
+    proto_item *ti = proto_tree_get_parent(tree);
+    gint offset = 0;
+    gint hl_inf_len, hl_resp_len;
+    guint8 mbli, cid;
 
-    if (direction == ISO14443_EVT_DATA_PCD_TO_PICC) {
+    if (pinfo->p2p_dir == P2P_DIR_SENT) {
         col_set_str(pinfo->cinfo, COL_INFO, "Attrib");
+        proto_item_append_text(ti, ": Attrib");
+
+        proto_tree_add_item(tree, hf_iso14443_attrib_start,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        proto_tree_add_item(tree, hf_iso14443_pupi,
+                tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        /* XXX - subtree, details for each parameter */
+        proto_tree_add_item(tree, hf_iso14443_param1,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        proto_tree_add_item(tree, hf_iso14443_param2,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        proto_tree_add_item(tree, hf_iso14443_param3,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        proto_tree_add_item(tree, hf_iso14443_param4,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        hl_inf_len = crc_dropped ?
+            tvb_reported_length_remaining(tvb, offset) :
+            tvb_reported_length_remaining(tvb, offset) - CRC_LEN;
+        if (hl_inf_len > 0) {
+            offset += hl_inf_len;
+        }
+        if (!crc_dropped) {
+            proto_tree_add_item(tree, hf_iso14443_crc,
+                    tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
+            offset += CRC_LEN;
+        }
     }
-    else if (direction == ISO14443_EVT_DATA_PICC_TO_PCD) {
+    else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         col_set_str(pinfo->cinfo, COL_INFO, "Response to Attrib");
+        proto_item_append_text(ti, ": Response to Attrib");
+
+        mbli = tvb_get_guint8(tvb, offset) >> 4;
+        proto_tree_add_uint_bits_format_value(tree, hf_iso14443_mbli,
+                tvb, offset*8, 4, mbli, "%d", mbli);
+        cid = tvb_get_guint8(tvb, offset) & 0x0F;
+        proto_tree_add_uint_bits_format_value(tree, hf_iso14443_cid,
+                tvb, offset*8+4, 4, cid, "%d", cid);
+        offset++;
+
+        hl_resp_len = crc_dropped ?
+            tvb_reported_length_remaining(tvb, offset) :
+            tvb_reported_length_remaining(tvb, offset) - CRC_LEN;
+        if (hl_resp_len > 0) {
+            offset += hl_resp_len;
+        }
+
+        if (!crc_dropped) {
+            proto_tree_add_item(tree, hf_iso14443_crc,
+                    tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
+            offset += CRC_LEN;
+        }
     }
 
     return tvb_captured_length(tvb);
@@ -229,11 +528,56 @@ static int dissect_iso14443_cmd_type_attrib(
 
 static int
 dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree _U_, void *data _U_)
+        proto_tree *tree, void *data)
 {
-    col_set_str(pinfo->cinfo, COL_INFO, "Block");
+    gboolean crc_dropped = (gboolean)GPOINTER_TO_UINT(data);
+    proto_item *ti = proto_tree_get_parent(tree);
+    gint offset = 0;
+    guint8 pcb, block_type;
+    const gchar *bt_str;
+    proto_item *pcb_ti;
+    proto_tree *pcb_tree;
+    gboolean has_cid, has_nad = FALSE;
+    guint8 inf_len;
 
-    return tvb_captured_length(tvb);
+    pcb = tvb_get_guint8(tvb, offset);
+    block_type = (pcb & 0xC0) >> 6;
+    bt_str = try_val_to_str(block_type, iso14443_block_type);
+    has_cid = ((pcb & 0x08) != 0);
+    if (block_type == 0x00)
+        has_nad = ((pcb & 0x04) != 0);
+
+    pcb_ti = proto_tree_add_item(tree, hf_iso14443_pcb,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    pcb_tree = proto_item_add_subtree(pcb_ti, ett_iso14443_pcb);
+    proto_tree_add_item(pcb_tree, hf_iso14443_block_type,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    if (bt_str) {
+        proto_item_append_text(ti, ": %s", bt_str);
+        col_set_str(pinfo->cinfo, COL_INFO, bt_str);
+    }
+    offset++;
+
+    if (has_cid)
+        offset++;
+    if (has_nad)
+        offset++;
+
+    inf_len = crc_dropped ?
+        tvb_reported_length_remaining(tvb, offset) :
+        tvb_reported_length_remaining(tvb, offset) - 2;
+
+    proto_tree_add_item(tree, hf_iso14443_inf,
+            tvb, offset, inf_len, ENC_NA);
+    offset += inf_len;
+
+    if (!crc_dropped) {
+        proto_tree_add_item(tree, hf_iso14443_crc,
+                tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
+        offset += CRC_LEN;
+    }
+
+    return offset;
 }
 
 
@@ -243,17 +587,26 @@ iso14443_set_addrs(guint8 event, packet_info *pinfo)
     if (!IS_DATA_TRANSFER(event))
         return -1;
 
-    if (event == ISO14443_EVT_DATA_PICC_TO_PCD) {
+    /* pinfo->p2p_dir is from the perspective of the card reader,
+       like in iso7816
+       i.e sent is from reader to card, received is from card to reader */
+    if (event == ISO14443_EVT_DATA_PCD_TO_PICC ||
+            event == ISO14443_EVT_DATA_PCD_TO_PICC_CRC_DROPPED) {
+
         set_address(&pinfo->src, AT_STRINGZ,
-                (int)strlen(ADDR_PICC)+1 , ADDR_PICC);
-        set_address(&pinfo->dst, AT_STRINGZ,
                 (int)strlen(ADDR_PCD)+1, ADDR_PCD);
+        set_address(&pinfo->dst, AT_STRINGZ,
+                (int)strlen(ADDR_PICC)+1 , ADDR_PICC);
+
+        pinfo->p2p_dir = P2P_DIR_SENT;
     }
     else {
         set_address(&pinfo->src, AT_STRINGZ,
-                (int)strlen(ADDR_PCD)+1, ADDR_PCD);
-        set_address(&pinfo->dst, AT_STRINGZ,
                 (int)strlen(ADDR_PICC)+1 , ADDR_PICC);
+        set_address(&pinfo->dst, AT_STRINGZ,
+                (int)strlen(ADDR_PCD)+1, ADDR_PCD);
+
+        pinfo->p2p_dir = P2P_DIR_RECV;
     }
 
     return 1;
@@ -280,13 +633,13 @@ iso14443_block_pcb(guint8 byte)
 }
 
 
-static iso14443_transaction_t *iso14443_get_transaction(
-        packet_info *pinfo, proto_tree *tree, guint8 direction)
+static iso14443_transaction_t *
+iso14443_get_transaction(packet_info *pinfo, proto_tree *tree)
 {
     proto_item *it;
     iso14443_transaction_t *iso14443_trans = NULL;
 
-    if (direction == ISO14443_EVT_DATA_PCD_TO_PICC) {
+    if (pinfo->p2p_dir == P2P_DIR_SENT) {
         if (PINFO_FD_VISITED(pinfo)) {
             iso14443_trans = (iso14443_transaction_t *)wmem_tree_lookup32(
                     transactions, PINFO_FD_NUM(pinfo));
@@ -306,7 +659,7 @@ static iso14443_transaction_t *iso14443_get_transaction(
                     iso14443_trans->rqst_frame, (void *)iso14443_trans);
         }
     }
-    else if (direction == ISO14443_EVT_DATA_PICC_TO_PCD) {
+    else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         iso14443_trans = (iso14443_transaction_t *)wmem_tree_lookup32_le(
                 transactions, PINFO_FD_NUM(pinfo));
         if (iso14443_trans && iso14443_trans->resp_frame==0) {
@@ -326,13 +679,13 @@ static iso14443_transaction_t *iso14443_get_transaction(
 
 
 static iso14443_cmd_t iso14443_get_cmd_type(
-        tvbuff_t *tvb, guint8 direction, iso14443_transaction_t *trans)
+        tvbuff_t *tvb, packet_info *pinfo, iso14443_transaction_t *trans)
 {
     guint8 first_byte;
 
     first_byte = tvb_get_guint8(tvb, 0);
 
-    if (direction == ISO14443_EVT_DATA_PCD_TO_PICC) {
+    if (pinfo->p2p_dir == P2P_DIR_SENT) {
         if (tvb_reported_length(tvb) == 1) {
             return CMD_TYPE_WUPA;
         }
@@ -355,7 +708,7 @@ static iso14443_cmd_t iso14443_get_cmd_type(
             return CMD_TYPE_BLOCK;
         }
     }
-    else if (direction == ISO14443_EVT_DATA_PICC_TO_PCD) {
+    else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         if (trans->cmd != CMD_TYPE_UNKNOWN) {
             return trans->cmd;
         }
@@ -374,22 +727,32 @@ static iso14443_cmd_t iso14443_get_cmd_type(
 
 static gint
 dissect_iso14443_msg(tvbuff_t *tvb, packet_info *pinfo,
-        proto_tree *tree, guint8 direction)
+        proto_tree *tree, guint8 event)
 {
+    gboolean crc_dropped = FALSE;
     iso14443_transaction_t *iso14443_trans;
     iso14443_cmd_t cmd;
+    proto_tree *msg_tree;
     gint ret;
 
-    iso14443_trans = iso14443_get_transaction(pinfo, tree, direction);
+    if (event == ISO14443_EVT_DATA_PCD_TO_PICC_CRC_DROPPED ||
+            event == ISO14443_EVT_DATA_PCD_TO_PICC_CRC_DROPPED) {
+        crc_dropped = TRUE;
+    }
+
+    iso14443_trans = iso14443_get_transaction(pinfo, tree);
     if (!iso14443_trans)
         return -1;
 
-    cmd = iso14443_get_cmd_type(tvb, direction, iso14443_trans);
+    cmd = iso14443_get_cmd_type(tvb, pinfo, iso14443_trans);
     if (cmd != CMD_TYPE_UNKNOWN)
         iso14443_trans->cmd = cmd;
 
+    msg_tree = proto_tree_add_subtree(
+            tree, tvb, 0, -1, ett_iso14443_msg, NULL, "Message");
+
     ret = dissector_try_uint_new(iso14443_cmd_type_table, cmd,
-            tvb, pinfo, tree, FALSE, GUINT_TO_POINTER((guint)direction));
+            tvb, pinfo, msg_tree, FALSE, GUINT_TO_POINTER((guint)crc_dropped));
     if (ret == 0) {
         proto_tree_add_expert(tree, pinfo, &ei_iso14443_unknown_cmd,
                 tvb, 0, tvb_captured_length(tvb));
@@ -495,6 +858,18 @@ proto_register_iso14443(void)
             { "Short frame", "iso14443.short_frame",
                 FT_UINT8, BASE_HEX, VALS(iso14443_short_frame), 0, NULL, HFILL }
         },
+        { &hf_iso14443_propr_coding,
+            { "Proprietary coding", "iso14443.propr_coding",
+                FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }
+        },
+        { &hf_iso14443_uid_size,
+            { "UID size", "iso14443.uid_size",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_bit_frame_anticoll,
+            { "Bit frame anicollision", "iso14443.bit_frame_anticoll",
+                FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL }
+        },
         { &hf_iso14443_apf,
             { "Anticollision prefix", "iso14443.apf",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
@@ -510,12 +885,122 @@ proto_register_iso14443(void)
         { &hf_iso14443_wupb,
             { "WUPB/REQB", "iso14443.wupb",
                 FT_BOOLEAN, 8, TFS(&tfs_wupb_reqb), 0x08, NULL, HFILL }
+        },
+        { &hf_iso14443_n,
+            { "N", "iso14443.n",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_atqb_start,
+            { "Start byte", "iso14443.atqb_start",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_app_data,
+            { "Application data", "iso14443.application_data",
+                FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_proto_info,
+            { "Protocol info", "iso14443.protocol_info",
+                FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_hlta,
+            { "HLTA", "iso14443.hlta",
+                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_sel,
+            { "SEL", "iso14443.sel",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_nvb,
+            { "NVB", "iso14443.nvb",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_4_compliant,
+            { "Compliant with ISO 14443-4", "iso14443.4_compliant", FT_BOOLEAN, 8,
+                TFS(&tfs_compliant_not_compliant), 0x20, NULL, HFILL }
+        },
+        { &hf_iso14443_uid_complete,
+            { "UID complete", "iso14443.uid_complete", FT_BOOLEAN, 8,
+                TFS(&tfs_incomplete_complete), 0x04, NULL, HFILL }
+        },
+        { &hf_iso14443_ct,
+            { "CT", "iso14443.ct",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_uid_cln,
+            { "UID_CLn", "iso14443.uid_cln",
+                FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_bcc,
+            { "BCC", "iso14443.bcc",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_rats_start,
+            { "Start byte", "iso14443.rats_start",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_fsdi,
+            { "FSDI", "iso14443.fsdi",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_cid,
+            { "CID", "iso14443.cid",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_tl,
+            { "Length byte TL", "iso14443.tl",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_attrib_start,
+            { "Start byte", "iso14443.attrib_start",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_pupi,
+            { "PUPI", "iso14443.pupi",
+                FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_param1,
+            { "Param 1", "iso14443.param1",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_param2,
+            { "Param 2", "iso14443.param2",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_param3,
+            { "Param 3", "iso14443.param3",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_param4,
+            { "Param 4", "iso14443.param4",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_mbli,
+            { "MBLI", "iso14443.mbli",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_pcb,
+            { "PCB", "iso14443.pcb",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_block_type,
+            { "Block type", "iso14443.block_type", FT_UINT8,
+                BASE_HEX, VALS(iso14443_block_type), 0xC0, NULL, HFILL }
+        },
+        { &hf_iso14443_inf,
+            { "INF", "iso14443.inf",
+                FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_crc,
+            { "CRC", "iso14443.crc",
+                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }
         }
    };
 
     static gint *ett[] = {
         &ett_iso14443,
-        &ett_iso14443_hdr
+        &ett_iso14443_hdr,
+        &ett_iso14443_msg,
+        &ett_iso14443_pcb
     };
 
     static ei_register_info ei[] = {
