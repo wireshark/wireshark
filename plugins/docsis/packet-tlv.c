@@ -1,4 +1,8 @@
 /* packet-tlv.c
+ *
+ * Modem Capabilities updates from MULPI v3.1
+ * Copyright 2015, Adrian Simionov <daniel.simionov@gmail.com>
+ *
  * Routines to Dissect Appendix C TLV's
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
@@ -451,6 +455,9 @@ static const true_false_string ena_dis_tfs = {
 static const value_string docs_ver_vals[] = {
   {0, "v1.0"},
   {1, "v1.1"},
+  {2, "v2.0"},
+  {3, "v3.0"},
+  {4, "v3.1"},
   {0, NULL},
 };
 
@@ -636,8 +643,9 @@ static const value_string docsis_freq_rng_vals[] = {
 };
 
 static const value_string mc_dsid_fwd_vals[] = {
-  {0, "Support for GMAC explicit multicast DCID Forwarding"},
-  {1, "Support for GMAC promiscuous multicast DCID Forwarding"},
+  {0, "No support for multicast DSID forwarding"},
+  {1, "Support for GMAC explicit multicast DSID forwarding"},
+  {2, "Support for GMAC promiscuous multicast DSID forwarding"},
   {0, NULL},
 };
 
@@ -4553,7 +4561,7 @@ proto_register_docsis_tlv (void)
       "Multicast Downstream Service ID (DSID) Support", HFILL}
     },
     {&hf_docsis_tlv_mcap_mc_dsid_fwd,
-     {".33 Mulitcast DSID Forwarding","docsis_tlv.mcap.mcdsidfwd",
+     {".33 Multicast DSID Forwarding","docsis_tlv.mcap.mcdsidfwd",
       FT_UINT8, BASE_DEC, VALS (mc_dsid_fwd_vals), 0x0,
       "Mulitcast DSID Forwarding", HFILL}
     },
