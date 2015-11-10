@@ -1,5 +1,5 @@
 /*
-    Platypus - create MacOS X application bundles that execute scripts
+    Platypus - create OS X application bundles that execute scripts
         This is the executable that goes into Platypus apps
     Copyright (C) 2003 Sveinbjorn Thordarson <sveinbt@hi.is>
 
@@ -332,7 +332,7 @@ static void ShowFirstStartWarningDialog(void)
     params.cancelButton = kAlertStdAlertCancelButton;
     params.position = kWindowDefaultPosition;
 
-    StandardAlert(kAlertNoteAlert, "\pWireshark on Mac OS X",
+    StandardAlert(kAlertNoteAlert, "\pWireshark on OS X",
             "\pWhile Wireshark is open, its windows can be displayed or hidden by displaying or hiding the X11 application.\n\nThe first time this version of Wireshark is run it may take several minutes before the main window is displayed while font caches are built.",
             &params, &itemHit);
 }

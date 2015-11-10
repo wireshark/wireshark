@@ -1094,9 +1094,9 @@ installing the _qt-devel_ package.
 
 [[ChSrcOSX]]
 
-==== Mac OS X: .dmg packages
+==== OS X: .dmg packages
 
-The Mac OS X Package is built using OS X packaging tools, based on information
+The OS X Package is built using OS X packaging tools, based on information
 found in the source tree under 'packaging/macosx'.
 
 In the wireshark directory, type:
@@ -1105,7 +1105,7 @@ In the wireshark directory, type:
 $ make osx-package
 ----
 
-to build the Mac OS X Package.
+to build the OS X Package.
 
 [[ChSrcNSIS]]
 

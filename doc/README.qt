@@ -41,7 +41,7 @@ There are several ways of building the Qt UI:
     cmake
     make
 
-   Note that CMake builds an application bundle (Wireshark.app) on Mac OS X
+   Note that CMake builds an application bundle (Wireshark.app) on OS X
    by default. Use the option "-DENABLE_APPLICATION_BUNDLE=OFF" to create a
    traditional UNIX/POSIX build.
 

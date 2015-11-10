@@ -32,7 +32,7 @@ Wireshark is known to compile and run on the following systems:
   - FreeBSD (2.2.5 and later)
   - NetBSD
   - OpenBSD
-  - Mac OS X (10.2 and later)
+  - OS X (10.2 and later)
   - HP-UX (10.20, 11.00, 11.11)
   - Sequent PTX v4.4.5  (Nick Williams <njw@sequent.com>)
   - Tru64 UNIX (formerly Digital UNIX) (3.2 and later)

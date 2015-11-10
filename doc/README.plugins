@@ -363,9 +363,9 @@ The second parameter to ext_menubar_register_menu and ext_menubar_add_entry is
 an internal definition for the menu, utilized by the GTK interface. It must not
 contain any characters besides A-Z, a-z and 0-9.
 
-Using the Gtk Version and a Mac OSX operating system, this will not work, and
-the Gtk interface is currently not supported on this plattform. The Qt interface
-on Mac provides the menu.
+This will not work with the GTK version on OS X; the GTK interface is
+currently not supported on this plattform.  The Qt interface on OS X
+provides the menu.
 
 For a more detailed information, please refer to plugin_if.h
 
