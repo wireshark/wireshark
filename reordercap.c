@@ -276,8 +276,8 @@ DIAG_ON(cast-qual)
 
     /* Open outfile (same filetype/encap as input file) */
     if (strcmp(outfile, "-") == 0) {
-      pdh = wtap_dump_fdopen_ng(1, wtap_file_type_subtype(wth), wtap_file_encap(wth),
-                                65535, FALSE, shb_hdr, idb_inf, nrb_hdr, &err);
+      pdh = wtap_dump_open_stdout_ng(wtap_file_type_subtype(wth), wtap_file_encap(wth),
+                                     65535, FALSE, shb_hdr, idb_inf, nrb_hdr, &err);
       outfile = "standard output";
     } else {
       pdh = wtap_dump_open_ng(outfile, wtap_file_type_subtype(wth), wtap_file_encap(wth),

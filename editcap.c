@@ -898,10 +898,10 @@ editcap_dump_open(const char *filename, guint32 snaplen,
 
   if (strcmp(filename, "-") == 0) {
     /* Write to the standard output. */
-    pdh = wtap_dump_fdopen_ng(1, out_file_type_subtype, out_frame_type,
-                              snaplen, FALSE /* compressed */,
-                              shb_hdr, idb_inf, nrb_hdr,
-                              write_err);
+    pdh = wtap_dump_open_stdout_ng(out_file_type_subtype, out_frame_type,
+                                   snaplen, FALSE /* compressed */,
+                                   shb_hdr, idb_inf, nrb_hdr,
+                                   write_err);
   } else {
     pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
                             snaplen, FALSE /* compressed */,

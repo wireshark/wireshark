@@ -1936,6 +1936,7 @@ wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snap
  *     wtap_dump_close() is called, but will not be free'd by the dumper. If
  *     you created them, you must free them yourself after wtap_dump_close().
  *
+ * @param fd The file descriptor for which the dumper should be created.
  * @param file_type_subtype The WTAP_FILE_TYPE_SUBTYPE_XXX file type.
  * @param encap The WTAP_ENCAP_XXX encapsulation type (WTAP_ENCAP_PER_PACKET for multi)
  * @param snaplen The maximum packet capture length.
@@ -1951,6 +1952,31 @@ wtap_dumper* wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int s
                 gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf,
                 wtapng_name_res_t *nrb_hdr, int *err);
 
+WS_DLL_PUBLIC
+wtap_dumper* wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen,
+    gboolean compressed, int *err);
+
+/**
+ * @brief Creates a dumper for the standard output.
+ *
+ * @note The shb_hdr, idb_inf, and nrb_hdr arguments will be used until
+ *     wtap_dump_close() is called, but will not be free'd by the dumper. If
+ *     you created them, you must free them yourself after wtap_dump_close().
+ *
+ * @param file_type_subtype The WTAP_FILE_TYPE_SUBTYPE_XXX file type.
+ * @param encap The WTAP_ENCAP_XXX encapsulation type (WTAP_ENCAP_PER_PACKET for multi)
+ * @param snaplen The maximum packet capture length.
+ * @param compressed True if file should be compressed.
+ * @param shb_hdr The section header block information, or NULL.
+ * @param idb_inf The interface description information, or NULL.
+ * @param nrb_hdr The name resolution comment/custom_opts information, or NULL.
+ * @param[out] err Will be set to an error code on failure.
+ * @return The newly created dumper object, or NULL on failure.
+ */
+WS_DLL_PUBLIC
+wtap_dumper* wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
+                gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf,
+                wtapng_name_res_t *nrb_hdr, int *err);
 
 WS_DLL_PUBLIC
 gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *, const guint8 *,

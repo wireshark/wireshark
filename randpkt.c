@@ -636,7 +636,7 @@ static void randpkt_example_init(randpkt_example* example, char* produce_filenam
 
 	if (strcmp(produce_filename, "-") == 0) {
 		/* Write to the standard output. */
-		example->dump = wtap_dump_fdopen(1, WTAP_FILE_TYPE_SUBTYPE_PCAP,
+		example->dump = wtap_dump_open_stdout(WTAP_FILE_TYPE_SUBTYPE_PCAP,
 			example->sample_wtap_encap, produce_max_bytes, FALSE /* compressed */, &err);
 		example->filename = "the standard output";
 	} else {

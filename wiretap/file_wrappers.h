@@ -53,7 +53,7 @@ extern GZWFILE_T gzwfile_open(const char *path);
 extern GZWFILE_T gzwfile_fdopen(int fd);
 extern guint gzwfile_write(GZWFILE_T state, const void *buf, guint len);
 extern int gzwfile_flush(GZWFILE_T state);
-extern int gzwfile_close(GZWFILE_T state);
+extern int gzwfile_close(GZWFILE_T state, gboolean is_stdout);
 extern int gzwfile_geterr(GZWFILE_T state);
 #endif /* HAVE_LIBZ */
 
