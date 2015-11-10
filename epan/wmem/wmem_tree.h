@@ -204,7 +204,7 @@ wmem_tree_lookup32_array_le(wmem_tree_t *tree, wmem_tree_key_t *key);
  * the value of the node, userdata is whatever was passed to the traversal
  * function. If the function returns TRUE the traversal will end prematurely.
  */
-typedef gboolean (*wmem_foreach_func)(void *value, void *userdata);
+typedef gboolean (*wmem_foreach_func)(const void *key, void *value, void *userdata);
 
 /** Traverse the tree and call callback(value, userdata) for each value found.
  * Returns TRUE if the traversal was ended prematurely by the callback.

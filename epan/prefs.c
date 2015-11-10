@@ -634,7 +634,7 @@ typedef struct {
 } call_foreach_t;
 
 static gboolean
-call_foreach_cb(void *value, void *data)
+call_foreach_cb(const void *key _U_, void *value, void *data)
 {
     module_t *module = (module_t*)value;
     call_foreach_t *call_data = (call_foreach_t*)data;
@@ -710,7 +710,7 @@ prefs_modules_foreach_submodules(module_t *module, module_cb callback,
 }
 
 static gboolean
-call_apply_cb(void *value, void *data _U_)
+call_apply_cb(const void *key _U_, void *value, void *data _U_)
 {
     module_t *module = (module_t *)value;
 
@@ -746,7 +746,7 @@ void
 prefs_apply(module_t *module)
 {
     if (module && module->prefs_changed)
-        call_apply_cb(module, NULL);
+        call_apply_cb(NULL, module, NULL);
 }
 
 /*
@@ -839,7 +839,7 @@ preference_match(gconstpointer a, gconstpointer b)
 }
 
 static gboolean
-module_find_pref_cb(void *value, void *data)
+module_find_pref_cb(const void *key _U_, void *value, void *data)
 {
     find_pref_arg_t* arg = (find_pref_arg_t*)data;
     GList *list_entry;
@@ -3170,7 +3170,7 @@ typedef struct {
  * Reset all preferences for a module.
  */
 static gboolean
-reset_module_prefs(void *value, void *data _U_)
+reset_module_prefs(const void *key _U_, void *value, void *data _U_)
 {
     reset_pref_arg_t arg;
 

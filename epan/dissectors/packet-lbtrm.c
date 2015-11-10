@@ -1092,7 +1092,7 @@ typedef struct
     guint32 current_frame;
 } lbtrm_sqn_frame_list_callback_data_t;
 
-static gboolean dissect_lbtrm_sqn_frame_list_callback(void * frame, void * user_data)
+static gboolean dissect_lbtrm_sqn_frame_list_callback(const void *key _U_, void * frame, void * user_data)
 {
     lbtrm_sqn_frame_list_callback_data_t * cb_data = (lbtrm_sqn_frame_list_callback_data_t *) user_data;
     proto_item * transport_item = NULL;

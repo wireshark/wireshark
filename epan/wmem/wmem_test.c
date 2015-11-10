@@ -131,7 +131,7 @@ wmem_test_cb(wmem_allocator_t *allocator, wmem_cb_event_t event,
 }
 
 static gboolean
-wmem_test_foreach_cb(void *value, void *user_data)
+wmem_test_foreach_cb(const void *key _U_, void *value, void *user_data)
 {
     g_assert(user_data == expected_user_data);
 
