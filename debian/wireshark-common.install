@@ -6,3 +6,5 @@ usr/bin/mergecap
 usr/bin/text2pcap
 usr/bin/reordercap
 usr/lib/*/wireshark/extcap
+usr/share/icons/
+usr/share/mime/packages/
