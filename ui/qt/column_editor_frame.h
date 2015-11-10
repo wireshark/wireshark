@@ -49,10 +49,10 @@ private slots:
 
 private:
     Ui::ColumnEditorFrame *ui;
-
     int cur_column_;
     QString saved_field_;
     QString saved_occurrence_;
+    void setFields(int index);
 };
 
 #endif // COLUMN_EDITOR_FRAME_H

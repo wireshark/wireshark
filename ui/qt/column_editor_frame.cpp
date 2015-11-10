@@ -57,24 +57,41 @@ ColumnEditorFrame::~ColumnEditorFrame()
     delete ui;
 }
 
+void ColumnEditorFrame::setFields(int index)
+{
+    bool ok = true;
+
+    if (index == COL_CUSTOM) {
+        ui->fieldNameLineEdit->setText(saved_field_);
+        ui->fieldNameLineEdit->checkFieldName(saved_field_);
+        ui->occurrenceLineEdit->setText(saved_occurrence_);
+        ui->occurrenceLineEdit->checkInteger(saved_occurrence_);
+        if ((ui->fieldNameLineEdit->syntaxState() != SyntaxLineEdit::Valid) ||
+            (ui->occurrenceLineEdit->syntaxState() != SyntaxLineEdit::Valid)) {
+            ok = false;
+        }
+    } else {
+        ui->fieldNameLineEdit->clear();
+        ui->fieldNameLineEdit->setSyntaxState(SyntaxLineEdit::Empty);
+        ui->occurrenceLineEdit->clear();
+        ui->occurrenceLineEdit->setSyntaxState(SyntaxLineEdit::Empty);
+    }
+    ui->okButton->setEnabled(ok);
+}
+
 void ColumnEditorFrame::editColumn(int column)
 {
     cur_column_ = column;
     ui->titleLineEdit->setText(get_column_title(column));
     saved_field_ = get_column_custom_field(column);
-    saved_occurrence_ = get_column_custom_occurrence(column);
+    saved_occurrence_ = QString::number(get_column_custom_occurrence(column));
     ui->typeComboBox->setCurrentIndex(get_column_format(column));
+    setFields(ui->typeComboBox->currentIndex());
 }
 
 void ColumnEditorFrame::on_typeComboBox_activated(int index)
 {
-    if (index == COL_CUSTOM) {
-        ui->fieldNameLineEdit->setText(saved_field_);
-        ui->occurrenceLineEdit->setText(saved_occurrence_);
-    } else {
-        ui->fieldNameLineEdit->clear();
-        ui->occurrenceLineEdit->clear();
-    }
+    setFields(index);
 }
 
 void ColumnEditorFrame::on_fieldNameLineEdit_textEdited(const QString &field)
@@ -86,7 +103,10 @@ void ColumnEditorFrame::on_fieldNameLineEdit_textEdited(const QString &field)
     }
 
     bool ok = true;
-    if (ui->fieldNameLineEdit->syntaxState() == SyntaxLineEdit::Invalid) ok = false;
+    if ((ui->fieldNameLineEdit->syntaxState() == SyntaxLineEdit::Invalid) ||
+        ((ui->typeComboBox->currentIndex() == COL_CUSTOM) &&
+        (ui->occurrenceLineEdit->syntaxState() == SyntaxLineEdit::Empty)))
+        ok = false;
     ui->okButton->setEnabled(ok);
 
     saved_field_ = field;
@@ -101,7 +121,10 @@ void ColumnEditorFrame::on_occurrenceLineEdit_textEdited(const QString &occurren
     }
 
     bool ok = true;
-    if (ui->occurrenceLineEdit->syntaxState() == SyntaxLineEdit::Invalid) ok = false;
+    if ((ui->occurrenceLineEdit->syntaxState() == SyntaxLineEdit::Invalid) ||
+        ((ui->typeComboBox->currentIndex() == COL_CUSTOM) &&
+        (ui->occurrenceLineEdit->syntaxState() == SyntaxLineEdit::Empty)))
+        ok = false;
     ui->okButton->setEnabled(ok);
 
     saved_occurrence_ = occurrence;
