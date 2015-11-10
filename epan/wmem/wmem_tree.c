@@ -674,7 +674,7 @@ wmem_tree_foreach_nodes(wmem_tree_node_t* node, wmem_foreach_func callback,
                 callback, user_data);
     } else if (!node->is_removed) {
         /* No callback for "removed" nodes */
-        stop_traverse = callback(node->data, user_data);
+        stop_traverse = callback(node->key, node->data, user_data);
     }
 
     if (stop_traverse) {
