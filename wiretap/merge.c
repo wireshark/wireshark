@@ -829,7 +829,7 @@ get_write_error_string(const merge_in_file_t *in_file, const int file_type,
 
 
 /*
- * Merges the files base don given input, and invokes callback during
+ * Merges the files based on given input, and invokes callback during
  * execution. Returns MERGE_OK on success, or a MERGE_ERR_XXX on failure; note
  * that the passed-in 'err' variable will be more specific to what failed, and
  * err_info will have pretty output.
