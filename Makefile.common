@@ -146,7 +146,8 @@ echld_test_SOURCES =	\
 
 # randpkt specifics
 randpkt_SOURCES = \
-	randpkt.c
+	randpkt.c \
+	randpkt-core.c
 
 # dumpcap specifics
 dumpcap_SOURCES =	\

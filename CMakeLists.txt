@@ -2113,6 +2113,7 @@ if(BUILD_randpkt)
 	)
 	set(randpkt_FILES
 		randpkt.c
+		randpkt-core.c
 	)
 	add_executable(randpkt ${randpkt_FILES})
 	set_extra_executable_properties(randpkt "Executables")
