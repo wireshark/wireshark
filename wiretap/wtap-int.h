@@ -96,6 +96,7 @@ typedef gboolean (*subtype_finish_func)(struct wtap_dumper*, int*);
 
 struct wtap_dumper {
     WFILE_T                 fh;
+    gboolean                is_stdout;
     int                     file_type_subtype;
     int                     snaplen;
     int                     encap;

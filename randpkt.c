@@ -567,7 +567,7 @@ DIAG_ON(cast-qual)
 
 	if (strcmp(produce_filename, "-") == 0) {
 		/* Write to the standard output. */
-		dump = wtap_dump_fdopen(1, WTAP_FILE_TYPE_SUBTYPE_PCAP,
+		dump = wtap_dump_open_stdout(WTAP_FILE_TYPE_SUBTYPE_PCAP,
 			example->sample_wtap_encap, produce_max_bytes, FALSE /* compressed */, &err);
 		filename = "the standard output";
 	} else {

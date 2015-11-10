@@ -2239,10 +2239,8 @@ wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
 	if (!wtap_dump_open_finish(wdh, file_type_subtype, compressed, err)) {
 		/* Get rid of the file we created; we couldn't finish
 		   opening it. */
-		if (wdh->fh != stdout) {
-			wtap_dump_file_close(wdh);
-			ws_unlink(filename);
-		}
+		wtap_dump_file_close(wdh);
+		ws_unlink(filename);
 		g_free(wdh);
 		return NULL;
 	}
@@ -2275,17 +2273,6 @@ wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
 	if (wdh == NULL)
 		return NULL;
 
-#ifdef _WIN32
-	if (fd == 1) {
-		if (_setmode(fileno(stdout), O_BINARY) == -1) {
-			/* "Should not happen" */
-			*err = errno;
-			g_free(wdh);
-			return NULL;	/* couldn't put standard output in binary mode */
-		}
-	}
-#endif
-
 	/* In case "fopen()" fails but doesn't set "errno", set "errno"
 	   to a generic "the open failed" error. */
 	errno = WTAP_ERR_CANT_OPEN;
@@ -2296,6 +2283,68 @@ wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
 		return NULL;	/* can't create standard I/O stream */
 	}
 	wdh->fh = fh;
+
+	if (!wtap_dump_open_finish(wdh, file_type_subtype, compressed, err)) {
+		wtap_dump_file_close(wdh);
+		g_free(wdh);
+		return NULL;
+	}
+	return wdh;
+}
+
+wtap_dumper *
+wtap_dump_open_stdout(int file_type_subtype, int encap, int snaplen,
+		      gboolean compressed, int *err)
+{
+	return wtap_dump_open_stdout_ng(file_type_subtype, encap, snaplen, compressed, NULL, NULL, NULL, err);
+}
+
+wtap_dumper *
+wtap_dump_open_stdout_ng(int file_type_subtype, int encap, int snaplen,
+			 gboolean compressed, wtapng_section_t *shb_hdr,
+			 wtapng_iface_descriptions_t *idb_inf,
+			 wtapng_name_res_t *nrb_hdr, int *err)
+{
+	wtap_dumper *wdh;
+	WFILE_T fh;
+
+	/* Check whether we can open a capture file with that file type
+	   and that encapsulation. */
+	if (!wtap_dump_open_check(file_type_subtype, encap, compressed, err))
+		return NULL;
+
+	/* Allocate and initialize a data structure for the output stream. */
+	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
+	    shb_hdr, idb_inf, nrb_hdr, err);
+	if (wdh == NULL)
+		return NULL;
+
+#ifdef _WIN32
+	/*
+	 * Put the standard output into binary mode.
+	 *
+	 * XXX - even if the file format we're writing is a text
+	 * format?
+	 */
+	if (_setmode(1, O_BINARY) == -1) {
+		/* "Should not happen" */
+		*err = errno;
+		g_free(wdh);
+		return NULL;	/* couldn't put standard output in binary mode */
+	}
+#endif
+
+	/* In case "fopen()" fails but doesn't set "errno", set "errno"
+	   to a generic "the open failed" error. */
+	errno = WTAP_ERR_CANT_OPEN;
+	fh = wtap_dump_file_fdopen(wdh, 1);
+	if (fh == NULL) {
+		*err = errno;
+		g_free(wdh);
+		return NULL;	/* can't create standard I/O stream */
+	}
+	wdh->fh = fh;
+	wdh->is_stdout = TRUE;
 
 	if (!wtap_dump_open_finish(wdh, file_type_subtype, compressed, err)) {
 		wtap_dump_file_close(wdh);
@@ -2432,21 +2481,15 @@ wtap_dump_close(wtap_dumper *wdh, int *err)
 			ret = FALSE;
 	}
 	errno = WTAP_ERR_CANT_CLOSE;
-	/* Don't close stdout */
-	if (wdh->fh != stdout) {
-		if (wtap_dump_file_close(wdh) == EOF) {
-			if (ret) {
-				/* The per-format close function succeeded,
-				   but the fclose didn't.  Save the reason
-				   why, if our caller asked for it. */
-				if (err != NULL)
-					*err = errno;
-			}
-			ret = FALSE;
+	if (wtap_dump_file_close(wdh) == EOF) {
+		if (ret) {
+			/* The per-format finish function succeeded,
+			   but the stream close didn't.  Save the
+			   reason why, if our caller asked for it. */
+			if (err != NULL)
+				*err = errno;
 		}
-	} else {
-		/* as we don't close stdout, at least try to flush it */
-		wtap_dump_flush(wdh);
+		ret = FALSE;
 	}
 	if (wdh->priv != NULL)
 		g_free(wdh->priv);
@@ -2556,11 +2599,22 @@ wtap_dump_file_close(wtap_dumper *wdh)
 {
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
-		return gzwfile_close((GZWFILE_T)wdh->fh);
+		/*
+		 * Tell gzwfile_close() whether to close the descriptor
+		 * or not.
+		 */
+		return gzwfile_close((GZWFILE_T)wdh->fh, wdh->is_stdout);
 	} else
 #endif
 	{
-		return fclose((FILE *)wdh->fh);
+		/*
+		 * Don't close the standard output.
+		 *
+		 * XXX - this really should do everything fclose() does,
+		 * including freeing all allocated data structures,
+		 * *except* for actually closing the file descriptor.
+		 */
+		return wdh->is_stdout ? fflush((FILE *)wdh->fh) : fclose((FILE *)wdh->fh);
 	}
 }
 
