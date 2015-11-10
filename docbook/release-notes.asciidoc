@@ -19,7 +19,7 @@ interface (``Wirehsark'') or the old interface (``Wireshark Legacy'').
 Both are installed by default. Note that the legacy interface will be
 removed in Wireshark 2.2.
 
-The Mac OS X installer only provides the new interface. If you need the
+The OS X installer only provides the new interface. If you need the
 old interface you can install it via Homebrew or MacPorts.
 
 Wireshark's Debian- and RPM-based package definitions provide the new
@@ -67,7 +67,7 @@ is absent, preferences will still be found and stored under
 
 * Several dissector and Qt UI crash bugs have been fixed.
 
-* Problems with the Mac OS X application bundle have been fixed.
+* Problems with the OS X application bundle have been fixed.
 
 The following features are new (or have been significantly updated)
 since version 1.99.9:
