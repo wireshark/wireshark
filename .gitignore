@@ -106,6 +106,7 @@ ylwrap
 ##################
 CMakeCache.txt
 CMakeFiles
+CMakeLists.txt.user*
 cmake_install.cmake
 CPackConfig.cmake
 CPackSourceConfig.cmake
