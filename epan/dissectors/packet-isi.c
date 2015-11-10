@@ -944,12 +944,12 @@ static void dissect_isi_sim(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitr
 		case 0x22: /* SIM_SERV_PROV_NAME_RESP */
 			code = tvb_get_guint8(tvb, 1);
 			switch(code) {
-				default:
 				case 0x2c:
 					proto_tree_add_item(tree, hf_isi_sim_cause, tvb, 1, 1, ENC_BIG_ENDIAN);
 					proto_tree_add_item(tree, hf_isi_sim_secondary_cause, tvb, 2, 1, ENC_BIG_ENDIAN);
 					col_set_str(pinfo->cinfo, COL_INFO, "Service Provider Name Response: Invalid Location");
 					break;
+				default:
 					col_set_str(pinfo->cinfo, COL_INFO, "Service Provider Name Response");
 					break;
 			}
