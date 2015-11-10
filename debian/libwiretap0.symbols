@@ -9,14 +9,8 @@ libwiretap.so.0 libwiretap0 #MINVER#
  file_seek@Base 1.9.1
  file_tell@Base 1.9.1
  init_open_routines@Base 1.12.0~rc1
- merge_append_read_packet@Base 1.12.0~rc1
- merge_close_in_files@Base 1.12.0~rc1
  merge_files@Base 1.99.9
  merge_idb_merge_mode_to_string@Base 1.99.9
- merge_max_snapshot_length@Base 1.12.0~rc1
- merge_open_in_files@Base 1.12.0~rc1
- merge_read_packet@Base 1.12.0~rc1
- merge_select_frame_type@Base 1.12.0~rc1
  merge_string_to_idb_merge_mode@Base 1.99.9
  open_info_name_to_type@Base 1.12.0~rc1
  open_routines@Base 1.12.0~rc1
