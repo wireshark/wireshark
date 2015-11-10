@@ -1099,7 +1099,7 @@ static GList *insert_in_comp_req_list(GList *list, guint32 fn, guint32 reqid, co
   entry->operation = wmem_strdup(wmem_file_scope(), op); /* duplicate operation for storage */
   entry->repoid    = NULL;      /* don't have yet */
   entry->srcport   = port ;
-  copy_address_wmem (wmem_file_scope (), &entry->src, addr) ;
+  WMEM_COPY_ADDRESS (wmem_file_scope (), &entry->src, addr) ;
 
   return g_list_append (list, entry); /* append */
 }
