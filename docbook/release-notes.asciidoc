@@ -10,8 +10,22 @@ used for troubleshooting, analysis, development and education.
 
 == What's New
 
-Wireshark 2.0 features a new user interface which should provide a
-smoother, faster user experience.
+Wireshark 2.0 features a completely new user interface which should provide a
+smoother, faster user experience. The new interface should be familiar to
+current users of Wireshark but provide a faster workflow for many tasks.
+
+The Windows installer provides the option of installing either the new
+interface (``Wirehsark'') or the old interface (``Wireshark Legacy'').
+Both are installed by default. Note that the legacy interface will be
+removed in Wireshark 2.2.
+
+The Mac OS X installer only provides the new interface. If you need the
+old interface you can install it via Homebrew or MacPorts.
+
+Wireshark's Debian- and RPM-based package definitions provide the new
+interface in the ``wireshark-qt'' package and the old interface in the
+``wireshark-gtk'' package. It is hoped that downstream distributions will
+follow this convention.
 
 //=== Bug Fixes
 
@@ -25,6 +39,20 @@ smoother, faster user experience.
 === New and Updated Features
 
 The following features are new (or have been significantly updated)
+since version 2.0.0rc2:
+
+* ``File''->Merge no longer crashes on Windows. Bug ws-buglink:11684[].
+
+* Icons in the main toolbar obey magnification settings on Windows. Bug
+ws-buglink:11675[].
+
+* The Windows installer does a better job of detecting WinPcap. Bug
+ws-buglink:10867[].
+
+* The main window no longer appears off-screen on Windows. Bug
+ws-buglink:11568[].
+
+The following features are new (or have been significantly updated)
 since version 2.0.0rc1:
 
 * For new installations on UN$$*$$X, the directory for user preferences is
@@ -35,7 +63,7 @@ is absent, preferences will still be found and stored under
 * Qt port:
 ** The SIP Statistics dialog has been added.
 ** You can now create filter expressions from the display filter toolbar.
-** Bugs in the UAT prefererences dialog has been fixed.
+** Bugs in the UAT preferences dialog has been fixed.
 
 * Several dissector and Qt UI crash bugs have been fixed.
 
