@@ -44,6 +44,8 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_dump_has_name_resolution@Base 1.9.1
  wtap_dump_open@Base 1.9.1
  wtap_dump_open_ng@Base 1.9.1
+ wtap_dump_open_stdout@Base 2.0.0
+ wtap_dump_open_stdout_ng@Base 2.0.0
  wtap_dump_set_addrinfo_list@Base 1.9.1
  wtap_dump_supports_comment_types@Base 1.9.1
  wtap_encap_requires_phdr@Base 1.9.1
