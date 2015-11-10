@@ -108,10 +108,17 @@ add_idb_index_map(merge_in_file_t *in_file, const guint orig_index, const guint 
     g_array_append_val(in_file->idb_index_map, found_index);
 }
 
-/*
- * Scan through the arguments and open the input files
+/** Open a number of input files to merge.
+ *
+ * @param in_file_count number of entries in in_file_names and in_files
+ * @param in_file_names filenames of the input files
+ * @param in_files input file array to be filled (>= sizeof(merge_in_file_t) * in_file_count)
+ * @param err wiretap error, if failed
+ * @param err_info wiretap error string, if failed
+ * @param err_fileno file on which open failed, if failed
+ * @return TRUE if all files could be opened, FALSE otherwise
  */
-gboolean
+static gboolean
 merge_open_in_files(int in_file_count, const char *const *in_file_names,
                     merge_in_file_t **in_files, int *err, gchar **err_info,
                     int *err_fileno)
@@ -152,10 +159,12 @@ merge_open_in_files(int in_file_count, const char *const *in_file_names,
     return TRUE;
 }
 
-/*
- * Scan through and close each input file
+/** Close the input files again.
+ *
+ * @param in_file_count number of entries in in_files
+ * @param in_files input file array to be closed
  */
-void
+static void
 merge_close_in_files(int count, merge_in_file_t in_files[])
 {
     int i;
@@ -164,15 +173,19 @@ merge_close_in_files(int count, merge_in_file_t in_files[])
     }
 }
 
-/*
- * Select an output frame type based on the input files
- * From Guy: If all files have the same frame type, then use that.
- *           Otherwise select WTAP_ENCAP_PER_PACKET.  If the selected
- *           output file type doesn't support per packet frame types,
- *           then the wtap_dump_open call will fail with a reasonable
- *           error condition.
+/** Select an output frame type based on the input files
+ *
+ * If all files have the same frame type, then use that.
+ * Otherwise select WTAP_ENCAP_PER_PACKET.  If the selected
+ * output file type doesn't support per packet frame types,
+ * then the wtap_dump_open call will fail with a reasonable
+ * error condition.
+ *
+ * @param in_file_count number of entries in in_files
+ * @param in_files input file array
+ * @return the frame type
  */
-int
+static int
 merge_select_frame_type(int count, merge_in_file_t files[])
 {
     int i;
@@ -189,28 +202,6 @@ merge_select_frame_type(int count, merge_in_file_t files[])
     }
 
     return selected_frame_type;
-}
-
-/*
- * Scan through input files and find maximum snapshot length
- */
-int
-merge_max_snapshot_length(int count, merge_in_file_t in_files[])
-{
-    int i;
-    int max_snapshot = 0;
-    int snapshot_length;
-
-    for (i = 0; i < count; i++) {
-        snapshot_length = wtap_snapshot_length(in_files[i].wth);
-        if (snapshot_length == 0) {
-            /* Snapshot length of input file not known. */
-            snapshot_length = WTAP_MAX_PACKET_SIZE;
-        }
-        if (snapshot_length > max_snapshot)
-            max_snapshot = snapshot_length;
-    }
-    return max_snapshot;
 }
 
 /*
@@ -232,9 +223,8 @@ is_earlier(nstime_t *l, nstime_t *r) /* XXX, move to nstime.c */
     return TRUE;
 }
 
-/*
- * Read the next packet, in chronological order, from the set of files
- * to be merged.
+/** Read the next packet, in chronological order, from the set of files to
+ * be merged.
  *
  * On success, set *err to 0 and return a pointer to the merge_in_file_t
  * for the file from which the packet was read.
@@ -244,8 +234,15 @@ is_earlier(nstime_t *l, nstime_t *r) /* XXX, move to nstime.c */
  *
  * On an EOF (meaning all the files are at EOF), set *err to 0 and return
  * NULL.
+ *
+ * @param in_file_count number of entries in in_files
+ * @param in_files input file array
+ * @param err wiretap error, if failed
+ * @param err_info wiretap error string, if failed
+ * @return pointer to merge_in_file_t for file from which that packet
+ * came, or NULL on error or EOF
  */
-merge_in_file_t *
+static merge_in_file_t *
 merge_read_packet(int in_file_count, merge_in_file_t in_files[],
                   int *err, gchar **err_info)
 {
@@ -304,8 +301,7 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
     return &in_files[ei];
 }
 
-/*
- * Read the next packet, in file sequence order, from the set of files
+/** Read the next packet, in file sequence order, from the set of files
  * to be merged.
  *
  * On success, set *err to 0 and return a pointer to the merge_in_file_t
@@ -316,8 +312,15 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
  *
  * On an EOF (meaning all the files are at EOF), set *err to 0 and return
  * NULL.
+ *
+ * @param in_file_count number of entries in in_files
+ * @param in_files input file array
+ * @param err wiretap error, if failed
+ * @param err_info wiretap error string, if failed
+ * @return pointer to merge_in_file_t for file from which that packet
+ * came, or NULL on error or EOF
  */
-merge_in_file_t *
+static merge_in_file_t *
 merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
                          int *err, gchar **err_info)
 {
