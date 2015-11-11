@@ -200,6 +200,9 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
     save_bt->setText(tr("Save As" UTF8_HORIZONTAL_ELLIPSIS));
 
+    QPushButton *copy_bt = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ApplyRole);
+    connect (copy_bt, SIGNAL(clicked()), this, SLOT(on_buttonBox_copyAsCsv_triggered()));
+
     stat_timer_ = new QTimer(this);
     connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
     stat_timer_->start(stat_update_interval_);
@@ -1505,6 +1508,14 @@ void IOGraphDialog::on_buttonBox_helpRequested()
     wsApp->helpTopicAction(HELP_STATS_IO_GRAPH_DIALOG);
 }
 
+void IOGraphDialog::on_buttonBox_copyAsCsv_triggered()
+{
+    QString csv;
+    QTextStream stream(&csv, QIODevice::Text);
+    makeCsv(stream);
+    wsApp->clipboard()->setText(stream.readAll());
+}
+
 // XXX - Copied from tcp_stream_dialog. This should be common code.
 void IOGraphDialog::on_buttonBox_accepted()
 {
@@ -1515,11 +1526,13 @@ void IOGraphDialog::on_buttonBox_accepted()
     QString bmp_filter = tr("Windows Bitmap (*.bmp)");
     // Gaze upon my beautiful graph with lossy artifacts!
     QString jpeg_filter = tr("JPEG File Interchange Format (*.jpeg *.jpg)");
-    QString filter = QString("%1;;%2;;%3;;%4")
+    QString csv_filter = tr("Comma Separated Values (*.csv)");
+    QString filter = QString("%1;;%2;;%3;;%4;;%5")
             .arg(pdf_filter)
             .arg(png_filter)
             .arg(bmp_filter)
-            .arg(jpeg_filter);
+            .arg(jpeg_filter)
+            .arg(csv_filter);
 
     QString save_file = path.canonicalPath();
     if (!file_closed_) {
@@ -1538,6 +1551,8 @@ void IOGraphDialog::on_buttonBox_accepted()
             save_ok = ui->ioPlot->saveBmp(file_name);
         } else if (extension.compare(jpeg_filter) == 0) {
             save_ok = ui->ioPlot->saveJpg(file_name);
+        } else if (extension.compare(csv_filter) == 0) {
+            save_ok = saveCsv(file_name);
         }
         // else error dialog?
         if (save_ok) {
@@ -1545,6 +1560,53 @@ void IOGraphDialog::on_buttonBox_accepted()
             wsApp->setLastOpenDir(path.canonicalPath().toUtf8().constData());
         }
     }
+}
+
+void IOGraphDialog::makeCsv(QTextStream &stream) const
+{
+    QList<IOGraph *> activeGraphs;
+
+    int ui_interval = ui->intervalComboBox->itemData(ui->intervalComboBox->currentIndex()).toInt();
+    int max_interval = 0;
+
+    stream << "\"Interval start\"";
+    for (int i = 0; i < ui->graphTreeWidget->topLevelItemCount(); i++) {
+        QTreeWidgetItem *ti = ui->graphTreeWidget->topLevelItem(i);
+        if (ti && ti->checkState(name_col_) == Qt::Checked) {
+            IOGraph *iog = ti->data(name_col_, Qt::UserRole).value<IOGraph *>();
+            QString name = iog->name().toUtf8();
+            name.replace("\"", "\"\"");  // RFC 4180 2.7
+            stream << ",\"" << name << "\"";
+            activeGraphs.append(iog);
+            if (max_interval < iog->maxInterval()) {
+                max_interval = iog->maxInterval();
+            }
+        }
+    }
+    stream << "\n";
+
+    for (int interval = 0; interval <= max_interval; interval++) {
+        double interval_start = (double)interval * ((double)ui_interval / 1000.0);
+        stream << interval_start;
+        foreach (IOGraph *iog, activeGraphs) {
+            double value = 0.0;
+            if (interval <= iog->maxInterval()) {
+                value = iog->getItemValue(interval, cap_file_.capFile());
+            }
+            stream << "," << value;
+        }
+        stream << "\n";
+    }
+}
+
+bool IOGraphDialog::saveCsv(const QString &file_name) const
+{
+    QFile save_file(file_name);
+    save_file.open(QFile::WriteOnly);
+    QTextStream out(&save_file);
+    makeCsv(out);
+
+    return true;
 }
 
 // IOGraph
@@ -1998,11 +2060,11 @@ void IOGraph::setInterval(int interval)
 
 // Get the value at the given interval (idx) for the current value unit.
 // Adapted from get_it_value in gtk/io_stat.c.
-double IOGraph::getItemValue(int idx, capture_file *cap_file)
+double IOGraph::getItemValue(int idx, const capture_file *cap_file) const
 {
     double     value = 0;          /* FIXME: loss of precision, visible on the graph for small values */
     int        adv_type;
-    io_graph_item_t *item;
+    const io_graph_item_t *item;
     guint32    interval;
 
     g_assert(idx < max_io_items_);
