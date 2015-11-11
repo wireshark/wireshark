@@ -149,6 +149,10 @@ randpkt_SOURCES = \
 	randpkt.c \
 	randpkt-core.c
 
+# corresponding headers
+randpkt_INCLUDES = \
+	randpkt-core.h
+
 # dumpcap specifics
 dumpcap_SOURCES =	\
 	capture_opts.c	\
