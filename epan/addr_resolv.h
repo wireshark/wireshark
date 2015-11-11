@@ -363,7 +363,10 @@ void addr_resolv_cleanup(void);
 WS_DLL_PUBLIC
 void manually_resolve_cleanup(void);
 
+WS_DLL_PUBLIC
 gboolean str_to_ip(const char *str, void *dst);
+
+WS_DLL_PUBLIC
 gboolean str_to_ip6(const char *str, void *dst);
 
 #ifdef __cplusplus
