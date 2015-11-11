@@ -41,6 +41,10 @@ follow this convention.
 The following features are new (or have been significantly updated)
 since version 2.0.0rc2:
 
+* Column editing now works correctly. Bug ws-buglink:11433[].
+
+* Renaming profiles has been fixed. Bug ws-buglink:11658[].
+
 * ``File''->Merge no longer crashes on Windows. Bug ws-buglink:11684[].
 
 * Icons in the main toolbar obey magnification settings on Windows. Bug
