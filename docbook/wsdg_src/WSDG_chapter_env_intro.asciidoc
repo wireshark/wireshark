@@ -220,7 +220,7 @@ for the following systems:
   obtains a .deb file from which the package manager checks the dependencies and
   installs the software.
 
-* Red Hat (.rpm file). A user of a Red Hat Package Manager (RPM) based system
+* Red Hat (.rpm file). A user of a RPM Package Manager (RPM) based system
   obtains an .rpm file from which the package manager checks the dependencies
   and installs the software.
 

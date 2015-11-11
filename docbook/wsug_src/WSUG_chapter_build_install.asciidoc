@@ -318,15 +318,36 @@ the installation methods used with your version of UNIX. For example, under AIX,
 you would use _smit_ to install the Wireshark binary package, while under Tru64
 UNIX (formerly Digital UNIX) you would use _setld_. 
 
-==== Installing from rpm's under Red Hat and alike
+==== Installing from RPM's under Red Hat and alike
 
-Use the following command to install the Wireshark RPM that you have downloaded from the Wireshark web site: 
+Building RPMs from Wireshark's source code results in several packages (most
+distributions follow the same system):
+
+* The `wireshark` package contains the core Wireshark libraries and command-line
+  tools.
+
+* The `wireshark-qt` package contains the Qt-based GUI.
+
+* The `wireshark-gtk` (formerly `wireshark-gnome`) package contains the legacy
+Gtk+ based GUI.
+
+Many distributions use `yum` or a similar package management tool to make
+installation of software (including its dependencies) easier.  If your
+distribution uses `yum`, use the following command to install Wireshark
+together with the Qt GUI:
 
 ----
-rpm -ivh wireshark-2.0.5.i386.rpm  
+yum install wireshark wireshark-qt
 ----
 
-If the above step fails because of missing dependencies, install the
+If you've built your own RPMs from the Wireshark sources you can install them
+by running, for example:
+
+----
+rpm -ivh wireshark-2.0.0-1.x86_64.rpm wireshark-qt-2.0.0-1.x86_64.rpm
+----
+
+If the above command fails because of missing dependencies, install the
 dependencies first, and then retry the step above. 
 
 ==== Installing from deb's under Debian, Ubuntu and other Debian derivatives
