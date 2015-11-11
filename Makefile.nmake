@@ -1097,7 +1097,7 @@ process_libs:
 !IFDEF HHC_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		user-guide \
-		user-guide-g7ea0d6c.zip \
+		user-guide-gdf2fcdf.zip \
 		"$(DOWNLOAD_TAG)" "$(WIRESHARK_TARGET_PLATFORM)"
 !ENDIF
 !IFDEF UPX
