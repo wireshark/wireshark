@@ -2133,13 +2133,6 @@ static WFILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename);
 static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd);
 static int wtap_dump_file_close(wtap_dumper *wdh);
 
-wtap_dumper *
-wtap_dump_open(const char *filename, int file_type_subtype, int encap,
-	       int snaplen, gboolean compressed, int *err)
-{
-	return wtap_dump_open_ng(filename, file_type_subtype, encap,snaplen, compressed, NULL, NULL, NULL, err);
-}
-
 static wtap_dumper *
 wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean compressed,
                       wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf,
@@ -2201,6 +2194,13 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 		g_array_append_val(wdh->interface_data, descr);
 	}
 	return wdh;
+}
+
+wtap_dumper *
+wtap_dump_open(const char *filename, int file_type_subtype, int encap,
+	       int snaplen, gboolean compressed, int *err)
+{
+	return wtap_dump_open_ng(filename, file_type_subtype, encap,snaplen, compressed, NULL, NULL, NULL, err);
 }
 
 wtap_dumper *
