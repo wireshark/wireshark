@@ -164,7 +164,7 @@ print_usage(gboolean for_help_option) {
         output = stdout;
         fprintf(output, "Wireshark %s\n"
                 "Interactively dump and analyze network traffic.\n"
-                "See http://www.wireshark.org for more information.\n",
+                "See https://www.wireshark.org for more information.\n",
                 get_ws_vcs_version_info());
     } else {
         output = stderr;

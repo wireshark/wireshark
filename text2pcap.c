@@ -1564,7 +1564,7 @@ DIAG_ON(cast-qual)
         case 'h':
             printf("Text2pcap (Wireshark) %s\n"
                    "Generate a capture file from an ASCII hexdump of packets.\n"
-                   "See http://www.wireshark.org for more information.\n",
+                   "See https://www.wireshark.org for more information.\n",
                    get_ws_vcs_version_info());
             print_usage(stdout);
             exit(0);

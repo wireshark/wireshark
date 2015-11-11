@@ -322,7 +322,7 @@ DIAG_ON(cast-qual)
     case 'h':
       printf("Mergecap (Wireshark) %s\n"
              "Merge two or more capture files into one.\n"
-             "See http://www.wireshark.org for more information.\n",
+             "See https://www.wireshark.org for more information.\n",
              get_ws_vcs_version_info());
       print_usage(stdout);
       exit(0);

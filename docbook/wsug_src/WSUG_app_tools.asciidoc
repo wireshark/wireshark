@@ -28,13 +28,9 @@ available. It supports the same options as `wireshark`. For more information on
 [[AppToolstsharkEx]]
 .Help information available from `tshark`
 ----
-TShark 1.12.1 (Git Rev Unknown from unknown)
+TShark (Wireshark) 2.1.0 (v2.1.0rc0-502-g328fbc0 from master)
 Dump and analyze network traffic.
-See http://www.wireshark.org for more information.
-
-Copyright 1998-2014 Gerald Combs <gerald@wireshark.org> and contributors.
-This is free software; see the source for copying conditions. There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See https://www.wireshark.org for more information.
 
 Usage: tshark [options] ...
 
@@ -58,6 +54,8 @@ Capture output:
   -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs
                            filesize:NUM - switch to next file after NUM KB
                               files:NUM - ringbuffer: replace after NUM files
+RPCAP options:
+  -A <user>:<password>     use RPCAP password authentication
 Input file:
   -r <infile>              set the filename to read from (- to read from stdin)
 
@@ -73,13 +71,12 @@ Processing:
                            Example: tcp.port==8888,http
   -H <hosts file>          read a list of entries from a hosts file, which will
                            then be written to a capture file. (Implies -W n)
-  --disable-protocol <proto_name> disable dissection of proto_name
-                           Repeat option for each protocol
-  --enable-heuristic <short_name> enable dissection of heuristic protocol
-                           Repeat option for each protocol
-  --disable-heuristic <short_name> disable dissection of heuristic protocol
-                           Repeat option for each protocol
-
+  --disable-protocol <proto_name>
+                           disable dissection of proto_name
+  --enable-heuristic <short_name>
+                           enable dissection of heuristic protocol
+  --disable-heuristic <short_name>
+                           disable dissection of heuristic protocol
 Output:
   -w <outfile|->           write packets to a pcap-format file named "outfile"
                            (or to the standard output for "-")
@@ -172,9 +169,9 @@ follows the rules of the pcap library.
 [[AppToolsdumpcapEx]]
 .Help information available from dumpcap
 ----
-Dumpcap 1.12.1 (Git Rev Unknown from unknown)
-Capture network packets and dump them into a pcapng file.
-See http://www.wireshark.org for more information.
+Dumpcap (Wireshark) 2.1.0 (v2.1.0rc0-502-g328fbc0 from master)
+Capture network packets and dump them into a pcapng or pcap file.
+See https://www.wireshark.org for more information.
 
 Usage: dumpcap [options] ...
 
@@ -196,6 +193,13 @@ Capture interface:
   -S                       print statistics for each interface once per second
   -M                       for -D, -L, and -S, produce machine-readable output
 
+RPCAP options:
+  -r                       don't ignore own RPCAP traffic in capture
+  -u                       use UDP for RPCAP data transfer
+  -A <user>:<password>     use RPCAP password authentication
+  -m <sampling type>       use packet sampling
+                           count:NUM - capture one packet of every NUM
+                           timer:NUM - capture no more than 1 packet in NUM ms
 Stop conditions:
   -c <packet count>        stop after n packets (def: infinite)
   -a <autostop cond.> ...  duration:NUM - stop after NUM seconds
@@ -241,15 +245,17 @@ Use Ctrl-C to stop capturing at any time.
 [[AppToolscapinfosEx]]
 .Help information available from capinfos
 ----
-Capinfos 1.12.1 (Git Rev Unknown from unknown)
-Prints various information (infos) about capture files.
-See http://www.wireshark.org for more information.
+Capinfos (Wireshark) 2.1.0 (v2.1.0rc0-502-g328fbc0 from master)
+Print various information (infos) about capture files.
+See https://www.wireshark.org for more information.
 
 Usage: capinfos [options] <infile> ...
 
 General infos:
   -t display the capture file type
   -E display the capture file encapsulation
+  -I display the capture file interface information
+  -F display additional capture file information
   -H display the SHA1, RMD160, and MD5 hashes of the file
   -k display the capture comment
 
@@ -312,13 +318,9 @@ stdout.
 [[AppToolsrawsharkEx]]
 .Help information available from rawshark
 ----
-Rawshark 1.12.1 (Git Rev Unknown from unknown)
+Rawshark (Wireshark) 2.1.0 (v2.1.0rc0-502-g328fbc0 from master)
 Dump and analyze network traffic.
-See http://www.wireshark.org for more information.
-
-Copyright 1998-2014 Gerald Combs <gerald@wireshark.org> and contributors.
-This is free software; see the source for copying conditions. There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See https://www.wireshark.org for more information.
 
 Usage: rawshark [options] ...
 
@@ -360,9 +362,9 @@ information about capture files.
 [[AppToolseditcapEx]]
 .Help information available from editcap
 ----
-Editcap 1.12.1 (Git Rev Unknown from unknown)
+Editcap (Wireshark) 2.1.0 (v2.1.0rc0-502-g328fbc0 from master)
 Edit and/or translate the format of capture files.
-See http://www.wireshark.org for more information.
+See https://www.wireshark.org for more information.
 
 Usage: editcap [options] ... <infile> <outfile> [ <packet#>[-<packet#>] ... ]
 
@@ -386,6 +388,15 @@ Duplicate packet removal:
                          LESS THAN <dup time window> prior to current packet.
                          A <dup time window> is specified in relative seconds
                          (e.g. 0.000001).
+  -a <framenum>:<comment>  Add or replace comment for given frame number
+
+  -I <bytes to ignore>   ignore the specified bytes at the beginning of
+                         the frame during MD5 hash calculation
+                         Useful to remove duplicated packets taken on
+                         several routers(differents mac addresses for
+                         example)
+                         e.g. -I 26 in case of Ether/IP/ will ignore
+                         ether(14) and IP header(20 - 4(src ip) - 4(dst ip)).
 
            NOTE: The use of the 'Duplicate packet removal' options with
            other editcap options except -v may not always work as expected.
@@ -403,7 +414,8 @@ Packet manipulation:
                          this option more than once, allowing up to 2 chopping
                          regions within a packet provided that at least 1
                          choplen is positive and at least 1 is negative.
-  -L                     adjust the frame length when chopping and/or snapping
+  -L                     adjust the frame (i.e. reported) length when chopping
+                         and/or snapping
   -t <time adjustment>   adjust the timestamp of each packet;
                          <time adjustment> is in relative seconds (e.g. -0.5).
   -S <strict adjustment> adjust timestamp of packets if necessary to insure
@@ -416,6 +428,9 @@ Packet manipulation:
                          all packets to the timestamp of the first packet.
   -E <error probability> set the probability (between 0.0 and 1.0 incl.) that
                          a particular packet byte will be randomly changed.
+  -o <change offset>     When used in conjuction with -E, skip some bytes from the
+                         beginning of the packet. This allows to preserve some
+                         bytes, in order to have some headers untouched.
 
 Output File(s):
   -c <packets per file>  split the packet output to different files based on
@@ -473,6 +488,7 @@ editcap: The available capture file types for the "-F" flag are:
     nstrace10 - NetScaler Trace (Version 1.0)
     nstrace20 - NetScaler Trace (Version 2.0)
     nstrace30 - NetScaler Trace (Version 3.0)
+    nstrace35 - NetScaler Trace (Version 3.5)
     pcap - Wireshark/tcpdump/... - pcap
     pcapng - Wireshark/... - pcapng
     rf5 - Tektronix K12xx 32-bit .rf5 format
@@ -556,6 +572,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     isdn - ISDN
     ixveriwave - IxVeriWave header and stats block
     jfif - JPEG/JFIF
+    json - JavaScript Object Notation
     juniper-atm1 - Juniper ATM1
     juniper-atm2 - Juniper ATM2
     juniper-chdlc - Juniper C-HDLC
@@ -584,6 +601,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     logcat_thread - Android Logcat Thread text format
     logcat_threadtime - Android Logcat Threadtime text format
     logcat_time - Android Logcat Time text format
+    loop - OpenBSD loopback
     ltalk - Localtalk
     mime - MIME
     most - Media Oriented Systems Transport
@@ -601,7 +619,8 @@ editcap: The available encapsulation types for the "-T" flag are:
     nstrace10 - NetScaler Encapsulation 1.0 of Ethernet
     nstrace20 - NetScaler Encapsulation 2.0 of Ethernet
     nstrace30 - NetScaler Encapsulation 3.0 of Ethernet
-    null - NULL
+    nstrace35 - NetScaler Encapsulation 3.5 of Ethernet
+    null - NULL/Loopback
     packetlogger - PacketLogger
     pflog - OpenBSD PF Firewall logs
     pflog-old - OpenBSD PF Firewall logs, pre-3.4
@@ -718,9 +737,9 @@ FDDI capture if an Ethernet capture is read and `-T fddi` is specified).
 [[AppToolsmergecapEx]]
 .Help information available from mergecap
 ----
-Mergecap 1.12.1 (Git Rev Unknown from unknown)
+Mergecap (Wireshark) 2.1.0 (v2.1.0rc0-502-g328fbc0 from master)
 Merge two or more capture files into one.
-See http://www.wireshark.org for more information.
+See https://www.wireshark.org for more information.
 
 Usage: mergecap [options] -w <outfile>|- <infile> [<infile> ...]
 
@@ -731,9 +750,8 @@ Output:
   -w <outfile>|-    set the output filename to <outfile> or '-' for stdout.
   -F <capture type> set the output file type; default is pcapng.
                     an empty "-F" option will list the file types.
-  -T <encap type>   set the output file encapsulation type;
-                    default is the same as the first input file.
-                    an empty "-T" option will list the encapsulation types.
+  -I <IDB merge mode> set the merge mode for Interface Description Blocks; default is 'all'.
+                    an empty "-I" option will list the merge modes.
 
 Miscellaneous:
   -h                display this help and exit.
@@ -812,9 +830,9 @@ full-packet decoder to handle these dumps.
 .Help information available from text2pcap
 
 ----
-Text2pcap 1.12.1 (Git Rev Unknown from unknown)
+Text2pcap (Wireshark) 2.1.0 (v2.1.0rc0-502-g328fbc0 from master)
 Generate a capture file from an ASCII hexdump of packets.
-See http://www.wireshark.org for more information.
+See https://www.wireshark.org for more information.
 
 Usage: text2pcap [options] <infile> <outfile>
 
@@ -902,9 +920,9 @@ Miscellaneous:
 [[AppToolsreordercapEx]]
 .Help information available from reordercap
 ----
-Reordercap 1.12.1
+Reordercap (Wireshark) 2.1.0 (v2.1.0rc0-502-g328fbc0 from master)
 Reorder timestamps of input file frames into output file.
-See http://www.wireshark.org for more information.
+See https://www.wireshark.org for more information.
 
 Usage: reordercap [options] <infile> <outfile>
 
