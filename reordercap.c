@@ -233,7 +233,7 @@ DIAG_ON(cast-qual)
             case 'h':
                 printf("Reordercap (Wireshark) %s\n"
                        "Reorder timestamps of input file frames into output file.\n"
-                       "See http://www.wireshark.org for more information.\n",
+                       "See https://www.wireshark.org for more information.\n",
                        get_ws_vcs_version_info());
                 print_usage(stdout);
                 exit(0);

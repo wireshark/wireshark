@@ -615,7 +615,7 @@ DIAG_ON(cast-qual)
             case 'h':        /* Print help and exit */
                 printf("Rawshark (Wireshark) %s\n"
                        "Dump and analyze network traffic.\n"
-                       "See http://www.wireshark.org for more information.\n",
+                       "See https://www.wireshark.org for more information.\n",
                        get_ws_vcs_version_info());
                 print_usage(stdout);
                 exit(0);

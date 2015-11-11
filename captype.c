@@ -193,7 +193,7 @@ DIAG_ON(cast-qual)
       case 'h':
         printf("Captype (Wireshark) %s\n"
                "Print the file types of capture files.\n"
-               "See http://www.wireshark.org for more information.\n",
+               "See https://www.wireshark.org for more information.\n",
                get_ws_vcs_version_info());
         print_usage(stdout);
         exit(0);

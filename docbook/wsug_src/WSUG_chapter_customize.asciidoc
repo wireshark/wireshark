@@ -38,13 +38,9 @@ are, simply enter the command _wireshark -h_ and the help information shown in
 .Help information available from Wireshark
 ====
 ----
-Wireshark 1.12.1 (Git Rev Unknown from unknown)
+Wireshark 2.0.0 (v2.0.0rc2-85-gca5a275 from master-2.0)
 Interactively dump and analyze network traffic.
 See https://www.wireshark.org for more information.
-
-Copyright 1998-2014 Gerald Combs <gerald@wireshark.org> and contributors.
-This is free software; see the source for copying conditions. There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 Usage: wireshark [options] ... [ <infile> ]
 
@@ -71,6 +67,8 @@ Capture output:
   -b <ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs
                            filesize:NUM - switch to next file after NUM KB
                               files:NUM - ringbuffer: replace after NUM files
+RPCAP options:
+  -A <user>:<password>     use RPCAP password authentication
 Input file:
   -r <infile>              set the filename to read from (no pipes or stdin!)
 
@@ -78,12 +76,12 @@ Processing:
   -R <read filter>         packet filter in Wireshark display filter syntax
   -n                       disable all name resolutions (def: all enabled)
   -N <name resolve flags>  enable specific name resolution(s): "mnNtCd"
-  --disable-protocol <proto_name> disable dissection of proto_name
-                           Repeat option for each protocol
-  --enable-heuristic <short_name> enable dissection of heuristic protocol
-                           Repeat option for each protocol
-  --disable-heuristic <short_name> disable dissection of heuristic protocol
-                           Repeat option for each protocol
+  --disable-protocol <proto_name>
+                           disable dissection of proto_name
+  --enable-heuristic <short_name>
+                           enable dissection of heuristic protocol
+  --disable-heuristic <short_name>
+                           disable dissection of heuristic protocol
 
 User interface:
   -C <config profile>      start with specified configuration profile
@@ -108,7 +106,6 @@ Miscellaneous:
                            persdata:path - personal data files
   -o <name>:<value> ...    override preference or recent setting
   -K <keytab>              keytab file to use for kerberos decryption
-  --display=DISPLAY        X display to use
 ----
 ====
 
