@@ -867,7 +867,7 @@ You might get one of the following responses to your patch request:
   the core developers are busy (e.g., with their day jobs or family or other commitments) and
   haven't had time to look at your patch. Don't worry, if
   your patch is in the review system it won't get lost.
-+
+
 If you're concerned, feel free to add a comment to the patch or send an email
 to the developer's list asking for status. But please be patient: most if not
 all of us do this in our spare time.
@@ -1054,9 +1054,9 @@ to build the Debian Package.
 ==== Red Hat: .rpm packages
 
 The RPM is built using rpmbuild (http://www.rpm.org/), which comes as standard on many flavours of Linux, including
-Red Hat and Fedora. The process creates a clean build environment in _packaging/rpm/BUILD_every
+Red Hat and Fedora. The process creates a clean build environment in _packaging/rpm/BUILD_ every
 time the RPM is built. The settings controlling the build are in _packaging/rpm/SPECS/wireshark.spec.in_.
-After editing the settings in this file, _./configure_must be run again in the wireshark directory to
+After editing the settings in this file, _./configure_ must be run again in the wireshark directory to
 generate the actual specification script.
 
 
@@ -1064,9 +1064,14 @@ generate the actual specification script.
 [NOTE]
 ====
 The SPEC file contains settings for the _configure_ used to set the RPM build
-environment. These are completely independent of any settings passed to the
-usual Wireshark `./configure`. The exception to this rule is that the _prefix_
-given to `configure --prefix` is passed to rpmbuild.
+environment. These are mostly independent of any settings passed to the
+usual Wireshark `./configure`. The exceptions to this rule are:
+
+* The _prefix_ given to `configure --prefix` is passed to rpmbuild.
+
+* The selection of the GUI (Qt, Gtk+, or both) is passed to rpmbuild.
+
+* The selection of whether to include Lua support is passed to rpmbuild.
 ====
 
 In the wireshark directory, type:
@@ -1081,7 +1086,12 @@ to build the RPM and source RPM. Once it is done, there will be a message statin
 [TIP]
 ====
 Because this does a clean build as well as constructing the package this can
-take quite a long time.
+take quite a long time.  Suggestion: add the following to your `~/.rpmmacros`
+file to allow parallel builds:
+
+----
+%_smp_mflags -j %(grep -c processor /proc/cpuinfo)
+----
 ====
 
 .Build requirements differ from run requirements
