@@ -829,8 +829,7 @@ EXTRA_DIST = \
 	debian/wireshark-doc.docs	\
 	debian/wireshark-gtk.docs	\
 	debian/wireshark-gtk.install	\
-	debian/wireshark.manpages \
-	debian/wireshark.menu	\
+	debian/wireshark-qt.manpages \
 	debian/wireshark-qt.docs	\
 	debian/wireshark-qt.install	\
 	dfilters		\
