@@ -1022,7 +1022,7 @@
     <message>
         <location filename="capture_filter_edit.cpp" line="134"/>
         <source>Manage saved bookmarks.</source>
-        <translation>Gespeicherte Lesezeichen verwalten</translation>
+        <translation>Gespeicherte Lesezeichen verwalten.</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="169"/>
@@ -1864,7 +1864,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="display_filter_edit.cpp" line="133"/>
         <source>Manage saved bookmarks.</source>
-        <translation>Gespeicherte Lesezeichen verwalten</translation>
+        <translation>Gespeicherte Lesezeichen verwalten.</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="167"/>
@@ -1939,17 +1939,23 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
 &lt;tr&gt;&lt;th&gt;contains, matches&lt;/th&gt;&lt;td&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/td&gt;&lt;/tr&gt;
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations können genutzt werden um Felder auf bestimmte Werte einzugrenzen. Folgende Relationen können verwendet werden:&lt;/p&gt;
+&lt;table&gt;&lt;tbody&gt;
+&lt;tr&gt;&lt;th&gt;is present&lt;/th&gt;&lt;td&gt;Jedes Paket, dass dieses Feld enthält &lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;th&gt;==, !=, etc.&lt;/th&gt;&lt;td&gt;Vergleicht das Feld auf einen bestimmten Wert&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;th&gt;contains, matches&lt;/th&gt;&lt;td&gt;Überprüft das Feld auf eine bestimmte Zeichenkette (contains) oder einen rugulären Ausdruck (matches)&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="81"/>
         <source>Relation</source>
-        <translation type="unfinished"></translation>
+        <translation>Relation</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="108"/>
         <source>Match against this value.</source>
-        <translation type="unfinished"></translation>
+        <translation>Überprüft diesen Wert.</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="111"/>
@@ -1969,7 +1975,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="155"/>
         <source>If the field you have selected covers a range of bytes (e.g. you have selected a protocol) you can restrict the match to a range of bytes here.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn das ausgewählte Feld einen Bereich von Bytes abdeckt (z.B. bei der Auswahl eines Protokolls) kann der Treffer auf einen Bereich von Bytes eingeschränkt werden.</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="158"/>
@@ -2039,7 +2045,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <location filename="dissector_tables_dialog.cpp" line="103"/>
         <source>Custom Tables</source>
-        <translation type="unfinished"></translation>
+        <translation>Custom Tables</translation>
     </message>
     <message>
         <location filename="dissector_tables_dialog.cpp" line="114"/>
@@ -2643,7 +2649,7 @@ für die Filterdateien kann nicht erstellt werden:
         <location filename="filter_expressions_preferences_frame.ui" line="29"/>
         <source>Button Label</source>
         <oldsource>Label</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Knopfbeschriftung</translation>
     </message>
     <message>
         <location filename="filter_expressions_preferences_frame.ui" line="34"/>
@@ -3216,16 +3222,16 @@ für die Filterdateien kann nicht erstellt werden:
 &lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;10 Bildpunkte nach links&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;10 Bildpunkte nach oben&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;10 Bildpunkte nach unten&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach rechts&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach links&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach oben&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach unten&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Umschalttaste+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach rechts&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Umschalttaste+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach links&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Umschalttaste+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach oben&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Umschalttaste+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach unten&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Zum Paket gehen, bei dem sich der Zeiger gerade befindet&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Maustastenverhalten umschalten: Verschieben / Zoomen&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Toggle capture / session time origin&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Raster ein/ausblenden&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Leertaste&lt;/th&gt;&lt;td&gt;Raster ein/ausblenden&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
@@ -3847,7 +3853,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="iax2_analysis_dialog.ui" line="300"/>
         <source>Save the forward table as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabelle Hinweg als CSV speichern.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="305"/>
@@ -3857,7 +3863,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="iax2_analysis_dialog.ui" line="308"/>
         <source>Save the reverse table as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rückweg Tabelle als CSV speichern.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="313"/>
@@ -3887,12 +3893,12 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="iax2_analysis_dialog.ui" line="332"/>
         <source>Next Problem Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächstes Paket mit Problemen</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="335"/>
         <source>Go to the next problem packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Gehe zum nächsten Paket mit Problemen</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="338"/>
@@ -3927,7 +3933,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="444"/>
         <source> G: Go to packet, N: Next problem packet</source>
-        <translation type="unfinished"></translation>
+        <translation> G: Gehe zu Paket, N: Nächstes Paket mit einem Problem</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="565"/>
@@ -4003,7 +4009,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="917"/>
         <source>Unable to save %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann %1 nicht sichern</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="921"/>
@@ -4199,7 +4205,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="import_text_dialog.ui" line="353"/>
         <source>Tag:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tag:</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="360"/>
@@ -5438,7 +5444,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="14"/>
         <source>LBM UIM Flows</source>
-        <translation type="unfinished"></translation>
+        <translation>LBM UIM Flows</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="51"/>
@@ -5859,16 +5865,16 @@ für die Filterdateien kann nicht erstellt werden:
 &lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;10 Bildpunkte nach links&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;10 Bildpunkte nach oben&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;10 Bildpunkte nach unten&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach rechts&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach links&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach oben&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach unten&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Umschalttaste+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach rechts&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Umschalttaste+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach links&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Umschalttaste+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach oben&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Umschalttaste+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach unten&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Zum Paket gehen, bei dem sich der Zeiger gerade befindet&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Maustastenverhalten umschalten: Verschieben / Zoomen&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Toggle capture / session time origin&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Raster ein/ausblenden&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Leertaste&lt;/th&gt;&lt;td&gt;Raster ein/ausblenden&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</translation>
@@ -6223,7 +6229,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="main_status_bar.cpp" line="241"/>
         <source>CHAT</source>
-        <translation type="unfinished"></translation>
+        <translation>INFO</translation>
     </message>
     <message>
         <location filename="main_status_bar.cpp" line="248"/>
@@ -7078,7 +7084,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="311"/>
         <source>Internals</source>
-        <translation type="unfinished"></translation>
+        <translation>Internals</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="389"/>
@@ -7928,17 +7934,17 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2610"/>
         <source>No GSM statistics registered</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine GSM Statistik registriert</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2618"/>
         <source>No LTE statistics registered</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine LTE Statistik registriert</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2626"/>
         <source>No MTP3 statistics registered</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine MTP3 Statistik registriert</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2738"/>
@@ -8122,7 +8128,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1530"/>
         <source>Time Shift…</source>
-        <translation>Zeitverschieben...</translation>
+        <translation>Zeitstempel verschieben...</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1541"/>
@@ -8584,7 +8590,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2433"/>
         <source>…as Raw Binary</source>
-        <translation type="unfinished"></translation>
+        <translation>...als Rohdaten</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2436"/>
@@ -8661,7 +8667,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2792"/>
         <source>Go to the packet referenced by the selected field.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum Paket gehen auf das das ausgewählte Feld referenziert.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2481"/>
@@ -8732,12 +8738,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2555"/>
         <source>Show expert notifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Experteninformationen anzeigen</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2566"/>
         <source>Add an expression to the display filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Einen Ausruck zum Anzeigefilter hinzufügen.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2571"/>
@@ -8752,17 +8758,17 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2588"/>
         <source>No tools registered</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Tools registriert</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2591"/>
         <source>No tools have been registered.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurden keine Tools registriert.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2602"/>
         <source>No ANSI statistics registered</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine ANSI Statistik registriert</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2631"/>
@@ -8772,7 +8778,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2634"/>
         <source>Show each table of resolved addresses as copyable text.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige jede Tablle von ausflösbaren Adressen als Textform an.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2639"/>
@@ -8792,7 +8798,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2714"/>
         <source>Mark the current conversation with its own color.</source>
         <oldsource>Mark the current coversation with its own color.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Die aktuelle Verbindung einfärben.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2647"/>
@@ -8872,7 +8878,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2757"/>
         <source>Manually edit a name resolution entry.</source>
-        <translation type="unfinished"></translation>
+        <translation>Namensauflösung manuell bearbeiten.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2765"/>
@@ -8885,144 +8891,144 @@ text-decoration: underline;
         <translation>Strg+Umschalttaste+E</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="348"/>
+        <location filename="main_window.cpp" line="349"/>
         <source>Check for Updates</source>
         <oldsource>Check for Updates...</oldsource>
         <translation>Nach Aktualisierungen suchen</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="725"/>
+        <location filename="main_window.cpp" line="727"/>
         <source> before quitting</source>
         <translation>vor dem Schließen</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="869"/>
+        <location filename="main_window.cpp" line="903"/>
         <source>Save packets before merging?</source>
         <translation>Pakete vor dem Zusammenführen speichern?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="870"/>
+        <location filename="main_window.cpp" line="904"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>Eine temporäre Mitschnittdatei kann nicht zusammengeführt werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="876"/>
+        <location filename="main_window.cpp" line="910"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Vor der Zusammenführung Änderungen in &quot;%1&quot; speichern?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="878"/>
+        <location filename="main_window.cpp" line="912"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Änderungen müssen vor dem Zusammenführen gespeichert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="937"/>
+        <location filename="main_window.cpp" line="971"/>
         <location filename="main_window_slots.cpp" line="224"/>
         <source>Invalid Display Filter</source>
         <translation>Ungültiger Anzeigefilter</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="938"/>
+        <location filename="main_window.cpp" line="972"/>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
         <translation>Der Filterausdruck %1 ist kein gültiger Anzeigefilter. (%2).</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1029"/>
+        <location filename="main_window.cpp" line="1063"/>
         <source> before importing a new capture</source>
-        <translation type="unfinished"></translation>
+        <translation>vor dem Importieren eines neuen Mitschnitts</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1342"/>
+        <location filename="main_window.cpp" line="1376"/>
         <source>Unable to export to &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann nicht nach &quot;%1&quot; exportieren.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1343"/>
+        <location filename="main_window.cpp" line="1377"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>Pakete können nicht in die aktuelle Mitschnittdatei exportiert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1430"/>
-        <location filename="main_window.cpp" line="1455"/>
+        <location filename="main_window.cpp" line="1464"/>
+        <location filename="main_window.cpp" line="1489"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1493"/>
+        <location filename="main_window.cpp" line="1527"/>
         <source>You have unsaved packets</source>
         <translation>Sie haben nicht gespeicherte Pakete</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1494"/>
+        <location filename="main_window.cpp" line="1528"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>Diese gehen verloren wenn sie nicht gespeichert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1497"/>
-        <location filename="main_window.cpp" line="1510"/>
+        <location filename="main_window.cpp" line="1531"/>
+        <location filename="main_window.cpp" line="1544"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>Soll der Mitschnitt gestoppt werden und die aufgezeichneten Pakete gespeichert werden</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1499"/>
+        <location filename="main_window.cpp" line="1533"/>
         <source>Do you want to save the captured packets</source>
         <translation>Sollen die aufgezeichneten Pakete gespeichert werden</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1501"/>
-        <location filename="main_window.cpp" line="1511"/>
+        <location filename="main_window.cpp" line="1535"/>
+        <location filename="main_window.cpp" line="1545"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1513"/>
+        <location filename="main_window.cpp" line="1547"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>Die aufgezeichneten Pakete gehen verloren wenn sie nicht gespeichert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1516"/>
+        <location filename="main_window.cpp" line="1550"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Sollen die Änderungen an der Mitschnittdatei &quot;%1&quot;%2 gespeichert werden?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1522"/>
+        <location filename="main_window.cpp" line="1556"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Änderungen gehen verloren, wenn sie nicht gesichert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1534"/>
+        <location filename="main_window.cpp" line="1568"/>
         <source>Stop and Save</source>
         <translation>Stoppen und speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1542"/>
+        <location filename="main_window.cpp" line="1576"/>
         <source>Stop and Quit without Saving</source>
         <translation>Stoppen und beenden ohne zu speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1545"/>
+        <location filename="main_window.cpp" line="1579"/>
         <source>Quit without Saving</source>
         <translation>Ohne speichern beenden</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1550"/>
+        <location filename="main_window.cpp" line="1584"/>
         <source>Stop and Continue without Saving</source>
         <translation>Stoppen und ohne zu speichern weitermachen</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1553"/>
+        <location filename="main_window.cpp" line="1587"/>
         <source>Continue &amp;without Saving</source>
         <translation>Weitermachen &amp;ohne zu speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1823"/>
+        <location filename="main_window.cpp" line="1880"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Dateiname kann nicht auf UTF-8 angewendet werden)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1835"/>
-        <location filename="main_window.cpp" line="1841"/>
-        <location filename="main_window.cpp" line="1856"/>
+        <location filename="main_window.cpp" line="1892"/>
+        <location filename="main_window.cpp" line="1898"/>
+        <location filename="main_window.cpp" line="1913"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Die Wireshark Netzwerk Analysesoftware</translation>
     </message>
@@ -9032,62 +9038,62 @@ text-decoration: underline;
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="756"/>
+        <location filename="main_window_slots.cpp" line="744"/>
         <source>Saving %1</source>
         <translation>Speichere %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="795"/>
+        <location filename="main_window_slots.cpp" line="783"/>
         <source>No interface selected</source>
         <translation>Kein Interface ausgewählt</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="807"/>
+        <location filename="main_window_slots.cpp" line="795"/>
         <source>Invalid capture filter</source>
         <translation>Ungültiger Mitschnittfilter</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1003"/>
+        <location filename="main_window_slots.cpp" line="991"/>
         <source>Clear Menu</source>
         <translation>Menüeinträge löschen</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1488"/>
+        <location filename="main_window_slots.cpp" line="1476"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Bitte Warten während Wireshark initalisiert wird</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1645"/>
+        <location filename="main_window_slots.cpp" line="1633"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Ausgewählte Paketbytes exportieren</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1647"/>
+        <location filename="main_window_slots.cpp" line="1635"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
         <translation>Rohdaten (*.bin *.dat *.raw);; Alle Dateien (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1704"/>
+        <location filename="main_window_slots.cpp" line="1692"/>
         <source>No Keys</source>
         <translation>Keine Schlüssel</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1705"/>
+        <location filename="main_window_slots.cpp" line="1693"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Es sind keine SSL Sitzungsschlüssel zum speichern vorhanden.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1711"/>
+        <location filename="main_window_slots.cpp" line="1699"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>SSL Sitzungsschlüssel exportieren (%1 key%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1716"/>
+        <location filename="main_window_slots.cpp" line="1704"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation>SSL Sitzungsschlüssel (*.keys *.txt);; Alle Dateien (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1854"/>
+        <location filename="main_window_slots.cpp" line="1842"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Text konnte nicht kopiert werden. Probieren sie einen anderen Eintrag.</translation>
     </message>
@@ -9109,7 +9115,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_slots.cpp" line="3317"/>
         <source> before starting a new capture</source>
-        <translation type="unfinished"></translation>
+        <translation>vor dem Starten einer neuen Aufzeichnung</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="3520"/>
@@ -9119,20 +9125,20 @@ text-decoration: underline;
     <message>
         <location filename="main_window_slots.cpp" line="3521"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Das Wireshark Wiki wird durch die Community gepflegt.&lt;/p&gt;&lt;p&gt;Die Seite, die aufgerufen werden soll, kann wundervoll, unvollständig, falsch oder gar nicht vorhanden sein.&lt;/p&gt;&lt;p&gt;Zum Wiki geheni?&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="237"/>
+        <location filename="main_window.h" line="243"/>
         <source>Loading</source>
-        <translation type="unfinished"></translation>
+        <translation>Laden</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="239"/>
+        <location filename="main_window.h" line="245"/>
         <source>Reloading</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.h" line="240"/>
+        <location filename="main_window.h" line="246"/>
         <source>Rescanning</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9203,13 +9209,13 @@ text-decoration: underline;
     <message>
         <location filename="main_window_preferences_frame.ui" line="163"/>
         <source>Automatically scroll packet details</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisches Scrollen der Paketdetails</translation>
     </message>
     <message>
         <location filename="main_window_preferences_frame.ui" line="172"/>
         <location filename="main_window_preferences_frame.ui" line="182"/>
         <source>Percentage distance from the top to scroll packet details.</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozentualer Abstand von Oben bis zu den scrollenden Paketdetails.</translation>
     </message>
     <message>
         <location filename="main_window_preferences_frame.ui" line="175"/>
@@ -9568,7 +9574,7 @@ text-decoration: underline;
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="188"/>
         <source>Burst Alarms</source>
-        <translation type="unfinished"></translation>
+        <translation>Burst Alarme</translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="189"/>
@@ -9578,22 +9584,22 @@ text-decoration: underline;
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="189"/>
         <source>Buffer Alarms</source>
-        <translation type="unfinished"></translation>
+        <translation>Puffer Alarme</translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="215"/>
         <source>Burst measurement interval (ms):</source>
-        <translation type="unfinished"></translation>
+        <translation>Burst Messinterval (ms):</translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="217"/>
         <source>Burst alarm threshold (packets):</source>
-        <translation type="unfinished"></translation>
+        <translation>Burst Alarmschwellwert (Pakete):</translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="219"/>
         <source>Buffer alarm threshold (B):</source>
-        <translation type="unfinished"></translation>
+        <translation>Puffer Alarmschwellwert (B):</translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="222"/>
@@ -9608,17 +9614,17 @@ text-decoration: underline;
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="332"/>
         <source>The burst interval must be between 1 and 1000. </source>
-        <translation type="unfinished"></translation>
+        <translation>Das Burstintervall muss zwischen 1 und 1000 sein. </translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="341"/>
         <source>The burst alarm threshold isn&apos;t valid. </source>
-        <translation type="unfinished"></translation>
+        <translation>Der Burst Alarmschwellwert ist ungültig.</translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="350"/>
         <source>The buffer alarm threshold isn&apos;t valid. </source>
-        <translation type="unfinished"></translation>
+        <translation>Der Puffer Alarmschwellwert ist ungültig. </translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="359"/>
@@ -9633,7 +9639,7 @@ text-decoration: underline;
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="382"/>
         <source>%1 streams, avg bw: %2bps, max bw: %3bps, max burst: %4 / %5ms, max buffer: %6B</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Streams, Durchschnittliche Bandbreite: %2bps, Max Bandbreite: %3bps, Max Burst: %4 / %5ms, Max Puffer: %6B</translation>
     </message>
 </context>
 <context>
@@ -9664,7 +9670,7 @@ text-decoration: underline;
     <message>
         <location filename="packet_dialog.cpp" line="134"/>
         <source>[%1 closed] </source>
-        <translation type="unfinished"></translation>
+        <translation>[%1 geschlossen] </translation>
     </message>
 </context>
 <context>
@@ -9682,17 +9688,17 @@ text-decoration: underline;
     <message>
         <location filename="packet_format_group_box.ui" line="23"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet summary lines similar to the packet list&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Paketübersichtszeile gleich der Paketliste&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="26"/>
         <source>Summary line</source>
-        <translation type="unfinished"></translation>
+        <translation>Übersichtszeile</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="36"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Packet details similar to the protocol tree&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Paketdetails gleich dem Protokollbaum&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="39"/>
@@ -9702,12 +9708,12 @@ text-decoration: underline;
     <message>
         <location filename="packet_format_group_box.ui" line="55"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export only top-level packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nur die obersten Paketdetailseinträge exportieren&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="58"/>
         <source>All co&amp;llapsed</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle einklappen</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="71"/>
@@ -9722,17 +9728,17 @@ text-decoration: underline;
     <message>
         <location filename="packet_format_group_box.ui" line="90"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export all packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Alle Paketdetailseinträge exportieren&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="93"/>
         <source>All e&amp;xpanded</source>
-        <translation type="unfinished"></translation>
+        <translation>Alles aufklappen</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="100"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export a hexdump of the packet data similar to the packet bytes view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Paketdaten als Hexdump exportieren (ähnlich der Paketbytes Ansicht)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="packet_format_group_box.ui" line="103"/>
@@ -9889,7 +9895,7 @@ text-decoration: underline;
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="807"/>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnen</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="860"/>
@@ -10485,12 +10491,12 @@ text-decoration: underline;
         <location filename="filter_action.cpp" line="140"/>
         <location filename="filter_action.cpp" line="191"/>
         <source>UNKNOWN</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannt</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="122"/>
         <source>Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgewählt</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="125"/>
@@ -10516,7 +10522,7 @@ text-decoration: underline;
         <location filename="filter_action.cpp" line="182"/>
         <location filename="filter_action.cpp" line="185"/>
         <source>Any </source>
-        <translation type="unfinished"></translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="177"/>
@@ -10531,7 +10537,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_stream_dialog.cpp" line="128"/>
         <source>%1 (%L2%)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (%L2%)</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="87"/>
@@ -10551,17 +10557,17 @@ text-decoration: underline;
     <message>
         <location filename="voip_calls_dialog.cpp" line="129"/>
         <source>Tunneling: %1  Fast Start: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Tunneling: %1  Fast Start: %2</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.cpp" line="171"/>
         <source>No entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Einträge.</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.cpp" line="172"/>
         <source>%1 entries.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Einträge.</translation>
     </message>
     <message>
         <location filename="module_preferences_scroll_area.cpp" line="190"/>
@@ -10571,42 +10577,42 @@ text-decoration: underline;
     <message>
         <location filename="module_preferences_scroll_area.cpp" line="217"/>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnen</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="133"/>
         <source>Base station</source>
-        <translation type="unfinished"></translation>
+        <translation>Base Station</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="211"/>
         <source>&lt;Broadcast&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Broadcast&gt;</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="213"/>
         <source>&lt;Hidden&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Hidden&gt;</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="455"/>
         <source>BSSID</source>
-        <translation type="unfinished"></translation>
+        <translation>BSSID</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="456"/>
         <source>Beacons</source>
-        <translation type="unfinished"></translation>
+        <translation>Beacons</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="457"/>
         <source>Data Pkts</source>
-        <translation type="unfinished"></translation>
+        <translation>Data Pakete</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="458"/>
         <source>Protection</source>
-        <translation type="unfinished"></translation>
+        <translation>Protection</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="460"/>
@@ -10616,12 +10622,12 @@ text-decoration: underline;
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="461"/>
         <source>Pkts Sent</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakete gesendet</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="462"/>
         <source>Pkts Received</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakete empfangen</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="463"/>
@@ -10631,37 +10637,37 @@ text-decoration: underline;
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="101"/>
         <source>Wrong sequence number</source>
-        <translation type="unfinished"></translation>
+        <translation>Falsche Sequenznummer</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="104"/>
         <source>Payload changed to PT=%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Payload geändert zu PT=%1</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="107"/>
         <source>Incorrect timestamp</source>
-        <translation type="unfinished"></translation>
+        <translation>Falscher Zeitstempel</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="115"/>
         <source>Marker missing?</source>
-        <translation type="unfinished"></translation>
+        <translation>Marker fehlt?</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="192"/>
         <source>C-RNTI</source>
-        <translation type="unfinished"></translation>
+        <translation>C-RNTI</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="192"/>
         <source>SPS-RNTI</source>
-        <translation type="unfinished"></translation>
+        <translation>SPS-RNTI</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="447"/>
         <source>RNTI</source>
-        <translation type="unfinished"></translation>
+        <translation>RNTI</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="447"/>
@@ -10671,7 +10677,7 @@ text-decoration: underline;
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="447"/>
         <source>UEId</source>
-        <translation type="unfinished"></translation>
+        <translation>UEId</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="448"/>
@@ -10691,12 +10697,12 @@ text-decoration: underline;
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="449"/>
         <source>UL Padding %</source>
-        <translation type="unfinished"></translation>
+        <translation>UL Padding %</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="449"/>
         <source>UL Re TX</source>
-        <translation type="unfinished"></translation>
+        <translation>UL Re TX</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="450"/>
@@ -10716,107 +10722,107 @@ text-decoration: underline;
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="451"/>
         <source>DL Padding %</source>
-        <translation type="unfinished"></translation>
+        <translation>DL Padding %</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="451"/>
         <source>DL CRC Failed</source>
-        <translation type="unfinished"></translation>
+        <translation>DL CRC Fehlerhaft</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="452"/>
         <source>DL ReTX</source>
-        <translation type="unfinished"></translation>
+        <translation>DL ReTX</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="455"/>
         <source>LCID 1</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 1</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="455"/>
         <source>LCID 2</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 2</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="456"/>
         <source>LCID 3</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 3</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="456"/>
         <source>LCID 4</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 4</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="456"/>
         <source>LCID 5</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 5</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="457"/>
         <source>LCID 6</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 6</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="458"/>
         <source>LCID 7</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 7</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="458"/>
         <source>LCID 8</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 8</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="458"/>
         <source>LCID 9</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 9</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="459"/>
         <source>LCID 10</source>
-        <translation type="unfinished"></translation>
+        <translation>LCID 10</translation>
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="139"/>
         <source>TM</source>
-        <translation type="unfinished"></translation>
+        <translation>TM</translation>
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="142"/>
         <source>UM</source>
-        <translation type="unfinished"></translation>
+        <translation>UM</translation>
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="145"/>
         <source>AM</source>
-        <translation type="unfinished"></translation>
+        <translation>AM</translation>
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="148"/>
         <source>Predef</source>
-        <translation type="unfinished"></translation>
+        <translation>Vordefiniert</translation>
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="152"/>
         <source>Unknown (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannt (%1)</translation>
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="159"/>
         <source>CCCH</source>
-        <translation type="unfinished"></translation>
+        <translation>CCCH</translation>
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="162"/>
         <source>SRB-%1</source>
-        <translation type="unfinished"></translation>
+        <translation>SRB-%1</translation>
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="165"/>
         <source>DRB-%1</source>
-        <translation type="unfinished"></translation>
+        <translation>DRB-%1</translation>
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="168"/>
@@ -10826,7 +10832,7 @@ text-decoration: underline;
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="536"/>
         <source>UE Id</source>
-        <translation type="unfinished"></translation>
+        <translation>UE Id</translation>
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="540"/>
@@ -10836,12 +10842,12 @@ text-decoration: underline;
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="541"/>
         <source>Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Modus</translation>
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="542"/>
         <source>Priority</source>
-        <translation type="unfinished"></translation>
+        <translation>Priorität</translation>
     </message>
     <message>
         <location filename="main_welcome.cpp" line="330"/>
@@ -10864,7 +10870,7 @@ text-decoration: underline;
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="455"/>
         <source>CCCH</source>
-        <translation type="unfinished"></translation>
+        <translation>CCCH</translation>
     </message>
 </context>
 <context>
@@ -11076,12 +11082,12 @@ text-decoration: underline;
     <message>
         <location filename="resolved_addresses_dialog.ui" line="133"/>
         <source>Ethernet Well-Known Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Bekannte Ethernet Adressen</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="136"/>
         <source>Show well-known Ethernet addresses in &quot;ethers&quot; format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige bekannte Ethernet Adressen im &quot;Ethers&quot; Format.</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.ui" line="147"/>
@@ -11091,12 +11097,12 @@ text-decoration: underline;
     <message>
         <location filename="resolved_addresses_dialog.ui" line="150"/>
         <source>Show Ethernet manufacturers in &quot;ethers&quot; format.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeige Ethernet Hersteller im &quot;Ethers&quot; Format.</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.cpp" line="177"/>
         <source>[no file]</source>
-        <translation type="unfinished"></translation>
+        <translation>[keine Datei]</translation>
     </message>
     <message>
         <location filename="resolved_addresses_dialog.cpp" line="181"/>
@@ -11205,7 +11211,7 @@ text-decoration: underline;
     <message>
         <location filename="response_time_delay_dialog.cpp" line="164"/>
         <source>%1 Response Time Delay Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Statistik Verzögerung der Antwortzeiten</translation>
     </message>
     <message>
         <location filename="response_time_delay_dialog.cpp" line="169"/>
@@ -11220,47 +11226,47 @@ text-decoration: underline;
     <message>
         <location filename="response_time_delay_dialog.cpp" line="170"/>
         <source>Min SRT</source>
-        <translation type="unfinished"></translation>
+        <translation>In SRT</translation>
     </message>
     <message>
         <location filename="response_time_delay_dialog.cpp" line="170"/>
         <source>Max SRT</source>
-        <translation type="unfinished"></translation>
+        <translation>Max SRT</translation>
     </message>
     <message>
         <location filename="response_time_delay_dialog.cpp" line="170"/>
         <source>Avg SRT</source>
-        <translation type="unfinished"></translation>
+        <translation>Durchschnittliche SRT</translation>
     </message>
     <message>
         <location filename="response_time_delay_dialog.cpp" line="171"/>
         <source>Min in Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Min im Frame</translation>
     </message>
     <message>
         <location filename="response_time_delay_dialog.cpp" line="171"/>
         <source>Max in Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Max im Frame</translation>
     </message>
     <message>
         <location filename="response_time_delay_dialog.cpp" line="172"/>
         <source>Open Requests</source>
-        <translation type="unfinished"></translation>
+        <translation>Offene Anfragen</translation>
     </message>
     <message>
         <location filename="response_time_delay_dialog.cpp" line="172"/>
         <source>Discarded Responses</source>
-        <translation type="unfinished"></translation>
+        <translation>Verworfene Antworten</translation>
     </message>
     <message>
         <location filename="response_time_delay_dialog.cpp" line="173"/>
         <source>Repeated Requests</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiederholte Anfragen</translation>
     </message>
     <message>
         <location filename="response_time_delay_dialog.cpp" line="173"/>
         <source>Repeated Responses</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiederholte Antworten</translation>
     </message>
 </context>
 <context>
@@ -11268,27 +11274,27 @@ text-decoration: underline;
     <message>
         <location filename="rpc_service_response_time_dialog.cpp" line="111"/>
         <source>&lt;small&gt;&lt;i&gt;Select a program and version and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Programm und Version auswählen und bei Bedarf einen Filter eingeben.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="rpc_service_response_time_dialog.cpp" line="119"/>
         <source>Version:</source>
-        <translation type="unfinished"></translation>
+        <translation>Version:</translation>
     </message>
     <message>
         <location filename="rpc_service_response_time_dialog.cpp" line="121"/>
         <source>Program:</source>
-        <translation type="unfinished"></translation>
+        <translation>Programm:</translation>
     </message>
     <message>
         <location filename="rpc_service_response_time_dialog.cpp" line="124"/>
         <source>DCE-RPC Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>DCE RPC Service Antwortzeiten</translation>
     </message>
     <message>
         <location filename="rpc_service_response_time_dialog.cpp" line="135"/>
         <source>ONC-RPC Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>ONC-RPC Service Antwortzeiten</translation>
     </message>
 </context>
 <context>
@@ -11316,7 +11322,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="74"/>
         <source>Sequence</source>
-        <translation type="unfinished"></translation>
+        <translation>Sequenz</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="79"/>
@@ -11332,7 +11338,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="89"/>
         <source>Skew</source>
-        <translation type="unfinished"></translation>
+        <translation>Versatz</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="94"/>
@@ -11472,7 +11478,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="356"/>
         <source>Save the forward table as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tabelle Hinweg als CSV speichern.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="361"/>
@@ -11482,7 +11488,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="364"/>
         <source>Save the reverse table as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rückweg Tabelle als CSV speichern.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="369"/>
@@ -11512,12 +11518,12 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.ui" line="388"/>
         <source>Next Problem Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächstes Paket mit Problemen</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="391"/>
         <source>Go to the next problem packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Gehe zum nächsten Paket mit Problemen</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="394"/>
@@ -11537,37 +11543,37 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1472"/>
         <source>No RTP packets found</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine RTP Pakete gefunden</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1494"/>
         <source>Please select an RTP packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte ein RTP Paket auswählen</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1518"/>
         <source>RTP version %1 found. Only version 2 is supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>RTP Version %1 gefunden. Es wird nur Version 2 unterstützt.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1526"/>
         <source>SSRC value not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>SSRC Wert nicht gefunden</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="376"/>
         <source>No streams found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Streams genfunden</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="411"/>
         <source>%1 streams found.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Streams gefunden.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="426"/>
         <source> G: Go to packet, N: Next problem packet</source>
-        <translation type="unfinished"></translation>
+        <translation> G: Gehe zu Paket, N: Nächstes Paket mit einem Problem</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="445"/>
@@ -11607,7 +11613,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="764"/>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern in eine Datei fehlgeschlagen: RTP Daten mit Blindgruppen.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="799"/>
@@ -11618,7 +11624,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="815"/>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern in eine Datei fehlgeschlagen: Nicht alle Daten aufgezeichnet.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1031"/>
@@ -11659,7 +11665,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1076"/>
         <source>Unable to save %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann %1 nicht sichern</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1080"/>
@@ -11693,7 +11699,7 @@ text-decoration: underline;
         <location filename="rtp_player_dialog.ui" line="14"/>
         <location filename="rtp_player_dialog.cpp" line="111"/>
         <source>RTP Player</source>
-        <translation type="unfinished"></translation>
+        <translation>RTP Player</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="32"/>
@@ -11723,7 +11729,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_player_dialog.ui" line="57"/>
         <source>Setup Frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Setup Frame</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="62"/>
@@ -11733,17 +11739,17 @@ text-decoration: underline;
     <message>
         <location filename="rtp_player_dialog.ui" line="67"/>
         <source>Time Span (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitspanne (s)</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="72"/>
         <source>Sample Rate (Hz)</source>
-        <translation type="unfinished"></translation>
+        <translation>Sample Rate (Hz)</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="77"/>
         <source>Payloads</source>
-        <translation type="unfinished"></translation>
+        <translation>Payloads</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="86"/>
@@ -11769,12 +11775,33 @@ text-decoration: underline;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Wertvolle Tastenkürzel zur Zeitersparniss&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Vergrößern&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Verkleinern&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Graph in Ursprungszustand zurücksetzen&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;10 Bildpunkte nach rechts&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;10 Bildpunkte nach links&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Umschalttaste+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach rechts&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Umschalttaste+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach links&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Zum Paket gehen, bei dem sich der Zeiger gerade befindet&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Maustastenverhalten umschalten: Verschieben / Zoomen&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Toggle capture / session time origin&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Leertaste&lt;/th&gt;&lt;td&gt;Raster ein/ausblenden&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="110"/>
         <source>&lt;small&gt;&lt;i&gt;No audio&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Kein Audio&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="162"/>
@@ -11784,12 +11811,12 @@ text-decoration: underline;
     <message>
         <location filename="rtp_player_dialog.ui" line="165"/>
         <source>Jitter Buffer:</source>
-        <translation type="unfinished"></translation>
+        <translation>Jitter Puffer:</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="172"/>
         <source>The simulated jitter buffer in milliseconds.</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulierter Jitter Puffer in Millisekunden.</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="204"/>
@@ -11813,27 +11840,27 @@ text-decoration: underline;
     <message>
         <location filename="rtp_player_dialog.ui" line="219"/>
         <source>Jitter Buffer</source>
-        <translation type="unfinished"></translation>
+        <translation>Jitter Puffer</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="224"/>
         <source>RTP Timestamp</source>
-        <translation type="unfinished"></translation>
+        <translation>RTP Zeitstempel</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="229"/>
         <source>Uninterrupted Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterbrechungsfreier Modus</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="250"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;View the timestamps as time of day (checked) or seconds since beginning of capture (unchecked).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zeitstempel als Uhrzeit anzeigen (ausgewählt) oder als Skunden seit dem Start des Mitschnitts (nicht angewählt).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="253"/>
         <source>Time of Day</source>
-        <translation type="unfinished"></translation>
+        <translation>Uhrzeit</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="272"/>
@@ -11898,7 +11925,7 @@ text-decoration: underline;
         <location filename="rtp_player_dialog.ui" line="327"/>
         <location filename="rtp_player_dialog.ui" line="330"/>
         <source>Move Left 1 Pixels</source>
-        <translation type="unfinished">Um 10 Bildpunkte nach links verschieben {1 ?}</translation>
+        <translation>Um 1 Bildpunkt nach links verschieben</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="333"/>
@@ -11909,7 +11936,7 @@ text-decoration: underline;
         <location filename="rtp_player_dialog.ui" line="338"/>
         <location filename="rtp_player_dialog.ui" line="341"/>
         <source>Move Right 1 Pixels</source>
-        <translation type="unfinished">Um 10 Bildpunkte nach rechts verschieben {1 ?}</translation>
+        <translation>Um 1 Bildpunkt nach rechts verschieben</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="344"/>
@@ -11979,7 +12006,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_player_dialog.cpp" line="169"/>
         <source>Play Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Streams abspielen</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.cpp" line="258"/>
@@ -11994,17 +12021,17 @@ text-decoration: underline;
     <message>
         <location filename="rtp_player_dialog.cpp" line="288"/>
         <source>Wrong Timestamps</source>
-        <translation type="unfinished"></translation>
+        <translation>Falscher Zeitstempel</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.cpp" line="303"/>
         <source>Inserted Silence</source>
-        <translation type="unfinished"></translation>
+        <translation>Eingefügte Stille</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.cpp" line="483"/>
         <source>%1. Press &quot;G&quot; to go to packet %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1. &quot;G&quot; um zu Paket %2 zu gehen</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.cpp" line="667"/>
@@ -12271,7 +12298,7 @@ text-decoration: underline;
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="82"/>
         <source>Number of DATA Chunks</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzahl an DATA Chunks</translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="87"/>
@@ -13423,12 +13450,12 @@ text-decoration: underline;
     <message>
         <location filename="sequence_dialog.ui" line="168"/>
         <source>Any</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="173"/>
         <source>Network</source>
-        <translation type="unfinished"></translation>
+        <translation>Netzwerk</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="198"/>
@@ -13619,12 +13646,12 @@ text-decoration: underline;
     <message>
         <location filename="splash_overlay.cpp" line="142"/>
         <source>Handing off dissectors</source>
-        <translation type="unfinished"></translation>
+        <translation>Dissectoren übergeben</translation>
     </message>
     <message>
         <location filename="splash_overlay.cpp" line="145"/>
         <source>Handing off plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugins übergeben</translation>
     </message>
     <message>
         <location filename="splash_overlay.cpp" line="148"/>
@@ -13634,7 +13661,7 @@ text-decoration: underline;
     <message>
         <location filename="splash_overlay.cpp" line="151"/>
         <source>Removing Lua plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Lua Plugins entfernen</translation>
     </message>
     <message>
         <location filename="splash_overlay.cpp" line="154"/>
@@ -13649,7 +13676,7 @@ text-decoration: underline;
     <message>
         <location filename="splash_overlay.cpp" line="160"/>
         <source>(Unknown action)</source>
-        <translation type="unfinished"></translation>
+        <translation>(Unbekannte Aktion)</translation>
     </message>
 </context>
 <context>
@@ -13803,7 +13830,46 @@ text-decoration: underline;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Wertvolle Tastenkürzel zur Zeitersparniss&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Vergrößern&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Verkleinern&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;x&lt;/th&gt;&lt;td&gt;X-Achse vergrößern&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;X&lt;/th&gt;&lt;td&gt;X-Achse verkleinern&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;y&lt;/th&gt;&lt;td&gt;Y-Achse vergrößern&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Y&lt;/th&gt;&lt;td&gt;Y-Achse verkleinern&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Graph in Ursprungszustand zurücksetzen&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;10 Bildpunkte nach rechts&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;10 Bildpunkte nach links&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;10 Bildpunkte nach oben&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;10 Bildpunkte nach unten&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Umschalttaste+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach rechts&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Umschalttaste+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach links&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Umschalttaste+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach oben&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Umschalttaste+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach unten&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Bild nach oben&lt;/i&gt;&lt;/th&gt;&lt;td&gt;Nächster Stream&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Bild nach unten&lt;/i&gt;&lt;/th&gt;&lt;td&gt;Vorheriger Stream&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;d&lt;/th&gt;&lt;td&gt;Richtung tauschen (TCP Endpunkte tauschen)&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Zum Paket gehen, bei dem sich der Zeiger gerade befindet&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Maustastenverhalten umschalten: Verschieben / Zoomen&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;s&lt;/th&gt;&lt;td&gt;Umschalten relative/absolute Sequenznummern&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Toggle capture / session time origin&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Leertaste&lt;/th&gt;&lt;td&gt;Raster ein/ausblenden&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;1&lt;/th&gt;&lt;td&gt;Round-Trip-Zeit-Graph&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;2&lt;/th&gt;&lt;td&gt;Durchsatzgraph&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;3&lt;/th&gt;&lt;td&gt;Stevens-Stil Zeit / Sequenznummern Graph&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;4&lt;/th&gt;&lt;td&gt; tcptrace-Stil Zeit / Sequenznummern Graph&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;5&lt;/th&gt;&lt;td&gt;Window Scaling Graph&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="75"/>
@@ -14371,7 +14437,7 @@ text-decoration: underline;
     <message>
         <location filename="tap_parameter_dialog.ui" line="79"/>
         <source>Copy a text representation of the tree to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Baum in Textform in die Zwischenablage kopieren</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="82"/>
@@ -14387,7 +14453,7 @@ text-decoration: underline;
     <message>
         <location filename="tap_parameter_dialog.ui" line="90"/>
         <source>Save the displayed data in various formats</source>
-        <translation type="unfinished"></translation>
+        <translation>Die angezeigten Daten in verschiedenen Formaten speichern</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="93"/>
@@ -14407,7 +14473,7 @@ text-decoration: underline;
     <message>
         <location filename="tap_parameter_dialog.cpp" line="557"/>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished"></translation>
+        <translation>Reine Textdatei (*.txt);;Komma getrennte Werte (*.csv);;XML Dokument (*.xml);;YAML Dokument (*.yaml)</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.cpp" line="561"/>
@@ -14435,19 +14501,19 @@ text-decoration: underline;
     <message>
         <location filename="time_shift_dialog.ui" line="62"/>
         <source>Set the time for packet</source>
-        <translation>Zeit setzen für Paket</translation>
+        <translation>Zeitstempel setzen für Paket</translation>
     </message>
     <message>
         <location filename="time_shift_dialog.ui" line="72"/>
         <location filename="time_shift_dialog.ui" line="106"/>
         <source>to</source>
-        <translation>bis</translation>
+        <translation>auf</translation>
     </message>
     <message>
         <location filename="time_shift_dialog.ui" line="96"/>
         <source>…then set packet</source>
         <oldsource>...then set packet</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>...und für das Paket</translation>
     </message>
     <message>
         <location filename="time_shift_dialog.ui" line="140"/>
@@ -14467,7 +14533,7 @@ text-decoration: underline;
     <message>
         <location filename="time_shift_dialog.cpp" line="38"/>
         <source>Time Shift</source>
-        <translation>Zeit verschieben</translation>
+        <translation>Zeitstempel verschieben</translation>
     </message>
     <message>
         <location filename="time_shift_dialog.cpp" line="139"/>
@@ -14585,7 +14651,7 @@ text-decoration: underline;
     <message>
         <location filename="uat_dialog.cpp" line="402"/>
         <source>Error parsing hex string</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim parsen der Hex Zeichenkette</translation>
     </message>
 </context>
 <context>
@@ -14707,7 +14773,7 @@ text-decoration: underline;
     <message>
         <location filename="wireless_frame.ui" line="124"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When capturing, show all frames, ones that have a valid frame check sequence (FCS), or ones with an invalid FCS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Beim Aufzeichenen sowohl Frames mit gültiger Prüfsumme (FCS) also auch mit ungültiger FCS anzeigen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="wireless_frame.ui" line="127"/>
@@ -14732,12 +14798,12 @@ text-decoration: underline;
     <message>
         <location filename="wireless_frame.ui" line="166"/>
         <source>Wireless controls are not supported in this version of Wireshark.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireless Steuerung wird in dieser Wireshark Version nicht unterstützt.</translation>
     </message>
     <message>
         <location filename="wireless_frame.ui" line="190"/>
         <source>External Helper</source>
-        <translation type="unfinished"></translation>
+        <translation>Externe Helfer</translation>
     </message>
     <message>
         <location filename="wireless_frame.ui" line="197"/>
@@ -14768,7 +14834,7 @@ text-decoration: underline;
     <message>
         <location filename="wireless_frame.cpp" line="292"/>
         <source>Unable to set FCS validation behavior.</source>
-        <translation type="unfinished"></translation>
+        <translation>FCS Überprüfungsverhalten kann nicht gesetzt werden.</translation>
     </message>
 </context>
 <context>
