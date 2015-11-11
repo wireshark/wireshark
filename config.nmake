@@ -1025,6 +1025,12 @@ APPVER=5.02
 #                                   See http://msdn.microsoft.com/en-us/library/dn785163.aspx
 #                                   VS2015: On by default when /Zi or /Z7 used.
 
+!IF DEFINED(DEBUG)
+DEBUG_CFLAGS=/Od
+!ELSE
+DEBUG_CFLAGS=/O2
+!ENDIF
+
 ##Note: LOCAL_CFLAGS are flags used for *all* compilations
 ##      STANDARD_CFLAGS (see below) are flags used just for *Wireshark* compilations
 !IF "$(MSVC_VARIANT)" == "MSVC2005"   || \
@@ -1040,7 +1046,7 @@ APPVER=5.02
         "$(MSVC_VARIANT)" == "MSVC2013EE" || \
         "$(MSVC_VARIANT)" == "MSVC2015"   || \
         "$(MSVC_VARIANT)" == "MSVC2015CE"
-LOCAL_CFLAGS=/Zi /W3 /MD /O2 /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED) \
+LOCAL_CFLAGS=/Zi /W3 /MD $(DEBUG_CFLAGS) /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED) \
 	     /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE -DPSAPI_VERSION=1
 
 !IF "$(MSVC_VARIANT)" == "MSVC2012"   || \
