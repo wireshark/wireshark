@@ -52,7 +52,6 @@ private:
 
 private slots:
     void ruleNameChanged(const QString name);
-    void ruleFilterChanged(const QString filter);
 };
 
 class ColoringRulesDialog : public QDialog

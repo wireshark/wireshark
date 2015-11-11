@@ -395,7 +395,6 @@ QWidget *ColoringRulesTreeDelegate::createEditor(QWidget *parent, const QStyleOp
     {
         SyntaxLineEdit *dfe = new SyntaxLineEdit(parent);
         connect(dfe, SIGNAL(textChanged(QString)), dfe, SLOT(checkDisplayFilter(QString)));
-        connect(dfe, SIGNAL(textChanged(QString)), this, SLOT(ruleFilterChanged(QString)));
         dfe->setText(ti->text(filter_col_));
         w = (QWidget*) dfe;
     }
@@ -420,16 +419,6 @@ void ColoringRulesTreeDelegate::ruleNameChanged(const QString name)
         name_edit->setSyntaxState(SyntaxLineEdit::Valid);
     }
 
-    if (tree_->currentItem()) {
-        tree_->currentItem()->setText(name_col_, name);
-    }
-}
-
-void ColoringRulesTreeDelegate::ruleFilterChanged(const QString filter)
-{
-    if (tree_->currentItem()) {
-        tree_->currentItem()->setText(filter_col_, filter);
-    }
 }
 
 /*
