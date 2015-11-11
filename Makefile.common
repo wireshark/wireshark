@@ -174,4 +174,5 @@ dumpcap_INCLUDES = \
 noinst_HEADERS =	\
 	$(SHARK_COMMON_INCLUDES) \
 	$(WIRESHARK_COMMON_INCLUDES) \
-	$(dumpcap_INCLUDES)
+	$(dumpcap_INCLUDES) \
+	$(randpkt_INCLUDES)
