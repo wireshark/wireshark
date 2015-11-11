@@ -3208,7 +3208,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     if (linktype != WTAP_ENCAP_PER_PACKET &&
         out_file_type == WTAP_FILE_TYPE_SUBTYPE_PCAP) {
         tshark_debug("tshark: writing PCAP format to %s", save_file);
-        if (strcmp(save_file, "-")) {
+        if (strcmp(save_file, "-") == 0) {
           /* Write to the standard output. */
           pdh = wtap_dump_open_stdout(out_file_type, linktype,
               snapshot_length, FALSE /* compressed */, &err);
@@ -3219,7 +3219,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     }
     else {
         tshark_debug("tshark: writing format type %d, to %s", out_file_type, save_file);
-        if (strcmp(save_file, "-")) {
+        if (strcmp(save_file, "-") == 0) {
           /* Write to the standard output. */
           pdh = wtap_dump_open_stdout_ng(out_file_type, linktype,
               snapshot_length, FALSE /* compressed */, shb_hdr, idb_inf, nrb_hdr, &err);
