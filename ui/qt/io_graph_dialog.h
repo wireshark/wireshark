@@ -34,6 +34,7 @@
 
 #include <QIcon>
 #include <QMenu>
+#include <QTextStream>
 
 class QComboBox;
 class QLineEdit;
@@ -83,6 +84,8 @@ public:
     QCPBars *bars() { return bars_; }
     double startOffset();
     int packetFromTime(double ts);
+    double getItemValue(int idx, const capture_file *cap_file) const;
+    int maxInterval () const { return cur_idx_; };
 
     void clearAllData();
 
@@ -103,7 +106,6 @@ signals:
     void requestRetap();
 
 private:
-    double getItemValue(int idx, capture_file *cap_file);
     // Callbacks for register_tap_listener
     static void tapReset(void *iog_ptr);
     static gboolean tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *data);
@@ -200,6 +202,8 @@ private:
     QRectF getZoomRanges(QRect zoom_rect);
     void itemEditingFinished(QTreeWidgetItem *item);
     void loadProfileGraphs();
+    void makeCsv(QTextStream &stream) const;
+    bool saveCsv(const QString &file_name) const;
 
 private slots:
     void updateWidgets();
@@ -245,6 +249,7 @@ private slots:
     void on_actionToggleTimeOrigin_triggered();
     void on_actionCrosshairs_triggered();
     void on_buttonBox_helpRequested();
+    void on_buttonBox_copyAsCsv_triggered();
     void on_buttonBox_accepted();
 };
 
