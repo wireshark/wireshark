@@ -23,6 +23,7 @@
 #include "ui_filter_expression_frame.h"
 
 #include <epan/filter_expressions.h>
+#include <ui/preference_utils.h>
 
 // To do:
 // - Add the ability to edit current expressions.
@@ -89,6 +90,7 @@ void FilterExpressionFrame::on_okButton_clicked()
 
     on_cancelButton_clicked();
     emit filterExpressionsChanged();
+    prefs_main_write();
 }
 
 void FilterExpressionFrame::on_cancelButton_clicked()
