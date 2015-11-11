@@ -639,13 +639,22 @@ imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *last_fi
     offset = tvb_find_guint8(tvb, offset, max_length - offset, '\r');
 
     if(offset != -1) {
-      if(tvb_get_guint8(tvb, ++offset) == '\n') {
+      /* protect against buffer overrun and only then look for next char */
+        if (++offset < max_length && tvb_get_guint8(tvb, offset) == '\n') {
         /* OK - so we have found CRLF */
+          if (++offset >= max_length) {
+            /* end of buffer and also end of fields */
+            if (last_field) {
+              *last_field = TRUE;
+            }
+            /* caller expects that there is CRLF after returned offset, if last_field is set */
+            return offset - 2;
+          }
         /* peek the next character */
-        switch(tvb_get_guint8(tvb, ++offset)) {
+        switch(tvb_get_guint8(tvb, offset)) {
         case '\r':
           /* probably end of the fields */
-          if(tvb_get_guint8(tvb, offset + 1) == '\n') {
+          if ((offset + 1) < max_length && tvb_get_guint8(tvb, offset + 1) == '\n') {
             if(last_field) {
               *last_field = TRUE;
             }
@@ -662,7 +671,7 @@ imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *last_fi
       }
     } else {
       /* couldn't find a CR - strange */
-      return offset;
+      break;
     }
 
   }
