@@ -27,6 +27,7 @@
 #include <glib.h>
 
 #include "wmem.h"
+#include "wmem_tree-int.h"
 #include "wmem_allocator.h"
 #include "wmem_allocator_block.h"
 #include "wmem_allocator_block_fast.h"
@@ -982,6 +983,109 @@ wmem_test_tree(void)
     wmem_destroy_allocator(allocator);
 }
 
+
+/* to be used as userdata in the callback wmem_test_itree_check_overlap_cb*/
+typedef struct wmem_test_itree_user_data {
+    wmem_range_t range;
+    guint counter;
+} wmem_test_itree_user_data_t;
+
+
+/* increase userData counter in case the range match the userdata range */
+static gboolean
+wmem_test_itree_check_overlap_cb (const void *key, void *value _U_, void *userData)
+{
+    const wmem_range_t *ckey = (const wmem_range_t *)key;
+    struct wmem_test_itree_user_data * d = (struct wmem_test_itree_user_data *)userData;
+    g_assert(key);
+    g_assert(d);
+
+    if(wmem_itree_range_overlap(ckey, &d->range)) {
+        d->counter++;
+    }
+
+    return FALSE;
+}
+
+
+static gboolean
+wmem_test_overlap(guint64 low, guint64 high, guint64 lowbis, guint64 highbis)
+{
+    wmem_range_t r1 = {low, high, 0};
+    wmem_range_t r2 = {lowbis, highbis, 0};
+    return wmem_itree_range_overlap(&r1, &r2);
+}
+
+static void
+wmem_test_itree(void)
+{
+    wmem_allocator_t   *allocator, *extra_allocator;
+    wmem_itree_t       *tree;
+    int i = 0;
+    gint32 max_rand = 0;
+    wmem_test_itree_user_data_t userData;
+
+    allocator       = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
+    extra_allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
+
+    tree = wmem_itree_new(allocator);
+    g_assert(tree);
+    g_assert(wmem_itree_is_empty(tree));
+
+    wmem_free_all(allocator);
+
+    /* make sure that wmem_test_overlap is correct (well it's no proof but...)*/
+    g_assert(wmem_test_overlap(0, 10, 0, 4));
+    g_assert(wmem_test_overlap(0, 10, 9, 14));
+    g_assert(wmem_test_overlap(5, 10, 3, 8));
+    g_assert(wmem_test_overlap(5, 10, 1, 12));
+    g_assert(!wmem_test_overlap(0, 10, 11, 12));
+
+    /* Generate a reference range, then fill an itree with random ranges,
+    then we count greedily the number of overlapping ranges and compare
+    the result with the optimized result
+     */
+
+    userData.counter = 0;
+
+    tree = wmem_itree_new(allocator);
+    wmem_range_t range, r2;
+
+    /* even though keys are uint64_t, we use G_MAXINT32 as a max because of the type returned by
+      g_test_rand_int_range.
+     */
+    max_rand = G_MAXINT32;
+    r2.max_edge = range.max_edge = 0;
+    range.low = g_test_rand_int_range(0, max_rand);
+    range.high = g_test_rand_int_range( (gint32)range.low, (gint32)max_rand);
+    userData.range = range;
+
+    for (i=0; i<CONTAINER_ITERS; i++) {
+
+        wmem_list_t *results = NULL;
+
+        /* reset the search */
+        userData.counter = 0;
+        r2.low = (guint64)g_test_rand_int_range(0, 100);
+        r2.high = (guint64)g_test_rand_int_range( (gint32)r2.low, 100);
+
+        wmem_itree_insert(tree, r2.low, r2.high, GINT_TO_POINTER(i));
+
+        /* greedy search */
+        wmem_tree_foreach(tree, wmem_test_itree_check_overlap_cb, &userData);
+
+        /* Optimized search */
+        results = wmem_itree_find_intervals(tree, allocator, range.low, range.high);
+
+        /* keep it as a loop instead of wmem_list_count in case one */
+        g_assert(wmem_list_count(results) == userData.counter);
+    }
+
+    wmem_destroy_allocator(extra_allocator);
+    wmem_destroy_allocator(allocator);
+}
+
+
 int
 main(int argc, char **argv)
 {
@@ -1007,6 +1111,7 @@ main(int argc, char **argv)
     g_test_add_func("/wmem/datastruct/stack",  wmem_test_stack);
     g_test_add_func("/wmem/datastruct/strbuf", wmem_test_strbuf);
     g_test_add_func("/wmem/datastruct/tree",   wmem_test_tree);
+    g_test_add_func("/wmem/datastruct/itree",  wmem_test_itree);
 
     ret = g_test_run();
 

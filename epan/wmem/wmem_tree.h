@@ -206,6 +206,11 @@ wmem_tree_lookup32_array_le(wmem_tree_t *tree, wmem_tree_key_t *key);
  */
 typedef gboolean (*wmem_foreach_func)(const void *key, void *value, void *userdata);
 
+
+/** Function type to print key/data of nodes in wmem_print_tree_verbose */
+typedef void (*wmem_printer_func)(const void *data);
+
+
 /** Traverse the tree and call callback(value, userdata) for each value found.
  * Returns TRUE if the traversal was ended prematurely by the callback.
  */
@@ -214,9 +219,10 @@ gboolean
 wmem_tree_foreach(wmem_tree_t* tree, wmem_foreach_func callback,
         void *user_data);
 
-/** Prints the structure of the tree to stdout. Primarily for debugging. */
+
+/* Accepts callbacks to print the key and/or data (both printers can be null) */
 void
-wmem_print_tree(wmem_tree_t *tree);
+wmem_print_tree(wmem_tree_t *tree, wmem_printer_func key_printer, wmem_printer_func data_printer);
 
 /**   @}
  *  @} */

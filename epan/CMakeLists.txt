@@ -1545,6 +1545,7 @@ set(WMEM_FILES
 	wmem/wmem_allocator_block_fast.c
 	wmem/wmem_allocator_simple.c
 	wmem/wmem_allocator_strict.c
+	wmem/wmem_interval_tree.c
 	wmem/wmem_list.c
 	wmem/wmem_map.c
 	wmem/wmem_miscutl.c
