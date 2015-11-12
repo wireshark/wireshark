@@ -291,6 +291,16 @@ void proto_reg_handoff_bgp(void);
 #define BGP_EXT_COM_STYPE_EVPN_LABEL        0x01    /* ESI MPLS Label [draft-ietf-l2vpn-evpn] */
 #define BGP_EXT_COM_STYPE_EVPN_IMP          0x02    /* ES Import [draft-sajassi-l2vpn-evpn-segment-route] */
 
+/* EPVN route AD NLRI ESI type */
+#define BGP_NLRI_EVPN_ESI_VALUE             0x00    /* ESI type 0, 9 bytes interger */
+#define BGP_NLRI_EVPN_ESI_LACP              0x01    /* ESI type 1, LACP 802.1AX */
+#define BGP_NLRI_EVPN_ESI_MSTP              0x02    /* ESI type 2, MSTP defined ESI */
+#define BGP_NLRI_EVPN_ESI_MAC               0x03    /* ESI type 3, MAC allocated value */
+#define BGP_NLRI_EVPN_ESI_RID               0x04    /* ESI type 4, Router ID as ESI */
+#define BGP_NLRI_EVPN_ESI_ASN               0x05    /* ESI type 5, ASN as ESI */
+#define BGP_NLRI_EVPN_ESI_RES               0xFF    /* ESI 0xFF reserved */
+
+
 /* Transitive Two-Octet AS-Specific Extended Community Sub-Types */
 /* 0x04 Unassigned */
 /* 0x06-0x07 Unassigned */
@@ -594,6 +604,17 @@ static const value_string evpnrtypevals[] = {
     { EVPN_INC_MCAST_TREE,     "Inclusive Multicast Route" },
     { EVPN_ETH_SEGMENT_ROUTE,  "Ethernet Segment Route" },
     { EVPN_IP_PREFIX_ROUTE,    "IP Prefix route"},
+    { 0, NULL }
+};
+
+static const value_string evpn_nlri_esi_type[] = {
+    { BGP_NLRI_EVPN_ESI_VALUE,      "ESI 9 bytes value" },
+    { BGP_NLRI_EVPN_ESI_LACP,       "ESI LACP 802.1AX defined" },
+    { BGP_NLRI_EVPN_ESI_MSTP,       "ESI mSTP defined" },
+    { BGP_NLRI_EVPN_ESI_MAC,        "ESI MAC address defined" },
+    { BGP_NLRI_EVPN_ESI_RID,        "ESI Router ID" },
+    { BGP_NLRI_EVPN_ESI_ASN,        "ESI autonomous system" },
+    { BGP_NLRI_EVPN_ESI_RES,        "ESI reserved" },
     { 0, NULL }
 };
 
@@ -1277,6 +1298,20 @@ static int hf_bgp_evpn_nlri_rt = -1;
 static int hf_bgp_evpn_nlri_len = -1;
 static int hf_bgp_evpn_nlri_rd = -1;
 static int hf_bgp_evpn_nlri_esi = -1;
+static int hf_bgp_evpn_nlri_esi_type = -1;
+static int hf_bgp_evpn_nlri_esi_lacp_mac = -1;
+static int hf_bgp_evpn_nlri_esi_portk = -1;
+static int hf_bgp_evpn_nlri_esi_remain = -1;
+static int hf_bgp_evpn_nlri_esi_value = -1;
+static int hf_bgp_evpn_nlri_esi_rb_mac = -1;
+static int hf_bgp_evpn_nlri_esi_rbprio = -1;
+static int hf_bgp_evpn_nlri_esi_sys_mac = -1;
+static int hf_bgp_evpn_nlri_esi_mac_discr = -1;
+static int hf_bgp_evpn_nlri_esi_router_id = -1;
+static int hf_bgp_evpn_nlri_esi_router_discr = -1;
+static int hf_bgp_evpn_nlri_esi_asn = -1;
+static int hf_bgp_evpn_nlri_esi_asn_discr = -1;
+static int hf_bgp_evpn_nlri_esi_reserved = -1;
 static int hf_bgp_evpn_nlri_etag = -1;
 static int hf_bgp_evpn_nlri_mpls_ls = -1;
 static int hf_bgp_evpn_nlri_maclen = -1;
@@ -1665,6 +1700,7 @@ static gint ett_bgp_tunnel_subtlv = -1;
 static gint ett_bgp_tunnel_subtlv_subtree = -1;
 static gint ett_bgp_link_state = -1;
 static gint ett_bgp_evpn_nlri = -1;
+static gint ett_bgp_evpn_nlri_esi = -1;
 static gint ett_bgp_mpls_labels = -1;
 static gint ett_bgp_pmsi_tunnel_id = -1;
 static gint ett_bgp_aigp_attr = -1;
@@ -1690,6 +1726,7 @@ static expert_field ei_bgp_attr_as_path_as_len_err = EI_INIT;
 static expert_field ei_bgp_evpn_nlri_rt4_no_ip = EI_INIT;
 static expert_field ei_bgp_evpn_nlri_rt4_len_err = EI_INIT;
 static expert_field ei_bgp_evpn_nlri_rt_type_err = EI_INIT;
+static expert_field ei_bgp_evpn_nlri_esi_type_err = EI_INIT;
 /* desegmentation */
 static gboolean bgp_desegment = TRUE;
 
@@ -3681,6 +3718,90 @@ decode_link_state_attribute_tlv(proto_tree *tree, tvbuff_t *tvb, gint offset, pa
     return length + 4;
 }
 
+static int decode_evpn_nlri_esi(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_info *pinfo) {
+    guint8 esi_type = 0;
+    proto_tree *esi_tree;
+    proto_item *ti;
+    wmem_allocator_t *buffer_value_string = NULL;
+
+    ti = proto_tree_add_item(tree, hf_bgp_evpn_nlri_esi, tvb, offset, 10, ENC_NA);
+    esi_tree = proto_item_add_subtree(ti, ett_bgp_evpn_nlri_esi);
+    proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    esi_type = tvb_get_guint8(tvb, offset);
+    switch (esi_type) {
+        case BGP_NLRI_EVPN_ESI_VALUE :
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_value, tvb,
+                                offset+1, 9, ENC_NA);
+            proto_item_append_text(ti, ": %s",
+                                   tvb_bytes_to_str_punct(buffer_value_string, tvb, offset + 1, 9, ' '));
+            break;
+        case BGP_NLRI_EVPN_ESI_LACP :
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_lacp_mac, tvb,
+                                offset+1, 6, ENC_NA);
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_portk, tvb,
+                                offset+7, 2, ENC_NA);
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_remain, tvb,
+                                offset+9, 1, ENC_NA);
+            proto_item_append_text(ti, ": %s, Key: %s",
+                                   tvb_ether_to_str(tvb,offset+1),
+                                   tvb_bytes_to_str_punct(buffer_value_string, tvb, offset + 7, 2, ' '));
+            break;
+        case BGP_NLRI_EVPN_ESI_MSTP :
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_rb_mac, tvb,
+                                offset+1, 6, ENC_NA);
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_rbprio, tvb,
+                                offset+7, 2, ENC_NA);
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_remain, tvb,
+                                offset+9, 1, ENC_NA);
+            proto_item_append_text(ti, ": %s, Priority: %s",
+                                   tvb_ether_to_str(tvb,offset+1),
+                                   tvb_bytes_to_str_punct(buffer_value_string, tvb, offset + 7, 2, ' '));
+            break;
+        case BGP_NLRI_EVPN_ESI_MAC :
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_sys_mac, tvb,
+                                offset+1, 6, ENC_NA);
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_mac_discr, tvb,
+                                offset+7, 2, ENC_NA);
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_remain, tvb,
+                                offset+9, 1, ENC_NA);
+            proto_item_append_text(ti, ": %s, Discriminator: %s",
+                                   tvb_ether_to_str(tvb,offset+1),
+                                   tvb_bytes_to_str_punct(buffer_value_string, tvb, offset + 7, 2, ' '));
+            break;
+        case BGP_NLRI_EVPN_ESI_RID :
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_router_id, tvb,
+                                offset+1, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_router_discr, tvb,
+                                offset+5, 4, ENC_NA);
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_remain, tvb,
+                                offset+9, 1, ENC_NA);
+            proto_item_append_text(ti, ": %s, Discriminator: %s",
+                                   tvb_ip_to_str(tvb,offset+1),
+                                   tvb_bytes_to_str_punct(buffer_value_string, tvb, offset + 5, 4, ' '));
+            break;
+        case BGP_NLRI_EVPN_ESI_ASN :
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_asn, tvb,
+                                offset+1, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_asn_discr, tvb,
+                                offset+5, 4, ENC_NA);
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_remain, tvb,
+                                offset+9, 1, ENC_NA);
+            proto_item_append_text(ti, ": %u, Discriminator: %s",
+                                   tvb_get_ntohl(tvb,offset+1),
+                                   tvb_bytes_to_str_punct(buffer_value_string, tvb, offset + 5, 4, ' '));
+            break;
+        case BGP_NLRI_EVPN_ESI_RES :
+            proto_tree_add_item(esi_tree, hf_bgp_evpn_nlri_esi_reserved, tvb,
+                                offset+1, 9, ENC_NA);
+            break;
+        default :
+            expert_add_info_format(pinfo, tree, &ei_bgp_evpn_nlri_esi_type_err,
+                                   "Invalid EVPN ESI (%u)!", esi_type);
+            return (-1);
+    }
+    return(0);
+}
+
 /*
  *  * Decode EVPN NLRI, http://tools.ietf.org/html/draft-ietf-l2vpn-evpn-05#section-7.1
  *   */
@@ -3744,8 +3865,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
                 +---------------------------------------+
    */
 
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_esi, tvb, start_offset+10,
-                            10, ENC_NA);
+        decode_evpn_nlri_esi(prefix_tree, tvb, start_offset+10, pinfo);
 
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, start_offset+20,
                                    4, ENC_BIG_ENDIAN);
@@ -3783,8 +3903,8 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         +---------------------------------------+
 
 */
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_esi, tvb, start_offset+10,
-                            10, ENC_NA);
+
+        decode_evpn_nlri_esi(prefix_tree, tvb, start_offset+10, pinfo);
 
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, start_offset+20,
                             4, ENC_BIG_ENDIAN);
@@ -3883,8 +4003,8 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         |          (4 or 16 octets)             |
         +---------------------------------------+
 */
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_esi, tvb, start_offset+10,
-                            10, ENC_NA);
+
+        decode_evpn_nlri_esi(prefix_tree, tvb, start_offset+10, pinfo);
 
         ip_len = tvb_get_guint8(tvb, offset + 20) / 8;
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_iplen, tvb, start_offset+20,
@@ -3932,8 +4052,8 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
     +---------------------------------------+
 */
 
-        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_esi, tvb, start_offset+10,
-                            10, ENC_NA);
+        decode_evpn_nlri_esi(prefix_tree, tvb, start_offset+10, pinfo);
+
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, start_offset+20,
                             4, ENC_BIG_ENDIAN);
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_prefix_len, tvb, start_offset+24,
@@ -8024,8 +8144,50 @@ proto_register_bgp(void)
         { "Route Distinguisher", "bgp.evpn.nlri.rd", FT_BYTES,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
      { &hf_bgp_evpn_nlri_esi,
-        { "ESI", "bgp.evpn.nlri.esi", FT_BYTES,
-          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        { "ESI", "bgp.evpn.nlri.esi", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+     { &hf_bgp_evpn_nlri_esi_type,
+        { "ESI Type", "bgp.evpn.nlri.esi.type", FT_UINT8,
+          BASE_DEC, VALS(evpn_nlri_esi_type), 0x0, "EVPN ESI type", HFILL }},
+     { &hf_bgp_evpn_nlri_esi_lacp_mac,
+        { "CE LACP system MAC", "bgp.evpn.nlri.esi.lacp_mac", FT_ETHER,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+     { &hf_bgp_evpn_nlri_esi_portk,
+        { "LACP port key", "bgp.evpn.nlri.esi.lacp_portkey", FT_BYTES,
+          SEP_SPACE, NULL, 0x0, NULL, HFILL }},
+     { &hf_bgp_evpn_nlri_esi_remain,
+        { "Remaining bytes", "bgp.evpn.nlri.esi.remaining", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+     { &hf_bgp_evpn_nlri_esi_reserved,
+        { "Reserved value all 0xff", "bgp.evpn.nlri.esi.reserved", FT_BYTES,
+         BASE_NONE, NULL, 0x0, NULL, HFILL }},
+     { &hf_bgp_evpn_nlri_esi_value,
+        { "ESI 9 bytes value", "bgp.evpn.nlri.esi.arbitrary_bytes", FT_BYTES,
+          SEP_SPACE, NULL, 0x0, NULL, HFILL }},
+     { &hf_bgp_evpn_nlri_esi_rb_mac,
+        { "ESI root bridge MAC", "bgp.evpn.nlri.esi.root_brige", FT_ETHER,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+     { &hf_bgp_evpn_nlri_esi_rbprio,
+        { "ESI root bridge priority", "bgp.evpn.nlri.esi.rb_prio", FT_BYTES,
+          SEP_SPACE, NULL, 0x0, NULL, HFILL }},
+     { &hf_bgp_evpn_nlri_esi_sys_mac,
+        { "ESI system MAC", "bgp.evpn.nlri.esi.system_mac", FT_ETHER,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+     { &hf_bgp_evpn_nlri_esi_mac_discr,
+        { "ESI system mac discriminator", "bgp.evpn.nlri.esi.system_mac_discr", FT_BYTES,
+          SEP_SPACE, NULL, 0x0, NULL, HFILL }},
+     { &hf_bgp_evpn_nlri_esi_router_id,
+        { "ESI router ID", "bgp.evpn.nlri.esi.router_id", FT_IPv4,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+     { &hf_bgp_evpn_nlri_esi_router_discr,
+        { "ESI router discriminator", "bgp.evpn.nlri.esi.router_discr", FT_BYTES,
+          SEP_SPACE, NULL, 0x0, NULL, HFILL }},
+     { &hf_bgp_evpn_nlri_esi_asn,
+        { "ESI ASN", "bgp.evpn.nlri.esi.asn", FT_UINT32,
+          BASE_DEC, NULL, 0x0, NULL, HFILL }},
+     { &hf_bgp_evpn_nlri_esi_asn_discr,
+        { "ESI ASN discriminator", "bgp.evpn.nlri.esi.asn_discr", FT_BYTES,
+          SEP_SPACE, NULL, 0x0, NULL, HFILL }},
      { &hf_bgp_evpn_nlri_etag,
        { "Ethernet Tag ID", "bgp.evpn.nlri.etag", FT_UINT32,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -8104,6 +8266,7 @@ proto_register_bgp(void)
       &ett_bgp_tunnel_subtlv_subtree,
       &ett_bgp_link_state,
       &ett_bgp_evpn_nlri,
+      &ett_bgp_evpn_nlri_esi,
       &ett_bgp_mpls_labels,
       &ett_bgp_pmsi_tunnel_id,
       &ett_bgp_aigp_attr,
@@ -8123,6 +8286,7 @@ proto_register_bgp(void)
         { &ei_bgp_ext_com_len_bad, { "bgp.ext_com.length.bad", PI_PROTOCOL, PI_ERROR, "Extended community length is wrong", EXPFILL }},
         { &ei_bgp_evpn_nlri_rt4_len_err, { "bgp.evpn.len", PI_MALFORMED, PI_ERROR, "Length is invalid", EXPFILL }},
         { &ei_bgp_evpn_nlri_rt_type_err, { "bgp.evpn.type", PI_MALFORMED, PI_ERROR, "EVPN Route Type is invalid", EXPFILL }},
+        { &ei_bgp_evpn_nlri_esi_type_err, { "bgp.evpn.esi_type", PI_MALFORMED, PI_ERROR, "EVPN ESI Type is invalid", EXPFILL }},
         { &ei_bgp_evpn_nlri_rt4_no_ip, { "bgp.evpn.no_ip", PI_PROTOCOL, PI_NOTE, "IP Address: NOT INCLUDED", EXPFILL }},
         { &ei_bgp_attr_pmsi_tunnel_type, { "bgp.attr.pmsi.tunnel_type", PI_PROTOCOL, PI_ERROR, "Unknown Tunnel type", EXPFILL }},
         { &ei_bgp_attr_pmsi_opaque_type, { "bgp.attr.pmsi.opaque_type", PI_PROTOCOL, PI_ERROR, "Unvalid pmsi opaque type", EXPFILL }},
