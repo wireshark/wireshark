@@ -389,7 +389,7 @@ dissect_iso14443_msg(tvbuff_t *tvb, packet_info *pinfo,
         iso14443_trans->cmd = cmd;
 
     ret = dissector_try_uint_new(iso14443_cmd_type_table, cmd,
-            tvb, pinfo, tree, FALSE, GUINT_TO_POINTER(direction));
+            tvb, pinfo, tree, FALSE, GUINT_TO_POINTER((guint)direction));
     if (ret == 0) {
         proto_tree_add_expert(tree, pinfo, &ei_iso14443_unknown_cmd,
                 tvb, 0, tvb_captured_length(tvb));
