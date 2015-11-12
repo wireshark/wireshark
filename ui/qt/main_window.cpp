@@ -1684,6 +1684,12 @@ void MainWindow::initMainToolbarIcons()
     main_ui_->actionGoGoToPacket->setIcon(StockIcon("go-jump"));
     main_ui_->actionGoFirstPacket->setIcon(StockIcon("go-first"));
     main_ui_->actionGoLastPacket->setIcon(StockIcon("go-last"));
+    main_ui_->actionGoPreviousConversationPacket->setIcon(StockIcon("go-previous"));
+    main_ui_->actionGoNextConversationPacket->setIcon(StockIcon("go-next"));
+#if defined(Q_OS_MAC)
+    main_ui_->actionGoPreviousConversationPacket->setShortcut(QKeySequence(Qt::META | Qt::Key_Comma));
+    main_ui_->actionGoNextConversationPacket->setShortcut(QKeySequence(Qt::META | Qt::Key_Period));
+#endif
     main_ui_->actionGoAutoScroll->setIcon(StockIcon("x-stay-last"));
 
     main_ui_->actionViewColorizePacketList->setIcon(StockIcon("x-colorize-packets"));

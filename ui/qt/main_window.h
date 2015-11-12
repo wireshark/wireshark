@@ -203,6 +203,7 @@ private:
 
     void addMenuActions(QList<QAction *> &actions, int menu_group);
     void removeMenuActions(QList<QAction *> &actions, int menu_group);
+    void goToConversationFrame(bool go_next);
 
 signals:
     void setCaptureFile(capture_file *cf);
@@ -411,6 +412,8 @@ private slots:
 
     void on_actionGoGoToPacket_triggered();
     void on_actionGoGoToLinkedPacket_triggered();
+    void on_actionGoNextConversationPacket_triggered();
+    void on_actionGoPreviousConversationPacket_triggered();
     void on_actionGoAutoScroll_toggled(bool checked);
     void resetPreviousFocus();
 
