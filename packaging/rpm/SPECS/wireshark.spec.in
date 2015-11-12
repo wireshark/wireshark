@@ -395,6 +395,10 @@ fi
 %{_libdir}/wireshark
 # Don't pick up the wireshark (GUI) man page
 %exclude %{_mandir}/man1/wireshark.*
+# Our RPMs use 'alternatives' to choose the Wireshark so it doesn't make sense
+# to have 2 desktop entries: one for 'wireshark' (Qt or Gtk GUI, depending on
+# configuration) and one for 'wireshark-gtk' (the Gtk GUI).
+%exclude %{_datadir}/applications/wireshark-gtk.desktop
 %{_mandir}/man1/*
 %{_mandir}/man4/*
 %{_datadir}/wireshark
@@ -406,7 +410,6 @@ fi
 %files qt
 %defattr(-,root,root)
 %{_datadir}/applications/wireshark.desktop
-%{_datadir}/applications/wireshark-gtk.desktop
 %{_datadir}/appdata/wireshark.appdata.xml
 %{_datadir}/icons/hicolor/*/apps/*
 %{_datadir}/icons/hicolor/*/mimetypes/*
@@ -420,7 +423,6 @@ fi
 %files gtk
 %defattr(-,root,root)
 %{_datadir}/applications/wireshark.desktop
-%{_datadir}/applications/wireshark-gtk.desktop
 %{_datadir}/appdata/wireshark.appdata.xml
 %{_datadir}/icons/hicolor/*/apps/*
 %{_datadir}/icons/hicolor/*/mimetypes/*
