@@ -200,8 +200,8 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
     save_bt->setText(tr("Save As" UTF8_HORIZONTAL_ELLIPSIS));
 
-    QPushButton *copy_bt = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ApplyRole);
-    connect (copy_bt, SIGNAL(clicked()), this, SLOT(on_buttonBox_copyAsCsv_triggered()));
+    QPushButton *copy_bt = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
+    connect (copy_bt, SIGNAL(clicked()), this, SLOT(copyAsCsvClicked()));
 
     stat_timer_ = new QTimer(this);
     connect(stat_timer_, SIGNAL(timeout()), this, SLOT(updateStatistics()));
@@ -1508,14 +1508,6 @@ void IOGraphDialog::on_buttonBox_helpRequested()
     wsApp->helpTopicAction(HELP_STATS_IO_GRAPH_DIALOG);
 }
 
-void IOGraphDialog::on_buttonBox_copyAsCsv_triggered()
-{
-    QString csv;
-    QTextStream stream(&csv, QIODevice::Text);
-    makeCsv(stream);
-    wsApp->clipboard()->setText(stream.readAll());
-}
-
 // XXX - Copied from tcp_stream_dialog. This should be common code.
 void IOGraphDialog::on_buttonBox_accepted()
 {
@@ -1574,16 +1566,16 @@ void IOGraphDialog::makeCsv(QTextStream &stream) const
         QTreeWidgetItem *ti = ui->graphTreeWidget->topLevelItem(i);
         if (ti && ti->checkState(name_col_) == Qt::Checked) {
             IOGraph *iog = ti->data(name_col_, Qt::UserRole).value<IOGraph *>();
-            QString name = iog->name().toUtf8();
-            name.replace("\"", "\"\"");  // RFC 4180 2.7
-            stream << ",\"" << name << "\"";
             activeGraphs.append(iog);
             if (max_interval < iog->maxInterval()) {
                 max_interval = iog->maxInterval();
             }
+            QString name = iog->name().toUtf8();
+            name = QString("\"%1\"").arg(name.replace("\"", "\"\""));  // RFC 4180
+            stream << "," << name;
         }
     }
-    stream << "\n";
+    stream << endl;
 
     for (int interval = 0; interval <= max_interval; interval++) {
         double interval_start = (double)interval * ((double)ui_interval / 1000.0);
@@ -1595,8 +1587,16 @@ void IOGraphDialog::makeCsv(QTextStream &stream) const
             }
             stream << "," << value;
         }
-        stream << "\n";
+        stream << endl;
     }
+}
+
+void IOGraphDialog::copyAsCsvClicked()
+{
+    QString csv;
+    QTextStream stream(&csv, QIODevice::Text);
+    makeCsv(stream);
+    wsApp->clipboard()->setText(stream.readAll());
 }
 
 bool IOGraphDialog::saveCsv(const QString &file_name) const
