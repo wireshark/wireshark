@@ -13257,7 +13257,6 @@ ieee80211_tag_ssid(packet_info *pinfo, proto_tree *tree,
 {
   /* 7.3.2.1 SSID element (0) */
   gchar *ssid; /* The SSID may consist of arbitrary bytes */
-  const gchar *ssid_end;
   gint ssid_len = tag_len;
 
   if (beacon_padding != 0) /* padding bug */
@@ -13270,26 +13269,67 @@ ieee80211_tag_ssid(packet_info *pinfo, proto_tree *tree,
     ssid_len = MAX_SSID_LEN;
   }
 
-  ssid = format_text(tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, ssid_len, ENC_ASCII), ssid_len);
+  /*
+   * XXX - the 802.11 specs aren't particularly clear on how the SSID
+   * is to be interpreted.
+   *
+   * IEEE Std 802.11-1999, section 7.3.2.2 "Service Set Identity (SSID)
+   * element" says just
+   *
+   *    The length of the SSID information field is between 0 and 32
+   *    octets. A 0 length information field indicates the broadcast SSID.
+   *
+   * with no indication that those octets encode a string.
+   *
+   * IEEE Std 802.11-2012, section 8.4.2.2 "SSID element", says that *but*
+   * says after it
+   *
+   *    When the UTF-8 SSID subfield of the Extended Capabilities element
+   *    is equal to 1 in the frame that includes the SSID element, the
+   *    SSID is interpreted using UTF-8 encoding.
+   *
+   *    NOTE -- This is true for Beacon and Probe Response frames when the
+   *    MLME-START.request primitive was issued with the SSIDEncoding
+   *    parameter equal to UTF8.
+   *
+   * and the SSIDEncoding parameter can either be UNSPECIFIED or UTF8.
+   *
+   * So I *guess* that means that, if the UTF-8 SSID subfield isn't
+   * equal to 1, the SSID is, in theory, just a bunch of octets, but
+   * in practice, *probably* ASCII as that's the typical convention,
+   * and, if it is equal to 1, it's a UTF-8 string.  (Of course, a
+   * host can put anything there it wants to, so we shouldn't just
+   * assume that it's *valid* ASCII or *valid* UTF-8.)
+   *
+   * So we really should extract it as an array of ssid_len bytes,
+   * pass those bytes to AirPDcapSetLastSSID(), and:
+   *
+   *    If the UTF-8 SSID subfield isn't set to 1, put the SSID in
+   *    as an ENC_ASCII string;
+   *
+   *    If the UTF-8 SSID subfield is set to 1, put it in as an
+   *    ENC_UTF_8 string;
+   *
+   * and rely on the libwireshark core code to somehow deal with
+   * non-ASCII characters or invalid UTF-8 sequences or valid-but-
+   * not-all-printable ASCII or UTF-8 strings in the protocol tree
+   * display.  I'm not sure we can currently rely on it to handle
+   * invalid UTF-8 or non-printable characters in UTF-8 strings,
+   * however, so we just treat it as ASCII for now.
+   *
+   * We also need a better way of getting the display format of a
+   * string value, so we can do something other than run it through
+   * format_text(), which won't handle UTF-8.
+   */
+  ssid = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, ssid_len, ENC_ASCII);
   if (ssid_len == (gint)tag_len) {
     AirPDcapSetLastSSID(&airpdcap_ctx, (CHAR *) ssid, ssid_len);
   }
-  g_utf8_validate(ssid, ssid_len, &ssid_end);
-  ssid[ssid_end - ssid] = '\0';
-  if ((gint)(ssid_end - ssid) == ssid_len) {
-    proto_tree_add_item(tree, hf_ieee80211_tag_ssid, tvb, offset + 2, tag_len,
-                        ENC_ASCII|ENC_NA);
-  } else {
-    wmem_strbuf_t *ssid_sb = wmem_strbuf_new(wmem_packet_scope(), ssid);
-    ssid_len = (gint)(ssid_end - ssid);
-    wmem_strbuf_append(ssid_sb, " [truncated]");
-    proto_tree_add_string_format_value(tree, hf_ieee80211_tag_ssid, tvb, offset + 2, tag_len,
-                        ssid, "%s", wmem_strbuf_get_str(ssid_sb));
-    ssid = (gchar*)wmem_strbuf_get_str(ssid_sb);
-  }
+  proto_tree_add_item(tree, hf_ieee80211_tag_ssid, tvb, offset + 2, tag_len,
+                      ENC_ASCII|ENC_NA);
 
   if (ssid_len > 0) {
-    proto_item_append_text(ti, ": %s", ssid);
+    proto_item_append_text(ti, ": %s", format_text(ssid, ssid_len));
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=%s", format_text(ssid, ssid_len));
 
