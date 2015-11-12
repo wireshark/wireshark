@@ -264,7 +264,7 @@ megacostat_is_duplicate_reply(const gcp_cmd_t* cmd)
             return FALSE;
         }
         break;
-	default:
+    default:
         return FALSE;
         break;
     }
