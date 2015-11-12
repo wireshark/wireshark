@@ -387,6 +387,13 @@ Set the following environment variables, using paths and values suitable for you
 
 > set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 ----
+If your Cygwin installation path is not automatically detected by CMake, you can explicitly specify it with the following
+environment variable:
+
+----
+> set WIRESHARK_CYGWIN_INSTALL_PATH=c:\cygwin or whatever other path that is applicable to your setup
+----
+
 If you are using a version of Visual Studio earlier than VS2012 then you must set an additional env var,
 e.g. for VS2010 set the following:
 ----
