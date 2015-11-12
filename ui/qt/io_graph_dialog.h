@@ -214,6 +214,7 @@ private slots:
     void activateLastItem();
     void resetAxes();
     void updateStatistics(void);
+    void copyAsCsvClicked();
 
     void on_intervalComboBox_currentIndexChanged(int index);
     void on_todCheckBox_toggled(bool checked);
@@ -249,7 +250,6 @@ private slots:
     void on_actionToggleTimeOrigin_triggered();
     void on_actionCrosshairs_triggered();
     void on_buttonBox_helpRequested();
-    void on_buttonBox_copyAsCsv_triggered();
     void on_buttonBox_accepted();
 };
 
