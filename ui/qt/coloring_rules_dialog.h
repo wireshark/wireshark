@@ -87,7 +87,7 @@ private:
     ColoringRulesTreeDelegate coloring_rules_tree_delegate_;
     struct _GSList *conversation_colors_;
 
-    void addColoringRule(bool disabled, QString name, QString filter, QColor foreground, QColor background, bool start_editing = false);
+    void addColoringRule(bool disabled, QString name, QString filter, QColor foreground, QColor background, bool start_editing = false, bool at_top = true);
     void changeColor(bool foreground = true);
 };
 

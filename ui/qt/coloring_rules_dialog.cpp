@@ -56,6 +56,10 @@
  * Coloring rule editor for the current profile.
  */
 
+// To do:
+// - Make the filter column narrower? It's easy to run into Qt's annoying
+//   habit of horizontally scrolling QTreeWidgets here.
+
 // Callback for color_filters_clone.
 void
 color_filter_add_cb(color_filter_t *colorf, gpointer user_data)
@@ -71,7 +75,7 @@ enum {
     filter_col_
 };
 
-const QString new_rule_name_ = QObject::tr("New coloring rule");
+static const QString new_rule_name_ = QObject::tr("New coloring rule");
 
 ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
     QDialog(parent),
@@ -130,7 +134,8 @@ void ColoringRulesDialog::addColor(_color_filter *colorf)
     } else {
         addColoringRule(colorf->disabled, colorf->filter_name, colorf->filter_text,
                         ColorUtils::fromColorT(colorf->fg_color),
-                        ColorUtils::fromColorT(colorf->bg_color));
+                        ColorUtils::fromColorT(colorf->bg_color),
+                        false, false);
     }
 }
 
@@ -268,9 +273,9 @@ void ColoringRulesDialog::on_bGPushButton_clicked()
     changeColor(false);
 }
 
-void ColoringRulesDialog::addColoringRule(bool disabled, QString name, QString filter, QColor foreground, QColor background, bool start_editing)
+void ColoringRulesDialog::addColoringRule(bool disabled, QString name, QString filter, QColor foreground, QColor background, bool start_editing, bool at_top)
 {
-    QTreeWidgetItem *ti = new QTreeWidgetItem(ui->coloringRulesTreeWidget);
+    QTreeWidgetItem *ti = new QTreeWidgetItem();
 
     ti->setFlags(ti->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsEditable);
     ti->setFlags(ti->flags() & ~(Qt::ItemIsDropEnabled));
@@ -283,7 +288,11 @@ void ColoringRulesDialog::addColoringRule(bool disabled, QString name, QString f
         ti->setBackground(i, background);
     }
 
-    ui->coloringRulesTreeWidget->addTopLevelItem(ti);
+    if (at_top) {
+        ui->coloringRulesTreeWidget->insertTopLevelItem(0, ti);
+    } else {
+        ui->coloringRulesTreeWidget->addTopLevelItem(ti);
+    }
 
     if (start_editing) {
         ui->coloringRulesTreeWidget->setCurrentItem(ti);
