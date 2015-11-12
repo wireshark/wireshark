@@ -194,7 +194,9 @@ so it shows a version number for:
 
 * Web/wget (not needed if using CMake)
 
-* asciidoc
+* Text/asciidoc
+
+* Text/docbook-xml45
 
 // Also need: bash/sh, sed
 
