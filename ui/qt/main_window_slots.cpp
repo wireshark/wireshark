@@ -42,7 +42,7 @@
 
 #include "wsutil/file_util.h"
 #include "wsutil/filesystem.h"
-#include <wsutil/str_util.h>
+#include "wsutil/str_util.h"
 
 #include "epan/addr_resolv.h"
 #include "epan/dissector_filters.h"
@@ -3275,6 +3275,64 @@ void MainWindow::on_actionGoGoToLinkedPacket_triggered()
     if (!ok) return;
 
     packet_list_->goToPacket(packet_num);
+}
+
+// gtk/main_menubar.c:goto_conversation_frame
+void MainWindow::goToConversationFrame(bool go_next) {
+    gchar     *filter       = NULL;
+    dfilter_t *dfcode       = NULL;
+    gboolean   found_packet = FALSE;
+    packet_info *pi = &(capture_file_.capFile()->edt->pi);
+    conversation_filter_t* conv_filter;
+
+    /* Try to build a conversation
+     * filter in the order TCP, UDP, IP, Ethernet and apply the
+     * coloring */
+    conv_filter = find_conversation_filter("tcp");
+    if ((conv_filter != NULL) && (conv_filter->is_filter_valid(pi)))
+        filter = conv_filter->build_filter_string(pi);
+    conv_filter = find_conversation_filter("udp");
+    if ((conv_filter != NULL) && (conv_filter->is_filter_valid(pi)))
+        filter = conv_filter->build_filter_string(pi);
+    conv_filter = find_conversation_filter("ip");
+    if ((conv_filter != NULL) && (conv_filter->is_filter_valid(pi)))
+        filter = conv_filter->build_filter_string(pi);
+    conv_filter = find_conversation_filter("ipv6");
+    if ((conv_filter != NULL) && (conv_filter->is_filter_valid(pi)))
+        filter = conv_filter->build_filter_string(pi);
+
+    if( filter == NULL ) {
+        main_ui_->statusBar->pushTemporaryStatus(tr("Unable to build conversation filter."));
+        g_free(filter);
+        return;
+    }
+
+    if (!dfilter_compile(filter, &dfcode, NULL)) {
+        /* The attempt failed; report an error. */
+        main_ui_->statusBar->pushTemporaryStatus(tr("Error compiling filter for this conversation."));
+        g_free(filter);
+        return;
+    }
+
+    found_packet = cf_find_packet_dfilter(capture_file_.capFile(), dfcode, go_next ? SD_FORWARD : SD_BACKWARD);
+
+    if (!found_packet) {
+        /* We didn't find a packet */
+        main_ui_->statusBar->pushTemporaryStatus(tr("No previous/next packet in conversation."));
+    }
+
+    dfilter_free(dfcode);
+    g_free(filter);
+}
+
+void MainWindow::on_actionGoNextConversationPacket_triggered()
+{
+    goToConversationFrame(true);
+}
+
+void MainWindow::on_actionGoPreviousConversationPacket_triggered()
+{
+    goToConversationFrame(false);
 }
 
 void MainWindow::on_actionGoAutoScroll_toggled(bool checked)

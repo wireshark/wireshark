@@ -238,6 +238,8 @@
     <addaction name="actionGoPreviousPacket"/>
     <addaction name="actionGoFirstPacket"/>
     <addaction name="actionGoLastPacket"/>
+    <addaction name="actionGoNextConversationPacket"/>
+    <addaction name="actionGoPreviousConversationPacket"/>
     <addaction name="separator"/>
     <addaction name="actionGoAutoScroll"/>
    </widget>
@@ -936,6 +938,28 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Up</string>
+   </property>
+  </action>
+  <action name="actionGoNextConversationPacket">
+   <property name="text">
+    <string>Next Packet in Conversation</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to the next packet in this conversation</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+.</string>
+   </property>
+  </action>
+  <action name="actionGoPreviousConversationPacket">
+   <property name="text">
+    <string>Previous Packet in Conversation</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to the previous packet in this conversation</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+,</string>
    </property>
   </action>
   <action name="actionGoFirstPacket">
