@@ -32,8 +32,15 @@
  * SUCH DAMAGE.
  */
 
+/*
+ * The files matching airpcap*.[ch] were originally developed as part of
+ * Wireshark's support for AirPcap adapters. However, they've been used
+ * for general 802.11 decryption for quite some time. It might make sense
+ * to rename them accordingly.
+ */
+
 /****************************************************************************/
-/*      File includes                                                           */
+/*      File includes                                                       */
 
 #include "config.h"
 
