@@ -26,6 +26,7 @@
 #include <errno.h>
 
 #include <wsutil/file_util.h>
+#include <wsutil/tempfile.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -2233,6 +2234,62 @@ wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
 		   opening it. */
 		wtap_dump_file_close(wdh);
 		ws_unlink(filename);
+		g_free(wdh);
+		return NULL;
+	}
+	return wdh;
+}
+
+wtap_dumper *
+wtap_dump_open_tempfile(char **filenamep, const char *pfx,
+			int file_type_subtype, int encap,
+			int snaplen, gboolean compressed, int *err)
+{
+	return wtap_dump_open_tempfile_ng(filenamep, pfx, file_type_subtype, encap,snaplen, compressed, NULL, NULL, NULL, err);
+}
+
+wtap_dumper *
+wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
+			   int file_type_subtype, int encap,
+			   int snaplen, gboolean compressed,
+			   wtapng_section_t *shb_hdr,
+			   wtapng_iface_descriptions_t *idb_inf,
+			   wtapng_name_res_t *nrb_hdr, int *err)
+{
+	int fd;
+	char *tmpname;
+	wtap_dumper *wdh;
+	WFILE_T fh;
+
+	/* No path name for the temporary file yet. */
+	*filenamep = NULL;
+
+	/* Allocate and initialize a data structure for the output stream. */
+	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
+	    shb_hdr, idb_inf, nrb_hdr, err);
+	if (wdh == NULL)
+		return NULL;
+
+	/* Choose a random name for the file */
+	fd = create_tempfile(&tmpname, pfx);
+	*filenamep = tmpname;
+
+	/* In case "fopen()" fails but doesn't set "errno", set "errno"
+	   to a generic "the open failed" error. */
+	errno = WTAP_ERR_CANT_OPEN;
+	fh = wtap_dump_file_fdopen(wdh, fd);
+	if (fh == NULL) {
+		*err = errno;
+		g_free(wdh);
+		return NULL;	/* can't create file */
+	}
+	wdh->fh = fh;
+
+	if (!wtap_dump_open_finish(wdh, file_type_subtype, compressed, err)) {
+		/* Get rid of the file we created; we couldn't finish
+		   opening it. */
+		wtap_dump_file_close(wdh);
+		ws_unlink(tmpname);
 		g_free(wdh);
 		return NULL;
 	}

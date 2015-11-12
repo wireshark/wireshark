@@ -98,7 +98,6 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
 static void
 exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
 {
-    int   import_file_fd;
     char *tmpname, *capfile_name;
     int   err;
 
@@ -107,10 +106,6 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
     wtapng_iface_descriptions_t *idb_inf;
     wtapng_if_descr_t            int_data;
     GString                     *os_info_str;
-
-    /* Choose a random name for the temporary import buffer */
-    import_file_fd = create_tempfile(&tmpname, "Wireshark_PDU_");
-    capfile_name = g_strdup(tmpname);
 
     /* Create data for SHB  */
     os_info_str = g_string_new("");
@@ -160,14 +155,16 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
 
     g_array_append_val(idb_inf->interface_data, int_data);
 
-    exp_pdu_tap_data->wdh = wtap_dump_fdopen_ng(import_file_fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
-                                                WTAP_ENCAP_WIRESHARK_UPPER_PDU, WTAP_MAX_PACKET_SIZE,
-                                                FALSE, shb_hdr, idb_inf, NULL, &err);
+    /* Use a random name for the temporary import buffer */
+    exp_pdu_tap_data->wdh = wtap_dump_open_tempfile_ng(&tmpname, "Wireshark_PDU_",
+                                                       WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
+                                                       WTAP_ENCAP_WIRESHARK_UPPER_PDU, WTAP_MAX_PACKET_SIZE,
+                                                       FALSE, shb_hdr, idb_inf, NULL, &err);
+    capfile_name = g_strdup(tmpname);
     if (exp_pdu_tap_data->wdh == NULL) {
-        open_failure_alert_box(capfile_name, err, TRUE);
+        open_failure_alert_box(capfile_name ? capfile_name : "temporary file", err, TRUE);
         goto end;
     }
-
 
     /* Run the tap */
     cf_retap_packets(&cfile);

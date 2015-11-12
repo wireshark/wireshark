@@ -115,16 +115,13 @@ QString &ImportTextDialog::capfileName() {
 }
 
 void ImportTextDialog::convertTextFile() {
-    int import_file_fd;
     char *tmpname;
     int err;
 
     capfile_name_.clear();
-    /* Choose a random name for the temporary import buffer */
-    import_file_fd = create_tempfile(&tmpname, "import");
-    capfile_name_.append(tmpname);
-
-    import_info_.wdh = wtap_dump_fdopen(import_file_fd, WTAP_FILE_TYPE_SUBTYPE_PCAP, import_info_.encapsulation, import_info_.max_frame_length, FALSE, &err);
+    /* Use a random name for the temporary import buffer */
+    import_info_.wdh = wtap_dump_open_tempfile(&tmpname, "import", WTAP_FILE_TYPE_SUBTYPE_PCAP, import_info_.encapsulation, import_info_.max_frame_length, FALSE, &err);
+    capfile_name_.append(tmpname ? tmpname : "temporary file");
     qDebug() << capfile_name_ << ":" << import_info_.wdh << import_info_.encapsulation << import_info_.max_frame_length;
     if (import_info_.wdh == NULL) {
         open_failure_alert_box(capfile_name_.toUtf8().constData(), err, TRUE);
