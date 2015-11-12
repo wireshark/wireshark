@@ -305,7 +305,9 @@ void ProfileDialog::editingFinished()
         if (item->text(0).compare(profile->name) != 0) {
             g_free(profile->name);
             profile->name = qstring_strdup(item->text(0));
-            profile->status = PROF_STAT_CHANGED;
+            if (profile->status == PROF_STAT_EXISTS) {
+                profile->status = PROF_STAT_CHANGED;
+            }
         }
     }
     updateWidgets();
