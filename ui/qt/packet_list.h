@@ -71,7 +71,6 @@ public:
     QString packetComment();
     void setPacketComment(QString new_comment);
     QString allPacketComments();
-    void recolorPackets();
     void setAutoScroll(bool enabled = true);
     void setCaptureInProgress(bool in_progress = false) { capture_in_progress_ = in_progress; tail_at_end_ = in_progress; }
     void captureFileReadFinished();
@@ -149,6 +148,7 @@ public slots:
     void setTimeReference();
     void unsetAllTimeReferences();
     void applyTimeShift();
+    void recolorPackets();
     void redrawVisiblePackets();
     void columnsChanged();
     void fieldsChanged(capture_file *cf);

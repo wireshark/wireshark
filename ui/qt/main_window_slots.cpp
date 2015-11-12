@@ -2198,13 +2198,13 @@ void MainWindow::on_actionViewColorizePacketList_triggered(bool checked) {
     recent.packet_list_colorize = checked;
     color_filters_enable(checked);
     packet_list_->packetListModel()->resetColorized();
-    packet_list_->update();
 }
 
 void MainWindow::on_actionViewColoringRules_triggered()
 {
     ColoringRulesDialog coloring_rules_dialog(this);
-
+    connect(&coloring_rules_dialog, SIGNAL(accepted()),
+            packet_list_, SLOT(recolorPackets()));
     coloring_rules_dialog.exec();
 }
 
@@ -2249,6 +2249,8 @@ void MainWindow::colorizeConversation(bool create_rule)
 
         if (create_rule) {
             ColoringRulesDialog coloring_rules_dialog(this, filter);
+            connect(&coloring_rules_dialog, SIGNAL(accepted()),
+                    packet_list_, SLOT(recolorPackets()));
             coloring_rules_dialog.exec();
         } else {
             color_filters_set_tmp(cc_num, filter, FALSE);
@@ -2276,6 +2278,8 @@ void MainWindow::colorizeWithFilter()
     } else {
         // New coloring rule
         ColoringRulesDialog coloring_rules_dialog(window(), filter);
+        connect(&coloring_rules_dialog, SIGNAL(accepted()),
+                packet_list_, SLOT(recolorPackets()));
         coloring_rules_dialog.exec();
     }
     main_ui_->actionViewColorizeResetColorization->setEnabled(tmp_color_filters_used());
