@@ -452,7 +452,6 @@ header_sctp_data_rb_toggle(GtkWidget *widget, gpointer data)
 static void
 file_import_open(text_import_info_t *info)
 {
-    int   import_file_fd;
     char *tmpname, *capfile_name;
     int   err;
 
@@ -461,10 +460,6 @@ file_import_open(text_import_info_t *info)
     wtapng_iface_descriptions_t *idb_inf;
     wtapng_if_descr_t            int_data;
     GString                     *os_info_str;
-
-    /* Choose a random name for the temporary import buffer */
-    import_file_fd = create_tempfile(&tmpname, "import");
-    capfile_name = g_strdup(tmpname);
 
     /* Create data for SHB  */
     os_info_str = g_string_new("");
@@ -515,11 +510,15 @@ file_import_open(text_import_info_t *info)
 
     g_array_append_val(idb_inf->interface_data, int_data);
 
-    info->wdh = wtap_dump_fdopen_ng(import_file_fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG, info->encapsulation,
-                                    info->max_frame_length, FALSE,
-                                    shb_hdr, idb_inf, NULL, &err);
+    /* Use a random name for the temporary import buffer */
+    info->wdh = wtap_dump_open_tempfile_ng(&tmpname, "import",
+                                           WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
+                                           info->encapsulation,
+                                           info->max_frame_length, FALSE,
+                                           shb_hdr, idb_inf, NULL, &err);
+    capfile_name = g_strdup(tmpname);
     if (info->wdh == NULL) {
-        open_failure_alert_box(capfile_name, err, TRUE);
+        open_failure_alert_box(tmpname ? tmpname : "temporary file", err, TRUE);
         fclose(info->import_text_file);
         goto end;
     }
