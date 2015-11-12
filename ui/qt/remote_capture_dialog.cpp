@@ -113,6 +113,14 @@ void RemoteCaptureDialog::apply_remote()
     global_remote_opts.remote_host_opts.auth_username = qstring_strdup(user);
     QString pw = ui->pwText->text();
     global_remote_opts.remote_host_opts.auth_password = qstring_strdup(pw);
+    global_remote_opts.remote_host_opts.datatx_udp  = FALSE;
+    global_remote_opts.remote_host_opts.nocap_rpcap = TRUE;
+    global_remote_opts.remote_host_opts.nocap_local = FALSE;
+#ifdef HAVE_PCAP_SETSAMPLING
+    global_remote_opts.sampling_method = CAPTURE_SAMP_NONE;
+    global_remote_opts.sampling_param  = 0;
+#endif
+
     GList *rlist = get_remote_interface_list(global_remote_opts.remote_host_opts.remote_host,
                                               global_remote_opts.remote_host_opts.remote_port,
                                               global_remote_opts.remote_host_opts.auth_type,
