@@ -92,6 +92,7 @@ static int hf_docsis_frag_last = -1;
 static int hf_docsis_frag_seq = -1;
 static int hf_docsis_sid = -1;
 static int hf_docsis_mini_slots = -1;
+static int hf_docsis_requested_size = -1;
 static int hf_docsis_hcs = -1;
 static int hf_docsis_bpi_en = -1;
 static int hf_docsis_toggle_bit = -1;
@@ -157,6 +158,7 @@ static const value_string fcparm_vals[] = {
   {0x1, "Mac Management Message"},
   {0x2, "Request Frame"},
   {0x3, "Fragmentation Header"},
+  {0x4, "Queue Depth-based Request Frame"},
   {0x1C, "Concatenation Header"},
   {0, NULL}
 };
@@ -364,20 +366,29 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   fcparm = (fc >> 1) & 0x1F;    /* Frame Control Parameter: Next 5 Bits */
   ehdron = (fc & 0x01);         /* Extended Header Bit: LSB */
 
-  mac_parm = tvb_get_guint8 (tvb, 1);   /* Mac Parm */
-  len_sid = tvb_get_ntohs (tvb, 2);     /* Length Or SID */
+  if (fcparm == 0x04) {
+    mac_parm = tvb_get_ntohs (tvb, 1);
+    len_sid = tvb_get_ntohs (tvb, 3);
+  } else {
+    mac_parm = tvb_get_guint8 (tvb, 1);
+    len_sid = tvb_get_ntohs (tvb, 2);
+  }
 
   /* set Header length based on presence of Extended header */
-  if (ehdron == 0x00)
-    hdrlen = 6;
-  else
+  if (ehdron == 0x00) {
+    if (fcparm == 0x04)
+      hdrlen = 7;
+    else
+      hdrlen = 6;
+  } else {
     hdrlen = 6 + mac_parm;
+  }
 
   /* Captured PDU Length is based on the length of the header */
   captured_length = tvb_captured_length_remaining (tvb, hdrlen);
 
   /* If this is a Request Frame, then pdulen is 0 and framelen is 6 */
-  if ((fctype == FCTYPE_MACSPC) && fcparm == 0x02)
+  if ((fctype == FCTYPE_MACSPC) && (fcparm == 0x02 || fcparm == 0x04))
     {
       pdulen = 0;
       framelen = 6;
@@ -414,6 +425,10 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         if (fcparm == 0x02)
           col_add_fstr (pinfo->cinfo, COL_INFO,
                         "Request Frame SID = %u Mini Slots = %u", len_sid,
+                        mac_parm);
+        else if (fcparm == 0x04)
+          col_add_fstr (pinfo->cinfo, COL_INFO,
+                        "Request Frame SID = %u Bytes Requested = %u", len_sid,
                         mac_parm);
         else if (fcparm == 0x03)
           col_set_str (pinfo->cinfo, COL_INFO, "Fragmented Frame");
@@ -474,6 +489,17 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                 proto_tree_add_uint (docsis_tree, hf_docsis_sid, tvb, 2, 2,
                                      len_sid);
                 proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2,
+                                     ENC_BIG_ENDIAN);
+                break;
+              }
+            /* Decode for a Queue-depth Based Request */
+            if (fcparm == 0x04)
+              {
+                proto_tree_add_uint (docsis_tree, hf_docsis_requested_size, tvb, 1,
+                                     2, mac_parm);
+                proto_tree_add_uint (docsis_tree, hf_docsis_sid, tvb, 3, 2,
+                                     len_sid);
+                proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 5, 2,
                                      ENC_BIG_ENDIAN);
                 break;
               }
@@ -692,6 +718,11 @@ proto_register_docsis (void)
      {"MiniSlots", "docsis.ehdr.minislots",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Mini Slots Requested", HFILL}
+    },
+    {&hf_docsis_requested_size,
+     {"Bytes Requested", "docsis.ehdr.reqsize",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
     },
     {&hf_docsis_key_seq,
      {"Key Sequence", "docsis.ehdr.keyseq",
