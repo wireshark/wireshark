@@ -1499,7 +1499,7 @@ if NOT_OS_X
 	if test x$(DESKTOP_FILE_INSTALL) != x ; then \
 		$(DESKTOP_FILE_INSTALL) --dir $(DESTDIR)$(datadir)/applications $(srcdir)/wireshark.desktop  $(srcdir)/wireshark-gtk.desktop ; \
 	else \
-		install -m 644 $(srcdir)/wireshark.desktop $(DESTDIR)$(datadir)/applications/wireshark.desktop $(DESTDIR)$(datadir)/applications/wireshark-gtk.desktop; \
+		install -m 644 $(srcdir)/wireshark.desktop $(srcdir)/wireshark-gtk.desktop $(DESTDIR)$(datadir)/applications; \
 	fi
 	for size in 16 24 32 48 64 128 256; \
 	do \
