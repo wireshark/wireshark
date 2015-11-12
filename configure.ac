@@ -1595,6 +1595,7 @@ AC_SUBST(QT_MIN_VERSION)
 # 3.12.0: 25 Mar 2014
 # 3.14.0: 30 Sep 2014
 # 3.16.0: 22 Mar 2015
+# 3.18.0  22 Sep 2015
 #
 # Release dates for Qt versions:
 # https://en.wikipedia.org/wiki/List_of_Qt_releases
@@ -1785,6 +1786,7 @@ AC_SUBST(GLIB_MIN_VERSION)
 # 2.40.0: 24 Mar 2014
 # 2.42.0: 22 Sep 2014
 # 2.44.0: 23 Mar 2014
+# 2.46.0: 25 Sep 2015
 
 # Check for GResource support
 PKG_CHECK_MODULES([GRESOURCE], [gio-2.0 >= 2.32 gdk-pixbuf-2.0 >= 2.26], [have_gresource=yes], [have_gresource=no])
