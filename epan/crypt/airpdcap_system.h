@@ -186,10 +186,9 @@ extern "C" {
  * @param key [OUT] Pointer to a preallocated key structure containing
  *   the key used during the decryption process (if done). If this parameter
  *   is set to NULL, the key will be not returned.
- * @param mngHandshake [IN] If TRUE this function will manage the 4-way
- *   handshake for WPA/WPA2
- * @param mngDecrypt [IN] If TRUE this function will manage the WEP or
- * WPA/WPA2 decryption
+ * @param scanHandshake [IN] If TRUE this function will additional check if
+ *   the 802.11 frame data is pointing to has key information and if so use
+ *   it to setup potential decryption keys.
  * @return
  * - AIRPDCAP_RET_SUCCESS: Decryption has been done (decrypt_data and
  *   decrypt_length will contain the packet data decrypted and the length of
