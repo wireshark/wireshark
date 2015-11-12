@@ -387,6 +387,7 @@ void UatDialog::enumPrefCurrentIndexChanged(int index)
         ok_button_->setEnabled(true);
         uat_update_record(uat_, rec, TRUE);
     }
+    this->update();
     uat_->changed = TRUE;
 }
 
@@ -440,6 +441,7 @@ void UatDialog::stringPrefTextChanged(const QString &text)
             uat_update_record(uat_, rec, TRUE);
         }
     }
+    this->update();
 
     ok_button_->setEnabled(enable_ok);
     cur_line_edit_->setSyntaxState(ss);
@@ -465,6 +467,7 @@ void UatDialog::stringPrefEditingFinished()
         } else {
             ui->hintLabel->clear();
         }
+        this->update();
     }
 
     updateItem(*item);
