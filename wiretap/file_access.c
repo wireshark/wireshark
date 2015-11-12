@@ -2288,6 +2288,7 @@ wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
 	fh = wtap_dump_file_fdopen(wdh, fd);
 	if (fh == NULL) {
 		*err = errno;
+		close(fd);
 		g_free(wdh);
 		return NULL;	/* can't create file */
 	}
