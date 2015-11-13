@@ -19,7 +19,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 # Add custom asn1 directories here, the file is included by Makefile.am
-# Note you need to add a Cutom.m4 file too.
+# Note you need to add a Custom.m4 file too.
 #
 CUSTOM_SUBDIRS =
 
