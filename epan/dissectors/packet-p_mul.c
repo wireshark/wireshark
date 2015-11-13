@@ -1519,7 +1519,7 @@ void proto_register_p_mul (void)
         NULL, 0x0, "The previous PDU is found in this frame", HFILL } },
     { &hf_analysis_ack_num,
       { "Ack PDU in", "p_mul.analysis.ack_in", FT_FRAMENUM, BASE_NONE,
-        NULL, 0x0, "This packet has an Ack in this frame", HFILL } },
+        FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0, "This packet has an Ack in this frame", HFILL } },
     { &hf_analysis_ack_missing,
       { "Ack PDU missing", "p_mul.analysis.ack_missing", FT_NONE, BASE_NONE,
         NULL, 0x0, "The acknowledgement for this packet is missing", HFILL } },
