@@ -805,7 +805,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   udph->uh_sum = tvb_get_ntohs(tvb, offset + 6);
   if (udph->uh_sum == 0) {
     /* No checksum supplied in the packet. */
-    if ((ip_proto == IP_PROTO_UDP) && (pinfo->src.type == AT_IPv4)) {
+    if (((ip_proto == IP_PROTO_UDP) && (pinfo->src.type == AT_IPv4)) || pinfo->flags.in_error_pkt) {
       item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb, offset + 6, 2, 0,
         "0x%04x (none)", 0);
 
