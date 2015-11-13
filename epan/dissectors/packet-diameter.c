@@ -1721,8 +1721,8 @@ build_simple_avp(const avp_type_t *type, guint32 code, diam_vnd_t *vendor,
 			break;
 
 		default:
-			report_failure("Diameter Dictionary: AVP '%s' has a list of values but isn't of a 32-bit or shorter integral type\n",
-				name);
+			report_failure("Diameter Dictionary: AVP '%s' has a list of values but isn't of a 32-bit or shorter integral type (%s)\n",
+				name, ftype_name(type->ft));
 			return NULL;
 		}
 		while (vs[i].strptr) {
