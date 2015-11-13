@@ -244,7 +244,7 @@ public slots:
     void captureFileReadStarted() { captureFileReadStarted(tr("Loading")); }
     void captureFileReadFinished();
     void captureFileReloadStarted() { captureFileReadStarted(tr("Reloading")); }
-    void captureFileRescanStarted() { captureFileReadStarted(tr("Rescanning")); }
+    void captureFileRescanStarted() { setMenusForCaptureFile(true); captureFileReadStarted(tr("Rescanning")); }
     void captureFileRetapStarted();
     void captureFileRetapFinished();
     void captureFileClosing();
