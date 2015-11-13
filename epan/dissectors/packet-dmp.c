@@ -4786,7 +4786,7 @@ void proto_register_dmp (void)
         NULL, 0x0, "This packet has a Message in this frame", HFILL } },
     { &hf_analysis_ack_num,
       { "Acknowledgement in", "dmp.analysis.ack_in", FT_FRAMENUM, BASE_NONE,
-        NULL, 0x0, "This packet has an Acknowledgement in this frame", HFILL } },
+        FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0, "This packet has an Acknowledgement in this frame", HFILL } },
     { &hf_analysis_rep_num,
       { "Report in", "dmp.analysis.report_in", FT_FRAMENUM, BASE_NONE,
         NULL, 0x0, "This packet has a Report in this frame", HFILL } },
