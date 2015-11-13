@@ -3927,14 +3927,35 @@
 		<avp name="Credit-Management-Status" code="1082" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<!--
-		1085 Redirect-Information Grouped
-		1086 Redirect- Support Enumerated
-		1087 TDF-Information Grouped
-		1088 TDF-Application-Identifier OctetString
-		1089 TDF-Destination-Host DiameterIdentity
-		1090 TDF-Destination-Realm DiameterIdentity
-		-->
+		<!-- TS 29.212 V13.3.0 (2015-09) 86-->
+		<avp name="Redirect-Information" code="1085" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Redirect-Support"/>
+				<gavp name="Redirect-Address-Type"/>
+				<gavp name="Redirect-Server-Address"/>
+			</grouped>
+		</avp>
+		<avp name="Redirect-Support" code="1086" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="REDIRECTION_DISABLED"	code="0"/>
+			<enum name="REDIRECTION_ENABLED"	code="1"/>
+		<avp/>
+		<avp name="TDF-Information" code="1087" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="TDF-Destination-Realm"/>
+				<gavp name="TDF-Destination-Host"/>
+				<gavp name="TDF-IP-Address"/>
+			</grouped>
+		</avp>
+		<avp name="TDF-Application-Identifier" code="1088" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="TDF-Destination-Host" code="1089" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="TDF-Destination-Realm" code="1090" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="DiameterIdentity"/>
+		</avp>
 		<avp name="TDF-IP-Address" code="1091" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 				<type type-name="Adress"/>
 		</avp>
@@ -6382,7 +6403,7 @@
 			<enum name="Deletion" code="0"/>
 			<enum name="Modification" code="1"/>
 		</avp>
-		<avp name="Mute-Notification" code="2809" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<avp name="Mute-Notification" code="2809" mandatory="mustnot" protected="may" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 			<type type-name="Enumerated"/>
 			<enum name="Mute Required" code="0"/>
 		</avp>
