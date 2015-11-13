@@ -589,7 +589,7 @@ clean-local:
 		reordercap.obj nio-ie5.obj update.obj \
 		text2pcap-scanner.obj text2pcap-scanner.c \
 		config.h ps.c $(LIBS_CHECK) \
-		dftest.obj dftest.exe randpkt.obj randpkt.exe \
+		dftest.obj dftest.exe randpkt.obj randpkt-core.obj randpkt.exe \
 		doxygen.cfg \
 		$(RESOURCES) libwireshark.dll wiretap-$(WTAP_VERSION).dll \
 		libwsutil.dll \
