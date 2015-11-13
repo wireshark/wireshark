@@ -305,6 +305,7 @@ static int hf_dns_opt_client_addr4 = -1;
 static int hf_dns_opt_client_addr6 = -1;
 static int hf_dns_opt_cookie_client = -1;
 static int hf_dns_opt_cookie_server = -1;
+static int hf_dns_opt_edns_tcp_keepalive_timeout = -1;
 static int hf_dns_nsec3_algo = -1;
 static int hf_dns_nsec3_flags = -1;
 static int hf_dns_nsec3_flag_optout = -1;
@@ -593,6 +594,7 @@ typedef struct _dns_conv_info_t {
 #define O_EDNS_EXPIRE    9              /* EDNS Expire (RFC7314) */
 #define O_CLIENT_SUBNET_EXP 0x50fa      /* Client subnet (placeholder value, draft-vandergaast-edns-client-subnet) */
 #define O_COOKIE        10              /* draft-ietf-dnsop-cookie */
+#define O_EDNS_TCP_KA   11              /* draft-ietf-dnsop-edns-tcp-keepalive */
 
 static const true_false_string tfs_flags_response = {
   "Message is a response",
@@ -1025,6 +1027,7 @@ static const value_string edns0_opt_code_vals[] = {
   {O_CLIENT_SUBNET, "CSUBNET - Client subnet" },
   {O_EDNS_EXPIRE, "EDNS EXPIRE (RFC7314)"},
   {O_COOKIE,     "COOKIE"},
+  {O_EDNS_TCP_KA, "EDNS TCP Keepalive"},
   {0,            NULL}
  };
 /* DNS-Based Authentication of Named Entities (DANE) Parameters
@@ -2769,6 +2772,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             rropt_len  -= 8;
             optlen -= 8;
             proto_tree_add_item(rropt_tree, hf_dns_opt_cookie_server, tvb, cur_offset, optlen, ENC_NA);
+            rropt_len  -= optlen;
+        break;
+          case O_EDNS_TCP_KA:
+            if(optlen == 2){
+              proto_tree_add_item(rropt_tree, hf_dns_opt_edns_tcp_keepalive_timeout, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+            }
+            cur_offset += optlen;
             rropt_len  -= optlen;
         break;
           default:
@@ -5051,6 +5061,11 @@ proto_register_dns(void)
       { "Server Cookie", "dns.opt.cookie.server",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+
+    { &hf_dns_opt_edns_tcp_keepalive_timeout,
+      { "Timeout", "dns.opt.edns_tcp_keepalive.timeout",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "an idle timeout value for the TCP connection, specified in units of 100 milliseconds", HFILL }},
 
     { &hf_dns_count_questions,
       { "Questions", "dns.count.queries",
