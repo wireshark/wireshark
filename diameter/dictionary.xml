@@ -3939,7 +3939,7 @@
 			<type type-name="Enumerated"/>
 			<enum name="REDIRECTION_DISABLED"	code="0"/>
 			<enum name="REDIRECTION_ENABLED"	code="1"/>
-		<avp/>
+		</avp>
 		<avp name="TDF-Information" code="1087" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="TDF-Destination-Realm"/>
