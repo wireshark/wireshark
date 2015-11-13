@@ -306,6 +306,7 @@ static int hf_dns_opt_client_addr6 = -1;
 static int hf_dns_opt_cookie_client = -1;
 static int hf_dns_opt_cookie_server = -1;
 static int hf_dns_opt_edns_tcp_keepalive_timeout = -1;
+static int hf_dns_opt_padding = -1;
 static int hf_dns_nsec3_algo = -1;
 static int hf_dns_nsec3_flags = -1;
 static int hf_dns_nsec3_flag_optout = -1;
@@ -595,6 +596,7 @@ typedef struct _dns_conv_info_t {
 #define O_CLIENT_SUBNET_EXP 0x50fa      /* Client subnet (placeholder value, draft-vandergaast-edns-client-subnet) */
 #define O_COOKIE        10              /* draft-ietf-dnsop-cookie */
 #define O_EDNS_TCP_KA   11              /* draft-ietf-dnsop-edns-tcp-keepalive */
+#define O_PADDING       12              /* draft-ietf-dprive-edns0-padding */
 
 static const true_false_string tfs_flags_response = {
   "Message is a response",
@@ -1028,6 +1030,7 @@ static const value_string edns0_opt_code_vals[] = {
   {O_EDNS_EXPIRE, "EDNS EXPIRE (RFC7314)"},
   {O_COOKIE,     "COOKIE"},
   {O_EDNS_TCP_KA, "EDNS TCP Keepalive"},
+  {O_PADDING, "PADDING"},
   {0,            NULL}
  };
 /* DNS-Based Authentication of Named Entities (DANE) Parameters
@@ -2778,6 +2781,11 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             if(optlen == 2){
               proto_tree_add_item(rropt_tree, hf_dns_opt_edns_tcp_keepalive_timeout, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
             }
+            cur_offset += optlen;
+            rropt_len  -= optlen;
+        break;
+          case O_PADDING:
+            proto_tree_add_item(rropt_tree, hf_dns_opt_padding, tvb, cur_offset, optlen, ENC_NA);
             cur_offset += optlen;
             rropt_len  -= optlen;
         break;
@@ -5066,6 +5074,11 @@ proto_register_dns(void)
       { "Timeout", "dns.opt.edns_tcp_keepalive.timeout",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "an idle timeout value for the TCP connection, specified in units of 100 milliseconds", HFILL }},
+
+    { &hf_dns_opt_padding,
+      { "Padding", "dns.opt.padding",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "The PADDING octets MUST be set to 0x00", HFILL }},
 
     { &hf_dns_count_questions,
       { "Questions", "dns.count.queries",
