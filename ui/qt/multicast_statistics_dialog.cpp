@@ -219,9 +219,9 @@ MulticastStatisticsDialog::MulticastStatisticsDialog(QWidget &parent, CaptureFil
     param_grid->addWidget(new QLabel(tr("Buffer alarm threshold (B):")), 0, 6, Qt::AlignRight);
     param_grid->addWidget(buffer_alarm_threshold_le_, 0, 7);
 
-    param_grid->addWidget(new QLabel(tr("Stream empty speed (Kb/s:")), 1, 0, Qt::AlignRight);
+    param_grid->addWidget(new QLabel(tr("Stream empty speed (Kb/s):")), 1, 0, Qt::AlignRight);
     param_grid->addWidget(stream_empty_speed_le_, 1, 1);
-    param_grid->addWidget(new QLabel(tr("Total empty speed (Kb/s:")), 1, 3, Qt::AlignRight);
+    param_grid->addWidget(new QLabel(tr("Total empty speed (Kb/s):")), 1, 3, Qt::AlignRight);
     param_grid->addWidget(total_empty_speed_le_, 1, 4);
 
     burst_measurement_interval_le_->setText(QString::number(mcast_stream_burstint));
