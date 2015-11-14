@@ -1,5 +1,6 @@
 /* packet-ucd.c
- * Routines for UCD Message dissection
+ * Routines for Type 2 UCD Message dissection
+ * Copyright 2015, Adrian Simionov <daniel.simionov@gmail.com>
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
  * Wireshark - Network traffic analyzer
@@ -25,12 +26,19 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
+#include <epan/expert.h>
 
 #define UCD_SYMBOL_RATE 1
 #define UCD_FREQUENCY 2
 #define UCD_PREAMBLE 3
 #define UCD_BURST_DESCR 4
 #define UCD_BURST_DESCR5 5
+#define UCD_EXT_PREAMBLE 6
+#define UCD_SCDMA_MODE_ENABLED 7
+#define UCD_MAINTAIN_POWER_SPECTRAL_DENSITY 15
+#define UCD_RANGING_REQUIRED 16
+#define UCD_RANGING_HOLD_OFF_PRIORITY_FIELD 18
+#define UCD_RANGING_CHANNEL_CLASS_ID 19
 
 #define UCD_MODULATION 1
 #define UCD_DIFF_ENCODING 2
@@ -82,6 +90,22 @@ static int hf_docsis_ucd_length = -1;
 static int hf_docsis_ucd_symbol_rate = -1;
 static int hf_docsis_ucd_frequency = -1;
 static int hf_docsis_ucd_preamble_pat = -1;
+static int hf_docsis_ucd_ext_preamble_pat = -1;
+static int hf_docsis_ucd_scdma_mode_enabled = -1;
+static int hf_docsis_ucd_maintain_power_spectral_density = -1;
+static int hf_docsis_ucd_ranging_required = -1;
+static int hf_docsis_ucd_rnghoff_cm = -1;
+static int hf_docsis_ucd_rnghoff_erouter = -1;
+static int hf_docsis_ucd_rnghoff_emta = -1;
+static int hf_docsis_ucd_rnghoff_estb = -1;
+static int hf_docsis_ucd_rnghoff_rsvd = -1;
+static int hf_docsis_ucd_rnghoff_id_ext = -1;
+static int hf_docsis_ucd_chan_class_id_cm = -1;
+static int hf_docsis_ucd_chan_class_id_erouter = -1;
+static int hf_docsis_ucd_chan_class_id_emta = -1;
+static int hf_docsis_ucd_chan_class_id_estb = -1;
+static int hf_docsis_ucd_chan_class_id_rsvd = -1;
+static int hf_docsis_ucd_chan_class_id_id_ext = -1;
 static int hf_docsis_ucd_iuc = -1;
 
 static int hf_docsis_burst_mod_type = -1;
@@ -103,6 +127,8 @@ static int hf_docsis_scdma_codes_per_subframe = -1;
 static int hf_docsis_scdma_framer_int_step_size = -1;
 static int hf_docsis_tcm_enabled = -1;
 
+static expert_field ei_docsis_ucd_tlvlen_bad = EI_INIT;
+
 /* Initialize the subtree pointers */
 static gint ett_docsis_ucd = -1;
 static gint ett_tlv = -1;
@@ -113,6 +139,12 @@ static const value_string channel_tlv_vals[] = {
   {UCD_PREAMBLE,     "Preamble Pattern"},
   {UCD_BURST_DESCR,  "Burst Descriptor"},
   {UCD_BURST_DESCR5, "Burst Descriptor DOCSIS 2.0"},
+  {UCD_EXT_PREAMBLE, "Extended Preamble Pattern"},
+  {UCD_SCDMA_MODE_ENABLED, "S-CDMA Mode Enabled"},
+  {UCD_MAINTAIN_POWER_SPECTRAL_DENSITY, "Maintain Power Spectral Density"},
+  {UCD_RANGING_REQUIRED, "Ranging Required"},
+  {UCD_RANGING_HOLD_OFF_PRIORITY_FIELD, "Ranging Hold-Off Priority Field"},
+  {UCD_RANGING_CHANNEL_CLASS_ID, "Ranging Channel Class ID"},
   {0, NULL}
 };
 
@@ -122,9 +154,26 @@ static const value_string on_off_vals[] = {
   {0, NULL}
 };
 
+static const value_string allow_inhibit_vals[] = {
+  {0, "Ranging Allowed"},
+  {1, "Inhibit Initial Ranging"},
+  {0, NULL},
+};
+
+static const value_string inhibit_allow_vals[] = {
+  {0, "Inhibit Initial Ranging"},
+  {1, "Ranging Allowed"},
+  {0, NULL},
+};
+
 static const value_string mod_vals[] = {
   {1, "QPSK"},
-  {2, "QAM16"},
+  {2, "16-QAM"},
+  {3, "8-QAM"},
+  {4, "32-QAM"},
+  {5, "64-QAM"},
+  {6, "128-QAM (SCDMA-only)"},
+  {7, "Reserved for C-DOCSIS"},
   {0, NULL}
 };
 
@@ -154,6 +203,13 @@ static const value_string last_cw_len_vals[] = {
   {0, NULL}
 };
 
+static const value_string ranging_req_vals[] = {
+  {0, "No ranging required"},
+  {1, "Unicast initial ranging required"},
+  {2, "Broadcast initial ranging required"},
+  {0, NULL}
+};
+
 /* Dissection */
 static int
 dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
@@ -174,18 +230,18 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
   /* if the upstream Channel ID is 0 then this is for Telephony Return) */
   if (upchid > 0)
     col_add_fstr (pinfo->cinfo, COL_INFO,
-                  "UCD Message:  Channel ID = %u (U%u)", upchid,
+                  "Type 2 UCD Message: Channel ID = %u (U%u)", upchid,
                   upchid - 1);
   else
     col_add_fstr (pinfo->cinfo, COL_INFO,
-                  "UCD Message:  Channel ID = %u (Telephony Return)",
+                  "Type 2 UCD Message: Channel ID = %u (Telephony Return)",
                   upchid);
 
   if (tree)
     {
       ucd_item =
         proto_tree_add_protocol_format (tree, proto_docsis_ucd, tvb, 0, -1,
-                                        "UCD Message");
+                                        "UCD Message (Type 2)");
       ucd_tree = proto_item_add_subtree (ucd_item, ett_docsis_ucd);
       proto_tree_add_item (ucd_tree, hf_docsis_ucd_upstream_chid, tvb, 0, 1,
                            ENC_BIG_ENDIAN);
@@ -242,6 +298,91 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
               case UCD_PREAMBLE:
                 proto_tree_add_item (tlv_tree, hf_docsis_ucd_preamble_pat, tvb,
                                      pos, length, ENC_NA);
+                pos = pos + length;
+                break;
+              case UCD_EXT_PREAMBLE:
+                proto_tree_add_item (tlv_tree, hf_docsis_ucd_ext_preamble_pat, tvb,
+                                     pos, length, ENC_NA);
+                pos = pos + length;
+                break;
+              case UCD_SCDMA_MODE_ENABLED:
+                if (length == 1)
+                  {
+                    proto_tree_add_item (tlv_tree, hf_docsis_ucd_scdma_mode_enabled,
+                                         tvb, pos, length, ENC_BIG_ENDIAN);
+                  }
+                else
+                  {
+                    expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+                  }
+                pos = pos + length;
+                break;
+              case UCD_MAINTAIN_POWER_SPECTRAL_DENSITY:
+                if (length == 1)
+                  {
+                    proto_tree_add_item (tlv_tree, hf_docsis_ucd_maintain_power_spectral_density,
+                                         tvb, pos, length, ENC_BIG_ENDIAN);
+                  }
+                else
+                  {
+                    expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+                  }
+                pos = pos + length;
+                break;
+              case UCD_RANGING_REQUIRED:
+                if (length == 1)
+                  {
+                    proto_tree_add_item (tlv_tree, hf_docsis_ucd_ranging_required,
+                                         tvb, pos, length, ENC_BIG_ENDIAN);
+                  }
+                else
+                  {
+                    expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+                  }
+                pos = pos + length;
+                break;
+              case UCD_RANGING_HOLD_OFF_PRIORITY_FIELD:
+                if (length == 4)
+                  {
+                    proto_tree_add_item (tlv_tree, hf_docsis_ucd_rnghoff_cm, tvb,
+                                         pos, length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tlv_tree, hf_docsis_ucd_rnghoff_erouter, tvb,
+                                         pos, length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tlv_tree, hf_docsis_ucd_rnghoff_emta, tvb,
+                                         pos, length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tlv_tree, hf_docsis_ucd_rnghoff_estb, tvb,
+                                         pos, length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tlv_tree, hf_docsis_ucd_rnghoff_rsvd, tvb,
+                                         pos, length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tlv_tree, hf_docsis_ucd_rnghoff_id_ext, tvb,
+                                         pos, length, ENC_BIG_ENDIAN);
+                  }
+                else
+                  {
+                    expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+                  }
+                pos = pos + length;
+                break;
+              case UCD_RANGING_CHANNEL_CLASS_ID:
+                if (length == 4)
+                  {
+                    proto_tree_add_item (tlv_tree, hf_docsis_ucd_chan_class_id_cm, tvb,
+                                         pos, length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tlv_tree, hf_docsis_ucd_chan_class_id_erouter, tvb,
+                                         pos, length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tlv_tree, hf_docsis_ucd_chan_class_id_emta, tvb,
+                                         pos, length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tlv_tree, hf_docsis_ucd_chan_class_id_estb, tvb,
+                                         pos, length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tlv_tree, hf_docsis_ucd_chan_class_id_rsvd, tvb,
+                                         pos, length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tlv_tree, hf_docsis_ucd_chan_class_id_id_ext, tvb,
+                                         pos, length, ENC_BIG_ENDIAN);
+                  }
+                else
+                  {
+                    expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
+                  }
                 pos = pos + length;
                 break;
               case UCD_BURST_DESCR:
@@ -687,6 +828,96 @@ proto_register_docsis_ucd (void)
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Preamble Superstring", HFILL}
     },
+    {&hf_docsis_ucd_ext_preamble_pat,
+     {"Extended Preamble Pattern", "docsis_ucd.extpreamble",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Extended Preamble Superstring", HFILL}
+    },
+    {&hf_docsis_ucd_scdma_mode_enabled,
+     {"S-CDMA Mode Enabled", "docsis_ucd.scdma",
+      FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_maintain_power_spectral_density,
+     {"Maintain Power Spectral Density", "docsis_ucd.maintpower",
+      FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_ranging_required,
+     {"Ranging Required", "docsis_ucd.rangingreq",
+      FT_UINT8, BASE_DEC, VALS (ranging_req_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_rnghoff_cm,
+     {"Ranging Hold-Off (CM)","docsis_ucd.rnghoffcm",
+      FT_UINT32, BASE_DEC, VALS (allow_inhibit_vals), 0x1,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_rnghoff_erouter,
+     {"Ranging Hold-Off (eRouter)",
+      "docsis_ucd.rnghofferouter",
+      FT_UINT32, BASE_DEC, VALS (allow_inhibit_vals), 0x2,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_rnghoff_emta,
+     {"Ranging Hold-Off (eMTA or EDVA)",
+      "docsis_ucd.rnghoffemta",
+      FT_UINT32, BASE_DEC, VALS (allow_inhibit_vals), 0x4,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_rnghoff_estb,
+     {"Ranging Hold-Off (DSG/eSTB)",
+      "docsis_ucd.rnghoffestb",
+      FT_UINT32, BASE_DEC, VALS (allow_inhibit_vals), 0x8,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_rnghoff_rsvd,
+     {"Reserved [0x000000]",
+      "docsis_ucd.rnghoffrsvd",
+      FT_UINT32, BASE_HEX, NULL, 0xFFF0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_rnghoff_id_ext,
+     {"CM Ranging Class ID Extension",
+      "docsis_ucd.rngidext",
+      FT_UINT32, BASE_HEX, NULL, 0xFFFF0000,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_chan_class_id_cm,
+     {"Channel Class ID (CM)","docsis_ucd.classidcm",
+      FT_UINT32, BASE_DEC, VALS (inhibit_allow_vals), 0x1,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_chan_class_id_erouter,
+     {"Channel Class ID (eRouter)",
+      "docsis_ucd.classiderouter",
+      FT_UINT32, BASE_DEC, VALS (inhibit_allow_vals), 0x2,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_chan_class_id_emta,
+     {"Channel Class ID (eMTA or EDVA)",
+      "docsis_ucd.classidemta",
+      FT_UINT32, BASE_DEC, VALS (inhibit_allow_vals), 0x4,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_chan_class_id_estb,
+     {"Channel Class ID (DSG/eSTB)",
+      "docsis_ucd.classidestb",
+      FT_UINT32, BASE_DEC, VALS (inhibit_allow_vals), 0x8,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_chan_class_id_rsvd,
+     {"Reserved [0x000000]",
+      "docsis_ucd.classidrsvd",
+      FT_UINT32, BASE_HEX, NULL, 0xFFF0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_ucd_chan_class_id_id_ext,
+     {"CM Ranging Class ID Extension",
+      "docsis_ucd.classidext",
+      FT_UINT32, BASE_HEX, NULL, 0xFFFF0000,
+      NULL, HFILL}
+    },
     {&hf_docsis_ucd_iuc,
      {"Interval Usage Code", "docsis_ucd.iuc",
       FT_UINT8, BASE_DEC, VALS (iuc_vals), 0x0,
@@ -784,10 +1015,16 @@ proto_register_docsis_ucd (void)
     },
   };
 
+  static ei_register_info ei[] = {
+    {&ei_docsis_ucd_tlvlen_bad, {"docsis_ucd.tlvlen.bad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
+  };
+
   static gint *ett[] = {
     &ett_docsis_ucd,
     &ett_tlv,
   };
+
+  expert_module_t* expert_docsis_ucd;
 
   proto_docsis_ucd =
     proto_register_protocol ("DOCSIS Upstream Channel Descriptor",
@@ -795,6 +1032,8 @@ proto_register_docsis_ucd (void)
 
   proto_register_field_array (proto_docsis_ucd, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+  expert_docsis_ucd = expert_register_protocol(proto_docsis_ucd);
+  expert_register_field_array(expert_docsis_ucd, ei, array_length(ei));
 
   new_register_dissector ("docsis_ucd", dissect_ucd, proto_docsis_ucd);
 }
