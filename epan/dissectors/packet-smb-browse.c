@@ -521,8 +521,8 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 #define HOST_NAME_LEN	16
 
-static void
-dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	int offset = 0;
 	guint8 cmd;
@@ -730,6 +730,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 			tvb, offset, namelen, ENC_ASCII|ENC_NA);
 		break;
 	}
+	return tvb_captured_length(tvb);
 }
 
 /*
@@ -749,13 +750,13 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
  *
  * XXX - what other browser packets go out to that mailslot?
  */
-static void
-dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	int offset = 0;
 	guint8 cmd;
-	proto_tree *tree = NULL;
-	proto_item *item = NULL;
+	proto_tree *tree;
+	proto_item *item;
 	guint32 periodicity;
 	const guint8 *host_name;
 	guint8 os_major_ver, os_minor_ver;
@@ -770,11 +771,8 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	/* Put in something, and replace it later */
 	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
 
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, proto_smb_browse, tvb, offset, -1, ENC_NA);
-
-		tree = proto_item_add_subtree(item, ett_browse);
-	}
+	item = proto_tree_add_item(parent_tree, proto_smb_browse, tvb, offset, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_browse);
 
 	/* command */
 	proto_tree_add_uint(tree, hf_command, tvb, offset, 1, cmd);
@@ -831,6 +829,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 			tvb, offset, namelen, ENC_CP437|ENC_NA);
 		break;
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -1108,9 +1107,9 @@ proto_register_smb_browse(void)
 	proto_register_field_array(proto_smb_browse, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("mailslot_browse", dissect_mailslot_browse,
+	new_register_dissector("mailslot_browse", dissect_mailslot_browse,
 	    proto_smb_browse);
-	register_dissector("mailslot_lanman", dissect_mailslot_lanman,
+	new_register_dissector("mailslot_lanman", dissect_mailslot_lanman,
 	    proto_smb_browse);
 }
 

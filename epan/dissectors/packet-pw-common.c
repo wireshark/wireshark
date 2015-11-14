@@ -90,25 +90,21 @@ static int hf_padding_len = -1;
 static dissector_handle_t dh_data;
 
 static
-void dissect_pw_padding(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+int dissect_pw_padding(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-	/* do not touch columns */
-	if (tree)
-	{
-		gint size;
-		proto_item* item;
-		size = tvb_reported_length_remaining(tvb, 0);
-		item = proto_tree_add_item(tree, proto_pw_padding, tvb, 0, -1, ENC_NA);
-		pwc_item_append_text_n_items(item,size,"byte");
-		{
-			proto_tree* tree_p;
-			tree_p = proto_item_add_subtree(item, ett);
-			call_dissector(dh_data, tvb, pinfo, tree_p);
-			item = proto_tree_add_int(tree_p, hf_padding_len, tvb, 0, 0, size);
-			PROTO_ITEM_SET_HIDDEN(item); /*allow filtering*/
-		}
-	}
-	return;
+	gint size;
+	proto_item* item;
+	proto_tree* tree_p;
+	size = tvb_reported_length_remaining(tvb, 0);
+	item = proto_tree_add_item(tree, proto_pw_padding, tvb, 0, -1, ENC_NA);
+	pwc_item_append_text_n_items(item,size,"byte");
+	tree_p = proto_item_add_subtree(item, ett);
+
+	call_dissector(dh_data, tvb, pinfo, tree_p);
+	item = proto_tree_add_int(tree_p, hf_padding_len, tvb, 0, 0, size);
+	PROTO_ITEM_SET_HIDDEN(item); /*allow filtering*/
+
+	return tvb_captured_length(tvb);
 }
 
 void proto_register_pw_padding(void)
@@ -124,15 +120,13 @@ void proto_register_pw_padding(void)
 	proto_pw_padding = proto_register_protocol("Pseudowire Padding","PW Padding","pw.padding");
 	proto_register_field_array(proto_pw_padding, hfpadding, array_length(hfpadding));
 	proto_register_subtree_array(ett_array, array_length(ett_array));
-	register_dissector("pw_padding", dissect_pw_padding, proto_pw_padding);
-	return;
+	new_register_dissector("pw_padding", dissect_pw_padding, proto_pw_padding);
 }
 
 
 void proto_reg_handoff_pw_padding(void)
 {
 	dh_data = find_dissector("data");
-	return;
 }
 
 /*

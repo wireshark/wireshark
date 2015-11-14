@@ -1789,8 +1789,8 @@ static int find_unescaped_iac(tvbuff_t *tvb, int offset, int len)
   return iac_offset;
 }
 
-static void
-dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree *telnet_tree, *ti;
   tvbuff_t   *next_tvb;
@@ -1841,7 +1841,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (is_tn3270 || is_tn5250) {
         pinfo->desegment_offset = offset;
         pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-        return;
+        return tvb_captured_length(tvb);
       }
       /*
        * We found no IAC byte, so what remains in the buffer
@@ -1852,6 +1852,7 @@ dissect_telnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     }
   }
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -2105,7 +2106,7 @@ proto_register_telnet(void)
   expert_telnet = expert_register_protocol(proto_telnet);
   expert_register_field_array(expert_telnet, ei, array_length(ei));
 
-  telnet_handle = register_dissector("telnet", dissect_telnet, proto_telnet);
+  telnet_handle = new_register_dissector("telnet", dissect_telnet, proto_telnet);
 }
 
 void

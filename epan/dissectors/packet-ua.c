@@ -240,14 +240,16 @@ static void _dissect_ua_msg(tvbuff_t       *tvb,
 }
 
 
-static void dissect_ua_sys_to_term(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_ua_sys_to_term(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     _dissect_ua_msg(tvb, pinfo, tree, SYS_TO_TERM);
+    return tvb_captured_length(tvb);
 }
 
-static void dissect_ua_term_to_sys(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_ua_term_to_sys(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     _dissect_ua_msg(tvb, pinfo, tree, TERM_TO_SYS);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -267,8 +269,8 @@ void proto_register_ua_msg(void)
     /* UA dissector registration */
     proto_ua_msg = proto_register_protocol("Universal Alcatel Protocol", "UA", "ua");
 
-    register_dissector("ua_sys_to_term", dissect_ua_sys_to_term, proto_ua_msg);
-    register_dissector("ua_term_to_sys", dissect_ua_term_to_sys, proto_ua_msg);
+    new_register_dissector("ua_sys_to_term", dissect_ua_sys_to_term, proto_ua_msg);
+    new_register_dissector("ua_term_to_sys", dissect_ua_term_to_sys, proto_ua_msg);
 
     /* Common subtree array registration */
     proto_register_subtree_array(ett, array_length(ett));

@@ -6105,8 +6105,8 @@ decode_system_journal( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
  * external decoders.  Afterwards the journal-section is decoded.
  */
 
-static void
-dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
+static int
+dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_ )
 {
 	proto_item		*ti;
 	proto_tree		*rtp_midi_tree;
@@ -6188,8 +6188,7 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 				/* Decode a MIDI-command - if 0 is returned something went wrong */
 				consumed = decodemidi( tvb, pinfo, rtp_midi_commands_tree, cmd_count, offset, cmd_len, &runningstatus, &rsoffset );
 				if ( -1 == consumed ) {
-					THROW( ReportedBoundsError );
-					return;
+					return offset;
 				}
 
 				/* seek to next delta-time and set remaining length */
@@ -6235,8 +6234,7 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 			consumed = decode_system_journal( tvb, pinfo, rtp_midi_journal_tree, offset );
 
 			if ( -1 == consumed ) {
-				THROW( ReportedBoundsError );
-				return;
+				return offset;
 			}
 
 			/* seek to optional channel-journals-section */
@@ -6255,8 +6253,7 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 				consumed = decode_channel_journal( tvb, pinfo, rtp_midi_chanjournals_tree, offset );
 
 				if ( -1 == consumed ) {
-					THROW( ReportedBoundsError );
-					return;
+					return offset;
 				}
 
 				/* seek to next channel-journal */
@@ -6265,6 +6262,7 @@ dissect_rtp_midi( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree )
 			}
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 
@@ -10031,7 +10029,7 @@ proto_register_rtp_midi( void )
 
 	rtp_midi_module = prefs_register_protocol ( proto_rtp_midi, proto_reg_handoff_rtp_midi );
 	prefs_register_uint_preference ( rtp_midi_module, "midi_payload_type_value", "Payload Type for RFC 4695/6295 RTP-MIDI", "This is the value of the Payload Type field that specifies RTP-MIDI", 10, &rtp_midi_payload_type_value );
-	register_dissector( RTP_MIDI_DISSECTOR_ABBREVIATION, dissect_rtp_midi, proto_rtp_midi );
+	new_register_dissector( RTP_MIDI_DISSECTOR_ABBREVIATION, dissect_rtp_midi, proto_rtp_midi );
 }
 
 

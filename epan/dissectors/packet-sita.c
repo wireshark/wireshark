@@ -95,8 +95,8 @@ format_flags_string(guchar value, const gchar *array[])
     return wmem_strbuf_get_str(buf);
 }
 
-static void
-dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item  *ti;
     guchar      flags, signals, errors1, errors2, proto;
@@ -199,6 +199,7 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_add_fstr(pinfo->cinfo, COL_INFO, "IOP protocol number: %u", pinfo->pseudo_header->sita.sita_proto);
         call_dissector(data_handle, tvb, pinfo, tree);          /* call the generic (hex display) decoder instead */
     }
+    return tvb_captured_length(tvb);
 }
 
 static const true_false_string tfs_sita_flags       = { "From Remote",  "From Local"    };
@@ -378,7 +379,7 @@ proto_register_sita(void)
     sita_dissector_table = register_dissector_table("sita.proto", "SITA protocol number", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
     proto_register_field_array(proto_sita, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("sita", dissect_sita, proto_sita);
+    new_register_dissector("sita", dissect_sita, proto_sita);
 }
 
 void

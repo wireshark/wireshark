@@ -4679,8 +4679,8 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   proto_tree_move_item(sctp_tree, vt, pi);
 }
 
-static void
-dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint16 source_port, destination_port;
   guint      number_of_ppid;
@@ -4728,6 +4728,8 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   dissect_sctp_packet(tvb, pinfo, tree, FALSE);
   if (!pinfo->flags.in_error_pkt && sctp_info.number_of_tvbs > 0)
     tap_queue_packet(sctp_tap, pinfo, &sctp_info);
+
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -5041,7 +5043,7 @@ proto_register_sctp(void)
   sctp_port_dissector_table = register_dissector_table("sctp.port", "SCTP port", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
   sctp_ppi_dissector_table  = register_dissector_table("sctp.ppi",  "SCTP payload protocol identifier", FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-  register_dissector("sctp", dissect_sctp, proto_sctp);
+  new_register_dissector("sctp", dissect_sctp, proto_sctp);
   sctp_heur_subdissector_list = register_heur_dissector_list("sctp");
 
   register_init_routine(sctp_init);

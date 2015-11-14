@@ -557,10 +557,10 @@ static const value_string zbee_zcl_power_config_batt_type_names[] = {
  *      none
  *---------------------------------------------------------------
  */
-static void
-dissect_zbee_zcl_power_config(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+static int
+dissect_zbee_zcl_power_config(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
-    return;
+    return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_power_config*/
 
 /*FUNCTION:------------------------------------------------------
@@ -829,7 +829,7 @@ proto_register_zbee_zcl_power_config(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL power configuration dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_POWER_CONFIG, dissect_zbee_zcl_power_config, proto_zbee_zcl_power_config);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_POWER_CONFIG, dissect_zbee_zcl_power_config, proto_zbee_zcl_power_config);
 } /*proto_register_zbee_zcl_power_config*/
 
 /*FUNCTION:------------------------------------------------------

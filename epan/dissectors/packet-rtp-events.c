@@ -319,8 +319,8 @@ static gint ett_rtp_events           = -1;
 
 static struct _rtp_event_info rtp_event_info;
 
-static void
-dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+static int
+dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
 {
 	proto_item   *ti;
 	proto_tree   *rtp_events_tree;
@@ -390,6 +390,7 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	}
 
 	tap_queue_packet(rtp_event_tap, pinfo, &rtp_event_info);
+	return tvb_captured_length(tvb);
 }
 
 
@@ -491,7 +492,7 @@ proto_register_rtp_events(void)
 				    " that specifies Cisco Named Signaling Events", 10,
 				    &cisco_nse_pt_value);
 
-	register_dissector("rtpevent", dissect_rtp_events, proto_rtp_events);
+	new_register_dissector("rtpevent", dissect_rtp_events, proto_rtp_events);
 	rtp_event_tap = register_tap("rtpevent");
 }
 

@@ -139,10 +139,10 @@ static const value_string zbee_zcl_illum_meas_sensor_type_names[] = {
  *      none
  *---------------------------------------------------------------
  */
-static void
-dissect_zbee_zcl_illum_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+static int
+dissect_zbee_zcl_illum_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
-    return;
+    return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_illum_meas*/
 
 /*FUNCTION:------------------------------------------------------
@@ -343,7 +343,7 @@ proto_register_zbee_zcl_illum_meas(void)
     proto_register_field_array(proto_zbee_zcl_illum_meas, hf, array_length(hf));
 
     /* Register the ZigBee ZCL Illuminance Measurement dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_ILLUMMEAS, dissect_zbee_zcl_illum_meas, proto_zbee_zcl_illum_meas);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_ILLUMMEAS, dissect_zbee_zcl_illum_meas, proto_zbee_zcl_illum_meas);
 
 } /*proto_register_zbee_zcl_illum_meas*/
 
@@ -462,10 +462,10 @@ static const value_string zbee_zcl_temp_meas_attr_names[] = {
  *      none
  *---------------------------------------------------------------
  */
-static void
-dissect_zbee_zcl_temp_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+static int
+dissect_zbee_zcl_temp_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
-    return;
+    return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_temp_meas*/
 
 /*FUNCTION:------------------------------------------------------
@@ -654,7 +654,7 @@ proto_register_zbee_zcl_temp_meas(void)
     proto_register_field_array(proto_zbee_zcl_temp_meas, hf, array_length(hf));
 
     /* Register the ZigBee ZCL Temperature Measurement dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_TEMPMEAS, dissect_zbee_zcl_temp_meas, proto_zbee_zcl_temp_meas);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_TEMPMEAS, dissect_zbee_zcl_temp_meas, proto_zbee_zcl_temp_meas);
 } /*proto_register_zbee_zcl_temp_meas*/
 
 /*FUNCTION:------------------------------------------------------
@@ -789,10 +789,10 @@ static const value_string zbee_zcl_press_meas_attr_names[] = {
  *      none
  *---------------------------------------------------------------
  */
-static void
-dissect_zbee_zcl_press_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+static int
+dissect_zbee_zcl_press_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
-    return;
+    return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_press_meas*/
 
 /*FUNCTION:------------------------------------------------------
@@ -1026,7 +1026,7 @@ proto_register_zbee_zcl_press_meas(void)
     proto_register_field_array(proto_zbee_zcl_press_meas, hf, array_length(hf));
 
     /* Register the ZigBee ZCL Pressure Measurement dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_PRESSMEAS, dissect_zbee_zcl_press_meas, proto_zbee_zcl_press_meas);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_PRESSMEAS, dissect_zbee_zcl_press_meas, proto_zbee_zcl_press_meas);
 } /*proto_register_zbee_zcl_press_meas*/
 
 /*FUNCTION:------------------------------------------------------
@@ -1144,10 +1144,10 @@ static const value_string zbee_zcl_relhum_meas_attr_names[] = {
  *      none
  *---------------------------------------------------------------
  */
-static void
-dissect_zbee_zcl_relhum_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+static int
+dissect_zbee_zcl_relhum_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
-    return;
+    return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_relhum_meas*/
 
 /*FUNCTION:------------------------------------------------------
@@ -1334,7 +1334,7 @@ proto_register_zbee_zcl_relhum_meas(void)
     proto_register_field_array(proto_zbee_zcl_relhum_meas, hf, array_length(hf));
 
     /* Register the ZigBee ZCL Relative Humidity Measurement dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_RELHUMMEAS, dissect_zbee_zcl_relhum_meas, proto_zbee_zcl_relhum_meas);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_RELHUMMEAS, dissect_zbee_zcl_relhum_meas, proto_zbee_zcl_relhum_meas);
 } /*proto_register_zbee_zcl_relhum_meas*/
 
 

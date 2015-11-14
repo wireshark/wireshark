@@ -1052,8 +1052,8 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 /*
  * Dissect SPDUs inside a TSDU.
  */
-static void
-dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 	guint8 type;
@@ -1082,6 +1082,7 @@ dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Dissect the remaining SPDUs. */
 	while (tvb_reported_length_remaining(tvb, offset) > 0)
 		offset = dissect_spdu(tvb, offset, pinfo, tree, NON_TOKENS_SPDU, is_clsp);
+	return tvb_captured_length(tvb);
 }
 
 static void ses_reassemble_init (void)
@@ -1159,7 +1160,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	  }
 	}
 
-	dissect_ses(tvb, pinfo, parent_tree);
+	dissect_ses(tvb, pinfo, parent_tree, data);
 	return TRUE;
 }
 
@@ -1904,7 +1905,7 @@ proto_register_ses(void)
 	 * (you can't refer to it directly from a plugin dissector
 	 * on Windows without stuffing it into the Big Transfer Vector).
 	 */
-	register_dissector("ses", dissect_ses, proto_ses);
+	new_register_dissector("ses", dissect_ses, proto_ses);
 }
 
 void

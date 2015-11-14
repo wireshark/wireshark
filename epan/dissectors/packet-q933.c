@@ -1787,8 +1787,8 @@ static const value_string q933_codeset_vals[] = {
 	{ 0x00, NULL },
 };
 
-static void
-dissect_q933(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_q933(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int		offset = 0;
 	proto_tree	*q933_tree = NULL;
@@ -2033,6 +2033,7 @@ dissect_q933(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 1 + 1 + info_element_len;
 		codeset = locked_codeset;
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -2232,7 +2233,7 @@ proto_register_q933(void)
 	expert_q933 = expert_register_protocol(proto_q933);
 	expert_register_field_array(expert_q933, ei, array_length(ei));
 
-	register_dissector("q933", dissect_q933, proto_q933);
+	new_register_dissector("q933", dissect_q933, proto_q933);
 }
 
 void

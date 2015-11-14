@@ -329,19 +329,22 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 #if 0
 /* XXX: The following are never actually used ?? */
-static void dissect_uaudp_dir_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_uaudp_dir_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     _dissect_uaudp(tvb, pinfo, tree, DIR_UNKNOWN);
+    return tvb_captured_length(tvb);
 }
 
-static void dissect_uaudp_term_to_serv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_uaudp_term_to_serv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     _dissect_uaudp(tvb, pinfo, tree, TERM_TO_SYS);
+    return tvb_captured_length(tvb);
 }
 
-static void dissect_uaudp_serv_to_term(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_uaudp_serv_to_term(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     _dissect_uaudp(tvb, pinfo, tree, SYS_TO_TERM);
+    return tvb_captured_length(tvb);
 }
 #endif
 
@@ -590,9 +593,9 @@ void proto_register_uaudp(void)
 
     uaudp_handle = register_dissector("uaudp", dissect_uaudp, proto_uaudp);
 #if 0 /* XXX: Not used ?? */
-    register_dissector("uaudp_dir_unknown",  dissect_uaudp_dir_unknown,  proto_uaudp);
-    register_dissector("uaudp_term_to_serv", dissect_uaudp_term_to_serv, proto_uaudp);
-    register_dissector("uaudp_serv_to_term", dissect_uaudp_serv_to_term, proto_uaudp);
+    new_register_dissector("uaudp_dir_unknown",  dissect_uaudp_dir_unknown,  proto_uaudp);
+    new_register_dissector("uaudp_term_to_serv", dissect_uaudp_term_to_serv, proto_uaudp);
+    new_register_dissector("uaudp_serv_to_term", dissect_uaudp_serv_to_term, proto_uaudp);
 #endif
 
     proto_register_field_array(proto_uaudp, hf_uaudp, array_length(hf_uaudp));

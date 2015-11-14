@@ -473,8 +473,8 @@ init_raknet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset)
  * RakNet is just a dissector.  It is invoked by protocols whose applications
  * are built using the RakNet libs.
  */
-static void
-dissect_raknet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_raknet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8 packet_id;
 
@@ -488,6 +488,7 @@ dissect_raknet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_expert(tree, pinfo, &ei_raknet_uknown_id, tvb,
                 0, 1);
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -648,7 +649,7 @@ proto_register_raknet(void)
     /*
      * Raknet subdissector for use by external protocols.
      */
-    register_dissector("raknet", dissect_raknet, proto_raknet);
+    new_register_dissector("raknet", dissect_raknet, proto_raknet);
 }
 
 void

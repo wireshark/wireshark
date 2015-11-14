@@ -17115,8 +17115,8 @@ dissect_smb_flags2(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 #define SMB_FLAGS_DIRN 0x80
 
 
-static void
-dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	int                   offset   = 0;
 	proto_item           *item;
@@ -17665,6 +17665,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 static gboolean
@@ -17681,7 +17682,7 @@ dissect_smb_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 		return FALSE;
 	}
 
-	dissect_smb(tvb, pinfo, parent_tree);
+	dissect_smb(tvb, pinfo, parent_tree, data);
 	return TRUE;
 }
 
@@ -20535,7 +20536,7 @@ proto_register_smb(void)
 	/* Register the tap for the "Export Object" function */
 	smb_eo_tap = register_tap("smb_eo"); /* SMB Export Object tap */
 
-	register_dissector("smb", dissect_smb, proto_smb);
+	new_register_dissector("smb", dissect_smb, proto_smb);
 
 	register_srt_table(proto_smb, NULL, 3, smbstat_packet, smbstat_init, NULL);
 }

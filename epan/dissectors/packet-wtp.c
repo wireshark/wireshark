@@ -778,13 +778,14 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * Called directly from UDP.
  * Put "WTP+WSP" into the "Protocol" column.
  */
-static void
-dissect_wtp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_wtp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WTP+WSP");
     col_clear(pinfo->cinfo, COL_INFO);
 
     dissect_wtp_common(tvb, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -796,13 +797,14 @@ dissect_wtp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *
  * XXX - can this be called from any other dissector?
  */
-static void
-dissect_wtp_fromwtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_wtp_fromwtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WTLS+WTP+WSP");
     col_clear(pinfo->cinfo, COL_INFO);
 
     dissect_wtp_common(tvb, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -1058,8 +1060,8 @@ proto_register_wtp(void)
     proto_register_field_array(proto_wtp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("wtp-wtls", dissect_wtp_fromwtls, proto_wtp);
-    register_dissector("wtp-udp", dissect_wtp_fromudp, proto_wtp);
+    new_register_dissector("wtp-wtls", dissect_wtp_fromwtls, proto_wtp);
+    new_register_dissector("wtp-udp", dissect_wtp_fromudp, proto_wtp);
     register_init_routine(wtp_defragment_init);
     register_cleanup_routine(wtp_defragment_cleanup);
 }

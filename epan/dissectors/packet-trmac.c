@@ -474,8 +474,8 @@ sv_text(tvbuff_t *tvb, int svoff, packet_info *pinfo, proto_tree *tree)
 	return sv_length;
 }
 
-static void
-dissect_trmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_trmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*mac_tree = NULL;
 	proto_item	*ti;
@@ -515,6 +515,7 @@ dissect_trmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -691,7 +692,7 @@ proto_register_trmac(void)
 	expert_trmac = expert_register_protocol(proto_trmac);
 	expert_register_field_array(expert_trmac, ei, array_length(ei));
 
-	register_dissector("trmac", dissect_trmac, proto_trmac);
+	new_register_dissector("trmac", dissect_trmac, proto_trmac);
 }
 
 /*

@@ -3146,10 +3146,11 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     return TRUE;
 }
 
-static void
-dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_q931_tpkt_heur(tvb, pinfo, tree, NULL);
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -3158,28 +3159,32 @@ dissect_q931_tpkt_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_q931_pdu(tvb, pinfo, tree, TRUE);
 }
 
-static void
-dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_q931_pdu(tvb, pinfo, tree, FALSE);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_q931_over_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_q931_over_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_q931_pdu(tvb, pinfo, tree, TRUE);
+	return tvb_captured_length(tvb);
 }
 
-static void
-dissect_q931_ie_cs0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_q931_ie_cs0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_q931_IEs(tvb, pinfo, NULL, tree, FALSE, 0, 0);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_q931_ie_cs7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_q931_ie_cs7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_q931_IEs(tvb, pinfo, NULL, tree, FALSE, 0, 7);
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -3960,13 +3965,13 @@ proto_register_q931(void)
     register_init_routine(q931_init);
     register_cleanup_routine(q931_cleanup);
 
-    q931_handle = register_dissector("q931", dissect_q931, proto_q931);
-    q931_tpkt_handle = register_dissector("q931.tpkt", dissect_q931_tpkt, proto_q931);
+    q931_handle = new_register_dissector("q931", dissect_q931, proto_q931);
+    q931_tpkt_handle = new_register_dissector("q931.tpkt", dissect_q931_tpkt, proto_q931);
     q931_tpkt_pdu_handle = create_dissector_handle(dissect_q931_tpkt_pdu,
         proto_q931);
-    q931_over_ip_handle = register_dissector("q931.over_ip", dissect_q931_over_ip, proto_q931);
-    register_dissector("q931.ie", dissect_q931_ie_cs0, proto_q931);
-    register_dissector("q931.ie.cs7", dissect_q931_ie_cs7, proto_q931);
+    q931_over_ip_handle = new_register_dissector("q931.over_ip", dissect_q931_over_ip, proto_q931);
+    new_register_dissector("q931.ie", dissect_q931_ie_cs0, proto_q931);
+    new_register_dissector("q931.ie.cs7", dissect_q931_ie_cs7, proto_q931);
 
     /* subdissector code */
     codeset_dissector_table = register_dissector_table("q931.codeset", "Q.931 Codeset", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);

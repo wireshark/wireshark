@@ -1481,8 +1481,8 @@ static void get_sgsap_msg_params(guint8 oct, const gchar **msg_str, int *ett_tre
 }
 
 
-static void
-dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item      *item;
     proto_tree      *sgsap_tree;
@@ -1515,7 +1515,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s", msg_str);
     }else{
         proto_tree_add_item(tree, hf_sgsap_unknown_msg, tvb, offset, 1, ENC_BIG_ENDIAN);
-        return;
+        return tvb_captured_length(tvb);
     }
 
     /*
@@ -1537,6 +1537,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (*msg_fcn_p)(tvb, sgsap_tree, pinfo, offset, len - offset);
     }
 
+    return tvb_captured_length(tvb);
 }
 
 
@@ -1680,7 +1681,7 @@ void proto_register_sgsap(void) {
     expert_register_field_array(expert_sgsap, ei, array_length(ei));
 
     /* Register dissector */
-    register_dissector(PFNAME, dissect_sgsap, proto_sgsap);
+    new_register_dissector(PFNAME, dissect_sgsap, proto_sgsap);
 
    /* Set default SCTP ports */
     range_convert_str(&global_sgsap_port_range, SGSAP_SCTP_PORT_RANGE, MAX_SCTP_PORT);

@@ -2272,8 +2272,8 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
   }
 }
 
-static void
-dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *sua_item;
   proto_tree *sua_tree;
@@ -2292,19 +2292,13 @@ dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   /* Clear entries in Info column on summary display */
   col_clear(pinfo->cinfo, COL_INFO);
 
-  /* In the interest of speed, if "tree" is NULL, don't do any work not
-     necessary to generate protocol tree items. */
-  if (tree) {
-    /* create the sua protocol tree */
-    sua_item = proto_tree_add_item(tree, proto_sua, message_tvb, 0, -1, ENC_NA);
-    sua_tree = proto_item_add_subtree(sua_item, ett_sua);
-  } else {
-    sua_tree = NULL;
-  }
+  /* create the sua protocol tree */
+  sua_item = proto_tree_add_item(tree, proto_sua, message_tvb, 0, -1, ENC_NA);
+  sua_tree = proto_item_add_subtree(sua_item, ett_sua);
 
   /* dissect the message */
   dissect_sua_message(message_tvb, pinfo, sua_tree, tree);
-
+  return tvb_captured_length(message_tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -2460,7 +2454,7 @@ proto_register_sua(void)
 
   /* Register the protocol name and description */
   proto_sua = proto_register_protocol("SS7 SCCP-User Adaptation Layer", "SUA", "sua");
-  register_dissector("sua", dissect_sua, proto_sua);
+  new_register_dissector("sua", dissect_sua, proto_sua);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sua, hf, array_length(hf));

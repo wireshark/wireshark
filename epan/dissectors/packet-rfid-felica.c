@@ -219,34 +219,28 @@ static const value_string felica_sys_codes[] = {
 
 static dissector_handle_t data_handle=NULL;
 
-/* Forward-declare the dissector functions */
-static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 /* Subtree handles: set by register_subtree_array */
 static gint ett_felica = -1;
 
-static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *item;
-    proto_tree *felica_tree = NULL;
+    proto_tree *felica_tree;
     guint8      opcode;
     guint8      rwe_pos     = 0;
     tvbuff_t   *rwe_resp_data_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FeliCa");
 
-    if (tree) {
-        /* Start with a top-level item to add everything else to */
-        item = proto_tree_add_item(tree, proto_felica, tvb, 0, -1, ENC_NA);
-        felica_tree = proto_item_add_subtree(item, ett_felica);
-    }
+    /* Start with a top-level item to add everything else to */
+    item = proto_tree_add_item(tree, proto_felica, tvb, 0, -1, ENC_NA);
+    felica_tree = proto_item_add_subtree(item, ett_felica);
+
     opcode = tvb_get_guint8(tvb, 0);
     col_set_str(pinfo->cinfo, COL_INFO,
       val_to_str_const(opcode, felica_opcodes, "Unknown"));
 
-    if (tree) {
-        proto_tree_add_item(felica_tree, hf_felica_opcode,  tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
+    proto_tree_add_item(felica_tree, hf_felica_opcode,  tvb, 0, 1, ENC_BIG_ENDIAN);
 
     switch (opcode) {
 
@@ -453,6 +447,7 @@ static void dissect_felica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     default:
         break;
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -551,7 +546,7 @@ proto_register_felica(void)
     proto_register_field_array(proto_felica, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("felica", dissect_felica, proto_felica);
+    new_register_dissector("felica", dissect_felica, proto_felica);
 }
 
 /* Handler registration */

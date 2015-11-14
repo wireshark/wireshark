@@ -702,8 +702,8 @@ static expert_field ei_rtcp_block_length = EI_INIT;
 static expert_field ei_srtcp_encrypted_payload = EI_INIT;
 
 /* Main dissection function */
-static void dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
-     proto_tree *tree );
+static int dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
+     proto_tree *tree, void* data );
 
 /* Displaying set info */
 static gboolean global_rtcp_show_setup_info = TRUE;
@@ -834,7 +834,7 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     }
 
     /* OK, dissect as RTCP */
-    dissect_rtcp(tvb, pinfo, tree);
+    dissect_rtcp(tvb, pinfo, tree, data);
     return TRUE;
 }
 
@@ -3302,8 +3302,8 @@ rtcp_packet_type_to_tree( int rtcp_packet_type)
     return tree;
 }
 
-static void
-dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+static int
+dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
 {
     proto_item       *ti;
     proto_tree       *rtcp_tree           = NULL;
@@ -3595,6 +3595,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
         expert_add_info_format(pinfo, ti, &ei_rtcp_length_check, "Incorrect RTCP packet length information (expected %u bytes, found %d)", total_packet_length, offset);
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -6506,7 +6507,7 @@ proto_register_rtcp(void)
     expert_rtcp = expert_register_protocol(proto_rtcp);
     expert_register_field_array(expert_rtcp, ei, array_length(ei));
 
-    register_dissector("rtcp", dissect_rtcp, proto_rtcp);
+    new_register_dissector("rtcp", dissect_rtcp, proto_rtcp);
 
     rtcp_module = prefs_register_protocol(proto_rtcp, NULL);
 

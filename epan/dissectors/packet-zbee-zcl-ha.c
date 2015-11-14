@@ -216,10 +216,10 @@ static const value_string zbee_zcl_appl_idt_ceced_spec_ver_names[] = {
  *      none
  *---------------------------------------------------------------
  */
-static void
-dissect_zbee_zcl_appl_idt(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+static int
+dissect_zbee_zcl_appl_idt(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
-    return;
+	return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_appl_idt*/
 
 /*FUNCTION:------------------------------------------------------
@@ -355,7 +355,7 @@ proto_register_zbee_zcl_appl_idt(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Appliance Identification dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_APPLIDT, dissect_zbee_zcl_appl_idt, proto_zbee_zcl_appl_idt);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_APPLIDT, dissect_zbee_zcl_appl_idt, proto_zbee_zcl_appl_idt);
 } /*proto_register_zbee_zcl_appl_idt*/
 
 /*FUNCTION:------------------------------------------------------
@@ -505,10 +505,10 @@ static const value_string zbee_zcl_met_idt_data_quality_names[] = {
  *      none
  *---------------------------------------------------------------
  */
-static void
-dissect_zbee_zcl_met_idt(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+static int
+dissect_zbee_zcl_met_idt(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
-    return;
+    return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_met_idt*/
 
 /*FUNCTION:------------------------------------------------------
@@ -586,7 +586,7 @@ proto_register_zbee_zcl_met_idt(void)
     proto_register_field_array(proto_zbee_zcl_met_idt, hf, array_length(hf));
 
     /* Register the ZigBee ZCL Meter Identification dissector. */
-    register_dissector(ZBEE_PROTOABBREV_ZCL_METIDT, dissect_zbee_zcl_met_idt, proto_zbee_zcl_met_idt);
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_METIDT, dissect_zbee_zcl_met_idt, proto_zbee_zcl_met_idt);
 } /*proto_register_zbee_zcl_met_idt*/
 
 /*FUNCTION:------------------------------------------------------

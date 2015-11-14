@@ -142,8 +142,8 @@ static int dissect_ppcap_payload_data(tvbuff_t *, packet_info *, proto_tree *, i
 
 /*Dissecting the function PPCAP */
 
-static void
-dissect_ppcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ppcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_tree *ppcap_tree, *ppcap_tree1;
@@ -195,6 +195,7 @@ dissect_ppcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 
@@ -657,7 +658,7 @@ module_t *ppcap_module;
 	proto_ppcap = proto_register_protocol("Proprietary PCAP", "PPCAP", "ppcap");
 	proto_register_field_array(proto_ppcap , hf , array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("ppcap", dissect_ppcap, proto_ppcap);
+	new_register_dissector("ppcap", dissect_ppcap, proto_ppcap);
 	ppcap_module = prefs_register_protocol(proto_ppcap, proto_reg_handoff_ppcap);
 	prefs_register_enum_preference(ppcap_module,"rev_doc","PPCAP, Select the document","Select Document",&global_ppcap_rev_doc,rev_doc,TRUE);
 

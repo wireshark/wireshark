@@ -375,8 +375,8 @@ capture_tr(const guchar *pd, int offset, int len, packet_counts *ld) {
 }
 
 
-static void
-dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*tr_tree;
 	proto_item	*ti, *hidden_item;
@@ -637,6 +637,7 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	tap_queue_packet(tr_tap, pinfo, trh);
+	return tvb_captured_length(tvb);
 }
 
 /* this routine is taken from the Linux net/802/tr.c code, which shows
@@ -798,7 +799,7 @@ proto_register_tr(void)
 	    "Whether Linux mangling of the link-layer header should be checked for and worked around",
 	    &fix_linux_botches);
 
-	register_dissector("tr", dissect_tr, proto_tr);
+	new_register_dissector("tr", dissect_tr, proto_tr);
 	tr_tap=register_tap("tr");
 
 	register_conversation_table(proto_tr, TRUE, tr_conversation_packet, tr_hostlist_packet);

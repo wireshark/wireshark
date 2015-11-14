@@ -97,8 +97,8 @@ const value_string rmp_error_vals[] = {
 	{ 0x00,               NULL }
 };
 
-static void
-dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*rmp_tree = NULL;
 	proto_item	*ti = NULL;
@@ -113,96 +113,95 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_INFO,
 		    val_to_str_const(type, rmp_type_vals, "Unknown Type"));
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rmp, tvb, 0, -1, ENC_NA);
-		rmp_tree = proto_item_add_subtree(ti, ett_rmp);
-		proto_tree_add_uint(rmp_tree, hf_rmp_type, tvb, 0, 1, type);
+	ti = proto_tree_add_item(tree, proto_rmp, tvb, 0, -1, ENC_NA);
+	rmp_tree = proto_item_add_subtree(ti, ett_rmp);
+	proto_tree_add_uint(rmp_tree, hf_rmp_type, tvb, 0, 1, type);
 
-		switch (type) {
-			case RMP_BOOT_REQ:
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_retcode, tvb, 1, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_seqnum, tvb, 2, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_sessionid, tvb, 6, 2, ENC_BIG_ENDIAN);
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_version, tvb, 8, 2, ENC_BIG_ENDIAN);
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_machtype, tvb, 10, 20, ENC_ASCII|ENC_NA);
-				/* The remaining fields are optional */
-				if(!tvb_offset_exists(tvb, 30))
-					return;
-				len = tvb_get_guint8(tvb, 30);
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_filename, tvb, 30, 1, ENC_ASCII|ENC_BIG_ENDIAN);
-				if(tvb_offset_exists(tvb, len+31))
-					call_dissector(data_handle,
-					    tvb_new_subset_remaining(tvb, len+31),
-					    pinfo, tree);
-				break;
+	switch (type) {
+		case RMP_BOOT_REQ:
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_retcode, tvb, 1, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_seqnum, tvb, 2, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_sessionid, tvb, 6, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_version, tvb, 8, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_machtype, tvb, 10, 20, ENC_ASCII|ENC_NA);
+			/* The remaining fields are optional */
+			if(!tvb_offset_exists(tvb, 30))
+				return 30;
+			len = tvb_get_guint8(tvb, 30);
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_filename, tvb, 30, 1, ENC_ASCII|ENC_BIG_ENDIAN);
+			if(tvb_offset_exists(tvb, len+31))
+				call_dissector(data_handle,
+					tvb_new_subset_remaining(tvb, len+31),
+					pinfo, tree);
+			break;
 
-			case RMP_BOOT_REPL:
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_retcode, tvb, 1, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_seqnum, tvb, 2, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_sessionid, tvb, 6, 2, ENC_BIG_ENDIAN);
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_version, tvb, 8, 2, ENC_BIG_ENDIAN);
-				len = tvb_get_guint8(tvb, 10);
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_filename, tvb, 10, 1, ENC_ASCII|ENC_BIG_ENDIAN);
-				if(tvb_offset_exists(tvb, len+11))
-					call_dissector(data_handle,
-					    tvb_new_subset_remaining(tvb, len+11),
-					    pinfo, tree);
-				break;
+		case RMP_BOOT_REPL:
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_retcode, tvb, 1, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_seqnum, tvb, 2, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_sessionid, tvb, 6, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_version, tvb, 8, 2, ENC_BIG_ENDIAN);
+			len = tvb_get_guint8(tvb, 10);
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_filename, tvb, 10, 1, ENC_ASCII|ENC_BIG_ENDIAN);
+			if(tvb_offset_exists(tvb, len+11))
+				call_dissector(data_handle,
+					tvb_new_subset_remaining(tvb, len+11),
+					pinfo, tree);
+			break;
 
-			case RMP_READ_REQ:
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_retcode, tvb, 1, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_offset, tvb, 2, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_sessionid, tvb, 6, 2, ENC_BIG_ENDIAN);
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_size, tvb, 8, 2, ENC_BIG_ENDIAN);
-				if(tvb_offset_exists(tvb, 10))
-					call_dissector(data_handle,
-					    tvb_new_subset_remaining(tvb, 10),
-					    pinfo, tree);
-				break;
+		case RMP_READ_REQ:
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_retcode, tvb, 1, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_offset, tvb, 2, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_sessionid, tvb, 6, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_size, tvb, 8, 2, ENC_BIG_ENDIAN);
+			if(tvb_offset_exists(tvb, 10))
+				call_dissector(data_handle,
+					tvb_new_subset_remaining(tvb, 10),
+					pinfo, tree);
+			break;
 
-			case RMP_READ_REPL:
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_retcode, tvb, 1, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_offset, tvb, 2, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_sessionid, tvb, 6, 2, ENC_BIG_ENDIAN);
-				call_dissector(data_handle, tvb_new_subset_remaining(tvb,
-				    8), pinfo, rmp_tree);
-				break;
+		case RMP_READ_REPL:
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_retcode, tvb, 1, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_offset, tvb, 2, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_sessionid, tvb, 6, 2, ENC_BIG_ENDIAN);
+			call_dissector(data_handle, tvb_new_subset_remaining(tvb,
+				8), pinfo, rmp_tree);
+			break;
 
-			case RMP_BOOT_DONE:
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_retcode, tvb, 1, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_reserved, tvb, 2, 4, ENC_BIG_ENDIAN);
-				proto_tree_add_item(rmp_tree,
-				    hf_rmp_sessionid, tvb, 6, 2, ENC_BIG_ENDIAN);
-				if(tvb_offset_exists(tvb, 8))
-					call_dissector(data_handle,
-					    tvb_new_subset_remaining(tvb, 6),
-					    pinfo, tree);
-				break;
-			default:
-				call_dissector(data_handle, tvb_new_subset_remaining(tvb,
-				    1), pinfo, tree);
-		}
+		case RMP_BOOT_DONE:
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_retcode, tvb, 1, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_reserved, tvb, 2, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(rmp_tree,
+				hf_rmp_sessionid, tvb, 6, 2, ENC_BIG_ENDIAN);
+			if(tvb_offset_exists(tvb, 8))
+				call_dissector(data_handle,
+					tvb_new_subset_remaining(tvb, 6),
+					pinfo, tree);
+			break;
+		default:
+			call_dissector(data_handle, tvb_new_subset_remaining(tvb,
+				1), pinfo, tree);
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -250,7 +249,7 @@ proto_register_rmp(void)
 	proto_register_field_array(proto_rmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("rmp", dissect_rmp, proto_rmp);
+	new_register_dissector("rmp", dissect_rmp, proto_rmp);
 }
 
 void

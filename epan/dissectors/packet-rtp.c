@@ -1733,8 +1733,8 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 
-static void
-dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     gint offset = 0;
     int cnt;
@@ -1819,6 +1819,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += hdr_last->len;
         hdr_last = hdr_last->next;
     }
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -2413,8 +2414,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     return offset;
 }
 
-static void
-dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+static int
+dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
 {
     unsigned int hdr_extension_len;
 
@@ -2500,10 +2501,11 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
             hdrext_offset += 4;
         }
     }
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+static int
+dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
 {
     unsigned int hdr_extension_len;
 
@@ -2592,6 +2594,7 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
             hdrext_offset += 4;
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 /* calculate the extended sequence number - top 16 bits of the previous sequence number,
@@ -3664,7 +3667,7 @@ proto_register_rtp(void)
     expert_register_field_array(expert_rtp, ei, array_length(ei));
 
     new_register_dissector("rtp", dissect_rtp, proto_rtp);
-    register_dissector("rtp.rfc2198", dissect_rtp_rfc2198, proto_rtp);
+    new_register_dissector("rtp.rfc2198", dissect_rtp_rfc2198, proto_rtp);
 
     rtp_tap = register_tap("rtp");
 
@@ -3679,8 +3682,8 @@ proto_register_rtp(void)
     rtp_hdr_ext_rfc5285_dissector_table = register_dissector_table("rtp.ext.rfc5285.id",
                                     "RTP Generic header extension (RFC 5285)", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
-    register_dissector("rtp.ext.ed137", dissect_rtp_hdr_ext_ed137, proto_rtp);
-    register_dissector("rtp.ext.ed137a", dissect_rtp_hdr_ext_ed137a, proto_rtp);
+    new_register_dissector("rtp.ext.ed137", dissect_rtp_hdr_ext_ed137, proto_rtp);
+    new_register_dissector("rtp.ext.ed137a", dissect_rtp_hdr_ext_ed137a, proto_rtp);
 
     rtp_module = prefs_register_protocol(proto_rtp, proto_reg_handoff_rtp);
 

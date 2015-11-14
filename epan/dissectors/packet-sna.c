@@ -2445,8 +2445,8 @@ dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * --------------------------------------------------------------------
  */
 
-static void
-dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint8		fid;
 	proto_tree	*sna_tree = NULL;
@@ -2479,10 +2479,11 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		default:
 			dissect_fid(tvb, pinfo, sna_tree, tree);
 	}
+	return tvb_captured_length(tvb);
 }
 
-static void
-dissect_sna_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sna_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*sna_tree = NULL;
 	proto_item	*sna_ti = NULL;
@@ -2502,6 +2503,7 @@ dissect_sna_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		sna_tree = proto_item_add_subtree(sna_ti, ett_sna);
 	}
 	dissect_xid(tvb, pinfo, sna_tree, tree);
+	return tvb_captured_length(tvb);
 }
 
 static void
@@ -3482,11 +3484,11 @@ proto_register_sna(void)
 	    "SNA", "sna");
 	proto_register_field_array(proto_sna, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("sna", dissect_sna, proto_sna);
+	new_register_dissector("sna", dissect_sna, proto_sna);
 
 	proto_sna_xid = proto_register_protocol(
 	    "Systems Network Architecture XID", "SNA XID", "sna_xid");
-	register_dissector("sna_xid", dissect_sna_xid, proto_sna_xid);
+	new_register_dissector("sna_xid", dissect_sna_xid, proto_sna_xid);
 
 	sna_address_type = address_type_dissector_register("AT_SNA", "SNA Address", sna_fid_to_str_buf, sna_address_str_len, NULL, NULL, NULL, NULL);
 

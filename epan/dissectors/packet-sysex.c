@@ -1105,122 +1105,119 @@ dissect_digitech_procedure(guint8 procedure, const gint offset,
 }
 
 /* dissector for System Exclusive MIDI data */
-static void
-dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_sysex_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
     guint8 sysex_helper;
     gint data_len;
     proto_item *item;
+    proto_item *ti = NULL;
+    proto_tree *tree = NULL;
+    gint offset = 0;
+    guint8 manufacturer_id;
+    guint32 three_byte_manufacturer_id = 0xFFFFFF;
+    guint8 procedure_id;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SYSEX");
     col_set_str(pinfo->cinfo, COL_INFO, "MIDI System Exclusive Command");
 
     data_len = tvb_reported_length(tvb);
 
-    if (parent_tree)
+    ti = proto_tree_add_protocol_format(parent_tree, proto_sysex, tvb, 0, -1, "MIDI System Exclusive Command");
+    tree = proto_item_add_subtree(ti, ett_sysex);
+
+    /* Check start byte (System Exclusive - 0xF0) */
+    sysex_helper = tvb_get_guint8(tvb, 0);
+    item = proto_tree_add_item(tree, hf_sysex_message_start, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if (sysex_helper != 0xF0)
     {
-        proto_item *ti = NULL;
-        proto_tree *tree = NULL;
-        gint offset = 0;
-        guint8 manufacturer_id;
-        guint32 three_byte_manufacturer_id = 0xFFFFFF;
-        guint8 procedure_id;
-
-        ti = proto_tree_add_protocol_format(parent_tree, proto_sysex, tvb, 0, -1, "MIDI System Exclusive Command");
-        tree = proto_item_add_subtree(ti, ett_sysex);
-
-        /* Check start byte (System Exclusive - 0xF0) */
-        sysex_helper = tvb_get_guint8(tvb, 0);
-        item = proto_tree_add_item(tree, hf_sysex_message_start, tvb, offset, 1, ENC_BIG_ENDIAN);
-        if (sysex_helper != 0xF0)
-        {
-            expert_add_info(pinfo, item, &ei_sysex_message_start_byte);
-        }
-
-        offset++;
-
-        manufacturer_id = tvb_get_guint8(tvb, offset);
-        /* Three-byte manufacturer ID starts with 00 */
-        if (manufacturer_id == 0)
-        {
-            three_byte_manufacturer_id = tvb_get_ntoh24(tvb, offset);
-            proto_tree_add_item(tree, hf_sysex_three_byte_manufacturer_id, tvb, offset, 3, ENC_BIG_ENDIAN);
-            offset += 3;
-        }
-        /* One-byte manufacturer ID */
-        else
-        {
-            proto_tree_add_item(tree, hf_sysex_manufacturer_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset++;
-        }
-
-        proto_tree_add_item(tree, hf_sysex_device_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
-
-        /* Following data is menufacturer-specific */
-        switch (three_byte_manufacturer_id)
-        {
-            case SYSEX_MANUFACTURER_DOD:
-            {
-                guint8 digitech_helper;
-                const guint8 *data_ptr;
-                int len;
-                int i;
-
-                digitech_helper = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(tree, hf_digitech_family_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset++;
-
-                proto_tree_add_item(tree, get_digitech_hf_product_by_family(digitech_helper),
-                                    tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset++;
-
-                procedure_id = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(tree, hf_digitech_procedure_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset++;
-
-                dissect_digitech_procedure(procedure_id, offset, tvb, pinfo, tree);
-
-                len = tvb_reported_length(tvb) - 2;
-                offset = len; /* Penultimate byte is checksum */
-                data_ptr = tvb_get_ptr(tvb, 1, len);
-                /* Calculate checksum */
-                for (i = 0, digitech_helper = 0; i < len; ++i)
-                {
-                    digitech_helper ^= *data_ptr++;
-                }
-
-                item = proto_tree_add_item(tree, hf_digitech_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
-                if (digitech_helper == 0)
-                {
-                    proto_item_append_text(item, " (correct)");
-                }
-                else
-                {
-                    proto_item_append_text(item, " (NOT correct)");
-                    expert_add_info(pinfo, item, &ei_digitech_checksum_bad);
-                }
-                offset++;
-                break;
-            }
-            default:
-                break;
-        }
-
-        if (offset < data_len - 1)
-        {
-            proto_tree_add_expert(tree, pinfo, &ei_sysex_undecoded,
-                                      tvb, offset, data_len - offset - 1);
-        }
-
-        /* Check end byte (EOX - 0xF7) */
-        sysex_helper = tvb_get_guint8(tvb, data_len - 1);
-        item = proto_tree_add_item(tree, hf_sysex_message_eox, tvb, data_len - 1, 1, ENC_BIG_ENDIAN);
-        if (sysex_helper != 0xF7)
-        {
-            expert_add_info(pinfo, item, &ei_sysex_message_end_byte);
-        }
+        expert_add_info(pinfo, item, &ei_sysex_message_start_byte);
     }
+
+    offset++;
+
+    manufacturer_id = tvb_get_guint8(tvb, offset);
+    /* Three-byte manufacturer ID starts with 00 */
+    if (manufacturer_id == 0)
+    {
+        three_byte_manufacturer_id = tvb_get_ntoh24(tvb, offset);
+        proto_tree_add_item(tree, hf_sysex_three_byte_manufacturer_id, tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;
+    }
+    /* One-byte manufacturer ID */
+    else
+    {
+        proto_tree_add_item(tree, hf_sysex_manufacturer_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+    }
+
+    proto_tree_add_item(tree, hf_sysex_device_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* Following data is menufacturer-specific */
+    switch (three_byte_manufacturer_id)
+    {
+        case SYSEX_MANUFACTURER_DOD:
+        {
+            guint8 digitech_helper;
+            const guint8 *data_ptr;
+            int len;
+            int i;
+
+            digitech_helper = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_digitech_family_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+
+            proto_tree_add_item(tree, get_digitech_hf_product_by_family(digitech_helper),
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+
+            procedure_id = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_digitech_procedure_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+
+            dissect_digitech_procedure(procedure_id, offset, tvb, pinfo, tree);
+
+            len = tvb_reported_length(tvb) - 2;
+            offset = len; /* Penultimate byte is checksum */
+            data_ptr = tvb_get_ptr(tvb, 1, len);
+            /* Calculate checksum */
+            for (i = 0, digitech_helper = 0; i < len; ++i)
+            {
+                digitech_helper ^= *data_ptr++;
+            }
+
+            item = proto_tree_add_item(tree, hf_digitech_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
+            if (digitech_helper == 0)
+            {
+                proto_item_append_text(item, " (correct)");
+            }
+            else
+            {
+                proto_item_append_text(item, " (NOT correct)");
+                expert_add_info(pinfo, item, &ei_digitech_checksum_bad);
+            }
+            offset++;
+            break;
+        }
+        default:
+            break;
+    }
+
+    if (offset < data_len - 1)
+    {
+        proto_tree_add_expert(tree, pinfo, &ei_sysex_undecoded,
+                                    tvb, offset, data_len - offset - 1);
+    }
+
+    /* Check end byte (EOX - 0xF7) */
+    sysex_helper = tvb_get_guint8(tvb, data_len - 1);
+    item = proto_tree_add_item(tree, hf_sysex_message_eox, tvb, data_len - 1, 1, ENC_BIG_ENDIAN);
+    if (sysex_helper != 0xF7)
+    {
+        expert_add_info(pinfo, item, &ei_sysex_message_end_byte);
+    }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -1415,7 +1412,7 @@ proto_register_sysex(void)
     expert_sysex = expert_register_protocol(proto_sysex);
     expert_register_field_array(expert_sysex, ei, array_length(ei));
 
-    register_dissector("sysex", dissect_sysex_command, proto_sysex);
+    new_register_dissector("sysex", dissect_sysex_command, proto_sysex);
 }
 
 /*

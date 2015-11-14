@@ -5040,13 +5040,14 @@ dissect_wsp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * Leave the "Protocol" column alone - the dissector calling us should
  * have set it.
  */
-static void
-dissect_wsp_fromwap_co(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_wsp_fromwap_co(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /*
      * XXX - what about WTLS->WTP->WSP?
      */
     dissect_wsp_common(tvb, pinfo, tree, wtp_fromudp_handle, FALSE);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -5055,14 +5056,15 @@ dissect_wsp_fromwap_co(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * Leave the "Protocol" column alone - the dissector calling us should
  * have set it.
  */
-static void
-dissect_wsp_fromwap_cl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_wsp_fromwap_cl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /*
      * XXX - what about WTLS->WSP?
      */
     col_clear(pinfo->cinfo, COL_INFO);
     dissect_wsp_common(tvb, pinfo, tree, wtp_fromudp_handle, TRUE);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -7157,8 +7159,8 @@ proto_register_wsp(void)
     expert_wsp = expert_register_protocol(proto_wsp);
     expert_register_field_array(expert_wsp, ei, array_length(ei));
 
-    register_dissector("wsp-co", dissect_wsp_fromwap_co, proto_wsp);
-    register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
+    new_register_dissector("wsp-co", dissect_wsp_fromwap_co, proto_wsp);
+    new_register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
     heur_subdissector_list = register_heur_dissector_list("wsp");
 
     wsp_fromudp_handle = create_dissector_handle(dissect_wsp_fromudp,

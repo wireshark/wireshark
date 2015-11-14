@@ -2252,8 +2252,8 @@ void setup_sdp_transport_resend(int current_frame, int request_frame)
     }
 }
 
-static void
-dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *sdp_tree;
     proto_item *ti, *sub_ti;
@@ -2643,6 +2643,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     /* Report this packet to the tap */
     tap_queue_packet(sdp_tap, pinfo, sdp_pi);
+
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -3094,7 +3096,7 @@ proto_register_sdp(void)
      * Register the dissector by name, so other dissectors can
      * grab it by name rather than just referring to it directly.
      */
-    register_dissector("sdp", dissect_sdp, proto_sdp);
+    new_register_dissector("sdp", dissect_sdp, proto_sdp);
 
     /* Register for tapping */
     sdp_tap = register_tap("sdp");

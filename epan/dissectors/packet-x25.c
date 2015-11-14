@@ -1998,21 +1998,22 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * X.25 dissector for use when "pinfo->pseudo_header" points to a
  * "struct x25_phdr".
  */
-static void
-dissect_x25_dir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_x25_dir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_x25_common(tvb, pinfo, tree,
         (pinfo->pseudo_header->x25.flags & FROM_DCE) ? X25_FROM_DCE :
                                                        X25_FROM_DTE,
         pinfo->pseudo_header->x25.flags & FROM_DCE);
+    return tvb_captured_length(tvb);
 }
 
 /*
  * X.25 dissector for use when "pinfo->pseudo_header" doesn't point to a
  * "struct x25_phdr".
  */
-static void
-dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int direction;
 
@@ -2026,6 +2027,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (direction == 0)
         direction = (pinfo->srcport > pinfo->destport)*2 - 1;
     dissect_x25_common(tvb, pinfo, tree, X25_UNKNOWN, direction > 0);
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -2371,8 +2373,8 @@ proto_register_x25(void)
         "X.25 secondary protocol identifier", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
     x25_heur_subdissector_list = register_heur_dissector_list("x.25");
 
-    register_dissector("x.25_dir", dissect_x25_dir, proto_x25);
-    register_dissector("x.25", dissect_x25, proto_x25);
+    new_register_dissector("x.25_dir", dissect_x25_dir, proto_x25);
+    new_register_dissector("x.25", dissect_x25, proto_x25);
 
     /* Preferences */
     x25_module = prefs_register_protocol(proto_x25, NULL);

@@ -467,8 +467,8 @@ static algo_parameters_t dcomp_algo_pars[] = {
 
 /* Code to actually dissect the packets
 */
-static void
-dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it
     */
@@ -543,6 +543,7 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
             break; /* error: exit */
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 
@@ -863,7 +864,7 @@ proto_register_sndcp_xid(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_sndcp_xid, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("sndcpxid", dissect_sndcp_xid, proto_sndcp_xid);
+    new_register_dissector("sndcpxid", dissect_sndcp_xid, proto_sndcp_xid);
 }
 
 /*

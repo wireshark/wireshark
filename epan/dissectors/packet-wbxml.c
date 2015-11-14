@@ -7846,16 +7846,18 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 							&codepage_attr, content_map);
 }
 
-static void
-dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	dissect_wbxml_common(tvb, pinfo, tree, NULL);
+	return tvb_captured_length(tvb);
 }
 
-static void
-dissect_uaprof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_uaprof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	dissect_wbxml_common(tvb, pinfo, tree, &decode_uaprof_wap_248);
+	return tvb_captured_length(tvb);
 }
 
 /****************** Register the protocol with Wireshark ******************/
@@ -8118,8 +8120,8 @@ proto_register_wbxml(void)
 				       "dissected (and visualized) then.",
 				       &disable_wbxml_token_parsing);
 
-	register_dissector("wbxml", dissect_wbxml, proto_wbxml);
-	register_dissector("wbxml-uaprof", dissect_uaprof, proto_wbxml);
+	new_register_dissector("wbxml", dissect_wbxml, proto_wbxml);
+	new_register_dissector("wbxml-uaprof", dissect_uaprof, proto_wbxml);
 }
 
 

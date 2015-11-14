@@ -315,7 +315,6 @@ GHashTable *rpc_progs = NULL;
 typedef gboolean (*rec_dissector_t)(tvbuff_t *, packet_info *, proto_tree *,
 	tvbuff_t *, fragment_head *, gboolean, guint32, gboolean);
 
-static void dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
 			      guint32 rpc_rm, fragment_head *ipfd_head, packet_info *pinfo);
 static const char *rpc_proc_name_internal(wmem_allocator_t *allocator, guint32 prog,
@@ -2973,14 +2972,15 @@ dissect_rpc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	    TRUE);
 }
 
-static void
-dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	if (!dissect_rpc_message(tvb, pinfo, tree, NULL, NULL, FALSE, 0,
 	    TRUE)) {
 		if (tvb_reported_length(tvb) != 0)
 			dissect_rpc_continuation(tvb, pinfo, tree);
 	}
+	return tvb_captured_length(tvb);
 }
 
 
@@ -4297,7 +4297,7 @@ proto_register_rpc(void)
 		"Whether the RPC dissector should attempt to locate RPC PDU boundaries when initial fragment alignment is not known.  This may cause false positives, or slow operation.",
 		&rpc_find_fragment_start);
 
-	register_dissector("rpc", dissect_rpc, proto_rpc);
+	new_register_dissector("rpc", dissect_rpc, proto_rpc);
 	new_register_dissector("rpc-tcp", dissect_rpc_tcp, proto_rpc);
 	rpc_tap = register_tap("rpc");
 

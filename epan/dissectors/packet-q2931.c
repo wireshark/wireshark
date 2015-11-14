@@ -1866,8 +1866,8 @@ dissect_q2931_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len, proto_t
 	}
 }
 
-static void
-dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int	    offset     = 0;
 	proto_tree *q2931_tree = NULL;
@@ -1952,7 +1952,7 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_q2931_ie(tvb, pinfo, offset, info_element_len,
 			    q2931_tree, info_element, info_element_ext);
 		}
-#if 0 /* XXX: Is codeset & etc supoosed to be used somehow ? */
+#if 0 /* XXX: Is codeset & etc supposed to be used somehow ? */
 		if (non_locking_shift)
 			codeset = 0;
 		/*
@@ -1977,6 +1977,7 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 		offset += 1 + 1 + 2 + info_element_len;
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -2561,7 +2562,7 @@ proto_register_q2931(void)
 	expert_q2931 = expert_register_protocol(proto_q2931);
 	expert_register_field_array(expert_q2931, ei, array_length(ei));
 
-	register_dissector("q2931", dissect_q2931, proto_q2931);
+	new_register_dissector("q2931", dissect_q2931, proto_q2931);
 }
 
 /*

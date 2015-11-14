@@ -1605,7 +1605,7 @@ static const ip_tcp_opt bap_opts[] = {
 
 #define N_BAP_OPTS     (sizeof bap_opts / sizeof bap_opts[0])
 
-static void dissect_ppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_ppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
 static const value_string pap_vals[] = {
     {CONFREQ, "Authenticate-Request"},
@@ -3983,11 +3983,12 @@ dissect_ppp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
-static void
-dissect_lcp_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_lcp_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_ip_tcp_options(tvb, 0, tvb_reported_length(tvb), lcp_opts,
         N_LCP_OPTS, -1, &PPP_OPT_TYPES, &ei_ppp_opt_len_invalid, pinfo, tree, NULL, NULL);
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -4768,25 +4769,24 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     hdrlen = mp_short_seqno ? 2 : 4;
     if (tvb_reported_length_remaining(tvb, hdrlen) > 0) {
         next_tvb = tvb_new_subset_remaining(tvb, hdrlen);
-        dissect_ppp(next_tvb, pinfo, tree);
+        dissect_ppp(next_tvb, pinfo, tree, NULL);
     }
 }
 
 /*
  * Handles PPP without HDLC framing, just a protocol field (RFC 1661).
  */
-static void
-dissect_ppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    proto_item *ti      = NULL;
-    proto_tree *fh_tree = NULL;
+    proto_item *ti;
+    proto_tree *fh_tree;
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, -1, ENC_NA);
-        fh_tree = proto_item_add_subtree(ti, ett_ppp);
-    }
+    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, -1, ENC_NA);
+    fh_tree = proto_item_add_subtree(ti, ett_ppp);
 
     dissect_ppp_common(tvb, pinfo, tree, fh_tree, ti, 0);
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -4829,16 +4829,15 @@ dissect_ppp_hdlc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * Handles link-layer encapsulations where the frame might be
  * a PPP in HDLC-like Framing frame (RFC 1662) or a Cisco HDLC frame.
  */
-static void
-dissect_ppp_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ppp_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8     byte0;
 
     byte0 = tvb_get_guint8(tvb, 0);
     if (byte0 == CHDLC_ADDR_UNICAST || byte0 == CHDLC_ADDR_MULTICAST) {
         /* Cisco HDLC encapsulation */
-        call_dissector(chdlc_handle, tvb, pinfo, tree);
-        return;
+        return call_dissector(chdlc_handle, tvb, pinfo, tree);
     }
 
     /*
@@ -4865,6 +4864,7 @@ dissect_ppp_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     dissect_ppp_hdlc_common(tvb, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 static tvbuff_t*
@@ -5073,7 +5073,7 @@ dissect_ppp_usb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             next_tvb = tvb_new_subset_remaining(tvb, 2);
         else
             next_tvb = tvb_new_subset_remaining(tvb, 3);
-        dissect_ppp(next_tvb, pinfo, tree);
+        dissect_ppp(next_tvb, pinfo, tree, data);
     } else if (tvb_get_guint8(tvb, 0) == 0x7e) {
         /* Well, let's guess that since the 1st byte is 0x7e that it really is
          * a PPP frame, and the address and control bytes are compressed (NULL)
@@ -5419,9 +5419,9 @@ proto_register_ppp(void)
     ppp_subdissector_table = register_dissector_table("ppp.protocol",
         "PPP protocol", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-    register_dissector("ppp_hdlc", dissect_ppp_hdlc, proto_ppp);
-    register_dissector("ppp_lcp_options", dissect_lcp_options, proto_ppp);
-    register_dissector("ppp", dissect_ppp, proto_ppp);
+    new_register_dissector("ppp_hdlc", dissect_ppp_hdlc, proto_ppp);
+    new_register_dissector("ppp_lcp_options", dissect_lcp_options, proto_ppp);
+    new_register_dissector("ppp", dissect_ppp, proto_ppp);
 
     /* Register the preferences for the ppp protocol */
     ppp_module = prefs_register_protocol(proto_ppp, NULL);

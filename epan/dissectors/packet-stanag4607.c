@@ -818,8 +818,8 @@ dissect_platform_location(tvbuff_t *tvb, proto_tree *seg_tree, gint offset)
 		expert_add_info(pinfo, pi, &ei_bad_length); \
 	}
 
-static void
-dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint32 offset = 0;
 	gint8 first_segment;
@@ -833,7 +833,7 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Basic length check */
 	if (tvb_captured_length(tvb) < STANAG4607_MIN_LENGTH)
-		return;
+		return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "S4607");
 	/* Clear out stuff in the info column */
@@ -926,6 +926,7 @@ dissect_stanag4607(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -1633,7 +1634,7 @@ proto_register_stanag4607(void)
 	expert_4607 = expert_register_protocol(proto_stanag4607);
 	expert_register_field_array(expert_4607, ei, array_length(ei));
 
-	register_dissector("STANAG 4607", dissect_stanag4607, proto_stanag4607);
+	new_register_dissector("STANAG 4607", dissect_stanag4607, proto_stanag4607);
 	/* prefs_register_protocol(proto_stanag4607, proto_reg_handoff_stanag4607); */
 }
 
@@ -1642,7 +1643,7 @@ proto_reg_handoff_stanag4607(void)
 {
 	static dissector_handle_t stanag4607_handle;
 
-	stanag4607_handle = create_dissector_handle(dissect_stanag4607,
+	stanag4607_handle = new_create_dissector_handle(dissect_stanag4607,
 	                                            proto_stanag4607);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_STANAG_4607, stanag4607_handle);
 }

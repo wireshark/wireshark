@@ -75,8 +75,8 @@ static gint ett_rfc2190         = -1;
 static dissector_handle_t h263_handle;
 
 
-static void
-dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+static int
+dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
 {
     proto_item   *ti              = NULL;
     proto_tree   *rfc2190_tree    = NULL;
@@ -238,6 +238,7 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     /* The rest of the packet is the H.263 stream */
     next_tvb = tvb_new_subset_remaining( tvb, offset);
     call_dissector(h263_handle,next_tvb,pinfo,tree);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -521,7 +522,7 @@ proto_register_rfc2190(void)
         "RFC2190", "rfc2190");
 
     proto_register_field_array(proto_rfc2190, hf, array_length(hf));
-    register_dissector("rfc2190", dissect_rfc2190, proto_rfc2190);
+    new_register_dissector("rfc2190", dissect_rfc2190, proto_rfc2190);
 }
 
 /*

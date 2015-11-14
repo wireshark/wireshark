@@ -2040,8 +2040,8 @@ dissect_rdm_mdb(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	return offset;
 }
 
-static void
-dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RDM");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -2127,6 +2127,7 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(rdm_tree, hf_rdm_trailer, tvb,
 					offset, -1, ENC_NA);
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -2778,7 +2779,7 @@ proto_register_rdm(void)
 			"RDM", "rdm");
 	proto_register_field_array(proto_rdm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("rdm", dissect_rdm, proto_rdm);
+	new_register_dissector("rdm", dissect_rdm, proto_rdm);
 }
 
 /*

@@ -61,8 +61,8 @@ static const value_string pcf_type_str_vals[] =
 
 
 /* Code to actually dissect the packets */
-static void
-dissect_tte_pcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tte_pcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *tte_pcf_root_item;
@@ -75,7 +75,7 @@ dissect_tte_pcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Check that there's enough data */
     if (tvb_reported_length(tvb) < TTE_PCF_LENGTH )
     {
-        return;
+        return 0;
     }
 
     /* get sync_priority and sync_domain */
@@ -135,6 +135,7 @@ dissect_tte_pcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             TTE_PCF_TYPE_LENGTH+TTE_PCF_RES1_LENGTH, TTE_PCF_TC_LENGTH, ENC_BIG_ENDIAN);
     }
 
+    return tvb_captured_length(tvb);
 }
 
 
@@ -202,7 +203,7 @@ proto_register_tte_pcf(void)
     proto_register_field_array(proto_tte_pcf, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("tte_pcf", dissect_tte_pcf, proto_tte_pcf);
+    new_register_dissector("tte_pcf", dissect_tte_pcf, proto_tte_pcf);
 
 }
 

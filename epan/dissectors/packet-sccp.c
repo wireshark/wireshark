@@ -3326,8 +3326,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   return offset;
 }
 
-static void
-dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *sccp_item = NULL;
   proto_tree *sccp_tree = NULL;
@@ -3400,7 +3400,7 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* dissect the message */
   dissect_sccp_message(tvb, pinfo, sccp_tree, tree);
-
+  return tvb_captured_length(tvb);
 }
 
 /*** SccpUsers Table **/
@@ -4076,7 +4076,7 @@ proto_register_sccp(void)
   proto_sccp = proto_register_protocol("Signalling Connection Control Part",
                                        "SCCP", "sccp");
 
-  register_dissector("sccp", dissect_sccp, proto_sccp);
+  new_register_dissector("sccp", dissect_sccp, proto_sccp);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sccp, hf, array_length(hf));

@@ -486,7 +486,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 
-static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *attr_item, *item;
   proto_tree *attr_tree, *tag_tree, *props_tree, *addr_tree, *date_tree;
@@ -511,7 +511,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     expert_add_info_format(pinfo, item, &ei_tnef_incorrect_signature,
                " [Incorrect, should be 0x%x. No further dissection possible. Check any Content-Transfer-Encoding has been removed.]", TNEF_SIGNATURE);
-    return;
+    return offset;
 
   } else {
 
@@ -618,6 +618,8 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* there may be some padding */
   if(tvb_reported_length_remaining(tvb, offset)) /* XXX: Not sure if they is really padding or not */
     proto_tree_add_item(tree, hf_tnef_padding, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+
+  return tvb_captured_length(tvb);
 }
 
 static void dissect_tnef_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -628,7 +630,7 @@ static void dissect_tnef_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
   col_append_str(pinfo->cinfo, COL_INFO, PNAME);
 
-  dissect_tnef(tvb, pinfo, tree);
+  dissect_tnef(tvb, pinfo, tree, NULL);
 }
 
 /* Register all the bits needed by the filtering engine */
@@ -817,7 +819,7 @@ proto_register_tnef(void)
   expert_register_field_array(expert_tnef, ei, array_length(ei));
 
   /* Allow dissector to find be found by name. */
-  tnef_handle = register_dissector(PFNAME, dissect_tnef, proto_tnef);
+  tnef_handle = new_register_dissector(PFNAME, dissect_tnef, proto_tnef);
 
 }
 

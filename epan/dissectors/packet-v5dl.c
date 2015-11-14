@@ -127,11 +127,8 @@ static const xdlc_cf_items v5dl_cf_items_ext = {
 
 #define MAX_V5DL_PACKET_LEN 1024
 
-static void
-dissect_v5dl(tvbuff_t*, packet_info*, proto_tree*);
-
-static void
-dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*v5dl_tree, *addr_tree;
 	proto_item	*v5dl_ti, *addr_ti;
@@ -307,6 +304,7 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* call V5.2 dissector */
 	        call_dissector(v52_handle, next_tvb, pinfo, tree);
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -430,7 +428,7 @@ proto_register_v5dl(void)
 	proto_register_field_array (proto_v5dl, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("v5dl", dissect_v5dl, proto_v5dl);
+	new_register_dissector("v5dl", dissect_v5dl, proto_v5dl);
 }
 
 void

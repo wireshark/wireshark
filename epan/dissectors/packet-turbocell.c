@@ -99,8 +99,8 @@ static const value_string turbocell_satmode_values[] = {
 };
 
 
-static void
-dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
     proto_item *ti, *name_item;
@@ -226,6 +226,7 @@ dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -328,7 +329,7 @@ void proto_register_turbocell(void)
                                               "Turbocell Aggregate Data", "turbocell_aggregate");
     proto_register_field_array(proto_aggregate, aggregate_fields, array_length(aggregate_fields));
 
-    register_dissector("turbocell", dissect_turbocell, proto_turbocell);
+    new_register_dissector("turbocell", dissect_turbocell, proto_turbocell);
 
     proto_register_field_array(proto_turbocell, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

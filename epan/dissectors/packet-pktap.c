@@ -127,8 +127,8 @@ capture_pktap(const guchar *pd, int len, packet_counts *ld)
 	ld->other++;
 }
 
-static void
-dissect_pktap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pktap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree *pktap_tree = NULL;
 	proto_item *ti = NULL;
@@ -151,7 +151,7 @@ dissect_pktap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (pkt_len < MIN_PKTAP_HDR_LEN) {
 		proto_tree_add_expert(tree, pinfo, &ei_pktap_hdrlen_too_short,
 		    tvb, offset, 4);
-		return;
+		return tvb_captured_length(tvb);
 	}
 	offset += 4;
 
@@ -205,6 +205,7 @@ dissect_pktap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissector_try_uint(wtap_encap_dissector_table,
 		    wtap_pcap_encap_to_wtap_encap(dlt), next_tvb, pinfo, tree);
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -277,7 +278,7 @@ proto_register_pktap(void)
 	expert_pktap = expert_register_protocol(proto_pktap);
 	expert_register_field_array(expert_pktap, ei, array_length(ei));
 
-	pktap_handle = register_dissector("pktap", dissect_pktap, proto_pktap);
+	pktap_handle = new_register_dissector("pktap", dissect_pktap, proto_pktap);
 }
 
 void

@@ -1360,8 +1360,8 @@ process_rtsp_reply(tvbuff_t *tvb, int offset, const guchar *data,
                         (gint) (status - status_start), status_i);
 }
 
-static void
-dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int offset = 0;
     int len;
@@ -1381,6 +1381,7 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          */
         col_set_writable(pinfo->cinfo, FALSE);
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -1463,7 +1464,7 @@ proto_register_rtsp(void)
     expert_register_field_array(expert_rtsp, ei, array_length(ei));
 
     /* Make this dissector findable by name */
-    register_dissector("rtsp", dissect_rtsp, proto_rtsp);
+    new_register_dissector("rtsp", dissect_rtsp, proto_rtsp);
 
     /* Register our configuration options, particularly our ports */
 

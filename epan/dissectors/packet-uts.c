@@ -99,8 +99,8 @@ set_addr(packet_info *pinfo _U_ , int field, gchar rid, gchar sid, gchar did)
 	}
 }
 
-static void
-dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
+static int
+dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* data _U_)
 {
 	proto_tree	*uts_tree		= NULL;
 	proto_tree	*uts_header_tree	= NULL;
@@ -317,6 +317,7 @@ dissect_uts(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 			}
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -367,7 +368,7 @@ proto_register_uts(void)
 	proto_uts = proto_register_protocol("Unisys Transmittal System", "UTS", "uts");		/* name, short name, abbrev */
 	proto_register_field_array(proto_uts, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("uts", dissect_uts, proto_uts);
+	new_register_dissector("uts", dissect_uts, proto_uts);
 }
 
 /*

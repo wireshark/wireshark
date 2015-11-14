@@ -138,8 +138,8 @@ get_sdh_level(tvbuff_t *tvb, packet_info *pinfo)
 }
 
 
-static void
-dissect_sdh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sdh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SDH");
   col_clear(pinfo->cinfo,COL_INFO);
@@ -195,6 +195,7 @@ dissect_sdh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     auoffset = (((9 + 3*COLUMNS) /*start after H3*/ + au*3 + 9*(au/87) /*add extra SOH rows to offset*/) * level) % (COLUMNS*9*level);
     proto_tree_add_item(sdh_tree, hf_sdh_j1, tvb, auoffset, 1, ENC_BIG_ENDIAN);
   }
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -276,7 +277,7 @@ proto_register_sdh(void)
     "Data rate",
     &sdh_data_rate, data_rates, ENC_BIG_ENDIAN);
 
-  register_dissector("sdh", dissect_sdh, proto_sdh);
+  new_register_dissector("sdh", dissect_sdh, proto_sdh);
 }
 
 void

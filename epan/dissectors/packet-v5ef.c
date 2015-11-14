@@ -67,11 +67,8 @@ static const value_string v5ef_direction_vals[] = {
 
 #define MAX_V5EF_PACKET_LEN 1024
 
-static void
-dissect_v5ef(tvbuff_t*, packet_info*, proto_tree*);
-
-static void
-dissect_v5ef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_v5ef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*v5ef_tree, *addr_tree;
 	proto_item	*v5ef_ti, *addr_ti;
@@ -141,6 +138,8 @@ dissect_v5ef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		call_dissector(v5dl_handle,next_tvb, pinfo, tree);
 	else
 		call_dissector(lapd_handle,next_tvb, pinfo, tree);
+
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -186,7 +185,7 @@ proto_register_v5ef(void)
 	proto_register_field_array (proto_v5ef, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("v5ef", dissect_v5ef, proto_v5ef);
+	new_register_dissector("v5ef", dissect_v5ef, proto_v5ef);
 
 }
 

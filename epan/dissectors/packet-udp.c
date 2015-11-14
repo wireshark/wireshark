@@ -996,10 +996,11 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     decode_udp_ports(tvb, offset, pinfo, tree, udph->uh_sport, udph->uh_dport, udph->uh_ulen);
 }
 
-static void
-dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   dissect(tvb, pinfo, tree, IP_PROTO_UDP);
+  return tvb_captured_length(tvb);
 }
 
 static void
@@ -1075,7 +1076,7 @@ proto_register_udp(void)
   proto_udp = proto_register_protocol("User Datagram Protocol",
                                       "UDP", "udp");
   hfi_udp = proto_registrar_get_nth(proto_udp);
-  udp_handle = register_dissector("udp", dissect_udp, proto_udp);
+  udp_handle = new_register_dissector("udp", dissect_udp, proto_udp);
   expert_udp = expert_register_protocol(proto_udp);
   proto_register_fields(proto_udp, hfi, array_length(hfi));
 

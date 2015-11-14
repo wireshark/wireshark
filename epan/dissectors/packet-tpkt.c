@@ -556,10 +556,11 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * Dissect RFC 1006 TPKT, which wraps a TPKT header around an OSI TP
  * PDU.
  */
-static void
-dissect_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_tpkt_encap(tvb, pinfo, tree, tpkt_desegment, osi_tp_handle);
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -638,7 +639,7 @@ proto_register_tpkt(void)
     proto_tpkt_ptr = find_protocol_by_id(proto_tpkt);
     proto_register_field_array(proto_tpkt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("tpkt", dissect_tpkt, proto_tpkt);
+    new_register_dissector("tpkt", dissect_tpkt, proto_tpkt);
 
     tpkt_module = prefs_register_protocol(proto_tpkt, NULL);
     prefs_register_bool_preference(tpkt_module, "desegment",

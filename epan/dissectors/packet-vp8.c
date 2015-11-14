@@ -169,8 +169,8 @@ static const true_false_string vp8_hdr_frametype_vals = {
     "keyframe"
 };
 
-static void
-dissect_vp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_vp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
     proto_item *item;
@@ -196,6 +196,8 @@ dissect_vp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
         val_to_str(frametype, vp8_type_values, "Unknown Type (%u)"));
+
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -578,7 +580,7 @@ proto_register_vp8(void)
                             "; Values must be in the range 96 - 127",
                             &temp_dynamic_payload_type_range, 127);
 
-    register_dissector("vp8", dissect_vp8, proto_vp8);
+    new_register_dissector("vp8", dissect_vp8, proto_vp8);
 }
 
 static void

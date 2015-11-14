@@ -71,7 +71,7 @@ static const value_string ccsrl_ls_vals[] = {
 
 /*****************************************************************************/
 
-static void dissect_ccsrl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int dissect_ccsrl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
     proto_item *ccsrl_item;
     proto_tree *ccsrl_tree=NULL;
@@ -92,6 +92,7 @@ static void dissect_ccsrl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
     */
     next_tvb = tvb_new_subset_remaining(tvb, 1);
     call_dissector( h245dg_handle, next_tvb, pinfo, ccsrl_tree );
+    return tvb_captured_length(tvb);
 }
 
 static void dissect_srp_command(tvbuff_t * tvb, packet_info * pinfo, proto_tree * srp_tree)
@@ -111,7 +112,7 @@ static void dissect_srp_command(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     call_dissector(ccsrl_handle, next_tvb, pinfo, srp_tree );
 }
 
-static void dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
     proto_item *srp_item = NULL;
     proto_tree *srp_tree = NULL;
@@ -167,6 +168,7 @@ static void dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         }
     }
 
+    return tvb_captured_length(tvb);
 }
 
 void proto_register_ccsrl (void)
@@ -184,7 +186,7 @@ void proto_register_ccsrl (void)
     proto_ccsrl = proto_register_protocol ("H.324/CCSRL", "CCSRL", "ccsrl");
     proto_register_field_array (proto_ccsrl, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
-    register_dissector("ccsrl", dissect_ccsrl, proto_ccsrl);
+    new_register_dissector("ccsrl", dissect_ccsrl, proto_ccsrl);
 }
 
 void proto_register_srp (void)
@@ -211,7 +213,7 @@ void proto_register_srp (void)
     proto_srp = proto_register_protocol ("H.324/SRP", "SRP", "srp");
     proto_register_field_array (proto_srp, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
-    register_dissector("srp", dissect_srp, proto_srp);
+    new_register_dissector("srp", dissect_srp, proto_srp);
 
     /* register our init routine to be called at the start of a capture,
        to clear out our hash tables etc */
