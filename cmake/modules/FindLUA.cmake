@@ -41,11 +41,12 @@ FIND_PATH(LUA_INCLUDE_DIR lua.h
 )
 
 if(LUA_INCLUDE_DIR AND EXISTS "${LUA_INCLUDE_DIR}/lua.h")
-  file(STRINGS "${LUA_INCLUDE_DIR}/lua.h" LUA_VERSION REGEX "LUA_VERSION_NUM")
-  if (LUA_VERSION)
-    string(REGEX REPLACE "^#define[ \t]+LUA_VERSION_NUM[ \t]+(.+)" "\\1" LUA_VERSION "${LUA_VERSION}")
+  file(STRINGS "${LUA_INCLUDE_DIR}/lua.h" LUA_VERSION_NUM REGEX "LUA_VERSION_NUM")
+  if (LUA_VERSION_NUM)
+    string(REGEX REPLACE "^#define[ \t]+LUA_VERSION_NUM[ \t]+([0-9]+)" "\\1"
+      LUA_VERSION_NUM "${LUA_VERSION_NUM}")
   else()
-    set( LUA_VERSION "500")
+    set( LUA_VERSION_NUM "500")
   endif()
 endif()
 string( REGEX REPLACE ".*[/\\]lua(.+)$" "\\1" LUA_INC_SUFFIX "${LUA_INCLUDE_DIR}" )
@@ -58,23 +59,30 @@ FIND_LIBRARY(LUA_LIBRARY
   HINTS
     "${LUA_LIBDIR}"
     "$ENV{LUA_DIR}"
-  ${LUA_HINTS}
+    ${LUA_HINTS}
   PATH_SUFFIXES lib64 lib
   PATHS
-  ~/Library/Frameworks
-  /Library/Frameworks
-  /usr/local
-  /usr
-  /sw
-  /opt/local
-  /opt/csw
-  /opt
+    ~/Library/Frameworks
+    /Library/Frameworks
+    /usr/local
+    /usr
+    /sw
+    /opt/local
+    /opt/csw
+    /opt
 )
+
+# Lua 5.3 is not supported, only 5.0/5.1/5.2 are (due to bitops problem)
+if(LUA_VERSION_NUM GREATER 502)
+  set(LUA_VERSION_NUM)
+endif()
 
 INCLUDE(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set LUA_FOUND to TRUE if
 # all listed variables are TRUE
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(LUA  DEFAULT_MSG  LUA_LIBRARY LUA_INCLUDE_DIR)
+find_package_handle_standard_args(LUA
+  REQUIRED_VARS LUA_LIBRARY LUA_INCLUDE_DIR LUA_VERSION_NUM
+  VERSION_VAR   LUA_VERSION_NUM)
 
 IF(LUA_LIBRARY)
   SET( LUA_LIBRARIES "${LUA_LIBRARY}")
