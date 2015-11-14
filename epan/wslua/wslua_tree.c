@@ -415,6 +415,10 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
             lua_remove(L,1);
 
         } else {
+            if (type == FT_FRAMENUM) {
+                luaL_error(L, "ProtoField FRAMENUM cannot fetch value from Tvb");
+                return 0;
+            }
             /* the Lua stack is empty - no value was given - so decode the value from the tvb */
             if (type == FT_STRINGZ) tvbr->len = tvb_strsize (tvbr->tvb->ws_tvb, tvbr->offset);
             item = proto_tree_add_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
