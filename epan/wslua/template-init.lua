@@ -119,6 +119,9 @@ end
 
 -- %FT_TYPES%
 
+-- the following table is since 2.0
+-- %FT_FRAME_TYPES%
+
 -- the following table is since 1.12
 -- %WTAP_REC_TYPES%
 
