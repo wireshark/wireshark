@@ -153,8 +153,8 @@ dissect_us_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
     }                           /* while */
 }
 
-static void
-dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
+static int
+dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* data _U_)
 {
   proto_item *it;
   proto_tree *tlv_tree;
@@ -248,6 +248,7 @@ dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
         } /* switch */
       pos = pos + length;
     } /* while */
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -326,7 +327,7 @@ proto_register_cmctrl_tlv (void)
   proto_register_field_array (proto_cmctrl_tlv, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("cmctrl_tlv", dissect_cmctrl_tlv, proto_cmctrl_tlv);
+  new_register_dissector ("cmctrl_tlv", dissect_cmctrl_tlv, proto_cmctrl_tlv);
 }
 
 void

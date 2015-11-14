@@ -339,8 +339,8 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     }                           /* while */
 }
 
-static void
-dissect_bpkmattr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_bpkmattr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
 
   proto_item *it;
@@ -354,6 +354,7 @@ dissect_bpkmattr (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       bpkmattr_tree = proto_item_add_subtree (it, ett_docsis_bpkmattr);
       dissect_attrs (tvb, pinfo, bpkmattr_tree);
     }
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -533,7 +534,7 @@ proto_register_docsis_bpkmattr (void)
   proto_register_field_array (proto_docsis_bpkmattr, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_bpkmattr", dissect_bpkmattr,
+  new_register_dissector ("docsis_bpkmattr", dissect_bpkmattr,
                       proto_docsis_bpkmattr);
 }
 

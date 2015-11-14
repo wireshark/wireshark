@@ -253,8 +253,8 @@ dissect_dccreq_sf_sub (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len
     }
 }
 
-static void
-dissect_dccreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_dccreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   guint16 pos;
   guint8 type, length;
@@ -364,6 +364,7 @@ dissect_dccreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
           pos = pos + length;
         }                       /* while (pos < len) */
     }                           /* if (tree) */
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -576,7 +577,7 @@ proto_register_docsis_dccreq (void)
   proto_register_field_array (proto_docsis_dccreq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_dccreq", dissect_dccreq, proto_docsis_dccreq);
+  new_register_dissector ("docsis_dccreq", dissect_dccreq, proto_docsis_dccreq);
 }
 
 void

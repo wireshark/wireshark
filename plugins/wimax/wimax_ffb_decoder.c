@@ -45,7 +45,7 @@ static gint hf_ffb_symboloffset = -1;
 static gint hf_ffb_value = -1;
 
 
-static void dissect_wimax_ffb_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_wimax_ffb_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	gint offset = 0;
 	guint length, num_of_ffbs, i;
@@ -76,6 +76,7 @@ static void dissect_wimax_ffb_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			proto_tree_add_item(ffb_tree, hf_ffb_value, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax FFB Protocol */
@@ -124,7 +125,7 @@ void proto_register_wimax_ffb(void)
 	proto_register_field_array(proto_wimax_ffb_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("wimax_ffb_burst_handler", dissect_wimax_ffb_decoder, -1);
+	new_register_dissector("wimax_ffb_burst_handler", dissect_wimax_ffb_decoder, -1);
 }
 
 /*

@@ -60,8 +60,8 @@ static gint ett_docsis_bpkmreq = -1;
 static dissector_handle_t attrs_handle;
 
 /* Dissection */
-static void
-dissect_bpkmreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_bpkmreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *it;
   proto_tree *bpkmreq_tree;
@@ -89,6 +89,7 @@ dissect_bpkmreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   attrs_tvb = tvb_new_subset_remaining (tvb, 4);
   call_dissector (attrs_handle, attrs_tvb, pinfo, tree);
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -124,7 +125,7 @@ proto_register_docsis_bpkmreq (void)
   proto_register_field_array (proto_docsis_bpkmreq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_bpkmreq", dissect_bpkmreq,
+  new_register_dissector ("docsis_bpkmreq", dissect_bpkmreq,
                       proto_docsis_bpkmreq);
 }
 

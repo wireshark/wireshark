@@ -3822,8 +3822,8 @@ dissect_cmts_mc_sess_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 le
 }
 
 
-static void
-dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
+static int
+dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* data _U_)
 {
 
   proto_item *it;
@@ -4262,6 +4262,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
       }                         /* while (pos < total_len) */
   }                             /*if (tree) */
 
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -5945,7 +5946,7 @@ proto_register_docsis_tlv (void)
   proto_register_field_array (proto_docsis_tlv, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_tlv", dissect_tlv, proto_docsis_tlv);
+  new_register_dissector ("docsis_tlv", dissect_tlv, proto_docsis_tlv);
 }
 
 void

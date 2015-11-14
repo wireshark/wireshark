@@ -254,12 +254,14 @@ proto_tree *add_protocol_subtree(tlv_info_t *self, gint idx, proto_tree *tree, i
 
 
 /* WiMax protocol dissector */
-static void dissect_wimax(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_)
+static int dissect_wimax(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, void* data _U_)
 {
 	/* display the WiMax protocol name */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WiMax");
 	/* Clear out stuff in the info column */
 	col_clear(pinfo->cinfo, COL_INFO);
+
+	return tvb_captured_length(tvb);
 }
 
 gboolean is_down_link(packet_info *pinfo)
@@ -306,7 +308,7 @@ void proto_register_wimax(void)
 	proto_register_subtree_array(ett_reg, array_length(ett_reg));
 
 	/* Register the WiMax dissector */
-	register_dissector("wmx", dissect_wimax, proto_wimax);
+	new_register_dissector("wmx", dissect_wimax, proto_wimax);
 
 	wimax_module = prefs_register_protocol(proto_wimax, NULL);
 

@@ -143,8 +143,8 @@ static const value_string mgmt_type_vals[] = {
 };
 
 /* Dissection */
-static void
-dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   guint16 msg_len;
   proto_item *mgt_hdr_it;
@@ -192,11 +192,10 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   msg_len = tvb_get_ntohs (tvb, 12);
   payload_tvb = tvb_new_subset_length (tvb, 20, msg_len - 6);
 
-  if (dissector_try_uint
-      (docsis_mgmt_dissector_table, type, payload_tvb, pinfo, tree))
-    return;
-  else
+  if (!dissector_try_uint(docsis_mgmt_dissector_table, type, payload_tvb, pinfo, tree))
     call_dissector (data_handle, payload_tvb, pinfo, tree);
+
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -268,7 +267,7 @@ proto_register_docsis_mgmt (void)
   proto_register_field_array (proto_docsis_mgmt, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_mgmt", dissect_macmgmt, proto_docsis_mgmt);
+  new_register_dissector ("docsis_mgmt", dissect_macmgmt, proto_docsis_mgmt);
 }
 
 void

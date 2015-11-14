@@ -67,8 +67,8 @@ static gint ett_docsis_map = -1;
 extern value_string iuc_vals[];
 
 /* Code to actually dissect the packets */
-static void
-dissect_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   guint8 i, numie;
   int pos;
@@ -153,6 +153,7 @@ dissect_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
           pos = pos + 4;
         }                       /* for... */
     }                           /* if(tree) */
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -244,7 +245,7 @@ proto_register_docsis_map (void)
   proto_register_field_array (proto_docsis_map, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_map", dissect_map, proto_docsis_map);
+  new_register_dissector ("docsis_map", dissect_map, proto_docsis_map);
 }
 
 void

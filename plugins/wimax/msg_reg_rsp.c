@@ -72,7 +72,7 @@ static const value_string vals_reg_rsp_status [] = {
 
 
 /* Decode REG-RSP messages. */
-static void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	guint tlv_offset;
@@ -260,6 +260,7 @@ static void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 		if (!hmac_found)
 			proto_item_append_text(reg_rsp_tree, " (HMAC Tuple is missing !)");
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax Mac Payload Protocol and Dissector */
@@ -351,7 +352,7 @@ void proto_register_mac_mgmt_msg_reg_rsp(void)
 	proto_register_field_array(proto_mac_mgmt_msg_reg_rsp_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("mac_mgmt_msg_reg_rsp_handler", dissect_mac_mgmt_msg_reg_rsp_decoder, -1);
+    new_register_dissector("mac_mgmt_msg_reg_rsp_handler", dissect_mac_mgmt_msg_reg_rsp_decoder, -1);
 }
 
 void proto_reg_handoff_mac_mgmt_msg_reg_rsp(void)
@@ -360,7 +361,7 @@ void proto_reg_handoff_mac_mgmt_msg_reg_rsp(void)
 
 	dsc_rsp_handle = find_dissector("mac_mgmt_msg_dsc_rsp_handler");
 
-	reg_rsp_handle = create_dissector_handle(dissect_mac_mgmt_msg_reg_rsp_decoder, proto_mac_mgmt_msg_reg_rsp_decoder);
+	reg_rsp_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_reg_rsp_decoder, proto_mac_mgmt_msg_reg_rsp_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_REG_RSP, reg_rsp_handle);
 }
 

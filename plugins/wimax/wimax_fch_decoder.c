@@ -98,7 +98,7 @@ static const value_string coding_indications[] =
 	{ 0,  NULL }
 };
 
-static void dissect_wimax_fch_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_wimax_fch_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	gint offset = 0;
 	proto_item *fch_item = NULL;
@@ -131,6 +131,7 @@ static void dissect_wimax_fch_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		proto_tree_add_item(fch_tree, hf_fch_dlmap_length, tvb, offset, FCH_BURST_LENGTH, ENC_BIG_ENDIAN);
 		proto_tree_add_item(fch_tree, hf_fch_reserved_2, tvb, offset, FCH_BURST_LENGTH, ENC_BIG_ENDIAN);
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax FCH Protocol */
@@ -241,7 +242,7 @@ void proto_register_wimax_fch(void)
 	proto_register_field_array(proto_wimax_fch_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("wimax_fch_burst_handler", dissect_wimax_fch_decoder, -1);
+	new_register_dissector("wimax_fch_burst_handler", dissect_wimax_fch_decoder, -1);
 }
 
 /*

@@ -298,8 +298,8 @@ static gint ett_tlv = -1;
 static gint ett_sub_tlv = -1;
 
 /* Dissection */
-static void
-dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *it;
   proto_tree *mdd_tree;
@@ -522,6 +522,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
           pos += length + 2;
         }
     }                               /* if(tree) */
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -734,7 +735,7 @@ void proto_register_docsis_mdd (void)
   proto_register_field_array (proto_docsis_mdd, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_mdd", dissect_mdd, proto_docsis_mdd);
+  new_register_dissector ("docsis_mdd", dissect_mdd, proto_docsis_mdd);
 }
 
 void

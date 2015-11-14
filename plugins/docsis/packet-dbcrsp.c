@@ -40,8 +40,8 @@ static dissector_handle_t docsis_tlv_handle;
 static gint ett_docsis_dbcrsp = -1;
 
 /* Dissection */
-static void
-dissect_dbcrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_dbcrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *dbcrsp_item;
   proto_tree *dbcrsp_tree = NULL;
@@ -70,6 +70,7 @@ dissect_dbcrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   /* Call Dissector for Appendix C TLV's */
   next_tvb = tvb_new_subset_remaining (tvb, 3);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, dbcrsp_tree);
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -100,7 +101,7 @@ proto_register_docsis_dbcrsp (void)
   proto_register_field_array (proto_docsis_dbcrsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_dbcrsp", dissect_dbcrsp, proto_docsis_dbcrsp);
+  new_register_dissector ("docsis_dbcrsp", dissect_dbcrsp, proto_docsis_dbcrsp);
 }
 
 

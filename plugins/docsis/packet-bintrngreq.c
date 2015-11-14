@@ -41,8 +41,8 @@ static int hf_docsis_bintrngreq_capflags_encrypt = -1;
 static gint ett_docsis_bintrngreq = -1;
 
 /* Dissection */
-static void
-dissect_bintrngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_bintrngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *bintrngreq_item;
   proto_tree *bintrngreq_tree;
@@ -76,6 +76,7 @@ dissect_bintrngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     proto_tree_add_item (bintrngreq_tree, hf_docsis_bintrngreq_up_chid,
                          tvb, offset, 1, ENC_BIG_ENDIAN);
   }
+  return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -126,7 +127,7 @@ proto_register_docsis_bintrngreq (void)
   proto_register_field_array (proto_docsis_bintrngreq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_bintrngreq", dissect_bintrngreq, proto_docsis_bintrngreq);
+  new_register_dissector ("docsis_bintrngreq", dissect_bintrngreq, proto_docsis_bintrngreq);
 }
 
 void

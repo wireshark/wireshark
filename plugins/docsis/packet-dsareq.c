@@ -37,8 +37,8 @@ static dissector_handle_t docsis_tlv_handle;
 static gint ett_docsis_dsareq = -1;
 
 /* Dissection */
-static void
-dissect_dsareq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_dsareq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *it;
   proto_tree *dsareq_tree = NULL;
@@ -63,6 +63,7 @@ dissect_dsareq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     /* Call Dissector for Appendix C TLV's */
     next_tvb = tvb_new_subset_remaining (tvb, 2);
     call_dissector (docsis_tlv_handle, next_tvb, pinfo, dsareq_tree);
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -88,7 +89,7 @@ proto_register_docsis_dsareq (void)
   proto_register_field_array (proto_docsis_dsareq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_dsareq", dissect_dsareq, proto_docsis_dsareq);
+  new_register_dissector ("docsis_dsareq", dissect_dsareq, proto_docsis_dsareq);
 }
 
 void

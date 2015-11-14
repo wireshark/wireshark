@@ -171,8 +171,8 @@ static guint16 flags_to_port(guint16 flagsValue) {
 }
 
 /*esl*/
-static void
-dissect_esl_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+static int
+dissect_esl_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_) {
 
     proto_item *ti = NULL;
     proto_tree *esl_header_tree;
@@ -199,6 +199,7 @@ dissect_esl_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
             proto_tree_add_item(esl_header_tree, hf_esl_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 typedef struct _ref_time_frame_info
@@ -277,7 +278,7 @@ dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
            First 6 bytes must be: 01 01 05 10 00 00 */
         if ( is_esl_header(tvb, 0) )
         {
-            dissect_esl_header(tvb, pinfo, tree);
+            dissect_esl_header(tvb, pinfo, tree, data);
             if ( eth_withoutfcs_handle != NULL )
             {
                 next_tvb = tvb_new_subset_remaining(tvb, SIZEOF_ESLHEADER);
@@ -294,7 +295,7 @@ dissect_esl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                 call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
             }
             next_tvb = tvb_new_subset_length(tvb, esl_length-SIZEOF_ESLHEADER, SIZEOF_ESLHEADER);
-            dissect_esl_header(next_tvb, pinfo, tree);
+            dissect_esl_header(next_tvb, pinfo, tree, data);
             modify_times(tvb, esl_length-SIZEOF_ESLHEADER, pinfo);
 
             result = TRUE;
@@ -353,7 +354,7 @@ proto_register_esl(void) {
     proto_register_field_array(proto_esl,hf,array_length(hf));
     proto_register_subtree_array(ett,array_length(ett));
 
-    register_dissector("esl", dissect_esl_header, proto_esl);
+    new_register_dissector("esl", dissect_esl_header, proto_esl);
 }
 
 void

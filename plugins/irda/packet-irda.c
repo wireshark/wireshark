@@ -1853,7 +1853,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 /*
  * Dissect IrDA protocol
  */
-static void dissect_irda(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
+static int dissect_irda(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, void* data _U_)
 {
     /* load the display labels */
     pinfo->current_proto = "IrDA";
@@ -1862,11 +1862,12 @@ static void dissect_irda(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     if ((pinfo->pseudo_header->irda.pkttype & IRDA_CLASS_MASK) == IRDA_CLASS_LOG)
     {
         dissect_log(tvb, pinfo, root);
-        return;
+        return tvb_captured_length(tvb);
     }
 
 
     dissect_irlap(tvb, pinfo, root);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -2203,7 +2204,7 @@ void proto_register_irda(void)
     proto_ttp   = proto_register_protocol("Tiny Transport Protocol", "TTP", "ttp");
 
     /* Register the dissector */
-    register_dissector("irda", dissect_irda, proto_irlap);
+    new_register_dissector("irda", dissect_irda, proto_irlap);
 
     /* Required function calls to register the header fields */
     proto_register_field_array(proto_irlap, hf_lap, array_length(hf_lap));

@@ -1168,7 +1168,7 @@ static void dissect_ecat_foe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
    }
 }
 
-static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    proto_tree *ecat_mailbox_tree = NULL;
    proto_tree *ecat_mailbox_header_tree = NULL;
@@ -1249,6 +1249,7 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
          col_append_str(pinfo->cinfo, COL_INFO, ")");
       }
    }
+    return tvb_captured_length(tvb);
 }
 
 void proto_register_ecat_mailbox(void)
@@ -1941,7 +1942,7 @@ void proto_register_ecat_mailbox(void)
    proto_register_field_array(proto_ecat_mailbox, hf,array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
-   register_dissector("ecat_mailbox", dissect_ecat_mailbox, proto_ecat_mailbox);
+   new_register_dissector("ecat_mailbox", dissect_ecat_mailbox, proto_ecat_mailbox);
 }
 
 void proto_reg_handoff_ecat_mailbox(void)

@@ -190,8 +190,8 @@ static const value_string last_cw_len_vals[] = {
 };
 
 /* Dissection */
-static void
-dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   guint16 pos, endtlvpos;
   guint8 type, length;
@@ -805,6 +805,8 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             }                   /* switch(type) */
         }                       /* while (pos < len) */
     }                           /* if (tree) */
+
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -1032,7 +1034,7 @@ proto_register_docsis_type29ucd (void)
   proto_register_field_array (proto_docsis_type29ucd, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_type29ucd", dissect_type29ucd, proto_docsis_type29ucd);
+  new_register_dissector ("docsis_type29ucd", dissect_type29ucd, proto_docsis_type29ucd);
 }
 
 void

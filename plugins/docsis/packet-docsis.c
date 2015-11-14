@@ -336,8 +336,8 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
 }
 
 
-static void
-dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   guint8 fc;
   guint8 fctype;
@@ -616,6 +616,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
           }
         break;
     }
+    return tvb_captured_length(tvb);
 }
 
 
@@ -828,7 +829,7 @@ proto_register_docsis (void)
   proto_register_field_array (proto_docsis, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis", dissect_docsis, proto_docsis);
+  new_register_dissector ("docsis", dissect_docsis, proto_docsis);
 }
 
 void

@@ -39,7 +39,7 @@ static int hf_wimax_ranging_code = -1;
 static int hf_wimax_ranging_symbol_offset = -1;
 static int hf_wimax_ranging_subchannel_offset = -1;
 
-static void dissect_wimax_cdma_code_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_wimax_cdma_code_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	gint offset = 0;
 	proto_item *cdma_item;
@@ -60,6 +60,7 @@ static void dissect_wimax_cdma_code_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 		/* display the 3rd CDMA Code */
 		proto_tree_add_item(cdma_tree, hf_wimax_ranging_subchannel_offset, tvb, offset+2, 1, ENC_BIG_ENDIAN);
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax CDMA Protocol */
@@ -110,7 +111,7 @@ void proto_register_wimax_cdma(void)
 	proto_register_field_array(proto_wimax_cdma_code_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("wimax_cdma_code_burst_handler", dissect_wimax_cdma_code_decoder, -1);
+	new_register_dissector("wimax_cdma_code_burst_handler", dissect_wimax_cdma_code_decoder, -1);
 }
 
 

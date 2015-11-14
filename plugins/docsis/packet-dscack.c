@@ -40,8 +40,8 @@ static gint ett_docsis_dscack = -1;
 extern value_string docsis_conf_code[];
 
 /* Dissection */
-static void
-dissect_dscack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_dscack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *it;
   proto_tree *dscack_tree = NULL;
@@ -70,6 +70,7 @@ dissect_dscack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     /* Call Dissector for Appendix C TLV's */
     next_tvb = tvb_new_subset_remaining (tvb, 3);
     call_dissector (docsis_tlv_handle, next_tvb, pinfo, dscack_tree);
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -100,7 +101,7 @@ proto_register_docsis_dscack (void)
   proto_register_field_array (proto_docsis_dscack, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_dscack", dissect_dscack, proto_docsis_dscack);
+  new_register_dissector ("docsis_dscack", dissect_dscack, proto_docsis_dscack);
 }
 
 void

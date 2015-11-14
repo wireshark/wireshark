@@ -74,8 +74,8 @@ static void dissect_cisco (tvbuff_t * tvb, proto_tree * tree,
                            gint vsif_len);
 
 /* Dissection */
-static void
-dissect_vsif (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
+static int
+dissect_vsif (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, void* data _U_)
 {
   proto_item *it;
   proto_tree *vsif_tree;
@@ -128,7 +128,7 @@ dissect_vsif (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
 
     }                           /* if(tree) */
 
-
+    return tvb_captured_length(tvb);
 }
 
 /* Dissector for Cisco Vendor Specific TLV's */
@@ -254,7 +254,7 @@ proto_register_docsis_vsif (void)
   proto_register_field_array (proto_docsis_vsif, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_vsif", dissect_vsif, proto_docsis_vsif);
+  new_register_dissector ("docsis_vsif", dissect_vsif, proto_docsis_vsif);
 }
 
 void

@@ -63,7 +63,7 @@ static const value_string ethercat_frame_reserved_vals[] =
 };
 
 /* Ethercat Frame */
-static void dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    tvbuff_t *next_tvb;
    proto_item *ti;
@@ -99,6 +99,7 @@ static void dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       data instead. */
       call_dissector (ethercat_frame_data_handle, next_tvb, pinfo, tree);
    }
+   return tvb_captured_length(tvb);
 }
 
 void proto_register_ethercat_frame(void)
@@ -134,7 +135,7 @@ void proto_register_ethercat_frame(void)
    proto_register_field_array(proto_ethercat_frame,hf,array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
-   register_dissector("ecatf", dissect_ethercat_frame, proto_ethercat_frame);
+   new_register_dissector("ecatf", dissect_ethercat_frame, proto_ethercat_frame);
 
    /* Define a handle (ecatf.type) for sub dissectors that want to dissect
       the Ethercat frame ether type (E88A4) payload. */

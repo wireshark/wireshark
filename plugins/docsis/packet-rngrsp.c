@@ -60,8 +60,8 @@ static const value_string rng_stat_vals[] = {
 static gint ett_docsis_rngrsp = -1;
 
 /* Code to actually dissect the packets */
-static void
-dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_item *it;
   proto_tree *rngrsp_tree;
@@ -179,6 +179,7 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
           pos = pos + tlvlen;
         }                       /* while (pos < length) */
     }                           /* if (tree) */
+    return tvb_captured_length(tvb);
 }
 
 
@@ -259,7 +260,7 @@ proto_register_docsis_rngrsp (void)
   proto_register_field_array (proto_docsis_rngrsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_dissector ("docsis_rngrsp", dissect_rngrsp, proto_docsis_rngrsp);
+  new_register_dissector ("docsis_rngrsp", dissect_rngrsp, proto_docsis_rngrsp);
 }
 
 

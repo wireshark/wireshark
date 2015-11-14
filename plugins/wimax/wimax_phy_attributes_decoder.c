@@ -77,7 +77,7 @@ static gint hf_phy_attributes_subchannel = -1;
 
 
 
-static void dissect_wimax_phy_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_wimax_phy_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	guint tvb_len;
@@ -120,6 +120,7 @@ static void dissect_wimax_phy_attributes_decoder(tvbuff_t *tvb, packet_info *pin
 			proto_tree_add_item(phy_tree, hf_phy_attributes_subchannel, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax PDU Burst Physical Attributes Protocol */
@@ -170,7 +171,7 @@ void proto_register_wimax_phy_attributes(void)
 
 	proto_wimax_phy_attributes_decoder = proto_wimax;
 
-	register_dissector("wimax_phy_attributes_burst_handler", dissect_wimax_phy_attributes_decoder, -1);
+	new_register_dissector("wimax_phy_attributes_burst_handler", dissect_wimax_phy_attributes_decoder, -1);
 
 	proto_register_field_array(proto_wimax_phy_attributes_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
