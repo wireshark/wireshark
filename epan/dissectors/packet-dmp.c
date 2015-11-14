@@ -365,13 +365,16 @@ static int hf_analysis_total_time = -1;
 static int hf_analysis_retrans_time = -1;
 static int hf_analysis_total_retrans_time = -1;
 static int hf_analysis_msg_num = -1;
+static int hf_analysis_acks_msg_num = -1;
 static int hf_analysis_retrans_no = -1;
 static int hf_analysis_ack_num = -1;
 static int hf_analysis_ack_missing = -1;
 static int hf_analysis_ack_dup_no = -1;
 static int hf_analysis_rep_num = -1;
+static int hf_analysis_acks_rep_num = -1;
 static int hf_analysis_rep_time = -1;
 static int hf_analysis_not_num = -1;
+static int hf_analysis_acks_not_num = -1;
 static int hf_analysis_not_time = -1;
 static int hf_analysis_msg_resend_from = -1;
 static int hf_analysis_rep_resend_from = -1;
@@ -1598,13 +1601,13 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
   } else if (dmp.msg_type == ACK) {
     if (dmp.id_val->msg_type != ACK) {
       if (dmp.id_val->msg_type == REPORT) {
-        en = proto_tree_add_uint (analysis_tree, hf_analysis_rep_num,
+        en = proto_tree_add_uint (analysis_tree, hf_analysis_acks_rep_num,
                                   tvb, 0, 0, dmp.id_val->rep_id);
       } else if (dmp.id_val->msg_type == NOTIF) {
-        en = proto_tree_add_uint (analysis_tree, hf_analysis_not_num,
+        en = proto_tree_add_uint (analysis_tree, hf_analysis_acks_not_num,
                                   tvb, 0, 0, dmp.id_val->not_id);
       } else {
-        en = proto_tree_add_uint (analysis_tree, hf_analysis_msg_num,
+        en = proto_tree_add_uint (analysis_tree, hf_analysis_acks_msg_num,
                                   tvb, 0, 0, dmp.id_val->msg_id);
       }
       PROTO_ITEM_SET_GENERATED (en);
@@ -4786,15 +4789,24 @@ void proto_register_dmp (void)
     { &hf_analysis_msg_num,
       { "Message in", "dmp.analysis.msg_in", FT_FRAMENUM, BASE_NONE,
         NULL, 0x0, "This packet has a Message in this frame", HFILL } },
+    { &hf_analysis_acks_msg_num,
+      { "This is an Ack to the Message in", "dmp.analysis.acks_msg_in", FT_FRAMENUM, BASE_NONE,
+        FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0, "This packet ACKs a Message in this frame", HFILL } },
     { &hf_analysis_ack_num,
       { "Acknowledgement in", "dmp.analysis.ack_in", FT_FRAMENUM, BASE_NONE,
-        FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0, "This packet has an Acknowledgement in this frame", HFILL } },
+        NULL, 0x0, "This packet has an Acknowledgement in this frame", HFILL } },
     { &hf_analysis_rep_num,
       { "Report in", "dmp.analysis.report_in", FT_FRAMENUM, BASE_NONE,
         NULL, 0x0, "This packet has a Report in this frame", HFILL } },
+    { &hf_analysis_acks_rep_num,
+      { "This is an Ack to the Report in", "dmp.analysis.acks_report_in", FT_FRAMENUM, BASE_NONE,
+        FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0, "This packet ACKs a Report in this frame", HFILL } },
     { &hf_analysis_not_num,
       { "Notification in", "dmp.analysis.notif_in", FT_FRAMENUM, BASE_NONE,
         NULL, 0x0, "This packet has a Notification in this frame", HFILL } },
+    { &hf_analysis_acks_not_num,
+      { "This is an Ack to the Notification in", "dmp.analysis.acks_notif_in", FT_FRAMENUM, BASE_NONE,
+        FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0, "This packet ACKs a Notification in this frame", HFILL } },
     { &hf_analysis_ack_missing,
       { "Acknowledgement missing", "dmp.analysis.ack_missing", FT_NONE, BASE_NONE,
         NULL, 0x0, "The acknowledgement for this packet is missing", HFILL } },
