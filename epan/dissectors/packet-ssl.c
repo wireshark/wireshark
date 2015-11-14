@@ -548,8 +548,6 @@ static void dissect_pct_msg_error(tvbuff_t *tvb,
  *
  */
 static gint  ssl_is_valid_ssl_version(const guint16 version);
-static gint  ssl_is_authoritative_version_message(const guint8 content_type,
-                                                  const guint8 next_byte);
 static gint  ssl_is_v2_client_hello(tvbuff_t *tvb, const guint32 offset);
 static gint  ssl_looks_like_sslv2(tvbuff_t *tvb, const guint32 offset);
 static gint  ssl_looks_like_sslv3(tvbuff_t *tvb, const guint32 offset);
@@ -1541,21 +1539,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
      * structure and print the column version
      */
     next_byte = tvb_get_guint8(tvb, offset);
-    if (session->version == SSL_VER_UNKNOWN
-        && ssl_is_authoritative_version_message(content_type, next_byte))
-    {
-        switch (version) {
-        case SSLV3_VERSION:
-        case TLSV1_VERSION:
-        case TLSV1DOT1_VERSION:
-        case TLSV1DOT2_VERSION:
-            session->version = version;
-            if (ssl) {
-                ssl->state |= SSL_VERSION;
-                ssl_debug_printf("dissect_ssl3_record found version 0x%04X -> state 0x%02X\n", version, ssl->state);
-            }
-        }
-    }
+    if (session->version == SSL_VER_UNKNOWN)
+        ssl_try_set_version(session, ssl, content_type, next_byte, FALSE, version);
 
     /* on second and subsequent records per frame
      * add a delimiter on info column
@@ -1926,7 +1911,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
             case SSL_HND_SERVER_HELLO:
                 ssl_dissect_hnd_srv_hello(&dissect_ssl3_hf, tvb, pinfo, ssl_hand_tree,
-                        offset, length, session, ssl);
+                        offset, length, session, ssl, FALSE);
                 break;
 
             case SSL_HND_HELLO_VERIFY_REQUEST:
@@ -3273,23 +3258,6 @@ ssl_is_valid_ssl_version(const guint16 version)
 
     version_str = try_val_to_str(version, ssl_versions);
     return version_str != NULL;
-}
-
-static gint
-ssl_is_authoritative_version_message(const guint8 content_type,
-                                     const guint8 next_byte)
-{
-    if (content_type == SSL_ID_HANDSHAKE
-        && ssl_is_valid_handshake_type(next_byte, FALSE))
-    {
-        return (next_byte != SSL_HND_CLIENT_HELLO);
-    }
-    else if (ssl_is_valid_content_type(content_type)
-             && content_type != SSL_ID_HANDSHAKE)
-    {
-        return 1;
-    }
-    return 0;
 }
 
 static gint

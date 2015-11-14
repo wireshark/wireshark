@@ -327,8 +327,6 @@ static int dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
  *
  */
 
-static gint  dtls_is_authoritative_version_message(guint8 content_type,
-                                                   guint8 next_byte);
 static gint  looks_like_dtls(tvbuff_t *tvb, guint32 offset);
 
 /*********************************************************************
@@ -388,8 +386,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ssl_session = NULL;
 
   /* Initialize the protocol column; we'll set it later when we
-   * figure out what flavor of DTLS it is (actually only one
-   version exists). */
+   * figure out what flavor of DTLS it is */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
 
   /* clear the the info column */
@@ -751,21 +748,10 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
    * structure and print the column version
    */
   next_byte = tvb_get_guint8(tvb, offset);
-  if (session->version == SSL_VER_UNKNOWN
-      && dtls_is_authoritative_version_message(content_type, next_byte))
-  {
-    if (version == DTLSV1DOT0_VERSION ||
-        version == DTLSV1DOT0_OPENSSL_VERSION ||
-        version == DTLSV1DOT2_VERSION)
-    {
-      session->version = version;
-      if (ssl) {
-        ssl->state |= SSL_VERSION;
-      }
-    }
-  }
+  if (session->version == SSL_VER_UNKNOWN)
+    ssl_try_set_version(session, ssl, content_type, next_byte, TRUE, version);
   col_set_str(pinfo->cinfo, COL_PROTOCOL,
-      val_to_str_const(version, ssl_version_short_names, "DTLS"));
+      val_to_str_const(session->version, ssl_version_short_names, "DTLS"));
 
   /*
    * now dissect the next layer
@@ -860,7 +846,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 
     proto_item_set_text(dtls_record_tree,
                         "%s Record Layer: %s Protocol: %s",
-                        val_to_str_const(session->version, ssl_version_short_names, "SSL"),
+                        val_to_str_const(session->version, ssl_version_short_names, "DTLS"),
                         val_to_str_const(content_type, ssl_31_content_type, "unknown"),
                         session->app_handle
                         ? dissector_handle_get_dissector_name(session->app_handle)
@@ -999,7 +985,7 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
         {
           proto_item_set_text(tree, "%s Record Layer: Alert "
                               "(Level: %s, Description: %s)",
-                              val_to_str_const(session->version, ssl_version_short_names, "SSL"),
+                              val_to_str_const(session->version, ssl_version_short_names, "DTLS"),
                               level, desc);
           proto_tree_add_item(ssl_alert_tree, hf_dtls_alert_message_level,
                               tvb, offset++, 1, ENC_BIG_ENDIAN);
@@ -1011,7 +997,7 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
         {
           proto_item_set_text(tree,
                               "%s Record Layer: Encrypted Alert",
-                              val_to_str_const(session->version, ssl_version_short_names, "SSL"));
+                              val_to_str_const(session->version, ssl_version_short_names, "DTLS"));
           proto_item_set_text(ssl_alert_tree,
                               "Alert Message: Encrypted Alert");
         }
@@ -1233,7 +1219,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           if (first_iteration)
             {
               proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s%s",
-                                  val_to_str_const(session->version, ssl_version_short_names, "SSL"),
+                                  val_to_str_const(session->version, ssl_version_short_names, "DTLS"),
                                   val_to_str_const(content_type, ssl_31_content_type, "unknown"),
                                   (msg_type_str!=NULL) ? msg_type_str :
                                   "Encrypted Handshake Message",
@@ -1242,7 +1228,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           else
             {
               proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s%s",
-                                  val_to_str_const(session->version, ssl_version_short_names, "SSL"),
+                                  val_to_str_const(session->version, ssl_version_short_names, "DTLS"),
                                   val_to_str_const(content_type, ssl_31_content_type, "unknown"),
                                   "Multiple Handshake Messages",
                                   (frag_str!=NULL) ? frag_str : "");
@@ -1291,7 +1277,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
           case SSL_HND_SERVER_HELLO:
             ssl_dissect_hnd_srv_hello(&dissect_dtls_hf, sub_tvb, pinfo, ssl_hand_tree,
-                                      0, length, session, ssl);
+                                      0, length, session, ssl, TRUE);
             break;
 
           case SSL_HND_HELLO_VERIFY_REQUEST:
@@ -1406,7 +1392,7 @@ dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
     if (type && ((payload_length <= record_length - 16 - 3) || decrypted)) {
       proto_item_set_text(tree, "%s Record Layer: Heartbeat "
                                 "%s",
-                                val_to_str_const(session->version, ssl_version_short_names, "SSL"),
+                                val_to_str_const(session->version, ssl_version_short_names, "DTLS"),
                                 type);
       proto_tree_add_item(dtls_heartbeat_tree, hf_dtls_heartbeat_message_type,
                           tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1437,7 +1423,7 @@ dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
     } else {
       proto_item_set_text(tree,
                          "%s Record Layer: Encrypted Heartbeat",
-                         val_to_str_const(session->version, ssl_version_short_names, "SSL"));
+                         val_to_str_const(session->version, ssl_version_short_names, "DTLS"));
       proto_item_set_text(dtls_heartbeat_tree,
                           "Encrypted Heartbeat Message");
     }
@@ -1488,22 +1474,6 @@ dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
  * Support Functions
  *
  *********************************************************************/
-
-static gint
-dtls_is_authoritative_version_message(guint8 content_type, guint8 next_byte)
-{
-  if (content_type == SSL_ID_HANDSHAKE
-      && ssl_is_valid_handshake_type(next_byte, TRUE))
-    {
-      return (next_byte != SSL_HND_CLIENT_HELLO);
-    }
-  else if (ssl_is_valid_content_type(content_type)
-           && content_type != SSL_ID_HANDSHAKE)
-    {
-      return 1;
-    }
-  return 0;
-}
 
 /* this applies a heuristic to determine whether
  * or not the data beginning at offset looks like a

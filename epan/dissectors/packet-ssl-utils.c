@@ -5533,7 +5533,7 @@ ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *t
 }
 /** TLS Extensions (in Client Hello and Server Hello). }}} */
 
-/* Whether the Content Type and Handshake Type bytes are valid. {{{ */
+/* Whether the Content and Handshake Types are valid; handle Protocol Version. {{{ */
 gboolean
 ssl_is_valid_content_type(guint8 type)
 {
@@ -5574,6 +5574,55 @@ ssl_is_valid_handshake_type(guint8 hs_type, gboolean is_dtls)
         return TRUE;
     }
     return FALSE;
+}
+
+static gboolean
+ssl_is_authoritative_version_message(guint8 content_type, guint8 handshake_type,
+                                     gboolean is_dtls)
+{
+    /* Consider all valid Handshake messages (except for Client Hello) and
+     * all other valid record types (other than Handshake) */
+    return (content_type == SSL_ID_HANDSHAKE &&
+            ssl_is_valid_handshake_type(handshake_type, is_dtls) &&
+            handshake_type != SSL_HND_CLIENT_HELLO) ||
+           (content_type != SSL_ID_HANDSHAKE &&
+            ssl_is_valid_content_type(content_type));
+}
+
+void
+ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
+                    guint8 content_type, guint8 handshake_type,
+                    gboolean is_dtls, guint16 version)
+{
+    if (!ssl_is_authoritative_version_message(content_type, handshake_type,
+                is_dtls))
+        return;
+
+    switch (version) {
+    case SSLV3_VERSION:
+    case TLSV1_VERSION:
+    case TLSV1DOT1_VERSION:
+    case TLSV1DOT2_VERSION:
+        if (is_dtls)
+            return;
+        break;
+
+    case DTLSV1DOT0_VERSION:
+    case DTLSV1DOT0_OPENSSL_VERSION:
+    case DTLSV1DOT2_VERSION:
+        if (!is_dtls)
+            return;
+        break;
+
+    default: /* invalid version number */
+        return;
+    }
+
+    session->version = version;
+    if (ssl) {
+        ssl->state |= SSL_VERSION;
+        ssl_debug_printf("%s found version 0x%04X -> state 0x%02X\n", G_STRFUNC, version, ssl->state);
+    }
 }
 /* }}} */
 
@@ -5704,7 +5753,8 @@ ssl_dissect_hnd_cli_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 void
 ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                           packet_info* pinfo, proto_tree *tree, guint32 offset, guint32 length,
-                          SslSession *session, SslDecryptSession *ssl)
+                          SslSession *session, SslDecryptSession *ssl,
+                          gboolean is_dtls)
 {
     /* struct {
      *     ProtocolVersion server_version;
@@ -5716,6 +5766,10 @@ ssl_dissect_hnd_srv_hello(ssl_common_dissect_t *hf, tvbuff_t *tvb,
      * } ServerHello;
      */
     guint16 start_offset = offset;
+
+    /* This version is always better than the guess at the Record Layer */
+    ssl_try_set_version(session, ssl, SSL_ID_HANDSHAKE, SSL_HND_SERVER_HELLO,
+            is_dtls, tvb_get_ntohs(tvb, offset));
 
     /* show the server version */
     proto_tree_add_item(tree, hf->hf.hs_server_version, tvb,
