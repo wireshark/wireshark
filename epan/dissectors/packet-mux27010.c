@@ -758,8 +758,8 @@ getFrameInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *field_tree,
 
 
 
-static void
-dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti, *tf, *tf_extended_header, *tf_addr, *tf_ctr;
     proto_tree *mux27010_tree, *field_tree, *field_tree_extended_header, *field_tree_addr, *field_tree_ctr;
@@ -997,6 +997,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         expert_add_info(pinfo, tf, &ei_mux27010_checksum_incorrect);
     }
     /*~~~~~~~~/Checksum~~~~~~~~*/
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -1423,7 +1424,7 @@ proto_register_mux27010 (void)
     proto_register_field_array (proto_mux27010, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
 
-    mux27010_handle = register_dissector("mux27010", dissect_mux27010, proto_mux27010);
+    mux27010_handle = new_register_dissector("mux27010", dissect_mux27010, proto_mux27010);
 
     expert_mux27010 = expert_register_protocol(proto_mux27010);
     expert_register_field_array(expert_mux27010, ei, array_length(ei));

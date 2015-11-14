@@ -341,8 +341,8 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 }
 
-static void
-dissect_mstp_wtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mstp_wtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_tree *subtree;
@@ -376,6 +376,7 @@ dissect_mstp_wtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(subtree, hf_mstp_preamble_FF, tvb,
 			offset+1, 1, ENC_LITTLE_ENDIAN);
 	dissect_mstp(tvb, pinfo, tree, subtree, offset+2);
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -459,7 +460,7 @@ proto_register_mstp(void)
 	expert_mstp = expert_register_protocol(proto_mstp);
 	expert_register_field_array(expert_mstp, ei, array_length(ei));
 
-	register_dissector("mstp", dissect_mstp_wtap, proto_mstp);
+	new_register_dissector("mstp", dissect_mstp_wtap, proto_mstp);
 
 	subdissector_table = register_dissector_table("mstp.vendor_frame_type",
 	    "MSTP Vendor specific Frametypes", FT_UINT24, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);

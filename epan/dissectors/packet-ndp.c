@@ -265,8 +265,8 @@ static int hf_ndp_number_of_links = -1;
 static gint ett_ndp = -1;
 
 
-static void
-dissect_ndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	const char *hello_type;
 	proto_tree *ndp_tree = NULL;
@@ -319,7 +319,7 @@ dissect_ndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			NDP_NUMBER_OF_LINKS, 1, ENC_BIG_ENDIAN);
 	}
 
-
+	return tvb_captured_length(tvb);
 }
 
 
@@ -363,7 +363,7 @@ proto_register_ndp(void)
 	proto_register_field_array(proto_ndp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("ndp", dissect_ndp, proto_ndp);
+	new_register_dissector("ndp", dissect_ndp, proto_ndp);
 }
 
 void

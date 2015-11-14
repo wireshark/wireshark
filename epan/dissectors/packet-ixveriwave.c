@@ -30,7 +30,6 @@
 void proto_register_ixveriwave(void);
 void proto_reg_handoff_ixveriwave(void);
 
-static void dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *tap_tree);
 static void wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *tap_tree, guint16 vw_msdu_length);
 
@@ -253,8 +252,8 @@ static dissector_handle_t ixveriwave_handle;
 #define ALIGN_OFFSET(offset, width) \
     ( (((offset) + ((width) - 1)) & (~((width) - 1))) - offset )
 
-static void
-dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *common_tree                 = NULL;
     proto_item *ti                          = NULL;
@@ -389,13 +388,9 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /*extract signature timestamp, 4 bytes (32 LSBs only, nsec)*/
     if (length_remaining >= 4) {
-        if (tree) {
-            if (vw_times_tree != NULL) {
-            /* TODO: what should this fieldname be? */
-            proto_tree_add_item(vw_times_tree, hf_ixveriwave,
+        /* TODO: what should this fieldname be? */
+        proto_tree_add_item(vw_times_tree, hf_ixveriwave,
                         tvb, offset, 4, ENC_BIG_ENDIAN);
-            }
-        }
         time_tree_offset    = offset;
         offset              +=4;
         length_remaining    -=4;
@@ -405,13 +400,9 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (length_remaining >= 8) {
         vw_startt = tvb_get_letoh64(tvb, offset);
 
-        if (tree) {
-            if (vw_times_tree != NULL) {
-            proto_tree_add_uint64_format_value(vw_times_tree, hf_ixveriwave_vw_startt,
+        proto_tree_add_uint64_format_value(vw_times_tree, hf_ixveriwave_vw_startt,
                 tvb, offset, 8, vw_startt,
                 "%" G_GINT64_MODIFIER "u usec", vw_startt);
-            }
-        }
 
         offset              +=8;
         length_remaining    -=8;
@@ -421,13 +412,9 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (length_remaining >= 8) {
         vw_endt = tvb_get_letoh64(tvb, offset);
 
-        if (tree) {
-            if (vw_times_tree != NULL) {
-            proto_tree_add_uint64_format_value(vw_times_tree, hf_ixveriwave_vw_endt,
+        proto_tree_add_uint64_format_value(vw_times_tree, hf_ixveriwave_vw_endt,
                 tvb, offset, 8, vw_endt,
                 "%" G_GINT64_MODIFIER "u usec", vw_endt);
-            }
-        }
 
         offset              +=8;
         length_remaining    -=8;
@@ -436,32 +423,28 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (length_remaining >= 4) {
         vw_pktdur = tvb_get_letohl(tvb, offset);
 
-        if (tree) {
-            if (vw_times_tree != NULL) {
-                if (vw_endt >= vw_startt) {
-                    /* Add to root summary */
-                    if (version == ETHERNET_PORT) {
-                        proto_item_append_text(vw_times_ti, " (Frame duration=%u nsecs)", vw_pktdur);
-                        proto_tree_add_uint_format(vw_times_tree, hf_ixveriwave_vw_pktdur,
-                                            tvb, offset-16, 16, vw_pktdur,
-                                            "Frame duration: %u nsec", vw_pktdur);
-                    }
-                    else {
-                        proto_item_append_text(vw_times_ti, " (Frame duration=%u usecs)", vw_pktdur);
-                        proto_tree_add_uint_format(vw_times_tree, hf_ixveriwave_vw_pktdur,
-                                            tvb, offset-16, 16, vw_pktdur,
-                                            "Frame duration: %u usec", vw_pktdur);
-                    }
-                }
-                else {
-                    proto_tree_add_uint_format(vw_times_tree, hf_ixveriwave_vw_pktdur,
-                                               tvb, offset, 0, vw_pktdur,
-                                               "Frame duration: N/A");
-
-                    /* Add to root summary */
-                    proto_item_append_text(vw_times_ti, " (Frame duration=N/A)");
-                }
+        if (vw_endt >= vw_startt) {
+            /* Add to root summary */
+            if (version == ETHERNET_PORT) {
+                proto_item_append_text(vw_times_ti, " (Frame duration=%u nsecs)", vw_pktdur);
+                proto_tree_add_uint_format(vw_times_tree, hf_ixveriwave_vw_pktdur,
+                                    tvb, offset-16, 16, vw_pktdur,
+                                    "Frame duration: %u nsec", vw_pktdur);
             }
+            else {
+                proto_item_append_text(vw_times_ti, " (Frame duration=%u usecs)", vw_pktdur);
+                proto_tree_add_uint_format(vw_times_tree, hf_ixveriwave_vw_pktdur,
+                                    tvb, offset-16, 16, vw_pktdur,
+                                    "Frame duration: %u usec", vw_pktdur);
+            }
+        }
+        else {
+            proto_tree_add_uint_format(vw_times_tree, hf_ixveriwave_vw_pktdur,
+                                        tvb, offset, 0, vw_pktdur,
+                                        "Frame duration: N/A");
+
+            /* Add to root summary */
+            proto_item_append_text(vw_times_ti, " (Frame duration=N/A)");
         }
 
         offset              +=4;
@@ -511,6 +494,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ethernettap_dissect(next_tvb, pinfo, tree, common_tree);
     else
         wlantap_dissect(next_tvb, pinfo, tree, common_tree, vw_msdu_length);
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -1688,7 +1672,7 @@ framing signal deasserted.  this is caused by software setting the drain all reg
     proto_register_field_array(proto_ixveriwave, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    ixveriwave_handle = register_dissector("ixveriwave", dissect_ixveriwave, proto_ixveriwave);
+    ixveriwave_handle = new_register_dissector("ixveriwave", dissect_ixveriwave, proto_ixveriwave);
 }
 
 void proto_reg_handoff_ixveriwave(void)
@@ -1698,7 +1682,7 @@ void proto_reg_handoff_ixveriwave(void)
     /* handle for 802.11+radio information dissector */
     ieee80211_radio_handle   = find_dissector("wlan_radio");
 
-    ixveriwave_handle           = create_dissector_handle(dissect_ixveriwave, proto_ixveriwave);
+    ixveriwave_handle           = new_create_dissector_handle(dissect_ixveriwave, proto_ixveriwave);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_IXVERIWAVE, ixveriwave_handle);
 }
 

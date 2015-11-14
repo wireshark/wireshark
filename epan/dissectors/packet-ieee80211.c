@@ -18364,8 +18364,8 @@ dissect_ieee80211 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
  * Dissect 802.11 with a variable-length link-layer header and with an
  * FCS, but no pseudo-header.
  */
-static void
-dissect_ieee80211_withfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ieee80211_withfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   struct ieee_802_11_phdr phdr;
 
@@ -18376,14 +18376,15 @@ dissect_ieee80211_withfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
   phdr.presence_flags = 0;
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, &phdr);
+  return tvb_captured_length(tvb);
 }
 
 /*
  * Dissect 802.11 with a variable-length link-layer header and without an
  * FCS, but no pseudo-header.
  */
-static void
-dissect_ieee80211_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ieee80211_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   struct ieee_802_11_phdr phdr;
 
@@ -18394,6 +18395,7 @@ dissect_ieee80211_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
   phdr.presence_flags = 0;
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, &phdr);
+  return tvb_captured_length(tvb);
 }
 
 /*
@@ -18446,8 +18448,8 @@ dissect_ieee80211_centrino(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * control field and with no FCS (some hardware sends out LWAPP-encapsulated
  * 802.11 packets with the control field byte swapped).
  */
-static void
-dissect_ieee80211_bsfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ieee80211_bsfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   struct ieee_802_11_phdr phdr;
 
@@ -18458,6 +18460,7 @@ dissect_ieee80211_bsfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
   phdr.presence_flags = 0;
   dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE, &phdr);
+  return tvb_captured_length(tvb);
 }
 
 static void
@@ -27037,9 +27040,9 @@ proto_register_ieee80211 (void)
   expert_register_field_array(expert_ieee80211, ei, array_length(ei));
 
   new_register_dissector("wlan",                dissect_ieee80211,                    proto_wlan);
-  register_dissector("wlan_withfcs",            dissect_ieee80211_withfcs,            proto_wlan);
-  register_dissector("wlan_withoutfcs",         dissect_ieee80211_withoutfcs,         proto_wlan);
-  register_dissector("wlan_bsfc",               dissect_ieee80211_bsfc,               proto_wlan);
+  new_register_dissector("wlan_withfcs",            dissect_ieee80211_withfcs,            proto_wlan);
+  new_register_dissector("wlan_withoutfcs",         dissect_ieee80211_withoutfcs,         proto_wlan);
+  new_register_dissector("wlan_bsfc",               dissect_ieee80211_bsfc,               proto_wlan);
 
   register_init_routine(wlan_defragment_init);
   register_cleanup_routine(wlan_defragment_cleanup);

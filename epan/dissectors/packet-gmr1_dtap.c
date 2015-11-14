@@ -50,8 +50,8 @@ static gint ett_gmr1_pd = -1;
 static dissector_handle_t gsm_dtap_handle;
 
 
-static void
-dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint32 len, offset;
 	gmr1_msg_func_t msg_func;
@@ -78,7 +78,7 @@ dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* HACK: Quick delegation hack to GSM */
 	if (pd != GMR1_PD_RR) {
 		call_dissector(gsm_dtap_handle, tvb, pinfo, tree);
-		return;
+		return tvb_captured_length(tvb);
 	}
 
 	/* Fill up some info */
@@ -140,7 +140,7 @@ dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* Done ! */
-	return;
+	return tvb_captured_length(tvb);
 }
 
 
@@ -173,7 +173,7 @@ proto_register_gmr1_dtap(void)
 	proto_register_field_array(proto_gmr1_dtap, hf, array_length(hf));
 
 	/* Register dissector */
-	register_dissector("gmr1_dtap", dissect_gmr1_dtap, proto_gmr1_dtap);
+	new_register_dissector("gmr1_dtap", dissect_gmr1_dtap, proto_gmr1_dtap);
 }
 
 void

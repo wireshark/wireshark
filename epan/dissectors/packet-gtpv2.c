@@ -6046,8 +6046,8 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
     }
 }
 
-static void
-dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
     proto_tree *gtpv2_tree, *flags_tree;
     proto_item *tf;
@@ -6139,10 +6139,10 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         new_p_tvb = tvb_new_subset_remaining(tvb, msg_length + 4);
         col_append_str(pinfo->cinfo, COL_INFO, " / ");
         col_set_fence(pinfo->cinfo, COL_INFO);
-        dissect_gtpv2(new_p_tvb, pinfo, tree);
+        dissect_gtpv2(new_p_tvb, pinfo, tree, NULL);
     }
 
-
+    return tvb_captured_length(tvb);
 }
 
 void proto_register_gtpv2(void)
@@ -8132,7 +8132,7 @@ void proto_register_gtpv2(void)
     /* AVP Code: 2820 Presence-Reporting-Area-Elements-List */
     dissector_add_uint("diameter.3gpp", 2820, new_create_dissector_handle(dissect_diameter_3gpp_presence_reporting_area_elements_list, proto_gtpv2));
 
-    register_dissector("gtpv2", dissect_gtpv2, proto_gtpv2);
+    new_register_dissector("gtpv2", dissect_gtpv2, proto_gtpv2);
     /* Dissector table for private extensions */
     gtpv2_priv_ext_dissector_table = register_dissector_table("gtpv2.priv_ext", "GTPv2 PRIVATE EXT", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }

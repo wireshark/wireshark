@@ -348,8 +348,8 @@ Changes: v2.1->v2.1.1
 #define SSI_DBM         2       /* dBm */
 #define SSI_RAW_RSSI    3       /* raw RSSI from the hardware */
 
-static void
-dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *wlan_tree = NULL;
     proto_item *ti;
@@ -683,6 +683,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* dissect the 802.11 header next */
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, (void *)&phdr);
+    return tvb_captured_length(tvb);
 }
 
 static const value_string phy_type[] = {
@@ -846,9 +847,9 @@ void proto_register_ieee80211_wlancap(void)
                                           "AVS WLANCAP", "wlancap");
   proto_register_field_array(proto_wlancap, hf_wlancap,
                              array_length(hf_wlancap));
-  register_dissector("wlancap", dissect_wlancap, proto_wlancap);
+  new_register_dissector("wlancap", dissect_wlancap, proto_wlancap);
 
-  wlancap_handle = create_dissector_handle(dissect_wlancap, proto_wlancap);
+  wlancap_handle = new_create_dissector_handle(dissect_wlancap, proto_wlancap);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_AVS,
                      wlancap_handle);
   proto_register_subtree_array(tree_array, array_length(tree_array));

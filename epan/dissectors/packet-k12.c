@@ -179,8 +179,8 @@ fill_fp_info(fp_info* p_fp_info, guchar* extra_info, guint32 length)
 	}
 }
 
-static void
-dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
+static int
+dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree, void* data _U_)
 {
 	static dissector_handle_t data_handles[] = {NULL, NULL};
 	proto_item* k12_item;
@@ -261,7 +261,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 		expert_add_info(pinfo, stack_item, &ei_k12_unmatched_info);
 
 		call_dissector(data_handle, tvb, pinfo, tree);
-		return;
+		return tvb_captured_length(tvb);
 	}
 
 	/* Setup subdissector information */
@@ -294,6 +294,7 @@ dissect_k12(tvbuff_t* tvb,packet_info* pinfo,proto_tree* tree)
 	}
 
 	call_dissector(sub_handle, tvb, pinfo, tree);
+	return tvb_captured_length(tvb);
 }
 
 static gboolean
@@ -475,7 +476,7 @@ proto_register_k12(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_k12 = expert_register_protocol(proto_k12);
 	expert_register_field_array(expert_k12, ei, array_length(ei));
-	register_dissector("k12", dissect_k12, proto_k12);
+	new_register_dissector("k12", dissect_k12, proto_k12);
 
 	k12_uat = uat_new("K12 Protocols",
 			  sizeof(k12_handles_t),

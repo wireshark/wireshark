@@ -147,9 +147,6 @@ static void
 dissect_serialization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void
-dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-static void
 dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 #define UDP_PORT_IPX    213		/* RFC 1234 */
@@ -293,8 +290,8 @@ capture_ipx(packet_counts *ld)
 	ld->ipx++;
 }
 
-static void
-dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	tvbuff_t	*next_tvb;
 
@@ -441,11 +438,11 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (second_socket != IPX_SOCKET_NWLINK_SMB_NAMEQUERY) {
 		if (dissector_try_uint_new(ipx_socket_dissector_table, first_socket,
 			next_tvb, pinfo, tree, FALSE, ipxh))
-			return;
+			return tvb_captured_length(tvb);
 	}
 	if (dissector_try_uint_new(ipx_socket_dissector_table, second_socket,
 		next_tvb, pinfo, tree, FALSE, ipxh))
-		return;
+		return tvb_captured_length(tvb);
 
 	/*
 	 * Neither of them are known; try the packet type, which will
@@ -453,9 +450,10 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (dissector_try_uint_new(ipx_type_dissector_table, ipxh->ipx_type, next_tvb,
 		pinfo, tree, FALSE, ipxh))
-		return;
+		return tvb_captured_length(tvb);
 
 	call_dissector(data_handle,next_tvb, pinfo, tree);
+	return tvb_captured_length(tvb);
 }
 /* ================================================================= */
 /* SPX Hash Functions                                                */
@@ -1239,8 +1237,8 @@ static const value_string ipxsap_packet_vals[] = {
 	{ 0,            NULL}
 };
 
-static void
-dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*sap_tree, *s_tree;
 	proto_item	*ti, *hidden_item;
@@ -1299,6 +1297,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(sap_tree, hf_sap_server_type, tvb, 2, 2, ENC_BIG_ENDIAN);
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -1553,7 +1552,7 @@ proto_register_ipx(void)
 	    "IPX", "ipx");
 	proto_register_field_array(proto_ipx, hf_ipx, array_length(hf_ipx));
 
-	register_dissector("ipx", dissect_ipx, proto_ipx);
+	new_register_dissector("ipx", dissect_ipx, proto_ipx);
 
 	proto_spx = proto_register_protocol("Sequenced Packet eXchange",
 	    "SPX", "spx");
@@ -1573,7 +1572,7 @@ proto_register_ipx(void)
 
 	proto_sap = proto_register_protocol("Service Advertisement Protocol",
 	    "IPX SAP", "ipxsap");
-	register_dissector("ipxsap", dissect_ipxsap, proto_sap);
+	new_register_dissector("ipxsap", dissect_ipxsap, proto_sap);
 
 	proto_register_field_array(proto_sap, hf_sap, array_length(hf_sap));
 

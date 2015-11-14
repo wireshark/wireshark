@@ -895,8 +895,8 @@ dissect_iua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree,
   dissect_parameters(parameters_tvb, pinfo, tree, iua_tree);
 }
 
-static void
-dissect_iua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_iua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *iua_item;
   proto_tree *iua_tree;
@@ -911,6 +911,7 @@ dissect_iua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 
   /* dissect the message */
   dissect_iua_message(message_tvb, pinfo, tree, iua_tree);
+  return tvb_captured_length(message_tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -975,7 +976,7 @@ proto_register_iua(void)
         &global_iua_gsm_sapis);
 
   /* Allow other dissectors to find this one by name. */
-  register_dissector("iua", dissect_iua, proto_iua);
+  new_register_dissector("iua", dissect_iua, proto_iua);
 }
 
 #define SCTP_PORT_IUA          9900

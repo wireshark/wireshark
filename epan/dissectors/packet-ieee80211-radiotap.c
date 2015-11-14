@@ -222,9 +222,6 @@ static int radiotap_tap = -1;
 /* Settings */
 static gboolean radiotap_bit14_fcs = FALSE;
 
-static void
-dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
-
 #define BITNO_32(x) (((x) >> 16) ? 16 + BITNO_16((x) >> 16) : BITNO_16((x)))
 #define BITNO_16(x) (((x) >> 8) ? 8 + BITNO_8((x) >> 8) : BITNO_8((x)))
 #define BITNO_8(x)  (((x) >> 4) ? 4 + BITNO_4((x) >> 4) : BITNO_4((x)))
@@ -542,8 +539,8 @@ capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld)
 		capture_ieee80211(pd, offset + it_len, len, ld);
 }
 
-static void
-dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* unused_data _U_)
 {
 	proto_tree *radiotap_tree     = NULL;
 	proto_tree *pt = NULL, *present_tree = NULL;
@@ -621,8 +618,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	}
 
 	data = tvb_memdup(wmem_packet_scope(), tvb, 0, length);
-	if (!data)
-		return;
 
 	if (ieee80211_radiotap_iterator_init(&iter, (struct ieee80211_radiotap_header *)data, length, NULL)) {
 		if (tree)
@@ -1802,6 +1797,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	    tree, &phdr);
 
 	tap_queue_packet(radiotap_tap, pinfo, radiotap_info);
+	return tvb_captured_length(tvb);
 }
 
 void proto_register_radiotap(void)
@@ -2653,7 +2649,7 @@ void proto_register_radiotap(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_radiotap = expert_register_protocol(proto_radiotap);
 	expert_register_field_array(expert_radiotap, ei, array_length(ei));
-	register_dissector("radiotap", dissect_radiotap, proto_radiotap);
+	new_register_dissector("radiotap", dissect_radiotap, proto_radiotap);
 
 	radiotap_tap = register_tap("radiotap");
 

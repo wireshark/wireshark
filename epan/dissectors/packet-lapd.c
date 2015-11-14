@@ -196,8 +196,6 @@ typedef struct lapd_convo_data {
 
 
 static void
-dissect_lapd(tvbuff_t*, packet_info*, proto_tree*);
-static void
 dissect_lapd_full(tvbuff_t*, packet_info*, proto_tree*, gboolean);
 
 /* got new LAPD frame byte */
@@ -219,8 +217,8 @@ lapd_log_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset
 	expert_add_info_format(pinfo, ti, &ei_lapd_abort, "%s", msg);
 }
 
-static void
-dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissector_data _U_)
 {
 	guint8		byte, full_byte = 0x00, bit_offset = 0;
 	gboolean	bit;
@@ -402,12 +400,14 @@ dissect_lapd_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
-static void
-dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	dissect_lapd_full(tvb, pinfo, tree, FALSE);
+	return tvb_captured_length(tvb);
 }
 
 static void
@@ -601,7 +601,7 @@ dissect_udp_lapd(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void 
 	if (!check_xdlc_control(tvb, 2, NULL, NULL, FALSE, FALSE))
 		return FALSE;
 
-    dissect_lapd(tvb, pinfo, tree);
+    dissect_lapd(tvb, pinfo, tree, data);
 	return TRUE;
 }
 
@@ -728,7 +728,7 @@ proto_register_lapd(void)
 	expert_lapd = expert_register_protocol(proto_lapd);
 	expert_register_field_array(expert_lapd, ei, array_length(ei));
 
-	register_dissector("lapd", dissect_lapd, proto_lapd);
+	new_register_dissector("lapd", dissect_lapd, proto_lapd);
 
 	lapd_sapi_dissector_table = register_dissector_table("lapd.sapi",
 							     "LAPD SAPI", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
@@ -765,7 +765,7 @@ proto_reg_handoff_lapd(void)
 		dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_LAPD, lapd_handle);
 		heur_dissector_add("udp", dissect_udp_lapd, "LAPD over UDP", "lapd_udp", proto_lapd, HEURISTIC_ENABLE);
 
-		register_dissector("lapd-bitstream", dissect_lapd_bitstream, proto_lapd);
+		new_register_dissector("lapd-bitstream", dissect_lapd_bitstream, proto_lapd);
 		lapd_bitstream_handle = find_dissector("lapd-bitstream");
 		data_handle = find_dissector("data");
 

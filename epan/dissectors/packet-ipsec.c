@@ -1183,8 +1183,8 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   return advance;
 }
 
-static void
-dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   struct ah_header_data header_data = {NULL, 0};
   tvbuff_t *next_tvb;
@@ -1217,6 +1217,7 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   export_ipsec_pdu(dissector_handle, pinfo, next_tvb);
   call_dissector(dissector_handle, next_tvb, pinfo, header_data.next_tree);
   pinfo->match_uint = saved_match_uint;
+  return tvb_captured_length(tvb);
 }
 
 /*
@@ -1291,8 +1292,8 @@ dissect_esp_authentication(proto_tree *tree, tvbuff_t *tvb, gint len, gint esp_a
 }
 #endif
 
-static void
-dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree *esp_tree = NULL;
   proto_item *ti;
@@ -2228,6 +2229,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #ifdef HAVE_LIBGCRYPT
   }
 #endif
+  return tvb_captured_length(tvb);
 }
 
 
@@ -2538,8 +2540,8 @@ proto_register_ipsec(void)
   register_init_routine(&ipsec_init_protocol);
   register_cleanup_routine(&ipsec_cleanup_protocol);
 
-  register_dissector("esp", dissect_esp, proto_esp);
-  register_dissector("ah", dissect_ah, proto_ah);
+  new_register_dissector("esp", dissect_esp, proto_esp);
+  new_register_dissector("ah", dissect_ah, proto_ah);
 }
 
 void

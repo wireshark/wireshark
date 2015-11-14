@@ -1427,10 +1427,11 @@ dissect_h223_bitswapped_circuit_data(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     return tvb_captured_length(tvb);
 }
 
-static void
-dissect_h223_bitswapped(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_h223_bitswapped(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_h223_bitswapped_common(tvb, pinfo, tree, CT_NONE, 0);
+    return tvb_captured_length(tvb);
 }
 
 /******************************************************************************/
@@ -1645,7 +1646,7 @@ void proto_register_h223 (void)
     proto_register_field_array (proto_h223, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
     new_register_dissector("h223", dissect_h223_circuit_data, proto_h223);
-    register_dissector("h223_bitswapped", dissect_h223_bitswapped, proto_h223_bitswapped);
+    new_register_dissector("h223_bitswapped", dissect_h223_bitswapped, proto_h223_bitswapped);
 
     /* register our init routine to be called at the start of a capture,
        to clear out our hash tables etc */

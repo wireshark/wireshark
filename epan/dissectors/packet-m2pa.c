@@ -486,8 +486,8 @@ dissect_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa_item
   dissect_message_data(message_tvb, pinfo, m2pa_item, m2pa_tree, tree);
 }
 
-static void
-dissect_m2pa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_m2pa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *m2pa_item;
   proto_tree *m2pa_tree;
@@ -518,6 +518,7 @@ dissect_m2pa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissect_message(tvb, pinfo, m2pa_item, m2pa_tree, tree);
       break;
   };
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -575,7 +576,7 @@ proto_register_m2pa(void)
   expert_register_field_array(expert_m2pa, ei, array_length(ei));
 
   /* Allow other dissectors to find this one by name. */
-  register_dissector("m2pa", dissect_m2pa, proto_m2pa);
+  new_register_dissector("m2pa", dissect_m2pa, proto_m2pa);
 
   m2pa_module = prefs_register_protocol(proto_m2pa, proto_reg_handoff_m2pa);
 

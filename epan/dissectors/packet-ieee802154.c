@@ -159,10 +159,10 @@ UAT_BUFFER_CB_DEF(addr_uat, eui64, static_addr_t, eui64, eui64_len)
  */
 
 /* Dissection Routines. */
-static void dissect_ieee802154_nonask_phy   (tvbuff_t *, packet_info *, proto_tree *);
-static void dissect_ieee802154              (tvbuff_t *, packet_info *, proto_tree *);
-static void dissect_ieee802154_nofcs        (tvbuff_t *, packet_info *, proto_tree *);
-static void dissect_ieee802154_cc24xx       (tvbuff_t *, packet_info *, proto_tree *);
+static int dissect_ieee802154_nonask_phy   (tvbuff_t *, packet_info *, proto_tree *, void *);
+static int dissect_ieee802154              (tvbuff_t *, packet_info *, proto_tree *, void *);
+static int dissect_ieee802154_nofcs        (tvbuff_t *, packet_info *, proto_tree *, void *);
+static int dissect_ieee802154_cc24xx       (tvbuff_t *, packet_info *, proto_tree *, void *);
 /*static void dissect_ieee802154_linux        (tvbuff_t *, packet_info *, proto_tree *);  TODO: Implement Me. */
 static void dissect_ieee802154_common       (tvbuff_t *, packet_info *, proto_tree *, guint);
 
@@ -492,8 +492,8 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
  *      void
  *---------------------------------------------------------------
  */
-static void
-dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *ieee802154_tree = NULL;
     proto_item *proto_root      = NULL;
@@ -535,7 +535,8 @@ dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     mac=tvb_new_subset(tvb,offset,-1, phr & IEEE802154_PHY_LENGTH_MASK);
 
     /* Call the common dissector. */
-    dissect_ieee802154(mac, pinfo, ieee802154_tree);
+    dissect_ieee802154(mac, pinfo, ieee802154_tree, NULL);
+    return tvb_captured_length(tvb);
 } /* dissect_ieee802154_nonask_phy */
 
 /*FUNCTION:------------------------------------------------------
@@ -553,11 +554,12 @@ dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  *      void
  *---------------------------------------------------------------
  */
-static void
-dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* Call the common dissector. */
     dissect_ieee802154_common(tvb, pinfo, tree, (ieee802154_cc24xx ? DISSECT_IEEE802154_OPTION_CC24xx : 0));
+    return tvb_captured_length(tvb);
 } /* dissect_ieee802154 */
 
 /*FUNCTION:------------------------------------------------------
@@ -574,8 +576,8 @@ dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *      void
  *---------------------------------------------------------------
  */
-static void
-dissect_ieee802154_nofcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ieee802154_nofcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_)
 {
     tvbuff_t    *new_tvb;
     /* If there is no FCS present in the reported packet, then the length of
@@ -590,6 +592,7 @@ dissect_ieee802154_nofcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     new_tvb = tvb_new_subset(tvb, 0, -1, tvb_reported_length(tvb)+IEEE802154_FCS_LEN);
     /* Call the common dissector. */
     dissect_ieee802154_common(new_tvb, pinfo, tree, 0);
+    return tvb_captured_length(tvb);
 } /* dissect_ieee802154_nofcs */
 
 /*FUNCTION:------------------------------------------------------
@@ -608,11 +611,12 @@ dissect_ieee802154_nofcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *      void
  *---------------------------------------------------------------
  */
-static void
-dissect_ieee802154_cc24xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ieee802154_cc24xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_)
 {
     /* Call the common dissector. */
     dissect_ieee802154_common(tvb, pinfo, tree, DISSECT_IEEE802154_OPTION_CC24xx);
+    return tvb_captured_length(tvb);
 } /* dissect_ieee802154_cc24xx */
 
 /*FUNCTION:------------------------------------------------------
@@ -2842,10 +2846,10 @@ void proto_register_ieee802154(void)
     ieee802154_beacon_subdissector_list = register_heur_dissector_list(IEEE802154_PROTOABBREV_WPAN_BEACON);
 
     /*  Register dissectors with Wireshark. */
-    register_dissector(IEEE802154_PROTOABBREV_WPAN, dissect_ieee802154, proto_ieee802154);
-    register_dissector("wpan_nofcs", dissect_ieee802154_nofcs, proto_ieee802154);
-    register_dissector("wpan_cc24xx", dissect_ieee802154_cc24xx, proto_ieee802154);
-    register_dissector("wpan-nonask-phy", dissect_ieee802154_nonask_phy, proto_ieee802154_nonask_phy);
+    new_register_dissector(IEEE802154_PROTOABBREV_WPAN, dissect_ieee802154, proto_ieee802154);
+    new_register_dissector("wpan_nofcs", dissect_ieee802154_nofcs, proto_ieee802154);
+    new_register_dissector("wpan_cc24xx", dissect_ieee802154_cc24xx, proto_ieee802154);
+    new_register_dissector("wpan-nonask-phy", dissect_ieee802154_nonask_phy, proto_ieee802154_nonask_phy);
 
     /* Register a Decode-As handler. */
     register_decode_as(&ieee802154_da);

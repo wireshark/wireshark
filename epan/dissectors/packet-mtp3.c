@@ -689,8 +689,8 @@ reset_mtp3_standard(void)
 }
 
 /* Code to actually dissect the packets */
-static void
-dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   mtp3_tap_rec_t* tap_rec = wmem_new0(wmem_packet_scope(), mtp3_tap_rec_t);
   gint heuristic_standard;
@@ -767,6 +767,7 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   dissect_mtp3_payload(tvb, pinfo, tree);
 
   mtp3_standard = pref_mtp3_standard;
+  return tvb_captured_length(tvb);
 }
 
 /* TAP STAT INFO */
@@ -1048,7 +1049,7 @@ proto_register_mtp3(void)
  /* Register the protocol name and description */
   proto_mtp3 = proto_register_protocol("Message Transfer Part Level 3",
                "MTP3", "mtp3");
-  mtp3_handle = register_dissector("mtp3", dissect_mtp3, proto_mtp3);
+  mtp3_handle = new_register_dissector("mtp3", dissect_mtp3, proto_mtp3);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_mtp3, hf, array_length(hf));

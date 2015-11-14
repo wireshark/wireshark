@@ -513,9 +513,6 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
   int           cvse_local_offset= 0;
   int           nvse_local_offset= 0;
 
-  /* None of this really matters if we don't have a tree */
-  if (!tree) return;
-
   /* Add our tree, if we have extensions */
   exts_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_mip_exts, NULL, "Extensions");
 
@@ -780,8 +777,8 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree, packet_info
 } /* dissect_mip_extensions */
 
 /* Code to actually dissect the packets */
-static void
-dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   /* Set up structures we will need to add the protocol subtree and manage it */
   proto_item    *ti;
@@ -1000,10 +997,10 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     break;
   } /* End switch */
 
-  if (tree) {
-    if (tvb_reported_length_remaining(tvb, offset) > 0)
-      dissect_mip_extensions(tvb, offset, mip_tree, pinfo);
-  }
+  if (tvb_reported_length_remaining(tvb, offset) > 0)
+    dissect_mip_extensions(tvb, offset, mip_tree, pinfo);
+
+  return tvb_captured_length(tvb);
 } /* dissect_mip */
 
 /* Register the protocol with Wireshark */
@@ -1465,7 +1462,7 @@ void proto_register_mip(void)
   proto_mip = proto_register_protocol("Mobile IP", "Mobile IP", "mip");
 
   /* Register the dissector by name */
-  register_dissector("mip", dissect_mip, proto_mip);
+  new_register_dissector("mip", dissect_mip, proto_mip);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_mip, hf, array_length(hf));

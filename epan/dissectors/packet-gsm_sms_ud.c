@@ -64,8 +64,6 @@
 void proto_register_gsm_sms_ud(void);
 void proto_reg_handoff_gsm_sms_ud(void);
 
-static void dissect_gsm_sms_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 static int proto_gsm_sms_ud = -1;
 
 /*
@@ -436,8 +434,8 @@ parse_gsm_sms_ud_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
     return;
 }
 
-static void
-dissect_gsm_sms_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gsm_sms_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *subtree;
@@ -445,6 +443,7 @@ dissect_gsm_sms_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti      = proto_tree_add_item(tree, proto_gsm_sms_ud, tvb, 0, -1, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_gsm_sms);
     parse_gsm_sms_ud_message(subtree, tvb, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -654,7 +653,7 @@ proto_register_gsm_sms_ud(void)
         "own. Eg. Prevent WSP dissector overwriting SMPP information.",
         &prevent_subdissectors_changing_columns);
 
-    register_dissector("gsm_sms_ud", dissect_gsm_sms_ud, proto_gsm_sms_ud);
+    new_register_dissector("gsm_sms_ud", dissect_gsm_sms_ud, proto_gsm_sms_ud);
 
     /* GSM SMS UD dissector initialization routines */
     register_init_routine(gsm_sms_ud_defragment_init);

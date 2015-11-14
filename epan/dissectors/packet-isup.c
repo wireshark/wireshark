@@ -10646,8 +10646,8 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
 }
 
 /* ------------------------------------------------------------------ */
-static void
-dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -10738,11 +10738,12 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       message_tvb = tvb_new_subset_remaining(tvb, CIC_LENGTH);
       dissect_isup_message(message_tvb, pinfo, isup_tree, itu_isup_variant, cic);
   }
+  return tvb_captured_length(tvb);
 }
 
 /* ------------------------------------------------------------------ */
-static void
-dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -10815,6 +10816,7 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   message_tvb = tvb_new_subset_remaining(tvb, BICC_CIC_LENGTH);
   dissect_isup_message(message_tvb, pinfo, bicc_tree, itu_isup_variant, bicc_cic);
   col_set_fence(pinfo->cinfo, COL_INFO);
+  return tvb_captured_length(tvb);
 }
 
 static int
@@ -12389,7 +12391,7 @@ proto_register_isup(void)
   proto_isup = proto_register_protocol("ISDN User Part",
                                        "ISUP", "isup");
 
-  register_dissector("isup", dissect_isup, proto_isup);
+  new_register_dissector("isup", dissect_isup, proto_isup);
 
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_isup, hf, array_length(hf));
@@ -12431,7 +12433,7 @@ proto_reg_handoff_isup(void)
   dissector_handle_t isup_handle;
   dissector_handle_t application_isup_handle;
 
-  isup_handle = create_dissector_handle(dissect_isup, proto_isup);
+  isup_handle = new_create_dissector_handle(dissect_isup, proto_isup);
   application_isup_handle = new_create_dissector_handle(dissect_application_isup, proto_isup);
   dissector_add_uint("mtp3.service_indicator", MTP_SI_ISUP, isup_handle);
   dissector_add_string("media_type", "application/isup", application_isup_handle);
@@ -12458,7 +12460,7 @@ proto_register_bicc(void)
   proto_bicc = proto_register_protocol("Bearer Independent Call Control",
                                        "BICC", "bicc");
 
-  bicc_handle = register_dissector("bicc", dissect_bicc, proto_bicc);
+  bicc_handle = new_register_dissector("bicc", dissect_bicc, proto_bicc);
 
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_bicc, hf, array_length(hf));

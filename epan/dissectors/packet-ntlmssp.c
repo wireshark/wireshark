@@ -2083,8 +2083,8 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
   pinfo->gssapi_decrypted_tvb =  decr_tvb;
 }
 
-static void
-dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   volatile int          offset       = 0;
   proto_tree *volatile  ntlmssp_tree = NULL;
@@ -2160,13 +2160,14 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } ENDTRY;
 
   tap_queue_packet(ntlmssp_tap, pinfo, ntlmssph);
+  return tvb_captured_length(tvb);
 }
 
 static gboolean
 dissect_ntlmssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
   if (tvb_memeql(tvb, 0, "NTLMSSP", 8) == 0) {
-    dissect_ntlmssp(tvb, pinfo, parent_tree);
+    dissect_ntlmssp(tvb, pinfo, parent_tree, data);
     return TRUE;
   }
 
@@ -2612,7 +2613,7 @@ wrap_dissect_ntlmssp(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   auth_tvb = tvb_new_subset_remaining(tvb, offset);
 
-  dissect_ntlmssp(auth_tvb, pinfo, tree);
+  dissect_ntlmssp(auth_tvb, pinfo, tree, NULL);
 
   return tvb_captured_length_remaining(tvb, offset);
 }
@@ -3274,7 +3275,7 @@ proto_register_ntlmssp(void)
                                    "NT Password (used to decrypt payloads)",
                                    &gbl_nt_password);
 
-  register_dissector("ntlmssp", dissect_ntlmssp, proto_ntlmssp);
+  new_register_dissector("ntlmssp", dissect_ntlmssp, proto_ntlmssp);
   new_register_dissector("ntlmssp_payload", dissect_ntlmssp_payload, proto_ntlmssp);
   new_register_dissector("ntlmssp_data_only", dissect_ntlmssp_payload_only, proto_ntlmssp);
   new_register_dissector("ntlmssp_verf", dissect_ntlmssp_verf, proto_ntlmssp);

@@ -386,8 +386,8 @@ static const xdlc_cf_items llc_cf_items_ext = {
 	&hf_llc_ftype_s_u_ext
 };
 
-static void
-dissect_basicxid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_basicxid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*xid_tree = NULL;
 	proto_item	*ti = NULL;
@@ -397,36 +397,32 @@ dissect_basicxid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	format = tvb_get_guint8(tvb, 0);
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_basicxid, tvb, 0, -1, ENC_NA);
-		xid_tree = proto_item_add_subtree(ti, ett_llc_basicxid);
-		proto_tree_add_uint(xid_tree, hf_llc_xid_format, tvb, 0,
-			1, format);
-	} else
-		xid_tree = NULL;
-	col_append_str(pinfo->cinfo, COL_INFO,
-		    "Basic Format");
+
+	ti = proto_tree_add_item(tree, proto_basicxid, tvb, 0, -1, ENC_NA);
+	xid_tree = proto_item_add_subtree(ti, ett_llc_basicxid);
+	proto_tree_add_uint(xid_tree, hf_llc_xid_format, tvb, 0, 1, format);
+
+	col_append_str(pinfo->cinfo, COL_INFO, "Basic Format");
 
 	types = tvb_get_guint8(tvb, 1);
-	if (tree) {
-		proto_tree_add_uint(xid_tree, hf_llc_xid_types, tvb, 1,
+	proto_tree_add_uint(xid_tree, hf_llc_xid_types, tvb, 1,
 			1, types & TYPES_MASK);
-	}
+
 	col_append_fstr(pinfo->cinfo, COL_INFO,
 		    "; %s", val_to_str(types & TYPES_MASK, type_vals, "0x%02x")
 		);
 
 	wsize = tvb_get_guint8(tvb, 2);
-	if (tree) {
-		proto_tree_add_uint(xid_tree, hf_llc_xid_wsize, tvb, 2,
+	proto_tree_add_uint(xid_tree, hf_llc_xid_wsize, tvb, 2,
 			1, (wsize & 0xFE) >> 1);
-	}
+
 	col_append_fstr(pinfo->cinfo, COL_INFO,
 		    "; Window Size %d", (wsize & 0xFE) >> 1);
+	return tvb_captured_length(tvb);
 }
 
-static void
-dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*llc_tree;
 	proto_tree	*field_tree;
@@ -511,7 +507,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 */
 				format = tvb_get_guint8(next_tvb, 0);
 				if (format == 0x81) {
-				    dissect_basicxid(next_tvb, pinfo, tree);
+				    dissect_basicxid(next_tvb, pinfo, tree, data);
 				} else {
 				/*
 				 * Try the XID LLC subdissector table
@@ -530,6 +526,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 /*
@@ -860,7 +857,7 @@ proto_register_llc(void)
 	xid_subdissector_table = register_dissector_table("llc.xid_dsap",
 	  "LLC XID SAP", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-	register_dissector("llc", dissect_llc, proto_llc);
+	new_register_dissector("llc", dissect_llc, proto_llc);
 }
 
 void
@@ -887,7 +884,7 @@ proto_register_basicxid(void)
 	proto_register_field_array(proto_basicxid, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("basicxid", dissect_basicxid, proto_basicxid);
+	new_register_dissector("basicxid", dissect_basicxid, proto_basicxid);
 }
 
 static void

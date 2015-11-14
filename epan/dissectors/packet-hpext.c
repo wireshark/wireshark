@@ -66,8 +66,8 @@ static gint ett_hpext = -1;
 
 static dissector_handle_t data_handle;
 
-static void
-dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*hpext_tree = NULL;
 	proto_item	*ti = NULL;
@@ -101,6 +101,7 @@ dissect_hpext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			call_dissector(data_handle, next_tvb, pinfo, tree);
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -131,7 +132,7 @@ proto_register_hpext(void)
 	subdissector_table = register_dissector_table("hpext.dxsap",
 	  "HPEXT XSAP", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-	hpext_handle = register_dissector("hpext", dissect_hpext, proto_hpext);
+	hpext_handle = new_register_dissector("hpext", dissect_hpext, proto_hpext);
 }
 
 void

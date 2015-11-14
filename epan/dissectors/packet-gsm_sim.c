@@ -1139,8 +1139,8 @@ static const gchar *get_sw_string(guint16 sw)
 	return val_to_str(sw, sw_vals, "%04x");
 }
 
-static void
-dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	unsigned int pos = 0;
 
@@ -1184,6 +1184,7 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		pos += len;
 	}
+	return tvb_captured_length(tvb);
 }
 
 
@@ -1348,7 +1349,7 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
 		if (isSIMtrace) {
 			subtvb = tvb_new_subset_length(tvb, offset+DATA_OFFS, (p3 == 0) ? 256 : p3);
-			dissect_bertlv(subtvb, pinfo, tree);
+			dissect_bertlv(subtvb, pinfo, tree, NULL);
 		}
 		break;
 	case 0x14: /* TERMINAL RESPONSE */
@@ -1382,7 +1383,7 @@ dissect_gsm_apdu(guint8 ins, guint8 p1, guint8 p2, guint8 p3, tvbuff_t *tvb,
 	case 0xC2: /* ENVELOPE */
 		proto_tree_add_item(tree, hf_le, tvb, offset+P3_OFFS, 1, ENC_BIG_ENDIAN);
 		subtvb = tvb_new_subset_length(tvb, offset+DATA_OFFS, p3);
-		dissect_bertlv(subtvb, pinfo, tree);
+		dissect_bertlv(subtvb, pinfo, tree, NULL);
 		break;
 	/* FIXME: Missing SLEEP */
 	case 0x04: /* INVALIDATE */
@@ -1494,25 +1495,28 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree 
 	return offset;
 }
 
-static void
-dissect_gsm_sim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gsm_sim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM SIM");
 	dissect_cmd_apdu_tvb(tvb, 0, pinfo, tree, TRUE);
+	return tvb_captured_length(tvb);
 }
 
-static void
-dissect_gsm_sim_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gsm_sim_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM SIM");
 	dissect_cmd_apdu_tvb(tvb, 0, pinfo, tree, FALSE);
+	return tvb_captured_length(tvb);
 }
 
-static void
-dissect_gsm_sim_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gsm_sim_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM SIM");
 	dissect_rsp_apdu_tvb(tvb, 0, pinfo, tree, NULL);
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -2920,10 +2924,10 @@ proto_register_gsm_sim(void)
 
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("gsm_sim", dissect_gsm_sim, proto_gsm_sim);
-	register_dissector("gsm_sim.command", dissect_gsm_sim_command, proto_gsm_sim);
-	register_dissector("gsm_sim.response", dissect_gsm_sim_response, proto_gsm_sim);
-	register_dissector("gsm_sim.bertlv", dissect_bertlv, proto_gsm_sim);
+	new_register_dissector("gsm_sim", dissect_gsm_sim, proto_gsm_sim);
+	new_register_dissector("gsm_sim.command", dissect_gsm_sim_command, proto_gsm_sim);
+	new_register_dissector("gsm_sim.response", dissect_gsm_sim_response, proto_gsm_sim);
+	new_register_dissector("gsm_sim.bertlv", dissect_bertlv, proto_gsm_sim);
 }
 
 void

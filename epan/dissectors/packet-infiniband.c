@@ -136,9 +136,7 @@ typedef enum {
 
 static void dissect_roce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_rroce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static void dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ib_packet_start_header starts_with);
-static void dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gint32 find_next_header_sequence(struct infinibandinfo* ibInfo);
 static gboolean contains(guint32 value, guint32* arr, int length);
 static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo, ib_packet_start_header starts_with);
@@ -1514,10 +1512,11 @@ dissect_roce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_infiniband_common(tvb, pinfo, tree, IB_PACKET_STARTS_WITH_GRH);
 }
 
-static void
-dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_infiniband(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_infiniband_common(tvb, pinfo, tree, IB_PACKET_STARTS_WITH_LRH);
+    return tvb_captured_length(tvb);
 }
 
 /* Common Dissector for both InfiniBand and RoCE packets
@@ -1996,8 +1995,8 @@ skip_lrh:
 
 }
 
-static void
-dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* Top Level Item */
     proto_item *infiniband_link_packet;
@@ -2043,6 +2042,7 @@ dissect_infiniband_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(link_tree, hf_infiniband_link_lpcrc, tvb, offset, 2, ENC_BIG_ENDIAN);
     }
 
+    return tvb_captured_length(tvb);
 }
 
 
@@ -7410,7 +7410,7 @@ void proto_register_infiniband(void)
     };
 
     proto_infiniband = proto_register_protocol("InfiniBand", "IB", "infiniband");
-    ib_handle = register_dissector("infiniband", dissect_infiniband, proto_infiniband);
+    ib_handle = new_register_dissector("infiniband", dissect_infiniband, proto_infiniband);
 
     proto_register_field_array(proto_infiniband, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -7437,7 +7437,7 @@ void proto_register_infiniband(void)
                                     10, &pref_rroce_udp_port);
 
     proto_infiniband_link = proto_register_protocol("InfiniBand Link", "InfiniBand Link", "infiniband_link");
-    ib_link_handle = register_dissector("infiniband_link", dissect_infiniband_link, proto_infiniband_link);
+    ib_link_handle = new_register_dissector("infiniband_link", dissect_infiniband_link, proto_infiniband_link);
 
     proto_register_field_array(proto_infiniband_link, hf_link, array_length(hf_link));
     proto_register_subtree_array(ett_link_array, array_length(ett_link_array));

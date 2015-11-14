@@ -122,8 +122,8 @@ static dissector_handle_t ip_handle;
 static dissector_handle_t ip6_handle;
 static dissector_handle_t data_handle;
 
-static void
-dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     const int start_tlv_offset = 4;
 
@@ -166,7 +166,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* malformed */
         if (tlv_len < 4)
-            return;
+            return offset;
 
         value_len = tlv_len - 4;
         tlv_type = (tvb_get_h_guint16(tvb, offset + 2) & 0x7fff);
@@ -250,6 +250,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -284,7 +285,7 @@ proto_register_nflog(void)
     proto_nflog = proto_register_protocol("Linux Netfilter NFLOG", "NFLOG", "nflog");
     hfi_nflog = proto_registrar_get_nth(proto_nflog);
 
-    register_dissector("nflog", dissect_nflog, proto_nflog);
+    new_register_dissector("nflog", dissect_nflog, proto_nflog);
 
     proto_register_fields(proto_nflog, hfi, array_length(hfi));
     proto_register_subtree_array(ett, array_length(ett));

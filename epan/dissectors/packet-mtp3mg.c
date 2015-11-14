@@ -966,8 +966,8 @@ dissect_mtp3mg_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
-static void
-dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
     guint8 h0, h1;
@@ -1162,6 +1162,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         } /* switch */
     } /* else */
 
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -1398,7 +1399,7 @@ proto_register_mtp3mg(void)
     /* Register the protocol name and description */
     proto_mtp3mg = proto_register_protocol("Message Transfer Part Level 3 Management",
                                            "MTP3MG", "mtp3mg");
-    register_dissector("mtp3mg", dissect_mtp3mg, proto_mtp3mg);
+    new_register_dissector("mtp3mg", dissect_mtp3mg, proto_mtp3mg);
 
     /* Required calls to register the header fields and subtrees used */
     proto_register_field_array(proto_mtp3mg, hf, array_length(hf));

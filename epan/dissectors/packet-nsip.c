@@ -919,8 +919,8 @@ decode_pdu(guint8 pdu_type, build_info_t *bi) {
   }
 }
 
-static void
-dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   guint8 pdu_type;
   build_info_t bi = { NULL, 0, NULL, NULL, NULL, NULL };
   proto_tree *nsip_tree;
@@ -957,6 +957,7 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 val_to_str_const(pdu_type, tab_nsip_pdu_types, "Unknown PDU type"));
   }
   decode_pdu(pdu_type, &bi);
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -1149,7 +1150,7 @@ proto_register_nsip(void)
   proto_register_field_array(proto_nsip, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector("gprs_ns", dissect_nsip, proto_nsip);
+  new_register_dissector("gprs_ns", dissect_nsip, proto_nsip);
 
   /* Set default UDP ports */
   range_convert_str(&global_nsip_udp_port_range, DEFAULT_NSIP_PORT_RANGE, MAX_UDP_PORT);

@@ -361,17 +361,19 @@ dissect_mtp2_with_phdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* Dissect MTP2 frame with CRC16 included at end of payload */
-static void
-dissect_mtp2_with_crc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mtp2_with_crc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   dissect_mtp2_common(tvb, pinfo, tree, TRUE, use_extended_sequence_numbers_default);
+  return tvb_captured_length(tvb);
 }
 
 /* Dissect MTP2 frame without CRC16 included at end of payload */
-static void
-dissect_mtp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mtp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   dissect_mtp2_common(tvb, pinfo, tree, FALSE, use_extended_sequence_numbers_default);
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -409,8 +411,8 @@ proto_register_mtp2(void)
   expert_module_t* expert_mtp2;
 
   proto_mtp2 = proto_register_protocol("Message Transfer Part Level 2", "MTP2", "mtp2");
-  mtp2_handle = register_dissector("mtp2", dissect_mtp2, proto_mtp2);
-  register_dissector("mtp2_with_crc", dissect_mtp2_with_crc, proto_mtp2);
+  mtp2_handle = new_register_dissector("mtp2", dissect_mtp2, proto_mtp2);
+  new_register_dissector("mtp2_with_crc", dissect_mtp2_with_crc, proto_mtp2);
 
   proto_register_field_array(proto_mtp2, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

@@ -1786,8 +1786,8 @@ gmr1_get_msg_rr_params(guint8 oct, int dcch, const gchar **msg_str,
 /* Dissector code                                                           */
 /* ------------------------------------------------------------------------ */
 
-static void
-dissect_gmr1_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gmr1_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint32 len, offset;
 	gmr1_msg_func_t msg_func;
@@ -1895,12 +1895,10 @@ dissect_gmr1_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(ccch_tree, hf_rr_message_elements, tvb, offset, len - offset, ENC_NA);
 	}
 
-	/* Done ! */
-	return;
-
 	/* Error handling */
 err:
 	call_dissector(data_handle, tvb, pinfo, tree);
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -2458,7 +2456,7 @@ proto_register_gmr1_rr(void)
 	proto_gmr1_ccch = proto_register_protocol("GEO-Mobile Radio (1) CCCH", "GMR-1 CCCH", "gmr1.ccch");
 
 	/* Register dissector */
-	register_dissector("gmr1_ccch", dissect_gmr1_ccch, proto_gmr1_ccch);
+	new_register_dissector("gmr1_ccch", dissect_gmr1_ccch, proto_gmr1_ccch);
 }
 
 void

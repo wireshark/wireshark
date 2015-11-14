@@ -1120,8 +1120,8 @@ static void dissect_payload(tvbuff_t *tvb, guint32 offset,
 
 
 
-static void
-dissect_iax2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_iax2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item  *iax2_item;
   proto_tree  *iax2_tree;
@@ -1210,6 +1210,7 @@ dissect_iax2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      not the audio data. */
   proto_item_set_len(iax2_item, len);
   tap_queue_packet(iax2_tap, pinfo, iax2_info);
+  return tvb_captured_length(tvb);
 }
 
 static proto_item *dissect_datetime_ie(tvbuff_t *tvb, guint32 offset, proto_tree *ies_tree)
@@ -3198,7 +3199,7 @@ proto_register_iax2(void)
   expert_iax = expert_register_protocol(proto_iax2);
   expert_register_field_array(expert_iax, ei, array_length(ei));
 
-  register_dissector("iax2", dissect_iax2, proto_iax2);
+  new_register_dissector("iax2", dissect_iax2, proto_iax2);
 
   iax2_codec_dissector_table = register_dissector_table(
     "iax2.codec", "IAX codec number", FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);

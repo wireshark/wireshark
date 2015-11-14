@@ -1199,8 +1199,8 @@ dissect_tsp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 
-static void
-dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+static int
+dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
 {
     guint         offset = 0;
     conversation_t    *conv;
@@ -1210,7 +1210,7 @@ dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     for (; tvb_reported_length_remaining(tvb, offset) >= MP2T_PACKET_SIZE; offset += MP2T_PACKET_SIZE) {
        dissect_tsp(tvb, offset, pinfo, tree, conv);
     }
-
+    return tvb_captured_length(tvb);
 }
 
 static gboolean
@@ -1237,7 +1237,7 @@ heur_dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         }
     }
 
-    dissect_mp2t(tvb, pinfo, tree);
+    dissect_mp2t(tvb, pinfo, tree, data);
     return TRUE;
 }
 
@@ -1524,7 +1524,7 @@ proto_register_mp2t(void)
 
     proto_mp2t = proto_register_protocol("ISO/IEC 13818-1", "MP2T", "mp2t");
 
-    mp2t_handle = register_dissector("mp2t", dissect_mp2t, proto_mp2t);
+    mp2t_handle = new_register_dissector("mp2t", dissect_mp2t, proto_mp2t);
 
     proto_register_field_array(proto_mp2t, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

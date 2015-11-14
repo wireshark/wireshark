@@ -342,8 +342,8 @@ dissect_negoex_nego_message(tvbuff_t *tvb,
 
 }
 
-static void
-dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   volatile guint32 offset;
   proto_tree * volatile negoex_tree;
@@ -501,6 +501,7 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } ENDTRY;
   }
 
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -617,7 +618,7 @@ proto_register_negoex(void)
 
   /* negoex_module = prefs_register_protocol(proto_negoex, NULL);*/
 
-  register_dissector("negoex", dissect_negoex, proto_negoex);
+  new_register_dissector("negoex", dissect_negoex, proto_negoex);
 }
 
 void

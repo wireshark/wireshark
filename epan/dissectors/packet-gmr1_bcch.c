@@ -1060,8 +1060,8 @@ static const value_string si1_randomization_period_vals[] = {
 /* Dissector code                                                           */
 /* ------------------------------------------------------------------------ */
 
-static void
-dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissector_data _U_)
 {
 	proto_item  *bcch_item = NULL;
 	proto_tree  *bcch_tree = NULL;
@@ -1108,6 +1108,8 @@ dissect_gmr1_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			SI2_SegmentChoice[data->SegmentType].descr.sz
 		);
 	}
+
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -1647,7 +1649,7 @@ proto_register_gmr1_bcch(void)
 	expert_gmr1_bcch = expert_register_protocol(proto_gmr1_bcch);
 	expert_register_field_array(expert_gmr1_bcch, ei, array_length(ei));
 
-	register_dissector("gmr1_bcch", dissect_gmr1_bcch, proto_gmr1_bcch);
+	new_register_dissector("gmr1_bcch", dissect_gmr1_bcch, proto_gmr1_bcch);
 }
 
 /*

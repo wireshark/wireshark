@@ -224,8 +224,8 @@ dissect_hpsw_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
     }
 }
 
-static void
-dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *hp_tree;
     proto_tree *tlv_tree;
@@ -273,6 +273,7 @@ dissect_hpsw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += length;
 
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -358,7 +359,7 @@ proto_register_hpsw(void)
     expert_hpsw = expert_register_protocol(proto_hpsw);
     expert_register_field_array(expert_hpsw, ei, array_length(ei));
 
-    register_dissector("hpsw", dissect_hpsw, proto_hpsw);
+    new_register_dissector("hpsw", dissect_hpsw, proto_hpsw);
 }
 
 void
