@@ -35,6 +35,7 @@ my $wtap_filetypes_table = '';
 my $wtap_tsprecs_table = '';
 my $wtap_commenttypes_table = '';
 my $ft_types_table = '';
+my $frametypes_table = '';
 my $wtap_rec_types_table = '';
 my $wtap_presence_flags_table = '';
 my $bases_table = '';
@@ -51,6 +52,7 @@ my %replacements = %{{
     WTAP_TSPRECS => \$wtap_tsprecs_table,
     WTAP_COMMENTTYPES => \$wtap_commenttypes_table,
     FT_TYPES => \$ft_types_table,
+    FT_FRAME_TYPES => \$frametypes_table,
     WTAP_REC_TYPES => \$wtap_rec_types_table,
     WTAP_PRESENCE_FLAGS => \$wtap_presence_flags_table,
     BASES => \$bases_table,
@@ -135,12 +137,17 @@ $wtap_presence_flags_table =~ s/\n$/\n}\n/msi;
 #
 
 $ft_types_table = " -- Field Types\nftypes = {\n";
+$frametypes_table = " -- Field Type FRAMENUM Types\nframetype = {\n";
 
 my $ftype_num = 0;
+my $frametypes_num = 0;
 
 open FTYPES_H, "< $WSROOT/epan/ftypes/ftypes.h" or die "cannot open '$WSROOT/epan/ftypes/ftypes.h':  $!";
 while(<FTYPES_H>) {
-    if ( /^\s+FT_([A-Z0-9a-z_]+)\s*,/ ) {
+    if ( /^\s+FT_FRAMENUM_([A-Z0-9a-z_]+)\s*,/ ) {
+        $frametypes_table .= "\t[\"$1\"] = $frametypes_num,\n";
+        $frametypes_num++;
+    } elsif ( /^\s+FT_([A-Z0-9a-z_]+)\s*,/ ) {
         $ft_types_table .= "\t[\"$1\"] = $ftype_num,\n";
         $ftype_num++;
     }
@@ -148,6 +155,7 @@ while(<FTYPES_H>) {
 close FTYPES_H;
 
 $ft_types_table =~ s/,\n$/\n}\n/msi;
+$frametypes_table =~ s/,\n$/\n}\n/msi;
 
 #
 # Extract values from epan/proto.h:

@@ -5798,6 +5798,9 @@ free_deregistered_field (gpointer data, gpointer user_data _U_)
 
     if (hfi->strings) {
         switch (hfi->type) {
+            case FT_FRAMENUM:
+                /* This is just an integer represented as a pointer */
+                break;
             case FT_PROTOCOL: {
                 protocol_t *protocol = (protocol_t *)hfi->strings;
                 g_free((gchar *)protocol->short_name);
@@ -5828,7 +5831,9 @@ free_deregistered_field (gpointer data, gpointer user_data _U_)
                 break;
             }
         }
-        g_free((void *)hfi->strings);
+        if (hfi->type != FT_FRAMENUM) {
+            g_free((void *)hfi->strings);
+        }
     }
 
     if (hfi->parent == -1)

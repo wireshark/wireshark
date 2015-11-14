@@ -315,7 +315,8 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
         `ftypes.SYSTEM_ID`, `ftypes.EUI64` or `ftypes.NONE`.
     */
 #define WSLUA_OPTARG_ProtoField_new_VALUESTRING 4 /* A table containing the text that
-                                                     corresponds to the values. */
+        corresponds to the values, or one of `frametype.NONE`, `frametype.REQUEST`, `frametype.RESPONSE`,
+        `frametype.ACK` or `frametype.DUP_ACK` if field type is ftypes.FRAMENUM. */
 #define WSLUA_OPTARG_ProtoField_new_BASE 5 /* The representation, one of: `base.NONE`, `base.DEC`,
                                               `base.HEX`, `base.OCT`, `base.DEC_HEX`, or
                                               `base.HEX_DEC`. */
@@ -327,6 +328,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_ProtoField_new_NAME);
     const gchar* abbr = NULL;
     enum ftenum type;
+    enum ft_framenum_type framenum_type = FT_FRAMENUM_NONE;
     value_string *vs32 = NULL;
     val64_string *vs64 = NULL;
     true_false_string *tfs = NULL;
@@ -357,6 +359,13 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
         if (mask) {
             WSLUA_OPTARG_ERROR(ProtoField_new,MASK,"FRAMENUM can not have a bitmask");
             return 0;
+        }
+        if (nargs >= WSLUA_OPTARG_ProtoField_new_VALUESTRING && !lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING)) {
+            framenum_type = (enum ft_framenum_type) luaL_checkinteger(L, 4);
+            if (framenum_type >= FT_FRAMENUM_NUM_TYPES) {
+                WSLUA_OPTARG_ERROR(ProtoField_new,VALUESTRING,"Invalid frametype");
+                return 0;
+            }
         }
         break;
     case FT_UINT8:
@@ -477,6 +486,8 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
         /* Indicate that we are using val64_string */
         f->base |= BASE_VAL64_STRING;
         f->vs = VALS(vs64);
+    } else if (framenum_type) {
+        f->vs = FRAMENUM_TYPE(framenum_type);
     } else {
         f->vs = NULL;
     }
@@ -498,13 +509,20 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     const gchar* name = luaL_optstring(L,2,abbr);
     unsigned default_base = (type == FT_FRAMENUM) ? BASE_NONE : BASE_DEC;
     unsigned base = (unsigned)luaL_optinteger(L, 3, default_base);
+    enum ft_framenum_type framenum_type = FT_FRAMENUM_NONE;
     value_string* vs32 = NULL;
     val64_string* vs64 = NULL;
     guint32 mask = wslua_optguint32(L,5,0);
     const gchar* blob = luaL_optstring(L,6,NULL);
 
     if (lua_gettop(L) > 3) {
-        if (type == FT_UINT64 || type == FT_INT64) {
+        if (type == FT_FRAMENUM) {
+            framenum_type = (enum ft_framenum_type) luaL_checkinteger(L, 4);
+            if (framenum_type >= FT_FRAMENUM_NUM_TYPES) {
+                luaL_argerror(L, 4, "Invalid frametype");
+                return 0;
+            }
+        } else if (type == FT_UINT64 || type == FT_INT64) {
             vs64 = val64_string_from_table(L,4);
         } else {
             vs32 = value_string_from_table(L,4);
@@ -538,8 +556,12 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
         /* Indicate that we are using val64_string */
         f->base |= BASE_VAL64_STRING;
         f->vs = VALS(vs64);
-    } else {
+    } else if (vs32) {
         f->vs = VALS(vs32);
+    } else if (framenum_type) {
+        f->vs = FRAMENUM_TYPE(framenum_type);
+    } else {
+        f->vs = NULL;
     }
     f->mask = mask;
     if (blob && strcmp(blob, f->name) != 0) {
@@ -648,7 +670,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 /* WSLUA_ARG_Protofield_framenum_ABBR Abbreviated name of the field (the string used in filters). */
 /* WSLUA_OPTARG_Protofield_framenum_NAME Actual name of the field (the string that appears in the tree). */
 /* WSLUA_OPTARG_Protofield_framenum_BASE Only `base.NONE` is supported for framenum. */
-/* WSLUA_OPTARG_Protofield_framenum_VALUESTRING A table containing the text that corresponds to the values. */
+/* WSLUA_OPTARG_Protofield_framenum_FRAMETYPE One of `frametype.NONE`, `frametype.REQUEST`, `frametype.RESPONSE`, `frametype.ACK` or `frametype.DUP_ACK`. */
 /* WSLUA_OPTARG_Protofield_framenum_MASK Integer mask of this field, which must be 0 for framenum. */
 /* WSLUA_OPTARG_Protofield_framenum_DESC Description of the field. */
 /* _WSLUA_RETURNS_ A `ProtoField` object to be added to a table set to the `Proto.fields` attribute. */
