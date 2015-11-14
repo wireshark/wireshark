@@ -133,6 +133,8 @@ static int hf_analysis_retrans_time = -1;
 static int hf_analysis_total_retrans_time = -1;
 static int hf_analysis_last_pdu_num = -1;
 static int hf_analysis_addr_pdu_num = -1;
+static int hf_analysis_acks_addr_pdu_num = -1;
+static int hf_analysis_acks_acked_addr_pdu_num = -1;
 static int hf_analysis_addr_pdu_time = -1;
 static int hf_analysis_prev_pdu_num = -1;
 static int hf_analysis_prev_pdu_time = -1;
@@ -558,7 +560,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
     if (dst == NULL) {
       /* Ack-Ack */
       if (pkg_data->addr_id) {
-        en = proto_tree_add_uint (analysis_tree, hf_analysis_addr_pdu_num, tvb,
+        en = proto_tree_add_uint (analysis_tree, hf_analysis_acks_acked_addr_pdu_num, tvb,
                                   0, 0, pkg_data->addr_id);
         PROTO_ITEM_SET_GENERATED (en);
 
@@ -615,7 +617,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
 
     /* Add reference to Address_PDU */
     if (pkg_data->msg_type != Ack_PDU) {
-      en = proto_tree_add_uint (analysis_tree, hf_analysis_addr_pdu_num, tvb,
+      en = proto_tree_add_uint (analysis_tree, hf_analysis_acks_addr_pdu_num, tvb,
                                 0, 0, pkg_data->pdu_id);
       PROTO_ITEM_SET_GENERATED (en);
 
@@ -1512,12 +1514,18 @@ void proto_register_p_mul (void)
     { &hf_analysis_addr_pdu_num,
       { "Address PDU in", "p_mul.analysis.addr_pdu_in", FT_FRAMENUM, BASE_NONE,
         NULL, 0x0, "The Address PDU is found in this frame", HFILL } },
+    { &hf_analysis_acks_addr_pdu_num,
+      { "This is an Ack to the Address PDU in", "p_mul.analysis.acks_addr_pdu_in", FT_FRAMENUM, BASE_NONE,
+        FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0, "The Address PDU is found in this frame", HFILL } },
+    { &hf_analysis_acks_acked_addr_pdu_num,
+      { "This is an Ack-Ack to the Address PDU in", "p_mul.analysis.acks_acked_addr_pdu_in", FT_FRAMENUM, BASE_NONE,
+        FRAMENUM_TYPE(FT_FRAMENUM_DUP_ACK), 0x0, "The Address PDU is found in this frame", HFILL } },
     { &hf_analysis_prev_pdu_num,
       { "Previous PDU in", "p_mul.analysis.prev_pdu_in", FT_FRAMENUM, BASE_NONE,
         NULL, 0x0, "The previous PDU is found in this frame", HFILL } },
     { &hf_analysis_ack_num,
       { "Ack PDU in", "p_mul.analysis.ack_in", FT_FRAMENUM, BASE_NONE,
-        FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0, "This packet has an Ack in this frame", HFILL } },
+        NULL, 0x0, "This packet has an Ack in this frame", HFILL } },
     { &hf_analysis_ack_missing,
       { "Ack PDU missing", "p_mul.analysis.ack_missing", FT_NONE, BASE_NONE,
         NULL, 0x0, "The acknowledgement for this packet is missing", HFILL } },
