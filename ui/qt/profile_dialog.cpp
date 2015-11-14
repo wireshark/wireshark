@@ -220,11 +220,12 @@ void ProfileDialog::on_deleteToolButton_clicked()
         if (profile->is_global || profile->status == PROF_STAT_DEFAULT) {
             return;
         }
-        remove_from_profile_list(fl_entry);
         delete item;
 
         // Select the default
         pd_ui_->profileTreeWidget->setCurrentItem(pd_ui_->profileTreeWidget->topLevelItem(0));
+
+        remove_from_profile_list(fl_entry);
     }
 }
 
