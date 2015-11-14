@@ -47,18 +47,6 @@
 #endif /* HAVE_LIBGCRYPT */
 
 
-/* version state tables */
-#define SSL_VER_UNKNOWN                   0
-#define SSL_VER_SSLv2                     1
-#define SSL_VER_SSLv3                     2
-#define SSL_VER_TLS                       3
-#define SSL_VER_TLSv1DOT1                 4
-#define SSL_VER_DTLS                      5
-#define SSL_VER_DTLS1DOT2                 8
-#define SSL_VER_DTLS_OPENSSL              9
-#define SSL_VER_PCT                       6
-#define SSL_VER_TLSv1DOT2                 7
-
 /* other defines */
 typedef enum {
     SSL_ID_CHG_CIPHER_SPEC         = 0x14,
@@ -219,13 +207,18 @@ typedef struct _StringInfo {
 
 #define SSL_WRITE_KEY           1
 
+#define SSL_VER_UNKNOWN         0
+#define PCT_VERSION             0x8001 /* PCT_VERSION_1 from http://graphcomp.com/info/specs/ms/pct.htm */
+#define SSLV2_VERSION           0x0002 /* not in record layer, SSL_CLIENT_SERVER from
+                                          http://www-archive.mozilla.org/projects/security/pki/nss/ssl/draft02.html */
 #define SSLV3_VERSION          0x300
 #define TLSV1_VERSION          0x301
 #define TLSV1DOT1_VERSION      0x302
 #define TLSV1DOT2_VERSION      0x303
 #define DTLSV1DOT0_VERSION     0xfeff
-#define DTLSV1DOT0_VERSION_NOT 0x100
+#define DTLSV1DOT0_OPENSSL_VERSION 0x100
 #define DTLSV1DOT2_VERSION     0xfefd
+
 
 #define SSL_CLIENT_RANDOM       (1<<0)
 #define SSL_SERVER_RANDOM       (1<<1)
@@ -356,7 +349,7 @@ typedef struct {
 typedef struct _SslSession {
     gint cipher;
     gint compression;
-    guint32 version;
+    guint16 version;
     gint8 client_cert_type;
     gint8 server_cert_type;
 
@@ -404,7 +397,6 @@ typedef struct _SslDecryptSession {
     gcry_sexp_t private_key;
 #endif
     StringInfo psk;
-    guint16 version_netorder;
     StringInfo app_data_segment;
     SslSession session;
 

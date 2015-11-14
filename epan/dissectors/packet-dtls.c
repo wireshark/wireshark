@@ -326,7 +326,6 @@ static int dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
  * Support Functions
  *
  */
-/*static void ssl_set_conv_version(packet_info *pinfo, guint version);*/
 
 static gint  dtls_is_authoritative_version_message(guint8 content_type,
                                                    guint8 next_byte);
@@ -415,13 +414,9 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        * known to be associated with the conversation
        */
       switch(session->version) {
-      case SSL_VER_DTLS:
-      case SSL_VER_DTLS_OPENSSL:
-        offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
-                                     offset, session, is_from_server,
-                                     ssl_session);
-        break;
-      case SSL_VER_DTLS1DOT2:
+      case DTLSV1DOT0_VERSION:
+      case DTLSV1DOT0_OPENSSL_VERSION:
+      case DTLSV1DOT2_VERSION:
         offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
                                      offset, session, is_from_server,
                                      ssl_session);
@@ -758,44 +753,19 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   next_byte = tvb_get_guint8(tvb, offset);
   if (session->version == SSL_VER_UNKNOWN
       && dtls_is_authoritative_version_message(content_type, next_byte))
+  {
+    if (version == DTLSV1DOT0_VERSION ||
+        version == DTLSV1DOT0_OPENSSL_VERSION ||
+        version == DTLSV1DOT2_VERSION)
     {
-      if (version == DTLSV1DOT0_VERSION ||
-          version == DTLSV1DOT0_VERSION_NOT ||
-          version == DTLSV1DOT2_VERSION)
-        {
-          if (version == DTLSV1DOT0_VERSION)
-              session->version = SSL_VER_DTLS;
-          if (version == DTLSV1DOT0_VERSION_NOT)
-              session->version = SSL_VER_DTLS_OPENSSL;
-          if (version == DTLSV1DOT2_VERSION)
-              session->version = SSL_VER_DTLS1DOT2;
-
-          if (ssl) {
-            ssl->version_netorder = version;
-            ssl->state |= SSL_VERSION;
-          }
-          /*ssl_set_conv_version(pinfo, ssl->version);*/
-        }
+      session->version = version;
+      if (ssl) {
+        ssl->state |= SSL_VERSION;
+      }
     }
-  if (version == DTLSV1DOT0_VERSION)
-  {
-     col_set_str(pinfo->cinfo, COL_PROTOCOL,
-           val_to_str_const(SSL_VER_DTLS, ssl_version_short_names, "SSL"));
   }
-  else if (version == DTLSV1DOT0_VERSION_NOT)
-  {
-     col_set_str(pinfo->cinfo, COL_PROTOCOL,
-           val_to_str_const(SSL_VER_DTLS_OPENSSL, ssl_version_short_names, "SSL"));
-  }
-  else if (version == DTLSV1DOT2_VERSION)
-  {
-     col_set_str(pinfo->cinfo, COL_PROTOCOL,
-           val_to_str_const(SSL_VER_DTLS1DOT2, ssl_version_short_names, "SSL"));
-  }
-  else
-  {
-     col_set_str(pinfo->cinfo, COL_PROTOCOL,"DTLS");
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL,
+      val_to_str_const(version, ssl_version_short_names, "DTLS"));
 
   /*
    * now dissect the next layer
@@ -1518,30 +1488,6 @@ dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
  * Support Functions
  *
  *********************************************************************/
-#if 0
-static void
-ssl_set_conv_version(packet_info *pinfo, guint version)
-{
-  conversation_t *conversation;
-
-  if (pinfo->fd->flags.visited)
-    {
-      /* We've already processed this frame; no need to do any more
-       * work on it.
-       */
-      return;
-    }
-
-  conversation = find_or_create_conversation(pinfo);
-
-  if (conversation_get_proto_data(conversation, proto_dtls) != NULL)
-    {
-      /* get rid of the current data */
-      conversation_delete_proto_data(conversation, proto_dtls);
-    }
-  conversation_add_proto_data(conversation, proto_dtls, GINT_TO_POINTER(version));
-}
-#endif
 
 static gint
 dtls_is_authoritative_version_message(guint8 content_type, guint8 next_byte)
@@ -1582,7 +1528,7 @@ looks_like_dtls(tvbuff_t *tvb, guint32 offset)
   /* now check to see if the version byte appears valid */
   version = tvb_get_ntohs(tvb, offset + 1);
   if (version != DTLSV1DOT0_VERSION && version != DTLSV1DOT2_VERSION &&
-      version != DTLSV1DOT0_VERSION_NOT)
+      version != DTLSV1DOT0_OPENSSL_VERSION)
     {
       return 0;
     }

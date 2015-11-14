@@ -547,7 +547,6 @@ static void dissect_pct_msg_error(tvbuff_t *tvb,
  * Support Functions
  *
  */
-/*static void ssl_set_conv_version(packet_info *pinfo, guint version);*/
 static gint  ssl_is_valid_ssl_version(const guint16 version);
 static gint  ssl_is_authoritative_version_message(const guint8 content_type,
                                                   const guint8 next_byte);
@@ -681,8 +680,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
          * known to be associated with the conversation
          */
         switch (session->version) {
-        case SSL_VER_SSLv2:
-        case SSL_VER_PCT:
+        case SSLV2_VERSION:
+        case PCT_VERSION:
             offset = dissect_ssl2_record(tvb, pinfo, ssl_tree,
                                          offset, session,
                                          &need_desegmentation,
@@ -690,10 +689,10 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                          first_record_in_frame);
             break;
 
-        case SSL_VER_SSLv3:
-        case SSL_VER_TLS:
-        case SSL_VER_TLSv1DOT1:
-        case SSL_VER_TLSv1DOT2:
+        case SSLV3_VERSION:
+        case TLSV1_VERSION:
+        case TLSV1DOT1_VERSION:
+        case TLSV1DOT2_VERSION:
             /* SSLv3/TLS record headers need at least 1+2+2 = 5 bytes. */
             if (tvb_reported_length_remaining(tvb, offset) < 5) {
                 if (ssl_desegment && pinfo->can_desegment) {
@@ -1413,7 +1412,9 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     available_bytes = tvb_reported_length_remaining(tvb, offset);
 
     /* TLS 1.0/1.1 just ignores unknown records - RFC 2246 chapter 6. The TLS Record Protocol */
-    if ((session->version==SSL_VER_TLS || session->version==SSL_VER_TLSv1DOT1 || session->version==SSL_VER_TLSv1DOT2) &&
+    if ((session->version==TLSV1_VERSION ||
+         session->version==TLSV1DOT1_VERSION ||
+         session->version==TLSV1DOT2_VERSION) &&
         (available_bytes >=1 ) && !ssl_is_valid_content_type(tvb_get_guint8(tvb, offset))) {
         proto_tree_add_expert(tree, pinfo, &ei_ssl_ignored_unknown_record, tvb, offset, available_bytes);
         /* on second and subsequent records per frame
@@ -1543,48 +1544,16 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     if (session->version == SSL_VER_UNKNOWN
         && ssl_is_authoritative_version_message(content_type, next_byte))
     {
-        if (version == SSLV3_VERSION)
-        {
-            session->version = SSL_VER_SSLv3;
+        switch (version) {
+        case SSLV3_VERSION:
+        case TLSV1_VERSION:
+        case TLSV1DOT1_VERSION:
+        case TLSV1DOT2_VERSION:
+            session->version = version;
             if (ssl) {
-                ssl->version_netorder = version;
                 ssl->state |= SSL_VERSION;
-                ssl_debug_printf("dissect_ssl3_record found version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
+                ssl_debug_printf("dissect_ssl3_record found version 0x%04X -> state 0x%02X\n", version, ssl->state);
             }
-            /*ssl_set_conv_version(pinfo, ssl->session.version);*/
-        }
-        else if (version == TLSV1_VERSION)
-        {
-
-            session->version = SSL_VER_TLS;
-            if (ssl) {
-                ssl->version_netorder = version;
-                ssl->state |= SSL_VERSION;
-                ssl_debug_printf("dissect_ssl3_record found version 0x%04X(TLS 1.0) -> state 0x%02X\n", ssl->version_netorder, ssl->state);
-            }
-            /*ssl_set_conv_version(pinfo, ssl->session.version);*/
-        }
-        else if (version == TLSV1DOT1_VERSION)
-        {
-
-            session->version = SSL_VER_TLSv1DOT1;
-            if (ssl) {
-                ssl->version_netorder = version;
-                ssl->state |= SSL_VERSION;
-                ssl_debug_printf("dissect_ssl3_record found version 0x%04X(TLS 1.1) -> state 0x%02X\n", ssl->version_netorder, ssl->state);
-            }
-            /*ssl_set_conv_version(pinfo, ssl->session.version);*/
-        }
-        else if (version == TLSV1DOT2_VERSION)
-        {
-
-            session->version = SSL_VER_TLSv1DOT2;
-            if (ssl) {
-                ssl->version_netorder = version;
-                ssl->state |= SSL_VERSION;
-                ssl_debug_printf("dissect_ssl3_record found version 0x%04X(TLS 1.2) -> state 0x%02X\n", ssl->version_netorder, ssl->state);
-            }
-            /*ssl_set_conv_version(pinfo, ssl->session.version);*/
         }
     }
 
@@ -2358,13 +2327,11 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                (initial_offset +
                                                 record_length_length),
                                                record_length)) {
-            session->version = SSL_VER_PCT;
-            /*ssl_set_conv_version(pinfo, ssl->session.version);*/
+            session->version = PCT_VERSION;
         }
         else if (msg_type >= 2 && msg_type <= 8)
         {
-            session->version = SSL_VER_SSLv2;
-            /*ssl_set_conv_version(pinfo, ssl->session.version);*/
+            session->version = SSLV2_VERSION;
         }
     }
 
@@ -2373,20 +2340,20 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * (e.g., on a client hello)
      */
     col_set_str(pinfo->cinfo, COL_PROTOCOL,
-                    (session->version == SSL_VER_PCT) ? "PCT" : "SSLv2");
+                    (session->version == PCT_VERSION) ? "PCT" : "SSLv2");
 
     /* see if the msg_type is valid; if not the payload is
      * probably encrypted, so note that fact and bail
      */
     msg_type_str = try_val_to_str(msg_type,
-                                (session->version == SSL_VER_PCT)
+                                (session->version == PCT_VERSION)
                                 ? pct_msg_types : ssl_20_msg_types);
     if (!msg_type_str
-        || ((session->version != SSL_VER_PCT) &&
+        || ((session->version != PCT_VERSION) &&
             !ssl_looks_like_valid_v2_handshake(tvb, initial_offset
                                + record_length_length,
                                record_length))
-        || ((session->version == SSL_VER_PCT) &&
+        || ((session->version == PCT_VERSION) &&
             !ssl_looks_like_valid_pct_handshake(tvb, initial_offset
                                + record_length_length,
                                record_length)))
@@ -2394,7 +2361,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (ssl_record_tree)
         {
             proto_item_set_text(ssl_record_tree, "%s Record Layer: %s",
-                                (session->version == SSL_VER_PCT)
+                                (session->version == PCT_VERSION)
                                 ? "PCT" : "SSLv2",
                                 "Encrypted Data");
 
@@ -2419,7 +2386,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (ssl_record_tree)
         {
             proto_item_set_text(ssl_record_tree, "%s Record Layer: %s",
-                                (session->version == SSL_VER_PCT)
+                                (session->version == PCT_VERSION)
                                 ? "PCT" : "SSLv2",
                                 msg_type_str);
         }
@@ -2472,13 +2439,13 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (ssl_record_tree)
     {
         proto_tree_add_item(ssl_record_tree,
-                            (session->version == SSL_VER_PCT)
+                            (session->version == PCT_VERSION)
                             ? hf_pct_msg_type : hf_ssl2_msg_type,
                             tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset += 1;                   /* move past msg_type byte */
 
-    if (session->version != SSL_VER_PCT)
+    if (session->version != PCT_VERSION)
     {
         /* dissect the message (only handle client hello right now) */
         switch (msg_type) {
@@ -3213,32 +3180,18 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
     /* version */
     if ((ssl->session.version==SSL_VER_UNKNOWN) && (version!=SSL_VER_UNKNOWN)) {
         switch (version) {
-        case SSL_VER_SSLv3:
-            ssl->session.version = SSL_VER_SSLv3;
-            ssl->version_netorder = SSLV3_VERSION;
+        case SSLV3_VERSION:
+        case TLSV1_VERSION:
+        case TLSV1DOT1_VERSION:
+        case TLSV1DOT2_VERSION:
+            ssl->session.version = version;
             ssl->state |= SSL_VERSION;
-            ssl_debug_printf("ssl_set_master_secret set version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
+            ssl_debug_printf("%s set version 0x%04X -> state 0x%02X\n", G_STRFUNC, ssl->session.version, ssl->state);
             break;
-
-        case SSL_VER_TLS:
-            ssl->session.version = SSL_VER_TLS;
-            ssl->version_netorder = TLSV1_VERSION;
-            ssl->state |= SSL_VERSION;
-            ssl_debug_printf("ssl_set_master_secret set version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
-            break;
-
-        case SSL_VER_TLSv1DOT1:
-            ssl->session.version = SSL_VER_TLSv1DOT1;
-            ssl->version_netorder = TLSV1DOT1_VERSION;
-            ssl->state |= SSL_VERSION;
-            ssl_debug_printf("ssl_set_master_secret set version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
-            break;
-
-        case SSL_VER_TLSv1DOT2:
-            ssl->session.version = SSL_VER_TLSv1DOT2;
-            ssl->version_netorder = TLSV1DOT2_VERSION;
-            ssl->state |= SSL_VERSION;
-            ssl_debug_printf("ssl_set_master_secret set version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
+        default:
+            /* API change: version number is no longer an internal value
+             * (SSL_VER_*) but the ProtocolVersion from wire (*_VERSION) */
+            ssl_debug_printf("%s WARNING must pass ProtocolVersion, not 0x%04x!\n", G_STRFUNC, version);
             break;
         }
     }
@@ -3313,31 +3266,6 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
  * Support Functions
  *
  *********************************************************************/
-#if 0
-static void
-ssl_set_conv_version(packet_info *pinfo, guint version)
-{
-    conversation_t *conversation;
-
-    if (pinfo->fd->flags.visited)
-    {
-        /* We've already processed this frame; no need to do any more
-         * work on it.
-         */
-        return;
-    }
-
-    conversation = find_or_create_conversation(pinfo);
-
-    if (conversation_get_proto_data(conversation, proto_ssl) != NULL)
-    {
-        /* get rid of the current data */
-        conversation_delete_proto_data(conversation, proto_ssl);
-    }
-    conversation_add_proto_data(conversation, proto_ssl, GINT_TO_POINTER(version));
-}
-#endif
-
 static gint
 ssl_is_valid_ssl_version(const guint16 version)
 {

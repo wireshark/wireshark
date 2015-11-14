@@ -55,16 +55,16 @@
 
 /* Lookup tables {{{ */
 const value_string ssl_version_short_names[] = {
-    { SSL_VER_UNKNOWN,    "SSL" },
-    { SSL_VER_SSLv2,      "SSLv2" },
-    { SSL_VER_SSLv3,      "SSLv3" },
-    { SSL_VER_TLS,        "TLSv1" },
-    { SSL_VER_TLSv1DOT1,  "TLSv1.1" },
-    { SSL_VER_DTLS,       "DTLSv1.0" },
-    { SSL_VER_DTLS1DOT2,  "DTLSv1.2" },
-    { SSL_VER_DTLS_OPENSSL, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
-    { SSL_VER_PCT,        "PCT" },
-    { SSL_VER_TLSv1DOT2,  "TLSv1.2" },
+    { SSL_VER_UNKNOWN,      "SSL" },
+    { SSLV2_VERSION,        "SSLv2" },
+    { SSLV3_VERSION,        "SSLv3" },
+    { TLSV1_VERSION,        "TLSv1" },
+    { TLSV1DOT1_VERSION,    "TLSv1.1" },
+    { TLSV1DOT2_VERSION,    "TLSv1.2" },
+    { DTLSV1DOT0_VERSION,   "DTLSv1.0" },
+    { DTLSV1DOT2_VERSION,   "DTLSv1.2" },
+    { DTLSV1DOT0_OPENSSL_VERSION, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
+    { PCT_VERSION,          "PCT" },
     { 0x00, NULL }
 };
 
@@ -2483,14 +2483,14 @@ static gboolean
 prf(SslDecryptSession *ssl, StringInfo *secret, const gchar *usage,
     StringInfo *rnd1, StringInfo *rnd2, StringInfo *out, guint out_len)
 {
-    switch (ssl->version_netorder) {
+    switch (ssl->session.version) {
     case SSLV3_VERSION:
         return ssl3_prf(secret, usage, rnd1, rnd2, out, out_len);
 
     case TLSV1_VERSION:
     case TLSV1DOT1_VERSION:
     case DTLSV1DOT0_VERSION:
-    case DTLSV1DOT0_VERSION_NOT:
+    case DTLSV1DOT0_OPENSSL_VERSION:
         return tls_prf(secret, usage, rnd1, rnd2, out, out_len);
 
     default: /* TLSv1.2 */
@@ -2851,9 +2851,11 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
          * in case of rsa1024 that would be 128 + 2 = 130; for psk not necessary
          */
         if (ssl_session->cipher_suite.kex == KEX_RSA &&
-           (ssl_session->session.version == SSL_VER_TLS || ssl_session->session.version == SSL_VER_TLSv1DOT1 ||
-            ssl_session->session.version == SSL_VER_TLSv1DOT2 || ssl_session->session.version == SSL_VER_DTLS ||
-            ssl_session->session.version == SSL_VER_DTLS1DOT2))
+           (ssl_session->session.version == TLSV1_VERSION ||
+            ssl_session->session.version == TLSV1DOT1_VERSION ||
+            ssl_session->session.version == TLSV1DOT2_VERSION ||
+            ssl_session->session.version == DTLSV1DOT0_VERSION ||
+            ssl_session->session.version == DTLSV1DOT2_VERSION))
         {
             encrlen  = tvb_get_ntohs(tvb, offset);
             skip = 2;
@@ -2930,11 +2932,11 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             ssl_print_string("pre master secret",&ssl_session->pre_master_secret);
             DISSECTOR_ASSERT(ssl_session->handshake_data.data_len > 0);
 
-            switch(ssl_session->version_netorder) {
+            switch(ssl_session->session.version) {
             case TLSV1_VERSION:
             case TLSV1DOT1_VERSION:
             case DTLSV1DOT0_VERSION:
-            case DTLSV1DOT0_VERSION_NOT:
+            case DTLSV1DOT0_OPENSSL_VERSION:
                 ret = tls_handshake_hash(ssl_session, &handshake_hashed_data);
                 break;
             default:
@@ -3033,7 +3035,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
                 goto fail;
             }
 
-            if(ssl_session->version_netorder==SSLV3_VERSION){
+            if(ssl_session->session.version==SSLV3_VERSION){
                 /* The length of these fields are ignored by this caller */
                 StringInfo iv_c, iv_s;
                 iv_c.data = _iv_c;
@@ -3077,7 +3079,7 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
             s_iv=_iv_s;
         }
 
-        if (ssl_session->version_netorder==SSLV3_VERSION){
+        if (ssl_session->session.version==SSLV3_VERSION){
 
             SSL_MD5_CTX md5;
             ssl_debug_printf("%s MD5(client_random)\n", G_STRFUNC);
@@ -3435,12 +3437,12 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
 
     /* (TLS 1.1 and later, DTLS) Extract explicit IV for GenericBlockCipher */
     if (decoder->cipher_suite->mode == MODE_CBC) {
-        switch (ssl->version_netorder) {
+        switch (ssl->session.version) {
         case TLSV1DOT1_VERSION:
         case TLSV1DOT2_VERSION:
         case DTLSV1DOT0_VERSION:
         case DTLSV1DOT2_VERSION:
-        case DTLSV1DOT0_VERSION_NOT:
+        case DTLSV1DOT0_OPENSSL_VERSION:
             if ((gint)inl < decoder->cipher_suite->block) {
                 ssl_debug_printf("ssl_decrypt_record failed: input %d has no space for IV %d\n",
                         inl, decoder->cipher_suite->block);
@@ -3563,8 +3565,8 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
 
     /* Now check the MAC */
     ssl_debug_printf("checking mac (len %d, version %X, ct %d seq %d)\n",
-        worklen, ssl->version_netorder, ct, decoder->seq);
-    if(ssl->version_netorder==SSLV3_VERSION){
+        worklen, ssl->session.version, ct, decoder->seq);
+    if(ssl->session.version==SSLV3_VERSION){
         if(ssl3_check_mac(decoder,ct,out_str->data,worklen,mac) < 0) {
             if(ssl_ignore_mac_failed) {
                 ssl_debug_printf("ssl_decrypt_record: mac failed, but ignored for troubleshooting ;-)\n");
@@ -3578,8 +3580,8 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
             ssl_debug_printf("ssl_decrypt_record: mac ok\n");
         }
     }
-    else if(ssl->version_netorder==TLSV1_VERSION || ssl->version_netorder==TLSV1DOT1_VERSION || ssl->version_netorder==TLSV1DOT2_VERSION){
-        if(tls_check_mac(decoder,ct,ssl->version_netorder,out_str->data,worklen,mac)< 0) {
+    else if(ssl->session.version==TLSV1_VERSION || ssl->session.version==TLSV1DOT1_VERSION || ssl->session.version==TLSV1DOT2_VERSION){
+        if(tls_check_mac(decoder,ct,ssl->session.version,out_str->data,worklen,mac)< 0) {
             if(ssl_ignore_mac_failed) {
                 ssl_debug_printf("ssl_decrypt_record: mac failed, but ignored for troubleshooting ;-)\n");
             }
@@ -3592,11 +3594,11 @@ ssl_decrypt_record(SslDecryptSession*ssl,SslDecoder* decoder, gint ct,
             ssl_debug_printf("ssl_decrypt_record: mac ok\n");
         }
     }
-    else if(ssl->version_netorder==DTLSV1DOT0_VERSION ||
-        ssl->version_netorder==DTLSV1DOT2_VERSION ||
-        ssl->version_netorder==DTLSV1DOT0_VERSION_NOT){
+    else if(ssl->session.version==DTLSV1DOT0_VERSION ||
+        ssl->session.version==DTLSV1DOT2_VERSION ||
+        ssl->session.version==DTLSV1DOT0_OPENSSL_VERSION){
         /* Try rfc-compliant mac first, and if failed, try old openssl's non-rfc-compliant mac */
-        if(dtls_check_mac(decoder,ct,ssl->version_netorder,out_str->data,worklen,mac)>= 0) {
+        if(dtls_check_mac(decoder,ct,ssl->session.version,out_str->data,worklen,mac)>= 0) {
             ssl_debug_printf("ssl_decrypt_record: mac ok\n");
         }
         else if(tls_check_mac(decoder,ct,TLSV1_VERSION,out_str->data,worklen,mac)>= 0) {
@@ -6007,8 +6009,8 @@ ssl_dissect_hnd_cert_req(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     }
 
     switch (session->version) {
-        case SSL_VER_TLSv1DOT2:
-        case SSL_VER_DTLS1DOT2:
+        case TLSV1DOT2_VERSION:
+        case DTLSV1DOT2_VERSION:
             sh_alg_length = tvb_get_ntohs(tvb, offset);
             if (sh_alg_length % 2) {
                 expert_add_info_format(pinfo, NULL,
@@ -6099,7 +6101,7 @@ ssl_dissect_hnd_finished(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     if (!tree)
         return;
 
-    if (session->version == SSL_VER_SSLv3) {
+    if (session->version == SSLV3_VERSION) {
         if (ssl_hfs != NULL) {
             proto_tree_add_item(tree, ssl_hfs->hs_md5_hash,
                                 tvb, offset, 16, ENC_NA);
@@ -6334,9 +6336,9 @@ dissect_ssl3_hnd_cli_keyex_rsa(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 
     /* EncryptedPreMasterSecret.pre_master_secret */
     switch (session->version) {
-    case SSL_VER_SSLv2:
-    case SSL_VER_SSLv3:
-    case SSL_VER_DTLS_OPENSSL:
+    case SSLV2_VERSION:
+    case SSLV3_VERSION:
+    case DTLSV1DOT0_OPENSSL_VERSION:
         /* OpenSSL pre-0.9.8f DTLS and pre-TLS quirk: 2-octet length vector is
          * not present. The handshake contents represents the EPMS, see:
          * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10222 */
@@ -6415,8 +6417,8 @@ ssl_dissect_digitally_signed(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     proto_tree *ssl_algo_tree;
 
     switch (session->version) {
-    case SSL_VER_TLSv1DOT2:
-    case SSL_VER_DTLS1DOT2:
+    case TLSV1DOT2_VERSION:
+    case DTLSV1DOT2_VERSION:
         ti_algo = proto_tree_add_item(tree, hf->hf.hs_sig_hash_alg, tvb,
                                       offset, 2, ENC_BIG_ENDIAN);
         ssl_algo_tree = proto_item_add_subtree(ti_algo, hf->ett.hs_sig_hash_alg);
