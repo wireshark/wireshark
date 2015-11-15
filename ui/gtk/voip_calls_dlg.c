@@ -871,6 +871,7 @@ voip_calls_dlg_reset(void *ptr _U_)
 
 	/* Clean up memory used by calls tap */
 	voip_calls_reset_all_taps(voip_calls_get_info());
+	sequence_analysis_list_free(voip_calls_get_info()->graph_analysis);
 
 	/* close the graph window if open */
 	if (graph_analysis_data && graph_analysis_data->dlg.window != NULL) {
@@ -885,6 +886,9 @@ static void
 voip_calls_dlg_init_taps(const char *dummy _U_, void* userdata _U_)
 {
 	voip_calls_tapinfo_t* tap_id_base = voip_calls_get_info();
+	if(NULL == tap_id_base->graph_analysis) {
+		tap_id_base->graph_analysis = sequence_analysis_info_new();
+	}
 	tap_id_base->session = cfile.epan;
 
 #ifdef HAVE_LIBPORTAUDIO
@@ -894,6 +898,7 @@ voip_calls_dlg_init_taps(const char *dummy _U_, void* userdata _U_)
 
 	/* Clean up memory used by calls tap */
 	voip_calls_reset_all_taps(tap_id_base);
+	sequence_analysis_list_free(tap_id_base->graph_analysis);
 
 	if (graph_analysis_data == NULL) {
 		/* init the Graph Analysys */

@@ -47,24 +47,25 @@
 // - Create WSGraph subclasses with common behavior.
 // - Help button and text
 
-SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, seq_analysis_info_t *sainfo) :
+SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *info) :
     WiresharkDialog(parent, cf),
     ui(new Ui::SequenceDialog),
-    sainfo_(sainfo),
+    info_(info),
     num_items_(0),
     packet_num_(0),
     node_label_w_(20)
 {
     ui->setupUi(this);
     QCustomPlot *sp = ui->sequencePlot;
-    setWindowSubtitle(sainfo ? tr("Call Flow") : tr("Flow"));
+    setWindowSubtitle(info_ ? tr("Call Flow") : tr("Flow"));
 
-    if (!sainfo_) {
-        sainfo_ = sequence_analysis_info_new();
-        sainfo_->type = SEQ_ANALYSIS_ANY;
-        sainfo_->all_packets = TRUE;
+    if (!info_) {
+        info_ = new SequenceInfo(sequence_analysis_info_new());
+        info_->sainfo()->type = SEQ_ANALYSIS_ANY;
+        info_->sainfo()->all_packets = TRUE;
     } else {
-        num_items_ = sequence_analysis_get_nodes(sainfo_);
+        info_->ref();
+        num_items_ = sequence_analysis_get_nodes(info_->sainfo());
     }
 
     seq_diagram_ = new SequenceDiagram(sp->yAxis, sp->xAxis2, sp->yAxis2);
@@ -112,9 +113,9 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, seq_analysis_in
     fcb->addItem(ui->actionFlowTcp->text(), SEQ_ANALYSIS_TCP);
 
     ui->flowComboBox->blockSignals(true);
-    ui->flowComboBox->setCurrentIndex(sainfo_->type);
+    ui->flowComboBox->setCurrentIndex(info_->sainfo()->type);
 
-    if (sainfo_->type == SEQ_ANALYSIS_VOIP) {
+    if (info_->sainfo()->type == SEQ_ANALYSIS_VOIP) {
         ui->controlFrame->hide();
     } else {
         ui->flowComboBox->blockSignals(false);
@@ -142,9 +143,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, seq_analysis_in
 
 SequenceDialog::~SequenceDialog()
 {
-    if (sainfo_->type != SEQ_ANALYSIS_VOIP) {
-        sequence_analysis_info_free(sainfo_);
-    }
+    info_->unref();
     delete ui;
 }
 
@@ -274,10 +273,10 @@ void SequenceDialog::mouseMoved(QMouseEvent *event)
     }
 
     if (hint.isEmpty()) {
-        if (!sainfo_) {
+        if (!info_->sainfo()) {
             hint += tr("No data");
         } else {
-            hint += tr("%Ln node(s)", "", sainfo_->num_nodes) + QString(", ")
+            hint += tr("%Ln node(s)", "", info_->sainfo()->num_nodes) + QString(", ")
                     + tr("%Ln item(s)", "", num_items_);
         }
     }
@@ -327,8 +326,8 @@ void SequenceDialog::on_buttonBox_accepted()
             save_ok = ui->sequencePlot->saveBmp(file_name);
         } else if (extension.compare(jpeg_filter) == 0) {
             save_ok = ui->sequencePlot->saveJpg(file_name);
-        } else if (extension.compare(ascii_filter) == 0 && !file_closed_ && sainfo_) {
-            save_ok = sequence_analysis_dump_to_file(file_name.toUtf8().constData(), sainfo_, cap_file_.capFile(), 0);
+        } else if (extension.compare(ascii_filter) == 0 && !file_closed_ && info_->sainfo()) {
+            save_ok = sequence_analysis_dump_to_file(file_name.toUtf8().constData(), info_->sainfo(), cap_file_.capFile(), 0);
         }
         // else error dialog?
         if (save_ok) {
@@ -340,25 +339,25 @@ void SequenceDialog::on_buttonBox_accepted()
 
 void SequenceDialog::fillDiagram()
 {
-    if (!sainfo_ || file_closed_) return;
+    if (!info_->sainfo() || file_closed_) return;
 
     QCustomPlot *sp = ui->sequencePlot;
 
-    if (sainfo_->type == SEQ_ANALYSIS_VOIP) {
-        seq_diagram_->setData(sainfo_);
+    if (info_->sainfo()->type == SEQ_ANALYSIS_VOIP) {
+        seq_diagram_->setData(info_->sainfo());
     } else {
         seq_diagram_->clearData();
-        sequence_analysis_list_free(sainfo_);
-        sequence_analysis_list_get(cap_file_.capFile(), sainfo_);
-        num_items_ = sequence_analysis_get_nodes(sainfo_);
-        seq_diagram_->setData(sainfo_);
+        sequence_analysis_list_free(info_->sainfo());
+        sequence_analysis_list_get(cap_file_.capFile(), info_->sainfo());
+        num_items_ = sequence_analysis_get_nodes(info_->sainfo());
+        seq_diagram_->setData(info_->sainfo());
     }
 
     QFontMetrics vfm = QFontMetrics(sp->xAxis2->labelFont());
     char* addr_str;
     node_label_w_ = 0;
-    for (guint i = 0; i < sainfo_->num_nodes; i++) {
-        addr_str = (char*)address_to_display(NULL, &(sainfo_->nodes[i]));
+    for (guint i = 0; i < info_->sainfo()->num_nodes; i++) {
+        addr_str = (char*)address_to_display(NULL, &(info_->sainfo()->nodes[i]));
         int label_w = vfm.width(addr_str);
         if (node_label_w_ < label_w) {
             node_label_w_ = label_w;
@@ -395,7 +394,7 @@ void SequenceDialog::panAxes(int x_pixels, int y_pixels)
 
 void SequenceDialog::resetAxes(bool keep_lower)
 {
-    if (!sainfo_) return;
+    if (!info_->sainfo()) return;
 
     QCustomPlot *sp = ui->sequencePlot;
     // Allow space for labels on the top and port numbers on the left.
@@ -412,7 +411,7 @@ void SequenceDialog::resetAxes(bool keep_lower)
     sp->yAxis->setRange(top_pos, range_ratio + top_pos);
 
     double rmin = sp->xAxis2->range().size() / 2;
-    ui->horizontalScrollBar->setRange((rmin - 0.5) * 100, (sainfo_->num_nodes - 0.5 - rmin) * 100);
+    ui->horizontalScrollBar->setRange((rmin - 0.5) * 100, (info_->sainfo()->num_nodes - 0.5 - rmin) * 100);
     xAxisChanged(sp->xAxis2->range());
 
     rmin = (sp->yAxis->range().size() / 2);
@@ -436,32 +435,32 @@ void SequenceDialog::on_actionGoToPacket_triggered()
 
 void SequenceDialog::on_showComboBox_currentIndexChanged(int index)
 {
-    if (!sainfo_) return;
+    if (!info_->sainfo()) return;
 
     if (index == 0) {
-        sainfo_->all_packets = TRUE;
+        info_->sainfo()->all_packets = TRUE;
     } else {
-        sainfo_->all_packets = FALSE;
+        info_->sainfo()->all_packets = FALSE;
     }
     fillDiagram();
 }
 
 void SequenceDialog::on_flowComboBox_currentIndexChanged(int index)
 {
-    if (!sainfo_ || sainfo_->type == SEQ_ANALYSIS_VOIP || index < 0) return;
+    if (!info_->sainfo() || info_->sainfo()->type == SEQ_ANALYSIS_VOIP || index < 0) return;
 
-    sainfo_->type = static_cast<seq_analysis_type>(ui->flowComboBox->itemData(index).toInt());
+    info_->sainfo()->type = static_cast<seq_analysis_type>(ui->flowComboBox->itemData(index).toInt());
     fillDiagram();
 }
 
 void SequenceDialog::on_addressComboBox_currentIndexChanged(int index)
 {
-    if (!sainfo_) return;
+    if (!info_->sainfo()) return;
 
     if (index == 0) {
-        sainfo_->any_addr = TRUE;
+        info_->sainfo()->any_addr = TRUE;
     } else {
-        sainfo_->any_addr = FALSE;
+        info_->sainfo()->any_addr = FALSE;
     }
     fillDiagram();
 }
@@ -509,6 +508,17 @@ void SequenceDialog::on_actionMoveUp1_triggered()
 void SequenceDialog::on_actionMoveDown1_triggered()
 {
     panAxes(0, -1);
+}
+
+SequenceInfo::SequenceInfo(seq_analysis_info_t *sainfo) :
+    sainfo_(sainfo),
+    count_(1)
+{
+}
+
+SequenceInfo::~SequenceInfo()
+{
+    sequence_analysis_info_free(sainfo_);
 }
 
 /*

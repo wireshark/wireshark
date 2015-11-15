@@ -199,6 +199,7 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     tapinfo_.fs_option = all_flows ? FLOW_ALL : FLOW_ONLY_INVITES; /* flow show option */
     tapinfo_.graph_analysis = sequence_analysis_info_new();
     tapinfo_.graph_analysis->type = SEQ_ANALYSIS_VOIP;
+    sequence_info_ = new SequenceInfo(tapinfo_.graph_analysis);
 
     voip_calls_init_all_taps(&tapinfo_);
 
@@ -216,7 +217,7 @@ VoipCallsDialog::~VoipCallsDialog()
 
     voip_calls_reset_all_taps(&tapinfo_);
     voip_calls_remove_all_tap_listeners(&tapinfo_);
-    sequence_analysis_info_free(tapinfo_.graph_analysis);
+    sequence_info_->unref();
     g_queue_free(tapinfo_.callsinfos);
 }
 
@@ -485,7 +486,7 @@ void VoipCallsDialog::showSequence()
         cur_ga_item = g_list_next(cur_ga_item);
     }
 
-    SequenceDialog *sequence_dialog = new SequenceDialog(parent_, cap_file_, tapinfo_.graph_analysis);
+    SequenceDialog *sequence_dialog = new SequenceDialog(parent_, cap_file_, sequence_info_);
     // XXX This goes away when we close the VoIP Calls dialog.
     connect(sequence_dialog, SIGNAL(goToPacket(int)),
             this, SIGNAL(goToPacket(int)));
