@@ -515,7 +515,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     guint32 mask = wslua_optguint32(L,5,0);
     const gchar* blob = luaL_optstring(L,6,NULL);
 
-    if (lua_gettop(L) > 3) {
+    if (lua_gettop(L) > 3 && !lua_isnil(L, 4)) {
         if (type == FT_FRAMENUM) {
             framenum_type = (enum ft_framenum_type) luaL_checkinteger(L, 4);
             if (framenum_type >= FT_FRAMENUM_NUM_TYPES) {
