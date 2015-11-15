@@ -54,10 +54,6 @@
 #define UCD_RS_INT_DEPTH 12
 #define UCD_RS_INT_BLOCK 13
 #define UCD_PREAMBLE_TYPE 14
-#define UCD_SCMDA_SCRAMBLER_ONOFF 15
-#define UCD_SCDMA_CODES_PER_SUBFRAME 16
-#define UCD_SCDMA_FRAMER_INT_STEP_SIZE 17
-#define UCD_TCM_ENABLED 18
 
 #define IUC_REQUEST 1
 #define IUC_REQ_DATA 2
@@ -122,10 +118,6 @@ static int hf_docsis_burst_scrambler_onoff = -1;
 static int hf_docsis_rs_int_depth = -1;
 static int hf_docsis_rs_int_block = -1;
 static int hf_docsis_preamble_type = -1;
-static int hf_docsis_scdma_scrambler_onoff = -1;
-static int hf_docsis_scdma_codes_per_subframe = -1;
-static int hf_docsis_scdma_framer_int_step_size = -1;
-static int hf_docsis_tcm_enabled = -1;
 
 static expert_field ei_docsis_ucd_tlvlen_bad = EI_INIT;
 
@@ -279,7 +271,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                   }
                 else
                   {
-                    THROW (ReportedBoundsError);
+                    expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                   }
                 pos = pos + length;
                 break;
@@ -292,7 +284,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                   }
                 else
                   {
-                    THROW (ReportedBoundsError);
+                    expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                   }
                 break;
               case UCD_PREAMBLE:
@@ -404,7 +396,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_DIFF_ENCODING:
@@ -416,7 +408,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_PREAMBLE_LEN:
@@ -428,7 +420,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_PREAMBLE_VAL_OFF:
@@ -440,7 +432,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_FEC:
@@ -452,7 +444,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_FEC_CODEWORD:
@@ -464,7 +456,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_SCRAMBLER_SEED:
@@ -476,7 +468,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_MAX_BURST:
@@ -488,7 +480,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_GUARD_TIME:
@@ -500,7 +492,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_LAST_CW_LEN:
@@ -512,7 +504,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_SCRAMBLER_ONOFF:
@@ -524,7 +516,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                       } /* switch(tlvtype) */
@@ -551,7 +543,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_DIFF_ENCODING:
@@ -563,7 +555,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_PREAMBLE_LEN:
@@ -575,7 +567,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_PREAMBLE_VAL_OFF:
@@ -587,7 +579,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_FEC:
@@ -599,7 +591,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_FEC_CODEWORD:
@@ -611,7 +603,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_SCRAMBLER_SEED:
@@ -623,7 +615,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_MAX_BURST:
@@ -635,7 +627,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_GUARD_TIME:
@@ -647,7 +639,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_LAST_CW_LEN:
@@ -659,7 +651,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_SCRAMBLER_ONOFF:
@@ -671,18 +663,9 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
-                          /* New cases added for DOCSIS 2.0 US Physical Burst Descriptor TLV */
-                          /* #define UCD_RS_INT_DEPTH 12
-                           *  * #define UCD_RS_INT_BLOCK 13
-                           *  * #define UCD_PREAMBLE_TYPE 14
-                           *  * #define UCD_SCMDA_SCRAMBLER_ONOFF 15
-                           *  * #define UCD_SCDMA_CODES_PER_SUBFRAME 16
-                           *  * #define UCD_SCDMA_FRAMER_INT_STEP_SIZE 17
-                           *  * #define UCD_TCM_ENABLED 18
-                           *  */
                         case UCD_RS_INT_DEPTH:
                           if (tlvlen == 1)
                             {
@@ -692,7 +675,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_RS_INT_BLOCK:
@@ -704,7 +687,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                         case UCD_PREAMBLE_TYPE:
@@ -716,55 +699,7 @@ dissect_ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
                             }
                           else
                             {
-                              THROW (ReportedBoundsError);
-                            }
-                          break;
-                        case UCD_SCMDA_SCRAMBLER_ONOFF:
-                          if (tlvlen == 1)
-                            {
-                              proto_tree_add_item (tlv_tree,
-                                                   hf_docsis_scdma_scrambler_onoff,
-                                                   tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-                            }
-                          else
-                            {
-                              THROW (ReportedBoundsError);
-                            }
-                          break;
-                        case UCD_SCDMA_CODES_PER_SUBFRAME:
-                          if (tlvlen == 1)
-                            {
-                              proto_tree_add_item (tlv_tree,
-                                                   hf_docsis_scdma_codes_per_subframe,
-                                                   tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-                            }
-                          else
-                            {
-                              THROW (ReportedBoundsError);
-                            }
-                          break;
-                        case UCD_SCDMA_FRAMER_INT_STEP_SIZE:
-                          if (tlvlen == 1)
-                            {
-                              proto_tree_add_item (tlv_tree,
-                                                   hf_docsis_scdma_framer_int_step_size,
-                                                   tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-                            }
-                          else
-                            {
-                              THROW (ReportedBoundsError);
-                            }
-                          break;
-                        case UCD_TCM_ENABLED:
-                          if (tlvlen == 1)
-                            {
-                              proto_tree_add_item (tlv_tree,
-                                                   hf_docsis_tcm_enabled,
-                                                   tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-                            }
-                          else
-                            {
-                              THROW (ReportedBoundsError);
+                              expert_add_info_format(pinfo, ucd_item, &ei_docsis_ucd_tlvlen_bad, "Wrong TLV length: %u", length);
                             }
                           break;
                       }           /* switch(tlvtype) */
@@ -992,26 +927,6 @@ proto_register_docsis_ucd (void)
      {"14 Preamble Type", "docsis_ucd.burst.preambletype",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Preamble Type", HFILL}
-    },
-    {&hf_docsis_scdma_scrambler_onoff,
-     {"15 SCDMA Scrambler On/Off", "docsis_ucd.burst.scdmascrambleronoff",
-      FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x0,
-      "SCDMA Scrambler On/Off", HFILL}
-    },
-    {&hf_docsis_scdma_codes_per_subframe,
-     {"16 SCDMA Codes per Subframe", "docsis_ucd.burst.scdmacodespersubframe",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
-      "SCDMA Codes per Subframe", HFILL}
-    },
-    {&hf_docsis_scdma_framer_int_step_size,
-     {"17 SDMA Framer Int Step Size", "docsis_ucd.burst.scdmaframerintstepsize",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
-      "SCDMA Framer Interleaving Step Size", HFILL}
-    },
-    {&hf_docsis_tcm_enabled,
-     {"18 TCM Enable", "docsis_ucd.burst.tcmenabled",
-      FT_UINT8, BASE_DEC, VALS (on_off_vals), 0x0,
-      "TCM Enabled", HFILL}
     },
   };
 
