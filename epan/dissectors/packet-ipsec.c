@@ -2233,8 +2233,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 }
 
 
-static void
-dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissector_data _U_)
 {
   proto_tree *ipcomp_tree;
   proto_item *ti;
@@ -2242,6 +2242,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   const char *p;
   dissector_handle_t dissector_handle;
   guint32 saved_match_uint;
+  tvbuff_t *data, *decomp;
 
   /*
    * load the top pane info. This should be overwritten by
@@ -2263,9 +2264,6 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * populate a tree in the second pane with the status of the link layer
    * (ie none)
    */
-  if (tree) {
-    tvbuff_t *data, *decomp;
-
     ti = proto_tree_add_item(tree, proto_ipcomp, tvb, 0, -1, ENC_NA);
     ipcomp_tree = proto_item_add_subtree(ti, ett_ipcomp);
 
@@ -2303,7 +2301,8 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         call_dissector(dissector_handle, decomp, pinfo, tree);
         pinfo->match_uint = saved_match_uint;
     }
-  }
+
+	return tvb_captured_length(tvb);
 }
 
 static void ipsec_init_protocol(void)
@@ -2554,7 +2553,7 @@ proto_reg_handoff_ipsec(void)
   dissector_add_uint("ip.proto", IP_PROTO_AH, ah_handle);
   esp_handle = find_dissector("esp");
   dissector_add_uint("ip.proto", IP_PROTO_ESP, esp_handle);
-  ipcomp_handle = create_dissector_handle(dissect_ipcomp, proto_ipcomp);
+  ipcomp_handle = new_create_dissector_handle(dissect_ipcomp, proto_ipcomp);
   dissector_add_uint("ip.proto", IP_PROTO_IPCOMP, ipcomp_handle);
   ipv6_ah_handle = new_create_dissector_handle(dissect_ah_header, proto_ah );
   dissector_add_uint("ipv6.nxt", IP_PROTO_AH, ipv6_ah_handle);

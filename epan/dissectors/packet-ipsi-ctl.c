@@ -47,7 +47,7 @@ static int hf_ipsictl_data = -1;
 static gint ett_ipsictl = -1;
 static gint ett_ipsictl_pdu = -1;
 
-static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
   proto_tree   *ipsictl_tree;
@@ -162,9 +162,7 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (!haspdus)
   {
-    if (tree) {
-      proto_tree_add_item(ipsictl_tree, hf_ipsictl_data, tvb, offset, -1, ENC_NA);
-    }
+    proto_tree_add_item(ipsictl_tree, hf_ipsictl_data, tvb, offset, -1, ENC_NA);
   }
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPSICTL");
@@ -183,6 +181,7 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_INFO, "Initialization");
   }
 
+  return tvb_captured_length(tvb);
 
 } /* dissect_ipsictl */
 
@@ -236,7 +235,7 @@ void proto_reg_handoff_ipsictl(void)
 
   dissector_handle_t ipsictl_handle = NULL;
 
-  ipsictl_handle = create_dissector_handle(dissect_ipsictl, proto_ipsictl);
+  ipsictl_handle = new_create_dissector_handle(dissect_ipsictl, proto_ipsictl);
 
   dissector_add_uint("tcp.port", IPSICTL_PORT, ipsictl_handle);
 

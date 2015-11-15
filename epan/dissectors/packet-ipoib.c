@@ -40,8 +40,8 @@ static dissector_handle_t arp_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 
-static void
-dissect_ipoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree *fh_tree;
   proto_item *ti;
@@ -79,6 +79,7 @@ dissect_ipoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   default:
     break;
   }
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -116,7 +117,7 @@ proto_reg_handoff_ipoib(void)
   ip_handle   = find_dissector("ip");
   ipv6_handle = find_dissector("ipv6");
 
-  ipoib_handle = create_dissector_handle(dissect_ipoib, proto_ipoib);
+  ipoib_handle = new_create_dissector_handle(dissect_ipoib, proto_ipoib);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IP_OVER_IB, ipoib_handle);
 }
 

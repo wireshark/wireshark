@@ -56,8 +56,8 @@ static int hf_h261_data        = -1;
 /* H.261 fields defining a sub tree */
 static gint ett_h261           = -1;
 
-static void
-dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+static int
+dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
 {
 	proto_item *ti            = NULL;
 	proto_tree *h261_tree     = NULL;
@@ -109,6 +109,7 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		/* The rest of the packet is the H.261 stream */
 		proto_tree_add_item( h261_tree, hf_h261_data, tvb, offset, -1, ENC_NA );
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -255,7 +256,7 @@ proto_reg_handoff_h261(void)
 {
 	dissector_handle_t h261_handle;
 
-	h261_handle = create_dissector_handle(dissect_h261, proto_h261);
+	h261_handle = new_create_dissector_handle(dissect_h261, proto_h261);
 	dissector_add_uint("rtp.pt", PT_H261, h261_handle);
 	dissector_add_uint("iax2.codec", AST_FORMAT_H261, h261_handle);
 }

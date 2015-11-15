@@ -2609,8 +2609,8 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
  * or process_l2tpv3_data_ip for Data Messages over IP, based on the
  * Session ID
  */
-static void
-dissect_l2tp_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_l2tp_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int     idx = 0;
     guint32 sid;                /* Session ID */
@@ -2643,7 +2643,7 @@ dissect_l2tp_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         process_l2tpv3_data_ip(tvb, pinfo, tree, l2tp_conv);
     }
 
-    return;
+    return tvb_captured_length(tvb);
 }
 
 static int dissect_atm_oam_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
@@ -3041,7 +3041,7 @@ proto_reg_handoff_l2tp(void)
     l2tp_udp_handle = new_create_dissector_handle(dissect_l2tp_udp, proto_l2tp);
     dissector_add_uint("udp.port", UDP_PORT_L2TP, l2tp_udp_handle);
 
-    l2tp_ip_handle = create_dissector_handle(dissect_l2tp_ip, proto_l2tp);
+    l2tp_ip_handle = new_create_dissector_handle(dissect_l2tp_ip, proto_l2tp);
     dissector_add_uint("ip.proto", IP_PROTO_L2TP, l2tp_ip_handle);
 
     /*

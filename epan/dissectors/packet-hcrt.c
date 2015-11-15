@@ -303,7 +303,7 @@ static gboolean dissect_hcrt_message(tvbuff_t* tvb, packet_info* pinfo, proto_tr
     return last;
 }
 
-static void dissect_hcrt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
+static int dissect_hcrt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
     guint8 type;
     proto_item* ti;
@@ -343,6 +343,7 @@ static void dissect_hcrt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
     while (!dissect_hcrt_message(tvb, pinfo, hcrt_tree, &offset, b0_first, i)) {
         i++;
     }
+    return tvb_captured_length(tvb);
 }
 
 void proto_register_hcrt(void)
@@ -496,7 +497,7 @@ void proto_reg_handoff_hcrt(void)
     static gint hcrt_ethertype;
 
     if (!hcrt_prefs_initialized) {
-        hcrt_handle = create_dissector_handle(dissect_hcrt, proto_hcrt);
+        hcrt_handle = new_create_dissector_handle(dissect_hcrt, proto_hcrt);
         /* Also register as a dissector that can be selected by a TCP port number via
         "decode as" */
         dissector_add_for_decode_as("tcp.port", hcrt_handle);

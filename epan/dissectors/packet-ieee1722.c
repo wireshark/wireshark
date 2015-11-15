@@ -122,8 +122,8 @@ static expert_field ei_1722_incorrect_dbs = EI_INIT;
 
 static dissector_table_t avb_dissector_table;
 
-static void
-dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *ieee1722_tree = NULL;
@@ -139,11 +139,10 @@ dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     col_set_str(pinfo->cinfo, COL_INFO, "AVB Transportation Protocol");
 
+     ti = proto_tree_add_item(tree, proto_1722, tvb, 0, -1, ENC_NA);
+     ieee1722_tree = proto_item_add_subtree(ti, ett_1722);
+
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_1722, tvb, 0, -1, ENC_NA);
-
-        ieee1722_tree = proto_item_add_subtree(ti, ett_1722);
-
         /* Add the CD and Subtype fields
          * CD field is 1 bit
          * Subtype field is 7 bits
@@ -161,7 +160,8 @@ dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     subtype &= 0x7F;
 
     /* call any registered subtype dissectors which use only the common AVTPDU (e.g. 1722.1 and MAAP) */
-    if (dissector_try_uint(avb_dissector_table, subtype, tvb, pinfo, tree)) return;
+    if (dissector_try_uint(avb_dissector_table, subtype, tvb, pinfo, tree))
+        return tvb_captured_length(tvb);
 
     if (tree) {
         proto_tree_add_item(ieee1722_tree, hf_1722_mrfield, tvb, IEEE_1722_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
@@ -221,27 +221,28 @@ dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_tree_add_item(ieee1722_tree, hf_1722_syt, tvb,
                             IEEE_1722_SYT_OFFSET, 2, ENC_BIG_ENDIAN);
+    }
 
-        /* Calculate the remaining size by subtracting the CIP header size
+    /* Calculate the remaining size by subtracting the CIP header size
            from the value in the packet data length field */
-        datalen = tvb_get_ntohs(tvb, IEEE_1722_PKT_DATA_LENGTH_OFFSET);
-        datalen -= IEEE_1722_CIP_HEADER_SIZE;
+    datalen = tvb_get_ntohs(tvb, IEEE_1722_PKT_DATA_LENGTH_OFFSET);
+    datalen -= IEEE_1722_CIP_HEADER_SIZE;
 
-        /* Make the Audio sample tree. */
-        ti = proto_tree_add_item(ieee1722_tree, hf_1722_data, tvb,
-                                 IEEE_1722_DATA_OFFSET, datalen, ENC_NA);
+    /* Make the Audio sample tree. */
+    ti = proto_tree_add_item(ieee1722_tree, hf_1722_data, tvb,
+                                IEEE_1722_DATA_OFFSET, datalen, ENC_NA);
 
-        audio_tree = proto_item_add_subtree(ti, ett_1722_audio);
+    audio_tree = proto_item_add_subtree(ti, ett_1722_audio);
 
-        /* Need to get the offset of where the audio data starts */
-        offset = IEEE_1722_DATA_OFFSET;
-        dbs = tvb_get_guint8(tvb, IEEE_1722_DBS_OFFSET);
+    /* Need to get the offset of where the audio data starts */
+    offset = IEEE_1722_DATA_OFFSET;
+    dbs = tvb_get_guint8(tvb, IEEE_1722_DBS_OFFSET);
 
-        /* If the DBS is ever 0 for whatever reason, then just add the rest of packet as unknown */
-        if(dbs == 0)
-            expert_add_info(pinfo, ti, &ei_1722_incorrect_dbs);
-
-        else {
+    /* If the DBS is ever 0 for whatever reason, then just add the rest of packet as unknown */
+    if(dbs == 0)
+        expert_add_info(pinfo, ti, &ei_1722_incorrect_dbs);
+    else {
+        if (audio_tree) {
             /* Loop through all samples and add them to the audio tree. */
             for (j = 0; j < (datalen / (dbs*4)); j++) {
                 sample_tree = proto_tree_add_subtree_format(audio_tree, tvb, offset, 1, ett_1722_sample, NULL, "Sample %d", j+1);
@@ -255,6 +256,7 @@ dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -409,7 +411,7 @@ void proto_reg_handoff_1722(void)
 {
     dissector_handle_t avbtp_handle;
 
-    avbtp_handle = create_dissector_handle(dissect_1722, proto_1722);
+    avbtp_handle = new_create_dissector_handle(dissect_1722, proto_1722);
     dissector_add_uint("ethertype", ETHERTYPE_AVBTP, avbtp_handle);
 }
 

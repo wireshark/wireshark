@@ -477,13 +477,15 @@ dissect_netrom_routing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* Code to actually dissect the packets */
-static void
-dissect_netrom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_netrom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	if ( tvb_get_guint8( tvb, 0 ) == 0xff )
 		dissect_netrom_routing( tvb, pinfo, tree );
 	else
 		dissect_netrom_proto( tvb, pinfo, tree );
+
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -624,7 +626,7 @@ proto_register_netrom(void)
 void
 proto_reg_handoff_netrom(void)
 {
-	dissector_add_uint( "ax25.pid", AX25_P_NETROM, create_dissector_handle( dissect_netrom, proto_netrom ) );
+	dissector_add_uint( "ax25.pid", AX25_P_NETROM, new_create_dissector_handle( dissect_netrom, proto_netrom ) );
 
 	ip_handle   = find_dissector( "ip" );
 	data_handle = find_dissector( "data" );

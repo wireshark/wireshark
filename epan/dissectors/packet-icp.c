@@ -144,7 +144,7 @@ static void dissect_icp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	}
 }
 
-static void dissect_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree *icp_tree , *payload_tree;
 	proto_item *ti;
@@ -164,12 +164,11 @@ static void dissect_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		     val_to_str_const(opcode, opcode_vals, "Unknown"), opcode,
 		     request_number);
 
+	ti = proto_tree_add_item(tree,proto_icp, tvb, 0, message_length, ENC_NA);
+	icp_tree = proto_item_add_subtree(ti, ett_icp);
+
 	if (tree)
 	{
-
-		ti = proto_tree_add_item(tree,proto_icp, tvb, 0, message_length, ENC_NA);
-		icp_tree = proto_item_add_subtree(ti, ett_icp);
-
 		proto_tree_add_uint(icp_tree,hf_icp_opcode, tvb, 0, 1, opcode);
 
 		proto_tree_add_item(icp_tree,hf_icp_version, tvb, 1, 1, ENC_BIG_ENDIAN);
@@ -195,13 +194,16 @@ static void dissect_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		proto_tree_add_item(icp_tree, hf_icp_sender_host_ip_address, tvb, 16, 4, ENC_BIG_ENDIAN);
+	}
 
-		payload_tree = proto_tree_add_subtree(icp_tree, tvb,
+	payload_tree = proto_tree_add_subtree(icp_tree, tvb,
 						      20, message_length - 20,
 						      ett_icp_payload, NULL, "Payload");
-		dissect_icp_payload(tvb, pinfo, 20, payload_tree, opcode);
-	}
+	dissect_icp_payload(tvb, pinfo, 20, payload_tree, opcode);
+
+	return tvb_captured_length(tvb);
 }
+
 void
 proto_register_icp(void)
 {
@@ -255,7 +257,7 @@ proto_reg_handoff_icp(void)
 {
 	dissector_handle_t icp_handle;
 
-	icp_handle = create_dissector_handle(dissect_icp, proto_icp);
+	icp_handle = new_create_dissector_handle(dissect_icp, proto_icp);
 	dissector_add_uint("udp.port", UDP_PORT_ICP, icp_handle);
 }
 

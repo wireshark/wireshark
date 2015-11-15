@@ -90,8 +90,8 @@ static const value_string channel_vals[] = {
 	{ 0,	NULL }
 };
 
-static void
-dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree *isdn_tree;
 	proto_item *ti;
@@ -200,6 +200,8 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!try_circuit_dissector(CT_ISDN, pinfo->pseudo_header->isdn.channel,
 		pinfo->fd->num, tvb, pinfo, tree, NULL))
 		call_dissector(data_handle, tvb, pinfo, tree);
+
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -242,7 +244,7 @@ proto_reg_handoff_isdn(void)
 	v120_handle = find_dissector("v120");
 	data_handle = find_dissector("data");
 
-	isdn_handle = create_dissector_handle(dissect_isdn, proto_isdn);
+	isdn_handle = new_create_dissector_handle(dissect_isdn, proto_isdn);
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_ISDN, isdn_handle);
 }

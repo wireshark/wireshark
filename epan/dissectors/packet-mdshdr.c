@@ -129,8 +129,8 @@ static const value_string eof_vals[] = {
     {0,                          NULL},
 };
 
-static void
-dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -244,6 +244,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else {
         call_dissector(data_handle, next_tvb, pinfo, tree);
     }
+    return tvb_captured_length(tvb);
 }
 
 
@@ -319,7 +320,7 @@ proto_reg_handoff_mdshdr(void)
          * ethertype ETHERTYPE_FCFT, and fetch the data and Fibre
          * Channel handles.
          */
-        mdshdr_handle = create_dissector_handle(dissect_mdshdr, proto_mdshdr);
+        mdshdr_handle = new_create_dissector_handle(dissect_mdshdr, proto_mdshdr);
         dissector_add_uint("ethertype", ETHERTYPE_FCFT, mdshdr_handle);
         data_handle   = find_dissector("data");
         fc_dissector_handle = find_dissector("fc");

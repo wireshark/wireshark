@@ -215,9 +215,8 @@ dissect_mmrp_three_packed_event(proto_tree *vect_attr_tree, tvbuff_t *tvb, guint
  *
  * main dissect function that calls the other functions listed above as necessary
  */
-static void
-dissect_mmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
+static int
+dissect_mmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     /* Set up structures needed to add the protocol subtrees and manage them */
     proto_item *ti, *msg_ti, *attr_list_ti, *vect_attr_ti;
     proto_tree *mmrp_tree, *msg_tree, *attr_list_tree, *vect_attr_tree;
@@ -344,6 +343,7 @@ dissect_mmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_tree_add_item(mmrp_tree, hf_mmrp_end_mark, tvb, offset+2, 2, ENC_BIG_ENDIAN); /* Message EndMark */
     }
+    return tvb_captured_length(tvb);
 }
 
 
@@ -426,7 +426,7 @@ proto_reg_handoff_mrp_mmrp(void)
 {
     dissector_handle_t mmrp_handle;
 
-    mmrp_handle = create_dissector_handle(dissect_mmrp, proto_mmrp);
+    mmrp_handle = new_create_dissector_handle(dissect_mmrp, proto_mmrp);
     dissector_add_uint("ethertype", ETHERTYPE_MMRP, mmrp_handle);
 }
 

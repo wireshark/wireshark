@@ -64,7 +64,7 @@ void proto_reg_handoff_mmse(void);
 /*
  * Forward declarations
  */
-static void dissect_mmse_standalone(tvbuff_t *, packet_info *, proto_tree *);
+static int dissect_mmse_standalone(tvbuff_t *, packet_info *, proto_tree *, void*);
 static void dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint8 pdut, const char *message_type);
 
@@ -648,12 +648,12 @@ dissect_mmse_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if ((tvb_get_guint8(tvb, 2) != MM_TID_HDR) &&
         (tvb_get_guint8(tvb, 2) != MM_VERSION_HDR))
         return FALSE;
-    dissect_mmse_standalone(tvb, pinfo, tree);
+    dissect_mmse_standalone(tvb, pinfo, tree, data);
     return TRUE;
 }
 
-static void
-dissect_mmse_standalone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mmse_standalone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8       pdut;
     const char   *message_type;
@@ -670,10 +670,11 @@ dissect_mmse_standalone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_add_fstr(pinfo->cinfo, COL_INFO, "MMS %s", message_type);
 
     dissect_mmse(tvb, pinfo, tree, pdut, message_type);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_mmse_encapsulated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mmse_encapsulated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8       pdut;
     const char   *message_type;
@@ -689,6 +690,7 @@ dissect_mmse_encapsulated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 message_type);
 
     dissect_mmse(tvb, pinfo, tree, pdut, message_type);
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -1665,9 +1667,9 @@ proto_reg_handoff_mmse(void)
     dissector_handle_t mmse_encapsulated_handle;
 
     heur_dissector_add("wsp", dissect_mmse_heur, "MMS Message Encapsulation over WSP", "mmse_wsp", proto_mmse, HEURISTIC_ENABLE);
-    mmse_standalone_handle = create_dissector_handle(
+    mmse_standalone_handle = new_create_dissector_handle(
             dissect_mmse_standalone, proto_mmse);
-    mmse_encapsulated_handle = create_dissector_handle(
+    mmse_encapsulated_handle = new_create_dissector_handle(
             dissect_mmse_encapsulated, proto_mmse);
         /* As the media types for WSP and HTTP are the same, the WSP dissector
          * uses the same string dissector table as the HTTP protocol. */

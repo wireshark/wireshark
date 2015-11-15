@@ -1108,10 +1108,11 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
-static void
-dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_ncp_common(tvb, pinfo, tree, FALSE);
+    return tvb_captured_length(tvb);
 }
 
 static guint
@@ -1390,7 +1391,7 @@ proto_reg_handoff_ncp(void)
     dissector_handle_t ncp_handle;
     dissector_handle_t ncp_tcp_handle;
 
-    ncp_handle = create_dissector_handle(dissect_ncp, proto_ncp);
+    ncp_handle = new_create_dissector_handle(dissect_ncp, proto_ncp);
     ncp_tcp_handle = new_create_dissector_handle(dissect_ncp_tcp, proto_ncp);
     dissector_add_uint("tcp.port", TCP_PORT_NCP, ncp_tcp_handle);
     dissector_add_uint("udp.port", UDP_PORT_NCP, ncp_handle);

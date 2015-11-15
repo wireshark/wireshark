@@ -101,9 +101,8 @@ capture_ieee8021ah(const guchar *pd, int offset, int len, packet_counts *ld)
 
 /* Dissector *************************************************************/
 static
-void
-dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
-                   proto_tree *tree)
+int dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
+                   proto_tree *tree, void* data _U_)
 {
     proto_tree       *ptree   = NULL;
     proto_tree       *tagtree = NULL;
@@ -130,12 +129,8 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
                  (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
 
     /* create the protocol tree */
-    ieee8021ad_tree = NULL;
-
-    if (tree) {
-        ptree = proto_tree_add_item(tree, proto_tree_index, tvb, 0, IEEE8021AD_LEN, ENC_NA);
-        ieee8021ad_tree = proto_item_add_subtree(ptree, ett_ieee8021ad);
-    }
+    ptree = proto_tree_add_item(tree, proto_tree_index, tvb, 0, IEEE8021AD_LEN, ENC_NA);
+    ieee8021ad_tree = proto_item_add_subtree(ptree, ett_ieee8021ad);
 
     encap_proto = tvb_get_ntohs(tvb, IEEE8021AD_LEN - 2);
     ethertype_data.fh_tree = ieee8021ad_tree;
@@ -172,7 +167,6 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
             dissect_ieee8021ah_common(next_tvb, pinfo, tree, NULL, proto_tree_index);
         }
 
-        return;
     } else if (encap_proto == ETHERTYPE_IEEE_802_1AD) {
         /* two VLAN tags (i.e. Q-in-Q) */
         ctci = tvb_get_ntohs(tvb, IEEE8021AD_LEN);
@@ -220,6 +214,7 @@ dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
            dissector based on ethertype */
         call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -295,9 +290,8 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static
-void
-dissect_ieee8021ah(tvbuff_t *tvb, packet_info *pinfo,
-                   proto_tree *tree)
+int dissect_ieee8021ah(tvbuff_t *tvb, packet_info *pinfo,
+                   proto_tree *tree, void* data _U_)
 {
     proto_item *pi;
     guint32     tci;
@@ -326,6 +320,7 @@ dissect_ieee8021ah(tvbuff_t *tvb, packet_info *pinfo,
     } else {
         dissect_ieee8021ah_common(tvb, pinfo, tree, NULL, proto_tree_index);
     }
+    return tvb_captured_length(tvb);
 }
 
 /* Protocol Registration **************************************************/
@@ -428,9 +423,9 @@ proto_reg_handoff_ieee8021ah(void)
 
     if (!prefs_initialized){
         dissector_handle_t ieee8021ad_handle;
-        ieee8021ah_handle = create_dissector_handle(dissect_ieee8021ah,
+        ieee8021ah_handle = new_create_dissector_handle(dissect_ieee8021ah,
                                                     proto_ieee8021ah);
-        ieee8021ad_handle = create_dissector_handle(dissect_ieee8021ad,
+        ieee8021ad_handle = new_create_dissector_handle(dissect_ieee8021ad,
                                                     proto_ieee8021ad);
         dissector_add_uint("ethertype", ETHERTYPE_IEEE_802_1AD, ieee8021ad_handle);
         ethertype_handle = find_dissector("ethertype");

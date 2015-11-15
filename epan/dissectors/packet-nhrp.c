@@ -952,9 +952,10 @@ skip_switch:
     *pOffset = extEnd;
 }
 
-static void dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     _dissect_nhrp(tvb, pinfo, tree, FALSE, TRUE);
+    return tvb_captured_length(tvb);
 }
 
 static void _dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -1392,7 +1393,7 @@ proto_reg_handoff_nhrp(void)
     osinl_excl_subdissector_table = find_dissector_table("osinl.excl");
     ethertype_subdissector_table  = find_dissector_table("ethertype");
 
-    nhrp_handle = create_dissector_handle(dissect_nhrp, proto_nhrp);
+    nhrp_handle = new_create_dissector_handle(dissect_nhrp, proto_nhrp);
     dissector_add_uint("ip.proto", IP_PROTO_NARP, nhrp_handle);
     dissector_add_uint("gre.proto", GRE_NHRP, nhrp_handle);
     dissector_add_uint("llc.iana_pid", IANA_PID_MARS_NHRP_CONTROL, nhrp_handle);

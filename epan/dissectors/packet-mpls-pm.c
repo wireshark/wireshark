@@ -660,22 +660,24 @@ dissect_mpls_pm_loss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
-static void
-dissect_mpls_pm_dlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mpls_pm_dlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* the message formats for direct and inferred LM are identical */
     dissect_mpls_pm_loss(tvb, pinfo, tree, DLM);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_mpls_pm_ilm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mpls_pm_ilm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* the message formats for direct and inferred LM are identical */
     dissect_mpls_pm_loss(tvb, pinfo, tree, ILM);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_mpls_pm_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mpls_pm_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *pm_tree;
@@ -693,10 +695,6 @@ dissect_mpls_pm_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     mpls_pm_build_cinfo(tvb, pinfo,
                         "DM",
                         &query, &response, &class_specific, &sid, &code);
-
-    if (!tree) {
-        return;
-    }
 
     /* create display subtree for the protocol */
     ti = proto_tree_add_item(tree, proto_mpls_pm_dm, tvb, 0, -1, ENC_NA);
@@ -758,6 +756,7 @@ dissect_mpls_pm_delay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         mpls_pm_dissect_timestamp(tvb, pm_tree, offset, qtf, rtf, query, i);
         offset += 8;
     }
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -878,18 +877,20 @@ dissect_mpls_pm_combined(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
-static void
-dissect_mpls_pm_dlm_dm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mpls_pm_dlm_dm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* the formats of the DLM+DM and ILM+DM messages are also identical */
     dissect_mpls_pm_combined(tvb, pinfo, tree, DLMDM);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_mpls_pm_ilm_dm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mpls_pm_ilm_dm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* the formats of the DLM+DM and ILM+DM messages are also identical */
     dissect_mpls_pm_combined(tvb, pinfo, tree, ILMDM);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -1525,15 +1526,15 @@ proto_reg_handoff_mpls_pm(void)
     dissector_handle_t mpls_pm_dlm_handle, mpls_pm_ilm_handle, mpls_pm_dm_handle,
                        mpls_pm_dlm_dm_handle, mpls_pm_ilm_dm_handle;
 
-    mpls_pm_dlm_handle    = create_dissector_handle( dissect_mpls_pm_dlm, proto_mpls_pm_dlm );
+    mpls_pm_dlm_handle    = new_create_dissector_handle( dissect_mpls_pm_dlm, proto_mpls_pm_dlm );
     dissector_add_uint("pwach.channel_type", 0x000A, mpls_pm_dlm_handle); /* FF: MPLS PM, RFC 6374, DLM */
-    mpls_pm_ilm_handle    = create_dissector_handle( dissect_mpls_pm_ilm, proto_mpls_pm_ilm );
+    mpls_pm_ilm_handle    = new_create_dissector_handle( dissect_mpls_pm_ilm, proto_mpls_pm_ilm );
     dissector_add_uint("pwach.channel_type", 0x000B, mpls_pm_ilm_handle); /* FF: MPLS PM, RFC 6374, ILM */
-    mpls_pm_dm_handle    = create_dissector_handle( dissect_mpls_pm_delay, proto_mpls_pm_dm );
+    mpls_pm_dm_handle    = new_create_dissector_handle( dissect_mpls_pm_delay, proto_mpls_pm_dm );
     dissector_add_uint("pwach.channel_type", 0x000C, mpls_pm_dm_handle); /* FF: MPLS PM, RFC 6374, DM */
-    mpls_pm_dlm_dm_handle    = create_dissector_handle( dissect_mpls_pm_dlm_dm, proto_mpls_pm_dlm_dm );
+    mpls_pm_dlm_dm_handle    = new_create_dissector_handle( dissect_mpls_pm_dlm_dm, proto_mpls_pm_dlm_dm );
     dissector_add_uint("pwach.channel_type", 0x000D, mpls_pm_dlm_dm_handle); /* FF: MPLS PM, RFC 6374, DLM+DM */
-    mpls_pm_ilm_dm_handle    = create_dissector_handle( dissect_mpls_pm_ilm_dm, proto_mpls_pm_ilm_dm );
+    mpls_pm_ilm_dm_handle    = new_create_dissector_handle( dissect_mpls_pm_ilm_dm, proto_mpls_pm_ilm_dm );
     dissector_add_uint("pwach.channel_type", 0x000E, mpls_pm_ilm_dm_handle); /* FF: MPLS PM, RFC 6374, ILM+DM */
 
 }

@@ -177,8 +177,8 @@ static header_field_info hfi_rtp_jpeg_payload JPEG_HFI_INIT = {
 /* JPEG fields defining a sub tree */
 static gint ett_jpeg = -1;
 
-static void
-dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+static int
+dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
 {
 	proto_item *ti = NULL;
 	proto_tree *jpeg_tree = NULL;
@@ -254,6 +254,7 @@ dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		/* The rest of the packet is the JPEG data */
 		proto_tree_add_item( jpeg_tree, &hfi_rtp_jpeg_payload, tvb, offset, -1, ENC_NA );
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -296,7 +297,7 @@ proto_register_jpeg(void)
 	proto_register_fields(proto_jpeg, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	jpeg_handle = create_dissector_handle(dissect_jpeg, proto_jpeg);
+	jpeg_handle = new_create_dissector_handle(dissect_jpeg, proto_jpeg);
 
 	/* RFC 2798 */
 	register_ber_oid_dissector_handle("0.9.2342.19200300.100.1.60", jpeg_handle, proto_jpeg, "jpegPhoto");

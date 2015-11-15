@@ -369,8 +369,8 @@ capture_loop( const guchar *pd, int len, packet_counts *ld )
   }
 }
 
-static void
-dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint32       null_header;
   proto_tree    *fh_tree;
@@ -473,14 +473,15 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
   }
+  return tvb_captured_length(tvb);
 }
 
 /*
  * OpenBSD DLT_LOOP; like DLT_NULL, but with the first 4 byte *always*
  * being a *big-endian* type.
  */
-static void
-dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint32       loop_family;
   proto_tree    *fh_tree;
@@ -509,6 +510,7 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* No sub-dissector found.  Label rest of packet as "Data" */
     call_dissector(data_handle,next_tvb, pinfo, tree);
   }
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -552,10 +554,10 @@ proto_reg_handoff_null(void)
 
   ethertype_dissector_table = find_dissector_table("ethertype");
 
-  null_handle = create_dissector_handle(dissect_null, proto_null);
+  null_handle = new_create_dissector_handle(dissect_null, proto_null);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_NULL, null_handle);
 
-  loop_handle = create_dissector_handle(dissect_loop, proto_null);
+  loop_handle = new_create_dissector_handle(dissect_loop, proto_null);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LOOP, loop_handle);
 }
 

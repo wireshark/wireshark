@@ -307,7 +307,7 @@ static int dissect_lbmpdm_tcp_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tre
 /*
  * dissect_lbmpdm_tcp - The dissector for LBMPDM over TCP
  */
-static void dissect_lbmpdm_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int dissect_lbmpdm_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
     char * tag_name = NULL;
 
@@ -324,6 +324,7 @@ static void dissect_lbmpdm_tcp(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
     col_set_fence(pinfo->cinfo, COL_INFO);
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, lbmpdm_get_minimum_length(), /* Need at least the msglen */
         get_lbmpdm_tcp_pdu_length, dissect_lbmpdm_tcp_pdu, NULL);
+    return tvb_captured_length(tvb);
 }
 
 static gboolean test_lbmpdm_tcp_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data _U_)
@@ -349,7 +350,7 @@ static gboolean test_lbmpdm_tcp_packet(tvbuff_t * tvb, packet_info * pinfo, prot
     {
         if (lbmpdm_tcp_tag_find(pinfo) != NULL)
         {
-            dissect_lbmpdm_tcp(tvb, pinfo, tree);
+            dissect_lbmpdm_tcp(tvb, pinfo, tree, user_data);
             return (TRUE);
         }
         else
@@ -365,7 +366,7 @@ static gboolean test_lbmpdm_tcp_packet(tvbuff_t * tvb, packet_info * pinfo, prot
         return (FALSE);
     }
     /* One of ours. Probably. */
-    dissect_lbmpdm_tcp(tvb, pinfo, tree);
+    dissect_lbmpdm_tcp(tvb, pinfo, tree, user_data);
     return (TRUE);
 }
 
@@ -438,7 +439,7 @@ void proto_reg_handoff_lbmpdm_tcp(void)
 
     if (!already_registered)
     {
-        lbmpdm_tcp_dissector_handle = create_dissector_handle(dissect_lbmpdm_tcp, lbmpdm_tcp_protocol_handle);
+        lbmpdm_tcp_dissector_handle = new_create_dissector_handle(dissect_lbmpdm_tcp, lbmpdm_tcp_protocol_handle);
         dissector_add_for_decode_as("tcp.port", lbmpdm_tcp_dissector_handle);
         heur_dissector_add("tcp", test_lbmpdm_tcp_packet, "LBMPDM over TCP", "lbmpdm_tcp", lbmpdm_tcp_protocol_handle, HEURISTIC_ENABLE);
     }

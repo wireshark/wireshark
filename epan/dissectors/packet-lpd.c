@@ -67,8 +67,8 @@ static const value_string lpd_server_code[] = {
 	{ 0, NULL }
 };
 
-static void
-dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*lpd_tree;
 	proto_item	*ti, *hidden_item;
@@ -136,6 +136,8 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		else {
 			call_dissector(data_handle,tvb, pinfo, lpd_tree);
 		}
+
+	return tvb_captured_length(tvb);
 }
 
 
@@ -197,7 +199,7 @@ proto_reg_handoff_lpd(void)
 {
 	dissector_handle_t lpd_handle;
 
-	lpd_handle = create_dissector_handle(dissect_lpd, proto_lpd);
+	lpd_handle = new_create_dissector_handle(dissect_lpd, proto_lpd);
 	dissector_add_uint("tcp.port", TCP_PORT_PRINTER, lpd_handle);
 	data_handle = find_dissector("data");
 }

@@ -416,8 +416,8 @@ void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tre
 #define VMNAMERECOFFSET(field)    (guint)(offsetof(nspr_rec_vmname_t, field))
 #define SSLRECOFFSET(field)       (guint)(offsetof(nspr_rec_ssl_t, field))
 #define MPTCPRECOFFSET(field)     (guint)(offsetof(nspr_rec_mptcp_t, field))
-static void
-dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree     *ns_tree = NULL, *flagtree = NULL;
 	proto_item     *ti = NULL, *flagitem = NULL;
@@ -564,6 +564,8 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		next_tvb_eth_client = tvb_new_subset_remaining(tvb, offset);
 		call_dissector(eth_withoutfcs_handle, next_tvb_eth_client, pinfo, tree);
 	}
+
+	return tvb_captured_length(tvb);
 }
 
 void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ns_tree)
@@ -1139,7 +1141,7 @@ void proto_reg_handoff_ns(void)
 
 	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 
-	nstrace_handle = create_dissector_handle(dissect_nstrace, proto_nstrace);
+	nstrace_handle = new_create_dissector_handle(dissect_nstrace, proto_nstrace);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_1_0, nstrace_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_2_0, nstrace_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_3_0, nstrace_handle);

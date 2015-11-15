@@ -4692,8 +4692,8 @@ dissect_17221_acmp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *acmp_tree)
    proto_tree_add_item(acmp_tree, hf_acmp_vlan_id, tvb, ACMP_VLAN_ID_OFFSET, 2, ENC_BIG_ENDIAN);
 }
 
-static void
-dissect_17221(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_17221(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    guint8 subtype = 0;
    proto_item *ieee17221_item;
@@ -4734,10 +4734,11 @@ dissect_17221(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          {
             /* Shouldn't get here */
             col_set_str(pinfo->cinfo, COL_INFO, "1722.1 Unknown");
-            return;
+            return 0;
          }
    }
 
+   return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -7019,7 +7020,7 @@ proto_reg_handoff_17221(void)
 
    /* avb17221_handle = find_dissector("ieee1722"); */
 
-   avb17221_handle = create_dissector_handle(dissect_17221, proto_17221);
+   avb17221_handle = new_create_dissector_handle(dissect_17221, proto_17221);
    dissector_add_uint("ieee1722.subtype", 0x7A, avb17221_handle);
    dissector_add_uint("ieee1722.subtype", 0x7B, avb17221_handle);
    dissector_add_uint("ieee1722.subtype", 0x7C, avb17221_handle);

@@ -210,7 +210,7 @@ static gint ett_ismacryp_message = -1;
 */
 
 /* dissect_ismacryp_v11 gets called if rtp_dyn_payload_type = "enc-mpeg4-generic" i.e. is set via SDP */
-static void dissect_ismacryp_v11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_ismacryp_v11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	/* display ISMACryp version */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_ISMACRYP_11);
@@ -219,10 +219,11 @@ static void dissect_ismacryp_v11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	col_set_str(pinfo->cinfo, COL_INFO, "(PT=enc-mpeg4-generic)");
 
 	dissect_ismacryp_common( tvb, pinfo, tree, V11);
+	return tvb_captured_length(tvb);
 }
 
 /* dissect_ismacryp_v20 gets called if rtp_dyn_payload_type = "enc-isoff-generic" i.e. is set via SDP */
-static void dissect_ismacryp_v20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_ismacryp_v20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	/* display ISMACryp version */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_ISMACRYP_20);
@@ -231,12 +232,14 @@ static void dissect_ismacryp_v20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	col_set_str(pinfo->cinfo, COL_INFO, "(PT=enc-isoff-generic)");
 
 	dissect_ismacryp_common( tvb, pinfo, tree, V20);
+	return tvb_captured_length(tvb);
 }
 
-static void dissect_ismacryp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_ismacryp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	col_set_str(pinfo->cinfo, COL_INFO, "Manual version");
 	dissect_ismacryp_common( tvb, pinfo, tree, version_type);   /* Unknown version type: Use preference */
+	return tvb_captured_length(tvb);
 }
 
 static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint ismacryp_version)
@@ -1004,9 +1007,9 @@ void proto_reg_handoff_ismacryp(void)
 	if (!ismacryp_prefs_initialized) {
 		dissector_handle_t ismacryp_v11_handle;
 		dissector_handle_t ismacryp_v20_handle;
-		ismacryp_handle = create_dissector_handle(dissect_ismacryp, proto_ismacryp);
-		ismacryp_v11_handle = create_dissector_handle(dissect_ismacryp_v11, proto_ismacryp);
-		ismacryp_v20_handle = create_dissector_handle(dissect_ismacryp_v20, proto_ismacryp);
+		ismacryp_handle = new_create_dissector_handle(dissect_ismacryp, proto_ismacryp);
+		ismacryp_v11_handle = new_create_dissector_handle(dissect_ismacryp_v11, proto_ismacryp);
+		ismacryp_v20_handle = new_create_dissector_handle(dissect_ismacryp_v20, proto_ismacryp);
 		ismacryp_prefs_initialized = TRUE;
 		dissector_add_string("rtp_dyn_payload_type", "ISMACRYP", ismacryp_handle);
 		dissector_add_string("rtp_dyn_payload_type", "enc-mpeg4-generic", ismacryp_v11_handle);

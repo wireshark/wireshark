@@ -678,7 +678,7 @@ static int ett_isi_network_gsm_band_info = -1;
 static expert_field ei_isi_len = EI_INIT;
 static expert_field ei_isi_unsupported_packet = EI_INIT;
 
-static void dissect_isi_sim_auth(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree) {
+static int dissect_isi_sim_auth(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree, void* data _U_) {
 	proto_item *item;
 	proto_tree *tree;
 	guint8 cmd, code;
@@ -821,9 +821,10 @@ static void dissect_isi_sim_auth(tvbuff_t *tvb, packet_info *pinfo, proto_item *
 			col_set_str(pinfo->cinfo, COL_INFO, "unknown SIM Authentication packet");
 			break;
 	}
+	return tvb_captured_length(tvb);
 }
 
-static void dissect_isi_sim(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree) {
+static int dissect_isi_sim(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree, void* data _U_) {
 	proto_item *item;
 	proto_tree *tree;
 	guint8 cmd, code;
@@ -1080,9 +1081,10 @@ static void dissect_isi_sim(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitr
 			col_set_str(pinfo->cinfo, COL_INFO, "Unknown type");
 			break;
 	}
+	return tvb_captured_length(tvb);
 }
 
-static void dissect_isi_gss(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree) {
+static int dissect_isi_gss(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree, void* data _U_) {
 	proto_item *item;
 	proto_tree *tree;
 	guint8 cmd, code;
@@ -1168,6 +1170,7 @@ static void dissect_isi_gss(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitr
 			col_set_str(pinfo->cinfo, COL_INFO, "Unknown type");
 			break;
 	}
+	return tvb_captured_length(tvb);
 }
 
 static void dissect_isi_gps_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *item _U_, proto_tree *tree)
@@ -1283,7 +1286,7 @@ static void dissect_isi_gps_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_it
 
 }
 
-static void dissect_isi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree)
+static int dissect_isi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree, void* data _U_)
 {
 	proto_item *item;
 	proto_tree *tree;
@@ -1324,9 +1327,10 @@ static void dissect_isi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitr
 			col_add_fstr(pinfo->cinfo, COL_INFO, "unknown GPS packet (0x%02x)", cmd);
 			break;
 	}
+	return tvb_captured_length(tvb);
 }
 
-static void dissect_isi_ss(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree)
+static int dissect_isi_ss(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree, void* data _U_)
 {
 	proto_item *item;
 	proto_tree *tree;
@@ -1497,6 +1501,7 @@ static void dissect_isi_ss(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitre
 			col_set_str(pinfo->cinfo, COL_INFO, "Unknown type");
 			break;
 	}
+	return tvb_captured_length(tvb);
 }
 
 static void dissect_isi_network_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *item _U_, proto_tree *tree)
@@ -1595,7 +1600,7 @@ static void dissect_isi_network_cell_info_ind(tvbuff_t *tvb, packet_info *pinfo,
 	}
 }
 
-static void dissect_isi_network(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree) {
+static int dissect_isi_network(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree, void* data _U_) {
 	proto_item *item;
 	proto_tree *tree;
 	guint8 cmd;
@@ -1628,9 +1633,10 @@ static void dissect_isi_network(tvbuff_t *tvb, packet_info *pinfo, proto_item *i
 			expert_add_info(pinfo, item, &ei_isi_unsupported_packet);
 			break;
 	}
+	return tvb_captured_length(tvb);
 }
 
-static void dissect_isi_sms(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree) {
+static int dissect_isi_sms(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree, void* data _U_) {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint8 cmd, code;
@@ -1775,9 +1781,10 @@ static void dissect_isi_sms(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitr
 			col_set_str(pinfo->cinfo, COL_INFO, "Unknown type");
 			break;
 	}
+	return tvb_captured_length(tvb);
 }
 
-static void dissect_isi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int dissect_isi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
 	proto_tree *isi_tree;
 	proto_item *item, *item_len;
 	tvbuff_t *content_tvb;
@@ -1821,6 +1828,8 @@ static void dissect_isi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	/* Call subdissector depending on the resource ID */
 	if (!dissector_try_uint(isi_resource_dissector_table, resource, content_tvb, pinfo, isi_tree))
 		call_dissector(data_handle, content_tvb, pinfo, isi_tree);
+
+	return tvb_captured_length(tvb);
 }
 
 /* Experimental approach based upon the one used for PPP*/
@@ -1832,7 +1841,7 @@ static gboolean dissect_usb_isi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		return FALSE;
 
 	next_tvb = tvb_new_subset_remaining(tvb, 1);
-	dissect_isi(next_tvb, pinfo, tree);
+	dissect_isi(next_tvb, pinfo, tree, data);
 
 	return TRUE;
 }
@@ -2131,17 +2140,17 @@ proto_reg_handoff_isi(void)
 
 	if(!initialized) {
 		data_handle = find_dissector("data");
-		dissector_add_uint("sll.ltype", LINUX_SLL_P_ISI, create_dissector_handle(dissect_isi, proto_isi));
+		dissector_add_uint("sll.ltype", LINUX_SLL_P_ISI, new_create_dissector_handle(dissect_isi, proto_isi));
 
 		heur_dissector_add("usb.bulk", dissect_usb_isi, "ISI bulk endpoint", "usb_bulk_isi", proto_isi, HEURISTIC_DISABLE);
 
-		dissector_add_uint("isi.resource", 0x02, create_dissector_handle(dissect_isi_sms, proto_isi));
-		dissector_add_uint("isi.resource", 0x06, create_dissector_handle(dissect_isi_ss, proto_isi));
-		dissector_add_uint("isi.resource", 0x08, create_dissector_handle(dissect_isi_sim_auth, proto_isi));
-		dissector_add_uint("isi.resource", 0x09, create_dissector_handle(dissect_isi_sim, proto_isi));
-		dissector_add_uint("isi.resource", 0x0a, create_dissector_handle(dissect_isi_network, proto_isi));
-		dissector_add_uint("isi.resource", 0x32, create_dissector_handle(dissect_isi_gss, proto_isi));
-		dissector_add_uint("isi.resource", 0x54, create_dissector_handle(dissect_isi_gps, proto_isi));
+		dissector_add_uint("isi.resource", 0x02, new_create_dissector_handle(dissect_isi_sms, proto_isi));
+		dissector_add_uint("isi.resource", 0x06, new_create_dissector_handle(dissect_isi_ss, proto_isi));
+		dissector_add_uint("isi.resource", 0x08, new_create_dissector_handle(dissect_isi_sim_auth, proto_isi));
+		dissector_add_uint("isi.resource", 0x09, new_create_dissector_handle(dissect_isi_sim, proto_isi));
+		dissector_add_uint("isi.resource", 0x0a, new_create_dissector_handle(dissect_isi_network, proto_isi));
+		dissector_add_uint("isi.resource", 0x32, new_create_dissector_handle(dissect_isi_gss, proto_isi));
+		dissector_add_uint("isi.resource", 0x54, new_create_dissector_handle(dissect_isi_gps, proto_isi));
 	}
 }
 

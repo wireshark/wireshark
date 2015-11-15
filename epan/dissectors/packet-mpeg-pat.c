@@ -58,10 +58,9 @@ static const true_false_string mpeg_pat_cur_next_vals = {
 
 };
 
-static void
-dissect_mpeg_pat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mpeg_pat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-
     guint offset = 0, length = 0;
     guint16 prog_num, prog_pid;
 
@@ -94,7 +93,7 @@ dissect_mpeg_pat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 1;
 
     if (offset >= length)
-        return;
+        return offset;
 
 
     /* Parse all the programs */
@@ -117,6 +116,7 @@ dissect_mpeg_pat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     offset += packet_mpeg_sect_crc(tvb, pinfo, mpeg_pat_tree, 0, offset);
     proto_item_set_len(ti, offset);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -190,7 +190,7 @@ void proto_reg_handoff_mpeg_pat(void)
 {
     dissector_handle_t mpeg_pat_handle;
 
-    mpeg_pat_handle = create_dissector_handle(dissect_mpeg_pat, proto_mpeg_pat);
+    mpeg_pat_handle = new_create_dissector_handle(dissect_mpeg_pat, proto_mpeg_pat);
     dissector_add_uint("mpeg_sect.tid", MPEG_PAT_TID, mpeg_pat_handle);
 }
 

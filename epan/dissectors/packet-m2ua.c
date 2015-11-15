@@ -1041,8 +1041,8 @@ dissect_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, pro
   dissect_parameters(parameters_tvb, pinfo, tree, m2ua_tree);
 }
 
-static void
-dissect_m2ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_m2ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *m2ua_item;
   proto_tree *m2ua_tree;
@@ -1056,6 +1056,7 @@ dissect_m2ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 
   /* dissect the message */
   dissect_message(message_tvb, pinfo, tree, m2ua_tree);
+  return tvb_captured_length(message_tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -1142,7 +1143,7 @@ proto_reg_handoff_m2ua(void)
   dissector_handle_t m2ua_handle;
 
   mtp3_handle = find_dissector("mtp3");
-  m2ua_handle = create_dissector_handle(dissect_m2ua, proto_m2ua);
+  m2ua_handle = new_create_dissector_handle(dissect_m2ua, proto_m2ua);
   dissector_add_uint("sctp.ppi",  M2UA_PAYLOAD_PROTOCOL_ID, m2ua_handle);
   dissector_add_uint("sctp.port", SCTP_PORT_M2UA, m2ua_handle);
 }

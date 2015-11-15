@@ -175,8 +175,8 @@ static void
 dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, guint16 tlv_len);
 
 
-static void
-dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
         proto_item *ti;
         proto_tree *msdp_tree;
@@ -230,7 +230,7 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tvb_reported_length_remaining(tvb, offset) > 0)
                 proto_tree_add_item(msdp_tree, hf_msdp_trailing_junk, tvb, offset, -1, ENC_NA);
 
-        return;
+        return tvb_captured_length(tvb);
 }
 
 /* Both Source-Active and Source-Active Response have the same format
@@ -427,7 +427,7 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
                  * sent back.
                  */
                 next_tvb = tvb_new_subset_remaining(tvb, *offset);
-                dissect_msdp(next_tvb, pinfo, tree);
+                dissect_msdp(next_tvb, pinfo, tree, NULL);
                 }
                 break;
         case FSM_ERROR:
@@ -585,7 +585,7 @@ proto_reg_handoff_msdp(void)
 {
         dissector_handle_t msdp_handle;
 
-        msdp_handle = create_dissector_handle(dissect_msdp, proto_msdp);
+        msdp_handle = new_create_dissector_handle(dissect_msdp, proto_msdp);
         dissector_add_uint("tcp.port", 639, msdp_handle);
 
         ip_handle = find_dissector("ip");

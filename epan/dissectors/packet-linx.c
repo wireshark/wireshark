@@ -283,8 +283,8 @@ static const value_string linx_conn_cmd[] = {
 	{ 0,	NULL}
 };
 
-static void
-dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint32 dword;
 	int	offset = 0;
@@ -639,6 +639,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 	}
+	return tvb_captured_length(tvb);
 }
 
 
@@ -838,7 +839,7 @@ proto_reg_handoff_linx(void)
 {
 	dissector_handle_t linx_handle;
 
-	linx_handle = create_dissector_handle(dissect_linx, proto_linx);
+	linx_handle = new_create_dissector_handle(dissect_linx, proto_linx);
 	dissector_add_uint("ethertype", ETHERTYPE_LINX, linx_handle);
 }
 
@@ -849,8 +850,8 @@ proto_reg_handoff_linx(void)
 /* Default the port to zero */
 static guint linx_tcp_port = 0;
 
-static void
-dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint32 dword;
 	int offset = 0;
@@ -981,6 +982,7 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -1087,7 +1089,7 @@ proto_reg_handoff_linx_tcp(void)
 
 
 	if (!linx_tcp_prefs_initialized) {
-		linx_tcp_handle = create_dissector_handle(dissect_linx_tcp, proto_linx_tcp);
+		linx_tcp_handle = new_create_dissector_handle(dissect_linx_tcp, proto_linx_tcp);
 		dissector_add_uint("tcp.port", linx_tcp_port, linx_tcp_handle);
 		linx_tcp_prefs_initialized = TRUE;
 	}

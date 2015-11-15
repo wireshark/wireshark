@@ -1357,8 +1357,8 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree)
  * pinfo - packet info
  * proto_tree - resolved protocol tree
  */
-static void
-dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree      *ntp_tree;
 	proto_item      *ti = NULL;
@@ -1399,6 +1399,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Dissect according to mode */
 	(*dissector)(tvb, pinfo, ntp_tree);
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -1702,7 +1703,7 @@ proto_reg_handoff_ntp(void)
 {
 	dissector_handle_t ntp_handle;
 
-	ntp_handle = create_dissector_handle(dissect_ntp, proto_ntp);
+	ntp_handle = new_create_dissector_handle(dissect_ntp, proto_ntp);
 	dissector_add_uint("udp.port", UDP_PORT_NTP, ntp_handle);
 	dissector_add_uint("tcp.port", TCP_PORT_NTP, ntp_handle);
 }

@@ -4004,8 +4004,8 @@ dissect_mip6_options(tvbuff_t *tvb, proto_tree *mip6_tree, int offset, int len,
 }
 
 /* Function that dissects the whole MIPv6 packet */
-static void
-dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *mip6_tree   = NULL;
     guint8      type, pproto;
@@ -4144,7 +4144,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (offset < len) {
         if (len < (offset - start_offset)) {
             expert_add_info(pinfo, header_item, &ei_mip6_bogus_header_length);
-            return;
+            return offset;
         }
         len -= (offset - start_offset);
         dissect_mip6_options(tvb, mip6_tree, offset, len, pinfo);
@@ -4171,6 +4171,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         col_set_str(pinfo->cinfo, COL_INFO, "Fast Binding Acknowledgment");
     }
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -5364,7 +5365,7 @@ proto_reg_handoff_mip6(void)
     dissector_handle_t mip6_handle;
 
     /* mip6_handle = find_dissector("mipv6"); */
-    mip6_handle = create_dissector_handle(dissect_mip6, proto_mip6);
+    mip6_handle = new_create_dissector_handle(dissect_mip6, proto_mip6);
     dissector_add_uint("ip.proto", IP_PROTO_MIPV6_OLD, mip6_handle);
     dissector_add_uint("ip.proto", IP_PROTO_MIPV6, mip6_handle);
     /* Add support for PMIPv6 control messages over IPV4 */

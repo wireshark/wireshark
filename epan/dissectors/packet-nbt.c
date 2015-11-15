@@ -1001,8 +1001,8 @@ dissect_answer_records(tvbuff_t *tvb, packet_info *pinfo, int cur_off, int nbns_
     return cur_off - start_off;
 }
 
-static void
-dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int          offset    = 0;
     int          nbns_data_offset;
@@ -1091,6 +1091,8 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                               nbns_data_offset,
                                               add, NULL, nbns_tree, opcode,
                                               "Additional records");
+
+    return tvb_captured_length(tvb);
 }
 
 static heur_dissector_list_t netbios_heur_subdissector_list;
@@ -1168,8 +1170,8 @@ static const value_string nbds_error_codes[] = {
     { 0x00, NULL }
 };
 
-static void
-dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int                  offset     = 0;
     proto_tree          *nbdgm_tree = NULL;
@@ -1320,6 +1322,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_item_set_len(ti, offset);
         break;
     }
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -2083,10 +2086,10 @@ proto_reg_handoff_nbt(void)
 {
     dissector_handle_t nbns_handle, nbdgm_handle, nbss_handle;
 
-    nbns_handle  = create_dissector_handle(dissect_nbns, proto_nbns);
+    nbns_handle  = new_create_dissector_handle(dissect_nbns, proto_nbns);
     dissector_add_uint("udp.port", UDP_PORT_NBNS, nbns_handle);
 
-    nbdgm_handle = create_dissector_handle(dissect_nbdgm, proto_nbdgm);
+    nbdgm_handle = new_create_dissector_handle(dissect_nbdgm, proto_nbdgm);
     dissector_add_uint("udp.port", UDP_PORT_NBDGM, nbdgm_handle);
 
     nbss_handle  = new_create_dissector_handle(dissect_nbss, proto_nbss);

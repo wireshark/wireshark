@@ -1369,10 +1369,11 @@ dissect_h223_circuit_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     return tvb_captured_length(tvb);
 }
 
-static void
-dissect_h223(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_h223(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_h223_common(tvb, pinfo, tree, CT_NONE, 0);
+    return tvb_captured_length(tvb);
 }
 
 /* H.223 specifies that the least-significant bit is transmitted first;
@@ -1663,7 +1664,7 @@ void proto_reg_handoff_h223(void)
     data_handle = find_dissector("data");
     srp_handle = find_dissector("srp");
 
-    dissector_add_for_decode_as("tcp.port", create_dissector_handle( dissect_h223, proto_h223));
+    dissector_add_for_decode_as("tcp.port", new_create_dissector_handle( dissect_h223, proto_h223));
     dissector_add_for_decode_as("tcp.port", h223_bitswapped);
     dissector_add_string("rtp_dyn_payload_type","CLEARMODE", h223_bitswapped);
     dissector_add_uint("iax2.dataformat", AST_DATAFORMAT_H223_H245, new_create_dissector_handle(dissect_h223_bitswapped_circuit_data, proto_h223_bitswapped));

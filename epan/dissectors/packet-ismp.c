@@ -487,8 +487,8 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 
 
 /* Code to actually dissect the packets */
-static void
-dissect_ismp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ismp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 	guint16 message_type = 0;
@@ -534,6 +534,8 @@ dissect_ismp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* if Enterasys Discover Protocol, dissect it */
 	if(message_type == ISMPTYPE_EDP)
 		dissect_ismp_edp(tvb, pinfo, offset, tree);
+
+	return tvb_captured_length(tvb);
 }
 
 
@@ -880,7 +882,7 @@ proto_reg_handoff_ismp(void)
 {
 	dissector_handle_t ismp_handle;
 
-	ismp_handle = create_dissector_handle(dissect_ismp,
+	ismp_handle = new_create_dissector_handle(dissect_ismp,
 	    proto_ismp);
 	dissector_add_uint("ethertype", ETHERTYPE_ISMP, ismp_handle);
 }

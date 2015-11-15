@@ -3189,8 +3189,8 @@ dissect_homeplug_av_mme(ptvcursor_t *cursor, guint8 homeplug_av_mmver, guint16 h
    return;
 }
 
-static void
-dissect_homeplug_av(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_homeplug_av(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    proto_item  *ti;
    proto_tree  *homeplug_av_tree;
@@ -3218,6 +3218,7 @@ dissect_homeplug_av(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    }
 
    ptvcursor_free(cursor);
+   return tvb_captured_length(tvb);
 }
 
 void
@@ -4744,7 +4745,7 @@ proto_reg_handoff_homeplug_av(void)
 {
    dissector_handle_t homeplug_av_handle;
 
-   homeplug_av_handle = create_dissector_handle(dissect_homeplug_av, proto_homeplug_av);
+   homeplug_av_handle = new_create_dissector_handle(dissect_homeplug_av, proto_homeplug_av);
    dissector_add_uint("ethertype", ETHERTYPE_HOMEPLUG_AV, homeplug_av_handle);
 }
 

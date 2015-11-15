@@ -54,8 +54,8 @@ static dissector_handle_t http_handle;
 
 #define TCP_PORT_ICAP           1344
 static int is_icap_message(const guchar *data, int linelen, icap_type_t *type);
-static void
-dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree   *icap_tree = NULL;
     proto_item   *ti        = NULL;
@@ -245,6 +245,8 @@ is_icap_header:
             call_dissector(http_handle, new_tvb, pinfo, icap_tree);
         }
     }
+
+	return tvb_captured_length(tvb);
 }
 
 
@@ -322,7 +324,7 @@ proto_reg_handoff_icap(void)
     data_handle = find_dissector("data");
     http_handle = find_dissector("http");
 
-    icap_handle = create_dissector_handle(dissect_icap, proto_icap);
+    icap_handle = new_create_dissector_handle(dissect_icap, proto_icap);
     dissector_add_uint("tcp.port", TCP_PORT_ICAP, icap_handle);
 }
 

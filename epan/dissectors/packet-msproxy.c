@@ -191,8 +191,8 @@ typedef struct {
 /************** negotiated conversation hash stuff ***************/
 
 
-static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
-		proto_tree *tree) {
+static int msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
+		proto_tree *tree, void* data _U_) {
 
 /* Conversation dissector called from TCP or UDP dissector. Decode and	*/
 /* display the msproxy header, the pass the rest of the data to the tcp	*/
@@ -249,6 +249,7 @@ static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 			pinfo->destport, -1);
 
 	*ptr = redirect_info->server_int_port;
+	return tvb_captured_length(tvb);
 }
 
 
@@ -1046,8 +1047,7 @@ static void dissect_msproxy_response(tvbuff_t *tvb, packet_info *pinfo,
 
 
 
-static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-
+static int dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
 
 	proto_tree      *msproxy_tree;
 	proto_item      *ti;
@@ -1085,6 +1085,8 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissect_msproxy_response( tvb, pinfo, msproxy_tree, hash_info);
 	else
 		dissect_msproxy_request( tvb, pinfo, msproxy_tree, hash_info);
+
+	return tvb_captured_length(tvb);
 }
 
 
@@ -1254,7 +1256,7 @@ proto_register_msproxy( void){
 	expert_msproxy = expert_register_protocol(proto_msproxy);
 	expert_register_field_array(expert_msproxy, ei, array_length(ei));
 
-	msproxy_sub_handle = create_dissector_handle(msproxy_sub_dissector,
+	msproxy_sub_handle = new_create_dissector_handle(msproxy_sub_dissector,
 		proto_msproxy);
 }
 
@@ -1266,7 +1268,7 @@ proto_reg_handoff_msproxy(void) {
 
 	dissector_handle_t msproxy_handle;
 
-	msproxy_handle = create_dissector_handle(dissect_msproxy,
+	msproxy_handle = new_create_dissector_handle(dissect_msproxy,
 		proto_msproxy);
 	dissector_add_uint("udp.port", UDP_PORT_MSPROXY, msproxy_handle);
 }

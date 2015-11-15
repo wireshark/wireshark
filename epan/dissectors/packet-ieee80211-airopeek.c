@@ -39,8 +39,8 @@ static int hf_signal_strength = -1;
 
 static gint ett_airopeek = -1;
 
-static void
-dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree *airopeek_tree = NULL;
   proto_item *ti;
@@ -74,17 +74,15 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
                data_rate / 2,
                data_rate & 1 ? 5 : 0);
-  if (tree) {
-    proto_tree_add_uint64_format_value(airopeek_tree, hf_data_rate, tvb, 0, 1,
+
+  proto_tree_add_uint64_format_value(airopeek_tree, hf_data_rate, tvb, 0, 1,
                                  (guint64)data_rate * 500000,
                                  "%u.%u Mb/s",
                                  data_rate / 2,
                                  data_rate & 1 ? 5 : 0);
-  }
 
   phdr.channel = tvb_get_guint8(tvb, 1);
-  if (tree)
-    proto_tree_add_item(airopeek_tree, hf_channel, tvb, 1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(airopeek_tree, hf_channel, tvb, 1, 1, ENC_BIG_ENDIAN);
 
   signal_level = tvb_get_guint8(tvb, 2);
   /*
@@ -109,6 +107,7 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pinfo->current_proto = "IEEE 802.11";
   next_tvb = tvb_new_subset_remaining(tvb, 4);
   call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
+  return tvb_captured_length(tvb);
 }
 
 void proto_register_ieee80211_airopeek(void)
@@ -143,7 +142,7 @@ void proto_reg_handoff_ieee80211_airopeek(void)
   dissector_handle_t airopeek_handle;
 
   /* Register handoff to airopeek-header dissectors */
-  airopeek_handle = create_dissector_handle(dissect_airopeek, proto_airopeek);
+  airopeek_handle = new_create_dissector_handle(dissect_airopeek, proto_airopeek);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_AIROPEEK,
                      airopeek_handle);
   ieee80211_radio_handle = find_dissector("wlan_radio");

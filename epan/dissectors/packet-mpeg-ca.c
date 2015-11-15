@@ -51,10 +51,9 @@ static const value_string mpeg_ca_cur_next_vals[] = {
 
 };
 
-static void
-dissect_mpeg_ca(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mpeg_ca(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-
     guint offset = 0, length = 0;
 
     proto_item *ti;
@@ -88,6 +87,7 @@ dissect_mpeg_ca(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += packet_mpeg_sect_crc(tvb, pinfo, mpeg_ca_tree, 0, offset);
 
     proto_item_set_len(ti, offset);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -145,7 +145,7 @@ void proto_reg_handoff_mpeg_ca(void)
 {
     dissector_handle_t mpeg_ca_handle;
 
-    mpeg_ca_handle = create_dissector_handle(dissect_mpeg_ca, proto_mpeg_ca);
+    mpeg_ca_handle = new_create_dissector_handle(dissect_mpeg_ca, proto_mpeg_ca);
     dissector_add_uint("mpeg_sect.tid", MPEG_CA_TID, mpeg_ca_handle);
 }
 

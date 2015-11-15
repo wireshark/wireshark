@@ -38,8 +38,8 @@ static int proto_ncs = -1;
 static int hf_panning_id = -1;
 static int hf_incarnation = -1;
 
-static void
-dissect_ncs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ncs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree  *ncs_tree;
   proto_item  *ti;
@@ -52,6 +52,7 @@ dissect_ncs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   proto_tree_add_item(ncs_tree, hf_panning_id, tvb, 4, 4, ENC_BIG_ENDIAN);
   proto_tree_add_item(ncs_tree, hf_incarnation, tvb, 8, 4, ENC_BIG_ENDIAN);
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -85,7 +86,7 @@ proto_reg_handoff_ncs(void)
 {
   dissector_handle_t ncs_handle;
 
-  ncs_handle = create_dissector_handle(dissect_ncs, proto_ncs);
+  ncs_handle = new_create_dissector_handle(dissect_ncs, proto_ncs);
   dissector_add_uint("ip.proto", IP_PROTO_NCS_HEARTBEAT, ncs_handle);
 }
 

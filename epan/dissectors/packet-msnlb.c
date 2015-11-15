@@ -123,8 +123,8 @@ version_base_custom(gchar *result, guint32 version)
   g_snprintf(result, ITEM_LABEL_LENGTH, "%d.%d", (version  >> 8) & 0xFF, (version & 0xFF));
 }
 
-static void
-dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item  *ti;
   proto_tree  *msnlb_tree = NULL, *msnlb_subtree;
@@ -333,6 +333,7 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     break;
   }
 
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -631,7 +632,7 @@ proto_reg_handoff_msnlb(void)
 {
   dissector_handle_t msnlb_handle;
 
-  msnlb_handle = create_dissector_handle(dissect_msnlb, proto_msnlb);
+  msnlb_handle = new_create_dissector_handle(dissect_msnlb, proto_msnlb);
   dissector_add_uint("ethertype", ETHERTYPE_MS_NLB_HEARTBEAT, msnlb_handle);
 }
 

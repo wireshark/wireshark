@@ -63,8 +63,8 @@ static const value_string lge_monitor_prot_vals[] = {
 #define LGEMON_PROTO_HEADER_LENGTH 12
 
 /* Code to actually dissect the packets */
-static void
-dissect_lge_monitor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_lge_monitor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 	guint32 lge_monitor_proto_id;
@@ -101,15 +101,15 @@ dissect_lge_monitor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	case 2: /* SCTP */
 		call_dissector(sctp_handle, next_tvb, pinfo, tree);
-		return;
+		break;
 	case 3: /* M3UA */
 		call_dissector(m3ua_handle, next_tvb, pinfo, tree);
-		return;
+		break;
 	default:
 		proto_tree_add_item(lge_monitor_tree, hf_lge_monitor_data, tvb, offset, -1, ENC_NA);
 		break;
 	}
-	return;
+	return tvb_captured_length(tvb);
 }
 
 
@@ -121,7 +121,7 @@ proto_reg_handoff_lge_monitor(void)
 	static gboolean lge_monitor_prefs_initialized = FALSE;
 
 	if (!lge_monitor_prefs_initialized) {
-		lge_monitor_handle = create_dissector_handle(dissect_lge_monitor, proto_lge_monitor);
+		lge_monitor_handle = new_create_dissector_handle(dissect_lge_monitor, proto_lge_monitor);
 		dissector_add_for_decode_as("udp.port", lge_monitor_handle);
 		mtp3_handle  = find_dissector("mtp3");
 		m3ua_handle  = find_dissector("m3ua");

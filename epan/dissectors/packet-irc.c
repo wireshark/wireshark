@@ -444,8 +444,8 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
     }
 }
 
-static void
-dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *irc_tree, *ti;
     gint        offset = 0;
@@ -494,6 +494,7 @@ dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         offset = next_offset;
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -571,7 +572,7 @@ proto_reg_handoff_irc(void)
 {
     dissector_handle_t irc_handle;
 
-    irc_handle = create_dissector_handle(dissect_irc, proto_irc);
+    irc_handle = new_create_dissector_handle(dissect_irc, proto_irc);
     dissector_add_uint("tcp.port", TCP_PORT_IRC, irc_handle);
     dissector_add_uint("tcp.port", TCP_PORT_DIRCPROXY, irc_handle);
 }

@@ -75,9 +75,9 @@ static int hf_kdp_rst_flag = -1;
 static int hf_kdp_bcst_flag = -1;
 static int hf_kdp_dup_flag = -1;
 
-static void dissect_kdp(tvbuff_t *tvb,
+static int dissect_kdp(tvbuff_t *tvb,
                         packet_info *pinfo,
-                        proto_tree *tree) {
+                        proto_tree *tree, void* data _U_) {
   proto_item *ti;
   proto_tree *kdp_tree;
   guint body_len;
@@ -257,6 +257,8 @@ static void dissect_kdp(tvbuff_t *tvb,
                    src_flowid_string,
                    packet_errors);
   }
+
+  return tvb_captured_length(tvb);
 }
 
 void proto_register_kdp(void) {
@@ -403,7 +405,7 @@ void proto_register_kdp(void) {
 void
 proto_reg_handoff_kdp(void) {
   dissector_handle_t kdp_handle;
-  kdp_handle = create_dissector_handle(dissect_kdp, proto_kdp);
+  kdp_handle = new_create_dissector_handle(dissect_kdp, proto_kdp);
   dissector_add_uint("udp.port", KDP_PORT, kdp_handle);
 }
 

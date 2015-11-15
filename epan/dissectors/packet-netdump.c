@@ -81,14 +81,9 @@ static const value_string reply_code_names[] = {
 
 
 /* Code to actually dissect the packets */
-static void
-dissect_netdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_netdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-
-	/* Check that there's enough data */
-	if (tvb_reported_length(tvb) == 0)
-		return;
-
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Netdump");
 	/* Clear out stuff in the info column */
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -114,6 +109,7 @@ dissect_netdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(netdump_tree, hf_netdump_payload, tvb, 13, -1, ENC_NA);
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void proto_register_netdump(void)
@@ -207,7 +203,7 @@ void proto_reg_handoff_netdump(void)
 	static int CurrentPort;
 
 	if (!initalized) {
-		netdump_handle = create_dissector_handle(dissect_netdump,
+		netdump_handle = new_create_dissector_handle(dissect_netdump,
 				proto_netdump);
 
 		dissector_add_for_decode_as("udp.port", netdump_handle);

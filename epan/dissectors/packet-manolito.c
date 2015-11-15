@@ -48,8 +48,8 @@ static gint ett_manolito = -1;
 static expert_field ei_manolito_type = EI_INIT;
 
 /* Code to actually dissect the packets */
-static void
-dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissector_data _U_)
 {
 	unsigned int offset;
 
@@ -214,6 +214,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, packet_type);
 	}
+	return tvb_captured_length(tvb);
 }
 
 
@@ -295,7 +296,7 @@ proto_reg_handoff_manolito(void)
 {
 	dissector_handle_t manolito_handle;
 
-	manolito_handle = create_dissector_handle(dissect_manolito,
+	manolito_handle = new_create_dissector_handle(dissect_manolito,
 	    proto_manolito);
 	dissector_add_uint("udp.port", 41170, manolito_handle);
 }

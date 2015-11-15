@@ -4037,13 +4037,14 @@ static guint get_mq_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 static int dissect_mq_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, mq_desegment, 28, get_mq_pdu_len, reassemble_mq, data);
-    return tvb_reported_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
-static void dissect_mq_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mq_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* Since SPX has no standard desegmentation, MQ cannot be performed as well */
     dissect_mq_pdu(tvb, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 static gboolean dissect_mq_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint iProto, void *data)
@@ -4779,7 +4780,7 @@ void proto_reg_handoff_mq(void)
     *  known port number, the MQ applications are most often specific to a business application */
 
     mq_tcp_handle = new_create_dissector_handle(dissect_mq_tcp, proto_mq);
-    mq_spx_handle = create_dissector_handle(dissect_mq_spx, proto_mq);
+    mq_spx_handle = new_create_dissector_handle(dissect_mq_spx, proto_mq);
 
     dissector_add_for_decode_as("tcp.port", mq_tcp_handle);
     heur_dissector_add("tcp",     dissect_mq_heur_tcp, "WebSphere MQ over TCP", "mq_tcp", proto_mq, HEURISTIC_ENABLE);

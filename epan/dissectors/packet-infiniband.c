@@ -134,8 +134,6 @@ typedef enum {
 
 /* Forward-declarations */
 
-static void dissect_roce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static void dissect_rroce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ib_packet_start_header starts_with);
 static gint32 find_next_header_sequence(struct infinibandinfo* ibInfo);
 static gboolean contains(guint32 value, guint32* arr, int length);
@@ -1495,21 +1493,23 @@ static void table_destroy_notify(gpointer data) {
 /* Helper dissector for correctly dissecting RRoCE packets (encapsulated within an IP */
 /* frame). The only difference from regular IB packets is that RRoCE packets do not contain */
 /* a LRH, and always start with a BTH.                                                      */
-static void
-dissect_rroce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rroce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* this is a RRoCE packet, so signal the IB dissector not to look for LRH/GRH */
     dissect_infiniband_common(tvb, pinfo, tree, IB_PACKET_STARTS_WITH_BTH);
+    return tvb_captured_length(tvb);
 }
 
 /* Helper dissector for correctly dissecting RoCE packets (encapsulated within an Ethernet */
 /* frame). The only difference from regular IB packets is that RoCE packets do not contain */
 /* a LRH, and always start with a GRH.                                                      */
-static void
-dissect_roce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_roce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* this is a RoCE packet, so signal the IB dissector not to look for LRH */
     dissect_infiniband_common(tvb, pinfo, tree, IB_PACKET_STARTS_WITH_GRH);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -7466,11 +7466,11 @@ void proto_reg_handoff_infiniband(void)
     dissector_add_uint("erf.types.type", ERF_TYPE_INFINIBAND_LINK, ib_link_handle);
 
     /* create and announce an anonymous RoCE dissector */
-    roce_handle = create_dissector_handle(dissect_roce, proto_infiniband);
+    roce_handle = new_create_dissector_handle(dissect_roce, proto_infiniband);
     dissector_add_uint("ethertype", ETHERTYPE_ROCE, roce_handle);
 
     /* create and announce an anonymous RRoCE dissector */
-    rroce_handle = create_dissector_handle(dissect_rroce, proto_infiniband);
+    rroce_handle = new_create_dissector_handle(dissect_rroce, proto_infiniband);
     if (!initialized)
     {
         initialized = TRUE;

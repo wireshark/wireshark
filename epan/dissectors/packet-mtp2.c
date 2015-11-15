@@ -350,14 +350,16 @@ dissect_mtp2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 /* Dissect MTP2 frame without CRC16 and with a pseudo-header */
-static void
-dissect_mtp2_with_phdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mtp2_with_phdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   if (pinfo->pseudo_header->mtp2.annex_a_used == MTP2_ANNEX_A_USED_UNKNOWN)
     dissect_mtp2_common(tvb, pinfo, tree, FALSE, use_extended_sequence_numbers_default);
   else
     dissect_mtp2_common(tvb, pinfo, tree, FALSE,
                         (pinfo->pseudo_header->mtp2.annex_a_used == MTP2_ANNEX_A_USED));
+
+  return tvb_captured_length(tvb);
 }
 
 /* Dissect MTP2 frame with CRC16 included at end of payload */
@@ -435,7 +437,7 @@ proto_reg_handoff_mtp2(void)
   dissector_handle_t mtp2_with_phdr_handle;
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_MTP2, mtp2_handle);
-  mtp2_with_phdr_handle = create_dissector_handle(dissect_mtp2_with_phdr,
+  mtp2_with_phdr_handle = new_create_dissector_handle(dissect_mtp2_with_phdr,
                                                   proto_mtp2);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_MTP2_WITH_PHDR,
                                    mtp2_with_phdr_handle);

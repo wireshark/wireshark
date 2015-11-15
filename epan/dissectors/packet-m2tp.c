@@ -525,8 +525,8 @@ dissect_m2tp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2tp
 }
 
 /* M2tp */
-static void
-dissect_m2tp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_m2tp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *m2tp_item;
   proto_tree *m2tp_tree;
@@ -540,6 +540,7 @@ dissect_m2tp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 
   /* dissect the message */
   dissect_m2tp_message(message_tvb, pinfo, m2tp_item, m2tp_tree, tree);
+  return tvb_captured_length(message_tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -655,7 +656,7 @@ proto_reg_handoff_m2tp(void)
 {
   dissector_handle_t m2tp_handle;
   mtp2_handle   = find_dissector("mtp2");
-  m2tp_handle   = create_dissector_handle(dissect_m2tp, proto_m2tp);
+  m2tp_handle   = new_create_dissector_handle(dissect_m2tp, proto_m2tp);
   dissector_add_uint("sctp.ppi",  M2TP_PAYLOAD_PROTOCOL_ID, m2tp_handle);
   dissector_add_uint("sctp.port", SCTP_PORT_M2TP, m2tp_handle);
 }

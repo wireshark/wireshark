@@ -164,8 +164,8 @@ i2c_get_event_desc(guint32 event)
 	return desc;
 }
 
-static void
-dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_tree *i2c_tree;
@@ -221,6 +221,7 @@ dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			call_dissector(data_handle, tvb, pinfo, tree);
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -262,7 +263,7 @@ proto_reg_handoff_i2c(void)
 
 	data_handle = find_dissector("data");
 
-	i2c_handle = create_dissector_handle(dissect_i2c, proto_i2c);
+	i2c_handle = new_create_dissector_handle(dissect_i2c, proto_i2c);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_I2C, i2c_handle);
 }
 

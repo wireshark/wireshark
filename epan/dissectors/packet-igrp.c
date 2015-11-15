@@ -65,7 +65,7 @@ static expert_field ei_igrp_version = EI_INIT;
 
 static void dissect_vektor_igrp (tvbuff_t *tvb, proto_tree *igrp_vektor_tree, guint8 network);
 
-static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint8 ver_and_opcode,version,opcode,network;
   gint offset=IGRP_HEADER_LENGTH;
@@ -80,7 +80,6 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   ver_and_opcode = tvb_get_guint8(tvb,0);
 
-
   switch (ver_and_opcode) {
   case 0x11:
     col_set_str(pinfo->cinfo, COL_INFO, "Response" );
@@ -91,8 +90,6 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   default:
     col_set_str(pinfo->cinfo, COL_INFO, "Unknown version or opcode");
   }
-
-
 
 
   if (tree) {
@@ -152,6 +149,7 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_item(igrp_tree, hf_igrp_checksum, tvb, 10, 2, ENC_BIG_ENDIAN);
   }
+  return tvb_captured_length(tvb);
 }
 
 static void dissect_vektor_igrp (tvbuff_t *tvb, proto_tree *igrp_vektor_tree, guint8 network)
@@ -258,7 +256,7 @@ proto_reg_handoff_igrp(void)
 {
   dissector_handle_t igrp_handle;
 
-  igrp_handle = create_dissector_handle(dissect_igrp, proto_igrp);
+  igrp_handle = new_create_dissector_handle(dissect_igrp, proto_igrp);
   dissector_add_uint("ip.proto", IP_PROTO_IGRP, igrp_handle);
 }
 

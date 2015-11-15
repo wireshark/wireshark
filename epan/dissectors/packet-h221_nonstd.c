@@ -51,8 +51,8 @@ const value_string ms_codec_vals[] = {
     {  0, NULL }
 };
 
-static void
-dissect_ms_nonstd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_ms_nonstd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
     proto_item *it;
     proto_tree *tr;
@@ -96,6 +96,7 @@ dissect_ms_nonstd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 /* Register all the bits needed with the filtering engine */
@@ -131,7 +132,7 @@ proto_reg_handoff_nonstd(void)
     static dissector_handle_t ms_nonstd_handle;
 
 
-    ms_nonstd_handle = create_dissector_handle(dissect_ms_nonstd, proto_nonstd);
+    ms_nonstd_handle = new_create_dissector_handle(dissect_ms_nonstd, proto_nonstd);
 
     dissector_add_uint("h245.nsp.h221",0xb500534c, ms_nonstd_handle);
     dissector_add_uint("h225.nsp.h221",0xb500534c, ms_nonstd_handle);

@@ -132,8 +132,8 @@ dissect_lmi_pvc_status(tvbuff_t *tvb, int offset, proto_tree *tree)
     proto_tree_add_uint(tree, hf_lmi_act, tvb, offset, 1, tvb_get_guint8( tvb, offset));
 }
 
-static void
-dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree    *lmi_tree, *lmi_subtree;
     proto_item    *ti;
@@ -177,6 +177,7 @@ dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_lmi_pvc_status( tvb, offset, lmi_subtree);
         offset += len;
     }
+    return tvb_captured_length(tvb);
 }
 
 
@@ -236,7 +237,7 @@ proto_reg_handoff_lmi(void)
 {
     dissector_handle_t lmi_handle;
 
-    lmi_handle = create_dissector_handle(dissect_lmi, proto_lmi);
+    lmi_handle = new_create_dissector_handle(dissect_lmi, proto_lmi);
     dissector_add_uint("fr.nlpid", NLPID_LMI, lmi_handle);
 }
 

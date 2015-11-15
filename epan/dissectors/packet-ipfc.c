@@ -56,8 +56,8 @@ capture_ipfc (const guchar *pd, int len, packet_counts *ld)
   capture_llc(pd, 16, len, ld);
 }
 
-static void
-dissect_ipfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
@@ -80,6 +80,7 @@ dissect_ipfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     next_tvb = tvb_new_subset_remaining (tvb, 16);
     call_dissector(llc_handle, next_tvb, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -124,7 +125,7 @@ proto_reg_handoff_ipfc (void)
 {
     dissector_handle_t ipfc_handle;
 
-    ipfc_handle = create_dissector_handle (dissect_ipfc, proto_ipfc);
+    ipfc_handle = new_create_dissector_handle (dissect_ipfc, proto_ipfc);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_IP_OVER_FC, ipfc_handle);
 
     llc_handle = find_dissector ("llc");

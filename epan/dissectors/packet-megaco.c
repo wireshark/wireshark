@@ -452,7 +452,7 @@ static gboolean keep_persistent_data = FALSE;
  * dissect_megaco_text over TCP, there will be a TPKT header there
  *
  */
-static void dissect_megaco_text_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_megaco_text_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int lv_tpkt_len;
 
@@ -473,6 +473,8 @@ static void dissect_megaco_text_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
     dissect_tpkt_encap(tvb, pinfo, tree, TRUE,
         megaco_text_handle);
+
+    return tvb_captured_length(tvb);
 }
 
 #define ERRORTOKEN          1
@@ -3819,7 +3821,7 @@ proto_reg_handoff_megaco(void)
         data_handle = find_dissector("data");
 
         megaco_text_handle = find_dissector("megaco");
-        megaco_text_tcp_handle = create_dissector_handle(dissect_megaco_text_tcp, proto_megaco);
+        megaco_text_tcp_handle = new_create_dissector_handle(dissect_megaco_text_tcp, proto_megaco);
 
         dissector_add_uint("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID,   megaco_text_handle);
 

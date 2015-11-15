@@ -75,8 +75,8 @@ static const value_string idp_socket_vals[] = {
 	{ 0,				NULL }
 };
 
-static void
-dissect_idp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_idp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*idp_tree;
 	proto_item	*ti;
@@ -122,11 +122,12 @@ dissect_idp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Hand off to the dissector for the packet type.
 	 */
-	if (dissector_try_uint(idp_type_dissector_table, type, next_tvb,
-	    pinfo, tree))
-		return;
-
-	call_dissector(data_handle, next_tvb, pinfo, tree);
+	if (!dissector_try_uint(idp_type_dissector_table, type, next_tvb,
+		pinfo, tree))
+	{
+		call_dissector(data_handle, next_tvb, pinfo, tree);
+	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -205,7 +206,7 @@ proto_reg_handoff_idp(void)
 {
 	dissector_handle_t idp_handle;
 
-	idp_handle = create_dissector_handle(dissect_idp, proto_idp);
+	idp_handle = new_create_dissector_handle(dissect_idp, proto_idp);
 	dissector_add_uint("ethertype", ETHERTYPE_XNS_IDP, idp_handle);
 	dissector_add_uint("chdlc.protocol", ETHERTYPE_XNS_IDP, idp_handle);
 

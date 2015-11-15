@@ -228,7 +228,7 @@ static expert_field ei_format_info          = EI_INIT;
 static expert_field ei_clock_reference_type = EI_INIT;
 
 
-static void dissect_1722a (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_1722a (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti                 = NULL;
     proto_tree *ieee1722a_tree     = NULL;
@@ -382,6 +382,7 @@ static void dissect_1722a (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         DISSECTOR_ASSERT_NOT_REACHED();
         break;
     }
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -512,7 +513,7 @@ void proto_reg_handoff_1722a(void)
 {
     dissector_handle_t avb1722a_handle;
 
-    avb1722a_handle = create_dissector_handle(dissect_1722a, proto_1722a);
+    avb1722a_handle = new_create_dissector_handle(dissect_1722a, proto_1722a);
     dissector_add_uint("ieee1722.subtype", IEEE_1722A_SUBTYPE_AVTP_AUDIO, avb1722a_handle);
     dissector_add_uint("ieee1722.subtype", IEEE_1722A_SUBTYPE_CRF,        avb1722a_handle);
 }

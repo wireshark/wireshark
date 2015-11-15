@@ -1054,7 +1054,7 @@ static guint get_iec104apdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 
 
 /* Is is called twice: For 'Packet List' and for 'Packet Details' */
-static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint Len = tvb_reported_length(tvb);
 	guint8 Bytex;
@@ -1196,7 +1196,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 					/* check length */
 					if(Len < (guint)(offset + 3)) {
 						expert_add_info(pinfo, itSignal, &ei_iec104_short_asdu);
-						return;
+						return offset;
 					}
 					get_InfoObjectAddress(&asdu_info_obj_addr, tvb, &offset, trSignal);
 				} else {
@@ -1212,7 +1212,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 						/* check length */
 						if(Len < (guint)(offset + 3)) {
 							expert_add_info(pinfo, itSignal, &ei_iec104_short_asdu);
-							return;
+							return offset;
 						}
 						get_InfoObjectAddress(&asdu_info_obj_addr, tvb, &offset, trSignal);
 					}
@@ -1223,7 +1223,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				/* check length */
 				if(Len < (guint)(offset + asduh.DataLength)) {
 					expert_add_info(pinfo, itSignal, &ei_iec104_short_asdu);
-					return;
+					return offset;
 				}
 
 				switch (asduh.TypeId) {
@@ -1371,6 +1371,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			break;
 	} /* end 'switch (asdu_typeid)' */
 
+	return tvb_captured_length(tvb);
 }
 
 
@@ -1855,7 +1856,7 @@ proto_reg_handoff_iec104(void)
 	dissector_handle_t iec104apci_handle;
 
 	iec104apci_handle = new_create_dissector_handle(dissect_iec104reas, proto_iec104apci);
-	iec104asdu_handle = create_dissector_handle(dissect_iec104asdu, proto_iec104asdu);
+	iec104asdu_handle = new_create_dissector_handle(dissect_iec104asdu, proto_iec104asdu);
 
 	dissector_add_uint("tcp.port", IEC104_PORT, iec104apci_handle);
 }

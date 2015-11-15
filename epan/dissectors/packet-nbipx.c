@@ -748,8 +748,8 @@ static gint ett_nmpi = -1;
 static gint ett_nmpi_name_type_flags = -1;
 
 
-static void
-dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*nmpi_tree = NULL;
 	proto_item	*ti;
@@ -843,6 +843,7 @@ dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		dissect_netbios_payload(next_tvb, pinfo, tree);
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -869,7 +870,7 @@ proto_reg_handoff_nmpi(void)
 {
 	dissector_handle_t nmpi_handle;
 
-	nmpi_handle = create_dissector_handle(dissect_nmpi, proto_nmpi);
+	nmpi_handle = new_create_dissector_handle(dissect_nmpi, proto_nmpi);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NWLINK_SMB_NAMEQUERY,
 	    nmpi_handle);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NWLINK_SMB_MAILSLOT,

@@ -235,10 +235,11 @@ dissect_kpasswd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboo
 
 }
 
-static void
-dissect_kpasswd_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_kpasswd_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_kpasswd_common(tvb, pinfo, tree, FALSE);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -325,7 +326,7 @@ proto_reg_handoff_kpasswd(void)
     dissector_handle_t kpasswd_handle_udp;
     dissector_handle_t kpasswd_handle_tcp;
 
-    kpasswd_handle_udp = create_dissector_handle(dissect_kpasswd_udp, proto_kpasswd);
+    kpasswd_handle_udp = new_create_dissector_handle(dissect_kpasswd_udp, proto_kpasswd);
     kpasswd_handle_tcp = new_create_dissector_handle(dissect_kpasswd_tcp, proto_kpasswd);
     dissector_add_uint("udp.port", UDP_PORT_KPASSWD, kpasswd_handle_udp);
     dissector_add_uint("tcp.port", TCP_PORT_KPASSWD, kpasswd_handle_tcp);

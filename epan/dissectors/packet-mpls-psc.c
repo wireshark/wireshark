@@ -108,8 +108,8 @@ const range_string mpls_psc_dpath_rvals[] = {
     { 0,   0, NULL                       }
 };
 
-static void
-dissect_mpls_psc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mpls_psc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *psc_tree;
@@ -132,7 +132,7 @@ dissect_mpls_psc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  fpath, path);
 
     if (!tree) {
-        return;
+        return tvb_captured_length(tvb);
     }
 
     /* create display subtree for the protocol */
@@ -157,6 +157,7 @@ dissect_mpls_psc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 1;
     /* tlv len */
     proto_tree_add_item(psc_tree, hf_mpls_psc_tlvlen, tvb, offset, 1, ENC_BIG_ENDIAN);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -239,7 +240,7 @@ proto_reg_handoff_mpls_psc(void)
 {
     dissector_handle_t mpls_psc_handle;
 
-    mpls_psc_handle    = create_dissector_handle( dissect_mpls_psc, proto_mpls_psc );
+    mpls_psc_handle    = new_create_dissector_handle( dissect_mpls_psc, proto_mpls_psc );
     dissector_add_uint("pwach.channel_type", 0x0024, mpls_psc_handle); /* FF: PSC, RFC 6378 */
 }
 

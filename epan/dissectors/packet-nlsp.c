@@ -1226,8 +1226,8 @@ nlsp_dissect_nlsp_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * Output:
  *	void, but we will add to the proto_tree if it is not NULL.
  */
-static void
-dissect_nlsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_nlsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti, *type_item;
 	proto_tree *nlsp_tree;
@@ -1306,6 +1306,7 @@ dissect_nlsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	default:
 		expert_add_info(pinfo, type_item, &ei_nlsp_type);
 	}
+	return tvb_captured_length(tvb);
 }
 
 /*
@@ -1774,7 +1775,7 @@ proto_reg_handoff_nlsp(void)
 {
 	dissector_handle_t nlsp_handle;
 
-	nlsp_handle = create_dissector_handle(dissect_nlsp, proto_nlsp);
+	nlsp_handle = new_create_dissector_handle(dissect_nlsp, proto_nlsp);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NLSP, nlsp_handle);
 }
 

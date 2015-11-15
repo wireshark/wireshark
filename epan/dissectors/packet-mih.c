@@ -1986,7 +1986,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
         return;
 }
 
-static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
         proto_item *ti = NULL;
         int offset = 0;
@@ -2065,23 +2065,19 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         switch (service)
         {
         case 1 :/*for Service Management..*/
-                if(mid_tree)
-                        proto_tree_add_item(mid_tree, hf_mih_serv_actionid, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(mid_tree, hf_mih_serv_actionid, tvb, offset, 2, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "\"%s\"", val_to_str(action, serv_act_id_values, "Unknown"));
                 break;
         case 2 :/*for event services..*/
-                if(mid_tree)
-                        proto_tree_add_item(mid_tree, hf_mih_event_actionid, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(mid_tree, hf_mih_event_actionid, tvb, offset, 2, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "\"%s\"", val_to_str(action, event_act_id_values, "Unknown"));
                 break;
         case 3 :/*for Command Services..*/
-                if(mid_tree)
-                        proto_tree_add_item(mid_tree, hf_mih_command_actionid, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(mid_tree, hf_mih_command_actionid, tvb, offset, 2, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "\"%s\"", val_to_str(action, command_act_id_values, "Unknown"));
                 break;
         case 4 :/*for Information Services..*/
-                if(mid_tree)
-                        proto_tree_add_item(mid_tree, hf_mih_info_actionid, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(mid_tree, hf_mih_info_actionid, tvb, offset, 2, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "\"%s\"", val_to_str(action, info_act_id_values, "Unknown"));
                 break;
         }
@@ -2191,7 +2187,7 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 offset += (guint32)len;
                                 payload_length -= (1 + len_of_len + (guint32)len);
                         }else{
-                            return;
+                            return offset;
                         }
                 }
                 else
@@ -2202,6 +2198,8 @@ static void dissect_mih(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         if(fragment!=0)
                 proto_tree_add_item(mih_tree, hf_fragmented_tlv, tvb, offset, -1, ENC_NA);
+
+        return tvb_captured_length(tvb);
 }
 
 /*dissector initialistaion*/
@@ -4871,7 +4869,7 @@ void proto_reg_handoff_mih(void)
 {
         dissector_handle_t mih_handle;
 
-        mih_handle = create_dissector_handle(dissect_mih, proto_mih);
+        mih_handle = new_create_dissector_handle(dissect_mih, proto_mih);
         /*Layer 3 handle*/
         dissector_add_uint("udp.port", MIH_PORT, mih_handle);
         dissector_add_uint("tcp.port", MIH_PORT, mih_handle);

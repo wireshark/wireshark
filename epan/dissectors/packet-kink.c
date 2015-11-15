@@ -198,8 +198,8 @@ static void dissect_decrypt_kink_encrypt(packet_info *pinfo, tvbuff_t *tvb, prot
 #endif
 
 /* This function is dissecting the kink header. */
-static void
-dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
+static int
+dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_){
   proto_item *ti = NULL;
   proto_tree *kink_tree = NULL;
   guint8 type;
@@ -278,6 +278,7 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 
   control_payload(pinfo, tvb, offset, next_payload, kink_tree);
 
+  return tvb_captured_length(tvb);
 }
 
 /* This part call the dissect payload function by next_payload value.
@@ -992,7 +993,7 @@ void proto_reg_handoff_kink(void) {
 
   dissector_handle_t kink_handle = NULL;
 
-  kink_handle = create_dissector_handle(dissect_kink, proto_kink);
+  kink_handle = new_create_dissector_handle(dissect_kink, proto_kink);
 
   dissector_add_uint("udp.port", KINK_PORT, kink_handle);
 

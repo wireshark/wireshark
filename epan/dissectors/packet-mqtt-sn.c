@@ -500,7 +500,7 @@ static void dissect_mqttsn_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 /* Dissect a complete MQTT-SN message. */
-static void dissect_mqttsn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mqttsn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* Various variables. */
     int offset = 0;
@@ -532,6 +532,7 @@ static void dissect_mqttsn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Dissect a MQTT-SN packet. */
     dissect_mqttsn_packet(tvb, pinfo, tree, offset);
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark. */
@@ -686,7 +687,7 @@ void proto_register_mqttsn(void)
     proto_mqttsn = proto_register_protocol("MQ Telemetry Transport Protocol for Sensor Networks", "MQTT-SN", "mqttsn");
 
     /* Create the dissector handle. */
-    mqttsn_handle = create_dissector_handle(dissect_mqttsn, proto_mqttsn);
+    mqttsn_handle = new_create_dissector_handle(dissect_mqttsn, proto_mqttsn);
 
     /* Register fields and subtrees. */
     proto_register_field_array(proto_mqttsn, hf_mqttsn, array_length(hf_mqttsn));

@@ -72,8 +72,8 @@ static gint ett_hsr_frame = -1;
 static dissector_handle_t data_handle;
 
 /* Code to actually dissect the packets */
-static  void
-dissect_hsr_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hsr_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *hsr_tree;
@@ -126,6 +126,7 @@ dissect_hsr_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!dissector_try_uint(ethertype_subdissector_table, etype, next_tvb, pinfo, tree))
         call_dissector(data_handle, next_tvb, pinfo, hsr_tree);
 
+    return tvb_captured_length(tvb);
 }
 
 
@@ -188,7 +189,7 @@ void proto_register_hsr(void)
 void proto_reg_handoff_hsr(void)
 {
     dissector_handle_t hsr_frame_handle;
-    hsr_frame_handle = create_dissector_handle(dissect_hsr_frame, proto_hsr);
+    hsr_frame_handle = new_create_dissector_handle(dissect_hsr_frame, proto_hsr);
     dissector_add_uint("ethertype", ETHERTYPE_HSR, hsr_frame_handle);
 
     ethertype_subdissector_table = find_dissector_table("ethertype");

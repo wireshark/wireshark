@@ -145,8 +145,8 @@ static const value_string nsrp_encflag_vals[] = {
 static gint ett_nsrp = -1;
 
 /* Code to actually dissect the packets */
-static void
-dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item  *ti;
     proto_tree  *nsrp_tree = NULL;
@@ -345,6 +345,7 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     }
 
+    return tvb_captured_length(tvb);
 }
 
 
@@ -509,7 +510,7 @@ proto_reg_handoff_nsrp(void)
 {
     dissector_handle_t nsrp_handle;
 
-    nsrp_handle = create_dissector_handle(dissect_nsrp, proto_nsrp);
+    nsrp_handle = new_create_dissector_handle(dissect_nsrp, proto_nsrp);
     dissector_add_uint("ethertype", ETHERTYPE_NSRP, nsrp_handle);
 }
 

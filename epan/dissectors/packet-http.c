@@ -2982,14 +2982,15 @@ dissect_http_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 	return FALSE;
 }
 
-static void
-dissect_ssdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ssdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	conversation_t  *conversation;
 	http_conv_t	*conv_data;
 
 	conv_data = get_http_conversation_data(pinfo, &conversation);
 	dissect_http_message(tvb, 0, pinfo, tree, conv_data, "SSDP", proto_ssdp);
+	return tvb_captured_length(tvb);
 }
 
 static void
@@ -3445,7 +3446,7 @@ proto_reg_handoff_http(void)
 	 * XXX - is there anything to dissect in the body of an SSDP
 	 * request or reply?  I.e., should there be an SSDP dissector?
 	 */
-	ssdp_handle = create_dissector_handle(dissect_ssdp, proto_ssdp);
+	ssdp_handle = new_create_dissector_handle(dissect_ssdp, proto_ssdp);
 	dissector_add_uint("udp.port", UDP_PORT_SSDP, ssdp_handle);
 
 	ntlmssp_handle = find_dissector("ntlmssp");
@@ -3465,8 +3466,8 @@ proto_reg_handoff_http(void)
 static gint proto_message_http = -1;
 static gint ett_message_http = -1;
 
-static void
-dissect_message_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_message_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*subtree;
 	proto_item	*ti;
@@ -3488,6 +3489,7 @@ dissect_message_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = next_offset;
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -3510,7 +3512,7 @@ proto_reg_handoff_message_http(void)
 {
 	dissector_handle_t message_http_handle;
 
-	message_http_handle = create_dissector_handle(dissect_message_http,
+	message_http_handle = new_create_dissector_handle(dissect_message_http,
 			proto_message_http);
 
 	dissector_add_string("media_type", "message/http", message_http_handle);

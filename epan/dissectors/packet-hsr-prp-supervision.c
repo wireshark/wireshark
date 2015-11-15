@@ -67,8 +67,8 @@ static int hf_hsr_prp_supervision_vdan_mac_address = -1;
 static gint ett_hsr_prp_supervision = -1;
 
 /* Code to actually dissect the packets */
-static void
-dissect_hsr_prp_supervision(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hsr_prp_supervision(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *hsr_prp_supervision_tree;
@@ -172,6 +172,7 @@ dissect_hsr_prp_supervision(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Adjust the length of this tvbuff to include only the supervision data.
        This allows the rest to be marked as padding. */
     tvb_set_reported_length(tvb, offset);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -252,7 +253,7 @@ void proto_register_hsr_prp_supervision(void)
 void proto_reg_handoff_hsr_prp_supervision(void)
 {
     dissector_handle_t hsr_prp_supervision_handle;
-    hsr_prp_supervision_handle = create_dissector_handle(dissect_hsr_prp_supervision, proto_hsr_prp_supervision);
+    hsr_prp_supervision_handle = new_create_dissector_handle(dissect_hsr_prp_supervision, proto_hsr_prp_supervision);
     dissector_add_uint("ethertype", ETHERTYPE_PRP, hsr_prp_supervision_handle);
 }
 

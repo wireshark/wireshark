@@ -18429,8 +18429,8 @@ dissect_ieee80211_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  *      is already decrypted. I added a test in the code to accomodate this.
  *      For TKIP it seems to stay encrypted.
  */
-static void
-dissect_ieee80211_centrino(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ieee80211_centrino(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   struct ieee_802_11_phdr phdr;
 
@@ -18441,6 +18441,7 @@ dissect_ieee80211_centrino(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
   phdr.presence_flags = 0;
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE, &phdr);
+  return tvb_captured_length(tvb);
 }
 
 /*
@@ -18905,8 +18906,8 @@ wlan_retransmit_init(void)
 
 }
 
-static void
-dissect_data_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_data_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   int         offset = 0;
   guint8      type;
@@ -18935,6 +18936,7 @@ dissect_data_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     break;
   }
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -27268,7 +27270,7 @@ proto_reg_handoff_ieee80211(void)
   ieee80211_handle = find_dissector("wlan");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11, ieee80211_handle);
 
-  centrino_handle = create_dissector_handle( dissect_ieee80211_centrino, proto_centrino );
+  centrino_handle = new_create_dissector_handle( dissect_ieee80211_centrino, proto_centrino );
   dissector_add_uint("ethertype", ETHERTYPE_CENTRINO_PROMISC, centrino_handle);
 
   /* Register handoff to Aruba GRE */
@@ -27297,7 +27299,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("gre.proto", GRE_ARUBA_8360, ieee80211_handle);
   dissector_add_uint("gre.proto", GRE_ARUBA_8370, ieee80211_handle);
 
-  data_encap_handle = create_dissector_handle(dissect_data_encap, proto_wlan);
+  data_encap_handle = new_create_dissector_handle(dissect_data_encap, proto_wlan);
   dissector_add_uint("ethertype", ETHERTYPE_IEEE80211_DATA_ENCAP,
                 data_encap_handle);
 

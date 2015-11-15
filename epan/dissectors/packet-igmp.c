@@ -905,8 +905,8 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	return offset;
 }
 
-static void
-dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	int offset = 0;
 	unsigned char type;
@@ -917,6 +917,7 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	{
 		dissect_igmp_unknown(tvb, pinfo, parent_tree);
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -1119,7 +1120,7 @@ proto_reg_handoff_igmp(void)
 						igmp_mquery_handle, igmp_mtrace_handle, igmp_report_handle;
 	range_t *igmpv0_range = NULL;
 
-	igmp_handle = create_dissector_handle(dissect_igmp, proto_igmp);
+	igmp_handle = new_create_dissector_handle(dissect_igmp, proto_igmp);
 	dissector_add_uint("ip.proto", IP_PROTO_IGMP, igmp_handle);
 
 	/* IGMP v0 */

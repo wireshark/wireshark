@@ -926,17 +926,19 @@ dissect_juniper_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 /* wrapper for passing the PIC type to the generic ATM dissector */
-static void
-dissect_juniper_atm1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_juniper_atm1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   dissect_juniper_atm(tvb,pinfo,tree, JUNIPER_PIC_ATM1);
+  return tvb_captured_length(tvb);
 }
 
 /* wrapper for passing the PIC type to the generic ATM dissector */
-static void
-dissect_juniper_atm2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_juniper_atm2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   dissect_juniper_atm(tvb,pinfo,tree, JUNIPER_PIC_ATM2);
+  return tvb_captured_length(tvb);
 }
 
 /* generic ATM dissector */
@@ -1427,8 +1429,8 @@ proto_reg_handoff_juniper(void)
   ipv4_handle   = find_dissector("ip");
   data_handle   = find_dissector("data");
 
-  juniper_atm2_handle   = create_dissector_handle(dissect_juniper_atm2,   proto_juniper);
-  juniper_atm1_handle   = create_dissector_handle(dissect_juniper_atm1,   proto_juniper);
+  juniper_atm2_handle   = new_create_dissector_handle(dissect_juniper_atm2,   proto_juniper);
+  juniper_atm1_handle   = new_create_dissector_handle(dissect_juniper_atm1,   proto_juniper);
   juniper_pppoe_handle  = create_dissector_handle(dissect_juniper_pppoe,  proto_juniper);
   juniper_mlppp_handle  = create_dissector_handle(dissect_juniper_mlppp,  proto_juniper);
   juniper_mlfr_handle   = create_dissector_handle(dissect_juniper_mlfr,   proto_juniper);

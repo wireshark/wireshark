@@ -203,11 +203,9 @@ static value_string_ext subsystem_ext = VALUE_STRING_EXT_INIT(subsystem);
 
 /* Code to actually dissect the nettl record headers */
 
-static void
-dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    pinfo->current_proto = "nettl";
-
     if (tree) {
         proto_tree *nettl_tree;
         proto_item *nettl_item;
@@ -285,6 +283,7 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                          val_to_str_ext_const(pinfo->pseudo_header->nettl.subsys, &subsystem_ext, "Unknown"));
             call_dissector(data_handle, tvb, pinfo, tree);
     }
+    return tvb_captured_length(tvb);
 }
 
 
@@ -355,7 +354,7 @@ proto_reg_handoff_nettl(void)
     ip_proto_dissector_table = find_dissector_table("ip.proto");
     tcp_subdissector_table   = find_dissector_table("tcp.port");
 
-    nettl_handle = create_dissector_handle(dissect_nettl, proto_nettl);
+    nettl_handle = new_create_dissector_handle(dissect_nettl, proto_nettl);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_ETHERNET,   nettl_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_TOKEN_RING, nettl_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_FDDI,       nettl_handle);

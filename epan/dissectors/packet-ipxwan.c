@@ -122,8 +122,8 @@ static const value_string ipxwan_compression_type_vals[] = {
 	{ 0,                 NULL }
 };
 
-static void
-dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_tree *ipxwan_tree = NULL;
@@ -142,194 +142,190 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX WAN");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ipxwan, tvb, 0, -1,
-		    ENC_NA);
-		ipxwan_tree = proto_item_add_subtree(ti, ett_ipxwan);
-	}
+	ti = proto_tree_add_item(tree, proto_ipxwan, tvb, 0, -1,
+		ENC_NA);
+	ipxwan_tree = proto_item_add_subtree(ti, ett_ipxwan);
 
-	if (tree) {
-		proto_tree_add_item(ipxwan_tree, hf_ipxwan_identifier, tvb,
+	proto_tree_add_item(ipxwan_tree, hf_ipxwan_identifier, tvb,
 		    offset, 4, ENC_ASCII|ENC_NA);
-	}
+
 	offset += 4;
 	packet_type = tvb_get_guint8(tvb, offset);
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(packet_type, ipxwan_packet_type_vals,
 		        "Unknown packet type %u"));
 
-	if (tree) {
-		proto_tree_add_uint(ipxwan_tree, hf_ipxwan_packet_type, tvb,
-			offset, 1, packet_type);
+	proto_tree_add_uint(ipxwan_tree, hf_ipxwan_packet_type, tvb,
+		offset, 1, packet_type);
+	offset += 1;
+	proto_tree_add_item(ipxwan_tree, hf_ipxwan_node_id, tvb,
+		offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(ipxwan_tree, hf_ipxwan_sequence_number, tvb,
+		offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+	num_options = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(ipxwan_tree, hf_ipxwan_num_options, tvb,
+		offset, 1, num_options);
+	offset += 1;
+
+	while (num_options != 0) {
+		option_number = tvb_get_guint8(tvb, offset);
+		option_tree = proto_tree_add_subtree_format(ipxwan_tree, tvb, offset, -1,
+			ett_ipxwan_option, &ti, "Option: %s",
+			val_to_str(option_number, ipxwan_option_num_vals,
+			    "Unknown (%u)"));
+
+		proto_tree_add_uint(option_tree, hf_ipxwan_option_num,
+			tvb, offset, 1, option_number);
 		offset += 1;
-		proto_tree_add_item(ipxwan_tree, hf_ipxwan_node_id, tvb,
-			offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(ipxwan_tree, hf_ipxwan_sequence_number, tvb,
-			offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(option_tree, hf_ipxwan_accept_option,
+			tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		num_options = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint(ipxwan_tree, hf_ipxwan_num_options, tvb,
-			offset, 1, num_options);
-		offset += 1;
+		option_data_len = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_uint(option_tree, hf_ipxwan_option_data_len,
+			tvb, offset, 2, option_data_len);
+		offset += 2;
+		proto_item_set_len(ti, option_data_len+4);
+		switch (option_number) {
 
-		while (num_options != 0) {
-			option_number = tvb_get_guint8(tvb, offset);
-			option_tree = proto_tree_add_subtree_format(ipxwan_tree, tvb, offset, -1,
-			    ett_ipxwan_option, &ti, "Option: %s",
-			    val_to_str(option_number, ipxwan_option_num_vals,
-			        "Unknown (%u)"));
-
-			proto_tree_add_uint(option_tree, hf_ipxwan_option_num,
-			    tvb, offset, 1, option_number);
-			offset += 1;
-			proto_tree_add_item(option_tree, hf_ipxwan_accept_option,
-			    tvb, offset, 1, ENC_BIG_ENDIAN);
-			offset += 1;
-			option_data_len = tvb_get_ntohs(tvb, offset);
-			proto_tree_add_uint(option_tree, hf_ipxwan_option_data_len,
-			    tvb, offset, 2, option_data_len);
-			offset += 2;
-			proto_item_set_len(ti, option_data_len+4);
-			switch (option_number) {
-
-			case OPT_ROUTING_TYPE:
-				if (option_data_len != 1) {
-					expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
-						"Bogus length: %u, should be 1", option_data_len);
-				} else {
-					proto_tree_add_item(option_tree,
-					    hf_ipxwan_routing_type, tvb,
-					    offset, 1, ENC_BIG_ENDIAN);
-				}
-				break;
-
-			case OPT_RIP_SAP_INFO_EXCHANGE:
-				if (option_data_len != 54) {
-					expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
-						"Bogus length: %u, should be 54", option_data_len);
-				} else {
-					wan_link_delay = tvb_get_ntohs(tvb,
-					    offset);
-					proto_tree_add_uint_format_value(option_tree,
-					    hf_ipxwan_wan_link_delay, tvb,
-					    offset, 2, wan_link_delay,
-					    "%ums",
-					    wan_link_delay);
-					proto_tree_add_item(option_tree,
-					    hf_ipxwan_common_network_number,
-					    tvb, offset+2, 4, ENC_NA);
-					proto_tree_add_item(option_tree,
-					    hf_ipxwan_router_name, tvb,
-					    offset+6, 48, ENC_ASCII|ENC_NA);
-				}
-				break;
-
-			case OPT_NLSP_INFORMATION:
-				if (option_data_len != 8) {
-					expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
-						"Bogus length: %u, should be 8", option_data_len);
-				} else {
-					delay = tvb_get_ntohl(tvb, offset);
-					proto_tree_add_uint_format_value(option_tree,
-					    hf_ipxwan_delay, tvb,
-					    offset, 4, delay,
-					    "%uus", delay);
-					throughput = tvb_get_ntohl(tvb, offset);
-					proto_tree_add_uint_format_value(option_tree,
-					    hf_ipxwan_throughput, tvb,
-					    offset, 4, throughput,
-					    "%uus",
-					    throughput);
-				}
-				break;
-
-			case OPT_NLSP_RAW_THROUGHPUT_DATA:
-				if (option_data_len != 8) {
-					expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
-						"Bogus length: %u, should be 8", option_data_len);
-				} else {
-					proto_tree_add_item(option_tree,
-					    hf_ipxwan_request_size, tvb,
-					    offset, 4, ENC_BIG_ENDIAN);
-					delta_time = tvb_get_ntohl(tvb, offset);
-					proto_tree_add_uint_format_value(option_tree,
-					    hf_ipxwan_delta_time, tvb,
-					    offset, 4, delta_time,
-					    "%uus",
-					    delta_time);
-				}
-				break;
-
-			case OPT_EXTENDED_NODE_ID:
-				if (option_data_len != 4) {
-					expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
-						"Bogus length: %u, should be 4", option_data_len);
-				} else {
-					proto_tree_add_item(option_tree,
-					    hf_ipxwan_extended_node_id, tvb,
-					    offset, 4, ENC_NA);
-				}
-				break;
-
-			case OPT_NODE_NUMBER:
-				if (option_data_len != 6) {
-					expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
-						"Bogus length: %u, should be 6", option_data_len);
-				} else {
-					proto_tree_add_item(option_tree,
-					    hf_ipxwan_node_number, tvb,
-					    offset, 6, ENC_NA);
-				}
-				break;
-
-			case OPT_COMPRESSION:
-				if (option_data_len < 1) {
-					expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
-						"Bogus length: %u, should be >= 1", option_data_len);
-				} else {
-					compression_type = tvb_get_guint8(tvb,
-					    offset);
-					ti = proto_tree_add_uint(option_tree,
-					    hf_ipxwan_compression_type, tvb,
-					    offset, 1, compression_type);
-					switch (compression_type) {
-
-					case COMP_TYPE_TELEBIT:
-						if (option_data_len < 3) {
-							expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
-								"Bogus length: %u, should be >= 3", option_data_len);
-						} else {
-							proto_tree_add_item(option_tree, hf_ipxwan_compression_options,
-								tvb, offset+1, 1, ENC_BIG_ENDIAN);
-							proto_tree_add_item(option_tree, hf_ipxwan_compression_slots,
-								tvb, offset+2, 1, ENC_BIG_ENDIAN);
-						}
-						break;
-
-					default:
-						proto_tree_add_item(option_tree, hf_ipxwan_compression_parameters,
-							tvb, offset+1, option_data_len-1, ENC_NA);
-						break;
-					}
-				}
-				break;
-
-			case OPT_PAD:
-				proto_tree_add_item(option_tree, hf_ipxwan_padding,
-					tvb, offset, option_data_len, ENC_NA);
-				break;
-
-			default:
-				proto_tree_add_item(option_tree, hf_ipxwan_option_value,
-					tvb, offset, option_data_len, ENC_NA);
-				break;
+		case OPT_ROUTING_TYPE:
+			if (option_data_len != 1) {
+				expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
+					"Bogus length: %u, should be 1", option_data_len);
+			} else {
+				proto_tree_add_item(option_tree,
+					hf_ipxwan_routing_type, tvb,
+					offset, 1, ENC_BIG_ENDIAN);
 			}
+			break;
 
-			offset += option_data_len;
-			num_options--;
+		case OPT_RIP_SAP_INFO_EXCHANGE:
+			if (option_data_len != 54) {
+				expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
+					"Bogus length: %u, should be 54", option_data_len);
+			} else {
+				wan_link_delay = tvb_get_ntohs(tvb,
+					offset);
+				proto_tree_add_uint_format_value(option_tree,
+					hf_ipxwan_wan_link_delay, tvb,
+					offset, 2, wan_link_delay,
+					"%ums",
+					wan_link_delay);
+				proto_tree_add_item(option_tree,
+					hf_ipxwan_common_network_number,
+					tvb, offset+2, 4, ENC_NA);
+				proto_tree_add_item(option_tree,
+					hf_ipxwan_router_name, tvb,
+					offset+6, 48, ENC_ASCII|ENC_NA);
+			}
+			break;
+
+		case OPT_NLSP_INFORMATION:
+			if (option_data_len != 8) {
+				expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
+					"Bogus length: %u, should be 8", option_data_len);
+			} else {
+				delay = tvb_get_ntohl(tvb, offset);
+				proto_tree_add_uint_format_value(option_tree,
+					hf_ipxwan_delay, tvb,
+					offset, 4, delay,
+					"%uus", delay);
+				throughput = tvb_get_ntohl(tvb, offset);
+				proto_tree_add_uint_format_value(option_tree,
+					hf_ipxwan_throughput, tvb,
+					offset, 4, throughput,
+					"%uus",
+					throughput);
+			}
+			break;
+
+		case OPT_NLSP_RAW_THROUGHPUT_DATA:
+			if (option_data_len != 8) {
+				expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
+					"Bogus length: %u, should be 8", option_data_len);
+			} else {
+				proto_tree_add_item(option_tree,
+					hf_ipxwan_request_size, tvb,
+					offset, 4, ENC_BIG_ENDIAN);
+				delta_time = tvb_get_ntohl(tvb, offset);
+				proto_tree_add_uint_format_value(option_tree,
+					hf_ipxwan_delta_time, tvb,
+					offset, 4, delta_time,
+					"%uus",
+					delta_time);
+			}
+			break;
+
+		case OPT_EXTENDED_NODE_ID:
+			if (option_data_len != 4) {
+				expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
+					"Bogus length: %u, should be 4", option_data_len);
+			} else {
+				proto_tree_add_item(option_tree,
+					hf_ipxwan_extended_node_id, tvb,
+					offset, 4, ENC_NA);
+			}
+			break;
+
+		case OPT_NODE_NUMBER:
+			if (option_data_len != 6) {
+				expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
+					"Bogus length: %u, should be 6", option_data_len);
+			} else {
+				proto_tree_add_item(option_tree,
+					hf_ipxwan_node_number, tvb,
+					offset, 6, ENC_NA);
+			}
+			break;
+
+		case OPT_COMPRESSION:
+			if (option_data_len < 1) {
+				expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
+					"Bogus length: %u, should be >= 1", option_data_len);
+			} else {
+				compression_type = tvb_get_guint8(tvb,
+					offset);
+				ti = proto_tree_add_uint(option_tree,
+					hf_ipxwan_compression_type, tvb,
+					offset, 1, compression_type);
+				switch (compression_type) {
+
+				case COMP_TYPE_TELEBIT:
+					if (option_data_len < 3) {
+						expert_add_info_format(pinfo, ti, &ei_ipxwan_option_data_len,
+							"Bogus length: %u, should be >= 3", option_data_len);
+					} else {
+						proto_tree_add_item(option_tree, hf_ipxwan_compression_options,
+							tvb, offset+1, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(option_tree, hf_ipxwan_compression_slots,
+							tvb, offset+2, 1, ENC_BIG_ENDIAN);
+					}
+					break;
+
+				default:
+					proto_tree_add_item(option_tree, hf_ipxwan_compression_parameters,
+						tvb, offset+1, option_data_len-1, ENC_NA);
+					break;
+				}
+			}
+			break;
+
+		case OPT_PAD:
+			proto_tree_add_item(option_tree, hf_ipxwan_padding,
+				tvb, offset, option_data_len, ENC_NA);
+			break;
+
+		default:
+			proto_tree_add_item(option_tree, hf_ipxwan_option_value,
+				tvb, offset, option_data_len, ENC_NA);
+			break;
 		}
+
+		offset += option_data_len;
+		num_options--;
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -458,7 +454,7 @@ proto_reg_handoff_ipxwan(void)
 {
 	dissector_handle_t ipxwan_handle;
 
-	ipxwan_handle = create_dissector_handle(dissect_ipxwan,
+	ipxwan_handle = new_create_dissector_handle(dissect_ipxwan,
 	    proto_ipxwan);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPXWAN, ipxwan_handle);
 }

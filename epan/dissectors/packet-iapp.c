@@ -349,8 +349,8 @@ dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *pdutree,
 }
 
 /* code to dissect an IAPP packet */
-static void
-dissect_iapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_iapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti, *pduitem;
     proto_tree *iapp_tree, *pdutree;
@@ -368,22 +368,21 @@ dissect_iapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     codestrval = val_to_str_const(ia_type, iapp_vals, "Unknown Packet");
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s(%d) (version=%d)", codestrval, ia_type, ia_version);
 
-    if (tree)
-    {
-        ti = proto_tree_add_item(tree, proto_iapp, tvb, 0, -1, ENC_NA);
-        iapp_tree = proto_item_add_subtree(ti, ett_iapp);
+    ti = proto_tree_add_item(tree, proto_iapp, tvb, 0, -1, ENC_NA);
+    iapp_tree = proto_item_add_subtree(ti, ett_iapp);
 
-        /* common header for all IAPP frames */
+    /* common header for all IAPP frames */
 
-        proto_tree_add_item(iapp_tree, hf_iapp_version, tvb, 0, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(iapp_tree, hf_iapp_type, tvb, 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(iapp_tree, hf_iapp_version, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(iapp_tree, hf_iapp_type, tvb, 1, 1, ENC_BIG_ENDIAN);
 
-        pdutree = proto_tree_add_subtree(iapp_tree, tvb, 2, -1,
-                ett_iapp_pdu, &pduitem, "Protocol data units");
+    pdutree = proto_tree_add_subtree(iapp_tree, tvb, 2, -1,
+            ett_iapp_pdu, &pduitem, "Protocol data units");
 
-        dissect_pdus(tvb, pinfo, 2, pdutree, pduitem,
-                tvb_captured_length_remaining(tvb, 2));
-    }
+    dissect_pdus(tvb, pinfo, 2, pdutree, pduitem,
+            tvb_captured_length_remaining(tvb, 2));
+
+    return tvb_captured_length(tvb);
 }
 
 
@@ -480,7 +479,7 @@ proto_reg_handoff_iapp(void)
 {
     dissector_handle_t iapp_handle;
 
-    iapp_handle = create_dissector_handle(dissect_iapp, proto_iapp);
+    iapp_handle = new_create_dissector_handle(dissect_iapp, proto_iapp);
     dissector_add_uint("udp.port", UDP_PORT_IAPP, iapp_handle);
 }
 /*

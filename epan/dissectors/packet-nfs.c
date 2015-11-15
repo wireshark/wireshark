@@ -1325,8 +1325,8 @@ nfs_fmt_fsid( gchar *result, guint32 revision )
 }
 
 /* SVR4: checked with ReliantUNIX (5.43, 5.44, 5.45), OpenSolaris (build 101a) */
-static void
-dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint encoding = ENC_BIG_ENDIAN;	/* We support little endian and big endian. Default is big endian*/
 	gboolean have_flag = FALSE;	/* The flag field at the end is optional. Assume no flag is there */
@@ -1485,13 +1485,15 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 	/* flag */
 	if (have_flag)
 		proto_tree_add_item(tree, hf_nfs_fh_flag, tvb, nof, 4, encoding);
+
+	return tvb_captured_length(tvb);
 }
 
 
 /* Checked with RedHat Linux 6.2 (kernel 2.2.14 knfsd) */
 
-static void
-dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	if (tree) {
 		int	offset = 0;
@@ -1538,13 +1540,14 @@ dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto
 		proto_tree_add_item(tree, hf_nfs_fh_xfn_inode, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(tree, hf_nfs_fh_fn_generation, tvb, offset+24, 4, ENC_LITTLE_ENDIAN);
 	}
+	return tvb_captured_length(tvb);
 }
 
 
 /* Checked with RedHat Linux 5.2 (nfs-server 2.2beta47 user-land nfsd) */
 
-static void
-dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 
@@ -1567,11 +1570,12 @@ dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_
 			proto_tree_add_item(hash_tree, hf_nfs_fh_hp_key, tvb, offset+5, hashlen, ENC_NA);
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 
-static void
-dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 	static const int * flags[] = {
@@ -1621,6 +1625,7 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 					   tvb, offset + 31, 1,
 					   export_snapgen >> 24);
 	}
+	return tvb_captured_length(tvb);
 }
 
 static const value_string handle_type_strings[] = {
@@ -1632,8 +1637,8 @@ static const value_string handle_type_strings[] = {
 	{ 0, NULL }
 };
 
-static void
-dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	static const int * flags[] = {
 		&hf_nfs_fh_file_flag_mntpoint,
@@ -1656,7 +1661,7 @@ dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree
 	};
 
 	if (tree == NULL)
-		return;
+		return tvb_captured_length(tvb);
 
 	{
 		int	    offset = 0;
@@ -1690,6 +1695,7 @@ dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree
 		proto_tree_add_item(subtree, hf_nfs_fh_fsid, tvb, offset + 20, 4, encoding);
 		proto_tree_add_item(tree, hf_nfs_fh_handle_type, tvb, offset+24, 4, encoding);
 	}
+	return tvb_captured_length(tvb);
 }
 
 #define NETAPP_GX_FH3_LENGTH		44
@@ -1705,8 +1711,8 @@ dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree
 #define SPINNP_FH_FLAG_SNAPDIR_MASK	0x02
 #define SPINNP_FH_FLAG_STREAMDIR_MASK	0x01
 
-static void
-dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	if (tree) {
 		proto_item *tf;
@@ -1813,6 +1819,7 @@ dissect_fhandle_data_NETAPP_GX_v3(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 		proto_tree_add_item(tree, hf_nfs3_gxfh_exportptuid, tvb, offset+40, 4, ENC_LITTLE_ENDIAN);
 
 	}  /* end of (tree) */
+	return tvb_captured_length(tvb);
 }
 
 /* Checked with SuSE 7.1 (kernel 2.4.0 knfsd) */
@@ -2152,12 +2159,13 @@ dissect_fhandle_data_CELERRA_VNX(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tr
 }
 
 
-static void
-dissect_fhandle_data_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_fhandle_data_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint fhlen = tvb_reported_length(tvb);
 
 	proto_tree_add_item(tree, hf_nfs_fh_fhandle_data, tvb, 0, fhlen, ENC_NA);
+	return tvb_captured_length(tvb);
 }
 
 
@@ -2222,7 +2230,7 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		   have a unique identifier to determine subdissector */
 		fh_tvb = tvb_new_subset(tvb, offset, fhlen, fhlen);
 		if (!dissector_try_uint(nfs_fhandle_table, 0, fh_tvb, pinfo, tree))
-			dissect_fhandle_data_unknown(fh_tvb, pinfo, tree);
+			dissect_fhandle_data_unknown(fh_tvb, pinfo, tree, NULL);
 	}
 }
 
@@ -13748,25 +13756,25 @@ proto_reg_handoff_nfs(void)
 	rpc_init_prog(proto_nfs, NFS_CB_PROGRAM, ett_nfs,
 	    G_N_ELEMENTS(nfs_cb_vers_info), nfs_cb_vers_info);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_SVR4, proto_nfs_svr4);
+	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_SVR4, proto_nfs_svr4);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_LINUX_KNFSD_LE, proto_nfs_knfsd_le);
+	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_LINUX_KNFSD_LE, proto_nfs_knfsd_le);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_LINUX_NFSD_LE, proto_nfs_nfsd_le);
+	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_LINUX_NFSD_LE, proto_nfs_nfsd_le);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
 	fhandle_handle = create_dissector_handle(dissect_fhandle_data_LINUX_KNFSD_NEW, proto_nfs_knfsd_new);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_NETAPP, proto_nfs_ontap_v3);
+	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_NETAPP, proto_nfs_ontap_v3);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_NETAPP_V4, proto_nfs_ontap_v4);
+	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_NETAPP_V4, proto_nfs_ontap_v4);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_NETAPP_GX_v3, proto_nfs_ontap_gx_v3);
+	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_NETAPP_GX_v3, proto_nfs_ontap_gx_v3);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
 	fhandle_handle = create_dissector_handle(dissect_fhandle_data_CELERRA_VNX, proto_nfs_celerra_vnx);
@@ -13778,7 +13786,7 @@ proto_reg_handoff_nfs(void)
 	fhandle_handle = create_dissector_handle(dissect_fhandle_data_DCACHE, proto_nfs_dcache);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs_unknown);
+	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs_unknown);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 }
 

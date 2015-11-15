@@ -51,8 +51,8 @@ static int hf_llt_message_time = -1;
 static gint ett_llt = -1;
 
 /* Code to actually dissect the packets */
-static void
-dissect_llt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_llt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -75,6 +75,7 @@ dissect_llt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(llt_tree, hf_llt_sequence_num, tvb, 24, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(llt_tree, hf_llt_message_time, tvb, 40, 4, ENC_BIG_ENDIAN);
 
+	return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -137,7 +138,7 @@ proto_reg_handoff_llt(void)
 	static guint preference_alternate_ethertype_last;
 
 	if (!initialized) {
-		llt_handle = create_dissector_handle(dissect_llt, proto_llt);
+		llt_handle = new_create_dissector_handle(dissect_llt, proto_llt);
 		dissector_add_uint("ethertype", ETHERTYPE_LLT, llt_handle);
 		initialized = TRUE;
 	} else {

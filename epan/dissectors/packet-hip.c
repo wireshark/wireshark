@@ -578,22 +578,30 @@ dissect_hip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     }
 }
 
-static void
-dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_hip_common(tvb, pinfo, tree, FALSE);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_hip_in_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_hip_in_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-        guint32 nullbytes;
-        nullbytes = tvb_get_ntohl(tvb, 0);
-        if (nullbytes == 0)
-        {
-                tvbuff_t *newtvb = tvb_new_subset_remaining(tvb, 4);
-                dissect_hip_common(newtvb, pinfo, tree, TRUE);
-        }
+    guint32 nullbytes;
+    tvbuff_t *newtvb;
+
+    if (tvb_captured_length(tvb) < 4)
+        return 0;
+
+    nullbytes = tvb_get_ntohl(tvb, 0);
+    if (nullbytes != 0)
+        return 0;
+
+    newtvb = tvb_new_subset_remaining(tvb, 4);
+    dissect_hip_common(newtvb, pinfo, tree, TRUE);
+
+    return tvb_captured_length(tvb);
 }
 
 
@@ -1602,10 +1610,10 @@ proto_reg_handoff_hip(void)
         dissector_handle_t hip_handle;
         dissector_handle_t hip_handle2;
 
-        hip_handle = create_dissector_handle(dissect_hip, proto_hip);
+        hip_handle = new_create_dissector_handle(dissect_hip, proto_hip);
         dissector_add_uint("ip.proto", IP_PROTO_HIP, hip_handle);
 
-        hip_handle2 = create_dissector_handle(dissect_hip_in_udp, proto_hip);
+        hip_handle2 = new_create_dissector_handle(dissect_hip_in_udp, proto_hip);
         dissector_add_uint("udp.port", 10500, hip_handle2);
 }
 /*
