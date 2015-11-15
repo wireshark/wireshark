@@ -1,5 +1,7 @@
 /* packet-type29ucd.c
+ *
  * Routines for Type 29 UCD - DOCSIS 2.0 only - Message dissection
+ * Copyright 2015, Adrian Simionov <daniel.simionov@gmail.com>
  * Copyright 2003, Brian Wheeler <brian.wheeler[AT]arrisi.com>
  *
  * Wireshark - Network traffic analyzer
@@ -29,7 +31,6 @@
 #define type29ucd_SYMBOL_RATE 1
 #define type29ucd_FREQUENCY 2
 #define type29ucd_PREAMBLE 3
-#define type29ucd_BURST_DESCR 4
 #define type29ucd_BURST_DESCR5 5
 #define type29ucd_EXT_PREAMBLE 6
 #define type29ucd_SCDMA_MODE_ENABLE 7
@@ -132,7 +133,6 @@ static const value_string channel_tlv_vals[] _U_ = {
   {type29ucd_SYMBOL_RATE,                     "Symbol Rate"},
   {type29ucd_FREQUENCY,                       "Frequency"},
   {type29ucd_PREAMBLE,                        "Preamble Pattern"},
-  {type29ucd_BURST_DESCR,                     "Burst Descriptor"},
   {type29ucd_BURST_DESCR5,                    "Burst Descriptor DOCSIS 2.0"},
   {type29ucd_EXT_PREAMBLE,                    "Extended Preamble Pattern"},
   {type29ucd_SCDMA_MODE_ENABLE,               "SCDMA Mode Enabled"},
@@ -406,158 +406,6 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void*
                   }
                 pos = pos + length;
                 break;
-                /* DOCSIS 1.1 BURST DESCRIPTOR */
-              case type29ucd_BURST_DESCR:
-                burst_descr_tree =
-                  proto_tree_add_subtree_format(type29ucd_tree, tvb, pos, length,
-                                                ett_burst_descr, NULL, "4 Burst Descriptor (Length = %u)",
-                                                length);
-                proto_tree_add_item (burst_descr_tree, hf_docsis_type29ucd_iuc, tvb,
-                                     pos++, 1, ENC_BIG_ENDIAN);
-                endtlvpos = pos + length - 1;
-                while (pos < endtlvpos)
-                  {
-                    tlvtype = tvb_get_guint8 (tvb, pos++);
-                    tlvlen = tvb_get_guint8 (tvb, pos++);
-                    switch (tlvtype)
-                      {
-                        case type29ucd_MODULATION:
-                          if (tlvlen == 1)
-                            {
-                              proto_tree_add_item (burst_descr_tree,
-                                                   hf_docsis_burst_mod_type, tvb,
-                                                   pos, tlvlen, ENC_BIG_ENDIAN);
-                            }
-                          else
-                            {
-                              THROW (ReportedBoundsError);
-                            }
-                          break;
-                        case type29ucd_DIFF_ENCODING:
-                          if (tlvlen == 1)
-                            {
-                              proto_tree_add_item (burst_descr_tree,
-                                                   hf_docsis_burst_diff_encoding,
-                                                   tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-                            }
-                          else
-                            {
-                              THROW (ReportedBoundsError);
-                            }
-                          break;
-                        case type29ucd_PREAMBLE_LEN:
-                          if (tlvlen == 2)
-                            {
-                              proto_tree_add_item (burst_descr_tree,
-                                                   hf_docsis_burst_preamble_len,
-                                                   tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-                            }
-                          else
-                            {
-                              THROW (ReportedBoundsError);
-                            }
-                          break;
-                        case type29ucd_PREAMBLE_VAL_OFF:
-                          if (tlvlen == 2)
-                            {
-                              proto_tree_add_item (burst_descr_tree,
-                                                   hf_docsis_burst_preamble_val_off,
-                                                   tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-                            }
-                          else
-                            {
-                              THROW (ReportedBoundsError);
-                            }
-                          break;
-                        case type29ucd_FEC:
-                          if (tlvlen == 1)
-                            {
-                              proto_tree_add_item (burst_descr_tree,
-                                                   hf_docsis_burst_fec, tvb, pos,
-                                                   tlvlen, ENC_BIG_ENDIAN);
-                            }
-                          else
-                            {
-                              THROW (ReportedBoundsError);
-                            }
-                          break;
-                        case type29ucd_FEC_CODEWORD:
-                          if (tlvlen == 1)
-                            {
-                              proto_tree_add_item (burst_descr_tree,
-                                                   hf_docsis_burst_fec_codeword,
-                                                   tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-                            }
-                          else
-                            {
-                              THROW (ReportedBoundsError);
-                            }
-                          break;
-                        case type29ucd_SCRAMBLER_SEED:
-                          if (tlvlen == 2)
-                            {
-                              proto_tree_add_item (burst_descr_tree,
-                                                   hf_docsis_burst_scrambler_seed,
-                                                   tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-                            }
-                          else
-                            {
-                              THROW (ReportedBoundsError);
-                            }
-                          break;
-                        case type29ucd_MAX_BURST:
-                          if (tlvlen == 1)
-                            {
-                              proto_tree_add_item (burst_descr_tree,
-                                                   hf_docsis_burst_max_burst, tvb,
-                                                   pos, tlvlen, ENC_BIG_ENDIAN);
-                            }
-                          else
-                            {
-                              THROW (ReportedBoundsError);
-                            }
-                          break;
-                        case type29ucd_GUARD_TIME:
-                          if (tlvlen == 1)
-                            {
-                              proto_tree_add_item (burst_descr_tree,
-                                                   hf_docsis_burst_guard_time,
-                                                   tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-                            }
-                          else
-                            {
-                              THROW (ReportedBoundsError);
-                            }
-                          break;
-                        case type29ucd_LAST_CW_LEN:
-                          if (tlvlen == 1)
-                            {
-                              proto_tree_add_item (burst_descr_tree,
-                                                   hf_docsis_burst_last_cw_len,
-                                                   tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-                            }
-                          else
-                            {
-                              THROW (ReportedBoundsError);
-                            }
-                          break;
-                        case type29ucd_SCRAMBLER_ONOFF:
-                          if (tlvlen == 1)
-                            {
-                              proto_tree_add_item (burst_descr_tree,
-                                                   hf_docsis_burst_scrambler_onoff,
-                                                   tvb, pos, tlvlen, ENC_BIG_ENDIAN);
-                            }
-                          else
-                            {
-                              THROW (ReportedBoundsError);
-                            }
-                          break;
-                      }         /* switch(tlvtype) */
-                    pos = pos + tlvlen;
-                  }             /* while (pos < endtlvpos) */
-                break;
-                /* DOCSIS 2.0 Upstream Channel Descriptor */
               case type29ucd_BURST_DESCR5:
                 burst_descr_tree =
                   proto_tree_add_subtree_format(type29ucd_tree, tvb, pos, length,
