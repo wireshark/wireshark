@@ -99,7 +99,7 @@ wireshark-tap-register.c:  $(WIRESHARK_TAP_SRC) Makefile.common Makefile_custom.
 	@$(PYTHON) $(top_srcdir)/tools/make-tap-reg.py $(srcdir) taps $(WIRESHARK_TAP_SRC)
 
 if HAVE_GRESOURCE
-wireshark-gresources.c: main.gresources.xml $(shell glib-compile-resources --sourcedir=$(top_srcdir) --generate-dependencies main.gresources.xml)
+wireshark-gresources.c: main.gresources.xml $(shell glib-compile-resources --sourcedir=$(top_srcdir) --generate-dependencies $(srcdir)/main.gresources.xml)
 	@echo Making $@
 	@glib-compile-resources --sourcedir=$(top_srcdir) --target=$@ --generate --manual-register $<
 
