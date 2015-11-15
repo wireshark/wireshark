@@ -283,10 +283,11 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
  * BSD-style ARCNET headers - they don't have the offset field from the
  * ARCNET hardware packet, but we might get an exception frame header.
  */
-static void
-dissect_arcnet (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_arcnet (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   dissect_arcnet_common (tvb, pinfo, tree, FALSE, TRUE);
+  return tvb_captured_length(tvb);
 }
 
 /*
@@ -294,10 +295,11 @@ dissect_arcnet (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
  * ARCNET hardware packet, but we should never see an exception frame
  * header.
  */
-static void
-dissect_arcnet_linux (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_arcnet_linux (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   dissect_arcnet_common (tvb, pinfo, tree, TRUE, FALSE);
+  return tvb_captured_length(tvb);
 }
 
 static const value_string arcnet_prot_id_vals[] = {
@@ -394,10 +396,10 @@ proto_reg_handoff_arcnet (void)
 {
   dissector_handle_t arcnet_handle, arcnet_linux_handle;
 
-  arcnet_handle = create_dissector_handle (dissect_arcnet, proto_arcnet);
+  arcnet_handle = new_create_dissector_handle (dissect_arcnet, proto_arcnet);
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_ARCNET, arcnet_handle);
 
-  arcnet_linux_handle = create_dissector_handle (dissect_arcnet_linux,
+  arcnet_linux_handle = new_create_dissector_handle (dissect_arcnet_linux,
                                                  proto_arcnet);
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_ARCNET_LINUX, arcnet_linux_handle);
   data_handle = find_dissector ("data");

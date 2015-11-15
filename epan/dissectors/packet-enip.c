@@ -2385,8 +2385,8 @@ dissect_enip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 }
 
 /* Code to actually dissect the io packets*/
-static void
-dissect_enipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_enipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    /* Set up structures needed to add the protocol subtree and manage it */
    proto_item *ti;
@@ -2402,6 +2402,7 @@ dissect_enipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    dissect_cpf( NULL, 0xFFFF, tvb, pinfo, enip_tree, tree, 0, 0 );
 
+   return tvb_captured_length(tvb);
 } /* end of dissect_enipio() */
 
 
@@ -3760,7 +3761,7 @@ proto_reg_handoff_enip(void)
    dissector_add_uint("udp.port", ENIP_ENCAP_PORT, enip_udp_handle);
 
    /* Register for EtherNet/IP IO data (UDP) */
-   enipio_handle = create_dissector_handle(dissect_enipio, proto_enipio);
+   enipio_handle = new_create_dissector_handle(dissect_enipio, proto_enipio);
    dissector_add_uint("udp.port", ENIP_IO_PORT, enipio_handle);
 
    /* Find dissector for data packet */

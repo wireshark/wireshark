@@ -270,8 +270,8 @@ static const value_string type_nrgyz_vals[] = {
     { 0, NULL }
 };
 
-static void
-dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti, *checksum_item;
     proto_tree *cdp_tree = NULL, *checksum_tree;
@@ -1039,13 +1039,14 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (length > 4) {
                     proto_tree_add_item(tlv_tree, hf_cdp_data, tvb, offset + 4, length - 4, ENC_NA);
                 } else {
-                    return;
+                    return tvb_captured_length(tvb);
                 }
             }
             offset += length;
         }
     }
     call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, cdp_tree);
+    return tvb_captured_length(tvb);
 }
 
 #define PROTO_TYPE_NLPID       1
@@ -1474,7 +1475,7 @@ proto_reg_handoff_cdp(void)
     dissector_handle_t cdp_handle;
 
     data_handle = find_dissector("data");
-    cdp_handle  = create_dissector_handle(dissect_cdp, proto_cdp);
+    cdp_handle  = new_create_dissector_handle(dissect_cdp, proto_cdp);
     dissector_add_uint("llc.cisco_pid", 0x2000, cdp_handle);
     dissector_add_uint("chdlc.protocol", 0x2000, cdp_handle);
     dissector_add_uint("ppp.protocol",  0x0207, cdp_handle);

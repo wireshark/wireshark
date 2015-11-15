@@ -404,40 +404,46 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
     }
 }
 
-static void
-dissect_evrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_evrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_evrc_aux(tvb, pinfo, tree, EVRC_VARIANT_EVRC);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_evrcb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_evrcb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_evrc_aux(tvb, pinfo, tree, EVRC_VARIANT_EVRC_B);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_evrcwb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_evrcwb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_evrc_aux(tvb, pinfo, tree, EVRC_VARIANT_EVRC_WB);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_evrcnw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_evrcnw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_evrc_aux(tvb, pinfo, tree, EVRC_VARIANT_EVRC_NW);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_evrcnw2k(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_evrcnw2k(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_evrc_aux(tvb, pinfo, tree, EVRC_VARIANT_EVRC_NW2k);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_evrc_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_evrc_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_evrc_aux(tvb, pinfo, tree, EVRC_VARIANT_EVRC_LEGACY);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -611,12 +617,12 @@ proto_reg_handoff_evrc(void)
         dissector_handle_t evrcnw_handle;
         dissector_handle_t evrcnw2k_handle;
 
-        evrc_handle        = create_dissector_handle(dissect_evrc, proto_evrc);
-        evrcb_handle       = create_dissector_handle(dissect_evrcb, proto_evrc);
-        evrcwb_handle      = create_dissector_handle(dissect_evrcwb, proto_evrc);
-        evrcnw_handle      = create_dissector_handle(dissect_evrcnw, proto_evrc);
-        evrcnw2k_handle    = create_dissector_handle(dissect_evrcnw2k, proto_evrc);
-        evrc_legacy_handle = create_dissector_handle(dissect_evrc_legacy, proto_evrc);
+        evrc_handle        = new_create_dissector_handle(dissect_evrc, proto_evrc);
+        evrcb_handle       = new_create_dissector_handle(dissect_evrcb, proto_evrc);
+        evrcwb_handle      = new_create_dissector_handle(dissect_evrcwb, proto_evrc);
+        evrcnw_handle      = new_create_dissector_handle(dissect_evrcnw, proto_evrc);
+        evrcnw2k_handle    = new_create_dissector_handle(dissect_evrcnw2k, proto_evrc);
+        evrc_legacy_handle = new_create_dissector_handle(dissect_evrc_legacy, proto_evrc);
 
         /* header-full mime types */
         dissector_add_string("rtp_dyn_payload_type",  "EVRC", evrc_handle);

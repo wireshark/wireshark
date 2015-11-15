@@ -98,8 +98,8 @@ static const value_string af_vals[] = {
   { 0, NULL }
 };
 
-static void
-dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   struct enchdr  ench;
   tvbuff_t      *next_tvb;
@@ -158,6 +158,7 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_dissector(data_handle, next_tvb, pinfo, tree);
     break;
   }
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -191,7 +192,7 @@ proto_reg_handoff_enc(void)
   ipv6_handle = find_dissector("ipv6");
   data_handle = find_dissector("data");
 
-  enc_handle  = create_dissector_handle(dissect_enc, proto_enc);
+  enc_handle  = new_create_dissector_handle(dissect_enc, proto_enc);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ENC, enc_handle);
 }
 

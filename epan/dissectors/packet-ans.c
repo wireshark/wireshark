@@ -63,8 +63,8 @@ static int hf_ans_team_id   = -1;
 static gint ett_ans = -1;
 
 /* Code to actually dissect the packets */
-static void
-dissect_ans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item  *ti;
 	proto_tree  *ans_tree = NULL;
@@ -89,6 +89,7 @@ dissect_ans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(ans_tree, hf_ans_sender_id, tvb, 8, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(ans_tree, hf_ans_team_id, tvb, 10, 6, ENC_NA);
 	}
+	return tvb_captured_length(tvb);
 }
 
 
@@ -138,7 +139,7 @@ proto_reg_handoff_ans(void)
 {
 	dissector_handle_t ans_handle;
 
-	ans_handle = create_dissector_handle(dissect_ans, proto_ans);
+	ans_handle = new_create_dissector_handle(dissect_ans, proto_ans);
 	dissector_add_uint("ethertype", ETHERTYPE_INTEL_ANS, ans_handle);
 }
 

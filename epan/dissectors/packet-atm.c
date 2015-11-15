@@ -687,8 +687,8 @@ capture_lane(const union wtap_pseudo_header *pseudo_header, const guchar *pd,
   }
 }
 
-static void
-dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   tvbuff_t *next_tvb;
   tvbuff_t *next_tvb_le_client;
@@ -729,12 +729,13 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_dissector(data_handle,next_tvb, pinfo, tree);
     break;
   }
+  return tvb_captured_length(tvb);
 }
 
-static void
-dissect_ilmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ilmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_ilmi, ett_ilmi, FALSE);
+  return dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_ilmi, ett_ilmi, FALSE);
 }
 
 /* AAL types */
@@ -2035,8 +2036,8 @@ proto_reg_handoff_atm(void)
   gprs_ns_handle        = find_dissector("gprs_ns");
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS, atm_handle);
-  dissector_add_uint("atm.aal5.type", TRAF_LANE, create_dissector_handle(dissect_lane, proto_atm_lane));
-  dissector_add_uint("atm.aal5.type", TRAF_ILMI, create_dissector_handle(dissect_ilmi, proto_ilmi));
+  dissector_add_uint("atm.aal5.type", TRAF_LANE, new_create_dissector_handle(dissect_lane, proto_atm_lane));
+  dissector_add_uint("atm.aal5.type", TRAF_ILMI, new_create_dissector_handle(dissect_ilmi, proto_ilmi));
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS_UNTRUNCATED,
                 atm_untruncated_handle);

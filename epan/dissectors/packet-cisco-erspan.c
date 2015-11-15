@@ -120,8 +120,8 @@ erspan_fmt_timestamp(gchar *result, guint32 timeval)
 	g_snprintf(result, ITEM_LABEL_LENGTH, "%.4f", (((gfloat)timeval)/10000));
 }
 
-static void
-dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_item *ti_ver;
@@ -144,7 +144,7 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Some vendor don't include ERSPAN Header...*/
 		eth_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_dissector(ethnofcs_handle, eth_tvb, pinfo, tree);
-		return;
+		return tvb_captured_length(tvb);
 	}
 
 
@@ -154,7 +154,7 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			ENC_BIG_ENDIAN);
 		if ((version != 1) && (version != 2 )) {
 			expert_add_info(pinfo, ti_ver, &ei_erspan_version_unknown);
-			return;
+			return 2;
 		}
 		proto_tree_add_item(erspan_tree, hf_erspan_vlan, tvb, offset, 2,
 			ENC_BIG_ENDIAN);
@@ -207,6 +207,7 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	eth_tvb = tvb_new_subset_remaining(tvb, offset);
 	call_dissector(ethnofcs_handle, eth_tvb, pinfo, tree);
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -306,7 +307,7 @@ proto_reg_handoff_erspan(void)
 
 	ethnofcs_handle = find_dissector("eth_withoutfcs");
 
-	erspan_handle = create_dissector_handle(dissect_erspan, proto_erspan);
+	erspan_handle = new_create_dissector_handle(dissect_erspan, proto_erspan);
 	dissector_add_uint("gre.proto", GRE_ERSPAN_88BE, erspan_handle);
 	dissector_add_uint("gre.proto", GRE_ERSPAN_22EB, erspan_handle);
 

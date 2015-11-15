@@ -3096,8 +3096,8 @@ dissect_artnet_file_fn_reply(tvbuff_t *tvb _U_, guint offset, proto_tree *tree _
   return offset;
 }
 
-static void
-dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   gint        offset = 0;
   guint       size;
   guint16     opcode;
@@ -3784,13 +3784,14 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       if (tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_tree_add_item(artnet_tree, hf_artnet_data, tvb, offset, -1, ENC_NA);
       }
-      return;
+      return tvb_captured_length(tvb);
   }
 
   if (tvb_reported_length_remaining(tvb, offset) > 0) {
     proto_tree_add_item(artnet_tree, hf_artnet_excess_bytes, tvb,
       offset, -1, ENC_NA);
   }
+  return tvb_captured_length(tvb);
 }
 
 /* Heuristic dissector */
@@ -3809,7 +3810,7 @@ dissect_artnet_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     return FALSE;
 
   /* if the header matches, dissect it */
-  dissect_artnet(tvb, pinfo, tree);
+  dissect_artnet(tvb, pinfo, tree, data);
 
   return TRUE;
 }
@@ -5260,7 +5261,7 @@ void
 proto_reg_handoff_artnet(void) {
   dissector_handle_t artnet_handle;
 
-  artnet_handle   = create_dissector_handle(dissect_artnet, proto_artnet);
+  artnet_handle   = new_create_dissector_handle(dissect_artnet, proto_artnet);
   dissector_add_for_decode_as("udp.port", artnet_handle);
   rdm_handle      = find_dissector("rdm");
   dmx_chan_handle = find_dissector("dmx-chan");

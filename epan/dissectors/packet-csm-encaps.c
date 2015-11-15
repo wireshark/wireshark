@@ -180,8 +180,8 @@ csm_to_host(guint16 fc, guint16 ct)
 
 
 /* Code to actually dissect the packets */
-static void
-dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item  *ti;
     proto_tree  *csm_encaps_tree = NULL;
@@ -328,6 +328,7 @@ dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         for (; i<length; i+=2)
             proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN);
     }
+    return tvb_captured_length(tvb);
 }
 
 
@@ -638,7 +639,7 @@ proto_reg_handoff_csm_encaps(void)
 {
     dissector_handle_t csm_encaps_handle;
 
-    csm_encaps_handle = create_dissector_handle(dissect_csm_encaps, proto_csm_encaps);
+    csm_encaps_handle = new_create_dissector_handle(dissect_csm_encaps, proto_csm_encaps);
     dissector_add_uint("ethertype", ETHERTYPE_CSM_ENCAPS, csm_encaps_handle);
 }
 

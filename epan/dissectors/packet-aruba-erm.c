@@ -202,8 +202,8 @@ dissect_aruba_erm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 }
 
 
-static void
-dissect_aruba_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_aruba_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int offset = 0;
 
@@ -219,12 +219,12 @@ dissect_aruba_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         call_dissector(data_handle, tvb, pinfo, tree);
     }
 
-
+    return tvb_captured_length(tvb);
 }
 
 
-static void
-dissect_aruba_erm_type0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_aruba_erm_type0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     tvbuff_t * next_tvb;
     int offset = 0;
@@ -239,10 +239,11 @@ dissect_aruba_erm_type0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* No way to determine if TX or RX packet... (TX = no FCS, RX = FCS...)*/
     call_dissector(wlan_withfcs_handle, next_tvb, pinfo, tree);
 
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_aruba_erm_type1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_aruba_erm_type1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int offset = 0;
 
@@ -251,10 +252,11 @@ dissect_aruba_erm_type1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Say to PEEK dissector, it is a Aruba PEEK packet */
     call_dissector_with_data(peek_handle, tvb, pinfo, tree, GUINT_TO_POINTER(IS_ARUBA));
 
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_aruba_erm_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_aruba_erm_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int offset = 0;
 
@@ -264,10 +266,11 @@ dissect_aruba_erm_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_expert(tree, pinfo, &ei_aruba_erm_airmagnet, tvb, offset, -1);
     call_dissector(data_handle, tvb, pinfo, tree);
 
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_aruba_erm_type3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_aruba_erm_type3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     tvbuff_t * next_tvb;
     int offset = 0;
@@ -317,10 +320,11 @@ dissect_aruba_erm_type3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         phdr.fcs_len = 4; /* We have an FCS */
     }
     call_dissector_with_data(wlan_radio_handle, next_tvb, pinfo, tree, &phdr);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_aruba_erm_type4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_aruba_erm_type4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int offset = 0;
 
@@ -328,11 +332,12 @@ dissect_aruba_erm_type4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     call_dissector(ppi_handle, tvb, pinfo, tree);
 
+    return tvb_captured_length(tvb);
 }
 
 /* Type 5 is the same of type 1 but with Peek Header version = 2, named internaly Peekremote -ng */
-static void
-dissect_aruba_erm_type5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_aruba_erm_type5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int offset = 0;
 
@@ -341,6 +346,7 @@ dissect_aruba_erm_type5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Say to PEEK dissector, it is a Aruba PEEK  packet */
     call_dissector_with_data(peek_handle, tvb, pinfo, tree, GUINT_TO_POINTER(IS_ARUBA));
 
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -474,13 +480,13 @@ proto_reg_handoff_aruba_erm(void)
         ppi_handle = find_dissector("ppi");
         peek_handle = find_dissector("peekremote");
         data_handle = find_dissector("data");
-        aruba_erm_handle = create_dissector_handle(dissect_aruba_erm, proto_aruba_erm);
-        aruba_erm_handle_type0 = create_dissector_handle(dissect_aruba_erm_type0, proto_aruba_erm_type0);
-        aruba_erm_handle_type1 = create_dissector_handle(dissect_aruba_erm_type1, proto_aruba_erm_type1);
-        aruba_erm_handle_type2 = create_dissector_handle(dissect_aruba_erm_type2, proto_aruba_erm_type2);
-        aruba_erm_handle_type3 = create_dissector_handle(dissect_aruba_erm_type3, proto_aruba_erm_type3);
-        aruba_erm_handle_type4 = create_dissector_handle(dissect_aruba_erm_type4, proto_aruba_erm_type4);
-        aruba_erm_handle_type5 = create_dissector_handle(dissect_aruba_erm_type5, proto_aruba_erm_type5);
+        aruba_erm_handle = new_create_dissector_handle(dissect_aruba_erm, proto_aruba_erm);
+        aruba_erm_handle_type0 = new_create_dissector_handle(dissect_aruba_erm_type0, proto_aruba_erm_type0);
+        aruba_erm_handle_type1 = new_create_dissector_handle(dissect_aruba_erm_type1, proto_aruba_erm_type1);
+        aruba_erm_handle_type2 = new_create_dissector_handle(dissect_aruba_erm_type2, proto_aruba_erm_type2);
+        aruba_erm_handle_type3 = new_create_dissector_handle(dissect_aruba_erm_type3, proto_aruba_erm_type3);
+        aruba_erm_handle_type4 = new_create_dissector_handle(dissect_aruba_erm_type4, proto_aruba_erm_type4);
+        aruba_erm_handle_type5 = new_create_dissector_handle(dissect_aruba_erm_type5, proto_aruba_erm_type5);
         initialized = TRUE;
     } else {
         dissector_delete_uint_range("udp.port", aruba_erm_port_range, aruba_erm_handle);

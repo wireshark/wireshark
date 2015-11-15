@@ -76,10 +76,9 @@ static gint ett_ath = -1;
 static expert_field ei_ath_hlen_invalid  = EI_INIT;
 static expert_field ei_ath_hmark_invalid = EI_INIT;
 
-static void
-dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-
   int offset = 0;
 
   /* various lengths as reported in the packet itself */
@@ -308,7 +307,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   } else {
     proto_tree_add_expert(tree, pinfo, &ei_ath_hmark_invalid, tvb, offset, -1);
-    return;
+    return tvb_captured_length(tvb);
   }
 
   /* set the INFO column, and we're done !
@@ -335,6 +334,7 @@ dissect_ath(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -440,7 +440,7 @@ proto_reg_handoff_ath(void)
 {
   static dissector_handle_t ath_handle;
 
-  ath_handle = create_dissector_handle(dissect_ath, proto_ath);
+  ath_handle = new_create_dissector_handle(dissect_ath, proto_ath);
   dissector_add_uint("udp.port", ATH_PORT, ath_handle);
 }
 

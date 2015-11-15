@@ -87,8 +87,8 @@ static const value_string dvb_eit_free_ca_mode_vals[] = {
     { 0, NULL }
 };
 
-static void
-dissect_dvb_eit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dvb_eit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
     guint       offset = 0, length = 0;
@@ -139,7 +139,7 @@ dissect_dvb_eit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (offset >= length) {
         packet_mpeg_sect_crc(tvb, pinfo, dvb_eit_tree, 0, offset);
 
-        return;
+        return offset;
     }
 
     /* Parse all the events */
@@ -184,6 +184,7 @@ dissect_dvb_eit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     offset += packet_mpeg_sect_crc(tvb, pinfo, dvb_eit_tree, 0, offset);
     proto_item_set_len(ti, offset);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -292,7 +293,7 @@ void proto_reg_handoff_dvb_eit(void)
     int tid;
     dissector_handle_t dvb_eit_handle;
 
-    dvb_eit_handle = create_dissector_handle(dissect_dvb_eit, proto_dvb_eit);
+    dvb_eit_handle = new_create_dissector_handle(dissect_dvb_eit, proto_dvb_eit);
 
     for (tid = DVB_EIT_TID_MIN; tid <= DVB_EIT_TID_MAX; tid++)
         dissector_add_uint("mpeg_sect.tid", tid, dvb_eit_handle);

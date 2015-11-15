@@ -102,8 +102,8 @@ static const char cont_sep[] = ", ";
         sep = cont_sep;                                 \
     }
 
-static void
-dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8  bpdu_type;
     guint8  flags;
@@ -181,6 +181,7 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             BPDU_FORWARD_DELAY, 1, ENC_BIG_ENDIAN);
 
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -273,7 +274,7 @@ proto_reg_handoff_dec_bpdu(void)
 {
     dissector_handle_t dec_bpdu_handle;
 
-    dec_bpdu_handle = create_dissector_handle(dissect_dec_bpdu,
+    dec_bpdu_handle = new_create_dissector_handle(dissect_dec_bpdu,
                                               proto_dec_bpdu);
     dissector_add_uint("ethertype", ETHERTYPE_DEC_LB, dec_bpdu_handle);
     dissector_add_uint("chdlc.protocol", ETHERTYPE_DEC_LB, dec_bpdu_handle);

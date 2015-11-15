@@ -58,8 +58,8 @@ static int hf_bofl_padding  = -1;
 static gint ett_bofl = -1;
 
 /* Code to actually dissect the packets */
-static void
-dissect_bofl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bofl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item  *ti;
     proto_tree  *bofl_tree;
@@ -88,6 +88,8 @@ dissect_bofl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     len = tvb_reported_length_remaining(tvb, 8);
     if (len > 0)
         proto_tree_add_item(bofl_tree, hf_bofl_padding, tvb, 8, -1, ENC_NA);
+
+    return tvb_captured_length(tvb);
 }
 
 
@@ -128,7 +130,7 @@ proto_reg_handoff_bofl(void)
 {
     dissector_handle_t bofl_handle;
 
-    bofl_handle = create_dissector_handle(dissect_bofl, proto_bofl);
+    bofl_handle = new_create_dissector_handle(dissect_bofl, proto_bofl);
     dissector_add_uint("ethertype", ETHER_TYPE_BOFL, bofl_handle);
 }
 

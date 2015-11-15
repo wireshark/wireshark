@@ -216,8 +216,8 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
 
 
 
-static void
-dissect_gmhdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gmhdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree *ti;
   gint16      length;
@@ -274,6 +274,7 @@ dissect_gmhdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
   }
+  return tvb_captured_length(tvb);
 }
 
 static int
@@ -520,7 +521,7 @@ proto_reg_handoff_gmhdr(void)
 
   ethertype_handle = find_dissector("ethertype");
 
-  gmhdr_handle = create_dissector_handle(dissect_gmhdr, proto_gmhdr);
+  gmhdr_handle = new_create_dissector_handle(dissect_gmhdr, proto_gmhdr);
   dissector_add_uint("ethertype", ETHERTYPE_GIGAMON, gmhdr_handle);
   heur_dissector_add("eth.trailer", dissect_gmtrailer, "Gigamon Ethernet header", "gmhdr_eth", proto_gmhdr, HEURISTIC_ENABLE);
 

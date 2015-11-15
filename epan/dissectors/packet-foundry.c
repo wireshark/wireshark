@@ -263,8 +263,8 @@ dissect_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, p
 	proto_tree_add_item(unknown_tree, hf_fdp_unknown_data, tvb, offset, length, ENC_NA);
 }
 
-static void
-dissect_fdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_tree *fdp_tree = NULL;
@@ -333,6 +333,7 @@ dissect_fdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -457,7 +458,7 @@ proto_reg_handoff_fdp(void)
 {
 	dissector_handle_t fdp_handle;
 
-	fdp_handle = create_dissector_handle(dissect_fdp, proto_fdp);
+	fdp_handle = new_create_dissector_handle(dissect_fdp, proto_fdp);
 	dissector_add_uint("llc.foundry_pid", 0x2000, fdp_handle);
 }
 

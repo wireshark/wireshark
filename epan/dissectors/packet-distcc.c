@@ -253,8 +253,8 @@ dissect_distcc_doto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
 
 /* Packet dissection routine called by tcp (& udp) when port 3632 detected */
-static void
-dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
     int offset=0;
     proto_tree *tree=NULL;
@@ -281,7 +281,7 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
         /* scan the parameter */
         if (sscanf(buf + 4, "%08x", &parameter) != 1)
-            return;
+            return offset;
 
         if(!strncmp(buf, "DIST", 4)){
             offset=dissect_distcc_dist(tvb, pinfo, tree, offset, parameter);
@@ -303,11 +303,11 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
             offset=dissect_distcc_doto(tvb, pinfo, tree, offset, parameter);
         } else {
             call_dissector(data_handle, tvb, pinfo, tree);
-            return;
+            return tvb_captured_length(tvb);
         }
     }
 
-
+    return tvb_captured_length(tvb);
 }
 
 /* Register protocol with Wireshark. */
@@ -394,7 +394,7 @@ proto_reg_handoff_distcc(void)
          * We haven't registered the dissector yet; get a handle
          * for it.
          */
-        distcc_handle = create_dissector_handle(dissect_distcc,
+        distcc_handle = new_create_dissector_handle(dissect_distcc,
             proto_distcc);
         data_handle = find_dissector("data");
         registered_dissector = TRUE;

@@ -358,8 +358,8 @@ set_dnet_address(packet_info *pinfo, address *paddr_src, address *paddr_tgt)
     }
 }
 
-static void
-dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8  padding_length;
     guint8  forward;
@@ -522,7 +522,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             tree, hf_dec_nsp_msgs, tvb, offset, 1, nsp_msg_type);
         if (nsp_msg_type == NOP_MSG) {
             /* Only test data in this msg */
-            return;
+            return offset;
         }
         nsp_msg_tree = proto_item_add_subtree(ti_local, ett_dec_rt_nsp_msg);
         /* Get past the nsp_msg_type */
@@ -532,7 +532,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (nsp_msg_type == CONN_ACK_MSG) {
             col_set_str(pinfo->cinfo, COL_INFO, "NSP connect acknowledgement");
             /* Done with this msg type */
-            return;
+            return offset;
         }
         /* All other messages have a source node */
         proto_tree_add_item(nsp_msg_tree, hf_dec_rt_src_node, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -544,6 +544,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                            offset,
                            nsp_msg_type);
     }
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -1479,7 +1480,7 @@ proto_reg_handoff_dec_rt(void)
 {
     dissector_handle_t dec_rt_handle;
 
-    dec_rt_handle = create_dissector_handle(dissect_dec_rt,
+    dec_rt_handle = new_create_dissector_handle(dissect_dec_rt,
                                             proto_dec_rt);
     dissector_add_uint("ethertype", ETHERTYPE_DNA_RT, dec_rt_handle);
     dissector_add_uint("chdlc.protocol", ETHERTYPE_DNA_RT, dec_rt_handle);

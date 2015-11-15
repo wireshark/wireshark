@@ -113,7 +113,7 @@ static const value_string auto_rp_mask_sign_vals[] = {
 
 static int do_auto_rp_map(tvbuff_t *tvb, int offset, proto_tree *auto_rp_tree);
 
-static void dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
         guint8 ver_type, rp_count;
 
@@ -163,7 +163,7 @@ static void dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         proto_tree_add_item(tree, hf_auto_rp_trailing_junk, tvb, offset, -1, ENC_NA);
         }
 
-        return;
+        return tvb_captured_length(tvb);
 }
 
 /*
@@ -297,7 +297,7 @@ proto_reg_handoff_auto_rp(void)
 {
         dissector_handle_t auto_rp_handle;
 
-        auto_rp_handle = create_dissector_handle(dissect_auto_rp,
+        auto_rp_handle = new_create_dissector_handle(dissect_auto_rp,
                                                  proto_auto_rp);
         dissector_add_uint("udp.port", UDP_PORT_PIM_RP_DISC, auto_rp_handle);
 }

@@ -662,8 +662,8 @@ static void dissect_fc_sbccs_dib_link_hdr (tvbuff_t *tvb, packet_info *pinfo,
     }
 }
 
-static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
-                              proto_tree *tree)
+static int dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
+                              proto_tree *tree, void* data _U_)
 {
     guint8          type;
     guint16         ch_cu_id, dev_addr, ccw;
@@ -753,6 +753,7 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
         next_tvb = tvb_new_subset_remaining (tvb, offset+FC_SBCCS_DIB_LRC_HDR_SIZE);
         call_dissector (data_handle, next_tvb, pinfo, tree);
     }
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -1139,7 +1140,7 @@ proto_reg_handoff_fcsbccs (void)
 {
     dissector_handle_t fc_sbccs_handle;
 
-    fc_sbccs_handle = create_dissector_handle (dissect_fc_sbccs,
+    fc_sbccs_handle = new_create_dissector_handle (dissect_fc_sbccs,
                                                proto_fc_sbccs);
 
     dissector_add_uint("fc.ftype", FC_FTYPE_SBCCS, fc_sbccs_handle);

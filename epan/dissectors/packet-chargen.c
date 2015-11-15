@@ -44,8 +44,8 @@ static gint ett_chargen = -1;
  * pinfo - packet info
  * proto_tree - resolved protocol tree
  */
-static void
-dissect_chargen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_chargen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dissector_data _U_)
 {
 	proto_tree* chargen_tree;
 	proto_item* ti;
@@ -65,6 +65,7 @@ dissect_chargen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		len, "Data", "Data (%u): %s", len, data);
 
 /*	proto_tree_add_item(chargen_tree, hf_chargen_data, tvb, 0, -1, ENC_ASCII|ENC_NA); */
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -91,7 +92,7 @@ proto_reg_handoff_chargen(void)
 {
 	dissector_handle_t chargen_handle;
 
-	chargen_handle = create_dissector_handle(dissect_chargen, proto_chargen);
+	chargen_handle = new_create_dissector_handle(dissect_chargen, proto_chargen);
 	dissector_add_uint("udp.port", CHARGEN_PORT_UDP, chargen_handle);
 	dissector_add_uint("tcp.port", CHARGEN_PORT_TCP, chargen_handle);
 }

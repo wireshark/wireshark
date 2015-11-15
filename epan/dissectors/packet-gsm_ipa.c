@@ -370,16 +370,18 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_udp
 	}
 }
 
-static void
-dissect_ipa_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipa_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	dissect_ipa(tvb, pinfo, tree, FALSE);
+	return tvb_captured_length(tvb);
 }
 
-static void
-dissect_ipa_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipa_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	dissect_ipa(tvb, pinfo, tree, TRUE);
+	return tvb_captured_length(tvb);
 }
 
 void proto_register_ipa(void)
@@ -492,8 +494,8 @@ void proto_reg_handoff_gsm_ipa(void)
 		sub_handles[SUB_MGCP] = find_dissector("mgcp");
 		sub_handles[SUB_DATA] = find_dissector("data");
 
-		ipa_tcp_handle = create_dissector_handle(dissect_ipa_tcp, proto_ipa);
-		ipa_udp_handle = create_dissector_handle(dissect_ipa_udp, proto_ipa);
+		ipa_tcp_handle = new_create_dissector_handle(dissect_ipa_tcp, proto_ipa);
+		ipa_udp_handle = new_create_dissector_handle(dissect_ipa_udp, proto_ipa);
 		ipa_initialized = TRUE;
 	} else {
 		dissector_delete_uint_range("tcp.port", ipa_tcp_ports, ipa_tcp_handle);

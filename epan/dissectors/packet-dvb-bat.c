@@ -93,8 +93,8 @@ static const value_string dvb_bat_free_ca_mode_vals[] = {
 };
 #endif
 
-static void
-dissect_dvb_bat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dvb_bat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
     guint   offset = 0, length = 0, ts_loop_end;
@@ -161,6 +161,7 @@ dissect_dvb_bat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     offset += packet_mpeg_sect_crc(tvb, pinfo, dvb_bat_tree, 0, offset);
     proto_item_set_len(ti, offset);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -259,7 +260,7 @@ void proto_reg_handoff_dvb_bat(void)
 {
     dissector_handle_t dvb_bat_handle;
 
-    dvb_bat_handle = create_dissector_handle(dissect_dvb_bat, proto_dvb_bat);
+    dvb_bat_handle = new_create_dissector_handle(dissect_dvb_bat, proto_dvb_bat);
 
     dissector_add_uint("mpeg_sect.tid", DVB_BAT_TID, dvb_bat_handle);
 }

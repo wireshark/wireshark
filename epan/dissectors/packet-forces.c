@@ -602,17 +602,19 @@ dissect_forces(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offs
 }
 
 /* Code to actually dissect the TCP packets */
-static void
-dissect_forces_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_forces_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_forces(tvb, pinfo, tree, TCP_UDP_TML_FOCES_MESSAGE_OFFSET_TCP);
+    return tvb_captured_length(tvb);
 }
 
 /* Code to actually dissect the ForCES protocol layer packets,like UDP,SCTP and others */
-static void
-dissect_forces_not_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_forces_not_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_forces(tvb, pinfo, tree, 0);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -868,8 +870,8 @@ proto_reg_handoff_forces(void)
     static dissector_handle_t  forces_handle_tcp, forces_handle;
 
     if (!inited) {
-        forces_handle_tcp = create_dissector_handle(dissect_forces_tcp,     proto_forces);
-        forces_handle     = create_dissector_handle(dissect_forces_not_tcp, proto_forces);
+        forces_handle_tcp = new_create_dissector_handle(dissect_forces_tcp,     proto_forces);
+        forces_handle     = new_create_dissector_handle(dissect_forces_not_tcp, proto_forces);
         ip_handle = find_dissector("ip");
         inited = TRUE;
     }

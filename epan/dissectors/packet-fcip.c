@@ -517,10 +517,11 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    In this case we will not check the port number for sanity and just
    do as the user said.
 */
-static void
-dissect_fcip_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fcip_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_fcip (tvb, pinfo, tree, FALSE);
+    return tvb_captured_length(tvb);
 }
 
 static gboolean
@@ -650,7 +651,7 @@ proto_reg_handoff_fcip (void)
 
     heur_dissector_add("tcp", dissect_fcip_heur, "FCIP over TCP", "fcip_tcp", proto_fcip, HEURISTIC_ENABLE);
 
-    fcip_handle = create_dissector_handle(dissect_fcip_handle, proto_fcip);
+    fcip_handle = new_create_dissector_handle(dissect_fcip_handle, proto_fcip);
     dissector_add_for_decode_as("tcp.port", fcip_handle);
 
     data_handle = find_dissector("data");

@@ -50,8 +50,8 @@ static const value_string type_vals[] = {
 	{ 0, NULL },
 };
 
-static void
-dissect_cgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_tree *cgmp_tree = NULL;
@@ -93,6 +93,7 @@ dissect_cgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			count--;
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -138,7 +139,7 @@ proto_reg_handoff_cgmp(void)
 {
 	dissector_handle_t cgmp_handle;
 
-	cgmp_handle = create_dissector_handle(dissect_cgmp, proto_cgmp);
+	cgmp_handle = new_create_dissector_handle(dissect_cgmp, proto_cgmp);
 	dissector_add_uint("llc.cisco_pid", 0x2001, cgmp_handle);
 	dissector_add_uint("ethertype", 0x2001, cgmp_handle);
 }

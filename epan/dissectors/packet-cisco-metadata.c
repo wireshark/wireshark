@@ -47,8 +47,8 @@ static int hf_cmd_trailer = -1;
 
 static gint ett_cmd = -1;
 
-static void
-dissect_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint16 encap_proto;
     ethertype_data_t ethertype_data;
@@ -100,6 +100,7 @@ dissect_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ethertype_data.fcs_len = 0;
 
     call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -142,7 +143,7 @@ proto_reg_handoff_cmd(void)
 
     ethertype_handle = find_dissector("ethertype");
 
-    cmd_handle = create_dissector_handle(dissect_cmd, proto_cmd);
+    cmd_handle = new_create_dissector_handle(dissect_cmd, proto_cmd);
     dissector_add_uint("ethertype", ETHERTYPE_CMD, cmd_handle);
 }
 

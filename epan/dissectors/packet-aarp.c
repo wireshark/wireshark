@@ -141,8 +141,8 @@ tvb_aarpproaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
 #define AR_OP           6
 #define MIN_AARP_HEADER_SIZE    8
 
-static void
-dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   guint16     ar_hrd;
   guint16     ar_pro;
   guint8      ar_hln;
@@ -253,6 +253,7 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       }
     }
   }
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -340,7 +341,7 @@ proto_reg_handoff_aarp(void)
 {
   dissector_handle_t aarp_handle;
 
-  aarp_handle = create_dissector_handle(dissect_aarp, proto_aarp);
+  aarp_handle = new_create_dissector_handle(dissect_aarp, proto_aarp);
   dissector_add_uint("ethertype", ETHERTYPE_AARP, aarp_handle);
   dissector_add_uint("chdlc.protocol", ETHERTYPE_AARP, aarp_handle);
 }

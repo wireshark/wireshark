@@ -10396,10 +10396,11 @@ dissect_bsmap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     }
 }
 
-static void
-dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_bsmap_common(tvb, pinfo, tree, FALSE);
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -10571,14 +10572,15 @@ dissect_dtap_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     }
 }
 
-static void
-dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_dtap_common(tvb, pinfo, tree, FALSE);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_sip_dtap_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sip_dtap_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     gint        linelen, offset, next_offset, begin;
     guint8      *msg_type;
@@ -10639,6 +10641,7 @@ dissect_sip_dtap_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 /* TAP STAT INFO */
@@ -12979,9 +12982,9 @@ proto_reg_handoff_ansi_a(void)
     {
         dissector_handle_t      bsmap_handle, sip_dtap_bsmap_handle;
 
-        bsmap_handle = create_dissector_handle(dissect_bsmap, proto_a_bsmap);
-        dtap_handle = create_dissector_handle(dissect_dtap, proto_a_dtap);
-        sip_dtap_bsmap_handle = create_dissector_handle(dissect_sip_dtap_bsmap, proto_a_dtap);
+        bsmap_handle = new_create_dissector_handle(dissect_bsmap, proto_a_bsmap);
+        dtap_handle = new_create_dissector_handle(dissect_dtap, proto_a_dtap);
+        sip_dtap_bsmap_handle = new_create_dissector_handle(dissect_sip_dtap_bsmap, proto_a_dtap);
         data_handle = find_dissector("data");
 
         dissector_add_uint("bsap.pdu_type",  BSSAP_PDU_TYPE_BSMAP, bsmap_handle);

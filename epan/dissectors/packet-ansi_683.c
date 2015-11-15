@@ -3317,8 +3317,8 @@ dissect_ansi_683_rev_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ansi
     (*ansi_683_rev_msg_fcn[idx])(tvb, pinfo, ansi_683_tree, tvb_reported_length(tvb) - 1, 1);
 }
 
-static void
-dissect_ansi_683(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ansi_683(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item  *ansi_683_item;
     proto_tree  *ansi_683_tree;
@@ -3345,6 +3345,7 @@ dissect_ansi_683(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         dissect_ansi_683_rev_message(tvb, pinfo, ansi_683_tree);
     }
+    return tvb_captured_length(tvb);
 }
 
 
@@ -3573,7 +3574,7 @@ proto_reg_handoff_ansi_683(void)
 {
     dissector_handle_t  ansi_683_handle;
 
-    ansi_683_handle = create_dissector_handle(dissect_ansi_683, proto_ansi_683);
+    ansi_683_handle = new_create_dissector_handle(dissect_ansi_683, proto_ansi_683);
 
     dissector_add_uint("ansi_map.ota", ANSI_683_FORWARD, ansi_683_handle);
     dissector_add_uint("ansi_map.ota", ANSI_683_REVERSE, ansi_683_handle);

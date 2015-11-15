@@ -3914,28 +3914,31 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   tap_queue_packet(dns_tap, pinfo, dns_stats);
 }
 
-static void
-dissect_dns_udp_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dns_udp_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
 
   dissect_dns_common(tvb, pinfo, tree, FALSE, FALSE, FALSE);
+  return tvb_captured_length(tvb);
 }
 
-static void
-dissect_mdns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mdns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDNS");
 
   dissect_dns_common(tvb, pinfo, tree, FALSE, TRUE, FALSE);
+  return tvb_captured_length(tvb);
 }
 
-static void
-dissect_llmnr_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_llmnr_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLMNR");
 
   dissect_dns_common(tvb, pinfo, tree, FALSE, FALSE, TRUE);
+  return tvb_captured_length(tvb);
 }
 
 static guint
@@ -3977,7 +3980,7 @@ dissect_dns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     if (pinfo->ptype == PT_TCP) {
         return dissect_dns_tcp(tvb, pinfo, tree, data);
     } else {
-        dissect_dns_udp_sctp(tvb, pinfo, tree);
+        dissect_dns_udp_sctp(tvb, pinfo, tree, data);
         return tvb_captured_length(tvb);
     }
 }
@@ -4065,11 +4068,11 @@ proto_reg_handoff_dns(void)
     dissector_handle_t mdns_udp_handle;
     dissector_handle_t llmnr_udp_handle;
 
-    dns_udp_handle = create_dissector_handle(dissect_dns_udp_sctp, proto_dns);
+    dns_udp_handle = new_create_dissector_handle(dissect_dns_udp_sctp, proto_dns);
     dns_tcp_handle = new_create_dissector_handle(dissect_dns_tcp, proto_dns);
-    dns_sctp_handle  = create_dissector_handle(dissect_dns_udp_sctp, proto_dns);
-    mdns_udp_handle  = create_dissector_handle(dissect_mdns_udp, proto_mdns);
-    llmnr_udp_handle = create_dissector_handle(dissect_llmnr_udp, proto_llmnr);
+    dns_sctp_handle  = new_create_dissector_handle(dissect_dns_udp_sctp, proto_dns);
+    mdns_udp_handle  = new_create_dissector_handle(dissect_mdns_udp, proto_mdns);
+    llmnr_udp_handle = new_create_dissector_handle(dissect_llmnr_udp, proto_llmnr);
     dissector_add_uint("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
     dissector_add_uint("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
     dissector_add_uint("udp.port", UDP_PORT_LLMNR, llmnr_udp_handle);

@@ -310,8 +310,8 @@ dissect_gre_wccp2_redirect_header(tvbuff_t *tvb, int offset, proto_tree *tree)
     proto_tree_add_item(rh_tree, hf_gre_wccp_primary_bucket, tvb, offset +3, 1, ENC_BIG_ENDIAN);
 }
 
-static void
-dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
     int         offset             = 0;
@@ -500,13 +500,14 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            S bit doesn't necessarily mean there's no payload.  */
         if (!(flags_and_ver & GRE_SEQUENCE)) {
             if (tvb_reported_length_remaining(tvb, offset) <= 0)
-                return; /* no payload */
+                return offset; /* no payload */
         }
         next_tvb = tvb_new_subset_remaining(tvb, offset);
         pinfo->flags.in_gre_pkt = TRUE;
         if (!dissector_try_uint(gre_dissector_table, type, next_tvb, pinfo, tree))
             call_dissector(data_handle,next_tvb, pinfo, gre_tree);
     }
+    return tvb_captured_length(tvb);
 }
 
 
@@ -744,7 +745,7 @@ proto_reg_handoff_gre(void)
 {
     dissector_handle_t gre_handle;
 
-    gre_handle = create_dissector_handle(dissect_gre, proto_gre);
+    gre_handle = new_create_dissector_handle(dissect_gre, proto_gre);
     dissector_add_uint("ip.proto", IP_PROTO_GRE, gre_handle);
     data_handle = find_dissector("data");
 }

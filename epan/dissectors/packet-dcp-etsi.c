@@ -36,9 +36,9 @@
 /* forward reference */
 void proto_register_dcp_etsi(void);
 void proto_reg_handoff_dcp_etsi(void);
-static void dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
-static void dissect_pft (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
-static void dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree);
+static int dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data);
+static int dissect_pft (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data);
+static int dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data);
 
 static dissector_table_t dcp_dissector_table;
 static dissector_table_t af_dissector_table;
@@ -441,8 +441,8 @@ dissect_pft_fragmented(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
  *  \param[in,out] pinfo The packet info structure
  *  \param[in,out] tree The structure containing the details which will be displayed, filtered, etc.
  */
-static void
-dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   guint16 plen;
   gint offset = 0;
@@ -521,8 +521,9 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     next_tvb = tvb_new_subset_remaining (tvb, offset);
   }
   if(next_tvb) {
-    dissect_af(next_tvb, pinfo, tree);
+    dissect_af(next_tvb, pinfo, tree, data);
   }
+  return tvb_captured_length(tvb);
 }
 
 /** Dissect an AF Packet. Parse an AF packet, checking the CRC if the CRC valid
@@ -533,8 +534,8 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
  *  \param[in,out] pinfo The packet info structure
  *  \param[in,out] tree The structure containing the details which will be displayed, filtered, etc.
  */
-static void
-dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   gint offset = 0;
   proto_item *ti;
@@ -591,6 +592,7 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   /*offset += 2;*/
 
   dissector_try_uint(af_dissector_table, pt, next_tvb, pinfo, tree);
+  return tvb_captured_length(tvb);
 }
 
 /** Dissect the Tag Packet Layer.
@@ -603,8 +605,8 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
  *  \param[in,out] pinfo The packet info structure
  *  \param[in,out] tree The structure containing the details which will be displayed, filtered, etc.
  */
-static void
-dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
   proto_tree *tpl_tree;
   guint offset=0;
@@ -644,6 +646,7 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   }
 
   dissector_try_string(tpl_dissector_table, prot, tvb, pinfo, tree->parent, NULL);
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -653,9 +656,9 @@ proto_reg_handoff_dcp_etsi (void)
   dissector_handle_t pft_handle;
   dissector_handle_t tpl_handle;
 
-  af_handle = create_dissector_handle(dissect_af, proto_af);
-  pft_handle = create_dissector_handle(dissect_pft, proto_pft);
-  tpl_handle = create_dissector_handle(dissect_tpl, proto_tpl);
+  af_handle = new_create_dissector_handle(dissect_af, proto_af);
+  pft_handle = new_create_dissector_handle(dissect_pft, proto_pft);
+  tpl_handle = new_create_dissector_handle(dissect_tpl, proto_tpl);
   heur_dissector_add("udp", dissect_dcp_etsi, "DCP (ETSI) over UDP", "dcp_etsi_udp", proto_dcp_etsi, HEURISTIC_ENABLE);
   dissector_add_string("dcp-etsi.sync", "AF", af_handle);
   dissector_add_string("dcp-etsi.sync", "PF", pft_handle);

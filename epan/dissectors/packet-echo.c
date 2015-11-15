@@ -42,7 +42,7 @@ static int hf_echo_response = -1;
 
 static gint ett_echo = -1;
 
-static void dissect_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
   int         offset    = 0;
@@ -74,6 +74,8 @@ static void dissect_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(echo_tree, hf_echo_data, tvb, offset, -1, ENC_NA);
 
   }
+
+  return tvb_captured_length(tvb);
 
 } /* dissect_echo */
 
@@ -110,7 +112,7 @@ void proto_reg_handoff_echo(void)
 
   dissector_handle_t echo_handle;
 
-  echo_handle = create_dissector_handle(dissect_echo, proto_echo);
+  echo_handle = new_create_dissector_handle(dissect_echo, proto_echo);
 
   dissector_add_uint("udp.port", ECHO_PORT, echo_handle);
   dissector_add_uint("tcp.port", ECHO_PORT, echo_handle);

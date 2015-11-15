@@ -7079,9 +7079,10 @@ int dissect_ceph(tvbuff_t *tvb, packet_info *pinfo,
  * Proxies the old style dissector interface to the new style.
  */
 static
-void dissect_ceph_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+int dissect_ceph_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	dissect_ceph(tvb, pinfo, tree, NULL);
+	dissect_ceph(tvb, pinfo, tree, data);
+	return tvb_captured_length(tvb);
 }
 
 static
@@ -10513,7 +10514,7 @@ proto_register_ceph(void)
 void
 proto_reg_handoff_ceph(void)
 {
-	ceph_handle = create_dissector_handle(dissect_ceph_old, proto_ceph);
+	ceph_handle = new_create_dissector_handle(dissect_ceph_old, proto_ceph);
 
 	heur_dissector_add("tcp", dissect_ceph_heur, "Ceph over TCP", "ceph_tcp", proto_ceph, HEURISTIC_ENABLE);
 }

@@ -278,11 +278,11 @@ static const value_string slarp_ptype_vals[] = {
   {0,               NULL}
 };
 
-static void
-dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *ti;
-  proto_tree *slarp_tree = NULL;
+  proto_tree *slarp_tree;
   guint32     code;
   guint32     addr;
   guint32     mysequence;
@@ -294,10 +294,8 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   code = tvb_get_ntohl(tvb, 0);
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_slarp, tvb, 0, 14, ENC_NA);
-    slarp_tree = proto_item_add_subtree(ti, ett_slarp);
-  }
+  ti = proto_tree_add_item(tree, proto_slarp, tvb, 0, 14, ENC_NA);
+  slarp_tree = proto_item_add_subtree(ti, ett_slarp);
 
   switch (code) {
 
@@ -321,29 +319,28 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      "%s, outgoing sequence %u, returned sequence %u",
                      val_to_str(code, slarp_ptype_vals, "Unknown (%d)"),
                      mysequence, yoursequence);
-    if (tree) {
-      proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
-      proto_tree_add_uint(slarp_tree, hf_slarp_mysequence, tvb, 4, 4,
+
+    proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
+    proto_tree_add_uint(slarp_tree, hf_slarp_mysequence, tvb, 4, 4,
                           mysequence);
-      proto_tree_add_uint(slarp_tree, hf_slarp_yoursequence, tvb, 8, 4,
+    proto_tree_add_uint(slarp_tree, hf_slarp_yoursequence, tvb, 8, 4,
                           yoursequence);
-      reliability_item = proto_tree_add_item(slarp_tree, hf_slarp_reliability, tvb,
+    reliability_item = proto_tree_add_item(slarp_tree, hf_slarp_reliability, tvb,
         12, 2, ENC_BIG_ENDIAN);
-      if (tvb_get_ntohs(tvb, 12) != 0xFFFF) {
+    if (tvb_get_ntohs(tvb, 12) != 0xFFFF) {
         expert_add_info(pinfo, reliability_item, &ei_slarp_reliability);
-      }
     }
     break;
 
   default:
     col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown packet type 0x%08X", code);
-    if (tree) {
-      proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
-      call_dissector(data_handle, tvb_new_subset_remaining(tvb, 4), pinfo,
+
+    proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
+    call_dissector(data_handle, tvb_new_subset_remaining(tvb, 4), pinfo,
                      slarp_tree);
-    }
     break;
   }
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -395,7 +392,7 @@ proto_reg_handoff_slarp(void)
 {
   dissector_handle_t slarp_handle;
 
-  slarp_handle = create_dissector_handle(dissect_slarp, proto_slarp);
+  slarp_handle = new_create_dissector_handle(dissect_slarp, proto_slarp);
   dissector_add_uint("chdlc.protocol", CISCO_SLARP, slarp_handle);
 }
 

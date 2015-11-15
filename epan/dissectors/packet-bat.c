@@ -187,7 +187,7 @@ static guint global_bat_vis_udp_port	= BAT_VIS_PORT;
 
 
 
-static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint8 version;
 	int offset = 0;
@@ -208,6 +208,7 @@ static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		call_dissector(data_handle, tvb, pinfo, tree);
 		break;
 	}
+	return tvb_captured_length(tvb);
 }
 
 static void dissect_bat_gwflags(tvbuff_t *tvb, guint8 gwflags, int offset, proto_item *tgw)
@@ -348,7 +349,7 @@ static void dissect_bat_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 
-static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	struct gw_packet *gw_packeth;
 	guint32 ip;
@@ -420,9 +421,10 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			call_dissector(data_handle, next_tvb, pinfo, tree);
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
-static void dissect_bat_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_bat_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint8 version;
 
@@ -442,6 +444,7 @@ static void dissect_bat_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		call_dissector(data_handle, tvb, pinfo, tree);
 		break;
 	}
+	return tvb_captured_length(tvb);
 }
 
 static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -882,9 +885,9 @@ void proto_reg_handoff_bat(void)
 		bat_tap = register_tap("batman");
 		bat_follow_tap = register_tap("batman_follow");
 
-		batman_handle = create_dissector_handle(dissect_bat_batman, proto_bat_plugin);
-		gw_handle = create_dissector_handle(dissect_bat_gw, proto_bat_gw);
-		vis_handle = create_dissector_handle(dissect_bat_vis, proto_bat_vis);
+		batman_handle = new_create_dissector_handle(dissect_bat_batman, proto_bat_plugin);
+		gw_handle = new_create_dissector_handle(dissect_bat_gw, proto_bat_gw);
+		vis_handle = new_create_dissector_handle(dissect_bat_vis, proto_bat_vis);
 
 		ip_handle = find_dissector("ip");
 		data_handle = find_dissector("data");

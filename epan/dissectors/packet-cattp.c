@@ -214,8 +214,8 @@ dissect_cattp_rstpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cattp_tree, 
 }
 
 /* Dissection of the base header */
-static void
-dissect_cattp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cattp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     const char *pdutype = "[Unknown PDU]";
     proto_item *ti, *cattp_tree;
@@ -334,6 +334,7 @@ dissect_cattp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        tvb = tvb_new_subset_remaining(tvb, offset);
        call_dissector(data_handle, tvb, pinfo, tree);
     }
+    return tvb_captured_length(tvb);
 }
 
 /* The heuristic dissector function checks if the UDP packet may be a cattp packet */
@@ -354,7 +355,7 @@ dissect_cattp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         if ( (flags & M_PDU_SYN) == F_SYN ||
              (flags & M_PDU_RST) == F_RST ||
              (flags & M_PDU_ACK) == F_ACK ) { /* check if flag combi is valid */
-            dissect_cattp(tvb, pinfo, tree);
+            dissect_cattp(tvb, pinfo, tree, data);
             return TRUE;
         }
     }
@@ -574,7 +575,7 @@ proto_reg_handoff_cattp(void)
         dissector_handle_t cattp_handle;
 
         /* Create dissector handle */
-        cattp_handle = create_dissector_handle(dissect_cattp, proto_cattp);
+        cattp_handle = new_create_dissector_handle(dissect_cattp, proto_cattp);
 
         /* find data handle */
         data_handle = find_dissector("data");

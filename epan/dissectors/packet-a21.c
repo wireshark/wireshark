@@ -632,8 +632,8 @@ dissect_a21_ie_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, p
 }
 
 
-static void
-dissect_a21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_a21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint8 message_type;
 	int offset = 0;
@@ -673,7 +673,7 @@ dissect_a21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	dissect_a21_ie_common(tvb, pinfo, tree, a21_tree, offset,  message_type);
 
-
+	return tvb_captured_length(tvb);
 }
 
 void proto_register_a21(void)
@@ -963,7 +963,7 @@ void proto_reg_handoff_a21(void)
 
 
 	if (!a21_prefs_initialized) {
-		a21_handle = create_dissector_handle(dissect_a21, proto_a21);
+		a21_handle = new_create_dissector_handle(dissect_a21, proto_a21);
 		gcsna_handle = find_dissector("gcsna");
 		dissector_add_uint("udp.port", a21_udp_port, a21_handle);
 		a21_prefs_initialized = TRUE;

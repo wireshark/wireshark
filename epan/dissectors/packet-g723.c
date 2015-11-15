@@ -60,8 +60,8 @@ static const value_string g723_frame_size_and_codec_type_value[] = {
 
 
 /* Dissection */
-static void
-dissect_g723(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_g723(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 	guint octet;
@@ -80,9 +80,10 @@ dissect_g723(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(g723_tree, hf_g723_lpc_B5_B0, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		if ((octet & 0x1) == 1 ) /* Low rate */
-			return;
+			return tvb_captured_length(tvb);
 	}/* if tree */
 
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -90,7 +91,7 @@ proto_reg_handoff_g723(void)
 {
 	dissector_handle_t g723_handle;
 
-	g723_handle = create_dissector_handle(dissect_g723, proto_g723);
+	g723_handle = new_create_dissector_handle(dissect_g723, proto_g723);
 
 	dissector_add_uint("rtp.pt", PT_G723, g723_handle);
 

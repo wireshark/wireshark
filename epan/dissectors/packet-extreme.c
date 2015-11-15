@@ -948,8 +948,8 @@ dissect_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, p
 		ENC_NA);
 }
 
-static void
-dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_tree *edp_tree;
@@ -1092,6 +1092,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += tlv_length;
 	}
 
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -1483,7 +1484,7 @@ proto_reg_handoff_edp(void)
 {
 	dissector_handle_t edp_handle;
 
-	edp_handle = create_dissector_handle(dissect_edp, proto_edp);
+	edp_handle = new_create_dissector_handle(dissect_edp, proto_edp);
 	dissector_add_uint("llc.extreme_pid", 0x00bb, edp_handle);
 }
 

@@ -828,8 +828,8 @@ check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*
  * RFC 2225 ATMARP - it's just like ARP, except where it isn't.
  */
-static void
-dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint16       ar_hrd;
   guint16       ar_pro;
@@ -1188,13 +1188,14 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                           tvb, tpa_offset, ar_tpln, ENC_BIG_ENDIAN);
     }
   }
+  return tvb_captured_length(tvb);
 }
 
 /*
  * AX.25 ARP - it's just like ARP, except where it isn't.
  */
-static void
-dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 #define ARP_AX25 204
 
@@ -1357,6 +1358,7 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   {
     check_for_storm_count(tvb, pinfo, arp_tree);
   }
+  return tvb_captured_length(tvb);
 }
 
 static const guint8 mac_allzero[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -1966,8 +1968,8 @@ proto_register_arp(void)
   expert_arp = expert_register_protocol(proto_arp);
   expert_register_field_array(expert_arp, ei, array_length(ei));
 
-  atmarp_handle = create_dissector_handle(dissect_atmarp, proto_arp);
-  ax25arp_handle = create_dissector_handle(dissect_ax25arp, proto_arp);
+  atmarp_handle = new_create_dissector_handle(dissect_atmarp, proto_arp);
+  ax25arp_handle = new_create_dissector_handle(dissect_ax25arp, proto_arp);
 
   arp_handle = register_dissector( "arp" , dissect_arp, proto_arp );
 

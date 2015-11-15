@@ -50,8 +50,8 @@ static const value_string adp_type_val[] =
     {0, NULL},
 };
 
-static void
-dissect_aruba_adp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_aruba_adp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *ti = NULL;
     proto_tree *aruba_adp_tree = NULL;
@@ -102,6 +102,7 @@ dissect_aruba_adp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
 
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -146,7 +147,7 @@ proto_reg_handoff_aruba_adp(void)
 {
     dissector_handle_t adp_handle;
 
-    adp_handle = create_dissector_handle(dissect_aruba_adp, proto_aruba_adp);
+    adp_handle = new_create_dissector_handle(dissect_aruba_adp, proto_aruba_adp);
     dissector_add_uint("udp.port", UDP_PORT_ADP, adp_handle);
 }
 

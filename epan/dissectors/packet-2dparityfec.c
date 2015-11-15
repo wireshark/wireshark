@@ -229,7 +229,7 @@ static header_field_info hfi_2dparityfec_payload _2DPARITYFEC_HFI_INIT =
   HFILL};
 
 
-static void dissect_2dparityfec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_2dparityfec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    guint8   OffsetField;
    guint8   NAField;
@@ -287,6 +287,8 @@ static void dissect_2dparityfec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       proto_tree_add_item(tree_2dparityfec, &hfi_2dparityfec_snbase_ext,      tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
       proto_tree_add_item(tree_2dparityfec, &hfi_2dparityfec_payload,         tvb, offset, -1, ENC_NA);
    }
+
+   return tvb_captured_length(tvb);
 }
 
 void proto_register_2dparityfec(void)
@@ -338,7 +340,7 @@ void proto_register_2dparityfec(void)
                                   "as FEC data corresponding to Pro-MPEG Code of Practice #3 release 2",
                                   &dissect_fec);
 
-      handle_2dparityfec = create_dissector_handle(dissect_2dparityfec,
+      handle_2dparityfec = new_create_dissector_handle(dissect_2dparityfec,
                                                    proto_2dparityfec);
 }
 

@@ -70,8 +70,8 @@ static expert_field ie_ieee80211_subpacket = EI_INIT;
 
 static dissector_handle_t ieee80211_radio_handle;
 
-static void
-dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	tvbuff_t *wlan_tvb;
 	proto_tree *ti, *cwids_tree;
@@ -124,6 +124,7 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		offset += capturelen;
 	}
+	return tvb_captured_length(tvb);
 }
 
 void proto_register_cwids(void);
@@ -195,7 +196,7 @@ proto_reg_handoff_cwids(void)
 	static gboolean initialized = FALSE;
 
 	if (!initialized) {
-		cwids_handle = create_dissector_handle(dissect_cwids, proto_cwids);
+		cwids_handle = new_create_dissector_handle(dissect_cwids, proto_cwids);
 		dissector_add_for_decode_as("udp.port", cwids_handle);
 		ieee80211_radio_handle = find_dissector("wlan_radio");
 		initialized = TRUE;

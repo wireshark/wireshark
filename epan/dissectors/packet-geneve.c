@@ -220,8 +220,8 @@ dissect_geneve_options(tvbuff_t *tvb, packet_info *pinfo,
     };
 }
 
-static void
-dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti, *flag_item, *rsvd_item;
     proto_tree *geneve_tree, *flag_tree;
@@ -312,6 +312,8 @@ dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     if (!dissector_try_uint(ethertype_dissector_table, proto_type, next_tvb, pinfo, tree))
         call_dissector(data_handle, next_tvb, pinfo, tree);
+
+    return tvb_captured_length(tvb);
 }
 
 /* Register Geneve with Wireshark */
@@ -444,7 +446,7 @@ proto_reg_handoff_geneve(void)
 {
     dissector_handle_t geneve_handle;
 
-    geneve_handle = create_dissector_handle(dissect_geneve, proto_geneve);
+    geneve_handle = new_create_dissector_handle(dissect_geneve, proto_geneve);
     dissector_add_uint("udp.port", UDP_PORT_GENEVE, geneve_handle);
     dissector_add_for_decode_as("udp.port", geneve_handle);
 

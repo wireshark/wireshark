@@ -910,8 +910,8 @@ stats_account_string (string_counter_t **ret_list, const gchar *new_value)
 	return (0);
 }
 
-static void
-dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	static tap_data_t tap_data;
 
@@ -1344,6 +1344,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Dispatch tap data. */
 	tap_queue_packet (tap_collectd, pinfo, &tap_data);
+	return tvb_captured_length(tvb);
 } /* void dissect_collectd */
 
 void proto_register_collectd(void)
@@ -1505,7 +1506,7 @@ void proto_reg_handoff_collectd (void)
 	static dissector_handle_t collectd_handle;
 
 	if (first_run)
-		collectd_handle = create_dissector_handle (dissect_collectd,
+		collectd_handle = new_create_dissector_handle (dissect_collectd,
 							   proto_collectd);
 
 	/* Change the dissector registration if the preferences have been

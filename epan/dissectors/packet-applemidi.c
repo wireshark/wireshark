@@ -265,14 +265,16 @@ test_applemidi(tvbuff_t *tvb, guint16 *command_p, gboolean conversation_establis
 /* dissect_applemidi() is called when a packet is seen from a previously identified applemidi conversation */
 /*  If the packet isn't a valid applemidi packet, assume it's an RTP-MIDI packet.                          */
 
-static void
-dissect_applemidi( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
+static int
+dissect_applemidi( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ ) {
 	guint16		command;
 
 	if ( test_applemidi( tvb, &command, TRUE ) )
 		dissect_applemidi_common( tvb, pinfo, tree, command );
 	else
 		call_dissector( rtp_handle, tvb, pinfo, tree );
+
+	return tvb_captured_length(tvb);
 }
 
 static gboolean
@@ -516,7 +518,7 @@ void
 proto_reg_handoff_applemidi( void ) {
 
 
-	applemidi_handle = create_dissector_handle( dissect_applemidi, proto_applemidi );
+	applemidi_handle = new_create_dissector_handle( dissect_applemidi, proto_applemidi );
 
 	/* If we cannot decode the data it will be RTP-MIDI since the Apple session protocol uses
 	 * two ports: the control-port and the MIDI-port.  On both ports an invitation is being sent.

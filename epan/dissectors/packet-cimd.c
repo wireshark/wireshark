@@ -787,8 +787,8 @@ dissect_cimd_operation(tvbuff_t *tvb, proto_tree *tree, gint etxp, guint16 check
   }
 }
 
-static void
-dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint8   OC;                  /* Operation Code */
   guint8   PN;                  /* Packet number */
@@ -800,7 +800,7 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8   last1, last2, last3;
 
   etxp = tvb_find_guint8(tvb, CIMD_PN_OFFSET + CIMD_PN_LENGTH, -1, CIMD_ETX);
-  if (etxp == -1) return;
+  if (etxp == -1) return 0;
 
   OC = (guint8)strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb, CIMD_OC_OFFSET, CIMD_OC_LENGTH, ENC_ASCII), NULL, 10);
   PN = (guint8)strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb, CIMD_PN_OFFSET, CIMD_PN_LENGTH, ENC_ASCII), NULL, 10);
@@ -834,6 +834,7 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s - %s", val_to_str(OC, vals_hdr_OC, "Unknown (%d)"), "invalid checksum");
 
   dissect_cimd_operation(tvb, tree, etxp, checksum, last1, OC, PN);
+  return tvb_captured_length(tvb);
 }
 
 /**
@@ -870,7 +871,7 @@ dissect_cimd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     return FALSE;
 
   /* Ok, looks like a valid packet, go dissect. */
-  dissect_cimd(tvb, pinfo, tree);
+  dissect_cimd(tvb, pinfo, tree, data);
   return TRUE;
 }
 
@@ -1166,7 +1167,7 @@ proto_reg_handoff_cimd(void)
   /**
    * Also register as one that can be selected by a TCP port number.
    */
-  cimd_handle = create_dissector_handle(dissect_cimd, proto_cimd);
+  cimd_handle = new_create_dissector_handle(dissect_cimd, proto_cimd);
   dissector_add_for_decode_as("tcp.port", cimd_handle);
 }
 

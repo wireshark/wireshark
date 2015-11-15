@@ -94,8 +94,8 @@ typedef struct {
 } exec_hash_entry_t;
 
 
-static void
-dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -339,6 +339,7 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(hash_info->state < WAIT_FOR_DATA){
 		col_set_str(pinfo->cinfo, COL_INFO, "Session Establishment");
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -406,7 +407,7 @@ proto_reg_handoff_exec(void)
 {
 	dissector_handle_t exec_handle;
 
-	exec_handle = create_dissector_handle(dissect_exec, proto_exec);
+	exec_handle = new_create_dissector_handle(dissect_exec, proto_exec);
 	dissector_add_uint("tcp.port", EXEC_PORT, exec_handle);
 }
 

@@ -56,8 +56,8 @@ static int hf_flexnet_ctl	= -1;
 static gint ett_flexnet = -1;
 static gint ett_flexnet_ctl = -1;
 
-static void
-dissect_flexnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_flexnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	tvbuff_t   *next_tvb;
 
@@ -92,6 +92,7 @@ dissect_flexnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	next_tvb = tvb_new_subset_remaining(tvb, FLEXNET_HDRLEN);
 	call_dissector( default_handle , next_tvb, pinfo, parent_tree );
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -133,7 +134,7 @@ proto_register_flexnet(void)
 void
 proto_reg_handoff_flexnet(void)
 {
-	dissector_add_uint( "ax25.pid", AX25_P_FLEXNET, create_dissector_handle( dissect_flexnet, proto_flexnet ) );
+	dissector_add_uint( "ax25.pid", AX25_P_FLEXNET, new_create_dissector_handle( dissect_flexnet, proto_flexnet ) );
 
 	/*
 	 */

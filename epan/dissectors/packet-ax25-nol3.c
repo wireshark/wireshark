@@ -147,8 +147,8 @@ isaprs( guint8 dti )
 	return b;
 }
 
-static void
-dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
+static int
+dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_ )
 {
 	proto_item *ti;
 	proto_tree *ax25_nol3_tree;
@@ -184,39 +184,37 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree )
 
 	/* Call sub-dissectors here */
 
-	if ( parent_tree )
+	/* create display subtree for the protocol */
+	ti = proto_tree_add_protocol_format( parent_tree,
+						proto_ax25_nol3,
+						tvb,
+						0,
+						-1,
+						"AX.25 No Layer 3 - (%s)", info_buffer );
+	ax25_nol3_tree = proto_item_add_subtree( ti, ett_ax25_nol3 );
+
+	next_tvb = tvb_new_subset_remaining(tvb, offset);
+	dissected = FALSE;
+	if ( gPREF_APRS )
 		{
-		/* create display subtree for the protocol */
-		ti = proto_tree_add_protocol_format( parent_tree,
-							proto_ax25_nol3,
-							tvb,
-							0,
-							-1,
-							"AX.25 No Layer 3 - (%s)", info_buffer );
-		ax25_nol3_tree = proto_item_add_subtree( ti, ett_ax25_nol3 );
-
-		next_tvb = tvb_new_subset_remaining(tvb, offset);
-		dissected = FALSE;
-		if ( gPREF_APRS )
+		if ( isaprs( dti ) )
 			{
-			if ( isaprs( dti ) )
-				{
-				dissected = TRUE;
-				call_dissector( aprs_handle , next_tvb, pinfo, ax25_nol3_tree );
-				}
+			dissected = TRUE;
+			call_dissector( aprs_handle , next_tvb, pinfo, ax25_nol3_tree );
 			}
-		if ( gPREF_DX )
-			{
-			if ( tvb_get_guint8( tvb, offset ) == 'D' && tvb_get_guint8( tvb, offset + 1 ) == 'X' )
-				{
-				dissected = TRUE;
-				dissect_dx( next_tvb, pinfo, ax25_nol3_tree, NULL );
-				}
-			}
-		if ( ! dissected )
-			call_dissector( default_handle , next_tvb, pinfo, ax25_nol3_tree );
-
 		}
+	if ( gPREF_DX )
+		{
+		if ( tvb_get_guint8( tvb, offset ) == 'D' && tvb_get_guint8( tvb, offset + 1 ) == 'X' )
+			{
+			dissected = TRUE;
+			dissect_dx( next_tvb, pinfo, ax25_nol3_tree, NULL );
+			}
+		}
+	if ( ! dissected )
+		call_dissector( default_handle , next_tvb, pinfo, ax25_nol3_tree );
+
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -286,7 +284,7 @@ proto_register_ax25_nol3(void)
 void
 proto_reg_handoff_ax25_nol3(void)
 {
-	dissector_add_uint( "ax25.pid", AX25_P_NO_L3, create_dissector_handle( dissect_ax25_nol3, proto_ax25_nol3 ) );
+	dissector_add_uint( "ax25.pid", AX25_P_NO_L3, new_create_dissector_handle( dissect_ax25_nol3, proto_ax25_nol3 ) );
 
 	/*
 	 */
