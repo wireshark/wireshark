@@ -267,7 +267,7 @@ static gint ett_vines_icp = -1;
 
 enum {
 	VIP_PROTO_IPC = 1,	 /* Interprocess Communications Protocol (IPC) */
-	VIP_PROTO_SPP = 2,	/* Sequenced Packet Protcol (SPP) */
+	VIP_PROTO_SPP = 2,	/* Sequenced Packet Protocol (SPP) */
 	VIP_PROTO_ARP = 4,	/* Address Resolution Protocol (ARP) */
 	VIP_PROTO_RTP = 5,	/* Routing Update Protocol (RTP) / SRTP (Sequenced RTP) */
 	VIP_PROTO_ICP = 6	/* Internet Control Protocol (ICP) */

@@ -48,7 +48,7 @@
 # generator (wireshark_gen) class and let it do the hard work ! 
 #
 #
-# Dont forget structs can contain embedded structs etc .. so dont forget
+# Don't forget structs can contain embedded structs etc .. so don't forget
 # to peek inside and check :-)
 #
 #

@@ -259,7 +259,7 @@ dissect_atn_cpdlc_heur(
     /* note: */
     /* all subsequent PDU's belonging to this conversation */
     /* are considered CPDLC */
-    /* if the first CPDLC PDU has been decoded succesfully */
+    /* if the first CPDLC PDU has been decoded successfully */
     /* (This is done in "atn-ulcs" by using "call_dissector_with_data()") */
 
     /* DT: dstref present, srcref is always zero */

@@ -188,7 +188,7 @@ static const value_string dce_error_vals[] = {
     { 552005634, "Not enough space in buffer passed to routine" },
     { 552005635, "Malformed host name" },
     { 552005636, "failed to disable cancels" },
-    { 552005637, "failed to reenable cancels" },
+    { 552005637, "failed to re-enable cancels" },
     { 552005638, "memory allocation failure" },
     { 552005639, "no bindings for this entry" },
     { 552005640, "too many objects in group entry" },

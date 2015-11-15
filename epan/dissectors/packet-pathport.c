@@ -301,7 +301,7 @@ static const value_string pp_pid_vals[] = {
     {PP_PORT_ACTIVE_SUMMARY,       "Port Active Bitmap"},
     {PP_SUPPORTED_UNIV,            "Number Supported Univ"},
     {PP_INPUT_HLL_TIME,            "Signal Loss Hold Time (DMX IN)"},
-    {PP_PCP_ENABLE,                "Per Channel Priorty Enable"},
+    {PP_PCP_ENABLE,                "Per Channel Priority Enable"},
     {PP_INPUT_UNIVERSE,            "Input Universe"},
     {PP_MODEL_NAME,                "Model Name"},
     {PP_MANUF_NAME,                "Manufacturer Name"},

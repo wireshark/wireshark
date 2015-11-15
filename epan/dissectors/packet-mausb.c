@@ -61,7 +61,7 @@ static int hf_mausb_ma_dev_addr = -1;
 static int hf_mausb_ssid = -1;
 static int hf_mausb_status = -1;
 
-/* managment packet specific */
+/* management packet specific */
 static int hf_mausb_token = -1;
 static int hf_mausb_mgmt_pad = -1;
 static int hf_mausb_mgmt_ep_handle_num = -1;
@@ -1232,7 +1232,7 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
                                                   offset, FALSE, FALSE);
     break;
 
-    /* TODO: Dissect type-specific managment packet fields */
+    /* TODO: Dissect type-specific management packet fields */
     case EPActivateReq:
     case EPActivateResp:
     case EPInactivateReq:
@@ -1346,7 +1346,7 @@ static conversation_t
         conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst,
                                             pinfo->srcport, pinfo->destport);
     }
-    /* TODO: track control & managment packet conversations */
+    /* TODO: track control & management packet conversations */
 
     return conversation;
 }
@@ -1789,12 +1789,12 @@ proto_register_mausb(void)
             }
         },
         { &hf_mausb_mgmt_type_spec,
-            { "Type-specific managment packet fields", "mausb.mgmt_flds",
+            { "Type-specific management packet fields", "mausb.mgmt_flds",
               FT_NONE, 0, NULL, 0, NULL, HFILL
             }
         },
         { &hf_mausb_mgmt_type_spec_generic,
-            { "Type-specific managment packet fields", "mausb.mgmt_flds.generic",
+            { "Type-specific management packet fields", "mausb.mgmt_flds.generic",
               FT_NONE, 0, NULL, 0, NULL, HFILL
             }
         },
@@ -2178,15 +2178,15 @@ proto_register_mausb(void)
         },
         { &ei_mgmt_type_undef,
             { "mausb.ei.type", PI_PROTOCOL, PI_WARN,
-              "Undefined managment packet type", EXPFILL }
+              "Undefined management packet type", EXPFILL }
         },
         { &ei_mgmt_type_spec_len_long,
             { "mausb.ei.type_spec.len", PI_PROTOCOL, PI_WARN,
-              "Data exists after type-specific managment packet field", EXPFILL }
+              "Data exists after type-specific management packet field", EXPFILL }
         },
         { &ei_mgmt_type_spec_len_short,
             { "mausb.ei.type_spec.len", PI_PROTOCOL, PI_WARN,
-              "Expected type-specific managment packet data", EXPFILL }
+              "Expected type-specific management packet data", EXPFILL }
         },
         { &ei_dev_cap_len,
             { "mausb.ei.cap_resp.dev_cap.length", PI_PROTOCOL, PI_WARN,

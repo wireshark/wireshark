@@ -91,7 +91,7 @@ import tempfile
 #
 # 12. Implement IDL "union" code [done]
 # 13. Implement support for plugins [done]
-# 14. Dont generate code for empty operations (cf: exceptions without members)
+# 14. Don't generate code for empty operations (cf: exceptions without members)
 # 15. Generate code to display Enums numerically and symbolically [done]
 # 16. Place structs/unions in subtrees
 # 17. Recursive struct and union handling [done]

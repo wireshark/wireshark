@@ -1170,7 +1170,7 @@ dissect_zcl_tun_get_supported_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset
     while (tvb_reported_length_remaining(tvb, *offset) > 0) {
         mfg_code = tvb_get_letohs(tvb, *offset);
         if (mfg_code == 0xFFFF) {
-            proto_tree_add_string(tree, hf_zbee_zcl_tun_manufacturer_code, tvb, *offset, 2, "Standard Protcol (Mfg Code 0xFFFF)");
+            proto_tree_add_string(tree, hf_zbee_zcl_tun_manufacturer_code, tvb, *offset, 2, "Standard Protocol (Mfg Code 0xFFFF)");
         }
         else {
             proto_tree_add_item(tree, hf_zbee_zcl_tun_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);

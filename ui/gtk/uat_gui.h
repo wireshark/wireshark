@@ -2,7 +2,7 @@
  *  uat_gui.h
  *
  *  User Accessible Tables GUI
- *  Mantain an array of user accessible data strucures
+ *  Maintain an array of user accessible data strucures
  *
  * (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>
  *

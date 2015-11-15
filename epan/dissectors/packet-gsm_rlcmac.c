@@ -7738,11 +7738,11 @@ dissect_ul_rlc_control_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
   ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1,
                                       "GSM RLC/MAC: %s (%d) (Uplink)",
-                                      val_to_str_ext(data->u.MESSAGE_TYPE, &ul_rlc_message_type_vals_ext, "Unknown Messsage Type"),
+                                      val_to_str_ext(data->u.MESSAGE_TYPE, &ul_rlc_message_type_vals_ext, "Unknown Message Type"),
                                       data->u.MESSAGE_TYPE);
   rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
 
-  col_append_sep_str(pinfo->cinfo, COL_INFO, ":", val_to_str_ext(data->u.MESSAGE_TYPE, &ul_rlc_message_type_vals_ext, "Unknown Messsage Type"));
+  col_append_sep_str(pinfo->cinfo, COL_INFO, ":", val_to_str_ext(data->u.MESSAGE_TYPE, &ul_rlc_message_type_vals_ext, "Unknown Message Type"));
 
   switch (data->u.MESSAGE_TYPE)
   {
@@ -7838,7 +7838,7 @@ dissect_dl_rlc_control_message(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tr
 
   ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1,
                                       "%s (%d) (downlink)",
-                                      val_to_str_ext(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Messsage Type"),
+                                      val_to_str_ext(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Message Type"),
                                       data->u.MESSAGE_TYPE);
   rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
   /* Initialize the contexts */
@@ -8063,10 +8063,10 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
     }
     data->u.MESSAGE_TYPE = tvb_get_bits8(tvb, message_type_offset, 6);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM RLC/MAC");
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ":", "GPRS DL:%s", val_to_str_ext(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Messsage Type"));
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ":", "GPRS DL:%s", val_to_str_ext(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Message Type"));
     ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, message_type_offset >> 3, -1,
                                         "GSM RLC/MAC: %s (%d) (Downlink)",
-                                        val_to_str_ext(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Messsage Type"),
+                                        val_to_str_ext(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Message Type"),
                                         data->u.MESSAGE_TYPE);
     rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
 

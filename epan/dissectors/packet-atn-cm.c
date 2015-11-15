@@ -717,7 +717,7 @@ dissect_atn_cm_heur(
     if (is_atn_cm  == TRUE) {
         /* note: */
         /* all subsequent PDU's belonging to this conversation are considered CM */
-        /* if the first CM PDU has been decoded succesfully */
+        /* if the first CM PDU has been decoded successfully */
         /* (This is done in "atn-ulcs" by using "call_dissector_with_data()") */
 
         /* DT: dstref present, srcref is always zero */

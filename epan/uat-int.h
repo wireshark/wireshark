@@ -2,7 +2,7 @@
  *  uat-int.h
  *
  *  User Accessible Tables
- *  Mantain an array of user accessible data strucures
+ *  Maintain an array of user accessible data structures
  *  Internal interface
  *
  * (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>

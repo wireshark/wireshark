@@ -71,7 +71,7 @@ static const value_string gsm_a_skip_ind_vals[] = {
     { 1, "PLMN identity of the Common PLMN in the broadcast system information"},
     { 2, "PLMN identity of the first Additional PLMN in the broadcast system information"},
     { 3, "PLMN identity of the second Additional PLMN in the broadcast system information"},
-    { 4, "PLMN identity of the third Additional PLMN in the broadcast sytem information"},
+    { 4, "PLMN identity of the third Additional PLMN in the broadcast system information"},
     { 5, "PLMN identity of the fourth Additional PLMN in the broadcast system information"},
     { 6, "Reserved"},
     { 7, "Reserved"},

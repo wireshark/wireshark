@@ -888,7 +888,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
                     offset += 3;
 
-                    /* Retreive the +90% reference */
+                    /* Retrieve the +90% reference */
                     ana12_val = ( tvb_get_guint8(tvb, offset) | ((tvb_get_guint8(tvb, offset+1) & 0x0F) << 8) );
                     proto_tree_add_uint(lg8979_tree, hf_lg8979_adc_ref_pos90, tvb, offset, 2, ana12_val);
                     offset += 2;

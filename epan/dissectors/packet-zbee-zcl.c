@@ -1342,8 +1342,8 @@ static void dissect_zcl_default_resp(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     zbee_zcl_cluster_desc *desc;
     int hf_cmd_id = hf_zbee_zcl_cs_cmd_id;
 
-    /* Retreive the cluster-specific command ID definition, with the direction
-     * inverted, since this a response to the originating command. */
+    /* Retrieve the cluster-specific command ID definition, with the direction
+     * inverted, since this is a response to the originating command. */
     desc = zbee_zcl_get_cluster_desc(cluster_id);
     if (dir == ZBEE_ZCL_FCF_TO_SERVER) {
         if (desc && (desc->hf_cmd_tx_id >= 0)) hf_cmd_id = desc->hf_cmd_tx_id;

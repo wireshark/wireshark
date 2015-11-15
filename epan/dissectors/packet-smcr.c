@@ -1067,7 +1067,7 @@ proto_register_smcr(void)
 		FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_smcr_accept_server_rmb_virtual_address, {
-		"Server's RMB Vitual Address",
+		"Server's RMB Virtual Address",
 		"smcr.accept.server.rmb.virtual.address",
 		FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
@@ -1107,7 +1107,7 @@ proto_register_smcr(void)
 		FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
 		{ &hf_smcr_confirm_client_rmb_virtual_address, {
-		"Client's RMB Vitual Address",
+		"Client's RMB Virtual Address",
 		"smcr.client.rmb.virtual.address",
 		FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 

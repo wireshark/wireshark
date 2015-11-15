@@ -251,7 +251,7 @@ void proto_register_tdmop(void)
         },
         {
             &hf_tdmop_Flags_remote_no_data,
-            {    "TDMoP No data recieved from remote side flag", "tdmop.flags.remotenodata",
+            {    "TDMoP No data received from remote side flag", "tdmop.flags.remotenodata",
                 FT_BOOLEAN, 8,
                 NULL, TDMOP_FLAG_REMOTE_NO_DATA,
                 NULL, HFILL}

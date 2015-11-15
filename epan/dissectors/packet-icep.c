@@ -33,7 +33,7 @@
   NOTES:
   1) p. 586 Chapter 23.2 of "The ICE Protocol"
      "Data is always encoded using little-endian byte order for numeric types."
-  2) Informations about Ice can be found here: http://www.zeroc.com
+  2) Information about Ice can be found here: http://www.zeroc.com
 */
 
 #include "config.h"

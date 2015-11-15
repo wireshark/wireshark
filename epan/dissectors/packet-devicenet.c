@@ -599,7 +599,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     break;
                 default:
                     expert_add_info_format(pinfo, service_item, &ei_devicenet_invalid_service,
-                        "Invalid service code (0x%x) for Group 3 Messsage ID 5", service_rr & CIP_SC_MASK);
+                        "Invalid service code (0x%x) for Group 3 Message ID 5", service_rr & CIP_SC_MASK);
                     break;
                 }
                 break;
@@ -611,13 +611,13 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     break;
                 default:
                     expert_add_info_format(pinfo, service_item, &ei_devicenet_invalid_service,
-                        "Invalid service code (0x%x) for Group 3 Messsage ID 6", service_rr & CIP_SC_MASK);
+                        "Invalid service code (0x%x) for Group 3 Message ID 6", service_rr & CIP_SC_MASK);
                     break;
                 }
                 break;
             case 0x1C0:
                 expert_add_info_format(pinfo, msg_id_item, &ei_devicenet_invalid_msg_id,
-                        "Invalid Group 3 Messsage ID (%d)", message_id);
+                        "Invalid Group 3 Message ID (%d)", message_id);
                 break;
             }
 

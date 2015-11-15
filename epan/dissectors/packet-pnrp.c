@@ -447,7 +447,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     message_type = tvb_get_guint8(tvb,7);
 
 
-    /* Simply Display the Protcol Name in the INFO column */
+    /* Simply Display the Protocol Name in the INFO column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNRP");
     /* Clear out stuff in the info column */
     col_add_fstr(pinfo->cinfo, COL_INFO, "PNRP %s Message ",

@@ -8239,7 +8239,7 @@ proto_register_smb2(void)
 		    &NT_errors_ext, 0, "NT Status code", HFILL }},
 		{ &hf_smb2_msg_id,
 		  { "Message ID", "smb2.msg_id", FT_INT64, BASE_DEC,
-		    NULL, 0, "SMB2 Messsage ID", HFILL }},
+		    NULL, 0, "SMB2 Message ID", HFILL }},
 		{ &hf_smb2_tid,
 		  { "Tree Id", "smb2.tid", FT_UINT32, BASE_HEX,
 		    NULL, 0, "SMB2 Tree Id", HFILL }},

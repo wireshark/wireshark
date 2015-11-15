@@ -1692,7 +1692,7 @@ snmp_usm_priv_des(snmp_usm_params_t* p _U_, tvbuff_t* encryptedData _U_, gchar c
 	cryptgrm_len = tvb_captured_length(encryptedData);
 
 	if ((cryptgrm_len <= 0) || (cryptgrm_len % 8)) {
-		*error = "decryptionError: the length of the encrypted data is not a mutiple of 8 octets";
+		*error = "decryptionError: the length of the encrypted data is not a multiple of 8 octets";
 		return NULL;
 	}
 

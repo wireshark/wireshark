@@ -4535,7 +4535,7 @@ prefs_pref_type_name(pref_t *pref)
 char *
 prefs_pref_type_description(pref_t *pref)
 {
-    const char *type_desc = "An unkown preference type";
+    const char *type_desc = "An unknown preference type";
 
     if (!pref) {
         return g_strdup_printf("%s.", type_desc); /* ...or maybe assert? */

@@ -695,7 +695,7 @@ dissect_fmp_Hiervolume(tvbuff_t *tvb, int offset, proto_tree * tree)
        volumes and their descriptions may be to large to fit in a single
        RPC reply.  In this case, the application may send getVolumeInfo
        requests for the specific topVolumeId -- specifying the number of
-       volumes already recieved by the client, and the cookie.  The
+       volumes already received by the client, and the cookie.  The
        server is then responsible for sending another message containing
        additional volumes.  These RPCs exchanges may continue multiple
        times, until the client has fetched the entire hierarchical

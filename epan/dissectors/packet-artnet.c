@@ -4415,7 +4415,7 @@ proto_register_artnet(void) {
       { "Bind IP Address",
         "artnet.poll_reply.bind_ip_address",
         FT_IPv4, BASE_NONE, NULL, 0x0,
-        "IP adress of root device", HFILL }},
+        "IP address of root device", HFILL }},
 
     { &hf_artnet_poll_reply_bind_index,
       { "Bind Index",

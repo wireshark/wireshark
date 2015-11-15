@@ -40,7 +40,7 @@
  * windows registry at: "HKEY_CLASSES_ROOT\Interface"
  *
  *
- * Ressources on the web:
+ * Resources on the web:
  *
  * "Understanding the DCOM Wire Protocol by Analyzing Network Data Packets"
  * http:// www.microsoft.com/msj/0398/dcom.htm

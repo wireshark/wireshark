@@ -1371,7 +1371,7 @@ dissect_sflow_5_extended_80211_tx(tvbuff_t *tvb, proto_tree *tree, gint offset) 
             break;
         case 1:
             proto_tree_add_uint_format_value(tree, hf_sflow_5_extended_80211_tx_retransmissions, tvb, offset, 4,
-                    1, "Packet transmitted sucessfully on first attempt");
+                    1, "Packet transmitted successfully on first attempt");
             break;
         default:
             proto_tree_add_uint(tree, hf_sflow_5_extended_80211_tx_retransmissions, tvb, offset, 4, transmissions - 1);
