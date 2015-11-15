@@ -1182,6 +1182,7 @@ void IOGraphDialog::on_todCheckBox_toggled(bool checked)
     auto_axes_ = orig_auto;
     getGraphInfo();
     ui->ioPlot->xAxis->moveRange(start_time_ - orig_start);
+    mouseMoved(NULL); // Update hint
 }
 
 void IOGraphDialog::on_graphTreeWidget_currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *previous)
