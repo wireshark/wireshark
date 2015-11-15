@@ -43,12 +43,25 @@ class SequenceDialog;
 
 class SequenceDiagram;
 
+class SequenceInfo
+{
+public:
+    SequenceInfo(seq_analysis_info_t *sainfo = NULL);
+    seq_analysis_info_t * sainfo() { return sainfo_;}
+    void ref() { count_++; }
+    void unref() { if (--count_ == 0) delete this; }
+private:
+    ~SequenceInfo();
+    seq_analysis_info_t *sainfo_;
+    unsigned int count_;
+};
+
 class SequenceDialog : public WiresharkDialog
 {
     Q_OBJECT
 
 public:
-    explicit SequenceDialog(QWidget &parent, CaptureFile &cf, seq_analysis_info_t *sainfo = NULL);
+    explicit SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *info = NULL);
     ~SequenceDialog();
 
 signals:
@@ -89,7 +102,7 @@ private slots:
 private:
     Ui::SequenceDialog *ui;
     SequenceDiagram *seq_diagram_;
-    seq_analysis_info_t *sainfo_;
+    SequenceInfo *info_;
     int num_items_;
     guint32 packet_num_;
     double one_em_;

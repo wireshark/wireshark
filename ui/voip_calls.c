@@ -272,13 +272,6 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
     if(NULL!=tapinfo->callsinfo_hashtable[SIP_HASH])
         g_hash_table_remove_all (tapinfo->callsinfo_hashtable[SIP_HASH]);
 
-    /* free the graph data items first */
-    if(NULL == tapinfo->graph_analysis) {
-        tapinfo->graph_analysis = sequence_analysis_info_new();
-    }
-
-    sequence_analysis_list_free(tapinfo->graph_analysis);
-
     /* free the strinfo data items first */
     list = g_list_first(tapinfo->rtp_stream_list);
     while(list)
