@@ -229,7 +229,9 @@ if( NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" AND
 	set( DUMPCAP_INSTALL_OPTION )
 endif()
 
-# Always enable -fPIE (or -fPIC). -pie is added below for non-MSVC.
+# Always enable position-independent code when compiling, even for
+# executables, so you can build position-independent executables.
+# -pie is added below for non-MSVC.
 # Needed when either:
 # - Qt5_POSITION_INDEPENDENT_CODE is set and CMake < 2.8.11
 # - PIE is wanted (-pie) and you want to add -fPIC/-fPIE automatically.
@@ -605,6 +607,10 @@ if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	)
 	# CMAKE_POSITION_INDEPENDENT_CODE is only supported starting with CMake
 	# 2.8.9. Do not add -pie automatically for older versions.
+	#
+	# XXX - are there other compilers that don't support -pie?  It's
+	# not as if the only platforms we support are Windows and Linux....
+	#
 	if(NOT CMAKE_VERSION VERSION_LESS "2.8.9")
 		set(WIRESHARK_LD_FLAGS ${WIRESHARK_LD_FLAGS}
 			-pie
@@ -902,53 +908,31 @@ if(HAVE_LIBZLIB)
 endif()
 if (Qt5Widgets_FOUND)
 	#
-	# Qt5CoreConfigExtras.cmake in Qt 5.5.0 sets -fPIC unconditionally.
-	# https://bugreports.qt.io/browse/QTBUG-47942
+	# Qt5CoreConfigExtras.cmake in Qt 5.5.0 sets -fPIC unconditionally:
 	#
-	# If it was added, we remove it, and then check whether it's
-	# necessary the same way we do for autotools, by checking
-	# whether we can compile and link a simple file with just
+	#    https://bugreports.qt.io/browse/QTBUG-47942
 	#
-	#	#include <QtCore>
-	#	int main() {}
+	# There's a fix in Gerrit for that:
 	#
-	# (Yes, check_XXX_source_compiles() should be renamed
-	# check_XXX_source_compiles_and_links().)
+	#     https://codereview.qt-project.org/#/c/139645/
 	#
-	if ("${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}" MATCHES ".*-fPIC.*")
+	# Do the same check as that fix does and, if the check says we
+	# should *not* add -fPIC, remove it.
+	#
+	# XXX - if that check gets changed in the future, we'll have to
+	# detect that and change it.
+	#
+	if (CMAKE_VERSION VERSION_LESS 2.8.12
+	    AND (CMAKE_CXX_COMPILER_ID STREQUAL \"GNU\"
+	    AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0))
+		#
+		# Yes, it should have been; leave it there.
+		#
+	else()
+		#
+		# No, it shouldn't have been; remove it.
+		#
 		list(REMOVE_ITEM Qt5Widgets_EXECUTABLE_COMPILE_FLAGS "-fPIC")
-		set(CMAKE_REQUIRED_FLAGS ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS})
-		set(CMAKE_REQUIRED_INCLUDES ${Qt5Core_INCLUDE_DIRS})
-		set(CMAKE_REQUIRED_LIBS ${Qt5Core_LIBRARIES})
-		check_cxx_source_compiles(
-		      "#include <QtCore>
-		      int main() {}"
-		    WORKS_WITHOUT_FPIC)
-		if (NOT WORKS_WITHOUT_FPIC)
-			#
-			# OK, it won't compile without -fPIC.  Try adding it.
-			#
-			set(CMAKE_REQUIRED_FLAGS "-fPIC")
-			check_cxx_source_compiles(
-			      "#include <QtCore>
-			      int main() {}"
-			    WORKS_WITH_FPIC)
-			if (NOT WORKS_WITH_FPIC)
-				#
-				# It won't build with -fPIC or without -fPIC,
-				# so we're hosed.
-				#
-				message(FATAL_ERROR "Couldn't compile Qt without -fPIC nor with -fPIC")
-			endif()
-
-			#
-			# It compiles with -fPIC, so add it back.
-			#
-			list(APPEND Qt5Widgets_EXECUTABLE_COMPILE_FLAGS "-fPIC")
-		endif()
-		set(CMAKE_REQUIRED_FLAGS "")
-		set(CMAKE_REQUIRED_INCLUDES "")
-		set(CMAKE_REQUIRED_LIBS "")
 	endif()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 	set (QT_FOUND ON)
