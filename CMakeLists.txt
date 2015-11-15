@@ -229,7 +229,9 @@ if( NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" AND
 	set( DUMPCAP_INSTALL_OPTION )
 endif()
 
-# Always enable -fPIE (or -fPIC). -pie is added below for non-MSVC.
+# Always enable position-independent code when compiling, even for
+# executables, so you can build position-independent executables.
+# -pie is added below for non-MSVC.
 # Needed when either:
 # - Qt5_POSITION_INDEPENDENT_CODE is set and CMake < 2.8.11
 # - PIE is wanted (-pie) and you want to add -fPIC/-fPIE automatically.
@@ -583,6 +585,10 @@ if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	)
 	# CMAKE_POSITION_INDEPENDENT_CODE is only supported starting with CMake
 	# 2.8.9. Do not add -pie automatically for older versions.
+	#
+	# XXX - are there other compilers that don't support -pie?  It's
+	# not as if the only platforms we support are Windows and Linux....
+	#
 	if(NOT CMAKE_VERSION VERSION_LESS "2.8.9")
 		set(WIRESHARK_LD_FLAGS ${WIRESHARK_LD_FLAGS}
 			-pie
@@ -889,11 +895,33 @@ if(HAVE_LIBZLIB)
 	include_directories(BEFORE ${ZLIB_INCLUDE_DIRS})
 endif()
 if (Qt5Widgets_FOUND)
-	# Qt5CoreConfigExtras.cmake in Qt 5.5.0 sets -fPIC unconditionally.
-	# https://bugreports.qt.io/browse/QTBUG-47942
-	if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+	#
+	# Qt5CoreConfigExtras.cmake in Qt 5.5.0 sets -fPIC unconditionally:
+	#
+	#    https://bugreports.qt.io/browse/QTBUG-47942
+	#
+	# There's a fix in Gerrit for that:
+	#
+	#     https://codereview.qt-project.org/#/c/139645/
+	#
+	# Do the same check as that fix does and, if the check says we
+	# should *not* add -fPIC, remove it.
+	#
+	# XXX - if that check gets changed in the future, we'll have to
+	# detect that and change it.
+	#
+	if (CMAKE_VERSION VERSION_LESS 2.8.12
+	    AND (CMAKE_CXX_COMPILER_ID STREQUAL \"GNU\"
+	    AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0))
+		#
+		# Yes, it should have been; leave it there.
+		#
+	else()
+		#
+		# No, it shouldn't have been; remove it.
+		#
 		list(REMOVE_ITEM Qt5Widgets_EXECUTABLE_COMPILE_FLAGS "-fPIC")
-	endif() # MSVC
+	endif()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 	set (QT_FOUND ON)
 	set (QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5PrintSupport_LIBRARIES})
