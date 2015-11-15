@@ -531,9 +531,9 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
 
     if (type == FT_FRAMENUM) {
         if (base != BASE_NONE)
-            luaL_argerror(L, 3, "ftypes.FRAMENUMs must use base.NONE");
+            luaL_argerror(L, 3, "FRAMENUM must use base.NONE");
         else if (mask)
-            luaL_argerror(L, 3, "ftypes.FRAMENUMs can not have a bitmask");
+            luaL_argerror(L, 5, "FRAMENUM can not have a bitmask");
     } else if (base < BASE_DEC || base > BASE_HEX_DEC) {
         luaL_argerror(L, 3, "Base must be either base.DEC, base.HEX, base.OCT,"
                       " base.DEC_HEX, base.DEC_HEX or base.HEX_DEC");
@@ -697,13 +697,13 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
     const gchar* blob = luaL_optstring(L,6,NULL);
 
     if (mask == 0x0 && base != BASE_NONE) {
-        luaL_argerror(L,2,"Fieldbase (fielddisplay) must be base.NONE"
+        luaL_argerror(L,3,"Fieldbase (fielddisplay) must be base.NONE"
                       " if bitmask is zero.");
         return 0;
     }
 
     if (mask != 0x0 && (base < 1 || base > 64)) {
-        luaL_argerror(L,2,"Fieldbase (fielddisplay) must be between 1 and 64"
+        luaL_argerror(L,3,"Fieldbase (fielddisplay) must be between 1 and 64"
                       " if bitmask is non-zero.");
         return 0;
     }
