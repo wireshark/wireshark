@@ -7758,8 +7758,8 @@ macbak           4181/tcp # MacBak [Wes_Peters] [Wes_Peters] 2007-04
 macbak           4181/udp # MacBak [Wes_Peters] [Wes_Peters] 2007-04
 pcptcpservice    4182/tcp # Production Company Pro TCP Service [Ben_McNeill] [Ben_McNeill] 2007-05
 pcptcpservice    4182/udp # Production Company Pro TCP Service [Ben_McNeill] [Ben_McNeill] 2007-05
-gmmp             4183/tcp # General Metaverse Messaging Protocol [Gareth_Nelson] [Gareth_Nelson] 2007-06
-gmmp             4183/udp # General Metaverse Messaging Protocol [Gareth_Nelson] [Gareth_Nelson] 2007-06
+cyborgnet        4183/tcp # CyborgNet communications protocol [Gareth_Nelson] [Gareth_Nelson] 2015-11-13
+cyborgnet        4183/udp # CyborgNet communications protocol [Gareth_Nelson] [Gareth_Nelson] 2015-11-13
 universe-suite   4184/tcp # UNIVERSE SUITE MESSAGE SERVICEIANA assigned this well-formed service name as a replacement for "universe_suite". [Gary_ANDREWS] [Gary_ANDREWS] 2008-01-07
 universe_suite   4184/tcp # UNIVERSE SUITE MESSAGE SERVICE [Gary_ANDREWS] [Gary_ANDREWS] 2008-01-07 This entry is an alias to "universe-suite".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 universe-suite   4184/udp # UNIVERSE SUITE MESSAGE SERVICEIANA assigned this well-formed service name as a replacement for "universe_suite". [Gary_ANDREWS] [Gary_ANDREWS] 2008-01-07
@@ -11327,6 +11327,7 @@ slmap           36423/sctp # SLm Interface Application Protocol [ThreeGPP_4] [Ki
 nq-ap           36424/sctp # Nq and Nq' Application Protocol [ThreeGPP_4] [Kimmo_Kymalainen] 2015-06-18
 m2ap            36443/sctp # M2 Application Part [Dario_S_Tonesi] [Dario_S_Tonesi] 2011-02-07
 m3ap            36444/sctp # M3 Application Part [Dario_S_Tonesi] [Dario_S_Tonesi] 2011-02-07
+xw-control      36462/sctp # Xw-Control Plane (3GPP) [Boubacar_KIMNBA_DIT_ADAMOU] [Boubacar_KIMNBA_DIT_ADAMOU] 2015-11-13
 febooti-aw      36524/tcp # Febooti Automation Workshop [Maris_Bormanis] [Maris_Bormanis] 2011-06-10
 observium-agent 36602/tcp # Observium statistics collection agent [Observium] [Adam_Armstrong] 2013-05-10
 mapx            36700/tcp # MapX communication [MicroTechniX] [Yarochkin_Michail] 2014-10-13

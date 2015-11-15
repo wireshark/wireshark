@@ -46751,6 +46751,9 @@ const value_string sminmpec_values[] = {
     { 46728, "Heksagon Group Cy Ltd" },
     { 46729, "Growing Energy Labs, Inc." },
     { 46730, "Route Weaver LLC" },
+    { 46731, "Institut fuer medizinische und pharmazeutische Pruefungsfragen" },
+    { 46732, "Vedang Radio Technology Pvt. Limited" },
+    { 46733, "DOM-P Zrt" },
     {    0, NULL}
 };
 
