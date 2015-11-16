@@ -139,7 +139,7 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
         }
         g_free(secondary_msg);
         *err = CANT_GET_INTERFACE_LIST;
-        return NULL;
+        return if_list;
     }
 
     /* Split our lines */
