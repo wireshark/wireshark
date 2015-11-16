@@ -705,6 +705,8 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
         return FALSE;
     }
     cap_session->fork_child = pi.hProcess;
+    /* We may need to store this and close it later */
+    CloseHandle(pi.hThread);
     g_string_free(args, TRUE);
 
     cap_session->signal_pipe_write_fd = signal_pipe_write_fd;
@@ -956,6 +958,8 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
         return -1;
     }
     *fork_child = pi.hProcess;
+    /* We may need to store this and close it later */
+    CloseHandle(pi.hThread);
     g_string_free(args, TRUE);
 #else /* _WIN32 */
     /* Create a pipe for the child process to send us messages */
@@ -1503,6 +1507,8 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, gchar **
            case, the child will get an error when writing to the broken pipe
            the next time, cleaning itself up then. */
         ret = sync_pipe_wait_for_child(*fork_child, &wait_msg);
+        ws_close(message_read_fd);
+        ws_close(*data_read_fd);
         if(nread == 0) {
             /* We got an EOF from the sync pipe.  That means that it exited
                before giving us any data to read.  If ret is -1, we report
