@@ -730,8 +730,8 @@ local function write(file, capture, frame)
     return true
 end
 
-local function write_finish(file, capture)
-    dprint2("write_finish() called")
+local function write_close(file, capture)
+    dprint2("write_close() called")
     dprint2("Good night, and good luck")
     return true
 end
@@ -743,7 +743,7 @@ local fh2 = FileHandler.new("Lua-based PCAP writer", "lua_pcap2", "A Lua-based f
 fh2.can_write_encap = can_write_encap
 fh2.write_open = write_open
 fh2.write = write
-fh2.write_finish = write_finish
+fh2.write_close = write_close
 fh2.extensions = "pcap;cap" -- this is just a hint
 
 -- and finally, register the FileHandler!

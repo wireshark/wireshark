@@ -515,7 +515,7 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err)
         }
 
         /* it's ok to not have a finish routine */
-        if (fh->write_finish_ref != LUA_NOREF)
+        if (fh->write_close_ref != LUA_NOREF)
             wdh->subtype_finish = wslua_filehandler_dump_finish;
         else
             wdh->subtype_finish = NULL;
@@ -582,7 +582,7 @@ wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err)
     File *fp = NULL;
     CaptureInfoConst *fc = NULL;
 
-    INIT_FILEHANDLER_ROUTINE(write_finish,FALSE);
+    INIT_FILEHANDLER_ROUTINE(write_close,FALSE);
 
     /* Reset errno */
     if (err) {
@@ -597,7 +597,7 @@ wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err)
         case 0:
             retval = wslua_optboolint(L,-1,0);
             break;
-        CASE_ERROR("write_finish")
+        CASE_ERROR("write_close")
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -656,7 +656,7 @@ WSLUA_CONSTRUCTOR FileHandler_new(lua_State* L) {
     fh->seq_read_close_ref = LUA_NOREF;
     fh->write_open_ref = LUA_NOREF;
     fh->write_ref = LUA_NOREF;
-    fh->write_finish_ref = LUA_NOREF;
+    fh->write_close_ref = LUA_NOREF;
     fh->can_write_encap_ref = LUA_NOREF;
 
     fh->registered = FALSE;
@@ -795,7 +795,7 @@ WSLUA_FUNCTION wslua_deregister_filehandler(lua_State* L) {
     int can_write_encap_ref;
     int write_open_ref;
     int write_ref;
-    int write_finish_ref;
+    int write_close_ref;
 */
 
 /* WSLUA_ATTRIBUTE FileHandler_read_open WO The Lua function to be called when Wireshark opens a file for reading.
@@ -908,7 +908,7 @@ WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,write);
 
     It is not necessary to set this field to a Lua function - `FileHandler` can be registered without doing so - it is available
     in case there is memory/state to clear in your script when the file is closed. */
-WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,write_finish);
+WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,write_close);
 
 /* generate other member accessors setters/getters */
 
@@ -957,7 +957,7 @@ WSLUA_ATTRIBUTES FileHandler_attributes[] = {
     WSLUA_ATTRIBUTE_WOREG(FileHandler,can_write_encap),
     WSLUA_ATTRIBUTE_WOREG(FileHandler,write_open),
     WSLUA_ATTRIBUTE_WOREG(FileHandler,write),
-    WSLUA_ATTRIBUTE_WOREG(FileHandler,write_finish),
+    WSLUA_ATTRIBUTE_WOREG(FileHandler,write_close),
     WSLUA_ATTRIBUTE_ROREG(FileHandler,type),
     WSLUA_ATTRIBUTE_RWREG(FileHandler,extensions),
     WSLUA_ATTRIBUTE_RWREG(FileHandler,writing_must_seek),
