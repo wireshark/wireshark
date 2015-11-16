@@ -2381,7 +2381,6 @@ ng_read_bytes_or_eof(wtap *wth, void *buffer, unsigned int nbytes, gboolean is_r
 	ngsniffer_t *ngsniffer;
 	FILE_T infile;
 	ngsniffer_comp_stream_t *comp_stream;
-	gint64 copied_bytes = 0;							/* bytes already copied */
 	unsigned char *outbuffer = (unsigned char *)buffer; /* where to write next decompressed data */
 	blob_info_t *blob;
 	unsigned int bytes_to_copy;
@@ -2477,7 +2476,6 @@ ng_read_bytes_or_eof(wtap *wth, void *buffer, unsigned int nbytes, gboolean is_r
 		memcpy(outbuffer, &comp_stream->buf[comp_stream->nextout],
 		       bytes_to_copy);
 		nbytes -= bytes_to_copy;
-		copied_bytes += bytes_to_copy;
 		outbuffer += bytes_to_copy;
 		comp_stream->nextout += bytes_to_copy;
 		comp_stream->uncomp_offset += bytes_to_copy;

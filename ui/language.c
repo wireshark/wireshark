@@ -48,7 +48,7 @@ read_language_pref(gchar *key, const gchar *value,
     if (strcmp(key, LANGUAGE_PREF_LANGUAGE) == 0) {
         if (language)
             g_free(language);
-        if (!value || (value && !*value))
+        if (!value || !*value)
             language = g_strdup("auto");
         else
             language = g_strdup(value);

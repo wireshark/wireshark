@@ -268,7 +268,7 @@ DIAG_ON(cast-qual)
         }
         exit(1);
     }
-    DEBUG_PRINT("file_type_subtype is %u\n", wtap_file_type_subtype(wth));
+    DEBUG_PRINT("file_type_subtype is %d\n", wtap_file_type_subtype(wth));
 
     shb_hdr = wtap_file_get_shb_for_new_file(wth);
     idb_inf = wtap_file_get_idb_info(wth);

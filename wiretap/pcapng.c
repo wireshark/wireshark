@@ -1909,7 +1909,6 @@ read_options:
                     pcapng_debug("pcapng_read_name_resolution_block: opt_comment length %u seems strange", oh.option_length);
                 }
                 break;
-                break;
             default:
 #ifdef HAVE_PLUGINS
                 /*

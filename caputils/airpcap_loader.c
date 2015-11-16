@@ -816,7 +816,6 @@ free_airpcap_interface_list(GList *if_list)
 {
     g_list_foreach(if_list, free_airpcap_if_cb, NULL);
     g_list_free(if_list);
-    if_list = NULL;
 }
 
 /*
@@ -1138,7 +1137,6 @@ airpcap_if_info_free(airpcap_if_info_t *if_info)
         if (if_info != NULL)
         {
             g_free(if_info);
-            if_info = NULL;
         }
     }
 }

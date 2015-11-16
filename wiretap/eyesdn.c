@@ -92,7 +92,7 @@ static gboolean esc_read(FILE_T fh, guint8 *buf, int len, int *err, gchar **err_
 /* Magic text to check for eyesdn-ness of file */
 static const unsigned char eyesdn_hdr_magic[]  =
 { 'E', 'y', 'e', 'S', 'D', 'N'};
-#define EYESDN_HDR_MAGIC_SIZE  (sizeof(eyesdn_hdr_magic)  / sizeof(eyesdn_hdr_magic[0]))
+#define EYESDN_HDR_MAGIC_SIZE  sizeof(eyesdn_hdr_magic)
 
 /* Size of a record header */
 #define EYESDN_HDR_LENGTH		12
