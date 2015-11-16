@@ -95,16 +95,16 @@ if(WIN32)
 	endif()
 	message(STATUS "Building for ${WIRESHARK_TARGET_PLATFORM} using ${CMAKE_GENERATOR}")
 
-        # Determine where the 3rd party libraries will be
+	# Determine where the 3rd party libraries will be
 	if( DEFINED ENV{WIRESHARK_LIB_DIR} )
 		# The buildbots set WIRESHARK_LIB_DIR but not WIRESHARK_BASE_DIR.
 		file( TO_CMAKE_PATH "$ENV{WIRESHARK_LIB_DIR}" _PROJECT_LIB_DIR )
 	elseif( DEFINED ENV{WIRESHARK_BASE_DIR} )
 		file( TO_CMAKE_PATH "$ENV{WIRESHARK_BASE_DIR}" _WS_BASE_DIR )
 		set( _PROJECT_LIB_DIR "${_WS_BASE_DIR}/wireshark-${WIRESHARK_TARGET_PLATFORM}-libs" )
-        else()
-                # Don't know what to do
-                message(FATAL_ERROR "Neither WIRESHARK_BASE_DIR or WIRESHARK_LIB_DIR are defined")
+	else()
+		# Don't know what to do
+		message(FATAL_ERROR "Neither WIRESHARK_BASE_DIR or WIRESHARK_LIB_DIR are defined")
 	endif()
 
 	# Download third-party libraries
@@ -119,7 +119,7 @@ if(WIN32)
 	elseif(MSVC10)
 		set(_vsversion_args "10")
 	else()
-                message(FATAL_ERROR "Unsupported compiler ${CMAKE_C_COMPILER}")
+		message(FATAL_ERROR "Unsupported compiler ${CMAKE_C_COMPILER}")
 	endif()
 
 	# Is it possible to have a one-time, non-cached option in CMake? If
@@ -1032,12 +1032,13 @@ else()
 	get_target_property(_libwireshark_location epan LOCATION)
 	get_filename_component(_datafile_dir "${_libwireshark_location}" PATH)
 endif()
-set (DATAFILE_DIR ${_datafile_dir} CACHE INTERNAL "Build time data file location.")
+
+set(DATAFILE_DIR ${_datafile_dir} CACHE INTERNAL "Build time data file location.")
 
 if(IS_ABSOLUTE ${CMAKE_INSTALL_LIBDIR})
-  set(ABSOLUTE_CMAKE_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}")
+	set(ABSOLUTE_CMAKE_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}")
 else()
-  set(ABSOLUTE_CMAKE_INSTALL_LIBDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+	set(ABSOLUTE_CMAKE_INSTALL_LIBDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
 endif()
 
 if(ENABLE_EXTCAP)
