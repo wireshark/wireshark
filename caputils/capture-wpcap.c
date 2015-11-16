@@ -553,9 +553,7 @@ pcap_datalink_name_to_val(const char *name)
 {
 	int i;
 
-	g_assert(has_wpcap);
-
-	if (p_pcap_datalink_name_to_val != NULL)
+	if (has_wpcap && (p_pcap_datalink_name_to_val != NULL))
 		return p_pcap_datalink_name_to_val(name);
 	else {
 		/*
@@ -605,9 +603,7 @@ pcap_datalink_val_to_name(int dlt)
 {
 	int i;
 
-	g_assert(has_wpcap);
-
-	if (p_pcap_datalink_val_to_name != NULL)
+	if (has_wpcap && (p_pcap_datalink_val_to_name != NULL))
 		return p_pcap_datalink_val_to_name(dlt);
 	else {
 		/*
@@ -628,9 +624,7 @@ pcap_datalink_val_to_description(int dlt)
 {
 	int i;
 
-	g_assert(has_wpcap);
-
-	if (p_pcap_datalink_val_to_description != NULL)
+	if (has_wpcap && (p_pcap_datalink_val_to_description != NULL))
 		return p_pcap_datalink_val_to_description(dlt);
 	else {
 		/*
