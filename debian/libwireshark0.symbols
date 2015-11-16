@@ -787,6 +787,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ip_checksum_tvb@Base 1.99.0
  ipopt_type_class_vals@Base 1.9.1
  ipopt_type_number_vals@Base 1.9.1
+ ipproto_val_ext@Base 2.0.0
  ipprotostr@Base 1.9.1
  ipv4_get_net_order_addr@Base 1.9.1
  is_big_endian@Base 1.9.1

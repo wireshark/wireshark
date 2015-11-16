@@ -191,7 +191,7 @@
 #define IP_PROTO_AX4000         173     /* AX/4000 Testblock - non IANA */
 #define IP_PROTO_NCS_HEARTBEAT  224     /* Novell NCS Heartbeat - http://support.novell.com/cgi-bin/search/searchtid.cgi?/10071158.htm */
 
-extern value_string_ext ipproto_val_ext;
+WS_DLL_PUBLIC value_string_ext ipproto_val_ext;
 WS_DLL_PUBLIC const char *ipprotostr(const int proto);
 
 #endif /* ipproto.h */
