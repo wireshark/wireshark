@@ -50,6 +50,7 @@ if (WIN32)
     PATH ENV WIRESHARK_CYGWIN_INSTALL_PATH
     "C:/Cygwin"
     "C:/Cygwin64"
+    "C:/tools/cygwin"
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Cygwin\\setup;rootdir]"
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Cygnus Solutions\\Cygwin\\mounts v2\\/;native]"
   )
