@@ -883,7 +883,7 @@ void MainWindow::thaw()
 void MainWindow::mergeCaptureFile()
 {
     QString file_name = "";
-    QString display_filter = "";
+    QString read_filter = "";
     dfilter_t *rfcode = NULL;
     int err;
 
@@ -933,7 +933,7 @@ void MainWindow::mergeCaptureFile()
     }
 
     for (;;) {
-        CaptureFileDialog merge_dlg(this, capture_file_.capFile(), display_filter);
+        CaptureFileDialog merge_dlg(this, capture_file_.capFile(), read_filter);
         int file_type;
         cf_status_t  merge_status;
         char        *in_filenames[2];
@@ -962,14 +962,14 @@ void MainWindow::mergeCaptureFile()
         if (merge_dlg.merge(file_name)) {
             gchar *err_msg;
 
-            if (dfilter_compile(display_filter.toUtf8().constData(), &rfcode, &err_msg)) {
+            if (dfilter_compile(read_filter.toUtf8().constData(), &rfcode, &err_msg)) {
                 cf_set_rfcode(capture_file_.capFile(), rfcode);
             } else {
                 /* Not valid.  Tell the user, and go back and run the file
                    selection box again once they dismiss the alert. */
-                //bad_dfilter_alert_box(top_level, display_filter->str);
-                QMessageBox::warning(this, tr("Invalid Display Filter"),
-                                     QString(tr("The filter expression %1 isn't a valid display filter. (%2).").arg(display_filter, err_msg)),
+                //bad_dfilter_alert_box(top_level, read_filter->str);
+                QMessageBox::warning(this, tr("Invalid Read Filter"),
+                                     QString(tr("The filter expression %1 isn't a valid read filter. (%2).").arg(read_filter, err_msg)),
                                      QMessageBox::Ok);
                 g_free(err_msg);
                 continue;
@@ -1050,7 +1050,6 @@ void MainWindow::mergeCaptureFile()
            "get_dirname()" does write over its argument. */
         wsApp->setLastOpenDir(get_dirname(tmpname));
         g_free(tmpname);
-        df_combo_box_->setEditText(display_filter);
         main_ui_->statusBar->showExpert();
         return;
     }
