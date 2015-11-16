@@ -842,7 +842,31 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
     /* associate the operating system filehandles to C run-time file handles */
     /* (good file handle infos at: http://www.flounder.com/handles.htm) */
     *data_read_fd = _open_osfhandle( (long) data_pipe[PIPE_READ], _O_BINARY);
+    if (*data_read_fd == -1) {
+        *msg = g_strdup_printf("Couldn't get C file handle for data read pipe: %s", g_strerror(errno));
+        CloseHandle(data_pipe[PIPE_READ]);
+        CloseHandle(data_pipe[PIPE_WRITE]);
+        CloseHandle(sync_pipe[PIPE_READ]);
+        CloseHandle(sync_pipe[PIPE_WRITE]);
+        for (i = 0; argv[i] != NULL; i++) {
+            g_free( (gpointer) argv[i]);
+        }
+        g_free( (gpointer) argv);
+        return -1;
+    }
     *message_read_fd = _open_osfhandle( (long) sync_pipe[PIPE_READ], _O_BINARY);
+    if (*message_read_fd == -1) {
+        *msg = g_strdup_printf("Couldn't get C file handle for message read pipe: %s", g_strerror(errno));
+        ws_close(*data_read_fd);    /* Should close data_pipe[PIPE_READ] */
+        CloseHandle(data_pipe[PIPE_WRITE]);
+        CloseHandle(sync_pipe[PIPE_READ]);
+        CloseHandle(sync_pipe[PIPE_WRITE]);
+        for (i = 0; argv[i] != NULL; i++) {
+            g_free( (gpointer) argv[i]);
+        }
+        g_free( (gpointer) argv);
+        return -1;
+    }
 #else /* _WIN32 */
     /* Create a pipe for the child process to send us messages */
     if (pipe(sync_pipe) < 0) {
