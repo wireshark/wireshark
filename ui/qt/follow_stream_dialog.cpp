@@ -76,7 +76,6 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
 {
     ui->setupUi(this);
 
-    setAttribute(Qt::WA_DeleteOnClose, true);
     memset(&follow_info_, 0, sizeof(follow_info_));
     follow_info_.show_type = SHOW_ASCII;
     follow_info_.show_stream = BOTH_HOSTS;
@@ -293,17 +292,15 @@ void FollowStreamDialog::on_streamNumberSpinBox_valueChanged(int stream_num)
     if (file_closed_) return;
 
     if (stream_num >= 0) {
-        updateWidgets(true);
         follow_index((follow_type_ == FOLLOW_TCP) ? TCP_STREAM : UDP_STREAM, stream_num);
         follow(QString(), true);
-        updateWidgets(false);
     }
 }
 
 // Not sure why we have to do this manually.
 void FollowStreamDialog::on_buttonBox_rejected()
 {
-    reject();
+    WiresharkDialog::reject();
 }
 
 void FollowStreamDialog::removeStreamControls()
@@ -859,7 +856,6 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
     size_t              nchars;
     gboolean is_tcp = FALSE, is_udp = FALSE;
 
-    beginRetapPackets();
     resetStream();
 
     if (file_closed_)
@@ -1010,6 +1006,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
         break;
     }
 
+    beginRetapPackets();
+    updateWidgets(true);
+
     /* Run the display filter so it goes in effect - even if it's the
        same as the previous display filter. */
     emit updateFilter(follow_filter, TRUE);
@@ -1034,6 +1033,8 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
             //ws_close(tmp_fd);
             ws_unlink(data_out_filename_.toUtf8().constData());
             data_out_filename_.clear();
+            updateWidgets(false);
+            endRetapPackets();
             return false;
         }
 
@@ -1066,6 +1067,8 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
             //ws_close(tmp_fd);
             ws_unlink(data_out_filename_.toUtf8().constData());
             data_out_filename_.clear();
+            updateWidgets(false);
+            endRetapPackets();
             return false;
         }
         fclose(data_out_file);
@@ -1241,6 +1244,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
         data_out_file = NULL;
     }
 
+    updateWidgets(false);
     endRetapPackets();
     return true;
 }
