@@ -707,7 +707,6 @@ void MainWindow::captureFileRetapFinished()
 void MainWindow::captureFileClosing() {
     setMenusForCaptureFile(true);
     setForCapturedPackets(false);
-    setMenusForSelectedPacket();
     setForCaptureInProgress(false);
 
     // Reset expert information indicator
@@ -731,6 +730,7 @@ void MainWindow::captureFileClosed() {
     main_ui_->statusBar->popFileStatus();
 
     setTitlebarForSelectedTreeRow();
+    setMenusForSelectedPacket();
     setMenusForSelectedTreeRow();
 
     if (!global_capture_opts.multi_files_on)
@@ -1134,7 +1134,7 @@ void MainWindow::setMenusForSelectedPacket()
 
         bool enable = false;
         QString filter;
-        if (capture_file_.capFile()->edt) {
+        if (capture_file_.capFile() && capture_file_.capFile()->edt) {
             enable = conv_filter->is_filter_valid(&capture_file_.capFile()->edt->pi);
             filter = gchar_free_to_qstring(conv_filter->build_filter_string(&capture_file_.capFile()->edt->pi));
         }
