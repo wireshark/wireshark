@@ -482,7 +482,7 @@ endif()
 add_definitions(${QT_DEFINITIONS})
 
 register_tap_files(wireshark-tap-register.c
-        taps
+	taps
 	${WIRESHARK_QT_TAP_SRC}
 )
 
@@ -497,3 +497,16 @@ add_library(qtui STATIC
 )
 set_target_properties(qtui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 set_target_properties(qtui PROPERTIES FOLDER "UI")
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#
