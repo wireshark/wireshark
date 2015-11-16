@@ -28,11 +28,17 @@
 class QEvent;
 class StockIconToolButton;
 
+typedef enum {
+    DisplayFilterToApply,
+    DisplayFilterToEnter,
+    ReadFilterToApply,
+} DisplayFilterEditType;
+
 class DisplayFilterEdit : public SyntaxLineEdit
 {
     Q_OBJECT
 public:
-    explicit DisplayFilterEdit(QWidget *parent = 0, bool plain = true);
+    explicit DisplayFilterEdit(QWidget *parent = 0, DisplayFilterEditType type = DisplayFilterToEnter);
 
 protected:
     void paintEvent(QPaintEvent *evt);
@@ -58,12 +64,13 @@ private slots:
     void prepareFilter();
 
 private:
-    bool plain_;
+    DisplayFilterEditType type_;
     QString placeholder_text_;
     StockIconToolButton *bookmark_button_;
     StockIconToolButton *clear_button_;
     StockIconToolButton *apply_button_;
 
+    void setDefaultPlaceholderText();
     void buildCompletionList(const QString& field_word);
 
 signals:

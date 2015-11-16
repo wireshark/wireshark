@@ -45,7 +45,7 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
     // Inline (highlighted text) for entire filters, handled here and popup
     // completion for fields handled by DisplayFilterEdit.
     setAutoCompletion(false);
-    setLineEdit(new DisplayFilterEdit(this, false));
+    setLineEdit(new DisplayFilterEdit(this, DisplayFilterToApply));
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     setAccessibleName(tr("Display filter selector"));
     cur_display_filter_combo = this;

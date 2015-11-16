@@ -488,9 +488,9 @@ bool CaptureFileDialog::isCompressed() {
 void CaptureFileDialog::addDisplayFilterEdit() {
     QGridLayout *fd_grid = qobject_cast<QGridLayout*>(layout());
 
-    fd_grid->addWidget(new QLabel(tr("Display Filter:")), last_row_, 0);
+    fd_grid->addWidget(new QLabel(tr("Read filter:")), last_row_, 0);
 
-    display_filter_edit_ = new DisplayFilterEdit(this);
+    display_filter_edit_ = new DisplayFilterEdit(this, ReadFilterToApply);
     display_filter_edit_->setText(display_filter_);
     fd_grid->addWidget(display_filter_edit_, last_row_, 1);
     last_row_++;

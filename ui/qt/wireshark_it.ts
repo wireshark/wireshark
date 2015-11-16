@@ -640,8 +640,8 @@
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="491"/>
-        <source>Display Filter:</source>
-        <translation>Filtro di visualizzazione:</translation>
+        <source>Read filter:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="500"/>
@@ -1850,54 +1850,57 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Mostra la voce del filtro</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="112"/>
-        <location filename="display_filter_edit.cpp" line="502"/>
+        <location filename="display_filter_edit.cpp" line="204"/>
         <source>Enter a display filter %1</source>
         <translation>Inserisci un filtro di visualizzazione %1</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="114"/>
-        <location filename="display_filter_edit.cpp" line="505"/>
+        <location filename="display_filter_edit.cpp" line="208"/>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
         <translation>Applica un filtro di visualizzazione %1 &lt;%2/&gt;</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="133"/>
+        <location filename="display_filter_edit.cpp" line="213"/>
+        <source>Apply a read filter %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="display_filter_edit.cpp" line="125"/>
         <source>Manage saved bookmarks.</source>
         <translation>Gestisci i segnalibri salvati.</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="167"/>
+        <location filename="display_filter_edit.cpp" line="159"/>
         <source>Apply this filter string to the display.</source>
         <translation>Applica questa stringa di filtro alla visualizzazione.</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="333"/>
+        <location filename="display_filter_edit.cpp" line="347"/>
         <source>Save this filter</source>
         <translation>Salva questo filtro</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="335"/>
+        <location filename="display_filter_edit.cpp" line="349"/>
         <source>Manage Display Filters</source>
         <translation>Gestisci filtri di visualizzazione</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="337"/>
+        <location filename="display_filter_edit.cpp" line="351"/>
         <source>Manage Filter Expressions</source>
         <translation>Gestisci espressioni di filtro</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="363"/>
+        <location filename="display_filter_edit.cpp" line="377"/>
         <source>Remove this filter</source>
         <translation>Rimuovi questo filtro</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="311"/>
+        <location filename="display_filter_edit.cpp" line="325"/>
         <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
         <translation>&quot;%1&quot; potrebbe avere dei comportamenti inattesi (vedi il Manuale utente)</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="318"/>
+        <location filename="display_filter_edit.cpp" line="332"/>
         <source>Invalid filter: </source>
         <oldsource>Invalid filter</oldsource>
         <translation>Filtro non valido: </translation>

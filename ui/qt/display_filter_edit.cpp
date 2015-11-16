@@ -95,9 +95,9 @@ UIMiniCancelButton::UIMiniCancelButton(QWidget *pParent /* = 0 */)
 // proto.c:fld_abbrev_chars
 static const QString fld_abbrev_chars_ = "-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 
-DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
+DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type) :
     SyntaxLineEdit(parent),
-    plain_(plain),
+    type_(type),
     bookmark_button_(NULL),
     clear_button_(NULL),
     apply_button_(NULL)
@@ -108,24 +108,16 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     setCompleter(new QCompleter(completion_model_, this));
     setCompletionTokenChars(fld_abbrev_chars_);
 
-    if (plain_) {
-        placeholder_text_ = QString(tr("Enter a display filter %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
-    } else {
-        placeholder_text_ = QString(tr("Apply a display filter %1 <%2/>")).arg(UTF8_HORIZONTAL_ELLIPSIS)
-    .arg(DEFAULT_MODIFIER);
-    }
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
-    setPlaceholderText(placeholder_text_);
-#endif
+    setDefaultPlaceholderText();
 
     //   DFCombo
     //     Bookmark
-    //     DispalyFilterEdit
+    //     DisplayFilterEdit
     //     Clear button
     //     Apply (right arrow)
     //     Combo drop-down
 
-    if (!plain_) {
+    if (type_ == DisplayFilterToApply) {
         bookmark_button_ = new StockIconToolButton(this, "x-filter-bookmark");
         bookmark_button_->setCursor(Qt::ArrowCursor);
         bookmark_button_->setMenu(new QMenu());
@@ -142,7 +134,7 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
                 );
     }
 
-    if (!plain_) {
+    if (type_ == DisplayFilterToApply) {
         clear_button_ = new StockIconToolButton(this, "x-filter-clear");
         clear_button_->setCursor(Qt::ArrowCursor);
         clear_button_->setToolTip(QString());
@@ -160,7 +152,7 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
 
     connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(checkFilter(const QString&)));
 
-    if (!plain_) {
+    if (type_ == DisplayFilterToApply) {
         apply_button_ = new StockIconToolButton(this, "x-filter-apply");
         apply_button_->setCursor(Qt::ArrowCursor);
         apply_button_->setEnabled(false);
@@ -202,6 +194,28 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
             .arg(cbsz.width() + apsz.width() + frameWidth + 1)
                   );
     checkFilter();
+}
+
+void DisplayFilterEdit::setDefaultPlaceholderText()
+{
+    switch (type_) {
+
+    case DisplayFilterToApply:
+        placeholder_text_ = QString(tr("Apply a display filter %1 <%2/>")).arg(UTF8_HORIZONTAL_ELLIPSIS)
+    .arg(DEFAULT_MODIFIER);
+        break;
+
+    case DisplayFilterToEnter:
+        placeholder_text_ = QString(tr("Enter a display filter %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
+        break;
+
+    case ReadFilterToApply:
+        placeholder_text_ = QString(tr("Apply a read filter %1")).arg(UTF8_HORIZONTAL_ELLIPSIS);
+        break;
+    }
+#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
+    setPlaceholderText(placeholder_text_);
+#endif
 }
 
 void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
@@ -498,16 +512,7 @@ void DisplayFilterEdit::changeEvent(QEvent* event)
         switch (event->type())
         {
         case QEvent::LanguageChange:
-            if (plain_) {
-                placeholder_text_ = QString(tr("Enter a display filter %1")).
-                    arg(UTF8_HORIZONTAL_ELLIPSIS);
-            } else {
-                placeholder_text_ = QString(tr("Apply a display filter %1 <%2/>"))
-                    .arg(UTF8_HORIZONTAL_ELLIPSIS).arg(DEFAULT_MODIFIER);
-            }
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
-            setPlaceholderText(placeholder_text_);
-#endif
+            setDefaultPlaceholderText();
             break;
         default:
             break;
