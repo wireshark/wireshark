@@ -265,7 +265,7 @@ QWidget *FilterTreeDelegate::createEditor(QWidget *parent, const QStyleOptionVie
     if (filter_type_ == FilterDialog::CaptureFilter) {
         w = new CaptureFilterEdit(parent, true);
     } else {
-        w = new DisplayFilterEdit(parent, true);
+        w = new DisplayFilterEdit(parent, DisplayFilterToEnter);
     }
 
     return w;

@@ -640,8 +640,8 @@
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="491"/>
-        <source>Display Filter:</source>
-        <translation>表示フィルタ:</translation>
+        <source>Read filter:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="500"/>
@@ -1845,57 +1845,60 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_edit.cpp" line="105"/>
         <source>Display filter entry</source>
-        <translation>表示フィルタ入力</translation>
+	<translation>表示フィルタ入力</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="112"/>
-        <location filename="display_filter_edit.cpp" line="502"/>
+        <location filename="display_filter_edit.cpp" line="204"/>
         <source>Enter a display filter %1</source>
         <translation>表示フィルタを入力します %1</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="114"/>
-        <location filename="display_filter_edit.cpp" line="505"/>
+        <location filename="display_filter_edit.cpp" line="208"/>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
         <translation>表示フィルタを適用します %1 &lt;%2/&gt;</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="133"/>
+        <location filename="display_filter_edit.cpp" line="213"/>
+        <source>Apply a read filter %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="display_filter_edit.cpp" line="125"/>
         <source>Manage saved bookmarks.</source>
         <translation>保存したブックマークを管理</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="167"/>
+        <location filename="display_filter_edit.cpp" line="159"/>
         <source>Apply this filter string to the display.</source>
         <translation>このフィルタ文字列を表示に適用</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="333"/>
+        <location filename="display_filter_edit.cpp" line="347"/>
         <source>Save this filter</source>
         <translation>このフィルタを保存</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="335"/>
+        <location filename="display_filter_edit.cpp" line="349"/>
         <source>Manage Display Filters</source>
         <translation>表示フィルタの管理</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="337"/>
+        <location filename="display_filter_edit.cpp" line="351"/>
         <source>Manage Filter Expressions</source>
         <translation>フィルタ表示式の管理</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="363"/>
+        <location filename="display_filter_edit.cpp" line="377"/>
         <source>Remove this filter</source>
         <translation>このフィルタを削除</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="311"/>
+        <location filename="display_filter_edit.cpp" line="325"/>
         <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
         <translation>&quot;%1&quot; は期待しない結果になったかもしれません。(ユーザーズガイドを参照ください)</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="318"/>
+        <location filename="display_filter_edit.cpp" line="332"/>
         <source>Invalid filter: </source>
         <oldsource>Invalid filter</oldsource>
         <translation>無効なフィルタ:</translation>
