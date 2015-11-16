@@ -4615,6 +4615,9 @@ static int hf_ieee80211_anqp_wfa_subtype = -1;
 
 /* Hotspot 2.0 */
 static int hf_hs20_indication_dgaf_disabled = -1;
+static int hf_hs20_indication_pps_mo_id_present = -1;
+static int hf_hs20_indication_anqp_domain_id_present = -1;
+static int hf_hs20_indication_release_number = -1;
 
 static int hf_hs20_anqp_subtype = -1;
 static int hf_hs20_anqp_reserved = -1;
@@ -10174,10 +10177,22 @@ dissect_vendor_ie_wpawme(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, in
   return offset;
 }
 
+static const value_string hs20_indication_release_number_vals[] = {
+  { 0, "Release 1" },
+  { 1, "Release 2" },
+  { 0, NULL }
+};
+
 static void dissect_hs20_indication(proto_tree *tree, tvbuff_t *tvb,
                                     int offset)
 {
   proto_tree_add_item(tree, hf_hs20_indication_dgaf_disabled, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_hs20_indication_pps_mo_id_present, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_hs20_indication_anqp_domain_id_present, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_hs20_indication_release_number, tvb, offset, 1,
                       ENC_LITTLE_ENDIAN);
 }
 
@@ -22335,6 +22350,18 @@ proto_register_ieee80211 (void)
     {&hf_hs20_indication_dgaf_disabled,
      {"DGAF Disabled", "wlan_mgt.hs20.indication.dgaf_disabled",
       FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL }},
+
+    {&hf_hs20_indication_pps_mo_id_present,
+     {"PPS MO ID Present", "wlan_mgt.hs20.indication.pps_mo_id_present",
+      FT_UINT8, BASE_DEC, NULL, 0x02, NULL, HFILL }},
+
+    {&hf_hs20_indication_anqp_domain_id_present,
+     {"ANQP Domain ID Present", "wlan_mgt.hs20.indication.anqp_domain_id_present",
+      FT_UINT8, BASE_DEC, NULL, 0x04, NULL, HFILL }},
+
+    {&hf_hs20_indication_release_number,
+     {"Release Number", "wlan_mgt.hs20.indication.release_number",
+      FT_UINT8, BASE_DEC, VALS(hs20_indication_release_number_vals), 0xF0, NULL, HFILL }},
 
     {&hf_hs20_anqp_subtype,
      {"Subtype", "wlan_mgt.hs20.anqp.subtype",
