@@ -2001,7 +2001,7 @@ void IOGraph::recalcGraphData(capture_file *cap_file)
         mavg_to_add = warmup_interval;
     }
 
-    for (int i = 0; i < cur_idx_; i++) {
+    for (int i = 0; i <= cur_idx_; i++) {
         double ts = (double) i * interval_ / 1000;
         if (x_axis && x_axis->tickLabelType() == QCPAxis::ltDateTime) {
             ts += start_time_;
