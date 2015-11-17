@@ -1223,6 +1223,13 @@ void IOGraphDialog::on_graphTreeWidget_itemActivated(QTreeWidgetItem *item, int 
     item->setIcon(color_col_, QIcon());
     color_combo_box_->setFocusPolicy(Qt::StrongFocus);
 
+#ifdef Q_OS_WIN
+    // QTBUG-3097
+    color_combo_box_->view()->setMinimumWidth(
+        style()->pixelMetric(QStyle::PM_ListViewIconSize) + // Not entirely correct but close enough.
+        style()->pixelMetric(QStyle::PM_ScrollBarExtent));
+#endif
+
     style_combo_box_ = new QComboBox();
     cur_idx = item->data(style_col_, Qt::UserRole).toInt();
     for (int i = 0; i < plot_style_to_name_.size(); i++) {
