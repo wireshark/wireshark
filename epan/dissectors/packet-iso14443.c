@@ -718,7 +718,7 @@ static iso14443_cmd_t iso14443_get_cmd_type(
         else if (first_byte == 0xE0) {
             return CMD_TYPE_ATS;
         }
-        else if ((first_byte & 0x90) == 0x90) {
+        else if ((first_byte & 0xF8) == 0x90) {
             return CMD_TYPE_UID;
         }
         else if (iso14443_block_pcb(first_byte)) {
