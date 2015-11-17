@@ -2490,7 +2490,7 @@
 		<avp name="Port-Range" code="531" mandatory="may">
 			<grouped>
 				<gavp name="Port-Start"/>
-				<gavp name="Port-End "/>
+				<gavp name="Port-End"/>
 			</grouped>
 		</avp>
 		<avp name="Port-Start" code="532" mandatory="may">
@@ -2585,7 +2585,62 @@
 		615 Application-Level-Resource-Priority [RFC6735]
 		616 ALRP-Namespace [RFC6735]
 		617 ALRP-Value [RFC6735]
-		618-0xffffff Unassigned  -->
+		618 ERP-RK-Request [RFC6942]
+		619 ERP-Realm [RFC6942]
+		620 Redirect-Realm [RFC7075]
+		-->
+		<avp name="OC-Supported-Features" code="621" mandatory="may">
+			<grouped>
+				<gavp name="OC-Feature-Vector"/>
+			</grouped>
+		</avp>
+		<avp name="OC-Feature-Vector" code="624" mandatory="may">
+			<type type-name="Unsigned64"/>
+		</avp>
+		<avp name="OC-OLR" code="623" mandatory="may">
+			<grouped>
+				<gavp name="OC-Sequence-Number"/>
+				<gavp name="OC-Report-Type"/>
+				<gavp name="OC-Reduction-Percentage"/>
+				<gavp name="OC-Validity-Duration"/>
+			</grouped>
+		</avp>
+		<avp name="OC-Sequence-Number" code="624" mandatory="may">
+			<type type-name="Unsigned64"/>
+		</avp>
+		<avp name="OC-Validity-Duration" code="625" mandatory="may">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="OC-Report-Type" code="626" mandatory="may">
+			<type type-name="Enumerated"/>
+			<enum name="HOST_REPORT" code="0"/>
+			<enum name="REALM_REPORT" code="1"/>
+		</avp>
+		<avp name="OC-Reduction-Percentage" code="627" mandatory="may">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<!--
+		628 ECN-IP-Codepoint [RFC7660]
+		629 Congestion-Treatment [RFC7660]
+		630 Flow-Count [RFC7660]
+		631 Packet-Count [RFC7660]
+		632 IP-Prefix-Length [RFC7678]
+		633 Border-Router-Name [RFC7678]
+		634 64-Multicast-Attributes [RFC7678]
+		635 ASM-mPrefix64 [RFC7678]
+		636 SSM-mPrefix64 [RFC7678]
+		637 Tunnel-Source-Pref-Or-Addr [RFC7678]
+		638 Tunnel-Source-IPv6-Address [RFC7678]
+		639 Port-Set-Identifier [RFC7678]
+		640 Lw4o6-Binding [RFC7678]
+		641 Lw4o6-External-IPv4-Addr [RFC7678]
+		642 MAP-E-Attributes [RFC7678]
+		643 MAP-Mesh-Mode [RFC7678]
+		644 MAP-Mapping-Rule [RFC7678]
+		645 Rule-IPv4-Addr-Or-Prefix [RFC7678]
+		646 Rule-IPv6-Prefix [RFC7678]
+		647 EA-Field-Length [RFC7678]
+		-->
 
 		<!-- **************************************************************************** -->
 		<!-- ************************ END DIAMETER BASE PROTOCOL AVPS ******************* -->
