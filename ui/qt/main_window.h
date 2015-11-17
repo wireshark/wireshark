@@ -444,9 +444,7 @@ private slots:
 
     void on_actionAnalyzeEnabledProtocols_triggered();
     void on_actionAnalyzeDecodeAs_triggered();
-#ifdef HAVE_LUA
     void on_actionAnalyzeReloadLuaPlugins_triggered();
-#endif
 
     void openFollowStreamDialog(follow_type_t type);
     void on_actionAnalyzeFollowTCPStream_triggered();

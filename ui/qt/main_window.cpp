@@ -251,6 +251,10 @@ MainWindow::MainWindow(QWidget *parent) :
     interfaceSelectionChanged();
     loadWindowGeometry();
 
+#ifndef HAVE_LUA
+    main_ui_->actionAnalyzeReloadLuaPlugins->setVisible(false);
+#endif
+
     //To prevent users use features before initialization complete
     //Otherwise unexpected problems may occur
     setFeaturesEnabled(false);
