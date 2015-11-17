@@ -678,6 +678,7 @@ if(BUILD_wireshark)
 			Qt5LinguistTools
 			Qt5Multimedia
 			Qt5PrintSupport
+			Qt5Svg
 			Qt5Widgets
 		)
 		if (APPLE)
@@ -922,6 +923,11 @@ if (Qt5Widgets_FOUND)
 		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5Multimedia_LIBRARIES})
 		# That's the name autofoo uses
 		set(QT_MULTIMEDIA_LIB 1)
+	endif()
+	if(Qt5Svg_FOUND)
+		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5Svg_LIBRARIES})
+		# That's the name autofoo uses
+		set(QT_SVG_LIB 1)
 	endif()
 	if(Qt5MacExtras_FOUND)
 		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5MacExtras_LIBRARIES})
