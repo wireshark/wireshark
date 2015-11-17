@@ -539,10 +539,7 @@ void RtpAudioStream::stopPlaying()
 {
     if (audio_output_) {
         audio_output_->stop();
-        delete audio_output_;
-        audio_output_ = NULL;
     }
-    emit finishedPlaying();
 }
 
 void RtpAudioStream::writeSilence(int samples)
@@ -564,20 +561,23 @@ void RtpAudioStream::writeSilence(int samples)
 
 void RtpAudioStream::outputStateChanged()
 {
-    if (!audio_output_) return;
-
-    if (audio_output_->state() == QAudio::IdleState) {
+    switch (audio_output_->state()) {
+    case QAudio::StoppedState:
         // RTP_STREAM_DEBUG("stopped %f", audio_output_->processedUSecs() / 100000.0);
         delete audio_output_;
         audio_output_ = NULL;
-
         emit finishedPlaying();
+        break;
+    case QAudio::IdleState:
+        audio_output_->stop();
+        break;
+    default:
+        break;
     }
 }
 
 void RtpAudioStream::outputNotify()
 {
-    if (!audio_output_) return;
     emit processedSecs(audio_output_->processedUSecs() / 1000000.0);
 }
 

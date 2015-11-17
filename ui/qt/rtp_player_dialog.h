@@ -61,6 +61,9 @@ public:
 #ifdef QT_MULTIMEDIA_LIB
     ~RtpPlayerDialog();
 
+    void accept();
+    void reject();
+
     /** Add an RTP stream to play.
      * MUST be called before exec().
      * Requires src_addr, src_port, dest_addr, dest_port, ssrc, packet_count,
