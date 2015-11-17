@@ -171,7 +171,7 @@ static int hf_iso14443_block_type = -1;
 static int hf_iso14443_i_blk_chaining = -1;
 static int hf_iso14443_cid_following = -1;
 static int hf_iso14443_nad_following = -1;
-static int hf_iso14443_i_blk_num = -1;
+static int hf_iso14443_blk_num = -1;
 static int hf_iso14443_inf = -1;
 static int hf_iso14443_crc = -1;
 
@@ -566,7 +566,13 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
         has_nad = ((pcb & 0x40) != 0);
         proto_tree_add_item(pcb_tree, hf_iso14443_nad_following,
             tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(pcb_tree, hf_iso14443_i_blk_num,
+        proto_tree_add_item(pcb_tree, hf_iso14443_blk_num,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    else if (block_type == S_BLOCK_TYPE) {
+        proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pcb_tree, hf_iso14443_blk_num,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     if (bt_str) {
@@ -1015,8 +1021,8 @@ proto_register_iso14443(void)
             { "NAD following", "iso14443.nad_following", FT_BOOLEAN, 8,
                 TFS(&tfs_true_false), 0x04, NULL, HFILL }
         },
-        { &hf_iso14443_i_blk_num,
-            { "Block number", "iso14443.i_blk_num",
+        { &hf_iso14443_blk_num,
+            { "Block number", "iso14443.block_number",
                 FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL }
         },
         { &hf_iso14443_inf,
