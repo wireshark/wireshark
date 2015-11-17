@@ -24,10 +24,10 @@
 
 #include "epan/addr_resolv.h"
 
-#include <wsutil/utf8_entities.h>
-
 #include "wsutil/nstime.h"
+#include "wsutil/utf8_entities.h"
 
+#include "progress_frame.h"
 #include "sequence_diagram.h"
 #include "wireshark_application.h"
 
@@ -101,24 +101,18 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     ctx_menu_.addSeparator();
     ctx_menu_.addAction(ui->actionGoToPacket);
 
-    ui->showComboBox->blockSignals(true);
     ui->showComboBox->setCurrentIndex(0);
-    ui->showComboBox->blockSignals(false);
-    ui->addressComboBox->blockSignals(true);
     ui->addressComboBox->setCurrentIndex(0);
-    ui->addressComboBox->blockSignals(false);
 
     QComboBox *fcb = ui->flowComboBox;
     fcb->addItem(ui->actionFlowAny->text(), SEQ_ANALYSIS_ANY);
     fcb->addItem(ui->actionFlowTcp->text(), SEQ_ANALYSIS_TCP);
 
-    ui->flowComboBox->blockSignals(true);
     ui->flowComboBox->setCurrentIndex(info_->sainfo()->type);
 
     if (info_->sainfo()->type == SEQ_ANALYSIS_VOIP) {
+        ui->flowComboBox->blockSignals(true);
         ui->controlFrame->hide();
-    } else {
-        ui->flowComboBox->blockSignals(false);
     }
 
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
@@ -126,6 +120,8 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
 
     // XXX Use recent settings instead
     resize(parent.width(), parent.height() * 4 / 5);
+
+    ProgressFrame::addToButtonBox(ui->buttonBox, &parent);
 
     connect(ui->horizontalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(hScrollBarChanged(int)));
     connect(ui->verticalScrollBar, SIGNAL(valueChanged(int)), this, SLOT(vScrollBarChanged(int)));
@@ -138,7 +134,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
 
     disconnect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
 
-    fillDiagram();
+    QTimer::singleShot(0, this, SLOT(fillDiagram()));
 }
 
 SequenceDialog::~SequenceDialog()
@@ -433,7 +429,7 @@ void SequenceDialog::on_actionGoToPacket_triggered()
     }
 }
 
-void SequenceDialog::on_showComboBox_currentIndexChanged(int index)
+void SequenceDialog::on_showComboBox_activated(int index)
 {
     if (!info_->sainfo()) return;
 
@@ -445,7 +441,7 @@ void SequenceDialog::on_showComboBox_currentIndexChanged(int index)
     fillDiagram();
 }
 
-void SequenceDialog::on_flowComboBox_currentIndexChanged(int index)
+void SequenceDialog::on_flowComboBox_activated(int index)
 {
     if (!info_->sainfo() || info_->sainfo()->type == SEQ_ANALYSIS_VOIP || index < 0) return;
 
@@ -453,7 +449,7 @@ void SequenceDialog::on_flowComboBox_currentIndexChanged(int index)
     fillDiagram();
 }
 
-void SequenceDialog::on_addressComboBox_currentIndexChanged(int index)
+void SequenceDialog::on_addressComboBox_activated(int index)
 {
     if (!info_->sainfo()) return;
 
