@@ -655,6 +655,8 @@ void MainWindow::captureFileReadStarted(const QString &action) {
     QString msgtip = QString();
     main_ui_->statusBar->pushFileStatus(msg, msgtip);
     main_ui_->mainStack->setCurrentWidget(&master_split_);
+    main_ui_->actionAnalyzeReloadLuaPlugins->setEnabled(false);
+
     WiresharkApplication::processEvents();
 }
 
@@ -678,6 +680,7 @@ void MainWindow::captureFileReadFinished() {
     setForCapturedPackets(true);
 
     main_ui_->statusBar->setFileName(capture_file_);
+    main_ui_->actionAnalyzeReloadLuaPlugins->setEnabled(true);
 
     packet_list_->captureFileReadFinished();
 
@@ -2548,9 +2551,9 @@ void MainWindow::on_actionAnalyzeDecodeAs_triggered()
     wsApp->flushAppSignals();
 }
 
-#ifdef HAVE_LUA
 void MainWindow::on_actionAnalyzeReloadLuaPlugins_triggered()
 {
+#ifdef HAVE_LUA
     if (wsApp->isReloadingLua())
         return;
 
@@ -2573,8 +2576,8 @@ void MainWindow::on_actionAnalyzeReloadLuaPlugins_triggered()
 
     wsApp->setReloadingLua(false);
     SimpleDialog::displayQueuedMessages();
-}
 #endif
+}
 
 void MainWindow::openFollowStreamDialog(follow_type_t type) {
     FollowStreamDialog *fsd = new FollowStreamDialog(*this, capture_file_, type);
