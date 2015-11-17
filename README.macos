@@ -13,34 +13,34 @@ for details.  For Xcode 4, you will need to install the command-line
 tools; select Preferences from the Xcode menu, select Downloads in the
 Preferences window, and install Command Line Tools.
 
-You must have Qt installed. You can download precompiled Qt packages and
-source code from
+You must also have GLib and, if you want to build Wireshark as well as
+TShark, you must have also Qt installed.  You can download precompiled
+Qt packages and source code from
 
 	https://www.qt.io/download-open-source/
 
 or use the macosx-setup.sh script described below.
 
-You must also have GLib and, if you want to build Wireshark as well as
-TShark.  The macosx-setup.sh script can be used to download, patch as
-necessary, build, and install those libraries and the libraries on which
-they depend; it will, by default, also install other libraries that can
-be used by Wireshark and TShark.  The versions of libraries to download
-are specified by variables set early in the script; you can comment out
-the settings of optional libraries if you don't want them downloaded and
+The macosx-setup.sh script can be used to download, patch as necessary,
+build, and install those libraries and the libraries on which they
+depend; it will, by default, also install other libraries that can be
+used by Wireshark and TShark.  The versions of libraries to download are
+specified by variables set early in the script; you can comment out the
+settings of optional libraries if you don't want them downloaded and
 installed.  Before running the macosx-setup.sh script, and before
 attempting to build Wireshark, make sure your PKG_CONFIG_PATH
 environment variable's setting includes both /usr/X11/lib/pkgconfig and
 /usr/local/lib/pkgconfig.
 
 If you wish to build the legacy (GTK+) UI you must have X11 and the X11
-developer headers and libraries installed; otherwise, you will not be
-able to build or install GTK+.  The X11 and X11 SDK that come with OS X
-releases for releases from Panther to Lion can be used to build and run
-Wireshark.  Mountain Lion does not include X11; you should install X11
-from elsewhere, such as
+developer headers and libraries installed, as well as the Pango, ATK,
+and GTK+ libraries; otherwise, you will not be able to build or install
+GTK+.  The X11 and X11 SDK that come with OS X releases for releases
+from Panther to Lion can be used to build and run Wireshark.  Mountain
+Lion and later do not include X11; you should install X11 from
+elsewhere, such as
 
 	http://xquartz.macosforge.org/
-
 
 After you have installed those libraries:
 
