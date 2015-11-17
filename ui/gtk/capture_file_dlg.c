@@ -1005,7 +1005,7 @@ file_merge_cmd(GtkWidget *w _U_)
       /* Attach the new read filter to "cf" ("cf_open()" succeeded, so
          it closed the previous capture file, and thus destroyed any
          previous read filter attached to "cf"). */
-      cfile.rfcode = rfcode;
+      cf_set_rfcode(&cfile, rfcode);
 
       switch (cf_read(&cfile, FALSE)) {
 

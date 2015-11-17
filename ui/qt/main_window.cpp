@@ -962,9 +962,7 @@ void MainWindow::mergeCaptureFile()
         if (merge_dlg.merge(file_name)) {
             gchar *err_msg;
 
-            if (dfilter_compile(read_filter.toUtf8().constData(), &rfcode, &err_msg)) {
-                cf_set_rfcode(capture_file_.capFile(), rfcode);
-            } else {
+            if (!dfilter_compile(read_filter.toUtf8().constData(), &rfcode, &err_msg)) {
                 /* Not valid.  Tell the user, and go back and run the file
                    selection box again once they dismiss the alert. */
                 //bad_dfilter_alert_box(top_level, read_filter->str);
@@ -1025,7 +1023,7 @@ void MainWindow::mergeCaptureFile()
         /* Attach the new read filter to "cf" ("cf_open()" succeeded, so
            it closed the previous capture file, and thus destroyed any
            previous read filter attached to "cf"). */
-        CaptureFile::globalCapFile()->rfcode = rfcode;
+        cf_set_rfcode(CaptureFile::globalCapFile(), rfcode);
 
         switch (cf_read(CaptureFile::globalCapFile(), FALSE)) {
 
