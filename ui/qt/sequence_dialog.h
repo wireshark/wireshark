@@ -83,12 +83,14 @@ private slots:
     void mouseMoved(QMouseEvent *event);
     void mouseReleased(QMouseEvent *event);
 
+    void fillDiagram();
+
     void on_buttonBox_accepted();
     void on_resetButton_clicked();
     void on_actionGoToPacket_triggered();
-    void on_showComboBox_currentIndexChanged(int index);
-    void on_flowComboBox_currentIndexChanged(int index);
-    void on_addressComboBox_currentIndexChanged(int index);
+    void on_showComboBox_activated(int index);
+    void on_flowComboBox_activated(int index);
+    void on_addressComboBox_activated(int index);
     void on_actionReset_triggered();
     void on_actionMoveRight10_triggered();
     void on_actionMoveLeft10_triggered();
@@ -109,7 +111,6 @@ private:
     int node_label_w_;
     QMenu ctx_menu_;
 
-    void fillDiagram();
     void panAxes(int x_pixels, int y_pixels);
     void resetAxes(bool keep_lower = false);
 
