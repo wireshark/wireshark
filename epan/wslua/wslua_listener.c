@@ -193,6 +193,10 @@ static void deregister_Listener (lua_State* L _U_, Listener tap) {
     }
 
     remove_tap_listener(tap);
+
+    g_free(tap->filter);
+    g_free(tap->name);
+    g_free(tap);
 }
 
 WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
@@ -337,16 +341,7 @@ WSLUA_ATTRIBUTE_FUNC_SETTER(Listener,reset);
 
 
 static int Listener__gc(lua_State* L _U_) {
-    Listener tap = toListener(L, 1);
-
-    if (listeners && g_ptr_array_remove(listeners, tap)) {
-        deregister_Listener(L, tap);
-    }
-
-    g_free(tap->filter);
-    g_free(tap->name);
-    g_free(tap);
-
+    /* do NOT free Listener here, only in deregister_Listener */
     return 0;
 }
 
