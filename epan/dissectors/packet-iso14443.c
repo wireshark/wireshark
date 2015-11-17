@@ -38,8 +38,9 @@
 
 #include "config.h"
 #include <math.h>
-#include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/packet.h>
+#include <epan/tfs.h>
 
 /* Proximity Integrated Circuit Card, i.e. the smartcard */
 #define ADDR_PICC "PICC"
@@ -98,10 +99,13 @@ static const value_string iso14443_short_frame[] = {
     { 0, NULL }
 };
 
+#define I_BLOCK_TYPE 0x00
+#define R_BLOCK_TYPE 0x02
+#define S_BLOCK_TYPE 0x03
 static const value_string iso14443_block_type[] = {
-    { 0x00 , "I-block" },
-    { 0x02 , "R-block" },
-    { 0x03 , "S-block" },
+    { I_BLOCK_TYPE , "I-block" },
+    { R_BLOCK_TYPE , "R-block" },
+    { S_BLOCK_TYPE , "S-block" },
     { 0, NULL }
 };
 
@@ -164,6 +168,10 @@ static int hf_iso14443_param4 = -1;
 static int hf_iso14443_mbli = -1;
 static int hf_iso14443_pcb = -1;
 static int hf_iso14443_block_type = -1;
+static int hf_iso14443_i_blk_chaining = -1;
+static int hf_iso14443_cid_following = -1;
+static int hf_iso14443_nad_following = -1;
+static int hf_iso14443_i_blk_num = -1;
 static int hf_iso14443_inf = -1;
 static int hf_iso14443_crc = -1;
 
@@ -544,14 +552,23 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
     block_type = (pcb & 0xC0) >> 6;
     bt_str = try_val_to_str(block_type, iso14443_block_type);
     has_cid = ((pcb & 0x08) != 0);
-    if (block_type == 0x00)
-        has_nad = ((pcb & 0x04) != 0);
 
     pcb_ti = proto_tree_add_item(tree, hf_iso14443_pcb,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     pcb_tree = proto_item_add_subtree(pcb_ti, ett_iso14443_pcb);
     proto_tree_add_item(pcb_tree, hf_iso14443_block_type,
             tvb, offset, 1, ENC_BIG_ENDIAN);
+    if (block_type == I_BLOCK_TYPE) {
+        proto_tree_add_item(pcb_tree, hf_iso14443_i_blk_chaining,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+        has_nad = ((pcb & 0x40) != 0);
+        proto_tree_add_item(pcb_tree, hf_iso14443_nad_following,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pcb_tree, hf_iso14443_i_blk_num,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
     if (bt_str) {
         proto_item_append_text(ti, ": %s", bt_str);
         col_set_str(pinfo->cinfo, COL_INFO, bt_str);
@@ -985,6 +1002,22 @@ proto_register_iso14443(void)
         { &hf_iso14443_block_type,
             { "Block type", "iso14443.block_type", FT_UINT8,
                 BASE_HEX, VALS(iso14443_block_type), 0xC0, NULL, HFILL }
+        },
+        { &hf_iso14443_i_blk_chaining,
+            { "Chaining", "iso14443.i_blk_chaining", FT_BOOLEAN, 8,
+                TFS(&tfs_set_notset), 0x10, NULL, HFILL }
+        },
+        { &hf_iso14443_cid_following,
+            { "CID following", "iso14443.cid_following", FT_BOOLEAN, 8,
+                TFS(&tfs_true_false), 0x08, NULL, HFILL }
+        },
+        { &hf_iso14443_nad_following,
+            { "NAD following", "iso14443.nad_following", FT_BOOLEAN, 8,
+                TFS(&tfs_true_false), 0x04, NULL, HFILL }
+        },
+        { &hf_iso14443_i_blk_num,
+            { "Block number", "iso14443.i_blk_num",
+                FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL }
         },
         { &hf_iso14443_inf,
             { "INF", "iso14443.inf",
