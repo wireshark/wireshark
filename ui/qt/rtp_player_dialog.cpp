@@ -177,6 +177,23 @@ RtpPlayerDialog::~RtpPlayerDialog()
     delete ui;
 }
 
+void RtpPlayerDialog::accept()
+{
+    int row_count = ui->streamTreeWidget->topLevelItemCount();
+    // Stop all streams before the dialogs are closed.
+    for (int row = 0; row < row_count; row++) {
+        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+        RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+        audio_stream->stopPlaying();
+    }
+    WiresharkDialog::accept();
+}
+
+void RtpPlayerDialog::reject()
+{
+    RtpPlayerDialog::accept();
+}
+
 void RtpPlayerDialog::retapPackets()
 {
     register_tap_listener("rtp", this, NULL, 0, NULL, tapPacket, NULL);
