@@ -66,6 +66,7 @@ set(DISSECTOR_SRC
 	packet-tlv.c
 	packet-tlv-cmctrl.c
 	packet-type29ucd.c
+	packet-type35ucd.c
 	packet-uccreq.c
 	packet-uccrsp.c
 	packet-ucd.c
