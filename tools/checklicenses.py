@@ -206,9 +206,6 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'tools/lemon': [
         'UNKNOWN',
     ],
-    'tools/fix_pragma_wdocumentation.sh': [
-        'UNKNOWN',
-    ],
     # Generated files for GTK pixbuf binary bundling
     'ui/gtk/wireshark-gresources.h': [
         'UNKNOWN',

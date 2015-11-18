@@ -67,6 +67,7 @@ AC_ARG_ENABLE(glibtest, [  --disable-glibtest      do not try to compile and run
     GLIB_COMPILE_RESOURCES=`$PKG_CONFIG --variable=glib_compile_resources gio-2.0`
 
     GLIB_CFLAGS=`$PKG_CONFIG --cflags $pkg_config_args`
+    AC_WIRESHARK_GCC_SYSTEM_INCLUDE(GLIB_CFLAGS)
     GLIB_LIBS=`$PKG_CONFIG --libs $pkg_config_args`
     glib_config_major_version=`$PKG_CONFIG --modversion glib-2.0 | \
            sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
