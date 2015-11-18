@@ -1996,6 +1996,7 @@ sync_pipe_wait_for_child(ws_process_id fork_child, gchar **msgp)
 #else
     while (--retry_waitpid >= 0) {
         if (waitpid(fork_child, &fork_child_status, 0) != -1) {
+            /* waitpid() succeeded */
             if (WIFEXITED(fork_child_status)) {
                 /*
                  * The child exited; return its exit status.  Do not treat this as
@@ -2020,15 +2021,40 @@ sync_pipe_wait_for_child(ws_process_id fork_child, gchar **msgp)
                                         fork_child_status);
                 ret = -1;
             }
-        } else if (errno == EINTR) {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING, "sync_pipe_wait_for_child: waitpid returned EINTR. retrying.");
-            continue;
-        } else if (errno != ECHILD) {
-            *msgp = g_strdup_printf("Error from waitpid(): %s", g_strerror(errno));
-            ret = -1;
         } else {
-            /* errno == ECHILD ; echld might have already reaped the child */
-            ret = fetch_dumpcap_pid ? 0 : -1;
+            /* waitpid() failed */
+            if (errno == EINTR) {
+                /*
+                 * Signal interrupted waitpid().
+                 *
+                 * If it's SIGALRM, we just want to keep waiting, in case
+                 * there's some timer using it (e.g., in a GUI toolkit).
+                 *
+                 * If you ^C TShark (or Wireshark), that should deliver
+                 * SIGINT to dumpcap as well.  dumpcap catches SIGINT,
+                 * and should clean up and exit, so we should eventually
+                 * see that and clean up and terminate.
+                 *
+                 * If we're sent a SIGTERM, we should (and do) catch it,
+                 * and TShark, at least, calls sync_pipe_stop(). which
+                 * kills dumpcap, so we should eventually see that and
+                 * clean up and terminate.
+                 */
+                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING, "sync_pipe_wait_for_child: waitpid returned EINTR. retrying.");
+                continue;
+            } else if (errno == ECHILD) {
+                /*
+                 * The process identified by fork_child either doesn't
+                 * exist any more or isn't our child process (anymore?).
+                 *
+                 * echld might have already reaped the child.
+                 */
+               ret = fetch_dumpcap_pid ? 0 : -1;
+            } else {
+                /* Unknown error. */
+                *msgp = g_strdup_printf("Error from waitpid(): %s", g_strerror(errno));
+                ret = -1;
+            }
         }
         break;
     }
