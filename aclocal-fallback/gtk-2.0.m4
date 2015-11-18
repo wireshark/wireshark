@@ -54,6 +54,7 @@ AC_ARG_ENABLE(gtktest, [  --disable-gtktest       do not try to compile and run 
 
   if test x"$no_gtk" = x ; then
     GTK_CFLAGS=`$PKG_CONFIG --cflags $pkg_config_module`
+    AC_WIRESHARK_GCC_SYSTEM_INCLUDE(GTK_CFLAGS)
     GTK_LIBS=`$PKG_CONFIG --libs $pkg_config_module`
     gtk_config_major_version=`$PKG_CONFIG --modversion $pkg_config_module | \
            sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`

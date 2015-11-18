@@ -1902,6 +1902,28 @@ fi
 ])
 
 #
+# AC_WIRESHARK_GCC_SYSTEM_INCLUDE
+#
+# Replace -I include flag for -isystem in FLAGS argument
+#
+AC_DEFUN([AC_WIRESHARK_GCC_SYSTEM_INCLUDE],
+[
+	if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
+		$1=`AS_ECHO_N([" $$1"]) \
+			| sed -e 's/  *-I *\// -isystem\//g' -e 's/^ *//'`
+	fi
+])
+
+#
+# PKG_WIRESHARK_CHECK_SYSTEM_MODULES
+#
+AC_DEFUN([PKG_WIRESHARK_CHECK_SYSTEM_MODULES],
+[
+	PKG_CHECK_MODULES($@)
+	AC_WIRESHARK_GCC_SYSTEM_INCLUDE($1_CFLAGS)
+])
+
+#
 # AC_WIRESHARK_OSX_INTEGRATION_CHECK
 #
 # Checks for the presence of OS X integration functions in the GTK+ framework
@@ -2025,7 +2047,9 @@ AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK_WITH_QT_VERSION],
 	if $PKG_CONFIG --atleast-version $min_qt_version $pkg_config_module; then
 		mod_version=`$PKG_CONFIG --modversion $pkg_config_module`
 		AC_MSG_RESULT(yes (version $mod_version))
-		Qt_CFLAGS="$Qt_CFLAGS `$PKG_CONFIG --cflags $pkg_config_module`"
+		mod_cflags=`$PKG_CONFIG --cflags $pkg_config_module`
+		AC_WIRESHARK_GCC_SYSTEM_INCLUDE(mod_cflags)
+		Qt_CFLAGS="$Qt_CFLAGS $mod_cflags"
 		Qt_LIBS="$Qt_LIBS `$PKG_CONFIG --libs $pkg_config_module`"
 		# Run Action-If-Found
 		ifelse([$4], , :, [$4])

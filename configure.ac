@@ -680,13 +680,13 @@ linux*)
 		# was requested by the user.
 		#
 		if test x$libnl_version = "xany" -o x$libnl_version = "x3"; then
-			PKG_CHECK_MODULES(LIBNL3, [libnl-route-3.0 >= 3.0 libnl-genl-3.0] >= 3.0, [have_libnl3=yes], [have_libnl3=no])
+			PKG_WIRESHARK_CHECK_SYSTEM_MODULES(LIBNL3, [libnl-route-3.0 >= 3.0 libnl-genl-3.0] >= 3.0, [have_libnl3=yes], [have_libnl3=no])
 		fi
 		if test x$libnl_version = "xany" -o x$libnl_version = "x2"; then
-			PKG_CHECK_MODULES(LIBNL2, libnl-2.0 >= 2.0, [have_libnl2=yes], [have_libnl2=no])
+			PKG_WIRESHARK_CHECK_SYSTEM_MODULES(LIBNL2, libnl-2.0 >= 2.0, [have_libnl2=yes], [have_libnl2=no])
 		fi
 		if test x$libnl_version = "xany" -o x$libnl_version = "x1"; then
-			PKG_CHECK_MODULES(LIBNL1, libnl-1 >= 1.0, [have_libnl1=yes], [have_libnl1=no])
+			PKG_WIRESHARK_CHECK_SYSTEM_MODULES(LIBNL1, libnl-1 >= 1.0, [have_libnl1=yes], [have_libnl1=no])
 		fi
 		if (test "${have_libnl3}" = "yes"); then
 			CFLAGS="$CFLAGS $LIBNL3_CFLAGS"

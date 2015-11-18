@@ -206,10 +206,6 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'tools/lemon': [
         'UNKNOWN',
     ],
-    'tools/fix_pragma_wdocumentation.sh': [
-        'UNKNOWN',
-    ],
-
 }
 
 

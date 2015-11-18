@@ -132,7 +132,6 @@ EXTRA_DIST = \
 	dftestlib/util.py				\
 	extract_asn1_from_spec.pl			\
 	fix-encoding-args.pl				\
-	fix_pragma_wdocumentation.sh			\
 	fixhf.pl					\
 	ftsanity.py					\
 	fuzz-test.sh					\
