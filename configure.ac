@@ -1788,13 +1788,6 @@ AC_SUBST(GLIB_MIN_VERSION)
 # 2.44.0: 23 Mar 2014
 # 2.46.0: 25 Sep 2015
 
-# Check for GResource support
-PKG_CHECK_MODULES([GRESOURCE], [gio-2.0 >= 2.32 gdk-pixbuf-2.0 >= 2.26], [have_gresource=yes], [have_gresource=no])
-AM_CONDITIONAL(HAVE_GRESOURCE, test "x$have_gresource" = "xyes")
-if test "x$have_gresource" = "xyes"; then
-	AC_DEFINE(HAVE_GRESOURCE, 1, [Defined if GLib GResource is supported])
-fi
-
 use_glib_cflags="true"
 if test "$have_gtk" = "yes" -a "$have_qt" = "yes" ; then
 	# We have both GTK and Qt and thus will be building both wireshark
@@ -1871,6 +1864,13 @@ if test "$use_glib_cflags" = "true"; then
 else
 	# Don't use GLIB_CFLAGS
 	AM_PATH_GLIB_2_0($GLIB_MIN_VERSION, , AC_MSG_ERROR(GLib $GLIB_MIN_VERSION or later distribution not found.), gthread gmodule)
+fi
+
+# Check for GResource support
+PKG_CHECK_EXISTS([gio-2.0 >= 2.32 gdk-pixbuf-2.0 >= 2.26], [have_gresource=yes], [have_gresource=no])
+AM_CONDITIONAL(HAVE_GRESOURCE, test "x$have_gresource" = "xyes")
+if test "x$have_gresource" = "xyes"; then
+	AC_DEFINE(HAVE_GRESOURCE, 1, [Defined if GLib GResource is supported])
 fi
 
 # Error out if a glib header other than a "top level" header
