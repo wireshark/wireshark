@@ -1062,7 +1062,7 @@ proto_register_docsis_type29ucd (void)
   };
 
   static ei_register_info ei[] = {
-    {&ei_docsis_type29ucd_tlvlen_bad, {"docsis_type29ucd.tlvlen.bad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
+    {&ei_docsis_type29ucd_tlvlen_bad, {"docsis_type29ucd.tlvlenbad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
   };
 
   static gint *ett[] = {
