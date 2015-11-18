@@ -8,372 +8,30 @@ used for troubleshooting, analysis, development and education.
 
 == What's New
 
-Wireshark 2.0 features a completely new user interface which should provide a
-smoother, faster user experience. The new interface should be familiar to
-current users of Wireshark but provide a faster workflow for many tasks.
+=== Bug Fixes
 
-The Windows installer provides the option of installing either the new
-interface (``Wirehsark'') or the old interface (``Wireshark Legacy'').
-Both are installed by default. Note that the legacy interface will be
-removed in Wireshark 2.2.
-
-The OS X installer only provides the new interface. If you need the
-old interface you can install it via Homebrew or MacPorts.
-
-Wireshark's Debian- and RPM-based package definitions provide the new
-interface in the ``wireshark-qt'' package and the old interface in the
-``wireshark-gtk'' package. It is hoped that downstream distributions will
-follow this convention.
-
-//=== Bug Fixes
-
-//The following bugs have been fixed:
+The following bugs have been fixed:
 
 //* ws-buglink:5000[]
 //* ws-buglink:6000[Wireshark bug]
 //* cve-idlink:2014-2486[]
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.0.1rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 === New and Updated Features
 
-The following features are new (or have been significantly updated)
-since version 2.0.0rc3:
-
-* An RTP player crash has been fixed.
-
-* Flow graph issues have been fixed. Bug ws-buglink:11710[].
-
-* A Follow Stream dialog crash has been fixed. Bug ws-buglink:11711[].
-
-* An extcap crash has been fixed.
-
-* A file merge crash has been fixed. Bug ws-buglink:11718[].
-
-* A handle leak crash has been fixed. Bug ws-buglink:11702[].
-
-* Several other crashes and usability issues have been fixed.
-
-The following features are new (or have been significantly updated)
-since version 2.0.0rc2:
-
-* Column editing now works correctly. Bug ws-buglink:11433[].
-
-* Renaming profiles has been fixed. Bug ws-buglink:11658[].
-
-* ``File''->Merge no longer crashes on Windows. Bug ws-buglink:11684[].
-
-* Icons in the main toolbar obey magnification settings on Windows. Bug
-ws-buglink:11675[].
-
-* The Windows installer does a better job of detecting WinPcap. Bug
-ws-buglink:10867[].
-
-* The main window no longer appears off-screen on Windows. Bug
-ws-buglink:11568[].
-
-The following features are new (or have been significantly updated)
-since version 2.0.0rc1:
-
-* For new installations on UN$$*$$X, the directory for user preferences is
-`$HOME/.config/wireshark` rather than `$HOME/.wireshark`.  If that directory
-is absent, preferences will still be found and stored under
-`$HOME/.wireshark`.
-
-* Qt port:
-** The SIP Statistics dialog has been added.
-** You can now create filter expressions from the display filter toolbar.
-** Bugs in the UAT preferences dialog has been fixed.
-
-* Several dissector and Qt UI crash bugs have been fixed.
-
-* Problems with the OS X application bundle have been fixed.
-
-The following features are new (or have been significantly updated)
-since version 1.99.9:
-
-* Qt port:
-** The LTE RLC Graph dialog has been added.
-** The LTE MAC Statistics dialog has been added.
-** The LTE RLC Statistics dialog has been added.
-** The IAX2 Analysis dialog has been added.
-** The Conversation Hash Tables dialog has been added.
-** The Dissector Tables dialog has been added.
-** The Supported Protocols dialog has been added.
-** You can now zoom the I/O and TCP Stream graph X and Y axes independently.
-** The RTP Player dialog has been added.
-** Several memory leaks have been fixed.
-
-The following features are new (or have been significantly updated)
-since version 1.99.8:
-
-* Qt port:
-** The MTP3 statistics and summary dialogs have been added.
-** The WAP-WSP statistics dialog has been added.
-** The UDP multicast statistics dialog has been added.
-** The WLAN statistics dialog has been added.
-** The display filter macros dialog has been added.
-** The capture file properties dialog now includes packet comments.
-** Many more statistics dialogs can be opened from the command line
-   via `-z ...`.
-** Most dialogs now have a cancellable progress bar.
-** Many packet list and packet detail context menus items have been added.
-** Lua plugins can be reloaded from the Analyze menu.
-** Many bug fixes and improvements.
-
-The following features are new (or have been significantly updated)
-since version 1.99.7:
-
-* Qt port:
-
-** The Enabled Protocols dialog has been added.
-** Many statistics dialogs have been added, including Service response time,
-   DHCP/BOOTP, and ANSI.
-** The RTP Analysis dialog has been added.
-** Lua dialog support has been added.
-** You can now manually resolve addresses.
-** The Resolved Addresses dialog has been added.
-** The packet list scrollbar now has a minimap.
-** The capture interfaces dialog has been updated.
-** You can now colorize conversations.
-** Welcome screen behavior has been improved.
-** Plugin support has been improved.
-** Many dialogs should now more correctly minimize and maximize.
-** The reload button has been added back to the toolbar.
-** The "Decode As" dialog no longer saves decoding behavior.
-** You can now stop loading large capture files.
-** The Bluetooth HCI Summary has been added.
-
-The following features are new (or have been significantly updated)
-since version 1.99.6:
-
-* Qt port:
-
-** The Bluetooth Devices dialog has been added.
-** The wireless toolbar has been added.
-** Opening files via drag and drop is now supported.
-** The Capture Filter and Display Filter dialogs have been added.
-** The Display Filter Expression dialog has been added.
-** Conversation Filter menu items have been added.
-** You can change protocol preferences by right clicking on the packet list
-   and details.
-
-The following features are new (or have been significantly updated)
-since version 1.99.4 and 1.99.5:
-
-* Qt port:
-
-** Capture restarts are now supported.
-** Menu items for plugins are now supported.
-** Extcap interfaces are now supported.
-** The Expert Information dialog has been added.
-** Display and capture filter completion is now supported.
-** Many bugs have been fixed.
-** Translations have been updated.
-
-The following features are new (or have been significantly updated)
-since version 1.99.3:
-
-* Qt port:
-
-** Several interface bugs have been fixed.
-** Translations have been updated.
-
-The following features are new (or have been significantly updated)
-since version 1.99.2:
-
-* Qt port:
-
-** Several bugs have been fixed.
-** You can now open a packet in a new window.
-** The Bluetooth ATT Server Attributes dialog has been added.
-** The Coloring Rules dialog has been added.
-** Many translations have been updated. Chinese, Italian and Polish
-   translations are complete.
-** General user interface and usability improvements.
-** Automatic scrolling during capture now works.
-** The related packet indicator has been updated.
-
-The following features are new (or have been significantly updated)
-since version 1.99.1:
-
-* Qt port:
-
-** The welcome screen layout has been updated.
-** The Preferences dialog no longer crashes on Windows.
-** The packet list header menu has been added.
-** Statistics tree plugins are now supported.
-** The window icon is now displayed properly in the Windows taskbar.
-** A packet list an byte view selection bug has been fixed (ws-buglink:10896[])
-** The RTP Streams dialog has been added.
-** The Protocol Hierarchy Statistics dialog has been added.
-
-The following features are new (or have been significantly updated)
-since version 1.99.0:
-
-* Qt port:
-
-** You can now show and hide toolbars and major widgets using the View menu.
-** You can now set the time display format and precision.
-** The byte view widget is much faster, particularly when selecting large
-reassembled packets.
-** The byte view is explorable. Hovering over it highlights the corresponding
-field and shows a description in the status bar.
-** An Italian translation has been added.
-** The Summary dialog has been updated and renamed to Capture File Properties.
-** The VoIP Calls and SIP Flows dialogs have been added.
-** Support for HiDPI / Retina displays has been improved in the official packages.
-
-* DNS stats:
-     + A new stats tree has been added to the Statistics menu. Now it
-       is possible to collect stats such as qtype/qclass distribution,
-       number of resource record per response section, and stats data
-       (min, max, avg) for values such as query name length or DNS
-       payload.
-
-* HPFEEDS stats:
-     + A new stats tree has been added to the statistics menu. Now it
-       is possible to collect stats per channel (messages count and payload
-       size), and opcode distribution.
-
-* HTTP2 stats:
-     + A new stats tree has been added to the statistics menu. Now it
-       is possible to collect stats (type distribution).
-
-The following features are new (or have been significantly updated)
-since version 1.12.0:
-
-* The I/O Graph in the Gtk+ UI now supports an unlimited number of data points
-(up from 100k).
-* TShark now resets its state when changing files in ring-buffer mode.
-* Expert Info severities can now be configured.
-* Wireshark now supports external capture interfaces.  External capture
-interfaces can be anything from a tcpdump-over-ssh pipe to a program that
-captures from proprietary or non-standard hardware.  This functionality is not
-available in the Qt UI yet.
-
-* Qt port:
-
-** The Qt UI is now the default (program name is wireshark).
-** A Polish translation has been added.
-** The Interfaces dialog has been added.
-** The interface list is now updated when interfaces appear or disappear.
-** The Conversations and Endpoints dialogs have been added.
-** A Japanese translation has been added.
-** It is now possible to manage remote capture interfaces.
-** Windows: taskbar progress support has been added.
-** Most toolbar actions are in place and work.
-** More command line options are now supported
+There are no new features in this release.
 
 //=== Removed Dissectors
 
 === New File Format Decoding Support
 
-Wireshark is able to display the format of some types of files (rather than
-displaying the contents of those files). This is useful when you're curious
-about, or debugging, a file and its format.  To open a capture file (such as
-PCAP) in this mode specify "MIME Files Format" as the file's format in the
-Open File dialog.
-
-New files that Wireshark can open in this mode include:
-
---sort-and-group--
-BTSNOOP
-PCAP
-PCAPNG
---sort-and-group--
+There are no new file formats in this release.
 
 === New Protocol Support
 
-// Items in --sort-and-group-- blocks will be sorted and comma-separated.
---sort-and-group--
-Aeron
-AllJoyn Reliable Datagram Protocol
-Android Debug Bridge
-Android Debug Bridge Service
-Android Logcat text
-Apache Tribes Heartbeat
-APT-X Codec
-B.A.T.M.A.N. GW
-B.A.T.M.A.N. Vis
-BGP Monitoring Prototol (BMP)
-Bluetooth Broadcom HCI
-Bluetooth GATT Attributes (*many*)
-Bluetooth OBEX Applications (*many*)
-BSSAP2
-C15 Call History Protocol (C15ch) and others
-Celerra VNX
-Ceph
-Chargen
-Classical IP
-Concise Binary Object Representation (CBOR) (RFC 7049)
-Corosync Totemnet
-Corosync Totem Single Ring Protocol
-Couchbase
-CP ``Cooper'' 2179
-CSN.1
-dCache
-DJI UAV Drone Control Protocol
-Dynamic Source Routing (RFC 4728)
-Elasticsearch
-ETSI Card Application Toolkit - Transport Protocol
-eXpressive Internet Protocol (XIP)
-GDB Remote Serial Protocol
-Generic Network Virtualization Encapsulation (Geneve)
-Geospatial and Imagery Access Service (GIAS)
-Gias Dissector Using GIOP API
-GPRS Tunneling Protocol Prim
-GVSP GigE Vision (TM) Streaming Protocol
-H.225 RAS
-Harman HiQnet
-HCrt
-Hotline Command-Response Transaction Protocol
-IEEE 802.11 radio information
-IP Detail Record (IPDR)
-IPMI Trace
-iSER
-KNXnetIP
-Link Aggregation Control Protocol
-Link Aggregation Marker Protocol
-Locator/ID Separation Protocol (Reliable Transport)
-Link-local Multicast Name Resolution
-Link Layer Topology Discovery
-LISP TCP Control Message
-MACsec Key Agreement - EAPoL-MKA
-MCPE (Minecraft Pocket Edition)
-Message Queuing Telemetry Transport For Sensor Networks (MQTT-SN)
-Minecraft Pocket Edition
-MQ Telemetry Transport Protocol for Sensor Networks
-Multicast Domain Name Service (mDNS)
-Neighborhood Watch Protocol (NWP)
-Network File System over Remote Direct Memory Access (NFSoRDMA)
-OAMPDU
-OCFS2
-OptoMMP
-Organization Specific Slow Protocol (OSSP)
-Packet Cable Lawful Intercept (timestamp)
-Packet Cable Lawful Intercept (timestamp, case ID)
-Packet Cable Lawful Intercept (8 byte CCCID)
-PacketCable MTA FQDN
-Performance Co-Pilot Proxy
-QNEX6 (QNET)
-RakNet games library
-Remote Shared Virtual Disk (RSVD)
-Riemann
-RPC over RDMA (RPCoRDMA)
-S7 Communication
-Secure Socket Tunnel Protocol (SSTP)
-Shared Memory Communications - RDMA (SMCR)
-Stateless Transport Tunneling
-Sysdig system call events
-TCP based Robot Operating System protocol (TCPROS)
-Thrift
-Time Division Multiplexing over Packet Network (TDMoP)
-Video Services over IP (VSIP)
-Windows Search Protocol (MS-WSP)
-XIP Serval
-ZigBee ZCL (*many*)
-ZVT Kassenschnittstelle
---sort-and-group--
+There are no new protocols in this release.
+
 
 === Updated Protocol Support
 
@@ -381,43 +39,13 @@ Too many protocols have been updated to list here.
 
 === New and Updated Capture File Support
 
+//There is no new or updated capture file support in this release.
 --sort-and-group--
-Android Logcat text files
-Colasoft Capsa files
-Netscaler 3.5
-3GPP TS 32.423 Trace
-Symbian OS BTSNOOP File Format
 --sort-and-group--
-
-Additionally, Wireshark now supports nanosecond timestamp resolution in PCAP-NG files.
 
 === New and Updated Capture Interfaces support
 
-Androiddump support now provides interfaces to capture (Logcat, Bluetooth and
-WiFi) from connected Android devices.
-
-//--sort-and-group--
-//--sort-and-group--
-
-=== Major API Changes
-
-The libwireshark API has undergone some major changes:
-
-* The emem framework (including all ep_ and se_ memory allocation routines) has
-been completely removed in favour of wmem which is now fully mature.
-* The (long-since-broken) Python bindings support has been removed.  If
-you want to write dissectors in something other than C, use Lua.
-* Plugins can now create GUI menu items.
-* Heuristic dissectors can now be globally enabled/disabled so
-heur_dissector_add() has a few more parameters to make that possible
-* proto_tree_add_text has been removed.
-* tvb_length() has been removed in favor of tvb_reported_length() and
-tvb_captured_length().
-* The API for ONC RPC-based dissectors has changed significantly: the
-procedure dissectors no longer take an offset, void-argument procedures
-now need to be declared with a function (use dissect_rpc_void()), and
-rpc_init_prog() now handles procedure registration too (it takes
-additional arguments to handle this; rpc_init_proc_table() was removed).
+There are no new or updated capture interfaces supported in this release.
 
 == Getting Wireshark
 
