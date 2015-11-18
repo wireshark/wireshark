@@ -48,7 +48,7 @@ static void IoRawSummaryFormater( char *szText, int nMax)
    g_snprintf ( szText, nMax, "Raw IO Data" );
 }
 
-static void dissect_ioraw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_ioraw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    proto_item *ti;
    proto_tree *ioraw_tree;
@@ -74,6 +74,7 @@ static void dissect_ioraw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       proto_tree_add_item(ioraw_tree, hf_ioraw_data, tvb, offset, ioraw_length - offset, ENC_NA);
    }
+   return tvb_captured_length(tvb);
 }
 
 void proto_register_ioraw(void)
@@ -112,7 +113,7 @@ void proto_reg_handoff_ioraw(void)
 {
    dissector_handle_t ioraw_handle;
 
-   ioraw_handle = create_dissector_handle(dissect_ioraw, proto_ioraw);
+   ioraw_handle = new_create_dissector_handle(dissect_ioraw, proto_ioraw);
 
    dissector_add_uint("ecatf.type", 3, ioraw_handle);
 }

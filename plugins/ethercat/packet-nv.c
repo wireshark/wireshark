@@ -89,7 +89,7 @@ static void NvVarHeaderFormater(tvbuff_t *tvb, gint offset, char *szText, int nM
       tvb_get_letohs(tvb, offset+4));
 }
 
-static void dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    proto_item *ti;
    proto_tree *nv_tree, *nv_header_tree, *nv_var_tree,*nv_varheader_tree;
@@ -158,6 +158,7 @@ static void dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          offset+=var_length;
       }
    }
+   return tvb_captured_length(tvb);
 }
 
 void proto_register_nv(void)
@@ -234,7 +235,7 @@ void proto_reg_handoff_nv(void)
 {
    dissector_handle_t nv_handle;
 
-   nv_handle = create_dissector_handle(dissect_nv, proto_nv);
+   nv_handle = new_create_dissector_handle(dissect_nv, proto_nv);
    dissector_add_uint("ecatf.type", 4, nv_handle);
 }
 

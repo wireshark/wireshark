@@ -83,7 +83,7 @@ static gint hf_pkm_msg_pkm_id = -1;
 
 
 /* Wimax Mac PKM-REQ Message Dissector */
-static void dissect_mac_mgmt_msg_pkm_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_mgmt_msg_pkm_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	proto_item *pkm_item;
@@ -103,10 +103,11 @@ static void dissect_mac_mgmt_msg_pkm_req_decoder(tvbuff_t *tvb, packet_info *pin
 	/* set the offset for the TLV Encoded info */
 	offset++;
 	wimax_pkm_tlv_encoded_attributes_decoder(tvb_new_subset_remaining(tvb, offset), pinfo, pkm_tree);
+	return tvb_captured_length(tvb);
 }
 
 /* Wimax Mac PKM-RSP Message Dissector */
-static void dissect_mac_mgmt_msg_pkm_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_mgmt_msg_pkm_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	proto_item *pkm_item;
@@ -127,6 +128,7 @@ static void dissect_mac_mgmt_msg_pkm_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 	offset++;
 	/* process the PKM TLV Encoded Attributes */
 	wimax_pkm_tlv_encoded_attributes_decoder(tvb_new_subset_remaining(tvb, offset), pinfo, pkm_tree);
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax Mac PKM-REQ/RSP Messages Dissectors */
@@ -167,9 +169,9 @@ void proto_reg_handoff_mac_mgmt_msg_pkm(void)
 	dissector_handle_t mac_mgmt_msg_pkm_req_handle;
 	dissector_handle_t mac_mgmt_msg_pkm_rsp_handle;
 
-	mac_mgmt_msg_pkm_req_handle = create_dissector_handle(dissect_mac_mgmt_msg_pkm_req_decoder, proto_mac_mgmt_msg_pkm_decoder);
+	mac_mgmt_msg_pkm_req_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_pkm_req_decoder, proto_mac_mgmt_msg_pkm_decoder);
 	dissector_add_uint( "wmx.mgmtmsg", MAC_MGMT_MSG_PKM_REQ, mac_mgmt_msg_pkm_req_handle );
-	mac_mgmt_msg_pkm_rsp_handle = create_dissector_handle(dissect_mac_mgmt_msg_pkm_rsp_decoder, proto_mac_mgmt_msg_pkm_decoder);
+	mac_mgmt_msg_pkm_rsp_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_pkm_rsp_decoder, proto_mac_mgmt_msg_pkm_decoder);
 	dissector_add_uint( "wmx.mgmtmsg", MAC_MGMT_MSG_PKM_RSP, mac_mgmt_msg_pkm_rsp_handle );
 }
 

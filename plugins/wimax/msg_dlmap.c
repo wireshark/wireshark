@@ -2280,7 +2280,7 @@ static gint dissect_dlmap_ie(proto_tree *ie_tree, packet_info *pinfo, gint offse
 }
 
 
-static void dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree)
+static int dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree, void* data _U_)
 {
 	/* 6.3.2.3.2 [2] DL-MAP table 16 */
 	guint offset = 0;
@@ -2329,6 +2329,7 @@ static void dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo
 		proto_tree_add_bytes_format(dlmap_tree, hf_padding, tvb, NIBHI(nib,1), NULL, "Padding nibble");
 		nib++;
 	}
+	return tvb_captured_length(tvb);
 }
 
 gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tree)
@@ -3495,7 +3496,7 @@ void proto_reg_handoff_mac_mgmt_msg_dlmap(void)
 {
 	dissector_handle_t dlmap_handle;
 
-	dlmap_handle = create_dissector_handle(dissect_mac_mgmt_msg_dlmap_decoder, proto_mac_mgmt_msg_dlmap_decoder);
+	dlmap_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dlmap_decoder, proto_mac_mgmt_msg_dlmap_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DL_MAP, dlmap_handle);
 }
 

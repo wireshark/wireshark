@@ -49,7 +49,7 @@ static gint hf_dsc_transaction_id = -1;
 static gint hf_dsc_confirmation_code = -1;
 
 
-static void dissect_mac_mgmt_msg_dsc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_mgmt_msg_dsc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	proto_item *dsc_item;
@@ -70,6 +70,7 @@ static void dissect_mac_mgmt_msg_dsc_req_decoder(tvbuff_t *tvb, packet_info *pin
 		/* process DSC REQ message TLV Encode Information */
 		wimax_common_tlv_encoding_decoder(tvb_new_subset_remaining(tvb, offset), pinfo, dsc_tree);
 	}
+	return tvb_captured_length(tvb);
 }
 
 static int dissect_mac_mgmt_msg_dsc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -99,7 +100,7 @@ static int dissect_mac_mgmt_msg_dsc_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 	return tvb_captured_length(tvb);
 }
 
-static void dissect_mac_mgmt_msg_dsc_ack_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_mgmt_msg_dsc_ack_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	proto_item *dsc_item;
@@ -123,6 +124,7 @@ static void dissect_mac_mgmt_msg_dsc_ack_decoder(tvbuff_t *tvb, packet_info *pin
 		/* process DSC ACK message TLV Encode Information */
 		wimax_common_tlv_encoding_decoder(tvb_new_subset_remaining(tvb, offset), pinfo, dsc_tree);
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax Mac Payload Protocol and Dissector */
@@ -172,13 +174,13 @@ proto_reg_handoff_mac_mgmt_msg_dsc(void)
 {
 	dissector_handle_t dsc_handle;
 
-	dsc_handle = create_dissector_handle(dissect_mac_mgmt_msg_dsc_req_decoder, proto_mac_mgmt_msg_dsc_decoder);
+	dsc_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dsc_req_decoder, proto_mac_mgmt_msg_dsc_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DSC_REQ, dsc_handle);
 
 	dsc_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dsc_rsp_decoder, proto_mac_mgmt_msg_dsc_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DSC_RSP, dsc_handle);
 
-	dsc_handle = create_dissector_handle(dissect_mac_mgmt_msg_dsc_ack_decoder, proto_mac_mgmt_msg_dsc_decoder);
+	dsc_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dsc_ack_decoder, proto_mac_mgmt_msg_dsc_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DSC_ACK, dsc_handle);
 }
 

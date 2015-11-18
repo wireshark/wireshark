@@ -405,8 +405,8 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
 
 
 /* Dissect MRP packets */
-static void
-dissect_PNMRP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_PNMRP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti       = NULL;
     proto_tree *mrp_tree = NULL;
@@ -425,6 +425,7 @@ dissect_PNMRP(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     dissect_PNMRP_PDU(tvb, offset, pinfo, mrp_tree, ti);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -525,7 +526,7 @@ proto_reg_handoff_pn_mrp (void)
     dissector_handle_t mrp_handle;
 
 
-    mrp_handle = create_dissector_handle(dissect_PNMRP,proto_pn_mrp);
+    mrp_handle = new_create_dissector_handle(dissect_PNMRP,proto_pn_mrp);
     dissector_add_uint("ethertype", ETHERTYPE_MRP, mrp_handle);
 
 }

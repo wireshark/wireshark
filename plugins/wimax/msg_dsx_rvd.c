@@ -43,7 +43,7 @@ static gint hf_dsx_rvd_confirmation_code = -1;
 
 
 /* Decode DSX-RVD messages. */
-static void dissect_mac_mgmt_msg_dsx_rvd_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_mac_mgmt_msg_dsx_rvd_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	proto_item *dsx_rvd_item;
@@ -61,6 +61,7 @@ static void dissect_mac_mgmt_msg_dsx_rvd_decoder(tvbuff_t *tvb, packet_info *pin
 		/* display the Confirmation Code */
 		proto_tree_add_item(dsx_rvd_tree, hf_dsx_rvd_confirmation_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax Mac Payload Protocol and Dissector */
@@ -100,7 +101,7 @@ proto_reg_handoff_mac_mgmt_msg_dsx_rvd(void)
 {
 	dissector_handle_t handle;
 
-	handle = create_dissector_handle(dissect_mac_mgmt_msg_dsx_rvd_decoder, proto_mac_mgmt_msg_dsx_rvd_decoder);
+	handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dsx_rvd_decoder, proto_mac_mgmt_msg_dsx_rvd_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DSX_RVD, handle);
 }
 

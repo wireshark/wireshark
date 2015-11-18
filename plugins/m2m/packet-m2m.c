@@ -171,7 +171,7 @@ m2m_defragment_cleanup(void)
 
 
 /* WiMax MAC to MAC protocol dissector */
-static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti = NULL;
 	proto_item *m2m_item = NULL;
@@ -409,6 +409,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tlv_count--;
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Decode and display the FCH burst */
@@ -808,7 +809,7 @@ void proto_reg_handoff_m2m(void)
 {
 	dissector_handle_t m2m_handle;
 
-	m2m_handle = create_dissector_handle(dissect_m2m, proto_m2m);
+	m2m_handle = new_create_dissector_handle(dissect_m2m, proto_m2m);
 	dissector_add_uint("ethertype", ETHERTYPE_WMX_M2M, m2m_handle);
 
 	/* find the wimax handlers */

@@ -255,7 +255,7 @@ static gint hf_rep_rsp_channel_selectivity_rep_frequency_c = -1;
 
 
 /* Wimax Mac REP-REQ Message Dissector */
-static void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	guint tvb_len;
@@ -408,10 +408,11 @@ static void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pin
 			offset += tlv_len;
 		}	/* end of TLV process while loop */
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Wimax Mac REP-RSP Message Dissector */
-static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	guint tvb_len, length, value;
@@ -834,6 +835,7 @@ static void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 			offset += tlv_len;
 		}	/* end of TLV process while loop */
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax Mac REP-REQ Messages Dissectors */
@@ -1553,10 +1555,10 @@ proto_reg_handoff_mac_mgmt_msg_rep(void)
 {
 	dissector_handle_t rep_handle;
 
-	rep_handle = create_dissector_handle(dissect_mac_mgmt_msg_rep_req_decoder, proto_mac_mgmt_msg_rep_decoder);
+	rep_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_rep_req_decoder, proto_mac_mgmt_msg_rep_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_REP_REQ, rep_handle);
 
-	rep_handle = create_dissector_handle(dissect_mac_mgmt_msg_rep_rsp_decoder, proto_mac_mgmt_msg_rep_decoder);
+	rep_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_rep_rsp_decoder, proto_mac_mgmt_msg_rep_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_REP_RSP, rep_handle);
 }
 

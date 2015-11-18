@@ -337,7 +337,7 @@ static const value_string tfs_support[] =
 
 
 /* WiMax MAC Management DCD message (table 15) dissector */
-static void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	guint tvb_len, length;
@@ -724,6 +724,7 @@ static void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 			offset += tlv_len;
 		}	/* end of TLV process while loop */
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax Mac Payload Protocol and Dissector */
@@ -1257,7 +1258,7 @@ void proto_reg_handoff_mac_mgmt_msg_dcd(void)
 {
 	dissector_handle_t dcd_handle;
 
-	dcd_handle = create_dissector_handle(dissect_mac_mgmt_msg_dcd_decoder, proto_mac_mgmt_msg_dcd_decoder);
+	dcd_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dcd_decoder, proto_mac_mgmt_msg_dcd_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DCD, dcd_handle);
 }
 

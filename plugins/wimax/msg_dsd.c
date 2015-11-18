@@ -56,7 +56,7 @@ static gint hf_dsd_invalid_tlv = -1;
 static gint hf_dsd_unknown_type = -1;
 
 
-static void dissect_mac_mgmt_msg_dsd_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_mgmt_msg_dsd_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	guint tvb_len, tlv_len, tlv_value_offset;
@@ -123,9 +123,10 @@ static void dissect_mac_mgmt_msg_dsd_req_decoder(tvbuff_t *tvb, packet_info *pin
 			offset += (tlv_len+tlv_value_offset);
 		}	/* end of while loop */
 	}
+	return tvb_captured_length(tvb);
 }
 
-static void dissect_mac_mgmt_msg_dsd_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_mgmt_msg_dsd_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	guint tvb_len, tlv_len, tlv_value_offset;
@@ -195,6 +196,7 @@ static void dissect_mac_mgmt_msg_dsd_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 			offset += (tlv_len+tlv_value_offset);
 		}	/* end of while loop */
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax Mac Payload Protocol and Dissector */
@@ -266,10 +268,10 @@ proto_reg_handoff_mac_mgmt_msg_dsd(void)
 {
 	dissector_handle_t dsd_handle;
 
-	dsd_handle = create_dissector_handle(dissect_mac_mgmt_msg_dsd_req_decoder, proto_mac_mgmt_msg_dsd_decoder);
+	dsd_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dsd_req_decoder, proto_mac_mgmt_msg_dsd_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DSD_REQ, dsd_handle);
 
-	dsd_handle = create_dissector_handle(dissect_mac_mgmt_msg_dsd_rsp_decoder, proto_mac_mgmt_msg_dsd_decoder);
+	dsd_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dsd_rsp_decoder, proto_mac_mgmt_msg_dsd_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DSD_RSP, dsd_handle);
 }
 

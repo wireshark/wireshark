@@ -49,7 +49,7 @@ static gint hf_res_cmd_invalid_tlv = -1;
 
 
 /* Wimax Mac RES-CMD Message Dissector */
-static void dissect_mac_mgmt_msg_res_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_mgmt_msg_res_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	guint tvb_len;
@@ -108,6 +108,7 @@ static void dissect_mac_mgmt_msg_res_cmd_decoder(tvbuff_t *tvb, packet_info *pin
 			offset += (tlv_len+tlv_value_offset);
 		}	/* end of TLV process while loop */
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax Mac RES-CMD Message Dissector */
@@ -147,7 +148,7 @@ proto_reg_handoff_mac_mgmt_msg_res_cmd(void)
 {
 	dissector_handle_t handle;
 
-	handle = create_dissector_handle(dissect_mac_mgmt_msg_res_cmd_decoder, proto_mac_mgmt_msg_res_cmd_decoder);
+	handle = new_create_dissector_handle(dissect_mac_mgmt_msg_res_cmd_decoder, proto_mac_mgmt_msg_res_cmd_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_RES_CMD, handle);
 }
 

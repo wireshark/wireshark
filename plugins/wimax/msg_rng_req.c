@@ -207,7 +207,7 @@ void dissect_power_saving_class(proto_tree *rng_req_tree, gint tlv_type, tvbuff_
 
 
 /* Decode RNG-REQ messages. */
-static void dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	guint tlv_offset;
@@ -327,6 +327,7 @@ static void dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pin
 			offset = tlv_len + tlv_offset;
 		}	/* end of TLV process while loop */
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax Mac Payload Protocol and Dissector */
@@ -623,7 +624,7 @@ void proto_reg_handoff_mac_mgmt_msg_rng_req(void)
 {
 	dissector_handle_t rng_req_handle;
 
-	rng_req_handle = create_dissector_handle(dissect_mac_mgmt_msg_rng_req_decoder, proto_mac_mgmt_msg_rng_req_decoder);
+	rng_req_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_rng_req_decoder, proto_mac_mgmt_msg_rng_req_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_RNG_REQ, rng_req_handle);
 }
 

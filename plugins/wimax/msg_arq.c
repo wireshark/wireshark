@@ -298,7 +298,7 @@ void proto_register_mac_mgmt_msg_arq_feedback(void)
 }
 
 /* Decode ARQ-Feedback messages. */
-static void dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	guint arq_feedback_ie_count = 0;
@@ -382,10 +382,11 @@ static void dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info
 		}
 		proto_item_append_text(arq_feedback_item, ", %u ARQ_feedback_IE(s)", arq_feedback_ie_count);
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Decode ARQ-Discard messages. */
-static void dissect_mac_mgmt_msg_arq_discard_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_mac_mgmt_msg_arq_discard_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	proto_item *arq_discard_item;
 	proto_tree *arq_discard_tree;
@@ -401,10 +402,11 @@ static void dissect_mac_mgmt_msg_arq_discard_decoder(tvbuff_t *tvb, packet_info 
 		proto_tree_add_item(arq_discard_tree, hf_arq_discard_reserved, tvb, 3, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(arq_discard_tree, hf_arq_discard_bsn, tvb, 3, 2, ENC_BIG_ENDIAN);
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Decode ARQ-Reset messages. */
-static void dissect_mac_mgmt_msg_arq_reset_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_mac_mgmt_msg_arq_reset_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	proto_item *arq_reset_item;
 	proto_tree *arq_reset_tree;
@@ -421,6 +423,7 @@ static void dissect_mac_mgmt_msg_arq_reset_decoder(tvbuff_t *tvb, packet_info *p
 		proto_tree_add_item(arq_reset_tree, hf_arq_reset_direction, tvb, 3, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(arq_reset_tree, hf_arq_reset_reserved, tvb, 3, 1, ENC_BIG_ENDIAN);
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -428,13 +431,13 @@ proto_reg_handoff_mac_mgmt_msg_arq(void)
 {
 	dissector_handle_t arq_handle;
 
-	arq_handle = create_dissector_handle(dissect_mac_mgmt_msg_arq_feedback_decoder, proto_mac_mgmt_msg_arq_decoder);
+	arq_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_arq_feedback_decoder, proto_mac_mgmt_msg_arq_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_ARQ_FEEDBACK, arq_handle);
 
-	arq_handle = create_dissector_handle(dissect_mac_mgmt_msg_arq_discard_decoder, proto_mac_mgmt_msg_arq_decoder);
+	arq_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_arq_discard_decoder, proto_mac_mgmt_msg_arq_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_ARQ_DISCARD, arq_handle);
 
-	arq_handle = create_dissector_handle(dissect_mac_mgmt_msg_arq_reset_decoder, proto_mac_mgmt_msg_arq_decoder);
+	arq_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_arq_reset_decoder, proto_mac_mgmt_msg_arq_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_ARQ_RESET, arq_handle);
 }
 

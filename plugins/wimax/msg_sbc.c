@@ -1030,7 +1030,7 @@ static void sbc_tlv_decoder(tlv_info_t* tlv_info, int ett, proto_tree* sbc_tree,
 }
 
 /* Wimax Mac SBC-REQ Message Dissector */
-static void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	guint tvb_len;
@@ -1080,6 +1080,7 @@ static void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pin
 			offset += (tlv_len+tlv_value_offset);
 		}	/* end of TLV process while loop */
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Wimax Mac SBC-RSP Message Dissector */
@@ -2826,7 +2827,7 @@ proto_reg_handoff_mac_mgmt_msg_sbc(void)
 {
 	dissector_handle_t sbc_handle;
 
-	sbc_handle = create_dissector_handle(dissect_mac_mgmt_msg_sbc_req_decoder, proto_mac_mgmt_msg_sbc_decoder);
+	sbc_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_sbc_req_decoder, proto_mac_mgmt_msg_sbc_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_SBC_REQ, sbc_handle);
 
 	sbc_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_sbc_rsp_decoder, proto_mac_mgmt_msg_sbc_decoder);

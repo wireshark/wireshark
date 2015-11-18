@@ -435,7 +435,7 @@ static void EcSubFormatter(tvbuff_t *tvb, gint offset, char *szText, gint nMax)
 }
 
 /* Ethercat Datagram */
-static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    tvbuff_t *next_tvb;
    proto_item *ti, *aitem = NULL;
@@ -863,6 +863,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
    {
       proto_tree_add_item(tree, hf_ecat_padding, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
    }
+   return tvb_captured_length(tvb);
 }
 
 void proto_register_ecat(void)
@@ -1711,7 +1712,7 @@ void proto_reg_handoff_ecat(void)
 
    /* Register this dissector as a sub dissector to EtherCAT frame based on
       ether type. */
-   ecat_handle = create_dissector_handle(dissect_ecat_datagram, proto_ecat_datagram);
+   ecat_handle = new_create_dissector_handle(dissect_ecat_datagram, proto_ecat_datagram);
    dissector_add_uint("ecatf.type", 1 /* EtherCAT type */, ecat_handle);
 
    ecat_mailbox_handle = find_dissector("ecat_mailbox");

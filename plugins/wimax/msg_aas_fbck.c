@@ -94,7 +94,7 @@ static int hf_aas_fbck_rssi_value = -1;
 static int hf_aas_fbck_cinr_value = -1;
 
 
-static void dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	guint data_type;
@@ -132,9 +132,10 @@ static void dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info
 		/* display the reserved fields */
 		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
+	return tvb_captured_length(tvb);
 }
 
-static void dissect_mac_mgmt_msg_aas_fbck_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_mac_mgmt_msg_aas_fbck_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	guint tvb_len, data_type;
@@ -185,6 +186,7 @@ static void dissect_mac_mgmt_msg_aas_fbck_rsp_decoder(tvbuff_t *tvb, packet_info
 		/* display the CINR Mean Value */
 		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_cinr_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax Mac Payload Protocol and Dissector */
@@ -338,10 +340,10 @@ proto_reg_handoff_mac_mgmt_msg_aas(void)
 {
 	dissector_handle_t aas_handle;
 
-	aas_handle = create_dissector_handle(dissect_mac_mgmt_msg_aas_fbck_req_decoder, proto_mac_mgmt_msg_aas_fbck_decoder);
+	aas_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_aas_fbck_req_decoder, proto_mac_mgmt_msg_aas_fbck_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_AAS_FBCK_REQ, aas_handle);
 
-	aas_handle = create_dissector_handle(dissect_mac_mgmt_msg_aas_fbck_rsp_decoder, proto_mac_mgmt_msg_aas_fbck_decoder);
+	aas_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_aas_fbck_rsp_decoder, proto_mac_mgmt_msg_aas_fbck_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_AAS_FBCK_RSP, aas_handle);
 }
 

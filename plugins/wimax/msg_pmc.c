@@ -167,7 +167,7 @@ void proto_register_mac_mgmt_msg_pmc_rsp(void)
 }
 
 /* Decode PMC-REQ messages. */
-static void dissect_mac_mgmt_msg_pmc_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_mac_mgmt_msg_pmc_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	proto_item *pmc_req_item;
@@ -188,10 +188,11 @@ static void dissect_mac_mgmt_msg_pmc_req_decoder(tvbuff_t *tvb, packet_info *pin
 		/* show the Reserved bits */
 		proto_tree_add_item(pmc_req_tree, hf_pmc_req_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Decode PMC-RSP messages. */
-static void dissect_mac_mgmt_msg_pmc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_mac_mgmt_msg_pmc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	proto_item *pmc_rsp_item;
@@ -228,6 +229,7 @@ static void dissect_mac_mgmt_msg_pmc_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 			proto_tree_add_float_format_value(pmc_rsp_tree, hf_pmc_rsp_offset_BS_per_MS, tvb, offset, 1, power_change, " %.2f dB", power_change);
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -235,10 +237,10 @@ proto_reg_handoff_mac_mgmt_msg_pmc(void)
 {
 	dissector_handle_t pmc_handle;
 
-	pmc_handle = create_dissector_handle(dissect_mac_mgmt_msg_pmc_req_decoder, proto_mac_mgmt_msg_pmc_req_decoder);
+	pmc_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_pmc_req_decoder, proto_mac_mgmt_msg_pmc_req_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_PMC_REQ, pmc_handle);
 
-	pmc_handle = create_dissector_handle(dissect_mac_mgmt_msg_pmc_rsp_decoder, proto_mac_mgmt_msg_pmc_rsp_decoder);
+	pmc_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_pmc_rsp_decoder, proto_mac_mgmt_msg_pmc_rsp_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_PMC_RSP, pmc_handle);
 }
 

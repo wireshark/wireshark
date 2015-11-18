@@ -46,7 +46,7 @@ static int hf_http_request_uri = -1;
 
 static dissector_handle_t http_handle;
 
-static void dissect_http(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree) {
+static int dissect_http(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_) {
     http_info_value_t* msgdata = wmem_alloc0(wmem_packet_scope(), sizeof(http_info_value_t));
     tvbparse_elem_t* reqresp;
     tpg_parser_data_t* tpg;
@@ -82,8 +82,8 @@ static void dissect_http(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree
         }
     } else {
         /* no header  */
-        return;
     }
+    return tvb_captured_length(tvb);
 }
 
 static void proto_register_http(void) {
@@ -113,7 +113,7 @@ static void proto_register_http(void) {
 
 
 static void proto_reg_handoff_http(void) {
-    http_handle = create_dissector_handle(dissect_http, proto_http);
+    http_handle = new_create_dissector_handle(dissect_http, proto_http);
 
     dissector_delete_uint("tcp.port", 80, NULL);
     dissector_add_uint("tcp.port", 80, http_handle);

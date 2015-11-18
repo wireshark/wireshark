@@ -323,8 +323,6 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     return FALSE;
 
 }
-static void
-dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* for reasemble processing we need some inits.. */
 /* Register PNIO defrag table init routine.      */
@@ -464,8 +462,8 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 /*
  * dissect_pn_rt - The dissector for the Soft-Real-Time protocol
  */
-static void
-dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     gint         pdu_len;
     gint         data_len;
@@ -520,7 +518,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     pdu_len = tvb_reported_length(tvb);
     if (pdu_len < 6) {
         dissect_pn_malformed(tvb, 0, pinfo, tree, pdu_len);
-        return;
+        return 0;
     }
 
     /* build some "raw" data */
@@ -797,6 +795,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Oh, well, we don't know this; dissect it as data. */
         dissect_pn_undecoded(next_tvb, 0, pinfo, tree, tvb_captured_length(next_tvb));
     }
+    return tvb_captured_length(tvb);
 }
 
 
@@ -995,7 +994,7 @@ proto_reg_handoff_pn_rt(void)
 {
     dissector_handle_t pn_rt_handle;
 
-    pn_rt_handle = create_dissector_handle(dissect_pn_rt, proto_pn_rt);
+    pn_rt_handle = new_create_dissector_handle(dissect_pn_rt, proto_pn_rt);
 
     dissector_add_uint("ethertype", ETHERTYPE_PROFINET, pn_rt_handle);
     dissector_add_uint("udp.port", 0x8892, pn_rt_handle);
