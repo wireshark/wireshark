@@ -839,7 +839,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	/* append the header information */
 	proto_item_append_text(coap_root,
 			       ", %s, %s, MID:%u",
-			       val_to_str(ttype, vals_ttype, "Unkown %u"),
+			       val_to_str(ttype, vals_ttype, "Unknown %u"),
 			       val_to_str_ext(code, &vals_code_ext, "Unknown %u"),
 			       mid);
 

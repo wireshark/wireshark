@@ -371,7 +371,7 @@ static const value_string ns_httpabortcode_vals[] = {
 	{0, "connection is trackable"},
 	{1, "connection is marked for NOREUSE on receiving CONNECT request"},
 	{2, "no reuse due to HTTP/0.9 Request processing"},
-	{3, "recieved FIN from server in the middle of transaction"},
+	{3, "received FIN from server in the middle of transaction"},
 	{4, "VPN GSLB CONNECTION PROXY connections"},
 	{5, "if http FA moves to unknown on clt req; svr_pcb's http state is also made unknown"},
 	{6, "Incomplete HTTP chunk"},

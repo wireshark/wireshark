@@ -5439,7 +5439,7 @@ proto_register_dns(void)
         "URL or email address for certificate issue requests and violation reports", HFILL }},
 
     { &hf_dns_caa_unknown,
-      { "Unkown tag", "dns.caa.unknown",
+      { "Unknown tag", "dns.caa.unknown",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 

@@ -380,7 +380,7 @@ def make_cap_file(pkt_data, lnk_t):
         print "%s created with %d bytes in packet, and %s encoding." % \
                 (output_file, len(pkt_data), wtap_name[lnk_t])
     else:
-        sys.exit("text2pcap did not run succesfully.")
+        sys.exit("text2pcap did not run successfully.")
 
 
 

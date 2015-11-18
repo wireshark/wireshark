@@ -2770,7 +2770,7 @@ void proto_register_gvcp(void)
 		/* GVCP_devicemode */
 
 		{ &hf_gvcp_devicemode_endianess,
-		{ "Endianess", "gvcp.bootstrap.devicemode.endianess",
+		{ "Endianness", "gvcp.bootstrap.devicemode.endianess",
 		FT_BOOLEAN, 32, NULL, 0x80000000,
 		NULL, HFILL
 		}},

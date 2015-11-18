@@ -38,7 +38,7 @@
  *
  * National variants
  * French ISUP Specification: SPIROU 1998 - 002-005 edition 1 ( Info found here http://www.icg-corp.com/docs/ISUP.pdf ).
- * Israeli ISUP Specification: excertp (for BCM messsage) found in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4231 .
+ * Israeli ISUP Specification: excertp (for BCM message) found in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4231 .
  * Russian national ISUP-R 2000: RD 45.217-2001 book 4
  * Japan ISUP http://www.ttc.or.jp/jp/document_list/sum/sum_JT-Q763v21.1.pdf
  */
@@ -7305,7 +7305,7 @@ static const value_string isup_rfi_info_type_values[] = {
 
 /* Performing redirect reason */
 static const value_string perf_redir_reason_vals[] = {
-  { 0,   "Unkown/not available" },
+  { 0,   "Unknown/not available" },
   { 1,   "Service provider portability (national use)" },
   { 2,   "Reserved for location portability" },
   { 3,   "Reserved for service portability" },

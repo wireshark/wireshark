@@ -174,7 +174,7 @@ struct preference {
  */
 typedef prefs_set_pref_e (*pref_set_pair_cb) (gchar *key, const gchar *value, void *private_data, gboolean return_range_errors);
 
-/** read the preferences file (or similiar) and call the callback
+/** read the preferences file (or similar) and call the callback
  * function to set each key/value pair found
  */
 WS_DLL_PUBLIC

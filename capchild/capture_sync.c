@@ -793,7 +793,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
  * standard output and one for its standard error.
  *
  * On success, *msg is unchanged and 0 is returned; data_read_fd,
- * messsage_read_fd, and fork_child point to the standard output pipe's
+ * message_read_fd, and fork_child point to the standard output pipe's
  * file descriptor, the standard error pipe's file descriptor, and
  * the child's PID/handle, respectively.
  *

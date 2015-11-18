@@ -3343,7 +3343,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     return &prefs;
 }
 
-/* read the preferences file (or similiar) and call the callback
+/* read the preferences file (or similar) and call the callback
  * function to set each key/value pair found */
 int
 read_prefs_file(const char *pf_path, FILE *pf,

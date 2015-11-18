@@ -2973,8 +2973,8 @@
       <enum comment="" name="privacy" subtype="CallPrivacy" type="uint32"/>
       <struct comment="" name="precedence" type="struct">
         <fields>
-          <integer comment="Precendence Level, MLPP priorities" name="precedenceLevel" type="uint32"/>
-          <integer comment="Precendence Domain" name="precedenceDomain" type="uint32"/>
+          <integer comment="Precedence Level, MLPP priorities" name="precedenceLevel" type="uint32"/>
+          <integer comment="Precedence Domain" name="precedenceDomain" type="uint32"/>
         </fields>
       </struct>
     </fields>
