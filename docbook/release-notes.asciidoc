@@ -1,8 +1,6 @@
 = Wireshark wireshark-version:[] Release Notes
 // AsciiDoc quick reference: http://powerman.name/doc/asciidoc
 
-This is the second release candidate for Wireshark 2.0.
-
 == What is Wireshark?
 
 Wireshark is the world's most popular network protocol analyzer. It is
@@ -37,6 +35,23 @@ follow this convention.
 //* Wireshark insists on calling you on your land line which is keeping you from abandoning it for cellular. (ws-buglink:0000[])
 
 === New and Updated Features
+
+The following features are new (or have been significantly updated)
+since version 2.0.0rc3:
+
+* An RTP player crash has been fixed.
+
+* Flow graph issues have been fixed. Bug ws-buglink:11710[].
+
+* A Follow Stream dialog crash has been fixed. Bug ws-buglink:11711[].
+
+* An extcap crash has been fixed.
+
+* A file merge crash has been fixed. Bug ws-buglink:11718[].
+
+* A handle leak crash has been fixed. Bug ws-buglink:11702[].
+
+* Several other crashes and usability issues have been fixed.
 
 The following features are new (or have been significantly updated)
 since version 2.0.0rc2:
