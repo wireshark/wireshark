@@ -1170,7 +1170,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
 		strPtr = tvb_ether_to_str(tvb, offset);
 		proto_tree_add_item(chassis_tree, hf_chassis_id_mac, tvb, offset, 6, ENC_NA);
-
+		col_append_fstr(pinfo->cinfo, COL_INFO, "NoS = %s ", strPtr);
 		offset += (dataLen - 1);
 		break;
 	}
@@ -1235,12 +1235,18 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 		switch(tlvsubType)
 		{
 		case 2: /* Interface alias */
+			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
+			break;
 		case 6: /* Interfae name */
+			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
+			break;
 		case 7: /* Locally assigned */
 			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen-1));
-
+			col_append_fstr(pinfo->cinfo, COL_INFO, "NoS = %s ", strPtr);
 			break;
 		case 1: /* Chassis component */
+			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
+			break;
 		case 3: /* Port component */
 			strPtr = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, (dataLen-1));
 
@@ -1388,10 +1394,20 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 			strPtr = tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, (dataLen-1));
 			break;
 		case 1: /* Interface alias */
+			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
+			break;
 		case 5: /* Interface name */
+			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
+			break;
 		case 6: /* Agent circuit ID */
+			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen - 1));
+			break;
 		case 7: /* Locally assigned */
 			strPtr = tvb_format_stringzpad(tvb, offset, (dataLen-1));
+			col_append_fstr(pinfo->cinfo, COL_INFO, "Port Id = %s " ,strPtr);
+			/* Create fence in the column that prevents subsequent 'col_...'
+			calls from clearing the data currently in that column */
+			col_set_fence(pinfo->cinfo, COL_INFO);
 			break;
 		default:
 			strPtr = "Reserved";
@@ -2985,7 +3001,9 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
 		proto_tree_add_uint(tree, hf_profinet_class3_port_status_PreambleLength, tvb, offset, 2, class3_PortStatus);
 
 		class3_PortStatus = class3_PortStatus & 0x7;
-		col_append_fstr(pinfo->cinfo, COL_INFO,"RTClass3 Port Status = %s", val_to_str(class3_PortStatus, profinet_port3_status_vals, "Unknown %d"));
+		/* When Profinet tlv is used, delete previous column info which is consist of "ttl and system description" */
+		col_clear(pinfo->cinfo, COL_INFO);
+		col_append_fstr(pinfo->cinfo, COL_INFO, "RTClass3 Port Status = %s", val_to_str(class3_PortStatus, profinet_port3_status_vals, "Unknown %d"));
 		/*offset+=2;*/
 		break;
 	}
