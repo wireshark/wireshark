@@ -1271,7 +1271,7 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
 
         bool enable = false;
         QString filter;
-        if (capture_file_.capFile() && capture_file_.capFile()->edt) {
+        if (fi && capture_file_.capFile() && capture_file_.capFile()->edt) {
             enable = conv_filter->is_filter_valid(&capture_file_.capFile()->edt->pi);
             filter = conv_filter->build_filter_string(&capture_file_.capFile()->edt->pi);
         }
