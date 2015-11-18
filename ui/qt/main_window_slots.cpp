@@ -1336,9 +1336,10 @@ void MainWindow::startInterfaceCapture(bool valid)
 
 void MainWindow::redissectPackets()
 {
-    if (capture_file_.capFile())
+    if (capture_file_.capFile()) {
         cf_redissect_packets(capture_file_.capFile());
-    main_ui_->statusBar->expertUpdate();
+        main_ui_->statusBar->expertUpdate();
+    }
 
     proto_free_deregistered_fields();
 }
