@@ -569,10 +569,14 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item(pcb_tree, hf_iso14443_blk_num,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     }
-    else if (block_type == S_BLOCK_TYPE) {
+    else if (block_type == R_BLOCK_TYPE) {
         proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,
             tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(pcb_tree, hf_iso14443_blk_num,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    else if (block_type == R_BLOCK_TYPE) {
+        proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     if (bt_str) {
