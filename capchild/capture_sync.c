@@ -2020,12 +2020,12 @@ sync_pipe_wait_for_child(ws_process_id fork_child, gchar **msgp)
                                         fork_child_status);
                 ret = -1;
             }
-        } else if (errno != ECHILD) {
-            *msgp = g_strdup_printf("Error from waitpid(): %s", g_strerror(errno));
-            ret = -1;
         } else if (errno == EINTR) {
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING, "sync_pipe_wait_for_child: waitpid returned EINTR. retrying.");
             continue;
+        } else if (errno != ECHILD) {
+            *msgp = g_strdup_printf("Error from waitpid(): %s", g_strerror(errno));
+            ret = -1;
         } else {
             /* errno == ECHILD ; echld might have already reaped the child */
             ret = fetch_dumpcap_pid ? 0 : -1;
