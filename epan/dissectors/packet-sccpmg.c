@@ -242,8 +242,8 @@ dissect_sccpmg_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccpmg_tre
 	}
 }
 
-static void
-dissect_sccpmg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sccpmg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *sccpmg_item;
 	proto_tree *sccpmg_tree = NULL;
@@ -272,6 +272,7 @@ dissect_sccpmg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* dissect the message */
 	dissect_sccpmg_message(tvb, pinfo, sccpmg_tree);
+	return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -355,7 +356,7 @@ proto_reg_handoff_sccpmg(void)
 {
 	dissector_handle_t sccpmg_handle;
 
-	sccpmg_handle = create_dissector_handle(dissect_sccpmg, proto_sccpmg);
+	sccpmg_handle = new_create_dissector_handle(dissect_sccpmg, proto_sccpmg);
 
 	/* Register for SCCP SSN=1 messages */
 	dissector_add_uint("sccp.ssn", SCCPMG_SSN, sccpmg_handle);

@@ -103,8 +103,8 @@ static const value_string rmi_input_message_str[] = {
     {0, NULL}
 };
 
-static void
-dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *rmi_tree;
@@ -229,6 +229,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -371,7 +372,7 @@ proto_reg_handoff_rmi(void)
 {
     dissector_handle_t rmi_handle;
 
-    rmi_handle = create_dissector_handle(dissect_rmi, proto_rmi);
+    rmi_handle = new_create_dissector_handle(dissect_rmi, proto_rmi);
     dissector_add_uint("tcp.port", TCP_PORT_RMI, rmi_handle);
 }
 

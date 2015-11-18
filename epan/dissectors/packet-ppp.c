@@ -1069,7 +1069,6 @@ static void dissect_lcp_multilink_hdr_fmt_opt(const ip_tcp_opt *optp,
 static void dissect_lcp_internationalization_opt(const ip_tcp_opt *optp,
     tvbuff_t *tvb, int offset, guint length, packet_info *pinfo _U_,
     proto_tree *tree, void *data _U_);
-static void dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static const ip_tcp_opt lcp_opts[] = {
     {CI_VENDORSPECIFIC, "Vendor Specific", &ett_lcp_vendor_opt,
@@ -1614,8 +1613,6 @@ static const value_string pap_vals[] = {
     {0,       NULL}
 };
 
-static void dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 #define CHAP_CHAL  1  /* CHAP Challenge */
 #define CHAP_RESP  2  /* CHAP Response */
 #define CHAP_SUCC  3  /* CHAP Success */
@@ -1628,8 +1625,6 @@ static const value_string chap_vals[] = {
     {CHAP_FAIL, "Failure"},
     {0,         NULL}
 };
-
-static void dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static const value_string pppmuxcp_vals[] = {
     {CONFREQ, "Configuration Request"},
@@ -3994,15 +3989,16 @@ dissect_lcp_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 /*
  * RFC's 1661, 2153 and 1570.
  */
-static void
-dissect_lcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_lcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_cp(tvb, proto_lcp, ett_lcp, lcp_vals, ett_lcp_options, lcp_opts,
         N_LCP_OPTS, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *fh_tree = NULL;
@@ -4049,10 +4045,11 @@ dissect_vsncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* TODO? */
         break;
     }
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *vsnp_item = NULL;
     proto_tree *vsnp_tree = NULL;
@@ -4076,16 +4073,18 @@ dissect_vsnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             val_to_str_ext_const(PPP_IP, &ppp_vals_ext, "Unknown"), PPP_IP);
         call_dissector(data_handle, next_tvb, pinfo, tree);
     }
+    return tvb_captured_length(tvb);
 }
 
 /*
  * RFC 1332.
  */
-static void
-dissect_ipcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_cp(tvb, proto_ipcp, ett_ipcp, cp_vals, ett_ipcp_options, ipcp_opts,
         N_IPCP_OPTS, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -4113,8 +4112,8 @@ static const value_string bcp_mac_type_vals[] = {
     {0,                       NULL}
 };
 
-static void
-dissect_bcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *bcp_tree;
@@ -4204,26 +4203,29 @@ dissect_bcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 /*
  * RFC 1377.
  */
-static void
-dissect_osinlcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_osinlcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_cp(tvb, proto_osinlcp, ett_osinlcp, cp_vals, ett_osinlcp_options,
         osinlcp_opts, N_OSINLCP_OPTS, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 /*
  * RFC 1962.
  */
-static void
-dissect_ccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_cp(tvb, proto_ccp, ett_ccp, ccp_vals, ett_ccp_options, ccp_opts,
         N_CCP_OPTS, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -4231,25 +4233,27 @@ dissect_ccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *
  * http://www.linet.gr.jp/~manabe/PPxP/doc/Standards/draft-gidwani-ppp-callback-cp-00.txt
  */
-static void
-dissect_cbcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cbcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_cp(tvb, proto_cbcp, ett_cbcp, cbcp_vals, ett_cbcp_options,
         cbcp_opts, N_CBCP_OPTS, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 /*
  * RFC 2125 (BACP and BAP).
  */
-static void
-dissect_bacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_cp(tvb, proto_bacp, ett_bacp, cp_vals, ett_bacp_options, bacp_opts,
         N_BACP_OPTS, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *fh_tree = NULL;
@@ -4287,11 +4291,12 @@ dissect_bap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissect_ip_tcp_options(tvb, offset, length, bap_opts, N_BAP_OPTS, -1, &PPP_OPT_TYPES,
                                 &ei_ppp_opt_len_invalid, pinfo, field_tree, NULL, NULL);
     }
+    return tvb_captured_length(tvb);
 }
 
 #if 0 /* TODO? */
-static void
-dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *comp_data_tree;
@@ -4303,34 +4308,37 @@ dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_item(tree, proto_comp_data, tvb, 0, -1, ENC_NA);
         comp_data_tree = proto_item_add_subtree(ti, ett_comp_data);
     }
+    return tvb_captured_length(tvb);
 }
 #else
-static void
-dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_comp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPP Comp");
     col_set_str(pinfo->cinfo, COL_INFO, "Compressed data");
 
     proto_tree_add_item(tree, proto_comp_data, tvb, 0, -1, ENC_NA);
+    return tvb_captured_length(tvb);
 }
 #endif
 
 /*
  * RFC 3153 (both PPPMuxCP and PPPMux).
  */
-static void
-dissect_pppmuxcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pppmuxcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_cp(tvb, proto_pppmuxcp, ett_pppmuxcp, pppmuxcp_vals,
         ett_pppmuxcp_options, pppmuxcp_opts, N_PPPMUXCP_OPTS,pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 #define PPPMUX_FLAGS_MASK          0xc0
 #define PPPMUX_PFF_BIT_SET         0x80
 #define PPPMUX_LXT_BIT_SET         0x40
 
-static void
-dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree     *mux_tree, *hdr_tree, *sub_tree;
     proto_tree     *info_tree;
@@ -4418,6 +4426,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += length;
         length_remaining -= length;
     }
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -4558,8 +4567,8 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*
  * 0x2067 Packets:  Compressed UDP with 16-bit Context Identifier
  */
-static void
-dissect_iphc_crtp_cudp16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_iphc_crtp_cudp16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *cudp_tree;
     proto_item *ti     = NULL;
@@ -4590,13 +4599,14 @@ dissect_iphc_crtp_cudp16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_tree_add_item(cudp_tree, hf_iphc_crtp_data, tvb, offset, length, ENC_NA);
     }
+    return tvb_captured_length(tvb);
 }
 
 /*
  * 0x67 Packets:  Compressed UDP with 8-bit Context Identifier
  */
-static void
-dissect_iphc_crtp_cudp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_iphc_crtp_cudp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *cudp_tree;
     proto_item *ti     = NULL;
@@ -4627,14 +4637,15 @@ dissect_iphc_crtp_cudp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_tree_add_item(cudp_tree, hf_iphc_crtp_data, tvb, offset, length, ENC_NA);
     }
+    return tvb_captured_length(tvb);
 }
 
 
 /*
  * 0x2065 Packets:  Context State
  */
-static void
-dissect_iphc_crtp_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_iphc_crtp_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *cs_tree;
     proto_item *ti     = NULL;
@@ -4670,8 +4681,6 @@ dissect_iphc_crtp_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             length = 4 * cnt;
         }
 
-        tvb_ensure_bytes_exist(tvb, offset, length);
-
         while (offset < length) {
             proto_tree_add_item(cs_tree, hf, tvb, offset, cid_size,
                 ENC_BIG_ENDIAN);
@@ -4686,28 +4695,31 @@ dissect_iphc_crtp_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             ++offset;
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 
 /*
  * RFC 3032.
  */
-static void
-dissect_mplscp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mplscp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_cp(tvb, proto_mplscp, ett_mplscp, cp_vals, ett_mplscp_options,
         NULL, 0, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 /*
  * Cisco Discovery Protocol Control Protocol.
  * XXX - where is this documented?
  */
-static void
-dissect_cdpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cdpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_cp(tvb, proto_cdpcp, ett_cdpcp, cp_vals, ett_cdpcp_options, NULL,
         0, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 static gboolean mp_short_seqno = FALSE; /* Default to long sequence numbers */
@@ -4730,8 +4742,8 @@ static const value_string mp_frag_vals[] = {
    negotiated down to two using LCP.  We currently have a preference
    to select short headers.  - gcc & gh
 */
-static void
-dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree  *mp_tree;
     proto_item  *ti;
@@ -4771,6 +4783,7 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         next_tvb = tvb_new_subset_remaining(tvb, hdrlen);
         dissect_ppp(next_tvb, pinfo, tree, NULL);
     }
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -5120,8 +5133,8 @@ proto_reg_handoff_ppp_raw_hdlc(void)
 /*
  * Handles PAP just as a protocol field
  */
-static void
-dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti, *data_ti;
     proto_tree *fh_tree, *data_tree = NULL;
@@ -5200,6 +5213,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             ENC_NA);
         break;
     }
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -5330,11 +5344,12 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*
  * RFC 2472.
  */
-static void
-dissect_ipv6cp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipv6cp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     dissect_cp(tvb, proto_ipv6cp, ett_ipv6cp, cp_vals, ett_ipv6cp_options,
         ipv6cp_opts, N_IPV6CP_OPTS, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -5518,7 +5533,7 @@ proto_reg_handoff_mp(void)
 {
     dissector_handle_t mp_handle;
 
-    mp_handle = create_dissector_handle(dissect_mp, proto_mp);
+    mp_handle = new_create_dissector_handle(dissect_mp, proto_mp);
     dissector_add_uint("ppp.protocol", PPP_MP, mp_handle);
 }
 
@@ -5812,7 +5827,7 @@ proto_reg_handoff_lcp(void)
 {
     dissector_handle_t lcp_handle;
 
-    lcp_handle = create_dissector_handle(dissect_lcp, proto_lcp);
+    lcp_handle = new_create_dissector_handle(dissect_lcp, proto_lcp);
     dissector_add_uint("ppp.protocol", PPP_LCP, lcp_handle);
 
     /*
@@ -5879,7 +5894,7 @@ proto_reg_handoff_vsncp(void)
 {
     dissector_handle_t vsncp_handle;
 
-    vsncp_handle = create_dissector_handle(dissect_vsncp, proto_vsncp);
+    vsncp_handle = new_create_dissector_handle(dissect_vsncp, proto_vsncp);
     dissector_add_uint("ppp.protocol", PPP_VSNCP, vsncp_handle);
 }
 
@@ -5907,7 +5922,7 @@ proto_reg_handoff_vsnp(void)
 {
     dissector_handle_t vsnp_handle;
 
-    vsnp_handle = create_dissector_handle(dissect_vsnp, proto_vsnp);
+    vsnp_handle = new_create_dissector_handle(dissect_vsnp, proto_vsnp);
     dissector_add_uint("ppp.protocol", PPP_VSNP, vsnp_handle);
 }
 
@@ -6028,7 +6043,7 @@ proto_reg_handoff_ipcp(void)
 {
     dissector_handle_t ipcp_handle;
 
-    ipcp_handle = create_dissector_handle(dissect_ipcp, proto_ipcp);
+    ipcp_handle = new_create_dissector_handle(dissect_ipcp, proto_ipcp);
     dissector_add_uint("ppp.protocol", PPP_IPCP, ipcp_handle);
 
     /*
@@ -6116,7 +6131,7 @@ proto_reg_handoff_bcp(void)
     eth_withfcs_handle    = find_dissector("eth_withfcs");
     eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 
-    bcp_handle = create_dissector_handle(dissect_bcp, proto_bcp);
+    bcp_handle = new_create_dissector_handle(dissect_bcp, proto_bcp);
     dissector_add_uint("ppp.protocol", PPP_BCP, bcp_handle);
 }
 
@@ -6125,7 +6140,7 @@ proto_reg_handoff_osinlcp(void)
 {
     dissector_handle_t osinlcp_handle;
 
-    osinlcp_handle = create_dissector_handle(dissect_osinlcp, proto_osinlcp);
+    osinlcp_handle = new_create_dissector_handle(dissect_osinlcp, proto_osinlcp);
     dissector_add_uint("ppp.protocol", PPP_OSINLCP, osinlcp_handle);
 
     /*
@@ -6281,7 +6296,7 @@ proto_reg_handoff_ccp(void)
 {
     dissector_handle_t ccp_handle;
 
-    ccp_handle = create_dissector_handle(dissect_ccp, proto_ccp);
+    ccp_handle = new_create_dissector_handle(dissect_ccp, proto_ccp);
     dissector_add_uint("ppp.protocol", PPP_CCP, ccp_handle);
 
     /*
@@ -6328,7 +6343,7 @@ proto_reg_handoff_cbcp(void)
 {
     dissector_handle_t cbcp_handle;
 
-    cbcp_handle = create_dissector_handle(dissect_cbcp, proto_cbcp);
+    cbcp_handle = new_create_dissector_handle(dissect_cbcp, proto_cbcp);
     dissector_add_uint("ppp.protocol", PPP_CBCP, cbcp_handle);
 
     /*
@@ -6365,7 +6380,7 @@ proto_reg_handoff_bacp(void)
 {
     dissector_handle_t bacp_handle;
 
-    bacp_handle = create_dissector_handle(dissect_bacp, proto_bacp);
+    bacp_handle = new_create_dissector_handle(dissect_bacp, proto_bacp);
     dissector_add_uint("ppp.protocol", PPP_BACP, bacp_handle);
 
     /*
@@ -6423,7 +6438,7 @@ proto_reg_handoff_bap(void)
 {
     dissector_handle_t bap_handle;
 
-    bap_handle = create_dissector_handle(dissect_bap, proto_bap);
+    bap_handle = new_create_dissector_handle(dissect_bap, proto_bap);
     dissector_add_uint("ppp.protocol", PPP_BAP, bap_handle);
 
     /*
@@ -6454,7 +6469,7 @@ proto_reg_handoff_comp_data(void)
 {
     dissector_handle_t comp_data_handle;
 
-    comp_data_handle = create_dissector_handle(dissect_comp_data,
+    comp_data_handle = new_create_dissector_handle(dissect_comp_data,
         proto_comp_data);
     dissector_add_uint("ppp.protocol", PPP_COMP, comp_data_handle);
 
@@ -6533,7 +6548,7 @@ proto_reg_handoff_pap(void)
 {
     dissector_handle_t pap_handle;
 
-    pap_handle = create_dissector_handle(dissect_pap, proto_pap);
+    pap_handle = new_create_dissector_handle(dissect_pap, proto_pap);
     dissector_add_uint("ppp.protocol", PPP_PAP, pap_handle);
 
     /*
@@ -6644,7 +6659,7 @@ proto_reg_handoff_pppmuxcp(void)
 {
     dissector_handle_t muxcp_handle;
 
-    muxcp_handle = create_dissector_handle(dissect_pppmuxcp, proto_pppmuxcp);
+    muxcp_handle = new_create_dissector_handle(dissect_pppmuxcp, proto_pppmuxcp);
     dissector_add_uint("ppp.protocol", PPP_MUXCP, muxcp_handle);
 
     /*
@@ -6684,7 +6699,7 @@ proto_reg_handoff_pppmux(void)
 {
     dissector_handle_t pppmux_handle;
 
-    pppmux_handle = create_dissector_handle(dissect_pppmux, proto_pppmux);
+    pppmux_handle = new_create_dissector_handle(dissect_pppmux, proto_pppmux);
     dissector_add_uint("ppp.protocol", PPP_MUX, pppmux_handle);
 
     /*
@@ -6712,7 +6727,7 @@ proto_reg_handoff_mplscp(void)
 {
     dissector_handle_t mplscp_handle;
 
-    mplscp_handle = create_dissector_handle(dissect_mplscp, proto_mplscp);
+    mplscp_handle = new_create_dissector_handle(dissect_mplscp, proto_mplscp);
     dissector_add_uint("ppp.protocol", PPP_MPLSCP, mplscp_handle);
 
     /*
@@ -6740,7 +6755,7 @@ proto_reg_handoff_cdpcp(void)
 {
     dissector_handle_t cdpcp_handle;
 
-    cdpcp_handle = create_dissector_handle(dissect_cdpcp, proto_cdpcp);
+    cdpcp_handle = new_create_dissector_handle(dissect_cdpcp, proto_cdpcp);
     dissector_add_uint("ppp.protocol", PPP_CDPCP, cdpcp_handle);
 
     /*
@@ -6775,7 +6790,7 @@ proto_reg_handoff_ipv6cp(void)
 {
     dissector_handle_t ipv6cp_handle;
 
-    ipv6cp_handle = create_dissector_handle(dissect_ipv6cp, proto_ipv6cp);
+    ipv6cp_handle = new_create_dissector_handle(dissect_ipv6cp, proto_ipv6cp);
     dissector_add_uint("ppp.protocol", PPP_IPV6CP, ipv6cp_handle);
 
     /*
@@ -6859,13 +6874,13 @@ proto_reg_handoff_iphc_crtp(void)
     fh_handle = create_dissector_handle(dissect_iphc_crtp_fh, proto_iphc_crtp);
     dissector_add_uint("ppp.protocol", PPP_RTP_FH, fh_handle);
 
-    cudp16_handle = create_dissector_handle(dissect_iphc_crtp_cudp16, proto_iphc_crtp_cudp16);
+    cudp16_handle = new_create_dissector_handle(dissect_iphc_crtp_cudp16, proto_iphc_crtp_cudp16);
     dissector_add_uint("ppp.protocol", PPP_RTP_CUDP16, cudp16_handle);
 
-    cudp8_handle = create_dissector_handle(dissect_iphc_crtp_cudp8, proto_iphc_crtp_cudp8);
+    cudp8_handle = new_create_dissector_handle(dissect_iphc_crtp_cudp8, proto_iphc_crtp_cudp8);
     dissector_add_uint("ppp.protocol", PPP_RTP_CUDP8, cudp8_handle);
 
-    cs_handle = create_dissector_handle(dissect_iphc_crtp_cs, proto_iphc_crtp_cs);
+    cs_handle = new_create_dissector_handle(dissect_iphc_crtp_cs, proto_iphc_crtp_cs);
     dissector_add_uint("ppp.protocol", PPP_RTP_CS, cs_handle);
 
     /*

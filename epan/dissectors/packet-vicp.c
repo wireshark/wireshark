@@ -43,7 +43,7 @@ static gint ett_vicp = -1;
 void proto_register_vicp(void);
 void proto_reg_handoff_vicp(void);
 
-static void dissect_vicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_vicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    proto_item *ti;
    proto_tree *vicp_tree;
@@ -54,7 +54,7 @@ static void dissect_vicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    if (tvb_reported_length_remaining(tvb, 0) < 8)
    {
       /* Payload too small for VICP */
-      return;
+      return 0;
    }
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "VICP");
@@ -76,6 +76,7 @@ static void dissect_vicp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    ptvcursor_add(cursor, hf_vicp_data, len, ENC_NA);
 
    ptvcursor_free(cursor);
+   return tvb_captured_length(tvb);
 }
 
 void proto_register_vicp(void)
@@ -114,7 +115,7 @@ void proto_register_vicp(void)
 void proto_reg_handoff_vicp(void)
 {  dissector_handle_t vicp_handle;
 
-   vicp_handle = create_dissector_handle(dissect_vicp, proto_vicp);
+   vicp_handle = new_create_dissector_handle(dissect_vicp, proto_vicp);
    dissector_add_uint("tcp.port", VICP_PORT, vicp_handle);
 }
 

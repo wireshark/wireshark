@@ -548,8 +548,8 @@ dissect_rtnet_tdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
   }
 }
 
-static void
-dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   gint offset = 0;
   guint8 ver,flags;
   guint16 type;
@@ -652,10 +652,12 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
           call_dissector(data_handle, next_tvb, pinfo, tree);
           break;
       }
+
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   gint offset = 0;
   proto_tree *vers_id_tree, *vers_id_item, *flags_tree, *flags_item;
   guint8 vers_id;
@@ -875,6 +877,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     }
   }
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -1323,7 +1326,7 @@ void
 proto_reg_handoff_rtmac(void) {
   dissector_handle_t rtmac_handle;
 
-  rtmac_handle = create_dissector_handle(dissect_rtmac, proto_rtmac);
+  rtmac_handle = new_create_dissector_handle(dissect_rtmac, proto_rtmac);
   dissector_add_uint("ethertype", ETHERTYPE_RTMAC, rtmac_handle);
   ethertype_table = find_dissector_table("ethertype");
 }
@@ -1333,7 +1336,7 @@ proto_reg_handoff_rtcfg(void) {
   dissector_handle_t rtcfg_handle;
 
   data_handle = find_dissector("data");
-  rtcfg_handle = create_dissector_handle(dissect_rtcfg, proto_rtcfg);
+  rtcfg_handle = new_create_dissector_handle(dissect_rtcfg, proto_rtcfg);
   dissector_add_uint("ethertype", ETHERTYPE_RTCFG, rtcfg_handle);
 }
 

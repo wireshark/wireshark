@@ -320,8 +320,8 @@ static int get_address_v5(tvbuff_t *tvb, int offset,
 
 /********************* V5 UDP Associate handlers ***********************/
 
-static void
-socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
 
 /* Conversation dissector called from UDP dissector. Decode and display */
 /* the socks header, the pass the rest of the data to the udp port  */
@@ -380,6 +380,7 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     decode_udp_ports( tvb, offset, pinfo, tree, pinfo->srcport, pinfo->destport, -1);
 
     *ptr = hash_info->udp_port;
+    return tvb_captured_length(tvb);
 }
 
 
@@ -1306,7 +1307,7 @@ void
 proto_reg_handoff_socks(void) {
 
     /* dissector install routine */
-    socks_udp_handle = create_dissector_handle(socks_udp_dissector, proto_socks);
+    socks_udp_handle = new_create_dissector_handle(socks_udp_dissector, proto_socks);
     socks_handle = new_create_dissector_handle(dissect_socks, proto_socks);
 
     dissector_add_uint("tcp.port", TCP_PORT_SOCKS, socks_handle);

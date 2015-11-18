@@ -201,8 +201,8 @@ decode_teredo_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,proto_tree *tr
 	call_dissector(data_handle,next_tvb, pinfo, tree);
 }
 
-static void
-dissect_teredo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_teredo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree *teredo_tree;
 	proto_item *ti;
@@ -219,12 +219,8 @@ dissect_teredo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Teredo");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_teredo, tvb, 0, -1, ENC_NA);
-		teredo_tree = proto_item_add_subtree(ti, ett_teredo);
-	}
-	else
-		teredo_tree = NULL;
+	ti = proto_tree_add_item(tree, proto_teredo, tvb, 0, -1, ENC_NA);
+	teredo_tree = proto_item_add_subtree(ti, ett_teredo);
 
 	teredoh->th_header  = tvb_get_ntohs(tvb, offset);
 
@@ -245,6 +241,7 @@ dissect_teredo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	decode_teredo_ports(tvb, offset, pinfo, tree, teredoh->th_header /* , teredoh->th_orgport*/);
 	tap_queue_packet(teredo_tap, pinfo, teredoh);
+	return tvb_captured_length(tvb);
 }
 
 
@@ -308,7 +305,7 @@ dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 		if (tvb_reported_length_remaining(tvb, offset) != val)
 			return FALSE; /* length mismatch */
 
-		dissect_teredo (tvb, pinfo, tree);
+		dissect_teredo (tvb, pinfo, tree, data);
 		return TRUE;
 	}
 
@@ -400,7 +397,7 @@ proto_reg_handoff_teredo(void)
 {
 	dissector_handle_t teredo_handle;
 
-	teredo_handle = create_dissector_handle(dissect_teredo, proto_teredo);
+	teredo_handle = new_create_dissector_handle(dissect_teredo, proto_teredo);
 	data_handle   = find_dissector("ipv6");
 	teredo_tap    = register_tap("teredo");
 

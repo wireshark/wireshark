@@ -547,8 +547,8 @@ static kerberos_callbacks cb[] = {
     { 0, NULL }
 };
 
-static void
-dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int offset=0;
     proto_tree *pktc_mtafqdn_tree;
@@ -572,11 +572,12 @@ dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += dissect_kerberos_main(pktc_mtafqdn_tvb, pinfo, pktc_mtafqdn_tree, FALSE, cb);
 
     proto_item_set_len(item, offset);
+    return tvb_captured_length(tvb);
 }
 
 
-static void
-dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8 kmmid, doi, version;
     int offset=0;
@@ -634,6 +635,7 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     };
 
     proto_item_set_len(item, offset);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -737,7 +739,7 @@ proto_reg_handoff_pktc(void)
 {
     dissector_handle_t pktc_handle;
 
-    pktc_handle = create_dissector_handle(dissect_pktc, proto_pktc);
+    pktc_handle = new_create_dissector_handle(dissect_pktc, proto_pktc);
     dissector_add_uint("udp.port", PKTC_PORT, pktc_handle);
 }
 
@@ -797,7 +799,7 @@ proto_reg_handoff_pktc_mtafqdn(void)
 {
     dissector_handle_t pktc_mtafqdn_handle;
 
-    pktc_mtafqdn_handle = create_dissector_handle(dissect_pktc_mtafqdn, proto_pktc_mtafqdn);
+    pktc_mtafqdn_handle = new_create_dissector_handle(dissect_pktc_mtafqdn, proto_pktc_mtafqdn);
     dissector_add_uint("udp.port", PKTC_MTAFQDN_PORT, pktc_mtafqdn_handle);
 }
 

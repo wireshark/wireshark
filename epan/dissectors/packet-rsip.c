@@ -967,8 +967,8 @@ rsip_message_assign_response_rsipsec(tvbuff_t *tvb, proto_tree *rsip_tree,
 	return consumed;
 }
 
-static void
-dissect_rsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item	*ti;
 	proto_tree	*rsip_tree;
@@ -1060,6 +1060,7 @@ dissect_rsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 
@@ -1246,7 +1247,7 @@ proto_reg_handoff_rsip(void)
 
 	if (!initialized) {
 
-		rsip_handle = create_dissector_handle(dissect_rsip,
+		rsip_handle = new_create_dissector_handle(dissect_rsip,
 		    proto_rsip);
 		dissector_add_uint("udp.port", UDP_PORT_RSIP, rsip_handle);
 		dissector_add_uint("tcp.port", TCP_PORT_RSIP, rsip_handle);

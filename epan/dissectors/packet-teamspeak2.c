@@ -710,7 +710,7 @@ static ts2_conversation* ts2_get_conversation(packet_info *pinfo)
 
 
 /* Dissect a TS2 packet */
-static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     ts2_conversation *conversation_data;
     guint16 type = tvb_get_letohs(tvb, 2);
@@ -807,6 +807,7 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
         }
     } /* if (tree) */
+    return tvb_captured_length(tvb);
 }
 
 
@@ -1230,7 +1231,7 @@ void proto_register_ts2(void)
 void proto_reg_handoff_ts2(void)
 {
     dissector_handle_t ts2_handle;
-    ts2_handle = create_dissector_handle(dissect_ts2, proto_ts2);
+    ts2_handle = new_create_dissector_handle(dissect_ts2, proto_ts2);
     dissector_add_uint("udp.port", TS2_PORT, ts2_handle);
 }
 

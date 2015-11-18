@@ -4483,8 +4483,8 @@ static const value_string vals_sir_protocol_options[] = {
  * Arguably this should be a separate dissector, but SIR does not make sense
  * outside of WSP anyway.
  */
-static void
-dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8      version;
     guint32     val_len;
@@ -4529,7 +4529,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* End of version 0 SIR content */
     if (version == 0)
-        return;
+        return offset;
 
     offset += val_len;
 
@@ -4585,6 +4585,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             tvb, offset, 4, ENC_NA);
         offset += 4;
     }
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -5025,13 +5026,14 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  * Called directly from UDP.
  * Put "WSP" into the "Protocol" column.
  */
-static void
-dissect_wsp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_wsp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "WSP");
     col_clear(pinfo->cinfo, COL_INFO);
 
     dissect_wsp_common(tvb, pinfo, tree, wsp_fromudp_handle, TRUE);
+    return tvb_captured_length(tvb);
 }
 
 
@@ -7163,7 +7165,7 @@ proto_register_wsp(void)
     new_register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
     heur_subdissector_list = register_heur_dissector_list("wsp");
 
-    wsp_fromudp_handle = create_dissector_handle(dissect_wsp_fromudp,
+    wsp_fromudp_handle = new_create_dissector_handle(dissect_wsp_fromudp,
                                                  proto_wsp);
 }
 
@@ -7354,7 +7356,7 @@ proto_reg_handoff_sir(void)
 {
     dissector_handle_t sir_handle;
 
-    sir_handle = create_dissector_handle(dissect_sir, proto_sir);
+    sir_handle = new_create_dissector_handle(dissect_sir, proto_sir);
 
     /* Add dissector bindings for SIR dissection */
     dissector_add_string("media_type", "application/vnd.wap.sia", sir_handle);

@@ -82,8 +82,8 @@ static header_field_info hfi_redback_unknown REDBACK_HFI_INIT =
 
 static expert_field ei_redback_protocol = EI_INIT;
 
-static void
-dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint16		l3off, dataoff, proto;
 	proto_item	*ti, *protocol_item;
@@ -189,7 +189,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			expert_add_info(pinfo, protocol_item, &ei_redback_protocol);
 			break;
 	}
-	return;
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -228,7 +228,7 @@ proto_register_redback(void)
 	expert_redback = expert_register_protocol(proto_redback);
 	expert_register_field_array(expert_redback, ei, array_length(ei));
 
-	redback_handle = create_dissector_handle(dissect_redback, proto_redback);
+	redback_handle = new_create_dissector_handle(dissect_redback, proto_redback);
 }
 
 void

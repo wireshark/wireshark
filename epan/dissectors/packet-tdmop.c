@@ -89,7 +89,7 @@ static guint8 reverse_map[256]=
 0x0F,0x8F,0x4F,0xCF,0x2F,0xAF,0x6F,0xEF,0x1F,0x9F,0x5F,0xDF,0x3F,0xBF,0x7F,0xFF
 };
 
-static void dissect_tdmop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_tdmop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8    dchannel_data[MAX_DCHANNEL_LEN];
     guint    dchannel_len;
@@ -199,6 +199,7 @@ static void dissect_tdmop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             call_dissector(lapd_handle, new_tvb, pinfo, tree);
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 void proto_register_tdmop(void)
@@ -350,7 +351,7 @@ void proto_reg_handoff_tdmop(void)
     static guint32 current_tdmop_udpport;
     if (!init)
     {
-        tdmop_handle = create_dissector_handle(dissect_tdmop, proto_tdmop);
+        tdmop_handle = new_create_dissector_handle(dissect_tdmop, proto_tdmop);
         dissector_add_uint("udp.port", pref_tdmop_udpport, tdmop_handle);
         dissector_add_uint("ethertype", pref_tdmop_ethertype, tdmop_handle);
         lapd_handle = find_dissector("lapd-bitstream");

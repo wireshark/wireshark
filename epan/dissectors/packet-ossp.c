@@ -223,8 +223,8 @@ dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
  * Notes:
  *    Roberto Morro (roberto.morro[AT]tilab.com)
  */
-static void
-dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     gint          offset = 0;
     const gchar  *str;
@@ -272,6 +272,7 @@ dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         proto_item_append_text(oui_item, " (Unknown OSSP organization)");
     }
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -691,7 +692,7 @@ proto_reg_handoff_ossp(void)
 {
     dissector_handle_t ossp_handle;
 
-    ossp_handle = create_dissector_handle(dissect_ossp_pdu, proto_ossp);
+    ossp_handle = new_create_dissector_handle(dissect_ossp_pdu, proto_ossp);
     dissector_add_uint("slow.subtype", OSSP_SUBTYPE, ossp_handle);
 
     dh_data = find_dissector("data");

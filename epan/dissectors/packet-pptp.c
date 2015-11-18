@@ -587,8 +587,8 @@ dissect_set_link(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
   proto_tree_add_item(tree, hf_pptp_receive_accm, tvb, offset, 4, ENC_BIG_ENDIAN);
 }
 
-static void
-dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree *pptp_tree = NULL;
   proto_item *item      = NULL;
@@ -684,6 +684,7 @@ dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissect_unknown(tvb, offset, pinfo, pptp_tree);
       break;
   }
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -961,7 +962,7 @@ proto_reg_handoff_pptp(void)
 {
   dissector_handle_t pptp_handle;
 
-  pptp_handle = create_dissector_handle(dissect_pptp, proto_pptp);
+  pptp_handle = new_create_dissector_handle(dissect_pptp, proto_pptp);
   dissector_add_uint("tcp.port", TCP_PORT_PPTP, pptp_handle);
   data_handle = find_dissector("data");
 }

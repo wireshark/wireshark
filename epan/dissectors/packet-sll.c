@@ -190,8 +190,8 @@ capture_sll(const guchar *pd, int len, packet_counts *ld)
 		capture_ethertype(protocol, pd, SLL_HEADER_SIZE, len, ld);
 }
 
-static void
-dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint16 pkttype;
 	guint16 protocol;
@@ -299,6 +299,7 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -334,7 +335,7 @@ proto_register_sll(void)
 	proto_register_fields(proto_sll, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	sll_handle = create_dissector_handle(dissect_sll, proto_sll);
+	sll_handle = new_create_dissector_handle(dissect_sll, proto_sll);
 
 	sll_linux_dissector_table = register_dissector_table (
 		"sll.ltype",

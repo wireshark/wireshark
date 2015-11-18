@@ -799,8 +799,8 @@ dissect_pim_addr(proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtyp
  * (when PIM is run over IPv6, the rules for computing the PIM checksum
  * from the draft in question, not from RFC 2362, should be used).
  */
-static void
-dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     int offset = 0;
     guint8 pim_typever;
     guint8 pim_bidir_subtype = 0;
@@ -1411,7 +1411,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     default:
         break;
     }
-done:;
+done:
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -1861,7 +1862,7 @@ proto_reg_handoff_pim(void)
 {
     dissector_handle_t pim_handle, pimv1_handle;
 
-    pim_handle = create_dissector_handle(dissect_pim, proto_pim);
+    pim_handle = new_create_dissector_handle(dissect_pim, proto_pim);
     dissector_add_uint("ip.proto", IP_PROTO_PIM, pim_handle);
 
     pimv1_handle = new_create_dissector_handle(dissect_pimv1, proto_pim);

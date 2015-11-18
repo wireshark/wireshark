@@ -98,8 +98,8 @@ static const value_string tuxedo_opcode_vals[] = {
 };
 
 
-static void
-dissect_tuxedo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tuxedo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*tuxedoroot_tree = NULL;
 	proto_item	*ti;
@@ -136,6 +136,7 @@ dissect_tuxedo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 static gboolean
@@ -152,7 +153,7 @@ dissect_tuxedo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 			conversation = find_or_create_conversation(pinfo);
 			conversation_set_dissector(conversation, tuxedo_handle);
 
-			dissect_tuxedo(tvb, pinfo, tree);
+			dissect_tuxedo(tvb, pinfo, tree, data);
 			return TRUE;
 		}
 	}
@@ -184,7 +185,7 @@ proto_register_tuxedo(void)
 void
 proto_reg_handoff_tuxedo(void)
 {
-	tuxedo_handle = create_dissector_handle(dissect_tuxedo, proto_tuxedo);
+	tuxedo_handle = new_create_dissector_handle(dissect_tuxedo, proto_tuxedo);
 	dissector_add_for_decode_as("tcp.port", tuxedo_handle);
 	heur_dissector_add("tcp", dissect_tuxedo_heur, "Tuxedo over TCP", "tuxedo_tcp", proto_tuxedo, HEURISTIC_ENABLE);
 }

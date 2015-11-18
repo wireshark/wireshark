@@ -160,7 +160,7 @@ void dissect_trailer(tvbuff_t *tvb, proto_tree *tree, int offset);
 void dissect_cid(tvbuff_t *tvb, proto_tree *tree, int offset);
 void proto_reg_handoff_vrt(void);
 
-static void dissect_vrt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_vrt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int     offset = 0;
     guint8  type;
@@ -258,6 +258,7 @@ static void dissect_vrt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_trailer(tvb, vrt_tree, offset);
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 void dissect_header(tvbuff_t *tvb, proto_tree *tree, int type, int offset)
@@ -660,7 +661,7 @@ proto_reg_handoff_vrt(void)
     static gint dissector_port;
 
     if (!vrt_prefs_initialized) {
-        vrt_handle = create_dissector_handle(dissect_vrt, proto_vrt);
+        vrt_handle = new_create_dissector_handle(dissect_vrt, proto_vrt);
         vrt_prefs_initialized = TRUE;
     } else {
         dissector_delete_uint("udp.port", dissector_port, vrt_handle);

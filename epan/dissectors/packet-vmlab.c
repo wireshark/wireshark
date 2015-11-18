@@ -71,8 +71,8 @@ static const value_string fragment_vals[] = {
     { 0, NULL }
 };
 
-static void
-dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree*     vmlab_tree;
     proto_item*     ti;
@@ -139,6 +139,7 @@ dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ethertype_data.fcs_len = 0;
 
     call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -180,7 +181,7 @@ proto_reg_handoff_vmlab(void)
 {
     dissector_handle_t vmlab_handle;
 
-    vmlab_handle = create_dissector_handle(dissect_vmlab, proto_vmlab);
+    vmlab_handle = new_create_dissector_handle(dissect_vmlab, proto_vmlab);
 
     dissector_add_uint("ethertype", ETHERTYPE_VMLAB, vmlab_handle);
 

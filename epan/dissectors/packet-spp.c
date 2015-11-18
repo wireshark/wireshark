@@ -102,8 +102,8 @@ spp_datastream(guint8 type)
  *
  * XXX - hand off to subdissectors based on the socket number.
  */
-static void
-dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree *spp_tree;
 	proto_item *ti;
@@ -173,12 +173,15 @@ dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		next_tvb = tvb_new_subset_remaining(tvb, SPP_HEADER_LEN);
 		if (dissector_try_uint(spp_socket_dissector_table, low_socket,
 		    next_tvb, pinfo, tree))
-			return;
+			return tvb_captured_length(tvb);
+
 		if (dissector_try_uint(spp_socket_dissector_table, high_socket,
 		    next_tvb, pinfo, tree))
-			return;
+			return tvb_captured_length(tvb);
+
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
+	return tvb_captured_length(tvb);
 }
 
 
@@ -268,7 +271,7 @@ proto_reg_handoff_spp(void)
 {
 	dissector_handle_t spp_handle;
 
-	spp_handle = create_dissector_handle(dissect_spp, proto_spp);
+	spp_handle = new_create_dissector_handle(dissect_spp, proto_spp);
 	dissector_add_uint("idp.packet_type", IDP_PACKET_TYPE_SPP, spp_handle);
 
 	data_handle = find_dissector("data");

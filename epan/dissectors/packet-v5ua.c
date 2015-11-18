@@ -1380,10 +1380,9 @@ dissect_v5ua_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 
 }
 
-static void
-dissect_v5ua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_v5ua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-
    gint    offset, remaining_length, length, tag, one_bit;
 
 
@@ -1395,14 +1394,10 @@ dissect_v5ua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "V5UA");
    /* end */
    col_clear(pinfo->cinfo, COL_INFO);
-   if (tree) {
-      /* create display subtree for the protocol */
-      ti = proto_tree_add_item(tree, proto_v5ua, tvb, 0, -1, ENC_NA);
-      v5ua_tree = proto_item_add_subtree(ti, ett_v5ua);
-   }
-   else {
-      v5ua_tree=NULL;
-   };
+
+   /* create display subtree for the protocol */
+   ti = proto_tree_add_item(tree, proto_v5ua, tvb, 0, -1, ENC_NA);
+   v5ua_tree = proto_item_add_subtree(ti, ett_v5ua);
 
    /* detect version of IUA */
    iua_version = RFC;
@@ -1467,6 +1462,7 @@ dissect_v5ua(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    /* dissect the message */
    dissect_v5ua_message(tvb, pinfo, tree, v5ua_tree);
+   return tvb_captured_length(tvb);
 }
 
 
@@ -1682,7 +1678,7 @@ proto_reg_handoff_v5ua(void)
 {
    dissector_handle_t v5ua_handle;
 
-   v5ua_handle = create_dissector_handle(dissect_v5ua, proto_v5ua);
+   v5ua_handle = new_create_dissector_handle(dissect_v5ua, proto_v5ua);
    q931_handle = find_dissector("q931");
    v52_handle = find_dissector("v52");
 

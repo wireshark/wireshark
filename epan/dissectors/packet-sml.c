@@ -2516,15 +2516,15 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, gint *offset, pr
 }
 
 /* main */
-static void dissect_sml (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-	proto_item *sml_item = NULL;
-	proto_tree *sml_tree = NULL;
+static int dissect_sml (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
+	proto_item *sml_item;
+	proto_tree *sml_tree;
 
 	guint offset = 0;
 
 	/*Check if not SML*/
 	if (tvb_get_ntohl(tvb, offset) != ESC_SEQ && tvb_get_guint8(tvb, offset) != LIST_6_ELEMENTS){
-		return;
+		return 0;
 	}
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SML");
@@ -2534,6 +2534,7 @@ static void dissect_sml (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	sml_item = proto_tree_add_item(tree, proto_sml, tvb, 0, -1, ENC_NA);
 	sml_tree = proto_item_add_subtree(sml_item, ett_sml);
 	dissect_sml_file(tvb, pinfo, &offset, sml_tree);
+	return tvb_captured_length(tvb);
 }
 
 static void
@@ -2825,7 +2826,7 @@ void proto_reg_handoff_sml(void) {
 	static dissector_handle_t sml_handle;
 
 	if (!initialized) {
-		sml_handle = create_dissector_handle(dissect_sml, proto_sml);
+		sml_handle = new_create_dissector_handle(dissect_sml, proto_sml);
 		initialized = TRUE;
 	} else {
 		dissector_delete_uint("tcp.port", old_tcp_port, sml_handle);

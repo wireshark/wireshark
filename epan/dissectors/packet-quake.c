@@ -147,11 +147,6 @@ static const value_string names_colors[] = {
 	{  0, NULL }
 };
 
-
-static void dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-
-
 static void
 dissect_quake_CCREQ_CONNECT
 (tvbuff_t *tvb, proto_tree *tree)
@@ -421,8 +416,8 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-static void
-dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*quake_tree = NULL;
 	guint16		flags;
@@ -462,7 +457,7 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (flags == NETFLAG_CTL) {
 		next_tvb = tvb_new_subset_remaining(tvb, 4);
 		dissect_quake_control(next_tvb, pinfo, quake_tree);
-		return;
+		return tvb_captured_length(tvb);
 	}
 
 	sequence = tvb_get_ntohl(tvb, 4);
@@ -472,6 +467,7 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	next_tvb = tvb_new_subset_remaining(tvb, 8);
 	call_dissector(data_handle,next_tvb, pinfo, quake_tree);
+	return tvb_captured_length(tvb);
 }
 
 
@@ -640,7 +636,7 @@ proto_reg_handoff_quake(void)
 	static guint ServerPort;
 
 	if (!Initialized) {
-		quake_handle = create_dissector_handle(dissect_quake, proto_quake);
+		quake_handle = new_create_dissector_handle(dissect_quake, proto_quake);
 		data_handle = find_dissector("data");
 		Initialized=TRUE;
 	} else {

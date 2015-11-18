@@ -55,8 +55,8 @@ static gint time_display_type = ABSOLUTE_TIME_LOCAL;
 /* This dissector works for TCP and UDP time packets */
 #define TIME_PORT 37
 
-static void
-dissect_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree    *time_tree;
     proto_item    *ti;
@@ -78,6 +78,7 @@ dissect_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 abs_time_secs_to_str(wmem_packet_scope(), delta_seconds-2208988800U,
                     (absolute_time_display_e)time_display_type, TRUE));
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -119,7 +120,7 @@ proto_reg_handoff_time(void)
 {
     dissector_handle_t time_handle;
 
-    time_handle = create_dissector_handle(dissect_time, proto_time);
+    time_handle = new_create_dissector_handle(dissect_time, proto_time);
     dissector_add_uint("udp.port", TIME_PORT, time_handle);
     dissector_add_uint("tcp.port", TIME_PORT, time_handle);
 }

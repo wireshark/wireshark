@@ -83,8 +83,8 @@ static dissector_handle_t sm_handle = NULL;
 static dissector_handle_t data_handle = NULL;
 
 
-static void
-dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
+static int
+dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* data _U_)
 {
 	tvbuff_t * next_tvb = NULL;
 	proto_tree *rudp_tree = NULL, *flags_tree;
@@ -137,6 +137,8 @@ dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 	next_tvb = tvb_new_subset_remaining(tvb, hlen);
 	if (tvb_captured_length(next_tvb) && sm_handle)
 		call_dissector(sm_handle, next_tvb, pinfo, tree);
+
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -249,7 +251,7 @@ proto_reg_handoff_rudp(void) {
 	static guint saved_udp_port;
 
 	if (!initialized) {
-		rudp_handle = create_dissector_handle(dissect_rudp, proto_rudp);
+		rudp_handle = new_create_dissector_handle(dissect_rudp, proto_rudp);
 		dissector_add_for_decode_as("udp.port", rudp_handle);
 		sm_handle = find_dissector("sm");
 		data_handle = find_dissector("data");

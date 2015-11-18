@@ -83,12 +83,12 @@ static gint ett_whoent = -1;
 
 static void dissect_whoent(tvbuff_t *tvb, int offset, proto_tree *tree);
 
-static void
-dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int		offset = 0;
-	proto_tree	*who_tree = NULL;
-	proto_item	*who_ti = NULL;
+	proto_tree	*who_tree;
+	proto_item	*who_ti;
 	guint8		*server_name;
 	double		loadav_5 = 0.0, loadav_10 = 0.0, loadav_15 = 0.0;
 	nstime_t	ts;
@@ -99,18 +99,13 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	ts.nsecs = 0;
 
-	if (tree) {
-		who_ti = proto_tree_add_item(tree, proto_who, tvb, offset, -1,
-		    ENC_NA);
-		who_tree = proto_item_add_subtree(who_ti, ett_who);
-	}
+	who_ti = proto_tree_add_item(tree, proto_who, tvb, offset, -1, ENC_NA);
+	who_tree = proto_item_add_subtree(who_ti, ett_who);
 
-	if (tree)
-		proto_tree_add_item(who_tree, hf_who_vers, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(who_tree, hf_who_vers, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	if (tree)
-		proto_tree_add_item(who_tree, hf_who_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(who_tree, hf_who_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* 2 filler bytes */
@@ -131,26 +126,21 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 4;
 
 	server_name = tvb_get_stringzpad(wmem_packet_scope(), tvb, offset, 32, ENC_ASCII|ENC_NA);
-	if (tree)
-		proto_tree_add_string(who_tree, hf_who_hostname, tvb, offset,
-		    32, server_name);
+	proto_tree_add_string(who_tree, hf_who_hostname, tvb, offset, 32, server_name);
 	offset += 32;
 
 	loadav_5  = (double) tvb_get_ntohl(tvb, offset) / 100.0;
-	if (tree)
-		proto_tree_add_double(who_tree, hf_who_loadav_5, tvb, offset,
+	proto_tree_add_double(who_tree, hf_who_loadav_5, tvb, offset,
 		    4, loadav_5);
 	offset += 4;
 
 	loadav_10 = (double) tvb_get_ntohl(tvb, offset) / 100.0;
-	if (tree)
-		proto_tree_add_double(who_tree, hf_who_loadav_10, tvb, offset,
+	proto_tree_add_double(who_tree, hf_who_loadav_10, tvb, offset,
 		    4, loadav_10);
 	offset += 4;
 
 	loadav_15 = (double) tvb_get_ntohl(tvb, offset) / 100.0;
-	if (tree)
-		proto_tree_add_double(who_tree, hf_who_loadav_15, tvb, offset,
+	proto_tree_add_double(who_tree, hf_who_loadav_15, tvb, offset,
 		    4, loadav_15);
 	offset += 4;
 
@@ -166,6 +156,8 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		dissect_whoent(tvb, offset, who_tree);
 	}
+
+	return tvb_captured_length(tvb);
 }
 
 /* The man page says that (1024 / sizeof(struct whoent)) is the maximum number
@@ -294,7 +286,7 @@ proto_reg_handoff_who(void)
 {
 	dissector_handle_t who_handle;
 
-	who_handle = create_dissector_handle(dissect_who, proto_who);
+	who_handle = new_create_dissector_handle(dissect_who, proto_who);
 	dissector_add_uint("udp.port", UDP_PORT_WHO, who_handle);
 }
 

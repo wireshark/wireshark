@@ -622,7 +622,7 @@ static int dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   return tvb_captured_length(tvb);
 }
 
-static void dissect_tnef_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_tnef_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
@@ -631,6 +631,7 @@ static void dissect_tnef_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   col_append_str(pinfo->cinfo, COL_INFO, PNAME);
 
   dissect_tnef(tvb, pinfo, tree, NULL);
+  return tvb_captured_length(tvb);
 }
 
 /* Register all the bits needed by the filtering engine */
@@ -829,7 +830,7 @@ proto_reg_handoff_tnef(void)
 {
   dissector_handle_t tnef_file_handle;
 
-  tnef_file_handle = create_dissector_handle(dissect_tnef_file, proto_tnef);
+  tnef_file_handle = new_create_dissector_handle(dissect_tnef_file, proto_tnef);
 
   dissector_add_string("media_type", "application/ms-tnef", tnef_handle);
 

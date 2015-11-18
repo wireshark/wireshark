@@ -315,8 +315,8 @@ static value_string_ext wtls_vals_alert_description_ext = VALUE_STRING_EXT_INIT(
 static void dissect_wtls_handshake (proto_tree *, tvbuff_t *, guint, guint);
 
 /* Code to actually dissect the packets */
-static void
-dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 
@@ -422,6 +422,7 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -1585,7 +1586,7 @@ proto_reg_handoff_wtls(void)
 {
 	dissector_handle_t wtls_handle;
 
-	wtls_handle = create_dissector_handle(dissect_wtls, proto_wtls);
+	wtls_handle = new_create_dissector_handle(dissect_wtls, proto_wtls);
 	dissector_add_uint("udp.port", UDP_PORT_WTLS_WSP,     wtls_handle);
 	dissector_add_uint("udp.port", UDP_PORT_WTLS_WTP_WSP, wtls_handle);
 	dissector_add_uint("udp.port", UDP_PORT_WTLS_WSP_PUSH,wtls_handle);

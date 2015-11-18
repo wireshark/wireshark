@@ -45,8 +45,8 @@ static int hf_vntag_trailer = -1;
 
 static gint ett_vntag = -1;
 
-static void
-dissect_vntag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_vntag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint16     encap_proto;
 	proto_tree *vntag_tree = NULL;
@@ -112,6 +112,7 @@ dissect_vntag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #if 0
 	}
 #endif
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -172,7 +173,7 @@ proto_reg_handoff_vntag(void)
 
 	/* XXX, add 0x8926 define to epan/etypes.h && etype_vals */
 
-	vntag_handle = create_dissector_handle(dissect_vntag, proto_vntag);
+	vntag_handle = new_create_dissector_handle(dissect_vntag, proto_vntag);
 	dissector_add_uint("ethertype", ETHERTYPE_VNTAG, vntag_handle);
 
 	ethertype_handle = find_dissector("ethertype");

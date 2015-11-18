@@ -370,10 +370,10 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 
 
 static
-void dissect_pw_cesopsn_mpls( tvbuff_t * tvb_original, packet_info * pinfo, proto_tree * tree)
+int dissect_pw_cesopsn_mpls( tvbuff_t * tvb_original, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
 	dissect_pw_cesopsn(tvb_original,pinfo,tree,PWC_DEMUX_MPLS);
-	return;
+	return tvb_captured_length(tvb_original);
 }
 
 
@@ -456,7 +456,7 @@ void proto_reg_handoff_pw_cesopsn(void)
 	pw_padding_handle = find_dissector("pw_padding");
 
 	/* For Decode As */
-	pw_cesopsn_mpls_handle = create_dissector_handle( dissect_pw_cesopsn_mpls, proto );
+	pw_cesopsn_mpls_handle = new_create_dissector_handle( dissect_pw_cesopsn_mpls, proto );
 	dissector_add_for_decode_as("mpls.label", pw_cesopsn_mpls_handle);
 
 	dissector_add_for_decode_as("udp.port", find_dissector("pw_cesopsn_udp"));

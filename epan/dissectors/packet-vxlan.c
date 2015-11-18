@@ -62,8 +62,8 @@ static const int *flags_fields[] = {
 
 static dissector_handle_t eth_handle;
 
-static void
-dissect_vxlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_vxlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *vxlan_tree;
     proto_item *ti;
@@ -109,6 +109,7 @@ dissect_vxlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(eth_handle, next_tvb, pinfo, tree);
 
+    return tvb_captured_length(tvb);
 }
 
 
@@ -197,7 +198,7 @@ proto_reg_handoff_vxlan(void)
 
     eth_handle = find_dissector("eth");
 
-    vxlan_handle = create_dissector_handle(dissect_vxlan, proto_vxlan);
+    vxlan_handle = new_create_dissector_handle(dissect_vxlan, proto_vxlan);
     dissector_add_uint("udp.port", UDP_PORT_VXLAN, vxlan_handle);
     dissector_add_for_decode_as("udp.port", vxlan_handle);
 

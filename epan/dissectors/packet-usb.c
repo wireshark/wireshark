@@ -3814,17 +3814,19 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, void* d
     return tvb_captured_length(tvb);
 }
 
-static void
-dissect_linux_usb_mmapped(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
+static int
+dissect_linux_usb_mmapped(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, void* data _U_)
 {
     dissect_usb_common(tvb, pinfo, parent, USB_HEADER_LINUX_64_BYTES);
+    return tvb_captured_length(tvb);
 }
 
 
-static void
-dissect_win32_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
+static int
+dissect_win32_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, void* data _U_)
 {
     dissect_usb_common(tvb, pinfo, parent, USB_HEADER_USBPCAP);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -4556,9 +4558,9 @@ proto_reg_handoff_usb(void)
 
     data_handle = find_dissector("data");
 
-    linux_usb_mmapped_handle = create_dissector_handle(dissect_linux_usb_mmapped,
+    linux_usb_mmapped_handle = new_create_dissector_handle(dissect_linux_usb_mmapped,
                                                        proto_usb);
-    win32_usb_handle = create_dissector_handle(dissect_win32_usb, proto_usb);
+    win32_usb_handle = new_create_dissector_handle(dissect_win32_usb, proto_usb);
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_LINUX, linux_usb_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_USB_LINUX_MMAPPED, linux_usb_mmapped_handle);

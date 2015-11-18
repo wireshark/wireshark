@@ -146,18 +146,19 @@ dissect_pcli_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     }
 }
 
-static void
-dissect_pcli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pcli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int offset = 0;
 
     dissect_pcli_common(tvb, pinfo, tree, &offset);
 
     dissect_pcli_payload(tvb, pinfo, tree, offset);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_pcli8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pcli8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *pcli_tree;
     int offset = 0;
@@ -168,10 +169,11 @@ dissect_pcli8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 4;
 
     dissect_pcli_payload(tvb, pinfo, tree, offset);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_pcli12(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pcli12(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *pcli_tree;
     int offset = 0;
@@ -182,10 +184,11 @@ dissect_pcli12(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 8;
 
     dissect_pcli_payload(tvb, pinfo, tree, offset);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_pcli20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pcli20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *pcli_tree;
     int offset = 0;
@@ -198,6 +201,7 @@ dissect_pcli20(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 8;
 
     dissect_pcli_payload(tvb, pinfo, tree, offset);
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -281,10 +285,10 @@ proto_reg_handoff_pcli(void)
     static dissector_handle_t pcli_handle, pcli_handle8, pcli_handle12, pcli_handle20;
 
     if(!pcli_initialized) {
-        pcli_handle = create_dissector_handle(dissect_pcli, proto_pcli);
-        pcli_handle8 = create_dissector_handle(dissect_pcli8, proto_pcli8);
-        pcli_handle12 = create_dissector_handle(dissect_pcli12, proto_pcli12);
-        pcli_handle20 = create_dissector_handle(dissect_pcli20, proto_pcli20);
+        pcli_handle = new_create_dissector_handle(dissect_pcli, proto_pcli);
+        pcli_handle8 = new_create_dissector_handle(dissect_pcli8, proto_pcli8);
+        pcli_handle12 = new_create_dissector_handle(dissect_pcli12, proto_pcli12);
+        pcli_handle20 = new_create_dissector_handle(dissect_pcli20, proto_pcli20);
         data_handle = find_dissector("data");
         pcli_initialized = TRUE;
     }

@@ -99,8 +99,8 @@ typedef struct {
 } rsh_hash_entry_t;
 
 
-static void
-dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
@@ -357,6 +357,7 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(hash_info->state < WAIT_FOR_DATA){
         col_set_str(pinfo->cinfo, COL_INFO, "Session Establishment");
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -430,7 +431,7 @@ proto_reg_handoff_rsh(void)
 {
     dissector_handle_t rsh_handle;
 
-    rsh_handle = create_dissector_handle(dissect_rsh, proto_rsh);
+    rsh_handle = new_create_dissector_handle(dissect_rsh, proto_rsh);
     dissector_add_uint("tcp.port", RSH_PORT, rsh_handle);
 }
 

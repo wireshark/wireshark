@@ -33,8 +33,8 @@ static int proto_pcapng_block = -1;
 
 static dissector_table_t pcapng_block_type_dissector_table;
 
-static void
-dissect_pcapng_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pcapng_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	/*
 	 * Call the dissector for the block type of this block, if there
@@ -51,6 +51,7 @@ dissect_pcapng_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(tree, proto_pcapng_block, tvb, 0, -1, ENC_NA);
 	}
+	return tvb_captured_length(tvb);
 }
 
 void proto_register_pcapng_block(void)
@@ -66,7 +67,7 @@ proto_reg_handoff_pcapng_block(void)
 {
 	dissector_handle_t pcapng_block_handle;
 
-	pcapng_block_handle = create_dissector_handle(dissect_pcapng_block,
+	pcapng_block_handle = new_create_dissector_handle(dissect_pcapng_block,
 	    proto_pcapng_block);
 	dissector_add_uint("wtap_fts_rec", WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
 	    pcapng_block_handle);

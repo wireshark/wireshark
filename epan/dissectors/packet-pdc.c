@@ -436,7 +436,7 @@ static guint get_pdc_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 
 /* top level call to recombine split tcp packets */
 
-static void tcp_dissect_pdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int tcp_dissect_pdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint8 mpdu_type;
 	guint8 minimum_bytes;
@@ -470,6 +470,7 @@ static void tcp_dissect_pdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	}
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, minimum_bytes, get_pdc_message_len, dissect_pdc, NULL);
+	return tvb_captured_length(tvb);
 }
 
 void proto_register_pdc(void)
@@ -596,7 +597,7 @@ void proto_reg_handoff_pdc(void)
 	if (! initialized)
 	{
 		asterix_handle = find_dissector("asterix");
-		pdc_tcp_handle = create_dissector_handle(tcp_dissect_pdc, proto_pdc);
+		pdc_tcp_handle = new_create_dissector_handle(tcp_dissect_pdc, proto_pdc);
 		dissector_add_for_decode_as("tcp.port", pdc_tcp_handle);
 		initialized    = TRUE;
 	}

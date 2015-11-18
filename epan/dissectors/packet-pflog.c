@@ -158,8 +158,8 @@ static const value_string pflog_dir_vals[] = {
   { 0,        NULL }
 };
 
-static void
-dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   tvbuff_t *next_tvb;
   proto_tree *pflog_tree;
@@ -307,6 +307,7 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         val_to_str(action, pflog_action_vals, "unknown (%u)"),
         ifname,
         rulenr);
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -417,7 +418,7 @@ proto_reg_handoff_pflog(void)
   ipv6_handle = find_dissector("ipv6");
   data_handle = find_dissector("data");
 
-  pflog_handle = create_dissector_handle(dissect_pflog, proto_pflog);
+  pflog_handle = new_create_dissector_handle(dissect_pflog, proto_pflog);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_PFLOG, pflog_handle);
 }
 

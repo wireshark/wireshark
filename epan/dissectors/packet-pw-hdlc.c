@@ -76,9 +76,9 @@ static const value_string pw_hdlc_modifier_vals[] = {
 	{0, NULL }
 };
 
-static void dissect_pw_hdlc_nocw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
+static int dissect_pw_hdlc_nocw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_ )
 {
-	call_dissector( fr_handle, tvb, pinfo, tree );
+	return call_dissector( fr_handle, tvb, pinfo, tree );
 }
 
 
@@ -224,7 +224,7 @@ void proto_reg_handoff_pw_hdlc(void)
 {
 	dissector_handle_t pw_fr_handle, pw_ppp_handle;
 
-	pw_fr_handle = create_dissector_handle( dissect_pw_hdlc_nocw_fr, proto_pw_hdlc_nocw_fr );
+	pw_fr_handle = new_create_dissector_handle( dissect_pw_hdlc_nocw_fr, proto_pw_hdlc_nocw_fr );
 	dissector_add_for_decode_as( "mpls.label", pw_fr_handle );
 
 	pw_ppp_handle = new_create_dissector_handle( dissect_pw_hdlc_nocw_hdlc_ppp, proto_pw_hdlc_nocw_hdlc_ppp );

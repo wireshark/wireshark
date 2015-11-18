@@ -452,26 +452,28 @@ static dissector_table_t osinl_excl_subdissector_table;
 static dissector_handle_t data_handle, ppp_handle;
 
 /* Dissect OSI over TCP over TPKT */
-static void
-dissect_osi_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_osi_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   dissect_tpkt_encap(tvb, pinfo, tree, tpkt_desegment, osi_handle);
+  return tvb_captured_length(tvb);
 }
 
-static void dissect_osi_juniper(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_osi_juniper(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint8     nlpid;
   tvbuff_t   *next_tvb;
 
   nlpid = tvb_get_guint8(tvb, 0);
   if(dissector_try_uint(osinl_incl_subdissector_table, nlpid, tvb, pinfo, tree))
-     return;
+    return tvb_captured_length(tvb);
 
   next_tvb = tvb_new_subset_remaining(tvb, 1);
   dissector_try_uint(osinl_excl_subdissector_table, nlpid, next_tvb, pinfo, tree);
+  return tvb_captured_length(tvb);
 }
 
-static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint8    nlpid;
   tvbuff_t *new_tvb;
@@ -487,7 +489,7 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * tree itself.
    */
   if (dissector_try_uint(osinl_incl_subdissector_table, nlpid, tvb, pinfo, tree))
-    return;
+    return tvb_captured_length(tvb);
 
   /*
    * Try the subdissector table for protocols in which the NLPID is
@@ -498,7 +500,7 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree_add_uint(tree, hf_osi_nlpid, tvb, 0, 1, nlpid);
   new_tvb = tvb_new_subset_remaining(tvb, 1);
   if (dissector_try_uint(osinl_excl_subdissector_table, nlpid, new_tvb, pinfo, tree))
-    return;
+    return tvb_captured_length(tvb);
 
   switch (nlpid) {
 
@@ -519,6 +521,7 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       call_dissector(data_handle,tvb, pinfo, tree);
       break;
   }
+  return tvb_captured_length(tvb);
 } /* dissect_osi */
 
 void
@@ -529,7 +532,7 @@ proto_reg_handoff_osi(void)
   static guint              tcp_port_osi_over_tpkt;
 
   if (!osi_prefs_initialized) {
-    osi_handle = create_dissector_handle(dissect_osi, proto_osi);
+    osi_handle = new_create_dissector_handle(dissect_osi, proto_osi);
     dissector_add_uint("llc.dsap", SAP_OSINL1, osi_handle);
     dissector_add_uint("llc.dsap", SAP_OSINL2, osi_handle);
     dissector_add_uint("llc.dsap", SAP_OSINL3, osi_handle);
@@ -541,7 +544,7 @@ proto_reg_handoff_osi(void)
     dissector_add_uint("gre.proto", SAP_OSINL5, osi_handle);
     dissector_add_uint("ip.proto", IP_PROTO_ISOIP, osi_handle); /* ISO network layer PDUs [RFC 1070] */
 
-    osi_juniper_handle = create_dissector_handle(dissect_osi_juniper, proto_osi);
+    osi_juniper_handle = new_create_dissector_handle(dissect_osi_juniper, proto_osi);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_ISO, osi_juniper_handle);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_CLNP, osi_juniper_handle);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_MPLS_CLNP, osi_juniper_handle);
@@ -550,7 +553,7 @@ proto_reg_handoff_osi(void)
     ppp_handle  = find_dissector("ppp");
 
 
-    osi_tpkt_handle = create_dissector_handle(dissect_osi_tpkt, proto_osi);
+    osi_tpkt_handle = new_create_dissector_handle(dissect_osi_tpkt, proto_osi);
     dissector_add_for_decode_as("tcp.port", osi_tpkt_handle);
     osi_prefs_initialized = TRUE;
   } else {

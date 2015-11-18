@@ -172,8 +172,8 @@ static void dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 static gint dissect_rip_authentication(tvbuff_t *tvb, int offset,
     proto_tree *tree);
 
-static void
-dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int         offset      = 0;
     proto_tree *rip_tree    = NULL;
@@ -195,51 +195,50 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_str(pinfo->cinfo, COL_INFO,
                     val_to_str(command, command_vals, "Unknown command (%u)"));
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, hfi_rip, tvb, 0, -1, ENC_NA);
-        rip_tree = proto_item_add_subtree(ti, ett_rip);
+    ti = proto_tree_add_item(tree, hfi_rip, tvb, 0, -1, ENC_NA);
+    rip_tree = proto_item_add_subtree(ti, ett_rip);
 
-        proto_tree_add_uint(rip_tree, &hfi_rip_command, tvb, 0, 1, command);
-        proto_tree_add_uint(rip_tree, &hfi_rip_version, tvb, 1, 1, version);
-        if (version == RIPv2 && pref_display_routing_domain == TRUE)
-            proto_tree_add_uint(rip_tree, &hfi_rip_routing_domain, tvb, 2, 2,
-                        tvb_get_ntohs(tvb, 2));
+    proto_tree_add_uint(rip_tree, &hfi_rip_command, tvb, 0, 1, command);
+    proto_tree_add_uint(rip_tree, &hfi_rip_version, tvb, 1, 1, version);
+    if (version == RIPv2 && pref_display_routing_domain == TRUE)
+        proto_tree_add_uint(rip_tree, &hfi_rip_routing_domain, tvb, 2, 2,
+                    tvb_get_ntohs(tvb, 2));
 
-        /* skip header */
-        offset = RIP_HEADER_LENGTH;
+    /* skip header */
+    offset = RIP_HEADER_LENGTH;
 
-        /* zero or more entries */
-        while (tvb_reported_length_remaining(tvb, offset) > trailer_len ) {
-            family = tvb_get_ntohs(tvb, offset);
-            switch (family) {
-            case AFVAL_UNSPEC: /* Unspecified */
-                /*
-                 * There should be one entry in the request, and a metric
-                 * of infinity, meaning "show the entire routing table".
-                 */
-                dissect_unspec_rip_vektor(tvb, offset, version, rip_tree);
-                break;
-            case AFVAL_IP: /* IP */
-                dissect_ip_rip_vektor(tvb, offset, version, rip_tree);
-                break;
-            case 0xFFFF:
-                if( offset == RIP_HEADER_LENGTH ) {
-                        trailer_len=dissect_rip_authentication(tvb, offset, rip_tree);
-                        is_md5_auth = TRUE;
-                break;
-                }
-                if(is_md5_auth && tvb_reported_length_remaining(tvb, offset) == 20)
-                        break;
-                /* Intentional fall through: auth Entry MUST be the first! */
-            default:
-                proto_tree_add_expert_format(rip_tree, pinfo, &ei_rip_unknown_address_family, tvb, offset,
-                                RIP_ENTRY_LENGTH, "Unknown address family %u", family);
-                break;
+    /* zero or more entries */
+    while (tvb_reported_length_remaining(tvb, offset) > trailer_len ) {
+        family = tvb_get_ntohs(tvb, offset);
+        switch (family) {
+        case AFVAL_UNSPEC: /* Unspecified */
+            /*
+                * There should be one entry in the request, and a metric
+                * of infinity, meaning "show the entire routing table".
+                */
+            dissect_unspec_rip_vektor(tvb, offset, version, rip_tree);
+            break;
+        case AFVAL_IP: /* IP */
+            dissect_ip_rip_vektor(tvb, offset, version, rip_tree);
+            break;
+        case 0xFFFF:
+            if( offset == RIP_HEADER_LENGTH ) {
+                    trailer_len=dissect_rip_authentication(tvb, offset, rip_tree);
+                    is_md5_auth = TRUE;
+            break;
             }
-
-            offset += RIP_ENTRY_LENGTH;
+            if(is_md5_auth && tvb_reported_length_remaining(tvb, offset) == 20)
+                    break;
+            /* Intentional fall through: auth Entry MUST be the first! */
+        default:
+            proto_tree_add_expert_format(rip_tree, pinfo, &ei_rip_unknown_address_family, tvb, offset,
+                            RIP_ENTRY_LENGTH, "Unknown address family %u", family);
+            break;
         }
+
+        offset += RIP_ENTRY_LENGTH;
     }
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -388,7 +387,7 @@ proto_register_rip(void)
 
     prefs_register_bool_preference(rip_module, "display_routing_domain", "Display Routing Domain field", "Display the third and forth bytes of the RIPv2 header as the Routing Domain field (introduced in RFC 1388 [January 1993] and obsolete as of RFC 1723 [November 1994])", &pref_display_routing_domain);
 
-    rip_handle = create_dissector_handle(dissect_rip, proto_rip);
+    rip_handle = new_create_dissector_handle(dissect_rip, proto_rip);
 }
 
 void

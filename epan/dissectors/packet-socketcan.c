@@ -98,8 +98,8 @@ static gpointer can_value(packet_info *pinfo _U_)
 	return 0;
 }
 
-static void
-dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree *can_tree;
 	proto_item *ti;
@@ -156,6 +156,7 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -247,7 +248,7 @@ proto_reg_handoff_socketcan(void)
 {
 	dissector_handle_t can_handle;
 
-	can_handle = create_dissector_handle(dissect_socketcan, proto_can);
+	can_handle = new_create_dissector_handle(dissect_socketcan, proto_can);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_SOCKETCAN, can_handle);
 	dissector_add_uint("sll.ltype", LINUX_SLL_P_CAN, can_handle);
 

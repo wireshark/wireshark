@@ -41,8 +41,8 @@ static gint ett_snaeth = -1;
 
 static dissector_handle_t llc_handle;
 
-static void
-dissect_snaeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_snaeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*snaeth_tree;
 	proto_item	*snaeth_ti;
@@ -74,6 +74,7 @@ dissect_snaeth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	next_tvb = tvb_new_subset_remaining(tvb, 3);
 	call_dissector(llc_handle, next_tvb, pinfo, tree);
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -107,7 +108,7 @@ proto_reg_handoff_snaeth(void)
 	 */
 	llc_handle = find_dissector("llc");
 
-	snaeth_handle = create_dissector_handle(dissect_snaeth, proto_snaeth);
+	snaeth_handle = new_create_dissector_handle(dissect_snaeth, proto_snaeth);
 	dissector_add_uint("ethertype", ETHERTYPE_SNA, snaeth_handle);
 }
 

@@ -642,8 +642,8 @@ return offset;
 	+-------------------------------+
  The Marker is 0xFF to distinguish it from a version 0 header.
  */
-static void
-dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item	*ti;
 	proto_tree	*zebra_tree;
@@ -699,6 +699,8 @@ dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			left -= len;
 		}
 	}
+
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -876,7 +878,7 @@ proto_reg_handoff_zebra(void)
 {
 	dissector_handle_t zebra_handle;
 
-	zebra_handle = create_dissector_handle(dissect_zebra, proto_zebra);
+	zebra_handle = new_create_dissector_handle(dissect_zebra, proto_zebra);
 	dissector_add_uint("tcp.port", TCP_PORT_ZEBRA, zebra_handle);
 }
 

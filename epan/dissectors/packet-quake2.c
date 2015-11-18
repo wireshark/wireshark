@@ -641,8 +641,8 @@ dissect_quake2_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
-static void
-dissect_quake2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_quake2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *quake2_tree = NULL;
     int  direction;
@@ -685,6 +685,7 @@ dissect_quake2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissect_quake2_GamePacket(
                 tvb, pinfo, quake2_tree, direction);
     }
+    return tvb_captured_length(tvb);
 }
 
 
@@ -853,7 +854,7 @@ proto_reg_handoff_quake2(void)
     static guint ServerPort;
 
     if (!Initialized) {
-        quake2_handle = create_dissector_handle(dissect_quake2,
+        quake2_handle = new_create_dissector_handle(dissect_quake2,
                 proto_quake2);
         data_handle = find_dissector("data");
         Initialized=TRUE;

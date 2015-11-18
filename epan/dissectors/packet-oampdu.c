@@ -1014,8 +1014,8 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree);
  *    Dominique Bastien (dbastien@accedian.com)
  *      + add support for 802.3ah-2004.
  */
-static void
-dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int       offset = 0;
     guint8    oampdu_code;
@@ -1159,6 +1159,7 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         default:
             break;
     }
+	return tvb_captured_length(tvb);
 }
 
 /*
@@ -2634,7 +2635,7 @@ proto_reg_handoff_oampdu(void)
 {
     dissector_handle_t oampdu_handle;
 
-    oampdu_handle = create_dissector_handle(dissect_oampdu, proto_oampdu);
+    oampdu_handle = new_create_dissector_handle(dissect_oampdu, proto_oampdu);
     dissector_add_uint("slow.subtype", OAM_SUBTYPE, oampdu_handle);
 }
 

@@ -134,8 +134,8 @@ columns_set_vlan(column_info *cinfo, guint16 tci)
   col_add_str(cinfo, COL_8021Q_VLAN_ID, id_str);
 }
 
-static void
-dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *ti;
   guint16 tci;
@@ -199,6 +199,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
   }
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -245,7 +246,7 @@ proto_register_vlan(void)
         "The (hexadecimal) Ethertype used to indicate 802.1QinQ VLAN in VLAN tunneling.",
         16, &q_in_q_ethertype);
 
-  vlan_handle = create_dissector_handle(dissect_vlan, proto_vlan);
+  vlan_handle = new_create_dissector_handle(dissect_vlan, proto_vlan);
 }
 
 void

@@ -2314,8 +2314,8 @@ dissect_rtmpt_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         return tvb_reported_length(tvb);
 }
 
-static void
-dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
         conversation_t *conv;
         rtmpt_conv_t   *rconv;
@@ -2421,7 +2421,7 @@ dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         RTMPT_DEBUG("RTMPT f=%d cdir=%d seq=%d lastackseq=%d len=%d\n", pinfo->fd->num, cdir, seq, lastackseq, remain);
 
         if (remain < 1)
-                return;
+                return offset;
 
         if (offset > 0) {
                 tvbuff_t *tvbrtmp = tvb_new_subset_length(tvb, offset, remain);
@@ -2429,6 +2429,7 @@ dissect_rtmpt_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         } else {
                 dissect_rtmpt_common(tvb, pinfo, tree, rconv, cdir, seq, lastackseq);
         }
+        return tvb_captured_length(tvb);
 }
 
 static gboolean
@@ -2462,8 +2463,8 @@ dissect_rtmpt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         return FALSE;
 }
 
-static void
-dissect_amf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_amf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
         proto_item *ti;
         proto_tree *amf_tree, *headers_tree, *messages_tree;
@@ -2525,6 +2526,7 @@ dissect_amf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
                         offset = dissect_rtmpt_body_command(tvb, offset, messages_tree, FALSE);
                 }
         }
+        return tvb_captured_length(tvb);
 }
 
 void
@@ -2936,10 +2938,10 @@ proto_reg_handoff_rtmpt(void)
 /*      dissector_add_for_decode_as("tcp.port", rtmpt_tcp_handle); */
         dissector_add_uint("tcp.port", RTMP_PORT, rtmpt_tcp_handle);
 
-        rtmpt_http_handle = create_dissector_handle(dissect_rtmpt_http, proto_rtmpt);
+        rtmpt_http_handle = new_create_dissector_handle(dissect_rtmpt_http, proto_rtmpt);
         dissector_add_string("media_type", "application/x-fcs", rtmpt_http_handle);
 
-        amf_handle = create_dissector_handle(dissect_amf, proto_amf);
+        amf_handle = new_create_dissector_handle(dissect_amf, proto_amf);
         dissector_add_string("media_type", "application/x-amf", amf_handle);
 }
 
