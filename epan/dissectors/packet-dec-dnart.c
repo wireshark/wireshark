@@ -1298,7 +1298,7 @@ proto_register_dec_rt(void)
           { "Nodes visited ty this package", "dec_dna.vst_node",
             FT_UINT8,    BASE_DEC,    NULL,   0x0,
             "Nodes visited", HFILL }},
-        /* Control messsage items */
+        /* Control message items */
         { &hf_dec_ctl_msgs,
           { "Routing control message",        "dec_dna.rt.msg_type",
             FT_UINT8,    BASE_HEX,    VALS(rt_msg_type_vals),    0xe,

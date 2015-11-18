@@ -525,7 +525,7 @@ static header_field_info hfi_netlink_route_ifa_scope NETLINK_ROUTE_HFI_INIT =
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifa_index NETLINK_ROUTE_HFI_INIT =
-	{ "Inteface index", "netlink-route.ifa_index", FT_INT32, BASE_DEC,
+	{ "Interface index", "netlink-route.ifa_index", FT_INT32, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
 static int

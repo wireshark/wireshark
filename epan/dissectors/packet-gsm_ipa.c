@@ -419,7 +419,7 @@ void proto_register_ipa(void)
 		{&hf_ipaccess_msgtype,
 		 {"MessageType", "ipaccess.msg_type",
 		  FT_UINT8, BASE_HEX, VALS(ipaccess_msgtype_vals), 0x0,
-		  "Type of ip.access messsage", HFILL}
+		  "Type of ip.access message", HFILL}
 		 },
 		{&hf_ipaccess_attr_tag,
 		 {"Tag", "ipaccess.attr_tag",

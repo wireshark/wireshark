@@ -245,7 +245,7 @@ proto_register_exported_pdu(void)
               NULL, HFILL }
         },
         { &hf_exported_pdu_unknown_tag,
-            { "Unkown tag", "exported_pdu.unknown_tag",
+            { "Unknown tag", "exported_pdu.unknown_tag",
                FT_BYTES, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },

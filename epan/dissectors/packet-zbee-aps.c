@@ -641,7 +641,7 @@ const value_string zbee_aps_t2_cid_names[] = {
     { ZBEE_APS_T2_CID_RDREQ,      "Route Discovery Request"},
     { ZBEE_APS_T2_CID_RDRES,      "Route Discovery Response"},
     { ZBEE_APS_T2_CID_RESPC,      "Reset Packet Count"},
-    { ZBEE_APS_T2_CID_RETPC,      "Retreive Packet Count"},
+    { ZBEE_APS_T2_CID_RETPC,      "Retrieve Packet Count"},
     { ZBEE_APS_T2_CID_TCP,        "Transmit Counted Packets"},
 
     { 0, NULL }

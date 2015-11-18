@@ -6152,7 +6152,7 @@ static const value_string rsvp_3gpp_obj_traffic_class_vals[] = {
     { 1, "Conversational"},
     { 2, "Streaming"},
     { 3, "Interactive"},
-    { 4, "Backgroud"},
+    { 4, "Background"},
     { 0, NULL}
 };
 

@@ -2780,7 +2780,7 @@ dissect_spice_data_client_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     }
     col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", get_message_type_string(message_type, spice_info, TRUE));
     offset += header_size;
-        /* TODO: deal with sub-messages list first. As implementation does not uses sub-messsages list yet, */
+        /* TODO: deal with sub-messages list first. As implementation does not uses sub-messages list yet, */
         /*       it cannot be implemented in the dissector yet. */
 
     if (message_type < SPICE_FIRST_AVAIL_MESSAGE) { /* this is a common message */

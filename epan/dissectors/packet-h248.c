@@ -6957,7 +6957,7 @@ void proto_register_h248(void) {
     h248_module = prefs_register_protocol(proto_h248, proto_reg_handoff_h248);
     prefs_register_bool_preference(h248_module, "ctx_info",
                                    "Track Context",
-                                   "Mantain relationships between transactions and contexts and display an extra tree showing context data",
+                                   "Maintain relationships between transactions and contexts and display an extra tree showing context data",
                                    &keep_persistent_data);
     prefs_register_uint_preference(h248_module, "udp_port",
                                    "UDP port",

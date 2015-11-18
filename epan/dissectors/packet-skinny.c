@@ -8886,11 +8886,11 @@ proto_register_skinny(void)
     { &hf_skinny_precedenceDomain,
       {
         "precedenceDomain", "skinny.precedenceDomain", FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Precendence Domain", HFILL }},
+        "Precedence Domain", HFILL }},
     { &hf_skinny_precedenceLevel,
       {
         "precedenceLevel", "skinny.precedenceLevel", FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Precendence Level, MLPP priorities", HFILL }},
+        "Precedence Level, MLPP priorities", HFILL }},
     { &hf_skinny_precedenceValue,
       {
         "precedenceValue", "skinny.precedenceValue", FT_UINT32, BASE_DEC, NULL, 0x0,

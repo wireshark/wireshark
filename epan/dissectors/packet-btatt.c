@@ -2662,7 +2662,7 @@ static const value_string cycling_power_control_point_response_value[] = {
 static const value_string location_and_speed_flags_elevation_source_vals[] = {
     { 0x00,   "Positioning System"},
     { 0x01,   "Barometric Air Pressure"},
-    { 0x02,   "Database Service (or similiar)"},
+    { 0x02,   "Database Service (or similar)"},
     { 0x03,   "Other"},
     {0x0, NULL}
 };

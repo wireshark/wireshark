@@ -1623,7 +1623,7 @@ proto_register_dpnss(void)
       { &hf_dpnss_selection_field, { "Selection Field", "dpnss.selection_field", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_dpnss_user_information, { "User Information", "dpnss.user_information", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_dpnss_sup_str, { "Sup str", "dpnss.sup_str", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_dpnss_parameter, { "Paramter", "dpnss.parameter", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_dpnss_parameter, { "Parameter", "dpnss.parameter", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     };
 

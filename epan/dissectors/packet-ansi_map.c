@@ -19555,7 +19555,7 @@ void proto_register_ansi_map(void) {
 
     prefs_register_enum_preference(ansi_map_module, "transaction.matchtype",
                                   "Type of matching invoke/response",
-                                  "Type of matching invoke/response, risk of missmatch if loose matching choosen",
+                                  "Type of matching invoke/response, risk of mismatch if loose matching chosen",
                                   &ansi_map_response_matching_type, ansi_map_response_matching_type_values, FALSE);
 
     register_init_routine(&ansi_map_init);

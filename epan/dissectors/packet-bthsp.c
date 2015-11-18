@@ -264,7 +264,7 @@ static const at_cmd_t at_cmds[] = {
     { "+VGM",       "Gain of Microphone",                       check_vgm,  dissect_vgm_parameter  },
     { "+CKPD",      "Control Keypad",                           check_ckpd, dissect_ckpd_parameter },
     { "ERROR",      "ERROR",                                    check_only_ag_role, dissect_no_parameter },
-    { "RING",       "Incomming Call Indication",                check_only_ag_role, dissect_no_parameter },
+    { "RING",       "Incoming Call Indication",                 check_only_ag_role, dissect_no_parameter },
     { "OK",         "OK",                                       check_only_ag_role, dissect_no_parameter },
     { NULL, NULL, NULL, NULL }
 };

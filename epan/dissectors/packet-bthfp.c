@@ -1565,7 +1565,7 @@ static const at_cmd_t at_cmds[] = {
     { "+VTS",       "DTMF and tone generation",                 check_vts,  dissect_vts_parameter  },
     { "+CNUM",      "Subscriber Number Information",            check_cnum, dissect_cnum_parameter },
     { "ERROR",      "ERROR",                                    check_only_ag_role, dissect_no_parameter },
-    { "RING",       "Incomming Call Indication",                check_only_ag_role, dissect_no_parameter },
+    { "RING",       "Incoming Call Indication",                 check_only_ag_role, dissect_no_parameter },
     { "OK",         "OK",                                       check_only_ag_role, dissect_no_parameter },
     { "D",          "Dial",                                     check_only_hs_role, NULL },
     { "A",          "Call Answer",                              check_only_hs_role, dissect_no_parameter },

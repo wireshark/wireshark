@@ -428,13 +428,13 @@ static const value_string knxnetip_connectionstate_response_status_codes[] = {
 };
 
 static const value_string knxnetip_tunneling_error_codes[] = {
-    { 0x00, "E_NO_ERROR - The message was received succesfully" },
+    { 0x00, "E_NO_ERROR - The message was received successfully" },
     { 0x29, "E_TUNNELLING_LAYER - The KNXnet/IP server device does not support the requested tunnelling layer" },
     { 0, NULL }
 };
 
 static const value_string knxnetip_device_configuration_ack_status_codes[] = {
-    { 0x00, "E_NO_ERROR - The message was received succesfully" },
+    { 0x00, "E_NO_ERROR - The message was received successfully" },
     { 0, NULL }
 };
 

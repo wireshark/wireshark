@@ -524,7 +524,7 @@ proto_register_ansi_tcap(void)
 
     prefs_register_enum_preference(ansi_tcap_module, "transaction.matchtype",
                                    "Type of matching invoke/response",
-                                   "Type of matching invoke/response, risk of missmatch if loose matching choosen",
+                                   "Type of matching invoke/response, risk of mismatch if loose matching chosen",
                                    &ansi_tcap_response_matching_type, ansi_tcap_response_matching_type_values, FALSE);
 
     register_init_routine(&ansi_tcap_init);
