@@ -409,7 +409,7 @@ proto_register_vrt(void)
         },
         { &hf_vrt_ts_frac_picosecond,
             { "Fractional timestamp (picoseconds)", "vrt.ts_frac_picosecond",
-            FT_DOUBLE, BASE_NONE,
+            FT_UINT64, BASE_DEC,
             NULL, 0x00,
             NULL, HFILL }
         },
