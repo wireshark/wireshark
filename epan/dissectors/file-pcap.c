@@ -180,6 +180,7 @@ static const value_string link_type_vals[] = {
     { 261,  "ZWAVE_R1_R2" },
     { 262,  "ZWAVE_R3" },
     { 263,  "WATTSTOPPER_DLM" },
+    { 264,  "ISO_14443" },
     { 0, NULL }
 };
 
