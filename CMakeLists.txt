@@ -656,6 +656,9 @@ endif()
 
 set(PACKAGELIST ${PACKAGELIST} HtmlViewer)
 
+set(PACKAGELIST ${PACKAGELIST} LIBSSH)
+set(LIBSSH_OPTIONS "0.6")
+
 if(ENABLE_PCAP)
 	set(PACKAGELIST ${PACKAGELIST} PCAP)
 endif()
@@ -869,6 +872,9 @@ endif()
 if(HAVE_LIBGEOIP)
 	set(HAVE_GEOIP 1)
 endif()
+if(LIBSSH_FOUND)
+	set(HAVE_LIBSSH 1)
+endif()
 if(HAVE_LIBCARES)
 	set(HAVE_C_ARES 1)
 endif()
@@ -1039,6 +1045,14 @@ if(ENABLE_EXTCAP)
 	set(EXTCAP_DIR "${ABSOLUTE_CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/extcap/")
 endif()
 
+if(LIBSSH_FOUND)
+	SET(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${LIBSSH_LIBRARIES})
+	CHECK_FUNCTION_EXISTS(ssh_userauth_agent LIBSSH_USERAUTH_AGENT_FOUND)
+	if(LIBSSH_USERAUTH_AGENT_FOUND)
+		set(HAVE_SSH_USERAUTH_AGENT 1)
+	endif()
+endif()
+
 # Location of our plugins. PLUGIN_DIRECTORY should allow running
 # from the build directory similar to DATAFILE_DIR above.
 if(ENABLE_PLUGINS)
@@ -1168,6 +1182,7 @@ endforeach()
 include(FeatureSummary)
 #SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ])
 SET_FEATURE_INFO(SBC "SBC Codec for Bluetooth A2DP stream playing" "www: http://git.kernel.org/cgit/bluetooth/sbc.git" )
+SET_FEATURE_INFO(LIBSSH "libssh is library for ssh connections and it is needed to build sshdump" "www: https://www.libssh.org/get-it/" )
 
 FEATURE_SUMMARY(WHAT ALL)
 
@@ -1254,6 +1269,7 @@ set(INSTALL_DIRS
 
 set(INSTALL_FILES
 	${CMAKE_BINARY_DIR}/androiddump.html
+	${CMAKE_BINARY_DIR}/sshdump.html
 	${CMAKE_BINARY_DIR}/AUTHORS-SHORT
 	${CMAKE_BINARY_DIR}/capinfos.html
 	${CMAKE_BINARY_DIR}/captype.html
@@ -1305,6 +1321,7 @@ set(MAN1_FILES
 	${CMAKE_BINARY_DIR}/randpkt.1
 	${CMAKE_BINARY_DIR}/rawshark.1
 	${CMAKE_BINARY_DIR}/reordercap.1
+	${CMAKE_BINARY_DIR}/sshdump.1
 	${CMAKE_BINARY_DIR}/text2pcap.1
 	${CMAKE_BINARY_DIR}/tshark.1
 	${CMAKE_BINARY_DIR}/wireshark.1
@@ -1405,6 +1422,13 @@ if(WIN32)
 				"${_dll_output_dir}"
 		)
 	endif(GEOIP_FOUND)
+	if (LIBSSH_FOUND)
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${LIBSSH_DLL_DIR}/${LIBSSH_DLL}"
+				"${_dll_output_dir}"
+		)
+	endif(LIBSSH_FOUND)
 	if(GCRYPT_FOUND)
 		foreach( _dll ${GCRYPT_DLLS} )
 			add_custom_command(TARGET copy_cli_dlls PRE_BUILD
@@ -1861,7 +1885,7 @@ macro(set_extra_executable_properties _executable _folder)
 endmacro()
 
 macro(set_extcap_executable_properties _executable)
-	set_target_properties(androiddump PROPERTIES FOLDER "Executables/Extcaps")
+	set_target_properties(${_executable} PROPERTIES FOLDER "Executables/Extcaps")
 
 	set(PROGLIST ${PROGLIST} ${_executable})
 
@@ -2309,6 +2333,28 @@ if(BUILD_androiddump)
 	install(TARGETS androiddump RUNTIME DESTINATION ${EXTCAP_DIR})
 endif()
 
+if(BUILD_sshdump AND LIBSSH_FOUND)
+	set(sshdump_LIBS
+		${GLIB2_LIBRARIES}
+		${CMAKE_DL_LIBS}
+		${LIBSSH_LIBRARIES}
+	)
+	if (WIN32)
+	        set(sshdump_LIBS wsutil ${sshdump_LIBS})
+	endif()
+	set(sshdump_FILES
+		extcap/sshdump.c
+	)
+
+	add_executable(sshdump WIN32 ${sshdump_FILES})
+	set_extcap_executable_properties(sshdump)
+	target_link_libraries(sshdump ${sshdump_LIBS})
+	target_include_directories(sshdump PUBLIC ${LIBSSH_INCLUDE_DIR})
+	install(TARGETS sshdump RUNTIME DESTINATION ${EXTCAP_DIR})
+elseif (BUILD_sshdump)
+	#message( WARNING "Cannot find libssh, cannot build sshdump" )
+endif()
+
 ADD_CUSTOM_COMMAND(
 	OUTPUT	${CMAKE_BINARY_DIR}/AUTHORS-SHORT
 	COMMAND ${PERL_EXECUTABLE}
@@ -2430,6 +2476,7 @@ pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/mergecap 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/randpkt 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/rawshark 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/reordercap 1 )
+pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/sshdump 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/text2pcap 1 )
 pod2manhtml( ${CMAKE_SOURCE_DIR}/doc/tshark 1 )
 pod2manhtml( ${CMAKE_BINARY_DIR}/wireshark 1 )
@@ -2452,6 +2499,7 @@ add_custom_target(
 		randpkt.html
 		rawshark.html
 		reordercap.html
+		sshdump.html
 		text2pcap.html
 		tshark.html
 		wireshark.html
@@ -2472,6 +2520,7 @@ set(CLEAN_FILES
 	${editcap_FILES}
 	${dumpcap_FILES}
 	${androiddump_FILES}
+	${sshdump_FILES}
 )
 
 if (WERROR_COMMON_FLAGS)
@@ -2607,7 +2656,7 @@ else ()
 	if (NOT "${HARDENING_CHECK_EXECUTABLE}" STREQUAL "HARDENING_CHECK_EXECUTABLE-NOTFOUND")
 		foreach(_prog ${PROGLIST})
 			get_target_property(_prog_dir ${_prog} RUNTIME_OUTPUT_DIRECTORY)
-			if ("${_prog_dir}" STREQUAL "_prog_dir-NOTFOUND")
+			if (${_prog_dir} STREQUAL "_prog_dir-NOTFOUND")
 				set(_prog_dir "${CMAKE_BINARY_DIR}/run")
 			endif()
 			set(_prog_paths ${_prog_paths} "${_prog_dir}/${_prog}")

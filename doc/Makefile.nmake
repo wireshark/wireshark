@@ -26,12 +26,13 @@ include ../config.nmake
 
 doc: wireshark.html tshark.html wireshark-filter.html capinfos.html \
 	editcap.html idl2wrs.html mergecap.html reordercap.html \
-	text2pcap.html dumpcap.html androiddump.html rawshark.html dftest.html randpkt.html \
+	text2pcap.html dumpcap.html androiddump.html sshdump.html rawshark.html \
+	dftest.html randpkt.html \
 	idl2deb.html asn2deb.html extcap.html
 
 man: wireshark.1 tshark.1 wireshark-filter.4 capinfos.1 \
 	editcap.1 idl2wrs.1 mergecap.1 reordercap.1 \
-	text2pcap.1 dumpcap.1 androiddump.1 rawshark.1 dftest.1 randpkt.1 \
+	text2pcap.1 dumpcap.1 androiddump.1 sshdump.1 rawshark.1 dftest.1 randpkt.1 \
 	idl2deb.1 asn2deb.1 extcap.4
 
 wireshark.pod: wireshark.pod.template AUTHORS-SHORT-FORMAT
@@ -234,6 +235,19 @@ androiddump.html: androiddump.pod ../config.h ws.css
 	--css=ws.css \
 	--noindex                                 \
 	androiddump.pod > androiddump.html
+
+sshdump.1: sshdump.pod ../config.h
+	$(POD2MAN)                      \
+	--center="The Wireshark Network Analyzer" \
+	--release=$(VERSION)			 \
+	sshdump.pod > sshdump.1
+
+sshdump.html: sshdump.pod ../config.h ws.css
+	$(POD2HTML)                     \
+	--title="sshdump - The Wireshark Network Analyzer $(VERSION)" \
+	--css=ws.css \
+	--noindex                                 \
+	sshdump.pod > sshdump.html
 
 rawshark.1: rawshark.pod ../config.h
 	$(POD2MAN)                      \

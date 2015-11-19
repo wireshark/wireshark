@@ -36,6 +36,9 @@ DOC=../../doc/ws.css				\
 	$(STAGING_DIR)/README.txt		\
 	$(STAGING_DIR)/README.windows.txt
 
+;WIP: uncomment and add to the above when sshdump on windows will be ready to go
+;../../doc/sshdump.html
+
 GPL=../../COPYING
 HELP=$(STAGING_DIR)/help/capture_filters.txt \
 	$(STAGING_DIR)/help/capturing.txt \

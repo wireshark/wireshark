@@ -2331,6 +2331,37 @@ fi
 AC_SUBST(androiddump_bin)
 AC_SUBST(androiddump_man)
 
+dnl sshdump check
+AC_MSG_CHECKING(whether to build sshdump)
+
+AC_ARG_ENABLE(sshdump,
+  AC_HELP_STRING( [--enable-sshdump],
+		  [build sshdump @<:@default=yes@:>@]),
+    sshdump=$enableval,enable_sshdump=yes)
+
+if test "x$enable_sshdump" = "xyes" ; then
+	AC_MSG_RESULT(yes)
+else
+	AC_MSG_RESULT(no)
+fi
+
+if test "x$enable_sshdump" = "xyes" ; then
+	if  test "x$have_good_libssh" = "xyes" ; then
+		sshdump_bin="sshdump\$(EXEEXT)"
+		sshdump_man="sshdump.1"
+	else
+		echo "Can't find libssh. Disabling sshdump."
+		enable_sshdump=no
+		sshdump_bin=""
+		sshdump_man=""
+	fi
+else
+	sshdump_bin=""
+	sshdump_man=""
+fi
+AC_SUBST(sshdump_bin)
+AC_SUBST(sshdump_man)
+
 # Enable/disable echld
 AC_ARG_ENABLE(echld,
   AC_HELP_STRING( [--enable-echld],
@@ -2815,6 +2846,31 @@ else
 	AC_WIRESHARK_GEOIP_CHECK
 fi
 AC_SUBST(GEOIP_LIBS)
+
+dnl LIBSSH Check
+LIBSSH=''
+AC_MSG_CHECKING(whether to use the libssh library if available)
+
+AC_ARG_WITH(ssh,
+  AC_HELP_STRING( [--with-libssh@<:@=DIR@:>@],
+		  [use libssh (located in directory DIR, if supplied) @<:@default=yes, if present@:>@]),
+[
+if   test "x$withval" = "xno";  then
+	want_libssh=no
+elif test "x$withval" = "xyes"; then
+	want_libssh=yes
+elif test -d "$withval"; then
+	want_libssh=yes
+	AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+fi
+])
+if test "x$want_libssh" = "xno"; then
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	AC_WIRESHARK_LIBSSH_CHECK
+fi
+AC_SUBST(LIBSSH_LIBS)
 
 #
 # Define WS_MSVC_NORETURN appropriately for declarations of routines that
@@ -3377,6 +3433,18 @@ else
 	geoip_message="no"
 fi
 
+if test "x$have_good_libssh" = "xyes" ; then
+	libssh_message="yes"
+else
+	libssh_message="no"
+fi
+
+if test "x$have_ssh_userauth_agent" = "xyes" ; then
+	ssh_userauth_agent_message="yes"
+else
+	ssh_userauth_agent_message="no"
+fi
+
 echo ""
 echo "The Wireshark package has been configured with the following options."
 echo "                    Build wireshark : $enable_wireshark_qt$qt_lib_message"
@@ -3394,6 +3462,7 @@ echo "                      Build randpkt : $enable_randpkt"
 echo "                       Build dftest : $enable_dftest"
 echo "                     Build rawshark : $enable_rawshark"
 echo "                  Build androiddump : $enable_androiddump"
+echo "                      Build sshdump : $enable_sshdump"
 echo "                        Build echld : $have_echld"
 echo ""
 echo "   Save files as pcap-ng by default : $enable_pcap_ng_default"
@@ -3418,6 +3487,8 @@ echo "           Use IPv6 name resolution : $enable_ipv6"
 echo "                 Use gnutls library : $tls_message"
 echo "     Use POSIX capabilities library : $libcap_message"
 echo "                  Use GeoIP library : $geoip_message"
+echo "                 Use libssh library : $libssh_message"
+echo "            Have ssh_userauth_agent : $ssh_userauth_agent_message"
 echo "                     Use nl library : $libnl_message"
 echo "              Use SBC codec library : $have_sbc"
 #echo "                      Use GResource : $have_gresource"

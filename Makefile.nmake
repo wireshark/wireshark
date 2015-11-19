@@ -42,7 +42,7 @@ GENERATED_CFLAGS=\
 	/I.  /Iwiretap $(GLIB_CFLAGS) \
 	$(ZLIB_CFLAGS) /I$(PCAP_DIR)\include $(AIRPCAP_CFLAGS) \
 	$(C_ARES_CFLAGS) $(ADNS_CFLAGS) $(GNUTLS_CFLAGS) \
-	$(SMI_CFLAGS) $(GEOIP_CFLAGS) $(WINSPARKLE_CFLAGS)
+	$(SMI_CFLAGS) $(GEOIP_CFLAGS) $(LIBSSH_CFLAGS) $(WINSPARKLE_CFLAGS)
 
 CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 
@@ -182,6 +182,12 @@ androiddump_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsutil\libwsutil.lib \
 	$(GLIB_LIBS)
 
+sshdump_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+	wsock32.lib user32.lib \
+	wsutil\libwsutil.lib \
+	$(LIBSSH_LIBS) \
+	$(GLIB_LIBS)
+
 dumpcap_LIBS= \
 	wsock32.lib user32.lib \
 	caputils\libcaputils.lib \
@@ -213,6 +219,10 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 EXECUTABLES=$(PROGRAM_NAME_GTK).exe tshark.exe tfshark.exe rawshark.exe \
 	capinfos.exe captype.exe editcap.exe mergecap.exe text2pcap.exe \
 	randpkt.exe reordercap.exe dumpcap.exe androiddump.exe dftest.exe
+
+!IFDEF LIBSSH_DIR
+EXECUTABLES += sshdump.exe
+!ENDIF
 
 !IFDEF QT5_BASE_DIR
 EXECUTABLES=$(EXECUTABLES) $(PROGRAM_NAME).exe
@@ -439,6 +449,17 @@ androiddump.exe	: $(LIBS_CHECK) config.h androiddump.obj wsutil\libwsutil.lib wi
 	mt.exe -nologo -manifest "androiddump.exe.manifest" -outputresource:androiddump.exe;1
 !ENDIF
 
+!IFDEF LIBSSH_DIR
+sshdump.exe	: $(LIBS_CHECK) config.h sshdump.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:sshdump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS sshdump.obj $(sshdump_LIBS)
+<<
+!IFDEF MANIFEST_INFO_REQUIRED
+	mt.exe -nologo -manifest "sshdump.exe.manifest" -outputresource:sshdump.exe;1
+!ENDIF
+!ENDIF
+
 dumpcap.exe	: $(LIBS_CHECK) config.h $(dumpcap_OBJECTS) caputils wsutil\libwsutil.lib image\dumpcap.res
 	@echo Linking $@
 	$(LINK) @<<
@@ -485,6 +506,7 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_SMI@/$(SMI_CONFIG)/" \
 	    -e "s/@HAVE_GEOIP@/$(GEOIP_CONFIG)/" \
 	    -e "s/@HAVE_GEOIP_V6@/$(GEOIP_V6_CONFIG)/" \
+	    -e "s/@HAVE_LIBSSH/$(LIBSSH_CONFIG)/" \
 	    -e "s/@HAVE_SOFTWARE_UPDATE@/$(WINSPARKLE_CONFIG)/" \
 	    -e "s/@INET6@/$(INET6_CONFIG)/" \
 	    -e "s/@HAVE_NTDDNDIS_H@/$(NTDDNDIS_CONFIG)/" \
@@ -517,6 +539,7 @@ SMI_DIR = $(SMI_DIR:\=/)
 KFW_DIR = $(KFW_DIR:\=/)
 LUA_DIR = $(LUA_DIR:\=/)
 GEOIP_DIR = $(GEOIP_DIR:\=/)
+LIBSSH_DIR = $(LIBSSH_DIR:\=/)
 WINSPARKLE_DIR = $(WINSPARKLE_DIR:\=/)
 
 GCC_DLL = $(GCC_DLL)
@@ -573,6 +596,9 @@ text2pcap-scanner.obj : text2pcap-scanner.c
 androiddump.obj : extcap/androiddump.c
 	$(CC) $(CFLAGS) -Fd.\ -c $?
 
+sshdump.obj : extcap/sshdump.c
+	$(CC) $(CFLAGS) -Fd.\ -c $?
+
 test-programs:
 	cd epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake test-programs
@@ -581,7 +607,7 @@ test-programs:
 clean-local:
 	rm -f $(wireshark_gtk_OBJECTS) $(tshark_OBJECTS) $(tfshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
 		$(EXECUTABLES) *.nativecodeanalysis.xml *.pdb *.sbr *.exe.manifest \
-		androiddump.obj \
+		androiddump.obj sshdump.obj \
 		capinfos.obj capinfos.exp capinfos.lib \
 		captype.obj captype.exp captype.lib \
 		editcap.obj editcap.exp editcap.lib \
@@ -1088,6 +1114,12 @@ process_libs:
 		GeoIP-$(GEOIP_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip \
 		"$(DOWNLOAD_TAG)" "$(WIRESHARK_TARGET_PLATFORM)"
 !ENDIF
+!IFDEF LIBSSH_DIR
+	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
+		libssh-$(LIBSSH_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws \
+		libssh-$(LIBSSH_PKG)-$(WIRESHARK_TARGET_PLATFORM)ws.zip \
+		"$(DOWNLOAD_TAG)" "$(WIRESHARK_TARGET_PLATFORM)"
+!ENDIF
 !IFDEF WINSPARKLE_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
 		. \
@@ -1184,6 +1216,7 @@ clean_setup:
 	rm -r -f AirPcap_Devpack_4_1_0_1622
 	rm -r -f GeoIP-1.4.5ws
 	rm -r -f GeoIP-1.*-win??ws
+	rm -r -f libssh-0.7.2
 	rm -r -f WinSparkle-0.3-44-g2c8d9d3-win??ws
 	rm -r -f WpdPack
 	cd "$(MAKEDIR)"
@@ -1234,9 +1267,13 @@ install-generated-files: doc
 	if not exist $(INSTALL_DIR)\extcap mkdir $(INSTALL_DIR)\extcap
 	if exist androiddump.exe xcopy androiddump.exe $(INSTALL_DIR)\extcap /d
 	if exist androiddump.pdb xcopy androiddump.pdb $(INSTALL_DIR)\extcap /d
+	if exist sshdump.exe xcopy sshdump.exe $(INSTALL_DIR)\extcap /d
+	if exist sshdump.pdb xcopy sshdump.pdb $(INSTALL_DIR)\extcap /d
 	if not exist $(INSTALL_DIR_QT)\extcap mkdir $(INSTALL_DIR_QT)\extcap
 	if exist androiddump.exe xcopy androiddump.exe $(INSTALL_DIR_QT)\extcap /d
 	if exist androiddump.pdb xcopy androiddump.pdb $(INSTALL_DIR_QT)\extcap /d
+	if exist sshdump.exe xcopy sshdump.exe $(INSTALL_DIR_QT)\extcap /d
+	if exist sshdump.pdb xcopy sshdump.pdb $(INSTALL_DIR_QT)\extcap /d
 	if exist capinfos.exe xcopy capinfos.exe $(INSTALL_DIR) /d
 	if exist capinfos.pdb xcopy capinfos.pdb $(INSTALL_DIR) /d
 	if exist captype.exe xcopy captype.exe $(INSTALL_DIR) /d
@@ -1462,6 +1499,9 @@ install-all: install-generated-files
 !ENDIF
 !IFDEF GEOIP_DIR
 	xcopy "$(GEOIP_DIR)\bin\libGeoip-1.dll" $(INSTALL_DIR) /d
+!ENDIF
+!IFDEF LIBSSH_DIR
+	xcopy "$(LIBSSH_DIR)\bin\libssh.dll" $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF WINSPARKLE_DIR
 	xcopy "$(WINSPARKLE_DIR)\WinSparkle.dll" $(INSTALL_DIR) /d

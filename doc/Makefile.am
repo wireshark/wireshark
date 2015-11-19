@@ -71,7 +71,8 @@ man1_MANS = \
 	@rawshark_man@		\
 	@dftest_man@		\
 	@randpkt_man@		\
-	@androiddump_man@
+	@androiddump_man@	\
+	@sshdump_man@
 man4_MANS = @wiresharkfilter_man@
 man_MANS =
 
@@ -83,7 +84,7 @@ noinst_DATA = asn2deb.1 asn2deb.html idl2deb.1 idl2deb.html idl2wrs.1 idl2wrs.ht
 pkgdata_DATA = AUTHORS-SHORT $(top_srcdir)/docbook/ws.css wireshark.html \
 	tshark.html wireshark-filter.html capinfos.html editcap.html \
 	mergecap.html reordercap.html text2pcap.html dumpcap.html androiddump.html \
-	rawshark.html dftest.html randpkt.html
+	sshdump.html rawshark.html dftest.html randpkt.html
 
 #
 # Build the short version of the authors file for the about dialog
@@ -212,6 +213,13 @@ androiddump.html: androiddump.pod ../config.h $(top_srcdir)/docbook/ws.css
 	--noindex							\
 	$(srcdir)/androiddump.pod > androiddump.html
 
+sshdump.html: sshdump.pod ../config.h $(top_srcdir)/docbook/ws.css
+	$(AM_V_POD2HTML)$(POD2HTML)                     \
+	--title="sshdump - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=$(POD_CSS_URL)						\
+	--noindex							\
+	$(srcdir)/sshdump.pod > sshdump.html
+
 rawshark.html: rawshark.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(AM_V_POD2HTML)$(POD2HTML)                     \
 	--title="rawshark - The Wireshark Network Analyzer $(VERSION)"	\
@@ -293,6 +301,7 @@ EXTRA_DIST =				\
 	rawshark.pod			\
 	reordercap.pod			\
 	sgml.doc.template		\
+	sshdump.pod				\
 	text2pcap.pod			\
 	tshark.pod			\
 	wireshark-filter.pod    	\

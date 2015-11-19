@@ -1,4 +1,5 @@
 obj-*/androiddump.1
+obj-*/sshdump.1
 obj-*/editcap.1
 obj-*/extcap.4
 obj-*/mergecap.1

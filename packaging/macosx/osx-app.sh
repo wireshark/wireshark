@@ -60,6 +60,7 @@ binary_list="
 	text2pcap
 	tshark
 	extcap/androiddump
+	extcap/sshdump
 "
 cs_binary_list=
 

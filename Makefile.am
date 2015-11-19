@@ -43,11 +43,12 @@ bin_PROGRAMS = \
 	@reordercap_bin@	\
 	@rawshark_bin@		\
 	@androiddump_bin@	\
+	@sshdump_bin@		\
 	@echld_test_bin@
 
 EXTRA_PROGRAMS = wireshark-gtk wireshark tshark tfshark capinfos captype editcap \
 	mergecap dftest randpkt text2pcap dumpcap reordercap rawshark androiddump \
-	echld_test
+	sshdump	echld_test
 
 #
 # Wireshark configuration files are put in $(pkgdatadir).
@@ -546,6 +547,23 @@ androiddump_LDADD = \
 	@SOCKET_LIBS@
 
 androiddump_CFLAGS = $(AM_CLEAN_CFLAGS)
+
+if ENABLE_STATIC
+	sshdump_LDFLAGS = -Wl,-static -all-static
+else
+	sshdump_LDFLAGS = -export-dynamic
+endif
+
+# Libraries and plugin flags with which to link sshdump.
+sshdump_LDADD = \
+	wiretap/libwiretap.la		\
+	wsutil/libwsutil.la		\
+	@GLIB_LIBS@			\
+	@LIBSSH_LIBS@		\
+	@SOCKET_LIBS@
+
+sshdump_CFLAGS = $(AM_CLEAN_CFLAGS)
+
 
 # Libraries with which to link text2pcap.
 text2pcap_LDADD = \
@@ -1322,6 +1340,7 @@ EXTRA_DIST = \
 	cmake/modules/FindSETCAP.cmake		\
 	cmake/modules/FindSH.cmake		\
 	cmake/modules/FindSMI.cmake		\
+	cmake/modules/FindLIBSSH.cmake	\
 	cmake/modules/FindWinSparkle.cmake	\
 	cmake/modules/FindWireshark.cmake	\
 	cmake/modules/FindWSWinLibs.cmake	\

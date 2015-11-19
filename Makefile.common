@@ -99,6 +99,10 @@ rawshark_SOURCES =	\
 androiddump_SOURCES =	\
 	extcap/androiddump.c
 
+# sshdump specifics
+sshdump_SOURCES =	\
+	extcap/sshdump.c
+
 # text2pcap specifics
 text2pcap_SOURCES = \
 	pcapio.c		\

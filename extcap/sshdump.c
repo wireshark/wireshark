@@ -1,0 +1,850 @@
+/* sshdump.c
+ * sshdump is extcap tool used to capture data using a remote ssh host
+ *
+ * Copyright 2015, Dario Lombardo
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+#include "config.h"
+
+#include <glib.h>
+#include <glib/gprintf.h>
+#include <glib/gstdio.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <errno.h>
+#include <time.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <libssh/libssh.h>
+
+#ifdef HAVE_ARPA_INET_H
+	#include <arpa/inet.h>
+#endif
+
+#include "log.h"
+
+#ifdef _WIN32
+#include <io.h>
+#endif
+
+#ifdef HAVE_GETOPT_H
+#include <getopt.h>
+#endif
+
+#ifndef HAVE_GETOPT_LONG
+	#include "wsutil/wsgetopt.h"
+#endif
+
+#if defined(_WIN32) && !defined(__CYGWIN__)
+	#ifdef HAVE_WINDOWS_H
+		#include <windows.h>
+	#endif
+
+	#include <ws2tcpip.h>
+
+	#ifdef HAVE_WINSOCK2_H
+		#include <winsock2.h>
+	#endif
+
+	#include <process.h>
+
+	#define socket_handle_t SOCKET
+#else
+/*
+ * UN*X, or Windows pretending to be UN*X with the aid of Cygwin.
+ */
+#define closesocket(socket)  close(socket)
+#define socket_handle_t int
+#define INVALID_SOCKET (-1)
+#define SOCKET_ERROR (-1)
+#endif
+
+#if defined(__FreeBSD__) || defined(BSD) || defined(__APPLE__) || defined(__linux__)
+#define USE_GETIFADDRS 1
+#include <ifaddrs.h>
+#endif
+
+#ifndef STDERR_FILENO
+#define STDERR_FILENO 2
+#endif
+
+#ifndef STDOUT_FILENO
+#define STDOUT_FILENO 1
+#endif
+
+#define SSHDUMP_VERSION_MAJOR 1U
+#define SSHDUMP_VERSION_MINOR 0U
+#define SSHDUMP_VERSION_RELEASE 0U
+
+#define SSH_EXTCAP_INTERFACE "ssh"
+#define SSH_READ_BLOCK_SIZE 256
+
+static gboolean verbose = FALSE;
+
+enum {
+	OPT_HELP = 1,
+	OPT_VERSION,
+	OPT_VERBOSE,
+	OPT_LIST_INTERFACES,
+	OPT_LIST_DLTS,
+	OPT_INTERFACE,
+	OPT_CONFIG,
+	OPT_CAPTURE,
+	OPT_FIFO,
+	OPT_EXTCAP_FILTER,
+	OPT_REMOTE_HOST,
+	OPT_REMOTE_PORT,
+	OPT_REMOTE_USERNAME,
+	OPT_REMOTE_PASSWORD,
+	OPT_REMOTE_INTERFACE,
+	OPT_REMOTE_CAPTURE_BIN,
+	OPT_REMOTE_FILTER,
+	OPT_SSHKEY,
+	OPT_SSHKEY_PASSPHRASE
+};
+
+static struct option longopts[] = {
+/* Generic application options */
+	{ "help", no_argument, NULL, OPT_HELP},
+	{ "version", no_argument, NULL, OPT_VERSION},
+	{ "verbose", optional_argument, NULL, OPT_VERBOSE},
+	{ "extcap-interfaces", no_argument, NULL, OPT_LIST_INTERFACES},
+	{ "extcap-dlts", no_argument, NULL, OPT_LIST_DLTS},
+	{ "extcap-interface", required_argument, NULL, OPT_INTERFACE},
+	{ "extcap-config", no_argument, NULL, OPT_CONFIG},
+	{ "extcap-capture-filter", required_argument, NULL, OPT_EXTCAP_FILTER},
+	{ "capture", no_argument, NULL, OPT_CAPTURE},
+	{ "fifo", required_argument, NULL, OPT_FIFO},
+	{ "remote-host", required_argument, NULL, OPT_REMOTE_HOST},
+	{ "remote-port", required_argument, NULL, OPT_REMOTE_PORT},
+	{ "remote-username", required_argument, NULL, OPT_REMOTE_USERNAME},
+	{ "remote-password", required_argument, NULL, OPT_REMOTE_PASSWORD},
+	{ "remote-interface", required_argument, NULL, OPT_REMOTE_INTERFACE},
+	{ "remote-capture-bin", required_argument, NULL, OPT_REMOTE_CAPTURE_BIN},
+	{ "remote-filter", required_argument, NULL, OPT_REMOTE_FILTER},
+	{ "sshkey", required_argument, NULL, OPT_SSHKEY},
+	{ "sshkey-passphrase", required_argument, NULL, OPT_SSHKEY_PASSPHRASE},
+	{ 0, 0, 0, 0}
+};
+
+#define verbose_print(...) { if (verbose) g_print(__VA_ARGS__); }
+#define errmsg_print(...) { g_print(__VA_ARGS__); g_print("\n"); }
+
+static char* local_interfaces_to_filter(unsigned int remote_port);
+
+static void ssh_cleanup(ssh_session sshs, ssh_channel channel)
+{
+	if (channel) {
+		ssh_channel_send_eof(channel);
+		ssh_channel_close(channel);
+		ssh_channel_free(channel);
+	}
+
+	if (sshs) {
+		ssh_disconnect(sshs);
+		ssh_free(sshs);
+	}
+}
+
+static ssh_session create_ssh_connection(const char* hostname, const unsigned int port, const char* username,
+	const char* password, const char* sshkey_path, const char* sshkey_passphrase)
+{
+	ssh_session sshs;
+
+	/* Open session and set options */
+	sshs = ssh_new();
+	if (sshs == NULL) {
+		errmsg_print("Can't create ssh session");
+		return NULL;
+	}
+
+	if (!hostname)
+		return NULL;
+
+	if (ssh_options_set(sshs, SSH_OPTIONS_HOST, hostname)) {
+		errmsg_print("Can't set the hostname: %s\n", hostname);
+		goto failure;
+	}
+
+	if (port != 0) {
+		if (ssh_options_set(sshs, SSH_OPTIONS_PORT, &port)) {
+			errmsg_print("Can't set the port: %d\n", port);
+			goto failure;
+		}
+	}
+
+	if (!username)
+		username = g_get_user_name();
+
+	if (ssh_options_set(sshs, SSH_OPTIONS_USER, username)) {
+		errmsg_print("Can't set the username: %s\n", username);
+		goto failure;
+	}
+
+	verbose_print("Opening ssh connection to %s@%s:%u\n", username, hostname, port);
+
+	/* Connect to server */
+	if (ssh_connect(sshs) != SSH_OK) {
+		errmsg_print("Error connecting to %s@%s:%u (%s)\n", username, hostname, port,
+			ssh_get_error(sshs));
+		goto failure;
+	}
+
+#ifdef HAVE_LIBSSH_USERAUTH_AGENT
+	verbose_print("Connecting using ssh-agent...");
+	/* Try to authenticate using ssh agent */
+	if (ssh_userauth_agent(sshs, NULL) == SSH_AUTH_SUCCESS) {
+		verbose_print("done\n");
+		return sshs;
+	}
+	verbose_print("failed\n");
+#endif
+
+	/* If a public key path has been provided, try to authenticate using it */
+	if (sshkey_path) {
+		ssh_key pkey = ssh_key_new();
+		int ret;
+
+		verbose_print("Connecting using public key in %s...", sshkey_path);
+		ret = ssh_pki_import_privkey_file(sshkey_path, sshkey_passphrase, NULL, NULL, &pkey);
+
+		if (ret == SSH_OK) {
+			if (ssh_userauth_publickey(sshs, NULL, pkey) == SSH_AUTH_SUCCESS) {
+				verbose_print("done\n");
+				ssh_key_free(pkey);
+				return sshs;
+			}
+		}
+		ssh_key_free(pkey);
+		verbose_print("failed (%s)\n", ssh_get_error(sshs));
+	}
+
+	/* Try to authenticate using standard public key */
+	verbose_print("Connecting using standard public key...");
+	if (ssh_userauth_publickey_auto(sshs, NULL, NULL) == SSH_AUTH_SUCCESS) {
+		verbose_print("done\n");
+		return sshs;
+	}
+	verbose_print("failed\n");
+
+	/* If a password has been provided and all previous attempts failed, try to use it */
+	if (password) {
+		verbose_print("Connecting using password...");
+		if (ssh_userauth_password(sshs, username, password) == SSH_AUTH_SUCCESS) {
+			verbose_print("done\n");
+			return sshs;
+		}
+		verbose_print("failed\n");
+	}
+
+	verbose_print("Can't find a valid authentication. Disconnecting.\n");
+
+	/* All authentication failed. Disconnect and return */
+	ssh_disconnect(sshs);
+
+failure:
+	ssh_free(sshs);
+	return NULL;
+}
+
+static void ssh_loop_read(ssh_channel channel, int fd)
+{
+	int nbytes;
+	char buffer[SSH_READ_BLOCK_SIZE];
+
+	/* read from stdin until data are available */
+	do {
+		nbytes = ssh_channel_read(channel, buffer, SSH_READ_BLOCK_SIZE, 0);
+		if (write(fd, buffer, nbytes) != nbytes) {
+			errmsg_print("ERROR reading: %s\n", g_strerror(errno));
+			return;
+		}
+	} while(nbytes > 0);
+
+	/* read loop finished... maybe something wrong happened. Read from stderr */
+	do {
+		nbytes = ssh_channel_read(channel, buffer, SSH_READ_BLOCK_SIZE, 1);
+		if (write(STDERR_FILENO, buffer, nbytes) != nbytes) {
+			return;
+		}
+	} while(nbytes > 0);
+
+	if (ssh_channel_send_eof(channel) != SSH_OK)
+		return;
+}
+
+static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, const char* iface, const char* cfilter)
+{
+	gchar* cmdline;
+	ssh_channel channel;
+	char* quoted_bin;
+	char* quoted_iface;
+	char* default_filter;
+	char* quoted_filter;
+	unsigned int remote_port = 22;
+
+	if (!capture_bin)
+		capture_bin = "dumpcap";
+
+	if (!iface)
+		iface = "eth0";
+
+	channel = ssh_channel_new(sshs);
+	if (!channel)
+		return NULL;
+
+	if (ssh_channel_open_session(channel) != SSH_OK) {
+		ssh_channel_free(channel);
+		return NULL;
+	}
+
+	ssh_options_get_port(sshs, &remote_port);
+
+	/* escape parameters to go save with the shell */
+	quoted_bin = g_shell_quote(capture_bin);
+	quoted_iface = g_shell_quote(iface);
+	default_filter = local_interfaces_to_filter(remote_port);
+	if (!cfilter)
+		cfilter = default_filter;
+	quoted_filter = g_shell_quote(cfilter);
+
+	cmdline = g_strdup_printf("%s -i %s -P -w - -f %s", quoted_bin, quoted_iface, quoted_filter);
+
+	verbose_print("Running: %s\n", cmdline);
+	if (ssh_channel_request_exec(channel, cmdline) != SSH_OK) {
+		ssh_channel_close(channel);
+		ssh_channel_free(channel);
+		channel = NULL;
+	}
+
+	g_free(quoted_bin);
+	g_free(quoted_iface);
+	g_free(default_filter);
+	g_free(quoted_filter);
+	g_free(cmdline);
+
+	return channel;
+}
+
+static int ssh_open_remote_connection(const char* hostname, const unsigned int port, const char* username, const char* password,
+	const char* sshkey, const char* sshkey_passphrase, const char* iface, const char* cfilter, const char* capture_bin,
+	const char* fifo)
+{
+	ssh_session sshs;
+	ssh_channel channel;
+	int fd;
+
+	if (!g_strcmp0(fifo, "-")) {
+		/* use stdout */
+		fd = STDOUT_FILENO;
+	} else {
+		/* Open or create the output file */
+		fd = open(fifo, O_WRONLY);
+		if (fd == -1) {
+			fd = open(fifo, O_WRONLY | O_CREAT, 0640);
+			if (fd == -1) {
+				errmsg_print("Error creating output file: %s\n", g_strerror(errno));
+				return EXIT_FAILURE;
+			}
+		}
+	}
+
+	sshs = create_ssh_connection(hostname, port, username, password, sshkey, sshkey_passphrase);
+
+	if (!sshs)
+		return EXIT_FAILURE;
+
+	channel = run_ssh_command(sshs, capture_bin, iface, cfilter);
+	if (!channel)
+		return EXIT_FAILURE;
+
+	/* read from channel and write into fd */
+	ssh_loop_read(channel, fd);
+
+	/* clean up and exit */
+	ssh_cleanup(sshs, channel);
+
+	return EXIT_SUCCESS;
+}
+
+static void help(const char* binname)
+{
+	g_print("Help\n");
+	g_print(" Usage:\n");
+	g_print(" %s --extcap-interfaces\n", binname);
+	g_print(" %s --extcap-interface=INTERFACE --extcap-dlts\n", binname);
+	g_print(" %s --extcap-interface=INTERFACE --extcap-config\n", binname);
+	g_print(" %s --extcap-interface=INTERFACE --remote-host myhost --remote-port 22222 "
+		"--remote-username myuser --remote-interface eth2 --remote-capture-bin /bin/dumpcap "
+		"--fifo=FILENAME --capture\n", binname);
+	g_print("\n\n");
+	g_print("  --help: print this help\n");
+	g_print("  --version: print the version\n");
+	g_print("  --verbose: print more messages\n");
+	g_print("  --extcap-interfaces: list the interfaces\n");
+	g_print("  --extcap-interface <iface>: specify the interface\n");
+	g_print("  --extcap-dlts: list the DTLs for an interface\n");
+	g_print("  --extcap-config: list the additional configuration for an interface\n");
+	g_print("  --extcap-capture-filter <filter>: the capture filter\n");
+	g_print("  --capture: run the capture\n");
+	g_print("  --fifo <file>: dump data to file or fifo\n");
+	g_print("  --remote-host <host>: the remote SSH host\n");
+	g_print("  --remote-port <port>: the remote SSH port (default: 22)\n");
+	g_print("  --remote-username <username>: the remote SSH username (default: the current user)\n");
+	g_print("  --remote-password <password>: the remote SSH password. If not specified, ssh-agent and ssh-key are used\n");
+	g_print("  --sshkey <public key path>: the path of the ssh key\n");
+	g_print("  --sshkey-passphrase <public key passphrase>: the passphrase to unlock public ssh\n");
+	g_print("  --remote-interface <iface>: the remote capture interface (default: eth0)\n");
+	g_print("  --remote-capture-bin <capture bin>: the remote dumcap binary (default: dumpcap\n");
+	g_print("  --remote-filter <filter>: a filter for remote capture (default: don't listen on local local interfaces IPs)\n");
+}
+
+static int list_interfaces(void)
+{
+	g_print("interface {value=%s}{display=SSH remote capture}\n", SSH_EXTCAP_INTERFACE);
+	return EXIT_SUCCESS;
+}
+
+static int list_dlts(const char *interface)
+{
+	if (!interface) {
+		g_print("ERROR: No interface specified.\n");
+		return EXIT_FAILURE;
+	}
+
+	if (g_strcmp0(interface, SSH_EXTCAP_INTERFACE)) {
+		g_print("ERROR: interface must be %s\n", SSH_EXTCAP_INTERFACE);
+		return EXIT_FAILURE;
+	}
+
+	g_print("dlt {number=147}{name=%s}{display=Remote capture dependant DLT}\n", SSH_EXTCAP_INTERFACE);
+	return EXIT_SUCCESS;
+}
+
+
+static char* local_interfaces_to_filter(unsigned int remote_port)
+{
+#ifdef USE_GETIFADDRS
+	struct ifaddrs* ifap;
+	struct ifaddrs* ifa;
+	GString* interfaces;
+	char* filter = NULL;
+	int family;
+	char ip[INET6_ADDRSTRLEN];
+
+	if (getifaddrs(&ifap)) {
+		return NULL;
+	}
+
+	interfaces = g_string_new(NULL);
+
+	for (ifa = ifap; ifa != NULL; ifa = ifa->ifa_next) {
+		if (ifa->ifa_addr == NULL)
+			continue;
+
+		family = ifa->ifa_addr->sa_family;
+
+		memset(&ip, 0x0, INET6_ADDRSTRLEN);
+
+		switch (family) {
+			case AF_INET:
+				{
+					struct sockaddr_in *addr4 = (struct sockaddr_in *)ifa->ifa_addr;
+					inet_ntop(family, (char *)&addr4->sin_addr, ip, sizeof(ip));
+					break;
+				}
+
+			case AF_INET6:
+				{
+					struct sockaddr_in6 *addr6 = (struct sockaddr_in6 *)ifa->ifa_addr;
+					inet_ntop(family, (char *)&addr6->sin6_addr, ip, sizeof(ip));
+					break;
+				}
+
+			default:
+				break;
+		}
+
+		/* skip loopback addresses */
+		if (!g_strcmp0(ip, "127.0.0.1") || !g_strcmp0(ip, "::1"))
+			continue;
+
+		if (*ip) {
+			if (interfaces->len)
+				g_string_append(interfaces, " or ");
+			g_string_append_printf(interfaces, "host %s", ip);
+		}
+	}
+	freeifaddrs(ifap);
+
+	if (interfaces->len)
+		filter = g_strdup_printf("not ((%s) and port %u)", interfaces->str, remote_port);
+	g_string_free(interfaces, TRUE);
+
+	return filter;
+#else
+	return NULL;
+#endif
+}
+
+static int list_config(char *interface, unsigned int remote_port)
+{
+	unsigned inc = 0;
+	char* ipfilter;
+
+	if (!interface) {
+		g_fprintf(stderr, "ERROR: No interface specified.\n");
+		return EXIT_FAILURE;
+	}
+
+	if (g_strcmp0(interface, SSH_EXTCAP_INTERFACE)) {
+		errmsg_print("ERROR: interface must be %s\n", SSH_EXTCAP_INTERFACE);
+		return EXIT_FAILURE;
+	}
+
+	ipfilter = local_interfaces_to_filter(remote_port);
+	if (!ipfilter)
+		return EXIT_FAILURE;
+
+	g_print("arg {number=%u}{call=--remote-host}{display=Remote SSH server address}"
+		"{type=string}{tooltip=The remote SSH host. It can be both "
+		"an IP address or a hostname}\n", inc++);
+	g_print("arg {number=%u}{call=--remote-port}{display=Remote SSH server port}"
+		"{type=unsigned}{default=22}{tooltip=The remote SSH host port (1-65535)}"
+		"{range=1,65535}\n", inc++);
+	g_print("arg {number=%u}{call=--remote-username}{display=Remote SSH server username}"
+		"{type=string}{default=%s}{tooltip=The remote SSH username. If not provided, "
+		"the current user will be used}\n", inc++, g_get_user_name());
+	g_print("arg {number=%u}{call=--remote-password}{display=Remote SSH server password}"
+		"{type=string}{tooltip=The SSH password, used when other methods (SSH agent "
+		"or key files) are unavailable.}\n", inc++);
+	g_print("arg {number=%u}{call=--sshkey}{display=Path to SSH private key}"
+		"{type=fileselect}{tooltip=The path on the local filesystem of the private ssh key}\n",
+		inc++);
+	g_print("arg {number=%u}{call--sshkey-passphrase}{display=SSH key passphrase}\n"
+		"{type=string}{tooltip=Passphrase to unlock the SSH private key}\n",
+		inc++);
+	g_print("arg {number=%u}{call=--remote-interface}{display=Remote interface}"
+		"{type=string}{default=eth0}{tooltip=The remote network interface used for capture"
+		"}\n", inc++);
+	g_print("arg {number=%u}{call=--remote-capture-bin}{display=Remote capture binary}"
+		"{type=string}{default=dumpcap}{tooltip=The remote dumpcap binary used "
+		"for capture.}\n", inc++);
+	g_print("arg {number=%u}{call=--remote-filter}{display=Remote capture filter}"
+		"{type=string}{default=%s}{tooltip=The remote capture filter}\n", inc++, ipfilter);
+
+	g_free(ipfilter);
+
+	return EXIT_SUCCESS;
+}
+
+static char* concat_filters(const char* extcap_filter, const char* remote_filter)
+{
+	if (!extcap_filter && remote_filter)
+		return g_strdup(remote_filter);
+
+	if (!remote_filter && extcap_filter)
+		return g_strdup(extcap_filter);
+
+	if (!remote_filter && !extcap_filter)
+		return NULL;
+
+	return g_strdup_printf("(%s) and (%s)", extcap_filter, remote_filter);
+}
+
+#ifdef _WIN32
+BOOLEAN IsHandleRedirected(DWORD handle)
+{
+	HANDLE h = GetStdHandle(handle);
+	if (h) {
+		BY_HANDLE_FILE_INFORMATION fi;
+		if (GetFileInformationByHandle(h, &fi)) {
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+static void attach_parent_console()
+{
+	BOOL outRedirected, errRedirected;
+
+	outRedirected = IsHandleRedirected(STD_OUTPUT_HANDLE);
+	errRedirected = IsHandleRedirected(STD_ERROR_HANDLE);
+
+	if (outRedirected && errRedirected) {
+		/* Both standard output and error handles are redirected.
+		 * There is no point in attaching to parent process console.
+		 */
+		return;
+	}
+
+	if (AttachConsole(ATTACH_PARENT_PROCESS) == 0) {
+		/* Console attach failed. */
+		return;
+	}
+
+	/* Console attach succeeded */
+	if (outRedirected == FALSE) {
+		freopen("CONOUT$", "w", stdout);
+	}
+
+	if (errRedirected == FALSE) {
+		freopen("CONOUT$", "w", stderr);
+	}
+}
+#endif
+
+int main(int argc, char **argv)
+{
+	int result;
+	int option_idx = 0;
+	int do_list_interfaces = 0;
+	int do_config = 0;
+	int do_capture = 0;
+	int i;
+	char* interface = NULL;
+	char* remote_host = NULL;
+	unsigned int remote_port = 22;
+	char* remote_username = NULL;
+	char* remote_password = NULL;
+	int do_dlts = 0;
+	char* fifo = NULL;
+	char* remote_interface = NULL;
+	char* remote_capture_bin = NULL;
+	char* extcap_filter = NULL;
+	char* sshkey = NULL;
+	char* sshkey_passphrase = NULL;
+	char* remote_filter = NULL;
+
+#ifdef _WIN32
+	WSADATA wsaData;
+
+	attach_parent_console();
+#endif  /* _WIN32 */
+
+	opterr = 0;
+	optind = 0;
+
+	if (argc == 1) {
+		help(argv[0]);
+		return EXIT_FAILURE;
+	}
+
+	for (i = 0; i < argc; i++) {
+		verbose_print("%s ", argv[i]);
+	}
+	verbose_print("\n");
+
+	while ((result = getopt_long(argc, argv, ":", longopts, &option_idx)) != -1) {
+
+		switch (result) {
+
+		case OPT_HELP:
+			help(argv[0]);
+			return EXIT_SUCCESS;
+
+		case OPT_VERBOSE:
+			verbose = TRUE;
+			break;
+
+		case OPT_VERSION:
+			g_print("%u.%u.%u\n", SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR, SSHDUMP_VERSION_RELEASE);
+			return EXIT_SUCCESS;
+
+		case OPT_LIST_INTERFACES:
+			do_list_interfaces = 1;
+			break;
+
+		case OPT_LIST_DLTS:
+			do_dlts = 1;
+			break;
+
+		case OPT_INTERFACE:
+			if (interface)
+				g_free(interface);
+			interface = g_strdup(optarg);
+			break;
+
+		case OPT_CONFIG:
+			do_config = 1;
+			break;
+
+		case OPT_CAPTURE:
+			do_capture = 1;
+			break;
+
+		case OPT_FIFO:
+			if (fifo)
+				g_free(fifo);
+			fifo = g_strdup(optarg);
+			break;
+
+		case OPT_REMOTE_HOST:
+			if (remote_host)
+				g_free(remote_host);
+			remote_host = g_strdup(optarg);
+			break;
+
+		case OPT_REMOTE_PORT:
+			remote_port = (unsigned int)strtoul(optarg, NULL, 10);
+			if (remote_port > 65535 || remote_port == 0) {
+				g_print("Invalid port: %s\n", optarg);
+				return EXIT_FAILURE;
+			}
+			break;
+
+		case OPT_REMOTE_USERNAME:
+			if (remote_username)
+				g_free(remote_username);
+			remote_username = g_strdup(optarg);
+			break;
+
+		case OPT_REMOTE_PASSWORD:
+			if (remote_password)
+				g_free(remote_password);
+			remote_password = g_strdup(optarg);
+			memset(optarg, 'X', strlen(optarg));
+			break;
+
+		case OPT_SSHKEY:
+			if (sshkey)
+				g_free(sshkey);
+			sshkey = g_strdup(optarg);
+			break;
+
+		case OPT_SSHKEY_PASSPHRASE:
+			if (sshkey_passphrase)
+				g_free(sshkey_passphrase);
+			sshkey_passphrase = g_strdup(optarg);
+			memset(optarg, 'X', strlen(optarg));
+			break;
+
+		case OPT_REMOTE_INTERFACE:
+			if (remote_interface)
+				g_free(remote_interface);
+			remote_interface = g_strdup(optarg);
+			break;
+
+		case OPT_REMOTE_CAPTURE_BIN:
+			if (remote_capture_bin)
+				g_free(remote_capture_bin);
+			remote_capture_bin = g_strdup(optarg);
+			break;
+
+		case OPT_EXTCAP_FILTER:
+			if (extcap_filter)
+				g_free(extcap_filter);
+			extcap_filter = g_strdup(optarg);
+			break;
+
+		case OPT_REMOTE_FILTER:
+			if (remote_filter)
+				g_free(remote_filter);
+			remote_filter = g_strdup(optarg);
+			break;
+
+		case ':':
+			/* missing option argument */
+			g_print("Option '%s' requires an argument\n", argv[optind - 1]);
+			break;
+
+		default:
+			g_print("Invalid option: %s\n", argv[optind - 1]);
+			return EXIT_FAILURE;
+		}
+	}
+
+	if (optind != argc) {
+		g_print("Unexpected extra option: %s\n", argv[optind]);
+		return EXIT_FAILURE;
+	}
+
+	if (do_list_interfaces)
+		return list_interfaces();
+
+	if (do_config)
+		return list_config(interface, remote_port);
+
+	if (do_dlts)
+		return list_dlts(interface);
+
+#ifdef _WIN32
+	result = WSAStartup(MAKEWORD(1,1), &wsaData);
+	if (result != 0) {
+		if (verbose)
+			errmsg_print("ERROR: WSAStartup failed with error: %d\n", result);
+		return 1;
+	}
+#endif  /* _WIN32 */
+
+	if (do_capture) {
+		char* filter;
+		int ret = 0;
+		if (!fifo) {
+			errmsg_print("ERROR: No FIFO or file specified\n");
+			return 1;
+		}
+		if (g_strcmp0(interface, SSH_EXTCAP_INTERFACE)) {
+			errmsg_print("ERROR: invalid interface\n");
+			return 1;
+		}
+		if (!remote_host) {
+			errmsg_print("Missing parameter: --remote-host");
+			return 1;
+		}
+		filter = concat_filters(extcap_filter, remote_filter);
+		ret = ssh_open_remote_connection(remote_host, remote_port, remote_username,
+			remote_password, sshkey, sshkey_passphrase, remote_interface,
+			filter, remote_capture_bin, fifo);
+		g_free(filter);
+		return ret;
+	}
+
+	verbose_print("You should not come here... maybe some parameter missing?\n");
+	return 1;
+}
+
+
+#ifdef _WIN32
+int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+		LPSTR lpCmdLine, int nCmdShow) {
+	return main(__argc, __argv);
+}
+#endif
+
+/*
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 noexpandtab:
+ * :indentSize=4:tabSize=4:noTabs=false:
+ */

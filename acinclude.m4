@@ -1476,6 +1476,43 @@ AC_DEFUN([AC_WIRESHARK_GEOIP_CHECK],
 	fi
 ])
 
+#
+# AC_WIRESHARK_LIBSSH_CHECK
+#
+AC_DEFUN([AC_WIRESHARK_LIBSSH_CHECK],
+[
+	want_libssh=defaultyes
+
+	if test "x$want_libssh" = "xdefaultyes"; then
+		want_libssh=yes
+		if test "x$ac_cv_enable_usr_local" = "xyes" ; then
+			withval=/usr/local
+			if test -d "$withval"; then
+				AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+			fi
+		fi
+	fi
+
+	if test "x$want_libssh" = "xyes"; then
+		AC_CHECK_LIB(ssh, ssh_new,
+		  [
+		    LIBSSH_LIBS=-lssh
+			AC_DEFINE(HAVE_LIBSSH, 1, [Define to use libssh library])
+			have_good_libssh=yes
+		  ],,
+		)
+		AC_CHECK_LIB(ssh, ssh_userauth_agent,
+		  [
+		    LIBSSH_LIBS=-lssh
+			AC_DEFINE(HAVE_SSH_USERAUTH_AGENT, 1, [Libssh library has ssh_userauth_agent])
+			have_ssh_userauth_agent=yes
+		  ],,
+		)
+	else
+		AC_MSG_RESULT(not required)
+	fi
+])
+
 #AC_WIRESHARK_LDFLAGS_CHECK
 #
 # $1 : ldflag(s) to test

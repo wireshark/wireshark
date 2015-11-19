@@ -96,7 +96,7 @@ Example 3:
 
 =head1 SEE ALSO
 
-wireshark(1), tshark(1), dumpcap(1), androiddump(1)
+wireshark(1), tshark(1), dumpcap(1), androiddump(1), sshdump(1)
 
 =head1 NOTES
 

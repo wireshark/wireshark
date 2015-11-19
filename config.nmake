@@ -431,6 +431,13 @@ GNUTLS_PKG=3.2.15-2.7
 GPGERROR_DLL=libgpg-error-0.dll
 GCC_DLL=libgcc_s_sjlj-1.dll
 
+# Optional: libssh library is required for sshdump support
+#
+# If you don't have libssh, comment this line out so that LIBSSH_DIR
+# isn't defined.
+#
+#LIBSSH_DIR=$(WIRESHARK_LIB_DIR)\libssh-0.7.2
+
 #
 # Optional: the KFW library enables kerberos/sasl/dcerpc decryption.
 #
@@ -1684,6 +1691,18 @@ GNUTLS_CFLAGS=
 GNUTLS_LIBS=
 GNUTLS_CONFIG=
 LIBGCRYPT_CONFIG=
+!ENDIF
+
+!IFDEF LIBSSH_DIR
+LIBSSH_CFLAGS=/I$(LIBSSH_DIR)\include
+LIBSSH_LIBS=$(LIBSSH_DIR)\lib\ssh.lib
+# Nmake uses carets to escape special characters
+LIBSSH_CONFIG=^#define HAVE_LIBSSH 1
+LIBSSH_VERSION=^#define HAVE_LIBSSH 1
+!else
+LIBSSH_CFLAGS=
+LIBSSH_LIBS=
+LIBSSH_CONFIG=
 !ENDIF
 
 !IFDEF LUA_DIR
