@@ -230,7 +230,7 @@ dissect_nwp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	type = tvb_get_guint8(tvb, NWPH_TYPE);
 	type_str = val_to_str(type, nwp_type_vals,
 		"Unknown NWP packet type (0x%02x)");
-	col_set_str(pinfo->cinfo, COL_INFO, type_str);
+	col_add_str(pinfo->cinfo, COL_INFO, type_str);
 
 	/* Construct protocol tree. */
 	ti = proto_tree_add_item(tree, proto_nwp, tvb, 0, -1, ENC_NA);
