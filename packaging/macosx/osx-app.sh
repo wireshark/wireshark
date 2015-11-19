@@ -729,7 +729,9 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 		exit 1
 	fi
 	for binary in $cs_binary_list ; do
-		codesign_file "$binary"
+		if [ -e "$binary" ];then
+			codesign_file "$binary"
+		fi
 	done
 
 	echo "Signing frameworks"
