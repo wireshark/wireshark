@@ -363,8 +363,8 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     prefs_to_capture_opts();
     prefs_apply_all();
 
-    emit preferencesChanged();
     emit columnsChanged();
+    emit preferencesChanged();
     emit recentFilesRead();
     emit filterExpressionsChanged();
 //    macros_post_update();
