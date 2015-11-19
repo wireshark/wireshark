@@ -2314,7 +2314,7 @@ static const header_info headers[] = {
 };
 
 /*
- *
+ * Look up a header name (assume lower-case header_name).
  */
 static gint*
 get_hf_for_header(char* header_name)
@@ -2340,6 +2340,7 @@ header_fields_initialize_cb(void)
 	gint* hf_id;
 	guint i;
 	gchar* header_name;
+	gchar* header_name_key;
 
 	if (header_fields_hash && hf) {
 		guint hf_size = g_hash_table_size (header_fields_hash);
@@ -2354,13 +2355,15 @@ header_fields_initialize_cb(void)
 	}
 
 	if (num_header_fields) {
-		header_fields_hash = g_hash_table_new(g_str_hash, g_str_equal);
+		header_fields_hash = g_hash_table_new_full(g_str_hash, g_str_equal,
+				g_free, NULL);
 		hf = g_new0(hf_register_info, num_header_fields);
 
 		for (i = 0; i < num_header_fields; i++) {
 			hf_id = g_new(gint,1);
 			*hf_id = -1;
 			header_name = g_strdup(header_fields[i].header_name);
+			header_name_key = g_ascii_strdown(header_name, -1);
 
 			hf[i].p_id = hf_id;
 			hf[i].hfinfo.name = header_name;
@@ -2372,7 +2375,7 @@ header_fields_initialize_cb(void)
 			hf[i].hfinfo.same_name_prev_id = -1;
 			hf[i].hfinfo.same_name_next = NULL;
 
-			g_hash_table_insert(header_fields_hash, header_name, hf_id);
+			g_hash_table_insert(header_fields_hash, header_name_key, hf_id);
 		}
 
 		proto_register_field_array(proto_http, hf, num_header_fields);
@@ -2403,7 +2406,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	len = next_offset - offset;
 	line_end_offset = offset + linelen;
 	header_len = colon_offset - offset;
-	header_name = wmem_strndup(wmem_packet_scope(), &line[0], header_len);
+	header_name = wmem_ascii_strdown(wmem_packet_scope(), &line[0], header_len);
 	hf_index = find_header_hf_value(tvb, offset, header_len);
 
 	/*
