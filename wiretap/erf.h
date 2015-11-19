@@ -65,7 +65,27 @@
 #define ERF_TYPE_IPV6               23
 #define ERF_TYPE_RAW_LINK           24
 #define ERF_TYPE_INFINIBAND_LINK    25
+#define ERF_TYPE_META               27
 
+/* Record types reserved for local and internal use */
+#define ERF_TYPE_INTERNAL0          32
+#define ERF_TYPE_INTERNAL1          33
+#define ERF_TYPE_INTERNAL2          34
+#define ERF_TYPE_INTERNAL3          35
+#define ERF_TYPE_INTERNAL4          36
+#define ERF_TYPE_INTERNAL5          37
+#define ERF_TYPE_INTERNAL6          38
+#define ERF_TYPE_INTERNAL7          39
+#define ERF_TYPE_INTERNAL8          40
+#define ERF_TYPE_INTERNAL9          41
+#define ERF_TYPE_INTERNAL10         42
+#define ERF_TYPE_INTERNAL11         43
+#define ERF_TYPE_INTERNAL12         44
+#define ERF_TYPE_INTERNAL13         45
+#define ERF_TYPE_INTERNAL14         46
+#define ERF_TYPE_INTERNAL15         47
+
+/* Pad records */
 #define ERF_TYPE_PAD                48
 
 #define ERF_TYPE_MIN  1   /* sanity checking */
