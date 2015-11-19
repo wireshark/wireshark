@@ -9676,7 +9676,7 @@ pn_io_ar_conv_filter(packet_info *pinfo)
 {
     pnio_ar_t *ar = (pnio_ar_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pn_io, 0);
     void* profinet_type = p_get_proto_data(pinfo->pool, pinfo, proto_pn_io, 0);
-    char      *buf, *guid_str;
+    char      *buf;
     address   controllermac_addr, devicemac_addr;
 
     if ((profinet_type == NULL) || (GPOINTER_TO_UINT(profinet_type) != 10) || (ar == NULL)) {
@@ -9686,15 +9686,13 @@ pn_io_ar_conv_filter(packet_info *pinfo)
     SET_ADDRESS(&controllermac_addr, AT_ETHER, 6, ar->controllermac);
     SET_ADDRESS(&devicemac_addr, AT_ETHER, 6, ar->devicemac);
 
-    guid_str = guid_to_str(wmem_packet_scope(), (const e_guid_t*) &ar->aruuid);
     buf = g_strdup_printf(
         "pn_io.ar_uuid == %s || "                                   /* ARUUID */
         "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s) || "   /* Alarm CR (contr -> dev) */
         "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s)",      /* Alarm CR (dev -> contr) */
-        guid_str,
-        ar->controlleralarmref, address_to_str(wmem_packet_scope(), &controllermac_addr),
-        ar->devicealarmref, address_to_str(wmem_packet_scope(), &devicemac_addr));
-    wmem_free(NULL, guid_str);
+         guid_to_str(pinfo->pool, (const e_guid_t*) &ar->aruuid),
+        ar->controlleralarmref, address_to_str(pinfo->pool, &controllermac_addr),
+        ar->devicealarmref, address_to_str(pinfo->pool, &devicemac_addr));
     return buf;
 }
 
@@ -9713,9 +9711,9 @@ pn_io_ar_conv_data_filter(packet_info *pinfo)
     SET_ADDRESS(&controllermac_addr, AT_ETHER, 6, ar->controllermac);
     SET_ADDRESS(&devicemac_addr, AT_ETHER, 6, ar->devicemac);
 
-    controllermac_str = address_to_str(wmem_packet_scope(), &controllermac_addr);
-    devicemac_str = address_to_str(wmem_packet_scope(), &devicemac_addr);
-    guid_str = guid_to_str(wmem_packet_scope(), (const e_guid_t*) &ar->aruuid);
+    controllermac_str = address_to_str(pinfo->pool, &controllermac_addr);
+    devicemac_str = address_to_str(pinfo->pool, &devicemac_addr);
+    guid_str = guid_to_str(pinfo->pool, (const e_guid_t*) &ar->aruuid);
     if (ar->arType == 0x0010) /* IOCARSingle using RT_CLASS_3 */
     {
         buf = g_strdup_printf(
