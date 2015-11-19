@@ -41,6 +41,7 @@
 #include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/tfs.h>
+#include <wiretap/wtap.h>
 
 /* Proximity Integrated Circuit Card, i.e. the smartcard */
 #define ADDR_PICC "PICC"
@@ -121,6 +122,8 @@ void proto_register_iso14443(void);
 void proto_reg_handoff_iso14443(void);
 
 static int proto_iso14443 = -1;
+
+static dissector_handle_t iso14443_handle;
 
 static dissector_table_t iso14443_cmd_type_table;
 
@@ -1066,7 +1069,8 @@ proto_register_iso14443(void)
             "iso14443.cmd_type", "ISO14443 Command Type",
             FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
-    new_register_dissector("iso14443", dissect_iso14443, proto_iso14443);
+    iso14443_handle =
+        new_register_dissector("iso14443", dissect_iso14443, proto_iso14443);
 
     transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
@@ -1076,6 +1080,8 @@ void
 proto_reg_handoff_iso14443(void)
 {
   dissector_handle_t cmd_type_handle;
+
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_ISO14443, iso14443_handle);
 
   cmd_type_handle = new_create_dissector_handle(
           dissect_iso14443_cmd_type_wupa, proto_iso14443);

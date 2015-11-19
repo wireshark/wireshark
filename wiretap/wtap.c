@@ -959,6 +959,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_NSTRACE_3_5 */
 	{ "NetScaler Encapsulation 3.5 of Ethernet", "nstrace35" },
+
+	/* WTAP_ENCAP_ISO14443 */
+	{ "ISO 14443 contactless smartcard standards", "iso14443" },
 };
 
 WS_DLL_LOCAL

@@ -433,6 +433,9 @@ static const struct {
 	/* IPMI Trace Data Collection */
 	{ 260,		WTAP_ENCAP_IPMI_TRACE },
 
+	/* ISO14443 contactless smartcard standards */
+	{ 264,		WTAP_ENCAP_ISO14443 },
+
 	/*
 	 * To repeat:
 	 *
