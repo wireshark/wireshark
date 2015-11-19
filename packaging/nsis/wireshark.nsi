@@ -228,8 +228,10 @@ Function .onInit
   !endif
 
     ; Get the Windows version
-    Call GetWindowsVersion
-    Pop $R0 ; Windows Version
+    ${GetWindowsVersion} $R0
+
+    ; Uncomment to test.
+    ; MessageBox MB_OK "You're running Windows $R0."
 
     ; Check if we're able to run with this version
     StrCmp $R0 '95' lbl_winversion_unsupported
@@ -237,7 +239,8 @@ Function .onInit
     StrCmp $R0 'ME' lbl_winversion_unsupported
     StrCmp $R0 'NT 4.0' lbl_winversion_unsupported_nt4
     StrCmp $R0 '2000' lbl_winversion_unsupported_2000
-    StrCmp $R0 'XP' lbl_winversion_warn_xp
+    StrCmp $R0 'XP' lbl_winversion_unsupported_xp_2003
+    StrCmp $R0 '2003' lbl_winversion_unsupported_xp_2003
     Goto lbl_winversion_supported
 
 lbl_winversion_unsupported:
@@ -258,10 +261,10 @@ lbl_winversion_unsupported_2000:
         /SD IDOK
     Quit
 
-lbl_winversion_warn_xp:
-    MessageBox MB_YESNO|MB_ICONINFORMATION \
-        "This version of ${PROGRAM_NAME} may not work on Windows $R0.$\nWe recommend ${PROGRAM_NAME} 1.10 instead.$\nDo you want to continue?" \
-        /SD IDYES IDYES lbl_winversion_supported
+lbl_winversion_unsupported_xp_2003:
+    MessageBox MB_OK \
+        "Windows $R0 is no longer supported.$\nPlease install ${PROGRAM_NAME} 1.12 or 1.10 instead." \
+        /SD IDOK
     Quit
 
 lbl_winversion_supported:
