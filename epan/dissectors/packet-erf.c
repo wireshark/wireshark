@@ -450,6 +450,7 @@ static const value_string erf_type_vals[] = {
   { ERF_TYPE_IPV6               , "IPV6"},
   { ERF_TYPE_RAW_LINK           , "RAW_LINK"},
   { ERF_TYPE_INFINIBAND_LINK    , "INFINIBAND_LINK"},
+  { ERF_TYPE_META               , "META"},
   {0, NULL}
 };
 
@@ -1499,6 +1500,11 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     default:
       break;
     }
+    break;
+
+  case ERF_TYPE_META:
+    /* use data dissector for now */
+    call_dissector(data_handle, tvb, pinfo, tree);
     break;
 
   default:
