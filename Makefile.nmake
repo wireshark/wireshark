@@ -508,7 +508,6 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_GEOIP_V6@/$(GEOIP_V6_CONFIG)/" \
 	    -e "s/@HAVE_LIBSSH/$(LIBSSH_CONFIG)/" \
 	    -e "s/@HAVE_SOFTWARE_UPDATE@/$(WINSPARKLE_CONFIG)/" \
-	    -e "s/@INET6@/$(INET6_CONFIG)/" \
 	    -e "s/@HAVE_NTDDNDIS_H@/$(NTDDNDIS_CONFIG)/" \
 	    -e "s/@PCAP_NG_DEFAULT@/$(PCAP_NG_DEFAULT)/" \
 	    -e "s/@WANT_PACKET_EDITOR@/$(WANT_PACKET_EDITOR)/" \

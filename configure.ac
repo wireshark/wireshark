@@ -2543,21 +2543,6 @@ fi
 AM_CONDITIONAL(HAVE_LIBPORTAUDIO, test x$want_portaudio = xyes)
 
 
-dnl ipv6 check
-AC_ARG_ENABLE(ipv6,
-  AC_HELP_STRING( [--enable-ipv6],
-		  [use IPv6 name resolution, if available @<:@default=yes@:>@]),
-    enable_ipv6=$enableval,enable_ipv6=yes)
-
-AC_MSG_CHECKING(whether to enable ipv6 name resolution if available)
-if test "x$enable_ipv6" = "xno" ; then
-	AC_MSG_RESULT(no)
-else
-	AC_MSG_RESULT(yes)
-	AC_WIRESHARK_IPV6_STACK
-fi
-
-
 dnl Check if dumpcap should be installed with filesystem capabilities
 AC_PATH_PROG(SETCAP, setcap)
 AC_ARG_ENABLE(setcap-install,
@@ -3483,7 +3468,6 @@ echo "               Use GNU ADNS library : $adns_message"
 echo "                Use SMI MIB library : $libsmi_message"
 echo "             Use GNU crypto library : $gcrypt_message"
 echo "             Use SSL crypto library : $ssl_message"
-echo "           Use IPv6 name resolution : $enable_ipv6"
 echo "                 Use gnutls library : $tls_message"
 echo "     Use POSIX capabilities library : $libcap_message"
 echo "                  Use GeoIP library : $geoip_message"

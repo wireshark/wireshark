@@ -88,7 +88,7 @@
 # include <winsock2.h>
 #endif
 
-#if defined(_WIN32) && defined(INET6)
+#ifdef _WIN32
 # include <ws2tcpip.h>
 #endif
 

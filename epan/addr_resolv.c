@@ -93,12 +93,12 @@
 # include "wsutil/inet_v6defs.h"
 #endif
 
-#if defined(_WIN32) && defined(INET6)
+#ifdef _WIN32
 # include <ws2tcpip.h>
 #endif
 
 #ifdef HAVE_C_ARES
-# if defined(_WIN32) && !defined(INET6)
+# ifdef _WIN32
 #  define socklen_t unsigned int
 # endif
 # include <ares.h>
@@ -904,7 +904,6 @@ static hashipv6_t *
 host_lookup6(const struct e_in6_addr *addr, gboolean *found)
 {
     hashipv6_t * volatile tp;
-#ifdef INET6
 #ifdef HAVE_C_ARES
     async_dns_queue_msg_t *caqm;
 #elif defined(HAVE_GETADDRINFO)
@@ -912,7 +911,6 @@ host_lookup6(const struct e_in6_addr *addr, gboolean *found)
 #elif defined(HAVE_GETHOSTBYNAME)
     struct hostent *hostp;
 #endif
-#endif /* INET6 */
 
     *found = TRUE;
 
@@ -938,7 +936,6 @@ try_resolv:
     if (gbl_resolv_flags.network_name &&
             gbl_resolv_flags.use_external_net_name_resolver) {
         tp->flags |= TRIED_RESOLVE_ADDRESS;
-#ifdef INET6
 #ifdef HAVE_C_ARES
         if ((gbl_resolv_flags.concurrent_dns) &&
                 name_resolve_concurrency > 0 &&
@@ -976,7 +973,6 @@ try_resolv:
             return tp;
         }
 #endif
-#endif /* INET6 */
     }
 
     /* unknown host or DNS timeout */

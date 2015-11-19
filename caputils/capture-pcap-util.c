@@ -373,9 +373,7 @@ if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 {
 	if_addr_t *if_addr;
 	struct sockaddr_in *ai;
-#ifdef INET6
 	struct sockaddr_in6 *ai6;
-#endif
 
 	switch (addr->sa_family) {
 
@@ -388,7 +386,6 @@ if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 		if_info->addrs = g_slist_append(if_info->addrs, if_addr);
 		break;
 
-#ifdef INET6
 	case AF_INET6:
 		ai6 = (struct sockaddr_in6 *)(void *)addr;
 		if_addr = (if_addr_t *)g_malloc(sizeof(*if_addr));
@@ -398,7 +395,6 @@ if_info_add_address(if_info_t *if_info, struct sockaddr *addr)
 		    sizeof if_addr->addr.ip6_addr);
 		if_info->addrs = g_slist_append(if_info->addrs, if_addr);
 		break;
-#endif
 	}
 }
 

@@ -388,7 +388,7 @@ win32 {
     SOURCES += $$SOURCES_WS_C
 }
 
-DEFINES += INET6 REENTRANT
+DEFINES += REENTRANT
 unix:DEFINES += _U_=\"__attribute__((unused))\"
 
 macx:QMAKE_LFLAGS += \

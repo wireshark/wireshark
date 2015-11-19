@@ -210,9 +210,6 @@
 /* Define to enable WinSparkle software updates */
 @HAVE_SOFTWARE_UPDATE@
 
-/* Define for IPv6 */
-@INET6@
-
 /* Define to have ntddndis.h */
 @HAVE_NTDDNDIS_H@
 
