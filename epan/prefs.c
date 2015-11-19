@@ -3036,20 +3036,21 @@ pre_init_prefs(void)
 
     prefs.gui_qt_packet_list_separator = FALSE;
 
-    if (!prefs.col_list) {
-        /* First time through */
-        for (i = 0; i < DEF_NUM_COLS; i++) {
-            cfmt = g_new(fmt_data,1);
-            cfmt->title = g_strdup(col_fmt[i * 2]);
-            parse_column_format(cfmt, col_fmt[(i * 2) + 1]);
-            cfmt->visible = TRUE;
-            cfmt->resolved = TRUE;
-            cfmt->custom_field = NULL;
-            cfmt->custom_occurrence = 0;
-            prefs.col_list = g_list_append(prefs.col_list, cfmt);
-        }
-        prefs.num_cols  = DEF_NUM_COLS;
+    if (prefs.col_list) {
+        free_col_info(prefs.col_list);
+        prefs.col_list = NULL;
     }
+    for (i = 0; i < DEF_NUM_COLS; i++) {
+        cfmt = g_new(fmt_data,1);
+        cfmt->title = g_strdup(col_fmt[i * 2]);
+        parse_column_format(cfmt, col_fmt[(i * 2) + 1]);
+        cfmt->visible = TRUE;
+        cfmt->resolved = TRUE;
+        cfmt->custom_field = NULL;
+        cfmt->custom_occurrence = 0;
+        prefs.col_list = g_list_append(prefs.col_list, cfmt);
+    }
+    prefs.num_cols  = DEF_NUM_COLS;
 
 /* set the default values for the capture dialog box */
     prefs.capture_prom_mode             = TRUE;
