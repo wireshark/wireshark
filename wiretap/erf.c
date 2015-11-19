@@ -168,11 +168,6 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
       return WTAP_OPEN_NOT_MINE;
     }
 
-    /* The ERF_TYPE_MAX is the PAD record, but the last used type is ERF_TYPE_INFINIBAND_LINK */
-    if ((header.type & 0x7F) > ERF_TYPE_INFINIBAND_LINK) {
-      return WTAP_OPEN_NOT_MINE;
-    }
-
     if ((ts = pletoh64(&header.ts)) < prevts) {
       /* reassembled AALx records may not be in time order, also records are not in strict time order between physical interfaces, so allow 1 sec fudge */
       if ( ((prevts-ts)>>32) > 1 ) {
@@ -429,6 +424,7 @@ static gboolean erf_read_header(FILE_T fh,
     case ERF_TYPE_RAW_LINK:
     case ERF_TYPE_INFINIBAND:
     case ERF_TYPE_INFINIBAND_LINK:
+    case ERF_TYPE_META:
 #if 0
       {
         phdr->len =  g_htons(erf_header->wlen);
