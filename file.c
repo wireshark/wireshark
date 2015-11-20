@@ -1624,6 +1624,12 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
 
     /* 'reset' dissection session */
     epan_free(cf->epan);
+    if (cf->edt && cf->edt->pi.fd) {
+      /* All pointers in "per frame proto data" for the currently selected
+         packet are allocated in wmem_file_scope() and deallocated in epan_free().
+         Free them here to avoid unintended usage in packet_list_clear(). */
+      frame_data_destroy(cf->edt->pi.fd);
+    }
     cf->epan = ws_epan_new(cf);
     cf->cinfo.epan = cf->epan;
 
