@@ -533,6 +533,11 @@ void RtpAudioStream::startPlaying()
     tempfile_->seek(0);
     audio_output_->start(tempfile_);
     emit startedPlaying();
+    // QTBUG-6548 StoppedState is not always emitted on error, force a cleanup
+    // in case playback fails immediately.
+    if (audio_output_ && audio_output_->state() == QAudio::StoppedState) {
+        outputStateChanged();
+    }
 }
 
 void RtpAudioStream::stopPlaying()
