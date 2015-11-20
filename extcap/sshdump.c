@@ -102,6 +102,8 @@
 #define SSH_EXTCAP_INTERFACE "ssh"
 #define SSH_READ_BLOCK_SIZE 256
 
+#define DEFAULT_CAPTURE_BIN "dumpcap"
+
 static gboolean verbose = FALSE;
 
 enum {
@@ -311,7 +313,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, co
 	unsigned int remote_port = 22;
 
 	if (!capture_bin)
-		capture_bin = "dumpcap";
+		capture_bin = DEFAULT_CAPTURE_BIN;
 
 	if (!iface)
 		iface = "eth0";
@@ -427,7 +429,7 @@ static void help(const char* binname)
 	g_print("  --sshkey <public key path>: the path of the ssh key\n");
 	g_print("  --sshkey-passphrase <public key passphrase>: the passphrase to unlock public ssh\n");
 	g_print("  --remote-interface <iface>: the remote capture interface (default: eth0)\n");
-	g_print("  --remote-capture-bin <capture bin>: the remote dumcap binary (default: dumpcap\n");
+	g_print("  --remote-capture-bin <capture bin>: the remote dumcap binary (default: %s)\n", DEFAULT_CAPTURE_BIN);
 	g_print("  --remote-filter <filter>: a filter for remote capture (default: don't listen on local local interfaces IPs)\n");
 }
 
@@ -560,8 +562,8 @@ static int list_config(char *interface, unsigned int remote_port)
 		"{type=string}{default=eth0}{tooltip=The remote network interface used for capture"
 		"}\n", inc++);
 	g_print("arg {number=%u}{call=--remote-capture-bin}{display=Remote capture binary}"
-		"{type=string}{default=dumpcap}{tooltip=The remote dumpcap binary used "
-		"for capture.}\n", inc++);
+		"{type=string}{default=%s}{tooltip=The remote dumpcap binary used "
+		"for capture.}\n", inc++, DEFAULT_CAPTURE_BIN);
 	g_print("arg {number=%u}{call=--remote-filter}{display=Remote capture filter}"
 		"{type=string}{default=%s}{tooltip=The remote capture filter}\n", inc++, ipfilter);
 	g_print("arg {number=%u}{call=--remote-count}{display=Packets to capture}"
