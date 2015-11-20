@@ -93,7 +93,6 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
     const gchar* desc = luaL_checkstring(L,WSLUA_ARG_Proto_new_DESC);
     Proto proto;
     gchar *loname, *hiname;
-    int proto_id;
 
     /* TODO: should really make a common function for all of wslua that does checkstring and non-empty at same time */
     if (!name[0]) {
@@ -106,17 +105,29 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
         return 0;
     }
 
-    loname = g_ascii_strdown(name, -1);
-    proto_id = proto_get_id_by_filter_name(loname);
+    if (proto_name_already_registered(desc)) {
+        WSLUA_ARG_ERROR(Proto_new,DESC,"there cannot be two protocols with the same description");
+        return 0;
+    }
 
-    if (proto_id > 0) {
-        WSLUA_ARG_ERROR(Proto_new,NAME,"there cannot be two protocols with the same name");
+    loname = g_ascii_strdown(name, -1);
+    if (proto_check_field_name(loname)) {
+        WSLUA_ARG_ERROR(Proto_new,NAME,"invalid character in name");
         g_free(loname);
         return 0;
     }
 
-    proto = (wslua_proto_t *)g_malloc(sizeof(wslua_proto_t));
     hiname = g_ascii_strup(name, -1);
+    if ((proto_get_id_by_short_name(hiname) != -1) ||
+        (proto_get_id_by_filter_name(loname) != -1))
+    {
+        WSLUA_ARG_ERROR(Proto_new,NAME,"there cannot be two protocols with the same name");
+        g_free(loname);
+        g_free(hiname);
+        return 0;
+    }
+
+    proto = (wslua_proto_t *)g_malloc(sizeof(wslua_proto_t));
 
     proto->name = hiname;
     proto->loname = loname;

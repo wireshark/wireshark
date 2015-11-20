@@ -5508,6 +5508,19 @@ proto_get_id(const protocol_t *protocol)
 	return protocol->proto_id;
 }
 
+gboolean
+proto_name_already_registered(const gchar *name)
+{
+	gint key;
+
+	DISSECTOR_ASSERT_HINT(name, "No name present");
+
+	key = wrs_str_hash(name);
+	if (g_hash_table_lookup(proto_names, &key) != NULL)
+		return TRUE;
+	return FALSE;
+}
+
 int
 proto_get_id_by_filter_name(const gchar *filter_name)
 {
