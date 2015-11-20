@@ -202,10 +202,39 @@ dbus_validate_signature(const char *sig _U_)
 }
 
 static int
+dbus_type_alignment(char sig)
+{
+	switch (sig) {
+		case 'y':
+		case 'g':
+			return 1;
+		case 'n':
+		case 'q':
+			return 2;
+		case 'i':
+		case 'u':
+		case 'b':
+		case 'o':
+		case 'a':
+		case 's':
+			return 4;
+		case 'x':
+		case 't':
+		case 'd':
+			return 8;
+		/* ... */
+		default:
+			return 1;
+	}
+}
+
+static int
 dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset, char sig, dbus_val_t *ret)
 {
-	const int org_offset = offset;
 	proto_item *ti;
+	const int align = dbus_type_alignment(sig);
+	const int org_offset = (offset + align - 1) / align * align;
+	offset = org_offset;
 
 	switch (sig) {
 		case 'y':	/* BYTE */
@@ -310,7 +339,7 @@ dissect_dbus_sig(tvbuff_t *tvb, dbus_info_t *dinfo, proto_tree *tree, int offset
 			offset += 4;
 
 			val = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII);
-			offset += (len + 1 /* NUL-byte */ + 3) & ~3;
+			offset += (len + 1 /* NUL-byte */);
 
 			if (sig == 's') {
 				ti = proto_tree_add_string_format(tree, hfi_dbus_value_str.id, tvb, org_offset, offset - org_offset, val, "STRING: %s", val);
