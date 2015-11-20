@@ -3709,7 +3709,7 @@
 			<enum name="UNSUCCESSFUL_QOS_VALIDATION"	code="11"/>
 			<enum name="INCORRECT_FLOW_INFORMATION"		code="12"/>
 			<enum name="PS_TO_CS_HANDOVER"			code="13"/>
-			<enum name="Unused code value"			code="14"/>
+			<enum name="TDF_APPLICATION_IDENTIFIER_ERROR"	code="14"/>
 			<enum name="NO_BEARER_BOUND"			code="15"/>
 			<enum name="FILTER_RESTRICTIONS"		code="16"/>
 			<enum name="AN_GW_FAILED"			code="17"/>
