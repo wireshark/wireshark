@@ -71,7 +71,6 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
 
     proto_tree_ = new ProtoTree(ui->packetSplitter);
     proto_tree_->fillProtocolTree(edt_.tree);
-    proto_tree_->expandAll();
 
     byte_view_tab_ = new ByteViewTab(ui->packetSplitter);
     byte_view_tab_->setCaptureFile(cap_file_.capFile());
