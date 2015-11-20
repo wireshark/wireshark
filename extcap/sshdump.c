@@ -123,7 +123,8 @@ enum {
 	OPT_REMOTE_CAPTURE_BIN,
 	OPT_REMOTE_FILTER,
 	OPT_SSHKEY,
-	OPT_SSHKEY_PASSPHRASE
+	OPT_SSHKEY_PASSPHRASE,
+	OPT_REMOTE_COUNT
 };
 
 static struct option longopts[] = {
@@ -145,6 +146,7 @@ static struct option longopts[] = {
 	{ "remote-interface", required_argument, NULL, OPT_REMOTE_INTERFACE},
 	{ "remote-capture-bin", required_argument, NULL, OPT_REMOTE_CAPTURE_BIN},
 	{ "remote-filter", required_argument, NULL, OPT_REMOTE_FILTER},
+	{ "remote-count", required_argument, NULL, OPT_REMOTE_COUNT},
 	{ "sshkey", required_argument, NULL, OPT_SSHKEY},
 	{ "sshkey-passphrase", required_argument, NULL, OPT_SSHKEY_PASSPHRASE},
 	{ 0, 0, 0, 0}
@@ -296,7 +298,8 @@ static void ssh_loop_read(ssh_channel channel, int fd)
 		return;
 }
 
-static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, const char* iface, const char* cfilter)
+static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, const char* iface, const char* cfilter,
+		unsigned long int count)
 {
 	gchar* cmdline;
 	ssh_channel channel;
@@ -304,6 +307,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, co
 	char* quoted_iface;
 	char* default_filter;
 	char* quoted_filter;
+	char* count_str = NULL;
 	unsigned int remote_port = 22;
 
 	if (!capture_bin)
@@ -330,8 +334,11 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, co
 	if (!cfilter)
 		cfilter = default_filter;
 	quoted_filter = g_shell_quote(cfilter);
+	if (count > 0)
+		count_str = g_strdup_printf("-c %lu", count);
 
-	cmdline = g_strdup_printf("%s -i %s -P -w - -f %s", quoted_bin, quoted_iface, quoted_filter);
+	cmdline = g_strdup_printf("%s -i %s -P -w - -f %s %s", quoted_bin, quoted_iface, quoted_filter,
+		count_str ? count_str : "");
 
 	verbose_print("Running: %s\n", cmdline);
 	if (ssh_channel_request_exec(channel, cmdline) != SSH_OK) {
@@ -345,13 +352,15 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, co
 	g_free(default_filter);
 	g_free(quoted_filter);
 	g_free(cmdline);
+	if (count_str)
+		g_free(count_str);
 
 	return channel;
 }
 
 static int ssh_open_remote_connection(const char* hostname, const unsigned int port, const char* username, const char* password,
 	const char* sshkey, const char* sshkey_passphrase, const char* iface, const char* cfilter, const char* capture_bin,
-	const char* fifo)
+	const guint count, const char* fifo)
 {
 	ssh_session sshs;
 	ssh_channel channel;
@@ -377,7 +386,7 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 	if (!sshs)
 		return EXIT_FAILURE;
 
-	channel = run_ssh_command(sshs, capture_bin, iface, cfilter);
+	channel = run_ssh_command(sshs, capture_bin, iface, cfilter, count);
 	if (!channel)
 		return EXIT_FAILURE;
 
@@ -555,6 +564,9 @@ static int list_config(char *interface, unsigned int remote_port)
 		"for capture.}\n", inc++);
 	g_print("arg {number=%u}{call=--remote-filter}{display=Remote capture filter}"
 		"{type=string}{default=%s}{tooltip=The remote capture filter}\n", inc++, ipfilter);
+	g_print("arg {number=%u}{call=--remote-count}{display=Packets to capture}"
+		"{type=unsigned}{default=0}{tooltip=The number of remote packets to capture. (Default: inf)}\n",
+		inc++);
 
 	g_free(ipfilter);
 
@@ -639,6 +651,7 @@ int main(int argc, char **argv)
 	char* sshkey = NULL;
 	char* sshkey_passphrase = NULL;
 	char* remote_filter = NULL;
+	unsigned long int count = 0;
 
 #ifdef _WIN32
 	WSADATA wsaData;
@@ -767,6 +780,10 @@ int main(int argc, char **argv)
 			remote_filter = g_strdup(optarg);
 			break;
 
+		case OPT_REMOTE_COUNT:
+			count = strtoul(optarg, NULL, 10);
+			break;
+
 		case ':':
 			/* missing option argument */
 			g_print("Option '%s' requires an argument\n", argv[optind - 1]);
@@ -819,7 +836,7 @@ int main(int argc, char **argv)
 		filter = concat_filters(extcap_filter, remote_filter);
 		ret = ssh_open_remote_connection(remote_host, remote_port, remote_username,
 			remote_password, sshkey, sshkey_passphrase, remote_interface,
-			filter, remote_capture_bin, fifo);
+			filter, remote_capture_bin, count, fifo);
 		g_free(filter);
 		return ret;
 	}
