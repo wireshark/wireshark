@@ -31,9 +31,9 @@
 #define IUC_LONG_DATA_GRANT 6
 #define IUC_NULL_IE 7
 #define IUC_DATA_ACK 8
-#define IUC_RESERVED9 9
-#define IUC_RESERVED10 10
-#define IUC_RESERVED11 11
+#define IUC_ADV_PHY_SHORT_DATA_GRANT 9
+#define IUC_ADV_PHY_LONG_DATA_GRANT 10
+#define IUC_ADV_PHY_UGS 11
 #define IUC_RESERVED12 12
 #define IUC_RESERVED13 13
 #define IUC_RESERVED14 14
@@ -63,8 +63,24 @@ static int hf_docsis_map_offset = -1;
 /* Initialize the subtree pointers */
 static gint ett_docsis_map = -1;
 
-/* Defined in packet-ucd.c */
-extern value_string iuc_vals[];
+static const value_string iuc_vals[] = {
+  {IUC_REQUEST,                  "Request"},
+  {IUC_REQ_DATA,                 "REQ/Data"},
+  {IUC_INIT_MAINT,               "Initial Maintenance"},
+  {IUC_STATION_MAINT,            "Station Maintenance"},
+  {IUC_SHORT_DATA_GRANT,         "Short Data Grant"},
+  {IUC_LONG_DATA_GRANT,          "Long Data Grant"},
+  {IUC_NULL_IE,                  "NULL IE"},
+  {IUC_DATA_ACK,                 "Data Ack"},
+  {IUC_ADV_PHY_SHORT_DATA_GRANT, "Advanced Phy Short Data Grant"},
+  {IUC_ADV_PHY_LONG_DATA_GRANT,  "Advanced Phy Long Data Grant"},
+  {IUC_ADV_PHY_UGS,              "Advanced Phy UGS"},
+  {IUC_RESERVED12,               "Reserved"},
+  {IUC_RESERVED13,               "Reserved"},
+  {IUC_RESERVED14,               "Reserved"},
+  {IUC_EXPANSION,                "Expanded IUC"},
+  {0, NULL}
+};
 
 /* Code to actually dissect the packets */
 static int

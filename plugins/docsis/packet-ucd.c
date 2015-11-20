@@ -25,7 +25,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
 #include <epan/expert.h>
 
 #define UCD_SYMBOL_RATE 1
@@ -190,7 +189,7 @@ static const value_string mod_vals[] = {
   {0, NULL}
 };
 
-value_string iuc_vals[] = {
+static const value_string iuc_vals[] = {
   {IUC_REQUEST,                  "Request"},
   {IUC_REQ_DATA,                 "REQ/Data"},
   {IUC_INIT_MAINT,               "Initial Maintenance"},
@@ -207,7 +206,6 @@ value_string iuc_vals[] = {
   {IUC_RESERVED14,               "Reserved"},
   {IUC_EXPANSION,                "Expanded IUC"},
   {0, NULL}
-
 };
 
 static const value_string last_cw_len_vals[] = {
