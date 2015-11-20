@@ -435,12 +435,14 @@ If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,pre
 
 To generate the build files enter the following at the Visual Studio command prompt:
 ----
-> cmake -DPYTHON_EXECUTABLE=c:/Python27/python -DENABLE_CHM_GUIDES=on -G "Visual Studio 12" ..\wireshark
+> cmake -DENABLE_CHM_GUIDES=on -G "Visual Studio 12" ..\wireshark
 ----
 
 Adjusting the paths as required to Python and the wireshark source tree.  To use a different generator
 modify the -G parameter, cmake -G lists all the CMake supported generators, but only Visual Studio is
 supported for Wireshark builds.
+
+To build an x64 version, the -G parameter must have a Win64 suffix, e.g. -G "Visual Studio 12 Win64"
 
 The CMake generation process will download the required 3rd party libraries (apart from Qt)
 as required, then test each library for usability before generating the build files.
