@@ -2116,6 +2116,11 @@ WS_DLL_PUBLIC int proto_get_next_protocol(void **cookie);
 WS_DLL_PUBLIC header_field_info *proto_get_first_protocol_field(const int proto_id, void **cookie);
 WS_DLL_PUBLIC header_field_info *proto_get_next_protocol_field(const int proto_id, void **cookie);
 
+/** Check if a protocol name is already registered.
+ @param name the name to search for
+ @return proto_id */
+WS_DLL_PUBLIC int proto_name_already_registered(const gchar *name);
+
 /** Given a protocol's filter_name.
  @param filter_name the filter name to search for
  @return proto_id */

@@ -978,6 +978,7 @@ libwireshark.so.6 libwireshark6 #MINVER#
  proto_item_set_end@Base 1.9.1
  proto_item_set_len@Base 1.9.1
  proto_item_set_text@Base 1.9.1
+ proto_name_already_registered@Base 2.0.1
  proto_register_field_array@Base 1.9.1
  proto_register_fields_manual@Base 1.12.0~rc1
  proto_register_fields_section@Base 1.12.0~rc1
