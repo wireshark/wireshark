@@ -763,6 +763,7 @@ void PacketList::captureFileReadFinished()
 void PacketList::freeze()
 {
     setUpdatesEnabled(false);
+    column_state_ = header()->saveState();
     setModel(NULL);
     // It looks like GTK+ sends a cursor-changed signal at this point but Qt doesn't
     // call selectionChanged.
