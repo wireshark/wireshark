@@ -408,6 +408,7 @@ DISSECTOR_SRC = \
 	packet-cipmotion.c	\
 	packet-cipsafety.c	\
 	packet-cisco-erspan.c	\
+	packet-cisco-fp-mim.c	\
 	packet-cisco-marker.c	\
 	packet-cisco-metadata.c	\
 	packet-cisco-oui.c	\
@@ -903,7 +904,6 @@ DISSECTOR_SRC = \
 	packet-mgcp.c		\
 	packet-mih.c		\
 	packet-mikey.c		\
-	packet-mim.c		\
 	packet-mime-encap.c	\
 	packet-mint.c		\
 	packet-miop.c		\

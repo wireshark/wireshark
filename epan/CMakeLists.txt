@@ -492,6 +492,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-cipmotion.c
 	dissectors/packet-cipsafety.c
 	dissectors/packet-cisco-erspan.c
+	dissectors/packet-cisco-fp-mim.c
 	dissectors/packet-cisco-marker.c
 	dissectors/packet-cisco-metadata.c
 	dissectors/packet-cisco-oui.c
@@ -989,7 +990,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-mgcp.c
 	dissectors/packet-mih.c
 	dissectors/packet-mikey.c
-	dissectors/packet-mim.c
 	dissectors/packet-mime-encap.c
 	dissectors/packet-mint.c
 	dissectors/packet-miop.c
