@@ -2644,7 +2644,7 @@ set_target_properties(test-programs PROPERTIES FOLDER "Tests")
 if (WIN32)
 	file (TO_NATIVE_PATH ${CMAKE_SOURCE_DIR}/tools/Get-HardenFlags.ps1 _win_harden_flags)
 	add_custom_target(hardening-check
-		COMMAND ${POWERSHELL_COMMAND} "${_win_harden_flags}" "${CMAKE_BINARY_DIR}"
+		COMMAND ${POWERSHELL_COMMAND} "${_win_harden_flags}" "${_dll_output_dir_win}"
 		DEPENDS ${PROGLIST}
 		COMMENT "Checking binaries for security features"
 	)
