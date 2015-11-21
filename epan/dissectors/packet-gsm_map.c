@@ -1580,6 +1580,8 @@ static int hf_gsm_map_dialogue_map_userAbort = -1;  /* MAP_UserAbortInfo */
 static int hf_gsm_map_dialogue_map_providerAbort = -1;  /* MAP_ProviderAbortInfo */
 static int hf_gsm_map_dialogue_destinationReference = -1;  /* AddressString */
 static int hf_gsm_map_dialogue_originationReference = -1;  /* AddressString */
+static int hf_gsm_map_dialogue_callingMsisdn = -1;  /* AddressString */
+static int hf_gsm_map_dialogue_callingVlrAddress = -1;  /* AddressString */
 static int hf_gsm_map_dialogue_extensionContainer = -1;  /* ExtensionContainer */
 static int hf_gsm_map_dialogue_reason = -1;       /* Reason */
 static int hf_gsm_map_dialogue_alternativeApplicationContext = -1;  /* OBJECT_IDENTIFIER */
@@ -16224,6 +16226,8 @@ dissect_gsm_map_gr_SendGroupCallInfoRes(gboolean implicit_tag _U_, tvbuff_t *tvb
 static const ber_sequence_t gsm_map_dialogue_MAP_OpenInfo_sequence[] = {
   { &hf_gsm_map_dialogue_destinationReference, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_AddressString },
   { &hf_gsm_map_dialogue_originationReference, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_AddressString },
+  { &hf_gsm_map_dialogue_callingMsisdn, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_AddressString },
+  { &hf_gsm_map_dialogue_callingVlrAddress, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_AddressString },
   { &hf_gsm_map_dialogue_extensionContainer, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_gsm_map_ExtensionContainer },
   { NULL, 0, 0, 0, NULL }
 };
@@ -28620,6 +28624,14 @@ void proto_register_gsm_map(void) {
         "AddressString", HFILL }},
     { &hf_gsm_map_dialogue_originationReference,
       { "originationReference", "gsm_map.dialogue.originationReference",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "AddressString", HFILL }},
+    { &hf_gsm_map_dialogue_callingMsisdn,
+      { "callingMsisdn", "gsm_map.dialogue.callingMsisdn",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "AddressString", HFILL }},
+    { &hf_gsm_map_dialogue_callingVlrAddress,
+      { "callingVlrAddress", "gsm_map.dialogue.callingVlrAddress",
         FT_BYTES, BASE_NONE, NULL, 0,
         "AddressString", HFILL }},
     { &hf_gsm_map_dialogue_extensionContainer,

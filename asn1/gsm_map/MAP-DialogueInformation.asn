@@ -1,4 +1,4 @@
--- 3GPP TS 29.002 V12.3.0 (2013-12) 
+-- 3GPP TS 29.002 V12.3.0 (2013-12)
 -- 17.4	MAP Dialogue Information
 MAP-DialogueInformation {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
@@ -55,6 +55,10 @@ MAP-DialoguePDU ::= CHOICE {
 MAP-OpenInfo ::= SEQUENCE {
 	destinationReference	[0] AddressString	OPTIONAL,
 	originationReference	[1] AddressString	OPTIONAL,
+-- WS modification: Ericsson proprietary fields
+	callingMsisdn			[2] AddressString OPTIONAL,
+	callingVlrAddress		[3] AddressString OPTIONAL,
+-- WS modification: Ericsson proprietary fields
 	...,
 	extensionContainer	ExtensionContainer	OPTIONAL
 	-- extensionContainer must not be used in version 2

@@ -45,14 +45,14 @@ FROM MAP-OM-DataTypes {
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
    map-SS-Code (15) version10 (10)}
-   
+
        SS-Status, USSD-DataCodingScheme, USSD-String, CCBS-Feature
 -- USSD-DataCodingScheme, USSD-String were introduced because of CNAP.
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
    map-SS-DataTypes (14) version10 (10)}
 
- 
+
 ;
 
 
@@ -395,7 +395,7 @@ MKey::= SEQUENCE{
     -- mmScfAddress, mmTtdpId and serviceKey parameters must be
     -- present on version 1.
     --
-    -- Feature 742 : “IN Mobility Management”
+    -- Feature 742 : "IN Mobility Management"
 
 SmsTdpName ::= OCTET STRING (SIZE (1..8))
     -- bits 87654: 00000 (unused)
@@ -562,8 +562,8 @@ PrnArgData ::= SEQUENCE {
     privateFeatureCode [1] PrivateFeatureCode OPTIONAL,
     ...,
     extraNetworkInfo   [2] ExtraSignalInfo OPTIONAL }
- 
- 
+
+
 UlArgType ::= SEQUENCE (SIZE(1..50)) OF
     UlArgData
 
@@ -668,13 +668,13 @@ Version ::= INTEGER (1..20)
 
 AccessSubscriptionListExt ::= SEQUENCE SIZE (1..10) OF
     Access
- 
+
 AllowedServiceData ::= BIT STRING {
     amr-wb-allowed (0)} (SIZE(1..16))
 
 AnyTimePO-BarringArg ::= SEQUENCE {
   subscriberIdentity [0] SubscriberIdentity,
-  gsmSCF-Address     [3] ISDN-AddressString, 
+  gsmSCF-Address     [3] ISDN-AddressString,
   gprs-Barring           GprsBarring,
   ...}
 
@@ -682,7 +682,7 @@ AnyTimePO-BarringRes ::= SEQUENCE {
   ...}
 
 GprsBarring ::= ENUMERATED {
-    gprsServiceBarring (0), 
+    gprsServiceBarring (0),
     grantGPRS-Service (1),
     ...}
 
