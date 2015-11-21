@@ -165,10 +165,10 @@ merge_open_in_files(int in_file_count, const char *const *in_file_names,
  * @param in_files input file array to be closed
  */
 static void
-merge_close_in_files(int count, merge_in_file_t in_files[])
+merge_close_in_files(int in_file_count, merge_in_file_t in_files[])
 {
     int i;
-    for (i = 0; i < count; i++) {
+    for (i = 0; i < in_file_count; i++) {
         cleanup_in_file(&in_files[i]);
     }
 }
@@ -186,15 +186,15 @@ merge_close_in_files(int count, merge_in_file_t in_files[])
  * @return the frame type
  */
 static int
-merge_select_frame_type(int count, merge_in_file_t files[])
+merge_select_frame_type(int in_file_count, merge_in_file_t in_files[])
 {
     int i;
     int selected_frame_type;
 
-    selected_frame_type = wtap_file_encap(files[0].wth);
+    selected_frame_type = wtap_file_encap(in_files[0].wth);
 
-    for (i = 1; i < count; i++) {
-        int this_frame_type = wtap_file_encap(files[i].wth);
+    for (i = 1; i < in_file_count; i++) {
+        int this_frame_type = wtap_file_encap(in_files[i].wth);
         if (selected_frame_type != this_frame_type) {
             selected_frame_type = WTAP_ENCAP_PER_PACKET;
             break;
