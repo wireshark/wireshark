@@ -1896,15 +1896,14 @@ void MainWindow::setTitlebarForCaptureFile()
     } else {
         /* We have no capture file. */
         setWindowFilePath(NULL);
-        setWindowTitle(tr("The Wireshark Network Analyzer"));
+        setDefaultWindowTitle();
     }
 }
 
-void MainWindow::setTitlebarForSelectedTreeRow()
+void MainWindow::setDefaultWindowTitle()
 {
     setWindowTitle(tr("The Wireshark Network Analyzer"));
 }
-
 
 void MainWindow::setTitlebarForCaptureInProgress()
 {
@@ -1917,7 +1916,7 @@ void MainWindow::setTitlebarForCaptureInProgress()
         g_free(window_name);
     } else {
         /* We have no capture in progress. */
-        setWindowTitle(tr("The Wireshark Network Analyzer"));
+        setDefaultWindowTitle();
     }
 }
 

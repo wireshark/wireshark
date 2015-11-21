@@ -732,7 +732,8 @@ void MainWindow::captureFileClosed() {
 
     main_ui_->statusBar->popFileStatus();
 
-    setTitlebarForSelectedTreeRow();
+    setDefaultWindowTitle();
+    setWindowIcon(wsApp->normalIcon());
     setMenusForSelectedPacket();
     setMenusForSelectedTreeRow();
 
