@@ -2495,14 +2495,14 @@ typedef struct _mq_parm_t
 /****************************************************************/
 
 /* Inquire on all properties -  "%" */
-#define MQ_MQPROP_INQUIRE_ALL     (MQPTR)(char*)"%",\
+#define MQ_MQPROP_INQUIRE_ALL     (MQPTR)"%",\
     0,\
     0,\
     1,\
     MQCCSI_APPL
 
 /* Inquire on all 'usr' properties - "usr.%" */
-#define MQ_MQPROP_INQUIRE_ALL_USR (MQPTR)(char*)"usr.%",\
+#define MQ_MQPROP_INQUIRE_ALL_USR (MQPTR)"usr.%",\
     0,\
     0,\
     5,\

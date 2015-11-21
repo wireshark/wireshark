@@ -86,12 +86,10 @@ main(int argc, char **argv)
 	guint8*			type = NULL;
 	int 			allrandom = FALSE;
 	wtap_dumper		*savedump;
-DIAG_OFF(cast-qual)
 	static const struct option long_options[] = {
-		{(char *)"help", no_argument, NULL, 'h'},
+		{"help", no_argument, NULL, 'h'},
 		{0, 0, 0, 0 }
 	};
-DIAG_ON(cast-qual)
 
 #ifdef _WIN32
 	arg_list_utf_16to8(argc, argv);

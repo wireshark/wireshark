@@ -2898,7 +2898,7 @@ static void file_rights_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const
         if (request) {
             guint8 oaction = 0, path_count = 0;
             guint16 rights = 0;
-            gchar* filename = (gchar*)"";
+            gchar* filename = "";
 
             if (ncp_rec->func == 87) {
                 switch(ncp_rec->subfunc)

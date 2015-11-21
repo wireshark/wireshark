@@ -1093,7 +1093,7 @@ copy_binary_to_clipboard(const guint8 *data_p,
                          int           len)
 {
     static GtkTargetEntry target_entry[] = {
-        {(char *)"application/octet-stream", 0, 0}};
+        {"application/octet-stream", 0, 0}};
     /* XXX - this is not understood by most applications,
      * but can be pasted into the better hex editors - is
      * there something better that we can do?

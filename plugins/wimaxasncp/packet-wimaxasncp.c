@@ -133,7 +133,7 @@ wimaxasncp_build_dict_t wimaxasncp_build_dict;
 
 static wimaxasncp_dict_tlv_t wimaxasncp_tlv_not_found =
 {
-    0, (char *)"Unknown", NULL, WIMAXASNCP_TLV_UNKNOWN, 0,
+    0, "Unknown", NULL, WIMAXASNCP_TLV_UNKNOWN, 0,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     NULL, NULL, NULL
 };

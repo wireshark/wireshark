@@ -195,13 +195,11 @@ main(int argc, char *argv[])
     FrameRecord_t *prevFrame = NULL;
 
     int opt;
-DIAG_OFF(cast-qual)
     static const struct option long_options[] = {
-        {(char *)"help", no_argument, NULL, 'h'},
-        {(char *)"version", no_argument, NULL, 'v'},
+        {"help", no_argument, NULL, 'h'},
+        {"version", no_argument, NULL, 'v'},
         {0, 0, 0, 0 }
     };
-DIAG_ON(cast-qual)
     int file_count;
     char *infile;
     const char *outfile;

@@ -6224,7 +6224,7 @@ SpoolssEnumPrinterKey_q(tvbuff_t *tvb, int offset,
 		hf_printerdata_key, TRUE, &key_name);
 
 	if (!key_name[0])
-		key_name = (char*)"\"\"";
+		key_name = "\"\"";
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", key_name);
 

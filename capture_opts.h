@@ -79,7 +79,7 @@ extern "C" {
 
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
 #define LONGOPT_BUFFER_SIZE \
-    {(char *)"buffer-size", required_argument, NULL, 'B'},
+    {"buffer-size", required_argument, NULL, 'B'},
 #define OPTSTRING_B "B:"
 #else
 #define LONGOPT_BUFFER_SIZE
@@ -87,7 +87,7 @@ extern "C" {
 #endif
 
 #ifdef HAVE_PCAP_CREATE
-#define LONGOPT_MONITOR_MODE {(char *)"monitor-mode", no_argument, NULL, 'I'},
+#define LONGOPT_MONITOR_MODE {"monitor-mode", no_argument, NULL, 'I'},
 #define OPTSTRING_I "I"
 #else
 #define LONGOPT_MONITOR_MODE
@@ -95,20 +95,20 @@ extern "C" {
 #endif
 
 #define LONGOPT_CAPTURE_COMMON \
-    {(char *)"capture-comment",      required_argument, NULL, LONGOPT_NUM_CAP_COMMENT}, \
-    {(char *)"autostop",             required_argument, NULL, 'a'}, \
-    {(char *)"ring-buffer",          required_argument, NULL, 'b'}, \
+    {"capture-comment",      required_argument, NULL, LONGOPT_NUM_CAP_COMMENT}, \
+    {"autostop",             required_argument, NULL, 'a'}, \
+    {"ring-buffer",          required_argument, NULL, 'b'}, \
     LONGOPT_BUFFER_SIZE \
-    {(char *)"list-interfaces",      no_argument,       NULL, 'D'}, \
-    {(char *)"interface",            required_argument, NULL, 'i'}, \
+    {"list-interfaces",      no_argument,       NULL, 'D'}, \
+    {"interface",            required_argument, NULL, 'i'}, \
     LONGOPT_MONITOR_MODE \
-    {(char *)"list-data-link-types", no_argument,       NULL, 'L'}, \
-    {(char *)"no-promiscuous-mode",  no_argument,       NULL, 'p'}, \
-    {(char *)"snapshot-length",      required_argument, NULL, 's'}, \
-    {(char *)"linktype",             required_argument, NULL, 'y'}, \
-    {(char *)"disable-protocol", required_argument, NULL, LONGOPT_DISABLE_PROTOCOL }, \
-    {(char *)"enable-heuristic", required_argument, NULL, LONGOPT_ENABLE_HEURISTIC }, \
-    {(char *)"disable-heuristic", required_argument, NULL, LONGOPT_DISABLE_HEURISTIC },
+    {"list-data-link-types", no_argument,       NULL, 'L'}, \
+    {"no-promiscuous-mode",  no_argument,       NULL, 'p'}, \
+    {"snapshot-length",      required_argument, NULL, 's'}, \
+    {"linktype",             required_argument, NULL, 'y'}, \
+    {"disable-protocol", required_argument, NULL, LONGOPT_DISABLE_PROTOCOL }, \
+    {"enable-heuristic", required_argument, NULL, LONGOPT_ENABLE_HEURISTIC }, \
+    {"disable-heuristic", required_argument, NULL, LONGOPT_DISABLE_HEURISTIC },
 
 #define OPTSTRING_CAPTURE_COMMON \
     "a:" OPTSTRING_A "b:" OPTSTRING_B "c:Df:i:" OPTSTRING_I "Lps:y:"

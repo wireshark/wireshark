@@ -359,7 +359,6 @@ else()
 		-Wignored-qualifiers
 		-Wpragmas
 		-Wno-overlength-strings
-		-Wwrite-strings
 		-Wno-long-long
 		-Wheader-guard
 		-Wunused-const-variable

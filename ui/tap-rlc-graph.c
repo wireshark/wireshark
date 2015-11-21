@@ -156,7 +156,7 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
         /* This "shouldn't happen", as the graph menu items won't
          * even be enabled if the selected packet isn't an RLC PDU.
          */
-        *err_msg = (char*)"Selected packet doesn't have an RLC PDU";
+        *err_msg = "Selected packet doesn't have an RLC PDU";
         *free_err_msg = FALSE;
         return NULL;
     }
@@ -164,7 +164,7 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
      * to select which session he wants here */
     if (th.num_hdrs>1){
         /* Can only handle a single RLC channel yet */
-        *err_msg = (char*)"The selected packet has more than one LTE RLC channel in it.";
+        *err_msg = "The selected packet has more than one LTE RLC channel in it.";
         *free_err_msg = FALSE;
         return NULL;
     }
@@ -294,7 +294,7 @@ gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gbool
     remove_tap_listener(g);
 
     if (g->last_segment == NULL) {
-        *err_string = (char*)"No packets found";
+        *err_string = "No packets found";
         *free_err_string = FALSE;
         return FALSE;
     }

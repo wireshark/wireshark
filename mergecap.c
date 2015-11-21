@@ -254,13 +254,11 @@ main(int argc, char *argv[])
   GString            *comp_info_str;
   GString            *runtime_info_str;
   int                 opt;
-DIAG_OFF(cast-qual)
   static const struct option long_options[] = {
-      {(char *)"help", no_argument, NULL, 'h'},
-      {(char *)"version", no_argument, NULL, 'V'},
+      {"help", no_argument, NULL, 'h'},
+      {"version", no_argument, NULL, 'V'},
       {0, 0, 0, 0 }
   };
-DIAG_ON(cast-qual)
   gboolean            do_append          = FALSE;
   gboolean            verbose            = FALSE;
   int                 in_file_count      = 0;

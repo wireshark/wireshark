@@ -122,13 +122,11 @@ main(int argc, char *argv[])
   int    i;
   int    opt;
   int    overall_error_status;
-DIAG_OFF(cast-qual)
   static const struct option long_options[] = {
-      {(char *)"help", no_argument, NULL, 'h'},
-      {(char *)"version", no_argument, NULL, 'v'},
+      {"help", no_argument, NULL, 'h'},
+      {"version", no_argument, NULL, 'v'},
       {0, 0, 0, 0 }
   };
-DIAG_ON(cast-qual)
 
 #ifdef HAVE_PLUGINS
   char  *init_progfile_dir_error;

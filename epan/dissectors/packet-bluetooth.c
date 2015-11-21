@@ -1958,8 +1958,8 @@ proto_reg_handoff_bluetooth(void)
 
     dissector_add_for_decode_as("usb.device", bluetooth_usb_handle);
 
-    wmem_tree_insert_string(bluetooth_uuids, "00000001-0000-1000-8000-0002EE000002", (gchar *) "SyncML Server", 0);
-    wmem_tree_insert_string(bluetooth_uuids, "00000002-0000-1000-8000-0002EE000002", (gchar *) "SyncML Client", 0);
+    wmem_tree_insert_string(bluetooth_uuids, "00000001-0000-1000-8000-0002EE000002", "SyncML Server", 0);
+    wmem_tree_insert_string(bluetooth_uuids, "00000002-0000-1000-8000-0002EE000002", "SyncML Client", 0);
 /* TODO: Add UUID128 verion of UUID16; UUID32? UUID16? */
 }
 

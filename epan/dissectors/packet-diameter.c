@@ -387,7 +387,7 @@ diameterstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_
 	idx = (int *)g_malloc(sizeof(int));
 	*idx = 0;
 	diameterstat_cmd_str_hash = g_hash_table_new(g_str_hash,g_str_equal);
-	g_hash_table_insert(diameterstat_cmd_str_hash, (gchar *)"Unknown", idx);
+	g_hash_table_insert(diameterstat_cmd_str_hash, "Unknown", idx);
 
 	/** @todo the filter to use in stead of NULL is "diameter.cmd.code"
 	 * to enable the filter popup in the service response time dalouge
@@ -1882,7 +1882,7 @@ dictionary_load(void)
 	all_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 
 	wmem_tree_insert32(dictionary.vnds,0,&no_vnd);
-	g_hash_table_insert(vendors,(gchar *)"None",&no_vnd);
+	g_hash_table_insert(vendors,"None",&no_vnd);
 
 	/* initialize the types hash with the known basic types */
 	for (type = basic_types; type->name; type++) {

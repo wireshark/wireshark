@@ -75,8 +75,8 @@ static tvbparse_wanted_t *want_heur;
 static GHashTable *xmpli_names;
 static GHashTable *media_types;
 
-static xml_ns_t xml_ns     = {(gchar *)"xml",     "/", -1, -1, -1, NULL, NULL, NULL};
-static xml_ns_t unknown_ns = {(gchar *)"unknown", "?", -1, -1, -1, NULL, NULL, NULL};
+static xml_ns_t xml_ns     = {"xml",     "/", -1, -1, -1, NULL, NULL, NULL};
+static xml_ns_t unknown_ns = {"unknown", "?", -1, -1, -1, NULL, NULL, NULL};
 static xml_ns_t *root_ns;
 
 static gboolean pref_heuristic_unicode    = FALSE;

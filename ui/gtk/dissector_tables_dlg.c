@@ -156,7 +156,7 @@ decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type,
             str = (gchar*)dissector_handle_get_dissector_name(handle);
             if (str == NULL)
             {
-                str = (gchar*)"<Unknown>";
+                str = "<Unknown>";
             }
             proto_add_to_list(tree_info, store, str, proto_name);
             break;

@@ -2231,17 +2231,15 @@ main(int argc, char *argv[])
     GSList              *disable_heur_slist = NULL;
 
 #define OPTSTRING OPTSTRING_CAPTURE_COMMON "C:g:Hh" "jJ:kK:lm:nN:o:P:r:R:St:u:vw:X:Y:z:"
-DIAG_OFF(cast-qual)
     static const struct option long_options[] = {
-        {(char *)"help", no_argument, NULL, 'h'},
-        {(char *)"read-file", required_argument, NULL, 'r' },
-        {(char *)"read-filter", required_argument, NULL, 'R' },
-        {(char *)"display-filter", required_argument, NULL, 'Y' },
-        {(char *)"version", no_argument, NULL, 'v'},
+        {"help", no_argument, NULL, 'h'},
+        {"read-file", required_argument, NULL, 'r' },
+        {"read-filter", required_argument, NULL, 'R' },
+        {"display-filter", required_argument, NULL, 'Y' },
+        {"version", no_argument, NULL, 'v'},
         LONGOPT_CAPTURE_COMMON
         {0, 0, 0, 0 }
     };
-DIAG_ON(cast-qual)
     static const char optstring[] = OPTSTRING;
 
 #ifdef HAVE_GRESOURCE
