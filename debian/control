@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Balint Reczey <balint@balintreczey.hu>
 Standards-Version: 3.9.5
 Build-Depends: libgtk-3-dev, hardening-includes,
-# enable Qt 5 related depandencies for Qt 5-enabled build
+# enable Qt 5 related dependencies for Qt 5-enabled build
  qtbase5-dev, qtbase5-dev-tools, qttools5-dev, qttools5-dev-tools,
 # enable Qt 4 related dependencies for Qt 4-enabled build
 # qt4-qmake, libqt4-dev,
@@ -31,8 +31,12 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libwireshark0 (>= ${binary:Version}),
  libwiretap0 (>= ${binary:Version}), debconf, libcap2-bin [linux-any]
 Recommends: wireshark (>= ${binary:Version}) | tshark (>= ${binary:Version})
-Replaces: ethereal-common (<< 1.0.0-3)
-Conflicts: ethereal-common (<< 1.0.0-3)
+Breaks: ethereal (<< 1.0.0-3),
+        wireshark (<< 2.0.0~),
+        wireshark-qt (<< 2.0.0~rc3+g841d5e1)
+Replaces: ethereal (<< 1.0.0-3),
+        wireshark (<< 2.0.0~),
+        wireshark-qt (<< 2.0.0~rc3+g841d5e1)
 Description: network traffic analyzer - common files
  Wireshark is a network "sniffer" - a tool that captures and analyzes
  packets off the wire. Wireshark can decode too many protocols to list
@@ -43,7 +47,7 @@ Description: network traffic analyzer - common files
 
 Package: wireshark
 Architecture: any
-Depends: wireshark-qt
+Depends: wireshark-qt, ${misc:Depends}
 Replaces: ethereal (<< 1.0.0-3)
 Conflicts: ethereal (<< 1.0.0-3)
 Description: network traffic analyzer - meta-package
@@ -56,8 +60,8 @@ Description: network traffic analyzer - meta-package
 Package: wireshark-qt
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, wireshark-common (= ${binary:Version}), xdg-utils
-Replaces: ethereal (<< 1.0.0-3)
-Conflicts: ethereal (<< 1.0.0-3)
+Replaces: ethereal (<< 1.0.0-3), wireshark (<< 2.0.0~)
+Breaks: ethereal (<< 1.0.0-3), wireshark (<< 2.0.0~)
 Description: network traffic analyzer - Qt version
  Wireshark is a network "sniffer" - a tool that captures and analyzes
  packets off the wire. Wireshark can decode too many protocols to list
@@ -68,8 +72,8 @@ Description: network traffic analyzer - Qt version
 Package: wireshark-gtk
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, wireshark-common (= ${binary:Version}), xdg-utils
-Replaces: ethereal (<< 1.0.0-3)
-Conflicts: ethereal (<< 1.0.0-3)
+Replaces: ethereal (<< 1.0.0-3), wireshark (<< 2.0.0~)
+Breaks: ethereal (<< 1.0.0-3), wireshark (<< 2.0.0~)
 Description: network traffic analyzer - GTK+ version
  Wireshark is a network "sniffer" - a tool that captures and analyzes
  packets off the wire. Wireshark can decode too many protocols to list
@@ -166,8 +170,8 @@ Conflicts: wireshark-common (<< 1.4.0~rc2-1), libwireshark-dev (<< 1.4.2-2),
  wireshark-dev (<< 1.4.0~rc2-1)
 Replaces: wireshark-common (<< 1.4.0~rc2-1), libwireshark-dev (<< 1.4.2-2),
  wireshark-dev (<< 1.4.0~rc2-1)
-Description: network packet dissection utilities library -- shared library
- The libwsutil library provides utility functions for libwireshark0.
+Description: network packet dissection utilities library -- development files
+ The libwsutil library provides utility functions for libwireshark6.
  .
  This package contains the static library and the C header files that are
  needed for applications to use the libwsutil library.
@@ -188,9 +192,9 @@ Section: libs
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends}, libjs-openlayers
-Recommends: geoip-database, geoip-database-extra
 Conflicts: wireshark-common (<< 1.4.0~rc2-1)
 Replaces: wireshark-common (<< 1.4.0~rc2-1)
+Recommends: geoip-database, geoip-database-extra
 Suggests: snmp-mibs-downloader
 Description: network packet dissection library -- data files
  The libwireshark library provides the network packet dissection services
