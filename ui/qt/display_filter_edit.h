@@ -31,7 +31,7 @@ class StockIconToolButton;
 typedef enum {
     DisplayFilterToApply,
     DisplayFilterToEnter,
-    ReadFilterToApply,
+    ReadFilterToApply
 } DisplayFilterEditType;
 
 class DisplayFilterEdit : public SyntaxLineEdit
