@@ -30,10 +30,12 @@
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
-#include <wiretap/wtap.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 #include <wsutil/str_util.h>
 
 #include "packet-frame.h"
+#include "packet-pcap_pktdata.h"
 #include "packet-tcp.h"
 
 #define PNAME  "Remote Packet Capture"
@@ -213,15 +215,16 @@ static expert_field ei_if_unknown = EI_INIT;
 static expert_field ei_no_more_data = EI_INIT;
 static expert_field ei_caplen_too_big = EI_INIT;
 
+static dissector_handle_t pcap_pktdata_handle;
 static dissector_handle_t data_handle;
 
 /* User definable values */
 static gboolean rpcap_desegment = TRUE;
 static gboolean decode_content = TRUE;
-static guint32 global_linktype = WTAP_ENCAP_UNKNOWN;
+static int global_linktype = -1;
 
 /* Global variables */
-static guint32 linktype = WTAP_ENCAP_UNKNOWN;
+static int linktype = -1;
 static gboolean info_added = FALSE;
 
 static const true_false_string open_closed = {
@@ -874,8 +877,14 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   }
 
   new_tvb = tvb_new_subset (tvb, offset, caplen, len);
-  if (decode_content && linktype != WTAP_ENCAP_UNKNOWN) {
-    dissector_try_uint(wtap_encap_dissector_table, linktype, new_tvb, pinfo, top_tree);
+  if (decode_content && linktype != -1) {
+    TRY {
+      call_dissector_with_data(pcap_pktdata_handle, new_tvb, pinfo, top_tree, &linktype);
+    }
+    CATCH_BOUNDS_ERRORS {
+      show_exception(tvb, pinfo, top_tree, EXCEPT_CODE, GET_MESSAGE);
+    }
+    ENDTRY;
 
     if (!info_added) {
       /* Only indicate when not added before */
@@ -888,7 +897,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
       register_frame_end_routine(pinfo, rpcap_frame_end);
     }
   } else {
-    if (linktype == WTAP_ENCAP_UNKNOWN) {
+    if (linktype == -1) {
       proto_item_append_text (ti, ", Unknown link-layer type");
     }
     call_dissector (data_handle, new_tvb, pinfo, top_tree);
@@ -1199,9 +1208,17 @@ proto_register_rpcap (void)
     { &hf_open_reply,
       { "Open reply", "rpcap.open_reply", FT_NONE, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
+    /*
+     * XXX - the code probably sends a DLT_ value over the wire, but
+     * it should really send a LINKTYPE_ value, so that if the client
+     * and server are running OSes that disagree on the numerical value
+     * of that DLT_, they won't get confused (LINKTYPE_ values aren't
+     * platform-dependent).  The vast majority of LINKTYPE_ values and
+     * DLT_ values are the same for the same link-layer type.
+     */
     { &hf_linktype,
       { "Link type", "rpcap.linktype", FT_UINT32, BASE_DEC,
-        NULL, 0x0, NULL, HFILL } },
+        VALS(link_type_vals), 0x0, NULL, HFILL } },
     { &hf_tzoff,
       { "Timezone offset", "rpcap.tzoff", FT_UINT32, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
@@ -1466,6 +1483,7 @@ proto_reg_handoff_rpcap (void)
   static gboolean rpcap_prefs_initialized = FALSE;
 
   if (!rpcap_prefs_initialized) {
+    pcap_pktdata_handle = find_dissector ("pcap_pktdata");
     data_handle = find_dissector ("data");
     rpcap_prefs_initialized = TRUE;
 
