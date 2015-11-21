@@ -183,7 +183,7 @@ private:
     void initTimePrecisionFormatMenu();
     void initFreezeActions();
 
-    void setTitlebarForSelectedTreeRow();
+    void setDefaultWindowTitle();
     void setTitlebarForCaptureFile();
     void setTitlebarForCaptureInProgress();
     void setMenusForCaptureFile(bool force_disable = false);
