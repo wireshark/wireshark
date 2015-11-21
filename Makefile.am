@@ -772,15 +772,15 @@ EXTRA_DIST = \
 	debian/headers-check.c	\
 	debian/libwireshark-data.install	\
 	debian/libwireshark-dev.install	\
-	debian/libwireshark0.install	\
-	debian/libwireshark0.symbols	\
+	debian/libwireshark6.install	\
+	debian/libwireshark6.symbols	\
 	debian/libwiretap-dev.install	\
-	debian/libwiretap0.docs	\
-	debian/libwiretap0.install	\
-	debian/libwiretap0.symbols	\
+	debian/libwiretap5.docs	\
+	debian/libwiretap5.install	\
+	debian/libwiretap5.symbols	\
 	debian/libwsutil-dev.install	\
-	debian/libwsutil0.install	\
-	debian/libwsutil0.symbols	\
+	debian/libwsutil6.install	\
+	debian/libwsutil6.symbols	\
 	debian/license-text-about-dialog	\
 	debian/patches/04_asn2wrs_ply.patch	\
 	debian/patches/05_note-README-when-running-as-root.patch	\

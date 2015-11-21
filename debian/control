@@ -28,8 +28,8 @@ Homepage: http://www.wireshark.org/
 
 Package: wireshark-common
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libwireshark0 (>= ${binary:Version}),
- libwiretap0 (>= ${binary:Version}), debconf, libcap2-bin [linux-any]
+Depends: ${shlibs:Depends}, ${misc:Depends}, libwireshark6 (>= ${binary:Version}),
+ libwiretap5 (>= ${binary:Version}), debconf, libcap2-bin [linux-any]
 Recommends: wireshark (>= ${binary:Version}) | tshark (>= ${binary:Version})
 Replaces: ethereal-common (<< 1.0.0-3)
 Conflicts: ethereal-common (<< 1.0.0-3)
