@@ -253,6 +253,12 @@ void MainWelcome::updateRecentFiles() {
     QString itemLabel;
     QListWidgetItem *rfItem;
     QFont rfFont;
+    QString selectedFilename;
+
+    if (!recent_files_->selectedItems().isEmpty()) {
+        rfItem = recent_files_->selectedItems().first();
+        selectedFilename = rfItem->data(Qt::UserRole).toString();
+    }
 
     int rfRow = 0;
     foreach (recent_item_status *ri, wsApp->recentItems()) {
@@ -283,6 +289,9 @@ void MainWelcome::updateRecentFiles() {
         rfItem->setData(Qt::UserRole, ri->filename);
         rfItem->setFlags(ri->accessible ? Qt::ItemIsSelectable | Qt::ItemIsEnabled : Qt::NoItemFlags);
         rfItem->setFont(rfFont);
+        if (ri->filename == selectedFilename) {
+            recent_files_->setItemSelected(rfItem, true);
+        }
         rfRow++;
     }
 
