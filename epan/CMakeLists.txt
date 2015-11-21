@@ -259,6 +259,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-p7.c
 	dissectors/packet-p772.c
 	dissectors/packet-pcap.c
+	dissectors/packet-pcap_pktdata.c
 	dissectors/packet-pkcs1.c
 	dissectors/packet-pkcs12.c
 	dissectors/packet-pkinit.c

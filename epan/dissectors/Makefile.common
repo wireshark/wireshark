@@ -1036,6 +1036,7 @@ DISSECTOR_SRC = \
 	packet-pagp.c		\
 	packet-paltalk.c	\
 	packet-pana.c		\
+	packet-pcap_pktdata.c	\
 	packet-pcapng_block.c	\
 	packet-pcep.c		\
 	packet-pcli.c		\
@@ -1632,6 +1633,7 @@ DISSECTOR_INCLUDES =	\
 	packet-p22.h	\
 	packet-p7.h	\
 	packet-p772.h	\
+	packet-pcap_pktdata.h	\
 	packet-pcnfsd.h	\
 	packet-pdcp-lte.h	\
 	packet-per.h	\
