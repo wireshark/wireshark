@@ -533,7 +533,7 @@ dissect_iso14443_cmd_type_attrib(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
 
-    return tvb_captured_length(tvb);
+    return offset;
 }
 
 
