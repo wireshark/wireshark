@@ -35,10 +35,10 @@ section of the file 'doc/README.developer'.
 
 === The GLib library
 
-Glib is used as a basic platform abstraction library. It's doesn't provide
+Glib is used as a basic platform abstraction library. It doesn't provide
 any direct GUI functionality.
 
-To quote the Glib Reverence Manual:
+To quote the Glib Reference Manual:
 ____
 GLib provides the core application building blocks for libraries and
 applications written in C. It provides the core object system used in GNOME, the

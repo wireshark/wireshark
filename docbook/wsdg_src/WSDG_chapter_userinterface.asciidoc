@@ -1,7 +1,7 @@
 ++++++++++++++++++++++++++++++++++++++
 <!-- WSDG Chapter User Interface -->
 ++++++++++++++++++++++++++++++++++++++
-    
+
 [[ChapterUserInterface]]
 
 == User Interface
@@ -66,7 +66,7 @@ name components with underscores. For example, ColoringRulesDialog is defined in
 'coloring_rules_dialog.ui'.
 
 General-purpose dialogs are subclasses of `QDialog`. Dialogs that rely on the
-current capture file can sublcass `WiresharkDialog`, which provides methods and
+current capture file can subclass `WiresharkDialog`, which provides methods and
 members that make it easier to access the capture file and to keep the dialog
 open when the capture file closes.
 
@@ -154,7 +154,7 @@ automatically retranslated and must instead be manually translated using
 of this.
 
 NOTE: If your object life is short and your components are (re)created
-dynamically then it is ok to to use `tr()`.
+dynamically then it is ok to use `tr()`.
 
 In most cases you should handle the changeEvent in order to catch
 `QEvent::LanguageChange`.

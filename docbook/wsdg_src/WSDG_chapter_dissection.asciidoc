@@ -132,7 +132,7 @@ be called to do the actual dissecting. Then we associate the handle with a UDP
 port number so that the main program will know to call us when it gets UDP
 traffic on that port.
 
-The stardard Wireshark dissector convention is to put +proto_register_foo()+ and
+The standard Wireshark dissector convention is to put +proto_register_foo()+ and
 +proto_reg_handoff_foo()+ as the last two functions in the dissector source.
 
 Now at last we get to write some dissecting code. For the moment we'll
@@ -338,7 +338,7 @@ as +foo.type=1+ into the filter box.
 This tallies with our call above where we tell it to only look at one byte.
 
 * 'BASE_DEC' - Tor an integer type, this tells it to be printed as a decimal
-number. It could be hexdecimal (BASE_HEX) or octal (BASE_OCT) if that made more sense.
+number. It could be hexadecimal (BASE_HEX) or octal (BASE_OCT) if that made more sense.
 
 We'll ignore the rest of the structure for now.
 
@@ -975,7 +975,7 @@ exception.
 Adding a Tap interface to a protocol allows it to do some useful things.
 In particular you can produce protocol statistics from the tap interface.
 
-A tap is basically a way of allowing other items to see whats happening as
+A tap is basically a way of allowing other items to see what's happening as
 a protocol is dissected. A tap is registered with the main program, and
 then called on each dissection. Some arbitrary protocol specific data
 is provided with the routine that can be used.

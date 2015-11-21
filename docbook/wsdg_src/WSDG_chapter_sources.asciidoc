@@ -32,7 +32,7 @@ Wireshark source code. The code is stored inside Wireshark project's Git
 repository located at a server at the wireshark.org domain.
 
 Changes to the official repository are managed using the
-https://code.google.com/p/gerrit/[Gerrit] code review sytem. Gerrit
+https://code.google.com/p/gerrit/[Gerrit] code review system. Gerrit
 makes it easy to test and discuss changes before they are
 pushed to the main repository. For an overview of Gerrit see the
 https://code.wireshark.org/review/Documentation/intro-quick.html[Quick
@@ -49,7 +49,7 @@ Gerrit makes it easy to contribute. You can sign in with any OpenID
 provider and push your changes. It's usable from both the web and
 command line and is integrated with many popular tools.
 
-.Git is our *third* revision conrol system
+.Git is our *third* revision control system
 [NOTE]
 ====
 Wireshark originally used http://www.nongnu.org/cvs/[Concurrent Versions System]
@@ -81,7 +81,7 @@ https://code.wireshark.org/review/gitweb?p=wireshark.git
 
 Like most revision control systems, Git uses
 http://en.wikipedia.org/wiki/Branching_%28revision_control%29[branching] to
-manange different copies of the source code and allow parallel development.
+manage different copies of the source code and allow parallel development.
 Wireshark uses the following branches for official releases:
 
 * 'master': Main feature development and odd-numbered "feature" releases.
@@ -258,13 +258,13 @@ possible (e.g. because of a restrictive firewall).
 
 Age: some number of minutes (a bit older than the Git access).
 
-The buildbot server will automatically start to generate a snapshot of
+The Buildbot server will automatically start to generate a snapshot of
 Wireshark's source tree after a source code change is committed.
 These snapshots can be found at wireshark-snapshots-url:[].
 
 If Git access isn't possible, e.g. if the connection to the server
 isn't possible because of a corporate firewall, the sources can be
-obtained by downloading the buildbot snapshots. However, if you are
+obtained by downloading the Buildbot snapshots. However, if you are
 going to maintain your sources in parallel to the "official" sources
 for some time, it's recommended to use the anonymous (or authenticated)
 Git access if possible (believe it, it will save you a lot of time).
@@ -297,7 +297,7 @@ you might want to keep them in sync with the sources at the upstream
 Git repository.
 
 [TIP]
-.Take a look at the buildbot first
+.Take a look at the Buildbot first
 ====
 As development evolves, the Wireshark sources are compilable
 most of the time -- but not always. You should take a look at
@@ -422,7 +422,7 @@ installed version first.
 
 After a successful build you can run Wireshark right from the build
 directory. Still the program would need to know that it's being run from
-the build directory and not from its install location. This has inpact
+the build directory and not from its install location. This has an impact
 on the directories where the program can find the other parts and
 relevant data files.
 
@@ -431,7 +431,7 @@ In order to run the Wireshark from the build directory set the environment
 variable `WIRESHARK_RUN_FROM_BUILD_DIRECTORY` and run
 Wireshark. If your platform is properly setup, your build directory and
 current working directory are not in your PATH, so the
-commandline to launch Wireshark would be:
+command line to launch Wireshark would be:
 
 ----
 $ WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ./wireshark
@@ -502,7 +502,7 @@ on using the <<ChToolsDebugger, Debugger Tools>>.
 
 As the Wireshark developers are working on many different platforms, a lot of
 editors are used to develop Wireshark (emacs, vi, Microsoft Visual Studio
-and many many others). There's no "standard" or "default" development
+and many, many others). There's no "standard" or "default" development
 environment.
 
 There are several reasons why you might want to change the Wireshark
@@ -639,7 +639,7 @@ as described at <<ChSrcGit>>.
 //
 // If you've added a new file, e.g.
 // 'packet-myprotocol.c', you can use `svn add` to add it to your local tree before generating the patch.
-// Similarly, you can use `svn rm` for files that shouldbe removed.
+// Similarly, you can use `svn rm` for files that should be removed.
 
 [[ChSrcSVNGUIDiff]]
 
@@ -794,14 +794,14 @@ be rejected.
 
 * 'Submit dissectors as built-in whenever possible.' Developing a new dissector
 as a plugin is a good idea because compiling and testing is quicker, but it's
-best to convert dissectors to the built-in style before submitting for checkin.
+best to convert dissectors to the built-in style before submitting for check in.
 This reduces the number of files that must be installed with Wireshark and
 ensures your dissector will be available on all platforms.
 +
 This is no hard-and-fast rule though. Many dissectors are straightforward so they
 can easily be put into "the big pile", while some are ASN.1 based which takes a
-different approach, and some multiple sourcefile dissectors are more suitable to
-be placed separate as plugin.
+different approach, and some multiple source file dissectors are more suitable to
+be placed separately as plugins.
 
 * 'Verify that your dissector code does not use prohibited or deprecated APIs.'
   This can be done as follows:
@@ -973,53 +973,6 @@ the 'epan/dissectors' directory -- you'd run it in that subdirectory.
 It is preferred that people *not* submit patches like
 that, especially if they're only patching files that exist in multiple
 directories such as 'Makefile.am'.
-
-[[ChSrcAdd]]
-
-// Rewrite for Git ?
-// === Add a new file to the Subversion repository
-//
-// The recommended way to commit new files is described in <<ChSrcContribute>>.
-// However, the following might be of interest for contributing developers as well.
-//
-// [NOTE]
-// ====
-// These actions can only be performed by the Wireshark core developers who
-// have write access to the Subversion repository. It is put in here to have
-// all information in one place.
-// ====
-//
-// If you (as a core developer) need to add a file to the SVN repository,
-// then you need to perform the following steps:
-//
-// . Verify that that file is complete (has Wireshark boilerplate, `$Id$`, etc).
-//
-// . Add the new file(s) to the repository:
-// +
-// ----
-// $ svn add new_file
-// ----
-//
-// . Set the line ending property to 'native' for the new file(s):
-// +
-// ----
-// $ svn propset svn:eol-style native new_file
-// ----
-//
-// . Set version keyword to 'Id' for the new file(s):
-// +
-// ----
-// $ svn propset svn:keywords Id new_file
-// ----
-//
-// . Commit your changes, including the added file(s).
-// +
-// ----
-// $ svn commit new_file other_files_you_modified
-// ----
-//
-// Don't forget a brief description of the reason for the commit so other
-// developers don't need to read the diff in order to know what has changed.
 
 [[ChSrcBinary]]
 

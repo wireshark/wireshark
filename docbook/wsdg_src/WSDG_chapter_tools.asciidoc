@@ -620,7 +620,8 @@ menu and then click on the required line and press F9.  To run the program,
 press F5.
 
 If you require a non-optimised version, then build using a debug configuration, e.g.
-`msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln`.
+`msbuild /m /p:Configuration=Debug Wireshark.sln`.  The build products will be found
+in C:\Development\wsbuild32\run\RelWithDebInfo\.
 
 [[ChToolsBash]]
 
@@ -758,47 +759,47 @@ Internet, point your browser at http://www.perl.com/, the Perl Home Page.
 
 However, the version string may vary.
 
-[[ChToolsWindowsPerl]]
-
-==== Windows native: Perl
-
-A native Windows Perl package can be obtained from
-http://www.ActiveState.com[Active State] or http://strawberryperl.com/[Strawberry Perl]. The installation
-should be straightforward.
-
-You may also use Chocolatey to install either package:
-
-----
-PS:\> choco install ActivePerl
-----
-
-or
-
-----
-PS:\> choco install StrawberryPerl
-----
-
-After correct installation, typing at the command
-line prompt (cmd.exe):
-
-----
-> perl -v
-----
-
-should result in something like:
-
-----
-This is perl, v5.8.0 built for MSWin32-x86-multi-thread
-(with 1 registered patch, see perl -V for more detail)
-
-Copyright 1987-2002, Larry Wall
-
-Binary build 805 provided by ActiveState Corp. http://www.ActiveState.com
-Built 18:08:02 Feb  4 2003
-...
-----
-
-However, the version string may vary.
+//[[ChToolsWindowsPerl]]
+//
+//==== Windows native: Perl
+//
+//A native Windows Perl package can be obtained from
+//http://www.ActiveState.com[Active State] or http://strawberryperl.com/[Strawberry Perl]. The installation
+//should be straightforward.
+//
+//You may also use Chocolatey to install either package:
+//
+//----
+//PS:\> choco install ActivePerl
+//----
+//
+//or
+//
+//----
+//PS:\> choco install StrawberryPerl
+//----
+//
+//After correct installation, typing at the command
+//line prompt (cmd.exe):
+//
+//----
+//> perl -v
+//----
+//
+//should result in something like:
+//
+//----
+//This is perl, v5.8.0 built for MSWin32-x86-multi-thread
+//(with 1 registered patch, see perl -V for more detail)
+//
+//Copyright 1987-2002, Larry Wall
+//
+//Binary build 805 provided by ActiveState Corp. http://www.ActiveState.com
+//Built 18:08:02 Feb  4 2003
+//...
+//----
+//
+//However, the version string may vary.
 
 [[ChToolsSed]]
 

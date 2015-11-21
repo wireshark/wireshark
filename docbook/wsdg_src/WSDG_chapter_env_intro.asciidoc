@@ -273,7 +273,7 @@ be spent on more interesting tasks.
   be narrowed down to a few commits, making a fix much easier.
 
 * "Health status" overview of the sources. A quick look at:
-  https://buildbot.wireshark.org/trunk/[] gives a good "feeling" if the sources
+  https://buildbot.wireshark.org/wireshark-master/[] gives a good "feeling" if the sources
   are currently "well". On the other hand, if all is "red", an update of a
   personal source tree might better be done later ...
 
@@ -308,11 +308,11 @@ console logfile, to get additional information.
 The Buildbot runs on a platform collection that represents the different
 "platform specialties" quite well:
 
-* Windows 8.1 x86 (Win32, little endian, Visual Studion 2013)
+* Windows 8.1 x86 (Win32, little endian, Visual Studio 2013)
 
-* Windows 7 x86-64 (Win64, little endian, VS 2013)
+* Windows 7 x86-64 (Win64, little endian, Visual Studio 2013)
 
-* Ubuntu x86-64 (Linux, little endian, gcc)
+* Ubuntu x86-64 (Linux, little endian, gcc, Clang)
 
 * Solaris SPARC (Solaris, big endian, gcc)
 
@@ -357,7 +357,7 @@ an ongoing effort to build a protocol reference and a lot more.
 
 And best of all, if you would like to contribute your knowledge on a
 specific topic (maybe a network protocol you know well), you can edit the
-wiki pages by simply using your webbrowser.
+Wiki pages by simply using your webbrowser.
 
 [[ChIntroFAQ]]
 
@@ -456,7 +456,7 @@ someone answers your question.
 The Wireshark community collects bug reports in a Bugzilla database at
 wireshark-bugs-site:[]. This database is filled with manually filed bug reports,
 usually after some discussion on wireshark-dev, and automatic bug reports from
-the buildbot tools.
+the Buildbot tools.
 
 [[ChIntroQA]]
 
