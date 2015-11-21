@@ -60,8 +60,12 @@ binary_list="
 	text2pcap
 	tshark
 	extcap/androiddump
-	extcap/sshdump
 "
+
+if [ -x "extcap/sshdump" ]; then
+  binary_list="$binary_list extcap/sshdump"
+fi
+
 cs_binary_list=
 
 # Location for libraries (macosx-setup.sh defaults to whatever the
