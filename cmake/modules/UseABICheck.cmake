@@ -13,7 +13,7 @@ MACRO(ABICHECK _libname)
 	get_directory_property(INCLUDE_DIRS INCLUDE_DIRECTORIES)
 	list(REMOVE_DUPLICATES INCLUDE_DIRS)
 	string(REGEX REPLACE ";" "\n" INCLUDE_DIRS "${INCLUDE_DIRS}")
-	configure_file(../abi-descriptor.template abi-descriptor.xml)
+	configure_file("${CMAKE_SOURCE_DIR}/abi-descriptor.template" abi-descriptor.xml)
 	# discover and substitute list of include directories for ABI compatibility
 	# checks
 	file(GLOB ABICHECK_HEADERS RELATIVE ${CMAKE_CURRENT_BINARY_DIR} *.h)
