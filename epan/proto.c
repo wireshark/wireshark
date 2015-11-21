@@ -5379,7 +5379,7 @@ proto_deregister_protocol(const char *short_name)
     protocol_t *protocol;
     header_field_info *hfinfo;
     int proto_id;
-    gint *key;
+    gint key;
     guint i;
 
     proto_id = proto_get_id_by_short_name(short_name);
@@ -5387,11 +5387,8 @@ proto_deregister_protocol(const char *short_name)
     if (protocol == NULL)
         return FALSE;
 
-    key  = (gint *)g_malloc(sizeof(gint));
-    *key = wrs_str_hash(protocol->name);
-
-    g_hash_table_remove(proto_names, key);
-    g_free(key);
+    key = wrs_str_hash(protocol->name);
+    g_hash_table_remove(proto_names, &key);
 
     g_hash_table_remove(proto_short_names, (gpointer)short_name);
     g_hash_table_remove(proto_filter_names, (gpointer)protocol->filter_name);
