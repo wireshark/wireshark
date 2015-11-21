@@ -1541,11 +1541,21 @@ endif(WIN32)
 add_custom_target(copy_data_files ALL DEPENDS ${INSTALL_FILES})
 set_target_properties(copy_data_files PROPERTIES FOLDER "Copy Tasks")
 add_dependencies(copy_data_files html_docs)
+# List of extra dependencies that for "copy_data_files" that cannot be added
+# above because the "copy_data_files" target needs to be defined for some
+# other commands later in this file.
+set(copy_data_files_depends)
 if(ENABLE_APPLICATION_BUNDLE)
-	add_custom_command(TARGET copy_data_files PRE_BUILD
+	add_custom_command(OUTPUT "${DATAFILE_DIR}"
 		COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}"
 	)
 endif()
+
+# glob patterns relative to the source directory that should be copied to
+# ${DATAFILE_DIR} (including directory prefixes)
+set(DATA_FILES_SRC
+	"help/toc"
+)
 
 if(WIN32)
 	foreach(_text_file ${TEXTIFY_FILES})
@@ -1561,123 +1571,107 @@ endif()
 
 foreach(_install_file ${INSTALL_FILES})
 	get_filename_component(_install_basename "${_install_file}" NAME)
-	add_custom_command(TARGET copy_data_files POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+	set(_output_file "${DATAFILE_DIR}/${_install_basename}")
+	add_custom_command(OUTPUT "${_output_file}"
+		COMMAND ${CMAKE_COMMAND} -E copy
 			"${_install_file}"
-			"${DATAFILE_DIR}/${_install_basename}"
+			"${_output_file}"
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		DEPENDS
+			"${_install_file}"
 	)
+	list(APPEND copy_data_files_depends "${_output_file}")
 endforeach()
 
 if(ENABLE_EXTCAP)
-	add_custom_command(TARGET copy_data_files PRE_BUILD
+	# Ensure "run/extcap" exists
+	add_custom_command(OUTPUT "${DATAFILE_DIR}/extcap"
 		COMMAND ${CMAKE_COMMAND} -E make_directory
 			"${DATAFILE_DIR}/extcap"
 	)
+	list(APPEND copy_data_files_depends "${DATAFILE_DIR}/extcap")
 endif()
-add_custom_command(TARGET copy_data_files PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E make_directory
-		"${DATAFILE_DIR}/help"
-)
-add_custom_command(TARGET copy_data_files PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		"${CMAKE_SOURCE_DIR}/help/toc"
-		"${DATAFILE_DIR}/help/toc"
-)
 if(WIN32)
 	file(TO_NATIVE_PATH ${DATAFILE_DIR}/help _help_dest_dir)
 	add_custom_command(TARGET copy_data_files PRE_BUILD
+		COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/help"
 		COMMAND ${POWERSHELL_COMMAND} "${CMAKE_SOURCE_DIR}/tools/textify.ps1"
 			-Destination ${_help_dest_dir}
 			${CMAKE_SOURCE_DIR}/help/*.txt
 	)
 else()
-	file(GLOB _help_files
-		"${CMAKE_SOURCE_DIR}/help/*.txt"
-	)
-	foreach(_help_file ${_help_files})
-		add_custom_command(TARGET copy_data_files PRE_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				"${_help_file}"
-				"${DATAFILE_DIR}/help/"
-		)
-	endforeach()
+	list(APPEND DATA_FILES_SRC "help/*.txt")
 endif(WIN32)
-add_custom_command(TARGET copy_data_files PRE_BUILD
+
+# Create help/faq.txt when missing
+add_custom_command(OUTPUT "${DATAFILE_DIR}/help/faq.txt"
+	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/help"
 	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/help/faq.py -b > faq.tmp.html
 	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/html2text.py
 		faq.tmp.html > "${DATAFILE_DIR}/help/faq.txt"
 	COMMAND ${CMAKE_COMMAND} -E remove faq.tmp.html
+	DEPENDS "${CMAKE_SOURCE_DIR}/help/faq.py"
+		"${CMAKE_SOURCE_DIR}/tools/html2text.py"
 )
+list(APPEND copy_data_files_depends "${DATAFILE_DIR}/help/faq.txt")
 
+# Install LUA files in staging directory such that LUA can used when Wireshark
+# is ran from the build directory. For install targets, see
+# epan/wslua/CMakeLists.txt
 if(LUA_FOUND)
-	add_custom_command(TARGET copy_data_files PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E make_directory
-			"${DATAFILE_DIR}/lua"
+	set(_lua_files
+		"${CMAKE_BINARY_DIR}/epan/wslua/init.lua"
+		"${CMAKE_SOURCE_DIR}/epan/wslua/console.lua"
+		"${CMAKE_SOURCE_DIR}/epan/wslua/dtd_gen.lua"
 	)
-	add_custom_command(TARGET copy_data_files PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			"${CMAKE_BINARY_DIR}/epan/wslua/init.lua"
-			"${DATAFILE_DIR}"
-	)
-	add_custom_command(TARGET copy_data_files PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			"${CMAKE_SOURCE_DIR}/epan/wslua/console.lua"
-			"${DATAFILE_DIR}"
-	)
-	add_custom_command(TARGET copy_data_files PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			"${CMAKE_SOURCE_DIR}/epan/wslua/dtd_gen.lua"
-			"${DATAFILE_DIR}"
-	)
+	foreach(_lua_file ${_lua_files})
+		get_filename_component(_lua_filename "${_lua_file}" NAME)
+		list(APPEND copy_data_files_depends
+			"${DATAFILE_DIR}/${_lua_filename}")
+		add_custom_command(OUTPUT "${DATAFILE_DIR}/${_lua_filename}"
+			COMMAND ${CMAKE_COMMAND} -E copy
+				"${_lua_file}"
+				"${DATAFILE_DIR}/${_lua_filename}"
+			DEPENDS
+				"${_lua_file}"
+		)
+	endforeach()
 	add_dependencies(copy_data_files wsluaauxiliary)
 endif(LUA_FOUND)
 # doc/*.html handled elsewhere.
-add_custom_command(TARGET copy_data_files PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-		"${CMAKE_SOURCE_DIR}/dtds"
-		"${DATAFILE_DIR}/dtds"
+
+# TODO shouldn't this use full (relative) paths instead of glob patterns?
+list(APPEND DATA_FILES_SRC
+	"dtds/*.dtd"
+
+	"radius/README.radius_dictionary"
+	"radius/custom.includes"
+	"radius/dictionary"
+	"radius/dictionary.*"
+
+	"diameter/*.dtd"
+	"diameter/*.xml"
+	"profiles/*/*"
+	"tpncp/tpncp.dat"
+	"wimaxasncp/*.xml"
 )
-# Skipping asn1 default.tt
-add_custom_command(TARGET copy_data_files PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-		"${CMAKE_SOURCE_DIR}/radius"
-		"${DATAFILE_DIR}/radius"
-)
-add_custom_command(TARGET copy_data_files PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E make_directory
-		"${DATAFILE_DIR}/diameter"
-)
-file(GLOB _diameter_files
-	"${CMAKE_SOURCE_DIR}/diameter/*.dtd"
-	"${CMAKE_SOURCE_DIR}/diameter/*.xml"
-)
-foreach(_diameter_file ${_diameter_files})
-	add_custom_command(TARGET copy_data_files PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			"${_diameter_file}"
-			"${DATAFILE_DIR}/diameter/"
+
+# Copy all paths from the source tree to the data directory. Directories are
+# automatically created if missing as the filename is given.
+file(GLOB _data_files RELATIVE "${CMAKE_SOURCE_DIR}" ${DATA_FILES_SRC})
+foreach(_data_file ${_data_files})
+	add_custom_command(OUTPUT "${DATAFILE_DIR}/${_data_file}"
+		COMMAND ${CMAKE_COMMAND} -E copy
+			"${CMAKE_SOURCE_DIR}/${_data_file}"
+			"${DATAFILE_DIR}/${_data_file}"
+		DEPENDS
+			"${CMAKE_SOURCE_DIR}/${_data_file}"
 	)
+	list(APPEND copy_data_files_depends "${DATAFILE_DIR}/${_data_file}")
 endforeach()
-add_custom_command(TARGET copy_data_files PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-		"${CMAKE_SOURCE_DIR}/profiles"
-		"${DATAFILE_DIR}/profiles"
-)
-add_custom_command(TARGET copy_data_files PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E make_directory
-		"${DATAFILE_DIR}/tpncp"
-)
-add_custom_command(TARGET copy_data_files PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		"${CMAKE_SOURCE_DIR}/tpncp/tpncp.dat"
-		"${DATAFILE_DIR}/tpncp/tpncp.dat"
-)
-add_custom_command(TARGET copy_data_files PRE_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-		"${CMAKE_SOURCE_DIR}/wimaxasncp"
-		"${DATAFILE_DIR}/wimaxasncp"
-)
+
+add_custom_target(copy_data_files_depends DEPENDS ${copy_data_files_depends})
+add_dependencies(copy_data_files copy_data_files_depends)
 
 if( (BUILD_wireshark AND QT_FOUND) OR (BUILD_wireshark_gtk AND GTK_FOUND) )
 	set(WIRESHARK_SRC
