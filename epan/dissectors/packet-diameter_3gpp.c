@@ -151,6 +151,13 @@ static int hf_diameter_3gpp_feature_list_gx_flags_bit25 = -1;
 static int hf_diameter_3gpp_feature_list_gx_flags_bit26 = -1;
 static int hf_diameter_3gpp_feature_list_gx_flags_bit27 = -1;
 static int hf_diameter_3gpp_feature_list_gx_flags_bit28 = -1;
+static int hf_diameter_3gpp_cms_no_gyn_session_serv_not_allowed = -1;
+static int hf_diameter_3gpp_cms_no_gyn_session_serv_allowed = -1;
+static int hf_diameter_3gpp_cms_rating_failed = -1;
+static int hf_diameter_3gpp_cms_user_unknown = -1;
+static int hf_diameter_3gpp_cms_auth_rej = -1;
+static int hf_diameter_3gpp_cms_credit_ctrl_not_applicable = -1;
+static int hf_diameter_3gpp_cms_end_user_serv_status = -1;
 static int hf_diameter_3gpp_ulr_flags = -1;
 static int hf_diameter_3gpp_ulr_flags_bit0 = -1;
 static int hf_diameter_3gpp_ulr_flags_bit1 = -1;
@@ -250,6 +257,7 @@ static gint diameter_3gpp_path_ett = -1;
 static gint diameter_3gpp_feature_list_ett = -1;
 static gint diameter_3gpp_uar_flags_ett = -1;
 static gint diameter_3gpp_tmgi_ett  = -1;
+static gint diameter_3gpp_cms_ett = -1;
 static gint diameter_3gpp_ulr_flags_ett = -1;
 static gint diameter_3gpp_ula_flags_ett = -1;
 static gint diameter_3gpp_dsr_flags_ett = -1;
@@ -986,6 +994,50 @@ dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer(tvbuff_t *tvb, packet_info 
     return offset;
 }
 
+/*
+ * AVP Code: 1005 Charging-Rule-Name
+ */
+static int
+dissect_diameter_3gpp_charging_rule_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_item *item;
+    int offset = 0, i;
+    int length = tvb_reported_length(tvb);
+    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
+
+    if (tree){
+        for (i = 0; i < length; i++)
+            if (!g_ascii_isprint(tvb_get_guint8(tvb, i)))
+                return length;
+
+        item = proto_tree_add_item(tree, hf_diameter_3gpp_charging_rule_name, tvb, offset, length, ENC_UTF_8 | ENC_NA);
+        PROTO_ITEM_SET_GENERATED(item);
+        diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "%s",
+            tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8 | ENC_NA));
+    }
+
+    return length;
+}
+
+/* AVP Code: 1082 Credit-Management-Status */
+static int
+dissect_diameter_3gpp_credit_management_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    if (tree) {
+        proto_tree *subtree = proto_tree_add_subtree(tree, tvb, 0, 4, diameter_3gpp_cms_ett, NULL, "Credit-Management-Status bit mask");
+        proto_tree_add_bits_item(subtree, hf_diameter_3gpp_spare_bits, tvb, 0, 25, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(subtree, hf_diameter_3gpp_cms_no_gyn_session_serv_not_allowed, tvb, 25, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(subtree, hf_diameter_3gpp_cms_no_gyn_session_serv_allowed, tvb, 26, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(subtree, hf_diameter_3gpp_cms_rating_failed, tvb, 27, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(subtree, hf_diameter_3gpp_cms_user_unknown, tvb, 28, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(subtree, hf_diameter_3gpp_cms_auth_rej, tvb, 29, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(subtree, hf_diameter_3gpp_cms_credit_ctrl_not_applicable, tvb, 30, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(subtree, hf_diameter_3gpp_cms_end_user_serv_status, tvb, 31, 1, ENC_BIG_ENDIAN);
+    }
+
+    return 4;
+}
+
 /* 3GPP TS 29.272
  * 7.3.7 ULR-Flags
  * AVP Code: 1405 ULR-Flags
@@ -1025,30 +1077,6 @@ dissect_diameter_3gpp_ulr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 }
 
-/*
- * AVP Code: 1005 Charging-Rule-Name
- */
-static int
-dissect_diameter_3gpp_charging_rule_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
-{
-    proto_item *item;
-    int offset = 0, i;
-    int length = tvb_reported_length(tvb);
-    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
-
-    if (tree){
-        for (i = 0; i < length; i++)
-            if (!g_ascii_isprint(tvb_get_guint8(tvb, i)))
-                return length;
-
-        item = proto_tree_add_item(tree, hf_diameter_3gpp_charging_rule_name, tvb, offset, length, ENC_UTF_8 | ENC_NA);
-        PROTO_ITEM_SET_GENERATED(item);
-        diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "%s",
-            tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UTF_8 | ENC_NA));
-    }
-
-    return length;
-}
 /* AVP Code: 1406 ULA-Flags */
 static int
 dissect_diameter_3gpp_ula_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -1512,6 +1540,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 1005 Charging-Rule-Name */
     dissector_add_uint("diameter.3gpp", 1005, new_create_dissector_handle(dissect_diameter_3gpp_charging_rule_name, proto_diameter_3gpp));
+
+    /* AVP Code: 1005 Credit-Management-Status */
+    dissector_add_uint("diameter.3gpp", 1082, new_create_dissector_handle(dissect_diameter_3gpp_credit_management_status, proto_diameter_3gpp));
 
     /* AVP Code: 1405 ULR-Flags */
     dissector_add_uint("diameter.3gpp", 1405, new_create_dissector_handle(dissect_diameter_3gpp_ulr_flags, proto_diameter_3gpp));
@@ -2092,6 +2123,41 @@ proto_register_diameter_3gpp(void)
             FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x10000000,
             NULL, HFILL }
         },
+        { &hf_diameter_3gpp_cms_no_gyn_session_serv_not_allowed,
+            { "No Gyn Session, service not allowed", "diameter.3gpp.cms.no_gyn_session_serv_not_allowed",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_cms_no_gyn_session_serv_allowed,
+            { "No Gyn Session, service allowed", "diameter.3gpp.cms.no_gyn_session_serv_allowed",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_cms_rating_failed,
+            { "Rating Failed", "diameter.3gpp.cms.rating_failed",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_cms_user_unknown,
+            { "User Unknown", "diameter.3gpp.cms.user_unknown",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_cms_auth_rej,
+            { "Authorization Rejected", "diameter.3gpp.cms.auth_rej",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_cms_credit_ctrl_not_applicable,
+            { "Credit Control Not Applicable", "diameter.3gpp.cms.credit_ctrl_not_applicable",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_cms_end_user_serv_status,
+            { "End User Service Denied", "diameter.3gpp.cms.end_user_serv_status",
+            FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+            NULL, HFILL }
+        },
         { &hf_diameter_3gpp_ulr_flags,
             { "ULR Flags", "diameter.3gpp.ulr_flags",
             FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -2572,6 +2638,7 @@ proto_register_diameter_3gpp(void)
         &diameter_3gpp_uar_flags_ett,
         &diameter_3gpp_feature_list_ett,
         &diameter_3gpp_tmgi_ett,
+        &diameter_3gpp_cms_ett,
         &diameter_3gpp_ulr_flags_ett,
         &diameter_3gpp_ula_flags_ett,
         &diameter_3gpp_dsr_flags_ett,
