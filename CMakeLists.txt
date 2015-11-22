@@ -126,7 +126,7 @@ if(WIN32)
 	# so, we could add a "-DFORCE_WIN_SETUP" which passes -Force to
 	# win-setup.ps1.
 	execute_process(
-		COMMAND ${POWERSHELL_COMMAND} "${_win_setup}" -Destination "${_ws_lib_dir}" -Platform ${WIRESHARK_TARGET_PLATFORM} -VSVersion ${_vsversion_args}
+		COMMAND ${POWERSHELL_COMMAND} "\"${_win_setup}\"" -Destination "${_ws_lib_dir}" -Platform ${WIRESHARK_TARGET_PLATFORM} -VSVersion ${_vsversion_args}
 		RESULT_VARIABLE _win_setup_failed
 	)
 	if (${_win_setup_failed})
