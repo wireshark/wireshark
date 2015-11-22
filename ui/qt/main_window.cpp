@@ -1860,7 +1860,6 @@ void MainWindow::setTitlebarForCaptureFile()
             // XXX - on non-Mac platforms, put in the application
             // name?
             //
-            // XXX - Use setWindowModified
             setWindowFilePath(NULL);
             setWindowTitle(QString("[*]%1").arg(cf_get_tempfile_source(capture_file_.capFile())));
         } else {
