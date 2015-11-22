@@ -138,8 +138,12 @@ doxygen-*.tag
 help/faq.txt
 pod2htm[di].tmp
 wireshark.pod
-docbook/developer-guide.xml
-docbook/user-guide.xml
+docbook/developer-guide-toc.hhc
+docbook/developer-guide.hhp
+docbook/developer-guide*.xml
+docbook/user-guide-toc.hhc
+docbook/user-guide.hhp
+docbook/user-guide*.xml
 docbook/ws?g_src/WS?G_*.dbk
 docbook/*-guide-*.fo
 docbook/*-guide-*.pdf
@@ -164,6 +168,7 @@ qtshark
 /ui/qt/*.pro.user
 #/ui/qt/*.qm
 /ui/qt/moc_*.cpp
+/ui/qt/moc_*.cpp_parameters
 /ui/qt/*.moc.cpp
 /ui/qt/moc_*.cxx
 /ui/qt/qrc_*.cpp
@@ -186,6 +191,7 @@ wsutil/abi-descriptor.xml
 # Windows Stuff #
 #################
 *.bsc
+*.dir/
 *.dsp
 *.dsw
 *.chm
@@ -199,12 +205,25 @@ wsutil/abi-descriptor.xml
 !adns_dll.rc
 !image/file_dlg_win32.rc
 *.res
+*.vcxproj*
+/Copying.txt
+/News.txt
+/README.txt
+/README.windows.txt
+Win32/
+Wireshark.opensdf
+Wireshark.sdf
+Wireshark.sln
+Wireshark.*.suo
+x64/
 _libs_check_
 /wireshark-gtk*
 doc/ws.css
 ui/qt/config.pri
 packaging/nsis/all-manifest.nsh
 packaging/nsis/gtk-dll-manifest.nsh
+/packaging/portableapps/WiresharkPortable/
+/zlib/
 
 # Misc #
 ########
