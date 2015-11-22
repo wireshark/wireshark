@@ -2797,8 +2797,8 @@ const value_string scsi_senddiag_st_code_val[] = {
 };
 
 const true_false_string scsi_senddiag_pf_val = {
-    "Vendor-specific Page Format",
     "Standard Page Format",
+    "Vendor-specific Page Format",
 };
 
 static gint scsi_def_devtype = SCSI_DEV_SBC;
