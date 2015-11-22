@@ -784,6 +784,42 @@ set_column_custom_occurrence(const gint col, const gint custom_occurrence)
   cfmt->custom_occurrence = custom_occurrence;
 }
 
+gchar *
+get_column_tooltip(const gint col)
+{
+    GList    *clp = g_list_nth(prefs.col_list, col);
+    fmt_data *cfmt;
+    gchar    *tooltip_text;
+
+    if (!clp)  /* Invalid column requested */
+        return NULL;
+
+    cfmt = (fmt_data *) clp->data;
+
+    if (cfmt->fmt == COL_CUSTOM) {
+        header_field_info *hfi = proto_registrar_get_byname(cfmt->custom_field);
+        /* Check if this is a valid custom_field */
+        if (hfi != NULL) {
+            if (hfi->parent != -1) {
+                /* Prefix with protocol name */
+                if (cfmt->custom_occurrence != 0) {
+                    tooltip_text = g_strdup_printf("%s\n%s (%s#%d)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev, cfmt->custom_occurrence);
+                } else {
+                    tooltip_text = g_strdup_printf("%s\n%s (%s)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev);
+                }
+            } else {
+                tooltip_text = g_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
+            }
+        } else {
+            tooltip_text = g_strdup_printf("Unknown Field: %s", get_column_custom_field(col));
+        }
+    } else {
+        tooltip_text = g_strdup(col_format_desc(cfmt->fmt));
+    }
+
+    return tooltip_text;
+}
+
 void
 build_column_format_array(column_info *cinfo, const gint num_cols, const gboolean reset_fences)
 {

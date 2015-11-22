@@ -656,7 +656,6 @@ create_view_and_model(void)
 	gint i, col_width;
 	gdouble value;
 	gchar *tooltip_text;
-	header_field_info *hfi;
 	gint col_min_width;
 	gchar *escaped_title;
 	col_item_t* col_item;
@@ -705,26 +704,7 @@ create_view_and_model(void)
 							show_cell_data_func,
 							GINT_TO_POINTER(i),
 							NULL);
-		if (col_item->col_fmt == COL_CUSTOM) {
-			hfi = proto_registrar_get_byname(col_item->col_custom_field);
-			/* Check if this is a valid custom_field */
-			if (hfi != NULL) {
-				if (hfi->parent != -1) {
-					/* Prefix with protocol name */
-					if (col_item->col_custom_occurrence != 0) {
-						tooltip_text = g_strdup_printf("%s\n%s (%s#%d)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev, col_item->col_custom_occurrence);
-					} else {
-						tooltip_text = g_strdup_printf("%s\n%s (%s)", proto_get_protocol_name(hfi->parent), hfi->name, hfi->abbrev);
-					}
-				} else {
-					tooltip_text = g_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
-				}
-			} else {
-				tooltip_text = g_strdup_printf("Unknown Field: %s", get_column_custom_field(i));
-			}
-		} else {
-			tooltip_text = g_strdup(col_format_desc(col_item->col_fmt));
-		}
+
 		escaped_title = ws_strdup_escape_char(col_item->col_title, '_');
 		gtk_tree_view_column_set_title(col, escaped_title);
 		g_free (escaped_title);
@@ -769,6 +749,7 @@ create_view_and_model(void)
 
 		gtk_tree_view_append_column(GTK_TREE_VIEW(packetlist->view), col);
 
+		tooltip_text = get_column_tooltip(i);
 		gtk_widget_set_tooltip_text(gtk_tree_view_column_get_button(col), tooltip_text);
 		g_free(tooltip_text);
 		g_signal_connect(gtk_tree_view_column_get_button(col), "button_press_event",
