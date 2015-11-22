@@ -185,8 +185,8 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 }
 
 
-static void
-dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item	*s1ap_item = NULL;
 	proto_tree	*s1ap_tree = NULL;
@@ -199,6 +199,7 @@ dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	s1ap_tree = proto_item_add_subtree(s1ap_item, ett_s1ap);
 
 	dissect_S1AP_PDU_PDU(tvb, pinfo, s1ap_tree, NULL);
+	return tvb_captured_length(tvb);
 }
 
 /*--- proto_reg_handoff_s1ap ---------------------------------------*/
@@ -273,7 +274,7 @@ void proto_register_s1ap(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  register_dissector("s1ap", dissect_s1ap, proto_s1ap);
+  new_register_dissector("s1ap", dissect_s1ap, proto_s1ap);
 
   /* Register dissector tables */
   s1ap_ies_dissector_table = register_dissector_table("s1ap.ies", "S1AP-PROTOCOL-IES", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

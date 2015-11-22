@@ -194,8 +194,8 @@ static void rrc_free_value(gpointer value ){
 
 
 
-static void
-dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* FIX ME Currently don't know the 'starting point' of this protocol
      * exported DL-DCCH-Message is the entry point.
@@ -241,6 +241,7 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 ;
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -333,7 +334,7 @@ void proto_register_rrc(void) {
   expert_rrc = expert_register_protocol(proto_rrc);
   expert_register_field_array(expert_rrc, ei, array_length(ei));
 
-  register_dissector("rrc", dissect_rrc, proto_rrc);
+  new_register_dissector("rrc", dissect_rrc, proto_rrc);
 
 #include "packet-rrc-dis-reg.c"
 

@@ -7052,8 +7052,8 @@ dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 /*
 * Dissect MMS PDUs inside a PPDU.
 */
-static void
-dissect_mms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_mms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	int offset = 0;
 	int old_offset;
@@ -7067,7 +7067,7 @@ dissect_mms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tree = proto_item_add_subtree(item, ett_mms);
 	}
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MMS");
-  	col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0){
 		old_offset=offset;
@@ -7077,6 +7077,7 @@ dissect_mms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			break;
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 
@@ -9755,7 +9756,7 @@ void proto_register_mms(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-mms-hfarr.c ---*/
-#line 95 "../../asn1/mms/packet-mms-template.c"
+#line 96 "../../asn1/mms/packet-mms-template.c"
   };
 
   /* List of subtrees */
@@ -9974,7 +9975,7 @@ void proto_register_mms(void) {
     &ett_mms_FileAttributes,
 
 /*--- End of included file: packet-mms-ettarr.c ---*/
-#line 101 "../../asn1/mms/packet-mms-template.c"
+#line 102 "../../asn1/mms/packet-mms-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -9987,7 +9988,7 @@ void proto_register_mms(void) {
 
   /* Register protocol */
   proto_mms = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("mms", dissect_mms, proto_mms);
+  new_register_dissector("mms", dissect_mms, proto_mms);
   /* Register fields and subtrees */
   proto_register_field_array(proto_mms, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -10041,14 +10042,14 @@ dissect_mms_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	if (!tvb_bytes_exist(tvb, offset, length))
 		return FALSE;
 
-	dissect_mms(tvb, pinfo, parent_tree);
+	dissect_mms(tvb, pinfo, parent_tree, data);
 	return TRUE;
 }
 
 /*--- proto_reg_handoff_mms --- */
 void proto_reg_handoff_mms(void) {
-	register_ber_oid_dissector("1.0.9506.2.3", dissect_mms, proto_mms,"MMS");
-	register_ber_oid_dissector("1.0.9506.2.1", dissect_mms, proto_mms,"mms-abstract-syntax-version1(1)");
+	new_register_ber_oid_dissector("1.0.9506.2.3", dissect_mms, proto_mms,"MMS");
+	new_register_ber_oid_dissector("1.0.9506.2.1", dissect_mms, proto_mms,"mms-abstract-syntax-version1(1)");
 	heur_dissector_add("cotp", dissect_mms_heur, "MMS over COTP", "mms_cotp", proto_mms, HEURISTIC_ENABLE);
 	heur_dissector_add("cotp_is", dissect_mms_heur, "MMS over COTP (inactive subset)", "mms_cotp_is", proto_mms, HEURISTIC_ENABLE);
 }

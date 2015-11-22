@@ -50,7 +50,6 @@ static int proto_tetra = -1;
 static dissector_handle_t data_handle = NULL;
 
 static dissector_handle_t tetra_handle;
-static void dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int global_tetra_port = 7074;
 
@@ -430,10 +429,9 @@ static void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_
 	}
 }
 
-static void
-dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-
 	proto_item *tetra_item = NULL;
 	proto_item *tetra_sub_item = NULL;
 	proto_tree *tetra_tree = NULL;
@@ -546,6 +544,7 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void proto_reg_handoff_tetra(void)
@@ -554,7 +553,7 @@ void proto_reg_handoff_tetra(void)
 
 	if (!initialized) {
 		data_handle = find_dissector("data");
-		tetra_handle = create_dissector_handle(dissect_tetra, proto_tetra);
+		tetra_handle = new_create_dissector_handle(dissect_tetra, proto_tetra);
 		dissector_add_uint("udp.port", global_tetra_port, tetra_handle);
 	}
 
@@ -643,7 +642,7 @@ void proto_register_tetra (void)
 	proto_tetra = proto_register_protocol("TETRA Protocol", "tetra", "tetra");
 	proto_register_field_array (proto_tetra, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
-	register_dissector("tetra", dissect_tetra, proto_tetra);
+	new_register_dissector("tetra", dissect_tetra, proto_tetra);
 	expert_tetra = expert_register_protocol(proto_tetra);
 	expert_register_field_array(expert_tetra, ei, array_length(ei));
 

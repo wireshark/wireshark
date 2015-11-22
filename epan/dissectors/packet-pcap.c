@@ -13550,8 +13550,8 @@ static int dissect_OutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   return (dissector_try_uint(pcap_proc_out_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
 }
 
-static void
-dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item	*pcap_item = NULL;
 	proto_tree	*pcap_tree = NULL;
@@ -13564,6 +13564,7 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pcap_tree = proto_item_add_subtree(pcap_item, ett_pcap);
 
 	dissect_PCAP_PDU_PDU(tvb, pinfo, pcap_tree, NULL);
+	return tvb_captured_length(tvb);
 }
 
 /*--- proto_reg_handoff_pcap ---------------------------------------*/
@@ -13718,7 +13719,7 @@ proto_reg_handoff_pcap(void)
 
 
 /*--- End of included file: packet-pcap-dis-tab.c ---*/
-#line 155 "../../asn1/pcap/packet-pcap-template.c"
+#line 156 "../../asn1/pcap/packet-pcap-template.c"
     } else {
         dissector_delete_uint_range("sccp.ssn", ssn_range, pcap_handle);
         g_free(ssn_range);
@@ -18299,7 +18300,7 @@ void proto_register_pcap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pcap-hfarr.c ---*/
-#line 171 "../../asn1/pcap/packet-pcap-template.c"
+#line 172 "../../asn1/pcap/packet-pcap-template.c"
   };
 
   /* List of subtrees */
@@ -18703,7 +18704,7 @@ void proto_register_pcap(void) {
     &ett_pcap_Outcome,
 
 /*--- End of included file: packet-pcap-ettarr.c ---*/
-#line 177 "../../asn1/pcap/packet-pcap-template.c"
+#line 178 "../../asn1/pcap/packet-pcap-template.c"
   };
 
   module_t *pcap_module;
@@ -18717,7 +18718,7 @@ void proto_register_pcap(void) {
   pcap_module = prefs_register_protocol(proto_pcap, proto_reg_handoff_pcap);
 
   /* Register dissector */
-  register_dissector("pcap", dissect_pcap, proto_pcap);
+  new_register_dissector("pcap", dissect_pcap, proto_pcap);
 
   /* Register dissector tables */
   pcap_ies_dissector_table = register_dissector_table("pcap.ies", "PCAP-PROTOCOL-IES", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

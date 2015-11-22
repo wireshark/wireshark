@@ -222,8 +222,6 @@ static const value_string ansi_tcap_national_op_code_family_vals[] = {
   { 0, NULL }
 };
 
-static void dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
-
 /*
 static dissector_handle_t tcap_handle = NULL;
 static dissector_table_t sccp_ssn_table;
@@ -1407,13 +1405,13 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 350 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 348 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 
 
 
-static void
-dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
     proto_item          *item=NULL;
     proto_tree          *tree=NULL;
@@ -1473,6 +1471,7 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                 }
         }
 #endif
+    return tvb_captured_length(tvb);
 }
 
 
@@ -1751,7 +1750,7 @@ proto_register_ansi_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 485 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 484 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1789,7 +1788,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 496 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 495 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
     static ei_register_info ei[] = {
@@ -1807,7 +1806,7 @@ proto_register_ansi_tcap(void)
 
 /* Register the protocol name and description */
     proto_ansi_tcap = proto_register_protocol(PNAME, PSNAME, PFNAME);
-        register_dissector("ansi_tcap", dissect_ansi_tcap, proto_ansi_tcap);
+    new_register_dissector("ansi_tcap", dissect_ansi_tcap, proto_ansi_tcap);
 
    /* Note the high bit should be masked off when registering in this table (0x7fff)*/
    ansi_tcap_national_opcode_table = register_dissector_table("ansi_tcap.nat.opcode", "ANSI TCAP National Opcodes", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

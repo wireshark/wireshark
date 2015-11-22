@@ -88,8 +88,8 @@ static gint ett_p22 = -1;
 /*
 * Dissect P22 PDUs inside a PPDU.
 */
-static void
-dissect_p22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_p22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	int offset = 0;
 	proto_item *item=NULL;
@@ -106,6 +106,7 @@ dissect_p22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	col_set_str(pinfo->cinfo, COL_INFO, "InterPersonal");
 
 	dissect_p22_InformationObject(TRUE, tvb, offset, &asn1_ctx , tree, -1);
+	return tvb_captured_length(tvb);
 }
 
 
@@ -126,7 +127,7 @@ void proto_register_p22(void) {
 
   /* Register protocol */
   proto_p22 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("p22", dissect_p22, proto_p22);
+  new_register_dissector("p22", dissect_p22, proto_p22);
   /* Register fields and subtrees */
   proto_register_field_array(proto_p22, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -139,8 +140,8 @@ void proto_reg_handoff_p22(void) {
 
 #include "packet-p22-dis-tab.c"
 
-  register_ber_oid_dissector("2.6.1.10.0", dissect_p22, proto_p22, "InterPersonal Message (1984)");
-  register_ber_oid_dissector("2.6.1.10.1", dissect_p22, proto_p22, "InterPersonal Message (1988)");
+  new_register_ber_oid_dissector("2.6.1.10.0", dissect_p22, proto_p22, "InterPersonal Message (1984)");
+  new_register_ber_oid_dissector("2.6.1.10.1", dissect_p22, proto_p22, "InterPersonal Message (1988)");
 
 
 }

@@ -1838,8 +1838,8 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 }
 
 
-static void
-dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -1906,7 +1906,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 *
 	 */
 	dissect_spnego_NegotiationToken(FALSE, tvb, offset, &asn1_ctx, subtree, -1);
-
+	return tvb_captured_length(tvb);
 }
 
 /*--- proto_register_spnego -------------------------------------------*/
@@ -2100,7 +2100,7 @@ void proto_register_spnego(void) {
 	/* Register protocol */
 	proto_spnego = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-	register_dissector("spnego", dissect_spnego, proto_spnego);
+	new_register_dissector("spnego", dissect_spnego, proto_spnego);
 
 	proto_spnego_krb5 = proto_register_protocol("SPNEGO-KRB5",
 						    "SPNEGO-KRB5",

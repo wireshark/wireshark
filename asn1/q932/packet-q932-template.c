@@ -281,9 +281,9 @@ dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 }
 
 /*--- dissect_q932_apdu -----------------------------------------------------*/
-static void
-dissect_q932_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-  call_dissector(q932_ros_handle, tvb, pinfo, tree);
+static int
+dissect_q932_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
+  return call_dissector(q932_ros_handle, tvb, pinfo, tree);
 }
 
 /*--- proto_register_q932 ---------------------------------------------------*/
@@ -334,7 +334,7 @@ void proto_register_q932(void) {
 
   /* Register protocol and dissector */
   proto_q932 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("q932.apdu", dissect_q932_apdu, proto_q932);
+  new_register_dissector("q932.apdu", dissect_q932_apdu, proto_q932);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_q932, hf, array_length(hf));

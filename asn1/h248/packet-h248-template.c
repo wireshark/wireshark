@@ -1416,12 +1416,13 @@ static int dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int off
 
 #include "packet-h248-fn.c"
 
-static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *h248_item;
     asn1_ctx_t asn1_ctx;
@@ -1453,7 +1454,7 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             if(megaco_handle){
                 call_dissector(megaco_handle, tvb, pinfo, tree);
-                return;
+                return tvb_captured_length(tvb);
             }
         }
         {
@@ -1463,7 +1464,7 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             hidden_item = proto_tree_add_uint(tree, hf_248_magic_num, tvb, offset, 4, magic_num);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             if( dissector_try_uint(subdissector_table, magic_num, tvb, pinfo, tree) ) {
-                return;
+                return tvb_captured_length(tvb);
             }
         }
     }
@@ -1478,6 +1479,7 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     dissect_h248_MegacoMessage(FALSE, tvb, 0, &asn1_ctx, h248_tree, -1);
 
+    return tvb_captured_length(tvb);
 }
 
 /*--- proto_register_h248 ----------------------------------------------*/
@@ -1612,8 +1614,8 @@ void proto_register_h248(void) {
 
     /* Register protocol */
     proto_h248 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-    register_dissector("h248", dissect_h248, proto_h248);
-    register_dissector("h248.tpkt", dissect_h248_tpkt, proto_h248);
+    new_register_dissector("h248", dissect_h248, proto_h248);
+    new_register_dissector("h248.tpkt", dissect_h248_tpkt, proto_h248);
 
     /* Register fields and subtrees */
     proto_register_field_array(proto_h248, hf, array_length(hf));

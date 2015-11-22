@@ -1296,8 +1296,8 @@ static int dissect_Acp127NotificationType_PDU(tvbuff_t *tvb _U_, packet_info *pi
 /*
 * Dissect STANAG 4406 PDUs inside a PPDU.
 */
-static void
-dissect_p772(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_p772(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	int offset = 0;
 	proto_item *item=NULL;
@@ -1314,6 +1314,7 @@ dissect_p772(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	col_set_str(pinfo->cinfo, COL_INFO, "Military");
 
 	dissect_p772_InformationObject(TRUE, tvb, offset, &asn1_ctx , tree, -1);
+	return tvb_captured_length(tvb);
 }
 
 
@@ -1641,7 +1642,7 @@ void proto_register_p772(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p772-hfarr.c ---*/
-#line 91 "../../asn1/p772/packet-p772-template.c"
+#line 92 "../../asn1/p772/packet-p772-template.c"
   };
 
   /* List of subtrees */
@@ -1679,18 +1680,18 @@ void proto_register_p772(void) {
     &ett_p772_Acp127NotificationType,
 
 /*--- End of included file: packet-p772-ettarr.c ---*/
-#line 97 "../../asn1/p772/packet-p772-template.c"
+#line 98 "../../asn1/p772/packet-p772-template.c"
   };
 
   /* Register protocol */
   proto_p772 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("p772", dissect_p772, proto_p772);
+  new_register_dissector("p772", dissect_p772, proto_p772);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_p772, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_ber_syntax_dissector("STANAG 4406", proto_p772, dissect_p772);
+  new_register_ber_syntax_dissector("STANAG 4406", proto_p772, dissect_p772);
   register_ber_oid_syntax(".p772", NULL, "STANAG 4406");
 }
 
@@ -1733,7 +1734,7 @@ void proto_reg_handoff_p772(void) {
 
 
 /*--- End of included file: packet-p772-dis-tab.c ---*/
-#line 115 "../../asn1/p772/packet-p772-template.c"
+#line 116 "../../asn1/p772/packet-p772-template.c"
 
-  register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_p772, proto_p772, "STANAG 4406");
+  new_register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_p772, proto_p772, "STANAG 4406");
 }

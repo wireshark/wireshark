@@ -213,8 +213,8 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 }
 
 
-static void
-dissect_lcsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_lcsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item	*lcsap_item = NULL;
 	proto_tree	*lcsap_tree = NULL;
@@ -227,6 +227,7 @@ dissect_lcsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	lcsap_tree = proto_item_add_subtree(lcsap_item, ett_lcsap);
 
 	dissect_LCS_AP_PDU_PDU(tvb, pinfo, lcsap_tree, NULL);
+	return tvb_captured_length(tvb);
 }
 
 /*--- proto_reg_handoff_lcsap ---------------------------------------*/
@@ -306,7 +307,7 @@ void proto_register_lcsap(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_lcsap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  register_dissector("lcsap", dissect_lcsap, proto_lcsap);
+  new_register_dissector("lcsap", dissect_lcsap, proto_lcsap);
 
   /* Register dissector tables */
   lcsap_ies_dissector_table = register_dissector_table("lcsap.ies", "LCS-AP-PROTOCOL-IES", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

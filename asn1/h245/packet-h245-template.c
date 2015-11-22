@@ -419,19 +419,20 @@ static void reset_h245_pi(void *dummy _U_)
 
 #include "packet-h245-fn.c"
 
-static void
-dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	/*
 	 * MultimediaSystemControlMessage_handle is the handle for
 	 * dissect_h245_h245, so we don't want to do any h245_pi or tap stuff here.
 	 */
 	dissect_tpkt_encap(tvb, pinfo, parent_tree, h245_reassembly, MultimediaSystemControlMessage_handle);
+	return tvb_captured_length(tvb);
 }
 
 
-static void
-dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	proto_item *it;
 	proto_tree *tr;
@@ -460,6 +461,7 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset = (offset+0x07) & 0xfffffff8;
 		CLEANUP_CALL_AND_POP;
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -536,8 +538,8 @@ void proto_register_h245(void) {
     "Show h245 info in reversed order",
     "Whether the dissector should print items of h245 Info column in reversed order",
     &info_col_fmt_prepend);
-  register_dissector("h245dg", dissect_h245_h245, proto_h245);
-  register_dissector("h245", dissect_h245, proto_h245);
+  new_register_dissector("h245dg", dissect_h245_h245, proto_h245);
+  new_register_dissector("h245", dissect_h245, proto_h245);
 
   nsp_object_dissector_table = register_dissector_table("h245.nsp.object", "H.245 NonStandardParameter (object)", FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
   nsp_h221_dissector_table = register_dissector_table("h245.nsp.h221", "H.245 NonStandardParameter (h221)", FT_UINT32, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);

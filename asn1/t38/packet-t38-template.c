@@ -501,8 +501,8 @@ init_t38_info_conv(packet_info *pinfo)
 }
 
 /* Entry point for dissection */
-static void
-dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint8 octet1;
 	proto_item *it;
@@ -515,8 +515,7 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (dissect_possible_rtpv2_packets_as_rtp){
 		octet1 = tvb_get_guint8(tvb, offset);
 		if (RTP_VERSION(octet1) == 2){
-			call_dissector(rtp_handle,tvb,pinfo,tree);
-			return;
+			return call_dissector(rtp_handle,tvb,pinfo,tree);
 		}
 	}
 
@@ -548,6 +547,7 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				"[MALFORMED PACKET or wrong preference settings]");
 		col_append_str(pinfo->cinfo, COL_INFO, " [Malformed?]");
 	}
+	return tvb_captured_length(tvb);
 }
 
 static void
@@ -720,7 +720,7 @@ proto_register_t38(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_t38 = expert_register_protocol(proto_t38);
 	expert_register_field_array(expert_t38, ei, array_length(ei));
-	register_dissector("t38_udp", dissect_t38_udp, proto_t38);
+	new_register_dissector("t38_udp", dissect_t38_udp, proto_t38);
 
 	/* Init reassemble tables for HDLC */
 	register_init_routine(t38_defragment_init);
@@ -776,7 +776,7 @@ proto_reg_handoff_t38(void)
 	static guint udp_port;
 
 	if (!t38_prefs_initialized) {
-		t38_udp_handle=create_dissector_handle(dissect_t38_udp, proto_t38);
+		t38_udp_handle=new_create_dissector_handle(dissect_t38_udp, proto_t38);
 		t38_tcp_handle=create_dissector_handle(dissect_t38_tcp, proto_t38);
 		t38_tcp_pdu_handle=create_dissector_handle(dissect_t38_tcp_pdu, proto_t38);
 		rtp_handle = find_dissector("rtp");

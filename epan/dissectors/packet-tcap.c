@@ -240,8 +240,6 @@ static int dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tv
 static GHashTable* ansi_sub_dissectors = NULL;
 static GHashTable* itu_sub_dissectors = NULL;
 
-static void dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
-
 extern void add_ansi_tcap_subdissector(guint32 ssn, dissector_handle_t dissector) {
     g_hash_table_insert(ansi_sub_dissectors,GUINT_TO_POINTER(ssn),dissector);
     dissector_add_uint("sccp.ssn",ssn,tcap_handle);
@@ -1423,7 +1421,7 @@ static int dissect_DialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-tcap-fn.c ---*/
-#line 156 "../../asn1/tcap/packet-tcap-template.c"
+#line 154 "../../asn1/tcap/packet-tcap-template.c"
 
 /*
  * DEBUG functions
@@ -3237,8 +3235,8 @@ const value_string tcap_component_type_str[] = {
   { 0,                NULL }
 };
 
-static void
-dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
   proto_item		*item=NULL;
   proto_tree		*tree=NULL;
@@ -3274,12 +3272,10 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     case 5:
     case 6:
     case 22:
-      call_dissector(ansi_tcap_handle, tvb, pinfo, parent_tree);
-      return;
-      break;
+      return call_dissector(ansi_tcap_handle, tvb, pinfo, parent_tree);
 
     default:
-      return;
+      return tvb_captured_length(tvb);
     }
   }
 
@@ -3328,6 +3324,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       (p_tcap_context->callback)(tvb, pinfo, tcap_stat_tree, p_tcap_context);
     }
   }
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -3346,7 +3343,7 @@ proto_reg_handoff_tcap(void)
 
 
 /*--- End of included file: packet-tcap-dis-tab.c ---*/
-#line 2071 "../../asn1/tcap/packet-tcap-template.c"
+#line 2068 "../../asn1/tcap/packet-tcap-template.c"
 }
 
 static void init_tcap(void);
@@ -3688,7 +3685,7 @@ proto_register_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 2144 "../../asn1/tcap/packet-tcap-template.c"
+#line 2141 "../../asn1/tcap/packet-tcap-template.c"
   };
 
 /* Setup protocol subtree array */
@@ -3737,7 +3734,7 @@ proto_register_tcap(void)
     &ett_tcap_Associate_source_diagnostic,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 2154 "../../asn1/tcap/packet-tcap-template.c"
+#line 2151 "../../asn1/tcap/packet-tcap-template.c"
   };
 
   /*static enum_val_t tcap_options[] = {
@@ -3804,9 +3801,9 @@ proto_register_tcap(void)
   itu_sub_dissectors = g_hash_table_new(g_direct_hash,g_direct_equal);
 
   /* 'globally' register dissector */
-  register_dissector("tcap", dissect_tcap, proto_tcap);
+  new_register_dissector("tcap", dissect_tcap, proto_tcap);
 
-  tcap_handle = create_dissector_handle(dissect_tcap, proto_tcap);
+  tcap_handle = new_create_dissector_handle(dissect_tcap, proto_tcap);
 
   register_init_routine(&init_tcap);
   register_cleanup_routine(&cleanup_tcap);
@@ -4061,7 +4058,7 @@ call_tcap_dissector(dissector_handle_t handle, tvbuff_t* tvb, packet_info* pinfo
   requested_subdissector_handle = handle;
 
   TRY {
-    dissect_tcap(tvb, pinfo, tree);
+    dissect_tcap(tvb, pinfo, tree, NULL);
   } CATCH_ALL {
     requested_subdissector_handle = NULL;
     RETHROW;

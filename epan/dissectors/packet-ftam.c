@@ -4766,8 +4766,8 @@ dissect_ftam_unstructured_binary(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 /*
 * Dissect FTAM PDUs inside a PPDU.
 */
-static void
-dissect_ftam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_ftam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	int offset = 0;
 	int old_offset;
@@ -4792,6 +4792,7 @@ dissect_ftam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			break;
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 
@@ -6468,7 +6469,7 @@ void proto_register_ftam(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ftam-hfarr.c ---*/
-#line 128 "../../asn1/ftam/packet-ftam-template.c"
+#line 129 "../../asn1/ftam/packet-ftam-template.c"
   };
 
   /* List of subtrees */
@@ -6641,7 +6642,7 @@ void proto_register_ftam(void) {
     &ett_ftam_AE_title,
 
 /*--- End of included file: packet-ftam-ettarr.c ---*/
-#line 134 "../../asn1/ftam/packet-ftam-template.c"
+#line 135 "../../asn1/ftam/packet-ftam-template.c"
   };
   static ei_register_info ei[] = {
     { &ei_ftam_zero_pdu, { "ftam.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte FTAM PDU", EXPFILL }},
@@ -6651,7 +6652,7 @@ void proto_register_ftam(void) {
 
   /* Register protocol */
   proto_ftam = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("ftam", dissect_ftam, proto_ftam);
+  new_register_dissector("ftam", dissect_ftam, proto_ftam);
   /* Register fields and subtrees */
   proto_register_field_array(proto_ftam, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -6663,9 +6664,9 @@ void proto_register_ftam(void) {
 
 /*--- proto_reg_handoff_ftam --- */
 void proto_reg_handoff_ftam(void) {
-	register_ber_oid_dissector("1.0.8571.1.1", dissect_ftam, proto_ftam,"iso-ftam(1)");
-	register_ber_oid_dissector("1.0.8571.2.1", dissect_ftam, proto_ftam,"ftam-pci(1)");
-	register_ber_oid_dissector("1.3.14.5.2.2", dissect_ftam, proto_ftam,"NIST file directory entry abstract syntax");
+	new_register_ber_oid_dissector("1.0.8571.1.1", dissect_ftam, proto_ftam,"iso-ftam(1)");
+	new_register_ber_oid_dissector("1.0.8571.2.1", dissect_ftam, proto_ftam,"ftam-pci(1)");
+	new_register_ber_oid_dissector("1.3.14.5.2.2", dissect_ftam, proto_ftam,"NIST file directory entry abstract syntax");
 
 	/* Unstructured text file document type FTAM-1 */
 	register_ber_oid_dissector("1.0.8571.5.1", dissect_ftam_unstructured_text, proto_ftam,"ISO FTAM unstructured text");

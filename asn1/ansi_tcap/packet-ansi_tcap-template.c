@@ -131,8 +131,6 @@ static const value_string ansi_tcap_national_op_code_family_vals[] = {
   { 0, NULL }
 };
 
-static void dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
-
 /*
 static dissector_handle_t tcap_handle = NULL;
 static dissector_table_t sccp_ssn_table;
@@ -351,8 +349,8 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
 
 
 
-static void
-dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
     proto_item          *item=NULL;
     proto_tree          *tree=NULL;
@@ -412,6 +410,7 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                 }
         }
 #endif
+    return tvb_captured_length(tvb);
 }
 
 
@@ -510,7 +509,7 @@ proto_register_ansi_tcap(void)
 
 /* Register the protocol name and description */
     proto_ansi_tcap = proto_register_protocol(PNAME, PSNAME, PFNAME);
-        register_dissector("ansi_tcap", dissect_ansi_tcap, proto_ansi_tcap);
+    new_register_dissector("ansi_tcap", dissect_ansi_tcap, proto_ansi_tcap);
 
    /* Note the high bit should be masked off when registering in this table (0x7fff)*/
    ansi_tcap_national_opcode_table = register_dissector_table("ansi_tcap.nat.opcode", "ANSI TCAP National Opcodes", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

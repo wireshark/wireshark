@@ -10576,8 +10576,8 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 }
 
 
-static void
-dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item	*s1ap_item = NULL;
 	proto_tree	*s1ap_tree = NULL;
@@ -10590,6 +10590,7 @@ dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	s1ap_tree = proto_item_add_subtree(s1ap_item, ett_s1ap);
 
 	dissect_S1AP_PDU_PDU(tvb, pinfo, s1ap_tree, NULL);
+	return tvb_captured_length(tvb);
 }
 
 /*--- proto_reg_handoff_s1ap ---------------------------------------*/
@@ -10861,7 +10862,7 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 223 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 224 "../../asn1/s1ap/packet-s1ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, s1ap_handle);
@@ -13086,7 +13087,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 251 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 252 "../../asn1/s1ap/packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -13377,7 +13378,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_EHRPDMultiSectorLoadReportingResponseItem,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 265 "../../asn1/s1ap/packet-s1ap-template.c"
+#line 266 "../../asn1/s1ap/packet-s1ap-template.c"
   };
 
   module_t *s1ap_module;
@@ -13389,7 +13390,7 @@ void proto_register_s1ap(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  register_dissector("s1ap", dissect_s1ap, proto_s1ap);
+  new_register_dissector("s1ap", dissect_s1ap, proto_s1ap);
 
   /* Register dissector tables */
   s1ap_ies_dissector_table = register_dissector_table("s1ap.ies", "S1AP-PROTOCOL-IES", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

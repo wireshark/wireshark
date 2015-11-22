@@ -58,7 +58,6 @@ static int proto_tetra = -1;
 static dissector_handle_t data_handle = NULL;
 
 static dissector_handle_t tetra_handle;
-static void dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static int global_tetra_port = 7074;
 
@@ -684,7 +683,7 @@ static int hf_tetra_proprietary_element_owner_extension = -1;  /* BIT_STRING */
 static int hf_tetra_simplex_duplex_selection_06 = -1;  /* T_simplex_duplex_selection_05 */
 
 /*--- End of included file: packet-tetra-hf.c ---*/
-#line 83 "../../asn1/tetra/packet-tetra-template.c"
+#line 82 "../../asn1/tetra/packet-tetra-template.c"
 
 /* Initialize the subtree pointers */
 /* These are the ids of the subtrees that we may be creating */
@@ -969,7 +968,7 @@ static gint ett_tetra_Type2 = -1;
 static gint ett_tetra_Modify_type = -1;
 
 /*--- End of included file: packet-tetra-ett.c ---*/
-#line 93 "../../asn1/tetra/packet-tetra-template.c"
+#line 92 "../../asn1/tetra/packet-tetra-template.c"
 
 static expert_field ei_tetra_channels_incorrect = EI_INIT;
 
@@ -8815,7 +8814,7 @@ static int dissect_MAC_ACCESS_DEFINE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-tetra-fn.c ---*/
-#line 97 "../../asn1/tetra/packet-tetra-template.c"
+#line 96 "../../asn1/tetra/packet-tetra-template.c"
 
 static const value_string channeltypenames[] = {
 	{ 0, "Reserved" },
@@ -9152,10 +9151,9 @@ static void dissect_tetra_UNITDATA_REQ(tvbuff_t *tvb, packet_info *pinfo, proto_
 	}
 }
 
-static void
-dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-
 	proto_item *tetra_item = NULL;
 	proto_item *tetra_sub_item = NULL;
 	proto_tree *tetra_tree = NULL;
@@ -9268,6 +9266,7 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void proto_reg_handoff_tetra(void)
@@ -9276,7 +9275,7 @@ void proto_reg_handoff_tetra(void)
 
 	if (!initialized) {
 		data_handle = find_dissector("data");
-		tetra_handle = create_dissector_handle(dissect_tetra, proto_tetra);
+		tetra_handle = new_create_dissector_handle(dissect_tetra, proto_tetra);
 		dissector_add_uint("udp.port", global_tetra_port, tetra_handle);
 	}
 
@@ -11718,7 +11717,7 @@ void proto_register_tetra (void)
         "T_simplex_duplex_selection_05", HFILL }},
 
 /*--- End of included file: packet-tetra-hfarr.c ---*/
-#line 627 "../../asn1/tetra/packet-tetra-template.c"
+#line 626 "../../asn1/tetra/packet-tetra-template.c"
  	};
 
 	/* List of subtrees */
@@ -12003,7 +12002,7 @@ void proto_register_tetra (void)
     &ett_tetra_Modify_type,
 
 /*--- End of included file: packet-tetra-ettarr.c ---*/
-#line 637 "../../asn1/tetra/packet-tetra-template.c"
+#line 636 "../../asn1/tetra/packet-tetra-template.c"
 	};
 
 	static ei_register_info ei[] = {
@@ -12013,7 +12012,7 @@ void proto_register_tetra (void)
 	proto_tetra = proto_register_protocol("TETRA Protocol", "tetra", "tetra");
 	proto_register_field_array (proto_tetra, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
-	register_dissector("tetra", dissect_tetra, proto_tetra);
+	new_register_dissector("tetra", dissect_tetra, proto_tetra);
 	expert_tetra = expert_register_protocol(proto_tetra);
 	expert_register_field_array(expert_tetra, ei, array_length(ei));
 

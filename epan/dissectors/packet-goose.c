@@ -709,8 +709,8 @@ dissect_goose_GOOSEpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 /*
 * Dissect GOOSE PDUs inside a PPDU.
 */
-static void
-dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+static int
+dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
 	int offset = 0;
 	int old_offset;
@@ -723,34 +723,34 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_goose, tvb, 0, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_goose);
+	item = proto_tree_add_item(parent_tree, proto_goose, tvb, 0, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_goose);
 
 
-		/* APPID */
-		proto_tree_add_item(tree, hf_goose_appid, tvb, offset, 2, ENC_BIG_ENDIAN);
+	/* APPID */
+	proto_tree_add_item(tree, hf_goose_appid, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-		/* Length */
-		length = tvb_get_ntohs(tvb, offset + 2);
-		proto_tree_add_item(tree, hf_goose_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+	/* Length */
+	length = tvb_get_ntohs(tvb, offset + 2);
+	proto_tree_add_item(tree, hf_goose_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
-		/* Reserved 1 */
-		proto_tree_add_item(tree, hf_goose_reserve1, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+	/* Reserved 1 */
+	proto_tree_add_item(tree, hf_goose_reserve1, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
 
-		/* Reserved 2 */
-		proto_tree_add_item(tree, hf_goose_reserve2, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+	/* Reserved 2 */
+	proto_tree_add_item(tree, hf_goose_reserve2, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
 
-		offset = 8;
-		while (offset < length){
-			old_offset = offset;
-			offset = dissect_goose_GOOSEpdu(FALSE, tvb, offset, &asn1_ctx , tree, -1);
-			if (offset == old_offset) {
-				proto_tree_add_expert(tree, pinfo, &ei_goose_zero_pdu, tvb, offset, -1);
-				return;
-			}
+	offset = 8;
+	while (offset < length){
+		old_offset = offset;
+		offset = dissect_goose_GOOSEpdu(FALSE, tvb, offset, &asn1_ctx , tree, -1);
+		if (offset == old_offset) {
+			proto_tree_add_expert(tree, pinfo, &ei_goose_zero_pdu, tvb, offset, -1);
+			break;
 		}
 	}
+
+	return tvb_captured_length(tvb);
 }
 
 
@@ -1053,7 +1053,7 @@ void proto_register_goose(void) {
 
 	/* Register protocol */
 	proto_goose = proto_register_protocol(PNAME, PSNAME, PFNAME);
-	register_dissector("goose", dissect_goose, proto_goose);
+	new_register_dissector("goose", dissect_goose, proto_goose);
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_goose, hf, array_length(hf));
