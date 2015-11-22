@@ -204,7 +204,7 @@ decryption_step_dvb_ci() {
 
 tshark_decryption_suite() {
 	test_step_add "IEEE 802.11 WPA PSK Decryption" decryption_step_80211_wpa_psk
-	test_step_add "IEEE 802.11 WPA PSK Decryption2 (EAPOL frames missing for Win 10 client)" decryption_step_80211_wpa_eapol_incomplete_rekeys
+	test_step_add "IEEE 802.11 WPA PSK Decryption2 (EAPOL frames missing with a Win 10 client)" decryption_step_80211_wpa_eapol_incomplete_rekeys
 	test_step_add "IEEE 802.11 WPA EAP Decryption" decryption_step_80211_wpa_eap
 	test_step_add "DTLS Decryption" decryption_step_dtls
 	test_step_add "SSL Decryption (private key)" decryption_step_ssl

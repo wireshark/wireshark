@@ -187,7 +187,6 @@ static INT AirPDcapRsna4WHandshake(
     PAIRPDCAP_CONTEXT ctx,
     const UCHAR *data,
     AIRPDCAP_SEC_ASSOCIATION *sa,
-    PAIRPDCAP_KEY_ITEM key,
     INT offset)
     ;
 /**
@@ -308,7 +307,7 @@ typedef struct {
 #define GROUP_KEY_PAYLOAD_LEN_MIN RSN_KEY_WITHOUT_KEYBYTES_LEN+CCMP_GROUP_KEY_LEN
 
 /* XXX - what if this doesn't get the key? */
-static void
+static INT
 AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption_key, PAIRPDCAP_SEC_ASSOCIATION sa, gboolean group_hshake)
 {
     guint8 key_version;
@@ -332,12 +331,12 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
 
         /* AES keys must be at least 128 bits = 16 bytes. */
         if (key_bytes_len < 16) {
-            return;
+            return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
         }
     }
 
     if (key_bytes_len > TKIP_GROUP_KEYBYTES_LEN_MAX || key_bytes_len == 0) { /* Don't read past the end of pEAPKey->ie */
-        return;
+        return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
     }
 
     /* Encrypted key is in the information element field of the EAPOL key packet */
@@ -415,7 +414,7 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
 
             if (rsn_id != 0xdd){
                 if (key_index+1 >= key_bytes_len){
-                    return;
+                    return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
                 }
                 key_index += decrypted_data[key_index+1]+2;
             }else{
@@ -425,7 +424,8 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
 
         if (key_found){
             if (key_index+8 >= key_bytes_len)
-                return;
+                return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+
             /* Skip over the GTK header info, and don't copy past the end of the encrypted data */
             memcpy(szEncryptedKey, decrypted_data+key_index+8, key_bytes_len-key_index-8);
         }
@@ -451,6 +451,7 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
     memset(sa->wpa.ptk, 0, sizeof(sa->wpa.ptk));
     memcpy(sa->wpa.ptk+32, szEncryptedKey, key_len);
     g_free(szEncryptedKey);
+    return AIRPDCAP_RET_SUCCESS_HANDSHAKE;
 }
 
 
@@ -478,8 +479,7 @@ static INT AirPDcapScanForKeys(
     const guint8 *data,
     const guint mac_header_len,
     const guint tot_len,
-    AIRPDCAP_SEC_ASSOCIATION_ID id,
-    PAIRPDCAP_KEY_ITEM key
+    AIRPDCAP_SEC_ASSOCIATION_ID id
 )
 {
     const UCHAR *addr;
@@ -554,11 +554,11 @@ static INT AirPDcapScanForKeys(
         sa = AirPDcapGetSaPtr(ctx, &id);
         if (sa == NULL){
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForKeys", "No SA for BSSID found", AIRPDCAP_DEBUG_LEVEL_3);
-            return AIRPDCAP_RET_UNSUCCESS;
+            return AIRPDCAP_RET_REQ_DATA;
         }
 
         /* It could be a Pairwise Key exchange, check */
-        if (AirPDcapRsna4WHandshake(ctx, data, sa, key, offset) == AIRPDCAP_RET_SUCCESS_HANDSHAKE)
+        if (AirPDcapRsna4WHandshake(ctx, data, sa, offset) == AIRPDCAP_RET_SUCCESS_HANDSHAKE)
             return AIRPDCAP_RET_SUCCESS_HANDSHAKE;
 
         if (mac_header_len + GROUP_KEY_PAYLOAD_LEN_MIN > tot_len) {
@@ -582,7 +582,7 @@ static INT AirPDcapScanForKeys(
         /* get the Security Association structure for the broadcast MAC and AP */
         sa = AirPDcapGetSaPtr(ctx, &id);
         if (sa == NULL){
-            return AIRPDCAP_RET_UNSUCCESS;
+            return AIRPDCAP_RET_REQ_DATA;
         }
 
         /* Get the SA for the STA, since we need its pairwise key to decrpyt the group key */
@@ -601,18 +601,18 @@ static INT AirPDcapScanForKeys(
 
         sta_sa = AirPDcapGetSaPtr(ctx, &id);
         if (sta_sa == NULL){
-            return AIRPDCAP_RET_UNSUCCESS;
+            return AIRPDCAP_RET_REQ_DATA;
         }
 
-        /* Extract the group key and install it in the SA */
-        AirPDcapDecryptWPABroadcastKey(pEAPKey, sta_sa->wpa.ptk+16, sa, TRUE);
+        /* Try to extract the group key and install it in the SA */
+        return (AirPDcapDecryptWPABroadcastKey(pEAPKey, sta_sa->wpa.ptk+16, sa, TRUE));
 
     }else{
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForKeys", "Skipping: not an EAPOL packet", AIRPDCAP_DEBUG_LEVEL_3);
     }
 
     AIRPDCAP_DEBUG_TRACE_END("AirPDcapScanForKeys");
-    return 0;
+    return AIRPDCAP_RET_NO_VALID_HANDSHAKE;;
 }
 
 
@@ -641,12 +641,12 @@ INT AirPDcapPacketProcess(
     if (ctx==NULL) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "NULL context", AIRPDCAP_DEBUG_LEVEL_5);
         AIRPDCAP_DEBUG_TRACE_END("AirPDcapPacketProcess");
-        return AIRPDCAP_RET_UNSUCCESS;
+        return AIRPDCAP_RET_REQ_DATA;
     }
     if (data==NULL || tot_len==0) {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "NULL data or length=0", AIRPDCAP_DEBUG_LEVEL_5);
         AIRPDCAP_DEBUG_TRACE_END("AirPDcapPacketProcess");
-        return AIRPDCAP_RET_UNSUCCESS;
+        return AIRPDCAP_RET_REQ_DATA;
     }
 
     /* check if the packet is of data type */
@@ -690,8 +690,9 @@ INT AirPDcapPacketProcess(
         if (scanHandshake) {
             /* data is sent in cleartext, check if is an authentication message or end the process */
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "Unencrypted data", AIRPDCAP_DEBUG_LEVEL_3);
-            return (AirPDcapScanForKeys(ctx, data, mac_header_len, tot_len, id, key));
+            return (AirPDcapScanForKeys(ctx, data, mac_header_len, tot_len, id));
         }
+        return AIRPDCAP_RET_NO_DATA_ENCRYPTED;
     } else {
         PAIRPDCAP_SEC_ASSOCIATION sa;
         int offset = 0;
@@ -699,7 +700,7 @@ INT AirPDcapPacketProcess(
         /* get the Security Association structure for the STA and AP */
         sa = AirPDcapGetSaPtr(ctx, &id);
         if (sa == NULL){
-            return AIRPDCAP_RET_UNSUCCESS;
+            return AIRPDCAP_RET_REQ_DATA;
         }
 
         /* cache offset in the packet data (to scan encryption data) */
@@ -734,7 +735,7 @@ INT AirPDcapPacketProcess(
                it needs to change the group key to be used. */
             if (AIRPDCAP_KEY_INDEX(data[offset+3])>=1){
 
-                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "The key index = 1. This is encrypted with a group key.", AIRPDCAP_DEBUG_LEVEL_3);
+                AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "The key index >= 1. This is encrypted with a group key.", AIRPDCAP_DEBUG_LEVEL_3);
 
                 /* force STA address to broadcast MAC so we load the SA for the groupkey */
                 memcpy(id.sta, broadcast_mac, AIRPDCAP_MAC_LEN);
@@ -747,7 +748,7 @@ INT AirPDcapPacketProcess(
                 /* search for a cached Security Association for current BSSID and broadcast MAC */
                 sa = AirPDcapGetSaPtr(ctx, &id);
                 if (sa == NULL)
-                    return AIRPDCAP_RET_UNSUCCESS;
+                    return AIRPDCAP_RET_REQ_DATA;
             }
 
             /* Decrypt the packet using the appropriate SA */
@@ -756,7 +757,7 @@ INT AirPDcapPacketProcess(
                    The group key handshake could be sent at any time the AP wants to change the key (such as when
                    it is using key rotation) and it also could be a rekey for the Pairwise key. So we must scan every packet. */
                 if (scanHandshake) {
-                    return (AirPDcapScanForKeys(ctx, decrypt_data, mac_header_len, *decrypt_len, id, NULL));
+                    return (AirPDcapScanForKeys(ctx, decrypt_data, mac_header_len, *decrypt_len, id));
                 } else {
                     return AIRPDCAP_RET_SUCCESS;
                 }
@@ -1128,7 +1129,7 @@ AirPDcapWepMng(
     }
 
     if (ret_value)
-        return ret_value;
+        return AIRPDCAP_RET_UNSUCCESS;
 
     AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapWepMng", "WEP DECRYPTED!!!", AIRPDCAP_DEBUG_LEVEL_3);
 
@@ -1157,7 +1158,6 @@ AirPDcapRsna4WHandshake(
     PAIRPDCAP_CONTEXT ctx,
     const UCHAR *data,
     AIRPDCAP_SEC_ASSOCIATION *sa,
-    PAIRPDCAP_KEY_ITEM key,
     INT offset)
 {
     AIRPDCAP_KEY_ITEM *tmp_key, *tmp_pkt_key, pkt_key;
@@ -1303,15 +1303,6 @@ AirPDcapRsna4WHandshake(
                     /* the temporary key is the correct one, cached in the Security Association */
 
                     sa->key=tmp_key;
-
-                    if (key!=NULL) {
-                        memcpy(key, tmp_key, sizeof(AIRPDCAP_KEY_ITEM));
-                        if (AIRPDCAP_EAP_KEY_DESCR_VER(data[offset+1])==AIRPDCAP_WPA_KEY_VER_NOT_CCMP)
-                            key->KeyType=AIRPDCAP_KEY_TYPE_TKIP;
-                        else if (AIRPDCAP_EAP_KEY_DESCR_VER(data[offset+1])==AIRPDCAP_WPA_KEY_VER_AES_CCMP)
-                            key->KeyType=AIRPDCAP_KEY_TYPE_CCMP;
-                    }
-
                     break;
                 } else {
                     /* the cached key was not valid, try other keys */
@@ -1377,15 +1368,13 @@ AirPDcapRsna4WHandshake(
             broadcast_sa = AirPDcapGetSaPtr(ctx, &id);
 
             if (broadcast_sa == NULL){
-                return AIRPDCAP_RET_UNSUCCESS;
+                return AIRPDCAP_RET_REQ_DATA;
             }
-            AirPDcapDecryptWPABroadcastKey(pEAPKey, sa->wpa.ptk+16, broadcast_sa, FALSE);
+            return (AirPDcapDecryptWPABroadcastKey(pEAPKey, sa->wpa.ptk+16, broadcast_sa, FALSE));
         }
-
-        return AIRPDCAP_RET_SUCCESS_HANDSHAKE;
     }
 
-    return AIRPDCAP_RET_UNSUCCESS;
+    return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
 }
 
 static INT
