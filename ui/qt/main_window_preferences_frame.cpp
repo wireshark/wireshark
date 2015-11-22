@@ -200,7 +200,7 @@ void MainWindowPreferencesFrame::on_maxFilterLineEdit_textEdited(const QString &
 
 void MainWindowPreferencesFrame::on_maxRecentLineEdit_textEdited(const QString &new_max)
 {
-    pref_recent_df_entries_max_->stashed_val.uint = new_max.toUInt();
+    pref_recent_files_count_max_->stashed_val.uint = new_max.toUInt();
 }
 
 void MainWindowPreferencesFrame::on_confirmUnsavedCheckBox_toggled(bool checked)
