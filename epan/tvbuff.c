@@ -3522,9 +3522,6 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 			}
 
 
-			inflateReset(strm);
-			next = c;
-			strm->next_in = next;
 			if (c - compr > comprlen) {
 				inflateEnd(strm);
 				g_free(strm);
@@ -3533,6 +3530,11 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 				return NULL;
 			}
 			comprlen -= (int) (c - compr);
+			next = c;
+
+			inflateReset(strm);
+			strm->next_in   = next;
+			strm->avail_in  = comprlen;
 
 			inflateEnd(strm);
 			inflateInit2(strm, wbits);
