@@ -662,6 +662,7 @@ libwireshark.so.6 libwireshark6 #MINVER#
  get_column_format_matches@Base 1.9.1
  get_column_resolved@Base 1.9.1
  get_column_title@Base 1.9.1
+ get_column_tooltip@Base 2.0.1
  get_column_visible@Base 1.9.1
  get_column_width_string@Base 1.9.1
  get_conversation_address@Base 1.99.0
