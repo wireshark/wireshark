@@ -173,8 +173,9 @@ extern "C" {
 #endif
 
 /**
- * Given an 802.11 packet, either extract its key data (in the case of
- * WPA handshaking) or try to decrypt it.
+ * This will try to decrypt a 802.11 frame. If scanHandshake is
+ * true it will also check if it's a cleartext or encrypted eapol key
+ * frame which can be used to setup TK or GTK decryption keys.
  * @param ctx [IN] Pointer to the current context
  * @param data [IN] Pointer to a buffer with an 802.11 frame, including MAC
  *   header and payload
@@ -188,32 +189,27 @@ extern "C" {
  * @param key [OUT] Pointer to a preallocated key structure containing
  *   the key used during the decryption process (if done). If this parameter
  *   is set to NULL, the key will be not returned.
- * @param mngHandshake [IN] If TRUE this function will manage the 4-way
- *   handshake for WPA/WPA2
- * @param mngDecrypt [IN] If TRUE this function will manage the WEP or
- * WPA/WPA2 decryption
+ * @param scanHandshake [IN] If TRUE this function will additional check if
+ *   the 802.11 frame data is pointing to has key information and if so use
+ *   it to setup potential decryption keys. Enables handshake return codes.
  * @return
  * - AIRPDCAP_RET_SUCCESS: Decryption has been done (decrypt_data and
  *   decrypt_length will contain the packet data decrypted and the length of
  *   the new packet)
- * - AIRPDCAP_RET_SUCCESS_HANDSHAKE: A step of the 4-way handshake for
- *   WPA key has been successfully done
  * - AIRPDCAP_RET_NO_DATA: The packet is not a data packet
  * - AIRPDCAP_RET_WRONG_DATA_SIZE: The size of the packet is below the
  *   accepted minimum
  * - AIRPDCAP_RET_REQ_DATA: Required data is not available and the
- *   processing must be interrupted
- * - AIRPDCAP_RET_NO_VALID_HANDSHAKE: The authentication is not for WPA or RSNA
- * - AIRPDCAP_RET_NO_DATA_ENCRYPTED: No encrypted data
- * - AIRPDCAP_RET_UNSUCCESS: No decryption has been done (decrypt_data
+ *   processing must be interrupted (can also occur after decryption when
+ *   scanHandshake is TRUE)
+ * - AIRPDCAP_RET_NO_DATA_ENCRYPTED: Not encrypted and no attempt to
+ *   extract key information
+ * - AIRPDCAP_RET_UNSUCCESS: Generic unspecified error (decrypt_data
  *   and decrypt_length will be not modified).
- * Some other errors could be:
- *   data not correct
- *   data not encrypted
- *   key handshake, not encryption
- *   decryption not successful
- *   key handshake not correct
- *   replay check not successful
+ * - AIRPDCAP_RET_SUCCESS_HANDSHAKE: An eapol handshake packet was successfuly parsed
+ *   and key information extracted
+ * - AIRPDCAP_RET_NO_VALID_HANDSHAKE: The handshake is invalid or was not used
+ *   for some reason. For encrypted packets decryption was still successful.
  * @note
  * The decrypted buffer should be allocated for a size equal or greater
  * than the packet data buffer size. Before decryption process original
