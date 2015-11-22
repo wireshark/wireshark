@@ -81,10 +81,11 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
             ti_font.setItalic(true);
             item->setFont(0, ti_font);
         } else {
-            if (profile->name && strcmp(profile_name, profile->name) == 0) {
-                pd_ui_->profileTreeWidget->setCurrentItem(item);
-            }
             item->setFlags(item->flags() | Qt::ItemIsEditable);
+        }
+
+        if (!profile->is_global && strcmp(profile_name, profile->name) == 0) {
+            pd_ui_->profileTreeWidget->setCurrentItem(item);
         }
 
         fl_entry = g_list_next(fl_entry);
@@ -93,7 +94,6 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
 
     connect(pd_ui_->profileTreeWidget->itemDelegate(), SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)),
             this, SLOT(editingFinished()));
-    pd_ui_->profileTreeWidget->setCurrentItem(pd_ui_->profileTreeWidget->topLevelItem(0));
     updateWidgets();
 }
 

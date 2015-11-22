@@ -468,18 +468,34 @@ void MainStatusBar::updateCaptureFixedStatistics(capture_session *cap_session)
 
 void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton button)
 {
+    const gchar *profile_name = get_profile_name();
+    bool separator_added = false;
     GList *fl_entry;
     profile_def *profile;
     QAction *pa;
 
     init_profile_list();
-    fl_entry = edited_profile_list();
+    fl_entry = current_profile_list();
 
     profile_menu_.clear();
     while (fl_entry && fl_entry->data) {
         profile = (profile_def *) fl_entry->data;
-        pa = profile_menu_.addAction(profile->name);
-        connect(pa, SIGNAL(triggered()), this, SLOT(switchToProfile()));
+        if (!profile->is_global || !profile_exists(profile->name, false)) {
+            if (profile->is_global && !separator_added) {
+                profile_menu_.addSeparator();
+                separator_added = true;
+            }
+            pa = profile_menu_.addAction(profile->name);
+            if (strcmp(profile->name, profile_name) == 0) {
+                /* Bold current profile */
+                QFont pa_font = pa->font();
+                pa_font.setBold(true);
+                pa->setFont(pa_font);
+                pa->setCheckable(true);
+                pa->setChecked(true);
+            }
+            connect(pa, SIGNAL(triggered()), this, SLOT(switchToProfile()));
+        }
         fl_entry = g_list_next(fl_entry);
     }
 
