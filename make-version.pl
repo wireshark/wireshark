@@ -163,13 +163,13 @@ sub read_repo_info {
 			use warnings "all";
 			no warnings "all";
 
-			chomp($line = qx{git --git-dir=$srcdir/.git log -1 --pretty=format:%at});
+			chomp($line = qx{git --git-dir="$srcdir"/.git log -1 --pretty=format:%at});
 			if ($? == 0 && length($line) > 1) {
 				$last_change = $line;
 			}
 
 			# Commits since last annotated tag.
-			chomp($line = qx{git --git-dir=$srcdir/.git describe --long --always --match "v*"});
+			chomp($line = qx{git --git-dir="$srcdir"/.git describe --long --always --match "v*"});
 			if ($? == 0 && length($line) > 1) {
 				my @parts = split(/-/, $line);
 				$git_description = $line;
@@ -184,7 +184,7 @@ sub read_repo_info {
 
 			# This will break in some cases. Hopefully not during
 			# official package builds.
-			chomp($line = qx{git --git-dir=$srcdir/.git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\}});
+			chomp($line = qx{git --git-dir="$srcdir"/.git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\}});
 			if ($? == 0 && length($line) > 1) {
 				$repo_branch = basename($line);
 			}
