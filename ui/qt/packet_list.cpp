@@ -249,7 +249,8 @@ PacketList::PacketList(QWidget *parent) :
     create_far_overlay_(true),
     capture_in_progress_(false),
     tail_timer_id_(0),
-    rows_inserted_(false)
+    rows_inserted_(false),
+    columns_changed_(false)
 {
     QMenu *main_menu_item, *submenu;
     QAction *action;
@@ -635,7 +636,10 @@ void PacketList::redrawVisiblePackets() {
 // prefs.col_list has changed.
 void PacketList::columnsChanged()
 {
-    if (!cap_file_) return;
+    if (!cap_file_) {
+        columns_changed_ = true;
+        return;
+    }
 
     prefs.num_cols = g_list_length(prefs.col_list);
     col_cleanup(&cap_file_->cinfo);
@@ -643,6 +647,7 @@ void PacketList::columnsChanged()
     setColumnVisibility();
     create_far_overlay_ = true;
     packet_list_model_->resetColumns();
+    columns_changed_ = false;
 }
 
 // Fields have changed, update custom columns
@@ -977,6 +982,9 @@ void PacketList::setCaptureFile(capture_file *cf)
         header()->restoreState(column_state_);
     }
     cap_file_ = cf;
+    if (cap_file_ && columns_changed_) {
+        columnsChanged();
+    }
     packet_list_model_->setCaptureFile(cf);
     create_near_overlay_ = true;
 }
