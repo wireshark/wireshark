@@ -173,10 +173,10 @@ PS$>choco install cyg-get
 
 Chocolatey installs Cygwin in 'C:\tools\cygwin' by default.
 
-One or more Cygwin packages can be installed using "-source cygwin":
+One or more Cygwin packages can be installed using "cyg-get":
 
 ----
-PS$>choco install sed asciidoc -source cygwin
+PS$>cyg-get sed asciidoc
 ----
 
 [[ChToolsGNUChain]]
@@ -821,7 +821,7 @@ and as the sed package from the
 // XXX Is sed part of the base Cygwin install?
 
 ----
-PS$>choco install sed -source cygwin
+PS$>cyg-get sed
 ----
 
 If sed isn't already installed or available

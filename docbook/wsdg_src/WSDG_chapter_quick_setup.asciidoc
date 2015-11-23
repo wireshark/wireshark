@@ -220,10 +220,16 @@ Alternatively you can install Cygwin and its packages using Chocolatey:
 ----
 PS$>choco install cygwin
 PS$>choco install cyg-get
-PS$>choco install sed asciidoc [...] -source cygwin
+//PS$>choco install sed asciidoc [...] -source cygwin
 ----
 
 Chocolatey installs Cygwin in 'C:\tools\cygwin' by default.
+
+You can directly download packages via cyg-get
+
+----
+PS$>cyg-get asciidoc patch docbook-xml45 [...]
+----
 
 You can use Chocolatey's Win flex-bison packages rather than the Cygwin
 Bison and Flex package:
