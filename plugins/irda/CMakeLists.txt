@@ -21,7 +21,7 @@
 
 include(WiresharkPlugin)
 
-# This info is from moduleinfo.nmake
+# Plugin name and version info (major minor micro extra)
 set_module_info(irda 0 0 6 0)
 
 set(DISSECTOR_SRC

@@ -27,7 +27,7 @@ to handle dissection.
 
 There is little difference in having your dissector as either a plugin or
 built-in. On the Windows platform you have limited function access through the
-ABI exposed in 'libwireshark.def', but that is mostly complete.
+ABI exposed by functions declared as WS_DLL_PUBLIC.
 
 The big plus is that your rebuild cycle for a plugin is much shorter than for a
 built-in one. So starting with a plugin makes initial development simpler, while
@@ -172,21 +172,25 @@ are required, besides the dissector source in 'packet-foo.c':
 
 * 'Makefile.common' - Contains the file names of this plugin.
 
-* 'Makefile.nmake' - Contains the Wireshark plugin makefile for Windows.
+* 'CMakeLists.txt' - Contains the CMake file and version info for this plugin.
 
 * 'moduleinfo.h' - Contains plugin version information.
-
-* 'moduleinfo.nmake' - Contains DLL version info for Windows.
 
 * 'packet-foo.c' - Your dissector source.
 
 * 'plugin.rc.in' - Contains the DLL resource template for Windows.
 
-You can find a good example for these files in the interlink plugin directory.
+You can find a good example for these files in the gryphon plugin directory.
 'Makefile.common' and 'Makefile.am' have to be modified to reflect the relevant
-files and dissector name. 'moduleinfo.h' and 'moduleinfo.nmake' have to be
-filled in with the version information. Compile the dissector to a DLL or shared
-library and copy it into the plugin directory of the installation.
+files and dissector name. 'CMakeLists.txt' has to be modified with the correct
+plugin name and version info, along with the relevant files to compile.
+In the main top-level source directory, copy CMakeListsCustom.txt.example to
+CMakeCustomLists.txt and add the path of your plugin to the list in
+CUSTOM_PLUGIN_SRC_DIR.
+
+Compile the dissector to a DLL or shared library and either run Wireshark from
+the build directory as detailed in <<ChSrcRunFirstTime>> or copy the plugin
+binary into the plugin directory of your Wireshark installation and run that.
 
 [[ChDissectDetails]]
 

@@ -21,7 +21,7 @@
 
 include(WiresharkPlugin)
 
-# XXX No moduleinfo.nmake
+# Plugin name and version info (major minor micro extra)
 # set_plugin_properties(tpg ...)
 
 set(PLUGIN_FILES
