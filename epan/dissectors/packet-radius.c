@@ -657,7 +657,6 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 	offset += 1;
 
 	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset += 2;
 
 	wmem_strbuf_append_printf(filterstr, "%s %s %s",
 		val_to_str(type, ascenddf_filtertype, "%u"),
