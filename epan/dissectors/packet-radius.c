@@ -665,7 +665,7 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 		val_to_str(tvb_get_guint8(tvb, 1), ascenddf_filteror, "%u"));
 
 
-	proto=tvb_get_guint8(tvb, 14);
+	proto=tvb_get_guint8(tvb, 6+iplen*2);
 	if (proto) {
 		wmem_strbuf_append_printf(filterstr, " %s",
 				val_to_str(proto, ascenddf_proto, "%u"));
