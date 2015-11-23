@@ -32,6 +32,9 @@
 
 #include <epan/dissectors/packet-pcap_pktdata.h>
 
+void proto_register_pcap_pktdata(void);
+void proto_reg_handoff_pcap_pktdata(void);
+
 static int proto_pcap_pktdata = -1;
 
 static int hf_pcap_pktdata_pseudoheader = -1;
