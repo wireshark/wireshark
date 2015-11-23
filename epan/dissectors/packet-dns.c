@@ -307,6 +307,7 @@ static int hf_dns_opt_cookie_client = -1;
 static int hf_dns_opt_cookie_server = -1;
 static int hf_dns_opt_edns_tcp_keepalive_timeout = -1;
 static int hf_dns_opt_padding = -1;
+static int hf_dns_opt_chain_fqdn = -1;
 static int hf_dns_nsec3_algo = -1;
 static int hf_dns_nsec3_flags = -1;
 static int hf_dns_nsec3_flag_optout = -1;
@@ -597,6 +598,7 @@ typedef struct _dns_conv_info_t {
 #define O_COOKIE        10              /* draft-ietf-dnsop-cookie */
 #define O_EDNS_TCP_KA   11              /* draft-ietf-dnsop-edns-tcp-keepalive */
 #define O_PADDING       12              /* draft-ietf-dprive-edns0-padding */
+#define O_CHAIN         13              /* draft-ietf-dnsop-edns-chain-query */
 
 static const true_false_string tfs_flags_response = {
   "Message is a response",
@@ -1031,7 +1033,8 @@ static const value_string edns0_opt_code_vals[] = {
   {O_COOKIE,     "COOKIE"},
   {O_EDNS_TCP_KA, "EDNS TCP Keepalive"},
   {O_PADDING, "PADDING"},
-  {0,            NULL}
+  {O_CHAIN,       "CHAIN"},
+  {0,             NULL}
  };
 /* DNS-Based Authentication of Named Entities (DANE) Parameters
    http://www.iana.org/assignments/dane-parameters (last updated 2014-04-23)
@@ -2786,6 +2789,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         break;
           case O_PADDING:
             proto_tree_add_item(rropt_tree, hf_dns_opt_padding, tvb, cur_offset, optlen, ENC_NA);
+            cur_offset += optlen;
+            rropt_len  -= optlen;
+        break;
+          case O_CHAIN:
+            if(optlen){
+              proto_tree_add_item(rropt_tree, hf_dns_opt_chain_fqdn, tvb, cur_offset, optlen, ENC_ASCII|ENC_NA);
+            }
             cur_offset += optlen;
             rropt_len  -= optlen;
         break;
@@ -5079,6 +5089,11 @@ proto_register_dns(void)
       { "Padding", "dns.opt.padding",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "The PADDING octets MUST be set to 0x00", HFILL }},
+
+    { &hf_dns_opt_chain_fqdn,
+      { "Closest Trust Point", "dns.opt.chain.fqdn",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "A variable length Fully Qualified Domain Name (FQDN) in DNS wire format of the requested start point of the chain", HFILL }},
 
     { &hf_dns_count_questions,
       { "Questions", "dns.count.queries",
