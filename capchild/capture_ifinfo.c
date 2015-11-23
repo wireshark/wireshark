@@ -278,6 +278,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
         if (err_str) {
             *err_str = g_strdup("Dumpcap returned no interface capability information");
         }
+        g_strfreev(raw_list);
         return NULL;
     }
 
@@ -302,6 +303,7 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
                                        raw_list[0]);
         }
         g_free(caps);
+        g_strfreev(raw_list);
         return NULL;
     }
 
