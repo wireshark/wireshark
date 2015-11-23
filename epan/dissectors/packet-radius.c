@@ -279,7 +279,7 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 {
 	rtd_data_t* rtd_data = (rtd_data_t*)prs;
 	rtd_stat_table* rs = &rtd_data->stat_table;
-	const radius_info_t *ri=(radius_info_t *)pri;
+	const radius_info_t *ri = (radius_info_t *)pri;
 	nstime_t delta;
 	radius_category radius_cat = RADIUS_CAT_OTHERS;
 	int ret = 0;
@@ -530,8 +530,8 @@ static const gchar *dissect_framed_ip_address(proto_tree* tree, tvbuff_t* tvb, p
 	if (len != 4)
 		return "[wrong length for IP address]";
 
-	ip=tvb_get_ipv4(tvb,0);
-	ip_h=g_ntohl(ip);
+	ip = tvb_get_ipv4(tvb,0);
+	ip_h = g_ntohl(ip);
 
 	if (ip_h == 0xFFFFFFFF) {
 		str = "Negotiated";
@@ -560,8 +560,8 @@ static const gchar *dissect_login_ip_host(proto_tree* tree, tvbuff_t* tvb, packe
 	if (len != 4)
 		return "[wrong length for IP address]";
 
-	ip=tvb_get_ipv4(tvb,0);
-	ip_h=g_ntohl(ip);
+	ip = tvb_get_ipv4(tvb,0);
+	ip_h = g_ntohl(ip);
 
 	if (ip_h == 0xFFFFFFFF) {
 		str = "User-selected";
@@ -624,14 +624,14 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 
 	if(type == 3) { /* IPv6 */
 		proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_src_ipv6, tvb, offset, 16, ENC_NA);
-		offset  += 16;
+		offset += 16;
 		proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_dst_ipv6, tvb, offset, 16, ENC_NA);
-		offset  += 16;
+		offset += 16;
 	} else{ /* IPv4 */
 		proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_src_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset  += 4;
+		offset += 4;
 		proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_dst_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset  += 4;
+		offset += 4;
 	}
 	proto_tree_add_item(ascend_tree, hf_radius_ascend_data_filter_src_ip_prefix, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
@@ -664,7 +664,7 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 		val_to_str(tvb_get_guint8(tvb, 1), ascenddf_filteror, "%u"));
 
 
-	proto=tvb_get_guint8(tvb, 6+iplen*2);
+	proto = tvb_get_guint8(tvb, 6+iplen*2);
 	if (proto) {
 		wmem_strbuf_append_printf(filterstr, " %s",
 				val_to_str(proto, ascenddf_proto, "%u"));
@@ -675,9 +675,9 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 	} else {
 		set_address_tvb(&srcip, AT_IPv4, 4, tvb, 4);
 	}
-	srclen=tvb_get_guint8(tvb, 4+iplen*2);
-	srcport=tvb_get_ntohs(tvb, 9+iplen*2);
-	srcportq=tvb_get_guint8(tvb, 12+iplen*2);
+	srclen = tvb_get_guint8(tvb, 4+iplen*2);
+	srcport = tvb_get_ntohs(tvb, 9+iplen*2);
+	srcportq = tvb_get_guint8(tvb, 12+iplen*2);
 
 	if (srclen || srcportq) {
 		wmem_strbuf_append_printf(filterstr, " srcip %s/%d", address_to_display(wmem_packet_scope(), &srcip), srclen);
@@ -691,9 +691,9 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 	} else {
 		set_address_tvb(&dstip, AT_IPv4, 4, tvb, 4+iplen);
 	}
-	dstlen=tvb_get_guint8(tvb, 5+iplen*2);
-	dstport=tvb_get_ntohs(tvb, 10+iplen*2);
-	dstportq=tvb_get_guint8(tvb, 13+iplen*2);
+	dstlen = tvb_get_guint8(tvb, 5+iplen*2);
+	dstport = tvb_get_ntohs(tvb, 10+iplen*2);
+	dstportq = tvb_get_guint8(tvb, 13+iplen*2);
 
 	if (dstlen || dstportq) {
 		wmem_strbuf_append_printf(filterstr, " dstip %s/%d", address_to_display(wmem_packet_scope(), &dstip), dstlen);
@@ -714,7 +714,7 @@ static const gchar *dissect_framed_ipx_network(proto_tree* tree, tvbuff_t* tvb, 
 	if (len != 4)
 		return "[wrong length for IPX network]";
 
-	net=tvb_get_ntohl(tvb,0);
+	net = tvb_get_ntohl(tvb,0);
 
 	if (net == 0xFFFFFFFE)
 		str = "NAS-selected";
@@ -920,7 +920,7 @@ void radius_string(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 			proto_tree_add_item(tree, a->hf_alt, tvb, offset, len, ENC_NA);
 		} else {
 			gchar *buffer;
-			buffer=(gchar *)wmem_alloc(wmem_packet_scope(), 1024); /* an AVP value can be at most 253 bytes */
+			buffer = (gchar *)wmem_alloc(wmem_packet_scope(), 1024); /* an AVP value can be at most 253 bytes */
 			radius_decrypt_avp(buffer,1024,tvb,offset,len);
 			proto_item_append_text(avp_item, "Decrypted: %s", buffer);
 			proto_tree_add_string(tree, a->hf, tvb, offset, len, buffer);
@@ -1026,7 +1026,7 @@ void radius_ipxnet(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _
 		return;
 	}
 
-	net=tvb_get_ntohl(tvb,offset);
+	net = tvb_get_ntohl(tvb,offset);
 
 	proto_tree_add_item(tree, a->hf, tvb, offset, len, ENC_NA);
 
@@ -1568,7 +1568,7 @@ is_radius(tvbuff_t *tvb)
 	guint8 code;
 	guint16 length;
 
-	code=tvb_get_guint8(tvb, 0);
+	code = tvb_get_guint8(tvb, 0);
 	if (try_val_to_str_ext(code, &radius_pkt_type_codes_ext) == NULL) {
 		return FALSE;
 	}
@@ -1584,7 +1584,7 @@ is_radius(tvbuff_t *tvb)
 	 *  silently discarded.  The minimum length is 20 and maximum length
 	 *  is 4096.
 	 */
-	length=tvb_get_ntohs(tvb, 2);
+	length = tvb_get_ntohs(tvb, 2);
 	if ( (length<20) || (length>4096) ) {
 		return FALSE;
 	}
@@ -1650,9 +1650,9 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RADIUS");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	rh.rh_code=tvb_get_guint8(tvb,0);
-	rh.rh_ident=tvb_get_guint8(tvb,1);
-	rh.rh_pktlength=tvb_get_ntohs(tvb,2);
+	rh.rh_code = tvb_get_guint8(tvb,0);
+	rh.rh_ident = tvb_get_guint8(tvb,1);
+	rh.rh_pktlength = tvb_get_ntohs(tvb,2);
 
 
 	/* Initialise stat info for passing to tap */
@@ -1810,7 +1810,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				/* Copy request authenticator for future validation */
 				if (validate_authenticator && *shared_secret != '\0')
 				{
-					radius_call->req_authenticator=(guint8 *)tvb_memdup(wmem_file_scope(), tvb, 4, AUTHENTICATOR_LENGTH);
+					radius_call->req_authenticator = (guint8 *)tvb_memdup(wmem_file_scope(), tvb, 4, AUTHENTICATOR_LENGTH);
 				}
 
 				/* Store it */
