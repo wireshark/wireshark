@@ -39,6 +39,7 @@
            BGP/MPLS IP Virtual Private Networks (VPNs)
  * RFC6608 Subcodes for BGP Finite State Machine Error
  * RFC6793 BGP Support for Four-Octet Autonomous System (AS) Number Space
+ * RFC5512 The BGP Encapsulation Subsequent Address Family Identifier (SAFI)
  * draft-ietf-idr-dynamic-cap
  * draft-ietf-idr-bgp-enhanced-route-refresh-02
  * draft-ietf-idr-bgp-ext-communities-05
@@ -352,6 +353,23 @@ void proto_reg_handoff_bgp(void);
 #define BGP_EXT_COM_STYPE_OPA_COLOR     0x0b    /* Color Extended Community [RFC5512] */
 #define BGP_EXT_COM_STYPE_OPA_ENCAP     0x0c    /* Encapsulation Extended Community [RFC5512] */
 #define BGP_EXT_COM_STYPE_OPA_DGTW      0x0d    /* Default Gateway  [Yakov_Rekhter] */
+
+/* BGP Tunnel Encapsulation Attribute Tunnel Types */
+
+#define BGP_EXT_COM_TUNNEL_RESERVED     0       /* Reserved [RFC5512] */
+#define BGP_EXT_COM_TUNNEL_L2TPV3       1       /* L2TPv3 over IP [RFC5512] */
+#define BGP_EXT_COM_TUNNEL_GRE          2       /* GRE [RFC5512] */
+#define BGP_EXT_COM_TUNNEL_ENDP         3       /* Transmit tunnel endpoint [RFC5566] */
+#define BGP_EXT_COM_TUNNEL_IPSEC        4       /* IPsec in Tunnel-mode [RFC5566] */
+#define BGP_EXT_COM_TUNNEL_IPIPSEC      5       /* IP in IP tunnel with IPsec Transport Mode [RFC5566] */
+#define BGP_EXT_COM_TUNNEL_MPLSIP       6       /* MPLS-in-IP tunnel with IPsec Transport Mode [RFC5566] */
+#define BGP_EXT_COM_TUNNEL_IPIP         7       /* IP in IP [RFC5512] */
+#define BGP_EXT_COM_TUNNEL_VXLAN        8       /* VXLAN Encapsulation [draft-sd-l2vpn-evpn-overlay] */
+#define BGP_EXT_COM_TUNNEL_NVGRE        9       /* NVGRE Encapsulation [draft-sd-l2vpn-evpn-overlay] */
+#define BGP_EXT_COM_TUNNEL_MPLS         10      /* MPLS Encapsulation [draft-sd-l2vpn-evpn-overlay] */
+#define BGP_EXT_COM_TUNNEL_MPLSGRE      11      /* MPLS in GRE Encapsulation [draft-sd-l2vpn-evpn-overlay] */
+#define BGP_EXT_COM_TUNNEL_VXLANGPE     12      /* VxLAN GPE Encapsulation [draft-sd-l2vpn-evpn-overlay] */
+#define BGP_EXT_COM_TUNNEL_MPLSUDP      13      /* MPLS in UDP Encapsulation [draft-ietf-l3vpn-end-system] */
 
 /* Non-Transitive Opaque Extended Community Sub-Types */
 
@@ -875,6 +893,24 @@ static const value_string bgpext_com_stype_tr_opaque[] = {
     { BGP_EXT_COM_STYPE_OPA_COLOR,  "Color" },
     { BGP_EXT_COM_STYPE_OPA_ENCAP,  "Encapsulation" },
     { BGP_EXT_COM_STYPE_OPA_DGTW,   "Default Gateway" },
+    { 0, NULL}
+};
+
+static const value_string bgpext_com_tunnel_type[] = {
+    { BGP_EXT_COM_TUNNEL_RESERVED,      "Reserved" },
+    { BGP_EXT_COM_TUNNEL_L2TPV3,        "L2TPv3 over IP" },
+    { BGP_EXT_COM_TUNNEL_GRE,           "GRE" },
+    { BGP_EXT_COM_TUNNEL_ENDP,          "Transmit tunnel endpoint" },
+    { BGP_EXT_COM_TUNNEL_IPSEC,         "IPsec in Tunnel-mode" },
+    { BGP_EXT_COM_TUNNEL_IPIPSEC,       "IP in IP tunnel with IPsec Transport Mode" },
+    { BGP_EXT_COM_TUNNEL_MPLSIP,        "MPLS-in-IP tunnel with IPsec Transport Mode" },
+    { BGP_EXT_COM_TUNNEL_IPIP,          "IP in IP" },
+    { BGP_EXT_COM_TUNNEL_VXLAN,         "VXLAN Encapsulation" },
+    { BGP_EXT_COM_TUNNEL_NVGRE,         "NVGRE Encapsulation" },
+    { BGP_EXT_COM_TUNNEL_MPLS,          "MPLS Encapsulation" },
+    { BGP_EXT_COM_TUNNEL_MPLSGRE,       "MPLS in GRE Encapsulation" },
+    { BGP_EXT_COM_TUNNEL_VXLANGPE,      "VxLAN GPE Encapsulation" },
+    { BGP_EXT_COM_TUNNEL_MPLSUDP,       "MPLS in UDP Encapsulation" },
     { 0, NULL}
 };
 
@@ -1602,6 +1638,7 @@ static int hf_bgp_ext_com_stype_ntr_as4 = -1;
 static int hf_bgp_ext_com_stype_tr_IP4 = -1;
 static int hf_bgp_ext_com_stype_tr_opaque = -1;
 static int hf_bgp_ext_com_stype_ntr_opaque = -1;
+static int hf_bgp_ext_com_tunnel_type = -1;
 static int hf_bgp_ext_com_stype_tr_exp = -1;
 static int hf_bgp_ext_com_stype_tr_exp_fs_ip4 = -1;
 static int hf_bgp_ext_com_stype_tr_exp_fs_as4 = -1;
@@ -5244,7 +5281,8 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
     proto_item      *communities_item=NULL;
     proto_item      *community_item=NULL;
     gfloat          linkband;                   /* Link bandwidth           */
-    guint16         as_num;                     /* Autonomous System Number */
+    guint16         as_num;
+    guint16         tunnel_type=0;
 
     offset = tvb_off ;
     end = tvb_off + tlen ;
@@ -5333,19 +5371,34 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
             case BGP_EXT_COM_TYPE_HIGH_TR_OPAQUE: /* Transitive Opaque Extended Community */
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_opaque, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                if (com_stype_low_byte == BGP_EXT_COM_STYPE_OPA_OSPF) {
-                    proto_tree_add_item(community_tree, hf_bgp_ext_com_value_IP4, tvb, offset+2, 4, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(community_tree, hf_bgp_ext_com_value_ospf_rtype, tvb, offset+6, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(community_tree, hf_bgp_ext_com_value_ospf_rtype_option, tvb, offset+7, 1, ENC_BIG_ENDIAN);
-                    proto_item_append_text(community_item, " Area: %s, Type: %s", tvb_ip_to_str(tvb,offset+2),
-                                            val_to_str_const(tvb_get_guint8(tvb,offset+6), bgpext_com_ospf_rtype, "Unknown"));
-                } else {
-                    proto_tree_add_item(community_tree, hf_bgp_ext_com_value_unknown16, tvb, offset+2, 4, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(community_tree, hf_bgp_ext_com_value_unknown32, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-                    proto_item_append_text(community_item, " %s %s: 0x%02x 0x%04x",
-                                            val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
-                                            val_to_str_const(com_stype_low_byte, bgpext_com_stype_tr_opaque, "Unknown"),
-                                            tvb_get_ntohs(tvb,offset+2) ,tvb_get_ntohl(tvb,offset+4));
+                switch (com_stype_low_byte) {
+                    case BGP_EXT_COM_STYPE_OPA_OSPF:
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_IP4, tvb, offset+2, 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_ospf_rtype, tvb, offset+6, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_ospf_rtype_option, tvb, offset+7, 1, ENC_BIG_ENDIAN);
+                        proto_item_append_text(community_item, " Area: %s, Type: %s", tvb_ip_to_str(tvb,offset+2),
+                                               val_to_str_const(tvb_get_guint8(tvb,offset+6),
+                                               bgpext_com_ospf_rtype, "Unknown"));
+                        break;
+                    case BGP_EXT_COM_STYPE_OPA_ENCAP:
+                        tunnel_type = tvb_get_ntohs(tvb,offset+6);
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_unknown32, tvb, offset+2, 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_tunnel_type, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+                        proto_item_append_text(community_item, " %s %s: %s",
+                                                val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
+                                                val_to_str_const(com_stype_low_byte, bgpext_com_stype_tr_opaque, "Unknown"),
+                                                val_to_str_const(tunnel_type, bgpext_com_tunnel_type, "Unknown"));
+                        break;
+                    case BGP_EXT_COM_STYPE_OPA_COLOR:
+                    case BGP_EXT_COM_STYPE_OPA_DGTW:
+                    default:
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_unknown16, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(community_tree, hf_bgp_ext_com_value_unknown32, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+                        proto_item_append_text(community_item, " %s %s: 0x%02x 0x%04x",
+                                                val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
+                                                val_to_str_const(com_stype_low_byte, bgpext_com_stype_tr_opaque, "Unknown"),
+                                                tvb_get_ntohs(tvb,offset+2) ,tvb_get_ntohl(tvb,offset+4));
+                        break;
                 }
                 break;
 
@@ -7678,6 +7731,9 @@ proto_register_bgp(void)
       { &hf_bgp_ext_com_stype_ntr_opaque,
         { "Subtype opaque", "bgp.ext_com.stype_ntr_opaque", FT_UINT8, BASE_HEX,
           VALS(bgpext_com_stype_ntr_opaque), 0x0, "Subtype unknown", HFILL}},
+      { &hf_bgp_ext_com_tunnel_type,
+        { "Tunnel types", "bgp.ext_com.tunnel_type", FT_UINT16, BASE_DEC,
+          VALS(bgpext_com_tunnel_type), 0x0, "Type unknown", HFILL}},
       { &hf_bgp_ext_com_stype_tr_exp,
         { "Subtype Experimental", "bgp.ext_com.stype_tr_exp", FT_UINT8, BASE_HEX,
           VALS(bgpext_com_stype_tr_exp), 0x0, "Subtype unknown", HFILL}},
