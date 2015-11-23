@@ -362,7 +362,7 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_bin, co
 
 static int ssh_open_remote_connection(const char* hostname, const unsigned int port, const char* username, const char* password,
 	const char* sshkey, const char* sshkey_passphrase, const char* iface, const char* cfilter, const char* capture_bin,
-	const guint count, const char* fifo)
+	const unsigned long int count, const char* fifo)
 {
 	ssh_session sshs;
 	ssh_channel channel;
