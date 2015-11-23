@@ -1177,6 +1177,10 @@ void PacketList::headerMenuTriggered()
         break;
     case caResolveNames:
         set_column_resolved(header_ctx_column_, checked);
+        packet_list_model_->resetColumns();
+        if (!prefs.gui_use_pref_save) {
+            prefs_main_write();
+        }
         redraw = true;
         break;
     case caResizeToContents:
