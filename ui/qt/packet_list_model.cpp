@@ -530,28 +530,25 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
 QVariant PacketListModel::headerData(int section, Qt::Orientation orientation,
                                      int role) const
 {
-    QVariant data;
-
-    if (!cap_file_) return data;
+    if (!cap_file_) return QVariant();
 
     if (orientation == Qt::Horizontal && section < prefs.num_cols) {
         switch (role) {
         case Qt::DisplayRole:
-            data = get_column_title(section);
-            break;
+            return get_column_title(section);
         case Qt::ToolTipRole:
         {
             gchar *tooltip = get_column_tooltip(section);
-            data = tooltip;
+            QVariant data(tooltip);
             g_free (tooltip);
-            break;
+            return data;
         }
         default:
             break;
         }
     }
 
-    return data;
+    return QVariant();
 }
 
 void PacketListModel::flushVisibleRows()
