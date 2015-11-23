@@ -696,7 +696,7 @@ static guint decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pinfo,
 }
 
 
-static void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint offset = 0;
 	guint payload_offset;
@@ -743,7 +743,7 @@ static void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo
 		generic_tree = proto_item_add_subtree(generic_item, ett_mac_header_generic_decoder);
 		/* display the Generic MAC Header in Hex */
 		proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, tvb, offset, tvb_len, ENC_NA);
-		return;
+		return tvb_captured_length(tvb);
 	}
 	/* get the parent */
 	parent_item = proto_tree_get_parent(tree);
@@ -985,7 +985,7 @@ static void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo
 		if (length < (gint)sizeof(mac_crc))
 		{	/* display error message */
 			proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Error - the frame is too short (%u bytes)", length);
-			return;
+			return tvb_captured_length(tvb);
 		}
 		length -= (int)sizeof(mac_crc);
 	}
@@ -1240,6 +1240,7 @@ check_crc:
 		/* display message */
 		expert_add_info(pinfo, tree, &ei_mac_crc_missing);
 	}
+	return tvb_captured_length(tvb);
 }
 
 static gint extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -2266,7 +2267,7 @@ void proto_register_mac_header_generic(void)
 	expert_register_field_array(expert_mac_header_generic, ei, array_length(ei));
 
 	/* register the generic mac header dissector */
-	register_dissector("mac_header_generic_handler", dissect_mac_header_generic_decoder, proto_mac_header_generic_decoder);
+	new_register_dissector("mac_header_generic_handler", dissect_mac_header_generic_decoder, proto_mac_header_generic_decoder);
 
 	/* Register the payload fragment table init routine */
 	register_init_routine(wimax_defragment_init);

@@ -539,8 +539,8 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   return TRUE;
 }
 
-static void
-dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   conversation_t   *conversation = NULL;
   tftp_conv_info_t *tftp_info;
@@ -584,7 +584,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if (pinfo->destport == conversation->key_ptr->port1)
         conversation_set_port2(conversation, pinfo->srcport);
       else
-        return;
+        return 0;
     }
   }
   tftp_info = (tftp_conv_info_t *)conversation_get_proto_data(conversation, proto_tftp);
@@ -602,6 +602,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   dissect_tftp_message(tftp_info, tvb, pinfo, tree);
+  return tvb_captured_length(tvb);
 }
 
 
@@ -678,7 +679,7 @@ proto_register_tftp(void)
   expert_tftp = expert_register_protocol(proto_tftp);
   expert_register_field_array(expert_tftp, ei, array_length(ei));
 
-  register_dissector("tftp", dissect_tftp, proto_tftp);
+  new_register_dissector("tftp", dissect_tftp, proto_tftp);
 
   /* Set default UDP ports */
   range_convert_str(&global_tftp_port_range, UDP_PORT_TFTP_RANGE, MAX_UDP_PORT);

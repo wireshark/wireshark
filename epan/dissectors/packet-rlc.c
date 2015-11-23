@@ -2337,8 +2337,8 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
 }
 
 /* dissect entry functions */
-static void
-dissect_rlc_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rlc_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *subtree = NULL;
 
@@ -2353,10 +2353,11 @@ dissect_rlc_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_item_append_text(ti, " TM (PCCH)");
     }
     dissect_rlc_tm(RLC_PCCH, tvb, pinfo, tree, subtree);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_rlc_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rlc_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     fp_info    *fpi;
     proto_item *ti      = NULL;
@@ -2366,7 +2367,7 @@ dissect_rlc_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     fpi = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
-    if (!fpi) return; /* dissection failure */
+    if (!fpi) return 0; /* dissection failure */
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
@@ -2374,10 +2375,11 @@ dissect_rlc_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     proto_item_append_text(ti, " TM (BCCH)");
     dissect_rlc_tm(RLC_BCCH, tvb, pinfo, tree, subtree);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_rlc_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rlc_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     fp_info    *fpi;
     proto_item *ti      = NULL;
@@ -2387,7 +2389,7 @@ dissect_rlc_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     fpi = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
-    if (!fpi) return; /* dissection failure */
+    if (!fpi) return 0; /* dissection failure */
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
@@ -2403,10 +2405,11 @@ dissect_rlc_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_item_append_text(ti, " UM (CCCH)");
         dissect_rlc_um(RLC_DL_CCCH, tvb, pinfo, tree, subtree);
     }
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_rlc_ctch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rlc_ctch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_)
 {
     fp_info    *fpi;
     proto_item *ti      = NULL;
@@ -2417,7 +2420,7 @@ dissect_rlc_ctch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     fpi = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
-    if (!fpi) return; /* dissection failure */
+    if (!fpi) return 0; /* dissection failure */
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
@@ -2427,10 +2430,11 @@ dissect_rlc_ctch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* CTCH is always UM */
     proto_item_append_text(ti, " UM (CTCH)");
     dissect_rlc_um(RLC_DL_CTCH, tvb, pinfo, tree, subtree);
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item            *ti      = NULL;
     proto_tree            *subtree = NULL;
@@ -2446,7 +2450,7 @@ dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (!fpi || !rlci){
         proto_tree_add_expert(tree, pinfo, &ei_rlc_no_per_frame_data, tvb, 0, -1);
-        return;
+        return 1;
     }
 
     if (tree) {
@@ -2466,10 +2470,11 @@ dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_rlc_am(channel, tvb, pinfo, tree, subtree);
             break;
     }
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti      = NULL;
     proto_tree *subtree = NULL;
@@ -2484,7 +2489,7 @@ dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (!fpi || !rlci) {
         proto_tree_add_expert(tree, pinfo, &ei_rlc_no_per_frame_data, tvb, 0, -1);
-        return;
+        return 1;
     }
 
     if (tree) {
@@ -2506,10 +2511,11 @@ dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_rlc_tm(RLC_PS_DTCH, tvb, pinfo, tree, subtree);
             break;
     }
+    return tvb_captured_length(tvb);
 }
 
-static void
-dissect_rlc_dch_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rlc_dch_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti      = NULL;
     proto_tree *subtree = NULL;
@@ -2522,7 +2528,7 @@ dissect_rlc_dch_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fpi = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
     rlci = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
 
-    if (!fpi || !rlci) return;
+    if (!fpi || !rlci) return 0;
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_NA);
@@ -2543,6 +2549,7 @@ dissect_rlc_dch_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_rlc_tm(RLC_UNKNOWN_CH, tvb, pinfo, tree, subtree);
             break;
     }
+    return tvb_captured_length(tvb);
 }
 
 
@@ -2683,22 +2690,22 @@ dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             }
             break;
         case UMTS_CHANNEL_TYPE_PCCH:
-            dissect_rlc_pcch(rlc_tvb, pinfo, tree);
+            dissect_rlc_pcch(rlc_tvb, pinfo, tree, data);
             break;
         case UMTS_CHANNEL_TYPE_CCCH:
-            dissect_rlc_ccch(rlc_tvb, pinfo, tree);
+            dissect_rlc_ccch(rlc_tvb, pinfo, tree, data);
             break;
         case UMTS_CHANNEL_TYPE_DCCH:
-            dissect_rlc_dcch(rlc_tvb, pinfo, tree);
+            dissect_rlc_dcch(rlc_tvb, pinfo, tree, data);
             break;
         case UMTS_CHANNEL_TYPE_PS_DTCH:
-            dissect_rlc_ps_dtch(rlc_tvb, pinfo, tree);
+            dissect_rlc_ps_dtch(rlc_tvb, pinfo, tree, data);
             break;
         case UMTS_CHANNEL_TYPE_CTCH:
-            dissect_rlc_ctch(rlc_tvb, pinfo, tree);
+            dissect_rlc_ctch(rlc_tvb, pinfo, tree, data);
             break;
         case UMTS_CHANNEL_TYPE_BCCH:
-            dissect_rlc_bcch(rlc_tvb, pinfo, tree);
+            dissect_rlc_bcch(rlc_tvb, pinfo, tree, data);
             break;
         default:
             /* Unknown channel type */
@@ -2932,13 +2939,13 @@ proto_register_rlc(void)
     };
 
     proto_rlc = proto_register_protocol("Radio Link Control", "RLC", "rlc");
-    register_dissector("rlc.bcch",        dissect_rlc_bcch,        proto_rlc);
-    register_dissector("rlc.pcch",        dissect_rlc_pcch,        proto_rlc);
-    register_dissector("rlc.ccch",        dissect_rlc_ccch,        proto_rlc);
-    register_dissector("rlc.ctch",        dissect_rlc_ctch,        proto_rlc);
-    register_dissector("rlc.dcch",        dissect_rlc_dcch,        proto_rlc);
-    register_dissector("rlc.ps_dtch",     dissect_rlc_ps_dtch,     proto_rlc);
-    register_dissector("rlc.dch_unknown", dissect_rlc_dch_unknown, proto_rlc);
+    new_register_dissector("rlc.bcch",        dissect_rlc_bcch,        proto_rlc);
+    new_register_dissector("rlc.pcch",        dissect_rlc_pcch,        proto_rlc);
+    new_register_dissector("rlc.ccch",        dissect_rlc_ccch,        proto_rlc);
+    new_register_dissector("rlc.ctch",        dissect_rlc_ctch,        proto_rlc);
+    new_register_dissector("rlc.dcch",        dissect_rlc_dcch,        proto_rlc);
+    new_register_dissector("rlc.ps_dtch",     dissect_rlc_ps_dtch,     proto_rlc);
+    new_register_dissector("rlc.dch_unknown", dissect_rlc_dch_unknown, proto_rlc);
 
     proto_register_field_array(proto_rlc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

@@ -259,7 +259,7 @@ static guint16 tree_add_common_dcch_dtch_fields(tvbuff_t *tvb, packet_info *pinf
     return bitoffs;
 }
 
-static void dissect_mac_fdd_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_fdd_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *pch_tree = NULL;
     proto_item *channel_type;
@@ -276,9 +276,10 @@ static void dissect_mac_fdd_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         PROTO_ITEM_SET_GENERATED(channel_type);
     }
     call_dissector(rlc_pcch_handle, tvb, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
-static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8         tctf;
     guint8         chan;
@@ -308,7 +309,7 @@ static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
     if (!macinf || !fpinf) {
         proto_tree_add_expert(rach_tree, pinfo, &ei_mac_per_frame_info_missing, tvb, 0, -1);
-        return;
+        return 1;
     }
 
     proto_tree_add_bits_item(rach_tree, hf_mac_rach_fdd_tctf, tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -364,9 +365,10 @@ static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             proto_item_append_text(ti, " (Unknown RACH TCTF)");
             expert_add_info_format(pinfo, NULL, &ei_mac_rach_tctf_unknown, "Unknown RACH TCTF");
     }
+    return tvb_captured_length(tvb);
 }
 
-static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8         hdr, tctf;
     guint16        bitoffs   = 0;
@@ -400,7 +402,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     if (!macinf || !fpinf) {
         proto_tree_add_expert(fach_tree, pinfo, &ei_mac_per_frame_info_missing, tvb, 0, -1);
-        return;
+        return 1;
     }
 
     proto_tree_add_bits_item(fach_tree, hf_mac_fach_fdd_tctf, tvb, 0, tctf_len, ENC_BIG_ENDIAN);
@@ -492,9 +494,10 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             expert_add_info_format(pinfo, NULL, &ei_mac_unknown_content, " Unknown FACH Content");
             break;
     }
+    return tvb_captured_length(tvb);
 }
 
-static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint16        pos;
     guint8         bitoffs  = 0;
@@ -517,7 +520,7 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     if (!macinf || !fpinf) {
         proto_tree_add_expert(dch_tree, pinfo, &ei_mac_per_frame_info_missing, tvb, 0, -1);
-        return;
+        return 1;
     }
     pos = fpinf->cur_tb;
 
@@ -598,6 +601,7 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             proto_item_append_text(ti, " (Unknown DCH Content)");
             expert_add_info_format(pinfo, NULL, &ei_mac_unknown_content, "Unknown DCH Content");
     }
+    return tvb_captured_length(tvb);
 }
 
 static void init_frag(tvbuff_t * tvb, body_parts * bp, guint length, guint offset, guint32 frame_num, guint16 tsn, guint8 type)
@@ -942,7 +946,7 @@ static void call_rlc(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pro
 /*
  * Dissect a MAC-is PDU.
  */
-static void dissect_mac_fdd_edch_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_fdd_edch_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint sdu_no, subframe_bytes = 0, offset = 0;
     guint8 ss;
@@ -1004,9 +1008,10 @@ static void dissect_mac_fdd_edch_type2(tvbuff_t *tvb, packet_info *pinfo, proto_
 
     proto_item_set_len(pi, 1+subframe_bytes);
     /*total_bytes += subframe_bytes;*/
+    return tvb_captured_length(tvb);
 }
 
-static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree    *edch_tree = NULL;
     proto_item    *channel_type;
@@ -1025,7 +1030,7 @@ static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
     if (!macinf|| !fpinf) {
         proto_tree_add_expert(edch_tree, pinfo, &ei_mac_per_frame_info_missing, tvb, 0, -1);
-        return;
+        return 1;
     }
 
     pos = fpinf->cur_tb;
@@ -1065,6 +1070,7 @@ static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             expert_add_info_format(pinfo, ti, &ei_mac_unknown_content, "Unknown EDCH Content");
             break;
     }
+    return tvb_captured_length(tvb);
 }
 /**
 * Dissect hsdsch_common channel.
@@ -1135,7 +1141,7 @@ static void dissect_mac_fdd_hsdsch_common(tvbuff_t *tvb, packet_info *pinfo, pro
  * no re-alignment is necessary
  * If no C/T is present, the whole payload will be left-shifted by 4 bit
  */
-static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree    *hsdsch_tree = NULL;
     proto_item    *channel_type;
@@ -1162,7 +1168,7 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     if (!macinf) {
         proto_tree_add_expert(hsdsch_tree, pinfo, &ei_mac_per_frame_info_missing, tvb, 0, -1);
-        return;
+        return 1;
     }
     if (macinf->ctmux[pos]) {   /*The 4'st bits are padding*/
         proto_tree_add_bits_item(hsdsch_tree, hf_mac_ct, tvb, bitoffs, 4, ENC_BIG_ENDIAN);
@@ -1264,6 +1270,7 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             proto_item_append_text(ti, " (Unknown HSDSCH Content)");
            expert_add_info_format(pinfo, NULL, &ei_mac_unknown_content, "Unknown HSDSCH Content");
     }
+    return tvb_captured_length(tvb);
 }
 
 static void mac_is_sdus_hash_destroy(gpointer data)
@@ -1461,13 +1468,13 @@ proto_register_umts_mac(void)
     expert_umts_mac = expert_register_protocol(proto_umts_mac);
     expert_register_field_array(expert_umts_mac, ei, array_length(ei));
 
-    register_dissector("mac.fdd.rach", dissect_mac_fdd_rach, proto_umts_mac);
-    register_dissector("mac.fdd.fach", dissect_mac_fdd_fach, proto_umts_mac);
-    register_dissector("mac.fdd.pch", dissect_mac_fdd_pch, proto_umts_mac);
-    register_dissector("mac.fdd.dch", dissect_mac_fdd_dch, proto_umts_mac);
-    register_dissector("mac.fdd.edch", dissect_mac_fdd_edch, proto_umts_mac);
-    register_dissector("mac.fdd.edch.type2", dissect_mac_fdd_edch_type2, proto_umts_mac);
-    register_dissector("mac.fdd.hsdsch", dissect_mac_fdd_hsdsch, proto_umts_mac);
+    new_register_dissector("mac.fdd.rach", dissect_mac_fdd_rach, proto_umts_mac);
+    new_register_dissector("mac.fdd.fach", dissect_mac_fdd_fach, proto_umts_mac);
+    new_register_dissector("mac.fdd.pch", dissect_mac_fdd_pch, proto_umts_mac);
+    new_register_dissector("mac.fdd.dch", dissect_mac_fdd_dch, proto_umts_mac);
+    new_register_dissector("mac.fdd.edch", dissect_mac_fdd_edch, proto_umts_mac);
+    new_register_dissector("mac.fdd.edch.type2", dissect_mac_fdd_edch_type2, proto_umts_mac);
+    new_register_dissector("mac.fdd.hsdsch", dissect_mac_fdd_hsdsch, proto_umts_mac);
 
     register_init_routine(mac_init);
     register_cleanup_routine(mac_cleanup);

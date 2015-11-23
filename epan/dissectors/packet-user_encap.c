@@ -103,7 +103,7 @@ static void export_pdu(tvbuff_t *tvb, packet_info* pinfo, char *proto_name)
     }
 }
 
-static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
+static int dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
     user_encap_t* encap = NULL;
     tvbuff_t* payload_tvb;
     proto_item* item;
@@ -135,7 +135,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
         expert_add_info_format(pinfo, item, &ei_user_encap_not_handled, "%s", msg);
 
         call_dissector(data_handle, tvb, pinfo, tree);
-        return;
+        return tvb_captured_length(tvb);
     }
     if (encap->payload_proto == NULL) {
         char* msg = wmem_strdup_printf(wmem_packet_scope(),
@@ -147,7 +147,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
         expert_add_info_format(pinfo, item, &ei_user_encap_not_handled, "%s", msg);
 
         call_dissector(data_handle, tvb, pinfo, tree);
-        return;
+        return tvb_captured_length(tvb);
     }
 
     proto_item_set_text(item,"DLT: %d",pinfo->match_uint + 147 - WTAP_ENCAP_USER0);
@@ -188,6 +188,7 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
             }
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 static void* user_copy_cb(void* dest, const void* orig, size_t len _U_)
@@ -293,7 +294,7 @@ void proto_register_user_encap(void)
                       encaps_uat);
 
 
-    register_dissector("user_dlt",dissect_user,proto_user_encap);
+    new_register_dissector("user_dlt",dissect_user,proto_user_encap);
 
     /*
     prefs_register_protocol_obsolete(proto_register_protocol("DLT User A","DLT_USER_A","user_dlt_a"));

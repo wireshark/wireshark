@@ -62,7 +62,7 @@ static gint hf_harq_map_msg_crc = -1;
 
 
 /* HARQ MAP message decoder */
-static void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint i, offset = 0;
 	guint tvb_len, length, dl_ie_count;
@@ -80,13 +80,13 @@ static void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 	tvb_len = tvb_reported_length(tvb);
 	if(!tvb_len)
 	{	/* do nothing if tvb is empty */
-		return;
+		return 0;
 	}
 	/* Ensure the right payload type */
 	first_24bits = tvb_get_ntoh24(tvb, offset);
 	if((first_24bits & WIMAX_HARQ_MAP_INDICATOR_MASK) != WIMAX_HARQ_MAP_INDICATOR_MASK)
 	{	/* do nothing if tvb is not a HARQ MAP message */
-		return;
+		return 0;
 	}
 	/* update the info column */
 	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "HARQ-MAP Message: ");
@@ -162,6 +162,7 @@ static void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, 
 			proto_item_append_text(it, " - incorrect! (should be: 0x%x)", calculated_crc);
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax HARQ MAP Protocol */
@@ -207,7 +208,7 @@ void proto_register_wimax_harq_map(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_wimax_harq_map_decoder, hf_harq_map, array_length(hf_harq_map));
 
-	register_dissector("wimax_harq_map_handler", dissector_wimax_harq_map_decoder, -1);
+	new_register_dissector("wimax_harq_map_handler", dissector_wimax_harq_map_decoder, proto_wimax_harq_map_decoder);
 }
 
 /*

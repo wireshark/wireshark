@@ -586,7 +586,7 @@ static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *
                                                     gboolean is_common, guint16 header_crc, proto_item * header_crc_pi);
 
 /* Main dissection function */
-static void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
 /*
  * CRNC sends data downlink on uplink parameters.
@@ -3785,7 +3785,7 @@ heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             if (calc_crc == crc) {
                 /* assume this is FP, set conversatio dissector to catch the data frames too */
                 conversation_set_dissector(find_or_create_conversation(pinfo), fp_handle);
-                dissect_fp(tvb, pinfo, tree);
+                dissect_fp(tvb, pinfo, tree, data);
                 return TRUE;
             }
         }
@@ -3804,7 +3804,7 @@ heur_dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         return FALSE;
 
     /* assume this is FP */
-    dissect_fp(tvb, pinfo, tree);
+    dissect_fp(tvb, pinfo, tree, data);
     return TRUE;
 }
 static guint8 fakes =5; /*[] ={1,5,8};*/
@@ -4181,8 +4181,8 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
 
 /*****************************/
 /* Main dissection function. */
-static void
-dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree       *fp_tree;
     proto_item       *ti;
@@ -4260,7 +4260,7 @@ dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Can't dissect anything without it... */
     if (p_fp_info == NULL) {
         proto_tree_add_expert(fp_tree, pinfo, &ei_fp_no_per_frame_info, tvb, offset, -1);
-        return;
+        return 1;
     }
 
     rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc, 0);
@@ -4322,7 +4322,7 @@ dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Don't currently handle IuR-specific formats, but it's useful to even see
        the channel type and direction */
     if (p_fp_info->iface_type == IuR_Interface) {
-        return;
+        return 1;
     }
 
     /* Show DDI config info */
@@ -4439,6 +4439,7 @@ dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             expert_add_info(pinfo, NULL, &ei_fp_channel_type_unknown);
             break;
     }
+    return tvb_captured_length(tvb);
 }
 
 #ifdef UMTS_FP_USE_UAT
@@ -5577,7 +5578,7 @@ void proto_register_fp(void)
     expert_register_field_array(expert_fp, ei, array_length(ei));
 
     /* Allow other dissectors to find this one by name. */
-    register_dissector("fp", dissect_fp, proto_fp);
+    new_register_dissector("fp", dissect_fp, proto_fp);
 
     /* Preferences */
     fp_module = prefs_register_protocol(proto_fp, NULL);

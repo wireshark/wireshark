@@ -352,7 +352,7 @@ static void dissect_uaudp_serv_to_term(tvbuff_t *tvb, packet_info *pinfo, proto_
  * UA/UDP DISSECTOR
  Wireshark packet dissector entry point
 */
-static void dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     /* server address, if present, has precedence on ports */
     if (use_sys_ip) {
@@ -360,12 +360,12 @@ static void dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (memcmp((pinfo->src).data, sys_ip, 4*sizeof(guint8)) == 0)
         {
             _dissect_uaudp(tvb, pinfo, tree, SYS_TO_TERM);
-            return;
+            return tvb_captured_length(tvb);
         }
         else if (memcmp((pinfo->dst).data, sys_ip, 4*sizeof(guint8)) == 0)
         {
             _dissect_uaudp(tvb, pinfo, tree, TERM_TO_SYS);
-            return;
+            return tvb_captured_length(tvb);
         }
     }
 
@@ -373,15 +373,16 @@ static void dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (find_terminal_port(pinfo->srcport))
     {
         _dissect_uaudp(tvb, pinfo, tree, TERM_TO_SYS);
-        return;
+        return tvb_captured_length(tvb);
     }
     else if (find_terminal_port(pinfo->destport))
     {
         _dissect_uaudp(tvb, pinfo, tree, SYS_TO_TERM);
-        return;
+        return tvb_captured_length(tvb);
     }
 
     _dissect_uaudp(tvb, pinfo, tree, DIR_UNKNOWN);
+    return tvb_captured_length(tvb);
 }
 
 /* XXX: Presumably there's a util fcn for this ... */
@@ -591,7 +592,7 @@ void proto_register_uaudp(void)
                           "UAUDP",
                           "uaudp");
 
-    uaudp_handle = register_dissector("uaudp", dissect_uaudp, proto_uaudp);
+    uaudp_handle = new_register_dissector("uaudp", dissect_uaudp, proto_uaudp);
 #if 0 /* XXX: Not used ?? */
     new_register_dissector("uaudp_dir_unknown",  dissect_uaudp_dir_unknown,  proto_uaudp);
     new_register_dissector("uaudp_term_to_serv", dissect_uaudp_term_to_serv, proto_uaudp);

@@ -379,7 +379,7 @@ static const value_string ai_msgs[] =
 };
 
 
-static void dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	gint tvb_len, offset = 0;
 	guint cii_bit, first_byte, fb_type, mimo_type;
@@ -387,7 +387,6 @@ static void dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo,
 	proto_item *ti = NULL;
 	proto_tree *ti_tree = NULL;
 
-	if (tree)
 	{	/* we are being asked for details */
 		/* Get the tvb reported length */
 		tvb_len =  tvb_reported_length(tvb);
@@ -401,7 +400,7 @@ static void dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			proto_tree_add_protocol_format(ti_tree, proto_mac_header_type_2_decoder, tvb, offset, tvb_len, "Error: the size of Mac Header Type II tvb is too small! (%u bytes)", tvb_len);
 			/* display the MAC Type II Header in Hex */
 			proto_tree_add_item(ti_tree, hf_mac_header_type_2_value_bytes, tvb, offset, tvb_len, ENC_NA);
-			return;
+			return tvb_captured_length(tvb);
 		}
 #ifdef DEBUG
 		/* update the info column */
@@ -440,7 +439,7 @@ static void dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo,
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Unknown type 2 fb type");
 				/* display the MAC Type I Header in Hex */
 				proto_tree_add_item(ti_tree, hf_mac_header_type_2_value_bytes, tvb, offset, tvb_len, ENC_NA);
-				return;
+				return tvb_captured_length(tvb);
 			}
 			/* move to the second byte */
 			offset++;
@@ -786,6 +785,7 @@ static void dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Error - Undefined Type");
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax Mac Header Type II Protocol and Dissector */
@@ -1366,7 +1366,7 @@ void proto_register_mac_header_type_2(void)
 	proto_register_field_array(proto_mac_header_type_2_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("mac_header_type_2_handler", dissect_mac_header_type_2_decoder, -1);
+	new_register_dissector("mac_header_type_2_handler", dissect_mac_header_type_2_decoder, proto_mac_header_type_2_decoder);
 }
 
 /*

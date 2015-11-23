@@ -319,10 +319,9 @@ static void ssh_set_mac_length(struct ssh_peer_data *peer_data);
 static void ssh_set_kex_specific_dissector(struct ssh_flow_data *global_data);
 
 
-static void
-dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-
     proto_tree  *ssh_tree;
     proto_item  *ti;
     conversation_t *conversation;
@@ -418,7 +417,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         if (need_desegmentation)
-            return;
+            return tvb_captured_length(tvb);
         if (offset <= last_offset) {
             /* XXX - add an expert info in the function
                that decrements offset */
@@ -427,6 +426,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s: ", is_response ? "Server" : "Client");
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -1391,7 +1391,7 @@ proto_register_ssh(void)
                        "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                        &ssh_desegment);
 
-    ssh_handle = register_dissector("ssh", dissect_ssh, proto_ssh);
+    ssh_handle = new_register_dissector("ssh", dissect_ssh, proto_ssh);
 }
 
 void

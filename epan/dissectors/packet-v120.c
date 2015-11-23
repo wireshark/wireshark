@@ -103,8 +103,8 @@ static const xdlc_cf_items v120_cf_items_ext = {
 	&hf_v120_ftype_s_u_ext
 };
 
-static void
-dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree *v120_tree, *address_tree;
 	proto_item *ti, *tc;
@@ -129,7 +129,7 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree)
 			proto_tree_add_protocol_format(tree, proto_v120, tvb, 0, -1,
 									"Invalid V.120 frame");
-		return;
+		return 2;
 	}
 
 	if (pinfo->p2p_dir == P2P_DIR_SENT) {
@@ -143,36 +143,32 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
 	}
 
-	if (tree) {
-		ti = proto_tree_add_protocol_format(tree, proto_v120, tvb, 0, -1, "V.120");
-		v120_tree = proto_item_add_subtree(ti, ett_v120);
-		tc = proto_tree_add_item(v120_tree, hf_v120_address, tvb, 0, 2, ENC_BIG_ENDIAN);
-		proto_item_append_text(tc, "LLI: %d C/R: %s",
-				((byte0 & 0xfc) << 5) | ((byte1 & 0xfe) >> 1),
-				byte0 & 0x02 ? "R" : "C");
-		address_tree = proto_item_add_subtree(tc, ett_v120_address);
+	ti = proto_tree_add_protocol_format(tree, proto_v120, tvb, 0, -1, "V.120");
+	v120_tree = proto_item_add_subtree(ti, ett_v120);
+	tc = proto_tree_add_item(v120_tree, hf_v120_address, tvb, 0, 2, ENC_BIG_ENDIAN);
+	proto_item_append_text(tc, "LLI: %d C/R: %s",
+			((byte0 & 0xfc) << 5) | ((byte1 & 0xfe) >> 1),
+			byte0 & 0x02 ? "R" : "C");
+	address_tree = proto_item_add_subtree(tc, ett_v120_address);
 
-		proto_tree_add_item(address_tree, hf_v120_rc, tvb, 0, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(address_tree, hf_v120_lli, tvb, 0, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(address_tree, hf_v120_ea0, tvb, 0, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(address_tree, hf_v120_ea1, tvb, 0, 2, ENC_BIG_ENDIAN);
-	}
-	else {
-		v120_tree = NULL;
-		ti = NULL;
-	}
+	proto_tree_add_item(address_tree, hf_v120_rc, tvb, 0, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(address_tree, hf_v120_lli, tvb, 0, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(address_tree, hf_v120_ea0, tvb, 0, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(address_tree, hf_v120_ea1, tvb, 0, 2, ENC_BIG_ENDIAN);
+
 	control = dissect_xdlc_control(tvb, 2, pinfo, v120_tree, hf_v120_control,
 		ett_v120_control, &v120_cf_items, &v120_cf_items_ext,
 		NULL, NULL, is_response, TRUE, FALSE);
-	if (tree) {
-		v120len = 2 + XDLC_CONTROL_LEN(control, TRUE);
 
-		if (tvb_bytes_exist(tvb, v120len, 1))
-			v120len += dissect_v120_header(tvb, v120len, v120_tree);
-		proto_item_set_len(ti, v120len);
-		next_tvb = tvb_new_subset_remaining(tvb, v120len);
-		call_dissector(data_handle,next_tvb, pinfo, v120_tree);
-	}
+	v120len = 2 + XDLC_CONTROL_LEN(control, TRUE);
+
+	if (tvb_bytes_exist(tvb, v120len, 1))
+		v120len += dissect_v120_header(tvb, v120len, v120_tree);
+	proto_item_set_len(ti, v120len);
+	next_tvb = tvb_new_subset_remaining(tvb, v120len);
+	call_dissector(data_handle,next_tvb, pinfo, v120_tree);
+
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -334,7 +330,7 @@ proto_register_v120(void)
 	proto_register_field_array (proto_v120, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("v120", dissect_v120, proto_v120);
+	new_register_dissector("v120", dissect_v120, proto_v120);
 }
 
 void

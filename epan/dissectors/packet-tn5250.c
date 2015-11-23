@@ -5114,8 +5114,8 @@ dissect_inbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *tv
   return (offset - start);
 }
 
-static void
-dissect_tn5250(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tn5250(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree   *tn5250_tree;
   proto_item   *ti;
@@ -5123,8 +5123,6 @@ dissect_tn5250(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   conversation_t *conversation;
   tn5250_conv_info_t *tn5250_info = NULL;
   int sna_flag;
-
-  pinfo->fd->flags.encoding = PACKET_CHAR_ENC_CHAR_EBCDIC;
 
   /* Do we have a conversation for this connection? */
   conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -5136,7 +5134,9 @@ dissect_tn5250(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (!tn5250_info)
-    return;
+    return 0;
+
+  pinfo->fd->flags.encoding = PACKET_CHAR_ENC_CHAR_EBCDIC;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TN5250");
 
@@ -5161,6 +5161,7 @@ dissect_tn5250(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -7545,7 +7546,7 @@ proto_register_tn5250(void)
   expert_module_t* expert_tn5250;
 
   proto_tn5250 = proto_register_protocol("TN5250 Protocol", "TN5250", "tn5250");
-  register_dissector("tn5250", dissect_tn5250, proto_tn5250);
+  new_register_dissector("tn5250", dissect_tn5250, proto_tn5250);
   proto_register_field_array(proto_tn5250, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_tn5250 = expert_register_protocol(proto_tn5250);

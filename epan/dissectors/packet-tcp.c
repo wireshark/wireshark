@@ -4797,8 +4797,8 @@ tcp_flags_to_str_first_letter(const struct tcpheader *tcph)
     return buf;
 }
 
-static void
-dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8  th_off_x2; /* combines th_off and th_x2 */
     guint16 th_sum;
@@ -5040,7 +5040,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                        "%u bytes (bogus, must be at least %u)", tcph->th_hlen,
                                        TCPH_MIN_LEN);
         }
-        return;
+        return offset+12;
     }
 
     if (tree) {
@@ -5509,7 +5509,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     process_tcp_payload(next_tvb, 0, pinfo, tree, tcp_tree, tcph->th_sport, tcph->th_dport, tcph->th_seq,
                                         nxtseq, FALSE, tcpd, &tcpinfo);
 
-                    return;
+                    return tvb_captured_length(tvb);
                 }
             }
         } else {
@@ -5576,6 +5576,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 tcph->th_sport, tcph->th_dport, tree, tcp_tree, tcpd, &tcpinfo);
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 static void
@@ -6514,7 +6515,7 @@ proto_register_tcp(void)
     expert_module_t* expert_mptcp;
 
     proto_tcp = proto_register_protocol("Transmission Control Protocol", "TCP", "tcp");
-    register_dissector("tcp", dissect_tcp, proto_tcp);
+    new_register_dissector("tcp", dissect_tcp, proto_tcp);
     proto_register_field_array(proto_tcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_tcp = expert_register_protocol(proto_tcp);

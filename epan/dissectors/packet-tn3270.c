@@ -5234,8 +5234,8 @@ dissect_inbound_stream(proto_tree *tn3270_tree, packet_info *pinfo, tvbuff_t *tv
 }
 
 
-static void
-dissect_tn3270(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tn3270(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree         *tn3270_tree;
   proto_item         *pi;
@@ -5257,7 +5257,7 @@ dissect_tn3270(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (tn3270_info == NULL)
-    return;
+    return 0;
 
   pi = proto_tree_add_item(tree, proto_tn3270, tvb, offset, -1, ENC_NA);
   tn3270_tree = proto_item_add_subtree(pi, ett_tn3270);
@@ -5268,7 +5268,7 @@ dissect_tn3270(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (tvb_reported_length_remaining(tvb, offset) <= 0)
-    return;
+    return offset;
 
   if (pinfo->srcport == tn3270_info->outbound_port) {
     col_set_str(pinfo->cinfo, COL_INFO, "TN3270 Data from Mainframe");
@@ -5288,6 +5288,7 @@ dissect_tn3270(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -7665,7 +7666,7 @@ proto_register_tn3270(void)
   expert_module_t* expert_tn3270;
 
   proto_tn3270 = proto_register_protocol("TN3270 Protocol", "TN3270", "tn3270");
-  register_dissector("tn3270", dissect_tn3270, proto_tn3270);
+  new_register_dissector("tn3270", dissect_tn3270, proto_tn3270);
   proto_register_field_array(proto_tn3270, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_tn3270 = expert_register_protocol(proto_tn3270);

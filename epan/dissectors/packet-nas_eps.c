@@ -4849,8 +4849,8 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 }
 
-static void
-dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *item;
     proto_tree *nas_eps_tree;
@@ -4873,7 +4873,7 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(nas_eps_tree, hf_gsm_a_L3_protocol_discriminator, tvb, 0, 1, ENC_BIG_ENDIAN);
         offset++;
         nas_emm_service_req(tvb, nas_eps_tree, pinfo, offset, tvb_reported_length(tvb)-offset);
-        return;
+        return tvb_captured_length(tvb);
     }
 
     pd &= 0x0f;
@@ -4905,6 +4905,7 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
     }
 
+    return tvb_captured_length(tvb);
 }
 
 /* TS 24.301 8.2.1
@@ -4938,8 +4939,8 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *      4.4.4.2 All ESM messages are integrity protected.
  */
 
-static void
-dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *item;
     proto_tree *nas_eps_tree;
@@ -4952,13 +4953,13 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* The protected NAS message header is 6 octets long, and the NAS message header is at least 2 octets long. */
     /* If the length of the tvbuffer is less than 8 octets, we can safely conclude the message is not protected. */
     if (len < 8) {
-        dissect_nas_eps_plain(tvb, pinfo, tree);
-        return;
+        dissect_nas_eps_plain(tvb, pinfo, tree, data);
+        return tvb_captured_length(tvb);
     }
 
     if (g_nas_eps_dissect_plain) {
-        dissect_nas_eps_plain(tvb, pinfo, tree);
-        return;
+        dissect_nas_eps_plain(tvb, pinfo, tree, data);
+        return tvb_captured_length(tvb);
     }
 
     /* make entry in the Protocol column on summary display */
@@ -4979,17 +4980,17 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (pd == 7) {
             /* Plain EPS mobility management messages. */
             dissect_nas_eps_emm_msg(tvb, pinfo, nas_eps_tree, offset, FALSE);
-            return;
+            return tvb_captured_length(tvb);
         } else {
             proto_tree_add_expert(nas_eps_tree, pinfo, &ei_nas_eps_esm_tp_not_integ_prot, tvb, offset, len);
-            return;
+            return tvb_captured_length(tvb);
         }
     } else {
         /* SERVICE REQUEST (12 or greater) is not a plain NAS message treat separately */
         if (security_header_type >= 12) {
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Service request");
             nas_emm_service_req(tvb, nas_eps_tree, pinfo, offset, len-offset);
-            return;
+            return tvb_captured_length(tvb);
         }
         /* Message authentication code */
         proto_tree_add_item(nas_eps_tree, hf_nas_eps_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5008,7 +5009,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if ((pd != 7) && (pd != 15) &&
                     (((pd&0x0f) != 2) || (((pd&0x0f) == 2) && ((pd&0xf0) > 0) && ((pd&0xf0) < 0x50)))) {
                     proto_tree_add_item(nas_eps_tree, hf_nas_eps_ciphered_msg, tvb, offset, len-6, ENC_NA);
-                    return;
+                    return tvb_captured_length(tvb);
                 }
             } else {
                 /* msg_auth_code == 0, probably not ciphered */
@@ -5053,6 +5054,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
     }
 
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -5917,10 +5919,10 @@ proto_register_nas_eps(void)
     expert_register_field_array(expert_nas_eps, ei, array_length(ei));
 
     /* Register dissector */
-    register_dissector(PFNAME, dissect_nas_eps, proto_nas_eps);
+    new_register_dissector(PFNAME, dissect_nas_eps, proto_nas_eps);
 
     /* Register dissector */
-    register_dissector("nas-eps_plain", dissect_nas_eps_plain, proto_nas_eps);
+    new_register_dissector("nas-eps_plain", dissect_nas_eps_plain, proto_nas_eps);
 
     /* Register configuration options to always dissect as plain messages */
     nas_eps_module = prefs_register_protocol(proto_nas_eps, NULL);

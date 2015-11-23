@@ -1227,7 +1227,7 @@ static dissector_handle_t lookup_rrc_dissector_handle(struct pdcp_lte_info  *p_p
 
 
 /* Forwad declarations */
-static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
 static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
@@ -1362,7 +1362,7 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Create tvb that starts at actual PDCP PDU */
     pdcp_tvb = tvb_new_subset_remaining(tvb, offset);
-    dissect_pdcp_lte(pdcp_tvb, pinfo, tree);
+    dissect_pdcp_lte(pdcp_tvb, pinfo, tree, data);
     return TRUE;
 }
 
@@ -1684,7 +1684,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
 
 /******************************/
 /* Main dissection function.  */
-static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     const char           *mode;
     proto_tree           *pdcp_tree           = NULL;
@@ -1711,7 +1711,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     p_pdcp_info = (struct pdcp_lte_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0);
     /* Can't dissect anything without it... */
     if (p_pdcp_info == NULL) {
-        return;
+        return 0;
     }
 
     /* Don't want to overwrite the RLC Info column if configured not to */
@@ -1845,7 +1845,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             if (tvb_captured_length_remaining(tvb, offset) == 0) {
                 /* Only PDCP header was captured, stop dissection here */
-                return;
+                return offset;
             }
         }
         else if (p_pdcp_info->plane == USER_PLANE) {
@@ -1900,7 +1900,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                         break;
                     default:
                         /* Not a recognised data format!!!!! */
-                        return;
+                        return 1;
                 }
 
                 write_pdu_label_and_info(root_ti, pinfo, " (SN=%u)", seqnum);
@@ -1989,14 +1989,14 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             write_pdu_label_and_info(root_ti, pinfo, " Status Report (fms=%u) not-received=%u",
                                                     fms, not_received);
                         }
-                        return;
+                        return 1;
 
                     case 1:     /* ROHC Feedback */
                         offset++;
                         break;  /* Drop-through to dissect feedback */
 
                     default:    /* Reserved */
-                        return;
+                        return 1;
                 }
             }
         }
@@ -2004,7 +2004,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             /* Invalid plane setting...! */
             write_pdu_label_and_info(root_ti, pinfo, " - INVALID PLANE (%u)",
                                      p_pdcp_info->plane);
-            return;
+            return 1;
         }
 
         /* Do sequence analysis if configured to. */
@@ -2185,7 +2185,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             col_set_writable(pinfo->cinfo, global_pdcp_lte_layer_to_show == ShowRLCLayer);
 
             /* DROPPING OUT HERE IF NOT DOING ROHC! */
-            return;
+            return tvb_captured_length(tvb);
         }
         else {
             /***************************/
@@ -2196,7 +2196,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             if (!global_pdcp_dissect_rohc) {
                 col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "|ROHC(%s)",
                                 val_to_str_const(p_pdcp_info->rohc.profile, rohc_profile_vals, "Unknown"));
-                return;
+                return 1;
             }
 
             rohc_tvb = tvb_new_subset_remaining(payload_tvb, offset);
@@ -2216,6 +2216,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             col_set_writable(pinfo->cinfo, global_pdcp_lte_layer_to_show == ShowRLCLayer);
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 /* Initializes the hash tables each time a new
@@ -2601,7 +2602,7 @@ void proto_register_pdcp(void)
     expert_register_field_array(expert_pdcp_lte, ei, array_length(ei));
 
     /* Allow other dissectors to find this one by name. */
-    register_dissector("pdcp-lte", dissect_pdcp_lte, proto_pdcp_lte);
+    new_register_dissector("pdcp-lte", dissect_pdcp_lte, proto_pdcp_lte);
 
     pdcp_lte_module = prefs_register_protocol(proto_pdcp_lte, NULL);
 

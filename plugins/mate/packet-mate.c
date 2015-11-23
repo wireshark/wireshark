@@ -295,13 +295,14 @@ mate_pdu_tree(mate_pdu *pdu, packet_info *pinfo, tvbuff_t *tvb, proto_tree* tree
 	}
 }
 
-static void
-mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	mate_pdu* pdus;
 	proto_tree *mate_t;
 
-	if ( ! mc || ! tree ) return;
+	if ( ! mc || ! tree )
+		return tvb_captured_length(tvb);
 
 	mate_analyze_frame(pinfo,tree);
 
@@ -312,6 +313,7 @@ mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			mate_pdu_tree(pdus,pinfo,tvb,mate_t);
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -392,14 +394,13 @@ proto_register_mate(void)
 	expert_mate = expert_register_protocol(proto_mate);
 	expert_register_field_array(expert_mate, ei, array_length(ei));
 
-	register_dissector("mate",mate_tree,proto_mate);
+	mate_handle = new_register_dissector("mate",mate_tree,proto_mate);
 	mate_module = prefs_register_protocol(proto_mate, proto_reg_handoff_mate);
 	prefs_register_filename_preference(mate_module, "config",
 					   "Configuration Filename",
 					   "The name of the file containing the mate module's configuration",
 					   &pref_mate_config_filename);
 
-	mate_handle = find_dissector("mate");
 	register_postdissector(mate_handle);
 }
 

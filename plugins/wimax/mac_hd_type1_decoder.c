@@ -206,7 +206,7 @@ static const value_string last_msgs[] =
 	{ 0,				NULL}
 };
 
-static void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	gint tvb_len, offset = 0;
 	guint first_byte, sub_type;
@@ -226,7 +226,7 @@ static void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo,
 		{
 			/* display the MAC Type I Header in Hex */
 			proto_tree_add_item(ti_tree, hf_mac_header_type_1_value_bytes, tvb, offset, tvb_len, ENC_NA);
-			return;
+			return tvb_captured_length(tvb);
 		}
 #ifdef DEBUG
 		/* update the info column */
@@ -255,7 +255,7 @@ static void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			proto_tree_add_protocol_format(ti_tree, proto_mac_header_type_1_decoder, tvb, offset, tvb_len, "Unknown type 1 subtype: %u", sub_type);
 			/* display the MAC Type I Header in Hex */
 			proto_tree_add_item(ti_tree, hf_mac_header_type_1_value_bytes, tvb, offset, tvb_len, ENC_NA);
-			return;
+			return tvb_captured_length(tvb);
 		}
 		/* add the MAC header info */
 		proto_item_append_text(parent_item, "%s", type1_subtype_abbrv[sub_type]);
@@ -326,6 +326,7 @@ static void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo,
 		/* Decode and display the HCS */
 		proto_tree_add_item(ti_tree, hf_mac_header_type_1_hcs, tvb, (offset+5), 1, ENC_BIG_ENDIAN);
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register Wimax Mac Header Type II Protocol and Dissector */
@@ -555,7 +556,7 @@ void proto_register_mac_header_type_1(void)
 	proto_register_field_array(proto_mac_header_type_1_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("mac_header_type_1_handler", dissect_mac_header_type_1_decoder, -1);
+	new_register_dissector("mac_header_type_1_handler", dissect_mac_header_type_1_decoder, proto_mac_header_type_1_decoder);
 }
 
 /*

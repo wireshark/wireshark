@@ -196,8 +196,8 @@ static const true_false_string m_bit = {
 
 /* Code to actually dissect the packets
 */
-static void
-dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint8         addr_field, comp_field, npdu_field1, dcomp=0, pcomp=0;
   guint16        offset=0, npdu=0, segment=0, npdu_field2;
@@ -322,7 +322,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     len = tvb_captured_length_remaining(tvb, offset);
     if(len<=0){
-        return;
+        return offset;
     }
 
     pinfo->fragmented = TRUE;
@@ -369,6 +369,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     pinfo->fragmented = save_fragmented;
   }
+  return tvb_captured_length(tvb);
 }
 
 
@@ -559,7 +560,7 @@ proto_register_sndcp(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sndcp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  register_dissector("sndcp", dissect_sndcp, proto_sndcp);
+  new_register_dissector("sndcp", dissect_sndcp, proto_sndcp);
   register_init_routine(sndcp_defragment_init);
   register_cleanup_routine(sndcp_defragment_cleanup);
 }

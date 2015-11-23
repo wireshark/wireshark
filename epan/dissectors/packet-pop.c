@@ -121,8 +121,8 @@ struct pop_data_val {
 
 static gboolean response_is_continuation(const guchar *data);
 
-static void
-dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   struct pop_proto_data  *frame_data_p;
   gboolean               is_request;
@@ -245,7 +245,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       call_dissector(data_handle,tvb, pinfo, pop_tree);
 
     }
-    return;
+    return tvb_captured_length(tvb);
   }
 
   /*
@@ -349,6 +349,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset = next_offset;
     }
   }
+  return tvb_captured_length(tvb);
 }
 
 static gboolean response_is_continuation(const guchar *data)
@@ -447,7 +448,7 @@ proto_register_pop(void)
 
 
   proto_pop = proto_register_protocol("Post Office Protocol", "POP", "pop");
-  register_dissector("pop", dissect_pop, proto_pop);
+  new_register_dissector("pop", dissect_pop, proto_pop);
   proto_register_field_array(proto_pop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_init_routine (&pop_data_reassemble_init);
