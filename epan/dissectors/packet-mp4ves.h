@@ -26,5 +26,4 @@
 
 extern const value_string mp4ves_level_indication_vals[];
 
-void dissect_mp4ves_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 #endif  /* PACKET_MP4VES_H */

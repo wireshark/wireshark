@@ -59,7 +59,7 @@ static dissector_handle_t rtcp_handle;
 static dissector_handle_t sprt_handle;
 static dissector_handle_t msrp_handle;
 static dissector_handle_t h264_handle;
-static dissector_handle_t mp4ves_handle;
+static dissector_handle_t mp4ves_config_handle;
 
 static int sdp_tap = -1;
 
@@ -1168,8 +1168,8 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
             format_specific_parameter = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
             /* ascii_bytes_to_tvb requires the "=" to be in the buffer */
             data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
-            if (mp4ves_handle && data_tvb) {
-                dissect_mp4ves_config(data_tvb, pinfo, tree);
+            if (mp4ves_config_handle && data_tvb) {
+                call_dissector(mp4ves_config_handle, data_tvb, pinfo, tree);
             }
         }
     }
@@ -3115,7 +3115,7 @@ proto_reg_handoff_sdp(void)
     msrp_handle   = find_dissector("msrp");
     sprt_handle   = find_dissector("sprt");
     h264_handle   = find_dissector("h264");
-    mp4ves_handle = find_dissector("mp4ves");
+    mp4ves_config_handle = find_dissector("mp4ves_config");
 
     proto_sprt    = dissector_handle_get_protocol_index(find_dissector("sprt"));
 
