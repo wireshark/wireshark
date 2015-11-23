@@ -1319,7 +1319,7 @@ extern void alcap_tree_from_bearer_key(proto_tree* tree, tvbuff_t* tvb, packet_i
 
 #define GET_MSG_TYPE(id) ( array_length(msg_types) <= id ? &(msg_types[0]) : &(msg_types[id]) )
 
-static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     proto_tree *alcap_tree = NULL;
     alcap_message_info_t* msg_info = wmem_new0(wmem_packet_scope(), alcap_message_info_t);
     int len = tvb_reported_length(tvb);
@@ -1475,6 +1475,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
         if (tree && leg) alcap_leg_tree(alcap_tree,tvb,pinfo,leg);
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -2391,7 +2392,7 @@ proto_register_alcap(void)
 
     proto_alcap = proto_register_protocol(alcap_proto_name, alcap_proto_name_short, "alcap");
 
-    register_dissector("alcap", dissect_alcap, proto_alcap);
+    new_register_dissector("alcap", dissect_alcap, proto_alcap);
 
     proto_register_field_array(proto_alcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

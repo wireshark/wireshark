@@ -870,8 +870,8 @@ dissect_gmprs_rach_type2_kls2(tvbuff_t *tvb, int offset,
 	                    tvb, offset + 15, 1, ENC_BIG_ENDIAN);
 }
 
-static void
-dissect_gmr1_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gmr1_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	const int RACH_IE_CLASS1		= (1 << 0);
 	const int RACH_IE_CLASS2_GMR1		= (1 << 1);
@@ -916,7 +916,7 @@ dissect_gmr1_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!ies) {
 		col_append_str(pinfo->cinfo, COL_INFO, "(Invalid)");
 		call_dissector(data_handle, tvb, pinfo, tree);
-		return;
+		return tvb_captured_length(tvb);
 	}
 
 	col_append_str(pinfo->cinfo, COL_INFO, "(RACH) ");
@@ -932,6 +932,8 @@ dissect_gmr1_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (ies & RACH_IE_CLASS2_GMPRS_TYPE2)
 		dissect_gmprs_rach_type2_kls2(tvb, 2, pinfo, rach_tree);
+
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -1183,7 +1185,7 @@ proto_register_gmr1_rach(void)
 	proto_register_field_array(proto_gmr1_rach, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("gmr1_rach", dissect_gmr1_rach, proto_gmr1_rach);
+	new_register_dissector("gmr1_rach", dissect_gmr1_rach, proto_gmr1_rach);
 }
 
 void

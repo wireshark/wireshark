@@ -107,8 +107,8 @@ static const value_string event_vals[] = {
 
 
 /* Code to actually dissect the packets */
-static void
-dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item   *ti;
     proto_tree   *gmrp_tree, *msg_tree, *attr_tree;
@@ -142,7 +142,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             call_dissector(data_handle,
                 tvb_new_subset_remaining(tvb, GARP_PROTOCOL_ID + 2),
                 pinfo, tree);
-            return;
+            return tvb_captured_length(tvb);
         }
 
         offset += 2;
@@ -173,7 +173,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     call_dissector(data_handle,
                                    tvb_new_subset_remaining(tvb, offset),
                                    pinfo, tree);
-                    return;
+                    return tvb_captured_length(tvb);
                 }
             }
 
@@ -192,7 +192,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 call_dissector(data_handle,
                                tvb_new_subset_remaining(tvb, offset), pinfo,
                                tree);
-                return;
+                return tvb_captured_length(tvb);
             }
 
             attr_index = 0;
@@ -227,7 +227,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         call_dissector(data_handle,
                                        tvb_new_subset_remaining(tvb, offset),
                                        pinfo, tree);
-                        return;
+                        return tvb_captured_length(tvb);
                     }
                 }
                 else
@@ -260,7 +260,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             call_dissector(data_handle,
                                            tvb_new_subset_remaining(tvb, offset),
                                            pinfo, tree);
-                            return;
+                            return tvb_captured_length(tvb);
                         }
                         break;
 
@@ -275,7 +275,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             call_dissector(data_handle,
                                            tvb_new_subset_remaining(tvb, offset),
                                            pinfo, tree);
-                            return;
+                            return tvb_captured_length(tvb);
                         }
 
                         /* Show attribute value */
@@ -304,7 +304,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 call_dissector(data_handle,
                                                tvb_new_subset_remaining(tvb, offset),
                                                pinfo, tree);
-                                return;
+                                return tvb_captured_length(tvb);
                             }
 
                         break;
@@ -313,7 +313,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         call_dissector(data_handle,
                                        tvb_new_subset_remaining(tvb, offset),
                                        pinfo, tree);
-                        return;
+                        return tvb_captured_length(tvb);
                     }
                 }
 
@@ -324,6 +324,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             msg_index++;
         }
+        return tvb_captured_length(tvb);
 }
 
 
@@ -393,7 +394,7 @@ proto_register_gmrp(void)
     expert_gmrp = expert_register_protocol(proto_gmrp);
     expert_register_field_array(expert_gmrp, ei, array_length(ei));
 
-    register_dissector("gmrp", dissect_gmrp, proto_gmrp);
+    new_register_dissector("gmrp", dissect_gmrp, proto_gmrp);
 
 }
 

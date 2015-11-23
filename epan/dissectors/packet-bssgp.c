@@ -6383,8 +6383,8 @@ static void get_bssgp_msg_params(guint8 oct, const gchar **msg_str, int *ett_tre
     return;
 }
 
-static void
-dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
     proto_item  *ti;
@@ -6422,7 +6422,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s", msg_str);
     }else{
         expert_add_info_format(pinfo, ti, &ei_bssgp_msg_type, "Unknown message 0x%x", g_pdu_type);
-        return;
+        return 1;
     }
 
     /*
@@ -6443,6 +6443,7 @@ dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         (*msg_fcn_p)(tvb, bssgp_tree, pinfo, offset, len - offset);
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -7043,7 +7044,7 @@ proto_register_bssgp(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_bssgp = expert_register_protocol(proto_bssgp);
     expert_register_field_array(expert_bssgp, ei, array_length(ei));
-    register_dissector("bssgp", dissect_bssgp, proto_bssgp);
+    new_register_dissector("bssgp", dissect_bssgp, proto_bssgp);
 
     /* Register configuration options */
     bssgp_module = prefs_register_protocol(proto_bssgp, NULL);

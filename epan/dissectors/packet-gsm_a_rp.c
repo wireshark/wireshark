@@ -418,8 +418,8 @@ static void (*rp_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
 
 /* GENERIC DISSECTOR FUNCTIONS */
 
-static void
-dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint8	     oct;
 	guint32	     offset, saved_offset;
@@ -475,9 +475,9 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_uint_format(rp_tree, hf_gsm_a_rp_msg_type,
 		tvb, saved_offset, 1, oct, "Message Type %s", str ? str : "(Unknown)");
 
-	if (str == NULL) return;
+	if (str == NULL) return offset;
 
-	if (offset >=len) return;
+	if (offset >=len) return offset;
 
 	/*
 	 * decode elements
@@ -490,6 +490,7 @@ dissect_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		(*rp_msg_fcn[idx])(tvb, rp_tree, pinfo, offset, len - offset);
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -559,7 +560,7 @@ proto_register_gsm_a_rp(void)
 	expert_gsm_a_rp = expert_register_protocol(proto_a_rp);
 	expert_register_field_array(expert_gsm_a_rp, ei, array_length(ei));
 
-	register_dissector("gsm_a_rp", dissect_rp, proto_a_rp);
+	new_register_dissector("gsm_a_rp", dissect_rp, proto_a_rp);
 }
 
 void
@@ -567,7 +568,7 @@ proto_reg_handoff_gsm_a_rp(void)
 {
 	dissector_handle_t	gsm_a_rp_handle;
 
-	gsm_a_rp_handle = create_dissector_handle(dissect_rp, proto_a_rp);
+	gsm_a_rp_handle = new_create_dissector_handle(dissect_rp, proto_a_rp);
 	/* Dissect messages embedded in SIP */
 	dissector_add_string("media_type","application/vnd.3gpp.sms", gsm_a_rp_handle);
 	gsm_sms_handle = find_dissector("gsm_sms");

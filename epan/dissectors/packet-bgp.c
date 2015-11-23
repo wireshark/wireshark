@@ -6689,8 +6689,8 @@ dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 /*
  * Dissect a BGP packet.
  */
-static void
-dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     volatile int  offset = 0;   /* offset into the tvbuff           */
     gint          reported_length_remaining;
@@ -6789,7 +6789,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  */
                 pinfo->desegment_offset = offset;
                 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-                return;
+                return tvb_captured_length(tvb);
             }
         }
 
@@ -6803,7 +6803,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * as an error.
              */
             show_reported_bounds_error(tvb, pinfo, tree);
-            return;
+            return tvb_captured_length(tvb);
         }
 
         /*
@@ -6821,7 +6821,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  */
                 pinfo->desegment_offset = offset;
                 pinfo->desegment_len = bgp_len - length_remaining;
-                return;
+                return tvb_captured_length(tvb);
             }
         }
 
@@ -6874,6 +6874,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (offset <= offset_before)
             break;
     }
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -8323,7 +8324,7 @@ proto_register_bgp(void)
       "BGP dissector detect the length of the AS number in AS_PATH attributes automatically or manually (NOTE: Automatic detection is not 100% accurate)",
       &bgp_asn_len, asn_len, FALSE);
 
-    register_dissector("bgp", dissect_bgp, proto_bgp);
+    new_register_dissector("bgp", dissect_bgp, proto_bgp);
 }
 
 void
@@ -8331,7 +8332,7 @@ proto_reg_handoff_bgp(void)
 {
     dissector_handle_t bgp_handle;
 
-    bgp_handle = create_dissector_handle(dissect_bgp, proto_bgp);
+    bgp_handle = new_create_dissector_handle(dissect_bgp, proto_bgp);
     dissector_add_uint("tcp.port", BGP_TCP_PORT, bgp_handle);
 }
 /*

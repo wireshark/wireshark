@@ -458,8 +458,8 @@ static void llc_gprs_dissect_xid(tvbuff_t *tvb,
 }
 
 
-static void
-dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint8 addr_fld=0, sapi=0, ctrl_fld_fb=0, frame_format, tmp=0;
 	guint16 offset=0 , epm = 0, nu=0, ctrl_fld_ui_s=0;
@@ -490,7 +490,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (addr_fld > 128 )
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, "Invalid packet - Protocol Discriminator bit is set to 1");
-		return;
+		return offset;
 	}
 
 	sapi = addr_fld & 0xF;
@@ -1113,6 +1113,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* END MLT CHANGES */
 		break;
 	}
+	return tvb_captured_length(tvb);
 }
 
 
@@ -1338,7 +1339,7 @@ proto_register_llcgprs(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_llcgprs = expert_register_protocol(proto_llcgprs);
 	expert_register_field_array(expert_llcgprs, ei, array_length(ei));
-	register_dissector("llcgprs", dissect_llcgprs, proto_llcgprs);
+	new_register_dissector("llcgprs", dissect_llcgprs, proto_llcgprs);
 
 	llcgprs_module = prefs_register_protocol ( proto_llcgprs, NULL );
 	prefs_register_bool_preference ( llcgprs_module, "autodetect_cipher_bit",

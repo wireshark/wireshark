@@ -2495,8 +2495,8 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   pinfo->fragmented = save_fragmented;
 }
 
-static void
-dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree *ip_tree;
   proto_item *ti, *tf;
@@ -2506,11 +2506,11 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if(version == 4){
     dissect_ip_v4(tvb, pinfo, tree);
-    return;
+    return tvb_captured_length(tvb);
   }
   if(version == 6){
     call_dissector(ipv6_handle, tvb, pinfo, tree);
-    return;
+    return tvb_captured_length(tvb);
   }
 
   /* Bogus IP version */
@@ -2521,6 +2521,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ip_tree = proto_item_add_subtree(ti, ett_ip);
   tf = proto_tree_add_item(ip_tree, hf_ip_version, tvb, 0, 1, ENC_NA);
   expert_add_info(pinfo, tf, &ei_ip_bogus_ip_version);
+  return 1;
 }
 
 static gboolean
@@ -3167,7 +3168,7 @@ proto_register_ip(void)
     "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
     &try_heuristic_first);
 
-  register_dissector("ip", dissect_ip, proto_ip);
+  new_register_dissector("ip", dissect_ip, proto_ip);
   register_init_routine(ip_defragment_init);
   register_cleanup_routine(ip_defragment_cleanup);
   ip_tap = register_tap("ip");

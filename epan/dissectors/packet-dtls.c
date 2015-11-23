@@ -337,8 +337,8 @@ static gint  looks_like_dtls(tvbuff_t *tvb, guint32 offset);
 /*
  * Code to actually dissect the packets
  */
-static void
-dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
   conversation_t    *conversation;
@@ -376,8 +376,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       session->last_nontls_frame >= pinfo->fd->num) {
     /* This conversation started at a different protocol and STARTTLS was
      * used, but this packet comes too early. */
-    /* TODO: convert to new-style dissector and return 0 to reject packet. */
-    return;
+    return 0;
   }
 
   /* try decryption only the first time we see this packet
@@ -450,6 +449,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
   tap_queue_packet(dtls_tap, pinfo, NULL);
+  return tvb_captured_length(tvb);
 }
 
 static gboolean
@@ -467,13 +467,13 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
       /* Advance offset to the end of the current DTLS record */
       offset += tvb_get_ntohs(tvb, offset + 11) + 13;
       if (offset == length) {
-        dissect_dtls(tvb, pinfo, tree);
+        dissect_dtls(tvb, pinfo, tree, data);
         return TRUE;
       }
     }
 
     if (pinfo->fragmented && offset >= 13) {
-      dissect_dtls(tvb, pinfo, tree);
+      dissect_dtls(tvb, pinfo, tree, data);
       return TRUE;
     }
     return FALSE;
@@ -490,12 +490,12 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
       offset += tvb_get_ntohs(tvb, offset + 8) + 10;
     } else {
       /* Dissect what we've got, which might be as little as 3 bytes. */
-      dissect_dtls(tvb, pinfo, tree);
+      dissect_dtls(tvb, pinfo, tree, data);
       return TRUE;
     }
     if (offset == length) {
       /* Can this ever happen?  Well, just in case ... */
-      dissect_dtls(tvb, pinfo, tree);
+      dissect_dtls(tvb, pinfo, tree, data);
       return TRUE;
     }
   }
@@ -504,7 +504,7 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
    * original number of bytes present before truncation or we're dealing with
    * a packet fragment that's also been truncated. */
   if ((length >= 3) && (offset <= tvb_reported_length(tvb) || pinfo->fragmented)) {
-    dissect_dtls(tvb, pinfo, tree);
+    dissect_dtls(tvb, pinfo, tree, data);
     return TRUE;
   }
   return FALSE;
@@ -1833,7 +1833,7 @@ proto_register_dtls(void)
   }
 #endif
 
-  register_dissector("dtls", dissect_dtls, proto_dtls);
+  new_register_dissector("dtls", dissect_dtls, proto_dtls);
   dtls_handle = find_dissector("dtls");
 
   register_init_routine(dtls_init);

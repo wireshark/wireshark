@@ -1985,8 +1985,8 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _
 
 /* END SHIM6 PART */
 
-static void
-dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree    *ipv6_tree, *ipv6_exthdr_tree, *pt;
     proto_item    *ipv6_item, *ti, *pi;
@@ -2028,7 +2028,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  "Invalid IPv6 header (%u bytes, need exactly 40)",
                  tvb_reported_length(tvb));
         expert_add_info(pinfo, ipv6_item, &ei_ipv6_invalid_header);
-        return;
+        return tvb_captured_length(tvb);
     }
 
     ipv6_tree = proto_item_add_subtree(ipv6_item, ett_ipv6);
@@ -2047,7 +2047,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_add_fstr(pinfo->cinfo, COL_INFO,
                  "Bogus IPv6 version (%u, must be 6)", version);
         expert_add_info_format(pinfo, ti_ipv6_version, &ei_ipv6_bogus_ipv6_version, "Bogus IPv6 version");
-        return;
+        return offset + IP6H_CTL_VFC;
     }
 
     tfc = IPv6_HDR_TCLS(ipv6);
@@ -2305,7 +2305,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 plen = ipv6_info->jumbo_length;
                 if (plen == 0) {
                     col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IPv6 jumbo length");
-                    return;
+                    return tvb_captured_length(tvb);
                 }
             } else if (plen == 0) {
                 /* IPv6 length zero is invalid if there is a hop-by-hop header without jumbo option */
@@ -2313,14 +2313,14 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (ti_ipv6_plen) {
                     expert_add_info(pinfo, ti_ipv6_plen, &ei_ipv6_opt_jumbo_missing);
                 }
-                return;
+                return tvb_captured_length(tvb);
             } else if (plen < (guint32)advance) {
                 col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IPv6 payload length");
                 if (ti_ipv6_plen) {
                     proto_item_append_text(ti_ipv6_plen, " (Bogus, less than hop-by-hop extension header length)");
                     expert_add_info(pinfo, ti_ipv6_plen, &ei_ipv6_bogus_ipv6_length);
                 }
-                return;
+                return tvb_captured_length(tvb);
             }
         }
     }
@@ -2330,7 +2330,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_item_append_text(ti_ipv6_plen, " (Bogus, next header is %s)", ipprotostr(nxt));
             expert_add_info(pinfo, ti_ipv6_plen, &ei_ipv6_bogus_ipv6_length);
         }
-        return;
+        return tvb_captured_length(tvb);
     }
     if (plen > (tvb_reported_length(tvb) - 40)) {
         expert_add_info_format(pinfo, ti_ipv6_plen, &ei_ipv6_bogus_payload_length,
@@ -2432,6 +2432,7 @@ again:
         }
     }
     pinfo->fragmented = save_fragmented;
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -3534,7 +3535,7 @@ proto_register_ipv6(void)
                                    "Whether to display IPv6 extension headers as a separate protocol or a sub-protocol of the IPv6 packet",
                                    &ipv6_exthdr_under_root);
 
-    register_dissector("ipv6", dissect_ipv6, proto_ipv6);
+    new_register_dissector("ipv6", dissect_ipv6, proto_ipv6);
     register_init_routine(ipv6_reassemble_init);
     register_cleanup_routine(ipv6_reassemble_cleanup);
     ipv6_tap = register_tap("ipv6");

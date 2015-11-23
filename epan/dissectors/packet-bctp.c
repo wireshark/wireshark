@@ -67,7 +67,7 @@ static const value_string bvei_vals[] = {
 };
 
 
-static void dissect_bctp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
+static int dissect_bctp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
 	proto_item* pi = proto_tree_add_item(tree, proto_bctp, tvb,0,2, ENC_NA);
 	proto_tree* pt = proto_item_add_subtree(pi,ett_bctp);
 	tvbuff_t* sub_tvb = tvb_new_subset_remaining(tvb, 2);
@@ -78,14 +78,15 @@ static void dissect_bctp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 	proto_tree_add_item(pt, hf_bctp_tpei, tvb,0,2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(pt, hf_bctp_tpi, tvb,0,2, ENC_BIG_ENDIAN);
 
-	if ( dissector_try_uint(bctp_dissector_table, tpi, sub_tvb, pinfo, tree) ) {
-		return;
-	} else if (tpi <= 0x22) {
-		call_dissector(data_handle,sub_tvb, pinfo, tree);
-	} else {
-		/* tpi > 0x22 */
-		call_dissector(text_handle,sub_tvb, pinfo, tree);
+	if (!dissector_try_uint(bctp_dissector_table, tpi, sub_tvb, pinfo, tree) ) {
+		if (tpi <= 0x22) {
+			call_dissector(data_handle,sub_tvb, pinfo, tree);
+		} else {
+			/* tpi > 0x22 */
+			call_dissector(text_handle,sub_tvb, pinfo, tree);
+		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -105,7 +106,7 @@ proto_register_bctp (void)
 	proto_register_field_array(proto_bctp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("bctp", dissect_bctp, proto_bctp);
+	new_register_dissector("bctp", dissect_bctp, proto_bctp);
 
 	bctp_dissector_table = register_dissector_table("bctp.tpi", "BCTP Tunneled Protocol Indicator", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }

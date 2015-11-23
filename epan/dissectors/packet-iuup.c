@@ -605,7 +605,7 @@ static void add_payload_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iuup_
 #define PROCEDURE_MASK  0x0f
 #define FQC_MASK 0xc0
 #define PDUTYPE_MASK 0xf0
-static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree) {
+static int dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree, void* data _U_) {
     proto_item* pi;
     proto_item* iuup_item = NULL;
     proto_item* pdutype_item = NULL;
@@ -664,12 +664,11 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
                 expert_add_info(pinfo, pi, &ei_iuup_error_response);
             }
 
-            if (!tree) return;
             proto_tree_add_item(iuup_tree,hf_iuup_rfci,tvb,1,1,ENC_BIG_ENDIAN);
             add_hdr_crc(tvb, pinfo, iuup_tree, crccheck);
             add_payload_crc(tvb, pinfo, iuup_tree);
             dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f,4,pinfo->circuit_id);
-            return;
+            return tvb_captured_length(tvb);
         case PDUTYPE_DATA_NO_CRC:
             col_append_fstr(pinfo->cinfo, COL_INFO," RFCI %u", (guint)(second_octet & 0x3f));
 
@@ -680,12 +679,10 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
                 expert_add_info(pinfo, pi, &ei_iuup_error_response);
             }
 
-            if (!tree)
-                return;
             proto_tree_add_item(iuup_tree,hf_iuup_rfci,tvb,1,1,ENC_BIG_ENDIAN);
             add_hdr_crc(tvb, pinfo, iuup_tree, crccheck);
             dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f,3,pinfo->circuit_id);
-            return;
+            return tvb_captured_length(tvb);
         case PDUTYPE_DATA_CONTROL_PROC:
             if (tree) {
                 ack_item = proto_tree_add_item(iuup_tree,hf_iuup_ack_nack,tvb,0,1,ENC_BIG_ENDIAN);
@@ -707,43 +704,40 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
                 case ACKNACK_ACK:
                     switch(second_octet & PROCEDURE_MASK) {
                         case PROC_INIT:
-                            if (!tree) return;
                             proto_tree_add_item(iuup_tree,hf_iuup_spare_03,tvb,2,1,ENC_BIG_ENDIAN);
                             proto_tree_add_item(iuup_tree,hf_iuup_spare_ff,tvb,3,1,ENC_BIG_ENDIAN);
-                            return;
+                            return tvb_captured_length(tvb);
                         case PROC_RATE:
-                            if (!tree) return;
                             dissect_iuup_ratectl(tvb,pinfo,iuup_tree);
-                            return;
+                            return tvb_captured_length(tvb);
                         case PROC_TIME:
                         case PROC_ERROR:
                             break;
                         default:
                             expert_add_info(pinfo, proc_item, &ei_iuup_procedure_indicator);
-                            return;
+                            return tvb_captured_length(tvb);
                     }
                     break;
                 case ACKNACK_NACK:
                     pi = proto_tree_add_item(iuup_tree,hf_iuup_error_cause_val,tvb,4,1,ENC_BIG_ENDIAN);
                     expert_add_info(pinfo, pi, &ei_iuup_error_response);
-                    return;
+                    return tvb_captured_length(tvb);
                 case ACKNACK_RESERVED:
                     expert_add_info(pinfo, ack_item, &ei_iuup_ack_nack);
-                    return;
+                    return tvb_captured_length(tvb);
                 case ACKNACK_PROC:
                     break;
             }
 
             switch( second_octet & PROCEDURE_MASK ) {
                 case PROC_INIT:
-                    if (tree) add_payload_crc(tvb, pinfo, iuup_tree);
+                    add_payload_crc(tvb, pinfo, iuup_tree);
                     dissect_iuup_init(tvb,pinfo,iuup_tree,pinfo->circuit_id);
-                    return;
+                    return tvb_captured_length(tvb);
                 case PROC_RATE:
-                    if (!tree) return;
                     add_payload_crc(tvb, pinfo, iuup_tree);
                     dissect_iuup_ratectl(tvb,pinfo,iuup_tree);
-                    return;
+                    return tvb_captured_length(tvb);
                 case PROC_TIME:
                 {
                     proto_tree* time_tree;
@@ -769,7 +763,7 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
                     }
 
                     proto_tree_add_item(iuup_tree,hf_iuup_spare_bytes,tvb,5,-1,ENC_NA);
-                    return;
+                    return tvb_captured_length(tvb);
                 }
                 case PROC_ERROR:
                     col_append_str(pinfo->cinfo, COL_INFO, val_to_str(tvb_get_guint8(tvb,4) & 0x3f,iuup_error_causes,"Unknown (%u)"));
@@ -778,19 +772,20 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
                     pi = proto_tree_add_item(iuup_tree,hf_iuup_errorevt_cause_val,tvb,4,1,ENC_BIG_ENDIAN);
                     expert_add_info(pinfo, pi, &ei_iuup_error_response);
                     proto_tree_add_item(iuup_tree,hf_iuup_spare_bytes,tvb,5,-1,ENC_NA);
-                    return;
+                    return tvb_captured_length(tvb);
                 default: /* bad */
                     expert_add_info(pinfo, proc_item, &ei_iuup_procedure_indicator);
-                    return;
+                    return tvb_captured_length(tvb);
             }
         default:
             expert_add_info(pinfo, pdutype_item, &ei_iuup_pdu_type);
-            return;
+            break;
     }
+    return tvb_captured_length(tvb);
 }
 
 
-static gboolean dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static gboolean dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     int len = tvb_captured_length(tvb);
 
     guint8 first_octet =  tvb_get_guint8(tvb,0);
@@ -817,24 +812,25 @@ static gboolean dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             return FALSE;
     }
 
-    dissect_iuup(tvb, pinfo, tree);
+    dissect_iuup(tvb, pinfo, tree, data);
     return TRUE;
 }
 
 
-static void find_iuup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int find_iuup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     int len = tvb_captured_length(tvb);
     int offset = 0;
 
     while (len > 3) {
-        if ( dissect_iuup_heur(tvb_new_subset_remaining(tvb,offset), pinfo, tree) )
-            return;
+        if ( dissect_iuup_heur(tvb_new_subset_remaining(tvb,offset), pinfo, tree, data) )
+            return tvb_captured_length(tvb);
 
         offset++;
         len--;
     }
 
     call_dissector(data_handle, tvb, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 static void init_iuup(void) {
@@ -1000,8 +996,8 @@ void proto_register_iuup(void) {
     proto_register_subtree_array(ett, array_length(ett));
     expert_iuup = expert_register_protocol(proto_iuup);
     expert_register_field_array(expert_iuup, ei, array_length(ei));
-    register_dissector("iuup", dissect_iuup, proto_iuup);
-    register_dissector("find_iuup", find_iuup, proto_iuup);
+    new_register_dissector("iuup", dissect_iuup, proto_iuup);
+    new_register_dissector("find_iuup", find_iuup, proto_iuup);
 
     register_init_routine(&init_iuup);
     register_cleanup_routine(&cleanup_iuup);

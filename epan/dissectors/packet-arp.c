@@ -1363,8 +1363,8 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 static const guint8 mac_allzero[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-static void
-dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint16       ar_hrd;
   guint16       ar_pro;
@@ -1393,11 +1393,11 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ar_hrd = tvb_get_ntohs(tvb, AR_HRD);
   if (ar_hrd == ARPHRD_ATM2225) {
     call_dissector(atmarp_handle, tvb, pinfo, tree);
-    return;
+    return tvb_captured_length(tvb);
   }
   if (ar_hrd == ARPHRD_AX25) {
     call_dissector(ax25arp_handle, tvb, pinfo, tree);
-    return;
+    return tvb_captured_length(tvb);
   }
   /* Protocol Address Type */
   ar_pro = tvb_get_ntohs(tvb, AR_PRO);
@@ -1747,6 +1747,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_append_fstr(pinfo->cinfo, COL_INFO, " (duplicate use of %s detected!)",
                     arpproaddr_to_str((guint8*)&duplicate_ip, 4, ETHERTYPE_IP));
   }
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -1971,7 +1972,7 @@ proto_register_arp(void)
   atmarp_handle = new_create_dissector_handle(dissect_atmarp, proto_arp);
   ax25arp_handle = new_create_dissector_handle(dissect_ax25arp, proto_arp);
 
-  arp_handle = register_dissector( "arp" , dissect_arp, proto_arp );
+  arp_handle = new_register_dissector( "arp" , dissect_arp, proto_arp );
 
   /* Preferences */
   arp_module = prefs_register_protocol(proto_arp, NULL);

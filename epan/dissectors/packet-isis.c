@@ -70,8 +70,8 @@ static const value_string isis_vals[] = {
     { 0,                   NULL}
 };
 
-static void
-dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti, *version_item;
     proto_tree *isis_tree = NULL;
@@ -103,7 +103,6 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 "Unknown ISIS version (%u vs %u)",
                 isis_version, ISIS_REQUIRED_VERSION );
         expert_add_info(pinfo, version_item, &ei_isis_version);
-        return;
     }
     offset += 1;
 
@@ -146,6 +145,7 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         proto_tree_add_expert(tree, pinfo, &ei_isis_type, tvb, offset, -1);
     }
+    return tvb_captured_length(tvb);
 } /* dissect_isis */
 
 void
@@ -209,7 +209,7 @@ proto_register_isis(void)
     expert_isis = expert_register_protocol(proto_isis);
     expert_register_field_array(expert_isis, ei, array_length(ei));
 
-    isis_handle = register_dissector("isis", dissect_isis, proto_isis);
+    isis_handle = new_register_dissector("isis", dissect_isis, proto_isis);
 
     isis_dissector_table = register_dissector_table("isis.type",
                                 "ISIS Type", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

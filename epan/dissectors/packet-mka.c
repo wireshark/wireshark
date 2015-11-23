@@ -454,8 +454,8 @@ dissect_icv(proto_tree *mka_tree, tvbuff_t *tvb, int *offset_ptr)
   *offset_ptr = offset;
 }
 
-static void
-dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   int         offset = 0;
   guint8      mka_version_type = 0;
@@ -470,12 +470,10 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /*
    * The 802.1X-2010 spec specifies support for MKA version 1 only
-   * If not version 1, bail out.
    */
   mka_version_type = tvb_get_guint8(tvb, offset);
   if (mka_version_type != 1) {
-    proto_tree_add_expert(mka_tree, pinfo, &ei_unexpected_data, tvb, offset, -1);
-    return;
+    expert_add_info(pinfo, ti, &ei_unexpected_data);
   }
 
   /*
@@ -515,6 +513,7 @@ dissect_mka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += tvb_reported_length_remaining(tvb, offset);
     }
   }
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -759,7 +758,7 @@ proto_register_mka(void)
   };
 
   proto_mka = proto_register_protocol("MACsec Key Agreement", "EAPOL-MKA", "mka");
-  register_dissector("mka", dissect_mka, proto_mka);
+  new_register_dissector("mka", dissect_mka, proto_mka);
 
   proto_register_field_array(proto_mka, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

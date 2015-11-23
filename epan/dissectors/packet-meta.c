@@ -506,8 +506,8 @@ static gint32 evaluate_meta_items(guint16 schema, tvbuff_t *tvb, packet_info *pi
     return total_len;
 }
 
-static void
-dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 #define META_HEADER_SIZE 8
     guint16             schema, proto, hdrlen, reserved;
@@ -537,12 +537,12 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (item_len < 0) {
         /* evaluate_meta_items signalled an error */
-        return; /* stop parsing */
+        return META_HEADER_SIZE; /* stop parsing */
     }
 
     if (hdrlen != item_len) {
         expert_add_info(pinfo, ti, &ei_meta_invalid_header);
-        return;
+        return META_HEADER_SIZE;
     }
 
     /* find next subdissector based on the chosen schema */
@@ -600,6 +600,7 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     call_dissector(next_dissector ? next_dissector : data_handle,
         next_tvb, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -780,7 +781,7 @@ proto_register_meta(void)
     expert_module_t* expert_meta;
 
     proto_meta = proto_register_protocol("Metadata", "META", "meta");
-    register_dissector("meta", dissect_meta, proto_meta);
+    new_register_dissector("meta", dissect_meta, proto_meta);
 
     proto_register_field_array(proto_meta, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

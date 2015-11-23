@@ -45,8 +45,8 @@ static gint     ett_ipars       = -1;
 
 #define MAX_EOM_MSG_SIZE    (16)            /* max size of an EOMx indicator string */
 
-static void
-dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
+static int
+dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* data _U_)
 {
     int       bytes;
     guint8    ia     = 0, ta = 0, cmd = 0, la = 0;
@@ -112,13 +112,13 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
             if (ia == 0x03) {
                 proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 0, 1, "GoAhead Next IA");
                 col_set_str(pinfo->cinfo, COL_INFO, "GoAhead");
-                return;
+                return tvb_captured_length(tvb);
             } else if (ia != S1) {
                 proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb,
                     0,
                     bytes, "Unknown format - Data (%d byte%s)", bytes,
                     plurality(bytes, "", "s"));
-                return;
+                return tvb_captured_length(tvb);
             }
             proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 0, 1, "S1");
             ia = tvb_get_guint8(tvb, 1) & 0x3f;
@@ -127,7 +127,7 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
                     0,
                     bytes, "Unknown format - Data (%d byte%s)", bytes,
                     plurality(bytes, "", "s"));
-                return;
+                return tvb_captured_length(tvb);
             }
             proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 1, 1, "S2");
             ia = tvb_get_guint8(tvb, 2) & 0x3f;
@@ -150,11 +150,11 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
                     0,
                     bytes, "Data (%d byte%s)", bytes,
                     plurality(bytes, "", "s"));
-                return;
-
+                return tvb_captured_length(tvb);
             }
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -167,7 +167,7 @@ proto_register_ipars(void)
     proto_ipars = proto_register_protocol("International Passenger Airline Reservation System", "IPARS", "ipars");
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("ipars", dissect_ipars, proto_ipars);
+    new_register_dissector("ipars", dissect_ipars, proto_ipars);
 }
 
 /*

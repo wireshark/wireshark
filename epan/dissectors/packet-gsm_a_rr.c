@@ -10811,8 +10811,8 @@ void get_rr_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf
  * The code should probably be cleaned up.
  * The name CCCH might not be correct!
  */
-static void
-dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
     static gsm_a_tap_rec_t  tap_rec[4];
@@ -10842,7 +10842,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * too short to be CCCH
          */
         call_dissector(data_handle, tvb, pinfo, tree);
-        return;
+        return tvb_captured_length(tvb);
     }
 
     col_append_str(pinfo->cinfo, COL_INFO, "(CCCH) ");
@@ -10896,7 +10896,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     default:
         /* XXX - hf_idx is still -1! this is a bug in the implementation, and I don't know how to fix it so simple return here */
-        return;
+        return tvb_captured_length(tvb);
     }
 
     /*
@@ -10969,10 +10969,10 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tap_queue_packet(gsm_a_tap, pinfo, tap_p);
 
     if (msg_str == NULL)
-        return;
+        return offset;
 
     if (offset >= len)
-        return;
+        return offset;
 
     /*
      * decode elements
@@ -10982,6 +10982,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }else{
         (*msg_fcn_p)(tvb, ccch_tree, pinfo, offset, len - offset);
     }
+    return tvb_captured_length(tvb);
 }
 
 const value_string gsm_a_rr_short_pd_msg_strings[] = {
@@ -11030,8 +11031,8 @@ const value_string short_protocol_discriminator_vals[] = {
     {  0, NULL }
 };
 
-static void
-dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     static gsm_a_tap_rec_t  tap_rec[4];
     static gsm_a_tap_rec_t *tap_p;
@@ -11104,7 +11105,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        proto_tree_add_bits_item(sacch_tree, hf_gsm_a_rr_short_pd, tvb, offset * 8 + bit_offset++, 1, ENC_BIG_ENDIAN);
 
     if (hf_idx == -1)
-        return;
+        return 1;
 
     /*
      * add SACCH message name
@@ -11122,7 +11123,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tap_queue_packet(gsm_a_tap, pinfo, tap_p);
 
     if (msg_str == NULL)
-        return;
+        return offset;
 
     /*
      * decode elements
@@ -11132,6 +11133,7 @@ dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }else{
         (*msg_fcn_p)(tvb, sacch_tree, pinfo, offset, len - offset);
     }
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -13338,7 +13340,7 @@ proto_register_gsm_a_rr(void)
         proto_register_protocol("GSM CCCH", "GSM CCCH", "gsm_a.ccch");
 
     /* subdissector code */
-    register_dissector("gsm_a_ccch", dissect_ccch, proto_a_ccch);
+    new_register_dissector("gsm_a_ccch", dissect_ccch, proto_a_ccch);
 
     /* Register the protocol name and description */
     proto_a_sacch =
@@ -13347,7 +13349,7 @@ proto_register_gsm_a_rr(void)
     proto_register_field_array(proto_a_sacch, hf_rr_short_pd, array_length(hf_rr_short_pd));
 
     /* subdissector code */
-    register_dissector("gsm_a_sacch", dissect_sacch, proto_a_sacch);
+    new_register_dissector("gsm_a_sacch", dissect_sacch, proto_a_sacch);
 
     /* subtree array (for both sub-dissectors) */
     proto_register_subtree_array(ett, array_length(ett));

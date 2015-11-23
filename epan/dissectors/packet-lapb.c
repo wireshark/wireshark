@@ -61,8 +61,8 @@ static const xdlc_cf_items lapb_cf_items = {
     &hf_lapb_ftype_s_u
 };
 
-static void
-dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree          *lapb_tree, *ti;
     guint16             control;
@@ -99,7 +99,7 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tree)
             proto_tree_add_protocol_format(tree, proto_lapb, tvb, 0, -1,
                             "Invalid LAPB frame");
-        return;
+        return 1;
     }
 
     switch (pinfo->p2p_dir) {
@@ -153,6 +153,7 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -213,7 +214,7 @@ proto_register_lapb(void)
     proto_register_field_array (proto_lapb, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("lapb", dissect_lapb, proto_lapb);
+    new_register_dissector("lapb", dissect_lapb, proto_lapb);
 }
 
 void

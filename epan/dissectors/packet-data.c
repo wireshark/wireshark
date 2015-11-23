@@ -58,8 +58,8 @@ static gboolean generate_md5_hash = FALSE;
 
 static gint ett_data = -1;
 
-static void
-dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
+static int
+dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* data _U_)
 {
 	gint bytes;
 
@@ -110,6 +110,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 			PROTO_ITEM_SET_GENERATED (ti);
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -136,7 +137,7 @@ proto_register_data(void)
 		"data"		/* abbrev */
 		);
 
-	register_dissector("data", dissect_data, proto_data);
+	new_register_dissector("data", dissect_data, proto_data);
 
 	proto_register_fields(proto_data, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));

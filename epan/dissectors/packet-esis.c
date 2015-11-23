@@ -243,8 +243,8 @@ esis_dissect_redirect_pdu( guint8 len, tvbuff_t *tvb, proto_tree *tree, packet_i
  * Output:
  *   void, but we will add to the proto_tree if it is not NULL.
  */
-static void
-dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   guint8 version, length;
   proto_item *ti, *type_item;
   proto_tree *esis_tree    = NULL;
@@ -265,7 +265,6 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       expert_add_info_format(pinfo, ti, &ei_esis_length,
                            "Bogus ESIS length (%u, must be >= %u)",
                            length, ESIS_HDR_FIXED_LENGTH );
-      return;
     }
 
     version = tvb_get_guint8(tvb, 2);
@@ -336,6 +335,7 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   default:
     expert_add_info(pinfo, type_item, &ei_esis_type);
   }
+  return tvb_captured_length(tvb);
 } /* dissect_esis */
 
 
@@ -413,7 +413,7 @@ proto_register_esis(void) {
   proto_register_subtree_array(ett, array_length(ett));
   expert_esis = expert_register_protocol(proto_esis);
   expert_register_field_array(expert_esis, ei, array_length(ei));
-  register_dissector("esis", dissect_esis, proto_esis);
+  new_register_dissector("esis", dissect_esis, proto_esis);
 }
 
 void

@@ -357,8 +357,8 @@ dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_dissector(dissector_data, next_tvb, pinfo, tree);
 }
 
-static void
-dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int       offset = 0;
     guint32   label  = MPLS_LABEL_INVALID;
@@ -436,7 +436,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             g_strlcpy(PW_ACH, "Generic Associated Channel Header",50);
             next_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector(dissector_pw_ach, next_tvb, pinfo, tree );
-            return;
+            return tvb_captured_length(tvb);
         }
         else
             g_strlcpy(PW_ACH, "PW Associated Channel Header",50);
@@ -453,7 +453,7 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     found = dissector_try_uint_new(mpls_subdissector_table, label,
                                next_tvb, pinfo, tree, FALSE, &mplsinfo);
     if (found)
-        return;
+        return tvb_captured_length(tvb);
 
     /* 2) use the 1st nibble logic (see BCP 4928, RFC 4385 and 5586) */
     if (first_nibble == 4) {
@@ -461,16 +461,16 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* IP dissector may reduce the length of the tvb.
            We need to do the same, so that ethernet trailer is detected. */
         set_actual_length(tvb, offset+tvb_reported_length(next_tvb));
-        return;
+        return tvb_captured_length(tvb);
     } else if (first_nibble == 6) {
         call_dissector(dissector_ipv6, next_tvb, pinfo, tree);
         /* IPv6 dissector may reduce the length of the tvb.
            We need to do the same, so that ethernet trailer is detected. */
         set_actual_length(tvb, offset+tvb_reported_length(next_tvb));
-        return;
+        return tvb_captured_length(tvb);
     } else if (first_nibble == 1) {
         call_dissector(dissector_pw_ach, next_tvb, pinfo, tree);
-        return;
+        return tvb_captured_length(tvb);
     } else if (tvb_captured_length(next_tvb) >= 14) {
         guint16 etype = tvb_get_ntohs(next_tvb, 12);
         if ((etype == ETHERTYPE_IP) ||(etype == ETHERTYPE_ARP) ||
@@ -479,10 +479,11 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* This looks like an ethernet packet with a known ethertype.
                Decode payload as Ethernet PW */
             call_dissector(dissector_pw_eth_heuristic, next_tvb, pinfo, tree);
-            return;
+            return tvb_captured_length(tvb);
         }
     }
     call_dissector(dissector_data, next_tvb, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -603,7 +604,7 @@ proto_register_mpls(void)
     expert_mpls = expert_register_protocol(proto_mpls);
     expert_register_field_array(expert_mpls, ei, array_length(ei));
 
-    register_dissector("mpls", dissect_mpls, proto_mpls);
+    new_register_dissector("mpls", dissect_mpls, proto_mpls);
 
     pw_ach_subdissector_table  = register_dissector_table("pwach.channel_type", "PW Associated Channel Type", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
