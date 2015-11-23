@@ -2164,13 +2164,12 @@ ifopts_write_new_hide(void)
 	gboolean	 hide;
 	gchar		*new_hide;
 
-	/* new preferences "hidden" interfaces string */
-	new_hide = (gchar *)g_malloc0(MAX_VAL_LEN);
-
 	/* get "hide" flag text for each row (interface) */
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(cur_list));
 	store = GTK_LIST_STORE(model);
 	if( gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter) ) {
+		/* new preferences "hidden" interfaces string */
+		new_hide = (gchar *)g_malloc0(MAX_VAL_LEN);
 		while (more_items) {
 			gtk_tree_model_get(GTK_TREE_MODEL(store), &iter,
 					   DEVICE_COLUMN, &ifnm,

@@ -3956,7 +3956,7 @@ ok_remote_cb(GtkWidget *win _U_, gpointer *data _U_)
     } while (gtk_tree_model_iter_next(model, &iter));
     g_free(name);
   }
-  hide_interface(g_strdup(new_hide));
+  hide_interface(new_hide);
 
   /* Refresh all places that are displaying an interface list
      that includes interfaces other than local interfaces

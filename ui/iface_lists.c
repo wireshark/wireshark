@@ -446,6 +446,8 @@ hide_interface(gchar* new_hide)
         global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
         g_array_insert_val(global_capture_opts.all_ifaces, i, device);
     }
+    g_list_free(hidden_devices);
+    g_free(new_hide);
 }
 #endif /* HAVE_LIBPCAP */
 
