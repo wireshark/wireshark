@@ -442,7 +442,11 @@ Adjusting the paths as required to Python and the wireshark source tree.  To use
 modify the -G parameter, cmake -G lists all the CMake supported generators, but only Visual Studio is
 supported for Wireshark builds.
 
-To build an x64 version, the -G parameter must have a Win64 suffix, e.g. -G "Visual Studio 12 Win64"
+To build an x64 version, the -G parameter must have a Win64 suffix, e.g. -G "Visual Studio 12 Win64", e.g.
+
+----
+> cmake -DENABLE_CHM_GUIDES=on -G "Visual Studio 12 Win64" ..\wireshark
+----
 
 The CMake generation process will download the required 3rd party libraries (apart from Qt)
 as required, then test each library for usability before generating the build files.
