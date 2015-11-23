@@ -165,7 +165,8 @@ mp2t_read_pcr(guint8 *buffer)
  * potentially scanning the entire file for a PCR?
  */
 static gboolean
-mp2t_find_next_pcr(wtap *wth, int *err, gchar **err_info, guint32 *idx, guint64 *pcr, guint16 *pid)
+mp2t_find_next_pcr(wtap *wth, guint8 trailer_len,
+        int *err, gchar **err_info, guint32 *idx, guint64 *pcr, guint16 *pid)
 {
     guint8 buffer[MP2T_SIZE];
     gboolean found;
@@ -174,7 +175,8 @@ mp2t_find_next_pcr(wtap *wth, int *err, gchar **err_info, guint32 *idx, guint64 
     found = FALSE;
     while (FALSE == found) {
         (*idx)++;
-        if (!wtap_read_bytes_or_eof(wth->fh, buffer, MP2T_SIZE, err, err_info)) {
+        if (!wtap_read_bytes_or_eof(
+                    wth->fh, buffer, MP2T_SIZE+trailer_len, err, err_info)) {
             /* Read error, short read, or EOF */
             return FALSE;
         }
@@ -209,7 +211,8 @@ mp2t_find_next_pcr(wtap *wth, int *err, gchar **err_info, guint32 *idx, guint64 
 }
 
 static wtap_open_return_val
-mp2t_bits_per_second(wtap *wth, guint64 *bitrate, int *err, gchar **err_info)
+mp2t_bits_per_second(wtap *wth, gint first, guint8 trailer_len,
+        guint64 *bitrate, int *err, gchar **err_info)
 {
     guint32 pn1, pn2;
     guint64 pcr1, pcr2;
@@ -226,9 +229,11 @@ mp2t_bits_per_second(wtap *wth, guint64 *bitrate, int *err, gchar **err_info)
      * to the time scale of the underlying transport stream?
      */
 
-    idx = 0;
+    if (first<0)
+        return WTAP_OPEN_ERROR;
+    idx = (guint32)first;
 
-    if (!mp2t_find_next_pcr(wth, err, err_info, &idx, &pcr1, &pid1)) {
+    if (!mp2t_find_next_pcr(wth, trailer_len, err, err_info, &idx, &pcr1, &pid1)) {
         /* Read error, short read, or EOF */
         if (*err == WTAP_ERR_SHORT_READ)
             return WTAP_OPEN_NOT_MINE;    /* not a full frame */
@@ -246,7 +251,7 @@ mp2t_bits_per_second(wtap *wth, guint64 *bitrate, int *err, gchar **err_info)
     pn2 = pn1;
 
     while (pn1 == pn2) {
-        if (!mp2t_find_next_pcr(wth, err, err_info, &idx, &pcr2, &pid2)) {
+        if (!mp2t_find_next_pcr(wth, trailer_len, err, err_info, &idx, &pcr2, &pid2)) {
             /* Read error, short read, or EOF */
             if (*err == WTAP_ERR_SHORT_READ)
                 return WTAP_OPEN_NOT_MINE;    /* not a full frame */
@@ -355,7 +360,8 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
     }
 
     /* Ensure there is a valid bitrate */
-    status = mp2t_bits_per_second(wth, &bitrate, err, err_info);
+    status = mp2t_bits_per_second(wth, first, trailer_len,
+            &bitrate, err, err_info);
     if (status != WTAP_OPEN_MINE) {
         return status;
     }
