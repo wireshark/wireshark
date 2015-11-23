@@ -4944,6 +4944,7 @@ write_prefs(char **pf_path_return)
             *pf_path_return = pf_path;
             return errno;
         }
+        g_free(pf_path);
     } else {
         pf = stdout;
     }
