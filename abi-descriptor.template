@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <descriptor>
-<version>
+  <version>
     0.0.0
-</version>
-<headers>
+  </version>
+  <headers>
     {RELPATH}/abi-check-headers
-</headers>
-<libs>
+  </headers>
+  <libs>
     @LIBRARY_OUTPUT_PATH@
-</libs>
-<include_paths>@INCLUDE_DIRS@
-</include_paths>
-<gcc_options>
+  </libs>
+  <include_paths>@INCLUDE_DIRS@
+  </include_paths>
+  <gcc_options>
     -D_U_="__attribute((unused))"
-</gcc_options>
-<include_preamble>
+  </gcc_options>
+  <include_preamble>
     config.h
-</include_preamble>
+  </include_preamble>
 </descriptor>

@@ -44,6 +44,11 @@ am__v_SED_0 = @echo "  SED     " $@;
 	$(AM_V_AWK)$(AWK) '/^EXPORTS$$/ {next;}; ${def_sym_filter_symbols} /^[^;]/ { print $$1;}' < $< > $@
 
 # abi-compliance-checker descriptor
-INCLUDE_DIRS = $(subst -I,NEWLINE,$(filter -I%, $(CFLAGS) -I$(abs_top_srcdir) -I$(abs_srcdir)))
+abi_incdirs = $(subst -I,NEWLINE,$(filter -I%,$(CFLAGS) -I$(abs_top_srcdir) -I$(abs_srcdir)))
+abi_sysdirs = $(subst -isystem,NEWLINE,$(filter -isystem%,$(CFLAGS)))
+INCLUDE_DIRS = $(abi_incdirs) $(abi_sysdirs)
 abi-descriptor.xml: ../abi-descriptor.template
-	$(AM_V_SED)sed "s|@INCLUDE_DIRS@|$(INCLUDE_DIRS)|g;s/NEWLINE/\n    /g;s|@LIBRARY_OUTPUT_PATH@|{RELPATH}/.libs|" $< > $@
+	$(AM_V_SED)sed \
+		-e 's|@INCLUDE_DIRS@|$(INCLUDE_DIRS)|g' \
+		-e 's/ *NEWLINE/\n    /g' \
+		-e 's|@LIBRARY_OUTPUT_PATH@|{RELPATH}/.libs|' $< > $@
