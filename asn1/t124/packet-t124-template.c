@@ -74,15 +74,15 @@ static const per_sequence_t t124Heur_sequence[] = {
 };
 
 void
-register_t124_ns_dissector(const char *nsKey, dissector_t dissector, int proto)
+register_t124_ns_dissector(const char *nsKey, new_dissector_t dissector, int proto)
 {
   dissector_handle_t dissector_handle;
 
-  dissector_handle=create_dissector_handle(dissector, proto);
+  dissector_handle=new_create_dissector_handle(dissector, proto);
   dissector_add_string("t124.ns", nsKey, dissector_handle);
 }
 
-void register_t124_sd_dissector(packet_info *pinfo _U_, guint32 channelId_param, dissector_t dissector, int proto)
+void register_t124_sd_dissector(packet_info *pinfo _U_, guint32 channelId_param, new_dissector_t dissector, int proto)
 {
   /* XXX: we should keep the sub-dissectors list per conversation
      as the same channels may be used.
@@ -91,7 +91,7 @@ void register_t124_sd_dissector(packet_info *pinfo _U_, guint32 channelId_param,
 
   dissector_handle_t dissector_handle;
 
-  dissector_handle=create_dissector_handle(dissector, proto);
+  dissector_handle=new_create_dissector_handle(dissector, proto);
   dissector_add_uint("t124.sd", channelId_param, dissector_handle);
 
 }

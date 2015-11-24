@@ -1377,8 +1377,8 @@ dissect_rdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   return tree;
 }
 
-static void
-dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   proto_item      *pi;
   int              offset       = 0;
   guint32          flags        = 0;
@@ -1575,7 +1575,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       break;
     }
 
-    return;
+    return tvb_captured_length(tvb);
   } /* licensing stage */
 
   if (rdp_info && (t124_get_last_channelId() == rdp_info->staticChannelId)) {
@@ -1619,7 +1619,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     /* we may get multiple control headers in a single frame */
     col_set_fence(pinfo->cinfo, COL_INFO);
 
-    return;
+    return tvb_captured_length(tvb);
   } /* (rdp_info && (t124_get_last_channelId() == rdp_info->staticChannelId)) */
 
   /* Virtual Channel */
@@ -1631,10 +1631,12 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     /*offset =*/ dissect_rdp_channelPDU(tvb, offset, pinfo, tree);
   else
     /*offset =*/ dissect_rdp_encrypted(tvb, offset, pinfo, tree, "Channel PDU");
+
+  return tvb_captured_length(tvb);
 }
 
-static void
-dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   int              offset    = 0;
   proto_item      *pi;
   proto_tree      *next_tree;
@@ -1802,10 +1804,11 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     }
     offset += MAX(4, length);   /* Use length from header, but advance at least 4 bytes */
   }
+  return tvb_captured_length(tvb);
 }
 
-static void
-dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   int              offset           = 0;
   proto_item      *pi;
   proto_tree      *next_tree;
@@ -1985,6 +1988,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     }
     offset += MAX(4, length);   /* Use length from header, but advance at least 4 bytes */
   }
+  return tvb_captured_length(tvb);
 }
 
 /*--- proto_register_rdp -------------------------------------------*/
