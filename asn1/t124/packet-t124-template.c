@@ -117,7 +117,7 @@ int dissect_DomainMCSPDU_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int
-dissect_t124_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+dissect_t124(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
   proto_item *item = NULL;
   proto_tree *tree = NULL;
@@ -135,12 +135,6 @@ dissect_t124_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
   dissect_t124_ConnectData(tvb, 0, &asn1_ctx, tree, hf_t124_ConnectData);
 
   return tvb_captured_length(tvb);
-}
-
-static void
-dissect_t124(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-  dissect_t124_new(tvb, pinfo, parent_tree, NULL);
 }
 
 static gboolean
@@ -168,7 +162,7 @@ dissect_t124_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 
   if (!failed && ((asn1_ctx.external.direct_reference != NULL) &&
                   (strcmp(asn1_ctx.external.direct_reference, "0.0.20.124.0.1") == 0))) {
-    dissect_t124(tvb, pinfo, parent_tree);
+    dissect_t124(tvb, pinfo, parent_tree, data);
 
     return TRUE;
   }
@@ -212,14 +206,14 @@ void proto_register_t124(void) {
   t124_ns_dissector_table = register_dissector_table("t124.ns", "T.124 H.221 Non Standard Dissectors", FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
   t124_sd_dissector_table = register_dissector_table("t124.sd", "T.124 H.221 Send Data Dissectors", FT_UINT32, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
-  new_register_dissector("t124", dissect_t124_new, proto_t124);
+  new_register_dissector("t124", dissect_t124, proto_t124);
 
 }
 
 void
 proto_reg_handoff_t124(void) {
 
-  register_ber_oid_dissector("0.0.20.124.0.1", dissect_t124, proto_t124, "Generic Conference Control");
+  new_register_ber_oid_dissector("0.0.20.124.0.1", dissect_t124, proto_t124, "Generic Conference Control");
 
   heur_dissector_add("t125", dissect_t124_heur, "T.124 over T.125", "t124_t125", proto_t124, HEURISTIC_ENABLE);
 

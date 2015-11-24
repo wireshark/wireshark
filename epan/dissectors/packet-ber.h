@@ -199,17 +199,13 @@ int call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_inf
 WS_DLL_PUBLIC
 void register_ber_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto, const char *name);
 WS_DLL_PUBLIC
-void register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, const char *name);
-WS_DLL_PUBLIC
 void new_register_ber_oid_dissector(const char *oid, new_dissector_t dissector, int proto, const char *name);
-WS_DLL_PUBLIC
-void register_ber_syntax_dissector(const char *oid, int proto, dissector_t dissector);
 WS_DLL_PUBLIC
 void new_register_ber_syntax_dissector(const char *syntax, int proto, new_dissector_t dissector);
 void register_ber_oid_name(const char *oid, const char *name);
 WS_DLL_PUBLIC
 void register_ber_oid_syntax(const char *oid, const char *name, const char *syntax);
-void dissect_ber_oid_NULL_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+int dissect_ber_oid_NULL_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 
 WS_DLL_PUBLIC
 void ber_decode_as_foreach(GHFunc func, gpointer user_data); /* iterate through known syntaxes */

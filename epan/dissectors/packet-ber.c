@@ -417,10 +417,10 @@ static gboolean ber_decode_as_change(const char *name _U_, const gpointer patter
     return FALSE;
 }
 
-void
-dissect_ber_oid_NULL_callback(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_)
+int
+dissect_ber_oid_NULL_callback(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
-    return;
+    return tvb_captured_length(tvb);
 }
 
 
@@ -432,16 +432,6 @@ register_ber_oid_dissector_handle(const char *oid, dissector_handle_t dissector,
 }
 
 void
-register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, const char *name)
-{
-    dissector_handle_t dissector_handle;
-
-    dissector_handle = create_dissector_handle(dissector, proto);
-    dissector_add_string("ber.oid", oid, dissector_handle);
-    oid_add_from_string(name, oid);
-}
-
-void
 new_register_ber_oid_dissector(const char *oid, new_dissector_t dissector, int proto, const char *name)
 {
     dissector_handle_t dissector_handle;
@@ -449,16 +439,6 @@ new_register_ber_oid_dissector(const char *oid, new_dissector_t dissector, int p
     dissector_handle = new_create_dissector_handle(dissector, proto);
     dissector_add_string("ber.oid", oid, dissector_handle);
     oid_add_from_string(name, oid);
-}
-
-void
-register_ber_syntax_dissector(const char *syntax, int proto, dissector_t dissector)
-{
-    dissector_handle_t dissector_handle;
-
-    dissector_handle = create_dissector_handle(dissector, proto);
-    dissector_add_string("ber.syntax", syntax, dissector_handle);
-
 }
 
 void
@@ -4237,10 +4217,10 @@ dissect_ber_EmbeddedPDV_Type(gboolean implicit_tag, proto_tree *tree, tvbuff_t *
     return offset;
 }
 
-static void
-dissect_ber_syntax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ber_syntax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    (void) dissect_unknown_ber(pinfo, tvb, 0, tree);
+    return dissect_unknown_ber(pinfo, tvb, 0, tree);
 }
 
 static int
@@ -4569,7 +4549,7 @@ proto_register_ber(void)
     ber_syntax_dissector_table = register_dissector_table("ber.syntax", "BER syntax", FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
     syntax_table = g_hash_table_new(g_str_hash, g_str_equal); /* oid to syntax */
 
-    register_ber_syntax_dissector("ASN.1", proto_ber, dissect_ber_syntax);
+    new_register_ber_syntax_dissector("ASN.1", proto_ber, dissect_ber_syntax);
 
     register_init_routine(ber_defragment_init);
     register_cleanup_routine(ber_defragment_cleanup);

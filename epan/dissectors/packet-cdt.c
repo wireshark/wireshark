@@ -278,7 +278,7 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
      dissect_unknown_ber (actx->pinfo, next_tvb, 0, top_tree);
      break;
    case CDT_P1:
-     dissect_p1_mts_apdu (next_tvb, actx->pinfo, top_tree);
+     dissect_p1_mts_apdu (next_tvb, actx->pinfo, top_tree, NULL);
      break;
    default:
      call_dissector (data_handle, next_tvb, actx->pinfo, top_tree);

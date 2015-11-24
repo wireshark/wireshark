@@ -209,8 +209,8 @@ const char* p1_get_last_oraddress (asn1_ctx_t* actx)
 /*
  * Dissect P1 MTS APDU
  */
-void
-dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+int
+dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
@@ -230,6 +230,7 @@ dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
     dissect_p1_MTS_APDU (FALSE, tvb, 0, &asn1_ctx, tree, hf_p1_MTS_APDU_PDU);
     p1_initialize_content_globals (&asn1_ctx, NULL, FALSE);
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -385,7 +386,7 @@ void proto_register_p1(void) {
                  " than the default of 102)",
                  10, &global_p1_tcp_port);
 
-  register_ber_syntax_dissector("P1 Message", proto_p1, dissect_p1_mts_apdu);
+  new_register_ber_syntax_dissector("P1 Message", proto_p1, dissect_p1_mts_apdu);
 #include "packet-p1-syn-reg.c"
 }
 

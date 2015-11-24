@@ -1196,7 +1196,7 @@ static void dissect_SafeContents_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pin
   dissect_pkcs12_SafeContents(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkcs12_SafeContents_PDU);
 }
 
-static void dissect_X509Certificate_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_X509Certificate_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -1206,6 +1206,8 @@ static void dissect_X509Certificate_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *
 	dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkcs12_X509Certificate_PDU);
   else
 	proto_tree_add_expert(tree, pinfo, &ei_pkcs12_octet_string_expected, tvb, 0, 1);
+
+  return tvb_captured_length(tvb);
 }
 
 /*--- proto_register_pkcs12 ----------------------------------------------*/
@@ -1439,7 +1441,7 @@ void proto_register_pkcs12(void) {
         "AlgorithmIdentifier", HFILL }},
 
 /*--- End of included file: packet-pkcs12-hfarr.c ---*/
-#line 459 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 461 "../../asn1/pkcs12/packet-pkcs12-template.c"
   };
 
   /* List of subtrees */
@@ -1470,7 +1472,7 @@ void proto_register_pkcs12(void) {
     &ett_pkcs12_PBMAC1Params,
 
 /*--- End of included file: packet-pkcs12-ettarr.c ---*/
-#line 465 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 467 "../../asn1/pkcs12/packet-pkcs12-template.c"
   };
   static ei_register_info ei[] = {
       { &ei_pkcs12_octet_string_expected, { "pkcs12.octet_string_expected", PI_PROTOCOL, PI_WARN, "BER Error: OCTET STRING expected", EXPFILL }},
@@ -1538,9 +1540,9 @@ void proto_reg_handoff_pkcs12(void) {
 
 
 /*--- End of included file: packet-pkcs12-dis-tab.c ---*/
-#line 504 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 506 "../../asn1/pkcs12/packet-pkcs12-template.c"
 
-	register_ber_oid_dissector("1.2.840.113549.1.9.22.1", dissect_X509Certificate_OCTETSTRING_PDU, proto_pkcs12, "x509Certificate");
+	new_register_ber_oid_dissector("1.2.840.113549.1.9.22.1", dissect_X509Certificate_OCTETSTRING_PDU, proto_pkcs12, "x509Certificate");
 
 }
 

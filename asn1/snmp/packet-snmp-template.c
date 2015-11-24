@@ -2121,8 +2121,8 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	return dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_snmp, ett_snmp, FALSE);
 }
 
-static void
-dissect_snmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_snmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 	guint message_len;
@@ -2139,6 +2139,7 @@ dissect_snmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		offset += message_len;
 	}
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -2580,7 +2581,7 @@ void proto_register_snmp(void) {
 	register_init_routine(init_ue_cache);
 	register_cleanup_routine(cleanup_ue_cache);
 
-	register_ber_syntax_dissector("SNMP", proto_snmp, dissect_snmp_tcp);
+	new_register_ber_syntax_dissector("SNMP", proto_snmp, dissect_snmp_tcp);
 }
 
 
@@ -2598,7 +2599,7 @@ void proto_reg_handoff_snmp(void) {
 	dissector_add_uint("ipx.socket", IPX_SOCKET_SNMP_SINK, snmp_handle);
 	dissector_add_uint("hpext.dxsap", HPEXT_SNMP, snmp_handle);
 
-	snmp_tcp_handle = create_dissector_handle(dissect_snmp_tcp, proto_snmp);
+	snmp_tcp_handle = new_create_dissector_handle(dissect_snmp_tcp, proto_snmp);
 	dissector_add_uint("tcp.port", TCP_PORT_SNMP, snmp_tcp_handle);
 	dissector_add_uint("tcp.port", TCP_PORT_SNMP_TRAP, snmp_tcp_handle);
 

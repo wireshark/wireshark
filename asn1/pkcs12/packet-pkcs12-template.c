@@ -429,7 +429,7 @@ static void dissect_SafeContents_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pin
   dissect_pkcs12_SafeContents(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkcs12_SafeContents_PDU);
 }
 
-static void dissect_X509Certificate_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_X509Certificate_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -439,6 +439,8 @@ static void dissect_X509Certificate_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *
 	dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkcs12_X509Certificate_PDU);
   else
 	proto_tree_add_expert(tree, pinfo, &ei_pkcs12_octet_string_expected, tvb, 0, 1);
+
+  return tvb_captured_length(tvb);
 }
 
 /*--- proto_register_pkcs12 ----------------------------------------------*/
@@ -502,7 +504,7 @@ void proto_register_pkcs12(void) {
 void proto_reg_handoff_pkcs12(void) {
 #include "packet-pkcs12-dis-tab.c"
 
-	register_ber_oid_dissector("1.2.840.113549.1.9.22.1", dissect_X509Certificate_OCTETSTRING_PDU, proto_pkcs12, "x509Certificate");
+	new_register_ber_oid_dissector("1.2.840.113549.1.9.22.1", dissect_X509Certificate_OCTETSTRING_PDU, proto_pkcs12, "x509Certificate");
 
 }
 
