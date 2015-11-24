@@ -1653,6 +1653,7 @@ list(APPEND DATA_FILES_SRC
 	"diameter/*.xml"
 	"profiles/*/*"
 	"tpncp/tpncp.dat"
+	"wimaxasncp/*.dtd"
 	"wimaxasncp/*.xml"
 )
 
