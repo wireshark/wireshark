@@ -3626,7 +3626,7 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
     ret = sscanf( tmpstr, "%14d%1[.,+-Z]%4d%1[+-Z]%4d", &tmp_int, first_delim, &first_digits, second_delim, &second_digits);
     /* tmp_int does not contain valid value bacause of overflow but we use it just for format checking */
     if (ret < 1) {
-    	/* Nothing matched */
+        /* Nothing matched */
         goto invalid;
     }
 
