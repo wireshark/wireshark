@@ -442,7 +442,7 @@ static void insert_to_graph_t38(voip_calls_tapinfo_t *tapinfo, packet_info *pinf
         new_gai->comment = g_strdup("");
     new_gai->conv_num=call_num;
     new_gai->line_style=line_style;
-    set_fd_time(edt->session, packet_list_get_row_data(frame_num), time_str);
+    set_fd_time(edt->session, pinfo->fd, time_str);
     new_gai->time_str = g_strdup(time_str);
     new_gai->display=FALSE;
 
