@@ -250,7 +250,8 @@ PacketList::PacketList(QWidget *parent) :
     capture_in_progress_(false),
     tail_timer_id_(0),
     rows_inserted_(false),
-    columns_changed_(false)
+    columns_changed_(false),
+    set_column_visibility_(false)
 {
     QMenu *main_menu_item, *submenu;
     QAction *action;
@@ -559,9 +560,11 @@ void PacketList::paintEvent(QPaintEvent *event)
 
 void PacketList::setColumnVisibility()
 {
+    set_column_visibility_ = true;
     for (int i = 0; i < prefs.num_cols; i++) {
         setColumnHidden(i, get_column_visible(i) ? false : true);
     }
+    set_column_visibility_ = false;
 }
 
 int PacketList::sizeHintForColumn(int column) const
@@ -636,8 +639,9 @@ void PacketList::redrawVisiblePackets() {
 // prefs.col_list has changed.
 void PacketList::columnsChanged()
 {
+    columns_changed_ = true;
     if (!cap_file_) {
-        columns_changed_ = true;
+        // Keep columns_changed_ = true until we load a capture file.
         return;
     }
 
@@ -984,6 +988,7 @@ void PacketList::setCaptureFile(capture_file *cf)
     cap_file_ = cf;
     if (cap_file_ && columns_changed_) {
         columnsChanged();
+        applyRecentColumnWidths();
     }
     packet_list_model_->setCaptureFile(cf);
     create_near_overlay_ = true;
@@ -1223,8 +1228,12 @@ void PacketList::columnVisibilityTriggered()
     QAction *ha = qobject_cast<QAction*>(sender());
     if (!ha) return;
 
-    set_column_visible(ha->data().toInt(), ha->isChecked());
+    int col = ha->data().toInt();
+    set_column_visible(col, ha->isChecked());
     setColumnVisibility();
+    if (ha->isChecked()) {
+        setColumnWidth(col, recent_get_column_width(col));
+    }
     if (!prefs.gui_use_pref_save) {
         prefs_main_write();
     }
@@ -1232,9 +1241,16 @@ void PacketList::columnVisibilityTriggered()
 
 void PacketList::sectionResized(int col, int, int new_width)
 {
-    if (isVisible()) {
+    if (isVisible() && !columns_changed_ && !set_column_visibility_ && new_width > 0) {
         // Column 1 gets an invalid value (32 on OS X) when we're not yet
         // visible.
+        //
+        // Don't set column width when columns changed or setting column
+        // visibility because we may get a sectionReized() from QTreeView
+        // with values from a old columns layout.
+        //
+        // Don't set column width when hiding a column.
+
         recent_set_column_width(col, new_width);
     }
 }
