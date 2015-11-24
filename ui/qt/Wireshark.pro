@@ -544,6 +544,7 @@ win32 {
         $${GNUTLS_DIR}/bin/libintl-8.dll $${SMI_DIR}/bin/libsmi-2.dll \
         $${LUA_DIR}/lua52.dll \
         $${GEOIP_DIR}/bin/libGeoIP-1.dll \
+        $${LIBSSH_DIR}/bin/libssh.dll \
         $${WINSPARKLE_DIR}/WinSparkle.dll \
         ../../colorfilters ../../dfilters ../../cfilters
 

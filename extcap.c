@@ -211,7 +211,7 @@ static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
                     &command_output, NULL, &exit_status, NULL);
 
             if (status && exit_status == 0)
-            keep_going = cb(extcap_path->str, ifname, command_output, cb_data, err_str);
+                keep_going = cb(extcap_path->str, ifname, command_output, cb_data, err_str);
 
             g_free(argv[0]);
             g_free(command_output);

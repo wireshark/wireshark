@@ -25,7 +25,7 @@
 include ../config.nmake
 
 doc: wireshark.html tshark.html wireshark-filter.html capinfos.html \
-	editcap.html idl2wrs.html mergecap.html reordercap.html \
+	ciscodump.html editcap.html idl2wrs.html mergecap.html reordercap.html \
 	text2pcap.html dumpcap.html androiddump.html sshdump.html rawshark.html \
 	dftest.html randpkt.html randpktdump.html \
 	idl2deb.html asn2deb.html extcap.html
@@ -33,7 +33,7 @@ doc: wireshark.html tshark.html wireshark-filter.html capinfos.html \
 man: wireshark.1 tshark.1 wireshark-filter.4 capinfos.1 \
 	editcap.1 idl2wrs.1 mergecap.1 reordercap.1 \
 	text2pcap.1 dumpcap.1 androiddump.1 sshdump.1 rawshark.1 dftest.1 randpkt.1 \
-	idl2deb.1 asn2deb.1 extcap.4 randpktdump.1
+	idl2deb.1 asn2deb.1 extcap.4 randpktdump.1 ciscodump.1
 
 wireshark.pod: wireshark.pod.template AUTHORS-SHORT-FORMAT
 	copy /B wireshark.pod.template + AUTHORS-SHORT-FORMAT wireshark.pod
@@ -248,6 +248,19 @@ sshdump.html: sshdump.pod ../config.h ws.css
 	--css=ws.css \
 	--noindex                                 \
 	sshdump.pod > sshdump.html
+
+ciscodump.1: ciscodump.pod ../config.h
+	$(POD2MAN)                      \
+	--center="The Wireshark Network Analyzer" \
+	--release=$(VERSION)			 \
+	ciscodump.pod > ciscodump.1
+
+ciscodump.html: ciscodump.pod ../config.h ws.css
+	$(POD2HTML)                     \
+	--title="ciscodump - The Wireshark Network Analyzer $(VERSION)" \
+	--css=ws.css \
+	--noindex                                 \
+	ciscodump.pod > ciscodump.html
 
 randpktdump.1: randpktdump.pod ../config.h
 	$(POD2MAN)                      \

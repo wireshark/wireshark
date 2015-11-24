@@ -86,7 +86,7 @@ man_MANS =
 noinst_DATA = asn2deb.1 asn2deb.html idl2deb.1 idl2deb.html idl2wrs.1 idl2wrs.html
 
 pkgdata_DATA = AUTHORS-SHORT $(top_srcdir)/docbook/ws.css wireshark.html \
-	tshark.html wireshark-filter.html capinfos.html editcap.html \
+	tshark.html wireshark-filter.html capinfos.html ciscodump.html editcap.html \
 	mergecap.html reordercap.html text2pcap.html dumpcap.html androiddump.html \
 	sshdump.html randpktdump.html rawshark.html dftest.html randpkt.html \
 	extcap.html
@@ -237,6 +237,13 @@ sshdump.html: sshdump.pod ../config.h $(top_srcdir)/docbook/ws.css
 	--noindex							\
 	$(srcdir)/sshdump.pod > sshdump.html
 
+ciscodump.html: ciscodump.pod ../config.h $(top_srcdir)/docbook/ws.css
+	$(AM_V_POD2HTML)$(POD2HTML)                     \
+	--title="ciscodump - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=$(POD_CSS_URL)						\
+	--noindex							\
+	$(srcdir)/ciscodump.pod > ciscodump.html
+
 randpktdump.html: randpktdump.pod ../config.h $(top_srcdir)/docbook/ws.css
 	$(AM_V_POD2HTML)$(POD2HTML)                     \
 	--title="randpktdump - The Wireshark Network Analyzer $(VERSION)"	\
@@ -307,6 +314,7 @@ EXTRA_DIST =				\
 	asn2deb.pod			\
 	capinfos.pod			\
 	captype.pod			\
+	ciscodump.pod			\
 	dfilter2pod.pl			\
 	dftest.pod			\
 	dumpcap.pod			\
@@ -326,7 +334,7 @@ EXTRA_DIST =				\
 	rawshark.pod			\
 	reordercap.pod			\
 	sgml.doc.template		\
-	sshdump.pod				\
+	sshdump.pod			\
 	text2pcap.pod			\
 	tshark.pod			\
 	wireshark-filter.pod    	\

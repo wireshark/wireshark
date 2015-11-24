@@ -126,8 +126,8 @@ SetShellVarContext all
 
 Push "${EXECUTABLE_MARKER}"
 Push "androiddump"
-;WIP: uncomment when sshdump on windows will be ready to go
-;Push "sshdump"
+Push "ciscodump"
+Push "sshdump"
 Push "dumpcap"
 Push "${PROGRAM_NAME}"
 Push "tshark"
@@ -180,9 +180,9 @@ Delete "$INSTDIR\etc\gtk-2.0\*.*"
 Delete "$INSTDIR\etc\gtk-3.0\*.*"
 Delete "$INSTDIR\etc\pango\*.*"
 Delete "$INSTDIR\extcap\androiddump.*"
-;WIP: uncomment when sshdump on windows will be ready to go
-;Delete "$INSTDIR\extcap\sshdump.*"
 Delete "$INSTDIR\extcap\randpktdump.*"
+Delete "$INSTDIR\extcap\sshdump.*"
+Delete "$INSTDIR\extcap\ciscodump.*"
 Delete "$INSTDIR\help\*.*"
 Delete "$INSTDIR\iconengines\*.*"
 Delete "$INSTDIR\imageformats\*.*"

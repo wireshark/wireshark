@@ -22,12 +22,14 @@ DLL=../../wiretap/wiretap-$(WTAP_VERSION).dll ../../wsutil/libwsutil.dll ../../c
 DOC=../../doc/ws.css				\
 	../../doc/androiddump.html		\
 	../../doc/capinfos.html			\
+	../../doc/ciscodump.html			\
 	../../doc/dumpcap.html			\
 	../../doc/editcap.html			\
 	../../doc/extcap.html			\
 	../../doc/mergecap.html			\
 	../../doc/randpktdump.html		\
 	../../doc/rawshark.html			\
+	../../doc/sshdump.html			\
 	../../doc/text2pcap.html		\
 	../../doc/tshark.html			\
 	../../doc/wireshark-filter.html		\
@@ -36,9 +38,6 @@ DOC=../../doc/ws.css				\
 	$(STAGING_DIR)/NEWS.txt		\
 	$(STAGING_DIR)/README.txt		\
 	$(STAGING_DIR)/README.windows.txt
-
-#WIP: uncomment and add to the above when sshdump on windows will be ready to go
-#../../doc/sshdump.html
 
 GPL=../../COPYING
 HELP=$(STAGING_DIR)/help/capture_filters.txt \
@@ -175,6 +174,9 @@ all-manifest.nsh: Makefile.nmake ..\..\config.nmake
 !IFDEF SMI_DIR
 	@echo # SMI >> $@
 	@echo File "$(STAGING_DIR)\libsmi-2.dll" >> $@
+!ENDIF
+!IFDEF LIBSSH_DIR
+	@echo File "$(STAGING_DIR)\libssh.dll" >> $@
 !ENDIF
 !IFDEF WINSPARKLE_DIR
 	@echo # WinSparkle >> $@

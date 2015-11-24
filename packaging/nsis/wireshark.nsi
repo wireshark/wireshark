@@ -1059,14 +1059,15 @@ SetOutPath $INSTDIR\extcap
 File "${STAGING_DIR}\extcap\androiddump.exe"
 SectionEnd
 
-;WIP: uncomment this section when sshdump on windows will be ready to go
-;Section /o "Sshdump" SecSshdumpinfos
+Section /o "SSHdump" SecSSHdumpinfos
 ;-------------------------------------------
-;SetOutPath $INSTDIR
-;File "${STAGING_DIR}\sshdump.html"
-;SetOutPath $INSTDIR\extcap
-;File "${STAGING_DIR}\extcap\sshdump.exe"
-;SectionEnd
+SetOutPath $INSTDIR
+File "${STAGING_DIR}\sshdump.html"
+File "${STAGING_DIR}\ciscodump.html"
+SetOutPath $INSTDIR\extcap
+File "${STAGING_DIR}\extcap\sshdump.exe"
+File "${STAGING_DIR}\extcap\ciscodump.exe"
+SectionEnd
 
 Section /o "Randpktdump" SecRandpktdumpinfos
 ;-------------------------------------------
@@ -1122,8 +1123,7 @@ SectionEnd
 
   !insertmacro MUI_DESCRIPTION_TEXT ${SecToolsGroup} "Additional command line based tools."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecAndroiddumpinfos} "Provide capture interfaces from Android devices"
-;WIP: uncomment this section when sshdump on windows will be ready to go
-;!insertmacro MUI_DESCRIPTION_TEXT ${SecSshdumpinfos} "Provide remote capture through SSH"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecSSHdumpinfos} "Provide remote capture through SSH"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpktdumpinfos} "Provide random packet generator"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Copy packets to a new file, optionally trimmming packets, omitting them, or saving to a different format."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Read an ASCII hex dump and write the data into a libpcap-style capture file."

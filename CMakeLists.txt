@@ -1325,6 +1325,7 @@ set(INSTALL_FILES
 	${CMAKE_BINARY_DIR}/doc/androiddump.html
 	${CMAKE_BINARY_DIR}/doc/capinfos.html
 	${CMAKE_BINARY_DIR}/doc/captype.html
+	${CMAKE_BINARY_DIR}/doc/ciscodump.html
 	${CMAKE_BINARY_DIR}/doc/dftest.html
 	${CMAKE_BINARY_DIR}/doc/dumpcap.html
 	${CMAKE_BINARY_DIR}/doc/editcap.html

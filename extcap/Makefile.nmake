@@ -76,7 +76,7 @@ ciscodump_LIBS = $(ciscodump_WSLIBS) \
 EXECUTABLES=androiddump.exe randpktdump.exe
 
 !IFDEF LIBSSH_DIR
-EXECUTABLES += sshdump.exe ciscodump.exe
+EXECUTABLES = $(EXECUTABLES) sshdump.exe ciscodump.exe
 !ENDIF
 
 all: $(EXECUTABLES)

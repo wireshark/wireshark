@@ -26,6 +26,7 @@
 
 #include <extcap/extcap-base.h>
 #include <wsutil/interface.h>
+#include <wsutil/file_util.h>
 #include <extcap/ssh-base.h>
 
 #include <errno.h>
@@ -90,7 +91,7 @@ static void ssh_loop_read(ssh_channel channel, int fd)
 	/* read from stdin until data are available */
 	do {
 		nbytes = ssh_channel_read(channel, buffer, SSH_READ_BLOCK_SIZE, 0);
-		if (write(fd, buffer, nbytes) != nbytes) {
+		if (ws_write(fd, buffer, nbytes) != nbytes) {
 			errmsg_print("ERROR reading: %s", g_strerror(errno));
 			return;
 		}
@@ -99,7 +100,7 @@ static void ssh_loop_read(ssh_channel channel, int fd)
 	/* read loop finished... maybe something wrong happened. Read from stderr */
 	do {
 		nbytes = ssh_channel_read(channel, buffer, SSH_READ_BLOCK_SIZE, 1);
-		if (write(STDERR_FILENO, buffer, nbytes) != nbytes) {
+		if (ws_write(STDERR_FILENO, buffer, nbytes) != nbytes) {
 			return;
 		}
 	} while(nbytes > 0);
@@ -188,9 +189,9 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 
 	if (g_strcmp0(fifo, "-")) {
 		/* Open or create the output file */
-		fd = open(fifo, O_WRONLY);
+		fd = ws_open(fifo, O_WRONLY, 0640);
 		if (fd == -1) {
-			fd = open(fifo, O_WRONLY | O_CREAT, 0640);
+			fd = ws_open(fifo, O_WRONLY | O_CREAT, 0640);
 			if (fd == -1) {
 				errmsg_print("Error creating output file: %s", g_strerror(errno));
 				return EXIT_FAILURE;
@@ -222,7 +223,7 @@ cleanup:
 	ssh_cleanup(&sshs, &channel);
 
 	if (g_strcmp0(fifo, "-"))
-		close(fd);
+		ws_close(fd);
 	return ret;
 }
 
@@ -258,7 +259,7 @@ static void help(const char* binname)
 	printf("  --remote-filter <filter>: a filter for remote capture (default: don't listen on local local interfaces IPs)\n");
 }
 
-static char* interfaces_list_to_filter(GSList* interfaces, unsigned int remote_port)
+static char* interfaces_list_to_filter(GSList* interfaces, const unsigned int remote_port)
 {
 	GString* filter = g_string_new(NULL);
 	GSList* cur;

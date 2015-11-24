@@ -434,7 +434,7 @@ GCC_DLL=libgcc_s_sjlj-1.dll
 # If you don't have libssh, comment this line out so that LIBSSH_DIR
 # isn't defined.
 #
-#LIBSSH_DIR=$(WIRESHARK_LIB_DIR)\libssh-0.7.2
+LIBSSH_DIR=$(WIRESHARK_LIB_DIR)\libssh-0.7.2-win32ws
 
 #
 # Optional: the KFW library enables kerberos/sasl/dcerpc decryption.
@@ -673,6 +673,14 @@ C_ARES_PKG=1.9.1-1
 GNUTLS_PKG=3.2.15-2.9
 GPGERROR_DLL=libgpg-error6-0.dll
 GCC_DLL=libgcc_s_seh-1.dll
+
+#
+# Optional: libssh library is required for sshdump support
+#
+# If you don't have libssh, comment this line out so that LIBSSH_DIR
+# isn't defined.
+#
+LIBSSH_DIR=$(WIRESHARK_LIB_DIR)\libssh-0.7.2-win64ws
 
 #
 # Optional: the KFW library enables kerberos/sasl/dcerpc decryption.

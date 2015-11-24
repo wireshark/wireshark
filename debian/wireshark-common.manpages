@@ -1,4 +1,5 @@
 obj-*/doc/androiddump.1
+obj-*/doc/ciscodump.1
 obj-*/doc/sshdump.1
 obj-*/doc/randpktdump.1
 obj-*/doc/editcap.1
