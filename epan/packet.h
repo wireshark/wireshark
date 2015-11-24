@@ -515,9 +515,6 @@ WS_DLL_PUBLIC void heur_dissector_add(const char *name, heur_dissector_t dissect
  */
 WS_DLL_PUBLIC void heur_dissector_delete(const char *name, heur_dissector_t dissector, const int proto);
 
-/** Register a dissector. */
-WS_DLL_PUBLIC dissector_handle_t register_dissector(const char *name, dissector_t dissector, const int proto);
-
 /** Register a new dissector. */
 WS_DLL_PUBLIC dissector_handle_t new_register_dissector(const char *name, new_dissector_t dissector, const int proto);
 
