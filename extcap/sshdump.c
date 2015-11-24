@@ -458,16 +458,16 @@ static int list_dlts(const char *interface)
 
 static char* local_interfaces_to_filter(unsigned int remote_port)
 {
+	char* filter = NULL;
 #ifdef USE_GETIFADDRS
 	struct ifaddrs* ifap;
 	struct ifaddrs* ifa;
 	GString* interfaces;
-	char* filter = NULL;
 	int family;
 	char ip[INET6_ADDRSTRLEN];
 
 	if (getifaddrs(&ifap)) {
-		return NULL;
+		goto end;
 	}
 
 	interfaces = g_string_new(NULL);
@@ -513,12 +513,13 @@ static char* local_interfaces_to_filter(unsigned int remote_port)
 
 	if (interfaces->len)
 		filter = g_strdup_printf("not ((%s) and port %u)", interfaces->str, remote_port);
-	g_string_free(interfaces, TRUE);
 
-	return filter;
-#else
-	return NULL;
+	g_string_free(interfaces, TRUE);
+end:
 #endif
+	if (!filter)
+		filter = g_strdup_printf("not port %u", remote_port);
+	return filter;
 }
 
 static int list_config(char *interface, unsigned int remote_port)
@@ -537,8 +538,6 @@ static int list_config(char *interface, unsigned int remote_port)
 	}
 
 	ipfilter = local_interfaces_to_filter(remote_port);
-	if (!ipfilter)
-		return EXIT_FAILURE;
 
 	g_print("arg {number=%u}{call=--remote-host}{display=Remote SSH server address}"
 		"{type=string}{tooltip=The remote SSH host. It can be both "
