@@ -373,8 +373,8 @@ static dissector_handle_t xmpp_handle;
 
 static dissector_handle_t xml_handle;
 
-static void
-dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
 
     xml_frame_t *xml_frame;
     xml_frame_t *xml_dissector_frame;
@@ -416,7 +416,7 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if ((indx >= 0) && (last_char != '>'))
             {
                 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-                return;
+                return tvb_captured_length(tvb);
             }
         }
     }
@@ -436,7 +436,7 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     {
         col_append_str(pinfo->cinfo, COL_INFO, "(XML dissector disabled, can't dissect XMPP)");
         expert_add_info(pinfo, xmpp_item, &ei_xmpp_xml_disabled);
-        return;
+        return tvb_captured_length(tvb);
     }
 
     /*if stream end occurs then return*/
@@ -444,18 +444,18 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     {
         if(xmpp_tree)
             xmpp_proto_tree_hide_first_child(xmpp_tree);
-        return;
+        return tvb_captured_length(tvb);
     }
 
     xml_dissector_frame = (xml_frame_t *)p_get_proto_data(pinfo->pool, pinfo, proto_xml, 0);
     if(xml_dissector_frame == NULL)
-        return;
+        return tvb_captured_length(tvb);
 
     /*data from XML dissector*/
     xml_frame = xml_dissector_frame->first_child;
 
     if(!xml_frame)
-        return;
+        return tvb_captured_length(tvb);
 
     if (!xmpp_info) {
         xmpp_info = wmem_new(wmem_file_scope(), xmpp_conv_info_t);
@@ -544,6 +544,7 @@ dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         xmpp_element_t_tree_free(packet);
         xml_frame = xml_frame->next_sibling;
     }
+    return tvb_captured_length(tvb);
 }
 
 
@@ -1472,7 +1473,7 @@ proto_register_xmpp(void) {
     expert_xmpp = expert_register_protocol(proto_xmpp);
     expert_register_field_array(expert_xmpp, ei, array_length(ei));
 
-    xmpp_handle = register_dissector("xmpp", dissect_xmpp, proto_xmpp);
+    xmpp_handle = new_register_dissector("xmpp", dissect_xmpp, proto_xmpp);
 
     xmpp_init_parsers();
 }
