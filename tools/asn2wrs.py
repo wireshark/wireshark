@@ -585,6 +585,10 @@ def dependency_compute(items, dependency, map_fn = lambda t: t, ignore_fn = lamb
                 x[e] = True
     return (item_ord, item_cyc)
 
+# Given a filename, return a relative path from the current directory
+def relpath(filename):
+    return os.path.relpath(filename)
+
 # Given a filename, return a relative path from epan/dissectors
 def rel_dissector_path(filename):
     path_parts = os.path.abspath(filename).split(os.sep)
@@ -2761,7 +2765,7 @@ class EthCnf:
         if opt in ("-I",):
             par = self.check_par(par, 1, 1, fn, lineno)
             if not par: return
-            self.include_path.append(par[0])
+            self.include_path.append(relpath(par[0]))
         elif opt in ("-b", "BER", "CER", "DER"):
             par = self.check_par(par, 0, 0, fn, lineno)
             self.ectx.encoding = 'ber'
@@ -2799,11 +2803,11 @@ class EthCnf:
         elif opt in ("-O",):
             par = self.check_par(par, 1, 1, fn, lineno)
             if not par: return
-            self.ectx.output.outdir = par[0]
+            self.ectx.output.outdir = relpath(par[0])
         elif opt in ("-s",):
             par = self.check_par(par, 1, 1, fn, lineno)
             if not par: return
-            self.ectx.output.single_file = par[0]
+            self.ectx.output.single_file = relpath(par[0])
         elif opt in ("-k",):
             par = self.check_par(par, 0, 0, fn, lineno)
             self.ectx.output.keep = True
@@ -7933,14 +7937,14 @@ def eth_main():
         if o in ("-h", "-?"):
             eth_usage(); sys.exit(2)
         if o in ("-c",):
-            conf_to_read = a
+            conf_to_read = relpath(a)
         if o in ("-I",):
-            ectx.conform.include_path.append(a)
+            ectx.conform.include_path.append(relpath(a))
         if o in ("-E",):
             ectx.expcnf = True
             ectx.justexpcnf = True
         if o in ("-D",):
-            ectx.srcdir = a
+            ectx.srcdir = relpath(a)
         if o in ("-C",):
             ectx.constraints_check = True
         if o in ("-X",):
