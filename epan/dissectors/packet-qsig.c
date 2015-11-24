@@ -12596,14 +12596,16 @@ dissect_qsig_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int codeset
   }
 }
 /*--- dissect_qsig_ie_cs4 ---------------------------------------------------*/
-static void
-dissect_qsig_ie_cs4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_qsig_ie_cs4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   dissect_qsig_ie(tvb, pinfo, tree, 4);
+  return tvb_captured_length(tvb);
 }
 /*--- dissect_qsig_ie_cs5 ---------------------------------------------------*/
-static void
-dissect_qsig_ie_cs5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_qsig_ie_cs5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   dissect_qsig_ie(tvb, pinfo, tree, 5);
+  return tvb_captured_length(tvb);
 }
 
 /*--- qsig_init_tables ---------------------------------------------------------*/
@@ -15905,7 +15907,7 @@ void proto_register_qsig(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-qsig-hfarr.c ---*/
-#line 665 "../../asn1/qsig/packet-qsig-template.c"
+#line 667 "../../asn1/qsig/packet-qsig-template.c"
   };
 
   /* List of subtrees */
@@ -16356,7 +16358,7 @@ void proto_register_qsig(void) {
     &ett_qsig_mid_SEQUENCE_OF_Extension,
 
 /*--- End of included file: packet-qsig-ettarr.c ---*/
-#line 673 "../../asn1/qsig/packet-qsig-template.c"
+#line 675 "../../asn1/qsig/packet-qsig-template.c"
     &ett_cnq_PSS1InformationElement,
   };
 
@@ -16415,11 +16417,11 @@ void proto_reg_handoff_qsig(void) {
     dissector_add_uint("q932.ros.local.err", qsig_err_tab[i].errcode, qsig_err_handle);
   }
 
-  qsig_ie_handle = create_dissector_handle(dissect_qsig_ie_cs4, proto_qsig);
+  qsig_ie_handle = new_create_dissector_handle(dissect_qsig_ie_cs4, proto_qsig);
   /* QSIG-TC - Transit counter */
   dissector_add_uint("q931.ie", CS4 | QSIG_IE_TRANSIT_COUNTER, qsig_ie_handle);
 
-  qsig_ie_handle = create_dissector_handle(dissect_qsig_ie_cs5, proto_qsig);
+  qsig_ie_handle = new_create_dissector_handle(dissect_qsig_ie_cs5, proto_qsig);
   /* SSIG-BC - Party category */
   dissector_add_uint("q931.ie", CS5 | QSIG_IE_PARTY_CATEGORY, qsig_ie_handle);
 

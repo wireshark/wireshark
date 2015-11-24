@@ -1164,8 +1164,8 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 }
 
 
-static void
-dissect_sbc_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sbc_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item      *sbc_ap_item = NULL;
     proto_tree      *sbc_ap_tree = NULL;
@@ -1180,6 +1180,7 @@ dissect_sbc_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         dissect_SBC_AP_PDU_PDU(tvb, pinfo, sbc_ap_tree, NULL);
     }
+    return tvb_captured_length(tvb);
 }
 /*--- proto_register_sbc_ap -------------------------------------------*/
 void proto_register_sbc_ap(void) {
@@ -1412,7 +1413,7 @@ void proto_register_sbc_ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sbc-ap-hfarr.c ---*/
-#line 150 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 151 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
   };
 
   /* List of subtrees */
@@ -1446,7 +1447,7 @@ void proto_register_sbc_ap(void) {
     &ett_sbc_ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sbc-ap-ettarr.c ---*/
-#line 156 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 157 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
   };
 
 
@@ -1476,7 +1477,7 @@ proto_reg_handoff_sbc_ap(void)
 	static guint SctpPort;
 
     if( !inited ) {
-        sbc_ap_handle = create_dissector_handle(dissect_sbc_ap, proto_sbc_ap);
+        sbc_ap_handle = new_create_dissector_handle(dissect_sbc_ap, proto_sbc_ap);
         dissector_add_uint("sctp.ppi", SBC_AP_PAYLOAD_PROTOCOL_ID,   sbc_ap_handle);
         inited = TRUE;
 
@@ -1504,7 +1505,7 @@ proto_reg_handoff_sbc_ap(void)
 
 
 /*--- End of included file: packet-sbc-ap-dis-tab.c ---*/
-#line 189 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 190 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, sbc_ap_handle);

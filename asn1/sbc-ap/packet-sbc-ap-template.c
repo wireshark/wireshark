@@ -123,8 +123,8 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 }
 
 
-static void
-dissect_sbc_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sbc_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item      *sbc_ap_item = NULL;
     proto_tree      *sbc_ap_tree = NULL;
@@ -139,6 +139,7 @@ dissect_sbc_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         dissect_SBC_AP_PDU_PDU(tvb, pinfo, sbc_ap_tree, NULL);
     }
+    return tvb_captured_length(tvb);
 }
 /*--- proto_register_sbc_ap -------------------------------------------*/
 void proto_register_sbc_ap(void) {
@@ -182,7 +183,7 @@ proto_reg_handoff_sbc_ap(void)
 	static guint SctpPort;
 
     if( !inited ) {
-        sbc_ap_handle = create_dissector_handle(dissect_sbc_ap, proto_sbc_ap);
+        sbc_ap_handle = new_create_dissector_handle(dissect_sbc_ap, proto_sbc_ap);
         dissector_add_uint("sctp.ppi", SBC_AP_PAYLOAD_PROTOCOL_ID,   sbc_ap_handle);
         inited = TRUE;
 #include "packet-sbc-ap-dis-tab.c"

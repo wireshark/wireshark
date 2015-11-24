@@ -763,8 +763,8 @@ dissect_q932_ni_ie(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 }
 
 /*--- dissect_q932_ie -------------------------------------------------------*/
-static void
-dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   gint offset;
   proto_item *ti;
   proto_tree *ie_tree;
@@ -785,7 +785,7 @@ dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_tree_add_item(ie_tree, hf_q932_ie_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
   offset += 2;
   if (tvb_reported_length_remaining(tvb, offset) <= 0)
-    return;
+    return offset;
   switch (ie_type) {
     case Q932_IE_FACILITY :
       dissect_q932_facility_ie(tvb, offset, pinfo, ie_tree, ie_len);
@@ -798,6 +798,7 @@ dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree_add_item(ie_tree, hf_q932_ie_data, tvb, offset, ie_len, ENC_NA);
       }
   }
+  return tvb_captured_length(tvb);
 }
 
 /*--- dissect_q932_apdu -----------------------------------------------------*/
@@ -979,7 +980,7 @@ void proto_register_q932(void) {
         "AddressInformation", HFILL }},
 
 /*--- End of included file: packet-q932-hfarr.c ---*/
-#line 310 "../../asn1/q932/packet-q932-template.c"
+#line 311 "../../asn1/q932/packet-q932-template.c"
   };
 
   /* List of subtrees */
@@ -1004,7 +1005,7 @@ void proto_register_q932(void) {
     &ett_q932_NetworkFacilityExtension_U,
 
 /*--- End of included file: packet-q932-ettarr.c ---*/
-#line 317 "../../asn1/q932/packet-q932-template.c"
+#line 318 "../../asn1/q932/packet-q932-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -1063,7 +1064,7 @@ void proto_reg_handoff_q932(void) {
   static gboolean q931_prefs_initialized = FALSE;
 
   if (!q931_prefs_initialized) {
-    q932_ie_handle = create_dissector_handle(dissect_q932_ie, proto_q932);
+    q932_ie_handle = new_create_dissector_handle(dissect_q932_ie, proto_q932);
     /* Facility */
     dissector_add_uint("q931.ie", (0x00 << 8) | Q932_IE_FACILITY, q932_ie_handle);
     /* Notification indicator */

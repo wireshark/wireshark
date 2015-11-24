@@ -1421,7 +1421,7 @@ static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb
   return offset;
 }
 
-static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
   int old_offset, offset=0;
   char str[256];
@@ -1440,7 +1440,8 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   len=tvb_reported_length_remaining(tvb,offset);
 
   /* check the len if it is to small return */
-  if (len < 10) return;
+  if (len < 10)
+    return tvb_captured_length(tvb);
 
   /* Type */
   proto_tree_add_item(tree, hf_mscldap_netlogon_opcode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1626,6 +1627,7 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   proto_tree_add_item(tree, hf_mscldap_netlogon_nt_token, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
+  return tvb_captured_length(tvb);
 }
 
 
@@ -1667,8 +1669,8 @@ dissect_normal_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	return tvb_captured_length(tvb);
 }
 
-static void
-dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	char *oid;
 	const char *oidname;
@@ -1680,7 +1682,7 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	oid=tvb_get_string_enc(wmem_packet_scope(), tvb, 0, tvb_reported_length(tvb), ENC_UTF_8|ENC_NA);
 	if(!oid){
-		return;
+		return tvb_captured_length(tvb);
 	}
 
 	oidname=oid_resolved_from_string(wmem_packet_scope(), oid);
@@ -1690,6 +1692,7 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	} else {
 		proto_tree_add_string(tree, hf_ldap_oid, tvb, 0, tvb_captured_length(tvb), oid);
 	}
+	return tvb_captured_length(tvb);
 }
 
 #define LDAP_ACCESSMASK_ADS_CREATE_CHILD	0x00000001
@@ -1730,24 +1733,26 @@ struct access_mask_info ldap_access_mask_info = {
 	NULL			/* Standard mapping table */
 };
 
-static void
-dissect_ldap_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ldap_nt_sec_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	dissect_nt_sec_desc(tvb, 0, pinfo, tree, NULL, TRUE, tvb_reported_length(tvb), &ldap_access_mask_info);
+	return tvb_captured_length(tvb);
 }
 
-static void
-dissect_ldap_sid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_ldap_sid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
 	char *tmpstr;
 
 	/* this octet string contains an NT SID */
 	dissect_nt_sid(tvb, 0, tree, "SID", &tmpstr, hf_ldap_sid);
 	ldapvalue_string=tmpstr;
+	return tvb_captured_length(tvb);
 }
 
-static void
-dissect_ldap_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ldap_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint8 drep[4] = { 0x10, 0x00, 0x00, 0x00}; /* fake DREP struct */
 	e_guid_t uuid;
@@ -1762,6 +1767,7 @@ dissect_ldap_guid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    uuid.data4[2], uuid.data4[3],
                    uuid.data4[4], uuid.data4[5],
                    uuid.data4[6], uuid.data4[7]);
+	return tvb_captured_length(tvb);
 }
 
 static int
@@ -1884,11 +1890,11 @@ this_was_not_normal_ldap:
 	return tvb_captured_length(tvb);
 }
 
-static void
-dissect_mscldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_mscldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	dissect_ldap_pdu(tvb, pinfo, tree, TRUE);
-	return;
+	return tvb_captured_length(tvb);
 }
 
 
@@ -2289,7 +2295,7 @@ proto_reg_handoff_ldap(void)
 
 	dissector_add_uint("tcp.port", TCP_PORT_GLOBALCAT_LDAP, ldap_handle);
 
-	cldap_handle = create_dissector_handle(dissect_mscldap, proto_cldap);
+	cldap_handle = new_create_dissector_handle(dissect_mscldap, proto_cldap);
 	dissector_add_uint("udp.port", UDP_PORT_CLDAP, cldap_handle);
 
 	gssapi_handle = find_dissector("gssapi");
@@ -2344,12 +2350,12 @@ proto_reg_handoff_ldap(void)
 	oid_add_from_string("LDAP_SERVER_SHUTDOWN_NOTIFY_OID","1.2.840.113556.1.4.1907");
 	oid_add_from_string("LDAP_SERVER_RANGE_RETRIEVAL_NOERR_OID","1.2.840.113556.1.4.1948");
 
-	dissector_add_string("ldap.name", "netlogon", create_dissector_handle(dissect_NetLogon_PDU, proto_cldap));
-	dissector_add_string("ldap.name", "objectGUID", create_dissector_handle(dissect_ldap_guid, proto_ldap));
-	dissector_add_string("ldap.name", "supportedControl", create_dissector_handle(dissect_ldap_oid, proto_ldap));
-	dissector_add_string("ldap.name", "supportedCapabilities", create_dissector_handle(dissect_ldap_oid, proto_ldap));
-	dissector_add_string("ldap.name", "objectSid", create_dissector_handle(dissect_ldap_sid, proto_ldap));
-	dissector_add_string("ldap.name", "nTSecurityDescriptor", create_dissector_handle(dissect_ldap_nt_sec_desc, proto_ldap));
+	dissector_add_string("ldap.name", "netlogon", new_create_dissector_handle(dissect_NetLogon_PDU, proto_cldap));
+	dissector_add_string("ldap.name", "objectGUID", new_create_dissector_handle(dissect_ldap_guid, proto_ldap));
+	dissector_add_string("ldap.name", "supportedControl", new_create_dissector_handle(dissect_ldap_oid, proto_ldap));
+	dissector_add_string("ldap.name", "supportedCapabilities", new_create_dissector_handle(dissect_ldap_oid, proto_ldap));
+	dissector_add_string("ldap.name", "objectSid", new_create_dissector_handle(dissect_ldap_sid, proto_ldap));
+	dissector_add_string("ldap.name", "nTSecurityDescriptor", new_create_dissector_handle(dissect_ldap_nt_sec_desc, proto_ldap));
 
 #include "packet-ldap-dis-tab.c"
 

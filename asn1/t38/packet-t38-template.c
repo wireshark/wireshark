@@ -550,8 +550,8 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	return tvb_captured_length(tvb);
 }
 
-static void
-dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *it;
 	proto_tree *tr;
@@ -598,10 +598,11 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
+	return tvb_captured_length(tvb);
 }
 
-static void
-dissect_t38_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_t38_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	primary_part = TRUE;
 
@@ -609,11 +610,12 @@ dissect_t38_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissect_tpkt_encap(tvb,pinfo,tree,t38_tpkt_reassembly,t38_tcp_pdu_handle);
 	}
 	else if((t38_tpkt_usage == T38_TPKT_NEVER) || (is_tpkt(tvb,1) == -1)){
-		dissect_t38_tcp_pdu(tvb, pinfo, tree);
+		dissect_t38_tcp_pdu(tvb, pinfo, tree, data);
 	}
 	else {
 		dissect_tpkt_encap(tvb,pinfo,tree,t38_tpkt_reassembly,t38_tcp_pdu_handle);
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Look for conversation info and display any setup info found */
@@ -777,8 +779,8 @@ proto_reg_handoff_t38(void)
 
 	if (!t38_prefs_initialized) {
 		t38_udp_handle=new_create_dissector_handle(dissect_t38_udp, proto_t38);
-		t38_tcp_handle=create_dissector_handle(dissect_t38_tcp, proto_t38);
-		t38_tcp_pdu_handle=create_dissector_handle(dissect_t38_tcp_pdu, proto_t38);
+		t38_tcp_handle=new_create_dissector_handle(dissect_t38_tcp, proto_t38);
+		t38_tcp_pdu_handle=new_create_dissector_handle(dissect_t38_tcp_pdu, proto_t38);
 		rtp_handle = find_dissector("rtp");
 		t30_hdlc_handle = find_dissector("t30.hdlc");
 		data_handle = find_dissector("data");

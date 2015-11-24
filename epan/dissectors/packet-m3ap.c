@@ -2031,8 +2031,8 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 }
 
 
-static void
-dissect_m3ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_m3ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item      *m3ap_item = NULL;
   proto_tree      *m3ap_tree = NULL;
@@ -2047,6 +2047,7 @@ dissect_m3ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     dissect_M3AP_PDU_PDU(tvb, pinfo, m3ap_tree, NULL);
   }
+  return tvb_captured_length(tvb);
 }
 /*--- proto_register_m3ap -------------------------------------------*/
 void proto_register_m3ap(void) {
@@ -2449,7 +2450,7 @@ void proto_register_m3ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-m3ap-hfarr.c ---*/
-#line 153 "../../asn1/m3ap/packet-m3ap-template.c"
+#line 154 "../../asn1/m3ap/packet-m3ap-template.c"
   };
 
   /* List of subtrees */
@@ -2504,7 +2505,7 @@ void proto_register_m3ap(void) {
     &ett_m3ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-m3ap-ettarr.c ---*/
-#line 159 "../../asn1/m3ap/packet-m3ap-template.c"
+#line 160 "../../asn1/m3ap/packet-m3ap-template.c"
   };
 
 
@@ -2531,7 +2532,7 @@ proto_reg_handoff_m3ap(void)
   static guint SctpPort;
 
   if( !inited ) {
-    m3ap_handle = create_dissector_handle(dissect_m3ap, proto_m3ap);
+    m3ap_handle = new_create_dissector_handle(dissect_m3ap, proto_m3ap);
     dissector_add_uint("sctp.ppi", PROTO_3GPP_M3AP_PROTOCOL_ID, m3ap_handle);
     inited = TRUE;
 
@@ -2579,7 +2580,7 @@ proto_reg_handoff_m3ap(void)
 
 
 /*--- End of included file: packet-m3ap-dis-tab.c ---*/
-#line 189 "../../asn1/m3ap/packet-m3ap-template.c"
+#line 190 "../../asn1/m3ap/packet-m3ap-template.c"
     dissector_add_uint("m3ap.extension", 17, new_create_dissector_handle(dissect_AllocationAndRetentionPriority_PDU, proto_m3ap));
   }
   else {

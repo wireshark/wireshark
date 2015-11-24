@@ -843,8 +843,8 @@ int dissect_charging_ase_ChargingMessageType_PDU(tvbuff_t *tvb _U_, packet_info 
 /*--- End of included file: packet-charging_ase-fn.c ---*/
 #line 53 "../../asn1/charging_ase/packet-charging_ase-template.c"
 
-static void
-dissect_charging_ase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_charging_ase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *it;
     proto_tree *tr;
@@ -856,6 +856,7 @@ dissect_charging_ase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         dissect_charging_ase_ChargingMessageType_PDU(tvb , pinfo, tr, NULL);
     }
+    return tvb_captured_length(tvb);
 }
 
 /* Register all the bits needed with the filtering engine */
@@ -1113,7 +1114,7 @@ proto_register_charging_ase(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-charging_ase-hfarr.c ---*/
-#line 76 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 77 "../../asn1/charging_ase/packet-charging_ase-template.c"
   };
 
   /* List of subtrees */
@@ -1154,7 +1155,7 @@ proto_register_charging_ase(void)
     &ett_charging_ase_ChargingReferenceIdentification,
 
 /*--- End of included file: packet-charging_ase-ettarr.c ---*/
-#line 82 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 83 "../../asn1/charging_ase/packet-charging_ase-template.c"
         };
 
   static ei_register_info ei[] = {
@@ -1175,6 +1176,6 @@ proto_register_charging_ase(void)
 void
 proto_reg_handoff_charging_ase(void)
 {
-  charging_ase_handle = create_dissector_handle(dissect_charging_ase, proto_charging_ase);
+  charging_ase_handle = new_create_dissector_handle(dissect_charging_ase, proto_charging_ase);
 }
 
