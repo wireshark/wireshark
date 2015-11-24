@@ -3765,5 +3765,26 @@ protected:
   QPen mainPen() const;
 };
 
+// Legend Title - Added to Wireshark
+// From: http://www.qcustomplot.com/index.php/support/forum/443
+
+class QCPStringLegendItem : public QCPAbstractLegendItem
+{
+  Q_OBJECT
+
+public:
+    explicit QCPStringLegendItem(QCPLegend *pParent, const QString& strText);
+
+    QString text() const;
+    void setText(const QString& strText);
+
+protected:
+    virtual void draw(QCPPainter *painter);
+    virtual QSize minimumSizeHint() const;
+
+private:
+    QString m_strText;
+};
+
 #endif // QCUSTOMPLOT_H
 

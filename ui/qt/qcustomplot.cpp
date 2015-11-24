@@ -23490,3 +23490,40 @@ QPen QCPItemBracket::mainPen() const
     return mSelected ? mSelectedPen : mPen;
 }
 
+// Legend Title - Added to Wireshark
+// From: http://www.qcustomplot.com/index.php/support/forum/443
+
+QCPStringLegendItem::QCPStringLegendItem(QCPLegend *pParent, const QString& strText)
+    : QCPAbstractLegendItem(pParent)
+    , m_strText(strText)
+{
+}
+
+QString QCPStringLegendItem::text() const
+{
+    return m_strText;
+}
+
+void QCPStringLegendItem::setText(const QString& strText)
+{
+    m_strText = strText;
+}
+
+void QCPStringLegendItem::draw(QCPPainter *pPainter)
+{
+    pPainter->setFont(mFont);
+    pPainter->setPen(QPen(mTextColor));
+    QRectF textRect = pPainter->fontMetrics().boundingRect(0, 0, 0, 0, Qt::TextDontClip, m_strText);
+    pPainter->drawText(mRect.x() + (mMargins.left() * 0.5), mRect.y(), textRect.width(), textRect.height(), Qt::TextDontClip | Qt::AlignHCenter, m_strText);
+}
+
+QSize QCPStringLegendItem::minimumSizeHint() const
+{
+    QSize cSize(0, 0);
+    QFontMetrics fontMetrics(mFont);
+    QRect textRect = fontMetrics.boundingRect(0, 0, 0, 0, Qt::TextDontClip, m_strText);
+    cSize.setWidth(textRect.width() + mMargins.left() + mMargins.right());
+    cSize.setHeight(textRect.height() + mMargins.top() + mMargins.bottom());
+    return cSize;
+}
+

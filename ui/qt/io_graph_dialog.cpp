@@ -205,9 +205,9 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     stat_timer_->start(stat_update_interval_);
 
     // Intervals (ms)
-    ui->intervalComboBox->addItem(tr("0.001 sec"),   1);
-    ui->intervalComboBox->addItem(tr("0.01 sec"),   10);
-    ui->intervalComboBox->addItem(tr("0.1 sec"),   100);
+    ui->intervalComboBox->addItem(tr("1 ms"),        1);
+    ui->intervalComboBox->addItem(tr("10 ms"),      10);
+    ui->intervalComboBox->addItem(tr("100 ms"),    100);
     ui->intervalComboBox->addItem(tr("1 sec"),    1000);
     ui->intervalComboBox->addItem(tr("10 sec"),  10000);
     ui->intervalComboBox->addItem(tr("1 min"),   60000);
@@ -261,7 +261,15 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
             QRgb pcolor = QColor(iogs->color).rgb();
             int color_idx;
             IOGraph::PlotStyles style = plot_style_to_name_.key(iogs->style, IOGraph::psLine);
-            io_graph_item_unit_t value_units = value_unit_to_name_.key(iogs->yaxis, IOG_ITEM_UNIT_PACKETS);
+
+            io_graph_item_unit_t value_units;
+            if (g_strcmp0(iogs->yaxis, "Bytes/s") == 0) { // Silently upgrade obsolete yaxis unit name
+                value_units = value_unit_to_name_.key(iogs->yaxis, IOG_ITEM_UNIT_BYTES);
+            } else if (g_strcmp0(iogs->yaxis, "Bits/s") == 0) { // Silently upgrade obsolete yaxis unit name
+                value_units = value_unit_to_name_.key(iogs->yaxis, IOG_ITEM_UNIT_BITS);
+            } else {
+                value_units = value_unit_to_name_.key(iogs->yaxis, IOG_ITEM_UNIT_PACKETS);
+            }
 
             for (color_idx = 0; color_idx < colors_.size(); color_idx++) {
                 if (pcolor == colors_[color_idx]) break;
@@ -733,6 +741,7 @@ void IOGraphDialog::updateLegend()
 {
     QCustomPlot *iop = ui->ioPlot;
     QSet<QString> vu_label_set;
+    QString intervalText = ui->intervalComboBox->itemText(ui->intervalComboBox->currentIndex());
 
     iop->legend->setVisible(false);
     iop->yAxis->setLabel(QString());
@@ -754,11 +763,20 @@ void IOGraphDialog::updateLegend()
 
     // All the same. Use the Y Axis label.
     if (vu_label_set.size() == 1) {
-        iop->yAxis->setLabel(vu_label_set.values()[0]);
+        iop->yAxis->setLabel(vu_label_set.values()[0] + "/" + intervalText);
         return;
     }
 
-    // Differing labels. Create a legend.
+    // Differing labels. Create a legend with a Title label at top.
+    // Legend Title thanks to: http://www.qcustomplot.com/index.php/support/forum/443
+    QCPStringLegendItem* legendTitle = qobject_cast<QCPStringLegendItem*>(iop->legend->elementAt(0));
+    if (legendTitle == NULL) {
+        legendTitle = new QCPStringLegendItem(iop->legend, QString(""));
+        iop->legend->insertRow(0);
+        iop->legend->addElement(0, 0, legendTitle);
+    }
+    legendTitle->setText(QString(intervalText + " Intervals "));
+
     for (int i = 0; i < ui->graphTreeWidget->topLevelItemCount(); i++) {
         QTreeWidgetItem *ti = ui->graphTreeWidget->topLevelItem(i);
         IOGraph *iog = NULL;
@@ -1166,6 +1184,8 @@ void IOGraphDialog::on_intervalComboBox_currentIndexChanged(int)
     if (need_retap) {
         scheduleRetap(true);
     }
+
+    updateLegend();
 }
 
 void IOGraphDialog::on_todCheckBox_toggled(bool checked)
@@ -1920,9 +1940,9 @@ QMap<io_graph_item_unit_t, QString> IOGraph::valueUnitsToNames()
 {
     QMap<io_graph_item_unit_t, QString> vuton;
 
-    vuton[IOG_ITEM_UNIT_PACKETS] = QObject::tr("Packets/s");
-    vuton[IOG_ITEM_UNIT_BYTES] = QObject::tr("Bytes/s");
-    vuton[IOG_ITEM_UNIT_BITS] = QObject::tr("Bits/s");
+    vuton[IOG_ITEM_UNIT_PACKETS] = QObject::tr("Packets");
+    vuton[IOG_ITEM_UNIT_BYTES] = QObject::tr("Bytes");
+    vuton[IOG_ITEM_UNIT_BITS] = QObject::tr("Bits");
     vuton[IOG_ITEM_UNIT_CALC_SUM] = QObject::tr("SUM(Y Field)");
     vuton[IOG_ITEM_UNIT_CALC_FRAMES] = QObject::tr("COUNT FRAMES(Y Field)");
     vuton[IOG_ITEM_UNIT_CALC_FIELDS] = QObject::tr("COUNT FIELDS(Y Field)");
