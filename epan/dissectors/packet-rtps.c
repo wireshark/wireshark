@@ -7543,14 +7543,18 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   int          sub_hf;
   const value_string *sub_vals;
   endpoint_guid guid;
-
+  guint32 magic_number;
   /* Check 'RTPS' signature:
    * A header is invalid if it has less than 16 octets
    */
   if (!tvb_bytes_exist(tvb, offset, 16))
     return FALSE;
-  if (tvb_get_ntohl(tvb, offset) != RTPS_MAGIC_NUMBER)
-    return FALSE;
+
+  magic_number = tvb_get_ntohl(tvb, offset);
+  if (magic_number != RTPX_MAGIC_NUMBER &&
+      magic_number != RTPS_MAGIC_NUMBER) {
+      return FALSE;
+  }
   /* Distinguish between RTPS 1.x and 2.x here */
   majorRev = tvb_get_guint8(tvb,offset+4);
   if ((majorRev != 1) && (majorRev != 2))

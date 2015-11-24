@@ -111,6 +111,7 @@ typedef enum {
 } RTICdrTypeObjectTypeKind;
 
 #define RTPS_MAGIC_NUMBER   0x52545053 /* RTPS */
+#define RTPX_MAGIC_NUMBER   0x52545058 /* RTPX */
 
 /* Traffic type */
 #define PORT_BASE                       (7400)
