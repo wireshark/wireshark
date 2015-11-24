@@ -220,22 +220,24 @@ void FollowStreamDialog::findText(bool go_back)
 void FollowStreamDialog::saveAs()
 {
     QString file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Stream Content As" UTF8_HORIZONTAL_ELLIPSIS)));
-    file_.setFileName(file_name);
-    file_.open( QIODevice::WriteOnly );
-    QTextStream out(&file_);
+    if (!file_name.isEmpty()) {
+        file_.setFileName(file_name);
+        file_.open( QIODevice::WriteOnly );
+        QTextStream out(&file_);
 
-    save_as_ = true;
+        save_as_ = true;
 
-    readStream();
+        readStream();
 
-    if ((follow_info_.show_type != SHOW_RAW) && (follow_info_.show_type != SHOW_UTF8))
-    {
-        out << ui->teStreamContent->toPlainText();
+        if ((follow_info_.show_type != SHOW_RAW) && (follow_info_.show_type != SHOW_UTF8))
+        {
+            out << ui->teStreamContent->toPlainText();
+        }
+
+        save_as_ = false;
+
+        file_.close();
     }
-
-    save_as_ = false;
-
-    file_.close();
 }
 
 void FollowStreamDialog::helpButton()
