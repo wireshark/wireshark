@@ -57,19 +57,22 @@ static gint32 problem_val;
 static gchar problem_str[64];
 static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
 
-static void
-argument_cb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int
+argument_cb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_) {
   arg_next_tvb = tvb;
+  return tvb_captured_length(tvb);
 }
 
-static void
-result_cb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int
+result_cb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_) {
   res_next_tvb = tvb;
+  return tvb_captured_length(tvb);
 }
 
-static void
-error_cb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int
+error_cb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_) {
   err_next_tvb = tvb;
+  return tvb_captured_length(tvb);
 }
 
 #include "packet-h450-ros-fn.c"

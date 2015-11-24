@@ -217,7 +217,7 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
 	end_offset = offset + type_length * 8;
 
-	if ((variant==CB_DISSECTOR)||(variant==CB_NEW_DISSECTOR)) {
+	if (variant==CB_NEW_DISSECTOR) {
 		val_tvb = new_octet_aligned_subset(tvb, offset, actx, type_length);
 		if (hfi) {
 			if (IS_FT_UINT(hfi->type)||IS_FT_INT(hfi->type)) {
@@ -238,9 +238,6 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 			case CB_ASN1_ENC:
 				((per_type_fn)type_cb)(tvb, offset, actx, tree, hf_index);
 				break;
-			case CB_DISSECTOR:
-				((dissector_t)type_cb)(val_tvb, actx->pinfo, subtree);
-				break;
 			case CB_NEW_DISSECTOR:
 				((new_dissector_t)type_cb)(val_tvb, actx->pinfo, subtree, NULL);
 				break;
@@ -258,12 +255,6 @@ guint32
 dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type_cb)
 {
 	return dissect_per_open_type_internal(tvb, offset, actx, tree, hf_index, (void*)type_cb, CB_ASN1_ENC);
-}
-
-guint32
-dissect_per_open_type_pdu(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, dissector_t type_cb)
-{
-	return dissect_per_open_type_internal(tvb, offset, actx, tree, hf_index, (void*)type_cb, CB_DISSECTOR);
 }
 
 guint32
@@ -2210,21 +2201,6 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	return offset;
 }
 
-guint32 dissect_per_bit_string_containing_pdu(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, dissector_t type_cb)
-{
-	tvbuff_t *val_tvb = NULL;
-	proto_tree *subtree = tree;
-
-	offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, &val_tvb, NULL);
-
-	if (type_cb && val_tvb) {
-		subtree = proto_item_add_subtree(actx->created_item, ett_per_containing);
-		type_cb(val_tvb, actx->pinfo, subtree);
-	}
-
-	return offset;
-}
-
 guint32 dissect_per_bit_string_containing_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, new_dissector_t type_cb)
 {
 	tvbuff_t *val_tvb = NULL;
@@ -2346,21 +2322,6 @@ DEBUG_ENTRY("dissect_per_octet_string");
 
 	if (value_tvb)
 		*value_tvb = (out_tvb) ? out_tvb : tvb_new_subset_length(tvb, val_start, val_length);
-
-	return offset;
-}
-
-guint32 dissect_per_octet_string_containing_pdu(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, dissector_t type_cb)
-{
-	tvbuff_t *val_tvb = NULL;
-	proto_tree *subtree = tree;
-
-	offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, &val_tvb);
-
-	if (type_cb && val_tvb) {
-		subtree = proto_item_add_subtree(actx->created_item, ett_per_containing);
-		type_cb(val_tvb, actx->pinfo, subtree);
-	}
 
 	return offset;
 }

@@ -103,19 +103,22 @@ static gint32 problem_val;
 static gchar problem_str[64];
 static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
 
-static void
-argument_cb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int
+argument_cb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_) {
   arg_next_tvb = tvb;
+  return tvb_captured_length(tvb);
 }
 
-static void
-result_cb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int
+result_cb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_) {
   res_next_tvb = tvb;
+  return tvb_captured_length(tvb);
 }
 
-static void
-error_cb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int
+error_cb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_) {
   err_next_tvb = tvb;
+  return tvb_captured_length(tvb);
 }
 
 
@@ -189,7 +192,7 @@ dissect_h450_ros_T_invokeIdConstrained(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_h450_ros_InvokeArgument(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type_pdu(tvb, offset, actx, tree, hf_index, argument_cb);
+  offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, argument_cb);
 
   return offset;
 }
@@ -258,7 +261,7 @@ dissect_h450_ros_Invoke(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_h450_ros_ResultArgument(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type_pdu(tvb, offset, actx, tree, hf_index, result_cb);
+  offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, result_cb);
 
   return offset;
 }
@@ -343,7 +346,7 @@ dissect_h450_ros_ReturnResult(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_h450_ros_T_parameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_open_type_pdu(tvb, offset, actx, tree, hf_index, error_cb);
+  offset = dissect_per_open_type_pdu_new(tvb, offset, actx, tree, hf_index, error_cb);
 
   return offset;
 }
@@ -582,7 +585,7 @@ dissect_h450_ros_ROS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 
 /*--- End of included file: packet-h450-ros-fn.c ---*/
-#line 76 "../../asn1/h450-ros/packet-h450-ros-template.c"
+#line 79 "../../asn1/h450-ros/packet-h450-ros-template.c"
 
 /*--- proto_register_h450_ros -----------------------------------------------*/
 void proto_register_h450_ros(void) {
@@ -674,7 +677,7 @@ void proto_register_h450_ros(void) {
         "ReturnErrorProblem", HFILL }},
 
 /*--- End of included file: packet-h450-ros-hfarr.c ---*/
-#line 83 "../../asn1/h450-ros/packet-h450-ros-template.c"
+#line 86 "../../asn1/h450-ros/packet-h450-ros-template.c"
   };
 
   /* List of subtrees */
@@ -692,7 +695,7 @@ void proto_register_h450_ros(void) {
     &ett_h450_ros_T_problem,
 
 /*--- End of included file: packet-h450-ros-ettarr.c ---*/
-#line 88 "../../asn1/h450-ros/packet-h450-ros-template.c"
+#line 91 "../../asn1/h450-ros/packet-h450-ros-template.c"
   };
 
   static ei_register_info ei[] = {

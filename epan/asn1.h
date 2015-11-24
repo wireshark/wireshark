@@ -35,7 +35,6 @@ typedef enum {
 
 typedef enum {
   CB_ASN1_ENC,
-  CB_DISSECTOR,
   CB_NEW_DISSECTOR,
   CB_DISSECTOR_HANDLE
 } asn1_cb_variant;

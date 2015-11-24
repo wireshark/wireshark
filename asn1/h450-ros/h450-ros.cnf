@@ -72,7 +72,7 @@ ReturnErrorProblem   VAL_PTR = &problem_val
 Invoke/argument  TYPE = FT_BYTES  DISPLAY = BASE_NONE
 
 #.FN_PARS Invoke/argument
-FN_VARIANT = _pdu
+FN_VARIANT = _pdu_new
 TYPE_REF_FN = argument_cb
 #.END
 
@@ -84,7 +84,7 @@ TYPE_REF_FN = argument_cb
 ReturnResult/result/result  TYPE = FT_BYTES  DISPLAY = BASE_NONE
 
 #.FN_PARS ReturnResult/result/result
-FN_VARIANT = _pdu
+FN_VARIANT = _pdu_new
 TYPE_REF_FN = result_cb
 
 #.END
@@ -97,7 +97,7 @@ TYPE_REF_FN = result_cb
 ReturnError/parameter  TYPE = FT_BYTES  DISPLAY = BASE_NONE
 
 #.FN_PARS ReturnError/parameter
-FN_VARIANT = _pdu
+FN_VARIANT = _pdu_new
 TYPE_REF_FN = error_cb
 #.END
 

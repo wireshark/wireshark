@@ -354,7 +354,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_per_PrintableString@Base 1.9.1
  dissect_per_VisibleString@Base 1.9.1
  dissect_per_bit_string@Base 1.9.1
- dissect_per_bit_string_containing_pdu@Base 1.9.1
  dissect_per_bit_string_containing_pdu_new@Base 1.9.1
  dissect_per_boolean@Base 1.9.1
  dissect_per_choice@Base 1.9.1
@@ -370,10 +369,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_per_object_identifier@Base 1.9.1
  dissect_per_object_identifier_str@Base 1.9.1
  dissect_per_octet_string@Base 1.9.1
- dissect_per_octet_string_containing_pdu@Base 1.9.1
  dissect_per_octet_string_containing_pdu_new@Base 1.9.1
  dissect_per_open_type@Base 1.9.1
- dissect_per_open_type_pdu@Base 1.9.1
  dissect_per_open_type_pdu_new@Base 1.9.1
  dissect_per_real@Base 1.9.1
  dissect_per_relative_oid@Base 1.12.0~rc1
