@@ -678,6 +678,10 @@ static gint ett_pn_io_profidrive_parameter_value = -1;
 
 static gint ett_pn_io_GroupProperties = -1;
 
+#define PD_SUB_FRAME_BLOCK_FIOCR_PROPERTIES_LENGTH 4
+#define PD_SUB_FRAME_BLOCK_FRAME_ID_LENGTH 2
+#define PD_SUB_FRAME_BLOCK_SUB_FRAME_DATA_LENGTH 4
+
 static expert_field ei_pn_io_block_version = EI_INIT;
 static expert_field ei_pn_io_block_length = EI_INIT;
 static expert_field ei_pn_io_unsupported = EI_INIT;
@@ -7633,7 +7637,7 @@ dissect_PDSubFrameBlock_block(tvbuff_t *tvb, int offset,
     /* FrameID */
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_frame_id, &u16FrameID);
     /* SFIOCRProperties */
-    sub_item = proto_tree_add_item(tree, hf_pn_io_SFIOCRProperties, tvb, offset, 4, ENC_BIG_ENDIAN);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_SFIOCRProperties, tvb, offset, PD_SUB_FRAME_BLOCK_FIOCR_PROPERTIES_LENGTH, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_SFIOCRProperties);
 
     /*    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_SFIOCRProperties, &u32SFIOCRProperties); */
@@ -7659,10 +7663,9 @@ dissect_PDSubFrameBlock_block(tvbuff_t *tvb, int offset,
     /*  bit 0..7 SFIOCRProperties.DistributedWatchDogFactor */
     offset = /* it is the last one, so advance! */
         dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_DistributedWatchDogFactor, &u32SFIOCRProperties);
-
     /* SubframeData */
-    u16RemainingLength = u16BodyLength - 8;
-    while (u16RemainingLength >= 4)
+    u16RemainingLength = u16BodyLength - PD_SUB_FRAME_BLOCK_FIOCR_PROPERTIES_LENGTH - PD_SUB_FRAME_BLOCK_FRAME_ID_LENGTH;
+    while (u16RemainingLength >= PD_SUB_FRAME_BLOCK_SUB_FRAME_DATA_LENGTH)
     {
         guint8 Position,
                DataLength;
