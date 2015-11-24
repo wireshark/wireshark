@@ -24,6 +24,7 @@
 #ifndef __WMEM_TREE_INT_H__
 #define __WMEM_TREE_INT_H__
 
+#include <epan/wmem/wmem_tree.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,10 +65,6 @@ struct _wmem_tree_t {
 
     void (*post_rotation_cb)(wmem_tree_node_t *);
 };
-
-typedef struct _wmem_tree_t wmem_tree_t;
-
-
 
 typedef int (*compare_func)(const void *a, const void *b);
 
