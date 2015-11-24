@@ -1192,6 +1192,9 @@ void PacketList::headerMenuTriggered()
     case caHideColumn:
         set_column_visible(header_ctx_column_, FALSE);
         hideColumn(header_ctx_column_);
+        if (!prefs.gui_use_pref_save) {
+            prefs_main_write();
+        }
         break;
     case caRemoveColumn:
     {
@@ -1222,6 +1225,9 @@ void PacketList::columnVisibilityTriggered()
 
     set_column_visible(ha->data().toInt(), ha->isChecked());
     setColumnVisibility();
+    if (!prefs.gui_use_pref_save) {
+        prefs_main_write();
+    }
 }
 
 void PacketList::sectionResized(int col, int, int new_width)
