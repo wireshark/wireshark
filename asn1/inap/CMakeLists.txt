@@ -78,8 +78,8 @@ set( SRC_FILES
 set( A2W_FLAGS -b )
 
 set( EXTRA_CNF
-	dap-exp.cnf
-	dsp-exp.cnf
+	"${CMAKE_CURRENT_BINARY_DIR}/../dap/dap-exp.cnf"
+	"${CMAKE_CURRENT_BINARY_DIR}/../dsp/dsp-exp.cnf"
 )
 
 ASN2WRS()

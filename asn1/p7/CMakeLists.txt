@@ -52,13 +52,13 @@ set( SRC_FILES
 set( A2W_FLAGS -b -L -C )
 
 set( EXTRA_CNF
-	p1-exp.cnf
-	ros-exp.cnf
-	rtse-exp.cnf
+	"${CMAKE_CURRENT_BINARY_DIR}/../p1/p1-exp.cnf"
+	"${CMAKE_CURRENT_BINARY_DIR}/../ros/ros-exp.cnf"
+	"${CMAKE_CURRENT_BINARY_DIR}/../rtse/rtse-exp.cnf"
 )
 
 set( EXPORT_DEPENDS
-	p1-exp.cnf
+	"${CMAKE_CURRENT_BINARY_DIR}/../p1/p1-exp.cnf"
 )
 
 ASN2WRS()

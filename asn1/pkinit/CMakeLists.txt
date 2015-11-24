@@ -45,7 +45,7 @@ set( SRC_FILES
 set( A2W_FLAGS -b )
 
 set( EXTRA_CNF
-	cms-exp.cnf
+	"${CMAKE_CURRENT_BINARY_DIR}/../cms/cms-exp.cnf"
 )
 
 ASN2WRS()

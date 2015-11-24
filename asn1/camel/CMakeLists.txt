@@ -63,8 +63,8 @@ set( SRC_FILES
 set( A2W_FLAGS -b -L )
 
 set( EXTRA_CNF
-	inap-exp.cnf
-	gsm_map-exp.cnf
+	"${CMAKE_CURRENT_BINARY_DIR}/../inap/inap-exp.cnf"
+	"${CMAKE_CURRENT_BINARY_DIR}/../gsm_map/gsm_map-exp.cnf"
 )
 
 ASN2WRS()

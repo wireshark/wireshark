@@ -45,9 +45,9 @@ set( SRC_FILES
 set( A2W_FLAGS -b )
 
 set( EXTRA_CNF
-	x509if-exp.cnf
-	x509af-exp.cnf
-	cms-exp.cnf
+	"${CMAKE_CURRENT_BINARY_DIR}/../x509if/x509if-exp.cnf"
+	"${CMAKE_CURRENT_BINARY_DIR}/../x509af/x509af-exp.cnf"
+	"${CMAKE_CURRENT_BINARY_DIR}/../cms/cms-exp.cnf"
 )
 
 ASN2WRS()

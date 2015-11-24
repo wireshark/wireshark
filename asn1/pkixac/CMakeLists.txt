@@ -47,8 +47,8 @@ set( A2W_FLAGS -b )
 set( EXTRA_CNF
 	../pkix1explicit/pkix1explicit_exp.cnf
 	../pkix1implicit/pkix1implicit_exp.cnf
-	x509af-exp.cnf
-	x509ce-exp.cnf
+	"${CMAKE_CURRENT_BINARY_DIR}/../x509af/x509af-exp.cnf"
+	"${CMAKE_CURRENT_BINARY_DIR}/../x509ce/x509ce-exp.cnf"
 )
 
 ASN2WRS()

@@ -49,15 +49,15 @@ set( SRC_FILES
 set( A2W_FLAGS -b )
 
 set( EXTRA_CNF
-	dap-exp.cnf
-	dop-exp.cnf
-	dsp-exp.cnf
-	x509af-exp.cnf
-	x509if-exp.cnf
+	"${CMAKE_CURRENT_BINARY_DIR}/../dap/dap-exp.cnf"
+	"${CMAKE_CURRENT_BINARY_DIR}/../dop/dop-exp.cnf"
+	"${CMAKE_CURRENT_BINARY_DIR}/../dsp/dsp-exp.cnf"
+	"${CMAKE_CURRENT_BINARY_DIR}/../x509af/x509af-exp.cnf"
+	"${CMAKE_CURRENT_BINARY_DIR}/../x509if/x509if-exp.cnf"
 )
 
 set( EXPORT_DEPENDS
-	dop-exp.cnf
+	"${CMAKE_CURRENT_BINARY_DIR}/../dop/dop-exp.cnf"
 )
 
 ASN2WRS()

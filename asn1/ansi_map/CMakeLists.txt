@@ -40,7 +40,7 @@ set( SRC_FILES
 set( A2W_FLAGS -b )
 
 set( EXTRA_CNF
-	gsm_map-exp.cnf
+	"${CMAKE_CURRENT_BINARY_DIR}/../gsm_map/gsm_map-exp.cnf"
 )
 
 ASN2WRS()

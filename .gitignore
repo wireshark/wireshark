@@ -131,6 +131,7 @@ build.ninja
 rules.ninja
 .ninja_deps
 .ninja_log
+asn1/*/*-stamp
 
 
 # Generated dir #

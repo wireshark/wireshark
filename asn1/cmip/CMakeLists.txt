@@ -54,7 +54,7 @@ set( SRC_FILES
 set( A2W_FLAGS -b )
 
 set( EXTRA_CNF
-	acse-exp.cnf
+	"${CMAKE_CURRENT_BINARY_DIR}/../acse/acse-exp.cnf"
 )
 
 ASN2WRS()

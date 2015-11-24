@@ -49,8 +49,8 @@ set( SRC_FILES
 set( A2W_FLAGS  )
 
 set( EXTRA_CNF
-	h235-exp.cnf
-	h245-exp.cnf
+	"${CMAKE_CURRENT_BINARY_DIR}/../h235/h235-exp.cnf"
+	"${CMAKE_CURRENT_BINARY_DIR}/../h245/h245-exp.cnf"
 )
 
 ASN2WRS()

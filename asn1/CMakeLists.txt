@@ -130,7 +130,11 @@ set( BROKEN_ASN1_SRC_DIRS
 	x721
 )
 
+set(_asn1_deps)
 foreach(ASN1_DIR ${ASN1_SRC_DIRS})
 	add_subdirectory( ${ASN1_DIR} )
+	list(APPEND _asn1_deps ${ASN1_DIR}/generate_dissector-${ASN1_DIR})
 endforeach()
 
+# Target to regenerate all outdated ASN.1 dissectors
+add_custom_target(asn1 DEPENDS ${_asn1_deps})

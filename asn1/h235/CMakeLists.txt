@@ -50,7 +50,7 @@ set( SRC_FILES
 set( A2W_FLAGS  )
 
 set( EXTRA_CNF
-	h225-exp.cnf
+	"${CMAKE_CURRENT_BINARY_DIR}/../h225/h225-exp.cnf"
 )
 
 ASN2WRS()
