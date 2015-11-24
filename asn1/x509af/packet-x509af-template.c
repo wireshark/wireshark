@@ -177,15 +177,15 @@ void proto_reg_handoff_x509af(void) {
 
 	/* these will generally be encoded as ";binary" in LDAP */
 
-	new_register_ldap_name_dissector("cACertificate", dissect_x509af_Certificate_PDU, proto_x509af);
-	new_register_ldap_name_dissector("userCertificate", dissect_x509af_Certificate_PDU, proto_x509af);
+	dissector_add_string("ldap.name", "cACertificate", new_create_dissector_handle(dissect_x509af_Certificate_PDU, proto_x509af));
+	dissector_add_string("ldap.name", "userCertificate", new_create_dissector_handle(dissect_x509af_Certificate_PDU, proto_x509af));
 
-	new_register_ldap_name_dissector("certificateRevocationList", dissect_CertificateList_PDU, proto_x509af);
-	new_register_ldap_name_dissector("crl", dissect_CertificateList_PDU, proto_x509af);
+	dissector_add_string("ldap.name", "certificateRevocationList", new_create_dissector_handle(dissect_CertificateList_PDU, proto_x509af));
+	dissector_add_string("ldap.name", "crl", new_create_dissector_handle(dissect_CertificateList_PDU, proto_x509af));
 
-	new_register_ldap_name_dissector("authorityRevocationList", dissect_CertificateList_PDU, proto_x509af);
-	new_register_ldap_name_dissector("arl", dissect_CertificateList_PDU, proto_x509af);
+	dissector_add_string("ldap.name", "authorityRevocationList", new_create_dissector_handle(dissect_CertificateList_PDU, proto_x509af));
+	dissector_add_string("ldap.name", "arl", new_create_dissector_handle(dissect_CertificateList_PDU, proto_x509af));
 
-	new_register_ldap_name_dissector("crossCertificatePair", dissect_CertificatePair_PDU, proto_x509af);
+	dissector_add_string("ldap.name", "crossCertificatePair", new_create_dissector_handle(dissect_CertificatePair_PDU, proto_x509af));
 }
 

@@ -4832,31 +4832,6 @@ ldap_cleanup(void)
   ldap_info_items = NULL;
 }
 
-void
-register_ldap_name_dissector_handle(const char *attr_type_p, dissector_handle_t dissector)
-{
-	dissector_add_string("ldap.name", attr_type_p, dissector);
-}
-
-void
-register_ldap_name_dissector(const char *attr_type_p, dissector_t dissector, int proto)
-{
-	dissector_handle_t dissector_handle;
-
-	dissector_handle=create_dissector_handle(dissector, proto);
-	register_ldap_name_dissector_handle(attr_type_p, dissector_handle);
-}
-
-void
-new_register_ldap_name_dissector(const char *attr_type_p, new_dissector_t dissector, int proto)
-{
-        dissector_handle_t dissector_handle;
-
-        dissector_handle=new_create_dissector_handle(dissector, proto);
-        register_ldap_name_dissector_handle(attr_type_p, dissector_handle);
-}
-
-
 /*--- proto_register_ldap -------------------------------------------*/
 void proto_register_ldap(void) {
 
@@ -5700,7 +5675,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2216 "../../asn1/ldap/packet-ldap-template.c"
+#line 2191 "../../asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5774,7 +5749,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2230 "../../asn1/ldap/packet-ldap-template.c"
+#line 2205 "../../asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5917,12 +5892,12 @@ proto_reg_handoff_ldap(void)
 	oid_add_from_string("LDAP_SERVER_SHUTDOWN_NOTIFY_OID","1.2.840.113556.1.4.1907");
 	oid_add_from_string("LDAP_SERVER_RANGE_RETRIEVAL_NOERR_OID","1.2.840.113556.1.4.1948");
 
-	register_ldap_name_dissector("netlogon", dissect_NetLogon_PDU, proto_cldap);
-	register_ldap_name_dissector("objectGUID", dissect_ldap_guid, proto_ldap);
-	register_ldap_name_dissector("supportedControl", dissect_ldap_oid, proto_ldap);
-	register_ldap_name_dissector("supportedCapabilities", dissect_ldap_oid, proto_ldap);
-	register_ldap_name_dissector("objectSid", dissect_ldap_sid, proto_ldap);
-	register_ldap_name_dissector("nTSecurityDescriptor", dissect_ldap_nt_sec_desc, proto_ldap);
+	dissector_add_string("ldap.name", "netlogon", create_dissector_handle(dissect_NetLogon_PDU, proto_cldap));
+	dissector_add_string("ldap.name", "objectGUID", create_dissector_handle(dissect_ldap_guid, proto_ldap));
+	dissector_add_string("ldap.name", "supportedControl", create_dissector_handle(dissect_ldap_oid, proto_ldap));
+	dissector_add_string("ldap.name", "supportedCapabilities", create_dissector_handle(dissect_ldap_oid, proto_ldap));
+	dissector_add_string("ldap.name", "objectSid", create_dissector_handle(dissect_ldap_sid, proto_ldap));
+	dissector_add_string("ldap.name", "nTSecurityDescriptor", create_dissector_handle(dissect_ldap_nt_sec_desc, proto_ldap));
 
 
 /*--- Included file: packet-ldap-dis-tab.c ---*/
@@ -5941,7 +5916,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2380 "../../asn1/ldap/packet-ldap-template.c"
+#line 2355 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }
