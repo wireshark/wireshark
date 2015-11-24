@@ -72,6 +72,7 @@ void proto_reg_handoff_artnet(void);
 
 #define ARTNET_OP_OUTPUT             0x5000
 #define ARTNET_OP_NZS                0x5100
+#define ARTNET_OP_SYNC               0x5200
 
 #define ARTNET_OP_ADDRESS            0x6000
 
@@ -118,6 +119,7 @@ static const value_string artnet_opcode_vals[] = {
   { ARTNET_OP_COMMAND,            "ArtCommand" },
   { ARTNET_OP_OUTPUT,             "ArtDMX" },
   { ARTNET_OP_NZS,                "ArtNzs" },
+  { ARTNET_OP_SYNC,               "ArtSync" },
   { ARTNET_OP_ADDRESS,            "ArtAddress" },
   { ARTNET_OP_INPUT,              "ArtInput" },
   { ARTNET_OP_TOD_REQUEST,        "ArtTodRequest" },
