@@ -836,8 +836,8 @@ dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     if (tree)   \
         proto_tree_add_item(ppi_tree, hf_tag, tvb, offset, data_len, ENC_NA)
 
-static void
-dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree    *ppi_tree    = NULL, *ppi_flags_tree = NULL, *seg_tree = NULL, *ampdu_tree = NULL;
     proto_tree    *agg_tree    = NULL;
@@ -1036,12 +1036,8 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             fd_head = fd_head->next;
         }
         if (ampdu_len > AGGREGATE_MAX) {
-            if (tree) {
-                proto_tree_add_expert_format(ppi_tree, pinfo, &ei_ppi_invalid_length, tvb, offset, -1, "Aggregate length greater than maximum (%u)", AGGREGATE_MAX);
-                THROW(ReportedBoundsError);
-            } else {
-                return;
-            }
+            proto_tree_add_expert_format(ppi_tree, pinfo, &ei_ppi_invalid_length, tvb, offset, -1, "Aggregate length greater than maximum (%u)", AGGREGATE_MAX);
+            return offset;
         }
 
         /*
@@ -1117,7 +1113,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_set_str(pinfo->cinfo, COL_INFO, "Unreassembled A-MPDU data");
             call_dissector(data_handle, next_tvb, pinfo, tree);
         }
-        return;
+        return tvb_captured_length(tvb);
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -1140,6 +1136,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissector_try_uint(wtap_encap_dissector_table,
             wtap_pcap_encap_to_wtap_encap(dlt), next_tvb, pinfo, tree);
     }
+    return tvb_captured_length(tvb);
 }
 
 /* Establish our beachead */
@@ -1496,7 +1493,7 @@ proto_register_ppi(void)
     expert_ppi = expert_register_protocol(proto_ppi);
     expert_register_field_array(expert_ppi, ei, array_length(ei));
 
-    ppi_handle = register_dissector("ppi", dissect_ppi, proto_ppi);
+    ppi_handle = new_register_dissector("ppi", dissect_ppi, proto_ppi);
 
     register_init_routine(ampdu_reassemble_init);
     register_cleanup_routine(ampdu_reassemble_cleanup);

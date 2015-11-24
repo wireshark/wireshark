@@ -120,18 +120,19 @@ static gint ett_ppi_gps_present = -1;
 static gint ett_ppi_gps_gpsflags_flags= -1;
 
 static expert_field ei_ppi_gps_present_bit = EI_INIT;
+static expert_field ei_ppi_gps_version = EI_INIT;
+static expert_field ei_ppi_gps_length = EI_INIT;
 
-static void
-dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     /* These are locals used for processing the current tvb */
     guint length;
     gint  length_remaining;
     int offset = 0;
 
     proto_tree *ppi_gps_tree = NULL;
-    proto_tree *my_pt, *gpsflags_flags_tree = NULL; /* used for DeviceType bitmask stuff */
 
-    proto_item *ti = NULL, *pt;
+    proto_item *version_item, *length_item, *pt;
     proto_item *gps_line = NULL;
 
     static const int * ppi_gps_present_flags[] = {
@@ -152,11 +153,24 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         NULL
     };
 
+    static const int * ppi_antenna_gps_flags[] = {
+        &hf_ppi_gps_gpsflags_flag0_nofix,
+        &hf_ppi_gps_gpsflags_flag1_gpsfix,
+        &hf_ppi_gps_gpsflags_flag2_diffgps,
+        &hf_ppi_gps_gpsflags_flag3_PPS,
+        &hf_ppi_gps_gpsflags_flag4_RTK,
+        &hf_ppi_gps_gpsflags_flag5_floatRTK,
+        &hf_ppi_gps_gpsflags_flag6_dead_reck,
+        &hf_ppi_gps_gpsflags_flag7_manual,
+        &hf_ppi_gps_gpsflags_flag8_sim,
+        NULL
+    };
+
     /* bits */
     int bit;
     guint32 present, next_present;
     /* values actually read out, for displaying */
-    guint32 version, gpsflags_flags;
+    guint32 version;
     gdouble lat, lon, alt, alt_gnd;
     nstime_t gps_timestamp;
     int gps_time_size, already_processed_fractime; /* we use this internally to track if this is a 4 or 8 byte wide timestamp */
@@ -183,20 +197,15 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "PPI_GPS Capture v%u, Length %u", version, length);
 
     /* Create the basic dissection tree*/
-    if (tree) {
-        ti = proto_tree_add_protocol_format(tree, proto_ppi_gps, tvb, 0, length, "GPS:");
-        gps_line = ti; /*we will make this more useful if we hit lon/lat later */
-        ppi_gps_tree= proto_item_add_subtree(ti, ett_ppi_gps);
-        proto_tree_add_uint(ppi_gps_tree, hf_ppi_gps_version, tvb, offset, 1, version);
-        proto_tree_add_item(ppi_gps_tree, hf_ppi_gps_pad, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
-        ti = proto_tree_add_uint(ppi_gps_tree, hf_ppi_gps_length, tvb, offset + 2, 2, length);
-    }
+    gps_line = proto_tree_add_protocol_format(tree, proto_ppi_gps, tvb, 0, length, "GPS:");
+    ppi_gps_tree = proto_item_add_subtree(gps_line, ett_ppi_gps);
+    version_item = proto_tree_add_uint(ppi_gps_tree, hf_ppi_gps_version, tvb, offset, 1, version);
+    proto_tree_add_item(ppi_gps_tree, hf_ppi_gps_pad, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+    length_item = proto_tree_add_uint(ppi_gps_tree, hf_ppi_gps_length, tvb, offset + 2, 2, length);
 
     /* We support v1 and v2 of GPS tags (identical) */
     if (! (version == 1 || version == 2) ) {
-        if (tree)
-            proto_item_append_text(ti, "invalid version (got %d,  expected 1 or 2)", version);
-        return;
+        expert_add_info_format(pinfo, version_item, &ei_ppi_gps_version, "Invalid version (got %d,  expected 1 or 2)", version);
     }
 
     /* initialize the length of the actual tag contents */
@@ -207,16 +216,14 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          * Base-geotag-header (Radiotap lookalike) is shorter than the fixed-length portion
          * plus one "present" bitset.
          */
-        if (tree)
-            proto_item_append_text(ti, " (invalid - minimum length is 8)");
-        return;
+        expert_add_info_format(pinfo, length_item, &ei_ppi_gps_length, "Invalid PPI-GPS length - minimum length is 8");
+        return 2;
     }
 
     /* perform tag-specific max length sanity checking */
     if (length > PPI_GPS_MAXTAGLEN ) {
-        if (tree)
-            proto_item_append_text(ti, "Invalid PPI-GPS length  (got %d, %d max\n)", length, PPI_GPS_MAXTAGLEN);
-        return;
+        expert_add_info_format(pinfo, length_item, &ei_ppi_gps_length, "Invalid PPI-GPS length  (got %d, %d max\n)", length, PPI_GPS_MAXTAGLEN);
+        return 2;
     }
 
     /* Subtree for the "present flags" bitfield. */
@@ -235,23 +242,7 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         case PPI_GEOTAG_GPSFLAGS:
             if (length_remaining < 4)
                 break;
-            gpsflags_flags =   tvb_get_letohl(tvb, offset); /* retrieve 32-bit gpsflags bitmask (-not- present bitmask) */
-            if (tree) {
-                /* first we add the hex flags line */
-                my_pt = proto_tree_add_uint(ppi_gps_tree, hf_ppi_gps_gpsflags_flags, tvb, offset , 4, gpsflags_flags);
-                /* then we add a subtree */
-                gpsflags_flags_tree = proto_item_add_subtree(my_pt, ett_ppi_gps_gpsflags_flags);
-                /* to pin the individual bits on */
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag0_nofix, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag1_gpsfix, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag2_diffgps, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag3_PPS, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag4_RTK, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag5_floatRTK, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag6_dead_reck, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag7_manual, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag8_sim, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            }
+            proto_tree_add_bitmask(ppi_gps_tree, tvb, offset, hf_ppi_gps_gpsflags_flags, ett_ppi_gps_gpsflags_flags, ppi_antenna_gps_flags, ENC_LITTLE_ENDIAN);
             offset+=4;
             length_remaining-=4;
             break;
@@ -402,7 +393,7 @@ dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     } /* (for present..)*/
 
     /* If there was any post processing of the elements, it could happen here. */
-    return;
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -612,6 +603,8 @@ proto_register_ppi_gps(void) {
 
     static ei_register_info ei[] = {
         { &ei_ppi_gps_present_bit, { "ppi_gps.present.unknown_bit", PI_PROTOCOL, PI_WARN, "Error: PPI-GEOLOCATION-GPS: unknown bit set in present field.", EXPFILL }},
+        { &ei_ppi_gps_version, { "ppi_gps.version.unsupported", PI_PROTOCOL, PI_WARN, "Invalid version", EXPFILL }},
+        { &ei_ppi_gps_length, { "ppi_gps.length.invalid", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
     };
 
     expert_module_t* expert_ppi_gps;
@@ -621,7 +614,7 @@ proto_register_ppi_gps(void) {
     proto_register_subtree_array(ett, array_length(ett));
     expert_ppi_gps = expert_register_protocol(proto_ppi_gps);
     expert_register_field_array(expert_ppi_gps, ei, array_length(ei));
-    register_dissector("ppi_gps", dissect_ppi_gps, proto_ppi_gps);
+    new_register_dissector("ppi_gps", dissect_ppi_gps, proto_ppi_gps);
 }
 
 /*

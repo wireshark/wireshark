@@ -129,6 +129,8 @@ static gint ett_ppi_sensor = -1;
 static gint ett_ppi_sensor_present = -1;
 
 static expert_field ei_ppi_sensor_present_bit = EI_INIT;
+static expert_field ei_ppi_sensor_version = EI_INIT;
+static expert_field ei_ppi_sensor_length = EI_INIT;
 
 /* used with ScaleFactor */
 static gdouble
@@ -157,8 +159,8 @@ base_10_expt(int power)
         return (1.0/ret);
 }
 
-static void
-dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     /* The fixed values up front */
     guint32 version;
     guint length;
@@ -166,8 +168,8 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     proto_tree *ppi_sensor_tree = NULL;
     proto_tree *pt, *my_pt;
-    proto_item *ti = NULL;
-    proto_item *sensor_line = NULL;
+    proto_item *version_item, *length_item;
+    proto_tree *sensor_line;
     /* sensor type in english */
     const gchar *type_str = "Unknown sensor";
     const gchar *unit_str = "Unknown unit";
@@ -216,27 +218,21 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                      version, length);
 
     /* Create the basic dissection tree*/
-    if (tree) {
-        ti = proto_tree_add_protocol_format(tree, proto_ppi_sensor,
-                                            tvb, 0, length, "PPI Sensor Header v%u, Length %u", version, length);
-        sensor_line = ti; /* we will almost definitely overwrite this in the field processing below */
-
-        /*Add in the fixed ppi-geotagging-header fields: ver, pad, len */
-        ppi_sensor_tree= proto_item_add_subtree(ti, ett_ppi_sensor);
-        proto_tree_add_uint(ppi_sensor_tree, hf_ppi_sensor_version,
-                            tvb, offset, 1, version);
-        proto_tree_add_item(ppi_sensor_tree, hf_ppi_sensor_pad,
-                            tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-        ti = proto_tree_add_uint(ppi_sensor_tree, hf_ppi_sensor_length,
-                                 tvb, offset + 2, 2, length);
-        /*fixed ppi-geotagging-header fields finished, move onto the fields marked present*/
-    }
+    sensor_line = proto_tree_add_protocol_format(tree, proto_ppi_sensor,
+                                        tvb, 0, length, "PPI Sensor Header v%u, Length %u", version, length);
+    /*Add in the fixed ppi-geotagging-header fields: ver, pad, len */
+    ppi_sensor_tree = proto_item_add_subtree(sensor_line, ett_ppi_sensor);
+    version_item = proto_tree_add_uint(ppi_sensor_tree, hf_ppi_sensor_version,
+                        tvb, offset, 1, version);
+    proto_tree_add_item(ppi_sensor_tree, hf_ppi_sensor_pad,
+                        tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+    length_item = proto_tree_add_uint(ppi_sensor_tree, hf_ppi_sensor_length,
+                                tvb, offset + 2, 2, length);
+    /*fixed ppi-geotagging-header fields finished, move onto the fields marked present*/
 
     /* We support v1 and v2 of Sensor tags (identical) */
     if (! (version == 1 || version == 2) ) {
-        if (tree)
-            proto_item_append_text(ti, "invalid version (got %d,  expected 1 or 2)", version);
-        return;
+        expert_add_info_format(pinfo, version_item, &ei_ppi_sensor_version, "Invalid version (got %d,  expected 1 or 2)", version);
     }
 
     length_remaining = length;
@@ -246,14 +242,14 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          * Base-geotag-header (Radiotap lookalike) is shorter than the fixed-length portion
          * plus one "present" bitset.
          */
-        proto_item_append_text(ti, " (invalid - minimum length is 8)");
-        return;
+        expert_add_info_format(pinfo, length_item, &ei_ppi_sensor_length, "Invalid PPI-Sensor length - minimum length is 8");
+        return 2;
     }
 
     /* perform max length sanity checking */
     if (length > PPI_SENSOR_MAXTAGLEN ) {
-        proto_item_append_text(ti, "Invalid PPI-Sensor length  (got %d, %d max\n)", length, PPI_SENSOR_MAXTAGLEN);
-        return;
+        expert_add_info_format(pinfo, length_item, &ei_ppi_sensor_length, "Invalid PPI-Sensor length  (got %d, %d max\n)", length, PPI_SENSOR_MAXTAGLEN);
+        return 2;
     }
 
     /* Subtree for the "present flags" bitfield. */
@@ -401,7 +397,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         }
 
     };
-    return;
+    return tvb_captured_length(tvb);
 }
 
 void
@@ -540,6 +536,8 @@ proto_register_ppi_sensor(void) {
 
     static ei_register_info ei[] = {
         { &ei_ppi_sensor_present_bit, { "ppi_sensor.present.unknown_bit", PI_PROTOCOL, PI_WARN, "Error: PPI-ANTENNA: unknown bit set in present field.", EXPFILL }},
+        { &ei_ppi_sensor_version, { "ppi_sensor.version.unsupported", PI_PROTOCOL, PI_WARN, "Invalid version", EXPFILL }},
+        { &ei_ppi_sensor_length, { "ppi_sensor.length.invalid", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
     };
 
     expert_module_t* expert_ppi_sensor;
@@ -549,7 +547,7 @@ proto_register_ppi_sensor(void) {
     proto_register_subtree_array(ett, array_length(ett));
     expert_ppi_sensor = expert_register_protocol(proto_ppi_sensor);
     expert_register_field_array(expert_ppi_sensor, ei, array_length(ei));
-    register_dissector("ppi_sensor", dissect_ppi_sensor, proto_ppi_sensor);
+    new_register_dissector("ppi_sensor", dissect_ppi_sensor, proto_ppi_sensor);
 
 }
 
