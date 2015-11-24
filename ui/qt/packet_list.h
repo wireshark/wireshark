@@ -117,6 +117,7 @@ private:
     bool tail_at_end_;
     bool rows_inserted_;
     bool columns_changed_;
+    bool set_column_visibility_;
 
     void setFrameReftime(gboolean set, frame_data *fdata);
     void setColumnVisibility();
