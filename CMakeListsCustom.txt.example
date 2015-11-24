@@ -26,9 +26,3 @@ set(CUSTOM_PLUGIN_SRC_DIR
 # or
 #   plugins/foo
 )
-
-set(CUSTOM_PLUGIN_IN_FILES
-#	private_plugins/foo/plugin.rc.in
-# or
-#   plugins/foo/plugin.rc.in
-)

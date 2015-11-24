@@ -1168,7 +1168,6 @@ set( IN_FILES
 	packaging/macosx/Info.plist.in
 	packaging/macosx/osx-dmg.sh.in
 	packaging/macosx/Wireshark_package.pmdoc/index.xml.in
-	${CUSTOM_PLUGIN_IN_FILES}
 	ui/doxygen.cfg.in
 	ui/gtk/doxygen.cfg.in
 	ui/qt/doxygen.cfg.in
