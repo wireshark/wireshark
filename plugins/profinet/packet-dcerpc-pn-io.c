@@ -92,6 +92,8 @@ static int hf_pn_io_ar_properties_device_access = -1;
 static int hf_pn_io_ar_properties_companion_ar = -1;
 static int hf_pn_io_ar_properties_achnowledge_companion_ar = -1;
 static int hf_pn_io_ar_properties_reserved = -1;
+static int hf_pn_io_ar_properties_combined_object_container_with_legacy_startupmode = -1;
+static int hf_pn_io_ar_properties_combined_object_container_with_advanced_startupmode = -1;
 static int hf_pn_io_ar_properties_pull_module_alarm_allowed = -1;
 
 static int hf_pn_RedundancyInfo = -1;
@@ -1559,6 +1561,20 @@ static const value_string pn_io_arproperties_data_rate[] = {
 static const value_string pn_io_arproperties_acknowldege_companion_ar[] = {
     { 0x00000000, "No companion AR or no acknowledge for the companion AR required" },
     { 0x00000001, "Companion AR with acknowledge" },
+    { 0, NULL }
+};
+
+/* bit 29 for legacy startup mode*/
+static const value_string pn_io_arproperties_combined_object_container_with_legacy_startupmode[] = {
+    { 0x00000000, "CombinedObjectContainer not used" },
+    { 0x00000001, "Reserved" },
+    { 0, NULL }
+};
+
+/* bit 29 for advanced statup mode*/
+static const value_string pn_io_arproperties_combined_object_container_with_advanced_startupmode[] = {
+    { 0x00000000, "CombinedObjectContainer not used" },
+    { 0x00000001, "Usage of CombinedObjectContainer required" },
     { 0, NULL }
 };
 
@@ -6367,7 +6383,7 @@ dissect_ARProperties(tvbuff_t *tvb, int offset,
     proto_item *sub_item;
     proto_tree *sub_tree;
     guint32     u32ARProperties;
-
+    guint8      startupMode;
 
     sub_item = proto_tree_add_item(tree, hf_pn_io_ar_properties, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_ar_properties);
@@ -6375,6 +6391,19 @@ dissect_ARProperties(tvbuff_t *tvb, int offset,
                         hf_pn_io_ar_properties_pull_module_alarm_allowed, &u32ARProperties);
     dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_arproperties_StartupMode, &u32ARProperties);
+    startupMode = (guint8)((u32ARProperties >> 30) & 0x01);
+    /* Advanced startup mode */
+    if (startupMode)
+    {
+        dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+            hf_pn_io_ar_properties_combined_object_container_with_advanced_startupmode, &u32ARProperties);
+    }
+    /* Legacy startup mode */
+    else
+    {
+        dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+            hf_pn_io_ar_properties_combined_object_container_with_legacy_startupmode, &u32ARProperties);
+    }
     dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_ar_properties_reserved, &u32ARProperties);
     dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
@@ -9876,14 +9905,24 @@ proto_register_pn_io (void)
         FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_acknowldege_companion_ar), 0x00000800,
         NULL, HFILL }
     },
+    { &hf_pn_io_ar_properties_reserved,
+      { "Reserved", "pn_io.ar_properties.reserved",
+        FT_UINT32, BASE_HEX, NULL, 0x1FFFF000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ar_properties_combined_object_container_with_legacy_startupmode,
+      { "CombinedObjectContainer", "pn_io.ar_properties.combined_object_container",
+        FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_combined_object_container_with_legacy_startupmode), 0x20000000,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_ar_properties_combined_object_container_with_advanced_startupmode,
+    { "CombinedObjectContainer", "pn_io.ar_properties.combined_object_container",
+       FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_combined_object_container_with_advanced_startupmode), 0x20000000,
+       NULL, HFILL }
+    },
     { &hf_pn_io_arproperties_StartupMode,
       { "StartupMode", "pn_io.ar_properties.StartupMode",
         FT_UINT32, BASE_HEX, VALS(pn_io_arpropertiesStartupMode), 0x40000000,
-        NULL, HFILL }
-    },
-    { &hf_pn_io_ar_properties_reserved,
-      { "Reserved", "pn_io.ar_properties.reserved",
-        FT_UINT32, BASE_HEX, NULL, 0x3FFFF000,
         NULL, HFILL }
     },
     { &hf_pn_io_ar_properties_pull_module_alarm_allowed,
