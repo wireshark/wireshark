@@ -4175,46 +4175,88 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
     ret = sscanf( tmpstr, "%14d%1[.,+-Z]%4d%1[+-Z]%4d", &tmp_int, first_delim, &first_digits, second_delim, &second_digits);
     /* tmp_int does not contain valid value bacause of overflow but we use it just for format checking */
     if (ret < 1) {
-        cause = proto_tree_add_string_format(tree, hf_ber_error, tvb, offset, len, "invalid_generalized_time", "BER Error: GeneralizedTime invalid format: %s", tmpstr);
-        expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: GeneralizedTime invalid format");
-        if (decode_unexpected) {
-            proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
-            dissect_unknown_ber(actx->pinfo, tvb, offset, unknown_tree);
-        }
-        return end_offset;
+    	/* Nothing matched */
+        goto invalid;
     }
 
-    switch (first_delim[0]) {
-    case '.':
-    case ',':
-        strptr += g_snprintf(strptr, 5, "%c%.3d", first_delim[0], first_digits);
-        switch (second_delim[0]) {
+    if (ret >= 2) {
+        /*
+         * We saw the date+time and the first delimiter.
+         *
+         * Either:
+         *
+         *    it's '.' or ',', in which case we have a fraction of a
+         *    minute or hour;
+         *
+         *    it's '+' or '-', in which case we have an offset from UTC;
+         *
+         *    it's 'Z', in which case the time is UTC.
+         */
+        switch (first_delim[0]) {
+        case '.':
+        case ',':
+            /*
+             * Fraction of a minute or an hour.
+             */
+            if (ret == 2) {
+                /*
+                 * We saw the decimal sign, but didn't see the fraction.
+                 */
+                goto invalid;
+            }
+            strptr += g_snprintf(strptr, 5, "%c%.3d", first_delim[0], first_digits);
+            if (ret >= 4) {
+                /*
+                 * We saw the fraction and the second delimiter.
+                 *
+                 * Either:
+                 *
+                 *    it's '+' or '-', in which case we have an offset
+                 *    from UTC;
+                 *
+                 *    it's 'Z', in which case the time is UTC.
+                 */
+                switch (second_delim[0]) {
+                case '+':
+                case '-':
+                    if (ret == 4) {
+                        /*
+                         * We saw the + or -, but didn't see the offset
+                         * from UTC.
+                         */
+                        goto invalid;
+                    }
+                    g_snprintf(strptr, 12, " (UTC%c%.4d)", second_delim[0], second_digits);
+                    break;
+                case 'Z':
+                    g_snprintf(strptr, 7, " (UTC)");
+                    break;
+                default:
+                    /* handle the malformed field */
+                    break;
+                }
+            }
+            break;
         case '+':
         case '-':
-            g_snprintf(strptr, 12, " (UTC%c%.4d)", second_delim[0], second_digits);
+            /*
+             * Offset from UTC.
+             */
+            if (ret == 2) {
+                /*
+                 * We saw the + or -1, but didn't see the offset.
+                 */
+                goto invalid;
+            }
+            g_snprintf(strptr, 12, " (UTC%c%.4d)", first_delim[0], first_digits);
             break;
         case 'Z':
             g_snprintf(strptr, 7, " (UTC)");
-            break;
-        case 0:
             break;
         default:
             /* handle the malformed field */
             break;
         }
-        break;
-    case '+':
-    case '-':
-        g_snprintf(strptr, 12, " (UTC%c%.4d)", first_delim[0], first_digits);
-        break;
-    case 'Z':
-        g_snprintf(strptr, 7, " (UTC)");
-        break;
-    case 0:
-        break;
-    default:
-        /* handle the malformed field */
-        break;
     }
 
     if(hf_id >= 0){
@@ -4223,6 +4265,17 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
 
     offset+=len;
     return offset;
+
+invalid:
+    cause = proto_tree_add_string_format_value(
+        tree, hf_ber_error, tvb, offset, len, "invalid_generalized_time",
+        "GeneralizedTime invalid format: %s",
+        tmpstr);
+    if (decode_unexpected) {
+        proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
+        dissect_unknown_ber(actx->pinfo, tvb, offset, unknown_tree);
+    }
+    return end_offset;
 }
 
 
