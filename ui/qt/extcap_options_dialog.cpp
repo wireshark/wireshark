@@ -67,7 +67,7 @@ ExtcapOptionsDialog::ExtcapOptionsDialog(QWidget *parent) :
 
     device_idx = 0;
 
-    start_bt_ = ui->buttonBox->addButton(tr("Start"), QDialogButtonBox::YesRole);
+    start_bt_ = ui->buttonBox->addButton(tr("Start"), QDialogButtonBox::AcceptRole);
 
     start_bt_->setEnabled((global_capture_opts.num_selected > 0)? true: false);
     connect(start_bt_, SIGNAL(clicked(bool)), this, SLOT(start_button_clicked()));
