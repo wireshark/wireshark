@@ -1024,6 +1024,7 @@ wmem_test_itree(void)
     int i = 0;
     gint32 max_rand = 0;
     wmem_test_itree_user_data_t userData;
+    wmem_range_t range, r2;
 
     allocator       = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
     extra_allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
@@ -1049,7 +1050,6 @@ wmem_test_itree(void)
     userData.counter = 0;
 
     tree = wmem_itree_new(allocator);
-    wmem_range_t range, r2;
 
     /* even though keys are uint64_t, we use G_MAXINT32 as a max because of the type returned by
       g_test_rand_int_range.
