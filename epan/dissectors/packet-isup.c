@@ -6371,23 +6371,15 @@ dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, proto_tree *para
     &hf_isup_screening_indicator,
     NULL
   };
-  static const int * indicators2_fields_gfe[] = {
-    &hf_isup_inn_indicator,
-    &hf_isup_numbering_plan_indicator,
-    &hf_isup_number_different_meaning,
-    &hf_isup_address_presentation_restricted_indicator,
-    &hf_isup_screening_indicator,
-    NULL
-  };
 
   proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators1_fields, ENC_NA);
   indicators1 = tvb_get_guint8(parameter_tvb, 0);
   indicators2 = tvb_get_guint8(parameter_tvb, 1);
   if ((indicators2 & GFE_8BIT_MASK) == 0x50) {
-     proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 1, 1, indicators2_fields_gfe, ENC_NA);
-  } else {
-     proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 1, 1, indicators2_fields, ENC_NA);
+    proto_tree_add_uint_format_value(parameter_tree, hf_isup_number_different_meaning, parameter_tvb, 1, 1, indicators2 & GFE_8BIT_MASK,
+                                     "Numbering plan indicator = private numbering plan");
   }
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 1, 1, indicators2_fields, ENC_NA);
 
    /* NOTE  When the address presentation restricted indicator indicates address not available, the
     * subfields in items a), b), c) and d) are coded with 0's, and the screening indicator is set to 11
