@@ -55,17 +55,6 @@
 #define ISIS_MASK_RESTART_RA(x)            ((x)&ISIS_RESTART_RA)
 #define ISIS_MASK_RESTART_SA(x)            ((x)&ISIS_RESTART_SA)
 
-
-#define APPEND_BOOLEAN_FLAG(flag, item, string) \
-    if(flag){                            \
-        if(item)                        \
-            proto_item_append_text(item, string, sep);    \
-        sep = cont_sep;                        \
-    }
-
-static const char initial_sep[] = " (";
-static const char cont_sep[] = ", ";
-
 void proto_register_isis_hello(void);
 void proto_reg_handoff_isis_hello(void);
 
@@ -517,9 +506,7 @@ dissect_hello_restart_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         proto_tree *tree, int offset, int id_length, int length)
 {
     int restart_options=0;
-    proto_item *restart_flags_item;
     proto_item *hold_time_item;
-    const char *sep;
 
     if (length >= 1) {
         static const int * flags[] = {
@@ -530,20 +517,7 @@ dissect_hello_restart_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         };
 
         restart_options = tvb_get_guint8(tvb, offset);
-        restart_flags_item = proto_tree_add_bitmask(tree, tvb, offset, hf_isis_hello_clv_restart_flags, ett_isis_hello_clv_restart_flags, flags, ENC_NA);
-
-        /* Append an indication of which flags are set in the restart
-         * options
-         */
-        sep = initial_sep;
-        APPEND_BOOLEAN_FLAG(ISIS_MASK_RESTART_SA(restart_options), restart_flags_item, "%sSA");
-        APPEND_BOOLEAN_FLAG(ISIS_MASK_RESTART_RA(restart_options), restart_flags_item, "%sRA");
-        APPEND_BOOLEAN_FLAG(ISIS_MASK_RESTART_RR(restart_options), restart_flags_item, "%sRR");
-        if (sep != initial_sep)
-        {
-            proto_item_append_text (restart_flags_item, ")");
-        }
-
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_isis_hello_clv_restart_flags, ett_isis_hello_clv_restart_flags, flags, ENC_NA, BMT_NO_FALSE|BMT_NO_TFS);
     }
 
     /* The Remaining Time field should only be present if the RA flag is

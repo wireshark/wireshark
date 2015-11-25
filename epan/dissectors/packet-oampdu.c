@@ -954,15 +954,6 @@ static gint ett_oampdu_lpbk_ctrl = -1;
 
 static expert_field ei_oampdu_event_length_bad = EI_INIT;
 
-static const char initial_sep[] = " (";
-static const char cont_sep[] = ", ";
-
-#define APPEND_BOOLEAN_FLAG(flag, item, string) \
-    if(flag){                                   \
-        proto_item_append_text(item, string, sep);    \
-        sep = cont_sep;                               \
-    }
-
 #define APPEND_OUI_NAME(item, string, tvb, offset) \
         string = tvb_get_manuf_name(tvb, offset);  \
         proto_item_append_text(item, " (%s)", string);
@@ -1019,15 +1010,20 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 {
     int       offset = 0;
     guint8    oampdu_code;
-    guint16   flags,state;
-    guint32   i;
 
     proto_tree *oampdu_tree;
     proto_item *oampdu_item;
-    proto_tree *flags_tree;
-    proto_item *flags_item;
 
-    const char *sep = initial_sep;
+    static const int * oampdu_flags[] = {
+        &hf_oampdu_flags_link_fault,
+        &hf_oampdu_flags_dying_gasp,
+        &hf_oampdu_flags_critical_event,
+        &hf_oampdu_flags_local_evaluating,
+        &hf_oampdu_flags_local_stable,
+        &hf_oampdu_flags_remote_evaluating,
+        &hf_oampdu_flags_remote_stable,
+        NULL
+    };
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OAM");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1036,88 +1032,8 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             tvb, 0, -1, "OAM Protocol");
     oampdu_tree = proto_item_add_subtree(oampdu_item, ett_oampdu);
 
-    if (oampdu_tree)
-    {
-        /* Flags field */
-        flags = tvb_get_ntohs(tvb, offset);
-        flags_item = proto_tree_add_uint(oampdu_tree, hf_oampdu_flags, tvb,
-                offset, 2, flags);
-        flags_tree = proto_item_add_subtree(flags_item, ett_oampdu_flags);
-
-        /*
-         * In this section we add keywords for the bit set on the Flags's line.
-         * We also add all the bit inside the subtree.
-         */
-        APPEND_BOOLEAN_FLAG(flags & OAMPDU_FLAGS_LINK_FAULT, flags_item,
-                "%sLink Fault");
-        proto_tree_add_boolean(flags_tree, hf_oampdu_flags_link_fault,
-                tvb, offset, 1, flags);
-
-        APPEND_BOOLEAN_FLAG(flags & OAMPDU_FLAGS_DYING_GASP, flags_item,
-                "%sDying Gasp");
-        proto_tree_add_boolean(flags_tree, hf_oampdu_flags_dying_gasp,
-                tvb, offset, 1, flags);
-
-        APPEND_BOOLEAN_FLAG(flags & OAMPDU_FLAGS_CRITICAL_EVENT, flags_item,
-                "%sCriticalEvent");
-        proto_tree_add_boolean(flags_tree, hf_oampdu_flags_critical_event,
-                tvb, offset, 1, flags);
-
-        proto_tree_add_boolean(flags_tree, hf_oampdu_flags_local_evaluating,
-                tvb, offset, 1, flags);
-
-        proto_tree_add_boolean(flags_tree, hf_oampdu_flags_local_stable,
-                tvb, offset, 1, flags);
-
-        proto_tree_add_boolean(flags_tree, hf_oampdu_flags_remote_evaluating,
-                tvb, offset, 1, flags);
-
-        proto_tree_add_boolean(flags_tree, hf_oampdu_flags_remote_stable,
-                tvb, offset, 1, flags);
-
-        if (sep != cont_sep)
-            proto_item_append_text(flags_item, " (");
-        else
-            proto_item_append_text(flags_item, ", ");
-
-        for(i=0;i<2;i++)
-        {
-            if (i==0)
-            {
-                proto_item_append_text(flags_item, "local: ");
-                state = (flags&(OAMPDU_FLAGS_LOCAL_EVAL|OAMPDU_FLAGS_LOCAL_STABLE));
-                state = state>>3;
-            }
-            else
-            {
-                proto_item_append_text(flags_item, "remote: ");
-                state = (flags&(OAMPDU_FLAGS_REMOTE_EVAL|OAMPDU_FLAGS_REMOTE_STABLE));
-                state = state>>5;
-            }
-
-            switch (state)
-            {
-                case 0:
-                    proto_item_append_text(flags_item, "Unsatisfied");
-                    break;
-                case 1:
-                    proto_item_append_text(flags_item, "Discovery in process");
-                    break;
-                case 2:
-                    proto_item_append_text(flags_item, "Discovery complete");
-                    break;
-                default:
-                    proto_item_append_text(flags_item, "Reserved");
-                    break;
-            }
-
-            if (i==0)
-                proto_item_append_text(flags_item, ", ");
-
-        }
-
-        proto_item_append_text(flags_item, ")");
-    }
+    /* Flags field */
+    proto_tree_add_bitmask_with_flags(oampdu_tree, tvb, offset, hf_oampdu_flags, ett_oampdu_flags, oampdu_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE|BMT_NO_TFS);
     offset += 2;
 
     /* OAMPDU code */
@@ -1125,37 +1041,27 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_tree_add_uint(oampdu_tree, hf_oampdu_code, tvb,
           offset, 1, oampdu_code);
 
+    col_add_fstr(pinfo->cinfo, COL_INFO, "OAMPDU: %s", val_to_str_const(oampdu_code, code_vals, "Unknown"));
+
     switch (oampdu_code)
     {
         case OAMPDU_INFORMATION:
-            col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Information");
-            if (tree)
-                dissect_oampdu_information(tvb, oampdu_tree);
+            dissect_oampdu_information(tvb, oampdu_tree);
             break;
         case OAMPDU_EVENT_NOTIFICATION:
-            col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Event Notification");
-            if (tree)
-                dissect_oampdu_event_notification(tvb, pinfo, oampdu_tree);
+            dissect_oampdu_event_notification(tvb, pinfo, oampdu_tree);
             break;
         case OAMPDU_VAR_REQUEST:
-            col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Variable Request");
-            if (tree)
-                dissect_oampdu_variable_request(tvb, oampdu_tree);
+            dissect_oampdu_variable_request(tvb, oampdu_tree);
             break;
         case OAMPDU_VAR_RESPONSE:
-            col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Variable Response");
-            if (tree)
-                dissect_oampdu_variable_response(tvb, oampdu_tree);
+            dissect_oampdu_variable_response(tvb, oampdu_tree);
             break;
         case OAMPDU_LOOPBACK_CTRL:
-            col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Loopback Control");
-            if (tree)
-                dissect_oampdu_loopback_control(tvb, oampdu_tree);
+            dissect_oampdu_loopback_control(tvb, oampdu_tree);
             break;
         case OAMPDU_VENDOR_SPECIFIC:
-            col_set_str(pinfo->cinfo, COL_INFO, "OAMPDU: Organization Specific");
-            if (tree)
-                dissect_oampdu_vendor_specific(tvb, oampdu_tree);
+            dissect_oampdu_vendor_specific(tvb, oampdu_tree);
         default:
             break;
     }

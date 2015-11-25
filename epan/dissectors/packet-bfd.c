@@ -116,15 +116,6 @@ static const value_string bfd_control_auth_type_values[] = {
 #define SHA1_AUTH_LEN 28
 #define SHA1_CHECKSUM_LEN 20
 
-#define APPEND_BOOLEAN_FLAG(flag, item, string) \
-    if(flag){                            \
-        if(item)                        \
-            proto_item_append_text(item, string, sep);    \
-        sep = cont_sep;                        \
-    }
-static const char *const initial_sep = " (";
-static const char *const cont_sep = ", ";
-
 static gint proto_bfd = -1;
 
 static gint hf_bfd_version = -1;
@@ -382,16 +373,7 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     guint bfd_diag;
     guint bfd_sta        = 0;
     guint bfd_flags;
-    guint bfd_flags_h    = 0;
-    guint bfd_flags_p    = 0;
-    guint bfd_flags_f    = 0;
-    guint bfd_flags_c    = 0;
     guint bfd_flags_a    = 0;
-    guint bfd_flags_d    = 0;
-    guint bfd_flags_m    = 0;
-    guint bfd_flags_d_v0 = 0;
-    guint bfd_flags_p_v0 = 0;
-    guint bfd_flags_f_v0 = 0;
     guint bfd_detect_time_multiplier;
     guint bfd_length;
     guint bfd_my_discriminator;
@@ -410,21 +392,12 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     switch (bfd_version) {
         case 0:
             bfd_flags      = flags;
-            bfd_flags_h    = flags & 0x80;
-            bfd_flags_d_v0 = flags & 0x40;
-            bfd_flags_p_v0 = flags & 0x20;
-            bfd_flags_f_v0 = flags & 0x10;
             break;
         case 1:
         default:
             bfd_sta        = flags & 0xc0;
             bfd_flags      = flags & 0x3e;
-            bfd_flags_p    = flags & 0x20;
-            bfd_flags_f    = flags & 0x10;
-            bfd_flags_c    = flags & 0x08;
             bfd_flags_a    = flags & 0x04;
-            bfd_flags_d    = flags & 0x02;
-            bfd_flags_m    = flags & 0x01;
             break;
     }
 
@@ -453,7 +426,6 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
     if (tree) {
         proto_item *ti;
-        const char *sep;
 
         ti = proto_tree_add_protocol_format(tree, proto_bfd, tvb, 0, bfd_length,
                                             "BFD Control message");
@@ -486,16 +458,7 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                     &hf_bfd_flags_f_v0,
                     NULL
                 };
-                proto_tree_add_bitmask(bfd_tree, tvb, 1, hf_bfd_flags, ett_bfd_flags, bfd_message_flags, ENC_NA);
-
-                sep = initial_sep;
-                APPEND_BOOLEAN_FLAG(bfd_flags_h,    ti, "%sH");
-                APPEND_BOOLEAN_FLAG(bfd_flags_d_v0, ti, "%sD");
-                APPEND_BOOLEAN_FLAG(bfd_flags_p_v0, ti, "%sP");
-                APPEND_BOOLEAN_FLAG(bfd_flags_f_v0, ti, "%sF");
-                if (sep != initial_sep) {
-                    proto_item_append_text (ti, ")");
-                }
+                proto_tree_add_bitmask_with_flags(bfd_tree, tvb, 1, hf_bfd_flags, ett_bfd_flags, bfd_message_flags, ENC_NA, BMT_NO_FALSE);
                 }
                 break;
             case 1:
@@ -510,18 +473,7 @@ dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                     &hf_bfd_flags_m,
                     NULL
                 };
-                ti = proto_tree_add_bitmask(bfd_tree, tvb, 1, hf_bfd_flags, ett_bfd_flags, bfd_message_flags, ENC_NA);
-
-                sep = initial_sep;
-                APPEND_BOOLEAN_FLAG(bfd_flags_p, ti, "%sP");
-                APPEND_BOOLEAN_FLAG(bfd_flags_f, ti, "%sF");
-                APPEND_BOOLEAN_FLAG(bfd_flags_c, ti, "%sC");
-                APPEND_BOOLEAN_FLAG(bfd_flags_a, ti, "%sA");
-                APPEND_BOOLEAN_FLAG(bfd_flags_d, ti, "%sD");
-                APPEND_BOOLEAN_FLAG(bfd_flags_m, ti, "%sM");
-                if (sep != initial_sep) {
-                    proto_item_append_text (ti, ")");
-                }
+                proto_tree_add_bitmask_with_flags(bfd_tree, tvb, 1, hf_bfd_flags, ett_bfd_flags, bfd_message_flags, ENC_NA, BMT_NO_FALSE);
                 }
                 break;
         }

@@ -92,25 +92,18 @@ static const value_string bpdu_type_vals[] = {
     { 0,                         NULL }
 };
 
-static const char initial_sep[] = " (";
-static const char cont_sep[] = ", ";
-
-#define APPEND_BOOLEAN_FLAG(flag, item, string)         \
-    if(flag){                                           \
-        if(item)                                        \
-            proto_item_append_text(item, string, sep);  \
-        sep = cont_sep;                                 \
-    }
-
 static int
 dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     guint8  bpdu_type;
-    guint8  flags;
     proto_tree *bpdu_tree;
-    proto_tree *flags_tree;
     proto_item *ti;
-    const char *sep;
+    static const int * bpdu_flags[] = {
+        &hf_dec_bpdu_flags_short_timers,
+        &hf_dec_bpdu_flags_tcack,
+        &hf_dec_bpdu_flags_tc,
+        NULL
+    };
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DEC_STP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -137,28 +130,7 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         proto_tree_add_item(bpdu_tree, hf_dec_bpdu_version_id, tvb,
                             BPDU_VERSION, 1, ENC_BIG_ENDIAN);
 
-        flags = tvb_get_guint8(tvb, BPDU_FLAGS);
-        ti = proto_tree_add_uint(bpdu_tree, hf_dec_bpdu_flags, tvb,
-                                 BPDU_FLAGS, 1, flags);
-        flags_tree = proto_item_add_subtree(ti, ett_dec_bpdu_flags);
-        sep = initial_sep;
-        APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_SHORT_TIMERS, ti,
-                            "%sUse short timers");
-        proto_tree_add_boolean(flags_tree, hf_dec_bpdu_flags_short_timers, tvb,
-                               BPDU_FLAGS, 1, flags);
-        APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TCACK, ti,
-                            "%sTopology Change Acknowledgment");
-        proto_tree_add_boolean(flags_tree, hf_dec_bpdu_flags_tcack, tvb,
-                               BPDU_FLAGS, 1, flags);
-        APPEND_BOOLEAN_FLAG(flags & BPDU_FLAGS_TC, ti,
-                            "%sTopology Change");
-        proto_tree_add_boolean(flags_tree, hf_dec_bpdu_flags_tc, tvb,
-                               BPDU_FLAGS, 1, flags);
-        if (sep != initial_sep) {
-            /* We put something in; put in the terminating ")" */
-            proto_item_append_text(ti, ")");
-        }
-
+        proto_tree_add_bitmask_with_flags(bpdu_tree, tvb, BPDU_FLAGS, hf_dec_bpdu_flags, ett_dec_bpdu_flags, bpdu_flags, ENC_NA, BMT_NO_FALSE|BMT_NO_TFS);
         proto_tree_add_item(bpdu_tree, hf_dec_bpdu_root_pri, tvb,
                             BPDU_ROOT_PRI, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(bpdu_tree, hf_dec_bpdu_root_mac, tvb,
