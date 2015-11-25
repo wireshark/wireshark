@@ -561,7 +561,9 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
     pcb_tree = proto_item_add_subtree(pcb_ti, ett_iso14443_pcb);
     proto_tree_add_item(pcb_tree, hf_iso14443_block_type,
             tvb, offset, 1, ENC_BIG_ENDIAN);
-    if (block_type == I_BLOCK_TYPE) {
+    switch (block_type) {
+
+    case I_BLOCK_TYPE:
         proto_tree_add_item(pcb_tree, hf_iso14443_i_blk_chaining,
             tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,
@@ -571,16 +573,23 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
             tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(pcb_tree, hf_iso14443_blk_num,
             tvb, offset, 1, ENC_BIG_ENDIAN);
-    }
-    else if (block_type == R_BLOCK_TYPE) {
+        break;
+
+    case R_BLOCK_TYPE:
         proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,
             tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(pcb_tree, hf_iso14443_blk_num,
             tvb, offset, 1, ENC_BIG_ENDIAN);
-    }
-    else if (block_type == R_BLOCK_TYPE) {
+        break;
+
+    case S_BLOCK_TYPE:
         proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,
             tvb, offset, 1, ENC_BIG_ENDIAN);
+        break;
+
+    default:
+        /* Report an error? b8 = 0, b7 = 1 */
+        break;
     }
     if (bt_str) {
         proto_item_append_text(ti, ": %s", bt_str);
