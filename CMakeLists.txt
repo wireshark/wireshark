@@ -149,7 +149,9 @@ if( NOT CMAKE_BUILD_TYPE )
 		FORCE)
 endif()
 message(STATUS "Configuration types: ${CMAKE_CONFIGURATION_TYPES}")
-message(STATUS "${CMAKE_BUILD_TYPE}: ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type)
+message(STATUS "CMAKE_C_FLAGS_${_build_type}: ${CMAKE_C_FLAGS_${_build_type}}")
+message(STATUS "CMAKE_CXX_FLAGS_${_build_type}: ${CMAKE_CXX_FLAGS_${_build_type}}")
 
 # Where to put executables and libraries in the build tree
 # Note: Executables and libraries might end end up in a configuration
