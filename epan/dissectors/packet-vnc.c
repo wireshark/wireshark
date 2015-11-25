@@ -456,12 +456,10 @@ typedef enum {
 	VNC_SESSION_STATE_NORMAL_TRAFFIC
 } vnc_session_state_e;
 
-typedef enum {
-	VNC_FENCE_BLOCK_BEFORE = 0x00000001,
-	VNC_FENCE_BLOCK_AFTER  = 0x00000002,
-	VNC_FENCE_SYNC_NEXT    = 0x00000004,
-	VNC_FENCE_REQUEST      = 0x80000000
-} vnc_fence_flags_e;
+#define VNC_FENCE_BLOCK_BEFORE   0x00000001
+#define VNC_FENCE_BLOCK_AFTER    0x00000002
+#define VNC_FENCE_SYNC_NEXT      0x00000004
+#define VNC_FENCE_REQUEST        0x80000000
 
 /* This structure will be tied to each conversation. */
 typedef struct {

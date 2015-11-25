@@ -78,26 +78,20 @@ static int hf_pp_pid_len = -1;
 static int hf_pp_pid_value = -1;
 static int hf_pp_pid_pad_bytes = -1;
 
-/* Begin field and enum declarations */
-enum
-{
-    PP_ID_BCAST        = 0xffffffff,
-    PP_ID_MCAST_ALL    = 0xefffedff,
-    PP_ID_MCAST_DATA   = 0xefffed01,
-    PP_ID_MCAST_MANAGE = 0xefffed02
-};
+/* Begin field and constant declarations */
+#define PP_ID_BCAST        0xffffffff
+#define PP_ID_MCAST_ALL    0xefffedff
+#define PP_ID_MCAST_DATA   0xefffed01
+#define PP_ID_MCAST_MANAGE 0xefffed02
 
 /* Top Level PDU Types */
-enum
-{
-    PP_ARP_REQUEST = 0x0301,
-    PP_ARP_REPLY   = 0x0302,
-    PP_ARP_INFO    = 0x0303,
-    PP_GET         = 0x0222,
-    PP_GET_REPLY   = 0x0223,
-    PP_DATA        = 0x0100,
-    PP_SET         = 0x0400
-};
+#define PP_ARP_REQUEST 0x0301
+#define PP_ARP_REPLY   0x0302
+#define PP_ARP_INFO    0x0303
+#define PP_GET         0x0222
+#define PP_GET_REPLY   0x0223
+#define PP_DATA        0x0100
+#define PP_SET         0x0400
 
 static const value_string pp_pdu_vals[] = {
     {PP_ARP_REQUEST, "ARP Request"},
@@ -111,11 +105,8 @@ static const value_string pp_pdu_vals[] = {
 };
 
 /* XDMX Data Transport Encodings */
-enum
-{
-    PP_DATA_FLAT    = 0x0101,
-    PP_DATA_RELEASE = 0x0103
-};
+#define PP_DATA_FLAT    0x0101
+#define PP_DATA_RELEASE 0x0103
 
 /** Data encoding strings. */
 static const value_string pp_data_encoding_vals[] = {
@@ -134,115 +125,112 @@ static const value_string ednet_id_vals[] = {
 };
 
 /* Configuration Property IDs */
-enum
-    {
-    PP_PAD                       = 0x0000,
-    PP_NODE_NAME                 = 0x0401,
-    PP_PORT_NAME                 = 0x0411,
-    PP_PATCH_NAME                = 0x0412,
-    PP_PORT_SPEED                = 0x0413,
-    PP_IS_BIDIRECTIONAL          = 0x0414,
-    PP_IS_PHYSICAL               = 0x0415,
-    PP_IS_MALE                   = 0x0416,
-    PP_IS_SINK                   = 0x0417,
-    PP_XDMX_COUNT                = 0x0418,
-    PP_ALT_START_CODE            = 0x041A,
-    PP_MAX_PATCHES               = 0x041B,
-    PP_NUM_PATCHES               = 0x041C,
-    PP_TERMINATED                = 0x041E,
-    PP_INPUT_PRIORITY            = 0x041F,
-    PP_INPUT_PRIORITY_CHANNEL    = 0x0420,
-    PP_MAC                       = 0x0421,
-    PP_IP                        = 0x0422,
-    PP_NETMASK                   = 0x0423,
-    PP_ROUTER                    = 0x0424,
-    PP_PP_ID                     = 0x0461,
-    PP_PP_ID_MASK                = 0x0462,
-    PP_PP_TX_DATA_DST            = 0x0463,
-    PP_BACKLIGHT                 = 0x0481,
-    PP_SW_VERSION                = 0x0482,
-    PP_HW_TYPE                   = 0x0483,
-    PP_LOADER_VERSION            = 0x0484,
-    PP_IDENTIFY                  = 0x0485,
-    PP_IRENABLE                  = 0x0486,
-    PP_SERIAL                    = 0x0487,
-    PP_KEYPAD_LOCKOUT            = 0x0488,
-    PP_ARTNET_RX_ENABLE          = 0x0489,
-    PP_TX_PROTOCOL               = 0x048a,
-    PP_SHOWNET_RX_ENABLE         = 0x048b,
-    PP_LED_INTENSITY             = 0x048c,
-    PP_JUMPER_CONFIGURED         = 0x048d,
-    PP_SACN_RX_ENABLE            = 0x048e,
-    PP_NET2_RX_ENABLE            = 0x048f,
-    PP_PATHPORT_RX_ENABLE        = 0x0490,
-    PP_SACN_IS_DRAFT             = 0x0491,
-    PP_REBOOT                    = 0x04a1,
-    PP_BOOTORDER                 = 0x04a2,
-    PP_FACTORY_DEFAULT           = 0x04a4,
-    PP_TEST_LCD                  = 0x04c1,
-    PP_IS_TERMINAL_BLOCK         = 0x04c2,
-    PP_IS_RACK_MOUNTED           = 0x04c3,
-    PP_IS_ENABLED                = 0x04c4,
-    PP_IS_DMX_ACTIVE             = 0x04c5,
-    PP_IS_XDMX_ACTIVE            = 0x04c6,
-    PP_SIGNAL_LOSS_HOLD_TIME     = 0x04c7,
-    PP_SIGNAL_LOSS_HOLD_FOREVER  = 0x04c8,
-    PP_SIGNAL_LOSS_FADE_ENABLE   = 0x04c9,
-    PP_SIGNAL_LOSS_FADE_TIME     = 0x04ca,
-    PP_SIGNAL_LOSS_PORT_SHUTDOWN = 0x04cb,
-    PP_NET2_ADMIN_MCAST          = 0x04ce,
-    PP_NET2_DATA_MCAST           = 0x04cf,
-    PP_ROOMS_FEATURES            = 0x04d0,
-    PP_UNIVERSE_TEMP             = 0x04d1,
-    PP_CROSSFADE_TIME            = 0x04d2,
-    PP_CROSSFADE_ENABLE          = 0x04d3,
-    PP_IGNORE_INPUT_PRI          = 0x04d4,
-    PP_ARTNET_ALT_MAP            = 0x04d5,
-    PP_PATCH_CRC                 = 0x04d6,
-    PP_CONF_CHANGE               = 0x04d7,
-    PP_PORT_ACTIVE_SUMMARY       = 0x04d8,
-    PP_SUPPORTED_UNIV            = 0x04d9,
-    PP_INPUT_HLL_TIME            = 0x04da,
-    PP_PCP_ENABLE                = 0x04db,
-    PP_INPUT_UNIVERSE            = 0x04dc,
-    PP_MODEL_NAME                = 0x04dd,
-    PP_MANUF_NAME                = 0x04de,
-    PP_VER_STR                   = 0x04df,
-    PP_SERIAL_STR                = 0x04e0,
-    PP_NODE_NOTES                = 0x04e1,
-    PP_PORT_NOTES                = 0x04e2,
-    PP_USER_NODE_ID              = 0x04e3,
-    PP_MDG_GEN_STATE             = 0x0601,
-    PP_EMBEDDED_ID               = 0x0602,
-    PP_SLAVE_DMX_START           = 0x0603,
-    PP_TB_MODE                   = 0x0605,
-    PP_LINK_MODE                 = 0x0701,
-    PP_LINK_STATUS               = 0x0702,
-    PP_CONNECTED_COUNT           = 0x0703,
-    PP_POE_STATUS                = 0x0704,
-    PP_POE_EXTERN_WATT           = 0x0705,
-    PP_POE_CURRENT_WATT          = 0x0706,
-    PP_SFP_MODULE_TYPE           = 0x0707,
-    PP_POE_EXTERN_PRESENT        = 0x0708,
-    PP_POE_CAPABLE               = 0x0709,
-    PP_SWITCH_PORT_TYPE          = 0x070a,
-    PP_POE_MAX_ALLOC_MW          = 0x070b,
-    PP_POE_CURRENT_ALLOC_MW      = 0x070c,
-    PP_VLAN_RANGE_START          = 0x070d,
-    PP_VLAN_RANGE_END            = 0x070e,
-    PP_VLAN_IS_TAGGED            = 0x070f,
-    PP_VLAN_PORT_VID             = 0x0710,
-    PP_VLAN_MGMT_VID             = 0x0711,
-    PP_VLAN_ENABLE               = 0x0712,
-    PP_EAPS_MODE                 = 0x0713,
-    PP_EAPS_VLAN                 = 0x0714,
-    PP_EAPS_PRI_PORT             = 0x0715,
-    PP_EAPS_SEC_PORT             = 0x0716,
-    PP_LLDP_PARTNER_MAC          = 0x0717,
-    PP_LLDP_PARTNER_PORT         = 0x0718,
-    PP_ET_PARAM_1                = 0x1101,
-    PP_END                       = 0xffff
-};
+#define PP_PAD                         0x0000
+#define PP_NODE_NAME                   0x0401
+#define PP_PORT_NAME                   0x0411
+#define PP_PATCH_NAME                  0x0412
+#define PP_PORT_SPEED                  0x0413
+#define PP_IS_BIDIRECTIONAL            0x0414
+#define PP_IS_PHYSICAL                 0x0415
+#define PP_IS_MALE                     0x0416
+#define PP_IS_SINK                     0x0417
+#define PP_XDMX_COUNT                  0x0418
+#define PP_ALT_START_CODE              0x041A
+#define PP_MAX_PATCHES                 0x041B
+#define PP_NUM_PATCHES                 0x041C
+#define PP_TERMINATED                  0x041E
+#define PP_INPUT_PRIORITY              0x041F
+#define PP_INPUT_PRIORITY_CHANNEL      0x0420
+#define PP_MAC                         0x0421
+#define PP_IP                          0x0422
+#define PP_NETMASK                     0x0423
+#define PP_ROUTER                      0x0424
+#define PP_PP_ID                       0x0461
+#define PP_PP_ID_MASK                  0x0462
+#define PP_PP_TX_DATA_DST              0x0463
+#define PP_BACKLIGHT                   0x0481
+#define PP_SW_VERSION                  0x0482
+#define PP_HW_TYPE                     0x0483
+#define PP_LOADER_VERSION              0x0484
+#define PP_IDENTIFY                    0x0485
+#define PP_IRENABLE                    0x0486
+#define PP_SERIAL                      0x0487
+#define PP_KEYPAD_LOCKOUT              0x0488
+#define PP_ARTNET_RX_ENABLE            0x0489
+#define PP_TX_PROTOCOL                 0x048a
+#define PP_SHOWNET_RX_ENABLE           0x048b
+#define PP_LED_INTENSITY               0x048c
+#define PP_JUMPER_CONFIGURED           0x048d
+#define PP_SACN_RX_ENABLE              0x048e
+#define PP_NET2_RX_ENABLE              0x048f
+#define PP_PATHPORT_RX_ENABLE          0x0490
+#define PP_SACN_IS_DRAFT               0x0491
+#define PP_REBOOT                      0x04a1
+#define PP_BOOTORDER                   0x04a2
+#define PP_FACTORY_DEFAULT             0x04a4
+#define PP_TEST_LCD                    0x04c1
+#define PP_IS_TERMINAL_BLOCK           0x04c2
+#define PP_IS_RACK_MOUNTED             0x04c3
+#define PP_IS_ENABLED                  0x04c4
+#define PP_IS_DMX_ACTIVE               0x04c5
+#define PP_IS_XDMX_ACTIVE              0x04c6
+#define PP_SIGNAL_LOSS_HOLD_TIME       0x04c7
+#define PP_SIGNAL_LOSS_HOLD_FOREVER    0x04c8
+#define PP_SIGNAL_LOSS_FADE_ENABLE     0x04c9
+#define PP_SIGNAL_LOSS_FADE_TIME       0x04ca
+#define PP_SIGNAL_LOSS_PORT_SHUTDOWN   0x04cb
+#define PP_NET2_ADMIN_MCAST            0x04ce
+#define PP_NET2_DATA_MCAST             0x04cf
+#define PP_ROOMS_FEATURES              0x04d0
+#define PP_UNIVERSE_TEMP               0x04d1
+#define PP_CROSSFADE_TIME              0x04d2
+#define PP_CROSSFADE_ENABLE            0x04d3
+#define PP_IGNORE_INPUT_PRI            0x04d4
+#define PP_ARTNET_ALT_MAP              0x04d5
+#define PP_PATCH_CRC                   0x04d6
+#define PP_CONF_CHANGE                 0x04d7
+#define PP_PORT_ACTIVE_SUMMARY         0x04d8
+#define PP_SUPPORTED_UNIV              0x04d9
+#define PP_INPUT_HLL_TIME              0x04da
+#define PP_PCP_ENABLE                  0x04db
+#define PP_INPUT_UNIVERSE              0x04dc
+#define PP_MODEL_NAME                  0x04dd
+#define PP_MANUF_NAME                  0x04de
+#define PP_VER_STR                     0x04df
+#define PP_SERIAL_STR                  0x04e0
+#define PP_NODE_NOTES                  0x04e1
+#define PP_PORT_NOTES                  0x04e2
+#define PP_USER_NODE_ID                0x04e3
+#define PP_MDG_GEN_STATE               0x0601
+#define PP_EMBEDDED_ID                 0x0602
+#define PP_SLAVE_DMX_START             0x0603
+#define PP_TB_MODE                     0x0605
+#define PP_LINK_MODE                   0x0701
+#define PP_LINK_STATUS                 0x0702
+#define PP_CONNECTED_COUNT             0x0703
+#define PP_POE_STATUS                  0x0704
+#define PP_POE_EXTERN_WATT             0x0705
+#define PP_POE_CURRENT_WATT            0x0706
+#define PP_SFP_MODULE_TYPE             0x0707
+#define PP_POE_EXTERN_PRESENT          0x0708
+#define PP_POE_CAPABLE                 0x0709
+#define PP_SWITCH_PORT_TYPE            0x070a
+#define PP_POE_MAX_ALLOC_MW            0x070b
+#define PP_POE_CURRENT_ALLOC_MW        0x070c
+#define PP_VLAN_RANGE_START            0x070d
+#define PP_VLAN_RANGE_END              0x070e
+#define PP_VLAN_IS_TAGGED              0x070f
+#define PP_VLAN_PORT_VID               0x0710
+#define PP_VLAN_MGMT_VID               0x0711
+#define PP_VLAN_ENABLE                 0x0712
+#define PP_EAPS_MODE                   0x0713
+#define PP_EAPS_VLAN                   0x0714
+#define PP_EAPS_PRI_PORT               0x0715
+#define PP_EAPS_SEC_PORT               0x0716
+#define PP_LLDP_PARTNER_MAC            0x0717
+#define PP_LLDP_PARTNER_PORT           0x0718
+#define PP_ET_PARAM_1                  0x1101
+#define PP_END                         0xffff
 
 /** Property strings. */
 static const value_string pp_pid_vals[] = {

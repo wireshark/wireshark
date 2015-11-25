@@ -846,65 +846,59 @@ enum c_banner {
 
 /** Feature Flags */
 /* Transmuted from ceph:/src/include/ceph_features.h */
-typedef enum _c_features {
-	C_FEATURE_UID		       = 1U <<  0,
-	C_FEATURE_NOSRCADDR	       = 1U <<  1,
-	C_FEATURE_MONCLOCKCHECK	       = 1U <<  2,
-	C_FEATURE_FLOCK		       = 1U <<  3,
-	C_FEATURE_SUBSCRIBE2	       = 1U <<  4,
-	C_FEATURE_MONNAMES	       = 1U <<  5,
-	C_FEATURE_RECONNECT_SEQ	       = 1U <<  6,
-	C_FEATURE_DIRLAYOUTHASH	       = 1U <<  7,
-	C_FEATURE_OBJECTLOCATOR	       = 1U <<  8,
-	C_FEATURE_PGID64	       = 1U <<  9,
-	C_FEATURE_INCSUBOSDMAP	       = 1U << 10,
-	C_FEATURE_PGPOOL3	       = 1U << 11,
-	C_FEATURE_OSDREPLYMUX	       = 1U << 12,
-	C_FEATURE_OSDENC	       = 1U << 13,
-	C_FEATURE_OMAP		       = 1U << 14,
-	C_FEATURE_MONENC	       = 1U << 15,
-	C_FEATURE_QUERY_T	       = 1U << 16,
-	C_FEATURE_INDEP_PG_MAP	       = 1U << 17,
-	C_FEATURE_CRUSH_TUNABLES       = 1U << 18,
-	C_FEATURE_CHUNKY_SCRUB	       = 1U << 19,
-	C_FEATURE_MON_NULLROUTE	       = 1U << 20,
-	C_FEATURE_MON_GV	       = 1U << 21,
-	C_FEATURE_BACKFILL_RESERVATION = 1U << 22,
-	C_FEATURE_MSG_AUTH	       = 1U << 23,
-	C_FEATURE_RECOVERY_RESERVATION = 1U << 24,
-	C_FEATURE_CRUSH_TUNABLES2      = 1U << 25,
-	C_FEATURE_CREATEPOOLID	       = 1U << 26,
-	C_FEATURE_REPLY_CREATE_INODE   = 1U << 27,
-	C_FEATURE_OSD_HBMSGS	       = 1U << 28,
-	C_FEATURE_MDSENC	       = 1U << 29,
-	C_FEATURE_OSDHASHPSPOOL	       = 1U << 30,
-	C_FEATURE_MON_SINGLE_PAXOS     = 1U << 31,
-	C_FEATURE_OSD_SNAPMAPPER       = 1U <<  0,
-	C_FEATURE_MON_SCRUB	       = 1U <<  1,
-	C_FEATURE_OSD_PACKED_RECOVERY  = 1U <<  2,
-	C_FEATURE_OSD_CACHEPOOL	       = 1U <<  3,
-	C_FEATURE_CRUSH_V2	       = 1U <<  4,
-	C_FEATURE_EXPORT_PEER	       = 1U <<  5,
-	C_FEATURE_OSD_ERASURE_CODES    = 1U <<  6,
-	C_FEATURE_OSD_TMAP2OMAP	       = 1U <<  6,
-	C_FEATURE_OSDMAP_ENC	       = 1U <<  7,
-	C_FEATURE_MDS_INLINE_DATA      = 1U <<  8,
-	C_FEATURE_CRUSH_TUNABLES3      = 1U <<  9,
-	C_FEATURE_OSD_PRIMARY_AFFINITY = 1U <<  9,
-	C_FEATURE_MSGR_KEEPALIVE2      = 1U << 10,
-	C_FEATURE_RESERVED	       = 1U << 31
-} c_features;
+#define C_FEATURE_UID		       (1U <<  0)
+#define C_FEATURE_NOSRCADDR	       (1U <<  1)
+#define C_FEATURE_MONCLOCKCHECK	       (1U <<  2)
+#define C_FEATURE_FLOCK		       (1U <<  3)
+#define C_FEATURE_SUBSCRIBE2	       (1U <<  4)
+#define C_FEATURE_MONNAMES	       (1U <<  5)
+#define C_FEATURE_RECONNECT_SEQ	       (1U <<  6)
+#define C_FEATURE_DIRLAYOUTHASH	       (1U <<  7)
+#define C_FEATURE_OBJECTLOCATOR	       (1U <<  8)
+#define C_FEATURE_PGID64	       (1U <<  9)
+#define C_FEATURE_INCSUBOSDMAP	       (1U << 10)
+#define C_FEATURE_PGPOOL3	       (1U << 11)
+#define C_FEATURE_OSDREPLYMUX	       (1U << 12)
+#define C_FEATURE_OSDENC	       (1U << 13)
+#define C_FEATURE_OMAP		       (1U << 14)
+#define C_FEATURE_MONENC	       (1U << 15)
+#define C_FEATURE_QUERY_T	       (1U << 16)
+#define C_FEATURE_INDEP_PG_MAP	       (1U << 17)
+#define C_FEATURE_CRUSH_TUNABLES       (1U << 18)
+#define C_FEATURE_CHUNKY_SCRUB	       (1U << 19)
+#define C_FEATURE_MON_NULLROUTE	       (1U << 20)
+#define C_FEATURE_MON_GV	       (1U << 21)
+#define C_FEATURE_BACKFILL_RESERVATION (1U << 22)
+#define C_FEATURE_MSG_AUTH	       (1U << 23)
+#define C_FEATURE_RECOVERY_RESERVATION (1U << 24)
+#define C_FEATURE_CRUSH_TUNABLES2      (1U << 25)
+#define C_FEATURE_CREATEPOOLID	       (1U << 26)
+#define C_FEATURE_REPLY_CREATE_INODE   (1U << 27)
+#define C_FEATURE_OSD_HBMSGS	       (1U << 28)
+#define C_FEATURE_MDSENC	       (1U << 29)
+#define C_FEATURE_OSDHASHPSPOOL	       (1U << 30)
+#define C_FEATURE_MON_SINGLE_PAXOS     (1U << 31)
+#define C_FEATURE_OSD_SNAPMAPPER       (1U <<  0)
+#define C_FEATURE_MON_SCRUB	       (1U <<  1)
+#define C_FEATURE_OSD_PACKED_RECOVERY  (1U <<  2)
+#define C_FEATURE_OSD_CACHEPOOL	       (1U <<  3)
+#define C_FEATURE_CRUSH_V2	       (1U <<  4)
+#define C_FEATURE_EXPORT_PEER	       (1U <<  5)
+#define C_FEATURE_OSD_ERASURE_CODES    (1U <<  6)
+#define C_FEATURE_OSD_TMAP2OMAP	       (1U <<  6)
+#define C_FEATURE_OSDMAP_ENC	       (1U <<  7)
+#define C_FEATURE_MDS_INLINE_DATA      (1U <<  8)
+#define C_FEATURE_CRUSH_TUNABLES3      (1U <<  9)
+#define C_FEATURE_OSD_PRIMARY_AFFINITY (1U <<  9)
+#define C_FEATURE_MSGR_KEEPALIVE2      (1U << 10)
+#define C_FEATURE_RESERVED	       (1U << 31)
 
 /** Connect Message Flags */
-typedef enum _c_flags {
-	C_FLAG_LOSSY = 1U << 0
-} c_flags;
+#define C_FLAG_LOSSY	               (1U << 0)
 
-typedef enum _c_pgpool_flags {
-	C_PGPOOL_FLAG_HASHPSPOOL   = 1U << 0, /* hash pg seed and pool together (instead of adding) */
-	C_PGPOOL_FLAG_FULL	   = 1U << 1, /* pool is full */
-	C_PGPOOL_FLAG_FAKE_EC_POOL = 1U << 2 /* require ReplicatedPG to act like an EC pg */
-} c_pgpool_flags;
+#define C_PGPOOL_FLAG_HASHPSPOOL       (1U << 0) /* hash pg seed and pool together (instead of adding) */
+#define C_PGPOOL_FLAG_FULL	       (1U << 1) /* pool is full */
+#define C_PGPOOL_FLAG_FAKE_EC_POOL     (1U << 2) /* require ReplicatedPG to act like an EC pg */
 
 /** Macros to create value_stings.
  *
