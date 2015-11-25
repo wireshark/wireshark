@@ -2280,6 +2280,11 @@ wtap_dump_open_tempfile_ng(char **filenamep, const char *pfx,
 
 	/* Choose a random name for the file */
 	fd = create_tempfile(&tmpname, pfx);
+	if (fd == -1) {
+		*err = errno;
+		g_free(wdh);
+		return NULL;	/* can't create file */
+	}
 	*filenamep = tmpname;
 
 	/* In case "fopen()" fails but doesn't set "errno", set "errno"
