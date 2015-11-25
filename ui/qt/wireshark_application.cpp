@@ -389,6 +389,8 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     /* Reload color filters */
     color_filters_reload();
 
+    emit packetDissectionChanged();
+
 //    user_font_apply();
 
     /* Update menus with new recent values */
