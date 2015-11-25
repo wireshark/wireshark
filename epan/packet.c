@@ -2596,21 +2596,6 @@ dissector_handle_get_dissector_name(const dissector_handle_t handle)
 	return handle->name;
 }
 
-/* Create an anonymous handle for a dissector. */
-dissector_handle_t
-create_dissector_handle(dissector_t dissector, const int proto)
-{
-	struct dissector_handle *handle;
-
-	handle                = wmem_new(wmem_epan_scope(), struct dissector_handle);
-	handle->name          = NULL;
-	handle->is_new        = FALSE;
-	handle->dissector.old = dissector;
-	handle->protocol      = find_protocol_by_id(proto);
-
-	return handle;
-}
-
 /* Create an anonymous handle for a new dissector. */
 dissector_handle_t
 new_create_dissector_handle(new_dissector_t dissector, const int proto)

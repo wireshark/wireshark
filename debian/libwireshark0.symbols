@@ -190,7 +190,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  crc32_mpeg2_tvb_seed@Base 1.9.1
  crc32c_tvb_offset_calculate@Base 1.99.0
  crc6_compute_tvb@Base 1.99.0
- create_dissector_handle@Base 1.9.1
  data_out_file@Base 1.9.1
  dcerpc_get_proto_hf_opnum@Base 2.1.0
  dcerpc_get_proto_name@Base 1.9.1
