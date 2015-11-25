@@ -40,11 +40,9 @@ GENERATED_FILES = \
 GENERATOR_FILES = \
 	main.gresources.xml
 
-WIRESHARK_GTK_SRC = \
+WIRESHARK_COMMON_GTK_SRC = \
 	about_dlg.c		\
 	addr_resolution_dlg.c	\
-	airpcap_dlg.c		\
-	airpcap_gui_utils.c	\
 	bytes_view.c		\
 	capture_dlg.c		\
 	capture_file_dlg.c	\
@@ -89,7 +87,6 @@ WIRESHARK_GTK_SRC = \
 	macros_dlg.c		\
 	main.c			\
 	main_80211_toolbar.c	\
-	main_airpcap_toolbar.c	\
 	main_filter_toolbar.c	\
 	main_menubar.c		\
 	manual_addr_resolv.c	\
@@ -171,8 +168,6 @@ WIRESHARK_TAP_SRC = \
 noinst_HEADERS = \
 	about_dlg.h		\
 	addr_resolution_dlg.h	\
-	airpcap_dlg.h		\
-	airpcap_gui_utils.h	\
 	bytes_view.h		\
 	capture_dlg.h		\
 	capture_file_dlg.h	\
@@ -223,7 +218,6 @@ noinst_HEADERS = \
 	lbm_uimflow_dlg.h	\
 	macros_dlg.h		\
 	main.h			\
-	main_airpcap_toolbar.h	\
 	main_filter_toolbar.h	\
 	main_menubar_private.h	\
 	main_80211_toolbar.h	\

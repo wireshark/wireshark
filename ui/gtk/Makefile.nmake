@@ -29,10 +29,13 @@ include Makefile.common
 
 # if you add files here, be sure to include them also in Makefile.am EXTRA_DIST
 WIRESHARK_CLEAN_LIBGTKUI_SRC = \
-	$(WIRESHARK_GTK_SRC) \
+	$(WIRESHARK_COMMON_GTK_SRC) \
 	$(WIRESHARK_TAP_SRC) \
 	$(GENERATED_C_FILES) \
+	airpcap_dlg.c \
+	airpcap_gui_utils.c \
 	capture_if_details_dlg_win32.c \
+	main_airpcap_toolbar.c \
 	pixbuf-csource.c
 
 WIRESHARK_LIBGTKUI_SRC = \

@@ -31,6 +31,10 @@ noinst_LIBRARIES = libcaputils.a
 PLATFORM_CAPUTILS_SRC = \
 	capture-pcap-util-unix.c
 
+CAPUTILS_SRC = \
+	$(COMMON_CAPUTILS_SRC)	\
+	$(PLATFORM_CAPUTILS_SRC)
+
 CLEANFILES = \
 	doxygen-caputils.tag	\
 	libcaputils.a		\
@@ -39,6 +43,22 @@ CLEANFILES = \
 MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)	\
 	Makefile.in
+
+EXTRA_DIST = \
+	$(GENERATOR_FILES)	\
+	airpcap.h		\
+	airpcap_loader.c	\
+	airpcap_loader.h	\
+	capture_win_ifnames.c	\
+	capture_win_ifnames.h	\
+	capture-wpcap.c		\
+	capture-wpcap.h		\
+	capture_wpcap_packet.c  \
+	capture_wpcap_packet.h  \
+	CMakeLists.txt		\
+	doxygen.cfg.in		\
+	Makefile.common		\
+	Makefile.nmake
 
 # All sources that should be put in the source distribution tarball
 libcaputils_a_SOURCES = \
@@ -80,16 +100,3 @@ checkapi-todo:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -M -g deprecated-gtk-todo -build \
 	-sourcedir=$(srcdir) \
 	$(CAPUTILS_SRC)
-
-EXTRA_DIST = \
-	$(GENERATOR_FILES)	\
-	capture_win_ifnames.c	\
-	capture_win_ifnames.h	\
-	capture-wpcap.c		\
-	capture-wpcap.h		\
-	capture_wpcap_packet.c  \
-	capture_wpcap_packet.h  \
-	CMakeLists.txt		\
-	doxygen.cfg.in		\
-	Makefile.common		\
-	Makefile.nmake

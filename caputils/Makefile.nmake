@@ -4,6 +4,7 @@
 
 include ..\config.nmake
 include ..\Makefile.nmake.inc
+include Makefile.common
 
 ############### no need to modify below this line #########
 
@@ -28,8 +29,10 @@ PLATFORM_CAPUTILS_SRC = \
 	capture-wpcap.c		\
 	capture_wpcap_packet.c
 
-include Makefile.common
-
+CAPUTILS_SRC = \
+	$(COMMON_CAPUTILS_SRC)		\
+	$(PLATFORM_CAPUTILS_SRC)	\
+	airpcap_loader.c
 
 # if you add files here, be sure to include them also in Makefile.am EXTRA_DIST
 CAPUTILS_OBJECTS = \

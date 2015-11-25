@@ -24,8 +24,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_AIRPCAP
-
 #include <gtk/gtk.h>
 #include <glib.h>
 
@@ -2367,8 +2365,6 @@ airpcap_enable_toolbar_widgets(GtkWidget* w, gboolean en)
 
     return;
 }
-
-#endif /* HAVE_AIRPCAP */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

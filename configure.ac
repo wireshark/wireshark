@@ -694,21 +694,18 @@ linux*)
 			AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
 			AC_DEFINE(HAVE_LIBNL3, 1, [libnl version 3])
 			libnl_message="yes (v3)"
-			enable_airpcap=no
 		elif (test "${have_libnl2}" = "yes"); then
 			CFLAGS="$CFLAGS $LIBNL2_CFLAGS"
 			LIBS="$LIBS $LIBNL2_LIBS"
 			AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
 			AC_DEFINE(HAVE_LIBNL2, 1, [libnl version 2])
 			libnl_message="yes (v2)"
-			enable_airpcap=no
 		elif (test "${have_libnl1}" = "yes"); then
 			CFLAGS="$CFLAGS $LIBNL1_CFLAGS"
 			LIBS="$LIBS $LIBNL1_LIBS"
 			AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
 			AC_DEFINE(HAVE_LIBNL1, 1, [libnl version 1])
 			libnl_message="yes (v1)"
-			enable_airpcap=no
 		else
 			if test x$want_libnl = "xyes"; then
 				case "$libnl_version" in
@@ -2220,29 +2217,6 @@ else
 	AC_MSG_RESULT(yes)
 	AC_WIRESHARK_PCAP_CHECK
 fi
-
-
-dnl Check for airpcap
-dnl We might want to remove this entirely unless we want to support
-dnl AutoTools on Windows.
-AC_MSG_CHECKING(whether to include airpcap support)
-AC_ARG_ENABLE(airpcap,
-  AC_HELP_STRING( [--enable-airpcap],
-		  [use AirPcap in Wireshark @<:@default=no@:>@]),
-  enable_airpcap=$enableval, enable_airpcap=no)
-
-if test x$enable_airpcap = xyes; then
-	if test "x$want_pcap" = "xno" ; then
-		enable_airpcap=no
-		AC_MSG_RESULT(pcap not available - disabling airpcap)
-	else
-		AC_MSG_RESULT(yes)
-		AC_DEFINE(HAVE_AIRPCAP, 1, [Enable AirPcap])
-	fi
-else
-	AC_MSG_RESULT(no)
-fi
-
 
 dnl dumpcap check
 AC_MSG_CHECKING(whether to build dumpcap)

@@ -24,8 +24,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_AIRPCAP
-
 #ifdef HAVE_LIBPCAP
 #include <glib.h>
 #include <gmodule.h>
@@ -1244,7 +1242,6 @@ get_runtime_airpcap_version(GString *str)
     g_string_append_printf(str, "with AirPcap %d.%d.%d build %d", vmaj, vmin,
         vrev, build);
 }
-#endif /* HAVE_AIRPCAP */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

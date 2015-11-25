@@ -26,8 +26,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_AIRPCAP
-
 #include <gtk/gtk.h>
 #include "ui/gtk/old-gtk-compat.h"
 
@@ -416,8 +414,6 @@ void airpcap_toolbar_show(GtkWidget *lcl_wireless_tb _U_)
 #endif
     }
 }
-
-#endif /* HAVE_AIRPCAP */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

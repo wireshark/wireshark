@@ -39,19 +39,22 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 WIRESHARK_CLEAN_LIBGTKUI_SRC = \
-	$(WIRESHARK_GTK_SRC)	\
-	$(WIRESHARK_TAP_SRC)	\
+	$(WIRESHARK_COMMON_GTK_SRC)	\
+	$(WIRESHARK_TAP_SRC)		\
 	$(GENERATED_C_FILES)
 
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
 	airpcap_dlg.c			\
+	airpcap_dlg.h			\
 	airpcap_gui_utils.c		\
+	airpcap_gui_utils.h		\
 	capture_if_details_dlg_win32.c	\
 	capture_if_details_dlg_win32.h	\
 	CMakeLists.txt			\
 	doxygen.cfg.in			\
 	main_airpcap_toolbar.c		\
+	main_airpcap_toolbar.h		\
 	Makefile.common			\
 	Makefile.nmake			\
 	Makefile_custom.common		\

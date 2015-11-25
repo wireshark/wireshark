@@ -21,16 +21,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-CAPUTILS_SRC = \
-	$(PLATFORM_CAPUTILS_SRC)	\
-	airpcap_loader.c		\
+COMMON_CAPUTILS_SRC = \
 	capture-pcap-util.c		\
 	iface_monitor.c			\
 	ws80211_utils.c
 
 noinst_HEADERS = \
-	airpcap.h		\
-	airpcap_loader.h	\
 	capture_ifinfo.h	\
 	capture-pcap-util.h	\
 	capture-pcap-util-int.h	\
