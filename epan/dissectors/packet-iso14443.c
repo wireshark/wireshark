@@ -774,7 +774,7 @@ dissect_iso14443_msg(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *msg_tree;
     gint ret;
 
-    if (event == ISO14443_EVT_DATA_PCD_TO_PICC_CRC_DROPPED ||
+    if (event == ISO14443_EVT_DATA_PICC_TO_PCD_CRC_DROPPED ||
             event == ISO14443_EVT_DATA_PCD_TO_PICC_CRC_DROPPED) {
         crc_dropped = TRUE;
     }
