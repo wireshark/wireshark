@@ -164,9 +164,7 @@ wmem_list_t *
 wmem_itree_find_intervals(wmem_itree_t *tree, wmem_allocator_t *allocator, guint64 low, guint64 high)
 {
     wmem_list_t *results = NULL;
-    wmem_range_t requested;
-    requested.low  = low;
-    requested.high = high;
+    wmem_range_t requested = { low, high, 0 };
     results = wmem_list_new(allocator);
 
     wmem_itree_find_intervals_in_subtree(tree->root, requested, results);
