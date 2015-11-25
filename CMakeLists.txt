@@ -1536,19 +1536,8 @@ if(WIN32)
 	endif()
 endif(WIN32)
 
-# Copy ${INSTALL_FILES} and ${INSTALL_DIRS} to ${DATAFILE_DIR}
-add_custom_target(copy_data_files ALL DEPENDS ${INSTALL_FILES})
-set_target_properties(copy_data_files PROPERTIES FOLDER "Copy Tasks")
-add_dependencies(copy_data_files html_docs)
-# List of extra dependencies that for "copy_data_files" that cannot be added
-# above because the "copy_data_files" target needs to be defined for some
-# other commands later in this file.
+# List of extra dependencies for the "copy_data_files" target
 set(copy_data_files_depends)
-if(ENABLE_APPLICATION_BUNDLE)
-	add_custom_command(OUTPUT "${DATAFILE_DIR}"
-		COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}"
-	)
-endif()
 
 # glob patterns relative to the source directory that should be copied to
 # ${DATAFILE_DIR} (including directory prefixes)
@@ -1577,6 +1566,7 @@ foreach(_install_file ${INSTALL_FILES})
 			"${_output_file}"
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 		DEPENDS
+			html_docs
 			"${_install_file}"
 	)
 	list(APPEND copy_data_files_depends "${_output_file}")
@@ -1591,13 +1581,19 @@ if(ENABLE_EXTCAP)
 	list(APPEND copy_data_files_depends "${DATAFILE_DIR}/extcap")
 endif()
 if(WIN32)
-	file(TO_NATIVE_PATH ${DATAFILE_DIR}/help _help_dest_dir)
-	add_custom_command(TARGET copy_data_files PRE_BUILD
-		COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/help"
-		COMMAND ${POWERSHELL_COMMAND} "${CMAKE_SOURCE_DIR}/tools/textify.ps1"
-			-Destination ${_help_dest_dir}
-			${CMAKE_SOURCE_DIR}/help/*.txt
-	)
+	file(TO_NATIVE_PATH "${DATAFILE_DIR}/help" _help_dest_dir)
+	file(GLOB _help_files RELATIVE "${CMAKE_SOURCE_DIR}" "help/*.txt")
+	foreach(_help_file IN LISTS _help_files)
+		add_custom_command(OUTPUT "${DATAFILE_DIR}/${_help_file}"
+			COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/help"
+			COMMAND ${POWERSHELL_COMMAND} "${CMAKE_SOURCE_DIR}/tools/textify.ps1"
+				-Destination "${_help_dest_dir}"
+				"${CMAKE_SOURCE_DIR}/${_help_file}"
+			DEPENDS
+				"${CMAKE_SOURCE_DIR}/${_help_file}"
+		)
+		list(APPEND copy_data_files_depends "${DATAFILE_DIR}/${_help_file}")
+	endforeach()
 else()
 	list(APPEND DATA_FILES_SRC "help/*.txt")
 endif(WIN32)
@@ -1609,7 +1605,8 @@ add_custom_command(OUTPUT "${DATAFILE_DIR}/help/faq.txt"
 	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/html2text.py
 		faq.tmp.html > "${DATAFILE_DIR}/help/faq.txt"
 	COMMAND ${CMAKE_COMMAND} -E remove faq.tmp.html
-	DEPENDS "${CMAKE_SOURCE_DIR}/help/faq.py"
+	DEPENDS
+		"${CMAKE_SOURCE_DIR}/help/faq.py"
 		"${CMAKE_SOURCE_DIR}/tools/html2text.py"
 )
 list(APPEND copy_data_files_depends "${DATAFILE_DIR}/help/faq.txt")
@@ -1632,10 +1629,10 @@ if(LUA_FOUND)
 				"${_lua_file}"
 				"${DATAFILE_DIR}/${_lua_filename}"
 			DEPENDS
+				wsluaauxiliary
 				"${_lua_file}"
 		)
 	endforeach()
-	add_dependencies(copy_data_files wsluaauxiliary)
 endif(LUA_FOUND)
 # doc/*.html handled elsewhere.
 
@@ -1670,8 +1667,9 @@ foreach(_data_file ${_data_files})
 	list(APPEND copy_data_files_depends "${DATAFILE_DIR}/${_data_file}")
 endforeach()
 
-add_custom_target(copy_data_files_depends DEPENDS ${copy_data_files_depends})
-add_dependencies(copy_data_files copy_data_files_depends)
+# Copy files including ${INSTALL_FILES} and ${INSTALL_DIRS} to ${DATAFILE_DIR}
+add_custom_target(copy_data_files ALL DEPENDS ${copy_data_files_depends})
+set_target_properties(copy_data_files PROPERTIES FOLDER "Copy Tasks")
 
 if( (BUILD_wireshark AND QT_FOUND) OR (BUILD_wireshark_gtk AND GTK_FOUND) )
 	set(WIRESHARK_SRC
