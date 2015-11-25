@@ -93,7 +93,7 @@ void SCTPChunkStatisticsDialog::initializeChunkMap()
 
 void SCTPChunkStatisticsDialog::fillTable(bool all)
 {
-    FILE* fp;
+    FILE* fp = NULL;
 
     pref_t *pref = prefs_find_preference(prefs_find_module("sctp"),"statistics_chunk_types");
     uat_t *uat = pref->varp.uat;
@@ -187,8 +187,9 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
                 j++;
             }
         }
-        fclose(fp);
     }
+    if (fp)
+        fclose(fp);
 }
 
 void SCTPChunkStatisticsDialog::contextMenuEvent( QContextMenuEvent * event)
