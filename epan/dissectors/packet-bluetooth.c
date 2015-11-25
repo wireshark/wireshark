@@ -1572,7 +1572,7 @@ get_uuid(tvbuff_t *tvb, gint offset, gint size)
     return uuid;
 }
 
-gchar *
+const gchar *
 print_numeric_uuid(bluetooth_uuid_t *uuid)
 {
     if (!(uuid && uuid->size > 0))
@@ -1601,29 +1601,40 @@ print_numeric_uuid(bluetooth_uuid_t *uuid)
     return NULL;
 }
 
-gchar *
+const gchar *
 print_uuid(bluetooth_uuid_t *uuid)
 {
-    gchar *description;
+    const gchar *description;
 
     if (uuid->bt_uuid) {
-        gchar *name;
+        const gchar *name;
 
-        name =  wmem_strdup(wmem_packet_scope(), val_to_str_ext_const(uuid->bt_uuid, &bluetooth_uuid_vals_ext, "Unknown"));
-
-        if (strcmp(name , "Unknown"))
+        /*
+         * Known UUID?
+         */
+        name = try_val_to_str_ext(uuid->bt_uuid, &bluetooth_uuid_vals_ext);
+        if (name != NULL) {
+            /*
+             * Yes.  This string is part of the value_string_ext table,
+             * so we don't have to make a copy.
+             */
             return name;
+        }
+
+        /*
+         * No - fall through to try looking it up.
+         */
     }
 
     description = print_numeric_uuid(uuid);
 
     if (description) {
-        description = (gchar *) wmem_tree_lookup_string(bluetooth_uuids, description, 0);
+        description = (const gchar *) wmem_tree_lookup_string(bluetooth_uuids, description, 0);
         if (description)
             return description;
     }
 
-    return (gchar *) "Unknown";
+    return "Unknown";
 }
 
 static bluetooth_data_t *

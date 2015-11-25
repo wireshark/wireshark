@@ -1993,7 +1993,7 @@ dissect_protocol_descriptor_list(proto_tree *next_tree, tvbuff_t *tvb,
     list_offset = offset;
     i_protocol = 1;
     while (list_offset - offset < size) {
-        gchar           *uuid_str;
+        const gchar     *uuid_str;
 
         feature_item = proto_tree_add_none_format(next_tree, hf_sdp_protocol_item, tvb, list_offset, 0, "Protocol #%u", i_protocol);
         feature_tree = proto_item_add_subtree(feature_item, ett_btsdp_protocol);
@@ -2149,7 +2149,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     guint32        value;
     guint64        value_64;
     bluetooth_uuid_t uuid;
-    gchar         *uuid_str;
+    const gchar   *uuid_str;
     gint           length;
     gint           protocol_order;
     wmem_strbuf_t *info_buf;
