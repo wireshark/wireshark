@@ -568,6 +568,7 @@ wmem_test_list(void)
     for (i=0; i<CONTAINER_ITERS; i++) {
         wmem_list_prepend(list, GINT_TO_POINTER(i));
         g_assert(wmem_list_count(list) == i+1);
+        g_assert(wmem_list_find(list, GINT_TO_POINTER(i)));
 
         frame = wmem_list_head(list);
         g_assert(frame);

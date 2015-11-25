@@ -30,6 +30,7 @@ extern "C" {
 
 #include <epan/conversation.h>
 #include <epan/wmem/wmem.h>
+#include <epan/wmem/wmem_interval_tree.h>
 
 /* TCP flags */
 #define TH_FIN  0x0001
@@ -74,11 +75,20 @@ struct mptcpheader {
 	guint32 mh_token; /* seen in MP_JOIN. Should be a hash of the initial key */
 
 	guint32 mh_stream; /* this stream index field is included to help differentiate when address/port pairs are reused */
+
+	/* Data Sequence Number of the current segment. It needs to be computed from previous mappings
+	 * and as such is not necessarily set
+	 */
+	guint64 mh_rawdsn64;
+	/* DSN formatted according to  the wireshark MPTCP options */
+	guint64 mh_dsn;
 };
 
 /* the tcp header structure, passed to tap listeners */
 typedef struct tcpheader {
-	guint32 th_seq;
+	guint32 th_rawseq;  /* raw value */
+	guint32 th_seq;     /* raw or relative value depending on tcp_relative_seq */
+
 	guint32 th_ack;
 	gboolean th_have_seglen;	/* TRUE if th_seglen is valid */
 	guint32 th_seglen;  /* in bytes */
@@ -177,6 +187,38 @@ struct tcp_multisegment_pdu {
 };
 
 
+/* Represents the MPTCP DSS option mapping part
+ It allows to map relative subflow sequence number (ssn) to global MPTCP sequence numbers
+ under their 64 bits form
+*/
+typedef struct _mptcp_dss_mapping_t {
+
+/* In DSS, SSN are enumeratad with relative seq_nb, i.e. starting from 0 */
+
+	guint32 ssn_low;
+	guint32 ssn_high;
+
+/* Ideally the dsn should always be registered with the extended version
+ * but it may not be possible if we don't know the 32 MSB of the base_dsn
+ */
+	gboolean extended_dsn; /* TRUE if MPTCP_DSS_FLAG_DATA_8BYTES */
+
+	guint64 rawdsn;    /* matches the low member of range
+                    should be converted to the 64 bits version before being registered
+                */
+/* to check if mapping was sent before or after packet */
+guint32 frame;
+} mptcp_dss_mapping_t;
+
+
+/* Structure used in mptcp meta member 'dsn_map'
+ */
+typedef struct _mptcp_dsn2packet_mapping_t {
+	guint32 frame;                  /* packet to look into PINFO_FD_NUM */
+	struct tcp_analysis* subflow;   /* in order to get statistics */
+} mptcp_dsn2packet_mapping_t;
+
+
 /* Should basically look like a_tcp_flow_t but for mptcp with 64bit sequence number.
 The meta is specific to a direction of the communication and aggregates information of
 all the subflows
@@ -187,25 +229,26 @@ typedef struct _mptcp_meta_flow_t {
 
 	/* flags exchanged between hosts during 3WHS. Gives checksum/extensiblity/hmac information */
 	guint8 flags;
-
-	guint64 base_dsn;	/* should be taken by master base data seq number (used by relative sequence numbers) or 0 if not yet known. */
+	guint64 base_dsn;	/* first data seq number (used by relative sequence numbers) seen. */
 	guint64 nextseq;	/* highest seen nextseq */
+	guint64 dfin;		/* data fin */
 
-	guint8 version;  /* negociated mptcp version */
+	guint8 version;		/* negociated mptcp version */
 
-	guint64 key;    /* if it was set */
-	guint32 token;  /* expected token sha1 digest of keys, truncated to 32 most significant bits derived from key. Stored to speed up subflow/MPTCP connection mapping */
+	guint64 key;		/* if it was set */
 
-	guint64 expected_idsn;  /* sha1 digest of keys, truncated to 64 LSB */
+	/* expected token sha1 digest of keys, truncated to 32 most significant bits
+	 derived from key. Stored to speed up subflow/MPTCP connection mapping */
+	guint32 token;
+
 	guint32 nextseqframe;	/* frame number for segment with highest sequence number */
 
-	guint64 maxseqtobeacked; /* highest seen continuous seq number (without hole in the stream)  */
+	/* highest seen continuous seq number (without hole in the stream)  */
+	guint64 maxseqtobeacked;
 
-	guint32 fin;		/* frame number of the final dataFIN */
+	guint64 fin;		/* frame number of the final dataFIN */
 
-	/* First subflow addresses serve to identify the connection even though mptcp
-	 * may use multiple subflows and multiple IPs
-	 */
+	/* first addresses registered */
 	address ip_src;
 	address ip_dst;
 	guint32 sport;
@@ -218,6 +261,16 @@ struct mptcp_subflow {
 	guint32 nonce;       /* used only for MP_JOIN */
 	guint8 address_id;   /* sent during an MP_JOIN */
 
+
+	/* Attempt to map DSN to packets
+	 * Ideally this was to generate application latency
+	 * each node contains a GSList * ?
+	 * this should be done in tap or 3rd party tools
+	 */
+	wmem_itree_t *dsn_map;
+
+	/* Map SSN to a DSS mappings, each node registers a mptcp_dss_mapping_t */
+	wmem_itree_t *mappings;
 	/* meta flow to which it is attached. Helps setting forward and backward meta flow */
 	mptcp_meta_flow_t *meta;
 };
@@ -302,7 +355,7 @@ struct mptcp_analysis {
 
 	guint32 stream; /* Keep track of unique mptcp stream (per MP_CAPABLE handshake) */
 	guint8 hmac_algo;  /* hmac decided after negociation */
-	wmem_list_t* subflows;	/* List of subflows, (tcp_analysis)*/
+	wmem_list_t* subflows;	/* List of subflows (tcp_analysis) */
 
 	/* identifier of the tcp stream that saw the initial 3WHS with MP_CAPABLE option */
 	struct tcp_analysis *master;
@@ -388,6 +441,16 @@ struct tcp_analysis {
 struct tcp_per_packet_data_t {
 	nstime_t	ts_del;
 };
+
+/* Structure that keeps per packet data. Some operations are cpu-intensive and are
+ * best cached into this structure
+ */
+typedef struct mptcp_per_packet_data_t_ {
+
+	/* Mapping that covers this packet content */
+	mptcp_dss_mapping_t *mapping;
+
+} mptcp_per_packet_data_t;
 
 
 WS_DLL_PUBLIC void dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset,
