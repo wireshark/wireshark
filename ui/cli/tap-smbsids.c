@@ -42,12 +42,12 @@ smbsids_packet(void *pss _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
 }
 
 static void
-enum_sids(gpointer key _U_, gpointer value, gpointer userdata _U_)
+enum_sids(gpointer key, gpointer value, gpointer userdata _U_)
 {
-	sid_name *sn = (sid_name *)value;
+	const char *sid = (const char *)key;
+	const char *name = (const char *)value;
 
-	printf("%-60s %s\n", sn->sid, sn->name);
-	return;
+	printf("%-60s %s\n", sid, name);
 }
 
 static void

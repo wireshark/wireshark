@@ -31,12 +31,7 @@
  */
 WS_DLL_PUBLIC GHashTable *sid_name_table;
 
-typedef struct _sid_name {
-	char *sid;
-	char *name;
-} sid_name;
-
 WS_DLL_PUBLIC
-char *find_sid_name(const char *sid);
+const char *find_sid_name(const char *sid);
 
 #endif
