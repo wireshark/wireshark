@@ -43,7 +43,7 @@ print_range(const void *value)
     if(!value) {
         return;
     }
-    printf("Range: low=%lu high=%lu max_edge=%lu\n", range->low, range->high, range->max_edge);
+    printf("Range: low=%" G_GUINT64_FORMAT " high=%" G_GUINT64_FORMAT " max_edge=%" G_GUINT64_FORMAT "\n", range->low, range->high, range->max_edge);
 }
 
 /**
