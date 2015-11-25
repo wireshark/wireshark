@@ -86,52 +86,46 @@ static dissector_handle_t data_handle = NULL;
 static int
 dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree, void* data _U_)
 {
-	tvbuff_t * next_tvb = NULL;
-	proto_tree *rudp_tree = NULL, *flags_tree;
-	proto_item *ti = NULL;
-	int flags[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-	int i;
+	tvbuff_t * next_tvb;
+	proto_tree *rudp_tree;
+	proto_item *ti;
 	guint8 hlen;
-
-	flags[0] = hf_rudp_flags_syn;
-	flags[1] = hf_rudp_flags_ack;
-	flags[2] = hf_rudp_flags_eak;
-	flags[3] = hf_rudp_flags_rst;
-	flags[4] = hf_rudp_flags_nul;
-	flags[5] = hf_rudp_flags_chk;
-	flags[6] = hf_rudp_flags_tcs;
-	flags[7] = hf_rudp_flags_0;
+	static const int * flags[] = {
+		&hf_rudp_flags_syn,
+		&hf_rudp_flags_ack,
+		&hf_rudp_flags_eak,
+		&hf_rudp_flags_rst,
+		&hf_rudp_flags_nul,
+		&hf_rudp_flags_chk,
+		&hf_rudp_flags_tcs,
+		&hf_rudp_flags_0,
+		NULL
+	};
 
 	hlen = tvb_get_guint8(tvb, 1);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RUDP");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rudp, tvb, 0, hlen, ENC_NA);
-		rudp_tree = proto_item_add_subtree(ti, ett_rudp);
+	ti = proto_tree_add_item(tree, proto_rudp, tvb, 0, hlen, ENC_NA);
+	rudp_tree = proto_item_add_subtree(ti, ett_rudp);
 
-		ti = proto_tree_add_item(rudp_tree, hf_rudp_flags, tvb, 0, 1, ENC_BIG_ENDIAN);
-		flags_tree = proto_item_add_subtree(ti, ett_rudp_flags);
+	proto_tree_add_bitmask(rudp_tree, tvb, 0, hf_rudp_flags, ett_rudp_flags, flags, ENC_BIG_ENDIAN);
 
-		for (i = 0; i < 8; i++)
-			proto_tree_add_item(flags_tree, flags[i], tvb, 0, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(rudp_tree, hf_rudp_hlen, tvb, 1, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(rudp_tree, hf_rudp_seq, tvb, 2, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(rudp_tree, hf_rudp_ack, tvb, 3, 1, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(rudp_tree, hf_rudp_hlen, tvb, 1, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rudp_tree, hf_rudp_seq, tvb, 2, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(rudp_tree, hf_rudp_ack, tvb, 3, 1, ENC_BIG_ENDIAN);
+	/* If the header is more than 4 bytes the next 2 bytes are the checksum */
+	if (hlen > 4) {
+		proto_tree_add_item(rudp_tree, hf_rudp_cksum, tvb, 4, 2, ENC_BIG_ENDIAN);
+	}
 
-		/* If the header is more than 4 bytes the next 2 bytes are the checksum */
-		if (hlen > 4) {
-			proto_tree_add_item(rudp_tree, hf_rudp_cksum, tvb, 4, 2, ENC_BIG_ENDIAN);
-		}
-
-		/* If we have even more bytes their meaning is unknown - we have seen this
-		 * in live captures */
-		if (hlen > 6) {
-			next_tvb = tvb_new_subset_length(tvb, 6, hlen-6);
-			call_dissector(data_handle, next_tvb, pinfo, rudp_tree);
-		}
+	/* If we have even more bytes their meaning is unknown - we have seen this
+		* in live captures */
+	if (hlen > 6) {
+		next_tvb = tvb_new_subset_length(tvb, 6, hlen-6);
+		call_dissector(data_handle, next_tvb, pinfo, rudp_tree);
 	}
 
 	next_tvb = tvb_new_subset_remaining(tvb, hlen);
