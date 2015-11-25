@@ -23,6 +23,10 @@ ACLOCAL_AMFLAGS = `../aclocal-flags`
 # Optional headers for ABI checking
 wsutil_optional_abi_includes =
 
+if HAVE_OS_X_FRAMEWORKS
+wsutil_optional_abi_includes += cfutils.h
+endif
+
 # Header files for functions in libwsutil's ABI on this platform.
 libwsutil_abi_INCLUDES = 	\
 	$(libwsutil_nonrepl_INCLUDES)	\
@@ -63,7 +67,15 @@ AM_CPPFLAGS = -I$(srcdir)/.. \
 	$(LIBGCRYPT_CFLAGS) \
 	-DTOP_SRCDIR=\"$(abs_top_srcdir)\"
 
-libwsutil_la_SOURCES =		\
+LIBWSUTIL_SRC = $(LIBWSUTIL_COMMON_SRC)
+LIBWSUTIL_INCLUDES = $(LIBWSUTIL_COMMON_INCLUDES)
+
+if HAVE_OS_X_FRAMEWORKS
+LIBWSUTIL_SRC += cfutils.c
+LIBWSUTIL_INCLUDES += cfutils.h
+endif
+
+libwsutil_la_SOURCES = \
 	$(LIBWSUTIL_SRC)	\
 	$(LIBWSUTIL_INCLUDES)
 
@@ -72,7 +84,7 @@ libwsutil_sse42_la_SOURCES = \
 
 libwsutil_sse42_la_CFLAGS = $(AM_CFLAGS) @CFLAGS_SSE42@
 
-EXTRA_libwsutil_la_SOURCES=	\
+EXTRA_libwsutil_la_SOURCES = \
 	floorl.c		\
 	floorl.h		\
 	inet_aton.c		\
@@ -88,16 +100,18 @@ EXTRA_libwsutil_la_SOURCES=	\
 	wsgetopt.h		\
 	wsgetopt_int.h
 
-libwsutil_la_DEPENDENCIES=	\
+libwsutil_la_DEPENDENCIES = \
 	$(wsutil_optional_objects)
 
-libwsutil_la_LIBADD =		\
+libwsutil_la_LIBADD = \
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@GLIB_LIBS@		\
 	@LIBGCRYPT_LIBS@	\
 	$(wsutil_optional_objects)
 
-EXTRA_DIST =		\
+EXTRA_DIST = \
+	cfutils.c	\
+	cfutils.h	\
 	CMakeLists.txt	\
 	Makefile.common	\
 	Makefile.nmake	\

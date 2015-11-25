@@ -36,7 +36,6 @@ set(WSUTIL_FILES
 	base64.c
 	bitswap.c
 	buffer.c
-	cfutils.c
 	clopts_common.c
 	cmdarg_err.c
 	copyright_info.c
@@ -77,6 +76,10 @@ set(WSUTIL_FILES
 	ws_version_info.c
 	${WSUTIL_PLATFORM_FILES}
 )
+
+if(HAVE_OS_X_FRAMEWORKS)
+	set(WSUTIL_FILES ${WSUTIL_FILES} cfutils.c)
+endif()
 
 #
 # XXX - we're assuming MSVC doesn't require a flag to enable SSE 4.2

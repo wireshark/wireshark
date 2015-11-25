@@ -1383,9 +1383,10 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])],
 # get version information from plists and thus need Core Foundation
 # to process those plists.
 #
+have_os_x_frameworks=no
 case "$host_os" in
-
 darwin*)
+	have_os_x_frameworks=yes
 	AC_DEFINE(HAVE_OS_X_FRAMEWORKS, 1, [Define to 1 if you have OS X frameworks])
 	APPLICATIONSERVICES_FRAMEWORKS="-framework ApplicationServices"
 	SYSTEMCONFIGURATION_FRAMEWORKS="-framework SystemConfiguration"
@@ -1409,6 +1410,7 @@ esac
 AC_SUBST(APPLICATIONSERVICES_FRAMEWORKS)
 AC_SUBST(SYSTEMCONFIGURATION_FRAMEWORKS)
 AC_SUBST(COREFOUNDATION_FRAMEWORKS)
+AM_CONDITIONAL(HAVE_OS_X_FRAMEWORKS, [test "x$have_os_x_frameworks" = "xyes"])
 
 #
 # On Solaris, check whether we have getexecname().

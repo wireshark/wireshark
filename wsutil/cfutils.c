@@ -24,7 +24,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_OS_X_FRAMEWORKS
 #include <glib.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <wsutil/cfutils.h>
@@ -49,7 +48,6 @@ CFString_to_C_string(CFStringRef cfstring)
 	}
 	return string;
 }
-#endif
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

@@ -26,14 +26,13 @@
 # into a list of object files by replacing ".c" with ".obj") or files
 # generated from YACC or Lex files (as Automake doesn't want them in
 # _SOURCES variables).
-LIBWSUTIL_SRC = 	\
+LIBWSUTIL_COMMON_SRC = \
 	adler32.c	\
 	aes.c		\
 	airpdcap_wep.c	\
 	base64.c	\
 	bitswap.c	\
 	buffer.c	\
-	cfutils.c	\
 	clopts_common.c	\
 	cmdarg_err.c	\
 	copyright_info.c \
@@ -80,10 +79,9 @@ libwsutil_nonrepl_INCLUDES = \
 	aes.h		\
 	base64.h	\
 	bits_ctz.h	\
-	bits_count_ones.h	\
+	bits_count_ones.h \
 	bitswap.h	\
 	buffer.h	\
-	cfutils.h	\
 	clopts_common.h	\
 	cmdarg_err.h	\
 	copyright_info.h \
@@ -127,11 +125,11 @@ libwsutil_nonrepl_INCLUDES = \
 	ws_cpuid.h	\
 	ws_diag_control.h \
 	ws_mempbrk.h	\
-	ws_mempbrk_int.h	\
+	ws_mempbrk_int.h \
 	ws_version_info.h
 
 # Header files that are not generated from other files
-LIBWSUTIL_INCLUDES = 	\
+LIBWSUTIL_COMMON_INCLUDES = \
 	$(libwsutil_nonrepl_INCLUDES)
 
 #

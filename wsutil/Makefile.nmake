@@ -17,6 +17,8 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 .c.obj::
 	$(CC) $(CFLAGS) -Fd.\ -c $<
 
+LIBWSUTIL_SRC = $(LIBWSUTIL_COMMON_SRC)
+
 # For use when making libwsutil.dll
 libwsutil_LIBS = $(GLIB_LIBS) \
 	$(GNUTLS_LIBS)
