@@ -300,7 +300,7 @@ static void wcp_save_data( tvbuff_t *tvb, packet_info *pinfo, circuit_type ctype
 }
 
 
-static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
 
 	proto_tree	*wcp_tree;
 	proto_item	*ti;
@@ -311,7 +311,7 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WCP");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	temp =tvb_get_ntohs(tvb, 0);
+	temp = tvb_get_ntohs(tvb, 0);
 
 	cmd = (temp & 0xf000) >> 12;
 	ext_cmd = (temp & 0x0f00) >> 8;
@@ -363,7 +363,7 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 					/* exit if done */
 	if ( cmd != 1 && cmd != 0 && !(cmd == 0xf && ext_cmd == 0))
-		return;
+		return 2;
 
 	if ( cmd == 1) {		/* uncompressed data */
 		if ( !pinfo->fd->flags.visited){	/* if first pass */
@@ -376,7 +376,7 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		next_tvb = wcp_uncompress( tvb, wcp_header_len, pinfo, wcp_tree, pinfo->ctype, pinfo->circuit_id);
 
 		if ( !next_tvb){
-			return;
+			return tvb_captured_length(tvb);
 		}
 	}
 
@@ -386,7 +386,7 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	call_dissector(fr_uncompressed_handle, next_tvb, pinfo, tree);
 
-	return;
+	return tvb_captured_length(tvb);
 }
 
 
@@ -790,7 +790,7 @@ proto_reg_handoff_wcp(void) {
 	 */
 	fr_uncompressed_handle = find_dissector("fr_uncompressed");
 
-	wcp_handle = create_dissector_handle(dissect_wcp, proto_wcp);
+	wcp_handle = new_create_dissector_handle(dissect_wcp, proto_wcp);
 	dissector_add_uint("fr.nlpid", NLPID_COMPRESSED, wcp_handle);
 	dissector_add_uint("ethertype",  ETHERTYPE_WCP, wcp_handle);
 }

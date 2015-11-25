@@ -120,8 +120,8 @@ static const guint8* get_unquoted_string(tvbuff_t *tvb, gint offset,
 
 /**********************************************************************/
 
-static void
-dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree   *cups_tree = NULL;
     proto_tree   *ptype_subtree = NULL;
@@ -169,7 +169,7 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset = next_offset;
 
     if (!skip_space(tvb, offset, &next_offset))
-        return;    /* end of packet */
+        return offset;    /* end of packet */
     offset = next_offset;
 
     state = get_hex_uint(tvb, offset, &next_offset);
@@ -180,12 +180,12 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset = next_offset;
 
     if (!skip_space(tvb, offset, &next_offset))
-        return;    /* end of packet */
+        return offset;    /* end of packet */
     offset = next_offset;
 
     str = get_unquoted_string(tvb, offset, &next_offset, &len);
     if (str == NULL)
-        return;    /* separator/terminator not found */
+        return offset;    /* separator/terminator not found */
 
     proto_tree_add_string(cups_tree, hf_cups_uri, tvb, offset, len, str);
     col_add_fstr(pinfo->cinfo, COL_INFO, "%.*s (%s)",
@@ -193,36 +193,38 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset = next_offset;
 
     if (!cups_tree)
-        return;
+        return offset;
 
     if (!skip_space(tvb, offset, &next_offset))
-        return;    /* end of packet */
+        return offset;    /* end of packet */
     offset = next_offset;
 
     str = get_quoted_string(tvb, offset, &next_offset, &len);
     if (str == NULL)
-        return;    /* separator/terminator not found */
+        return offset;    /* separator/terminator not found */
     proto_tree_add_string(cups_tree, hf_cups_location, tvb, offset+1, len, str);
     offset = next_offset;
 
     if (!skip_space(tvb, offset, &next_offset))
-        return;    /* end of packet */
+        return offset;    /* end of packet */
     offset = next_offset;
 
     str = get_quoted_string(tvb, offset, &next_offset, &len);
     if (str == NULL)
-        return;    /* separator/terminator not found */
+        return offset;    /* separator/terminator not found */
     proto_tree_add_string(cups_tree, hf_cups_information, tvb, offset+1, len, str);
     offset = next_offset;
 
     if (!skip_space(tvb, offset, &next_offset))
-        return;    /* end of packet */
+        return offset;    /* end of packet */
     offset = next_offset;
 
     str = get_quoted_string(tvb, offset, &next_offset, &len);
     if (str == NULL)
-        return;    /* separator/terminator not found */
+        return offset;    /* separator/terminator not found */
     proto_tree_add_string(cups_tree, hf_cups_make_model, tvb, offset+1, len, str);
+
+    return next_offset;
 }
 
 static guint
@@ -402,7 +404,7 @@ proto_reg_handoff_cups(void)
 {
     dissector_handle_t cups_handle;
 
-    cups_handle = create_dissector_handle(dissect_cups, proto_cups);
+    cups_handle = new_create_dissector_handle(dissect_cups, proto_cups);
     dissector_add_uint("udp.port", UDP_PORT_CUPS, cups_handle);
 }
 

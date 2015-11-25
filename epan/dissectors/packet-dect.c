@@ -1944,8 +1944,8 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 	/*offset+=2;*/
 }
 
-static void
-dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti		=NULL;
 	proto_item *typeti	=NULL;
@@ -1969,7 +1969,7 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(pkt_len<=DECT_PACKET_INFO_LEN)
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, "No Data");
-		return;
+		return tvb_captured_length(tvb);
 	}
 
 	ti=proto_tree_add_item(tree, proto_dect, tvb, 0, -1, ENC_NA);
@@ -2021,6 +2021,7 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_item_append_text(typeti, " Unknown Packet");
 		break;
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -2589,7 +2590,7 @@ proto_reg_handoff_dect(void)
 {
 	dissector_handle_t dect_handle;
 
-	dect_handle = create_dissector_handle(dissect_dect, proto_dect);
+	dect_handle = new_create_dissector_handle(dissect_dect, proto_dect);
 	dissector_add_uint("ethertype", ETHERTYPE_DECT , dect_handle);
 }
 

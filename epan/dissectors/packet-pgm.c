@@ -801,8 +801,8 @@ decode_pgm_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /*
  * dissect_pgm - The dissector for Pragmatic General Multicast
  */
-static void
-dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint16 pgmhdr_sport;
 	guint16 pgmhdr_dport;
@@ -821,14 +821,11 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean    isdata = FALSE;
 	guint       pgmlen, reportedlen;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGM");
+	if (tvb_reported_length_remaining(tvb, 0) < 18)
+		return 0;
 
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGM");
 	col_clear(pinfo->cinfo, COL_INFO);
-	if (tvb_reported_length_remaining(tvb, 0) < 18) {
-		col_set_str(pinfo->cinfo, COL_INFO,
-				"Packet too small");
-		return;
-	}
 
 	pinfo->srcport = pgmhdr_sport = tvb_get_ntohs(tvb, 0);
 	pinfo->destport = pgmhdr_dport = tvb_get_ntohs(tvb, 2);
@@ -870,7 +867,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		break;
 	default:
-		return;
+		return 20;
 	}
 
 	{
@@ -970,7 +967,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			default:
 				expert_add_info(pinfo, ti, &ei_address_format_invalid);
 				ptvcursor_free(cursor);
-				return;
+				return tvb_captured_length(tvb);
 			}
 			break;
 		case PGM_RDATA_PCKT:
@@ -1024,7 +1021,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			default:
 				expert_add_info(pinfo, ti, &ei_address_format_invalid);
 				ptvcursor_free(cursor);
-				return;
+				return tvb_captured_length(tvb);
 			}
 			break;
 		case PGM_POLL_PCKT:
@@ -1084,6 +1081,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		ptvcursor_free(cursor);
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Register all the bits needed with the filtering engine */
@@ -1450,7 +1448,7 @@ proto_reg_handoff_pgm(void)
 	static guint old_udp_encap_mcast_port;
 
 	if (! initialized) {
-		pgm_handle = create_dissector_handle(dissect_pgm, proto_pgm);
+		pgm_handle = new_create_dissector_handle(dissect_pgm, proto_pgm);
 		dissector_add_for_decode_as("udp.port", pgm_handle);
 		dissector_add_uint("ip.proto", IP_PROTO_PGM, pgm_handle);
 		data_handle = find_dissector("data");

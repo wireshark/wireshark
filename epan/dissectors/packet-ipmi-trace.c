@@ -275,8 +275,8 @@ dissect_ipmb_state_notify(tvbuff_t * tvb, proto_tree * tree)
 			bits_chn_state_info, ENC_LITTLE_ENDIAN);
 }
 
-static void
-dissect_ipmi_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipmi_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint block_type, chn_num, data_type, tmp;
 	tvbuff_t * next_tvb;
@@ -284,7 +284,7 @@ dissect_ipmi_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tvb_captured_length(tvb) < 11) {
 		/* TODO: add expert info */
 		call_dissector(data_dissector_handle, tvb, pinfo, tree);
-		return;
+		return tvb_captured_length(tvb);
 	}
 
 	/* get first byte */
@@ -421,6 +421,7 @@ dissect_ipmi_trace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else {
 		call_dissector(data_dissector_handle, next_tvb, pinfo, tree);
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -448,7 +449,7 @@ proto_reg_handoff_ipmi_trace(void)
 {
 	dissector_handle_t ipmi_trace_handle;
 
-	ipmi_trace_handle = create_dissector_handle(dissect_ipmi_trace,
+	ipmi_trace_handle = new_create_dissector_handle(dissect_ipmi_trace,
 			proto_ipmi_trace);
 
 	data_dissector_handle = find_dissector("data");

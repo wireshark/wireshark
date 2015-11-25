@@ -506,8 +506,8 @@ too_small_packet_or_notpw(tvbuff_t * tvb
  *
  * This dissector is written according to the latter consideration.
  */
-static void
-dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
 	const char           * proto_name_column;
 	const char           * proto_name_tree = NULL;
@@ -518,7 +518,7 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	proto_name_column = &shortname_11_or_aal5_pdu[0];
 	if (too_small_packet_or_notpw(tvb, pinfo, tree, proto_11_or_aal5_pdu, proto_name_column))
 	{
-		return;
+		return 1;
 	}
 	pd.packet_size = tvb_reported_length_remaining(tvb, 0);
 
@@ -688,12 +688,12 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		col_append_pw_info(pinfo, payload_size, cells, 0, &pd);
 	}
 
-	return;
+	return tvb_captured_length(tvb);
 }
 
 
-static void
-dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
 	const char           * proto_name_column;
 	gint                   payload_size;
@@ -706,7 +706,7 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	proto_name_column = &shortname_aal5_sdu[0];
 	if (too_small_packet_or_notpw(tvb, pinfo, tree, proto_aal5_sdu, proto_name_column))
 	{
-		return;
+		return 1;
 	}
 	pd.packet_size = tvb_reported_length_remaining(tvb, 0);
 
@@ -893,11 +893,12 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			}
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 
-static void
-dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
 	const char           * proto_name_column;
 	gint                   payload_size;
@@ -910,7 +911,7 @@ dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	proto_name_column = &shortname_n1_cw[0];
 	if (too_small_packet_or_notpw(tvb, pinfo, tree, proto_n1_cw, proto_name_column))
 	{
-		return;
+		return 1;
 	}
 	pd.packet_size = tvb_reported_length_remaining(tvb, 0);
 
@@ -1055,11 +1056,12 @@ dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	col_clear(pinfo->cinfo, COL_INFO);
 	col_append_pw_info(pinfo, payload_size, cells, padding_size, &pd);
+	return tvb_captured_length(tvb);
 }
 
 
-static void
-dissect_n1_nocw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+static int
+dissect_n1_nocw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
 	const char           * proto_name_column = &shortname_n1_nocw[0];
 	gint                   payload_size;
@@ -1124,6 +1126,7 @@ dissect_n1_nocw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	col_clear(pinfo->cinfo, COL_INFO);
 	col_append_pw_info(pinfo, payload_size, cells, 0, &pd);
+	return tvb_captured_length(tvb);
 }
 
 
@@ -1961,13 +1964,13 @@ void
 proto_reg_handoff_pw_atm_ata(void)
 {
 	dissector_handle_t h;
-	h = create_dissector_handle( dissect_n1_cw, proto_n1_cw );
+	h = new_create_dissector_handle( dissect_n1_cw, proto_n1_cw );
 	dissector_add_for_decode_as( "mpls.label", h );
-	h = create_dissector_handle( dissect_n1_nocw, proto_n1_nocw );
+	h = new_create_dissector_handle( dissect_n1_nocw, proto_n1_nocw );
 	dissector_add_for_decode_as( "mpls.label", h );
-	h = create_dissector_handle( dissect_11_or_aal5_pdu, proto_11_or_aal5_pdu );
+	h = new_create_dissector_handle( dissect_11_or_aal5_pdu, proto_11_or_aal5_pdu );
 	dissector_add_for_decode_as( "mpls.label", h );
-	h = create_dissector_handle( dissect_aal5_sdu, proto_aal5_sdu );
+	h = new_create_dissector_handle( dissect_aal5_sdu, proto_aal5_sdu );
 	dissector_add_for_decode_as( "mpls.label", h );
 
 	dh_cell		   = find_dissector("mpls_pw_atm_cell");

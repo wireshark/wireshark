@@ -132,8 +132,8 @@ static const value_string tacacs_resp_vals[] = {
 #define UDP_PORT_TACACS	49
 #define TCP_PORT_TACACS	49
 
-static void
-dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree      *tacacs_tree;
 	proto_item      *ti;
@@ -199,6 +199,7 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 void
@@ -280,7 +281,7 @@ proto_reg_handoff_tacacs(void)
 {
 	dissector_handle_t tacacs_handle;
 
-	tacacs_handle = create_dissector_handle(dissect_tacacs, proto_tacacs);
+	tacacs_handle = new_create_dissector_handle(dissect_tacacs, proto_tacacs);
 	dissector_add_uint("udp.port", UDP_PORT_TACACS, tacacs_handle);
 }
 
@@ -875,8 +876,8 @@ parse_tacplus_keys( const char *keys_from_option )
 #endif
 }
 
-static void
-dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	tvbuff_t	*new_tvb=NULL;
 	proto_tree      *tacplus_tree, *body_tree;
@@ -895,7 +896,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   pinfo->can_desegment && tacplus_preference_desegment) {
 		pinfo->desegment_offset = 0;
 		pinfo->desegment_len = len;
-		return;
+		return tvb_captured_length(tvb);
 	}
 
 	if( request ) {
@@ -976,6 +977,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_tacplus_body( tvb, pinfo, new_tvb, body_tree);
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 static void
@@ -1275,7 +1277,7 @@ proto_reg_handoff_tacplus(void)
 {
 	dissector_handle_t tacplus_handle;
 
-	tacplus_handle = create_dissector_handle(dissect_tacplus,
+	tacplus_handle = new_create_dissector_handle(dissect_tacplus,
 	    proto_tacplus);
 	dissector_add_uint("tcp.port", TCP_PORT_TACACS, tacplus_handle);
 }

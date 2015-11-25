@@ -3619,8 +3619,8 @@ dissect_lldp_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 
 /* Dissect LLDP packets */
-static void
-dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_tree *lldp_tree = NULL;
@@ -3647,8 +3647,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (rtnValue < 0)
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, "Invalid Chassis ID TLV");
-
-		return;
+		return tvb_captured_length(tvb);
 	}
 
 	offset += rtnValue;
@@ -3661,8 +3660,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (rtnValue < 0)
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, "Invalid Port ID TLV");
-
-		return;
+		return tvb_captured_length(tvb);
 	}
 
 	offset += rtnValue;
@@ -3675,8 +3673,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (rtnValue < 0)
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, "Invalid Time-to-Live TLV");
-
-		return;
+		return tvb_captured_length(tvb);
 	}
 
 	offset += rtnValue;
@@ -3736,6 +3733,7 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += rtnValue;
 	}
 
+	return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -5059,7 +5057,7 @@ proto_reg_handoff_lldp(void)
 {
 	dissector_handle_t lldp_handle;
 
-	lldp_handle = create_dissector_handle(dissect_lldp,proto_lldp);
+	lldp_handle = new_create_dissector_handle(dissect_lldp,proto_lldp);
 	dissector_add_uint("ethertype", ETHERTYPE_LLDP, lldp_handle);
 }
 

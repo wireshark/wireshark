@@ -606,8 +606,8 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 /* MLFR dissector */
-static void
-dissect_juniper_mlfr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_juniper_mlfr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *ti;
   proto_tree* juniper_subtree;
@@ -630,7 +630,7 @@ dissect_juniper_mlfr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   bytes_processed = dissect_juniper_header(tvb, pinfo, tree, juniper_subtree, &flags);
 
   if(bytes_processed == -1)
-    return;
+    return 4;
   else
     offset+=bytes_processed;
 
@@ -708,13 +708,14 @@ dissect_juniper_mlfr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   dissect_juniper_payload_proto(tvb, pinfo, tree, juniper_subtree, proto, offset);
 
+  return tvb_captured_length(tvb);
 }
 
 
 
 /* MLPPP dissector */
-static void
-dissect_juniper_mlppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_juniper_mlppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *ti;
   proto_tree* juniper_subtree;
@@ -737,7 +738,7 @@ dissect_juniper_mlppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   bytes_processed = dissect_juniper_header(tvb, pinfo, tree, juniper_subtree, &flags);
 
   if(bytes_processed == -1)
-    return;
+    return 4;
   else
     offset+=bytes_processed;
 
@@ -782,12 +783,13 @@ dissect_juniper_mlppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   dissect_juniper_payload_proto(tvb, pinfo, tree, juniper_subtree, proto, offset);
 
+  return tvb_captured_length(tvb);
 }
 
 
 /* PPPoE dissector */
-static void
-dissect_juniper_pppoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_juniper_pppoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree* juniper_subtree;
   guint      offset;
@@ -805,17 +807,18 @@ dissect_juniper_pppoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   bytes_processed = dissect_juniper_header(tvb, pinfo, tree, juniper_subtree, &flags);
 
   if(bytes_processed == -1)
-    return;
+    return 4;
   else
     offset+=bytes_processed;
 
   dissect_juniper_payload_proto(tvb, pinfo, tree, juniper_subtree, JUNIPER_PROTO_ETHER, offset);
 
+  return tvb_captured_length(tvb);
 }
 
 /* Ethernet dissector */
-static void
-dissect_juniper_ether(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_juniper_ether(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree* juniper_subtree;
   guint      offset;
@@ -833,17 +836,18 @@ dissect_juniper_ether(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   bytes_processed = dissect_juniper_header(tvb, pinfo, tree, juniper_subtree, &flags);
 
   if(bytes_processed == -1)
-    return;
+    return 4;
   else
     offset+=bytes_processed;
 
   dissect_juniper_payload_proto(tvb, pinfo, tree, juniper_subtree, JUNIPER_PROTO_ETHER, offset);
 
+  return tvb_captured_length(tvb);
 }
 
 /* PPP dissector */
-static void
-dissect_juniper_ppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_juniper_ppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree* juniper_subtree;
   guint      offset;
@@ -861,17 +865,18 @@ dissect_juniper_ppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   bytes_processed = dissect_juniper_header(tvb, pinfo, tree, juniper_subtree, &flags);
 
   if(bytes_processed == -1)
-    return;
+    return 4;
   else
     offset+=bytes_processed;
 
   dissect_juniper_payload_proto(tvb, pinfo, tree, juniper_subtree, JUNIPER_PROTO_PPP, offset+2);
 
+  return tvb_captured_length(tvb);
 }
 
 /* Frame-Relay dissector */
-static void
-dissect_juniper_frelay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_juniper_frelay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree* juniper_subtree;
   guint      offset;
@@ -889,17 +894,18 @@ dissect_juniper_frelay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   bytes_processed = dissect_juniper_header(tvb, pinfo, tree, juniper_subtree, &flags);
 
   if(bytes_processed == -1)
-    return;
+    return 4;
   else
     offset+=bytes_processed;
 
   dissect_juniper_payload_proto(tvb, pinfo, tree, juniper_subtree, JUNIPER_PROTO_FRELAY, offset);
 
+  return tvb_captured_length(tvb);
 }
 
 /* C-HDLC dissector */
-static void
-dissect_juniper_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_juniper_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree* juniper_subtree;
   guint      offset = 0;
@@ -915,12 +921,13 @@ dissect_juniper_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   bytes_processed = dissect_juniper_header(tvb, pinfo, tree, juniper_subtree, &flags);
 
   if(bytes_processed == -1)
-    return;
+    return 4;
   else
     offset+=bytes_processed;
 
   dissect_juniper_payload_proto(tvb, pinfo, tree, juniper_subtree, JUNIPER_PROTO_CHDLC, offset);
 
+  return tvb_captured_length(tvb);
 }
 
 
@@ -1081,7 +1088,7 @@ dissect_juniper_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
 }
 
 
-static void dissect_juniper_ggsn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
+static int dissect_juniper_ggsn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
 
   proto_tree* juniper_subtree;
   guint      offset = 0;
@@ -1098,7 +1105,7 @@ static void dissect_juniper_ggsn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
   bytes_processed = dissect_juniper_header(tvb, pinfo, tree, juniper_subtree, &flags);
 
   if(bytes_processed == -1)
-    return;
+    return 4;
   else
     offset+=bytes_processed;
 
@@ -1110,9 +1117,10 @@ static void dissect_juniper_ggsn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
 
   dissect_juniper_payload_proto(tvb, pinfo, tree, juniper_subtree, proto, offset);
 
+  return tvb_captured_length(tvb);
 }
 
-static void dissect_juniper_vp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
+static int dissect_juniper_vp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
 
   proto_tree* juniper_subtree;
   guint      offset = 0;
@@ -1128,7 +1136,7 @@ static void dissect_juniper_vp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
   bytes_processed = dissect_juniper_header(tvb, pinfo, tree, juniper_subtree, &flags);
 
   if(bytes_processed == -1)
-    return;
+    return 4;
   else
     offset+=bytes_processed;
 
@@ -1138,11 +1146,12 @@ static void dissect_juniper_vp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
    * empty header before payload starts.
    */
   dissect_juniper_payload_proto(tvb, pinfo, tree, juniper_subtree, JUNIPER_PROTO_IP, offset+18);
+  return tvb_captured_length(tvb);
 }
 
 /* Wrapper for Juniper service PIC coookie dissector */
-static void
-dissect_juniper_svcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_juniper_svcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree* juniper_subtree;
   guint      offset = 0;
@@ -1158,7 +1167,7 @@ dissect_juniper_svcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   bytes_processed = dissect_juniper_header(tvb, pinfo, tree, juniper_subtree, &flags);
 
   if (bytes_processed == -1)
-      return;
+      return 4;
   else
       offset+=bytes_processed;
 
@@ -1170,6 +1179,7 @@ dissect_juniper_svcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   dissect_juniper_payload_proto(tvb, pinfo, tree, juniper_subtree, JUNIPER_PROTO_IP, offset);
+  return tvb_captured_length(tvb);
 }
 
 /* list of Juniper supported PPP proto IDs */
@@ -1431,16 +1441,16 @@ proto_reg_handoff_juniper(void)
 
   juniper_atm2_handle   = new_create_dissector_handle(dissect_juniper_atm2,   proto_juniper);
   juniper_atm1_handle   = new_create_dissector_handle(dissect_juniper_atm1,   proto_juniper);
-  juniper_pppoe_handle  = create_dissector_handle(dissect_juniper_pppoe,  proto_juniper);
-  juniper_mlppp_handle  = create_dissector_handle(dissect_juniper_mlppp,  proto_juniper);
-  juniper_mlfr_handle   = create_dissector_handle(dissect_juniper_mlfr,   proto_juniper);
-  juniper_ether_handle  = create_dissector_handle(dissect_juniper_ether,  proto_juniper);
-  juniper_ppp_handle    = create_dissector_handle(dissect_juniper_ppp,    proto_juniper);
-  juniper_frelay_handle = create_dissector_handle(dissect_juniper_frelay, proto_juniper);
-  juniper_chdlc_handle  = create_dissector_handle(dissect_juniper_chdlc,  proto_juniper);
-  juniper_ggsn_handle   = create_dissector_handle(dissect_juniper_ggsn,   proto_juniper);
-  juniper_vp_handle     = create_dissector_handle(dissect_juniper_vp,     proto_juniper);
-  juniper_svcs_handle   = create_dissector_handle(dissect_juniper_svcs,   proto_juniper);
+  juniper_pppoe_handle  = new_create_dissector_handle(dissect_juniper_pppoe,  proto_juniper);
+  juniper_mlppp_handle  = new_create_dissector_handle(dissect_juniper_mlppp,  proto_juniper);
+  juniper_mlfr_handle   = new_create_dissector_handle(dissect_juniper_mlfr,   proto_juniper);
+  juniper_ether_handle  = new_create_dissector_handle(dissect_juniper_ether,  proto_juniper);
+  juniper_ppp_handle    = new_create_dissector_handle(dissect_juniper_ppp,    proto_juniper);
+  juniper_frelay_handle = new_create_dissector_handle(dissect_juniper_frelay, proto_juniper);
+  juniper_chdlc_handle  = new_create_dissector_handle(dissect_juniper_chdlc,  proto_juniper);
+  juniper_ggsn_handle   = new_create_dissector_handle(dissect_juniper_ggsn,   proto_juniper);
+  juniper_vp_handle     = new_create_dissector_handle(dissect_juniper_vp,     proto_juniper);
+  juniper_svcs_handle   = new_create_dissector_handle(dissect_juniper_svcs,   proto_juniper);
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ATM2,   juniper_atm2_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ATM1,   juniper_atm1_handle);

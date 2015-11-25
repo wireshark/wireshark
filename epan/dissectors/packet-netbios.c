@@ -1076,8 +1076,8 @@ dissect_netbios_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		call_dissector(data_handle,tvb, pinfo, tree);
 }
 
-static void
-dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree    *netb_tree = NULL;
 	proto_item    *ti;
@@ -1107,7 +1107,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* print bad packet */
 			col_set_str( pinfo->cinfo, COL_INFO, "Bad packet, no 0xEFFF marker");
 
-			return;		/* this is an unknown packet, no marker */
+			return 3;		/* this is an unknown packet, no marker */
 		}
 	}
 
@@ -1237,6 +1237,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		pinfo->fragmented = save_fragmented;
 	}
+	return tvb_captured_length(tvb);
 }
 
 static void
@@ -1483,7 +1484,7 @@ proto_reg_handoff_netbios(void)
 {
 	dissector_handle_t netbios_handle;
 
-	netbios_handle = create_dissector_handle(dissect_netbios,
+	netbios_handle = new_create_dissector_handle(dissect_netbios,
 	    proto_netbios);
 	dissector_add_uint("llc.dsap", SAP_NETBIOS, netbios_handle);
 	data_handle = find_dissector("data");

@@ -403,8 +403,8 @@ dissect_datarequest(proto_item *ti_arg, gint ett_arg, tvbuff_t *tvb, gint arg_of
  *      It seems to me that invalid fields should just add an expert item
  *        or cause a "Malformed" exception.
  */
-static void
-dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
         gboolean    is_request, length_ok;
         proto_tree *elcom_tree;
@@ -416,7 +416,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Check that there's enough data */
         if (tvb_captured_length(tvb) < 3)
-                return;
+                return 0;
 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "ELCOM");
         col_clear(pinfo->cinfo, COL_INFO);
@@ -437,12 +437,12 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                         /* starting after elcom_len and elcom_msg_type,
                            initiator + responder + userdata fields must be there */
-                        if (tvb_captured_length_remaining(tvb, 3+TOTAL_LEN+TOTAL_LEN+3) < 0) return;
+                        if (tvb_captured_length_remaining(tvb, 3+TOTAL_LEN+TOTAL_LEN+3) < 0) return 2;
                         /* check also that those field lengths are valid */
-                        if (tvb_get_guint8(tvb, 3)  != LOWADR_LEN) return;
-                        if (tvb_get_guint8(tvb, 3+1+LOWADR_LEN) != SUFFIX_LEN) return;
-                        if (tvb_get_guint8(tvb, 3+TOTAL_LEN) != LOWADR_LEN) return;
-                        if (tvb_get_guint8(tvb, 3+1+TOTAL_LEN+LOWADR_LEN) != SUFFIX_LEN) return;
+                        if (tvb_get_guint8(tvb, 3)  != LOWADR_LEN) return 2;
+                        if (tvb_get_guint8(tvb, 3+1+LOWADR_LEN) != SUFFIX_LEN) return 2;
+                        if (tvb_get_guint8(tvb, 3+TOTAL_LEN) != LOWADR_LEN) return 2;
+                        if (tvb_get_guint8(tvb, 3+1+TOTAL_LEN+LOWADR_LEN) != SUFFIX_LEN) return 2;
 
                         /* finally believe that there is valid suffix */
                         suffix = tvb_get_string_enc(wmem_packet_scope(), tvb, 3+2+LOWADR_LEN, 2, ENC_ASCII);
@@ -472,7 +472,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         if (!tree)
-                return;
+                return tvb_captured_length(tvb);
 
         ti = proto_tree_add_item(tree, proto_elcom, tvb, offset, -1, ENC_NA);
         elcom_tree = proto_item_add_subtree(ti, ett_elcom);
@@ -496,7 +496,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         offset++;
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
-                return;
+                return offset;
 
         switch (elcom_msg_type) {
         case P_CONRQ:
@@ -514,7 +514,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                hf_elcom_initiator_port,
                                                hf_elcom_initiator_suff);
                 if (tvb_reported_length_remaining(tvb, offset) <= 0)
-                        return;
+                        return offset;
 
                 ti = proto_tree_add_item(elcom_tree, hf_elcom_responder, tvb, offset, TOTAL_LEN, ENC_NA);
                 offset = dissect_lower_address(ti, ett_elcom_responder, tvb, offset,
@@ -523,7 +523,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                hf_elcom_responder_port,
                                                hf_elcom_responder_suff);
                 if (tvb_reported_length_remaining(tvb, offset) <= 0)
-                        return;
+                        return offset;
 
                 /* Rest of the payload is USER-DATA, 0..82 bytes */
                 ti = proto_tree_add_item(elcom_tree, hf_elcom_userdata, tvb, offset, -1, ENC_NA);
@@ -560,6 +560,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* We should not get here, but if we do, show what is left over: */
             proto_tree_add_item(elcom_tree, hf_elcom_strangeleftover, tvb, offset, -1, ENC_NA);
         }
+        return tvb_captured_length(tvb);
 }
 
 void
@@ -759,7 +760,7 @@ proto_reg_handoff_elcom(void)
 {
         dissector_handle_t elcom_handle;
 
-        elcom_handle = create_dissector_handle(dissect_elcom, proto_elcom);
+        elcom_handle = new_create_dissector_handle(dissect_elcom, proto_elcom);
         dissector_add_uint("tcp.port", TCP_PORT_ELCOM, elcom_handle);
 }
 

@@ -698,8 +698,8 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
    ATP protocol cf. inside appletalk chap. 9
    desegmentation from packet-ieee80211.c
 */
-static void
-dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+static int
+dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   proto_tree      *atp_tree      = NULL;
   proto_item      *ti;
   proto_tree      *atp_info_tree;
@@ -819,7 +819,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   }
 
   if (aspinfo.release)
-    return;
+    return tvb_captured_length(tvb);
 
   save_fragmented = pinfo->fragmented;
 
@@ -888,7 +888,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     call_dissector(data_handle, new_tvb, pinfo, tree);
   }
   pinfo->fragmented = save_fragmented;
-  return;
+  return tvb_captured_length(tvb);
 }
 
 /* -----------------------------
@@ -2097,7 +2097,7 @@ proto_reg_handoff_atalk(void)
   dissector_add_uint("ddp.type", DDP_NBP, nbp_handle);
   dissector_add_for_decode_as("udp.port", nbp_handle);
 
-  atp_handle = create_dissector_handle(dissect_atp, proto_atp);
+  atp_handle = new_create_dissector_handle(dissect_atp, proto_atp);
   dissector_add_uint("ddp.type", DDP_ATP, atp_handle);
 
   asp_handle = new_create_dissector_handle(dissect_asp, proto_asp);

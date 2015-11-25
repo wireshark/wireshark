@@ -28,7 +28,6 @@
 void proto_register_wreth(void);
 void proto_reg_handoff_wreth(void);
 
-static void dissect_wreth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gint WrethIdentPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
 static gint WrethConnectPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
 static gint WrethDisconnectPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tree * pWrethTree);
@@ -731,9 +730,8 @@ static const value_string ErrorCode_vals[] = {
 };
 static value_string_ext ErrorCode_vals_ext = VALUE_STRING_EXT_INIT(ErrorCode_vals);
 
-static void dissect_wreth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_wreth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-
     guint16     packet_type,functionCode;
     guint8      fragmented;
     proto_item *mi, *ti;
@@ -747,7 +745,7 @@ static void dissect_wreth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /*Read the packet type, if not good, exit*/
     packet_type = tvb_get_ntohs(tvb,0);
-    if(packet_type != WSE_RETH_SUBTYPE) return;
+    if(packet_type != WSE_RETH_SUBTYPE) return 1;
 
     mi = proto_tree_add_protocol_format(tree, wreth_proto, tvb, Offset, -1, "WSE remote ethernet");
     pWrethTree = proto_item_add_subtree(mi, ett_wreth);
@@ -758,7 +756,7 @@ static void dissect_wreth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if(fragmented > 2)
     {
         col_set_str(pinfo->cinfo, COL_INFO, "Invalid fragmented byte");
-        return;
+        return tvb_captured_length(tvb);
     }
 
     if (tree)
@@ -790,7 +788,7 @@ static void dissect_wreth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(pWrethTree, hf_Wreth_Retry, tvb, Offset + 11, 1, ENC_LITTLE_ENDIAN);
 
             WrethMailDissection(tvb, Offset + 12, pinfo, pWrethTree, fragmented);
-            return;
+            return tvb_captured_length(tvb);
         }
 
         ti = proto_tree_add_item(pWrethTree, hf_Wreth_Fragmented, tvb, Offset + 10, 1, ENC_LITTLE_ENDIAN);
@@ -840,6 +838,7 @@ static void dissect_wreth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
         }
 
+    return tvb_captured_length(tvb);
 }
 
 /*****************************************************************************/
@@ -1998,7 +1997,7 @@ void proto_reg_handoff_wreth(void)
 {
     dissector_handle_t wreth_handle;
 
-    wreth_handle = create_dissector_handle(dissect_wreth, wreth_proto);
+    wreth_handle = new_create_dissector_handle(dissect_wreth, wreth_proto);
     dissector_add_uint("ethertype", WRETH_PORT, wreth_handle);
 }
 

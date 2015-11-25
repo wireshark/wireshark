@@ -115,8 +115,8 @@ static expert_field ei_sap_bogus_authentication_or_pad_length = EI_INIT;
 
 static dissector_handle_t sdp_handle;
 
-static void
-dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int offset = 0;
     int sap_version, is_ipv6, is_del, is_enc, is_comp, addr_len;
@@ -200,7 +200,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if ((int) auth_data_len - pad_len - 1 < 0) {
             expert_add_info_format(pinfo, sai, &ei_sap_bogus_authentication_or_pad_length,
                                         "Bogus authentication length (%d) or pad length (%d)", auth_len, pad_len);
-            return;
+            return tvb_captured_length(tvb);
         }
 
 
@@ -223,7 +223,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             mangle = &ei_sap_compressed;
 
         proto_tree_add_expert(sap_tree, pinfo, mangle, tvb, offset, -1);
-        return;
+        return tvb_captured_length(tvb);
     }
 
     if (tree) {
@@ -273,6 +273,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Done with SAP */
     next_tvb = tvb_new_subset_remaining(tvb, offset);
     call_dissector(sdp_handle, next_tvb, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 void proto_register_sap(void)
@@ -381,7 +382,7 @@ proto_reg_handoff_sap(void)
 {
     dissector_handle_t sap_handle;
 
-    sap_handle = create_dissector_handle(dissect_sap, proto_sap);
+    sap_handle = new_create_dissector_handle(dissect_sap, proto_sap);
     dissector_add_uint("udp.port", UDP_PORT_SAP, sap_handle);
 
     /*

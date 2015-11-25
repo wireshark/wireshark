@@ -464,8 +464,8 @@ handle_tetra(int channel _U_, tvbuff_t *payload_tvb _U_, packet_info *pinfo _U_,
 }
 
 /* dissect a GSMTAP header and hand payload off to respective dissector */
-static void
-dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int sub_handle, rrc_sub_handle = 0, len, offset = 0;
 	proto_item *ti;
@@ -502,7 +502,7 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Some GSMTAP types are completely unrelated to the Um air interface */
 	if (dissector_try_uint(gsmtap_dissector_table, type, payload_tvb,
 			       pinfo, tree))
-		return;
+		return tvb_captured_length(tvb);
 
 	if (arfcn & GSMTAP_ARFCN_F_UPLINK) {
 		col_append_str(pinfo->cinfo, COL_RES_NET_SRC, "MS");
@@ -654,7 +654,7 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	case GSMTAP_TYPE_TETRA_I1:
 		handle_tetra(tvb_get_guint8(tvb, offset+12), payload_tvb, pinfo, tree);
-		return;
+		return tvb_captured_length(tvb);
 	case GSMTAP_TYPE_WMX_BURST:
 		switch (sub_type) {
 	        case GSMTAP_BURST_CDMA_CODE:
@@ -715,6 +715,7 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	else if (sub_handles[sub_handle] != NULL)
 		call_dissector(sub_handles[sub_handle], payload_tvb, pinfo, tree);
 	/* TODO: warn user that the WiMAX plugin must be enabled for some types */
+	return tvb_captured_length(tvb);
 }
 
 static const true_false_string sacch_l1h_fpc_mode_vals = {
@@ -867,7 +868,7 @@ proto_reg_handoff_gsmtap(void)
 	rrc_sub_handles[GSMTAP_RRC_SUB_ToTargetRNC_Container] = find_dissector("rrc.s_to_trnc_cont");
 	rrc_sub_handles[GSMTAP_RRC_SUB_TargetRNC_ToSourceRNC_Container] = find_dissector("rrc.t_to_srnc_cont");
 
-	gsmtap_handle = create_dissector_handle(dissect_gsmtap, proto_gsmtap);
+	gsmtap_handle = new_create_dissector_handle(dissect_gsmtap, proto_gsmtap);
 	dissector_add_uint("udp.port", GSMTAP_UDP_PORT, gsmtap_handle);
 }
 

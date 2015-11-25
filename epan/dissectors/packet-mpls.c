@@ -245,15 +245,15 @@ decode_mpls_label(tvbuff_t *tvb, int offset,
 /*
  * FF: PW Associated Channel Header dissection as per RFC 4385.
  */
-static void
-dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     tvbuff_t   *next_tvb;
     guint       channel_type;
 
     if (tvb_reported_length_remaining(tvb, 0) < 4) {
         proto_tree_add_expert(tree, pinfo, &ei_mpls_pw_ach_error_processing_message, tvb, 0, -1);
-        return;
+        return tvb_captured_length(tvb);
     }
 
     channel_type = tvb_get_ntohs(tvb, 2);
@@ -297,6 +297,7 @@ dissect_pw_ach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            XXX - Perhaps a new dissector function that combines both is preferred.*/
         dissect_bfd_mep(next_tvb, tree, 0);
     }
+    return tvb_captured_length(tvb);
 }
 
 gboolean
@@ -325,18 +326,18 @@ dissect_try_cw_first_nibble( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 /*
  * FF: Generic/Preferred PW MPLS Control Word dissection as per RFC 4385.
  */
-static void
-dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     tvbuff_t *next_tvb;
 
     if (tvb_reported_length_remaining(tvb, 0) < 4) {
         proto_tree_add_expert(tree, pinfo, &ei_mpls_pw_mcw_error_processing_message, tvb, 0, -1);
-        return;
+        return tvb_captured_length(tvb);
     }
 
     if ( dissect_try_cw_first_nibble( tvb, pinfo, tree ))
-       return;
+        return tvb_captured_length(tvb);
 
     if (tree) {
         proto_tree  *mpls_pw_mcw_tree;
@@ -355,6 +356,7 @@ dissect_pw_mcw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     next_tvb = tvb_new_subset_remaining(tvb, 4);
     call_dissector(dissector_data, next_tvb, pinfo, tree);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -647,7 +649,7 @@ proto_reg_handoff_mpls(void)
     dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_MPLS, mpls_handle);
     dissector_add_uint("udp.port", UDP_PORT_MPLS_OVER_UDP, mpls_handle);
 
-    mpls_pwcw_handle = create_dissector_handle( dissect_pw_mcw, proto_pw_mcw );
+    mpls_pwcw_handle = new_create_dissector_handle( dissect_pw_mcw, proto_pw_mcw );
     dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, mpls_pwcw_handle );
 
     dissector_data                  = find_dissector("data");
@@ -655,7 +657,7 @@ proto_reg_handoff_mpls(void)
     dissector_ip                    = find_dissector("ip");
     dissector_pw_eth_heuristic      = find_dissector("pw_eth_heuristic");
 
-    dissector_pw_ach                = create_dissector_handle(dissect_pw_ach, proto_pw_ach );
+    dissector_pw_ach                = new_create_dissector_handle(dissect_pw_ach, proto_pw_ach );
 }
 /*
  * Editor modelines

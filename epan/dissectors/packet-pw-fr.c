@@ -69,8 +69,8 @@ static const value_string vals_frg[] = {
 static dissector_handle_t fr_stripped_address_handle;
 
 
-static void
-dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
+static int
+dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_ )
 {
 	gint packet_size;
 	gint payload_size;
@@ -98,12 +98,12 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 		}
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR PW");
 		col_set_str(pinfo->cinfo, COL_INFO, "Malformed: PW packet < PW encapsulation header");
-		return;
+		return 1;
 	}
 
 	if (dissect_try_cw_first_nibble(tvb,pinfo,tree))
 	{
-		return;
+		return tvb_captured_length(tvb);
 	}
 
 	/* check how "good" is this packet */
@@ -195,11 +195,11 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 			expert_add_info(pinfo, item, &ei_cw_bits03);
 		}
 
-		(void)proto_tree_add_item( subtree, hf_cw_fecn, tvb, 0, 1, ENC_BIG_ENDIAN );
-		(void)proto_tree_add_item( subtree, hf_cw_becn, tvb, 0, 1, ENC_BIG_ENDIAN );
-		(void)proto_tree_add_item( subtree, hf_cw_de,   tvb, 0, 1, ENC_BIG_ENDIAN );
-		(void)proto_tree_add_item( subtree, hf_cw_cr,   tvb, 0, 1, ENC_BIG_ENDIAN );
-		(void)proto_tree_add_item( subtree, hf_cw_frg,  tvb, 1, 1, ENC_BIG_ENDIAN );
+		proto_tree_add_item( subtree, hf_cw_fecn, tvb, 0, 1, ENC_BIG_ENDIAN );
+		proto_tree_add_item( subtree, hf_cw_becn, tvb, 0, 1, ENC_BIG_ENDIAN );
+		proto_tree_add_item( subtree, hf_cw_de,   tvb, 0, 1, ENC_BIG_ENDIAN );
+		proto_tree_add_item( subtree, hf_cw_cr,   tvb, 0, 1, ENC_BIG_ENDIAN );
+		proto_tree_add_item( subtree, hf_cw_frg,  tvb, 1, 1, ENC_BIG_ENDIAN );
 
 		item = proto_tree_add_item( subtree, hf_cw_len, tvb, 1, 1, ENC_BIG_ENDIAN );
 		if (packet_quality & PQ_CW_BAD_LEN_GT_PACKET)
@@ -242,7 +242,7 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 		tvb_payload = tvb_new_subset_length(tvb, encaps_size, payload_size);
 		call_dissector( fr_stripped_address_handle, tvb_payload, pinfo, tree );
 	}
-	return;
+	return tvb_captured_length(tvb);
 }
 
 
@@ -313,7 +313,7 @@ proto_reg_handoff_pw_fr(void)
 {
 	dissector_handle_t pw_fr_mpls_handle;
 
-	pw_fr_mpls_handle = create_dissector_handle( dissect_pw_fr, proto_encaps );
+	pw_fr_mpls_handle = new_create_dissector_handle( dissect_pw_fr, proto_encaps );
 	dissector_add_for_decode_as("mpls.label", pw_fr_mpls_handle);
 
 	fr_stripped_address_handle = find_dissector("fr_stripped_address");

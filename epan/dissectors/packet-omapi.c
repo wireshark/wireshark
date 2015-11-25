@@ -101,8 +101,8 @@ static const value_string omapi_opcode_vals[] = {
   { 0, NULL }
 };
 
-static void
-dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item  *ti;
   proto_tree  *omapi_tree;
@@ -112,6 +112,9 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 msglength;
   guint32 objlength;
 
+    /* Payload too small for OMAPI */
+  if (tvb_reported_length_remaining(tvb, 0) < 8)
+    return 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "OMAPI");
 
@@ -121,13 +124,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   omapi_tree = proto_item_add_subtree(ti, ett_omapi);
   cursor = ptvcursor_new(omapi_tree, tvb, 0);
 
-  if (tvb_reported_length_remaining(tvb, 0) < 8)
-  {
-    /* Payload too small for OMAPI */
-    ptvcursor_free(cursor);
-    DISSECTOR_ASSERT_NOT_REACHED();
-  }
-  else if (tvb_reported_length_remaining(tvb, 0) < 24)
+  if (tvb_reported_length_remaining(tvb, 0) < 24)
   {
     /* This is a startup message */
     ptvcursor_add(cursor, hf_omapi_version, 4, ENC_BIG_ENDIAN);
@@ -137,7 +134,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item_append_text(ti, ", Status message");
 
     ptvcursor_free(cursor);
-    return;
+    return 8;
   }
   else if ( !(tvb_get_ntohl(tvb, 8) || tvb_get_ntohl(tvb, 12)) )
   {
@@ -222,6 +219,7 @@ dissect_omapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   ptvcursor_free(cursor);
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -319,7 +317,7 @@ proto_reg_handoff_omapi(void)
 {
   dissector_handle_t omapi_handle;
 
-  omapi_handle = create_dissector_handle(dissect_omapi, proto_omapi);
+  omapi_handle = new_create_dissector_handle(dissect_omapi, proto_omapi);
   dissector_add_uint("tcp.port", OMAPI_PORT, omapi_handle);
 }
 

@@ -4455,8 +4455,8 @@ static const value_string iphc_crtp_cs_flags[] = {
 /*
  * 0x61 Packets: Full IP/UDP Header
  */
-static void
-dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *fh_tree = NULL, *info_tree;
     proto_item *ti = NULL;
@@ -4503,14 +4503,14 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_expert_format(fh_tree, pinfo, &ei_iphc_crtp_ip_version, tvb, 3, -1,
                             "IP version is %u: the only supported version is 4",
                             ip_version);
-        return;
+        return 1;
     }
 
     if (next_protocol != IP_PROTO_UDP) {
         proto_tree_add_expert_format(fh_tree, pinfo, &ei_iphc_crtp_next_protocol, tvb, 3, -1,
                             "Next protocol is %s (%u): the only supported protocol is UDP",
                             ipprotostr(next_protocol), next_protocol);
-        return;
+        return 1;
     }
 
     /* context id and sequence fields */
@@ -4562,6 +4562,7 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         info_tree)) {
         call_dissector_only(data_handle, next_tvb, pinfo, info_tree, NULL);
     }
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -4920,8 +4921,8 @@ remove_escape_chars(tvbuff_t *tvb, packet_info *pinfo, int offset, int length)
  * HDLC-like asynchronous framing byte stream, and have to
  * break the byte stream into frames and remove escapes.
  */
-static void
-dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+static int
+dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
 {
     proto_item *ti;
     proto_tree *bs_tree = NULL;
@@ -4960,7 +4961,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
             add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
             call_dissector(data_handle, ppp_tvb, pinfo, tree);
         }
-        return;
+        return tvb_captured_length(tvb);
     }
     if (offset != 0) {
         /*
@@ -4998,7 +4999,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 add_new_data_source(pinfo, ppp_tvb, "PPP Fragment");
                 call_dissector(data_handle, ppp_tvb, pinfo, tree);
             }
-            return;
+            return tvb_captured_length(tvb);
         }
 
         data_offset = offset + 1;     /* skip starting frame delimiter */
@@ -5040,6 +5041,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         }
         offset = end_offset;
     }
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -5067,7 +5069,7 @@ dissect_ppp_usb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     if ((tvb_memeql(tvb, 0, buf2, sizeof(buf2)) == 0) ||
         (tvb_memeql(tvb, 0, buf1, sizeof(buf1)) == 0)) {
-        dissect_ppp_raw_hdlc(tvb, pinfo, tree);
+        dissect_ppp_raw_hdlc(tvb, pinfo, tree, data);
     } else if ((tvb_memeql(tvb, 0, &buf1[1], sizeof(buf1) - 1) == 0) ||
         (tvb_memeql(tvb, 0, &buf2[1], sizeof(buf2) - 1) == 0)) {
         /* It's missing the 0x7e framing character.  What TODO?
@@ -5122,7 +5124,7 @@ proto_reg_handoff_ppp_raw_hdlc(void)
 {
     dissector_handle_t ppp_raw_hdlc_handle;
 
-    ppp_raw_hdlc_handle = create_dissector_handle(dissect_ppp_raw_hdlc, proto_ppp);
+    ppp_raw_hdlc_handle = new_create_dissector_handle(dissect_ppp_raw_hdlc, proto_ppp);
 
     dissector_add_uint("gre.proto", ETHERTYPE_CDMA2000_A10_UBS, ppp_raw_hdlc_handle);
     dissector_add_uint("gre.proto", ETHERTYPE_3GPP2, ppp_raw_hdlc_handle);
@@ -5220,8 +5222,8 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
  * RFC 1994
  * Handles CHAP just as a protocol field
  */
-static void
-dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti      = NULL;
     proto_tree *fh_tree = NULL;
@@ -5251,7 +5253,7 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (length < 4) {
         proto_tree_add_uint_format_value(fh_tree, hf_chap_length, tvb, 2, 2,
                 length, "%u (invalid, must be >= 4)", length);
-        return;
+        return 4;
     }
     proto_item_set_len(ti, length);
     if (tree) {
@@ -5282,7 +5284,7 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_uint_format_value(field_tree, hf_chap_value_size, tvb, offset, 1,
                                     value_size, "%d byte%s (invalid, must be <= %u)",
                                     value_size, plurality(value_size, "", "s"), length);
-                return;
+                return offset;
             }
             proto_tree_add_item(field_tree, hf_chap_value_size, tvb,
                                 offset, 1, ENC_BIG_ENDIAN);
@@ -5300,7 +5302,6 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Find name in remaining bytes */
                 if (length > 0) {
-                    tvb_ensure_bytes_exist(tvb, offset, length);
                     proto_tree_add_item(field_tree, hf_chap_name, tvb,
                                         offset, length, ENC_ASCII|ENC_NA);
                     name_offset = offset;
@@ -5339,6 +5340,7 @@ dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_item(fh_tree, hf_chap_stuff, tvb, offset, length, ENC_NA);
         break;
     }
+    return tvb_captured_length(tvb);
 }
 
 /*
@@ -6610,7 +6612,7 @@ proto_register_chap(void)
 void
 proto_reg_handoff_chap(void)
 {
-    dissector_handle_t chap_handle = create_dissector_handle(dissect_chap,
+    dissector_handle_t chap_handle = new_create_dissector_handle(dissect_chap,
         proto_chap);
     dissector_add_uint("ppp.protocol", PPP_CHAP, chap_handle);
 
@@ -6871,7 +6873,7 @@ proto_reg_handoff_iphc_crtp(void)
     dissector_handle_t cudp8_handle;
     dissector_handle_t cs_handle;
 
-    fh_handle = create_dissector_handle(dissect_iphc_crtp_fh, proto_iphc_crtp);
+    fh_handle = new_create_dissector_handle(dissect_iphc_crtp_fh, proto_iphc_crtp);
     dissector_add_uint("ppp.protocol", PPP_RTP_FH, fh_handle);
 
     cudp16_handle = new_create_dissector_handle(dissect_iphc_crtp_cudp16, proto_iphc_crtp_cudp16);

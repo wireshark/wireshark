@@ -1038,8 +1038,8 @@ ospf_has_at_block(tvbuff_t *tvb, int offset, guint8 packet_type, guint8 version)
 
     return 0;
 }
-static void
-dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *ospf_tree = NULL;
     proto_item *ti, *ti_sum, *hidden_item;
@@ -1115,7 +1115,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Quit at this point if it's an unknown OSPF version. */
     if(version != OSPF_VERSION_2 && version != OSPF_VERSION_3) {
-        return;
+        return 12;
     }
 
     length = tvb_captured_length(tvb);
@@ -1276,6 +1276,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissect_ospf_authentication_trailer(tvb, ospflen + crypto_len, ospf_tree);
     }
 
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -3791,7 +3792,7 @@ proto_reg_handoff_ospf(void)
 {
     dissector_handle_t ospf_handle;
 
-    ospf_handle = create_dissector_handle(dissect_ospf, proto_ospf);
+    ospf_handle = new_create_dissector_handle(dissect_ospf, proto_ospf);
     dissector_add_uint("ip.proto", IP_PROTO_OSPF, ospf_handle);
     data_handle = find_dissector("data");
 }

@@ -3293,8 +3293,8 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     return offset;
 }
 
-static void
-dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *capwap_data_tree;
@@ -3323,7 +3323,7 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (type_header == 1) {
         next_tvb = tvb_new_subset_remaining (tvb, offset);
         call_dissector(dtls_handle, next_tvb, pinfo, tree);
-        return;
+        return tvb_captured_length(tvb);
     }
 
     /* CAPWAP Header */
@@ -3336,7 +3336,7 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         gint len_rem = tvb_reported_length_remaining(tvb, offset);
         if (len_rem <= 0)
-            return;
+            return offset;
 
         pinfo->fragmented = TRUE;
 
@@ -3355,7 +3355,7 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             next_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector(data_handle, next_tvb, pinfo, tree);
             col_append_fstr(pinfo->cinfo, COL_INFO, " (Fragment ID: %u, Fragment Offset: %u)", fragment_id, fragment_offset);
-            return;
+            return tvb_captured_length(tvb);
         }
         else
         {
@@ -3395,7 +3395,8 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
     pinfo->fragmented = save_fragmented;
-    }
+    return tvb_captured_length(tvb);
+}
 
 void
 proto_register_capwap_control(void)
@@ -5799,7 +5800,7 @@ proto_reg_handoff_capwap(void)
 
     if (!inited) {
         capwap_control_handle = new_create_dissector_handle(dissect_capwap_control, proto_capwap_control);
-        capwap_data_handle    = create_dissector_handle(dissect_capwap_data, proto_capwap_data);
+        capwap_data_handle    = new_create_dissector_handle(dissect_capwap_data, proto_capwap_data);
         dtls_handle           = find_dissector("dtls");
         ieee8023_handle       = find_dissector("eth_withoutfcs");
         ieee80211_handle      = find_dissector("wlan_withoutfcs");

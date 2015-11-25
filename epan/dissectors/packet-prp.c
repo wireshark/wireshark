@@ -72,8 +72,8 @@ static gboolean prp_enable_dissector = FALSE;
 
 
 /* Code to actually dissect the packets */
-static void
-dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+static int
+dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
     proto_item *ti;
     proto_tree *prp_tree;
@@ -86,17 +86,12 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     guint       trailer_start;
     guint       trailer_length;
 
-    if (!tree)
-        return;
-
     trailer_start = 0;
     trailer_length = 0;
     length = tvb_reported_length(tvb);
 
     if(length < 14)
-    {
-        return;
-    }
+        return 0;
 
     if(ETHERTYPE_VLAN == tvb_get_ntohs(tvb, 12)) /* tagged frame */
     {
@@ -106,6 +101,9 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     {
         offset = 14;
     }
+
+    if (!tree)
+        return tvb_captured_length(tvb);
 
     /* search for PRP-0 trailer */
     /* If the frame is >  64 bytes, the PRP-0 trailer is always at the end. */
@@ -187,6 +185,7 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
                                 tvb, trailer_start+4, 2, ENC_BIG_ENDIAN);
         }
     }
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -253,7 +252,7 @@ void proto_reg_handoff_prp(void)
     if (!prefs_initialized) {
         dissector_handle_t prp_redundancy_control_trailer_handle;
 
-        prp_redundancy_control_trailer_handle = create_dissector_handle(dissect_prp_redundancy_control_trailer, proto_prp);
+        prp_redundancy_control_trailer_handle = new_create_dissector_handle(dissect_prp_redundancy_control_trailer, proto_prp);
         register_postdissector(prp_redundancy_control_trailer_handle);
 
         prefs_initialized = TRUE;

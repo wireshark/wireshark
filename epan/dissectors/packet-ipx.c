@@ -137,18 +137,6 @@ static int hf_msg_sigchar = -1;
 
 static dissector_handle_t data_handle;
 
-static void
-dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-static void
-dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-static void
-dissect_serialization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-static void
-dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 #define UDP_PORT_IPX    213		/* RFC 1234 */
 
 #define IPX_HEADER_LEN	30		/* It's *always* 30 bytes */
@@ -599,8 +587,8 @@ spx_datastream(guint8 type)
 #define SPX_HEADER_LEN	12
 #define SPX2_HEADER_LEN	14
 
-static void
-dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*spx_tree;
 	proto_item	*ti;
@@ -824,7 +812,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(spx_tree, hf_spx_rexmt_data, tvb, hdr_len, -1, ENC_NA);
 			}
 		}
-		return;
+		return tvb_captured_length(tvb);
 	}
 
 	if (tvb_reported_length_remaining(tvb, hdr_len) > 0) {
@@ -861,22 +849,23 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (dissector_try_uint_new(spx_socket_dissector_table, low_socket,
 		    next_tvb, pinfo, tree, FALSE, &spx_infox))
 		{
-			return;
+			return tvb_captured_length(tvb);
 		}
 		if (dissector_try_uint_new(spx_socket_dissector_table, high_socket,
 		    next_tvb, pinfo, tree, FALSE, &spx_infox))
 		{
-			return;
+			return tvb_captured_length(tvb);
 		}
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* ================================================================= */
 /* IPX Message                                                       */
 /* ================================================================= */
-static void
-dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*msg_tree;
 	proto_item	*ti;
@@ -899,6 +888,7 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(msg_tree, hf_msg_conn, tvb, 0, 1, conn_number);
 		proto_tree_add_uint(msg_tree, hf_msg_sigchar, tvb, 1, 1, sig_char);
 	}
+	return tvb_captured_length(tvb);
 }
 
 
@@ -911,8 +901,8 @@ static const value_string ipxrip_packet_vals[] = {
 	{ 0,            NULL}
 };
 
-static void
-dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*rip_tree;
 	proto_item	*ti, *hidden_item;
@@ -965,13 +955,14 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* ================================================================= */
 /* IPX Serialization                                                 */
 /* ================================================================= */
-static void
-dissect_serialization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_serialization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree	*ser_tree = NULL;
 	proto_item	*ti;
@@ -989,6 +980,7 @@ dissect_serialization(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    tvb_bytes_to_str(wmem_packet_scope(), tvb, 0, 6));
 
 	proto_tree_add_item(ser_tree, hf_serial_number, tvb, 0, 6, ENC_NA);
+	return tvb_captured_length(tvb);
 }
 
 /*
@@ -1612,21 +1604,21 @@ proto_reg_handoff_ipx(void)
 	dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_IPX, ipx_handle);
 	dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_NOVELL_EC, ipx_handle);
 
-	spx_handle = create_dissector_handle(dissect_spx, proto_spx);
+	spx_handle = new_create_dissector_handle(dissect_spx, proto_spx);
 	dissector_add_uint("ipx.packet_type", IPX_PACKET_TYPE_SPX, spx_handle);
 
 	ipxsap_handle = find_dissector("ipxsap");
 	dissector_add_uint("ipx.socket", IPX_SOCKET_SAP, ipxsap_handle);
 
-	ipxrip_handle = create_dissector_handle(dissect_ipxrip, proto_ipxrip);
+	ipxrip_handle = new_create_dissector_handle(dissect_ipxrip, proto_ipxrip);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPXRIP, ipxrip_handle);
 
-	serialization_handle = create_dissector_handle(dissect_serialization,
+	serialization_handle = new_create_dissector_handle(dissect_serialization,
 	    proto_serialization);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_SERIALIZATION,
 	    serialization_handle);
 
-	ipxmsg_handle = create_dissector_handle(dissect_ipxmsg, proto_ipxmsg);
+	ipxmsg_handle = new_create_dissector_handle(dissect_ipxmsg, proto_ipxmsg);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPX_MESSAGE, ipxmsg_handle);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPX_MESSAGE1, ipxmsg_handle);
 

@@ -114,8 +114,8 @@ static header_field_info cisco_erspan_tail CISCO_ERSPAN_MARKER_HFI_INIT =
 static gint ett_marker = -1;
 
 
-static void
-dissect_marker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_marker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree    *marker_tree;
   proto_item    *ti;
@@ -161,6 +161,7 @@ dissect_marker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_item(marker_tree, &cisco_erspan_tail, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   }
+  return tvb_captured_length(tvb);
 }
 
 
@@ -202,7 +203,7 @@ proto_register_erpsan_marker(void)
   proto_register_fields(proto_marker, hfi, array_length(hfi));
   proto_register_subtree_array(ett, array_length(ett));
 
-  marker_handle = create_dissector_handle(dissect_marker, proto_marker);
+  marker_handle = new_create_dissector_handle(dissect_marker, proto_marker);
 }
 
 void

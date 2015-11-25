@@ -39,8 +39,8 @@ static int hf_symantec_etype = -1;
 
 static gint ett_symantec = -1;
 
-static void
-dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
    proto_item *ti;
    proto_tree *symantec_tree;
@@ -73,7 +73,7 @@ dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    /* a valid packet can't be both v2 and v3 or neither v2 nor v3, */
    if ((etypev2 == 0) == (etypev3 == 0))
-      return;
+      return 12;
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Symantec");
 
@@ -113,6 +113,7 @@ dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissector_try_uint(ethertype_dissector_table, etypev3, next_tvb, pinfo,
             tree);
    }
+   return tvb_captured_length(tvb);
 }
 
 void
@@ -143,7 +144,7 @@ proto_reg_handoff_symantec(void)
 
    ethertype_dissector_table = find_dissector_table("ethertype");
 
-   symantec_handle = create_dissector_handle(dissect_symantec,
+   symantec_handle = new_create_dissector_handle(dissect_symantec,
          proto_symantec);
    dissector_add_uint("wtap_encap", WTAP_ENCAP_SYMANTEC, symantec_handle);
 }

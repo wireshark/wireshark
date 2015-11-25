@@ -920,8 +920,8 @@ guint8 vnc_depth;
 static dissector_handle_t vnc_handle;
 
 /* Code to dissect the packets */
-static void
-dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	gboolean ret;
 	gint     offset = 0;
@@ -967,7 +967,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	vnc_set_depth(pinfo, vnc_depth);
 
 	if (ret) {
-		return;  /* We're in a "startup" state; Cannot yet do "normal" processing */
+		return tvb_captured_length(tvb);  /* We're in a "startup" state; Cannot yet do "normal" processing */
 	}
 
 	if(DEST_PORT_VNC || per_conversation_info->server_port == pinfo->destport) {
@@ -976,6 +976,7 @@ dissect_vnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	else {
 		vnc_server_to_client(tvb, pinfo, &offset, vnc_tree);
 	}
+	return tvb_captured_length(tvb);
 }
 
 /* Returns the new offset after processing the 4-byte vendor string */
@@ -1082,7 +1083,7 @@ static gboolean test_vnc_protocol(tvbuff_t *tvb, packet_info *pinfo,
 						pinfo->srcport,
 						pinfo->destport, 0);
 		conversation_set_dissector(conversation, vnc_handle);
-		dissect_vnc(tvb, pinfo, tree);
+		dissect_vnc(tvb, pinfo, tree, data);
 		return TRUE;
 	}
 	return FALSE;
@@ -4781,7 +4782,7 @@ proto_reg_handoff_vnc(void)
 	static guint vnc_preference_alternate_port_last = 0;
 
 	if(!inited) {
-		vnc_handle = create_dissector_handle(dissect_vnc, proto_vnc);
+		vnc_handle = new_create_dissector_handle(dissect_vnc, proto_vnc);
 
 		dissector_add_uint("tcp.port", 5500, vnc_handle);
 		dissector_add_uint("tcp.port", 5501, vnc_handle);

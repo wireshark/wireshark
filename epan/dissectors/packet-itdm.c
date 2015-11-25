@@ -356,15 +356,15 @@ dissect_itdm_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   call_dissector(data_handle, next_tvb, pinfo, tree);
 }
 
-static void
-dissect_itdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_itdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint32 flowid;
 
   /* ZZZ for now, 125 usec mode and I-TDM control protocol
    * need to add 1ms mode */
   if (tvb_captured_length(tvb) < 18)
-    return;
+    return 0;
 
   /* See if this packet is a data flow or the I-TDM control flow. */
   flowid = tvb_get_ntoh24(tvb, ITDM_FLOWID_OFFSET);
@@ -376,6 +376,7 @@ dissect_itdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_itdm_control(tvb, pinfo, tree);
   else
     dissect_itdm_125usec(tvb, pinfo, tree);
+  return tvb_captured_length(tvb);
 }
 
 void
@@ -465,7 +466,7 @@ proto_reg_handoff_itdm(void)
   static guint ItdmMPLSLabel;
 
   if (!Initialized) {
-    itdm_handle = create_dissector_handle( dissect_itdm, proto_itdm );
+    itdm_handle = new_create_dissector_handle( dissect_itdm, proto_itdm );
     data_handle = find_dissector("data");
     Initialized=TRUE;
   } else {
