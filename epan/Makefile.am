@@ -320,11 +320,18 @@ dumpabi-libwireshark: all abi-descriptor.xml
 	cp ftypes/*.h abi-check-headers/ftypes
 	mkdir abi-check-headers/wmem
 	cp wmem/*.h abi-check-headers/wmem
-	abi-compliance-checker -l libwireshark -v1 `readlink .libs/libwireshark.so | sed 's/.*\.so\.//'` \
+	abi-compliance-checker -log-path abi_logs/log.txt -l libwireshark -v1 `readlink .libs/libwireshark.so | sed 's/.*\.so\.//'` \
 		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml || \
 		cat logs/libwireshark/[0-9]*/log.txt
 	cp -f abi_dumps/libwireshark/libwireshark_* .libs/
 	cd .libs && ln -sf libwireshark_*.abi.tar.gz libwireshark.abi.tar.gz
+
+maintainer-clean-local: clean-dumpabi-libwireshark
+
+.PHONY: clean-dumpabi-libwireshark
+
+clean-dumpabi-libwireshark:
+	rm -rf rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz abi_logs abi-descriptor.xml
 
 checkapi:
 	$(AM_V_GEN)$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \

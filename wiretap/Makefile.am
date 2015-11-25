@@ -96,11 +96,18 @@ dumpabi-libwiretap: all abi-descriptor.xml
 	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz
 	mkdir abi-check-headers
 	cp *.h ../ws_symbol_export.h abi-check-headers/
-	abi-compliance-checker -l libwiretap -v1 `readlink .libs/libwiretap.so | sed 's/.*\.so\.//'` \
+	abi-compliance-checker -log-path abi_logs/log.txt -l libwiretap -v1 `readlink .libs/libwiretap.so | sed 's/.*\.so\.//'` \
 		-relpath $(abs_srcdir) -dump-abi abi-descriptor.xml || \
 		cat logs/libwiretap/[0-9]*/log.txt
 	cp -f abi_dumps/libwiretap/libwiretap_* .libs/
 	cd .libs && ln -sf libwiretap_*.abi.tar.gz libwiretap.abi.tar.gz
+
+maintainer-clean-local: clean-dumpabi-libwiretap
+
+.PHONY: clean-dumpabi-libwiretap
+
+clean-dumpabi-libwiretap:
+	rm -rf rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz abi_logs abi-descriptor.xml
 
 checkapi:
 ## 'abort' checking disabled for now pending resolution of existing use of g_assert & g_error
