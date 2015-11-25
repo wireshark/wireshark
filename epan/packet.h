@@ -91,11 +91,6 @@ struct dissector_table;
 typedef struct dissector_table *dissector_table_t;
 
 /*
- * Dissector that returns nothing.
- */
-typedef void (*dissector_t)(tvbuff_t *, packet_info *, proto_tree *);
-
-/*
  * Dissector that returns:
  *
  *	The amount of data in the protocol's PDU, if it was able to

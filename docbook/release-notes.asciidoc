@@ -76,6 +76,10 @@ The libwireshark API has undergone some major changes:
 * The address macros (e.g., SET_ADDRESS) have been removed.  Use the
 (lower case) functions of the same names instead.
 
+* "old style" dissector functions (that don't return number of bytes
+used) have been replaced in name with the "new style" dissector
+functions.
+
 
 == Getting Wireshark
 

@@ -585,11 +585,7 @@ dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
  */
 struct dissector_handle {
 	const char	*name;		/* dissector name */
-	gboolean	is_new;		/* TRUE if new-style dissector */
-	union {
-		dissector_t	old;
-		new_dissector_t	new_d;
-	} dissector;
+	new_dissector_t	dissector;
 	protocol_t	*protocol;
 };
 
@@ -617,21 +613,7 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
 			proto_get_protocol_short_name(handle->protocol);
 	}
 
-	if (handle->is_new) {
-		len = (*handle->dissector.new_d)(tvb, pinfo, tree, data);
-	} else {
-		(*handle->dissector.old)(tvb, pinfo, tree);
-		len = tvb_captured_length(tvb);
-		if (len == 0) {
-			/*
-			 * XXX - a tvbuff can have 0 bytes of data in
-			 * it, so we have to make sure we don't return
-			 * 0.
-			 */
-			len = 1;
-		}
-	}
-
+	len = (*handle->dissector)(tvb, pinfo, tree, data);
 	pinfo->current_proto = saved_proto;
 
 	return len;
@@ -2604,8 +2586,7 @@ new_create_dissector_handle(new_dissector_t dissector, const int proto)
 
 	handle			= wmem_new(wmem_epan_scope(), struct dissector_handle);
 	handle->name		= NULL;
-	handle->is_new		= TRUE;
-	handle->dissector.new_d = dissector;
+	handle->dissector	= dissector;
 	handle->protocol	= find_protocol_by_id(proto);
 
 	return handle;
@@ -2618,8 +2599,7 @@ dissector_handle_t new_create_dissector_handle_with_name(new_dissector_t dissect
 
 	handle			= wmem_new(wmem_epan_scope(), struct dissector_handle);
 	handle->name		= name;
-	handle->is_new		= TRUE;
-	handle->dissector.new_d = dissector;
+	handle->dissector	= dissector;
 	handle->protocol	= find_protocol_by_id(proto);
 
 	return handle;
@@ -2647,8 +2627,7 @@ new_register_dissector(const char *name, new_dissector_t dissector, const int pr
 
 	handle                = wmem_new(wmem_epan_scope(), struct dissector_handle);
 	handle->name          = name;
-	handle->is_new        = TRUE;
-	handle->dissector.new_d = dissector;
+	handle->dissector     = dissector;
 	handle->protocol      = find_protocol_by_id(proto);
 
 	g_hash_table_insert(registered_dissectors, (gpointer)name,
