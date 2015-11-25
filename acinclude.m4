@@ -1717,104 +1717,113 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
         CFLAGS="$CFLAGS_saved"
       ])
   fi
-  if test "$2" != C ; then
+  #
+  # Did we find a C++ compiler?
+  #
+  if test "x$CXX" != "x" ; then
     #
-    # Not C-only; if this can be added to the C++ compiler flags, add them.
+    # Yes.  Is this option only for the C compiler?
     #
-    # If the option begins with "-W", add
-    # $ac_wireshark_unknown_warning_option_error, as per the above, and
-    # also add $ac_wireshark_non_cxx_warning_option_error, because at
-    # lease some versions of g++ whine about -Wmissing-prototypes, the
-    # fact that at least one of those versions refuses to warn about
-    # function declarations without an earlier declaration nonwithstanding;
-    # perhaps there's a reason not to warn about that with C++ even though
-    # warning about it can be a Good Idea with C, but it's not obvious to
-    # me).
-    #
-    # If the option begins with "-f" or "-m", add -Werror to make sure
-    # that we'll get an error if we get "argument unused during compilation"
-    # warnings, as those will either cause a failure for files compiled
-    # with -Werror or annoying noise for files compiled without it.
-    # (Yeah, you, clang++.)
-    #
-    AC_MSG_CHECKING(whether we can add $GCC_OPTION to CXXFLAGS)
-    CXXFLAGS_saved="$CXXFLAGS"
-    if expr "x$GCC_OPTION" : "x-W.*" >/dev/null
-    then
-      CXXFLAGS="$ac_wireshark_unknown_warning_option_error $ac_wireshark_non_cxx_warning_option_error $GCC_OPTION $CXXFLAGS"
-    elif expr "x$GCC_OPTION" : "x-f.*" >/dev/null
-    then
-      CXXFLAGS="-Werror $GCC_OPTION $CXXFLAGS"
-    elif expr "x$GCC_OPTION" : "x-m.*" >/dev/null
-    then
-      CXXFLAGS="-Werror $GCC_OPTION $CXXFLAGS"
-    else
-      CXXFLAGS="$GCC_OPTION $CXXFLAGS"
+    if test "$2" != C ; then
+      #
+      # Not C-only; if this option can be added to the C++ compiler
+      # options, add it.
+      #
+      # If the option begins with "-W", add
+      # $ac_wireshark_unknown_warning_option_error, as per the above, and
+      # also add $ac_wireshark_non_cxx_warning_option_error, because at
+      # lease some versions of g++ whine about -Wmissing-prototypes, the
+      # fact that at least one of those versions refuses to warn about
+      # function declarations without an earlier declaration nonwithstanding;
+      # perhaps there's a reason not to warn about that with C++ even though
+      # warning about it can be a Good Idea with C, but it's not obvious to
+      # me).
+      #
+      # If the option begins with "-f" or "-m", add -Werror to make sure
+      # that we'll get an error if we get "argument unused during compilation"
+      # warnings, as those will either cause a failure for files compiled
+      # with -Werror or annoying noise for files compiled without it.
+      # (Yeah, you, clang++.)
+      #
+      AC_MSG_CHECKING(whether we can add $GCC_OPTION to CXXFLAGS)
+      CXXFLAGS_saved="$CXXFLAGS"
+      if expr "x$GCC_OPTION" : "x-W.*" >/dev/null
+      then
+        CXXFLAGS="$ac_wireshark_unknown_warning_option_error $ac_wireshark_non_cxx_warning_option_error $GCC_OPTION $CXXFLAGS"
+      elif expr "x$GCC_OPTION" : "x-f.*" >/dev/null
+      then
+        CXXFLAGS="-Werror $GCC_OPTION $CXXFLAGS"
+      elif expr "x$GCC_OPTION" : "x-m.*" >/dev/null
+      then
+        CXXFLAGS="-Werror $GCC_OPTION $CXXFLAGS"
+      else
+        CXXFLAGS="$GCC_OPTION $CXXFLAGS"
+      fi
+      AC_LANG_PUSH([C++])
+      AC_COMPILE_IFELSE(
+        [
+          AC_LANG_SOURCE([[int foo;]])
+        ],
+        [
+          AC_MSG_RESULT(yes)
+          can_add_to_cxxflags=yes
+          #
+          # OK, do we have a test program?  If so, check
+          # whether it fails with this option and -Werror,
+          # and, if so, don't include it.
+          #
+          # We test arg 4 here because arg 3 is a program which
+          # could contain quotes (breaking the comparison).
+          #
+          if test "x$4" != "x" ; then
+            CXXFLAGS="$CXXFLAGS -Werror"
+            AC_MSG_CHECKING(whether $GCC_OPTION $4)
+            AC_COMPILE_IFELSE(
+              [AC_LANG_SOURCE($3)],
+              [
+                AC_MSG_RESULT(no)
+                #
+                # Remove "force an error for a warning" options, if we
+                # added them, by setting CXXFLAGS to the saved value plus
+                # just the new option.
+                #
+                CXXFLAGS="$GCC_OPTION $CXXFLAGS_saved"
+              ],
+              [
+                AC_MSG_RESULT(yes)
+                CXXFLAGS="$CXXFLAGS_saved"
+              ])
+          else
+            #
+            # Remove "force an error for a warning" options, if we
+            # added them, by setting CXXFLAGS to the saved value plus
+            # just the new option.
+            #
+            CXXFLAGS="$GCC_OPTION $CXXFLAGS_saved"
+          fi
+        ],
+        [
+          AC_MSG_RESULT(no)
+          can_add_to_cxxflags=no
+          CXXFLAGS="$CXXFLAGS_saved"
+        ])
+      AC_LANG_POP([C++])
     fi
-    AC_LANG_PUSH([C++])
-    AC_COMPILE_IFELSE(
-      [
-        AC_LANG_SOURCE([[int foo;]])
-      ],
-      [
-        AC_MSG_RESULT(yes)
-        can_add_to_cxxflags=yes
-        #
-        # OK, do we have a test program?  If so, check
-        # whether it fails with this option and -Werror,
-        # and, if so, don't include it.
-        #
-        # We test arg 4 here because arg 3 is a program which
-        # could contain quotes (breaking the comparison).
-        #
-        if test "x$4" != "x" ; then
-          CXXFLAGS="$CXXFLAGS -Werror"
-          AC_MSG_CHECKING(whether $GCC_OPTION $4)
-          AC_COMPILE_IFELSE(
-            [AC_LANG_SOURCE($3)],
-            [
-              AC_MSG_RESULT(no)
-              #
-              # Remove "force an error for a warning" options, if we
-              # added them, by setting CXXFLAGS to the saved value plus
-              # just the new option.
-              #
-              CXXFLAGS="$GCC_OPTION $CXXFLAGS_saved"
-            ],
-            [
-              AC_MSG_RESULT(yes)
-              CXXFLAGS="$CXXFLAGS_saved"
-            ])
-        else
-          #
-          # Remove "force an error for a warning" options, if we
-          # added them, by setting CXXFLAGS to the saved value plus
-          # just the new option.
-          #
-          CXXFLAGS="$GCC_OPTION $CXXFLAGS_saved"
-        fi
-      ],
-      [
-        AC_MSG_RESULT(no)
-        can_add_to_cxxflags=no
-        CXXFLAGS="$CXXFLAGS_saved"
-      ])
-    AC_LANG_POP([C++])
-  fi
-  if test "(" "$can_add_to_cflags" = "yes" -a "$can_add_to_cxxflags" = "no" ")" \
-       -o "(" "$can_add_to_cflags" = "no" -a "$can_add_to_cxxflags" = "yes" ")"
-  then
-    #
-    # Confusingly, some C++ compilers like -Wmissing-prototypes but
-    # don't like -Wmissing-declarations and others like
-    # -Wmissing-declarations but don't like -Wmissing-prototypes,
-    # the fact that the corresponding C compiler likes both.  Don't
-    # warn about them.
-    #
-    if test "(" x$GCC_OPTION != x-Wmissing-prototypes ")" \
-         -a "(" x$GCC_OPTION != x-Wmissing-declarations ")"
+    if test "(" "$can_add_to_cflags" = "yes" -a "$can_add_to_cxxflags" = "no" ")" \
+         -o "(" "$can_add_to_cflags" = "no" -a "$can_add_to_cxxflags" = "yes" ")"
     then
-       AC_MSG_WARN([$CC and $CXX appear to be a mismatched pair])
+      #
+      # Confusingly, some C++ compilers like -Wmissing-prototypes but
+      # don't like -Wmissing-declarations and others like
+      # -Wmissing-declarations but don't like -Wmissing-prototypes,
+      # the fact that the corresponding C compiler likes both.  Don't
+      # warn about them.
+      #
+      if test "(" x$GCC_OPTION != x-Wmissing-prototypes ")" \
+           -a "(" x$GCC_OPTION != x-Wmissing-declarations ")"
+      then
+         AC_MSG_WARN([$CC and $CXX appear to be a mismatched pair])
+      fi
     fi
   fi
 fi
