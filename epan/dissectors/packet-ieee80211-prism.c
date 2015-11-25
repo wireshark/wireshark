@@ -265,24 +265,6 @@ capture_prism(const guchar *pd, int offset, int len, packet_counts *ld)
   capture_ieee80211(pd, offset, len, ld);
 }
 
-static guint16
-tvb_get_enctohs(tvbuff_t *tvb, int offset, guint encoding)
-{
-    if (encoding == ENC_BIG_ENDIAN)
-        return tvb_get_ntohs(tvb, offset);
-    else
-        return tvb_get_letohs(tvb, offset);
-}
-
-static guint32
-tvb_get_enctohl(tvbuff_t *tvb, int offset, guint encoding)
-{
-    if (encoding == ENC_BIG_ENDIAN)
-        return tvb_get_ntohl(tvb, offset);
-    else
-        return tvb_get_letohl(tvb, offset);
-}
-
 static int
 dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -345,13 +327,11 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     prism_tree = proto_item_add_subtree(ti, ett_prism);
 
     /* Message Code */
-    proto_tree_add_item(prism_tree, hf_ieee80211_prism_msgcode, tvb, offset, 4, byte_order);
-    msgcode = tvb_get_enctohl(tvb, offset, byte_order);
+    proto_tree_add_item_ret_uint(prism_tree, hf_ieee80211_prism_msgcode, tvb, offset, 4, byte_order, &msgcode);
     offset += 4;
 
     /* Message Length */
-    proto_tree_add_item(prism_tree, hf_ieee80211_prism_msglen, tvb, offset, 4, byte_order);
-    msglen = tvb_get_enctohl(tvb, offset, byte_order);
+    proto_tree_add_item_ret_uint(prism_tree, hf_ieee80211_prism_msglen, tvb, offset, 4, byte_order, &msglen);
     offset += 4;
 
     /* Device Name */
@@ -369,14 +349,14 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             prism_did_tree = proto_item_add_subtree(ti_did, ett_prism_did);
 
             proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_type, tvb, offset, 4, byte_order);
-            did = tvb_get_enctohl(tvb, offset, byte_order);
+            did = tvb_get_guint32(tvb, offset, byte_order);
             proto_item_append_text(ti_did, " %s", val_to_str(did, prism_did_vals, "Unknown %x") );
         }
         offset += 4;
 
 
         /* Status */
-        status = tvb_get_enctohs(tvb, offset, byte_order);
+        status = tvb_get_guint16(tvb, offset, byte_order);
         proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_status, tvb, offset, 2, byte_order);
         offset += 2;
 
@@ -391,7 +371,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
               case PRISM_TYPE2_HOSTTIME:
                 if(tree){
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_hosttime, tvb, offset, 4, byte_order);
-                    proto_item_append_text(ti_did, " %d", tvb_get_enctohl(tvb, offset, byte_order) );
+                    proto_item_append_text(ti_did, " %d", tvb_get_guint32(tvb, offset, byte_order) );
                 }
               break;
 
@@ -399,13 +379,13 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
               case PRISM_TYPE2_MACTIME:
                 if(tree){
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_mactime, tvb, offset, 4, byte_order);
-                    proto_item_append_text(ti_did, " %d", tvb_get_enctohl(tvb, offset, byte_order) );
+                    proto_item_append_text(ti_did, " %d", tvb_get_guint32(tvb, offset, byte_order) );
                 }
               break;
 
               case PRISM_TYPE1_CHANNEL:
               case PRISM_TYPE2_CHANNEL:
-                channel = tvb_get_enctohl(tvb, offset, byte_order);
+                channel = tvb_get_guint32(tvb, offset, byte_order);
                 phdr.presence_flags |= PHDR_802_11_HAS_CHANNEL;
                 phdr.channel = channel;
                 if(tree){
@@ -419,16 +399,16 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
               case PRISM_TYPE2_RSSI:
                 if(tree){
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_rssi, tvb, offset, 4, byte_order);
-                    proto_item_append_text(ti_did, " 0x%x", tvb_get_enctohl(tvb, offset, byte_order) );
+                    proto_item_append_text(ti_did, " 0x%x", tvb_get_guint32(tvb, offset, byte_order) );
                 }
-                col_add_fstr(pinfo->cinfo, COL_RSSI, "%d", tvb_get_enctohl(tvb, offset, byte_order));
+                col_add_fstr(pinfo->cinfo, COL_RSSI, "%d", tvb_get_guint32(tvb, offset, byte_order));
               break;
 
               case PRISM_TYPE1_SQ:
               case PRISM_TYPE2_SQ:
                  if(tree){
                       proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_sq, tvb, offset, 4, byte_order);
-                      proto_item_append_text(ti_did, " 0x%x", tvb_get_enctohl(tvb, offset, byte_order) );
+                      proto_item_append_text(ti_did, " 0x%x", tvb_get_guint32(tvb, offset, byte_order) );
                 }
               break;
 
@@ -436,7 +416,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
               case PRISM_TYPE2_SIGNAL:
                 if(tree){
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_signal, tvb, offset, 4, byte_order);
-                    proto_item_append_text(ti_did, " 0x%x", tvb_get_enctohl(tvb, offset, byte_order) );
+                    proto_item_append_text(ti_did, " 0x%x", tvb_get_guint32(tvb, offset, byte_order) );
                 }
               break;
 
@@ -444,13 +424,13 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
               case PRISM_TYPE2_NOISE:
                 if(tree){
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_noise, tvb, offset, 4, byte_order);
-                    proto_item_append_text(ti_did, " 0x%x", tvb_get_enctohl(tvb, offset, byte_order) );
+                    proto_item_append_text(ti_did, " 0x%x", tvb_get_guint32(tvb, offset, byte_order) );
                 }
               break;
 
               case PRISM_TYPE1_RATE:
               case PRISM_TYPE2_RATE:
-                rate = tvb_get_enctohl(tvb, offset, byte_order);
+                rate = tvb_get_guint32(tvb, offset, byte_order);
                 phdr.presence_flags |= PHDR_802_11_HAS_DATA_RATE;
                 phdr.data_rate = rate;
                 if(tree){
@@ -464,7 +444,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
               case PRISM_TYPE2_ISTX:
                 if(tree){
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_istx, tvb, offset, 4, byte_order);
-                    proto_item_append_text(ti_did, " 0x%x", tvb_get_enctohl(tvb, offset, byte_order) );
+                    proto_item_append_text(ti_did, " 0x%x", tvb_get_guint32(tvb, offset, byte_order) );
                 }
               break;
 
@@ -472,7 +452,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
               case PRISM_TYPE2_FRMLEN:
                 if(tree){
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_frmlen, tvb, offset, 4, byte_order);
-                    proto_item_append_text(ti_did, " %d", tvb_get_enctohl(tvb, offset, byte_order));
+                    proto_item_append_text(ti_did, " %d", tvb_get_guint32(tvb, offset, byte_order));
                 }
               break;
 
