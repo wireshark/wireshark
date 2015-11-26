@@ -668,7 +668,7 @@ dissect_mp4ves_VisualObjectSequence(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	return bit_offset;
 }
 
-int
+static int
 dissect_mp4ves_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *item;
