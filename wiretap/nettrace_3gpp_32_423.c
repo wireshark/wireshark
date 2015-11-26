@@ -204,6 +204,8 @@ nettrace_close(wtap *wth)
 * "2001-09-11T09:30:47-05:00".
 */
 
+#define isleap(y) (((y) % 4) == 0 && (((y) % 100) != 0 || ((y) % 400) == 0))
+
 static guint8*
 nettrace_parse_begin_time(guint8 *curr_pos, struct wtap_pkthdr *phdr)
 {
@@ -212,6 +214,9 @@ nettrace_parse_begin_time(guint8 *curr_pos, struct wtap_pkthdr *phdr)
 	int UTCdiffh;
 	guint UTCdiffm;
 	int scan_found;
+	static const guint days_in_month[12] = {
+	    31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+	};
 	struct tm tm;
 	guint8 *prev_pos, *next_pos;
 	int length;
@@ -240,8 +245,11 @@ nettrace_parse_begin_time(guint8 *curr_pos, struct wtap_pkthdr *phdr)
 			/* Use the code below to set the time stamp */
 			scan_found = 8;
 		} else {
+			phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
+			phdr->ts.secs = 0;
+			phdr->ts.nsecs = 0;
 			g_warning("Failed to parse second time format, scan_found %u", scan_found);
-			scan_found = 0;
+			return curr_pos;
 		}
 	}
 	if (scan_found == 8) {
@@ -249,7 +257,7 @@ nettrace_parse_begin_time(guint8 *curr_pos, struct wtap_pkthdr *phdr)
 		/* Only set time if we managed to parse it*/
 		/* Fill in remaining fields and return it in a time_t */
 		tm.tm_year = year - 1900;
-		if (month < 1 || month > 11) {
+		if (month < 1 || month > 12) {
 			phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
 			phdr->ts.secs = 0;
 			phdr->ts.nsecs = 0;
@@ -257,6 +265,14 @@ nettrace_parse_begin_time(guint8 *curr_pos, struct wtap_pkthdr *phdr)
 			return curr_pos;
 		}
 		tm.tm_mon = month - 1; /* Zero count*/
+		if (day > ((month == 2 && isleap(year)) ? 29 : days_in_month[month - 1])) {
+			phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
+			phdr->ts.secs = 0;
+			phdr->ts.nsecs = 0;
+			g_warning("Failed to parse time, %u-%02u-%2u is not a valid day",
+			    year, month, day);
+			return curr_pos;
+		}
 		tm.tm_mday = day;
 		if (hour > 23) {
 			phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
