@@ -704,7 +704,7 @@ void RtpAnalysisDialog::addPacket(bool forward, packet_info *pinfo, const _rtp_i
         rtp_packet_analyse(&fwd_statinfo_, pinfo, rtpinfo);
         new RtpAnalysisTreeWidgetItem(ui->forwardTreeWidget, &fwd_statinfo_, pinfo, rtpinfo);
 
-        fwd_time_vals_.append((fwd_statinfo_.time - fwd_statinfo_.start_time) / 1000);
+        fwd_time_vals_.append(fwd_statinfo_.time / 1000);
         fwd_jitter_vals_.append(fwd_statinfo_.jitter);
         fwd_diff_vals_.append(fwd_statinfo_.diff);
         fwd_delta_vals_.append(fwd_statinfo_.delta);
@@ -714,7 +714,7 @@ void RtpAnalysisDialog::addPacket(bool forward, packet_info *pinfo, const _rtp_i
         rtp_packet_analyse(&rev_statinfo_, pinfo, rtpinfo);
         new RtpAnalysisTreeWidgetItem(ui->reverseTreeWidget, &rev_statinfo_, pinfo, rtpinfo);
 
-        rev_time_vals_.append((rev_statinfo_.time - rev_statinfo_.start_time) / 1000);
+        rev_time_vals_.append(rev_statinfo_.time / 1000);
         rev_jitter_vals_.append(rev_statinfo_.jitter);
         rev_diff_vals_.append(rev_statinfo_.diff);
         rev_delta_vals_.append(rev_statinfo_.delta);

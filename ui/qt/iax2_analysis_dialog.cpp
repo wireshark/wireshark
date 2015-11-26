@@ -694,7 +694,7 @@ void Iax2AnalysisDialog::addPacket(bool forward, packet_info *pinfo, const struc
         iax2_packet_analyse(&fwd_statinfo_, pinfo, iax2info);
         new Iax2AnalysisTreeWidgetItem(ui->forwardTreeWidget, &fwd_statinfo_, pinfo);
 
-        fwd_time_vals_.append((fwd_statinfo_.time - fwd_statinfo_.start_time));
+        fwd_time_vals_.append((fwd_statinfo_.time));
         fwd_jitter_vals_.append(fwd_statinfo_.jitter * 1000);
         fwd_diff_vals_.append(fwd_statinfo_.diff * 1000);
 
@@ -703,7 +703,7 @@ void Iax2AnalysisDialog::addPacket(bool forward, packet_info *pinfo, const struc
         iax2_packet_analyse(&rev_statinfo_, pinfo, iax2info);
         new Iax2AnalysisTreeWidgetItem(ui->reverseTreeWidget, &rev_statinfo_, pinfo);
 
-        rev_time_vals_.append((rev_statinfo_.time - rev_statinfo_.start_time));
+        rev_time_vals_.append((rev_statinfo_.time));
         rev_jitter_vals_.append(rev_statinfo_.jitter * 1000);
         rev_diff_vals_.append(rev_statinfo_.diff * 1000);
 
