@@ -924,7 +924,7 @@ static void sha1_hmac_digest(l2tpv3_tunnel_t *tunnel,
         }
     }
 
-    sha1_hmac_update(&ms, tvb_get_ptr(tvb, 0, idx + 1 - offset), idx + 1 - offset);
+    sha1_hmac_update(&ms, tvb_get_ptr(tvb, offset, idx + 1 - offset), idx + 1 - offset);
     /* Message digest is calculated with an empty message digest field */
     memset(zero, 0, L2TP_HMAC_SHA1_DIGEST_LEN);
     sha1_hmac_update(&ms, zero, avp_len - 1);
