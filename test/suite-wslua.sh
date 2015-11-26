@@ -396,23 +396,11 @@ wslua_step_globals_test() {
 	fi
 
 	# Tshark catches lua script failures, so we have to parse the output.
-	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/verify_globals.lua -X lua_script1:$TESTS_DIR/lua/ -X lua_script1:$TESTS_DIR/lua/globals_1.8.txt > testout.txt 2>&1
+	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/verify_globals.lua -X lua_script1:$TESTS_DIR/lua/ -X lua_script1:$TESTS_DIR/lua/globals_2.2.txt > testout.txt 2>&1
 	grep -q "All tests passed!" testout.txt
 	if [ $? -ne 0 ]; then
 		cat testout.txt
 		test_step_failed "lua_globals_test test 1 failed"
-	fi
-	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/verify_globals.lua -X lua_script1:$TESTS_DIR/lua/ -X lua_script1:$TESTS_DIR/lua/globals_1.10.txt > testout.txt 2>&1
-	grep -q "All tests passed!" testout.txt
-	if [ $? -ne 0 ]; then
-		cat testout.txt
-		test_step_failed "lua_globals_test test 2 failed"
-	fi
-	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/verify_globals.lua -X lua_script1:$TESTS_DIR/lua/ -X lua_script1:$TESTS_DIR/lua/globals_1.12.txt > testout.txt 2>&1
-	grep -q "All tests passed!" testout.txt
-	if [ $? -ne 0 ]; then
-		cat testout.txt
-		test_step_failed "lua_globals_test test 2 failed"
 	fi
 	test_step_ok
 }
