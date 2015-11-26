@@ -122,6 +122,7 @@ private:
     void setFrameReftime(gboolean set, frame_data *fdata);
     void setColumnVisibility();
     int sizeHintForColumn(int column) const;
+    void setRecentColumnWidth(int column);
     void initHeaderContextMenu();
     void drawCurrentPacket();
 

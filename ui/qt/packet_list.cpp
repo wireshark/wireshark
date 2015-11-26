@@ -582,6 +582,30 @@ int PacketList::sizeHintForColumn(int column) const
     return size_hint;
 }
 
+void PacketList::setRecentColumnWidth(int col)
+{
+    int col_width = recent_get_column_width(col);
+
+    if (col_width < 1) {
+        int fmt = get_column_format(col);
+        const char *long_str = get_column_width_string(fmt, col);
+
+        QFontMetrics fm = QFontMetrics(wsApp->monospaceFont());
+        if (long_str) {
+            col_width = fm.width(long_str);
+        } else {
+            col_width = fm.width(MIN_COL_WIDTH_STR);
+        }
+
+        // Custom delegate padding
+        if (itemDelegateForColumn(col)) {
+            col_width += itemDelegateForColumn(col)->sizeHint(viewOptions(), QModelIndex()).width();
+        }
+    }
+
+    setColumnWidth(col, col_width);
+}
+
 void PacketList::initHeaderContextMenu()
 {
     header_ctx_menu_.clear();
@@ -674,27 +698,8 @@ void PacketList::applyRecentColumnWidths()
 {
     // Either we've just started up or a profile has changed. Read
     // the recent settings, apply them, and save the header state.
-    QFontMetrics fm = QFontMetrics(wsApp->monospaceFont());
-    for (int i = 0; i < prefs.num_cols; i++) {
-        int col_width = recent_get_column_width(i);
-
-        if (col_width < 1) {
-            int fmt;
-            const char *long_str;
-
-            fmt = get_column_format(i);
-            long_str = get_column_width_string(fmt, i);
-            if (long_str) {
-                col_width = fm.width(long_str);
-            } else {
-                col_width = fm.width(MIN_COL_WIDTH_STR);
-            }
-            // Custom delegate padding
-            if (itemDelegateForColumn(i)) {
-                col_width += itemDelegateForColumn(i)->sizeHint(viewOptions(), QModelIndex()).width();
-            }
-        }
-        setColumnWidth(i, col_width) ;
+    for (int col = 0; col < prefs.num_cols; col++) {
+        setRecentColumnWidth(col);
     }
     column_state_ = header()->saveState();
 }
@@ -1232,7 +1237,7 @@ void PacketList::columnVisibilityTriggered()
     set_column_visible(col, ha->isChecked());
     setColumnVisibility();
     if (ha->isChecked()) {
-        setColumnWidth(col, recent_get_column_width(col));
+        setRecentColumnWidth(col);
     }
     if (!prefs.gui_use_pref_save) {
         prefs_main_write();
