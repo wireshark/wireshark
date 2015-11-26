@@ -766,6 +766,7 @@ capture_all_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
         colorize_filter_te_as_empty(filter_te);
         if (strlen(device.cfilter) > 0) {
           g_array_remove_index(global_capture_opts.all_ifaces, i);
+          g_free(device.cfilter);
           device.cfilter = g_strdup(filter_text);
           g_array_insert_val(global_capture_opts.all_ifaces, i, device);
           update_filter_string(device.name, filter_text);
@@ -775,6 +776,7 @@ capture_all_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
       }
       g_assert(filter_text != NULL);
       g_array_remove_index(global_capture_opts.all_ifaces, i);
+      g_free(device.cfilter);
       device.cfilter = g_strdup(filter_text);
       g_array_insert_val(global_capture_opts.all_ifaces, i, device);
       g_mutex_lock(cfc_data_mtx);
@@ -1245,6 +1247,7 @@ insert_new_rows(GList *list)
     ip_str = g_string_new("");
     str = "";
     ips = 0;
+    memset(&device, 0, sizeof(device));
     device.name = g_strdup(if_info->name);
     /* Is this interface hidden and, if so, should we include it
        anyway? */
@@ -3208,6 +3211,7 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
             device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             if (strcmp(device.name, interface) == 0) {
               g_array_remove_index(global_capture_opts.all_ifaces, i);
+              g_free(device.cfilter);
               device.cfilter = g_strdup(filter_text);
               g_array_insert_val(global_capture_opts.all_ifaces, i, device);
               update_filter_string(device.name, filter_text);
@@ -3364,6 +3368,8 @@ static void change_pipe_name_cb(gpointer dialog _U_, gint btn, gpointer data)
     for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
       device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
       if (strcmp(pipe_name, device.name) == 0) {
+        g_free(device.name);
+        g_free(device.display_name);
         device.name = g_strdup((gchar *)data);
         device.display_name = g_strdup_printf("%s", device.name);
         g_array_remove_index(global_capture_opts.all_ifaces, i);
@@ -3473,6 +3479,7 @@ add_pipe_cb(gpointer w _U_)
       }
     }
     pipe_name           = g_strdup(g_save_file);
+    memset(&device, 0, sizeof(device));
     device.name         = g_strdup(g_save_file);
     device.display_name = g_strdup_printf("%s", device.name);
     device.hidden       = FALSE;
@@ -4015,6 +4022,7 @@ remove_remote_host(GtkWidget *w _U_, gpointer data _U_)
       } else {
         if (strcmp(host, device.remote_opts.remote_host_opts.remote_host) == 0) {
           g_array_remove_index(global_capture_opts.all_ifaces, i);
+          capture_opts_free_interface_t(&device);
         }
       }
     }

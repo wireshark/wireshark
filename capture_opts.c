@@ -1146,6 +1146,50 @@ collect_ifaces(capture_options *capture_opts)
     }
 }
 
+static void
+capture_opts_free_interface_t_links(gpointer elem, gpointer unused _U_)
+{
+    link_row* e = (link_row*)elem;
+    if (e != NULL)
+        g_free(e->name);
+    g_free(elem);
+}
+
+static void
+capture_opts_free_interface_t_addrs(gpointer elem, gpointer unused _U_)
+{
+    g_free(elem);
+}
+
+void
+capture_opts_free_interface_t(interface_t *device)
+{
+    if (device != NULL) {
+        g_free(device->name);
+        g_free(device->display_name);
+        g_free(device->friendly_name);
+        g_free(device->addresses);
+        g_free(device->cfilter);
+        g_list_foreach(device->links,
+                       capture_opts_free_interface_t_links, NULL);
+        g_list_free(device->links);
+#ifdef HAVE_PCAP_REMOTE
+        g_free(device->remote_opts.remote_host_opts.remote_host);
+        g_free(device->remote_opts.remote_host_opts.remote_port);
+        g_free(device->remote_opts.remote_host_opts.auth_username);
+        g_free(device->remote_opts.remote_host_opts.auth_password);
+#endif
+        g_free(device->if_info.name);
+        g_free(device->if_info.friendly_name);
+        g_free(device->if_info.vendor_description);
+        g_slist_foreach(device->if_info.addrs,
+                        capture_opts_free_interface_t_addrs, NULL);
+        g_slist_free(device->if_info.addrs);
+#ifdef HAVE_EXTCAP
+        g_free(device->if_info.extcap);
+#endif
+    }
+}
 
 #endif /* HAVE_LIBPCAP */
 

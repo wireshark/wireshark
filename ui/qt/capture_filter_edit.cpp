@@ -344,6 +344,7 @@ void CaptureFilterEdit::setFilterSyntaxState(QString filter, bool valid, QString
 //                    continue;  /* Programming error: somehow managed to select an "unsupported" entry */
 //                }
                 g_array_remove_index(global_capture_opts.all_ifaces, i);
+                g_free(device.cfilter);
                 device.cfilter = qstring_strdup(filter);
                 g_array_insert_val(global_capture_opts.all_ifaces, i, device);
 //                update_filter_string(device.name, filter_text);

@@ -73,6 +73,7 @@ fill_from_ifaces (interface_t *device)
         device->pmode = interface_opts.promisc_mode;
         device->has_snaplen = interface_opts.has_snaplen;
         device->snaplen = interface_opts.snaplen;
+        g_free(device->cfilter);
         device->cfilter = g_strdup(interface_opts.cfilter);
         if (interface_opts.linktype != -1) {
             device->active_dlt = interface_opts.linktype;
@@ -131,10 +132,10 @@ scan_local_interfaces(void (*update_cb)(void))
                         capture_opts_del_iface(&global_capture_opts, j);
                     }
                 }
+                capture_opts_free_interface_t(&device);
             }
         }
     }
-
     /* Scan through the list and build a list of strings to display. */
     g_free(global_capture_opts.ifaces_err_info);
     if_list = capture_interface_list(&global_capture_opts.ifaces_err,
@@ -142,6 +143,7 @@ scan_local_interfaces(void (*update_cb)(void))
                                      update_cb);
     count = 0;
     for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
+        memset(&device, 0, sizeof(device));
         if_info = (if_info_t *)if_entry->data;
         ip_str = g_string_new("");
         ips = 0;
@@ -316,6 +318,7 @@ scan_local_interfaces(void (*update_cb)(void))
             }
         }
         if (!found) {  /* new interface, maybe a pipe */
+            memset(&device, 0, sizeof(device));
             device.name         = g_strdup(interface_opts.name);
             device.display_name = interface_opts.descr ?
                 g_strdup_printf("%s: %s", device.name, interface_opts.descr) :

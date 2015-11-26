@@ -238,6 +238,7 @@ void ManageInterfacesDialog::pipeAccepted()
             continue;
         }
         global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+        capture_opts_free_interface_t(&device);
     }
 
     // Next rebuild a fresh list
@@ -259,6 +260,7 @@ void ManageInterfacesDialog::pipeAccepted()
             }
         }
 
+        memset(&device, 0, sizeof(device));
         device.name         = qstring_strdup(pipe_name);
         device.display_name = g_strdup(device.name);
         device.hidden       = FALSE;
@@ -506,6 +508,7 @@ void ManageInterfacesDialog::addRemoteInterfaces(GList* rlist, remote_options *r
         ip_str = g_string_new("");
         str = "";
         ips = 0;
+        memset(&device, 0, sizeof(device));
         device.name = g_strdup(if_info->name);
         /* Is this interface hidden and, if so, should we include it
            anyway? */

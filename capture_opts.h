@@ -371,6 +371,9 @@ capture_opts_del_iface(capture_options *capture_opts, guint if_index);
 extern void
 collect_ifaces(capture_options *capture_opts);
 
+extern void
+capture_opts_free_interface_t(interface_t *device);
+
 /* Default capture buffer size in Mbytes. */
 #define DEFAULT_CAPTURE_BUFFER_SIZE 2
 
