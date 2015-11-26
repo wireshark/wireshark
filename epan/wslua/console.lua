@@ -100,9 +100,9 @@ if (gui_enabled()) then
 	end
 
 	function ref_manual()
-		browser_open_url("http://www.wireshark.org/docs/wsdg_html_chunked/wsluarm.html")
+		browser_open_url("https://www.wireshark.org/docs/wsdg_html_chunked/wsluarm.html")
 	end
-	
+
 	function wiki_page()
 		browser_open_url("https://wiki.wireshark.org/Lua")
 	end
