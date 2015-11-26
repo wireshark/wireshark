@@ -208,7 +208,9 @@ static guint8*
 nettrace_parse_begin_time(guint8 *curr_pos, struct wtap_pkthdr *phdr)
 {
 	/* Time vars*/
-	int year, month, day, hour, minute, second, ms, UTCdiffh, UTCdiffm;
+	guint year, month, day, hour, minute, second, ms;
+	int UTCdiffh;
+	guint UTCdiffm;
 	int scan_found;
 	struct tm tm;
 	guint8 *prev_pos, *next_pos;
@@ -247,10 +249,42 @@ nettrace_parse_begin_time(guint8 *curr_pos, struct wtap_pkthdr *phdr)
 		/* Only set time if we managed to parse it*/
 		/* Fill in remaining fields and return it in a time_t */
 		tm.tm_year = year - 1900;
+		if (month < 1 || month > 11) {
+			phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
+			phdr->ts.secs = 0;
+			phdr->ts.nsecs = 0;
+			g_warning("Failed to parse time, month is %u", month);
+			return curr_pos;
+		}
 		tm.tm_mon = month - 1; /* Zero count*/
 		tm.tm_mday = day;
+		if (hour > 23) {
+			phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
+			phdr->ts.secs = 0;
+			phdr->ts.nsecs = 0;
+			g_warning("Failed to parse time, hour is %u", hour);
+			return curr_pos;
+		}
 		tm.tm_hour = hour;
+		if (minute > 59) {
+			phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
+			phdr->ts.secs = 0;
+			phdr->ts.nsecs = 0;
+			g_warning("Failed to parse time, minute is %u", minute);
+			return curr_pos;
+		}
 		tm.tm_min = minute;
+		if (second > 60) {
+			/*
+			 * Yes, 60, for leap seconds - POSIX's and Windows'
+			 * refusal to believe in them nonwithstanding.
+			 */
+			phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
+			phdr->ts.secs = 0;
+			phdr->ts.nsecs = 0;
+			g_warning("Failed to parse time, second is %u", second);
+			return curr_pos;
+		}
 		tm.tm_sec = second;
 		tm.tm_isdst = -1;    /* daylight saving time info not known */
 
@@ -265,12 +299,11 @@ nettrace_parse_begin_time(guint8 *curr_pos, struct wtap_pkthdr *phdr)
 		} else {
 			phdr->ts.secs = phdr->ts.secs + UTCdiffsec;
 		}
-
 	} else {
+		g_warning("Failed to parse time, only %u fields", scan_found);
 		phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
 		phdr->ts.secs = 0;
 		phdr->ts.nsecs = 0;
-		g_warning("Failed to parse time , scan_found %u", scan_found);
 	}
 
 	return curr_pos;
