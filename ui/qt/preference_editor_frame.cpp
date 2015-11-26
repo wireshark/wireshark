@@ -48,6 +48,8 @@ PreferenceEditorFrame::PreferenceEditorFrame(QWidget *parent) :
     ui(new Ui::PreferenceEditorFrame),
     module_(NULL),
     pref_(NULL),
+    new_uint_(0),
+    new_str_(""),
     new_range_(NULL)
 {
     ui->setupUi(this);
