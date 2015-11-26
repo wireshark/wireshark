@@ -266,7 +266,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     message += plugins_scan();
 
     message += "</table>";
-    ui->label_plugins->setText(message);
+    ui->te_plugins->setHtml(message);
 
     /* Shortcuts */
     bool have_shortcuts = false;
