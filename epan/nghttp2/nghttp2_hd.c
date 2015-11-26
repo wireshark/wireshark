@@ -509,12 +509,14 @@ int nghttp2_hd_entry_init(nghttp2_hd_entry *ent, uint8_t flags, uint8_t *name,
       flags = (uint8_t)(flags & ~NGHTTP2_HD_FLAG_NAME_ALLOC);
       ent->nv.name = (uint8_t *)"";
     } else {
-      /* copy including terminating NULL byte */
-      ent->nv.name = (uint8_t *)nghttp2_memdup(name, namelen + 1, mem);
+      /* name may not be NULL terminated on compression. */
+      ent->nv.name = (uint8_t *)nghttp2_mem_malloc(mem, namelen + 1);
       if (ent->nv.name == NULL) {
         rv = NGHTTP2_ERR_NOMEM;
         goto fail;
       }
+      memcpy(ent->nv.name, name, namelen);
+      ent->nv.name[namelen] = '\0';
     }
   } else {
     ent->nv.name = name;
@@ -525,12 +527,14 @@ int nghttp2_hd_entry_init(nghttp2_hd_entry *ent, uint8_t flags, uint8_t *name,
       flags = (uint8_t)(flags & ~NGHTTP2_HD_FLAG_VALUE_ALLOC);
       ent->nv.value = (uint8_t *)"";
     } else {
-      /* copy including terminating NULL byte */
-      ent->nv.value = (uint8_t *)nghttp2_memdup(value, valuelen + 1, mem);
+      /* value may not be NULL terminated on compression. */
+      ent->nv.value = (uint8_t *)nghttp2_mem_malloc(mem, valuelen + 1);
       if (ent->nv.value == NULL) {
         rv = NGHTTP2_ERR_NOMEM;
         goto fail2;
       }
+      memcpy(ent->nv.value, value, valuelen);
+      ent->nv.value[valuelen] = '\0';
     }
   } else {
     ent->nv.value = value;
@@ -796,6 +800,7 @@ int nghttp2_hd_inflate_init(nghttp2_hd_inflater *inflater, nghttp2_mem *mem) {
   }
 
   inflater->settings_hd_table_bufsize_max = NGHTTP2_HD_DEFAULT_MAX_BUFFER_SIZE;
+  inflater->min_hd_table_bufsize_max = UINT32_MAX;
 
   inflater->ent_keep = NULL;
   inflater->nv_keep = NULL;
@@ -1257,9 +1262,6 @@ add_hd_table_incremental(nghttp2_hd_context *context, const nghttp2_nv *nv,
     new_ent->seq = context->next_seq++;
     new_ent->hash = hash;
 
-    DEBUGF(fprintf(stderr, "deflatehd: indexed at %zu\n",
-                   context->hd_table.len + NGHTTP2_STATIC_TABLE_LENGTH));
-
     if (map) {
       hd_map_insert(map, new_ent);
     }
@@ -1321,7 +1323,8 @@ static search_result search_hd_table(nghttp2_hd_context *context,
     return res;
   }
 
-  res.index = context->next_seq - 1 - ent->seq + NGHTTP2_STATIC_TABLE_LENGTH;
+  res.index =
+      (ssize_t)(context->next_seq - 1 - ent->seq + NGHTTP2_STATIC_TABLE_LENGTH);
 
   if (exact_match) {
     res.name_value_match = 1;
@@ -1378,9 +1381,24 @@ int nghttp2_hd_inflate_change_table_size(nghttp2_hd_inflater *inflater,
     return NGHTTP2_ERR_INVALID_STATE;
   }
 
-  inflater->state = NGHTTP2_HD_STATE_EXPECT_TABLE_SIZE;
+  /* It seems that encoder is not required to send dynamic table size
+     update if the table size is not changed after applying
+     SETTINGS_HEADER_TABLE_SIZE.  RFC 7541 is ambiguous here, but this
+     is the intention of the editor.  If new maximum table size is
+     strictly smaller than the current negotiated maximum size,
+     encoder must send dynamic table size update.  In other cases, we
+     cannot expect it to do so. */
+  if (inflater->ctx.hd_table_bufsize_max > settings_hd_table_bufsize_max) {
+    inflater->state = NGHTTP2_HD_STATE_EXPECT_TABLE_SIZE;
+    /* Remember minimum value, and validate that encoder sends the
+       value less than or equal to this. */
+    inflater->min_hd_table_bufsize_max = settings_hd_table_bufsize_max;
+  }
+
   inflater->settings_hd_table_bufsize_max = settings_hd_table_bufsize_max;
+
   inflater->ctx.hd_table_bufsize_max = settings_hd_table_bufsize_max;
+
   hd_context_shrink_table_size(&inflater->ctx, NULL);
   return 0;
 }
@@ -1428,7 +1446,8 @@ static int deflate_nv(nghttp2_hd_deflater *deflater, nghttp2_bufs *bufs,
   nghttp2_mem *mem;
   uint32_t hash;
 
-  DEBUGF(fprintf(stderr, "deflatehd: deflating %s: %s\n", nv->name, nv->value));
+  DEBUGF(fprintf(stderr, "deflatehd: deflating %.*s: %.*s\n", (int)nv->namelen,
+                 nv->name, (int)nv->valuelen, nv->value));
 
   mem = deflater->ctx.mem;
 
@@ -2130,8 +2149,10 @@ ssize_t nghttp2_hd_inflate_hd2(nghttp2_hd_inflater *inflater,
       break;
     case NGHTTP2_HD_STATE_READ_TABLE_SIZE:
       rfin = 0;
-      rv = hd_inflate_read_len(inflater, &rfin, in, last, 5,
-                               inflater->settings_hd_table_bufsize_max);
+      rv = hd_inflate_read_len(
+          inflater, &rfin, in, last, 5,
+          nghttp2_min(inflater->min_hd_table_bufsize_max,
+                      inflater->settings_hd_table_bufsize_max));
       if (rv < 0) {
         goto fail;
       }
@@ -2140,6 +2161,7 @@ ssize_t nghttp2_hd_inflate_hd2(nghttp2_hd_inflater *inflater,
         goto almost_ok;
       }
       DEBUGF(fprintf(stderr, "inflatehd: table_size=%zu\n", inflater->left));
+      inflater->min_hd_table_bufsize_max = UINT32_MAX;
       inflater->ctx.hd_table_bufsize_max = inflater->left;
       hd_context_shrink_table_size(&inflater->ctx, NULL);
       inflater->state = NGHTTP2_HD_STATE_INFLATE_START;
@@ -2397,7 +2419,8 @@ ssize_t nghttp2_hd_inflate_hd2(nghttp2_hd_inflater *inflater,
   if (in_final) {
     DEBUGF(fprintf(stderr, "inflatehd: in_final set\n"));
 
-    if (inflater->state != NGHTTP2_HD_STATE_OPCODE) {
+    if (inflater->state != NGHTTP2_HD_STATE_OPCODE &&
+        inflater->state != NGHTTP2_HD_STATE_INFLATE_START) {
       DEBUGF(fprintf(stderr, "inflatehd: unacceptable state=%d\n",
                      inflater->state));
       rv = NGHTTP2_ERR_HEADER_COMP;
@@ -2409,7 +2432,7 @@ ssize_t nghttp2_hd_inflate_hd2(nghttp2_hd_inflater *inflater,
   return (ssize_t)(in - first);
 
 almost_ok:
-  if (in_final && inflater->state != NGHTTP2_HD_STATE_OPCODE) {
+  if (in_final) {
     DEBUGF(fprintf(stderr, "inflatehd: input ended prematurely\n"));
 
     rv = NGHTTP2_ERR_HEADER_COMP;
@@ -2491,4 +2514,61 @@ ssize_t nghttp2_hd_decode_length(uint32_t *res, size_t *shift_ptr, int *final,
                                  uint32_t initial, size_t shift, uint8_t *in,
                                  uint8_t *last, size_t prefix) {
   return decode_length(res, shift_ptr, final, initial, shift, in, last, prefix);
+}
+
+static size_t hd_get_num_table_entries(nghttp2_hd_context *context) {
+  return context->hd_table.len + NGHTTP2_STATIC_TABLE_LENGTH;
+}
+
+static const nghttp2_nv *hd_get_table_entry(nghttp2_hd_context *context,
+                                            size_t idx) {
+  if (idx == 0) {
+    return NULL;
+  }
+
+  --idx;
+
+  if (!INDEX_RANGE_VALID(context, idx)) {
+    return NULL;
+  }
+
+  return &nghttp2_hd_table_get(context, idx)->nv;
+}
+
+size_t nghttp2_hd_deflate_get_num_table_entries(nghttp2_hd_deflater *deflater) {
+  return hd_get_num_table_entries(&deflater->ctx);
+}
+
+const nghttp2_nv *
+nghttp2_hd_deflate_get_table_entry(nghttp2_hd_deflater *deflater, size_t idx) {
+  return hd_get_table_entry(&deflater->ctx, idx);
+}
+
+size_t
+nghttp2_hd_deflate_get_dynamic_table_size(nghttp2_hd_deflater *deflater) {
+  return deflater->ctx.hd_table_bufsize;
+}
+
+size_t
+nghttp2_hd_deflate_get_max_dynamic_table_size(nghttp2_hd_deflater *deflater) {
+  return deflater->ctx.hd_table_bufsize_max;
+}
+
+size_t nghttp2_hd_inflate_get_num_table_entries(nghttp2_hd_inflater *inflater) {
+  return hd_get_num_table_entries(&inflater->ctx);
+}
+
+const nghttp2_nv *
+nghttp2_hd_inflate_get_table_entry(nghttp2_hd_inflater *inflater, size_t idx) {
+  return hd_get_table_entry(&inflater->ctx, idx);
+}
+
+size_t
+nghttp2_hd_inflate_get_dynamic_table_size(nghttp2_hd_inflater *inflater) {
+  return inflater->ctx.hd_table_bufsize;
+}
+
+size_t
+nghttp2_hd_inflate_get_max_dynamic_table_size(nghttp2_hd_inflater *inflater) {
+  return inflater->ctx.hd_table_bufsize_max;
 }

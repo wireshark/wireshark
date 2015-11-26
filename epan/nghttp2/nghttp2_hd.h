@@ -240,6 +240,8 @@ struct nghttp2_hd_inflater {
   /* The maximum header table size the inflater supports. This is the
      same value transmitted in SETTINGS_HEADER_TABLE_SIZE */
   size_t settings_hd_table_bufsize_max;
+  /* Minimum header table size set by nghttp2_hd_inflate_change_table_size */
+  size_t min_hd_table_bufsize_max;
   /* The number of next shift to decode integer */
   size_t shift;
   nghttp2_hd_opcode opcode;
@@ -375,8 +377,8 @@ int nghttp2_hd_emit_newname_block(nghttp2_bufs *bufs, nghttp2_nv *nv,
 int nghttp2_hd_emit_table_size(nghttp2_bufs *bufs, size_t table_size);
 
 /* For unittesting purpose */
-NGHTTP2_EXTERN nghttp2_hd_entry *
-nghttp2_hd_table_get(nghttp2_hd_context *context, size_t index);
+nghttp2_hd_entry *nghttp2_hd_table_get(nghttp2_hd_context *context,
+                                       size_t index);
 
 /* For unittesting purpose */
 ssize_t nghttp2_hd_decode_length(uint32_t *res, size_t *shift_ptr, int *final,

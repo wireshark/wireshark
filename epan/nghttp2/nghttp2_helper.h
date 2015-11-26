@@ -41,7 +41,7 @@
 #define lstreq(A, B, N) ((sizeof((A)) - 1) == (N) && memcmp((A), (B), (N)) == 0)
 
 #define nghttp2_struct_of(ptr, type, member)                                   \
-  ((type *)(void *)((char *)(ptr) - offsetof(type, member)))
+  ((type *)(void *)((char *)(ptr)-offsetof(type, member)))
 
 /*
  * Copies 2 byte unsigned integer |n| in host byte order to |buf| in
@@ -66,18 +66,6 @@ uint16_t nghttp2_get_uint16(const uint8_t *data);
  * order and returns it in host byte order.
  */
 uint32_t nghttp2_get_uint32(const uint8_t *data);
-
-/*
- * Allocates |n| bytes of memory and copy the memory region pointed by
- * |src| with the length |n| bytes into it. Returns the allocated memory.
- *
- * This function returns pointer to allocated memory, or one of the
- * following negative error codes:
- *
- * NGHTTP2_ERR_NOMEM
- *     Out of memory.
- */
-void *nghttp2_memdup(const void *src, size_t n, nghttp2_mem *mem);
 
 void nghttp2_downcase(uint8_t *s, size_t len);
 
