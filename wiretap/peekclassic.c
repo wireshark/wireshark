@@ -257,7 +257,7 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 				 * some radio information.  Presumably
 				 * this is from AiroPeek.
 				 */
-				file_encap = WTAP_ENCAP_IEEE_802_11_AIROPEEK;
+				file_encap = WTAP_ENCAP_IEEE_802_11_WITH_RADIO;
 				break;
 
 			default:
@@ -395,6 +395,8 @@ static gboolean peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
 	return TRUE;
 }
 
+#define RADIO_INFO_SIZE	4
+
 static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
@@ -411,6 +413,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 	guint64 timestamp;
 	time_t tsecs;
 	guint32 tusecs;
+	guint8 radio_info[RADIO_INFO_SIZE];
 
 	if (!wtap_read_bytes_or_eof(fh, ep_pkt, sizeof(ep_pkt), err, err_info))
 		return -1;
@@ -444,12 +447,52 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 
 	switch (wth->file_encap) {
 
-	case WTAP_ENCAP_IEEE_802_11_AIROPEEK:
+	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
 		phdr->pseudo_header.ieee_802_11.fcs_len = 0;		/* no FCS */
 		phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
 		phdr->pseudo_header.ieee_802_11.datapad = FALSE;
 		phdr->pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
-		phdr->pseudo_header.ieee_802_11.presence_flags = 0;	/* not present */
+		phdr->pseudo_header.ieee_802_11.presence_flags =
+		    PHDR_802_11_HAS_DATA_RATE |
+		    PHDR_802_11_HAS_CHANNEL |
+		    PHDR_802_11_HAS_SIGNAL_PERCENT;
+
+		/*
+		 * Now process the radio information pseudo-header.
+		 * It's a 4-byte pseudo-header, consisting of:
+		 *
+		 *   1 byte of data rate, in units of 500 kb/s;
+		 *
+		 *   1 byte of channel number;
+		 *
+		 *   1 byte of signal strength as a percentage of
+		 *   the maximum, i.e. (RXVECTOR RSSI/RXVECTOR RSSI_Max)*100,
+		 *   or, at least, that's what I infer it is, given what
+		 *   the WildPackets note "Converting Signal Strength
+		 *   Percentage to dBm Values" says (it also says that
+		 *   the conversion the percentage to a dBm value is
+		 *   an adapter-dependent process, so, as we don't know
+		 *   what type of adapter was used to do the capture,
+		 *   we can't do the conversion);
+		 *
+		 *   1 byte of unknown content (padding?).
+		 */
+		if (phdr->len < RADIO_INFO_SIZE || phdr->caplen < RADIO_INFO_SIZE) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("peekclassic: 802.11 packet has length < 4");
+			return -1;
+		}
+		phdr->len -= RADIO_INFO_SIZE;
+		phdr->caplen -= RADIO_INFO_SIZE;
+		sliceLength -= RADIO_INFO_SIZE;
+
+		/* read the pseudo-header */
+		if (!wtap_read_bytes(fh, radio_info, RADIO_INFO_SIZE, err, err_info))
+			return -1;
+
+		phdr->pseudo_header.ieee_802_11.data_rate = radio_info[0];
+		phdr->pseudo_header.ieee_802_11.channel = radio_info[1];
+		phdr->pseudo_header.ieee_802_11.signal_percent = radio_info[2];
 
 		/*
 		 * The last 4 bytes appear to be random data - the length
@@ -461,7 +504,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 		 */
 		if (phdr->len < 4 || phdr->caplen < 4) {
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("peekclassic: 802.11 packet has length < 4");
+			*err_info = g_strdup_printf("peekclassic: 802.11 packet has length < 8");
 			return -1;
 		}
 		phdr->len -= 4;
