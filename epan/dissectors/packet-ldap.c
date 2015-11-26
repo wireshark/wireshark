@@ -3183,11 +3183,12 @@ dissect_ldap_ProtocolOp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   /* XXX: the count will not work if the results span multiple TCP packets */
 
-  if(ldap_info && tree) { /* only count once - on tree pass */
+  if(ldap_info) { /* only count once */
     switch(ProtocolOp) {
 
     case LDAP_RES_SEARCH_ENTRY:
-  	ldap_info->num_results++;
+    if (!actx->pinfo->fd->flags.visited)
+        ldap_info->num_results++;
 
   	proto_item_append_text(tree, " [%d result%s]",
   		        ldap_info->num_results, ldap_info->num_results == 1 ? "" : "s");
@@ -3202,7 +3203,6 @@ dissect_ldap_ProtocolOp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   	proto_item_append_text(tree, " [%d result%s]",
   		        ldap_info->num_results, ldap_info->num_results == 1 ? "" : "s");
 
-  	ldap_info->num_results = 0;
     	break;
      default:
    	break;
