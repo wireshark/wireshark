@@ -38,7 +38,6 @@ void proto_register_dcp_etsi(void);
 void proto_reg_handoff_dcp_etsi(void);
 static int dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data);
 static int dissect_pft (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data);
-static int dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data);
 
 static dissector_table_t dcp_dissector_table;
 static dissector_table_t af_dissector_table;
@@ -191,8 +190,6 @@ dissect_dcp_etsi (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *
   /* Check for 'AF or 'PF' */
   if(word != 0x4146 && word != 0x5046)
     return FALSE;
-
-  pinfo->current_proto = "DCP (ETSI)";
 
   /* Clear out stuff in the info column */
   col_clear(pinfo->cinfo, COL_INFO);
@@ -454,7 +451,6 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
   gboolean fec = FALSE;
   guint16 rsk=0, rsz=0;
 
-  pinfo->current_proto = "DCP-PFT";
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCP-PFT");
 
   ti = proto_tree_add_item (tree, proto_pft, tvb, 0, -1, ENC_NA);
@@ -546,7 +542,6 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
   guint32 payload_len;
   tvbuff_t *next_tvb = NULL;
 
-  pinfo->current_proto = "DCP-AF";
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCP-AF");
 
   ti = proto_tree_add_item (tree, proto_af, tvb, 0, -1, ENC_NA);
@@ -614,7 +609,6 @@ dissect_tpl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
   proto_item *ti;
   guint16 maj, min;
 
-  pinfo->current_proto = "DCP-TPL";
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCP-TPL");
 
   ti = proto_tree_add_item (tree, proto_tpl, tvb, 0, -1, ENC_NA);

@@ -972,7 +972,6 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
   }
 
   /* dissect the 802.11 packet next */
-  pinfo->current_proto = "IEEE 802.11";
   return call_dissector_with_data(ieee80211_handle, tvb, pinfo, tree, data);
 }
 

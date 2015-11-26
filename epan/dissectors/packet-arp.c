@@ -854,9 +854,6 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
   const gchar  *tha_str, *tsa_str, *tpa_str;
   proto_tree   *tl_tree;
 
-  /* Override the setting to "ARP/RARP". */
-  pinfo->current_proto = "ATMARP";
-
   ar_hrd = tvb_get_ntohs(tvb, ATM_AR_HRD);
   ar_pro = tvb_get_ntohs(tvb, ATM_AR_PRO);
   ar_shtl = tvb_get_guint8(tvb, ATM_AR_SHTL);
@@ -1960,16 +1957,20 @@ proto_register_arp(void)
 
   module_t *arp_module;
   expert_module_t* expert_arp;
+  int proto_atmarp;
 
   proto_arp = proto_register_protocol("Address Resolution Protocol",
                                       "ARP/RARP", "arp");
+  proto_atmarp = proto_register_protocol("ATM Address Resolution Protocol",
+                                      "ATMARP", "atmarp");
+
   proto_register_field_array(proto_arp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
   expert_arp = expert_register_protocol(proto_arp);
   expert_register_field_array(expert_arp, ei, array_length(ei));
 
-  atmarp_handle = new_create_dissector_handle(dissect_atmarp, proto_arp);
+  atmarp_handle = new_create_dissector_handle(dissect_atmarp, proto_atmarp);
   ax25arp_handle = new_create_dissector_handle(dissect_ax25arp, proto_arp);
 
   arp_handle = new_register_dissector( "arp" , dissect_arp, proto_arp );

@@ -248,9 +248,6 @@ static const char initial_sep[] = " (";
 static const char cont_sep[] = ", ";
 
 static void
-dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bpdu_pvst);
-
-static void
 dissect_bpdu_pvst_tlv(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb) {
   gboolean pvst_tlv_origvlan_present = FALSE;
   guint16 tlv_type, tlv_length;
@@ -401,9 +398,6 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
         call_dissector(gvrp_handle, tvb, pinfo, tree);
         return;
       }
-
-      pinfo->current_proto = "GARP";
-
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "GARP");
         /* Generic Attribute Registration Protocol */
 

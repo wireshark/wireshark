@@ -929,8 +929,6 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   bi.pinfo = pinfo;
   bi.parent_tree = tree;
 
-  pinfo->current_proto = "GPRS-NS";
-
   if (!nsip_is_recursive) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GPRS-NS");
     col_clear(pinfo->cinfo, COL_INFO);

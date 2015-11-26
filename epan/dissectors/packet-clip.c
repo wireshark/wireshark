@@ -54,8 +54,6 @@ dissect_clip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
   proto_item *fh_item;
 
-  pinfo->current_proto = "CLIP";
-
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
   col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A");
@@ -123,7 +121,7 @@ proto_reg_handoff_clip(void)
    */
   ip_handle = find_dissector("ip");
 
-  clip_handle = new_create_dissector_handle(dissect_clip, -1);
+  clip_handle = new_create_dissector_handle(dissect_clip, proto_clip);
       /* XXX - no protocol, can't be disabled */
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_ATM_CLIP, clip_handle);
 }

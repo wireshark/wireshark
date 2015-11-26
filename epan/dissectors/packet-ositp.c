@@ -2108,12 +2108,6 @@ static gint dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
   gboolean is_cltp = FALSE;
   gboolean subdissector_found = FALSE;
 
-  if (!proto_is_protocol_enabled(find_protocol_by_id(proto_cotp)))
-    return FALSE;   /* COTP has been disabled */
-  /* XXX - what about CLTP? */
-
-  pinfo->current_proto = "COTP";
-
   /* Initialize the COL_INFO field; each of the TPDUs will have its
      information appended. */
   col_set_str(pinfo->cinfo, COL_INFO, "");

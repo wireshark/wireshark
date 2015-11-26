@@ -175,8 +175,6 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     col_clear(pinfo->cinfo, COL_INFO);
 
-    pinfo->current_proto = "PAGP";
-
     raw_octet = tvb_get_guint8(tvb, PAGP_VERSION_NUMBER);
     if (tree) {
         pagp_item = proto_tree_add_protocol_format(tree, proto_pagp, tvb,

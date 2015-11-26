@@ -1855,9 +1855,6 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
  */
 static int dissect_irda(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, void* data _U_)
 {
-    /* load the display labels */
-    pinfo->current_proto = "IrDA";
-
     /* check if log message */
     if ((pinfo->pseudo_header->irda.pkttype & IRDA_CLASS_MASK) == IRDA_CLASS_LOG)
     {

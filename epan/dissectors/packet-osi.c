@@ -478,8 +478,6 @@ static int dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   guint8    nlpid;
   tvbuff_t *new_tvb;
 
-  pinfo->current_proto = "OSI";
-
   nlpid = tvb_get_guint8(tvb, 0);
 
   /*
