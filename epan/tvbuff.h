@@ -582,16 +582,6 @@ extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset,
 WS_DLL_PUBLIC guint8 *tvb_get_string_enc(wmem_allocator_t *scope,
     tvbuff_t *tvb, const gint offset, const gint length, const guint encoding);
 
-/*
- * DEPRECATED, do not use in new code, call tvb_get_string_enc directly with
- * the appropriate extension!  Do not assume that ENC_ASCII will work
- * with arbitrary string encodings; it will map all bytes with the 8th
- * bit set to the Unicode REPLACEMENT CHARACTER, so it won't show non-ASCII
- * characters as anything other than an ugly blob.
- */
-#define tvb_get_string(SCOPE, TVB, OFFSET, LENGTH) \
-    tvb_get_string_enc(SCOPE, TVB, OFFSET, LENGTH, ENC_ASCII)
-
 /**
  * Given an allocator scope, a tvbuff, a bit offset, and a length in
  * 7-bit characters (not octets!), with the specified offset and
@@ -689,16 +679,6 @@ WS_DLL_PUBLIC guint8 *tvb_get_stringzpad(wmem_allocator_t *scope,
  */
 WS_DLL_PUBLIC guint8 *tvb_get_stringz_enc(wmem_allocator_t *scope,
     tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
-
-/*
- * DEPRECATED, do not use in new code, call tvb_get_string_enc directly with
- * the appropriate extension!  Do not assume that ENC_ASCII will work
- * with arbitrary string encodings; it will map all bytes with the 8th
- * bit set to the Unicode REPLACEMENT CHARACTER, so it won't show non-ASCII
- * characters as anything other than an ugly blob.
- */
-#define tvb_get_stringz(SCOPE, TVB, OFFSET, LENGTHP) \
-    tvb_get_stringz_enc(SCOPE, TVB, OFFSET, LENGTHP, ENC_ASCII)
 
 /**
  * Given a tvbuff and an offset, with the offset assumed to refer to

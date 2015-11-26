@@ -80,6 +80,9 @@ The libwireshark API has undergone some major changes:
 used) have been replaced in name with the "new style" dissector
 functions.
 
+* tvb_get_string and tvb_get_stringz have been replaced with
+tvb_get_string_enc and tvb_get_stringz_enc respectively.
+
 
 == Getting Wireshark
 

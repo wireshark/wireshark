@@ -822,7 +822,7 @@ static void wimaxasncp_dissect_tlv_value(
     {
         if (tree)
         {
-            const gchar  *s = tvb_get_string(wmem_packet_scope(), tvb, offset, length);
+            const gchar  *s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
 
             proto_tree_add_string_format(
                 tree, tlv_info->hf_value,

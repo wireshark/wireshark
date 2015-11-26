@@ -1048,8 +1048,8 @@ dissect_display_switch(proto_tree *msg_tree,
          }
          if(msg_len>0){
             /* I'm guessing this will work flakily at best */
-            uinfo->string_data = tvb_get_string(wmem_packet_scope(), tvb,offset,msg_len);
-            proto_tree_add_item(msg_tree,hf_generic_string,tvb,offset,msg_len,ENC_ASCII|ENC_NA);
+            uinfo->string_data = tvb_get_string_enc(wmem_packet_scope(), tvb,offset,msg_len,ENC_ASCII);
+            proto_tree_add_string(msg_tree,hf_generic_string,tvb,offset,msg_len,uinfo->string_data);
          }
 
          offset+=msg_len;

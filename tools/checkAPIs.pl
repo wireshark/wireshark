@@ -145,8 +145,6 @@ my %APIs = (
         # once they've been removed from all existing code.
         'soft-deprecated' => { 'count_errors' => 0, 'functions' => [
                 'tvb_length_remaining', # replaced with tvb_captured_length_remaining
-                'tvb_get_string', # replaced with tvb_get_string_enc
-                'tvb_get_stringz', # replaced with tvb_get_stringz_enc
 
                 # Locale-unsafe APIs
                 # These may have unexpected behaviors in some locales (e.g.,

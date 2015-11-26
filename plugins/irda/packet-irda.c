@@ -724,15 +724,14 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
         case GET_VALUE_BY_CLASS:
             if (retcode == 0)
             {
-                guint8 *string;
                 switch (tvb_get_guint8(tvb, offset + 6))
                 {
                     case IAS_MISSING:
-                        g_snprintf(buf, 300, ", Missing");
+                        col_append_str(pinfo->cinfo, COL_INFO, ", Missing");
                         break;
 
                     case IAS_INTEGER:
-                        g_snprintf(buf, 300, ", Integer: %d", tvb_get_ntohl(tvb, offset + 7));
+                        col_append_fstr(pinfo->cinfo, COL_INFO, ", Integer: %d", tvb_get_ntohl(tvb, offset + 7));
                         break;
 
                     case IAS_OCT_SEQ:
@@ -741,14 +740,11 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
 
                     case IAS_STRING:
                         n = tvb_get_guint8(tvb, offset + 8);
-                        string = tvb_get_string(wmem_packet_scope(), tvb, offset + 9, n);
-                        g_snprintf(buf, 300, ", \"%s\"", string);
+                        col_append_fstr(pinfo->cinfo, COL_INFO, ", \"%s\"", tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 9, n, ENC_ASCII));
                         break;
                     default:
-                        buf[0] = '\0';
                         break;
                 }
-                col_append_str(pinfo->cinfo, COL_INFO, buf);
                 if (tvb_get_ntohs(tvb, offset + 2) > 1)
                     col_append_str(pinfo->cinfo, COL_INFO, ", ...");
             }

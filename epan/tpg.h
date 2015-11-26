@@ -54,10 +54,10 @@ extern tpg_parser_data_t* tpg_start(proto_tree* root_tree,
 #define TPG_TREE(vp) (((tpg_parser_data_t*)(vp))->tree)
 #define TPG_DATA(vp,type) (((type*)(((tpg_parser_data_t*)(vp))->private_data)))
 
-#define TPG_STRING(i) tvb_get_string(wmem_packet_scope(), (i)->tvb,(i)->offset,(i)->len)
-#define TPG_INT(i) strtol(tvb_get_string(wmem_packet_scope(), (i)->tvb,(i)->offset,(i)->len),NULL,10)
-#define TPG_UINT(i) strtoul(tvb_get_string(wmem_packet_scope(), (i)->tvb,(i)->offset,(i)->len),NULL,10)
-#define TPG_UINT_HEX(i) strtoul(tvb_get_string(wmem_packet_scope(), (i)->tvb,(i)->offset,(i)->len),NULL,16)
+#define TPG_STRING(i) tvb_get_string_enc(wmem_packet_scope(), (i)->tvb,(i)->offset,(i)->len, ENC_ASCII)
+#define TPG_INT(i) strtol(tvb_get_string_enc(wmem_packet_scope(), (i)->tvb,(i)->offset,(i)->len, ENC_ASCII),NULL,10)
+#define TPG_UINT(i) strtoul(tvb_get_string_enc(wmem_packet_scope(), (i)->tvb,(i)->offset,(i)->len, ENC_ASCII),NULL,10)
+#define TPG_UINT_HEX(i) strtoul(tvb_get_string_enc(wmem_packet_scope(), (i)->tvb,(i)->offset,(i)->len, ENC_ASCII),NULL,16)
 #define TPG_TVB(i) tvb_new_subset((i)->tvb,(i)->offset,(i)->len,(i)->len)
 
 WS_DLL_PUBLIC guint32 tpg_ipv4(tvbparse_elem_t*);

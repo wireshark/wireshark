@@ -271,8 +271,8 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				}
 
 				/* We have a line with the chunk size in it.*/
-				chunk_string = tvb_get_string(wmem_packet_scope(), tvb, next_offset,
-				    linelen);
+				chunk_string = tvb_get_string_enc(wmem_packet_scope(), tvb, next_offset,
+				    linelen, ENC_ASCII);
 				c = chunk_string;
 
 				/*
@@ -346,7 +346,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					return TRUE;
 				}
 				/* Following sizeof will return the length of the string + \0 we need to not count it*/
-				tmp = tvb_get_string(wmem_packet_scope(), tvb, 0, sizeof("RPC_OUT_DATA") - 1);
+				tmp = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, sizeof("RPC_OUT_DATA") - 1, ENC_ASCII);
 				if ((strncmp(tmp, "RPC_IN_DATA", sizeof("RPC_IN_DATA") - 1) == 0) ||
 				    (strncmp(tmp, "RPC_OUT_DATA", sizeof("RPC_OUT_DATA") - 1) == 0)) {
 					return TRUE;
