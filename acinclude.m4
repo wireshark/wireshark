@@ -1532,7 +1532,9 @@ AC_DEFUN([AC_WIRESHARK_CHECK_NON_CXX_WARNING_OPTION_ERROR],
 #
 # The macro first determines if the compiler supports GCC-style flags.
 # Then it attempts to compile with the defined cflags.  The defined
-# flags are added to CFLAGS only if the compilation succeeds.
+# flags are added to WS_CHECKED_CFLAGS only if the compilation succeeds.
+# CFLAGS remains unchanged. can_add_to_cflags is set to "no" when the
+# flag is checked but unavailable. (Like-wise for CXXFLAGS.)
 #
 # We do this because not all such options are necessarily supported by
 # the version of the particular compiler we're using.
@@ -1560,17 +1562,18 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
     #
     AC_MSG_CHECKING(whether we can add $GCC_OPTION to CFLAGS)
     CFLAGS_saved="$CFLAGS"
+    CFLAGS="$WS_CHECKED_CFLAGS $CFLAGS"
     if expr "x$GCC_OPTION" : "x-W.*" >/dev/null
     then
-      CFLAGS="$ac_wireshark_unknown_warning_option_error $GCC_OPTION $CFLAGS"
+      CFLAGS="$CFLAGS $ac_wireshark_unknown_warning_option_error $GCC_OPTION"
     elif expr "x$GCC_OPTION" : "x-f.*" >/dev/null
     then
-      CFLAGS="-Werror $GCC_OPTION $CFLAGS"
+      CFLAGS="$CFLAGS -Werror $GCC_OPTION"
     elif expr "x$GCC_OPTION" : "x-m.*" >/dev/null
     then
-      CFLAGS="-Werror $GCC_OPTION $CFLAGS"
+      CFLAGS="$CFLAGS -Werror $GCC_OPTION"
     else
-      CFLAGS="$GCC_OPTION $CFLAGS"
+      CFLAGS="$CFLAGS $GCC_OPTION"
     fi
     AC_COMPILE_IFELSE(
       [
@@ -1591,7 +1594,7 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
           CFLAGS="$CFLAGS -Werror"
           AC_MSG_CHECKING(whether $GCC_OPTION $4)
           AC_COMPILE_IFELSE(
-	    [AC_LANG_SOURCE($3)],
+            [AC_LANG_SOURCE($3)],
             [
               AC_MSG_RESULT(no)
               #
@@ -1599,19 +1602,18 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
               # added them, by setting CFLAGS to the saved value plus
               # just the new option.
               #
-              CFLAGS="$GCC_OPTION $CFLAGS_saved"
+              WS_CHECKED_CFLAGS="$WS_CHECKED_CFLAGS $GCC_OPTION"
               if test "$CC" = "$CC_FOR_BUILD"; then
                 #
                 # We're building the build tools with the same compiler
                 # with which we're building Wireshark, so add the flags
                 # to the flags for that compiler as well.
                 #
-                CFLAGS_FOR_BUILD="$GCC_OPTION $CFLAGS_FOR_BUILD"
+                CFLAGS_FOR_BUILD="$CFLAGS_FOR_BUILD $GCC_OPTION"
               fi
             ],
             [
               AC_MSG_RESULT(yes)
-              CFLAGS="$CFLAGS_saved"
             ])
         else
           #
@@ -1619,22 +1621,22 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
           # added them, by setting CFLAGS to the saved value plus
           # just the new option.
           #
-          CFLAGS="$GCC_OPTION $CFLAGS_saved"
+          WS_CHECKED_CFLAGS="$WS_CHECKED_CFLAGS $GCC_OPTION"
           if test "$CC" = "$CC_FOR_BUILD"; then
             #
             # We're building the build tools with the same compiler
             # with which we're building Wireshark, so add the flags
             # to the flags for that compiler as well.
             #
-            CFLAGS_FOR_BUILD="$GCC_OPTION $CFLAGS_FOR_BUILD"
+            CFLAGS_FOR_BUILD="$CFLAGS_FOR_BUILD $GCC_OPTION"
           fi
         fi
       ],
       [
         AC_MSG_RESULT(no)
         can_add_to_cflags=no
-        CFLAGS="$CFLAGS_saved"
       ])
+      CFLAGS="$CFLAGS_saved"
   fi
   #
   # Did we find a C++ compiler?
@@ -1666,17 +1668,18 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
       #
       AC_MSG_CHECKING(whether we can add $GCC_OPTION to CXXFLAGS)
       CXXFLAGS_saved="$CXXFLAGS"
+      CXXFLAGS="$WS_CHECKED_CXXFLAGS $CXXFLAGS"
       if expr "x$GCC_OPTION" : "x-W.*" >/dev/null
       then
-        CXXFLAGS="$ac_wireshark_unknown_warning_option_error $ac_wireshark_non_cxx_warning_option_error $GCC_OPTION $CXXFLAGS"
+        CXXFLAGS="$CXXFLAGS $ac_wireshark_unknown_warning_option_error $ac_wireshark_non_cxx_warning_option_error $GCC_OPTION"
       elif expr "x$GCC_OPTION" : "x-f.*" >/dev/null
       then
-        CXXFLAGS="-Werror $GCC_OPTION $CXXFLAGS"
+        CXXFLAGS="$CXXFLAGS -Werror $GCC_OPTION"
       elif expr "x$GCC_OPTION" : "x-m.*" >/dev/null
       then
-        CXXFLAGS="-Werror $GCC_OPTION $CXXFLAGS"
+        CXXFLAGS="$CXXFLAGS -Werror $GCC_OPTION"
       else
-        CXXFLAGS="$GCC_OPTION $CXXFLAGS"
+        CXXFLAGS="$CXXFLAGS $GCC_OPTION"
       fi
       AC_LANG_PUSH([C++])
       AC_COMPILE_IFELSE(
@@ -1706,11 +1709,10 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
                 # added them, by setting CXXFLAGS to the saved value plus
                 # just the new option.
                 #
-                CXXFLAGS="$GCC_OPTION $CXXFLAGS_saved"
+                WS_CHECKED_CXXFLAGS="$WS_CHECKED_CXXFLAGS $GCC_OPTION"
               ],
               [
                 AC_MSG_RESULT(yes)
-                CXXFLAGS="$CXXFLAGS_saved"
               ])
           else
             #
@@ -1718,14 +1720,14 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
             # added them, by setting CXXFLAGS to the saved value plus
             # just the new option.
             #
-            CXXFLAGS="$GCC_OPTION $CXXFLAGS_saved"
+            WS_CHECKED_CXXFLAGS="$WS_CHECKED_CXXFLAGS $GCC_OPTION"
           fi
         ],
         [
           AC_MSG_RESULT(no)
           can_add_to_cxxflags=no
-          CXXFLAGS="$CXXFLAGS_saved"
         ])
+      CXXFLAGS="$CXXFLAGS_saved"
       AC_LANG_POP([C++])
     fi
     if test "(" "$can_add_to_cflags" = "yes" -a "$can_add_to_cxxflags" = "no" ")" \

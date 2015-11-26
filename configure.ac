@@ -941,6 +941,7 @@ AC_ARG_ENABLE(asan,
 	# and no yet all leak is fixed...
 	# use ASAN_OPTIONS=detect_leaks=0 to disable detect_leaks
 	#
+	# XXX shouldn't this also be added to LDFLAGS?
 	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fsanitize=address)
 
 ],)
@@ -1048,18 +1049,16 @@ AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fexcess-precision=fast)
 # failures to export symbols, rather than having that fail only on
 # Windows.
 #
-CFLAGS_before_fvhidden="$CFLAGS"
-#
 # GCC and GCC-compatible compilers
 #
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fvisibility=hidden)
-if test "x$CFLAGS" = "x$CFLAGS_before_fvhidden"
+if test "x$can_add_to_cflags" = "xno"
 then
 	#
 	# Sun^WOracle C.
 	#
 	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-xldscope=hidden)
-	if test "x$CFLAGS" = "x$CFLAGS_before_fvhidden"
+	if test "x$can_add_to_cflags" = "xno"
 	then
 		# TODO add other ways of hiding symbols
 		AC_MSG_WARN(Compiler will export all symbols from shared libraries)
@@ -1079,12 +1078,12 @@ AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--as-needed])
 # privileges, and using PIE means the OS can run it at random locations
 # in the address space to make attacks more difficult.
 #
-CFLAGS_before_pie="$CFLAGS"
-AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fPIE)
-if test "x$CFLAGS" != "x$CFLAGS_before_pie"
+WS_CHECKED_CFLAGS_before_pie="$WS_CHECKED_CFLAGS"
+AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fPIE, C)
+if test "x$can_add_to_cflags" = "xyes"
 then
 	# Restore CFLAGS
-	CFLAGS="$CFLAGS_before_pie"
+	WS_CHECKED_CFLAGS="$WS_CHECKED_CFLAGS_before_pie"
 
 	LDFLAGS_before_pie="$LDFLAGS"
 	AC_WIRESHARK_LDFLAGS_CHECK([-fPIE -pie])
@@ -1102,9 +1101,9 @@ fi
 AC_SUBST(PIE_CFLAGS)
 AC_SUBST(PIE_LDFLAGS)
 
-CFLAGS_before_simd="$CFLAGS"
+WS_CHECKED_CFLAGS_before_simd="$WS_CHECKED_CFLAGS"
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-msse4.2, C)
-if test "x$CFLAGS" != "x$CFLAGS_before_simd"
+if test "x$can_add_to_cflags" = "xyes"
 then
 	#
 	# The compiler supports -msse4.2; use that to enable SSE 4.2.
@@ -1114,14 +1113,14 @@ then
 	# is run only if the hardware supports it, but other
 	# code would do no such checks.
 	#
-	CFLAGS="$CFLAGS_before_simd"
+	WS_CHECKED_CFLAGS="$WS_CHECKED_CFLAGS_before_simd"
 	ac_sse4_2_flag=-msse4.2
 else
 	#
 	# Try -xarch=sse4_2; that's the flag for Sun's compiler.
 	#
 	AC_WIRESHARK_COMPILER_FLAGS_CHECK(-xarch=sse4_2, C)
-	if test "x$CFLAGS" != "x$CFLAGS_before_simd"
+	if test "x$can_add_to_cflags" = "xyes"
 	then
 		#
 		# The compiler supports -xarch=sse4_2; use that to
@@ -1129,10 +1128,17 @@ else
 		#
 		# Restore CFLAGS; see above.
 		#
-		CFLAGS="$CFLAGS_before_simd"
+		WS_CHECKED_CFLAGS="$WS_CHECKED_CFLAGS_before_simd"
 		ac_sse4_2_flag=-xarch=sse4_2
 	fi
 fi
+
+#
+# All AC_WIRESHARK_COMPILER_FLAGS_CHECK are done, do not call it again!
+# Prepend them to the user-specified CFLAGS/CXXFLAGS.
+#
+CFLAGS="$WS_CHECKED_CFLAGS $CFLAGS"
+CXXFLAGS="$WS_CHECKED_CXXFLAGS $CXXFLAGS"
 
 if test "x$ac_sse4_2_flag" != x; then
 	#
