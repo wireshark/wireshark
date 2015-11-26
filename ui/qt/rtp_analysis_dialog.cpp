@@ -705,9 +705,9 @@ void RtpAnalysisDialog::addPacket(bool forward, packet_info *pinfo, const _rtp_i
         new RtpAnalysisTreeWidgetItem(ui->forwardTreeWidget, &fwd_statinfo_, pinfo, rtpinfo);
 
         fwd_time_vals_.append((fwd_statinfo_.time - fwd_statinfo_.start_time) / 1000);
-        fwd_jitter_vals_.append(fwd_statinfo_.jitter * 1000);
-        fwd_diff_vals_.append(fwd_statinfo_.diff * 1000);
-        fwd_delta_vals_.append(fwd_statinfo_.delta * 1000);
+        fwd_jitter_vals_.append(fwd_statinfo_.jitter);
+        fwd_diff_vals_.append(fwd_statinfo_.diff);
+        fwd_delta_vals_.append(fwd_statinfo_.delta);
 
         savePayload(fwd_tempfile_, &fwd_statinfo_, pinfo, rtpinfo);
     } else {
@@ -715,9 +715,9 @@ void RtpAnalysisDialog::addPacket(bool forward, packet_info *pinfo, const _rtp_i
         new RtpAnalysisTreeWidgetItem(ui->reverseTreeWidget, &rev_statinfo_, pinfo, rtpinfo);
 
         rev_time_vals_.append((rev_statinfo_.time - rev_statinfo_.start_time) / 1000);
-        rev_jitter_vals_.append(rev_statinfo_.jitter * 1000);
-        rev_diff_vals_.append(rev_statinfo_.diff * 1000);
-        rev_delta_vals_.append(rev_statinfo_.delta * 1000);
+        rev_jitter_vals_.append(rev_statinfo_.jitter);
+        rev_diff_vals_.append(rev_statinfo_.diff);
+        rev_delta_vals_.append(rev_statinfo_.delta);
 
         savePayload(rev_tempfile_, &rev_statinfo_, pinfo, rtpinfo);
     }
