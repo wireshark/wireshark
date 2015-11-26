@@ -1569,7 +1569,7 @@ void MainWindow::on_actionFileSaveAs_triggered()
 
 void MainWindow::on_actionFileSetListFiles_triggered()
 {
-    file_set_dialog_.exec();
+    file_set_dialog_.show();
 }
 
 void MainWindow::on_actionFileSetNextFile_triggered()
