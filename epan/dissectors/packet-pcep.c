@@ -41,11 +41,16 @@
  * "Conveying path setup type in PCEP messages"
  *  (draft-ietf-pce-lsp-setup-type-02)
  * (c) Copyright 2015 Francesco Fondelli <francesco.fondelli[AT]gmail.com>
+ *
  * Added support of "Extensions to the Path Computation Element Communication Protocol (PCEP)
  * for Point-to-Multipoint Traffic Engineering Label Switched Paths" (RFC 6006)
  * (c) Copyright 2015 Francesco Paolucci <fr.paolucci[AT].sssup.it>,
  * Oscar Gonzalez de Dios <oscar.gonzalezdedios@telefonica.com>,
  * ICT EU PACE Project, www.ict-pace.net
+ *
+ * Added support of "PCEP Extensions for Establishing Relationships
+ * Between Sets of LSPs" (draft-ietf-pce-association-group-00)
+ * (c) Copyright 2015 Francesco Fondelli <francesco.fondelli[AT]gmail.com>
  */
 
 #include "config.h"
@@ -86,6 +91,7 @@ void proto_reg_handoff_pcep(void);
 #define PCEP_SRRO_OBJ                   30
 #define PCEP_OBJ_LSP                    32
 #define PCEP_OBJ_SRP                    33
+#define PCEP_ASSOCIATION_OBJ           255 /* TODO temp to be adjusted */
 
 /*Subobjects of EXPLICIT ROUTE Object*/
 #define PCEP_SUB_IPv4                    1
@@ -271,6 +277,9 @@ void proto_reg_handoff_pcep(void);
 #define PCEP_TLV_STATEFUL_PCE_CAPABILITY_T  0x0008
 #define PCEP_TLV_STATEFUL_PCE_CAPABILITY_D  0x0010
 
+/* Mask for the flags of ASSOCIATION Object */
+#define PCEP_OBJ_ASSOCIATION_FLAGS_R 0x0001
+
 static int proto_pcep = -1;
 
 static gint hf_pcep_endpoint_p2mp_leaf= -1;
@@ -360,6 +369,7 @@ static gint hf_PCEPF_OBJ_PROC_TIME = -1;
 static gint hf_PCEPF_OBJ_OVERLOAD = -1;
 static gint hf_PCEPF_OBJ_LSP = -1;
 static gint hf_PCEPF_OBJ_SRP = -1;
+static gint hf_PCEPF_OBJ_ASSOCIATION = -1;
 static gint hf_PCEPF_SUBOBJ = -1;
 static gint hf_PCEPF_SUBOBJ_7F = -1;
 static gint hf_PCEPF_SUBOBJ_IPv4 = -1;
@@ -551,6 +561,15 @@ static int hf_pcep_path_setup_type = -1;
 static int hf_pcep_sr_capability_reserved16 = -1;
 static int hf_pcep_sr_capability_flags_reserved = -1;
 static int hf_pcep_sr_capability_msd = -1;
+static int hf_pcep_association_reserved = -1;
+static int hf_pcep_association_flags = -1;
+static int hf_pcep_association_flags_r = -1;
+static int hf_pcep_association_type = -1;
+static int hf_pcep_association_id = -1;
+static int hf_pcep_association_source_ipv4 = -1;
+static int hf_pcep_association_source_ipv6 = -1;
+static int hf_pcep_association_source_global = -1;
+static int hf_pcep_association_id_extended = -1;
 
 static gint ett_pcep = -1;
 static gint ett_pcep_hdr = -1;
@@ -582,6 +601,7 @@ static gint ett_pcep_obj_srp = -1;
 static gint ett_pcep_obj_unknown = -1;
 static gint ett_pcep_obj_sero = -1;
 static gint ett_pcep_obj_srro = -1;
+static gint ett_pcep_obj_association = - 1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_pcep_pcep_object_body_non_defined = EI_INIT;
@@ -652,6 +672,7 @@ static const value_string pcep_class_vals[] = {
     {PCEP_SRRO_OBJ,                   "SECONDARY RECORD ROUTE OBJECT (SRRO)"   },
     {PCEP_OBJ_LSP,                    "LSP OBJECT"                             },
     {PCEP_OBJ_SRP,                    "SRP OBJECT"                             },
+    {PCEP_ASSOCIATION_OBJ,            "ASSOCIATION OBJECT"                     },
     {0, NULL }
 };
 static value_string_ext pcep_class_vals_ext = VALUE_STRING_EXT_INIT(pcep_class_vals);
@@ -759,6 +780,8 @@ static const value_string pcep_tlvs_vals[] = {
     {26, "SR-PCE-CAPABILITY"        },
     {27, "PATH-SETUP-TYPE"          },
     {28, "PATH-SETUP-TYPE"          },
+    {98, "GLOBAL-ASSOCIATION-SOURCE"},
+    {99, "EXTENDED-ASSOCIATION-ID"  },
     {0, NULL                        }
 };
 
@@ -1114,6 +1137,14 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
             case 28:    /* PATH-SETUP-TYPE TLV (FF: IANA code point) */
                 proto_tree_add_item(tlv, hf_pcep_path_setup_type_reserved24, tvb, offset + 4 + j, 3, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_path_setup_type, tvb, offset + 4 + j + 3, 1, ENC_NA);
+                break;
+
+            case 98:    /* GLOBAL-ASSOCIATION-SOURCE TLV (TODO temp to be adjusted) */
+                proto_tree_add_item(tlv, hf_pcep_association_source_global, tvb, offset + 4 + j, 4, ENC_BIG_ENDIAN);
+                break;
+
+            case 99:    /* EXTENDED-ASSOCIATION-ID TLV (TODO temp to be adjusted) */
+                proto_tree_add_item(tlv, hf_pcep_association_id_extended, tvb, offset + 4 + j, tlv_length, ENC_NA);
                 break;
 
             default:
@@ -2768,6 +2799,85 @@ dissect_pcep_obj_srp(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_t 
     dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_srp);
 }
 
+/*----------------------------------------------------------------------------
+ * ASSOCIATION OBJECT
+ *----------------------------------------------------------------------------*/
+#define ASSOCIATION_OBJ_v4_MIN_LEN 12
+#define ASSOCIATION_OBJ_v6_MIN_LEN 24
+static void
+dissect_pcep_association_obj(proto_tree *pcep_object_tree, packet_info *pinfo,
+                             tvbuff_t *tvb, int offset2, int obj_length, int type)
+{
+    proto_tree *pcep_association_flags = NULL;
+    proto_item *ti = NULL;
+
+    /* object length sanity checks */
+    if ((type == 1) &&
+        (obj_length < OBJ_HDR_LEN + ASSOCIATION_OBJ_v4_MIN_LEN)) {
+        proto_tree_add_expert_format(pcep_object_tree, pinfo,
+                                     &ei_pcep_subobject_bad_length,
+                                     tvb, offset2, obj_length,
+                                     "Bad ASSOCIATION IPv4 object length %u"
+                                     ", should be >= %u",
+                                     obj_length,
+                                     OBJ_HDR_LEN + ASSOCIATION_OBJ_v4_MIN_LEN);
+        return;
+    }
+    if ((type == 2) &&
+        (obj_length < OBJ_HDR_LEN + ASSOCIATION_OBJ_v6_MIN_LEN)) {
+        proto_tree_add_expert_format(pcep_object_tree, pinfo,
+                                     &ei_pcep_subobject_bad_length,
+                                     tvb, offset2, obj_length,
+                                     "Bad ASSOCIATION IPv6 object length %u"
+                                     ", should be >= %u",
+                                     obj_length,
+                                     OBJ_HDR_LEN + ASSOCIATION_OBJ_v4_MIN_LEN);
+        return;
+    }
+
+    proto_tree_add_item(pcep_object_tree, hf_pcep_association_reserved,
+                        tvb, offset2, 2, ENC_NA);
+    offset2 += 2; /* consume reserved bytes */
+    ti = proto_tree_add_item(pcep_object_tree, hf_pcep_association_flags,
+                             tvb, offset2, 2, ENC_NA);
+    pcep_association_flags =
+        proto_item_add_subtree(ti, ett_pcep_obj_association);
+    proto_tree_add_item(pcep_association_flags, hf_pcep_association_flags_r,
+                        tvb, offset2, 2, ENC_NA);
+    offset2 += 2; /* consume flags */
+    proto_tree_add_item(pcep_object_tree, hf_pcep_association_type,
+                        tvb, offset2, 2, ENC_BIG_ENDIAN);
+    offset2 += 2; /* consume association type */
+    proto_tree_add_item(pcep_object_tree, hf_pcep_association_id,
+                        tvb, offset2, 2, ENC_BIG_ENDIAN);
+    offset2 += 2; /* consume association identifier */
+    switch (type) {
+        case 1:
+            proto_tree_add_item(pcep_object_tree,
+                                hf_pcep_association_source_ipv4,
+                                tvb, offset2, 4, ENC_BIG_ENDIAN);
+            offset2 += 4; /* consume association source */
+            obj_length -= OBJ_HDR_LEN + ASSOCIATION_OBJ_v4_MIN_LEN;
+            break;
+        case 2:
+            proto_tree_add_item(pcep_object_tree,
+                                hf_pcep_association_source_ipv6,
+                                tvb, offset2, 16, ENC_NA);
+            offset2 += 16; /* consume association source */
+            obj_length -= OBJ_HDR_LEN + ASSOCIATION_OBJ_v6_MIN_LEN;
+            break;
+        default:
+            proto_tree_add_expert_format(pcep_object_tree, pinfo,
+                                         &ei_pcep_non_defined_subobject,
+                                         tvb, offset2, obj_length - OBJ_HDR_LEN,
+                                         "Unknown Association Type (%u)", type);
+            return;
+    }
+
+    /* The ASSOCIATION object can have optional TLV(s) */
+    dissect_pcep_tlvs(pcep_object_tree, tvb,
+                      offset2, obj_length, ett_pcep_obj_association);
+}
 
 /*------------------------------------------------------------------------------*/
 /* Dissect in Objects */
@@ -2922,6 +3032,11 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
                 pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_srro);
                 break;
 
+            case PCEP_ASSOCIATION_OBJ:
+                pcep_object_item = proto_tree_add_item(pcep_tree, hf_PCEPF_OBJ_ASSOCIATION, tvb, offset, -1, ENC_NA);
+                pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_association);
+                break;
+
             default:
                 pcep_object_item = proto_tree_add_item(pcep_tree, hf_PCEPF_OBJ_UNKNOWN_TYPE, tvb, offset, -1, ENC_NA);
                 pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_unknown);
@@ -3059,6 +3174,10 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, packet_info *pinfo, tvbuff_t *tvb, 
 
             case PCEP_SRRO_OBJ:
                 dissect_pcep_record_route_obj(pcep_object_tree, pinfo, tvb, offset+4, obj_length, obj_class);
+                break;
+
+            case PCEP_ASSOCIATION_OBJ:
+                dissect_pcep_association_obj(pcep_object_tree, pinfo, tvb, offset + 4, obj_length, type);
                 break;
 
             default:
@@ -3564,6 +3683,12 @@ proto_register_pcep(void)
 
         { &hf_PCEPF_OBJ_SRP,
           { "SRP object", "pcep.obj.srp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_PCEPF_OBJ_ASSOCIATION,
+          { "ASSOCIATION object", "pcep.obj.association",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
@@ -4546,6 +4671,51 @@ proto_register_pcep(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_pcep_association_reserved,
+          { "Reserved", "pcep.association.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_association_flags,
+          { "Flags", "pcep.association.flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_association_flags_r,
+          { "Remove (R)", "pcep.association.flags.r",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), PCEP_OBJ_ASSOCIATION_FLAGS_R,
+            NULL, HFILL }
+        },
+        { &hf_pcep_association_type,
+          { "Association Type", "pcep.association.type",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_association_id,
+          { "Association ID", "pcep.association.id",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_association_source_ipv4,
+          { "IPv4 Association Source", "pcep.association.ipv4.source",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_association_source_ipv6,
+          { "IPv6 Association Source", "pcep.association.ipv6.source",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_association_source_global,
+          { "Global Association Source", "pcep.association.global.source",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_association_id_extended,
+          { "Extended Association ID", "pcep.association.id.extended",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     static gint *ett[] = {
@@ -4578,6 +4748,7 @@ proto_register_pcep(void)
         &ett_pcep_obj_overload,
         &ett_pcep_obj_lsp,
         &ett_pcep_obj_srp,
+        &ett_pcep_obj_association,
         &ett_pcep_obj_unknown
     };
 
