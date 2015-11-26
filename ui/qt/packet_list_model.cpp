@@ -118,6 +118,7 @@ void PacketListModel::clear() {
     qDeleteAll(physical_rows_);
     physical_rows_.clear();
     visible_rows_.clear();
+    new_visible_rows_.clear();
     number_to_row_.clear();
     PacketListRecord::clearStringPool();
     endResetModel();
