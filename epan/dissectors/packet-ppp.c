@@ -4503,7 +4503,7 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
         proto_tree_add_bitmask_with_flags(fh_tree, tvb, 2, hf_iphc_crtp_fh_flags,
             ett_iphc_crtp_fh_flags, iphc_crtp_fh_flags_fields, ENC_BIG_ENDIAN,
-            0);
+            BMT_NO_FLAGS);
         proto_tree_add_item(fh_tree, hf_iphc_crtp_gen, tvb, 2, 1,
             ENC_BIG_ENDIAN);
 
@@ -4787,7 +4787,7 @@ dissect_iphc_crtp_cntcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         }
         proto_tree_add_bitmask_with_flags(cntcp_tree, tvb, 1, hf_iphc_crtp_fh_flags,
             ett_iphc_crtp_fh_flags, iphc_crtp_fh_flags_fields, ENC_BIG_ENDIAN,
-            0);
+            BMT_NO_FLAGS);
         proto_tree_add_item(cntcp_tree, hf_iphc_crtp_gen, tvb, 1, 1,
             ENC_BIG_ENDIAN);
 

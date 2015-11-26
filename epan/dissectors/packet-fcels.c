@@ -715,10 +715,10 @@ dissect_cmnsvc (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 flag
 
     if ((opcode == FC_ELS_PLOGI) || (opcode == FC_ELS_PDISC)) {
         proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_cmnfeatures,
-                           ett_fcels_cmnfeatures, pflags, flags, 0);
+                           ett_fcels_cmnfeatures, pflags, flags, BMT_NO_FLAGS);
     } else {
         proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_cmnfeatures,
-                           ett_fcels_cmnfeatures, common_flags, flags, 0);
+                           ett_fcels_cmnfeatures, common_flags, flags, BMT_NO_FLAGS);
     }
 }
 
@@ -752,10 +752,10 @@ dissect_clssvc_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint1
 
     if ((opcode == FC_ELS_FLOGI) || (opcode == FC_ELS_FDISC)) {
         proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_clsflags,
-                           ett_fcels_clsflags, pflags, flags, 0);
+                           ett_fcels_clsflags, pflags, flags, BMT_NO_FLAGS);
     } else {
         proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_fcels_clsflags,
-                           ett_fcels_clsflags, common_flags, flags, 0);
+                           ett_fcels_clsflags, common_flags, flags, BMT_NO_FLAGS);
     }
 }
 

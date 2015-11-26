@@ -2488,6 +2488,7 @@ proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 		const char *name, const char *fallback,
 		const gint ett, const int **fields, const guint encoding, const int flags);
 
+#define BMT_NO_FLAGS	0x00	/**< Don't use any flags */
 #define BMT_NO_APPEND	0x01	/**< Don't change the title at all */
 #define BMT_NO_INT	0x02	/**< Don't add integral (non-boolean) fields to title */
 #define BMT_NO_FALSE	0x04	/**< Don't add booleans unless they're TRUE */
