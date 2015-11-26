@@ -1106,7 +1106,7 @@ static hf_register_info hf_wlan_radio[] = {
       NULL, HFILL }},
 
     {&hf_wlan_radio_signal_percent,
-     {"Signal strength (percentage)", "wlan_radio.signal_dbm", FT_UINT32, BASE_DEC, NULL, 0,
+     {"Signal strength (percentage)", "wlan_radio.signal_percentage", FT_UINT32, BASE_DEC, NULL, 0,
       "Signal strength, as percentage of maximum RSSI", HFILL }},
 
     {&hf_wlan_radio_signal_dbm,
