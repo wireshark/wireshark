@@ -3241,12 +3241,14 @@ dissect_fragmented_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree
     cur = wmem_list_tail(pinfo->layers);
     retval = dissect_payload(new_tvb, pinfo, tree, ppi);
     cur = wmem_list_frame_next(cur);
-    tmp = wmem_list_frame_data(cur);
-    proto_id = GPOINTER_TO_UINT(tmp);
-    proto_name = proto_get_protocol_filter_name(proto_id);
-    if(strcmp(proto_name, "data") != 0){
-      if (have_tap_listener(exported_pdu_tap)){
-        export_sctp_data_chunk(pinfo,payload_tvb, proto_name);
+    if (cur) {
+      tmp = wmem_list_frame_data(cur);
+      proto_id = GPOINTER_TO_UINT(tmp);
+      proto_name = proto_get_protocol_filter_name(proto_id);
+      if(strcmp(proto_name, "data") != 0){
+        if (have_tap_listener(exported_pdu_tap)){
+          export_sctp_data_chunk(pinfo,payload_tvb, proto_name);
+        }
       }
     }
     return retval;
