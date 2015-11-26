@@ -36,6 +36,7 @@
 #include "file_wrappers.h"
 #include <wsutil/file_util.h>
 #include <wsutil/buffer.h>
+#include <wsutil/ws_diag_control.h>
 
 #ifdef HAVE_PLUGINS
 
@@ -57,7 +58,6 @@ static gboolean
 check_for_wtap_plugin(GModule *handle)
 {
 	gpointer gp;
-	void (*register_wtap_module)(void);
 	wtap_plugin *plugin;
 
 	/*
@@ -70,14 +70,12 @@ check_for_wtap_plugin(GModule *handle)
 
 	/*
 	 * Yes - this plugin includes one or more wiretap modules.
-	 */
-	register_wtap_module = (void (*)(void))gp;
-
-	/*
 	 * Add this one to the list of wiretap module plugins.
 	 */
 	plugin = (wtap_plugin *)g_malloc(sizeof (wtap_plugin));
-	plugin->register_wtap_module = register_wtap_module;
+DIAG_OFF(pedantic)
+	plugin->register_wtap_module = (void (*)(void))gp;
+DIAG_ON(pedantic)
 	wtap_plugins = g_slist_append(wtap_plugins, plugin);
 	return TRUE;
 }
