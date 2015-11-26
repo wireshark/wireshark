@@ -4063,7 +4063,7 @@ ssl_get_session(conversation_t *conversation, dissector_handle_t ssl_handle)
 
     /* Initialize parameters which are not necessary specific to decryption. */
     ssl_session->session.version = SSL_VER_UNKNOWN;
-    set_address(&ssl_session->session.srv_addr, AT_NONE, 0, NULL);
+    clear_address(&ssl_session->session.srv_addr);
     ssl_session->session.srv_ptype = PT_NONE;
     ssl_session->session.srv_port = 0;
 

@@ -735,7 +735,7 @@ static int dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 switch(type) {
                     case TS2T_LOGINREQUEST:
                         conversation_data->server_port=pinfo->destport;
-                        conversation_data->server_addr=pinfo->dst;
+                        copy_address_shallow(&conversation_data->server_addr, &pinfo->dst);
                         break;
                 }
                 break;
@@ -783,7 +783,7 @@ static int dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                         proto_tree_add_item(ts2_tree, hf_ts2_nick, tvb, 150, 1, ENC_ASCII|ENC_BIG_ENDIAN);
 
                         conversation_data->server_port=pinfo->destport;
-                        conversation_data->server_addr=pinfo->dst;
+                        copy_address_shallow(&conversation_data->server_addr, &pinfo->dst);
 
                         break;
                     case TS2T_LOGINREPLY:

@@ -1069,15 +1069,15 @@ static int dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			first_gmh = FALSE;
 			cid = cid_base + cid_adjust[cid_index] + cid_vernier[cid_index];
 			/* Save address pointers. */
-			save_src = pinfo->src;
-			save_dst = pinfo->dst;
+			copy_address_shallow(&save_src, &pinfo->src);
+			copy_address_shallow(&save_dst, &pinfo->dst);
 			/* Use dl_src and dl_dst in defragmentation. */
-			pinfo->src = pinfo->dl_src;
-			pinfo->dst = pinfo->dl_dst;
+			copy_address_shallow(&pinfo->src, &pinfo->dl_src);
+			copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 			payload_frag = fragment_add_seq(&payload_reassembly_table, tvb, offset, pinfo, cid, NULL, frag_number[cid_index], frag_len, ((frag_type==LAST_FRAG)?0:1), 0);
 			/* Restore address pointers. */
-			pinfo->src = save_src;
-			pinfo->dst = save_dst;
+			copy_address_shallow(&pinfo->src, &save_src);
+			copy_address_shallow(&pinfo->dst, &save_dst);
 			if (frag_type == LAST_FRAG)
 			{
 				/* Make sure fragment_add_seq() sees next one as a new frame. */

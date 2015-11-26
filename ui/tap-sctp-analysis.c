@@ -548,23 +548,17 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 				info->arwnd1 = tvb_get_ntohl(sctp_info->tvb[0], INIT_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET);
 				for (chunk_number = 1; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
 				{
-				type = tvb_get_ntohs(sctp_info->tvb[chunk_number],0);
+					type = tvb_get_ntohs(sctp_info->tvb[chunk_number],0);
 					if (type == IPV4ADDRESS_PARAMETER_ID)
 					{
 						store = (address *)g_malloc(sizeof (address));
-						store->type = AT_IPv4;
-						store->len  = 4;
-						store->data = g_malloc(4);
-						tvb_memcpy(sctp_info->tvb[chunk_number], (void *)store->data,IPV4_ADDRESS_OFFSET, 4);
+						alloc_address_tvb(NULL, store, AT_IPv4, 4, sctp_info->tvb[chunk_number], IPV4_ADDRESS_OFFSET);
 						info = add_address(store, info, 1);
 					}
 					else if (type == IPV6ADDRESS_PARAMETER_ID)
 					{
 						store = (address *)g_malloc(sizeof (address));
-						store->type = AT_IPv6;
-						store->len  = 16;
-						store->data = g_malloc(16);
-						tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH);
+						alloc_address_tvb(NULL, store, AT_IPv6, 16, sctp_info->tvb[chunk_number], IPV6_ADDRESS_OFFSET);
 						info = add_address(store, info, 1);
 					}
 				}
@@ -923,19 +917,13 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 				if (type == IPV4ADDRESS_PARAMETER_ID)
 				{
 					store = (address *)g_malloc(sizeof (address));
-					store->type = AT_IPv4;
-					store->len  = 4;
-					store->data = g_malloc(4);
-					tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV4_ADDRESS_OFFSET, 4);
+					alloc_address_tvb(NULL, store, AT_IPv4, 4, sctp_info->tvb[chunk_number], IPV4_ADDRESS_OFFSET);
 					info = add_address(store, info, info->direction);
 				}
 				else if (type == IPV6ADDRESS_PARAMETER_ID)
 				{
 					store = (address *)g_malloc(sizeof (address));
-					store->type = AT_IPv6;
-					store->len  = 16;
-					store->data = g_malloc(16);
-					tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(store->data),IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH);
+					alloc_address_tvb(NULL, store, AT_IPv6, 16, sctp_info->tvb[chunk_number], IPV6_ADDRESS_OFFSET);
 					info = add_address(store, info, info->direction);
 				}
 			}

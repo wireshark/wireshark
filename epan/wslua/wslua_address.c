@@ -43,14 +43,14 @@ WSLUA_CONSTRUCTOR Address_ip(lua_State* L) {
 
 #define WSLUA_ARG_Address_ip_HOSTNAME 1 /* The address or name of the IP host. */
     Address addr = (Address)g_malloc(sizeof(address));
-    guint32* ip_addr = (guint32 *)g_malloc(sizeof(guint32));
+    guint32 ip_addr;
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Address_ip_HOSTNAME);
 
-    if (! get_host_ipaddr(name, (guint32*)ip_addr)) {
-        *ip_addr = 0;
+    if (! get_host_ipaddr(name, &ip_addr)) {
+        ip_addr = 0;
     }
 
-    set_address(addr, AT_IPv4, 4, ip_addr);
+    alloc_address_wmem(NULL, addr, AT_IPv4, 4, &ip_addr);
     pushAddress(L,addr);
     WSLUA_RETURN(1); /* The Address object. */
 }
@@ -60,7 +60,7 @@ WSLUA_CONSTRUCTOR Address_ip(lua_State* L) {
 static int Address_ipv6(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
-    set_address(addr, AT_NONE, 4, g_malloc(4));
+    /* alloc_address() */
 
     pushAddress(L,addr);
     return 1;
@@ -68,7 +68,7 @@ static int Address_ipv6(lua_State* L) {
 static int Address_ss7(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
-    set_address(addr, AT_NONE, 4, g_malloc(4));
+    /* alloc_address() */
 
     pushAddress(L,addr);
     return 1;
@@ -76,7 +76,7 @@ static int Address_ss7(lua_State* L) {
 static int Address_eth(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
-    set_address(addr, AT_NONE, 4, g_malloc(4));
+    /* alloc_address() */
 
     pushAddress(L,addr);
     return 1;
@@ -84,7 +84,7 @@ static int Address_eth(lua_State* L) {
 static int Address_sna(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
-    set_address(addr, AT_NONE, 4, g_malloc(4));
+    /* alloc_address() */
 
     pushAddress(L,addr);
     return 1;
@@ -92,7 +92,7 @@ static int Address_sna(lua_State* L) {
 static int Address_atalk(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
-    set_address(addr, AT_NONE, 4, g_malloc(4));
+    /* alloc_address() */
 
     pushAddress(L,addr);
     return 1;
@@ -100,7 +100,7 @@ static int Address_atalk(lua_State* L) {
 static int Address_vines(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
-    set_address(addr, AT_NONE, 4, g_malloc(4));
+    /* alloc_address() */
 
     pushAddress(L,addr);
     return 1;
@@ -108,7 +108,7 @@ static int Address_vines(lua_State* L) {
 static int Address_osi(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
-    set_address(addr, AT_NONE, 4, g_malloc(4));
+    /* alloc_address() */
 
     pushAddress(L,addr);
     return 1;
@@ -116,7 +116,7 @@ static int Address_osi(lua_State* L) {
 static int Address_arcnet(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
-    set_address(addr, AT_NONE, 4, g_malloc(4));
+    /* alloc_address() */
 
     pushAddress(L,addr);
     return 1;
@@ -124,7 +124,7 @@ static int Address_arcnet(lua_State* L) {
 static int Address_fc(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
-    set_address(addr, AT_NONE, 4, g_malloc(4));
+    /* alloc_address() */
 
     pushAddress(L,addr);
     return 1;
@@ -132,7 +132,7 @@ static int Address_fc(lua_State* L) {
 static int Address_string(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
-    set_address(addr, AT_NONE, 4, g_malloc(4));
+    /* alloc_address() */
 
     pushAddress(L,addr);
     return 1;
@@ -140,7 +140,7 @@ static int Address_string(lua_State* L) {
 static int Address_eui64(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
-    set_address(addr, AT_NONE, 4, g_malloc(4));
+    /* alloc_address() */
 
     pushAddress(L,addr);
     return 1;
@@ -148,7 +148,7 @@ static int Address_eui64(lua_State* L) {
 static int Address_uri(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
-    set_address(addr, AT_NONE, 4, g_malloc(4));
+    /* alloc_address() */
 
     pushAddress(L,addr);
     return 1;
@@ -156,7 +156,7 @@ static int Address_uri(lua_State* L) {
 static int Address_tipc(lua_State* L) {
     Address addr = g_malloc(sizeof(address));
 
-    set_address(addr, AT_NONE, 4, g_malloc(4));
+    /* alloc_address() */
 
     pushAddress(L,addr);
     return 1;
@@ -186,11 +186,11 @@ WSLUA_METHODS Address_methods[] = {
 
 WSLUA_METAMETHOD Address__tostring(lua_State* L) {
     Address addr = checkAddress(L,1);
-    const gchar *str = address_to_display(NULL, addr);
+    gchar *str = address_to_display(NULL, addr);
 
     lua_pushstring(L, str);
 
-    wmem_free(NULL, (void*) str);
+    wmem_free(NULL, str);
 
     WSLUA_RETURN(1); /* The string representing the address. */
 }
@@ -200,8 +200,8 @@ static int Address__gc(lua_State* L) {
     Address addr = toAddress(L,1);
 
     if (addr) {
-        g_free((void*)(addr->data));
-        g_free((void*)(addr));
+        free_address(addr);
+        g_free(addr);
     }
 
     return 0;

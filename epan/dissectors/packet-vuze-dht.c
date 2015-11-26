@@ -346,7 +346,7 @@ dissect_vuze_dht_address(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree,
     set_address_tvb( &addr, AT_IPv6, ip_length, tvb, offset);
     break;
   default:
-    addr.type = AT_NONE;
+    clear_address(&addr);
     break;
   }
   offset += ip_length;

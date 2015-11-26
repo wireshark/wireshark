@@ -49,7 +49,7 @@ static int lbtru_tap_handle = -1;
 /* LBT-RU transport management.                                               */
 /*----------------------------------------------------------------------------*/
 
-static const address lbtru_null_address = { AT_NONE, 0, NULL };
+static const address lbtru_null_address = ADDRESS_INIT_NONE;
 
 static lbtru_transport_t * lbtru_transport_find(const address * source_address, guint16 source_port, guint32 session_id, guint32 frame)
 {

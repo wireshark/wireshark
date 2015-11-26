@@ -516,10 +516,10 @@ rtpstream_on_analyse(GtkButton *button _U_, gpointer user_data _U_)
         return;
     }
 
-    set_address(&src_fwd,AT_NONE,0,NULL);
-    set_address(&dst_fwd,AT_NONE,0,NULL);
-    set_address(&src_rev,AT_NONE,0,NULL);
-    set_address(&dst_rev,AT_NONE,0,NULL);
+    clear_address(&src_fwd);
+    clear_address(&dst_fwd);
+    clear_address(&src_rev);
+    clear_address(&dst_rev);
 
     if (selected_stream_fwd) {
         copy_address(&(src_fwd), &(selected_stream_fwd->src_addr));

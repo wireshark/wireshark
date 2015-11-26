@@ -811,12 +811,12 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
      * ADDRESSING FIELDS
      */
     /* Clear out the addressing strings. */
-    set_address(&pinfo->net_dst, AT_NONE, 0, NULL);
-    copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
-    copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
-    set_address(&pinfo->net_src, AT_NONE, 0, NULL);
-    copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
-    copy_address_shallow(&pinfo->src, &pinfo->net_src);
+    clear_address(&pinfo->net_dst);
+    clear_address(&pinfo->dl_dst);
+    clear_address(&pinfo->dst);
+    clear_address(&pinfo->net_src);
+    clear_address(&pinfo->dl_src);
+    clear_address(&pinfo->src);
 
     if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_RESERVED) {
         /* Invalid Destination Address Mode. Abort Dissection. */

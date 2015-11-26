@@ -692,9 +692,9 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                     /* g_message("%d From initiator : %s -> %s ", pinfo->num,
                               address_to_str(wmem_packet_scope(), &tpt_conv_data->initiator_address),
                               address_to_str(wmem_packet_scope(), &tpt_conv_data->receiver_address)); */
-                    pinfo->src = tpt_conv_data->initiator_address;
+                    copy_address_shallow(&pinfo->src, &tpt_conv_data->initiator_address);
                     pinfo->srcport = 0;
-                    pinfo->dst = tpt_conv_data->receiver_address;
+                    copy_address_shallow(&pinfo->dst, &tpt_conv_data->receiver_address);
                     pinfo->destport = 0;
                     pinfo->ptype = PT_NONE;
                 } else if (addresses_equal(&pinfo->src, &tpt_conv_data->receiver_tpt_address) &&
@@ -702,9 +702,9 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                     /* g_message("%d From receiver : %s -> %s ", pinfo->num,
                               address_to_str(wmem_packet_scope(), &tpt_conv_data->receiver_address),
                               address_to_str(wmem_packet_scope(), &tpt_conv_data->initiator_address)); */
-                    pinfo->src = tpt_conv_data->receiver_address;
+                    copy_address_shallow(&pinfo->src, &tpt_conv_data->receiver_address);
                     pinfo->srcport = 0;
-                    pinfo->dst = tpt_conv_data->initiator_address;
+                    copy_address_shallow(&pinfo->dst, &tpt_conv_data->initiator_address);
                     pinfo->destport = 0;
                     pinfo->ptype = PT_NONE;
                 } else {
@@ -768,16 +768,12 @@ static jxta_stream_conversation_data *get_tpt_conversation(packet_info * pinfo)
         copy_address_wmem(wmem_file_scope(), &tpt_conv_data->initiator_tpt_address, &pinfo->src);
         tpt_conv_data->initiator_tpt_port = pinfo->srcport;
         tpt_conv_data->initiator_welcome_frame = 0;
-        tpt_conv_data->initiator_address.type = AT_NONE;
-        tpt_conv_data->initiator_address.len = 0;
-        tpt_conv_data->initiator_address.data = NULL;
+        clear_address(&tpt_conv_data->initiator_address);
 
         copy_address_wmem(wmem_file_scope(), &tpt_conv_data->receiver_tpt_address, &pinfo->dst);
         tpt_conv_data->receiver_tpt_port = pinfo->destport;
         tpt_conv_data->receiver_welcome_frame = 0;
-        tpt_conv_data->receiver_address.type = AT_NONE;
-        tpt_conv_data->receiver_address.len = 0;
-        tpt_conv_data->receiver_address.data = NULL;
+        clear_address(&tpt_conv_data->receiver_address);
 
         conversation_add_proto_data(tpt_conversation, proto_jxta, tpt_conv_data);
     }
@@ -1332,8 +1328,8 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         if ((uri_address_type == pinfo->src.type) && (uri_address_type == pinfo->dst.type)) {
             jxta_tap_header *tap_header = wmem_new(wmem_file_scope(), jxta_tap_header);
 
-            tap_header->src_address = pinfo->src;
-            tap_header->dest_address = pinfo->dst;
+            copy_address_shallow(&tap_header->src_address, &pinfo->src);
+            copy_address_shallow(&tap_header->dest_address, &pinfo->dst);
             tap_header->size = offset - message_start_offset ;
 
             tap_queue_packet(jxta_tap, pinfo, tap_header);

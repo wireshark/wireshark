@@ -1856,22 +1856,24 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
         if ((media_info->connection_address != NULL) &&
             (media_info->connection_type != NULL)) {
             if (strcmp(media_info->connection_type, "IP4") == 0) {
-                transport_info->src_addr[transport_index].data = wmem_alloc(wmem_file_scope(), 4);
-                if (str_to_ip(media_info->connection_address, (void*)transport_info->src_addr[transport_index].data)) {
+                guint32 ip4_addr;
+
+                if (str_to_ip(media_info->connection_address, &ip4_addr)) {
                     /* connection_address could be converted to a valid ipv4 address*/
                     transport_info->proto_bitmask[transport_index] |= SDP_IPv4;
-                    transport_info->src_addr[transport_index].type = AT_IPv4;
-                    transport_info->src_addr[transport_index].len  = 4;
+                    alloc_address_wmem(wmem_file_scope(), &transport_info->src_addr[transport_index],
+                                        AT_IPv4, 4, &ip4_addr);
                     DPRINT(("set SDP_IPv4 bitmask=%x, for transport_index=%d",
                             transport_info->proto_bitmask[transport_index], transport_index));
                 }
             } else if (strcmp(media_info->connection_type, "IP6") == 0) {
-                transport_info->src_addr[transport_index].data = wmem_alloc(wmem_file_scope(), 16);
-                if (str_to_ip6(media_info->connection_address, (void*)transport_info->src_addr[transport_index].data)) {
+                struct e_in6_addr ip6_addr;
+
+                if (str_to_ip6(media_info->connection_address, &ip6_addr)) {
                     /* connection_address could be converted to a valid ipv6 address*/
                     transport_info->proto_bitmask[transport_index] |= SDP_IPv6;
-                    transport_info->src_addr[transport_index].type = AT_IPv6;
-                    transport_info->src_addr[transport_index].len  = 16;
+                    alloc_address_wmem(wmem_file_scope(), &transport_info->src_addr[transport_index],
+                                        AT_IPv6, 16, &ip6_addr);
                     DPRINT(("set SDP_IPv6 bitmask=%x, for transport_index=%d",
                             transport_info->proto_bitmask[transport_index], transport_index));
                 }

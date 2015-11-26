@@ -10315,7 +10315,7 @@ int i;
     }
 
     /*Find the conversations assoicated with the HS-DSCH flows in this packet and set proper H-RNTI*/
-    set_address(&null_addr, AT_NONE, 0, NULL);
+    clear_address(&null_addr);
     for (i = 0; i < maxNrOfMACdFlows; i++) {
         if (nbap_hsdsch_channel_info[i].crnc_port != 0){
             conversation = find_conversation(actx->pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr,
@@ -18247,7 +18247,7 @@ guint32 no_ddi_entries, i;
     }
 
     /* Check if we have conversation info */
-    set_address(&null_addr, AT_NONE, 0, NULL);
+    clear_address(&null_addr);
     p_conv = find_conversation(actx->pinfo->num, &nbap_edch_channel_info[e_dch_macdflow_id].crnc_address, &null_addr,
                                PT_UDP,
                                nbap_edch_channel_info[e_dch_macdflow_id].crnc_port, 0, NO_ADDR_B);
@@ -18542,7 +18542,7 @@ num_items = 1;
 
     /*Do the configurations*/
     /* Check if we have conversation info */
-    set_address(&null_addr, AT_NONE, 0, NULL);
+    clear_address(&null_addr);
     p_conv = find_conversation(actx->pinfo->num, &nbap_edch_channel_info[e_dch_macdflow_id].crnc_address, &null_addr,
                                PT_UDP,
                                nbap_edch_channel_info[e_dch_macdflow_id].crnc_port, 0, NO_ADDR_B);
@@ -18654,7 +18654,7 @@ BindingID_port = 0;
          * Basically the idea here is that we create a new converation (Which is ok? maybe?)
          * And then hijack the old conversation and let lower tree items configure that hijacked data.
          * */
-        set_address(&null_addr, AT_NONE, 0, NULL);
+        clear_address(&null_addr);
 
         set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
@@ -23362,7 +23362,7 @@ int i;
         return offset;
     }
     /* Set port to zero use that as an indication of whether we have data or not */
-    set_address(&null_addr, AT_NONE, 0, NULL);
+    clear_address(&null_addr);
     for (i = 0; i < maxNrOfCommonMACFlows; i++) {
         if (nbap_common_channel_info[i].crnc_port != 0){
 
@@ -23807,7 +23807,7 @@ dissect_nbap_HSDSCH_FDD_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
     }
 
     /* Set port to zero use that as an indication of whether we have data or not */
-    set_address(&null_addr, AT_NONE, 0, NULL);
+    clear_address(&null_addr);
     for (i = 0; i < maxNrOfMACdFlows; i++) {
         if (nbap_hsdsch_channel_info[i].crnc_port != 0){
             nbap_debug("Frame %u HSDSCH-MACdFlows-Information:hsdsch_macdflow_id %u Look for conv on IP %s Port %u",
@@ -24141,7 +24141,7 @@ dissect_nbap_HSDSCH_Information_to_Modify(tvbuff_t *tvb _U_, int offset _U_, asn
     }
 
     /* Set port to zero use that as an indication of whether we have data or not */
-    set_address(&null_addr, AT_NONE, 0, NULL);
+    clear_address(&null_addr);
 
     nbap_debug("Frame %u HSDSCH-MACdFlows-Information Start",
         actx->pinfo->num);
@@ -28682,7 +28682,7 @@ dch_id = 0xFFFFFFFF;
                 return offset;
         }
 
-        set_address(&null_addr, AT_NONE, 0, NULL);
+        clear_address(&null_addr);
 
         set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
@@ -28820,7 +28820,7 @@ BindingID_port = 0;
         {
             return offset;
         }
-        set_address(&null_addr, AT_NONE, 0, NULL);
+        clear_address(&null_addr);
 
         set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
@@ -32389,7 +32389,7 @@ transportFormatSet_type = NBAP_CPCH;
         {
             return offset;
         }
-        set_address(&null_addr, AT_NONE, 0, NULL);
+        clear_address(&null_addr);
 
         set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
@@ -32554,7 +32554,7 @@ num_items = 1;
         {
             return offset;
         }
-        set_address(&null_addr, AT_NONE, 0, NULL);
+        clear_address(&null_addr);
 
         set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
@@ -32697,7 +32697,7 @@ transportFormatSet_type = NBAP_CPCH;
         {
             return offset;
         }
-        set_address(&null_addr, AT_NONE, 0, NULL);
+        clear_address(&null_addr);
 
         set_address(&dst_addr, AT_IPv4, 4, &transportLayerAddress_ipv4);
 
@@ -55227,7 +55227,7 @@ static void add_hsdsch_bind(packet_info *pinfo){
 	}
 
 	/* Set port to zero use that as an indication of whether we have data or not */
-	set_address(&null_addr, AT_NONE, 0, NULL);
+	clear_address(&null_addr);
 	for (i = 0; i < maxNrOfMACdFlows; i++) {
 		if (nbap_hsdsch_channel_info[i].crnc_port != 0){
 			conversation = find_conversation(pinfo->num, &(nbap_hsdsch_channel_info[i].crnc_address), &null_addr,

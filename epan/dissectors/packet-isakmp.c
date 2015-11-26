@@ -2878,7 +2878,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 #ifdef HAVE_LIBGCRYPT
   if (isakmp_version == 1) {
-    set_address(&null_addr, AT_NONE, 0, NULL);
+    clear_address(&null_addr);
 
     tvb_memcpy(tvb, i_cookie, offset, COOKIE_SIZE);
     decr = (decrypt_data_t*) g_hash_table_lookup(isakmp_hash, i_cookie);
@@ -2888,7 +2888,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
       decr   = (decrypt_data_t *)g_slice_alloc(sizeof(decrypt_data_t));
       memcpy(ic_key, i_cookie, COOKIE_SIZE);
       memset(decr, 0, sizeof(decrypt_data_t));
-      set_address(&decr->initiator, AT_NONE, 0, NULL);
+      clear_address(&decr->initiator);
 
       g_hash_table_insert(isakmp_hash, ic_key, decr);
     }

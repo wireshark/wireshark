@@ -51,7 +51,7 @@ typedef struct
     wmem_tree_t * session_tree;
 } lbttcp_transport_conv_data_t;
 
-static const address lbttcp_null_address = { AT_NONE, 0, NULL };
+static const address lbttcp_null_address = ADDRESS_INIT_NONE;
 
 lbttcp_transport_t * lbttcp_transport_find(const address * source_address, guint16 source_port, guint32 session_id, guint32 frame)
 {

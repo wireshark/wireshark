@@ -1055,7 +1055,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
     g_list_free(follow_info->payload);
 
     g_free(follow_info->filter_out_filter);
-    g_free((gpointer)follow_info->client_ip.data);
+    free_address(&follow_info->client_ip);
     forget_follow_info(follow_info);
     g_free(gtk_follow_info);
     g_free(follow_info);

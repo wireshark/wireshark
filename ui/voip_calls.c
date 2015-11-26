@@ -280,7 +280,7 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
         g_free(callsinfo->call_id);
         g_free(callsinfo->from_identity);
         g_free(callsinfo->to_identity);
-        g_free((void *)(callsinfo->initial_speaker.data));
+        free_address(&callsinfo->initial_speaker);
         g_free(callsinfo->protocol_name);
         g_free(callsinfo->call_comment);
 
@@ -1227,8 +1227,8 @@ TODO: is useful but not perfect, what is appended is truncated when displayed in
         add_to_graph(tapinfo, pinfo, edt, frame_label, comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
         g_free(comment);
         g_free(frame_label);
-        g_free((void *)tmp_src.data);
-        g_free((void *)tmp_dst.data);
+        free_address(&tmp_src);
+        free_address(&tmp_dst);
 
         /* add SDP info if apply */
         if ( (tapinfo->sdp_summary != NULL) && (tapinfo->sdp_frame_num == pinfo->num) ) {
@@ -1663,7 +1663,7 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
                             while (list2)
                             {
                                 h245_add=(h245_address_t *)list2->data;
-                                g_free((void *)h245_add->h245_address.data);
+                                free_address(&h245_add->h245_address);
                                 g_free(list2->data);
                                 list2 = g_list_next(list2);
                             }
@@ -1822,7 +1822,7 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         wmem_free(NULL, tmp_str);
 
         g_free(comment);
-        g_free((char *)pstn_add.data);
+        free_address(&pstn_add);
     }
 
     tapinfo->redraw |= REDRAW_Q931;
@@ -1895,7 +1895,7 @@ free_h225_info(gpointer p) {
         while (list2)
         {
             h245_address_t *h245_add=(h245_address_t *)list2->data;
-            g_free((void *)h245_add->h245_address.data);
+            free_address(&h245_add->h245_address);
             g_free(list2->data);
             list2 = g_list_next(list2);
         }
@@ -2026,10 +2026,7 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         /* this is still IPv4 only, because the dissector is */
         if (pi->is_h245 == TRUE) {
             h245_add = (h245_address_t *)g_malloc(sizeof (h245_address_t));
-            h245_add->h245_address.type=AT_IPv4;
-            h245_add->h245_address.len=4;
-            h245_add->h245_address.data = g_malloc(sizeof(pi->h245_address));
-            memcpy((void *)(h245_add->h245_address.data), &(pi->h245_address), 4);
+            alloc_address_wmem(NULL, &h245_add->h245_address, AT_IPv4, 4, &pi->h245_address);
             h245_add->h245_port = pi->h245_port;
             add_h245_Address(tmp_h323info, h245_add);
         }

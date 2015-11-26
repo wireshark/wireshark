@@ -299,8 +299,8 @@ static void sequence_analysis_item_free(gpointer data)
     g_free(seq_item->time_str);
     g_free(seq_item->comment);
     g_free(seq_item->protocol);
-    g_free((void *)seq_item->src_addr.data);
-    g_free((void *)seq_item->dst_addr.data);
+    free_address(&seq_item->src_addr);
+    free_address(&seq_item->dst_addr);
     g_free(data);
 }
 
@@ -360,10 +360,7 @@ sequence_analysis_list_free(seq_analysis_info_t *sainfo)
     sainfo->nconv = 0;
 
     for (i=0; i<MAX_NUM_NODES; i++) {
-        sainfo->nodes[i].type = AT_NONE;
-        sainfo->nodes[i].len = 0;
-        g_free((void *)sainfo->nodes[i].data);
-        sainfo->nodes[i].data = NULL;
+        free_address(&sainfo->nodes[i]);
     }
     sainfo->num_nodes = 0;
 }

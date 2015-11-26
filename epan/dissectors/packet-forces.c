@@ -411,10 +411,13 @@ dissect_redirecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
     gint        start_offset;
     gint        length_meta, length_ilv, length_redirect;
     proto_item *ti;
-    address     src_addr     = pinfo->src,
-                src_net_addr = pinfo->net_src,
-                dst_addr     = pinfo->dst,
-                dst_net_addr = pinfo->net_dst;
+    address     src_addr, src_net_addr;
+    address     dst_addr, dst_net_addr;
+
+    copy_address_shallow(&src_addr, &pinfo->src);
+    copy_address_shallow(&src_net_addr, &pinfo->net_src);
+    copy_address_shallow(&dst_addr, &pinfo->dst);
+    copy_address_shallow(&dst_net_addr, &pinfo->net_dst);
 
     meta_data_tree = proto_tree_add_subtree(tree, tvb, offset, TLV_TL_LENGTH,
         ett_forces_redirect_tlv_meta_data_tlv, &ti, "Meta Data TLV");
@@ -476,10 +479,10 @@ dissect_redirecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
             call_dissector(ip_handle, next_tvb, pinfo, redirect_data_tree);
 
             /* Restore IP info */
-            memcpy(&(pinfo->src),     &src_addr,     sizeof(address));
-            memcpy(&(pinfo->net_src), &src_net_addr, sizeof(address));
-            memcpy(&(pinfo->dst),     &dst_addr,     sizeof(address));
-            memcpy(&(pinfo->net_dst), &dst_net_addr, sizeof(address));
+            copy_address_shallow(&pinfo->src, &src_addr);
+            copy_address_shallow(&pinfo->net_src, &src_net_addr);
+            copy_address_shallow(&pinfo->dst, &dst_addr);
+            copy_address_shallow(&pinfo->net_dst, &dst_net_addr);
         }
     }
 }

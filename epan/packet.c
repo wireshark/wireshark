@@ -471,12 +471,12 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	edt->pi.fd            = fd;
 	edt->pi.phdr          = phdr;
 	edt->pi.pseudo_header = &phdr->pseudo_header;
-	edt->pi.dl_src.type   = AT_NONE;
-	edt->pi.dl_dst.type   = AT_NONE;
-	edt->pi.net_src.type  = AT_NONE;
-	edt->pi.net_dst.type  = AT_NONE;
-	edt->pi.src.type = AT_NONE;
-	edt->pi.dst.type = AT_NONE;
+	clear_address(&edt->pi.dl_src);
+	clear_address(&edt->pi.dl_dst);
+	clear_address(&edt->pi.net_src);
+	clear_address(&edt->pi.net_dst);
+	clear_address(&edt->pi.src);
+	clear_address(&edt->pi.dst);
 	edt->pi.ctype = CT_NONE;
 	edt->pi.noreassembly_reason = "";
 	edt->pi.ptype = PT_NONE;
@@ -537,12 +537,12 @@ dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	edt->pi.fd    = fd;
 	edt->pi.phdr  = phdr;
 	edt->pi.pseudo_header = &phdr->pseudo_header;
-	edt->pi.dl_src.type   = AT_NONE;
-	edt->pi.dl_dst.type   = AT_NONE;
-	edt->pi.net_src.type  = AT_NONE;
-	edt->pi.net_dst.type  = AT_NONE;
-	edt->pi.src.type = AT_NONE;
-	edt->pi.dst.type = AT_NONE;
+	clear_address(&edt->pi.dl_src);
+	clear_address(&edt->pi.dl_dst);
+	clear_address(&edt->pi.net_src);
+	clear_address(&edt->pi.net_dst);
+	clear_address(&edt->pi.src);
+	clear_address(&edt->pi.dst);
 	edt->pi.ctype = CT_NONE;
 	edt->pi.noreassembly_reason = "";
 	edt->pi.ptype = PT_NONE;
@@ -754,12 +754,12 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 
 	save_writable = col_get_writable(pinfo->cinfo);
 	col_set_writable(pinfo->cinfo, FALSE);
-	save_dl_src   = pinfo->dl_src;
-	save_dl_dst   = pinfo->dl_dst;
-	save_net_src  = pinfo->net_src;
-	save_net_dst  = pinfo->net_dst;
-	save_src      = pinfo->src;
-	save_dst      = pinfo->dst;
+	copy_address_shallow(&save_dl_src, &pinfo->dl_src);
+	copy_address_shallow(&save_dl_dst, &pinfo->dl_dst);
+	copy_address_shallow(&save_net_src, &pinfo->net_src);
+	copy_address_shallow(&save_net_dst, &pinfo->net_dst);
+	copy_address_shallow(&save_src, &pinfo->src);
+	copy_address_shallow(&save_dst, &pinfo->dst);
 
 	/* Dissect the contained packet. */
 	TRY {
@@ -770,12 +770,12 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 		* Restore the column writability and addresses.
 		*/
 		col_set_writable(pinfo->cinfo, save_writable);
-		pinfo->dl_src  = save_dl_src;
-		pinfo->dl_dst  = save_dl_dst;
-		pinfo->net_src = save_net_src;
-		pinfo->net_dst = save_net_dst;
-		pinfo->src     = save_src;
-		pinfo->dst     = save_dst;
+		copy_address_shallow(&pinfo->dl_src, &save_dl_src);
+		copy_address_shallow(&pinfo->dl_dst, &save_dl_dst);
+		copy_address_shallow(&pinfo->net_src, &save_net_src);
+		copy_address_shallow(&pinfo->net_dst, &save_net_dst);
+		copy_address_shallow(&pinfo->src, &save_src);
+		copy_address_shallow(&pinfo->dst, &save_dst);
 
 		/*
 		* Restore the current protocol, so any
@@ -812,12 +812,12 @@ call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
 	ENDTRY;
 
 	col_set_writable(pinfo->cinfo, save_writable);
-	pinfo->dl_src  = save_dl_src;
-	pinfo->dl_dst  = save_dl_dst;
-	pinfo->net_src = save_net_src;
-	pinfo->net_dst = save_net_dst;
-	pinfo->src     = save_src;
-	pinfo->dst     = save_dst;
+	copy_address_shallow(&pinfo->dl_src, &save_dl_src);
+	copy_address_shallow(&pinfo->dl_dst, &save_dl_dst);
+	copy_address_shallow(&pinfo->net_src, &save_net_src);
+	copy_address_shallow(&pinfo->net_dst, &save_net_dst);
+	copy_address_shallow(&pinfo->src, &save_src);
+	copy_address_shallow(&pinfo->dst, &save_dst);
 	pinfo->want_pdu_tracking = 0;
 	return len;
 }
