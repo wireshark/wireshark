@@ -345,10 +345,10 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
                                                g_direct_equal,
                                                NULL, g_free);
     }
-    handler = (block_handler *)g_malloc(sizeof *handler);
+    handler = g_new(block_handler, 1);
     handler->reader = reader;
     handler->writer = writer;
-    (void)g_hash_table_insert(block_handlers, GUINT_TO_POINTER(block_type),
+    g_hash_table_insert(block_handlers, GUINT_TO_POINTER(block_type),
                               handler);
 }
 
@@ -385,6 +385,10 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
 #define BT_INDEX_EVT        5
 
 #define NUM_BT_INDICES      6
+
+typedef struct {
+    option_handler_fn hfunc;
+} option_handler;
 
 static GHashTable *option_handlers[NUM_BT_INDICES];
 
@@ -439,9 +443,10 @@ get_block_type_index(guint block_type, guint *bt_index)
 
 void
 register_pcapng_option_handler(guint block_type, guint option_code,
-                               option_handler handler)
+                               option_handler_fn hfunc)
 {
     guint bt_index;
+    option_handler *handler;
 
     if (!get_block_type_index(block_type, &bt_index))
         return;
@@ -457,7 +462,9 @@ register_pcapng_option_handler(guint block_type, guint option_code,
                                                           g_direct_equal,
                                                           NULL, g_free);
     }
-    (void)g_hash_table_insert(option_handlers[bt_index],
+    handler = g_new(option_handler, 1);
+    handler->hfunc = hfunc;
+    g_hash_table_insert(option_handlers[bt_index],
                               GUINT_TO_POINTER(option_code), handler);
 }
 #endif /* HAVE_PLUGINS */
@@ -1085,7 +1092,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
     int pseudo_header_len;
     int fcslen;
 #ifdef HAVE_PLUGINS
-    option_handler handler;
+    option_handler *handler;
 #endif
 
     /* Don't try to allocate memory for a huge number of options, as
@@ -1401,10 +1408,10 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                  * Do we have a handler for this packet block option code?
                  */
                 if (option_handlers[BT_INDEX_PBS] != NULL &&
-                    (handler = (option_handler)g_hash_table_lookup(option_handlers[BT_INDEX_PBS],
+                    (handler = (option_handler *)g_hash_table_lookup(option_handlers[BT_INDEX_PBS],
                                                                    GUINT_TO_POINTER((guint)oh->option_code))) != NULL) {
                     /* Yes - call the handler. */
-                    if (!handler(pn->byte_swapped, oh->option_length,
+                    if (!handler->hfunc(pn->byte_swapped, oh->option_length,
                                  option_content, err, err_info))
                         /* XXX - free anything? */
                         return FALSE;
@@ -1646,7 +1653,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
     pcapng_option_header_t oh;
     guint8 *option_content;
 #ifdef HAVE_PLUGINS
-    option_handler handler;
+    option_handler *handler;
 #endif
 
     /*
@@ -1915,10 +1922,10 @@ read_options:
                  * Do we have a handler for this network resolution block option code?
                  */
                 if (option_handlers[BT_INDEX_NRB] != NULL &&
-                    (handler = (option_handler)g_hash_table_lookup(option_handlers[BT_INDEX_NRB],
+                    (handler = (option_handler *)g_hash_table_lookup(option_handlers[BT_INDEX_NRB],
                                                                    GUINT_TO_POINTER((guint)oh.option_code))) != NULL) {
                     /* Yes - call the handler. */
-                    if (!handler(pn->byte_swapped, oh.option_length,
+                    if (!handler->hfunc(pn->byte_swapped, oh.option_length,
                                  option_content, err, err_info)) {
 
                         g_free(option_content);
