@@ -59,13 +59,15 @@
 
 ExtcapOptionsDialog::ExtcapOptionsDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::ExtcapOptionsDialog)
+    ui(new Ui::ExtcapOptionsDialog),
+    device_name(""),
+    device_idx(0),
+    device_defaults(NULL),
+    start_bt_(NULL)
 {
     ui->setupUi(this);
 
     setWindowTitle(wsApp->windowTitleString(tr("Extcap Interface Options")));
-
-    device_idx = 0;
 
     start_bt_ = ui->buttonBox->addButton(tr("Start"), QDialogButtonBox::AcceptRole);
 
