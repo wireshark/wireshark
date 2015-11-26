@@ -620,7 +620,8 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	gchar *wrt_err_info = NULL;
 	struct wtap_pkthdr phdr;
 	time_t start_time;
-	int scan_found, second, ms;
+	int scan_found;
+	unsigned second, ms;
 	gboolean do_random = FALSE;
 	char *curr_pos, *next_msg_pos, *next_pos, *prev_pos;
 	/* Info to build exported_pdu tags*/
