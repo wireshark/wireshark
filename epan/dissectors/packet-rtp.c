@@ -1154,7 +1154,7 @@ bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
         return;
     }
 
-    set_address(&null_addr, AT_NONE, 0, NULL);
+    clear_address(&null_addr);
 
     /*
      * Check if the ip address and port combination is not
@@ -1243,7 +1243,7 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
             other_port, setup_method, setup_frame_number));
     DINDENT();
 
-    set_address(&null_addr, AT_NONE, 0, NULL);
+    clear_address(&null_addr);
 
     /*
      * Check if the ip address and port combination is not

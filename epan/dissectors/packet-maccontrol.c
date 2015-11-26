@@ -127,7 +127,7 @@ static const value_string reg_flags_vals[] = {
 };
 
 static const guint8 dst_addr[] = {0x01, 0x80, 0xC2, 0x00, 0x00, 0x01};
-static const address macctrl_dst_address = { AT_ETHER, 6, dst_addr};
+static const address macctrl_dst_address = ADDRESS_INIT(AT_ETHER, 6, dst_addr);
 
 static int
 dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

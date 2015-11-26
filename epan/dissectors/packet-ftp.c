@@ -545,7 +545,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     gboolean        ftp_nat;
     conversation_t *conversation;
 
-    ftp_ip_address = pinfo->src;
+    copy_address_shallow(&ftp_ip_address, &pinfo->src);
 
     if (pinfo->match_uint == pinfo->destport)
         is_request = TRUE;

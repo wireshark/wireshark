@@ -231,8 +231,8 @@ dissect_unistim(tvbuff_t *tvb,packet_info *pinfo,proto_tree *tree,void *data _U_
    uinfo->set_termid = -1;
    uinfo->string_data = NULL;
    uinfo->key_buffer = NULL;
-   set_address(&uinfo->it_ip, AT_NONE, 0, NULL);
-   set_address(&uinfo->ni_ip, AT_NONE, 0, NULL);
+   clear_address(&uinfo->it_ip);
+   clear_address(&uinfo->ni_ip);
    uinfo->it_port = 0;
 
    offset+=4;

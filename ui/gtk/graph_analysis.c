@@ -86,10 +86,7 @@ static void graph_analysis_reset(graph_analysis_data_t *user_data)
 	user_data->graph_info->num_nodes = 0;
 	user_data->num_items = 0;
 	for (i=0; i<MAX_NUM_NODES; i++) {
-		user_data->graph_info->nodes[i].type = AT_NONE;
-		user_data->graph_info->nodes[i].len = 0;
-		g_free((void *)user_data->graph_info->nodes[i].data);
-		user_data->graph_info->nodes[i].data = NULL;
+		free_address(&user_data->graph_info->nodes[i]);
 	}
 
 	user_data->dlg.first_node = 0;
@@ -157,10 +154,7 @@ static void on_destroy(GtkWidget *win _U_, graph_analysis_data_t *user_data)
 	int i;
 
 	for (i=0; i<MAX_NUM_NODES; i++) {
-		user_data->graph_info->nodes[i].type = AT_NONE;
-		user_data->graph_info->nodes[i].len = 0;
-		g_free((void *)user_data->graph_info->nodes[i].data);
-		user_data->graph_info->nodes[i].data = NULL;
+		free_address(&user_data->graph_info->nodes[i]);
 	}
 	user_data->dlg.window = NULL;
 	g_free(user_data->dlg.title);

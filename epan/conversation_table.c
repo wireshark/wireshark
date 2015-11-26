@@ -285,8 +285,8 @@ reset_conversation_table_data(conv_hash_t *ch)
         guint i;
         for(i = 0; i < ch->conv_array->len; i++){
             conv_item_t *conv = &g_array_index(ch->conv_array, conv_item_t, i);
-            g_free((gpointer)conv->src_address.data);
-            g_free((gpointer)conv->dst_address.data);
+            free_address(&conv->src_address);
+            free_address(&conv->dst_address);
         }
 
         g_array_free(ch->conv_array, TRUE);
@@ -310,7 +310,7 @@ void reset_hostlist_table_data(conv_hash_t *ch)
         guint i;
         for(i = 0; i < ch->conv_array->len; i++){
             hostlist_talker_t *host = &g_array_index(ch->conv_array, hostlist_talker_t, i);
-            g_free((gpointer)host->myaddress.data);
+            free_address(&host->myaddress);
         }
 
         g_array_free(ch->conv_array, TRUE);
@@ -769,7 +769,7 @@ add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboo
         host_key_t existing_key;
         gpointer talker_idx_hash_val;
 
-        existing_key.myaddress = *addr;
+        copy_address_shallow(&existing_key.myaddress, addr);
         existing_key.port = port;
 
         if (g_hash_table_lookup_extended(ch->hashtable, &existing_key, NULL, &talker_idx_hash_val)) {

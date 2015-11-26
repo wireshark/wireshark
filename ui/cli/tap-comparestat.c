@@ -119,8 +119,8 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 
 	/* so this get filled, usually with the first frame */
 	if (cs->eth_dst.len == 0) {
-		cs->eth_dst = pinfo->dl_dst;
-		cs->eth_src = pinfo->dl_src;
+		copy_address_shallow(&cs->eth_dst, &pinfo->dl_dst);
+		copy_address_shallow(&cs->eth_src, &pinfo->dl_src);
 	}
 
 	/* Set up the fields of the pseudo-header and create checksum */
@@ -145,7 +145,7 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	fInfo->num = pinfo->num;
 	fInfo->id = ci->ip_id;
 	fInfo->ip_ttl = ci->ip_ttl;
-	fInfo->dl_dst = pinfo->dl_dst;
+	copy_address_shallow(&fInfo->dl_dst, &pinfo->dl_dst);
 	fInfo->abs_ts = pinfo->abs_ts;
 	/* clean memory */
 	nstime_set_zero(&fInfo->zebra_time);

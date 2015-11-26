@@ -1820,12 +1820,12 @@ dissect_openflow_packet_in_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         /* save some state */
         save_writable = col_get_writable(pinfo->cinfo);
         save_in_error_pkt = pinfo->flags.in_error_pkt;
-        save_dl_src = pinfo->dl_src;
-        save_dl_dst = pinfo->dl_dst;
-        save_net_src = pinfo->net_src;
-        save_net_dst = pinfo->net_dst;
-        save_src = pinfo->src;
-        save_dst = pinfo->dst;
+        copy_address_shallow(&save_dl_src, &pinfo->dl_src);
+        copy_address_shallow(&save_dl_dst, &pinfo->dl_dst);
+        copy_address_shallow(&save_net_src, &pinfo->net_src);
+        copy_address_shallow(&save_net_dst, &pinfo->net_dst);
+        copy_address_shallow(&save_src, &pinfo->src);
+        copy_address_shallow(&save_dst, &pinfo->dst);
 
         /* dissect data */
         col_set_writable(pinfo->cinfo, FALSE);
@@ -1835,12 +1835,12 @@ dissect_openflow_packet_in_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         /* restore saved state */
         col_set_writable(pinfo->cinfo, save_writable);
         pinfo->flags.in_error_pkt = save_in_error_pkt;
-        pinfo->dl_src = save_dl_src;
-        pinfo->dl_dst = save_dl_dst;
-        pinfo->net_src = save_net_src;
-        pinfo->net_dst = save_net_dst;
-        pinfo->src = save_src;
-        pinfo->dst = save_dst;
+        copy_address_shallow(&pinfo->dl_src, &save_dl_src);
+        copy_address_shallow(&pinfo->dl_dst, &save_dl_dst);
+        copy_address_shallow(&pinfo->net_src, &save_net_src);
+        copy_address_shallow(&pinfo->net_dst, &save_net_dst);
+        copy_address_shallow(&pinfo->src, &save_src);
+        copy_address_shallow(&pinfo->dst, &save_dst);
     }
 }
 
@@ -2407,12 +2407,12 @@ dissect_openflow_packet_out_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         /* save some state */
         save_writable = col_get_writable(pinfo->cinfo);
         save_in_error_pkt = pinfo->flags.in_error_pkt;
-        save_dl_src = pinfo->dl_src;
-        save_dl_dst = pinfo->dl_dst;
-        save_net_src = pinfo->net_src;
-        save_net_dst = pinfo->net_dst;
-        save_src = pinfo->src;
-        save_dst = pinfo->dst;
+        copy_address_shallow(&save_dl_src, &pinfo->dl_src);
+        copy_address_shallow(&save_dl_dst, &pinfo->dl_dst);
+        copy_address_shallow(&save_net_src, &pinfo->net_src);
+        copy_address_shallow(&save_net_dst, &pinfo->net_dst);
+        copy_address_shallow(&save_src, &pinfo->src);
+        copy_address_shallow(&save_dst, &pinfo->dst);
 
         /* dissect data */
         col_set_writable(pinfo->cinfo, FALSE);
@@ -2422,12 +2422,12 @@ dissect_openflow_packet_out_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         /* restore saved state */
         col_set_writable(pinfo->cinfo, save_writable);
         pinfo->flags.in_error_pkt = save_in_error_pkt;
-        pinfo->dl_src = save_dl_src;
-        pinfo->dl_dst = save_dl_dst;
-        pinfo->net_src = save_net_src;
-        pinfo->net_dst = save_net_dst;
-        pinfo->src = save_src;
-        pinfo->dst = save_dst;
+        copy_address_shallow(&pinfo->dl_src, &save_dl_src);
+        copy_address_shallow(&pinfo->dl_dst, &save_dl_dst);
+        copy_address_shallow(&pinfo->net_src, &save_net_src);
+        copy_address_shallow(&pinfo->net_dst, &save_net_dst);
+        copy_address_shallow(&pinfo->src, &save_src);
+        copy_address_shallow(&pinfo->dst, &save_dst);
     }
 }
 

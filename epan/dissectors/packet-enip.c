@@ -1113,14 +1113,14 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
              ((connInfo->O2T.ipaddress.type == AT_IPv4) && ((*(const guint32*)connInfo->O2T.ipaddress.data)) == 0) ||
              ((connInfo->O2T.ipaddress.type == AT_IPv6) && (memcmp(connInfo->O2T.ipaddress.data, &ipv6_zero, sizeof(ipv6_zero)) == 0)) ||
              (connInfo->O2T.type != CONN_TYPE_MULTICAST))
-            connInfo->O2T.ipaddress = pinfo->src;
+            copy_address_shallow(&connInfo->O2T.ipaddress, &pinfo->src);
          if ((connInfo->T2O.port == 0) || (connInfo->T2O.type == CONN_TYPE_MULTICAST))
             connInfo->T2O.port = ENIP_IO_PORT;
          if ((connInfo->T2O.ipaddress.type == AT_NONE) ||
              ((connInfo->T2O.ipaddress.type == AT_IPv4) && ((*(const guint32*)connInfo->T2O.ipaddress.data)) == 0) ||
              ((connInfo->T2O.ipaddress.type == AT_IPv6) && (memcmp(connInfo->T2O.ipaddress.data, &ipv6_zero, sizeof(ipv6_zero)) == 0)) ||
              (connInfo->T2O.type != CONN_TYPE_MULTICAST))
-            connInfo->T2O.ipaddress = pinfo->dst;
+            copy_address_shallow(&connInfo->T2O.ipaddress, &pinfo->dst);
 
          if (connInfo->O2T.ipaddress.type == AT_IPv6)
          {
@@ -2576,24 +2576,17 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                   request_info = (enip_request_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
                   if (request_info != NULL)
                   {
-                     guint16 port;
-                     guint32 *datap;
-
-                     port = tvb_get_ntohs(tvb, offset+8);
-                     datap = (guint32 *)wmem_alloc(wmem_file_scope(), sizeof(guint32));
-                     *datap = tvb_get_ipv4(tvb, offset+10);
-
                      if (item == SOCK_ADR_INFO_OT)
                      {
-                        request_info->cip_info->connInfo->O2T.port = port;
-                        set_address(&request_info->cip_info->connInfo->O2T.ipaddress,
-			            AT_IPv4, sizeof(guint32), datap);
+                        request_info->cip_info->connInfo->O2T.port = tvb_get_ntohs(tvb, offset+8);
+                        alloc_address_tvb(wmem_file_scope(), &request_info->cip_info->connInfo->O2T.ipaddress,
+                                             AT_IPv4, sizeof(guint32), tvb, offset+10);
                      }
                      else
                      {
-                        request_info->cip_info->connInfo->T2O.port = port;
-                        set_address(&request_info->cip_info->connInfo->T2O.ipaddress,
-			            AT_IPv4, sizeof(guint32), datap);
+                        request_info->cip_info->connInfo->T2O.port = tvb_get_ntohs(tvb, offset+8);
+                        alloc_address_tvb(wmem_file_scope(), &request_info->cip_info->connInfo->T2O.ipaddress,
+                                             AT_IPv4, sizeof(guint32), tvb, offset+10);
                      }
                   }
                }

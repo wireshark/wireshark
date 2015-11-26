@@ -45,7 +45,7 @@ gint	mac_sdu_length = 49; /* default SDU size is 49 bytes (11.13.16) */
 extern	guint global_cid_max_basic;
 extern	gboolean include_cor2_changes;
 
-address bs_address = {AT_NONE, 0, NULL};
+address bs_address = ADDRESS_INIT_NONE;
 
 
 static int hf_tlv_type = -1;

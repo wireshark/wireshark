@@ -797,8 +797,8 @@ decode_dcerpc_binding_free(void *binding_in)
 {
     decode_dcerpc_bind_values_t *binding = (decode_dcerpc_bind_values_t *)binding_in;
 
-    g_free((void *) binding->addr_a.data);
-    g_free((void *) binding->addr_b.data);
+    free_address(&binding->addr_a);
+    free_address(&binding->addr_b);
     if (binding->ifname)
         g_string_free(binding->ifname, TRUE);
     g_free(binding);
@@ -962,8 +962,8 @@ decode_dcerpc_binding_reset(const char *name _U_, const gpointer pattern)
 
     decode_dcerpc_bindings = g_slist_remove(decode_dcerpc_bindings, le->data);
 
-    g_free((void *) old_binding->addr_a.data);
-    g_free((void *) old_binding->addr_b.data);
+    free_address(&old_binding->addr_a);
+    free_address(&old_binding->addr_b);
     g_string_free(old_binding->ifname, TRUE);
     g_free(old_binding);
     return FALSE;
@@ -1082,8 +1082,8 @@ dcerpc_fragment_temporary_key(const packet_info *pinfo, const guint32 id,
     dcerpc_fragment_key *key = g_slice_new(dcerpc_fragment_key);
     const e_dce_dg_common_hdr_t *hdr = (const e_dce_dg_common_hdr_t *)data;
 
-    key->src = pinfo->src;
-    key->dst = pinfo->dst;
+    copy_address_shallow(&key->src, &pinfo->src);
+    copy_address_shallow(&key->dst, &pinfo->dst);
     key->id = id;
     key->act_id = hdr->act_id;
 
@@ -1124,8 +1124,8 @@ dcerpc_fragment_free_persistent_key(gpointer ptr)
         /*
          * Free up the copies of the addresses from the old key.
          */
-        g_free((gpointer)key->src.data);
-        g_free((gpointer)key->dst.data);
+        free_address(&key->src);
+        free_address(&key->dst);
 
         g_slice_free(dcerpc_fragment_key, key);
     }

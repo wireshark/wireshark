@@ -167,7 +167,7 @@ msrp_add_address( packet_info *pinfo,
         return;
     }
 
-    set_address(&null_addr, AT_NONE, 0, NULL);
+    clear_address(&null_addr);
 
     /*
      * Check if the ip address and port combination is not

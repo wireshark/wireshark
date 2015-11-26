@@ -1632,7 +1632,7 @@ dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, int offset,
 	return offset;
 }
 
-static address null_address = { AT_NONE, 0, NULL };
+static address null_address = ADDRESS_INIT_NONE;
 
 /*
  * Attempt to find a conversation for a call and, if we don't find one,

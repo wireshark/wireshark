@@ -124,41 +124,31 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
             }
         case FT_ETHER: {
                 Address eth = (Address)g_malloc(sizeof(address));
-                eth->type = AT_ETHER;
-                eth->len = fi->ws_fi->length;
-                eth->data = tvb_memdup(NULL,fi->ws_fi->ds_tvb,fi->ws_fi->start,fi->ws_fi->length);
+                alloc_address_tvb(NULL,eth,AT_ETHER,fi->ws_fi->length,fi->ws_fi->ds_tvb,fi->ws_fi->start);
                 pushAddress(L,eth);
                 return 1;
             }
         case FT_IPv4:{
                 Address ipv4 = (Address)g_malloc(sizeof(address));
-                ipv4->type = AT_IPv4;
-                ipv4->len = fi->ws_fi->length;
-                ipv4->data = tvb_memdup(NULL,fi->ws_fi->ds_tvb,fi->ws_fi->start,fi->ws_fi->length);
+                alloc_address_tvb(NULL,ipv4,AT_IPv4,fi->ws_fi->length,fi->ws_fi->ds_tvb,fi->ws_fi->start);
                 pushAddress(L,ipv4);
                 return 1;
             }
         case FT_IPv6: {
                 Address ipv6 = (Address)g_malloc(sizeof(address));
-                ipv6->type = AT_IPv6;
-                ipv6->len = fi->ws_fi->length;
-                ipv6->data = tvb_memdup(NULL,fi->ws_fi->ds_tvb,fi->ws_fi->start,fi->ws_fi->length);
+                alloc_address_tvb(NULL,ipv6,AT_IPv6,fi->ws_fi->length,fi->ws_fi->ds_tvb,fi->ws_fi->start);
                 pushAddress(L,ipv6);
                 return 1;
             }
         case FT_FCWWN: {
                 Address fcwwn = (Address)g_malloc(sizeof(address));
-                fcwwn->type = AT_FCWWN;
-                fcwwn->len = fi->ws_fi->length;
-                fcwwn->data = tvb_memdup(NULL,fi->ws_fi->ds_tvb,fi->ws_fi->start,fi->ws_fi->length);
+                alloc_address_tvb(NULL,fcwwn,AT_FCWWN,fi->ws_fi->length,fi->ws_fi->ds_tvb,fi->ws_fi->start);
                 pushAddress(L,fcwwn);
                 return 1;
             }
         case FT_IPXNET:{
                 Address ipx = (Address)g_malloc(sizeof(address));
-                ipx->type = AT_IPX;
-                ipx->len = fi->ws_fi->length;
-                ipx->data = tvb_memdup(NULL,fi->ws_fi->ds_tvb,fi->ws_fi->start,fi->ws_fi->length);
+                alloc_address_tvb(NULL,ipx,AT_IPX,fi->ws_fi->length,fi->ws_fi->ds_tvb,fi->ws_fi->start);
                 pushAddress(L,ipx);
                 return 1;
             }
