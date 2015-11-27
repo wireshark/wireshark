@@ -122,7 +122,7 @@ proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
     data.stream             = stream;
     data.success            = TRUE;
     data.src_list           = edt->pi.data_src;
-    data.encoding           = edt->pi.fd->flags.encoding;
+    data.encoding           = (packet_char_enc)edt->pi.fd->flags.encoding;
     data.print_dissections  = print_args->print_dissections;
     /* If we're printing the entire packet in hex, don't
        print uninterpreted data fields in hex as well. */
@@ -902,7 +902,7 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
             return TRUE;
         cp = tvb_get_ptr(tvb, 0, length);
         if (!print_hex_data_buffer(stream, cp, length,
-                                   edt->pi.fd->flags.encoding))
+                                   (packet_char_enc)edt->pi.fd->flags.encoding))
             return FALSE;
     }
     return TRUE;

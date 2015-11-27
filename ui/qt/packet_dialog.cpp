@@ -83,7 +83,7 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
         source = (struct data_source *)src_le->data;
         source_name = get_data_source_name(source);
         byte_view_tab_->addTab(source_name, get_data_source_tvb(source), edt_.tree, proto_tree_,
-                               cap_file_.capFile()->current_frame->flags.encoding);
+                               (packet_char_enc)cap_file_.capFile()->current_frame->flags.encoding);
         wmem_free(NULL, source_name);
     }
     byte_view_tab_->setCurrentIndex(0);
