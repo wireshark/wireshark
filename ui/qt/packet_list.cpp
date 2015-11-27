@@ -260,6 +260,7 @@ PacketList::PacketList(QWidget *parent) :
     setRootIsDecorated(false);
     setSortingEnabled(true);
     setUniformRowHeights(true);
+    setAutoScroll(false);
     setAccessibleName("Packet list");
 
     overlay_sb_ = new OverlayScrollBar(Qt::Vertical, this);
@@ -754,7 +755,7 @@ void PacketList::recolorPackets()
 
 /* Enable autoscroll timer. Note: must be called after the capture is started,
  * otherwise the timer will not be executed. */
-void PacketList::setAutoScroll(bool enabled)
+void PacketList::setVerticalAutoScroll(bool enabled)
 {
     tail_at_end_ = enabled;
     if (enabled && capture_in_progress_) {
