@@ -244,7 +244,7 @@ MulticastStatisticsDialog::MulticastStatisticsDialog(QWidget &parent, CaptureFil
         setDisplayFilter(filter);
     }
 
-    connect(this, SIGNAL(updateFilter(QString&,bool)),
+    connect(this, SIGNAL(updateFilter(QString)),
             this, SLOT(updateMulticastParameters()));
 
     connect(&cap_file_, SIGNAL(captureFileClosing()),
