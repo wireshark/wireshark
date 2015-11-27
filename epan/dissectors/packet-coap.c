@@ -137,6 +137,7 @@ static const value_string vals_code[] = {
 	{  67, "2.03 Valid" },
 	{  68, "2.04 Changed" },
 	{  69, "2.05 Content" },
+	{  95, "2.31 Continue" },
 	{ 128, "4.00 Bad Request" },
 	{ 129, "4.01 Unauthorized" },
 	{ 130, "4.02 Bad Option" },
