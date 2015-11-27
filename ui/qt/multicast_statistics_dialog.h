@@ -23,6 +23,7 @@
 #define MULTICASTSTATISTICSDIALOG_H
 
 #include "tap_parameter_dialog.h"
+#include "ui/mcast_stream.h"
 
 class SyntaxLineEdit;
 
@@ -44,8 +45,8 @@ private:
     QList<QWidget *> line_edits_;
 
     // Callbacks for register_tap_listener
-    static void tapReset(void *mti_ptr);
-    static void tapDraw(void *mti_ptr);
+    static void tapReset(mcaststream_tapinfo_t *tapinfo);
+    static void tapDraw(mcaststream_tapinfo_t *tapinfo);
 
     virtual const QString filterExpression();
 
