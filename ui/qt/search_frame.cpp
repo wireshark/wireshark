@@ -72,9 +72,9 @@ SearchFrame::~SearchFrame()
 
 void SearchFrame::animatedShow()
 {
-    sf_ui_->searchLineEdit->setFocus();
-
     AccordionFrame::animatedShow();
+
+    sf_ui_->searchLineEdit->setFocus();
 }
 
 void SearchFrame::findNext()
@@ -99,6 +99,12 @@ void SearchFrame::findPrevious()
         return;
     }
     on_findButton_clicked();
+}
+
+void SearchFrame::setFocus()
+{
+    sf_ui_->searchLineEdit->setFocus();
+    cap_file_->dir = SD_FORWARD;
 }
 
 void SearchFrame::setCaptureFile(capture_file *cf)

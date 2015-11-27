@@ -42,6 +42,7 @@ public:
     void animatedShow();
     void findNext();
     void findPrevious();
+    void setFocus();
 
 public slots:
     void setCaptureFile(capture_file *cf);
