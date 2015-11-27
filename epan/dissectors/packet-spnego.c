@@ -622,28 +622,6 @@ dissect_spnego_krb5_cfx_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 token_id, gssapi_encrypt_info_t* gssapi_encrypt);
 
-
-/* XXX - This should be TEMPORARY until these members in are removed from packet_info */
-static void packet_info_to_gssapi_encrypt(packet_info *pinfo, gssapi_encrypt_info_t* encrypt_info)
-{
-	encrypt_info->decrypt_gssapi_tvb = pinfo->decrypt_gssapi_tvb;
-	encrypt_info->gssapi_wrap_tvb = pinfo->gssapi_wrap_tvb;
-	encrypt_info->gssapi_encrypted_tvb = pinfo->gssapi_encrypted_tvb;
-	encrypt_info->gssapi_decrypted_tvb = pinfo->gssapi_decrypted_tvb;
-	encrypt_info->gssapi_data_encrypted = pinfo->gssapi_data_encrypted;
-}
-
-static void gssapi_encrypt_to_packet_info(packet_info *pinfo, gssapi_encrypt_info_t* encrypt_info)
-{
-	pinfo->decrypt_gssapi_tvb = encrypt_info->decrypt_gssapi_tvb;
-	pinfo->gssapi_wrap_tvb = encrypt_info->gssapi_wrap_tvb;
-	pinfo->gssapi_encrypted_tvb = encrypt_info->gssapi_encrypted_tvb;
-	pinfo->gssapi_decrypted_tvb = encrypt_info->gssapi_decrypted_tvb;
-	pinfo->gssapi_data_encrypted = encrypt_info->gssapi_data_encrypted;
-}
-
-
-
 static int
 dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -658,7 +636,6 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	gint32 tag;
 	guint32 len;
 	gssapi_encrypt_info_t* encrypt_info = (gssapi_encrypt_info_t*)data;
-	gssapi_encrypt_info_t pass_encrypt_info;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -762,28 +739,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	  break;
 
 	case KRB_TOKEN_WRAP:
-		/* XXX - This is setup to hopefully remove the need for these members in packet_info
-		* If data is supplied to dissector, use it.  Otherwise convert to packet_info
-		*/
-		if (encrypt_info != NULL)
-		{
-			pass_encrypt_info = *encrypt_info;
-		}
-		else
-		{
-			packet_info_to_gssapi_encrypt(pinfo, &pass_encrypt_info);
-		}
-
-		offset = dissect_spnego_krb5_wrap_base(tvb, offset, pinfo, subtree, token_id, &pass_encrypt_info);
-
-		if (encrypt_info != NULL)
-		{
-			*encrypt_info = pass_encrypt_info;
-		}
-		else
-		{
-			gssapi_encrypt_to_packet_info(pinfo, &pass_encrypt_info);
-		}
+		offset = dissect_spnego_krb5_wrap_base(tvb, offset, pinfo, subtree, token_id, encrypt_info);
 	  break;
 
 	case KRB_TOKEN_DELETE_SEC_CONTEXT:
@@ -795,28 +751,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	  break;
 
 	case KRB_TOKEN_CFX_WRAP:
-		/* XXX - This is setup to hopefully remove the need for these members in packet_info
-		* If data is supplied to dissector, use it.  Otherwise convert to packet_info
-		*/
-		if (encrypt_info != NULL)
-		{
-			pass_encrypt_info = *encrypt_info;
-		}
-		else
-		{
-			packet_info_to_gssapi_encrypt(pinfo, &pass_encrypt_info);
-		}
-
-		offset = dissect_spnego_krb5_cfx_wrap_base(tvb, offset, pinfo, subtree, token_id, &pass_encrypt_info);
-
-		if (encrypt_info != NULL)
-		{
-			*encrypt_info = pass_encrypt_info;
-		}
-		else
-		{
-			gssapi_encrypt_to_packet_info(pinfo, &pass_encrypt_info);
-		}
+		offset = dissect_spnego_krb5_cfx_wrap_base(tvb, offset, pinfo, subtree, token_id, encrypt_info);
 	  break;
 
 	default:
@@ -1321,11 +1256,12 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	}
 
 	/* Is the data encrypted? */
-	gssapi_encrypt->gssapi_data_encrypted=(seal_alg!=KRB_SEAL_ALG_NONE);
+	if (gssapi_encrypt != NULL)
+		gssapi_encrypt->gssapi_data_encrypted=(seal_alg!=KRB_SEAL_ALG_NONE);
 
 #ifdef HAVE_KERBEROS
 #define GSS_ARCFOUR_WRAP_TOKEN_SIZE 32
-	if(gssapi_encrypt->decrypt_gssapi_tvb){
+	if(gssapi_encrypt && gssapi_encrypt->decrypt_gssapi_tvb){
 		/* if the caller did not provide a tvb, then we just use
 		   whatever is left of our current tvb.
 		*/
@@ -1493,7 +1429,8 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	flags = tvb_get_guint8(tvb, offset);
 	offset = dissect_spnego_krb5_cfx_flags(tvb, offset, tree, flags);
 
-	gssapi_encrypt->gssapi_data_encrypted=(flags & 2);
+	if (gssapi_encrypt != NULL)
+		gssapi_encrypt->gssapi_data_encrypted=(flags & 2);
 
 	/* Skip the filler */
 
@@ -1520,6 +1457,9 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	proto_tree_add_item(tree, hf_spnego_krb5_cfx_seq, tvb, offset, 8,
 			    ENC_BIG_ENDIAN);
 	offset += 8;
+
+	if (gssapi_encrypt == NULL) /* Probably shoudn't happen, but just protect ourselves */
+		return offset;
 
 	/* Checksum of plaintext padded data */
 
@@ -1706,7 +1646,6 @@ dissect_spnego_krb5_wrap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	int offset = 0;
 	guint16 token_id;
 	gssapi_encrypt_info_t* encrypt_info = (gssapi_encrypt_info_t*)data;
-	gssapi_encrypt_info_t pass_encrypt_info;
 
 	item = proto_tree_add_item(tree, hf_spnego_krb5, tvb, 0, -1, ENC_NA);
 
@@ -1732,28 +1671,7 @@ dissect_spnego_krb5_wrap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	  break;
 
 	case KRB_TOKEN_WRAP:
-		/* XXX - This is setup to hopefully remove the need for these members in packet_info
-		* If data is supplied to dissector, use it.  Otherwise convert to packet_info
-		*/
-		if (encrypt_info != NULL)
-		{
-			pass_encrypt_info = *encrypt_info;
-		}
-		else
-		{
-			packet_info_to_gssapi_encrypt(pinfo, &pass_encrypt_info);
-		}
-
-		offset = dissect_spnego_krb5_wrap_base(tvb, offset, pinfo, subtree, token_id, &pass_encrypt_info);
-
-		if (encrypt_info != NULL)
-		{
-			*encrypt_info = pass_encrypt_info;
-		}
-		else
-		{
-			gssapi_encrypt_to_packet_info(pinfo, &pass_encrypt_info);
-		}
+		offset = dissect_spnego_krb5_wrap_base(tvb, offset, pinfo, subtree, token_id, encrypt_info);
 	  break;
 
 	case KRB_TOKEN_CFX_GETMIC:
@@ -1761,28 +1679,7 @@ dissect_spnego_krb5_wrap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	  break;
 
 	case KRB_TOKEN_CFX_WRAP:
-		/* XXX - This is setup to hopefully remove the need for these members in packet_info
-		* If data is supplied to dissector, use it.  Otherwise convert to packet_info
-		*/
-		if (encrypt_info != NULL)
-		{
-			pass_encrypt_info = *encrypt_info;
-		}
-		else
-		{
-			packet_info_to_gssapi_encrypt(pinfo, &pass_encrypt_info);
-		}
-
-		offset = dissect_spnego_krb5_cfx_wrap_base(tvb, offset, pinfo, subtree, token_id, &pass_encrypt_info);
-
-		if (encrypt_info != NULL)
-		{
-			*encrypt_info = pass_encrypt_info;
-		}
-		else
-		{
-			gssapi_encrypt_to_packet_info(pinfo, &pass_encrypt_info);
-		}
+		offset = dissect_spnego_krb5_cfx_wrap_base(tvb, offset, pinfo, subtree, token_id, encrypt_info);
 	  break;
 
 	default:
@@ -2064,7 +1961,7 @@ void proto_register_spnego(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-spnego-hfarr.c ---*/
-#line 1519 "../../asn1/spnego/packet-spnego-template.c"
+#line 1416 "../../asn1/spnego/packet-spnego-template.c"
 	};
 
 	/* List of subtrees */
@@ -2087,7 +1984,7 @@ void proto_register_spnego(void) {
     &ett_spnego_InitialContextToken_U,
 
 /*--- End of included file: packet-spnego-ettarr.c ---*/
-#line 1529 "../../asn1/spnego/packet-spnego-template.c"
+#line 1426 "../../asn1/spnego/packet-spnego-template.c"
 	};
 
 	static ei_register_info ei[] = {

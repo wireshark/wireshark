@@ -130,22 +130,6 @@ typedef struct _packet_info {
                                        inbound (P2P_DIR_RECV)
                                        unknown (P2P_DIR_UNKNOWN) */
 
-  /**< Extra data for handling of decryption of GSSAPI wrapped tvbuffs.
-     Caller sets decrypt_gssapi_tvb if this service is requested.
-     If gssapi_encrypted_tvb is NULL, then the rest of the tvb data following
-     the gssapi blob itself is decrypted othervise the gssapi_encrypted_tvb
-     tvb will be decrypted (DCERPC has the data before the gssapi blob)
-     If, on return, gssapi_data_encrypted is FALSE, the wrapped tvbuff
-     was signed (i.e., an encrypted signature was present, to check
-     whether the data was modified by a man in the middle) but not sealed
-     (i.e., the data itself wasn't encrypted).
-  */
-  guint16 decrypt_gssapi_tvb;
-  tvbuff_t *gssapi_wrap_tvb;
-  tvbuff_t *gssapi_encrypted_tvb;
-  tvbuff_t *gssapi_decrypted_tvb;
-  gboolean gssapi_data_encrypted;
-
   GHashTable *private_table;    /**< a hash table passed from one dissector to another */
 
   wmem_list_t *layers;      /**< layers of each protocol */

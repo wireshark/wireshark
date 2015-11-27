@@ -1888,7 +1888,7 @@ get_encrypted_state(packet_info *pinfo, int cryptpeer)
   }
 }
 
-static void
+static tvbuff_t*
 decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
                      packet_info *pinfo, proto_tree *tree _U_, gpointer key);
 static void
@@ -1974,7 +1974,7 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   return offset;
 }
 
-static void
+static tvbuff_t*
 decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
                      packet_info *pinfo, proto_tree *tree _U_, gpointer key)
 {
@@ -1999,19 +1999,19 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
                                      pinfo->destport, 0);
     if (conversation == NULL) {
       /* There is no conversation, thus no encryption state */
-      return ;
+      return NULL;
     }
 
     conv_ntlmssp_info = (ntlmssp_info *)conversation_get_proto_data(conversation,
                                                     proto_ntlmssp);
     if (conv_ntlmssp_info == NULL) {
       /* There is no NTLMSSP state tied to the conversation */
-      return ;
+      return NULL;
     }
     if (conv_ntlmssp_info->rc4_state_initialized != 1) {
       /* The crypto sybsystem is not initialized.  This means that either
          the conversation did not include a challenge, or that we do not have the right password */
-      return;
+      return NULL;
     }
     if (key != NULL) {
       stored_packet_ntlmssp_info = (ntlmssp_packet_info *)g_hash_table_lookup(hash_packet, key);
@@ -2040,7 +2040,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 
       if (rc4_state == NULL) {
         /* There is no encryption state, so we cannot decrypt */
-        return ;
+        return NULL;
       }
 
       /* Store the decrypted contents in the packet state struct
@@ -2080,7 +2080,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 
   add_new_data_source(pinfo, decr_tvb,
                       "Decrypted data");
-  pinfo->gssapi_decrypted_tvb =  decr_tvb;
+  return decr_tvb;
 }
 
 static int
@@ -2343,12 +2343,16 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 
 /* Used when NTLMSSP is done over DCE/RPC because in this case verifier and real payload are not contigious*/
 static int
-dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *tree, void *data _U_)
+dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *tree, void *data)
 {
   volatile int          offset       = 0;
   proto_tree *volatile  ntlmssp_tree = NULL;
   guint32               encrypted_block_length;
+  tvbuff_t *volatile    decr_tvb;
+  tvbuff_t**            ret_decr_tvb = (tvbuff_t**)data;
 
+  if (ret_decr_tvb)
+    *ret_decr_tvb = NULL;
   /* the magic ntlm is the identifier of a NTLMSSP packet that's 00 00 00 01
    */
   encrypted_block_length = tvb_captured_length (tvb);
@@ -2381,7 +2385,9 @@ dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *
     /* Version number */
 
     /* Try to decrypt */
-    decrypt_data_payload (tvb, offset, encrypted_block_length, pinfo, ntlmssp_tree, NULL);
+    decr_tvb = decrypt_data_payload (tvb, offset, encrypted_block_length, pinfo, ntlmssp_tree, NULL);
+    if (ret_decr_tvb)
+       *ret_decr_tvb = decr_tvb;
     /* let's try to hook ourselves here */
 
   } CATCH_NONFATAL_ERRORS {
@@ -2463,11 +2469,11 @@ static tvbuff_t *
 wrap_dissect_ntlmssp_payload_only(tvbuff_t *tvb, tvbuff_t *auth_tvb _U_,
                                   int offset, packet_info *pinfo, dcerpc_auth_info *auth_info _U_)
 {
-  tvbuff_t *data_tvb;
+  tvbuff_t *data_tvb, *decrypted_tvb;
 
   data_tvb = tvb_new_subset_remaining(tvb, offset);
-  dissect_ntlmssp_payload_only(data_tvb, pinfo, NULL, NULL);
-  return pinfo->gssapi_decrypted_tvb;
+  dissect_ntlmssp_payload_only(data_tvb, pinfo, NULL, &decrypted_tvb);
+  return decrypted_tvb;
 }
 
 #if 0

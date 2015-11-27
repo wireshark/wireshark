@@ -34,11 +34,19 @@ typedef struct _gssapi_oid_value {
 	const gchar *comment;  /* For the comment */
 } gssapi_oid_value;
 
-/* Created as an attempt to remove members out of packet_info.
-   Data structure to be passed between dissectors */
 #define DECRYPT_GSSAPI_NORMAL   1
 #define DECRYPT_GSSAPI_DCE  2
 
+/**< Extra data for handling of decryption of GSSAPI wrapped tvbuffs.
+	Caller sets decrypt_gssapi_tvb if this service is requested.
+	If gssapi_encrypted_tvb is NULL, then the rest of the tvb data following
+	the gssapi blob itself is decrypted othervise the gssapi_encrypted_tvb
+	tvb will be decrypted (DCERPC has the data before the gssapi blob)
+	If, on return, gssapi_data_encrypted is FALSE, the wrapped tvbuff
+	was signed (i.e., an encrypted signature was present, to check
+	whether the data was modified by a man in the middle) but not sealed
+	(i.e., the data itself wasn't encrypted).
+*/
 typedef struct _gssapi_encrypt_info
 {
 	guint16 decrypt_gssapi_tvb;

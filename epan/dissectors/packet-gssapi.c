@@ -336,9 +336,9 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 									pinfo, subtree);
 				}
 				else if( encrypt_info->gssapi_encrypted_tvb ) {
-					return_offset = call_dissector(ntlmssp_data_only_handle,
+					return_offset = call_dissector_with_data(ntlmssp_data_only_handle,
 									tvb_new_subset_remaining(encrypt_info->gssapi_encrypted_tvb, 0),
-									pinfo, subtree);
+									pinfo, subtree, &encrypt_info->gssapi_decrypted_tvb);
 					encrypt_info->gssapi_data_encrypted = TRUE;
 				}
 		   		goto done;
@@ -521,48 +521,28 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return return_offset;
 }
 
-/* XXX - This should be TEMPORARY until these members in are removed from packet_info */
-static void packet_info_to_gssapi_encrypt(packet_info *pinfo, gssapi_encrypt_info_t* encrypt_info)
-{
-	encrypt_info->decrypt_gssapi_tvb = pinfo->decrypt_gssapi_tvb;
-	encrypt_info->gssapi_wrap_tvb = pinfo->gssapi_wrap_tvb;
-	encrypt_info->gssapi_encrypted_tvb = pinfo->gssapi_encrypted_tvb;
-	encrypt_info->gssapi_decrypted_tvb = pinfo->gssapi_decrypted_tvb;
-	encrypt_info->gssapi_data_encrypted = pinfo->gssapi_data_encrypted;
-}
-
 static int
 dissect_gssapi_work_wrapper(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gssapi_encrypt_info_t* encrypt_info, gboolean is_verifier)
 {
 	int ret;
 	gssapi_encrypt_info_t pass_encrypt_info;
 
-	/* XXX - This is setup to hopefully remove the need for these members in packet_info
-	 * Setup the dissector to take them as arguments and for now, convert to
-	 * packet_info
-	 */
+	/* Ensure a non-null encryption structure */
 	if (encrypt_info != NULL)
 	{
 		pass_encrypt_info = *encrypt_info;
 	}
 	else
 	{
-		packet_info_to_gssapi_encrypt(pinfo, &pass_encrypt_info);
+		memset(&pass_encrypt_info, 0, sizeof(pass_encrypt_info));
 	}
 
 	ret = dissect_gssapi_work(tvb, pinfo, tree, is_verifier, &pass_encrypt_info);
 
+	/* Restore any changes to provided encryption structure */
 	if (encrypt_info != NULL)
 	{
 		*encrypt_info = pass_encrypt_info;
-	}
-	else
-	{
-		/* Just clean up */
-		pinfo->decrypt_gssapi_tvb=0;
-		pinfo->gssapi_wrap_tvb=NULL;
-		pinfo->gssapi_encrypted_tvb=NULL;
-		pinfo->gssapi_decrypted_tvb=NULL;
 	}
 
 	return ret;
