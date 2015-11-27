@@ -21,8 +21,6 @@
 
 #include "multicast_statistics_dialog.h"
 
-#include "ui/mcast_stream.h"
-
 #include <QFormLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -269,18 +267,16 @@ MulticastStatisticsDialog::~MulticastStatisticsDialog()
     delete tapinfo_;
 }
 
-void MulticastStatisticsDialog::tapReset(void *mti_ptr)
+void MulticastStatisticsDialog::tapReset(mcaststream_tapinfo_t *tapinfo)
 {
-    mcaststream_tapinfo_t *tapinfo = (mcaststream_tapinfo_t *)mti_ptr;
     MulticastStatisticsDialog *ms_dlg = dynamic_cast<MulticastStatisticsDialog *>((MulticastStatisticsDialog*)tapinfo->user_data);
     if (!ms_dlg || !ms_dlg->statsTreeWidget()) return;
 
     ms_dlg->statsTreeWidget()->clear();
 }
 
-void MulticastStatisticsDialog::tapDraw(void *mti_ptr)
+void MulticastStatisticsDialog::tapDraw(mcaststream_tapinfo_t *tapinfo)
 {
-    mcaststream_tapinfo_t *tapinfo = (mcaststream_tapinfo_t *)mti_ptr;
     MulticastStatisticsDialog *ms_dlg = dynamic_cast<MulticastStatisticsDialog *>((MulticastStatisticsDialog*)tapinfo->user_data);
     if (!ms_dlg || !ms_dlg->statsTreeWidget()) return;
 

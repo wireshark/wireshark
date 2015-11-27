@@ -79,19 +79,23 @@ typedef struct _mcast_stream_info {
 
 } mcast_stream_info_t;
 
+typedef struct _mcaststream_tapinfo mcaststream_tapinfo_t;
+
+typedef void (*mcaststream_tap_reset_cb)(mcaststream_tapinfo_t *tapinfo);
+typedef void (*mcaststream_tap_draw_cb)(mcaststream_tapinfo_t *tapinfo);
 
 /* structure that holds the information about all detected streams */
 /* struct holding all information of the tap */
-typedef struct _mcaststream_tapinfo {
+struct _mcaststream_tapinfo {
     gpointer user_data;     /* User data pointer */
-    tap_reset_cb tap_reset; /**< tap reset callback */
-    tap_draw_cb tap_draw;   /**< tap draw callback */
+    mcaststream_tap_reset_cb tap_reset; /**< tap reset callback */
+    mcaststream_tap_draw_cb tap_draw;   /**< tap draw callback */
     GList*  strinfo_list;   /* list of mcast_stream_info_t */
     guint32 npackets;       /* total number of mcast packets of all streams */
     mcast_stream_info_t* allstreams; /* structure holding information common for all streams */
 
     gboolean is_registered; /* if the tap listener is currently registered or not */
-} mcaststream_tapinfo_t;
+};
 
 
 extern gint32  mcast_stream_trigger;

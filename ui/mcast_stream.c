@@ -121,7 +121,7 @@ mcaststream_reset_cb(void *ti_ptr)
     mcaststream_tapinfo_t *tapinfo = (mcaststream_tapinfo_t *)ti_ptr;
     if (tapinfo) {
         if (tapinfo->tap_reset) {
-           tapinfo->tap_reset(ti_ptr);
+           tapinfo->tap_reset(tapinfo);
         }
         mcaststream_reset(tapinfo);
     }
@@ -137,7 +137,7 @@ mcaststream_draw(void *ti_ptr)
     g_signal_emit_by_name(top_level, "signal_mcaststream_update");
 */
     if (tapinfo && tapinfo->tap_draw) {
-        tapinfo->tap_draw(ti_ptr);
+        tapinfo->tap_draw(tapinfo);
     }
     return;
 }
