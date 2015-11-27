@@ -20,13 +20,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include Makefile.common
-include ../Makefile.am.inc
+include $(top_srcdir)/Makefile.am.inc
 
-AM_CFLAGS =-DWS_BUILD_DLL
-
-if HAVE_WARNINGS_AS_ERRORS
-AM_CFLAGS += -Werror
-endif
+AM_CPPFLAGS += -I$(top_srcdir)/wiretap -DWS_BUILD_DLL
 
 CLEANFILES = \
 	libwscodec.la	\
@@ -47,9 +43,6 @@ libwscodecs_la_SOURCES = \
 libwscodecs_la_DEPENDENCIES = ${top_builddir}/wsutil/libwsutil.la
 
 libwscodecs_la_LIBADD = ${top_builddir}/wsutil/libwsutil.la
-
-# Common headers
-AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
 
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \

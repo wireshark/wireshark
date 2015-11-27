@@ -21,6 +21,34 @@
 
 AUTOMAKE_OPTIONS = -Wno-portability
 
+lemon_srcdir = $(top_srcdir)/tools/lemon
+
+LEMON ?= $(top_builddir)/tools/lemon/lemon$(EXEEXT)
+
+RUNLEX ?= $(top_srcdir)/tools/runlex.sh
+
+AM_CPPFLAGS = $(WS_CPPFLAGS) -I$(top_srcdir) -DTOP_SRCDIR=\"$(abs_top_srcdir)\"
+
+AM_CFLAGS = $(WS_CFLAGS)
+
+if HAVE_WARNINGS_AS_ERRORS
+AM_CFLAGS += -Werror
+endif
+
+GENERATED_CFLAGS = $(WS_CFLAGS)
+
+AM_CXXFLAGS = $(WS_CXXFLAGS)
+
+if HAVE_WARNINGS_AS_ERRORS
+AM_CXXFLAGS += -Werror
+endif
+
+AM_LDFLAGS = $(WS_LDFLAGS)
+
+AM_V_PERL = $(am__v_PERL_@AM_V@)
+am__v_PERL_ = $(am__v_PERL_@AM_DEFAULT_V@)
+am__v_PERL_0 = @echo "  PERL    " $@;
+
 AM_V_AWK = $(am__v_AWK_@AM_V@)
 am__v_AWK_ = $(am__v_AWK_@AM_DEFAULT_V@)
 am__v_AWK_0 = @echo "  AWK     " $@;
@@ -48,7 +76,7 @@ abi_incdirs = $(subst -I,NEWLINE,$(filter -I%,$(CFLAGS) -I$(abs_top_srcdir) -I$(
 abi_sysdirs = $(subst -isystem,NEWLINE,$(filter -isystem%,$(CFLAGS)))
 INCLUDE_DIRS = $(abi_incdirs) $(abi_sysdirs)
 abi-descriptor.xml: ../abi-descriptor.template
-	$(AM_V_SED)sed \
+	$(AM_V_SED)$(SED) \
 		-e 's|@INCLUDE_DIRS@|$(INCLUDE_DIRS)|g' \
 		-e 's/ *NEWLINE/\n    /g' \
 		-e 's|@LIBRARY_OUTPUT_PATH@|{RELPATH}/.libs|' $< > $@

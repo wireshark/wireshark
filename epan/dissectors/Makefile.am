@@ -18,20 +18,17 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-noinst_LTLIBRARIES = libdirtydissectors.la libfiledissectors.la libdissectors.la
-
-AM_CPPFLAGS = -I$(srcdir)/../.. -I$(srcdir)/.. \
-	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS)
-
 include Makefile.common
+include $(top_srcdir)/Makefile.am.inc
+
+AM_CPPFLAGS += -I$(top_srcdir)/epan $(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS)
+
+noinst_LTLIBRARIES = libdirtydissectors.la libfiledissectors.la libdissectors.la
 
 libdirtydissectors_la_SOURCES = \
 	$(DIRTY_ASN1_DISSECTOR_SRC) \
 	$(DIRTY_CORBA_IDL_DISSECTOR_SRC)
-
-if HAVE_WARNINGS_AS_ERRORS
-AM_CLEAN_CFLAGS = -Werror
-endif
+libdirtydissectors_la_CFLAGS = $(GENERATED_CFLAGS)
 
 libfiledissectors_la_SOURCES = \
 	$(FILE_DISSECTOR_SRC)
@@ -42,7 +39,6 @@ libdissectors_la_SOURCES = \
 	$(CORBA_IDL_DISSECTOR_SRC) \
 	$(PIDL_DISSECTOR_SRC) \
 	$(DISSECTOR_SUPPORT_SRC)
-libdissectors_la_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # include pidl in the source tarball. But nothing to build...
 DIST_SUBDIRS = pidl dcerpc

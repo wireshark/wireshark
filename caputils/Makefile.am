@@ -20,11 +20,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include Makefile.common
-include ../Makefile.am.inc
+include $(top_srcdir)/Makefile.am.inc
 
-if HAVE_WARNINGS_AS_ERRORS
-AM_CLEAN_CFLAGS = -Werror
-endif
+AM_CPPFLAGS += -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) \
+	$(LIBGNUTLS_CFLAGS) $(PORTAUDIO_INCLUDES)
 
 noinst_LIBRARIES = libcaputils.a
 
@@ -71,13 +70,9 @@ libcaputils_a_SOURCES = \
 # as it might be running with extra privileges), so this library needs
 # to be built that way as well.
 #
-libcaputils_a_CFLAGS = $(AM_CLEAN_CFLAGS) $(PIE_CFLAGS)
+libcaputils_a_CFLAGS = $(AM_CFLAGS) $(PIE_CFLAGS)
 
 libcaputils_a_DEPENDENCIES =
-
-# Common headers
-AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) $(LIBGNUTLS_CFLAGS) $(PORTAUDIO_INCLUDES)
-
 
 doxygen:
 if HAVE_DOXYGEN

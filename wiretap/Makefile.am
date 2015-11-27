@@ -19,24 +19,17 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-include ../Makefile.am.inc
+include Makefile.common
+include $(top_srcdir)/Makefile.am.inc
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
-include Makefile.common
+AM_CPPFLAGS += -DWS_BUILD_DLL
 
 noinst_LTLIBRARIES = libwiretap_generated.la
 lib_LTLIBRARIES = libwiretap.la
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 libwiretap_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
-
-AM_NON_GENERATED_CFLAGS =-DWS_BUILD_DLL
-
-if HAVE_WARNINGS_AS_ERRORS
-AM_NON_GENERATED_CFLAGS += -Werror
-endif
-
-AM_CPPFLAGS = -I$(srcdir)/..
 
 CLEANFILES = \
 	libwiretap.a		\
@@ -56,10 +49,10 @@ MAINTAINERCLEANFILES = \
 libwiretap_la_SOURCES = \
 	$(NONGENERATED_C_FILES)	\
 	$(NONGENERATED_HEADER_FILES)
-libwiretap_la_CFLAGS = $(AM_NON_GENERATED_CFLAGS)
 
 libwiretap_generated_la_SOURCES = \
 	$(GENERATED_C_FILES)
+libwiretap_generated_la_CFLAGS = $(GENERATED_CFLAGS)
 
 EXTRA_DIST = \
 	README.airmagnet	\
@@ -71,8 +64,6 @@ EXTRA_DIST = \
 
 libwiretap_la_LIBADD = libwiretap_generated.la ${top_builddir}/wsutil/libwsutil.la $(GLIB_LIBS)
 libwiretap_la_DEPENDENCIES = libwiretap_generated.la ${top_builddir}/wsutil/libwsutil.la
-
-RUNLEX = $(top_srcdir)/tools/runlex.sh
 
 k12text_lex.h : k12text.c
 

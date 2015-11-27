@@ -68,6 +68,36 @@ esac
 ])
 
 #
+# AC_WIRESHARK_PUSH_FLAGS
+#
+# Push our flags to CFLAGS/etc.
+#
+AC_DEFUN([AC_WIRESHARK_PUSH_FLAGS],
+[
+  ac_ws_CPPLAGS_saved="$CPPFLAGS"
+  ac_ws_CFLAGS_saved="$CFLAGS"
+  ac_ws_CXXFLAGS_saved="$CXXFLAGS"
+  ac_ws_LDFLAGS_saved="$LDFLAGS"
+  CPPFLAGS="$WS_CPPFLAGS $CPPFLAGS"
+  CFLAGS="$WS_CFLAGS $CFLAGS"
+  CXXFLAGS="$WS_CXXFLAGS $CXXFLAGS"
+  LDFLAGS="$WS_LDFLAGS $LDFLAGS"
+])
+
+#
+# AC_WIRESHARK_POP_FLAGS
+#
+# Restore user build flags.
+#
+AC_DEFUN([AC_WIRESHARK_POP_FLAGS],
+[
+  CPPFLAGS="$ac_ws_CPPLAGS_saved"
+  CFLAGS="$ac_ws_CFLAGS_saved"
+  CXXFLAGS="$ac_ws_CXXFLAGS_saved"
+  LDFLAGS="$ac_ws_LDFLAGS_saved"
+])
+
+#
 # AC_WIRESHARK_TIMEZONE_ABBREV
 #
 
@@ -251,6 +281,8 @@ AC_DEFUN([AC_WIRESHARK_PCAP_BREAKLOOP_TRY_LINK],
 #
 AC_DEFUN([AC_WIRESHARK_PCAP_CHECK],
 [
+	AC_WIRESHARK_PUSH_FLAGS
+
 	if test -z "$pcap_dir"
 	then
 	  # Pcap header checks
@@ -535,6 +567,8 @@ install a newer version of the header file.])
 	  ])
 	  AC_CHECK_FUNCS(bpf_image pcap_set_tstamp_precision)
 	fi
+
+	AC_WIRESHARK_POP_FLAGS
 	LIBS="$ac_save_LIBS"
 ])
 
@@ -558,6 +592,8 @@ AC_DEFUN([AC_WIRESHARK_PCAP_REMOTE_CHECK],
 #
 AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 [
+	AC_WIRESHARK_PUSH_FLAGS
+
 	if test "x$zlib_dir" != "x"
 	then
 	  #
@@ -572,10 +608,8 @@ AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 	  # and/or linker will search that other directory before it
 	  # searches the specified directory.
 	  #
-	  wireshark_save_CPPFLAGS="$CPPFLAGS"
 	  CPPFLAGS="$CPPFLAGS -I$zlib_dir/include"
-	  wireshark_save_LIBS="$LIBS"
-	  AC_WIRESHARK_ADD_DASH_L(LIBS, $zlib_dir/lib)
+	  AC_WIRESHARK_ADD_DASH_L(LDFLAGS, $zlib_dir/lib)
 	fi
 
 	#
@@ -622,18 +656,11 @@ AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 		#
 		if test "x$zlib_dir" != "x"
 		then
-			#
-			# Put the "-L" flags for zlib at the beginning
-			# of LIBS.
-			#
-			LIBS=""
-			AC_WIRESHARK_ADD_DASH_L(LIBS, $zlib_dir/lib)
-			LIBS="$LIBS -lz $wireshark_save_LIBS"
-		else
-			LIBS="-lz $LIBS"
+		  WS_CPPFLAGS="$WS_CPPFLAGS -I$zlib_dir/include"
+		  AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, $zlib_dir/lib)
 		fi
+		LIBS="$LIBS -lz"
 		AC_DEFINE(HAVE_LIBZ, 1, [Define to use libz library])
-
 		#
 		# Check for "inflatePrime()" in zlib, which we need
 		# in order to read compressed capture files.
@@ -664,16 +691,9 @@ AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 			    AC_MSG_ERROR(old zlib found when linking with X11 - get rid of old zlib.)
 			  ])
 		fi
-	else
-		#
-		# Restore the versions of CPPFLAGS and LIBS before
-		# we added the "-with-zlib=" directory, as we didn't
-		# actually find zlib there.
-		#
-		CPPFLAGS="$wireshark_save_CPPFLAGS"
-		LIBS="$wireshark_save_LIBS"
-		want_zlib=no
 	fi
+
+	AC_WIRESHARK_POP_FLAGS
 ])
 
 #
@@ -682,6 +702,8 @@ AC_DEFUN([AC_WIRESHARK_ZLIB_CHECK],
 # Sets $have_lua to yes or no.
 # If it's yes, it also sets $LUA_CFLAGS and $LUA_LIBS.
 AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
+
+	AC_WIRESHARK_PUSH_FLAGS
 
 	if test "x$want_lua_dir" = "x"
 	then
@@ -758,20 +780,16 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 			else
 				AC_MSG_RESULT($lua_ver)
 
-				wireshark_save_CPPFLAGS="$CPPFLAGS"
 				CPPFLAGS="$CPPFLAGS -I$header_dir"
 				AC_CHECK_HEADERS(lua.h lualib.h lauxlib.h, ,
 				[
 					have_lua=no
-					# Restore our CPPFLAGS
-					CPPFLAGS="$wireshark_save_CPPFLAGS"
 				])
 			fi
 
 			if test "x$have_lua" = "x"
 			then
-				# Restore our CPPFLAGS and set LUA_CFLAGS
-				CPPFLAGS="$wireshark_save_CPPFLAGS"
+				# Set LUA_CFLAGS
 				LUA_CFLAGS="-I$header_dir"
 
 				# We have the header files and they work.  Now let's check if we
@@ -799,12 +817,16 @@ AC_DEFUN([AC_WIRESHARK_LIBLUA_CHECK],[
 		fi
 	fi
 
+	AC_WIRESHARK_POP_FLAGS
 ])
 
 #
 # AC_WIRESHARK_LIBPORTAUDIO_CHECK
 #
 AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
+
+	AC_WIRESHARK_PUSH_FLAGS
+	wireshark_save_LIBS="$LIBS"
 
 	if test "x$portaudio_dir" != "x"
 	then
@@ -820,22 +842,10 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 		# and/or linker will search that other directory before it
 		# searches the specified directory.
 		#
-		wireshark_save_CPPFLAGS="$CPPFLAGS"
 		CPPFLAGS="$CPPFLAGS -I$portaudio_dir/include"
-		wireshark_save_LIBS="$LIBS"
-		LIBS="$LIBS -L$portaudio_dir/lib -lportaudio"
-		wireshark_save_LDFLAGS="$LDFLAGS"
 		LDFLAGS="$LDFLAGS -L$portaudio_dir/lib"
-	else
-		#
-		# The user specified no directory in which libportaudio resides,
-		# so just add "-lportaudio" to the used libs.
-		#
-		wireshark_save_CPPFLAGS="$CPPFLAGS"
-		wireshark_save_LDFLAGS="$LDFLAGS"
-		wireshark_save_LIBS="$LIBS"
-		LIBS="$LIBS -lportaudio"
 	fi
+	LIBS="$LIBS -lportaudio"
 
 	#
 	# Make sure we have "portaudio.h".  If we don't, it means we probably
@@ -854,10 +864,6 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 			#
 			AC_MSG_ERROR([libportaudio header not found in directory specified in --with-portaudio])
 		else
-			CPPFLAGS="$wireshark_save_CPPFLAGS"
-			LDFLAGS="$wireshark_save_LDFLAGS"
-			LIBS="$wireshark_save_LIBS"
-			PORTAUDIO_LIBS=""
 			if test "x$want_portaudio" = "xyes"
 			then
 				#
@@ -893,6 +899,8 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 		#
 		# let's check if the libs are there
 		#
+		PORTAUDIO_LIBS=""
+		PORTAUDIO_INCLUDES=""
 
 		AC_CHECK_LIB(portaudio, Pa_Initialize,
 		[
@@ -907,21 +915,10 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 				PORTAUDIO_INCLUDES="-I$portaudio_dir/include"
 			else
 				PORTAUDIO_LIBS="-lportaudio"
-				PORTAUDIO_INCLUDES=""
 			fi
 			AC_DEFINE(HAVE_LIBPORTAUDIO, 1, [Define to use libportaudio library])
 			want_portaudio=yes
 		],[
-			#
-			# Restore the versions of CPPFLAGS, LDFLAGS, and
-			# LIBS before we added the "--with-portaudio="
-			# directory, as we didn't actually find portaudio
-			# there.
-			#
-			CPPFLAGS="$wireshark_save_CPPFLAGS"
-			LDFLAGS="$wireshark_save_LDFLAGS"
-			LIBS="$wireshark_save_LIBS"
-			PORTAUDIO_LIBS=""
 			# User requested --with-portaudio but it isn't available
 			if test "x$want_portaudio" = "xyes"
 			then
@@ -929,14 +926,13 @@ AC_DEFUN([AC_WIRESHARK_LIBPORTAUDIO_CHECK],[
 			fi
 			want_portaudio=no
 		])
-
-	CPPFLAGS="$wireshark_save_CPPFLAGS"
-	LDFLAGS="$wireshark_save_LDFLAGS"
-	LIBS="$wireshark_save_LIBS"
-	AC_SUBST(PORTAUDIO_LIBS)
-	AC_SUBST(PORTAUDIO_INCLUDES)
+		AC_SUBST(PORTAUDIO_LIBS)
+		AC_SUBST(PORTAUDIO_INCLUDES)
 
 	fi
+
+	LIBS="$wireshark_save_LIBS"
+	AC_WIRESHARK_POP_FLAGS
 ])
 
 #
@@ -987,7 +983,7 @@ AC_DEFUN([AC_WIRESHARK_C_ARES_CHECK],
 		if test "x$ac_cv_enable_usr_local" = "xyes" ; then
 			withval=/usr/local
 			if test -d "$withval"; then
-				AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+				AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
 			fi
 		fi
 	fi
@@ -1018,7 +1014,7 @@ AC_DEFUN([AC_WIRESHARK_ADNS_CHECK],
 		if test "x$ac_cv_enable_usr_local" = "xyes" ; then
 			withval=/usr/local
 			if test -d "$withval"; then
-				AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+				AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
 			fi
 		fi
 	fi
@@ -1049,7 +1045,7 @@ AC_DEFUN([AC_WIRESHARK_LIBCAP_CHECK],
 		if test "x$ac_cv_enable_usr_local" = "xyes" ; then
 			withval=/usr/local
 			if test -d "$withval"; then
-				AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+				AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
 			fi
 		fi
 	fi
@@ -1073,7 +1069,9 @@ AC_DEFUN([AC_WIRESHARK_LIBCAP_CHECK],
 #
 AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 [
-	wireshark_save_CPPFLAGS="$CPPFLAGS"
+	AC_WIRESHARK_PUSH_FLAGS
+	wireshark_save_LIBS="$LIBS"
+
 	if test "x$krb5_dir" != "x"
 	then
 	  #
@@ -1088,7 +1086,7 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 	  # and/or linker will search that other directory before it
 	  # searches the specified directory.
 	  #
-	  CPPFLAGS="$CPPFLAGS -I$krb5_dir/include"
+	  KRB5_CFLAGS="-I$krb5_dir/include"
 	  ac_heimdal_version=`grep heimdal $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/'`
 	  # MIT Kerberos moved krb5.h to krb5/krb5.h starting with release 1.5
 	  ac_mit_version_olddir=`grep 'Massachusetts' $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*Massachusetts.*$/MIT/'`
@@ -1108,9 +1106,8 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 	  AC_PATH_TOOL(KRB5_CONFIG, krb5-config)
 	  if test -x "$KRB5_CONFIG"
 	  then
-	    KRB5_FLAGS=`"$KRB5_CONFIG" --cflags`
+	    KRB5_CFLAGS=`"$KRB5_CONFIG" --cflags`
 	    KRB5_LIBS=`"$KRB5_CONFIG" --libs`
-	    CPPFLAGS="$CPPFLAGS $KRB5_FLAGS"
 	    #
 	    # If -lcrypto is in KRB5_FLAGS, we require it to build
 	    # with Heimdal/MIT.  We don't want to built with it by
@@ -1138,6 +1135,8 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 	    ac_krb5_version=`"$KRB5_CONFIG" --version | head -n 1 | sed -e 's/^.*heimdal.*$/HEIMDAL/' -e 's/^Kerberos .*$/MIT/' -e 's/^Solaris Kerberos .*$/MIT/'`
  	  fi
 	fi
+
+	CPPFLAGS="$CPPFLAGS $KRB5_CFLAGS"
 
 	#
 	# Make sure we have "krb5.h".  If we don't, it means we probably
@@ -1168,6 +1167,8 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 		# We couldn't find the header file; don't use the
 		# library, as it's probably not present.
 		#
+		KRB5_CFLAGS=""
+		KRB5_LIBS=""
 		want_krb5=no
 		AC_MSG_RESULT(No Heimdal or MIT header found - disabling dissection for some kerberos data in packet decoding)
 	      fi
@@ -1190,7 +1191,6 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 		# the Kerberos library.
 		#
 		AC_MSG_RESULT($ac_krb5_version)
-		wireshark_save_LIBS="$LIBS"
 		found_krb5_kt_resolve=no
 		for extras in "" "-lresolv"
 		do
@@ -1245,11 +1245,10 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 			AC_MSG_ERROR(Usable $ac_krb5_version not found)
 		    else
 			#
-			# Restore the versions of CPPFLAGS from before we
-			# added the flags for Kerberos.
+			# Don't use
 			#
 			AC_MSG_RESULT(Usable $ac_krb5_version not found - disabling dissection for some kerberos data in packet decoding)
-			CPPFLAGS="$wireshark_save_CPPFLAGS"
+			KRB5_CFLAGS=""
 			KRB5_LIBS=""
 			want_krb5=no
 		    fi
@@ -1281,7 +1280,6 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 			AC_MSG_RESULT(no)
 		      ])
 		fi
-		LIBS="$wireshark_save_LIBS"
 	    else
 		#
 		# It's not Heimdal or MIT.
@@ -1296,11 +1294,10 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 		    AC_MSG_ERROR(Kerberos not found)
 		else
 		    #
-		    # Restore the versions of CPPFLAGS from before we
-		    # added the flags for Kerberos.
+		    # Don't use.
 		    #
 		    AC_MSG_RESULT(Kerberos not found - disabling dissection for some kerberos data in packet decoding)
-		    CPPFLAGS="$wireshark_save_CPPFLAGS"
+		    KRB5_CFLAGS=""
 		    KRB5_LIBS=""
 		    want_krb5=no
 		fi
@@ -1311,14 +1308,15 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 	    # say whether they wanted us to use it but we found
 	    # that we couldn't.
 	    #
-	    # Restore the versions of CPPFLAGS from before we added
-	    # the flags for Kerberos.
-	    #
-	    CPPFLAGS="$wireshark_save_CPPFLAGS"
+	    KRB5_CFLAGS=""
 	    KRB5_LIBS=""
 	    want_krb5=no
 	fi
+	AC_SUBST(KRB5_CFLAGS)
 	AC_SUBST(KRB5_LIBS)
+
+	LIBS="$wireshark_save_LIBS"
+	AC_WIRESHARK_POP_FLAGS
 ])
 
 #
@@ -1333,7 +1331,7 @@ AC_DEFUN([AC_WIRESHARK_GEOIP_CHECK],
 		if test "x$ac_cv_enable_usr_local" = "xyes" ; then
 			withval=/usr/local
 			if test -d "$withval"; then
-				AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+				AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
 			fi
 		fi
 	fi
@@ -1370,7 +1368,7 @@ AC_DEFUN([AC_WIRESHARK_LIBSSH_CHECK],
 		if test "x$ac_cv_enable_usr_local" = "xyes" ; then
 			withval=/usr/local
 			if test -d "$withval"; then
-				AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+				AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
 			fi
 		fi
 	fi
@@ -1405,19 +1403,23 @@ AC_DEFUN([AC_WIRESHARK_LIBSSH_CHECK],
 AC_DEFUN([AC_WIRESHARK_LDFLAGS_CHECK],
 [LD_OPTION="$1"
 AC_MSG_CHECKING(whether we can add $LD_OPTION to LDFLAGS)
-LDFLAGS_saved="$LDFLAGS"
+AC_WIRESHARK_PUSH_FLAGS
 LDFLAGS="$LDFLAGS $LD_OPTION"
+can_add_to_ldflags=""
 AC_LINK_IFELSE(
   [
     AC_LANG_SOURCE([[main() { return; }]])
   ],
   [
     AC_MSG_RESULT(yes)
+    WS_LDFLAGS="$WS_LDFLAGS $LD_OPTION"
+    can_add_to_ldflags=yes
   ],
   [
     AC_MSG_RESULT(no)
-    LDFLAGS="$LDFLAGS_saved"
+    can_add_to_ldflags=no
   ])
+  AC_WIRESHARK_POP_FLAGS
 ])
 
 dnl
@@ -1430,7 +1432,7 @@ dnl
 AC_DEFUN([AC_WIRESHARK_CHECK_UNKNOWN_WARNING_OPTION_ERROR],
     [
 	AC_MSG_CHECKING([whether the compiler fails when given an unknown warning option])
-	save_CFLAGS="$CFLAGS"
+	AC_WIRESHARK_PUSH_FLAGS
 	CFLAGS="$CFLAGS -Wxyzzy-this-will-never-succeed-xyzzy"
 	AC_TRY_COMPILE(
 	    [],
@@ -1447,7 +1449,7 @@ AC_DEFUN([AC_WIRESHARK_CHECK_UNKNOWN_WARNING_OPTION_ERROR],
 	    [
 		AC_MSG_RESULT([yes])
 	    ])
-	CFLAGS="$save_CFLAGS"
+	AC_WIRESHARK_POP_FLAGS
     ])
 
 dnl
@@ -1465,6 +1467,7 @@ AC_DEFUN([AC_WIRESHARK_CHECK_NON_CXX_WARNING_OPTION_ERROR],
 	# about -Wmissing-declarations.  Check both.
 	#
 	AC_LANG_PUSH(C++)
+	AC_WIRESHARK_PUSH_FLAGS
 	save_CXXFLAGS="$CXXFLAGS"
 	for flag in -Wmissing-prototypes -Wmissing-declarations; do
 	    CXXFLAGS="$save_CXXFLAGS $flag"
@@ -1508,7 +1511,7 @@ AC_DEFUN([AC_WIRESHARK_CHECK_NON_CXX_WARNING_OPTION_ERROR],
 			])
 		])
 	done
-	CXXFLAGS="$save_CXXFLAGS"
+	AC_WIRESHARK_POP_FLAGS
 	AC_LANG_POP
 	if test x$ac_wireshark_non_cxx_warning_option_error = x; then
 	    AC_MSG_RESULT([yes])
@@ -1561,8 +1564,7 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
     # (Yeah, you, clang.)
     #
     AC_MSG_CHECKING(whether we can add $GCC_OPTION to CFLAGS)
-    CFLAGS_saved="$CFLAGS"
-    CFLAGS="$WS_CHECKED_CFLAGS $CFLAGS"
+    AC_WIRESHARK_PUSH_FLAGS
     if expr "x$GCC_OPTION" : "x-W.*" >/dev/null
     then
       CFLAGS="$CFLAGS $ac_wireshark_unknown_warning_option_error $GCC_OPTION"
@@ -1602,7 +1604,7 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
               # added them, by setting CFLAGS to the saved value plus
               # just the new option.
               #
-              WS_CHECKED_CFLAGS="$WS_CHECKED_CFLAGS $GCC_OPTION"
+              WS_CFLAGS="$WS_CFLAGS $GCC_OPTION"
               if test "$CC" = "$CC_FOR_BUILD"; then
                 #
                 # We're building the build tools with the same compiler
@@ -1621,7 +1623,7 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
           # added them, by setting CFLAGS to the saved value plus
           # just the new option.
           #
-          WS_CHECKED_CFLAGS="$WS_CHECKED_CFLAGS $GCC_OPTION"
+          WS_CFLAGS="$WS_CFLAGS $GCC_OPTION"
           if test "$CC" = "$CC_FOR_BUILD"; then
             #
             # We're building the build tools with the same compiler
@@ -1636,7 +1638,7 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
         AC_MSG_RESULT(no)
         can_add_to_cflags=no
       ])
-      CFLAGS="$CFLAGS_saved"
+      AC_WIRESHARK_POP_FLAGS
   fi
   #
   # Did we find a C++ compiler?
@@ -1667,8 +1669,7 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
       # (Yeah, you, clang++.)
       #
       AC_MSG_CHECKING(whether we can add $GCC_OPTION to CXXFLAGS)
-      CXXFLAGS_saved="$CXXFLAGS"
-      CXXFLAGS="$WS_CHECKED_CXXFLAGS $CXXFLAGS"
+      AC_WIRESHARK_PUSH_FLAGS
       if expr "x$GCC_OPTION" : "x-W.*" >/dev/null
       then
         CXXFLAGS="$CXXFLAGS $ac_wireshark_unknown_warning_option_error $ac_wireshark_non_cxx_warning_option_error $GCC_OPTION"
@@ -1709,7 +1710,7 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
                 # added them, by setting CXXFLAGS to the saved value plus
                 # just the new option.
                 #
-                WS_CHECKED_CXXFLAGS="$WS_CHECKED_CXXFLAGS $GCC_OPTION"
+                WS_CXXFLAGS="$WS_CXXFLAGS $GCC_OPTION"
               ],
               [
                 AC_MSG_RESULT(yes)
@@ -1720,14 +1721,14 @@ if test "x$ac_supports_gcc_flags" = "xyes" ; then
             # added them, by setting CXXFLAGS to the saved value plus
             # just the new option.
             #
-            WS_CHECKED_CXXFLAGS="$WS_CHECKED_CXXFLAGS $GCC_OPTION"
+            WS_CXXFLAGS="$WS_CXXFLAGS $GCC_OPTION"
           fi
         ],
         [
           AC_MSG_RESULT(no)
           can_add_to_cxxflags=no
         ])
-      CXXFLAGS="$CXXFLAGS_saved"
+      AC_WIRESHARK_POP_FLAGS
       AC_LANG_POP([C++])
     fi
     if test "(" "$can_add_to_cflags" = "yes" -a "$can_add_to_cxxflags" = "no" ")" \
@@ -1772,8 +1773,7 @@ AC_DEFUN([AC_WIRESHARK_GCC_FORTIFY_SOURCE_CHECK],
 [
 if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
   AC_MSG_CHECKING([whether -D_FORTIFY_SOURCE=... can be used (without generating a warning)])
-  CFLAGS_saved="$CFLAGS"
-  CPPFLAGS_saved="$CPPFLAGS"
+  AC_WIRESHARK_PUSH_FLAGS
   CFLAGS="$CFLAGS -Werror"
   CPPFLAGS="$CPPFLAGS -D_FORTIFY_SOURCE=2"
   AC_COMPILE_IFELSE([
@@ -1783,16 +1783,12 @@ if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
                   ]])],
                   [
                     AC_MSG_RESULT(yes)
-                    #
-                    # (CPPFLAGS contains _D_FORTIFY_SOURCE=2)
-                    #
+                    WS_CPPFLAGS="$WS_CPPFLAGS -D_FORTIFY_SOURCE=2"
                   ],
                   [
                     AC_MSG_RESULT(no)
-                    # Remove -D_FORTIFY_SOURCE=2
-                    CPPFLAGS="$CPPFLAGS_saved"
                   ])
-  CFLAGS="$CFLAGS_saved"
+  AC_WIRESHARK_POP_FLAGS
 fi
 ])
 
@@ -1840,7 +1836,7 @@ AC_DEFUN([PKG_WIRESHARK_CHECK_SYSTEM_MODULES],
 #
 AC_DEFUN([AC_WIRESHARK_OSX_INTEGRATION_CHECK],
 [
-	ac_save_CFLAGS="$CFLAGS"
+	AC_WIRESHARK_PUSH_FLAGS
 	ac_save_LIBS="$LIBS"
 	CFLAGS="$CFLAGS $GTK_CFLAGS"
 	LIBS="$GTK_LIBS $LIBS"
@@ -1892,8 +1888,8 @@ AC_DEFUN([AC_WIRESHARK_OSX_INTEGRATION_CHECK],
 			GTK_LIBS="$GTK_LIBS -lgtkmacintegration"
 		])
 	fi
-	CFLAGS="$ac_save_CFLAGS"
 	LIBS="$ac_save_LIBS"
+	AC_WIRESHARK_POP_FLAGS
 ])
 
 # Based on AM_PATH_GTK in gtk-2.0.m4.
@@ -2019,7 +2015,7 @@ AC_DEFUN([AC_WIRESHARK_QT_MODULE_CHECK],
 AC_DEFUN([AC_WIRESHARK_QT_ADD_PIC_IF_NEEDED],
 [
     AC_LANG_PUSH([C++])
-	save_CPPFLAGS="$CPPFLAGS"
+	AC_WIRESHARK_PUSH_FLAGS
 	CPPFLAGS="$CPPFLAGS $Qt_CFLAGS"
 	AC_MSG_CHECKING([whether Qt works without -fPIC])
 	AC_PREPROC_IFELSE(
@@ -2040,7 +2036,7 @@ AC_DEFUN([AC_WIRESHARK_QT_ADD_PIC_IF_NEEDED],
 					AC_MSG_ERROR(Couldn't compile Qt without -fPIC nor with -fPIC)
 				])
 		])
-	CPPFLAGS="$save_CPPFLAGS"
+	AC_WIRESHARK_POP_FLAGS
     AC_LANG_POP([C++])
 ])
 

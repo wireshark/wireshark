@@ -461,9 +461,9 @@ then
 	#
 	# Add an -isysroot flag to use the SDK.
 	#
-	CFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $CFLAGS"
-	CXXFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $CXXFLAGS"
-	LDFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $LDFLAGS"
+	WS_CFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $WS_CFLAGS"
+	WS_CXXFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $WS_CXXFLAGS"
+	WS_LDFLAGS="-mmacosx-version-min=$deploy_target -isysroot $SDKPATH $WS_LDFLAGS"
 
 	#
 	# Add a -sdkroot flag to use with osx-app.sh.
@@ -492,9 +492,9 @@ then
 		# functions not to work with 64-bit userland
 		# code, so capturing won't work.
 		#
-		CFLAGS="-m32 $CFLAGS"
-		CXXFLAGS="-m32 $CXXFLAGS"
-		LDFLAGS="-m32 $LDFLAGS"
+		WS_CFLAGS="-m32 $WS_CFLAGS"
+		WS_CXXFLAGS="-m32 $WS_CXXFLAGS"
+		WS_LDFLAGS="-m32 $WS_LDFLAGS"
 		;;
 	esac
 else
@@ -689,19 +689,19 @@ linux*)
 			PKG_WIRESHARK_CHECK_SYSTEM_MODULES(LIBNL1, libnl-1 >= 1.0, [have_libnl1=yes], [have_libnl1=no])
 		fi
 		if (test "${have_libnl3}" = "yes"); then
-			CFLAGS="$CFLAGS $LIBNL3_CFLAGS"
+			WS_CFLAGS="$WS_CFLAGS $LIBNL3_CFLAGS"
 			LIBS="$LIBS $LIBNL3_LIBS"
 			AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
 			AC_DEFINE(HAVE_LIBNL3, 1, [libnl version 3])
 			libnl_message="yes (v3)"
 		elif (test "${have_libnl2}" = "yes"); then
-			CFLAGS="$CFLAGS $LIBNL2_CFLAGS"
+			WS_CFLAGS="$WS_CFLAGS $LIBNL2_CFLAGS"
 			LIBS="$LIBS $LIBNL2_LIBS"
 			AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
 			AC_DEFINE(HAVE_LIBNL2, 1, [libnl version 2])
 			libnl_message="yes (v2)"
 		elif (test "${have_libnl1}" = "yes"); then
-			CFLAGS="$CFLAGS $LIBNL1_CFLAGS"
+			WS_CFLAGS="$WS_CFLAGS $LIBNL1_CFLAGS"
 			LIBS="$LIBS $LIBNL1_LIBS"
 			AC_DEFINE(HAVE_LIBNL, 1, [Enable libnl support])
 			AC_DEFINE(HAVE_LIBNL1, 1, [libnl version 1])
@@ -1078,42 +1078,37 @@ AC_WIRESHARK_LDFLAGS_CHECK([-Wl,--as-needed])
 # privileges, and using PIE means the OS can run it at random locations
 # in the address space to make attacks more difficult.
 #
-WS_CHECKED_CFLAGS_before_pie="$WS_CHECKED_CFLAGS"
+
+WS_CFLAGS_saved="$WS_CFLAGS"
+WS_LDFLAGS_saved="$WS_LDFLAGS"
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fPIE, C)
 if test "x$can_add_to_cflags" = "xyes"
 then
-	# Restore CFLAGS
-	WS_CHECKED_CFLAGS="$WS_CHECKED_CFLAGS_before_pie"
-
-	LDFLAGS_before_pie="$LDFLAGS"
 	AC_WIRESHARK_LDFLAGS_CHECK([-fPIE -pie])
-	if test "x$LDFLAGS" != "x$LDFLAGS_before_pie"
+	if test "x$can_add_to_ldflags" = "xyes"
 	then
 		# We can use PIE
 		PIE_CFLAGS="-fPIE"
 		PIE_LDFLAGS="-pie"
-
-		# Restore LDFLAGS
-		LDFLAGS="$LDFLAGS_before_pie"
 	fi
-
 fi
+WS_CFLAGS="$WS_CFLAGS_saved"
+WS_LDFLAGS="$WS_LDFLAGS_saved"
 AC_SUBST(PIE_CFLAGS)
 AC_SUBST(PIE_LDFLAGS)
 
-WS_CHECKED_CFLAGS_before_simd="$WS_CHECKED_CFLAGS"
+WS_CFLAGS_saved="$WS_CFLAGS"
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-msse4.2, C)
 if test "x$can_add_to_cflags" = "xyes"
 then
 	#
 	# The compiler supports -msse4.2; use that to enable SSE 4.2.
 	#
-	# Restore CFLAGS.  We only want to apply -msse4.2 to
+	# We only want to apply -msse4.2 to
 	# wsutil/ws_mempbrk_sse42.c, as the SSE4.2 code there
 	# is run only if the hardware supports it, but other
 	# code would do no such checks.
 	#
-	WS_CHECKED_CFLAGS="$WS_CHECKED_CFLAGS_before_simd"
 	ac_sse4_2_flag=-msse4.2
 else
 	#
@@ -1125,20 +1120,10 @@ else
 		#
 		# The compiler supports -xarch=sse4_2; use that to
 		# enable SSE 4.2.
-		#
-		# Restore CFLAGS; see above.
-		#
-		WS_CHECKED_CFLAGS="$WS_CHECKED_CFLAGS_before_simd"
 		ac_sse4_2_flag=-xarch=sse4_2
 	fi
 fi
-
-#
-# All AC_WIRESHARK_COMPILER_FLAGS_CHECK are done, do not call it again!
-# Prepend them to the user-specified CFLAGS/CXXFLAGS.
-#
-CFLAGS="$WS_CHECKED_CFLAGS $CFLAGS"
-CXXFLAGS="$WS_CHECKED_CXXFLAGS $CXXFLAGS"
+WS_CFLAGS="$WS_CFLAGS_saved"
 
 if test "x$ac_sse4_2_flag" != x; then
 	#
@@ -1181,7 +1166,7 @@ if test "x$ac_sse4_2_flag" != x; then
 		#
 		AC_MSG_CHECKING([whether there is nmmintrin.h header and we can use it])
 		saved_CFLAGS="$CFLAGS"
-		CFLAGS="$ac_sse4_2_flag $CFLAGS"
+		CFLAGS="$ac_sse4_2_flag $WS_CFLAGS $CFLAGS"
 		AC_TRY_COMPILE(
 			[#include <nmmintrin.h>],
 			[return 0;],
@@ -1274,9 +1259,9 @@ if test "x$GCC" = "xyes" ; then
 	solaris*)
 		# the X11 headers don't automatically include prototype info
 		# and a lot don't include the return type
-		CPPFLAGS="$CPPFLAGS -DFUNCPROTO=15"
-		CFLAGS="$CFLAGS -Wno-return-type"
-		CXXFLAGS="$CXXFLAGS -Wno-return-type"
+		WS_CPPFLAGS="$WS_CPPFLAGS -DFUNCPROTO=15"
+		WS_CFLAGS="$WS_CFLAGS -Wno-return-type"
+		WS_CXXFLAGS="$WS_CXXFLAGS -Wno-return-type"
 		AC_MSG_RESULT(GCC on Solaris - added -Wno-return-type -DFUNCPROTO=15)
 		;;
 	*)
@@ -1299,7 +1284,7 @@ else
 		#
 		# +O2 is supported both by the C and C++ compiler.
 		#
-		CFLAGS="+O2 $CFLAGS"
+		WS_CFLAGS="+O2 $WS_CFLAGS"
 		if test "$CC" = "$CC_FOR_BUILD"; then
 			#
 			# We're building the build tools with the same
@@ -1309,15 +1294,15 @@ else
 			#
 			CFLAGS_FOR_BUILD="-Ae +O2 $CFLAGS"
 		fi
-		CXXFLAGS="+O2 $CXXFLAGS"
+		WS_CXXFLAGS="+O2 $WS_CXXFLAGS"
 		AC_MSG_RESULT(HP C/C++ compiler - added +O2)
 		;;
 	solaris*)
 		#
 		# Crank up the warning level.
 		#
-		CFLAGS="$CFLAGS -v"
-		CXXFLAGS="$CXXFLAGS +w2"
+		WS_CFLAGS="$WS_CFLAGS -v"
+		WS_CXXFLAGS="$WS_CXXFLAGS +w2"
 		;;
 	*)
 		AC_MSG_RESULT(none needed)
@@ -1350,7 +1335,7 @@ darwin*)
 	# with a static version installed in /usr/local/lib rather than
 	# the system version in /usr/lib).
 	#
-	LDFLAGS="-Wl,-headerpad_max_install_names -Wl,-search_paths_first $LDFLAGS"
+	WS_LDFLAGS="-Wl,-headerpad_max_install_names -Wl,-search_paths_first $WS_LDFLAGS"
 	AC_MSG_RESULT([Apple linker - added -Wl,-single_module to shared library linker flags and -Wl,-headerpad_max_install_names -Wl,-search_paths_first and -Wl,-headerpad_max_install_names to all linker flags])
 	;;
 cygwin*)
@@ -1358,7 +1343,7 @@ cygwin*)
 	# Shared libraries in cygwin/Win32 must never contain
 	# undefined symbols.
 	#
-	LDFLAGS="$LDFLAGS -no-undefined"
+	WS_LDFLAGS="$WS_LDFLAGS -no-undefined"
 	AC_MSG_RESULT(CygWin GNU ld - added -no-undefined)
 	;;
 *)
@@ -1443,12 +1428,12 @@ if test "x$ac_cv_enable_usr_local" = "xyes" ; then
 		# as various packages we use ("libpcap", "zlib", "adns")
 		# may have been installed under "/usr/local/include".
 		#
-		CPPFLAGS="$CPPFLAGS -I/usr/local/include"
+		WS_CPPFLAGS="$WS_CPPFLAGS -I/usr/local/include"
 
 		#
 		# Arrange that we search for libraries in "/usr/local/lib".
 		#
-		AC_WIRESHARK_ADD_DASH_L(LDFLAGS, /usr/local/lib)
+		AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, /usr/local/lib)
 	else
 		AC_MSG_RESULT(no)
 	fi
@@ -1536,8 +1521,8 @@ AC_MSG_CHECKING(if profile builds must be generated)
 if test "x$enable_profile_build" = "xyes" ; then
 	if test "x$GCC" = "xyes" -o "x$CLANG" = "xyes" ; then
 		AC_MSG_RESULT(yes)
-		CFLAGS=" -pg $CFLAGS"
-		CXXFLAGS=" -pg $CXXFLAGS"
+		WS_CFLAGS="-pg $WS_CFLAGS"
+		WS_CXXFLAGS="-pg $WS_CXXFLAGS"
 	else
 		AC_MSG_RESULT(no)
 		echo "Building profile binaries currently only supported for GCC and clang."
@@ -1652,8 +1637,8 @@ if test "x$enable_wireshark" = "xyes"; then
 		#
 		AC_WIRESHARK_QT_CHECK($QT_MIN_VERSION, "$with_qt",
 		[
-			CFLAGS="$CFLAGS $Qt_CFLAGS"
-			CXXFLAGS="$CXXFLAGS $Qt_CFLAGS"
+			WS_CFLAGS="$WS_CFLAGS $Qt_CFLAGS"
+			WS_CXXFLAGS="$WS_CXXFLAGS $Qt_CFLAGS"
 			have_qt=yes
 			GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-qt"
 
@@ -1733,8 +1718,8 @@ if test "x$enable_wireshark" = "xyes"; then
 		#
 		AM_PATH_GTK_3_0(3.0.0,
 		[
-			CFLAGS="$CFLAGS $GTK_CFLAGS"
-			CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
+			WS_CFLAGS="$WS_CFLAGS $GTK_CFLAGS"
+			WS_CXXFLAGS="$WS_CXXFLAGS $GTK_CFLAGS"
 			have_gtk=yes
 			GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-gtk3"
 		],
@@ -1746,8 +1731,8 @@ if test "x$enable_wireshark" = "xyes"; then
 		#
 		AM_PATH_GTK_2_0($GTK2_MIN_VERSION,
 		[
-			CFLAGS="$CFLAGS $GTK_CFLAGS"
-			CXXFLAGS="$CXXFLAGS $GTK_CFLAGS"
+			WS_CFLAGS="$WS_CFLAGS $GTK_CFLAGS"
+			WS_CXXFLAGS="$WS_CXXFLAGS $GTK_CFLAGS"
 			have_gtk=yes
 			GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-gtk2"
 		],
@@ -1839,19 +1824,19 @@ fi
 if test "$have_gtk" = "yes" ; then
 	# If we have GTK then add flags for it.
 
-	CPPFLAGS="-DGDK_DISABLE_DEPRECATED $CPPFLAGS"
+	WS_CPPFLAGS="-DGDK_DISABLE_DEPRECATED $WS_CPPFLAGS"
 	if test \( $gtk_config_major_version -eq 3 -a $gtk_config_minor_version -ge 10 \) ; then
 		## Allow use of deprecated & disable deprecated warnings if Gtk >= 3.10;
 		##  The deprecations in Gtk 3.10 will not be fixed ...
-		CPPFLAGS="-DGDK_DISABLE_DEPRECATION_WARNINGS $CPPFLAGS"
+		WS_CPPFLAGS="-DGDK_DISABLE_DEPRECATION_WARNINGS $WS_CPPFLAGS"
 	else
-		CPPFLAGS="-DGTK_DISABLE_DEPRECATED $CPPFLAGS"
+		WS_CPPFLAGS="-DGTK_DISABLE_DEPRECATED $WS_CPPFLAGS"
 	fi
-	CPPFLAGS="-DGTK_DISABLE_SINGLE_INCLUDES $CPPFLAGS"
+	WS_CPPFLAGS="-DGTK_DISABLE_SINGLE_INCLUDES $WS_CPPFLAGS"
 	if test ! \( $gtk_config_major_version -eq 2 -a $gtk_config_minor_version -lt 20 \) ; then
 		# Enable GSEAL when building with GTK > 2.20
 		# (Versions prior to 2.22 lacked some necessary accessors.)
-		CPPFLAGS="-DGSEAL_ENABLE $CPPFLAGS"
+		WS_CPPFLAGS="-DGSEAL_ENABLE $WS_CPPFLAGS"
 	fi
 fi
 
@@ -1860,8 +1845,8 @@ if test "$use_glib_cflags" = "true"; then
 	# Use GLIB_CFLAGS
 	AM_PATH_GLIB_2_0($GLIB_MIN_VERSION,
 	[
-		CFLAGS="$CFLAGS $GLIB_CFLAGS"
-		CXXFLAGS="$CXXFLAGS $GLIB_CFLAGS"
+		WS_CFLAGS="$WS_CFLAGS $GLIB_CFLAGS"
+		WS_CXXFLAGS="$WS_CXXFLAGS $GLIB_CFLAGS"
 	], AC_MSG_ERROR(GLib $GLIB_MIN_VERSION or later distribution not found.), gthread gmodule)
 else
 	# Don't use GLIB_CFLAGS
@@ -1878,10 +1863,10 @@ fi
 # Error out if a glib header other than a "top level" header
 #  (glib.h, glib-object.h, gio.h) or certain other headers( e.g.,gmodule.h)
 #  is used.
-CPPFLAGS="-DG_DISABLE_SINGLE_INCLUDES $CPPFLAGS"
+WS_CPPFLAGS="-DG_DISABLE_SINGLE_INCLUDES $WS_CPPFLAGS"
 
 # Error out on the usage of deprecated glib functions
-CPPFLAGS="-DG_DISABLE_DEPRECATED $CPPFLAGS"
+WS_CPPFLAGS="-DG_DISABLE_DEPRECATED $WS_CPPFLAGS"
 
 #
 # Check whether GLib modules are supported, to determine whether we
@@ -1890,8 +1875,8 @@ CPPFLAGS="-DG_DISABLE_DEPRECATED $CPPFLAGS"
 AC_MSG_CHECKING(whether GLib supports loadable modules)
 ac_save_CFLAGS="$CFLAGS"
 ac_save_LIBS="$LIBS"
-CFLAGS="$CFLAGS $GLIB_CFLAGS"
-LIBS="$GLIB_LIBS $LIBS"
+CFLAGS="$WS_CFLAGS $GLIB_CFLAGS $CFLAGS"
+LIBS="$LIBS $GLIB_LIBS"
 AC_TRY_RUN([
 #include <glib.h>
 #include <gmodule.h>
@@ -1934,8 +1919,8 @@ then
 	#
 	ac_save_CFLAGS="$CFLAGS"
 	ac_save_LIBS="$LIBS"
-	CFLAGS="$CFLAGS $GLIB_CFLAGS"
-	LIBS="$GLIB_LIBS $LIBS"
+	CFLAGS="$WS_CFLAGS $GLIB_CFLAGS $CFLAGS"
+	LIBS="$LIBS $GLIB_LIBS"
 	AC_CHECK_FUNCS(dladdr)
 	if test x$ac_cv_func_dladdr = xno
 	then
@@ -1961,8 +1946,8 @@ fi
 AC_MSG_CHECKING(whether GLib supports POSIX/XSI thousands grouping)
 ac_save_CFLAGS="$CFLAGS"
 ac_save_LIBS="$LIBS"
-CFLAGS="$CFLAGS $GLIB_CFLAGS"
-LIBS="$GLIB_LIBS $LIBS"
+CFLAGS="$WS_CFLAGS $GLIB_CFLAGS $CFLAGS"
+LIBS="$LIBS $GLIB_LIBS"
 AC_TRY_RUN([
 #include <glib.h>
 #include <locale.h>
@@ -2611,7 +2596,7 @@ elif test "x$withval" = "xyes"; then
 	want_libcap=yes
 elif test -d "$withval"; then
 	want_libcap=yes
-	AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+	AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
 fi
 ])
 if test "x$with_libcap" = "xno" ; then
@@ -2667,7 +2652,7 @@ elif test "x$withval" = "xyes"; then
 	want_ssl=yes
 elif test -d "$withval"; then
 	want_ssl=yes
-	AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+	AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
 fi
 ],[
 	want_ssl=no
@@ -2732,7 +2717,7 @@ elif test "x$withval" = "xyes"; then
 	want_c_ares=yes
 elif test -d "$withval"; then
 	want_c_ares=yes
-	AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+	AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
 fi
 ])
 if test "x$want_c_ares" = "xno" ; then
@@ -2757,7 +2742,7 @@ elif test "x$withval" = "xyes"; then
 	want_adns=yes
 elif test -d "$withval"; then
 	want_adns=yes
-	AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+	AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
 fi
 ])
 if test "x$want_adns" = "xno" -o "x$have_good_c_ares" = "xyes" ; then
@@ -2807,7 +2792,7 @@ elif test "x$withval" = "xyes"; then
 	want_geoip=yes
 elif test -d "$withval"; then
 	want_geoip=yes
-	AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+	AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
 fi
 ])
 if test "x$want_geoip" = "xno"; then
@@ -2832,7 +2817,7 @@ elif test "x$withval" = "xyes"; then
 	want_libssh=yes
 elif test -d "$withval"; then
 	want_libssh=yes
-	AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+	AC_WIRESHARK_ADD_DASH_L(WS_LDFLAGS, ${withval}/lib)
 fi
 ])
 if test "x$want_libssh" = "xno"; then
@@ -3039,7 +3024,7 @@ then
   AC_DEFINE(HAVE_PLUGINS, 1, [Define if plugins are enabled])
 fi
 AC_SUBST(plugindir)
-CPPFLAGS="$CPPFLAGS '-DPLUGIN_INSTALL_DIR=\"\$(plugindir)\"'"
+WS_CPPFLAGS="$WS_CPPFLAGS '-DPLUGIN_INSTALL_DIR=\"\$(plugindir)\"'"
 
 #
 # The plugin dissectors reside in ./plugins/PROTO/
@@ -3134,6 +3119,11 @@ else
 	RPMBUILD_WITH_ARGS="$RPMBUILD_WITH_ARGS --without lua"
 fi
 AC_SUBST(RPMBUILD_WITH_ARGS)
+
+AC_SUBST(WS_CPPFLAGS)
+AC_SUBST(WS_CFLAGS)
+AC_SUBST(WS_CXXFLAGS)
+AC_SUBST(WS_LDFLAGS)
 
 dnl Save the cacheable configure results to config.cache before recursing
 AC_CACHE_SAVE

@@ -20,13 +20,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include Makefile.common
-include ../../Makefile.am.inc
+include $(top_srcdir)/Makefile.am.inc
 
-if HAVE_WARNINGS_AS_ERRORS
-AM_CLEAN_CFLAGS = -Werror -Wno-error=deprecated-declarations
-endif
-
-AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(PORTAUDIO_INCLUDES)
+AM_CPPFLAGS += -I$(top_srcdir)/wiretap $(PORTAUDIO_INCLUDES)
 
 CLEANFILES = \
 	libgtkui.a				\
@@ -61,7 +57,10 @@ EXTRA_DIST = \
 	pixbuf-csource.c		\
 	pixbuf-csource.h
 
+BUILT_SOURCES =
+
 if HAVE_GRESOURCE
+BUILT_SOURCES += wireshark-gresources.h
 GENERATED_HEADER_FILES += wireshark-gresources.h
 GENERATED_C_FILES += wireshark-gresources.c
 else
@@ -75,13 +74,7 @@ libgtkui_a_SOURCES = \
 	$(noinst_HEADERS)		\
 	$(GENERATED_HEADER_FILES)
 
-libgtkui_a_CFLAGS = $(AM_CLEAN_CFLAGS)
-
 libgtkui_a_DEPENDENCIES =
-
-if HAVE_GRESOURCE
-main.c: wireshark-gresources.h
-endif
 
 #
 # Build "wireshark-tap-register.c", which contains a function

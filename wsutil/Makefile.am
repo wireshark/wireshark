@@ -18,7 +18,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+include Makefile.common
+include $(top_srcdir)/Makefile.am.inc
+
 ACLOCAL_AMFLAGS = `../aclocal-flags`
+
+AM_CPPFLAGS += $(LIBGCRYPT_CFLAGS) -DWS_BUILD_DLL
 
 # Optional headers for ABI checking
 wsutil_optional_abi_includes =
@@ -47,25 +52,11 @@ if SSE42_SUPPORTED
 wsutil_optional_objects += libwsutil_sse42.la
 endif
 
-include ../Makefile.am.inc
-
-include Makefile.common
-
-AM_CFLAGS =-DWS_BUILD_DLL
-
-if HAVE_WARNINGS_AS_ERRORS
-AM_CFLAGS += -Werror
-endif
-
 noinst_LTLIBRARIES = libwsutil_sse42.la
 
 lib_LTLIBRARIES = libwsutil.la
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 libwsutil_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
-
-AM_CPPFLAGS = -I$(srcdir)/.. \
-	$(LIBGCRYPT_CFLAGS) \
-	-DTOP_SRCDIR=\"$(abs_top_srcdir)\"
 
 LIBWSUTIL_SRC = $(LIBWSUTIL_COMMON_SRC)
 LIBWSUTIL_INCLUDES = $(LIBWSUTIL_COMMON_INCLUDES)
@@ -82,7 +73,7 @@ libwsutil_la_SOURCES = \
 libwsutil_sse42_la_SOURCES = \
 	ws_mempbrk_sse42.c
 
-libwsutil_sse42_la_CFLAGS = $(AM_CFLAGS) @CFLAGS_SSE42@
+libwsutil_sse42_la_CFLAGS = $(AM_CFLAGS) $(CFLAGS_SSE42)
 
 EXTRA_libwsutil_la_SOURCES = \
 	floorl.c		\

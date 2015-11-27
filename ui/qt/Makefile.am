@@ -20,11 +20,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include Makefile.common
-include ../../Makefile.am.inc
+include $(top_srcdir)/Makefile.am.inc
 
-if HAVE_WARNINGS_AS_ERRORS
-AM_CLEAN_CFLAGS = -Werror
-endif
+AM_CPPFLAGS += -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) $(LIBGNUTLS_CFLAGS)
 
 noinst_LIBRARIES = libqtui.a
 
@@ -63,8 +61,6 @@ wireshark-tap-register.c: $(WIRESHARK_QT_TAP_SRC) $(top_srcdir)/tools/make-tap-r
 	@echo Making wireshark-tap-register.c
 	@$(PYTHON) $(top_srcdir)/tools/make-tap-reg.py $(srcdir) taps $(WIRESHARK_QT_TAP_SRC)
 
-RUNLEX=$(top_srcdir)/tools/runlex.sh
-
 libqtui_a_SOURCES = \
 	$(WIRESHARK_QT_SRC) \
 	$(WIRESHARK_QT_TAP_SRC) \
@@ -78,15 +74,7 @@ nodist_libqtui_a_SOURCES = \
 	$(NODIST_GENERATED_CPP_FILES) \
 	$(NODIST_GENERATED_HEADER_FILES)
 
-libqtui_a_CFLAGS = $(AM_CLEAN_CFLAGS)
-
 libqtui_a_DEPENDENCIES =
-
-# Common headers
-AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) \
-	$(LIBGNUTLS_CFLAGS)
-
-AM_CXXFLAGS = $(AM_CLEAN_CFLAGS)
 
 AM_V_MOC = $(am__v_MOC_@AM_V@)
 am__v_MOC_ = $(am__v_MOC_@AM_DEFAULT_V@)

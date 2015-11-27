@@ -21,11 +21,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include Makefile.common
-include ../Makefile.am.inc
+include $(top_srcdir)/Makefile.am.inc
 
-if HAVE_WARNINGS_AS_ERRORS
-AM_CLEAN_CFLAGS = -Werror
-endif
+AM_CPPFLAGS += -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) \
+	$(LIBGNUTLS_CFLAGS) $(PORTAUDIO_INCLUDES)
 
 noinst_LIBRARIES = libui.a libui_dirty.a
 
@@ -39,8 +38,6 @@ MAINTAINERCLEANFILES = \
 	$(GENERATED_FILES)	\
 	Makefile.in
 
-RUNLEX=$(top_srcdir)/tools/runlex.sh
-
 text_import_scanner_lex.h: text_import_scanner.c
 
 # All sources that should be put in the source distribution tarball
@@ -50,18 +47,14 @@ libui_a_SOURCES = \
 	$(GENERATED_HEADER_FILES) \
 	$(GENERATED_C_FILES)
 
-libui_a_CFLAGS = $(AM_CLEAN_CFLAGS)
-
 libui_a_DEPENDENCIES =
 
 libui_dirty_a_SOURCES = \
 	$(DIRTY_GENERATED_C_FILES)
 
+libui_dirty_a_CFLAGS = $(GENERATED_CFLAGS)
+
 libui_dirty_a_DEPENDENCIES =
-
-# Common headers
-AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap $(LIBGCRYPT_CFLAGS) $(LIBGNUTLS_CFLAGS) $(PORTAUDIO_INCLUDES)
-
 
 doxygen:
 if HAVE_DOXYGEN

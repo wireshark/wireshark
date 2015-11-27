@@ -19,11 +19,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-if HAVE_WARNINGS_AS_ERRORS
-AM_CFLAGS = -Werror
-endif
+include $(top_srcdir)/Makefile.am.inc
 
-AM_CPPFLAGS = -I$(top_srcdir) @LUA_CFLAGS@
+AM_CPPFLAGS += $(LUA_CFLAGS)
 
 noinst_LTLIBRARIES = libwslua.la
 

@@ -18,11 +18,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-if HAVE_WARNINGS_AS_ERRORS
-AM_CFLAGS = -Werror
-endif
-
 include Makefile.common
+include $(top_srcdir)/Makefile.am.inc
+
+AM_CPPFLAGS += -I$(top_srcdir)/epan
 
 noinst_LTLIBRARIES = libftypes.la
 
@@ -33,8 +32,6 @@ CLEANFILES = \
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
-
-AM_CPPFLAGS = -I$(srcdir)/../.. -I$(srcdir)/..
 
 libftypes_la_SOURCES = $(NONGENERATED_C_FILES) $(NONGENERATED_HEADER_FILES)
 

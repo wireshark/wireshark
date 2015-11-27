@@ -20,13 +20,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 include Makefile.common
-
-if HAVE_WARNINGS_AS_ERRORS
-AM_CFLAGS = -Werror
-endif
-
-AM_CPPFLAGS = \
-	-I$(top_srcdir)
+include $(top_srcdir)/Makefile.am.inc
 
 noinst_LTLIBRARIES = liblzxpress.la
 

@@ -20,17 +20,16 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+include Makefile.common
 include $(top_srcdir)/Makefile.am.inc
 
-AM_CPPFLAGS = -I$(top_srcdir)
-
-include Makefile.common
+#AM_CFLAGS = $(GENERATED_FILES)
 
 #
 # XXX - how to make this apply only to clean files?
 #
 #if HAVE_WARNINGS_AS_ERRORS
-#AM_CFLAGS = -Werror
+#AM_CFLAGS += -Werror
 #endif
 
 plugindir = @plugindir@
@@ -143,17 +142,13 @@ EXTRA_DIST = \
 	matelib/rtsp.mate	\
 	matelib/sip.mate
 
-RUNLEX = $(top_srcdir)/tools/runlex.sh
-
-LEMON = $(top_builddir)/tools/lemon
-
 mate_parser_lex.h : mate_parser.c
 
 mate_parser.lo : mate_grammar.h
 
 mate_grammar.h : mate_grammar.c
-mate_grammar.c : mate_grammar.lemon mate.h mate_util.h $(LEMON)/lemon$(EXEEXT)
-	$(AM_V_LEMON)$(LEMON)/lemon$(EXEEXT) T=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/mate_grammar.lemon || \
+mate_grammar.c : mate_grammar.lemon mate.h mate_util.h $(LEMON)
+	$(AM_V_LEMON)$(LEMON) T=$(lemon_srcdir)/lempar.c $(srcdir)/mate_grammar.lemon || \
 		(rm -f grammar.c grammar.h ; false)
 
 checkapi:

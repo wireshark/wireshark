@@ -18,35 +18,24 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-include ../Makefile.am.inc
+include Makefile.common
+include $(top_srcdir)/Makefile.am.inc
 
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
-include Makefile.common
+AM_CPPFLAGS += -I$(top_srcdir)/wiretap -DWS_BUILD_DLL
 
 # Optional objects that I know how to build. These will be
 # linked into libechld.
 echld_optional_objects = $(LIBECHLD_SRC)
 
-
 lib_LTLIBRARIES = libechld.la
 
 libechld_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 
-
-
-AM_CFLAGS =-DWS_BUILD_DLL
-
-if HAVE_WARNINGS_AS_ERRORS
-AM_CFLAGS += -Werror
-endif
-
-AM_CPPFLAGS = -I$(srcdir)/.. -I$(srcdir)/../wiretap
-
 libechld_la_SOURCES = \
 	$(LIBECHLD_SRC)		\
 	$(LIBECHLD_INCLUDES)
-
 
 libechld_la_DEPENDENCIES = \
 	../caputils/libcaputils.a	\

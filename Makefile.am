@@ -19,14 +19,17 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+include ./Makefile.am.inc
+
 AM_DISTCHECK_CONFIGURE_FLAGS=@GUI_CONFIGURE_FLAGS@
 # Make sure to keep ACLOCAL_AMFLAGS in Makefile.am and AC_CONFIG_MACRO_DIRS
 # in configure.ac in sync, otherwise there will be an error running autogen.sh.
 ACLOCAL_AMFLAGS = `./aclocal-flags`
 
-if HAVE_WARNINGS_AS_ERRORS
-AM_CLEAN_CFLAGS = -Werror
-endif
+# Common headers
+AM_CPPFLAGS += -I$(top_srcdir)/wiretap $(LIBGNUTLS_CFLAGS) \
+	$(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS) $(LUA_CFLAGS) $(SBC_CFLAGS) \
+	$(KRB5_CFLAGS)
 
 bin_PROGRAMS = \
 	@wireshark_bin@		\
@@ -427,7 +430,6 @@ wireshark_common_ldadd = \
 if HAVE_Qt
 wireshark_SOURCES = $(WIRESHARK_COMMON_SRC) wireshark-qt.cpp
 wireshark_INCLUDES = $(WIRESHARK_COMMON_INCLUDES)
-wireshark_CFLAGS = $(AM_CLEAN_CFLAGS)
 wireshark_LDADD = \
 	ui/qt/libqtui.a \
 	$(wireshark_common_ldadd) \
@@ -437,7 +439,6 @@ endif
 if HAVE_GTK
 wireshark_gtk_SOURCES = $(WIRESHARK_COMMON_SRC)
 wireshark_gtk_INCLUDES = $(WIRESHARK_COMMON_INCLUDES)
-wireshark_gtk_CFLAGS = $(AM_CLEAN_CFLAGS)
 wireshark_gtk_LDADD = \
 	ui/gtk/libgtkui.a \
 	$(wireshark_common_ldadd) \
@@ -475,8 +476,6 @@ tshark_LDADD = \
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
 
-tshark_CFLAGS = $(AM_CLEAN_CFLAGS)
-
 if ENABLE_STATIC
 tfshark_LDFLAGS = -Wl,-static -all-static
 else
@@ -501,8 +500,6 @@ tfshark_LDADD = \
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
-
-tfshark_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 if ENABLE_STATIC
 rawshark_LDFLAGS = -Wl,-static -all-static
@@ -532,8 +529,6 @@ rawshark_LDADD = \
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
 
-rawshark_CFLAGS = $(AM_CLEAN_CFLAGS)
-
 if ENABLE_STATIC
 androiddump_LDFLAGS = -Wl,-static -all-static
 else
@@ -546,8 +541,6 @@ androiddump_LDADD = \
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
 	@SOCKET_LIBS@
-
-androiddump_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 if ENABLE_STATIC
 	sshdump_LDFLAGS = -Wl,-static -all-static
@@ -563,8 +556,6 @@ sshdump_LDADD = \
 	@LIBSSH_LIBS@		\
 	@SOCKET_LIBS@
 
-sshdump_CFLAGS = $(AM_CLEAN_CFLAGS)
-
 if ENABLE_STATIC
 	randpktdump_LDFLAGS = -Wl,-static -all-static
 else
@@ -578,8 +569,6 @@ randpktdump_LDADD = \
 	@GLIB_LIBS@			\
 	@SOCKET_LIBS@
 
-randpktdump_CFLAGS = $(AM_CLEAN_CFLAGS)
-
 # Libraries with which to link text2pcap.
 text2pcap_LDADD = \
 	wsutil/libwsutil.la		\
@@ -589,14 +578,13 @@ text2pcap_LDADD = \
 # which is generated (and therefore not always clean).
 # We could generate text2pcap.o as a library with -Werror but for now it
 # doesn't seem worth the effort.
-#text2pcap_CFLAGS = $(AM_CLEAN_CFLAGS)
+text2pcap_CFLAGS = $(GENERATED_CFLAGS)
 
 # Libraries with which to link mergecap.
 mergecap_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
-mergecap_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries with which to link capinfos.
 capinfos_LDADD = \
@@ -604,28 +592,24 @@ capinfos_LDADD = \
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@			\
 	@LIBGCRYPT_LIBS@
-capinfos_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries with which to link captype.
 captype_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
-captype_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries with which to link editcap.
 editcap_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
-editcap_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries with which to link reordercap.
 reordercap_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
-reordercap_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries with which to link randpkt.
 randpkt_LDADD = \
@@ -637,8 +621,6 @@ randpkt_LDADD = \
 	@NSL_LIBS@			\
 	@C_ARES_LIBS@			\
 	@ADNS_LIBS@
-
-randpkt_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries and plugin flags with which to link dftest.
 dftest_LDADD = \
@@ -659,8 +641,6 @@ dftest_LDADD = \
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
 
-dftest_CFLAGS = $(AM_CLEAN_CFLAGS)
-
 echld_test_LDADD = \
 	epan/libwireshark.la		\
 	echld/libechld.la		\
@@ -676,9 +656,6 @@ echld_test_DEPENDENCIES = \
 	echld/libechld.la \
 	epan/libwireshark.la
 
-echld_test_CFLAGS = $(AM_CLEAN_CFLAGS)
-
-
 # Libraries with which to link dumpcap.
 dumpcap_LDADD = \
 	caputils/libcaputils.a		\
@@ -690,24 +667,14 @@ dumpcap_LDADD = \
 	@SYSTEMCONFIGURATION_FRAMEWORKS@	\
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@LIBCAP_LIBS@
-dumpcap_CFLAGS = $(AM_CLEAN_CFLAGS) $(PIE_CFLAGS)
+dumpcap_CFLAGS = $(AM_CFLAGS) $(PIE_CFLAGS)
 dumpcap_LDFLAGS = $(PIE_LDFLAGS)
-
-# Common headers
-AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap \
-	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS) \
-	@LUA_CFLAGS@ $(SBC_CFLAGS) -DTOP_SRCDIR=\"$(abs_top_srcdir)\"
 
 #
 # Build the version string
 #
 # FORCE is the portable version of .PHONY
 FORCE:
-
-AM_V_PERL = $(am__v_PERL_@AM_V@)
-am__v_PERL_ = $(am__v_PERL_@AM_DEFAULT_V@)
-am__v_PERL_0 = @echo "  PERL    " $@;
-am__v_PERL_1 =
 
 version.h: FORCE
 	$(AM_V_PERL)$(PERL) $(srcdir)/make-version.pl $(srcdir)
