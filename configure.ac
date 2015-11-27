@@ -1309,7 +1309,7 @@ else
 			#
 			CFLAGS_FOR_BUILD="-Ae +O2 $CFLAGS"
 		fi
-		CXXFLAGS="+O2 $CFLAGS"
+		CXXFLAGS="+O2 $CXXFLAGS"
 		AC_MSG_RESULT(HP C/C++ compiler - added +O2)
 		;;
 	solaris*)
