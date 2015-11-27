@@ -81,6 +81,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event);
     void timerEvent(QTimerEvent *event);
     void paintEvent(QPaintEvent *event);
+    virtual void mousePressEvent (QMouseEvent * event);
 
 protected slots:
     void rowsInserted(const QModelIndex &parent, int start, int end);

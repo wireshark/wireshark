@@ -260,7 +260,6 @@ PacketList::PacketList(QWidget *parent) :
     setRootIsDecorated(false);
     setSortingEnabled(true);
     setUniformRowHeights(true);
-    setAutoScroll(false);
     setAccessibleName("Packet list");
 
     overlay_sb_ = new OverlayScrollBar(Qt::Vertical, this);
@@ -557,6 +556,13 @@ void PacketList::paintEvent(QPaintEvent *event)
     // resizing, etc.
     create_near_overlay_ = true;
     QTreeView::paintEvent(event);
+}
+
+void PacketList::mousePressEvent (QMouseEvent *event)
+{
+    setAutoScroll(false);
+    QTreeView::mousePressEvent(event);
+    setAutoScroll(true);
 }
 
 void PacketList::setColumnVisibility()
