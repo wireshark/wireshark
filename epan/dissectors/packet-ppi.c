@@ -480,7 +480,7 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
     if (data_len != PPI_80211_COMMON_LEN) {
         proto_tree_add_expert_format(ftree, pinfo, &ei_ppi_invalid_length, tvb, offset, data_len, "Invalid length: %u", data_len);
-        THROW(ReportedBoundsError);
+        return;
     }
 
     common_flags = tvb_get_letohs(tvb, offset + 8);
@@ -664,7 +664,7 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
 
     if (data_len != PPI_80211N_MAC_LEN) {
         proto_tree_add_expert_format(ftree, pinfo, &ei_ppi_invalid_length, tvb, offset, data_len, "Invalid length: %u", data_len);
-        THROW(ReportedBoundsError);
+        return;
     }
 
     csr = ptvcursor_new(ftree, tvb, offset);
@@ -711,7 +711,7 @@ dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
     if (data_len != PPI_80211N_MAC_PHY_LEN) {
         proto_tree_add_expert_format(ftree, pinfo, &ei_ppi_invalid_length, tvb, offset, data_len, "Invalid length: %u", data_len);
-        THROW(ReportedBoundsError);
+        return;
     }
 
     dissect_80211n_mac(tvb, pinfo, ftree, offset, PPI_80211N_MAC_LEN,
@@ -790,7 +790,7 @@ dissect_aggregation_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
     if (data_len != PPI_AGGREGATION_EXTENSION_LEN) {
         proto_tree_add_expert_format(ftree, pinfo, &ei_ppi_invalid_length, tvb, offset, data_len, "Invalid length: %u", data_len);
-        THROW(ReportedBoundsError);
+        return;
     }
 
     csr = ptvcursor_new(ftree, tvb, offset);
@@ -811,7 +811,7 @@ dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
     if (data_len != PPI_8023_EXTENSION_LEN) {
         proto_tree_add_expert_format(ftree, pinfo, &ei_ppi_invalid_length, tvb, offset, data_len, "Invalid length: %u", data_len);
-        THROW(ReportedBoundsError);
+        return;
     }
 
     csr = ptvcursor_new(ftree, tvb, offset);

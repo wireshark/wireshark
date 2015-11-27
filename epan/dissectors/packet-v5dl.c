@@ -233,7 +233,7 @@ dissect_v5dl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	 * checksum overlaps the header.
 	 */
 	if (reported_length < v5dl_header_len + 2)
-		THROW(ReportedBoundsError);
+		return;
 
 	if (length == reported_length) {
 		/*
