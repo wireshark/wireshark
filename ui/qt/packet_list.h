@@ -71,7 +71,7 @@ public:
     QString packetComment();
     void setPacketComment(QString new_comment);
     QString allPacketComments();
-    void setAutoScroll(bool enabled = true);
+    void setVerticalAutoScroll(bool enabled = true);
     void setCaptureInProgress(bool in_progress = false) { capture_in_progress_ = in_progress; tail_at_end_ = in_progress; }
     void captureFileReadFinished();
 
