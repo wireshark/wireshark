@@ -840,10 +840,9 @@ static gint ett_connect_reply		   = -1;
 static gint ett_filter_data		   = -1;
 
 static const guint8 *C_BANNER = (const guint8*)"ceph v";
-enum c_banner {
-	C_BANNER_SIZE	  = 9,
-	C_BANNER_SIZE_MIN = 6
-};
+
+#define C_BANNER_SIZE     9
+#define C_BANNER_SIZE_MIN 6
 
 /** Feature Flags */
 /* Transmuted from ceph:/src/include/ceph_features.h */
@@ -1388,9 +1387,7 @@ const char *c_node_type_abbr_string(c_node_type val)
 	return val_to_str(val, c_node_type_abbr_strings, "Unknown (0x%02x)");
 }
 
-enum c_mon_sub_flags {
-	C_MON_SUB_FLAG_ONETIME = 0x01
-};
+#define C_MON_SUB_FLAG_ONETIME  0x01
 
 typedef enum _c_state {
 	C_STATE_NEW,
@@ -1665,10 +1662,8 @@ char *c_format_uuid(tvbuff_t *tvb, guint off)
 	return guid_to_str(wmem_packet_scope(), &uuid);
 }
 
-enum c_ressembly {
-	C_NEEDMORE = G_MAXUINT,
-	C_INVALID  = 0
-};
+#define C_NEEDMORE      G_MAXUINT
+#define C_INVALID       0
 
 /*** Expert info warning functions. ***/
 
@@ -1870,9 +1865,7 @@ guint c_dissect_str(proto_tree *root, int hf, c_str *out,
 	return off;
 }
 
-enum c_size_sockaddr {
-	C_SIZE_SOCKADDR_STORAGE = 128
-};
+#define C_SIZE_SOCKADDR_STORAGE 128
 
 typedef struct _c_sockaddr {
 	const gchar *str;      /** A string representing the entire address. */
@@ -1953,9 +1946,7 @@ guint c_dissect_sockaddr(proto_tree *root, c_sockaddr *out,
 	return off;
 }
 
-enum c_size_entity_addr {
-	C_SIZE_ENTITY_ADDR = 4 + 4 + C_SIZE_SOCKADDR_STORAGE
-};
+#define C_SIZE_ENTITY_ADDR (4 + 4 + C_SIZE_SOCKADDR_STORAGE)
 
 typedef struct _c_entity_addr {
 	c_sockaddr addr;
@@ -1994,9 +1985,7 @@ guint c_dissect_entityaddr(proto_tree *root, int hf, c_entityaddr *out,
 	return off;
 }
 
-enum c_size_entity_name {
-	C_SIZE_ENTITY_NAME = 9
-};
+#define C_SIZE_ENTITY_NAME 9
 
 /** Dissect a ceph_entity_name.
  *
@@ -2202,29 +2191,27 @@ guint c_dissect_flags(proto_tree *tree,
 	return off+1;
 }
 
-enum c_osd_flags {
-	C_OSD_FLAG_ACK		  = 0x00000001,	 /* want (or is) "ack" ack */
-	C_OSD_FLAG_ONNVRAM	  = 0x00000002,	 /* want (or is) "onnvram" ack */
-	C_OSD_FLAG_ONDISK	  = 0x00000004,	 /* want (or is) "ondisk" ack */
-	C_OSD_FLAG_RETRY	  = 0x00000008,	 /* resend attempt */
-	C_OSD_FLAG_READ		  = 0x00000010,	 /* op may read */
-	C_OSD_FLAG_WRITE	  = 0x00000020,	 /* op may write */
-	C_OSD_FLAG_ORDERSNAP	  = 0x00000040,	 /* EOLDSNAP if snapc is out of order */
-	C_OSD_FLAG_PEERSTAT_OLD	  = 0x00000080,	 /* DEPRECATED msg includes osd_peer_stat */
-	C_OSD_FLAG_BALANCE_READS  = 0x00000100,
-	C_OSD_FLAG_PARALLELEXEC	  = 0x00000200,	 /* execute op in parallel */
-	C_OSD_FLAG_PGOP		  = 0x00000400,	 /* pg op, no object */
-	C_OSD_FLAG_EXEC		  = 0x00000800,	 /* op may exec */
-	C_OSD_FLAG_EXEC_PUBLIC	  = 0x00001000,	 /* DEPRECATED op may exec (public) */
-	C_OSD_FLAG_LOCALIZE_READS = 0x00002000,	 /* read from nearby replica, if any */
-	C_OSD_FLAG_RWORDERED	  = 0x00004000,	 /* order wrt concurrent reads */
-	C_OSD_FLAG_IGNORE_CACHE	  = 0x00008000,	 /* ignore cache logic */
-	C_OSD_FLAG_SKIPRWLOCKS	  = 0x00010000,	 /* skip rw locks */
-	C_OSD_FLAG_IGNORE_OVERLAY = 0x00020000,	 /* ignore pool overlay */
-	C_OSD_FLAG_FLUSH	  = 0x00040000,	 /* this is part of flush */
-	C_OSD_FLAG_MAP_SNAP_CLONE = 0x00080000,	 /* map snap direct to clone id */
-	C_OSD_FLAG_ENFORCE_SNAPC  = 0x00100000	 /* use snapc provided even if pool uses pool snaps */
-};
+#define C_OSD_FLAG_ACK		    0x00000001   /* want (or is) "ack" ack */
+#define C_OSD_FLAG_ONNVRAM	    0x00000002   /* want (or is) "onnvram" ack */
+#define C_OSD_FLAG_ONDISK	    0x00000004   /* want (or is) "ondisk" ack */
+#define C_OSD_FLAG_RETRY	    0x00000008   /* resend attempt */
+#define C_OSD_FLAG_READ		    0x00000010   /* op may read */
+#define C_OSD_FLAG_WRITE	    0x00000020   /* op may write */
+#define C_OSD_FLAG_ORDERSNAP	    0x00000040   /* EOLDSNAP if snapc is out of order */
+#define C_OSD_FLAG_PEERSTAT_OLD	    0x00000080   /* DEPRECATED msg includes osd_peer_stat */
+#define C_OSD_FLAG_BALANCE_READS    0x00000100
+#define C_OSD_FLAG_PARALLELEXEC	    0x00000200   /* execute op in parallel */
+#define C_OSD_FLAG_PGOP		    0x00000400   /* pg op, no object */
+#define C_OSD_FLAG_EXEC		    0x00000800   /* op may exec */
+#define C_OSD_FLAG_EXEC_PUBLIC	    0x00001000   /* DEPRECATED op may exec (public) */
+#define C_OSD_FLAG_LOCALIZE_READS   0x00002000   /* read from nearby replica, if any */
+#define C_OSD_FLAG_RWORDERED	    0x00004000   /* order wrt concurrent reads */
+#define C_OSD_FLAG_IGNORE_CACHE	    0x00008000   /* ignore cache logic */
+#define C_OSD_FLAG_SKIPRWLOCKS	    0x00010000   /* skip rw locks */
+#define C_OSD_FLAG_IGNORE_OVERLAY   0x00020000   /* ignore pool overlay */
+#define C_OSD_FLAG_FLUSH	    0x00040000   /* this is part of flush */
+#define C_OSD_FLAG_MAP_SNAP_CLONE   0x00080000   /* map snap direct to clone id */
+#define C_OSD_FLAG_ENFORCE_SNAPC    0x00100000   /* use snapc provided even if pool uses pool snaps */
 
 /** Dissect OSD flags. */
 static
@@ -2325,13 +2312,9 @@ guint c_dissect_encoded(proto_tree *tree, c_encoded *enc,
 	return off;
 }
 
-enum c_size_timespec {
-	C_SIZE_TIMESPEC = 4 + 4
-};
+#define C_SIZE_TIMESPEC  (4 + 4)
 
-enum c_size_eversion {
-	C_SIZE_EVERSION = 12
-};
+#define C_SIZE_EVERSION  12
 
 /** Dissect a eversion_t */
 static
@@ -3777,9 +3760,7 @@ typedef struct _c_osd_op {
 	guint32 payload_size; /** The size of the operation payload. */
 } c_osd_op;
 
-enum c_osd_op_const {
-	C_SIZE_OSD_OP_MIN = 34
-};
+#define C_SIZE_OSD_OP_MIN 34
 
 /** Dissect OSD Operation. */
 static
@@ -4259,9 +4240,7 @@ guint c_dissect_pg_stats(proto_tree *root, int hf,
 	return off;
 }
 
-enum c_size_paxos {
-	C_SIZE_PAXOS = 18
-};
+#define C_SIZE_PAXOS 18
 
 /** Dissect a Paxos Service Message */
 static
@@ -6386,20 +6365,18 @@ guint c_dissect_msg_timecheck(proto_tree *root,
 
 /*** MSGR Dissectors ***/
 
-enum c_size_msg {
-	C_OFF_HEAD0  = 0,
-	C_SIZE_HEAD0 = (64+64+16+16+16)/8,
+#define C_OFF_HEAD0  0
+#define C_SIZE_HEAD0 ((64+64+16+16+16)/8)
 
-	C_OFF_HEAD1  = C_SIZE_HEAD0,
-	C_SIZE_HEAD1 = (32+32+32+16)/8,
+#define C_OFF_HEAD1  C_SIZE_HEAD0
+#define C_SIZE_HEAD1 ((32+32+32+16)/8)
 
-	C_OFF_HEAD2  = C_OFF_HEAD1 + C_SIZE_HEAD1 + C_SIZE_ENTITY_NAME,
-	C_SIZE_HEAD2 = (16+16+32)/8,
+#define C_OFF_HEAD2  (C_OFF_HEAD1 + C_SIZE_HEAD1 + C_SIZE_ENTITY_NAME)
+#define C_SIZE_HEAD2 ((16+16+32)/8)
 
-	C_SIZE_HEAD  = C_OFF_HEAD2 + C_SIZE_HEAD2,
+#define C_SIZE_HEAD  (C_OFF_HEAD2 + C_SIZE_HEAD2)
 
-	C_SIZE_FOOT  = (32+32+32+64+8)/8
-};
+#define C_SIZE_FOOT  ((32+32+32+64+8)/8)
 
 /** Dissect a MSG message.
  *
@@ -6609,14 +6586,12 @@ guint c_dissect_msg(proto_tree *tree,
 	return off;
 }
 
-enum c_sizes_connect {
-	C_SIZE_CONNECT = 33,
-	C_SIZE_CONNECT_REPLY = 25,
-	C_CONNECT_REPLY_OFF_OFFLEN = 20,
-	C_SIZE_HELLO_S = 2*C_SIZE_ENTITY_ADDR,
-	C_SIZE_HELLO_C = C_SIZE_ENTITY_ADDR + C_SIZE_CONNECT,
-	C_HELLO_OFF_AUTHLEN = C_SIZE_ENTITY_ADDR + 28
-};
+#define C_SIZE_CONNECT          33
+#define C_SIZE_CONNECT_REPLY    25
+#define C_CONNECT_REPLY_OFF_OFFLEN 20
+#define C_SIZE_HELLO_S          (2*C_SIZE_ENTITY_ADDR)
+#define C_SIZE_HELLO_C          (C_SIZE_ENTITY_ADDR + C_SIZE_CONNECT)
+#define C_HELLO_OFF_AUTHLEN     (C_SIZE_ENTITY_ADDR + 28)
 
 /** Dissect a connection request. */
 static
