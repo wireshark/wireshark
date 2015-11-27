@@ -1006,7 +1006,7 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
     /* stig: it should be done only for bitview... */
     if (recent.gui_bytes_view != BYTES_BITS)
         bmask = 0x00;
-    packet_hex_update(bv, pd, len, bstart, bend, bmask, bmask_le, astart, aend, pstart, pend, fd->flags.encoding);
+    packet_hex_update(bv, pd, len, bstart, bend, bmask, bmask_le, astart, aend, pstart, pend, (packet_char_enc)fd->flags.encoding);
 }
 
 void
@@ -1047,7 +1047,7 @@ packet_hex_editor_print(GtkWidget *bv, const guint8 *pd, frame_data *fd, int off
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_PROTO_START_KEY, GINT_TO_POINTER(pstart));
     g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_PROTO_END_KEY, GINT_TO_POINTER(pend));
 
-    packet_hex_update(bv, pd, len, bstart, bend, bmask, bmask_le, astart, aend, pstart, pend, fd->flags.encoding);
+    packet_hex_update(bv, pd, len, bstart, bend, bmask, bmask_le, astart, aend, pstart, pend, (packet_char_enc)fd->flags.encoding);
 }
 
 /*
