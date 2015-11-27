@@ -622,7 +622,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 
 		/* print the node identifiers */
 		/* XXX we assign 5 pixels per character in the node identity */
-		addr_str = (char*)address_to_display(NULL, &(user_data->graph_info->nodes[i]));
+		addr_str = address_to_display(NULL, &(user_data->graph_info->nodes[i]));
 		g_strlcpy(label_string, addr_str, NODE_WIDTH/5);
 		wmem_free(NULL, addr_str);
 		pango_layout_set_text(layout, label_string, -1);

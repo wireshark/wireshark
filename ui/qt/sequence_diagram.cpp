@@ -133,7 +133,7 @@ void SequenceDiagram::setData(_seq_analysis_info *sainfo)
 
     for (unsigned int i = 0; i < sainfo_->num_nodes; i++) {
         val_ticks.append(i);
-        addr_str = (char*)address_to_display(NULL, &(sainfo_->nodes[i]));
+        addr_str = address_to_display(NULL, &(sainfo_->nodes[i]));
         val_labels.append(addr_str);
         if (i % 2 == 0) {
             val_labels.last().append("\n");

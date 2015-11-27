@@ -353,7 +353,7 @@ void SequenceDialog::fillDiagram()
     char* addr_str;
     node_label_w_ = 0;
     for (guint i = 0; i < info_->sainfo()->num_nodes; i++) {
-        addr_str = (char*)address_to_display(NULL, &(info_->sainfo()->nodes[i]));
+        addr_str = address_to_display(NULL, &(info_->sainfo()->nodes[i]));
         int label_w = vfm.width(addr_str);
         if (node_label_w_ < label_w) {
             node_label_w_ = label_w;

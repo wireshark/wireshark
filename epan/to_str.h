@@ -80,7 +80,7 @@ const gchar *address_to_name(const address *addr);
  * e.g. "10.10.10.10" for IPv4 address 10.10.10.10.
  */
 WS_DLL_PUBLIC
-const gchar *address_to_display(wmem_allocator_t *allocator, const address *addr);
+gchar *address_to_display(wmem_allocator_t *allocator, const address *addr);
 
 WS_DLL_PUBLIC void     address_to_str_buf(const address *addr, gchar *buf, int buf_len);
 

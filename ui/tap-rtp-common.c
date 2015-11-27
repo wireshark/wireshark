@@ -140,7 +140,7 @@ void rtp_write_header(rtp_stream_info_t *strinfo, FILE *file)
 	size_t sourcelen;
 	guint16 port;          /* UDP port */
 	guint16 padding;       /* 2 padding bytes */
-	char* addr_str = (char*)address_to_display(NULL, &(strinfo->dest_addr));
+	char* addr_str = address_to_display(NULL, &(strinfo->dest_addr));
 
 	fprintf(file, "#!rtpplay%s %s/%u\n", RTPFILE_VERSION,
 		addr_str,

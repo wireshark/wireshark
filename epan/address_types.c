@@ -961,7 +961,7 @@ address_to_name(const address *addr)
     }
 }
 
-const gchar *
+gchar *
 address_to_display(wmem_allocator_t *allocator, const address *addr)
 {
     gchar *str = NULL;

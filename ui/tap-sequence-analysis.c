@@ -553,7 +553,7 @@ sequence_analysis_dump_to_file(const char *pathname, seq_analysis_info_t *sainfo
     /* Write the node names on top */
     for (i=0; i<display_nodes; i+=2) {
         /* print the node identifiers */
-        addr_str = (char*)address_to_display(NULL, &(sainfo->nodes[i+first_node]));
+        addr_str = address_to_display(NULL, &(sainfo->nodes[i+first_node]));
         g_string_printf(label_string, "| %s", addr_str);
         wmem_free(NULL, addr_str);
         enlarge_string(label_string, NODE_CHARS_WIDTH*2, ' ');
@@ -571,7 +571,7 @@ sequence_analysis_dump_to_file(const char *pathname, seq_analysis_info_t *sainfo
     /* Write the node names on top */
     for (i=1; i<display_nodes; i+=2) {
         /* print the node identifiers */
-        addr_str = (char*)address_to_display(NULL, &(sainfo->nodes[i+first_node]));
+        addr_str = address_to_display(NULL, &(sainfo->nodes[i+first_node]));
         g_string_printf(label_string, "| %s", addr_str);
         wmem_free(NULL, addr_str);
         if (label_string->len < NODE_CHARS_WIDTH)

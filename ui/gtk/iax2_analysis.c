@@ -728,10 +728,10 @@ dialog_graph_set_title(user_data_t* user_data)
 		return;
 	}
 
-	src_fwd_addr = (char*)address_to_display(NULL, &(user_data->ip_src_fwd));
-	dst_fwd_addr = (char*)address_to_display(NULL, &(user_data->ip_dst_fwd));
-	src_rev_addr = (char*)address_to_display(NULL, &(user_data->ip_src_rev));
-	dst_rev_addr = (char*)address_to_display(NULL, &(user_data->ip_dst_rev));
+	src_fwd_addr = address_to_display(NULL, &(user_data->ip_src_fwd));
+	dst_fwd_addr = address_to_display(NULL, &(user_data->ip_dst_fwd));
+	src_rev_addr = address_to_display(NULL, &(user_data->ip_src_rev));
+	dst_rev_addr = address_to_display(NULL, &(user_data->ip_dst_rev));
 	title = g_strdup_printf("IAX2 Graph Analysis Forward: %s:%u to %s:%u   Reverse: %s:%u to %s:%u",
 				src_fwd_addr,
 				user_data->port_src_fwd,
@@ -776,8 +776,8 @@ dialog_graph_reset(user_data_t* user_data)
 	for (i = 0; i < MAX_GRAPHS; i++) {
 		/* it is forward */
 		if (i < 2) {
-			src_addr = (char*)address_to_display(NULL, &(user_data->ip_src_fwd));
-			dst_addr = (char*)address_to_display(NULL, &(user_data->ip_dst_fwd));
+			src_addr = address_to_display(NULL, &(user_data->ip_src_fwd));
+			dst_addr = address_to_display(NULL, &(user_data->ip_dst_fwd));
 			g_snprintf(user_data->dlg.dialog_graph.graph[i].title,
 				   sizeof (user_data->dlg.dialog_graph.graph[0].title),
 				   "%s: %s:%u to %s:%u",
@@ -788,8 +788,8 @@ dialog_graph_reset(user_data_t* user_data)
 			user_data->port_dst_fwd);
 		/* it is reverse */
 		} else {
-			src_addr = (char*)address_to_display(NULL, &(user_data->ip_src_rev));
-			dst_addr = (char*)address_to_display(NULL, &(user_data->ip_dst_rev));
+			src_addr = address_to_display(NULL, &(user_data->ip_src_rev));
+			dst_addr = address_to_display(NULL, &(user_data->ip_dst_rev));
 			g_snprintf(user_data->dlg.dialog_graph.graph[i].title,
 				   sizeof(user_data->dlg.dialog_graph.graph[0].title),
 				   "%s: %s:%u to %s:%u",
@@ -3247,16 +3247,16 @@ create_iax2_dialog(user_data_t* user_data)
 	gtk_widget_show(main_vb);
 
 	/* Notebooks... */
-	src_addr = (char*)address_to_display(NULL, &(user_data->ip_src_fwd));
-	dst_addr = (char*)address_to_display(NULL, &(user_data->ip_dst_fwd));
+	src_addr = address_to_display(NULL, &(user_data->ip_src_fwd));
+	dst_addr = address_to_display(NULL, &(user_data->ip_dst_fwd));
 	g_snprintf(label_forward, sizeof(label_forward),
 		"Analysing stream from  %s port %u  to  %s port %u  ",
 		src_addr, user_data->port_src_fwd, dst_addr, user_data->port_dst_fwd);
 	wmem_free(NULL, src_addr);
 	wmem_free(NULL, dst_addr);
 
-	src_addr = (char*)address_to_display(NULL, &(user_data->ip_src_rev));
-	dst_addr = (char*)address_to_display(NULL, &(user_data->ip_dst_rev));
+	src_addr = address_to_display(NULL, &(user_data->ip_src_rev));
+	dst_addr = address_to_display(NULL, &(user_data->ip_dst_rev));
 	g_snprintf(label_reverse, sizeof(label_reverse),
 		"Analysing stream from  %s port %u  to  %s port %u  ",
 		src_addr, user_data->port_src_rev, dst_addr, user_data->port_dst_rev);

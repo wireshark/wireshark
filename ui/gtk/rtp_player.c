@@ -506,8 +506,8 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr)
 	 * uses: src_ip:src_port dst_ip:dst_port call_num
 	 */
 	key_str = g_string_new("");
-	src_addr = (char*)address_to_display(NULL, &(rsi->src_addr));
-	dst_addr = (char*)address_to_display(NULL, &(rsi->dest_addr));
+	src_addr = address_to_display(NULL, &(rsi->src_addr));
+	dst_addr = address_to_display(NULL, &(rsi->dest_addr));
 	g_string_printf(key_str, "%s:%d %s:%d %d %u", src_addr,
 		rsi->src_port, dst_addr,
 		rsi->dest_port, rsi->call_num, info->current_channel);
@@ -1751,8 +1751,8 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter)
 
 
 	label = g_string_new("");
-	src_addr = (char*)address_to_display(NULL, &(rci->first_stream->src_addr));
-	dst_addr = (char*)address_to_display(NULL, &(rci->first_stream->dest_addr));
+	src_addr = address_to_display(NULL, &(rci->first_stream->src_addr));
+	dst_addr = address_to_display(NULL, &(rci->first_stream->dest_addr));
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp))) {
 		g_string_printf(label, "From %s:%d to %s:%d   Duration:%.2f   Out of Seq: %d(%.1f%%)   Wrong Timestamp: %d(%.1f%%)",
 		src_addr, rci->first_stream->src_port,

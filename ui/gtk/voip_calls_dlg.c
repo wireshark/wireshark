@@ -445,7 +445,7 @@ add_to_list_store(voip_calls_info_t* strinfo)
 	isup_calls_info_t *isupinfo;
 	h323_calls_info_t *h323info;
 	gboolean flag = FALSE;
-	char* addr_str = (char*)address_to_display(NULL, &(strinfo->initial_speaker));
+	char* addr_str = address_to_display(NULL, &(strinfo->initial_speaker));
 
 	g_snprintf(field[CALL_COL_INITIAL_SPEAKER], 30, "%s", addr_str);
 	g_snprintf(field[CALL_COL_FROM],            50, "%s", strinfo->from_identity);
