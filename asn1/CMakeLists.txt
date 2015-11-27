@@ -19,6 +19,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+ADD_CUSTOM_CMAKE_INCLUDE()
 
 set(ASN1_SRC_DIRS
 	HI2Operations
@@ -123,6 +124,7 @@ set(ASN1_SRC_DIRS
 	x509ce
 	x509if
 	x509sat
+	${CUSTOM_ASN1_SRC_DIR}
 )
 
 set( BROKEN_ASN1_SRC_DIRS
