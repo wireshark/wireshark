@@ -654,6 +654,12 @@ INT AirPDcapPacketProcess(
         return AIRPDCAP_RET_WRONG_DATA_SIZE;
     }
 
+    /* Assume that the decrypt_data field is at least this size. */
+    if (tot_len > AIRPDCAP_MAX_CAPLEN) {
+        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "length too large", AIRPDCAP_DEBUG_LEVEL_3);
+        return AIRPDCAP_RET_UNSUCCESS;
+    }
+
     /* get BSSID */
     if ( (addr=AirPDcapGetBssidAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
         memcpy(id.bssid, addr, AIRPDCAP_MAC_LEN);
