@@ -790,8 +790,6 @@ void MainWindow::startCapture() {
         return;
     }
 
-    main_ui_->mainStack->setCurrentWidget(&master_split_);
-
     // Ideally we should have disabled the start capture
     // toolbar buttons and menu items. This may not be the
     // case, e.g. with QtMacExtras.
@@ -801,6 +799,8 @@ void MainWindow::startCapture() {
         main_ui_->actionCaptureStart->setChecked(false);
         return;
     }
+
+    main_ui_->mainStack->setCurrentWidget(&master_split_);
 
     /* XXX - we might need to init other pref data as well... */
 
