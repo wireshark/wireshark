@@ -588,7 +588,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
                 "%12s%*[ \n\t]%12s%*[ \n\t]ETHV2%*[ \n\t]TYPE:%*[ \n\t]%4s",
                 &pktnum, direction, &pkt_len, &hr, &min, &sec, csec, destmac,
                 srcmac, type);
-      if (num_items_scanned == 10)
+      if ((num_items_scanned == 10) && (pkt_len >= 0))
         {
           /* OK! We found the packet header line */
           isValid = TRUE;
