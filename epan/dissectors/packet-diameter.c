@@ -348,11 +348,18 @@ static int
 dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 prefix_len, prefix_len_bytes;
+	proto_item *pi;
 
 	proto_tree_add_item(tree, hf_framed_ipv6_prefix_reserved, tvb, 0, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_framed_ipv6_prefix_length, tvb, 1, 1, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item(tree, hf_framed_ipv6_prefix_length, tvb, 1, 1, ENC_BIG_ENDIAN);
 
 	prefix_len = tvb_get_guint8(tvb, 1);
+	if (prefix_len > 128) {
+		expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_NOTE,
+				       "Bad Prefix Length (%u), using 128 bits", prefix_len);
+		prefix_len = 128;
+	}
+
 	prefix_len_bytes = prefix_len / 8;
 	if (prefix_len % 8)
 		prefix_len_bytes++;
