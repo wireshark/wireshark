@@ -2260,14 +2260,14 @@ guint64 get_signature_ts(const guint8 *m_ptr,int sig_off)
 static float getRate( guint8 plcpType, guint8 mcsIndex, guint16 rflags, guint8 nss )
 {
     /* Rate conversion data */
-    float canonical_rate_legacy[]  = {1.0f, 2.0f, 5.5f, 11.0f, 6.0f, 9.0f, 12.0f, 18.0f, 24.0f, 36.0f, 48.0f, 54.0f};
+    static const float canonical_rate_legacy[]  = {1.0f, 2.0f, 5.5f, 11.0f, 6.0f, 9.0f, 12.0f, 18.0f, 24.0f, 36.0f, 48.0f, 54.0f};
 
-    int   canonical_ndbps_20_ht[8]  = {26, 52, 78, 104, 156, 208, 234, 260};
-    int   canonical_ndbps_40_ht[8]  = {54, 108, 162, 216, 324, 432, 486, 540};
+    static const int   canonical_ndbps_20_ht[8]  = {26, 52, 78, 104, 156, 208, 234, 260};
+    static const int   canonical_ndbps_40_ht[8]  = {54, 108, 162, 216, 324, 432, 486, 540};
 
-    int   canonical_ndbps_20_vht[] = {26,52, 78, 104, 156, 208, 234, 260, 312};
-    int   canonical_ndbps_40_vht[] = {54, 108, 162, 216, 324, 432, 486, 540, 648, 720};
-    int   canonical_ndbps_80_vht[] = {117, 234, 351, 468, 702, 936, 1053, 1170, 1404, 1560};
+    static const int   canonical_ndbps_20_vht[] = {26, 52, 78, 104, 156, 208, 234, 260, 312};
+    static const int   canonical_ndbps_40_vht[] = {54, 108, 162, 216, 324, 432, 486, 540, 648, 720};
+    static const int   canonical_ndbps_80_vht[] = {117, 234, 351, 468, 702, 936, 1053, 1170, 1404, 1560};
 
     float symbol_tx_time, bitrate  = 0.0f;
 
