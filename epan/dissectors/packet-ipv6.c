@@ -231,7 +231,7 @@ static int hf_ipv6_routing_rpl_cmprI            = -1;
 static int hf_ipv6_routing_rpl_cmprE            = -1;
 static int hf_ipv6_routing_rpl_pad              = -1;
 static int hf_ipv6_routing_rpl_reserved         = -1;
-static int hf_ipv6_routing_rpl_segments         = -1;
+static int hf_ipv6_routing_rpl_addr_count       = -1;
 static int hf_ipv6_routing_rpl_addr             = -1;
 static int hf_ipv6_routing_rpl_fulladdr         = -1;
 
@@ -332,7 +332,7 @@ static expert_field ei_ipv6_src_route_list_src_addr = EI_INIT;
 static expert_field ei_ipv6_src_route_list_dst_addr = EI_INIT;
 static expert_field ei_ipv6_src_route_list_multicast_addr = EI_INIT;
 static expert_field ei_ipv6_routing_rpl_cmpri_cmpre_pad = EI_INIT;
-static expert_field ei_ipv6_routing_rpl_segments_ge0 = EI_INIT;
+static expert_field ei_ipv6_routing_rpl_addr_count_ge0 = EI_INIT;
 static expert_field ei_ipv6_routing_rpl_reserved = EI_INIT;
 static expert_field ei_ipv6_opt_tel_invalid_len = EI_INIT;
 static expert_field ei_ipv6_opt_jumbo_invalid_len = EI_INIT;
@@ -818,7 +818,6 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_item        *pi, *ti, *ti_len, *ti_seg;
     int                offset = 0;
     struct e_in6_addr *addr, *dst_addr = NULL;
-    guint8             addr_count;
     ipv6_meta_t       *ipv6_info;
 
     ipv6_info = (ipv6_meta_t *)p_get_proto_data(pinfo->pool, pinfo, proto_ipv6, IPV6_PROTO_META);
@@ -852,6 +851,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     /* IPv6 Source Routing Header (Type 0) */
     if (rt.ip6r_type == IPv6_RT_HEADER_SOURCE_ROUTING) {
         int offlim;
+        guint rt0_addr_count;
 
         proto_tree_add_item(rthdr_tree, hf_ipv6_routing_src_reserved, tvb, offset, 4, ENC_NA);
         offset += 4;
@@ -860,12 +860,12 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             expert_add_info_format(pinfo, ti_len, &ei_ipv6_routing_invalid_length,
                 "IPv6 Routing Header extension header length must not be odd");
         } else {
-            addr_count = rt.ip6r_len / 2;
-            if (rt.ip6r_segleft > addr_count) {
+            rt0_addr_count = rt.ip6r_len / 2;
+            if (rt.ip6r_segleft > rt0_addr_count) {
                 expert_add_info_format(pinfo, ti_seg, &ei_ipv6_routing_invalid_segleft,
-                    "IPv6 Type 0 Routing Header segments left field must not exceed address count (%u)", addr_count);
+                    "IPv6 Type 0 Routing Header segments left field must not exceed address count (%u)", rt0_addr_count);
             }
-            offlim = offset + addr_count * IPv6_ADDR_SIZE;
+            offlim = offset + rt0_addr_count * IPv6_ADDR_SIZE;
             for (; offset < offlim; offset += IPv6_ADDR_SIZE) {
                 ti = proto_tree_add_item(rthdr_tree, hf_ipv6_routing_src_addr, tvb,
                                     offset, IPv6_ADDR_SIZE, ENC_NA);
@@ -907,7 +907,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         guint8 cmprE;
         guint8 pad;
         guint32 reserved;
-        gint segments;
+        gint rpl_addr_count;
 
         /* IPv6 destination address used for elided bytes */
         struct e_in6_addr dstAddr;
@@ -946,26 +946,29 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             expert_add_info_format(pinfo, ti, &ei_ipv6_routing_rpl_reserved, "Reserved field must equal 0 but instead was %d", reserved);
         }
 
-        /* from RFC6554:
-           n = (((Hdr Ext Len * 8) - Pad - (16 - CmprE)) / (16 - CmprI)) + 1 */
-        segments = (((rt.ip6r_len * 8) - pad - (16 - cmprE)) / (16 - cmprI)) + 1;
-        ti = proto_tree_add_int(rthdr_tree, hf_ipv6_routing_rpl_segments, tvb, offset, 2, segments);
+        /* From RFC6554:
+         *   n = (((Hdr Ext Len * 8) - Pad - (16 - CmprE)) / (16 - CmprI)) + 1
+         */
+        rpl_addr_count = 0;
+        if (rt.ip6r_len > 0) {
+            rpl_addr_count = (((rt.ip6r_len * 8) - pad - (16 - cmprE)) / (16 - cmprI)) + 1;
+        }
+        ti = proto_tree_add_int(rthdr_tree, hf_ipv6_routing_rpl_addr_count, tvb, offset, 2, rpl_addr_count);
         PROTO_ITEM_SET_GENERATED(ti);
-
-        if (segments < 0) {
+        if (rpl_addr_count < 0) {
             /* This error should always be reported */
-            expert_add_info_format(pinfo, ti, &ei_ipv6_routing_rpl_segments_ge0, "Calculated total address count must be greater than or equal to 0, instead was %d", segments);
-        } else {
+            expert_add_info_format(pinfo, ti, &ei_ipv6_routing_rpl_addr_count_ge0, "Calculated total address count must be greater than or equal to 0, instead was %d", rpl_addr_count);
+        }
+        else if (rt.ip6r_segleft > (guint)rpl_addr_count) {
+            expert_add_info_format(pinfo, ti_seg, &ei_ipv6_routing_invalid_segleft,
+                "IPv6 RPL Routing Header segments left field must not exceed address count (%d)", rpl_addr_count);
+        }
 
-            if (rt.ip6r_segleft > (guint)segments) {
-                expert_add_info_format(pinfo, ti_seg, &ei_ipv6_routing_invalid_segleft,
-                    "IPv6 RPL Routing Header segments left field must not exceed address count (%u)", (guint)segments);
-            }
-
+        if (rpl_addr_count > 0) {
             offset += 4;
 
             /* We use cmprI for internal (e.g.: not last) address for how many bytes to elide, so actual bytes present = 16-CmprI */
-            while(segments > 1) {
+            while(rpl_addr_count > 1) {
                 proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_addr, tvb, offset, (16-cmprI), ENC_NA);
                 /* Display Full Address */
                 memcpy((guint8 *)addr, (guint8 *)&dstAddr, sizeof(dstAddr));
@@ -973,7 +976,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_rpl_fulladdr, tvb, offset, (16-cmprI), addr);
                 PROTO_ITEM_SET_GENERATED(ti);
                 offset += (16-cmprI);
-                segments--;
+                rpl_addr_count--;
 
                 if(g_ipv6_rpl_srh_strict_rfc_checking){
                     /* from RFC6554: */
@@ -981,7 +984,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                     /* To do this, we will just check the current 'addr' against the next addresses */
                     gint tempSegments;
                     gint tempOffset;
-                    tempSegments = segments; /* Has already been decremented above */
+                    tempSegments = rpl_addr_count; /* Has already been decremented above */
                     tempOffset = offset; /* Has already been moved */
                     while(tempSegments > 1) {
                         struct e_in6_addr tempAddr;
@@ -1024,7 +1027,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             }
 
             /* We use cmprE for last address for how many bytes to elide, so actual bytes present = 16-CmprE */
-            if (segments == 1) {
+            if (rpl_addr_count == 1) {
                 proto_tree_add_item(rthdr_tree, hf_ipv6_routing_rpl_addr, tvb, offset, (16-cmprE), ENC_NA);
                 /* Display Full Address */
                 memcpy((guint8 *)addr, (guint8 *)&dstAddr, sizeof(dstAddr));
@@ -3122,7 +3125,7 @@ proto_register_ipv6(void)
                 FT_UINT32, BASE_DEC, NULL, IP6RRPL_BITMASK_RESERVED,
                 "Must be zero", HFILL }
         },
-        { &hf_ipv6_routing_rpl_segments,
+        { &hf_ipv6_routing_rpl_addr_count,
             { "Total Address Count", "ipv6.routing.rpl.segments",
                 FT_INT32, BASE_DEC, NULL, 0,
                 NULL, HFILL }
@@ -3386,7 +3389,7 @@ proto_register_ipv6(void)
             { "ipv6.routing.rpl.cmprI_cmprE_pad", PI_PROTOCOL, PI_WARN,
                 "When cmprI equals 0 and cmprE equals 0, pad MUST equal 0 but instead was X", EXPFILL }
         },
-        { &ei_ipv6_routing_rpl_segments_ge0,
+        { &ei_ipv6_routing_rpl_addr_count_ge0,
             { "ipv6.routing.rpl.segments_ge0", PI_MALFORMED, PI_ERROR,
                 "Calculated total address count must be greater than or equal to 0, instead was X", EXPFILL }
         },
