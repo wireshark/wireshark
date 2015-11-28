@@ -69,7 +69,7 @@ private:
 #endif // HAVE_LIBPCAP
 
 signals:
-    void interfaceUpdated(const char *device_name, bool selected);
+    void interfacesUpdated();
 
 public slots:
     // add_interface_to_list

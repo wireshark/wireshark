@@ -329,8 +329,8 @@ void InterfaceTree::updateSelectedInterfaces()
     global_capture_opts.num_selected = 0;
 
     while (*iter) {
+        QString device_name = (*iter)->data(IFTREE_COL_NAME, Qt::UserRole).value<QString>();
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            QString device_name = (*iter)->data(IFTREE_COL_NAME, Qt::UserRole).value<QString>();
             interface_t device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             if (device_name.compare(QString().fromUtf8(device.name)) == 0) {
                 if (!device.locked) {
@@ -344,8 +344,6 @@ void InterfaceTree::updateSelectedInterfaces()
                     global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
                     g_array_insert_val(global_capture_opts.all_ifaces, i, device);
 
-                    emit interfaceUpdated(device.name, device.selected);
-
                     device.locked = FALSE;
                     global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
                     g_array_insert_val(global_capture_opts.all_ifaces, i, device);
@@ -355,6 +353,8 @@ void InterfaceTree::updateSelectedInterfaces()
         }
         iter++;
     }
+
+    emit interfacesUpdated();
 #endif // HAVE_LIBPCAP
 }
 
