@@ -138,7 +138,8 @@ static gint ett_http_encoded_entity = -1;
 static gint ett_http_header_item = -1;
 
 static expert_field ei_http_chat = EI_INIT;
-static expert_field ei_http_chunked_and_length = EI_INIT;
+static expert_field ei_http_te_and_length = EI_INIT;
+static expert_field ei_http_te_unknown = EI_INIT;
 static expert_field ei_http_subdissector_failed = EI_INIT;
 static expert_field ei_http_ssl_port = EI_INIT;
 static expert_field ei_http_leading_crlf = EI_INIT;
@@ -286,6 +287,21 @@ static range_t *http_ssl_range = NULL;
 typedef void (*ReqRespDissector)(tvbuff_t*, proto_tree*, int, const guchar*,
 				 const guchar*, http_conv_t *);
 
+/**
+ * Transfer codings from
+ * https://www.iana.org/assignments/http-parameters/http-parameters.xhtml#transfer-coding
+ * Note: chunked encoding is handled separately.
+ */
+typedef enum _http_transfer_coding {
+	HTTP_TE_NONE,           /* Dummy value for header which is not set */
+	/* HTTP_TE_CHUNKED, */
+	HTTP_TE_COMPRESS,
+	HTTP_TE_DEFLATE,
+	HTTP_TE_GZIP,
+	HTTP_TE_IDENTITY,
+	HTTP_TE_UNKNOWN,    /* Header was set, but no valid name was found */
+} http_transfer_coding;
+
 /*
  * Structure holding information from headers needed by main
  * HTTP dissector code.
@@ -294,9 +310,10 @@ typedef struct {
 	char	*content_type;
 	char	*content_type_parameters;
 	gboolean have_content_length;
-	gint64	content_length;
-	char	*content_encoding;
-	char	*transfer_encoding;
+	gint64   content_length;
+	char     *content_encoding;
+	gboolean transfer_encoding_chunked;
+	http_transfer_coding transfer_encoding;
 	guint8  upgrade;
 } headers_t;
 
@@ -836,7 +853,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	headers.have_content_length = FALSE;	/* content length not known yet */
 	headers.content_length = 0;		/* content length set to 0 (avoid a gcc warning) */
 	headers.content_encoding = NULL; /* content encoding not known yet */
-	headers.transfer_encoding = NULL; /* transfer encoding not known yet */
+	headers.transfer_encoding_chunked = FALSE;
+	headers.transfer_encoding = HTTP_TE_NONE;
 	headers.upgrade = 0; /* assume we're not upgrading */
 	saw_req_resp_or_header = FALSE;	/* haven't seen anything yet */
 	while (tvb_offset_exists(tvb, offset)) {
@@ -1198,8 +1216,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * the response in order to handle that.
 	 */
 	if (headers.have_content_length &&
-	    headers.content_length != -1 &&
-	    headers.transfer_encoding == NULL) {
+	    headers.transfer_encoding == HTTP_TE_NONE) {
 		if (datalen > headers.content_length)
 			datalen = (int)headers.content_length;
 
@@ -1228,7 +1245,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * Content-Length header and no Transfer-Encoding
 			 * header.
 			 */
-			if (headers.transfer_encoding == NULL)
+			if (headers.transfer_encoding == HTTP_TE_NONE)
 				datalen = 0;
 			else
 				reported_datalen = -1;
@@ -1285,50 +1302,59 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    reported_datalen);
 
 		/*
-		 * Handle *transfer* encodings other than "identity".
+		 * Handle *transfer* encodings.
 		 */
-		if (headers.transfer_encoding != NULL &&
-		    g_ascii_strcasecmp(headers.transfer_encoding, "identity") != 0) {
-			if (http_dechunk_body &&
-			    (g_ascii_strncasecmp(headers.transfer_encoding, "chunked", 7)
-			    == 0)) {
-
-				chunked_datalen = chunked_encoding_dissector(
-				    &next_tvb, pinfo, http_tree, 0);
-
-				if (chunked_datalen == 0) {
-					/*
-					 * The chunks weren't reassembled,
-					 * or there was a single zero
-					 * length chunk.
-					 */
-					goto body_dissected;
-				} else {
-					/*
-					 * Add a new data source for the
-					 * de-chunked data.
-					 */
-#if 0 /* Handled in chunked_encoding_dissector() */
-					tvb_set_child_real_data_tvbuff(tvb,
-						next_tvb);
-#endif
-					add_new_data_source(pinfo, next_tvb,
-						"De-chunked entity body");
-					/* chunked-body might be smaller than
-					 * datalen. */
-					datalen = chunked_datalen;
-				}
-			} else {
-				/*
-				 * We currently can't handle, for example,
-				 * "gzip", "compress", or "deflate" as
-				 * *transfer* encodings; just handle them
-				 * as data for now.
-				 */
+		if (headers.transfer_encoding_chunked) {
+			if (!http_dechunk_body) {
+				/* Chunking disabled, cannot dissect further. */
 				call_dissector(data_handle, next_tvb, pinfo,
 				    http_tree);
 				goto body_dissected;
 			}
+
+			chunked_datalen = chunked_encoding_dissector(
+			    &next_tvb, pinfo, http_tree, 0);
+
+			if (chunked_datalen == 0) {
+				/*
+				 * The chunks weren't reassembled,
+				 * or there was a single zero
+				 * length chunk.
+				 */
+				goto body_dissected;
+			} else {
+				/*
+				 * Add a new data source for the
+				 * de-chunked data.
+				 */
+#if 0 /* Handled in chunked_encoding_dissector() */
+				tvb_set_child_real_data_tvbuff(tvb,
+					next_tvb);
+#endif
+				add_new_data_source(pinfo, next_tvb,
+					"De-chunked entity body");
+				/* chunked-body might be smaller than
+				 * datalen. */
+				datalen = chunked_datalen;
+			}
+		}
+		/* Handle other transfer codings after de-chunking. */
+		switch (headers.transfer_encoding) {
+		case HTTP_TE_COMPRESS:
+		case HTTP_TE_DEFLATE:
+		case HTTP_TE_GZIP:
+			break;
+			/*
+			 * We currently can't handle, for example, "gzip",
+			 * "compress", or "deflate" as *transfer* encodings;
+			 * just handle them as data for now.
+			 */
+			call_dissector(data_handle, next_tvb, pinfo, http_tree);
+			goto body_dissected;
+		default:
+			/* Nothing to do for "identity" or when header is
+			 * missing or invalid. */
+			break;
 		}
 		/*
 		 * At this point, any chunked *transfer* coding has been removed
@@ -2382,6 +2408,71 @@ header_fields_initialize_cb(void)
 	}
 }
 
+/**
+ * Parses the transfer-coding, returning TRUE if everything was fully understood
+ * or FALSE when unknown names were encountered.
+ */
+static gboolean
+http_parse_transfer_coding(const char *value, headers_t *eh_ptr)
+{
+	gboolean is_fully_parsed = TRUE;
+
+	/* Mark header as set, but with unknown encoding. */
+	eh_ptr->transfer_encoding = HTTP_TE_UNKNOWN;
+
+	while (*value) {
+		/* skip OWS (SP / HTAB) and commas; stop at the end. */
+		while (*value == ' ' || *value == '\t' || *value == ',')
+			value++;
+		if (!*value)
+			break;
+
+		if (g_str_has_prefix(value, "chunked")) {
+			eh_ptr->transfer_encoding_chunked = TRUE;
+			value += sizeof("chunked") - 1;
+			continue;
+		}
+
+		/* For now assume that chunked can only combined with exactly
+		 * one other (compression) encoding. Anything else is
+		 * unsupported. */
+		if (eh_ptr->transfer_encoding != HTTP_TE_UNKNOWN) {
+			/* No more transfer codings are expected. */
+			is_fully_parsed = FALSE;
+			break;
+		}
+
+		if (g_str_has_prefix(value, "compress")) {
+			eh_ptr->transfer_encoding = HTTP_TE_COMPRESS;
+			value += sizeof("compress") - 1;
+		} else if (g_str_has_prefix(value, "deflate")) {
+			eh_ptr->transfer_encoding = HTTP_TE_DEFLATE;
+			value += sizeof("deflate") - 1;
+		} else if (g_str_has_prefix(value, "gzip")) {
+			eh_ptr->transfer_encoding = HTTP_TE_GZIP;
+			value += sizeof("gzip") - 1;
+		} else if (g_str_has_prefix(value, "identity")) {
+			eh_ptr->transfer_encoding = HTTP_TE_IDENTITY;
+			value += sizeof("identity") - 1;
+		} else if (g_str_has_prefix(value, "x-compress")) {
+			eh_ptr->transfer_encoding = HTTP_TE_COMPRESS;
+			value += sizeof("x-compress") - 1;
+		} else if (g_str_has_prefix(value, "x-gzip")) {
+			eh_ptr->transfer_encoding = HTTP_TE_GZIP;
+			value += sizeof("x-gzip") - 1;
+		} else {
+			/* Unknown transfer encoding, skip until next comma.
+			 * Stop when no more names are found. */
+			is_fully_parsed = FALSE;
+			value = strchr(value, ',');
+			if (!value)
+				break;
+		}
+	}
+
+	return is_fully_parsed;
+}
+
 static void
 process_header(tvbuff_t *tvb, int offset, int next_offset,
 	       const guchar *line, int linelen, int colon_offset,
@@ -2617,9 +2708,8 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				tree_item = proto_tree_add_uint64(header_tree, hf_http_content_length,
 					tvb, offset, len, eh_ptr->content_length);
 				PROTO_ITEM_SET_GENERATED(tree_item);
-				if (eh_ptr->transfer_encoding != NULL &&
-						g_ascii_strncasecmp(eh_ptr->transfer_encoding, "chunked", 7) == 0) {
-					expert_add_info(pinfo, hdr_item, &ei_http_chunked_and_length);
+				if (eh_ptr->transfer_encoding != HTTP_TE_NONE) {
+					expert_add_info(pinfo, hdr_item, &ei_http_te_and_length);
 				}
 			}
 			break;
@@ -2629,10 +2719,11 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 
 		case HDR_TRANSFER_ENCODING:
-			eh_ptr->transfer_encoding = wmem_strndup(wmem_packet_scope(), value, value_len);
-			if (eh_ptr->have_content_length &&
-					g_ascii_strncasecmp(eh_ptr->transfer_encoding, "chunked", 7) == 0) {
-				expert_add_info(pinfo, hdr_item, &ei_http_chunked_and_length);
+			if (eh_ptr->have_content_length) {
+				expert_add_info(pinfo, hdr_item, &ei_http_te_and_length);
+			}
+			if (!http_parse_transfer_coding(value, eh_ptr)) {
+				expert_add_info(pinfo, hdr_item, &ei_http_te_unknown);
 			}
 			break;
 
@@ -3281,7 +3372,8 @@ proto_register_http(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_http_chat, { "http.chat", PI_SEQUENCE, PI_CHAT, "Formatted text", EXPFILL }},
-		{ &ei_http_chunked_and_length, { "http.chunkd_and_length", PI_MALFORMED, PI_WARN, "It is incorrect to specify a content-length header and chunked encoding together.", EXPFILL }},
+		{ &ei_http_te_and_length, { "http.te_and_length", PI_MALFORMED, PI_WARN, "The Content-Length and Transfer-Encoding header must not be set together", EXPFILL }},
+		{ &ei_http_te_unknown, { "http.te_unknown", PI_UNDECODED, PI_WARN, "Unknown transfer coding name in Transfer-Encoding header", EXPFILL }},
 		{ &ei_http_subdissector_failed, { "http.subdissector_failed", PI_MALFORMED, PI_NOTE, "HTTP body subdissector failed, trying heuristic subdissector", EXPFILL }},
 		{ &ei_http_ssl_port, { "http.ssl_port", PI_SECURITY, PI_WARN, "Unencrypted HTTP protocol detected over encrypted port, could indicate a dangerous misconfiguration.", EXPFILL }},
 		{ &ei_http_leading_crlf, { "http.leading_crlf", PI_MALFORMED, PI_ERROR, "Leading CRLF previous message in the stream may have extra CRLF", EXPFILL }},
