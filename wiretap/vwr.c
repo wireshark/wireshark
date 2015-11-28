@@ -2112,7 +2112,10 @@ static float getRate( guint8 plcpType, guint8 mcsIndex, guint16 rflags, guint8 n
     float symbol_tx_time, bitrate  = 0.0f;
 
     if (plcpType == 0)
-        bitrate =  canonical_rate_legacy[mcsIndex];
+    {
+        if (mcsIndex < G_N_ELEMENTS(canonical_rate_legacy))
+            bitrate =  canonical_rate_legacy[mcsIndex];
+    }
     else if (plcpType == 1 || plcpType == 2)
     {
         if ( rflags & FLAGS_CHAN_SHORTGI)
@@ -2134,8 +2137,8 @@ static float getRate( guint8 plcpType, guint8 mcsIndex, guint16 rflags, guint8 n
         else
             symbol_tx_time = 4.0f;
 
-    /* Check for the out of range mcsIndex.  Should never happen, but if mcs index is greater than 9 assume 9 is the value */
-    if (mcsIndex > 9) mcsIndex = 9;
+        /* Check for the out of range mcsIndex.  Should never happen, but if mcs index is greater than 9 assume 9 is the value */
+        if (mcsIndex > 9) mcsIndex = 9;
         if ( rflags & FLAGS_CHAN_40MHZ )
             bitrate = (canonical_ndbps_40_vht[ mcsIndex ] * nss) / symbol_tx_time;
         else if (rflags & FLAGS_CHAN_80MHZ )
