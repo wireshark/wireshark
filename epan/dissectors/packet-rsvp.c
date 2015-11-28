@@ -7523,7 +7523,7 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
         break;
     }
 
-    copy_address_wmem(wmem_file_scope(), &request_key.source_info.source, &rsvph->source);
+    copy_address_shallow(&request_key.source_info.source, &rsvph->source);
     request_key.source_info.udp_source_port = rsvph->udp_source_port;
 
     /* See if a request with this key already exists */
@@ -7535,6 +7535,31 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     if (!request_val) {
         new_request_key = (struct rsvp_request_key *)wmem_memdup(
               wmem_file_scope(), &request_key, sizeof(struct rsvp_request_key));
+        switch (request_key.session_type) {
+        case RSVP_SESSION_TYPE_IPV4:
+            copy_address_wmem(wmem_file_scope(), &new_request_key->u.session_ipv4.destination,
+                              &request_key.u.session_ipv4.destination);
+            break;
+        case RSVP_SESSION_TYPE_IPV4_LSP:
+            copy_address_wmem(wmem_file_scope(), &new_request_key->u.session_ipv4_lsp.destination,
+                              &request_key.u.session_ipv4_lsp.destination);
+            break;
+        case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
+            copy_address_wmem(wmem_file_scope(), &new_request_key->u.session_agg_ipv4.destination,
+                              &request_key.u.session_agg_ipv4.destination);
+            break;
+        case RSVP_SESSION_TYPE_IPV4_UNI:
+            copy_address_wmem(wmem_file_scope(), &new_request_key->u.session_ipv4_uni.destination,
+                              &request_key.u.session_ipv4_uni.destination);
+            break;
+        case RSVP_SESSION_TYPE_IPV4_E_NNI:
+            copy_address_wmem(wmem_file_scope(), &new_request_key->u.session_ipv4_enni.destination,
+                              &request_key.u.session_ipv4_enni.destination);
+            break;
+        default:
+            break;
+        }
+        copy_address_wmem(wmem_file_scope(), &new_request_key->source_info.source, &rsvph->source);
 
         request_val = wmem_new(wmem_file_scope(), struct rsvp_request_val);
         request_val->value = conversation->index;
