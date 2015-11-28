@@ -291,6 +291,7 @@ static expert_field ei_diameter_avp_pad = EI_INIT;
 static expert_field ei_diameter_code = EI_INIT;
 static expert_field ei_diameter_avp_code = EI_INIT;
 static expert_field ei_diameter_avp_vendor_id = EI_INIT;
+static expert_field ei_diameter_invalid_ipv6_prefix_len = EI_INIT;
 
 /* Tap for Diameter */
 static int diameter_tap = -1;
@@ -504,11 +505,15 @@ dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, 
 {
 	diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
 	guint8 prefix_len, prefix_len_bytes;
+	proto_item *pi;
 
 	proto_tree_add_item(tree, hf_framed_ipv6_prefix_reserved, tvb, 0, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_framed_ipv6_prefix_length, tvb, 1, 1, ENC_BIG_ENDIAN);
+	pi = proto_tree_add_item(tree, hf_framed_ipv6_prefix_length, tvb, 1, 1, ENC_BIG_ENDIAN);
 
 	prefix_len = tvb_get_guint8(tvb, 1);
+	if (prefix_len > 128) {
+		expert_add_info(pinfo, pi, &ei_diameter_invalid_ipv6_prefix_len);
+	}
 	prefix_len_bytes = prefix_len / 8;
 	if (prefix_len % 8)
 		prefix_len_bytes++;
@@ -518,7 +523,7 @@ dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, 
 	/* If we have a fully IPv6 address, display it as such */
 	if (prefix_len_bytes == 16) {
 		proto_tree_add_item(tree, hf_framed_ipv6_prefix_ipv6, tvb, 2, prefix_len_bytes, ENC_NA);
-	} else {
+	} else if (prefix_len_bytes < 16) {
 		struct e_in6_addr value;
 		address addr;
 
@@ -2246,6 +2251,7 @@ real_proto_register_diameter(void)
 		{ &ei_diameter_application_id, { "diameter.applicationId.unknown", PI_UNDECODED, PI_WARN, "Unknown Application Id, if you know what this is you can add it to dictionary.xml", EXPFILL }},
 		{ &ei_diameter_version, { "diameter.version.unknown", PI_UNDECODED, PI_WARN, "Unknown Diameter Version (decoding as RFC 3588)", EXPFILL }},
 		{ &ei_diameter_code, { "diameter.cmd.code.unknown", PI_UNDECODED, PI_WARN, "Unknown command, if you know what this is you can add it to dictionary.xml", EXPFILL }},
+		{ &ei_diameter_invalid_ipv6_prefix_len, { "diameter.invalid_ipv6_prefix_len", PI_MALFORMED, PI_ERROR, "Invalid IPv6 Prefix length", EXPFILL }}
 	};
 
 	wmem_array_append(build_dict.hf, hf_base, array_length(hf_base));
