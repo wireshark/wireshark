@@ -183,7 +183,7 @@ extern "C" {
  * @param data_len [IN] Total length of the MAC header and the payload
  * @param decrypt_data [OUT] Pointer to a buffer that will contain
  *   decrypted data. If this parameter is set to NULL, decrypted data will
- *   be discarded.
+ *   be discarded. Must have room for at least AIRPDCAP_MAX_CAPLEN bytes.
  * @param decrypt_len [OUT] Length of decrypted data if decrypt_data
  *   is not NULL.
  * @param key [OUT] Pointer to a preallocated key structure containing
