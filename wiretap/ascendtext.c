@@ -116,6 +116,7 @@ static gint64 ascend_seek(wtap *wth, int *err, gchar **err_info)
              but keep looking for other headers. */
           if (strcmp(strptr, ASCEND_DATE) == 0) {
             date_off = cur_off - len;
+            string_level[string_i] = 0;
           } else {
             if (date_off == -1) {
               /* Back up over the header we just read; that's where a read
