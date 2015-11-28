@@ -461,6 +461,7 @@ static expert_field ei_isis_lsp_long_packet = EI_INIT;
 static expert_field ei_isis_lsp_subtlv = EI_INIT;
 static expert_field ei_isis_lsp_authentication = EI_INIT;
 static expert_field ei_isis_lsp_clv_mt = EI_INIT;
+static expert_field ei_isis_lsp_clv_unknown = EI_INIT;
 static expert_field ei_isis_lsp_malformed_subtlv = EI_INIT;
 static expert_field ei_isis_lsp_reserved_not_zero = EI_INIT;
 
@@ -3536,7 +3537,7 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
      * our list of valid ones!
      */
     isis_dissect_clvs(tvb, pinfo, lsp_tree, offset,
-            opts, &ei_isis_lsp_short_packet, len, id_length, ett_isis_lsp_clv_unknown, hf_isis_lsp_clv_type, hf_isis_lsp_clv_length );
+            opts, &ei_isis_lsp_short_packet, len, id_length, ett_isis_lsp_clv_unknown, hf_isis_lsp_clv_type, hf_isis_lsp_clv_length, ei_isis_lsp_clv_unknown);
 }
 
 static int
@@ -4907,6 +4908,7 @@ proto_register_isis_lsp(void)
         { &ei_isis_lsp_subtlv, { "isis.lsp.subtlv.unknown", PI_PROTOCOL, PI_WARN, "Unknown SubTLV", EXPFILL }},
         { &ei_isis_lsp_authentication, { "isis.lsp.authentication.unknown", PI_PROTOCOL, PI_WARN, "Unknown authentication type", EXPFILL }},
         { &ei_isis_lsp_clv_mt, { "isis.lsp.clv_mt.malformed", PI_MALFORMED, PI_ERROR, "malformed MT-ID", EXPFILL }},
+        { &ei_isis_lsp_clv_unknown, { "isis.lsp.clv.unknown", PI_UNDECODED, PI_NOTE, "Unknown option", EXPFILL }},
         { &ei_isis_lsp_malformed_subtlv, { "isis.lsp.subtlv.malformed", PI_MALFORMED, PI_ERROR, "malformed SubTLV", EXPFILL }},
         { &ei_isis_lsp_reserved_not_zero, { "isis.lsp.reserved_not_zero", PI_PROTOCOL, PI_WARN, "Reserve bit not 0", EXPFILL }},
     };

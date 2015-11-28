@@ -165,7 +165,7 @@ static expert_field ei_isis_hello_long_packet = EI_INIT;
 static expert_field ei_isis_hello_authentication = EI_INIT;
 static expert_field ei_isis_hello_subtlv = EI_INIT;
 static expert_field ei_isis_hello_clv_mt = EI_INIT;
-
+static expert_field ei_isis_hello_clv_unknown = EI_INIT;
 
 static const value_string isis_hello_circuit_type_vals[] = {
     { ISIS_HELLO_TYPE_RESERVED,    "Reserved 0 (discard PDU)"},
@@ -1219,7 +1219,7 @@ dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
      */
     isis_dissect_clvs(tvb, pinfo, hello_tree, offset,
             opts, &ei_isis_hello_short_packet, pdu_length, id_length,
-            ett_isis_hello_clv_unknown, hf_isis_hello_clv_type, hf_isis_hello_clv_length);
+            ett_isis_hello_clv_unknown, hf_isis_hello_clv_type, hf_isis_hello_clv_length, ei_isis_hello_clv_unknown);
 }
 
 
@@ -1443,6 +1443,7 @@ proto_register_isis_hello(void)
         { &ei_isis_hello_subtlv, { "isis.hello.subtlv.unknown", PI_PROTOCOL, PI_WARN, "Unknown Sub-TLV", EXPFILL }},
         { &ei_isis_hello_authentication, { "isis.hello.authentication.unknown", PI_PROTOCOL, PI_WARN, "Unknown authentication type", EXPFILL }},
         { &ei_isis_hello_clv_mt, { "isis.hello.clv_mt.malformed", PI_MALFORMED, PI_ERROR, "malformed MT-ID", EXPFILL }},
+        { &ei_isis_hello_clv_unknown, { "isis.hello.clv.unknown", PI_UNDECODED, PI_NOTE, "Unknown option", EXPFILL }},
     };
 
     expert_module_t* expert_isis_hello;

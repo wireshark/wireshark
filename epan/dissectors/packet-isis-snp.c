@@ -67,6 +67,7 @@ static gint ett_isis_csnp_clv_unknown = -1;
 static expert_field ei_isis_csnp_short_packet = EI_INIT;
 static expert_field ei_isis_csnp_long_packet = EI_INIT;
 static expert_field ei_isis_csnp_authentication = EI_INIT;
+static expert_field ei_isis_csnp_clv_unknown = EI_INIT;
 
 /* psnp packets */
 static int hf_isis_psnp_pdu_length = -1;
@@ -84,6 +85,7 @@ static gint ett_isis_psnp_clv_unknown = -1;
 
 static expert_field ei_isis_psnp_short_packet = EI_INIT;
 static expert_field ei_isis_psnp_long_packet = EI_INIT;
+static expert_field ei_isis_psnp_clv_unknown = EI_INIT;
 
 static void
 dissect_snp_authentication_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
@@ -359,7 +361,7 @@ dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
     }
 
     isis_dissect_clvs(tvb, pinfo, csnp_tree, offset,
-            opts, &ei_isis_csnp_short_packet, len, id_length, ett_isis_csnp_clv_unknown, hf_isis_csnp_clv_type, hf_isis_csnp_clv_length );
+            opts, &ei_isis_csnp_short_packet, len, id_length, ett_isis_csnp_clv_unknown, hf_isis_csnp_clv_type, hf_isis_csnp_clv_length, ei_isis_csnp_clv_unknown);
 }
 
 
@@ -413,7 +415,7 @@ dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
     }
     /* Call into payload dissector */
     isis_dissect_clvs(tvb, pinfo, psnp_tree, offset,
-            opts, &ei_isis_psnp_short_packet, len, id_length, ett_isis_psnp_clv_unknown, hf_isis_psnp_clv_type, hf_isis_psnp_clv_length);
+            opts, &ei_isis_psnp_short_packet, len, id_length, ett_isis_psnp_clv_unknown, hf_isis_psnp_clv_type, hf_isis_psnp_clv_length, ei_isis_psnp_clv_unknown);
 }
 
 static int
@@ -493,6 +495,7 @@ proto_register_isis_csnp(void)
         { &ei_isis_csnp_short_packet, { "isis.csnp.short_packet", PI_MALFORMED, PI_ERROR, "Short packet", EXPFILL }},
         { &ei_isis_csnp_long_packet, { "isis.csnp.long_packet", PI_MALFORMED, PI_ERROR, "Long packet", EXPFILL }},
         { &ei_isis_csnp_authentication, { "isis.csnp.authentication.unknown", PI_PROTOCOL, PI_WARN, "Unknown authentication type", EXPFILL }},
+        { &ei_isis_csnp_clv_unknown, { "isis.csnp.clv.unknown", PI_UNDECODED, PI_NOTE, "Unknown option", EXPFILL }},
     };
     expert_module_t* expert_isis_csnp;
 
@@ -545,6 +548,7 @@ proto_register_isis_psnp(void)
     static ei_register_info ei[] = {
         { &ei_isis_psnp_long_packet, { "isis.psnp.long_packet", PI_MALFORMED, PI_ERROR, "Long packet", EXPFILL }},
         { &ei_isis_psnp_short_packet, { "isis.psnp.short_packet", PI_MALFORMED, PI_ERROR, "Short packet", EXPFILL }},
+        { &ei_isis_psnp_clv_unknown, { "isis.psnp.clv.unknown", PI_UNDECODED, PI_NOTE, "Unknown option", EXPFILL }},
     };
     expert_module_t* expert_isis_psnp;
 

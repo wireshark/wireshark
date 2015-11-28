@@ -441,7 +441,7 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int hf_nlpid, int offset
 void
 isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     const isis_clv_handle_t *opts, expert_field* expert_short_len, int len, int id_length,
-    int unknown_tree_id _U_, int tree_type, int tree_length)
+    int unknown_tree_id _U_, int tree_type, int tree_length, expert_field ei_unknown)
 {
     guint8 code;
     guint8 length;
@@ -487,7 +487,8 @@ isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offse
                     code, length);
             proto_tree_add_item(clv_tree, tree_type, tvb, offset - 2, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(clv_tree, tree_length, tvb, offset - 1, 1, ENC_BIG_ENDIAN);
-            /* Add value with data display ? */
+            proto_tree_add_expert_format(clv_tree, pinfo, &ei_unknown, tvb, offset, length -2, "Dissector for IS-IS CLV (%d)"
+              " code not implemented, Contact Wireshark developers if you want this supported", code);
         }
         offset += length;
         len -= length;
