@@ -56,11 +56,14 @@ static int hf_isis_csnp_clv_type = -1;
 static int hf_isis_csnp_clv_length = -1;
 static int hf_isis_csnp_ip_authentication = -1;
 static int hf_isis_csnp_authentication = -1;
+static int hf_isis_csnp_instance_identifier = -1;
+static int hf_isis_csnp_supported_itid = -1;
 static gint ett_isis_csnp = -1;
 static gint ett_isis_csnp_clv_lsp_entries = -1;
 static gint ett_isis_csnp_lsp_entry = -1;
 static gint ett_isis_csnp_clv_authentication = -1;
 static gint ett_isis_csnp_clv_ip_authentication = -1;
+static gint ett_isis_csnp_clv_instance_identifier = -1;
 static gint ett_isis_csnp_clv_checksum = -1;
 static gint ett_isis_csnp_clv_unknown = -1;
 
@@ -200,7 +203,37 @@ dissect_snp_lsp_entries_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
 
 }
 
+/*
+ * Name: dissect_snp_instance_identifier_clv()
+ *
+ * Description:
+ *    Decode for a snp packets Instance Identifier clv.
+ *      Calls into the CLV common one.
+ *
+ * Input:
+ *    tvbuff_t * : tvbuffer for packet data
+ *    proto_tree * : proto tree to build on (may be null)
+ *    int : current offset into packet data
+ *    int : length of IDs in packet.
+ *    int : length of this clv
+ *
+ * Output:
+ *    void, will modify proto_tree if not null.
+ */
+static void
+dissect_snp_instance_identifier_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
+    proto_tree *tree, int offset, int id_length _U_, int length)
+{
+    isis_dissect_instance_identifier_clv(tree, pinfo, tvb, &ei_isis_csnp_short_packet, hf_isis_csnp_instance_identifier, hf_isis_csnp_supported_itid, offset, length);
+}
+
 static const isis_clv_handle_t clv_l1_csnp_opts[] = {
+    {
+        ISIS_CLV_INSTANCE_IDENTIFIER,
+        "Instance Identifier",
+        &ett_isis_csnp_clv_instance_identifier,
+        dissect_snp_instance_identifier_clv
+    },
     {
         ISIS_CLV_LSP_ENTRIES,
         "LSP entries",
@@ -232,6 +265,12 @@ static const isis_clv_handle_t clv_l1_csnp_opts[] = {
 
 static const isis_clv_handle_t clv_l2_csnp_opts[] = {
     {
+        ISIS_CLV_INSTANCE_IDENTIFIER,
+        "Instance Identifier",
+        &ett_isis_csnp_clv_instance_identifier,
+        dissect_snp_instance_identifier_clv
+    },
+    {
         ISIS_CLV_LSP_ENTRIES,
         "LSP entries",
         &ett_isis_csnp_clv_lsp_entries,
@@ -262,6 +301,12 @@ static const isis_clv_handle_t clv_l2_csnp_opts[] = {
 
 static const isis_clv_handle_t clv_l1_psnp_opts[] = {
     {
+        ISIS_CLV_INSTANCE_IDENTIFIER,
+        "Instance Identifier",
+        &ett_isis_csnp_clv_instance_identifier,
+        dissect_snp_instance_identifier_clv
+    },
+    {
         ISIS_CLV_LSP_ENTRIES,
         "LSP entries",
         &ett_isis_psnp_clv_lsp_entries,
@@ -291,6 +336,12 @@ static const isis_clv_handle_t clv_l1_psnp_opts[] = {
 };
 
 static const isis_clv_handle_t clv_l2_psnp_opts[] = {
+    {
+        ISIS_CLV_INSTANCE_IDENTIFIER,
+        "Instance Identifier",
+        &ett_isis_csnp_clv_instance_identifier,
+        dissect_snp_instance_identifier_clv
+    },
     {
         ISIS_CLV_LSP_ENTRIES,
         "LSP entries",
@@ -479,6 +530,12 @@ proto_register_isis_csnp(void)
         { &hf_isis_csnp_authentication,
         { "Authentication",        "isis.csnp.authentication", FT_BYTES,
           BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_isis_csnp_instance_identifier,
+        { "Instance Identifier", "isis.csnp.iid", FT_UINT16,
+          BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_isis_csnp_supported_itid,
+        { "Supported ITID", "isis.csnp.supported_itid", FT_UINT16,
+           BASE_DEC, NULL, 0x0, NULL, HFILL }},
     };
 
     static gint *ett[] = {
@@ -487,6 +544,7 @@ proto_register_isis_csnp(void)
         &ett_isis_csnp_lsp_entry,
         &ett_isis_csnp_clv_authentication,
         &ett_isis_csnp_clv_ip_authentication,
+        &ett_isis_csnp_clv_instance_identifier,
         &ett_isis_csnp_clv_checksum,
         &ett_isis_csnp_clv_unknown,
     };

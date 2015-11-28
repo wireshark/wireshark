@@ -42,7 +42,7 @@
 #define ISIS_CLV_PARTITION_DIS       4   /* iso10589 */
 #define ISIS_CLV_PREFIX_NEIGHBORS    5   /* iso10589 */
 #define ISIS_CLV_IS_NEIGHBORS        6   /* iso10589 */
-#define ISIS_CLV_IS_NEIGHBORS_VARLEN 7   /* iso10589 */
+#define ISIS_CLV_INSTANCE_IDENTIFIER 7   /* rfc6822 */
 #define ISIS_CLV_PADDING             8   /* iso10589 */
 #define ISIS_CLV_LSP_ENTRIES         9   /* iso10589 */
 #define ISIS_CLV_AUTHENTICATION      10  /* iso10589, rfc3567 */
@@ -112,6 +112,8 @@ extern void isis_dissect_authentication_clv(proto_tree *tree, packet_info* pinfo
         int hf_auth_bytes, expert_field* auth_expert, int offset, int length);
 extern void isis_dissect_area_address_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
         expert_field* expert, int hf_area, int offset, int length);
+extern void isis_dissect_instance_identifier_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
+        expert_field* expert, int hf_iid, int hf_supported_itid, int offset, int length);
 
 extern void isis_dissect_metric(tvbuff_t *tvb, proto_tree *tree, int offset,
         guint8 value, char *pstr, int force_supported);

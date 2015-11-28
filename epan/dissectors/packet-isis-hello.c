@@ -95,6 +95,8 @@ static int hf_isis_hello_bvid = -1;
 static int hf_isis_hello_bvid_u = -1;
 static int hf_isis_hello_bvid_m = -1;
 static int hf_isis_hello_area_address = -1;
+static int hf_isis_hello_instance_identifier = -1;
+static int hf_isis_hello_supported_itid = -1;
 static int hf_isis_hello_clv_nlpid = -1;
 static int hf_isis_hello_clv_ip_authentication = -1;
 static int hf_isis_hello_authentication = -1;
@@ -136,6 +138,7 @@ static int hf_isis_hello_trill_unassigned_2 = -1;
 
 static gint ett_isis_hello = -1;
 static gint ett_isis_hello_clv_area_addr = -1;
+static gint ett_isis_hello_clv_instance_identifier = -1;
 static gint ett_isis_hello_clv_is_neighbors = -1;
 static gint ett_isis_hello_clv_padding = -1;
 static gint ett_isis_hello_clv_unknown = -1;
@@ -814,6 +817,30 @@ dissect_hello_area_address_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
     isis_dissect_area_address_clv(tree, pinfo, tvb, &ei_isis_hello_short_packet, hf_isis_hello_area_address, offset, length);
 }
 
+/*
+ * Name: dissect_hello_instance_identifier_clv()
+ *
+ * Description:
+ *    Decode for a hello packets Instance Identifier clv.
+ *      Calls into the CLV common one.
+ *
+ * Input:
+ *    tvbuff_t * : tvbuffer for packet data
+ *    proto_tree * : proto tree to build on (may be null)
+ *    int : current offset into packet data
+ *    int : length of IDs in packet.
+ *    int : length of this clv
+ *
+ * Output:
+ *    void, will modify proto_tree if not null.
+ */
+static void
+dissect_hello_instance_identifier_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
+    proto_tree *tree, int offset, int id_length _U_, int length)
+{
+    isis_dissect_instance_identifier_clv(tree, pinfo, tvb, &ei_isis_hello_short_packet, hf_isis_hello_instance_identifier, hf_isis_hello_supported_itid, offset, length);
+}
+
 static const value_string adj_state_vals[] = {
     { 0, "Up" },
     { 1, "Initializing" },
@@ -926,6 +953,12 @@ static const isis_clv_handle_t clv_l1_hello_opts[] = {
         dissect_hello_is_neighbors_clv
     },
     {
+        ISIS_CLV_INSTANCE_IDENTIFIER,
+        "Instance Identifier",
+        &ett_isis_hello_clv_instance_identifier,
+        dissect_hello_instance_identifier_clv
+    },
+    {
         ISIS_CLV_PADDING,
         "Padding",
         &ett_isis_hello_clv_padding,
@@ -1013,6 +1046,12 @@ static const isis_clv_handle_t clv_l2_hello_opts[] = {
         dissect_hello_is_neighbors_clv
     },
     {
+        ISIS_CLV_INSTANCE_IDENTIFIER,
+        "Instance Identifier",
+        &ett_isis_hello_clv_instance_identifier,
+        dissect_hello_instance_identifier_clv
+    },
+    {
         ISIS_CLV_PADDING,
         "Padding",
         &ett_isis_hello_clv_padding,
@@ -1080,6 +1119,12 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
         "Area address(es)",
         &ett_isis_hello_clv_area_addr,
         dissect_hello_area_address_clv
+    },
+    {
+        ISIS_CLV_INSTANCE_IDENTIFIER,
+        "Instance Identifier",
+        &ett_isis_hello_clv_instance_identifier,
+        dissect_hello_instance_identifier_clv
     },
     {
         ISIS_CLV_PADDING,
@@ -1369,6 +1414,8 @@ proto_register_isis_hello(void)
       { &hf_isis_hello_bvid_u, { "U", "isis.hello.bvid.u", FT_UINT16, BASE_HEX_DEC, NULL, 0x0008, NULL, HFILL }},
       { &hf_isis_hello_bvid_m, { "M", "isis.hello.bvid.m", FT_UINT16, BASE_HEX_DEC, NULL, 0x0004, NULL, HFILL }},
       { &hf_isis_hello_area_address, { "Area address", "isis.hello.area_address", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_instance_identifier, { "Instance Identifier", "isis.hello.iid", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_supported_itid, { "Supported ITID", "isis.hello.supported_itid", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_clv_nlpid, { "NLPID", "isis.hello.clv_nlpid", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_clv_ip_authentication, { "NLPID", "isis.hello.clv_ip_authentication", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_authentication, { "Authentication", "isis.hello.clv_authentication", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -1412,6 +1459,7 @@ proto_register_isis_hello(void)
     static gint *ett[] = {
         &ett_isis_hello,
         &ett_isis_hello_clv_area_addr,
+        &ett_isis_hello_clv_instance_identifier,
         &ett_isis_hello_clv_is_neighbors,
         &ett_isis_hello_clv_padding,
         &ett_isis_hello_clv_unknown,

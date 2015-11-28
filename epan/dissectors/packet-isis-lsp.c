@@ -378,6 +378,8 @@ static int hf_isis_lsp_clv_sr_cap_sid = -1;
 static int hf_isis_lsp_clv_sr_cap_label = -1;
 static int hf_isis_lsp_clv_sr_alg = -1;
 static int hf_isis_lsp_area_address = -1;
+static int hf_isis_lsp_instance_identifier = -1;
+static int hf_isis_lsp_supported_itid = -1;
 static int hf_isis_lsp_clv_nlpid = -1;
 static int hf_isis_lsp_ip_authentication = -1;
 static int hf_isis_lsp_authentication = -1;
@@ -399,6 +401,7 @@ static gint ett_isis_lsp_att = -1;
 static gint ett_isis_lsp_cksum = -1;
 static gint ett_isis_lsp_clv_area_addr = -1;
 static gint ett_isis_lsp_clv_is_neighbors = -1;
+static gint ett_isis_lsp_clv_instance_identifier = -1;
 static gint ett_isis_lsp_clv_ext_is_reachability = -1; /* CLV 22 */
 static gint ett_isis_lsp_part_of_clv_ext_is_reachability = -1;
 static gint ett_isis_lsp_part_of_clv_ext_is_reachability_subtlv = -1;
@@ -2359,6 +2362,29 @@ dissect_lsp_l2_is_neighbors_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
         length, id_length, FALSE, FALSE);
 }
 
+/*
+ * Name: dissect_lsp_instance_identifier_clv()
+ *
+ * Description:
+ *    Decode for a lsp packets Instance Identifier clv.
+ *      Calls into the CLV common one.
+ *
+ * Input:
+ *    tvbuff_t * : tvbuffer for packet data
+ *    proto_tree * : proto tree to build on (may be null)
+ *    int : current offset into packet data
+ *    int : length of IDs in packet.
+ *    int : length of this clv
+ *
+ * Output:
+ *    void, will modify proto_tree if not null.
+ */
+static void
+dissect_lsp_instance_identifier_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
+    proto_tree *tree, int offset, int id_length _U_, int length)
+{
+    isis_dissect_instance_identifier_clv(tree, pinfo, tvb, &ei_isis_lsp_short_packet, hf_isis_lsp_instance_identifier, hf_isis_lsp_supported_itid, offset, length);
+}
 
 /*
  * Name: dissect_subclv_admin_group ()
@@ -3115,6 +3141,12 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
         dissect_lsp_l1_es_neighbors_clv
     },
     {
+        ISIS_CLV_INSTANCE_IDENTIFIER,
+        "Instance Identifier",
+        &ett_isis_lsp_clv_instance_identifier,
+        dissect_lsp_instance_identifier_clv
+    },
+    {
         ISIS_CLV_LSP_BUFFERSIZE,
         "Originating neighbor buffer size",
         &ett_isis_lsp_clv_originating_buff_size,
@@ -3278,6 +3310,12 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
         "Prefix neighbors",
         &ett_isis_lsp_clv_prefix_neighbors,
         dissect_lsp_prefix_neighbors_clv
+    },
+    {
+        ISIS_CLV_INSTANCE_IDENTIFIER,
+        "Instance Identifier",
+        &ett_isis_lsp_clv_instance_identifier,
+        dissect_lsp_instance_identifier_clv
     },
     {
         ISIS_CLV_LSP_BUFFERSIZE,
@@ -4766,6 +4804,16 @@ proto_register_isis_lsp(void)
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
+        { &hf_isis_lsp_instance_identifier,
+            { "Instance Identifier", "isis.lsp.iid",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_isis_lsp_supported_itid,
+            { "Supported ITID", "isis.lsp.supported_itid",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
         { &hf_isis_lsp_clv_nlpid,
             { "NLPID", "isis.lsp.clv_nlpid",
               FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -4844,6 +4892,7 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_cksum,
         &ett_isis_lsp_clv_area_addr,
         &ett_isis_lsp_clv_is_neighbors,
+        &ett_isis_lsp_clv_instance_identifier,
         &ett_isis_lsp_clv_ext_is_reachability, /* CLV 22 */
         &ett_isis_lsp_part_of_clv_ext_is_reachability,
         &ett_isis_lsp_part_of_clv_ext_is_reachability_subtlv,

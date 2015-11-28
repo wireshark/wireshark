@@ -93,6 +93,43 @@ isis_dissect_area_address_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tv
     }
 }
 
+/*
+ * Name: isis_dissect_instance_identifier_clv()
+ *
+ *
+ * Input:
+ *    tvbuff_t * : tvbuffer for packet data
+ *    proto_tree * : protocol display tree to fill out.  May be NULL
+ *    int : offset into packet data where we are.
+ *    int : length of clv we are decoding
+ *
+ * Output:
+ *    void, but we will add to proto tree if !NULL.
+ */
+void
+isis_dissect_instance_identifier_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
+        expert_field* expert, int hf_iid, int hf_supported_itid, int offset, int length)
+{
+
+    length--;
+    if (length<=0) {
+        proto_tree_add_expert_format(tree, pinfo, expert, tvb, offset, -1,
+            "short address (no length for payload)");
+        return;
+    }
+
+    proto_tree_add_item(tree, hf_iid, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    length -= 2;
+
+    while ( length > 0 ) {
+
+        proto_tree_add_item(tree, hf_supported_itid, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        length -= 2;
+
+    }
+}
 
 /*
  * Name: isis_dissect_authentication_clv()
