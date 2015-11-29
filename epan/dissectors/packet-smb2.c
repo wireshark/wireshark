@@ -1438,6 +1438,7 @@ static const value_string checksum_algorithm_vals[] = {
 /* Note: All uncommented are "dissector not implemented" */
 static const value_string smb2_ioctl_vals[] = {
 	{0x00060194, "FSCTL_DFS_GET_REFERRALS"},		      /* dissector implemented */
+	{0x000601B0, "FSCTL_DFS_GET_REFERRALS_EX"},
 	{0x00090000, "FSCTL_REQUEST_OPLOCK_LEVEL_1"},
 	{0x00090004, "FSCTL_REQUEST_OPLOCK_LEVEL_2"},
 	{0x00090008, "FSCTL_REQUEST_BATCH_OPLOCK"},
@@ -1471,6 +1472,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x0009008F, "FSCTL_FIND_FILES_BY_SID"},
 	{0x00090097, "FSCTL_DUMP_PROPERTY_DATA"},
 	{0x0009009C, "FSCTL_GET_OBJECT_ID"},			      /* dissector implemented */
+	{0x000900A4, "FSCTL_SET_REPARSE_POINT"},
 	{0x000900A8, "FSCTL_GET_REPARSE_POINT"},
 	{0x000900C0, "FSCTL_CREATE_OR_GET_OBJECT_ID"},		      /* dissector implemented */
 	{0x000900D4, "FSCTL_SET_ENCRYPTION"},
@@ -1504,16 +1506,18 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000980C4, "FSCTL_SET_SPARSE"},
 	{0x000980C8, "FSCTL_SET_ZERO_DATA"},
 	{0x000980D0, "FSCTL_ENABLE_UPGRADE"},
+	{0x00098208, "FSCTL_FILE_LEVEL_TRIM"},
 	{0x0009C040, "FSCTL_SET_COMPRESSION"},			      /* dissector implemented */
 	{0x0009C280, "FSCTL_SET_INTEGRITY_INFORMATION"},	      /* dissector implemented */
 	{0x00110018, "FSCTL_PIPE_WAIT"},			      /* dissector implemented */
+	{0x0011400C, "FSCTL_PIPE_PEEK"},
 	{0x0011C017, "FSCTL_PIPE_TRANSCEIVE"},			      /* dissector implemented */
 	{0x00140078, "FSCTL_SRV_REQUEST_RESUME_KEY"},
 	{0x001401D4, "FSCTL_LMR_REQUEST_RESILIENCY"},		      /* dissector implemented */
 	{0x001401FC, "FSCTL_QUERY_NETWORK_INTERFACE_INFO"},	      /* dissector implemented */
 	{0x00140200, "FSCTL_VALIDATE_NEGOTIATE_INFO_224"},	      /* dissector implemented */
 	{0x00140204, "FSCTL_VALIDATE_NEGOTIATE_INFO"},		      /* dissector implemented */
-	{0x00144064, "FSCTL_GET_SHADOW_COPY_DATA"},		      /* dissector implemented */
+	{0x00144064, "FSCTL_GET_SHADOW_COPY_DATA"}, /*=FSCTL_SRV_ENUMERATE_SNAPSHOTS*/  /* dissector implemented */
 	{0x001440F2, "FSCTL_SRV_COPYCHUNK"},
 	{0x001441bb, "FSCTL_SRV_READ_HASH"},
 	{0x001480F2, "FSCTL_SRV_COPYCHUNK_WRITE"},
@@ -2544,7 +2548,7 @@ dissect_smb2_buffercode(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guin
 	offset += 2;
 
 	if (length) {
-		*length = buffer_code&0xfffe;
+		*length = buffer_code; /*&0xfffe don't mask it here, mask it on caller side */
 	}
 
 	return offset;
@@ -2814,32 +2818,46 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	return offset;
 }
 
+/* This needs more fixes for cases when the original header had also the constant value of 9.
+   This should be fixed on caller side where it decides if it has to call this or not.
+*/
 static int
-dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_,
+							gboolean* continue_dissection)
 {
 	gint byte_count;
+	guint16 length;
 
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	offset = dissect_smb2_buffercode(tree, tvb, offset, &length);
 
+	/* FIX: error response uses this constant, if not then it is not an error response */
+	if(length != 9)
+	{
+		if(continue_dissection)
+			*continue_dissection = TRUE;
+	} else {
+		if(continue_dissection)
+			*continue_dissection = FALSE;
 
-	/* Reserved (2 bytes) */
-	proto_tree_add_item(tree, hf_smb2_error_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset += 2;
+		/* Reserved (2 bytes) */
+		proto_tree_add_item(tree, hf_smb2_error_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		offset += 2;
 
-	/* ByteCount (4 bytes): The number of bytes of data contained in ErrorData[]. */
-	byte_count = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_error_byte_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	offset += 4;
+		/* ByteCount (4 bytes): The number of bytes of data contained in ErrorData[]. */
+		byte_count = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_item(tree, hf_smb2_error_byte_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
 
-	/* If the ByteCount field is zero then the server MUST supply an ErrorData field
-	   that is one byte in length */
-	if (byte_count == 0) byte_count = 1;
+		/* If the ByteCount field is zero then the server MUST supply an ErrorData field
+		   that is one byte in length */
+		if (byte_count == 0) byte_count = 1;
 
-	/* ErrorData (variable): A variable-length data field that contains extended
-	   error information.*/
-	proto_tree_add_item(tree, hf_smb2_error_data, tvb, offset, byte_count, ENC_NA);
-	offset += byte_count;
+		/* ErrorData (variable): A variable-length data field that contains extended
+		   error information.*/
+		proto_tree_add_item(tree, hf_smb2_error_data, tvb, offset, byte_count, ENC_NA);
+		offset += byte_count;
+	}
 
 	return offset;
 }
@@ -2948,14 +2966,14 @@ static int
 dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	guint16 share_type;
+	gboolean continue_dissection;
 
 	switch (si->status) {
-	case 0x00000000: break;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
-	}
-
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
+	}
 
 	/* share type */
 	share_type = tvb_get_letohs(tvb, offset);
@@ -3010,13 +3028,14 @@ dissect_smb2_tree_disconnect_request(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 static int
 dissect_smb2_tree_disconnect_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
-	switch (si->status) {
-	case 0x00000000: break;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
-	}
+	gboolean continue_dissection;
 
+	switch (si->status) {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
+	}
 
 	/* reserved */
 	offset += 2;
@@ -3039,13 +3058,14 @@ dissect_smb2_sessionlogoff_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 static int
 dissect_smb2_sessionlogoff_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
-	switch (si->status) {
-	case 0x00000000: break;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
-	}
+	gboolean continue_dissection;
 
+	switch (si->status) {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
+	}
 
 	/* reserved bytes */
 	offset += 2;
@@ -3069,13 +3089,14 @@ dissect_smb2_keepalive_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 static int
 dissect_smb2_keepalive_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
-	switch (si->status) {
-	case 0x00000000: break;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
-	}
+	gboolean continue_dissection;
 
+	switch (si->status) {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
+	}
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, ENC_NA);
@@ -3187,14 +3208,14 @@ static int
 dissect_smb2_notify_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	offset_length_buffer_t olb;
+	gboolean continue_dissection;
 
 	switch (si->status) {
-	case 0x00000000: break;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
-	}
-
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
+	}
 
 	/* out buffer offset/length */
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &olb, OLB_O_UINT16_S_UINT32, hf_smb2_notify_out_data);
@@ -3764,6 +3785,7 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 {
 	offset_length_buffer_t olb;
 	proto_item *item = NULL;
+	gboolean continue_dissection;
 
 	if (si->saved) {
 		/* infolevel */
@@ -3782,12 +3804,11 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	}
 
 	switch (si->status) {
-	case 0x00000000: break;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
-	}
-
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
+	}
 
 	/* findinfo offset */
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &olb, OLB_O_UINT16_S_UINT32, hf_smb2_find_info_blob);
@@ -3930,14 +3951,14 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 	guint16 i;
 	guint32 nco;
 	guint16 ncc;
+	gboolean continue_dissection;
 
 	switch (si->status) {
-	case 0x00000000: break;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
-	}
-
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
+	}
 
 	/* security mode, skip second byte */
 	offset = dissect_smb2_secmode(tree, tvb, offset);
@@ -4302,17 +4323,21 @@ static int
 dissect_smb2_getinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	offset_length_buffer_t olb;
+	gboolean continue_dissection;
 
 	/* class/infolevel */
 	dissect_smb2_class_infolevel(pinfo, tvb, offset, tree, si);
 
 	switch (si->status) {
-	case 0x00000000: break;
+	case 0x00000000:
 	/* if we get BUFFER_OVERFLOW there will be truncated data */
-	case 0x80000005: break;
+	case 0x80000005:
 	/* if we get BUFFER_TOO_SMALL there will not be any data there, only
 	 * a guin32 specifying how big the buffer needs to be
 	 */
+		/* buffer code */
+		offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+		break;
 	case 0xc0000023:
 		offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 		offset = dissect_smb2_olb_length_offset(tvb, offset, &olb, OLB_O_UINT16_S_UINT32, -1);
@@ -4320,12 +4345,10 @@ dissect_smb2_getinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		offset += 4;
 
 		return offset;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
 	}
 
-
-	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 	 /* response buffer offset  and size */
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &olb, OLB_O_UINT16_S_UINT32, -1);
 
@@ -4366,14 +4389,14 @@ dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 {
 	proto_tree *flags_tree = NULL;
 	proto_item *flags_item = NULL;
+	gboolean continue_dissection;
 
 	switch (si->status) {
-	case 0x00000000: break;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
-	}
-
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
+	}
 
 	/* close flags */
 	if (tree) {
@@ -4431,13 +4454,14 @@ dissect_smb2_flush_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static int
 dissect_smb2_flush_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
-	switch (si->status) {
-	case 0x00000000: break;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
-	}
+	gboolean continue_dissection;
 
+	switch (si->status) {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
+	}
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, ENC_NA);
@@ -4504,13 +4528,14 @@ dissect_smb2_lock_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 static int
 dissect_smb2_lock_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
-	switch (si->status) {
-	case 0x00000000: break;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
-	}
+	gboolean continue_dissection;
 
+	switch (si->status) {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
+	}
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, ENC_NA);
@@ -4943,13 +4968,14 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static int
 dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
-	switch (si->status) {
-	case 0x00000000: break;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
-	}
+	gboolean continue_dissection;
 
+	switch (si->status) {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
+	}
 
 	/* reserved */
 	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
@@ -5749,15 +5775,15 @@ dissect_smb2_ioctl_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	offset_length_buffer_t o_olb;
 	offset_length_buffer_t i_olb;
+	gboolean continue_dissection;
 
 	switch (si->status) {
-	case 0x00000000: break;
-	case 0x80000005: break;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
-	}
-
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	case 0x80000005: break;
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
+	}
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, ENC_NA);
@@ -5879,13 +5905,14 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	guint16 dataoffset = 0;
 	guint32 data_tvb_len;
 	guint32 length;
-	switch (si->status) {
-	case 0x00000000: break;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
-	}
+	gboolean continue_dissection;
 
+	switch (si->status) {
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
+	}
 
 	/* data offset */
 	dataoffset=tvb_get_letohl(tvb,offset);
@@ -6709,14 +6736,14 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		&hf_smb2_create_rep_flags_reparse_point,
 		NULL
 	};
+	gboolean continue_dissection;
 
 	switch (si->status) {
-	case 0x00000000: break;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
-	}
-
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
+	}
 
 	/* oplock */
 	offset = dissect_smb2_oplock(tree, tvb, offset);
@@ -6834,16 +6861,16 @@ dissect_smb2_setinfo_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 static int
 dissect_smb2_setinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
+	gboolean continue_dissection;
 	/* class/infolevel */
 	dissect_smb2_class_infolevel(pinfo, tvb, offset, tree, si);
 
 	switch (si->status) {
-	case 0x00000000: break;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
-	}
-
 	/* buffer code */
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
+	}
 
 	return offset;
 }
@@ -6909,15 +6936,15 @@ static int
 dissect_smb2_break_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	guint16 buffer_code;
-
-	switch (si->status) {
-	case 0x00000000: break;
-	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
-	}
+	gboolean continue_dissection;
 
 	/* buffer code */
 	buffer_code = tvb_get_letohs(tvb, offset);
-	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
+	switch (si->status) {
+	case 0x00000000: offset = dissect_smb2_buffercode(tree, tvb, offset, NULL); break;
+	default: offset = dissect_smb2_error_response(tvb, pinfo, tree, offset, si, &continue_dissection);
+		if (!continue_dissection) return offset;
+	}
 
 	if (buffer_code == 24) {
 		/* OPLOCK Break Notification */
