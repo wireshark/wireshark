@@ -57,12 +57,6 @@
 /* PROTOTYPES/FORWARDS */
 typedef guint16 (*elem_fcn)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 typedef void (*msg_fcn)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
-int my_dgt_tbcd_unpack(
-    char      *out,       /* ASCII pattern out */
-    guchar    *in,        /* packed pattern in */
-    int        num_octs,   /* Number of octets to unpack */
-    dgt_set_t *dgt    /* Digit definitions */
-    );
 
 /* globals needed as a result of spltting the packet-gsm_a.c into several files
  * until further restructuring can take place to make them more modular
