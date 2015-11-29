@@ -533,7 +533,7 @@ variable. This variable will be set by the Windows installer.
 Windows 8, Windows 7, Windows Vista, and associated server editions::
 _C:\Users\<username>\AppData\Local\Temp_
 
-Windows XP, Windows 2000 footnoteref:[historical]::
+Windows XP, Windows Server 2003, Windows 2000 footnoteref:[historical]::
 _C:\Documents and Settings\<username>\Local Settings\Temp_
 
 Windows NT footnoteref:[historical]::

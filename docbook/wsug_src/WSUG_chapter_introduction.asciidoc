@@ -156,7 +156,7 @@ is single-threaded and won't benefit much from multi-core systems.
 * The current version of Wireshark should support any version of Windows that is
   still within its http://windows.microsoft.com/en-us/windows/lifecycle[extended
   support lifetime]. At the time of writing this includes Windows 10, 8, 7, Vista,
-  Server 2016, Server 2012, Server 2008 R2, Server 2008, and Server 2003.
+  Server 2016, Server 2012, Server 2008 R2, and Server 2008.
 
 * Any modern 64-bit AMD64/x86-64 or 32-bit x86 processor.
 
@@ -188,8 +188,9 @@ party libraries on which we depend or due to necessary features that are only
 present in newer versions of Windows (such as hardened security or memory
 management).
 
-Wireshark 1.10 was the last release branch to officially support Windows XP.
-Wireshark 1.2 was the last branch to support Windows 2000. See the
+Wireshark 1.12 was the last release branch to support Windows Server 2003.
+Wireshark 1.10 was the last branch to officially support Windows XP.
+See the
 wireshark-wiki-site:[]Development/LifeCycle[Wireshark release lifecycle] page
 for more details.
 

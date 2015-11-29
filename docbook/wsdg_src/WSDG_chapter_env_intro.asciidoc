@@ -81,19 +81,14 @@ others:
 
 ==== Microsoft Windows
 
-Thanks to the Win32 API, development on all Windows platforms will be
-done in a very similar way. All Windows platforms referred to as Win32,
-Win or Windows may be used with the same meaning.
-Older Windows versions are no longer supported by Wireshark.
-As Windows CE differs a lot compared to the other Windows platforms
-mentioned, Wireshark will not run on Windows CE and there are no plans to
-support it.
+Wireshark supports Windows natively via the
+https://en.wikipedia.org/wiki/Windows_API[Windows API]. Note that in
+this documentation and elsewhere we tend to use the terms
+``Win32'', ``Win'', and ``Windows'' interchangeably to refer to the
+Windows API. Wireshark runs on and can be compiled on the following
+platforms:
 
-Also the 64 bit Windows version are now supported by Wireshark. Although
-not all libraries are made 64 bit ready yet, basic operations are all
-available.
-
-* Windows 10
+* Windows 10 / Windows Server 2016
 
 * Windows 8.1 / Windows Server 2012 R2
 
@@ -103,10 +98,8 @@ available.
 
 * Windows Vista / Windows Server 2008
 
-* Windows XP / Windows Server 2003
-
-Support for XP / Server 2003 is best efforts for Wireshark 2.0 and later, it may fail to run
-at any time due to 3rd party library compatibility.
+Development on Windows XP, Server 2003, and older versions may be possible but
+is not supported.
 
 [[ChIntroDevelopment]]
 
@@ -194,11 +187,10 @@ wireshark-download-page:[].
 
 === Releases and distributions
 
-The officially released files can be found at: wireshark-download-page:[].  A new Wireshark version is released after
-significant changes compared to the last release are completed or a
-serious security issue is encountered. The typical release schedule is
-about every 4-8 weeks (although this may vary).
-
+The officially released files can be found at: wireshark-download-page:[]. A new
+Wireshark version is released after significant changes compared to the last
+release are completed or a serious security issue is encountered. The typical
+release schedule is about every 4-8 weeks (although this may vary).
 There are two kinds of distributions: binary and source; both have their
 advantages and disadvantages.
 
