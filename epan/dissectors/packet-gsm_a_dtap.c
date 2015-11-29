@@ -2160,7 +2160,6 @@ const value_string gsm_a_dtap_screening_ind_values[] = {
 static guint16
 de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, int header_field, gboolean *address_extracted)
 {
-    guint8     *poctets;
     guint8      extension;
     guint32     curr_offset, num_string_len;
     proto_item *item;
@@ -2187,19 +2186,10 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     NO_MORE_DATA_CHECK(len);
 
     num_string_len = len - (curr_offset - offset);
-    poctets = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, num_string_len);
-
     *address_extracted = TRUE;
-    my_dgt_tbcd_unpack(a_bigbuf, poctets, num_string_len,
-        &Dgt_mbcd);
 
-    digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, num_string_len, NULL, FALSE);
+    digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, num_string_len, &Dgt_mbcd, FALSE);
     item = proto_tree_add_string(tree, header_field, tvb, curr_offset, num_string_len, digit_str);
-    item = proto_tree_add_string_format(tree, header_field,
-        tvb, curr_offset, num_string_len,
-        a_bigbuf,
-        "BCD Digits: %s",
-        a_bigbuf);
 
     /* Check for overdicadic digits, we used the standard digit map from tvbuff.c
 		*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f
