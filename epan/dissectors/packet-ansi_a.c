@@ -1414,34 +1414,24 @@ typedef struct ansi_a_shared_data_t
 }
 ansi_a_shared_data_t;
 
-typedef struct ansi_a_dgt_set_t
-{
-    /*
-     * would typically be 15 but to allow MEID decoding this
-     * needs to have room for full hexadecimal representation
-     */
-    unsigned char out[16];
-}
-ansi_a_dgt_set_t;
-
 /*
  * As per A.S0001 Called Party BCD Number
  */
-static ansi_a_dgt_set_t Dgt_tbcd = {
+static dgt_set_t Dgt_tbcd = {
     {
   /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
      '0','1','2','3','4','5','6','7','8','9','*','#','a','b','c', 0
     }
 };
 
-static ansi_a_dgt_set_t Dgt_msid = {
+static dgt_set_t Dgt_msid = {
     {
   /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
      '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?', 0
     }
 };
 
-static ansi_a_dgt_set_t Dgt_meid = {
+static dgt_set_t Dgt_meid = {
     {
   /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
      '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'
@@ -1451,7 +1441,7 @@ static ansi_a_dgt_set_t Dgt_meid = {
 /*
  * As per C.S0005 Table 2.7.1.3.2.4-4 and IS-634.400A 6.2.2.57
  */
-static ansi_a_dgt_set_t Dgt_dtmf = {
+static dgt_set_t Dgt_dtmf = {
     {
   /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
      '?','1','2','3','4','5','6','7','8','9','0','*','#','?','?', 0
@@ -2412,7 +2402,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gu
         if (curr_offset - offset >= len) /* Sanity check */
             return (curr_offset - offset);
 
-        str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, len - (curr_offset - offset), NULL, FALSE);
+        str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, len - (curr_offset - offset), &Dgt_meid, FALSE);
         proto_tree_add_string(tree, hf_ansi_a_meid, tvb, curr_offset, len - (curr_offset - offset), str);
 
         proto_item_append_text(data_p->elem_item, " - MEID (%s)", str);
@@ -2494,7 +2484,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gu
         if (curr_offset - offset >= len) /* Sanity check */
             return (curr_offset - offset);
 
-        str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, len - (curr_offset - offset), NULL, FALSE);
+        str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, len - (curr_offset - offset), &Dgt_msid, FALSE);
         proto_tree_add_string_format(tree, hf_ansi_a_imsi, tvb, curr_offset, len - (curr_offset - offset),
                                      str, "BCD Digits: %s", str);
 
@@ -4067,7 +4057,7 @@ elem_cld_party_bcd_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     if (curr_offset - offset >= len) /* Sanity check */
         return (curr_offset - offset);
 
-    str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, len - (curr_offset - offset), NULL, FALSE);
+    str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, len - (curr_offset - offset), &Dgt_tbcd, FALSE);
     proto_tree_add_string(tree, hf_ansi_a_cld_party_bcd_num, tvb, curr_offset, len - (curr_offset - offset), str);
 
     proto_item_append_text(data_p->elem_item, " - (%s)", str);
@@ -7019,7 +7009,7 @@ elem_dtmf_chars(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
         return (curr_offset - offset);
 
     packed_len = len - (curr_offset - offset);
-    str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, packed_len, NULL, FALSE);
+    str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, packed_len, &Dgt_dtmf, FALSE);
 
     proto_tree_add_string(tree, hf_ansi_a_bdtmf_chars_digits, tvb, curr_offset, packed_len, str);
     proto_item_append_text(data_p->elem_item, " - (%s)", str);

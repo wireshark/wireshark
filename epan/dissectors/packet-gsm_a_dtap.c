@@ -2271,7 +2271,7 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     num_string_len = len - (curr_offset - offset);
     *address_extracted = TRUE;
 
-    digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, num_string_len, NULL, FALSE);
+    digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, num_string_len, &Dgt_mbcd, FALSE);
     item = proto_tree_add_string(tree, header_field, tvb, curr_offset, num_string_len, digit_str);
 
     /* Check for overdicadic digits, we used the standard digit map from tvbuff.c
