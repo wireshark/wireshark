@@ -2397,12 +2397,11 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gu
         proto_tree_add_item(tree, hf_ansi_a_meid_mid_digit_1, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_ansi_a_mid_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_ansi_a_mid_type_of_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        curr_offset++;
 
         if (curr_offset - offset >= len) /* Sanity check */
             return (curr_offset - offset);
 
-        str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, len - (curr_offset - offset), &Dgt_meid, FALSE);
+        str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, len - (curr_offset - offset), &Dgt_meid, TRUE);
         proto_tree_add_string(tree, hf_ansi_a_meid, tvb, curr_offset, len - (curr_offset - offset), str);
 
         proto_item_append_text(data_p->elem_item, " - MEID (%s)", str);
@@ -2479,12 +2478,11 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gu
 
         proto_tree_add_item(tree, hf_ansi_a_mid_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_ansi_a_mid_type_of_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-        curr_offset++;
 
         if (curr_offset - offset >= len) /* Sanity check */
             return (curr_offset - offset);
 
-        str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, len - (curr_offset - offset), &Dgt_msid, FALSE);
+        str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, len - (curr_offset - offset), &Dgt_msid, TRUE);
         proto_tree_add_string_format(tree, hf_ansi_a_imsi, tvb, curr_offset, len - (curr_offset - offset),
                                      str, "BCD Digits: %s", str);
 
@@ -6996,20 +6994,30 @@ elem_bdtmf_trans_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 static guint8
 elem_dtmf_chars(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
+    guint8      oct;
     guint32     curr_offset;
     guint8      packed_len;
-    const char *str;
+    char       *str;
 
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_ansi_a_bdtmf_chars_num_chars, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    oct = tvb_get_guint8(tvb, curr_offset);
     curr_offset++;
 
     if (curr_offset - offset >= len) /* Sanity check */
         return (curr_offset - offset);
 
     packed_len = len - (curr_offset - offset);
-    str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, packed_len, &Dgt_dtmf, FALSE);
+    str = (char*)tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, packed_len, &Dgt_dtmf, FALSE);
+   /*
+     * the packed DTMF digits are not "terminated" with a '0xF' for an odd
+     * number of digits but the unpack routine expects it
+     */
+    if (oct & 0x01)
+    {
+        str[(2*packed_len)-1] = '\0';
+    }
 
     proto_tree_add_string(tree, hf_ansi_a_bdtmf_chars_digits, tvb, curr_offset, packed_len, str);
     proto_item_append_text(data_p->elem_item, " - (%s)", str);
