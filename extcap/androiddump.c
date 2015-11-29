@@ -300,7 +300,7 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
     return extcap_dumper;
 }
 
-static void extcap_dumper_dump(struct extcap_dumper extcap_dumper, char *buffer,
+static gboolean extcap_dumper_dump(struct extcap_dumper extcap_dumper, char *buffer,
         gssize captured_length, gssize reported_length,
         time_t seconds, int nanoseconds) {
 #ifdef ANDROIDDUMP_USE_LIBPCAP
@@ -352,9 +352,15 @@ static void extcap_dumper_dump(struct extcap_dumper extcap_dumper, char *buffer,
         hdr.pkt_encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
     }
 
-    wtap_dump(extcap_dumper.dumper.wtap, &hdr, (const guint8 *) buffer, &err, &err_info);
+    if (!wtap_dump(extcap_dumper.dumper.wtap, &hdr, (const guint8 *) buffer, &err, &err_info)) {
+        g_printerr("ERROR: Cannot dump: %s\n", err_info);
+        return FALSE;
+    }
+
     wtap_dump_flush(extcap_dumper.dumper.wtap);
 #endif
+
+    return TRUE;
 }
 
 
@@ -609,6 +615,7 @@ static int add_android_interfaces(struct interface_t **interface_list,
 
         sock = adb_connect(adb_server_ip, adb_server_tcp_port);
         if (sock == INVALID_SOCKET) continue;
+
         sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
         result = adb_send(sock, helpful_packet);
         if (result) {
@@ -641,6 +648,9 @@ static int add_android_interfaces(struct interface_t **interface_list,
         }
 
         sock = adb_connect(adb_server_ip, adb_server_tcp_port);
+        if (sock == INVALID_SOCKET)
+            return -1;
+
         sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
         result = adb_send(sock, helpful_packet);
         if (result) {
@@ -854,6 +864,8 @@ static int add_android_interfaces(struct interface_t **interface_list,
                         fprintf(stderr, "VERBOSE: Android Bluetooth application PID for %s is %s\n", serial_number, pid);
 
                     sock = adb_connect(adb_server_ip, adb_server_tcp_port);
+                    if (sock == INVALID_SOCKET)
+                        return -1;
 
                     sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
                     result = adb_send(sock, helpful_packet);
@@ -936,6 +948,8 @@ static int add_android_interfaces(struct interface_t **interface_list,
                         fprintf(stderr, "VERBOSE: Android Bluetooth application PID for %s is %s\n", serial_number, pid);
 
                     sock = adb_connect(adb_server_ip, adb_server_tcp_port);
+                    if (sock == INVALID_SOCKET)
+                        return -1;
 
                     sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
                     result = adb_send(sock, helpful_packet);
@@ -1403,7 +1417,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
 
             h4_header->direction = GINT32_TO_BE(direction_character == '>');
 
-            extcap_dumper_dump(extcap_dumper, packet,
+            endless_loop = extcap_dumper_dump(extcap_dumper, packet,
                     captured_length + sizeof(own_pcap_bluetooth_h4_header),
                     captured_length + sizeof(own_pcap_bluetooth_h4_header),
                     ts,
@@ -1690,7 +1704,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
 
             ts -= BLUEDROID_TIMESTAMP_BASE;
 
-            extcap_dumper_dump(extcap_dumper, packet,
+            endless_loop = extcap_dumper_dump(extcap_dumper, packet,
                     captured_length,
                     captured_length,
                     (uint32_t)(ts / 1000000),
@@ -1822,7 +1836,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
             direction = GINT32_FROM_BE(*flags) & 0x01;
             h4_header->direction = GINT32_TO_BE(direction);
 
-            extcap_dumper_dump(extcap_dumper, payload - sizeof(own_pcap_bluetooth_h4_header),
+            endless_loop = extcap_dumper_dump(extcap_dumper, payload - sizeof(own_pcap_bluetooth_h4_header),
                     GINT32_FROM_BE(*captured_length) + sizeof(own_pcap_bluetooth_h4_header),
                     GINT32_FROM_BE(*reported_length) + sizeof(own_pcap_bluetooth_h4_header),
                     (uint32_t)(ts / 1000000),
@@ -1998,7 +2012,7 @@ static int capture_android_logcat_text(char *interface, char *fifo,
                 nsecs = (int) (ms * 1e6);
             }
 
-            extcap_dumper_dump(extcap_dumper, packet,
+            endless_loop = extcap_dumper_dump(extcap_dumper, packet,
                     length,
                     length,
                     secs, nsecs);
@@ -2212,7 +2226,7 @@ static int capture_android_logcat(char *interface, char *fifo,
         length = (*payload_length) + header_size + (gssize)exported_pdu_headers_size;
 
         while (used_buffer_length >= exported_pdu_headers_size + header_size && (size_t)length <= used_buffer_length) {
-            extcap_dumper_dump(extcap_dumper, packet,
+            endless_loop = extcap_dumper_dump(extcap_dumper, packet,
                     length,
                     length,
                     *timestamp_secs, *timestamp_nsecs);
@@ -2448,7 +2462,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
                      * So to avoid this error we are checking for length of packet before passing it to dumper.
                      */
                     if (p_header.incl_len > 0) {
-                        extcap_dumper_dump(extcap_dumper , filter_buffer + read_offset+ PCAP_RECORD_HEADER_LENGTH,
+                        endless_loop = extcap_dumper_dump(extcap_dumper , filter_buffer + read_offset+ PCAP_RECORD_HEADER_LENGTH,
                         p_header.incl_len , p_header.orig_len , p_header.ts_sec , p_header.ts_usec);
                     }
                     frame_length = p_header.incl_len + PCAP_RECORD_HEADER_LENGTH;
