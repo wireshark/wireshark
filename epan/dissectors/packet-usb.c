@@ -1615,8 +1615,10 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
         }
     } else {
         /* UTF-16 string */
-        proto_tree_add_item(tree, hf_usb_bString, tvb, offset, len-2, ENC_UTF_16 | ENC_LITTLE_ENDIAN);
-        offset += len-2;
+        /* handle case of host requesting only substring */
+        guint8 len_str = MIN(len-2, usb_trans_info->setup.wLength -2);
+        proto_tree_add_item(tree, hf_usb_bString, tvb, offset, len_str, ENC_UTF_16 | ENC_LITTLE_ENDIAN);
+        offset += len_str;
     }
 
     proto_item_set_len(item, offset-old_offset);
