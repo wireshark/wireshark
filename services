@@ -7932,6 +7932,9 @@ smallchat        4412/udp # SmallChat [Valentino_Giudice] [Valentino_Giudice] 20
 avi-nms          4413/tcp # AVI Systems NMS [AVI_Systems] [Dave_Hatz] 2015-09-18
 avi-nms-disc     4413/udp # AVI Systems NMS [AVI_Systems] [Dave_Hatz] 2015-09-18
 updog            4414/tcp # Updog Monitoring and Status Framework [Egon_Technologies_LLC] [James_Downs] 2015-10-05
+brcd-vr-req      4415/tcp # Brocade Virtual Router Request [Brocade_Communications_Systems] [Nick_Carter] 2015-11-17
+pjj-player       4416/tcp # PJJ Media Player [PJJ_Productions_Inc] [Bruno_Frechette] 2015-11-18
+pjj-player-disc  4416/udp # PJJ Media Player discovery [PJJ_Productions_Inc] [Bruno_Frechette] 2015-11-18
 netrockey6       4425/tcp # NetROCKEY6 SMART Plus Service [Feitian_Technologies] [Feitian_Technologies] 2010-09-15
 netrockey6       4425/udp # NetROCKEY6 SMART Plus Service [Feitian_Technologies] [Feitian_Technologies] 2010-09-15
 beacon-port-2    4426/tcp # SMARTS Beacon Port [Eyal_Yardeni] [Eyal_Yardeni] 2003-11
@@ -8449,7 +8452,7 @@ llrp             5084/udp # EPCglobal Low-Level Reader Protocol [Margaret_Wasser
 encrypted-llrp   5085/tcp # EPCglobal Encrypted LLRP [Margaret_Wasserman] [Margaret_Wasserman] 2006-11
 encrypted-llrp   5085/udp # EPCglobal Encrypted LLRP [Margaret_Wasserman] [Margaret_Wasserman] 2006-11
 aprigo-cs        5086/tcp # Aprigo Collection Service [Ron_Zalkind] [Ron_Zalkind] 2010-05-28
-biotic           5087/tcp # BIOTIC - Binary Internet of Things Interoperable Communication [Clayster_Laboratorios_Chile_S.A.] [Peter_Waher] 2014-06-16
+biotic           5087/tcp # BIOTIC - Binary Internet of Things Interoperable Communication [Waher_Data_AB] [Peter_Waher] 2014-06-16 2015-11-25
 car              5090/sctp # Candidate AR
 cxtp             5091/sctp # Context Transfer Protocol 2005-07 [RFC4065]
 magpie           5092/udp # Magpie Binary [Phil_Maker] [Phil_Maker] 2008-06-18
@@ -9555,6 +9558,7 @@ iwg1             7071/udp # IWGADTS Aircraft Housekeeping Message [Don_Sullivan]
 martalk          7073/tcp # MarTalk protocol [Mahr_GmbH_Göttingen] [Kevin_Bube] 2013-09-02
 empowerid        7080/tcp # EmpowerID Communication [Matthew_Whited] [Matthew_Whited] 2008-01-16
 empowerid        7080/udp # EmpowerID Communication [Matthew_Whited] [Matthew_Whited] 2008-01-16
+zixi-transport   7088/udp # Zixi live video transport protocol [Zixi] [Igor_Ratner] 2015-11-16
 jdp-disc         7095/udp # Java Discovery Protocol [OpenJDK] [Florian_Weimer] 2013-03-12
 lazy-ptop        7099/tcp # lazy-ptop [Guy_Keren] [Guy_Keren]
 lazy-ptop        7099/udp # lazy-ptop [Guy_Keren] [Guy_Keren]
@@ -9970,6 +9974,7 @@ vmware-fdm       8182/udp # VMware Fault Domain Manager [Ron_Passerini] [Ron_Pas
 proremote        8183/tcp # ProRemote [Alex_Lelievre] [Alex_Lelievre] 2009-08-18
 itach            8184/tcp # Remote iTach Connection [Barend_Jacobus_van_d] [Barend_Jacobus_van_d] 2010-04-27
 itach            8184/udp # Remote iTach Connection [Barend_Jacobus_van_d] [Barend_Jacobus_van_d] 2010-04-27
+gcp-rphy         8190/tcp # Generic control plane for RPHY [CableLabs] [Karthik_Sundaresan] 2015-11-24
 limnerpressure   8191/tcp # Limner Pressure [Aaron_Kleinsteiber] [Aaron_Kleinsteiber] 2014-01-16
 spytechphone     8192/tcp # SpyTech Phone Service [Bill_Kay] [Bill_Kay] 2006-04
 spytechphone     8192/udp # SpyTech Phone Service [Bill_Kay] [Bill_Kay] 2006-04
