@@ -4635,7 +4635,11 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 							wmem_free(NULL, str);
 						}
 						else {
-							offset_r += protoo_strlcpy(result+offset_r, "<MISSING>", size-offset_r);
+							if (hfinfo->display & BASE_ALLOW_ZERO) {
+								offset_r += protoo_strlcpy(result+offset_r, "<none>", size-offset_r);
+							} else {
+								offset_r += protoo_strlcpy(result+offset_r, "<MISSING>", size-offset_r);
+							}
 						}
 						break;
 
@@ -6631,7 +6635,11 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 				label_fill(label_str, 0, hfinfo, str);
 				wmem_free(NULL, str);
 			} else {
-				label_fill(label_str, 0, hfinfo, "<MISSING>");
+				if (hfinfo->display & BASE_ALLOW_ZERO) {
+					label_fill(label_str, 0, hfinfo, "<none>");
+				} else {
+					label_fill(label_str, 0, hfinfo, "<MISSING>");
+				}
 			}
 			break;
 

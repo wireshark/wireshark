@@ -2744,7 +2744,7 @@ proto_register_ipv6(void)
         },
         { &hf_ipv6_opt_padn,
             { "PadN", "ipv6.opt.padn",
-                FT_BYTES, BASE_NONE, NULL, 0x0,
+                FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x0,
                 "PadN Option", HFILL }
         },
         { &hf_ipv6_opt_rtalert,

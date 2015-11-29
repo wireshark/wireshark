@@ -141,6 +141,7 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
                   SEP_DOT, SEP_DASH, SEP_COLON, or SEP_SPACE to provide
                   a separator between bytes.
                   BASE_NONE has no separator between bytes
+                  BASE_ALLOW_ZERO displays <none> instead of <MISSING> for zero sized byte array
 
                 --For FT_IPv4:
 

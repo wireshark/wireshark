@@ -142,7 +142,7 @@ bytes_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf)
 {
 	char separator;
 
-	switch(field_display)
+	switch(FIELD_DISPLAY(field_display))
 	{
 	case SEP_DOT:
 		separator = '.';
