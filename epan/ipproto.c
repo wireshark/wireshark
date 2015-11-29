@@ -296,6 +296,36 @@ const char *ipprotostr(const int proto) {
     return s;
 }
 
+/* https://www.iana.org/assignments/ipv6-parameters/ipv6-parameters.xhtml#extension-header */
+
+static gboolean ipv6_exthdr_check(int proto)
+{
+    switch (proto) {
+    /* fall through all cases */
+    case IP_PROTO_HOPOPTS:      /* IPv6 Hop-by-Hop Option */
+    case IP_PROTO_ROUTING:      /* Routing Header for IPv6 */
+    case IP_PROTO_FRAGMENT:     /* Fragment Header for IPv6 */
+    case IP_PROTO_ESP:          /* Encapsulating Security Payload */
+    case IP_PROTO_AH:           /* Authentication Header */
+    case IP_PROTO_DSTOPTS:      /* Destination Options for IPv6 */
+    case IP_PROTO_MIPV6:        /* Mobility Header */
+    case IP_PROTO_HIP:          /* Host Identity Protocol */
+    case IP_PROTO_SHIM6:        /* Shim6 Protocol */
+        return TRUE;
+        break;
+    default:
+        break;
+    }
+    return FALSE;
+}
+
+const char *ipv6extprotostr(int proto)
+{
+    if (ipv6_exthdr_check(proto))
+        return ipprotostr(proto);
+    return NULL;
+}
+
 /*
  * Editor modelines
  *

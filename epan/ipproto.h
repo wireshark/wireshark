@@ -194,6 +194,8 @@
 WS_DLL_PUBLIC value_string_ext ipproto_val_ext;
 WS_DLL_PUBLIC const char *ipprotostr(const int proto);
 
+WS_DLL_PUBLIC const char *ipv6extprotostr(int proto);
+
 #endif /* ipproto.h */
 
 /*
