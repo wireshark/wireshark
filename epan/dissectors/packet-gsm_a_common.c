@@ -757,9 +757,6 @@ static expert_field ei_gsm_a_no_element_dissector = EI_INIT;
 static expert_field ei_gsm_a_format_not_supported = EI_INIT;
 static expert_field ei_gsm_a_mobile_identity_type = EI_INIT;
 
-
-static char a_bigbuf[1024];
-
 sccp_assoc_info_t* sccp_assoc;
 
 #define NUM_GSM_COMMON_ELEM (sizeof(gsm_common_elem_strings)/sizeof(value_string))
@@ -1934,51 +1931,6 @@ static dgt_set_t Dgt1_9_bcd = {
 /* FUNCTIONS */
 
 /*
- * Unpack BCD input pattern into output ASCII pattern
- *
- * Input Pattern is supplied using the same format as the digits
- *
- * Returns: length of unpacked pattern
- */
-int
-my_dgt_tbcd_unpack(
-    char    *out,       /* ASCII pattern out */
-    guchar  *in,        /* packed pattern in */
-    int     num_octs,   /* Number of octets to unpack */
-    dgt_set_t   *dgt        /* Digit definitions */
-    )
-{
-    int cnt = 0;
-    unsigned char i;
-
-    while (num_octs)
-    {
-        /*
-         * unpack first value in byte
-         */
-        i = *in++;
-        *out++ = dgt->out[i & 0x0f];
-        cnt++;
-
-        /*
-         * unpack second value in byte
-         */
-        i >>= 4;
-
-        if (i == 0x0f)  /* odd number bytes - hit filler */
-            break;
-
-        *out++ = dgt->out[i & 0xf];   /* ( '& 0xf' added to keep VS Code Analysis happy ) */
-        cnt++;
-        num_octs--;
-    }
-
-    *out = '\0';
-
-    return cnt;
-}
-
-/*
  * Decode the MCC/MNC from 3 octets in 'octs'
  */
 static void
@@ -2182,7 +2134,6 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 {
     guint8    oct;
     guint32   curr_offset;
-    guint8   *poctets;
     guint32   value;
     gboolean  odd;
     const gchar *digit_str;
@@ -2260,24 +2211,20 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 
         proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-        /* XXX - dynamically allocate a_bigbuf since the only use is now here */
-        a_bigbuf[0] = Dgt1_9_bcd.out[(oct & 0xf0) >> 4];
-        curr_offset++;
+        if (curr_offset - offset >= len) /* Sanity check */
+            return (curr_offset - offset);
 
-        poctets = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
-
-        my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
-            &Dgt1_9_bcd);
+        digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, len - (curr_offset - offset), NULL, TRUE);
 
         proto_tree_add_string_format(tree,
             hf_gsm_a_imei,
             tvb, curr_offset, len - (curr_offset - offset),
-            a_bigbuf,
+            digit_str,
             "BCD Digits: %s",
-            a_bigbuf);
+            digit_str);
 
         if (add_string)
-            g_snprintf(add_string, string_len, " - IMEI (%s)", a_bigbuf);
+            g_snprintf(add_string, string_len, " - IMEI (%s)", digit_str);
 
         curr_offset += len - (curr_offset - offset);
         break;

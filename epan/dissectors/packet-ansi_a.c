@@ -1413,34 +1413,24 @@ typedef struct ansi_a_shared_data_t
 }
 ansi_a_shared_data_t;
 
-typedef struct ansi_a_dgt_set_t
-{
-    /*
-     * would typically be 15 but to allow MEID decoding this
-     * needs to have room for full hexadecimal representation
-     */
-    unsigned char out[16];
-}
-ansi_a_dgt_set_t;
-
 /*
  * As per A.S0001 Called Party BCD Number
  */
-static ansi_a_dgt_set_t Dgt_tbcd = {
+static dgt_set_t Dgt_tbcd = {
     {
   /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
      '0','1','2','3','4','5','6','7','8','9','*','#','a','b','c', 0
     }
 };
 
-static ansi_a_dgt_set_t Dgt_msid = {
+static dgt_set_t Dgt_msid = {
     {
   /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
      '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?', 0
     }
 };
 
-static ansi_a_dgt_set_t Dgt_meid = {
+static dgt_set_t Dgt_meid = {
     {
   /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
      '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'
@@ -1450,7 +1440,7 @@ static ansi_a_dgt_set_t Dgt_meid = {
 /*
  * As per C.S0005 Table 2.7.1.3.2.4-4 and IS-634.400A 6.2.2.57
  */
-static ansi_a_dgt_set_t Dgt_dtmf = {
+static dgt_set_t Dgt_dtmf = {
     {
   /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
      '?','1','2','3','4','5','6','7','8','9','0','*','#','?','?', 0
@@ -1458,51 +1448,6 @@ static ansi_a_dgt_set_t Dgt_dtmf = {
 };
 
 /* FUNCTIONS */
-
-/*
- * Unpack BCD input pattern into output ASCII pattern
- *
- * Input Pattern is supplied using the same format as the digits
- *
- * Returns: length of unpacked pattern
- */
-static int
-my_dgt_tbcd_unpack(
-    char                *out,           /* ASCII pattern out */
-    guchar              *in,            /* packed pattern in */
-    int                 num_octs,       /* Number of octets to unpack */
-    ansi_a_dgt_set_t    *dgt            /* Digit definitions */
-    )
-{
-    int                 cnt = 0;
-    unsigned char       i;
-
-    while (num_octs)
-    {
-        /*
-         * unpack first value in byte
-         */
-        i = *in++;
-        *out++ = dgt->out[i & 0x0f];
-        cnt++;
-
-        /*
-         * unpack second value in byte
-         */
-        i >>= 4;
-
-        if ((num_octs == 1) && (i == 0x0f))  /* odd number bytes - hit filler */
-            break;
-
-        *out++ = dgt->out[i];
-        cnt++;
-        num_octs--;
-    }
-
-    *out = '\0';
-
-    return(cnt);
-}
 
 static const value_string ansi_a_so_str_vals[] = {
     { 1,        "Basic Variable Rate Voice Service (8 kbps)" },
@@ -2437,7 +2382,6 @@ static guint8
 elem_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
     guint8      oct;
-    guint8      *poctets;
     guint32     value;
     guint32     curr_offset;
     const gchar *str;
@@ -2453,22 +2397,14 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gu
         proto_tree_add_item(tree, hf_ansi_a_mid_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_ansi_a_mid_type_of_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-        a_bigbuf[0] = Dgt_meid.out[(oct & 0xf0) >> 4];
-        curr_offset++;
+        if (curr_offset - offset >= len) /* Sanity check */
+            return (curr_offset - offset);
 
-        poctets = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
+        str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, len - (curr_offset - offset), &Dgt_meid, TRUE);
+        proto_tree_add_string(tree, hf_ansi_a_meid, tvb, curr_offset, len - (curr_offset - offset), str);
 
-        my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
-            &Dgt_meid);
-
+        proto_item_append_text(data_p->elem_item, " - MEID (%s)", str);
         curr_offset += len - (curr_offset - offset);
-
-        proto_tree_add_string_format_value(tree, hf_ansi_a_meid, tvb, offset + 1, len - 1,
-            a_bigbuf,
-            "%s",
-            a_bigbuf);
-
-        proto_item_append_text(data_p->elem_item, " - MEID (%s)", a_bigbuf);
         break;
 
     case 2:     /* Broadcast Address */
@@ -2542,27 +2478,21 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gu
         proto_tree_add_item(tree, hf_ansi_a_mid_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_ansi_a_mid_type_of_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-        a_bigbuf[0] = Dgt_msid.out[(oct & 0xf0) >> 4];
-        curr_offset++;
+        if (curr_offset - offset >= len) /* Sanity check */
+            return (curr_offset - offset);
 
-        poctets = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
+        str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, len - (curr_offset - offset), &Dgt_msid, TRUE);
+        proto_tree_add_string_format(tree, hf_ansi_a_imsi, tvb, curr_offset, len - (curr_offset - offset),
+                                     str, "BCD Digits: %s", str);
 
-        my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
-            &Dgt_msid);
-
-        proto_tree_add_string_format(tree, hf_ansi_a_imsi, tvb, curr_offset - 1, len - (curr_offset - 1 - offset),
-            a_bigbuf,
-            "BCD Digits: %s",
-            a_bigbuf);
-
-        proto_item_append_text(data_p->elem_item, " - IMSI (%s)", a_bigbuf);
+        proto_item_append_text(data_p->elem_item, " - IMSI (%s)", str);
         if (data_p->message_item)
         {
-            proto_item_append_text(data_p->message_item, " MID=%s", a_bigbuf);
+            proto_item_append_text(data_p->message_item, " MID=%s", str);
         }
         if (global_a_info_display)
         {
-            col_append_fstr(pinfo->cinfo, COL_INFO, "MID=%s ", a_bigbuf);
+            col_append_fstr(pinfo->cinfo, COL_INFO, "MID=%s ", str);
         }
 
         curr_offset += len - (curr_offset - offset);
@@ -4110,8 +4040,8 @@ static const value_string ansi_a_cld_party_bcd_num_plan_vals[] = {
 static guint8
 elem_cld_party_bcd_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
 {
-    guint8      *poctets;
     guint32     curr_offset;
+    const char *str;
 
     curr_offset = offset;
 
@@ -4121,12 +4051,13 @@ elem_cld_party_bcd_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
     curr_offset++;
 
-    poctets = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
+    if (curr_offset - offset >= len) /* Sanity check */
+        return (curr_offset - offset);
 
-    my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset), &Dgt_tbcd);
-    proto_tree_add_string(tree, hf_ansi_a_cld_party_bcd_num, tvb, curr_offset, len - (curr_offset - offset), a_bigbuf);
+    str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, len - (curr_offset - offset), &Dgt_tbcd, FALSE);
+    proto_tree_add_string(tree, hf_ansi_a_cld_party_bcd_num, tvb, curr_offset, len - (curr_offset - offset), str);
 
-    proto_item_append_text(data_p->elem_item, " - (%s)", a_bigbuf);
+    proto_item_append_text(data_p->elem_item, " - (%s)", str);
 
     curr_offset += len - (curr_offset - offset);
 
@@ -7065,36 +6996,30 @@ elem_dtmf_chars(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
     guint8      oct;
     guint32     curr_offset;
     guint8      packed_len;
-    guint8      *poctets;
+    char       *str;
 
     curr_offset = offset;
 
     proto_tree_add_item(tree, hf_ansi_a_bdtmf_chars_num_chars, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-
     oct = tvb_get_guint8(tvb, curr_offset);
-
     curr_offset++;
 
+    if (curr_offset - offset >= len) /* Sanity check */
+        return (curr_offset - offset);
+
     packed_len = len - (curr_offset - offset);
-
-    poctets = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, packed_len);
-
-    /*
+    str = (char*)tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, packed_len, &Dgt_dtmf, FALSE);
+   /*
      * the packed DTMF digits are not "terminated" with a '0xF' for an odd
      * number of digits but the unpack routine expects it
      */
     if (oct & 0x01)
     {
-        poctets[packed_len-1] |= 0xF0;
+        str[(2*packed_len)-1] = '\0';
     }
 
-    my_dgt_tbcd_unpack(a_bigbuf, poctets, packed_len,
-        &Dgt_dtmf);
-
-    proto_tree_add_string(tree, hf_ansi_a_bdtmf_chars_digits, tvb, curr_offset, packed_len,
-        a_bigbuf);
-
-    proto_item_append_text(data_p->elem_item, " - (%s)", a_bigbuf);
+    proto_tree_add_string(tree, hf_ansi_a_bdtmf_chars_digits, tvb, curr_offset, packed_len, str);
+    proto_item_append_text(data_p->elem_item, " - (%s)", str);
 
     curr_offset += packed_len;
 
