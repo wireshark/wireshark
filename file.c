@@ -3474,6 +3474,12 @@ cf_goto_frame(capture_file *cf, guint fnumber)
 {
   frame_data *fdata;
 
+  if (cf == NULL) {
+    /* we don't have a loaded capture file - fix for bug 11810*/
+    statusbar_push_temporary_msg("There is no file loaded");
+    return FALSE;   /* we failed to go to that packet */
+  }
+
   fdata = frame_data_sequence_find(cf->frames, fnumber);
 
   if (fdata == NULL) {
