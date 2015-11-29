@@ -1845,16 +1845,41 @@ static int hf_artnet_ip_prog_command_prog_sm = -1;
 static int hf_artnet_ip_prog_command_prog_ip = -1;
 static int hf_artnet_ip_prog_command_reset = -1;
 static int hf_artnet_ip_prog_command_unused = -1;
+static int hf_artnet_ip_prog_command_dhcp_enable = -1;
 static int hf_artnet_ip_prog_command_prog_enable = -1;
 static int hf_artnet_ip_prog_ip = -1;
 static int hf_artnet_ip_prog_sm = -1;
 static int hf_artnet_ip_prog_port = -1;
+
+static gint ett_artnet_ip_prog_command = -1;
+
+static const int *artnet_ip_prog_command_fields[] = {
+  &hf_artnet_ip_prog_command_prog_port,
+  &hf_artnet_ip_prog_command_prog_sm,
+  &hf_artnet_ip_prog_command_prog_ip,
+  &hf_artnet_ip_prog_command_reset,
+  &hf_artnet_ip_prog_command_unused,
+  &hf_artnet_ip_prog_command_dhcp_enable,
+  &hf_artnet_ip_prog_command_prog_enable,
+  NULL
+};
 
 /* ArtIpProgReply */
 static int hf_artnet_ip_prog_reply = -1;
 static int hf_artnet_ip_prog_reply_ip = -1;
 static int hf_artnet_ip_prog_reply_sm = -1;
 static int hf_artnet_ip_prog_reply_port = -1;
+static int hf_artnet_ip_prog_reply_status = -1;
+static int hf_artnet_ip_prog_reply_status_unused = -1;
+static int hf_artnet_ip_prog_reply_status_dhcp_enable = -1;
+
+static gint ett_artnet_ip_prog_reply_status = -1;
+
+static const int *artnet_ip_prog_reply_status_fields[] = {
+  &hf_artnet_ip_prog_reply_status_unused,
+  &hf_artnet_ip_prog_reply_status_dhcp_enable,
+  NULL
+};
 
 /* ArtDiagData */
 static int hf_artnet_diag_data = -1;
@@ -2815,24 +2840,16 @@ dissect_artnet_rdm_sub(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_in
 }
 
 static guint
-dissect_artnet_ip_prog(tvbuff_t *tvb, guint offset, proto_tree *tree) {
-  proto_tree *flags_tree, *flags_item;
-
+dissect_artnet_ip_prog(tvbuff_t *tvb, guint offset, proto_tree *tree)
+{
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
                       offset, 2, ENC_NA);
   offset += 2;
 
-  flags_item = proto_tree_add_item(tree, hf_artnet_ip_prog_command, tvb,
-                                   offset, 1, ENC_BIG_ENDIAN);
-
-  flags_tree = proto_item_add_subtree(flags_item, ett_artnet);
-  proto_tree_add_item(flags_tree, hf_artnet_ip_prog_command_prog_port,   tvb, offset, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(flags_tree, hf_artnet_ip_prog_command_prog_sm,     tvb, offset, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(flags_tree, hf_artnet_ip_prog_command_prog_ip,     tvb, offset, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(flags_tree, hf_artnet_ip_prog_command_reset,       tvb, offset, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(flags_tree, hf_artnet_ip_prog_command_unused,      tvb, offset, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(flags_tree, hf_artnet_ip_prog_command_prog_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
-
+  proto_tree_add_bitmask(tree, tvb, offset, hf_artnet_ip_prog_command,
+                         ett_artnet_ip_prog_command,
+                         artnet_ip_prog_command_fields,
+                         ENC_BIG_ENDIAN);
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
@@ -2877,9 +2894,15 @@ dissect_artnet_ip_prog_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
                       offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
+  proto_tree_add_bitmask(tree, tvb, offset, hf_artnet_ip_prog_reply_status,
+                         ett_artnet_ip_prog_reply_status,
+                         artnet_ip_prog_reply_status_fields,
+                         ENC_BIG_ENDIAN);
+  offset += 1;
+
   proto_tree_add_item(tree, hf_artnet_spare, tvb,
-                      offset, 8, ENC_NA);
-  offset += 8;
+                      offset, 7, ENC_NA);
+  offset += 7;
 
   return offset;
 }
@@ -3755,7 +3778,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                                  ENC_NA);
         si = proto_item_add_subtree(hi, ett_artnet );
 
-        size  = dissect_artnet_ip_prog( tvb, offset, si);
+        size  = dissect_artnet_ip_prog( tvb,offset, si);
         size -= offset;
 
         proto_item_set_len(si, size );
@@ -4909,37 +4932,43 @@ proto_register_artnet(void) {
     { &hf_artnet_ip_prog_command_prog_port,
       { "Program Port",
         "artnet.ip_prog.command_prog_port",
-        FT_UINT8, BASE_HEX, NULL, 0x01,
+        FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
 
     { &hf_artnet_ip_prog_command_prog_sm,
       { "Program Subnet Mask",
         "artnet.ip_prog.command_prog_sm",
-        FT_UINT8, BASE_HEX, NULL, 0x02,
+        FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
 
     { &hf_artnet_ip_prog_command_prog_ip,
       { "Program IP",
         "artnet.ip_prog.command_prog_ip",
-        FT_UINT8, BASE_HEX, NULL, 0x04,
+        FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
 
     { &hf_artnet_ip_prog_command_reset,
-      { "Reset parameters",
+      { "Reset Parameters",
         "artnet.ip_prog.command_reset",
-        FT_UINT8, BASE_HEX, NULL, 0x08,
+        FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
 
     { &hf_artnet_ip_prog_command_unused,
       { "Unused",
         "artnet.ip_prog.command_unused",
-        FT_UINT8, BASE_HEX, NULL, 0x70,
+        FT_UINT8, BASE_HEX, NULL, 0x30,
+        NULL, HFILL }},
+
+    { &hf_artnet_ip_prog_command_dhcp_enable,
+      { "Enable DHCP",
+        "artnet.ip_prog.command_dhcp_enable",
+        FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
 
     { &hf_artnet_ip_prog_command_prog_enable,
       { "Enable Programming",
         "artnet.ip_prog.command_prog_enable",
-        FT_UINT8, BASE_HEX, NULL, 0x80,
+        FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
 
     { &hf_artnet_ip_prog_ip,
@@ -4949,7 +4978,7 @@ proto_register_artnet(void) {
         NULL, HFILL }},
 
     { &hf_artnet_ip_prog_sm,
-      { "Subnet mask",
+      { "Subnet Mask",
         "artnet.ip_prog.sm",
         FT_IPv4, BASE_NONE, NULL, 0x0,
         "IP Subnet mask", HFILL }},
@@ -4963,7 +4992,7 @@ proto_register_artnet(void) {
 
     /* ArtIpProgReply */
     { &hf_artnet_ip_prog_reply,
-      { "ArtIpProgReplay packet",
+      { "ArtIpProgReply packet",
         "artnet.ip_prog_reply",
         FT_NONE, BASE_NONE, NULL, 0,
         "Art-Net ArtIpProgReply packet", HFILL }},
@@ -4984,6 +5013,24 @@ proto_register_artnet(void) {
       { "Port",
         "artnet.ip_prog_reply.port",
         FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_ip_prog_reply_status,
+      { "Status",
+        "artnet.ip_prog_reply.status",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_artnet_ip_prog_reply_status_unused,
+      { "Unused",
+        "artnet.ip_prog_reply.unused",
+        FT_UINT8, BASE_HEX, NULL, 0xbf,
+        NULL, HFILL }},
+
+    { &hf_artnet_ip_prog_reply_status_dhcp_enable,
+      { "DHCP Enabled",
+        "artnet.ip_prog_reply.status_dhcp_enable",
+        FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
 
     /* ArtPollServerReply */
@@ -5251,7 +5298,9 @@ proto_register_artnet(void) {
     &ett_artnet_poll_reply_good_output_2,
     &ett_artnet_poll_reply_good_output_3,
     &ett_artnet_poll_reply_good_output_4,
-    &ett_artnet_poll_reply_status2
+    &ett_artnet_poll_reply_status2,
+    &ett_artnet_ip_prog_command,
+    &ett_artnet_ip_prog_reply_status
   };
 
   proto_artnet = proto_register_protocol("Art-Net", "ARTNET", "artnet");
