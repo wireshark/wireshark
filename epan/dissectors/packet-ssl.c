@@ -928,6 +928,7 @@ desegment_ssl(tvbuff_t *tvb, packet_info *pinfo, int offset,
     gboolean       must_desegment;
     gboolean       called_dissector;
     int            another_pdu_follows;
+    gboolean       another_segment_in_frame;
     int            deseg_offset;
     guint32        deseg_seq;
     gint           nbytes;
@@ -1068,14 +1069,38 @@ again:
          * Note that the last segment may include more than what
          * we needed.
          */
-        if (ipfd_head->reassembled_in == pinfo->fd->num) {
+        if (ipfd_head->reassembled_in == pinfo->fd->num &&
+            nxtseq < ipfd_head->datalen) {
             /*
-             * OK, this is the last segment.
+             * This is *not* the last segment. It is part of a PDU in the same
+             * frame, so no another PDU can follow this one.
+             * Do not reassemble SSL yet, it will be done in the final segment.
+             * Clear the Info column and avoid displaying [SSL segment of a
+             * reassembled PDU], the payload dissector will typically set it.
+             * (This is needed here for the second pass.)
+             */
+            another_pdu_follows = 0;
+            col_clear(pinfo->cinfo, COL_INFO);
+            another_segment_in_frame = TRUE;
+        } else if (ipfd_head->reassembled_in == pinfo->fd->num) {
+            /*
+             * OK, this is the last segment of the PDU and also the
+             * last segment in this frame.
              * Let's call the subdissector with the desegmented
              * data.
              */
             tvbuff_t *next_tvb;
             int old_len;
+
+            /*
+             * Unblock and reset column in case multiple SSL segments form the
+             * PDU and this last SSL segment is not in the first TCP segment of
+             * this frame.
+             * XXX prevent clearing the column if the last layer is not SSL?
+             */
+            col_set_writable(pinfo->cinfo, TRUE);
+            /* Clear column during the first pass. */
+            col_clear(pinfo->cinfo, COL_INFO);
 
             /* create a new TVB structure for desegmented data */
             next_tvb = tvb_new_chain(tvb, ipfd_head->tvb_data);
@@ -1279,7 +1304,7 @@ again:
          * "pinfo->desegment_len" to the amount of additional
          * data it needs).
          */
-        if (pinfo->desegment_offset == 0) {
+        if (!another_segment_in_frame && pinfo->desegment_offset == 0) {
             /*
              * It couldn't, in fact, dissect any of it (the
              * first byte it couldn't dissect is at an offset
@@ -1287,7 +1312,8 @@ again:
              * of the payload, and that's 0).
              * Just mark this as SSL.
              */
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSL");
+            col_set_str(pinfo->cinfo, COL_PROTOCOL,
+                    val_to_str_const(session->version, ssl_version_short_names, "SSL"));
             col_set_str(pinfo->cinfo, COL_INFO, "[SSL segment of a reassembled PDU]");
         }
 
