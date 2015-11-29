@@ -130,7 +130,9 @@
 
 #define ANDROIDDUMP_VERSION_MAJOR    1U
 #define ANDROIDDUMP_VERSION_MINOR    0U
-#define ANDROIDDUMP_VERSION_RELEASE  0U
+#define ANDROIDDUMP_VERSION_RELEASE  1U
+
+#define SERIAL_NUMER_LENGTH_MAX  512
 
 #define PACKET_LENGTH 65535
 
@@ -353,7 +355,7 @@ static gboolean extcap_dumper_dump(struct extcap_dumper extcap_dumper, char *buf
     }
 
     if (!wtap_dump(extcap_dumper.dumper.wtap, &hdr, (const guint8 *) buffer, &err, &err_info)) {
-        g_printerr("ERROR: Cannot dump: %s\n", err_info);
+        fprintf(stderr, "ERROR: Cannot dump: %s\n", err_info);
         return FALSE;
     }
 
@@ -555,10 +557,15 @@ static int adb_send(socket_handle_t sock, const char *adb_service) {
     return 0;
 }
 
-
-static int add_android_interfaces(struct interface_t **interface_list,
-        const char *adb_server_ip, unsigned short *adb_server_tcp_port)
+static void new_interface(const gchar *interface_id,
+        const gchar *serial_number, const gchar *display_name)
 {
+    printf("interface {display=%s %s}{value=%s-%s}\n",
+            display_name, serial_number, interface_id, serial_number);
+}
+
+
+static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server_tcp_port) {
     static char            packet[PACKET_LENGTH];
     static char            helpful_packet[PACKET_LENGTH];
     char                  *response;
@@ -574,19 +581,15 @@ static int add_android_interfaces(struct interface_t **interface_list,
     const char            *adb_ps_droid_bluetooth = "0018""shell:ps droid.bluetooth";
     const char            *adb_ps_bluetooth_app   = "001E""shell:ps com.android.bluetooth";
     const char            *adb_tcpdump_help       = "0010""shell:tcpdump -h";
-    char                   serial_number[512];
+    char                   serial_number[SERIAL_NUMER_LENGTH_MAX];
     int                    result;
-    char                  *interface_name;
     char                  *pos;
     char                  *prev_pos;
-    struct interface_t    *i_interface_list;
     int                    api_level;
     int                    disable_interface;
 
 /* NOTE: It seems that "adb devices" and "adb shell" closed connection
          so cannot send next command after them, there is need to reconnect */
-
-    i_interface_list = *interface_list;
 
     sock = adb_connect(adb_server_ip, adb_server_tcp_port);
     if (sock == INVALID_SOCKET)
@@ -630,21 +633,7 @@ static int add_android_interfaces(struct interface_t **interface_list,
 
         /* If tcpdump is found in the android device, add Android Wifi Tcpdump as an interface  */
         if (strstr(response,"tcpdump version")) {
-            interface_name = (char *) malloc(strlen(INTERFACE_ANDROID_WIFI_TCPDUMP) + 1 + strlen(serial_number) + 1);
-            interface_name[0]= '\0';
-            strcat(interface_name, INTERFACE_ANDROID_WIFI_TCPDUMP);
-            strcat(interface_name, "-");
-            strcat(interface_name, serial_number);
-            if (*interface_list == NULL) {
-                i_interface_list = (struct interface_t *) malloc(sizeof(struct interface_t));
-                *interface_list = i_interface_list;
-            } else {
-                i_interface_list->next = (struct interface_t *) malloc(sizeof(struct interface_t));
-                i_interface_list = i_interface_list->next;
-            }
-            i_interface_list->display_name = "Android WiFi";
-            i_interface_list->interface_name = interface_name;
-            i_interface_list->next = NULL;
+            new_interface(INTERFACE_ANDROID_WIFI_TCPDUMP, serial_number, "Android WiFi");
         }
 
         sock = adb_connect(adb_server_ip, adb_server_tcp_port);
@@ -668,116 +657,16 @@ static int add_android_interfaces(struct interface_t **interface_list,
             fprintf(stderr, "VERBOSE: Android API Level for %s is %i\n", serial_number, api_level);
 
         if (api_level < 21) {
-            interface_name = (char *) malloc(strlen(INTERFACE_ANDROID_LOGCAT_MAIN) + 1 + strlen(serial_number) + 1);
-            interface_name[0]= '\0';
-            strcat(interface_name, INTERFACE_ANDROID_LOGCAT_MAIN);
-            strcat(interface_name, "-");
-            strcat(interface_name, serial_number);
-            if (*interface_list == NULL) {
-                i_interface_list = (struct interface_t *) malloc(sizeof(struct interface_t));
-                *interface_list = i_interface_list;
-            } else {
-                i_interface_list->next = (struct interface_t *) malloc(sizeof(struct interface_t));
-                i_interface_list = i_interface_list->next;
-            }
-            i_interface_list->display_name = "Android Logcat Main";
-            i_interface_list->interface_name = interface_name;
-            i_interface_list->next = NULL;
-
-
-            interface_name = (char *) malloc(strlen(INTERFACE_ANDROID_LOGCAT_SYSTEM) + 1 + strlen(serial_number) + 1);
-            interface_name[0]= '\0';
-            strcat(interface_name, INTERFACE_ANDROID_LOGCAT_SYSTEM);
-            strcat(interface_name, "-");
-            strcat(interface_name, serial_number);
-            i_interface_list->next = (struct interface_t *) malloc(sizeof(struct interface_t));
-            i_interface_list = i_interface_list->next;
-            i_interface_list->display_name = "Android Logcat System";
-            i_interface_list->interface_name = interface_name;
-            i_interface_list->next = NULL;
-
-            interface_name = (char *) malloc(strlen(INTERFACE_ANDROID_LOGCAT_RADIO) + 1 + strlen(serial_number) + 1);
-            interface_name[0]= '\0';
-            strcat(interface_name, INTERFACE_ANDROID_LOGCAT_RADIO);
-            strcat(interface_name, "-");
-            strcat(interface_name, serial_number);
-            i_interface_list->next = (struct interface_t *) malloc(sizeof(struct interface_t));
-            i_interface_list = i_interface_list->next;
-            i_interface_list->display_name = "Android Logcat Radio";
-            i_interface_list->interface_name = interface_name;
-            i_interface_list->next = NULL;
-
-            interface_name = (char *) malloc(strlen(INTERFACE_ANDROID_LOGCAT_EVENTS) + 1 + strlen(serial_number) + 1);
-            interface_name[0]= '\0';
-            strcat(interface_name, INTERFACE_ANDROID_LOGCAT_EVENTS);
-            strcat(interface_name, "-");
-            strcat(interface_name, serial_number);
-            i_interface_list->next = (struct interface_t *) malloc(sizeof(struct interface_t));
-            i_interface_list = i_interface_list->next;
-            i_interface_list->display_name = "Android Logcat Events";
-            i_interface_list->interface_name = interface_name;
-            i_interface_list->next = NULL;
+            new_interface(INTERFACE_ANDROID_LOGCAT_MAIN,   serial_number, "Android Logcat Main");
+            new_interface(INTERFACE_ANDROID_LOGCAT_SYSTEM, serial_number, "Android Logcat System");
+            new_interface(INTERFACE_ANDROID_LOGCAT_RADIO,  serial_number, "Android Logcat Radio");
+            new_interface(INTERFACE_ANDROID_LOGCAT_EVENTS, serial_number, "Android Logcat Events");
         } else {
-            interface_name = (char *) malloc(strlen(INTERFACE_ANDROID_LOGCAT_TEXT_MAIN) + 1 + strlen(serial_number) + 1);
-            interface_name[0]= '\0';
-            strcat(interface_name, INTERFACE_ANDROID_LOGCAT_TEXT_MAIN);
-            strcat(interface_name, "-");
-            strcat(interface_name, serial_number);
-            if (*interface_list == NULL) {
-                i_interface_list = (struct interface_t *) malloc(sizeof(struct interface_t));
-                *interface_list = i_interface_list;
-            } else {
-                i_interface_list->next = (struct interface_t *) malloc(sizeof(struct interface_t));
-                i_interface_list = i_interface_list->next;
-            }
-            i_interface_list->display_name = "Android Logcat Main";
-            i_interface_list->interface_name = interface_name;
-            i_interface_list->next = NULL;
-
-
-            interface_name = (char *) malloc(strlen(INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM) + 1 + strlen(serial_number) + 1);
-            interface_name[0]= '\0';
-            strcat(interface_name, INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM);
-            strcat(interface_name, "-");
-            strcat(interface_name, serial_number);
-            i_interface_list->next = (struct interface_t *) malloc(sizeof(struct interface_t));
-            i_interface_list = i_interface_list->next;
-            i_interface_list->display_name = "Android Logcat System";
-            i_interface_list->interface_name = interface_name;
-            i_interface_list->next = NULL;
-
-            interface_name = (char *) malloc(strlen(INTERFACE_ANDROID_LOGCAT_TEXT_RADIO) + 1 + strlen(serial_number) + 1);
-            interface_name[0]= '\0';
-            strcat(interface_name, INTERFACE_ANDROID_LOGCAT_TEXT_RADIO);
-            strcat(interface_name, "-");
-            strcat(interface_name, serial_number);
-            i_interface_list->next = (struct interface_t *) malloc(sizeof(struct interface_t));
-            i_interface_list = i_interface_list->next;
-            i_interface_list->display_name = "Android Logcat Radio";
-            i_interface_list->interface_name = interface_name;
-            i_interface_list->next = NULL;
-
-            interface_name = (char *) malloc(strlen(INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS) + 1 + strlen(serial_number) + 1);
-            interface_name[0]= '\0';
-            strcat(interface_name, INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS);
-            strcat(interface_name, "-");
-            strcat(interface_name, serial_number);
-            i_interface_list->next = (struct interface_t *) malloc(sizeof(struct interface_t));
-            i_interface_list = i_interface_list->next;
-            i_interface_list->display_name = "Android Logcat Events";
-            i_interface_list->interface_name = interface_name;
-            i_interface_list->next = NULL;
-
-            interface_name = (char *) malloc(strlen(INTERFACE_ANDROID_LOGCAT_TEXT_CRASH) + 1 + strlen(serial_number) + 1);
-            interface_name[0]= '\0';
-            strcat(interface_name, INTERFACE_ANDROID_LOGCAT_TEXT_CRASH);
-            strcat(interface_name, "-");
-            strcat(interface_name, serial_number);
-            i_interface_list->next = (struct interface_t *) malloc(sizeof(struct interface_t));
-            i_interface_list = i_interface_list->next;
-            i_interface_list->display_name = "Android Logcat Crash";
-            i_interface_list->interface_name = interface_name;
-            i_interface_list->next = NULL;
+            new_interface(INTERFACE_ANDROID_LOGCAT_TEXT_MAIN,   serial_number, "Android Logcat Main");
+            new_interface(INTERFACE_ANDROID_LOGCAT_TEXT_SYSTEM, serial_number, "Android Logcat System");
+            new_interface(INTERFACE_ANDROID_LOGCAT_TEXT_RADIO,  serial_number, "Android Logcat Radio");
+            new_interface(INTERFACE_ANDROID_LOGCAT_TEXT_EVENTS, serial_number, "Android Logcat Events");
+            new_interface(INTERFACE_ANDROID_LOGCAT_TEXT_CRASH,  serial_number, "Android Logcat Crash");
         }
 
         if (api_level >= 5 && api_level < 17) {
@@ -817,16 +706,7 @@ static int add_android_interfaces(struct interface_t **interface_list,
             }
 
             if (!disable_interface) {
-                interface_name = (char *) malloc(strlen(INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) + 1 + strlen(serial_number) + 1);
-                interface_name[0]= '\0';
-                strcat(interface_name, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP);
-                strcat(interface_name, "-");
-                strcat(interface_name, serial_number);
-                i_interface_list->next = (struct interface_t *) malloc(sizeof(struct interface_t));
-                i_interface_list = i_interface_list->next;
-                i_interface_list->display_name = "Android Bluetooth Hcidump";
-                i_interface_list->interface_name = interface_name;
-                i_interface_list->next = NULL;
+                new_interface(INTERFACE_ANDROID_BLUETOOTH_HCIDUMP, serial_number, "Android Bluetooth Hcidump");
             }
         }
 
@@ -898,16 +778,7 @@ static int add_android_interfaces(struct interface_t **interface_list,
             }
 
             if (!disable_interface) {
-                interface_name = (char *) malloc(strlen(INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) + 1 + strlen(serial_number) + 1);
-                interface_name[0]= '\0';
-                strcat(interface_name, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER);
-                strcat(interface_name, "-");
-                strcat(interface_name, serial_number);
-                i_interface_list->next = (struct interface_t *) malloc(sizeof(struct interface_t));
-                i_interface_list = i_interface_list->next;
-                i_interface_list->display_name = "Android Bluetooth External Parser";
-                i_interface_list->interface_name = interface_name;
-                i_interface_list->next = NULL;
+                new_interface(INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER, serial_number, "Android Bluetooth External Parser");
             }
         }
 
@@ -982,39 +853,13 @@ static int add_android_interfaces(struct interface_t **interface_list,
             }
 
             if (!disable_interface) {
-                interface_name = (char *) malloc(strlen(INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET) + 1 + strlen(serial_number) + 1);
-                interface_name[0]= '\0';
-                strcat(interface_name, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET);
-                strcat(interface_name, "-");
-                strcat(interface_name, serial_number);
-                i_interface_list->next = (struct interface_t *) malloc(sizeof(struct interface_t));
-                i_interface_list = i_interface_list->next;
-                i_interface_list->display_name = "Android Bluetooth Btsnoop Net";
-                i_interface_list->interface_name = interface_name;
-                i_interface_list->next = NULL;
+                new_interface(INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET, serial_number, "Android Bluetooth Btsnoop Net");
             }
         }
     }
 
     return 0;
 }
-
-
-static int list_interfaces(const char *server_ip, unsigned short *server_tcp_port) {
-    struct interface_t  *interface_list = NULL;
-    struct interface_t  *i_interface;
-    int                  result;
-
-    result = add_android_interfaces(&interface_list, server_ip, server_tcp_port);
-
-    for (i_interface = interface_list; i_interface; i_interface = i_interface->next)
-        printf("interface {display=%s}{value=%s}\n",
-                i_interface->display_name,
-                i_interface->interface_name);
-
-    return result;
-}
-
 
 static int list_dlts(char *interface) {
     if (!interface) {
@@ -2593,7 +2438,7 @@ int main(int argc, char **argv) {
         case OPT_CONFIG_ADB_SERVER_TCP_PORT:
             adb_server_tcp_port = &local_adb_server_tcp_port;
             if (!optarg){
-                g_printerr("ERROR: Impossible exception. Parameter required argument, but there is no it right now.");
+                fprintf(stderr, "ERROR: Impossible exception. Parameter required argument, but there is no it right now.");
                 return -1;
             }
             *adb_server_tcp_port = (unsigned short) g_ascii_strtoull(optarg, NULL, 10);
@@ -2604,7 +2449,7 @@ int main(int argc, char **argv) {
         case OPT_CONFIG_BT_SERVER_TCP_PORT:
             bt_server_tcp_port = &local_bt_server_tcp_port;
             if (!optarg){
-                g_printerr("ERROR: Impossible exception. Parameter required argument, but there is no it right now.");
+                fprintf(stderr, "ERROR: Impossible exception. Parameter required argument, but there is no it right now.");
                 return -1;
             }
             *bt_server_tcp_port = (unsigned short) g_ascii_strtoull(optarg, NULL, 10);
@@ -2618,7 +2463,7 @@ int main(int argc, char **argv) {
         case OPT_CONFIG_BT_LOCAL_TCP_PORT:
             bt_local_tcp_port = &local_bt_local_tcp_port;
             if (!optarg){
-                g_printerr("ERROR: Impossible exception. Parameter required argument, but there is no it right now.");
+                fprintf(stderr, "ERROR: Impossible exception. Parameter required argument, but there is no it right now.");
                 return -1;
             }
             *bt_local_tcp_port = (unsigned short) g_ascii_strtoull(optarg, NULL, 10);
