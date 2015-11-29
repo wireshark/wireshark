@@ -1782,15 +1782,12 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
     tvbuff_t          *sm_tvb = NULL;
     fragment_head     *fd_sm = NULL;
     guint8             fill_bits;
-    guint32            total_sms_len, len_sms, length_ucs2, i;
-    gchar             *utf8_text = NULL;
-    gchar              save_byte = 0, save_byte2 = 0;
+    guint32            total_sms_len, i;
 
     gboolean    reassembled     = FALSE;
     guint32     reassembled_in  = 0;
     gboolean    is_fragmented   = FALSE;
     gboolean    save_fragmented = FALSE, try_gsm_sms_ud_reassemble = FALSE;
-    guint32     num_labels;
 
     sm_fragment_params *p_frag_params;
     gsm_sms_udh_fields_t        udh_fields;
@@ -1842,7 +1839,7 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
         sm_tvb = process_reassembled_data(tvb, offset, pinfo,
                                           "Reassembled Short Message", fd_sm, &sm_frag_items,
-                                          NULL, tree);
+                                          NULL, subtree);
 
         if(reassembled && pinfo->fd->num == reassembled_in)
         {
@@ -1959,37 +1956,19 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                     /*  Show reassembled SMS.  We show each fragment separately
                      *  so that the text doesn't get truncated when we add it to
                      *  the tree.
-                     *
-                     *  XXX - careful with splitting UTF-8 chunks; should
-                     *  we be adding each fragment as a UCS-2 string?
                      */
-                    utf8_text = tvb_get_string_enc(wmem_packet_scope(), sm_tvb, 0, rep_len, ENC_UCS_2|ENC_BIG_ENDIAN);
-                    len_sms = (int)strlen(utf8_text);
-                    num_labels = len_sms / MAX_SMS_FRAG_LEN;
-                    num_labels += (len_sms % MAX_SMS_FRAG_LEN) ? 1 : 0;
-                    for(i = 0; i < num_labels;i++) {
-                        if(i * MAX_SMS_FRAG_LEN < len_sms) {
-                            /* set '\0' to byte number 134 text_node MAX size*/
-                            save_byte =  utf8_text[i * MAX_SMS_FRAG_LEN];
-                            save_byte2 =  utf8_text[i * MAX_SMS_FRAG_LEN + 1];
-                            if(i > 0)
-                            {
-                                utf8_text[i * MAX_SMS_FRAG_LEN] = '\0';
-                                utf8_text[i * MAX_SMS_FRAG_LEN + 1] = '\0';
-                            }
+                    total_sms_len = 0;
+                    for(i = 0 ; i < udh_fields.frags; i++)
+                    {
+                        p_frag_params = (sm_fragment_params*)g_hash_table_lookup(g_sm_fragment_params_table,
+                                                                GUINT_TO_POINTER((guint)((udh_fields.sm_id<<16)|i)));
 
-                            length_ucs2 = MAX_SMS_FRAG_LEN;
-                        } else
-                            length_ucs2 = len_sms % MAX_SMS_FRAG_LEN;
+                        if (p_frag_params) {
+                            proto_tree_add_item(subtree, hf_gsm_sms_text, sm_tvb, total_sms_len,
+                                (p_frag_params->udl > SMS_MAX_MESSAGE_SIZE ? SMS_MAX_MESSAGE_SIZE : p_frag_params->udl),
+                                ENC_UCS_2|ENC_BIG_ENDIAN);
 
-                        proto_tree_add_string(subtree, hf_gsm_sms_text, sm_tvb,
-                                              i * MAX_SMS_FRAG_LEN, length_ucs2,
-                                              &utf8_text[i * MAX_SMS_FRAG_LEN]);
-
-                        /* return the save byte to utf8 buffer*/
-                        if(i * MAX_SMS_FRAG_LEN < len_sms) {
-                            utf8_text[i * MAX_SMS_FRAG_LEN] = save_byte;
-                            utf8_text[i * MAX_SMS_FRAG_LEN + 1] = save_byte2;
+                            total_sms_len += p_frag_params->length;
                         }
                     }
                 }
