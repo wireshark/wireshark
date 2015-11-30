@@ -53,7 +53,17 @@ extern "C" {
       * gcc supports "-Wpedantic".
       */
 #    define DIAG_PRAGMA(x) DIAG_DO_PRAGMA(GCC diagnostic x)
-#    define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
+     /*
+      * DIAG_OFF generates
+      *
+      * #pragma GCC diagnostic push
+      * #pragma GCC diagnostic ignored "-Wpragmas"
+      * #pragma GCC diagnostic ignored "-Wx-aka-the-warning-in-question"
+      *
+      * Ignoring "-Wpragmas" lets us turn off diagnostics for clang warnings
+      * that might not be recognized by gcc.
+      */
+#    define DIAG_OFF(x) DIAG_PRAGMA(push) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,pragmas)) DIAG_PRAGMA(ignored DIAG_JOINSTR(-W,x))
 #    define DIAG_ON(x) DIAG_PRAGMA(pop)
 #  endif
 #elif defined(__clang__)
