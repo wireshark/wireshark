@@ -52,7 +52,7 @@ void proto_reg_handoff_artnet(void);
 #define ARTNET_POLL_REPLY_GOOD_OUTPUT_LENGTH    4
 #define ARTNET_POLL_REPLY_SWIN_LENGTH           4
 #define ARTNET_POLL_REPLY_SWOUT_LENGTH          4
-#define ARTNET_ADDRESS_LENGTH                  97
+#define ARTNET_ADDRESS_LENGTH                  95
 #define ARTNET_ADDRESS_SWIN_LENGTH              4
 #define ARTNET_ADDRESS_SWOUT_LENGTH             4
 #define ARTNET_OUTPUT_LENGTH                    1
@@ -1734,6 +1734,10 @@ static int hf_artnet_output_length = -1;
 
 /* ArtAddress */
 static int hf_artnet_address = -1;
+static int hf_artnet_address_netswitch = -1;
+static int hf_artnet_address_netswitch_special = -1;
+static int hf_artnet_address_netswitch_net = -1;
+static int hf_artnet_address_netswitch_write = -1;
 static int hf_artnet_address_short_name = -1;
 static int hf_artnet_address_long_name = -1;
 static int hf_artnet_address_swin = -1;
@@ -1746,8 +1750,33 @@ static int hf_artnet_address_swout_1 = -1;
 static int hf_artnet_address_swout_2 = -1;
 static int hf_artnet_address_swout_3 = -1;
 static int hf_artnet_address_swout_4 = -1;
+static int hf_artnet_address_subswitch = -1;
+static int hf_artnet_address_subswitch_special = -1;
+static int hf_artnet_address_subswitch_sub = -1;
+static int hf_artnet_address_subswitch_write = -1;
 static int hf_artnet_address_swvideo = -1;
 static int hf_artnet_address_command = -1;
+
+static gint ett_artnet_address_netswitch = -1;
+static gint ett_artnet_address_subswitch = -1;
+
+static const int *artnet_address_netswitch_fields[] = {
+  &hf_artnet_address_netswitch_net,
+  &hf_artnet_address_netswitch_write,
+  NULL
+};
+
+static const int *artnet_address_subswitch_fields[] = {
+  &hf_artnet_address_subswitch_sub,
+  &hf_artnet_address_subswitch_write,
+  NULL
+};
+
+static const value_string artnet_address_switch_vals[] = {
+  { 0x00, "Reset to Physical Switch" },
+  { 0x7f, "No Change" },
+  { 0x00, NULL }
+};
 
 /* ArtInput */
 static int hf_artnet_input = -1;
@@ -2310,10 +2339,25 @@ dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree, packet_info
 static guint
 dissect_artnet_address(tvbuff_t *tvb, guint offset, proto_tree *tree) {
   proto_tree *hi, *si, *ti;
+  guint8 net, sub;
+
+  net = tvb_get_guint8(tvb, offset);
+
+  /* Treat the "special" values differently */
+  if (net == 0x00 || net == 0x7F) {
+    proto_tree_add_uint(tree,hf_artnet_address_netswitch_special, tvb,
+                           offset, 0, net);
+  } else {
+    proto_tree_add_bitmask_text(tree, tvb, offset, 1, "NetSwitch: ",
+                  "NetSwitch Error: ", ett_artnet_address_netswitch,
+                  artnet_address_netswitch_fields, ENC_BIG_ENDIAN, 0);
+  }
+
+  offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
-                      offset, 2, ENC_NA);
-  offset += 2;
+                      offset, 1, ENC_NA);
+  offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_address_short_name,
                       tvb, offset, 18, ENC_ASCII|ENC_NA);
@@ -2371,6 +2415,19 @@ dissect_artnet_address(tvbuff_t *tvb, guint offset, proto_tree *tree) {
 
   proto_tree_add_item(si, hf_artnet_address_swout_4, tvb,
                       offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
+
+  sub = tvb_get_guint8(tvb, offset);
+
+  /* Treat the "special" values differently */
+  if (sub == 0x00 || sub == 0x7F) {
+    proto_tree_add_uint(tree,hf_artnet_address_subswitch_special, tvb,
+                           offset, 0, sub);
+  } else {
+    proto_tree_add_bitmask_text(tree, tvb, offset, 1, "SubSwitch: ",
+                  "SubSwitch Error: ", ett_artnet_address_subswitch,
+                  artnet_address_subswitch_fields, ENC_BIG_ENDIAN, 0);
+  }
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_address_swvideo, tvb,
@@ -4443,6 +4500,30 @@ proto_register_artnet(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "Art-Net ArtAddress packet", HFILL }},
 
+    { &hf_artnet_address_netswitch_special,
+      { "NetSwitch",
+      "artnet.address.netswitch_special",
+      FT_UINT8, BASE_HEX, VALS(artnet_address_switch_vals), 0,
+      NULL, HFILL }},
+
+    { &hf_artnet_address_netswitch,
+      { "NetSwitch",
+      "artnet.address.netswitch",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    { &hf_artnet_address_netswitch_net,
+      { "Net",
+      "artnet.address.netswitch_net",
+      FT_UINT8, BASE_DEC, NULL, 0x7F,
+      NULL, HFILL }},
+
+    { &hf_artnet_address_netswitch_write,
+      { "Write Net",
+      "artnet.address.netswitch_write",
+      FT_BOOLEAN, 8, NULL, 0x80,
+      NULL, HFILL }},
+
     { &hf_artnet_address_short_name,
       { "Short Name",
         "artnet.address.short_name",
@@ -4514,6 +4595,30 @@ proto_register_artnet(void) {
         "artnet.address.swout_4",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
+
+    { &hf_artnet_address_subswitch_special,
+      { "NetSwitch",
+      "artnet.address.subswitch_special",
+      FT_UINT8, BASE_HEX, VALS(artnet_address_switch_vals), 0,
+      NULL, HFILL }},
+
+    { &hf_artnet_address_subswitch,
+      { "SubSwitch",
+      "artnet.address.subswitch",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    { &hf_artnet_address_subswitch_sub,
+      { "Sub-Net",
+      "artnet.address.subswitch_sub",
+      FT_UINT8, BASE_DEC, NULL, 0x0F,
+      NULL, HFILL }},
+
+    { &hf_artnet_address_subswitch_write,
+      { "Write Sub-Net",
+      "artnet.address.subswitch_write",
+      FT_BOOLEAN, 8, NULL, 0x80,
+      NULL, HFILL }},
 
     { &hf_artnet_address_swvideo,
       { "SwVideo",
@@ -5300,7 +5405,9 @@ proto_register_artnet(void) {
     &ett_artnet_poll_reply_good_output_4,
     &ett_artnet_poll_reply_status2,
     &ett_artnet_ip_prog_command,
-    &ett_artnet_ip_prog_reply_status
+    &ett_artnet_ip_prog_reply_status,
+    &ett_artnet_address_netswitch,
+    &ett_artnet_address_subswitch
   };
 
   proto_artnet = proto_register_protocol("Art-Net", "ARTNET", "artnet");
