@@ -50,26 +50,29 @@
 
 typedef struct _ascend_magic_string {
   guint        type;
-  const gchar   *strptr;
+  const gchar *strptr;
+  size_t       strlength;
 } ascend_magic_string;
 
-#define ASCEND_MAGIC_STRINGS    11
-#define ASCEND_DATE             "Date:"
-
 /* these magic strings signify the headers of a supported debug commands */
+#define ASCEND_MAGIC_ENTRY(type, string) \
+  { type, string, sizeof string - 1 } /* strlen of a constant string */
 static const ascend_magic_string ascend_magic[] = {
-  { ASCEND_PFX_ISDN_X,  "PRI-XMIT-" },
-  { ASCEND_PFX_ISDN_R,  "PRI-RCV-" },
-  { ASCEND_PFX_WDS_X,   "XMIT-" },
-  { ASCEND_PFX_WDS_R,   "RECV-" },
-  { ASCEND_PFX_WDS_X,   "XMIT:" },
-  { ASCEND_PFX_WDS_R,   "RECV:" },
-  { ASCEND_PFX_WDS_X,   "PPP-OUT" },
-  { ASCEND_PFX_WDS_R,   "PPP-IN" },
-  { ASCEND_PFX_WDD,     ASCEND_DATE },
-  { ASCEND_PFX_WDD,     "WD_DIALOUT_DISP:" },
-  { ASCEND_PFX_ETHER,   "ETHER" },
+  ASCEND_MAGIC_ENTRY(ASCEND_PFX_ISDN_X,  "PRI-XMIT-"),
+  ASCEND_MAGIC_ENTRY(ASCEND_PFX_ISDN_R,  "PRI-RCV-"),
+  ASCEND_MAGIC_ENTRY(ASCEND_PFX_WDS_X,   "XMIT-"),
+  ASCEND_MAGIC_ENTRY(ASCEND_PFX_WDS_R,   "RECV-"),
+  ASCEND_MAGIC_ENTRY(ASCEND_PFX_WDS_X,   "XMIT:"),
+  ASCEND_MAGIC_ENTRY(ASCEND_PFX_WDS_R,   "RECV:"),
+  ASCEND_MAGIC_ENTRY(ASCEND_PFX_WDS_X,   "PPP-OUT"),
+  ASCEND_MAGIC_ENTRY(ASCEND_PFX_WDS_R,   "PPP-IN"),
+  ASCEND_MAGIC_ENTRY(ASCEND_PFX_WDD,     "WD_DIALOUT_DISP:"),
+  ASCEND_MAGIC_ENTRY(ASCEND_PFX_ETHER,   "ETHER"),
 };
+
+#define ASCEND_MAGIC_STRINGS    G_N_ELEMENTS(ascend_magic)
+
+#define ASCEND_DATE             "Date:"
 
 static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
         gint64 *data_offset);
@@ -86,9 +89,13 @@ static gint64 ascend_seek(wtap *wth, int *err, gchar **err_info)
   gint64 date_off = -1, cur_off, packet_off;
   size_t string_level[ASCEND_MAGIC_STRINGS];
   guint string_i = 0, type = 0;
+  static const gchar ascend_date[] = ASCEND_DATE;
+  size_t ascend_date_len           = sizeof ascend_date - 1; /* strlen of a constant string */
+  size_t ascend_date_string_level;
   guint excessive_read_count = 262144;
 
   memset(&string_level, 0, sizeof(string_level));
+  ascend_date_string_level = 0;
 
   while (((byte = file_getc(wth->fh)) != EOF)) {
     excessive_read_count--;
@@ -104,7 +111,7 @@ static gint64 ascend_seek(wtap *wth, int *err, gchar **err_info)
      */
     for (string_i = 0; string_i < ASCEND_MAGIC_STRINGS; string_i++) {
       const gchar *strptr = ascend_magic[string_i].strptr;
-      size_t len          = strlen(strptr);
+      size_t len          = ascend_magic[string_i].strlength;
 
       if (byte == *(strptr + string_level[string_i])) {
         /*
@@ -127,39 +134,70 @@ static gint64 ascend_seek(wtap *wth, int *err, gchar **err_info)
             return -1;
           }
 
-          /* Date: header is a special case. Remember the offset,
-             but keep looking for other headers. */
-          if (strcmp(strptr, ASCEND_DATE) == 0) {
-            /* We matched a Date: header.
-               Reset the amount of Date: header that we've matched,
-               so that we start the process of matching a Date:
-               header all over again.
-
-               XXX - what if we match multiple Date: headers before
-               matching some other header? */
-            date_off = cur_off - len;
-            string_level[string_i] = 0;
+          /* We matched some other type of header. */
+          if (date_off == -1) {
+            /* We haven't yet seen a date header, so this packet
+               doesn't have one.
+               Back up over the header we just read; that's where a read
+               of this packet should start. */
+            packet_off = cur_off - len;
           } else {
-            /* We matched some other type of header. */
-            if (date_off == -1) {
-              /* We haven't yet seen a date header, so this packet
-                 doesn't have one.
-                 Back up over the header we just read; that's where a read
-                 of this packet should start. */
-              packet_off = cur_off - len;
-            } else {
-              /* This packet has a date/time header; a read of it should
-                 start at the beginning of *that* header. */
-              packet_off = date_off;
-            }
-
-            type = ascend_magic[string_i].type;
-            goto found;
+            /* This packet has a date/time header; a read of it should
+               start at the beginning of *that* header. */
+            packet_off = date_off;
           }
+
+          type = ascend_magic[string_i].type;
+          goto found;
         }
       } else {
+        /*
+         * Not a match for this string, so reset the match process.
+         */
         string_level[string_i] = 0;
       }
+    }
+
+    /*
+     * See whether this is the date_string_level'th character of
+     * ASCEND_DATE.
+     */
+    if (byte == *(ascend_date + ascend_date_string_level)) {
+      /*
+       * Yes, it is, so we need to check for the next character of
+       * that string.
+       */
+      ascend_date_string_level++;
+
+      /*
+       * Have we matched the entire string?
+       */
+      if (ascend_date_string_level >= ascend_date_len) {
+        /* We matched a Date: header.  It's a special case;
+           remember the offset, but keep looking for other
+           headers.
+
+           Reset the amount of Date: header that we've matched,
+           so that we start the process of matching a Date:
+           header all over again.
+
+           XXX - what if we match multiple Date: headers before
+           matching some other header? */
+        cur_off = file_tell(wth->fh);
+        if (cur_off == -1) {
+          /* Error. */
+          *err = file_error(wth->fh, err_info);
+          return -1;
+        }
+
+        date_off = cur_off - ascend_date_len;
+        ascend_date_string_level = 0;
+      }
+    } else {
+      /*
+       * Not a match for the Date: string, so reset the match process.
+       */
+      ascend_date_string_level = 0;
     }
   }
 
