@@ -820,7 +820,7 @@ iface_mon_event_cb(const char *iface, int up)
          * We've been told that there's a new interface or that an old
          * interface is gone; reload the local interface list.
          */
-        scan_local_interfaces(main_window_update);
+        wsApp->refreshLocalInterfaces();
     }
 }
 
@@ -837,14 +837,6 @@ void WiresharkApplication::ifChangeEventsAvailable()
      * events are available, and call the callback for them.
      */
     iface_mon_event();
-
-    /*
-     * Now emit a signal to indicate that the list changed, so that all
-     * places displaying the list will get updated.
-     *
-     * XXX - only if it *did* change.
-     */
-    emit localInterfaceListChanged();
 #endif
 }
 
