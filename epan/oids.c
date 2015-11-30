@@ -204,7 +204,7 @@ extern void oid_add_from_encoded(const char* name, const guint8 *oid, gint oid_l
 		add_oid(name,OID_KIND_UNKNOWN,NULL,NULL,subids_len,subids);
 		wmem_free(NULL, sub);
 	} else {
-		gchar* bytestr = (gchar*)bytestring_to_str(NULL, oid, oid_len, ':');
+		gchar* bytestr = bytestring_to_str(NULL, oid, oid_len, ':');
 		D(1,("Failed to add Oid: %s [%d]%s ",name?name:"NULL", oid_len, bytestr));
 		wmem_free(NULL, bytestr);
 	}

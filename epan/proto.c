@@ -4635,26 +4635,26 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 							switch(hfinfo->display)
 							{
 							case SEP_DOT:
-								str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '.');
+								str = bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '.');
 								break;
 							case SEP_DASH:
-								str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '-');
+								str = bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '-');
 								break;
 							case SEP_COLON:
-								str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ':');
+								str = bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ':');
 								break;
 							case SEP_SPACE:
-								str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ' ');
+								str = bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ' ');
 								break;
 							case BASE_NONE:
 							default:
 								if (prefs.display_byte_fields_with_spaces)
 								{
-									str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ' ');
+									str = bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ' ');
 								}
 								else
 								{
-									str = (char*)bytes_to_str(NULL, bytes, fvalue_length(&finfo->value));
+									str = bytes_to_str(NULL, bytes, fvalue_length(&finfo->value));
 								}
 								break;
 							}
@@ -6662,26 +6662,26 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 				switch(hfinfo->display)
 				{
 				case SEP_DOT:
-					str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), '.');
+					str = bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), '.');
 					break;
 				case SEP_DASH:
-					str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), '-');
+					str = bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), '-');
 					break;
 				case SEP_COLON:
-					str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), ':');
+					str = bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), ':');
 					break;
 				case SEP_SPACE:
-					str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), ' ');
+					str = bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), ' ');
 					break;
 				case BASE_NONE:
 				default:
 					if (prefs.display_byte_fields_with_spaces)
 					{
-						str = (char*)bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), ' ');
+						str = bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), ' ');
 					}
 					else
 					{
-						str = (char*)bytes_to_str(NULL, bytes, fvalue_length(&fi->value));
+						str = bytes_to_str(NULL, bytes, fvalue_length(&fi->value));
 					}
 					break;
 				}

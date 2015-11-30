@@ -183,7 +183,7 @@ WS_DLL_PUBLIC char *bytes_to_str(wmem_allocator_t *scope, const guint8 *bd, int 
  *
  * @see bytes_to_str()
  */
-WS_DLL_PUBLIC const gchar *bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, const char punct);
+WS_DLL_PUBLIC gchar *bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, const char punct);
 
 /**
  * bytes_to_hexstr()

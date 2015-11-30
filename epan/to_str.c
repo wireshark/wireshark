@@ -185,7 +185,7 @@ bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct)
  * If punct is '\0', no punctuation is applied (and thus
  * the resulting string is (len-1) bytes shorter)
  */
-const gchar *
+gchar *
 bytestring_to_str(wmem_allocator_t *scope, const guint8 *ad, const guint32 len, const char punct)
 {
 	gchar *buf;
