@@ -98,13 +98,28 @@ static gint64 ascend_seek(wtap *wth, int *err, gchar **err_info)
       return -1;
     }
 
+    /*
+     * See whether this is the string_level[string_i]th character of
+     * Ascend magic string string_i.
+     */
     for (string_i = 0; string_i < ASCEND_MAGIC_STRINGS; string_i++) {
       const gchar *strptr = ascend_magic[string_i].strptr;
       size_t len          = strlen(strptr);
 
       if (byte == *(strptr + string_level[string_i])) {
+        /*
+         * Yes, it is, so we need to check for the next character of
+         * that string.
+         */
         string_level[string_i]++;
+
+        /*
+         * Have we matched the entire string?
+         */
         if (string_level[string_i] >= len) {
+          /*
+           * Yes.
+           */
           cur_off = file_tell(wth->fh);
           if (cur_off == -1) {
             /* Error. */
@@ -115,11 +130,21 @@ static gint64 ascend_seek(wtap *wth, int *err, gchar **err_info)
           /* Date: header is a special case. Remember the offset,
              but keep looking for other headers. */
           if (strcmp(strptr, ASCEND_DATE) == 0) {
+            /* We matched a Date: header.
+               Reset the amount of Date: header that we've matched,
+               so that we start the process of matching a Date:
+               header all over again.
+
+               XXX - what if we match multiple Date: headers before
+               matching some other header? */
             date_off = cur_off - len;
             string_level[string_i] = 0;
           } else {
+            /* We matched some other type of header. */
             if (date_off == -1) {
-              /* Back up over the header we just read; that's where a read
+              /* We haven't yet seen a date header, so this packet
+                 doesn't have one.
+                 Back up over the header we just read; that's where a read
                  of this packet should start. */
               packet_off = cur_off - len;
             } else {
