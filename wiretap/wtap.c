@@ -27,10 +27,6 @@
 #include <sys/types.h>
 #endif
 
-#ifdef HAVE_LIBZ
-#include <zlib.h>
-#endif
-
 #include "wtap-int.h"
 
 #include "file_wrappers.h"

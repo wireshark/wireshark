@@ -42,6 +42,7 @@
 #include "packet-ssl.h"
 
 #ifdef HAVE_LIBZ
+#define ZLIB_CONST
 #include <zlib.h>
 #endif
 
@@ -961,7 +962,7 @@ static guint8* spdy_decompress_header_block(tvbuff_t *tvb,
   const guint8 *hptr = tvb_get_ptr(tvb, offset, length);
   guint8 *uncomp_block = (guint8 *)wmem_alloc(wmem_packet_scope(), DECOMPRESS_BUFSIZE);
 
-  decomp->next_in = (Bytef *)hptr;
+  decomp->next_in = hptr;
   decomp->avail_in = length;
   decomp->next_out = uncomp_block;
   decomp->avail_out = DECOMPRESS_BUFSIZE;
