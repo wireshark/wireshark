@@ -35,6 +35,8 @@ void proto_reg_handoff_pcp(void);
 #define PMPROXY_PORT 44322
 #define PCP_HEADER_LEN 12
 
+#define PM_ERR_NAME -12357
+
 static dissector_handle_t pcp_handle;
 
 static int proto_pcp = -1;
@@ -395,7 +397,7 @@ static const value_string packettypenames_errors[] = {
     { -12354, "PM_ERR_NODATA" },
     { -12355, "PM_ERR_RESET" },
     { -12356, "PM_ERR_FILE" },
-    { -12357, "PM_ERR_NAME" },
+    { PM_ERR_NAME, "PM_ERR_NAME" },
     { -12358, "PM_ERR_PMID" },
     { -12359, "PM_ERR_INDOM" },
     { -12360, "PM_ERR_INST" },
@@ -447,7 +449,28 @@ static const value_string packettypenames_creds[]= {
     { 0, NULL }
 };
 
+typedef struct pcp_conv_info_t {
+    struct pcp_conv_info_t *next;
+    GArray *pmid_name_candidates;
+    GHashTable *pmid_to_name;
+    guint32 last_pmns_names_frame;
+    guint32 last_processed_pmns_names_frame;
+} pcp_conv_info_t;
+
+static pcp_conv_info_t *pcp_conv_info_items = NULL;
+
 /* function prototypes */
+static void pcp_cleanup(void);
+static pcp_conv_info_t* get_pcp_conversation_info(packet_info *pinfo);
+static int is_unvisited_pmns_names_frame(packet_info *pinfo);
+static void add_candidate_name_for_pmid_resolution(packet_info *pinfo, tvbuff_t *tvb, int offset, int name_len);
+static void mark_this_frame_as_last_pmns_names_frame(packet_info *pinfo);
+static inline int has_unprocessed_pmns_names_frame(pcp_conv_info_t *pcp_conv_info);
+static void clear_name_candidates(GArray *pmid_name_candidates);
+static void create_pmid_to_name_map_from_candidates(pcp_conv_info_t *pcp_conv_info, tvbuff_t *tvb, int offset, guint32 num_ids);
+static void populate_pmids_to_names(packet_info *pinfo, tvbuff_t *tvb, int offset, guint32 num_ids);
+static inline int client_to_server(packet_info *pinfo);
+static guint8* get_name_from_pmid(guint32 pmid, packet_info *pinfo);
 static guint get_pcp_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data);
 static const gchar *get_pcp_features_to_string(guint16 feature_flags);
 static int dissect_pcp_message_creds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
@@ -479,6 +502,43 @@ static guint get_pcp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
     return (guint)tvb_get_ntohl(tvb, offset);
 }
 
+static void mark_this_frame_as_last_pmns_names_frame(packet_info *pinfo) {
+    pcp_conv_info_t *pcp_conv_info;
+    pcp_conv_info = get_pcp_conversation_info(pinfo);
+
+    if(pinfo->fd->num > pcp_conv_info->last_pmns_names_frame) {
+        pcp_conv_info->last_pmns_names_frame = pinfo->fd->num;
+    }
+}
+
+static inline int has_unprocessed_pmns_names_frame(pcp_conv_info_t *pcp_conv_info) {
+    return pcp_conv_info->last_pmns_names_frame > pcp_conv_info->last_processed_pmns_names_frame;
+}
+
+static inline int client_to_server(packet_info *pinfo) {
+    return pinfo->destport == PCP_PORT || pinfo->destport == PMPROXY_PORT;
+}
+
+static void clear_name_candidates(GArray *pmid_name_candidates) {
+    if(pmid_name_candidates->len > 0) {
+        g_array_remove_range(pmid_name_candidates, 0, pmid_name_candidates->len);
+    }
+}
+
+static guint8* get_name_from_pmid(guint32 pmid, packet_info *pinfo) {
+    guint8 *name;
+    GHashTable *pmid_to_name;
+
+    pmid_to_name = get_pcp_conversation_info(pinfo)->pmid_to_name;
+
+    name = (guint8*)g_hash_table_lookup(pmid_to_name, GINT_TO_POINTER(pmid));
+    if(!name) {
+        name = (guint8*)wmem_strdup(wmem_packet_scope(), "Metric name unknown");
+    }
+
+    return name;
+}
+
 static const gchar *get_pcp_features_to_string(guint16 feature_flags)
 {
     const value_string *flag_under_test;
@@ -503,6 +563,77 @@ static const gchar *get_pcp_features_to_string(guint16 feature_flags)
     }
 
     return wmem_strbuf_get_str(string_buffer);
+}
+
+static pcp_conv_info_t* get_pcp_conversation_info(packet_info *pinfo) {
+    conversation_t  *conversation;
+    pcp_conv_info_t *pcp_conv_info;
+
+    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                                     pinfo->ptype, pinfo->srcport,
+                                     pinfo->destport, 0);
+
+    /* Conversation setup is done in the main dissecting routine so it should never be null */
+    DISSECTOR_ASSERT(conversation);
+
+    pcp_conv_info = (pcp_conv_info_t *)conversation_get_proto_data(conversation, proto_pcp);
+
+    /* Conversation data is initialized when creating the conversation so should never be null */
+    DISSECTOR_ASSERT(pcp_conv_info);
+
+    return pcp_conv_info;
+}
+
+static void add_candidate_name_for_pmid_resolution(packet_info *pinfo, tvbuff_t *tvb, int offset, int name_len) {
+    pcp_conv_info_t *pcp_conv_info;
+    guint8 *name;
+
+    pcp_conv_info = get_pcp_conversation_info(pinfo);
+
+    if(is_unvisited_pmns_names_frame(pinfo)) {
+        name = tvb_get_string_enc(wmem_file_scope(), tvb, offset, name_len, ENC_ASCII);
+        g_array_append_val(pcp_conv_info->pmid_name_candidates, name);
+    }
+}
+
+static int is_unvisited_pmns_names_frame(packet_info *pinfo) {
+    pcp_conv_info_t *pcp_conv_info;
+
+    pcp_conv_info = get_pcp_conversation_info(pinfo);
+
+    return pinfo->fd->num > pcp_conv_info->last_processed_pmns_names_frame && pinfo->fd->num > pcp_conv_info->last_pmns_names_frame;
+}
+
+static void populate_pmids_to_names(packet_info *pinfo, tvbuff_t *tvb, int offset, guint32 num_ids) {
+    pcp_conv_info_t *pcp_conv_info;
+    guint number_of_name_candidates;
+
+    pcp_conv_info = get_pcp_conversation_info(pinfo);
+    number_of_name_candidates = pcp_conv_info->pmid_name_candidates->len;
+
+    if(number_of_name_candidates == num_ids && has_unprocessed_pmns_names_frame(pcp_conv_info)) {
+        create_pmid_to_name_map_from_candidates(pcp_conv_info, tvb, offset, num_ids);
+        /* Set this frame to the one that we processed */
+        pcp_conv_info->last_processed_pmns_names_frame = pcp_conv_info->last_pmns_names_frame;
+    }
+    clear_name_candidates(pcp_conv_info->pmid_name_candidates);
+}
+
+static void create_pmid_to_name_map_from_candidates(pcp_conv_info_t *pcp_conv_info, tvbuff_t *tvb, int offset, guint32 num_ids) {
+    guint32 i;
+
+    for(i=0; i<num_ids; i++) {
+        guint32 pmid;
+        guint8 *pmid_name;
+
+        pmid = tvb_get_ntohl(tvb, offset);
+        pmid_name = g_array_index(pcp_conv_info->pmid_name_candidates, guint8*, i);
+
+        if(!g_hash_table_contains(pcp_conv_info->pmid_to_name, GINT_TO_POINTER(pmid))) {
+            g_hash_table_insert(pcp_conv_info->pmid_to_name, GINT_TO_POINTER(pmid), pmid_name);
+        }
+        offset += 4;
+    }
 }
 
 static int dissect_pcp_message_creds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
@@ -539,6 +670,7 @@ static int dissect_pcp_message_creds(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 static int dissect_pcp_message_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     gint32  error_num;
+    pcp_conv_info_t *pcp_conv_info;
 
     /* append the type of packet, we can't look this up as it clashes with START */
     col_append_str(pinfo->cinfo, COL_INFO, "[ERROR] ");
@@ -549,6 +681,15 @@ static int dissect_pcp_message_error(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     col_append_fstr(pinfo->cinfo, COL_INFO, "error=%s ",
                     val_to_str(error_num, packettypenames_errors, "Unknown Error:%i"));
     offset += 4;
+
+    /* Clean out candidate names if we got an error from a PMNS_NAMES lookup. This will allow subsequent PMNS_NAMES
+       lookups to work in the same conversation
+     */
+    if(error_num == PM_ERR_NAME) {
+        pcp_conv_info = get_pcp_conversation_info(pinfo);
+        clear_name_candidates(pcp_conv_info->pmid_name_candidates);
+    }
+
     return offset;
 }
 
@@ -717,6 +858,9 @@ static int dissect_pcp_message_pmns_names(tvbuff_t *tvb, packet_info *pinfo, pro
                             tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         /* name */
+        if(client_to_server(pinfo)) {
+            add_candidate_name_for_pmid_resolution(pinfo, tvb, offset, name_len);
+        }
         proto_tree_add_item(pcp_pmns_names_name_tree, hf_pcp_pmns_names_nametree_name,
                             tvb, offset, name_len, ENC_ASCII|ENC_NA);
         offset += name_len;
@@ -728,6 +872,9 @@ static int dissect_pcp_message_pmns_names(tvbuff_t *tvb, packet_info *pinfo, pro
             proto_tree_add_item(pcp_pmns_names_name_tree, hf_pcp_pdu_padding, tvb, offset, padding, ENC_NA);
             offset += padding;
         }
+    }
+    if(client_to_server(pinfo)) {
+        mark_this_frame_as_last_pmns_names_frame(pinfo);
     }
     return offset;
 }
@@ -792,6 +939,9 @@ static int dissect_pcp_message_pmns_ids(tvbuff_t *tvb, packet_info *pinfo, proto
     proto_tree_add_item(pcp_pmns_ids_tree, hf_pcp_pmns_ids_numids, tvb, offset, 4, ENC_BIG_ENDIAN);
     num_ids = tvb_get_ntohl(tvb, offset);
     offset += 4;
+
+    /* Populate the PMID to name mapping */
+    populate_pmids_to_names(pinfo, tvb, offset, num_ids);
 
     /* pmIDs */
     for (i=0; i<num_ids; i++) {
@@ -1091,37 +1241,17 @@ static int dissect_pcp_message_desc_req(tvbuff_t *tvb, packet_info *pinfo, proto
 {
     proto_item *pcp_desc_req_item;
     proto_tree *pcp_desc_req_tree;
-    proto_item *pcp_desc_req_pmid_item;
-    proto_tree *pcp_desc_req_pmid_tree;
-    guint32     bits_offset;
 
     /* append the type of packet */
     col_append_fstr(pinfo->cinfo, COL_INFO, "[%s]", val_to_str(PCP_PDU_DESC_REQ, packettypenames, "Unknown Type:0x%02x"));
 
-    bits_offset = offset*8;
     /* subtree for packet type */
     pcp_desc_req_item = proto_tree_add_item(tree, hf_pcp_desc_req, tvb, offset, -1, ENC_NA);
     pcp_desc_req_tree = proto_item_add_subtree(pcp_desc_req_item, ett_pcp);
 
-    /* subtree for pmid */
-    pcp_desc_req_pmid_item = proto_tree_add_item(pcp_desc_req_tree, hf_pcp_pmid, tvb, offset, 4, ENC_BIG_ENDIAN);
-    pcp_desc_req_pmid_tree = proto_item_add_subtree(pcp_desc_req_pmid_item, ett_pcp);
+    offset = dissect_pcp_partial_pmid(tvb, pinfo, pcp_desc_req_tree, offset);
 
-    /* flag - 1 bit */
-    proto_tree_add_bits_item(pcp_desc_req_pmid_tree, hf_pcp_pmid_flag, tvb, bits_offset, 1, ENC_BIG_ENDIAN);
-    bits_offset += 1;
-    /* domain - 9 bits */
-    proto_tree_add_bits_item(pcp_desc_req_pmid_tree, hf_pcp_pmid_domain, tvb, bits_offset, 9, ENC_BIG_ENDIAN);
-    bits_offset += 9;
-    /* cluster - 12 bits */
-    proto_tree_add_bits_item(pcp_desc_req_pmid_tree, hf_pcp_pmid_cluster, tvb, bits_offset, 12, ENC_BIG_ENDIAN);
-    bits_offset += 12;
-    /* item - 10 bits */
-    proto_tree_add_bits_item(pcp_desc_req_pmid_tree, hf_pcp_pmid_item, tvb, bits_offset, 10, ENC_BIG_ENDIAN);
-    /*bits_offset += 10;*/
-    offset += 4; /* the bytes offset should now be the same as the bits offset, not that we need this anymore */
     return offset;
-
 }
 
 /* DESC packet format
@@ -1413,11 +1543,17 @@ static int dissect_pcp_partial_pmid(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     proto_item *pcp_pmid_item;
     proto_tree *pcp_pmid_tree;
     guint32     bits_offset;
+    guint32     pmid;
+    guint8     *name;
 
     bits_offset = offset * 8;
 
+    pmid = tvb_get_ntohl(tvb, offset);
+    name = get_name_from_pmid(pmid, pinfo);
+
     /* subtree for pmid */
     pcp_pmid_item = proto_tree_add_item(tree, hf_pcp_pmid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_item_append_text(pcp_pmid_item, " (%s)", name);
     pcp_pmid_tree = proto_item_add_subtree(pcp_pmid_item, ett_pcp);
 
     /* flag - 1 bit */
@@ -1487,6 +1623,8 @@ static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 {
     proto_item *root_pcp_item;
     proto_tree *pcp_tree;
+    conversation_t  *conversation;
+    pcp_conv_info_t *pcp_conv_info;
     guint32     packet_type;
     gint32      err_bytes;
     int         offset = 0;
@@ -1494,6 +1632,23 @@ static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCP");
     col_clear(pinfo->cinfo, COL_INFO);
 
+
+    conversation = find_or_create_conversation(pinfo);
+
+    pcp_conv_info = (pcp_conv_info_t*)conversation_get_proto_data(conversation, proto_pcp);
+
+    if(pcp_conv_info == NULL) {
+        pcp_conv_info = (pcp_conv_info_t*)g_malloc(sizeof(pcp_conv_info_t));
+        conversation_add_proto_data(conversation, proto_pcp, pcp_conv_info);
+
+        pcp_conv_info->pmid_name_candidates = g_array_new(TRUE, TRUE, sizeof(guint8 *));
+        pcp_conv_info->pmid_to_name = g_hash_table_new(g_direct_hash, g_direct_equal);
+        pcp_conv_info->last_pmns_names_frame = 0;
+        pcp_conv_info->last_processed_pmns_names_frame = 0;
+
+        pcp_conv_info->next = pcp_conv_info_items;
+        pcp_conv_info_items = pcp_conv_info;
+    }
 
     root_pcp_item = proto_tree_add_item(tree, proto_pcp, tvb, 0, -1, ENC_NA);
     pcp_tree      = proto_item_add_subtree(root_pcp_item, ett_pcp);
@@ -1605,6 +1760,23 @@ static int dissect_pcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     /* pass all packets through TCP-reassembly */
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, PCP_HEADER_LEN, get_pcp_message_len, dissect_pcp_message, data);
     return tvb_captured_length(tvb);
+}
+
+static void pcp_cleanup(void) {
+    pcp_conv_info_t *pcp_conv_info;
+
+    for(pcp_conv_info = pcp_conv_info_items; pcp_conv_info != NULL; ) {
+        pcp_conv_info_t *last;
+
+        g_hash_table_destroy(pcp_conv_info->pmid_to_name);
+        /* Don't free array elements (FALSE arg) as their memory is controlled via wmem */
+        g_array_free(pcp_conv_info->pmid_name_candidates, FALSE);
+
+        last = pcp_conv_info;
+        pcp_conv_info = pcp_conv_info->next;
+
+        g_free(last);
+    }
 }
 
 /* setup the dissecting */
@@ -2415,6 +2587,8 @@ void proto_register_pcp(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     pcp_handle = new_register_dissector("pcp", dissect_pcp, proto_pcp);
+
+    register_cleanup_routine(pcp_cleanup);
 }
 
 void proto_reg_handoff_pcp(void)
