@@ -2047,7 +2047,7 @@ proto_register_mausb(void)
         { &hf_mausb_mgmt_ep_handle_pad,
             { "Padding to a DWORD", "mausb.ep_handle_pad",
               FT_NONE, 0,
-              NULL, MAUSB_MGMT_NUM_EP_HANDLE_PAD_MASK, NULL, HFILL
+              NULL, 0x0, NULL, HFILL
             }
         },
         { &hf_mausb_mgmt_ep_des_num,
@@ -2065,7 +2065,7 @@ proto_register_mausb(void)
         { &hf_mausb_mgmt_ep_des_pad,
             { "Padding to a DWORD", "mausb.ep_des_pad",
               FT_NONE, 0, NULL,
-              MAUSB_MGMT_EP_DES_PAD_MASK,
+              0x0,
               NULL, HFILL
             }
         },
