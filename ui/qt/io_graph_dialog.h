@@ -85,7 +85,7 @@ public:
     double startOffset();
     int packetFromTime(double ts);
     double getItemValue(int idx, const capture_file *cap_file) const;
-    int maxInterval () const { return cur_idx_; };
+    int maxInterval () const { return cur_idx_; }
 
     void clearAllData();
 
@@ -189,6 +189,10 @@ private:
     bool need_recalc_; // Medium weight: recalculate values, then replot
     bool need_retap_; // Heavy weight: re-read packet data
     bool auto_axes_;
+    // Available colors
+    // XXX - Add custom
+    QList<QRgb> colors_;
+
 
 //    void fillGraph();
     void zoomAxes(bool in);

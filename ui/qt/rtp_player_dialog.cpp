@@ -356,7 +356,7 @@ void RtpPlayerDialog::addRtpStream(struct _rtp_stream_info *rtp_stream)
 
     if (!audio_stream) {
         audio_stream = new RtpAudioStream(this, rtp_stream);
-        audio_stream->setColor(ColorUtils::graph_colors_[tli_count % ColorUtils::graph_colors_.length()]);
+        audio_stream->setColor(ColorUtils::graphColor(tli_count));
 
         QTreeWidgetItem *ti = new QTreeWidgetItem(ui->streamTreeWidget);
         ti->setText(src_addr_col_, address_to_qstring(&rtp_stream->src_addr));
