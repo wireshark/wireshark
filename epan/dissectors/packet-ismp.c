@@ -219,17 +219,20 @@ static const value_string edp_tuple_types[] =
 static gchar*
 ipx_addr_to_str(const guint32 net, const guint8 *ad)
 {
-	gchar   *buf;
-	char    *name;
+	gchar       *buf;
+	const gchar *name;
 
 	name = get_ether_name_if_known(ad);
 
 	if (name) {
-		buf = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", get_ipxnet_name(wmem_packet_scope(), net), name);
+		buf = wmem_strdup_printf(wmem_packet_scope(), "%s.%s",
+				get_ipxnet_name(wmem_packet_scope(), net),
+				name);
 	}
 	else {
-		buf = wmem_strdup_printf(wmem_packet_scope(), "%s.%s", get_ipxnet_name(wmem_packet_scope(), net),
-								bytestring_to_str(wmem_packet_scope(), ad, 6, '\0'));
+		buf = wmem_strdup_printf(wmem_packet_scope(), "%s.%s",
+				get_ipxnet_name(wmem_packet_scope(), net),
+				bytestring_to_str(wmem_packet_scope(), ad, 6, '\0'));
 	}
 	return buf;
 }

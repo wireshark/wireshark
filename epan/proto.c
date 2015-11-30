@@ -6769,7 +6769,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_IPXNET:
 			integer = fvalue_get_uinteger(&fi->value);
-			tmp = (char*)get_ipxnet_name(NULL, integer);
+			tmp = get_ipxnet_name(NULL, integer);
 			g_snprintf(label_str, ITEM_LABEL_LENGTH,
 				   "%s: %s (0x%08X)", hfinfo->name,
 				   tmp, integer);

@@ -2990,7 +2990,7 @@ tvb_get_ether_name(tvbuff_t *tvb, gint offset)
 /* Look for a (non-dummy) ether name in the hash, and return it if found.
  * If it's not found, simply return NULL.
  */
-gchar *
+const gchar *
 get_ether_name_if_known(const guint8 *addr)
 {
     hashether_t *tp;
@@ -3050,7 +3050,7 @@ ipxnet_to_str_punct(wmem_allocator_t *scope, const guint32 ad, const char punct)
     return buf;
 }
 
-const gchar *
+gchar *
 get_ipxnet_name(wmem_allocator_t *allocator, const guint32 addr)
 {
 

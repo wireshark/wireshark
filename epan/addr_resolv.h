@@ -192,7 +192,7 @@ WS_DLL_PUBLIC gchar *get_ether_name(const guint8 *addr);
 WS_DLL_PUBLIC gchar *tvb_get_ether_name(tvbuff_t *tvb, gint offset);
 
 /* get_ether_name returns the logical name if found in ethers files else NULL */
-gchar *get_ether_name_if_known(const guint8 *addr);
+const gchar *get_ether_name_if_known(const guint8 *addr);
 
 /*
  * Given a sequence of 3 octets containing an OID, get_manuf_name()
@@ -238,7 +238,7 @@ extern const gchar *eui64_to_display(wmem_allocator_t *allocator, const guint64 
 
 /* get_ipxnet_name returns the logical name if found in an ipxnets file,
  * or a string formatted with "%X" if not */
-extern const gchar *get_ipxnet_name(wmem_allocator_t *allocator, const guint32 addr);
+extern gchar *get_ipxnet_name(wmem_allocator_t *allocator, const guint32 addr);
 
 WS_DLL_PUBLIC guint get_hash_ether_status(hashether_t* ether);
 WS_DLL_PUBLIC char* get_hash_ether_hexaddr(hashether_t* ether);
