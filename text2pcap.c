@@ -972,7 +972,7 @@ write_file_trailer (void)
                                                           0,
                                                           0,
                                                           num_packets_written,
-                                                          num_packets_written - num_packets_written,
+                                                          0,
                                                           &err);
 
     } else {
