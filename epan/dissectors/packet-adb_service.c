@@ -494,7 +494,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                         payload_length = tvb_get_letohs(next_tvb, i_offset);
                         try_header_size = tvb_get_letohs(next_tvb, i_offset + 2);
 
-                        if (try_header_size == 0 || try_header_size != 24)
+                        if (try_header_size != 24)
                             logcat_length = payload_length + 20;
                         else
                             logcat_length = payload_length + 24;

@@ -83,7 +83,7 @@ static gint detect_version(tvbuff_t *tvb, gint offset) {
     payload_length  = tvb_get_letohs(tvb, offset);
     try_header_size = tvb_get_letohs(tvb, offset + 2);
 
-    if (try_header_size == 0 || try_header_size != 24)
+    if (try_header_size != 24)
         return 1;
 
     if (tvb_reported_length_remaining(tvb, offset + 24 + payload_length) >= 0)
