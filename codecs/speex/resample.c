@@ -59,6 +59,8 @@
 
 #include "config.h"
 
+#include "wsutil/ws_diag_control.h"
+
 #define OUTSIDE_SPEEX 1
 #define FLOATING_POINT 1
 
@@ -266,6 +268,8 @@ int main(int argc, char **argv)
    return 0;
 }
 #endif
+
+DIAG_OFF(self-assign) /* SATURATE32PSHR */
 
 #ifdef FIXED_POINT
 /* The slow way of computing a sinc for the table. Should improve that some day */
@@ -1201,3 +1205,5 @@ EXPORT const char *speex_resampler_strerror(int err)
          return "Unknown error. Bad error code or strange version mismatch.";
    }
 }
+
+DIAG_ON(self-assign)
