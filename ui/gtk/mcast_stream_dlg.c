@@ -748,7 +748,7 @@ mcaststream_dlg_create(void)
 /****************************************************************************/
 /* update the contents of the dialog box clist */
 /* list: pointer to list of mcast_stream_info_t* */
-void
+static void
 mcaststream_dlg_update(GList *list)
 {
     if (mcast_stream_dlg != NULL) {
