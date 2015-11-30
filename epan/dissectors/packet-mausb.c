@@ -1038,7 +1038,7 @@ static guint16 dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tvb
         if (del) {
             loop_offset += dissect_ep_handle(tree, tvb, loop_offset);
 
-        } else if (req && !del) {
+        } else if (req) {
 
             /* Standard USB Endpoint Descriptor */
             dissect_usb_endpoint_descriptor(pinfo, tree, tvb, loop_offset,
