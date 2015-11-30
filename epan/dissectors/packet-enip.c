@@ -481,7 +481,7 @@ static const value_string enip_elink_iflags_neg_status_vals[] = {
    { 0,  "Auto-negotiation in progress"                                 },
    { 1,  "Auto-negotiation and speed detection failed"                  },
    { 2,  "Auto-negotiation failed but detected speed"                   },
-   { 3,  "Successfully negotiatied speed and duplex"                    },
+   { 3,  "Successfully negotiated speed and duplex"                     },
    { 4,  "Auto-negotiation not attempted.  Forced speed and duplex"     },
 
    { 0,  NULL                                                           }
@@ -559,7 +559,7 @@ static const value_string enip_dlr_redundant_gateway_status_vals[] = {
    { 2,  "Active Gateway" },
    { 3,  "Gateway Fault" },
    { 4,  "Cannot Support Parameters" },
-   { 5,  "Partitial Network Fault" },
+   { 5,  "Partial Network Fault" },
 
    { 0,  NULL }
 };
@@ -1744,7 +1744,7 @@ attribute_info_t enip_attribute_vals[45] = {
    {0x47, FALSE, 13, "Redundant Gateway Config",        cip_dissector_func, NULL, dissect_dlr_redundant_gateway_config},
    {0x47, FALSE, 14, "Redundant Gateway Status",        cip_usint, &hf_dlr_redundant_gateway_status, NULL},
    {0x47, FALSE, 15, "Active Gateway Address",          cip_dissector_func, NULL, dissect_dlr_active_gateway_address},
-   {0x47, FALSE, 16, "Actice Gateway Precedence",       cip_usint, &hf_dlr_active_gateway_precedence, NULL},
+   {0x47, FALSE, 16, "Active Gateway Precedence",       cip_usint, &hf_dlr_active_gateway_precedence, NULL},
 };
 
 
@@ -1765,7 +1765,7 @@ enip_cleanup_protocol(void)
    g_hash_table_destroy(enip_conn_hashtable);
 }
 
-/* Disssect Common Packet Format */
+/* Dissect Common Packet Format */
 static void
 dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
             packet_info *pinfo, proto_tree *tree, proto_tree *dissector_tree, int offset, guint32 ifacehndl)
@@ -1932,8 +1932,9 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                                io_length -= 2;
                             }
 
-                            if (((connid_type == ECIDT_O2T) && enip_OTrun_idle) ||
-                                ((connid_type == ECIDT_T2O) && enip_TOrun_idle))
+                            if ((io_length >= 4) &&
+                                (((connid_type == ECIDT_O2T) && enip_OTrun_idle) ||
+                                ((connid_type == ECIDT_T2O) && enip_TOrun_idle)))
                             {
                                io_item = proto_tree_add_item( item_tree, hf_enip_cpf_cdi_32bitheader,
                                                               tvb, offset+6+(item_length-io_length), 4, ENC_LITTLE_ENDIAN );
@@ -2215,7 +2216,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
    /* Add encapsulation command to info column */
    col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "%s (%s)",
-      val_to_str(encap_cmd, encap_cmd_vals, "Unknown (0x%04x)"),
+      val_to_str(encap_cmd, encap_cmd_vals, "Unknown Command (0x%04x)"),
       pkt_type_str );
 
    /*
@@ -2269,7 +2270,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
       /* Append session and command to the protocol tree */
       proto_item_append_text( ti, ", Session: 0x%08X, %s", tvb_get_letohl( tvb, 4 ),
-         val_to_str( encap_cmd, encap_cmd_vals, "Unknown (0x%04x)" ) );
+         val_to_str( encap_cmd, encap_cmd_vals, "Unknown Command (0x%04x)" ) );
 
    } /* end of tree */
 
@@ -2288,7 +2289,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
    /* Command specific data - create tree */
    if ( encap_data_length )
    {
-      /* The packet have some command specific data, buid a sub tree for it */
+      /* The packet have some command specific data, build a sub tree for it */
 
       csftree = proto_tree_add_subtree( enip_tree, tvb, 24, encap_data_length,
                                 ett_command_tree, NULL, "Command Specific Data");
@@ -3036,7 +3037,7 @@ proto_register_enip(void)
           NULL, HFILL }},
 
       { &hf_elink_physical_address,
-        { "Physical Addresss", "cip.elink.physical_address",
+        { "Physical Address", "cip.elink.physical_address",
           FT_ETHER, BASE_NONE, NULL, 0,
           NULL, HFILL }},
 

@@ -84,7 +84,7 @@
 /* Offset for Advertise frames */
 #define DLR_LEARN_RESERVED             12
 
-/* DLR commmands */
+/* DLR commands */
 #define DLR_FT_BEACON            1
 #define DLR_FT_NEIGHBOR_REQ      2
 #define DLR_FT_NEIGHBOR_RES      3
