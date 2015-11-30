@@ -257,8 +257,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
           /* If not yet switched to TLS, check for STARTTLS. */
           if (session_state->ssl_requested) {
-            if (!is_request && session_state->ssl_requested &&
-              strncmp(tokenbuf, "ok", tokenlen) == 0) {
+            if (!is_request && strncmp(tokenbuf, "ok", tokenlen) == 0) {
               /* STARTTLS accepted, next reply will be TLS. */
               ssl_starttls_ack(ssl_handle, pinfo, imap_handle);
             }
