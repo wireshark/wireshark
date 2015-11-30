@@ -55,7 +55,7 @@
 #define CIP_SC_MASK              0x7F
 #define CIP_SC_RESPONSE_MASK     0x80
 
-/* Classes that have class-specfic dissectors */
+/* Classes that have class-specific dissectors */
 #define CI_CLS_MR   0x02    /* Message Router */
 #define CI_CLS_CM   0x06    /* Connection Manager */
 #define CI_CLS_MB   0x44    /* Modbus Object */

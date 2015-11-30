@@ -1123,7 +1123,7 @@ static const value_string cip_cm_ext_st_vals[] = {
    { CM_ES_NO_BUFFER_MEMORY_AVAILABLE,             "No buffer memory available" },
    { CM_ES_NETWORK_BANDWIDTH_NOT_AVAIL_FOR_DATA,   "Network bandwidth not available for data" },
    { CM_ES_NO_CONSUMED_CONN_ID_FILTER_AVAILABLE,   "No consumed connection ID filter available" },
-   { CM_ES_NOT_CONFIGURED_TO_SEND_SCHEDULED_DATA,  "Not confgured to send scheduled priority data" },
+   { CM_ES_NOT_CONFIGURED_TO_SEND_SCHEDULED_DATA,  "Not configured to send scheduled priority data" },
    { CM_ES_SCHEDULE_SIGNATURE_MISMATCH,            "Schedule signature mismatch" },
    { CM_ES_SCHEDULE_SIGNATURE_VALIDATION_NOT_POSS, "Schedule signature validation not possible" },
    { CM_ES_PORT_NOT_AVAILABLE,                     "Port not available" },
@@ -2681,7 +2681,7 @@ static int dissect_time_sync_port_state_info(packet_info *pinfo, proto_tree *tre
    num_ports = tvb_get_letohs( tvb, offset);
    proto_tree_add_item( tree, hf_time_sync_port_state_info_num_ports, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-   if (2+num_ports*4 < total_len)
+   if (2+num_ports*4 > total_len)
    {
       expert_add_info(pinfo, item, &ei_mal_time_sync_port_state_info_ports);
       return total_len;
@@ -2712,7 +2712,7 @@ static int dissect_time_sync_port_enable_cfg(packet_info *pinfo, proto_tree *tre
    num_ports = tvb_get_letohs( tvb, offset);
    proto_tree_add_item( tree, hf_time_sync_port_enable_cfg_num_ports, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-   if (2+num_ports*4 < total_len)
+   if (2+num_ports*4 > total_len)
    {
       expert_add_info(pinfo, item, &ei_mal_time_sync_port_enable_cfg_ports);
       return total_len;
@@ -2743,7 +2743,7 @@ static int dissect_time_sync_port_log_announce(packet_info *pinfo, proto_tree *t
    num_ports = tvb_get_letohs( tvb, offset);
    proto_tree_add_item( tree, hf_time_sync_port_log_announce_num_ports, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-   if (2+num_ports*4 < total_len)
+   if (2+num_ports*4 > total_len)
    {
       expert_add_info(pinfo, item, &ei_mal_time_sync_port_log_announce_ports);
       return total_len;
@@ -2774,7 +2774,7 @@ static int dissect_time_sync_port_log_sync(packet_info *pinfo, proto_tree *tree,
    num_ports = tvb_get_letohs( tvb, offset);
    proto_tree_add_item( tree, hf_time_sync_port_log_sync_num_ports, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-   if (2+num_ports*4 < total_len)
+   if (2+num_ports*4 > total_len)
    {
       expert_add_info(pinfo, item, &ei_mal_time_sync_port_log_sync_ports);
       return total_len;
@@ -2847,7 +2847,7 @@ static int dissect_time_sync_prod_desc(packet_info *pinfo, proto_tree *tree, pro
       return total_len;
    }
 
-   if ((int)(size+4) < total_len)
+   if ((int)(size+4) > total_len)
    {
       expert_add_info(pinfo, item, &ei_mal_time_sync_prod_desc_size);
       return total_len;
@@ -2877,7 +2877,7 @@ static int dissect_time_sync_revision_data(packet_info *pinfo, proto_tree *tree,
       return total_len;
    }
 
-   if ((int)(size+4) < total_len)
+   if ((int)(size+4) > total_len)
    {
       expert_add_info(pinfo, item, &ei_mal_time_sync_revision_data_size);
       return total_len;
@@ -2907,7 +2907,7 @@ static int dissect_time_sync_user_desc(packet_info *pinfo, proto_tree *tree, pro
       return total_len;
    }
 
-   if ((int)(size+4) < total_len)
+   if ((int)(size+4) > total_len)
    {
       expert_add_info(pinfo, item, &ei_mal_time_sync_user_desc_size);
       return total_len;
@@ -2932,7 +2932,7 @@ static int dissect_time_sync_port_profile_id_info(packet_info *pinfo, proto_tree
    num_ports = tvb_get_letohs( tvb, offset);
    proto_tree_add_item( tree, hf_time_sync_port_profile_id_info_num_ports, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-   if (2+num_ports*10 < total_len)
+   if (2+num_ports*10 > total_len)
    {
       expert_add_info(pinfo, item, &ei_mal_time_sync_port_profile_id_info_ports);
       return total_len;
@@ -2963,7 +2963,7 @@ static int dissect_time_sync_port_phys_addr_info(packet_info *pinfo, proto_tree 
    num_ports = tvb_get_letohs( tvb, offset);
    proto_tree_add_item( tree, hf_time_sync_port_phys_addr_info_num_ports, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-   if (2+num_ports*36 < total_len)
+   if (2+num_ports*36 > total_len)
    {
       expert_add_info(pinfo, item, &ei_mal_time_sync_port_phys_addr_info_ports);
       return total_len;
@@ -2996,7 +2996,7 @@ static int dissect_time_sync_port_proto_addr_info(packet_info *pinfo, proto_tree
    num_ports = tvb_get_letohs( tvb, offset);
    proto_tree_add_item( tree, hf_time_sync_port_proto_addr_info_num_ports, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-   if (2+num_ports*22 < total_len)
+   if (2+num_ports*22 > total_len)
    {
       expert_add_info(pinfo, item, &ei_mal_time_sync_port_proto_addr_info_ports);
       return total_len;
@@ -3423,7 +3423,7 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_tree *path_tree, pr
          return;
       }
 
-      /* Get segement type */
+      /* Get segment type */
       segment_type = tvb_get_guint8( tvb, offset + pathpos );
 
       if ( generate )
@@ -3854,8 +3854,8 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_tree *path_tree, pr
 
                         proto_tree_add_item(safety_tree, hf_cip_seg_safety_reserved, tvb, offset+pathpos+3, 1, ENC_LITTLE_ENDIAN );
                         proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_conn_id, tvb, offset+pathpos+4, 4, ENC_LITTLE_ENDIAN );
-                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_ping_eri_multiplier, tvb, offset+pathpos+8, 2, ENC_LITTLE_ENDIAN );
-                        dissect_net_param16(tvb, offset+pathpos+10, safety_tree,
+                        proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_epi, tvb, offset+pathpos+8, 4, ENC_LITTLE_ENDIAN );
+                        dissect_net_param16(tvb, offset+pathpos+12, safety_tree,
                               hf_cip_seg_safety_time_correction_net_params, hf_cip_seg_safety_time_correction_own,
                               hf_cip_seg_safety_time_correction_typ, hf_cip_seg_safety_time_correction_prio,
                               hf_cip_seg_safety_time_correction_fixed_var, hf_cip_seg_safety_time_correction_con_size,
@@ -4249,6 +4249,7 @@ dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       {
          /* Can't find the attribute, treat the rest of the request as raw data */
          proto_tree_add_item(att_tree, hf_cip_sc_set_attr_list_attr_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+         break;
       }
 
       if ((tvb_reported_length_remaining(tvb, offset) < 2) && (i < att_count-1))
@@ -4342,7 +4343,7 @@ dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto
       prev_offset = serv_offset;
 
       /*
-      ** We call our selves again to disect embedded packet
+      ** We call ourselves again to dissect embedded packet
       */
 
       col_append_str( pinfo->cinfo, COL_INFO, ", ");
@@ -4657,7 +4658,7 @@ dissect_cip_multiple_service_packet_rsp(tvbuff_t *tvb, packet_info *pinfo, proto
       proto_tree_add_item(mult_serv_tree, hf_cip_sc_mult_serv_pack_offset, tvb, offset+2+(i*2) , 2, ENC_LITTLE_ENDIAN);
 
       /*
-      ** We call our selves again to disect embedded packet
+      ** We call ourselves again to dissect embedded packet
       */
 
       col_append_str( pinfo->cinfo, COL_INFO, ", ");
@@ -4766,7 +4767,7 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       proto_tree_add_item(cmd_data_tree, hf_cip_sc_stop_data, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
       break;
    case SC_CREATE:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_create_instance, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(cmd_data_tree, hf_cip_sc_create_instance, tvb, offset+4+add_stat_size, 2, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(cmd_data_tree, hf_cip_sc_create_data, tvb, offset+4+add_stat_size+2, tvb_reported_length_remaining(tvb, offset+4+add_stat_size+2), ENC_NA);
       break;
    case SC_DELETE:
@@ -5047,7 +5048,7 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
           (preq_info->connInfo->VendorID == VendorID) &&
           (preq_info->connInfo->DeviceSerialNumber == DeviceSerialNumber))
       {
-         /* Update the connection IDs as ForwardOpen reply is allows to update them from
+         /* Update the connection IDs as ForwardOpen reply is allowed to update them from
             the ForwardOpen request */
          preq_info->connInfo->O2T.connID = O2TConnID;
          preq_info->connInfo->T2O.connID = T2OConnID;
@@ -5404,7 +5405,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             temp_tree = proto_tree_add_subtree( cmd_data_tree, tvb, offset+2+req_path_size+4, msg_req_siz, ett_cm_mes_req, NULL, "Message Request" );
 
             /*
-            ** We call our selves again to disect embedded packet
+            ** We call ourselves again to dissect embedded packet
             */
 
             col_append_str( pinfo->cinfo, COL_INFO, ": ");
@@ -6286,6 +6287,12 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
           /* See if object dissector wants to override generic service handling */
           if(!dissector_try_heuristic(heur_subdissector_service, tvb, pinfo, item_tree, &hdtbl_entry, NULL))
           {
+             /* No need to set a custom dissector if this is just a generic service. */
+             if (preq_info)
+             {
+                preq_info->dissector = NULL;
+             }
+
              dissect_cip_generic_service_req(tvb, pinfo, cip_tree, &path_info);
           }
       }
