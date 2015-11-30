@@ -121,7 +121,7 @@ static void plugin_if_mainwindow_preference(gconstpointer user_data)
     }
 }
 
-void plugin_if_mainwindow_gotoframe(gconstpointer user_data)
+static void plugin_if_mainwindow_gotoframe(gconstpointer user_data)
 {
     if ( gbl_cur_main_window_ != NULL && user_data != NULL )
     {
