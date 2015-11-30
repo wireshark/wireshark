@@ -310,11 +310,11 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, struct _r
 
     for (int i = 0; i < num_graphs_; i++) {
         QCPGraph *graph = ui->streamGraph->addGraph();
-        graph->setPen(QPen(ColorUtils::graph_colors_[i]));
+        graph->setPen(QPen(ColorUtils::graphColor(i)));
         graph->setName(graph_cbs[i]->text());
         graphs_ << graph;
         graph_cbs[i]->setChecked(true);
-        graph_cbs[i]->setIcon(StockIcon::colorIcon(ColorUtils::graph_colors_[i], QPalette::Text));
+        graph_cbs[i]->setIcon(StockIcon::colorIcon(ColorUtils::graphColor(i), QPalette::Text));
     }
     ui->streamGraph->xAxis->setLabel("Arrival Time");
     ui->streamGraph->yAxis->setLabel("Value (ms)");

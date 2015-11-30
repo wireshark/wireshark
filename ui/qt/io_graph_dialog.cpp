@@ -77,10 +77,6 @@ const int yfield_col_  = 5;
 const int sma_period_col_ = 6;
 const int num_cols_ = 7;
 
-// Available colors
-// XXX - Add custom
-QList<QRgb> colors_ = ColorUtils::graph_colors_;
-
 const qreal graph_line_width_ = 1.0;
 
 // When we drop support for Qt <5 we can initialize these with
@@ -190,7 +186,8 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     stat_timer_(NULL),
     need_replot_(false),
     need_retap_(false),
-    auto_axes_(true)
+    auto_axes_(true),
+    colors_(ColorUtils::graphColors())
 {
     ui->setupUi(this);
     setWindowSubtitle(tr("IO Graphs"));
@@ -1717,7 +1714,7 @@ void IOGraph::applyCurrentColor()
     if (graph_) {
         graph_->setPen(QPen(color_, graph_line_width_));
     } else if (bars_) {
-        bars_->setPen(QPen(QBrush(colors_[0]), graph_line_width_)); // ...or omit it altogether?
+        bars_->setPen(QPen(QBrush(ColorUtils::graphColor(0)), graph_line_width_)); // ...or omit it altogether?
         bars_->setBrush(color_);
     }
 }

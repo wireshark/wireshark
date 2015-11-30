@@ -53,11 +53,15 @@ public:
     static const QColor expert_color_foreground; /* black */
     static const QColor hidden_proto_item;       /* gray */
 
-    static const QList<QRgb> graph_colors_;
+    static const QList<QRgb> graphColors() { return graph_colors_; }
+    static QRgb graphColor(int item) { return graph_colors_[item % graph_colors_.size()]; }
+
 signals:
 
 public slots:
 
+private:
+    static const QList<QRgb> graph_colors_;
 };
 
 #endif // COLOR_UTILS_H
