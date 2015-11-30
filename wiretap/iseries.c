@@ -599,6 +599,66 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
                 srcmac, type);
       if (num_items_scanned == 10)
         {
+          if (pktnum < 0)
+            {
+              *err = WTAP_ERR_BAD_FILE;
+              *err_info = g_strdup ("iseries: packet header has a negative packet number");
+              return FALSE;
+            }
+
+          if (pkt_len < 0)
+            {
+              *err = WTAP_ERR_BAD_FILE;
+              *err_info = g_strdup ("iseries: packet header has a negative packet length");
+              return FALSE;
+            }
+
+          if (hr < 0)
+            {
+              *err = WTAP_ERR_BAD_FILE;
+              *err_info = g_strdup ("iseries: packet header has a negative hour in the time stamp");
+              return FALSE;
+            }
+
+          if (hr > 23)
+            {
+              *err = WTAP_ERR_BAD_FILE;
+              *err_info = g_strdup ("iseries: packet header has a hour in the time stamp greater than 23");
+              return FALSE;
+            }
+
+          if (min < 0)
+            {
+              *err = WTAP_ERR_BAD_FILE;
+              *err_info = g_strdup ("iseries: packet header has a negative minute in the time stamp");
+              return FALSE;
+            }
+
+          if (min > 59)
+            {
+              *err = WTAP_ERR_BAD_FILE;
+              *err_info = g_strdup ("iseries: packet header has a minute in the time stamp greater than 59");
+              return FALSE;
+            }
+
+          if (sec < 0)
+            {
+              *err = WTAP_ERR_BAD_FILE;
+              *err_info = g_strdup ("iseries: packet header has a negative second in the time stamp");
+              return FALSE;
+            }
+
+          /*
+           * Yes, 60, even though the time-conversion routines on most OSes
+           * might not handle leap seconds.
+           */
+          if (sec > 60)
+            {
+              *err = WTAP_ERR_BAD_FILE;
+              *err_info = g_strdup ("iseries: packet header has a second in the time stamp greater than 60");
+              return FALSE;
+            }
+
           /* OK! We found the packet header line */
           isValid = TRUE;
           /*
