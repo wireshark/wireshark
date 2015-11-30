@@ -328,7 +328,7 @@ is encouraged to update their plugins as outlined below:
 A plugin (as well as built-in dissectors) may implement a menu within
 Wireshark to be used to trigger options, start tools, open Websites, ...
 
-This menu structure is built using the plugin_if.h interface and it's
+This menu structure is built using the plugin_if.h interface and its
 corresponding functions.
 
 The menu items all call a callback provided by the plugin, which takes
@@ -337,7 +337,8 @@ provide userdata to each entry. The pointer must utilize WS_DLL_PUBLIC_DEF
 and has the following structure:
 
     WS_DLL_PUBLIC_DEF void
-    menu_cb(gpointer user_data)
+    menu_cb(ext_menubar_gui_type gui_type, gpointer gui_data,
+            gpointer user_data _U_)
     {
         ... Do something ...
     }
@@ -347,21 +348,17 @@ The menu entries themselves are generated with the following code structure:
     ext_menu_t * ext_menu, *os_menu = NULL;
 
     ext_menu = ext_menubar_register_menu (
-            <your_proto_item>, "TestMenu", "Some Menu Entry", TRUE );
-    ext_menubar_add_entry(ext_menu, "TestEntry1", "Test Entry 1",
+            <your_proto_item>, "Some Menu Entry", TRUE );
+    ext_menubar_add_entry(ext_menu, "Test Entry 1",
             "This is a tooltip", menu_cb, <user_data>);
-    ext_menubar_add_entry(ext_menu, "TestEntry2", "Test Entry 2",
+    ext_menubar_add_entry(ext_menu, "Test Entry 2",
             NULL, menu_cb, <user_data>);
 
-    os_menu = ext_menubar_add_submenu(ext_menu, "TestSubMenu", "Sub Menu" );
-    ext_menubar_add_entry(os_menu, "SubEntry1", "Test Entry A",
+    os_menu = ext_menubar_add_submenu(ext_menu, "Sub Menu" );
+    ext_menubar_add_entry(os_menu, "Test Entry A",
             NULL, menu_cb, <user_data>);
-    ext_menubar_add_entry(os_menu, "SubEntry2", "Test Entry B",
+    ext_menubar_add_entry(os_menu, "Test Entry B",
             NULL, menu_cb, <user_data>);
-
-The second parameter to ext_menubar_register_menu and ext_menubar_add_entry is
-an internal definition for the menu, utilized by the GTK interface. It must not
-contain any characters besides A-Z, a-z and 0-9.
 
 This will not work with the GTK version on OS X; the GTK interface is
 currently not supported on this plattform.  The Qt interface on OS X
@@ -384,6 +381,9 @@ The following methods exist so far:
 	/* Saves the given preference to the main preference storage */
 	WS_DLL_PUBLIC void plugin_if_save_preference
 		(const char * pref_module, const char * pref_key, const char * pref_value);
+
+	/* Jumps to the given frame number */
+	WS_DLL_PUBLIC void plugin_if_goto_frame(guint32 framenr);
 
 
 
