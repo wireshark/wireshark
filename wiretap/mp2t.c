@@ -366,6 +366,11 @@ mp2t_open(wtap *wth, int *err, gchar **err_info)
         return status;
     }
 
+    if (bitrate == 0) {
+        /* Prevent an eventual divide by zero */
+        return WTAP_OPEN_ERROR;
+    }
+
     if (-1 == file_seek(wth->fh, first, SEEK_SET, err)) {
         return WTAP_OPEN_ERROR;
     }
