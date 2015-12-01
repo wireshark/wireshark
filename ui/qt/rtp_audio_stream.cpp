@@ -552,11 +552,9 @@ void RtpAudioStream::writeSilence(int samples)
     if (samples < 1 || audio_out_rate_ == 0) return;
 
     unsigned silence_bytes = samples * sample_bytes_;
-    char *silence_buff = (char *) g_malloc(silence_bytes);
-    SAMPLE silence = 0;
+    char *silence_buff = (char *) g_malloc0(silence_bytes);
 
     RTP_STREAM_DEBUG("Writing %u silence samples", samples);
-    memccpy(silence_buff, &silence, samples, sample_bytes_);
     tempfile_->write(silence_buff, silence_bytes);
     g_free(silence_buff);
 
