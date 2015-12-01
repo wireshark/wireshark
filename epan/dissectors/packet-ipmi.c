@@ -1280,7 +1280,9 @@ ipmi_fmt_channel(gchar *s, guint32 v)
 void
 ipmi_fmt_udpport(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%s (%d)", udp_port_to_display(wmem_packet_scope(), v), v);
+	gchar* port_str = udp_port_to_display(NULL, v);
+	g_snprintf(s, ITEM_LABEL_LENGTH, "%s (%d)", port_str, v);
+	wmem_free(NULL, port_str);
 }
 
 void
