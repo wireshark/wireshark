@@ -145,7 +145,7 @@ maintainer-clean-local: clean-dumpabi-libwsutil
 .PHONY: clean-dumpabi-libwsutil
 
 clean-dumpabi-libwsutil:
-	rm -rf rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz abi_logs abi-descriptor.xml
+	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz abi_logs abi-descriptor.xml
 
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \

@@ -331,7 +331,7 @@ maintainer-clean-local: clean-dumpabi-libwireshark
 .PHONY: clean-dumpabi-libwireshark
 
 clean-dumpabi-libwireshark:
-	rm -rf rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz abi_logs abi-descriptor.xml
+	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz abi_logs abi-descriptor.xml
 
 checkapi:
 	$(AM_V_GEN)$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \

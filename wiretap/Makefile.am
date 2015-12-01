@@ -107,7 +107,7 @@ maintainer-clean-local: clean-dumpabi-libwiretap
 .PHONY: clean-dumpabi-libwiretap
 
 clean-dumpabi-libwiretap:
-	rm -rf rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz abi_logs abi-descriptor.xml
+	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz abi_logs abi-descriptor.xml
 
 checkapi:
 ## 'abort' checking disabled for now pending resolution of existing use of g_assert & g_error
