@@ -304,6 +304,7 @@ static expert_field ei_mal_tcpip_interface_config = EI_INIT;
 static expert_field ei_mal_tcpip_mcast_config = EI_INIT;
 static expert_field ei_mal_tcpip_last_conflict = EI_INIT;
 static expert_field ei_mal_elink_interface_flags = EI_INIT;
+static expert_field ei_mal_elink_physical_address = EI_INIT;
 static expert_field ei_mal_elink_interface_counters = EI_INIT;
 static expert_field ei_mal_elink_media_counters = EI_INIT;
 static expert_field ei_mal_elink_interface_control = EI_INIT;
@@ -324,6 +325,7 @@ static dissector_handle_t  data_handle;
 static dissector_handle_t  arp_handle;
 static dissector_handle_t  cipsafety_handle;
 static dissector_handle_t  cipmotion_handle;
+static dissector_handle_t  cip_implicit_handle;
 
 static gboolean enip_desegment  = TRUE;
 static gboolean enip_OTrun_idle = TRUE;
@@ -826,6 +828,7 @@ typedef struct enip_conn_val {
    guint32 connid;
    cip_safety_epath_info_t safety;
    gboolean motion;
+   guint32 ClassID;
 } enip_conn_val_t;
 
 typedef struct _enip_conv_info_t {
@@ -993,6 +996,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
       conn_val->TransportClass_trigger = connInfo->TransportClass_trigger;
       conn_val->safety                 = connInfo->safety;
       conn_val->motion                 = connInfo->motion;
+      conn_val->ClassID                = connInfo->ClassID;
       conn_val->open_frame             = connInfo->forward_open_frame;
       conn_val->open_reply_frame       = pinfo->fd->num;
       conn_val->close_frame            = 0;
@@ -1465,6 +1469,22 @@ dissect_elink_interface_flags(packet_info *pinfo, proto_tree *tree, proto_item *
 }
 
 static int
+dissect_elink_physical_address(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                               int offset, int total_len)
+
+{
+   if (total_len < 6)
+   {
+      expert_add_info(pinfo, item, &ei_mal_elink_physical_address);
+      return total_len;
+   }
+
+   proto_tree_add_item(tree, hf_elink_physical_address, tvb, offset, 6, ENC_NA);
+   return 6;
+}
+
+
+static int
 dissect_elink_interface_counters(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                                  int offset, int total_len)
 
@@ -1709,7 +1729,7 @@ attribute_info_t enip_attribute_vals[45] = {
    /* Ethernet Link object */
    {0xF6, FALSE,  1, "Interface Speed",           cip_dword,            &hf_elink_interface_speed,  NULL},
    {0xF6, FALSE,  2, "Interface Flags",           cip_dissector_func,   NULL, dissect_elink_interface_flags},
-   {0xF6, FALSE,  3, "Physical Address",          cip_byte_array,       &hf_elink_physical_address, NULL},
+   {0xF6, FALSE,  3, "Physical Address",          cip_dissector_func,   NULL, dissect_elink_physical_address },
    {0xF6, FALSE,  4, "Interface Counters",        cip_dissector_func,   NULL, dissect_elink_interface_counters},
    {0xF6, FALSE,  5, "Media Counters",            cip_dissector_func,   NULL, dissect_elink_media_counters},
    {0xF6, FALSE,  6, "Interface Control",         cip_dissector_func,   NULL, dissect_elink_interface_control},
@@ -1890,14 +1910,21 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
                   /* Call dissector for interface */
                   next_tvb = tvb_new_subset_length (tvb, offset+8, item_length-2);
-                  p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO, request_info);
-                  if ( tvb_reported_length_remaining(next_tvb, 0) <= 0 || !dissector_try_uint(subdissector_sud_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
+
+                  if ((conn_info == NULL) || (conn_info->ClassID == CI_CLS_MR))
                   {
-                     /* Show the undissected payload */
-                      if ( tvb_reported_length_remaining(tvb, offset) > 0 )
-                        call_dissector( data_handle, next_tvb, pinfo, dissector_tree );
+                      p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO, request_info);
+                      if (!dissector_try_uint(subdissector_sud_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
+                      {
+                         /* Show the undissected payload */
+                         call_dissector( data_handle, next_tvb, pinfo, dissector_tree );
+                      }
+                      p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
                   }
-                  p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
+                  else
+                  {
+                      call_dissector_with_data( cip_implicit_handle, next_tvb, pinfo, dissector_tree, GUINT_TO_POINTER(conn_info->ClassID) );
+                  }
                }
                else
                {
@@ -2353,16 +2380,9 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 static int
 dissect_enip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-   guint16  encap_cmd;
-
-   /* An ENIP packet is at least 4 bytes long - we need the command type. */
-   if (!tvb_bytes_exist(tvb, 0, 4))
+   /* An ENIP packet is at least 4 bytes long. */
+   if (tvb_captured_length(tvb) < 4)
       return 0;
-
-   /* Get the command type and see if it's valid. */
-   encap_cmd = tvb_get_letohs( tvb, 0 );
-   if (try_val_to_str(encap_cmd, encap_cmd_vals) == NULL)
-      return 0;   /* not a known command */
 
    return dissect_enip_pdu(tvb, pinfo, tree, data);
 }
@@ -2370,16 +2390,9 @@ dissect_enip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static int
 dissect_enip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-   guint16  encap_cmd;
-
-   /* An ENIP packet is at least 4 bytes long - we need the command type. */
-   if (!tvb_bytes_exist(tvb, 0, 4))
+   /* An ENIP packet is at least 4 bytes long. */
+   if (tvb_captured_length(tvb) < 4)
       return 0;
-
-   /* Get the command type and see if it's valid. */
-   encap_cmd = tvb_get_letohs( tvb, 0 );
-   if (try_val_to_str(encap_cmd, encap_cmd_vals) == NULL)
-      return 0;   /* not a known command */
 
    tcp_dissect_pdus(tvb, pinfo, tree, enip_desegment, 4, get_enip_pdu_len, dissect_enip_pdu, data);
    return tvb_captured_length(tvb);
@@ -2802,7 +2815,7 @@ proto_register_enip(void)
 
       { &hf_enip_connection_transport_data,
         { "Data", "enip.connection_transport_data",
-          FT_BYTES, BASE_NONE, NULL, 0x0,
+          FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x0,
           "Connection Transport Data", HFILL }},
 
       { &hf_tcpip_status,
@@ -3452,6 +3465,7 @@ proto_register_enip(void)
       { &ei_mal_tcpip_mcast_config, { "cip.malformed.tcpip.mcast_config", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Multicast Config", EXPFILL }},
       { &ei_mal_tcpip_last_conflict, { "cip.malformed.tcpip.last_conflict", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Last Conflict Detected", EXPFILL }},
       { &ei_mal_elink_interface_flags, { "cip.malformed.elink.interface_flags", PI_MALFORMED, PI_ERROR, "Malformed Ethernet Link Interface Flags", EXPFILL }},
+      { &ei_mal_elink_physical_address, { "cip.malformed.elink.physical_address", PI_MALFORMED, PI_ERROR, "Malformed Ethernet Link Physical Address", EXPFILL } },
       { &ei_mal_elink_interface_counters, { "cip.malformed.elink.interface_counters", PI_MALFORMED, PI_ERROR, "Malformed Ethernet Link Interface Counters", EXPFILL }},
       { &ei_mal_elink_media_counters, { "cip.malformed.elink.media_counters", PI_MALFORMED, PI_ERROR, "Malformed Ethernet Link Media Counters", EXPFILL }},
       { &ei_mal_elink_interface_control, { "cip.malformed.elink.interface_control", PI_MALFORMED, PI_ERROR, "Malformed Ethernet Link Interface Control", EXPFILL }},
@@ -3774,6 +3788,9 @@ proto_reg_handoff_enip(void)
    /* I/O data dissectors */
    cipsafety_handle = find_dissector("cipsafety");
    cipmotion_handle = find_dissector("cipmotion");
+
+   /* Implicit data dissector */
+   cip_implicit_handle = find_dissector("cip_implicit");
 
    /* Register for EtherNet/IP Device Level Ring protocol */
    dlr_handle = new_create_dissector_handle(dissect_dlr, proto_dlr);

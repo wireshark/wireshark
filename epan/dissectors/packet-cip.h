@@ -294,6 +294,7 @@ typedef struct cip_conn_info {
    guint8                  TransportClass_trigger;
    cip_safety_epath_info_t safety;
    gboolean                motion;
+   guint32                 ClassID;
 } cip_conn_info_t;
 
 typedef struct cip_req_info {

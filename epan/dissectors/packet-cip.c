@@ -448,6 +448,7 @@ static int hf_time_sync_port_proto_addr_info_port_proto_addr = -1;
 static int hf_time_sync_steps_removed = -1;
 static int hf_time_sync_sys_time_and_offset_time = -1;
 static int hf_time_sync_sys_time_and_offset_offset = -1;
+static int hf_conn_path_class = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_cip = -1;
@@ -569,6 +570,7 @@ static expert_field ei_mal_rpi_no_data = EI_INIT;
 static expert_field ei_mal_inv_config_size = EI_INIT;
 static expert_field ei_mal_ot_size = EI_INIT;
 static expert_field ei_mal_to_size = EI_INIT;
+static expert_field ei_mal_fwd_close_missing_data = EI_INIT;
 
 
 dissector_table_t   subdissector_class_table;
@@ -4954,6 +4956,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
          preq_info->connInfo->O2T.type = O2TType;
          preq_info->connInfo->motion = (connection_path.iClass == 0x42) ? TRUE : FALSE;
          preq_info->connInfo->safety = safety_fwdopen;
+         preq_info->connInfo->ClassID = connection_path.iClass;
       }
    }
 }
@@ -5056,6 +5059,35 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
    }
 }
 
+static void display_previous_request_path(cip_req_info_t *preq_info, proto_tree *item_tree, packet_info *pinfo)
+{
+   if (preq_info && preq_info->IOILen && preq_info->pIOI)
+   {
+      proto_item *pi;
+      proto_tree *epath_tree;
+      tvbuff_t* tvbIOI;
+
+      tvbIOI = tvb_new_real_data((const guint8 *)preq_info->pIOI, preq_info->IOILen * 2, preq_info->IOILen * 2);
+      if (tvbIOI)
+      {
+         pi = proto_tree_add_uint_format_value(item_tree, hf_cip_request_path_size, NULL, 0, 0, preq_info->IOILen, "%d (words)", preq_info->IOILen);
+         PROTO_ITEM_SET_GENERATED(pi);
+
+         /* Add the epath */
+         epath_tree = proto_tree_add_subtree(item_tree, NULL, 0, 0, ett_path, &pi, "Request Path: ");
+         PROTO_ITEM_SET_GENERATED(pi);
+
+         if (preq_info->ciaData == NULL)
+         {
+            preq_info->ciaData = wmem_new(wmem_file_scope(), cip_simple_request_info_t);
+         }
+
+         dissect_epath(tvbIOI, pinfo, epath_tree, pi, 0, preq_info->IOILen * 2, TRUE, FALSE, preq_info->ciaData, NULL);
+         tvb_free(tvbIOI);
+      }
+   }
+}
+
 static void
 dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_length, packet_info *pinfo )
 {
@@ -5086,12 +5118,14 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
          add_status = tvb_get_letohs( tvb, offset + 4 );
       else
          add_status = 0;
-      if(   gen_status == 0   /* success response ) */
+
+      if(   gen_status == CI_GRC_SUCCESS
          || ( ( service & CIP_SC_MASK ) != SC_CM_UNCON_SEND )
          || !(  ( gen_status == CI_GRC_FAILURE && (add_status == CM_ES_UNCONNECTED_REQUEST_TIMED_OUT ||
                                                    add_status == CM_ES_PORT_NOT_AVAILABLE ||
                                                    add_status == CM_ES_LINK_ADDRESS_NOT_VALID ||
-                                                   add_status == CM_ES_INVALID_SEGMENT_IN_CONN_PATH) )
+                                                   add_status == CM_ES_INVALID_SEGMENT_IN_CONN_PATH ||
+                                                   add_status == CM_ES_LINK_ADDRESS_TO_SELF_INVALID))
              || gen_status == CI_GRC_NO_RESOURCE
              || gen_status == CI_GRC_BAD_PATH
              )
@@ -5103,6 +5137,8 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
          {
             tvbuff_t *next_tvb;
             void *p_save_proto_data;
+            gint service_index;
+            heur_dtbl_entry_t *hdtbl_entry;
 
             p_save_proto_data = p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0 );
             p_remove_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
@@ -5110,13 +5146,33 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 
             proto_tree_add_uint_format( item_tree, hf_cip_cm_sc, NULL, 0, 0, SC_CM_UNCON_SEND|CIP_SC_RESPONSE_MASK, "(Service: Unconnected Send (Response))" );
             next_tvb = tvb_new_subset_length(tvb, offset, item_length);
+
+            display_previous_request_path(pembedded_req_info, item_tree, pinfo);
+
+            /* Check to see if service is 'generic' */
+            try_val_to_str_idx((service & CIP_SC_MASK), cip_sc_vals, &service_index);
+
             if ( pembedded_req_info && pembedded_req_info->dissector )
+            {
                call_dissector(pembedded_req_info->dissector, next_tvb, pinfo, item_tree );
+            }
+            else if (service_index >= 0)
+            {
+               /* See if object dissector wants to override generic service handling */
+               if (!dissector_try_heuristic(heur_subdissector_service, tvb, pinfo, item_tree, &hdtbl_entry, NULL))
+               {
+                   dissect_cip_generic_service_rsp(tvb, pinfo, item_tree);
+               }
+            }
             else
+            {
                call_dissector( cip_class_generic_handle, next_tvb, pinfo, item_tree );
+            }
 
             p_remove_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
             p_add_proto_data(wmem_file_scope(), pinfo, proto_cip, 0, p_save_proto_data);
+
+            /* Return early because the response was only the embedded message response. */
             return;
          }
       }
@@ -5229,8 +5285,9 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
       /* If there is any command specific data create a sub-tree for it */
       if( ( item_length-4-add_stat_size ) != 0 )
       {
+         proto_item *cmd_item;
          cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size,
-                                                 ett_cm_cmd_data, NULL, "Command Specific Data" );
+                                                 ett_cm_cmd_data, &cmd_item, "Command Specific Data" );
 
          if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
          {
@@ -5264,7 +5321,14 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                /* Display the Reserved byte */
                proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+4+add_stat_size+9, 1, ENC_LITTLE_ENDIAN);
                if (app_rep_size > 0)
-                  proto_tree_add_item(cmd_data_tree, hf_cip_cm_app_reply_data, tvb, offset+4+add_stat_size+10, app_rep_size, ENC_NA);
+               {
+                  if (tvb_reported_length_remaining(tvb, offset + 4 + add_stat_size + 10) <= app_rep_size)
+                  {
+                     expert_add_info(pinfo, cmd_item, &ei_mal_fwd_close_missing_data);
+                     break;
+                  }
+                  proto_tree_add_item(cmd_data_tree, hf_cip_cm_app_reply_data, tvb, offset+4+add_stat_size+10,app_rep_size, ENC_NA);
+               }
 
                enip_close_cip_connection( pinfo, ConnSerialNumber, VendorID, DeviceSerialNumber );
 
@@ -6173,7 +6237,8 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
 
       proto_item_set_len( status_item, 2 + add_stat_size*2);
 
-
+      /* The previous packet service must be Unconnected Send, or match the current
+         service to be a valid match. If they don't, ignore the previous data.*/
       if(  preq_info
         && !(  preq_info->bService == ( service & CIP_SC_MASK )
             || ( preq_info->bService == SC_CM_UNCON_SEND && preq_info->dissector == cip_class_cm_handle )
@@ -6181,42 +6246,25 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
         )
          preq_info = NULL;
 
-      if ( preq_info )
-      {
-         if ( preq_info->IOILen && preq_info->pIOI )
-         {
-            tvbuff_t* tvbIOI;
-
-            tvbIOI = tvb_new_real_data((const guint8 *)preq_info->pIOI, preq_info->IOILen * 2, preq_info->IOILen * 2);
-            if ( tvbIOI )
-            {
-               pi = proto_tree_add_uint_format_value( cip_tree, hf_cip_request_path_size, NULL, 0, 0, preq_info->IOILen, "%d (words)", preq_info->IOILen );
-               PROTO_ITEM_SET_GENERATED(pi);
-
-               /* Add the epath */
-               epath_tree = proto_tree_add_subtree(cip_tree, NULL, 0, 0, ett_path, &pi, "Request Path: ");
-               PROTO_ITEM_SET_GENERATED(pi);
-
-               preq_info->ciaData = wmem_new(wmem_file_scope(), cip_simple_request_info_t);
-               dissect_epath( tvbIOI, pinfo, epath_tree, pi, 0, preq_info->IOILen*2, TRUE, FALSE, preq_info->ciaData, NULL);
-               tvb_free(tvbIOI);
-            }
-         }
-      }
+      display_previous_request_path(preq_info, cip_tree, pinfo);
 
       /* Check to see if service is 'generic' */
       try_val_to_str_idx((service & CIP_SC_MASK), cip_sc_vals, &service_index);
-      if (service_index >= 0)
+
+      /* If the request set a dissector, then check that first. This ensures
+         that Unconnected Send responses are properly parsed based on the
+         embedded request. */
+      if (preq_info && preq_info->dissector)
       {
-          /* See if object dissector wants to override generic service handling */
-          if(!dissector_try_heuristic(heur_subdissector_service, tvb, pinfo, item_tree, &hdtbl_entry, NULL))
-          {
-            dissect_cip_generic_service_rsp(tvb, pinfo, cip_tree);
-          }
+         call_dissector(preq_info->dissector, tvb, pinfo, item_tree);
       }
-      else if ( preq_info && preq_info->dissector )
+      else if (service_index >= 0)
       {
-         call_dissector( preq_info->dissector, tvb, pinfo, item_tree );
+         /* See if object dissector wants to override generic service handling */
+         if(!dissector_try_heuristic(heur_subdissector_service, tvb, pinfo, item_tree, &hdtbl_entry, NULL))
+         {
+           dissect_cip_generic_service_rsp(tvb, pinfo, cip_tree);
+         }
       }
       else
       {
@@ -6311,7 +6359,6 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
 
 } /* End of dissect_cip_data() */
 
-
 static int
 dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -6340,6 +6387,38 @@ dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    {
       dissect_cip_data( tree, tvb, 0, pinfo, NULL );
    }
+
+   return tvb_reported_length(tvb);
+}
+
+static int
+dissect_cip_implicit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+   proto_item *ti;
+   proto_item *conn_path_class_item;
+   proto_tree *cip_tree;
+   proto_tree *cmd_data_tree;
+   guint32 ClassID = GPOINTER_TO_UINT(data);
+   int length = tvb_reported_length_remaining(tvb, 0);
+
+   /* Make entries in Protocol column and Info column on summary display */
+   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIP");
+   col_clear(pinfo->cinfo, COL_INFO);
+
+   /* Create display subtree for the protocol */
+   ti = proto_tree_add_item(tree, proto_cip, tvb, 0, length, ENC_NA);
+   cip_tree = proto_item_add_subtree(ti, ett_cip);
+
+   /* Display Class ID from the Forward Open Connection Path. */
+   conn_path_class_item = proto_tree_add_uint(cip_tree, hf_conn_path_class, NULL, 0, 0, ClassID);
+   PROTO_ITEM_SET_GENERATED(conn_path_class_item);
+
+   cmd_data_tree = proto_tree_add_subtree(cip_tree, tvb, 0, length,
+        ett_cmd_data, NULL, "Command Specific Data");
+   proto_tree_add_item(cmd_data_tree, hf_cip_data, tvb, 0, length, ENC_NA);
+
+   col_append_fstr(pinfo->cinfo, COL_INFO, "Implicit Data - %s",
+        val_to_str(ClassID, cip_class_names_vals, "Class (0x%02x)"));
 
    return tvb_reported_length(tvb);
 }
@@ -6597,6 +6676,7 @@ proto_register_cip(void)
       { &hf_time_sync_steps_removed, { "Steps Removed", "cip.time_sync.steps_removed", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_time_sync_sys_time_and_offset_time, { "System Time (Microseconds)", "cip.time_sync.sys_time_and_offset.time", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_time_sync_sys_time_and_offset_offset, { "System Offset (Microseconds)", "cip.time_sync.sys_time_and_offset.offset", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_conn_path_class, { "CIP Connection Path Class", "cip.conn_path_class", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &cip_class_names_vals_ext, 0, NULL, HFILL }},
    };
 
    static hf_register_info hf_cm[] = {
@@ -6872,6 +6952,7 @@ proto_register_cip(void)
       { &ei_mal_inv_config_size, { "cip.malformed.inv_config_size", PI_MALFORMED, PI_WARN, "Invalid configuration size - missing size field", EXPFILL }},
       { &ei_mal_ot_size, { "cip.malformed.ot_size", PI_MALFORMED, PI_WARN, "Invalid O->T size - missing size field", EXPFILL }},
       { &ei_mal_to_size, { "cip.malformed.to_size", PI_MALFORMED, PI_WARN, "Invalid T->O size - missing size field", EXPFILL }},
+      { &ei_mal_fwd_close_missing_data, { "cip.malformed.fwd_close_missing_data", PI_MALFORMED, PI_ERROR, "Forward Close response missing application reply data", EXPFILL }},
    };
 
    expert_module_t* expert_cip;
@@ -6879,6 +6960,7 @@ proto_register_cip(void)
    /* Register the protocol name and description */
    proto_cip = proto_register_protocol("Common Industrial Protocol",
        "CIP", "cip");
+   new_register_dissector("cip_implicit", dissect_cip_implicit, proto_cip);
 
    /* Required function calls to register the header fields and subtrees used */
    proto_register_field_array(proto_cip, hf, array_length(hf));
