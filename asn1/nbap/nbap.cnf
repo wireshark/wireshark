@@ -1610,7 +1610,8 @@ nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
     {
         return offset;
     }
-    nbap_edch_channel_info[e_dch_macdflow_id].edch_ddi[num_items-1] = e_dch_ddi_value;
+    if(num_items>0)
+        nbap_edch_channel_info[e_dch_macdflow_id].edch_ddi[num_items-1] = e_dch_ddi_value;
 
 #.FN_BODY MACdPDU-Size VAL_PTR = &MACdPDU_Size
 %(DEFAULT_BODY)s
@@ -1619,15 +1620,15 @@ nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
     {
         return offset;
     }
-    nbap_edch_channel_info[e_dch_macdflow_id].edch_macd_pdu_size[num_items-1] = MACdPDU_Size;
+    if(num_items>0)
+        nbap_edch_channel_info[e_dch_macdflow_id].edch_macd_pdu_size[num_items-1] = MACdPDU_Size;
 
 #.FN_BODY LogicalChannelID VAL_PTR = &logical_channel_id
     /* Set logical channel id for this entry*/
 %(DEFAULT_BODY)s
 
-
-    nbap_edch_channel_info[e_dch_macdflow_id].lchId[num_items-1] = logical_channel_id;
-
+    if(num_items>0)
+        nbap_edch_channel_info[e_dch_macdflow_id].lchId[num_items-1] = logical_channel_id;
 
 #.FN_BODY RLC-Mode VAL_PTR = &rlc_mode
     guint32 rlc_mode;
