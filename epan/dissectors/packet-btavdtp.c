@@ -2795,7 +2795,7 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     proto_tree_add_item(aptx_tree, hf_aptx_data, tvb, 0, -1, ENC_NA);
 
-    while (info && info->configuration && info->configuration_length >= 9) {
+    if (info && info->configuration && info->configuration_length >= 9) {
         gboolean fail = FALSE;
         gdouble expected_speed_data;
         gdouble frame_duration;
@@ -2822,7 +2822,7 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         if (fail)
-            break;
+            return tvb_reported_length(tvb);
 
         switch (info->configuration[8] & 0x0F) {
         case 0x01:
@@ -2838,7 +2838,7 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         if (fail)
-            break;
+            return tvb_reported_length(tvb);
 
         sample_bits = 16;
 
@@ -2879,8 +2879,6 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_item_append_text(pitem, " ms");
             PROTO_ITEM_SET_GENERATED(pitem);
         }
-
-        break;
     }
 
     return tvb_reported_length(tvb);
