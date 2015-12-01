@@ -319,7 +319,7 @@ void RtpAudioStream::decode()
 
         // Write samples to our file.
         write_buff = (char *) decode_buff;
-        write_bytes = rtp_packet->info->info_payload_len * sample_bytes_;
+        write_bytes = decoded_bytes;
 
         if (audio_out_rate_ != sample_rate) {
             // Resample the audio to match our previous output rate.
