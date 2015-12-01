@@ -33,6 +33,8 @@
 #include "address_editor_frame.h"
 #include <ui_address_editor_frame.h>
 
+#include <QPushButton>
+
 #include "qt_ui_utils.h"
 
 // To do:
@@ -60,12 +62,12 @@ AddressEditorFrame::~AddressEditorFrame()
 void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
 {
     if (!cf.capFile()->current_frame) {
-        on_cancelButton_clicked();
+        on_buttonBox_rejected();
         return;
     }
 
     if (!cf_read_record(cf.capFile(), cf.capFile()->current_frame)) {
-        on_cancelButton_clicked();
+        on_buttonBox_rejected();
         return; // error reading the frame
     }
 
@@ -107,13 +109,13 @@ void AddressEditorFrame::updateWidgets()
         ok_enable = true;
     }
 
-    ui->okButton->setEnabled(ok_enable);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok_enable);
 }
 
 void AddressEditorFrame::on_nameResolutionPreferencesToolButton_clicked()
 {
     static const QString module_name = "nameres";
-    on_cancelButton_clicked();
+    on_buttonBox_rejected();
     emit showNameResolutionPreferences(module_name);
 }
 
@@ -129,12 +131,12 @@ void AddressEditorFrame::on_nameLineEdit_textEdited(const QString &)
 
 void AddressEditorFrame::on_nameLineEdit_returnPressed()
 {
-    if (ui->okButton->isEnabled()) {
-        on_okButton_clicked();
+    if (ui->buttonBox->button(QDialogButtonBox::Ok)->isEnabled()) {
+        on_buttonBox_accepted();
     }
 }
 
-void AddressEditorFrame::on_okButton_clicked()
+void AddressEditorFrame::on_buttonBox_accepted()
 {
     if (ui->addressComboBox->count() < 1 || ui->nameLineEdit->text().isEmpty()) {
         return;
@@ -144,14 +146,14 @@ void AddressEditorFrame::on_okButton_clicked()
     if (!add_ip_name_from_string(addr.toUtf8().constData(), name.toUtf8().constData())) {
         QString error_msg = tr("Can't assign %1 to %2").arg(name).arg(addr);
         emit editAddressStatus(error_msg);
-        ui->okButton->setEnabled(false);
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
         return;
     }
-    on_cancelButton_clicked();
+    on_buttonBox_rejected();
     emit redissectPackets();
 }
 
-void AddressEditorFrame::on_cancelButton_clicked()
+void AddressEditorFrame::on_buttonBox_rejected()
 {
     ui->addressComboBox->clear();
     ui->nameLineEdit->clear();

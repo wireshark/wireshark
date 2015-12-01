@@ -25,6 +25,8 @@
 #include <epan/filter_expressions.h>
 #include <ui/preference_utils.h>
 
+#include <QPushButton>
+
 // To do:
 // - Add the ability to edit current expressions.
 
@@ -43,7 +45,7 @@ FilterExpressionFrame::~FilterExpressionFrame()
 void FilterExpressionFrame::addExpression(const QString filter_text)
 {
     if (isVisible()) {
-        on_cancelButton_clicked();
+        on_buttonBox_rejected();
         return;
     }
 
@@ -67,12 +69,12 @@ void FilterExpressionFrame::updateWidgets()
         ok_enable = true;
     }
 
-    ui->okButton->setEnabled(ok_enable);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok_enable);
 }
 
 void FilterExpressionFrame::on_filterExpressionPreferencesToolButton_clicked()
 {
-    on_cancelButton_clicked();
+    on_buttonBox_rejected();
     emit showPreferencesDialog(PreferencesDialog::ppFilterExpressions);
 }
 
@@ -81,19 +83,19 @@ void FilterExpressionFrame::on_labelLineEdit_textChanged(const QString)
     updateWidgets();
 }
 
-void FilterExpressionFrame::on_okButton_clicked()
+void FilterExpressionFrame::on_buttonBox_accepted()
 {
     QByteArray label_ba = ui->labelLineEdit->text().toUtf8();
     QByteArray expr_ba = ui->displayFilterLineEdit->text().toUtf8();
 
     filter_expression_new(label_ba.constData(), expr_ba.constData(), TRUE);
 
-    on_cancelButton_clicked();
+    on_buttonBox_rejected();
     emit filterExpressionsChanged();
     prefs_main_write();
 }
 
-void FilterExpressionFrame::on_cancelButton_clicked()
+void FilterExpressionFrame::on_buttonBox_rejected()
 {
     ui->labelLineEdit->clear();
     ui->displayFilterLineEdit->clear();

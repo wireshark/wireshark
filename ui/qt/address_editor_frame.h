@@ -54,8 +54,8 @@ private slots:
     void on_addressComboBox_currentIndexChanged(const QString &);
     void on_nameLineEdit_textEdited(const QString &);
     void on_nameLineEdit_returnPressed();
-    void on_okButton_clicked();
-    void on_cancelButton_clicked();
+    void on_buttonBox_accepted();
+    void on_buttonBox_rejected();
 
 private:
     Ui::AddressEditorFrame *ui;

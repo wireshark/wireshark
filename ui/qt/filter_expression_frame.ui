@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>745</width>
-    <height>22</height>
+    <height>29</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
   <property name="frameShadow">
    <enum>QFrame::Plain</enum>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0,0,0,0,1,0,0,0">
+  <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0,0,0,0,1,0,0">
    <property name="topMargin">
     <number>0</number>
    </property>
@@ -119,16 +119,15 @@
     </spacer>
    </item>
    <item>
-    <widget class="QToolButton" name="okButton">
-     <property name="text">
-      <string>OK</string>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>27</height>
+      </size>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QToolButton" name="cancelButton">
-     <property name="text">
-      <string>Cancel</string>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>

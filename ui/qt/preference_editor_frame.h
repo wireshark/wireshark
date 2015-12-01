@@ -54,8 +54,8 @@ private slots:
 
     void on_modulePreferencesToolButton_clicked();
     void on_preferenceLineEdit_returnPressed();
-    void on_okButton_clicked();
-    void on_cancelButton_clicked();
+    void on_buttonBox_accepted();
+    void on_buttonBox_rejected();
 
 private:
     Ui::PreferenceEditorFrame *ui;
