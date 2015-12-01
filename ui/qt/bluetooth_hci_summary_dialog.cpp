@@ -640,22 +640,26 @@ void BluetoothHciSummaryDialog::on_tableTreeWidget_itemActivated(QTreeWidgetItem
 
 void BluetoothHciSummaryDialog::recursiveCopyTreeItems(QTreeWidgetItem *item, QString &copy, int ident_level)
 {
+    QTreeWidgetItem *child_item;
+
     if (!item->isExpanded()) return;
 
     for (int i_item = 0; i_item < item->childCount(); i_item += 1) {
+        child_item = item->child(i_item);
+
         copy.append(QString("    ").repeated(ident_level));
         copy += QString("%1  %2  %3  %4  %5  %6  %7  %8  %9\n")
-                .arg(item->child(i_item)->text(column_number_name), -60 + 4 * ident_level)
-                .arg(item->child(i_item)->text(column_number_ogf), -10)
-                .arg(item->child(i_item)->text(column_number_ocf), -10)
-                .arg(item->child(i_item)->text(column_number_opcode), -10)
-                .arg(item->child(i_item)->text(column_number_event), -10)
-                .arg(item->child(i_item)->text(column_number_status), -10)
-                .arg(item->child(i_item)->text(column_number_reason), -10)
-                .arg(item->child(i_item)->text(column_number_hardware_error), -15)
-                .arg(item->child(i_item)->text(column_number_occurrence), -10);
+                .arg(child_item->text(column_number_name), -60 + 4 * ident_level)
+                .arg(child_item->text(column_number_ogf), -10)
+                .arg(child_item->text(column_number_ocf), -10)
+                .arg(child_item->text(column_number_opcode), -10)
+                .arg(child_item->text(column_number_event), -10)
+                .arg(child_item->text(column_number_status), -10)
+                .arg(child_item->text(column_number_reason), -10)
+                .arg(child_item->text(column_number_hardware_error), -15)
+                .arg(child_item->text(column_number_occurrence), -10);
 
-        recursiveCopyTreeItems(item->child(i_item), copy, ident_level + 1);
+        recursiveCopyTreeItems(child_item, copy, ident_level + 1);
     }
 }
 
@@ -664,20 +668,23 @@ void BluetoothHciSummaryDialog::on_actionCopy_All_triggered()
     QClipboard             *clipboard = QApplication::clipboard();
     QString                 copy;
     QTreeWidgetItemIterator i_item(ui->tableTreeWidget);
+    QTreeWidgetItem        *item;
+
+    item = ui->tableTreeWidget->headerItem();
 
     copy += QString("%1  %2  %3  %4  %5  %6  %7  %8  %9\n")
-            .arg(ui->tableTreeWidget->headerItem()->text(column_number_name), -60)
-            .arg(ui->tableTreeWidget->headerItem()->text(column_number_ogf), -10)
-            .arg(ui->tableTreeWidget->headerItem()->text(column_number_ocf), -10)
-            .arg(ui->tableTreeWidget->headerItem()->text(column_number_opcode), -10)
-            .arg(ui->tableTreeWidget->headerItem()->text(column_number_event), -10)
-            .arg(ui->tableTreeWidget->headerItem()->text(column_number_status), -10)
-            .arg(ui->tableTreeWidget->headerItem()->text(column_number_reason), -10)
-            .arg(ui->tableTreeWidget->headerItem()->text(column_number_hardware_error), -15)
-            .arg(ui->tableTreeWidget->headerItem()->text(column_number_occurrence), -10);
+            .arg(item->text(column_number_name), -60)
+            .arg(item->text(column_number_ogf), -10)
+            .arg(item->text(column_number_ocf), -10)
+            .arg(item->text(column_number_opcode), -10)
+            .arg(item->text(column_number_event), -10)
+            .arg(item->text(column_number_status), -10)
+            .arg(item->text(column_number_reason), -10)
+            .arg(item->text(column_number_hardware_error), -15)
+            .arg(item->text(column_number_occurrence), -10);
 
     for (int i_item = 0; i_item < ui->tableTreeWidget->topLevelItemCount(); i_item += 1) {
-        QTreeWidgetItem *item = ui->tableTreeWidget->topLevelItem(i_item);
+        item = ui->tableTreeWidget->topLevelItem(i_item);
 
         copy += QString("%1  %2  %3  %4  %5  %6  %7  %8  %9\n")
                 .arg(item->text(column_number_name), -60)

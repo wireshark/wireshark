@@ -448,9 +448,12 @@ static char *adb_send_and_receive(socket_handle_t sock, const char *adb_service,
     gssize   result;
     char     status[4];
     char     tmp_buffer;
+    size_t   adb_service_length;
 
-    result = send(sock, adb_service, (int)strlen(adb_service), 0);
-    if (result != (gssize) strlen(adb_service)) {
+    adb_service_length = strlen(adb_service);
+
+    result = send(sock, adb_service, (int) adb_service_length, 0);
+    if (result != (gssize) adb_service_length) {
         if (verbose)
             fprintf(stderr, "ERROR: Error while sending <%s> to ADB\n", adb_service);
         if (data_length)
@@ -493,9 +496,12 @@ static char *adb_send_and_read(socket_handle_t sock, const char *adb_service, ch
     gssize   used_buffer_length;
     gssize   result;
     char     status[4];
+    size_t   adb_service_length;
 
-    result = send(sock, adb_service, (int)strlen(adb_service), 0);
-    if (result != (gssize) strlen(adb_service)) {
+    adb_service_length = strlen(adb_service);
+
+    result = send(sock, adb_service, adb_service_length, 0);
+    if (result != (gssize) adb_service_length) {
         if (verbose)
             fprintf(stderr, "ERROR: Error while sending <%s> to ADB\n", adb_service);
         if (data_length)
@@ -535,9 +541,12 @@ static int adb_send(socket_handle_t sock, const char *adb_service) {
     char buffer[4];
     gssize   used_buffer_length;
     gssize   result;
+    size_t   adb_service_length;
 
-    result = send(sock, adb_service, (int)strlen(adb_service), 0);
-    if (result != (gssize) strlen(adb_service)) {
+    adb_service_length = strlen(adb_service);
+
+    result = send(sock, adb_service, (int) adb_service_length, 0);
+    if (result != (gssize) adb_service_length) {
         if (verbose)
             fprintf(stderr, "ERROR: Error while sending <%s> to ADB\n", adb_service);
         return 1;
@@ -582,6 +591,7 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
     const char            *adb_ps_bluetooth_app   = "001E""shell:ps com.android.bluetooth";
     const char            *adb_tcpdump_help       = "0010""shell:tcpdump -h";
     char                   serial_number[SERIAL_NUMER_LENGTH_MAX];
+    size_t                 serial_number_length;
     int                    result;
     char                  *pos;
     char                  *prev_pos;
@@ -613,13 +623,14 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
         }
         memcpy(serial_number, prev_pos, result);
         serial_number[result] = '\0';
+        serial_number_length = strlen(serial_number);
 
         /* Check for the presence of tcpdump in the android device. */
 
         sock = adb_connect(adb_server_ip, adb_server_tcp_port);
         if (sock == INVALID_SOCKET) continue;
 
-        sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
+        sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
         result = adb_send(sock, helpful_packet);
         if (result) {
             if (verbose)
@@ -640,7 +651,7 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
         if (sock == INVALID_SOCKET)
             return -1;
 
-        sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
+        sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
         result = adb_send(sock, helpful_packet);
         if (result) {
             if (verbose)
@@ -675,7 +686,7 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
             sock = adb_connect(adb_server_ip, adb_server_tcp_port);
             if (sock == INVALID_SOCKET) continue;
 
-            sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
+            sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
             result = adb_send(sock, helpful_packet);
             if (result) {
                 if (verbose)
@@ -715,7 +726,7 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
             sock = adb_connect(adb_server_ip, adb_server_tcp_port);
             if (sock == INVALID_SOCKET) continue;
 
-            sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
+            sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
             result = adb_send(sock, helpful_packet);
             if (result) {
                 if (verbose)
@@ -747,7 +758,7 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
                     if (sock == INVALID_SOCKET)
                         return -1;
 
-                    sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
+                    sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
                     result = adb_send(sock, helpful_packet);
                     if (result) {
                         if (verbose)
@@ -787,7 +798,7 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
             sock = adb_connect(adb_server_ip, adb_server_tcp_port);
             if (sock == INVALID_SOCKET) continue;
 
-            sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
+            sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
             result = adb_send(sock, helpful_packet);
             if (result) {
                 if (verbose)
@@ -822,7 +833,7 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
                     if (sock == INVALID_SOCKET)
                         return -1;
 
-                    sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
+                    sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
                     result = adb_send(sock, helpful_packet);
                     if (result) {
                         if (verbose)
@@ -979,6 +990,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
     const char                    *adb_shell_su_hcidump = "0019""shell:su -c hcidump -R -t";
     int                            result;
     char                          *serial_number = NULL;
+    size_t                         serial_number_length = 0;
     time_t                         ts = 0;
     unsigned int                   captured_length;
     gint64                         hex;
@@ -1003,6 +1015,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
     if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) &&
             strlen(interface) > strlen(INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) + 1) {
         serial_number = interface + strlen(INTERFACE_ANDROID_BLUETOOTH_HCIDUMP) + 1;
+        serial_number_length = strlen(serial_number);
     }
 
     if (!serial_number) {
@@ -1014,7 +1027,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
             return 1;
         }
     } else {
-        sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
+        sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
         result = adb_send(sock, helpful_packet);
         if (result) {
             if (verbose)
@@ -1079,7 +1092,7 @@ static int capture_android_bluetooth_hcidump(char *interface, char *fifo,
         if (sock == INVALID_SOCKET)
             return -1;
 
-        sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
+        sprintf((char *) helpful_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
         result = adb_send(sock, helpful_packet);
         if (result) {
             if (verbose)
@@ -1338,6 +1351,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
     struct sockaddr_in             server;
     int                            captured_length;
     char                          *serial_number = NULL;
+    size_t                         serial_number_length;
 
     SET_DATA(timestamp, value_u64, buffer);
     SET_DATA(h4_header, value_own_pcap_bluetooth_h4_header, packet);
@@ -1347,6 +1361,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
     if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) &&
             strlen(interface) > strlen(INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) + 1) {
         serial_number = interface + strlen(INTERFACE_ANDROID_BLUETOOTH_EXTERNAL_PARSER) + 1;
+        serial_number_length = strlen(serial_number);
     }
 
     if (bt_forward_socket) {
@@ -1416,7 +1431,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
                 return 1;
             }
         } else {
-            g_snprintf((char *) buffer, PACKET_LENGTH, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
+            g_snprintf((char *) buffer, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
             result = adb_send(sock, buffer);
             if (result) {
                 if (verbose)
@@ -1586,6 +1601,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
     const char                    *adb_tcp_btsnoop_net   = "0008""tcp:8872";
     int                            result;
     char                          *serial_number = NULL;
+    size_t                         serial_number_length;
     uint64_t                       ts;
     static const uint64_t          BTSNOOP_TIMESTAMP_BASE = G_GUINT64_CONSTANT(0x00dcddb30f2f8000);
     uint32_t                      *reported_length;
@@ -1612,6 +1628,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
     if (is_specified_interface(interface, INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET) &&
             strlen(interface) > strlen(INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET) + 1) {
         serial_number = interface + strlen(INTERFACE_ANDROID_BLUETOOTH_BTSNOOP_NET) + 1;
+        serial_number_length = strlen(serial_number);
     }
 
     if (!serial_number) {
@@ -1622,7 +1639,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
             return 1;
         }
     } else {
-        sprintf((char *) packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
+        sprintf((char *) packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
         result = adb_send(sock, packet);
         if (result) {
             if (verbose)
@@ -1725,14 +1742,15 @@ static int capture_android_logcat_text(char *interface, char *fifo,
     const char                 *adb_logcat_template = "%04x""shell:export ANDROID_LOG_TAGS=\"\" ; exec logcat -v threadtime%s%s";
     const char                 *adb_transport_serial_templace = "%04x""host:transport:%s";
     char                       *serial_number = NULL;
+    size_t                      serial_number_length = 0;
     int                         result;
     char                       *pos;
     const char                 *logcat_buffer;
 
     extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_WIRESHARK_UPPER_PDU);
 
-    exported_pdu_header_protocol_normal.tag = GINT16_TO_BE(WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME);
-    exported_pdu_header_protocol_normal.length = GINT16_TO_BE(strlen(wireshark_protocol_logcat_text) + 2);
+    exported_pdu_header_protocol_normal.tag = GUINT16_TO_BE(WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME);
+    exported_pdu_header_protocol_normal.length = GUINT16_TO_BE(strlen(wireshark_protocol_logcat_text) + 2);
 
     sock = adb_connect(adb_server_ip, adb_server_tcp_port);
     if (sock == INVALID_SOCKET)
@@ -1767,7 +1785,9 @@ static int capture_android_logcat_text(char *interface, char *fifo,
             return 1;
         }
     } else {
-        sprintf((char *) packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
+        serial_number_length = strlen(serial_number);
+
+        sprintf((char *) packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
         result = adb_send(sock, packet);
         if (result) {
             if (verbose)
@@ -1806,17 +1826,17 @@ static int capture_android_logcat_text(char *interface, char *fifo,
     protocol_name = wireshark_protocol_logcat_text;
     exported_pdu_header_protocol = &exported_pdu_header_protocol_normal;
 
-    memcpy(packet + exported_pdu_headers_size, exported_pdu_header_protocol, sizeof(struct exported_pdu_header));
+    memcpy(packet, exported_pdu_header_protocol, sizeof(struct exported_pdu_header));
     exported_pdu_headers_size += sizeof(struct exported_pdu_header);
 
-    memcpy(packet + exported_pdu_headers_size, protocol_name, GINT16_FROM_BE(exported_pdu_header_protocol->length) - 2);
-    exported_pdu_headers_size += GINT16_FROM_BE(exported_pdu_header_protocol->length);
+    memcpy(packet + exported_pdu_headers_size, protocol_name, GUINT16_FROM_BE(exported_pdu_header_protocol->length) - 2);
+    exported_pdu_headers_size += GUINT16_FROM_BE(exported_pdu_header_protocol->length);
 
     packet[exported_pdu_headers_size - 1] = 0;
     packet[exported_pdu_headers_size - 2] = 0;
 
     memcpy(packet + exported_pdu_headers_size, &exported_pdu_header_end, sizeof(struct exported_pdu_header));
-    exported_pdu_headers_size += sizeof(struct exported_pdu_header) + GINT16_FROM_BE(exported_pdu_header_end.length);
+    exported_pdu_headers_size += sizeof(struct exported_pdu_header) + GUINT16_FROM_BE(exported_pdu_header_end.length);
 
     used_buffer_length = 0;
     while (endless_loop) {
@@ -1905,14 +1925,15 @@ static int capture_android_logcat(char *interface, char *fifo,
     uint16_t                    header_size;
     int                         result;
     char                       *serial_number = NULL;
+    size_t                      serial_number_length = 0;
 
     extcap_dumper = extcap_dumper_open(fifo, EXTCAP_ENCAP_WIRESHARK_UPPER_PDU);
 
-    exported_pdu_header_protocol_events.tag = GINT16_TO_BE(WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME);
-    exported_pdu_header_protocol_events.length = GINT16_TO_BE(strlen(wireshark_protocol_logcat_events) + 2);
+    exported_pdu_header_protocol_events.tag = GUINT16_TO_BE(WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME);
+    exported_pdu_header_protocol_events.length = GUINT16_TO_BE(strlen(wireshark_protocol_logcat_events) + 2);
 
-    exported_pdu_header_protocol_normal.tag = GINT16_TO_BE(WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME);
-    exported_pdu_header_protocol_normal.length = GINT16_TO_BE(strlen(wireshark_protocol_logcat) + 2);
+    exported_pdu_header_protocol_normal.tag = GUINT16_TO_BE(WIRESHARK_UPPER_PDU_TAG_DISSECTOR_NAME);
+    exported_pdu_header_protocol_normal.length = GUINT16_TO_BE(strlen(wireshark_protocol_logcat) + 2);
 
     sock = adb_connect(adb_server_ip, adb_server_tcp_port);
     if (sock == INVALID_SOCKET)
@@ -1937,7 +1958,9 @@ static int capture_android_logcat(char *interface, char *fifo,
             return 1;
         }
     } else {
-        g_snprintf(packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
+        serial_number_length = strlen(serial_number);
+
+        g_snprintf(packet, PACKET_LENGTH, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
         result = adb_send(sock, packet);
         if (result) {
             if (verbose)
@@ -1978,17 +2001,17 @@ static int capture_android_logcat(char *interface, char *fifo,
         exported_pdu_header_protocol = &exported_pdu_header_protocol_normal;
     }
 
-    memcpy(packet + exported_pdu_headers_size, exported_pdu_header_protocol, sizeof(struct exported_pdu_header));
+    memcpy(packet, exported_pdu_header_protocol, sizeof(struct exported_pdu_header));
     exported_pdu_headers_size += sizeof(struct exported_pdu_header);
 
-    memcpy(packet + exported_pdu_headers_size, protocol_name, GINT16_FROM_BE(exported_pdu_header_protocol->length) - 2);
-    exported_pdu_headers_size += GINT16_FROM_BE(exported_pdu_header_protocol->length);
+    memcpy(packet + exported_pdu_headers_size, protocol_name, GUINT16_FROM_BE(exported_pdu_header_protocol->length) - 2);
+    exported_pdu_headers_size += GUINT16_FROM_BE(exported_pdu_header_protocol->length);
 
     packet[exported_pdu_headers_size - 1] = 0;
     packet[exported_pdu_headers_size - 2] = 0;
 
     memcpy(packet + exported_pdu_headers_size, &exported_pdu_header_end, sizeof(struct exported_pdu_header));
-    exported_pdu_headers_size += sizeof(struct exported_pdu_header) + GINT16_FROM_BE(exported_pdu_header_end.length);
+    exported_pdu_headers_size += sizeof(struct exported_pdu_header) + GUINT16_FROM_BE(exported_pdu_header_end.length);
 
     SET_DATA(payload_length,  value_u16, packet + exported_pdu_headers_size +  0);
     SET_DATA(try_header_size, value_u16, packet + exported_pdu_headers_size +  2);
@@ -2026,7 +2049,7 @@ static int capture_android_logcat(char *interface, char *fifo,
                         return 1;
                     }
                 } else {
-                    sprintf((char *) helper_packet, adb_transport_serial_templace, 15 + strlen(serial_number), serial_number);
+                    sprintf((char *) helper_packet, adb_transport_serial_templace, 15 + serial_number_length, serial_number);
                     result = adb_send(sock, helper_packet);
                     if (result) {
                         if (verbose)
@@ -2063,7 +2086,7 @@ static int capture_android_logcat(char *interface, char *fifo,
 
         used_buffer_length += length + exported_pdu_headers_size;
 
-        if (*try_header_size == 0 || *try_header_size != 24)
+        if (*try_header_size != 24)
             header_size = 20;
         else
             header_size = *try_header_size;
@@ -2083,7 +2106,7 @@ static int capture_android_logcat(char *interface, char *fifo,
 
             length = (*payload_length) + header_size + (gssize)exported_pdu_headers_size;
 
-            if (*try_header_size == 0 || *try_header_size != 24)
+            if (*try_header_size != 24)
                 header_size = 20;
             else
                 header_size = *try_header_size;
@@ -2131,11 +2154,15 @@ static void attach_parent_console()
 
     /* Console attach succeeded */
     if (outRedirected == FALSE) {
-        freopen("CONOUT$", "w", stdout);
+        if (!freopen("CONOUT$", "w", stdout)) {
+            fprintf(stderr, "WARNING: Cannot redirect to stdout.");
+        }
     }
 
     if (errRedirected == FALSE) {
-        freopen("CONOUT$", "w", stderr);
+        if (!freopen("CONOUT$", "w", stderr)) {
+            fprintf(stderr, "WARNING: Cannot redirect to strerr.");
+        }
     }
 }
 #endif
@@ -2161,7 +2188,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
     gint                                     result;
     char                                     *serial_number = NULL;
     char                                     filter_buffer[PACKET_LENGTH];
-    gint                                     device_endiness;
+    gint                                     device_endiness = G_LITTLE_ENDIAN;
     gboolean                                 global_header_skipped=FALSE;
     pcaprec_hdr_t                            p_header;
 
@@ -2234,12 +2261,12 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
         if (used_buffer_length > 4) {
             guint * magic_number;
             magic_number= (guint *)data;
-            if (*magic_number == 0xd4c3b2a1 ||*magic_number == 0xa1b2c3d4) {
-                if (data[0]==(char)0xd4){
-                    device_endiness=G_LITTLE_ENDIAN;
+            if (*magic_number == 0xd4c3b2a1 || *magic_number == 0xa1b2c3d4) {
+                if (data[0] == (char)0xd4){
+                    device_endiness = G_LITTLE_ENDIAN;
                 }
                 else {
-                    device_endiness=G_BIG_ENDIAN;
+                    device_endiness = G_BIG_ENDIAN;
                 }
                 break;
             }
