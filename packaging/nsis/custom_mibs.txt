@@ -1,4 +1,3 @@
-; $Id$
 ; Add your custom SNMP MIBS directives here
 ; Example:
 ; Point to the dir of the MIBS

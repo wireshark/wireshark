@@ -36,8 +36,6 @@
 	 ** wimaxasncp_dict.h
 	 ** WIMAXASNCP Dictionary Import Routines
 	 **
-	 ** $Id$
-	 **
 	 ** (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>
 	 ** (c) 2007, Stephen Croll <stephen.d.croll@gmail.com>
 	 **

@@ -1,6 +1,5 @@
 dnl Autoconf macros for libgcrypt
 dnl       Copyright (C) 2002, 2004 Free Software Foundation, Inc.
-dnl $Id$
 dnl
 dnl This file is free software; as a special exception the author gives
 dnl unlimited permission to copy and/or distribute it, with or without

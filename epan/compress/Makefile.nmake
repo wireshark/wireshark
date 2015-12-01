@@ -1,7 +1,5 @@
 ## Makefile for building lzxpress.lib with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
-#
-# $Id$
 
 include ..\..\config.nmake
 include Makefile.common
