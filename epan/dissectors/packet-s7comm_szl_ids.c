@@ -4010,11 +4010,13 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                  * it's not possible to decode this and following telegrams without knowing the previous requests.
                  */
                 tbytes = 0;
-                if ((list_count * list_len) > (len - 8)) {
-                    list_count = (len - 8) / list_len;
-                    /* remind the number of trailing bytes */
-                    if (list_count > 0) {
-                        tbytes = (len - 8) % list_count;
+                if (list_len > 0) {
+                    if ((list_count * list_len) > (len - 8)) {
+                        list_count = (len - 8) / list_len;
+                        /* remind the number of trailing bytes */
+                        if (list_count > 0) {
+                            tbytes = (len - 8) % list_count;
+                        }
                     }
                 }
                 offset += 2;
