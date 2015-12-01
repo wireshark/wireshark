@@ -712,7 +712,6 @@ static void sctp_graph_redraw(struct sctp_udata *u_data)
 
 static void on_sack_bt(GtkWidget *widget _U_, struct sctp_udata *u_data)
 {
-	u_data = (struct sctp_udata *) u_data;
 	u_data->io->graph_type = 2;
 	sctp_graph_redraw(u_data);
 }
