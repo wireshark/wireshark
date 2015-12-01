@@ -522,8 +522,8 @@ calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos, gchar *status_s
 cf_read_status_t
 cf_read(capture_file *cf, gboolean reloading)
 {
-  int                  err;
-  gchar               *err_info;
+  int                  err = 0;
+  gchar               *err_info = NULL;
   gchar               *name_ptr;
   progdlg_t           *progbar        = NULL;
   GTimeVal             start_time;
