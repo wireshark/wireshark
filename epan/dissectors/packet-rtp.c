@@ -1460,7 +1460,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
     } else if (p_conv_data && !p_conv_data->bta2dp_info && !p_conv_data->btvdp_info &&
             payload_type >= PT_UNDF_96 && payload_type <= PT_UNDF_127) {
         /* if the payload type is dynamic, we check if the conv is set and we look for the pt definition */
-        if (p_conv_data && p_conv_data->rtp_dyn_payload) {
+        if (p_conv_data->rtp_dyn_payload) {
             const gchar *payload_type_str = rtp_dyn_payload_get_name(p_conv_data->rtp_dyn_payload, payload_type);
             if (payload_type_str) {
                 int len;

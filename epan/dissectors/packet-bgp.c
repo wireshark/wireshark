@@ -3883,11 +3883,9 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
                         1, ENC_BIG_ENDIAN);
 
     if (route_type == EVPN_ETH_SEGMENT_ROUTE && nlri_len < 21) {
-        if (nlri_len < 21) {
-            expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt4_len_err,
-                                   "Invalid length (%u) of EVPN NLRI Route Type 4 (Ethernet Segment Route)!", nlri_len);
-            return -1;
-        }
+        expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt4_len_err,
+                               "Invalid length (%u) of EVPN NLRI Route Type 4 (Ethernet Segment Route)!", nlri_len);
+        return -1;
     }
 
     item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, start_offset+2,

@@ -7298,7 +7298,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         }
         /* Need to parse for Novell specific wildcard values in Search Pattern, decode this ncp (89)/20 and (89)/03 req manually here. */
         if (ncp_rec->func == 0x59 && (ncp_rec->subfunc == 0x14 || ncp_rec->subfunc == 0x03)) {
-            if (ncp_rec->func == 0x59 && ncp_rec->subfunc == 0x03)
+            if (ncp_rec->subfunc == 0x03)
             {
                  dissect_ncp_8x20req(tvb, ncp_tree, 26, ncp_rec->func);
             }
