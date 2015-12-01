@@ -429,7 +429,7 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int hf_nlpid, int offset
     if ( !tree ) return;        /* nothing to do! */
 
     if (length <= 0) {
-        proto_tree_add_bytes_format_value(tree, hf_nlpid, tvb, offset, length, NULL, "--none--");
+        proto_tree_add_item(tree, hf_nlpid, tvb, offset, length, ENC_NA);
     } else {
         first = TRUE;
         ti = proto_tree_add_bytes_format(tree, hf_nlpid, tvb, offset, length, NULL, "NLPID(s): ");

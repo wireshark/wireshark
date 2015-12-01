@@ -1724,7 +1724,6 @@ dissect_isis_lsp_clv_mt_cap_spb_instance(tvbuff_t *tvb, packet_info *pinfo,
     else {
         proto_tree *subtree, *ti;
         int subofs = offset;
-        const guint8 *cist_root_identifier = tvb_get_ptr   (tvb, subofs + CIST_ROOT_ID_OFFSET, CIST_ROOT_ID_LEN);
         guint8        num_trees            = tvb_get_guint8(tvb, subofs + NUM_TREES_OFFSET);
 
         /*************************/
@@ -1732,11 +1731,7 @@ dissect_isis_lsp_clv_mt_cap_spb_instance(tvbuff_t *tvb, packet_info *pinfo,
                                   "SPB Instance: Type: 0x%02x, Length: %d", subtype, sublen);
 
         /*************************/
-        proto_tree_add_bytes_format_value( subtree, hf_isis_lsp_mt_cap_spb_instance_cist_root_identifier, tvb, subofs + CIST_ROOT_ID_OFFSET, CIST_ROOT_ID_LEN,
-                             cist_root_identifier, "%08x-%08x-%08x-%08x-%08x-%08x-%08x-%08x",
-                             cist_root_identifier[0], cist_root_identifier[1], cist_root_identifier[2],
-                             cist_root_identifier[3], cist_root_identifier[4], cist_root_identifier[5],
-                             cist_root_identifier[6], cist_root_identifier[7]);
+        proto_tree_add_item(subtree, hf_isis_lsp_mt_cap_spb_instance_cist_root_identifier, tvb, subofs + CIST_ROOT_ID_OFFSET, CIST_ROOT_ID_LEN, ENC_NA);
         proto_tree_add_item(subtree, hf_isis_lsp_mt_cap_spb_instance_cist_external_root_path_cost, tvb, subofs + CIST_EXT_ROOT_PATH_COST_OFFSET, CIST_EXT_ROOT_PATH_COST_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(subtree, hf_isis_lsp_mt_cap_spb_instance_bridge_priority, tvb, subofs + BRIDGE_PRI_OFFSET, BRIDGE_PRI_LEN, ENC_BIG_ENDIAN);
 
@@ -4406,7 +4401,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_mt_cap_spb_instance_cist_root_identifier,
             { "CIST Root Identifier", "isis.lsp.mt_cap_spb_instance.cist_root_identifier",
-              FT_BYTES, BASE_NONE, NULL, 0x0,
+              FT_BYTES, SEP_DASH, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_isis_lsp_mt_cap_spb_instance_cist_external_root_path_cost,
@@ -4816,7 +4811,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_clv_nlpid,
             { "NLPID", "isis.lsp.clv_nlpid",
-              FT_BYTES, BASE_NONE, NULL, 0x0,
+              FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_isis_lsp_ip_authentication,
