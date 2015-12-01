@@ -35,6 +35,8 @@
 
 #include "wireshark_application.h"
 
+#include <QPushButton>
+
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 // Qt::escape
 #include <QTextDocument>
@@ -126,7 +128,7 @@ void PreferenceEditorFrame::uintLineEditTextEdited(const QString &new_str)
     if (new_str.isEmpty()) {
         new_uint_ = pref_->stashed_val.uint;
         ui->preferenceLineEdit->setSyntaxState(SyntaxLineEdit::Empty);
-        ui->okButton->setEnabled(true);
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
         return;
     }
 
@@ -139,7 +141,7 @@ void PreferenceEditorFrame::uintLineEditTextEdited(const QString &new_str)
         new_uint_ = pref_->stashed_val.uint;
         ui->preferenceLineEdit->setSyntaxState(SyntaxLineEdit::Invalid);
     }
-    ui->okButton->setEnabled(ok);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok);
 }
 
 void PreferenceEditorFrame::stringLineEditTextEdited(const QString &new_str)
@@ -168,7 +170,7 @@ void PreferenceEditorFrame::rangeLineEditTextEdited(const QString &new_str)
 
 void PreferenceEditorFrame::on_modulePreferencesToolButton_clicked()
 {
-    on_cancelButton_clicked();
+    on_buttonBox_rejected();
     if (module_) {
         QString module_name = module_->name;
         emit showProtocolPreferences(module_name);
@@ -177,12 +179,12 @@ void PreferenceEditorFrame::on_modulePreferencesToolButton_clicked()
 
 void PreferenceEditorFrame::on_preferenceLineEdit_returnPressed()
 {
-    if (ui->okButton->isEnabled()) {
-        on_okButton_clicked();
+    if (ui->buttonBox->button(QDialogButtonBox::Ok)->isEnabled()) {
+        on_buttonBox_accepted();
     }
 }
 
-void PreferenceEditorFrame::on_okButton_clicked()
+void PreferenceEditorFrame::on_buttonBox_accepted()
 {
     bool apply = false;
     switch(pref_->type) {
@@ -217,7 +219,7 @@ void PreferenceEditorFrame::on_okButton_clicked()
             prefs_main_write();
         }
     }
-    on_cancelButton_clicked();
+    on_buttonBox_rejected();
     // Emit signals once UI is hidden
     if (apply) {
         wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
@@ -225,7 +227,7 @@ void PreferenceEditorFrame::on_okButton_clicked()
     }
 }
 
-void PreferenceEditorFrame::on_cancelButton_clicked()
+void PreferenceEditorFrame::on_buttonBox_rejected()
 {
     pref_ = NULL;
     module_ = NULL;

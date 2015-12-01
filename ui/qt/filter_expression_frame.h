@@ -53,8 +53,8 @@ private slots:
     void updateWidgets();
     void on_filterExpressionPreferencesToolButton_clicked();
     void on_labelLineEdit_textChanged(const QString);
-    void on_okButton_clicked();
-    void on_cancelButton_clicked();
+    void on_buttonBox_accepted();
+    void on_buttonBox_rejected();
 };
 
 #endif // FILTER_EXPRESSION_FRAME_H

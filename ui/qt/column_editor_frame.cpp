@@ -32,6 +32,7 @@
 #include "column_editor_frame.h"
 #include <ui_column_editor_frame.h>
 
+#include <QPushButton>
 #include <QComboBox>
 
 ColumnEditorFrame::ColumnEditorFrame(QWidget *parent) :
@@ -76,7 +77,7 @@ void ColumnEditorFrame::setFields(int index)
         ui->occurrenceLineEdit->clear();
         ui->occurrenceLineEdit->setSyntaxState(SyntaxLineEdit::Empty);
     }
-    ui->okButton->setEnabled(ok);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok);
 }
 
 void ColumnEditorFrame::editColumn(int column)
@@ -107,7 +108,7 @@ void ColumnEditorFrame::on_fieldNameLineEdit_textEdited(const QString &field)
         ((ui->typeComboBox->currentIndex() == COL_CUSTOM) &&
         (ui->occurrenceLineEdit->syntaxState() == SyntaxLineEdit::Empty)))
         ok = false;
-    ui->okButton->setEnabled(ok);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok);
 
     saved_field_ = field;
 }
@@ -125,18 +126,18 @@ void ColumnEditorFrame::on_occurrenceLineEdit_textEdited(const QString &occurren
         ((ui->typeComboBox->currentIndex() == COL_CUSTOM) &&
         (ui->occurrenceLineEdit->syntaxState() == SyntaxLineEdit::Empty)))
         ok = false;
-    ui->okButton->setEnabled(ok);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(ok);
 
     saved_occurrence_ = occurrence;
 }
 
-void ColumnEditorFrame::on_cancelButton_clicked()
+void ColumnEditorFrame::on_buttonBox_rejected()
 {
     cur_column_ = -1;
     animatedHide();
 }
 
-void ColumnEditorFrame::on_okButton_clicked()
+void ColumnEditorFrame::on_buttonBox_accepted()
 {
     QByteArray col_str;
     if (cur_column_ >= 0) {
@@ -155,7 +156,8 @@ void ColumnEditorFrame::on_okButton_clicked()
         }
         emit columnEdited();
     }
-    on_cancelButton_clicked();
+
+    on_buttonBox_rejected();
 }
 
 /*

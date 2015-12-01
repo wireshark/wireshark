@@ -44,8 +44,8 @@ private slots:
     void on_typeComboBox_activated(int index);
     void on_fieldNameLineEdit_textEdited(const QString &field);
     void on_occurrenceLineEdit_textEdited(const QString &occurrence);
-    void on_cancelButton_clicked();
-    void on_okButton_clicked();
+    void on_buttonBox_rejected();
+    void on_buttonBox_accepted();
 
 private:
     Ui::ColumnEditorFrame *ui;
