@@ -175,6 +175,15 @@ extern void set_active_dlt(interface_t *device, int global_default_dlt);
 
 extern GString *get_iface_list_string(capture_options *capture_opts, guint32 style);
 
+/** Get the interface display name to present in the interfaces list.
+ *
+ * @param description A user-specified capture device description
+ * @param if_info The if_info for the interface
+ *
+ * @return A interface display name (must be g_free'd later)
+ */
+extern gchar *get_iface_display_name(const gchar *description, const if_info_t *if_info);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
