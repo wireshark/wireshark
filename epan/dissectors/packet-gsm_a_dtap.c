@@ -747,6 +747,7 @@ static expert_field ei_gsm_a_dtap_text_string_not_multiple_of_7 = EI_INIT;
 static expert_field ei_gsm_a_dtap_autn = EI_INIT;
 static expert_field ei_gsm_a_dtap_invalid_ia5_character = EI_INIT;
 static expert_field ei_gsm_a_dtap_auts = EI_INIT;
+static expert_field ei_gsm_a_dtap_not_digit = EI_INIT;
 static expert_field ei_gsm_a_dtap_end_mark_unexpected = EI_INIT;
 static expert_field ei_gsm_a_dtap_extraneous_data = EI_INIT;
 static expert_field ei_gsm_a_dtap_missing_mandatory_element = EI_INIT;
@@ -1213,13 +1214,9 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
         digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, en_len, NULL, FALSE);
         item = proto_tree_add_string(subtree, hf_gsm_a_dtap_emergency_bcd_num, tvb, curr_offset, en_len, digit_str);
 
-        /* Check for overdicadic digits, we used the standard digit map from tvbuff.c
-         *  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f
-         * '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
-         *
-         */
+        /* Check for values that aren't digits; they get mapped to '?' */
         if(strchr(digit_str,'?')){
-            expert_add_info(pinfo, item, &ei_gsm_a_dtap_end_mark_unexpected);
+            expert_add_info(pinfo, item, &ei_gsm_a_dtap_not_digit);
         }
 
         curr_offset = curr_offset + en_len;
@@ -2274,11 +2271,7 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, num_string_len, &Dgt_mbcd, FALSE);
     item = proto_tree_add_string(tree, header_field, tvb, curr_offset, num_string_len, digit_str);
 
-    /* Check for overdicadic digits, we used the standard digit map from tvbuff.c
-     *  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e  f
-     * '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
-     *
-     */
+    /* Check for an end mark, which gets mapped to '?' */
     if(strchr(digit_str,'?')){
         expert_add_info(pinfo, item, &ei_gsm_a_dtap_end_mark_unexpected);
     }
@@ -8236,6 +8229,7 @@ proto_register_gsm_a_dtap(void)
         { &ei_gsm_a_dtap_autn, { "gsm_a.dtap.autn.invalid", PI_MALFORMED, PI_WARN, "AUTN length not equal to 16", EXPFILL }},
         { &ei_gsm_a_dtap_auts, { "gsm_a.dtap.auts.invalid", PI_MALFORMED, PI_WARN, "AUTS length not equal to 14", EXPFILL }},
         { &ei_gsm_a_dtap_text_string_not_multiple_of_7, { "gsm_a.dtap.text_string_not_multiple_of_7", PI_MALFORMED, PI_WARN, "Value leads to a Text String whose length is not a multiple of 7 bits", EXPFILL }},
+        { &ei_gsm_a_dtap_not_digit, { "gsm_a.dtap.not_digit", PI_MALFORMED, PI_WARN, "BCD number contains a value that is not a digit", EXPFILL }},
         { &ei_gsm_a_dtap_end_mark_unexpected, { "gsm_a.dtap.end_mark_unexpected", PI_MALFORMED, PI_WARN, "\'f\' end mark present in unexpected position", EXPFILL }},
         { &ei_gsm_a_dtap_invalid_ia5_character, { "gsm_a.dtap.invalid_ia5_character", PI_MALFORMED, PI_WARN, "Invalid IA5 character(s) in string (value > 127)", EXPFILL }},
         { &ei_gsm_a_dtap_keypad_info_not_dtmf_digit, { "gsm_a.dtap.keypad_info_not_dtmf_digit", PI_MALFORMED, PI_WARN, "Keypad information contains character that is not a DTMF digit", EXPFILL }},
