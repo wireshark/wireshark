@@ -372,7 +372,9 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
 
     prefs_to_capture_opts();
     prefs_apply_all();
+#ifdef HAVE_LIBPCAP
     update_local_interfaces();
+#endif
 
     emit columnsChanged();
     emit preferencesChanged();

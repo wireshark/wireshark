@@ -3936,7 +3936,9 @@ void change_configuration_profile (const gchar *profile_name)
 
     prefs_to_capture_opts();
     prefs_apply_all();
+#ifdef HAVE_LIBPCAP
     update_local_interfaces();
+#endif
     macros_post_update();
 
     /* Update window view and redraw the toolbar */
