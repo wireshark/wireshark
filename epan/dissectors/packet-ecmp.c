@@ -215,11 +215,13 @@ static const value_string parameter_address_scheme [] = {
 	{ 0, NULL }
 };
 
+#if 0
 static const value_string route_address_scheme [] = {
 	{ 1, "Intercept" },
 	{ 2, "DefaultRoute" },
 	{ 0, NULL }
 };
+#endif
 
 /* Parameter access status */
 static const value_string parameter_access_status [] = {
@@ -542,7 +544,9 @@ static const value_string file_integrity_vals[] = {
 	{ 0,   NULL }
 };
 
+#if 0
 static const true_false_string tfs_not_expected_expected = { "Odd", "Even" };
+#endif
 
 /* The following hf_* variables are used to hold the Wireshark IDs of
 * our header fields; they are filled out when we call
