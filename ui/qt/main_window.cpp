@@ -465,6 +465,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(filterExpressionsChanged()));
     connect(wsApp, SIGNAL(filterExpressionsChanged()),
             this, SLOT(filterExpressionsChanged()));
+    connect(wsApp, SIGNAL(checkDisplayFilter()),
+            this, SLOT(checkDisplayFilter()));
     connect(wsApp, SIGNAL(fieldsChanged()),
             this, SLOT(fieldsChanged()));
 

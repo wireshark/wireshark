@@ -275,6 +275,7 @@ private slots:
     void interfaceSelectionChanged();
     void captureFilterSyntaxChanged(bool valid);
     void redissectPackets();
+    void checkDisplayFilter();
     void fieldsChanged();
     void showAccordionFrame(AccordionFrame *show_frame, bool toggle = false);
     void showColumnEditor(int column);
