@@ -376,6 +376,8 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     update_local_interfaces();
 #endif
 
+    setMonospaceFont(prefs.gui_qt_font_name);
+
     emit columnsChanged();
     emit preferencesChanged();
     emit recentFilesRead();
@@ -394,8 +396,6 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
 
     emit localInterfaceListChanged();
     emit packetDissectionChanged();
-
-//    user_font_apply();
 
     /* Update menus with new recent values */
     //    menu_recent_read_finished();
