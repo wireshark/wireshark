@@ -372,6 +372,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
 
     prefs_to_capture_opts();
     prefs_apply_all();
+    update_local_interfaces();
 
     emit columnsChanged();
     emit preferencesChanged();
@@ -389,6 +390,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     /* Reload color filters */
     color_filters_reload();
 
+    emit localInterfaceListChanged();
     emit packetDissectionChanged();
 
 //    user_font_apply();

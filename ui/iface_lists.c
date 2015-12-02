@@ -54,6 +54,33 @@ if_list_comparator_alph(const void *first_arg, const void *second_arg)
     }
 }
 
+static void
+fill_from_ifaces (interface_t *device)
+{
+    interface_options interface_opts;
+    guint i;
+
+    for (i = 0; i < global_capture_opts.ifaces->len; i++) {
+        interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+        if (strcmp(interface_opts.name, device->name) != 0) {
+            continue;
+        }
+
+#if defined(HAVE_PCAP_CREATE)
+        device->buffer = interface_opts.buffer_size;
+        device->monitor_mode_enabled = interface_opts.monitor_mode;
+#endif
+        device->pmode = interface_opts.promisc_mode;
+        device->has_snaplen = interface_opts.has_snaplen;
+        device->snaplen = interface_opts.snaplen;
+        device->cfilter = g_strdup(interface_opts.cfilter);
+        if (interface_opts.linktype != -1) {
+            device->active_dlt = interface_opts.linktype;
+        }
+        return;
+    }
+}
+
 /*
  * Fetch the list of local interfaces with capture_interface_list()
  * and set the list of "all interfaces" in *capture_opts to include
@@ -257,27 +284,7 @@ scan_local_interfaces(void (*update_cb)(void))
         }
 #endif
 
-        if (global_capture_opts.ifaces->len > 0) {
-            for (j = 0; j < global_capture_opts.ifaces->len; j++) {
-                interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, j);
-                if (strcmp(interface_opts.name, device.name) == 0) {
-#if defined(HAVE_PCAP_CREATE)
-                    device.buffer = interface_opts.buffer_size;
-                    device.monitor_mode_enabled = interface_opts.monitor_mode;
-#endif
-                    device.pmode = interface_opts.promisc_mode;
-                    device.has_snaplen = interface_opts.has_snaplen;
-                    device.snaplen = interface_opts.snaplen;
-                    device.cfilter = g_strdup(interface_opts.cfilter);
-                    if (interface_opts.linktype != -1) {
-                        device.active_dlt = interface_opts.linktype;
-                    }
-                    device.selected = TRUE;
-                    global_capture_opts.num_selected++;
-                    break;
-                }
-            }
-        }
+        fill_from_ifaces(&device);
 
 #ifdef HAVE_EXTCAP
         /* Extcap devices start with no cached args */
@@ -414,6 +421,28 @@ hide_interface(gchar* new_hide)
     }
     g_list_free(hidden_devices);
     g_free(new_hide);
+}
+
+void
+update_local_interfaces(void)
+{
+    interface_t device;
+    gchar *descr;
+    guint i;
+
+    for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+        device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+        device.type = capture_dev_user_linktype_find(device.name);
+        g_free (device.display_name);
+        descr = capture_dev_user_descr_find(device.name);
+        device.display_name = get_iface_display_name(descr, &device.if_info);
+        g_free (descr);
+        device.hidden = prefs_is_capture_device_hidden(device.name);
+        fill_from_ifaces(&device);
+
+        global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+        g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+    }
 }
 #endif /* HAVE_LIBPCAP */
 
