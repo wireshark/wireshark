@@ -46,7 +46,16 @@ extern void fill_in_local_interfaces(void(*update_cb)(void));
  */
 extern void scan_local_interfaces(void (*update_cb)(void));
 
+/*
+ * Hide the interfaces
+ */
 extern void hide_interface(gchar* new_hide);
+
+/*
+ * Update the global interface list from preferences.
+ */
+extern void update_local_interfaces(void);
+
 #endif /* HAVE_LIBPCAP */
 
 #ifdef __cplusplus

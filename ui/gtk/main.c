@@ -3868,6 +3868,7 @@ void change_configuration_profile (const gchar *profile_name)
 
     prefs_to_capture_opts();
     prefs_apply_all();
+    update_local_interfaces();
     macros_post_update();
 
     /* Update window view and redraw the toolbar */
