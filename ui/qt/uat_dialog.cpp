@@ -253,7 +253,6 @@ void UatDialog::on_uatTreeWidget_itemActivated(QTreeWidgetItem *item, int column
     uat_field_t *field = &uat_->fields[column];
     guint row = item->data(0, Qt::UserRole).toUInt();
     void *rec = UAT_INDEX_PTR(uat_, row);
-    QFileDialog::Options fd_opt = QFileDialog::DontConfirmOverwrite;
     cur_column_ = column;
     QWidget *editor = NULL;
 
@@ -271,12 +270,20 @@ void UatDialog::on_uatTreeWidget_itemActivated(QTreeWidgetItem *item, int column
 
     switch(field->mode) {
     case PT_TXTMOD_DIRECTORYNAME:
-        fd_opt |= QFileDialog::ShowDirsOnly;
+    {
+        QString cur_path = fieldString(row, column);
+        const QByteArray& new_path = QFileDialog::getExistingDirectory(this,
+                field->title, cur_path).toUtf8();
+        field->cb.set(rec, new_path.constData(), (unsigned) new_path.size(), field->cbdata.set, field->fld_data);
+        updateItem(*item);
+        break;
+    }
+
     case PT_TXTMOD_FILENAME:
     {
         QString cur_path = fieldString(row, column);
         const QByteArray& new_path = QFileDialog::getOpenFileName(this,
-                field->title, cur_path, QString(), NULL, fd_opt).toUtf8();
+                field->title, cur_path, QString(), NULL, QFileDialog::DontConfirmOverwrite).toUtf8();
         field->cb.set(rec, new_path.constData(), (unsigned) new_path.size(), field->cbdata.set, field->fld_data);
         updateItem(*item);
         break;
