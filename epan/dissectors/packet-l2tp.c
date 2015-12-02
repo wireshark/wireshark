@@ -2311,7 +2311,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             proto_tree_add_item(l2tp_tree, hf_l2tp_sid, tvb, 0, 4, ENC_BIG_ENDIAN);
         }
         ctrl_tree = proto_tree_add_subtree_format(l2tp_tree, tvb, baseIdx, 2,
-                                 ett_l2tp_ctrl, NULL, "Packet Type: %s Control Connection Id=%d",
+                                 ett_l2tp_ctrl, NULL, "Packet Type: %s Control Connection Id=%u",
                                  (CONTROL_BIT(control) ? control_msg : data_msg), ccid);
         proto_tree_add_bitmask_list(ctrl_tree, tvb, baseIdx, 2, l2tp_control_fields, ENC_BIG_ENDIAN);
     }
