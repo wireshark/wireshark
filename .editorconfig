@@ -1,0 +1,24 @@
+#
+# Editor configuration
+#
+# http://editorconfig.org/
+#
+
+# Global settings
+
+# We're the top. We're the Coliseum.
+root = true
+
+[*]
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Autotools, Make, Nmake
+[{Makefile.am,Makefile,Makefile.nmake,config.nmake}]
+indent_style = tab
+
+# Python
+[*.py]
+indent_style = space
+indent_size = 4
+charset = utf-8

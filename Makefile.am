@@ -688,6 +688,7 @@ MAINTAINERCLEANFILES =		\
 	ylwrap
 
 EXTRA_DIST = \
+	.editorconfig		\
 	.mailmap		\
 	INSTALL.configure	\
 	Makefile.am.inc		\

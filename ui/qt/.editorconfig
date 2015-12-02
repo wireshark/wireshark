@@ -1,0 +1,9 @@
+# Qt sources
+
+# Qt Creator defaults to 4 columns of spaces but doesn't yet support
+# EditorConfig:
+# https://bugreports.qt.io/browse/QTCREATORBUG-14013
+[*.{cpp,h}]
+indent_style = space
+indent_size = 4
+tab_width = 8
