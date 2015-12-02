@@ -648,6 +648,7 @@ static const value_string avp_type_vals[] = {
 
 static value_string_ext avp_type_vals_ext = VALUE_STRING_EXT_INIT(avp_type_vals);
 
+#define CISCO_ACK                        0
 #define CISCO_ASSIGNED_CONNECTION_ID     1
 #define CISCO_PW_CAPABILITY_LIST         2
 #define CISCO_LOCAL_SESSION_ID           3
@@ -663,6 +664,7 @@ static value_string_ext avp_type_vals_ext = VALUE_STRING_EXT_INIT(avp_type_vals)
 #define CISCO_INTERFACE_MTU             14
 
 static const value_string cisco_avp_type_vals[] = {
+    { CISCO_ACK,                      "Cisco ACK" },
     { CISCO_ASSIGNED_CONNECTION_ID,   "Assigned Connection ID" },
     { CISCO_PW_CAPABILITY_LIST,       "Pseudowire Capabilities List" },
     { CISCO_LOCAL_SESSION_ID,         "Local Session ID" },
@@ -1271,7 +1273,7 @@ static gpointer l2tp_value(packet_info *pinfo _U_)
 /*
  * Dissect CISCO AVP:s
  */
-static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
+static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 ccid) {
 
     int offset = 0;
     int         avp_type;
@@ -1311,6 +1313,11 @@ static int dissect_l2tp_cisco_avps(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     avp_len -= 2;
 
     switch (avp_type) {
+    case CISCO_ACK:
+        /* process_l2tpv3_control does not set COL_INFO for vendor messages */
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s - Cisco ACK (tunnel id=%u)", control_msg, ccid);
+        break;
+
     case CISCO_ASSIGNED_CONNECTION_ID:
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_cisco_assigned_control_connection_id, tvb, offset, 4, ENC_BIG_ENDIAN);
         break;
@@ -1501,7 +1508,7 @@ static void process_control_avps(tvbuff_t *tvb,
 
             if (avp_vendor_id == VENDOR_CISCO) {      /* Vendor-Specific AVP */
 
-                dissect_l2tp_cisco_avps(avp_tvb, pinfo, l2tp_tree);
+                dissect_l2tp_cisco_avps(avp_tvb, pinfo, l2tp_tree, ccid);
                 idx += avp_len;
                 continue;
 
