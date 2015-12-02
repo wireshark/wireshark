@@ -5983,8 +5983,8 @@ get_value(packet_info *pinfo, guint32 handle, bluetooth_data_t *bluetooth_data, 
     guint32           frame_number;
     fragment_data_t  *fragment_data;
     wmem_tree_t      *sub_wmemtree;
-    guint16           last_offset = 0xFFFF;
-    guint16           size;
+    guint             last_offset = G_MAXUINT;
+    guint             size;
     gboolean          first = TRUE;
     guint8           *data = NULL;
 
