@@ -167,6 +167,9 @@ typedef struct{
 #define ZBEE_ZCL_STAT_WRITE_ONLY                    0x8f
 #define ZBEE_ZCL_STAT_INCONSISTENT_STARTUP_STATE    0x90
 #define ZBEE_ZCL_STAT_DEFINED_OUT_OF_BAND           0x91
+#define ZBEE_ZCL_STAT_INCONSISTENT                  0x92
+#define ZBEE_ZCL_STAT_ACTION_DENIED                 0x93
+#define ZBEE_ZCL_STAT_TIMEOUT                       0x94
 #define ZBEE_ZCL_STAT_OTA_ABORT                     0x95
 #define ZBEE_ZCL_STAT_OTA_INVALID_IMAGE             0x96
 #define ZBEE_ZCL_STAT_OTA_WAIT_FOR_DATA             0x97

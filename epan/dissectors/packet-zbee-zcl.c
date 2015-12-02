@@ -157,7 +157,6 @@ static const value_string zbee_zcl_frame_types[] = {
     { ZBEE_ZCL_FCF_CLUSTER_SPEC,    "Cluster-specific" },
     { 0, NULL }
 };
-
 /* ZCL Command Names */
 static const value_string zbee_zcl_cmd_names[] = {
     { ZBEE_ZCL_CMD_READ_ATTR,               "Read Attributes" },
@@ -179,9 +178,10 @@ static const value_string zbee_zcl_cmd_names[] = {
     { ZBEE_ZCL_CMD_WRITE_ATTR_STRUCT_RESP,  "Write Attributes Structured Response" },
     { ZBEE_ZCL_CMD_DISCOVER_CMDS_REC,       "Discover Commands Received" },
     { ZBEE_ZCL_CMD_DISCOVER_CMDS_REC_RESP,  "Discover Commands Received Response" },
-
     { 0, NULL }
 };
+
+
 static value_string_ext zbee_zcl_cmd_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_cmd_names);
 
 /* ZCL Cluster-Specific Command Names */
@@ -537,12 +537,10 @@ const value_string zbee_mfr_code_names[] = {
     { 0, NULL }
 };
 static value_string_ext zbee_mfr_code_names_ext = VALUE_STRING_EXT_INIT(zbee_mfr_code_names);
-
 /* ZCL Attribute Status Names */
-const value_string zbee_zcl_status_names[] = {
+ const value_string zbee_zcl_status_names[] = {
     { ZBEE_ZCL_STAT_SUCCESS,                        "Success"},
     { ZBEE_ZCL_STAT_FAILURE,                        "Failure"},
-
     { ZBEE_ZCL_STAT_NOT_AUTHORIZED,                 "Not Authorized"},
     { ZBEE_ZCL_STAT_RESERVED_FIELD_NOT_ZERO,        "Reserved Field Not Zero"},
     { ZBEE_ZCL_STAT_MALFORMED_CMD,                  "Malformed Command"},
@@ -563,6 +561,9 @@ const value_string zbee_zcl_status_names[] = {
     { ZBEE_ZCL_STAT_WRITE_ONLY,                     "Write Only"},
     { ZBEE_ZCL_STAT_INCONSISTENT_STARTUP_STATE,     "Inconsistent Startup State"},
     { ZBEE_ZCL_STAT_DEFINED_OUT_OF_BAND,            "Defined Out of Band"},
+    { ZBEE_ZCL_STAT_INCONSISTENT,                   "Inconsistent Value"},
+    { ZBEE_ZCL_STAT_ACTION_DENIED,                  "Action Denied"},
+    { ZBEE_ZCL_STAT_TIMEOUT,                        "Timeout"},
     { ZBEE_ZCL_STAT_OTA_ABORT,                      "Ota Abort"},
     { ZBEE_ZCL_STAT_OTA_INVALID_IMAGE,              "Ota Invalid Image"},
     { ZBEE_ZCL_STAT_OTA_WAIT_FOR_DATA,              "Ota Wait For Data"},
@@ -573,6 +574,7 @@ const value_string zbee_zcl_status_names[] = {
     { ZBEE_ZCL_STAT_CALIBRATION_ERROR,              "Calibration Error"},
     { 0, NULL }
 };
+
 static value_string_ext zbee_zcl_status_names_ext = VALUE_STRING_EXT_INIT(zbee_zcl_status_names);
 
 /* ZCL Attribute Data Names */

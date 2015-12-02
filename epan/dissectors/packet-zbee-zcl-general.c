@@ -33,6 +33,7 @@
 #include "packet-zbee-aps.h"
 #include "packet-zbee-zcl.h"
 
+
 /* ########################################################################## */
 /* #### (0x0000) BASIC CLUSTER ############################################## */
 /* ########################################################################## */
@@ -1189,6 +1190,1299 @@ proto_reg_handoff_zbee_zcl_identify(void)
                             (zbee_zcl_fn_attr_data)dissect_zcl_identify_attr_data
                          );
 } /*proto_reg_handoff_zbee_zcl_identify*/
+
+
+/* ########################################################################## */
+/* #### (0x0004) GROUPS CLUSTER ############################################# */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+#define ZBEE_ZCL_GROUPS_NUM_ETT                                 2
+#define ZBEE_ZCL_CMD_ID_GROUPS_NAME_SUPPORT_MASK                0x80  /*Name support Mask*/
+/* Attributes */
+#define ZBEE_ZCL_ATTR_ID_GROUPS_NAME_SUPPORT                    0x0000  /* Groups Name Support*/
+
+/* Server Commands Received */
+#define ZBEE_ZCL_CMD_ID_GROUPS_ADD_GROUP                        0x00  /* Add Group */
+#define ZBEE_ZCL_CMD_ID_GROUPS_VIEW_GROUP                       0x01  /* View Group */
+#define ZBEE_ZCL_CMD_ID_GROUPS_ADD_GET_GROUP_MEMBERSHIP         0x02  /* Get Group Membership */
+#define ZBEE_ZCL_CMD_ID_GROUPS_REMOVE_GROUP                     0x03  /* Remove a Group */
+#define ZBEE_ZCL_CMD_ID_GROUPS_REMOVE_ALL_GROUPS                0x04  /* Remove all Groups */
+#define ZBEE_ZCL_CMD_ID_GROUPS_ADD_GROUP_IF_IDENTIFYING         0x05  /* Add Group if Identifying */
+
+
+/* Server Commands Generated */
+#define ZBEE_ZCL_CMD_ID_GROUPS_ADD_GROUP_RESPONSE               0x00  /* Add Group Response */
+#define ZBEE_ZCL_CMD_ID_GROUPS_VIEW_GROUP_RESPONSE              0x01  /* View Group Response */
+#define ZBEE_ZCL_CMD_ID_GROUPS_GET_GROUP_MEMBERSHIP_RESPONSE    0x02  /* Get Group Membership Response */
+#define ZBEE_ZCL_CMD_ID_GROUPS_REMOVE_GROUP_RESPONSE            0x03  /* Remove a Group Response */
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+void proto_register_zbee_zcl_groups(void);
+void proto_reg_handoff_zbee_zcl_groups(void);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_groups_add_group_or_if_identifying      (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_groups_view_group                       (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_groups_get_group_membership             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_groups_remove_group                     (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_groups_add_remove_group_response        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_groups_view_group_response              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_groups_get_group_membership_response    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+
+static void dissect_zcl_groups_attr_data                        (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Private functions prototype */
+
+/*************************/
+/* Global Variables      */
+/*************************/
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_groups = -1;
+
+static int hf_zbee_zcl_groups_attr_id = -1;
+static int hf_zbee_zcl_groups_group_name_support = -1;
+static int hf_zbee_zcl_groups_group_id = -1;
+static int hf_zbee_zcl_groups_group_count = -1;
+static int hf_zbee_zcl_groups_group_capacity = -1;
+static int hf_zbee_zcl_groups_status = -1;
+static int hf_zbee_zcl_groups_attr_str_len = -1;
+static int hf_zbee_zcl_groups_attr_str = -1;
+static int hf_zbee_zcl_groups_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_groups_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_groups_group_list = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_groups = -1;
+static gint ett_zbee_zcl_groups_grp_ctrl = -1;
+
+/* Attributes */
+static const value_string zbee_zcl_groups_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_GROUPS_NAME_SUPPORT,      "Groups Name Support" },
+    { 0, NULL }
+};
+
+/* Server Commands Received */
+static const value_string zbee_zcl_groups_srv_rx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_GROUPS_ADD_GROUP,                 "Add Group" },
+    { ZBEE_ZCL_CMD_ID_GROUPS_VIEW_GROUP,                "View Group" },
+    { ZBEE_ZCL_CMD_ID_GROUPS_ADD_GET_GROUP_MEMBERSHIP,  "Get Group Membership" },
+    { ZBEE_ZCL_CMD_ID_GROUPS_REMOVE_GROUP,              "Remove a Group" },
+    { ZBEE_ZCL_CMD_ID_GROUPS_REMOVE_ALL_GROUPS,         "Remove all Groups" },
+    { ZBEE_ZCL_CMD_ID_GROUPS_ADD_GROUP_IF_IDENTIFYING,  "Add Group if Identifying" },
+    { 0, NULL }
+};
+
+/* Server Commands Generated */
+static const value_string zbee_zcl_groups_srv_tx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_GROUPS_ADD_GROUP_RESPONSE,            "Add Group Response" },
+    { ZBEE_ZCL_CMD_ID_GROUPS_VIEW_GROUP_RESPONSE,           "View Group Response" },
+    { ZBEE_ZCL_CMD_ID_GROUPS_GET_GROUP_MEMBERSHIP_RESPONSE, "Get Group Membership Response" },
+    { ZBEE_ZCL_CMD_ID_GROUPS_REMOVE_GROUP_RESPONSE,         "Remove a Group Response" },
+    { 0, NULL }
+};
+
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_groups
+ *  DESCRIPTION
+ *      ZigBee ZCL Groups cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static int
+dissect_zbee_zcl_groups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    proto_tree        *payload_tree;
+    zbee_zcl_packet   *zcl;
+    guint             offset = 0;
+    guint8            cmd_id;
+    gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
+
+    /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_groups_srv_rx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_groups_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check if this command has a payload, then add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_groups, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_GROUPS_ADD_GROUP:
+                    dissect_zcl_groups_add_group_or_if_identifying(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_GROUPS_VIEW_GROUP:
+                    dissect_zcl_groups_view_group(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_GROUPS_ADD_GET_GROUP_MEMBERSHIP:
+                    dissect_zcl_groups_get_group_membership(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_GROUPS_REMOVE_GROUP:
+                    dissect_zcl_groups_remove_group(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_GROUPS_REMOVE_ALL_GROUPS:
+                    /* without payload*/
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_GROUPS_ADD_GROUP_IF_IDENTIFYING:
+                    dissect_zcl_groups_add_group_or_if_identifying(tvb, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+    else { /* ZBEE_ZCL_FCF_TO_CLIENT */
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_groups_srv_tx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_groups_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check if this command has a payload, then add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_groups, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_GROUPS_ADD_GROUP_RESPONSE:
+                    dissect_zcl_groups_add_remove_group_response(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_GROUPS_VIEW_GROUP_RESPONSE:
+                    dissect_zcl_groups_view_group_response(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_GROUPS_GET_GROUP_MEMBERSHIP_RESPONSE:
+                    dissect_zcl_groups_get_group_membership_response(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_GROUPS_REMOVE_GROUP_RESPONSE:
+                    dissect_zcl_groups_add_remove_group_response(tvb, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_groups*/
+
+
+ /*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_groups_add_group_or_if_identifying
+ *  DESCRIPTION
+ *      this function decodes the Add Group or Add Group If
+ *      Identifying payload.
+ *  PARAMETERS
+ *      tvb     - the tv buffer of the current data_type
+ *      tree    - the tree to append this item to
+ *      offset  - offset of data in tvb
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_groups_add_group_or_if_identifying(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint attr_uint;
+    guint8 *attr_string;
+
+    /* Retrieve "Group ID" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_groups_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Group Name" field */
+    attr_uint = tvb_get_guint8(tvb, *offset); /* string length */
+    if (attr_uint == 0xff) attr_uint = 0;
+
+    proto_tree_add_uint(tree, hf_zbee_zcl_groups_attr_str_len, tvb, *offset, 1, attr_uint);
+
+    *offset += 1;
+
+    attr_string = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, attr_uint, ENC_ASCII);
+
+    proto_item_append_text(tree, ", String: %s", attr_string);
+    proto_tree_add_string(tree, hf_zbee_zcl_groups_attr_str, tvb, *offset, attr_uint, attr_string);
+
+    *offset += attr_uint;
+
+} /*dissect_zcl_groups_add_group*/
+
+
+ /*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_groups_view_group
+ *  DESCRIPTION
+ *      this function decodes the View Group payload.
+ *  PARAMETERS
+ *      tvb     - the tv buffer of the current data_type
+ *      tree    - the tree to append this item to
+ *      offset  - offset of data in tvb
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_groups_view_group(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Groups Timeout" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_groups_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+} /*dissect_zcl_groups_view_group*/
+
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_groups_get_group_membership
+*  DESCRIPTION
+*      this function decodes the Get Group Membership payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_groups_get_group_membership(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+   proto_item *grp_list;
+   proto_tree *grp_list_tree;
+   guint8 count, i;
+   /* Retrieve "Group Count" field */
+   count = tvb_get_guint8(tvb, *offset);
+   proto_tree_add_uint(tree, hf_zbee_zcl_groups_group_count, tvb, *offset, 1, count);
+   *offset += 1;
+
+   if(count > 0)
+      {
+          grp_list = proto_tree_add_item(tree, hf_zbee_zcl_groups_group_list, tvb, *offset, 2*count, ENC_NA);
+          grp_list_tree = proto_item_add_subtree(grp_list, ett_zbee_zcl_groups_grp_ctrl);
+          /* Retrieve "Group List" members */
+          for( i = 0; i < count; i++)
+          {
+               proto_tree_add_item(grp_list_tree, hf_zbee_zcl_groups_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+               *offset += 2;
+          }
+      }
+
+} /*dissect_zcl_groups_get_group_membership*/
+
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_groups_remove_group
+*  DESCRIPTION
+*      this function decodes the Remove Group payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_groups_remove_group(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+   /* Retrieve "Groups ID" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_groups_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+   *offset += 2;
+
+} /*dissect_zcl_groups_remove_group*/
+
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_groups_add_group_response
+*  DESCRIPTION
+*      this function decodes the Add Group Response payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_groups_add_remove_group_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+   /* Retrieve "Status" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_groups_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+   *offset += 1;
+
+   /* Retrieve "Groups ID" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_groups_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+   *offset += 2;
+
+} /*dissect_zcl_groups_remove_group*/
+
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_groups_view_group_response
+*  DESCRIPTION
+*      this function decodes the View Group Response payload
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_groups_view_group_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint attr_uint;
+    guint8 *attr_string;
+   /* Retrieve "Status" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_groups_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+   *offset += 1;
+
+   /* Retrieve "Group ID" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_groups_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+   *offset += 2;
+
+   /* Retrieve "Group Name" field */
+   attr_uint = tvb_get_guint8(tvb, *offset); /* string length */
+   if (attr_uint == 0xff) attr_uint = 0;
+
+   proto_tree_add_uint(tree, hf_zbee_zcl_groups_attr_str_len, tvb, *offset, 1, attr_uint);
+
+   *offset += 1;
+
+   attr_string = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, attr_uint, ENC_ASCII);
+
+   proto_item_append_text(tree, ", String: %s", attr_string);
+   proto_tree_add_string(tree, hf_zbee_zcl_groups_attr_str, tvb, *offset, attr_uint, attr_string);
+
+   *offset += attr_uint;
+} /*dissect_zcl_groups_add_group*/
+
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_groups_get_group_membership_response
+*  DESCRIPTION
+*      this function decodes the Get Group Membership Response payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_groups_get_group_membership_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+   proto_item *grp_list;
+   proto_tree *grp_list_tree;
+   guint8  count, i;
+
+   /* Retrieve "Capacity" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_groups_group_capacity, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+   *offset += 1;
+
+   /* Retrieve "Group Count" field */
+   count = tvb_get_guint8(tvb, *offset);
+   proto_tree_add_uint(tree, hf_zbee_zcl_groups_group_count, tvb, *offset, 1, count);
+   *offset += 1;
+   if(count > 0)
+   {
+       grp_list = proto_tree_add_item(tree, hf_zbee_zcl_groups_group_list, tvb, *offset, 2*count, ENC_NA);
+       grp_list_tree = proto_item_add_subtree(grp_list, ett_zbee_zcl_groups_grp_ctrl);
+       /* Retrieve "Group List" members */
+       for( i = 0; i < count; i++)
+       {
+            proto_tree_add_item(grp_list_tree, hf_zbee_zcl_groups_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+       }
+   }
+
+} /*dissect_zcl_groups_get_group_membership*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_groups_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+dissect_zcl_groups_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    /* Dissect attribute data type and data */
+    switch ( attr_id ) {
+
+        case ZBEE_ZCL_ATTR_ID_GROUPS_NAME_SUPPORT:
+            proto_tree_add_item(tree, hf_zbee_zcl_groups_group_name_support, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        default:
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+
+} /*dissect_zcl_groups_attr_data*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_groups
+ *  DESCRIPTION
+ *      ZigBee ZCL Groups cluster protocol registration routine.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+void
+proto_register_zbee_zcl_groups(void)
+{
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_groups_attr_id,
+            { "Attribute", "zbee_zcl_general.groups.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_groups_attr_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_groups_group_name_support,
+            { "Group Name Support", "zbee_zcl_general.groups.attr.group_name_support", FT_BOOLEAN, 8, TFS(&tfs_true_false),
+            ZBEE_ZCL_CMD_ID_GROUPS_NAME_SUPPORT_MASK, NULL, HFILL } },
+
+        { &hf_zbee_zcl_groups_group_id,
+            { "Group ID", "zbee_zcl_general.groups.group_id", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_groups_group_list,
+            {"Group List", "zbee_zcl_general.groups.group_list",FT_NONE,BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_groups_group_count,
+            { "Group Count", "zbee_zcl_general.groups.group_count", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_groups_group_capacity,
+            { "Group Capacity", "zbee_zcl_general.groups.group_capacity", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_groups_status,
+            { "Group Status", "zbee_zcl_general.groups.group_status", FT_UINT8, BASE_HEX, VALS(zbee_zcl_status_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_groups_attr_str_len,
+            { "Length", "zbee_zcl_general.groups.attr_str_len", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_groups_attr_str,
+            { "String", "zbee_zcl_general.groups_attr_str", FT_STRING, BASE_NONE, NULL,
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_groups_srv_rx_cmd_id,
+          { "Command", "zbee_zcl_general.groups.cmd_srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_groups_srv_rx_cmd_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_groups_srv_tx_cmd_id,
+          { "Command", "zbee_zcl_general.groups.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_groups_srv_tx_cmd_names),
+            0x00, NULL, HFILL } }
+
+    };
+
+    /* ZCL Groups subtrees */
+    static gint *ett[ZBEE_ZCL_GROUPS_NUM_ETT];
+    ett[0] = &ett_zbee_zcl_groups;
+    ett[1] = &ett_zbee_zcl_groups_grp_ctrl;
+
+    /* Register the ZigBee ZCL Groups cluster protocol name and description */
+    proto_zbee_zcl_groups = proto_register_protocol("ZigBee ZCL Groups", "ZCL Groups", ZBEE_PROTOABBREV_ZCL_GROUPS);
+    proto_register_field_array(proto_zbee_zcl_groups, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Groups dissector. */
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_GROUPS, dissect_zbee_zcl_groups, proto_zbee_zcl_groups);
+
+} /*proto_register_zbee_zcl_groups*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_groups
+ *  DESCRIPTION
+ *      Hands off the ZCL Groups dissector.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_reg_handoff_zbee_zcl_groups(void)
+{
+    dissector_handle_t groups_handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    groups_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_GROUPS);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_GROUPS, groups_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_groups,
+                            ett_zbee_zcl_groups,
+                            ZBEE_ZCL_CID_GROUPS,
+                            hf_zbee_zcl_groups_attr_id,
+                            hf_zbee_zcl_groups_srv_rx_cmd_id,
+                            hf_zbee_zcl_groups_srv_tx_cmd_id,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_groups_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_groups*/
+
+
+/* ########################################################################## */
+/* #### (0x0005) SCENES CLUSTER ############################################# */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+#define ZBEE_ZCL_SCENES_NUM_ETT                                 2
+#define ZBEE_ZCL_CMD_ID_SCENES_SUPPORTED_MASK                   0x80  /* bit     7 */
+
+/* Attributes */
+#define ZBEE_ZCL_ATTR_ID_SCENES_SCENE_COUNT                     0x0000  /* Scene Count */
+#define ZBEE_ZCL_ATTR_ID_SCENES_CURRENT_SCENE                   0x0001  /* Current Scene */
+#define ZBEE_ZCL_ATTR_ID_SCENES_CURRENT_GROUP                   0x0002  /* Current Group */
+#define ZBEE_ZCL_ATTR_ID_SCENES_SCENE_VALID                     0x0003  /* Scene Valid */
+#define ZBEE_ZCL_ATTR_ID_SCENES_NAME_SUPPORT                    0x0004  /* Name Support */
+#define ZBEE_ZCL_ATTR_ID_SCENES_LAST_CONFIGURED_BY              0x0005  /* Last Configured By */
+
+/* Scene Name Support */
+#define ZBEE_ZCL_SCENES_NAME_SUPPORTED                          0x80  /* Scene Names Supported */
+#define ZBEE_ZCL_SCENES_NAME_NOT_SUPPORTED                      0x00  /* Scene Names Not Supported */
+
+/* Server Commands Received */
+#define ZBEE_ZCL_CMD_ID_SCENES_ADD_SCENE                        0x00  /* Add Scene */
+#define ZBEE_ZCL_CMD_ID_SCENES_VIEW_SCENE                       0x01  /* View Scene */
+#define ZBEE_ZCL_CMD_ID_SCENES_REMOVE_SCENE                     0x02  /* Remove a Scene */
+#define ZBEE_ZCL_CMD_ID_SCENES_REMOVE_ALL_SCENES                0x03  /* Remove all Scenes */
+#define ZBEE_ZCL_CMD_ID_SCENES_STORE_SCENE                      0x04  /* Store Scene */
+#define ZBEE_ZCL_CMD_ID_SCENES_RECALL_SCENE                     0x05  /* Recall Scene */
+#define ZBEE_ZCL_CMD_ID_SCENES_GET_SCENE_MEMBERSHIP             0x06  /* Get Scene Membership */
+#define ZBEE_ZCL_CMD_ID_SCENES_NAME_SUPPORT_MASK                0x80
+
+/* Server Commands Generated */
+#define ZBEE_ZCL_CMD_ID_SCENES_ADD_SCENE_RESPONSE               0x00  /* Add Scene Response */
+#define ZBEE_ZCL_CMD_ID_SCENES_VIEW_SCENE_RESPONSE              0x01  /* View Scene Response */
+#define ZBEE_ZCL_CMD_ID_SCENES_REMOVE_SCENE_RESPONSE            0x02  /* Remove a Scene Response */
+#define ZBEE_ZCL_CMD_ID_SCENES_REMOVE_ALL_SCENES_RESPONSE       0x03  /* Remove all Scenes Response */
+#define ZBEE_ZCL_CMD_ID_SCENES_STORE_SCENE_RESPONSE             0x04  /* Store Scene Response */
+#define ZBEE_ZCL_CMD_ID_SCENES_GET_SCENE_MEMBERSHIP_RESPONSE    0x06  /* Get Scene Membership Response */
+
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+void proto_register_zbee_zcl_scenes(void);
+void proto_reg_handoff_zbee_zcl_scenes(void);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_scenes_add_scene                                    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_scenes_view_remove_store_recall_scene               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_scenes_remove_all_get_scene_membership              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_scenes_add_remove_store_scene_response              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_scenes_view_scene_response                          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_scenes_remove_all_scenes_response                   (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_scenes_get_scene_membership_response                (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+
+static void dissect_zcl_scenes_attr_data                                    (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Private functions prototype */
+
+/*************************/
+/* Global Variables      */
+/*************************/
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_scenes = -1;
+
+static int hf_zbee_zcl_scenes_attr_id = -1;
+static int hf_zbee_zcl_scenes_attr_id_scene_valid = -1;
+static int hf_zbee_zcl_scenes_attr_id_name_support = -1;
+static int hf_zbee_zcl_scenes_group_id = -1;
+static int hf_zbee_zcl_scenes_scene_id = -1;
+static int hf_zbee_zcl_scenes_transit_time = -1;
+static int hf_zbee_zcl_scenes_extension_set_field = -1;
+static int hf_zbee_zcl_scenes_status = -1;
+static int hf_zbee_zcl_scenes_capacity = -1;
+static int hf_zbee_zcl_scenes_scene_count = -1;
+static int hf_zbee_zcl_scenes_attr_str_len = -1;
+static int hf_zbee_zcl_scenes_attr_str = -1;
+static int hf_zbee_zcl_scenes_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_scenes_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_scenes_scene_list = -1;
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_scenes = -1;
+static gint ett_zbee_zcl_scenes_scene_ctrl = -1;
+
+/* Attributes */
+static const value_string zbee_zcl_scenes_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_SCENES_SCENE_COUNT,          "Scene Count" },
+    { ZBEE_ZCL_ATTR_ID_SCENES_CURRENT_SCENE,        "Current Scene" },
+    { ZBEE_ZCL_ATTR_ID_SCENES_CURRENT_GROUP,        "Current Group" },
+    { ZBEE_ZCL_ATTR_ID_SCENES_SCENE_VALID,          "Scene Valid" },
+    { ZBEE_ZCL_ATTR_ID_SCENES_NAME_SUPPORT,         "Name Support" },
+    { ZBEE_ZCL_ATTR_ID_SCENES_LAST_CONFIGURED_BY,   "Last Configured By" },
+    { 0, NULL }
+};
+
+/* Server Commands Received */
+static const value_string zbee_zcl_scenes_srv_rx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_SCENES_ADD_SCENE,             "Add Scene" },
+    { ZBEE_ZCL_CMD_ID_SCENES_VIEW_SCENE,            "View Scene" },
+    { ZBEE_ZCL_CMD_ID_SCENES_REMOVE_SCENE,          "Remove a Scene" },
+    { ZBEE_ZCL_CMD_ID_SCENES_REMOVE_ALL_SCENES,     "Remove all Scenes" },
+    { ZBEE_ZCL_CMD_ID_SCENES_STORE_SCENE,           "Store Scene" },
+    { ZBEE_ZCL_CMD_ID_SCENES_RECALL_SCENE,          "Recall Scene" },
+    { ZBEE_ZCL_CMD_ID_SCENES_GET_SCENE_MEMBERSHIP,  "Get Scene Membership" },
+    { 0, NULL }
+};
+
+/* Server Commands Generated */
+static const value_string zbee_zcl_scenes_srv_tx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_SCENES_ADD_SCENE_RESPONSE,            "Add Scene Response" },
+    { ZBEE_ZCL_CMD_ID_SCENES_VIEW_SCENE_RESPONSE,           "View Scene Response" },
+    { ZBEE_ZCL_CMD_ID_SCENES_REMOVE_SCENE_RESPONSE,         "Remove a Scene Response" },
+    { ZBEE_ZCL_CMD_ID_SCENES_REMOVE_ALL_SCENES_RESPONSE,    "Remove all Scene Response" },
+    { ZBEE_ZCL_CMD_ID_SCENES_STORE_SCENE_RESPONSE,          "Store Scene Response" },
+    { ZBEE_ZCL_CMD_ID_SCENES_GET_SCENE_MEMBERSHIP_RESPONSE, "Get Scene Membership Response" },
+    { 0, NULL }
+};
+
+/* Scene Names Support Values */
+static const value_string zbee_zcl_scenes_group_names_support_values[] = {
+    { ZBEE_ZCL_SCENES_NAME_NOT_SUPPORTED,   "Scene names not supported" },
+    { ZBEE_ZCL_SCENES_NAME_SUPPORTED,       "Scene names supported" },
+    { 0, NULL }
+};
+
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_scenes
+ *  DESCRIPTION
+ *      ZigBee ZCL Scenes cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static int
+dissect_zbee_zcl_scenes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    proto_tree        *payload_tree;
+    zbee_zcl_packet   *zcl;
+    guint             offset = 0;
+    guint8            cmd_id;
+    gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
+
+    /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_scenes_srv_rx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_scenes_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check if this command has a payload, then add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_scenes, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_SCENES_ADD_SCENE:
+                    dissect_zcl_scenes_add_scene(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_SCENES_VIEW_SCENE:
+                case ZBEE_ZCL_CMD_ID_SCENES_REMOVE_SCENE:
+                case ZBEE_ZCL_CMD_ID_SCENES_STORE_SCENE:
+                case ZBEE_ZCL_CMD_ID_SCENES_RECALL_SCENE:
+                    dissect_zcl_scenes_view_remove_store_recall_scene(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_SCENES_REMOVE_ALL_SCENES:
+                case ZBEE_ZCL_CMD_ID_SCENES_GET_SCENE_MEMBERSHIP:
+                    dissect_zcl_scenes_remove_all_get_scene_membership(tvb, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+    else { /* ZBEE_ZCL_FCF_TO_CLIENT */
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_scenes_srv_tx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_scenes_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check if this command has a payload, then add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_scenes, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_SCENES_ADD_SCENE_RESPONSE:
+                case ZBEE_ZCL_CMD_ID_SCENES_REMOVE_SCENE_RESPONSE:
+                case ZBEE_ZCL_CMD_ID_SCENES_STORE_SCENE_RESPONSE:
+                    dissect_zcl_scenes_add_remove_store_scene_response(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_SCENES_VIEW_SCENE_RESPONSE:
+                    dissect_zcl_scenes_view_scene_response(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_SCENES_REMOVE_ALL_SCENES_RESPONSE:
+                    dissect_zcl_scenes_remove_all_scenes_response(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_SCENES_GET_SCENE_MEMBERSHIP_RESPONSE:
+                    dissect_zcl_scenes_get_scene_membership_response(tvb, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_scenes*/
+
+
+ /*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_scenes_add_scene
+ *  DESCRIPTION
+ *      this function decodes the Add Scene payload.
+ *  PARAMETERS
+ *      tvb     - the tv buffer of the current data_type
+ *      tree    - the tree to append this item to
+ *      offset  - offset of data in tvb
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_scenes_add_scene(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint attr_uint;
+    guint8 *attr_string;
+
+    /* Retrieve "Group ID" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_scenes_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Scene ID" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_scenes_scene_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Retrieve "Transition Time" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_scenes_transit_time, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve Scene Name */
+    attr_uint = tvb_get_guint8(tvb, *offset); /* string length */
+    if (attr_uint == 0xff) attr_uint = 0;
+
+    proto_tree_add_uint(tree, hf_zbee_zcl_scenes_attr_str_len, tvb, *offset, 1, attr_uint);
+
+    *offset += 1;
+
+    attr_string = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, attr_uint, ENC_ASCII);
+
+    proto_item_append_text(tree, ", String: %s", attr_string);
+    proto_tree_add_string(tree, hf_zbee_zcl_scenes_attr_str, tvb, *offset, attr_uint, attr_string);
+
+    *offset += attr_uint;
+
+    /* Retrieve "Extension Set" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_scenes_extension_set_field, tvb, *offset, -1, ENC_NA);
+
+} /*dissect_zcl_scenes_add_scene*/
+
+
+ /*FUNCTION:--------------------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_scenes_view_remove_store_recall_scene
+ *  DESCRIPTION
+ *      this function decodes the View, Remove, Store and Recall Scene payload.
+ *  PARAMETERS
+ *      tvb     - the tv buffer of the current data_type
+ *      tree    - the tree to append this item to
+ *      offset  - offset of data in tvb
+ *  RETURNS
+ *      none
+ *------------------------------------------------------------------------------
+ */
+static void
+dissect_zcl_scenes_view_remove_store_recall_scene(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Scenes Timeout" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_scenes_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Scene ID" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_scenes_scene_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+} /*dissect_zcl_scenes_view_remove_store_recall_scene*/
+
+
+/*FUNCTION:-------------------------------------------------------------------
+*  NAME
+*      dissect_zcl_scenes_remove_all_get_scene_membership
+*  DESCRIPTION
+*      this function decodes the Remove all and Get Scene Membership payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*-----------------------------------------------------------------------------
+*/
+static void
+dissect_zcl_scenes_remove_all_get_scene_membership(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Group ID" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_scenes_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+} /*dissect_zcl_scenes_remove_all_get_scene_membership*/
+
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_scenes_add_remove_store_scene_response
+*  DESCRIPTION
+*      this function decodes the Add, Remove, Store Scene payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_scenes_add_remove_store_scene_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+   /* Retrieve "Status" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_scenes_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+   *offset += 1;
+
+   /* Retrieve "Group ID" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_scenes_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+   *offset += 2;
+
+   /* Retrieve "Scene ID" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_scenes_scene_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+   *offset += 1;
+
+} /*dissect_zcl_scenes_add_remove_store_scene_response*/
+
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_scenes_view_scene_response
+*  DESCRIPTION
+*      this function decodes the View Scene Response payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_scenes_view_scene_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8 status, *attr_string;
+    guint attr_uint;
+
+    /* Retrieve "Status" field */
+    status = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_scenes_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Retrieve "Group ID" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_scenes_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Scene ID" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_scenes_scene_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    if(status == ZBEE_ZCL_STAT_SUCCESS)
+    {
+        /* Retrieve "Transition Time" field */
+        proto_tree_add_item(tree, hf_zbee_zcl_scenes_transit_time, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+
+        /* Retrieve Scene Name */
+        attr_uint = tvb_get_guint8(tvb, *offset); /* string length */
+        if (attr_uint == 0xff) attr_uint = 0;
+
+        proto_tree_add_uint(tree, hf_zbee_zcl_scenes_attr_str_len, tvb, *offset, 1, attr_uint);
+
+        *offset += 1;
+
+        attr_string = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset, attr_uint, ENC_ASCII);
+
+        proto_item_append_text(tree, ", String: %s", attr_string);
+        proto_tree_add_string(tree, hf_zbee_zcl_scenes_attr_str, tvb, *offset, attr_uint, attr_string);
+
+        *offset += attr_uint;
+
+        /* Retrieve "Extension Set" field */
+        proto_tree_add_item(tree, hf_zbee_zcl_scenes_extension_set_field, tvb, *offset, -1, ENC_NA);
+
+    }
+
+} /*dissect_zcl_scenes_view_scene_response*/
+
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_scenes_remove_all_scenes_response
+*  DESCRIPTION
+*      this function decodes the Remove All Scenes Response payload
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_scenes_remove_all_scenes_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+   /* Retrieve "Status" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_scenes_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+   *offset += 1;
+
+   /* Retrieve "Group ID" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_scenes_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+   *offset += 2;
+
+} /*dissect_zcl_scenes_remove_all_scenes_response*/
+
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_scenes_get_scene_membership_response
+*  DESCRIPTION
+*      this function decodes the Get Scene Membership Response payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_scenes_get_scene_membership_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+   proto_item *scene_list;
+   proto_tree *scene_list_tree;
+   guint8 status, count, i;
+
+   /* Retrieve "Status" field */
+   status = tvb_get_guint8(tvb, *offset);
+   proto_tree_add_item(tree, hf_zbee_zcl_scenes_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+   *offset += 1;
+
+   /* Retrieve "Capacity" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_scenes_capacity, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+   *offset += 1;
+
+   /* Retrieve "Group ID" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_scenes_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+   *offset += 2;
+
+   if(status == ZBEE_ZCL_STAT_SUCCESS)
+   {
+       /* Retrieve "Scene Count" field */
+       count = tvb_get_guint8(tvb, *offset);
+       proto_tree_add_uint(tree, hf_zbee_zcl_scenes_scene_count, tvb, *offset, 1, count);
+       *offset += 1;
+
+       if(count>0)
+         {
+            scene_list=proto_tree_add_item(tree, hf_zbee_zcl_scenes_scene_list, tvb, *offset, count, ENC_NA);
+            scene_list_tree = proto_item_add_subtree(scene_list, ett_zbee_zcl_scenes_scene_ctrl);
+            /* Retrieve "Scene List" */
+            for( i = 0; i < count; i++)
+            {
+              proto_tree_add_item(scene_list_tree, hf_zbee_zcl_scenes_scene_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+              *offset += 1;
+            }
+         }
+   }
+
+} /*dissect_zcl_scenes_get_scene_membership_response*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_scenes_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+dissect_zcl_scenes_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    /* Dissect attribute data type and data */
+    switch ( attr_id ) {
+
+        case ZBEE_ZCL_ATTR_ID_SCENES_SCENE_VALID:
+            proto_tree_add_item(tree, hf_zbee_zcl_scenes_attr_id_scene_valid, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_SCENES_NAME_SUPPORT:
+            proto_tree_add_item(tree, hf_zbee_zcl_scenes_attr_id_name_support, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_SCENES_SCENE_COUNT:
+        case ZBEE_ZCL_ATTR_ID_SCENES_CURRENT_SCENE:
+        case ZBEE_ZCL_ATTR_ID_SCENES_CURRENT_GROUP:
+        case ZBEE_ZCL_ATTR_ID_SCENES_LAST_CONFIGURED_BY:
+        default:
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+
+} /*dissect_zcl_scenes_attr_data*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_scenes
+ *  DESCRIPTION
+ *      ZigBee ZCL Scenes cluster protocol registration routine.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+void
+proto_register_zbee_zcl_scenes(void)
+{
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_scenes_attr_id,
+            { "Attribute", "zbee_zcl_general.scenes.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_scenes_attr_names),
+            0x00, NULL, HFILL } },
+
+       { &hf_zbee_zcl_scenes_scene_list,
+            {"Scene List", "zbee_zcl_general.groups.scene_list",FT_NONE,BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_scenes_group_id,
+            { "Group ID", "zbee_zcl_general.scenes.group_id", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_scenes_scene_id,
+            { "Scene ID", "zbee_zcl_general.scenes.scene_id", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_scenes_transit_time,
+            { "Transition Time", "zbee_zcl_general.scenes.transit_time", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_scenes_status,
+            { "Scenes Status", "zbee_zcl_general.scenes.scenes_status", FT_UINT8, BASE_HEX, VALS(zbee_zcl_status_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_scenes_capacity,
+            { "Scene Capacity", "zbee_zcl_general.scenes.scene_capacity", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_scenes_scene_count,
+            { "Scene Count", "zbee_zcl_general.scenes.scene_count", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_scenes_attr_id_name_support,
+            { "Scene Name Support", "zbee_zcl_general.scenes.attr.name_support", FT_UINT8, BASE_HEX, VALS(zbee_zcl_scenes_group_names_support_values),
+            ZBEE_ZCL_CMD_ID_SCENES_NAME_SUPPORT_MASK, NULL, HFILL } },
+
+        { &hf_zbee_zcl_scenes_attr_id_scene_valid,
+            { "Scene Validity", "zbee_zcl_general.scenes.scene_valid",  FT_BOOLEAN, 8, TFS(&tfs_true_false),
+            ZBEE_ZCL_CMD_ID_SCENES_SUPPORTED_MASK, NULL, HFILL } },
+
+        { &hf_zbee_zcl_scenes_attr_str_len,
+            { "Length", "zbee_zcl_general.scenes.attr_str_len", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_attr_str,
+            { "String", "zbee_zcl_general.scenes.attr_str", FT_STRING, BASE_NONE, NULL,
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_extension_set_field,
+            { "Extension Set", "zbee_zcl_general.scenes.extension_set", FT_BYTES, BASE_NONE, NULL,
+            0x00, NULL, HFILL }},
+
+        { &hf_zbee_zcl_scenes_srv_rx_cmd_id,
+          { "Command", "zbee_zcl_general.scenes.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_scenes_srv_rx_cmd_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_scenes_srv_tx_cmd_id,
+          { "Command", "zbee_zcl_general.scenes.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_scenes_srv_tx_cmd_names),
+            0x00, NULL, HFILL } }
+
+    };
+
+    /* ZCL Scenes subtrees */
+    static gint *ett[ZBEE_ZCL_SCENES_NUM_ETT];
+    ett[0] = &ett_zbee_zcl_scenes;
+    ett[1] = &ett_zbee_zcl_scenes_scene_ctrl;
+
+    /* Register the ZigBee ZCL Scenes cluster protocol name and description */
+    proto_zbee_zcl_scenes = proto_register_protocol("ZigBee ZCL Scenes", "ZCL Scenes", ZBEE_PROTOABBREV_ZCL_SCENES);
+    proto_register_field_array(proto_zbee_zcl_scenes, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Scenes dissector. */
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_SCENES, dissect_zbee_zcl_scenes, proto_zbee_zcl_scenes);
+
+} /*proto_register_zbee_zcl_scenes*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_scenes
+ *  DESCRIPTION
+ *      Hands off the ZCL Scenes dissector.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_reg_handoff_zbee_zcl_scenes(void)
+{
+    dissector_handle_t scenes_handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    scenes_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_SCENES);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_SCENES, scenes_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_scenes,
+                            ett_zbee_zcl_scenes,
+                            ZBEE_ZCL_CID_SCENES,
+                            hf_zbee_zcl_scenes_attr_id,
+                            hf_zbee_zcl_scenes_srv_rx_cmd_id,
+                            hf_zbee_zcl_scenes_srv_tx_cmd_id,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_scenes_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_scenes*/
+
 
 /* ########################################################################## */
 /* #### (0x0006) ON/OFF CLUSTER ############################################# */
