@@ -1345,15 +1345,20 @@ void MainWindow::redissectPackets()
     proto_free_deregistered_fields();
 }
 
+void MainWindow::checkDisplayFilter()
+{
+    if (!df_combo_box_->checkDisplayFilter()) {
+        g_free(CaptureFile::globalCapFile()->dfilter);
+        CaptureFile::globalCapFile()->dfilter = NULL;
+    }
+}
+
 void MainWindow::fieldsChanged()
 {
     color_filters_reload();
     tap_listeners_dfilter_recompile();
 
-    if (!df_combo_box_->checkDisplayFilter()) {
-        g_free(CaptureFile::globalCapFile()->dfilter);
-        CaptureFile::globalCapFile()->dfilter = NULL;
-    }
+    emit checkDisplayFilter();
 
     if (have_custom_cols(&CaptureFile::globalCapFile()->cinfo)) {
         // Recreate packet list columns according to new/changed/deleted fields

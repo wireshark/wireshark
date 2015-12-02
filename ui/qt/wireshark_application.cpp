@@ -380,7 +380,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     emit preferencesChanged();
     emit recentFilesRead();
     emit filterExpressionsChanged();
-//    macros_post_update();
+    emit checkDisplayFilter();
 
     /* Enable all protocols and disable from the disabled list */
     proto_enable_all();

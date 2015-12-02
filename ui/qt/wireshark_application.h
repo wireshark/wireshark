@@ -149,6 +149,7 @@ signals:
     void packetDissectionChanged();
     void preferencesChanged();
     void addressResolutionChanged();
+    void checkDisplayFilter();
     void fieldsChanged();
 
     void openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata);
