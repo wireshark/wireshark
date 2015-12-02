@@ -629,7 +629,7 @@ static void create_pmid_to_name_map_from_candidates(pcp_conv_info_t *pcp_conv_in
         pmid = tvb_get_ntohl(tvb, offset);
         pmid_name = g_array_index(pcp_conv_info->pmid_name_candidates, guint8*, i);
 
-        if(!g_hash_table_contains(pcp_conv_info->pmid_to_name, GINT_TO_POINTER(pmid))) {
+        if(g_hash_table_lookup(pcp_conv_info->pmid_to_name, GINT_TO_POINTER(pmid)) == NULL) {
             g_hash_table_insert(pcp_conv_info->pmid_to_name, GINT_TO_POINTER(pmid), pmid_name);
         }
         offset += 4;
