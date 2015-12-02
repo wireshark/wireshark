@@ -64,7 +64,6 @@ scan_local_interfaces(void (*update_cb)(void))
 {
     GList             *if_entry, *lt_entry, *if_list;
     if_info_t         *if_info, temp;
-    char              *if_string;
     gchar             *descr;
     if_capabilities_t *caps=NULL;
     gint              linktype_count;
@@ -141,42 +140,9 @@ scan_local_interfaces(void (*update_cb)(void))
 #endif
         /* Is this interface hidden and, if so, should we include it anyway? */
 
-        /* Do we have a user-supplied description? */
         descr = capture_dev_user_descr_find(if_info->name);
-        if (descr != NULL) {
-            /* Yes, we have a user-supplied description; use it. */
-            if_string = g_strdup_printf("%s: %s", descr, if_info->name);
-            g_free(descr);
-        } else {
-            /* No, we don't have a user-supplied description; did we get
-            one from the OS or libpcap? */
-            if (if_info->friendly_name != NULL) {
-                /* We have a friendly name from the OS, use it */
-#ifdef _WIN32
-                /*
-                 * On Windows, if we have a friendly name, just show it,
-                 * don't show the name, as that's a string made out of
-                 * the device GUID, and not at all friendly.
-                 */
-                if_string = g_strdup_printf("%s", if_info->friendly_name);
-#else
-                /*
-                 * On UN*X, if we have a friendly name, show it along
-                 * with the interface name; the interface name is short
-                 * and somewhat friendly, and many UN*X users are used
-                 * to interface names, so we should show it.
-                 */
-                if_string = g_strdup_printf("%s: %s", if_info->friendly_name, if_info->name);
-#endif
-            } else if (if_info->vendor_description != NULL) {
-                /* We have a device description from libpcap - use it. */
-                if_string = g_strdup_printf("%s: %s", if_info->vendor_description, if_info->name);
-            } else {
-                /* No. */
-                if_string = g_strdup(if_info->name);
-            }
-        }
-        device.display_name = if_string;
+        device.display_name = get_iface_display_name(descr, if_info);
+        g_free(descr);
         device.selected = FALSE;
         if (prefs_is_capture_device_hidden(if_info->name)) {
             device.hidden = TRUE;

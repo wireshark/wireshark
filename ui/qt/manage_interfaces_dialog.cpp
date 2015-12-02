@@ -389,14 +389,7 @@ void ManageInterfacesDialog::saveLocalCommentChanges(QTreeWidgetItem* item)
         }
 
         g_free(device.display_name);
-        // XXX The GTK+ UI uses the raw device name instead of the friendly name.
-        // This seems to make more sense.
-        gchar *if_string = device.friendly_name ? device.friendly_name : device.name;
-        if (comment.isEmpty()) {
-            device.display_name = g_strdup(if_string);
-        } else {
-            device.display_name = qstring_strdup(QString("%1: %2").arg(comment).arg(if_string));
-        }
+        device.display_name = get_iface_display_name(comment.toUtf8().constData(), &device.if_info);
         global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
         g_array_insert_val(global_capture_opts.all_ifaces, i, device);
     }
