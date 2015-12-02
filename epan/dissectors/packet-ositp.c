@@ -1640,7 +1640,7 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
   pinfo->clnp_dstref = dst_ref;
-  pinfo->clnp_dstref = src_ref;
+  pinfo->clnp_srcref = src_ref;
 
   col_append_fstr(pinfo->cinfo, COL_INFO,
                   "DC TPDU src-ref: 0x%04x dst-ref: 0x%04x", src_ref, dst_ref);
