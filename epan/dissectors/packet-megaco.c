@@ -2156,7 +2156,7 @@ dissect_megaco_signaldescriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 
             }
 
-            tvb_help_offset = tvb_LBRKT = tvb_find_guint8(tvb, tvb_previous_offset, tvb_signals_end_offset, '{');
+            tvb_help_offset = tvb_find_guint8(tvb, tvb_previous_offset, tvb_signals_end_offset, '{');
 
             /* if there are signalparameter  */
 

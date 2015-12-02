@@ -209,7 +209,7 @@ static void print_file(const char *file_name, HDC hdc, int width, int height)
             /* send buffer */
             buf[cnt] = 0;
             TextOut(hdc, X_OFFSET,y_pos, buf, (int) strlen(buf));
-            y_pos += tm.tmHeight;
+            /*y_pos += tm.tmHeight;*/
             cnt = 0;
 
             /* reset page */

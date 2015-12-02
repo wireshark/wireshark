@@ -359,7 +359,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
 
   /* Set up the frame controls - can we do better than this? */
   fc_data.sof_eof = 0;
-  fc_data.sof_eof = FC_DATA_SOF_FIRST_FRAME;
+  fc_data.sof_eof |= FC_DATA_SOF_FIRST_FRAME;
   fc_data.sof_eof |= FC_DATA_EOF_LAST_FRAME;
   fc_data.sof_eof |= FC_DATA_EOF_INVALID;
 
