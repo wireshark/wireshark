@@ -7148,6 +7148,11 @@ elem_bdtmf_trans_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 
 /*
  * IS-634.400A 6.2.2.57
+ *
+ * XXX - is this specified in some document that doesn't cost over
+ * USD 500 for either a dead-tree copy or a "Secure PDF" that probably
+ * can only be read with the help of a Windows-only plugin for Adobe
+ * Acrobat reader?
  */
 static guint8
 elem_dtmf_chars(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint len, ansi_a_shared_data_t *data_p)
@@ -7168,9 +7173,14 @@ elem_dtmf_chars(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
     packed_len = len - (curr_offset - offset);
     str = (char*)tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, packed_len, &Dgt_dtmf, FALSE);
-   /*
+    /*
      * the packed DTMF digits are not "terminated" with a '0xF' for an odd
      * number of digits but the unpack routine expects it
+     *
+     * XXX - is "oct" a count of digits?  If so, we could use it, although
+     * we'd also need to check whether it claims that there are more
+     * digits than are present in the information element based on its
+     * length.
      */
     if (oct & 0x01)
     {
@@ -12615,7 +12625,7 @@ proto_register_ansi_a(void)
             NULL, HFILL }
         },
         { &hf_ansi_a_bdtmf_chars_num_chars,
-            { "DTMF On Length", "ansi_a_bsmap.bdtmf_chars.num_chars",
+            { "DTMF Number of Characters", "ansi_a_bsmap.bdtmf_chars.num_chars",
             FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
