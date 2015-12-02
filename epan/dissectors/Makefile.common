@@ -562,6 +562,7 @@ DISSECTOR_SRC = \
 	packet-eap.c		\
 	packet-eapol.c		\
 	packet-echo.c		\
+	packet-ecmp.c		\
 	packet-ecp-oui.c	\
 	packet-edonkey.c	\
 	packet-egd.c		\

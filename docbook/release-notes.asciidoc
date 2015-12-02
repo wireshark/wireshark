@@ -47,10 +47,11 @@ _Non-empty section placeholder._
 === New Protocol Support
 CISCO ERSPAN3 Marker
 Nokia Intelligent Service Interface (ISI)
+ISO14443
+Extensible Control & Management Protocol (eCMP)
 
 // Items in --sort-and-group-- blocks will be sorted and comma-separated.
 --sort-and-group--
-ISO14443
 --sort-and-group--
 
 === Updated Protocol Support
