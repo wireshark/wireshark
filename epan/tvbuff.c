@@ -3465,8 +3465,15 @@ tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len,
 		 */
 		octet = octet >> 4;
 
-		if (octet == 0x0f)	/* odd number bytes - hit filler */
+		if (t_offset == length - 1 && octet == 0x0f) {
+			/*
+			 * This is the last octet, and the low-order
+			 * nibble is 0xf, so we have an odd number of
+			 * digits, and this is a filler digit.  Ignore
+			 * it.
+			 */
 			break;
+		}
 
 		digit_str[i] = dgt->out[octet & 0x0f];
 		i++;
