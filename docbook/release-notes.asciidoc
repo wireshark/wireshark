@@ -52,6 +52,8 @@ Extensible Control & Management Protocol (eCMP)
 
 // Items in --sort-and-group-- blocks will be sorted and comma-separated.
 --sort-and-group--
+ISO14443
+RTI TCP Transport Layer (RTITCP)
 --sort-and-group--
 
 === Updated Protocol Support

@@ -7757,6 +7757,13 @@ static gboolean dissect_rtps_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   return dissect_rtps(tvb, pinfo, tree, offset);
 }
 
+static gboolean dissect_rtps_rtitcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  gint offset = 0;
+
+  return dissect_rtps(tvb, pinfo, tree, offset);
+}
+
 static gboolean dissect_rtps_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   /* In RTPS over TCP the first 4 bytes are the packet length
@@ -9473,6 +9480,7 @@ void proto_register_rtps(void) {
 
 
 void proto_reg_handoff_rtps(void) {
+  heur_dissector_add("rtitcp", dissect_rtps_rtitcp, "RTPS over RTITCP", "rtps_rtitcp", proto_rtps, HEURISTIC_ENABLE);
   heur_dissector_add("udp", dissect_rtps_udp, "RTPS over UDP", "rtps_udp", proto_rtps, HEURISTIC_ENABLE);
   heur_dissector_add("tcp", dissect_rtps_tcp, "RTPS over TCP", "rtps_tcp", proto_rtps, HEURISTIC_ENABLE);
 }
