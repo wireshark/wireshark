@@ -605,8 +605,8 @@ netlogon_auth_hash (gconstpointer k)
         }
     }
 
-    add_address_to_hash(hash_val1, &key1->src);
-    add_address_to_hash(hash_val1, &key1->dst);
+    hash_val1 = add_address_to_hash(hash_val1, &key1->src);
+    hash_val1 = add_address_to_hash(hash_val1, &key1->dst);
     return hash_val1;
 }
 static int

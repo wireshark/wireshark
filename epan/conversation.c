@@ -197,15 +197,15 @@ conversation_hash_exact(gconstpointer v)
 	hash_val = 0;
 	tmp_addr.len  = 4;
 
-	add_address_to_hash(hash_val, &key->addr1);
+	hash_val = add_address_to_hash(hash_val, &key->addr1);
 
 	tmp_addr.data = &key->port1;
-	add_address_to_hash(hash_val, &tmp_addr);
+	hash_val = add_address_to_hash(hash_val, &tmp_addr);
 
-	add_address_to_hash(hash_val, &key->addr2);
+	hash_val = add_address_to_hash(hash_val, &key->addr2);
 
 	tmp_addr.data = &key->port2;
-	add_address_to_hash(hash_val, &tmp_addr);
+	hash_val = add_address_to_hash(hash_val, &tmp_addr);
 
 	hash_val += ( hash_val << 3 );
 	hash_val ^= ( hash_val >> 11 );
@@ -280,13 +280,13 @@ conversation_hash_no_addr2(gconstpointer v)
 	hash_val = 0;
 	tmp_addr.len  = 4;
 
-	add_address_to_hash(hash_val, &key->addr1);
+	hash_val = add_address_to_hash(hash_val, &key->addr1);
 
 	tmp_addr.data = &key->port1;
-	add_address_to_hash(hash_val, &tmp_addr);
+	hash_val = add_address_to_hash(hash_val, &tmp_addr);
 
 	tmp_addr.data = &key->port2;
-	add_address_to_hash(hash_val, &tmp_addr);
+	hash_val = add_address_to_hash(hash_val, &tmp_addr);
 
 	hash_val += ( hash_val << 3 );
 	hash_val ^= ( hash_val >> 11 );
@@ -345,12 +345,12 @@ conversation_hash_no_port2(gconstpointer v)
 	hash_val = 0;
 	tmp_addr.len  = 4;
 
-	add_address_to_hash(hash_val, &key->addr1);
+	hash_val = add_address_to_hash(hash_val, &key->addr1);
 
 	tmp_addr.data = &key->port1;
-	add_address_to_hash(hash_val, &tmp_addr);
+	hash_val = add_address_to_hash(hash_val, &tmp_addr);
 
-	add_address_to_hash(hash_val, &key->addr2);
+	hash_val = add_address_to_hash(hash_val, &key->addr2);
 
 	hash_val += ( hash_val << 3 );
 	hash_val ^= ( hash_val >> 11 );
@@ -409,10 +409,10 @@ conversation_hash_no_addr2_or_port2(gconstpointer v)
 	hash_val = 0;
 	tmp_addr.len  = 4;
 
-	add_address_to_hash(hash_val, &key->addr1);
+	hash_val = add_address_to_hash(hash_val, &key->addr1);
 
 	tmp_addr.data = &key->port1;
-	add_address_to_hash(hash_val, &tmp_addr);
+	hash_val = add_address_to_hash(hash_val, &tmp_addr);
 
 	hash_val += ( hash_val << 3 );
 	hash_val ^= ( hash_val >> 11 );

@@ -7335,8 +7335,8 @@ v9_v10_tmplt_table_hash(gconstpointer k)
 
     val = tmplt_p->src_id + (tmplt_p->tmplt_id << 9) + tmplt_p->src_port + tmplt_p->dst_port;
 
-    add_address_to_hash(val, &tmplt_p->src_addr);
-    add_address_to_hash(val, &tmplt_p->dst_addr);
+    val = add_address_to_hash(val, &tmplt_p->src_addr);
+    val = add_address_to_hash(val, &tmplt_p->dst_addr);
 
     return val;
 }

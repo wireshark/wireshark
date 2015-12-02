@@ -642,7 +642,7 @@ static guint iax_circuit_hash(gconstpointer v)
   guint                  hash_val;
 
   hash_val = 0;
-  add_address_to_hash(hash_val, &key->addr);
+  hash_val = add_address_to_hash(hash_val, &key->addr);
   hash_val += (guint)(key->ptype);
   hash_val += (guint)(key->port);
   hash_val += (guint)(key->callno);

@@ -57,9 +57,9 @@ conversation_hash_exact(gconstpointer v)
 
     hash_val = 0;
 #if 0
-    add_address_to_hash(hash_val, &key->addr1);
+    hash_val = add_address_to_hash(hash_val, &key->addr1);
     hash_val += key->port1;
-    add_address_to_hash(hash_val, &key->addr2);
+    hash_val = add_address_to_hash(hash_val, &key->addr2);
     hash_val += key->port2;
 
     return hash_val;
@@ -106,9 +106,9 @@ conversation_hash_exact_old(gconstpointer v)
     guint hash_val;
 
     hash_val = 0;
-    add_address_to_hash(hash_val, &key->addr1);
+    hash_val = add_address_to_hash(hash_val, &key->addr1);
     hash_val += key->port1;
-    add_address_to_hash(hash_val, &key->addr2);
+    hash_val = add_address_to_hash(hash_val, &key->addr2);
     hash_val += key->port2;
 
     return hash_val;
