@@ -204,7 +204,7 @@ static int hf_l2tp_avp_tx_connect_speed_v3 = -1;
 static int hf_l2tp_avp_rx_connect_speed_v3 = -1;
 static int hf_l2tp_lapd_info = -1;
 static int hf_l2tp_session_id = -1;
-static int hf_l2tp_zero_length_bit_message = -1;
+static int hf_l2tp_zero_length_body_message = -1;
 static int hf_l2tp_offset_padding = -1;
 
 static dissector_table_t l2tp_vendor_avp_dissector_table;
@@ -2333,7 +2333,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     }
 
     if (tree && (LENGTH_BIT(control))&&(length==12)) {
-        proto_tree_add_item(l2tp_tree, hf_l2tp_zero_length_bit_message, tvb, 0, 0, ENC_NA);
+        proto_tree_add_item(l2tp_tree, hf_l2tp_zero_length_body_message, tvb, 0, 0, ENC_NA);
     } else {
         avp_type = tvb_get_ntohs(tvb, idx + 4);
         if (avp_type == CONTROL_MESSAGE) {
@@ -2582,7 +2582,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     }
 
     if (tree && (LENGTH_BIT(control))&&(length==12)) {
-        proto_tree_add_item(l2tp_tree, hf_l2tp_zero_length_bit_message, tvb, 0, 0, ENC_NA);
+        proto_tree_add_item(l2tp_tree, hf_l2tp_zero_length_body_message, tvb, 0, 0, ENC_NA);
     }
 
     if (!CONTROL_BIT(control)) {  /* Data Messages so we are done */
@@ -2966,7 +2966,7 @@ proto_register_l2tp(void)
       { &hf_l2tp_avp_rx_connect_speed_v3, { "Rx Connect Speed v3", "l2tp.avp.rx_connect_speed_v3", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
       { &hf_l2tp_lapd_info, { "LAPD info", "l2tp.lapd_info", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_l2tp_session_id, { "Packet Type", "l2tp.session_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_l2tp_zero_length_bit_message, { "Zero Length Bit message", "l2tp.zero_length_bit_message", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_l2tp_zero_length_body_message, { "Zero Length Body message", "l2tp.zero_length_body_message", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_l2tp_offset_padding, { "Offset Padding", "l2tp.offset_padding", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
