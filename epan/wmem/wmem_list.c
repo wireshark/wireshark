@@ -113,6 +113,19 @@ wmem_list_remove_frame(wmem_list_t *list, wmem_list_frame_t *frame)
     wmem_free(list->allocator, frame);
 }
 
+wmem_list_frame_t *
+wmem_list_find(wmem_list_t *list, const void *data)
+{
+    wmem_list_frame_t *cur;
+
+    for (cur = list->head; cur; cur = cur->next) {
+        if(cur->data == data)
+            return cur;
+    }
+
+    return NULL;
+}
+
 void
 wmem_list_prepend(wmem_list_t *list, void *data)
 {
