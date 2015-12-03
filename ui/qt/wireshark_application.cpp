@@ -366,6 +366,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
         set_last_open_dir(recent.gui_fileopen_remembered_dir);
     }
     timestamp_set_type (recent.gui_time_format);
+    timestamp_set_precision(recent.gui_time_precision);
     timestamp_set_seconds_type (recent.gui_seconds_format);
     color_filters_enable(recent.packet_list_colorize);
     tap_update_timer_.setInterval(prefs.tap_update_interval);
