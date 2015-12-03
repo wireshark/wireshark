@@ -102,6 +102,18 @@ if(BUILD_wireshark_gtk AND GTK_FOUND)
 	set (GTK_DIR "\${STAGING_DIR}")
 endif()
 
+# CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS will likely give us a list of DLL
+# paths containing spaces. We'll assume that they're all in the same
+# directory and use it to create something that's easier to pass to
+# NSIS.
+set(MSVCR_DLL)
+list(GET CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS 0 _msvcr_dll)
+if(_msvcr_dll)
+	get_filename_component(_msvcr_dir ${_msvcr_dll} DIRECTORY)
+	set(MSVCR_DLL "${_msvcr_dir}/*.*")
+	file(TO_NATIVE_PATH "${MSVCR_DLL}" MSVCR_DLL)
+endif()
+
 # This *should* be compatible with the way we currently do things.
 if(MSVC12)
 	set(_vcredist_name "vcredist_${TARGET_MACHINE}.exe")
