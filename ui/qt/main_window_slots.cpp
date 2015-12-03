@@ -3532,7 +3532,9 @@ void MainWindow::on_actionCaptureOptions_triggered()
 
 void MainWindow::on_actionCaptureRefreshInterfaces_triggered()
 {
+    main_ui_->actionCaptureRefreshInterfaces->setEnabled(false);
     wsApp->refreshLocalInterfaces();
+    main_ui_->actionCaptureRefreshInterfaces->setEnabled(true);
 }
 #endif
 
