@@ -511,7 +511,8 @@ WS_DLL_PUBLIC void heur_dissector_add(const char *name, heur_dissector_t dissect
 WS_DLL_PUBLIC void heur_dissector_delete(const char *name, heur_dissector_t dissector, const int proto);
 
 /** Register a new dissector. */
-WS_DLL_PUBLIC dissector_handle_t new_register_dissector(const char *name, new_dissector_t dissector, const int proto);
+#define new_register_dissector register_dissector
+WS_DLL_PUBLIC dissector_handle_t register_dissector(const char *name, new_dissector_t dissector, const int proto);
 
 /** Deregister a dissector. */
 WS_DLL_PUBLIC void deregister_dissector(const char *name);
@@ -535,9 +536,11 @@ WS_DLL_PUBLIC dissector_handle_t find_dissector(const char *name);
 WS_DLL_PUBLIC const char *dissector_handle_get_dissector_name(const dissector_handle_t handle);
 
 /** Create an anonymous handle for a dissector. */
-WS_DLL_PUBLIC dissector_handle_t new_create_dissector_handle(new_dissector_t dissector,
+#define new_create_dissector_handle create_dissector_handle
+WS_DLL_PUBLIC dissector_handle_t create_dissector_handle(new_dissector_t dissector,
     const int proto);
-WS_DLL_PUBLIC dissector_handle_t new_create_dissector_handle_with_name(new_dissector_t dissector,
+#define new_create_dissector_handle_with_name create_dissector_handle_with_name
+WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_name(new_dissector_t dissector,
     const int proto, const char* name);
 
 /** Destroy an anonymous handle for a dissector. */

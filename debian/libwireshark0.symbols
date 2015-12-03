@@ -190,6 +190,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  crc32_mpeg2_tvb_seed@Base 1.9.1
  crc32c_tvb_offset_calculate@Base 1.99.0
  crc6_compute_tvb@Base 1.99.0
+ create_dissector_handle@Base 2.1.0
+ create_dissector_handle_with_name@Base 2.1.0
  data_out_file@Base 1.9.1
  dcerpc_get_proto_hf_opnum@Base 2.1.0
  dcerpc_get_proto_name@Base 1.9.1
@@ -816,13 +818,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  mtp3_network_indicator_vals@Base 1.9.1
  mtp3_service_indicator_code_short_vals@Base 1.9.1
  mtp3_standard_vals@Base 1.9.1
- new_create_dissector_handle@Base 1.9.1
- new_create_dissector_handle_with_name@Base 1.99.8
  new_frame_data_sequence@Base 1.12.0~rc1
  new_page@Base 1.12.0~rc1
  new_register_ber_oid_dissector@Base 1.99.1
  new_register_ber_syntax_dissector@Base 1.99.1
- new_register_dissector@Base 1.9.1
  new_register_per_oid_dissector@Base 1.99.1
  new_stat_tap_add_table@Base 1.99.8
  new_stat_tap_get_field_data@Base 1.99.8
@@ -1137,6 +1136,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_conversation_filter@Base 2.0.0
  register_custom_dissector_table@Base 1.99.8
  register_decode_as@Base 1.12.0~rc1
+ register_dissector@Base 2.1.0
  register_dissector_table@Base 1.9.1
  register_export_pdu_tap@Base 1.99.0
  register_final_registration_routine@Base 1.9.1
