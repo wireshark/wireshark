@@ -95,6 +95,7 @@ static dissector_table_t gtp_cdr_fmt_dissector_table;
 #define GTP_TPDU_AS_SYNC 2
 
 static gboolean g_gtp_over_tcp = TRUE;
+static gboolean g_gtp_session = FALSE;
 
 static guint g_gtpv0_port  = GTPv0_PORT;
 static guint g_gtpv1c_port = GTPv1C_PORT;
@@ -212,6 +213,7 @@ static int hf_gtp_rp_sms = -1;
 static int hf_gtp_rp_spare = -1;
 static int hf_gtp_sel_mode = -1;
 static int hf_gtp_seq_number = -1;
+static int hf_gtp_session = -1;
 static int hf_gtp_sndcp_number = -1;
 static int hf_gtp_tear_ind = -1;
 static int hf_gtp_teid = -1;
@@ -1835,139 +1837,159 @@ static dissector_handle_t data_handle;
 static dissector_handle_t gtpv2_handle;
 static dissector_handle_t bssgp_handle;
 static dissector_table_t bssap_pdu_type_table;
+static guint32 gtp_session_count;
 
-static int decode_gtp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_imsi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_rai(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_tlli(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_ptmsi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_qos_gprs(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_reorder(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_auth_tri(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_map_cause(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_ptmsi_sig(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_ms_valid(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_recovery(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_sel_mode(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_16(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_17(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_18(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_19(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_rab_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_rp_sms(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_rp(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_pkt_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_chrg_char(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_trace_ref(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_trace_type(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_ms_reason(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_tr_comm(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_chrg_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_apn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_gsn_addr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_proto_conf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_auth_qui(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_utran_cont(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_rab_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_hdr_list(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_trigger_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_omc_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
+/* Data structures to keep track of sessions */
+typedef struct gtp_info {
+    guint32 teid;
+    guint32 frame;
+} gtp_info_t;
 
-static int decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_pdp_cont_prio(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_add_rab_setup_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_ssgn_no(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_apn_res(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_ra_prio_lcs(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_rat_type(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_ms_time_zone(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_camel_chg_inf_con(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_mbms_ue_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_tmgi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_rim_ra(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_mbms_prot_conf_opt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_src_rnc_pdp_ctx_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_add_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_hop_count(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_sel_plmn_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_mbms_ses_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_mbms_2g_3g_ind(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_enh_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_mbms_ses_dur(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_add_mbms_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_mbms_ses_id_rep_no(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_mbms_time_to_data_tr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_ps_ho_req_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_bss_cont(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_cell_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_pdu_no(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_bssgp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_mbms_bearer_cap(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_lst_set_up_pfc(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_ps_handover_xid(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_direct_tnl_flg(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_ms_inf_chg_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_corrl_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_fqdn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_extended_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_uci(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_csg_inf_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_csg_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_cmi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_ue_network_cap(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_ue_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_apn_ambr_with_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_ggsn_back_off_time(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_sig_pri_ind(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_sig_pri_ind_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_higher_br_16mb_flg(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_max_mbr_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_add_mm_ctx_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_add_flgs_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_stn_sr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_c_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_ext_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_ext_enodeb_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_ext_sel_mode_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_ext_uli_timestamp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_ext_lhn_id_w_sapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_ext_cn_op_sel_entity(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_mbms_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_mbms_ip_mcast_dist(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_mbms_dist_ack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_reliable_irat_ho_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
-static int decode_gtp_rfsp_index(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree);
+typedef struct session_args {
+    wmem_list_t *teid_list;
+    wmem_list_t *ip_list;
+    guint32 last_teid;
+    address last_ip;
+    guint8 last_cause;
+} session_args_t;
 
-static int decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_can_pack(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_data_resp(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_node_addr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
-static int decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree);
+/* Relation between frame -> session */
+GHashTable* session_table;
+/* Relation between <teid,ip> -> frame */
+wmem_tree_t* frame_tree;
+
+static int decode_gtp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args);
+static int decode_gtp_imsi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_rai(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_tlli(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ptmsi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_qos_gprs(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_reorder(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_auth_tri(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_map_cause(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ptmsi_sig(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ms_valid(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_recovery(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_sel_mode(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_16(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args);
+static int decode_gtp_17(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args);
+static int decode_gtp_18(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_19(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_rab_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_rp_sms(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_rp(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_pkt_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_chrg_char(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_trace_ref(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_trace_type(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ms_reason(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_tr_comm(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_chrg_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_apn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_gsn_addr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args);
+static int decode_gtp_proto_conf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_auth_qui(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_utran_cont(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_rab_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_hdr_list(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_trigger_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_omc_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+
+static int decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_pdp_cont_prio(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_add_rab_setup_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ssgn_no(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_apn_res(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ra_prio_lcs(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_rat_type(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ms_time_zone(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_camel_chg_inf_con(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_mbms_ue_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_tmgi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_rim_ra(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_mbms_prot_conf_opt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_src_rnc_pdp_ctx_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_add_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_hop_count(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_sel_plmn_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_mbms_ses_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_mbms_2g_3g_ind(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_enh_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_mbms_ses_dur(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_add_mbms_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_mbms_ses_id_rep_no(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_mbms_time_to_data_tr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ps_ho_req_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_bss_cont(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_cell_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_pdu_no(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_bssgp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_mbms_bearer_cap(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_lst_set_up_pfc(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ps_handover_xid(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_direct_tnl_flg(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ms_inf_chg_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_corrl_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_fqdn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_extended_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_uci(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_csg_inf_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_csg_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_cmi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ue_network_cap(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ue_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_apn_ambr_with_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ggsn_back_off_time(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_sig_pri_ind(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_sig_pri_ind_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_higher_br_16mb_flg(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_max_mbr_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_add_mm_ctx_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_add_flgs_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_stn_sr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_c_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ext_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ext_enodeb_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ext_sel_mode_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ext_uli_timestamp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ext_lhn_id_w_sapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ext_cn_op_sel_entity(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_mbms_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_mbms_ip_mcast_dist(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_mbms_dist_ack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_reliable_irat_ho_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_rfsp_index(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+
+static int decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_can_pack(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_data_resp(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_node_addr(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 
 typedef struct _gtp_opt {
     int optcode;
-    int (*decode) (tvbuff_t *, int, packet_info *, proto_tree *);
+    int (*decode) (tvbuff_t *, int, packet_info *, proto_tree *, session_args_t *);
 } gtp_opt_t;
 
 static const gtp_opt_t gtpopt[] = {
@@ -3193,10 +3215,178 @@ gtp_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
     return key1->seq_nr == key2->seq_nr;
 }
 
+/* GTP Session funcs*/
+static guint32
+get_frame(address ip, guint32 teid, guint32 *frame) {
+    gboolean found = FALSE;
+    wmem_list_frame_t *elem;
+    gtp_info_t *info;
+    wmem_list_t *info_list;
+    gchar *ip_str;
+
+    /* First we get the teid list*/
+    ip_str = address_to_str(wmem_packet_scope(), &ip);
+    info_list = (wmem_list_t*)wmem_tree_lookup_string(frame_tree, ip_str, 0);
+    if (info_list != NULL) {
+        elem = wmem_list_head(info_list);
+        while (!found && elem) {
+            info = (gtp_info_t*)wmem_list_frame_data(elem);
+            if (teid == info->teid) {
+                *frame = info->frame;
+                return 1;
+            }
+            elem = wmem_list_frame_next(elem);
+        }
+    }
+    return 0;
+}
+
+static void
+call_foreach_ip(const void *key _U_, void *value, void *data){
+    wmem_list_frame_t * elem;
+    wmem_list_t *info_list = (wmem_list_t *)value;
+    gtp_info_t *info;
+    guint32* frame = (guint32*)data;
+
+    /* We loop over the <teid, frame> list */
+    elem = wmem_list_head(info_list);
+    while (elem) {
+        info = (gtp_info_t*)wmem_list_frame_data(elem);
+        if (info->frame == *frame) {
+            wmem_list_frame_t * del = elem;
+            /* proceed to next request */
+            elem = wmem_list_frame_next(elem);
+            /* If we find the frame we remove its information from the list */
+            wmem_list_remove_frame(info_list, del);
+            wmem_free(wmem_file_scope(), info);
+        } else {
+            elem = wmem_list_frame_next(elem);
+        }
+    }
+}
+
+static void
+remove_frame_info(guint32 *f) {
+    /* For each ip node */
+    wmem_tree_foreach(frame_tree, (wmem_foreach_func)call_foreach_ip, (void *)f);
+}
+
+static void
+add_gtp_session(guint32 frame, guint32 session) {
+    guint32 *f, *session_count;
+
+    f = wmem_new0(wmem_file_scope(), guint32);
+    session_count = wmem_new0(wmem_file_scope(), guint32);
+    *f = frame;
+    *session_count = session;
+    g_hash_table_insert(session_table, f, session_count);
+}
+
+static gboolean
+teid_exists(guint32 teid, wmem_list_t *teid_list) {
+    wmem_list_frame_t *elem;
+    guint32 *info;
+    gboolean found;
+    found = FALSE;
+    elem = wmem_list_head(teid_list);
+    while (!found && elem) {
+        info = (guint32*)wmem_list_frame_data(elem);
+        found = *info == teid;
+        elem = wmem_list_frame_next(elem);
+    }
+    return found;
+}
+
+static gboolean
+ip_exists(address ip, wmem_list_t *ip_list) {
+    wmem_list_frame_t *elem;
+    address *info;
+    gboolean found;
+    found = FALSE;
+    elem = wmem_list_head(ip_list);
+    while (!found && elem) {
+        info = (address*)wmem_list_frame_data(elem);
+        found = addresses_equal(info, &ip);
+        elem = wmem_list_frame_next(elem);
+    }
+    return found;
+}
+
+static gboolean
+info_exists(gtp_info_t *wanted, wmem_list_t *info_list) {
+    wmem_list_frame_t *elem;
+    gtp_info_t *info;
+    gboolean found;
+    found = FALSE;
+    elem = wmem_list_head(info_list);
+    while (!found && elem) {
+        info = (gtp_info_t*)wmem_list_frame_data(elem);
+        found = wanted->teid == info->teid;
+        elem = wmem_list_frame_next(elem);
+    }
+    return found;
+}
+
+static void
+fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, guint32 frame) {
+    wmem_list_frame_t *elem_ip, *elem_teid;
+    gtp_info_t *gtp_info;
+    wmem_list_t * info_list; /* List of <teids,frames>*/
+    guint32 *f, *session, *fr, *session_count;
+    GHashTableIter iter;
+    guint32 teid;
+    gchar *ip;
+
+    elem_ip = wmem_list_head(ip_list);
+    while (elem_ip) {
+        ip = address_to_str(wmem_file_scope(), (address*)wmem_list_frame_data(elem_ip));
+        /* We check if a teid list exists for this ip */
+        info_list = (wmem_list_t*)wmem_tree_lookup_string(frame_tree, ip, 0);
+        if (info_list == NULL) {
+            info_list = wmem_list_new(wmem_file_scope());
+        }
+        /* We loop over the teid list */
+        elem_teid = wmem_list_head(teid_list);
+        while (elem_teid) {
+            teid = *(guint32*)wmem_list_frame_data(elem_teid);
+            f = wmem_new0(wmem_file_scope(), guint32);
+            *f = frame;
+            gtp_info = wmem_new0(wmem_file_scope(), gtp_info_t);
+            gtp_info->teid = teid;
+            gtp_info->frame = *f;
+            if (info_exists(gtp_info, info_list)) {
+                /* If the teid and ip already existed, that means that we need to remove old info about that session */
+                /* We look for its session ID */
+                session = (guint32 *)g_hash_table_lookup(session_table, f);
+                if (session) {
+                    g_hash_table_iter_init(&iter, session_table);
+                    while (g_hash_table_iter_next(&iter, (gpointer*)&fr, (gpointer*)&session_count)) {
+                        /* If the msg has the same session ID and it's not the upd req we have to remove its info */
+                        if (*session_count == *session) {
+                            /* If it's the session we are looking for, we remove all the frame information */
+                            remove_frame_info(fr);
+                        }
+                    }
+                }
+            }
+            wmem_list_prepend(info_list, gtp_info);
+            elem_teid = wmem_list_frame_next(elem_teid);
+        }
+        wmem_tree_insert_string(frame_tree, ip, info_list, 0);
+        elem_ip = wmem_list_frame_next(elem_ip);
+    }
+}
+
+static gboolean
+is_cause_accepted(guint8 cause) {
+    return cause == 128;
+}
+
 static gtp_msg_hash_t *
-gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint seq_nr, guint msgtype, gtp_conv_info_t *gtp_info)
+gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint seq_nr, guint msgtype, gtp_conv_info_t *gtp_info, guint8 last_cause)
 {
     gtp_msg_hash_t   gcr, *gcrp = NULL;
+    guint32 *session;
     gcr.seq_nr=seq_nr;
 
     switch (msgtype) {
@@ -3293,6 +3483,24 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
             nstime_delta(&ns, &pinfo->abs_ts, &gcrp->req_time);
             it = proto_tree_add_time(tree, hf_gtp_time, tvb, 0, 0, &ns);
             PROTO_ITEM_SET_GENERATED(it);
+            if (g_gtp_session) {
+                if (!PINFO_FD_VISITED(pinfo) && gtp_version == 1) {
+                    /* GTP session */
+                    /* If it's not already in the list */
+                    session = (guint32 *)g_hash_table_lookup(session_table, &pinfo->num);
+                    if (!session) {
+                        session = (guint32 *)g_hash_table_lookup(session_table, &gcrp->req_frame);
+                        if (session != NULL) {
+                            add_gtp_session(pinfo->num, *session);
+                        }
+                    }
+
+                    if (!is_cause_accepted(last_cause)){
+                        /* If the cause is not accepted then we have to remove all the session information about its corresponding request */
+                        remove_frame_info(&gcrp->req_frame);
+                    }
+                }
+            }
         }
     }
     return gcrp;
@@ -3347,13 +3555,15 @@ check_field_presence(guint8 message, guint8 field, int *position)
  * 7.7.1 Cause
  */
 static int
-decode_gtp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args)
 {
 
     guint8 cause;
 
     cause = tvb_get_guint8(tvb, offset + 1);
-
+    if (g_gtp_session) {
+        args->last_cause = cause;
+    }
     proto_tree_add_uint(tree, hf_gtp_cause, tvb, offset, 2, cause);
 
     return 2;
@@ -3363,7 +3573,7 @@ decode_gtp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree
  * UMTS:        29.060 v4.0, chapter 7.7.2
  */
 static int
-decode_gtp_imsi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_imsi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
     /* const gchar *imsi_str; */
 
@@ -3377,7 +3587,7 @@ decode_gtp_imsi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
  * UMTS:        29.060 v4.0, chapter 7.7.3 Routeing Area Identity (RAI)
  */
 static int
-decode_gtp_rai(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_rai(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     proto_tree *ext_tree_rai;
@@ -3396,7 +3606,7 @@ decode_gtp_rai(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
  * UMTS:        29.060 v4.0, chapter 7.7.4 Temporary Logical Link Identity (TLLI)
  */
 static int
-decode_gtp_tlli(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_tlli(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint32 tlli;
@@ -3411,7 +3621,7 @@ decode_gtp_tlli(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree 
  * UMTS:        29.060 v4.0, chapter 7.7.5 Packet TMSI (P-TMSI)
  */
 static int
-decode_gtp_ptmsi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ptmsi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint32 ptmsi;
@@ -3466,7 +3676,7 @@ decode_qos_gprs(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
  * TODO:        check if length is included: ETSI 4.08 vs 9.60
  */
 static int
-decode_gtp_qos_gprs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_qos_gprs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     return (1 + decode_qos_gprs(tvb, offset + 1, tree, "Quality of Service", 1));
@@ -3477,7 +3687,7 @@ decode_gtp_qos_gprs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  * UMTS:        29.060 v4.0, chapter 7.7.6 Reordering Required
  */
 static int
-decode_gtp_reorder(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_reorder(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint8 reorder;
@@ -3494,7 +3704,7 @@ decode_gtp_reorder(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
  * TODO: Add blurb support by registering items in the protocol registration
  */
 static int
-decode_gtp_auth_tri(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_auth_tri(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     proto_tree *ext_tree_auth_tri;
@@ -3515,7 +3725,7 @@ decode_gtp_auth_tri(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  *              29.002 v4.2.1, chapter 17.5, page 268
  */
 static int
-decode_gtp_map_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_map_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint8 map_cause;
@@ -3530,7 +3740,7 @@ decode_gtp_map_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  * UMTS:        29.060 v4.0, chapter 7.7.9, page 48
  */
 static int
-decode_gtp_ptmsi_sig(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ptmsi_sig(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint32 ptmsi_sig;
@@ -3545,7 +3755,7 @@ decode_gtp_ptmsi_sig(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  * UMTS:        29.060 v4.0, chapter 7.7.10, page 49
  */
 static int
-decode_gtp_ms_valid(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ms_valid(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint8 ms_valid;
@@ -3560,7 +3770,7 @@ decode_gtp_ms_valid(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  * UMTS:        29.060 v4.0, chapter 7.7.11 Recovery
  */
 static int
-decode_gtp_recovery(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_recovery(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint8 recovery;
@@ -3589,7 +3799,7 @@ dissect_radius_selection_mode(proto_tree * tree, tvbuff_t * tvb, packet_info* pi
 }
 
 static int
-decode_gtp_sel_mode(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_sel_mode(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     proto_tree_add_item(tree, hf_gtp_sel_mode, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3600,11 +3810,11 @@ decode_gtp_sel_mode(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  * UMTS:        29.060 v4.0, chapter 7.7.13, page 50
  */
 static int
-decode_gtp_16(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_16(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args)
 {
 
     guint16 ext_flow_label;
-    guint32 teid_data;
+    guint32 teid_data, *teid;
 
     switch (gtp_version) {
     case 0:
@@ -3614,6 +3824,15 @@ decode_gtp_16(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree
         return 3;
     case 1:
         teid_data = tvb_get_ntohl(tvb, offset + 1);
+        /* We save the teid_data so that we could assignate its corresponding session ID later */
+        if (g_gtp_session && !PINFO_FD_VISITED(pinfo)) {
+            args->last_teid = teid_data; /* We save it to track the error indication */
+            if (!teid_exists(teid_data, args->teid_list)) {
+                teid = wmem_new(wmem_packet_scope(), guint32);
+                *teid = teid_data;
+                wmem_list_prepend(args->teid_list, teid);
+            }
+        }
         proto_tree_add_uint(tree, hf_gtp_teid_data, tvb, offset+1, 4, teid_data);
 
         return 5;
@@ -3629,11 +3848,12 @@ decode_gtp_16(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree
  * UMTS:        29.060 v4.0, chapter 7.7.14, page 42
  */
 static int
-decode_gtp_17(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_17(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args)
 {
 
     guint16 flow_sig;
     guint32 teid_cp;
+    guint32 *teid;
 
     switch (gtp_version) {
     case 0:
@@ -3642,6 +3862,14 @@ decode_gtp_17(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree
         return 3;
     case 1:
         teid_cp = tvb_get_ntohl(tvb, offset + 1);
+        /* We save the teid_cp so that we could assignate its corresponding session ID later */
+        if (g_gtp_session && !PINFO_FD_VISITED(pinfo)) {
+            if (!teid_exists(teid_cp, args->teid_list)) {
+                teid = wmem_new(wmem_packet_scope(), guint32);
+                *teid = teid_cp;
+                wmem_list_prepend(args->teid_list, teid);
+            }
+        }
         proto_tree_add_uint(tree, hf_gtp_teid_cp, tvb, offset, 5, teid_cp);
         return 5;
     default:
@@ -3655,7 +3883,7 @@ decode_gtp_17(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree
  * UMTS:        29.060 v4.0, chapter 7.7.15, page 51
  */
 static int
-decode_gtp_18(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_18(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     flow_ii;
@@ -3696,7 +3924,7 @@ decode_gtp_18(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree
  * Check if all ms_reason types are included
  */
 static int
-decode_gtp_19(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_19(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint8 field19;
@@ -3723,7 +3951,7 @@ decode_gtp_19(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree
  * UMTS:        29.060 v4.0, chapter 7.7.17, page 51
  */
 static int
-decode_gtp_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint8      nsapi;
     proto_tree *ext_tree;
@@ -3743,7 +3971,7 @@ decode_gtp_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree
  * UMTS:        29.060 v4.0, chapter 7.7.18, page 52
  */
 static int
-decode_gtp_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint8 ranap;
@@ -3793,7 +4021,7 @@ decode_gtp_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
  * UMTS:        29.060 v4.0, chapter 7.7.19, page 52
  */
 static int
-decode_gtp_rab_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_rab_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     proto_tree *ext_tree_rab_cntxt;
 
@@ -3814,7 +4042,7 @@ decode_gtp_rab_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  * UMTS:        29.060 v4.0, chapter 7.7.20, page 53
  */
 static int
-decode_gtp_rp_sms(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_rp_sms(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint8 rp_sms;
@@ -3829,7 +4057,7 @@ decode_gtp_rp_sms(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
  * UMTS:        29.060 v4.0, chapter 7.7.21, page 53
  */
 static int
-decode_gtp_rp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_rp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     proto_tree *ext_tree_rp;
@@ -3854,7 +4082,7 @@ decode_gtp_rp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * 
  * UMTS:        29.060 v4.0, chapter 7.7.22, page 53
  */
 static int
-decode_gtp_pkt_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_pkt_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     proto_tree *ext_tree_pkt_flow_id;
@@ -3879,7 +4107,7 @@ decode_gtp_pkt_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
  * TODO: Differenciate these uints?
  */
 static int
-decode_gtp_chrg_char(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_chrg_char(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     chrg_char;
@@ -3906,7 +4134,7 @@ decode_gtp_chrg_char(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  * UMTS:        29.060 v4.0, chapter 7.7.24, page
  */
 static int
-decode_gtp_trace_ref(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_trace_ref(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16 trace_ref;
@@ -3922,7 +4150,7 @@ decode_gtp_trace_ref(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  * UMTS:        29.060 v4.0, chapter 7.7.25, page
  */
 static int
-decode_gtp_trace_type(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_trace_type(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16 trace_type;
@@ -3938,7 +4166,7 @@ decode_gtp_trace_type(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto
  * UMTS:        29.060 v4.0, chapter 7.7.25A, page
  */
 static int
-decode_gtp_ms_reason(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ms_reason(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint8 reason;
@@ -3956,7 +4184,7 @@ decode_gtp_ms_reason(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  * Radio Priority LCS
  */
 static int
-decode_gtp_ra_prio_lcs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ra_prio_lcs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -3980,7 +4208,7 @@ decode_gtp_ra_prio_lcs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
  * UMTS:        33.015
  */
 static int
-decode_gtp_tr_comm(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_tr_comm(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint8 tr_command;
@@ -3996,7 +4224,7 @@ decode_gtp_tr_comm(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
  * UMTS:        29.060 v4.0, chapter 7.7.26, page 55
  */
 static int
-decode_gtp_chrg_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_chrg_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint32 chrg_id;
@@ -4011,7 +4239,7 @@ decode_gtp_chrg_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
  * UMTS:        29.060 v4.0, chapter 7.7.27, page 55
  */
 static int
-decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16            length;
@@ -4142,7 +4370,7 @@ decode_quintuplet(tvbuff_t * tvb, int offset, proto_tree * tree, guint16 count)
  *              - finish displaying last 3 parameters
  */
 static int
-decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_mm_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length, con_len;
@@ -4888,7 +5116,7 @@ decode_apn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree, proto_
 }
 
 static void
-decode_fqdn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree)
+decode_fqdn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree, session_args_t * args _U_)
 {
     guint8 *fqdn = NULL;
     int     name_len, tmp;
@@ -4918,7 +5146,7 @@ decode_fqdn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree)
  * TODO:        unify addr functions
  */
 static int
-decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint8             ggsn_addr_len, apn_len, trans_id, ea;
@@ -5079,7 +5307,7 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  * UMTS:        29.060, v4.0, chapter 7.7.30
  */
 static int
-decode_gtp_apn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_apn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -5103,7 +5331,7 @@ decode_gtp_apn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
  *              24.008, v4.2, chapter 10.5.6.3
  */
 int
-decode_gtp_proto_conf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_proto_conf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -5134,23 +5362,25 @@ decode_gtp_proto_conf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tre
  * UMTS:        29.060 v4.0, chapter 7.7.32
  */
 static int
-decode_gtp_gsn_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_gsn_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args)
 {
 
     guint8             addr_type, addr_len;
     guint16            length;
     proto_tree        *ext_tree_gsn_addr;
     proto_item        *te;
+    address           *gsn_address;
 
     length = tvb_get_ntohs(tvb, offset + 1);
 
     ext_tree_gsn_addr = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_gsn_addr, &te, "GSN address : ");
-
+    gsn_address = wmem_new0(wmem_packet_scope(), address);
     switch (length) {
     case 4:
         proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_address_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_ipv4, tvb, offset + 3, 4, ENC_BIG_ENDIAN);
         proto_item_append_text(te, "%s", tvb_ip_to_str(tvb, offset + 3));
+        set_address_tvb(gsn_address, AT_IPv4, 4, tvb, offset + 3);
         break;
     case 5:
         proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_address_information_element_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
@@ -5160,11 +5390,13 @@ decode_gtp_gsn_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
         proto_tree_add_uint(ext_tree_gsn_addr, hf_gtp_gsn_addr_len, tvb, offset + 3, 1, addr_len);
         proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_ipv4, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
         proto_item_append_text(te, "%s", tvb_ip_to_str(tvb, offset + 4));
+        set_address_tvb(gsn_address, AT_IPv6, 16, tvb, offset + 4);
         break;
     case 16:
         proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_address_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_ipv6, tvb, offset + 3, 16, ENC_NA);
         proto_item_append_text(te, "%s", tvb_ip6_to_str(tvb, offset + 3));
+        set_address_tvb(gsn_address, AT_IPv4, 4, tvb, offset + 3);
         break;
     case 17:
         proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_address_information_element_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
@@ -5174,12 +5406,19 @@ decode_gtp_gsn_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
         proto_tree_add_uint(ext_tree_gsn_addr, hf_gtp_gsn_addr_len, tvb, offset + 3, 1, addr_len);
         proto_item_append_text(te, "%s", tvb_ip6_to_str(tvb, offset + 4));
         proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_ipv6, tvb, offset + 4, 16, ENC_NA);
+        set_address_tvb(gsn_address, AT_IPv6, 16, tvb, offset + 4);
         break;
     default:
         proto_item_append_text(te, "unknown type or wrong length");
         break;
     }
 
+    if (g_gtp_session && gtp_version == 1 && !PINFO_FD_VISITED(pinfo)) {
+        if (!ip_exists(*gsn_address, args->ip_list)) {
+            copy_address(&args->last_ip, gsn_address);
+            wmem_list_prepend(args->ip_list, gsn_address);
+        }
+    }
     return 3 + length;
 }
 
@@ -5187,7 +5426,7 @@ decode_gtp_gsn_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  * UMTS:        29.060 v4.0, chapter 7.7.33
  */
 static int
-decode_gtp_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     tvbuff_t   *next_tvb;
@@ -5216,7 +5455,7 @@ decode_gtp_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * 
  *              24.008 v4.2, chapter 10.5.6.5
  */
 static int
-decode_gtp_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     return decode_qos_umts(tvb, offset, pinfo, tree, "Quality of Service", 2);
@@ -5226,7 +5465,7 @@ decode_gtp_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
  * UMTS:        29.060 v4.0, chapter 7.7.35
  */
 static int
-decode_gtp_auth_qui(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_auth_qui(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     proto_tree *ext_tree;
@@ -5267,7 +5506,7 @@ decode_gtp_auth_qui(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  *              24.008 v4.2, chapter 10.5.6.12
  */
 static int
-decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16            length, port1, port2, tos;
@@ -5412,7 +5651,7 @@ decode_gtp_tft(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
  * There are several CRs to to this IE make sure to check with a recent spec if dissection is questioned.
  */
 static int
-decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -5462,7 +5701,7 @@ decode_gtp_target_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree
  * UMTS:        29.060 v4.0, chapter 7.7.38
  */
 static int
-decode_gtp_utran_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_utran_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -5486,7 +5725,7 @@ decode_gtp_utran_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto
  * UMTS:        29.060 v4.0, chapter 7.7.39
  */
 static int
-decode_gtp_rab_setup(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_rab_setup(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint32            teid;
@@ -5526,7 +5765,7 @@ decode_gtp_rab_setup(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  * UMTS:        29.060 v4.0, chapter 7.7.40
  */
 static int
-decode_gtp_hdr_list(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_hdr_list(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     int         i;
@@ -5555,7 +5794,7 @@ decode_gtp_hdr_list(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  * TODO:        find TriggerID description
  */
 static int
-decode_gtp_trigger_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_trigger_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16 length;
     proto_item* ti;
@@ -5575,7 +5814,7 @@ decode_gtp_trigger_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto
  * TODO:        find OMC-ID description
  */
 static int
-decode_gtp_omc_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_omc_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16 length;
     proto_item* ti;
@@ -5594,7 +5833,7 @@ decode_gtp_omc_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
  * UMTS:        29.060 v6.11.0, chapter 7.7.44 Charging Gateway Address
  */
 static int
-decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16            length;
@@ -5633,7 +5872,7 @@ decode_gtp_chrg_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  * RAN INFORMATION ACK or RAN INFORMATION ERROR messages respectively as specified in 3GPP TS 48.018
  */
 static int
-decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -5664,7 +5903,7 @@ decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
  * UMTS:        29.060 v6.11.0, chapter 7.7.45 PDP Context Prioritization
  */
 static int
-decode_gtp_pdp_cont_prio(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_pdp_cont_prio(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -5692,7 +5931,7 @@ decode_gtp_pdp_cont_prio(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_
  * UMTS:        29.060 v6.11.0, chapter 7.7.45A Additional RAB Setup Information
  */
 static int
-decode_gtp_add_rab_setup_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_add_rab_setup_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -5717,7 +5956,7 @@ decode_gtp_add_rab_setup_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
   * UMTS:       29.060 v6.11.0, chapter 7.7.47 SGSN Number
   */
 static int
-decode_gtp_ssgn_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ssgn_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -5741,7 +5980,7 @@ decode_gtp_ssgn_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
  * UMTS:        3GPP TS 29.060 version 7.8.0 Release 7, chapter 7.7.48 Common Flags
  */
 static int
-decode_gtp_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -5779,7 +6018,7 @@ decode_gtp_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
  * UMTS:        29.060 v6.11.0, chapter 7.7.49
  */
 static int
-decode_gtp_apn_res(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_apn_res(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -5810,7 +6049,7 @@ decode_gtp_apn_res(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree *
  */
 
 static int
-decode_gtp_rat_type(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_rat_type(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -5934,7 +6173,7 @@ gchar *dissect_radius_user_loc(proto_tree * tree, tvbuff_t * tvb, packet_info* p
  */
 
 static int
-decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_usr_loc_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6015,7 +6254,7 @@ static const value_string daylight_saving_time_vals[] = {
  * its value shall be set as defined in 3GPP TS 22.042
  */
 static int
-decode_gtp_ms_time_zone(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ms_time_zone(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6061,7 +6300,7 @@ decode_gtp_ms_time_zone(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pro
  * Type = 154 (Decimal)
  */
 static int
-decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6098,7 +6337,7 @@ decode_gtp_imeisv(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
  * Type = 155 (Decimal)
  */
 static int
-decode_gtp_camel_chg_inf_con(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_camel_chg_inf_con(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6123,7 +6362,7 @@ decode_gtp_camel_chg_inf_con(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
  * MBMS UE Context
  */
 static int
-decode_gtp_mbms_ue_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_mbms_ue_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6152,7 +6391,7 @@ decode_gtp_mbms_ue_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
  */
 
 static int
-decode_gtp_tmgi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_tmgi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6182,7 +6421,7 @@ decode_gtp_tmgi(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
  * RIM Routing Address
  */
 static int
-decode_gtp_rim_ra(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_rim_ra(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6210,7 +6449,7 @@ decode_gtp_rim_ra(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
  * MBMS Protocol Configuration Options
  */
 static int
-decode_gtp_mbms_prot_conf_opt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_mbms_prot_conf_opt(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6249,7 +6488,7 @@ dissect_gtp_mbms_ses_dur(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * t
 }
 
 static int
-decode_gtp_mbms_ses_dur(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_mbms_ses_dur(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6322,7 +6561,7 @@ dissect_gtp_3gpp_mbms_service_area(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 }
 
 static int
-decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     tvbuff_t   *next_tvb;
@@ -6348,7 +6587,7 @@ decode_gtp_mbms_sa(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree *
  * Source RNC PDCP context info
  */
 static int
-decode_gtp_src_rnc_pdp_ctx_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_src_rnc_pdp_ctx_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6373,7 +6612,7 @@ decode_gtp_src_rnc_pdp_ctx_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _
  * Additional Trace Info
  */
 static int
-decode_gtp_add_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_add_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6398,7 +6637,7 @@ decode_gtp_add_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
  * Hop Counter
  */
 static int
-decode_gtp_hop_count(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_hop_count(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6423,7 +6662,7 @@ decode_gtp_hop_count(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  * Selected PLMN ID
  */
 static int
-decode_gtp_sel_plmn_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_sel_plmn_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6447,7 +6686,7 @@ decode_gtp_sel_plmn_id(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tr
  * MBMS Session Identifier
  */
 static int
-decode_gtp_mbms_ses_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_mbms_ses_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6478,7 +6717,7 @@ static const value_string gtp_mbs_2g_3g_ind_vals[] = {
 };
 
 static int
-decode_gtp_mbms_2g_3g_ind(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_mbms_2g_3g_ind(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6503,7 +6742,7 @@ decode_gtp_mbms_2g_3g_ind(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
  * Enhanced NSAPI
  */
 static int
-decode_gtp_enh_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_enh_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6527,7 +6766,7 @@ decode_gtp_enh_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  * Additional MBMS Trace Info
  */
 static int
-decode_gtp_add_mbms_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_add_mbms_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6552,7 +6791,7 @@ decode_gtp_add_mbms_trs_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
  * MBMS Session Identity Repetition Number
  */
 static int
-decode_gtp_mbms_ses_id_rep_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_mbms_ses_id_rep_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6592,7 +6831,7 @@ dissect_gtp_mbms_time_to_data_tr(tvbuff_t * tvb, packet_info * pinfo _U_, proto_
 }
 
 static int
-decode_gtp_mbms_time_to_data_tr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_mbms_time_to_data_tr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6636,7 +6875,7 @@ decode_gtp_mbms_time_to_data_tr(tvbuff_t * tvb, int offset, packet_info * pinfo 
  * PS Handover Request Context
  */
 static int
-decode_gtp_ps_ho_req_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ps_ho_req_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6661,7 +6900,7 @@ decode_gtp_ps_ho_req_ctx(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
  * BSS Container
  */
 static int
-decode_gtp_bss_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_bss_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6689,7 +6928,7 @@ decode_gtp_bss_cont(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  * Cell Identification
  */
 static int
-decode_gtp_cell_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_cell_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6721,7 +6960,7 @@ decode_gtp_cell_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
  * PDU Numbers
  */
 static int
-decode_gtp_pdu_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_pdu_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6746,7 +6985,7 @@ decode_gtp_pdu_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
  * BSSGP Cause
  */
 static int
-decode_gtp_bssgp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_bssgp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6773,7 +7012,7 @@ decode_gtp_bssgp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
  * Required MBMS bearer capabilities    7.7.76
  */
 static int
-decode_gtp_mbms_bearer_cap(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_mbms_bearer_cap(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -6807,7 +7046,7 @@ static const value_string gtp_bssgp_ra_discriminator_vals[] = {
 };
 
 static int
-decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6833,7 +7072,7 @@ decode_gtp_rim_ra_disc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
  * List of set-up PFCs  7.7.78
  */
 static int
-decode_gtp_lst_set_up_pfc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_lst_set_up_pfc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6856,7 +7095,7 @@ decode_gtp_lst_set_up_pfc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
  * PS Handover XID Parameters   7.7.79
  */
 static int
-decode_gtp_ps_handover_xid(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_ps_handover_xid(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6895,7 +7134,7 @@ decode_gtp_ps_handover_xid(tvbuff_t * tvb, int offset, packet_info * pinfo, prot
  * MS Info Change Reporting Action      7.7.80
  */
 static int
-decode_gtp_ms_inf_chg_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ms_inf_chg_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6918,7 +7157,7 @@ decode_gtp_ms_inf_chg_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo _U
  * Direct Tunnel Flags  7.7.81
  */
 static int
-decode_gtp_direct_tnl_flg(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_direct_tnl_flg(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6949,7 +7188,7 @@ decode_gtp_direct_tnl_flg(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
  * Correlation-ID       7.7.82
  */
 static int
-decode_gtp_corrl_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_corrl_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -6979,7 +7218,7 @@ static const value_string gtp_pdp_bcm_type_vals[] = {
 };
 
 static int
-decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -7005,7 +7244,7 @@ decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
  * 7.7.84 MBMS Flow Identifier
  */
 static int
-decode_gtp_mbms_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_mbms_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7031,7 +7270,7 @@ decode_gtp_mbms_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pro
  */
 
 static int
-decode_gtp_mbms_ip_mcast_dist(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_mbms_ip_mcast_dist(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7062,7 +7301,7 @@ static const value_string gtp_mbms_dist_indic_vals[] = {
     {0, NULL}
 };
 static int
-decode_gtp_mbms_dist_ack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_mbms_dist_ack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7086,7 +7325,7 @@ decode_gtp_mbms_dist_ack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
  * 7.7.87 Reliable INTER RAT HANDOVER INFO
  */
 static int
-decode_gtp_reliable_irat_ho_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_reliable_irat_ho_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7109,7 +7348,7 @@ decode_gtp_reliable_irat_ho_inf(tvbuff_t * tvb, int offset, packet_info * pinfo 
  * 7.7.88 RFSP Index
  */
 static int
-decode_gtp_rfsp_index(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_rfsp_index(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length, rfsp;
     proto_tree *ext_tree;
@@ -7135,7 +7374,7 @@ decode_gtp_rfsp_index(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto
  * 7.7.90 Fully Qualified Domain Name (FQDN)
  */
 static int
-decode_gtp_fqdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_fqdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -7148,7 +7387,7 @@ decode_gtp_fqdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree 
     proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(ext_tree, hf_gtp_fqdn_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
-    decode_fqdn(tvb, offset + 3, length, ext_tree);
+    decode_fqdn(tvb, offset + 3, length, ext_tree, NULL);
 
     return 3 + length;
 }
@@ -7157,7 +7396,7 @@ decode_gtp_fqdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree 
  * 7.7.91 Evolved Allocation/Retention Priority I
  */
 static int
-decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -7185,7 +7424,7 @@ decode_gtp_evolved_allc_rtn_p1(tvbuff_t * tvb, int offset, packet_info * pinfo _
  * 7.7.92 Evolved Allocation/Retention Priority II
  */
 static int
-decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
@@ -7216,7 +7455,7 @@ decode_gtp_evolved_allc_rtn_p2(tvbuff_t * tvb, int offset, packet_info * pinfo _
  * 7.7.93 Extended Common Flags
  */
 static int
-decode_gtp_extended_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_extended_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7239,7 +7478,7 @@ decode_gtp_extended_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo 
  * 7.7.94 User CSG Information (UCI)
  */
 static int
-decode_gtp_uci(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_uci(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7263,7 +7502,7 @@ decode_gtp_uci(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
  */
 
 static int
-decode_gtp_csg_inf_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_csg_inf_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7286,7 +7525,7 @@ decode_gtp_csg_inf_rep_act(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
  */
 
 static int
-decode_gtp_csg_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_csg_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7308,7 +7547,7 @@ decode_gtp_csg_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
  * 7.7.97 CSG Membership Indication (CMI)
  */
 static int
-decode_gtp_cmi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_cmi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7330,7 +7569,7 @@ decode_gtp_cmi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree *
  * 7.7.98 APN Aggregate Maximum Bit Rate (APN-AMBR)
  */
 static int
-decode_gtp_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7362,7 +7601,7 @@ decode_gtp_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  * 7.7.99 UE Network Capability
  */
 static int
-decode_gtp_ue_network_cap(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_ue_network_cap(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7384,7 +7623,7 @@ decode_gtp_ue_network_cap(tvbuff_t * tvb, int offset, packet_info * pinfo, proto
  */
 
 static int
-decode_gtp_ue_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ue_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7432,7 +7671,7 @@ decode_gtp_ue_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tr
  * 7.7.101 APN-AMBR with NSAPI
  */
 static int
-decode_gtp_apn_ambr_with_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_apn_ambr_with_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7475,7 +7714,7 @@ static const value_string gtp_ggsn_back_off_time_units_vals[] = {
     {0, NULL}
 };
 static int
-decode_gtp_ggsn_back_off_time(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ggsn_back_off_time(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7501,7 +7740,7 @@ decode_gtp_ggsn_back_off_time(tvbuff_t * tvb, int offset, packet_info * pinfo _U
  */
 
 static int
-decode_gtp_sig_pri_ind(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_sig_pri_ind(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7524,7 +7763,7 @@ decode_gtp_sig_pri_ind(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
  */
 
 static int
-decode_gtp_sig_pri_ind_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_sig_pri_ind_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7552,7 +7791,7 @@ static const value_string gtp_higher_br_16mb_flg_vals[] = {
 };
 
 static int
-decode_gtp_higher_br_16mb_flg(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_higher_br_16mb_flg(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7576,7 +7815,7 @@ decode_gtp_higher_br_16mb_flg(tvbuff_t * tvb, int offset, packet_info * pinfo _U
  */
 
 static int
-decode_gtp_max_mbr_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_max_mbr_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7613,7 +7852,7 @@ decode_gtp_max_mbr_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
  */
 
 static int
-decode_gtp_add_mm_ctx_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_add_mm_ctx_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7637,7 +7876,7 @@ decode_gtp_add_mm_ctx_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
  */
 
 static int
-decode_gtp_add_flgs_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_add_flgs_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7659,7 +7898,7 @@ decode_gtp_add_flgs_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
  * 7.7.109 STN-SR
  */
 static int
-decode_gtp_stn_sr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_stn_sr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7683,7 +7922,7 @@ decode_gtp_stn_sr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tre
  */
 
 static int
-decode_gtp_c_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_c_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7705,7 +7944,7 @@ decode_gtp_c_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  * 7.7.111 Extended RANAP Cause
  */
 static int
-decode_gtp_ext_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ext_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7735,7 +7974,7 @@ static const value_string gtp_enb_type_vals[] = {
 };
 
 static int
-decode_gtp_ext_enodeb_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ext_enodeb_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7782,7 +8021,7 @@ decode_gtp_ext_enodeb_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
  * 7.7.113 Selection Mode with NSAPI
  */
 static int
-decode_gtp_ext_sel_mode_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ext_sel_mode_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7804,7 +8043,7 @@ decode_gtp_ext_sel_mode_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo 
  * 7.7.114 ULI Timestamp
  */
 static int
-decode_gtp_ext_uli_timestamp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ext_uli_timestamp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7827,7 +8066,7 @@ decode_gtp_ext_uli_timestamp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
  * 7.7.115 Local Home Network ID (LHN-ID) with NSAPI
  */
 static int
-decode_gtp_ext_lhn_id_w_sapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ext_lhn_id_w_sapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7849,7 +8088,7 @@ decode_gtp_ext_lhn_id_w_sapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
  * 7.7.116 CN Operator Selection Entity
  */
 static int
-decode_gtp_ext_cn_op_sel_entity(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_ext_cn_op_sel_entity(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
@@ -7869,7 +8108,7 @@ decode_gtp_ext_cn_op_sel_entity(tvbuff_t * tvb, int offset, packet_info * pinfo 
 }
 
 static int
-decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length, n, number;
@@ -7897,7 +8136,7 @@ decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  * UMTS:        33.015
  */
 static int
-decode_gtp_can_pack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_can_pack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length, n, number;
@@ -7932,7 +8171,7 @@ static const value_string gtp_cdr_fmt_vals[] = {
     {0, NULL}
 };
 static int
-decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length, cdr_length;
@@ -8036,7 +8275,7 @@ decode_gtp_data_req(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
  * UMTS:        33.015
  */
 static int
-decode_gtp_data_resp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_data_resp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length, n, number;
@@ -8065,7 +8304,7 @@ decode_gtp_data_resp(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  * UMTS:        33.015
  */
 static int
-decode_gtp_node_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+decode_gtp_node_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16            length;
@@ -8103,7 +8342,7 @@ decode_gtp_node_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
  */
 
 static int
-decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length, ext_id;
@@ -8136,12 +8375,77 @@ decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree 
 }
 
 static int
-decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
 
     proto_tree_add_expert(tree, pinfo, &ei_gtp_unknown_extention_header, tvb, offset, 1);
 
     return tvb_reported_length_remaining(tvb, offset);
+}
+
+static void
+track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hdr_t * gtp_hdr, wmem_list_t *teid_list, wmem_list_t *ip_list, guint32 last_teid, address last_ip)
+{
+    guint32 *session, frame_teid_cp;
+    proto_item *it;
+
+    /* GTP session */
+    if (tree) {
+        session = (guint32*)g_hash_table_lookup(session_table, &pinfo->num);
+        if (session) {
+            it = proto_tree_add_uint(tree, hf_gtp_session, tvb, 0, 0, *session);
+            PROTO_ITEM_SET_GENERATED(it);
+        }
+    }
+
+
+    if (!PINFO_FD_VISITED(pinfo) && gtp_version == 1) {
+        /* If the message is not a CPDPCRES, CPDPCREQ, UPDPREQ, UPDPRES then we remove its information from teid_cp
+        and gsn_ipv4 lists */
+        if ((gtp_hdr->message != GTP_MSG_CREATE_PDP_RESP && gtp_hdr->message != GTP_MSG_CREATE_PDP_REQ && gtp_hdr->message != GTP_MSG_UPDATE_PDP_RESP
+            && gtp_hdr->message != GTP_MSG_UPDATE_PDP_REQ)) {
+            /* If the lists are not empty*/
+            if (!wmem_list_count(teid_list) && !wmem_list_count(ip_list)) {
+                remove_frame_info(&pinfo->num);
+            }
+        }
+
+        /* If the message does not have any session ID */
+        session = (guint32*)g_hash_table_lookup(session_table, &pinfo->num);
+        if (!session) {
+            if (gtp_hdr->message == GTP_MSG_CREATE_PDP_REQ) {
+                /* If CPDPCREQ and not already in the list then we create a new session*/
+                add_gtp_session(pinfo->num, gtp_session_count++);
+            } else if (gtp_hdr->message != GTP_MSG_CREATE_PDP_RESP) {
+                /* If this is an error indication then we have to check the session id that belongs to the message with the same data teid and ip */
+                if (gtp_hdr->message == GTP_MSG_ERR_IND) {
+                    if (get_frame(last_ip, last_teid, &frame_teid_cp) == 1) {
+                        session = (guint32*)g_hash_table_lookup(session_table, &frame_teid_cp);
+                        if (session != NULL) {
+                            /* We add the corresponding session to the session list*/
+                            add_gtp_session(pinfo->num, *session);
+                        }
+                    }
+                }
+                else {
+                    /* We have to check if its teid == teid_cp and ip.dst == gsn_ipv4 from the lists, if that is the case then we have to assign
+                    the corresponding session ID */
+                    const address * dst_address;
+                    address gsn_address;
+                    dst_address = &pinfo->dst;
+                    copy_address(&gsn_address, dst_address);
+                    if ((get_frame(gsn_address, (guint32)gtp_hdr->teid, &frame_teid_cp) == 1)) {
+                        /* Then we have to set its session ID */
+                        session = (guint32*)g_hash_table_lookup(session_table, &frame_teid_cp);
+                        if (session != NULL) {
+                            /* We add the corresponding session to the list so that when a response came we can associate its session ID*/
+                            add_gtp_session(pinfo->num, *session);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 static int
@@ -8167,6 +8471,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     gtp_msg_hash_t  *gcrp             = NULL;
     conversation_t  *conversation;
     gtp_conv_info_t *gtp_info;
+    session_args_t  *args             = NULL;
 
     /* Do we have enough bytes for the version and message type? */
     if (!tvb_bytes_exist(tvb, 0, 2)) {
@@ -8194,6 +8499,14 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP");
     col_clear(pinfo->cinfo, COL_INFO);
+
+    if (g_gtp_session) {
+        args = wmem_new0(wmem_packet_scope(), session_args_t);
+        args->last_cause = 128;                                         /* It stores the last cause decoded. Cause accepted by default */
+        /* We create the auxiliary lists */
+        args->teid_list = wmem_list_new(wmem_packet_scope());
+        args->ip_list = wmem_list_new(wmem_packet_scope());
+    }
 
     /*
     * Do we have a conversation for this connection?
@@ -8529,19 +8842,30 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             while (gtpopt[++i].optcode)
                 if (gtpopt[i].optcode == ext_hdr_val)
                     break;
-            offset = offset + (*gtpopt[i].decode) (tvb, offset, pinfo, gtp_tree);
+            offset = offset + (*gtpopt[i].decode) (tvb, offset, pinfo, gtp_tree, args);
         }
 
+        if (g_gtp_session && !PINFO_FD_VISITED(pinfo)) {
+            /* We insert the lists inside the table*/
+            fill_map(args->teid_list, args->ip_list, pinfo->num);
+        }
         /*Use sequence number to track Req/Resp pairs*/
         if (has_SN) {
-            gcrp = gtp_match_response(tvb, pinfo, gtp_tree, seq_no, gtp_hdr->message, gtp_info);
+            guint8 cause_aux = 128; /* Cause accepted by default. Only used when args is NULL */
+            if (g_gtp_session) {
+                cause_aux = args->last_cause;
+            }
+            gcrp = gtp_match_response(tvb, pinfo, gtp_tree, seq_no, gtp_hdr->message, gtp_info, cause_aux);
             /*pass packet to tap for response time reporting*/
             if (gcrp) {
                 tap_queue_packet(gtp_tap,pinfo,gcrp);
             }
         }
     }
-    proto_item_set_end (ti, tvb, offset);
+    if (g_gtp_session) {
+        track_gtp_session(tvb, pinfo, gtp_tree, gtp_hdr, args->teid_list, args->ip_list, args->last_teid, args->last_ip);
+    }
+    proto_item_set_end(ti, tvb, offset);
 
     if ((gtp_hdr->message == GTP_MSG_TPDU) && dissect_tpdu_as == GTP_TPDU_AS_TPDU) {
         if(tvb_reported_length_remaining(tvb, offset) > 0){
@@ -8635,6 +8959,14 @@ dissect_gtp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 }
 
 static void
+gtp_init(void)
+{
+    gtp_session_count = 1;
+    session_table = g_hash_table_new(g_int_hash, g_int_equal);
+    frame_tree = wmem_tree_new(wmem_file_scope());
+}
+
+static void
 gtp_cleanup(void)
 {
     gtp_conv_info_t *gtp_info;
@@ -8653,7 +8985,13 @@ gtp_cleanup(void)
         gtp_info = next;
     }
 
+    /* Free up state attached to the gtp session structures */
     gtp_info_items = NULL;
+
+    if (session_table != NULL) {
+        g_hash_table_destroy(session_table);
+    }
+    session_table = NULL;
 }
 
 void
@@ -9206,6 +9544,11 @@ proto_register_gtp(void)
          { "Sequence number", "gtp.seq_number",
            FT_UINT16, BASE_HEX, NULL, 0,
            NULL, HFILL}
+        },
+        { &hf_gtp_session,
+        { "Session", "gtp.session",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }
         },
         {&hf_gtp_sndcp_number,
          { "SNDCP N-PDU LLC Number", "gtp.sndcp_number",
@@ -9809,6 +10152,7 @@ proto_register_gtp(void)
      * The preference is set to TRUE by default forbackward compatibility
      */
     prefs_register_bool_preference(gtp_module, "dissect_gtp_over_tcp", "Dissect GTP over TCP", "Dissect GTP over TCP", &g_gtp_over_tcp);
+    prefs_register_bool_preference(gtp_module, "track_gtp_session", "Track GTP session", "Track GTP session", &g_gtp_session);
 
     register_dissector("gtp", dissect_gtp, proto_gtp);
     register_dissector("gtpprime", dissect_gtpprime, proto_gtpprime);
@@ -9816,6 +10160,7 @@ proto_register_gtp(void)
     gtp_priv_ext_dissector_table = register_dissector_table("gtp.priv_ext", "GTP PRIVATE EXT", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
     gtp_cdr_fmt_dissector_table = register_dissector_table("gtp.cdr_fmt", "GTP DATA RECORD TYPE", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
+    register_init_routine(gtp_init);
     register_cleanup_routine(gtp_cleanup);
     gtp_tap = register_tap("gtp");
     gtpv1_tap = register_tap("gtpv1");
