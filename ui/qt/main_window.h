@@ -34,6 +34,7 @@
 
 #include <epan/prefs.h>
 #include <epan/plugin_if.h>
+#include <epan/timestamp.h>
 
 #ifdef HAVE_LIBPCAP
 #include "capture_opts.h"
@@ -142,6 +143,8 @@ private:
     FunnelStatistics *funnel_statistics_;
     QList<QPair<QAction *, bool> > freeze_actions_;
     QWidget *freeze_focus_;
+    QMap<QAction *, ts_type> td_actions;
+    QMap<QAction *, ts_precision> tp_actions;
 
     bool capture_stopping_;
     bool capture_filter_valid_;
@@ -231,6 +234,7 @@ public slots:
     void applyRecentPaneGeometry();
     void layoutToolbars();
     void updatePreferenceActions();
+    void updateRecentActions();
 
     void captureCapturePrepared(capture_session *);
     void captureCaptureUpdateStarted(capture_session *);

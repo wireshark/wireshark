@@ -382,6 +382,7 @@ MainWindow::MainWindow(QWidget *parent) :
     initTimePrecisionFormatMenu();
     initFreezeActions();
     updatePreferenceActions();
+    updateRecentActions();
     setForCaptureInProgress(false);
 
     setTabOrder(df_combo_box_, packet_list_);
@@ -459,6 +460,8 @@ MainWindow::MainWindow(QWidget *parent) :
             packet_list_, SLOT(preferencesChanged()));
     connect(wsApp, SIGNAL(recentFilesRead()),
             this, SLOT(applyRecentPaneGeometry()));
+    connect(wsApp, SIGNAL(recentFilesRead()),
+            this, SLOT(updateRecentActions()));
     connect(wsApp, SIGNAL(packetDissectionChanged()),
             this, SLOT(redissectPackets()));
     connect(wsApp, SIGNAL(appInitialized()),
@@ -1696,7 +1699,6 @@ void MainWindow::initMainToolbarIcons()
     main_ui_->actionGoAutoScroll->setIcon(StockIcon("x-stay-last"));
 
     main_ui_->actionViewColorizePacketList->setIcon(StockIcon("x-colorize-packets"));
-    main_ui_->actionViewColorizePacketList->setChecked(recent.packet_list_colorize);
 //    main_ui_->actionViewAutoScroll->setIcon(StockIcon("x-stay-last"));
 
     QList<QKeySequence> zi_seq = main_ui_->actionViewZoomIn->shortcuts();
@@ -1726,14 +1728,6 @@ void MainWindow::initShowHideMainWidgets()
     shmw_actions[main_ui_->actionViewPacketDetails] = proto_tree_;
     shmw_actions[main_ui_->actionViewPacketBytes] = byte_view_tab_;
 
-    main_ui_->actionViewMainToolbar->setChecked(recent.main_toolbar_show);
-    main_ui_->actionViewFilterToolbar->setChecked(recent.filter_toolbar_show);
-    main_ui_->actionViewWirelessToolbar->setChecked(recent.wireless_toolbar_show);
-    main_ui_->actionViewStatusBar->setChecked(recent.statusbar_show);
-    main_ui_->actionViewPacketList->setChecked(recent.packet_list_show);
-    main_ui_->actionViewPacketDetails->setChecked(recent.tree_view_show);
-    main_ui_->actionViewPacketBytes->setChecked(recent.byte_view_show);
-
     foreach (QAction *shmwa, shmw_actions.keys()) {
         shmwa->setData(qVariantFromValue(shmw_actions[shmwa]));
         show_hide_actions_->addAction(shmwa);
@@ -1752,7 +1746,6 @@ void MainWindow::initTimeDisplayFormatMenu()
     }
 
     time_display_actions_ = new QActionGroup(this);
-    QMap<QAction *, ts_type> td_actions;
 
     td_actions[main_ui_->actionViewTimeDisplayFormatDateYMDandTimeOfDay] = TS_ABSOLUTE_WITH_YMD;
     td_actions[main_ui_->actionViewTimeDisplayFormatDateYDOYandTimeOfDay] = TS_ABSOLUTE_WITH_YDOY;
@@ -1768,14 +1761,9 @@ void MainWindow::initTimeDisplayFormatMenu()
     foreach (QAction* tda, td_actions.keys()) {
         tda->setData(qVariantFromValue(td_actions[tda]));
         time_display_actions_->addAction(tda);
-        if (recent.gui_time_format == td_actions[tda]) {
-            tda->setChecked(true);
-        }
     }
 
     connect(time_display_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setTimestampFormat(QAction*)));
-
-    main_ui_->actionViewTimeDisplaySecondsWithHoursAndMinutes->setChecked(recent.gui_seconds_format == TS_SECONDS_HOUR_MIN_SEC);
 }
 
 Q_DECLARE_METATYPE(ts_precision)
@@ -1787,7 +1775,7 @@ void MainWindow::initTimePrecisionFormatMenu()
     }
 
     time_precision_actions_ = new QActionGroup(this);
-    QMap<QAction *, ts_precision> tp_actions;
+
     tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionAutomatic] = TS_PREC_AUTO;
     tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionSeconds] = TS_PREC_FIXED_SEC;
     tp_actions[main_ui_->actionViewTimeDisplayFormatPrecisionDeciseconds] = TS_PREC_FIXED_DSEC;
@@ -1799,9 +1787,6 @@ void MainWindow::initTimePrecisionFormatMenu()
     foreach (QAction* tpa, tp_actions.keys()) {
         tpa->setData(qVariantFromValue(tp_actions[tpa]));
         time_precision_actions_->addAction(tpa);
-        if (recent.gui_time_precision == tp_actions[tpa]) {
-            tpa->setChecked(true);
-        }
     }
 
     connect(time_precision_actions_, SIGNAL(triggered(QAction*)), this, SLOT(setTimestampPrecision(QAction*)));

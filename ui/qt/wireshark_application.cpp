@@ -387,9 +387,6 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
 
     emit localInterfaceListChanged();
     emit packetDissectionChanged();
-
-    /* Update menus with new recent values */
-    //    menu_recent_read_finished();
 }
 
 const QString WiresharkApplication::windowTitleString(QStringList title_parts)

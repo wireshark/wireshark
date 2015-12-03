@@ -311,7 +311,11 @@ void MainWindow::layoutPanes()
     QVector<unsigned> new_layout = QVector<unsigned>() << prefs.gui_layout_type
                                                        << prefs.gui_layout_content_1
                                                        << prefs.gui_layout_content_2
-                                                       << prefs.gui_layout_content_3;
+                                                       << prefs.gui_layout_content_3
+                                                       << recent.packet_list_show
+                                                       << recent.tree_view_show
+                                                       << recent.byte_view_show;
+
     if (cur_layout_ == new_layout) return;
 
     QSplitter *parents[3];
@@ -458,6 +462,11 @@ void MainWindow::layoutToolbars()
     }
 
     main_ui_->mainToolBar->setToolButtonStyle(tbstyle);
+
+    main_ui_->mainToolBar->setVisible(recent.main_toolbar_show);
+    main_ui_->displayFilterToolBar->setVisible(recent.filter_toolbar_show);
+    main_ui_->wirelessToolBar->setVisible(recent.wireless_toolbar_show);
+    main_ui_->statusBar->setVisible(recent.statusbar_show);
 }
 
 void MainWindow::updatePreferenceActions()
@@ -468,6 +477,31 @@ void MainWindow::updatePreferenceActions()
 
     // Should this be a "recent" setting?
     main_ui_->actionGoAutoScroll->setChecked(prefs.capture_auto_scroll);
+}
+
+void MainWindow::updateRecentActions()
+{
+    main_ui_->actionViewMainToolbar->setChecked(recent.main_toolbar_show);
+    main_ui_->actionViewFilterToolbar->setChecked(recent.filter_toolbar_show);
+    main_ui_->actionViewWirelessToolbar->setChecked(recent.wireless_toolbar_show);
+    main_ui_->actionViewStatusBar->setChecked(recent.statusbar_show);
+    main_ui_->actionViewPacketList->setChecked(recent.packet_list_show);
+    main_ui_->actionViewPacketDetails->setChecked(recent.tree_view_show);
+    main_ui_->actionViewPacketBytes->setChecked(recent.byte_view_show);
+
+    foreach (QAction* tda, td_actions.keys()) {
+        if (recent.gui_time_format == td_actions[tda]) {
+            tda->setChecked(true);
+        }
+    }
+    foreach (QAction* tpa, tp_actions.keys()) {
+        if (recent.gui_time_precision == tp_actions[tpa]) {
+            tpa->setChecked(true);
+        }
+    }
+    main_ui_->actionViewTimeDisplaySecondsWithHoursAndMinutes->setChecked(recent.gui_seconds_format == TS_SECONDS_HOUR_MIN_SEC);
+
+    main_ui_->actionViewColorizePacketList->setChecked(recent.packet_list_colorize);
 }
 
 void MainWindow::filterAction(QString &action_filter, FilterAction::Action action, FilterAction::ActionType type)
