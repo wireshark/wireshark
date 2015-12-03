@@ -168,7 +168,7 @@ static gboolean
 mp2t_find_next_pcr(wtap *wth, guint8 trailer_len,
         int *err, gchar **err_info, guint32 *idx, guint64 *pcr, guint16 *pid)
 {
-    guint8 buffer[MP2T_SIZE];
+    guint8 buffer[MP2T_SIZE+TRAILER_LEN_MAX];
     gboolean found;
     guint8 afc;
 
