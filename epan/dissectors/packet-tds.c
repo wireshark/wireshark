@@ -2993,9 +2993,8 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guin
         if(is_fixedlen_type_tds(type))
         {
             nl_data->columns[i]->csize = get_size_by_coltype(type);
-        } else
-
-        if(is_varlen_type_tds(type))
+        }
+        else if(is_varlen_type_tds(type))
         {
             switch(type)
             {
