@@ -566,6 +566,10 @@ append_to_preamble(char *str)
         /* Add a blank separator between the previous token and this token. */
         packet_preamble[packet_preamble_len++] = ' ';
     }
+    if(str == NULL){
+        fprintf(stderr, "FATAL ERROR: str is NULL\n");
+        exit(1);
+    }
     toklen = strlen(str);
     if (toklen != 0) {
         if (packet_preamble_len + toklen > PACKET_PREAMBLE_MAX_LEN)
