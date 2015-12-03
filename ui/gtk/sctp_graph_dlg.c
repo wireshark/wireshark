@@ -527,7 +527,7 @@ draw_tsn_graph(struct sctp_udata *u_data)
 	GList *list=NULL, *tlist;
 	guint8 type;
 	guint32 tsnumber=0;
-	guint32 min_secs=0, diff;
+	guint32 diff;
 	gint xvalue, yvalue;
 	cairo_t *cr = NULL;
 	GdkRGBA black_color  =  {0.0, 0.0, 0.0, 1.0};
@@ -571,7 +571,7 @@ draw_tsn_graph(struct sctp_udata *u_data)
 			type = ((struct chunk_header *)tlist->data)->type;
 			if (type == SCTP_DATA_CHUNK_ID || type == SCTP_I_DATA_CHUNK_ID || type == SCTP_FORWARD_TSN_CHUNK_ID)
 				tsnumber = g_ntohl(((struct data_chunk_header *)tlist->data)->tsn);
-			if (tsnumber >= min_tsn && tsnumber <= max_tsn && tsn->secs >= min_secs)
+			if (tsnumber >= min_tsn && tsnumber <= max_tsn)
 			{
 				if (u_data->io->uoff) {
 					diff = tsn->secs - u_data->io->min_x;
