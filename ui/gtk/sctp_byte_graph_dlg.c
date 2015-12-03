@@ -1017,8 +1017,8 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 	GtkAllocation widget_alloc;
 	cairo_t *cr;
 
-	g_snprintf(label_string, 15, "%d", 0);
-	memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+	g_snprintf(label_string, sizeof(label_string), "%d", 0);
+	memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), sizeof(label_string));
 	layout = gtk_widget_create_pango_layout(u_data->io->draw_area, label_string);
 	pango_layout_get_pixel_size(layout, &label_width, &label_height);
 
@@ -1197,7 +1197,7 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 			else
 				position = event->x + 5;
 
-			memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+			memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), sizeof(label_string));
 			pango_layout_set_text(layout, label_string, -1);
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
 

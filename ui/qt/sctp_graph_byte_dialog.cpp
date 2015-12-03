@@ -72,7 +72,7 @@ void SCTPGraphByteDialog::drawBytesGraph()
     tsn_t *tsn;
     guint8 type;
     guint32 maxBytes;
-    long sumBytes = 0;
+    guint64 sumBytes = 0;
 
     if (direction == 1) {
         maxBytes = selected_assoc->n_data_bytes_ep1;

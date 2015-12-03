@@ -482,18 +482,6 @@ chunk_dlg_destroy(GObject *object _U_, gpointer user_data)
 }
 
 static void
-on_destroy(GObject *object _U_, gpointer user_data)
-{
-    struct sctp_udata *u_data = (struct sctp_udata*)user_data;
-
-    decrease_childcount(u_data->parent);
-    remove_child(u_data, u_data->parent);
-    g_free(u_data->io);
-    g_free(u_data);
-}
-
-
-static void
 add_to_clist(sctp_addr_chunk* sac)
 {
     GtkListStore *list_store = NULL;
@@ -577,17 +565,6 @@ sctp_chunk_stat_on_close (GtkButton *button _U_, gpointer         user_data)
     gtk_grab_remove(udata->io->window);
     gtk_widget_destroy(udata->io->window);
 }
-
-static void
-on_close_dlg (GtkButton *button _U_, gpointer user_data)
-{
-    struct sctp_udata *udata;
-
-    udata = (struct sctp_udata *)user_data;
-    gtk_grab_remove(udata->io->window);
-    gtk_widget_destroy(udata->io->window);
-}
-
 
 static void
 path_window_set_title(struct sctp_udata *u_data, unsigned int direction)
@@ -692,7 +669,7 @@ sctp_chunk_dlg(struct sctp_udata *u_data)
     u_data->io->window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     gtk_window_set_position (GTK_WINDOW (u_data->io->window), GTK_WIN_POS_CENTER);
     gtk_widget_set_size_request(u_data->io->window, 500, 650);
-    g_signal_connect(u_data->io->window, "destroy", G_CALLBACK(on_destroy), u_data);
+    g_signal_connect(u_data->io->window, "destroy", G_CALLBACK(chunk_dlg_destroy), u_data);
 
     /* Container for each row of widgets */
     main_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 12, FALSE);
@@ -778,7 +755,7 @@ sctp_chunk_dlg(struct sctp_udata *u_data)
     close_bt = ws_gtk_button_new_from_stock(GTK_STOCK_CLOSE);
     gtk_box_pack_start(GTK_BOX(h_button_box), close_bt, FALSE, FALSE, 0);
     gtk_widget_show(close_bt);
-    g_signal_connect(close_bt, "clicked", G_CALLBACK(on_close_dlg), u_data);
+    g_signal_connect(close_bt, "clicked", G_CALLBACK(sctp_chunk_stat_on_close), u_data);
 
     gtk_widget_show_all(u_data->io->window);
     chunk_window_set_title(u_data);

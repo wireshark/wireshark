@@ -57,7 +57,6 @@ SCTPAllAssocsDialog::~SCTPAllAssocsDialog()
 
 void SCTPAllAssocsDialog::fillTable()
 {
-    QString output;
     GList *list;
     sctp_assoc_info_t* assinfo;
     int numAssocs;
