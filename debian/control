@@ -139,7 +139,7 @@ Architecture: any
 Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends}, ${misc:Depends}, libwireshark-data (>= ${source:Version}),
- libwsutil0 (>= ${source:Version})
+ libwsutil0 (>= ${source:Version}), libwscodecs0 (>= ${source:Version})
 Suggests: wireshark-doc (>= ${source:Version})
 Conflicts: wireshark-common (<< 1.4.0~rc2-1)
 Replaces: wireshark-common (<< 1.4.0~rc2-1)
@@ -171,6 +171,17 @@ Description: network packet dissection utilities library -- shared library
  .
  This package contains the static library and the C header files that are
  needed for applications to use the libwsutil library.
+
+Package: libwscodecs0
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: wireshark-common (<< 1.4.0~rc2-1), libwireshark1 (<< 1.4.2-2)
+Replaces: wireshark-common (<< 1.4.0~rc2-1), libwireshark1 (<< 1.4.2-2)
+Description: network packet dissection codecs library -- shared library
+ The libwscodecs library provides codec functions for libwireshark0.
 
 Package: libwireshark-data
 Section: libs

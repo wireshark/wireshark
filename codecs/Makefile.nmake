@@ -1,17 +1,18 @@
-## Makefile for building codecs.lib with Microsoft C and nmake
+## Makefile for building libcodecs.dll with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
 
 include ..\config.nmake
+include <win32.mak>
 include ..\Makefile.nmake.inc
 
 ############### no need to modify below this line #########
 
 CFLAGS=/I.. $(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
-	$(GLIB_CFLAGS)
+	$(GLIB_CFLAGS) -DWS_BUILD_DLL
 
 DIRTY_CFLAGS=/I.. $(STANDARD_CFLAGS) \
-	$(GLIB_CFLAGS)
+	$(GLIB_CFLAGS) -DWS_BUILD_DLL
 
 .c.obj::
 	$(CC) $(CFLAGS) -Fd.\ -c $<
@@ -20,11 +21,11 @@ include Makefile.common
 
 # if you add files here, be sure to include them also in Makefile.am EXTRA_DIST
 # XXX - if the codec files weren't in subdirectories, we could just do
-# LIBCODEC_OBJECTS = $(LIBCODEC_SRC:.c=.obj), and wouldn't need rules
+# LIBCODECS_OBJECTS = $(LIBCODECS_SRC:.c=.obj), and wouldn't need rules
 # for each of the codecs below
 #
-LIBCODEC_OBJECTS= \
-    codecs.obj \
+LIBCODECS_OBJECTS= \
+	codecs.obj \
 	G711udecode.obj \
 	G711adecode.obj \
 	G722decode.obj \
@@ -32,8 +33,21 @@ LIBCODEC_OBJECTS= \
 	resample.obj \
 	sbc.obj
 
-codecs.lib	:  $(LIBCODEC_OBJECTS)
-	link /lib /out:codecs.lib $(LIBCODEC_OBJECTS)
+libcodecs_LIBS = \
+	$(GLIB_LIBS) \
+	..\wsutil\libwsutil.lib
+
+libwscodecs.lib: libwscodecs.dll
+libwscodecs.exp: libwscodecs.dll
+
+libwscodecs.dll : $(LIBCODECS_OBJECTS) ..\image\libwscodecs.res
+	@echo Linking libwscodecs.dll
+	$(link) $(dlllflags) $(conlibsdll) \
+		$(LOCAL_LDFLAGS) $(DLL_LDFLAGS) \
+		/OUT:libwscodecs.dll \
+		/IMPLIB:libwscodecs.lib \
+		..\image\libwscodecs.res \
+		$(LIBCODECS_OBJECTS) $(libcodecs_LIBS)
 
 codecs.obj: codecs.c codecs.h
 	$(CC) $(CFLAGS) -Fd.\ -c codecs.c /Fo%|fF.obj
@@ -57,7 +71,12 @@ sbc.obj: sbc\sbc.c sbc\sbc_private.h
 	$(CC) $(CFLAGS) -Fd.\ -c sbc\sbc.c /Fo%|fF.obj
 
 clean:
-	rm -f $(LIBCODEC_OBJECTS) codecs.lib *.nativecodeanalysis.xml *.pdb *.sbr
+	rm -f $(LIBCODECS_OBJECTS) \
+		libwscodecs.lib \
+		libwscodecs.exp \
+		libwscodecs.dll \
+		libwscodecs.dll.manifest \
+		*.nativecodeanalysis.xml *.pdb *.sbr
 
 distclean: clean
 
@@ -65,4 +84,4 @@ maintainer-clean: distclean
 
 checkapi:
 	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput -build \
-	$(LIBCODEC_SRC)
+	$(LIBCODECS_SRC)

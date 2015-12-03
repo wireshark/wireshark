@@ -404,7 +404,7 @@ wireshark_common_ldadd = \
 	caputils/libcaputils.a		\
 	ui/libui.a			\
 	ui/libui_dirty.a		\
-	codecs/libcodec.a		\
+	codecs/libwscodecs.la		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	wsutil/libwsutil.la		\
@@ -938,6 +938,7 @@ EXTRA_DIST = \
 	image/layout_5@2x.png		\
 	image/layout_6.png		\
 	image/layout_6@2x.png		\
+	image/libwscodecs.rc.in		\
 	image/libwireshark.rc.in	\
 	image/libwsutil.rc.in		\
 	image/lo16-app-wireshark.png	\

@@ -235,7 +235,7 @@ RESOURCES=image\wireshark.res image\file_dlg_win32.res \
 	image\rawshark.res image\reordercap.res image\libwsutil.res
 
 
-all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image codecs $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil wiretap epan $(EXECUTABLES) wireshark.bsc $(RESOURCES) help install-all
+all: $(LIBS_CHECK) config.h ui\qt\config.pri tools image $(C_ARES_DLL) $(ADNS_DLL) $(ZLIB_DLL) wsutil codecs wiretap epan $(EXECUTABLES) wireshark.bsc $(RESOURCES) help install-all
 
 !IFDEF MAKENSIS
 packaging: all
@@ -326,16 +326,16 @@ $(RESOURCES): image
 ##       (These variables (as well as '$(guilibsdll)' and '$(conlibsdll)') are defined in win32.mak).
 wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 
-$(PROGRAM_NAME_GTK).exe	: $(LIBS_CHECK) config.h $(wireshark_gtk_OBJECTS) capchild caputils codecs epan ui gtk win32 image\wireshark.res image\file_dlg_win32.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib plugins
+$(PROGRAM_NAME_GTK).exe	: $(LIBS_CHECK) config.h $(wireshark_gtk_OBJECTS) capchild caputils epan ui gtk win32 image\wireshark.res image\file_dlg_win32.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\libwscodecs.lib ui\libui.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:$(PROGRAM_NAME_GTK).exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE $(wireshark_gtk_LIBS) $(GTK_LIBS) capchild\libcapchild.lib caputils\libcaputils.lib codecs\codecs.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib ui\libui.lib $(wireshark_gtk_OBJECTS) image\wireshark.res image\file_dlg_win32.res
+		/OUT:$(PROGRAM_NAME_GTK).exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE $(wireshark_gtk_LIBS) $(GTK_LIBS) capchild\libcapchild.lib caputils\libcaputils.lib codecs\libwscodecs.lib ui\gtk\libgtkui.lib ui\win32\libgtkui_win32.lib ui\libui.lib $(wireshark_gtk_OBJECTS) image\wireshark.res image\file_dlg_win32.res
 <<
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:$(PROGRAM_NAME).exe;1
 !ENDIF
 
-$(PROGRAM_NAME).exe	: install-generated-files $(LIBS_CHECK) config.h capchild caputils codecs epan ui qt wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
+$(PROGRAM_NAME).exe	: install-generated-files $(LIBS_CHECK) config.h capchild caputils codecs\libwscodecs.lib epan ui qt wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 
 tshark.exe	: $(LIBS_CHECK) config.h $(tshark_OBJECTS) capchild caputils epan ui cli image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
@@ -617,7 +617,7 @@ clean-local:
 		dftest.obj dftest.exe randpkt.obj randpkt-core.obj randpkt.exe \
 		doxygen.cfg \
 		$(RESOURCES) libwireshark.dll wiretap-$(WTAP_VERSION).dll \
-		libwsutil.dll \
+		libwscodecs.lib libwsutil.dll \
 		wireshark.bsc
 	rm -rf $(INSTALL_DIR)
 	rm -rf $(INSTALL_DIR_QT)
@@ -1253,6 +1253,9 @@ install-generated-files: doc
 	if exist epan\libwireshark.lib xcopy .\epan\libwireshark.lib $(INSTALL_DIR) /d
 	if exist epan\libwireshark.pdb xcopy .\epan\libwireshark.pdb $(INSTALL_DIR) /d
 !ENDIF
+	xcopy ".\codecs\libwscodecs.dll" $(INSTALL_DIR) /d
+	if exist ".\codecs\libwscodecs.lib" xcopy ".\codecs\libwscodecs.lib" $(INSTALL_DIR) /d
+	if exist ".\codecs\libwscodecs.pdb" xcopy ".\codecs\libwscodecs.pdb" $(INSTALL_DIR) /d
 	xcopy ".\wiretap\wiretap-$(WTAP_VERSION).dll" $(INSTALL_DIR) /d
 	if exist ".\wiretap\wiretap-$(WTAP_VERSION).lib" xcopy ".\wiretap\wiretap-$(WTAP_VERSION).lib" $(INSTALL_DIR) /d
 	if exist ".\wiretap\wiretap-$(WTAP_VERSION).pdb" xcopy ".\wiretap\wiretap-$(WTAP_VERSION).pdb" $(INSTALL_DIR) /d

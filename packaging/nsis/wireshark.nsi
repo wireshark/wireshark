@@ -357,6 +357,7 @@ File "${STAGING_DIR}\wiretap-${WTAP_VERSION}.dll"
 !ifdef ENABLE_LIBWIRESHARK
 File "${STAGING_DIR}\libwireshark.dll"
 !endif
+File "${STAGING_DIR}\libwscodecs.dll"
 File "${STAGING_DIR}\libwsutil.dll"
 
 !include all-manifest.nsh

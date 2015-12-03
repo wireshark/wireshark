@@ -44,9 +44,38 @@ if(SBC_FOUND)
   set(CODECS_FILES ${CODECS_FILES} sbc/sbc.c)
 endif()
 
-add_library(codecs STATIC
-  ${CODECS_FILES}
+set(codecs_LIBS
+  ${GMODULE2_LIBRARIES}
+  wsutil
 )
+
+add_library(codecs ${LINK_MODE_LIB}
+  ${CODECS_FILES}
+  ${CMAKE_BINARY_DIR}/image/libwscodecs.rc
+)
+
+set(FULL_SO_VERSION "0.0.0")
+
 set_target_properties(codecs PROPERTIES
-	LINK_FLAGS "${WS_LINK_FLAGS}"
-	FOLDER "Libs")
+  PREFIX "libws"
+  COMPILE_DEFINITIONS "WS_BUILD_DLL"
+  LINK_FLAGS "${WS_LINK_FLAGS}"
+  VERSION ${FULL_SO_VERSION} SOVERSION 0
+  FOLDER "Libs"
+)
+
+if(ENABLE_APPLICATION_BUNDLE)
+  set_target_properties(codecs PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Frameworks
+  )
+endif()
+
+target_link_libraries(codecs ${codecs_LIBS})
+
+if(NOT ${ENABLE_STATIC})
+  install(TARGETS codecs
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
+endif()

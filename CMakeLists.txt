@@ -1164,6 +1164,7 @@ set( IN_FILES
 	image/tfshark.rc.in
 	image/editcap.rc.in
 	image/captype.rc.in
+	image/libwscodecs.rc.in
 	image/libwsutil.rc.in
 	image/wiretap.rc.in
 	image/wireshark.exe.manifest.in

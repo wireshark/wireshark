@@ -482,7 +482,7 @@ win32 {
         -L../../epan -llibwireshark -L../../wsutil -llibwsutil \
         -L../../wiretap -lwiretap-$${WTAP_VERSION} \
         -L../../capchild -llibcapchild -L../../caputils -llibcaputils \
-        -L.. -llibui -L../../codecs -lcodecs \
+        -L.. -llibui -L../../codecs -llibwscodecs \
         -L$${GLIB_DIR}/lib -lglib-2.0 -lgmodule-2.0 \
         -L$${ZLIB_DIR}/lib -lzdll \
         -L$${WINSPARKLE_DIR} -lWinSparkle
@@ -524,7 +524,8 @@ win32 {
 
     EXTRA_BINFILES += \
         ../../dumpcap.exe \
-        ../../epan/libwireshark.dll ../../wiretap/wiretap-$${WTAP_VERSION}.dll ../../wsutil/libwsutil.dll \
+        ../../epan/libwireshark.dll ../../wiretap/wiretap-$${WTAP_VERSION}.dll \
+        ../../wsutil/libwsutil.dll ../../codecs/libwscodecs.dll \
         $${GLIB_DIR}/bin/libglib-2.0-0.dll $${GLIB_DIR}/bin/libgmodule-2.0-0.dll \
         $${GLIB_DIR}/bin/$${INTL_DLL} \
         $${GLIB_DIR}/bin/gspawn-$${WIRESHARK_TARGET_PLATFORM}-helper.exe \

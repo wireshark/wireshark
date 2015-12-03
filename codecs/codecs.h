@@ -33,8 +33,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 #ifdef HAVE_PLUGINS
-extern void codec_register_plugin_types(void);
-extern void register_all_codecs(void);
+WS_DLL_PUBLIC void codec_register_plugin_types(void);
+WS_DLL_PUBLIC void register_all_codecs(void);
 #endif
 
 struct codec_handle;
@@ -47,15 +47,15 @@ typedef unsigned (*codec_get_frequency_fn)(void *context);
 typedef size_t (*codec_decode_fn)(void *context, const void *input, size_t inputSizeBytes,
         void *output, size_t *outputSizeBytes);
 
-extern gboolean register_codec(const char *name, codec_init_fn init_fn,
+WS_DLL_PUBLIC gboolean register_codec(const char *name, codec_init_fn init_fn,
         codec_release_fn release_fn, codec_get_channels_fn channels_fn,
         codec_get_frequency_fn frequency_fn, codec_decode_fn decode_fn);
-extern codec_handle_t find_codec(const char *name);
-extern void *codec_init(codec_handle_t codec);
-extern void codec_release(codec_handle_t codec, void *context);
-extern unsigned codec_get_channels(codec_handle_t codec, void *context);
-extern unsigned codec_get_frequency(codec_handle_t codec, void *context);
-extern size_t codec_decode(codec_handle_t codec, void *context, const void *input,
+WS_DLL_PUBLIC codec_handle_t find_codec(const char *name);
+WS_DLL_PUBLIC void *codec_init(codec_handle_t codec);
+WS_DLL_PUBLIC void codec_release(codec_handle_t codec, void *context);
+WS_DLL_PUBLIC unsigned codec_get_channels(codec_handle_t codec, void *context);
+WS_DLL_PUBLIC unsigned codec_get_frequency(codec_handle_t codec, void *context);
+WS_DLL_PUBLIC size_t codec_decode(codec_handle_t codec, void *context, const void *input,
         size_t inputSizeBytes, void *output, size_t *outputSizeBytes);
 
 #ifdef __cplusplus

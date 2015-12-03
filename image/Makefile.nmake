@@ -4,7 +4,7 @@ include ..\config.nmake
 
 # Nmake uses an implicit rule to build a .res from a .rc file!
 
-ALL_RC=wireshark.rc libwireshark.rc tshark.rc tfshark.rc rawshark.rc capinfos.rc captype.rc editcap.rc text2pcap.rc mergecap.rc reordercap.rc wiretap.rc dumpcap.rc libwsutil.rc wireshark.exe.manifest
+ALL_RC=wireshark.rc libwireshark.rc tshark.rc tfshark.rc rawshark.rc capinfos.rc captype.rc editcap.rc text2pcap.rc mergecap.rc reordercap.rc wiretap.rc dumpcap.rc libwscodecs.rc libwsutil.rc wireshark.exe.manifest
 all : $(ALL_RC)
 
 # wireshark.exe.manifest and wireshark.rc are used for both Qt and GTK+ executables.
@@ -84,6 +84,11 @@ wiretap.rc    : wiretap.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(WTAP_VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_WTAP_VERSION)/ \
 		< wiretap.rc.in > $@
+
+libwscodecs.rc  : libwscodecs.rc.in ..\config.nmake
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< libwscodecs.rc.in > $@
 
 libwsutil.rc  : libwsutil.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \

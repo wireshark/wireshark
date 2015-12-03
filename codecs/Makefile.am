@@ -22,25 +22,31 @@
 include Makefile.common
 include ../Makefile.am.inc
 
+AM_CFLAGS =-DWS_BUILD_DLL
+
 if HAVE_WARNINGS_AS_ERRORS
-AM_CFLAGS = -Werror
+AM_CFLAGS += -Werror
 endif
 
-noinst_LIBRARIES = libcodec.a
-
 CLEANFILES = \
-	libcodec.a	\
+	libwscodec.la	\
 	*~
 
 MAINTAINERCLEANFILES =	\
 	Makefile.in
 
+lib_LTLIBRARIES = libwscodecs.la
+# http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
+libwscodecs_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
+
 # All sources that should be put in the source distribution tarball
-libcodec_a_SOURCES = \
-	$(LIBCODEC_SRC) \
+libwscodecs_la_SOURCES = \
+	$(LIBCODECS_SRC) \
 	$(noinst_HEADERS)
 
-libcodec_a_DEPENDENCIES = 
+libwscodecs_la_DEPENDENCIES = ${top_builddir}/wsutil/libwsutil.la
+
+libwscodecs_la_LIBADD = ${top_builddir}/wsutil/libwsutil.la
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
@@ -48,7 +54,7 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
 	-sourcedir=$(srcdir) \
-	$(LIBCODEC_SRC)
+	$(LIBCODECS_SRC)
 
 EXTRA_DIST = \
 	CMakeLists.txt			\
