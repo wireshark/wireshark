@@ -292,6 +292,9 @@ void proto_reg_handoff_bgp(void);
 #define BGP_EXT_COM_STYPE_EVPN_LABEL        0x01    /* ESI MPLS Label [draft-ietf-l2vpn-evpn] */
 #define BGP_EXT_COM_STYPE_EVPN_IMP          0x02    /* ES Import [draft-sajassi-l2vpn-evpn-segment-route] */
 
+/* RFC 7432 Flag single active mode */
+#define BGP_EXT_COM_ESI_LABEL_FLAGS         0x01    /* bitmask: set for single active multi-homing site */
+
 /* EPVN route AD NLRI ESI type */
 #define BGP_NLRI_EVPN_ESI_VALUE             0x00    /* ESI type 0, 9 bytes interger */
 #define BGP_NLRI_EVPN_ESI_LACP              0x01    /* ESI type 1, LACP 802.1AX */
@@ -1176,6 +1179,7 @@ static const true_false_string tfs_optional_wellknown = { "Optional", "Well-know
 static const true_false_string tfs_transitive_non_transitive = { "Transitive", "Non-transitive" };
 static const true_false_string tfs_partial_complete = { "Partial", "Complete" };
 static const true_false_string tfs_extended_regular_length = { "Extended length", "Regular length" };
+static const true_false_string tfs_esi_label_flag = { "Single-Active redundancy", "All-Active redundancy" };
 
 /* Maximal size of an IP address string */
 #define MAX_SIZE_OF_IP_ADDR_STRING      16
@@ -1408,6 +1412,7 @@ static int hf_bgp_aigp_accu_igp_metric = -1;
 /* MPLS labels decoding */
 static int hf_bgp_update_mpls_label = -1;
 static int hf_bgp_update_mpls_label_value = -1;
+static int hf_bgp_update_mpls_label_value_20bits = -1;
 
 /* BGP update path attribute SSA SAFI Specific attribute (deprecated should we keep it ?) */
 
@@ -1691,6 +1696,7 @@ static int hf_bgp_ext_com_l2_flag_f = -1;
 static int hf_bgp_ext_com_l2_flag_z345 = -1;
 static int hf_bgp_ext_com_l2_flag_c = -1;
 static int hf_bgp_ext_com_l2_flag_s = -1;
+static int hf_bgp_ext_com_l2_esi_label_flag = -1;
 
 static gint ett_bgp = -1;
 static gint ett_bgp_prefix = -1;
@@ -5276,6 +5282,7 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
     guint8          com_type_high_byte;
     guint8          com_stype_low_byte;
     guint8          dscp_flags;
+    guint8          esi_label_flag;
     proto_tree      *communities_tree;
     proto_tree      *community_tree;
     proto_item      *communities_item=NULL;
@@ -5457,12 +5464,15 @@ dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen,
             case BGP_EXT_COM_TYPE_HIGH_TR_EVPN: /* EVPN (Sub-Types are defined in the "EVPN Extended Community Sub-Types" registry) */
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_type_high, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(community_tree, hf_bgp_ext_com_stype_tr_evpn, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_unknown16, tvb, offset+2, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_unknown32, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-                proto_item_append_text(community_item, " %s %s: 0x%02x 0x%04x",
+                proto_tree_add_item(community_tree, hf_bgp_ext_com_l2_esi_label_flag, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                esi_label_flag = tvb_get_guint8(tvb, offset+2);
+                proto_tree_add_item(community_tree, hf_bgp_ext_com_value_unknown16, tvb, offset+3, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(community_tree, hf_bgp_update_mpls_label_value, tvb, offset+5, 3, ENC_BIG_ENDIAN);
+                proto_item_append_text(community_item, " %s %s: %s Label: %u",
                                             val_to_str_const(com_type_high_byte, bgpext_com_type_high, "Unknown"),
                                             val_to_str_const(com_stype_low_byte, bgpext_com_stype_tr_evpn, "Unknown"),
-                                            tvb_get_ntohs(tvb,offset+2) ,tvb_get_ntohl(tvb,offset+4));
+                                            ((esi_label_flag & BGP_EXT_COM_ESI_LABEL_FLAGS) == 0) ? "All active redundancy" : "Single Active redundancy",
+                                            tvb_get_ntoh24(tvb,offset+5));
                 break;
 
             case BGP_EXT_COM_TYPE_HIGH_TR_EXP: /* Generic Transitive Experimental Extended Community */
@@ -5580,7 +5590,8 @@ dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff
 
     pmsi_tunnel_type_item = proto_tree_add_item(parent_tree, hf_bgp_pmsi_tunnel_type, tvb, offset+1,
                                                 1, ENC_BIG_ENDIAN);
-    decode_MPLS_stack_tree(tvb, offset+2, parent_tree);
+
+    proto_tree_add_item(parent_tree, hf_bgp_update_mpls_label_value_20bits, tvb, offset+2, 3, ENC_BIG_ENDIAN);
 
     tunnel_id_item = proto_tree_add_item(parent_tree, hf_bgp_pmsi_tunnel_id, tvb, offset+5,
                         tunnel_id_len, ENC_NA);
@@ -7333,6 +7344,9 @@ proto_register_bgp(void)
       { &hf_bgp_update_mpls_label,
         { "MPLS Label Stack", "bgp.update.path_attribute.mpls_label", FT_NONE,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_mpls_label_value_20bits,
+        { "MPLS Label", "bgp.update.path_attribute.mpls_label_value_20bits", FT_UINT24,
+          BASE_DEC, NULL, 0xFFFFF0, NULL, HFILL}},
       { &hf_bgp_update_mpls_label_value,
         { "MPLS Label", "bgp.update.path_attribute.mpls_label_value", FT_UINT24,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -7861,6 +7875,9 @@ proto_register_bgp(void)
       { &hf_bgp_ext_com_l2_mtu,
         { "Layer-2 MTU", "bgp.ext_com_l2.l2_mtu", FT_UINT16, BASE_DEC,
           NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_ext_com_l2_esi_label_flag,
+        { "Single active bit", "bgp.ext_com_l2.esi_label_flag",FT_BOOLEAN, 8,
+          TFS(&tfs_esi_label_flag), BGP_EXT_COM_ESI_LABEL_FLAGS, NULL, HFILL }},
       /* idr-ls-03 */
       { &hf_bgp_ls_type,
         { "Type", "bgp.ls.type", FT_UINT16, BASE_DEC,
