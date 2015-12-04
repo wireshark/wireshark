@@ -227,7 +227,7 @@ void RtpAudioStream::decode()
         if (decoded_bytes == 0 || sample_rate == 0) {
             // We didn't decode anything. Clean up and prep for the next packet.
             last_sequence = rtp_packet->info->info_seq_num;
-
+            g_free(decode_buff);
             continue;
         }
 
