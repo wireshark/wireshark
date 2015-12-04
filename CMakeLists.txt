@@ -2245,6 +2245,8 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 endif()
 
 if (WIN32)
+	find_package( MSVC_REDIST )
+
 	# Must come after executable targets are defined.
 	find_package( NSIS )
 

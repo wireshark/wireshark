@@ -21,7 +21,6 @@
 
 # To do:
 # - Use CPack to generate the PortableApps package.
-# - Copy the C runtime DLLs if they're available.
 
 set(PORTABLEAPPS_NAME "${CMAKE_PROJECT_NAME}Portable")
 set(PORTABLEAPPS_NAME ${PORTABLEAPPS_NAME} PARENT_SCOPE)
@@ -46,6 +45,7 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 	file(TO_NATIVE_PATH "${_portableapps_app_dir}" _portableapps_app_dir_native)
 	file(TO_NATIVE_PATH "${DATAFILE_DIR}" _datafile_dir_native)
 	file(TO_NATIVE_PATH "${CMAKE_SOURCE_DIR}/packaging/portableapps/xcopy-deploy-exclude.txt" _xcopy_deploy_exclude)
+
 	add_custom_target(portableapps_app_dir
 		# We "Deploy using XCopy," which is described at
 		# https://msdn.microsoft.com/en-us/library/ms235291.aspx
@@ -53,16 +53,29 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 		COMMAND ${CMAKE_COMMAND} -E remove_directory ${_portableapps_app_dir}
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${_portableapps_app_dir}
 		COMMAND xcopy ${_datafile_dir_native} ${_portableapps_app_dir_native} /D /I /E /Y /exclude:${_xcopy_deploy_exclude}
-		# XXX Copy C runtime DLLs.
 	)
+
 	set_target_properties(portableapps_app_dir PROPERTIES FOLDER "Packaging")
+
+	if(MSVCR_DLL)
+		add_custom_target(portableapps_runtime
+			COMMAND xcopy "${MSVCR_DLL}" ${_portableapps_app_dir_native} /D /I /Y
+		)
+	else(MSVCR_DLL)
+		add_custom_target(portableapps_runtime
+			COMMAND ${CMAKE_COMMAND} -E echo "C Runtime MUST be installed on target system."
+		)
+	endif(MSVCR_DLL)
+
+	set_target_properties(portableapps_runtime PROPERTIES FOLDER "Packaging")
+	add_dependencies(portableapps_runtime portableapps_app_dir)
 
 	# Build the PortableApps package.
 	# nsis_package_prep must be built prior to this.
 	set (_portableapps_package ${CMAKE_BINARY_DIR}/packaging/portableapps/WiresharkPortable_$(VERSION).exe)
 	add_custom_target(portableapps_package
 		DEPENDS
-			portableapps_app_dir
+			portableapps_runtime
 			${_portableapps_package}
 	)
 	set_target_properties(portableapps_package PROPERTIES FOLDER "Packaging")
