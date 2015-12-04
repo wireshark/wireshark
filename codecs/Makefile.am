@@ -1,5 +1,5 @@
 # Makefile.am
-# Automake file for the libcodec library for Wireshark
+# Automake file for the libwscodec library for Wireshark
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -41,7 +41,7 @@ libwscodecs_la_LDFLAGS = -version-info 0:0:0 @LDFLAGS_SHAREDLIB@
 
 # All sources that should be put in the source distribution tarball
 libwscodecs_la_SOURCES = \
-	$(LIBCODECS_SRC) \
+	$(LIBWSCODECS_SRC) \
 	$(noinst_HEADERS)
 
 libwscodecs_la_DEPENDENCIES = ${top_builddir}/wsutil/libwsutil.la
@@ -54,7 +54,7 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
 checkapi:
 	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
 	-sourcedir=$(srcdir) \
-	$(LIBCODECS_SRC)
+	$(LIBWSCODECS_SRC)
 
 EXTRA_DIST = \
 	CMakeLists.txt			\

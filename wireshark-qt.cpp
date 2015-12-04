@@ -819,7 +819,7 @@ DIAG_ON(cast-qual)
     /* Register all the plugin types we have. */
     epan_register_plugin_types(); /* Types known to libwireshark */
     wtap_register_plugin_types(); /* Types known to libwiretap */
-    codec_register_plugin_types(); /* Types known to libcodec */
+    codec_register_plugin_types(); /* Types known to libwscodecs */
 
     /* Scan for plugins.  This does *not* call their registration routines;
        that's done later. */

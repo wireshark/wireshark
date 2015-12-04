@@ -19,7 +19,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-set(CODECS_FILES
+set(WSCODECS_FILES
   codecs.c
   G711a/G711adecode.c
   G711u/G711udecode.c
@@ -41,22 +41,22 @@ file(GLOB EXTRA_CODEC_HEADERS
 )
 
 if(SBC_FOUND)
-  set(CODECS_FILES ${CODECS_FILES} sbc/sbc.c)
+  set(WSCODECS_FILES ${WSCODECS_FILES} sbc/sbc.c)
 endif()
 
-set(codecs_LIBS
+set(wscodecs_LIBS
   ${GMODULE2_LIBRARIES}
   wsutil
 )
 
-add_library(codecs ${LINK_MODE_LIB}
-  ${CODECS_FILES}
+add_library(wscodecs ${LINK_MODE_LIB}
+  ${WSCODECS_FILES}
   ${CMAKE_BINARY_DIR}/image/libwscodecs.rc
 )
 
 set(FULL_SO_VERSION "0.0.0")
 
-set_target_properties(codecs PROPERTIES
+set_target_properties(wscodecs PROPERTIES
   PREFIX "libws"
   COMPILE_DEFINITIONS "WS_BUILD_DLL"
   LINK_FLAGS "${WS_LINK_FLAGS}"
@@ -65,15 +65,15 @@ set_target_properties(codecs PROPERTIES
 )
 
 if(ENABLE_APPLICATION_BUNDLE)
-  set_target_properties(codecs PROPERTIES
+  set_target_properties(wscodecs PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Frameworks
   )
 endif()
 
-target_link_libraries(codecs ${codecs_LIBS})
+target_link_libraries(wscodecs ${wscodecs_LIBS})
 
 if(NOT ${ENABLE_STATIC})
-  install(TARGETS codecs
+  install(TARGETS wscodecs
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

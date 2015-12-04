@@ -1,4 +1,4 @@
-## Makefile for building libcodecs.dll with Microsoft C and nmake
+## Makefile for building libwscodecs.dll with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
 
@@ -21,10 +21,10 @@ include Makefile.common
 
 # if you add files here, be sure to include them also in Makefile.am EXTRA_DIST
 # XXX - if the codec files weren't in subdirectories, we could just do
-# LIBCODECS_OBJECTS = $(LIBCODECS_SRC:.c=.obj), and wouldn't need rules
+# LIBWSCODECS_OBJECTS = $(LIBWSCODECS_SRC:.c=.obj), and wouldn't need rules
 # for each of the codecs below
 #
-LIBCODECS_OBJECTS= \
+LIBWSCODECS_OBJECTS= \
 	codecs.obj \
 	G711udecode.obj \
 	G711adecode.obj \
@@ -33,21 +33,21 @@ LIBCODECS_OBJECTS= \
 	resample.obj \
 	sbc.obj
 
-libcodecs_LIBS = \
+libwscodecs_LIBS = \
 	$(GLIB_LIBS) \
 	..\wsutil\libwsutil.lib
 
 libwscodecs.lib: libwscodecs.dll
 libwscodecs.exp: libwscodecs.dll
 
-libwscodecs.dll : $(LIBCODECS_OBJECTS) ..\image\libwscodecs.res
+libwscodecs.dll : $(LIBWSCODECS_OBJECTS) ..\image\libwscodecs.res
 	@echo Linking libwscodecs.dll
 	$(link) $(dlllflags) $(conlibsdll) \
 		$(LOCAL_LDFLAGS) $(DLL_LDFLAGS) \
 		/OUT:libwscodecs.dll \
 		/IMPLIB:libwscodecs.lib \
 		..\image\libwscodecs.res \
-		$(LIBCODECS_OBJECTS) $(libcodecs_LIBS)
+		$(LIBWSCODECS_OBJECTS) $(libwscodecs_LIBS)
 
 codecs.obj: codecs.c codecs.h
 	$(CC) $(CFLAGS) -Fd.\ -c codecs.c /Fo%|fF.obj
@@ -71,7 +71,7 @@ sbc.obj: sbc\sbc.c sbc\sbc_private.h
 	$(CC) $(CFLAGS) -Fd.\ -c sbc\sbc.c /Fo%|fF.obj
 
 clean:
-	rm -f $(LIBCODECS_OBJECTS) \
+	rm -f $(LIBWSCODECS_OBJECTS) \
 		libwscodecs.lib \
 		libwscodecs.exp \
 		libwscodecs.dll \
@@ -84,4 +84,4 @@ maintainer-clean: distclean
 
 checkapi:
 	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput -build \
-	$(LIBCODECS_SRC)
+	$(LIBWSCODECS_SRC)
