@@ -58,11 +58,11 @@ static const gint ecmp_min_packet_size  = 6;
 
 /* ECMP request codes  */
 #define ECMP_COMMAND_IDENTIFY		0x00
-#define ECMP_COMMAND_INFO			0x01
+#define ECMP_COMMAND_INFO		0x01
 #define ECMP_COMMAND_INTERROGATE	0x02
-#define ECMP_COMMAND_READ			0x10
+#define ECMP_COMMAND_READ		0x10
 #define ECMP_COMMAND_READWITHTYPE	0x11
-#define ECMP_COMMAND_WRITE			0x12
+#define ECMP_COMMAND_WRITE		0x12
 #define ECMP_COMMAND_OBJECTINFO		0x13
 #define ECMP_COMMAND_GETNEXTOBJECTS	0x14
 #define ECMP_COMMAND_FILEOPEN		0x20
@@ -623,8 +623,9 @@ static gint hf_ecmp_file_ref_point = -1;
 
 /* for tunnel frame command */
 #define TUNNEL_START_FLAG		0x01
-#define TUNNEL_END_FLAG        0x02
-#define TUNNEL_CHECK_OUTPUT_FLAG 0x04
+#define TUNNEL_END_FLAG			0x02
+#define TUNNEL_CHECK_OUTPUT_FLAG	0x04
+
 static gint hf_ecmp_tunnel_control = -1;
 static gint hf_ecmp_tunnel_start_flag = -1;
 static gint hf_ecmp_tunnel_end_flag = -1;
@@ -748,7 +749,7 @@ static gint ett_ecmp_attribute = -1;
 static gint ett_ecmp_attribute_data = -1;
 static gint ett_ecmp_cyclic_scheme = -1;
 static gint ett_ecmp_info_type = -1;
-static gint	ett_ecmp_info_count = -1;
+static gint ett_ecmp_info_count = -1;
 static gint ett_ecmp_interrogate_message = -1;
 static gint ett_ecmp_param_address = -1;
 static gint ett_ecmp_access_mode = -1;
@@ -984,13 +985,13 @@ static int add_category_codes(int offset, tvbuff_t *tvb, proto_tree* ecmp_tree)
 	int start_offset = offset;
 	guint8 category_value = tvb_get_guint8(tvb, offset);
 
-    /* displays the category and creates a tree to display further data*/
+	/* displays the category and creates a tree to display further data*/
 	ecmp_category_item = proto_tree_add_item(ecmp_tree, hf_ecmp_category, tvb, offset, 1, ENC_BIG_ENDIAN);
-    ecmp_category_tree = proto_item_add_subtree(ecmp_category_item, ett_ecmp_category);
-    offset++;
+	ecmp_category_tree = proto_item_add_subtree(ecmp_category_item, ett_ecmp_category);
+	offset++;
 
-    category_size = tvb_get_guint8(tvb, offset);
-    offset++;
+	category_size = tvb_get_guint8(tvb, offset);
+	offset++;
 
 	if(category_size==2 && category_value == 1) {
 		/*display "option module" and its ID*/
@@ -1027,8 +1028,7 @@ static int get_response_size(int offset, tvbuff_t *tvb, proto_tree* ecmp_tree)
 	max_response_size = tvb_get_ntohs(tvb, offset) & 0x0FFF;
 
 	/*display response subtree */
-	ecmp_response_size_tree = proto_tree_add_subtree_format(ecmp_tree, tvb, offset, 2, ett_ecmp_response_size, &ecmp_max_response_item,
-	                                                        "Response Size: %X, %X (%d)", chunks, max_response_size, max_response_size);
+	ecmp_response_size_tree = proto_tree_add_subtree_format(ecmp_tree, tvb, offset, 2, ett_ecmp_response_size, &ecmp_max_response_item, "Response Size: %X, %X (%d)", chunks, max_response_size, max_response_size);
 
 	/*display chunks and max response size in response subtree*/
 	proto_tree_add_item(ecmp_response_size_tree, hf_ecmp_chunking, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1118,7 +1118,7 @@ static int display_raw_cyclic_data(guint8 display, int offset, guint16 buffer_si
 	/*                             0  =  BYTE_FORMAT (8-bits  1F 20 37 BC ...               */
 	/*                             1  =  WORD_FORMAT (16-bits 1F20 37BC 77F1 ...            */
 	/*                             2  =  LONG_FORMAT (32-bits  1F2037BC 0013F5CD ...        */
-	/*			                                                                            */
+	/*                                                                                      */
 	/*                   offset  =  offset within tvb buffer where this data starts.        */
 	/*                                                                                      */
 	/*                   buffer_size = number of bytes to be converted and displayed.       */
@@ -1141,49 +1141,49 @@ static int display_raw_cyclic_data(guint8 display, int offset, guint16 buffer_si
 		proto_tree_add_bytes_format_value(ecmp_current_tree, hf_ecmp_cyclic_data, tvb, offset-1, 0, NULL, "No data");
 	} else {
 		/* define some variables  */
-		gchar*			pdata = NULL;							/* pointer to array that stores the formatted data string */
-		guint16			idx = 0;								/* counts through formatted string array  */
-		guint8			value8 = 0;								/* placeholder for extracted 8-bit data  */
-		guint16			value16 = 0;							/* placeholder for extracted 16-bit data  */
-		guint32			value32 = 0;							/* placeholder for extracted 32-bit data  */
-		guint16			num_elements_total = 0;					/* contains total number of elements (byte/word/long) to be processed  */
-		const guint16	num_byte_elements_per_line = 16;		/* number of byte (8-bit) elements per line e.g.  "1B " (3 chars per element)  */
-		const guint16	num_word_elements_per_line = 16;		/* number of word (16-bit) elements per line e.g.  "A81B " (5 chars per element)  */
-		const guint16	num_long_elements_per_line = 8;			/* number of long (32-bit) elements per line e.g.  "01F4A81B " (9 chars per element)  */
-		guint16			num_elements_per_line = 8;				/* counts the current number of elements per line */
-		guint16			num_elements = 0;						/* counts the number of elements in the format string */
-		guint16			format_string_size = 0;					/* size of dynamic array to hold the formatted string */
-		guint16			a = 0;									/* value used for looping */
-		int				start_offset, line_offset;
+		gchar*		pdata = NULL; /* pointer to array that stores the formatted data string */
+		guint16		idx = 0; /* counts through formatted string array */
+		guint8		value8 = 0; /* placeholder for extracted 8-bit data */
+		guint16		value16 = 0; /* placeholder for extracted 16-bit data */
+		guint32		value32 = 0; /* placeholder for extracted 32-bit data */
+		guint16		num_elements_total = 0; /* contains total number of elements (byte/word/long) to be processed  */
+		const guint16	num_byte_elements_per_line = 16; /* number of byte (8-bit) elements per line e.g.  "1B " (3 chars per element)  */
+		const guint16	num_word_elements_per_line = 16; /* number of word (16-bit) elements per line e.g.  "A81B " (5 chars per element) */
+		const guint16	num_long_elements_per_line = 8; /* number of long (32-bit) elements per line e.g.  "01F4A81B " (9 chars per element) */
+		guint16		num_elements_per_line = 8; /* counts the current number of elements per line */
+		guint16		num_elements = 0; /* counts the number of elements in the format string */
+		guint16		format_string_size = 0; /* size of dynamic array to hold the formatted string */
+		guint16		a = 0; /* value used for looping */
+		int		start_offset, line_offset;
 
-		/* calculate format string array size and other stuff								*/
-		/*																					*/
-		/* Note: format string does require a nul-terminator (the + 1 in the equations)		*/
-		/*																					*/
-		/* display = 0:  (byte format  "1D 24 3F ... A3 "									*/
-		/*      format_string_size = (num_byte_elements_per_line * 3) + 1					*/
-		/*																					*/
-		/* display = 1:  (word format  "1D24 3F84 120B ... 1FA3 "							*/
-		/*      format_string_size = (num_word_elements_per_line * 5) + 1					*/
-		/*																					*/
-		/* display = 2:  (byte format  "1D243F84 9BC08F20 ... 28BB1FA3 "					*/
-		/*      format_string_size = (num_long_elements_per_line * 9) + 1					*/
-		/*																					*/
+		/* calculate format string array size and other stuff                               */
+		/*                                                                                  */
+		/* Note: format string does require a nul-terminator (the + 1 in the equations)     */
+		/*                                                                                  */
+		/* display = 0:  (byte format  "1D 24 3F ... A3 "                                   */
+		/*      format_string_size = (num_byte_elements_per_line * 3) + 1                   */
+		/*                                                                                  */
+		/* display = 1:  (word format  "1D24 3F84 120B ... 1FA3 "                           */
+		/*      format_string_size = (num_word_elements_per_line * 5) + 1                   */
+		/*                                                                                  */
+		/* display = 2:  (byte format  "1D243F84 9BC08F20 ... 28BB1FA3 "                    */
+		/*      format_string_size = (num_long_elements_per_line * 9) + 1                   */
+		/*                                                                                  */
 		if (display == cyclic_display_byte_format) {
-			format_string_size = (num_byte_elements_per_line * 3) + 1;		/* format_string_size = 49  */
-			num_elements_per_line = num_byte_elements_per_line;				/* num_elements_per_line = 16  */
+			format_string_size = (num_byte_elements_per_line * 3) + 1; /* format_string_size = 49  */
+			num_elements_per_line = num_byte_elements_per_line; /* num_elements_per_line = 16  */
 			num_elements_total = buffer_size;
 		} else if (display == cyclic_display_word_format) {
-			format_string_size = (num_word_elements_per_line * 5) + 1;		/* format_string_size = 81  */
-			num_elements_per_line = num_word_elements_per_line;				/* num_elements_per_line = 16  */
+			format_string_size = (num_word_elements_per_line * 5) + 1; /* format_string_size = 81  */
+			num_elements_per_line = num_word_elements_per_line; /* num_elements_per_line = 16  */
 			num_elements_total = buffer_size >> 1;
 		} else if (display == cyclic_display_long_format) {
-			format_string_size = (num_long_elements_per_line * 9) + 1;		/* format_string_size = 73  */
-			num_elements_per_line = num_long_elements_per_line;				/* num_elements_per_line = 8  */
+			format_string_size = (num_long_elements_per_line * 9) + 1; /* format_string_size = 73  */
+			num_elements_per_line = num_long_elements_per_line; /* num_elements_per_line = 8  */
 			num_elements_total = buffer_size >> 2;
 		} else {
-			format_string_size = (num_byte_elements_per_line * 3) + 1;		/* format_string_size = 49  */
-			num_elements_per_line = num_byte_elements_per_line;				/* num_elements_per_line = 16  */
+			format_string_size = (num_byte_elements_per_line * 3) + 1; /* format_string_size = 49  */
+			num_elements_per_line = num_byte_elements_per_line; /* num_elements_per_line = 16  */
 			num_elements_total = buffer_size;
 		}
 
@@ -1231,7 +1231,7 @@ static int display_raw_cyclic_data(guint8 display, int offset, guint16 buffer_si
 				/* start the line over */
 				idx = 0;
 				num_elements = 0;
-                line_offset = offset;
+				line_offset = offset;
 
 			} else {
 				/* we're still adding to the current line  */
@@ -1247,7 +1247,7 @@ static int display_raw_cyclic_data(guint8 display, int offset, guint16 buffer_si
 					idx += 9;
 				}
 			}
-        }
+		}
 
 		/* if we exited the loop, see if there's a partial line to display  */
 		if (num_elements > 0) {
@@ -1531,8 +1531,8 @@ static void get_object_info_response(packet_info* pinfo, int offset, tvbuff_t *t
 	proto_item* ecmp_response_item = NULL;
 	proto_tree* ecmp_parameter_number_tree = NULL;
 	proto_tree* ecmp_parameter_response_tree = NULL;
-	guint8 count = 0;					/*stores number of parameter read responses */
-	guint8 a = 0;						/*counting varables */
+	guint8 count = 0; /*stores number of parameter read responses */
+	guint8 a = 0; /*counting varables */
 	guint8 n = 0;
 	guint8 info_type0 = 0;
 	guint16 length = 0;
@@ -1656,8 +1656,8 @@ static int get_parameter_responses(packet_info* pinfo, int offset, guint8 comman
 	proto_item* ecmp_response_item = NULL;
 	proto_tree* ecmp_parameter_number_tree = NULL;
 	proto_tree* ecmp_parameter_response_tree = NULL;
-	guint8 count = 0;					/*stores number of parameter read responses */
-	guint8 a = 0;						/*counting varables */
+	guint8 count = 0; /*stores number of parameter read responses */
+	guint8 a = 0; /*counting varables */
 	guint8 data_type = 0;
 	guint8 unit_id = 0;
 	gint8 dec = 0;
@@ -2274,7 +2274,7 @@ static int add_cyclic_setup_attributes(packet_info* pinfo, int offset, guint16 l
 			default:
 			break;
 
-		} /* attribute switch 				 */
+		} /* attribute switch */
 	} /* loop through list */
 
 	return offset;
@@ -2441,29 +2441,30 @@ static void program_status(int offset, gboolean request, tvbuff_t *tvb, proto_tr
 {
 /*  Description:function to dissect Program Status command              */
 /*                                                                      */
-/*	Inputs:                                                             */
+/*  Inputs:                                                             */
 /*    offset - current offset of pointer within the ECMP frame          */
 /*    command_value - function code of ECMP message                     */
-/*	  request - (1 = query, 0 = response)	                            */
+/*    request - (1 = query, 0 = response)                               */
 /*    tvb - Wireshark protocol tree                                     */
-/*	  ecmp_tree - Wireshark protocol tree                         	    */
+/*    ecmp_tree - Wireshark protocol tree                               */
 /*    tree - Wireshark protocol tree                                    */
-/*																		*/
+/*                                                                      */
 /*  Returns: nothing                                                    */
-/*																		*/
-/*	Notes: for queries, the "offset" points to the "target".            */
+/*                                                                      */
+/*  Notes: for queries, the "offset" points to the "target".            */
 /*         for responses, the "offset" points to the "status".          */
-/*																		*/
-/*  sample ECMP Request Frame                          		            */
-/*  0x61 - request code  (program control)        						*/
-/*  0x00 - option terminator                     						*/
-/*  0x00 - target   (0 = default program) <======== offset	        	*/
-/*                                               						*/
-/*  sample ECMP Response Frame   	             						*/
-/*  0xE1 - response code  (program control)        						*/
-/*  0x00 - option terminator                     						*/
+/*                                                                      */
+/*  sample ECMP Request Frame                                           */
+/*  0x61 - request code  (program control)                              */
+/*  0x00 - option terminator                                            */
+/*  0x00 - target   (0 = default program) <======== offset              */
+/*                                                                      */
+/*  sample ECMP Response Frame                                          */
+/*  0xE1 - response code  (program control)                             */
+/*  0x00 - option terminator                                            */
 /*  0x01 - running state  (0=Stopped, 1=Running ... ) <======== offset  */
-/*  0x00 - additional items                        						*/
+/*  0x00 - additional items                                             */
+
 	proto_item*		ecmp_program_status_message_tree = NULL;
 
 	/* differentiate between ECMP query and response  */
@@ -2492,31 +2493,32 @@ static void program_control(int offset, gboolean request, tvbuff_t *tvb, proto_t
 {
 /*  Description:function to dissect Program Control command             */
 /*                                                                      */
-/*	Inputs:                                                             */
+/*  Inputs:                                                             */
 /*    offset - current offset of pointer within the ECMP frame          */
 /*    command_value - function code of ECMP message                     */
-/*	  request - (1 = query, 0 = response)	                            */
+/*    request - (1 = query, 0 = response)	                        */
 /*    tvb - Wireshark protocol tree                                     */
-/*	  ecmp_tree - Wireshark protocol tree                         	    */
+/*    ecmp_tree - Wireshark protocol tree                               */
 /*    tree - Wireshark protocol tree                                    */
-/*																		*/
+/*                                                                      */
 /*  Returns: nothing                                                    */
-/*																		*/
-/*	Notes: for querys, the "offset" points to the "target".             */
+/*                                                                      */
+/* Notes: for querys, the "offset" points to the "target".              */
 /*         for responses, the "offset" points to the "status".          */
-/*																		*/
-/*  sample ECMP Request Frame                          		            */
-/*  0x60 - request code  (program control)        						*/
-/*  0x00 - option terminator                     						*/
-/*  0x00 - target   (0 = default program) <======== offset	        	*/
-/*  0x01 - command  (1 = start the program)      						*/
-/*  0x00 - sub command                           						*/
-/*                                               						*/
-/*  sample ECMP Response Frame   	             						*/
-/*  0xE0 - response code  (program control)        						*/
-/*  0x00 - option terminator                     						*/
-/*  0x00 - status  (0 = OK)  <======== offset		                    */
-/*                                               						*/
+/*                                                                      */
+/*  sample ECMP Request Frame                                           */
+/*  0x60 - request code  (program control)                              */
+/*  0x00 - option terminator                                            */
+/*  0x00 - target   (0 = default program) <======== offset              */
+/*  0x01 - command  (1 = start the program)                             */
+/*  0x00 - sub command                                                  */
+/*                                                                      */
+/*  sample ECMP Response Frame                                          */
+/*  0xE0 - response code  (program control)                             */
+/*  0x00 - option terminator                                            */
+/*  0x00 - status  (0 = OK)  <======== offset                           */
+/*                                                                      */
+
 	proto_item*		ecmp_program_control_message_tree = NULL;
 
 	/* differentiate between ECMP query and response  */
@@ -2549,46 +2551,46 @@ static void modbus_pdu(int offset, gboolean request, tvbuff_t *tvb, packet_info*
 {
 /*  Description:function to dissect Modbus PDU ECMP transactions        */
 /*                                                                      */
-/*	Inputs:                                                             */
+/*  Inputs:                                                             */
 /*    offset - current offset of pointer within the ECMP frame          */
 /*    command_value - function code of ECMP message                     */
-/*	  request - (1 = query, 0 = response)	                            */
+/*    request - (1 = query, 0 = response)                               */
 /*    tvb - Wireshark protocol tree                                     */
-/*	  ecmp-tree - Wireshark protocol tree                         	    */
+/*    ecmp-tree - Wireshark protocol tree                               */
 /*    tree - Wireshark protocol tree                                    */
-/*																		*/
+/*                                                                      */
 /*  Returns: nothing                                                    */
-/*																		*/
-/*	Notes: for querys, the "offset" points to the "size".               */
+/*                                                                      */
+/*  Notes: for querys, the "offset" points to the "size".               */
 /*         for responses, the "offset" points to the size.              */
-/*																		*/
-/*  sample ECMP Request Frame (Read Holding Registers)					*/
-/*  0x74 -  request code  (ModbusMaster)         						*/
-/*  0x00 - option terminator                     						*/
-/*  0x00 - size                             msb <======== offset		*/
-/*  0x05 - size                             lsb  						*/
-/*  0x03 - function code - read hold reg         						*/
-/*  0x07 - register address (#20.021)       msb  						*/
-/*  0xE4 - register address                 lsb  						*/
-/*  0x00 - number registers                 msb  						*/
-/*  0x03 - number registers                 lsb  						*/
-/*                                               						*/
-/*  sample ECMP Response Frame   	             						*/
-/*  0xF4 - response code  (ModbusMaster)         						*/
-/*  0x00 - option terminator                     						*/
-/*  0x00 - size                             msb <======== offset		*/
-/*  0x08 - size                             lsb  						*/
-/*  0x03 - function code - read hold reg         						*/
-/*  0x06 - byte count                            						*/
-/*  0x30 - register #2021 value 12345       msb  						*/
-/*  0x39 - register #2021 value             lsb  						*/
-/*  0x03 - register #2022 value  787        msb  						*/
-/*  0x13 - register #2022 value             lsb  						*/
-/*  0x00 - register #2023 value  100        msb  						*/
-/*  0x64 - register #2023 value             lsb  						*/
+/*                                                                      */
+/*  sample ECMP Request Frame (Read Holding Registers)                  */
+/*  0x74 -  request code  (ModbusMaster)                                */
+/*  0x00 - option terminator                                            */
+/*  0x00 - size                             msb <======== offset        */
+/*  0x05 - size                             lsb                         */
+/*  0x03 - function code - read hold reg                                */
+/*  0x07 - register address (#20.021)       msb                         */
+/*  0xE4 - register address                 lsb                         */
+/*  0x00 - number registers                 msb                         */
+/*  0x03 - number registers                 lsb                         */
+/*                                                                      */
+/*  sample ECMP Response Frame                                          */
+/*  0xF4 - response code  (ModbusMaster)                                */
+/*  0x00 - option terminator                                            */
+/*  0x00 - size                             msb <======== offset        */
+/*  0x08 - size                             lsb                         */
+/*  0x03 - function code - read hold reg                                */
+/*  0x06 - byte count                                                   */
+/*  0x30 - register #2021 value 12345       msb                         */
+/*  0x39 - register #2021 value             lsb                         */
+/*  0x03 - register #2022 value  787        msb                         */
+/*  0x13 - register #2022 value             lsb                         */
+/*  0x00 - register #2023 value  100        msb                         */
+/*  0x64 - register #2023 value             lsb                         */
 
 	tvbuff_t*		next_tvb;
-	guint16			size = 0;						/* from Modbus TCP/IP spec: number of bytes that follow */
+	guint16			size = 0; /* from Modbus TCP/IP spec: number of bytes that follow */
 	int packet_type;
 
 	/* differentiate between ECMP query and response  */
@@ -2621,45 +2623,45 @@ static void interrogate(packet_info* pinfo, int offset, gboolean request, tvbuff
 {
 /*  Description:  function to dissect Interrogate command               */
 /*                                                                      */
-/*	Inputs:                                                             */
+/*  Inputs:                                                             */
 /*    offset - current offset of pointer within the ECMP frame          */
-/*	  request - (1 = query, 0 = response)	                            */
+/*    request - (1 = query, 0 = response)                               */
 /*    tvb - rather complex structure that has the frame data            */
-/*	  ecmp-tree - Wireshark protocol tree                         	    */
-/*																		*/
+/*    ecmp-tree - Wireshark protocol tree                               */
+/*                                                                      */
 /*  Returns: nothing                                                    */
-/*																		*/
-/*	Notes: for querys, the "offset" points to the "item type".          */
+/*                                                                      */
+/*  Notes: for querys, the "offset" points to the "item type".          */
 /*         for responses, the "offset" points to the "item type".       */
-/*																		*/
-/*  sample ECMP Request Frame                          		            */
-/*  0x02 - request code  (interrogate)        						    */
-/*  0x00 - option terminator                     						*/
+/*                                                                      */
+/*  sample ECMP Request Frame                          	                */
+/*  0x02 - request code  (interrogate)                                  */
+/*  0x00 - option terminator                           	                */
 /*  0x00 - item type (0=ECMP command, 1=ECMP option)  <==== offset      */
 /*  0x05 - count  (number of commands/options to follow)                */
-/*  0x10 - item code #1  ECMP Read command         						*/
-/*  0x11 - item code #2  ECMP ReadWithType command                		*/
+/*  0x10 - item code #1  ECMP Read command                              */
+/*  0x11 - item code #2  ECMP ReadWithType command                      */
 /*  0x12 - item code #3  ECMP Write command                             */
-/*  0x13 - item code #4  ECMP ObjectInfo command               			*/
-/*  0x14 - item code #5  ECMP GetNextObject command          			*/
-/*                                               						*/
-/*  sample ECMP Response Frame   	             						*/
-/*  0x82 - response code  (program control)        						*/
-/*  0x00 - option terminator                     						*/
+/*  0x13 - item code #4  ECMP ObjectInfo command                        */
+/*  0x14 - item code #5  ECMP GetNextObject command                     */
+/*                                                                      */
+/*  sample ECMP Response Frame                                          */
+/*  0x82 - response code  (program control)                             */
+/*  0x00 - option terminator                                            */
 /*  0x00 - item type (0=ECMP command, 1=ECMP option)  <==== offset      */
 /*  0x05 - count  (number of commands/options to follow)                */
-/*  0x10 - item code #1                                            		*/
+/*  0x10 - item code #1                                                 */
 /*  0x01 - supported    (ECMP Read command)                             */
 /*  0x11 - item code #2                                               	*/
 /*  0x01 - supported    (ECMP ReadWithType command)                     */
 /*  0x12 - item code #3                                                 */
 /*  0x01 - supported    (ECMP Write command)                            */
-/*  0x13 - item code #4                                        			*/
+/*  0x13 - item code #4                                                 */
 /*  0x01 - supported    (ECMP ObjectInfo command)                       */
-/*  0x14 - item code #5                                      			*/
+/*  0x14 - item code #5                                                 */
 /*  0x01 - supported    (ECMP GetNextObject command)                    */
-/*                                               						*/
-/*                                               						*/
+/*                                                                      */
+/*                                                                      */
 /*  Item Type: 0 = ECMP command                                         */
 /*             1 = ECMP option  (not currently implemented)             */
 /*                                                                      */
@@ -2668,16 +2670,18 @@ static void interrogate(packet_info* pinfo, int offset, gboolean request, tvbuff
 /*                                                                      */
 /*  Item Support:  0 = not supported                                    */
 /*                 1 = supported                                        */
-/*                                               						*/
+/*                                                                      */
+
+
 	const guint8 interrogate_type_command = 0;
 
 	proto_tree*		ecmp_interrogate_message_tree = NULL, *ecmp_interrogate_tree;
 	proto_item*		ecmp_interrogate_message_item = NULL;
-	guint8			item_type = 0;				    /* 0=ECMP command,  1=ECMP option  */
-	guint8			command_req = 0;			    /* ECMP command  */
-	guint8			supported = 0;					/* ECMP command support status: 1=supported,  0=not supported  */
-	guint32			count = 0;						/* number of ECMP commands to be checked  */
-	guint32			j;								/* loop counter  */
+	guint8			item_type = 0; /* 0=ECMP command,  1=ECMP option  */
+	guint8			command_req = 0; /* ECMP command  */
+	guint8			supported = 0; /* ECMP command support status: 1=supported,  0=not supported  */
+	guint32			count = 0; /* number of ECMP commands to be checked  */
+	guint32			j; /* loop counter  */
 
 
 	/* differentiate between ECMP query and response  */
@@ -2779,44 +2783,44 @@ static void tunnel_frame(int offset, gboolean request, tvbuff_t *tvb, proto_tree
 }
 
 
-/*	dissect_ecmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-*	-----------------------------------------------------------------
+/*  dissect_ecmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+*   -----------------------------------------------------------------
 *
-*	Purpose:  Wireshark dissector for Emerson Control Techniques ECMP protocol
-*
-*
-*	Inputs:		tvbuff_t		*tvb		- complex buffer structure holding the packet's bytes
-*				packet_info		*pinfo		- structure holding information about the packet
-*				proto_tree		*tree		- pointer to top-level tree (print lines)
-*
-*	Outputs:	none
+*   Purpose:  Wireshark dissector for Emerson Control Techniques ECMP protocol
 *
 *
-*	Notes:		if tree = NULL, packet capture is running and dissector will only write into the Summary Line (Info Field)
+*   Inputs:     tvbuff_t        *tvb        - complex buffer structure holding the packet's bytes
+*               packet_info     *pinfo      - structure holding information about the packet
+*               proto_tree      *tree       - pointer to top-level tree (print lines)
 *
-*				if tree is non-NULL, packet capture has stopped because a packet has been selected (clicked)
-*				In this case, we will display quite a bit of additional information about the packet.
+*   Outputs:    none
 *
 *
-*				To inspect the frame buffer (very difficult using the *tvb pointer), it's best to add this little debug
+*    Notes:      if tree = NULL, packet capture is running and dissector will only write into the Summary Line (Info Field)
+*
+*               if tree is non-NULL, packet capture has stopped because a packet has been selected (clicked)
+*               In this case, we will display quite a bit of additional information about the packet.
+*
+*
+*               To inspect the frame buffer (very difficult using the *tvb pointer), it's best to add this little debug
 *               code snippet at the top of the program to copy the frame buffer into an array that you can inspect.
 *
-*					static guint8  jimbuf[512];						// temp buffer for current frame data
-*					static gint    lenframe = 0;					// num bytes in the frame
-*					static gint	   j = 0;							// loop counter
-*					static gint16  saved_offset = 0;				// saves offset for later restoration
+*                   static guint8  jimbuf[512];                     // temp buffer for current frame data
+*                   static gint    lenframe = 0;                    // num bytes in the frame
+*                   static gint    j = 0;                           // loop counter
+*                   static gint16  saved_offset = 0;                // saves offset for later restoration
 *
-*					lenframe = tvb_captured_length(tvb);			// get the length of the frame
-*					saved_offset = offset;							// temporarily save the "offset"
+*                   lenframe = tvb_captured_length(tvb);            // get the length of the frame
+*                   saved_offset = offset;                          // temporarily save the "offset"
 *
-*					for (j = 0; j < lenframe; j++) {				// loop to copy the frame buffer
-*						jimbuf[j] = tvb_get_guint8(tvb, offset);	// Wireshark function to read the frame buffer
-*						offset += 1;
-*					}
-*					offset = saved_offset;							// restore the offset
+*                   for (j = 0; j < lenframe; j++) {                // loop to copy the frame buffer
+*                       jimbuf[j] = tvb_get_guint8(tvb, offset);    // Wireshark function to read the frame buffer
+*                       offset += 1;
+*                   }
+*                   offset = saved_offset;                          // restore the offset
 *
 *
-*	Authors:  Sarah Bouremoum, Jim Lynch, Luke Orehawa, Others
+*   Authors:  Sarah Bouremoum, Jim Lynch, Luke Orehawa, Others
 */
 
 static int dissect_ecmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -2831,8 +2835,8 @@ static int dissect_ecmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8	command_value = 0;
 	gboolean request;
 	guint8	transaction_id_value = 0;
-	int	    offset = 0;						/* index used to read data from the buffer*/
-	gint    framelen = 0;					/* number of bytes in the frame   */
+	int	    offset = 0; /* index used to read data from the buffer*/
+	gint    framelen = 0; /* number of bytes in the frame   */
 
 	/* note length of the UDP frame  */
 	framelen = tvb_reported_length(tvb);
@@ -3091,9 +3095,9 @@ static int dissect_ecmp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8	command_value = 0;
 	guint8	type_value = 0;
 	guint8	transaction_id_value = 0;
-	guint16	offset = 0;						/* index used to read data from the buffer*/
-	gint    framelen = 0;					/* number of bytes in the frame   */
-	guint8	scheme = 0;						/* 0=no scheme, 1=grandmaster setup */
+	guint16	offset = 0; /* index used to read data from the buffer*/
+	gint    framelen = 0; /* number of bytes in the frame   */
+	guint8	scheme = 0; /* 0=no scheme, 1=grandmaster setup */
 
 	/* note length of the UDP frame  */
 	framelen = tvb_reported_length(tvb);
@@ -3132,8 +3136,8 @@ static int dissect_ecmp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					val_to_str((type_value & 0x80) >> 7, type_rr, "Unknown Type:0x%02x"), transaction_id_value);
 
 	/*display the first line of the tree (ECMP data)*/
-	ecmp_item = proto_tree_add_item(tree, proto_ecmp, tvb, 0, -1, ENC_NA);	/*item created*/
-	ecmp_tree = proto_item_add_subtree(ecmp_item, ett_ecmp);				/*tree created*/
+	ecmp_item = proto_tree_add_item(tree, proto_ecmp, tvb, 0, -1, ENC_NA); /*item created*/
+	ecmp_tree = proto_item_add_subtree(ecmp_item, ett_ecmp); /*tree created*/
 
 	/* indicate cyclic link message  */
 	proto_tree_add_item(ecmp_tree, hf_ecmp_cyclic_link_req_resp, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3572,10 +3576,10 @@ void proto_reg_handoff_ecmp(void)
 		/* Cyclic frames are over UDP and non-cyclic are over TCP */
 		dissector_add_uint("udp.port", global_ecmp_port, ecmp_udp_handle);
 		dissector_add_uint("tcp.port", global_ecmp_port, ecmp_tcp_handle);
-        initialized = TRUE;
+	initialized = TRUE;
 	}
 
-    /* Modbus dissector hooks */
+	/* Modbus dissector hooks */
 	modbus_handle = find_dissector("modbus");
 	proto_modbus = proto_get_id_by_filter_name( "modbus" );
 }
