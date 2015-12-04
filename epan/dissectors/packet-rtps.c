@@ -229,12 +229,12 @@ static int hf_rtps_param_filter_expression      = -1;
 static int hf_rtps_param_filter_parameters_num  = -1;
 static int hf_rtps_param_filter_parameters      = -1;
 static int hf_rtps_locator_filter_list_num_channels = -1;
-static int hf_rtps_locator_filter_list_filter_name = -1;
-static int hf_rtps_locator_filter_list_filter_exp = -1;
-static int hf_rtps_extra_flags                  = -1;
-static int hf_rtps_param_builtin_endpoint_set   = -1;
-static int hf_rtps_param_plugin_promiscuity_kind = -1;
-static int hf_rtps_param_service_kind           = -1;
+static int hf_rtps_locator_filter_list_filter_name  = -1;
+static int hf_rtps_locator_filter_list_filter_exp   = -1;
+static int hf_rtps_extra_flags                      = -1;
+static int hf_rtps_param_builtin_endpoint_set_flags = -1;
+static int hf_rtps_param_plugin_promiscuity_kind    = -1;
+static int hf_rtps_param_service_kind               = -1;
 
 static int hf_rtps_param_ntpt_sec                               = -1;
 static int hf_rtps_param_ntpt_fraction                          = -1;
@@ -330,6 +330,18 @@ static int hf_rtps_flag_data_present16                          = -1;
 static int hf_rtps_flag_offsetsn_present                        = -1;
 static int hf_rtps_flag_inline_qos16_v2                         = -1;
 static int hf_rtps_flag_timestamp_present                       = -1;
+static int hf_rtps_flag_participant_announcer                   = -1;
+static int hf_rtps_flag_participant_detector                    = -1;
+static int hf_rtps_flag_publication_announcer                   = -1;
+static int hf_rtps_flag_publication_detector                    = -1;
+static int hf_rtps_flag_subscription_announcer                  = -1;
+static int hf_rtps_flag_subscription_detector                   = -1;
+static int hf_rtps_flag_participant_proxy_announcer             = -1;
+static int hf_rtps_flag_participant_proxy_detector              = -1;
+static int hf_rtps_flag_participant_state_announcer             = -1;
+static int hf_rtps_flag_participant_state_detector              = -1;
+static int hf_rtps_flag_participant_message_datawriter          = -1;
+static int hf_rtps_flag_participant_message_datareader          = -1;
 
 /* Subtree identifiers */
 static gint ett_rtps                            = -1;
@@ -1090,7 +1102,21 @@ static const int* INFO_REPLY_FLAGS[] = {
   NULL
 };
 
-
+static const int* BUILTIN_ENDPOINT_FLAGS[] = {
+  &hf_rtps_flag_participant_message_datareader,     /* Bit 11 */
+  &hf_rtps_flag_participant_message_datawriter,     /* Bit 10 */
+  &hf_rtps_flag_participant_state_detector,         /* Bit 9 */
+  &hf_rtps_flag_participant_state_announcer,        /* Bit 8 */
+  &hf_rtps_flag_participant_proxy_detector,         /* Bit 7 */
+  &hf_rtps_flag_participant_proxy_announcer,        /* Bit 6 */
+  &hf_rtps_flag_subscription_detector,              /* Bit 5 */
+  &hf_rtps_flag_subscription_announcer,             /* Bit 4 */
+  &hf_rtps_flag_publication_detector,               /* Bit 3 */
+  &hf_rtps_flag_publication_announcer,              /* Bit 2 */
+  &hf_rtps_flag_participant_detector,               /* Bit 1 */
+  &hf_rtps_flag_participant_announcer,              /* Bit 0 */
+  NULL
+};
 /* Vendor specific: RTI */
 static const int* APP_ACK_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
@@ -4361,12 +4387,15 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
      * |    long              value                                    |
      * +---------------+---------------+---------------+---------------+
      */
-    case PID_BUILTIN_ENDPOINT_SET:
+    case PID_BUILTIN_ENDPOINT_SET: {
+      guint32 flags;
       ENSURE_LENGTH(4);
-      proto_tree_add_item(rtps_parameter_tree, hf_rtps_param_builtin_endpoint_set, tvb, offset, 4,
-                          little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+      flags = tvb_get_guint32(tvb, offset, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
+      proto_tree_add_bitmask_value(rtps_parameter_tree, tvb, offset,
+              hf_rtps_param_builtin_endpoint_set_flags, ett_rtps_flags,
+              BUILTIN_ENDPOINT_FLAGS, flags);
       break;
-
+    }
     /* 0...2...........7...............15.............23...............31
      * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      * | PID_TYPE_MAX_SIZE_SERIALIZED  |            length             |
@@ -9047,10 +9076,11 @@ void proto_register_rtps(void) {
         NULL, HFILL }
     },
 
-    { &hf_rtps_param_builtin_endpoint_set,
-      { "Builtin endpoint set", "rtps.param.builtin_endpoint_set",
-        FT_UINT32, BASE_HEX, NULL, 0xFFFFFFFF,
-        NULL, HFILL }
+    { &hf_rtps_param_builtin_endpoint_set_flags,
+      { "Flags", "rtps.param.builtin_endpoint_set",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        "bitmask representing the flags in PID_BUILTIN_ENDPOINT_SET",
+        HFILL }
     },
 
     { &hf_rtps_param_plugin_promiscuity_kind,
@@ -9387,6 +9417,54 @@ void proto_register_rtps(void) {
     { &hf_rtps_flag_timestamp_present, {
         "Timestamp present", "rtps.flag.offsetsn_present",
         FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0001, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_announcer, {
+        "Participant Announcer", "rtps.flag.participant_announcer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_detector, {
+        "Participant Detector", "rtps.flag.participant_detector",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002, NULL, HFILL }
+    },
+    { &hf_rtps_flag_publication_announcer, {
+        "Publication Announcer", "rtps.flag.publication_announcer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004, NULL, HFILL }
+    },
+    { &hf_rtps_flag_publication_detector, {
+        "Publication Detector", "rtps.flag.publication_detector",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008, NULL, HFILL }
+    },
+    { &hf_rtps_flag_subscription_announcer, {
+        "Subscription Announcer", "rtps.flag.subscription_announcer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000010, NULL, HFILL }
+    },
+    { &hf_rtps_flag_subscription_detector, {
+        "Subscription Detector", "rtps.flag.subscription_detector",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000020, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_proxy_announcer, {
+        "Participant Proxy Announcer", "rtps.flag.participant_proxy_announcer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000040, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_proxy_detector, {
+        "Participant Proxy Detector", "rtps.flag.participant_proxy_detector",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000080, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_state_announcer, {
+        "Participant State Announcer", "rtps.flag.participant_state_announcer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000100, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_state_detector, {
+        "Participant State Detector", "rtps.flag.participant_state_detector",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000200, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_message_datawriter, {
+        "Participant Message DataWriter", "rtps.flag.participant_message_datawriter",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000400, NULL, HFILL }
+    },
+    { &hf_rtps_flag_participant_message_datareader, {
+        "Participant Message DataReader", "rtps.flag.participant_message_datareader",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000800, NULL, HFILL }
     },
   };
 
