@@ -913,7 +913,6 @@ static void add_attributes(packet_info* pinfo, int offset, tvbuff_t *tvb, proto_
 			case 8:
 				offset+= 1;
 				/*get length of attribute for error checking*/
-				att_length = (tvb_get_guint8(tvb, offset)<<8)|(tvb_get_guint8(tvb, offset+1));
 				offset+= 2;
 
 				/*output primary colour codes- the two bytes representing each colour are output as integers*/
@@ -1497,7 +1496,7 @@ static void get_parameter_definitions(packet_info* pinfo, int offset, guint8 com
 			ecmp_parameter_tree = proto_tree_add_subtree_format(ecmp_parameter_number_tree, tvb, offset, n, ett_ecmp_param_address, NULL, "Parameter Definition %d:", (a+1));
 
 			if (command_value == ECMP_COMMAND_OBJECTINFO) {
-				ecmp_parameter_item = proto_tree_add_item(ecmp_parameter_tree, hf_ecmp_info_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ecmp_parameter_tree, hf_ecmp_info_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 				offset = get_address_scheme(pinfo, offset, scheme, tvb, ecmp_parameter_tree);
 				offset++;
@@ -1507,7 +1506,7 @@ static void get_parameter_definitions(packet_info* pinfo, int offset, guint8 com
 				offset++;
 				if (command_value == ECMP_COMMAND_WRITE) {
 					data_type = tvb_get_guint8(tvb, offset);
-					ecmp_parameter_item = proto_tree_add_item(ecmp_parameter_tree, hf_ecmp_data_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(ecmp_parameter_tree, hf_ecmp_data_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
 					dec = (gint8)tvb_get_guint8(tvb, offset);
 					if (dec != -1) {
@@ -1557,14 +1556,14 @@ static void get_object_info_response(packet_info* pinfo, int offset, tvbuff_t *t
 			}
 			offset++;
 			/*display response header */
-			ecmp_parameter_response_tree = proto_tree_add_subtree_format(ecmp_parameter_number_tree, tvb, offset, n, ett_ecmp_command, NULL, "Response %d:", (a+1));
+			proto_tree_add_subtree_format(ecmp_parameter_number_tree, tvb, offset, n, ett_ecmp_command, NULL, "Response %d:", (a+1));
 
 			/*display response status */
-			ecmp_response_item = proto_tree_add_item(ecmp_parameter_response_tree, hf_ecmp_parameter_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ecmp_parameter_response_tree, hf_ecmp_parameter_status, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
 			/*display response data */
-			ecmp_response_item = proto_tree_add_item(ecmp_parameter_response_tree, hf_ecmp_info_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ecmp_parameter_response_tree, hf_ecmp_info_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 			info_type0 = tvb_get_guint8(tvb, offset);
 
 			switch(info_type0)
@@ -1672,8 +1671,7 @@ static int get_parameter_responses(packet_info* pinfo, int offset, guint8 comman
 
 	if (command_value == ECMP_COMMAND_GETNEXTOBJECTS) {
 		/*display addressing scheme*/
-		ecmp_response_item = proto_tree_add_item(ecmp_tree, hf_ecmp_parameter_address, tvb, offset, 1, ENC_BIG_ENDIAN);
-		ecmp_parameter_response_tree = proto_item_add_subtree(ecmp_response_item, ett_ecmp_param_address);
+		proto_tree_add_item(ecmp_tree, hf_ecmp_parameter_address, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 
@@ -1851,7 +1849,7 @@ static void file_read(int offset, gboolean request, tvbuff_t *tvb, proto_tree* e
 			/*display bytes for reading*/
 			req_bytes = tvb_get_ntohs(tvb, offset);
 			proto_tree_add_item(ecmp_tree, hf_ecmp_response_data, tvb, offset, req_bytes+2, ENC_NA);
-			offset += (2+req_bytes);
+			/*offset += (2+req_bytes);*/
 		}
 	}
 }
@@ -1870,12 +1868,12 @@ static void file_write(int offset, gboolean request, tvbuff_t *tvb, proto_tree* 
 		/*display bytes for writing*/
 		req_bytes = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(ecmp_tree, hf_ecmp_data, tvb, offset+2, req_bytes, ENC_NA);
-		offset += (2+req_bytes);
+		/*offset += (2+req_bytes);*/
 
 	} else {
 		/*display file status*/
 		proto_tree_add_item(ecmp_tree, hf_ecmp_file_status, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+		/*offset++;*/
 	}
 }
 
@@ -1968,7 +1966,7 @@ static void file_info(packet_info* pinfo, int offset, gboolean request, tvbuff_t
 
 	if (request) {
 		/*display file handle*/
-		ecmp_file_info_item = proto_tree_add_item(ecmp_tree, hf_ecmp_file_handle, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ecmp_tree, hf_ecmp_file_handle, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset+=2;
 
 		/*display number of attributes*/
@@ -1983,12 +1981,13 @@ static void file_info(packet_info* pinfo, int offset, gboolean request, tvbuff_t
 			ecmp_file_info_att_tree = proto_item_add_subtree(ecmp_file_info_item, ett_ecmp_file_info_att);
 			attribute0 = tvb_get_guint8(tvb, offset);
 			offset++;
+			offset = get_file_attribute(pinfo, offset, attribute0, tvb, ecmp_file_info_att_tree);
 		}
 
 		proto_item_set_len(ecmp_file_info_item, no_of_att);
 	} else {
 		/*display file status*/
-		ecmp_file_info_item = proto_tree_add_item(ecmp_tree, hf_ecmp_file_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ecmp_tree, hf_ecmp_file_status, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		offset++;
 
@@ -2018,7 +2017,6 @@ static void file_state_delete(guint16 offset, gboolean request, tvbuff_t *tvb, p
 	if (request) {
 		/*display file handle*/
 		proto_tree_add_item(ecmp_tree, hf_ecmp_file_handle, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset+=2;
 
 	} else {
 		/*display file status*/
@@ -2692,16 +2690,16 @@ static void interrogate(packet_info* pinfo, int offset, gboolean request, tvbuff
 
 		/* read the item_type (command/option setting)  */
 		item_type = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(ecmp_tree, hf_ecmp_interrogate_item_type, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(ecmp_interrogate_tree, hf_ecmp_interrogate_item_type, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
 		/* read the count  */
 		count = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(ecmp_tree, hf_ecmp_interrogate_count, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(ecmp_interrogate_tree, hf_ecmp_interrogate_count, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
 		/*create the interrogate details sub-tree  */
-		ecmp_interrogate_message_tree = proto_tree_add_subtree(ecmp_tree, tvb, offset, count, ett_ecmp_interrogate_message, &ecmp_interrogate_message_item, "ECMP Commands to be Checked");
+		ecmp_interrogate_message_tree = proto_tree_add_subtree(ecmp_interrogate_tree, tvb, offset, count, ett_ecmp_interrogate_message, &ecmp_interrogate_message_item, "ECMP Commands to be Checked");
 
 		/* display the item_codes (commands to be checked)  */
 		if (item_type == interrogate_type_command) {
@@ -2709,7 +2707,6 @@ static void interrogate(packet_info* pinfo, int offset, gboolean request, tvbuff
 			for (j = 0; j < count; j++) {
 
 				/* display the commands to be checked  */
-				command_req = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item(ecmp_interrogate_message_tree, hf_ecmp_interrogate_command, tvb, offset, 1, ENC_NA);
 				offset += 1;
 			}
@@ -2779,7 +2776,7 @@ static void tunnel_frame(int offset, gboolean request, tvbuff_t *tvb, proto_tree
 	offset+= 2;
 
 	proto_tree_add_item(ecmp_tree, hf_ecmp_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
-	offset = tvb_reported_length(tvb);
+	/*offset = tvb_reported_length(tvb);*/
 }
 
 
@@ -2953,7 +2950,7 @@ static int dissect_ecmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				program_status(offset, request, tvb, ecmp_tree);
 				break;
 			case ECMP_COMMAND_CYCLICFRAME:
-				offset = add_cyclic_frame_query(offset, tvb, ecmp_tree);
+				add_cyclic_frame_query(offset, tvb, ecmp_tree);
 				break;
 			case ECMP_COMMAND_TUNNELFRAME:
 				tunnel_frame(offset, command_value, tvb, ecmp_tree);
@@ -3064,7 +3061,7 @@ static int dissect_ecmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						program_status(offset, request, tvb, ecmp_tree);
 						break;
 					case ECMP_COMMAND_CYCLICFRAME:
-						offset = add_cyclic_frame(offset, tvb, ecmp_tree);
+						add_cyclic_frame(offset, tvb, ecmp_tree);
 						break;
 					case ECMP_COMMAND_TUNNELFRAME:
 						tunnel_frame(offset, command_value, tvb, ecmp_tree);
