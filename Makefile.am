@@ -1328,6 +1328,7 @@ EXTRA_DIST = \
 	cmake/modules/FindLUA.cmake		\
 	cmake/modules/FindLYNX.cmake		\
 	cmake/modules/FindM.cmake		\
+	cmake/modules/FindMSVC_REDIST.cmake	\
 	cmake/modules/FindNL.cmake		\
 	cmake/modules/FindNSIS.cmake		\
 	cmake/modules/FindOS_X_FRAMEWORKS.cmake	\
