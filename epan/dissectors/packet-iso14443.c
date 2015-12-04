@@ -110,10 +110,21 @@ static const value_string iso14443_block_type[] = {
     { 0, NULL }
 };
 
-const true_false_string tfs_wupb_reqb = { "WUPB", "REQB" };
-const true_false_string tfs_compliant_not_compliant = { "Compliant", "Not compliant" };
-const true_false_string tfs_incomplete_complete = { "Incomplete", "Complete" };
-const true_false_string tfs_iso_propr = { "As defined in ISO14443-3", "Proprietary" };
+#define S_CMD_DESELECT 0x00
+#define S_CMD_WTX      0x03
+#define S_CMD_NONE     0xFF
+
+static const value_string iso14443_s_block_cmd[] = {
+    { S_CMD_DESELECT , "Deselect" },
+    { S_CMD_WTX , "WTX" },
+    { 0, NULL }
+};
+
+static const true_false_string tfs_wupb_reqb = { "WUPB", "REQB" };
+static const true_false_string tfs_compliant_not_compliant = { "Compliant", "Not compliant" };
+static const true_false_string tfs_incomplete_complete = { "Incomplete", "Complete" };
+static const true_false_string tfs_iso_propr = { "As defined in ISO14443-3", "Proprietary" };
+static const true_false_string tfs_ack_nak = { "ACK", "NAK" };
 
 #define CT_BYTE 0x88
 
@@ -134,6 +145,7 @@ static int ett_iso14443_msg = -1;
 static int ett_iso14443_app_data = -1;
 static int ett_iso14443_prot_inf = -1;
 static int ett_iso14443_pcb = -1;
+static int ett_iso14443_inf = -1;
 
 static int hf_iso14443_hdr_ver = -1;
 static int hf_iso14443_event = -1;
@@ -185,7 +197,11 @@ static int hf_iso14443_block_type = -1;
 static int hf_iso14443_i_blk_chaining = -1;
 static int hf_iso14443_cid_following = -1;
 static int hf_iso14443_nad_following = -1;
+static int hf_iso14443_ack_nak = -1;
 static int hf_iso14443_blk_num = -1;
+static int hf_iso14443_s_blk_cmd = -1;
+static int hf_iso14443_pwr_lvl_ind = -1;
+static int hf_iso14443_wtxm = -1;
 static int hf_iso14443_inf = -1;
 static int hf_iso14443_crc = -1;
 
@@ -605,14 +621,19 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
     gint offset = 0;
     guint8 pcb, block_type;
     const gchar *bt_str;
-    proto_item *pcb_ti;
-    proto_tree *pcb_tree;
+    proto_item *pcb_ti, *inf_ti;
+    proto_tree *pcb_tree, *inf_tree;
     gboolean has_cid, has_nad = FALSE;
+    guint8 s_cmd = S_CMD_NONE;
     guint8 inf_len;
 
     pcb = tvb_get_guint8(tvb, offset);
     block_type = (pcb & 0xC0) >> 6;
     bt_str = try_val_to_str(block_type, iso14443_block_type);
+    if (bt_str) {
+        proto_item_append_text(ti, ": %s", bt_str);
+        col_set_str(pinfo->cinfo, COL_INFO, bt_str);
+    }
     has_cid = ((pcb & 0x08) != 0);
 
     pcb_ti = proto_tree_add_item(tree, hf_iso14443_pcb,
@@ -620,39 +641,52 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
     pcb_tree = proto_item_add_subtree(pcb_ti, ett_iso14443_pcb);
     proto_tree_add_item(pcb_tree, hf_iso14443_block_type,
             tvb, offset, 1, ENC_BIG_ENDIAN);
+
     switch (block_type) {
+        case I_BLOCK_TYPE:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+                    (pcb & 0x10) ? "Chaining" : "No chaining");
+            proto_tree_add_item(pcb_tree, hf_iso14443_i_blk_chaining,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            has_nad = ((pcb & 0x40) != 0);
+            proto_tree_add_item(pcb_tree, hf_iso14443_nad_following,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+                    "Block number %d", pcb & 0x01);
+            proto_tree_add_item(pcb_tree, hf_iso14443_blk_num,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            break;
 
-    case I_BLOCK_TYPE:
-        proto_tree_add_item(pcb_tree, hf_iso14443_i_blk_chaining,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
-        has_nad = ((pcb & 0x40) != 0);
-        proto_tree_add_item(pcb_tree, hf_iso14443_nad_following,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(pcb_tree, hf_iso14443_blk_num,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
-        break;
+        case R_BLOCK_TYPE:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+                    "%s", (pcb & 0x10) ?
+                    tfs_ack_nak.true_string : tfs_ack_nak.false_string);
+            proto_tree_add_item(pcb_tree, hf_iso14443_ack_nak,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+                    "Block number %d", pcb & 0x01);
+            proto_tree_add_item(pcb_tree, hf_iso14443_blk_num,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            break;
 
-    case R_BLOCK_TYPE:
-        proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(pcb_tree, hf_iso14443_blk_num,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
-        break;
+        case S_BLOCK_TYPE:
+            s_cmd = (pcb & 0x30) >> 4;
+            proto_tree_add_item(pcb_tree, hf_iso14443_s_blk_cmd,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+                    val_to_str(s_cmd, iso14443_s_block_cmd,
+                        "Unknown (0x%02x)"));
+            proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            break;
 
-    case S_BLOCK_TYPE:
-        proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
-        break;
-
-    default:
-        /* Report an error? b8 = 0, b7 = 1 */
-        break;
-    }
-    if (bt_str) {
-        proto_item_append_text(ti, ": %s", bt_str);
-        col_set_str(pinfo->cinfo, COL_INFO, bt_str);
+        default:
+            /* Report an error? b8 = 0, b7 = 1 */
+            break;
     }
     offset++;
 
@@ -661,13 +695,42 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
     if (has_nad)
         offset++;
 
-    inf_len = crc_dropped ?
-        tvb_reported_length_remaining(tvb, offset) :
-        tvb_reported_length_remaining(tvb, offset) - 2;
+    switch (block_type) {
+        case I_BLOCK_TYPE:
+            inf_len = crc_dropped ?
+                tvb_reported_length_remaining(tvb, offset) :
+                tvb_reported_length_remaining(tvb, offset) - 2;
+            break;
 
-    proto_tree_add_item(tree, hf_iso14443_inf,
-            tvb, offset, inf_len, ENC_NA);
-    offset += inf_len;
+        /* R-blocks have no payload */
+
+        case S_BLOCK_TYPE:
+            inf_len = 1;
+            break;
+
+        default:
+            inf_len = 0;
+            break;
+
+    }
+
+    if (inf_len > 0) {
+        inf_ti = proto_tree_add_item(tree, hf_iso14443_inf,
+                tvb, offset, inf_len, ENC_NA);
+        if (block_type == S_BLOCK_TYPE) {
+            if (s_cmd == S_CMD_WTX) {
+                inf_tree = proto_item_add_subtree(inf_ti, ett_iso14443_inf);
+                if (pinfo->p2p_dir == P2P_DIR_RECV) {
+                    proto_tree_add_item(inf_tree, hf_iso14443_pwr_lvl_ind,
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                }
+                proto_tree_add_item(inf_tree, hf_iso14443_wtxm,
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
+            }
+        }
+        offset += inf_len;
+    }
+
 
     if (!crc_dropped) {
         proto_tree_add_item(tree, hf_iso14443_crc,
@@ -1117,7 +1180,7 @@ proto_register_iso14443(void)
                 BASE_HEX, VALS(iso14443_block_type), 0xC0, NULL, HFILL }
         },
         { &hf_iso14443_i_blk_chaining,
-            { "Chaining", "iso14443.i_blk_chaining", FT_BOOLEAN, 8,
+            { "Chaining", "iso14443.i_block_chaining", FT_BOOLEAN, 8,
                 TFS(&tfs_set_notset), 0x10, NULL, HFILL }
         },
         { &hf_iso14443_cid_following,
@@ -1128,9 +1191,25 @@ proto_register_iso14443(void)
             { "NAD following", "iso14443.nad_following", FT_BOOLEAN, 8,
                 TFS(&tfs_true_false), 0x04, NULL, HFILL }
         },
+        { &hf_iso14443_ack_nak,
+            { "ACK/NAK", "iso14443.ack_nak", FT_BOOLEAN, 8,
+                TFS(&tfs_ack_nak), 0x10, NULL, HFILL }
+        },
         { &hf_iso14443_blk_num,
             { "Block number", "iso14443.block_number",
                 FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL }
+        },
+        { &hf_iso14443_s_blk_cmd,
+            { "Command", "iso14443.s_block_cmd", FT_UINT8,
+                BASE_HEX, VALS(iso14443_s_block_cmd), 0x30, NULL, HFILL }
+        },
+        { &hf_iso14443_pwr_lvl_ind,
+            { "Power level indication", "iso14443.pwr_lvl_ind",
+                FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }
+        },
+        { &hf_iso14443_wtxm,
+            { "WTXM", "iso14443.wtxm",
+                FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }
         },
         { &hf_iso14443_inf,
             { "INF", "iso14443.inf",
@@ -1148,7 +1227,8 @@ proto_register_iso14443(void)
         &ett_iso14443_msg,
         &ett_iso14443_app_data,
         &ett_iso14443_prot_inf,
-        &ett_iso14443_pcb
+        &ett_iso14443_pcb,
+        &ett_iso14443_inf
     };
 
     static ei_register_info ei[] = {
