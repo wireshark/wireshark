@@ -757,7 +757,9 @@ if(ENABLE_ZLIB)
 	if (WIN32)
 		# On Windows we build our own version of zlib, so add the paths
 		set(ZLIB_SRC_DIR "${_PROJECT_LIB_DIR}/zlib-1.2.8-ws")
+		set(SKIP_INSTALL_ALL True) # We copy the DLL ourselves.
 		add_subdirectory("${ZLIB_SRC_DIR}" "${CMAKE_BINARY_DIR}/zlib")
+		unset(SKIP_INSTALL_ALL)
 		set(ZLIB_INCLUDE_DIR  "${ZLIB_SRC_DIR}" "${CMAKE_BINARY_DIR}/zlib")
 		set(ZLIB_LIBRARY zlib)
 		set(ZLIB_DLL "zlib1.dll")
@@ -1040,15 +1042,17 @@ endif()
 
 set(DATAFILE_DIR ${_datafile_dir} CACHE INTERNAL "Build time data file location.")
 
-if(IS_ABSOLUTE ${CMAKE_INSTALL_LIBDIR})
-	set(ABSOLUTE_CMAKE_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}")
-else()
-	set(ABSOLUTE_CMAKE_INSTALL_LIBDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
-endif()
-
 if(ENABLE_EXTCAP)
+	# Target platform locations
+	# UNIX, Linux, non-bundled OS X: $DESTDIR/lib/wireshark/extcap
+	# Windows: $DESTDIR/extcap
+	# OS X app bundle: Wireshark.app/Contents/Resources/share/wireshark/extcap
 	set(HAVE_EXTCAP 1)
-	set(EXTCAP_DIR "${ABSOLUTE_CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/extcap/")
+	if (WIN32)
+		set(EXTCAP_DIR "extcap")
+	else ()
+		set(EXTCAP_DIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/extcap")
+	endif()
 endif()
 
 if(LIBSSH_FOUND)
@@ -1062,10 +1066,18 @@ endif()
 # Location of our plugins. PLUGIN_DIRECTORY should allow running
 # from the build directory similar to DATAFILE_DIR above.
 if(ENABLE_PLUGINS)
+	# Target platform locations
+	# UNIX, Linux, non-bundled OS X: $DESTDIR/lib/wireshark/plugins/$VERSION
+	# Windows: $DESTDIR/wireshark/plubins/$VERSION
+	# OS X app bundle: Wireshark.app/Contents/PlugIns/wireshark
 	set(HAVE_PLUGINS 1)
 	add_custom_target(plugins)
 	set_target_properties(plugins PROPERTIES FOLDER "Plugins")
-	set(PLUGIN_INSTALL_DIR "${ABSOLUTE_CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/plugins/${CPACK_PACKAGE_VERSION}")
+	if (WIN32)
+		set(PLUGIN_INSTALL_DIR "plugins/${CPACK_PACKAGE_VERSION}")
+	else ()
+		set(PLUGIN_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/plugins/${CPACK_PACKAGE_VERSION}")
+	endif()
 	set(PLUGIN_SRC_DIRS
 		plugins/docsis
 		plugins/ethercat
