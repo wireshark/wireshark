@@ -273,7 +273,7 @@ void prefs_cleanup(void);
  * name is the protocol name specified at the "proto_register_protocol()"
  * call so that the "Protocol Properties..." menu item works.
  */
-module_t *prefs_register_module(module_t *parent, const char *name,
+WS_DLL_PUBLIC module_t *prefs_register_module(module_t *parent, const char *name,
     const char *title, const char *description, void (*apply_cb)(void),
     const gboolean use_gui);
 
@@ -283,7 +283,7 @@ module_t *prefs_register_module(module_t *parent, const char *name,
  * at the top level and the title used in the tab for it in a preferences
  * dialog box.
  */
-module_t *prefs_register_subtree(module_t *parent, const char *title,
+WS_DLL_PUBLIC module_t *prefs_register_subtree(module_t *parent, const char *title,
     const char *description, void (*apply_cb)(void));
 
 /*
