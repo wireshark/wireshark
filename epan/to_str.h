@@ -89,7 +89,7 @@ WS_DLL_PUBLIC void     address_to_str_buf(const address *addr, gchar *buf, int b
 #define tvb_ip6_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_IPv6, offset)
 #define tvb_fcwwn_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_FCWWN, offset)
 #define tvb_fc_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_FC, offset)
-#define tvb_eui64_to_str(tvb, opt_offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_EUI64, offset)
+#define tvb_eui64_to_str(tvb, offset) tvb_address_to_str(wmem_packet_scope(), tvb, AT_EUI64, offset)
 
 void	ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len);
 
