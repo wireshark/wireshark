@@ -3927,6 +3927,8 @@ dissect_heartbeat_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *
   }
 }
 
+#define HEARTBEAT_ACK_CHUNK_INFO_OFFSET CHUNK_VALUE_OFFSET
+
 static void
 dissect_heartbeat_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 {
@@ -3934,9 +3936,9 @@ dissect_heartbeat_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_in
 
   if (chunk_tree) {
     proto_item_append_text(chunk_item, " (Information: %u byte%s)", chunk_length - CHUNK_HEADER_LENGTH, plurality(chunk_length - CHUNK_HEADER_LENGTH, "", "s"));
-    parameter_tvb  = tvb_new_subset(chunk_tvb, HEARTBEAT_CHUNK_INFO_OFFSET,
-                                    MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_captured_length_remaining(chunk_tvb, HEARTBEAT_CHUNK_INFO_OFFSET)),
-                                    MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_reported_length_remaining(chunk_tvb, HEARTBEAT_CHUNK_INFO_OFFSET)));
+    parameter_tvb  = tvb_new_subset(chunk_tvb, HEARTBEAT_ACK_CHUNK_INFO_OFFSET,
+                                    MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_captured_length_remaining(chunk_tvb, HEARTBEAT_ACK_CHUNK_INFO_OFFSET)),
+                                    MIN(chunk_length - CHUNK_HEADER_LENGTH, tvb_reported_length_remaining(chunk_tvb, HEARTBEAT_ACK_CHUNK_INFO_OFFSET)));
     /* FIXME: Parameters or parameter? */
     dissect_parameter(parameter_tvb, pinfo, chunk_tree, NULL, FALSE, TRUE);
   }
