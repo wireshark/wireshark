@@ -63,7 +63,7 @@ endif
 libwireshark_la_SOURCES = \
 	$(LIBWIRESHARK_SRC)	\
 	$(LIBWIRESHARK_INCLUDES)
-libwireshark_la_CFLAGS = $(AM_NON_GENERATED_CFLAGS) $(py_dissectors_dir)
+libwireshark_la_CFLAGS = $(AM_NON_GENERATED_CFLAGS)
 
 libwireshark_generated_la_SOURCES = \
 	$(LIBWIRESHARK_GENERATED_C_FILES) \
