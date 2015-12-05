@@ -1071,6 +1071,9 @@ static const value_string bthci_cmd_eir_data_type_vals[] = {
     {0x21, "Service Data - 128 bit UUID" },
     {0x22, "LE Secure Connections Confirmation Value" },
     {0x23, "LE Secure Connections Random Value" },
+    {0x24, "URI" },
+    {0x25, "Indoor Positioning" },
+    {0x26, "Transport Discovery Data" },
     {0x3D, "3D Information Data" },
     {0xFF, "Manufacturer Specific" },
     {   0, NULL }
@@ -5183,7 +5186,21 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uri, tvb, offset, length, ENC_UTF_8 | ENC_NA);
             offset += length;
 
-                break;
+            break;
+        case 0x25: /* Indoor Positioning */
+/* TODO */
+            sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_data, tvb, offset, length, ENC_NA);
+            expert_add_info(pinfo, sub_item, &ei_eir_ad_undecoded);
+            offset += length;
+
+            break;
+        case 0x26: /* Transport Discovery Data */
+/* TODO */
+            sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_data, tvb, offset, length, ENC_NA);
+            expert_add_info(pinfo, sub_item, &ei_eir_ad_undecoded);
+            offset += length;
+
+            break;
         case 0x3D: /* 3D Information Data */
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_3ds_factory_test_mode, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_3ds_reserved, tvb, offset, 1, ENC_NA);

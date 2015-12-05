@@ -5826,6 +5826,20 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
         break;
 
 
+    case 0x2ABC: /* TDS Control Point */
+    case 0x2ABD: /* OTS Feature */
+    case 0x2ABE: /* Object Name */
+    case 0x2ABF: /* Object Type */
+    case 0x2AC0: /* Object Size */
+    case 0x2AC1: /* Object First-Created */
+    case 0x2AC2: /* Object Last-Modified */
+    case 0x2AC3: /* Object ID */
+    case 0x2AC4: /* Object Properties */
+    case 0x2AC5: /* Object Action Control Point */
+    case 0x2AC6: /* Object List Control Point */
+    case 0x2AC7: /* Object List Filter */
+    case 0x2AC8: /* Object Changed */
+/* TODO: Implement */
     case 0x2906: /* Valid Range */
     case 0x2A2A: /* IEEE 11073-20601 Regulatory Certification Data List */
     case 0x2A4D: /* Report */

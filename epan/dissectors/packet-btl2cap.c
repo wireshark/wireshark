@@ -232,6 +232,7 @@ static const value_string psm_vals[] = {
     { 0x001F, "ATT" },
     { 0x0021, "3DSP" },
     { 0x0023, "IPSP" },
+    { 0x0025, "OTS" },
     { 0, NULL }
 };
 value_string_ext ext_psm_vals = VALUE_STRING_EXT_INIT(psm_vals);
