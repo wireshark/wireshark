@@ -1602,17 +1602,17 @@ else()
 endif(WIN32)
 
 # Create help/faq.txt when missing
-#add_custom_command(OUTPUT "${DATAFILE_DIR}/help/faq.txt"
-#	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/help"
-#	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/help/faq.py -b > faq.tmp.html
-#	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/html2text.py
-#		faq.tmp.html > "${DATAFILE_DIR}/help/faq.txt"
-#	COMMAND ${CMAKE_COMMAND} -E remove faq.tmp.html
-#	DEPENDS
-#		"${CMAKE_SOURCE_DIR}/help/faq.py"
-#		"${CMAKE_SOURCE_DIR}/tools/html2text.py"
-#)
-#list(APPEND copy_data_files_depends "${DATAFILE_DIR}/help/faq.txt")
+add_custom_command(OUTPUT "${DATAFILE_DIR}/help/faq.txt"
+	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/help"
+	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/help/faq.py -b > faq.tmp.html
+	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/html2text.py
+		faq.tmp.html > "${DATAFILE_DIR}/help/faq.txt"
+	COMMAND ${CMAKE_COMMAND} -E remove faq.tmp.html
+	DEPENDS
+		"${CMAKE_SOURCE_DIR}/help/faq.py"
+		"${CMAKE_SOURCE_DIR}/tools/html2text.py"
+)
+list(APPEND copy_data_files_depends "${DATAFILE_DIR}/help/faq.txt")
 
 # Install LUA files in staging directory such that LUA can used when Wireshark
 # is ran from the build directory. For install targets, see

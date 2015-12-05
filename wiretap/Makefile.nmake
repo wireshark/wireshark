@@ -6,11 +6,15 @@ include ..\Makefile.nmake.inc
 
 include Makefile.common
 
-CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
+# We use GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
+GENERATED_CFLAGS=\
+	$(STANDARD_CFLAGS) \
 	-DYYMALLOC=malloc -DYYFREE=free \
 	/I. /I.. $(GLIB_CFLAGS) \
 	$(ZLIB_CFLAGS) /I$(PCAP_DIR)/include \
 	-DWS_BUILD_DLL
+
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 
 .c.obj::
 	$(CC) $(CFLAGS) -Fd.\ -c $<
@@ -39,11 +43,11 @@ RUNLEX = ../tools/runlex.sh
 
 k12text_lex.h : k12text.c
 k12text.obj : k12text.c
-	$(CC) $(CFLAGS) -Fd.\ -c $?
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 ascend_scanner_lex.h : ascend_scanner.c
 ascend_scanner.obj : ascend_scanner.c ascend.h
-	$(CC) $(CFLAGS) -Fd.\ -c ascend_scanner.c
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c ascend_scanner.c
 
 ascend_scanner.c : ascend.h
 

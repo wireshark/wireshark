@@ -13,11 +13,20 @@ LINK= link
 #
 # These are the flags for all source files.
 #
-COMMON_CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
+COMMON_CFLAGS=\
+	$(STANDARD_CFLAGS) \
 	/I. /I.. /I../wiretap $(GLIB_CFLAGS) \
 	$(ZLIB_CFLAGS) $(C_ARES_CFLAGS) $(ADNS_CFLAGS) \
 	$(LUA_CFLAGS) $(GNUTLS_CFLAGS) /I$(PCAP_DIR)\include \
 	$(SMI_CFLAGS) $(GEOIP_CFLAGS)
+
+#
+# These are the flags for generated source files; we don't include
+# $(WARNINGS_ARE_ERRORS), so that we flex's non-LLP64-compliant output
+# doesn't cause compilation to fail.
+#
+GENERATED_CFLAGS=\
+	$(COMMON_CFLAGS) -DWS_BUILD_DLL
 
 #
 # These are the flags for test programs; we don't include -DWS_BUILD_DLL,
@@ -25,13 +34,15 @@ COMMON_CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 # incorporated into the library, so they should *import* stuff from the
 # library, not *export* stuff from the library.
 #
-TEST_CFLAGS=$(COMMON_CFLAGS)
+TEST_CFLAGS=\
+	$(WARNINGS_ARE_ERRORS) $(COMMON_CFLAGS)
 
 #
-# These are flags for everything else; we include -DWS_BUILD_DLL,
+# These are flags for everything else; we include $(WARNINGS_ARE_ERRORS),
+# as the code should be warning-free, and we include -DWS_BUILD_DLL,
 # as these are library routines, not test programs.
 #
-CFLAGS=$(COMMON_CFLAGS) -DWS_BUILD_DLL
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS) -DWS_BUILD_DLL
 
 !IFDEF LUA_DIR
 WSLUA_LIB=wslua\wslua.lib
@@ -390,7 +401,7 @@ RUNLEX=../tools/runlex.sh
 #
 diam_dict_lex.h: diam_dict.c
 diam_dict.obj : diam_dict.c
-	$(CC) $(CFLAGS) -Fd.\ -c $?
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 #
 # This depends on dtd_grammar.h to force dtd_grammar.h to be
@@ -402,19 +413,19 @@ diam_dict.obj : diam_dict.c
 dtd_parse_lex.h: dtd_parse.c
 dtd_parse.obj : dtd_grammar.h
 dtd_parse.obj : dtd_parse.c
-	$(CC) $(CFLAGS) -Fd.\ -c dtd_parse.c
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c dtd_parse.c
 
 dtd_preparse_lex.h: dtd_preparse.c
 dtd_preparse.obj : dtd_preparse.c
-	$(CC) $(CFLAGS) -Fd.\ -c $?
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 radius_dict_lex.h: radius_dict.c
 radius_dict.obj : radius_dict.c
-	$(CC) $(CFLAGS) -Fd.\ -c $?
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 uat_load_lex.h: uat_load.c
 uat_load.obj : uat_load.c
-	$(CC) $(CFLAGS) -Fd.\ -c $?
+	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
 
 LEMON=..\tools\lemon
 
