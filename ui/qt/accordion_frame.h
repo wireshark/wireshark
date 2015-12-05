@@ -36,6 +36,7 @@ public:
 
 signals:
     void visibilityChanged(bool visible);
+    void animationFinished();
 
 protected:
     virtual void hideEvent(QHideEvent *) { emit visibilityChanged(false); }
@@ -46,7 +47,7 @@ private:
     QPropertyAnimation *animation_;
 
 private slots:
-    void animationFinished();
+    void animationFinish();
 
 };
 

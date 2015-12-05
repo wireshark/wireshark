@@ -176,6 +176,8 @@ MainWelcome::MainWelcome(QWidget *parent) :
     connect(welcome_ui_->captureFilterComboBox, SIGNAL(startCapture()),
             this, SIGNAL(startCapture()));
     connect(recent_files_, SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(openRecentItem(QListWidgetItem *)));
+    connect(welcome_ui_->openFrame, SIGNAL(animationFinished()),
+            welcome_ui_->interfaceTree, SLOT(reset()));
     updateRecentFiles();
 
 #if !defined(Q_OS_MAC) || QT_VERSION > QT_VERSION_CHECK(5, 0, 0)
@@ -317,6 +319,7 @@ void MainWelcome::resizeEvent(QResizeEvent *event)
 //    event->accept();
 
     QFrame::resizeEvent(event);
+    welcome_ui_->interfaceTree->reset();
 }
 
 void MainWelcome::changeEvent(QEvent* event)
