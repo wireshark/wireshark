@@ -9,15 +9,11 @@ include Makefile.common
 
 LEMON=..\..\tools\lemon
 
-# We GENERATED_CFLAGS to get around flex's non-LLP64-compliant output
-GENERATED_CFLAGS=\
-	$(STANDARD_CFLAGS) \
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 	/I. /I.. /I..\.. $(GLIB_CFLAGS) \
 	/I$(LEMON) \
 	/I$(PCAP_DIR)\include \
 	-DWS_BUILD_DLL
-
-CFLAGS=$(WARNINGS_ARE_ERRORS) $(GENERATED_CFLAGS)
 
 .c.obj::
 	$(CC) $(CFLAGS) -Fd.\ -c $<
@@ -62,7 +58,7 @@ RUNLEX=../../tools/runlex.sh
 
 scanner_lex.h : scanner.c
 scanner.obj : scanner.c grammar.h
-	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c scanner.c
+	$(CC) $(CFLAGS) -Fd.\ -c scanner.c
 
 scanner.c: grammar.h
 

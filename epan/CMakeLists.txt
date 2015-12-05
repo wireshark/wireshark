@@ -83,12 +83,12 @@ set(DFILTER_FILES
 )
 source_group(dfilter FILES ${DFILTER_FILES})
 
-set(DFILTER_CLEAN_FILES
-	${DFILTER_FILES}
-)
-
 add_lex_files(DFILTER_FILES
 	dfilter/scanner.l
+)
+
+set(DFILTER_CLEAN_FILES
+	${DFILTER_FILES}
 )
 
 add_lemon_files(DFILTER_FILES
@@ -1667,16 +1667,16 @@ set(LIBWIRESHARK_FILES
 	xdlc.c
 )
 
-set(LIBWIRESHARK_CLEAN_FILES
-	${LIBWIRESHARK_FILES}
-)
-
 add_lex_files(LIBWIRESHARK_FILES
 	diam_dict.l
 	dtd_parse.l
 	dtd_preparse.l
 	radius_dict.l
 	uat_load.l
+)
+
+set(LIBWIRESHARK_CLEAN_FILES
+	${LIBWIRESHARK_FILES}
 )
 
 add_lemon_files(LIBWIRESHARK_FILES

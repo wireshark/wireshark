@@ -81,6 +81,11 @@ set(WIRETAP_FILES
 	wtap.c
 )
 
+add_lex_files(WIRETAP_FILES
+	ascend_scanner.l
+	k12text.l
+)
+
 if (WERROR_COMMON_FLAGS)
 	set_source_files_properties(
 		${WIRETAP_FILES}
@@ -88,11 +93,6 @@ if (WERROR_COMMON_FLAGS)
 		COMPILE_FLAGS ${WERROR_COMMON_FLAGS}
 	)
 endif()
-
-add_lex_files(WIRETAP_FILES
-	ascend_scanner.l
-	k12text.l
-)
 
 add_yacc_files(WIRETAP_FILES
 	ascend.y
