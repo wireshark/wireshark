@@ -14,6 +14,11 @@
 %option never-interactive
 
 /*
+ * We want to stop processing when we get to the end of the input.
+ */
+%option noyywrap
+
+/*
  * The language we're scanning is case-insensitive.
  */
 %option caseless
@@ -229,15 +234,4 @@ extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* er
 	g_free(fullname);
 
 	return output;
-}
-
-/*
- * We want to stop processing when we get to the end of the input.
- * (%option noyywrap is not used because if used then
- * some flex versions (eg: 2.5.35) generate code which causes
- * warnings by the Windows VC compiler).
- */
-
-int yywrap(void) {
-	return 1;
 }

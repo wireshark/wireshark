@@ -9,7 +9,9 @@ Prototypes:
 void	CONCAT(MODNAME,_scanner_text(char *text));
 void	CONCAT(MODNAME,_scanner_file(FILE *fh));
 void	CONCAT(MODNAME,_scanner_cleanup(void));
+#ifndef YY_SKIP_YYWRAP
 int	CONCAT(MODNAME,_wrap(void));
+#endif
 
 #include <cppmagic.h>
 

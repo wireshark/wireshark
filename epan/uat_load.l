@@ -14,6 +14,11 @@
 %option never-interactive
 
 /*
+ * We want to stop processing when we get to the end of the input.
+ */
+%option noyywrap
+
+/*
  * Prefix scanner routines with "uat_load_" rather than "yy", so this scanner
  * can coexist with other scanners.
  */
@@ -374,17 +379,4 @@ uat_load_str(uat_t *uat_in, char *entry, char **err)
 
 	*err = NULL;
 	return TRUE;
-}
-
-/*
- * We want to stop processing when we get to the end of the input.
- * (%option noyywrap is not used because if used then
- * some flex versions (eg: 2.5.35) generate code which causes
- * warnings by the Windows VC compiler).
- */
-
-int
-yywrap(void)
-{
-    return 1;
 }

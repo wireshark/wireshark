@@ -24,6 +24,11 @@
 %option stack
 
 /*
+ * We want to stop processing when we get to the end of the input.
+ */
+%option noyywrap
+
+/*
  * Prefix scanner routines with "DiamDict" rather than "yy", so this scanner
  * can coexist with other scanners.
  */
@@ -818,19 +823,6 @@ ddict_print(FILE* fh, ddict_t* d)
 					e->code);
 		}
 	}
-}
-
-/*
- * We want to stop processing when we get to the end of the input.
- * (%option noyywrap is not used because if used then
- * some flex versions (eg: 2.5.35) generate code which causes
- * warnings by the Windows VC compiler).
- */
-
-int
-yywrap(void)
-{
-    return 1;
 }
 
 #ifdef TEST_DIAM_DICT_STANDALONE

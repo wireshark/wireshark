@@ -19,6 +19,11 @@
  */
 %option prefix="df_"
 
+/*
+ * We're reading from a string, so we don't need yywrap.
+ */
+%option noyywrap
+
 %{
 /*
  * Wireshark - Network traffic analyzer

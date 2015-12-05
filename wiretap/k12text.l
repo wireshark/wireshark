@@ -14,6 +14,11 @@
 %option never-interactive
 
 /*
+ * We want to stop processing when we get to the end of the input.
+ */
+%option noyywrap
+
+/*
  * Prefix scanner routines with "K12Text_" rather than "yy", so this scanner
  * can coexist with other scanners.
  */
@@ -460,15 +465,4 @@ k12text_dump_can_write_encap(int encap)
 	default:
 		return WTAP_ERR_UNWRITABLE_ENCAP;
     }
-}
-
-/*
- * We want to stop processing when we get to the end of the input.
- * (%option noyywrap is not used because if used then
- * some flex versions (eg: 2.5.35) generate code which causes
- * warnings by the Windows VC compiler).
- */
-
-int yywrap(void) {
-    return 1;
 }

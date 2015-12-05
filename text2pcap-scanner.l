@@ -15,6 +15,11 @@
  */
 %option never-interactive
 
+/*
+ * We want to stop processing when we get to the end of the input.
+ */
+%option noyywrap
+
 %{
 
 /********************************************************************************
@@ -88,10 +93,3 @@ eol \r?\n\r?
 {directive}       { parse_token(T_DIRECTIVE, yytext); }
 {comment}         ; /* ignore comments */
 {text}            { parse_token(T_TEXT, yytext); }
-
-%%
-
-int yywrap(void)
-{
-    return 1;
-}

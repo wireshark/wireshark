@@ -11,6 +11,11 @@
 %option never-interactive
 
 /*
+ * We want to stop processing when we get to the end of the input.
+ */
+%option noyywrap
+
+/*
  * Prefix scanner routines with "text_import" rather than "yy", so this scanner
  * can coexist with other scanners.
  */
@@ -92,9 +97,3 @@ eol \r?\n\r?
 {text}            { parse_token(T_TEXT, yytext); }
 
 <<EOF>>           { write_current_packet(); yyterminate(); }
-
-%%
-int yywrap(void)
-{
-    return 1;
-}
