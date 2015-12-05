@@ -42,7 +42,7 @@ typedef struct _dfilter_macro_t {
 } dfilter_macro_t;
 
 /* applies all macros to the given text and returns the resulting string or NULL on failure */
-const gchar* dfilter_macro_apply(const gchar* text, gchar** error);
+gchar* dfilter_macro_apply(const gchar* text, gchar** error);
 
 void dfilter_macro_init(void);
 

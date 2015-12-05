@@ -210,6 +210,7 @@ dfwork_free(dfwork_t *dfw)
 gboolean
 dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 {
+	gchar		*expanded_text;
 	int		token;
 	dfilter_t	*dfilter;
 	dfwork_t	*dfw;
@@ -228,7 +229,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 		return FALSE;
 	}
 
-	if ( !( text = dfilter_macro_apply(text, err_msg) ) ) {
+	if ( !( expanded_text = dfilter_macro_apply(text, err_msg) ) ) {
 		return FALSE;
 	}
 
@@ -240,7 +241,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 	 */
 	global_dfw = dfw;
 
-	df_scanner_text(text);
+	df_scanner_text(expanded_text);
 
 	deprecated = g_ptr_array_new();
 
@@ -359,7 +360,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp, gchar **err_msg)
 	/* SUCCESS */
 	global_dfw = NULL;
 	dfwork_free(dfw);
-	wmem_free(NULL, (char*)text);
+	wmem_free(NULL, expanded_text);
 	return TRUE;
 
 FAILURE:
@@ -384,7 +385,7 @@ FAILURE:
 		 * case for any error.
 		 */
 		if (*err_msg == NULL)
-			*err_msg = g_strdup_printf("Unable to parse filter string \"%s\".", text);
+			*err_msg = g_strdup_printf("Unable to parse filter string \"%s\".", expanded_text);
 	}
 	*dfp = NULL;
 	return FALSE;

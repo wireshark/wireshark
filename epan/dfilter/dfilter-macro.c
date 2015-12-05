@@ -160,7 +160,7 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, gchar** error) {
 }
 
 
-static const gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, gchar** error) {
+static gchar* dfilter_macro_apply_recurse(const gchar* text, guint depth, gchar** error) {
 	enum { OUTSIDE, STARTING, NAME, ARGS } state = OUTSIDE;
 	GString* out;
 	GString* name = NULL;
@@ -322,11 +322,11 @@ finish:
 		FREE_ALL();
 
 		if (changed) {
-			const gchar* resolved = dfilter_macro_apply_recurse(out->str, depth + 1, error);
+			gchar* resolved = dfilter_macro_apply_recurse(out->str, depth + 1, error);
 			g_string_free(out,TRUE);
 			return resolved;
 		} else {
-			const gchar* out_str = wmem_strdup(NULL, out->str);
+			gchar* out_str = wmem_strdup(NULL, out->str);
 			g_string_free(out,TRUE);
 			return out_str;
 		}
@@ -343,7 +343,7 @@ on_error:
 	}
 }
 
-const gchar* dfilter_macro_apply(const gchar* text, gchar** error) {
+gchar* dfilter_macro_apply(const gchar* text, gchar** error) {
 	return dfilter_macro_apply_recurse(text, 0, error);
 }
 
