@@ -1595,6 +1595,7 @@ static const value_string stream_reset_result_values[] = {
   { 3, "Error - Wrong SSN"                   },
   { 4, "Error - Request already in progress" },
   { 5, "Error - Bad sequence number"         },
+  { 6, "In progress"                         },
   { 0, NULL                                  }
 };
 
