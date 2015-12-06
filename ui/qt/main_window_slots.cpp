@@ -741,6 +741,11 @@ void MainWindow::captureFileRetapFinished()
     thaw();
 }
 
+void MainWindow::captureFileFlushTapsData()
+{
+    draw_tap_listeners(FALSE);
+}
+
 void MainWindow::captureFileClosing() {
     setMenusForCaptureFile(true);
     setForCapturedPackets(false);

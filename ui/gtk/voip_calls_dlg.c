@@ -130,7 +130,7 @@ voip_calls_get_info(void)
 		0, /* SIP */
 		0, 0, 0, /* actrace */
 		FLOW_ALL, /* flow show option */
-		FALSE };
+		0 };
 	if (!the_tapinfo_struct.session) {
 		the_tapinfo_struct.session = cfile.epan;
 	}
@@ -849,7 +849,6 @@ voip_calls_dlg_draw(void *ptr _U_)
 {
 	if (voip_calls_get_info()->redraw) {
 		voip_calls_dlg_update(g_queue_peek_nth_link(voip_calls_get_info()->callsinfos, 0));
-		voip_calls_get_info()->redraw = FALSE;
 	}
 }
 
@@ -918,9 +917,9 @@ voip_calls_dlg_init_taps(const char *dummy _U_, void* userdata _U_)
 		reactivate_window(voip_calls_dlg);
 	}
 
-	voip_calls_get_info()->redraw = TRUE;
+	voip_calls_get_info()->redraw = 1;
 	voip_calls_dlg_draw(NULL);
-	voip_calls_get_info()->redraw = TRUE;
+	voip_calls_get_info()->redraw = 0;
 
 	/* Scan for VoIP calls calls (redissect all packets) */
 	cf_retap_packets(&cfile);

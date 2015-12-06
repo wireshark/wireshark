@@ -53,6 +53,7 @@ public:
     ~VoipCallsDialog();
 
 public slots:
+    void endRetapPackets();
 
 signals:
     void updateFilter(QString filter, bool force = false);

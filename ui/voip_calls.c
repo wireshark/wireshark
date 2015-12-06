@@ -122,6 +122,28 @@ enum {
     tap_id_offset_voip_
 };
 
+#define REDRAW_ACTRACE   (1 << tap_id_offset_actrace_)
+#define REDRAW_H225      (1 << tap_id_offset_h225_)
+#define REDRAW_H245DG    (1 << tap_id_offset_h245dg_)
+#define REDRAW_H248      (1 << tap_id_offset_h248_)
+#define REDRAW_IAX2      (1 << tap_id_offset_iax2_)
+#define REDRAW_ISUP      (1 << tap_id_offset_isup_)
+#define REDRAW_M3UA      (1 << tap_id_offset_m3ua_)
+#define REDRAW_MEGACO    (1 << tap_id_offset_megaco_)
+#define REDRAW_MGCP      (1 << tap_id_offset_mgcp_)
+#define REDRAW_MTP3      (1 << tap_id_offset_mtp3_)
+#define REDRAW_Q931      (1 << tap_id_offset_q931_)
+#define REDRAW_RTP       (1 << tap_id_offset_rtp_)
+#define REDRAW_RTP_EVENT (1 << tap_id_offset_rtp_event_)
+#define REDRAW_SCCP      (1 << tap_id_offset_sccp_)
+#define REDRAW_SDP       (1 << tap_id_offset_sdp_)
+#define REDRAW_SIP       (1 << tap_id_offset_sip_)
+#define REDRAW_SKINNY    (1 << tap_id_offset_skinny_)
+#define REDRAW_SUA       (1 << tap_id_offset_sua_)
+#define REDRAW_T38       (1 << tap_id_offset_t38_)
+#define REDRAW_UNISTIM   (1 << tap_id_offset_unistim_)
+#define REDRAW_VOIP      (1 << tap_id_offset_voip_)
+
 static inline void *
 tap_base_to_id(voip_calls_tapinfo_t* tap_base, int offset) {
     return GSIZE_TO_POINTER(GPOINTER_TO_SIZE(tap_base) + offset);
@@ -286,6 +308,11 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
     if (tapinfo->h245_labels) {
         memset(tapinfo->h245_labels, 0, sizeof(h245_labels_t));
     }
+
+    tapinfo->ncalls = 0;
+    tapinfo->start_packets = 0;
+    tapinfo->completed_calls = 0;
+    tapinfo->rejected_calls = 0;
 
     return;
 }
@@ -643,7 +670,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
         }
     }
 
-    tapinfo->redraw = TRUE;
+    tapinfo->redraw |= REDRAW_RTP;
 
     return FALSE;
 }
@@ -714,8 +741,9 @@ rtp_draw(void *tap_offset_ptr)
         rtp_streams_list = g_list_next(rtp_streams_list);
     } /* while (rtp_streams_list) */
 
-    if (tapinfo->tap_draw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_RTP)) {
         tapinfo->tap_draw(tapinfo);
+        tapinfo->redraw &= ~REDRAW_RTP;
     }
 }
 #if 0
@@ -982,7 +1010,7 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
     g_free(comment);
     g_free(frame_label);
 
-    tapinfo->redraw = TRUE;
+    tapinfo->redraw |= REDRAW_T38;
 
     return TRUE;  /* refresh output */
 }
@@ -993,9 +1021,9 @@ t38_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_t38_);
 
-    if (tapinfo->tap_draw && tapinfo->redraw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_T38)) {
         tapinfo->tap_draw(tapinfo);
-        tapinfo->redraw = FALSE;
+        tapinfo->redraw &= ~REDRAW_T38;
     }
 }
 
@@ -1210,7 +1238,7 @@ TODO: is useful but not perfect, what is appended is truncated when displayed in
 
     }
 
-    tapinfo->redraw = TRUE;
+    tapinfo->redraw |= REDRAW_SIP;
 
     return TRUE;  /* refresh output */
 }
@@ -1221,9 +1249,9 @@ sip_calls_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sip_);
 
-    if (tapinfo->tap_draw && tapinfo->redraw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_SIP)) {
         tapinfo->tap_draw(tapinfo);
-        tapinfo->redraw = FALSE;
+        tapinfo->redraw &= ~REDRAW_SIP;
     }
 }
 
@@ -1415,7 +1443,7 @@ isup_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         g_free(frame_label);
     }
 
-    tapinfo->redraw = TRUE;
+    tapinfo->redraw |= REDRAW_ISUP;
 
     return TRUE;  /* refresh output */
 }
@@ -1426,9 +1454,9 @@ isup_calls_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_isup_);
 
-    if (tapinfo->tap_draw && tapinfo->redraw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_ISUP)) {
         tapinfo->tap_draw(tapinfo);
-        tapinfo->redraw = FALSE;
+        tapinfo->redraw &= ~REDRAW_ISUP;
     }
 }
 
@@ -1796,7 +1824,7 @@ q931_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         g_free((char *)pstn_add.data);
     }
 
-    tapinfo->redraw = TRUE;
+    tapinfo->redraw |= REDRAW_Q931;
 
     return TRUE;  /* refresh output */
 }
@@ -1807,9 +1835,9 @@ q931_calls_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_q931_);
 
-    if (tapinfo->tap_draw && tapinfo->redraw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_Q931)) {
         tapinfo->tap_draw(tapinfo);
-        tapinfo->redraw = FALSE;
+        tapinfo->redraw &= ~REDRAW_Q931;
     }
 }
 
@@ -2092,7 +2120,7 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
     g_free(frame_label);
     g_free(comment);
 
-    tapinfo->redraw = TRUE;
+    tapinfo->redraw |= REDRAW_H225;
 
     return TRUE;  /* refresh output */
 }
@@ -2103,9 +2131,9 @@ h225_calls_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h225_);
 
-    if (tapinfo->tap_draw && tapinfo->redraw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_H225)) {
         tapinfo->tap_draw(tapinfo);
-        tapinfo->redraw = FALSE;
+        tapinfo->redraw &= ~REDRAW_H225;
     }
 }
 
@@ -2252,7 +2280,7 @@ h245dg_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
         h245_add_label(tapinfo, pinfo->fd->num, (gchar *) pi->frame_label, (gchar *) pi->comment);
     }
 
-    tapinfo->redraw = TRUE;
+    tapinfo->redraw |= REDRAW_H245DG;
 
     return TRUE;  /* refresh output */
 }
@@ -2263,9 +2291,9 @@ h245dg_calls_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h245dg_);
 
-    if (tapinfo->tap_draw && tapinfo->redraw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_H245DG)) {
         tapinfo->tap_draw(tapinfo);
-        tapinfo->redraw = FALSE;
+        tapinfo->redraw &= ~REDRAW_H245DG;
     }
 }
 
@@ -2326,7 +2354,7 @@ sdp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt _
     tapinfo->sdp_summary = g_strdup_printf("SDP (%s)", pi->summary_str);
     append_to_frame_graph(tapinfo, pinfo->fd->num, tapinfo->sdp_summary, NULL);
 
-    tapinfo->redraw = TRUE;
+    tapinfo->redraw |= REDRAW_SDP;
 
     return TRUE;  /* refresh output */
 }
@@ -2337,9 +2365,9 @@ sdp_calls_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sdp_);
 
-    if (tapinfo->tap_draw && tapinfo->redraw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_SDP)) {
         tapinfo->tap_draw(tapinfo);
-        tapinfo->redraw = FALSE;
+        tapinfo->redraw &= ~REDRAW_SDP;
     }
 }
 
@@ -2700,7 +2728,7 @@ mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         tapinfo->sdp_summary = NULL;
     }
 
-    tapinfo->redraw = TRUE;
+    tapinfo->redraw |= REDRAW_MGCP;
 
     return TRUE;  /* refresh output */
 }
@@ -2711,9 +2739,9 @@ mgcp_calls_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_mgcp_);
 
-    if (tapinfo->tap_draw && tapinfo->redraw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_MGCP)) {
         tapinfo->tap_draw(tapinfo);
-        tapinfo->redraw = FALSE;
+        tapinfo->redraw &= ~REDRAW_MGCP;
     }
 }
 
@@ -2833,7 +2861,7 @@ actrace_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
         g_free(comment);
     }
 
-    tapinfo->redraw = TRUE;
+    tapinfo->redraw |= REDRAW_ACTRACE;
 
     return TRUE;  /* refresh output */
 }
@@ -2844,9 +2872,9 @@ actrace_calls_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_actrace_);
 
-    if (tapinfo->tap_draw && tapinfo->redraw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_ACTRACE)) {
         tapinfo->tap_draw(tapinfo);
-        tapinfo->redraw = FALSE;
+        tapinfo->redraw &= ~REDRAW_ACTRACE;
     }
 }
 
@@ -2891,7 +2919,7 @@ remove_tap_listener_actrace_calls(voip_calls_tapinfo_t *tap_id_base)
 
 
 static gboolean
-h248_calls_packet_common(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
+h248_calls_packet_common(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info, guint32 redraw_bit) {
     const gcp_cmd_t      *cmd       = (const gcp_cmd_t *)prot_info;
     GList                *list;
     voip_calls_info_t    *callsinfo = NULL;
@@ -2983,7 +3011,7 @@ h248_calls_packet_common(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan
 
     ++(tapinfo->npackets);
 
-    tapinfo->redraw = TRUE;
+    tapinfo->redraw |= redraw_bit;
 
     return TRUE;
 }
@@ -2992,7 +3020,7 @@ static gboolean
 h248_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h248_);
 
-    return h248_calls_packet_common(tapinfo, pinfo, edt, prot_info);
+    return h248_calls_packet_common(tapinfo, pinfo, edt, prot_info, REDRAW_H248);
 }
 
 static void
@@ -3000,9 +3028,9 @@ h248_calls_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_h248_);
 
-    if (tapinfo->tap_draw && tapinfo->redraw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_H248)) {
         tapinfo->tap_draw(tapinfo);
-        tapinfo->redraw = FALSE;
+        tapinfo->redraw &= ~REDRAW_H248;
     }
 }
 
@@ -3010,7 +3038,7 @@ static gboolean
 megaco_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_megaco_);
 
-    return h248_calls_packet_common(tapinfo, pinfo, edt, prot_info);
+    return h248_calls_packet_common(tapinfo, pinfo, edt, prot_info, REDRAW_MEGACO);
 }
 
 static void
@@ -3018,9 +3046,9 @@ megaco_calls_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_megaco_);
 
-    if (tapinfo->tap_draw && tapinfo->redraw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_MEGACO)) {
         tapinfo->tap_draw(tapinfo);
-        tapinfo->redraw = FALSE;
+        tapinfo->redraw &= ~REDRAW_MEGACO;
     }
 }
 
@@ -3077,7 +3105,7 @@ static const voip_protocol sccp_proto_map[] = {
 const value_string* sccp_payload_values;
 
 static gboolean
-sccp_calls(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info) {
+sccp_calls(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *edt, const void *prot_info, guint32 redraw_bit) {
     const sccp_msg_info_t*  msg       = (const sccp_msg_info_t *)prot_info;
     sccp_assoc_info_t*      assoc     = msg->data.co.assoc;
     GList                  *list;
@@ -3175,7 +3203,7 @@ sccp_calls(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *ed
 
     ++(tapinfo->npackets);
 
-    tapinfo->redraw = TRUE;
+    tapinfo->redraw |= redraw_bit;
 
     return TRUE;
 }
@@ -3185,7 +3213,7 @@ sccp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sccp_);
 
     sccp_payload_values = sccp_message_type_acro_values;
-    return sccp_calls(tapinfo, pinfo, edt, prot_info);
+    return sccp_calls(tapinfo, pinfo, edt, prot_info, REDRAW_SCCP);
 }
 
 static void
@@ -3193,9 +3221,9 @@ sccp_calls_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sccp_);
 
-    if (tapinfo->tap_draw && tapinfo->redraw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_SCCP)) {
         tapinfo->tap_draw(tapinfo);
-        tapinfo->redraw = FALSE;
+        tapinfo->redraw &= ~REDRAW_SCCP;
     }
 }
 
@@ -3204,7 +3232,7 @@ sua_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, 
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sua_);
 
     sccp_payload_values = sua_co_class_type_acro_values;
-    return sccp_calls(tapinfo, pinfo, edt, prot_info);
+    return sccp_calls(tapinfo, pinfo, edt, prot_info, REDRAW_SUA);
 }
 
 static void
@@ -3212,9 +3240,9 @@ sua_calls_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_sua_);
 
-    if (tapinfo->tap_draw && tapinfo->redraw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_SUA)) {
         tapinfo->tap_draw(tapinfo);
-        tapinfo->redraw = FALSE;
+        tapinfo->redraw &= ~REDRAW_SUA;
     }
 }
 
@@ -3720,7 +3748,7 @@ unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
     /* free data */
     g_free(comment);
 
-    tapinfo->redraw = TRUE;
+    tapinfo->redraw |= REDRAW_UNISTIM;
 
     return TRUE;
 }
@@ -3731,9 +3759,9 @@ unistim_calls_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_unistim_);
 
-    if (tapinfo->tap_draw && tapinfo->redraw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_UNISTIM)) {
         tapinfo->tap_draw(tapinfo);
-        tapinfo->redraw = FALSE;
+        tapinfo->redraw &= ~REDRAW_UNISTIM;
     }
 }
 
@@ -4118,7 +4146,7 @@ voip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
     /* add to the graph */
     add_to_graph(tapinfo, pinfo, edt, (pi->frame_label)?pi->frame_label:"VoIP msg", pi->frame_comment, callsinfo->call_num, &(pinfo->src), &(pinfo->dst), 1);
 
-    tapinfo->redraw = TRUE;
+    tapinfo->redraw |= REDRAW_VOIP;
 
     return TRUE;
 }
@@ -4129,9 +4157,9 @@ voip_calls_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_voip_);
 
-    if (tapinfo->tap_draw && tapinfo->redraw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_VOIP)) {
         tapinfo->tap_draw(tapinfo);
-        tapinfo->redraw = FALSE;
+        tapinfo->redraw &= ~REDRAW_VOIP;
     }
 }
 
@@ -4183,7 +4211,7 @@ prot_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt 
         ++(tapinfo->npackets);
     }
 
-    tapinfo->redraw = TRUE;
+    tapinfo->redraw = REDRAW_PROT;
 
     return TRUE;
 }
@@ -4194,9 +4222,9 @@ prot_calls_draw(void *tap_offset_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_prot_);
 
-    if (tapinfo->tap_draw && tapinfo->redraw) {
+    if (tapinfo->tap_draw && (tapinfo->redraw & REDRAW_PROT)) {
         tapinfo->tap_draw(tapinfo);
-        tapinfo->redraw = FALSE;
+        tapinfo->redraw &= ~REDRAW_PROT;
     }
 }
 

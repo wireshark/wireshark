@@ -221,6 +221,12 @@ VoipCallsDialog::~VoipCallsDialog()
     g_queue_free(tapinfo_.callsinfos);
 }
 
+void VoipCallsDialog::endRetapPackets()
+{
+    voip_calls_remove_all_tap_listeners(&tapinfo_);
+    WiresharkDialog::endRetapPackets();
+}
+
 void VoipCallsDialog::captureFileClosing()
 {
     voip_calls_remove_all_tap_listeners(&tapinfo_);
@@ -280,7 +286,7 @@ void VoipCallsDialog::tapDraw(void *tapinfo_ptr)
 
             if (rsi->start_fd->num == sai->frame_number) {
                 rsi->call_num = sai->conv_num;
-                // VOIP_CALLS_DEBUG("setting conv num %u for frame %u", sai->conv_num, sai->fd->num);
+                // VOIP_CALLS_DEBUG("setting conv num %u for frame %u", sai->conv_num, sai->frame_number);
             }
         }
     }
@@ -516,8 +522,6 @@ void VoipCallsDialog::showPlayer()
 
     connect(&rtp_player_dialog, SIGNAL(goToPacket(int)), this, SIGNAL(goToPacket(int)));
 
-    // XXX This retaps the packet list. We still have our own tap listener
-    // registered at this point.
     rtp_player_dialog.exec();
 #endif // QT_MULTIMEDIA_LIB
 }
