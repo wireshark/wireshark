@@ -262,8 +262,6 @@ PacketList::PacketList(QWidget *parent) :
     setUniformRowHeights(true);
     setAccessibleName("Packet list");
 
-    header()->setStretchLastSection(false);
-
     overlay_sb_ = new OverlayScrollBar(Qt::Vertical, this);
     setVerticalScrollBar(overlay_sb_);
 
@@ -432,17 +430,6 @@ PacketListModel *PacketList::packetListModel() const {
 
 void PacketList::showEvent (QShowEvent *) {
     setColumnVisibility();
-
-    int column_width = 0;
-    for (int col = 0; col < packet_list_model_->columnCount(); col++) {
-        column_width += columnWidth(col);
-    }
-
-    if (column_width < viewport()->width()) {
-        header()->setStretchLastSection(true);
-        applyRecentColumnWidths();
-        header()->setStretchLastSection(false);
-    }
 }
 
 void PacketList::selectionChanged (const QItemSelection & selected, const QItemSelection & deselected) {
@@ -712,20 +699,25 @@ void PacketList::fieldsChanged(capture_file *cf)
 // - Persist across freezes and thaws.
 // - Persist across file closing and opening.
 // - Save to recent when we save our profile (including shutting down).
+// - Not be affected by the behavior of stretchLastSection.
 
 // Called via recentFilesRead.
 void PacketList::applyRecentColumnWidths()
 {
-//    bool saved_stretch = header()->stretchLastSection();
-//    header()->setStretchLastSection(false);
-
     // Either we've just started up or a profile has changed. Read
     // the recent settings, apply them, and save the header state.
+
+    int column_width = 0;
+
     for (int col = 0; col < prefs.num_cols; col++) {
         setRecentColumnWidth(col);
+        column_width += columnWidth(col);
     }
 
-//    header()->setStretchLastSection(saved_stretch);
+    if (column_width > width()) {
+        resize(column_width, height());
+    }
+
     column_state_ = header()->saveState();
 }
 
