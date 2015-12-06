@@ -244,67 +244,34 @@ dissect_dlci_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
    sapi = tvb_get_ntohs(parameter_tvb, offset-DLCI_TEI_LENGTH-DLCI_SAPI_LENGTH)>>2;
    tei = tvb_get_ntohs(parameter_tvb, offset-DLCI_TEI_LENGTH)>>1;
 
-   /* if SAPI & TEI not set to ZERO, value of EFA must be decode (EFA = 0 -> ISDN protocol)*/
-   if(tvb_get_ntohs(parameter_tvb,offset-DLCI_TEI_LENGTH) != 0x01){
+   offset += DLCI_TEI_LENGTH;
+   efa = tvb_get_ntohs(parameter_tvb, offset);
+   dlci_efa = tvb_get_ntohs(parameter_tvb, offset);
 
-      offset += DLCI_TEI_LENGTH;
-      efa = tvb_get_ntohs(parameter_tvb, offset);
-      dlci_efa = tvb_get_ntohs(parameter_tvb, offset);
+   if (dlci_efa >= 0 && dlci_efa <= 8175) { col_append_fstr(pinfo->cinfo, COL_INFO, " | ISDN: %u", dlci_efa); }
+   else if (dlci_efa == 8176) { col_append_str(pinfo->cinfo, COL_INFO, " | PSTN"); }
+   else if (dlci_efa == 8177) { col_append_str(pinfo->cinfo, COL_INFO, " | Ctrl"); }
+   else if (dlci_efa == 8178) { col_append_str(pinfo->cinfo, COL_INFO, " | BCC"); }
+   else if (dlci_efa == 8179) { col_append_str(pinfo->cinfo, COL_INFO, " | ProtProt"); }
+   else if (dlci_efa == 8180) { col_append_str(pinfo->cinfo, COL_INFO, " | LinkCtrl"); }
 
-      if (dlci_efa >= 0 && dlci_efa <= 8175) { col_append_fstr(pinfo->cinfo, COL_INFO, " | ISDN: %u", dlci_efa); }
-      else if (dlci_efa == 8176) { col_append_str(pinfo->cinfo, COL_INFO, " | PSTN"); }
-      else if (dlci_efa == 8177) { col_append_str(pinfo->cinfo, COL_INFO, " | Ctrl"); }
-      else if (dlci_efa == 8178) { col_append_str(pinfo->cinfo, COL_INFO, " | BCC"); }
-      else if (dlci_efa == 8179) { col_append_str(pinfo->cinfo, COL_INFO, " | ProtProt"); }
-      else if (dlci_efa == 8180) { col_append_str(pinfo->cinfo, COL_INFO, " | LinkCtrl"); }
-
-      if(efa <= 8175) {
-         proto_tree_add_uint_format_value(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
-               "ISDN (%u)", efa);
-         proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:ISDN (%u))",sapi,tei,efa);
-      }
-      else if (efa > 8175 && efa <= 8180){
-         proto_tree_add_uint_format_value(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
-               "%s (%u)", val_to_str_const(efa, efa_values, "unknown EFA"),tvb_get_ntohs(parameter_tvb, offset));
-         proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:%s (%u))",sapi,tei,val_to_str_const(efa, efa_values, "unknown EFA-value"),efa);
-      }
-      else {
-         proto_tree_add_uint_format_value(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
-               "RESERVED (%u)", efa);
-         proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:RESERVED (%u))",sapi,tei,efa);
-      }
+   if(efa <= 8175) {
+      proto_tree_add_uint_format_value(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+            "ISDN (%u)", efa);
+      proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:ISDN (%u))",sapi,tei,efa);
    }
-   /* if SAPI & TEI set to ZERO, EFA also shall be set to ZERO and didn't comply with value for ISDN protocol */
-   else{
-      offset += DLCI_TEI_LENGTH;
-      efa = tvb_get_ntohs(parameter_tvb, offset);
-      dlci_efa = tvb_get_ntohs(parameter_tvb, offset);
-
-      if (dlci_efa >= 0 && dlci_efa <= 8175) { col_append_fstr(pinfo->cinfo, COL_INFO, " | ISDN: %u", dlci_efa); }
-      else if (dlci_efa == 8176) { col_append_str(pinfo->cinfo, COL_INFO, " | PSTN"); }
-      else if (dlci_efa == 8177) { col_append_str(pinfo->cinfo, COL_INFO, " | Ctrl"); }
-      else if (dlci_efa == 8178) { col_append_str(pinfo->cinfo, COL_INFO, " | BCC"); }
-      else if (dlci_efa == 8179) { col_append_str(pinfo->cinfo, COL_INFO, " | ProtProt"); }
-      else if (dlci_efa == 8180) { col_append_str(pinfo->cinfo, COL_INFO, " | LinkCtrl"); }
-
-      if (efa <= 8175) {
-         proto_tree_add_uint_format_value(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
-               "ISDN (%u)", efa);
-         proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:ISDN (%u))",sapi,tei,efa);
-
-      }
-      else if (efa > 8175 && efa <= 8180){
-         proto_tree_add_uint_format_value(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
-               "%s (%u)", val_to_str_const(efa, efa_values, "unknown EFA"),tvb_get_ntohs(parameter_tvb, offset));
-         proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:%s (%u))",sapi,tei,val_to_str_const(efa, efa_values, "unknown EFA-value"),efa);
-
-      }
-      else {
-         proto_tree_add_uint_format_value(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
-               "RESERVED (%u)", efa);
-         proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:RESERVED (%u))",sapi,tei,efa);
-      }
+   else if (efa > 8175 && efa <= 8180){
+      proto_tree_add_uint_format_value(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+            "%s (%u)", val_to_str_const(efa, efa_values, "unknown EFA"),tvb_get_ntohs(parameter_tvb, offset));
+      proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:%s (%u))",sapi,tei,val_to_str_const(efa, efa_values, "unknown EFA-value"),efa);
    }
+   else {
+      proto_tree_add_uint_format_value(parameter_tree, hf_efa,  parameter_tvb, offset, EFA_LENGTH, efa,
+            "RESERVED (%u)", efa);
+      proto_item_append_text(parameter_item, " (SAPI:%u TEI:%u EFA:RESERVED (%u))",sapi,tei,efa);
+   }
+
+
 }
 /*----------------------DLCI & Envelope Function Address------------------------*/
 
