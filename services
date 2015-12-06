@@ -11360,6 +11360,7 @@ turbonote-1     39681/tcp # TurboNote Default Port [Peter_Hyde] [Peter_Hyde]
 turbonote-1     39681/udp # TurboNote Default Port [Peter_Hyde] [Peter_Hyde]
 safetynetp      40000/tcp # SafetyNET p [Roland_Rupp] [Roland_Rupp] 2006-11
 safetynetp      40000/udp # SafetyNET p [Roland_Rupp] [Roland_Rupp] 2006-11
+k-patentssensor 40023/udp # K-PatentsSensorInformation [K-Patents_Oy] [Arttu_Leinonen] 2015-12-02
 sptx            40404/tcp # Simplify Printing TX [Tricerat] [Eric_Musgrave] 2013-12-09
 cscp            40841/tcp # CSCP [Michael_Dodge] [Michael_Dodge]
 cscp            40841/udp # CSCP [Michael_Dodge] [Michael_Dodge]
