@@ -77,17 +77,15 @@
         <translation>Name:</translation>
     </message>
     <message>
-        <location filename="address_editor_frame.ui" line="111"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="vanished">OK</translation>
     </message>
     <message>
-        <location filename="address_editor_frame.ui" line="118"/>
         <source>Cancel</source>
-        <translation>Abbruch</translation>
+        <translation type="vanished">Abbruch</translation>
     </message>
     <message>
-        <location filename="address_editor_frame.cpp" line="145"/>
+        <location filename="address_editor_frame.cpp" line="147"/>
         <source>Can&apos;t assign %1 to %2</source>
         <translation>Kann %1 nicht an %2 zuweisen</translation>
     </message>
@@ -641,7 +639,8 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="491"/>
         <source>Read filter:</source>
-        <translation type="unfinished"></translation>
+        <oldsource>Display Filter:</oldsource>
+        <translation type="unfinished">Anzeige Filter:</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="500"/>
@@ -1645,14 +1644,12 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Auftreten</translation>
     </message>
     <message>
-        <location filename="column_editor_frame.ui" line="124"/>
         <source>Cancel</source>
-        <translation>Abbruch</translation>
+        <translation type="vanished">Abbruch</translation>
     </message>
     <message>
-        <location filename="column_editor_frame.ui" line="131"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="vanished">OK</translation>
     </message>
 </context>
 <context>
@@ -1860,11 +1857,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Anzeigefilter anwenden %1 &lt;%2/&gt;</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="213"/>
-        <source>Apply a read filter %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="display_filter_edit.cpp" line="125"/>
         <source>Manage saved bookmarks.</source>
         <translation>Gespeicherte Lesezeichen verwalten.</translation>
@@ -1873,6 +1865,11 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <location filename="display_filter_edit.cpp" line="159"/>
         <source>Apply this filter string to the display.</source>
         <translation>Diesen Filter zur Anzeige anwenden.</translation>
+    </message>
+    <message>
+        <location filename="display_filter_edit.cpp" line="213"/>
+        <source>Apply a read filter %1</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="347"/>
@@ -2621,17 +2618,15 @@ für die Filterdateien kann nicht erstellt werden:
         <translation>Filter:</translation>
     </message>
     <message>
-        <location filename="filter_expression_frame.ui" line="124"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="vanished">OK</translation>
     </message>
     <message>
-        <location filename="filter_expression_frame.ui" line="131"/>
         <source>Cancel</source>
-        <translation>Abbruch</translation>
+        <translation type="vanished">Abbruch</translation>
     </message>
     <message>
-        <location filename="filter_expression_frame.cpp" line="50"/>
+        <location filename="filter_expression_frame.cpp" line="52"/>
         <source>Apply this filter</source>
         <translation>Diesen Filter anwenden</translation>
     </message>
@@ -3138,7 +3133,7 @@ für die Filterdateien kann nicht erstellt werden:
 <context>
     <name>IOGraph</name>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1831"/>
+        <location filename="io_graph_dialog.cpp" line="1828"/>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
     </message>
@@ -3381,7 +3376,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="io_graph_dialog.ui" line="335"/>
         <source>Up</source>
-        <translation>Rauf</translation>
+        <translation>Up</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="340"/>
@@ -3392,7 +3387,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="io_graph_dialog.ui" line="346"/>
         <source>Left</source>
-        <translation>Links</translation>
+        <translation>Left</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="351"/>
@@ -3403,7 +3398,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="io_graph_dialog.ui" line="357"/>
         <source>Right</source>
-        <translation>Rechts</translation>
+        <translation>Right</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="362"/>
@@ -3414,7 +3409,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="io_graph_dialog.ui" line="368"/>
         <source>Down</source>
-        <translation>Runter</translation>
+        <translation>Down</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="373"/>
@@ -3425,7 +3420,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="io_graph_dialog.ui" line="379"/>
         <source>Shift+Up</source>
-        <translation>Umschalttaste + Pfeil nach oben</translation>
+        <translation>Shift+Up</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="384"/>
@@ -3436,7 +3431,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="io_graph_dialog.ui" line="390"/>
         <source>Shift+Left</source>
-        <translation>Umschalttaste + Pfeil nach links</translation>
+        <translation>Shift+Left</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="395"/>
@@ -3447,7 +3442,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="io_graph_dialog.ui" line="401"/>
         <source>Shift+Right</source>
-        <translation>Umschalttaste + Pfeil nach rechts</translation>
+        <translation>Shift+Right</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="406"/>
@@ -3463,7 +3458,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="io_graph_dialog.ui" line="412"/>
         <source>Shift+Down</source>
-        <translation>Umschalttaste + Pfeil nach unten</translation>
+        <translation>Shift+Down</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="417"/>
@@ -3523,7 +3518,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="io_graph_dialog.ui" line="456"/>
         <source>Space</source>
-        <translation>Leertaste</translation>
+        <translation>Space</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="461"/>
@@ -3545,7 +3540,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="io_graph_dialog.ui" line="478"/>
         <source>Shift+X</source>
-        <translation>Umschalttaste+X</translation>
+        <translation>Shift+X</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="483"/>
@@ -3567,151 +3562,151 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="io_graph_dialog.ui" line="500"/>
         <source>Shift+Y</source>
-        <translation>Umschalttaste+Y</translation>
+        <translation>Shift+Y</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="201"/>
+        <location filename="io_graph_dialog.cpp" line="198"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation>Speichern als</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="211"/>
+        <location filename="io_graph_dialog.cpp" line="208"/>
         <source>0.001 sec</source>
         <translation>0,001 Sek.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="212"/>
+        <location filename="io_graph_dialog.cpp" line="209"/>
         <source>0.01 sec</source>
         <translation>0,01 Sek.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="213"/>
+        <location filename="io_graph_dialog.cpp" line="210"/>
         <source>0.1 sec</source>
         <translation>0,1 Sek.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="214"/>
+        <location filename="io_graph_dialog.cpp" line="211"/>
         <source>1 sec</source>
         <translation>1 Sek.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="215"/>
+        <location filename="io_graph_dialog.cpp" line="212"/>
         <source>10 sec</source>
         <translation>10 Sek.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="216"/>
+        <location filename="io_graph_dialog.cpp" line="213"/>
         <source>1 min</source>
         <translation>1 Min.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="217"/>
+        <location filename="io_graph_dialog.cpp" line="214"/>
         <source>10 min</source>
         <translation>10 Min.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="247"/>
+        <location filename="io_graph_dialog.cpp" line="244"/>
         <source>Time (s)</source>
         <translation>Zeit (Sek)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="196"/>
+        <location filename="io_graph_dialog.cpp" line="193"/>
         <source>IO Graphs</source>
         <translation>IO Graphen</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="203"/>
+        <location filename="io_graph_dialog.cpp" line="200"/>
         <source>Copy</source>
-        <translation type="unfinished">Kopieren</translation>
+        <translation>Kopieren</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="255"/>
+        <location filename="io_graph_dialog.cpp" line="252"/>
         <source>Wireshark IO Graphs: %1</source>
         <translation>Wireshark IO Graphen: %1</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="382"/>
+        <location filename="io_graph_dialog.cpp" line="379"/>
         <source>All packets</source>
         <translation>Alle Pakete</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="386"/>
+        <location filename="io_graph_dialog.cpp" line="383"/>
         <source>TCP errors</source>
         <translation>TCP Fehler</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="873"/>
+        <location filename="io_graph_dialog.cpp" line="870"/>
         <source>Hover over the graph for details.</source>
         <translation>Für mehr Details Maus über den Graphen bewegen.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="875"/>
+        <location filename="io_graph_dialog.cpp" line="872"/>
         <source>No packets in interval</source>
         <translation>Keine Pakete im Intervall</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="879"/>
+        <location filename="io_graph_dialog.cpp" line="876"/>
         <source>%1 %2</source>
         <translation>%1 %2</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="880"/>
+        <location filename="io_graph_dialog.cpp" line="877"/>
         <source>Click to select packet</source>
         <translation>Klicken zur Paketauswahl</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="880"/>
+        <location filename="io_graph_dialog.cpp" line="877"/>
         <source>Packet</source>
         <translation>Paket</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="884"/>
+        <location filename="io_graph_dialog.cpp" line="881"/>
         <source>%1 (%2s%3).</source>
         <translation>%1 (%2s%3).</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="895"/>
+        <location filename="io_graph_dialog.cpp" line="892"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>Loslassen um zu zoomen, x = %1 bis %2, y = %3 bis %4</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="901"/>
+        <location filename="io_graph_dialog.cpp" line="898"/>
         <source>Unable to select range.</source>
         <translation>Bereich kann nicht ausgewählt werden.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="904"/>
+        <location filename="io_graph_dialog.cpp" line="901"/>
         <source>Click to select a portion of the graph.</source>
         <translation>Klicken um einen Teil des Graphen auszuwählen.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1523"/>
+        <location filename="io_graph_dialog.cpp" line="1520"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1524"/>
+        <location filename="io_graph_dialog.cpp" line="1521"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1525"/>
+        <location filename="io_graph_dialog.cpp" line="1522"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1527"/>
+        <location filename="io_graph_dialog.cpp" line="1524"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG File Interchange Format (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1528"/>
+        <location filename="io_graph_dialog.cpp" line="1525"/>
         <source>Comma Separated Values (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>Komma getrennte Werte (*.csv)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1540"/>
+        <location filename="io_graph_dialog.cpp" line="1537"/>
         <source>Save Graph As</source>
         <translation>Graph speichern als</translation>
     </message>
@@ -4603,7 +4598,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="447"/>
         <source>Ctrl+C</source>
-        <translation>Strg+C</translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="452"/>
@@ -4618,7 +4613,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="458"/>
         <source>Ctrl+Y</source>
-        <translation>Strg+Y</translation>
+        <translation>Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="469"/>
@@ -5124,7 +5119,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="651"/>
         <source>Ctrl+C</source>
-        <translation>Strg+C</translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="656"/>
@@ -5139,7 +5134,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="662"/>
         <source>Ctrl+Y</source>
-        <translation>Strg+Y</translation>
+        <translation>Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="673"/>
@@ -5429,7 +5424,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="lbm_stream_dialog.ui" line="102"/>
         <source>Ctrl+C</source>
-        <translation>Strg+C</translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="107"/>
@@ -5444,7 +5439,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="lbm_stream_dialog.ui" line="113"/>
         <source>Ctrl+Y</source>
-        <translation>Strg+Y</translation>
+        <translation>Ctrl+Y</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.cpp" line="392"/>
@@ -5615,7 +5610,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="216"/>
         <source>Shift+Up</source>
-        <translation>Umschalttaste + Pfeil nach oben</translation>
+        <translation>Shift+Up</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="221"/>
@@ -5630,7 +5625,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="227"/>
         <source>Shift+Left</source>
-        <translation>Umschalttaste + Pfeil nach links</translation>
+        <translation>Shift+Left</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="232"/>
@@ -5645,7 +5640,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="238"/>
         <source>Shift+Right</source>
-        <translation>Umschalttaste + Pfeil nach rechts</translation>
+        <translation>Shift+Right</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="243"/>
@@ -5660,7 +5655,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="249"/>
         <source>Shift+Down</source>
-        <translation>Umschalttaste + Pfeil nach unten</translation>
+        <translation>Shift+Down</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.ui" line="254"/>
@@ -5982,7 +5977,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="154"/>
         <source>Shift+Up</source>
-        <translation>Umschalttaste + Pfeil nach oben</translation>
+        <translation>Shift+Up</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="159"/>
@@ -5993,7 +5988,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="165"/>
         <source>Shift+Left</source>
-        <translation>Umschalttaste + Pfeil nach links</translation>
+        <translation>Shift+Left</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="170"/>
@@ -6004,7 +5999,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="176"/>
         <source>Shift+Right</source>
-        <translation>Umschalttaste + Pfeil nach rechts</translation>
+        <translation>Shift+Right</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="181"/>
@@ -6019,7 +6014,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="187"/>
         <source>Shift+Down</source>
-        <translation>Umschalttaste + Pfeil nach unten</translation>
+        <translation>Shift+Down</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="192"/>
@@ -6049,7 +6044,7 @@ für die Filterdateien kann nicht erstellt werden:
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="209"/>
         <source>Space</source>
-        <translation>Leertaste</translation>
+        <translation>Space</translation>
     </message>
     <message>
         <location filename="lte_rlc_graph_dialog.ui" line="214"/>
@@ -6661,7 +6656,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="743"/>
         <source>Ctrl+O</source>
-        <translation>Strg+O</translation>
+        <translation>Ctrl+O</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="751"/>
@@ -6676,7 +6671,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="757"/>
         <source>Ctrl+Q</source>
-        <translation>Strg+Q</translation>
+        <translation>Ctrl+Q</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="768"/>
@@ -6692,7 +6687,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="774"/>
         <location filename="main_window.ui" line="785"/>
         <source>Ctrl+E</source>
-        <translation>Strg+E</translation>
+        <translation>Ctrl+E</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="779"/>
@@ -6712,7 +6707,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="796"/>
         <source>Ctrl+W</source>
-        <translation>Strg+W</translation>
+        <translation>Ctrl+W</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="807"/>
@@ -6812,7 +6807,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="928"/>
         <source>Ctrl+Down</source>
-        <translation>Strg + Pfeil nach unten</translation>
+        <translation>Ctrl+Down</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="933"/>
@@ -6827,7 +6822,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="939"/>
         <source>Ctrl+Up</source>
-        <translation>Strg + Pfeil nach oben</translation>
+        <translation>Ctrl+Up</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="966"/>
@@ -6842,7 +6837,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="972"/>
         <source>Ctrl+Home</source>
-        <translation>Strg+Pos1</translation>
+        <translation>Ctrl+Home</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="977"/>
@@ -6857,7 +6852,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="983"/>
         <source>Ctrl+End</source>
-        <translation>Strg+Ende</translation>
+        <translation>Ctrl+End</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="991"/>
@@ -6872,7 +6867,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="997"/>
         <source>Shift+Right</source>
-        <translation>Umschalttaste + Pfeil nach rechts</translation>
+        <translation>Shift+Right</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1002"/>
@@ -6887,7 +6882,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1008"/>
         <source>Ctrl+Right</source>
-        <translation>Strg + Pfeil nach rechts</translation>
+        <translation>Ctrl+Right</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1013"/>
@@ -6902,7 +6897,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1019"/>
         <source>Ctrl+Left</source>
-        <translation>Strg + Pfeil nach links</translation>
+        <translation>Ctrl+Left</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1030"/>
@@ -6912,7 +6907,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1033"/>
         <source>Ctrl+G</source>
-        <translation>Strg+G</translation>
+        <translation>Ctrl+G</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1041"/>
@@ -6932,7 +6927,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1060"/>
         <source>Ctrl+S</source>
-        <translation>Strg+S</translation>
+        <translation>Ctrl+S</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1071"/>
@@ -6942,7 +6937,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1074"/>
         <source>Ctrl+Shift+S</source>
-        <translation>Strg+Umschalttaste+S</translation>
+        <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1082"/>
@@ -6952,12 +6947,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1090"/>
         <source>Ctrl+H</source>
-        <translation>Strg+H</translation>
+        <translation>Ctrl+H</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1103"/>
         <source>Ctrl+P</source>
-        <translation>Strg+P</translation>
+        <translation>Ctrl+P</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1108"/>
@@ -6983,7 +6978,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1129"/>
         <location filename="main_window.ui" line="1179"/>
         <source>Ctrl+R</source>
-        <translation>Strg+R</translation>
+        <translation>Ctrl+R</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1140"/>
@@ -6998,7 +6993,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1146"/>
         <source>Ctrl+K</source>
-        <translation>Strg+K</translation>
+        <translation>Ctrl+K</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1157"/>
@@ -7034,7 +7029,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1230"/>
         <location filename="main_window.ui" line="1494"/>
         <source>Ctrl+Shift+D</source>
-        <translation>Strg+Umschalttaste+D</translation>
+        <translation>Ctrl+Shift+D</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1245"/>
@@ -7044,7 +7039,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1251"/>
         <source>Ctrl+Shift+F</source>
-        <translation>Strg+Umschalttaste+F</translation>
+        <translation>Ctrl+Shift+F</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1256"/>
@@ -7054,7 +7049,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1262"/>
         <source>Ctrl+Shift+V</source>
-        <translation>Strg+Umschalttaste+V</translation>
+        <translation>Ctrl+Shift+V</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1267"/>
@@ -7064,7 +7059,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1273"/>
         <source>Ctrl+Shift+C</source>
-        <translation>Strg+Umschalttaste+C</translation>
+        <translation>Ctrl+Shift+C</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1278"/>
@@ -7148,32 +7143,32 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="944"/>
         <source>Next Packet in Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächstes Paket dieser Verbindung</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="947"/>
         <source>Go to the next packet in this conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Gehe zum nächsten Paket in dieser Verbindung</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="950"/>
         <source>Ctrl+.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="955"/>
         <source>Previous Packet in Conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorheriges Paket dieser Verbindung</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="958"/>
         <source>Go to the previous packet in this conversation</source>
-        <translation type="unfinished"></translation>
+        <translation>Gehe zum vorherigen Paket in dieser Verbindung</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="961"/>
         <source>Ctrl+,</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+,</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1027"/>
@@ -7268,7 +7263,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1395"/>
         <source>Ctrl+F</source>
-        <translation>Strg+F</translation>
+        <translation>Ctrl+F</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1403"/>
@@ -7278,7 +7273,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1406"/>
         <source>Ctrl+N</source>
-        <translation>Strg+N</translation>
+        <translation>Ctrl+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1414"/>
@@ -7288,7 +7283,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1417"/>
         <source>Ctrl+B</source>
-        <translation>Strg+B</translation>
+        <translation>Ctrl+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1422"/>
@@ -7303,7 +7298,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1428"/>
         <source>Ctrl+M</source>
-        <translation>Strg+M</translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1433"/>
@@ -7318,7 +7313,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1439"/>
         <source>Ctrl+Shift+M</source>
-        <translation>Strg+Umschalttaste+M</translation>
+        <translation>Ctrl+Shift+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1444"/>
@@ -7348,7 +7343,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1461"/>
         <source>Meta+Shift+N</source>
-        <translation>Meta+Umschalttaste+N</translation>
+        <translation>Meta+Shift+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1466"/>
@@ -7363,7 +7358,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1472"/>
         <source>Meta+Shift+B</source>
-        <translation>Meta+Umschalttaste+B</translation>
+        <translation>Meta+Shift+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1477"/>
@@ -7378,7 +7373,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1483"/>
         <source>Ctrl+D</source>
-        <translation>Strg+D</translation>
+        <translation>Ctrl+D</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1488"/>
@@ -7403,7 +7398,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1505"/>
         <source>Ctrl+Alt+D</source>
-        <translation>Strg+Alt+D</translation>
+        <translation>Ctrl+Alt+D</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1510"/>
@@ -7418,7 +7413,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1516"/>
         <source>Ctrl+T</source>
-        <translation>Strg+T</translation>
+        <translation>Ctrl+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1521"/>
@@ -7433,7 +7428,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1527"/>
         <source>Ctrl+Alt+T</source>
-        <translation>Strg+Alt+T</translation>
+        <translation>Ctrl+Alt+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1532"/>
@@ -7448,7 +7443,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1538"/>
         <source>Ctrl+Alt+N</source>
-        <translation>Strg+Alt+N</translation>
+        <translation>Ctrl+Alt+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1543"/>
@@ -7463,7 +7458,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1549"/>
         <source>Ctrl+Alt+B</source>
-        <translation>Strg+Alt+B</translation>
+        <translation>Ctrl+Alt+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1557"/>
@@ -7473,7 +7468,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1560"/>
         <source>Ctrl+Shift+T</source>
-        <translation>Strg+Umschalttaste+T</translation>
+        <translation>Ctrl+Shift+T</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1568"/>
@@ -7493,7 +7488,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1585"/>
         <source>Ctrl+Shift+A</source>
-        <translation>Strg+Umschalttaste+A</translation>
+        <translation>Ctrl+Shift+A</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1596"/>
@@ -7503,7 +7498,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1599"/>
         <source>Ctrl+Shift+P</source>
-        <translation>Strg+Umschalttaste+P</translation>
+        <translation>Ctrl+Shift+P</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1610"/>
@@ -7809,7 +7804,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1887"/>
         <source>Ctrl+Shift+L</source>
-        <translation>Strg+Umschalttaste+L</translation>
+        <translation>Ctrl+Shift+L</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1897"/>
@@ -8291,7 +8286,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2059"/>
         <source>Ctrl++</source>
-        <translation>Strg++</translation>
+        <translation>Ctrl++</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2064"/>
@@ -8301,7 +8296,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2070"/>
         <source>Ctrl+-</source>
-        <translation>Strg+-</translation>
+        <translation>Ctrl+-</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2075"/>
@@ -8311,7 +8306,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2081"/>
         <source>Ctrl+0</source>
-        <translation>Strg+0</translation>
+        <translation>Ctrl+0</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2086"/>
@@ -8326,7 +8321,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2092"/>
         <source>Ctrl+Shift+R</source>
-        <translation>Strg+Umschalttaste+R</translation>
+        <translation>Ctrl+Shift+R</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2100"/>
@@ -8906,7 +8901,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2757"/>
         <source>Ctrl+Space</source>
-        <translation>Strg+Leertaste</translation>
+        <translation>Ctrl+Space</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2765"/>
@@ -8931,7 +8926,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2792"/>
         <source>Ctrl+Shift+E</source>
-        <translation>Strg+Umschalttaste+E</translation>
+        <translation>Ctrl+Shift+E</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="353"/>
@@ -8940,27 +8935,27 @@ text-decoration: underline;
         <translation>Nach Aktualisierungen suchen</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="731"/>
+        <location filename="main_window.cpp" line="736"/>
         <source> before quitting</source>
         <translation>vor dem Schließen</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="907"/>
+        <location filename="main_window.cpp" line="912"/>
         <source>Save packets before merging?</source>
         <translation>Pakete vor dem Zusammenführen speichern?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="908"/>
+        <location filename="main_window.cpp" line="913"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>Eine temporäre Mitschnittdatei kann nicht zusammengeführt werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="914"/>
+        <location filename="main_window.cpp" line="919"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Vor der Zusammenführung Änderungen in &quot;%1&quot; speichern?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="916"/>
+        <location filename="main_window.cpp" line="921"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Änderungen müssen vor dem Zusammenführen gespeichert werden.</translation>
     </message>
@@ -8974,236 +8969,236 @@ text-decoration: underline;
         <translation type="vanished">Der Filterausdruck %1 ist kein gültiger Anzeigefilter. (%2).</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="973"/>
+        <location filename="main_window.cpp" line="978"/>
         <source>Invalid Read Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="974"/>
+        <location filename="main_window.cpp" line="979"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1064"/>
+        <location filename="main_window.cpp" line="1069"/>
         <source> before importing a new capture</source>
         <translation>vor dem Importieren eines neuen Mitschnitts</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1377"/>
+        <location filename="main_window.cpp" line="1382"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>Kann nicht nach &quot;%1&quot; exportieren.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1378"/>
+        <location filename="main_window.cpp" line="1383"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>Pakete können nicht in die aktuelle Mitschnittdatei exportiert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1465"/>
-        <location filename="main_window.cpp" line="1490"/>
+        <location filename="main_window.cpp" line="1470"/>
+        <location filename="main_window.cpp" line="1495"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1528"/>
+        <location filename="main_window.cpp" line="1533"/>
         <source>You have unsaved packets</source>
         <translation>Sie haben nicht gespeicherte Pakete</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1529"/>
+        <location filename="main_window.cpp" line="1534"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>Diese gehen verloren wenn sie nicht gespeichert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1532"/>
-        <location filename="main_window.cpp" line="1545"/>
+        <location filename="main_window.cpp" line="1537"/>
+        <location filename="main_window.cpp" line="1550"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>Soll der Mitschnitt gestoppt werden und die aufgezeichneten Pakete gespeichert werden</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1534"/>
+        <location filename="main_window.cpp" line="1539"/>
         <source>Do you want to save the captured packets</source>
         <translation>Sollen die aufgezeichneten Pakete gespeichert werden</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1536"/>
-        <location filename="main_window.cpp" line="1546"/>
+        <location filename="main_window.cpp" line="1541"/>
+        <location filename="main_window.cpp" line="1551"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1548"/>
+        <location filename="main_window.cpp" line="1553"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>Die aufgezeichneten Pakete gehen verloren wenn sie nicht gespeichert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1551"/>
+        <location filename="main_window.cpp" line="1556"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Sollen die Änderungen an der Mitschnittdatei &quot;%1&quot;%2 gespeichert werden?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1557"/>
+        <location filename="main_window.cpp" line="1562"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Änderungen gehen verloren, wenn sie nicht gesichert werden.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1569"/>
+        <location filename="main_window.cpp" line="1574"/>
         <source>Stop and Save</source>
         <translation>Stoppen und speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1577"/>
+        <location filename="main_window.cpp" line="1582"/>
         <source>Stop and Quit without Saving</source>
         <translation>Stoppen und beenden ohne zu speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1580"/>
+        <location filename="main_window.cpp" line="1585"/>
         <source>Quit without Saving</source>
         <translation>Ohne speichern beenden</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1585"/>
+        <location filename="main_window.cpp" line="1590"/>
         <source>Stop and Continue without Saving</source>
         <translation>Stoppen und ohne zu speichern weitermachen</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1588"/>
+        <location filename="main_window.cpp" line="1593"/>
         <source>Continue &amp;without Saving</source>
         <translation>&amp;Weitermachen ohne zu speichern</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1883"/>
+        <location filename="main_window.cpp" line="1870"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Dateiname kann nicht auf UTF-8 angewendet werden)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1901"/>
+        <location filename="main_window.cpp" line="1888"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Die Wireshark Netzwerk Analysesoftware</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1908"/>
+        <location filename="main_window.cpp" line="1895"/>
         <source>Capturing from %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="663"/>
+        <location filename="main_window_slots.cpp" line="697"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="748"/>
+        <location filename="main_window_slots.cpp" line="782"/>
         <source>Saving %1</source>
         <translation>Speichere %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="787"/>
+        <location filename="main_window_slots.cpp" line="821"/>
         <source>No interface selected</source>
         <translation>Kein Interface ausgewählt</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="797"/>
+        <location filename="main_window_slots.cpp" line="831"/>
         <source>Invalid capture filter</source>
         <translation>Ungültiger Mitschnittfilter</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="995"/>
+        <location filename="main_window_slots.cpp" line="1029"/>
         <source>Clear Menu</source>
         <translation>Menüeinträge löschen</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1481"/>
+        <location filename="main_window_slots.cpp" line="1520"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Bitte Warten während Wireshark initalisiert wird</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1638"/>
+        <location filename="main_window_slots.cpp" line="1677"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Ausgewählte Paketbytes exportieren</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1640"/>
+        <location filename="main_window_slots.cpp" line="1679"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
         <translation>Rohdaten (*.bin *.dat *.raw);; Alle Dateien (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1697"/>
+        <location filename="main_window_slots.cpp" line="1736"/>
         <source>No Keys</source>
         <translation>Keine Schlüssel</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1698"/>
+        <location filename="main_window_slots.cpp" line="1737"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Es sind keine SSL Sitzungsschlüssel zum speichern vorhanden.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1704"/>
+        <location filename="main_window_slots.cpp" line="1743"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>SSL Sitzungsschlüssel exportieren (%1 key%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1709"/>
+        <location filename="main_window_slots.cpp" line="1748"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation>SSL Sitzungsschlüssel (*.keys *.txt);; Alle Dateien (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1847"/>
+        <location filename="main_window_slots.cpp" line="1886"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Text konnte nicht kopiert werden. Probieren sie einen anderen Eintrag.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2254"/>
-        <location filename="main_window_slots.cpp" line="3287"/>
+        <location filename="main_window_slots.cpp" line="2293"/>
+        <location filename="main_window_slots.cpp" line="3326"/>
         <source>Unable to build conversation filter.</source>
         <translation>Verbindungsfilter kann nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2399"/>
+        <location filename="main_window_slots.cpp" line="2438"/>
         <source>No filter available. Try another </source>
         <translation>Kein Filter verfügbar. Probieren Sie einen anderen.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3294"/>
+        <location filename="main_window_slots.cpp" line="3333"/>
         <source>Error compiling filter for this conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Erstellen eines Filters für diese Verbindung.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3303"/>
+        <location filename="main_window_slots.cpp" line="3342"/>
         <source>No previous/next packet in conversation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein vorheriges/nächstes Paket in dieser Verbindung.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3380"/>
+        <location filename="main_window_slots.cpp" line="3419"/>
         <source>No Interface Selected</source>
         <translation>Kein Interface ausgewählt</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3387"/>
+        <location filename="main_window_slots.cpp" line="3426"/>
         <source> before starting a new capture</source>
         <translation>vor dem Starten einer neuen Aufzeichnung</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3590"/>
+        <location filename="main_window_slots.cpp" line="3629"/>
         <source>Wiki Page for %1</source>
         <translation>Wikiseite für %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3591"/>
+        <location filename="main_window_slots.cpp" line="3630"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Das Wireshark Wiki wird durch die Community gepflegt.&lt;/p&gt;&lt;p&gt;Die Seite, die aufgerufen werden soll, kann wundervoll, unvollständig, falsch oder gar nicht vorhanden sein.&lt;/p&gt;&lt;p&gt;Zum Wiki geheni?&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="244"/>
+        <location filename="main_window.h" line="248"/>
         <source>Loading</source>
         <translation>Laden</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="246"/>
+        <location filename="main_window.h" line="250"/>
         <source>Reloading</source>
         <translation>Reloading</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="247"/>
+        <location filename="main_window.h" line="251"/>
         <source>Rescanning</source>
         <translation>Rescanning</translation>
     </message>
@@ -9432,12 +9427,12 @@ text-decoration: underline;
         <translation>Diese Version von Wireshark unterstützt keine entfernten Interfaces.</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="425"/>
+        <location filename="manage_interfaces_dialog.cpp" line="418"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="426"/>
+        <location filename="manage_interfaces_dialog.cpp" line="419"/>
         <source>Default interface cannot be hidden.</source>
         <translation>Standard Interface kann nicht versteckt werden.</translation>
     </message>
@@ -9816,52 +9811,52 @@ text-decoration: underline;
 <context>
     <name>PacketList</name>
     <message>
-        <location filename="packet_list.cpp" line="337"/>
+        <location filename="packet_list.cpp" line="339"/>
         <source>Summary as Text</source>
         <translation>Zusammenfassung als Text</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="627"/>
+        <location filename="packet_list.cpp" line="640"/>
         <source>Align Left</source>
         <translation>Links ausrichten</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="628"/>
+        <location filename="packet_list.cpp" line="641"/>
         <source>Align Center</source>
         <translation>Zentriert ausrichten</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="629"/>
+        <location filename="packet_list.cpp" line="642"/>
         <source>Align Right</source>
         <translation>Rechts ausrichten</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="631"/>
+        <location filename="packet_list.cpp" line="644"/>
         <source>Column Preferences</source>
         <translation>Spalteneigenschaft</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="632"/>
+        <location filename="packet_list.cpp" line="645"/>
         <source>Edit Column</source>
         <translation>Spalte editieren</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="633"/>
+        <location filename="packet_list.cpp" line="646"/>
         <source>Resize To Contents</source>
         <translation>Größe an Inhalt anpassen</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="634"/>
+        <location filename="packet_list.cpp" line="647"/>
         <source>Resolve Names</source>
         <translation>Namen auflösen</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="639"/>
+        <location filename="packet_list.cpp" line="652"/>
         <source>Remove This Column</source>
         <translation>Spalte entfernen</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="980"/>
+        <location filename="packet_list.cpp" line="998"/>
         <source>Frame %1: %2
 
 </source>
@@ -9870,7 +9865,7 @@ text-decoration: underline;
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="984"/>
+        <location filename="packet_list.cpp" line="1002"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Kommentartext überschreitet %1. Anhalten der Verarbeitung. ]</translation>
     </message>
@@ -9960,12 +9955,12 @@ text-decoration: underline;
 <context>
     <name>PathChooserDelegate</name>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="807"/>
+        <location filename="manage_interfaces_dialog.cpp" line="800"/>
         <source>Browse</source>
         <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="860"/>
+        <location filename="manage_interfaces_dialog.cpp" line="853"/>
         <source>Open Pipe</source>
         <translation>Öffne Pipe</translation>
     </message>
@@ -9988,17 +9983,15 @@ text-decoration: underline;
         <translation>eine Einstellung</translation>
     </message>
     <message>
-        <location filename="preference_editor_frame.ui" line="82"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="vanished">OK</translation>
     </message>
     <message>
-        <location filename="preference_editor_frame.ui" line="89"/>
         <source>Cancel</source>
-        <translation>Abbruch</translation>
+        <translation type="vanished">Abbruch</translation>
     </message>
     <message>
-        <location filename="preference_editor_frame.cpp" line="71"/>
+        <location filename="preference_editor_frame.cpp" line="73"/>
         <source>Open %1 preferences</source>
         <translation>%1 Einstellungen öffnen</translation>
     </message>
@@ -10159,8 +10152,12 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="profile_dialog.ui" line="60"/>
+        <source>Remove this profile. The Default profile and system provided profiles cannot be removed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Remove this profile.</source>
-        <translation>Diese Profil löschen.</translation>
+        <translation type="vanished">Diese Profil löschen.</translation>
     </message>
     <message>
         <location filename="profile_dialog.ui" line="71"/>
@@ -10173,17 +10170,50 @@ text-decoration: underline;
         <translation>Profile konfigurieren</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="163"/>
+        <location filename="profile_dialog.cpp" line="169"/>
+        <source>Created from %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="174"/>
+        <source>Created from default settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="177"/>
+        <source>Renamed from %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="183"/>
+        <source>Go to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="198"/>
+        <source>This is a system provided profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="202"/>
+        <source>A profile already exists with this name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="207"/>
+        <source>A profile already exists with this name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Go to</source>
-        <translation>Gehe zu</translation>
+        <translation type="vanished">Gehe zu</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="176"/>
         <source>A profile already exists with that name.</source>
-        <translation>Ein Profil mit diesem Namen existiert bereits.</translation>
+        <translation type="vanished">Ein Profil mit diesem Namen existiert bereits.</translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="275"/>
+        <location filename="profile_dialog.cpp" line="306"/>
         <source>Profile Error</source>
         <translation>Profil Fehler</translation>
     </message>
@@ -10399,97 +10429,97 @@ text-decoration: underline;
         <translation>Window Größe (B)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1925"/>
+        <location filename="io_graph_dialog.cpp" line="1922"/>
         <source>Packets/s</source>
         <translation>Pakete/s</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1926"/>
+        <location filename="io_graph_dialog.cpp" line="1923"/>
         <source>Bytes/s</source>
         <translation>Bytes/s</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1927"/>
+        <location filename="io_graph_dialog.cpp" line="1924"/>
         <source>Bits/s</source>
         <translation>Bits/s</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1928"/>
+        <location filename="io_graph_dialog.cpp" line="1925"/>
         <source>SUM(Y Field)</source>
         <translation>SUMME(Y Feld)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1929"/>
+        <location filename="io_graph_dialog.cpp" line="1926"/>
         <source>COUNT FRAMES(Y Field)</source>
         <translation>Anzahl Frames(Y Feld)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1930"/>
+        <location filename="io_graph_dialog.cpp" line="1927"/>
         <source>COUNT FIELDS(Y Field)</source>
         <translation>Anzahl Felder(Y Feld)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1931"/>
+        <location filename="io_graph_dialog.cpp" line="1928"/>
         <source>MAX(Y Field)</source>
         <translation>Max(Y Feld)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1932"/>
+        <location filename="io_graph_dialog.cpp" line="1929"/>
         <source>MIN(Y Field)</source>
         <translation>Min(Y Feld)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1933"/>
+        <location filename="io_graph_dialog.cpp" line="1930"/>
         <source>AVG(Y Field)</source>
         <translation>Durchschnitt(Y Feld)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1934"/>
+        <location filename="io_graph_dialog.cpp" line="1931"/>
         <source>LOAD(Y Field)</source>
         <translation>LOAD (Y Feld)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1943"/>
+        <location filename="io_graph_dialog.cpp" line="1940"/>
         <source>Line</source>
         <translation>Linie</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1944"/>
+        <location filename="io_graph_dialog.cpp" line="1941"/>
         <source>Impulse</source>
         <translation>Impuls</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1945"/>
+        <location filename="io_graph_dialog.cpp" line="1942"/>
         <source>Bar</source>
         <translation>Balken</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1946"/>
+        <location filename="io_graph_dialog.cpp" line="1943"/>
         <source>Stacked Bar</source>
         <translation>gestapelte Balken</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1947"/>
+        <location filename="io_graph_dialog.cpp" line="1944"/>
         <source>Dot</source>
         <translation>Punkte</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1948"/>
+        <location filename="io_graph_dialog.cpp" line="1945"/>
         <source>Square</source>
         <translation>Rechteck</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1949"/>
+        <location filename="io_graph_dialog.cpp" line="1946"/>
         <source>Diamond</source>
         <translation>Raute</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1960"/>
+        <location filename="io_graph_dialog.cpp" line="1957"/>
         <source>None</source>
         <translation>Kein</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1962"/>
+        <location filename="io_graph_dialog.cpp" line="1959"/>
         <source>%1 interval SMA</source>
         <translation>%1 Interval SMA</translation>
     </message>
@@ -12001,7 +12031,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_player_dialog.ui" line="333"/>
         <source>Shift+Left</source>
-        <translation>Umschalttaste + Pfeil nach links</translation>
+        <translation>Shift+Left</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="338"/>
@@ -12012,7 +12042,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_player_dialog.ui" line="344"/>
         <source>Shift+Right</source>
-        <translation>Umschalttaste + Pfeil nach rechts</translation>
+        <translation>Shift+Right</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="349"/>
@@ -12072,7 +12102,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_player_dialog.ui" line="388"/>
         <source>Space</source>
-        <translation>Leertaste</translation>
+        <translation>Space</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.cpp" line="169"/>
@@ -12476,7 +12506,7 @@ text-decoration: underline;
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="234"/>
         <source>Shift+Up</source>
-        <translation>Umschalttaste + Pfeil nach oben</translation>
+        <translation>Shift+Up</translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="239"/>
@@ -12487,7 +12517,7 @@ text-decoration: underline;
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="245"/>
         <source>Shift+Left</source>
-        <translation>Umschalttaste + Pfeil nach links</translation>
+        <translation>Shift+Left</translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="250"/>
@@ -12498,7 +12528,7 @@ text-decoration: underline;
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="256"/>
         <source>Shift+Right</source>
-        <translation>Umschalttaste + Pfeil nach rechts</translation>
+        <translation>Shift+Right</translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="261"/>
@@ -12509,7 +12539,7 @@ text-decoration: underline;
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="267"/>
         <source>Shift+Down</source>
-        <translation>Umschalttaste + Pfeil nach unten</translation>
+        <translation>Shift+Down</translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="272"/>
@@ -12629,7 +12659,7 @@ text-decoration: underline;
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="355"/>
         <source>Space</source>
-        <translation>Leertaste</translation>
+        <translation>Space</translation>
     </message>
     <message>
         <location filename="sctp_all_assocs_dialog.ui" line="360"/>
@@ -13601,7 +13631,7 @@ text-decoration: underline;
     <message>
         <location filename="sequence_dialog.ui" line="281"/>
         <source>Shift+Up</source>
-        <translation>Umschalttaste + Pfeil nach oben</translation>
+        <translation>Shift+Up</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="286"/>
@@ -13612,7 +13642,7 @@ text-decoration: underline;
     <message>
         <location filename="sequence_dialog.ui" line="292"/>
         <source>Shift+Left</source>
-        <translation>Umschalttaste + Pfeil nach links</translation>
+        <translation>Shift+Left</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="297"/>
@@ -13623,7 +13653,7 @@ text-decoration: underline;
     <message>
         <location filename="sequence_dialog.ui" line="303"/>
         <source>Shift+Right</source>
-        <translation>Umschalttaste + Pfeil nach rechts</translation>
+        <translation>Shift+Right</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="308"/>
@@ -13634,7 +13664,7 @@ text-decoration: underline;
     <message>
         <location filename="sequence_dialog.ui" line="314"/>
         <source>Shift+Down</source>
-        <translation>Umschalttaste + Pfeil nach unten</translation>
+        <translation>Shift+Down</translation>
     </message>
     <message>
         <location filename="sequence_dialog.ui" line="319"/>
@@ -14093,7 +14123,7 @@ text-decoration: underline;
     <message>
         <location filename="tcp_stream_dialog.ui" line="291"/>
         <source>Shift+Up</source>
-        <translation>Umschalttaste + Pfeil nach oben</translation>
+        <translation>Shift+Up</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="296"/>
@@ -14104,7 +14134,7 @@ text-decoration: underline;
     <message>
         <location filename="tcp_stream_dialog.ui" line="302"/>
         <source>Shift+Left</source>
-        <translation>Umschalttaste + Pfeil nach links</translation>
+        <translation>Shift+Left</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="307"/>
@@ -14115,7 +14145,7 @@ text-decoration: underline;
     <message>
         <location filename="tcp_stream_dialog.ui" line="313"/>
         <source>Shift+Right</source>
-        <translation>Umschalttaste + Pfeil nach rechts</translation>
+        <translation>Shift+Right</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="318"/>
@@ -14126,7 +14156,7 @@ text-decoration: underline;
     <message>
         <location filename="tcp_stream_dialog.ui" line="324"/>
         <source>Shift+Down</source>
-        <translation>Umschalttaste + Pfeil nach unten</translation>
+        <translation>Shift+Down</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="329"/>
@@ -14241,7 +14271,7 @@ text-decoration: underline;
     <message>
         <location filename="tcp_stream_dialog.ui" line="412"/>
         <source>Space</source>
-        <translation>Leertaste</translation>
+        <translation>Space</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="417"/>
@@ -14341,7 +14371,7 @@ text-decoration: underline;
     <message>
         <location filename="tcp_stream_dialog.ui" line="489"/>
         <source>Shift+X</source>
-        <translation>Umschalttaste+X</translation>
+        <translation>Shift+X</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="494"/>
@@ -14363,7 +14393,7 @@ text-decoration: underline;
     <message>
         <location filename="tcp_stream_dialog.ui" line="511"/>
         <source>Shift+Y</source>
-        <translation>Umschalttaste+Y</translation>
+        <translation>Shift+Y</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="215"/>
@@ -14513,7 +14543,7 @@ text-decoration: underline;
     <message>
         <location filename="tap_parameter_dialog.ui" line="82"/>
         <source>Ctrl+C</source>
-        <translation>Strg+C</translation>
+        <translation>Ctrl+C</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="87"/>
@@ -14529,7 +14559,7 @@ text-decoration: underline;
     <message>
         <location filename="tap_parameter_dialog.ui" line="93"/>
         <source>Ctrl+S</source>
-        <translation>Strg+S</translation>
+        <translation>Ctrl+S</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.cpp" line="96"/>
@@ -14715,12 +14745,12 @@ text-decoration: underline;
         <translation>Öffnen</translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="396"/>
+        <location filename="uat_dialog.cpp" line="403"/>
         <source>Uneven number of chars hex string (%1)</source>
         <translation>Ungerade Anzahl an Hexzeichen (%1)</translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="403"/>
+        <location filename="uat_dialog.cpp" line="410"/>
         <source>Error parsing hex string</source>
         <translation>Fehler beim parsen der Hex Zeichenkette</translation>
     </message>
@@ -14790,7 +14820,7 @@ text-decoration: underline;
     <message>
         <location filename="voip_calls_dialog.ui" line="104"/>
         <source>Ctrl+A</source>
-        <translation>Strg+A</translation>
+        <translation>Ctrl+A</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="182"/>
