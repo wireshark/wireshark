@@ -1992,23 +1992,18 @@ dissect_fmip6_opt_lla(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
               guint optlen, packet_info *pinfo _U_,
               proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
-    proto_tree *field_tree;
-    proto_item *tf;
     int         len, p;
 
-    tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
-    field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(field_tree, hf_mip6_opt_len, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-
-    proto_tree_add_item(field_tree, hf_fmip6_lla_optcode, tvb,
+    proto_tree_add_item(opt_tree, hf_fmip6_lla_optcode, tvb,
             offset + FMIP6_LLA_OPTCODE_OFF, FMIP6_LLA_OPTCODE_LEN, ENC_BIG_ENDIAN);
 
     p = offset + FMIP6_LLA_LLA_OFF;
     len = optlen - FMIP6_LLA_LLA_OFF;
 
     if (len > 0) {
-        proto_tree_add_text(field_tree, tvb,
+        proto_tree_add_text(opt_tree, tvb,
                 p, len, "Link-layer address: %s",
                 tvb_bytes_to_ep_str_punct(tvb, p, len, ':'));
     }
