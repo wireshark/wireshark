@@ -46867,6 +46867,20 @@ const value_string sminmpec_values[] = {
     { 46844, "Dreamtime.net (Thailand) Co., Ltd." },
     { 46845, "Interlink INC" },
     { 46846, "FLOPNET" },
+    { 46847, "VALLEY MEDICAL & SURGICAL CLINIC" },
+    { 46848, "Lavelle Networks India Private Limited" },
+    { 46849, "Irving Independent School District" },
+    { 46850, "Tula State Center of Information Technology" },
+    { 46851, "Terremark" },
+    { 46852, "Viagogo" },
+    { 46853, "PAC Enterprises" },
+    { 46854, "Hagenberger Kreis zur F\0303\0266rderung der digitalen Sicherheit" },
+    { 46855, "ShowCase PRO Tecnologia LTDA" },
+    { 46856, "ZPEG, Inc." },
+    { 46857, "Park Controls & Communications (P) Ltd." },
+    { 46858, "Dgoujard" },
+    { 46859, "Guangdong  Quantum Technology Co., Ltd" },
+    { 46860, "Bittacle Consulting Limited" },
     {    0, NULL}
 };
 

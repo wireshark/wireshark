@@ -77,17 +77,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="address_editor_frame.ui" line="111"/>
-        <source>OK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="address_editor_frame.ui" line="118"/>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="address_editor_frame.cpp" line="145"/>
+        <location filename="address_editor_frame.cpp" line="147"/>
         <source>Can&apos;t assign %1 to %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1641,16 +1631,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Occurrence</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="column_editor_frame.ui" line="124"/>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="column_editor_frame.ui" line="131"/>
-        <source>OK</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>ColumnPreferencesFrame</name>
@@ -2607,17 +2587,7 @@ for filter files: %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="filter_expression_frame.ui" line="124"/>
-        <source>OK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="filter_expression_frame.ui" line="131"/>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="filter_expression_frame.cpp" line="50"/>
+        <location filename="filter_expression_frame.cpp" line="52"/>
         <source>Apply this filter</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3123,7 +3093,7 @@ for filter files: %2.</source>
 <context>
     <name>IOGraph</name>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1832"/>
+        <location filename="io_graph_dialog.cpp" line="1829"/>
         <source>Unknown</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3526,148 +3496,148 @@ for filter files: %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="201"/>
+        <location filename="io_graph_dialog.cpp" line="198"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="211"/>
+        <location filename="io_graph_dialog.cpp" line="208"/>
         <source>0.001 sec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="212"/>
+        <location filename="io_graph_dialog.cpp" line="209"/>
         <source>0.01 sec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="213"/>
+        <location filename="io_graph_dialog.cpp" line="210"/>
         <source>0.1 sec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="214"/>
+        <location filename="io_graph_dialog.cpp" line="211"/>
         <source>1 sec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="215"/>
+        <location filename="io_graph_dialog.cpp" line="212"/>
         <source>10 sec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="216"/>
+        <location filename="io_graph_dialog.cpp" line="213"/>
         <source>1 min</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="217"/>
+        <location filename="io_graph_dialog.cpp" line="214"/>
         <source>10 min</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="247"/>
+        <location filename="io_graph_dialog.cpp" line="244"/>
         <source>Time (s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="196"/>
+        <location filename="io_graph_dialog.cpp" line="193"/>
         <source>IO Graphs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="203"/>
+        <location filename="io_graph_dialog.cpp" line="200"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="255"/>
+        <location filename="io_graph_dialog.cpp" line="252"/>
         <source>Wireshark IO Graphs: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="382"/>
+        <location filename="io_graph_dialog.cpp" line="379"/>
         <source>All packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="386"/>
+        <location filename="io_graph_dialog.cpp" line="383"/>
         <source>TCP errors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="873"/>
+        <location filename="io_graph_dialog.cpp" line="870"/>
         <source>Hover over the graph for details.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="875"/>
+        <location filename="io_graph_dialog.cpp" line="872"/>
         <source>No packets in interval</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="879"/>
+        <location filename="io_graph_dialog.cpp" line="876"/>
         <source>%1 %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="880"/>
+        <location filename="io_graph_dialog.cpp" line="877"/>
         <source>Click to select packet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="880"/>
+        <location filename="io_graph_dialog.cpp" line="877"/>
         <source>Packet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="884"/>
+        <location filename="io_graph_dialog.cpp" line="881"/>
         <source>%1 (%2s%3).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="895"/>
+        <location filename="io_graph_dialog.cpp" line="892"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="901"/>
+        <location filename="io_graph_dialog.cpp" line="898"/>
         <source>Unable to select range.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="904"/>
+        <location filename="io_graph_dialog.cpp" line="901"/>
         <source>Click to select a portion of the graph.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1524"/>
+        <location filename="io_graph_dialog.cpp" line="1521"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1525"/>
+        <location filename="io_graph_dialog.cpp" line="1522"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1526"/>
+        <location filename="io_graph_dialog.cpp" line="1523"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1528"/>
+        <location filename="io_graph_dialog.cpp" line="1525"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1529"/>
+        <location filename="io_graph_dialog.cpp" line="1526"/>
         <source>Comma Separated Values (*.csv)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1541"/>
+        <location filename="io_graph_dialog.cpp" line="1538"/>
         <source>Save Graph As</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8952,27 +8922,27 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="731"/>
+        <location filename="main_window.cpp" line="736"/>
         <source> before quitting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="907"/>
+        <location filename="main_window.cpp" line="912"/>
         <source>Save packets before merging?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="908"/>
+        <location filename="main_window.cpp" line="913"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="914"/>
+        <location filename="main_window.cpp" line="919"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="916"/>
+        <location filename="main_window.cpp" line="921"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8982,236 +8952,236 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="973"/>
+        <location filename="main_window.cpp" line="978"/>
         <source>Invalid Read Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="974"/>
+        <location filename="main_window.cpp" line="979"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1064"/>
+        <location filename="main_window.cpp" line="1069"/>
         <source> before importing a new capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1377"/>
+        <location filename="main_window.cpp" line="1382"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1378"/>
+        <location filename="main_window.cpp" line="1383"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1465"/>
-        <location filename="main_window.cpp" line="1490"/>
+        <location filename="main_window.cpp" line="1470"/>
+        <location filename="main_window.cpp" line="1495"/>
         <source>.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1528"/>
+        <location filename="main_window.cpp" line="1533"/>
         <source>You have unsaved packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1529"/>
+        <location filename="main_window.cpp" line="1534"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1532"/>
-        <location filename="main_window.cpp" line="1545"/>
+        <location filename="main_window.cpp" line="1537"/>
+        <location filename="main_window.cpp" line="1550"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1534"/>
+        <location filename="main_window.cpp" line="1539"/>
         <source>Do you want to save the captured packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1536"/>
-        <location filename="main_window.cpp" line="1546"/>
+        <location filename="main_window.cpp" line="1541"/>
+        <location filename="main_window.cpp" line="1551"/>
         <source>?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1548"/>
+        <location filename="main_window.cpp" line="1553"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1551"/>
+        <location filename="main_window.cpp" line="1556"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1557"/>
+        <location filename="main_window.cpp" line="1562"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1569"/>
+        <location filename="main_window.cpp" line="1574"/>
         <source>Stop and Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1577"/>
+        <location filename="main_window.cpp" line="1582"/>
         <source>Stop and Quit without Saving</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1580"/>
+        <location filename="main_window.cpp" line="1585"/>
         <source>Quit without Saving</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1585"/>
+        <location filename="main_window.cpp" line="1590"/>
         <source>Stop and Continue without Saving</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1588"/>
+        <location filename="main_window.cpp" line="1593"/>
         <source>Continue &amp;without Saving</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1883"/>
+        <location filename="main_window.cpp" line="1870"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1901"/>
+        <location filename="main_window.cpp" line="1888"/>
         <source>The Wireshark Network Analyzer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1908"/>
+        <location filename="main_window.cpp" line="1895"/>
         <source>Capturing from %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="654"/>
+        <location filename="main_window_slots.cpp" line="688"/>
         <source>%1: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="739"/>
+        <location filename="main_window_slots.cpp" line="773"/>
         <source>Saving %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="778"/>
+        <location filename="main_window_slots.cpp" line="812"/>
         <source>No interface selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="788"/>
+        <location filename="main_window_slots.cpp" line="822"/>
         <source>Invalid capture filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="986"/>
+        <location filename="main_window_slots.cpp" line="1020"/>
         <source>Clear Menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1475"/>
+        <location filename="main_window_slots.cpp" line="1514"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1632"/>
+        <location filename="main_window_slots.cpp" line="1671"/>
         <source>Export Selected Packet Bytes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1634"/>
+        <location filename="main_window_slots.cpp" line="1673"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1691"/>
+        <location filename="main_window_slots.cpp" line="1730"/>
         <source>No Keys</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1692"/>
+        <location filename="main_window_slots.cpp" line="1731"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1698"/>
+        <location filename="main_window_slots.cpp" line="1737"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1703"/>
+        <location filename="main_window_slots.cpp" line="1742"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1841"/>
+        <location filename="main_window_slots.cpp" line="1880"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2248"/>
-        <location filename="main_window_slots.cpp" line="3313"/>
+        <location filename="main_window_slots.cpp" line="2287"/>
+        <location filename="main_window_slots.cpp" line="3352"/>
         <source>Unable to build conversation filter.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2406"/>
+        <location filename="main_window_slots.cpp" line="2445"/>
         <source>No filter available. Try another </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3320"/>
+        <location filename="main_window_slots.cpp" line="3359"/>
         <source>Error compiling filter for this conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3329"/>
+        <location filename="main_window_slots.cpp" line="3368"/>
         <source>No previous/next packet in conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3406"/>
+        <location filename="main_window_slots.cpp" line="3445"/>
         <source>No Interface Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3413"/>
+        <location filename="main_window_slots.cpp" line="3452"/>
         <source> before starting a new capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3616"/>
+        <location filename="main_window_slots.cpp" line="3655"/>
         <source>Wiki Page for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3617"/>
+        <location filename="main_window_slots.cpp" line="3656"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.h" line="244"/>
+        <location filename="main_window.h" line="248"/>
         <source>Loading</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.h" line="246"/>
+        <location filename="main_window.h" line="250"/>
         <source>Reloading</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.h" line="247"/>
+        <location filename="main_window.h" line="251"/>
         <source>Rescanning</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9440,12 +9410,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="425"/>
+        <location filename="manage_interfaces_dialog.cpp" line="418"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="426"/>
+        <location filename="manage_interfaces_dialog.cpp" line="419"/>
         <source>Default interface cannot be hidden.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9824,59 +9794,59 @@ a:hover {
 <context>
     <name>PacketList</name>
     <message>
-        <location filename="packet_list.cpp" line="337"/>
+        <location filename="packet_list.cpp" line="339"/>
         <source>Summary as Text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="627"/>
+        <location filename="packet_list.cpp" line="640"/>
         <source>Align Left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="628"/>
+        <location filename="packet_list.cpp" line="641"/>
         <source>Align Center</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="629"/>
+        <location filename="packet_list.cpp" line="642"/>
         <source>Align Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="631"/>
+        <location filename="packet_list.cpp" line="644"/>
         <source>Column Preferences</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="632"/>
+        <location filename="packet_list.cpp" line="645"/>
         <source>Edit Column</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="633"/>
+        <location filename="packet_list.cpp" line="646"/>
         <source>Resize To Contents</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="634"/>
+        <location filename="packet_list.cpp" line="647"/>
         <source>Resolve Names</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="639"/>
+        <location filename="packet_list.cpp" line="652"/>
         <source>Remove This Column</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="980"/>
+        <location filename="packet_list.cpp" line="998"/>
         <source>Frame %1: %2
 
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="984"/>
+        <location filename="packet_list.cpp" line="1002"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9966,12 +9936,12 @@ a:hover {
 <context>
     <name>PathChooserDelegate</name>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="807"/>
+        <location filename="manage_interfaces_dialog.cpp" line="800"/>
         <source>Browse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="manage_interfaces_dialog.cpp" line="860"/>
+        <location filename="manage_interfaces_dialog.cpp" line="853"/>
         <source>Open Pipe</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9994,17 +9964,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="preference_editor_frame.ui" line="82"/>
-        <source>OK</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="preference_editor_frame.ui" line="89"/>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="preference_editor_frame.cpp" line="73"/>
+        <location filename="preference_editor_frame.cpp" line="75"/>
         <source>Open %1 preferences</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10165,7 +10125,7 @@ a:hover {
     </message>
     <message>
         <location filename="profile_dialog.ui" line="60"/>
-        <source>Remove this profile.</source>
+        <source>Remove this profile. The Default profile and system provided profiles cannot be removed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10179,17 +10139,42 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="163"/>
-        <source>Go to</source>
+        <location filename="profile_dialog.cpp" line="169"/>
+        <source>Created from %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="176"/>
-        <source>A profile already exists with that name.</source>
+        <location filename="profile_dialog.cpp" line="174"/>
+        <source>Created from default settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="profile_dialog.cpp" line="275"/>
+        <location filename="profile_dialog.cpp" line="177"/>
+        <source>Renamed from %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="183"/>
+        <source>Go to %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="198"/>
+        <source>This is a system provided profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="202"/>
+        <source>A profile already exists with this name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="207"/>
+        <source>A profile already exists with this name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="profile_dialog.cpp" line="306"/>
         <source>Profile Error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10405,97 +10390,97 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1926"/>
+        <location filename="io_graph_dialog.cpp" line="1923"/>
         <source>Packets/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1927"/>
+        <location filename="io_graph_dialog.cpp" line="1924"/>
         <source>Bytes/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1928"/>
+        <location filename="io_graph_dialog.cpp" line="1925"/>
         <source>Bits/s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1929"/>
+        <location filename="io_graph_dialog.cpp" line="1926"/>
         <source>SUM(Y Field)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1930"/>
+        <location filename="io_graph_dialog.cpp" line="1927"/>
         <source>COUNT FRAMES(Y Field)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1931"/>
+        <location filename="io_graph_dialog.cpp" line="1928"/>
         <source>COUNT FIELDS(Y Field)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1932"/>
+        <location filename="io_graph_dialog.cpp" line="1929"/>
         <source>MAX(Y Field)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1933"/>
+        <location filename="io_graph_dialog.cpp" line="1930"/>
         <source>MIN(Y Field)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1934"/>
+        <location filename="io_graph_dialog.cpp" line="1931"/>
         <source>AVG(Y Field)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1935"/>
+        <location filename="io_graph_dialog.cpp" line="1932"/>
         <source>LOAD(Y Field)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1944"/>
+        <location filename="io_graph_dialog.cpp" line="1941"/>
         <source>Line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1945"/>
+        <location filename="io_graph_dialog.cpp" line="1942"/>
         <source>Impulse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1946"/>
+        <location filename="io_graph_dialog.cpp" line="1943"/>
         <source>Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1947"/>
+        <location filename="io_graph_dialog.cpp" line="1944"/>
         <source>Stacked Bar</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1948"/>
+        <location filename="io_graph_dialog.cpp" line="1945"/>
         <source>Dot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1949"/>
+        <location filename="io_graph_dialog.cpp" line="1946"/>
         <source>Square</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1950"/>
+        <location filename="io_graph_dialog.cpp" line="1947"/>
         <source>Diamond</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1961"/>
+        <location filename="io_graph_dialog.cpp" line="1958"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1963"/>
+        <location filename="io_graph_dialog.cpp" line="1960"/>
         <source>%1 interval SMA</source>
         <translation type="unfinished"></translation>
     </message>
@@ -14620,12 +14605,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="396"/>
+        <location filename="uat_dialog.cpp" line="403"/>
         <source>Uneven number of chars hex string (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="uat_dialog.cpp" line="403"/>
+        <location filename="uat_dialog.cpp" line="410"/>
         <source>Error parsing hex string</source>
         <translation type="unfinished"></translation>
     </message>
