@@ -486,10 +486,7 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
             }
             pa = profile_menu_.addAction(profile->name);
             if (strcmp(profile->name, profile_name) == 0) {
-                /* Bold current profile */
-                QFont pa_font = pa->font();
-                pa_font.setBold(true);
-                pa->setFont(pa_font);
+                /* Current profile */
                 pa->setCheckable(true);
                 pa->setChecked(true);
             }
