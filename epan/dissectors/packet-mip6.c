@@ -2092,20 +2092,17 @@ dissect_fmip6_opt_lla(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
               guint optlen, packet_info *pinfo _U_,
               proto_tree *opt_tree, proto_item *hdr_item _U_ )
 {
-    proto_tree *field_tree;
     int         len;
 
-    field_tree = proto_tree_add_subtree(opt_tree, tvb, offset, optlen, *optp->subtree_index, NULL, optp->name);
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(field_tree, hf_mip6_opt_len, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-
-    proto_tree_add_item(field_tree, hf_fmip6_lla_optcode, tvb,
+    proto_tree_add_item(opt_tree, hf_fmip6_lla_optcode, tvb,
             offset + FMIP6_LLA_OPTCODE_OFF, FMIP6_LLA_OPTCODE_LEN, ENC_BIG_ENDIAN);
 
     len = optlen - FMIP6_LLA_LLA_OFF;
 
     if (len > 0) {
-        proto_tree_add_item(field_tree, hf_fmip6_lla, tvb, offset + FMIP6_LLA_LLA_OFF, len, ENC_NA);
+        proto_tree_add_item(opt_tree, hf_fmip6_lla, tvb, offset + FMIP6_LLA_LLA_OFF, len, ENC_NA);
     }
 }
 
