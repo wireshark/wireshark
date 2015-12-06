@@ -72,7 +72,7 @@ public slots:
      * called explicilty if any member functions are called or variables are
      * accessed after tapping is finished.
      */
-    void endRetapPackets();
+    virtual void endRetapPackets();
 
 protected:
     virtual void keyPressEvent(QKeyEvent *event) { QDialog::keyPressEvent(event); }

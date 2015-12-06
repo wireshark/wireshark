@@ -93,6 +93,7 @@ signals:
     void captureFileSaveFinished() const;
     void captureFileSaveFailed() const;
     void captureFileSaveStopped() const;
+    void captureFileFlushTapsData() const;
 
     void captureCapturePrepared(capture_session *cap_session);
     void captureCaptureUpdateStarted(capture_session *cap_session);

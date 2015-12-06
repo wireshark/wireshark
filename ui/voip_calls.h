@@ -224,7 +224,7 @@ typedef struct _voip_calls_tapinfo {
     gint32                actrace_trunk;
     gint32                actrace_direction;
     flow_show_options     fs_option;
-    gboolean              redraw;
+    guint32               redraw;
 } voip_calls_tapinfo_t;
 
 #if 0
@@ -234,7 +234,7 @@ typedef struct _voip_calls_tapinfo {
     g_free(VOIP_CALLS_DEBUG_MSG); \
 }
 #else
-#define VOIP_CALLS_DEBUG()
+#define VOIP_CALLS_DEBUG(...)
 #endif
 
 /****************************************************************************/

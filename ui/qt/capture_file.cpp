@@ -199,6 +199,8 @@ void CaptureFile::captureFileEvent(int event, gpointer data)
         break;
     case(cf_cb_file_retap_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Retap finished");
+        /* Flush any pending tapped packet before emitting captureFileRetapFinished() */
+        emit captureFileFlushTapsData();
         emit captureFileRetapFinished();
         break;
 

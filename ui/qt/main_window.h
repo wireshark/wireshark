@@ -251,6 +251,7 @@ public slots:
     void captureFileRescanStarted() { setMenusForCaptureFile(true); captureFileReadStarted(tr("Rescanning")); }
     void captureFileRetapStarted();
     void captureFileRetapFinished();
+    void captureFileFlushTapsData();
     void captureFileClosing();
     void captureFileClosed();
     void captureFileSaveStarted(const QString &file_path);
