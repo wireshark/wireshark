@@ -27,8 +27,6 @@
 #include <glib.h>
 #include "ws_symbol_export.h"
 
-extern int at_eof;
-
 extern const gchar *ascend_parse_error;
 
 /*

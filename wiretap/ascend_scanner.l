@@ -48,13 +48,8 @@
 #include "ascend_scanner_lex.h"
 
 FILE_T yy_fh;
-extern char *ascend_ra_ptr;
-extern char *ascend_ra_last;
 #define YY_INPUT(buf,result,max_size) { int c = file_getc(yy_fh);  \
 result = (c==EOF) ? YY_NULL : (buf[0] = c, 1); }
-
-int at_eof;
-int mul, scratch;
 
 #define NO_USER "<none>"
 
@@ -332,7 +327,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
 
 task:|task|at|time:|octets { return KEYWORD; }
 
-<<EOF>> { at_eof++; yyterminate(); }
+<<EOF>> { yyterminate(); }
 
 (.|\n) ;
 

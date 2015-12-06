@@ -434,7 +434,6 @@ datagroup: dataln
 void
 init_parse_ascend(void)
 {
-  at_eof = 0;
   start_time = 0;	/* we haven't see a date/time yet */
 }
 
