@@ -873,7 +873,7 @@ void IOGraphDialog::mouseMoved(QMouseEvent *event)
             QString val;
             if (interval_packet > 0) {
                 packet_num_ = (guint32) interval_packet;
-                msg = tr("%1 %2")
+                msg = QString("%1 %2")
                         .arg(!file_closed_ ? tr("Click to select packet") : tr("Packet"))
                         .arg(packet_num_);
                 val = " = " + QString::number(tracer_->position->value(), 'g', 4);
