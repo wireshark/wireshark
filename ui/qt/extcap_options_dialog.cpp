@@ -152,11 +152,11 @@ void ExtcapOptionsDialog::updateWidgets()
                 lblWidget = argument->createLabel((QWidget *)this);
                 if ( lblWidget != NULL )
                 {
-                    layout->addWidget(lblWidget, counter, 0, Qt::AlignTop);
+                    layout->addWidget(lblWidget, counter, 0, Qt::AlignVCenter);
                     editWidget = argument->createEditor((QWidget *) this);
                     if ( editWidget != NULL )
                     {
-                        layout->addWidget(editWidget, counter, 1, Qt::AlignTop);
+                        layout->addWidget(editWidget, counter, 1, Qt::AlignVCenter);
                     }
                     counter++;
                 }
