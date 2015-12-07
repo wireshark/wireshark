@@ -1091,8 +1091,8 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, g
 void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
 {
     static const int *expandednodeid_mask[] = {&hf_opcua_nodeid_encodingmask,
-                                               &hf_opcua_expandednodeid_mask_namespaceuri,
                                                &hf_opcua_expandednodeid_mask_serverindex,
+                                               &hf_opcua_expandednodeid_mask_namespaceuri,
                                                NULL};
 
     proto_item *ti;
