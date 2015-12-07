@@ -171,6 +171,8 @@ static extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
                 param_type = EXTCAP_PARAM_RANGE;
             } else if (g_ascii_strcasecmp(arg, "tooltip") == 0) {
                 param_type = EXTCAP_PARAM_TOOLTIP;
+            } else if (g_ascii_strcasecmp(arg, "placeholder") == 0) {
+                param_type = EXTCAP_PARAM_PLACEHOLDER;
             } else if (g_ascii_strcasecmp(arg, "mustexist") == 0) {
                 param_type = EXTCAP_PARAM_FILE_MUSTEXIST;
             } else if (g_ascii_strcasecmp(arg, "fileext") == 0) {
@@ -248,6 +250,7 @@ void extcap_free_arg(extcap_arg *a) {
     g_free(a->call);
     g_free(a->display);
     g_free(a->tooltip);
+    g_free(a->placeholder);
     g_free(a->fileextension);
     g_free(a->regexp);
     g_free(a->device_name);
@@ -353,6 +356,11 @@ static extcap_arg *extcap_parse_arg_sentence(GList *args, extcap_token_sentence 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_TOOLTIP)))
                 != NULL) {
             target_arg->tooltip = g_strdup(param_value);
+        }
+
+        if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_PLACEHOLDER)))
+                != NULL) {
+            target_arg->placeholder = g_strdup(param_value);
         }
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_FILE_MUSTEXIST)))

@@ -95,7 +95,7 @@ Example:
 
 $ extcapbin --extcap-interface IFACE --extcap-config
 arg {number=0}{call=--delay}{display=Time delay}{tooltip=Time delay between packages}{type=integer}{range=1,15}{required=true}
-arg {number=1}{call=--message}{display=Message}{tooltip=Package message content}{type=string}
+arg {number=1}{call=--message}{display=Message}{tooltip=Package message content}{placeholder=Please enter a message here ...}{type=string}
 arg {number=2}{call=--verify}{display=Verify}{tooltip=Verify package content}{type=boolflag}
 arg {number=3}{call=--remote}{display=Remote Channel}{tooltip=Remote Channel Selector}{type=selector}
 arg {number=4}{call=--server}{display=IP address for log server}{type=string}{validation=\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b}
@@ -137,8 +137,8 @@ All options must provide a number, by which they are identified. No NUMBER may b
 provided twice. Also all options must present the elements CALL and DISPLAY, where
 call provides the arguments name on the command-line and display the name in the GUI.
 
-Additionally TOOLTIP may be provided, which will give the user an explanation within
-the GUI, about what to enter into this field.
+Additionally TOOLTIP and PLACEHOLDER may be provided, which will give the user an
+explanation within the GUI, about what to enter into this field.
 
 These options do have types, for which the following types are being supported:
 

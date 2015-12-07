@@ -68,6 +68,7 @@ typedef enum {
     EXTCAP_PARAM_VALUE,
     EXTCAP_PARAM_RANGE,
     EXTCAP_PARAM_TOOLTIP,
+    EXTCAP_PARAM_PLACEHOLDER,
     EXTCAP_PARAM_NAME,
     EXTCAP_PARAM_ENABLED,
     EXTCAP_PARAM_FILE_MUSTEXIST,
@@ -108,6 +109,7 @@ typedef struct _extcap_arg {
     gchar *call;
     gchar *display;
     gchar *tooltip;
+    gchar *placeholder;
 
     gchar * fileextension;
     gboolean fileexists;

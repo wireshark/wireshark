@@ -98,7 +98,7 @@ def extcap_config(interface):
 	values = []
 
 	args.append ( (0, '--delay', 'Time delay', 'Time delay between packages', 'integer', '{range=1,15}{default=5}') )
-	args.append ( (1, '--message', 'Message', 'Package message content', 'string', '{required=true}') )
+	args.append ( (1, '--message', 'Message', 'Package message content', 'string', '{required=true}{placeholder=Please enter a message here ...}') )
 	args.append ( (2, '--verify', 'Verify', 'Verify package content', 'boolflag', '{default=yes}') )
 	args.append ( (3, '--remote', 'Remote Channel', 'Remote Channel Selector', 'selector', ''))
 	args.append ( (4, '--fake_ip', 'Fake IP Address', 'Use this ip address as sender', 'string', '{save=false}{validation=\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b}'))
