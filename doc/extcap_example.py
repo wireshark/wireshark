@@ -31,7 +31,7 @@ the extcap folder, with the following content:
 
 -------
 @echo off
-<Path to python interpreter> <Path to script file> $*
+<Path to python interpreter> <Path to script file> %*
 -------
 
 Windows is not able to execute Python scripts directly, which also goes for all
