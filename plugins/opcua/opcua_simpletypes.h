@@ -19,6 +19,19 @@
 ******************************************************************************/
 #include "opcua_identifiers.h"
 
+/* simple header fields */
+extern int hf_opcua_returnDiag;
+extern int hf_opcua_returnDiag_mask_sl_symbolicId;
+extern int hf_opcua_returnDiag_mask_sl_localizedText;
+extern int hf_opcua_returnDiag_mask_sl_additionalinfo;
+extern int hf_opcua_returnDiag_mask_sl_innerstatuscode;
+extern int hf_opcua_returnDiag_mask_sl_innerdiagnostics;
+extern int hf_opcua_returnDiag_mask_ol_symbolicId;
+extern int hf_opcua_returnDiag_mask_ol_localizedText;
+extern int hf_opcua_returnDiag_mask_ol_additionalinfo;
+extern int hf_opcua_returnDiag_mask_ol_innerstatuscode;
+extern int hf_opcua_returnDiag_mask_ol_innerdiagnostics;
+
 /* simple types trees */
 extern gint ett_opcua_array_Boolean;
 extern gint ett_opcua_array_SByte;
@@ -45,6 +58,7 @@ extern gint ett_opcua_array_LocalizedText;
 extern gint ett_opcua_array_ExtensionObject;
 extern gint ett_opcua_array_DataValue;
 extern gint ett_opcua_array_Variant;
+extern gint ett_opcua_returnDiagnostics;
 
 /* simple types */
 proto_item* parseBoolean(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, int hfIndex);

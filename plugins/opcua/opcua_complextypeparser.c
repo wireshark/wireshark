@@ -575,12 +575,25 @@ void parseApplicationDescription(proto_tree *tree, tvbuff_t *tvb, packet_info *p
 }
 void parseRequestHeader(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint *pOffset, const char *szFieldName)
 {
+  static const int *returnDiagnostics_mask[] = {
+    &hf_opcua_returnDiag_mask_sl_symbolicId,
+    &hf_opcua_returnDiag_mask_sl_localizedText,
+    &hf_opcua_returnDiag_mask_sl_additionalinfo,
+    &hf_opcua_returnDiag_mask_sl_innerstatuscode,
+    &hf_opcua_returnDiag_mask_sl_innerdiagnostics,
+    &hf_opcua_returnDiag_mask_ol_symbolicId,
+    &hf_opcua_returnDiag_mask_ol_localizedText,
+    &hf_opcua_returnDiag_mask_ol_additionalinfo,
+    &hf_opcua_returnDiag_mask_ol_innerstatuscode,
+    &hf_opcua_returnDiag_mask_ol_innerdiagnostics,
+    NULL};
+
   proto_item *ti;
   proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, *pOffset, -1, ett_opcua_RequestHeader, &ti, "%s: RequestHeader", szFieldName);
   parseNodeId(subtree, tvb, pinfo, pOffset, "AuthenticationToken");
   parseDateTime(subtree, tvb, pinfo, pOffset, hf_opcua_Timestamp);
   parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_RequestHandle);
-  parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_ReturnDiagnostics);
+  proto_tree_add_bitmask(subtree, tvb, *pOffset, hf_opcua_returnDiag, ett_opcua_returnDiagnostics, returnDiagnostics_mask, ENC_LITTLE_ENDIAN); *pOffset += 4;
   parseString(subtree, tvb, pinfo, pOffset, hf_opcua_AuditEntryId);
   parseUInt32(subtree, tvb, pinfo, pOffset, hf_opcua_TimeoutHint);
   parseExtensionObject(subtree, tvb, pinfo, pOffset, "AdditionalHeader");
