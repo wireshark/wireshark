@@ -567,9 +567,6 @@ cf_read(capture_file *cf, gboolean reloading)
   epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
 
   TRY {
-#ifdef HAVE_LIBPCAP
-    int     displayed_once    = 0;
-#endif
     int     count             = 0;
 
     gint64  size;
@@ -626,15 +623,8 @@ cf_read(capture_file *cf, gboolean reloading)
           if (progbar != NULL) {
             progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
             /* update the packet bar content on the first run or frequently on very large files */
-#ifdef HAVE_LIBPCAP
-            if (progbar_quantum > 500000 || displayed_once == 0) {
-              if ((auto_scroll_live || displayed_once == 0 || cf->displayed_count < 1000) && cf->count != 0) {
-                displayed_once = 1;
-                packets_bar_update();
-              }
-            }
-#endif /* HAVE_LIBPCAP */
             update_progress_dlg(progbar, progbar_val, status_str);
+            packets_bar_update();
           }
           progbar_nextstep += progbar_quantum;
         }
@@ -4138,9 +4128,6 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   guint32              framenum;
   frame_data          *fdata;
   int                  count          = 0;
-#ifdef HAVE_LIBPCAP
-  int                  displayed_once = 0;
-#endif
 
   /* Close the old handle. */
   wtap_close(cf->wth);
@@ -4236,15 +4223,8 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
         if (progbar != NULL) {
           progbar_val = calc_progbar_val(cf, size, cf->f_datalen, status_str, sizeof(status_str));
           /* update the packet bar content on the first run or frequently on very large files */
-#ifdef HAVE_LIBPCAP
-          if (progbar_quantum > 500000 || displayed_once == 0) {
-            if ((auto_scroll_live || displayed_once == 0 || cf->displayed_count < 1000) && cf->count != 0) {
-              displayed_once = 1;
-              packets_bar_update();
-            }
-          }
-#endif /* HAVE_LIBPCAP */
           update_progress_dlg(progbar, progbar_val, status_str);
+          packets_bar_update();
         }
         progbar_nextstep += progbar_quantum;
       }
