@@ -484,7 +484,7 @@
       <integer comment="IPv6 Address Scope" name="ipV6AddressScope" type="uint32"/>
       <string comment="Firmware Load Name" name="firmwareLoadName" size="32" type="char"/>
     </fields>
-    <fields beginversion="0" endversion="22" size_gt="190">
+    <fields beginversion="0" endversion="22" size_gt="191">
       <string comment="" name="configVersionStamp" size="48" type="char"/>
     </fields>
   </message>
@@ -976,7 +976,7 @@
     </entries>
   </enum>
   <message comment="" direction="dev2pbx" dynamic="no" name="UnregisterMessage" opcode="0x0027" status="no" type="RegistrationAndManagement">
-    <fields beginversion="0" endversion="22">
+    <fields beginversion="0" endversion="22" size_gt="12">
       <enum comment="" name="unRegReasonCode" subtype="UnRegReasonCode" type="uint32"/>
     </fields>
   </message>
@@ -1269,8 +1269,10 @@
     </fields>
   </message>
   <message comment="" direction="dev2pbx" dynamic="no" name="FeatureStatReqMessage" opcode="0x0034" status="request" type="RegistrationAndManagement">
-    <fields beginversion="0" endversion="22">
+    <fields>
       <integer comment="" name="featureIndex" type="uint32"/>
+    </fields>
+    <fields beginversion="0" endversion="22" size_gt="16">
       <integer comment="" name="featureCapabilities" type="uint32"/>
     </fields>
   </message>

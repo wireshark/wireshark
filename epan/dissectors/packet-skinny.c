@@ -2400,7 +2400,7 @@ handle_RegisterMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
     ptvcursor_add(cursor, hf_skinny_ipV6AddressScope, 4, ENC_LITTLE_ENDIAN);
     ptvcursor_add(cursor, hf_skinny_firmwareLoadName, 32, ENC_ASCII|ENC_NA);
   }
-  if (hdr_data_length > 190) {
+  if (hdr_data_length > 191) {
     ptvcursor_add(cursor, hf_skinny_configVersionStamp, 48, ENC_ASCII|ENC_NA);
   }
 }
@@ -2798,7 +2798,11 @@ handle_SoftKeyEventMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 static void
 handle_UnregisterMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
-  ptvcursor_add(cursor, hf_skinny_unRegReasonCode, 4, ENC_LITTLE_ENDIAN);
+  guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);
+
+  if (hdr_data_length > 12) {
+    ptvcursor_add(cursor, hf_skinny_unRegReasonCode, 4, ENC_LITTLE_ENDIAN);
+  }
 }
 
 /*
@@ -3303,8 +3307,12 @@ handle_ServiceURLStatReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 static void
 handle_FeatureStatReqMessage(ptvcursor_t *cursor, packet_info * pinfo _U_)
 {
+  guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);
+
   ptvcursor_add(cursor, hf_skinny_featureIndex, 4, ENC_LITTLE_ENDIAN);
-  ptvcursor_add(cursor, hf_skinny_featureCapabilities, 4, ENC_LITTLE_ENDIAN);
+  if (hdr_data_length > 16) {
+    ptvcursor_add(cursor, hf_skinny_featureCapabilities, 4, ENC_LITTLE_ENDIAN);
+  }
 }
 
 /*
