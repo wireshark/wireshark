@@ -124,10 +124,10 @@ set_last_open_dir(const char *dirname)
 extern "C" void
 add_menu_recent_capture_file(const gchar *cf_name) {
     QString normalized_cf_name = QString::fromUtf8(cf_name);
-//    QDir cf_path;
+    QDir cf_path;
 
-//    cf_path.setPath(normalized_cf_name);
-//    normalized_cf_name = cf_path.absolutePath();
+    cf_path.setPath(normalized_cf_name);
+    normalized_cf_name = cf_path.absolutePath();
     normalized_cf_name = QDir::cleanPath(normalized_cf_name);
     normalized_cf_name = QDir::toNativeSeparators(normalized_cf_name);
 
