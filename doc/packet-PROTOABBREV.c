@@ -301,11 +301,11 @@ proto_reg_handoff_PROTOABBREV(void)
     static int current_port;
 
     if (!initialized) {
-        /* Use new_create_dissector_handle() to indicate that
+        /* Use create_dissector_handle() to indicate that
          * dissect_PROTOABBREV() returns the number of bytes it dissected (or 0
          * if it thinks the packet does not belong to PROTONAME).
          */
-        PROTOABBREV_handle = new_create_dissector_handle(dissect_PROTOABBREV,
+        PROTOABBREV_handle = create_dissector_handle(dissect_PROTOABBREV,
                 proto_PROTOABBREV);
         initialized = TRUE;
 
@@ -336,11 +336,11 @@ proto_reg_handoff_PROTOABBREV(void)
 {
     dissector_handle_t PROTOABBREV_handle;
 
-    /* Use new_create_dissector_handle() to indicate that dissect_PROTOABBREV()
+    /* Use create_dissector_handle() to indicate that dissect_PROTOABBREV()
      * returns the number of bytes it dissected (or 0 if it thinks the packet
      * does not belong to PROTONAME).
      */
-    PROTOABBREV_handle = new_create_dissector_handle(dissect_PROTOABBREV,
+    PROTOABBREV_handle = create_dissector_handle(dissect_PROTOABBREV,
             proto_PROTOABBREV);
     dissector_add_uint("tcp.port", PROTOABBREV_TCP_PORT, PROTOABBREV_handle);
 }
