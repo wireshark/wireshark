@@ -322,7 +322,7 @@ proto_reg_handoff_rtacser(void)
 
     /* Make sure to use RTAC Serial Protocol Preferences field to determine payload protocol to use for decoding */
     if (! rtacser_prefs_initialized) {
-        rtacser_handle = new_create_dissector_handle(dissect_rtacser, proto_rtacser);
+        rtacser_handle = create_dissector_handle(dissect_rtacser, proto_rtacser);
         rtacser_prefs_initialized = TRUE;
     }
 

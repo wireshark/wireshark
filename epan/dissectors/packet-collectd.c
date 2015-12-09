@@ -1506,7 +1506,7 @@ void proto_reg_handoff_collectd (void)
 	static dissector_handle_t collectd_handle;
 
 	if (first_run)
-		collectd_handle = new_create_dissector_handle (dissect_collectd,
+		collectd_handle = create_dissector_handle (dissect_collectd,
 							   proto_collectd);
 
 	/* Change the dissector registration if the preferences have been

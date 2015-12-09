@@ -2826,7 +2826,7 @@ void proto_reg_handoff_sml(void) {
 	static dissector_handle_t sml_handle;
 
 	if (!initialized) {
-		sml_handle = new_create_dissector_handle(dissect_sml, proto_sml);
+		sml_handle = create_dissector_handle(dissect_sml, proto_sml);
 		initialized = TRUE;
 	} else {
 		dissector_delete_uint("tcp.port", old_tcp_port, sml_handle);

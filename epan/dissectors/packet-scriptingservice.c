@@ -223,7 +223,7 @@ proto_reg_handoff_ssprotocol(void)
 {
   dissector_handle_t ssprotocol_handle;
 
-  ssprotocol_handle = new_create_dissector_handle(dissect_ssprotocol, proto_ssprotocol);
+  ssprotocol_handle = create_dissector_handle(dissect_ssprotocol, proto_ssprotocol);
   dissector_add_uint("sctp.ppi", SSPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY, ssprotocol_handle);
   dissector_add_uint("sctp.ppi", SSP_PAYLOAD_PROTOCOL_ID, ssprotocol_handle);
 }

@@ -2569,7 +2569,7 @@ proto_reg_handoff_mpls_echo(void)
     static guint              mpls_echo_udp_port;
 
     if (!mpls_echo_prefs_initialized) {
-        mpls_echo_handle = new_create_dissector_handle(dissect_mpls_echo,
+        mpls_echo_handle = create_dissector_handle(dissect_mpls_echo,
                                                        proto_mpls_echo);
         mpls_echo_prefs_initialized = TRUE;
     } else {

@@ -392,7 +392,7 @@ proto_reg_handoff_macctrl(void)
 {
   dissector_handle_t macctrl_handle;
 
-  macctrl_handle = new_create_dissector_handle(dissect_macctrl, proto_macctrl);
+  macctrl_handle = create_dissector_handle(dissect_macctrl, proto_macctrl);
   dissector_add_uint("ethertype", ETHERTYPE_MAC_CONTROL, macctrl_handle);
 }
 

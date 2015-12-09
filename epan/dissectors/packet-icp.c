@@ -257,7 +257,7 @@ proto_reg_handoff_icp(void)
 {
 	dissector_handle_t icp_handle;
 
-	icp_handle = new_create_dissector_handle(dissect_icp, proto_icp);
+	icp_handle = create_dissector_handle(dissect_icp, proto_icp);
 	dissector_add_uint("udp.port", UDP_PORT_ICP, icp_handle);
 }
 

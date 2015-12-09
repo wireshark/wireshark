@@ -237,7 +237,7 @@ proto_reg_handoff_lmi(void)
 {
     dissector_handle_t lmi_handle;
 
-    lmi_handle = new_create_dissector_handle(dissect_lmi, proto_lmi);
+    lmi_handle = create_dissector_handle(dissect_lmi, proto_lmi);
     dissector_add_uint("fr.nlpid", NLPID_LMI, lmi_handle);
 }
 

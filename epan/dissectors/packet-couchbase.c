@@ -1788,7 +1788,7 @@ proto_reg_handoff_couchbase(void)
   static gboolean initialized = FALSE;
 
   if (initialized == FALSE) {
-    couchbase_tcp_handle = new_create_dissector_handle(dissect_couchbase_tcp, proto_couchbase);
+    couchbase_tcp_handle = create_dissector_handle(dissect_couchbase_tcp, proto_couchbase);
     initialized = TRUE;
   }
   else {

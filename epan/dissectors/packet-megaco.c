@@ -3819,7 +3819,7 @@ proto_reg_handoff_megaco(void)
         data_handle = find_dissector("data");
 
         megaco_text_handle = find_dissector("megaco");
-        megaco_text_tcp_handle = new_create_dissector_handle(dissect_megaco_text_tcp, proto_megaco);
+        megaco_text_tcp_handle = create_dissector_handle(dissect_megaco_text_tcp, proto_megaco);
 
         dissector_add_uint("sctp.ppi", H248_PAYLOAD_PROTOCOL_ID,   megaco_text_handle);
 

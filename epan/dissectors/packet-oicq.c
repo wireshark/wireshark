@@ -196,7 +196,7 @@ proto_reg_handoff_oicq(void)
 {
 	dissector_handle_t oicq_handle;
 
-	oicq_handle = new_create_dissector_handle(dissect_oicq, proto_oicq);
+	oicq_handle = create_dissector_handle(dissect_oicq, proto_oicq);
 	dissector_add_uint("udp.port", UDP_PORT_OICQ, oicq_handle);
 }
 

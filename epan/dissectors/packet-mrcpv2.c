@@ -1524,7 +1524,7 @@ proto_reg_handoff_mrcpv2(void)
     static range_t *mrcpv2_tcp_range = NULL;
 
     if (!initialized) {
-        mrcpv2_handle = new_create_dissector_handle(dissect_mrcpv2_tcp, proto_mrcpv2);
+        mrcpv2_handle = create_dissector_handle(dissect_mrcpv2_tcp, proto_mrcpv2);
         initialized = TRUE;
     } else {
         dissector_delete_uint_range ("tcp.port", mrcpv2_tcp_range, mrcpv2_handle);

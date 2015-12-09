@@ -570,7 +570,7 @@ proto_reg_handoff_usb_dfu(void)
 {
     dissector_handle_t  usf_dfu_descriptor_handle;
 
-    usf_dfu_descriptor_handle = new_create_dissector_handle(dissect_usb_dfu_descriptor, proto_usb_dfu);
+    usf_dfu_descriptor_handle = create_dissector_handle(dissect_usb_dfu_descriptor, proto_usb_dfu);
     dissector_add_uint("usb.descriptor", IF_CLASS_APPLICATION_SPECIFIC, usf_dfu_descriptor_handle);
 
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x1db5, usb_dfu_handle); /* IDBG in DFU mode */

@@ -1970,8 +1970,8 @@ proto_register_arp(void)
   expert_arp = expert_register_protocol(proto_arp);
   expert_register_field_array(expert_arp, ei, array_length(ei));
 
-  atmarp_handle = new_create_dissector_handle(dissect_atmarp, proto_atmarp);
-  ax25arp_handle = new_create_dissector_handle(dissect_ax25arp, proto_arp);
+  atmarp_handle = create_dissector_handle(dissect_atmarp, proto_atmarp);
+  ax25arp_handle = create_dissector_handle(dissect_ax25arp, proto_arp);
 
   arp_handle = new_register_dissector( "arp" , dissect_arp, proto_arp );
 

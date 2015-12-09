@@ -563,7 +563,7 @@ void proto_reg_handoff_ieee80211_prism(void)
 {
   dissector_handle_t prism_handle;
 
-  prism_handle = new_create_dissector_handle(dissect_prism, proto_prism);
+  prism_handle = create_dissector_handle(dissect_prism, proto_prism);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_PRISM, prism_handle);
   ieee80211_handle = find_dissector("wlan");
   ieee80211_radio_handle = find_dissector("wlan_radio");

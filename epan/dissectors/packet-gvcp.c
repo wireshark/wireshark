@@ -3825,7 +3825,7 @@ void proto_register_gvcp(void)
 void proto_reg_handoff_gvcp(void)
 {
 		static dissector_handle_t gvcp_handle;
-		gvcp_handle = new_create_dissector_handle((new_dissector_t)dissect_gvcp, proto_gvcp);
+		gvcp_handle = create_dissector_handle((new_dissector_t)dissect_gvcp, proto_gvcp);
 		dissector_add_uint("udp.port", global_gvcp_port, gvcp_handle);
 }
 

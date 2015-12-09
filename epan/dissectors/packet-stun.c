@@ -1731,8 +1731,8 @@ proto_register_stun(void)
 void
 proto_reg_handoff_stun(void)
 {
-    stun_tcp_handle = new_create_dissector_handle(dissect_stun_tcp, proto_stun);
-    stun_udp_handle = new_create_dissector_handle(dissect_stun_udp, proto_stun);
+    stun_tcp_handle = create_dissector_handle(dissect_stun_tcp, proto_stun);
+    stun_udp_handle = create_dissector_handle(dissect_stun_udp, proto_stun);
 
     dissector_add_uint("tcp.port", TCP_PORT_STUN, stun_tcp_handle);
     dissector_add_uint("udp.port", UDP_PORT_STUN, stun_udp_handle);

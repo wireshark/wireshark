@@ -205,7 +205,7 @@ proto_register_xyplex(void)
 void
 proto_reg_handoff_xyplex(void)
 {
-  xyplex_handle = new_create_dissector_handle(dissect_xyplex, proto_xyplex);
+  xyplex_handle = create_dissector_handle(dissect_xyplex, proto_xyplex);
   dissector_add_uint("udp.port", UDP_PORT_XYPLEX, xyplex_handle);
 }
 

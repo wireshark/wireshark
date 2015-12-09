@@ -351,7 +351,7 @@ void proto_reg_handoff_tdmop(void)
     static guint32 current_tdmop_udpport;
     if (!init)
     {
-        tdmop_handle = new_create_dissector_handle(dissect_tdmop, proto_tdmop);
+        tdmop_handle = create_dissector_handle(dissect_tdmop, proto_tdmop);
         dissector_add_uint("udp.port", pref_tdmop_udpport, tdmop_handle);
         dissector_add_uint("ethertype", pref_tdmop_ethertype, tdmop_handle);
         lapd_handle = find_dissector("lapd-bitstream");

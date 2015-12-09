@@ -390,7 +390,7 @@ proto_reg_handoff_asf(void)
 
 	data_handle = find_dissector("data");
 
-	asf_handle  = new_create_dissector_handle(dissect_asf, proto_asf);
+	asf_handle  = create_dissector_handle(dissect_asf, proto_asf);
 	dissector_add_uint("rmcp.class", RMCP_CLASS_ASF, asf_handle);
 }
 

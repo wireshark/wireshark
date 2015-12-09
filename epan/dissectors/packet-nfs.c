@@ -13759,37 +13759,37 @@ proto_reg_handoff_nfs(void)
 	rpc_init_prog(proto_nfs, NFS_CB_PROGRAM, ett_nfs,
 	    G_N_ELEMENTS(nfs_cb_vers_info), nfs_cb_vers_info);
 
-	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_SVR4, proto_nfs_svr4);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_SVR4, proto_nfs_svr4);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_LINUX_KNFSD_LE, proto_nfs_knfsd_le);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_LINUX_KNFSD_LE, proto_nfs_knfsd_le);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_LINUX_NFSD_LE, proto_nfs_nfsd_le);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_LINUX_NFSD_LE, proto_nfs_nfsd_le);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_LINUX_KNFSD_NEW, proto_nfs_knfsd_new);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_LINUX_KNFSD_NEW, proto_nfs_knfsd_new);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_NETAPP, proto_nfs_ontap_v3);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_NETAPP, proto_nfs_ontap_v3);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_NETAPP_V4, proto_nfs_ontap_v4);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_NETAPP_V4, proto_nfs_ontap_v4);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_NETAPP_GX_v3, proto_nfs_ontap_gx_v3);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_NETAPP_GX_v3, proto_nfs_ontap_gx_v3);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_CELERRA_VNX, proto_nfs_celerra_vnx);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_CELERRA_VNX, proto_nfs_celerra_vnx);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_GLUSTER, proto_nfs_gluster);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_GLUSTER, proto_nfs_gluster);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_DCACHE, proto_nfs_dcache);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_DCACHE, proto_nfs_dcache);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 
-	fhandle_handle = new_create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs_unknown);
+	fhandle_handle = create_dissector_handle(dissect_fhandle_data_unknown, proto_nfs_unknown);
 	dissector_add_for_decode_as("nfs_fhandle.type", fhandle_handle);
 }
 

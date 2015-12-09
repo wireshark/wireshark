@@ -287,7 +287,7 @@ proto_reg_handoff_fefd(void)
     dissector_handle_t fefd_handle;
 
     data_handle = find_dissector("data");
-    fefd_handle = new_create_dissector_handle(dissect_fefd, proto_fefd);
+    fefd_handle = create_dissector_handle(dissect_fefd, proto_fefd);
     dissector_add_uint("llc.force10_pid", 0x0111, fefd_handle);
 }
 

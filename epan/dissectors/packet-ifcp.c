@@ -610,7 +610,7 @@ proto_reg_handoff_ifcp (void)
 {
     heur_dissector_add("tcp", dissect_ifcp_heur, "iFCP over TCP", "ifcp_tcp", proto_ifcp, HEURISTIC_ENABLE);
 
-    ifcp_handle = new_create_dissector_handle(dissect_ifcp_handle, proto_ifcp);
+    ifcp_handle = create_dissector_handle(dissect_ifcp_handle, proto_ifcp);
     dissector_add_for_decode_as("tcp.port", ifcp_handle);
 
     data_handle = find_dissector("data");

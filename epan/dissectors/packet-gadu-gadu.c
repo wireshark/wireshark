@@ -2106,7 +2106,7 @@ proto_register_gadu_gadu(void)
 	proto_register_fields(proto_gadu_gadu, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	gadu_gadu_handle = new_create_dissector_handle(dissect_gadu_gadu, proto_gadu_gadu);
+	gadu_gadu_handle = create_dissector_handle(dissect_gadu_gadu, proto_gadu_gadu);
 }
 
 void

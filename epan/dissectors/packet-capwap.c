@@ -5799,8 +5799,8 @@ proto_reg_handoff_capwap(void)
     static guint capwap_control_udp_port, capwap_data_udp_port;
 
     if (!inited) {
-        capwap_control_handle = new_create_dissector_handle(dissect_capwap_control, proto_capwap_control);
-        capwap_data_handle    = new_create_dissector_handle(dissect_capwap_data, proto_capwap_data);
+        capwap_control_handle = create_dissector_handle(dissect_capwap_control, proto_capwap_control);
+        capwap_data_handle    = create_dissector_handle(dissect_capwap_data, proto_capwap_data);
         dtls_handle           = find_dissector("dtls");
         ieee8023_handle       = find_dissector("eth_withoutfcs");
         ieee80211_handle      = find_dissector("wlan_withoutfcs");

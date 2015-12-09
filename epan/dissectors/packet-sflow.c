@@ -3518,7 +3518,7 @@ proto_reg_handoff_sflow_245(void) {
     static gboolean  sflow_245_prefs_initialized = FALSE;
 
     if (!sflow_245_prefs_initialized) {
-        sflow_handle = new_create_dissector_handle(dissect_sflow_245, proto_sflow);
+        sflow_handle = create_dissector_handle(dissect_sflow_245, proto_sflow);
         data_handle = find_dissector("data");
         sflow_245_prefs_initialized = TRUE;
     } else {

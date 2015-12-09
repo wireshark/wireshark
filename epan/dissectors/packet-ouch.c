@@ -1595,7 +1595,7 @@ proto_register_ouch(void)
 void
 proto_reg_handoff_ouch(void)
 {
-    ouch_handle = new_create_dissector_handle(dissect_ouch, proto_ouch);
+    ouch_handle = create_dissector_handle(dissect_ouch, proto_ouch);
     heur_dissector_add("soupbintcp", dissect_ouch_heur, "OUCH over SoupBinTCP", "ouch_soupbintcp", proto_ouch, HEURISTIC_ENABLE);
 }
 

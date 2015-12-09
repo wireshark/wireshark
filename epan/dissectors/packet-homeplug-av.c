@@ -4745,7 +4745,7 @@ proto_reg_handoff_homeplug_av(void)
 {
    dissector_handle_t homeplug_av_handle;
 
-   homeplug_av_handle = new_create_dissector_handle(dissect_homeplug_av, proto_homeplug_av);
+   homeplug_av_handle = create_dissector_handle(dissect_homeplug_av, proto_homeplug_av);
    dissector_add_uint("ethertype", ETHERTYPE_HOMEPLUG_AV, homeplug_av_handle);
 }
 

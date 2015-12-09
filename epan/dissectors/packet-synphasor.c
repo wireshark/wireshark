@@ -1383,7 +1383,7 @@ void proto_reg_handoff_synphasor(void)
 	static guint		  current_tcp_port;
 
 	if (!initialized) {
-		synphasor_tcp_handle = new_create_dissector_handle(dissect_tcp, proto_synphasor);
+		synphasor_tcp_handle = create_dissector_handle(dissect_tcp, proto_synphasor);
 		dissector_add_for_decode_as("rtacser.data", synphasor_udp_handle);
 		initialized = TRUE;
 	}

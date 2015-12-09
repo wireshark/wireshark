@@ -5362,14 +5362,14 @@ proto_reg_handoff_mip6(void)
     dissector_handle_t mip6_handle;
 
     /* mip6_handle = find_dissector("mipv6"); */
-    mip6_handle = new_create_dissector_handle(dissect_mip6, proto_mip6);
+    mip6_handle = create_dissector_handle(dissect_mip6, proto_mip6);
     dissector_add_uint("ip.proto", IP_PROTO_MIPV6_OLD, mip6_handle);
     dissector_add_uint("ip.proto", IP_PROTO_MIPV6, mip6_handle);
     /* Add support for PMIPv6 control messages over IPV4 */
     dissector_add_uint("udp.port", UDP_PORT_PMIP6_CNTL, mip6_handle);
     ip_dissector_table = find_dissector_table("ip.proto");
 
-    dissector_add_uint("mip6.vsm", VENDOR_THE3GPP, new_create_dissector_handle(dissect_mip6_opt_vsm_3gpp, proto_mip6));
+    dissector_add_uint("mip6.vsm", VENDOR_THE3GPP, create_dissector_handle(dissect_mip6_opt_vsm_3gpp, proto_mip6));
 }
 
 /*

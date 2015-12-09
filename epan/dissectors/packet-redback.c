@@ -228,7 +228,7 @@ proto_register_redback(void)
 	expert_redback = expert_register_protocol(proto_redback);
 	expert_register_field_array(expert_redback, ei, array_length(ei));
 
-	redback_handle = new_create_dissector_handle(dissect_redback, proto_redback);
+	redback_handle = create_dissector_handle(dissect_redback, proto_redback);
 }
 
 void

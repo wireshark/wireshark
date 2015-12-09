@@ -350,7 +350,7 @@ proto_reg_handoff_vrrp(void)
 {
     dissector_handle_t vrrp_handle;
 
-    vrrp_handle = new_create_dissector_handle(dissect_vrrp, proto_vrrp);
+    vrrp_handle = create_dissector_handle(dissect_vrrp, proto_vrrp);
     dissector_add_uint("ip.proto", IP_PROTO_VRRP, vrrp_handle);
 }
 

@@ -1234,7 +1234,7 @@ proto_reg_handoff_tns(void)
 {
 	dissector_handle_t tns_handle;
 
-	tns_handle = new_create_dissector_handle(dissect_tns, proto_tns);
+	tns_handle = create_dissector_handle(dissect_tns, proto_tns);
 	dissector_add_uint("tcp.port", TCP_PORT_TNS, tns_handle);
 	data_handle = find_dissector("data");
 }

@@ -256,7 +256,7 @@ proto_reg_handoff_wsmp(void)
 {
     dissector_handle_t wsmp_handle;
 
-    wsmp_handle = new_create_dissector_handle(dissect_wsmp, proto_wsmp);
+    wsmp_handle = create_dissector_handle(dissect_wsmp, proto_wsmp);
     dissector_add_uint("ethertype", ETHERTYPE_WSMP, wsmp_handle);
     data_handle = find_dissector("data");
     return;

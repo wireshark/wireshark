@@ -235,11 +235,11 @@ proto_reg_handoff_laplink(void)
 	dissector_handle_t laplink_udp_handle;
 	dissector_handle_t laplink_tcp_handle;
 
-	laplink_tcp_handle = new_create_dissector_handle(dissect_laplink_tcp,
+	laplink_tcp_handle = create_dissector_handle(dissect_laplink_tcp,
 	    proto_laplink);
 	dissector_add_uint("tcp.port", TCP_PORT_LAPLINK, laplink_tcp_handle);
 
-	laplink_udp_handle = new_create_dissector_handle(dissect_laplink_udp,
+	laplink_udp_handle = create_dissector_handle(dissect_laplink_udp,
 	    proto_laplink);
 	dissector_add_uint("udp.port", UDP_PORT_LAPLINK, laplink_udp_handle);
 }

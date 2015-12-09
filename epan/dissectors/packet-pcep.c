@@ -4781,7 +4781,7 @@ proto_reg_handoff_pcep(void)
 {
     dissector_handle_t pcep_handle;
 
-    pcep_handle = new_create_dissector_handle(dissect_pcep, proto_pcep);
+    pcep_handle = create_dissector_handle(dissect_pcep, proto_pcep);
     dissector_add_uint("tcp.port", TCP_PORT_PCEP, pcep_handle);
 }
 

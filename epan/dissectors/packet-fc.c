@@ -1621,7 +1621,7 @@ void
 proto_reg_handoff_fc (void)
 {
     dissector_add_uint("wtap_encap", WTAP_ENCAP_FIBRE_CHANNEL_FC2,
-                       new_create_dissector_handle(dissect_fc_wtap, proto_fc));
+                       create_dissector_handle(dissect_fc_wtap, proto_fc));
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS, fcsof_handle);
 

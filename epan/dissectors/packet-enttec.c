@@ -596,8 +596,8 @@ proto_reg_handoff_enttec(void) {
 	static guint tcp_port_enttec;
 
 	if(!enttec_initialized) {
-		enttec_udp_handle = new_create_dissector_handle(dissect_enttec_udp,proto_enttec);
-		enttec_tcp_handle = new_create_dissector_handle(dissect_enttec_tcp,proto_enttec);
+		enttec_udp_handle = create_dissector_handle(dissect_enttec_udp,proto_enttec);
+		enttec_tcp_handle = create_dissector_handle(dissect_enttec_tcp,proto_enttec);
 		enttec_initialized = TRUE;
 	} else {
 		dissector_delete_uint("udp.port",udp_port_enttec,enttec_udp_handle);

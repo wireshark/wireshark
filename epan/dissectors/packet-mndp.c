@@ -358,7 +358,7 @@ proto_reg_handoff_mndp(void)
 {
 	dissector_handle_t mndp_handle;
 
-	mndp_handle = new_create_dissector_handle(dissect_mndp_static, proto_mndp);
+	mndp_handle = create_dissector_handle(dissect_mndp_static, proto_mndp);
 	dissector_add_uint("udp.port", PORT_MNDP, mndp_handle);
 	heur_dissector_add("udp", dissect_mndp_heur, "MNDP over UDP", "mndp_udp", proto_mndp, HEURISTIC_DISABLE);
 }

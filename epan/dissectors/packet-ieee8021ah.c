@@ -423,9 +423,9 @@ proto_reg_handoff_ieee8021ah(void)
 
     if (!prefs_initialized){
         dissector_handle_t ieee8021ad_handle;
-        ieee8021ah_handle = new_create_dissector_handle(dissect_ieee8021ah,
+        ieee8021ah_handle = create_dissector_handle(dissect_ieee8021ah,
                                                     proto_ieee8021ah);
-        ieee8021ad_handle = new_create_dissector_handle(dissect_ieee8021ad,
+        ieee8021ad_handle = create_dissector_handle(dissect_ieee8021ad,
                                                     proto_ieee8021ad);
         dissector_add_uint("ethertype", ETHERTYPE_IEEE_802_1AD, ieee8021ad_handle);
         ethertype_handle = find_dissector("ethertype");

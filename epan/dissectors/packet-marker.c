@@ -200,7 +200,7 @@ proto_reg_handoff_marker(void)
 {
     dissector_handle_t marker_handle;
 
-    marker_handle = new_create_dissector_handle(dissect_marker, proto_marker);
+    marker_handle = create_dissector_handle(dissect_marker, proto_marker);
     dissector_add_uint("slow.subtype", MARKER_SUBTYPE, marker_handle);
 }
 

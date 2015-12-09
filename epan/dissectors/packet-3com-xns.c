@@ -124,7 +124,7 @@ proto_reg_handoff_3com_xns(void)
 
 	ethertype_subdissector_table = find_dissector_table("ethertype");
 
-	our_xns_handle = new_create_dissector_handle(dissect_3com_xns, proto_3com_xns);
+	our_xns_handle = create_dissector_handle(dissect_3com_xns, proto_3com_xns);
 	dissector_add_uint("llc.dsap", 0x80, our_xns_handle);
 }
 

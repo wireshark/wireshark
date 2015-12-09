@@ -3205,7 +3205,7 @@ void proto_register_mysql(void)
 void proto_reg_handoff_mysql(void)
 {
 	ssl_handle = find_dissector("ssl");
-	mysql_handle = new_create_dissector_handle(dissect_mysql, proto_mysql);
+	mysql_handle = create_dissector_handle(dissect_mysql, proto_mysql);
 	dissector_add_uint("tcp.port", TCP_PORT_MySQL, mysql_handle);
 }
 

@@ -1386,7 +1386,7 @@ proto_reg_handoff_cp2179(void)
    static unsigned int cp2179_port;
 
     if (!cp2179_prefs_initialized){
-        cp2179_handle = new_create_dissector_handle(dissect_cp2179, proto_cp2179);
+        cp2179_handle = create_dissector_handle(dissect_cp2179, proto_cp2179);
         cp2179_prefs_initialized = TRUE;
     }
      else {

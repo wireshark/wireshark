@@ -1120,32 +1120,32 @@ proto_reg_handoff_igmp(void)
 						igmp_mquery_handle, igmp_mtrace_handle, igmp_report_handle;
 	range_t *igmpv0_range = NULL;
 
-	igmp_handle = new_create_dissector_handle(dissect_igmp, proto_igmp);
+	igmp_handle = create_dissector_handle(dissect_igmp, proto_igmp);
 	dissector_add_uint("ip.proto", IP_PROTO_IGMP, igmp_handle);
 
 	/* IGMP v0 */
 	range_convert_str(&igmpv0_range, "0-15", 15);
-	igmpv0_handle = new_create_dissector_handle(dissect_igmp_v0, proto_igmp);
+	igmpv0_handle = create_dissector_handle(dissect_igmp_v0, proto_igmp);
 	dissector_add_uint_range("igmp.type", igmpv0_range, igmpv0_handle);
 	g_free(igmpv0_range);
 
 	/* IGMP v1 */
-	igmpv1_handle = new_create_dissector_handle(dissect_igmp_v1, proto_igmp);
+	igmpv1_handle = create_dissector_handle(dissect_igmp_v1, proto_igmp);
 	dissector_add_uint("igmp.type", IGMP_V1_HOST_MEMBERSHIP_REPORT, igmpv1_handle);
 
 	/* IGMP v2 */
-	igmpv2_handle = new_create_dissector_handle(dissect_igmp_v2, proto_igmp);
+	igmpv2_handle = create_dissector_handle(dissect_igmp_v2, proto_igmp);
 	dissector_add_uint("igmp.type", IGMP_V2_MEMBERSHIP_REPORT, igmpv2_handle);
 	dissector_add_uint("igmp.type", IGMP_V2_LEAVE_GROUP, igmpv2_handle);
 
 	/* IGMP_V1_HOST_MEMBERSHIP_QUERY, all versions */
-	igmp_mquery_handle = new_create_dissector_handle(dissect_igmp_mquery, proto_igmp);
+	igmp_mquery_handle = create_dissector_handle(dissect_igmp_mquery, proto_igmp);
 	dissector_add_uint("igmp.type", IGMP_V1_HOST_MEMBERSHIP_QUERY, igmp_mquery_handle);
 
-	igmp_report_handle = new_create_dissector_handle(dissect_igmp_v3_report, proto_igmp);
+	igmp_report_handle = create_dissector_handle(dissect_igmp_v3_report, proto_igmp);
 	dissector_add_uint("igmp.type", IGMP_V3_MEMBERSHIP_REPORT, igmp_report_handle);
 
-	igmp_mtrace_handle = new_create_dissector_handle(dissect_igmp_mtrace, proto_igmp);
+	igmp_mtrace_handle = create_dissector_handle(dissect_igmp_mtrace, proto_igmp);
 	dissector_add_uint("igmp.type", IGMP_TRACEROUTE_RESPONSE, igmp_mtrace_handle);
 	dissector_add_uint("igmp.type", IGMP_TRACEROUTE_QUERY_REQ, igmp_mtrace_handle);
 }

@@ -388,7 +388,7 @@ proto_reg_handoff_djiuav(void)
 	dissector_handle_t djiuav_handle;
 
 
-	djiuav_handle = new_create_dissector_handle(dissect_djiuav_static, proto_djiuav);
+	djiuav_handle = create_dissector_handle(dissect_djiuav_static, proto_djiuav);
 	dissector_add_uint("tcp.port", PORT_DJIUAV, djiuav_handle);
 }
 

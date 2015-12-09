@@ -150,7 +150,7 @@ proto_reg_handoff_bpq(void)
 {
 	dissector_handle_t bpq_handle;
 
-	bpq_handle = new_create_dissector_handle( dissect_bpq, proto_bpq );
+	bpq_handle = create_dissector_handle( dissect_bpq, proto_bpq );
 	dissector_add_uint("ethertype", ETHERTYPE_BPQ, bpq_handle);
 
 	/* BPQ is only implemented for AX.25 */

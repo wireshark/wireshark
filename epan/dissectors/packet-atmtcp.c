@@ -152,7 +152,7 @@ proto_reg_handoff_atmtcp(void)
     static int current_port;
 
     if (!initialized) {
-        atmtcp_handle = new_create_dissector_handle(dissect_atmtcp, proto_atmtcp);
+        atmtcp_handle = create_dissector_handle(dissect_atmtcp, proto_atmtcp);
         data_handle = find_dissector("data");
         initialized = TRUE;
     } else {

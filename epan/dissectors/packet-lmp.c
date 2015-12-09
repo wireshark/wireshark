@@ -2653,7 +2653,7 @@ proto_register_lmp(void)
 void
 proto_reg_handoff_lmp(void)
 {
-    lmp_handle = new_create_dissector_handle(dissect_lmp, proto_lmp);
+    lmp_handle = create_dissector_handle(dissect_lmp, proto_lmp);
     dissector_add_uint("udp.port", lmp_udp_port, lmp_handle);
 }
 

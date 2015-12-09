@@ -2590,7 +2590,7 @@ proto_reg_handoff_dect(void)
 {
 	dissector_handle_t dect_handle;
 
-	dect_handle = new_create_dissector_handle(dissect_dect, proto_dect);
+	dect_handle = create_dissector_handle(dissect_dect, proto_dect);
 	dissector_add_uint("ethertype", ETHERTYPE_DECT , dect_handle);
 }
 

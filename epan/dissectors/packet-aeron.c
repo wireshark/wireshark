@@ -3136,7 +3136,7 @@ void proto_register_aeron(void)
 /* The registration hand-off routine */
 void proto_reg_handoff_aeron(void)
 {
-    aeron_dissector_handle = new_create_dissector_handle(dissect_aeron, proto_aeron);
+    aeron_dissector_handle = create_dissector_handle(dissect_aeron, proto_aeron);
     dissector_add_for_decode_as("udp.port", aeron_dissector_handle);
     heur_dissector_add("udp", test_aeron_packet, "Aeron over UDP", "aeron_udp", proto_aeron, HEURISTIC_DISABLE);
     aeron_data_dissector_handle = find_dissector("data");

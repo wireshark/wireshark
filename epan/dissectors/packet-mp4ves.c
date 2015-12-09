@@ -1047,12 +1047,12 @@ proto_reg_handoff_mp4ves(void)
 		dissector_add_string("rtp_dyn_payload_type","MP4V-ES", mp4ves_handle);
 		mp4ves_prefs_initialized = TRUE;
 
-		mp4ves_name_handle = new_create_dissector_handle(dissect_mp4ves_name, proto_mp4ves);
+		mp4ves_name_handle = create_dissector_handle(dissect_mp4ves_name, proto_mp4ves);
 		for (ftr=mp4ves_capability_tab; ftr->id; ftr++) {
 		    if (ftr->name)
 				dissector_add_string("h245.gef.name", ftr->id, mp4ves_name_handle);
 			if (ftr->content_pdu)
-				dissector_add_string("h245.gef.content", ftr->id, new_create_dissector_handle(ftr->content_pdu, proto_mp4ves));
+				dissector_add_string("h245.gef.content", ftr->id, create_dissector_handle(ftr->content_pdu, proto_mp4ves));
 		}
 	}else{
 		if ( dynamic_payload_type > 95 )

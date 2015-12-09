@@ -5047,7 +5047,7 @@ void proto_reg_handoff_batadv(void)
 	static unsigned int old_batadv_ethertype;
 
 	if (!inited) {
-		batman_handle = new_create_dissector_handle(dissect_batadv_plugin, proto_batadv_plugin);
+		batman_handle = create_dissector_handle(dissect_batadv_plugin, proto_batadv_plugin);
 
 		data_handle = find_dissector("data");
 		eth_handle = find_dissector("eth");

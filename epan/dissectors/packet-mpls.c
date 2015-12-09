@@ -649,7 +649,7 @@ proto_reg_handoff_mpls(void)
     dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_MPLS, mpls_handle);
     dissector_add_uint("udp.port", UDP_PORT_MPLS_OVER_UDP, mpls_handle);
 
-    mpls_pwcw_handle = new_create_dissector_handle( dissect_pw_mcw, proto_pw_mcw );
+    mpls_pwcw_handle = create_dissector_handle( dissect_pw_mcw, proto_pw_mcw );
     dissector_add_uint( "mpls.label", MPLS_LABEL_INVALID, mpls_pwcw_handle );
 
     dissector_data                  = find_dissector("data");
@@ -657,7 +657,7 @@ proto_reg_handoff_mpls(void)
     dissector_ip                    = find_dissector("ip");
     dissector_pw_eth_heuristic      = find_dissector("pw_eth_heuristic");
 
-    dissector_pw_ach                = new_create_dissector_handle(dissect_pw_ach, proto_pw_ach );
+    dissector_pw_ach                = create_dissector_handle(dissect_pw_ach, proto_pw_ach );
 }
 /*
  * Editor modelines

@@ -341,7 +341,7 @@ proto_reg_handoff_aarp(void)
 {
   dissector_handle_t aarp_handle;
 
-  aarp_handle = new_create_dissector_handle(dissect_aarp, proto_aarp);
+  aarp_handle = create_dissector_handle(dissect_aarp, proto_aarp);
   dissector_add_uint("ethertype", ETHERTYPE_AARP, aarp_handle);
   dissector_add_uint("chdlc.protocol", ETHERTYPE_AARP, aarp_handle);
 }

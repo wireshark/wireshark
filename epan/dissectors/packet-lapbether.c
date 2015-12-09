@@ -97,7 +97,7 @@ proto_reg_handoff_lapbether(void)
    */
   lapb_handle = find_dissector("lapb");
 
-  lapbether_handle = new_create_dissector_handle(dissect_lapbether,
+  lapbether_handle = create_dissector_handle(dissect_lapbether,
                                              proto_lapbether);
   dissector_add_uint("ethertype", ETHERTYPE_DEC, lapbether_handle);
 

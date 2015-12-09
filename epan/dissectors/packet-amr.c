@@ -841,13 +841,13 @@ proto_reg_handoff_amr(void)
         /*
          * Register H.245 Generic parameter name(s)
          */
-        amr_name_handle = new_create_dissector_handle(dissect_amr_name, proto_amr);
+        amr_name_handle = create_dissector_handle(dissect_amr_name, proto_amr);
         for (ftr=amr_capability_tab; ftr->id; ftr++) {
             if (ftr->name)
                 dissector_add_string("h245.gef.name", ftr->id, amr_name_handle);
             if (ftr->content_pdu)
                 dissector_add_string("h245.gef.content", ftr->id,
-                             new_create_dissector_handle(ftr->content_pdu, proto_amr));
+                             create_dissector_handle(ftr->content_pdu, proto_amr));
         }
         /*  Activate the next line for testing with the randpkt tool
             dissector_add_uint("udp.port", 55555, amr_handle);

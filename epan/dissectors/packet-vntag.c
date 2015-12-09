@@ -173,7 +173,7 @@ proto_reg_handoff_vntag(void)
 
 	/* XXX, add 0x8926 define to epan/etypes.h && etype_vals */
 
-	vntag_handle = new_create_dissector_handle(dissect_vntag, proto_vntag);
+	vntag_handle = create_dissector_handle(dissect_vntag, proto_vntag);
 	dissector_add_uint("ethertype", ETHERTYPE_VNTAG, vntag_handle);
 
 	ethertype_handle = find_dissector("ethertype");

@@ -1385,7 +1385,7 @@ proto_reg_handoff_canopen(void)
 {
    dissector_handle_t canopen_handle;
 
-   canopen_handle = new_create_dissector_handle( dissect_canopen, proto_canopen );
+   canopen_handle = create_dissector_handle( dissect_canopen, proto_canopen );
    dissector_add_for_decode_as("can.subdissector", canopen_handle );
 }
 

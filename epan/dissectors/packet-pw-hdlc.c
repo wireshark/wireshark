@@ -224,10 +224,10 @@ void proto_reg_handoff_pw_hdlc(void)
 {
 	dissector_handle_t pw_fr_handle, pw_ppp_handle;
 
-	pw_fr_handle = new_create_dissector_handle( dissect_pw_hdlc_nocw_fr, proto_pw_hdlc_nocw_fr );
+	pw_fr_handle = create_dissector_handle( dissect_pw_hdlc_nocw_fr, proto_pw_hdlc_nocw_fr );
 	dissector_add_for_decode_as( "mpls.label", pw_fr_handle );
 
-	pw_ppp_handle = new_create_dissector_handle( dissect_pw_hdlc_nocw_hdlc_ppp, proto_pw_hdlc_nocw_hdlc_ppp );
+	pw_ppp_handle = create_dissector_handle( dissect_pw_hdlc_nocw_hdlc_ppp, proto_pw_hdlc_nocw_hdlc_ppp );
 	dissector_add_for_decode_as( "mpls.label", pw_ppp_handle );
 
 	ppp_handle = find_dissector( "ppp" );

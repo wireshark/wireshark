@@ -657,7 +657,7 @@ proto_reg_handoff_nbipx(void)
 {
 	dissector_handle_t nbipx_handle;
 
-	nbipx_handle = new_create_dissector_handle(dissect_nbipx, proto_nbipx);
+	nbipx_handle = create_dissector_handle(dissect_nbipx, proto_nbipx);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NETBIOS, nbipx_handle);
 	netbios_heur_subdissector_list = find_heur_dissector_list("netbios");
 	data_handle = find_dissector("data");
@@ -870,7 +870,7 @@ proto_reg_handoff_nmpi(void)
 {
 	dissector_handle_t nmpi_handle;
 
-	nmpi_handle = new_create_dissector_handle(dissect_nmpi, proto_nmpi);
+	nmpi_handle = create_dissector_handle(dissect_nmpi, proto_nmpi);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NWLINK_SMB_NAMEQUERY,
 	    nmpi_handle);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NWLINK_SMB_MAILSLOT,

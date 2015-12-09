@@ -203,7 +203,7 @@ proto_reg_handoff_sdlc(void)
 	sna_handle = find_dissector("sna");
 	data_handle = find_dissector("data");
 
-	sdlc_handle = new_create_dissector_handle(dissect_sdlc, proto_sdlc);
+	sdlc_handle = create_dissector_handle(dissect_sdlc, proto_sdlc);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_SDLC, sdlc_handle);
 }
 

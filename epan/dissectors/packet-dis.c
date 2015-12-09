@@ -9359,7 +9359,7 @@ void proto_reg_handoff_dis(void)
 
     if (!dis_prefs_initialized)
     {
-        dis_dissector_handle = new_create_dissector_handle(dissect_dis, proto_dis);
+        dis_dissector_handle = create_dissector_handle(dissect_dis, proto_dis);
         dis_prefs_initialized = TRUE;
     }
     else

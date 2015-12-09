@@ -109,7 +109,7 @@ proto_register_l1_events(void)
 void
 proto_reg_handoff_l1_events(void)
 {
-	dissector_handle_t l1_events_handle = new_create_dissector_handle(dissect_l1_events, proto_l1_events);
+	dissector_handle_t l1_events_handle = create_dissector_handle(dissect_l1_events, proto_l1_events);
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_LAYER1_EVENT, l1_events_handle); /* for text msgs from trace files */
 }

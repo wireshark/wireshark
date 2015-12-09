@@ -12022,7 +12022,7 @@ void proto_register_c15ch(void)
 void proto_reg_handoff_c15ch_hbeat(void)
 {
     static dissector_handle_t c15ch_hbeat_handle;
-    c15ch_hbeat_handle = new_create_dissector_handle(dissect_c15ch_hbeat, proto_c15ch_hbeat);
+    c15ch_hbeat_handle = create_dissector_handle(dissect_c15ch_hbeat, proto_c15ch_hbeat);
     dissector_add_uint("ethertype", ETHERTYPE_C15_HBEAT, c15ch_hbeat_handle);
 }
 
@@ -12033,261 +12033,261 @@ void proto_reg_handoff_c15ch(void)
     dissector_handle_t c15ch_second_level_handle;
     dissector_handle_t c15ch_third_level_handle;
     /* first level */
-    c15ch_handle = new_create_dissector_handle(dissect_c15ch, proto_c15ch);
+    c15ch_handle = create_dissector_handle(dissect_c15ch, proto_c15ch);
     dissector_add_uint("ethertype", ETHERTYPE_C15_CH, c15ch_handle);
 
     /* second_level */
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_cp_state_ch, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_cp_state_ch, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_CP_STATE_CH, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_cp_event, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_cp_event, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_CP_EVENT, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_isup, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_isup, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_ISUP, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_nitnxlate, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_nitnxlate, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_NITN_XLATE, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_route, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_route, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_ROUTE, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_sccp, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_sccp, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_SCCP, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_orig, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_orig, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_CP_ORIG, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_conn, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_conn, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_CONN, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_ntwk_conn, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_ntwk_conn, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_NTWK_CONN, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_mkbrk, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_mkbrk, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_MK_BRK, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_pathfind, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_pathfind, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_PATH_FIND, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_pathidle, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_pathidle, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_PATH_IDLE, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_dest_digits, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_dest_digits, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_DEST_DIGITS, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_twc_rswch, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_twc_rswch, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_TWC_RSWCH, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_srcedest, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_srcedest, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_SRCE_DEST, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_INC_GWE, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_out_gwe, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_OUT_GWE, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_outgwebc, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_outgwebc, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_OUT_GWE_BC, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_q931, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_q931, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_Q931, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_ama, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_ama, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_AMA, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_qos, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_qos, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_QOS, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_echo_cancel, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_echo_cancel, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_ECHO_CANCEL, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_tone, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_tone, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_TONE, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_encap_isup, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_encap_isup, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_ENCAP_ISUP, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_tcap, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_tcap, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_TCAP, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_clli, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_clli, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_CLLI, c15ch_second_level_handle);
 
-    c15ch_second_level_handle = new_create_dissector_handle(dissect_c15ch_c15_info, proto_c15ch_second_level);
+    c15ch_second_level_handle = create_dissector_handle(dissect_c15ch_c15_info, proto_c15ch_second_level);
     dissector_add_uint("c15", C15_INFO, c15ch_second_level_handle);
 
     /* third level */
     /* tone */
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_tone_cot_control, proto_c15ch_third_level_tone);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_tone_cot_control, proto_c15ch_third_level_tone);
     dissector_add_uint("c15.tone", C15_TONE_COT, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_tone_cpm, proto_c15ch_third_level_tone);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_tone_cpm, proto_c15ch_third_level_tone);
     dissector_add_uint("c15.tone", C15_TONE_CPM, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_tone_give_tone, proto_c15ch_third_level_tone);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_tone_give_tone, proto_c15ch_third_level_tone);
     dissector_add_uint("c15.tone", C15_TONE_GIVE_TONE, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_tone_madn_ring, proto_c15ch_third_level_tone);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_tone_madn_ring, proto_c15ch_third_level_tone);
     dissector_add_uint("c15.tone", C15_TONE_MADN_RING, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_tone_opls, proto_c15ch_third_level_tone);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_tone_opls, proto_c15ch_third_level_tone);
     dissector_add_uint("c15.tone", C15_TONE_OPLS, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_tone_rcvr, proto_c15ch_third_level_tone);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_tone_rcvr, proto_c15ch_third_level_tone);
     dissector_add_uint("c15.tone", C15_TONE_RCVR, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_tone_timeout, proto_c15ch_third_level_tone);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_tone_timeout, proto_c15ch_third_level_tone);
     dissector_add_uint("c15.tone", C15_TONE_TIMEOUT, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_tone_tone_control, proto_c15ch_third_level_tone);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_tone_tone_control, proto_c15ch_third_level_tone);
     dissector_add_uint("c15.tone", C15_TONE_TONE_CONTROL, c15ch_third_level_handle);
 
     /* inc gwe */
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_reply, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_reply, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_REPLY, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_bc_pgi, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_bc_pgi, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_BC_PGI, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_mgcp_dlcx, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_mgcp_dlcx, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_MGCP_DLCX, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_h248_digit, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_h248_digit, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_H248_DIGIT, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_voip_cot, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_voip_cot, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_VOIP_COT, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_notify, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_notify, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_NOTIFY, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_admn_updt, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_admn_updt, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_ADMN_UPDT_REC, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_cl_setup, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_cl_setup, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_CL_SETUP, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_ptrk_setup, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_ptrk_setup, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_PTRK_SETUP, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_cl_prog, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_cl_prog, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_CL_PROG, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_cl_ans, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_cl_ans, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_CL_ANS, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_cl_rel, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_cl_rel, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_CL_REL, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_ntwk_mod, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_ntwk_mod, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_NTWK_MOD, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_rv_avail, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_rv_avail, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_RV_AVAIL, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_cl_redir, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_cl_redir, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_CL_REDIR, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_cl_refer, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_cl_refer, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_CL_REFER, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_chg_hndl, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_chg_hndl, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_CHG_HDL, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_subs_chg_hndl, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_subs_chg_hndl, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_SUBS_CHG_HDL, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_info, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_info, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_INFO, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_inv_repl, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_inv_repl, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_INV_REPL, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_admn_dn, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_admn_dn, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_ADMN_DN, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_sua_reply, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_sua_reply, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_SUA_REPLY, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_sua_hndl, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_sua_hndl, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_SUA_HNDL, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_inc_gwe_tgh_stat, proto_c15ch_third_level_inc_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_inc_gwe_tgh_stat, proto_c15ch_third_level_inc_gwe);
     dissector_add_uint("c15.inc_gwe", C15_INC_GWE_SUA_TGH_STAT, c15ch_third_level_handle);
 
     /* out gwe */
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_digit_scan, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_digit_scan, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_DIGIT_SCAN, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_conn_num, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_conn_num, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_CONN_NUM, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_mk_conn, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_mk_conn, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_MK_CONN, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_md_conn, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_md_conn, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_MD_CONN, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_call_ans, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_call_ans, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_CALL_ANS, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_call_setup, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_call_setup, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_CALL_SETUP, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_call_prog, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_call_prog, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_CALL_PROG, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_call_notify, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_call_notify, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_CALL_NOTIFY, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_call_rel, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_call_rel, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_CALL_REL, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_update_ni_tn, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_update_ni_tn, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_UPDT_NI_TN, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_pcm_data, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_pcm_data, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_PCM_DATA, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_blf_data, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_blf_data, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_BLF_DATA, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_out_cot, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_out_cot, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_COT, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_ring_line, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_ring_line, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_RING_LINE, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_audit_conn, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_audit_conn, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_AUDIT_CONN, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_sac_sub_valid, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_sac_sub_valid, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_SAC_SUB_VALID, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_sac_notify, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_sac_notify, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_SAC_NOTIFY, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_sac_list_entry, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_sac_list_entry, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_SAC_LIST_ENTRY, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_rv_subs_data, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_rv_subs_data, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_RV_SUBS_DATA, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_update_rec_addr, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_update_rec_addr, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_UPDT_REC_ADDR, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_del_subs_ua, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_del_subs_ua, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_DEL_SUBS_UA, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_line_sprvsn, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_line_sprvsn, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_LINE_SPRVSN, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_sip_info, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_sip_info, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_SIP_INFO, c15ch_third_level_handle);
 
-    c15ch_third_level_handle = new_create_dissector_handle(dissect_c15ch_out_gwe_sip_refer, proto_c15ch_third_level_out_gwe);
+    c15ch_third_level_handle = create_dissector_handle(dissect_c15ch_out_gwe_sip_refer, proto_c15ch_third_level_out_gwe);
     dissector_add_uint("c15.out_gwe", C15_OUT_GWE_SIP_REFER, c15ch_third_level_handle);
 
     /* find external dissectors */

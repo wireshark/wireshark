@@ -899,13 +899,13 @@ proto_reg_handoff_osc(void)
 
     if(! initialized)
     {
-        osc_tcp_handle = new_create_dissector_handle(dissect_osc_tcp, proto_osc);
+        osc_tcp_handle = create_dissector_handle(dissect_osc_tcp, proto_osc);
         /* register for "decode as" for TCP connections */
         dissector_add_for_decode_as("tcp.port", osc_tcp_handle);
 
         /* XXX: Add port pref and  "decode as" for UDP ? */
         /*      (The UDP heuristic is a bit expensive    */
-        osc_udp_handle = new_create_dissector_handle(dissect_osc_udp, proto_osc);
+        osc_udp_handle = create_dissector_handle(dissect_osc_udp, proto_osc);
         /* register as heuristic dissector for UDP connections */
         heur_dissector_add("udp", dissect_osc_heur_udp, "Open Sound Control over UDP", "osc_udp", proto_osc, HEURISTIC_ENABLE);
 

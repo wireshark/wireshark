@@ -246,7 +246,7 @@ proto_register_vlan(void)
         "The (hexadecimal) Ethertype used to indicate 802.1QinQ VLAN in VLAN tunneling.",
         16, &q_in_q_ethertype);
 
-  vlan_handle = new_create_dissector_handle(dissect_vlan, proto_vlan);
+  vlan_handle = create_dissector_handle(dissect_vlan, proto_vlan);
 }
 
 void

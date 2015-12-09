@@ -1167,7 +1167,7 @@ proto_reg_handoff_cimd(void)
   /**
    * Also register as one that can be selected by a TCP port number.
    */
-  cimd_handle = new_create_dissector_handle(dissect_cimd, proto_cimd);
+  cimd_handle = create_dissector_handle(dissect_cimd, proto_cimd);
   dissector_add_for_decode_as("tcp.port", cimd_handle);
 }
 

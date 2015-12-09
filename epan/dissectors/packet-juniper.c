@@ -1439,18 +1439,18 @@ proto_reg_handoff_juniper(void)
   ipv4_handle   = find_dissector("ip");
   data_handle   = find_dissector("data");
 
-  juniper_atm2_handle   = new_create_dissector_handle(dissect_juniper_atm2,   proto_juniper);
-  juniper_atm1_handle   = new_create_dissector_handle(dissect_juniper_atm1,   proto_juniper);
-  juniper_pppoe_handle  = new_create_dissector_handle(dissect_juniper_pppoe,  proto_juniper);
-  juniper_mlppp_handle  = new_create_dissector_handle(dissect_juniper_mlppp,  proto_juniper);
-  juniper_mlfr_handle   = new_create_dissector_handle(dissect_juniper_mlfr,   proto_juniper);
-  juniper_ether_handle  = new_create_dissector_handle(dissect_juniper_ether,  proto_juniper);
-  juniper_ppp_handle    = new_create_dissector_handle(dissect_juniper_ppp,    proto_juniper);
-  juniper_frelay_handle = new_create_dissector_handle(dissect_juniper_frelay, proto_juniper);
-  juniper_chdlc_handle  = new_create_dissector_handle(dissect_juniper_chdlc,  proto_juniper);
-  juniper_ggsn_handle   = new_create_dissector_handle(dissect_juniper_ggsn,   proto_juniper);
-  juniper_vp_handle     = new_create_dissector_handle(dissect_juniper_vp,     proto_juniper);
-  juniper_svcs_handle   = new_create_dissector_handle(dissect_juniper_svcs,   proto_juniper);
+  juniper_atm2_handle   = create_dissector_handle(dissect_juniper_atm2,   proto_juniper);
+  juniper_atm1_handle   = create_dissector_handle(dissect_juniper_atm1,   proto_juniper);
+  juniper_pppoe_handle  = create_dissector_handle(dissect_juniper_pppoe,  proto_juniper);
+  juniper_mlppp_handle  = create_dissector_handle(dissect_juniper_mlppp,  proto_juniper);
+  juniper_mlfr_handle   = create_dissector_handle(dissect_juniper_mlfr,   proto_juniper);
+  juniper_ether_handle  = create_dissector_handle(dissect_juniper_ether,  proto_juniper);
+  juniper_ppp_handle    = create_dissector_handle(dissect_juniper_ppp,    proto_juniper);
+  juniper_frelay_handle = create_dissector_handle(dissect_juniper_frelay, proto_juniper);
+  juniper_chdlc_handle  = create_dissector_handle(dissect_juniper_chdlc,  proto_juniper);
+  juniper_ggsn_handle   = create_dissector_handle(dissect_juniper_ggsn,   proto_juniper);
+  juniper_vp_handle     = create_dissector_handle(dissect_juniper_vp,     proto_juniper);
+  juniper_svcs_handle   = create_dissector_handle(dissect_juniper_svcs,   proto_juniper);
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ATM2,   juniper_atm2_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_JUNIPER_ATM1,   juniper_atm1_handle);

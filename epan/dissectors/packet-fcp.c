@@ -983,7 +983,7 @@ proto_reg_handoff_fcp(void)
 {
     dissector_handle_t fcp_handle;
 
-    fcp_handle = new_create_dissector_handle(dissect_fcp, proto_fcp);
+    fcp_handle = create_dissector_handle(dissect_fcp, proto_fcp);
     dissector_add_uint("fc.ftype", FC_FTYPE_SCSI, fcp_handle);
 
     data_handle = find_dissector("data");

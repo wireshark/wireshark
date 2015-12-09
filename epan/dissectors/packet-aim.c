@@ -1717,7 +1717,7 @@ proto_reg_handoff_aim(void)
 {
 	dissector_handle_t aim_handle;
 
-	aim_handle = new_create_dissector_handle(dissect_aim, proto_aim);
+	aim_handle = create_dissector_handle(dissect_aim, proto_aim);
 	dissector_add_uint("tcp.port", TCP_PORT_AIM, aim_handle);
 }
 

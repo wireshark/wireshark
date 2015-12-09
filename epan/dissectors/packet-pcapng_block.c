@@ -67,7 +67,7 @@ proto_reg_handoff_pcapng_block(void)
 {
 	dissector_handle_t pcapng_block_handle;
 
-	pcapng_block_handle = new_create_dissector_handle(dissect_pcapng_block,
+	pcapng_block_handle = create_dissector_handle(dissect_pcapng_block,
 	    proto_pcapng_block);
 	dissector_add_uint("wtap_fts_rec", WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
 	    pcapng_block_handle);

@@ -962,7 +962,7 @@ proto_reg_handoff_pptp(void)
 {
   dissector_handle_t pptp_handle;
 
-  pptp_handle = new_create_dissector_handle(dissect_pptp, proto_pptp);
+  pptp_handle = create_dissector_handle(dissect_pptp, proto_pptp);
   dissector_add_uint("tcp.port", TCP_PORT_PPTP, pptp_handle);
   data_handle = find_dissector("data");
 }

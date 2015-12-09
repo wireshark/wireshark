@@ -3567,8 +3567,8 @@ void proto_reg_handoff_ecmp(void)
 	static dissector_handle_t ecmp_tcp_handle, ecmp_udp_handle;
 
 	if (!initialized) {
-		ecmp_tcp_handle = new_create_dissector_handle(dissect_ecmp_tcp, proto_ecmp);
-		ecmp_udp_handle = new_create_dissector_handle(dissect_ecmp_udp, proto_ecmp);
+		ecmp_tcp_handle = create_dissector_handle(dissect_ecmp_tcp, proto_ecmp);
+		ecmp_udp_handle = create_dissector_handle(dissect_ecmp_udp, proto_ecmp);
 
 		/* Cyclic frames are over UDP and non-cyclic are over TCP */
 		dissector_add_uint("udp.port", global_ecmp_port, ecmp_udp_handle);

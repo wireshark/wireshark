@@ -169,7 +169,7 @@ proto_reg_handoff_oipf(void)
     dissector_handle_t oipf_ciplus_handle;
 
     oipf_ciplus_handle =
-        new_create_dissector_handle(dissect_oipf_ciplus, proto_oipf_ciplus);
+        create_dissector_handle(dissect_oipf_ciplus, proto_oipf_ciplus);
 
     dissector_add_string("dvb-ci.sas.app_id_str",
             sas_app_id_str_oipf, oipf_ciplus_handle);

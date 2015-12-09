@@ -243,7 +243,7 @@ proto_reg_handoff_tpcp(void)
 {
 	dissector_handle_t tpcp_handle;
 
-	tpcp_handle = new_create_dissector_handle(dissect_tpcp, proto_tpcp);
+	tpcp_handle = create_dissector_handle(dissect_tpcp, proto_tpcp);
 	dissector_add_uint("udp.port", UDP_PORT_TPCP, tpcp_handle);
 }
 

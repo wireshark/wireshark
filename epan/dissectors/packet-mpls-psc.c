@@ -240,7 +240,7 @@ proto_reg_handoff_mpls_psc(void)
 {
     dissector_handle_t mpls_psc_handle;
 
-    mpls_psc_handle    = new_create_dissector_handle( dissect_mpls_psc, proto_mpls_psc );
+    mpls_psc_handle    = create_dissector_handle( dissect_mpls_psc, proto_mpls_psc );
     dissector_add_uint("pwach.channel_type", 0x0024, mpls_psc_handle); /* FF: PSC, RFC 6378 */
 }
 

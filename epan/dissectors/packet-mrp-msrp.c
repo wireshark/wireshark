@@ -789,7 +789,7 @@ proto_reg_handoff_mrp_msrp(void)
 {
     dissector_handle_t msrp_handle;
 
-    msrp_handle = new_create_dissector_handle(dissect_msrp, proto_msrp);
+    msrp_handle = create_dissector_handle(dissect_msrp, proto_msrp);
     dissector_add_uint("ethertype", ETHERTYPE_MSRP, msrp_handle);
 }
 

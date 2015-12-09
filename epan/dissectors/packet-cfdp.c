@@ -1633,7 +1633,7 @@ proto_reg_handoff_cfdp(void)
 {
     static dissector_handle_t cfdp_handle;
 
-    cfdp_handle = new_create_dissector_handle(dissect_cfdp, proto_cfdp);
+    cfdp_handle = create_dissector_handle(dissect_cfdp, proto_cfdp);
     dissector_add_uint("ccsds.apid", CFDP_APID, cfdp_handle);
     dissector_add_for_decode_as ( "udp.port", cfdp_handle );
     data_handle = find_dissector("data");

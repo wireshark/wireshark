@@ -1089,7 +1089,7 @@ proto_reg_handoff_enrp(void)
 {
   dissector_handle_t enrp_handle;
 
-  enrp_handle = new_create_dissector_handle(dissect_enrp, proto_enrp);
+  enrp_handle = create_dissector_handle(dissect_enrp, proto_enrp);
   dissector_add_uint("sctp.ppi",  ENRP_PAYLOAD_PROTOCOL_ID, enrp_handle);
   dissector_add_uint("sctp.port", ENRP_SCTP_PORT,           enrp_handle);
   dissector_add_uint("udp.port",  ENRP_UDP_PORT,            enrp_handle);

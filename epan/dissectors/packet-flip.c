@@ -490,7 +490,7 @@ proto_reg_handoff_flip(void)
 {
     dissector_handle_t flip_handle;
 
-    flip_handle = new_create_dissector_handle(dissect_flip, proto_flip);
+    flip_handle = create_dissector_handle(dissect_flip, proto_flip);
     dissector_add_uint("ethertype", ETHERTYPE_FLIP, flip_handle);
 
     data_handle = find_dissector("data");

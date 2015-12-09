@@ -530,7 +530,7 @@ proto_reg_handoff_osi(void)
   static guint              tcp_port_osi_over_tpkt;
 
   if (!osi_prefs_initialized) {
-    osi_handle = new_create_dissector_handle(dissect_osi, proto_osi);
+    osi_handle = create_dissector_handle(dissect_osi, proto_osi);
     dissector_add_uint("llc.dsap", SAP_OSINL1, osi_handle);
     dissector_add_uint("llc.dsap", SAP_OSINL2, osi_handle);
     dissector_add_uint("llc.dsap", SAP_OSINL3, osi_handle);
@@ -542,7 +542,7 @@ proto_reg_handoff_osi(void)
     dissector_add_uint("gre.proto", SAP_OSINL5, osi_handle);
     dissector_add_uint("ip.proto", IP_PROTO_ISOIP, osi_handle); /* ISO network layer PDUs [RFC 1070] */
 
-    osi_juniper_handle = new_create_dissector_handle(dissect_osi_juniper, proto_osi);
+    osi_juniper_handle = create_dissector_handle(dissect_osi_juniper, proto_osi);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_ISO, osi_juniper_handle);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_CLNP, osi_juniper_handle);
     dissector_add_uint("juniper.proto", JUNIPER_PROTO_MPLS_CLNP, osi_juniper_handle);
@@ -551,7 +551,7 @@ proto_reg_handoff_osi(void)
     ppp_handle  = find_dissector("ppp");
 
 
-    osi_tpkt_handle = new_create_dissector_handle(dissect_osi_tpkt, proto_osi);
+    osi_tpkt_handle = create_dissector_handle(dissect_osi_tpkt, proto_osi);
     dissector_add_for_decode_as("tcp.port", osi_tpkt_handle);
     osi_prefs_initialized = TRUE;
   } else {

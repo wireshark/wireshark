@@ -309,7 +309,7 @@ proto_reg_handoff_dtcp_ip(void)
 
     if (!initialized) {
         dtcp_ip_handle =
-            new_create_dissector_handle(dissect_dtcp_ip, proto_dtcp_ip);
+            create_dissector_handle(dissect_dtcp_ip, proto_dtcp_ip);
         initialized = TRUE;
     }
     else

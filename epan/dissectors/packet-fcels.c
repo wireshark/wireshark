@@ -2624,7 +2624,7 @@ proto_reg_handoff_fcels (void)
 {
     dissector_handle_t els_handle;
 
-    els_handle = new_create_dissector_handle (dissect_fcels, proto_fcels);
+    els_handle = create_dissector_handle (dissect_fcels, proto_fcels);
     dissector_add_uint("fc.ftype", FC_FTYPE_ELS, els_handle);
 
     data_handle = find_dissector ("data");

@@ -1508,9 +1508,9 @@ proto_register_isis_hello(void)
 void
 proto_reg_handoff_isis_hello(void)
 {
-    dissector_add_uint("isis.type", ISIS_TYPE_L1_HELLO, new_create_dissector_handle(dissect_isis_l1_hello, proto_isis_hello));
-    dissector_add_uint("isis.type", ISIS_TYPE_L2_HELLO, new_create_dissector_handle(dissect_isis_l2_hello, proto_isis_hello));
-    dissector_add_uint("isis.type", ISIS_TYPE_PTP_HELLO, new_create_dissector_handle(dissect_isis_ptp_hello, proto_isis_hello));
+    dissector_add_uint("isis.type", ISIS_TYPE_L1_HELLO, create_dissector_handle(dissect_isis_l1_hello, proto_isis_hello));
+    dissector_add_uint("isis.type", ISIS_TYPE_L2_HELLO, create_dissector_handle(dissect_isis_l2_hello, proto_isis_hello));
+    dissector_add_uint("isis.type", ISIS_TYPE_PTP_HELLO, create_dissector_handle(dissect_isis_ptp_hello, proto_isis_hello));
 }
 
 /*

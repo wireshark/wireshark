@@ -12917,9 +12917,9 @@ proto_reg_handoff_ansi_a(void)
     {
         dissector_handle_t      bsmap_handle, sip_dtap_bsmap_handle;
 
-        bsmap_handle = new_create_dissector_handle(dissect_bsmap, proto_a_bsmap);
-        dtap_handle = new_create_dissector_handle(dissect_dtap, proto_a_dtap);
-        sip_dtap_bsmap_handle = new_create_dissector_handle(dissect_sip_dtap_bsmap, proto_a_dtap);
+        bsmap_handle = create_dissector_handle(dissect_bsmap, proto_a_bsmap);
+        dtap_handle = create_dissector_handle(dissect_dtap, proto_a_dtap);
+        sip_dtap_bsmap_handle = create_dissector_handle(dissect_sip_dtap_bsmap, proto_a_dtap);
         data_handle = find_dissector("data");
 
         dissector_add_uint("bsap.pdu_type",  BSSAP_PDU_TYPE_BSMAP, bsmap_handle);

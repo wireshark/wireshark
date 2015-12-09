@@ -595,7 +595,7 @@ proto_reg_handoff_nasdaq_itch(void)
 {
   dissector_handle_t nasdaq_itch_handle;
 
-  nasdaq_itch_handle = new_create_dissector_handle( dissect_nasdaq_itch, proto_nasdaq_itch );
+  nasdaq_itch_handle = create_dissector_handle( dissect_nasdaq_itch, proto_nasdaq_itch );
   dissector_add_for_decode_as("moldudp64.payload", nasdaq_itch_handle );
 }
 

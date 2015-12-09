@@ -513,7 +513,7 @@ void proto_reg_handoff_1722a(void)
 {
     dissector_handle_t avb1722a_handle;
 
-    avb1722a_handle = new_create_dissector_handle(dissect_1722a, proto_1722a);
+    avb1722a_handle = create_dissector_handle(dissect_1722a, proto_1722a);
     dissector_add_uint("ieee1722.subtype", IEEE_1722A_SUBTYPE_AVTP_AUDIO, avb1722a_handle);
     dissector_add_uint("ieee1722.subtype", IEEE_1722A_SUBTYPE_CRF,        avb1722a_handle);
 }

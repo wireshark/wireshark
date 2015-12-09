@@ -879,7 +879,7 @@ proto_reg_handoff_winsrepl(void)
 {
 	dissector_handle_t winsrepl_handle;
 
-	winsrepl_handle = new_create_dissector_handle(dissect_winsrepl, proto_winsrepl);
+	winsrepl_handle = create_dissector_handle(dissect_winsrepl, proto_winsrepl);
 	dissector_add_uint("tcp.port", glb_winsrepl_tcp_port, winsrepl_handle);
 }
 

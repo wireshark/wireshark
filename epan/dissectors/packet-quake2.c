@@ -854,7 +854,7 @@ proto_reg_handoff_quake2(void)
     static guint ServerPort;
 
     if (!Initialized) {
-        quake2_handle = new_create_dissector_handle(dissect_quake2,
+        quake2_handle = create_dissector_handle(dissect_quake2,
                 proto_quake2);
         data_handle = find_dissector("data");
         Initialized=TRUE;

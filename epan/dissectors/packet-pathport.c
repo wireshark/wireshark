@@ -694,7 +694,7 @@ proto_reg_handoff_pathport(void)
 {
     static dissector_handle_t pathport_handle;
 
-    pathport_handle = new_create_dissector_handle(dissect_pathport, proto_pathport);
+    pathport_handle = create_dissector_handle(dissect_pathport, proto_pathport);
     heur_dissector_add("udp", dissect_pathport_heur, "Pathport over UDP", "pathport_udp", proto_pathport, HEURISTIC_ENABLE);
     dissector_add_uint("udp.port", PATHPORT_UDP_PORT, pathport_handle);
 }

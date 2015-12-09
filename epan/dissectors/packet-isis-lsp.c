@@ -4976,8 +4976,8 @@ proto_register_isis_lsp(void)
 void
 proto_reg_handoff_isis_lsp(void)
 {
-    dissector_add_uint("isis.type", ISIS_TYPE_L1_LSP, new_create_dissector_handle(dissect_isis_l1_lsp, proto_isis_lsp));
-    dissector_add_uint("isis.type", ISIS_TYPE_L2_LSP, new_create_dissector_handle(dissect_isis_l2_lsp, proto_isis_lsp));
+    dissector_add_uint("isis.type", ISIS_TYPE_L1_LSP, create_dissector_handle(dissect_isis_l1_lsp, proto_isis_lsp));
+    dissector_add_uint("isis.type", ISIS_TYPE_L2_LSP, create_dissector_handle(dissect_isis_l2_lsp, proto_isis_lsp));
 }
 
 /*

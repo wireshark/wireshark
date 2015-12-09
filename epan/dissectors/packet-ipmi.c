@@ -1834,7 +1834,7 @@ void proto_reg_handoff_ipmi(void)
 {
 	dissector_handle_t ipmi_handle;
 
-	ipmi_handle = new_create_dissector_handle( dissect_i2c_ipmi, proto_ipmi );
+	ipmi_handle = create_dissector_handle( dissect_i2c_ipmi, proto_ipmi );
 	dissector_add_for_decode_as("i2c.message", ipmi_handle );
 }
 

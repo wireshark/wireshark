@@ -2247,10 +2247,10 @@ proto_reg_handoff_mausb(void)
 
     if (!initialized) {
         /* only initialize once */
-        mausb_tcp_handle = new_create_dissector_handle(dissect_mausb,
+        mausb_tcp_handle = create_dissector_handle(dissect_mausb,
                 proto_mausb);
 
-        mausb_pkt_handle = new_create_dissector_handle(dissect_mausb_pkt,
+        mausb_pkt_handle = create_dissector_handle(dissect_mausb_pkt,
                 proto_mausb);
 
         dissector_add_uint("llc.wfa_pid", PID_MAUSB, mausb_pkt_handle);

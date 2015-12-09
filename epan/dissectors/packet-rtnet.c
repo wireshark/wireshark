@@ -1326,7 +1326,7 @@ void
 proto_reg_handoff_rtmac(void) {
   dissector_handle_t rtmac_handle;
 
-  rtmac_handle = new_create_dissector_handle(dissect_rtmac, proto_rtmac);
+  rtmac_handle = create_dissector_handle(dissect_rtmac, proto_rtmac);
   dissector_add_uint("ethertype", ETHERTYPE_RTMAC, rtmac_handle);
   ethertype_table = find_dissector_table("ethertype");
 }
@@ -1336,7 +1336,7 @@ proto_reg_handoff_rtcfg(void) {
   dissector_handle_t rtcfg_handle;
 
   data_handle = find_dissector("data");
-  rtcfg_handle = new_create_dissector_handle(dissect_rtcfg, proto_rtcfg);
+  rtcfg_handle = create_dissector_handle(dissect_rtcfg, proto_rtcfg);
   dissector_add_uint("ethertype", ETHERTYPE_RTCFG, rtcfg_handle);
 }
 

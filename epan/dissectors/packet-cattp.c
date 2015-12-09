@@ -575,7 +575,7 @@ proto_reg_handoff_cattp(void)
         dissector_handle_t cattp_handle;
 
         /* Create dissector handle */
-        cattp_handle = new_create_dissector_handle(dissect_cattp, proto_cattp);
+        cattp_handle = create_dissector_handle(dissect_cattp, proto_cattp);
 
         /* find data handle */
         data_handle = find_dissector("data");

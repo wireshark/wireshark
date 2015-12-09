@@ -254,7 +254,7 @@ proto_reg_handoff_mplstp_lock(void)
 {
   dissector_handle_t mplstp_lock_handle;
 
-  mplstp_lock_handle    = new_create_dissector_handle( dissect_mplstp_lock, proto_mplstp_lock );
+  mplstp_lock_handle    = create_dissector_handle( dissect_mplstp_lock, proto_mplstp_lock );
   dissector_add_uint("pwach.channel_type", 0x0026, mplstp_lock_handle); /* KM: MPLSTP LOCK, RFC 6435 */
 }
 
@@ -343,7 +343,7 @@ proto_reg_handoff_mplstp_fm(void)
 {
   dissector_handle_t mplstp_fm_handle;
 
-  mplstp_fm_handle = new_create_dissector_handle( dissect_mplstp_fm, proto_mplstp_fm );
+  mplstp_fm_handle = create_dissector_handle( dissect_mplstp_fm, proto_mplstp_fm );
   dissector_add_uint("pwach.channel_type", 0x0058, mplstp_fm_handle); /* KM: MPLSTP FM, RFC 6427 */
 }
 

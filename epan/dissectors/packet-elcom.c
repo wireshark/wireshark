@@ -760,7 +760,7 @@ proto_reg_handoff_elcom(void)
 {
         dissector_handle_t elcom_handle;
 
-        elcom_handle = new_create_dissector_handle(dissect_elcom, proto_elcom);
+        elcom_handle = create_dissector_handle(dissect_elcom, proto_elcom);
         dissector_add_uint("tcp.port", TCP_PORT_ELCOM, elcom_handle);
 }
 

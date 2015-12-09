@@ -1197,9 +1197,9 @@ proto_reg_handoff_dtpt(void)
 	static int ServerPort;
 
 	if (!Initialized) {
-		dtpt_handle = new_create_dissector_handle(dissect_dtpt, proto_dtpt);
-		dtpt_conversation_handle = new_create_dissector_handle(dissect_dtpt_conversation, proto_dtpt);
-/**		dtpt_data_handle = new_create_dissector_handle(dissect_dtpt_data, proto_dtpt); **/
+		dtpt_handle = create_dissector_handle(dissect_dtpt, proto_dtpt);
+		dtpt_conversation_handle = create_dissector_handle(dissect_dtpt_conversation, proto_dtpt);
+/**		dtpt_data_handle = create_dissector_handle(dissect_dtpt_data, proto_dtpt); **/
 
 		data_handle = find_dissector("data");
 		Initialized=TRUE;

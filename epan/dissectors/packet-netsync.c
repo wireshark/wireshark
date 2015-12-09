@@ -750,7 +750,7 @@ proto_reg_handoff_netsync(void)
 	static gboolean initialized = FALSE;
 
 	if (!initialized) {
-		netsync_handle = new_create_dissector_handle(dissect_netsync, proto_netsync);
+		netsync_handle = create_dissector_handle(dissect_netsync, proto_netsync);
 		initialized = TRUE;
 	} else {
 		dissector_delete_uint("tcp.port", tcp_port_netsync, netsync_handle);

@@ -1604,21 +1604,21 @@ proto_reg_handoff_ipx(void)
 	dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_IPX, ipx_handle);
 	dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_NOVELL_EC, ipx_handle);
 
-	spx_handle = new_create_dissector_handle(dissect_spx, proto_spx);
+	spx_handle = create_dissector_handle(dissect_spx, proto_spx);
 	dissector_add_uint("ipx.packet_type", IPX_PACKET_TYPE_SPX, spx_handle);
 
 	ipxsap_handle = find_dissector("ipxsap");
 	dissector_add_uint("ipx.socket", IPX_SOCKET_SAP, ipxsap_handle);
 
-	ipxrip_handle = new_create_dissector_handle(dissect_ipxrip, proto_ipxrip);
+	ipxrip_handle = create_dissector_handle(dissect_ipxrip, proto_ipxrip);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPXRIP, ipxrip_handle);
 
-	serialization_handle = new_create_dissector_handle(dissect_serialization,
+	serialization_handle = create_dissector_handle(dissect_serialization,
 	    proto_serialization);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_SERIALIZATION,
 	    serialization_handle);
 
-	ipxmsg_handle = new_create_dissector_handle(dissect_ipxmsg, proto_ipxmsg);
+	ipxmsg_handle = create_dissector_handle(dissect_ipxmsg, proto_ipxmsg);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPX_MESSAGE, ipxmsg_handle);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPX_MESSAGE1, ipxmsg_handle);
 

@@ -126,7 +126,7 @@ proto_reg_handoff_swipe(void)
 {
     dissector_handle_t swipe_handle;
 
-    swipe_handle = new_create_dissector_handle(dissect_swipe, proto_swipe );
+    swipe_handle = create_dissector_handle(dissect_swipe, proto_swipe );
     dissector_add_uint("ip.proto", IP_PROTO_SWIPE, swipe_handle);
 
     ipv6_handle = find_dissector("ipv6");

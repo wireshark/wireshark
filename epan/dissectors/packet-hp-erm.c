@@ -173,7 +173,7 @@ proto_reg_handoff_hp_erm(void)
 
     if (!initialized) {
         eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-        hp_erm_handle = new_create_dissector_handle(dissect_hp_erm, proto_hp_erm);
+        hp_erm_handle = create_dissector_handle(dissect_hp_erm, proto_hp_erm);
         initialized = TRUE;
     } else {
         if (hp_erm_udp_port != 0)

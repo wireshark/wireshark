@@ -635,7 +635,7 @@ proto_reg_handoff_wow(void)
 {
 	dissector_handle_t wow_handle;
 
-	wow_handle = new_create_dissector_handle(dissect_wow, proto_wow);
+	wow_handle = create_dissector_handle(dissect_wow, proto_wow);
 	dissector_add_uint("tcp.port", WOW_PORT, wow_handle);
 
 }

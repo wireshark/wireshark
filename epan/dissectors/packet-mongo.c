@@ -1057,7 +1057,7 @@ proto_reg_handoff_mongo(void)
 
   if (!initialized) {
 
-    mongo_handle = new_create_dissector_handle(dissect_mongo, proto_mongo);
+    mongo_handle = create_dissector_handle(dissect_mongo, proto_mongo);
     initialized = TRUE;
   } else {
     dissector_delete_uint("tcp.port", currentPort, mongo_handle);

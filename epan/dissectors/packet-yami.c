@@ -596,7 +596,7 @@ proto_register_yami(void)
 			"To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 			&yami_desegment);
 
-	yami_handle = new_create_dissector_handle(dissect_yami, proto_yami);
+	yami_handle = create_dissector_handle(dissect_yami, proto_yami);
 }
 
 void

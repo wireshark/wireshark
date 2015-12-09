@@ -133,7 +133,7 @@ proto_reg_handoff_nntp(void)
 {
 	dissector_handle_t nntp_handle;
 
-	nntp_handle = new_create_dissector_handle(dissect_nntp, proto_nntp);
+	nntp_handle = create_dissector_handle(dissect_nntp, proto_nntp);
 	dissector_add_uint("tcp.port", TCP_PORT_NNTP, nntp_handle);
 }
 

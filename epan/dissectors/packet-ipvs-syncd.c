@@ -333,7 +333,7 @@ proto_reg_handoff_ipvs_syncd(void)
 {
 	dissector_handle_t ipvs_syncd_handle;
 
-	ipvs_syncd_handle = new_create_dissector_handle(dissect_ipvs_syncd, proto_ipvs_syncd);
+	ipvs_syncd_handle = create_dissector_handle(dissect_ipvs_syncd, proto_ipvs_syncd);
 	dissector_add_uint("udp.port", IPVS_SYNCD_PORT, ipvs_syncd_handle);
 }
 

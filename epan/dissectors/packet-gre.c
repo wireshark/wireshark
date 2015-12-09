@@ -745,7 +745,7 @@ proto_reg_handoff_gre(void)
 {
     dissector_handle_t gre_handle;
 
-    gre_handle = new_create_dissector_handle(dissect_gre, proto_gre);
+    gre_handle = create_dissector_handle(dissect_gre, proto_gre);
     dissector_add_uint("ip.proto", IP_PROTO_GRE, gre_handle);
     data_handle = find_dissector("data");
 }

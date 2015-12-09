@@ -344,7 +344,7 @@ proto_reg_handoff_igap(void)
 {
     dissector_handle_t igap_handle;
 
-    igap_handle = new_create_dissector_handle(dissect_igap, proto_igap);
+    igap_handle = create_dissector_handle(dissect_igap, proto_igap);
     dissector_add_uint("igmp.type", IGMP_IGAP_JOIN, igap_handle);
     dissector_add_uint("igmp.type", IGMP_IGAP_QUERY, igap_handle);
     dissector_add_uint("igmp.type", IGMP_IGAP_LEAVE, igap_handle);

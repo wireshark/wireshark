@@ -740,7 +740,7 @@ void proto_reg_handoff_packetbb(void) {
   static guint packetbb_udp_port;
 
   if (!packetbb_prefs_initialized) {
-    packetbb_handle = new_create_dissector_handle(dissect_packetbb, proto_packetbb);
+    packetbb_handle = create_dissector_handle(dissect_packetbb, proto_packetbb);
     packetbb_prefs_initialized = TRUE;
   }
   else {

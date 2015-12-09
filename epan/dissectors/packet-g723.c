@@ -91,7 +91,7 @@ proto_reg_handoff_g723(void)
 {
 	dissector_handle_t g723_handle;
 
-	g723_handle = new_create_dissector_handle(dissect_g723, proto_g723);
+	g723_handle = create_dissector_handle(dissect_g723, proto_g723);
 
 	dissector_add_uint("rtp.pt", PT_G723, g723_handle);
 

@@ -193,7 +193,7 @@ proto_reg_handoff_macsec(void)
 {
     dissector_handle_t macsec_handle;
     data_handle = find_dissector("data");
-    macsec_handle = new_create_dissector_handle(dissect_macsec, proto_macsec);
+    macsec_handle = create_dissector_handle(dissect_macsec, proto_macsec);
     dissector_add_uint("ethertype", ETHERTYPE_MACSEC, macsec_handle);
 }
 

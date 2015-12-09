@@ -139,7 +139,7 @@ proto_reg_handoff_ans(void)
 {
 	dissector_handle_t ans_handle;
 
-	ans_handle = new_create_dissector_handle(dissect_ans, proto_ans);
+	ans_handle = create_dissector_handle(dissect_ans, proto_ans);
 	dissector_add_uint("ethertype", ETHERTYPE_INTEL_ANS, ans_handle);
 }
 

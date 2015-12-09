@@ -284,7 +284,7 @@ proto_register_ax25_nol3(void)
 void
 proto_reg_handoff_ax25_nol3(void)
 {
-	dissector_add_uint( "ax25.pid", AX25_P_NO_L3, new_create_dissector_handle( dissect_ax25_nol3, proto_ax25_nol3 ) );
+	dissector_add_uint( "ax25.pid", AX25_P_NO_L3, create_dissector_handle( dissect_ax25_nol3, proto_ax25_nol3 ) );
 
 	/*
 	 */

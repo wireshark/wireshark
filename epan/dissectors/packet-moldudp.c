@@ -263,7 +263,7 @@ proto_reg_handoff_moldudp(void)
     static int                currentPort;
 
     if (!initialized) {
-        moldudp_handle = new_create_dissector_handle(dissect_moldudp,
+        moldudp_handle = create_dissector_handle(dissect_moldudp,
                 proto_moldudp);
         initialized = TRUE;
     } else {

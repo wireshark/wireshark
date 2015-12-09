@@ -134,7 +134,7 @@ proto_reg_handoff_teimanagement(void)
 {
     dissector_handle_t teimanagement_handle;
 
-    teimanagement_handle = new_create_dissector_handle(dissect_teimanagement,
+    teimanagement_handle = create_dissector_handle(dissect_teimanagement,
         proto_tei);
     dissector_add_uint("lapd.sapi", LAPD_SAPI_L2, teimanagement_handle);
 }

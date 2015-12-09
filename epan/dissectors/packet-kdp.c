@@ -405,7 +405,7 @@ void proto_register_kdp(void) {
 void
 proto_reg_handoff_kdp(void) {
   dissector_handle_t kdp_handle;
-  kdp_handle = new_create_dissector_handle(dissect_kdp, proto_kdp);
+  kdp_handle = create_dissector_handle(dissect_kdp, proto_kdp);
   dissector_add_uint("udp.port", KDP_PORT, kdp_handle);
 }
 

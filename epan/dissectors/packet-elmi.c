@@ -534,7 +534,7 @@ proto_reg_handoff_elmi(void)
 {
     dissector_handle_t elmi_handle;
 
-    elmi_handle = new_create_dissector_handle(dissect_elmi, proto_elmi);
+    elmi_handle = create_dissector_handle(dissect_elmi, proto_elmi);
     dissector_add_uint("ethertype", ETHERTYPE_ELMI, elmi_handle);
 }
 

@@ -11570,7 +11570,7 @@ proto_reg_handoff_netflow(void)
     static range_t  *ipfix_ports;
 
     if (!netflow_prefs_initialized) {
-        netflow_handle = new_create_dissector_handle(dissect_netflow, proto_netflow);
+        netflow_handle = create_dissector_handle(dissect_netflow, proto_netflow);
         netflow_prefs_initialized = TRUE;
         dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IPFIX, netflow_handle);
     } else {

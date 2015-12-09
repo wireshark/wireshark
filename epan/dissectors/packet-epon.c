@@ -288,7 +288,7 @@ proto_reg_handoff_epon(void)
 {
   dissector_handle_t epon_handle;
 
-  epon_handle = new_create_dissector_handle(dissect_epon, proto_epon);
+  epon_handle = create_dissector_handle(dissect_epon, proto_epon);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_EPON, epon_handle);
 
   eth_handle = find_dissector("eth");

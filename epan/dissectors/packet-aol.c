@@ -398,7 +398,7 @@ void proto_register_aol(void) {
 void proto_reg_handoff_aol(void) {
 	static dissector_handle_t aol_handle;
 
-	aol_handle = new_create_dissector_handle(dissect_aol,proto_aol);
+	aol_handle = create_dissector_handle(dissect_aol,proto_aol);
 	dissector_add_uint("tcp.port",AOL_PORT,aol_handle);
 }
 

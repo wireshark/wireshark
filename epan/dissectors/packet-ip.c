@@ -3187,7 +3187,7 @@ proto_reg_handoff_ip(void)
   ip_handle = find_dissector("ip");
   ipv6_handle = find_dissector("ipv6");
   data_handle = find_dissector("data");
-  ipv4_handle = new_create_dissector_handle(dissect_ip_v4, proto_ip);
+  ipv4_handle = create_dissector_handle(dissect_ip_v4, proto_ip);
 
   dissector_add_uint("ethertype", ETHERTYPE_IP, ipv4_handle);
   dissector_add_uint("erf.types.type", ERF_TYPE_IPV4, ip_handle);

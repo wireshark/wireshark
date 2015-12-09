@@ -276,11 +276,11 @@ proto_reg_handoff_nb_rtpmux(void)
     static gboolean nb_rtpmux_initialized = FALSE;
     dissector_handle_t nb_rtpmux_handle;
 
-    /*  Use new_create_dissector_handle() to indicate that dissect_nb_rtpmux()
+    /*  Use create_dissector_handle() to indicate that dissect_nb_rtpmux()
      *  returns the number of bytes it dissected (or 0 if it thinks the packet
      *  does not belong to PROTONAME).
      */
-    nb_rtpmux_handle = new_create_dissector_handle(dissect_nb_rtpmux,
+    nb_rtpmux_handle = create_dissector_handle(dissect_nb_rtpmux,
                                                    proto_nb_rtpmux);
 
     if (!nb_rtpmux_initialized)

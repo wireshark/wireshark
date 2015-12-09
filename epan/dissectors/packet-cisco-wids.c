@@ -196,7 +196,7 @@ proto_reg_handoff_cwids(void)
 	static gboolean initialized = FALSE;
 
 	if (!initialized) {
-		cwids_handle = new_create_dissector_handle(dissect_cwids, proto_cwids);
+		cwids_handle = create_dissector_handle(dissect_cwids, proto_cwids);
 		dissector_add_for_decode_as("udp.port", cwids_handle);
 		ieee80211_radio_handle = find_dissector("wlan_radio");
 		initialized = TRUE;

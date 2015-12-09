@@ -3968,7 +3968,7 @@ proto_reg_handoff_omron_fins(void)
 {
     dissector_handle_t omron_fins_handle;
 
-    omron_fins_handle = new_create_dissector_handle(dissect_omron_fins, proto_omron_fins);
+    omron_fins_handle = create_dissector_handle(dissect_omron_fins, proto_omron_fins);
     dissector_add_uint("udp.port", OMRON_FINS_UDP_PORT, omron_fins_handle);
 }
 

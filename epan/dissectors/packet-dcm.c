@@ -7336,7 +7336,7 @@ void
 proto_reg_handoff_dcm(void)
 {
 
-    dcm_handle = new_create_dissector_handle(dissect_dcm_static, proto_dcm);
+    dcm_handle = create_dissector_handle(dissect_dcm_static, proto_dcm);
 
     dcm_apply_settings();       /* Register static ports */
 

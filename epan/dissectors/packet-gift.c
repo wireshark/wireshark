@@ -157,7 +157,7 @@ proto_reg_handoff_gift(void)
 {
 	dissector_handle_t gift_handle;
 
-	gift_handle = new_create_dissector_handle(dissect_gift, proto_gift);
+	gift_handle = create_dissector_handle(dissect_gift, proto_gift);
 	dissector_add_uint("tcp.port", TCP_PORT_GIFT, gift_handle);
 }
 

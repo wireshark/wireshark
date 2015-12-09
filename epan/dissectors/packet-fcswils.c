@@ -2541,7 +2541,7 @@ proto_reg_handoff_fcswils(void)
 {
     dissector_handle_t swils_handle;
 
-    swils_handle = new_create_dissector_handle(dissect_fcswils, proto_fcswils);
+    swils_handle = create_dissector_handle(dissect_fcswils, proto_fcswils);
     dissector_add_uint("fc.ftype", FC_FTYPE_SWILS, swils_handle);
 
     data_handle = find_dissector("data");

@@ -4869,7 +4869,7 @@ void proto_reg_handoff_mih(void)
 {
         dissector_handle_t mih_handle;
 
-        mih_handle = new_create_dissector_handle(dissect_mih, proto_mih);
+        mih_handle = create_dissector_handle(dissect_mih, proto_mih);
         /*Layer 3 handle*/
         dissector_add_uint("udp.port", MIH_PORT, mih_handle);
         dissector_add_uint("tcp.port", MIH_PORT, mih_handle);

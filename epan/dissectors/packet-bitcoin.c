@@ -1884,48 +1884,48 @@ proto_reg_handoff_bitcoin(void)
   heur_dissector_add( "tcp", dissect_bitcoin_heur, "Bitcoin over TCP", "bitcoin_tcp", hfi_bitcoin->id, HEURISTIC_ENABLE);
 
   /* Register all of the commands */
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_version, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_version, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "version", command_handle);
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_addr, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_addr, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "addr", command_handle);
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_inv, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_inv, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "inv", command_handle);
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_getdata, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_getdata, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "getdata", command_handle);
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_getblocks, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_getblocks, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "getblocks", command_handle);
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_getheaders, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_getheaders, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "getheaders", command_handle);
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_tx, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_tx, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "tx", command_handle);
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_block, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_block, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "block", command_handle);
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_ping, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_ping, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "ping", command_handle);
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_pong, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_pong, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "pong", command_handle);
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_notfound, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_notfound, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "notfound", command_handle);
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_reject, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_reject, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "reject", command_handle);
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_headers, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_headers, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "headers", command_handle);
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_filterload, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_filterload, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "filterload", command_handle);
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_filteradd, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_filteradd, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "filteradd", command_handle);
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_merkleblock, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_merkleblock, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "merkleblock", command_handle);
 
   /* messages with no payload */
-  command_handle = new_create_dissector_handle( dissect_bitcoin_msg_empty, hfi_bitcoin->id );
+  command_handle = create_dissector_handle( dissect_bitcoin_msg_empty, hfi_bitcoin->id );
   dissector_add_string("bitcoin.command", "verack", command_handle);
   dissector_add_string("bitcoin.command", "getaddr", command_handle);
   dissector_add_string("bitcoin.command", "mempool", command_handle);
   dissector_add_string("bitcoin.command", "filterclear", command_handle);
 
   /* messages not implemented */
-  /* command_handle = new_create_dissector_handle( dissect_bitcoin_msg_empty, hfi_bitcoin->id ); */
+  /* command_handle = create_dissector_handle( dissect_bitcoin_msg_empty, hfi_bitcoin->id ); */
   dissector_add_string("bitcoin.command", "checkorder", command_handle);
   dissector_add_string("bitcoin.command", "submitorder", command_handle);
   dissector_add_string("bitcoin.command", "reply", command_handle);

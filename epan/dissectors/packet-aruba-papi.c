@@ -340,7 +340,7 @@ proto_reg_handoff_papi(void)
 {
     dissector_handle_t papi_handle;
 
-    papi_handle = new_create_dissector_handle(dissect_papi, proto_papi);
+    papi_handle = create_dissector_handle(dissect_papi, proto_papi);
     dissector_add_uint("udp.port", UDP_PORT_PAPI, papi_handle);
     data_handle = find_dissector("data");
 }

@@ -130,7 +130,7 @@ proto_reg_handoff_bofl(void)
 {
     dissector_handle_t bofl_handle;
 
-    bofl_handle = new_create_dissector_handle(dissect_bofl, proto_bofl);
+    bofl_handle = create_dissector_handle(dissect_bofl, proto_bofl);
     dissector_add_uint("ethertype", ETHER_TYPE_BOFL, bofl_handle);
 }
 

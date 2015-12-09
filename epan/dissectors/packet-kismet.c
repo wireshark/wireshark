@@ -338,7 +338,7 @@ proto_reg_handoff_kismet(void)
 	static guint tcp_port;
 
 	if (!kismet_prefs_initialized) {
-		kismet_handle = new_create_dissector_handle(dissect_kismet, proto_kismet);
+		kismet_handle = create_dissector_handle(dissect_kismet, proto_kismet);
 		data_handle = find_dissector("data");
 		kismet_prefs_initialized = TRUE;
 	} else {

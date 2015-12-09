@@ -1859,7 +1859,7 @@ proto_register_fcdns (void)
     register_init_routine (&fcdns_init_protocol);
     register_cleanup_routine (&fcdns_cleanup_protocol);
 
-    dns_handle = new_create_dissector_handle (dissect_fcdns, proto_fcdns);
+    dns_handle = create_dissector_handle (dissect_fcdns, proto_fcdns);
 }
 
 void

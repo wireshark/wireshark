@@ -1927,10 +1927,10 @@ proto_register_bluetooth(void)
 void
 proto_reg_handoff_bluetooth(void)
 {
-    dissector_handle_t bluetooth_handle = new_create_dissector_handle(dissect_bluetooth, proto_bluetooth);
-    dissector_handle_t bluetooth_bthci_handle = new_create_dissector_handle(dissect_bluetooth_bthci, proto_bluetooth);
-    dissector_handle_t bluetooth_btmon_handle = new_create_dissector_handle(dissect_bluetooth_btmon, proto_bluetooth);
-    dissector_handle_t bluetooth_usb_handle = new_create_dissector_handle(dissect_bluetooth_usb, proto_bluetooth);
+    dissector_handle_t bluetooth_handle = create_dissector_handle(dissect_bluetooth, proto_bluetooth);
+    dissector_handle_t bluetooth_bthci_handle = create_dissector_handle(dissect_bluetooth_bthci, proto_bluetooth);
+    dissector_handle_t bluetooth_btmon_handle = create_dissector_handle(dissect_bluetooth_btmon, proto_bluetooth);
+    dissector_handle_t bluetooth_usb_handle = create_dissector_handle(dissect_bluetooth_usb, proto_bluetooth);
 
     btle_handle = find_dissector("btle");
     data_handle = find_dissector("data");

@@ -437,7 +437,7 @@ proto_reg_handoff_mtp2(void)
   dissector_handle_t mtp2_with_phdr_handle;
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_MTP2, mtp2_handle);
-  mtp2_with_phdr_handle = new_create_dissector_handle(dissect_mtp2_with_phdr,
+  mtp2_with_phdr_handle = create_dissector_handle(dissect_mtp2_with_phdr,
                                                   proto_mtp2);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_MTP2_WITH_PHDR,
                                    mtp2_with_phdr_handle);

@@ -330,7 +330,7 @@ proto_reg_handoff_eapol(void)
   /*
    * EAPOL key descriptor types.
    */
-  eapol_rc4_key_handle = new_create_dissector_handle(dissect_eapol_rc4_key,
+  eapol_rc4_key_handle = create_dissector_handle(dissect_eapol_rc4_key,
                                                      proto_eapol);
   dissector_add_uint("eapol.keydes.type", EAPOL_RC4_KEY, eapol_rc4_key_handle);
 }

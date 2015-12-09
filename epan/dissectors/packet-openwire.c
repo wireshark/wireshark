@@ -2006,7 +2006,7 @@ void
 proto_reg_handoff_openwire(void)
 {
     heur_dissector_add("tcp", dissect_openwire_heur, "OpenWire over TCP", "openwire_tcp", proto_openwire, HEURISTIC_ENABLE);
-    openwire_tcp_handle = new_create_dissector_handle(dissect_openwire_tcp, proto_openwire);
+    openwire_tcp_handle = create_dissector_handle(dissect_openwire_tcp, proto_openwire);
     dissector_add_for_decode_as("tcp.port", openwire_tcp_handle);
 }
 

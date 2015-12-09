@@ -572,7 +572,7 @@ proto_reg_handoff_irc(void)
 {
     dissector_handle_t irc_handle;
 
-    irc_handle = new_create_dissector_handle(dissect_irc, proto_irc);
+    irc_handle = create_dissector_handle(dissect_irc, proto_irc);
     dissector_add_uint("tcp.port", TCP_PORT_IRC, irc_handle);
     dissector_add_uint("tcp.port", TCP_PORT_DIRCPROXY, irc_handle);
 }

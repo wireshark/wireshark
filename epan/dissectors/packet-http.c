@@ -3541,7 +3541,7 @@ proto_reg_handoff_http(void)
 	 * XXX - is there anything to dissect in the body of an SSDP
 	 * request or reply?  I.e., should there be an SSDP dissector?
 	 */
-	ssdp_handle = new_create_dissector_handle(dissect_ssdp, proto_ssdp);
+	ssdp_handle = create_dissector_handle(dissect_ssdp, proto_ssdp);
 	dissector_add_uint("udp.port", UDP_PORT_SSDP, ssdp_handle);
 
 	ntlmssp_handle = find_dissector("ntlmssp");
@@ -3607,7 +3607,7 @@ proto_reg_handoff_message_http(void)
 {
 	dissector_handle_t message_http_handle;
 
-	message_http_handle = new_create_dissector_handle(dissect_message_http,
+	message_http_handle = create_dissector_handle(dissect_message_http,
 			proto_message_http);
 
 	dissector_add_string("media_type", "message/http", message_http_handle);

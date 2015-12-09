@@ -246,7 +246,7 @@ proto_reg_handoff_dec_bpdu(void)
 {
     dissector_handle_t dec_bpdu_handle;
 
-    dec_bpdu_handle = new_create_dissector_handle(dissect_dec_bpdu,
+    dec_bpdu_handle = create_dissector_handle(dissect_dec_bpdu,
                                               proto_dec_bpdu);
     dissector_add_uint("ethertype", ETHERTYPE_DEC_LB, dec_bpdu_handle);
     dissector_add_uint("chdlc.protocol", ETHERTYPE_DEC_LB, dec_bpdu_handle);

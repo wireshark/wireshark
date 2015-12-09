@@ -921,9 +921,9 @@ void proto_reg_handoff_optommp(void)
 
     if( !initialized )
     {
-        optommp_tcp_handle = new_create_dissector_handle(
+        optommp_tcp_handle = create_dissector_handle(
             dissect_optommp_reassemble_tcp, proto_optommp);
-        optommp_udp_handle = new_create_dissector_handle(
+        optommp_udp_handle = create_dissector_handle(
             dissect_optommp_reassemble_udp, proto_optommp);
         initialized = TRUE;
     }

@@ -3035,8 +3035,8 @@ proto_reg_handoff_AllJoyn(void)
     static dissector_handle_t alljoyn_handle_ardp;
 
     if(!initialized) {
-        alljoyn_handle_ns = new_create_dissector_handle(dissect_AllJoyn_name_server, proto_AllJoyn_ns);
-        alljoyn_handle_ardp = new_create_dissector_handle(dissect_AllJoyn_ardp, proto_AllJoyn_ardp);
+        alljoyn_handle_ns = create_dissector_handle(dissect_AllJoyn_name_server, proto_AllJoyn_ns);
+        alljoyn_handle_ardp = create_dissector_handle(dissect_AllJoyn_ardp, proto_AllJoyn_ardp);
     } else {
         dissector_delete_uint("udp.port", name_server_port, alljoyn_handle_ns);
         dissector_delete_uint("tcp.port", name_server_port, alljoyn_handle_ns);

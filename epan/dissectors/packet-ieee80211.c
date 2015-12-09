@@ -27297,7 +27297,7 @@ proto_reg_handoff_ieee80211(void)
   ieee80211_handle = find_dissector("wlan");
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11, ieee80211_handle);
 
-  centrino_handle = new_create_dissector_handle( dissect_ieee80211_centrino, proto_centrino );
+  centrino_handle = create_dissector_handle( dissect_ieee80211_centrino, proto_centrino );
   dissector_add_uint("ethertype", ETHERTYPE_CENTRINO_PROMISC, centrino_handle);
 
   /* Register handoff to Aruba GRE */
@@ -27326,17 +27326,17 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("gre.proto", GRE_ARUBA_8360, ieee80211_handle);
   dissector_add_uint("gre.proto", GRE_ARUBA_8370, ieee80211_handle);
 
-  data_encap_handle = new_create_dissector_handle(dissect_data_encap, proto_wlan);
+  data_encap_handle = create_dissector_handle(dissect_data_encap, proto_wlan);
   dissector_add_uint("ethertype", ETHERTYPE_IEEE80211_DATA_ENCAP,
                 data_encap_handle);
 
   /*
    * EAPOL key descriptor types.
    */
-  wlan_rsna_eapol_wpa_key_handle = new_create_dissector_handle(dissect_wlan_rsna_eapol_wpa_or_rsn_key,
+  wlan_rsna_eapol_wpa_key_handle = create_dissector_handle(dissect_wlan_rsna_eapol_wpa_or_rsn_key,
                                                                proto_wlan_rsna_eapol);
   dissector_add_uint("eapol.keydes.type", EAPOL_WPA_KEY, wlan_rsna_eapol_wpa_key_handle);
-  wlan_rsna_eapol_rsn_key_handle = new_create_dissector_handle(dissect_wlan_rsna_eapol_wpa_or_rsn_key,
+  wlan_rsna_eapol_rsn_key_handle = create_dissector_handle(dissect_wlan_rsna_eapol_wpa_or_rsn_key,
                                                                proto_wlan_rsna_eapol);
   dissector_add_uint("eapol.keydes.type", EAPOL_RSN_KEY, wlan_rsna_eapol_rsn_key_handle);
 

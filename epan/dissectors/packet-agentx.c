@@ -1138,7 +1138,7 @@ proto_reg_handoff_agentx(void)
 	static guint agentx_tcp_port;
 
 	if(!agentx_prefs_initialized) {
-		agentx_handle = new_create_dissector_handle(dissect_agentx, proto_agentx);
+		agentx_handle = create_dissector_handle(dissect_agentx, proto_agentx);
 		agentx_prefs_initialized = TRUE;
 	}
 	else {

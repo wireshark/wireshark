@@ -772,7 +772,7 @@ proto_reg_handoff_clnp(void)
     idrp_handle = find_dissector("idrp");
     data_handle = find_dissector("data");
 
-    clnp_handle = new_create_dissector_handle(dissect_clnp, proto_clnp);
+    clnp_handle = create_dissector_handle(dissect_clnp, proto_clnp);
     dissector_add_uint("osinl.incl", NLPID_ISO8473_CLNP, clnp_handle);
     dissector_add_uint("osinl.incl", NLPID_NULL, clnp_handle); /* Inactive subset */
     dissector_add_uint("x.25.spi", NLPID_ISO8473_CLNP, clnp_handle);

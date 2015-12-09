@@ -1123,12 +1123,12 @@ void proto_reg_handoff_ptpIP( void ) {
 
     dissector_handle_t ptpIP_handle;
 
-    /*  Use new_create_dissector_handle() to indicate that dissect_ptpIP()
+    /*  Use create_dissector_handle() to indicate that dissect_ptpIP()
     *  returns the number of bytes it dissected (or 0 if it thinks the packet
     *  does not belong to PROTONAME).
     */
 
-    ptpIP_handle = new_create_dissector_handle(dissect_ptpIP, proto_ptpIP);
+    ptpIP_handle = create_dissector_handle(dissect_ptpIP, proto_ptpIP);
     dissector_add_uint("tcp.port", PTPIP_PORT, ptpIP_handle);
 }
 

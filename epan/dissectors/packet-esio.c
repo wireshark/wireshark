@@ -418,7 +418,7 @@ proto_reg_handoff_esio(void)
 {
        dissector_handle_t esio_handle;
 
-       esio_handle = new_create_dissector_handle(dissect_esio, proto_esio);
+       esio_handle = create_dissector_handle(dissect_esio, proto_esio);
        dissector_add_uint("udp.port", 6060, esio_handle);
 }
 

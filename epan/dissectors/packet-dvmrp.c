@@ -901,7 +901,7 @@ proto_reg_handoff_dvmrp(void)
 {
 	dissector_handle_t dvmrp_handle;
 
-	dvmrp_handle = new_create_dissector_handle(dissect_dvmrp, proto_dvmrp);
+	dvmrp_handle = create_dissector_handle(dissect_dvmrp, proto_dvmrp);
 	dissector_add_uint("igmp.type", IGMP_DVMRP, dvmrp_handle);
 }
 

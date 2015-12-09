@@ -1166,7 +1166,7 @@ proto_reg_handoff_kdsp(void)
 
 
   if (!initialized) {
-    kdsp_handle = new_create_dissector_handle(dissect_kdsp, proto_kdsp);
+    kdsp_handle = create_dissector_handle(dissect_kdsp, proto_kdsp);
     dlt_handle = find_dissector("radiotap");
     if (dlt_handle)
         dissector_add_uint( "kdsp.cpt.dlt", DATALINK_RADIOTAP, dlt_handle);

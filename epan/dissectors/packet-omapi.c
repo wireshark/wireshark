@@ -317,7 +317,7 @@ proto_reg_handoff_omapi(void)
 {
   dissector_handle_t omapi_handle;
 
-  omapi_handle = new_create_dissector_handle(dissect_omapi, proto_omapi);
+  omapi_handle = create_dissector_handle(dissect_omapi, proto_omapi);
   dissector_add_uint("tcp.port", OMAPI_PORT, omapi_handle);
 }
 

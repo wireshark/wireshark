@@ -1267,7 +1267,7 @@ proto_reg_handoff_kafka(void)
     static int currentPort;
 
     if (!initialized) {
-        kafka_handle = new_create_dissector_handle(dissect_kafka_tcp,
+        kafka_handle = create_dissector_handle(dissect_kafka_tcp,
                 proto_kafka);
         initialized = TRUE;
 

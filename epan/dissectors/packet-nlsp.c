@@ -1775,7 +1775,7 @@ proto_reg_handoff_nlsp(void)
 {
 	dissector_handle_t nlsp_handle;
 
-	nlsp_handle = new_create_dissector_handle(dissect_nlsp, proto_nlsp);
+	nlsp_handle = create_dissector_handle(dissect_nlsp, proto_nlsp);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NLSP, nlsp_handle);
 }
 

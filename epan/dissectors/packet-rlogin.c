@@ -577,7 +577,7 @@ void proto_register_rlogin(void)
 void proto_reg_handoff_rlogin(void)
 {
 	/* Dissector install routine */
-	dissector_handle_t rlogin_handle = new_create_dissector_handle(dissect_rlogin,proto_rlogin);
+	dissector_handle_t rlogin_handle = create_dissector_handle(dissect_rlogin,proto_rlogin);
 	dissector_add_uint("tcp.port", RLOGIN_PORT, rlogin_handle);
 }
 

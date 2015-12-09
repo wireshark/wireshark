@@ -728,9 +728,9 @@ proto_register_mint(void)
 	proto_register_fields(proto_mint, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	mint_control_handle = new_create_dissector_handle(dissect_mint_control_static, proto_mint);
-	mint_data_handle = new_create_dissector_handle(dissect_mint_data_static, proto_mint_data);
-	mint_eth_handle = new_create_dissector_handle(dissect_mint_ethshim_static, proto_mint);
+	mint_control_handle = create_dissector_handle(dissect_mint_control_static, proto_mint);
+	mint_data_handle = create_dissector_handle(dissect_mint_data_static, proto_mint_data);
+	mint_eth_handle = create_dissector_handle(dissect_mint_ethshim_static, proto_mint);
 }
 
 void

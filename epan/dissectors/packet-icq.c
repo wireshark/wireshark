@@ -1403,7 +1403,7 @@ proto_reg_handoff_icq(void)
 {
     dissector_handle_t icq_handle;
 
-    icq_handle = new_create_dissector_handle(dissect_icq, proto_icq);
+    icq_handle = create_dissector_handle(dissect_icq, proto_icq);
     dissector_add_uint("udp.port", UDP_PORT_ICQ, icq_handle);
 }
 

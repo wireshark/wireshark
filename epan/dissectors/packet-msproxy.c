@@ -1256,7 +1256,7 @@ proto_register_msproxy( void){
 	expert_msproxy = expert_register_protocol(proto_msproxy);
 	expert_register_field_array(expert_msproxy, ei, array_length(ei));
 
-	msproxy_sub_handle = new_create_dissector_handle(msproxy_sub_dissector,
+	msproxy_sub_handle = create_dissector_handle(msproxy_sub_dissector,
 		proto_msproxy);
 }
 
@@ -1268,7 +1268,7 @@ proto_reg_handoff_msproxy(void) {
 
 	dissector_handle_t msproxy_handle;
 
-	msproxy_handle = new_create_dissector_handle(dissect_msproxy,
+	msproxy_handle = create_dissector_handle(dissect_msproxy,
 		proto_msproxy);
 	dissector_add_uint("udp.port", UDP_PORT_MSPROXY, msproxy_handle);
 }

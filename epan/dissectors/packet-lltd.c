@@ -960,7 +960,7 @@ void
 proto_reg_handoff_lltd(void)
 {
     dissector_handle_t lltd_handle;
-    lltd_handle = new_create_dissector_handle(dissect_lltd, proto_lltd);
+    lltd_handle = create_dissector_handle(dissect_lltd, proto_lltd);
     dissector_add_uint("ethertype", ETHERTYPE_LLTD, lltd_handle);
 }
 

@@ -1527,8 +1527,8 @@ proto_register_hartip(void)
 void
 proto_reg_handoff_hartip(void)
 {
-  hartip_tcp_handle = new_create_dissector_handle(dissect_hartip_tcp, proto_hartip);
-  hartip_udp_handle = new_create_dissector_handle(dissect_hartip_udp, proto_hartip);
+  hartip_tcp_handle = create_dissector_handle(dissect_hartip_tcp, proto_hartip);
+  hartip_udp_handle = create_dissector_handle(dissect_hartip_udp, proto_hartip);
   dissector_add_uint("udp.port", HARTIP_PORT, hartip_udp_handle);
   dissector_add_uint("tcp.port", HARTIP_PORT, hartip_tcp_handle);
 

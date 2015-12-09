@@ -451,7 +451,7 @@ void proto_register_udt(void)
 void proto_reg_handoff_udt(void)
 {
 	data_handle = find_dissector("data");
-	udt_handle  = new_create_dissector_handle(dissect_udt, proto_udt);
+	udt_handle  = create_dissector_handle(dissect_udt, proto_udt);
 
 	heur_dissector_add("udp", dissect_udt_heur, "UDT over UDP", "udt_udp", proto_udt, HEURISTIC_ENABLE);
 	dissector_add_for_decode_as("udp.port", udt_handle);

@@ -1485,7 +1485,7 @@ proto_reg_handoff_mip(void)
 
   /* Register as dissector for 3GPP2 NVSE */
   dissector_add_uint("mip.nvse_ext", VENDOR_THE3GPP2,
-    new_create_dissector_handle(dissect_mip_priv_ext_3gpp2, proto_mip));
+    create_dissector_handle(dissect_mip_priv_ext_3gpp2, proto_mip));
 }
 
 /*

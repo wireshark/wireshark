@@ -108,7 +108,7 @@ proto_reg_handoff_cert(void)
 {
         dissector_handle_t cert_handle;
 
-        cert_handle = new_create_dissector_handle(dissect_cert, proto_cert);
+        cert_handle = create_dissector_handle(dissect_cert, proto_cert);
 
         /* Register the PKIX-CERT media type */
         dissector_add_string("media_type", "application/pkix-cert", cert_handle);

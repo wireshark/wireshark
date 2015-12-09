@@ -660,7 +660,7 @@ proto_reg_handoff_raknet(void)
 
     for (i = 0; i < RAKNET_PACKET_ID_COUNT; i++) {
         raknet_handle_tmp =
-            new_create_dissector_handle(raknet_handler[i].dissector_fp,
+            create_dissector_handle(raknet_handler[i].dissector_fp,
                                         proto_raknet);
         dissector_add_uint("raknet.packet_id", raknet_handler[i].vs.value,
                            raknet_handle_tmp);

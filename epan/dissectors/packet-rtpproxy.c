@@ -1492,8 +1492,8 @@ proto_reg_handoff_rtpproxy(void)
     static dissector_handle_t rtpproxy_tcp_handle, rtpproxy_udp_handle;
 
     if(!rtpproxy_initialized){
-        rtpproxy_tcp_handle = new_create_dissector_handle(dissect_rtpproxy, proto_rtpproxy);
-        rtpproxy_udp_handle = new_create_dissector_handle(dissect_rtpproxy, proto_rtpproxy);
+        rtpproxy_tcp_handle = create_dissector_handle(dissect_rtpproxy, proto_rtpproxy);
+        rtpproxy_udp_handle = create_dissector_handle(dissect_rtpproxy, proto_rtpproxy);
         rtpproxy_initialized = TRUE;
     }
 

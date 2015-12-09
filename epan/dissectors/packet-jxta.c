@@ -2400,7 +2400,7 @@ void proto_reg_handoff_jxta(void)
     static gboolean msg_media_register_done = FALSE;
 
     if(!init_done) {
-        message_jxta_handle = new_create_dissector_handle(dissect_jxta_message, proto_message_jxta);
+        message_jxta_handle = create_dissector_handle(dissect_jxta_message, proto_message_jxta);
         stream_jxta_handle = find_dissector("jxta.stream");
 
         media_type_dissector_table = find_dissector_table("media_type");

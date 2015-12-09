@@ -833,8 +833,8 @@ proto_reg_handoff_riemann(void)
     static int current_udp_port, current_tcp_port;
 
     if (!initialized) {
-        riemann_udp_handle = new_create_dissector_handle(dissect_riemann_udp, proto_riemann);
-        riemann_tcp_handle = new_create_dissector_handle(dissect_riemann_tcp, proto_riemann);
+        riemann_udp_handle = create_dissector_handle(dissect_riemann_udp, proto_riemann);
+        riemann_tcp_handle = create_dissector_handle(dissect_riemann_tcp, proto_riemann);
         initialized = TRUE;
     } else {
         dissector_delete_uint("udp.port", current_udp_port, riemann_udp_handle);

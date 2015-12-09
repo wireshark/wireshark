@@ -650,9 +650,9 @@ proto_reg_handoff_dcp_etsi (void)
   dissector_handle_t pft_handle;
   dissector_handle_t tpl_handle;
 
-  af_handle = new_create_dissector_handle(dissect_af, proto_af);
-  pft_handle = new_create_dissector_handle(dissect_pft, proto_pft);
-  tpl_handle = new_create_dissector_handle(dissect_tpl, proto_tpl);
+  af_handle = create_dissector_handle(dissect_af, proto_af);
+  pft_handle = create_dissector_handle(dissect_pft, proto_pft);
+  tpl_handle = create_dissector_handle(dissect_tpl, proto_tpl);
   heur_dissector_add("udp", dissect_dcp_etsi, "DCP (ETSI) over UDP", "dcp_etsi_udp", proto_dcp_etsi, HEURISTIC_ENABLE);
   dissector_add_string("dcp-etsi.sync", "AF", af_handle);
   dissector_add_string("dcp-etsi.sync", "PF", pft_handle);

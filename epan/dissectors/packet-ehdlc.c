@@ -325,7 +325,7 @@ proto_reg_handoff_ehdlc(void)
 	sub_handles[SUB_OML]  = find_dissector("gsm_abis_oml");
 	sub_handles[SUB_DATA] = find_dissector("data");
 
-    ehdlc_handle = new_create_dissector_handle( dissect_ehdlc, proto_ehdlc );
+    ehdlc_handle = create_dissector_handle( dissect_ehdlc, proto_ehdlc );
 	dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_ERICSSON, ehdlc_handle);
 }
 

@@ -268,7 +268,7 @@ proto_reg_handoff_hdmi(void)
 
     hdcp_handle = find_dissector("hdcp");
 
-    hdmi_handle = new_create_dissector_handle( dissect_hdmi, proto_hdmi );
+    hdmi_handle = create_dissector_handle( dissect_hdmi, proto_hdmi );
     dissector_add_for_decode_as("i2c.message", hdmi_handle );
 }
 

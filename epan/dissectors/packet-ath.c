@@ -440,7 +440,7 @@ proto_reg_handoff_ath(void)
 {
   static dissector_handle_t ath_handle;
 
-  ath_handle = new_create_dissector_handle(dissect_ath, proto_ath);
+  ath_handle = create_dissector_handle(dissect_ath, proto_ath);
   dissector_add_uint("udp.port", ATH_PORT, ath_handle);
 }
 

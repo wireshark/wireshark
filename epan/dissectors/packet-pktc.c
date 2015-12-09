@@ -739,7 +739,7 @@ proto_reg_handoff_pktc(void)
 {
     dissector_handle_t pktc_handle;
 
-    pktc_handle = new_create_dissector_handle(dissect_pktc, proto_pktc);
+    pktc_handle = create_dissector_handle(dissect_pktc, proto_pktc);
     dissector_add_uint("udp.port", PKTC_PORT, pktc_handle);
 }
 
@@ -799,7 +799,7 @@ proto_reg_handoff_pktc_mtafqdn(void)
 {
     dissector_handle_t pktc_mtafqdn_handle;
 
-    pktc_mtafqdn_handle = new_create_dissector_handle(dissect_pktc_mtafqdn, proto_pktc_mtafqdn);
+    pktc_mtafqdn_handle = create_dissector_handle(dissect_pktc_mtafqdn, proto_pktc_mtafqdn);
     dissector_add_uint("udp.port", PKTC_MTAFQDN_PORT, pktc_mtafqdn_handle);
 }
 

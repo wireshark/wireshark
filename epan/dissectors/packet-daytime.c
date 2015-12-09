@@ -99,7 +99,7 @@ proto_register_daytime(void)
   proto_register_fields(proto_daytime, hfi, array_length(hfi));
   proto_register_subtree_array(ett, array_length(ett));
 
-  daytime_handle = new_create_dissector_handle(dissect_daytime, proto_daytime);
+  daytime_handle = create_dissector_handle(dissect_daytime, proto_daytime);
 }
 
 void

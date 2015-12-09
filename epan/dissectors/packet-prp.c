@@ -252,7 +252,7 @@ void proto_reg_handoff_prp(void)
     if (!prefs_initialized) {
         dissector_handle_t prp_redundancy_control_trailer_handle;
 
-        prp_redundancy_control_trailer_handle = new_create_dissector_handle(dissect_prp_redundancy_control_trailer, proto_prp);
+        prp_redundancy_control_trailer_handle = create_dissector_handle(dissect_prp_redundancy_control_trailer, proto_prp);
         register_postdissector(prp_redundancy_control_trailer_handle);
 
         prefs_initialized = TRUE;

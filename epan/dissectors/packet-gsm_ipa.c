@@ -494,8 +494,8 @@ void proto_reg_handoff_gsm_ipa(void)
 		sub_handles[SUB_MGCP] = find_dissector("mgcp");
 		sub_handles[SUB_DATA] = find_dissector("data");
 
-		ipa_tcp_handle = new_create_dissector_handle(dissect_ipa_tcp, proto_ipa);
-		ipa_udp_handle = new_create_dissector_handle(dissect_ipa_udp, proto_ipa);
+		ipa_tcp_handle = create_dissector_handle(dissect_ipa_tcp, proto_ipa);
+		ipa_udp_handle = create_dissector_handle(dissect_ipa_udp, proto_ipa);
 		ipa_initialized = TRUE;
 	} else {
 		dissector_delete_uint_range("tcp.port", ipa_tcp_ports, ipa_tcp_handle);

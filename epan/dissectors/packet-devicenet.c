@@ -1064,7 +1064,7 @@ proto_reg_handoff_devicenet(void)
 {
     dissector_handle_t devicenet_handle;
 
-    devicenet_handle = new_create_dissector_handle( dissect_devicenet, proto_devicenet );
+    devicenet_handle = create_dissector_handle( dissect_devicenet, proto_devicenet );
     dissector_add_for_decode_as("can.subdissector", devicenet_handle );
 }
 

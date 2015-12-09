@@ -661,7 +661,7 @@ proto_reg_handoff_vrt(void)
     static gint dissector_port;
 
     if (!vrt_prefs_initialized) {
-        vrt_handle = new_create_dissector_handle(dissect_vrt, proto_vrt);
+        vrt_handle = create_dissector_handle(dissect_vrt, proto_vrt);
         vrt_prefs_initialized = TRUE;
     } else {
         dissector_delete_uint("udp.port", dissector_port, vrt_handle);

@@ -2561,7 +2561,7 @@ proto_reg_handoff_bssap(void)
         heur_dissector_add("sccp", dissect_bssap_heur, "BSSAP over SCCP", "bssap_sccp", proto_bssap, HEURISTIC_ENABLE);
         heur_dissector_add("sua", dissect_bssap_heur, "BSSAP over SUA", "bssap_sua", proto_bssap, HEURISTIC_ENABLE);
         /* BSSAP+ */
-        bssap_plus_handle = new_create_dissector_handle(dissect_bssap_plus, proto_bssap);
+        bssap_plus_handle = create_dissector_handle(dissect_bssap_plus, proto_bssap);
 
         data_handle = find_dissector("data");
         rrlp_handle = find_dissector("rrlp");

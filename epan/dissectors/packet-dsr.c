@@ -757,7 +757,7 @@ proto_reg_handoff_dsr(void)
 
     ip_dissector_table = find_dissector_table("ip.proto");
 
-    dsr_handle = new_create_dissector_handle(dissect_dsr, proto_dsr);
+    dsr_handle = create_dissector_handle(dissect_dsr, proto_dsr);
     dissector_add_uint("ip.proto", IP_PROTO_DSR, dsr_handle);
 }
 /*

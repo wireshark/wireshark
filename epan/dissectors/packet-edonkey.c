@@ -3404,8 +3404,8 @@ void proto_reg_handoff_edonkey(void) {
     dissector_handle_t edonkey_tcp_handle;
     dissector_handle_t edonkey_udp_handle;
 
-    edonkey_tcp_handle = new_create_dissector_handle(dissect_edonkey_tcp, proto_edonkey);
-    edonkey_udp_handle = new_create_dissector_handle(dissect_edonkey_udp, proto_edonkey);
+    edonkey_tcp_handle = create_dissector_handle(dissect_edonkey_tcp, proto_edonkey);
+    edonkey_udp_handle = create_dissector_handle(dissect_edonkey_udp, proto_edonkey);
 
     dissector_add_uint("tcp.port", 4661, edonkey_tcp_handle);
     dissector_add_uint("tcp.port", 4662, edonkey_tcp_handle);

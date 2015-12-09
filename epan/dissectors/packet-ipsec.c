@@ -2553,9 +2553,9 @@ proto_reg_handoff_ipsec(void)
   dissector_add_uint("ip.proto", IP_PROTO_AH, ah_handle);
   esp_handle = find_dissector("esp");
   dissector_add_uint("ip.proto", IP_PROTO_ESP, esp_handle);
-  ipcomp_handle = new_create_dissector_handle(dissect_ipcomp, proto_ipcomp);
+  ipcomp_handle = create_dissector_handle(dissect_ipcomp, proto_ipcomp);
   dissector_add_uint("ip.proto", IP_PROTO_IPCOMP, ipcomp_handle);
-  ipv6_ah_handle = new_create_dissector_handle(dissect_ah_header, proto_ah );
+  ipv6_ah_handle = create_dissector_handle(dissect_ah_header, proto_ah );
   dissector_add_uint("ipv6.nxt", IP_PROTO_AH, ipv6_ah_handle);
 
   ip_dissector_table = find_dissector_table("ip.proto");

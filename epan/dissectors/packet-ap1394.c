@@ -129,7 +129,7 @@ proto_reg_handoff_ap1394(void)
 
   ethertype_subdissector_table = find_dissector_table("ethertype");
 
-  ap1394_handle = new_create_dissector_handle(dissect_ap1394, proto_ap1394);
+  ap1394_handle = create_dissector_handle(dissect_ap1394, proto_ap1394);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_APPLE_IP_OVER_IEEE1394, ap1394_handle);
 }
 

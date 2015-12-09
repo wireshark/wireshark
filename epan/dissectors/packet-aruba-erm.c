@@ -480,13 +480,13 @@ proto_reg_handoff_aruba_erm(void)
         ppi_handle = find_dissector("ppi");
         peek_handle = find_dissector("peekremote");
         data_handle = find_dissector("data");
-        aruba_erm_handle = new_create_dissector_handle(dissect_aruba_erm, proto_aruba_erm);
-        aruba_erm_handle_type0 = new_create_dissector_handle(dissect_aruba_erm_type0, proto_aruba_erm_type0);
-        aruba_erm_handle_type1 = new_create_dissector_handle(dissect_aruba_erm_type1, proto_aruba_erm_type1);
-        aruba_erm_handle_type2 = new_create_dissector_handle(dissect_aruba_erm_type2, proto_aruba_erm_type2);
-        aruba_erm_handle_type3 = new_create_dissector_handle(dissect_aruba_erm_type3, proto_aruba_erm_type3);
-        aruba_erm_handle_type4 = new_create_dissector_handle(dissect_aruba_erm_type4, proto_aruba_erm_type4);
-        aruba_erm_handle_type5 = new_create_dissector_handle(dissect_aruba_erm_type5, proto_aruba_erm_type5);
+        aruba_erm_handle = create_dissector_handle(dissect_aruba_erm, proto_aruba_erm);
+        aruba_erm_handle_type0 = create_dissector_handle(dissect_aruba_erm_type0, proto_aruba_erm_type0);
+        aruba_erm_handle_type1 = create_dissector_handle(dissect_aruba_erm_type1, proto_aruba_erm_type1);
+        aruba_erm_handle_type2 = create_dissector_handle(dissect_aruba_erm_type2, proto_aruba_erm_type2);
+        aruba_erm_handle_type3 = create_dissector_handle(dissect_aruba_erm_type3, proto_aruba_erm_type3);
+        aruba_erm_handle_type4 = create_dissector_handle(dissect_aruba_erm_type4, proto_aruba_erm_type4);
+        aruba_erm_handle_type5 = create_dissector_handle(dissect_aruba_erm_type5, proto_aruba_erm_type5);
         initialized = TRUE;
     } else {
         dissector_delete_uint_range("udp.port", aruba_erm_port_range, aruba_erm_handle);

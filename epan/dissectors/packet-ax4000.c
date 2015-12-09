@@ -163,7 +163,7 @@ proto_reg_handoff_ax4000(void)
 {
 	dissector_handle_t ax4000_handle;
 
-	ax4000_handle = new_create_dissector_handle(dissect_ax4000,
+	ax4000_handle = create_dissector_handle(dissect_ax4000,
 	    proto_ax4000);
 	dissector_add_uint("ip.proto", IP_PROTO_AX4000, ax4000_handle);
 	dissector_add_uint("tcp.port", AX4000_TCP_PORT, ax4000_handle);

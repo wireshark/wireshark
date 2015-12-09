@@ -620,7 +620,7 @@ proto_register_soupbintcp(void)
 void
 proto_reg_handoff_soupbintcp(void)
 {
-    soupbintcp_handle = new_create_dissector_handle(dissect_soupbintcp_tcp,
+    soupbintcp_handle = create_dissector_handle(dissect_soupbintcp_tcp,
                                                 proto_soupbintcp);
 
     /* For "decode-as" */

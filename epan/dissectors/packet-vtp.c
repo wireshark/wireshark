@@ -679,7 +679,7 @@ proto_reg_handoff_vtp(void)
 {
 	dissector_handle_t vtp_handle;
 
-	vtp_handle = new_create_dissector_handle(dissect_vtp, proto_vtp);
+	vtp_handle = create_dissector_handle(dissect_vtp, proto_vtp);
 	dissector_add_uint("llc.cisco_pid", 0x2003, vtp_handle);
 }
 

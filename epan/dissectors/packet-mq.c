@@ -4779,8 +4779,8 @@ void proto_reg_handoff_mq(void)
     *  class of applications (web browser, e-mail client, ...) and have a very well
     *  known port number, the MQ applications are most often specific to a business application */
 
-    mq_tcp_handle = new_create_dissector_handle(dissect_mq_tcp, proto_mq);
-    mq_spx_handle = new_create_dissector_handle(dissect_mq_spx, proto_mq);
+    mq_tcp_handle = create_dissector_handle(dissect_mq_tcp, proto_mq);
+    mq_spx_handle = create_dissector_handle(dissect_mq_spx, proto_mq);
 
     dissector_add_for_decode_as("tcp.port", mq_tcp_handle);
     heur_dissector_add("tcp",     dissect_mq_heur_tcp, "WebSphere MQ over TCP", "mq_tcp", proto_mq, HEURISTIC_ENABLE);

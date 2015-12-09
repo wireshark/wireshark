@@ -1994,7 +1994,7 @@ void proto_reg_handoff_gvsp(void)
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        gvsp_handle = new_create_dissector_handle((new_dissector_t)dissect_gvsp, proto_gvsp);
+        gvsp_handle = create_dissector_handle((new_dissector_t)dissect_gvsp, proto_gvsp);
         dissector_add_for_decode_as("udp.port", gvsp_handle);
         heur_dissector_add("udp", dissect_gvsp_heur, "GigE Vision over UDP", "gvsp_udp", proto_gvsp, HEURISTIC_ENABLE);
         initialized = TRUE;

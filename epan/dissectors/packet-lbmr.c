@@ -6691,7 +6691,7 @@ void proto_reg_handoff_lbmr(void)
 
     if (!already_registered)
     {
-        lbmr_dissector_handle = new_create_dissector_handle(dissect_lbmr, proto_lbmr);
+        lbmr_dissector_handle = create_dissector_handle(dissect_lbmr, proto_lbmr);
         dissector_add_for_decode_as("udp.port", lbmr_dissector_handle);
         heur_dissector_add("udp", test_lbmr_packet, "LBM Topic Resolution over UDP", "lbmr_udp", proto_lbmr, HEURISTIC_ENABLE);
     }

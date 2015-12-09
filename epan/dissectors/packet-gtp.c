@@ -9851,13 +9851,13 @@ proto_reg_handoff_gtp(void)
         bssgp_handle         = find_dissector("bssgp");
         bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
         /* AVP Code: 5 3GPP-GPRS Negotiated QoS profile */
-        dissector_add_uint("diameter.3gpp", 5, new_create_dissector_handle(dissect_diameter_3gpp_qosprofile, proto_gtp));
+        dissector_add_uint("diameter.3gpp", 5, create_dissector_handle(dissect_diameter_3gpp_qosprofile, proto_gtp));
         /* AVP Code: 903 MBMS-Service-Area */
-        dissector_add_uint("diameter.3gpp", 903, new_create_dissector_handle(dissect_gtp_3gpp_mbms_service_area, proto_gtp));
+        dissector_add_uint("diameter.3gpp", 903, create_dissector_handle(dissect_gtp_3gpp_mbms_service_area, proto_gtp));
         /* AVP Code: 904 MBMS-Session-Duration */
-        dissector_add_uint("diameter.3gpp", 904, new_create_dissector_handle(dissect_gtp_mbms_ses_dur, proto_gtp));
+        dissector_add_uint("diameter.3gpp", 904, create_dissector_handle(dissect_gtp_mbms_ses_dur, proto_gtp));
         /* AVP Code: 911 MBMS-Time-To-Data-Transfer */
-        dissector_add_uint("diameter.3gpp", 911, new_create_dissector_handle(dissect_gtp_mbms_time_to_data_tr, proto_gtp));
+        dissector_add_uint("diameter.3gpp", 911, create_dissector_handle(dissect_gtp_mbms_time_to_data_tr, proto_gtp));
 
         Initialized = TRUE;
     } else {

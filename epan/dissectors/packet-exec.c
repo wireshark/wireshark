@@ -407,7 +407,7 @@ proto_reg_handoff_exec(void)
 {
 	dissector_handle_t exec_handle;
 
-	exec_handle = new_create_dissector_handle(dissect_exec, proto_exec);
+	exec_handle = create_dissector_handle(dissect_exec, proto_exec);
 	dissector_add_uint("tcp.port", EXEC_PORT, exec_handle);
 }
 

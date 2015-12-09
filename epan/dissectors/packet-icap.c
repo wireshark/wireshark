@@ -324,7 +324,7 @@ proto_reg_handoff_icap(void)
     data_handle = find_dissector("data");
     http_handle = find_dissector("http");
 
-    icap_handle = new_create_dissector_handle(dissect_icap, proto_icap);
+    icap_handle = create_dissector_handle(dissect_icap, proto_icap);
     dissector_add_uint("tcp.port", TCP_PORT_ICAP, icap_handle);
 }
 

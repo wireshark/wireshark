@@ -396,10 +396,10 @@ proto_reg_handoff_arcnet (void)
 {
   dissector_handle_t arcnet_handle, arcnet_linux_handle;
 
-  arcnet_handle = new_create_dissector_handle (dissect_arcnet, proto_arcnet);
+  arcnet_handle = create_dissector_handle (dissect_arcnet, proto_arcnet);
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_ARCNET, arcnet_handle);
 
-  arcnet_linux_handle = new_create_dissector_handle (dissect_arcnet_linux,
+  arcnet_linux_handle = create_dissector_handle (dissect_arcnet_linux,
                                                  proto_arcnet);
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_ARCNET_LINUX, arcnet_linux_handle);
   data_handle = find_dissector ("data");

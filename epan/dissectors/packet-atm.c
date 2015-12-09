@@ -2036,8 +2036,8 @@ proto_reg_handoff_atm(void)
   gprs_ns_handle        = find_dissector("gprs_ns");
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS, atm_handle);
-  dissector_add_uint("atm.aal5.type", TRAF_LANE, new_create_dissector_handle(dissect_lane, proto_atm_lane));
-  dissector_add_uint("atm.aal5.type", TRAF_ILMI, new_create_dissector_handle(dissect_ilmi, proto_ilmi));
+  dissector_add_uint("atm.aal5.type", TRAF_LANE, create_dissector_handle(dissect_lane, proto_atm_lane));
+  dissector_add_uint("atm.aal5.type", TRAF_ILMI, create_dissector_handle(dissect_ilmi, proto_ilmi));
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS_UNTRUNCATED,
                 atm_untruncated_handle);

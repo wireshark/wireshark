@@ -285,10 +285,10 @@ proto_reg_handoff_pcli(void)
     static dissector_handle_t pcli_handle, pcli_handle8, pcli_handle12, pcli_handle20;
 
     if(!pcli_initialized) {
-        pcli_handle = new_create_dissector_handle(dissect_pcli, proto_pcli);
-        pcli_handle8 = new_create_dissector_handle(dissect_pcli8, proto_pcli8);
-        pcli_handle12 = new_create_dissector_handle(dissect_pcli12, proto_pcli12);
-        pcli_handle20 = new_create_dissector_handle(dissect_pcli20, proto_pcli20);
+        pcli_handle = create_dissector_handle(dissect_pcli, proto_pcli);
+        pcli_handle8 = create_dissector_handle(dissect_pcli8, proto_pcli8);
+        pcli_handle12 = create_dissector_handle(dissect_pcli12, proto_pcli12);
+        pcli_handle20 = create_dissector_handle(dissect_pcli20, proto_pcli20);
         data_handle = find_dissector("data");
         pcli_initialized = TRUE;
     }

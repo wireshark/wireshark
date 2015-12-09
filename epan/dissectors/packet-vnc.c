@@ -4780,7 +4780,7 @@ proto_reg_handoff_vnc(void)
 	static guint vnc_preference_alternate_port_last = 0;
 
 	if(!inited) {
-		vnc_handle = new_create_dissector_handle(dissect_vnc, proto_vnc);
+		vnc_handle = create_dissector_handle(dissect_vnc, proto_vnc);
 
 		dissector_add_uint("tcp.port", 5500, vnc_handle);
 		dissector_add_uint("tcp.port", 5501, vnc_handle);

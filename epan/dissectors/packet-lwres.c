@@ -1157,7 +1157,7 @@ proto_reg_handoff_lwres(void)
     static guint lwres_port;
 
     if(!lwres_prefs_initialized) {
-        lwres_handle = new_create_dissector_handle(dissect_lwres, proto_lwres);
+        lwres_handle = create_dissector_handle(dissect_lwres, proto_lwres);
         lwres_prefs_initialized = TRUE;
     }
     else {

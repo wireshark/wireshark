@@ -1534,7 +1534,7 @@ proto_reg_handoff_lg8979(void)
 
     /* Make sure to use L&G 8979 Protocol Preferences field to determine default TCP port */
     if (! lg8979_prefs_initialized) {
-        lg8979_handle = new_create_dissector_handle(dissect_lg8979_tcp, proto_lg8979);
+        lg8979_handle = create_dissector_handle(dissect_lg8979_tcp, proto_lg8979);
         lg8979_prefs_initialized = TRUE;
     }
 

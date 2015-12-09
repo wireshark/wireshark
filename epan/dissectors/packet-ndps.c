@@ -9524,8 +9524,8 @@ proto_reg_handoff_ndps(void)
 {
     dissector_handle_t ndps_handle, ndps_tcp_handle;
 
-    ndps_handle = new_create_dissector_handle(dissect_ndps_ipx, proto_ndps);
-    ndps_tcp_handle = new_create_dissector_handle(dissect_ndps_tcp, proto_ndps);
+    ndps_handle = create_dissector_handle(dissect_ndps_ipx, proto_ndps);
+    ndps_tcp_handle = create_dissector_handle(dissect_ndps_tcp, proto_ndps);
 
     dissector_add_uint("spx.socket", SPX_SOCKET_PA, ndps_handle);
     dissector_add_uint("spx.socket", SPX_SOCKET_BROKER, ndps_handle);

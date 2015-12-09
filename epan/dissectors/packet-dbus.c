@@ -708,8 +708,8 @@ proto_register_dbus(void)
 	expert_dbus = expert_register_protocol(proto_dbus);
 	expert_register_field_array(expert_dbus, ei, array_length(ei));
 
-	dbus_handle = new_create_dissector_handle(dissect_dbus, proto_dbus);
-	dbus_handle_tcp = new_create_dissector_handle(dissect_dbus_tcp, proto_dbus);
+	dbus_handle = create_dissector_handle(dissect_dbus, proto_dbus);
+	dbus_handle_tcp = create_dissector_handle(dissect_dbus_tcp, proto_dbus);
 }
 
 void

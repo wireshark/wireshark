@@ -2096,7 +2096,7 @@ proto_reg_handoff_wassp(void)
 	dissector_handle_t wassp_handle;
 
 
-	wassp_handle = new_create_dissector_handle(dissect_wassp_static, proto_wassp);
+	wassp_handle = create_dissector_handle(dissect_wassp_static, proto_wassp);
 	dissector_add_uint("udp.port", PORT_WASSP_DISCOVER, wassp_handle);
 	dissector_add_uint("udp.port", PORT_WASSP_TUNNEL, wassp_handle);
 	/* dissector_add_uint("udp.port", PORT_WASSP_PEER, wassp_handle); */

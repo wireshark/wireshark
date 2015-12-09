@@ -592,7 +592,7 @@ proto_reg_handoff_bt_dht(void)
   if (!prefs_initialized) {
     heur_dissector_add("udp", dissect_bt_dht_heur, "BitTorrent DHT over UDP", "bittorrent_dht_udp", proto_bt_dht, HEURISTIC_DISABLE);
 
-    bt_dht_handle = new_create_dissector_handle(dissect_bt_dht, proto_bt_dht);
+    bt_dht_handle = create_dissector_handle(dissect_bt_dht, proto_bt_dht);
     dissector_add_for_decode_as("udp.port", bt_dht_handle);
 
     prefs_initialized = TRUE;

@@ -175,7 +175,7 @@ proto_reg_handoff_ieee802a(void)
 
 	data_handle = find_dissector("data");
 
-	ieee802a_handle = new_create_dissector_handle(dissect_ieee802a,
+	ieee802a_handle = create_dissector_handle(dissect_ieee802a,
 	    proto_ieee802a);
 	dissector_add_uint("ethertype", ETHERTYPE_IEEE802_OUI_EXTENDED,
 	    ieee802a_handle);

@@ -7010,25 +7010,25 @@ proto_reg_handoff_cip(void)
    /* Create dissector handles */
    /* Register for UCMM CIP data, using EtherNet/IP SendRRData service*/
    /* Register for Connected CIP data, using EtherNet/IP SendUnitData service*/
-   cip_handle = new_create_dissector_handle( dissect_cip, proto_cip );
+   cip_handle = create_dissector_handle( dissect_cip, proto_cip );
    dissector_add_uint( "enip.srrd.iface", ENIP_CIP_INTERFACE, cip_handle );
    dissector_add_uint( "enip.sud.iface", ENIP_CIP_INTERFACE, cip_handle );
 
    /* Create and register dissector handle for generic class */
-   cip_class_generic_handle = new_create_dissector_handle( dissect_cip_class_generic, proto_cip_class_generic );
+   cip_class_generic_handle = create_dissector_handle( dissect_cip_class_generic, proto_cip_class_generic );
    dissector_add_uint( "cip.class.iface", 0, cip_class_generic_handle );
 
    /* Create and register dissector handle for Connection Manager */
-   cip_class_cm_handle = new_create_dissector_handle( dissect_cip_class_cm, proto_cip_class_cm );
+   cip_class_cm_handle = create_dissector_handle( dissect_cip_class_cm, proto_cip_class_cm );
    dissector_add_uint( "cip.class.iface", CI_CLS_CM, cip_class_cm_handle );
 
    /* Create and register dissector handle for Modbus Object */
-   cip_class_mb_handle = new_create_dissector_handle( dissect_cip_class_mb, proto_cip_class_mb );
+   cip_class_mb_handle = create_dissector_handle( dissect_cip_class_mb, proto_cip_class_mb );
    dissector_add_uint( "cip.class.iface", CI_CLS_MB, cip_class_mb_handle );
    modbus_handle = find_dissector("modbus");
 
    /* Create and register dissector handle for Connection Configuration Object */
-   cip_class_cco_handle = new_create_dissector_handle( dissect_cip_class_cco, proto_cip_class_cco );
+   cip_class_cco_handle = create_dissector_handle( dissect_cip_class_cco, proto_cip_class_cco );
    dissector_add_uint( "cip.class.iface", CI_CLS_CCO, cip_class_cco_handle );
    heur_dissector_add("cip.sc", dissect_class_cco_heur, "CIP Connection Configuration Object", "cco_cip", proto_cip_class_cco, HEURISTIC_ENABLE);
 

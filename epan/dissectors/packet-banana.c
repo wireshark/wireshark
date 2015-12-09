@@ -347,7 +347,7 @@ proto_register_banana(void)
 void
 proto_reg_handoff_banana(void)
 {
-    banana_handle = new_create_dissector_handle(dissect_banana, proto_banana);
+    banana_handle = create_dissector_handle(dissect_banana, proto_banana);
 }
 
 /*

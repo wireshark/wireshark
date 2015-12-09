@@ -1016,7 +1016,7 @@ proto_reg_handoff_fr(void)
   dissector_add_uint("atm.aal5.type", TRAF_FR, fr_handle);
   dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_FR, fr_handle);
 
-  fr_phdr_handle = new_create_dissector_handle(dissect_fr_phdr, proto_fr);
+  fr_phdr_handle = create_dissector_handle(dissect_fr_phdr, proto_fr);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FRELAY_WITH_PHDR, fr_phdr_handle);
 
   eth_withfcs_handle = find_dissector("eth_withfcs");

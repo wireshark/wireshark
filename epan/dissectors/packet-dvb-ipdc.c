@@ -103,7 +103,7 @@ proto_reg_handoff_dvb_ipdc(void)
 
     sub_handles[DVB_IPDC_SUB_FLUTE] = find_dissector("alc");
 
-    ipdc_handle = new_create_dissector_handle(dissect_ipdc, proto_ipdc);
+    ipdc_handle = create_dissector_handle(dissect_ipdc, proto_ipdc);
     dissector_add_uint("udp.port", UDP_PORT_IPDC_ESG_BOOTSTRAP, ipdc_handle);
 }
 

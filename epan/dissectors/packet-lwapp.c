@@ -549,10 +549,10 @@ proto_reg_handoff_lwapp(void)
     data_handle = find_dissector("data");
 
     /* This dissector assumes lwapp packets in an 802.3 frame */
-    lwapp_l3_handle = new_create_dissector_handle(dissect_lwapp_l3, proto_lwapp_l3);
+    lwapp_l3_handle = create_dissector_handle(dissect_lwapp_l3, proto_lwapp_l3);
 
     /* This dissector assumes a lwapp packet */
-    lwapp_handle = new_create_dissector_handle(dissect_lwapp, proto_lwapp);
+    lwapp_handle = create_dissector_handle(dissect_lwapp, proto_lwapp);
 
     /*
      * Ok, the following deserves some comments.  We have four

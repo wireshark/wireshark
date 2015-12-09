@@ -761,7 +761,7 @@ proto_reg_handoff_lon(void)
 {
 	dissector_handle_t lon_handle;
 
-	lon_handle = new_create_dissector_handle(dissect_lon, proto_lon);
+	lon_handle = create_dissector_handle(dissect_lon, proto_lon);
 	data_handle = find_dissector("data");
 
 	dissector_add_uint("cnip.protocol", 0, lon_handle);

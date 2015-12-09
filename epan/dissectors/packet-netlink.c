@@ -410,7 +410,7 @@ proto_register_netlink(void)
 	proto_register_fields(proto_netlink, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	netlink_handle = new_create_dissector_handle(dissect_netlink, proto_netlink);
+	netlink_handle = create_dissector_handle(dissect_netlink, proto_netlink);
 
 	netlink_dissector_table = register_dissector_table(
 		"netlink.protocol",

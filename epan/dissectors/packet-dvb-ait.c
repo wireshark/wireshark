@@ -574,7 +574,7 @@ proto_reg_handoff_dvb_ait(void)
 {
     dissector_handle_t dvb_ait_handle;
 
-    dvb_ait_handle = new_create_dissector_handle(dissect_dvb_ait, proto_dvb_ait);
+    dvb_ait_handle = create_dissector_handle(dissect_dvb_ait, proto_dvb_ait);
     dissector_add_uint("mpeg_sect.tid", DVB_AIT_TID, dvb_ait_handle);
 }
 

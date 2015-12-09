@@ -144,7 +144,7 @@ proto_reg_handoff_symantec(void)
 
    ethertype_dissector_table = find_dissector_table("ethertype");
 
-   symantec_handle = new_create_dissector_handle(dissect_symantec,
+   symantec_handle = create_dissector_handle(dissect_symantec,
          proto_symantec);
    dissector_add_uint("wtap_encap", WTAP_ENCAP_SYMANTEC, symantec_handle);
 }

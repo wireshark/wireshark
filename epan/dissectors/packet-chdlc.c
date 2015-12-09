@@ -392,7 +392,7 @@ proto_reg_handoff_slarp(void)
 {
   dissector_handle_t slarp_handle;
 
-  slarp_handle = new_create_dissector_handle(dissect_slarp, proto_slarp);
+  slarp_handle = create_dissector_handle(dissect_slarp, proto_slarp);
   dissector_add_uint("chdlc.protocol", CISCO_SLARP, slarp_handle);
 }
 

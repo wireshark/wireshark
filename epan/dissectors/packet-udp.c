@@ -1083,7 +1083,7 @@ proto_register_udp(void)
 
   proto_udplite = proto_register_protocol("Lightweight User Datagram Protocol",
                                           "UDP-Lite", "udplite");
-  udplite_handle = new_create_dissector_handle(dissect_udplite, proto_udplite);
+  udplite_handle = create_dissector_handle(dissect_udplite, proto_udplite);
   hfi_udplite = proto_registrar_get_nth(proto_udplite);
   proto_register_fields(proto_udplite, hfi_lite, array_length(hfi_lite));
 

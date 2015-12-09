@@ -4096,11 +4096,11 @@ proto_reg_handoff_dns(void)
     dissector_handle_t mdns_udp_handle;
     dissector_handle_t llmnr_udp_handle;
 
-    dns_udp_handle = new_create_dissector_handle(dissect_dns_udp_sctp, proto_dns);
-    dns_tcp_handle = new_create_dissector_handle(dissect_dns_tcp, proto_dns);
-    dns_sctp_handle  = new_create_dissector_handle(dissect_dns_udp_sctp, proto_dns);
-    mdns_udp_handle  = new_create_dissector_handle(dissect_mdns_udp, proto_mdns);
-    llmnr_udp_handle = new_create_dissector_handle(dissect_llmnr_udp, proto_llmnr);
+    dns_udp_handle = create_dissector_handle(dissect_dns_udp_sctp, proto_dns);
+    dns_tcp_handle = create_dissector_handle(dissect_dns_tcp, proto_dns);
+    dns_sctp_handle  = create_dissector_handle(dissect_dns_udp_sctp, proto_dns);
+    mdns_udp_handle  = create_dissector_handle(dissect_mdns_udp, proto_mdns);
+    llmnr_udp_handle = create_dissector_handle(dissect_llmnr_udp, proto_llmnr);
     dissector_add_uint("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
     dissector_add_uint("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
     dissector_add_uint("udp.port", UDP_PORT_LLMNR, llmnr_udp_handle);

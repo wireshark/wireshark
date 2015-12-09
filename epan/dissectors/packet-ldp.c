@@ -4310,8 +4310,8 @@ proto_reg_handoff_ldp(void)
 
     if (!ldp_prefs_initialized) {
 
-        ldp_tcp_handle = new_create_dissector_handle(dissect_ldp_tcp, proto_ldp);
-        ldp_handle = new_create_dissector_handle(dissect_ldp, proto_ldp);
+        ldp_tcp_handle = create_dissector_handle(dissect_ldp_tcp, proto_ldp);
+        ldp_handle = create_dissector_handle(dissect_ldp, proto_ldp);
 
         ldp_prefs_initialized = TRUE;
 

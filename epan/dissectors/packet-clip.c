@@ -121,7 +121,7 @@ proto_reg_handoff_clip(void)
    */
   ip_handle = find_dissector("ip");
 
-  clip_handle = new_create_dissector_handle(dissect_clip, proto_clip);
+  clip_handle = create_dissector_handle(dissect_clip, proto_clip);
       /* XXX - no protocol, can't be disabled */
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_ATM_CLIP, clip_handle);
 }

@@ -497,7 +497,7 @@ void proto_reg_handoff_hcrt(void)
     static gint hcrt_ethertype;
 
     if (!hcrt_prefs_initialized) {
-        hcrt_handle = new_create_dissector_handle(dissect_hcrt, proto_hcrt);
+        hcrt_handle = create_dissector_handle(dissect_hcrt, proto_hcrt);
         /* Also register as a dissector that can be selected by a TCP port number via
         "decode as" */
         dissector_add_for_decode_as("tcp.port", hcrt_handle);

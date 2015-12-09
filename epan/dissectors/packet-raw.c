@@ -187,7 +187,7 @@ proto_reg_handoff_raw(void)
   ipv6_handle = find_dissector("ipv6");
   data_handle = find_dissector("data");
   ppp_hdlc_handle = find_dissector("ppp_hdlc");
-  raw_handle = new_create_dissector_handle(dissect_raw, proto_raw);
+  raw_handle = create_dissector_handle(dissect_raw, proto_raw);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP, raw_handle);
 }
 

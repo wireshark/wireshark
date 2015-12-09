@@ -536,7 +536,7 @@ proto_reg_handoff_cpfi(void)
   if ( !cpfi_init_complete )
   {
     fc_handle     = find_dissector("fc");
-    cpfi_handle   = new_create_dissector_handle(dissect_cpfi, proto_cpfi);
+    cpfi_handle   = create_dissector_handle(dissect_cpfi, proto_cpfi);
     cpfi_init_complete = TRUE;
   }
   else

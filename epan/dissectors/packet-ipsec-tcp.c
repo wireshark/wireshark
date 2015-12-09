@@ -244,7 +244,7 @@ proto_reg_handoff_tcpencap(void)
 	static guint tcpencap_tcp_port = 0;
 
 	if (!initialized) {
-		tcpencap_handle = new_create_dissector_handle(dissect_tcpencap, proto_tcpencap);
+		tcpencap_handle = create_dissector_handle(dissect_tcpencap, proto_tcpencap);
 		esp_handle = find_dissector("esp");
 		udp_handle = find_dissector("udp");
 

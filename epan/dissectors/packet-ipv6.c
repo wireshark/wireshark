@@ -3557,13 +3557,13 @@ proto_reg_handoff_ipv6(void)
 
     dissector_add_for_decode_as("udp.port", ipv6_handle);
 
-    ipv6_hopopts_handle = new_create_dissector_handle(dissect_hopopts, proto_ipv6_hopopts );
+    ipv6_hopopts_handle = create_dissector_handle(dissect_hopopts, proto_ipv6_hopopts );
     dissector_add_uint("ipv6.nxt", IP_PROTO_HOPOPTS, ipv6_hopopts_handle);
-    ipv6_routing_handle = new_create_dissector_handle(dissect_routing6, proto_ipv6_routing );
+    ipv6_routing_handle = create_dissector_handle(dissect_routing6, proto_ipv6_routing );
     dissector_add_uint("ipv6.nxt", IP_PROTO_ROUTING, ipv6_routing_handle);
-    ipv6_shim6_handle = new_create_dissector_handle(dissect_shim6, proto_ipv6_shim6 );
+    ipv6_shim6_handle = create_dissector_handle(dissect_shim6, proto_ipv6_shim6 );
     dissector_add_uint("ipv6.nxt", IP_PROTO_SHIM6, ipv6_shim6_handle);
-    ipv6_dstopts_handle = new_create_dissector_handle(dissect_dstopts, proto_ipv6_dstopts );
+    ipv6_dstopts_handle = create_dissector_handle(dissect_dstopts, proto_ipv6_dstopts );
     dissector_add_uint("ipv6.nxt", IP_PROTO_DSTOPTS, ipv6_dstopts_handle);
 
     ip_dissector_table = find_dissector_table("ip.proto");

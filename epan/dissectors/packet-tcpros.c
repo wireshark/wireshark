@@ -482,7 +482,7 @@ proto_reg_handoff_tcpros(void)
 	static gboolean Initialized = FALSE;
 
 	if (!Initialized) {
-		tcpros_handle = new_create_dissector_handle(dissect_tcpros, proto_tcpros);
+		tcpros_handle = create_dissector_handle(dissect_tcpros, proto_tcpros);
 		dissector_add_for_decode_as("tcp.port", tcpros_handle);   /* for "decode-as" */
 		Initialized    = TRUE;
 	}

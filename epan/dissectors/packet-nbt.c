@@ -2086,13 +2086,13 @@ proto_reg_handoff_nbt(void)
 {
     dissector_handle_t nbns_handle, nbdgm_handle, nbss_handle;
 
-    nbns_handle  = new_create_dissector_handle(dissect_nbns, proto_nbns);
+    nbns_handle  = create_dissector_handle(dissect_nbns, proto_nbns);
     dissector_add_uint("udp.port", UDP_PORT_NBNS, nbns_handle);
 
-    nbdgm_handle = new_create_dissector_handle(dissect_nbdgm, proto_nbdgm);
+    nbdgm_handle = create_dissector_handle(dissect_nbdgm, proto_nbdgm);
     dissector_add_uint("udp.port", UDP_PORT_NBDGM, nbdgm_handle);
 
-    nbss_handle  = new_create_dissector_handle(dissect_nbss, proto_nbss);
+    nbss_handle  = create_dissector_handle(dissect_nbss, proto_nbss);
     dissector_add_uint("tcp.port", TCP_PORT_NBSS, nbss_handle);
     dissector_add_uint("tcp.port", TCP_PORT_CIFS, nbss_handle);
 

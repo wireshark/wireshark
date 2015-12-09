@@ -1898,9 +1898,9 @@ void
 proto_reg_handoff_srvloc(void)
 {
     dissector_handle_t srvloc_handle, srvloc_tcp_handle;
-    srvloc_handle = new_create_dissector_handle(dissect_srvloc, proto_srvloc);
+    srvloc_handle = create_dissector_handle(dissect_srvloc, proto_srvloc);
     dissector_add_uint("udp.port", UDP_PORT_SRVLOC, srvloc_handle);
-    srvloc_tcp_handle = new_create_dissector_handle(dissect_srvloc_tcp,
+    srvloc_tcp_handle = create_dissector_handle(dissect_srvloc_tcp,
                                                 proto_srvloc);
     dissector_add_uint("tcp.port", TCP_PORT_SRVLOC, srvloc_tcp_handle);
 }

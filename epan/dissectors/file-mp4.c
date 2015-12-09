@@ -806,7 +806,7 @@ proto_register_mp4(void)
 void
 proto_reg_handoff_mp4(void)
 {
-    dissector_handle_t mp4_handle = new_create_dissector_handle(dissect_mp4, proto_mp4);
+    dissector_handle_t mp4_handle = create_dissector_handle(dissect_mp4, proto_mp4);
     dissector_add_string("media_type", "video/mp4", mp4_handle);
     dissector_add_string("media_type", "audio/mp4", mp4_handle);
 }

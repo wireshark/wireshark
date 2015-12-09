@@ -8021,7 +8021,7 @@ proto_reg_handoff_mbim(void)
     static gboolean initialized = FALSE, mbim_control_decode_unknown_itf_prev = FALSE;
 
     if (!initialized) {
-        dissector_handle_t mbim_decode_as_handle = new_create_dissector_handle(dissect_mbim_decode_as, proto_mbim);
+        dissector_handle_t mbim_decode_as_handle = create_dissector_handle(dissect_mbim_decode_as, proto_mbim);
         bertlv_handle = find_dissector("gsm_sim.bertlv");
         etsi_cat_handle = find_dissector("etsi_cat");
         gsm_sms_handle = find_dissector("gsm_sms");

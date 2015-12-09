@@ -3768,15 +3768,15 @@ proto_reg_handoff_enip(void)
    dissector_handle_t dlr_handle;
 
    /* Register for EtherNet/IP, using TCP */
-   enip_tcp_handle = new_create_dissector_handle(dissect_enip_tcp, proto_enip);
+   enip_tcp_handle = create_dissector_handle(dissect_enip_tcp, proto_enip);
    dissector_add_uint("tcp.port", ENIP_ENCAP_PORT, enip_tcp_handle);
 
    /* Register for EtherNet/IP, using UDP */
-   enip_udp_handle = new_create_dissector_handle(dissect_enip_udp, proto_enip);
+   enip_udp_handle = create_dissector_handle(dissect_enip_udp, proto_enip);
    dissector_add_uint("udp.port", ENIP_ENCAP_PORT, enip_udp_handle);
 
    /* Register for EtherNet/IP IO data (UDP) */
-   enipio_handle = new_create_dissector_handle(dissect_enipio, proto_enipio);
+   enipio_handle = create_dissector_handle(dissect_enipio, proto_enipio);
    dissector_add_uint("udp.port", ENIP_IO_PORT, enipio_handle);
 
    /* Find dissector for data packet */
@@ -3793,7 +3793,7 @@ proto_reg_handoff_enip(void)
    cip_implicit_handle = find_dissector("cip_implicit");
 
    /* Register for EtherNet/IP Device Level Ring protocol */
-   dlr_handle = new_create_dissector_handle(dissect_dlr, proto_dlr);
+   dlr_handle = create_dissector_handle(dissect_dlr, proto_dlr);
    dissector_add_uint("ethertype", ETHERTYPE_DLR, dlr_handle);
 
    proto_cipsafety = proto_get_id_by_filter_name( "cipsafety" );

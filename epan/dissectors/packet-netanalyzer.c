@@ -464,8 +464,8 @@ void proto_reg_handoff_netanalyzer(void)
   eth_dissector_handle  = find_dissector("eth_withfcs");
   data_dissector_handle = find_dissector("data");
 
-  netana_handle             = new_create_dissector_handle(dissect_netanalyzer,             proto_netanalyzer);
-  netana_handle_transparent = new_create_dissector_handle(dissect_netanalyzer_transparent, proto_netanalyzer);
+  netana_handle             = create_dissector_handle(dissect_netanalyzer,             proto_netanalyzer);
+  netana_handle_transparent = create_dissector_handle(dissect_netanalyzer_transparent, proto_netanalyzer);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_NETANALYZER,             netana_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_NETANALYZER_TRANSPARENT, netana_handle_transparent);
 }

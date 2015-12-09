@@ -244,7 +244,7 @@ proto_reg_handoff_isdn(void)
 	v120_handle = find_dissector("v120");
 	data_handle = find_dissector("data");
 
-	isdn_handle = new_create_dissector_handle(dissect_isdn, proto_isdn);
+	isdn_handle = create_dissector_handle(dissect_isdn, proto_isdn);
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_ISDN, isdn_handle);
 }

@@ -660,7 +660,7 @@ proto_reg_handoff_tpkt(void)
     dissector_add_uint("tcp.port", TCP_PORT_TPKT, tpkt_handle);
 
     /*
-    tpkt_ascii_handle = new_create_dissector_handle(dissect_ascii_tpkt, proto_tpkt);
+    tpkt_ascii_handle = create_dissector_handle(dissect_ascii_tpkt, proto_tpkt);
     dissector_add_uint("tcp.port", TCP_PORT_TPKT, tpkt_ascii_handle);
     */
 

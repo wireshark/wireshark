@@ -589,7 +589,7 @@ proto_reg_handoff_hazelcast(void) {
     static int currentPort;
 
     if (!initialized) {
-        hazelcast_handle = new_create_dissector_handle(dissect_hazelcast, proto_hazelcast);
+        hazelcast_handle = create_dissector_handle(dissect_hazelcast, proto_hazelcast);
         initialized = TRUE;
     } else {
         dissector_delete_uint("tcp.port", currentPort, hazelcast_handle);

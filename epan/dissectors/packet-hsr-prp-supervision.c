@@ -253,7 +253,7 @@ void proto_register_hsr_prp_supervision(void)
 void proto_reg_handoff_hsr_prp_supervision(void)
 {
     dissector_handle_t hsr_prp_supervision_handle;
-    hsr_prp_supervision_handle = new_create_dissector_handle(dissect_hsr_prp_supervision, proto_hsr_prp_supervision);
+    hsr_prp_supervision_handle = create_dissector_handle(dissect_hsr_prp_supervision, proto_hsr_prp_supervision);
     dissector_add_uint("ethertype", ETHERTYPE_PRP, hsr_prp_supervision_handle);
 }
 

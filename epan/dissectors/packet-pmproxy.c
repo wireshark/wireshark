@@ -255,7 +255,7 @@ void proto_register_pmproxy(void) {
 
 void proto_reg_handoff_pmproxy(void) {
 
-    pmproxy_handle = new_create_dissector_handle(dissect_pmproxy, proto_pmproxy);
+    pmproxy_handle = create_dissector_handle(dissect_pmproxy, proto_pmproxy);
     pcp_handle = find_dissector("pcp");
 
     dissector_add_uint("tcp.port", PMPROXY_PORT, pmproxy_handle);

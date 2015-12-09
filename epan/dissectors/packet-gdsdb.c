@@ -2049,7 +2049,7 @@ proto_reg_handoff_gdsdb(void)
 
 	dissector_handle_t gdsdb_handle;
 
-	gdsdb_handle = new_create_dissector_handle(dissect_gdsdb,
+	gdsdb_handle = create_dissector_handle(dissect_gdsdb,
 								 proto_gdsdb);
 	dissector_add_uint("tcp.port", TCP_PORT, gdsdb_handle);
 }

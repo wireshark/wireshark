@@ -1879,7 +1879,7 @@ proto_reg_handoff_http2(void)
 {
     data_handle = find_dissector("data");
 
-    http2_handle = new_create_dissector_handle(dissect_http2, proto_http2);
+    http2_handle = create_dissector_handle(dissect_http2, proto_http2);
     dissector_add_for_decode_as("tcp.port", http2_handle);
 
     heur_dissector_add("ssl", dissect_http2_heur, "HTTP2 over SSL", "http2_ssl", proto_http2, HEURISTIC_ENABLE);

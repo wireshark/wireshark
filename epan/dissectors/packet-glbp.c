@@ -609,7 +609,7 @@ proto_reg_handoff_glbp(void)
 {
   dissector_handle_t glbp_handle;
 
-  glbp_handle = new_create_dissector_handle(dissect_glbp_static, proto_glbp);
+  glbp_handle = create_dissector_handle(dissect_glbp_static, proto_glbp);
   dissector_add_uint("udp.port", 3222, glbp_handle);
 }
 

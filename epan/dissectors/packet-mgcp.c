@@ -2377,8 +2377,8 @@ void proto_reg_handoff_mgcp(void)
 	{
 		/* Get a handle for the SDP dissector. */
 		sdp_handle = find_dissector("sdp");
-		mgcp_handle = new_create_dissector_handle(dissect_mgcp, proto_mgcp);
-		mgcp_tpkt_handle = new_create_dissector_handle(dissect_tpkt_mgcp, proto_mgcp);
+		mgcp_handle = create_dissector_handle(dissect_mgcp, proto_mgcp);
+		mgcp_tpkt_handle = create_dissector_handle(dissect_tpkt_mgcp, proto_mgcp);
 		mgcp_prefs_initialized = TRUE;
 	}
 	else

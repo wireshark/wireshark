@@ -138,7 +138,7 @@ proto_reg_handoff_llt(void)
 	static guint preference_alternate_ethertype_last;
 
 	if (!initialized) {
-		llt_handle = new_create_dissector_handle(dissect_llt, proto_llt);
+		llt_handle = create_dissector_handle(dissect_llt, proto_llt);
 		dissector_add_uint("ethertype", ETHERTYPE_LLT, llt_handle);
 		initialized = TRUE;
 	} else {

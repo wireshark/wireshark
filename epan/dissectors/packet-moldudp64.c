@@ -309,7 +309,7 @@ proto_reg_handoff_moldudp64(void)
 
     if (!initialized) {
 
-        moldudp64_handle = new_create_dissector_handle(dissect_moldudp64,
+        moldudp64_handle = create_dissector_handle(dissect_moldudp64,
                 proto_moldudp64);
         initialized = TRUE;
     } else {

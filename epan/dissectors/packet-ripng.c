@@ -171,7 +171,7 @@ proto_reg_handoff_ripng(void)
 {
     dissector_handle_t ripng_handle;
 
-    ripng_handle = new_create_dissector_handle(dissect_ripng, proto_ripng);
+    ripng_handle = create_dissector_handle(dissect_ripng, proto_ripng);
     dissector_add_uint("udp.port", UDP_PORT_RIPNG, ripng_handle);
 }
 

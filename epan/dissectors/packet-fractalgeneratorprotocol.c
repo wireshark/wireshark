@@ -225,7 +225,7 @@ proto_reg_handoff_fractalgeneratorprotocol(void)
 {
   dissector_handle_t fractalgeneratorprotocol_handle;
 
-  fractalgeneratorprotocol_handle = new_create_dissector_handle(dissect_fractalgeneratorprotocol, proto_fractalgeneratorprotocol);
+  fractalgeneratorprotocol_handle = create_dissector_handle(dissect_fractalgeneratorprotocol, proto_fractalgeneratorprotocol);
   dissector_add_uint("sctp.ppi", FRACTALGENERATORPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY, fractalgeneratorprotocol_handle);
   dissector_add_uint("sctp.ppi", FGP_PAYLOAD_PROTOCOL_ID, fractalgeneratorprotocol_handle);
 }

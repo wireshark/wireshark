@@ -1667,9 +1667,9 @@ proto_reg_handoff_mmse(void)
     dissector_handle_t mmse_encapsulated_handle;
 
     heur_dissector_add("wsp", dissect_mmse_heur, "MMS Message Encapsulation over WSP", "mmse_wsp", proto_mmse, HEURISTIC_ENABLE);
-    mmse_standalone_handle = new_create_dissector_handle(
+    mmse_standalone_handle = create_dissector_handle(
             dissect_mmse_standalone, proto_mmse);
-    mmse_encapsulated_handle = new_create_dissector_handle(
+    mmse_encapsulated_handle = create_dissector_handle(
             dissect_mmse_encapsulated, proto_mmse);
         /* As the media types for WSP and HTTP are the same, the WSP dissector
          * uses the same string dissector table as the HTTP protocol. */

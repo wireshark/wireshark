@@ -639,7 +639,7 @@ proto_reg_handoff_csm_encaps(void)
 {
     dissector_handle_t csm_encaps_handle;
 
-    csm_encaps_handle = new_create_dissector_handle(dissect_csm_encaps, proto_csm_encaps);
+    csm_encaps_handle = create_dissector_handle(dissect_csm_encaps, proto_csm_encaps);
     dissector_add_uint("ethertype", ETHERTYPE_CSM_ENCAPS, csm_encaps_handle);
 }
 

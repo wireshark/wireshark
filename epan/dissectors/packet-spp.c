@@ -271,7 +271,7 @@ proto_reg_handoff_spp(void)
 {
 	dissector_handle_t spp_handle;
 
-	spp_handle = new_create_dissector_handle(dissect_spp, proto_spp);
+	spp_handle = create_dissector_handle(dissect_spp, proto_spp);
 	dissector_add_uint("idp.packet_type", IDP_PACKET_TYPE_SPP, spp_handle);
 
 	data_handle = find_dissector("data");

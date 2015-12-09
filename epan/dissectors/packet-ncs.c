@@ -86,7 +86,7 @@ proto_reg_handoff_ncs(void)
 {
   dissector_handle_t ncs_handle;
 
-  ncs_handle = new_create_dissector_handle(dissect_ncs, proto_ncs);
+  ncs_handle = create_dissector_handle(dissect_ncs, proto_ncs);
   dissector_add_uint("ip.proto", IP_PROTO_NCS_HEARTBEAT, ncs_handle);
 }
 

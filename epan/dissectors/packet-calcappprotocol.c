@@ -159,7 +159,7 @@ proto_reg_handoff_calcappprotocol(void)
 {
   dissector_handle_t calcappprotocol_handle;
 
-  calcappprotocol_handle = new_create_dissector_handle(dissect_calcappprotocol, proto_calcappprotocol);
+  calcappprotocol_handle = create_dissector_handle(dissect_calcappprotocol, proto_calcappprotocol);
   dissector_add_uint("sctp.ppi", CALCAPPPROTOCOL_PAYLOAD_PROTOCOL_ID_LEGACY, calcappprotocol_handle);
   dissector_add_uint("sctp.ppi", CALCAPP_PAYLOAD_PROTOCOL_ID, calcappprotocol_handle);
 }

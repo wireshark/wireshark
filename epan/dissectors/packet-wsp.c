@@ -7165,7 +7165,7 @@ proto_register_wsp(void)
     new_register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
     heur_subdissector_list = register_heur_dissector_list("wsp");
 
-    wsp_fromudp_handle = new_create_dissector_handle(dissect_wsp_fromudp,
+    wsp_fromudp_handle = create_dissector_handle(dissect_wsp_fromudp,
                                                  proto_wsp);
 }
 
@@ -7356,7 +7356,7 @@ proto_reg_handoff_sir(void)
 {
     dissector_handle_t sir_handle;
 
-    sir_handle = new_create_dissector_handle(dissect_sir, proto_sir);
+    sir_handle = create_dissector_handle(dissect_sir, proto_sir);
 
     /* Add dissector bindings for SIR dissection */
     dissector_add_string("media_type", "application/vnd.wap.sia", sir_handle);

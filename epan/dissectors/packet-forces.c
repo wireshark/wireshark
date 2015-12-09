@@ -870,8 +870,8 @@ proto_reg_handoff_forces(void)
     static dissector_handle_t  forces_handle_tcp, forces_handle;
 
     if (!inited) {
-        forces_handle_tcp = new_create_dissector_handle(dissect_forces_tcp,     proto_forces);
-        forces_handle     = new_create_dissector_handle(dissect_forces_not_tcp, proto_forces);
+        forces_handle_tcp = create_dissector_handle(dissect_forces_tcp,     proto_forces);
+        forces_handle     = create_dissector_handle(dissect_forces_not_tcp, proto_forces);
         ip_handle = find_dissector("ip");
         inited = TRUE;
     }

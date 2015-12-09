@@ -3356,7 +3356,7 @@ proto_reg_handoff_ansi_637(void)
     dissector_handle_t  ansi_637_trans_app_handle;
     guint               i;
 
-    ansi_637_trans_app_handle = new_create_dissector_handle(dissect_ansi_637_trans_app, proto_ansi_637_trans);
+    ansi_637_trans_app_handle = create_dissector_handle(dissect_ansi_637_trans_app, proto_ansi_637_trans);
 
     /* Dissect messages embedded in SIP */
     dissector_add_string("media_type", "application/vnd.3gpp2.sms", ansi_637_trans_app_handle);

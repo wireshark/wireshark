@@ -651,7 +651,7 @@ proto_reg_handoff_fcip (void)
 
     heur_dissector_add("tcp", dissect_fcip_heur, "FCIP over TCP", "fcip_tcp", proto_fcip, HEURISTIC_ENABLE);
 
-    fcip_handle = new_create_dissector_handle(dissect_fcip_handle, proto_fcip);
+    fcip_handle = create_dissector_handle(dissect_fcip_handle, proto_fcip);
     dissector_add_for_decode_as("tcp.port", fcip_handle);
 
     data_handle = find_dissector("data");

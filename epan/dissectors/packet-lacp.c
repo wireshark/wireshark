@@ -558,7 +558,7 @@ proto_reg_handoff_lacp(void)
 {
     dissector_handle_t lacp_handle;
 
-    lacp_handle = new_create_dissector_handle(dissect_lacp, proto_lacp);
+    lacp_handle = create_dissector_handle(dissect_lacp, proto_lacp);
     dissector_add_uint("slow.subtype", LACP_SUBTYPE, lacp_handle);
 }
 

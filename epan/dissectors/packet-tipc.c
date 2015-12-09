@@ -3099,8 +3099,8 @@ proto_reg_handoff_tipc(void)
 	static range_t *tipc_udp_port_range;
 
 	if (!inited) {
-		tipc_handle = new_create_dissector_handle(dissect_tipc, proto_tipc);
-		tipc_tcp_handle = new_create_dissector_handle(dissect_tipc_tcp, proto_tipc);
+		tipc_handle = create_dissector_handle(dissect_tipc, proto_tipc);
+		tipc_tcp_handle = create_dissector_handle(dissect_tipc_tcp, proto_tipc);
 		ip_handle = find_dissector("ip");
 		data_handle = find_dissector("data");
 

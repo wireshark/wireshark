@@ -816,7 +816,7 @@ void proto_reg_handoff_actrace(void)
 
 	if (!actrace_prefs_initialized)
 	{
-		actrace_handle = new_create_dissector_handle(dissect_actrace, proto_actrace);
+		actrace_handle = create_dissector_handle(dissect_actrace, proto_actrace);
 		/* Get a handle for the lapd dissector. */
 		lapd_handle = find_dissector("lapd");
 		actrace_prefs_initialized = TRUE;

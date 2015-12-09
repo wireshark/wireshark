@@ -4594,8 +4594,8 @@ proto_reg_handoff_dnp3(void)
   heur_dissector_add("tcp", dissect_dnp3_tcp_heur, "DNP 3.0 over TCP", "dnp3_tcp", proto_dnp3, HEURISTIC_DISABLE);
   heur_dissector_add("udp", dissect_dnp3_udp_heur, "DNP 3.0 over UDP", "dnp3_udp", proto_dnp3, HEURISTIC_DISABLE);
 
-  dnp3_tcp_handle = new_create_dissector_handle(dissect_dnp3_tcp, proto_dnp3);
-  dnp3_udp_handle = new_create_dissector_handle(dissect_dnp3_udp, proto_dnp3);
+  dnp3_tcp_handle = create_dissector_handle(dissect_dnp3_tcp, proto_dnp3);
+  dnp3_udp_handle = create_dissector_handle(dissect_dnp3_udp, proto_dnp3);
   dissector_add_uint("tcp.port", TCP_PORT_DNP, dnp3_tcp_handle);
   dissector_add_uint("udp.port", UDP_PORT_DNP, dnp3_udp_handle);
   dissector_add_for_decode_as("rtacser.data", dnp3_udp_handle);

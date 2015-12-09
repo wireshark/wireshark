@@ -1335,8 +1335,8 @@ void proto_reg_handoff_icep(void)
 
     /* Register as a heuristic TCP/UDP dissector */
     if (icep_prefs_initialized == FALSE) {
-        icep_tcp_handle = new_create_dissector_handle(dissect_icep_tcp, proto_icep);
-        icep_udp_handle = new_create_dissector_handle(dissect_icep_udp, proto_icep);
+        icep_tcp_handle = create_dissector_handle(dissect_icep_tcp, proto_icep);
+        icep_udp_handle = create_dissector_handle(dissect_icep_udp, proto_icep);
 
         heur_dissector_add("tcp", dissect_icep_tcp, "ICEP over TCP", "icep_tcp", proto_icep, HEURISTIC_ENABLE);
         heur_dissector_add("udp", dissect_icep_udp, "ICEP over UDP", "icep_udp", proto_icep, HEURISTIC_ENABLE);

@@ -1017,7 +1017,7 @@ proto_reg_handoff_beep(void)
 
   if (!beep_prefs_initialized) {
 
-    beep_handle = new_create_dissector_handle(dissect_beep, proto_beep);
+    beep_handle = create_dissector_handle(dissect_beep, proto_beep);
 
     beep_prefs_initialized = TRUE;
 

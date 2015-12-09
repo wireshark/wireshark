@@ -107,7 +107,7 @@ proto_reg_handoff_udpencap(void)
   esp_handle = find_dissector("esp");
   isakmp_handle = find_dissector("isakmp");
 
-  udpencap_handle = new_create_dissector_handle(dissect_udpencap, proto_udpencap);
+  udpencap_handle = create_dissector_handle(dissect_udpencap, proto_udpencap);
   dissector_add_uint("udp.port", 4500, udpencap_handle);
 }
 

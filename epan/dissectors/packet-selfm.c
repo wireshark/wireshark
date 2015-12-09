@@ -3073,7 +3073,7 @@ proto_reg_handoff_selfm(void)
 
     /* Make sure to use SEL FM Protocol Preferences field to determine default TCP port */
     if (! selfm_prefs_initialized) {
-        selfm_handle = new_create_dissector_handle(dissect_selfm_tcp, proto_selfm);
+        selfm_handle = create_dissector_handle(dissect_selfm_tcp, proto_selfm);
         selfm_prefs_initialized = TRUE;
     }
     else {

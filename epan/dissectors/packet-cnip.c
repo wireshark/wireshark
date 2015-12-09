@@ -242,7 +242,7 @@ void proto_reg_handoff_cnip(void)
 {
    dissector_handle_t cnip_handle;
 
-   cnip_handle = new_create_dissector_handle(dissect_cnip, proto_cnip);
+   cnip_handle = create_dissector_handle(dissect_cnip, proto_cnip);
    data_handle = find_dissector("data");
 
    dissector_add_uint ("udp.port", 1628, cnip_handle);

@@ -333,7 +333,7 @@ proto_reg_handoff_erspan(void)
 
 	ethnofcs_handle = find_dissector("eth_withoutfcs");
 
-	erspan_handle = new_create_dissector_handle(dissect_erspan, proto_erspan);
+	erspan_handle = create_dissector_handle(dissect_erspan, proto_erspan);
 	dissector_add_uint("gre.proto", GRE_ERSPAN_88BE, erspan_handle);
 	dissector_add_uint("gre.proto", GRE_ERSPAN_22EB, erspan_handle);
 

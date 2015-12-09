@@ -297,7 +297,7 @@ proto_register_jpeg(void)
 	proto_register_fields(proto_jpeg, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	jpeg_handle = new_create_dissector_handle(dissect_jpeg, proto_jpeg);
+	jpeg_handle = create_dissector_handle(dissect_jpeg, proto_jpeg);
 
 	/* RFC 2798 */
 	register_ber_oid_dissector_handle("0.9.2342.19200300.100.1.60", jpeg_handle, proto_jpeg, "jpegPhoto");

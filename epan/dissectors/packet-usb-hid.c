@@ -1967,11 +1967,11 @@ proto_reg_handoff_usb_hid(void)
 {
     dissector_handle_t usb_hid_control_handle, usb_hid_descr_handle;
 
-    usb_hid_control_handle = new_create_dissector_handle(
+    usb_hid_control_handle = create_dissector_handle(
                         dissect_usb_hid_control, proto_usb_hid);
     dissector_add_uint("usb.control", IF_CLASS_HID, usb_hid_control_handle);
 
-    usb_hid_descr_handle = new_create_dissector_handle(
+    usb_hid_descr_handle = create_dissector_handle(
                         dissect_usb_hid_class_descriptors, proto_usb_hid);
     dissector_add_uint("usb.descriptor", IF_CLASS_HID, usb_hid_descr_handle);
 }

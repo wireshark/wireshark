@@ -191,7 +191,7 @@ proto_reg_handoff_openflow(void)
     static int currentPort;
 
     if (!initialized) {
-        openflow_handle = new_create_dissector_handle(dissect_openflow, proto_openflow);
+        openflow_handle = create_dissector_handle(dissect_openflow, proto_openflow);
         heur_dissector_add("tcp", dissect_openflow_heur, "OpenFlow over TCP", "openflow_tcp", proto_openflow, HEURISTIC_ENABLE);
         initialized = TRUE;
     } else {

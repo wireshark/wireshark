@@ -290,7 +290,7 @@ proto_reg_handoff_uhd(void)
 	static gint dissector_port;
 
 	if (!uhd_prefs_initialized) {
-		uhd_handle = new_create_dissector_handle(dissect_uhd, proto_uhd);
+		uhd_handle = create_dissector_handle(dissect_uhd, proto_uhd);
 		uhd_prefs_initialized = TRUE;
 	} else {
 		dissector_delete_uint("udp.port", dissector_port, uhd_handle);

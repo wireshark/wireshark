@@ -284,7 +284,7 @@ proto_reg_handoff_fcct (void)
 {
     dissector_handle_t fcct_handle;
 
-    fcct_handle = new_create_dissector_handle (dissect_fcct, proto_fcct);
+    fcct_handle = create_dissector_handle (dissect_fcct, proto_fcct);
     dissector_add_uint("fc.ftype", FC_FTYPE_FCCT, fcct_handle);
 
     data_handle = find_dissector ("data");

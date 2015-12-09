@@ -2355,9 +2355,9 @@ proto_reg_handoff_diameter(void)
 
 	if (!Initialized) {
 		diameter_sctp_handle = find_dissector("diameter");
-		diameter_tcp_handle = new_create_dissector_handle(dissect_diameter_tcp,
+		diameter_tcp_handle = create_dissector_handle(dissect_diameter_tcp,
 							      proto_diameter);
-		diameter_udp_handle = new_create_dissector_handle(dissect_diameter, proto_diameter);
+		diameter_udp_handle = create_dissector_handle(dissect_diameter, proto_diameter);
 		data_handle = find_dissector("data");
 		eap_handle = find_dissector("eap");
 
@@ -2366,33 +2366,33 @@ proto_reg_handoff_diameter(void)
 		/* Register special decoding for some AVPs */
 
 		/* AVP Code: 1 User-Name */
-		dissector_add_uint("diameter.base", 1, new_create_dissector_handle(dissect_diameter_user_name, proto_diameter));
+		dissector_add_uint("diameter.base", 1, create_dissector_handle(dissect_diameter_user_name, proto_diameter));
 
 		/* AVP Code: 97 Framed-IPv6-Address */
-		dissector_add_uint("diameter.base", 97, new_create_dissector_handle(dissect_diameter_base_framed_ipv6_prefix, proto_diameter));
+		dissector_add_uint("diameter.base", 97, create_dissector_handle(dissect_diameter_base_framed_ipv6_prefix, proto_diameter));
 
 		/* AVP Code: 265 Suported-Vendor-Id */
-		dissector_add_uint("diameter.base", 265, new_create_dissector_handle(dissect_diameter_vendor_id, proto_diameter));
+		dissector_add_uint("diameter.base", 265, create_dissector_handle(dissect_diameter_vendor_id, proto_diameter));
 
 		/* AVP Code: 266 Vendor-Id */
-		dissector_add_uint("diameter.base", 266, new_create_dissector_handle(dissect_diameter_vendor_id, proto_diameter));
+		dissector_add_uint("diameter.base", 266, create_dissector_handle(dissect_diameter_vendor_id, proto_diameter));
 
 		/* AVP Code: 443 Subscription-Id */
-		dissector_add_uint("diameter.base", 443, new_create_dissector_handle(dissect_diameter_subscription_id, proto_diameter));
+		dissector_add_uint("diameter.base", 443, create_dissector_handle(dissect_diameter_subscription_id, proto_diameter));
 
 		/* AVP Code: 450 Subscription-Id-Type */
-		dissector_add_uint("diameter.base", 450, new_create_dissector_handle(dissect_diameter_subscription_id_type, proto_diameter));
+		dissector_add_uint("diameter.base", 450, create_dissector_handle(dissect_diameter_subscription_id_type, proto_diameter));
 
 		/* AVP Code: 444 Subscription-Id-Data */
-		dissector_add_uint("diameter.base", 444, new_create_dissector_handle(dissect_diameter_subscription_id_data, proto_diameter));
+		dissector_add_uint("diameter.base", 444, create_dissector_handle(dissect_diameter_subscription_id_data, proto_diameter));
 
 		/* AVP Code: 462 EAP-Payload */
-		dissector_add_uint("diameter.base", 462, new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
+		dissector_add_uint("diameter.base", 462, create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
 		/* AVP Code: 463 EAP-Reissued-Payload */
-		dissector_add_uint("diameter.base", 463, new_create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
+		dissector_add_uint("diameter.base", 463, create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
 
 		/* Register dissector for Experimental result code, with 3GPP2's vendor Id */
-		dissector_add_uint("diameter.vnd_exp_res", VENDOR_THE3GPP2, new_create_dissector_handle(dissect_diameter_3gpp2_exp_res, proto_diameter));
+		dissector_add_uint("diameter.vnd_exp_res", VENDOR_THE3GPP2, create_dissector_handle(dissect_diameter_3gpp2_exp_res, proto_diameter));
 
 		Initialized=TRUE;
 	} else {

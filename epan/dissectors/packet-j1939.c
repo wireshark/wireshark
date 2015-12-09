@@ -358,7 +358,7 @@ proto_reg_handoff_j1939(void)
 {
     dissector_handle_t j1939_handle;
 
-    j1939_handle = new_create_dissector_handle( dissect_j1939, proto_j1939 );
+    j1939_handle = create_dissector_handle( dissect_j1939, proto_j1939 );
     dissector_add_for_decode_as("can.subdissector", j1939_handle );
 }
 

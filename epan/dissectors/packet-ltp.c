@@ -992,7 +992,7 @@ proto_reg_handoff_ltp(void)
 	static int currentPort;
 
 	if (!initialized) {
-		ltp_handle = new_create_dissector_handle(dissect_ltp, proto_ltp);
+		ltp_handle = create_dissector_handle(dissect_ltp, proto_ltp);
 		bundle_handle = find_dissector("bundle");
 		initialized = TRUE;
 	} else {

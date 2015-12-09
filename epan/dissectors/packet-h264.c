@@ -3720,12 +3720,12 @@ proto_reg_handoff_h264(void)
         dissector_add_string("rtp_dyn_payload_type","H264-SVC", h264_handle);
         dissector_add_string("rtp_dyn_payload_type","X-H264UC", h264_handle);
 
-        h264_name_handle = new_create_dissector_handle(dissect_h264_name, proto_h264);
+        h264_name_handle = create_dissector_handle(dissect_h264_name, proto_h264);
         for (ftr=h264_capability_tab; ftr->id; ftr++) {
             if (ftr->name)
                 dissector_add_string("h245.gef.name", ftr->id, h264_name_handle);
             if (ftr->content_pdu)
-                dissector_add_string("h245.gef.content", ftr->id, new_create_dissector_handle(ftr->content_pdu, proto_h264));
+                dissector_add_string("h245.gef.content", ftr->id, create_dissector_handle(ftr->content_pdu, proto_h264));
         }
         h264_prefs_initialized = TRUE;
     } else {

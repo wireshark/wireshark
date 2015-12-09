@@ -399,7 +399,7 @@ proto_reg_handoff_mactelnet(void)
     static dissector_handle_t mactelnet_handle;
 
     if (!initialized) {
-        mactelnet_handle = new_create_dissector_handle(dissect_mactelnet, proto_mactelnet);
+        mactelnet_handle = create_dissector_handle(dissect_mactelnet, proto_mactelnet);
         data_handle = find_dissector("data");
         initialized = TRUE;
     } else {

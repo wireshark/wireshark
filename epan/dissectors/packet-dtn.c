@@ -2774,7 +2774,7 @@ proto_reg_handoff_bundle(void)
     static int Initialized = FALSE;
 
     if (!Initialized) {
-        tcpcl_handle = new_create_dissector_handle(dissect_tcpcl, proto_bundle);
+        tcpcl_handle = create_dissector_handle(dissect_tcpcl, proto_bundle);
         data_handle  = find_dissector("data");
         Initialized  = TRUE;
     }

@@ -6346,7 +6346,7 @@ proto_reg_handoff_dvbci(void)
 {
     dissector_handle_t dvbci_handle;
 
-    dvbci_handle = new_create_dissector_handle(dissect_dvbci, proto_dvbci);
+    dvbci_handle = create_dissector_handle(dissect_dvbci, proto_dvbci);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_DVBCI, dvbci_handle);
 
     data_handle = find_dissector("data");

@@ -446,7 +446,7 @@ proto_reg_handoff_geneve(void)
 {
     dissector_handle_t geneve_handle;
 
-    geneve_handle = new_create_dissector_handle(dissect_geneve, proto_geneve);
+    geneve_handle = create_dissector_handle(dissect_geneve, proto_geneve);
     dissector_add_uint("udp.port", UDP_PORT_GENEVE, geneve_handle);
     dissector_add_for_decode_as("udp.port", geneve_handle);
 

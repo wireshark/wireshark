@@ -514,7 +514,7 @@ proto_reg_handoff_babel(void)
 {
     dissector_handle_t babel_handle;
 
-    babel_handle = new_create_dissector_handle(dissect_babel, proto_babel);
+    babel_handle = create_dissector_handle(dissect_babel, proto_babel);
     dissector_add_uint("udp.port", UDP_PORT_BABEL, babel_handle);
     dissector_add_uint("udp.port", UDP_PORT_BABEL_OLD, babel_handle);
 }

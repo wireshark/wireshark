@@ -134,7 +134,7 @@ proto_register_flexnet(void)
 void
 proto_reg_handoff_flexnet(void)
 {
-	dissector_add_uint( "ax25.pid", AX25_P_FLEXNET, new_create_dissector_handle( dissect_flexnet, proto_flexnet ) );
+	dissector_add_uint( "ax25.pid", AX25_P_FLEXNET, create_dissector_handle( dissect_flexnet, proto_flexnet ) );
 
 	/*
 	 */

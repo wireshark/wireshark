@@ -291,7 +291,7 @@ proto_reg_handoff_componentstatusprotocol(void)
 {
   dissector_handle_t componentstatusprotocol_handle;
 
-  componentstatusprotocol_handle = new_create_dissector_handle(dissect_componentstatusprotocol, proto_componentstatusprotocol);
+  componentstatusprotocol_handle = create_dissector_handle(dissect_componentstatusprotocol, proto_componentstatusprotocol);
   dissector_add_uint("udp.port", COMPONENTSTATUSPROTOCOL_PORT, componentstatusprotocol_handle);
 }
 

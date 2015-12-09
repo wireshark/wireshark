@@ -748,8 +748,8 @@ void proto_reg_handoff_elasticsearch(void) {
     dissector_handle_t elasticsearch_zen_handle;
     elasticsearch_http_handle = find_dissector("http");
 
-    elasticsearch_handle = new_create_dissector_handle(dissect_elasticsearch, proto_elasticsearch);
-    elasticsearch_zen_handle = new_create_dissector_handle(dissect_elasticsearch_zen_ping, proto_elasticsearch);
+    elasticsearch_handle = create_dissector_handle(dissect_elasticsearch, proto_elasticsearch);
+    elasticsearch_zen_handle = create_dissector_handle(dissect_elasticsearch_zen_ping, proto_elasticsearch);
     dissector_add_uint("udp.port", ELASTICSEARCH_DISCOVERY_PORT, elasticsearch_zen_handle);
     dissector_add_uint("tcp.port", ELASTICSEARCH_BINARY_PORT, elasticsearch_handle);
     dissector_add_uint("tcp.port", ELASTICSEARCH_HTTP_PORT, elasticsearch_handle);

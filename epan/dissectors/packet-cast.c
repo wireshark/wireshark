@@ -1711,7 +1711,7 @@ proto_reg_handoff_cast(void)
   dissector_handle_t cast_handle;
 
   data_handle = find_dissector("data");
-  cast_handle = new_create_dissector_handle(dissect_cast, proto_cast);
+  cast_handle = create_dissector_handle(dissect_cast, proto_cast);
   dissector_add_uint("tcp.port", TCP_PORT_CAST, cast_handle);
 }
 

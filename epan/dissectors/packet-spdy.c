@@ -1925,7 +1925,7 @@ void proto_register_spdy(void)
                                  &spdy_decompress_body);
 
   /** Create dissector handle and register for dissection. */
-  spdy_handle = new_create_dissector_handle(dissect_spdy, proto_spdy);
+  spdy_handle = create_dissector_handle(dissect_spdy, proto_spdy);
 
   register_init_routine(&spdy_init_protocol);
 

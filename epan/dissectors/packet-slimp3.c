@@ -712,7 +712,7 @@ proto_reg_handoff_slimp3(void)
 {
     dissector_handle_t slimp3_handle;
 
-    slimp3_handle = new_create_dissector_handle(dissect_slimp3, proto_slimp3);
+    slimp3_handle = create_dissector_handle(dissect_slimp3, proto_slimp3);
     dissector_add_uint("udp.port", UDP_PORT_SLIMP3_V1, slimp3_handle);
     dissector_add_uint("udp.port", UDP_PORT_SLIMP3_V2, slimp3_handle);
 }

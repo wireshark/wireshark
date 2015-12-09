@@ -458,7 +458,7 @@ proto_reg_handoff_fdp(void)
 {
 	dissector_handle_t fdp_handle;
 
-	fdp_handle = new_create_dissector_handle(dissect_fdp, proto_fdp);
+	fdp_handle = create_dissector_handle(dissect_fdp, proto_fdp);
 	dissector_add_uint("llc.foundry_pid", 0x2000, fdp_handle);
 }
 

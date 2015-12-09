@@ -1007,9 +1007,9 @@ void proto_reg_handoff_ismacryp(void)
 	if (!ismacryp_prefs_initialized) {
 		dissector_handle_t ismacryp_v11_handle;
 		dissector_handle_t ismacryp_v20_handle;
-		ismacryp_handle = new_create_dissector_handle(dissect_ismacryp, proto_ismacryp);
-		ismacryp_v11_handle = new_create_dissector_handle(dissect_ismacryp_v11, proto_ismacryp);
-		ismacryp_v20_handle = new_create_dissector_handle(dissect_ismacryp_v20, proto_ismacryp);
+		ismacryp_handle = create_dissector_handle(dissect_ismacryp, proto_ismacryp);
+		ismacryp_v11_handle = create_dissector_handle(dissect_ismacryp_v11, proto_ismacryp);
+		ismacryp_v20_handle = create_dissector_handle(dissect_ismacryp_v20, proto_ismacryp);
 		ismacryp_prefs_initialized = TRUE;
 		dissector_add_string("rtp_dyn_payload_type", "ISMACRYP", ismacryp_handle);
 		dissector_add_string("rtp_dyn_payload_type", "enc-mpeg4-generic", ismacryp_v11_handle);

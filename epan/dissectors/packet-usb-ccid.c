@@ -747,7 +747,7 @@ proto_reg_handoff_ccid(void)
 {
     dissector_handle_t usb_ccid_descr_handle;
 
-    usb_ccid_descr_handle = new_create_dissector_handle(
+    usb_ccid_descr_handle = create_dissector_handle(
             dissect_usb_ccid_descriptor, proto_ccid);
     dissector_add_uint("usb.descriptor", IF_CLASS_SMART_CARD, usb_ccid_descr_handle);
 

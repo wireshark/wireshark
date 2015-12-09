@@ -2929,7 +2929,7 @@ void proto_reg_handoff_cipmotion(void)
    dissector_handle_t cipmotion_handle;
 
    /* Create and register dissector for I/O data handling */
-   cipmotion_handle = new_create_dissector_handle( dissect_cipmotion, proto_cipmotion );
+   cipmotion_handle = create_dissector_handle( dissect_cipmotion, proto_cipmotion );
    dissector_add_for_decode_as("enip.io", cipmotion_handle );
 }
 

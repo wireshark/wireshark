@@ -1872,7 +1872,7 @@ void proto_reg_handoff_lbtrm(void)
 
     if (!already_registered)
     {
-        lbtrm_dissector_handle = new_create_dissector_handle(dissect_lbtrm, proto_lbtrm);
+        lbtrm_dissector_handle = create_dissector_handle(dissect_lbtrm, proto_lbtrm);
         dissector_add_for_decode_as("udp.port", lbtrm_dissector_handle);
         heur_dissector_add("udp", test_lbtrm_packet, "LBT Reliable Multicast over UDP", "lbtrm_udp", proto_lbtrm, HEURISTIC_ENABLE);
         lbtrm_tap_handle = register_tap("lbm_lbtrm");

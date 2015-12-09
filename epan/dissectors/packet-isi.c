@@ -2140,17 +2140,17 @@ proto_reg_handoff_isi(void)
 
 	if(!initialized) {
 		data_handle = find_dissector("data");
-		dissector_add_uint("sll.ltype", LINUX_SLL_P_ISI, new_create_dissector_handle(dissect_isi, proto_isi));
+		dissector_add_uint("sll.ltype", LINUX_SLL_P_ISI, create_dissector_handle(dissect_isi, proto_isi));
 
 		heur_dissector_add("usb.bulk", dissect_usb_isi, "ISI bulk endpoint", "usb_bulk_isi", proto_isi, HEURISTIC_DISABLE);
 
-		dissector_add_uint("isi.resource", 0x02, new_create_dissector_handle(dissect_isi_sms, proto_isi));
-		dissector_add_uint("isi.resource", 0x06, new_create_dissector_handle(dissect_isi_ss, proto_isi));
-		dissector_add_uint("isi.resource", 0x08, new_create_dissector_handle(dissect_isi_sim_auth, proto_isi));
-		dissector_add_uint("isi.resource", 0x09, new_create_dissector_handle(dissect_isi_sim, proto_isi));
-		dissector_add_uint("isi.resource", 0x0a, new_create_dissector_handle(dissect_isi_network, proto_isi));
-		dissector_add_uint("isi.resource", 0x32, new_create_dissector_handle(dissect_isi_gss, proto_isi));
-		dissector_add_uint("isi.resource", 0x54, new_create_dissector_handle(dissect_isi_gps, proto_isi));
+		dissector_add_uint("isi.resource", 0x02, create_dissector_handle(dissect_isi_sms, proto_isi));
+		dissector_add_uint("isi.resource", 0x06, create_dissector_handle(dissect_isi_ss, proto_isi));
+		dissector_add_uint("isi.resource", 0x08, create_dissector_handle(dissect_isi_sim_auth, proto_isi));
+		dissector_add_uint("isi.resource", 0x09, create_dissector_handle(dissect_isi_sim, proto_isi));
+		dissector_add_uint("isi.resource", 0x0a, create_dissector_handle(dissect_isi_network, proto_isi));
+		dissector_add_uint("isi.resource", 0x32, create_dissector_handle(dissect_isi_gss, proto_isi));
+		dissector_add_uint("isi.resource", 0x54, create_dissector_handle(dissect_isi_gps, proto_isi));
 	}
 }
 

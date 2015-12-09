@@ -1031,7 +1031,7 @@ proto_reg_handoff_hislip(void)
 
     if (!initialized)
     {
-        hislip_handle = new_create_dissector_handle(dissect_hislip, proto_hislip);
+        hislip_handle = create_dissector_handle(dissect_hislip, proto_hislip);
         /* disabled by default since heuristic is weak */
         heur_dissector_add("tcp", dissect_hislip_heur, "HiSLIP over TCP", "hislip_tcp", proto_hislip, HEURISTIC_DISABLE);
         initialized = TRUE;

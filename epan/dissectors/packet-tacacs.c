@@ -281,7 +281,7 @@ proto_reg_handoff_tacacs(void)
 {
 	dissector_handle_t tacacs_handle;
 
-	tacacs_handle = new_create_dissector_handle(dissect_tacacs, proto_tacacs);
+	tacacs_handle = create_dissector_handle(dissect_tacacs, proto_tacacs);
 	dissector_add_uint("udp.port", UDP_PORT_TACACS, tacacs_handle);
 }
 
@@ -1278,7 +1278,7 @@ proto_reg_handoff_tacplus(void)
 {
 	dissector_handle_t tacplus_handle;
 
-	tacplus_handle = new_create_dissector_handle(dissect_tacplus,
+	tacplus_handle = create_dissector_handle(dissect_tacplus,
 	    proto_tacplus);
 	dissector_add_uint("tcp.port", TCP_PORT_TACACS, tacplus_handle);
 }

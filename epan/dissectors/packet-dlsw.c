@@ -685,10 +685,10 @@ proto_reg_handoff_dlsw(void)
 {
   dissector_handle_t dlsw_udp_handle, dlsw_tcp_handle;
 
-  dlsw_udp_handle = new_create_dissector_handle(dissect_dlsw_udp, proto_dlsw);
+  dlsw_udp_handle = create_dissector_handle(dissect_dlsw_udp, proto_dlsw);
   dissector_add_uint("udp.port", UDP_PORT_DLSW, dlsw_udp_handle);
 
-  dlsw_tcp_handle = new_create_dissector_handle(dissect_dlsw_tcp, proto_dlsw);
+  dlsw_tcp_handle = create_dissector_handle(dissect_dlsw_tcp, proto_dlsw);
   dissector_add_uint("tcp.port", TCP_PORT_DLSW, dlsw_tcp_handle);
 }
 

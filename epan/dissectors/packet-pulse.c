@@ -137,7 +137,7 @@ proto_reg_handoff_pulse(void)
         }
     else
         {
-            pulse_handle = new_create_dissector_handle(dissect_pulse,
+            pulse_handle = create_dissector_handle(dissect_pulse,
                                                        proto_pulse);
             initialized = TRUE;
         }

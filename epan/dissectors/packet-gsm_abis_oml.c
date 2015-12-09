@@ -2394,7 +2394,7 @@ proto_reg_handoff_abis_oml(void)
 {
 	dissector_handle_t abis_oml_handle;
 
-	abis_oml_handle = new_create_dissector_handle(dissect_abis_oml,
+	abis_oml_handle = create_dissector_handle(dissect_abis_oml,
 						      proto_abis_oml);
 	dissector_add_uint("lapd.gsm.sapi", LAPD_GSM_SAPI_OM_PROC,
 			   abis_oml_handle);

@@ -479,7 +479,7 @@ proto_reg_handoff_iapp(void)
 {
     dissector_handle_t iapp_handle;
 
-    iapp_handle = new_create_dissector_handle(dissect_iapp, proto_iapp);
+    iapp_handle = create_dissector_handle(dissect_iapp, proto_iapp);
     dissector_add_uint("udp.port", UDP_PORT_IAPP, iapp_handle);
 }
 /*

@@ -540,7 +540,7 @@ proto_reg_handoff_fddi(void)
   dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_FDDI, fddi_handle);
 
   fddi_bitswapped_handle =
-    new_create_dissector_handle(dissect_fddi_bitswapped, proto_fddi);
+    create_dissector_handle(dissect_fddi_bitswapped, proto_fddi);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED,
                      fddi_bitswapped_handle);
 }

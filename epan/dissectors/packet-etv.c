@@ -232,8 +232,8 @@ proto_reg_handoff_etv(void)
 	dissector_handle_t etv_dii_handle;
 	dissector_handle_t etv_ddb_handle;
 
-	etv_dii_handle = new_create_dissector_handle(dissect_etv_dii, proto_etv_dii);
-	etv_ddb_handle = new_create_dissector_handle(dissect_etv_ddb, proto_etv_ddb);
+	etv_dii_handle = create_dissector_handle(dissect_etv_dii, proto_etv_dii);
+	etv_ddb_handle = create_dissector_handle(dissect_etv_ddb, proto_etv_ddb);
 	dissector_add_uint("mpeg_sect.tid", ETV_TID_DII_SECTION, etv_dii_handle);
 	dissector_add_uint("mpeg_sect.tid", ETV_TID_DDB_SECTION, etv_ddb_handle);
 	dsmcc_handle = find_dissector("mp2t-dsmcc");

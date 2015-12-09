@@ -1586,7 +1586,7 @@ proto_reg_handoff_wtls(void)
 {
 	dissector_handle_t wtls_handle;
 
-	wtls_handle = new_create_dissector_handle(dissect_wtls, proto_wtls);
+	wtls_handle = create_dissector_handle(dissect_wtls, proto_wtls);
 	dissector_add_uint("udp.port", UDP_PORT_WTLS_WSP,     wtls_handle);
 	dissector_add_uint("udp.port", UDP_PORT_WTLS_WTP_WSP, wtls_handle);
 	dissector_add_uint("udp.port", UDP_PORT_WTLS_WSP_PUSH,wtls_handle);

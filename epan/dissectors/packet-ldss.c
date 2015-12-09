@@ -994,8 +994,8 @@ proto_reg_handoff_ldss (void)
 	static gboolean	  ldss_initialized	= FALSE;
 
 	if (!ldss_initialized) {
-		ldss_udp_handle = new_create_dissector_handle(dissect_ldss, proto_ldss);
-		ldss_tcp_handle = new_create_dissector_handle(dissect_ldss_transfer, proto_ldss);
+		ldss_udp_handle = create_dissector_handle(dissect_ldss, proto_ldss);
+		ldss_tcp_handle = create_dissector_handle(dissect_ldss_transfer, proto_ldss);
 		ldss_initialized = TRUE;
 	}
 	else {

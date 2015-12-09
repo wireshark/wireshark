@@ -963,7 +963,7 @@ void proto_reg_handoff_a21(void)
 
 
 	if (!a21_prefs_initialized) {
-		a21_handle = new_create_dissector_handle(dissect_a21, proto_a21);
+		a21_handle = create_dissector_handle(dissect_a21, proto_a21);
 		gcsna_handle = find_dissector("gcsna");
 		dissector_add_uint("udp.port", a21_udp_port, a21_handle);
 		a21_prefs_initialized = TRUE;

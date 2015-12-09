@@ -382,7 +382,7 @@ proto_reg_handoff_sap(void)
 {
     dissector_handle_t sap_handle;
 
-    sap_handle = new_create_dissector_handle(dissect_sap, proto_sap);
+    sap_handle = create_dissector_handle(dissect_sap, proto_sap);
     dissector_add_uint("udp.port", UDP_PORT_SAP, sap_handle);
 
     /*

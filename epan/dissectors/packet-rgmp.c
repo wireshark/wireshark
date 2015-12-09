@@ -140,7 +140,7 @@ proto_reg_handoff_rgmp(void)
 {
     dissector_handle_t rgmp_handle;
 
-    rgmp_handle = new_create_dissector_handle(dissect_rgmp, proto_rgmp);
+    rgmp_handle = create_dissector_handle(dissect_rgmp, proto_rgmp);
     dissector_add_uint("igmp.type", IGMP_RGMP_HELLO, rgmp_handle);
     dissector_add_uint("igmp.type", IGMP_RGMP_BYE, rgmp_handle);
     dissector_add_uint("igmp.type", IGMP_RGMP_JOIN, rgmp_handle);

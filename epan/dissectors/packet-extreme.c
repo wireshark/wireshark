@@ -1484,7 +1484,7 @@ proto_reg_handoff_edp(void)
 {
 	dissector_handle_t edp_handle;
 
-	edp_handle = new_create_dissector_handle(dissect_edp, proto_edp);
+	edp_handle = create_dissector_handle(dissect_edp, proto_edp);
 	dissector_add_uint("llc.extreme_pid", 0x00bb, edp_handle);
 }
 

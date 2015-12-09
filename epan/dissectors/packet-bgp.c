@@ -8405,7 +8405,7 @@ proto_reg_handoff_bgp(void)
 {
     dissector_handle_t bgp_handle;
 
-    bgp_handle = new_create_dissector_handle(dissect_bgp, proto_bgp);
+    bgp_handle = create_dissector_handle(dissect_bgp, proto_bgp);
     dissector_add_uint("tcp.port", BGP_TCP_PORT, bgp_handle);
 }
 /*

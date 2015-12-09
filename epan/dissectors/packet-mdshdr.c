@@ -320,7 +320,7 @@ proto_reg_handoff_mdshdr(void)
          * ethertype ETHERTYPE_FCFT, and fetch the data and Fibre
          * Channel handles.
          */
-        mdshdr_handle = new_create_dissector_handle(dissect_mdshdr, proto_mdshdr);
+        mdshdr_handle = create_dissector_handle(dissect_mdshdr, proto_mdshdr);
         dissector_add_uint("ethertype", ETHERTYPE_FCFT, mdshdr_handle);
         data_handle   = find_dissector("data");
         fc_dissector_handle = find_dissector("fc");

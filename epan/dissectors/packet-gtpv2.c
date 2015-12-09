@@ -8127,10 +8127,10 @@ void proto_register_gtpv2(void)
     expert_register_field_array(expert_gtpv2, ei, array_length(ei));
 
     /* AVP Code: 22 3GPP-User-Location-Info */
-    dissector_add_uint("diameter.3gpp", 22, new_create_dissector_handle(dissect_diameter_3gpp_uli, proto_gtpv2));
+    dissector_add_uint("diameter.3gpp", 22, create_dissector_handle(dissect_diameter_3gpp_uli, proto_gtpv2));
 
     /* AVP Code: 2820 Presence-Reporting-Area-Elements-List */
-    dissector_add_uint("diameter.3gpp", 2820, new_create_dissector_handle(dissect_diameter_3gpp_presence_reporting_area_elements_list, proto_gtpv2));
+    dissector_add_uint("diameter.3gpp", 2820, create_dissector_handle(dissect_diameter_3gpp_presence_reporting_area_elements_list, proto_gtpv2));
 
     new_register_dissector("gtpv2", dissect_gtpv2, proto_gtpv2);
     /* Dissector table for private extensions */

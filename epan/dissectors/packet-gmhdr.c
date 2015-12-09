@@ -521,7 +521,7 @@ proto_reg_handoff_gmhdr(void)
 
   ethertype_handle = find_dissector("ethertype");
 
-  gmhdr_handle = new_create_dissector_handle(dissect_gmhdr, proto_gmhdr);
+  gmhdr_handle = create_dissector_handle(dissect_gmhdr, proto_gmhdr);
   dissector_add_uint("ethertype", ETHERTYPE_GIGAMON, gmhdr_handle);
   heur_dissector_add("eth.trailer", dissect_gmtrailer, "Gigamon Ethernet header", "gmhdr_eth", proto_gmhdr, HEURISTIC_ENABLE);
 

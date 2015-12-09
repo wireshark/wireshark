@@ -692,7 +692,7 @@ proto_reg_handoff_ossp(void)
 {
     dissector_handle_t ossp_handle;
 
-    ossp_handle = new_create_dissector_handle(dissect_ossp_pdu, proto_ossp);
+    ossp_handle = create_dissector_handle(dissect_ossp_pdu, proto_ossp);
     dissector_add_uint("slow.subtype", OSSP_SUBTYPE, ossp_handle);
 
     dh_data = find_dissector("data");

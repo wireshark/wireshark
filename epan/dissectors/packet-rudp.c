@@ -245,7 +245,7 @@ proto_reg_handoff_rudp(void) {
 	static guint saved_udp_port;
 
 	if (!initialized) {
-		rudp_handle = new_create_dissector_handle(dissect_rudp, proto_rudp);
+		rudp_handle = create_dissector_handle(dissect_rudp, proto_rudp);
 		dissector_add_for_decode_as("udp.port", rudp_handle);
 		sm_handle = find_dissector("sm");
 		data_handle = find_dissector("data");

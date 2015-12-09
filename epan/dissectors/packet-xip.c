@@ -696,7 +696,7 @@ proto_reg_handoff_xip(void)
 {
 	dissector_handle_t xip_handle;
 
-	xip_handle = new_create_dissector_handle(dissect_xip, proto_xip);
+	xip_handle = create_dissector_handle(dissect_xip, proto_xip);
 	dissector_add_uint("ethertype", ETHERTYPE_XIP, xip_handle);
 
 	xip_serval_handle = find_dissector("xipserval");

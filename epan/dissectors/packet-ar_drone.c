@@ -794,7 +794,7 @@ proto_reg_handoff_ar_drone(void)
 
     if (initialized == FALSE)
     {
-        ar_drone_handle = new_create_dissector_handle(dissect_ar_drone, proto_ar_drone);
+        ar_drone_handle = create_dissector_handle(dissect_ar_drone, proto_ar_drone);
 
         heur_dissector_add("udp", dissect_ar_drone, "AR Drone over UDP", "ar_drone_udp", proto_ar_drone, HEURISTIC_ENABLE);
 

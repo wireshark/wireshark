@@ -1448,7 +1448,7 @@ proto_reg_handoff_pgm(void)
 	static guint old_udp_encap_mcast_port;
 
 	if (! initialized) {
-		pgm_handle = new_create_dissector_handle(dissect_pgm, proto_pgm);
+		pgm_handle = create_dissector_handle(dissect_pgm, proto_pgm);
 		dissector_add_for_decode_as("udp.port", pgm_handle);
 		dissector_add_uint("ip.proto", IP_PROTO_PGM, pgm_handle);
 		data_handle = find_dissector("data");

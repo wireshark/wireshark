@@ -432,7 +432,7 @@ proto_reg_handoff_mrp_mvrp(void)
 {
     dissector_handle_t mvrp_handle;
 
-    mvrp_handle = new_create_dissector_handle(dissect_mvrp, proto_mvrp);
+    mvrp_handle = create_dissector_handle(dissect_mvrp, proto_mvrp);
     dissector_add_uint("ethertype", ETHERTYPE_MVRP, mvrp_handle);
 }
 /*

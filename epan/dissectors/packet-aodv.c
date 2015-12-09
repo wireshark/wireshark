@@ -929,7 +929,7 @@ proto_reg_handoff_aodv(void)
 {
     dissector_handle_t aodv_handle;
 
-    aodv_handle = new_create_dissector_handle(dissect_aodv,
+    aodv_handle = create_dissector_handle(dissect_aodv,
                                               proto_aodv);
     dissector_add_uint("udp.port", UDP_PORT_AODV, aodv_handle);
 }

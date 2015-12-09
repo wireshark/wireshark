@@ -792,11 +792,11 @@ void proto_reg_handoff_nat_pmp(void)
   dissector_handle_t pcp_handle;
 
 
-  pcp_handle = new_create_dissector_handle(dissect_portcontrol, proto_pcp);
+  pcp_handle = create_dissector_handle(dissect_portcontrol, proto_pcp);
   dissector_add_uint("udp.port", PCP_STATUS_PORT, pcp_handle);
   dissector_add_uint("udp.port", PCP_PORT, pcp_handle);
 
-  nat_pmp_handle = new_create_dissector_handle(dissect_nat_pmp, proto_nat_pmp);
+  nat_pmp_handle = create_dissector_handle(dissect_nat_pmp, proto_nat_pmp);
   /* Port Control Protocol (packet-portcontrol.c) shares the same UDP ports as
      NAT-PMP, but it backwards compatible.  However, still let NAT-PMP
      use Decode As

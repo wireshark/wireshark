@@ -394,7 +394,7 @@ proto_reg_handoff_distcc(void)
          * We haven't registered the dissector yet; get a handle
          * for it.
          */
-        distcc_handle = new_create_dissector_handle(dissect_distcc,
+        distcc_handle = create_dissector_handle(dissect_distcc,
             proto_distcc);
         data_handle = find_dissector("data");
         registered_dissector = TRUE;

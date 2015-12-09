@@ -367,7 +367,7 @@ proto_reg_handoff_fabricpath(void)
 {
   /*
     dissector_handle_t fp_handle;
-    fp_handle = new_create_dissector_handle(dissect_fp, proto_fp);
+    fp_handle = create_dissector_handle(dissect_fp, proto_fp);
     dissector_add_uint("ethertype", ETHERTYPE_DCE, fp_handle);
   */
   static gboolean prefs_initialized = FALSE;

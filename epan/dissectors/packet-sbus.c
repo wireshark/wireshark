@@ -2330,7 +2330,7 @@ proto_reg_handoff_sbus(void)
 {
        dissector_handle_t sbus_handle;
 
-       sbus_handle = new_create_dissector_handle(dissect_sbus, proto_sbus);
+       sbus_handle = create_dissector_handle(dissect_sbus, proto_sbus);
        dissector_add_uint("udp.port", 5050, sbus_handle);
 }
 

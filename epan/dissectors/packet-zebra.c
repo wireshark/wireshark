@@ -878,7 +878,7 @@ proto_reg_handoff_zebra(void)
 {
 	dissector_handle_t zebra_handle;
 
-	zebra_handle = new_create_dissector_handle(dissect_zebra, proto_zebra);
+	zebra_handle = create_dissector_handle(dissect_zebra, proto_zebra);
 	dissector_add_uint("tcp.port", TCP_PORT_ZEBRA, zebra_handle);
 }
 

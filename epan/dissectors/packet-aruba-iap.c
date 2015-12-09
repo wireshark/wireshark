@@ -200,7 +200,7 @@ proto_reg_handoff_aruba_iap(void)
 {
     dissector_handle_t iap_handle;
 
-    iap_handle = new_create_dissector_handle(dissect_aruba_iap, proto_aruba_iap);
+    iap_handle = create_dissector_handle(dissect_aruba_iap, proto_aruba_iap);
     dissector_add_uint("ethertype", ETHERTYPE_IAP, iap_handle);
 }
 

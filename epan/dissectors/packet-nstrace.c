@@ -1141,7 +1141,7 @@ void proto_reg_handoff_ns(void)
 
 	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 
-	nstrace_handle = new_create_dissector_handle(dissect_nstrace, proto_nstrace);
+	nstrace_handle = create_dissector_handle(dissect_nstrace, proto_nstrace);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_1_0, nstrace_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_2_0, nstrace_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_3_0, nstrace_handle);

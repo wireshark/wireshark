@@ -6764,7 +6764,7 @@ proto_reg_handoff_sigcomp(void)
 
     if (!Initialized) {
         sigcomp_handle = find_dissector("sigcomp");
-        sigcomp_tcp_handle = new_create_dissector_handle(dissect_sigcomp_tcp,proto_sigcomp);
+        sigcomp_tcp_handle = create_dissector_handle(dissect_sigcomp_tcp,proto_sigcomp);
         sip_handle = find_dissector("sip");
         Initialized=TRUE;
     } else {

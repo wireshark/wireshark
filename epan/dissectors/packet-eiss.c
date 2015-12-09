@@ -577,7 +577,7 @@ proto_reg_handoff_eiss(void)
 {
 	dissector_handle_t eiss_handle;
 
-	eiss_handle = new_create_dissector_handle(dissect_eiss, proto_eiss);
+	eiss_handle = create_dissector_handle(dissect_eiss, proto_eiss);
 	dissector_add_uint("mpeg_sect.tid", EISS_SECTION_TID, eiss_handle);
 	data_handle = find_dissector("data");
 }

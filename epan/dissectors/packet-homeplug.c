@@ -1357,7 +1357,7 @@ proto_reg_handoff_homeplug(void)
 {
   dissector_handle_t homeplug_handle;
 
-  homeplug_handle = new_create_dissector_handle(dissect_homeplug, proto_homeplug);
+  homeplug_handle = create_dissector_handle(dissect_homeplug, proto_homeplug);
   dissector_add_uint("ethertype", ETHERTYPE_HOMEPLUG, homeplug_handle);
 }
 

@@ -10508,7 +10508,7 @@ proto_register_ceph(void)
 void
 proto_reg_handoff_ceph(void)
 {
-	ceph_handle = new_create_dissector_handle(dissect_ceph_old, proto_ceph);
+	ceph_handle = create_dissector_handle(dissect_ceph_old, proto_ceph);
 
 	heur_dissector_add("tcp", dissect_ceph_heur, "Ceph over TCP", "ceph_tcp", proto_ceph, HEURISTIC_ENABLE);
 }

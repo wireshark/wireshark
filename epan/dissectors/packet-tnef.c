@@ -830,7 +830,7 @@ proto_reg_handoff_tnef(void)
 {
   dissector_handle_t tnef_file_handle;
 
-  tnef_file_handle = new_create_dissector_handle(dissect_tnef_file, proto_tnef);
+  tnef_file_handle = create_dissector_handle(dissect_tnef_file, proto_tnef);
 
   dissector_add_string("media_type", "application/ms-tnef", tnef_handle);
 

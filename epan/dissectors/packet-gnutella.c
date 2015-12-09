@@ -744,7 +744,7 @@ void proto_register_gnutella(void) {
 void proto_reg_handoff_gnutella(void) {
 	dissector_handle_t gnutella_handle;
 
-	gnutella_handle = new_create_dissector_handle(dissect_gnutella,
+	gnutella_handle = create_dissector_handle(dissect_gnutella,
 			proto_gnutella);
 	dissector_add_uint("tcp.port", GNUTELLA_TCP_PORT, gnutella_handle);
 }

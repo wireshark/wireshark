@@ -1645,7 +1645,7 @@ proto_reg_handoff_v5ua(void)
 {
    dissector_handle_t v5ua_handle;
 
-   v5ua_handle = new_create_dissector_handle(dissect_v5ua, proto_v5ua);
+   v5ua_handle = create_dissector_handle(dissect_v5ua, proto_v5ua);
    q931_handle = find_dissector("q931");
    v52_handle = find_dissector("v52");
 

@@ -341,7 +341,7 @@ proto_reg_handoff_sebek(void)
 {
 	dissector_handle_t sebek_handle;
 
-	sebek_handle = new_create_dissector_handle(dissect_sebek, proto_sebek);
+	sebek_handle = create_dissector_handle(dissect_sebek, proto_sebek);
 	dissector_add_uint("udp.port", UDP_PORT_SEBEK, sebek_handle);
 }
 

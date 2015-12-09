@@ -205,7 +205,7 @@ proto_reg_handoff_jmirror(void)
 		/* heur_dissector_add("udp", dissect_jmirror, proto_jmirror); */
 
 		/* Create a dissector handle for the Jmirror protocol */
-		jmirror_handle = new_create_dissector_handle(dissect_jmirror, proto_jmirror);
+		jmirror_handle = create_dissector_handle(dissect_jmirror, proto_jmirror);
 
 		/* Create pointer to ipv4, ipv6, ppp and data dissectors */
 		ipv4_handle = find_dissector("ip");

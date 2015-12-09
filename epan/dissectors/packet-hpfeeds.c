@@ -499,7 +499,7 @@ proto_reg_handoff_hpfeeds(void)
     static gint16 hpfeeds_dissector_port;
 
     if (!hpfeeds_prefs_initialized) {
-        hpfeeds_handle = new_create_dissector_handle(dissect_hpfeeds, proto_hpfeeds);
+        hpfeeds_handle = create_dissector_handle(dissect_hpfeeds, proto_hpfeeds);
         stats_tree_register("hpfeeds", "hpfeeds", "HPFEEDS", 0, hpfeeds_stats_tree_packet, hpfeeds_stats_tree_init, NULL);
         hpfeeds_prefs_initialized = TRUE;
     }

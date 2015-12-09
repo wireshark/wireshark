@@ -4103,7 +4103,7 @@ proto_reg_handoff_wlccp(void)
 {
 	dissector_handle_t wlccp_handle;
 
-	wlccp_handle = new_create_dissector_handle(dissect_wlccp, proto_wlccp);
+	wlccp_handle = create_dissector_handle(dissect_wlccp, proto_wlccp);
 
 	dissector_add_uint("ethertype", ETHERTYPE_WLCCP, wlccp_handle);
 	dissector_add_uint("udp.port", WLCCP_UDP_PORT, wlccp_handle);

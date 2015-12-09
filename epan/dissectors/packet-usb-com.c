@@ -1077,13 +1077,13 @@ proto_reg_handoff_usb_com(void)
     dissector_handle_t usb_com_descriptor_handle, usb_com_control_handle,
                        usb_com_bulk_handle, usb_com_interrupt_handle;
 
-    usb_com_descriptor_handle = new_create_dissector_handle(dissect_usb_com_descriptor, proto_usb_com);
+    usb_com_descriptor_handle = create_dissector_handle(dissect_usb_com_descriptor, proto_usb_com);
     dissector_add_uint("usb.descriptor", IF_CLASS_COMMUNICATIONS, usb_com_descriptor_handle);
-    usb_com_control_handle = new_create_dissector_handle(dissect_usb_com_control, proto_usb_com);
+    usb_com_control_handle = create_dissector_handle(dissect_usb_com_control, proto_usb_com);
     dissector_add_uint("usb.control", IF_CLASS_COMMUNICATIONS, usb_com_control_handle);
-    usb_com_bulk_handle = new_create_dissector_handle(dissect_usb_com_bulk, proto_usb_com);
+    usb_com_bulk_handle = create_dissector_handle(dissect_usb_com_bulk, proto_usb_com);
     dissector_add_uint("usb.bulk", IF_CLASS_CDC_DATA, usb_com_bulk_handle);
-    usb_com_interrupt_handle = new_create_dissector_handle(dissect_usb_com_interrupt, proto_usb_com);
+    usb_com_interrupt_handle = create_dissector_handle(dissect_usb_com_interrupt, proto_usb_com);
     dissector_add_uint("usb.interrupt", IF_CLASS_COMMUNICATIONS, usb_com_interrupt_handle);
     mbim_control_handle = find_dissector("mbim.control");
     mbim_descriptor_handle = find_dissector("mbim.descriptor");

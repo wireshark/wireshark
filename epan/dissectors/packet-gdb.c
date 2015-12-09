@@ -239,7 +239,7 @@ proto_reg_handoff_gdb(void)
     static dissector_handle_t  gdb_handle;
 
     if (!initialized) {
-        gdb_handle = new_create_dissector_handle(dissect_gdb_tcp, proto_gdb);
+        gdb_handle = create_dissector_handle(dissect_gdb_tcp, proto_gdb);
         initialized = TRUE;
     }
 

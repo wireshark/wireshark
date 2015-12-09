@@ -2541,7 +2541,7 @@ proto_reg_handoff_oampdu(void)
 {
     dissector_handle_t oampdu_handle;
 
-    oampdu_handle = new_create_dissector_handle(dissect_oampdu, proto_oampdu);
+    oampdu_handle = create_dissector_handle(dissect_oampdu, proto_oampdu);
     dissector_add_uint("slow.subtype", OAM_SUBTYPE, oampdu_handle);
 }
 

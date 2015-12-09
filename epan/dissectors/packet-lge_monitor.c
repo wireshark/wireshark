@@ -121,7 +121,7 @@ proto_reg_handoff_lge_monitor(void)
 	static gboolean lge_monitor_prefs_initialized = FALSE;
 
 	if (!lge_monitor_prefs_initialized) {
-		lge_monitor_handle = new_create_dissector_handle(dissect_lge_monitor, proto_lge_monitor);
+		lge_monitor_handle = create_dissector_handle(dissect_lge_monitor, proto_lge_monitor);
 		dissector_add_for_decode_as("udp.port", lge_monitor_handle);
 		mtp3_handle  = find_dissector("mtp3");
 		m3ua_handle  = find_dissector("m3ua");

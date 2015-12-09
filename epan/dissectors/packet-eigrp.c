@@ -3413,7 +3413,7 @@ proto_reg_handoff_eigrp(void)
     ipxsap_handle = find_dissector("ipxsap");
     media_type_table = find_dissector_table("media_type");
 
-    eigrp_handle = new_create_dissector_handle(dissect_eigrp, proto_eigrp);
+    eigrp_handle = create_dissector_handle(dissect_eigrp, proto_eigrp);
 
     dissector_add_uint("ip.proto", IP_PROTO_EIGRP, eigrp_handle);
     dissector_add_uint("ddp.type", DDP_EIGRP, eigrp_handle);

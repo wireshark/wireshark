@@ -392,7 +392,7 @@ proto_reg_handoff_rtcdc(void)
     static guint32            current_ppid;
 
     if (!initialized) {
-        rtcdc_handle = new_create_dissector_handle(dissect_rtcdc, proto_rtcdc);
+        rtcdc_handle = create_dissector_handle(dissect_rtcdc, proto_rtcdc);
         initialized = TRUE;
     } else {
         dissector_delete_uint("sctp.ppi", current_ppid, rtcdc_handle);

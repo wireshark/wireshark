@@ -518,7 +518,7 @@ void
 proto_reg_handoff_applemidi( void ) {
 
 
-	applemidi_handle = new_create_dissector_handle( dissect_applemidi, proto_applemidi );
+	applemidi_handle = create_dissector_handle( dissect_applemidi, proto_applemidi );
 
 	/* If we cannot decode the data it will be RTP-MIDI since the Apple session protocol uses
 	 * two ports: the control-port and the MIDI-port.  On both ports an invitation is being sent.

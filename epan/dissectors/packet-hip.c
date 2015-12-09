@@ -1610,10 +1610,10 @@ proto_reg_handoff_hip(void)
         dissector_handle_t hip_handle;
         dissector_handle_t hip_handle2;
 
-        hip_handle = new_create_dissector_handle(dissect_hip, proto_hip);
+        hip_handle = create_dissector_handle(dissect_hip, proto_hip);
         dissector_add_uint("ip.proto", IP_PROTO_HIP, hip_handle);
 
-        hip_handle2 = new_create_dissector_handle(dissect_hip_in_udp, proto_hip);
+        hip_handle2 = create_dissector_handle(dissect_hip_in_udp, proto_hip);
         dissector_add_uint("udp.port", 10500, hip_handle2);
 }
 /*

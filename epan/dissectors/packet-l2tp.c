@@ -3045,10 +3045,10 @@ proto_reg_handoff_l2tp(void)
 {
     dissector_handle_t atm_oam_llc_handle;
 
-    l2tp_udp_handle = new_create_dissector_handle(dissect_l2tp_udp, proto_l2tp);
+    l2tp_udp_handle = create_dissector_handle(dissect_l2tp_udp, proto_l2tp);
     dissector_add_uint("udp.port", UDP_PORT_L2TP, l2tp_udp_handle);
 
-    l2tp_ip_handle = new_create_dissector_handle(dissect_l2tp_ip, proto_l2tp);
+    l2tp_ip_handle = create_dissector_handle(dissect_l2tp_ip, proto_l2tp);
     dissector_add_uint("ip.proto", IP_PROTO_L2TP, l2tp_ip_handle);
 
     /*
@@ -3058,7 +3058,7 @@ proto_reg_handoff_l2tp(void)
     ppp_lcp_options_handle = find_dissector("ppp_lcp_options");
 
     /* Register vendor AVP dissector(s)*/
-    dissector_add_uint("l2tp.vendor_avp", VENDOR_CABLELABS, new_create_dissector_handle(dissect_l2tp_vnd_cablelabs_avps, proto_l2tp));
+    dissector_add_uint("l2tp.vendor_avp", VENDOR_CABLELABS, create_dissector_handle(dissect_l2tp_vnd_cablelabs_avps, proto_l2tp));
 
 
     /*
@@ -3068,7 +3068,7 @@ proto_reg_handoff_l2tp(void)
     llc_handle            = find_dissector("llc");
     data_handle           = find_dissector("data");
 
-    atm_oam_llc_handle = new_create_dissector_handle( dissect_atm_oam_llc, proto_l2tp );
+    atm_oam_llc_handle = create_dissector_handle( dissect_atm_oam_llc, proto_l2tp );
     dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_AAL5, atm_oam_llc_handle);
 }
 

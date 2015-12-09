@@ -1116,7 +1116,7 @@ void
 proto_reg_handoff_ajp13(void)
 {
   dissector_handle_t ajp13_handle;
-  ajp13_handle = new_create_dissector_handle(dissect_ajp13, proto_ajp13);
+  ajp13_handle = create_dissector_handle(dissect_ajp13, proto_ajp13);
   dissector_add_uint("tcp.port", 8009, ajp13_handle);
 }
 

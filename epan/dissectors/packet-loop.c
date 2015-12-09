@@ -165,7 +165,7 @@ proto_reg_handoff_loop(void)
 {
   dissector_handle_t loop_handle;
 
-  loop_handle = new_create_dissector_handle(dissect_loop, proto_loop);
+  loop_handle = create_dissector_handle(dissect_loop, proto_loop);
 
   dissector_add_uint("ethertype", ETHERTYPE_LOOP, loop_handle);
 

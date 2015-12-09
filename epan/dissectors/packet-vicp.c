@@ -115,7 +115,7 @@ void proto_register_vicp(void)
 void proto_reg_handoff_vicp(void)
 {  dissector_handle_t vicp_handle;
 
-   vicp_handle = new_create_dissector_handle(dissect_vicp, proto_vicp);
+   vicp_handle = create_dissector_handle(dissect_vicp, proto_vicp);
    dissector_add_uint("tcp.port", VICP_PORT, vicp_handle);
 }
 

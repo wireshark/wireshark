@@ -192,7 +192,7 @@ proto_reg_handoff_enc(void)
   ipv6_handle = find_dissector("ipv6");
   data_handle = find_dissector("data");
 
-  enc_handle  = new_create_dissector_handle(dissect_enc, proto_enc);
+  enc_handle  = create_dissector_handle(dissect_enc, proto_enc);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ENC, enc_handle);
 }
 

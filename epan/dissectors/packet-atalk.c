@@ -2092,35 +2092,35 @@ proto_reg_handoff_atalk(void)
   dissector_handle_t zip_ddp_handle;
   dissector_handle_t rtmp_data_handle, llap_handle;
 
-  ddp_short_handle = new_create_dissector_handle(dissect_ddp_short, proto_ddp);
-  ddp_handle = new_create_dissector_handle(dissect_ddp, proto_ddp);
+  ddp_short_handle = create_dissector_handle(dissect_ddp_short, proto_ddp);
+  ddp_handle = create_dissector_handle(dissect_ddp, proto_ddp);
   dissector_add_uint("ethertype", ETHERTYPE_ATALK, ddp_handle);
   dissector_add_uint("chdlc.protocol", ETHERTYPE_ATALK, ddp_handle);
   dissector_add_uint("ppp.protocol", PPP_AT, ddp_handle);
   dissector_add_uint("null.type", BSD_AF_APPLETALK, ddp_handle);
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_APPLETALK, ddp_handle);
 
-  nbp_handle = new_create_dissector_handle(dissect_nbp, proto_nbp);
+  nbp_handle = create_dissector_handle(dissect_nbp, proto_nbp);
   dissector_add_uint("ddp.type", DDP_NBP, nbp_handle);
   dissector_add_for_decode_as("udp.port", nbp_handle);
 
-  atp_handle = new_create_dissector_handle(dissect_atp, proto_atp);
+  atp_handle = create_dissector_handle(dissect_atp, proto_atp);
   dissector_add_uint("ddp.type", DDP_ATP, atp_handle);
 
-  asp_handle = new_create_dissector_handle(dissect_asp, proto_asp);
-  pap_handle = new_create_dissector_handle(dissect_pap, proto_pap);
+  asp_handle = create_dissector_handle(dissect_asp, proto_asp);
+  pap_handle = create_dissector_handle(dissect_pap, proto_pap);
 
-  rtmp_request_handle = new_create_dissector_handle(dissect_rtmp_request, proto_rtmp);
-  rtmp_data_handle    = new_create_dissector_handle(dissect_rtmp_data, proto_rtmp);
+  rtmp_request_handle = create_dissector_handle(dissect_rtmp_request, proto_rtmp);
+  rtmp_data_handle    = create_dissector_handle(dissect_rtmp_data, proto_rtmp);
   dissector_add_uint("ddp.type", DDP_RTMPREQ, rtmp_request_handle);
   dissector_add_uint("ddp.type", DDP_RTMPDATA, rtmp_data_handle);
 
-  zip_ddp_handle = new_create_dissector_handle(dissect_ddp_zip, proto_zip);
+  zip_ddp_handle = create_dissector_handle(dissect_ddp_zip, proto_zip);
   dissector_add_uint("ddp.type", DDP_ZIP, zip_ddp_handle);
 
-  zip_atp_handle = new_create_dissector_handle(dissect_atp_zip, proto_zip);
+  zip_atp_handle = create_dissector_handle(dissect_atp_zip, proto_zip);
 
-  llap_handle = new_create_dissector_handle(dissect_llap, proto_llap);
+  llap_handle = create_dissector_handle(dissect_llap, proto_llap);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LOCALTALK, llap_handle);
 
   register_init_routine( atp_init);

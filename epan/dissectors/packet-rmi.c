@@ -372,7 +372,7 @@ proto_reg_handoff_rmi(void)
 {
     dissector_handle_t rmi_handle;
 
-    rmi_handle = new_create_dissector_handle(dissect_rmi, proto_rmi);
+    rmi_handle = create_dissector_handle(dissect_rmi, proto_rmi);
     dissector_add_uint("tcp.port", TCP_PORT_RMI, rmi_handle);
 }
 

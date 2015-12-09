@@ -1042,7 +1042,7 @@ proto_reg_handoff_multipart(void)
     /*
      * Handle for multipart dissection
      */
-    multipart_handle = new_create_dissector_handle(
+    multipart_handle = create_dissector_handle(
             dissect_multipart, proto_multipart);
 
     dissector_add_string("media_type",

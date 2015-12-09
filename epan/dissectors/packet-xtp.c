@@ -1410,7 +1410,7 @@ proto_reg_handoff_xtp(void)
 {
 	dissector_handle_t xtp_handle;
 
-	xtp_handle = new_create_dissector_handle(dissect_xtp, proto_xtp);
+	xtp_handle = create_dissector_handle(dissect_xtp, proto_xtp);
 	dissector_add_uint("ip.proto", IP_PROTO_XTP, xtp_handle);
 }
 

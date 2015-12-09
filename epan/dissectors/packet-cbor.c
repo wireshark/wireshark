@@ -861,7 +861,7 @@ proto_reg_handoff_cbor(void)
 {
 	static dissector_handle_t cbor_handle;
 
-	cbor_handle = new_create_dissector_handle(dissect_cbor, proto_cbor);
+	cbor_handle = create_dissector_handle(dissect_cbor, proto_cbor);
 	dissector_add_string("media_type", "application/cbor", cbor_handle); /* RFC 7049 */
 }
 

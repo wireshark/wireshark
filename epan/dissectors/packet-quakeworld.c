@@ -821,7 +821,7 @@ proto_reg_handoff_quakeworld(void)
 	static guint ServerPort;
 
 	if (!Initialized) {
-		quakeworld_handle = new_create_dissector_handle(dissect_quakeworld,
+		quakeworld_handle = create_dissector_handle(dissect_quakeworld,
 				proto_quakeworld);
 		data_handle = find_dissector("data");
 		Initialized=TRUE;

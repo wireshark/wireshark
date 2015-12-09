@@ -1997,7 +1997,7 @@ void proto_reg_handoff_wreth(void)
 {
     dissector_handle_t wreth_handle;
 
-    wreth_handle = new_create_dissector_handle(dissect_wreth, wreth_proto);
+    wreth_handle = create_dissector_handle(dissect_wreth, wreth_proto);
     dissector_add_uint("ethertype", WRETH_PORT, wreth_handle);
 }
 

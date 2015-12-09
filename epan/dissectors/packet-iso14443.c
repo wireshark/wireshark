@@ -1092,31 +1092,31 @@ proto_reg_handoff_iso14443(void)
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ISO14443, iso14443_handle);
 
-  cmd_type_handle = new_create_dissector_handle(
+  cmd_type_handle = create_dissector_handle(
           dissect_iso14443_cmd_type_wupa, proto_iso14443);
   dissector_add_uint("iso14443.cmd_type", CMD_TYPE_WUPA, cmd_type_handle);
 
-  cmd_type_handle = new_create_dissector_handle(
+  cmd_type_handle = create_dissector_handle(
           dissect_iso14443_cmd_type_wupb, proto_iso14443);
   dissector_add_uint("iso14443.cmd_type", CMD_TYPE_WUPB, cmd_type_handle);
 
-  cmd_type_handle = new_create_dissector_handle(
+  cmd_type_handle = create_dissector_handle(
           dissect_iso14443_cmd_type_hlta, proto_iso14443);
   dissector_add_uint("iso14443.cmd_type", CMD_TYPE_HLTA, cmd_type_handle);
 
-  cmd_type_handle = new_create_dissector_handle(
+  cmd_type_handle = create_dissector_handle(
           dissect_iso14443_cmd_type_uid, proto_iso14443);
   dissector_add_uint("iso14443.cmd_type", CMD_TYPE_UID, cmd_type_handle);
 
-  cmd_type_handle = new_create_dissector_handle(
+  cmd_type_handle = create_dissector_handle(
           dissect_iso14443_cmd_type_ats, proto_iso14443);
   dissector_add_uint("iso14443.cmd_type", CMD_TYPE_ATS, cmd_type_handle);
 
-  cmd_type_handle = new_create_dissector_handle(
+  cmd_type_handle = create_dissector_handle(
           dissect_iso14443_cmd_type_attrib, proto_iso14443);
   dissector_add_uint("iso14443.cmd_type", CMD_TYPE_ATTRIB, cmd_type_handle);
 
-  cmd_type_handle = new_create_dissector_handle(
+  cmd_type_handle = create_dissector_handle(
           dissect_iso14443_cmd_type_block, proto_iso14443);
   dissector_add_uint("iso14443.cmd_type", CMD_TYPE_BLOCK, cmd_type_handle);
 }

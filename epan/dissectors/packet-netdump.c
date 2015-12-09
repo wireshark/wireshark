@@ -203,7 +203,7 @@ void proto_reg_handoff_netdump(void)
 	static int CurrentPort;
 
 	if (!initalized) {
-		netdump_handle = new_create_dissector_handle(dissect_netdump,
+		netdump_handle = create_dissector_handle(dissect_netdump,
 				proto_netdump);
 
 		dissector_add_for_decode_as("udp.port", netdump_handle);

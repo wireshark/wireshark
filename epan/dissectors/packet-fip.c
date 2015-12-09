@@ -825,7 +825,7 @@ proto_reg_handoff_fip(void)
 {
     dissector_handle_t fip_handle;
 
-    fip_handle = new_create_dissector_handle(dissect_fip, proto_fip);
+    fip_handle = create_dissector_handle(dissect_fip, proto_fip);
     dissector_add_uint("ethertype", ETHERTYPE_FIP, fip_handle);
     fc_handle = find_dissector("fc");
 }

@@ -2134,7 +2134,7 @@ proto_reg_handoff_quic(void)
     static int current_quics_port;
 
     if (!initialized) {
-        quic_handle = new_create_dissector_handle(dissect_quic,
+        quic_handle = create_dissector_handle(dissect_quic,
                 proto_quic);
         initialized = TRUE;
 

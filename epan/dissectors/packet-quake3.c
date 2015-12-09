@@ -588,7 +588,7 @@ proto_reg_handoff_quake3(void)
 	int i;
 
 	if (!initialized) {
-		quake3_handle = new_create_dissector_handle(dissect_quake3,
+		quake3_handle = create_dissector_handle(dissect_quake3,
 				proto_quake3);
 		data_handle = find_dissector("data");
 		initialized=TRUE;

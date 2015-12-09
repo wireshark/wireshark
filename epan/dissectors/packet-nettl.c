@@ -354,7 +354,7 @@ proto_reg_handoff_nettl(void)
     ip_proto_dissector_table = find_dissector_table("ip.proto");
     tcp_subdissector_table   = find_dissector_table("tcp.port");
 
-    nettl_handle = new_create_dissector_handle(dissect_nettl, proto_nettl);
+    nettl_handle = create_dissector_handle(dissect_nettl, proto_nettl);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_ETHERNET,   nettl_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_TOKEN_RING, nettl_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_NETTL_FDDI,       nettl_handle);

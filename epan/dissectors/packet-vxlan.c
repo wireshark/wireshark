@@ -198,7 +198,7 @@ proto_reg_handoff_vxlan(void)
 
     eth_handle = find_dissector("eth");
 
-    vxlan_handle = new_create_dissector_handle(dissect_vxlan, proto_vxlan);
+    vxlan_handle = create_dissector_handle(dissect_vxlan, proto_vxlan);
     dissector_add_uint("udp.port", UDP_PORT_VXLAN, vxlan_handle);
     dissector_add_for_decode_as("udp.port", vxlan_handle);
 

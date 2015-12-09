@@ -1169,7 +1169,7 @@ proto_reg_handoff_adwin(void)
 	static unsigned int udp_port;
 
 	if (! adwin_prefs_initialized) {
-		adwin_handle = new_create_dissector_handle(dissect_adwin, proto_adwin);
+		adwin_handle = create_dissector_handle(dissect_adwin, proto_adwin);
 		data_handle = find_dissector("data");
 		adwin_prefs_initialized = TRUE;
 	} else {

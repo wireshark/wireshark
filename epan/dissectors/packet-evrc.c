@@ -617,12 +617,12 @@ proto_reg_handoff_evrc(void)
         dissector_handle_t evrcnw_handle;
         dissector_handle_t evrcnw2k_handle;
 
-        evrc_handle        = new_create_dissector_handle(dissect_evrc, proto_evrc);
-        evrcb_handle       = new_create_dissector_handle(dissect_evrcb, proto_evrc);
-        evrcwb_handle      = new_create_dissector_handle(dissect_evrcwb, proto_evrc);
-        evrcnw_handle      = new_create_dissector_handle(dissect_evrcnw, proto_evrc);
-        evrcnw2k_handle    = new_create_dissector_handle(dissect_evrcnw2k, proto_evrc);
-        evrc_legacy_handle = new_create_dissector_handle(dissect_evrc_legacy, proto_evrc);
+        evrc_handle        = create_dissector_handle(dissect_evrc, proto_evrc);
+        evrcb_handle       = create_dissector_handle(dissect_evrcb, proto_evrc);
+        evrcwb_handle      = create_dissector_handle(dissect_evrcwb, proto_evrc);
+        evrcnw_handle      = create_dissector_handle(dissect_evrcnw, proto_evrc);
+        evrcnw2k_handle    = create_dissector_handle(dissect_evrcnw2k, proto_evrc);
+        evrc_legacy_handle = create_dissector_handle(dissect_evrc_legacy, proto_evrc);
 
         /* header-full mime types */
         dissector_add_string("rtp_dyn_payload_type",  "EVRC", evrc_handle);

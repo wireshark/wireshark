@@ -298,7 +298,7 @@ proto_register_gopher(void)
 void
 proto_reg_handoff_gopher(void)
 {
-    gopher_handle = new_create_dissector_handle(dissect_gopher, proto_gopher);
+    gopher_handle = create_dissector_handle(dissect_gopher, proto_gopher);
     gopher_prefs_apply();
 }
 

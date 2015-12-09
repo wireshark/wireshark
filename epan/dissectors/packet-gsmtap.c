@@ -868,7 +868,7 @@ proto_reg_handoff_gsmtap(void)
 	rrc_sub_handles[GSMTAP_RRC_SUB_ToTargetRNC_Container] = find_dissector("rrc.s_to_trnc_cont");
 	rrc_sub_handles[GSMTAP_RRC_SUB_TargetRNC_ToSourceRNC_Container] = find_dissector("rrc.t_to_srnc_cont");
 
-	gsmtap_handle = new_create_dissector_handle(dissect_gsmtap, proto_gsmtap);
+	gsmtap_handle = create_dissector_handle(dissect_gsmtap, proto_gsmtap);
 	dissector_add_uint("udp.port", GSMTAP_UDP_PORT, gsmtap_handle);
 }
 

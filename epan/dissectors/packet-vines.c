@@ -418,11 +418,11 @@ proto_reg_handoff_vines_frp(void)
 {
 	dissector_handle_t vines_frp_handle, vines_frp_new_handle;
 
-	vines_frp_handle = new_create_dissector_handle(dissect_vines_frp,
+	vines_frp_handle = create_dissector_handle(dissect_vines_frp,
 	    proto_vines_frp);
 	dissector_add_uint("ip.proto", IP_PROTO_VINES, vines_frp_handle);
 
-	vines_frp_new_handle = new_create_dissector_handle(dissect_vines_frp_new,
+	vines_frp_new_handle = create_dissector_handle(dissect_vines_frp_new,
 	    proto_vines_frp);
 	dissector_add_uint("udp.port", UDP_PORT_VINES, vines_frp_new_handle);
 }
@@ -497,7 +497,7 @@ proto_reg_handoff_vines_llc(void)
 {
 	dissector_handle_t vines_llc_handle;
 
-	vines_llc_handle = new_create_dissector_handle(dissect_vines_llc,
+	vines_llc_handle = create_dissector_handle(dissect_vines_llc,
 	    proto_vines_llc);
 	dissector_add_uint("llc.dsap", SAP_VINES2, vines_llc_handle);
 }
@@ -695,7 +695,7 @@ proto_register_vines_ip(void)
 	vines_ip_dissector_table = register_dissector_table("vines_ip.protocol",
 	    "Vines protocol", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-	vines_ip_handle = new_create_dissector_handle(dissect_vines_ip,
+	vines_ip_handle = create_dissector_handle(dissect_vines_ip,
 	    proto_vines_ip);
 }
 
@@ -752,7 +752,7 @@ proto_reg_handoff_vines_echo(void)
 {
 	dissector_handle_t vines_echo_handle;
 
-	vines_echo_handle = new_create_dissector_handle(dissect_vines_echo,
+	vines_echo_handle = create_dissector_handle(dissect_vines_echo,
 	    proto_vines_echo);
 	dissector_add_uint("vines_llc.ptype", VINES_LLC_ECHO, vines_echo_handle);
 	dissector_add_uint("ethertype", ETHERTYPE_VINES_ECHO, vines_echo_handle);
@@ -1001,7 +1001,7 @@ proto_reg_handoff_vines_ipc(void)
 {
 	dissector_handle_t vines_ipc_handle;
 
-	vines_ipc_handle = new_create_dissector_handle(dissect_vines_ipc,
+	vines_ipc_handle = create_dissector_handle(dissect_vines_ipc,
 	    proto_vines_ipc);
 	dissector_add_uint("vines_ip.protocol", VIP_PROTO_IPC, vines_ipc_handle);
 }
@@ -1169,7 +1169,7 @@ proto_reg_handoff_vines_spp(void)
 {
 	dissector_handle_t vines_spp_handle;
 
-	vines_spp_handle = new_create_dissector_handle(dissect_vines_spp,
+	vines_spp_handle = create_dissector_handle(dissect_vines_spp,
 	    proto_vines_spp);
 	dissector_add_uint("vines_ip.protocol", VIP_PROTO_SPP, vines_spp_handle);
 }
@@ -1304,7 +1304,7 @@ proto_reg_handoff_vines_arp(void)
 {
 	dissector_handle_t vines_arp_handle;
 
-	vines_arp_handle = new_create_dissector_handle(dissect_vines_arp,
+	vines_arp_handle = create_dissector_handle(dissect_vines_arp,
 	    proto_vines_arp);
 	dissector_add_uint("vines_ip.protocol", VIP_PROTO_ARP, vines_arp_handle);
 }
@@ -1901,7 +1901,7 @@ proto_reg_handoff_vines_rtp(void)
 {
 	dissector_handle_t vines_rtp_handle;
 
-	vines_rtp_handle = new_create_dissector_handle(dissect_vines_rtp,
+	vines_rtp_handle = create_dissector_handle(dissect_vines_rtp,
 	    proto_vines_rtp);
 	dissector_add_uint("vines_ip.protocol", VIP_PROTO_RTP, vines_rtp_handle);
 }
@@ -2012,7 +2012,7 @@ proto_reg_handoff_vines_icp(void)
 {
 	dissector_handle_t vines_icp_handle;
 
-	vines_icp_handle = new_create_dissector_handle(dissect_vines_icp,
+	vines_icp_handle = create_dissector_handle(dissect_vines_icp,
 	    proto_vines_icp);
 	dissector_add_uint("vines_ip.protocol", VIP_PROTO_ICP, vines_icp_handle);
 }

@@ -371,16 +371,16 @@ proto_reg_handoff_mcpe(void)
         init_done = TRUE;
         raknet_dissector = find_dissector("raknet");
 
-        mcpe_gen_handle = new_create_dissector_handle(mcpe_dissect, proto_mcpe);
+        mcpe_gen_handle = create_dissector_handle(mcpe_dissect, proto_mcpe);
         dissector_add_uint("raknet.packet_id", 0x80, mcpe_gen_handle);
         dissector_add_uint("raknet.packet_id", 0x84, mcpe_gen_handle);
         dissector_add_uint("raknet.packet_id", 0x88, mcpe_gen_handle);
         dissector_add_uint("raknet.packet_id", 0x8C, mcpe_gen_handle);
         dissector_add_uint("raknet.packet_id", 0xA0,
-                           new_create_dissector_handle(mcpe_dissect_0xA0,
+                           create_dissector_handle(mcpe_dissect_0xA0,
                                                        proto_mcpe));
         dissector_add_uint("raknet.packet_id", 0xC0,
-                           new_create_dissector_handle(mcpe_dissect_0xC0,
+                           create_dissector_handle(mcpe_dissect_0xC0,
                                                        proto_mcpe));
     }
 

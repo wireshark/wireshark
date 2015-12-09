@@ -1452,136 +1452,136 @@ proto_reg_handoff_diameter_3gpp(void)
     /* Registered by packet-gtp.c */
 
     /* AVP Code: 15 3GPP-SGSN-IPv6-Address */
-    dissector_add_uint("diameter.3gpp", 15, new_create_dissector_handle(dissect_diameter_3gpp_sgsn_ipv6_address, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 15, create_dissector_handle(dissect_diameter_3gpp_sgsn_ipv6_address, proto_diameter_3gpp));
 
     /* AVP Code: 20 3GPP-IMEISV */
-    dissector_add_uint("diameter.3gpp", 20, new_create_dissector_handle(dissect_diameter_3gpp_imeisv, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 20, create_dissector_handle(dissect_diameter_3gpp_imeisv, proto_diameter_3gpp));
 
     /* AVP Code: 22 3GPP-User-Location-Info
      * Registered by packet-gtpv2.c
      */
 
     /* AVP Code: 23 3GPP-MS-TimeZone */
-    dissector_add_uint("diameter.3gpp", 23, new_create_dissector_handle(dissect_diameter_3gpp_ms_timezone, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 23, create_dissector_handle(dissect_diameter_3gpp_ms_timezone, proto_diameter_3gpp));
 
     /* AVP Code: 504 AF-Application-Identifier */
-    dissector_add_uint("diameter.3gpp", 504, new_create_dissector_handle(dissect_diameter_3gpp_af_application_identifier, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 504, create_dissector_handle(dissect_diameter_3gpp_af_application_identifier, proto_diameter_3gpp));
 
     /* AVP Code: 505 AF-Charging-Identifier */
-    dissector_add_uint("diameter.3gpp", 505, new_create_dissector_handle(dissect_diameter_3gpp_af_charging_identifier, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 505, create_dissector_handle(dissect_diameter_3gpp_af_charging_identifier, proto_diameter_3gpp));
 
     /* AVP Code: 600 Visited-Network-Identifier */
-    dissector_add_uint("diameter.3gpp", 600, new_create_dissector_handle(dissect_diameter_3gpp_visited_nw_id, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 600, create_dissector_handle(dissect_diameter_3gpp_visited_nw_id, proto_diameter_3gpp));
 
     /* AVP Code: 601 Public-Identity */
-    dissector_add_uint("diameter.3gpp", 601, new_create_dissector_handle(dissect_diameter_3gpp_public_identity, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 601, create_dissector_handle(dissect_diameter_3gpp_public_identity, proto_diameter_3gpp));
 
     /* AVP Code: 606 User-Data */
-    dissector_add_uint("diameter.3gpp", 606, new_create_dissector_handle(dissect_diameter_3gpp_user_data, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 606, create_dissector_handle(dissect_diameter_3gpp_user_data, proto_diameter_3gpp));
 
     /* AVP Code: 629 Feature-List */
-    dissector_add_uint("diameter.3gpp", 629, new_create_dissector_handle(dissect_diameter_3gpp_feature_list_id, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 629, create_dissector_handle(dissect_diameter_3gpp_feature_list_id, proto_diameter_3gpp));
 
     /* AVP Code: 630 Feature-List */
-    dissector_add_uint("diameter.3gpp", 630, new_create_dissector_handle(dissect_diameter_3gpp_feature_list, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 630, create_dissector_handle(dissect_diameter_3gpp_feature_list, proto_diameter_3gpp));
 
     /* AVP Code: 637 UAR-Flags */
-    dissector_add_uint("diameter.3gpp", 637, new_create_dissector_handle(dissect_diameter_3gpp_uar_flags, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 637, create_dissector_handle(dissect_diameter_3gpp_uar_flags, proto_diameter_3gpp));
 
     /* AVP Code: 640 Path */
-    dissector_add_uint("diameter.3gpp", 640, new_create_dissector_handle(dissect_diameter_3gpp_path, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 640, create_dissector_handle(dissect_diameter_3gpp_path, proto_diameter_3gpp));
 
     /* AVP Code: 641 Contact */
-    dissector_add_uint("diameter.3gpp", 641, new_create_dissector_handle(dissect_diameter_3gpp_contact, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 641, create_dissector_handle(dissect_diameter_3gpp_contact, proto_diameter_3gpp));
 
     /* AVP Code: 655 SAR-Flags */
-    dissector_add_uint("diameter.3gpp", 655, new_create_dissector_handle(dissect_diameter_3gpp_sar_flags, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 655, create_dissector_handle(dissect_diameter_3gpp_sar_flags, proto_diameter_3gpp));
 
     /* AVP Code: 701 MSISDN */
-    dissector_add_uint("diameter.3gpp", 701, new_create_dissector_handle(dissect_diameter_3gpp_msisdn, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 701, create_dissector_handle(dissect_diameter_3gpp_msisdn, proto_diameter_3gpp));
 
     /* AVP Code: 702 User-Data */
-    dissector_add_uint("diameter.3gpp", 702, new_create_dissector_handle(dissect_diameter_3gpp_user_data, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 702, create_dissector_handle(dissect_diameter_3gpp_user_data, proto_diameter_3gpp));
 
     /* AVP Code: 704 Service-Indication  */
-    dissector_add_uint("diameter.3gpp", 704, new_create_dissector_handle(dissect_diameter_3gpp_service_ind, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 704, create_dissector_handle(dissect_diameter_3gpp_service_ind, proto_diameter_3gpp));
 
     /* AVP Code: 900 TMGI */
-    dissector_add_uint("diameter.3gpp", 900, new_create_dissector_handle(dissect_diameter_3gpp_tmgi, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 900, create_dissector_handle(dissect_diameter_3gpp_tmgi, proto_diameter_3gpp));
 
     /* AVP Code: 904 MBMS-Session-Duration  Registered by packet-gtp.c */
     /* AVP Code: 903 MBMS-Service-Area Registered by packet-gtp.c */
 
     /* AVP Code: 909 RAI */
-    dissector_add_uint("diameter.3gpp", 909, new_create_dissector_handle(dissect_diameter_3gpp_rai, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 909, create_dissector_handle(dissect_diameter_3gpp_rai, proto_diameter_3gpp));
 
     /* AVP Code: 911 MBMS-Time-To-Data-Transfer  Registered by packet-gtp.c */
     /* Registered by packet-gtp.c */
 
     /* AVP Code: 913 MBMS-Required-QoS */
-    dissector_add_uint("diameter.3gpp", 913, new_create_dissector_handle(dissect_diameter_3gpp_mbms_required_qos, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 913, create_dissector_handle(dissect_diameter_3gpp_mbms_required_qos, proto_diameter_3gpp));
 
     /* AVP Code: 917 MBMS-GGSN-IPv6-Address */
-    dissector_add_uint("diameter.3gpp", 917, new_create_dissector_handle(dissect_diameter_3gpp_ipv6addr, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 917, create_dissector_handle(dissect_diameter_3gpp_ipv6addr, proto_diameter_3gpp));
 
     /* AVP Code: 918 MBMS-BMSC-SSM-IP-Address */
-    dissector_add_uint("diameter.3gpp", 918, new_create_dissector_handle(dissect_diameter_3gpp_ipaddr, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 918, create_dissector_handle(dissect_diameter_3gpp_ipaddr, proto_diameter_3gpp));
 
     /* AVP Code: 926 MBMS-BMSC-SSM-UDP-Port */
     /* AVP Code: 927 MBMS-GW-UDP-Port */
-    dissector_add_uint("diameter.3gpp", 926, new_create_dissector_handle(dissect_diameter_3gpp_udp_port, proto_diameter_3gpp));
-    dissector_add_uint("diameter.3gpp", 927, new_create_dissector_handle(dissect_diameter_3gpp_udp_port, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 926, create_dissector_handle(dissect_diameter_3gpp_udp_port, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 927, create_dissector_handle(dissect_diameter_3gpp_udp_port, proto_diameter_3gpp));
 
     /* AVP Code: 929 MBMS-Data-Transfer-Start */
-    dissector_add_uint("diameter.3gpp", 929, new_create_dissector_handle(dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 929, create_dissector_handle(dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer, proto_diameter_3gpp));
 
     /* AVP Code: 930 MBMS-Data-Transfer-Stop */
-    dissector_add_uint("diameter.3gpp", 930, new_create_dissector_handle(dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 930, create_dissector_handle(dissect_diameter_3gpp_mbms_abs_time_ofmbms_data_tfer, proto_diameter_3gpp));
 
     /* AVP Code: 1005 Charging-Rule-Name */
-    dissector_add_uint("diameter.3gpp", 1005, new_create_dissector_handle(dissect_diameter_3gpp_charging_rule_name, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 1005, create_dissector_handle(dissect_diameter_3gpp_charging_rule_name, proto_diameter_3gpp));
 
     /* AVP Code: 1005 Credit-Management-Status */
-    dissector_add_uint("diameter.3gpp", 1082, new_create_dissector_handle(dissect_diameter_3gpp_credit_management_status, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 1082, create_dissector_handle(dissect_diameter_3gpp_credit_management_status, proto_diameter_3gpp));
 
     /* AVP Code: 1405 ULR-Flags */
-    dissector_add_uint("diameter.3gpp", 1405, new_create_dissector_handle(dissect_diameter_3gpp_ulr_flags, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 1405, create_dissector_handle(dissect_diameter_3gpp_ulr_flags, proto_diameter_3gpp));
 
     /* AVP Code: 1406 ULA-Flags */
-    dissector_add_uint("diameter.3gpp", 1406, new_create_dissector_handle(dissect_diameter_3gpp_ula_flags, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 1406, create_dissector_handle(dissect_diameter_3gpp_ula_flags, proto_diameter_3gpp));
 
     /*AVP Code: 1407 Visited-PLMN-Id */
-    dissector_add_uint("diameter.3gpp", 1407, new_create_dissector_handle(dissect_diameter_3gpp_visited_plmn_id, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 1407, create_dissector_handle(dissect_diameter_3gpp_visited_plmn_id, proto_diameter_3gpp));
 
     /* AVP Code: 1421 DSR-Flags */
-    dissector_add_uint("diameter.3gpp", 1421, new_create_dissector_handle(dissect_diameter_3gpp_dsr_flags, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 1421, create_dissector_handle(dissect_diameter_3gpp_dsr_flags, proto_diameter_3gpp));
 
     /* AVP Code: 1422 DSA-Flags */
-    dissector_add_uint("diameter.3gpp", 1422, new_create_dissector_handle(dissect_diameter_3gpp_dsa_flags, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 1422, create_dissector_handle(dissect_diameter_3gpp_dsa_flags, proto_diameter_3gpp));
 
     /* AVP Code: 1441 IDA-Flags */
-    dissector_add_uint("diameter.3gpp", 1441, new_create_dissector_handle(dissect_diameter_3gpp_ida_flags, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 1441, create_dissector_handle(dissect_diameter_3gpp_ida_flags, proto_diameter_3gpp));
 
     /* AVP Code: 1442 PUA-Flags */
-    dissector_add_uint("diameter.3gpp", 1442, new_create_dissector_handle(dissect_diameter_3gpp_pua_flags, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 1442, create_dissector_handle(dissect_diameter_3gpp_pua_flags, proto_diameter_3gpp));
 
     /* AVP Code: 1443 NOR-Flags */
-    dissector_add_uint("diameter.3gpp", 1443, new_create_dissector_handle(dissect_diameter_3gpp_nor_flags, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 1443, create_dissector_handle(dissect_diameter_3gpp_nor_flags, proto_diameter_3gpp));
 
     /* AVP Code: 1490 IDR-Flags */
-    dissector_add_uint("diameter.3gpp", 1490, new_create_dissector_handle(dissect_diameter_3gpp_idr_flags, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 1490, create_dissector_handle(dissect_diameter_3gpp_idr_flags, proto_diameter_3gpp));
 
     /* AVP Code: 3502 MBMS-Bearer-Event */
-    dissector_add_uint("diameter.3gpp", 3502, new_create_dissector_handle(dissect_diameter_3gpp_mbms_bearer_event, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 3502, create_dissector_handle(dissect_diameter_3gpp_mbms_bearer_event, proto_diameter_3gpp));
 
     /* AVP Code: 3506 MBMS-Bearer-Result */
-    dissector_add_uint("diameter.3gpp", 3506, new_create_dissector_handle(dissect_diameter_3gpp_mbms_bearer_result, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 3506, create_dissector_handle(dissect_diameter_3gpp_mbms_bearer_result, proto_diameter_3gpp));
 
     /* AVP Code: 3511 TMGI-Allocation-Result */
-    dissector_add_uint("diameter.3gpp", 3511, new_create_dissector_handle(dissect_diameter_3gpp_tmgi_allocation_result, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 3511, create_dissector_handle(dissect_diameter_3gpp_tmgi_allocation_result, proto_diameter_3gpp));
 
     /* AVP Code: 3514 TMGI-Deallocation-Result */
-    dissector_add_uint("diameter.3gpp", 3514, new_create_dissector_handle(dissect_diameter_3gpp_tmgi_deallocation_result, proto_diameter_3gpp));
+    dissector_add_uint("diameter.3gpp", 3514, create_dissector_handle(dissect_diameter_3gpp_tmgi_deallocation_result, proto_diameter_3gpp));
 
     xml_handle = find_dissector("xml");
 }

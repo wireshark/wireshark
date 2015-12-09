@@ -569,8 +569,8 @@ proto_register_isis_csnp(void)
 void
 proto_reg_handoff_isis_csnp(void)
 {
-    dissector_add_uint("isis.type", ISIS_TYPE_L1_CSNP, new_create_dissector_handle(dissect_isis_l1_csnp, proto_isis_csnp));
-    dissector_add_uint("isis.type", ISIS_TYPE_L2_CSNP, new_create_dissector_handle(dissect_isis_l2_csnp, proto_isis_csnp));
+    dissector_add_uint("isis.type", ISIS_TYPE_L1_CSNP, create_dissector_handle(dissect_isis_l1_csnp, proto_isis_csnp));
+    dissector_add_uint("isis.type", ISIS_TYPE_L2_CSNP, create_dissector_handle(dissect_isis_l2_csnp, proto_isis_csnp));
 }
 
 void
@@ -622,8 +622,8 @@ proto_register_isis_psnp(void)
 void
 proto_reg_handoff_isis_psnp(void)
 {
-    dissector_add_uint("isis.type", ISIS_TYPE_L1_PSNP, new_create_dissector_handle(dissect_isis_l1_psnp, proto_isis_psnp));
-    dissector_add_uint("isis.type", ISIS_TYPE_L2_PSNP, new_create_dissector_handle(dissect_isis_l2_psnp, proto_isis_psnp));
+    dissector_add_uint("isis.type", ISIS_TYPE_L1_PSNP, create_dissector_handle(dissect_isis_l1_psnp, proto_isis_psnp));
+    dissector_add_uint("isis.type", ISIS_TYPE_L2_PSNP, create_dissector_handle(dissect_isis_l2_psnp, proto_isis_psnp));
 }
 
 /*

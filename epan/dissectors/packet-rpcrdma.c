@@ -590,7 +590,7 @@ proto_reg_handoff_rpcordma(void)
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        rpcordma_handler = new_create_dissector_handle(dissect_rpcordma, proto_rpcordma);
+        rpcordma_handler = create_dissector_handle(dissect_rpcordma, proto_rpcordma);
         heur_dissector_add("infiniband.payload", dissect_rpcordma_heur, "Infiniband RPC over RDMA", "rpcordma_infiniband", proto_rpcordma, HEURISTIC_ENABLE);
         heur_dissector_add("infiniband.mad.cm.private", dissect_rpcordma_heur, "RPC over RDMA in PrivateData of CM packets", "rpcordma_ib_private", proto_rpcordma, HEURISTIC_ENABLE);
 

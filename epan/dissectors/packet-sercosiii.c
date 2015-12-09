@@ -1636,7 +1636,7 @@ proto_reg_handoff_sercosiii(void)
 {
   dissector_handle_t siii_handle;
 
-  siii_handle = new_create_dissector_handle(dissect_siii, proto_siii);
+  siii_handle = create_dissector_handle(dissect_siii, proto_siii);
   dissector_add_uint("ethertype", ETHERTYPE_SERCOS, siii_handle);
 }
 

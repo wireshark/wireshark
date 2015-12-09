@@ -357,7 +357,7 @@ void
 proto_reg_handoff_nwp(void)
 {
 	dissector_handle_t nwp_handle;
-	nwp_handle = new_create_dissector_handle(dissect_nwp, proto_nwp);
+	nwp_handle = create_dissector_handle(dissect_nwp, proto_nwp);
 	dissector_add_uint("ethertype", ETHERTYPE_NWP, nwp_handle);
 }
 

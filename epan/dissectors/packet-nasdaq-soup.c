@@ -290,7 +290,7 @@ proto_register_nasdaq_soup(void)
 void
 proto_reg_handoff_nasdaq_soup(void)
 {
-    nasdaq_soup_handle = new_create_dissector_handle(dissect_nasdaq_soup, proto_nasdaq_soup);
+    nasdaq_soup_handle = create_dissector_handle(dissect_nasdaq_soup, proto_nasdaq_soup);
     nasdaq_itch_handle = find_dissector("nasdaq-itch");
     dissector_add_for_decode_as("tcp.port", nasdaq_soup_handle);
 }

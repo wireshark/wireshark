@@ -466,7 +466,7 @@ proto_reg_handoff_itdm(void)
   static guint ItdmMPLSLabel;
 
   if (!Initialized) {
-    itdm_handle = new_create_dissector_handle( dissect_itdm, proto_itdm );
+    itdm_handle = create_dissector_handle( dissect_itdm, proto_itdm );
     data_handle = find_dissector("data");
     Initialized=TRUE;
   } else {

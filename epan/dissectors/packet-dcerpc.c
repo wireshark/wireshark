@@ -1657,7 +1657,7 @@ dcerpc_init_uuid(int proto, int ett, e_guid_t *uuid, guint16 ver,
     hf_info->strings = value_string_from_subdissectors(procs);
 
     /* Register the GUID with the dissector table */
-    guid_handle = new_create_dissector_handle( dissect_dcerpc_guid, proto);
+    guid_handle = create_dissector_handle( dissect_dcerpc_guid, proto);
     dissector_add_guid( "dcerpc.uuid", key, guid_handle );
 
     /* add this GUID to the global name resolving */

@@ -189,7 +189,7 @@ void proto_register_hsr(void)
 void proto_reg_handoff_hsr(void)
 {
     dissector_handle_t hsr_frame_handle;
-    hsr_frame_handle = new_create_dissector_handle(dissect_hsr_frame, proto_hsr);
+    hsr_frame_handle = create_dissector_handle(dissect_hsr_frame, proto_hsr);
     dissector_add_uint("ethertype", ETHERTYPE_HSR, hsr_frame_handle);
 
     ethertype_subdissector_table = find_dissector_table("ethertype");

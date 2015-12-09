@@ -3574,7 +3574,7 @@ proto_reg_handoff_ansi_683(void)
 {
     dissector_handle_t  ansi_683_handle;
 
-    ansi_683_handle = new_create_dissector_handle(dissect_ansi_683, proto_ansi_683);
+    ansi_683_handle = create_dissector_handle(dissect_ansi_683, proto_ansi_683);
 
     dissector_add_uint("ansi_map.ota", ANSI_683_FORWARD, ansi_683_handle);
     dissector_add_uint("ansi_map.ota", ANSI_683_REVERSE, ansi_683_handle);

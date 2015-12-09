@@ -449,7 +449,7 @@ proto_reg_handoff_ipmi_trace(void)
 {
 	dissector_handle_t ipmi_trace_handle;
 
-	ipmi_trace_handle = new_create_dissector_handle(dissect_ipmi_trace,
+	ipmi_trace_handle = create_dissector_handle(dissect_ipmi_trace,
 			proto_ipmi_trace);
 
 	data_dissector_handle = find_dissector("data");

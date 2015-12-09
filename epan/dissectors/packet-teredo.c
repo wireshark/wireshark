@@ -397,7 +397,7 @@ proto_reg_handoff_teredo(void)
 {
 	dissector_handle_t teredo_handle;
 
-	teredo_handle = new_create_dissector_handle(dissect_teredo, proto_teredo);
+	teredo_handle = create_dissector_handle(dissect_teredo, proto_teredo);
 	data_handle   = find_dissector("ipv6");
 	teredo_tap    = register_tap("teredo");
 

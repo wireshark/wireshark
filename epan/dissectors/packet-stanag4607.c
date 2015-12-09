@@ -1643,7 +1643,7 @@ proto_reg_handoff_stanag4607(void)
 {
 	static dissector_handle_t stanag4607_handle;
 
-	stanag4607_handle = new_create_dissector_handle(dissect_stanag4607,
+	stanag4607_handle = create_dissector_handle(dissect_stanag4607,
 	                                            proto_stanag4607);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_STANAG_4607, stanag4607_handle);
 }

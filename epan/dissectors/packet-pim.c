@@ -1862,10 +1862,10 @@ proto_reg_handoff_pim(void)
 {
     dissector_handle_t pim_handle, pimv1_handle;
 
-    pim_handle = new_create_dissector_handle(dissect_pim, proto_pim);
+    pim_handle = create_dissector_handle(dissect_pim, proto_pim);
     dissector_add_uint("ip.proto", IP_PROTO_PIM, pim_handle);
 
-    pimv1_handle = new_create_dissector_handle(dissect_pimv1, proto_pim);
+    pimv1_handle = create_dissector_handle(dissect_pimv1, proto_pim);
     dissector_add_uint("igmp.type", IGMP_V1_PIM_ROUTING_MESSAGE, pimv1_handle);
 
     /*

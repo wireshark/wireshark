@@ -3566,7 +3566,7 @@ proto_reg_handoff_wccp(void)
 {
   dissector_handle_t wccp_handle;
 
-  wccp_handle = new_create_dissector_handle(dissect_wccp, proto_wccp);
+  wccp_handle = create_dissector_handle(dissect_wccp, proto_wccp);
   dissector_add_uint("udp.port", UDP_PORT_WCCP, wccp_handle);
 }
 

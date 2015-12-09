@@ -1159,7 +1159,7 @@ proto_reg_handoff_dhcpfo(void)
 	static guint saved_tcp_port;
 
 	if (!initialized) {
-		dhcpfo_handle = new_create_dissector_handle(dissect_dhcpfo, proto_dhcpfo);
+		dhcpfo_handle = create_dissector_handle(dissect_dhcpfo, proto_dhcpfo);
 		initialized = TRUE;
 	} else {
 		dissector_delete_uint("tcp.port", saved_tcp_port, dhcpfo_handle);

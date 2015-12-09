@@ -768,7 +768,7 @@ void proto_reg_handoff_tpncp(void) {
         return;
 
     if (!tpncp_prefs_initialized) {
-        tpncp_tcp_handle = new_create_dissector_handle(dissect_tpncp_tcp, proto_tpncp);
+        tpncp_tcp_handle = create_dissector_handle(dissect_tpncp_tcp, proto_tpncp);
 
         tpncp_prefs_initialized = TRUE;
     }

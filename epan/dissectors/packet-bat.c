@@ -885,9 +885,9 @@ void proto_reg_handoff_bat(void)
 		bat_tap = register_tap("batman");
 		bat_follow_tap = register_tap("batman_follow");
 
-		batman_handle = new_create_dissector_handle(dissect_bat_batman, proto_bat_plugin);
-		gw_handle = new_create_dissector_handle(dissect_bat_gw, proto_bat_gw);
-		vis_handle = new_create_dissector_handle(dissect_bat_vis, proto_bat_vis);
+		batman_handle = create_dissector_handle(dissect_bat_batman, proto_bat_plugin);
+		gw_handle = create_dissector_handle(dissect_bat_gw, proto_bat_gw);
+		vis_handle = create_dissector_handle(dissect_bat_vis, proto_bat_vis);
 
 		ip_handle = find_dissector("ip");
 		data_handle = find_dissector("data");

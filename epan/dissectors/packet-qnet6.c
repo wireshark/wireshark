@@ -5989,7 +5989,7 @@ proto_reg_handoff_qnet6(void)
 {
   dissector_handle_t qnet6_handle;
 
-  qnet6_handle = new_create_dissector_handle(dissect_qnet6, proto_qnet6_l4);
+  qnet6_handle = create_dissector_handle(dissect_qnet6, proto_qnet6_l4);
   dissector_add_uint("ethertype", ETHERTYPE_QNX_QNET6, qnet6_handle);
   dissector_add_uint("ip.proto", IP_PROTO_QNX, qnet6_handle);
 }

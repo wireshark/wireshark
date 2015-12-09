@@ -454,7 +454,7 @@ proto_reg_handoff_ipxwan(void)
 {
 	dissector_handle_t ipxwan_handle;
 
-	ipxwan_handle = new_create_dissector_handle(dissect_ipxwan,
+	ipxwan_handle = create_dissector_handle(dissect_ipxwan,
 	    proto_ipxwan);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPXWAN, ipxwan_handle);
 }

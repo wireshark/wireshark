@@ -15282,8 +15282,8 @@ proto_reg_handoff_ff(void)
     /*
      * 4.8. Using UDP and TCP
      */
-    ff_udp_handle = new_create_dissector_handle(dissect_ff_udp, proto_ff);
-    ff_tcp_handle = new_create_dissector_handle(dissect_ff_tcp, proto_ff);
+    ff_udp_handle = create_dissector_handle(dissect_ff_udp, proto_ff);
+    ff_tcp_handle = create_dissector_handle(dissect_ff_tcp, proto_ff);
 
     /*
      * 4.8.4.2. Use

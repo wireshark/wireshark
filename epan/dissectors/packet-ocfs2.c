@@ -1655,7 +1655,7 @@ void proto_reg_handoff_ocfs2(void)
 {
 	dissector_handle_t ocfs2_handle;
 
-	ocfs2_handle = new_create_dissector_handle(dissect_ocfs2, proto_ocfs2);
+	ocfs2_handle = create_dissector_handle(dissect_ocfs2, proto_ocfs2);
 
 	dissector_add_for_decode_as("tcp.port", ocfs2_handle);
 

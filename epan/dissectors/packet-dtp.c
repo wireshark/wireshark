@@ -366,7 +366,7 @@ proto_reg_handoff_dtp(void)
 {
 	dissector_handle_t dtp_handle;
 
-	dtp_handle = new_create_dissector_handle(dissect_dtp, proto_dtp);
+	dtp_handle = create_dissector_handle(dissect_dtp, proto_dtp);
 	dissector_add_uint("llc.cisco_pid", 0x2004, dtp_handle);
 }
 

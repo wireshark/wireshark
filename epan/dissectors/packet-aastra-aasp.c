@@ -521,7 +521,7 @@ void
 proto_reg_handoff_aasp(void)
 {
     dissector_handle_t aasp_handle;
-    aasp_handle = new_create_dissector_handle(dissect_aasp, proto_aasp);
+    aasp_handle = create_dissector_handle(dissect_aasp, proto_aasp);
     dissector_add_string("media_type", "message/x-aasp-signalling", aasp_handle);
 }
 

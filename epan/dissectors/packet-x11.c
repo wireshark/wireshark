@@ -5863,7 +5863,7 @@ proto_reg_handoff_x11(void)
 {
       dissector_handle_t x11_handle;
 
-      x11_handle = new_create_dissector_handle(dissect_x11, proto_x11);
+      x11_handle = create_dissector_handle(dissect_x11, proto_x11);
       dissector_add_uint("tcp.port", TCP_PORT_X11, x11_handle);
       dissector_add_uint("tcp.port", TCP_PORT_X11_2, x11_handle);
       dissector_add_uint("tcp.port", TCP_PORT_X11_3, x11_handle);

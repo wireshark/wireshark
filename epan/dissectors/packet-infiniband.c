@@ -7466,11 +7466,11 @@ void proto_reg_handoff_infiniband(void)
     dissector_add_uint("erf.types.type", ERF_TYPE_INFINIBAND_LINK, ib_link_handle);
 
     /* create and announce an anonymous RoCE dissector */
-    roce_handle = new_create_dissector_handle(dissect_roce, proto_infiniband);
+    roce_handle = create_dissector_handle(dissect_roce, proto_infiniband);
     dissector_add_uint("ethertype", ETHERTYPE_ROCE, roce_handle);
 
     /* create and announce an anonymous RRoCE dissector */
-    rroce_handle = new_create_dissector_handle(dissect_rroce, proto_infiniband);
+    rroce_handle = create_dissector_handle(dissect_rroce, proto_infiniband);
     if (!initialized)
     {
         initialized = TRUE;

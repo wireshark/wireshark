@@ -4383,7 +4383,7 @@ proto_register_epl(void)
 void
 proto_reg_handoff_epl(void)
 {
-	dissector_handle_t epl_udp_handle = new_create_dissector_handle( dissect_epludp, proto_epl );
+	dissector_handle_t epl_udp_handle = create_dissector_handle( dissect_epludp, proto_epl );
 
 	/* Store a pointer to the data_dissector */
 	if ( data_dissector == NULL )

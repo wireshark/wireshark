@@ -822,7 +822,7 @@ proto_reg_handoff_usb_hub(void)
 {
 	dissector_handle_t usb_hub_control_handle;
 
-	usb_hub_control_handle = new_create_dissector_handle(dissect_usb_hub_control, proto_usb_hub);
+	usb_hub_control_handle = create_dissector_handle(dissect_usb_hub_control, proto_usb_hub);
 	dissector_add_uint("usb.control", IF_CLASS_HUB, usb_hub_control_handle);
 	dissector_add_uint("usb.control", IF_CLASS_UNKNOWN, usb_hub_control_handle);
 }

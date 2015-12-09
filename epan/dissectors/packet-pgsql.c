@@ -904,7 +904,7 @@ proto_reg_handoff_pgsql(void)
     static guint saved_pgsql_port;
 
     if (!initialized) {
-        pgsql_handle = new_create_dissector_handle(dissect_pgsql, proto_pgsql);
+        pgsql_handle = create_dissector_handle(dissect_pgsql, proto_pgsql);
         initialized = TRUE;
     } else {
         dissector_delete_uint("tcp.port", saved_pgsql_port, pgsql_handle);

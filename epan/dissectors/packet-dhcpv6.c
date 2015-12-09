@@ -2418,11 +2418,11 @@ proto_reg_handoff_dhcpv6(void)
 {
     dissector_handle_t dhcpv6_handle, dhcpv6_bulkquery_handle;
 
-    dhcpv6_handle = new_create_dissector_handle(dissect_dhcpv6_stream, proto_dhcpv6);
+    dhcpv6_handle = create_dissector_handle(dissect_dhcpv6_stream, proto_dhcpv6);
     dissector_add_uint("udp.port", UDP_PORT_DHCPV6_DOWNSTREAM, dhcpv6_handle);
     dissector_add_uint("udp.port", UDP_PORT_DHCPV6_UPSTREAM, dhcpv6_handle);
 
-    dhcpv6_bulkquery_handle = new_create_dissector_handle(dissect_dhcpv6_bulk_leasequery,
+    dhcpv6_bulkquery_handle = create_dissector_handle(dissect_dhcpv6_bulk_leasequery,
                                             proto_dhcpv6_bulk_leasequery);
     dissector_add_uint("tcp.port", UDP_PORT_DHCPV6_UPSTREAM, dhcpv6_bulkquery_handle);
 }

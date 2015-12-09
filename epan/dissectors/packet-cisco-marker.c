@@ -203,7 +203,7 @@ proto_register_erpsan_marker(void)
   proto_register_fields(proto_marker, hfi, array_length(hfi));
   proto_register_subtree_array(ett, array_length(ett));
 
-  marker_handle = new_create_dissector_handle(dissect_marker, proto_marker);
+  marker_handle = create_dissector_handle(dissect_marker, proto_marker);
 }
 
 void

@@ -200,7 +200,7 @@ proto_reg_handoff_trill(void)
 {
   dissector_handle_t trill_handle;
 
-  trill_handle = new_create_dissector_handle(dissect_trill, proto_trill);
+  trill_handle = create_dissector_handle(dissect_trill, proto_trill);
   dissector_add_uint("ethertype", ETHERTYPE_TRILL, trill_handle);
 
   eth_dissector = find_dissector( "eth" ) ;

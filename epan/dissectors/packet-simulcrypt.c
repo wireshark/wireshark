@@ -1860,7 +1860,7 @@ proto_reg_handoff_simulcrypt(void)
 	guint  i;
 
 	if (!initialized) {
-		simulcrypt_handle = new_create_dissector_handle(dissect_simulcrypt, proto_simulcrypt);
+		simulcrypt_handle = create_dissector_handle(dissect_simulcrypt, proto_simulcrypt);
 		for(i=0;i<ECM_INTERPRETATION_SIZE;i++)
 		{
 			tab_ecm_inter[i].protocol_handle = find_dissector(tab_ecm_inter[i].protocol_name);

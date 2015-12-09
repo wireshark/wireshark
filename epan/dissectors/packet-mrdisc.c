@@ -288,7 +288,7 @@ proto_reg_handoff_mrdisc(void)
 {
 	dissector_handle_t mrdisc_handle;
 
-	mrdisc_handle = new_create_dissector_handle(dissect_mrdisc, proto_mrdisc);
+	mrdisc_handle = create_dissector_handle(dissect_mrdisc, proto_mrdisc);
 	dissector_add_uint("igmp.type", IGMP_TYPE_0x24, mrdisc_handle);
 	dissector_add_uint("igmp.type", IGMP_TYPE_0x25, mrdisc_handle);
 	dissector_add_uint("igmp.type", IGMP_TYPE_0x26, mrdisc_handle);

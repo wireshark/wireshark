@@ -510,7 +510,7 @@ proto_reg_handoff_nsrp(void)
 {
     dissector_handle_t nsrp_handle;
 
-    nsrp_handle = new_create_dissector_handle(dissect_nsrp, proto_nsrp);
+    nsrp_handle = create_dissector_handle(dissect_nsrp, proto_nsrp);
     dissector_add_uint("ethertype", ETHERTYPE_NSRP, nsrp_handle);
 }
 

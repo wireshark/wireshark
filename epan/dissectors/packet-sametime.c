@@ -923,7 +923,7 @@ proto_reg_handoff_sametime(void)
    static guint saved_sametime_tcp_port;
 
    if (!initialized) {
-      sametime_handle = new_create_dissector_handle(dissect_sametime, proto_sametime);
+      sametime_handle = create_dissector_handle(dissect_sametime, proto_sametime);
       stats_tree_register("sametime", "sametime", "Sametime/Messages", 0,
             sametime_stats_tree_packet,
             sametime_stats_tree_init, NULL );

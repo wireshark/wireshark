@@ -554,10 +554,10 @@ proto_reg_handoff_null(void)
 
   ethertype_dissector_table = find_dissector_table("ethertype");
 
-  null_handle = new_create_dissector_handle(dissect_null, proto_null);
+  null_handle = create_dissector_handle(dissect_null, proto_null);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_NULL, null_handle);
 
-  loop_handle = new_create_dissector_handle(dissect_loop, proto_null);
+  loop_handle = create_dissector_handle(dissect_loop, proto_null);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LOOP, loop_handle);
 }
 

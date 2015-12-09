@@ -1140,7 +1140,7 @@ proto_reg_handoff_fcsbccs (void)
 {
     dissector_handle_t fc_sbccs_handle;
 
-    fc_sbccs_handle = new_create_dissector_handle (dissect_fc_sbccs,
+    fc_sbccs_handle = create_dissector_handle (dissect_fc_sbccs,
                                                proto_fc_sbccs);
 
     dissector_add_uint("fc.ftype", FC_FTYPE_SBCCS, fc_sbccs_handle);

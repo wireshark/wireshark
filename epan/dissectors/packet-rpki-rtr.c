@@ -488,7 +488,7 @@ proto_reg_handoff_rpkirtr(void)
 
     if (!initialized) {
 
-        rpkirtr_handle = new_create_dissector_handle(dissect_rpkirtr,
+        rpkirtr_handle = create_dissector_handle(dissect_rpkirtr,
                                                         proto_rpkirtr);
         ssl_handle           = find_dissector("ssl");
         initialized = TRUE;

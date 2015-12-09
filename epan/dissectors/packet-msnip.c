@@ -317,7 +317,7 @@ proto_reg_handoff_msnip(void)
 {
 	dissector_handle_t msnip_handle;
 
-	msnip_handle = new_create_dissector_handle(dissect_msnip, proto_msnip);
+	msnip_handle = create_dissector_handle(dissect_msnip, proto_msnip);
 	dissector_add_uint("igmp.type", IGMP_TYPE_0x23, msnip_handle);
 	dissector_add_uint("igmp.type", IGMP_TYPE_0x24, msnip_handle);
 	dissector_add_uint("igmp.type", IGMP_TYPE_0x25, msnip_handle);
