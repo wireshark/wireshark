@@ -2592,7 +2592,7 @@ new_create_dissector_handle(new_dissector_t dissector, const int proto)
 	return handle;
 }
 
-dissector_handle_t new_create_dissector_handle_with_name(new_dissector_t dissector,
+dissector_handle_t create_dissector_handle_with_name(new_dissector_t dissector,
     const int proto, const char* name)
 {
 	struct dissector_handle *handle;

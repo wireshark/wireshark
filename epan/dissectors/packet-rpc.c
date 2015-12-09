@@ -571,7 +571,7 @@ rpc_init_prog(int proto, guint32 prog, int ett, size_t nvers,
 				continue;
 			}
 			dissector_add_custom_table_handle("rpc.call", g_memdup(&key, sizeof(rpc_proc_info_key)),
-						new_create_dissector_handle_with_name(proc->dissect_call, value->proto_id, proc->strptr));
+						create_dissector_handle_with_name(proc->dissect_call, value->proto_id, proc->strptr));
 
 			if (proc->dissect_reply == NULL) {
 				fprintf(stderr, "OOPS: No reply handler for %s version %u procedure %s\n",
@@ -586,7 +586,7 @@ rpc_init_prog(int proto, guint32 prog, int ett, size_t nvers,
 				continue;
 			}
 			dissector_add_custom_table_handle("rpc.reply", g_memdup(&key, sizeof(rpc_proc_info_key)),
-					new_create_dissector_handle_with_name(proc->dissect_reply, value->proto_id, proc->strptr));
+					create_dissector_handle_with_name(proc->dissect_reply, value->proto_id, proc->strptr));
 		}
 	}
 }
