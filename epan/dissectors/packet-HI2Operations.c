@@ -5158,7 +5158,7 @@ void proto_register_HI2Operations(void) {
   proto_register_field_array(proto_HI2Operations, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  new_register_dissector("HI2Operations", dissect_IRIsContent_PDU, proto_HI2Operations);
+  register_dissector("HI2Operations", dissect_IRIsContent_PDU, proto_HI2Operations);
 }
 
 

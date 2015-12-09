@@ -2532,7 +2532,7 @@ proto_reg_handoff_m3ap(void)
   static guint SctpPort;
 
   if( !inited ) {
-    m3ap_handle = new_create_dissector_handle(dissect_m3ap, proto_m3ap);
+    m3ap_handle = create_dissector_handle(dissect_m3ap, proto_m3ap);
     dissector_add_uint("sctp.ppi", PROTO_3GPP_M3AP_PROTOCOL_ID, m3ap_handle);
     inited = TRUE;
 
@@ -2581,7 +2581,7 @@ proto_reg_handoff_m3ap(void)
 
 /*--- End of included file: packet-m3ap-dis-tab.c ---*/
 #line 190 "../../asn1/m3ap/packet-m3ap-template.c"
-    dissector_add_uint("m3ap.extension", 17, new_create_dissector_handle(dissect_AllocationAndRetentionPriority_PDU, proto_m3ap));
+    dissector_add_uint("m3ap.extension", 17, create_dissector_handle(dissect_AllocationAndRetentionPriority_PDU, proto_m3ap));
   }
   else {
     if (SctpPort != 0) {

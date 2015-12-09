@@ -213,7 +213,7 @@ void proto_register_atn_cm (void)
         ett,
         array_length(ett));
 
-    new_register_dissector(
+    register_dissector(
         "atn-cm",
         dissect_atn_cm,
         proto_atn_cm);

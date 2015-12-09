@@ -119,7 +119,7 @@ void proto_register_ulp(void) {
 
   /* Register protocol */
   proto_ulp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("ulp", dissect_ulp_tcp, proto_ulp);
+  register_dissector("ulp", dissect_ulp_tcp, proto_ulp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_ulp, hf, array_length(hf));
@@ -159,7 +159,7 @@ proto_reg_handoff_ulp(void)
   if (!initialized) {
     ulp_tcp_handle = find_dissector("ulp");
     dissector_add_string("media_type","application/oma-supl-ulp", ulp_tcp_handle);
-    ulp_udp_handle = new_create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);
+    ulp_udp_handle = create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);
     rrlp_handle = find_dissector("rrlp");
     lpp_handle = find_dissector("lpp");
     initialized = TRUE;

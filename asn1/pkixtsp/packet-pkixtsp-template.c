@@ -123,10 +123,10 @@ void proto_reg_handoff_pkixtsp(void) {
 	dissector_handle_t timestamp_reply_handle;
 	dissector_handle_t timestamp_query_handle;
 
-	timestamp_reply_handle = new_create_dissector_handle(dissect_timestamp_reply, proto_pkixtsp);
+	timestamp_reply_handle = create_dissector_handle(dissect_timestamp_reply, proto_pkixtsp);
 	dissector_add_string("media_type", "application/timestamp-reply", timestamp_reply_handle);
 
-	timestamp_query_handle = new_create_dissector_handle(dissect_timestamp_query, proto_pkixtsp);
+	timestamp_query_handle = create_dissector_handle(dissect_timestamp_query, proto_pkixtsp);
 	dissector_add_string("media_type", "application/timestamp-query", timestamp_query_handle);
 
 #include "packet-pkixtsp-dis-tab.c"

@@ -335,7 +335,7 @@ void proto_register_q932(void) {
 
   /* Register protocol and dissector */
   proto_q932 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("q932.apdu", dissect_q932_apdu, proto_q932);
+  register_dissector("q932.apdu", dissect_q932_apdu, proto_q932);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_q932, hf, array_length(hf));
@@ -373,7 +373,7 @@ void proto_reg_handoff_q932(void) {
   static gboolean q931_prefs_initialized = FALSE;
 
   if (!q931_prefs_initialized) {
-    q932_ie_handle = new_create_dissector_handle(dissect_q932_ie, proto_q932);
+    q932_ie_handle = create_dissector_handle(dissect_q932_ie, proto_q932);
     /* Facility */
     dissector_add_uint("q931.ie", (0x00 << 8) | Q932_IE_FACILITY, q932_ie_handle);
     /* Notification indicator */

@@ -2530,7 +2530,7 @@ void proto_register_snmp(void) {
 
 	/* Register protocol */
 	proto_snmp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-	new_register_dissector("snmp", dissect_snmp, proto_snmp);
+	register_dissector("snmp", dissect_snmp, proto_snmp);
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_snmp, hf, array_length(hf));
@@ -2599,7 +2599,7 @@ void proto_reg_handoff_snmp(void) {
 	dissector_add_uint("ipx.socket", IPX_SOCKET_SNMP_SINK, snmp_handle);
 	dissector_add_uint("hpext.dxsap", HPEXT_SNMP, snmp_handle);
 
-	snmp_tcp_handle = new_create_dissector_handle(dissect_snmp_tcp, proto_snmp);
+	snmp_tcp_handle = create_dissector_handle(dissect_snmp_tcp, proto_snmp);
 	dissector_add_uint("tcp.port", TCP_PORT_SNMP, snmp_tcp_handle);
 	dissector_add_uint("tcp.port", TCP_PORT_SNMP_TRAP, snmp_tcp_handle);
 
@@ -2607,10 +2607,10 @@ void proto_reg_handoff_snmp(void) {
 
 	/* SNMPv2-MIB sysDescr "1.3.6.1.2.1.1.1.0" */
 	dissector_add_string("snmp.variable_oid", "1.3.6.1.2.1.1.1.0",
-		new_create_dissector_handle(dissect_snmp_variable_string, proto_snmp));
+		create_dissector_handle(dissect_snmp_variable_string, proto_snmp));
 	/* SNMPv2-MIB::sysName.0 (1.3.6.1.2.1.1.5.0) */
 	dissector_add_string("snmp.variable_oid", "1.3.6.1.2.1.1.5.0",
-		new_create_dissector_handle(dissect_snmp_variable_string, proto_snmp));
+		create_dissector_handle(dissect_snmp_variable_string, proto_snmp));
 
 	/*
 	 * Process preference settings.
@@ -2642,7 +2642,7 @@ proto_reg_handoff_smux(void)
 {
 	dissector_handle_t smux_handle;
 
-	smux_handle = new_create_dissector_handle(dissect_smux, proto_smux);
+	smux_handle = create_dissector_handle(dissect_smux, proto_smux);
 	dissector_add_uint("tcp.port", TCP_PORT_SMUX, smux_handle);
 }
 

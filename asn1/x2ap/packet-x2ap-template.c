@@ -161,7 +161,7 @@ void proto_register_x2ap(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  new_register_dissector("x2ap", dissect_x2ap, proto_x2ap);
+  register_dissector("x2ap", dissect_x2ap, proto_x2ap);
 
   /* Register dissector tables */
   x2ap_ies_dissector_table = register_dissector_table("x2ap.ies", "X2AP-PROTOCOL-IES", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

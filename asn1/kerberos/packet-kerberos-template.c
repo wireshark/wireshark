@@ -2470,10 +2470,10 @@ proto_reg_handoff_kerberos(void)
 
 	krb4_handle = find_dissector("krb4");
 
-	kerberos_handle_udp = new_create_dissector_handle(dissect_kerberos_udp,
+	kerberos_handle_udp = create_dissector_handle(dissect_kerberos_udp,
 	proto_kerberos);
 
-	kerberos_handle_tcp = new_create_dissector_handle(dissect_kerberos_tcp,
+	kerberos_handle_tcp = create_dissector_handle(dissect_kerberos_tcp,
 	proto_kerberos);
 
 	dissector_add_uint("udp.port", UDP_PORT_KERBEROS, kerberos_handle_udp);

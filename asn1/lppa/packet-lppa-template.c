@@ -104,7 +104,7 @@ void proto_register_lppa(void) {
 
   /* Register protocol */
   proto_lppa = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("lppa", dissect_LPPA_PDU_PDU, proto_lppa);
+  register_dissector("lppa", dissect_LPPA_PDU_PDU, proto_lppa);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_lppa, hf, array_length(hf));

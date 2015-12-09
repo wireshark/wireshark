@@ -2308,7 +2308,7 @@ void proto_register_acse(void) {
 
   /* Register protocol */
   proto_acse = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("acse", dissect_acse, proto_acse);
+  register_dissector("acse", dissect_acse, proto_acse);
 
   /* Register connectionless protocol */
   proto_clacse = proto_register_protocol(CLPNAME, CLPSNAME, CLPFNAME);

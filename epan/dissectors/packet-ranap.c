@@ -16492,7 +16492,7 @@ void proto_register_ranap(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  new_register_dissector("ranap", dissect_ranap, proto_ranap);
+  register_dissector("ranap", dissect_ranap, proto_ranap);
 
   /* Register dissector tables */
   ranap_ies_dissector_table = register_dissector_table("ranap.ies", "RANAP-PROTOCOL-IES", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

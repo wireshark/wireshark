@@ -128,10 +128,10 @@ void proto_reg_handoff_h323(void)
 
   /* H.323, Annex M4, Tunnelling of narrow-band signalling syntax (NSS) for H.323 */
   dissector_add_string("h225.gef.content", "GenericData/1000/1",
-                       new_create_dissector_handle(dissect_RasTunnelledSignallingMessage_PDU, proto_h323));
+                       create_dissector_handle(dissect_RasTunnelledSignallingMessage_PDU, proto_h323));
 
   /* H.323, Annex R, Robustness methods for H.323 entities */
   dissector_add_string("h225.gef.content", "GenericData/1/1",
-                       new_create_dissector_handle(dissect_RobustnessData_PDU, proto_h323));
+                       create_dissector_handle(dissect_RobustnessData_PDU, proto_h323));
 }
 

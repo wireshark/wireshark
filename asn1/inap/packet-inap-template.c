@@ -237,7 +237,7 @@ void proto_register_inap(void) {
 
   /* Register protocol */
   proto_inap = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("inap", dissect_inap, proto_inap);
+  register_dissector("inap", dissect_inap, proto_inap);
   /* Register fields and subtrees */
   proto_register_field_array(proto_inap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

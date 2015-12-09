@@ -323,7 +323,7 @@ void proto_register_atn_cpdlc (void)
         ett,
         array_length(ett));
 
-    new_register_dissector(
+    register_dissector(
         "atn-cpdlc",
         dissect_atn_cpdlc,
         proto_atn_cpdlc);

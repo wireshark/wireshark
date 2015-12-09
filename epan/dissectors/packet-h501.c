@@ -3675,7 +3675,7 @@ void proto_register_h501(void) {
   proto_register_field_array(proto_h501, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  new_register_dissector(PFNAME, dissect_h501_pdu, proto_h501);
+  register_dissector(PFNAME, dissect_h501_pdu, proto_h501);
 
   h501_module = prefs_register_protocol(proto_h501, proto_reg_handoff_h501);
   prefs_register_uint_preference(h501_module, "udp.port",
@@ -3704,8 +3704,8 @@ void proto_reg_handoff_h501(void)
 
   if (!h501_prefs_initialized) {
     h501_pdu_handle = find_dissector(PFNAME);
-    h501_udp_handle = new_create_dissector_handle(dissect_h501_udp, proto_h501);
-    h501_tcp_handle = new_create_dissector_handle(dissect_h501_tcp, proto_h501);
+    h501_udp_handle = create_dissector_handle(dissect_h501_udp, proto_h501);
+    h501_tcp_handle = create_dissector_handle(dissect_h501_tcp, proto_h501);
     h501_prefs_initialized = TRUE;
   } else {
     dissector_delete_uint("udp.port", saved_h501_udp_port, h501_udp_handle);

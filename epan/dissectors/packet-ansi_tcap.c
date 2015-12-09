@@ -1806,7 +1806,7 @@ proto_register_ansi_tcap(void)
 
 /* Register the protocol name and description */
     proto_ansi_tcap = proto_register_protocol(PNAME, PSNAME, PFNAME);
-    new_register_dissector("ansi_tcap", dissect_ansi_tcap, proto_ansi_tcap);
+    register_dissector("ansi_tcap", dissect_ansi_tcap, proto_ansi_tcap);
 
    /* Note the high bit should be masked off when registering in this table (0x7fff)*/
    ansi_tcap_national_opcode_table = register_dissector_table("ansi_tcap.nat.opcode", "ANSI TCAP National Opcodes", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

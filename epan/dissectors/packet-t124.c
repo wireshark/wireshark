@@ -2888,7 +2888,7 @@ register_t124_ns_dissector(const char *nsKey, new_dissector_t dissector, int pro
 {
   dissector_handle_t dissector_handle;
 
-  dissector_handle=new_create_dissector_handle(dissector, proto);
+  dissector_handle=create_dissector_handle(dissector, proto);
   dissector_add_string("t124.ns", nsKey, dissector_handle);
 }
 
@@ -2901,7 +2901,7 @@ void register_t124_sd_dissector(packet_info *pinfo _U_, guint32 channelId_param,
 
   dissector_handle_t dissector_handle;
 
-  dissector_handle=new_create_dissector_handle(dissector, proto);
+  dissector_handle=create_dissector_handle(dissector, proto);
   dissector_add_uint("t124.sd", channelId_param, dissector_handle);
 
 }
@@ -4015,7 +4015,7 @@ void proto_register_t124(void) {
   t124_ns_dissector_table = register_dissector_table("t124.ns", "T.124 H.221 Non Standard Dissectors", FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
   t124_sd_dissector_table = register_dissector_table("t124.sd", "T.124 H.221 Send Data Dissectors", FT_UINT32, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
-  new_register_dissector("t124", dissect_t124, proto_t124);
+  register_dissector("t124", dissect_t124, proto_t124);
 
 }
 

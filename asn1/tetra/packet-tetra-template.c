@@ -553,7 +553,7 @@ void proto_reg_handoff_tetra(void)
 
 	if (!initialized) {
 		data_handle = find_dissector("data");
-		tetra_handle = new_create_dissector_handle(dissect_tetra, proto_tetra);
+		tetra_handle = create_dissector_handle(dissect_tetra, proto_tetra);
 		dissector_add_uint("udp.port", global_tetra_port, tetra_handle);
 	}
 
@@ -642,7 +642,7 @@ void proto_register_tetra (void)
 	proto_tetra = proto_register_protocol("TETRA Protocol", "tetra", "tetra");
 	proto_register_field_array (proto_tetra, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
-	new_register_dissector("tetra", dissect_tetra, proto_tetra);
+	register_dissector("tetra", dissect_tetra, proto_tetra);
 	expert_tetra = expert_register_protocol(proto_tetra);
 	expert_register_field_array(expert_tetra, ei, array_length(ei));
 

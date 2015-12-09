@@ -59082,16 +59082,16 @@ void proto_register_lte_rrc(void) {
   proto_lte_rrc = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
   /* These entry points will first create an lte_rrc root node */
-  new_register_dissector("lte_rrc.dl_ccch", dissect_lte_rrc_DL_CCCH, proto_lte_rrc);
-  new_register_dissector("lte_rrc.dl_dcch", dissect_lte_rrc_DL_DCCH, proto_lte_rrc);
-  new_register_dissector("lte_rrc.ul_ccch", dissect_lte_rrc_UL_CCCH, proto_lte_rrc);
-  new_register_dissector("lte_rrc.ul_dcch", dissect_lte_rrc_UL_DCCH, proto_lte_rrc);
-  new_register_dissector("lte_rrc.bcch_bch", dissect_lte_rrc_BCCH_BCH, proto_lte_rrc);
-  new_register_dissector("lte_rrc.bcch_dl_sch", dissect_lte_rrc_BCCH_DL_SCH, proto_lte_rrc);
-  new_register_dissector("lte_rrc.pcch", dissect_lte_rrc_PCCH, proto_lte_rrc);
-  new_register_dissector("lte_rrc.mcch", dissect_lte_rrc_MCCH, proto_lte_rrc);
-  new_register_dissector("lte_rrc.handover_prep_info", dissect_lte_rrc_Handover_Preparation_Info, proto_lte_rrc);
-  new_register_dissector("lte_rrc.sbcch_sl_bch", dissect_lte_rrc_SBCCH_SL_BCH, proto_lte_rrc);
+  register_dissector("lte_rrc.dl_ccch", dissect_lte_rrc_DL_CCCH, proto_lte_rrc);
+  register_dissector("lte_rrc.dl_dcch", dissect_lte_rrc_DL_DCCH, proto_lte_rrc);
+  register_dissector("lte_rrc.ul_ccch", dissect_lte_rrc_UL_CCCH, proto_lte_rrc);
+  register_dissector("lte_rrc.ul_dcch", dissect_lte_rrc_UL_DCCH, proto_lte_rrc);
+  register_dissector("lte_rrc.bcch_bch", dissect_lte_rrc_BCCH_BCH, proto_lte_rrc);
+  register_dissector("lte_rrc.bcch_dl_sch", dissect_lte_rrc_BCCH_DL_SCH, proto_lte_rrc);
+  register_dissector("lte_rrc.pcch", dissect_lte_rrc_PCCH, proto_lte_rrc);
+  register_dissector("lte_rrc.mcch", dissect_lte_rrc_MCCH, proto_lte_rrc);
+  register_dissector("lte_rrc.handover_prep_info", dissect_lte_rrc_Handover_Preparation_Info, proto_lte_rrc);
+  register_dissector("lte_rrc.sbcch_sl_bch", dissect_lte_rrc_SBCCH_SL_BCH, proto_lte_rrc);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_lte_rrc, hf, array_length(hf));

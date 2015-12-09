@@ -128,8 +128,8 @@ void proto_reg_handoff_ocsp(void) {
 	dissector_handle_t ocsp_request_handle;
 	dissector_handle_t ocsp_response_handle;
 
-	ocsp_request_handle = new_create_dissector_handle(dissect_ocsp_request, proto_ocsp);
-	ocsp_response_handle = new_create_dissector_handle(dissect_ocsp_response, proto_ocsp);
+	ocsp_request_handle = create_dissector_handle(dissect_ocsp_request, proto_ocsp);
+	ocsp_response_handle = create_dissector_handle(dissect_ocsp_response, proto_ocsp);
 
 	dissector_add_string("media_type", "application/ocsp-request", ocsp_request_handle);
 	dissector_add_string("media_type", "application/ocsp-response", ocsp_response_handle);

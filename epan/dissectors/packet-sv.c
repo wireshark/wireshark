@@ -635,7 +635,7 @@ void proto_register_sv(void) {
 
 	/* Register protocol */
 	proto_sv = proto_register_protocol(PNAME, PSNAME, PFNAME);
-	new_register_dissector("sv", dissect_sv, proto_sv);
+	register_dissector("sv", dissect_sv, proto_sv);
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_sv, hf, array_length(hf));

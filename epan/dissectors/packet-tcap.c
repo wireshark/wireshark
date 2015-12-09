@@ -3801,9 +3801,9 @@ proto_register_tcap(void)
   itu_sub_dissectors = g_hash_table_new(g_direct_hash,g_direct_equal);
 
   /* 'globally' register dissector */
-  new_register_dissector("tcap", dissect_tcap, proto_tcap);
+  register_dissector("tcap", dissect_tcap, proto_tcap);
 
-  tcap_handle = new_create_dissector_handle(dissect_tcap, proto_tcap);
+  tcap_handle = create_dissector_handle(dissect_tcap, proto_tcap);
 
   register_init_routine(&init_tcap);
   register_cleanup_routine(&cleanup_tcap);

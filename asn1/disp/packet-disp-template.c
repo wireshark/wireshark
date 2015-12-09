@@ -219,7 +219,7 @@ void proto_register_disp(void) {
 
   /* Register protocol */
   proto_disp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("disp", dissect_disp, proto_disp);
+  register_dissector("disp", dissect_disp, proto_disp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_disp, hf, array_length(hf));

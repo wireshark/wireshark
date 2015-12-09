@@ -1402,7 +1402,7 @@ proto_register_t38(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_t38 = expert_register_protocol(proto_t38);
 	expert_register_field_array(expert_t38, ei, array_length(ei));
-	new_register_dissector("t38_udp", dissect_t38_udp, proto_t38);
+	register_dissector("t38_udp", dissect_t38_udp, proto_t38);
 
 	/* Init reassemble tables for HDLC */
 	register_init_routine(t38_defragment_init);
@@ -1458,9 +1458,9 @@ proto_reg_handoff_t38(void)
 	static guint udp_port;
 
 	if (!t38_prefs_initialized) {
-		t38_udp_handle=new_create_dissector_handle(dissect_t38_udp, proto_t38);
-		t38_tcp_handle=new_create_dissector_handle(dissect_t38_tcp, proto_t38);
-		t38_tcp_pdu_handle=new_create_dissector_handle(dissect_t38_tcp_pdu, proto_t38);
+		t38_udp_handle=create_dissector_handle(dissect_t38_udp, proto_t38);
+		t38_tcp_handle=create_dissector_handle(dissect_t38_tcp, proto_t38);
+		t38_tcp_pdu_handle=create_dissector_handle(dissect_t38_tcp_pdu, proto_t38);
 		rtp_handle = find_dissector("rtp");
 		t30_hdlc_handle = find_dissector("t30.hdlc");
 		data_handle = find_dissector("data");

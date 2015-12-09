@@ -1550,9 +1550,9 @@ void proto_register_camel(void) {
   /* Register protocol */
   proto_camel = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  new_register_dissector("camel", dissect_camel, proto_camel);
-  new_register_dissector("camel-v1", dissect_camel_v1, proto_camel);
-  new_register_dissector("camel-v2", dissect_camel_v2, proto_camel);
+  register_dissector("camel", dissect_camel, proto_camel);
+  register_dissector("camel-v1", dissect_camel_v1, proto_camel);
+  register_dissector("camel-v2", dissect_camel_v2, proto_camel);
 
   proto_register_field_array(proto_camel, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

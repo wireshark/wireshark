@@ -1176,6 +1176,6 @@ proto_register_charging_ase(void)
 void
 proto_reg_handoff_charging_ase(void)
 {
-  charging_ase_handle = new_create_dissector_handle(dissect_charging_ase, proto_charging_ase);
+  charging_ase_handle = create_dissector_handle(dissect_charging_ase, proto_charging_ase);
 }
 

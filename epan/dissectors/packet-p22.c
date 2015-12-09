@@ -6357,7 +6357,7 @@ void proto_register_p22(void) {
 
   /* Register protocol */
   proto_p22 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("p22", dissect_p22, proto_p22);
+  register_dissector("p22", dissect_p22, proto_p22);
   /* Register fields and subtrees */
   proto_register_field_array(proto_p22, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

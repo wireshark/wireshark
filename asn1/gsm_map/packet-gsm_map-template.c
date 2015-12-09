@@ -3122,8 +3122,8 @@ void proto_register_gsm_map(void) {
   /* Register protocol */
   proto_gsm_map_dialogue =proto_gsm_map = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  new_register_dissector("gsm_map", dissect_gsm_map, proto_gsm_map);
-  new_register_dissector("gsm_map_sccp", dissect_gsm_map_sccp, proto_gsm_map);
+  register_dissector("gsm_map", dissect_gsm_map, proto_gsm_map);
+  register_dissector("gsm_map_sccp", dissect_gsm_map_sccp, proto_gsm_map);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_gsm_map, hf, array_length(hf));

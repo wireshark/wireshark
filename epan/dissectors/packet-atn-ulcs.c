@@ -2587,7 +2587,7 @@ void proto_register_atn_ulcs (void)
         ett,
         array_length (ett));
 
-    new_register_dissector(
+    register_dissector(
         "atn-ulcs",
         dissect_atn_ulcs,
         proto_atn_ulcs);

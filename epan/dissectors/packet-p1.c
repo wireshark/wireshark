@@ -11095,7 +11095,7 @@ void proto_register_p1(void) {
 
   /* Register protocol */
   proto_p1 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("p1", dissect_p1, proto_p1);
+  register_dissector("p1", dissect_p1, proto_p1);
 
   proto_p3 = proto_register_protocol("X.411 Message Access Service", "P3", "p3");
 

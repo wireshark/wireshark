@@ -506,7 +506,7 @@ void proto_register_ros(void) {
 
   /* Register protocol */
   proto_ros = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("ros", dissect_ros, proto_ros);
+  register_dissector("ros", dissect_ros, proto_ros);
   /* Register fields and subtrees */
   proto_register_field_array(proto_ros, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

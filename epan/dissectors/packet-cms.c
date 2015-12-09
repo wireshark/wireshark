@@ -2474,7 +2474,7 @@ void proto_reg_handoff_cms(void) {
   oid_add_from_string("id-alg-des-ede3-cbc","1.2.840.113549.3.7");
   oid_add_from_string("id-alg-des-cbc","1.3.14.3.2.7");
 
-  content_info_handle = new_create_dissector_handle (dissect_ContentInfo_PDU, proto_cms);
+  content_info_handle = create_dissector_handle (dissect_ContentInfo_PDU, proto_cms);
   dissector_add_string("media_type", "application/pkcs7-mime", content_info_handle);
   dissector_add_string("media_type", "application/pkcs7-signature", content_info_handle);
 }

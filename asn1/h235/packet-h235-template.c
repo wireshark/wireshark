@@ -138,7 +138,7 @@ void proto_reg_handoff_h235(void) {
 
   /* H.235.8, Chapter 4.1.2, SrtpCryptoCapability transport */
   dissector_add_string("h245.gef.content", "GenericCapability/0.0.8.235.0.4.90/nonCollapsingRaw",
-                       new_create_dissector_handle(dissect_SrtpCryptoCapability_PDU, proto_h235));
+                       create_dissector_handle(dissect_SrtpCryptoCapability_PDU, proto_h235));
 
 }
 

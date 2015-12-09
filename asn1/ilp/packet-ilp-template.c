@@ -115,7 +115,7 @@ void proto_register_ilp(void) {
 
   /* Register protocol */
   proto_ilp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("ilp", dissect_ilp_tcp, proto_ilp);
+  register_dissector("ilp", dissect_ilp_tcp, proto_ilp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_ilp, hf, array_length(hf));

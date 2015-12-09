@@ -558,7 +558,7 @@ dissect_pkcs12_PFX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 	/* we change the CMS id-data dissector to dissect as AuthenticatedSafe
 	   not sure why PKCS#12 couldn't have used its own content type OID for AuthenticatedSafe */
-	dissector_handle=new_create_dissector_handle(dissect_AuthenticatedSafe_OCTETSTRING_PDU, proto_pkcs12);
+	dissector_handle=create_dissector_handle(dissect_AuthenticatedSafe_OCTETSTRING_PDU, proto_pkcs12);
 	dissector_change_string("ber.oid", "1.2.840.113549.1.7.1", dissector_handle);
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -584,7 +584,7 @@ dissect_pkcs12_AuthenticatedSafe(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 	dissector_handle_t dissector_handle;
 
 	/* we change the CMS id-data dissector to dissect as SafeContents */
-	dissector_handle=new_create_dissector_handle(dissect_SafeContents_OCTETSTRING_PDU, proto_pkcs12);
+	dissector_handle=create_dissector_handle(dissect_SafeContents_OCTETSTRING_PDU, proto_pkcs12);
 	dissector_change_string("ber.oid", "1.2.840.113549.1.7.1", dissector_handle);
 
 	  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
@@ -799,7 +799,7 @@ dissect_pkcs12_EncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 
 
-	dissector_handle=new_create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_pkcs12);
+	dissector_handle=create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_pkcs12);
 	dissector_change_string("ber.oid", object_identifier_id, dissector_handle);
 
 	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx, actx->created_item);

@@ -141,7 +141,7 @@ void proto_register_x509af(void) {
 void proto_reg_handoff_x509af(void) {
 	dissector_handle_t pkix_crl_handle;
 
-	pkix_crl_handle = new_create_dissector_handle(dissect_pkix_crl, proto_x509af);
+	pkix_crl_handle = create_dissector_handle(dissect_pkix_crl, proto_x509af);
 	dissector_add_string("media_type", "application/pkix-crl", pkix_crl_handle);
 
 #include "packet-x509af-dis-tab.c"
@@ -177,15 +177,15 @@ void proto_reg_handoff_x509af(void) {
 
 	/* these will generally be encoded as ";binary" in LDAP */
 
-	dissector_add_string("ldap.name", "cACertificate", new_create_dissector_handle(dissect_x509af_Certificate_PDU, proto_x509af));
-	dissector_add_string("ldap.name", "userCertificate", new_create_dissector_handle(dissect_x509af_Certificate_PDU, proto_x509af));
+	dissector_add_string("ldap.name", "cACertificate", create_dissector_handle(dissect_x509af_Certificate_PDU, proto_x509af));
+	dissector_add_string("ldap.name", "userCertificate", create_dissector_handle(dissect_x509af_Certificate_PDU, proto_x509af));
 
-	dissector_add_string("ldap.name", "certificateRevocationList", new_create_dissector_handle(dissect_CertificateList_PDU, proto_x509af));
-	dissector_add_string("ldap.name", "crl", new_create_dissector_handle(dissect_CertificateList_PDU, proto_x509af));
+	dissector_add_string("ldap.name", "certificateRevocationList", create_dissector_handle(dissect_CertificateList_PDU, proto_x509af));
+	dissector_add_string("ldap.name", "crl", create_dissector_handle(dissect_CertificateList_PDU, proto_x509af));
 
-	dissector_add_string("ldap.name", "authorityRevocationList", new_create_dissector_handle(dissect_CertificateList_PDU, proto_x509af));
-	dissector_add_string("ldap.name", "arl", new_create_dissector_handle(dissect_CertificateList_PDU, proto_x509af));
+	dissector_add_string("ldap.name", "authorityRevocationList", create_dissector_handle(dissect_CertificateList_PDU, proto_x509af));
+	dissector_add_string("ldap.name", "arl", create_dissector_handle(dissect_CertificateList_PDU, proto_x509af));
 
-	dissector_add_string("ldap.name", "crossCertificatePair", new_create_dissector_handle(dissect_CertificatePair_PDU, proto_x509af));
+	dissector_add_string("ldap.name", "crossCertificatePair", create_dissector_handle(dissect_CertificatePair_PDU, proto_x509af));
 }
 

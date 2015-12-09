@@ -15775,7 +15775,7 @@ void proto_register_lpp(void) {
 
   /* Register protocol */
   proto_lpp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("lpp", dissect_lpp, proto_lpp);
+  register_dissector("lpp", dissect_lpp, proto_lpp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_lpp, hf, array_length(hf));

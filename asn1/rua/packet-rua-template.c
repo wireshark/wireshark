@@ -148,7 +148,7 @@ module_t *rua_module;
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  new_register_dissector("rua", dissect_rua, proto_rua);
+  register_dissector("rua", dissect_rua, proto_rua);
 
   /* Register dissector tables */
   rua_ies_dissector_table = register_dissector_table("rua.ies", "RUA-PROTOCOL-IES", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

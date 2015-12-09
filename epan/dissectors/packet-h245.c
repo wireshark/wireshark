@@ -20759,8 +20759,8 @@ void proto_register_h245(void) {
     "Show h245 info in reversed order",
     "Whether the dissector should print items of h245 Info column in reversed order",
     &info_col_fmt_prepend);
-  new_register_dissector("h245dg", dissect_h245_h245, proto_h245);
-  new_register_dissector("h245", dissect_h245, proto_h245);
+  register_dissector("h245dg", dissect_h245_h245, proto_h245);
+  register_dissector("h245", dissect_h245, proto_h245);
 
   nsp_object_dissector_table = register_dissector_table("h245.nsp.object", "H.245 NonStandardParameter (object)", FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
   nsp_h221_dissector_table = register_dissector_table("h245.nsp.h221", "H.245 NonStandardParameter (h221)", FT_UINT32, BASE_HEX, DISSECTOR_TABLE_ALLOW_DUPLICATE);

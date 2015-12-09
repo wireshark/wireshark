@@ -334,7 +334,7 @@ void proto_register_rrc(void) {
   expert_rrc = expert_register_protocol(proto_rrc);
   expert_register_field_array(expert_rrc, ei, array_length(ei));
 
-  new_register_dissector("rrc", dissect_rrc, proto_rrc);
+  register_dissector("rrc", dissect_rrc, proto_rrc);
 
 #include "packet-rrc-dis-reg.c"
 

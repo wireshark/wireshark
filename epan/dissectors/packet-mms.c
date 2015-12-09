@@ -9988,7 +9988,7 @@ void proto_register_mms(void) {
 
   /* Register protocol */
   proto_mms = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("mms", dissect_mms, proto_mms);
+  register_dissector("mms", dissect_mms, proto_mms);
   /* Register fields and subtrees */
   proto_register_field_array(proto_mms, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

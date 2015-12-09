@@ -163,7 +163,7 @@ module_t *hnbap_module;
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  new_register_dissector("hnbap", dissect_hnbap, proto_hnbap);
+  register_dissector("hnbap", dissect_hnbap, proto_hnbap);
 
   /* Register dissector tables */
   hnbap_ies_dissector_table = register_dissector_table("hnbap.ies", "HNBAP-PROTOCOL-IES", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

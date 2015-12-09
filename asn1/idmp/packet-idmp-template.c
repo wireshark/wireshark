@@ -336,7 +336,7 @@ void proto_register_idmp(void)
     proto_register_field_array(proto_idmp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("idmp", dissect_idmp_tcp, proto_idmp);
+    register_dissector("idmp", dissect_idmp_tcp, proto_idmp);
 
     register_init_routine (&idmp_reassemble_init);
     register_cleanup_routine (&idmp_reassemble_cleanup);

@@ -2851,7 +2851,7 @@ void proto_register_lcsap(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_lcsap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  new_register_dissector("lcsap", dissect_lcsap, proto_lcsap);
+  register_dissector("lcsap", dissect_lcsap, proto_lcsap);
 
   /* Register dissector tables */
   lcsap_ies_dissector_table = register_dissector_table("lcsap.ies", "LCS-AP-PROTOCOL-IES", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

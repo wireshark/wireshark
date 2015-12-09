@@ -291,7 +291,7 @@ void proto_register_dsp(void) {
   /* Register protocol */
   proto_dsp = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  new_register_dissector("dsp", dissect_dsp, proto_dsp);
+  register_dissector("dsp", dissect_dsp, proto_dsp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_dsp, hf, array_length(hf));

@@ -378,15 +378,15 @@ void proto_reg_handoff_cmp(void) {
 	static guint cmp_alternate_tcp_style_http_port_prev = 0;
 
 	if (!inited) {
-		cmp_http_handle = new_create_dissector_handle(dissect_cmp_http, proto_cmp);
+		cmp_http_handle = create_dissector_handle(dissect_cmp_http, proto_cmp);
 		dissector_add_string("media_type", "application/pkixcmp", cmp_http_handle);
 		dissector_add_string("media_type", "application/x-pkixcmp", cmp_http_handle);
 
-		cmp_tcp_style_http_handle = new_create_dissector_handle(dissect_cmp_tcp_pdu, proto_cmp);
+		cmp_tcp_style_http_handle = create_dissector_handle(dissect_cmp_tcp_pdu, proto_cmp);
 		dissector_add_string("media_type", "application/pkixcmp-poll", cmp_tcp_style_http_handle);
 		dissector_add_string("media_type", "application/x-pkixcmp-poll", cmp_tcp_style_http_handle);
 
-		cmp_tcp_handle = new_create_dissector_handle(dissect_cmp_tcp, proto_cmp);
+		cmp_tcp_handle = create_dissector_handle(dissect_cmp_tcp, proto_cmp);
 		dissector_add_uint("tcp.port", TCP_PORT_CMP, cmp_tcp_handle);
 
 		oid_add_from_string("Cryptlib-presence-check","1.3.6.1.4.1.3029.3.1.1");

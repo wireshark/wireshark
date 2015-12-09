@@ -3003,8 +3003,8 @@ void proto_reg_handoff_isdn_sup(void) {
   q931_handle = find_dissector("q931");
 #endif
 
-  isdn_sup_arg_handle = new_create_dissector_handle(dissect_isdn_sup_arg, proto_isdn_sup);
-  isdn_sup_res_handle = new_create_dissector_handle(dissect_isdn_sup_res, proto_isdn_sup);
+  isdn_sup_arg_handle = create_dissector_handle(dissect_isdn_sup_arg, proto_isdn_sup);
+  isdn_sup_res_handle = create_dissector_handle(dissect_isdn_sup_res, proto_isdn_sup);
   for (i=0; i<(int)array_length(isdn_sup_op_tab); i++) {
     dissector_add_uint("q932.ros.etsi.local.arg", isdn_sup_op_tab[i].opcode, isdn_sup_arg_handle);
     dissector_add_uint("q932.ros.etsi.local.res", isdn_sup_op_tab[i].opcode, isdn_sup_res_handle);
@@ -3012,12 +3012,12 @@ void proto_reg_handoff_isdn_sup(void) {
 
   for (i=0; i<(int)array_length(isdn_sup_global_op_tab); i++) {
 	  if(isdn_sup_global_op_tab->arg_pdu)
-		  dissector_add_string("q932.ros.global.arg", isdn_sup_global_op_tab[i].oid, new_create_dissector_handle(isdn_sup_global_op_tab[i].arg_pdu, proto_isdn_sup));
+		  dissector_add_string("q932.ros.global.arg", isdn_sup_global_op_tab[i].oid, create_dissector_handle(isdn_sup_global_op_tab[i].arg_pdu, proto_isdn_sup));
 	  if(isdn_sup_global_op_tab->res_pdu)
-		  dissector_add_string("q932.ros.global.res", isdn_sup_global_op_tab[i].oid, new_create_dissector_handle(isdn_sup_global_op_tab[i].res_pdu, proto_isdn_sup));
+		  dissector_add_string("q932.ros.global.res", isdn_sup_global_op_tab[i].oid, create_dissector_handle(isdn_sup_global_op_tab[i].res_pdu, proto_isdn_sup));
   }
 
-  isdn_sup_err_handle = new_create_dissector_handle(dissect_isdn_sup_err, proto_isdn_sup);
+  isdn_sup_err_handle = create_dissector_handle(dissect_isdn_sup_err, proto_isdn_sup);
 
   for (i=0; i<(int)array_length(isdn_sup_err_tab); i++) {
     dissector_add_uint("q932.ros.etsi.local.err", isdn_sup_err_tab[i].errcode, isdn_sup_err_handle);

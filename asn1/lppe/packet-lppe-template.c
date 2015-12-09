@@ -77,7 +77,7 @@ void proto_register_lppe(void) {
 
   /* Register protocol */
   proto_lppe = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("lppe", dissect_OMA_LPPe_MessageExtension_PDU, proto_lppe);
+  register_dissector("lppe", dissect_OMA_LPPe_MessageExtension_PDU, proto_lppe);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_lppe, hf, array_length(hf));

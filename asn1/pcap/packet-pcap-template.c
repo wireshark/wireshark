@@ -188,7 +188,7 @@ void proto_register_pcap(void) {
   pcap_module = prefs_register_protocol(proto_pcap, proto_reg_handoff_pcap);
 
   /* Register dissector */
-  new_register_dissector("pcap", dissect_pcap, proto_pcap);
+  register_dissector("pcap", dissect_pcap, proto_pcap);
 
   /* Register dissector tables */
   pcap_ies_dissector_table = register_dissector_table("pcap.ies", "PCAP-PROTOCOL-IES", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

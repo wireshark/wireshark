@@ -1925,7 +1925,7 @@ void proto_register_pres(void) {
 
   /* Register protocol */
   proto_pres = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("pres", dissect_pres, proto_pres);
+  register_dissector("pres", dissect_pres, proto_pres);
 
   /* Register connectionless protocol (just for the description) */
   proto_clpres = proto_register_protocol(CLPNAME, CLPSNAME, CLPFNAME);

@@ -1477,7 +1477,7 @@ proto_reg_handoff_sbc_ap(void)
 	static guint SctpPort;
 
     if( !inited ) {
-        sbc_ap_handle = new_create_dissector_handle(dissect_sbc_ap, proto_sbc_ap);
+        sbc_ap_handle = create_dissector_handle(dissect_sbc_ap, proto_sbc_ap);
         dissector_add_uint("sctp.ppi", SBC_AP_PAYLOAD_PROTOCOL_ID,   sbc_ap_handle);
         inited = TRUE;
 

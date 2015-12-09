@@ -507,7 +507,7 @@ void proto_register_nbap(void)
 	expert_register_field_array(expert_nbap, ei, array_length(ei));
 
 	/* Register dissector */
-	new_register_dissector("nbap", dissect_nbap, proto_nbap);
+	register_dissector("nbap", dissect_nbap, proto_nbap);
 
 	nbap_module = prefs_register_protocol(proto_nbap, NULL);
 

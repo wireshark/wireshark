@@ -834,7 +834,7 @@ void proto_register_q932_ros(void) {
   expert_q932_ros = expert_register_protocol(proto_q932_ros);
   expert_register_field_array(expert_q932_ros, ei, array_length(ei));
 
-  new_register_dissector(PFNAME, dissect_q932_ros, proto_q932_ros);
+  register_dissector(PFNAME, dissect_q932_ros, proto_q932_ros);
 }
 
 /*--- proto_reg_handoff_q932_ros --------------------------------------------*/

@@ -59,7 +59,7 @@ PrivateKeyInfo
 
 	/* we change the CMS id-data dissector to dissect as AuthenticatedSafe
 	   not sure why PKCS#12 couldn't have used its own content type OID for AuthenticatedSafe */
-	dissector_handle=new_create_dissector_handle(dissect_AuthenticatedSafe_OCTETSTRING_PDU, proto_pkcs12);
+	dissector_handle=create_dissector_handle(dissect_AuthenticatedSafe_OCTETSTRING_PDU, proto_pkcs12);
 	dissector_change_string("ber.oid", "1.2.840.113549.1.7.1", dissector_handle);
 
 	%(DEFAULT_BODY)s
@@ -71,7 +71,7 @@ PrivateKeyInfo
 	dissector_handle_t dissector_handle;
 
 	/* we change the CMS id-data dissector to dissect as SafeContents */
-	dissector_handle=new_create_dissector_handle(dissect_SafeContents_OCTETSTRING_PDU, proto_pkcs12);
+	dissector_handle=create_dissector_handle(dissect_SafeContents_OCTETSTRING_PDU, proto_pkcs12);
 	dissector_change_string("ber.oid", "1.2.840.113549.1.7.1", dissector_handle);
 
 	%(DEFAULT_BODY)s
@@ -145,7 +145,7 @@ PrivateKeyInfo
 
 
 
-	dissector_handle=new_create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_pkcs12);
+	dissector_handle=create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_pkcs12);
 	dissector_change_string("ber.oid", object_identifier_id, dissector_handle);
 
 	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx, actx->created_item);

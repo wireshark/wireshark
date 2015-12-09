@@ -19527,7 +19527,7 @@ void proto_register_ansi_map(void) {
     expert_ansi_map = expert_register_protocol(proto_ansi_map);
     expert_register_field_array(expert_ansi_map, ei, array_length(ei));
 
-    new_register_dissector("ansi_map", dissect_ansi_map, proto_ansi_map);
+    register_dissector("ansi_map", dissect_ansi_map, proto_ansi_map);
 
     is637_tele_id_dissector_table =
         register_dissector_table("ansi_map.tele_id", "IS-637 Teleservice ID",

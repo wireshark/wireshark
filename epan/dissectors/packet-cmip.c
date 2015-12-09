@@ -5808,7 +5808,7 @@ void proto_register_cmip(void) {
 
   /* Register protocol */
   proto_cmip = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("cmip", dissect_cmip, proto_cmip);
+  register_dissector("cmip", dissect_cmip, proto_cmip);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_cmip, hf, array_length(hf));

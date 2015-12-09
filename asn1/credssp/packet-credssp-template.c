@@ -161,7 +161,7 @@ void proto_register_credssp(void) {
 
   /* Register protocol */
   proto_credssp = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("credssp", dissect_credssp, proto_credssp);
+  register_dissector("credssp", dissect_credssp, proto_credssp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_credssp, hf, array_length(hf));

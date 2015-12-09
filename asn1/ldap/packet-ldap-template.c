@@ -2226,7 +2226,7 @@ void proto_register_ldap(void) {
   expert_ldap = expert_register_protocol(proto_ldap);
   expert_register_field_array(expert_ldap, ei, array_length(ei));
 
-  new_register_dissector("ldap", dissect_ldap_tcp, proto_ldap);
+  register_dissector("ldap", dissect_ldap_tcp, proto_ldap);
 
   ldap_module = prefs_register_protocol(proto_ldap, prefs_register_ldap);
   prefs_register_bool_preference(ldap_module, "desegment_ldap_messages",
@@ -2288,7 +2288,7 @@ proto_reg_handoff_ldap(void)
 
   dissector_add_uint("tcp.port", TCP_PORT_GLOBALCAT_LDAP, ldap_handle);
 
-  cldap_handle = new_create_dissector_handle(dissect_mscldap, proto_cldap);
+  cldap_handle = create_dissector_handle(dissect_mscldap, proto_cldap);
   dissector_add_uint("udp.port", UDP_PORT_CLDAP, cldap_handle);
 
   gssapi_handle = find_dissector("gssapi");
@@ -2343,12 +2343,12 @@ proto_reg_handoff_ldap(void)
   oid_add_from_string("LDAP_SERVER_SHUTDOWN_NOTIFY_OID","1.2.840.113556.1.4.1907");
   oid_add_from_string("LDAP_SERVER_RANGE_RETRIEVAL_NOERR_OID","1.2.840.113556.1.4.1948");
 
-  dissector_add_string("ldap.name", "netlogon", new_create_dissector_handle(dissect_NetLogon_PDU, proto_cldap));
-  dissector_add_string("ldap.name", "objectGUID", new_create_dissector_handle(dissect_ldap_guid, proto_ldap));
-  dissector_add_string("ldap.name", "supportedControl", new_create_dissector_handle(dissect_ldap_oid, proto_ldap));
-  dissector_add_string("ldap.name", "supportedCapabilities", new_create_dissector_handle(dissect_ldap_oid, proto_ldap));
-  dissector_add_string("ldap.name", "objectSid", new_create_dissector_handle(dissect_ldap_sid, proto_ldap));
-  dissector_add_string("ldap.name", "nTSecurityDescriptor", new_create_dissector_handle(dissect_ldap_nt_sec_desc, proto_ldap));
+  dissector_add_string("ldap.name", "netlogon", create_dissector_handle(dissect_NetLogon_PDU, proto_cldap));
+  dissector_add_string("ldap.name", "objectGUID", create_dissector_handle(dissect_ldap_guid, proto_ldap));
+  dissector_add_string("ldap.name", "supportedControl", create_dissector_handle(dissect_ldap_oid, proto_ldap));
+  dissector_add_string("ldap.name", "supportedCapabilities", create_dissector_handle(dissect_ldap_oid, proto_ldap));
+  dissector_add_string("ldap.name", "objectSid", create_dissector_handle(dissect_ldap_sid, proto_ldap));
+  dissector_add_string("ldap.name", "nTSecurityDescriptor", create_dissector_handle(dissect_ldap_nt_sec_desc, proto_ldap));
 
 #include "packet-ldap-dis-tab.c"
 

@@ -13390,7 +13390,7 @@ void proto_register_s1ap(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  new_register_dissector("s1ap", dissect_s1ap, proto_s1ap);
+  register_dissector("s1ap", dissect_s1ap, proto_s1ap);
 
   /* Register dissector tables */
   s1ap_ies_dissector_table = register_dissector_table("s1ap.ies", "S1AP-PROTOCOL-IES", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

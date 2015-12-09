@@ -384,7 +384,7 @@ void proto_register_rtse(void) {
 
   /* Register protocol */
   proto_rtse = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("rtse", dissect_rtse, proto_rtse);
+  register_dissector("rtse", dissect_rtse, proto_rtse);
   /* Register fields and subtrees */
   proto_register_field_array(proto_rtse, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

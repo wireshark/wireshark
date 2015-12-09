@@ -139,7 +139,7 @@ void proto_register_t125(void) {
 
   t125_heur_subdissector_list= register_heur_dissector_list("t125");
 
-  new_register_dissector("t125", dissect_t125, proto_t125);
+  register_dissector("t125", dissect_t125, proto_t125);
 }
 
 

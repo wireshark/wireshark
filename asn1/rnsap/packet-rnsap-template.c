@@ -158,7 +158,7 @@ void proto_register_rnsap(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  new_register_dissector("rnsap", dissect_rnsap, proto_rnsap);
+  register_dissector("rnsap", dissect_rnsap, proto_rnsap);
 
   /* Register dissector tables */
   rnsap_ies_dissector_table = register_dissector_table("rnsap.ies", "RNSAP-PROTOCOL-IES", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

@@ -267,8 +267,8 @@ void proto_register_sabp(void) {
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register dissector */
-  new_register_dissector("sabp", dissect_sabp, proto_sabp);
-  new_register_dissector("sabp.tcp", dissect_sabp_tcp, proto_sabp);
+  register_dissector("sabp", dissect_sabp, proto_sabp);
+  register_dissector("sabp.tcp", dissect_sabp_tcp, proto_sabp);
 
   /* Register dissector tables */
   sabp_ies_dissector_table = register_dissector_table("sabp.ies", "SABP-PROTOCOL-IES", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

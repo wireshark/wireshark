@@ -6945,8 +6945,8 @@ void proto_register_h248(void) {
 
     /* Register protocol */
     proto_h248 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-    new_register_dissector("h248", dissect_h248, proto_h248);
-    new_register_dissector("h248.tpkt", dissect_h248_tpkt, proto_h248);
+    register_dissector("h248", dissect_h248, proto_h248);
+    register_dissector("h248.tpkt", dissect_h248_tpkt, proto_h248);
 
     /* Register fields and subtrees */
     proto_register_field_array(proto_h248, hf, array_length(hf));

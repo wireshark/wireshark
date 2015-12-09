@@ -141,7 +141,7 @@ void proto_register_goose(void) {
 
 	/* Register protocol */
 	proto_goose = proto_register_protocol(PNAME, PSNAME, PFNAME);
-	new_register_dissector("goose", dissect_goose, proto_goose);
+	register_dissector("goose", dissect_goose, proto_goose);
 
 	/* Register fields and subtrees */
 	proto_register_field_array(proto_goose, hf, array_length(hf));

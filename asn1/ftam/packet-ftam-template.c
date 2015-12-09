@@ -143,7 +143,7 @@ void proto_register_ftam(void) {
 
   /* Register protocol */
   proto_ftam = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  new_register_dissector("ftam", dissect_ftam, proto_ftam);
+  register_dissector("ftam", dissect_ftam, proto_ftam);
   /* Register fields and subtrees */
   proto_register_field_array(proto_ftam, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
