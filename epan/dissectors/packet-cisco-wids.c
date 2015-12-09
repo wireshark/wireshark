@@ -90,15 +90,16 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		ti = proto_tree_add_item(tree, proto_cwids, tvb, offset, 28, ENC_NA);
 		cwids_tree = proto_item_add_subtree(ti, ett_cwids);
 
+		memset(&phdr, 0, sizeof(phdr));
 		phdr.fcs_len = 0;	/* no FCS */
 		phdr.decrypted = FALSE;
 		phdr.datapad = FALSE;
 		phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-		phdr.presence_flags = PHDR_802_11_HAS_CHANNEL;
 		proto_tree_add_item(cwids_tree, hf_cwids_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(cwids_tree, hf_cwids_unknown1, tvb, offset, 7, ENC_NA);
 		offset += 7;
+		phdr.has_channel = TRUE;
 		phdr.channel = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(cwids_tree, hf_cwids_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;

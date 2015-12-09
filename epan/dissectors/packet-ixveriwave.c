@@ -678,11 +678,11 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     struct ieee_802_11_phdr phdr;
 
     /* We don't have any 802.11 metadata yet. */
+    memset(&phdr, 0, sizeof(phdr));
     phdr.fcs_len = -1;
     phdr.decrypted = FALSE;
     phdr.datapad = FALSE;
     phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-    phdr.presence_flags = 0;
 
     /* First add the IFG information, need to grab the info bit field here */
     vw_info = tvb_get_letohs(tvb, 20);
@@ -752,8 +752,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     if ((vw_rflags & FLAGS_CHAN_HT) || (vw_rflags & FLAGS_CHAN_VHT)) {
         if (vw_rflags & FLAGS_CHAN_VHT) {
             phdr.phy = PHDR_802_11_PHY_11AC;
-            phdr.phy_info.info_11ac.presence_flags =
-                PHDR_802_11AC_HAS_SHORT_GI;
+            phdr.phy_info.info_11ac.has_short_gi = TRUE;
             phdr.phy_info.info_11ac.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
             /*
              * XXX - this probably has only one user, so only one MCS index
@@ -769,12 +768,13 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
              * The code in wiretap/vwr.c doesn't seem to provide it.
              */
             phdr.phy = PHDR_802_11_PHY_11N;
-            phdr.phy_info.info_11n.presence_flags =
-                PHDR_802_11N_HAS_MCS_INDEX |
-                PHDR_802_11N_HAS_SHORT_GI |
-                PHDR_802_11N_HAS_GREENFIELD;
+            phdr.phy_info.info_11n.has_mcs_index = TRUE;
             phdr.phy_info.info_11n.mcs_index = mcs_index;
+
+            phdr.phy_info.info_11n.has_short_gi = TRUE;
             phdr.phy_info.info_11n.short_gi = ((vw_rflags & FLAGS_CHAN_SHORTGI) != 0);
+
+            phdr.phy_info.info_11n.has_greenfield = TRUE;
             phdr.phy_info.info_11n.greenfield = (plcp_type == PLCP_TYPE_GREENFIELD);
         }
         if (tap_tree) {
@@ -796,9 +796,8 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
          */
         if (vw_chanflags & CHAN_CCK) {
             phdr.phy = PHDR_802_11_PHY_11B;
-            phdr.phy_info.info_11b.presence_flags = 0;
         }
-        phdr.presence_flags |= PHDR_802_11_HAS_DATA_RATE;
+        phdr.has_data_rate = TRUE;
         phdr.data_rate = tvb_get_letohs(tvb, offset-5) / 5;
         if (tap_tree) {
             proto_tree_add_uint_format_value(tap_tree, hf_radiotap_datarate,
@@ -809,7 +808,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
     col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f", phyRate);
 
     dbm = (gint8) tvb_get_guint8(tvb, offset);
-    phdr.presence_flags |= PHDR_802_11_HAS_SIGNAL_DBM;
+    phdr.has_signal_dbm = TRUE;
     phdr.signal_dbm = dbm;
     col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
     if (tap_tree) {
@@ -1030,7 +1029,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         vht_grp_id1 = tvb_get_guint8(tvb, offset);
         vht_grp_id2 = tvb_get_guint8(tvb, offset+1);
         vht_grp_id = ((vht_grp_id1 &0xF0) >> 4) + ((vht_grp_id2 &0x03) << 4);
-        phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_GROUP_ID;
+        phdr.phy_info.info_11ac.has_group_id = TRUE;
         phdr.phy_info.info_11ac.group_id = vht_grp_id;
         proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_grp_id,
             tvb, offset, 2, vht_grp_id, "VHT Group Id: %u ",vht_grp_id);
@@ -1046,7 +1045,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             vht_su_partial_id1 = tvb_get_guint8(tvb,offset);
             vht_su_partial_id2 = tvb_get_guint8(tvb,offset+1);
             vht_su_partial_id = ((vht_su_partial_id1 &0xE0) >> 5) + ((vht_su_partial_id2 &0x3f) << 3);
-            phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_PARTIAL_AID;
+            phdr.phy_info.info_11ac.has_partial_aid = TRUE;
             phdr.phy_info.info_11ac.partial_aid = vht_su_partial_id;
             proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_su_partial_aid,
                 tvb, offset, 2, vht_su_partial_id, "VHT PARTIAL AID: %u ",vht_su_partial_id);
@@ -1176,7 +1175,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
         offset = offset + 1;
         vht_beamformed = tvb_get_guint8(tvb, offset);
         vht_beamformed = (vht_beamformed & 0x01);
-        phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_BEAMFORMED;
+        phdr.phy_info.info_11ac.has_beamformed = TRUE;
         phdr.phy_info.info_11ac.beamformed = vht_beamformed;
         proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_beamformed,
             tvb, offset, 1, vht_beamformed, "VHT Beamformed: %u ",vht_beamformed);

@@ -428,11 +428,11 @@ netmon_set_pseudo_header_info(struct wtap_pkthdr *phdr, Buffer *buf)
 		 *  do not have an FCS).
 		 * An "FCS length" of -2 means "NetMon weirdness".
 		 */
+		memset(&phdr->pseudo_header.ieee_802_11, 0, sizeof(phdr->pseudo_header.ieee_802_11));
 		phdr->pseudo_header.ieee_802_11.fcs_len = -2;
 		phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
 		phdr->pseudo_header.ieee_802_11.datapad = FALSE;
 		phdr->pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
-		phdr->pseudo_header.ieee_802_11.presence_flags = 0; /* radio data is in the packet data */
 		break;
 	}
 }

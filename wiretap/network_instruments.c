@@ -374,11 +374,11 @@ read_packet_header(wtap *wth, FILE_T fh, union wtap_pseudo_header *pseudo_header
         pseudo_header->eth.fcs_len = 0;
         break;
     case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
+        memset(&pseudo_header->ieee_802_11, 0, sizeof(pseudo_header->ieee_802_11));
         pseudo_header->ieee_802_11.fcs_len = 0;
         pseudo_header->ieee_802_11.decrypted = FALSE;
         pseudo_header->ieee_802_11.datapad = FALSE;
         pseudo_header->ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
-        pseudo_header->ieee_802_11.presence_flags = 0;
         /* Updated below */
         break;
     }
@@ -404,16 +404,14 @@ read_packet_header(wtap *wth, FILE_T fh, union wtap_pseudo_header *pseudo_header
             if (!wtap_read_bytes(fh, &wireless_header, sizeof wireless_header,
                                  err, err_info))
                 return -1;
-            /* update the pseudo header */
-            pseudo_header->ieee_802_11.presence_flags |=
-                PHDR_802_11_HAS_CHANNEL |
-                PHDR_802_11_HAS_DATA_RATE |
-                PHDR_802_11_HAS_SIGNAL_PERCENT;
             /* set decryption status */
             /* XXX - what other bits are there in conditions? */
             pseudo_header->ieee_802_11.decrypted = (wireless_header.conditions & WIRELESS_WEP_SUCCESS) != 0;
+            pseudo_header->ieee_802_11.has_channel = TRUE;
             pseudo_header->ieee_802_11.channel = wireless_header.frequency;
+            pseudo_header->ieee_802_11.has_data_rate = TRUE;
             pseudo_header->ieee_802_11.data_rate = wireless_header.rate;
+            pseudo_header->ieee_802_11.has_signal_percent = TRUE;
             pseudo_header->ieee_802_11.signal_percent = wireless_header.strengthPercent;
             offset += (int)sizeof wireless_header;
             break;

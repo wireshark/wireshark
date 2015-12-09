@@ -441,13 +441,11 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
     timestamp.upper = 0;
     timestamp.lower = 0;
-    /* Shouldn't be necessary, but squelches a compiler warning. */
     memset(&ieee_802_11, 0, sizeof ieee_802_11);
     ieee_802_11.fcs_len = -1; /* Unknown */
     ieee_802_11.decrypted = FALSE;
     ieee_802_11.datapad = FALSE;
     ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
-    ieee_802_11.presence_flags = 0;
 
     /* Extract the fields from the packet header */
     do {
@@ -503,7 +501,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
             break;
 
         case TAG_PEEKTAGGED_CHANNEL:
-            ieee_802_11.presence_flags |= PHDR_802_11_HAS_CHANNEL;
+            ieee_802_11.has_channel = TRUE;
             ieee_802_11.channel = pletoh32(&tag_value[2]);
             break;
 
@@ -513,22 +511,22 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
             break;
 
         case TAG_PEEKTAGGED_SIGNAL_PERC:
-            ieee_802_11.presence_flags |= PHDR_802_11_HAS_SIGNAL_PERCENT;
+            ieee_802_11.has_signal_percent = TRUE;
             ieee_802_11.signal_percent = pletoh32(&tag_value[2]);
             break;
 
         case TAG_PEEKTAGGED_SIGNAL_DBM:
-            ieee_802_11.presence_flags |= PHDR_802_11_HAS_SIGNAL_DBM;
+            ieee_802_11.has_signal_dbm = TRUE;
             ieee_802_11.signal_dbm = pletoh32(&tag_value[2]);
             break;
 
         case TAG_PEEKTAGGED_NOISE_PERC:
-            ieee_802_11.presence_flags |= PHDR_802_11_HAS_NOISE_PERCENT;
+            ieee_802_11.has_noise_percent = TRUE;
             ieee_802_11.noise_percent = pletoh32(&tag_value[2]);
             break;
 
         case TAG_PEEKTAGGED_NOISE_DBM:
-            ieee_802_11.presence_flags |= PHDR_802_11_HAS_NOISE_DBM;
+            ieee_802_11.has_noise_dbm = TRUE;
             ieee_802_11.noise_dbm = pletoh32(&tag_value[2]);
             break;
 
@@ -541,7 +539,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
         case TAG_PEEKTAGGED_CENTER_FREQUENCY:
             /* XXX - also seen in an EtherPeek capture; value unknown */
-            ieee_802_11.presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+            ieee_802_11.has_frequency = TRUE;
             ieee_802_11.frequency = pletoh32(&tag_value[2]);
             break;
 
@@ -613,7 +611,6 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
             ext_flags = pletoh32(&tag_value[2]);
             if (ext_flags & EXT_FLAG_802_11ac) {
                 ieee_802_11.phy = PHDR_802_11_PHY_11AC;
-                ieee_802_11.phy_info.info_11ac.presence_flags = 0;
                 /*
                  * XXX - this probably has only one user, so only
                  * one MCS index and only one NSS, but where's the
@@ -625,12 +622,12 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
                 switch (ext_flags & EXT_FLAGS_GI) {
 
                 case EXT_FLAG_HALF_GI:
-                    ieee_802_11.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_SHORT_GI;
+                    ieee_802_11.phy_info.info_11ac.has_short_gi = TRUE;
                     ieee_802_11.phy_info.info_11ac.short_gi = 1;
                     break;
 
                 case EXT_FLAG_FULL_GI:
-                    ieee_802_11.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_SHORT_GI;
+                    ieee_802_11.phy_info.info_11ac.has_short_gi = TRUE;
                     ieee_802_11.phy_info.info_11ac.short_gi = 0;
                     break;
 
@@ -643,40 +640,39 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
                 switch (ext_flags & EXT_FLAGS_BANDWIDTH) {
 
                 case 0:
-                    ieee_802_11.phy_info.info_11n.presence_flags = PHDR_802_11N_HAS_BANDWIDTH;
+                    ieee_802_11.phy_info.info_11n.has_bandwidth = TRUE;
                     ieee_802_11.phy_info.info_11n.bandwidth = PHDR_802_11_BANDWIDTH_20_MHZ;
                     break;
 
                 case EXT_FLAG_20_MHZ_LOWER:
-                    ieee_802_11.phy_info.info_11n.presence_flags = PHDR_802_11N_HAS_BANDWIDTH;
+                    ieee_802_11.phy_info.info_11n.has_bandwidth = TRUE;
                     ieee_802_11.phy_info.info_11n.bandwidth = PHDR_802_11_BANDWIDTH_20_20L;
                     break;
 
                 case EXT_FLAG_20_MHZ_UPPER:
-                    ieee_802_11.phy_info.info_11n.presence_flags = PHDR_802_11N_HAS_BANDWIDTH;
+                    ieee_802_11.phy_info.info_11n.has_bandwidth = TRUE;
                     ieee_802_11.phy_info.info_11n.bandwidth = PHDR_802_11_BANDWIDTH_20_20U;
                     break;
 
                 case EXT_FLAG_40_MHZ:
-                    ieee_802_11.phy_info.info_11n.presence_flags = PHDR_802_11N_HAS_BANDWIDTH;
+                    ieee_802_11.phy_info.info_11n.has_bandwidth = TRUE;
                     ieee_802_11.phy_info.info_11n.bandwidth = PHDR_802_11_BANDWIDTH_40_MHZ;
                     break;
 
                 default:
                     /* Mutually exclusive flags set */
-                    ieee_802_11.phy_info.info_11n.presence_flags = 0;
                     break;
                 }
 
                 switch (ext_flags & EXT_FLAGS_GI) {
 
                 case EXT_FLAG_HALF_GI:
-                    ieee_802_11.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_SHORT_GI;
+                    ieee_802_11.phy_info.info_11n.has_short_gi = TRUE;
                     ieee_802_11.phy_info.info_11n.short_gi = 1;
                     break;
 
                 case EXT_FLAG_FULL_GI:
-                    ieee_802_11.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_SHORT_GI;
+                    ieee_802_11.phy_info.info_11n.has_short_gi = TRUE;
                     ieee_802_11.phy_info.info_11n.short_gi = 0;
                     break;
 
@@ -753,27 +749,23 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
                  * XXX - what about 11ac?
                  */
                 if (!(ext_flags & EXT_FLAG_802_11ac)) {
-                    ieee_802_11.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_MCS_INDEX;
+                    ieee_802_11.phy_info.info_11n.has_mcs_index = TRUE;
                     ieee_802_11.phy_info.info_11n.mcs_index = data_rate_or_mcs_index;
                 }
             } else {
                 /* It's a data rate. */
-                ieee_802_11.presence_flags |= PHDR_802_11_HAS_DATA_RATE;
+                ieee_802_11.has_data_rate = TRUE;
                 ieee_802_11.data_rate = data_rate_or_mcs_index;
             }
         }
-        switch (ieee_802_11.presence_flags & (PHDR_802_11_HAS_FREQUENCY|PHDR_802_11_HAS_CHANNEL)) {
-
-        case PHDR_802_11_HAS_FREQUENCY:
+        if (ieee_802_11.has_frequency && !ieee_802_11.has_channel) {
             /* Frequency, but no channel; try to calculate the channel. */
             channel = ieee80211_mhz_to_chan(ieee_802_11.frequency);
             if (channel != -1) {
-                ieee_802_11.presence_flags |= PHDR_802_11_HAS_CHANNEL;
+                ieee_802_11.has_channel = TRUE;
                 ieee_802_11.channel = channel;
             }
-            break;
-
-        case PHDR_802_11_HAS_CHANNEL:
+        } else if (ieee_802_11.has_channel && !ieee_802_11.has_frequency) {
             /*
              * If it's 11 legacy DHSS, 11b, or 11g, it's 2.4 GHz,
              * so we can calculate the frequency.
@@ -799,10 +791,9 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
                 break;
             }
             if (frequency != 0) {
-                ieee_802_11.presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+                ieee_802_11.has_frequency = TRUE;
                 ieee_802_11.frequency = frequency;
             }
-            break;
         }
         phdr->pseudo_header.ieee_802_11 = ieee_802_11;
         if (peektagged->has_fcs)

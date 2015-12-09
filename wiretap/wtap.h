@@ -581,46 +581,36 @@ struct p2p_phdr {
  * 802.11 legacy FHSS.
  */
 struct ieee_802_11_fhss {
-    guint32  presence_flags; /* Which of this information is present? */
+    guint    has_hop_set:1;
+    guint    has_hop_pattern:1;
+    guint    has_hop_index:1;
+
     guint8   hop_set;        /* Hop set */
     guint8   hop_pattern;    /* Hop pattern */
     guint8   hop_index;      /* Hop index */
 };
 
 /*
- * Presence flags.
- */
-#define PHDR_802_11_FHSS_HAS_HOP_SET      0x0000001
-#define PHDR_802_11_FHSS_HAS_HOP_PATTERN  0x0000002
-#define PHDR_802_11_FHSS_HAS_HOP_INDEX    0x0000004
-
-/*
  * 802.11b.
  */
 struct ieee_802_11b {
-    guint32  presence_flags; /* Which of this information is present? */
+    /* Which of this information is present? */
+    guint    has_short_preamble:1;
+
     gboolean short_preamble; /* Short preamble */
 };
-
-/*
- * Presence flags.
- */
-#define PHDR_802_11B_HAS_SHORT_PREAMBLE  0x0000001  /* Short preamble */
 
 /*
  * 802.11a.
  */
 struct ieee_802_11a {
-    guint32  presence_flags; /* Which of this information is present? */
+    /* Which of this information is present? */
+    guint    has_channel_type:1;
+    guint    has_turbo_type:1;
+
     guint    channel_type:2;
     guint    turbo_type:2;
 };
-
-/*
- * Presence flags.
- */
-#define PHDR_802_11A_HAS_CHANNEL_TYPE  0x0000001  /* Normal, half-clocked, quarter-clocked */
-#define PHDR_802_11A_HAS_TURBO_TYPE    0x0000002  /* Normal, turbo, "static turbo" */
 
 /*
  * Channel type values.
@@ -646,16 +636,13 @@ struct ieee_802_11a {
  * 802.11g.
  */
 struct ieee_802_11g {
-    guint32  presence_flags; /* Which of this information is present? */
+    /* Which of this information is present? */
+    guint    has_short_preamble:1;
+    guint    has_mode:1;
+
     gboolean short_preamble; /* Short preamble */
     guint32  mode;           /* Various proprietary extensions */
 };
-
-/*
- * Presence flags.
- */
-#define PHDR_802_11G_HAS_SHORT_PREAMBLE  0x0000001  /* Short preamble */
-#define PHDR_802_11G_HAS_MODE            0x0000002  /* Proprietary extensions */
 
 /*
  * Mode values.
@@ -667,7 +654,15 @@ struct ieee_802_11g {
  * 802.11n.
  */
 struct ieee_802_11n {
-    guint32  presence_flags; /* Which of this information is present? */
+    /* Which of this information is present? */
+    guint    has_mcs_index:1;
+    guint    has_bandwidth:1;
+    guint    has_short_gi:1;
+    guint    has_greenfield:1;
+    guint    has_fec:1;
+    guint    has_stbc_streams:1;
+    guint    has_ness:1;
+
     guint16  mcs_index;      /* MCS index */
     guint    bandwidth;      /* Bandwidth = 20 MHz, 40 MHz, etc. */
     guint    short_gi:1;     /* True for short guard interval */
@@ -676,17 +671,6 @@ struct ieee_802_11n {
     guint    stbc_streams:2; /* Number of STBC streams */
     guint    ness;           /* Number of extension spatial streams */
 };
-
-/*
- * Presence flags.
- */
-#define PHDR_802_11N_HAS_MCS_INDEX      0x00000001 /* mcs */
-#define PHDR_802_11N_HAS_BANDWIDTH      0x00000002 /* bandwidth */
-#define PHDR_802_11N_HAS_SHORT_GI       0x00000004 /* short_gi */
-#define PHDR_802_11N_HAS_GREENFIELD     0x00000008 /* greenfield */
-#define PHDR_802_11N_HAS_FEC            0x00000010 /* fec */
-#define PHDR_802_11N_HAS_STBC_STREAMS   0x00000020 /* stbc_streams */
-#define PHDR_802_11N_HAS_NESS           0x00000040 /* ness */
 
 /*
  * Bandwidth values; used for both 11n and 11ac.
@@ -722,7 +706,18 @@ struct ieee_802_11n {
  * 802.11ac.
  */
 struct ieee_802_11ac {
-    guint32  presence_flags; /* Which of this information is present? */
+    /* Which of this information is present? */
+    guint    has_stbc:1;
+    guint    has_txop_ps_not_allowed:1;
+    guint    has_short_gi:1;
+    guint    has_short_gi_nsym_disambig:1;
+    guint    has_ldpc_extra_ofdm_symbol:1;
+    guint    has_beamformed:1;
+    guint    has_bandwidth:1;
+    guint    has_fec:1;
+    guint    has_group_id:1;
+    guint    has_partial_aid:1;
+
     guint    stbc:1;         /* 1 if all spatial streams have STBC */
     guint    txop_ps_not_allowed:1;
     guint    short_gi:1;     /* True for short guard interval */
@@ -736,20 +731,6 @@ struct ieee_802_11ac {
     guint8   group_id;
     guint16  partial_aid;
 };
-
-/*
- * 802.11ac presence flags.
- */
-#define PHDR_802_11AC_HAS_STBC                    0x00000001 /* stbc */
-#define PHDR_802_11AC_HAS_TXOP_PS_NOT_ALLOWED     0x00000002 /* txop_ps_not_allowed */
-#define PHDR_802_11AC_HAS_SHORT_GI                0x00000004 /* short_gi */
-#define PHDR_802_11AC_HAS_SHORT_GI_NSYM_DISAMBIG  0x00000008 /* short_gi_nsym_disambig */
-#define PHDR_802_11AC_HAS_LDPC_EXTRA_OFDM_SYMBOL  0x00000010 /* ldpc_extra_ofdm_symbol */
-#define PHDR_802_11AC_HAS_BEAMFORMED              0x00000020 /* beamformed */
-#define PHDR_802_11AC_HAS_BANDWIDTH               0x00000040 /* bandwidth */
-#define PHDR_802_11AC_HAS_FEC                     0x00000080 /* fec */
-#define PHDR_802_11AC_HAS_GROUP_ID                0x00000100 /* group_id */
-#define PHDR_802_11AC_HAS_PARTIAL_AID             0x00000200 /* partial_aid */
 
 /*
  * 802.11ad.
@@ -766,14 +747,11 @@ struct ieee_802_11ac {
                                ((frequency) <= PHDR_802_11AD_MAX_FREQUENCY))
 
 struct ieee_802_11ad {
-    guint32 presence_flags; /* Which of this information is present? */
-    guint8  mcs;            /* MCS index */
-};
+    /* Which of this information is present? */
+    guint    has_mcs_index:1;
 
-/*
- * 802.11ad presence flags.
- */
-#define PHDR_802_11AD_HAS_MCS_INDEX               0x00000001 /* mcs */
+    guint8   mcs;            /* MCS index */
+};
 
 struct ieee_802_11_phdr {
     gint     fcs_len;        /* Number of bytes of FCS - -1 means "unknown" */
@@ -789,7 +767,17 @@ struct ieee_802_11_phdr {
         struct ieee_802_11ac info_11ac;
         struct ieee_802_11ad info_11ad;
     } phy_info;
-    guint32  presence_flags; /* Flags indicating presence of fields below */
+
+    /* Which of this information is present? */
+    guint    has_channel:1;
+    guint    has_frequency:1;
+    guint    has_data_rate:1;
+    guint    has_signal_percent:1;
+    guint    has_noise_percent:1;
+    guint    has_signal_dbm:1;
+    guint    has_noise_dbm:1;
+    guint    has_tsf_timestamp:1;
+
     guint16  channel;        /* Channel number */
     guint32  frequency;      /* Channel center frequency */
     guint16  data_rate;      /* Data rate, in .5 Mb/s units */
@@ -799,18 +787,6 @@ struct ieee_802_11_phdr {
     gint8    noise_dbm;      /* Noise level, in dBm */
     guint64  tsf_timestamp;
 };
-
-/*
- * Presence bits for non-PHY-specific data.
- */
-#define PHDR_802_11_HAS_CHANNEL         0x00000001 /* channel */
-#define PHDR_802_11_HAS_FREQUENCY       0x00000002 /* frequency */
-#define PHDR_802_11_HAS_DATA_RATE       0x00000004 /* data_rate */
-#define PHDR_802_11_HAS_SIGNAL_PERCENT  0x00000008 /* signal_percent */
-#define PHDR_802_11_HAS_NOISE_PERCENT   0x00000010 /* noise_percent */
-#define PHDR_802_11_HAS_SIGNAL_DBM      0x00000020 /* signal_dbm */
-#define PHDR_802_11_HAS_NOISE_DBM       0x00000040 /* noise_dbm */
-#define PHDR_802_11_HAS_TSF_TIMESTAMP   0x00000080 /* tsf_timestamp */
 
 /* Packet "pseudo-header" for the output from CoSine L2 debug output. */
 

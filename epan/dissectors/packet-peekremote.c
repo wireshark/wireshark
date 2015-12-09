@@ -418,11 +418,11 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   }
 
   /* We don't have any 802.11 metadata yet. */
+  memset(&phdr, 0, sizeof(phdr));
   phdr.fcs_len = 4; /* has an FCS */
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-  phdr.presence_flags = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PEEKREMOTE");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -446,24 +446,18 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       if (header_size > 9)
         offset += (header_size - 9);
     } else {
-      phdr.presence_flags |=
-          PHDR_802_11_HAS_CHANNEL|
-          PHDR_802_11_HAS_SIGNAL_PERCENT|
-          PHDR_802_11_HAS_NOISE_PERCENT|
-          PHDR_802_11_HAS_SIGNAL_DBM|
-          PHDR_802_11_HAS_NOISE_DBM|
-          PHDR_802_11_HAS_TSF_TIMESTAMP;
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_type, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       mcs_index = tvb_get_ntohs(tvb, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_mcs_index, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
+      phdr.has_channel = TRUE;
       phdr.channel = tvb_get_ntohs(tvb, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       frequency = tvb_get_ntohl(tvb, offset);
       if (frequency != 0) {
-        phdr.presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+        phdr.has_frequency = TRUE;
         phdr.frequency = frequency;
       }
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_frequency, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -474,7 +468,6 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       if (extflags & EXT_FLAG_802_11ac) {
         guint i;
         phdr.phy = PHDR_802_11_PHY_11AC;
-        phdr.phy_info.info_11ac.presence_flags = 0;
         /*
          * XXX - this probably has only one user, so only one MCS index
          * and only one NSS, but where's the NSS?
@@ -484,19 +477,23 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         }
       } else {
         phdr.phy = PHDR_802_11_PHY_11N;
-        phdr.phy_info.info_11n.presence_flags = PHDR_802_11N_HAS_MCS_INDEX;
+        phdr.phy_info.info_11n.has_mcs_index = TRUE;
         phdr.phy_info.info_11n.mcs_index = mcs_index;
       }
       offset += dissect_peekremote_extflags(tvb, pinfo, peekremote_tree, offset);
+      phdr.has_signal_percent = TRUE;
       phdr.signal_percent = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_percent, tvb, offset, 1, ENC_NA);
       offset += 1;
+      phdr.has_noise_percent = TRUE;
       phdr.noise_percent = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_percent, tvb, offset, 1, ENC_NA);
       offset += 1;
+      phdr.has_signal_dbm = TRUE;
       phdr.signal_dbm = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
+      phdr.has_noise_dbm = TRUE;
       phdr.noise_dbm = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
@@ -523,6 +520,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       offset += dissect_peekremote_flags(tvb, pinfo, peekremote_tree, offset);
       offset += dissect_peekremote_status(tvb, pinfo, peekremote_tree, offset);
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+      phdr.has_tsf_timestamp = TRUE;
       phdr.tsf_timestamp = tvb_get_ntoh64(tvb, offset);
       offset += 8;
     }
@@ -549,6 +547,8 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   proto_item *ti = NULL;
   struct ieee_802_11_phdr phdr;
   guint8 signal_percent;
+
+  memset(&phdr, 0, sizeof(phdr));
 
   /*
    * Check whether this is peekremote-ng, and dissect it as such if it
@@ -589,20 +589,19 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   }
   phdr.decrypted = FALSE;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-  phdr.presence_flags =
-      PHDR_802_11_HAS_CHANNEL|
-      PHDR_802_11_HAS_DATA_RATE|
-      PHDR_802_11_HAS_SIGNAL_PERCENT|
-      PHDR_802_11_HAS_NOISE_PERCENT|
-      PHDR_802_11_HAS_SIGNAL_DBM|
-      PHDR_802_11_HAS_NOISE_DBM|
-      PHDR_802_11_HAS_TSF_TIMESTAMP;
+  phdr.has_channel = TRUE;
   phdr.channel = tvb_get_guint8(tvb, 17);
+  phdr.has_data_rate = TRUE;
   phdr.data_rate = tvb_get_guint8(tvb, 16);
+  phdr.has_signal_percent = TRUE;
   phdr.signal_percent = tvb_get_guint8(tvb, 18);
+  phdr.has_noise_percent = TRUE;
   phdr.noise_percent = tvb_get_guint8(tvb, 18);
+  phdr.has_signal_dbm = TRUE;
   phdr.signal_dbm = tvb_get_guint8(tvb, 0);
+  phdr.has_noise_dbm = TRUE;
   phdr.noise_dbm = tvb_get_guint8(tvb, 1);
+  phdr.has_tsf_timestamp = TRUE;
   phdr.tsf_timestamp = tvb_get_ntoh64(tvb, 8);
 
   return 20 + call_dissector_with_data(wlan_radio_handle, next_tvb, pinfo, tree, &phdr);

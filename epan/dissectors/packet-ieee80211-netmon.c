@@ -163,6 +163,8 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
      * uPhyId?
      */
     phy_type = tvb_get_letohl(tvb, offset);
+    memset(&phdr->phy_info, 0, sizeof(phdr->phy_info));
+
     switch (phy_type) {
 
     case PHY_TYPE_UNKNOWN:
@@ -171,7 +173,6 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
     case PHY_TYPE_FHSS:
         phdr->phy = PHDR_802_11_PHY_11_FHSS;
-        phdr->phy_info.info_11_fhss.presence_flags = 0;
         break;
 
     case PHY_TYPE_IR_BASEBAND:
@@ -184,27 +185,22 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 
     case PHY_TYPE_HR_DSSS:
         phdr->phy = PHDR_802_11_PHY_11B;
-        phdr->phy_info.info_11b.presence_flags = 0;
         break;
 
     case PHY_TYPE_OFDM:
         phdr->phy = PHDR_802_11_PHY_11A;
-        phdr->phy_info.info_11a.presence_flags = 0;
         break;
 
     case PHY_TYPE_ERP:
         phdr->phy = PHDR_802_11_PHY_11G;
-        phdr->phy_info.info_11g.presence_flags = 0;
         break;
 
     case PHY_TYPE_HT:
         phdr->phy = PHDR_802_11_PHY_11N;
-        phdr->phy_info.info_11n.presence_flags = 0;
         break;
 
     case PHY_TYPE_VHT:
         phdr->phy = PHDR_802_11_PHY_11AC;
-        phdr->phy_info.info_11ac.presence_flags = 0;
         break;
 
     default:
@@ -227,7 +223,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
       } else {
         guint frequency;
 
-        phdr->presence_flags |= PHDR_802_11_HAS_CHANNEL;
+        phdr->has_channel = TRUE;
         phdr->channel = channel;
         proto_tree_add_uint(wlan_tree, hf_netmon_802_11_channel,
                             tvb, offset, 4, channel);
@@ -249,19 +245,19 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
           break;
         }
         if (frequency != 0) {
-          phdr->presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+          phdr->has_frequency = TRUE;
           phdr->frequency = frequency;
         }
       }
     } else {
-      phdr->presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+      phdr->has_frequency = TRUE;
       phdr->frequency = channel;
       proto_tree_add_uint_format_value(wlan_tree, hf_netmon_802_11_frequency,
                                        tvb, offset, 4, channel,
                                        "%u Mhz", channel);
       calc_channel = ieee80211_mhz_to_chan(channel);
       if (calc_channel != -1) {
-        phdr->presence_flags |= PHDR_802_11_HAS_CHANNEL;
+        phdr->has_channel = TRUE;
         phdr->channel = calc_channel;
       }
     }
@@ -280,7 +276,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                                       tvb, offset, 4, rssi,
                                       "Unknown");
     } else {
-      phdr->presence_flags |= PHDR_802_11_HAS_SIGNAL_DBM;
+      phdr->has_signal_dbm = TRUE;
       phdr->signal_dbm = rssi;
       proto_tree_add_int_format_value(wlan_tree, hf_netmon_802_11_rssi,
                                       tvb, offset, 4, rssi,
@@ -297,7 +293,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                                        tvb, offset, 1, rate,
                                        "Unknown");
     } else {
-      phdr->presence_flags |= PHDR_802_11_HAS_DATA_RATE;
+      phdr->has_data_rate = TRUE;
       phdr->data_rate = rate;
       proto_tree_add_uint_format_value(wlan_tree, hf_netmon_802_11_datarate,
                                        tvb, offset, 1, rate,
@@ -312,7 +308,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
    *
    * If so, should this check the presense flag in flags?
    */
-  phdr->presence_flags |= PHDR_802_11_HAS_TSF_TIMESTAMP;
+  phdr->has_tsf_timestamp = TRUE;
   phdr->tsf_timestamp = tvb_get_letoh64(tvb, offset);
   proto_tree_add_item(wlan_tree, hf_netmon_802_11_timestamp, tvb, offset, 8,
                       ENC_LITTLE_ENDIAN);

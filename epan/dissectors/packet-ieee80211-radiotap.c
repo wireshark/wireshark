@@ -589,11 +589,11 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 	radiotap_info = &rtp_info_arr;
 
 	/* We don't have any 802.11 metadata yet. */
+	memset(&phdr, 0, sizeof(phdr));
 	phdr.fcs_len = -1;
 	phdr.decrypted = FALSE;
 	phdr.datapad = FALSE;
 	phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-	phdr.presence_flags = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -810,7 +810,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 		case IEEE80211_RADIOTAP_TSFT:
 			radiotap_info->tsft = tvb_get_letoh64(tvb, offset);
 			phdr.tsf_timestamp = radiotap_info->tsft;
-			phdr.presence_flags |= PHDR_802_11_HAS_TSF_TIMESTAMP;
+			phdr.has_tsf_timestamp = TRUE;
 			if (tree) {
 				proto_tree_add_uint64(radiotap_tree,
 						      hf_radiotap_mactime, tvb,
@@ -916,7 +916,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 								    (float)rate / 2);
 				}
 				radiotap_info->rate = rate;
-				phdr.presence_flags |= PHDR_802_11_HAS_DATA_RATE;
+				phdr.has_data_rate = TRUE;
 				phdr.data_rate = rate;
 			}
 			break;
@@ -931,20 +931,20 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 				 */
 				gint calc_channel;
 
-				phdr.presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+				phdr.has_frequency = TRUE;
 				phdr.frequency = freq;
 				calc_channel = ieee80211_mhz_to_chan(freq);
 				if (calc_channel != -1) {
-					phdr.presence_flags |= PHDR_802_11_HAS_CHANNEL;
+					phdr.has_channel = TRUE;
 					phdr.channel = calc_channel;
 				}
 			}
+			memset(&phdr.phy_info, 0, sizeof(phdr.phy_info));
 			cflags = tvb_get_letohs(tvb, offset + 2);
 			switch (cflags & IEEE80211_CHAN_ALLTURBO) {
 
 			case IEEE80211_CHAN_FHSS:
 				phdr.phy = PHDR_802_11_PHY_11_FHSS;
-				phdr.phy_info.info_11_fhss.presence_flags = 0;
 				break;
 
 			case IEEE80211_CHAN_DSSS:
@@ -953,52 +953,51 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 
 			case IEEE80211_CHAN_A:
 				phdr.phy = PHDR_802_11_PHY_11A;
-				phdr.phy_info.info_11a.presence_flags = PHDR_802_11A_HAS_TURBO_TYPE;
+				phdr.phy_info.info_11a.has_turbo_type = TRUE;
 				phdr.phy_info.info_11a.turbo_type = PHDR_802_11A_TURBO_TYPE_NORMAL;
 				break;
 
 			case IEEE80211_CHAN_B:
 				phdr.phy = PHDR_802_11_PHY_11B;
-				phdr.phy_info.info_11b.presence_flags = 0;
 				if (have_rflags) {
-					phdr.phy_info.info_11b.presence_flags |= PHDR_802_11B_HAS_SHORT_PREAMBLE;
+					phdr.phy_info.info_11b.has_short_preamble = TRUE;
 					phdr.phy_info.info_11b.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
 				}
 				break;
 
 			case IEEE80211_CHAN_PUREG:
 				phdr.phy = PHDR_802_11_PHY_11G;
-				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+				phdr.phy_info.info_11g.has_mode = TRUE;
 				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
 				if (have_rflags) {
-					phdr.phy_info.info_11g.presence_flags |= PHDR_802_11G_HAS_SHORT_PREAMBLE;
+					phdr.phy_info.info_11g.has_short_preamble = TRUE;
 					phdr.phy_info.info_11g.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
 				}
 				break;
 
 			case IEEE80211_CHAN_G:
 				phdr.phy = PHDR_802_11_PHY_11G;
-				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+				phdr.phy_info.info_11g.has_mode = TRUE;
 				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
 				if (have_rflags) {
-					phdr.phy_info.info_11g.presence_flags |= PHDR_802_11G_HAS_SHORT_PREAMBLE;
+					phdr.phy_info.info_11g.has_short_preamble = TRUE;
 					phdr.phy_info.info_11g.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
 				}
 				break;
 
 			case IEEE80211_CHAN_108A:
 				phdr.phy = PHDR_802_11_PHY_11A;
-				phdr.phy_info.info_11a.presence_flags = PHDR_802_11A_HAS_TURBO_TYPE;
+				phdr.phy_info.info_11a.has_turbo_type = TRUE;
 				/* We assume non-STURBO is dynamic turbo */
 				phdr.phy_info.info_11a.turbo_type = PHDR_802_11A_TURBO_TYPE_DYNAMIC_TURBO;
 				break;
 
 			case IEEE80211_CHAN_108PUREG:
 				phdr.phy = PHDR_802_11_PHY_11G;
-				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+				phdr.phy_info.info_11g.has_mode = TRUE;
 				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_SUPER_G;
 				if (have_rflags) {
-					phdr.phy_info.info_11g.presence_flags |= PHDR_802_11G_HAS_SHORT_PREAMBLE;
+					phdr.phy_info.info_11g.has_short_preamble = TRUE;
 					phdr.phy_info.info_11g.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
 				}
 				break;
@@ -1046,10 +1045,9 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			 * FHSS.
 			 */
 			phdr.phy = PHDR_802_11_PHY_11_FHSS;
-			phdr.phy_info.info_11_fhss.presence_flags =
-			    PHDR_802_11_FHSS_HAS_HOP_SET |
-			    PHDR_802_11_FHSS_HAS_HOP_PATTERN;
+			phdr.phy_info.info_11_fhss.has_hop_set = TRUE;
 			phdr.phy_info.info_11_fhss.hop_set = tvb_get_guint8(tvb, offset);
+			phdr.phy_info.info_11_fhss.has_hop_pattern = TRUE;
 			phdr.phy_info.info_11_fhss.hop_pattern = tvb_get_guint8(tvb, offset + 1);
 			proto_tree_add_item(radiotap_tree,
 					    hf_radiotap_fhss_hopset, tvb,
@@ -1061,7 +1059,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 
 		case IEEE80211_RADIOTAP_DBM_ANTSIGNAL:
 			dbm = (gint8)tvb_get_guint8(tvb, offset);
-			phdr.presence_flags |= PHDR_802_11_HAS_SIGNAL_DBM;
+			phdr.has_signal_dbm = TRUE;
 			phdr.signal_dbm = dbm;
 			col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm);
 			proto_tree_add_int_format_value(radiotap_tree,
@@ -1074,7 +1072,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 
 		case IEEE80211_RADIOTAP_DBM_ANTNOISE:
 			dbm = (gint8) tvb_get_guint8(tvb, offset);
-			phdr.presence_flags |= PHDR_802_11_HAS_NOISE_DBM;
+			phdr.has_noise_dbm = TRUE;
 			phdr.noise_dbm = dbm;
 			if (tree) {
 				proto_tree_add_int_format_value(radiotap_tree,
@@ -1181,7 +1179,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 				 */
 				if (phdr.phy != PHDR_802_11_PHY_11_FHSS) {
 					phdr.phy = PHDR_802_11_PHY_11_FHSS;
-					phdr.phy_info.info_11_fhss.presence_flags = 0;
 				}
 				break;
 
@@ -1191,59 +1188,58 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 
 			case IEEE80211_CHAN_A:
 				phdr.phy = PHDR_802_11_PHY_11A;
-				phdr.phy_info.info_11a.presence_flags = PHDR_802_11A_HAS_TURBO_TYPE;
+				phdr.phy_info.info_11a.has_turbo_type = TRUE;
 				phdr.phy_info.info_11a.turbo_type = PHDR_802_11A_TURBO_TYPE_NORMAL;
 				break;
 
 			case IEEE80211_CHAN_B:
 				phdr.phy = PHDR_802_11_PHY_11B;
-				phdr.phy_info.info_11b.presence_flags = 0;
 				if (have_rflags) {
-					phdr.phy_info.info_11b.presence_flags |= PHDR_802_11B_HAS_SHORT_PREAMBLE;
+					phdr.phy_info.info_11b.has_short_preamble = TRUE;
 					phdr.phy_info.info_11b.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
 				}
 				break;
 
 			case IEEE80211_CHAN_PUREG:
 				phdr.phy = PHDR_802_11_PHY_11G;
-				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+				phdr.phy_info.info_11g.has_mode = TRUE;
 				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
 				if (have_rflags) {
-					phdr.phy_info.info_11g.presence_flags |= PHDR_802_11G_HAS_SHORT_PREAMBLE;
+					phdr.phy_info.info_11g.has_short_preamble = TRUE;
 					phdr.phy_info.info_11g.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
 				}
 				break;
 
 			case IEEE80211_CHAN_G:
 				phdr.phy = PHDR_802_11_PHY_11G;
-				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+				phdr.phy_info.info_11g.has_mode = TRUE;
 				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
 				if (have_rflags) {
-					phdr.phy_info.info_11g.presence_flags |= PHDR_802_11G_HAS_SHORT_PREAMBLE;
+					phdr.phy_info.info_11g.has_short_preamble = TRUE;
 					phdr.phy_info.info_11g.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
 				}
 				break;
 
 			case IEEE80211_CHAN_108A:
 				phdr.phy = PHDR_802_11_PHY_11A;
-				phdr.phy_info.info_11a.presence_flags = PHDR_802_11A_HAS_TURBO_TYPE;
+				phdr.phy_info.info_11a.has_turbo_type = TRUE;
 				/* We assume non-STURBO is dynamic turbo */
 				phdr.phy_info.info_11a.turbo_type = PHDR_802_11A_TURBO_TYPE_DYNAMIC_TURBO;
 				break;
 
 			case IEEE80211_CHAN_108PUREG:
 				phdr.phy = PHDR_802_11_PHY_11G;
-				phdr.phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+				phdr.phy_info.info_11g.has_mode = TRUE;
 				phdr.phy_info.info_11g.mode = PHDR_802_11G_MODE_SUPER_G;
 				if (have_rflags) {
-					phdr.phy_info.info_11g.presence_flags |= PHDR_802_11G_HAS_SHORT_PREAMBLE;
+					phdr.phy_info.info_11g.has_short_preamble = TRUE;
 					phdr.phy_info.info_11g.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
 				}
 				break;
 
 			case IEEE80211_CHAN_ST:
 				phdr.phy = PHDR_802_11_PHY_11A;
-				phdr.phy_info.info_11a.presence_flags = PHDR_802_11A_HAS_TURBO_TYPE;
+				phdr.phy_info.info_11a.has_turbo_type = TRUE;
 				phdr.phy_info.info_11a.turbo_type = PHDR_802_11A_TURBO_TYPE_STATIC_TURBO;
 				break;
 
@@ -1254,7 +1250,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			case IEEE80211_CHAN_G|IEEE80211_CHAN_HT40U:
 			case IEEE80211_CHAN_G|IEEE80211_CHAN_HT40D:
 				phdr.phy = PHDR_802_11_PHY_11N;
-				phdr.phy_info.info_11n.presence_flags = 0;
 
 				/*
 				 * This doesn't supply "short GI" information,
@@ -1264,7 +1259,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 				 * the radiotap.org page for that field.
 				 */
 				if (have_rflags) {
-					phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_SHORT_GI;
+					phdr.phy_info.info_11n.has_short_gi = TRUE;
 					if (rflags & 0x80)
 						phdr.phy_info.info_11n.short_gi = 1;
 					else
@@ -1278,10 +1273,10 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 				 * XXX - some captures have 0, which is
 				 * obviously bogus.
 				 */
-				phdr.presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+				phdr.has_frequency = TRUE;
 				phdr.frequency = freq;
 			}
-			phdr.presence_flags |= PHDR_802_11_HAS_CHANNEL;
+			phdr.has_channel = TRUE;
 			phdr.channel = tvb_get_guint8(tvb, offset + 6);
 			if (tree) {
 				static const int * xchannel_flags[] = {
@@ -1344,45 +1339,45 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			 */
 			if (mcs_known != 0) {
 				phdr.phy = PHDR_802_11_PHY_11N;
-				phdr.phy_info.info_11n.presence_flags = 0;
+				memset(&phdr.phy_info.info_11n, 0, sizeof(phdr.phy_info.info_11n));
 			}
 
 			mcs_flags = tvb_get_guint8(tvb, offset + 1);
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_MCS) {
 				mcs = tvb_get_guint8(tvb, offset + 2);
-				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_MCS_INDEX;
+				phdr.phy_info.info_11n.has_mcs_index = TRUE;
 				phdr.phy_info.info_11n.mcs_index = mcs;
 			} else {
 				mcs = 0;
 				can_calculate_rate = FALSE;	/* no MCS index */
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_BW) {
-				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_BANDWIDTH;
+				phdr.phy_info.info_11n.has_bandwidth = TRUE;
 				phdr.phy_info.info_11n.bandwidth = (mcs_flags & IEEE80211_RADIOTAP_MCS_BW_MASK);
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_GI) {
 				gi_length = (mcs_flags & IEEE80211_RADIOTAP_MCS_SGI) ?
 				    1 : 0;
-				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_SHORT_GI;
+				phdr.phy_info.info_11n.has_short_gi = TRUE;
 				phdr.phy_info.info_11n.short_gi = (gi_length == 0);
 			} else {
 				gi_length = 0;
 				can_calculate_rate = FALSE;	/* no GI width */
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_FMT) {
-				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_GREENFIELD;
+				phdr.phy_info.info_11n.has_greenfield = TRUE;
 				phdr.phy_info.info_11n.greenfield = (mcs_flags & IEEE80211_RADIOTAP_MCS_FMT_GF) != 0;
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_FEC) {
-				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_FEC;
+				phdr.phy_info.info_11n.has_fec = TRUE;
 				phdr.phy_info.info_11n.fec = (mcs_flags & IEEE80211_RADIOTAP_MCS_FEC_LDPC) ? 1 : 0;
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_STBC) {
-				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_STBC_STREAMS;
+				phdr.phy_info.info_11n.has_stbc_streams = TRUE;
 				phdr.phy_info.info_11n.stbc_streams = (mcs_flags & IEEE80211_RADIOTAP_MCS_STBC_MASK) >> IEEE80211_RADIOTAP_MCS_STBC_SHIFT;
 			}
 			if (mcs_known & IEEE80211_RADIOTAP_MCS_HAVE_NESS) {
-				phdr.phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_NESS;
+				phdr.phy_info.info_11n.has_ness = TRUE;
 				/* This is stored a bit weirdly */
 				phdr.phy_info.info_11n.ness =
 				    ((mcs_known & IEEE80211_RADIOTAP_MCS_NESS_BIT1) >> 6) |
@@ -1542,7 +1537,6 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			 */
 			if (known != 0) {
 				phdr.phy = PHDR_802_11_PHY_11AC;
-				phdr.phy_info.info_11ac.presence_flags = 0;
 			}
 			vht_flags = tvb_get_guint8(tvb, offset + 2);
 			if (tree) {
@@ -1574,7 +1568,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			}
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_STBC) {
-				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_STBC;
+				phdr.phy_info.info_11ac.has_stbc = TRUE;
 				phdr.phy_info.info_11ac.stbc = (vht_flags & IEEE80211_RADIOTAP_VHT_STBC) != 0;
 				if (vht_tree)
 					proto_tree_add_item(vht_tree, hf_radiotap_vht_stbc,
@@ -1582,7 +1576,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			}
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_TXOP_PS) {
-				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_TXOP_PS_NOT_ALLOWED;
+				phdr.phy_info.info_11ac.has_txop_ps_not_allowed = TRUE;
 				phdr.phy_info.info_11ac.txop_ps_not_allowed = (vht_flags & IEEE80211_RADIOTAP_VHT_TXOP_PS) != 0;
 				if (vht_tree)
 					proto_tree_add_item(vht_tree, hf_radiotap_vht_txop_ps,
@@ -1591,7 +1585,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_GI) {
 				gi_length = (vht_flags & IEEE80211_RADIOTAP_VHT_SGI) ? 1 : 0;
-				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_SHORT_GI;
+				phdr.phy_info.info_11ac.has_short_gi = TRUE;
 				phdr.phy_info.info_11ac.short_gi = gi_length;
 				if (vht_tree) {
 					proto_tree_add_item(vht_tree, hf_radiotap_vht_gi,
@@ -1602,7 +1596,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			}
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_SGI_NSYM_DA) {
-				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_SHORT_GI_NSYM_DISAMBIG;
+				phdr.phy_info.info_11ac.has_short_gi_nsym_disambig = TRUE;
 				phdr.phy_info.info_11ac.short_gi_nsym_disambig = (vht_flags & IEEE80211_RADIOTAP_VHT_SGI_NSYM_DA) != 0;
 				if (vht_tree) {
 					it = proto_tree_add_item(vht_tree, hf_radiotap_vht_sgi_nsym_da,
@@ -1615,7 +1609,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			}
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_LDPC_EXTRA) {
-				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_LDPC_EXTRA_OFDM_SYMBOL;
+				phdr.phy_info.info_11ac.has_ldpc_extra_ofdm_symbol = TRUE;
 				phdr.phy_info.info_11ac.ldpc_extra_ofdm_symbol = (vht_flags & IEEE80211_RADIOTAP_VHT_LDPC_EXTRA) != 0;
 				if (vht_tree) {
 					proto_tree_add_item(vht_tree, hf_radiotap_vht_ldpc_extra,
@@ -1624,7 +1618,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			}
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_BF) {
-				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_BEAMFORMED;
+				phdr.phy_info.info_11ac.has_beamformed = TRUE;
 				phdr.phy_info.info_11ac.beamformed = (vht_flags & IEEE80211_RADIOTAP_VHT_BF) != 0;
 				if (vht_tree)
 					proto_tree_add_item(vht_tree, hf_radiotap_vht_bf,
@@ -1633,7 +1627,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_BW) {
 				bw = tvb_get_guint8(tvb, offset + 3) & IEEE80211_RADIOTAP_VHT_BW_MASK;
-				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_BANDWIDTH;
+				phdr.phy_info.info_11ac.has_bandwidth = TRUE;
 				phdr.phy_info.info_11ac.bandwidth = bw;
 				if (bw < sizeof(ieee80211_vht_bw2rate_index)/sizeof(ieee80211_vht_bw2rate_index[0]))
 					bandwidth = ieee80211_vht_bw2rate_index[bw];
@@ -1662,9 +1656,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 					 */
 					if (phdr.phy != PHDR_802_11_PHY_11AC) {
 						phdr.phy = PHDR_802_11_PHY_11AC;
-						phdr.phy_info.info_11ac.presence_flags = 0;
 					}
-					phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_FEC;
+					phdr.phy_info.info_11ac.has_fec = TRUE;
 					if (vht_tree) {
 						it = proto_tree_add_item(vht_tree, hf_radiotap_vht_user,
 							tvb, offset + 4, 5, ENC_NA);
@@ -1715,7 +1708,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			phdr.phy_info.info_11ac.fec = tvb_get_guint8(tvb, offset + 8);
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_GID) {
-				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_GROUP_ID;
+				phdr.phy_info.info_11ac.has_group_id = TRUE;
 				phdr.phy_info.info_11ac.group_id = tvb_get_guint8(tvb, offset + 9);
 				if (vht_tree)
 					proto_tree_add_item(vht_tree, hf_radiotap_vht_gid,
@@ -1723,7 +1716,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			}
 
 			if (known & IEEE80211_RADIOTAP_VHT_HAVE_PAID) {
-				phdr.phy_info.info_11ac.presence_flags |= PHDR_802_11AC_HAS_PARTIAL_AID;
+				phdr.phy_info.info_11ac.has_partial_aid = TRUE;
 				phdr.phy_info.info_11ac.partial_aid = tvb_get_letohs(tvb, offset + 10);
 				if (vht_tree) {
 					proto_tree_add_item(vht_tree, hf_radiotap_vht_p_aid,

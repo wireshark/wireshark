@@ -448,14 +448,11 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 	switch (wth->file_encap) {
 
 	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
+		memset(&phdr->pseudo_header.ieee_802_11, 0, sizeof(phdr->pseudo_header.ieee_802_11));
 		phdr->pseudo_header.ieee_802_11.fcs_len = 0;		/* no FCS */
 		phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
 		phdr->pseudo_header.ieee_802_11.datapad = FALSE;
 		phdr->pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
-		phdr->pseudo_header.ieee_802_11.presence_flags =
-		    PHDR_802_11_HAS_DATA_RATE |
-		    PHDR_802_11_HAS_CHANNEL |
-		    PHDR_802_11_HAS_SIGNAL_PERCENT;
 
 		/*
 		 * Now process the radio information pseudo-header.
@@ -490,8 +487,13 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 		if (!wtap_read_bytes(fh, radio_info, RADIO_INFO_SIZE, err, err_info))
 			return -1;
 
+		phdr->pseudo_header.ieee_802_11.has_data_rate = TRUE;
 		phdr->pseudo_header.ieee_802_11.data_rate = radio_info[0];
+
+		phdr->pseudo_header.ieee_802_11.has_channel = TRUE;
 		phdr->pseudo_header.ieee_802_11.channel = radio_info[1];
+
+		phdr->pseudo_header.ieee_802_11.has_signal_percent = TRUE;
 		phdr->pseudo_header.ieee_802_11.signal_percent = radio_info[2];
 
 		/*

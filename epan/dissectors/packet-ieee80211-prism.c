@@ -311,11 +311,11 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     }
 
     /* We don't have any 802.11 metadata yet. */
+    memset(&phdr, 0, sizeof(phdr));
     phdr.fcs_len = -1;
     phdr.decrypted = FALSE;
     phdr.datapad = FALSE;
     phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-    phdr.presence_flags = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Prism");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -383,7 +383,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
               case PRISM_TYPE1_CHANNEL:
               case PRISM_TYPE2_CHANNEL:
                 channel = tvb_get_guint32(tvb, offset, byte_order);
-                phdr.presence_flags |= PHDR_802_11_HAS_CHANNEL;
+                phdr.has_channel = TRUE;
                 phdr.channel = channel;
                 if(tree){
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_channel, tvb, offset, 4, byte_order);
@@ -428,7 +428,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
               case PRISM_TYPE1_RATE:
               case PRISM_TYPE2_RATE:
                 rate = tvb_get_guint32(tvb, offset, byte_order);
-                phdr.presence_flags |= PHDR_802_11_HAS_DATA_RATE;
+                phdr.has_data_rate = TRUE;
                 phdr.data_rate = rate;
                 if(tree){
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_rate, tvb, offset, 4, byte_order);

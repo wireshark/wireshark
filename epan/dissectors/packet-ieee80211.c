@@ -16515,7 +16515,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
   guint16          meshoff     = 0;
   static wlan_hdr_t whdrs[4];
   gboolean         retransmitted;
-  gboolean         isDMG = (phdr->presence_flags & PHDR_802_11_HAS_FREQUENCY ?
+  gboolean         isDMG = (phdr->has_frequency ?
                                 IS_80211AD(phdr->frequency) :
                                 FALSE);
 
@@ -18357,11 +18357,11 @@ dissect_ieee80211 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
      * Fake a pseudo-header.
      * XXX - what are we supposed to do if the FCS length is unknown?
      */
+    memset(&ourphdr, 0, sizeof(ourphdr));
     ourphdr.fcs_len = -1;
     ourphdr.decrypted = FALSE;
     ourphdr.datapad = FALSE;
     ourphdr.phy = PHDR_802_11_PHY_UNKNOWN;
-    ourphdr.presence_flags = 0;
     phdr = &ourphdr;
   }
   return dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, phdr);
@@ -18377,11 +18377,11 @@ dissect_ieee80211_withfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   struct ieee_802_11_phdr phdr;
 
   /* Construct a pseudo-header to hand to the common code. */
+  memset(&phdr, 0, sizeof(phdr));
   phdr.fcs_len = 4;
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-  phdr.presence_flags = 0;
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, &phdr);
   return tvb_captured_length(tvb);
 }
@@ -18396,11 +18396,10 @@ dissect_ieee80211_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   struct ieee_802_11_phdr phdr;
 
   /* Construct a pseudo-header to hand to the common code. */
-  phdr.fcs_len = 0;
+  memset(&phdr, 0, sizeof(phdr));
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-  phdr.presence_flags = 0;
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, &phdr);
   return tvb_captured_length(tvb);
 }
@@ -18442,11 +18441,10 @@ dissect_ieee80211_centrino(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   struct ieee_802_11_phdr phdr;
 
   /* Construct a pseudo-header to hand to the common code. */
-  phdr.fcs_len = 0;
+  memset(&phdr, 0, sizeof(phdr));
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-  phdr.presence_flags = 0;
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE, &phdr);
   return tvb_captured_length(tvb);
 }
@@ -18462,11 +18460,10 @@ dissect_ieee80211_bsfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   struct ieee_802_11_phdr phdr;
 
   /* Construct a pseudo-header to hand to the common code. */
-  phdr.fcs_len = 0;
+  memset(&phdr, 0, sizeof(phdr));
   phdr.decrypted = FALSE;
   phdr.datapad = FALSE;
   phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-  phdr.presence_flags = 0;
   dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE, &phdr);
   return tvb_captured_length(tvb);
 }

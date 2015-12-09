@@ -477,7 +477,7 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
     tsft_raw = tvb_get_letoh64(tvb, offset);
     if (tsft_raw != 0) {
-        phdr->presence_flags |= PHDR_802_11_HAS_TSF_TIMESTAMP;
+        phdr->has_tsf_timestamp = TRUE;
         if (common_flags & DOT11_FLAG_TSF_TIMER_MS)
             phdr->tsf_timestamp = tsft_raw * 1000;
         else
@@ -496,7 +496,7 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
     rate_raw = tvb_get_letohs(tvb, ptvcursor_current_offset(csr));
     if (rate_raw != 0) {
-        phdr->presence_flags |= PHDR_802_11_HAS_DATA_RATE;
+        phdr->has_data_rate = TRUE;
         phdr->data_rate = rate_raw;
     }
     rate_kbps = rate_raw * 500;
@@ -512,11 +512,11 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     if (common_frequency != 0) {
         gint calc_channel;
 
-        phdr->presence_flags |= PHDR_802_11_HAS_FREQUENCY;
+        phdr->has_frequency = TRUE;
         phdr->frequency = common_frequency;
         calc_channel = ieee80211_mhz_to_chan(common_frequency);
         if (calc_channel != -1) {
-            phdr->presence_flags |= PHDR_802_11_HAS_CHANNEL;
+            phdr->has_channel = TRUE;
             phdr->channel = calc_channel;
         }
     }
@@ -527,14 +527,12 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     g_free(chan_str);
     ptvcursor_advance(csr, 2);
 
+    memset(&phdr->phy_info, 0, sizeof(phdr->phy_info));
     chan_flags = tvb_get_letohs(ptvcursor_tvbuff(csr), ptvcursor_current_offset(csr));
     switch (chan_flags & IEEE80211_CHAN_ALLTURBO) {
 
     case IEEE80211_CHAN_FHSS:
         phdr->phy = PHDR_802_11_PHY_11_FHSS;
-        phdr->phy_info.info_11_fhss.presence_flags =
-            PHDR_802_11_FHSS_HAS_HOP_SET |
-            PHDR_802_11_FHSS_HAS_HOP_PATTERN;
         break;
 
     case IEEE80211_CHAN_DSSS:
@@ -543,37 +541,36 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
     case IEEE80211_CHAN_A:
         phdr->phy = PHDR_802_11_PHY_11A;
-        phdr->phy_info.info_11a.presence_flags = PHDR_802_11A_HAS_TURBO_TYPE;
+        phdr->phy_info.info_11a.has_turbo_type = TRUE;
         phdr->phy_info.info_11a.turbo_type = PHDR_802_11A_TURBO_TYPE_NORMAL;
         break;
 
     case IEEE80211_CHAN_B:
         phdr->phy = PHDR_802_11_PHY_11B;
-        phdr->phy_info.info_11b.presence_flags = 0;
         break;
 
     case IEEE80211_CHAN_PUREG:
         phdr->phy = PHDR_802_11_PHY_11G;
-        phdr->phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+        phdr->phy_info.info_11g.has_mode = TRUE;
         phdr->phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
         break;
 
     case IEEE80211_CHAN_G:
         phdr->phy = PHDR_802_11_PHY_11G;
-        phdr->phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+        phdr->phy_info.info_11g.has_mode = TRUE;
         phdr->phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
         break;
 
     case IEEE80211_CHAN_108A:
         phdr->phy = PHDR_802_11_PHY_11A;
-        phdr->phy_info.info_11a.presence_flags = PHDR_802_11A_HAS_TURBO_TYPE;
+        phdr->phy_info.info_11a.has_turbo_type = TRUE;
         /* We assume non-STURBO is dynamic turbo */
         phdr->phy_info.info_11a.turbo_type = PHDR_802_11A_TURBO_TYPE_DYNAMIC_TURBO;
         break;
 
     case IEEE80211_CHAN_108PUREG:
         phdr->phy = PHDR_802_11_PHY_11G;
-        phdr->phy_info.info_11g.presence_flags = PHDR_802_11G_HAS_MODE;
+        phdr->phy_info.info_11g.has_mode = TRUE;
         phdr->phy_info.info_11g.mode = PHDR_802_11G_MODE_SUPER_G;
         break;
     }
@@ -590,11 +587,15 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     ptvcursor_pop_subtree(csr);
 
 
-    if (phdr->phy == PHDR_802_11_PHY_11_FHSS)
+    if (phdr->phy == PHDR_802_11_PHY_11_FHSS) {
+        phdr->phy_info.info_11_fhss.has_hop_set = TRUE;
         phdr->phy_info.info_11_fhss.hop_set = tvb_get_guint8(ptvcursor_tvbuff(csr), ptvcursor_current_offset(csr));
+    }
     ptvcursor_add(csr, hf_80211_common_fhss_hopset, 1, ENC_LITTLE_ENDIAN);
-    if (phdr->phy == PHDR_802_11_PHY_11_FHSS)
+    if (phdr->phy == PHDR_802_11_PHY_11_FHSS) {
+        phdr->phy_info.info_11_fhss.has_hop_pattern = TRUE;
         phdr->phy_info.info_11_fhss.hop_pattern = tvb_get_guint8(ptvcursor_tvbuff(csr), ptvcursor_current_offset(csr));
+    }
     ptvcursor_add(csr, hf_80211_common_fhss_pattern, 1, ENC_LITTLE_ENDIAN);
 
     dbm_value = (gint8) tvb_get_guint8(tvb, ptvcursor_current_offset(csr));
@@ -606,7 +607,7 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
          * used for "don't have it", so we check for it as well.
          */
         col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", dbm_value);
-        phdr->presence_flags |= PHDR_802_11_HAS_SIGNAL_DBM;
+        phdr->has_signal_dbm = TRUE;
         phdr->signal_dbm = dbm_value;
     }
     ptvcursor_add_invalid_check(csr, hf_80211_common_dbm_antsignal, 1, 0x80); /* -128 */
@@ -619,7 +620,7 @@ dissect_80211_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
          * have 0, presumably meaning it's incorrectly being used for
          * "don't have it", so we check for it as well.
          */
-        phdr->presence_flags |= PHDR_802_11_HAS_NOISE_DBM;
+        phdr->has_noise_dbm = TRUE;
         phdr->noise_dbm = dbm_value;
     }
     ptvcursor_add_invalid_check(csr, hf_80211_common_dbm_antnoise, 1, 0x80);
@@ -654,7 +655,8 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
     csr = ptvcursor_new(ftree, tvb, offset);
 
     flags = tvb_get_letohl(tvb, ptvcursor_current_offset(csr));
-    phdr->phy_info.info_11n.presence_flags = PHDR_802_11N_HAS_SHORT_GI|PHDR_802_11N_HAS_GREENFIELD;
+    phdr->phy_info.info_11n.has_short_gi = TRUE;
+    phdr->phy_info.info_11n.has_greenfield = TRUE;
     phdr->phy_info.info_11n.short_gi = ((flags & DOT11N_FLAG_SHORT_GI) != 0);
     phdr->phy_info.info_11n.greenfield = ((flags & DOT11N_FLAG_GREENFIELD) != 0);
     ptvcursor_add_with_subtree(csr, hf_80211n_mac_flags, 4, ENC_LITTLE_ENDIAN,
@@ -706,13 +708,13 @@ dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
     mcs = tvb_get_guint8(tvb, ptvcursor_current_offset(csr));
     if (mcs != 255) {
-        phdr->phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_MCS_INDEX;
+        phdr->phy_info.info_11n.has_mcs_index = TRUE;
         phdr->phy_info.info_11n.mcs_index = mcs;
     }
     ptvcursor_add_invalid_check(csr, hf_80211n_mac_phy_mcs, 1, 255);
 
     ness = tvb_get_guint8(tvb, ptvcursor_current_offset(csr));
-    phdr->phy_info.info_11n.presence_flags |= PHDR_802_11N_HAS_NESS;
+    phdr->phy_info.info_11n.has_ness = TRUE;
     phdr->phy_info.info_11n.ness = ness;
     ti = ptvcursor_add(csr, hf_80211n_mac_phy_num_streams, 1, ENC_LITTLE_ENDIAN);
     if (tvb_get_guint8(tvb, ptvcursor_current_offset(csr) - 1) == 0)
@@ -886,7 +888,6 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     phdr.decrypted = FALSE;
     phdr.datapad = FALSE;
     phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-    phdr.presence_flags = 0;
 
     while (tot_len > 0) {
         data_type = tvb_get_letohs(tvb, offset);

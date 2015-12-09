@@ -285,13 +285,11 @@ dissect_aruba_erm_type3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     offset = dissect_aruba_erm_pcap(tvb, pinfo, aruba_erm_tree, offset);
 
+    memset(&phdr, 0, sizeof(phdr));
     phdr.decrypted = FALSE;
     phdr.datapad = FALSE;
     phdr.phy = PHDR_802_11_PHY_UNKNOWN;
-    phdr.presence_flags =
-        PHDR_802_11_HAS_DATA_RATE|
-        PHDR_802_11_HAS_CHANNEL|
-        PHDR_802_11_HAS_SIGNAL_PERCENT;
+    phdr.has_data_rate = TRUE;
     data_rate = tvb_get_ntohs(tvb, offset);
     phdr.data_rate = data_rate;
     proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_data_rate, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -304,10 +302,12 @@ dissect_aruba_erm_type3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     offset += 2;
 
     proto_tree_add_item_ret_uint(aruba_erm_tree, hf_aruba_erm_channel, tvb, offset, 1, ENC_BIG_ENDIAN, &channel);
+    phdr.has_channel = TRUE;
     phdr.channel = channel;
     offset += 1;
 
     proto_tree_add_item_ret_uint(aruba_erm_tree, hf_aruba_erm_signal_strength, tvb, offset, 1, ENC_BIG_ENDIAN, &signal_strength);
+    phdr.has_signal_percent = TRUE;
     phdr.signal_percent = signal_strength;
     offset += 1;
 
