@@ -395,7 +395,7 @@ proto_register_ethertype(void)
 	/* This isn't a real protocol, so you can't disable its dissection. */
 	proto_set_cant_toggle(proto_ethertype);
 
-	new_register_dissector("ethertype", dissect_ethertype, proto_ethertype);
+	register_dissector("ethertype", dissect_ethertype, proto_ethertype);
 
 	/* subdissector code */
 	ethertype_dissector_table = register_dissector_table("ethertype",

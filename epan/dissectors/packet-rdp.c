@@ -2921,7 +2921,7 @@ proto_register_rdp(void) {
   proto_register_field_array(proto_rdp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  /*   new_register_dissector("rdp", dissect_rdp, proto_rdp); */
+  /*   register_dissector("rdp", dissect_rdp, proto_rdp); */
 
   /* Register our configuration options for RDP, particularly our port */
 

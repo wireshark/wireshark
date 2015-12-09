@@ -282,7 +282,7 @@ void proto_register_redbackli(void) {
 	proto_register_field_array(proto_redbackli, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("redbackli", redbackli_dissect, proto_redbackli);
+	register_dissector("redbackli", redbackli_dissect, proto_redbackli);
 }
 
 void proto_reg_handoff_redbackli(void) {

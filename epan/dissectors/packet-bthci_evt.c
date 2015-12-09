@@ -6127,7 +6127,7 @@ proto_register_bthci_evt(void)
     /* Register the protocol name and description */
     proto_bthci_evt = proto_register_protocol("Bluetooth HCI Event",
             "HCI_EVT", "bthci_evt");
-    bthci_evt_handle = new_register_dissector("bthci_evt", dissect_bthci_evt, proto_bthci_evt);
+    bthci_evt_handle = register_dissector("bthci_evt", dissect_bthci_evt, proto_bthci_evt);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bthci_evt, hf, array_length(hf));

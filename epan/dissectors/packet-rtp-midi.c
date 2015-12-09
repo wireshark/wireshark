@@ -10029,7 +10029,7 @@ proto_register_rtp_midi( void )
 
 	rtp_midi_module = prefs_register_protocol ( proto_rtp_midi, proto_reg_handoff_rtp_midi );
 	prefs_register_uint_preference ( rtp_midi_module, "midi_payload_type_value", "Payload Type for RFC 4695/6295 RTP-MIDI", "This is the value of the Payload Type field that specifies RTP-MIDI", 10, &rtp_midi_payload_type_value );
-	new_register_dissector( RTP_MIDI_DISSECTOR_ABBREVIATION, dissect_rtp_midi, proto_rtp_midi );
+	register_dissector( RTP_MIDI_DISSECTOR_ABBREVIATION, dissect_rtp_midi, proto_rtp_midi );
 }
 
 

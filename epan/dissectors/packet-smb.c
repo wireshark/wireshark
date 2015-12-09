@@ -20536,7 +20536,7 @@ proto_register_smb(void)
 	/* Register the tap for the "Export Object" function */
 	smb_eo_tap = register_tap("smb_eo"); /* SMB Export Object tap */
 
-	new_register_dissector("smb", dissect_smb, proto_smb);
+	register_dissector("smb", dissect_smb, proto_smb);
 
 	register_srt_table(proto_smb, NULL, 3, smbstat_packet, smbstat_init, NULL);
 }

@@ -1107,9 +1107,9 @@ proto_register_smb_browse(void)
 	proto_register_field_array(proto_smb_browse, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("mailslot_browse", dissect_mailslot_browse,
+	register_dissector("mailslot_browse", dissect_mailslot_browse,
 	    proto_smb_browse);
-	new_register_dissector("mailslot_lanman", dissect_mailslot_lanman,
+	register_dissector("mailslot_lanman", dissect_mailslot_lanman,
 	    proto_smb_browse);
 }
 

@@ -834,7 +834,7 @@ void proto_register_tpncp(void) {
         proto_register_subtree_array(ett, array_length(ett));
     }
 
-    tpncp_handle = new_register_dissector("tpncp", dissect_tpncp, proto_tpncp);
+    tpncp_handle = register_dissector("tpncp", dissect_tpncp, proto_tpncp);
 
     tpncp_module = prefs_register_protocol(proto_tpncp, proto_reg_handoff_tpncp);
 

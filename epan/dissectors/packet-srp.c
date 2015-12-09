@@ -186,7 +186,7 @@ void proto_register_ccsrl (void)
     proto_ccsrl = proto_register_protocol ("H.324/CCSRL", "CCSRL", "ccsrl");
     proto_register_field_array (proto_ccsrl, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
-    new_register_dissector("ccsrl", dissect_ccsrl, proto_ccsrl);
+    register_dissector("ccsrl", dissect_ccsrl, proto_ccsrl);
 }
 
 void proto_register_srp (void)
@@ -213,7 +213,7 @@ void proto_register_srp (void)
     proto_srp = proto_register_protocol ("H.324/SRP", "SRP", "srp");
     proto_register_field_array (proto_srp, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
-    new_register_dissector("srp", dissect_srp, proto_srp);
+    register_dissector("srp", dissect_srp, proto_srp);
 
     /* register our init routine to be called at the start of a capture,
        to clear out our hash tables etc */

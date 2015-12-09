@@ -438,7 +438,7 @@ void proto_register_ecp_oui(void)
 	proto_register_field_array(proto_ecp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("ecp", dissect_ecp, proto_ecp);
+	register_dissector("ecp", dissect_ecp, proto_ecp);
 }
 
 void proto_reg_handoff_ecp(void)

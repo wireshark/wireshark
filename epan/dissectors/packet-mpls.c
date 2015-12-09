@@ -606,7 +606,7 @@ proto_register_mpls(void)
     expert_mpls = expert_register_protocol(proto_mpls);
     expert_register_field_array(expert_mpls, ei, array_length(ei));
 
-    new_register_dissector("mpls", dissect_mpls, proto_mpls);
+    register_dissector("mpls", dissect_mpls, proto_mpls);
 
     pw_ach_subdissector_table  = register_dissector_table("pwach.channel_type", "PW Associated Channel Type", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 

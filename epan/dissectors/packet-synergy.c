@@ -562,7 +562,7 @@ proto_register_synergy(void)
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_synergy, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    new_register_dissector("synergy", dissect_synergy, proto_synergy);
+    register_dissector("synergy", dissect_synergy, proto_synergy);
 }
 
 void

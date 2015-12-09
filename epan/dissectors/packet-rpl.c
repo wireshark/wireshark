@@ -402,7 +402,7 @@ proto_register_rpl(void)
 	    "RPL", "rpl");
 	proto_register_field_array(proto_rpl, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	new_register_dissector("rpl", dissect_rpl, proto_rpl);
+	register_dissector("rpl", dissect_rpl, proto_rpl);
 }
 
 void

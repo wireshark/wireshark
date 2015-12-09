@@ -27068,10 +27068,10 @@ proto_register_ieee80211 (void)
   expert_ieee80211 = expert_register_protocol(proto_wlan);
   expert_register_field_array(expert_ieee80211, ei, array_length(ei));
 
-  new_register_dissector("wlan",                dissect_ieee80211,                    proto_wlan);
-  new_register_dissector("wlan_withfcs",            dissect_ieee80211_withfcs,            proto_wlan);
-  new_register_dissector("wlan_withoutfcs",         dissect_ieee80211_withoutfcs,         proto_wlan);
-  new_register_dissector("wlan_bsfc",               dissect_ieee80211_bsfc,               proto_wlan);
+  register_dissector("wlan",                dissect_ieee80211,                    proto_wlan);
+  register_dissector("wlan_withfcs",            dissect_ieee80211_withfcs,            proto_wlan);
+  register_dissector("wlan_withoutfcs",         dissect_ieee80211_withoutfcs,         proto_wlan);
+  register_dissector("wlan_bsfc",               dissect_ieee80211_bsfc,               proto_wlan);
 
   register_init_routine(wlan_defragment_init);
   register_cleanup_routine(wlan_defragment_cleanup);

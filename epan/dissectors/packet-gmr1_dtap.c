@@ -173,7 +173,7 @@ proto_register_gmr1_dtap(void)
 	proto_register_field_array(proto_gmr1_dtap, hf, array_length(hf));
 
 	/* Register dissector */
-	new_register_dissector("gmr1_dtap", dissect_gmr1_dtap, proto_gmr1_dtap);
+	register_dissector("gmr1_dtap", dissect_gmr1_dtap, proto_gmr1_dtap);
 }
 
 void

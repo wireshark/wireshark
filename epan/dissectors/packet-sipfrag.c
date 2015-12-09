@@ -115,7 +115,7 @@ void proto_register_sipfrag(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Allow other dissectors to find this one by name. */
-    new_register_dissector("sipfrag", dissect_sipfrag, proto_sipfrag);
+    register_dissector("sipfrag", dissect_sipfrag, proto_sipfrag);
 }
 
 void proto_reg_handoff_sipfrag(void)

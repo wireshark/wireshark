@@ -434,7 +434,7 @@ void proto_register_thrift(void) {
     proto_register_subtree_array(ett, array_length(ett));
 
     /* register dissector */
-    /*new_register_dissector("thrift", dissect_thrift, proto_thrift); */
+    /*register_dissector("thrift", dissect_thrift, proto_thrift); */
 }
 
 void proto_reg_handoff_thrift(void) {

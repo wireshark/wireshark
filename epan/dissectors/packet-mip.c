@@ -1462,7 +1462,7 @@ void proto_register_mip(void)
   proto_mip = proto_register_protocol("Mobile IP", "Mobile IP", "mip");
 
   /* Register the dissector by name */
-  new_register_dissector("mip", dissect_mip, proto_mip);
+  register_dissector("mip", dissect_mip, proto_mip);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_mip, hf, array_length(hf));

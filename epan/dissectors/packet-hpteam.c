@@ -128,7 +128,7 @@ void proto_register_hpteam(void)
 	llc_add_oui(OUI_HP_2, "llc.hpteam_pid", "LLC Hewlett Packard OUI PID", &hf_pid);
 	proto_register_field_array(proto_hpteam, hf_data, array_length(hf_data));
 	proto_register_subtree_array(ett, array_length(ett));
-	new_register_dissector("hpteam", dissect_hpteam, proto_hpteam);
+	register_dissector("hpteam", dissect_hpteam, proto_hpteam);
 }
 
 void proto_reg_handoff_hpteam(void)

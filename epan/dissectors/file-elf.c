@@ -2467,7 +2467,7 @@ proto_register_elf(void)
     proto_register_field_array(proto_elf, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    elf_handle = new_register_dissector("elf", dissect_elf, proto_elf);
+    elf_handle = register_dissector("elf", dissect_elf, proto_elf);
 
     module = prefs_register_protocol(proto_elf, NULL);
     prefs_register_static_text_preference(module, "version",

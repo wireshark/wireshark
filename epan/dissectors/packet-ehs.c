@@ -1952,7 +1952,7 @@ proto_register_ehs(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   /* XX: Does this dissector need to be publicly registered ?? */
-  new_register_dissector ( "ehs", dissect_ehs, proto_ehs );
+  register_dissector ( "ehs", dissect_ehs, proto_ehs );
 
 }
 

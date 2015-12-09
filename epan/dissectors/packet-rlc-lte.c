@@ -3518,7 +3518,7 @@ void proto_register_rlc_lte(void)
     expert_register_field_array(expert_rlc_lte, ei, array_length(ei));
 
     /* Allow other dissectors to find this one by name. */
-    new_register_dissector("rlc-lte", dissect_rlc_lte, proto_rlc_lte);
+    register_dissector("rlc-lte", dissect_rlc_lte, proto_rlc_lte);
 
     /* Register the tap name */
     rlc_lte_tap = register_tap("rlc-lte");

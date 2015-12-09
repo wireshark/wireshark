@@ -1355,7 +1355,7 @@ proto_register_cp2179(void)
     module_t *cp2179_module;
 
     proto_cp2179 = proto_register_protocol ("CP2179 Protocol", "CP2179", "cp2179");
-    new_register_dissector("cp2179", dissect_cp2179, proto_cp2179);
+    register_dissector("cp2179", dissect_cp2179, proto_cp2179);
     proto_register_field_array(proto_cp2179, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

@@ -2513,8 +2513,8 @@ proto_register_bssap(void)
     proto_bssap = proto_register_protocol("BSSAP/BSAP", "BSSAP", "bssap");
     proto_bssap_plus = proto_register_protocol("BSSAP2", "BSSAP2", "bssap_plus");
 
-    new_register_dissector("bssap", dissect_bssap, proto_bssap);
-    new_register_dissector("bssap_plus", dissect_bssap_plus, proto_bssap_plus);
+    register_dissector("bssap", dissect_bssap, proto_bssap);
+    register_dissector("bssap_plus", dissect_bssap_plus, proto_bssap_plus);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bssap, hf, array_length(hf));

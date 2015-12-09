@@ -132,7 +132,7 @@ proto_register_rgmp(void)
     proto_register_field_array(proto_rgmp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("rgmp", dissect_rgmp, proto_rgmp);
+    register_dissector("rgmp", dissect_rgmp, proto_rgmp);
 }
 
 void

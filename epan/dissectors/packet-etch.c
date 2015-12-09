@@ -944,7 +944,7 @@ void proto_register_etch(void)
 
   proto_register_field_array(proto_etch, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  etch_handle = new_register_dissector("etch", dissect_etch, proto_etch);
+  etch_handle = register_dissector("etch", dissect_etch, proto_etch);
 
   register_init_routine(&etch_dissector_init);
 

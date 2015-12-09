@@ -1493,7 +1493,7 @@ proto_register_ppi(void)
     expert_ppi = expert_register_protocol(proto_ppi);
     expert_register_field_array(expert_ppi, ei, array_length(ei));
 
-    ppi_handle = new_register_dissector("ppi", dissect_ppi, proto_ppi);
+    ppi_handle = register_dissector("ppi", dissect_ppi, proto_ppi);
 
     register_init_routine(ampdu_reassemble_init);
     register_cleanup_routine(ampdu_reassemble_cleanup);

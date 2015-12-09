@@ -2562,7 +2562,7 @@ proto_register_q2931(void)
 	expert_q2931 = expert_register_protocol(proto_q2931);
 	expert_register_field_array(expert_q2931, ei, array_length(ei));
 
-	new_register_dissector("q2931", dissect_q2931, proto_q2931);
+	register_dissector("q2931", dissect_q2931, proto_q2931);
 }
 
 /*

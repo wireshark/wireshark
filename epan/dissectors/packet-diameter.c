@@ -2270,7 +2270,7 @@ real_proto_register_diameter(void)
 	g_ptr_array_free(build_dict.ett,TRUE);
 
 	/* Allow dissector to find be found by name. */
-	new_register_dissector("diameter", dissect_diameter, proto_diameter);
+	register_dissector("diameter", dissect_diameter, proto_diameter);
 
 	/* Register dissector table(s) to do sub dissection of AVPs (OctetStrings) */
 	diameter_dissector_table = register_dissector_table("diameter.base", "DIAMETER_BASE_AVPS", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);

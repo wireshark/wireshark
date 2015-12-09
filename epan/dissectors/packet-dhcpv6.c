@@ -2398,7 +2398,7 @@ proto_register_dhcpv6(void)
     expert_register_field_array(expert_dhcpv6_bulk_leasequery, ei_bulk_leasequery, array_length(ei_bulk_leasequery));
 
     /* Allow other dissectors to find this one by name. */
-    new_register_dissector("dhcpv6", dissect_dhcpv6_stream, proto_dhcpv6);
+    register_dissector("dhcpv6", dissect_dhcpv6_stream, proto_dhcpv6);
 
     dhcpv6_module = prefs_register_protocol(proto_dhcpv6, NULL);
     prefs_register_bool_preference(dhcpv6_module, "cablelabs_interface_id",

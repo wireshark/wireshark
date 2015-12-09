@@ -3484,11 +3484,11 @@ proto_register_sna(void)
 	    "SNA", "sna");
 	proto_register_field_array(proto_sna, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	new_register_dissector("sna", dissect_sna, proto_sna);
+	register_dissector("sna", dissect_sna, proto_sna);
 
 	proto_sna_xid = proto_register_protocol(
 	    "Systems Network Architecture XID", "SNA XID", "sna_xid");
-	new_register_dissector("sna_xid", dissect_sna_xid, proto_sna_xid);
+	register_dissector("sna_xid", dissect_sna_xid, proto_sna_xid);
 
 	sna_address_type = address_type_dissector_register("AT_SNA", "SNA Address", sna_fid_to_str_buf, sna_address_str_len, NULL, NULL, NULL, NULL);
 

@@ -204,7 +204,7 @@ proto_register_tali(void)
   proto_tali = proto_register_protocol("Transport Adapter Layer Interface v1.0, RFC 3094", "TALI", "tali");
   hfi_tali   = proto_registrar_get_nth(proto_tali);
 
-  new_register_dissector("tali", dissect_tali, proto_tali);
+  register_dissector("tali", dissect_tali, proto_tali);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_fields(proto_tali, hfi, array_length(hfi));

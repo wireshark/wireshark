@@ -413,7 +413,7 @@ proto_register_esis(void) {
   proto_register_subtree_array(ett, array_length(ett));
   expert_esis = expert_register_protocol(proto_esis);
   expert_register_field_array(expert_esis, ei, array_length(ei));
-  new_register_dissector("esis", dissect_esis, proto_esis);
+  register_dissector("esis", dissect_esis, proto_esis);
 }
 
 void

@@ -857,7 +857,7 @@ proto_register_llc(void)
 	xid_subdissector_table = register_dissector_table("llc.xid_dsap",
 	  "LLC XID SAP", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-	new_register_dissector("llc", dissect_llc, proto_llc);
+	register_dissector("llc", dissect_llc, proto_llc);
 }
 
 void
@@ -884,7 +884,7 @@ proto_register_basicxid(void)
 	proto_register_field_array(proto_basicxid, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("basicxid", dissect_basicxid, proto_basicxid);
+	register_dissector("basicxid", dissect_basicxid, proto_basicxid);
 }
 
 static void

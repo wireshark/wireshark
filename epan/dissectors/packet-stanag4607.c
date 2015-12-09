@@ -1634,7 +1634,7 @@ proto_register_stanag4607(void)
 	expert_4607 = expert_register_protocol(proto_stanag4607);
 	expert_register_field_array(expert_4607, ei, array_length(ei));
 
-	new_register_dissector("STANAG 4607", dissect_stanag4607, proto_stanag4607);
+	register_dissector("STANAG 4607", dissect_stanag4607, proto_stanag4607);
 	/* prefs_register_protocol(proto_stanag4607, proto_reg_handoff_stanag4607); */
 }
 

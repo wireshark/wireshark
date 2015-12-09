@@ -4297,8 +4297,8 @@ proto_register_rpc(void)
 		"Whether the RPC dissector should attempt to locate RPC PDU boundaries when initial fragment alignment is not known.  This may cause false positives, or slow operation.",
 		&rpc_find_fragment_start);
 
-	new_register_dissector("rpc", dissect_rpc, proto_rpc);
-	new_register_dissector("rpc-tcp", dissect_rpc_tcp, proto_rpc);
+	register_dissector("rpc", dissect_rpc, proto_rpc);
+	register_dissector("rpc-tcp", dissect_rpc_tcp, proto_rpc);
 	rpc_tap = register_tap("rpc");
 
 	register_srt_table(proto_rpc, NULL, 1, rpcstat_packet, rpcstat_init, rpcstat_param);

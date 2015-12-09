@@ -2402,7 +2402,7 @@ void proto_register_zbee_zcl(void)
 
     /* Register the ZCL dissector and subdissector list. */
     zbee_zcl_dissector_table = register_dissector_table("zbee.zcl.cluster", "ZigBee ZCL Cluster ID", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL, dissect_zbee_zcl, proto_zbee_zcl);
+    register_dissector(ZBEE_PROTOABBREV_ZCL, dissect_zbee_zcl, proto_zbee_zcl);
 } /* proto_register_zbee_zcl */
 
 /*FUNCTION:------------------------------------------------------

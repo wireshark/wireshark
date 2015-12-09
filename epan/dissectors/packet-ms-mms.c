@@ -1879,7 +1879,7 @@ void proto_register_msmms(void)
     proto_msmms = proto_register_protocol("Microsoft Media Server", "MSMMS", "msmms");
     proto_register_field_array(proto_msmms, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    new_register_dissector("msmms", dissect_msmms_pdu, proto_msmms);
+    register_dissector("msmms", dissect_msmms_pdu, proto_msmms);
 }
 
 void proto_reg_handoff_msmms_command(void)

@@ -693,7 +693,7 @@ proto_register_rmt_lct(void)
 
     /* Register the protocol name and description */
     proto_rmt_lct = proto_register_protocol("Layered Coding Transport", "RMT-LCT", "rmt-lct");
-    new_register_dissector("rmt-lct", dissect_lct, proto_rmt_lct);
+    register_dissector("rmt-lct", dissect_lct, proto_rmt_lct);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_rmt_lct, hf, array_length(hf));

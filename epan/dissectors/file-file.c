@@ -393,7 +393,7 @@ proto_register_file(void)
 	proto_file = proto_register_protocol("File", "File", "file");
 	proto_register_field_array(proto_file, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	new_register_dissector("file",dissect_file_record,proto_file);
+	register_dissector("file",dissect_file_record,proto_file);
 
 	/* You can't disable dissection of "Frame", as that would be
 	   tantamount to not doing any dissection whatsoever. */

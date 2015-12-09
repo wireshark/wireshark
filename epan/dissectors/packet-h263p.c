@@ -409,7 +409,7 @@ proto_register_h263P(void)
                        10,
                        &temp_dynamic_payload_type);
 
-    new_register_dissector("h263P", dissect_h263P, proto_h263P);
+    register_dissector("h263P", dissect_h263P, proto_h263P);
 
 }
 

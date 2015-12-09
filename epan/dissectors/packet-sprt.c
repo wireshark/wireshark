@@ -3407,7 +3407,7 @@ proto_register_sprt(void)
     expert_register_field_array(expert_sprt, ei, array_length(ei));
 
     /* register the dissector */
-    new_register_dissector("sprt", dissect_sprt, proto_sprt);
+    register_dissector("sprt", dissect_sprt, proto_sprt);
 
     sprt_module = prefs_register_protocol(proto_sprt, NULL);
 

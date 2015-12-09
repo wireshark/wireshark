@@ -200,7 +200,7 @@ proto_register_http_urlencoded(void)
 	proto_urlencoded = proto_register_protocol("HTML Form URL Encoded", "URL Encoded Form Data", "urlencoded-form");
 	hfi_urlencoded = proto_registrar_get_nth(proto_urlencoded);
 
-	form_urlencoded_handle = new_register_dissector("urlencoded-form", dissect_form_urlencoded, proto_urlencoded);
+	form_urlencoded_handle = register_dissector("urlencoded-form", dissect_form_urlencoded, proto_urlencoded);
 
 	proto_register_fields(proto_urlencoded, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));

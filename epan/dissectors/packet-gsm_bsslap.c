@@ -969,7 +969,7 @@ proto_register_gsm_bsslap(void)
     expert_gsm_bsslap = expert_register_protocol(proto_gsm_bsslap);
     expert_register_field_array(expert_gsm_bsslap, ei, array_length(ei));
 
-    new_register_dissector("gsm_bsslap", dissect_gsm_bsslap, proto_gsm_bsslap);
+    register_dissector("gsm_bsslap", dissect_gsm_bsslap, proto_gsm_bsslap);
 }
 
 /*

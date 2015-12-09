@@ -635,8 +635,8 @@ proto_register_gssapi(void)
 	expert_gssapi = expert_register_protocol(proto_gssapi);
 	expert_register_field_array(expert_gssapi, ei, array_length(ei));
 
-	new_register_dissector("gssapi", dissect_gssapi, proto_gssapi);
-	new_register_dissector("gssapi_verf", dissect_gssapi_verf, proto_gssapi);
+	register_dissector("gssapi", dissect_gssapi, proto_gssapi);
+	register_dissector("gssapi_verf", dissect_gssapi_verf, proto_gssapi);
 
 	gssapi_oids = g_hash_table_new(gssapi_oid_hash, gssapi_oid_equal);
 	register_init_routine(gssapi_reassembly_init);

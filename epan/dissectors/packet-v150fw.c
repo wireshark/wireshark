@@ -797,7 +797,7 @@ proto_register_v150fw(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* register the dissector */
-    new_register_dissector("v150fw", dissect_v150fw, proto_v150fw);
+    register_dissector("v150fw", dissect_v150fw, proto_v150fw);
 }
 
 /*

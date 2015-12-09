@@ -4531,7 +4531,7 @@ proto_register_ua3g(void)
 
     proto_register_field_array(proto_ua3g, hf, array_length(hf));
 
-    new_register_dissector("ua3g", dissect_ua3g, proto_ua3g);
+    register_dissector("ua3g", dissect_ua3g, proto_ua3g);
 
     /* Common subtree array registration */
     proto_register_subtree_array(ett, array_length(ett));

@@ -329,7 +329,7 @@ void proto_register_turbocell(void)
                                               "Turbocell Aggregate Data", "turbocell_aggregate");
     proto_register_field_array(proto_aggregate, aggregate_fields, array_length(aggregate_fields));
 
-    new_register_dissector("turbocell", dissect_turbocell, proto_turbocell);
+    register_dissector("turbocell", dissect_turbocell, proto_turbocell);
 
     proto_register_field_array(proto_turbocell, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

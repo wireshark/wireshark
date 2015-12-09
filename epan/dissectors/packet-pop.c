@@ -448,7 +448,7 @@ proto_register_pop(void)
 
 
   proto_pop = proto_register_protocol("Post Office Protocol", "POP", "pop");
-  new_register_dissector("pop", dissect_pop, proto_pop);
+  register_dissector("pop", dissect_pop, proto_pop);
   proto_register_field_array(proto_pop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_init_routine (&pop_data_reassemble_init);

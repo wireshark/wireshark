@@ -5618,7 +5618,7 @@ proto_register_dns(void)
 
   dns_tsig_dissector_table = register_dissector_table("dns.tsig.mac", "DNS TSIG MAC Dissectors", FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-  new_register_dissector("dns", dissect_dns, proto_dns);
+  register_dissector("dns", dissect_dns, proto_dns);
 
   dns_tap = register_tap("dns");
 }

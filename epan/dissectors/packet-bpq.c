@@ -138,7 +138,7 @@ proto_register_bpq(void)
 	proto_bpq = proto_register_protocol( "Amateur Radio BPQ", "BPQ", "bpq" );
 
 	/* Register the dissector */
-	new_register_dissector( "bpq", dissect_bpq, proto_bpq );
+	register_dissector( "bpq", dissect_bpq, proto_bpq );
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_bpq, hf, array_length( hf ) );

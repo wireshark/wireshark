@@ -645,7 +645,7 @@ proto_register_gsm_cbch(void)
     expert_register_field_array(expert_cbch, ei, array_length(ei));
 
     /* subdissector code */
-    new_register_dissector("gsm_cbch", dissect_cbch, proto_cbch);
+    register_dissector("gsm_cbch", dissect_cbch, proto_cbch);
     register_init_routine(cbch_defragment_init);
     register_cleanup_routine(cbch_defragment_cleanup);
 

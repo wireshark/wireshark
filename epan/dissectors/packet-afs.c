@@ -3634,7 +3634,7 @@ proto_register_afs(void)
 	register_init_routine(&afs_init_protocol);
 	register_cleanup_routine(&afs_cleanup_protocol);
 
-	new_register_dissector("afs", dissect_afs, proto_afs);
+	register_dissector("afs", dissect_afs, proto_afs);
 }
 
 /*

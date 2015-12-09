@@ -3514,7 +3514,7 @@ proto_register_ipv6(void)
                                    "Whether to display IPv6 extension headers as a separate protocol or a sub-protocol of the IPv6 packet",
                                    &ipv6_exthdr_under_root);
 
-    new_register_dissector("ipv6", dissect_ipv6, proto_ipv6);
+    register_dissector("ipv6", dissect_ipv6, proto_ipv6);
     register_init_routine(ipv6_reassemble_init);
     register_cleanup_routine(ipv6_reassemble_cleanup);
     ipv6_tap = register_tap("ipv6");

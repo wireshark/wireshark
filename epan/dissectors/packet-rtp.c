@@ -2769,7 +2769,7 @@ proto_register_pkt_ccc(void)
     proto_register_field_array(proto_pkt_ccc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("pkt_ccc", dissect_pkt_ccc, proto_pkt_ccc);
+    register_dissector("pkt_ccc", dissect_pkt_ccc, proto_pkt_ccc);
 
     pkt_ccc_module = prefs_register_protocol(proto_pkt_ccc, proto_reg_handoff_pkt_ccc);
 
@@ -3666,8 +3666,8 @@ proto_register_rtp(void)
     expert_rtp = expert_register_protocol(proto_rtp);
     expert_register_field_array(expert_rtp, ei, array_length(ei));
 
-    new_register_dissector("rtp", dissect_rtp, proto_rtp);
-    new_register_dissector("rtp.rfc2198", dissect_rtp_rfc2198, proto_rtp);
+    register_dissector("rtp", dissect_rtp, proto_rtp);
+    register_dissector("rtp.rfc2198", dissect_rtp_rfc2198, proto_rtp);
 
     rtp_tap = register_tap("rtp");
 
@@ -3682,8 +3682,8 @@ proto_register_rtp(void)
     rtp_hdr_ext_rfc5285_dissector_table = register_dissector_table("rtp.ext.rfc5285.id",
                                     "RTP Generic header extension (RFC 5285)", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
-    new_register_dissector("rtp.ext.ed137", dissect_rtp_hdr_ext_ed137, proto_rtp);
-    new_register_dissector("rtp.ext.ed137a", dissect_rtp_hdr_ext_ed137a, proto_rtp);
+    register_dissector("rtp.ext.ed137", dissect_rtp_hdr_ext_ed137, proto_rtp);
+    register_dissector("rtp.ext.ed137a", dissect_rtp_hdr_ext_ed137a, proto_rtp);
 
     rtp_module = prefs_register_protocol(proto_rtp, proto_reg_handoff_rtp);
 

@@ -7266,10 +7266,10 @@ proto_register_afp(void)
 	register_init_routine(afp_init);
 	register_cleanup_routine(afp_cleanup);
 
-	new_register_dissector("afp", dissect_afp, proto_afp);
-	new_register_dissector("afp_server_status", dissect_afp_server_status,
+	register_dissector("afp", dissect_afp, proto_afp);
+	register_dissector("afp_server_status", dissect_afp_server_status,
 	    proto_afp);
-	new_register_dissector("afp_spotlight", dissect_spotlight, proto_afp);
+	register_dissector("afp_spotlight", dissect_spotlight, proto_afp);
 
 	afp_tap = register_tap("afp");
 

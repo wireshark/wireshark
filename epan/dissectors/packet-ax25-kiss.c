@@ -426,7 +426,7 @@ proto_register_ax25_kiss(void)
 	proto_ax25_kiss = proto_register_protocol( "AX.25 KISS", "AX.25 KISS", "ax25_kiss" );
 
 	/* Register the dissector */
-	kiss_handle = new_register_dissector( "ax25_kiss", dissect_ax25_kiss, proto_ax25_kiss );
+	kiss_handle = register_dissector( "ax25_kiss", dissect_ax25_kiss, proto_ax25_kiss );
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_ax25_kiss, hf, array_length( hf ) );

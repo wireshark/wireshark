@@ -5551,9 +5551,9 @@ proto_register_ppp(void)
     ppp_subdissector_table = register_dissector_table("ppp.protocol",
         "PPP protocol", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-    new_register_dissector("ppp_hdlc", dissect_ppp_hdlc, proto_ppp);
-    new_register_dissector("ppp_lcp_options", dissect_lcp_options, proto_ppp);
-    new_register_dissector("ppp", dissect_ppp, proto_ppp);
+    register_dissector("ppp_hdlc", dissect_ppp_hdlc, proto_ppp);
+    register_dissector("ppp_lcp_options", dissect_lcp_options, proto_ppp);
+    register_dissector("ppp", dissect_ppp, proto_ppp);
 
     /* Register the preferences for the ppp protocol */
     ppp_module = prefs_register_protocol(proto_ppp, NULL);

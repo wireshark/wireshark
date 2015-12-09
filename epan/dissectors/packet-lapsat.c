@@ -763,7 +763,7 @@ proto_register_lapsat(void)
 	proto_register_field_array (proto_lapsat, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("lapsat", dissect_lapsat, proto_lapsat);
+	register_dissector("lapsat", dissect_lapsat, proto_lapsat);
 
 	lapsat_sapi_dissector_table = register_dissector_table("lapsat.sapi", "LAPSat SAPI", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 

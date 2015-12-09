@@ -5050,7 +5050,7 @@ proto_register_sctp(void)
   sctp_port_dissector_table = register_dissector_table("sctp.port", "SCTP port", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
   sctp_ppi_dissector_table  = register_dissector_table("sctp.ppi",  "SCTP payload protocol identifier", FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-  new_register_dissector("sctp", dissect_sctp, proto_sctp);
+  register_dissector("sctp", dissect_sctp, proto_sctp);
   sctp_heur_subdissector_list = register_heur_dissector_list("sctp");
 
   register_init_routine(sctp_init);

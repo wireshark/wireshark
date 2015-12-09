@@ -728,7 +728,7 @@ proto_register_lapd(void)
 	expert_lapd = expert_register_protocol(proto_lapd);
 	expert_register_field_array(expert_lapd, ei, array_length(ei));
 
-	new_register_dissector("lapd", dissect_lapd, proto_lapd);
+	register_dissector("lapd", dissect_lapd, proto_lapd);
 
 	lapd_sapi_dissector_table = register_dissector_table("lapd.sapi",
 							     "LAPD SAPI", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
@@ -765,7 +765,7 @@ proto_reg_handoff_lapd(void)
 		dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_LAPD, lapd_handle);
 		heur_dissector_add("udp", dissect_udp_lapd, "LAPD over UDP", "lapd_udp", proto_lapd, HEURISTIC_ENABLE);
 
-		new_register_dissector("lapd-bitstream", dissect_lapd_bitstream, proto_lapd);
+		register_dissector("lapd-bitstream", dissect_lapd_bitstream, proto_lapd);
 		lapd_bitstream_handle = find_dissector("lapd-bitstream");
 		data_handle = find_dissector("data");
 

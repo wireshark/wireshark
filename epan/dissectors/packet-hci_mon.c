@@ -297,7 +297,7 @@ proto_register_hci_mon(void)
     proto_hci_mon = proto_register_protocol("Bluetooth Linux Monitor Transport", "HCI_MON", "hci_mon");
     proto_register_field_array(proto_hci_mon, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    hci_mon_handle = new_register_dissector("hci_mon", dissect_hci_mon, proto_hci_mon);
+    hci_mon_handle = register_dissector("hci_mon", dissect_hci_mon, proto_hci_mon);
 
     expert_module = expert_register_protocol(proto_hci_mon);
     expert_register_field_array(expert_module, ei, array_length(ei));

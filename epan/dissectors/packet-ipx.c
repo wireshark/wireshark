@@ -1544,7 +1544,7 @@ proto_register_ipx(void)
 	    "IPX", "ipx");
 	proto_register_field_array(proto_ipx, hf_ipx, array_length(hf_ipx));
 
-	new_register_dissector("ipx", dissect_ipx, proto_ipx);
+	register_dissector("ipx", dissect_ipx, proto_ipx);
 
 	proto_spx = proto_register_protocol("Sequenced Packet eXchange",
 	    "SPX", "spx");
@@ -1564,7 +1564,7 @@ proto_register_ipx(void)
 
 	proto_sap = proto_register_protocol("Service Advertisement Protocol",
 	    "IPX SAP", "ipxsap");
-	new_register_dissector("ipxsap", dissect_ipxsap, proto_sap);
+	register_dissector("ipxsap", dissect_ipxsap, proto_sap);
 
 	proto_register_field_array(proto_sap, hf_sap, array_length(hf_sap));
 

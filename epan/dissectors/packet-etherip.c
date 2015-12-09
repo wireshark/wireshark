@@ -125,7 +125,7 @@ proto_register_etherip(void)
   expert_etherip = expert_register_protocol(proto_etherip);
   expert_register_field_array(expert_etherip, ei, array_length(ei));
 
-  new_register_dissector("etherip", dissect_etherip, proto_etherip);
+  register_dissector("etherip", dissect_etherip, proto_etherip);
 }
 
 void

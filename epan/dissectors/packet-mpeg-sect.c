@@ -363,7 +363,7 @@ proto_register_mpeg_sect(void)
     expert_module_t* expert_mpeg_sect;
 
     proto_mpeg_sect = proto_register_protocol("MPEG2 Section", "MPEG SECT", "mpeg_sect");
-    new_register_dissector("mpeg_sect", dissect_mpeg_sect, proto_mpeg_sect);
+    register_dissector("mpeg_sect", dissect_mpeg_sect, proto_mpeg_sect);
 
     proto_register_field_array(proto_mpeg_sect, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

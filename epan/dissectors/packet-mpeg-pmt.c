@@ -284,7 +284,7 @@ proto_register_mpeg_pmt(void)
     proto_register_field_array(proto_mpeg_pmt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("mpeg_pmt", dissect_mpeg_pmt, proto_mpeg_pmt);
+    register_dissector("mpeg_pmt", dissect_mpeg_pmt, proto_mpeg_pmt);
 }
 
 

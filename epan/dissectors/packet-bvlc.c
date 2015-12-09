@@ -405,7 +405,7 @@ proto_register_bvlc(void)
 					"besides the standard X'BAC0' (47808) port.",
 					10, &global_additional_bvlc_udp_port);
 
-	new_register_dissector("bvlc", dissect_bvlc, proto_bvlc);
+	register_dissector("bvlc", dissect_bvlc, proto_bvlc);
 
 	bvlc_dissector_table = register_dissector_table("bvlc.function",
 	    "BVLC Function", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);

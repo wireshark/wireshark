@@ -1378,7 +1378,7 @@ proto_register_btle(void)
 
     proto_btle = proto_register_protocol("Bluetooth Low Energy Link Layer",
             "BT LE LL", "btle");
-    btle_handle = new_register_dissector("btle", dissect_btle, proto_btle);
+    btle_handle = register_dissector("btle", dissect_btle, proto_btle);
 
     proto_register_field_array(proto_btle, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

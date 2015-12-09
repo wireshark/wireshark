@@ -2939,7 +2939,7 @@ proto_register_bthfp(void)
     fragments = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_bthfp = proto_register_protocol("Bluetooth HFP Profile", "BT HFP", "bthfp");
-    bthfp_handle = new_register_dissector("bthfp", dissect_bthfp, proto_bthfp);
+    bthfp_handle = register_dissector("bthfp", dissect_bthfp, proto_bthfp);
 
     proto_register_field_array(proto_bthfp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

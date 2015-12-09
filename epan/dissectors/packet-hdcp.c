@@ -320,7 +320,7 @@ proto_register_hdcp(void)
     proto_register_field_array(proto_hdcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("hdcp", dissect_hdcp, proto_hdcp);
+    register_dissector("hdcp", dissect_hdcp, proto_hdcp);
 
     transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }

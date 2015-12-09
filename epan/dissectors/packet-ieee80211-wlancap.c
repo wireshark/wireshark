@@ -847,7 +847,7 @@ void proto_register_ieee80211_wlancap(void)
                                           "AVS WLANCAP", "wlancap");
   proto_register_field_array(proto_wlancap, hf_wlancap,
                              array_length(hf_wlancap));
-  new_register_dissector("wlancap", dissect_wlancap, proto_wlancap);
+  register_dissector("wlancap", dissect_wlancap, proto_wlancap);
 
   wlancap_handle = create_dissector_handle(dissect_wlancap, proto_wlancap);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_AVS,

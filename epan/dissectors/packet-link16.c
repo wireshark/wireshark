@@ -284,7 +284,7 @@ void proto_register_link16(void)
     proto_link16 = proto_register_protocol("Link 16", "LINK16", "link16");
     proto_register_field_array(proto_link16, hf, array_length (hf));
     proto_register_subtree_array(ett, array_length(ett));
-    new_register_dissector("link16", dissect_link16, proto_link16);
+    register_dissector("link16", dissect_link16, proto_link16);
 }
 
 /*

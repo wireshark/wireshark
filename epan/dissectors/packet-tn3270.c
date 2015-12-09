@@ -7666,7 +7666,7 @@ proto_register_tn3270(void)
   expert_module_t* expert_tn3270;
 
   proto_tn3270 = proto_register_protocol("TN3270 Protocol", "TN3270", "tn3270");
-  new_register_dissector("tn3270", dissect_tn3270, proto_tn3270);
+  register_dissector("tn3270", dissect_tn3270, proto_tn3270);
   proto_register_field_array(proto_tn3270, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_tn3270 = expert_register_protocol(proto_tn3270);

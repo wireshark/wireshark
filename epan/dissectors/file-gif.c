@@ -694,7 +694,7 @@ proto_register_gif(void)
     proto_register_fields(proto_gif, hfi, array_length(hfi));
     proto_register_subtree_array(ett, array_length(ett));
 
-    gif_handle = new_register_dissector(IMG_GIF, dissect_gif, proto_gif);
+    gif_handle = register_dissector(IMG_GIF, dissect_gif, proto_gif);
 }
 
 

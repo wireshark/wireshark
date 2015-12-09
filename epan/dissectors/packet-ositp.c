@@ -2425,8 +2425,8 @@ void proto_register_cotp(void)
   cotp_heur_subdissector_list = register_heur_dissector_list("cotp");
 
   /* XXX - what about CLTP and proto_cltp? */
-  new_register_dissector("ositp", dissect_ositp, proto_cotp);
-  new_register_dissector("ositp_inactive", dissect_ositp_inactive, proto_cotp);
+  register_dissector("ositp", dissect_ositp, proto_cotp);
+  register_dissector("ositp_inactive", dissect_ositp_inactive, proto_cotp);
 
   register_init_routine(cotp_reassemble_init);
   register_cleanup_routine(cotp_reassemble_cleanup);

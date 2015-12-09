@@ -264,7 +264,7 @@ proto_register_pn532_hci(void)
     };
 
     proto_pn532_hci = proto_register_protocol("NXP PN532 HCI", "PN532_HCI", "pn532_hci");
-    pn532_hci_handle = new_register_dissector("pn532_hci", dissect_pn532_hci, proto_pn532_hci);
+    pn532_hci_handle = register_dissector("pn532_hci", dissect_pn532_hci, proto_pn532_hci);
 
     proto_register_field_array(proto_pn532_hci, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

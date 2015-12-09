@@ -814,12 +814,12 @@ proto_register_amr(void)
                        "The AMR mode",
                        &pref_amr_mode, modes, AMR_NB);
 
-    amr_handle = new_register_dissector("amr", dissect_amr, proto_amr);
-    amr_wb_handle = new_register_dissector("amr-wb", dissect_amr_wb, proto_amr);
-    new_register_dissector("amr_if1_nb", dissect_amr_nb_if1, proto_amr);
-    new_register_dissector("amr_if1_wb", dissect_amr_wb_if1, proto_amr);
-    new_register_dissector("amr_if2_nb", dissect_amr_nb_if2, proto_amr);
-    new_register_dissector("amr_if2_wb", dissect_amr_wb_if2, proto_amr);
+    amr_handle = register_dissector("amr", dissect_amr, proto_amr);
+    amr_wb_handle = register_dissector("amr-wb", dissect_amr_wb, proto_amr);
+    register_dissector("amr_if1_nb", dissect_amr_nb_if1, proto_amr);
+    register_dissector("amr_if1_wb", dissect_amr_wb_if1, proto_amr);
+    register_dissector("amr_if2_nb", dissect_amr_nb_if2, proto_amr);
+    register_dissector("amr_if2_wb", dissect_amr_wb_if2, proto_amr);
 
     oid_add_from_string("G.722.2 (AMR-WB) audio capability","0.0.7.7222.1.0");
 }

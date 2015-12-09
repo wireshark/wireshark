@@ -237,7 +237,7 @@ proto_register_chdlc(void)
                                                 "Cisco HDLC protocol",
                                                 FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-  new_register_dissector("chdlc", dissect_chdlc, proto_chdlc);
+  register_dissector("chdlc", dissect_chdlc, proto_chdlc);
 
   /* Register the preferences for the chdlc protocol */
   chdlc_module = prefs_register_protocol(proto_chdlc, NULL);

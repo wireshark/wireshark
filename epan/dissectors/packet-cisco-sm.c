@@ -595,7 +595,7 @@ proto_register_sm(void)
     proto_sm = proto_register_protocol("Cisco Session Management",
         "SM", "sm");
 
-    new_register_dissector("sm", dissect_sm, proto_sm);
+    register_dissector("sm", dissect_sm, proto_sm);
 
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_sm, hf, array_length(hf));

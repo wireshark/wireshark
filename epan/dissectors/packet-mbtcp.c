@@ -1906,9 +1906,9 @@ proto_register_modbus(void)
     proto_modbus = proto_register_protocol("Modbus", "Modbus", "modbus");
 
     /* Registering protocol to be called by another dissector */
-    modbus_handle = new_register_dissector("modbus", dissect_modbus, proto_modbus);
-    mbtcp_handle = new_register_dissector("mbtcp", dissect_mbtcp, proto_mbtcp);
-    mbrtu_handle = new_register_dissector("mbrtu", dissect_mbrtu, proto_mbrtu);
+    modbus_handle = register_dissector("modbus", dissect_modbus, proto_modbus);
+    mbtcp_handle = register_dissector("mbtcp", dissect_mbtcp, proto_mbtcp);
+    mbrtu_handle = register_dissector("mbrtu", dissect_mbrtu, proto_mbrtu);
 
     /* Registering subdissectors table */
     modbus_data_dissector_table = register_dissector_table("modbus.data", "Modbus Data", FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);

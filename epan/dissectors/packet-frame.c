@@ -887,7 +887,7 @@ proto_register_frame(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_frame = expert_register_protocol(proto_frame);
 	expert_register_field_array(expert_frame, ei, array_length(ei));
-	new_register_dissector("frame",dissect_frame,proto_frame);
+	register_dissector("frame",dissect_frame,proto_frame);
 
 	/* You can't disable dissection of "Frame", as that would be
 	   tantamount to not doing any dissection whatsoever. */

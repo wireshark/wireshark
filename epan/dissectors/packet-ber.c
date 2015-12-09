@@ -4505,7 +4505,7 @@ proto_register_ber(void)
 
     proto_ber = proto_register_protocol("Basic Encoding Rules (ASN.1 X.690)", "BER", "ber");
 
-    ber_handle = new_register_dissector("ber", dissect_ber, proto_ber);
+    ber_handle = register_dissector("ber", dissect_ber, proto_ber);
 
     proto_register_field_array(proto_ber, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

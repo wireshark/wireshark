@@ -1905,7 +1905,7 @@ void proto_register_spdy(void)
   expert_spdy = expert_register_protocol(proto_spdy);
   expert_register_field_array(expert_spdy, ei, array_length(ei));
 
-  new_register_dissector("spdy", dissect_spdy, proto_spdy);
+  register_dissector("spdy", dissect_spdy, proto_spdy);
 
   spdy_module = prefs_register_protocol(proto_spdy, NULL);
   prefs_register_bool_preference(spdy_module, "assemble_data_frames",

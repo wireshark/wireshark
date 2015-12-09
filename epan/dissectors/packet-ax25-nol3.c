@@ -272,7 +272,7 @@ proto_register_ax25_nol3(void)
 	proto_dx = proto_register_protocol("DX cluster", "DX", "dx");
 
 	/* Register the dissector */
-	new_register_dissector( "dx", dissect_dx, proto_dx);
+	register_dissector( "dx", dissect_dx, proto_dx);
 
 	/* Register the header fields */
 	proto_register_field_array( proto_dx, hf_dx, array_length( hf_dx ) );

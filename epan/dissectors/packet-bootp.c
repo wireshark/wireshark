@@ -7859,7 +7859,7 @@ proto_register_bootp(void)
 	register_init_routine(&bootp_init_protocol);
 
 	/* Allow dissector to find be found by name. */
-	bootp_handle = new_register_dissector("bootp", dissect_bootp, proto_bootp);
+	bootp_handle = register_dissector("bootp", dissect_bootp, proto_bootp);
 
 	bootp_module = prefs_register_protocol(proto_bootp, NULL);
 

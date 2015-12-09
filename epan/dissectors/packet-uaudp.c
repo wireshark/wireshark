@@ -592,11 +592,11 @@ void proto_register_uaudp(void)
                           "UAUDP",
                           "uaudp");
 
-    uaudp_handle = new_register_dissector("uaudp", dissect_uaudp, proto_uaudp);
+    uaudp_handle = register_dissector("uaudp", dissect_uaudp, proto_uaudp);
 #if 0 /* XXX: Not used ?? */
-    new_register_dissector("uaudp_dir_unknown",  dissect_uaudp_dir_unknown,  proto_uaudp);
-    new_register_dissector("uaudp_term_to_serv", dissect_uaudp_term_to_serv, proto_uaudp);
-    new_register_dissector("uaudp_serv_to_term", dissect_uaudp_serv_to_term, proto_uaudp);
+    register_dissector("uaudp_dir_unknown",  dissect_uaudp_dir_unknown,  proto_uaudp);
+    register_dissector("uaudp_term_to_serv", dissect_uaudp_term_to_serv, proto_uaudp);
+    register_dissector("uaudp_serv_to_term", dissect_uaudp_serv_to_term, proto_uaudp);
 #endif
 
     proto_register_field_array(proto_uaudp, hf_uaudp, array_length(hf_uaudp));

@@ -1863,7 +1863,7 @@ proto_register_bitcoin(void)
 
   bitcoin_command_table = register_dissector_table("bitcoin.command", "Bitcoin Command", FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
-  bitcoin_handle = new_register_dissector("bitcoin", dissect_bitcoin, proto_bitcoin);
+  bitcoin_handle = register_dissector("bitcoin", dissect_bitcoin, proto_bitcoin);
 
   bitcoin_module = prefs_register_protocol(proto_bitcoin, NULL);
   prefs_register_bool_preference(bitcoin_module, "desegment",

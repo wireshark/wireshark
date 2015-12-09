@@ -417,7 +417,7 @@ proto_register_btmcap(void)
     };
 
     proto_btmcap = proto_register_protocol("Bluetooth MCAP Protocol", "BT MCAP", "btmcap");
-    btmcap_handle = new_register_dissector("btmcap", dissect_btmcap, proto_btmcap);
+    btmcap_handle = register_dissector("btmcap", dissect_btmcap, proto_btmcap);
 
     proto_register_field_array(proto_btmcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

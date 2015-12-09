@@ -605,7 +605,7 @@ proto_register_zbee_zcl_thermostat(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL IAS Zone dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_THERMOSTAT, dissect_zbee_zcl_thermostat, proto_zbee_zcl_thermostat);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_THERMOSTAT, dissect_zbee_zcl_thermostat, proto_zbee_zcl_thermostat);
 } /*proto_register_zbee_zcl_thermostat*/
 
 /*FUNCTION:------------------------------------------------------
@@ -1096,7 +1096,7 @@ proto_register_zbee_zcl_ias_zone(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL IAS Zone dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_IAS_ZONE, dissect_zbee_zcl_ias_zone, proto_zbee_zcl_ias_zone);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_IAS_ZONE, dissect_zbee_zcl_ias_zone, proto_zbee_zcl_ias_zone);
 } /*proto_register_zbee_zcl_ias_zone*/
 
 /*

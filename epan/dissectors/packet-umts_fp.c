@@ -5578,7 +5578,7 @@ void proto_register_fp(void)
     expert_register_field_array(expert_fp, ei, array_length(ei));
 
     /* Allow other dissectors to find this one by name. */
-    new_register_dissector("fp", dissect_fp, proto_fp);
+    register_dissector("fp", dissect_fp, proto_fp);
 
     /* Preferences */
     fp_module = prefs_register_protocol(proto_fp, NULL);

@@ -440,7 +440,7 @@ proto_register_sscop(void)
   proto_register_field_array(proto_sscop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  sscop_handle = new_register_dissector("sscop", dissect_sscop, proto_sscop);
+  sscop_handle = register_dissector("sscop", dissect_sscop, proto_sscop);
 
   sscop_module = prefs_register_protocol(proto_sscop, proto_reg_handoff_sscop);
 

@@ -1524,7 +1524,7 @@ proto_register_mp2t(void)
 
     proto_mp2t = proto_register_protocol("ISO/IEC 13818-1", "MP2T", "mp2t");
 
-    mp2t_handle = new_register_dissector("mp2t", dissect_mp2t, proto_mp2t);
+    mp2t_handle = register_dissector("mp2t", dissect_mp2t, proto_mp2t);
 
     proto_register_field_array(proto_mp2t, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

@@ -2309,7 +2309,7 @@ proto_register_ansi_801(void)
 	expert_register_field_array(expert_ansi_801, ei, array_length(ei));
 
 	/* subdissector code */
-	ansi_801_handle = new_register_dissector("ansi_801", dissect_ansi_801, proto_ansi_801);
+	ansi_801_handle = register_dissector("ansi_801", dissect_ansi_801, proto_ansi_801);
 }
 
 

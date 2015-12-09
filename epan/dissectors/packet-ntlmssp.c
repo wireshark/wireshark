@@ -3281,10 +3281,10 @@ proto_register_ntlmssp(void)
                                    "NT Password (used to decrypt payloads)",
                                    &gbl_nt_password);
 
-  new_register_dissector("ntlmssp", dissect_ntlmssp, proto_ntlmssp);
-  new_register_dissector("ntlmssp_payload", dissect_ntlmssp_payload, proto_ntlmssp);
-  new_register_dissector("ntlmssp_data_only", dissect_ntlmssp_payload_only, proto_ntlmssp);
-  new_register_dissector("ntlmssp_verf", dissect_ntlmssp_verf, proto_ntlmssp);
+  register_dissector("ntlmssp", dissect_ntlmssp, proto_ntlmssp);
+  register_dissector("ntlmssp_payload", dissect_ntlmssp_payload, proto_ntlmssp);
+  register_dissector("ntlmssp_data_only", dissect_ntlmssp_payload_only, proto_ntlmssp);
+  register_dissector("ntlmssp_verf", dissect_ntlmssp_verf, proto_ntlmssp);
 }
 
 void

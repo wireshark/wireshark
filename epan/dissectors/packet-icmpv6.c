@@ -5347,7 +5347,7 @@ proto_register_icmpv6(void)
     expert_icmpv6 = expert_register_protocol(proto_icmpv6);
     expert_register_field_array(expert_icmpv6, ei, array_length(ei));
 
-    icmpv6_handle = new_register_dissector("icmpv6", dissect_icmpv6, proto_icmpv6);
+    icmpv6_handle = register_dissector("icmpv6", dissect_icmpv6, proto_icmpv6);
 
     icmpv6_tap = register_tap("icmpv6");
 }

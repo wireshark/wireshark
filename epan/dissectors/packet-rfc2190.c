@@ -522,7 +522,7 @@ proto_register_rfc2190(void)
         "RFC2190", "rfc2190");
 
     proto_register_field_array(proto_rfc2190, hf, array_length(hf));
-    new_register_dissector("rfc2190", dissect_rfc2190, proto_rfc2190);
+    register_dissector("rfc2190", dissect_rfc2190, proto_rfc2190);
 }
 
 /*

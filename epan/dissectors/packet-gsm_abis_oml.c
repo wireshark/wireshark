@@ -2378,7 +2378,7 @@ proto_register_abis_oml(void)
 	expert_module = expert_register_protocol(proto_abis_oml);
 	expert_register_field_array(expert_module, ei, array_length(ei));
 
-	new_register_dissector("gsm_abis_oml", dissect_abis_oml, proto_abis_oml);
+	register_dissector("gsm_abis_oml", dissect_abis_oml, proto_abis_oml);
 
 	oml_module = prefs_register_protocol(proto_abis_oml, NULL);
 	prefs_register_enum_preference(oml_module, "oml_dialect",

@@ -476,7 +476,7 @@ proto_register_k12(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_k12 = expert_register_protocol(proto_k12);
 	expert_register_field_array(expert_k12, ei, array_length(ei));
-	new_register_dissector("k12", dissect_k12, proto_k12);
+	register_dissector("k12", dissect_k12, proto_k12);
 
 	k12_uat = uat_new("K12 Protocols",
 			  sizeof(k12_handles_t),

@@ -16492,8 +16492,8 @@ proto_register_gsm_rlcmac(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_gsm_rlcmac = expert_register_protocol(proto_gsm_rlcmac);
   expert_register_field_array(expert_gsm_rlcmac, ei, array_length(ei));
-  new_register_dissector("gsm_rlcmac_ul", dissect_gsm_rlcmac_uplink, proto_gsm_rlcmac);
-  new_register_dissector("gsm_rlcmac_dl", dissect_gsm_rlcmac_downlink, proto_gsm_rlcmac);
+  register_dissector("gsm_rlcmac_ul", dissect_gsm_rlcmac_uplink, proto_gsm_rlcmac);
+  register_dissector("gsm_rlcmac_dl", dissect_gsm_rlcmac_downlink, proto_gsm_rlcmac);
 }
 
 void

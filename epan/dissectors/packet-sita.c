@@ -379,7 +379,7 @@ proto_register_sita(void)
     sita_dissector_table = register_dissector_table("sita.proto", "SITA protocol number", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
     proto_register_field_array(proto_sita, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    new_register_dissector("sita", dissect_sita, proto_sita);
+    register_dissector("sita", dissect_sita, proto_sita);
 }
 
 void

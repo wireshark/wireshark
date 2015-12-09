@@ -2106,7 +2106,7 @@ proto_register_telnet(void)
   expert_telnet = expert_register_protocol(proto_telnet);
   expert_register_field_array(expert_telnet, ei, array_length(ei));
 
-  telnet_handle = new_register_dissector("telnet", dissect_telnet, proto_telnet);
+  telnet_handle = register_dissector("telnet", dissect_telnet, proto_telnet);
 }
 
 void

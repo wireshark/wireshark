@@ -1339,7 +1339,7 @@ proto_register_llcgprs(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_llcgprs = expert_register_protocol(proto_llcgprs);
 	expert_register_field_array(expert_llcgprs, ei, array_length(ei));
-	new_register_dissector("llcgprs", dissect_llcgprs, proto_llcgprs);
+	register_dissector("llcgprs", dissect_llcgprs, proto_llcgprs);
 
 	llcgprs_module = prefs_register_protocol ( proto_llcgprs, NULL );
 	prefs_register_bool_preference ( llcgprs_module, "autodetect_cipher_bit",

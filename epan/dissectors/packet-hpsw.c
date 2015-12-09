@@ -359,7 +359,7 @@ proto_register_hpsw(void)
     expert_hpsw = expert_register_protocol(proto_hpsw);
     expert_register_field_array(expert_hpsw, ei, array_length(ei));
 
-    new_register_dissector("hpsw", dissect_hpsw, proto_hpsw);
+    register_dissector("hpsw", dissect_hpsw, proto_hpsw);
 }
 
 void

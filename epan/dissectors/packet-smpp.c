@@ -3765,7 +3765,7 @@ proto_register_smpp(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Allow other dissectors to find this one by name. */
-    new_register_dissector("smpp", dissect_smpp, proto_smpp);
+    register_dissector("smpp", dissect_smpp, proto_smpp);
 
     /* Register for tapping */
     smpp_tap = register_tap("smpp");

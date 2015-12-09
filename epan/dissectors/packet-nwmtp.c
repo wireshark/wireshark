@@ -158,7 +158,7 @@ void proto_register_mwmtp(void)
 	proto_register_field_array(proto_nwmtp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	nwmtp_handle = new_register_dissector("nw_mtp", dissect_nwmtp, proto_nwmtp);
+	nwmtp_handle = register_dissector("nw_mtp", dissect_nwmtp, proto_nwmtp);
 }
 
 void proto_reg_handoff_nwmtp(void)

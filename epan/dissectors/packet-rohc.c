@@ -2977,7 +2977,7 @@ proto_register_rohc(void)
     /* Register the protocol name and description */
     proto_rohc = proto_register_protocol("RObust Header Compression (ROHC)", "ROHC", "rohc");
 
-    rohc_handle = new_register_dissector("rohc", dissect_rohc, proto_rohc);
+    rohc_handle = register_dissector("rohc", dissect_rohc, proto_rohc);
 
     register_init_routine(&rohc_init_protocol);
     register_cleanup_routine(&rohc_cleanup_protocol);

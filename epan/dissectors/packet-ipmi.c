@@ -1805,10 +1805,10 @@ proto_register_ipmi(void)
 		ipmi_netfn_setdesc(i, "OEM", 0);
 	}
 
-	new_register_dissector("ipmi", dissect_ipmi, proto_ipmi);
-	new_register_dissector("ipmb", dissect_ipmi, proto_ipmb);
-	new_register_dissector("kcs", dissect_kcs, proto_kcs);
-	new_register_dissector("tmode", dissect_tmode, proto_tmode);
+	register_dissector("ipmi", dissect_ipmi, proto_ipmi);
+	register_dissector("ipmb", dissect_ipmi, proto_ipmb);
+	register_dissector("kcs", dissect_kcs, proto_kcs);
+	register_dissector("tmode", dissect_tmode, proto_tmode);
 
 	data_dissector = find_dissector("data");
 

@@ -679,7 +679,7 @@ proto_register_tftp(void)
   expert_tftp = expert_register_protocol(proto_tftp);
   expert_register_field_array(expert_tftp, ei, array_length(ei));
 
-  new_register_dissector("tftp", dissect_tftp, proto_tftp);
+  register_dissector("tftp", dissect_tftp, proto_tftp);
 
   /* Set default UDP ports */
   range_convert_str(&global_tftp_port_range, UDP_PORT_TFTP_RANGE, MAX_UDP_PORT);

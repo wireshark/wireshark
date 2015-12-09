@@ -197,7 +197,7 @@ proto_register_ayiya(void)
 
     proto_ayiya = proto_register_protocol("Anything in Anything Protocol",
                           "AYIYA", "ayiya");
-    new_register_dissector("ayiya", dissect_ayiya, proto_ayiya);
+    register_dissector("ayiya", dissect_ayiya, proto_ayiya);
     proto_register_field_array(proto_ayiya, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }

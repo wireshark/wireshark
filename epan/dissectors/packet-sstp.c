@@ -506,7 +506,7 @@ proto_register_sstp(void)
 
   proto_sstp = proto_register_protocol("Secure Socket Tunneling Protocol", "SSTP", "sstp");
 
-  new_register_dissector("sstp", dissect_sstp, proto_sstp);
+  register_dissector("sstp", dissect_sstp, proto_sstp);
   proto_register_field_array(proto_sstp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

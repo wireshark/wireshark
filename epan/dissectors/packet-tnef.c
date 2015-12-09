@@ -820,7 +820,7 @@ proto_register_tnef(void)
   expert_register_field_array(expert_tnef, ei, array_length(ei));
 
   /* Allow dissector to find be found by name. */
-  tnef_handle = new_register_dissector(PFNAME, dissect_tnef, proto_tnef);
+  tnef_handle = register_dissector(PFNAME, dissect_tnef, proto_tnef);
 
 }
 

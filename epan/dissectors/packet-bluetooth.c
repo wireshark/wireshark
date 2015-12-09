@@ -1893,7 +1893,7 @@ proto_register_bluetooth(void)
     proto_bluetooth = proto_register_protocol("Bluetooth",
             "Bluetooth", "bluetooth");
 
-    new_register_dissector("bluetooth_ubertooth", dissect_bluetooth_ubertooth, proto_bluetooth);
+    register_dissector("bluetooth_ubertooth", dissect_bluetooth_ubertooth, proto_bluetooth);
 
     proto_register_field_array(proto_bluetooth, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

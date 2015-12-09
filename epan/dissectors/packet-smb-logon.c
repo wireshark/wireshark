@@ -1151,7 +1151,7 @@ proto_register_smb_logon( void)
 	proto_register_field_array(proto_smb_logon, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("smb_netlogon", dissect_smb_logon, proto_smb_logon);
+	register_dissector("smb_netlogon", dissect_smb_logon, proto_smb_logon);
 }
 
 /*

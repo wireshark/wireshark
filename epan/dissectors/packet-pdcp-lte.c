@@ -2602,7 +2602,7 @@ void proto_register_pdcp(void)
     expert_register_field_array(expert_pdcp_lte, ei, array_length(ei));
 
     /* Allow other dissectors to find this one by name. */
-    new_register_dissector("pdcp-lte", dissect_pdcp_lte, proto_pdcp_lte);
+    register_dissector("pdcp-lte", dissect_pdcp_lte, proto_pdcp_lte);
 
     pdcp_lte_module = prefs_register_protocol(proto_pdcp_lte, NULL);
 

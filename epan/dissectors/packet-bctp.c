@@ -106,7 +106,7 @@ proto_register_bctp (void)
 	proto_register_field_array(proto_bctp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("bctp", dissect_bctp, proto_bctp);
+	register_dissector("bctp", dissect_bctp, proto_bctp);
 
 	bctp_dissector_table = register_dissector_table("bctp.tpi", "BCTP Tunneled Protocol Indicator", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }

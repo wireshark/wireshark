@@ -321,7 +321,7 @@ void proto_register_zep(void)
                  10, &gPREF_zep_udp_port);
 
     /*  Register dissector with Wireshark. */
-    zep_handle = new_register_dissector("zep", dissect_zep, proto_zep);
+    zep_handle = register_dissector("zep", dissect_zep, proto_zep);
 } /* proto_register_zep */
 
 /*FUNCTION:------------------------------------------------------

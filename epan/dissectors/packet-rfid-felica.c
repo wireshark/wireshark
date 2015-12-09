@@ -546,7 +546,7 @@ proto_register_felica(void)
     proto_register_field_array(proto_felica, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("felica", dissect_felica, proto_felica);
+    register_dissector("felica", dissect_felica, proto_felica);
 }
 
 /* Handler registration */

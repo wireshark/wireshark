@@ -385,7 +385,7 @@ proto_register_zbee_zcl_basic(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Basic dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_BASIC, dissect_zbee_zcl_basic, proto_zbee_zcl_basic);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_BASIC, dissect_zbee_zcl_basic, proto_zbee_zcl_basic);
 } /*proto_register_zbee_zcl_basic*/
 
 /*FUNCTION:------------------------------------------------------
@@ -830,7 +830,7 @@ proto_register_zbee_zcl_power_config(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL power configuration dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_POWER_CONFIG, dissect_zbee_zcl_power_config, proto_zbee_zcl_power_config);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_POWER_CONFIG, dissect_zbee_zcl_power_config, proto_zbee_zcl_power_config);
 } /*proto_register_zbee_zcl_power_config*/
 
 /*FUNCTION:------------------------------------------------------
@@ -1156,7 +1156,7 @@ proto_register_zbee_zcl_identify(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Identify dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_IDENTIFY, dissect_zbee_zcl_identify, proto_zbee_zcl_identify);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_IDENTIFY, dissect_zbee_zcl_identify, proto_zbee_zcl_identify);
 
 } /*proto_register_zbee_zcl_identify*/
 
@@ -1758,7 +1758,7 @@ proto_register_zbee_zcl_groups(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Groups dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_GROUPS, dissect_zbee_zcl_groups, proto_zbee_zcl_groups);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_GROUPS, dissect_zbee_zcl_groups, proto_zbee_zcl_groups);
 
 } /*proto_register_zbee_zcl_groups*/
 
@@ -2448,7 +2448,7 @@ proto_register_zbee_zcl_scenes(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Scenes dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_SCENES, dissect_zbee_zcl_scenes, proto_zbee_zcl_scenes);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_SCENES, dissect_zbee_zcl_scenes, proto_zbee_zcl_scenes);
 
 } /*proto_register_zbee_zcl_scenes*/
 
@@ -2665,7 +2665,7 @@ proto_register_zbee_zcl_on_off(void)
     proto_register_field_array(proto_zbee_zcl_on_off, hf, array_length(hf));
 
     /* Register the ZigBee ZCL OnOff dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_ONOFF, dissect_zbee_zcl_on_off, proto_zbee_zcl_on_off);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_ONOFF, dissect_zbee_zcl_on_off, proto_zbee_zcl_on_off);
 } /* proto_register_zbee_zcl_on_off */
 
 /*FUNCTION:------------------------------------------------------
@@ -3248,7 +3248,7 @@ void proto_register_zbee_zcl_part(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Partition dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_PART, dissect_zbee_zcl_part, proto_zbee_zcl_part);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_PART, dissect_zbee_zcl_part, proto_zbee_zcl_part);
 } /* proto_register_zbee_zcl_part */
 
 
@@ -4438,7 +4438,7 @@ void proto_register_zbee_zcl_ota(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL OTA dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_OTA, dissect_zbee_zcl_ota, proto_zbee_zcl_ota);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_OTA, dissect_zbee_zcl_ota, proto_zbee_zcl_ota);
 
 } /* proto_register_zbee_zcl_ota */
 
@@ -5581,7 +5581,7 @@ proto_register_zbee_zcl_pwr_prof(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Power Profile dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_PWRPROF, dissect_zbee_zcl_pwr_prof, proto_zbee_zcl_pwr_prof);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_PWRPROF, dissect_zbee_zcl_pwr_prof, proto_zbee_zcl_pwr_prof);
 } /* proto_register_zbee_zcl_pwr_prof */
 
 
@@ -6256,7 +6256,7 @@ proto_register_zbee_zcl_appl_ctrl(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Appliance Control dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_APPLCTRL, dissect_zbee_zcl_appl_ctrl, proto_zbee_zcl_appl_ctrl);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_APPLCTRL, dissect_zbee_zcl_appl_ctrl, proto_zbee_zcl_appl_ctrl);
 } /*proto_register_zbee_zcl_appl_ctrl*/
 
 
@@ -6526,7 +6526,7 @@ proto_register_zbee_zcl_poll_ctrl(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Poll Control dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_POLL, dissect_zbee_zcl_poll_ctrl, proto_zbee_zcl_poll_ctrl);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_POLL, dissect_zbee_zcl_poll_ctrl, proto_zbee_zcl_poll_ctrl);
 } /*proto_register_zbee_zcl_poll_ctrl*/
 
 /*FUNCTION:------------------------------------------------------

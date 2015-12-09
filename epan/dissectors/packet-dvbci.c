@@ -6334,7 +6334,7 @@ proto_register_dvbci(void)
     register_cleanup_routine(dvbci_cleanup);
 
     /* the dissector for decrypted CI+ SAC messages which we can export */
-    new_register_dissector(EXPORTED_SAC_MSG_PROTO,
+    register_dissector(EXPORTED_SAC_MSG_PROTO,
         dissect_dvbci_exported_sac_msg, proto_dvbci);
 
     exported_pdu_tap = register_export_pdu_tap("DVB-CI");

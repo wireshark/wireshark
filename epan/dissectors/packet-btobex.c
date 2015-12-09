@@ -3818,7 +3818,7 @@ proto_register_btobex(void)
 
     proto_btobex = proto_register_protocol("Bluetooth OBEX Protocol", "BT OBEX", "btobex");
 
-    btobex_handle = new_register_dissector("btobex", dissect_btobex, proto_btobex);
+    btobex_handle = register_dissector("btobex", dissect_btobex, proto_btobex);
 
     btobex_profile = register_dissector_table("btobex.profile", "BTOBEX Profile", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
@@ -3834,25 +3834,25 @@ proto_register_btobex(void)
     register_decode_as(&btobex_profile_da);
 
     proto_raw = proto_register_protocol("BT OBEX Raw Application Parameters", "Raw Application Parameters", "btobex.parameter.raw");
-    raw_application_parameters_handle  = new_register_dissector("btobex.parameter.raw",  dissect_btobex_application_parameter_raw, proto_raw);
+    raw_application_parameters_handle  = register_dissector("btobex.parameter.raw",  dissect_btobex_application_parameter_raw, proto_raw);
 
     proto_bpp = proto_register_protocol("BT OBEX BPP Application Parameters", "BPP Application Parameters", "btobex.parameter.bpp");
-    bpp_application_parameters_handle  = new_register_dissector("btobex.parameter.bpp",  dissect_btobex_application_parameter_bpp, proto_bpp);
+    bpp_application_parameters_handle  = register_dissector("btobex.parameter.bpp",  dissect_btobex_application_parameter_bpp, proto_bpp);
 
     proto_bip = proto_register_protocol("BT OBEX BIP Application Parameters", "BIP Application Parameters", "btobex.parameter.bip");
-    bip_application_parameters_handle  = new_register_dissector("btobex.parameter.bip",  dissect_btobex_application_parameter_bip, proto_bip);
+    bip_application_parameters_handle  = register_dissector("btobex.parameter.bip",  dissect_btobex_application_parameter_bip, proto_bip);
 
     proto_map = proto_register_protocol("BT OBEX MAP Application Parameters", "MAP Application Parameters", "btobex.parameter.map");
-    map_application_parameters_handle  = new_register_dissector("btobex.parameter.map",  dissect_btobex_application_parameter_map, proto_map);
+    map_application_parameters_handle  = register_dissector("btobex.parameter.map",  dissect_btobex_application_parameter_map, proto_map);
 
     proto_gpp = proto_register_protocol("BT OBEX GPP Application Parameters", "GPP Application Parameters", "btobex.parameter.gpp");
-    gpp_application_parameters_handle  = new_register_dissector("btobex.parameter.gpp",  dissect_btobex_application_parameter_gpp, proto_gpp);
+    gpp_application_parameters_handle  = register_dissector("btobex.parameter.gpp",  dissect_btobex_application_parameter_gpp, proto_gpp);
 
     proto_ctn = proto_register_protocol("BT OBEX CTN Application Parameters", "CTN Application Parameters", "btobex.parameter.ctn");
-    ctn_application_parameters_handle  = new_register_dissector("btobex.parameter.ctn",  dissect_btobex_application_parameter_ctn, proto_ctn);
+    ctn_application_parameters_handle  = register_dissector("btobex.parameter.ctn",  dissect_btobex_application_parameter_ctn, proto_ctn);
 
     proto_pbap = proto_register_protocol("BT OBEX PBAP Application Parameters", "PBAP Application Parameters", "btobex.parameter.pbap");
-    pbap_application_parameters_handle = new_register_dissector("btobex.parameter.pbap", dissect_btobex_application_parameter_pbap, proto_pbap);
+    pbap_application_parameters_handle = register_dissector("btobex.parameter.pbap", dissect_btobex_application_parameter_pbap, proto_pbap);
 
     register_decode_as(&media_type_da);
 

@@ -2586,7 +2586,7 @@ void proto_register_pcp(void)
     proto_register_field_array(proto_pcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    pcp_handle = new_register_dissector("pcp", dissect_pcp, proto_pcp);
+    pcp_handle = register_dissector("pcp", dissect_pcp, proto_pcp);
 
     register_cleanup_routine(pcp_cleanup);
 }

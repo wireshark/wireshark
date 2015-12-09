@@ -649,7 +649,7 @@ proto_register_raknet(void)
     /*
      * Raknet subdissector for use by external protocols.
      */
-    new_register_dissector("raknet", dissect_raknet, proto_raknet);
+    register_dissector("raknet", dissect_raknet, proto_raknet);
 }
 
 void

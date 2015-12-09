@@ -996,8 +996,8 @@ void proto_register_iuup(void) {
     proto_register_subtree_array(ett, array_length(ett));
     expert_iuup = expert_register_protocol(proto_iuup);
     expert_register_field_array(expert_iuup, ei, array_length(ei));
-    new_register_dissector("iuup", dissect_iuup, proto_iuup);
-    new_register_dissector("find_iuup", find_iuup, proto_iuup);
+    register_dissector("iuup", dissect_iuup, proto_iuup);
+    register_dissector("find_iuup", find_iuup, proto_iuup);
 
     register_init_routine(&init_iuup);
     register_cleanup_routine(&cleanup_iuup);

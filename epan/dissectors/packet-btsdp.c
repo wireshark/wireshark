@@ -6508,7 +6508,7 @@ proto_register_btsdp(void)
     };
 
     proto_btsdp = proto_register_protocol("Bluetooth SDP Protocol", "BT SDP", "btsdp");
-    btsdp_handle = new_register_dissector("btsdp", dissect_btsdp, proto_btsdp);
+    btsdp_handle = register_dissector("btsdp", dissect_btsdp, proto_btsdp);
 
     proto_register_field_array(proto_btsdp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

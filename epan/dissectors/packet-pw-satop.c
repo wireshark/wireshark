@@ -460,7 +460,7 @@ void proto_register_pw_satop(void)
 	proto_register_subtree_array(ett_array, array_length(ett_array));
 	expert_pwsatop = expert_register_protocol(proto);
 	expert_register_field_array(expert_pwsatop, ei, array_length(ei));
-	new_register_dissector("pw_satop_udp", dissect_pw_satop_udp, proto);
+	register_dissector("pw_satop_udp", dissect_pw_satop_udp, proto);
 	return;
 }
 

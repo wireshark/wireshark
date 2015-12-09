@@ -1781,7 +1781,7 @@ proto_register_zbee_nwk_gp(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the dissectors. */
-    new_register_dissector(ZBEE_PROTOABBREV_NWK_GP, dissect_zbee_nwk_gp, proto_zbee_nwk_gp);
+    register_dissector(ZBEE_PROTOABBREV_NWK_GP, dissect_zbee_nwk_gp, proto_zbee_nwk_gp);
 } /* proto_register_zbee_nwk_gp */
 
 /*FUNCTION:------------------------------------------------------

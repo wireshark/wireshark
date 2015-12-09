@@ -1351,8 +1351,8 @@ proto_register_bpdu(void)
   proto_register_field_array(proto_bpdu, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  new_register_dissector("bpdu", dissect_bpdu_generic, proto_bpdu);
-  new_register_dissector("bpdu_cisco", dissect_bpdu_cisco, proto_bpdu);
+  register_dissector("bpdu", dissect_bpdu_generic, proto_bpdu);
+  register_dissector("bpdu_cisco", dissect_bpdu_cisco, proto_bpdu);
 
   expert_bpdu = expert_register_protocol(proto_bpdu);
   expert_register_field_array(expert_bpdu, ei, array_length(ei));

@@ -2939,13 +2939,13 @@ proto_register_rlc(void)
     };
 
     proto_rlc = proto_register_protocol("Radio Link Control", "RLC", "rlc");
-    new_register_dissector("rlc.bcch",        dissect_rlc_bcch,        proto_rlc);
-    new_register_dissector("rlc.pcch",        dissect_rlc_pcch,        proto_rlc);
-    new_register_dissector("rlc.ccch",        dissect_rlc_ccch,        proto_rlc);
-    new_register_dissector("rlc.ctch",        dissect_rlc_ctch,        proto_rlc);
-    new_register_dissector("rlc.dcch",        dissect_rlc_dcch,        proto_rlc);
-    new_register_dissector("rlc.ps_dtch",     dissect_rlc_ps_dtch,     proto_rlc);
-    new_register_dissector("rlc.dch_unknown", dissect_rlc_dch_unknown, proto_rlc);
+    register_dissector("rlc.bcch",        dissect_rlc_bcch,        proto_rlc);
+    register_dissector("rlc.pcch",        dissect_rlc_pcch,        proto_rlc);
+    register_dissector("rlc.ccch",        dissect_rlc_ccch,        proto_rlc);
+    register_dissector("rlc.ctch",        dissect_rlc_ctch,        proto_rlc);
+    register_dissector("rlc.dcch",        dissect_rlc_dcch,        proto_rlc);
+    register_dissector("rlc.ps_dtch",     dissect_rlc_ps_dtch,     proto_rlc);
+    register_dissector("rlc.dch_unknown", dissect_rlc_dch_unknown, proto_rlc);
 
     proto_register_field_array(proto_rlc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

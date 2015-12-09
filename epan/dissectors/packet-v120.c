@@ -330,7 +330,7 @@ proto_register_v120(void)
 	proto_register_field_array (proto_v120, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("v120", dissect_v120, proto_v120);
+	register_dissector("v120", dissect_v120, proto_v120);
 }
 
 void

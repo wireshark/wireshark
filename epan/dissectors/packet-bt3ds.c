@@ -162,7 +162,7 @@ proto_register_bt3ds(void)
     };
 
     proto_bt3ds = proto_register_protocol("Bluetooth 3DS Profile", "BT 3DS", "bt3ds");
-    b3ds_handle = new_register_dissector("bt3ds", dissect_bt3ds, proto_bt3ds);
+    b3ds_handle = register_dissector("bt3ds", dissect_bt3ds, proto_bt3ds);
 
     proto_register_field_array(proto_bt3ds, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

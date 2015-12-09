@@ -1545,7 +1545,7 @@ proto_register_eap(void)
   expert_eap = expert_register_protocol(proto_eap);
   expert_register_field_array(expert_eap, ei, array_length(ei));
 
-  eap_handle = new_register_dissector("eap", dissect_eap, proto_eap);
+  eap_handle = register_dissector("eap", dissect_eap, proto_eap);
   register_init_routine(eap_tls_defragment_init);
   register_cleanup_routine(eap_tls_defragment_cleanup);
 }

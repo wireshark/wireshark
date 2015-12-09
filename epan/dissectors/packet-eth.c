@@ -1010,9 +1010,9 @@ proto_register_eth(void)
                                  "Set the condition that must be true for the CCSDS dissector to be called",
                                  &ccsds_heuristic_bit);
 
-  new_register_dissector("eth_withoutfcs", dissect_eth_withoutfcs, proto_eth);
-  new_register_dissector("eth_withfcs", dissect_eth_withfcs, proto_eth);
-  new_register_dissector("eth", dissect_eth_maybefcs, proto_eth);
+  register_dissector("eth_withoutfcs", dissect_eth_withoutfcs, proto_eth);
+  register_dissector("eth_withfcs", dissect_eth_withfcs, proto_eth);
+  register_dissector("eth", dissect_eth_maybefcs, proto_eth);
   eth_tap = register_tap("eth");
 
   register_conversation_table(proto_eth, TRUE, eth_conversation_packet, eth_hostlist_packet);

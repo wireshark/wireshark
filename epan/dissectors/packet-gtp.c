@@ -9796,8 +9796,8 @@ proto_register_gtp(void)
      */
     prefs_register_bool_preference(gtp_module, "dissect_gtp_over_tcp", "Dissect GTP over TCP", "Dissect GTP over TCP", &g_gtp_over_tcp);
 
-    new_register_dissector("gtp", dissect_gtp, proto_gtp);
-    new_register_dissector("gtpprime", dissect_gtpprime, proto_gtpprime);
+    register_dissector("gtp", dissect_gtp, proto_gtp);
+    register_dissector("gtpprime", dissect_gtpprime, proto_gtpprime);
 
     gtp_priv_ext_dissector_table = register_dissector_table("gtp.priv_ext", "GTP PRIVATE EXT", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
     gtp_cdr_fmt_dissector_table = register_dissector_table("gtp.cdr_fmt", "GTP DATA RECORD TYPE", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);

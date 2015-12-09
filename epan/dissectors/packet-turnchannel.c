@@ -185,7 +185,7 @@ proto_register_turnchannel(void)
 	proto_turnchannel = proto_register_protocol("TURN Channel",
 	    "TURNCHANNEL", "turnchannel");
 
-	new_register_dissector("turnchannel", dissect_turnchannel_message,
+	register_dissector("turnchannel", dissect_turnchannel_message,
 			   proto_turnchannel);
 
 /* subdissectors */

@@ -530,7 +530,7 @@ proto_register_ppi_antenna(void) {
     proto_register_subtree_array(ett, array_length(ett));
     expert_ppi_antenna = expert_register_protocol(proto_ppi_antenna);
     expert_register_field_array(expert_ppi_antenna, ei, array_length(ei));
-    new_register_dissector("ppi_antenna", dissect_ppi_antenna, proto_ppi_antenna);
+    register_dissector("ppi_antenna", dissect_ppi_antenna, proto_ppi_antenna);
 
 }
 

@@ -280,7 +280,7 @@ proto_register_fw1(void)
                                  "Whether the interface list includes the chain position",
                                  &fw1_iflist_with_chain);
 
-  new_register_dissector("fw1", dissect_fw1, proto_fw1);
+  register_dissector("fw1", dissect_fw1, proto_fw1);
 
   for (i=0; i<MAX_INTERFACES; i++) {
     p_interfaces[i] = NULL;

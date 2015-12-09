@@ -139,7 +139,7 @@ proto_register_dmx_test(void)
 	proto_dmx_test = proto_register_protocol("DMX Test Frame", "DMX Test Frame", "dmx-test");
 	proto_register_field_array(proto_dmx_test, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	new_register_dissector("dmx-test", dissect_dmx_test, proto_dmx_test);
+	register_dissector("dmx-test", dissect_dmx_test, proto_dmx_test);
 }
 
 /*

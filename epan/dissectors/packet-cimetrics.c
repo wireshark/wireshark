@@ -114,7 +114,7 @@ proto_register_cimetrics(void)
 	proto_register_field_array(proto_cimetrics_mstp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("cimetrics", dissect_cimetrics_mstp,
+	register_dissector("cimetrics", dissect_cimetrics_mstp,
 			   proto_cimetrics_mstp);
 
 	llc_add_oui(OUI_CIMETRICS, "llc.cimetrics_pid",

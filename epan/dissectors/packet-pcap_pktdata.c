@@ -365,7 +365,7 @@ proto_register_pcap_pktdata(void)
     proto_register_field_array(proto_pcap_pktdata, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("pcap_pktdata", dissect_pcap_pktdata, proto_pcap_pktdata);
+    register_dissector("pcap_pktdata", dissect_pcap_pktdata, proto_pcap_pktdata);
 }
 
 void

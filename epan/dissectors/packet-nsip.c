@@ -1148,7 +1148,7 @@ proto_register_nsip(void)
   proto_register_field_array(proto_nsip, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  new_register_dissector("gprs_ns", dissect_nsip, proto_nsip);
+  register_dissector("gprs_ns", dissect_nsip, proto_nsip);
 
   /* Set default UDP ports */
   range_convert_str(&global_nsip_udp_port_range, DEFAULT_NSIP_PORT_RANGE, MAX_UDP_PORT);

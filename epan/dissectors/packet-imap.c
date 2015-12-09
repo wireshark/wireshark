@@ -350,7 +350,7 @@ proto_register_imap(void)
 
   proto_imap = proto_register_protocol("Internet Message Access Protocol", "IMAP", "imap");
 
-  imap_handle = new_register_dissector("imap", dissect_imap, proto_imap);
+  imap_handle = register_dissector("imap", dissect_imap, proto_imap);
 
   proto_register_field_array(proto_imap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

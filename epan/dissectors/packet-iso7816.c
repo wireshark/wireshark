@@ -925,13 +925,13 @@ proto_register_iso7816(void)
     expert_iso7816 = expert_register_protocol(proto_iso7816);
     expert_register_field_array(expert_iso7816, ei, array_length(ei));
 
-    new_register_dissector("iso7816", dissect_iso7816, proto_iso7816);
+    register_dissector("iso7816", dissect_iso7816, proto_iso7816);
 
     transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_iso7816_atr = proto_register_protocol(
             "ISO/IEC 7816-3", "ISO 7816-3", "iso7816.atr");
-    new_register_dissector("iso7816.atr", dissect_iso7816_atr, proto_iso7816_atr);
+    register_dissector("iso7816.atr", dissect_iso7816_atr, proto_iso7816_atr);
 }
 
 void

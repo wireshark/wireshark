@@ -285,7 +285,7 @@ proto_register_nflog(void)
     proto_nflog = proto_register_protocol("Linux Netfilter NFLOG", "NFLOG", "nflog");
     hfi_nflog = proto_registrar_get_nth(proto_nflog);
 
-    new_register_dissector("nflog", dissect_nflog, proto_nflog);
+    register_dissector("nflog", dissect_nflog, proto_nflog);
 
     proto_register_fields(proto_nflog, hfi, array_length(hfi));
     proto_register_subtree_array(ett, array_length(ett));

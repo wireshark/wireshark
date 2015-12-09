@@ -3718,7 +3718,7 @@ proto_register_megaco(void)
     proto_megaco = proto_register_protocol("MEGACO",
                                            "MEGACO", "megaco");
 
-    new_register_dissector("megaco", dissect_megaco_text, proto_megaco);
+    register_dissector("megaco", dissect_megaco_text, proto_megaco);
 
     proto_register_field_array(proto_megaco, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

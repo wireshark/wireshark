@@ -490,7 +490,7 @@ proto_register_lapdm(void)
     proto_register_field_array (proto_lapdm, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("lapdm", dissect_lapdm, proto_lapdm);
+    register_dissector("lapdm", dissect_lapdm, proto_lapdm);
 
     lapdm_sapi_dissector_table = register_dissector_table("lapdm.sapi", "LAPDm SAPI", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 

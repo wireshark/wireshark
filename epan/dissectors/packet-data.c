@@ -137,7 +137,7 @@ proto_register_data(void)
 		"data"		/* abbrev */
 		);
 
-	new_register_dissector("data", dissect_data, proto_data);
+	register_dissector("data", dissect_data, proto_data);
 
 	proto_register_fields(proto_data, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));

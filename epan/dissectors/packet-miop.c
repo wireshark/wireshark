@@ -306,7 +306,7 @@ void proto_register_miop (void) {
   expert_miop = expert_register_protocol(proto_miop);
   expert_register_field_array(expert_miop, ei, array_length(ei));
 
-  new_register_dissector("miop", dissect_miop, proto_miop);
+  register_dissector("miop", dissect_miop, proto_miop);
 
 }
 

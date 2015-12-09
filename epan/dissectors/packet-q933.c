@@ -2233,7 +2233,7 @@ proto_register_q933(void)
 	expert_q933 = expert_register_protocol(proto_q933);
 	expert_register_field_array(expert_q933, ei, array_length(ei));
 
-	new_register_dissector("q933", dissect_q933, proto_q933);
+	register_dissector("q933", dissect_q933, proto_q933);
 }
 
 void

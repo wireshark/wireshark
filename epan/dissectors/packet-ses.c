@@ -1905,7 +1905,7 @@ proto_register_ses(void)
 	 * (you can't refer to it directly from a plugin dissector
 	 * on Windows without stuffing it into the Big Transfer Vector).
 	 */
-	new_register_dissector("ses", dissect_ses, proto_ses);
+	register_dissector("ses", dissect_ses, proto_ses);
 }
 
 void

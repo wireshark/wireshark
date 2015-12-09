@@ -8120,8 +8120,8 @@ proto_register_wbxml(void)
 				       "dissected (and visualized) then.",
 				       &disable_wbxml_token_parsing);
 
-	new_register_dissector("wbxml", dissect_wbxml, proto_wbxml);
-	new_register_dissector("wbxml-uaprof", dissect_uaprof, proto_wbxml);
+	register_dissector("wbxml", dissect_wbxml, proto_wbxml);
+	register_dissector("wbxml-uaprof", dissect_uaprof, proto_wbxml);
 }
 
 

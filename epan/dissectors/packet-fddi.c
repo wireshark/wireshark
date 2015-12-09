@@ -511,7 +511,7 @@ proto_register_fddi(void)
    * Called from various dissectors for encapsulated FDDI frames.
    * We assume the MAC addresses in them aren't bitswapped.
    */
-  new_register_dissector("fddi", dissect_fddi_not_bitswapped, proto_fddi);
+  register_dissector("fddi", dissect_fddi_not_bitswapped, proto_fddi);
 
   fddi_module = prefs_register_protocol(proto_fddi, NULL);
   prefs_register_bool_preference(fddi_module, "padding",

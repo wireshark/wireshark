@@ -400,7 +400,7 @@ proto_register_bthid(void)
     };
 
     proto_bthid = proto_register_protocol("Bluetooth HID Profile", "BT HID", "bthid");
-    bthid_handle = new_register_dissector("bthid", dissect_bthid, proto_bthid);
+    bthid_handle = register_dissector("bthid", dissect_bthid, proto_bthid);
 
     proto_register_field_array(proto_bthid, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

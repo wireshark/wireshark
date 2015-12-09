@@ -2113,8 +2113,8 @@ proto_register_memcache (void)
   expert_module_t *expert_memcache;
 
   proto_memcache = proto_register_protocol (PNAME, PSNAME, PFNAME);
-  memcache_tcp_handle = new_register_dissector ("memcache.tcp", dissect_memcache_tcp, proto_memcache);
-  memcache_udp_handle = new_register_dissector ("memcache.udp", dissect_memcache_udp, proto_memcache);
+  memcache_tcp_handle = register_dissector ("memcache.tcp", dissect_memcache_tcp, proto_memcache);
+  memcache_udp_handle = register_dissector ("memcache.udp", dissect_memcache_udp, proto_memcache);
 
   proto_register_field_array (proto_memcache, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

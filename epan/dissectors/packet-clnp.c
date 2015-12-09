@@ -738,7 +738,7 @@ proto_register_clnp(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_clnp = expert_register_protocol(proto_clnp);
     expert_register_field_array(expert_clnp, ei, array_length(ei));
-    new_register_dissector("clnp", dissect_clnp, proto_clnp);
+    register_dissector("clnp", dissect_clnp, proto_clnp);
     clnp_heur_subdissector_list = register_heur_dissector_list("clnp");
     register_init_routine(clnp_reassemble_init);
     register_cleanup_routine(clnp_reassemble_cleanup);

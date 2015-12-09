@@ -368,7 +368,7 @@ proto_register_btle_rf(void)
                                             "BTLE RF", "btle_rf");
     proto_register_field_array(proto_btle_rf, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    btle_rf_handle = new_register_dissector("btle_rf", dissect_btle_rf, proto_btle_rf);
+    btle_rf_handle = register_dissector("btle_rf", dissect_btle_rf, proto_btle_rf);
 }
 
 void

@@ -445,7 +445,7 @@ void proto_register_uasip(void)
     };
 
     proto_uasip = proto_register_protocol("UA/SIP Protocol", "UASIP", "uasip");
-    uasip_handle = new_register_dissector("uasip", dissect_uasip, proto_uasip);
+    uasip_handle = register_dissector("uasip", dissect_uasip, proto_uasip);
 
     proto_register_field_array(proto_uasip, hf_uasip, array_length(hf_uasip));
     proto_register_subtree_array(ett, array_length(ett));

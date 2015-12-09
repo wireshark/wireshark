@@ -1464,7 +1464,7 @@ proto_register_rtsp(void)
     expert_register_field_array(expert_rtsp, ei, array_length(ei));
 
     /* Make this dissector findable by name */
-    new_register_dissector("rtsp", dissect_rtsp, proto_rtsp);
+    register_dissector("rtsp", dissect_rtsp, proto_rtsp);
 
     /* Register our configuration options, particularly our ports */
 

@@ -708,7 +708,7 @@ proto_register_btsap(void)
     };
 
     proto_btsap = proto_register_protocol("Bluetooth SAP Profile", "BT SAP", "btsap");
-    btsap_handle = new_register_dissector("btsap", dissect_btsap, proto_btsap);
+    btsap_handle = register_dissector("btsap", dissect_btsap, proto_btsap);
 
     proto_register_field_array(proto_btsap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

@@ -336,7 +336,7 @@ proto_register_bmc(void)
     };
 
     proto_bmc = proto_register_protocol("Broadcast/Multicast Control", "BMC", "bmc");
-    new_register_dissector("bmc", dissect_bmc, proto_bmc);
+    register_dissector("bmc", dissect_bmc, proto_bmc);
 
     proto_register_field_array(proto_bmc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

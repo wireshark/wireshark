@@ -13340,7 +13340,7 @@ proto_register_gsm_a_rr(void)
         proto_register_protocol("GSM CCCH", "GSM CCCH", "gsm_a.ccch");
 
     /* subdissector code */
-    new_register_dissector("gsm_a_ccch", dissect_ccch, proto_a_ccch);
+    register_dissector("gsm_a_ccch", dissect_ccch, proto_a_ccch);
 
     /* Register the protocol name and description */
     proto_a_sacch =
@@ -13349,7 +13349,7 @@ proto_register_gsm_a_rr(void)
     proto_register_field_array(proto_a_sacch, hf_rr_short_pd, array_length(hf_rr_short_pd));
 
     /* subdissector code */
-    new_register_dissector("gsm_a_sacch", dissect_sacch, proto_a_sacch);
+    register_dissector("gsm_a_sacch", dissect_sacch, proto_a_sacch);
 
     /* subtree array (for both sub-dissectors) */
     proto_register_subtree_array(ett, array_length(ett));

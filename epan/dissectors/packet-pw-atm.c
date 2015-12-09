@@ -1911,9 +1911,9 @@ proto_register_pw_atm_ata(void)
 
 	proto_register_subtree_array(ett_array, array_length(ett_array));
 
-	new_register_dissector("mpls_pw_atm_control_word"	,dissect_control_word	,proto_control_word);
-	new_register_dissector("mpls_pw_atm_cell"	,dissect_cell		,proto_cell);
-	new_register_dissector("mpls_pw_atm_cell_header",dissect_cell_header	,proto_cell_header);
+	register_dissector("mpls_pw_atm_control_word"	,dissect_control_word	,proto_control_word);
+	register_dissector("mpls_pw_atm_cell"	,dissect_cell		,proto_cell);
+	register_dissector("mpls_pw_atm_cell_header",dissect_cell_header	,proto_cell_header);
 	{
 		static const char description_allow_cw_length_nonzero[] =
 			"Enable to allow non-zero Length in Control Word."

@@ -2921,7 +2921,7 @@ proto_register_cipmotion(void)
    /* Register the subtrees for the protocol dissection */
    proto_register_subtree_array(cip_subtree, array_length(cip_subtree));
 
-   new_register_dissector( "cipmotion", dissect_cipmotion, proto_cipmotion);
+   register_dissector( "cipmotion", dissect_cipmotion, proto_cipmotion);
 }
 
 void proto_reg_handoff_cipmotion(void)

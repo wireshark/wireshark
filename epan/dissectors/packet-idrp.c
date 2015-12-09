@@ -1596,7 +1596,7 @@ void proto_register_idrp(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_idrp = expert_register_protocol(proto_idrp);
     expert_register_field_array(expert_idrp, ei, array_length(ei));
-    new_register_dissector("idrp", dissect_idrp, proto_idrp);
+    register_dissector("idrp", dissect_idrp, proto_idrp);
 
 }
 

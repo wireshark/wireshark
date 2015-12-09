@@ -1681,7 +1681,7 @@ void proto_register_sgsap(void) {
     expert_register_field_array(expert_sgsap, ei, array_length(ei));
 
     /* Register dissector */
-    new_register_dissector(PFNAME, dissect_sgsap, proto_sgsap);
+    register_dissector(PFNAME, dissect_sgsap, proto_sgsap);
 
    /* Set default SCTP ports */
     range_convert_str(&global_sgsap_port_range, SGSAP_SCTP_PORT_RANGE, MAX_SCTP_PORT);

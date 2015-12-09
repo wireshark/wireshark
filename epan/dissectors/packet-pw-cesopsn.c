@@ -444,7 +444,7 @@ void proto_register_pw_cesopsn(void)
 	proto_register_subtree_array(ett_array, array_length(ett_array));
 	expert_pwcesopsn = expert_register_protocol(proto);
 	expert_register_field_array(expert_pwcesopsn, ei, array_length(ei));
-	new_register_dissector("pw_cesopsn_udp", dissect_pw_cesopsn_udp, proto);
+	register_dissector("pw_cesopsn_udp", dissect_pw_cesopsn_udp, proto);
 }
 
 

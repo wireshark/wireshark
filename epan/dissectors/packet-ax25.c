@@ -420,7 +420,7 @@ proto_register_ax25(void)
 	proto_ax25 = proto_register_protocol("Amateur Radio AX.25", "AX.25", "ax25");
 
 	/* Register the dissector */
-	ax25_handle = new_register_dissector( "ax25", dissect_ax25, proto_ax25 );
+	ax25_handle = register_dissector( "ax25", dissect_ax25, proto_ax25 );
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_ax25, hf, array_length(hf ) );

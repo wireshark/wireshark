@@ -5345,7 +5345,7 @@ proto_register_mip6(void)
     proto_mip6 = proto_register_protocol("Mobile IPv6 / Network Mobility", "MIPv6", "mipv6");
 
     /* Register the dissector by name */
-    /* new_register_dissector("mipv6", dissect_nemo, proto_nemo); */
+    /* register_dissector("mipv6", dissect_nemo, proto_nemo); */
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_mip6, hf, array_length(hf));

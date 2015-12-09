@@ -1752,7 +1752,7 @@ proto_register_ged125 (void)
 	expert_ged125 = expert_register_protocol(proto_ged125);
 	expert_register_field_array(expert_ged125, ei, array_length(ei));
 
-	ged125_handle = new_register_dissector("ged125", dissect_ged125, proto_ged125);
+	ged125_handle = register_dissector("ged125", dissect_ged125, proto_ged125);
 
 	ged125_module = prefs_register_protocol(proto_ged125, NULL);
 

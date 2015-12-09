@@ -1625,7 +1625,7 @@ proto_register_cfdp(void)
     expert_cfdp = expert_register_protocol(proto_cfdp);
     expert_register_field_array(expert_cfdp, ei, array_length(ei));
 
-    new_register_dissector ( "cfdp", dissect_cfdp, proto_cfdp );
+    register_dissector ( "cfdp", dissect_cfdp, proto_cfdp );
 }
 
 void

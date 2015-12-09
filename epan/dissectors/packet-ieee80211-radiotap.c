@@ -2649,7 +2649,7 @@ void proto_register_radiotap(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_radiotap = expert_register_protocol(proto_radiotap);
 	expert_register_field_array(expert_radiotap, ei, array_length(ei));
-	new_register_dissector("radiotap", dissect_radiotap, proto_radiotap);
+	register_dissector("radiotap", dissect_radiotap, proto_radiotap);
 
 	radiotap_tap = register_tap("radiotap");
 

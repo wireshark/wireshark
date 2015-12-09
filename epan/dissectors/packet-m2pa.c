@@ -576,7 +576,7 @@ proto_register_m2pa(void)
   expert_register_field_array(expert_m2pa, ei, array_length(ei));
 
   /* Allow other dissectors to find this one by name. */
-  new_register_dissector("m2pa", dissect_m2pa, proto_m2pa);
+  register_dissector("m2pa", dissect_m2pa, proto_m2pa);
 
   m2pa_module = prefs_register_protocol(proto_m2pa, proto_reg_handoff_m2pa);
 

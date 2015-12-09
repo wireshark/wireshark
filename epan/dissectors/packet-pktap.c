@@ -278,7 +278,7 @@ proto_register_pktap(void)
 	expert_pktap = expert_register_protocol(proto_pktap);
 	expert_register_field_array(expert_pktap, ei, array_length(ei));
 
-	pktap_handle = new_register_dissector("pktap", dissect_pktap, proto_pktap);
+	pktap_handle = register_dissector("pktap", dissect_pktap, proto_pktap);
 }
 
 void

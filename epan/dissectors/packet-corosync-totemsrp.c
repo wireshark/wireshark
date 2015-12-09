@@ -1161,7 +1161,7 @@ proto_register_corosync_totemsrp(void)
 
   heur_subdissector_list = register_heur_dissector_list("corosync_totemsrp.mcast");
 
-  new_register_dissector( "corosync_totemsrp", dissect_corosync_totemsrp, proto_corosync_totemsrp);
+  register_dissector( "corosync_totemsrp", dissect_corosync_totemsrp, proto_corosync_totemsrp);
 }
 
 void

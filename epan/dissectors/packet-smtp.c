@@ -1270,7 +1270,7 @@ proto_register_smtp(void)
   register_cleanup_routine (&smtp_data_reassemble_cleanup);
 
   /* Allow dissector to find be found by name. */
-  new_register_dissector("smtp", dissect_smtp, proto_smtp);
+  register_dissector("smtp", dissect_smtp, proto_smtp);
 
   /* Preferences */
   smtp_module = prefs_register_protocol(proto_smtp, NULL);

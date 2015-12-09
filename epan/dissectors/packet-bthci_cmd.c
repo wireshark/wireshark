@@ -4843,7 +4843,7 @@ proto_register_bthci_cmd(void)
     }
 
     proto_bthci_cmd = proto_register_protocol("Bluetooth HCI Command", "HCI_CMD", "bthci_cmd");
-    bthci_cmd_handle = new_register_dissector("bthci_cmd", dissect_bthci_cmd, proto_bthci_cmd);
+    bthci_cmd_handle = register_dissector("bthci_cmd", dissect_bthci_cmd, proto_bthci_cmd);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bthci_cmd, hf, array_length(hf));
@@ -6116,10 +6116,10 @@ proto_register_btcommon(void)
     expert_module = expert_register_protocol(proto_btcommon);
     expert_register_field_array(expert_module, ei, array_length(ei));
 
-    btcommon_ad_handle  = new_register_dissector("btcommon.eir_ad.ad",  dissect_btcommon_ad,  proto_btcommon);
-    btcommon_eir_handle = new_register_dissector("btcommon.eir_ad.eir", dissect_btcommon_eir, proto_btcommon);
-    btcommon_cod_handle = new_register_dissector("btcommon.cod",        dissect_btcommon_cod, proto_btcommon);
-    btcommon_le_channel_map_handle = new_register_dissector("btcommon.le_channel_map", dissect_btcommon_le_channel_map, proto_btcommon);
+    btcommon_ad_handle  = register_dissector("btcommon.eir_ad.ad",  dissect_btcommon_ad,  proto_btcommon);
+    btcommon_eir_handle = register_dissector("btcommon.eir_ad.eir", dissect_btcommon_eir, proto_btcommon);
+    btcommon_cod_handle = register_dissector("btcommon.cod",        dissect_btcommon_cod, proto_btcommon);
+    btcommon_le_channel_map_handle = register_dissector("btcommon.le_channel_map", dissect_btcommon_le_channel_map, proto_btcommon);
 }
 
 /*

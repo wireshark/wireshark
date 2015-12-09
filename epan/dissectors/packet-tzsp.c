@@ -534,7 +534,7 @@ proto_register_tzsp(void)
     proto_register_field_array(proto_tzsp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    tzsp_handle = new_register_dissector("tzsp", dissect_tzsp, proto_tzsp);
+    tzsp_handle = register_dissector("tzsp", dissect_tzsp, proto_tzsp);
 }
 
 void

@@ -2000,12 +2000,12 @@ proto_register_atm(void)
   atm_type_aal2_table = register_dissector_table("atm.aal2.type", "ATM AAL_2 type subdissector", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
   atm_type_aal5_table = register_dissector_table("atm.aal5.type", "ATM AAL_5 type subdissector", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-  atm_handle = new_register_dissector("atm_truncated", dissect_atm_truncated, proto_atm);
-  new_register_dissector("atm_pw_truncated", dissect_atm_pw_truncated, proto_atm);
-  atm_untruncated_handle = new_register_dissector("atm_untruncated", dissect_atm_untruncated, proto_atm);
-  new_register_dissector("atm_pw_untruncated", dissect_atm_pw_untruncated, proto_atm);
-  new_register_dissector("atm_oam_cell", dissect_atm_oam_cell, proto_oamaal);
-  new_register_dissector("atm_pw_oam_cell", dissect_atm_pw_oam_cell, proto_oamaal);
+  atm_handle = register_dissector("atm_truncated", dissect_atm_truncated, proto_atm);
+  register_dissector("atm_pw_truncated", dissect_atm_pw_truncated, proto_atm);
+  atm_untruncated_handle = register_dissector("atm_untruncated", dissect_atm_untruncated, proto_atm);
+  register_dissector("atm_pw_untruncated", dissect_atm_pw_untruncated, proto_atm);
+  register_dissector("atm_oam_cell", dissect_atm_oam_cell, proto_oamaal);
+  register_dissector("atm_pw_oam_cell", dissect_atm_pw_oam_cell, proto_oamaal);
 
   atm_module = prefs_register_protocol ( proto_atm, NULL );
   prefs_register_bool_preference(atm_module, "dissect_lane_as_sscop", "Dissect LANE as SSCOP",

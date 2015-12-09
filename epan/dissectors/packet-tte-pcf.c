@@ -203,7 +203,7 @@ proto_register_tte_pcf(void)
     proto_register_field_array(proto_tte_pcf, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("tte_pcf", dissect_tte_pcf, proto_tte_pcf);
+    register_dissector("tte_pcf", dissect_tte_pcf, proto_tte_pcf);
 
 }
 

@@ -1352,7 +1352,7 @@ void proto_register_synphasor(void)
 						  PROTOCOL_ABBREV);
 
 	/* Registering protocol to be called by another dissector */
-	synphasor_udp_handle = new_register_dissector("synphasor", dissect_udp, proto_synphasor);
+	synphasor_udp_handle = register_dissector("synphasor", dissect_udp, proto_synphasor);
 
 	proto_register_field_array(proto_synphasor, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

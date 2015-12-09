@@ -2027,7 +2027,7 @@ void proto_register_icmp(void)
 				       "Whether the 128th and following bytes of the ICMP payload should be decoded as MPLS extensions or as a portion of the original packet",
 				       &favor_icmp_mpls_ext);
 
-	new_register_dissector("icmp", dissect_icmp, proto_icmp);
+	register_dissector("icmp", dissect_icmp, proto_icmp);
 	icmp_tap = register_tap("icmp");
 }
 

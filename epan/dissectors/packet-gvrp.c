@@ -344,7 +344,7 @@ proto_register_gvrp(void)
     expert_gvrp = expert_register_protocol(proto_gvrp);
     expert_register_field_array(expert_gvrp, ei, array_length(ei));
 
-    new_register_dissector("gvrp", dissect_gvrp, proto_gvrp);
+    register_dissector("gvrp", dissect_gvrp, proto_gvrp);
 }
 
 void

@@ -2539,8 +2539,8 @@ proto_register_ipsec(void)
   register_init_routine(&ipsec_init_protocol);
   register_cleanup_routine(&ipsec_cleanup_protocol);
 
-  new_register_dissector("esp", dissect_esp, proto_esp);
-  new_register_dissector("ah", dissect_ah, proto_ah);
+  register_dissector("esp", dissect_esp, proto_esp);
+  register_dissector("ah", dissect_ah, proto_ah);
 }
 
 void

@@ -3468,7 +3468,7 @@ proto_register_ubertooth(void)
     proto_ubertooth = proto_register_protocol("Ubertooth", "UBERTOOTH", "ubertooth");
     proto_register_field_array(proto_ubertooth, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    ubertooth_handle = new_register_dissector("ubertooth", dissect_ubertooth, proto_ubertooth);
+    ubertooth_handle = register_dissector("ubertooth", dissect_ubertooth, proto_ubertooth);
 
     expert_module = expert_register_protocol(proto_ubertooth);
     expert_register_field_array(expert_module, ei, array_length(ei));

@@ -386,7 +386,7 @@ proto_register_lisp_tcp(void)
     expert_register_field_array(expert_lisp_tcp, ei, array_length(ei));
 
     /* Register dissector so that other dissectors can call it */
-    lisp_tcp_handle = new_register_dissector("lisp-tcp", dissect_lisp_tcp, proto_lisp_tcp);
+    lisp_tcp_handle = register_dissector("lisp-tcp", dissect_lisp_tcp, proto_lisp_tcp);
 }
 
 

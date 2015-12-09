@@ -98,7 +98,7 @@ proto_register_wfleet_hdlc(void)
   proto_register_field_array(proto_wfleet_hdlc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  new_register_dissector("wfleet_hdlc", dissect_wfleet_hdlc, proto_wfleet_hdlc);
+  register_dissector("wfleet_hdlc", dissect_wfleet_hdlc, proto_wfleet_hdlc);
 
 }
 

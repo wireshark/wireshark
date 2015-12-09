@@ -1331,7 +1331,7 @@ proto_register_jfif(void)
     expert_jfif = expert_register_protocol(proto_jfif);
     expert_register_field_array(expert_jfif, ei, array_length(ei));
 
-    new_register_dissector(IMG_JFIF, dissect_jfif, proto_jfif);
+    register_dissector(IMG_JFIF, dissect_jfif, proto_jfif);
 }
 
 

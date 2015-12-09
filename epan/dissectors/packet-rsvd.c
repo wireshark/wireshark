@@ -830,7 +830,7 @@ proto_register_rsvd(void)
     proto_rsvd = proto_register_protocol("Remote Shared Virtual Disk",
             "RSVD", "rsvd");
 
-    new_register_dissector("rsvd", dissect_rsvd, proto_rsvd);
+    register_dissector("rsvd", dissect_rsvd, proto_rsvd);
     proto_register_field_array(proto_rsvd, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }

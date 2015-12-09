@@ -1032,9 +1032,9 @@ proto_register_ftp(void)
 
     proto_ftp = proto_register_protocol("File Transfer Protocol (FTP)", "FTP", "ftp");
 
-    new_register_dissector("ftp", dissect_ftp, proto_ftp);
+    register_dissector("ftp", dissect_ftp, proto_ftp);
     proto_ftp_data = proto_register_protocol("FTP Data", "FTP-DATA", "ftp-data");
-    new_register_dissector("ftp-data", dissect_ftpdata, proto_ftp_data);
+    register_dissector("ftp-data", dissect_ftpdata, proto_ftp_data);
     proto_register_field_array(proto_ftp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_ftp = expert_register_protocol(proto_ftp);

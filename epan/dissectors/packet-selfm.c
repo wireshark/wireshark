@@ -3018,7 +3018,7 @@ proto_register_selfm(void)
     proto_selfm = proto_register_protocol("SEL Protocol", "SEL Protocol", "selfm");
 
     /* Registering protocol to be called by another dissector */
-    new_register_dissector("selfm", dissect_selfm_simple, proto_selfm);
+    register_dissector("selfm", dissect_selfm_simple, proto_selfm);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_selfm, selfm_hf, array_length(selfm_hf));

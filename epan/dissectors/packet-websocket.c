@@ -541,7 +541,7 @@ proto_register_websocket(void)
   expert_websocket = expert_register_protocol(proto_websocket);
   expert_register_field_array(expert_websocket, ei, array_length(ei));
 
-  new_register_dissector("websocket", dissect_websocket, proto_websocket);
+  register_dissector("websocket", dissect_websocket, proto_websocket);
 
   websocket_module = prefs_register_protocol(proto_websocket, proto_reg_handoff_websocket);
 

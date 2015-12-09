@@ -1137,7 +1137,7 @@ void proto_register_ieee80211_radio(void)
   proto_register_field_array(proto_wlan_radio, hf_wlan_radio, array_length(hf_wlan_radio));
   proto_register_subtree_array(tree_array, array_length(tree_array));
 
-  wlan_radio_handle = new_register_dissector("wlan_radio", dissect_wlan_radio, proto_wlan_radio);
+  wlan_radio_handle = register_dissector("wlan_radio", dissect_wlan_radio, proto_wlan_radio);
 }
 
 void proto_reg_handoff_ieee80211_radio(void)

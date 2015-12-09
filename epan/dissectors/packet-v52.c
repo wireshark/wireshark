@@ -2404,7 +2404,7 @@ proto_register_v52(void)
     proto_register_field_array (proto_v52, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("v52", dissect_v52, proto_v52);
+    register_dissector("v52", dissect_v52, proto_v52);
 }
 
 /*

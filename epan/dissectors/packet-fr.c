@@ -985,9 +985,9 @@ proto_register_fr(void)
   fr_osinl_subdissector_table = register_dissector_table("fr.osinl",
                                                          "Frame Relay OSI NLPID", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-  new_register_dissector("fr_uncompressed", dissect_fr_uncompressed, proto_fr);
-  new_register_dissector("fr", dissect_fr, proto_fr);
-  new_register_dissector("fr_stripped_address", dissect_fr_stripped_address, proto_fr);
+  register_dissector("fr_uncompressed", dissect_fr_uncompressed, proto_fr);
+  register_dissector("fr", dissect_fr, proto_fr);
+  register_dissector("fr_stripped_address", dissect_fr_stripped_address, proto_fr);
 
   frencap_module = prefs_register_protocol(proto_fr, NULL);
   /*

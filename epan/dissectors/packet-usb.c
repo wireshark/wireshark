@@ -4513,7 +4513,7 @@ proto_register_usb(void)
     proto_usb = proto_register_protocol("USB", "USB", "usb");
     proto_register_field_array(proto_usb, hf, array_length(hf));
     proto_register_subtree_array(usb_subtrees, array_length(usb_subtrees));
-    linux_usb_handle = new_register_dissector("usb", dissect_linux_usb, proto_usb);
+    linux_usb_handle = register_dissector("usb", dissect_linux_usb, proto_usb);
 
     expert_usb = expert_register_protocol(proto_usb);
     expert_register_field_array(expert_usb, ei, array_length(ei));

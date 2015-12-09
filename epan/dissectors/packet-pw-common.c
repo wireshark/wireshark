@@ -120,7 +120,7 @@ void proto_register_pw_padding(void)
 	proto_pw_padding = proto_register_protocol("Pseudowire Padding","PW Padding","pw.padding");
 	proto_register_field_array(proto_pw_padding, hfpadding, array_length(hfpadding));
 	proto_register_subtree_array(ett_array, array_length(ett_array));
-	new_register_dissector("pw_padding", dissect_pw_padding, proto_pw_padding);
+	register_dissector("pw_padding", dissect_pw_padding, proto_pw_padding);
 }
 
 

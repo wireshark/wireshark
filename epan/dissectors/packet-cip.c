@@ -6960,7 +6960,7 @@ proto_register_cip(void)
    /* Register the protocol name and description */
    proto_cip = proto_register_protocol("Common Industrial Protocol",
        "CIP", "cip");
-   new_register_dissector("cip_implicit", dissect_cip_implicit, proto_cip);
+   register_dissector("cip_implicit", dissect_cip_implicit, proto_cip);
 
    /* Required function calls to register the header fields and subtrees used */
    proto_register_field_array(proto_cip, hf, array_length(hf));

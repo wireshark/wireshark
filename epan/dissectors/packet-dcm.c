@@ -7276,7 +7276,7 @@ proto_register_dcm(void)
     expert_register_field_array(expert_dcm, ei, array_length(ei));
 
     /* Allow other dissectors to find this one by name. */
-    new_register_dissector("dicom", dissect_dcm_static, proto_dcm);
+    register_dissector("dicom", dissect_dcm_static, proto_dcm);
 
     dcm_module = prefs_register_protocol(proto_dcm, dcm_apply_settings);
 

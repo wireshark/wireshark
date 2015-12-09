@@ -792,7 +792,7 @@ proto_register_hdfsdata(void)
                                    10,
                                    &tcp_port);
 
-    hdfsdata_handle = new_register_dissector("hdfsdata", dissect_hdfsdata, proto_hdfsdata);
+    hdfsdata_handle = register_dissector("hdfsdata", dissect_hdfsdata, proto_hdfsdata);
 }
 
 /* registers handoff */

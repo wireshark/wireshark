@@ -355,7 +355,7 @@ proto_register_zbee_zcl_appl_idt(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Appliance Identification dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_APPLIDT, dissect_zbee_zcl_appl_idt, proto_zbee_zcl_appl_idt);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_APPLIDT, dissect_zbee_zcl_appl_idt, proto_zbee_zcl_appl_idt);
 } /*proto_register_zbee_zcl_appl_idt*/
 
 /*FUNCTION:------------------------------------------------------
@@ -586,7 +586,7 @@ proto_register_zbee_zcl_met_idt(void)
     proto_register_field_array(proto_zbee_zcl_met_idt, hf, array_length(hf));
 
     /* Register the ZigBee ZCL Meter Identification dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_METIDT, dissect_zbee_zcl_met_idt, proto_zbee_zcl_met_idt);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_METIDT, dissect_zbee_zcl_met_idt, proto_zbee_zcl_met_idt);
 } /*proto_register_zbee_zcl_met_idt*/
 
 /*FUNCTION:------------------------------------------------------
@@ -998,7 +998,7 @@ proto_register_zbee_zcl_appl_evtalt(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Appliance Control dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_APPLEVTALT, dissect_zbee_zcl_appl_evtalt, proto_zbee_zcl_appl_evtalt);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_APPLEVTALT, dissect_zbee_zcl_appl_evtalt, proto_zbee_zcl_appl_evtalt);
 } /*proto_register_zbee_zcl_appl_evtalt*/
 
 /*FUNCTION:------------------------------------------------------
@@ -1404,7 +1404,7 @@ proto_register_zbee_zcl_appl_stats(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Appliance Statistics dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_APPLSTATS, dissect_zbee_zcl_appl_stats, proto_zbee_zcl_appl_stats);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_APPLSTATS, dissect_zbee_zcl_appl_stats, proto_zbee_zcl_appl_stats);
 } /* proto_register_zbee_zcl_appl_stats */
 
 /*FUNCTION:------------------------------------------------------

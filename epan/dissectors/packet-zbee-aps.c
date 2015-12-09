@@ -2115,7 +2115,7 @@ void proto_register_zbee_aps(void)
 
     /* Register the APS dissector and subdissector list. */
     zbee_aps_dissector_table = register_dissector_table("zbee.profile", "ZigBee Profile ID", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
-    zbee_aps_handle = new_register_dissector(ZBEE_PROTOABBREV_APS, dissect_zbee_aps, proto_zbee_aps);
+    zbee_aps_handle = register_dissector(ZBEE_PROTOABBREV_APS, dissect_zbee_aps, proto_zbee_aps);
 
     /* Register the init routine. */
     register_init_routine(proto_init_zbee_aps);
@@ -2127,7 +2127,7 @@ void proto_register_zbee_aps(void)
     proto_register_subtree_array(ett_apf, array_length(ett_apf));
 
     /* Register the App dissector. */
-    zbee_apf_handle = new_register_dissector("zbee_apf", dissect_zbee_apf, proto_zbee_apf);
+    zbee_apf_handle = register_dissector("zbee_apf", dissect_zbee_apf, proto_zbee_apf);
 } /* proto_register_zbee_aps */
 
 /*FUNCTION:------------------------------------------------------

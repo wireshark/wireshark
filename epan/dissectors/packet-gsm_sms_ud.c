@@ -653,7 +653,7 @@ proto_register_gsm_sms_ud(void)
         "own. Eg. Prevent WSP dissector overwriting SMPP information.",
         &prevent_subdissectors_changing_columns);
 
-    new_register_dissector("gsm_sms_ud", dissect_gsm_sms_ud, proto_gsm_sms_ud);
+    register_dissector("gsm_sms_ud", dissect_gsm_sms_ud, proto_gsm_sms_ud);
 
     /* GSM SMS UD dissector initialization routines */
     register_init_routine(gsm_sms_ud_defragment_init);

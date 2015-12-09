@@ -3199,7 +3199,7 @@ proto_register_iax2(void)
   expert_iax = expert_register_protocol(proto_iax2);
   expert_register_field_array(expert_iax, ei, array_length(ei));
 
-  new_register_dissector("iax2", dissect_iax2, proto_iax2);
+  register_dissector("iax2", dissect_iax2, proto_iax2);
 
   iax2_codec_dissector_table = register_dissector_table(
     "iax2.codec", "IAX codec number", FT_UINT32, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);

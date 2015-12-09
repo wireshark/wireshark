@@ -758,7 +758,7 @@ proto_register_mka(void)
   };
 
   proto_mka = proto_register_protocol("MACsec Key Agreement", "EAPOL-MKA", "mka");
-  new_register_dissector("mka", dissect_mka, proto_mka);
+  register_dissector("mka", dissect_mka, proto_mka);
 
   proto_register_field_array(proto_mka, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

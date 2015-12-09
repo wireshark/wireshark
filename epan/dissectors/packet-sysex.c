@@ -1412,7 +1412,7 @@ proto_register_sysex(void)
     expert_sysex = expert_register_protocol(proto_sysex);
     expert_register_field_array(expert_sysex, ei, array_length(ei));
 
-    new_register_dissector("sysex", dissect_sysex_command, proto_sysex);
+    register_dissector("sysex", dissect_sysex_command, proto_sysex);
 }
 
 /*

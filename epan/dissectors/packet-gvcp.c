@@ -3814,7 +3814,7 @@ void proto_register_gvcp(void)
 
 	proto_gvcp = proto_register_protocol("GigE Vision Control Protocol", "GVCP", "gvcp");
 
-	new_register_dissector("gvcp", dissect_gvcp, proto_gvcp);
+	register_dissector("gvcp", dissect_gvcp, proto_gvcp);
 
 	proto_register_field_array(proto_gvcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

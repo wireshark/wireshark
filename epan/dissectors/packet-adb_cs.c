@@ -413,7 +413,7 @@ proto_register_adb_cs(void)
     client_requests = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_adb_cs = proto_register_protocol("Android Debug Bridge Client-Server", "ADB CS", "adb_cs");
-    adb_cs_handle = new_register_dissector("adb_cs", dissect_adb_cs, proto_adb_cs);
+    adb_cs_handle = register_dissector("adb_cs", dissect_adb_cs, proto_adb_cs);
 
     proto_register_field_array(proto_adb_cs, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

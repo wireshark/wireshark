@@ -294,7 +294,7 @@ void proto_register_user_encap(void)
                       encaps_uat);
 
 
-    new_register_dissector("user_dlt",dissect_user,proto_user_encap);
+    register_dissector("user_dlt",dissect_user,proto_user_encap);
 
     /*
     prefs_register_protocol_obsolete(proto_register_protocol("DLT User A","DLT_USER_A","user_dlt_a"));

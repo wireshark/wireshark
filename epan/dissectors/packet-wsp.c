@@ -7161,8 +7161,8 @@ proto_register_wsp(void)
     expert_wsp = expert_register_protocol(proto_wsp);
     expert_register_field_array(expert_wsp, ei, array_length(ei));
 
-    new_register_dissector("wsp-co", dissect_wsp_fromwap_co, proto_wsp);
-    new_register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
+    register_dissector("wsp-co", dissect_wsp_fromwap_co, proto_wsp);
+    register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
     heur_subdissector_list = register_heur_dissector_list("wsp");
 
     wsp_fromudp_handle = create_dissector_handle(dissect_wsp_fromudp,

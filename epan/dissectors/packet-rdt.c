@@ -2161,7 +2161,7 @@ void proto_register_rdt(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_rdt = expert_register_protocol(proto_rdt);
     expert_register_field_array(expert_rdt, ei, array_length(ei));
-    new_register_dissector("rdt", dissect_rdt, proto_rdt);
+    register_dissector("rdt", dissect_rdt, proto_rdt);
 
     /* Preference settings */
     rdt_module = prefs_register_protocol(proto_rdt, proto_reg_handoff_rdt);

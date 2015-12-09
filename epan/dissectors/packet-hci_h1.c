@@ -134,7 +134,7 @@ proto_register_hci_h1(void)
     proto_hci_h1 = proto_register_protocol("Bluetooth HCI H1",
             "HCI_H1", "hci_h1");
 
-    hci_h1_handle = new_register_dissector("hci_h1", dissect_hci_h1, proto_hci_h1);
+    hci_h1_handle = register_dissector("hci_h1", dissect_hci_h1, proto_hci_h1);
 
     proto_register_field_array(proto_hci_h1, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

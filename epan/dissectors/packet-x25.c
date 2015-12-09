@@ -2373,8 +2373,8 @@ proto_register_x25(void)
         "X.25 secondary protocol identifier", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
     x25_heur_subdissector_list = register_heur_dissector_list("x.25");
 
-    new_register_dissector("x.25_dir", dissect_x25_dir, proto_x25);
-    new_register_dissector("x.25", dissect_x25, proto_x25);
+    register_dissector("x.25_dir", dissect_x25_dir, proto_x25);
+    register_dissector("x.25", dissect_x25, proto_x25);
 
     /* Preferences */
     x25_module = prefs_register_protocol(proto_x25, NULL);

@@ -554,7 +554,7 @@ proto_register_usb_dfu(void)
     proto_usb_dfu = proto_register_protocol("USB Device Firmware Upgrade ", "USB DFU", "usbdfu");
     proto_register_field_array(proto_usb_dfu, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    usb_dfu_handle = new_register_dissector("usb_dfu", dissect_usb_dfu, proto_usb_dfu);
+    usb_dfu_handle = register_dissector("usb_dfu", dissect_usb_dfu, proto_usb_dfu);
 
     expert_module = expert_register_protocol(proto_usb_dfu);
     expert_register_field_array(expert_module, ei, array_length(ei));

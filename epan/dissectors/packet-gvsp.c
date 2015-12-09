@@ -1980,7 +1980,7 @@ void proto_register_gvsp(void)
 
     proto_gvsp = proto_register_protocol("GigE Vision Streaming Protocol", "GVSP", "gvsp");
 
-    new_register_dissector("gvsp", dissect_gvsp, proto_gvsp);
+    register_dissector("gvsp", dissect_gvsp, proto_gvsp);
 
     proto_register_field_array(proto_gvsp, hfgvsp, array_length(hfgvsp));
     proto_register_subtree_array(ett, array_length(ett));

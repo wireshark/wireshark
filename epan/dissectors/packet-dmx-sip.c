@@ -301,7 +301,7 @@ proto_register_dmx_sip(void)
 	proto_dmx_sip = proto_register_protocol("DMX SIP", "DMX SIP", "dmx-sip");
 	proto_register_field_array(proto_dmx_sip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	new_register_dissector("dmx-sip", dissect_dmx_sip, proto_dmx_sip);
+	register_dissector("dmx-sip", dissect_dmx_sip, proto_dmx_sip);
 }
 
 /*

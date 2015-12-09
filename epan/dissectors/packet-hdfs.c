@@ -1060,7 +1060,7 @@ proto_register_hdfs(void)
                                    10,
                                    &tcp_port);
 
-    hdfs_handle = new_register_dissector("hdfs", dissect_hdfs, proto_hdfs);
+    hdfs_handle = register_dissector("hdfs", dissect_hdfs, proto_hdfs);
 }
 
 /* registers handoff */

@@ -639,7 +639,7 @@ proto_register_vcdu(void)
     expert_register_field_array(expert_vcdu, ei, array_length(ei));
 
     /* XX: Does this dissector need to be publicly registered ?? */
-    vcdu_handle = new_register_dissector("vcdu", dissect_vcdu, proto_vcdu);
+    vcdu_handle = register_dissector("vcdu", dissect_vcdu, proto_vcdu);
 
     vcdu_module = prefs_register_protocol(proto_vcdu, vcdu_prefs_apply_cb);
 

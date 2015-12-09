@@ -312,7 +312,7 @@ void proto_register_armagetronad(void)
 
 	proto_register_field_array(proto_armagetronad, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	new_register_dissector("armagetronad", dissect_armagetronad,
+	register_dissector("armagetronad", dissect_armagetronad,
 			       proto_armagetronad);
 }
 

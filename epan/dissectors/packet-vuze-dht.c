@@ -1429,7 +1429,7 @@ proto_register_vuze_dht(void)
   proto_register_field_array(proto_vuze_dht, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  vuze_dht_handle = new_register_dissector("vuze-dht", dissect_vuze_dht, proto_vuze_dht);
+  vuze_dht_handle = register_dissector("vuze-dht", dissect_vuze_dht, proto_vuze_dht);
 
   /* Register our configuration options */
   vuze_dht_module = prefs_register_protocol(proto_vuze_dht, proto_reg_handoff_vuze_dht);

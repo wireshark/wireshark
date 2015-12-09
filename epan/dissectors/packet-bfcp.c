@@ -690,7 +690,7 @@ void proto_register_bfcp(void)
 	proto_bfcp = proto_register_protocol("Binary Floor Control Protocol",
 				"BFCP", "bfcp");
 
-	bfcp_handle = new_register_dissector("bfcp", dissect_bfcp, proto_bfcp);
+	bfcp_handle = register_dissector("bfcp", dissect_bfcp, proto_bfcp);
 
 	bfcp_module = prefs_register_protocol(proto_bfcp,
 				proto_reg_handoff_bfcp);

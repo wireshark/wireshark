@@ -356,7 +356,7 @@ void proto_register_rmt_fec(void)
 
     /* Register the protocol name and description */
     proto_rmt_fec = proto_register_protocol("Forward Error Correction (FEC)", "RMT-FEC", "rmt-fec");
-    new_register_dissector("rmt-fec", dissect_fec, proto_rmt_fec);
+    register_dissector("rmt-fec", dissect_fec, proto_rmt_fec);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_rmt_fec, hf, array_length(hf));

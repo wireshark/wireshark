@@ -501,7 +501,7 @@ proto_register_fix(void)
                                         "FIX", "fix");
 
     /* Allow dissector to find be found by name. */
-    fix_handle = new_register_dissector("fix", dissect_fix, proto_fix);
+    fix_handle = register_dissector("fix", dissect_fix, proto_fix);
 
     proto_register_field_array(proto_fix, hf, array_length(hf));
     proto_register_field_array(proto_fix, hf_FIX, array_length(hf_FIX));

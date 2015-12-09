@@ -401,7 +401,7 @@ proto_register_xip_serval(void)
 		"XIP Serval",
 		"XIP Serval",
 	        "xipserval");
-	new_register_dissector("xipserval", dissect_xip_serval,
+	register_dissector("xipserval", dissect_xip_serval,
 		proto_xip_serval);
 	proto_register_field_array(proto_xip_serval, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

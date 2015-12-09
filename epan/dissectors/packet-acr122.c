@@ -885,7 +885,7 @@ proto_register_acr122(void)
     command_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_acr122 = proto_register_protocol("Advanced Card Systems ACR122", "ACR 122", "acr122");
-    new_register_dissector("acr122", dissect_acr122, proto_acr122);
+    register_dissector("acr122", dissect_acr122, proto_acr122);
 
     proto_register_field_array(proto_acr122, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

@@ -369,7 +369,7 @@ proto_register_btsnoop(void)
     proto_register_field_array(proto_btsnoop, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    btsnoop_handle = new_register_dissector("btsnoop", dissect_btsnoop, proto_btsnoop);
+    btsnoop_handle = register_dissector("btsnoop", dissect_btsnoop, proto_btsnoop);
 
     module = prefs_register_protocol(proto_btsnoop, NULL);
     prefs_register_static_text_preference(module, "version",

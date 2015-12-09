@@ -1500,7 +1500,7 @@ proto_register_lg8979(void)
     proto_lg8979 = proto_register_protocol("Landis & Gyr Telegyr 8979", "L&G 8979", "lg8979");
 
     /* Registering protocol to be called by another dissector */
-    new_register_dissector("lg8979", dissect_lg8979_simple, proto_lg8979);
+    register_dissector("lg8979", dissect_lg8979_simple, proto_lg8979);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_lg8979, lg8979_hf, array_length(lg8979_hf));

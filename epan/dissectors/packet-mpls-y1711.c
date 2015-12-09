@@ -398,7 +398,7 @@ proto_register_mpls_y1711(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_mpls_y1711 = expert_register_protocol(proto_mpls_y1711);
     expert_register_field_array(expert_mpls_y1711, ei, array_length(ei));
-    new_register_dissector("mpls_y1711", dissect_mpls_y1711, proto_mpls_y1711);
+    register_dissector("mpls_y1711", dissect_mpls_y1711, proto_mpls_y1711);
 }
 
 void

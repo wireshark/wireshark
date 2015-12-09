@@ -2779,7 +2779,7 @@ proto_register_rdm(void)
 			"RDM", "rdm");
 	proto_register_field_array(proto_rdm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	new_register_dissector("rdm", dissect_rdm, proto_rdm);
+	register_dissector("rdm", dissect_rdm, proto_rdm);
 }
 
 /*

@@ -1424,7 +1424,7 @@ proto_register_mux27010 (void)
     proto_register_field_array (proto_mux27010, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
 
-    mux27010_handle = new_register_dissector("mux27010", dissect_mux27010, proto_mux27010);
+    mux27010_handle = register_dissector("mux27010", dissect_mux27010, proto_mux27010);
 
     expert_mux27010 = expert_register_protocol(proto_mux27010);
     expert_register_field_array(expert_mux27010, ei, array_length(ei));

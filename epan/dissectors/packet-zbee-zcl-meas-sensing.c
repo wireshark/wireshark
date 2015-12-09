@@ -343,7 +343,7 @@ proto_register_zbee_zcl_illum_meas(void)
     proto_register_field_array(proto_zbee_zcl_illum_meas, hf, array_length(hf));
 
     /* Register the ZigBee ZCL Illuminance Measurement dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_ILLUMMEAS, dissect_zbee_zcl_illum_meas, proto_zbee_zcl_illum_meas);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_ILLUMMEAS, dissect_zbee_zcl_illum_meas, proto_zbee_zcl_illum_meas);
 
 } /*proto_register_zbee_zcl_illum_meas*/
 
@@ -654,7 +654,7 @@ proto_register_zbee_zcl_temp_meas(void)
     proto_register_field_array(proto_zbee_zcl_temp_meas, hf, array_length(hf));
 
     /* Register the ZigBee ZCL Temperature Measurement dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_TEMPMEAS, dissect_zbee_zcl_temp_meas, proto_zbee_zcl_temp_meas);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_TEMPMEAS, dissect_zbee_zcl_temp_meas, proto_zbee_zcl_temp_meas);
 } /*proto_register_zbee_zcl_temp_meas*/
 
 /*FUNCTION:------------------------------------------------------
@@ -1026,7 +1026,7 @@ proto_register_zbee_zcl_press_meas(void)
     proto_register_field_array(proto_zbee_zcl_press_meas, hf, array_length(hf));
 
     /* Register the ZigBee ZCL Pressure Measurement dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_PRESSMEAS, dissect_zbee_zcl_press_meas, proto_zbee_zcl_press_meas);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_PRESSMEAS, dissect_zbee_zcl_press_meas, proto_zbee_zcl_press_meas);
 } /*proto_register_zbee_zcl_press_meas*/
 
 /*FUNCTION:------------------------------------------------------
@@ -1334,7 +1334,7 @@ proto_register_zbee_zcl_relhum_meas(void)
     proto_register_field_array(proto_zbee_zcl_relhum_meas, hf, array_length(hf));
 
     /* Register the ZigBee ZCL Relative Humidity Measurement dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_RELHUMMEAS, dissect_zbee_zcl_relhum_meas, proto_zbee_zcl_relhum_meas);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_RELHUMMEAS, dissect_zbee_zcl_relhum_meas, proto_zbee_zcl_relhum_meas);
 } /*proto_register_zbee_zcl_relhum_meas*/
 
 

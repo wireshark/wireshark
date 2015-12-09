@@ -4063,7 +4063,7 @@ proto_register_ssl(void)
     /* heuristic dissectors for any premable e.g. CredSSP before RDP */
     ssl_heur_subdissector_list = register_heur_dissector_list("ssl");
 
-    new_register_dissector("ssl", dissect_ssl, proto_ssl);
+    register_dissector("ssl", dissect_ssl, proto_ssl);
     ssl_handle = find_dissector("ssl");
 
     register_init_routine(ssl_init);

@@ -2924,10 +2924,10 @@ proto_register_gsm_sim(void)
 
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("gsm_sim", dissect_gsm_sim, proto_gsm_sim);
-	new_register_dissector("gsm_sim.command", dissect_gsm_sim_command, proto_gsm_sim);
-	new_register_dissector("gsm_sim.response", dissect_gsm_sim_response, proto_gsm_sim);
-	new_register_dissector("gsm_sim.bertlv", dissect_bertlv, proto_gsm_sim);
+	register_dissector("gsm_sim", dissect_gsm_sim, proto_gsm_sim);
+	register_dissector("gsm_sim.command", dissect_gsm_sim_command, proto_gsm_sim);
+	register_dissector("gsm_sim.response", dissect_gsm_sim_response, proto_gsm_sim);
+	register_dissector("gsm_sim.bertlv", dissect_bertlv, proto_gsm_sim);
 }
 
 void

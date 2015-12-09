@@ -547,7 +547,7 @@ proto_register_ppi_sensor(void) {
     proto_register_subtree_array(ett, array_length(ett));
     expert_ppi_sensor = expert_register_protocol(proto_ppi_sensor);
     expert_register_field_array(expert_ppi_sensor, ei, array_length(ei));
-    new_register_dissector("ppi_sensor", dissect_ppi_sensor, proto_ppi_sensor);
+    register_dissector("ppi_sensor", dissect_ppi_sensor, proto_ppi_sensor);
 
 }
 

@@ -1956,9 +1956,9 @@ proto_register_usb_hid(void)
     proto_register_field_array(proto_usb_hid, hf, array_length(hf));
     proto_register_subtree_array(usb_hid_subtrees, array_length(usb_hid_subtrees));
 
-    /*usb_hid_boot_keyboard_input_report_handle  =*/ new_register_dissector("usbhid.boot_report.keyboard.input",  dissect_usb_hid_boot_keyboard_input_report,  proto_usb_hid);
-    /*usb_hid_boot_keyboard_output_report_handle =*/ new_register_dissector("usbhid.boot_report.keyboard.output", dissect_usb_hid_boot_keyboard_output_report, proto_usb_hid);
-    /*usb_hid_boot_mouse_input_report_handle     =*/ new_register_dissector("usbhid.boot_report.mouse.input",     dissect_usb_hid_boot_mouse_input_report,     proto_usb_hid);
+    /*usb_hid_boot_keyboard_input_report_handle  =*/ register_dissector("usbhid.boot_report.keyboard.input",  dissect_usb_hid_boot_keyboard_input_report,  proto_usb_hid);
+    /*usb_hid_boot_keyboard_output_report_handle =*/ register_dissector("usbhid.boot_report.keyboard.output", dissect_usb_hid_boot_keyboard_output_report, proto_usb_hid);
+    /*usb_hid_boot_mouse_input_report_handle     =*/ register_dissector("usbhid.boot_report.mouse.input",     dissect_usb_hid_boot_mouse_input_report,     proto_usb_hid);
 
 }
 

@@ -430,7 +430,7 @@ proto_register_btsmp(void)
     proto_btsmp = proto_register_protocol("Bluetooth Security Manager Protocol",
         "BT SMP", "btsmp");
 
-    btsmp_handle = new_register_dissector("btsmp", dissect_btsmp, proto_btsmp);
+    btsmp_handle = register_dissector("btsmp", dissect_btsmp, proto_btsmp);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btsmp, hf, array_length(hf));

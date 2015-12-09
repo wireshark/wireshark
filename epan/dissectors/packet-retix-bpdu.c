@@ -109,7 +109,7 @@ proto_register_retix_bpdu(void)
   proto_retix_bpdu = proto_register_protocol("Retix Spanning Tree Protocol", "R-STP", "r-stp");
   proto_register_field_array(proto_retix_bpdu, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  new_register_dissector("rbpdu", dissect_retix_bpdu, proto_retix_bpdu);
+  register_dissector("rbpdu", dissect_retix_bpdu, proto_retix_bpdu);
 }
 
 /*

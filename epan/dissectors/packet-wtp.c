@@ -1060,8 +1060,8 @@ proto_register_wtp(void)
     proto_register_field_array(proto_wtp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("wtp-wtls", dissect_wtp_fromwtls, proto_wtp);
-    new_register_dissector("wtp-udp", dissect_wtp_fromudp, proto_wtp);
+    register_dissector("wtp-wtls", dissect_wtp_fromwtls, proto_wtp);
+    register_dissector("wtp-udp", dissect_wtp_fromudp, proto_wtp);
     register_init_routine(wtp_defragment_init);
     register_cleanup_routine(wtp_defragment_cleanup);
 }

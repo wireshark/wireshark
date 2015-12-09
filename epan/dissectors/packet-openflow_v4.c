@@ -7864,7 +7864,7 @@ proto_register_openflow_v4(void)
     proto_openflow_v4 = proto_register_protocol("OpenFlow 1.3",
             "openflow_v4", "openflow_v4");
 
-    new_register_dissector("openflow_v4", dissect_openflow_v4, proto_openflow_v4);
+    register_dissector("openflow_v4", dissect_openflow_v4, proto_openflow_v4);
 
     eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 

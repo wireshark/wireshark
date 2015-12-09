@@ -172,7 +172,7 @@ void proto_register_bjnp (void)
 
   proto_bjnp = proto_register_protocol (PNAME, PSNAME, PFNAME);
 
-  bjnp_handle = new_register_dissector (PFNAME, dissect_bjnp, proto_bjnp);
+  bjnp_handle = register_dissector (PFNAME, dissect_bjnp, proto_bjnp);
 
   proto_register_field_array (proto_bjnp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

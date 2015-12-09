@@ -3398,7 +3398,7 @@ proto_register_http(void)
 	expert_http = expert_register_protocol(proto_http);
 	expert_register_field_array(expert_http, ei, array_length(ei));
 
-	http_handle = new_register_dissector("http", dissect_http, proto_http);
+	http_handle = register_dissector("http", dissect_http, proto_http);
 
 	http_module = prefs_register_protocol(proto_http, reinit_http);
 	prefs_register_bool_preference(http_module, "desegment_headers",

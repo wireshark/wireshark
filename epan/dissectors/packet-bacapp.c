@@ -11311,7 +11311,7 @@ proto_register_bacapp(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_bacapp = expert_register_protocol(proto_bacapp);
     expert_register_field_array(expert_bacapp, ei, array_length(ei));
-    new_register_dissector("bacapp", dissect_bacapp, proto_bacapp);
+    register_dissector("bacapp", dissect_bacapp, proto_bacapp);
     register_init_routine(&bacapp_init_routine);
     register_cleanup_routine(&bacapp_cleanup_routine);
 

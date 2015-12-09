@@ -394,7 +394,7 @@ proto_register_gmrp(void)
     expert_gmrp = expert_register_protocol(proto_gmrp);
     expert_register_field_array(expert_gmrp, ei, array_length(ei));
 
-    new_register_dissector("gmrp", dissect_gmrp, proto_gmrp);
+    register_dissector("gmrp", dissect_gmrp, proto_gmrp);
 
 }
 

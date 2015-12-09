@@ -6546,7 +6546,7 @@ proto_register_isakmp(void)
   register_init_routine(&isakmp_init_protocol);
   register_cleanup_routine(&isakmp_cleanup_protocol);
 
-  new_register_dissector("isakmp", dissect_isakmp, proto_isakmp);
+  register_dissector("isakmp", dissect_isakmp, proto_isakmp);
 
 #ifdef HAVE_LIBGCRYPT
   isakmp_module = prefs_register_protocol(proto_isakmp, isakmp_prefs_apply_cb);

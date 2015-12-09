@@ -7994,7 +7994,7 @@ proto_register_gsm_a_bssmap(void)
     expert_gsm_a_bssmap = expert_register_protocol(proto_a_bssmap);
     expert_register_field_array(expert_gsm_a_bssmap, ei, array_length(ei));
 
-    new_register_dissector("gsm_a_bssmap", dissect_bssmap, proto_a_bssmap);
+    register_dissector("gsm_a_bssmap", dissect_bssmap, proto_a_bssmap);
 }
 
 

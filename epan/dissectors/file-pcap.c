@@ -290,7 +290,7 @@ proto_register_file_pcap(void)
     proto_register_field_array(proto_pcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("file-pcap", dissect_pcap, proto_pcap);
+    register_dissector("file-pcap", dissect_pcap, proto_pcap);
 
     module = prefs_register_protocol(proto_pcap, NULL);
     prefs_register_static_text_preference(module, "version",

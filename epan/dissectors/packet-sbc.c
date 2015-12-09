@@ -422,7 +422,7 @@ proto_register_sbc(void)
     expert_sbc = expert_register_protocol(proto_sbc);
     expert_register_field_array(expert_sbc, ei, array_length(ei));
 
-    new_register_dissector("sbc", dissect_sbc, proto_sbc);
+    register_dissector("sbc", dissect_sbc, proto_sbc);
 
     module = prefs_register_protocol(proto_sbc, NULL);
     prefs_register_static_text_preference(module, "a2dp.version",

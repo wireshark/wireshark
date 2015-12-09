@@ -180,7 +180,7 @@ proto_register_gpef(void)
 	proto_register_field_array(proto_gpef, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("efsblob", dissect_gpef_efsblob, proto_gpef);
+	register_dissector("efsblob", dissect_gpef_efsblob, proto_gpef);
 }
 
 /*

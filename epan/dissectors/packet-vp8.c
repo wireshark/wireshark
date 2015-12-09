@@ -580,7 +580,7 @@ proto_register_vp8(void)
                             "; Values must be in the range 96 - 127",
                             &temp_dynamic_payload_type_range, 127);
 
-    new_register_dissector("vp8", dissect_vp8, proto_vp8);
+    register_dissector("vp8", dissect_vp8, proto_vp8);
 }
 
 static void

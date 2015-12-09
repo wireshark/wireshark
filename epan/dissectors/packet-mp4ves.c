@@ -1017,8 +1017,8 @@ proto_register_mp4ves(void)
 	expert_register_field_array(expert_mp4ves, ei, array_length(ei));
 	/* Register a configuration option for port */
 
-	new_register_dissector("mp4ves", dissect_mp4ves, proto_mp4ves);
-	new_register_dissector("mp4ves_config", dissect_mp4ves_config, proto_mp4ves);
+	register_dissector("mp4ves", dissect_mp4ves, proto_mp4ves);
+	register_dissector("mp4ves_config", dissect_mp4ves_config, proto_mp4ves);
 
 	/* Register a configuration option for port */
 	mp4ves_module = prefs_register_protocol(proto_mp4ves, proto_reg_handoff_mp4ves);

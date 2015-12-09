@@ -1077,7 +1077,7 @@ proto_register_udp(void)
   proto_udp = proto_register_protocol("User Datagram Protocol",
                                       "UDP", "udp");
   hfi_udp = proto_registrar_get_nth(proto_udp);
-  udp_handle = new_register_dissector("udp", dissect_udp, proto_udp);
+  udp_handle = register_dissector("udp", dissect_udp, proto_udp);
   expert_udp = expert_register_protocol(proto_udp);
   proto_register_fields(proto_udp, hfi, array_length(hfi));
 

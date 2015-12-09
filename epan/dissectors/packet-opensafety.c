@@ -2817,9 +2817,9 @@ proto_register_opensafety(void)
                 &global_classify_transport);
 
     /* Registering default and ModBus/TCP dissector */
-    new_register_dissector("opensafety_udpdata", dissect_opensafety_udpdata, proto_opensafety );
-    new_register_dissector("opensafety_mbtcp", dissect_opensafety_mbtcp, proto_opensafety );
-    new_register_dissector("opensafety_pnio", dissect_opensafety_pn_io, proto_opensafety);
+    register_dissector("opensafety_udpdata", dissect_opensafety_udpdata, proto_opensafety );
+    register_dissector("opensafety_mbtcp", dissect_opensafety_mbtcp, proto_opensafety );
+    register_dissector("opensafety_pnio", dissect_opensafety_pn_io, proto_opensafety);
 }
 
 void

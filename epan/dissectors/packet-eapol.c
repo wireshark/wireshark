@@ -301,7 +301,7 @@ proto_register_eapol(void)
   };
 
   proto_eapol = proto_register_protocol("802.1X Authentication", "EAPOL", "eapol");
-  eapol_handle = new_register_dissector("eapol", dissect_eapol, proto_eapol);
+  eapol_handle = register_dissector("eapol", dissect_eapol, proto_eapol);
 
   proto_register_field_array(proto_eapol, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

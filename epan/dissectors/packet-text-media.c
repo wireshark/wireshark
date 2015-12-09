@@ -137,7 +137,7 @@ proto_register_text_lines(void)
 			"Line-based text data",	/* Long name */
 			"Line-based text data",	/* Short name */
 			"data-text-lines");		/* Filter name */
-	new_register_dissector("data-text-lines", dissect_text_lines, proto_text_lines);
+	register_dissector("data-text-lines", dissect_text_lines, proto_text_lines);
 }
 
 void

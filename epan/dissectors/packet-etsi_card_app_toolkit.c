@@ -1876,7 +1876,7 @@ proto_register_card_app_toolkit(void)
 
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("etsi_cat", dissect_cat, proto_cat);
+	register_dissector("etsi_cat", dissect_cat, proto_cat);
 }
 
 void

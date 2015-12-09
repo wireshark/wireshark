@@ -339,7 +339,7 @@ proto_register_bthci_sco(void)
 
     /* Register the protocol name and description */
     proto_bthci_sco = proto_register_protocol("Bluetooth HCI SCO Packet", "HCI_SCO", "bthci_sco");
-    bthci_sco_handle = new_register_dissector("bthci_sco", dissect_bthci_sco, proto_bthci_sco);
+    bthci_sco_handle = register_dissector("bthci_sco", dissect_bthci_sco, proto_bthci_sco);
 
     bthci_sco_stream_numbers = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 

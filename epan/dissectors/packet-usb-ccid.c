@@ -738,7 +738,7 @@ proto_register_ccid(void)
     prefs_register_enum_preference(pref_mod, "prtype", "PC -> Reader Payload Type", "How commands from the PC to the reader are interpreted",
         &sub_selected, sub_enum_vals, FALSE);
 
-    usb_ccid_handle = new_register_dissector("usbccid", dissect_ccid, proto_ccid);
+    usb_ccid_handle = register_dissector("usbccid", dissect_ccid, proto_ccid);
 }
 
 /* Handler registration */

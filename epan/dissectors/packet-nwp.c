@@ -345,7 +345,7 @@ proto_register_nwp(void)
 		"NWP",
 	        "nwp");
 
-	new_register_dissector("nwp", dissect_nwp, proto_nwp);
+	register_dissector("nwp", dissect_nwp, proto_nwp);
 	proto_register_field_array(proto_nwp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

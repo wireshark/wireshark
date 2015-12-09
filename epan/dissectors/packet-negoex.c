@@ -618,7 +618,7 @@ proto_register_negoex(void)
 
   /* negoex_module = prefs_register_protocol(proto_negoex, NULL);*/
 
-  new_register_dissector("negoex", dissect_negoex, proto_negoex);
+  register_dissector("negoex", dissect_negoex, proto_negoex);
 }
 
 void

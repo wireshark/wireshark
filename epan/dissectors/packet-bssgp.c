@@ -7044,7 +7044,7 @@ proto_register_bssgp(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_bssgp = expert_register_protocol(proto_bssgp);
     expert_register_field_array(expert_bssgp, ei, array_length(ei));
-    new_register_dissector("bssgp", dissect_bssgp, proto_bssgp);
+    register_dissector("bssgp", dissect_bssgp, proto_bssgp);
 
     /* Register configuration options */
     bssgp_module = prefs_register_protocol(proto_bssgp, NULL);

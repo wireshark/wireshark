@@ -1619,7 +1619,7 @@ proto_register_sercosiii(void)
   proto_siii = proto_register_protocol("SERCOS III V1.1",
       "SERCOS III V1.1", "siii");
 
-  new_register_dissector("sercosiii", dissect_siii, proto_siii);
+  register_dissector("sercosiii", dissect_siii, proto_siii);
 
   /* subdissector code */
   heur_subdissector_list = register_heur_dissector_list("sercosiii");

@@ -1584,7 +1584,7 @@ void proto_register_p_mul (void)
 
   proto_p_mul = proto_register_protocol (PNAME, PSNAME, PFNAME);
 
-  p_mul_handle = new_register_dissector(PFNAME, dissect_p_mul, proto_p_mul);
+  p_mul_handle = register_dissector(PFNAME, dissect_p_mul, proto_p_mul);
 
   proto_register_field_array (proto_p_mul, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

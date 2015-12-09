@@ -7410,7 +7410,7 @@ void proto_register_infiniband(void)
     };
 
     proto_infiniband = proto_register_protocol("InfiniBand", "IB", "infiniband");
-    ib_handle = new_register_dissector("infiniband", dissect_infiniband, proto_infiniband);
+    ib_handle = register_dissector("infiniband", dissect_infiniband, proto_infiniband);
 
     proto_register_field_array(proto_infiniband, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -7437,7 +7437,7 @@ void proto_register_infiniband(void)
                                     10, &pref_rroce_udp_port);
 
     proto_infiniband_link = proto_register_protocol("InfiniBand Link", "InfiniBand Link", "infiniband_link");
-    ib_link_handle = new_register_dissector("infiniband_link", dissect_infiniband_link, proto_infiniband_link);
+    ib_link_handle = register_dissector("infiniband_link", dissect_infiniband_link, proto_infiniband_link);
 
     proto_register_field_array(proto_infiniband_link, hf_link, array_length(hf_link));
     proto_register_subtree_array(ett_link_array, array_length(ett_link_array));

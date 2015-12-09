@@ -2846,10 +2846,10 @@ void proto_register_ieee802154(void)
     ieee802154_beacon_subdissector_list = register_heur_dissector_list(IEEE802154_PROTOABBREV_WPAN_BEACON);
 
     /*  Register dissectors with Wireshark. */
-    new_register_dissector(IEEE802154_PROTOABBREV_WPAN, dissect_ieee802154, proto_ieee802154);
-    new_register_dissector("wpan_nofcs", dissect_ieee802154_nofcs, proto_ieee802154);
-    new_register_dissector("wpan_cc24xx", dissect_ieee802154_cc24xx, proto_ieee802154);
-    new_register_dissector("wpan-nonask-phy", dissect_ieee802154_nonask_phy, proto_ieee802154_nonask_phy);
+    register_dissector(IEEE802154_PROTOABBREV_WPAN, dissect_ieee802154, proto_ieee802154);
+    register_dissector("wpan_nofcs", dissect_ieee802154_nofcs, proto_ieee802154);
+    register_dissector("wpan_cc24xx", dissect_ieee802154_cc24xx, proto_ieee802154);
+    register_dissector("wpan-nonask-phy", dissect_ieee802154_nonask_phy, proto_ieee802154_nonask_phy);
 
     /* Register a Decode-As handler. */
     register_decode_as(&ieee802154_da);

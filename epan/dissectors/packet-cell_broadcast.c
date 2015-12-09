@@ -577,8 +577,8 @@ proto_register_cbs(void)
    register_cleanup_routine(gsm_cbs_message_reassembly_cleanup);
 
    /* subdissector code */
-   new_register_dissector("gsm_cbs", dissect_gsm_cell_broadcast, proto_cell_broadcast);
-   new_register_dissector("umts_cell_broadcast", dissect_umts_cell_broadcast_message, proto_cell_broadcast);
+   register_dissector("gsm_cbs", dissect_gsm_cell_broadcast, proto_cell_broadcast);
+   register_dissector("umts_cell_broadcast", dissect_umts_cell_broadcast_message, proto_cell_broadcast);
 
    /* subtree array */
    proto_register_subtree_array(ett, array_length(ett));

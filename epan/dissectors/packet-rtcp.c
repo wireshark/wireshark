@@ -6507,7 +6507,7 @@ proto_register_rtcp(void)
     expert_rtcp = expert_register_protocol(proto_rtcp);
     expert_register_field_array(expert_rtcp, ei, array_length(ei));
 
-    new_register_dissector("rtcp", dissect_rtcp, proto_rtcp);
+    register_dissector("rtcp", dissect_rtcp, proto_rtcp);
 
     rtcp_module = prefs_register_protocol(proto_rtcp, NULL);
 

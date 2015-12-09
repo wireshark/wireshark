@@ -907,7 +907,7 @@ proto_reg_handoff_zvt(void)
 
     if (!registered_dissector) {
         /* register by name to allow mapping to a user DLT */
-        new_register_dissector("zvt", dissect_zvt, proto_zvt);
+        register_dissector("zvt", dissect_zvt, proto_zvt);
 
         zvt_tcp_handle = create_dissector_handle(dissect_zvt_tcp, proto_zvt);
 

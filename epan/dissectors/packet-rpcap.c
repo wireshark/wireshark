@@ -1448,7 +1448,7 @@ proto_register_rpcap (void)
   expert_module_t* expert_rpcap;
 
   proto_rpcap = proto_register_protocol (PNAME, PSNAME, PFNAME);
-  new_register_dissector (PFNAME, dissect_rpcap, proto_rpcap);
+  register_dissector (PFNAME, dissect_rpcap, proto_rpcap);
   expert_rpcap = expert_register_protocol(proto_rpcap);
   expert_register_field_array(expert_rpcap, ei, array_length(ei));
 

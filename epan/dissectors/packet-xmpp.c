@@ -1473,7 +1473,7 @@ proto_register_xmpp(void) {
     expert_xmpp = expert_register_protocol(proto_xmpp);
     expert_register_field_array(expert_xmpp, ei, array_length(ei));
 
-    xmpp_handle = new_register_dissector("xmpp", dissect_xmpp, proto_xmpp);
+    xmpp_handle = register_dissector("xmpp", dissect_xmpp, proto_xmpp);
 
     xmpp_init_parsers();
 }

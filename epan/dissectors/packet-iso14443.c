@@ -1079,7 +1079,7 @@ proto_register_iso14443(void)
             FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
     iso14443_handle =
-        new_register_dissector("iso14443", dissect_iso14443, proto_iso14443);
+        register_dissector("iso14443", dissect_iso14443, proto_iso14443);
 
     transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }

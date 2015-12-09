@@ -560,7 +560,7 @@ proto_register_gsm_a_rp(void)
 	expert_gsm_a_rp = expert_register_protocol(proto_a_rp);
 	expert_register_field_array(expert_gsm_a_rp, ei, array_length(ei));
 
-	new_register_dissector("gsm_a_rp", dissect_rp, proto_a_rp);
+	register_dissector("gsm_a_rp", dissect_rp, proto_a_rp);
 }
 
 void

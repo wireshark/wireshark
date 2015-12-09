@@ -560,7 +560,7 @@ proto_register_sndcp(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sndcp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  new_register_dissector("sndcp", dissect_sndcp, proto_sndcp);
+  register_dissector("sndcp", dissect_sndcp, proto_sndcp);
   register_init_routine(sndcp_defragment_init);
   register_cleanup_routine(sndcp_defragment_cleanup);
 }

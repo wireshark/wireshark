@@ -98,7 +98,7 @@ proto_register_mesh(void)
   proto_register_field_array(proto_mesh, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  new_register_dissector("mesh", dissect_mesh, proto_mesh);
+  register_dissector("mesh", dissect_mesh, proto_mesh);
 }
 
 /*

@@ -1852,7 +1852,7 @@ proto_register_http2(void)
 
     prefs_register_obsolete_preference(http2_module, "heuristic_http2");
 
-    new_register_dissector("http2", dissect_http2, proto_http2);
+    register_dissector("http2", dissect_http2, proto_http2);
 
     http2_tap = register_tap("http2");
 }

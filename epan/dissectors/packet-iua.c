@@ -976,7 +976,7 @@ proto_register_iua(void)
         &global_iua_gsm_sapis);
 
   /* Allow other dissectors to find this one by name. */
-  new_register_dissector("iua", dissect_iua, proto_iua);
+  register_dissector("iua", dissect_iua, proto_iua);
 }
 
 #define SCTP_PORT_IUA          9900

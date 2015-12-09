@@ -2822,7 +2822,7 @@ void proto_register_cops(void)
     expert_register_field_array(expert_cops, ei, array_length(ei));
 
     /* Make dissector findable by name */
-    new_register_dissector("cops", dissect_cops, proto_cops);
+    register_dissector("cops", dissect_cops, proto_cops);
 
     /* Register our configuration options for cops */
     cops_module = prefs_register_protocol(proto_cops, proto_reg_handoff_cops);

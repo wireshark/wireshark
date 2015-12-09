@@ -5888,7 +5888,7 @@ proto_register_reload(void)
 
   /* Register the protocol name and description */
   proto_reload = proto_register_protocol("REsource LOcation And Discovery", "RELOAD", "reload");
-  new_register_dissector("reload", dissect_reload_message, proto_reload);
+  register_dissector("reload", dissect_reload_message, proto_reload);
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_reload, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

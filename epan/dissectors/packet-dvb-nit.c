@@ -232,7 +232,7 @@ proto_register_dvb_nit(void)
     proto_register_field_array(proto_dvb_nit, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("dvb_nit", dissect_dvb_nit, proto_dvb_nit);
+    register_dissector("dvb_nit", dissect_dvb_nit, proto_dvb_nit);
 }
 
 

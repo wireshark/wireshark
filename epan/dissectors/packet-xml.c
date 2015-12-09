@@ -1451,7 +1451,7 @@ proto_register_xml(void)
 
     g_array_free(ett_arr, TRUE);
 
-    new_register_dissector("xml", dissect_xml, xml_ns.hf_tag);
+    register_dissector("xml", dissect_xml, xml_ns.hf_tag);
 
     init_xml_parser();
 

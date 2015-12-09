@@ -277,7 +277,7 @@ proto_register_sdh(void)
     "Data rate",
     &sdh_data_rate, data_rates, ENC_BIG_ENDIAN);
 
-  new_register_dissector("sdh", dissect_sdh, proto_sdh);
+  register_dissector("sdh", dissect_sdh, proto_sdh);
 }
 
 void

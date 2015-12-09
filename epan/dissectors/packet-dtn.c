@@ -2733,7 +2733,7 @@ proto_register_bundle(void)
     expert_module_t *expert_bundle, *expert_tcpcl;
 
     proto_bundle  = proto_register_protocol("Bundle Protocol", "Bundle", "bundle");
-    bundle_handle = new_register_dissector("bundle", dissect_bundle, proto_bundle);
+    bundle_handle = register_dissector("bundle", dissect_bundle, proto_bundle);
     bundle_module = prefs_register_protocol(proto_bundle, proto_reg_handoff_bundle);
 
     proto_tcp_conv = proto_register_protocol ("DTN TCP Convergence Layer Protocol", "TCPCL", "tcpcl");

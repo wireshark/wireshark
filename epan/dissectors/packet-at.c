@@ -108,7 +108,7 @@ proto_register_at_command(void)
     proto_at = proto_register_protocol("AT Command", "AT", "at");
     proto_register_field_array(proto_at, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    new_register_dissector("at", dissect_at, proto_at);
+    register_dissector("at", dissect_at, proto_at);
 }
 
 /* Handler registration */

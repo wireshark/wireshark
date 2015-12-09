@@ -1882,7 +1882,7 @@ void proto_register_zbee_zdp(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZDP dissector. */
-    new_register_dissector("zbee_zdp", dissect_zbee_zdp, proto_zbee_zdp);
+    register_dissector("zbee_zdp", dissect_zbee_zdp, proto_zbee_zdp);
 } /* proto_register_zbee_zdp */
 
 /*FUNCTION:------------------------------------------------------

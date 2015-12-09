@@ -165,7 +165,7 @@ proto_register_dmx_chan(void)
 	proto_dmx_chan = proto_register_protocol("DMX Channels","DMX Channels", "dmx-chan");
 	proto_register_field_array(proto_dmx_chan, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	new_register_dissector("dmx-chan", dissect_dmx_chan, proto_dmx_chan);
+	register_dissector("dmx-chan", dissect_dmx_chan, proto_dmx_chan);
 
 	dmx_chan_module = prefs_register_protocol(proto_dmx_chan, NULL);
 

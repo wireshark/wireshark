@@ -587,7 +587,7 @@ proto_register_nasdaq_itch(void)
                                  "Whether the Nasdaq ITCH dissector should decode Chi X extensions.",
                                  &nasdaq_itch_chi_x);
 
-  new_register_dissector("nasdaq-itch", dissect_nasdaq_itch, proto_nasdaq_itch);
+  register_dissector("nasdaq-itch", dissect_nasdaq_itch, proto_nasdaq_itch);
 }
 
 void

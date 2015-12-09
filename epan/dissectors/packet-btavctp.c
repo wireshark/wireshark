@@ -472,7 +472,7 @@ proto_register_btavctp(void)
     reassembling = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_btavctp = proto_register_protocol("Bluetooth AVCTP Protocol", "BT AVCTP", "btavctp");
-    btavctp_handle = new_register_dissector("btavctp", dissect_btavctp, proto_btavctp);
+    btavctp_handle = register_dissector("btavctp", dissect_btavctp, proto_btavctp);
 
     proto_register_field_array(proto_btavctp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

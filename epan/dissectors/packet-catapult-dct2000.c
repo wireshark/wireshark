@@ -3295,7 +3295,7 @@ void proto_register_catapult_dct2000(void)
     expert_register_field_array(expert_catapult_dct2000, ei, array_length(ei));
 
     /* Allow dissector to find be found by name. */
-    new_register_dissector("dct2000", dissect_catapult_dct2000, proto_catapult_dct2000);
+    register_dissector("dct2000", dissect_catapult_dct2000, proto_catapult_dct2000);
 
     /* Preferences */
     catapult_dct2000_module = prefs_register_protocol(proto_catapult_dct2000, NULL);

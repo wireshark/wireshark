@@ -398,7 +398,7 @@ proto_register_fcgi(void)
                                   10,
                                   &tcp_port);
 
-   fcgi_handle = new_register_dissector("fcgi", dissect_fcgi, proto_fcgi);
+   fcgi_handle = register_dissector("fcgi", dissect_fcgi, proto_fcgi);
 }
 
 void

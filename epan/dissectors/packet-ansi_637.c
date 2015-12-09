@@ -3332,8 +3332,8 @@ proto_register_ansi_637(void)
     proto_ansi_637_trans =
         proto_register_protocol(ansi_proto_name_trans, "ANSI IS-637-A Transport", "ansi_637_trans");
 
-    ansi_637_tele_handle = new_register_dissector("ansi_637_tele", dissect_ansi_637_tele, proto_ansi_637_tele);
-    ansi_637_trans_handle = new_register_dissector("ansi_637_trans", dissect_ansi_637_trans, proto_ansi_637_trans);
+    ansi_637_tele_handle = register_dissector("ansi_637_tele", dissect_ansi_637_tele, proto_ansi_637_tele);
+    ansi_637_trans_handle = register_dissector("ansi_637_trans", dissect_ansi_637_trans, proto_ansi_637_trans);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ansi_637_tele, hf_tele, array_length(hf_tele));

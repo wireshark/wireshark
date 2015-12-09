@@ -1159,7 +1159,7 @@ proto_register_zrtp(void)
   proto_zrtp = proto_register_protocol("ZRTP", "ZRTP", "zrtp");
   proto_register_field_array(proto_zrtp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  new_register_dissector("zrtp", dissect_zrtp, proto_zrtp);
+  register_dissector("zrtp", dissect_zrtp, proto_zrtp);
 }
 
 void

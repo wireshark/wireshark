@@ -4076,7 +4076,7 @@ proto_register_sccp(void)
   proto_sccp = proto_register_protocol("Signalling Connection Control Part",
                                        "SCCP", "sccp");
 
-  new_register_dissector("sccp", dissect_sccp, proto_sccp);
+  register_dissector("sccp", dissect_sccp, proto_sccp);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sccp, hf, array_length(hf));

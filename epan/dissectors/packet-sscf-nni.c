@@ -124,7 +124,7 @@ proto_register_sscf(void)
   proto_register_field_array(proto_sscf, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  new_register_dissector("sscf-nni", dissect_sscf_nni, proto_sscf);
+  register_dissector("sscf-nni", dissect_sscf_nni, proto_sscf);
 
 }
 

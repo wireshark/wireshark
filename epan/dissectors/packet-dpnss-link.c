@@ -206,7 +206,7 @@ proto_register_dpnss_link(void)
 	/* Register the protocol name and description */
 	proto_dpnss_link = proto_register_protocol("Digital Private Signalling System No 1 Link Layer",
 						   "DPNSS Link", "dpnss_link");
-	new_register_dissector("dpnss_link", dissect_dpnss_link, proto_dpnss_link);
+	register_dissector("dpnss_link", dissect_dpnss_link, proto_dpnss_link);
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_dpnss_link, hf, array_length(hf));

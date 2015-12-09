@@ -8154,7 +8154,7 @@ void proto_register_mac_lte(void)
     expert_register_field_array(expert_mac_lte, ei, array_length(ei));
 
     /* Allow other dissectors to find this one by name. */
-    new_register_dissector("mac-lte", dissect_mac_lte, proto_mac_lte);
+    register_dissector("mac-lte", dissect_mac_lte, proto_mac_lte);
 
     /* Register the tap name */
     mac_lte_tap = register_tap("mac-lte");

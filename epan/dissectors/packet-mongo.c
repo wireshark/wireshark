@@ -1032,7 +1032,7 @@ proto_register_mongo(void)
   proto_mongo = proto_register_protocol("Mongo Wire Protocol", "MONGO", "mongo");
 
   /* Allow dissector to find be found by name. */
-  new_register_dissector("mongo", dissect_mongo, proto_mongo);
+  register_dissector("mongo", dissect_mongo, proto_mongo);
 
   proto_register_field_array(proto_mongo, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

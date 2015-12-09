@@ -882,7 +882,7 @@ proto_register_adb(void)
     service_info         = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_adb = proto_register_protocol("Android Debug Bridge", "ADB", "adb");
-    adb_handle = new_register_dissector("adb", dissect_adb, proto_adb);
+    adb_handle = register_dissector("adb", dissect_adb, proto_adb);
 
     proto_register_field_array(proto_adb, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

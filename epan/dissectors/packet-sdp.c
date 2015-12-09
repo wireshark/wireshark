@@ -3096,7 +3096,7 @@ proto_register_sdp(void)
      * Register the dissector by name, so other dissectors can
      * grab it by name rather than just referring to it directly.
      */
-    new_register_dissector("sdp", dissect_sdp, proto_sdp);
+    register_dissector("sdp", dissect_sdp, proto_sdp);
 
     /* Register for tapping */
     sdp_tap = register_tap("sdp");

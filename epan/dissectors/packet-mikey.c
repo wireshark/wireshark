@@ -1844,7 +1844,7 @@ proto_register_mikey(void)
 	proto_mikey = proto_register_protocol("Multimedia Internet KEYing",
 		"MIKEY", "mikey");
 
-	mikey_handle = new_register_dissector("mikey", dissect_mikey, proto_mikey);
+	mikey_handle = register_dissector("mikey", dissect_mikey, proto_mikey);
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_mikey, hf, array_length(hf));

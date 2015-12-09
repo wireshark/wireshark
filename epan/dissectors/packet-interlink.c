@@ -215,7 +215,7 @@ proto_register_interlink(void)
 							"interlink");
 	proto_register_field_array(proto_interlink, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	new_register_dissector("interlink", dissect_interlink, proto_interlink);
+	register_dissector("interlink", dissect_interlink, proto_interlink);
 
 	/* Probably someone will write sub-dissectors. You can never know. */
 	subdissector_table = register_dissector_table("interlink.type_version",

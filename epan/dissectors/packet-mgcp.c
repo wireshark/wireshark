@@ -2308,7 +2308,7 @@ void proto_register_mgcp(void)
 	register_init_routine(&mgcp_init_protocol);
 	register_cleanup_routine(&mgcp_cleanup_protocol);
 
-	new_register_dissector("mgcp", dissect_mgcp, proto_mgcp);
+	register_dissector("mgcp", dissect_mgcp, proto_mgcp);
 
 	/* Register our configuration options */
 	mgcp_module = prefs_register_protocol(proto_mgcp, proto_reg_handoff_mgcp);

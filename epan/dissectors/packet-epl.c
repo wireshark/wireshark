@@ -4355,7 +4355,7 @@ proto_register_epl(void)
 		"Manufacturer specific ASND service", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	/* Registering protocol to be called by another dissector */
-	epl_handle = new_register_dissector("epl", dissect_epl, proto_epl);
+	epl_handle = register_dissector("epl", dissect_epl, proto_epl);
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_epl, hf, array_length(hf));

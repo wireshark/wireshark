@@ -6320,8 +6320,8 @@ void proto_register_sip(void)
                                         "SIP", "sip");
     proto_raw_sip = proto_register_protocol("Session Initiation Protocol (SIP as raw text)",
                                             "Raw_SIP", "raw_sip");
-    new_register_dissector("sip", dissect_sip, proto_sip);
-    new_register_dissector("sip.tcp", dissect_sip_tcp, proto_sip);
+    register_dissector("sip", dissect_sip, proto_sip);
+    register_dissector("sip.tcp", dissect_sip_tcp, proto_sip);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_sip, hf, array_length(hf));

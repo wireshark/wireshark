@@ -756,9 +756,9 @@ proto_register_knet(void)
     /* Register protocols */
     proto_knet = proto_register_protocol ("kNet Protocol", "KNET", "knet");
 
-    knet_handle_sctp = new_register_dissector("knetsctp", dissect_knet_sctp, proto_knet);
-    knet_handle_tcp = new_register_dissector("knettcp",  dissect_knet_tcp, proto_knet);
-    knet_handle_udp = new_register_dissector("knetudp",  dissect_knet_udp, proto_knet);
+    knet_handle_sctp = register_dissector("knetsctp", dissect_knet_sctp, proto_knet);
+    knet_handle_tcp = register_dissector("knettcp",  dissect_knet_tcp, proto_knet);
+    knet_handle_udp = register_dissector("knetudp",  dissect_knet_udp, proto_knet);
 
     knet_module = prefs_register_protocol(proto_knet, proto_reg_handoff_knet);
 

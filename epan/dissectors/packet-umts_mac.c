@@ -1468,13 +1468,13 @@ proto_register_umts_mac(void)
     expert_umts_mac = expert_register_protocol(proto_umts_mac);
     expert_register_field_array(expert_umts_mac, ei, array_length(ei));
 
-    new_register_dissector("mac.fdd.rach", dissect_mac_fdd_rach, proto_umts_mac);
-    new_register_dissector("mac.fdd.fach", dissect_mac_fdd_fach, proto_umts_mac);
-    new_register_dissector("mac.fdd.pch", dissect_mac_fdd_pch, proto_umts_mac);
-    new_register_dissector("mac.fdd.dch", dissect_mac_fdd_dch, proto_umts_mac);
-    new_register_dissector("mac.fdd.edch", dissect_mac_fdd_edch, proto_umts_mac);
-    new_register_dissector("mac.fdd.edch.type2", dissect_mac_fdd_edch_type2, proto_umts_mac);
-    new_register_dissector("mac.fdd.hsdsch", dissect_mac_fdd_hsdsch, proto_umts_mac);
+    register_dissector("mac.fdd.rach", dissect_mac_fdd_rach, proto_umts_mac);
+    register_dissector("mac.fdd.fach", dissect_mac_fdd_fach, proto_umts_mac);
+    register_dissector("mac.fdd.pch", dissect_mac_fdd_pch, proto_umts_mac);
+    register_dissector("mac.fdd.dch", dissect_mac_fdd_dch, proto_umts_mac);
+    register_dissector("mac.fdd.edch", dissect_mac_fdd_edch, proto_umts_mac);
+    register_dissector("mac.fdd.edch.type2", dissect_mac_fdd_edch_type2, proto_umts_mac);
+    register_dissector("mac.fdd.hsdsch", dissect_mac_fdd_hsdsch, proto_umts_mac);
 
     register_init_routine(mac_init);
     register_cleanup_routine(mac_cleanup);

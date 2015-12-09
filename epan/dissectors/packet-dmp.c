@@ -4995,7 +4995,7 @@ void proto_register_dmp (void)
 
   proto_dmp = proto_register_protocol (PNAME, PSNAME, PFNAME);
 
-  dmp_handle = new_register_dissector(PFNAME, dissect_dmp, proto_dmp);
+  dmp_handle = register_dissector(PFNAME, dissect_dmp, proto_dmp);
 
   proto_register_field_array (proto_dmp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

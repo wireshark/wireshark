@@ -2824,7 +2824,7 @@ proto_register_btl2cap(void)
     /* Register the protocol name and description */
     proto_btl2cap = proto_register_protocol("Bluetooth L2CAP Protocol", "BT L2CAP", "btl2cap");
 
-    new_register_dissector("btl2cap", dissect_btl2cap, proto_btl2cap);
+    register_dissector("btl2cap", dissect_btl2cap, proto_btl2cap);
 
     /* subdissector code */
     l2cap_psm_dissector_table = register_dissector_table("btl2cap.psm",     "BT L2CAP PSM",     FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);

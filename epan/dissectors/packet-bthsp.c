@@ -1121,7 +1121,7 @@ proto_register_bthsp(void)
     fragments = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_bthsp = proto_register_protocol("Bluetooth HSP Profile", "BT HSP", "bthsp");
-    bthsp_handle = new_register_dissector("bthsp", dissect_bthsp, proto_bthsp);
+    bthsp_handle = register_dissector("bthsp", dissect_bthsp, proto_bthsp);
 
     proto_register_field_array(proto_bthsp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

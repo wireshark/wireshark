@@ -269,8 +269,8 @@ void proto_register_ua_msg(void)
     /* UA dissector registration */
     proto_ua_msg = proto_register_protocol("Universal Alcatel Protocol", "UA", "ua");
 
-    new_register_dissector("ua_sys_to_term", dissect_ua_sys_to_term, proto_ua_msg);
-    new_register_dissector("ua_term_to_sys", dissect_ua_term_to_sys, proto_ua_msg);
+    register_dissector("ua_sys_to_term", dissect_ua_sys_to_term, proto_ua_msg);
+    register_dissector("ua_term_to_sys", dissect_ua_term_to_sys, proto_ua_msg);
 
     /* Common subtree array registration */
     proto_register_subtree_array(ett, array_length(ett));

@@ -302,7 +302,7 @@ proto_register_bzr(void)
 
     module_t *bzr_module;
     proto_bzr = proto_register_protocol("Bazaar Smart Protocol", "Bazaar", "bzr");
-    new_register_dissector("bzr", dissect_bzr, proto_bzr);
+    register_dissector("bzr", dissect_bzr, proto_bzr);
     proto_register_field_array(proto_bzr, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

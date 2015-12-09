@@ -441,7 +441,7 @@ proto_register_krb4(void)
 
 	proto_krb4 = proto_register_protocol("Kerberos v4",
 					     "KRB4", "krb4");
-	new_register_dissector("krb4", dissect_krb4, proto_krb4);
+	register_dissector("krb4", dissect_krb4, proto_krb4);
 	proto_register_field_array(proto_krb4, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

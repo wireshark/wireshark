@@ -1646,8 +1646,8 @@ void proto_register_h223 (void)
 
     proto_register_field_array (proto_h223, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
-    new_register_dissector("h223", dissect_h223_circuit_data, proto_h223);
-    new_register_dissector("h223_bitswapped", dissect_h223_bitswapped, proto_h223_bitswapped);
+    register_dissector("h223", dissect_h223_circuit_data, proto_h223);
+    register_dissector("h223_bitswapped", dissect_h223_bitswapped, proto_h223_bitswapped);
 
     /* register our init routine to be called at the start of a capture,
        to clear out our hash tables etc */

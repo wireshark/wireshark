@@ -10093,7 +10093,7 @@ void proto_register_r3 (void)
   expert_module_t* expert_r3;
 
   proto_r3 = proto_register_protocol ("Assa Abloy R3", "R3", "r3");
-  new_register_dissector ("r3", dissect_r3, proto_r3);
+  register_dissector ("r3", dissect_r3, proto_r3);
   proto_register_field_array (proto_r3, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
   expert_r3 = expert_register_protocol(proto_r3);

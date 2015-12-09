@@ -167,7 +167,7 @@ proto_register_ipars(void)
     proto_ipars = proto_register_protocol("International Passenger Airline Reservation System", "IPARS", "ipars");
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("ipars", dissect_ipars, proto_ipars);
+    register_dissector("ipars", dissect_ipars, proto_ipars);
 }
 
 /*

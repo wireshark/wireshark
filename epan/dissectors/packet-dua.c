@@ -904,7 +904,7 @@ proto_register_dua(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Allow other dissectors to find this one by name. */
-  new_register_dissector("dua", dissect_dua, proto_dua);
+  register_dissector("dua", dissect_dua, proto_dua);
 }
 
 void

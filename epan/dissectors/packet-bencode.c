@@ -333,7 +333,7 @@ proto_register_bencode(void)
    expert_module_t* expert_bencode;
 
    proto_bencode = proto_register_protocol("Bencode", "Bencode", "bencode");
-   new_register_dissector("bencode", dissect_bencoding, proto_bencode);
+   register_dissector("bencode", dissect_bencoding, proto_bencode);
    proto_register_field_array(proto_bencode, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
    expert_bencode = expert_register_protocol(proto_bencode);

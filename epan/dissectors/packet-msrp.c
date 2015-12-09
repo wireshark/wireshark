@@ -912,7 +912,7 @@ proto_register_msrp(void)
      * Register the dissector by name, so other dissectors can
      * grab it by name rather than just referring to it directly.
      */
-    new_register_dissector("msrp", dissect_msrp, proto_msrp);
+    register_dissector("msrp", dissect_msrp, proto_msrp);
 }
 
 

@@ -5919,10 +5919,10 @@ proto_register_nas_eps(void)
     expert_register_field_array(expert_nas_eps, ei, array_length(ei));
 
     /* Register dissector */
-    new_register_dissector(PFNAME, dissect_nas_eps, proto_nas_eps);
+    register_dissector(PFNAME, dissect_nas_eps, proto_nas_eps);
 
     /* Register dissector */
-    new_register_dissector("nas-eps_plain", dissect_nas_eps_plain, proto_nas_eps);
+    register_dissector("nas-eps_plain", dissect_nas_eps_plain, proto_nas_eps);
 
     /* Register configuration options to always dissect as plain messages */
     nas_eps_module = prefs_register_protocol(proto_nas_eps, NULL);

@@ -1672,7 +1672,7 @@ framing signal deasserted.  this is caused by software setting the drain all reg
     proto_register_field_array(proto_ixveriwave, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    ixveriwave_handle = new_register_dissector("ixveriwave", dissect_ixveriwave, proto_ixveriwave);
+    ixveriwave_handle = register_dissector("ixveriwave", dissect_ixveriwave, proto_ixveriwave);
 }
 
 void proto_reg_handoff_ixveriwave(void)

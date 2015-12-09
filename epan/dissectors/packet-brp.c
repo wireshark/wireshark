@@ -411,7 +411,7 @@ void proto_register_brp (void)
                                    "Set the UDP port for BRP messages",
                                    10, &global_brp_port);
 
-    brp_handle = new_register_dissector("brp", dissect_brp, proto_brp);
+    brp_handle = register_dissector("brp", dissect_brp, proto_brp);
 }
 
 /*--- proto_reg_handoff_brp -------------------------------------------*/

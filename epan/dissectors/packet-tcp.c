@@ -6515,7 +6515,7 @@ proto_register_tcp(void)
     expert_module_t* expert_mptcp;
 
     proto_tcp = proto_register_protocol("Transmission Control Protocol", "TCP", "tcp");
-    new_register_dissector("tcp", dissect_tcp, proto_tcp);
+    register_dissector("tcp", dissect_tcp, proto_tcp);
     proto_register_field_array(proto_tcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_tcp = expert_register_protocol(proto_tcp);

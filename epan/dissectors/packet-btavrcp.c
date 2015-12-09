@@ -3148,7 +3148,7 @@ proto_register_btavrcp(void)
     btavrcp_song_positions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_btavrcp = proto_register_protocol("Bluetooth AVRCP Profile", "BT AVRCP", "btavrcp");
-    btavrcp_handle = new_register_dissector("btavrcp", dissect_btavrcp, proto_btavrcp);
+    btavrcp_handle = register_dissector("btavrcp", dissect_btavrcp, proto_btavrcp);
 
     proto_register_field_array(proto_btavrcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

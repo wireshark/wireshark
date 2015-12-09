@@ -1399,7 +1399,7 @@ proto_register_mtp3mg(void)
     /* Register the protocol name and description */
     proto_mtp3mg = proto_register_protocol("Message Transfer Part Level 3 Management",
                                            "MTP3MG", "mtp3mg");
-    new_register_dissector("mtp3mg", dissect_mtp3mg, proto_mtp3mg);
+    register_dissector("mtp3mg", dissect_mtp3mg, proto_mtp3mg);
 
     /* Required calls to register the header fields and subtrees used */
     proto_register_field_array(proto_mtp3mg, hf, array_length(hf));

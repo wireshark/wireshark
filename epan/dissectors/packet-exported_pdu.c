@@ -339,7 +339,7 @@ proto_register_exported_pdu(void)
     proto_exported_pdu = proto_register_protocol("EXPORTED_PDU",
             "exported_pdu", "exported_pdu");
 
-    new_register_dissector("exported_pdu", dissect_exported_pdu, proto_exported_pdu);
+    register_dissector("exported_pdu", dissect_exported_pdu, proto_exported_pdu);
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_exported_pdu, hf, array_length(hf));

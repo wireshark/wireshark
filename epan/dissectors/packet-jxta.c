@@ -2356,8 +2356,8 @@ void proto_register_jxta(void)
 
     proto_message_jxta = proto_register_protocol("JXTA Message", "JXTA Message", "jxta.message");
 
-    new_register_dissector("jxta.udp", dissect_jxta_udp, proto_jxta);
-    new_register_dissector("jxta.stream", dissect_jxta_stream, proto_jxta);
+    register_dissector("jxta.udp", dissect_jxta_udp, proto_jxta);
+    register_dissector("jxta.stream", dissect_jxta_stream, proto_jxta);
 
     /* Register header fields */
     proto_register_field_array(proto_jxta, hf, array_length(hf));

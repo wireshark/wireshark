@@ -93,7 +93,7 @@ proto_register_dvb_ipdc(void)
 #endif
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("dvb_ipdc", dissect_ipdc, proto_ipdc);
+    register_dissector("dvb_ipdc", dissect_ipdc, proto_ipdc);
 }
 
 void

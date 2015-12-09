@@ -91,7 +91,7 @@ proto_register_newmail(void)
 	proto_register_field_array(proto_newmail, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("newmail", dissect_newmail, proto_newmail);
+	register_dissector("newmail", dissect_newmail, proto_newmail);
 
 	newmail_module = prefs_register_protocol(proto_newmail,
 						 proto_reg_handoff_newmail);

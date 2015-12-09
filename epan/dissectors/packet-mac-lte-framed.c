@@ -94,7 +94,7 @@ void proto_register_mac_lte_framed(void)
     proto_mac_lte_framed = proto_register_protocol("mac-lte-framed", "MAC-LTE-FRAMED", "mac-lte-framed");
 
     /* Allow other dissectors to find this one by name. */
-    new_register_dissector("mac-lte-framed", dissect_mac_lte_framed, proto_mac_lte_framed);
+    register_dissector("mac-lte-framed", dissect_mac_lte_framed, proto_mac_lte_framed);
 }
 
 /*

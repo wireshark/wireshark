@@ -2582,7 +2582,7 @@ proto_register_cipsafety(void)
    expert_cip_safety = expert_register_protocol(proto_cipsafety);
    expert_register_field_array(expert_cip_safety, ei, array_length(ei));
 
-   new_register_dissector( "cipsafety", dissect_cipsafety, proto_cipsafety);
+   register_dissector( "cipsafety", dissect_cipsafety, proto_cipsafety);
 
    /* Register CIP Safety objects */
    proto_cip_class_s_supervisor = proto_register_protocol("CIP Safety Supervisor",

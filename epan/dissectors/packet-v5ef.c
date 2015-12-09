@@ -185,7 +185,7 @@ proto_register_v5ef(void)
 	proto_register_field_array (proto_v5ef, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("v5ef", dissect_v5ef, proto_v5ef);
+	register_dissector("v5ef", dissect_v5ef, proto_v5ef);
 
 }
 

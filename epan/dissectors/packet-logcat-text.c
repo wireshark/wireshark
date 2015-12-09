@@ -348,19 +348,19 @@ void proto_register_logcat_text(void) {
     proto_register_field_array(proto_logcat_text, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    logcat_text_brief_handle =      new_register_dissector("logcat_text_brief",
+    logcat_text_brief_handle =      register_dissector("logcat_text_brief",
             dissect_logcat_text_brief, proto_logcat_text);
-    logcat_text_tag_handle =        new_register_dissector("logcat_text_tag",
+    logcat_text_tag_handle =        register_dissector("logcat_text_tag",
             dissect_logcat_text_tag, proto_logcat_text);
-    logcat_text_time_handle =       new_register_dissector("logcat_text_time",
+    logcat_text_time_handle =       register_dissector("logcat_text_time",
             dissect_logcat_text_time, proto_logcat_text);
-    logcat_text_process_handle =    new_register_dissector("logcat_text_process",
+    logcat_text_process_handle =    register_dissector("logcat_text_process",
             dissect_logcat_text_process, proto_logcat_text);
-    logcat_text_thread_handle =     new_register_dissector("logcat_text_thread",
+    logcat_text_thread_handle =     register_dissector("logcat_text_thread",
             dissect_logcat_text_thread, proto_logcat_text);
-    logcat_text_threadtime_handle = new_register_dissector("logcat_text_threadtime",
+    logcat_text_threadtime_handle = register_dissector("logcat_text_threadtime",
             dissect_logcat_text_threadtime, proto_logcat_text);
-    logcat_text_long_handle =       new_register_dissector("logcat_text_long",
+    logcat_text_long_handle =       register_dissector("logcat_text_long",
             dissect_logcat_text_long, proto_logcat_text);
 
     special_regex =    g_regex_new(SPECIAL_STRING,    G_REGEX_ANCHORED,  G_REGEX_MATCH_NOTEMPTY, NULL);

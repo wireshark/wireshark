@@ -11172,7 +11172,7 @@ void proto_register_asterix (void)
     proto_register_field_array (proto_asterix, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
 
-    asterix_handle = new_register_dissector ("asterix", dissect_asterix, proto_asterix);
+    asterix_handle = register_dissector ("asterix", dissect_asterix, proto_asterix);
 
     asterix_prefs_module = prefs_register_protocol (proto_asterix, proto_reg_handoff_asterix);
 

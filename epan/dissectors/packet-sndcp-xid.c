@@ -864,7 +864,7 @@ proto_register_sndcp_xid(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_sndcp_xid, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    new_register_dissector("sndcpxid", dissect_sndcp_xid, proto_sndcp_xid);
+    register_dissector("sndcpxid", dissect_sndcp_xid, proto_sndcp_xid);
 }
 
 /*

@@ -3075,7 +3075,7 @@ proto_register_iscsi(void)
 
     /* Register the protocol name and description */
     proto_iscsi = proto_register_protocol("iSCSI", "iSCSI", "iscsi");
-    new_register_dissector("iscsi", dissect_iscsi_handle, proto_iscsi);
+    register_dissector("iscsi", dissect_iscsi_handle, proto_iscsi);
 
     /* Required function calls to register the header fields and
      * subtrees used */

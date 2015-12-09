@@ -122,7 +122,7 @@ proto_register_dmx(void)
 
 	proto_dmx = proto_register_protocol("DMX", "DMX", "dmx");
 	proto_register_field_array(proto_dmx, hf, array_length(hf));
-	new_register_dissector("dmx", dissect_dmx, proto_dmx);
+	register_dissector("dmx", dissect_dmx, proto_dmx);
 }
 
 void

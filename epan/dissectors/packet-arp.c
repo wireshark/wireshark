@@ -1973,7 +1973,7 @@ proto_register_arp(void)
   atmarp_handle = create_dissector_handle(dissect_atmarp, proto_atmarp);
   ax25arp_handle = create_dissector_handle(dissect_ax25arp, proto_arp);
 
-  arp_handle = new_register_dissector( "arp" , dissect_arp, proto_arp );
+  arp_handle = register_dissector( "arp" , dissect_arp, proto_arp );
 
   /* Preferences */
   arp_module = prefs_register_protocol(proto_arp, NULL);

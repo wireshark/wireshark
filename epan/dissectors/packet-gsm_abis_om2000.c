@@ -1416,7 +1416,7 @@ proto_register_abis_om2000(void)
 
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("gsm_abis_om2000", dissect_abis_om2000,
+	register_dissector("gsm_abis_om2000", dissect_abis_om2000,
 			   proto_abis_om2000);
 }
 

@@ -237,8 +237,8 @@ proto_register_db_lsp (void)
 
   proto_db_lsp = proto_register_protocol (PNAME, PSNAME, PFNAME);
   proto_db_lsp_disc = proto_register_protocol (PNAME_DISC, PSNAME_DISC, PFNAME_DISC);
-  new_register_dissector ("db-lsp.tcp", dissect_db_lsp_tcp, proto_db_lsp);
-  new_register_dissector ("db-lsp.udp", dissect_db_lsp_disc, proto_db_lsp_disc);
+  register_dissector ("db-lsp.tcp", dissect_db_lsp_tcp, proto_db_lsp);
+  register_dissector ("db-lsp.udp", dissect_db_lsp_disc, proto_db_lsp_disc);
 
   heur_subdissector_list = register_heur_dissector_list("db-lsp");
 

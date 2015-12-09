@@ -214,7 +214,7 @@ proto_register_lapb(void)
     proto_register_field_array (proto_lapb, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("lapb", dissect_lapb, proto_lapb);
+    register_dissector("lapb", dissect_lapb, proto_lapb);
 }
 
 void

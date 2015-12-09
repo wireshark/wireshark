@@ -2723,7 +2723,7 @@ proto_register_a11(void)
     proto_a11 = proto_register_protocol("3GPP2 A11", "3GPP2 A11", "a11");
 
     /* Register the dissector by name */
-    new_register_dissector("a11", dissect_a11, proto_a11);
+    register_dissector("a11", dissect_a11, proto_a11);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_a11, hf, array_length(hf));

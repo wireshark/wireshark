@@ -853,7 +853,7 @@ proto_register_cbor(void)
 	expert_cbor = expert_register_protocol(proto_cbor);
 	expert_register_field_array(expert_cbor, ei, array_length(ei));
 
-	new_register_dissector("cbor", dissect_cbor, proto_cbor);
+	register_dissector("cbor", dissect_cbor, proto_cbor);
 }
 
 void

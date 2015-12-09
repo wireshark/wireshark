@@ -7546,7 +7546,7 @@ proto_register_tn5250(void)
   expert_module_t* expert_tn5250;
 
   proto_tn5250 = proto_register_protocol("TN5250 Protocol", "TN5250", "tn5250");
-  new_register_dissector("tn5250", dissect_tn5250, proto_tn5250);
+  register_dissector("tn5250", dissect_tn5250, proto_tn5250);
   proto_register_field_array(proto_tn5250, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   expert_tn5250 = expert_register_protocol(proto_tn5250);

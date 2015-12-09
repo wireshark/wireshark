@@ -908,7 +908,7 @@ void proto_register_lwm(void)
             "128-bit decryption key in hexadecimal format", (const char **)&lwmes_key_str);
 
     /*  Register dissector with Wireshark. */
-    new_register_dissector("lwm", dissect_lwm, proto_lwm);
+    register_dissector("lwm", dissect_lwm, proto_lwm);
 
 } /* proto_register_lwm */
 

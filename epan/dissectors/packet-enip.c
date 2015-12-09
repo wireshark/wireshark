@@ -3707,7 +3707,7 @@ proto_register_enip(void)
    proto_enip = proto_register_protocol("EtherNet/IP (Industrial Protocol)", "ENIP", "enip");
    proto_enipio = proto_register_protocol("EtherNet/IP I/O", "ENIP I/O", "enip_io");
 
-   new_register_dissector("enip", dissect_enip_tcp, proto_enip);
+   register_dissector("enip", dissect_enip_tcp, proto_enip);
 
    /* Required function calls to register the header fields and subtrees used */
    proto_register_field_array(proto_enip, hf, array_length(hf));

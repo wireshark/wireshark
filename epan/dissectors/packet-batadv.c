@@ -5021,7 +5021,7 @@ void proto_register_batadv(void)
 				      "batadv"           /* abbrev */
 			      );
 
-	new_register_dissector("batadv",dissect_batadv_plugin,proto_batadv_plugin);
+	register_dissector("batadv",dissect_batadv_plugin,proto_batadv_plugin);
 
 	batadv_module = prefs_register_protocol(proto_batadv_plugin,
 						proto_reg_handoff_batadv);

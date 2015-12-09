@@ -638,7 +638,7 @@ proto_register_usb_audio(void)
     register_init_routine(&midi_data_reassemble_init);
     register_cleanup_routine(&midi_data_reassemble_cleanup);
 
-    new_register_dissector("usbaudio", dissect_usb_audio_bulk, proto_usb_audio);
+    register_dissector("usbaudio", dissect_usb_audio_bulk, proto_usb_audio);
 }
 
 void

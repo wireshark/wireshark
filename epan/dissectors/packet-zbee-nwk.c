@@ -1921,9 +1921,9 @@ void proto_register_zbee_nwk(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the dissectors with Wireshark. */
-    new_register_dissector(ZBEE_PROTOABBREV_NWK, dissect_zbee_nwk, proto_zbee_nwk);
-    new_register_dissector("zbee_beacon", dissect_zbee_beacon, proto_zbee_beacon);
-    new_register_dissector("zbip_beacon", dissect_zbip_beacon, proto_zbip_beacon);
+    register_dissector(ZBEE_PROTOABBREV_NWK, dissect_zbee_nwk, proto_zbee_nwk);
+    register_dissector("zbee_beacon", dissect_zbee_beacon, proto_zbee_beacon);
+    register_dissector("zbip_beacon", dissect_zbip_beacon, proto_zbip_beacon);
 
     /* Register the Security dissector. */
     zbee_security_register(NULL, proto_zbee_nwk);

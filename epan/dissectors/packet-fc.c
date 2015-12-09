@@ -1565,8 +1565,8 @@ proto_register_fc(void)
 
     /* Register the protocol name and description */
     proto_fc = proto_register_protocol ("Fibre Channel", "FC", "fc");
-    fc_handle = new_register_dissector ("fc", dissect_fc, proto_fc);
-    new_register_dissector ("fc_ifcp", dissect_fc_ifcp, proto_fc);
+    fc_handle = register_dissector ("fc", dissect_fc, proto_fc);
+    register_dissector ("fc_ifcp", dissect_fc_ifcp, proto_fc);
     fc_tap = register_tap("fc");
 
     /* Required function calls to register the header fields and subtrees used */
@@ -1606,7 +1606,7 @@ proto_register_fc(void)
     proto_register_field_array(proto_fcsof, sof_hf, array_length(sof_hf));
     proto_register_subtree_array(sof_ett, array_length(sof_ett));
 
-    fcsof_handle = new_register_dissector("fcsof", dissect_fcsof, proto_fcsof);
+    fcsof_handle = register_dissector("fcsof", dissect_fcsof, proto_fcsof);
 
     register_conversation_table(proto_fc, TRUE, fc_conversation_packet, fc_hostlist_packet);
     register_srt_table(proto_fc, NULL, 1, fcstat_packet, fcstat_init, NULL);

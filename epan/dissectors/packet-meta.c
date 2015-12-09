@@ -781,7 +781,7 @@ proto_register_meta(void)
     expert_module_t* expert_meta;
 
     proto_meta = proto_register_protocol("Metadata", "META", "meta");
-    new_register_dissector("meta", dissect_meta, proto_meta);
+    register_dissector("meta", dissect_meta, proto_meta);
 
     proto_register_field_array(proto_meta, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

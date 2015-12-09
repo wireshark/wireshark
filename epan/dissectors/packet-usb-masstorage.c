@@ -451,7 +451,7 @@ proto_register_usb_ms(void)
     proto_register_field_array(proto_usb_ms, hf, array_length(hf));
     proto_register_subtree_array(usb_ms_subtrees, array_length(usb_ms_subtrees));
 
-    new_register_dissector("usbms", dissect_usb_ms_bulk, proto_usb_ms);
+    register_dissector("usbms", dissect_usb_ms_bulk, proto_usb_ms);
 }
 
 void

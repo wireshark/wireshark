@@ -780,7 +780,7 @@ proto_register_kt(void)
     };
 
     proto_kt = proto_register_protocol("Kyoto Tycoon Protocol", "Kyoto Tycoon", "kt");
-    new_register_dissector("kt", dissect_kt, proto_kt);
+    register_dissector("kt", dissect_kt, proto_kt);
     proto_register_field_array(proto_kt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 

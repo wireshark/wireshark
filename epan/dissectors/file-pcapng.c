@@ -1809,7 +1809,7 @@ proto_register_pcapng(void)
     proto_register_field_array(proto_pcapng, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("file-pcapng", dissect_pcapng, proto_pcapng);
+    register_dissector("file-pcapng", dissect_pcapng, proto_pcapng);
 
     module = prefs_register_protocol(proto_pcapng, NULL);
     prefs_register_static_text_preference(module, "version",

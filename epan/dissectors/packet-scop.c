@@ -375,8 +375,8 @@ void proto_register_scop(void)
                  10, &gPREF_scop_port_secured);
 
     /*  Register dissector with Wireshark. */
-    new_register_dissector("scop.udp", dissect_scop, proto_scop);
-    new_register_dissector("scop.tcp", dissect_scop_tcp, proto_scop);
+    register_dissector("scop.udp", dissect_scop, proto_scop);
+    register_dissector("scop.tcp", dissect_scop_tcp, proto_scop);
 } /* proto_register_scop() */
 
 /*FUNCTION:------------------------------------------------------

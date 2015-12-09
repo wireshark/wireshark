@@ -287,7 +287,7 @@ proto_register_logcat(void)
     proto_logcat = proto_register_protocol("Android Logcat", "Logcat", "logcat");
     proto_register_field_array(proto_logcat, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    logcat_handle = new_register_dissector("logcat", dissect_logcat, proto_logcat);
+    logcat_handle = register_dissector("logcat", dissect_logcat, proto_logcat);
 
     expert_module = expert_register_protocol(proto_logcat);
     expert_register_field_array(expert_module, ei, array_length(ei));

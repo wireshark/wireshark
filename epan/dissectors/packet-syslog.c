@@ -346,7 +346,7 @@ void proto_register_syslog(void)
   proto_register_field_array(proto_syslog, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  syslog_handle = new_register_dissector("syslog", dissect_syslog, proto_syslog);
+  syslog_handle = register_dissector("syslog", dissect_syslog, proto_syslog);
 }
 
 void

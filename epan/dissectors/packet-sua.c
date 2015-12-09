@@ -2454,7 +2454,7 @@ proto_register_sua(void)
 
   /* Register the protocol name and description */
   proto_sua = proto_register_protocol("SS7 SCCP-User Adaptation Layer", "SUA", "sua");
-  new_register_dissector("sua", dissect_sua, proto_sua);
+  register_dissector("sua", dissect_sua, proto_sua);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sua, hf, array_length(hf));

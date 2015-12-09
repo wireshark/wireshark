@@ -675,7 +675,7 @@ void proto_register_erldp(void) {
   /* Register protocol and dissector */
   proto_erldp = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  erldp_handle = new_register_dissector(PFNAME, dissect_erldp, proto_erldp);
+  erldp_handle = register_dissector(PFNAME, dissect_erldp, proto_erldp);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_erldp, hf, array_length(hf));

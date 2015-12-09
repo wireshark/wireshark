@@ -583,7 +583,7 @@ proto_register_fp_hint(void)
     expert_module_t* expert_fp_hint;
 
     proto_fp_hint = proto_register_protocol("FP Hint", "FP Hint", "fp_hint");
-    new_register_dissector("fp_hint", dissect_fp_hint, proto_fp_hint);
+    register_dissector("fp_hint", dissect_fp_hint, proto_fp_hint);
 
     proto_register_field_array(proto_fp_hint, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

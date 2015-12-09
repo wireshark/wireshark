@@ -159,7 +159,7 @@ proto_register_openflow(void)
     proto_openflow = proto_register_protocol("OpenFlow",
             "OpenFlow", "openflow");
 
-    new_register_dissector("openflow", dissect_openflow, proto_openflow);
+    register_dissector("openflow", dissect_openflow, proto_openflow);
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_openflow, hf, array_length(hf));

@@ -602,7 +602,7 @@ proto_register_png(void)
     expert_png = expert_register_protocol(proto_png);
     expert_register_field_array(expert_png, ei, array_length(ei));
 
-    png_handle = new_register_dissector("png", dissect_png, proto_png);
+    png_handle = register_dissector("png", dissect_png, proto_png);
 }
 
 static gboolean dissect_png_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)

@@ -616,7 +616,7 @@ proto_register_tapa(void)
 	proto_register_field_array(proto_tapa, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("tapa", dissect_tapa_static, proto_tapa);
+	register_dissector("tapa", dissect_tapa_static, proto_tapa);
 
 }
 

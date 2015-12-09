@@ -475,7 +475,7 @@ proto_register_ib_sdp(void)
 
     proto_ib_sdp = proto_register_protocol("Infiniband Sockets Direct Protocol", "Infiniband SDP", "infiniband_sdp");
 
-    new_register_dissector("infiniband_sdp", dissect_ib_sdp, proto_ib_sdp);
+    register_dissector("infiniband_sdp", dissect_ib_sdp, proto_ib_sdp);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ib_sdp, hf, array_length(hf));

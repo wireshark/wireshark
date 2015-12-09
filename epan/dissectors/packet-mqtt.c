@@ -577,7 +577,7 @@ void proto_register_mqtt(void)
   proto_mqtt = proto_register_protocol("MQ Telemetry Transport Protocol", "MQTT", "mqtt");
 
   /* Register the dissector */
-  mqtt_handle = new_register_dissector("mqtt", dissect_mqtt_data, proto_mqtt);
+  mqtt_handle = register_dissector("mqtt", dissect_mqtt_data, proto_mqtt);
 
   proto_register_field_array(proto_mqtt, hf_mqtt, array_length(hf_mqtt));
   proto_register_subtree_array(ett_mqtt, array_length(ett_mqtt));

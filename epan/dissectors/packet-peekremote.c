@@ -680,7 +680,7 @@ proto_register_peekremote(void)
   expert_peekremote = expert_register_protocol(proto_peekremote);
   expert_register_field_array(expert_peekremote, ei, array_length(ei));
 
-  new_register_dissector("peekremote", dissect_peekremote_legacy, proto_peekremote);
+  register_dissector("peekremote", dissect_peekremote_legacy, proto_peekremote);
 }
 
 void

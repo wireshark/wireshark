@@ -1649,7 +1649,7 @@ proto_register_gmr1_bcch(void)
 	expert_gmr1_bcch = expert_register_protocol(proto_gmr1_bcch);
 	expert_register_field_array(expert_gmr1_bcch, ei, array_length(ei));
 
-	new_register_dissector("gmr1_bcch", dissect_gmr1_bcch, proto_gmr1_bcch);
+	register_dissector("gmr1_bcch", dissect_gmr1_bcch, proto_gmr1_bcch);
 }
 
 /*

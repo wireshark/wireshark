@@ -693,8 +693,8 @@ proto_register_classicstun(void)
     proto_register_field_array(proto_classicstun, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("classicstun", dissect_classicstun, proto_classicstun);
-    new_register_dissector("classicstun-heur", dissect_classicstun_heur, proto_classicstun);
+    register_dissector("classicstun", dissect_classicstun, proto_classicstun);
+    register_dissector("classicstun-heur", dissect_classicstun_heur, proto_classicstun);
 }
 
 

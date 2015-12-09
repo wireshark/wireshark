@@ -2132,7 +2132,7 @@ proto_register_m3ua(void)
 
   /* Register the protocol name and description */
   proto_m3ua = proto_register_protocol("MTP 3 User Adaptation Layer", "M3UA",  "m3ua");
-  new_register_dissector("m3ua", dissect_m3ua, proto_m3ua);
+  register_dissector("m3ua", dissect_m3ua, proto_m3ua);
 
   m3ua_module = prefs_register_protocol(proto_m3ua, NULL);
   prefs_register_enum_preference(m3ua_module, "version", "M3UA Version", "Version used by Wireshark", &version, options, FALSE);

@@ -313,7 +313,7 @@ proto_register_ehdlc(void)
 	proto_register_field_array(proto_ehdlc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("ehdlc", dissect_ehdlc, proto_ehdlc);
+	register_dissector("ehdlc", dissect_ehdlc, proto_ehdlc);
 }
 
 void

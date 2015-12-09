@@ -3037,7 +3037,7 @@ proto_register_tipc(void)
 	tipc_heur_subdissector_list = register_heur_dissector_list("tipc");
 
 	/* Register by name */
-	new_register_dissector("tipc", dissect_tipc, proto_tipc);
+	register_dissector("tipc", dissect_tipc, proto_tipc);
 
 	register_init_routine(tipc_defragment_init);
 	register_cleanup_routine(tipc_defragment_cleanup);

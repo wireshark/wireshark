@@ -1392,7 +1392,7 @@ proto_register_ppi_vector(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_ppi_vector = expert_register_protocol(proto_ppi_vector);
     expert_register_field_array(expert_ppi_vector, ei, array_length(ei));
-    new_register_dissector("ppi_vector", dissect_ppi_vector, proto_ppi_vector);
+    register_dissector("ppi_vector", dissect_ppi_vector, proto_ppi_vector);
 
 }
 

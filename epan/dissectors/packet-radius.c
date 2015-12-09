@@ -2457,7 +2457,7 @@ proto_register_radius(void)
 	module_t *radius_module;
 
 	proto_radius = proto_register_protocol("RADIUS Protocol", "RADIUS", "radius");
-	new_register_dissector("radius", dissect_radius, proto_radius);
+	register_dissector("radius", dissect_radius, proto_radius);
 	register_init_routine(&radius_init_protocol);
 	register_cleanup_routine(&radius_cleanup_protocol);
 	radius_module = prefs_register_protocol(proto_radius, proto_reg_handoff_radius);

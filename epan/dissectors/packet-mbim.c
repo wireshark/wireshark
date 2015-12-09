@@ -7996,9 +7996,9 @@ proto_register_mbim(void)
     register_init_routine(mbim_reassembly_init);
     register_cleanup_routine(mbim_reassembly_cleanup);
 
-    new_register_dissector("mbim.control", dissect_mbim_control, proto_mbim);
-    new_register_dissector("mbim.descriptor", dissect_mbim_descriptor, proto_mbim);
-    new_register_dissector("mbim.bulk", dissect_mbim_bulk, proto_mbim);
+    register_dissector("mbim.control", dissect_mbim_control, proto_mbim);
+    register_dissector("mbim.descriptor", dissect_mbim_descriptor, proto_mbim);
+    register_dissector("mbim.bulk", dissect_mbim_bulk, proto_mbim);
     dss_dissector_table = register_dissector_table("mbim.dss_session_id",
         "MBIM DSS Session Id", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 

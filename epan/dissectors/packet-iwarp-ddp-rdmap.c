@@ -893,7 +893,7 @@ proto_register_iwarp_ddp_rdmap(void)
 
 	rdmap_heur_subdissector_list = register_heur_dissector_list("iwarp_ddp_rdmap");
 
-	new_register_dissector("iwarp_ddp_rdmap", dissect_iwarp_ddp_rdmap,
+	register_dissector("iwarp_ddp_rdmap", dissect_iwarp_ddp_rdmap,
 			proto_iwarp_ddp_rdmap);
 }
 

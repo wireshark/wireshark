@@ -692,7 +692,7 @@ proto_register_trmac(void)
 	expert_trmac = expert_register_protocol(proto_trmac);
 	expert_register_field_array(expert_trmac, ei, array_length(ei));
 
-	new_register_dissector("trmac", dissect_trmac, proto_trmac);
+	register_dissector("trmac", dissect_trmac, proto_trmac);
 }
 
 /*

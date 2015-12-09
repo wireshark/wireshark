@@ -2914,7 +2914,7 @@ proto_register_6lowpan(void)
     expert_register_field_array(expert_6lowpan, ei, array_length(ei));
 
     /* Register the dissector with wireshark. */
-    handle_6lowpan = new_register_dissector("6lowpan", dissect_6lowpan, proto_6lowpan);
+    handle_6lowpan = register_dissector("6lowpan", dissect_6lowpan, proto_6lowpan);
 
     /* Register the dissector init function */
     register_init_routine(proto_init_6lowpan);

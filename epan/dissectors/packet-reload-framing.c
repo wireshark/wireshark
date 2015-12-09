@@ -580,7 +580,7 @@ proto_register_reload_framing(void)
   expert_reload_framing = expert_register_protocol(proto_reload_framing);
   expert_register_field_array(expert_reload_framing, ei, array_length(ei));
 
-  new_register_dissector("reload-framing", dissect_reload_framing, proto_reload_framing);
+  register_dissector("reload-framing", dissect_reload_framing, proto_reload_framing);
 
 }
 

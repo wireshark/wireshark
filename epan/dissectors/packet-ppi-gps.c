@@ -614,7 +614,7 @@ proto_register_ppi_gps(void) {
     proto_register_subtree_array(ett, array_length(ett));
     expert_ppi_gps = expert_register_protocol(proto_ppi_gps);
     expert_register_field_array(expert_ppi_gps, ei, array_length(ei));
-    new_register_dissector("ppi_gps", dissect_ppi_gps, proto_ppi_gps);
+    register_dissector("ppi_gps", dissect_ppi_gps, proto_ppi_gps);
 }
 
 /*

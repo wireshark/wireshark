@@ -640,7 +640,7 @@ proto_register_bthcrp(void)
     };
 
     proto_bthcrp = proto_register_protocol("Bluetooth HCRP Profile", "BT HCRP", "bthcrp");
-    bthcrp_handle = new_register_dissector("bthcrp", dissect_bthcrp, proto_bthcrp);
+    bthcrp_handle = register_dissector("bthcrp", dissect_bthcrp, proto_bthcrp);
 
     proto_register_field_array(proto_bthcrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

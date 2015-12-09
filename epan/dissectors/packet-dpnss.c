@@ -1646,7 +1646,7 @@ proto_register_dpnss(void)
 
 /* Register the protocol name and description */
     proto_dpnss = proto_register_protocol("Digital Private Signalling System No 1","DPNSS", "dpnss");
-    new_register_dissector("dpnss", dissect_dpnss, proto_dpnss);
+    register_dissector("dpnss", dissect_dpnss, proto_dpnss);
 
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_dpnss, hf, array_length(hf));

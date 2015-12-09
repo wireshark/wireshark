@@ -662,7 +662,7 @@ proto_register_bthci_acl(void)
 
     /* Register the protocol name and description */
     proto_bthci_acl = proto_register_protocol("Bluetooth HCI ACL Packet", "HCI_ACL", "bthci_acl");
-    bthci_acl_handle = new_register_dissector("bthci_acl", dissect_bthci_acl, proto_bthci_acl);
+    bthci_acl_handle = register_dissector("bthci_acl", dissect_bthci_acl, proto_bthci_acl);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bthci_acl, hf, array_length(hf));

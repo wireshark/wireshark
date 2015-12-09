@@ -1548,7 +1548,7 @@ proto_register_bthci_vendor_broadcom(void)
     proto_bthci_vendor_broadcom = proto_register_protocol("Bluetooth Broadcom HCI",
             "HCI BROADCOM", "bthci_vendor.broadcom");
 
-    bthci_vendor_broadcom_handle = new_register_dissector("bthci_vendor.broadcom", dissect_bthci_vendor_broadcom, proto_bthci_vendor_broadcom);
+    bthci_vendor_broadcom_handle = register_dissector("bthci_vendor.broadcom", dissect_bthci_vendor_broadcom, proto_bthci_vendor_broadcom);
 
     proto_register_field_array(proto_bthci_vendor_broadcom, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

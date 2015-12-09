@@ -1374,7 +1374,7 @@ proto_register_wai(void)
     proto_register_field_array(proto_wai, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    wai_handle = new_register_dissector("wai", dissect_wai, proto_wai);
+    wai_handle = register_dissector("wai", dissect_wai, proto_wai);
 }
 
 void

@@ -460,7 +460,7 @@ proto_register_mstp(void)
 	expert_mstp = expert_register_protocol(proto_mstp);
 	expert_register_field_array(expert_mstp, ei, array_length(ei));
 
-	new_register_dissector("mstp", dissect_mstp_wtap, proto_mstp);
+	register_dissector("mstp", dissect_mstp_wtap, proto_mstp);
 
 	subdissector_table = register_dissector_table("mstp.vendor_frame_type",
 	    "MSTP Vendor specific Frametypes", FT_UINT24, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);

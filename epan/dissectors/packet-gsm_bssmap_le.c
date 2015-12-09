@@ -1212,7 +1212,7 @@ proto_register_gsm_bssmap_le(void)
 	expert_gsm_a_bssmap_le = expert_register_protocol(proto_bssmap_le);
 	expert_register_field_array(expert_gsm_a_bssmap_le, ei, array_length(ei));
 
-	new_register_dissector("gsm_bssmap_le", dissect_bssmap_le, proto_bssmap_le);
+	register_dissector("gsm_bssmap_le", dissect_bssmap_le, proto_bssmap_le);
 }
 
 void

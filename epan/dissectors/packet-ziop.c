@@ -322,7 +322,7 @@ proto_register_ziop (void)
   expert_ziop = expert_register_protocol(proto_ziop);
   expert_register_field_array(expert_ziop, ei, array_length(ei));
 
-  new_register_dissector("ziop", dissect_ziop, proto_ziop);
+  register_dissector("ziop", dissect_ziop, proto_ziop);
 }
 
 

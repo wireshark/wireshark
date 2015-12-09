@@ -106,7 +106,7 @@ proto_register_dmx_text(void)
 	proto_dmx_text = proto_register_protocol("DMX Text Frame", "DMX Text Frame", "dmx-text");
 	proto_register_field_array(proto_dmx_text, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	new_register_dissector("dmx-text", dissect_dmx_text, proto_dmx_text);
+	register_dissector("dmx-text", dissect_dmx_text, proto_dmx_text);
 }
 
 /*

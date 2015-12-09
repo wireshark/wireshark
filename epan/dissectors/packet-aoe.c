@@ -469,7 +469,7 @@ proto_register_aoe(void)
   proto_register_field_array(proto_aoe, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  aoe_handle = new_register_dissector("aoe", dissect_aoe, proto_aoe);
+  aoe_handle = register_dissector("aoe", dissect_aoe, proto_aoe);
 
   register_init_routine(ata_init);
   register_cleanup_routine(ata_cleanup);

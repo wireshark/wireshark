@@ -4451,7 +4451,7 @@ void proto_register_rsl(void)
     expert_rsl = expert_register_protocol(proto_rsl);
     expert_register_field_array(expert_rsl, ei, array_length(ei));
 
-    new_register_dissector("gsm_abis_rsl", dissect_rsl, proto_rsl);
+    register_dissector("gsm_abis_rsl", dissect_rsl, proto_rsl);
 
     rsl_module = prefs_register_protocol(proto_rsl, proto_reg_handoff_rsl);
     prefs_register_bool_preference(rsl_module, "use_ipaccess_rsl",

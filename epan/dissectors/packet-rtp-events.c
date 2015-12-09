@@ -492,7 +492,7 @@ proto_register_rtp_events(void)
 				    " that specifies Cisco Named Signaling Events", 10,
 				    &cisco_nse_pt_value);
 
-	new_register_dissector("rtpevent", dissect_rtp_events, proto_rtp_events);
+	register_dissector("rtpevent", dissect_rtp_events, proto_rtp_events);
 	rtp_event_tap = register_tap("rtpevent");
 }
 

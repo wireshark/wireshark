@@ -1185,7 +1185,7 @@ proto_register_gmr1_rach(void)
 	proto_register_field_array(proto_gmr1_rach, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("gmr1_rach", dissect_gmr1_rach, proto_gmr1_rach);
+	register_dissector("gmr1_rach", dissect_gmr1_rach, proto_gmr1_rach);
 }
 
 void

@@ -3612,7 +3612,7 @@ proto_register_lisp(void)
     expert_register_field_array(expert_lisp, ei, array_length(ei));
 
     /* Register dissector so that other dissectors can call it */
-    lisp_handle = new_register_dissector("lisp", dissect_lisp, proto_lisp);
+    lisp_handle = register_dissector("lisp", dissect_lisp, proto_lisp);
 }
 
 

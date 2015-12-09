@@ -6683,7 +6683,7 @@ proto_register_sigcomp(void)
     proto_raw_sigcomp = proto_register_protocol("Decompressed SigComp message as raw text",
                                                 "Raw_SigComp", "raw_sigcomp");
 
-    new_register_dissector("sigcomp", dissect_sigcomp, proto_sigcomp);
+    register_dissector("sigcomp", dissect_sigcomp, proto_sigcomp);
 
 /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_sigcomp, hf, array_length(hf));

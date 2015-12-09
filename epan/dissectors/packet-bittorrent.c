@@ -676,7 +676,7 @@ proto_register_bittorrent(void)
    proto_register_field_array(proto_bittorrent, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
-   new_register_dissector("bittorrent.tcp", dissect_bittorrent, proto_bittorrent);
+   register_dissector("bittorrent.tcp", dissect_bittorrent, proto_bittorrent);
 
    bittorrent_module = prefs_register_protocol(proto_bittorrent, NULL);
    prefs_register_bool_preference(bittorrent_module, "desegment",

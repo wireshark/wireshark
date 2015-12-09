@@ -428,7 +428,7 @@ proto_register_v5dl(void)
 	proto_register_field_array (proto_v5dl, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("v5dl", dissect_v5dl, proto_v5dl);
+	register_dissector("v5dl", dissect_v5dl, proto_v5dl);
 }
 
 void

@@ -5591,7 +5591,7 @@ proto_register_tds(void)
     expert_register_field_array(expert_tds, ei, array_length(ei));
 
 /* Allow dissector to be found by name. */
-    tds_tcp_handle = new_register_dissector("tds", dissect_tds_message, proto_tds);
+    tds_tcp_handle = register_dissector("tds", dissect_tds_message, proto_tds);
 
     tds_module = prefs_register_protocol(proto_tds, NULL);
     prefs_register_bool_preference(tds_module, "desegment_buffers",

@@ -1423,7 +1423,7 @@ proto_register_smcr(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_smcr = proto_register_protocol("Shared Memory Communications - RDMA",
 	    "SMCR", "smcr");
-	smcr_tcp_handle = new_register_dissector("smcr", dissect_smcr_tcp, proto_smcr);
+	smcr_tcp_handle = register_dissector("smcr", dissect_smcr_tcp, proto_smcr);
 }
 
 void

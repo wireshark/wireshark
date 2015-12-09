@@ -148,7 +148,7 @@ proto_register_git(void)
   proto_register_field_array(proto_git, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  git_handle = new_register_dissector(PFNAME, dissect_git, proto_git);
+  git_handle = register_dissector(PFNAME, dissect_git, proto_git);
 
   git_module = prefs_register_protocol(proto_git, NULL);
 

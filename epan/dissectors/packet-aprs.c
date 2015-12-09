@@ -1957,7 +1957,7 @@ proto_register_aprs( void )
 	proto_aprs = proto_register_protocol("Automatic Position Reporting System", "APRS", "aprs");
 
 	/* Register the dissector */
-	new_register_dissector( "aprs", dissect_aprs, proto_aprs);
+	register_dissector( "aprs", dissect_aprs, proto_aprs);
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_aprs, hf, array_length(hf ) );

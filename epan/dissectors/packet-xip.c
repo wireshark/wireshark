@@ -683,7 +683,7 @@ proto_register_xip(void)
 		"XIP",
 	        "xip");
 
-	new_register_dissector("xip", dissect_xip, proto_xip);
+	register_dissector("xip", dissect_xip, proto_xip);
 	proto_register_field_array(proto_xip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

@@ -2327,7 +2327,7 @@ void proto_register_pn532(void)
     prefs_register_enum_preference(pref_mod, "prtype532", "Payload Type", "Protocol payload type",
         &sub_selected, sub_enum_vals, FALSE);
 
-    new_register_dissector("pn532", dissect_pn532, proto_pn532);
+    register_dissector("pn532", dissect_pn532, proto_pn532);
 }
 
 /* Handler registration */

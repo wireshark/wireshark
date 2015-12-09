@@ -1259,7 +1259,7 @@ proto_register_imf(void)
   expert_register_field_array(expert_imf, ei, array_length(ei));
 
   /* Allow dissector to find be found by name. */
-  imf_handle = new_register_dissector(PFNAME, dissect_imf, proto_imf);
+  imf_handle = register_dissector(PFNAME, dissect_imf, proto_imf);
 
   imf_module = prefs_register_protocol(proto_imf, NULL);
   prefs_register_uat_preference(imf_module, "custom_header_fields", "Custom IMF headers",

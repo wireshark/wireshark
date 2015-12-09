@@ -1652,7 +1652,7 @@ void proto_register_noe(void)
 
     proto_register_field_array(proto_noe, hf_noe, array_length(hf_noe));
 
-    new_register_dissector("noe", dissect_noe, proto_noe);
+    register_dissector("noe", dissect_noe, proto_noe);
 
     /* Common subtree array registration */
     proto_register_subtree_array(ett, array_length(ett));

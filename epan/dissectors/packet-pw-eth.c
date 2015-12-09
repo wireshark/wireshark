@@ -192,7 +192,7 @@ proto_register_pw_eth(void)
                                 "pwethheuristic");
     proto_register_field_array(proto_pw_eth_cw, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    new_register_dissector("pw_eth_heuristic", dissect_pw_eth_heuristic,
+    register_dissector("pw_eth_heuristic", dissect_pw_eth_heuristic,
                        proto_pw_eth_heuristic);
 }
 

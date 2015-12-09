@@ -636,7 +636,7 @@ proto_register_json(void)
 	proto_register_fields(proto_json, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	json_handle = new_register_dissector("json", dissect_json, proto_json);
+	json_handle = register_dissector("json", dissect_json, proto_json);
 
 	init_json_parser();
 }

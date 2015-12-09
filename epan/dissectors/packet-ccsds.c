@@ -707,7 +707,7 @@ proto_register_ccsds(void)
     expert_ccsds = expert_register_protocol(proto_ccsds);
     expert_register_field_array(expert_ccsds, ei, array_length(ei));
 
-    new_register_dissector ( "ccsds", dissect_ccsds, proto_ccsds );
+    register_dissector ( "ccsds", dissect_ccsds, proto_ccsds );
 
     /* Register preferences module */
     ccsds_module = prefs_register_protocol(proto_ccsds, NULL);

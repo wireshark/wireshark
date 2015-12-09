@@ -1897,7 +1897,7 @@ proto_register_erf(void)
   expert_module_t* expert_erf;
 
   proto_erf = proto_register_protocol("Extensible Record Format", "ERF", "erf");
-  erf_handle = new_register_dissector("erf", dissect_erf, proto_erf);
+  erf_handle = register_dissector("erf", dissect_erf, proto_erf);
 
   proto_register_field_array(proto_erf, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

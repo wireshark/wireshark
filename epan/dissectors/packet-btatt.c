@@ -10795,7 +10795,7 @@ proto_register_btatt(void)
     /* Register the protocol name and description */
     proto_btatt = proto_register_protocol("Bluetooth Attribute Protocol", "BT ATT", "btatt");
 
-    btatt_handle = new_register_dissector("btatt", dissect_btatt, proto_btatt);
+    btatt_handle = register_dissector("btatt", dissect_btatt, proto_btatt);
 
     att_handle_dissector_table = register_dissector_table("btatt.handle",  "BT ATT Handle",  FT_UINT16,  BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
@@ -10856,7 +10856,7 @@ proto_reg_handoff_btatt(void)
                 bluetooth_uuid_vals[i_array].value);
 
         proto_tmp = proto_register_protocol(name, short_name, abbrev);
-        handle_tmp = new_register_dissector(abbrev, dissect_btgatt, proto_tmp);
+        handle_tmp = register_dissector(abbrev, dissect_btgatt, proto_tmp);
 
         dissector_add_for_decode_as("btatt.handle", handle_tmp);
     }
@@ -10926,7 +10926,7 @@ proto_register_btgatt(void)
 
     proto_btgatt = proto_register_protocol("Bluetooth GATT Attribute Protocol", "BT GATT", "btgatt");
 
-    btgatt_handle = new_register_dissector("btgatt", dissect_btgatt, proto_btgatt);
+    btgatt_handle = register_dissector("btgatt", dissect_btgatt, proto_btgatt);
 
     proto_register_field_array(proto_btgatt, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -10969,7 +10969,7 @@ proto_reg_handoff_btgatt(void)
         }
 
         proto_tmp  = proto_register_protocol(uuid_dissectors[i_array].name, uuid_dissectors[i_array].short_name, uuid_dissectors[i_array].abbrev_name);
-        handle_tmp = new_register_dissector(uuid_dissectors[i_array].abbrev_name, uuid_dissectors[i_array].dissect_func, proto_tmp);
+        handle_tmp = register_dissector(uuid_dissectors[i_array].abbrev_name, uuid_dissectors[i_array].dissect_func, proto_tmp);
 
         dissector_add_string("bluetooth.uuid", uuid_dissectors[i_array].uuid, handle_tmp);
         dissector_add_for_decode_as("btatt.handle", handle_tmp);

@@ -3168,7 +3168,7 @@ proto_register_ip(void)
     "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
     &try_heuristic_first);
 
-  new_register_dissector("ip", dissect_ip, proto_ip);
+  register_dissector("ip", dissect_ip, proto_ip);
   register_init_routine(ip_defragment_init);
   register_cleanup_routine(ip_defragment_cleanup);
   ip_tap = register_tap("ip");

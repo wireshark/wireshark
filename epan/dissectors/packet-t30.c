@@ -1376,7 +1376,7 @@ proto_register_t30(void)
     expert_t30 = expert_register_protocol(proto_t30);
     expert_register_field_array(expert_t30, ei, array_length(ei));
 
-    new_register_dissector("t30.hdlc", dissect_t30_hdlc, proto_t30);
+    register_dissector("t30.hdlc", dissect_t30_hdlc, proto_t30);
 
 }
 

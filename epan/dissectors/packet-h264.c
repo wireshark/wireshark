@@ -3700,7 +3700,7 @@ proto_register_h264(void)
                             "; Values must be in the range 96 - 127",
                             &temp_dynamic_payload_type_range, 127);
 
-    new_register_dissector("h264", dissect_h264, proto_h264);
+    register_dissector("h264", dissect_h264, proto_h264);
 }
 
 

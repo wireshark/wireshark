@@ -1127,7 +1127,7 @@ proto_register_coap(void)
 	expert_coap = expert_register_protocol(proto_coap);
 	expert_register_field_array(expert_coap, ei, array_length(ei));
 
-	new_register_dissector("coap", dissect_coap, proto_coap);
+	register_dissector("coap", dissect_coap, proto_coap);
 
 	/* Register our configuration options */
 	coap_module = prefs_register_protocol (proto_coap, proto_reg_handoff_coap);

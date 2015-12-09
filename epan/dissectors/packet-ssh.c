@@ -1391,7 +1391,7 @@ proto_register_ssh(void)
                        "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
                        &ssh_desegment);
 
-    ssh_handle = new_register_dissector("ssh", dissect_ssh, proto_ssh);
+    ssh_handle = register_dissector("ssh", dissect_ssh, proto_ssh);
 }
 
 void

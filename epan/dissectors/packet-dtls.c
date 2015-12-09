@@ -1833,7 +1833,7 @@ proto_register_dtls(void)
   }
 #endif
 
-  new_register_dissector("dtls", dissect_dtls, proto_dtls);
+  register_dissector("dtls", dissect_dtls, proto_dtls);
   dtls_handle = find_dissector("dtls");
 
   register_init_routine(dtls_init);

@@ -618,7 +618,7 @@ proto_register_bacnet(void)
 	proto_register_field_array(proto_bacnet, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("bacnet", dissect_bacnet, proto_bacnet);
+	register_dissector("bacnet", dissect_bacnet, proto_bacnet);
 
 	bacnet_dissector_table = register_dissector_table("bacnet.vendor",
 							  "BACnet Vendor Identifier",

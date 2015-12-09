@@ -2725,7 +2725,7 @@ proto_register_btavdtp(void)
     };
 
     proto_btavdtp = proto_register_protocol("Bluetooth AVDTP Protocol", "BT AVDTP", "btavdtp");
-    btavdtp_handle = new_register_dissector("btavdtp", dissect_btavdtp, proto_btavdtp);
+    btavdtp_handle = register_dissector("btavdtp", dissect_btavdtp, proto_btavdtp);
 
     proto_register_field_array(proto_btavdtp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -2933,7 +2933,7 @@ proto_register_aptx(void)
     proto_register_field_array(proto_bta2dp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    aptx_handle = new_register_dissector("aptx", dissect_aptx, proto_aptx);
+    aptx_handle = register_dissector("aptx", dissect_aptx, proto_aptx);
 }
 
 
@@ -3151,7 +3151,7 @@ proto_register_bta2dp(void)
     proto_register_field_array(proto_bta2dp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    bta2dp_handle = new_register_dissector("bta2dp", dissect_bta2dp, proto_bta2dp);
+    bta2dp_handle = register_dissector("bta2dp", dissect_bta2dp, proto_bta2dp);
 
     module = prefs_register_protocol(proto_bta2dp, NULL);
     prefs_register_static_text_preference(module, "a2dp.version",
@@ -3387,7 +3387,7 @@ proto_register_btvdp(void)
     };
 
     proto_btvdp = proto_register_protocol("Bluetooth VDP Profile", "BT VDP", "btvdp");
-    btvdp_handle = new_register_dissector("btvdp", dissect_btvdp, proto_btvdp);
+    btvdp_handle = register_dissector("btvdp", dissect_btvdp, proto_btvdp);
     proto_register_field_array(proto_bta2dp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_btavdtp = expert_register_protocol(proto_btvdp);
@@ -3473,7 +3473,7 @@ proto_register_bta2dp_content_protection_header_scms_t(void)
     proto_register_field_array(proto_bta2dp_cph_scms_t, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("bta2dp_content_protection_header_scms_t", dissect_a2dp_cp_scms_t, proto_bta2dp_cph_scms_t);
+    register_dissector("bta2dp_content_protection_header_scms_t", dissect_a2dp_cp_scms_t, proto_bta2dp_cph_scms_t);
 }
 
 static gint
@@ -3523,7 +3523,7 @@ proto_register_btvdp_content_protection_header_scms_t(void)
     proto_register_field_array(proto_btvdp_cph_scms_t, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("btvdp_content_protection_header_scms_t", dissect_vdp_cp_scms_t, proto_btvdp_cph_scms_t);
+    register_dissector("btvdp_content_protection_header_scms_t", dissect_vdp_cp_scms_t, proto_btvdp_cph_scms_t);
 }
 
 /*
