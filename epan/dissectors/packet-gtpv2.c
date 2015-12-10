@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/conversation.h>
 #include <epan/to_str.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
@@ -52,6 +53,8 @@ static dissector_table_t gtpv2_priv_ext_dissector_table;
 /*GTPv2 Message->GTP Header(SB)*/
 static int proto_gtpv2 = -1;
 
+static int hf_gtpv2_response_in = -1;
+static int hf_gtpv2_response_to = -1;
 static int hf_gtpv2_spare_half_octet = -1;
 static int hf_gtpv2_spare_bits = -1;
 static int hf_gtpv2_flags = -1;
@@ -571,6 +574,7 @@ static expert_field ei_gtpv2_ie = EI_INIT;
 
 #define GTPV2_CREATE_SESSION_REQUEST     32
 #define GTPV2_CREATE_SESSION_RESPONSE    33
+#define GTPV2_MODIFY_BEARER_REQUEST      34
 #define GTPV2_MODIFY_BEARER_RESPONSE     35
 #define GTPV2_DELETE_SESSION_REQUEST     36
 #define GTPV2_DELETE_SESSION_RESPONSE    37
@@ -1010,6 +1014,57 @@ static const value_string gtpv2_element_type_vals[] = {
     {0, NULL}
 };
 static value_string_ext gtpv2_element_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_element_type_vals);
+/* Data structure attached to a  conversation,
+to keep track of request/response-pairs
+*/
+typedef struct gtpv2_conv_info_t {
+    wmem_map_t             *unmatched;
+    wmem_map_t             *matched;
+} gtpv2_conv_info_t;
+
+/*structure used to track responses to requests using sequence number*/
+typedef struct gtpv2_msg_hash_entry {
+    gboolean is_request;    /*TRUE/FALSE*/
+    guint32 req_frame;      /*frame with request */
+    nstime_t req_time;      /*req time */
+    guint32 rep_frame;      /*frame with reply */
+    gint seq_nr;            /*sequence number*/
+    guint msgtype;          /*messagetype*/
+} gtpv2_msg_hash_t;
+
+static guint
+gtpv2_sn_hash(gconstpointer k)
+{
+    const gtpv2_msg_hash_t *key = (const gtpv2_msg_hash_t *)k;
+
+    return key->seq_nr;
+}
+
+static gint
+gtpv2_sn_equal_matched(gconstpointer k1, gconstpointer k2)
+{
+    const gtpv2_msg_hash_t *key1 = (const gtpv2_msg_hash_t *)k1;
+    const gtpv2_msg_hash_t *key2 = (const gtpv2_msg_hash_t *)k2;
+
+    if (key1->req_frame && key2->req_frame && (key1->req_frame != key2->req_frame)) {
+        return 0;
+    }
+
+    if (key1->rep_frame && key2->rep_frame && (key1->rep_frame != key2->rep_frame)) {
+        return 0;
+    }
+
+    return key1->seq_nr == key2->seq_nr;
+}
+
+static gint
+gtpv2_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
+{
+    const gtpv2_msg_hash_t *key1 = (const gtpv2_msg_hash_t *)k1;
+    const gtpv2_msg_hash_t *key2 = (const gtpv2_msg_hash_t *)k2;
+
+    return key1->seq_nr == key2->seq_nr;
+}
 
 /* Code to dissect IE's */
 
@@ -5987,6 +6042,110 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {0, dissect_gtpv2_unknown}
 };
 
+static gtpv2_msg_hash_t *
+gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint seq_nr, guint msgtype, gtpv2_conv_info_t *gtpv2_info)
+{
+    gtpv2_msg_hash_t   gcr, *gcrp = NULL;
+    gcr.seq_nr = seq_nr;
+
+    switch (msgtype) {
+    case GTPV2_CREATE_SESSION_REQUEST:
+    case GTPV2_CREATE_BEARER_REQUEST:
+    case GTPV2_UPDATE_BEARER_REQUEST:
+    case GTPV2_MODIFY_BEARER_REQUEST:
+    case GTPV2_DELETE_BEARER_REQUEST:
+    case GTPV2_DELETE_SESSION_REQUEST:
+        gcr.is_request = TRUE;
+        gcr.req_frame = pinfo->fd->num;
+        gcr.rep_frame = 0;
+        break;
+    case GTPV2_CREATE_SESSION_RESPONSE:
+    case GTPV2_CREATE_BEARER_RESPONSE:
+    case GTPV2_UPDATE_BEARER_RESPONSE:
+    case GTPV2_MODIFY_BEARER_RESPONSE:
+    case GTPV2_DELETE_BEARER_RESPONSE:
+    case GTPV2_DELETE_SESSION_RESPONSE:
+        gcr.is_request = FALSE;
+        gcr.req_frame = 0;
+        gcr.rep_frame = pinfo->fd->num;
+        break;
+    default:
+        gcr.is_request = FALSE;
+        gcr.req_frame = 0;
+        gcr.rep_frame = 0;
+        break;
+    }
+
+    gcrp = (gtpv2_msg_hash_t *)wmem_map_lookup(gtpv2_info->matched, &gcr);
+
+    if (gcrp) {
+        gcrp->is_request = gcr.is_request;
+    } else {
+        /*no match, let's try to make one*/
+        switch (msgtype) {
+        case GTPV2_CREATE_SESSION_REQUEST:
+        case GTPV2_CREATE_BEARER_REQUEST:
+        case GTPV2_UPDATE_BEARER_REQUEST:
+        case GTPV2_MODIFY_BEARER_REQUEST:
+        case GTPV2_DELETE_BEARER_REQUEST:
+        case GTPV2_DELETE_SESSION_REQUEST:
+            gcr.seq_nr = seq_nr;
+
+            gcrp = (gtpv2_msg_hash_t *)wmem_map_lookup(gtpv2_info->unmatched, &gcr);
+            if (gcrp) {
+                wmem_map_remove(gtpv2_info->unmatched, gcrp);
+            }
+            /* if we can't reuse the old one, grab a new chunk */
+            if (!gcrp) {
+                gcrp = wmem_new(wmem_file_scope(), gtpv2_msg_hash_t);
+            }
+            gcrp->seq_nr = seq_nr;
+            gcrp->req_frame = pinfo->fd->num;
+            gcrp->req_time = pinfo->fd->abs_ts;
+            gcrp->rep_frame = 0;
+            gcrp->msgtype = msgtype;
+            gcrp->is_request = TRUE;
+            wmem_map_insert(gtpv2_info->unmatched, gcrp, gcrp);
+            return NULL;
+            break;
+    case GTPV2_CREATE_SESSION_RESPONSE:
+    case GTPV2_CREATE_BEARER_RESPONSE:
+    case GTPV2_UPDATE_BEARER_RESPONSE:
+    case GTPV2_MODIFY_BEARER_RESPONSE:
+    case GTPV2_DELETE_BEARER_RESPONSE:
+    case GTPV2_DELETE_SESSION_RESPONSE:
+            gcr.seq_nr = seq_nr;
+            gcrp = (gtpv2_msg_hash_t *)wmem_map_lookup(gtpv2_info->unmatched, &gcr);
+
+            if (gcrp) {
+                if (!gcrp->rep_frame) {
+                    wmem_map_remove(gtpv2_info->unmatched, gcrp);
+                    gcrp->rep_frame = pinfo->fd->num;
+                    gcrp->is_request = FALSE;
+                    wmem_map_insert(gtpv2_info->matched, gcrp, gcrp);
+                }
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    /* we have found a match */
+    if (gcrp) {
+        proto_item *it;
+
+        if (gcrp->is_request) {
+            it = proto_tree_add_uint(tree, hf_gtpv2_response_in, tvb, 0, 0, gcrp->rep_frame);
+            PROTO_ITEM_SET_GENERATED(it);
+        } else {
+            it = proto_tree_add_uint(tree, hf_gtpv2_response_to, tvb, 0, 0, gcrp->req_frame);
+            PROTO_ITEM_SET_GENERATED(it);
+        }
+    }
+    return gcrp;
+}
+
 static void
 dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint offset, guint8 message_type)
 {
@@ -6055,7 +6214,9 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     int         offset = 0;
     guint16     msg_length;
     tvbuff_t   *msg_tvb;
-
+    int         seq_no = 0;
+    conversation_t  *conversation;
+    gtpv2_conv_info_t *gtpv2_info;
 
     /* Currently we get called from the GTP dissector no need to check the version */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTPv2");
@@ -6069,6 +6230,27 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     p_flag = (tvb_get_guint8(tvb, offset) & 0x10) >> 4;
     msg_length = tvb_get_ntohs(tvb, offset + 2);
     proto_tree_add_item(tree, proto_gtpv2, tvb, offset, msg_length + 4, ENC_NA);
+
+    /*
+    * Do we have a conversation for this connection?
+    */
+    conversation = find_or_create_conversation(pinfo);
+
+    /*
+    * Do we already know this conversation?
+    */
+    gtpv2_info = (gtpv2_conv_info_t *)conversation_get_proto_data(conversation, proto_gtpv2);
+    if (gtpv2_info == NULL) {
+        /* No.  Attach that information to the conversation, and add
+        * it to the list of information structures.
+        */
+        gtpv2_info = wmem_new(wmem_file_scope(), gtpv2_conv_info_t);
+        /*Request/response matching tables*/
+        gtpv2_info->matched = wmem_map_new(wmem_file_scope(), gtpv2_sn_hash, gtpv2_sn_equal_matched);
+        gtpv2_info->unmatched = wmem_map_new(wmem_file_scope(), gtpv2_sn_hash, gtpv2_sn_equal_unmatched);
+
+        conversation_add_proto_data(conversation, proto_gtpv2, gtpv2_info);
+    }
 
     if (tree) {
         gtpv2_tree = proto_tree_add_subtree(tree, tvb, offset, msg_length + 4, ett_gtpv2, NULL,
@@ -6111,7 +6293,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
             offset += 4;
         }
         /* Sequence Number 3 octets */
-        proto_tree_add_item(gtpv2_tree, hf_gtpv2_seq, tvb, offset, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(gtpv2_tree, hf_gtpv2_seq, tvb, offset, 3, ENC_BIG_ENDIAN, &seq_no);
         offset += 3;
 
         /* Spare 1 octet */
@@ -6124,6 +6306,8 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
         } else {
             dissect_gtpv2_ie_common(tvb, pinfo, gtpv2_tree, offset, message_type);
         }
+        /*Use sequence number to track Req/Resp pairs*/
+        gtpv2_match_response(tvb, pinfo, gtpv2_tree, seq_no, message_type, gtpv2_info);
     }
     /* Bit 5 represents a "P" flag. If the "P" flag is set to "0",
      * no piggybacked message shall be present. If the "P" flag is set to "1",
@@ -6148,6 +6332,16 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 void proto_register_gtpv2(void)
 {
     static hf_register_info hf_gtpv2[] = {
+        { &hf_gtpv2_response_in,
+        { "Response In", "gtpv2.response_in",
+        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        "The response to this GTP request is in this frame", HFILL }
+        },
+        { &hf_gtpv2_response_to,
+        { "Response To", "gtpv2.response_to",
+        FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+        "This is a response to the GTP request in this frame", HFILL }
+        },
         { &hf_gtpv2_spare_half_octet,
           {"Spare half octet", "gtpv2.spare_half_octet",
            FT_UINT8, BASE_DEC, NULL, 0x0,
