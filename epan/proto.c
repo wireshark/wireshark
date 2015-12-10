@@ -5400,6 +5400,7 @@ proto_deregister_protocol(const char *short_name)
     for (i = 0; i < protocol->fields->len; i++) {
         hfinfo = (header_field_info *)g_ptr_array_index(protocol->fields, i);
         hfinfo_remove_from_gpa_name_map(hfinfo);
+        expert_deregister_expertinfo(hfinfo->abbrev);
         g_ptr_array_add(deregistered_fields, gpa_hfinfo.hfi[hfinfo->id]);
     }
     g_ptr_array_free(protocol->fields, TRUE);
@@ -5919,6 +5920,8 @@ free_deregistered_data (gpointer data, gpointer user_data _U_)
 void
 proto_free_deregistered_fields (void)
 {
+    expert_free_deregistered_expertinfos();
+
     g_ptr_array_foreach(deregistered_fields, free_deregistered_field, NULL);
     g_ptr_array_free(deregistered_fields, TRUE);
     deregistered_fields = g_ptr_array_new();

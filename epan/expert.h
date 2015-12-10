@@ -172,9 +172,19 @@ proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field 
 WS_DLL_PUBLIC expert_module_t *expert_register_protocol(int id);
 
 /**
+ * Deregister a expert info.
+ */
+void expert_deregister_expertinfo (const char *abbrev);
+
+/**
  * Deregister expert info from a protocol.
  */
 WS_DLL_PUBLIC void expert_deregister_protocol (expert_module_t *module);
+
+/**
+ * Free deregistered expert infos.
+ */
+void expert_free_deregistered_expertinfos (void);
 
 /**
  * Get summary text of an expert_info field.

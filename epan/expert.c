@@ -68,6 +68,9 @@ static gpa_expertinfo_t gpa_expertinfo;
 /* Hash table of abbreviations and IDs */
 static GHashTable *gpa_name_map = NULL;
 
+/* Deregistered expert infos */
+static GPtrArray *deregistered_expertinfos = NULL;
+
 const value_string expert_group_vals[] = {
 	{ PI_CHECKSUM,          "Checksum" },
 	{ PI_SEQUENCE,          "Sequence" },
@@ -187,6 +190,7 @@ static void uat_expert_post_update_cb(void)
 	if((guint)eiindex >= gpa_expertinfo.len && getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG"))   \
 		g_error("Unregistered expert info! index=%d", eiindex);                          \
 	DISSECTOR_ASSERT_HINT((guint)eiindex < gpa_expertinfo.len, "Unregistered expert info!"); \
+	DISSECTOR_ASSERT_HINT(gpa_expertinfo.ei[eiindex] != NULL, "Unregistered expert info!");	\
 	expinfo = gpa_expertinfo.ei[eiindex];
 
 void
@@ -265,6 +269,7 @@ expert_init(void)
 	gpa_expertinfo.ei            = NULL;
 	gpa_name_map                 = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
 	uat_saved_fields             = g_array_new(FALSE, FALSE, sizeof(expert_field_info*));
+	deregistered_expertinfos     = g_ptr_array_new();
 }
 
 void
@@ -292,6 +297,11 @@ expert_cleanup(void)
 	if (uat_saved_fields) {
 		g_array_free(uat_saved_fields, TRUE);
 		uat_saved_fields = NULL;
+	}
+
+	if (deregistered_expertinfos) {
+		g_ptr_array_free(deregistered_expertinfos, FALSE);
+		deregistered_expertinfos = NULL;
 	}
 }
 
@@ -323,9 +333,35 @@ expert_module_t *expert_register_protocol(int id)
 	return module;
 }
 
-void expert_deregister_protocol (expert_module_t *module)
+void
+expert_deregister_expertinfo (const char *abbrev)
 {
-    wmem_free(wmem_epan_scope(), module);
+	expert_field_info *expinfo = (expert_field_info*)g_hash_table_lookup(gpa_name_map, abbrev);
+	if (expinfo) {
+		g_ptr_array_add(deregistered_expertinfos, gpa_expertinfo.ei[expinfo->id]);
+		g_hash_table_steal(gpa_name_map, abbrev);
+	}
+}
+
+void
+expert_deregister_protocol (expert_module_t *module)
+{
+	wmem_free(wmem_epan_scope(), module);
+}
+
+static void
+free_deregistered_expertinfo (gpointer data, gpointer user_data _U_)
+{
+	expert_field_info *expinfo = (expert_field_info *) data;
+	gpa_expertinfo.ei[expinfo->id] = NULL; /* Invalidate this id */
+}
+
+void
+expert_free_deregistered_expertinfos (void)
+{
+	g_ptr_array_foreach(deregistered_expertinfos, free_deregistered_expertinfo, NULL);
+	g_ptr_array_free(deregistered_expertinfos, TRUE);
+	deregistered_expertinfos = g_ptr_array_new();
 }
 
 static int
