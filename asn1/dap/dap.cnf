@@ -226,7 +226,7 @@ static const ros_err_t dap_err_tab[] = {
 #.END
 
 
-#.PDU_NEW
+#.PDU
 ERROR.&ParameterType
 OPERATION.&ArgumentType
 OPERATION.&ResultType

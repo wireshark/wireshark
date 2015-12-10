@@ -489,40 +489,40 @@ void proto_reg_handoff_pkcs1(void) {
 
 /*--- Included file: packet-pkcs1-dis-tab.c ---*/
 #line 1 "../../asn1/pkcs1/packet-pkcs1-dis-tab.c"
-  new_register_ber_oid_dissector("1.2.840.10040.4.1", dissect_DSA_Params_PDU, proto_pkcs1, "id-dsa");
-  new_register_ber_oid_dissector("1.2.840.10046.2.1", dissect_DomainParameters_PDU, proto_pkcs1, "dhpublicnumber");
-  new_register_ber_oid_dissector("2.16.840.1.101.2.1.1.22", dissect_KEA_Params_Id_PDU, proto_pkcs1, "id-keyExchangeAlgorithm");
-  new_register_ber_oid_dissector("1.2.840.10045.2.1", dissect_ECParameters_PDU, proto_pkcs1, "id-ecPublicKey");
-  new_register_ber_oid_dissector("1.3.132.1.12", dissect_ECParameters_PDU, proto_pkcs1, "id-ecDH");
-  new_register_ber_oid_dissector("1.2.840.10045.2.13", dissect_ECParameters_PDU, proto_pkcs1, "id-ecMQV");
-  new_register_ber_oid_dissector("1.2.840.113549.1.1.10", dissect_RSASSA_PSS_params_PDU, proto_pkcs1, "id-RSASSA-PSS");
-  new_register_ber_oid_dissector("1.2.840.113549.1.1.8", dissect_HashAlgorithm_PDU, proto_pkcs1, "id-mgf1");
+  register_ber_oid_dissector("1.2.840.10040.4.1", dissect_DSA_Params_PDU, proto_pkcs1, "id-dsa");
+  register_ber_oid_dissector("1.2.840.10046.2.1", dissect_DomainParameters_PDU, proto_pkcs1, "dhpublicnumber");
+  register_ber_oid_dissector("2.16.840.1.101.2.1.1.22", dissect_KEA_Params_Id_PDU, proto_pkcs1, "id-keyExchangeAlgorithm");
+  register_ber_oid_dissector("1.2.840.10045.2.1", dissect_ECParameters_PDU, proto_pkcs1, "id-ecPublicKey");
+  register_ber_oid_dissector("1.3.132.1.12", dissect_ECParameters_PDU, proto_pkcs1, "id-ecDH");
+  register_ber_oid_dissector("1.2.840.10045.2.13", dissect_ECParameters_PDU, proto_pkcs1, "id-ecMQV");
+  register_ber_oid_dissector("1.2.840.113549.1.1.10", dissect_RSASSA_PSS_params_PDU, proto_pkcs1, "id-RSASSA-PSS");
+  register_ber_oid_dissector("1.2.840.113549.1.1.8", dissect_HashAlgorithm_PDU, proto_pkcs1, "id-mgf1");
 
 
 /*--- End of included file: packet-pkcs1-dis-tab.c ---*/
 #line 76 "../../asn1/pkcs1/packet-pkcs1-template.c"
 
-	new_register_ber_oid_dissector("1.2.840.113549.2.2", dissect_ber_oid_NULL_callback, proto_pkcs1, "md2");
-	new_register_ber_oid_dissector("1.2.840.113549.2.4", dissect_ber_oid_NULL_callback, proto_pkcs1, "md4");
-	new_register_ber_oid_dissector("1.2.840.113549.2.5", dissect_ber_oid_NULL_callback, proto_pkcs1, "md5");
+	register_ber_oid_dissector("1.2.840.113549.2.2", dissect_ber_oid_NULL_callback, proto_pkcs1, "md2");
+	register_ber_oid_dissector("1.2.840.113549.2.4", dissect_ber_oid_NULL_callback, proto_pkcs1, "md4");
+	register_ber_oid_dissector("1.2.840.113549.2.5", dissect_ber_oid_NULL_callback, proto_pkcs1, "md5");
 
-	new_register_ber_oid_dissector("1.2.840.113549.1.1.1", dissect_ber_oid_NULL_callback, proto_pkcs1, "rsaEncryption");
-	new_register_ber_oid_dissector("1.2.840.113549.1.1.2", dissect_ber_oid_NULL_callback, proto_pkcs1, "md2WithRSAEncryption");
-	new_register_ber_oid_dissector("1.2.840.113549.1.1.3", dissect_ber_oid_NULL_callback, proto_pkcs1, "md4WithRSAEncryption");
-	new_register_ber_oid_dissector("1.2.840.113549.1.1.4", dissect_ber_oid_NULL_callback, proto_pkcs1, "md5WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.1", dissect_ber_oid_NULL_callback, proto_pkcs1, "rsaEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.2", dissect_ber_oid_NULL_callback, proto_pkcs1, "md2WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.3", dissect_ber_oid_NULL_callback, proto_pkcs1, "md4WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.4", dissect_ber_oid_NULL_callback, proto_pkcs1, "md5WithRSAEncryption");
 
 
 	/* these two are not from RFC2313  but pulled in from
  	   http://www.alvestrand.no/objectid/1.2.840.113549.1.1.html
 	*/
-	new_register_ber_oid_dissector("1.2.840.113549.1.1.5", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha1WithRSAEncryption");
-	new_register_ber_oid_dissector("1.2.840.113549.1.1.6", dissect_ber_oid_NULL_callback, proto_pkcs1, "rsaOAEPEncryptionSET");
+	register_ber_oid_dissector("1.2.840.113549.1.1.5", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha1WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.6", dissect_ber_oid_NULL_callback, proto_pkcs1, "rsaOAEPEncryptionSET");
 
 	/* these sha2 algorithms are from RFC3447 */
-	new_register_ber_oid_dissector("1.2.840.113549.1.1.11", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha256WithRSAEncryption");
-	new_register_ber_oid_dissector("1.2.840.113549.1.1.12", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha384WithRSAEncryption");
-	new_register_ber_oid_dissector("1.2.840.113549.1.1.13", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha512WithRSAEncryption");
-	new_register_ber_oid_dissector("1.2.840.113549.1.1.14", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha224WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.11", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha256WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.12", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha384WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.13", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha512WithRSAEncryption");
+	register_ber_oid_dissector("1.2.840.113549.1.1.14", dissect_ber_oid_NULL_callback, proto_pkcs1, "sha224WithRSAEncryption");
 
 	oid_add_from_string("secp192r1","1.2.840.10045.3.1.1");
 	oid_add_from_string("sect163k1","1.3.132.0.1");

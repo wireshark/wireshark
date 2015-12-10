@@ -2147,11 +2147,11 @@ void proto_reg_handoff_disp(void) {
 
 /*--- Included file: packet-disp-dis-tab.c ---*/
 #line 1 "../../asn1/disp/packet-disp-dis-tab.c"
-  dissector_add_string("dop.oid", "agreement.2.5.19.1", new_create_dissector_handle(dissect_ShadowingAgreementInfo_PDU, proto_disp));
-  dissector_add_string("dop.oid", "establish.rolea.2.5.19.1", new_create_dissector_handle(dissect_EstablishParameter_PDU, proto_disp));
-  dissector_add_string("dop.oid", "establish.roleb.2.5.19.1", new_create_dissector_handle(dissect_EstablishParameter_PDU, proto_disp));
-  dissector_add_string("dop.oid", "modify.rolea.2.5.19.1", new_create_dissector_handle(dissect_ModificationParameter_PDU, proto_disp));
-  dissector_add_string("dop.oid", "modify.roleb.2.5.19.1", new_create_dissector_handle(dissect_ModificationParameter_PDU, proto_disp));
+  dissector_add_string("dop.oid", "agreement.2.5.19.1", create_dissector_handle(dissect_ShadowingAgreementInfo_PDU, proto_disp));
+  dissector_add_string("dop.oid", "establish.rolea.2.5.19.1", create_dissector_handle(dissect_EstablishParameter_PDU, proto_disp));
+  dissector_add_string("dop.oid", "establish.roleb.2.5.19.1", create_dissector_handle(dissect_EstablishParameter_PDU, proto_disp));
+  dissector_add_string("dop.oid", "modify.rolea.2.5.19.1", create_dissector_handle(dissect_ModificationParameter_PDU, proto_disp));
+  dissector_add_string("dop.oid", "modify.roleb.2.5.19.1", create_dissector_handle(dissect_ModificationParameter_PDU, proto_disp));
 
 
 /*--- End of included file: packet-disp-dis-tab.c ---*/

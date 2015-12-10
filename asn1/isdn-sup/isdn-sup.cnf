@@ -18,7 +18,7 @@ Closed-User-Group-Service-Operations		 isdn-sup
 Advice-of-Charge-Operations					 isdn-sup
 MLPP-operations								 isdn-sup
 
-#.PDU_NEW
+#.PDU
 
 OPERATION.&ArgumentType
 OPERATION.&ResultType

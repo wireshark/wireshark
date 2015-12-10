@@ -89,13 +89,13 @@ ScramblerCapabilities
 CiplusInfo
 CicamBrandId
 
-#.PDU_NEW
+#.PDU
 ScramblerCapabilities
 CiplusInfo
 CicamBrandId
 
 
-#.REGISTER_NEW
+#.REGISTER
 CertificatePoliciesSyntax B "2.5.29.3"  "id-ce-certificatePolicies"
 AttributesSyntax          B "2.5.29.9"  "id-ce-subjectDirectoryAttributes"
 SubjectKeyIdentifier      B "2.5.29.14" "id-ce-subjectKeyIdentifier"

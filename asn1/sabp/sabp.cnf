@@ -9,7 +9,7 @@ ALIGNED
 
 #.NO_EMIT
 
-#.PDU_NEW
+#.PDU
 SABP-PDU
 
 #.MAKE_ENUM
@@ -103,7 +103,7 @@ id-Broadcast-Message-Content-Validity-Indicator	ProtocolIE-ID
 
 #.END
 
-#.REGISTER_NEW
+#.REGISTER
 
 #SABP-PROTOCOL-IES
 Message-Identifier                 N sabp.ies id-Message-Identifier

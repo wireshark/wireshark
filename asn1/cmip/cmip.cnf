@@ -91,7 +91,7 @@ static const value_string cmip_error_code_vals[] = {
 
 # X.721
 
-#.REGISTER_NEW
+#.REGISTER
 BaseManagedObjectId				B "2.9.2.21.7.13"	"BaseManagedObjectId(13)"
 # X.721
 SimpleNameType					B "2.9.3.2.7.1"		"discriminatorId(1)"
@@ -216,7 +216,7 @@ Priority
 RejectProblem
 
 
-#.PDU_NEW
+#.PDU
 
 
 #.FN_HDR CMIPAbortInfo

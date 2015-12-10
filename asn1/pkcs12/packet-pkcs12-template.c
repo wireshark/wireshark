@@ -496,7 +496,7 @@ void proto_register_pkcs12(void) {
 	"Whether to try and decrypt the encrypted data within the"
 	" PKCS#12 with a NULL password", &try_null_password);
 
-  new_register_ber_syntax_dissector("PKCS#12", proto_pkcs12, dissect_PFX_PDU);
+  register_ber_syntax_dissector("PKCS#12", proto_pkcs12, dissect_PFX_PDU);
   register_ber_oid_syntax(".p12", NULL, "PKCS#12");
   register_ber_oid_syntax(".pfx", NULL, "PKCS#12");
 }
@@ -506,7 +506,7 @@ void proto_register_pkcs12(void) {
 void proto_reg_handoff_pkcs12(void) {
 #include "packet-pkcs12-dis-tab.c"
 
-	new_register_ber_oid_dissector("1.2.840.113549.1.9.22.1", dissect_X509Certificate_OCTETSTRING_PDU, proto_pkcs12, "x509Certificate");
+	register_ber_oid_dissector("1.2.840.113549.1.9.22.1", dissect_X509Certificate_OCTETSTRING_PDU, proto_pkcs12, "x509Certificate");
 
 }
 

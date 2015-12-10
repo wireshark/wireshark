@@ -34,14 +34,14 @@ TariffSwitchInterval
 Priority
 #.END
 
-#.PDU_NEW
+#.PDU
 ERROR.&ParameterType
 OPERATION.&ArgumentType
 OPERATION.&ResultType
 #.END
 
 
-#.REGISTER_NEW
+#.REGISTER
 CAP-GPRS-ReferenceNumber	B "0.4.0.0.1.1.5.2" "id-CAP-GPRS-ReferenceNumber"
 CAP-U-ABORT-REASON			B "0.4.0.0.1.1.2.2" "id-CAP-U-ABORT-Reason"
 

@@ -3084,23 +3084,23 @@ void proto_reg_handoff_dop(void) {
 
 /*--- Included file: packet-dop-dis-tab.c ---*/
 #line 1 "../../asn1/dop/packet-dop-dis-tab.c"
-  new_register_ber_oid_dissector("2.5.12.0", dissect_DSEType_PDU, proto_dop, "id-doa-dseType");
-  new_register_ber_oid_dissector("2.5.12.5", dissect_SupplierInformation_PDU, proto_dop, "id-doa-supplierKnowledge");
-  new_register_ber_oid_dissector("2.5.12.6", dissect_ConsumerInformation_PDU, proto_dop, "id-doa-consumerKnowledge");
-  new_register_ber_oid_dissector("2.5.12.7", dissect_SupplierAndConsumers_PDU, proto_dop, "id-doa-secondaryShadows");
-  dissector_add_string("dop.oid", "agreement.2.5.19.2", new_create_dissector_handle(dissect_HierarchicalAgreement_PDU, proto_dop));
-  dissector_add_string("dop.oid", "establish.rolea.2.5.19.2", new_create_dissector_handle(dissect_SuperiorToSubordinate_PDU, proto_dop));
-  dissector_add_string("dop.oid", "modify.rolea.2.5.19.2", new_create_dissector_handle(dissect_SuperiorToSubordinateModification_PDU, proto_dop));
-  dissector_add_string("dop.oid", "establish.roleb.2.5.19.2", new_create_dissector_handle(dissect_SubordinateToSuperior_PDU, proto_dop));
-  dissector_add_string("dop.oid", "modify.roleb.2.5.19.2", new_create_dissector_handle(dissect_SubordinateToSuperior_PDU, proto_dop));
-  dissector_add_string("dop.oid", "agreement.2.5.19.3", new_create_dissector_handle(dissect_NonSpecificHierarchicalAgreement_PDU, proto_dop));
-  dissector_add_string("dop.oid", "establish.rolea.2.5.19.3", new_create_dissector_handle(dissect_NHOBSuperiorToSubordinate_PDU, proto_dop));
-  dissector_add_string("dop.oid", "modify.rolea.2.5.19.3", new_create_dissector_handle(dissect_NHOBSuperiorToSubordinate_PDU, proto_dop));
-  dissector_add_string("dop.oid", "establish.roleb.2.5.19.3", new_create_dissector_handle(dissect_NHOBSubordinateToSuperior_PDU, proto_dop));
-  dissector_add_string("dop.oid", "modify.roleb.2.5.19.3", new_create_dissector_handle(dissect_NHOBSubordinateToSuperior_PDU, proto_dop));
-  new_register_ber_oid_dissector("2.5.24.4", dissect_ACIItem_PDU, proto_dop, "id-aca-prescriptiveACI");
-  new_register_ber_oid_dissector("2.5.24.5", dissect_ACIItem_PDU, proto_dop, "id-aca-entryACI");
-  new_register_ber_oid_dissector("2.5.24.6", dissect_ACIItem_PDU, proto_dop, "id-aca-subentryACI");
+  register_ber_oid_dissector("2.5.12.0", dissect_DSEType_PDU, proto_dop, "id-doa-dseType");
+  register_ber_oid_dissector("2.5.12.5", dissect_SupplierInformation_PDU, proto_dop, "id-doa-supplierKnowledge");
+  register_ber_oid_dissector("2.5.12.6", dissect_ConsumerInformation_PDU, proto_dop, "id-doa-consumerKnowledge");
+  register_ber_oid_dissector("2.5.12.7", dissect_SupplierAndConsumers_PDU, proto_dop, "id-doa-secondaryShadows");
+  dissector_add_string("dop.oid", "agreement.2.5.19.2", create_dissector_handle(dissect_HierarchicalAgreement_PDU, proto_dop));
+  dissector_add_string("dop.oid", "establish.rolea.2.5.19.2", create_dissector_handle(dissect_SuperiorToSubordinate_PDU, proto_dop));
+  dissector_add_string("dop.oid", "modify.rolea.2.5.19.2", create_dissector_handle(dissect_SuperiorToSubordinateModification_PDU, proto_dop));
+  dissector_add_string("dop.oid", "establish.roleb.2.5.19.2", create_dissector_handle(dissect_SubordinateToSuperior_PDU, proto_dop));
+  dissector_add_string("dop.oid", "modify.roleb.2.5.19.2", create_dissector_handle(dissect_SubordinateToSuperior_PDU, proto_dop));
+  dissector_add_string("dop.oid", "agreement.2.5.19.3", create_dissector_handle(dissect_NonSpecificHierarchicalAgreement_PDU, proto_dop));
+  dissector_add_string("dop.oid", "establish.rolea.2.5.19.3", create_dissector_handle(dissect_NHOBSuperiorToSubordinate_PDU, proto_dop));
+  dissector_add_string("dop.oid", "modify.rolea.2.5.19.3", create_dissector_handle(dissect_NHOBSuperiorToSubordinate_PDU, proto_dop));
+  dissector_add_string("dop.oid", "establish.roleb.2.5.19.3", create_dissector_handle(dissect_NHOBSubordinateToSuperior_PDU, proto_dop));
+  dissector_add_string("dop.oid", "modify.roleb.2.5.19.3", create_dissector_handle(dissect_NHOBSubordinateToSuperior_PDU, proto_dop));
+  register_ber_oid_dissector("2.5.24.4", dissect_ACIItem_PDU, proto_dop, "id-aca-prescriptiveACI");
+  register_ber_oid_dissector("2.5.24.5", dissect_ACIItem_PDU, proto_dop, "id-aca-entryACI");
+  register_ber_oid_dissector("2.5.24.6", dissect_ACIItem_PDU, proto_dop, "id-aca-subentryACI");
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/

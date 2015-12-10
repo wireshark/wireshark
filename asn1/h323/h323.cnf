@@ -9,7 +9,7 @@ PER
 ALIGNED
 #.END
 
-#.PDU_NEW
+#.PDU
 RasTunnelledSignallingMessage
 RobustnessData
 #.END

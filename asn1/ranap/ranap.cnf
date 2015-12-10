@@ -18,7 +18,7 @@ TargetRNC-ID_PDU
 InterSystemInformation-TransparentContainer_PDU
 Source-ToTarget-TransparentContainer_PDU
 
-#.PDU_NEW
+#.PDU
 RANAP-PDU
 SourceCellID
 SourceRNC-ToTargetRNC-TransparentContainer
@@ -700,7 +700,7 @@ id-Trace-Collection-Entity-IP-Addess						ProtocolIE-ID
 id-End-Of-CSFB												ProtocolIE-ID
 #.END
 
-#.REGISTER_NEW
+#.REGISTER
 
 #RANAP-PROTOCOL-IES
 Cause													N ranap.ies id-Cause

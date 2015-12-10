@@ -62,7 +62,7 @@ XDayOf
 ZonalResult
 ZonalSelect
 
-#.SYNTAX_NEW
+#.SYNTAX
 BitString
 Boolean
 CaseIgnoreListMatch
@@ -101,7 +101,7 @@ TelexNumber
 UniqueIdentifier
 X121Address
 
-#.REGISTER_NEW
+#.REGISTER
 ObjectIdentifier        B "2.5.4.0"   "id-at-objectClass"
 #  - see x509if.cnf for "id-at-aliasedEntryName"
 DirectoryString         B "2.5.4.2"    "id-at-knowledgeInformation"

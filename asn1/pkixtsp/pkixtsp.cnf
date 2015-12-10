@@ -11,7 +11,7 @@ PKIX1Implicit88 pkix1implicit
 
 #.EXPORTS
 
-#.PDU_NEW
+#.PDU
 
 #.NO_EMIT
 
@@ -22,7 +22,7 @@ TSTInfo/version Tst_version
 PKIStatusInfo/status	pki_status
 TSTInfo/version tst_version
 
-#.REGISTER_NEW
+#.REGISTER
 TSTInfo			B "1.2.840.113549.1.9.16.1.4" "id-ct-TSTInfo"
 
 #.END

@@ -9,7 +9,7 @@ UNALIGNED
 
 #.IMPORT ../lpp/lpp-exp.cnf
 
-#.PDU_NEW
+#.PDU
 OMA-LPPe-MessageExtension
 #.END
 

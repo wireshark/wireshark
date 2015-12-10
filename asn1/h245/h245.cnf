@@ -20,7 +20,7 @@ MulticastAddress
 Capability
 #.END
 
-#.PDU_NEW
+#.PDU
 OpenLogicalChannel
 
 #.MAKE_ENUM

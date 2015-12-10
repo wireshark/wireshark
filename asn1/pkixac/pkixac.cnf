@@ -22,7 +22,7 @@ V2Form
 
 #.EXPORTS
 
-#.PDU_NEW
+#.PDU
 
 #.NO_EMIT
 
@@ -30,11 +30,11 @@ V2Form
 
 #.FIELD_RENAME
 
-#.SYNTAX_NEW
+#.SYNTAX
 Clearance
 RFC3281Clearance
 
-#.REGISTER_NEW
+#.REGISTER
 AAControls              B "1.3.6.1.5.5.7.1.6" "id-pe-aaControls"
 ProxyInfo               B "1.3.6.1.5.5.7.1.10" "id-pe-ac-proxying"
 SvceAuthInfo            B "1.3.6.1.5.5.7.10.1" "id-aca-authenticationInfo"

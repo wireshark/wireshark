@@ -41,7 +41,7 @@ EllipsoidArc
 Polygon
 #.END
 
-#.PDU_NEW
+#.PDU
 LPP-Message
 Ellipsoid-Point
 EllipsoidPointWithAltitude

@@ -7,7 +7,7 @@ PER
 ALIGNED
 #.END
 
-#.PDU_NEW
+#.PDU
 LCTPDU
 #.END
 

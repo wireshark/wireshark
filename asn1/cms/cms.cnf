@@ -31,7 +31,7 @@ SignerInfos
 SignatureValue
 UnsignedAttributes
 
-#.REGISTER_NEW
+#.REGISTER
 ContentInfo			B "1.2.840.113549.1.9.16.1.6" "id-ct-contentInfo"
 #OctetString		B "1.2.840.113549.1.7.1"      "id-data"			 see x509sat.cnf
 SignedData			B "1.2.840.113549.1.7.2"      "id-signedData"

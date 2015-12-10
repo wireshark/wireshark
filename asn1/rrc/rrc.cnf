@@ -70,7 +70,7 @@ GSM-CellID
 RRCConnectionRelease-CCCH-va40ext-IEs
 #.END
 
-#.PDU_NEW
+#.PDU
 
 DL-DCCH-Message              @dl.dcch
 UL-DCCH-Message              @ul.dcch

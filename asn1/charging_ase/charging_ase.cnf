@@ -6,7 +6,7 @@
 ChargingMessageType
 ChargingMessageType_PDU
 
-#.PDU_NEW
+#.PDU
 ChargingMessageType
 
 #.FN_BODY ExtensionField/value

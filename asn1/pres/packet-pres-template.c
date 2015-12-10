@@ -457,7 +457,7 @@ void proto_register_pres(void) {
 /*--- proto_reg_handoff_pres ---------------------------------------*/
 void proto_reg_handoff_pres(void) {
 
-/*	new_register_ber_oid_dissector("0.4.0.0.1.1.1.1", dissect_pres, proto_pres,
+/*	register_ber_oid_dissector("0.4.0.0.1.1.1.1", dissect_pres, proto_pres,
 	  "itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) abstractSyntax(1) pres(1) version1(1)"); */
 
 }

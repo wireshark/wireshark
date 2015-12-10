@@ -32,7 +32,7 @@ UE-EUTRA-Capability
 UE-EUTRA-Capability_PDU
 #.END
 
-#.PDU_NEW
+#.PDU
 HandoverCommand
 HandoverPreparationInformation
 UERadioAccessCapabilityInformation

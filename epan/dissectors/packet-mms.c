@@ -10048,8 +10048,8 @@ dissect_mms_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 
 /*--- proto_reg_handoff_mms --- */
 void proto_reg_handoff_mms(void) {
-	new_register_ber_oid_dissector("1.0.9506.2.3", dissect_mms, proto_mms,"MMS");
-	new_register_ber_oid_dissector("1.0.9506.2.1", dissect_mms, proto_mms,"mms-abstract-syntax-version1(1)");
+	register_ber_oid_dissector("1.0.9506.2.3", dissect_mms, proto_mms,"MMS");
+	register_ber_oid_dissector("1.0.9506.2.1", dissect_mms, proto_mms,"mms-abstract-syntax-version1(1)");
 	heur_dissector_add("cotp", dissect_mms_heur, "MMS over COTP", "mms_cotp", proto_mms, HEURISTIC_ENABLE);
 	heur_dissector_add("cotp_is", dissect_mms_heur, "MMS over COTP (inactive subset)", "mms_cotp_is", proto_mms, HEURISTIC_ENABLE);
 }

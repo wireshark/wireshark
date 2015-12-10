@@ -71,7 +71,7 @@ TerminateOperationalBindingArgumentData/terminateAt			terminateAtTime
 TerminateOperationalBindingResultData/terminateAt			terminateAtGeneralizedTime
 
 
-#.REGISTER_NEW
+#.REGISTER
 DSEType					B "2.5.12.0" "id-doa-dseType"
 SupplierInformation		B "2.5.12.5" "id-doa-supplierKnowledge"
 ConsumerInformation		B "2.5.12.6" "id-doa-consumerKnowledge"

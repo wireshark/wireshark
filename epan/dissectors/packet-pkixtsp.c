@@ -586,7 +586,7 @@ void proto_reg_handoff_pkixtsp(void) {
 
 /*--- Included file: packet-pkixtsp-dis-tab.c ---*/
 #line 1 "../../asn1/pkixtsp/packet-pkixtsp-dis-tab.c"
-  new_register_ber_oid_dissector("1.2.840.113549.1.9.16.1.4", dissect_TSTInfo_PDU, proto_pkixtsp, "id-ct-TSTInfo");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.1.4", dissect_TSTInfo_PDU, proto_pkixtsp, "id-ct-TSTInfo");
 
 
 /*--- End of included file: packet-pkixtsp-dis-tab.c ---*/

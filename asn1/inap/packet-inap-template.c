@@ -244,7 +244,7 @@ void proto_register_inap(void) {
   expert_inap = expert_register_protocol(proto_inap);
   expert_register_field_array(expert_inap, ei, array_length(ei));
 
-  new_register_ber_oid_dissector("0.4.0.1.1.1.0.0", dissect_inap, proto_inap, "cs1-ssp-to-scp");
+  register_ber_oid_dissector("0.4.0.1.1.1.0.0", dissect_inap, proto_inap, "cs1-ssp-to-scp");
 
   /* Set default SSNs */
   range_convert_str(&global_ssn_range, "106,241", MAX_SSN);

@@ -451,7 +451,7 @@ void proto_reg_handoff_cdt (void) {
 
 /*--- Included file: packet-cdt-dis-tab.c ---*/
 #line 1 "../../asn1/cdt/packet-cdt-dis-tab.c"
-  new_register_ber_oid_dissector("1.3.26.0.4406.0.4.2", dissect_CompressedData_PDU, proto_cdt, "cdt");
+  register_ber_oid_dissector("1.3.26.0.4406.0.4.2", dissect_CompressedData_PDU, proto_cdt, "cdt");
 
 
 /*--- End of included file: packet-cdt-dis-tab.c ---*/

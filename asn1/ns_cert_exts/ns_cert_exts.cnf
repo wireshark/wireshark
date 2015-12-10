@@ -5,7 +5,7 @@
 
 #.EXPORTS
 
-#.REGISTER_NEW
+#.REGISTER
 CertType        B "2.16.840.1.113730.1.1"  "ns_cert_exts.cert_type"
 BaseUrl         B "2.16.840.1.113730.1.2"  "ns_cert_exts.base_url"
 RevocationUrl   B "2.16.840.1.113730.1.3"  "ns_cert_exts.revocation-url"

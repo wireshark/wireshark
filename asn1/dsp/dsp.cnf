@@ -43,11 +43,11 @@ MasterOrShadowAccessPoint/category	access-point-category
 
 ChainingArguments/targetObject	targetObjectDN
 
-#.PDU_NEW
+#.PDU
 AccessPoint
 MasterAndShadowAccessPoints
 
-#.REGISTER_NEW
+#.REGISTER
 AccessPoint			B "2.5.12.1" "id-doa-myAccessPoint"
 AccessPoint			B "2.5.12.2" "id-doa-superiorKnowledge"
 MasterAndShadowAccessPoints	B "2.5.12.3" "id-doa-specificKnowledge"

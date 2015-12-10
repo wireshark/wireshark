@@ -521,8 +521,8 @@ void proto_reg_handoff_novell_pkis(void)
 
 /*--- Included file: packet-novell_pkis-dis-tab.c ---*/
 #line 1 "../../asn1/novell_pkis/packet-novell_pkis-dis-tab.c"
-  new_register_ber_oid_dissector("2.16.840.1.113719.1.9.4.1", dissect_SecurityAttributes_PDU, proto_novell_pkis, "pa-sa");
-  new_register_ber_oid_dissector("2.16.840.1.113719.1.9.4.2", dissect_RelianceLimits_PDU, proto_novell_pkis, "pa-rl");
+  register_ber_oid_dissector("2.16.840.1.113719.1.9.4.1", dissect_SecurityAttributes_PDU, proto_novell_pkis, "pa-sa");
+  register_ber_oid_dissector("2.16.840.1.113719.1.9.4.2", dissect_RelianceLimits_PDU, proto_novell_pkis, "pa-rl");
 
 
 /*--- End of included file: packet-novell_pkis-dis-tab.c ---*/

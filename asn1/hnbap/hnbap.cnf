@@ -7,7 +7,7 @@ PER
 ALIGNED
 #.END
 
-#.PDU_NEW
+#.PDU
 HNBAP-PDU
 
 ##.MAKE_DEFINES
@@ -201,7 +201,7 @@ id-HNB-Cell-Identifier                          ProtocolIE-ID
 #.END
 
 
-#.REGISTER_NEW
+#.REGISTER
 
 #HNBAP-PROTOCOL-IES
 Cause								N hnbap.ies id-Cause

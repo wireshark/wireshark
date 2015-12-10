@@ -29,7 +29,7 @@ ModificationParameter/secondaryShadows	modifiedSecondaryShadows
 CoordinateShadowUpdateArgumentData/updateStrategy/standard	standardUpdate
 Information/signedInformation/information	information-data
 
-#.REGISTER_NEW
+#.REGISTER
 ShadowingAgreementInfo	S dop.oid	"agreement.2.5.19.1"
 EstablishParameter		S dop.oid	"establish.rolea.2.5.19.1"
 EstablishParameter		S dop.oid	"establish.roleb.2.5.19.1"

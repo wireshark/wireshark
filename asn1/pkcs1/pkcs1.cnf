@@ -14,7 +14,7 @@ DigestInfo
 
 #.FIELD_RENAME
 
-#.REGISTER_NEW
+#.REGISTER
 DSA-Params B "1.2.840.10040.4.1" "id-dsa"
 DomainParameters B "1.2.840.10046.2.1" "dhpublicnumber"
 KEA-Params-Id B "2.16.840.1.101.2.1.1.22" "id-keyExchangeAlgorithm"

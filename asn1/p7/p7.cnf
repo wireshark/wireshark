@@ -200,13 +200,13 @@ static const ros_err_t p7_err_tab[] = {
 };
 #.END
 
-#.PDU_NEW
+#.PDU
 ERROR.&ParameterType
 OPERATION.&ArgumentType
 OPERATION.&ResultType
 #.END
 
-#.REGISTER_NEW
+#.REGISTER
 # MSGeneralAttributeTypes
 ReportLocation			B	"2.6.4.3.42"	"id-att-ac-correlated-report-list"
 SequenceNumber			B	"2.6.4.3.76"	"id-att-ac-report-subject-entry"

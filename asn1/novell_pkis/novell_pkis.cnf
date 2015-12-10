@@ -4,11 +4,11 @@
 
 #.EXPORTS
 
-#.REGISTER_NEW
+#.REGISTER
 SecurityAttributes B "2.16.840.1.113719.1.9.4.1" "pa-sa"
 RelianceLimits     B "2.16.840.1.113719.1.9.4.2" "pa-rl"
 
-#.PDU_NEW
+#.PDU
 
 # PKIS-MESSAGE
 

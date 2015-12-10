@@ -199,9 +199,9 @@ int call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_inf
 WS_DLL_PUBLIC
 void register_ber_oid_dissector_handle(const char *oid, dissector_handle_t dissector, int proto, const char *name);
 WS_DLL_PUBLIC
-void new_register_ber_oid_dissector(const char *oid, new_dissector_t dissector, int proto, const char *name);
+void register_ber_oid_dissector(const char *oid, new_dissector_t dissector, int proto, const char *name);
 WS_DLL_PUBLIC
-void new_register_ber_syntax_dissector(const char *syntax, int proto, new_dissector_t dissector);
+void register_ber_syntax_dissector(const char *syntax, int proto, new_dissector_t dissector);
 void register_ber_oid_name(const char *oid, const char *name);
 WS_DLL_PUBLIC
 void register_ber_oid_syntax(const char *oid, const char *name, const char *syntax);

@@ -18,7 +18,7 @@ ProtocolIE-ContainerPairList
 ProtocolIE-ContainerPair
 ProtocolIE-FieldPair
 
-#.PDU_NEW
+#.PDU
 LPPA-PDU
 
 #.TYPE_RENAME
@@ -88,7 +88,7 @@ id-OTDOA-Information-Type-Item             ProtocolIE-ID
 id-MeasurementQuantities-Item              ProtocolIE-ID
 id-RequestedSRSTransmissionCharacteristics ProtocolIE-ID
 id-ULConfiguration                         ProtocolIE-ID
-#.REGISTER_NEW
+#.REGISTER
 
 #LPPA-PROTOCOL-IES
 MeasurementQuantities-Item              N lppa.ies id-MeasurementQuantities-Item

@@ -12,7 +12,7 @@ PDV-list/presentation-data-values/single-ASN1-type  pdv-list_presentation-data-v
 PDV-list/presentation-data-values/arbitrary pdv-list_presentation-data-values_arbitrary
 #.END
 
-#.PDU_NEW
+#.PDU
   Fully-encoded-data
   ACSE-apdu
 #.END

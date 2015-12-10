@@ -1,7 +1,7 @@
 # credssp.cnf
 # Credential Security Support Provider (CredSSP) conformance file
 
-#.PDU_NEW
+#.PDU
 TSRequest
 
 #.FN_PARS TSRequest/authInfo VAL_PTR = &auth_tvb

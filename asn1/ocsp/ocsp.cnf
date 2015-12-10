@@ -18,9 +18,9 @@ PKIX1Explicit88 pkix1explicit
 #.EXPORTS
 OCSPResponse
 
-#.PDU_NEW
+#.PDU
 
-#.REGISTER_NEW
+#.REGISTER
 BasicOCSPResponse	B	"1.3.6.1.5.5.7.48.1.1"	"id-pkix-ocsp-basic"
 ReOcspNonce		B	"1.3.6.1.5.5.7.48.1.2"	"id-pkix-ocsp-nonce"
 CrlID				B	"1.3.6.1.5.5.7.48.1.3"	"id-pkix-ocsp-crl"

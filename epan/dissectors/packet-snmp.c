@@ -4086,7 +4086,7 @@ void proto_register_snmp(void) {
 	register_init_routine(init_ue_cache);
 	register_cleanup_routine(cleanup_ue_cache);
 
-	new_register_ber_syntax_dissector("SNMP", proto_snmp, dissect_snmp_tcp);
+	register_ber_syntax_dissector("SNMP", proto_snmp, dissect_snmp_tcp);
 }
 
 

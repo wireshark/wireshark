@@ -62,7 +62,7 @@ ReleaseCompleteReason  EXTERN WS_DLL
 ExtendedAliasAddress_PDU
 #.END
 
-#.PDU_NEW
+#.PDU
 H323-UserInformation
 RasMessage
 ExtendedAliasAddress

@@ -98,7 +98,7 @@ SearchRuleDescription
 SearchRuleId
 SubtreeSpecification
 
-#.PDU_NEW
+#.PDU
 DistinguishedName
 
 #.NO_EMIT
@@ -136,7 +136,7 @@ RequestAttribute/defaultValues/_item/values/_item	ra_values_item
 RequestAttribute/selectedValues				ra_selectedValues
 RequestAttribute/selectedValues/_item			ra_selectedValues_item
 
-#.REGISTER_NEW
+#.REGISTER
 DistinguishedName	B	"2.5.4.1"	"id-at-aliasedEntryName"
 DistinguishedName	B	"2.5.4.31"	"id-at-member"
 DistinguishedName	B	"2.5.4.32"	"id-at-owner"

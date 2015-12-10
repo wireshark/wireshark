@@ -3338,8 +3338,8 @@ proto_reg_handoff_tcap(void)
 
 /*--- Included file: packet-tcap-dis-tab.c ---*/
 #line 1 "../../asn1/tcap/packet-tcap-dis-tab.c"
-  new_register_ber_oid_dissector("0.0.17.773.1.1.1", dissect_DialoguePDU_PDU, proto_tcap, "id-as-dialogue");
-  new_register_ber_oid_dissector("0.0.17.773.1.2.1", dissect_UniDialoguePDU_PDU, proto_tcap, "id-as-uniDialogue");
+  register_ber_oid_dissector("0.0.17.773.1.1.1", dissect_DialoguePDU_PDU, proto_tcap, "id-as-dialogue");
+  register_ber_oid_dissector("0.0.17.773.1.2.1", dissect_UniDialoguePDU_PDU, proto_tcap, "id-as-uniDialogue");
 
 
 /*--- End of included file: packet-tcap-dis-tab.c ---*/

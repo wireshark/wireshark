@@ -9,7 +9,7 @@ ALIGNED
 
 #.EXPORTS
 
-#.PDU_NEW
+#.PDU
 PCAP-PDU
 
 #.MAKE_ENUM
@@ -267,7 +267,7 @@ id-IMEI											ProtocolIE-ID
 
 #.END
 
-#.REGISTER_NEW
+#.REGISTER
 
 #PCAP-PROTOCOL-IES
 Cause											N pcap.ies id-Cause

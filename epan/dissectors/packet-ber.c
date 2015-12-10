@@ -432,7 +432,7 @@ register_ber_oid_dissector_handle(const char *oid, dissector_handle_t dissector,
 }
 
 void
-new_register_ber_oid_dissector(const char *oid, new_dissector_t dissector, int proto, const char *name)
+register_ber_oid_dissector(const char *oid, new_dissector_t dissector, int proto, const char *name)
 {
     dissector_handle_t dissector_handle;
 
@@ -442,7 +442,7 @@ new_register_ber_oid_dissector(const char *oid, new_dissector_t dissector, int p
 }
 
 void
-new_register_ber_syntax_dissector(const char *syntax, int proto, new_dissector_t dissector)
+register_ber_syntax_dissector(const char *syntax, int proto, new_dissector_t dissector)
 {
     dissector_handle_t dissector_handle;
 
@@ -4549,7 +4549,7 @@ proto_register_ber(void)
     ber_syntax_dissector_table = register_dissector_table("ber.syntax", "BER syntax", FT_STRING, BASE_NONE, DISSECTOR_TABLE_ALLOW_DUPLICATE);
     syntax_table = g_hash_table_new(g_str_hash, g_str_equal); /* oid to syntax */
 
-    new_register_ber_syntax_dissector("ASN.1", proto_ber, dissect_ber_syntax);
+    register_ber_syntax_dissector("ASN.1", proto_ber, dissect_ber_syntax);
 
     register_init_routine(ber_defragment_init);
     register_cleanup_routine(ber_defragment_cleanup);

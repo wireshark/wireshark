@@ -44,7 +44,7 @@ SS-MCR-Operations-asn97                                  qsig.mcr
 SS-MCM-Operations-asn1-97                                qsig.mcm
 SS-MID-Operations-asn1-97                                qsig.mid
 
-#.PDU_NEW
+#.PDU
 
 OPERATION.&ArgumentType
 OPERATION.&ResultType

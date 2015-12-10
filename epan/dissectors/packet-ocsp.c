@@ -999,13 +999,13 @@ void proto_reg_handoff_ocsp(void) {
 
 /*--- Included file: packet-ocsp-dis-tab.c ---*/
 #line 1 "../../asn1/ocsp/packet-ocsp-dis-tab.c"
-  new_register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.1", dissect_BasicOCSPResponse_PDU, proto_ocsp, "id-pkix-ocsp-basic");
-  new_register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.2", dissect_ReOcspNonce_PDU, proto_ocsp, "id-pkix-ocsp-nonce");
-  new_register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.3", dissect_CrlID_PDU, proto_ocsp, "id-pkix-ocsp-crl");
-  new_register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.4", dissect_AcceptableResponses_PDU, proto_ocsp, "id-pkix-ocsp-response");
-  new_register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.5", dissect_NULL_PDU, proto_ocsp, "id-pkix-ocsp-nocheck");
-  new_register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.6", dissect_ArchiveCutoff_PDU, proto_ocsp, "id-pkix-ocsp-archive-cutoff");
-  new_register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.7", dissect_ServiceLocator_PDU, proto_ocsp, "id-pkix-ocsp-service-locator");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.1", dissect_BasicOCSPResponse_PDU, proto_ocsp, "id-pkix-ocsp-basic");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.2", dissect_ReOcspNonce_PDU, proto_ocsp, "id-pkix-ocsp-nonce");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.3", dissect_CrlID_PDU, proto_ocsp, "id-pkix-ocsp-crl");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.4", dissect_AcceptableResponses_PDU, proto_ocsp, "id-pkix-ocsp-response");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.5", dissect_NULL_PDU, proto_ocsp, "id-pkix-ocsp-nocheck");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.6", dissect_ArchiveCutoff_PDU, proto_ocsp, "id-pkix-ocsp-archive-cutoff");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.48.1.7", dissect_ServiceLocator_PDU, proto_ocsp, "id-pkix-ocsp-service-locator");
 
 
 /*--- End of included file: packet-ocsp-dis-tab.c ---*/

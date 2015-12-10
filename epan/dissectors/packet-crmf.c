@@ -1297,16 +1297,16 @@ void proto_reg_handoff_crmf(void) {
 
 /*--- Included file: packet-crmf-dis-tab.c ---*/
 #line 1 "../../asn1/crmf/packet-crmf-dis-tab.c"
-  new_register_ber_oid_dissector("1.2.840.113549.1.9.16.1.21", dissect_EncKeyWithID_PDU, proto_crmf, "id-ct-encKeyWithID");
-  new_register_ber_oid_dissector("1.2.840.113533.7.66.13", dissect_PBMParameter_PDU, proto_crmf, "PasswordBasedMac");
-  new_register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.1", dissect_RegToken_PDU, proto_crmf, "id-regCtrl-regToken");
-  new_register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.2", dissect_Authenticator_PDU, proto_crmf, "id-regCtrl-authenticator");
-  new_register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.3", dissect_PKIPublicationInfo_PDU, proto_crmf, "id-regCtrl-pkiPublicationInfo");
-  new_register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.4", dissect_PKIArchiveOptions_PDU, proto_crmf, "id-regCtrl-pkiArchiveOptions");
-  new_register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.5", dissect_OldCertId_PDU, proto_crmf, "id-regCtrl-oldCertID");
-  new_register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.6", dissect_ProtocolEncrKey_PDU, proto_crmf, "id-regCtrl-protocolEncrKey");
-  new_register_ber_oid_dissector("1.3.6.1.5.5.7.5.2.1", dissect_UTF8Pairs_PDU, proto_crmf, "id-regInfo-utf8Pairs");
-  new_register_ber_oid_dissector("1.3.6.1.5.5.7.5.2.2", dissect_CertRequest_PDU, proto_crmf, "id-regInfo-certReq");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.1.21", dissect_EncKeyWithID_PDU, proto_crmf, "id-ct-encKeyWithID");
+  register_ber_oid_dissector("1.2.840.113533.7.66.13", dissect_PBMParameter_PDU, proto_crmf, "PasswordBasedMac");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.1", dissect_RegToken_PDU, proto_crmf, "id-regCtrl-regToken");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.2", dissect_Authenticator_PDU, proto_crmf, "id-regCtrl-authenticator");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.3", dissect_PKIPublicationInfo_PDU, proto_crmf, "id-regCtrl-pkiPublicationInfo");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.4", dissect_PKIArchiveOptions_PDU, proto_crmf, "id-regCtrl-pkiArchiveOptions");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.5", dissect_OldCertId_PDU, proto_crmf, "id-regCtrl-oldCertID");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.1.6", dissect_ProtocolEncrKey_PDU, proto_crmf, "id-regCtrl-protocolEncrKey");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.2.1", dissect_UTF8Pairs_PDU, proto_crmf, "id-regInfo-utf8Pairs");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.5.2.2", dissect_CertRequest_PDU, proto_crmf, "id-regInfo-certReq");
 
 
 /*--- End of included file: packet-crmf-dis-tab.c ---*/

@@ -59103,17 +59103,17 @@ void proto_register_lte_rrc(void) {
 
 /*--- Included file: packet-lte-rrc-dis-reg.c ---*/
 #line 1 "../../asn1/lte-rrc/packet-lte-rrc-dis-reg.c"
-  new_register_dissector("lte-rrc.bcch.bch", dissect_BCCH_BCH_Message_PDU, proto_lte_rrc);
-  new_register_dissector("lte-rrc.bcch.dl.sch", dissect_BCCH_DL_SCH_Message_PDU, proto_lte_rrc);
-  new_register_dissector("lte-rrc.mcch", dissect_MCCH_Message_PDU, proto_lte_rrc);
-  new_register_dissector("lte-rrc.pcch", dissect_PCCH_Message_PDU, proto_lte_rrc);
-  new_register_dissector("lte-rrc.dl.ccch", dissect_DL_CCCH_Message_PDU, proto_lte_rrc);
-  new_register_dissector("lte-rrc.dl.dcch", dissect_DL_DCCH_Message_PDU, proto_lte_rrc);
-  new_register_dissector("lte-rrc.ul.ccch", dissect_UL_CCCH_Message_PDU, proto_lte_rrc);
-  new_register_dissector("lte-rrc.ul.dcch", dissect_UL_DCCH_Message_PDU, proto_lte_rrc);
-  new_register_dissector("lte-rrc.ue_cap_info", dissect_UECapabilityInformation_PDU, proto_lte_rrc);
-  new_register_dissector("lte-rrc.ue_eutra_cap", dissect_lte_rrc_UE_EUTRA_Capability_PDU, proto_lte_rrc);
-  new_register_dissector("lte-rrc.sbcch.sl.bch", dissect_SBCCH_SL_BCH_Message_PDU, proto_lte_rrc);
+  register_dissector("lte-rrc.bcch.bch", dissect_BCCH_BCH_Message_PDU, proto_lte_rrc);
+  register_dissector("lte-rrc.bcch.dl.sch", dissect_BCCH_DL_SCH_Message_PDU, proto_lte_rrc);
+  register_dissector("lte-rrc.mcch", dissect_MCCH_Message_PDU, proto_lte_rrc);
+  register_dissector("lte-rrc.pcch", dissect_PCCH_Message_PDU, proto_lte_rrc);
+  register_dissector("lte-rrc.dl.ccch", dissect_DL_CCCH_Message_PDU, proto_lte_rrc);
+  register_dissector("lte-rrc.dl.dcch", dissect_DL_DCCH_Message_PDU, proto_lte_rrc);
+  register_dissector("lte-rrc.ul.ccch", dissect_UL_CCCH_Message_PDU, proto_lte_rrc);
+  register_dissector("lte-rrc.ul.dcch", dissect_UL_DCCH_Message_PDU, proto_lte_rrc);
+  register_dissector("lte-rrc.ue_cap_info", dissect_UECapabilityInformation_PDU, proto_lte_rrc);
+  register_dissector("lte-rrc.ue_eutra_cap", dissect_lte_rrc_UE_EUTRA_Capability_PDU, proto_lte_rrc);
+  register_dissector("lte-rrc.sbcch.sl.bch", dissect_SBCCH_SL_BCH_Message_PDU, proto_lte_rrc);
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/

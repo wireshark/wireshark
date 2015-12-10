@@ -44,7 +44,7 @@ Address
 InvokeIDs
 #.END
 
-#.PDU_NEW
+#.PDU
 H4501SupplementaryService
 OPERATION.&ArgumentType
 OPERATION.&ResultType

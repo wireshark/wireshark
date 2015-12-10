@@ -81,7 +81,7 @@ ForwardedContentToken/_item/body-part-choice/message-or-content-body-part	forwar
 
 ForwardedContentToken/_item/body-part-choice	T_body_part_token_choice
 
-#.REGISTER_NEW
+#.REGISTER
 AbsenceAdvice				B "2.6.1.19.0"  "id-on-absence-advice"
 ChangeOfAddressAdvice		B "2.6.1.19.1"  "id-on-change-of-address-advice"
 IPMAssemblyInstructions		B "2.6.1.17.2"  "id-mst-assembly-instructions"

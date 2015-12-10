@@ -40,7 +40,7 @@ AddressListDesignator/type	address_list_type
 MessageType/type		message_type_type
 OtherRecipientDesignator/type	other_recipient_type
 
-#.PDU_NEW
+#.PDU
 PrimaryPrecedence
 CopyPrecedence
 MessageType
@@ -59,7 +59,7 @@ OriginatorPlad
 Acp127NotificationType
 SecurityInformationLabels
 
-#.REGISTER_NEW
+#.REGISTER
 PrimaryPrecedence 			B "1.3.26.0.4406.0.2.0" "primary-precedence"
 CopyPrecedence 				B "1.3.26.0.4406.0.2.1" "copy-precedence"
 MessageType 				B "1.3.26.0.4406.0.2.2" "message-type"

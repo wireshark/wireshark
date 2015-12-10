@@ -12,7 +12,7 @@ Type-of-msg/t30-indicator  T30_indicator
 Type-of-msg/t30-data       T30_data
 #.END
 
-#.PDU_NEW
+#.PDU
 IFPPacket
 UDPTLPacket
 #.END

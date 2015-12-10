@@ -11,7 +11,7 @@ ALIGNED
 IrisContinuous
 #.END
 
-#.PDU_NEW
+#.PDU
 RDCPDU
 NonCollapsingCapabilities
 #.END

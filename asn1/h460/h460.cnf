@@ -32,7 +32,7 @@ MEDIA-TRAVERSAL                      h460.19
 MESSAGE-BROADCAST                    h460.21
 #.END
 
-#.PDU_NEW
+#.PDU
 # H.460.2
 NumberPortabilityInfo
 # H.460.3

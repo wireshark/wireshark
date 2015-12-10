@@ -42,7 +42,7 @@ SinglePubInfo
 SubsequentMessage
 UTF8Pairs
 
-#.REGISTER_NEW
+#.REGISTER
 EncKeyWithID         B "1.2.840.113549.1.9.16.1.21" "id-ct-encKeyWithID"
 PBMParameter         B "1.2.840.113533.7.66.13"     "PasswordBasedMac"
 RegToken             B "1.3.6.1.5.5.7.5.1.1"        "id-regCtrl-regToken"

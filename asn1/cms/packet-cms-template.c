@@ -154,8 +154,8 @@ void proto_register_cms(void) {
   proto_register_field_array(proto_cms, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  new_register_ber_syntax_dissector("ContentInfo", proto_cms, dissect_ContentInfo_PDU);
-  new_register_ber_syntax_dissector("SignedData", proto_cms, dissect_SignedData_PDU);
+  register_ber_syntax_dissector("ContentInfo", proto_cms, dissect_ContentInfo_PDU);
+  register_ber_syntax_dissector("SignedData", proto_cms, dissect_SignedData_PDU);
   register_ber_oid_syntax(".p7s", NULL, "ContentInfo");
   register_ber_oid_syntax(".p7m", NULL, "ContentInfo");
   register_ber_oid_syntax(".p7c", NULL, "ContentInfo");

@@ -7,7 +7,7 @@
 #.OMIT_ASSIGNMENT
 #.END
 
-#.PDU_NEW
+#.PDU
   AircraftPDUs
   GroundPDUs
   ProtectedAircraftPDUs

@@ -11,7 +11,7 @@ ALIGNED
 EDPCH-Information-RLReconfPrepare-FDD
 Non-Serving-RL-Preconfig-Info
 
-#.PDU_NEW
+#.PDU
 RNSAP-PDU
 
 #.MAKE_DEFINES
@@ -136,7 +136,7 @@ BLER TYPE = FT_INT32  DISPLAY = BASE_DEC  STRINGS = NULL
 #.END
 
 
-#.REGISTER_NEW
+#.REGISTER
 
 #RNSAP-PROTOCOL-IES
 RTLoadValue                        N rnsap.ies id-RTLoadValue

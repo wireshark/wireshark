@@ -11,7 +11,7 @@ PKCS-5	x509af
 
 #.EXPORTS
 
-#.REGISTER_NEW
+#.REGISTER
 KeyBag				B "1.2.840.113549.1.12.10.1.1"	"keyBag"
 PKCS8ShroudedKeyBag	B "1.2.840.113549.1.12.10.1.2"	"pkcs8ShroudedKeyBag"
 CertBag				B "1.2.840.113549.1.12.10.1.3"	"certBag"
@@ -50,7 +50,7 @@ PBMAC1Params		B "1.2.840.113549.1.5.14" "id-PBMAC1"
 PrivateKeyInfo/version		privateKeyVersion
 PBKDF2Params/salt		saltChoice
 
-#.PDU_NEW
+#.PDU
 #AuthenticatedSafe
 PrivateKeyInfo
 

@@ -7,7 +7,7 @@ PER
 ALIGNED
 #.END
 
-#.PDU_NEW
+#.PDU
 RUA-PDU
 
 #.MAKE_ENUM
@@ -123,7 +123,7 @@ id-CN-DomainIndicator                           ProtocolIE-ID
 #.END
 
 
-#.REGISTER_NEW
+#.REGISTER
 
 #RUA-PROTOCOL-IES
 Cause								N rua.ies id-Cause

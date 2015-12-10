@@ -12,7 +12,7 @@ ProtocolIE-ID
 
 #.EXPORTS
 
-#.PDU_NEW
+#.PDU
 M3AP-PDU
 
 #.MAKE_ENUM
@@ -273,7 +273,7 @@ id-MBMSServiceAreaList										ProtocolIE-ID
 id-Time-ofMBMS-DataTransfer									ProtocolIE-ID
 id-Time-ofMBMS-DataStop										ProtocolIE-ID
 
-#.REGISTER_NEW
+#.REGISTER
 
 #M3AP-PROTOCOL-IES
 MME-MBMS-M3AP-ID											N m3ap.ies id-MME-MBMS-M3AP-ID

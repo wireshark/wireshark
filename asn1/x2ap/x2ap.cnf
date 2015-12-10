@@ -11,7 +11,7 @@ ALIGNED
 # Get rid of unused code warnings
 #.END
 
-#.PDU_NEW
+#.PDU
 X2AP-PDU
 
 #.MAKE_ENUM
@@ -262,7 +262,7 @@ id-ExtendedULInterferenceOverloadInfo										ProtocolIE-ID
 id-RNL-Header																ProtocolIE-ID
 id-x2APMessage																ProtocolIE-ID
 
-#.REGISTER_NEW
+#.REGISTER
 
 #X2AP-PROTOCOL-IES
 E-RABs-Admitted-Item						N x2ap.ies id-E-RABs-Admitted-Item

@@ -73,7 +73,7 @@ CustomerGroupID
 SubGroupID
 ClassOfServiceID
 #.END
-#.PDU_NEW
+#.PDU
 LCS-ClientID
 ISDN-AddressString
 
@@ -178,7 +178,7 @@ USSD-Res
 UU-Data
 VelocityEstimate
 #.END
-#.REGISTER_NEW
+#.REGISTER
 MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 
 # This table creates the value_sting to name GSM MAP operation codes and errors

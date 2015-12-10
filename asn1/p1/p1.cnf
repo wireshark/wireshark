@@ -106,7 +106,7 @@ UniversalOrBMPString
 NonDeliveryReasonCode
 NonDeliveryDiagnosticCode
 
-#.SYNTAX_NEW
+#.SYNTAX
 ORAddress
 ORName
 
@@ -340,14 +340,14 @@ static const ros_err_t p3_err_tab[] = {
 };
 #.END
 
-#.PDU_NEW
+#.PDU
 ERROR.&ParameterType
 OPERATION.&ArgumentType
 OPERATION.&ResultType
 #.END
 
 
-#.REGISTER_NEW
+#.REGISTER
 RecipientReassignmentProhibited				N p1.extension 1
 OriginatorRequestedAlternateRecipient	N p1.extension 2
 DLExpansionProhibited						N p1.extension 3

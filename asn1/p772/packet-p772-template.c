@@ -105,7 +105,7 @@ void proto_register_p772(void) {
   proto_register_field_array(proto_p772, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  new_register_ber_syntax_dissector("STANAG 4406", proto_p772, dissect_p772);
+  register_ber_syntax_dissector("STANAG 4406", proto_p772, dissect_p772);
   register_ber_oid_syntax(".p772", NULL, "STANAG 4406");
 }
 
@@ -114,5 +114,5 @@ void proto_register_p772(void) {
 void proto_reg_handoff_p772(void) {
 #include "packet-p772-dis-tab.c"
 
-  new_register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_p772, proto_p772, "STANAG 4406");
+  register_ber_oid_dissector("1.3.26.0.4406.0.4.1", dissect_p772, proto_p772, "STANAG 4406");
 }

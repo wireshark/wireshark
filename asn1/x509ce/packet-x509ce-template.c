@@ -136,7 +136,7 @@ void proto_register_x509ce(void) {
 /*--- proto_reg_handoff_x509ce -------------------------------------------*/
 void proto_reg_handoff_x509ce(void) {
 #include "packet-x509ce-dis-tab.c"
-	new_register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");
-	new_register_ber_oid_dissector("2.5.29.51", dissect_x509ce_baseUpdateTime_callback, proto_x509ce, "id-ce-baseUpdateTime");
+	register_ber_oid_dissector("2.5.29.24", dissect_x509ce_invalidityDate_callback, proto_x509ce, "id-ce-invalidityDate");
+	register_ber_oid_dissector("2.5.29.51", dissect_x509ce_baseUpdateTime_callback, proto_x509ce, "id-ce-baseUpdateTime");
 }
 

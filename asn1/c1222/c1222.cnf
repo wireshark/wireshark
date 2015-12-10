@@ -7,7 +7,7 @@ IMPORT ../acse/acse.inf
 
 #.EXPORTS
 
-#.PDU_NEW
+#.PDU
 MESSAGE
 
 #.NO_EMIT

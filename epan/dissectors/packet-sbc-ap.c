@@ -1483,25 +1483,25 @@ proto_reg_handoff_sbc_ap(void)
 
 /*--- Included file: packet-sbc-ap-dis-tab.c ---*/
 #line 1 "../../asn1/sbc-ap/packet-sbc-ap-dis-tab.c"
-  dissector_add_uint("sbc_ap.ies", id_Cause, new_create_dissector_handle(dissect_Cause_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.ies", id_Criticality_Diagnostics, new_create_dissector_handle(dissect_Criticality_Diagnostics_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.ies", id_Data_Coding_Scheme, new_create_dissector_handle(dissect_Data_Coding_Scheme_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.ies", id_Message_Identifier, new_create_dissector_handle(dissect_Message_Identifier_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.ies", id_Number_of_Broadcasts_Requested, new_create_dissector_handle(dissect_Number_of_Broadcasts_Requested_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.ies", id_Repetition_Period, new_create_dissector_handle(dissect_Repetition_Period_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.ies", id_Serial_Number, new_create_dissector_handle(dissect_Serial_Number_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.ies", id_List_of_TAIs, new_create_dissector_handle(dissect_List_of_TAIs_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.ies", id_Warning_Area_List, new_create_dissector_handle(dissect_Warning_Area_List_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.ies", id_Warning_Message_Content, new_create_dissector_handle(dissect_Warning_Message_Content_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.ies", id_Warning_Security_Information, new_create_dissector_handle(dissect_Warning_Security_Information_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.ies", id_Warning_Type, new_create_dissector_handle(dissect_Warning_Type_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.ies", id_Omc_Id, new_create_dissector_handle(dissect_Omc_Id_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.ies", id_Concurrent_Warning_Message_Indicator, new_create_dissector_handle(dissect_Concurrent_Warning_Message_Indicator_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.ies", id_Extended_Repetition_Period, new_create_dissector_handle(dissect_Extended_Repetition_Period_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.proc.imsg", id_Write_Replace_Warning, new_create_dissector_handle(dissect_Write_Replace_Warning_Request_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.proc.sout", id_Write_Replace_Warning, new_create_dissector_handle(dissect_Write_Replace_Warning_Response_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.proc.imsg", id_Stop_Warning, new_create_dissector_handle(dissect_Stop_Warning_Request_PDU, proto_sbc_ap));
-  dissector_add_uint("sbc_ap.proc.sout", id_Stop_Warning, new_create_dissector_handle(dissect_Stop_Warning_Response_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_Cause, create_dissector_handle(dissect_Cause_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_Criticality_Diagnostics, create_dissector_handle(dissect_Criticality_Diagnostics_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_Data_Coding_Scheme, create_dissector_handle(dissect_Data_Coding_Scheme_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_Message_Identifier, create_dissector_handle(dissect_Message_Identifier_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_Number_of_Broadcasts_Requested, create_dissector_handle(dissect_Number_of_Broadcasts_Requested_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_Repetition_Period, create_dissector_handle(dissect_Repetition_Period_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_Serial_Number, create_dissector_handle(dissect_Serial_Number_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_List_of_TAIs, create_dissector_handle(dissect_List_of_TAIs_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_Warning_Area_List, create_dissector_handle(dissect_Warning_Area_List_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_Warning_Message_Content, create_dissector_handle(dissect_Warning_Message_Content_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_Warning_Security_Information, create_dissector_handle(dissect_Warning_Security_Information_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_Warning_Type, create_dissector_handle(dissect_Warning_Type_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_Omc_Id, create_dissector_handle(dissect_Omc_Id_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_Concurrent_Warning_Message_Indicator, create_dissector_handle(dissect_Concurrent_Warning_Message_Indicator_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_Extended_Repetition_Period, create_dissector_handle(dissect_Extended_Repetition_Period_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.proc.imsg", id_Write_Replace_Warning, create_dissector_handle(dissect_Write_Replace_Warning_Request_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.proc.sout", id_Write_Replace_Warning, create_dissector_handle(dissect_Write_Replace_Warning_Response_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.proc.imsg", id_Stop_Warning, create_dissector_handle(dissect_Stop_Warning_Request_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.proc.sout", id_Stop_Warning, create_dissector_handle(dissect_Stop_Warning_Response_PDU, proto_sbc_ap));
 
 
 /*--- End of included file: packet-sbc-ap-dis-tab.c ---*/

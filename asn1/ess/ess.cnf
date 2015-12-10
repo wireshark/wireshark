@@ -8,9 +8,9 @@
 #.EXPORTS
 ESSSecurityLabel_PDU
 
-#.PDU_NEW
+#.PDU
 
-#.REGISTER_NEW
+#.REGISTER
 ReceiptRequest	   B "1.2.840.113549.1.9.16.2.1"  "id-aa-receiptRequest"
 ContentIdentifier  B "1.2.840.113549.1.9.16.2.7"  "id-aa-contentIdentifier"
 Receipt            B "1.2.840.113549.1.9.16.1.1"  "id-ct-receipt"

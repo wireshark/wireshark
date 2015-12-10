@@ -5,7 +5,7 @@
 
 #.EXPORTS
 
-#.PDU_NEW
+#.PDU
 
 #.NO_EMIT ONLY_VALS
 GOOSEpdu

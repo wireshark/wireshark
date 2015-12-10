@@ -7,7 +7,7 @@
 #.IMPORT ../x509if/x509if-exp.cnf
 #.IMPORT ../x509sat/x509sat-exp.cnf
 
-#.PDU_NEW
+#.PDU
 ACPPreferredDelivery
 ALType
 Community
@@ -65,7 +65,7 @@ Kmid
 &id		ObjectIdentifierType
 #.END
 
-#.REGISTER_NEW
+#.REGISTER
 
 # X.402
 

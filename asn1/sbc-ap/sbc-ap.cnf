@@ -8,7 +8,7 @@ ALIGNED
 
 #.EXPORTS
 
-#.PDU_NEW
+#.PDU
 SBC-AP-PDU
 
 #.MAKE_ENUM
@@ -142,7 +142,7 @@ id-Concurrent-Warning-Message-Indicator		ProtocolIE-ID
 id-Extended-Repetition-Period				ProtocolIE-ID
 
 
-#.REGISTER_NEW
+#.REGISTER
 
 #SBC-AP-PROTOCOL-IES
 

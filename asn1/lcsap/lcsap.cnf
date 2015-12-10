@@ -9,7 +9,7 @@ ALIGNED
 #.EXPORTS
 Correlation-ID_PDU
 
-#.PDU_NEW
+#.PDU
 LCS-AP-PDU
 
 #.MAKE_ENUM
@@ -250,7 +250,7 @@ id-Destination-ID                   ProtocolIE-ID
 id-LCS-Service-Type-ID              ProtocolIE-ID
 
 
-#.REGISTER_NEW
+#.REGISTER
 
 #LCS-AP-PROTOCOL-IES
 Accuracy-Fulfillment-Indicator          N lcsap.ies id-Accuracy-Fulfillment-Indicator

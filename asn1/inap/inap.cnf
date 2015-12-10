@@ -41,7 +41,7 @@ Bind
 Unbind
 #.END
 
-#.PDU_NEW
+#.PDU
 ERROR.&ParameterType
 OPERATION.&ArgumentType
 OPERATION.&ResultType

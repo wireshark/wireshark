@@ -8291,8 +8291,8 @@ void proto_reg_handoff_camel(void) {
 
 /*--- Included file: packet-camel-dis-tab.c ---*/
 #line 1 "../../asn1/camel/packet-camel-dis-tab.c"
-  new_register_ber_oid_dissector("0.4.0.0.1.1.5.2", dissect_CAP_GPRS_ReferenceNumber_PDU, proto_camel, "id-CAP-GPRS-ReferenceNumber");
-  new_register_ber_oid_dissector("0.4.0.0.1.1.2.2", dissect_CAP_U_ABORT_REASON_PDU, proto_camel, "id-CAP-U-ABORT-Reason");
+  register_ber_oid_dissector("0.4.0.0.1.1.5.2", dissect_CAP_GPRS_ReferenceNumber_PDU, proto_camel, "id-CAP-GPRS-ReferenceNumber");
+  register_ber_oid_dissector("0.4.0.0.1.1.2.2", dissect_CAP_U_ABORT_REASON_PDU, proto_camel, "id-CAP-U-ABORT-Reason");
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/

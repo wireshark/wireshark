@@ -31,7 +31,7 @@ SONtransferCause_PDU
 UE-HistoryInformation_PDU
 
 
-#.PDU_NEW
+#.PDU
 S1AP-PDU
 SourceeNB-ToTargeteNB-TransparentContainer
 TargeteNB-ToSourceeNB-TransparentContainer
@@ -803,7 +803,7 @@ id-eNBIndirectX2TransportLayerAddresses				ProtocolIE-ID
 
 #.END
 
-#.REGISTER_NEW
+#.REGISTER
 
 #S1AP-PROTOCOL-IES
 MME-UE-S1AP-ID							N s1ap.ies id-MME-UE-S1AP-ID

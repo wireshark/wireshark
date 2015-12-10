@@ -31,9 +31,9 @@ Time
 Validity
 Version
 
-#.PDU_NEW
+#.PDU
 
-#.REGISTER_NEW
+#.REGISTER
 Certificate				B "2.5.4.36" "id-at-userCertificate"
 Certificate				B "2.5.4.37" "id-at-cAcertificate"
 CertificateList			B "2.5.4.38" "id-at-authorityRevocationList"

@@ -57,7 +57,7 @@ GPRSRecord_PDU
 &id                    ObjectIdentifierType
 &Value
 
-#.PDU_NEW
+#.PDU
 GPRSCallEventRecord
 GPRSRecord
 

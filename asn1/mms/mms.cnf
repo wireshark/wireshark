@@ -9,7 +9,7 @@ ISO-8650-ACSE-1 acse
 #.EXPORTS
 MMSpdu
 
-#.PDU_NEW
+#.PDU
 
 #.NO_EMIT
 
