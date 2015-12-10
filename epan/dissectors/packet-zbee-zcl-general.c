@@ -3298,6 +3298,386 @@ proto_reg_handoff_zbee_zcl_time(void)
 
 
 
+
+/* ########################################################################## */
+/* #### (0x0008) LEVEL_CONTROL CLUSTER ###################################### */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+#define ZBEE_ZCL_LEVEL_CONTROL_NUM_ETT                          1
+
+/* Attributes */
+#define ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_CURRENT_LEVEL            0x0000  /* Current Level */
+#define ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_REMAINING_TIME           0x0001  /* Remaining Time */
+#define ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_ONOFF_TRANSIT_TIME       0x0010  /* OnOff Transition Time */
+#define ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_ON_LEVEL                 0x0011  /* On Level */
+
+/* Server Commands Received */
+#define ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_MOVE_TO_LEVEL             0x00  /* Move to Level */
+#define ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_MOVE                      0x01  /* Move */
+#define ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_STEP                      0x02  /* Step */
+#define ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_STOP                      0x03  /* Stop */
+#define ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_MOVE_TO_LEVEL_WITH_ONOFF  0x04  /* Move to Level with OnOff */
+#define ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_MOVE_WITH_ONOFF           0x05  /* Move with OnOff */
+#define ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_STEP_WITH_ONOFF           0x06  /* Step with OnOff */
+#define ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_STOP_WITH_ONOFF           0x07  /* Stop with OnOff */
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+void proto_register_zbee_zcl_level_control(void);
+void proto_reg_handoff_zbee_zcl_level_control(void);
+
+/* Private functions prototype */
+
+/*************************/
+/* Global Variables      */
+/*************************/
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_level_control = -1;
+
+static int hf_zbee_zcl_level_control_attr_id = -1;
+static int hf_zbee_zcl_level_control_level = -1;
+static int hf_zbee_zcl_level_control_move_mode = -1;
+static int hf_zbee_zcl_level_control_rate = -1;
+static int hf_zbee_zcl_level_control_step_mode = -1;
+static int hf_zbee_zcl_level_control_step_size = -1;
+static int hf_zbee_zcl_level_control_transit_time = -1;
+static int hf_zbee_zcl_level_control_srv_rx_cmd_id = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_level_control = -1;
+
+/* Attributes */
+static const value_string zbee_zcl_level_control_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_CURRENT_LEVEL,             "Current Level" },
+    { ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_REMAINING_TIME,            "Remaining Time" },
+    { ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_ONOFF_TRANSIT_TIME,        "OnOff Transition Time" },
+    { ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_ON_LEVEL,                  "On Level" },
+    { 0, NULL }
+};
+
+/* Server Commands Received */
+static const value_string zbee_zcl_level_control_srv_rx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_MOVE_TO_LEVEL,              "Move to Level" },
+    { ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_MOVE,                       "Move" },
+    { ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_STEP,                       "Step" },
+    { ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_STOP,                       "Stop" },
+    { ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_MOVE_TO_LEVEL_WITH_ONOFF,   "Move to Level with OnOff" },
+    { ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_MOVE_WITH_ONOFF,            "Move with OnOff" },
+    { ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_STEP_WITH_ONOFF,            "Step with OnOff" },
+    { ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_STOP_WITH_ONOFF,            "Stop with OnOff" },
+    { 0, NULL }
+};
+
+/* Move Mode Values */
+static const value_string zbee_zcl_level_control_move_step_mode_values[] = {
+    { 0x00,   "Up" },
+    { 0x01,   "Down" },
+    { 0, NULL }
+};
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_level_control_move_to_level
+ *  DESCRIPTION
+ *      this function decodes the Move to Level payload.
+ *  PARAMETERS
+ *      tvb     - the tv buffer of the current data_type
+ *      tree    - the tree to append this item to
+ *      offset  - offset of data in tvb
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_level_control_move_to_level(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Level" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_level_control_level, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Retrieve "Transition Time" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_level_control_transit_time, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+} /*dissect_zcl_level_control_move_to_level*/
+
+
+ /*FUNCTION:--------------------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_level_control_move
+ *  DESCRIPTION
+ *      this function decodes the Move payload
+ *  PARAMETERS
+ *      tvb     - the tv buffer of the current data_type
+ *      tree    - the tree to append this item to
+ *      offset  - offset of data in tvb
+ *  RETURNS
+ *      none
+ *------------------------------------------------------------------------------
+ */
+
+static void
+dissect_zcl_level_control_move(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Move Mode" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_level_control_move_mode, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Retrieve "Rate" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_level_control_rate, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+} /*dissect_zcl_level_control_move*/
+
+
+/*FUNCTION:-------------------------------------------------------------------
+*  NAME
+*      dissect_zcl_level_control_step
+*  DESCRIPTION
+*      this function decodes the Step payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*-----------------------------------------------------------------------------
+*/
+static void
+dissect_zcl_level_control_step(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Step Mode" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_level_control_step_mode, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Retrieve "Step Size" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_level_control_step_size, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Retrieve "Transition Time" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_level_control_transit_time, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+} /*dissect_zcl_level_control_step*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_level_control_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_level_control
+ *  DESCRIPTION
+ *      ZigBee ZCL Level Control cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static int
+dissect_zbee_zcl_level_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    proto_tree        *payload_tree;
+    zbee_zcl_packet   *zcl;
+    guint             offset = 0;
+    guint8            cmd_id;
+    gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
+
+    /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_level_control_srv_rx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_level_control_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check if this command has a payload, then add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_level_control, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_MOVE_TO_LEVEL:
+                case ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_MOVE_TO_LEVEL_WITH_ONOFF:
+                    dissect_zcl_level_control_move_to_level(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_MOVE:
+                case ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_MOVE_WITH_ONOFF:
+                    dissect_zcl_level_control_move(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_STEP:
+                case ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_STEP_WITH_ONOFF:
+                    dissect_zcl_level_control_step(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_STOP:
+                case ZBEE_ZCL_CMD_ID_LEVEL_CONTROL_STOP_WITH_ONOFF:
+                    /* No Payload */
+                default:
+                    break;
+            }
+        }
+    }
+
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_level_control*/
+
+
+
+static void
+dissect_zcl_level_control_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    /* Dissect attribute data type and data */
+    switch ( attr_id ) {
+        case ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_CURRENT_LEVEL:
+        case ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_REMAINING_TIME:
+        case ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_ONOFF_TRANSIT_TIME:
+        case ZBEE_ZCL_ATTR_ID_LEVEL_CONTROL_ON_LEVEL:
+        default:
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+
+} /*dissect_zcl_level_control_attr_data*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_level_control
+ *  DESCRIPTION
+ *      ZigBee ZCL Level Control cluster protocol registration routine.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+void
+proto_register_zbee_zcl_level_control(void)
+{
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_level_control_attr_id,
+            { "Attribute", "zbee_zcl_general.level_control.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_level_control_attr_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_level_control_level,
+            { "Level", "zbee_zcl_general.level_control.level", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_level_control_move_mode,
+            { "Move Mode", "zbee_zcl_general.level_control.move_mode", FT_UINT8, BASE_HEX, VALS(zbee_zcl_level_control_move_step_mode_values),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_level_control_rate,
+            { "Rate", "zbee_zcl_general.level_control.rate", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_level_control_step_mode,
+            { "Step Mode", "zbee_zcl_general.level_control.step_mode", FT_UINT8, BASE_HEX, VALS(zbee_zcl_level_control_move_step_mode_values),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_level_control_step_size,
+            { "Step Size", "zbee_zcl_general.level_control.step_size", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_level_control_transit_time,
+            { "Transition Time", "zbee_zcl_general.level_control.transit_time", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_level_control_srv_rx_cmd_id,
+          { "Command", "zbee_zcl_general.level_control.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_level_control_srv_rx_cmd_names),
+            0x00, NULL, HFILL } }
+
+    };
+
+    /* ZCL Identify subtrees */
+    static gint *ett[ZBEE_ZCL_LEVEL_CONTROL_NUM_ETT];
+    ett[0] = &ett_zbee_zcl_level_control;
+
+    /* Register the ZigBee ZCL Level Control cluster protocol name and description */
+    proto_zbee_zcl_level_control = proto_register_protocol("ZigBee ZCL Level Control", "ZCL Level Control", ZBEE_PROTOABBREV_ZCL_LEVEL_CONTROL);
+    proto_register_field_array(proto_zbee_zcl_level_control, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Level Control dissector. */
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_LEVEL_CONTROL, dissect_zbee_zcl_level_control, proto_zbee_zcl_level_control);
+
+} /*proto_register_zbee_zcl_level_control*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_level_control
+ *  DESCRIPTION
+ *      Hands off the ZCL Level Control dissector.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_reg_handoff_zbee_zcl_level_control(void)
+{
+    dissector_handle_t level_control_handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    level_control_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_LEVEL_CONTROL);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_LEVEL_CONTROL, level_control_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_level_control,
+                            ett_zbee_zcl_level_control,
+                            ZBEE_ZCL_CID_LEVEL_CONTROL,
+                            hf_zbee_zcl_level_control_attr_id,
+                            hf_zbee_zcl_level_control_srv_rx_cmd_id,
+                            -1,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_level_control_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_level_control*/
+
+
+
+
+
 /* ########################################################################## */
 /* #### (0x0016) PARTITION ################################################## */
 /* ########################################################################## */
