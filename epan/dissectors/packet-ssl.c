@@ -2525,103 +2525,100 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
       ssl_set_server(&ssl->session, &pinfo->dst, pinfo->ptype, pinfo->destport);
     }
 
-    if (ssl)
+    /* show the version */
+    proto_tree_add_item(tree, dissect_ssl3_hf.hf.hs_client_version, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    cipher_spec_length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_ssl2_handshake_cipher_spec_len,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    session_id_length = tvb_get_ntohs(tvb, offset);
+    ti = proto_tree_add_item(tree, hf_ssl2_handshake_session_id_len,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    if (session_id_length > SSLV2_MAX_SESSION_ID_LENGTH_IN_BYTES) {
+        expert_add_info_format(pinfo, ti, &ei_ssl2_handshake_session_id_len_error,
+                               "Session ID length (%u) must be less than %u.",
+                               session_id_length, SSLV2_MAX_SESSION_ID_LENGTH_IN_BYTES);
+        return;
+    }
+    offset += 2;
+
+    challenge_length = tvb_get_ntohs(tvb, offset);
+    if (tree)
+        proto_tree_add_item(tree, hf_ssl2_handshake_challenge_len,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    if (tree)
     {
-        /* show the version */
-        proto_tree_add_item(tree, dissect_ssl3_hf.hf.hs_client_version, tvb,
-                            offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+        /* tell the user how many cipher specs they've won */
+        ti = proto_tree_add_none_format(tree, dissect_ssl3_hf.hf.hs_cipher_suites,
+                                        tvb, offset, cipher_spec_length,
+                                        "Cipher Specs (%u specs)",
+                                        cipher_spec_length/3);
 
-        cipher_spec_length = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_ssl2_handshake_cipher_spec_len,
-                            tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        session_id_length = tvb_get_ntohs(tvb, offset);
-        ti = proto_tree_add_item(tree, hf_ssl2_handshake_session_id_len,
-                            tvb, offset, 2, ENC_BIG_ENDIAN);
-        if (session_id_length > SSLV2_MAX_SESSION_ID_LENGTH_IN_BYTES) {
-            expert_add_info_format(pinfo, ti, &ei_ssl2_handshake_session_id_len_error,
-                                   "Session ID length (%u) must be less than %u.",
-                                   session_id_length, SSLV2_MAX_SESSION_ID_LENGTH_IN_BYTES);
-            return;
-        }
-        offset += 2;
-
-        challenge_length = tvb_get_ntohs(tvb, offset);
-        if (tree)
-            proto_tree_add_item(tree, hf_ssl2_handshake_challenge_len,
-                            tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-
-        if (tree)
+        /* make this a subtree and expand the actual specs below */
+        cs_tree = proto_item_add_subtree(ti, dissect_ssl3_hf.ett.cipher_suites);
+        if (!cs_tree)
         {
-            /* tell the user how many cipher specs they've won */
-            ti = proto_tree_add_none_format(tree, dissect_ssl3_hf.hf.hs_cipher_suites,
-                                            tvb, offset, cipher_spec_length,
-                                            "Cipher Specs (%u specs)",
-                                            cipher_spec_length/3);
-
-            /* make this a subtree and expand the actual specs below */
-            cs_tree = proto_item_add_subtree(ti, dissect_ssl3_hf.ett.cipher_suites);
-            if (!cs_tree)
-            {
-                cs_tree = tree;     /* failsafe */
-            }
+            cs_tree = tree;     /* failsafe */
         }
+    }
 
-        /* iterate through the cipher specs, showing them */
-        while (cipher_spec_length > 0)
+    /* iterate through the cipher specs, showing them */
+    while (cipher_spec_length > 0)
+    {
+        if (cs_tree)
+            proto_tree_add_item(cs_tree, hf_ssl2_handshake_cipher_spec,
+                            tvb, offset, 3, ENC_BIG_ENDIAN);
+        offset += 3;        /* length of one cipher spec */
+        cipher_spec_length -= 3;
+    }
+
+    /* if there's a session id, show it */
+    if (session_id_length > 0)
+    {
+        proto_tree_add_bytes_format(tree,
+                                        dissect_ssl3_hf.hf.hs_session_id,
+                                        tvb, offset, session_id_length,
+                                        NULL, "Session ID (%u byte%s)",
+                                        session_id_length,
+                                        plurality(session_id_length, "", "s"));
+
+        /* PAOLO: get session id and reset session state for key [re]negotiation */
+        if (ssl)
         {
-            if (cs_tree)
-                proto_tree_add_item(cs_tree, hf_ssl2_handshake_cipher_spec,
-                                tvb, offset, 3, ENC_BIG_ENDIAN);
-            offset += 3;        /* length of one cipher spec */
-            cipher_spec_length -= 3;
+            tvb_memcpy(tvb,ssl->session_id.data, offset, session_id_length);
+            ssl->session_id.data_len = session_id_length;
+            ssl->state &= ~(SSL_HAVE_SESSION_KEY|SSL_MASTER_SECRET|SSL_PRE_MASTER_SECRET|
+                    SSL_CIPHER|SSL_SERVER_RANDOM);
         }
+        offset += session_id_length;
+    }
 
-        /* if there's a session id, show it */
-        if (session_id_length > 0)
+    /* if there's a challenge, show it */
+    if (challenge_length > 0)
+    {
+        proto_tree_add_item(tree, hf_ssl2_handshake_challenge,
+                            tvb, offset, challenge_length, ENC_NA);
+        if (ssl)
         {
-            proto_tree_add_bytes_format(tree,
-                                            dissect_ssl3_hf.hf.hs_session_id,
-                                            tvb, offset, session_id_length,
-                                            NULL, "Session ID (%u byte%s)",
-                                            session_id_length,
-                                            plurality(session_id_length, "", "s"));
+            /* PAOLO: get client random data; we get at most 32 bytes from
+             challenge */
+            gint max;
+            max = challenge_length > 32? 32: challenge_length;
 
-            /* PAOLO: get session id and reset session state for key [re]negotiation */
-            if (ssl)
-            {
-                tvb_memcpy(tvb,ssl->session_id.data, offset, session_id_length);
-                ssl->session_id.data_len = session_id_length;
-                ssl->state &= ~(SSL_HAVE_SESSION_KEY|SSL_MASTER_SECRET|SSL_PRE_MASTER_SECRET|
-                        SSL_CIPHER|SSL_SERVER_RANDOM);
-            }
-            offset += session_id_length;
-        }
+            ssl_debug_printf("client random len: %d padded to 32\n", challenge_length);
 
-        /* if there's a challenge, show it */
-        if (challenge_length > 0)
-        {
-            proto_tree_add_item(tree, hf_ssl2_handshake_challenge,
-                                tvb, offset, challenge_length, ENC_NA);
-            if (ssl)
-            {
-                /* PAOLO: get client random data; we get at most 32 bytes from
-                 challenge */
-                gint max;
-                max = challenge_length > 32? 32: challenge_length;
-
-                ssl_debug_printf("client random len: %d padded to 32\n", challenge_length);
-
-                /* client random is padded with zero and 'right' aligned */
-                memset(ssl->client_random.data, 0, 32 - max);
-                tvb_memcpy(tvb, &ssl->client_random.data[32 - max], offset, max);
-                ssl->client_random.data_len = 32;
-                ssl->state |= SSL_CLIENT_RANDOM;
-                ssl_debug_printf("dissect_ssl2_hnd_client_hello found CLIENT RANDOM -> state 0x%02X\n", ssl->state);
-            }
+            /* client random is padded with zero and 'right' aligned */
+            memset(ssl->client_random.data, 0, 32 - max);
+            tvb_memcpy(tvb, &ssl->client_random.data[32 - max], offset, max);
+            ssl->client_random.data_len = 32;
+            ssl->state |= SSL_CLIENT_RANDOM;
+            ssl_debug_printf("dissect_ssl2_hnd_client_hello found CLIENT RANDOM -> state 0x%02X\n", ssl->state);
         }
     }
 }
