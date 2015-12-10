@@ -1141,7 +1141,6 @@ DISSECTOR_SRC = \
 	packet-rtacser.c	\
 	packet-rtcdc.c		\
 	packet-rtcp.c		\
-	packet-rtitcp.c		\
 	packet-rtmpt.c		\
 	packet-rtnet.c		\
 	packet-rtp-events.c	\
