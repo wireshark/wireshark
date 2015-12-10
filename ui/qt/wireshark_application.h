@@ -92,7 +92,7 @@ public:
 
     void allSystemsGo();
     void refreshLocalInterfaces();
-    struct _e_prefs * readConfigurationFiles(char **gdp_path, char **dp_path);
+    struct _e_prefs * readConfigurationFiles(char **gdp_path, char **dp_path, bool reset);
     QList<recent_item_status *> recentItems() const;
     void addRecentItem(const QString filename, qint64 size, bool accessible);
     QDir lastOpenDir();

@@ -339,11 +339,8 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     set_profile_name (profile_name);
     emit profileNameChanged(profile_name);
 
-    /* Reset current preferences and apply the new */
-    prefs_reset();
-//    menu_prefs_reset();
-
-    (void) readConfigurationFiles (&gdp_path, &dp_path);
+    /* Apply new preferences */
+    readConfigurationFiles (&gdp_path, &dp_path, true);
 
     if (!recent_read_profile_static(&rf_path, &rf_open_errno)) {
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
@@ -878,7 +875,7 @@ void WiresharkApplication::allSystemsGo()
 #endif
 }
 
-_e_prefs *WiresharkApplication::readConfigurationFiles(char **gdp_path, char **dp_path)
+_e_prefs *WiresharkApplication::readConfigurationFiles(char **gdp_path, char **dp_path, bool reset)
 {
     int                  gpf_open_errno, gpf_read_errno;
     int                  cf_open_errno, df_open_errno;
@@ -888,6 +885,11 @@ _e_prefs *WiresharkApplication::readConfigurationFiles(char **gdp_path, char **d
     char                *cf_path, *df_path;
     int                  pf_open_errno, pf_read_errno;
     e_prefs             *prefs_p;
+
+    if (reset) {
+        // reset preferences before reading
+        prefs_reset();
+    }
 
     /* load the decode as entries of this profile */
     load_decode_as_entries();

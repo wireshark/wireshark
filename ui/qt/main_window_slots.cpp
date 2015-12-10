@@ -2611,7 +2611,7 @@ void MainWindow::on_actionAnalyzeReloadLuaPlugins_triggered()
     main_ui_->preferenceEditorFrame->animatedHide();
 
     char *gdp_path, *dp_path;
-    (void) wsApp->readConfigurationFiles(&gdp_path, &dp_path);
+    wsApp->readConfigurationFiles(&gdp_path, &dp_path, true);
 
     fieldsChanged();
     redissectPackets();
