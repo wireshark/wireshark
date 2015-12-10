@@ -867,7 +867,7 @@ DIAG_ON(cast-qual)
 
     splash_update(RA_PREFERENCES, NULL, NULL);
 
-    prefs_p = ws_app.readConfigurationFiles(&gdp_path, &dp_path);
+    prefs_p = ws_app.readConfigurationFiles(&gdp_path, &dp_path, false);
 
     /*
      * To reset the options parser, set optreset to 1 on platforms that
