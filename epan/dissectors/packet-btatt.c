@@ -524,10 +524,11 @@ static int hf_btatt_altitude = -1;
 static int hf_btatt_indoor_positioning_configuration = -1;
 static int hf_btatt_indoor_positioning_configuration_reserved = -1;
 static int hf_btatt_indoor_positioning_configuration_location_name = -1;
+static int hf_btatt_indoor_positioning_configuration_uncertainty = -1;
 static int hf_btatt_indoor_positioning_configuration_floor_number = -1;
 static int hf_btatt_indoor_positioning_configuration_altitude = -1;
 static int hf_btatt_indoor_positioning_configuration_tx_power = -1;
-static int hf_btatt_indoor_positioning_configuration_coordinate_system_used_in_advertising_packets = -1;
+static int hf_btatt_indoor_positioning_configuration_coordinate_system = -1;
 static int hf_btatt_indoor_positioning_configuration_coordinates = -1;
 static int hf_btatt_number_of_digitals = -1;
 static int hf_btatt_time_trigger_setting_condition = -1;
@@ -1263,10 +1264,11 @@ static const int *hfx_btatt_uncertainty[] = {
 static const int *hfx_btatt_indoor_positioning_configuration[] = {
     &hf_btatt_indoor_positioning_configuration_reserved,
     &hf_btatt_indoor_positioning_configuration_location_name,
+    &hf_btatt_indoor_positioning_configuration_uncertainty,
     &hf_btatt_indoor_positioning_configuration_floor_number,
     &hf_btatt_indoor_positioning_configuration_altitude,
     &hf_btatt_indoor_positioning_configuration_tx_power,
-    &hf_btatt_indoor_positioning_configuration_coordinate_system_used_in_advertising_packets,
+    &hf_btatt_indoor_positioning_configuration_coordinate_system,
     &hf_btatt_indoor_positioning_configuration_coordinates,
     NULL
 };
@@ -2579,14 +2581,14 @@ static const value_string digital_vals[] = {
 };
 
 
-static const value_string uncertainty_stationary_vals[] = {
+const value_string btatt_ips_uncertainty_stationary_vals[] = {
     { 0x00,   "Stationary"},
     { 0x01,   "Mobile"},
     {0x0, NULL}
 };
 
 
-static const value_string uncertainty_update_time_vals[] = {
+const value_string btatt_ips_uncertainty_update_time_vals[] = {
     { 0x00,   "Up to 3s"},
     { 0x01,   "Up to 4s"},
     { 0x02,   "Up to 6s"},
@@ -2599,7 +2601,7 @@ static const value_string uncertainty_update_time_vals[] = {
 };
 
 
-static const value_string uncertainty_precision_vals[] = {
+const value_string btatt_ips_uncertainty_precision_vals[] = {
     { 0x00,   "Less than 0.1m"},
     { 0x01,   "0.1-1m"},
     { 0x02,   "1-2m"},
@@ -2612,7 +2614,7 @@ static const value_string uncertainty_precision_vals[] = {
 };
 
 
-static const value_string indoor_positioning_configuration_coordinate_system_used_in_advertising_packets_vals[] = {
+const value_string btatt_ips_coordinate_system[] = {
     { 0x00,   "WGS84 Coordinate System"},
     { 0x01,   "Local Coordinate System"},
     {0x0, NULL}
@@ -9119,17 +9121,17 @@ proto_register_btatt(void)
         },
         {&hf_btatt_uncertainty_precision,
             {"Precision", "btatt.uncertainty.precision",
-            FT_UINT8, BASE_HEX, VALS(uncertainty_precision_vals), 0x70,
+            FT_UINT8, BASE_HEX, VALS(btatt_ips_uncertainty_precision_vals), 0x70,
             NULL, HFILL}
         },
         {&hf_btatt_uncertainty_update_time,
             {"Update Time", "btatt.uncertainty.update_time",
-            FT_UINT8, BASE_HEX, VALS(uncertainty_update_time_vals), 0x0E,
+            FT_UINT8, BASE_HEX, VALS(btatt_ips_uncertainty_update_time_vals), 0x0E,
             NULL, HFILL}
         },
         {&hf_btatt_uncertainty_stationary,
             {"Stationary", "btatt.uncertainty.stationary",
-            FT_UINT8, BASE_HEX, VALS(uncertainty_stationary_vals), 0x01,
+            FT_UINT8, BASE_HEX, VALS(btatt_ips_uncertainty_stationary_vals), 0x01,
             NULL, HFILL}
         },
         {&hf_btatt_latitude,
@@ -9174,6 +9176,11 @@ proto_register_btatt(void)
         },
         {&hf_btatt_indoor_positioning_configuration_location_name,
             {"Location Name", "btatt.indoor_positioning_configuration.location_name",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL}
+        },
+        {&hf_btatt_indoor_positioning_configuration_uncertainty,
+            {"Uncertainty", "btatt.indoor_positioning_configuration.uncertainty",
             FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL}
         },
@@ -9192,9 +9199,9 @@ proto_register_btatt(void)
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL}
         },
-        {&hf_btatt_indoor_positioning_configuration_coordinate_system_used_in_advertising_packets,
-            {"Coordinate System Used in Advertising Packets", "btatt.indoor_positioning_configuration.coordinate_system_used_in_advertising_packets",
-            FT_UINT8, BASE_HEX, VALS(indoor_positioning_configuration_coordinate_system_used_in_advertising_packets_vals), 0x02,
+        {&hf_btatt_indoor_positioning_configuration_coordinate_system,
+            {"Coordinate System", "btatt.indoor_positioning_configuration.coordinate_system",
+            FT_UINT8, BASE_HEX, VALS(btatt_ips_coordinate_system), 0x02,
             NULL, HFILL}
         },
         {&hf_btatt_indoor_positioning_configuration_coordinates,

@@ -43,6 +43,7 @@
 #include "packet-bluetooth.h"
 #include "packet-bthci_cmd.h"
 #include "packet-btsdp.h"
+#include "packet-btatt.h"
 
 static int proto_bthci_cmd = -1;
 
@@ -432,6 +433,27 @@ static gint hf_btcommon_eir_ad_oob_flags_reserved = -1;
 static gint hf_btcommon_eir_ad_connection_interval_min = -1;
 static gint hf_btcommon_eir_ad_connection_interval_max = -1;
 static gint hf_btcommon_eir_ad_uri = -1;
+static gint hf_btcommon_eir_ad_ips_flags = -1;
+static gint hf_btcommon_eir_ad_ips_flags_reserved = -1;
+static gint hf_btcommon_eir_ad_ips_flags_location_name = -1;
+static gint hf_btcommon_eir_ad_ips_flags_uncertainty = -1;
+static gint hf_btcommon_eir_ad_ips_flags_floor_number = -1;
+static gint hf_btcommon_eir_ad_ips_flags_altitude = -1;
+static gint hf_btcommon_eir_ad_ips_flags_tx_power = -1;
+static gint hf_btcommon_eir_ad_ips_flags_coordinate_system = -1;
+static gint hf_btcommon_eir_ad_ips_flags_coordinates = -1;
+static gint hf_btcommon_eir_ad_ips_uncertainty = -1;
+static gint hf_btcommon_eir_ad_ips_uncertainty_reserved = -1;
+static gint hf_btcommon_eir_ad_ips_uncertainty_precision = -1;
+static gint hf_btcommon_eir_ad_ips_uncertainty_update_time = -1;
+static gint hf_btcommon_eir_ad_ips_uncertainty_stationary = -1;
+static gint hf_btcommon_eir_ad_ips_latitude = -1;
+static gint hf_btcommon_eir_ad_ips_longitude = -1;
+static gint hf_btcommon_eir_ad_ips_local_north_coordinate = -1;
+static gint hf_btcommon_eir_ad_ips_local_east_coordinate = -1;
+static gint hf_btcommon_eir_ad_ips_tx_power_level = -1;
+static gint hf_btcommon_eir_ad_ips_floor_number = -1;
+static gint hf_btcommon_eir_ad_ips_altitude = -1;
 static gint hf_btcommon_cod_class_of_device = -1;
 static gint hf_btcommon_cod_format_type = -1;
 static gint hf_btcommon_cod_major_service_class_information = -1;
@@ -502,12 +524,34 @@ static gint hf_btcommon_le_channel_map_37 = -1;
 static gint hf_btcommon_le_channel_map_38 = -1;
 static gint hf_btcommon_le_channel_map_39 = -1;
 
+
+static const int *hfx_btcommon_eir_ad_ips_flags[] = {
+    &hf_btcommon_eir_ad_ips_flags_reserved,
+    &hf_btcommon_eir_ad_ips_flags_location_name,
+    &hf_btcommon_eir_ad_ips_flags_uncertainty,
+    &hf_btcommon_eir_ad_ips_flags_floor_number,
+    &hf_btcommon_eir_ad_ips_flags_altitude,
+    &hf_btcommon_eir_ad_ips_flags_tx_power,
+    &hf_btcommon_eir_ad_ips_flags_coordinate_system,
+    &hf_btcommon_eir_ad_ips_flags_coordinates,
+    NULL
+};
+
+static const int *hfx_btcommon_eir_ad_ips_uncertainty[] = {
+    &hf_btcommon_eir_ad_ips_uncertainty_reserved,
+    &hf_btcommon_eir_ad_ips_uncertainty_precision,
+    &hf_btcommon_eir_ad_ips_uncertainty_update_time,
+    &hf_btcommon_eir_ad_ips_uncertainty_stationary,
+    NULL
+};
+
 static gint ett_cod = -1;
 static gint ett_eir_ad = -1;
 static gint ett_eir_ad_entry = -1;
 
 static expert_field ei_eir_ad_undecoded                               = EI_INIT;
 static expert_field ei_eir_ad_unknown                                 = EI_INIT;
+static expert_field ei_eir_ad_not_used                                = EI_INIT;
 
 static dissector_handle_t btcommon_cod_handle;
 static dissector_handle_t btcommon_eir_handle;
@@ -4889,8 +4933,10 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
     proto_tree  *entry_tree;
     proto_item  *sub_item;
     gint         offset = 0;
+    gint         offset_start;
     guint8       length;
     guint8       type;
+    guint8       flags;
     guint8       data_size;
     gint64       end_offset;
     gboolean     has_bd_addr = FALSE;
@@ -4917,6 +4963,8 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
         proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_type, tvb, offset, 1, ENC_NA);
         offset += 1;
         length -= 1;
+
+        offset_start = offset;
 
         switch (type) {
         case 0x01: /* Flags */
@@ -5188,14 +5236,58 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
 
             break;
         case 0x25: /* Indoor Positioning */
-/* TODO */
-            sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_data, tvb, offset, length, ENC_NA);
-            expert_add_info(pinfo, sub_item, &ei_eir_ad_undecoded);
-            offset += length;
+            if (length == 0)
+                break;
+
+            sub_item =  proto_tree_add_bitmask(entry_tree, tvb, offset, hf_btcommon_eir_ad_ips_flags, ett_eir_ad_entry, hfx_btcommon_eir_ad_ips_flags, ENC_LITTLE_ENDIAN);
+            flags = tvb_get_guint8(tvb, offset);
+            offset += 1;
+
+            if (flags & 0x01) {
+                proto_tree_add_item(tree, hf_btcommon_eir_ad_ips_latitude, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+
+                proto_tree_add_item(tree, hf_btcommon_eir_ad_ips_longitude, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+
+                proto_tree_add_item(tree, hf_btcommon_eir_ad_ips_local_north_coordinate, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(tree, hf_btcommon_eir_ad_ips_local_east_coordinate, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+            }
+
+            if (flags & 0x04) {
+                proto_tree_add_item(tree, hf_btcommon_eir_ad_ips_tx_power_level, tvb, offset, 1, ENC_NA);
+                offset += 1;
+            }
+
+            if (flags & 0x08) {
+                proto_tree_add_item(tree, hf_btcommon_eir_ad_ips_altitude, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+            }
+
+            if (flags & 0x10) {
+                proto_tree_add_item(tree, hf_btcommon_eir_ad_ips_floor_number, tvb, offset, 1, ENC_NA);
+                offset += 1;
+            }
+
+            if (flags & 0x20) {
+                proto_tree_add_bitmask(tree, tvb, offset, hf_btcommon_eir_ad_ips_uncertainty, ett_eir_ad_entry, hfx_btcommon_eir_ad_ips_uncertainty, ENC_NA);
+                offset += 1;
+            }
+
+            if (flags & 0xC0) {
+                expert_add_info(pinfo, sub_item, &ei_eir_ad_not_used);
+            }
 
             break;
         case 0x26: /* Transport Discovery Data */
 /* TODO */
+
+            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_le_event_mask, ett_eir_ad_entry, hfx_bthci_cmd_le_event_mask, ENC_LITTLE_ENDIAN);
+            offset += 1;
+
             sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_data, tvb, offset, length, ENC_NA);
             expert_add_info(pinfo, sub_item, &ei_eir_ad_undecoded);
             offset += length;
@@ -5246,6 +5338,12 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_data, tvb, offset, length, ENC_NA);
             expert_add_info(pinfo, sub_item, &ei_eir_ad_unknown);
             offset += length;
+        }
+
+        if (offset - offset_start > 0 && offset - offset_start < length) {
+            sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_data, tvb, offset, length - (offset - offset_start), ENC_NA);
+            expert_add_info(pinfo, sub_item, &ei_eir_ad_unknown);
+            offset += length - (offset - offset_start);
         }
     }
 
@@ -5768,6 +5866,111 @@ proto_register_btcommon(void)
            FT_STRING, BASE_NONE, NULL, 0x0,
            NULL, HFILL}
         },
+        {&hf_btcommon_eir_ad_ips_flags,
+            {"Indoor Positioning Configuration", "btcommon.eir_ad.entry.ips.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_flags_reserved,
+            {"Reserved", "btcommon.eir_ad.entry.ips.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xC0,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_flags_location_name,
+            {"Location Name", "btcommon.eir_ad.entry.ips.flags.location_name",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_flags_uncertainty,
+            {"Uncertainty", "btcommon.eir_ad.entry.ips.flags.uncertainty",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_flags_floor_number,
+            {"Floor Number", "btcommon.eir_ad.entry.ips.flags.floor_number",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_flags_altitude,
+            {"Altitude", "btcommon.eir_ad.entry.ips.flags.altitude",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_flags_tx_power,
+            {"Tx Power", "btcommon.eir_ad.entry.ips.flags.tx_power",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_flags_coordinate_system,
+            {"Coordinate System", "btcommon.eir_ad.entry.ips.flags.coordinate_system",
+            FT_UINT8, BASE_HEX, VALS(btatt_ips_coordinate_system), 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_flags_coordinates,
+            {"Coordinates", "btcommon.eir_ad.entry.ips.flags.coordinates",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_uncertainty,
+            {"Uncertainty", "btcommon.eir_ad.entry.ips.uncertainty",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_uncertainty_reserved,
+            {"Reserved", "btcommon.eir_ad.entry.ips.uncertainty.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x80,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_uncertainty_precision,
+            {"Precision", "btcommon.eir_ad.entry.ips.uncertainty.precision",
+            FT_UINT8, BASE_HEX, VALS(btatt_ips_uncertainty_precision_vals), 0x70,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_uncertainty_update_time,
+            {"Update Time", "btcommon.eir_ad.entry.ips.uncertainty.update_time",
+            FT_UINT8, BASE_HEX, VALS(btatt_ips_uncertainty_update_time_vals), 0x0E,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_uncertainty_stationary,
+            {"Stationary", "btcommon.eir_ad.entry.ips.uncertainty.stationary",
+            FT_UINT8, BASE_HEX, VALS(btatt_ips_uncertainty_stationary_vals), 0x01,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_latitude,
+            {"Latitude", "btcommon.eir_ad.entry.ips.latitude",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_longitude,
+            {"Longitude", "btcommon.eir_ad.entry.ips.longitude",
+            FT_INT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_local_north_coordinate,
+            {"Local North Coordinate", "btcommon.eir_ad.entry.ips.local_north_coordinate",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_local_east_coordinate,
+            {"Local East Coordinate", "btcommon.eir_ad.entry.ips.local_east_coordinate",
+            FT_INT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_floor_number,
+            {"Floor Number", "btcommon.eir_ad.entry.ips.floor_number",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_altitude,
+            {"Altitude", "btcommon.eir_ad.entry.ips.altitude",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_ips_tx_power_level,
+            {"Tx Power Level", "btcommon.eir_ad.entry.ips.tx_power_level",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
         { &hf_btcommon_cod_class_of_device,
           { "Class of Device", "btcommon.cod.class_of_device",
             FT_UINT24, BASE_HEX, NULL, 0x0,
@@ -6122,7 +6325,8 @@ proto_register_btcommon(void)
 
     static ei_register_info ei[] = {
         { &ei_eir_ad_undecoded,       { "btcommon.eir_ad.undecoded", PI_UNDECODED, PI_NOTE, "Undecoded", EXPFILL }},
-        { &ei_eir_ad_unknown,         { "btcommon.eir_ad.unknown", PI_PROTOCOL, PI_WARN, "Unknown data", EXPFILL }},
+        { &ei_eir_ad_unknown,         { "btcommon.eir_ad.unknown",   PI_PROTOCOL,  PI_WARN, "Unknown data", EXPFILL }},
+        { &ei_eir_ad_not_used,        { "btcommon.eir_ad.not_used",  PI_PROTOCOL,  PI_WARN, "Value should not be used", EXPFILL }},
     };
 
     proto_btcommon = proto_register_protocol("Bluetooth Common", "BT Common", "btcommon");

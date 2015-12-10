@@ -30,6 +30,13 @@ typedef struct _tap_handles_t {
     bluetooth_uuid_t uuid;
 } tap_handles_t;
 
+
+extern const value_string btatt_ips_coordinate_system[];
+extern const value_string btatt_ips_uncertainty_stationary_vals[];
+extern const value_string btatt_ips_uncertainty_update_time_vals[];
+extern const value_string btatt_ips_uncertainty_precision_vals[];
+extern const value_string btatt_ips_uncertainty_coordinate_system[];
+
 #endif
 
 /*
