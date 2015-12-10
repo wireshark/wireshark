@@ -2606,7 +2606,7 @@ dissector_handle_t create_dissector_handle_with_name(new_dissector_t dissector,
 }
 
 /* Destroy an anonymous handle for a dissector. */
-void
+static void
 destroy_dissector_handle(dissector_handle_t handle)
 {
 	if (handle == NULL) return;

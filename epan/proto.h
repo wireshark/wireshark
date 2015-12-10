@@ -2013,7 +2013,7 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
 /** Deregister a protocol.
  @param short_name abbreviated name of the protocol
  @return TRUE if protocol is removed */
-WS_DLL_PUBLIC gboolean
+gboolean
 proto_deregister_protocol(const char *short_name);
 
 /** This type of function can be registered to get called whenever

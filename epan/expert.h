@@ -179,7 +179,7 @@ void expert_deregister_expertinfo (const char *abbrev);
 /**
  * Deregister expert info from a protocol.
  */
-WS_DLL_PUBLIC void expert_deregister_protocol (expert_module_t *module);
+void expert_deregister_protocol (expert_module_t *module);
 
 /**
  * Free deregistered expert infos.

@@ -110,7 +110,7 @@ WS_DLL_PUBLIC void funnel_register_menu(const char *name,
                                  funnel_menu_callback callback,
                                  gpointer callback_data,
                                  gboolean retap);
-WS_DLL_PUBLIC void funnel_deregister_menus(void (*callback)(gpointer));
+void funnel_deregister_menus(void (*callback)(gpointer));
 
 typedef void (*funnel_registration_cb_t)(const char *name,
                                          register_stat_group_t group,
