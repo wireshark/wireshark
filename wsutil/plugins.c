@@ -221,8 +221,8 @@ plugins_scan_dir(const char *dirname)
             if (cr != 0)
             {
                 g_assert(cr == EEXIST);
-                fprintf(stderr, "The plugin %s, version %s\n"
-                        "was found in multiple directories\n",
+                fprintf(stderr, "The plugin '%s' version %s "
+                        "was found in multiple directories.\n",
                         new_plug->name, new_plug->version);
                 g_module_close(handle);
                 g_free(new_plug->name);
