@@ -3202,7 +3202,7 @@ dissect_bcp_ncp_mac_sup(const ip_tcp_opt *optp, tvbuff_t *tvb,
         *optp->subtree_index, NULL, "%s",
         optp->name);
 
-    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
 }
 
 /*
@@ -3223,7 +3223,7 @@ dissect_bcp_ncp_tinygram_comp(const ip_tcp_opt *optp, tvbuff_t *tvb,
         *optp->subtree_index, NULL, "%s",
         optp->name);
 
-    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
 
 }
 
@@ -3237,7 +3237,7 @@ dissect_bcp_ncp_lan_id(const ip_tcp_opt *optp, tvbuff_t *tvb,
         *optp->subtree_index, NULL, "%s",
         optp->name);
 
-    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
 }
 
 /*
@@ -3259,7 +3259,7 @@ dissect_bcp_ncp_mac_addr(const ip_tcp_opt *optp, tvbuff_t *tvb,
         *optp->subtree_index, NULL, "%s",
         optp->name);
 
-    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
 }
 
 /*
@@ -3280,7 +3280,7 @@ dissect_bcp_ncp_stp(const ip_tcp_opt *optp, tvbuff_t *tvb,
         *optp->subtree_index, NULL, "%s",
         optp->name);
 
-    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
 }
 
 /*
@@ -3301,7 +3301,7 @@ dissect_bcp_ncp_ieee_802_tagged_frame(const ip_tcp_opt *optp, tvbuff_t *tvb,
         *optp->subtree_index, NULL, "%s",
         optp->name);
 
-    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
 
 }
 
@@ -3323,7 +3323,7 @@ dissect_bcp_ncp_management_inline(const ip_tcp_opt *optp, tvbuff_t *tvb,
         *optp->subtree_index, NULL, "%s",
         optp->name);
 
-    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
 
 }
 
@@ -3345,7 +3345,7 @@ dissect_bcp_ncp_bcp_ncp_bcp_ind(const ip_tcp_opt *optp, tvbuff_t *tvb,
         *optp->subtree_index, NULL, "%s",
         optp->name);
 
-    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
 
 }
 
