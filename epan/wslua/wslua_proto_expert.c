@@ -70,7 +70,7 @@ WSLUA_CONSTRUCTOR ProtoExpert_new(lua_State* L) {
 
     pe->ids.ei   = EI_INIT_EI;
     pe->ids.hf   = EI_INIT_HF;
-    pe->abbrev     = g_strdup(abbr);
+    pe->abbrev   = g_strdup(abbr);
     pe->text     = g_strdup(text);
     pe->group    = group;
     pe->severity = severity;
@@ -101,8 +101,6 @@ static int ProtoExpert__gc(lua_State* L) {
 
     if (pe->ids.hf == -2) {
         /* Only free unregistered and deregistered ProtoExpert */
-        g_free((gchar *)pe->abbrev);
-        g_free((gchar *)pe->text);
         g_free(pe);
     }
 
