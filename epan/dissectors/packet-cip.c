@@ -70,6 +70,15 @@ static int proto_cip_class_cco = -1;
 static int proto_enip = -1;
 static int proto_modbus = -1;
 
+static int hf_attr_class_revision = -1;
+static int hf_attr_class_max_instance = -1;
+static int hf_attr_class_num_instance = -1;
+static int hf_attr_class_opt_attr_num = -1;
+static int hf_attr_class_attr_num = -1;
+static int hf_attr_class_opt_service_num = -1;
+static int hf_attr_class_service_code = -1;
+static int hf_attr_class_num_class_attr = -1;
+static int hf_attr_class_num_inst_attr = -1;
 static int hf_cip_data = -1;
 static int hf_cip_service = -1;
 static int hf_cip_service_code = -1;
@@ -571,7 +580,8 @@ static expert_field ei_mal_inv_config_size = EI_INIT;
 static expert_field ei_mal_ot_size = EI_INIT;
 static expert_field ei_mal_to_size = EI_INIT;
 static expert_field ei_mal_fwd_close_missing_data = EI_INIT;
-
+static expert_field ei_mal_opt_attr_list = EI_INIT;
+static expert_field ei_mal_opt_service_list = EI_INIT;
 
 dissector_table_t   subdissector_class_table;
 static dissector_table_t   subdissector_symbol_table;
@@ -3030,6 +3040,50 @@ static int dissect_time_sync_sys_time_and_offset(packet_info *pinfo, proto_tree 
    return 16;
 }
 
+static int dissect_optional_attr_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len)
+{
+   guint32 i;
+   guint32 num_attr = 0;
+
+   proto_tree_add_item_ret_uint(tree, hf_attr_class_opt_attr_num, tvb, offset, 2, ENC_LITTLE_ENDIAN, &num_attr);
+
+   if (total_len < (int)(2 + num_attr * 2))
+   {
+      expert_add_info(pinfo, item, &ei_mal_opt_attr_list);
+      return total_len;
+   }
+
+   for (i = 0; i < num_attr; ++i)
+   {
+      proto_tree_add_item(tree, hf_attr_class_attr_num, tvb, offset + 2 + 2 * i, 2, ENC_LITTLE_ENDIAN);
+   }
+
+   return 2 + num_attr * 2;
+}
+
+static int dissect_optional_service_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len)
+{
+   guint32 i;
+   guint32 num_services = 0;
+
+   proto_tree_add_item_ret_uint(tree, hf_attr_class_opt_service_num, tvb, offset, 2, ENC_LITTLE_ENDIAN, &num_services);
+
+   if (total_len < (int)(2 + num_services * 2))
+   {
+      expert_add_info(pinfo, item, &ei_mal_opt_service_list);
+      return total_len;
+   }
+
+   for (i = 0; i < num_services; ++i)
+   {
+      proto_tree_add_item(tree, hf_attr_class_service_code, tvb, offset + 2 + 2 * i, 2, ENC_LITTLE_ENDIAN);
+   }
+
+   return 2 + num_services * 2;
+}
+
 
 static attribute_info_t cip_attribute_vals[] = {
 
@@ -3101,6 +3155,16 @@ static attribute_val_array_t all_attribute_vals[] = {
    {sizeof(cip_safety_attribute_vals)/sizeof(attribute_info_t), cip_safety_attribute_vals}
 };
 
+attribute_info_t class_attribute_vals[] = {
+    { 0, TRUE, 1, "Revision", cip_uint, &hf_attr_class_revision, NULL },
+    { 0, TRUE, 2, "Max Instance", cip_uint, &hf_attr_class_max_instance, NULL },
+    { 0, TRUE, 3, "Number of Instances", cip_uint, &hf_attr_class_num_instance, NULL },
+    { 0, TRUE, 4, "Optional Attribute List", cip_dissector_func, NULL, dissect_optional_attr_list },
+    { 0, TRUE, 5, "Optional Service List", cip_dissector_func, NULL, dissect_optional_service_list },
+    { 0, TRUE, 6, "Maximum ID Number Class Attributes", cip_uint, &hf_attr_class_num_class_attr, NULL },
+    { 0, TRUE, 7, "Maximum ID Number Instance Attributes", cip_uint, &hf_attr_class_num_inst_attr, NULL },
+};
+
 static void
 dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info *pinfo, cip_req_info_t *preq_info );
 
@@ -3120,6 +3184,19 @@ attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attrib
              (instance != (guint)-1) &&
              (((instance == 0) && (pattr->class_instance == TRUE)) || ((instance != 0) && (pattr->class_instance == FALSE))) &&
              (pattr->attribute == attribute))
+         {
+            return pattr;
+         }
+      }
+   }
+
+   /* Check against common class attributes. */
+   if (instance == 0)
+   {
+      for (i = 0; i < sizeof(class_attribute_vals) / sizeof(attribute_info_t); i++)
+      {
+         pattr = &class_attribute_vals[i];
+         if (pattr->attribute == attribute)
          {
             return pattr;
          }
@@ -6482,6 +6559,15 @@ proto_register_cip(void)
 {
    /* Setup list of header fields */
    static hf_register_info hf[] = {
+      { &hf_attr_class_revision, { "Revision", "cip.class_revision", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_attr_class_max_instance, { "Max Instance", "cip.max_instance", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_attr_class_num_instance, { "Number of Instances", "cip.num_instance", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_attr_class_opt_attr_num, { "Number of Attributes", "cip.num_attr", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_attr_class_attr_num, { "Attribute Number", "cip.attr_num", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_attr_class_opt_service_num, { "Number of Services", "cip.num_service", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_attr_class_service_code, { "Service Code", "cip.service_code", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_attr_class_num_class_attr, { "Maximum ID Number Class Attributes", "cip.num_class_attr", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_attr_class_num_inst_attr, { "Maximum ID Number Instance Attributes", "cip.num_inst_attr", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
 
       { &hf_cip_service, { "Service", "cip.service", FT_UINT8, BASE_HEX, NULL, 0, "Service Code + Request/Response", HFILL }},
       { &hf_cip_reqrsp, { "Request/Response", "cip.rr", FT_UINT8, BASE_HEX, VALS(cip_sc_rr), CIP_SC_RESPONSE_MASK, "Request or Response message", HFILL }},
@@ -7003,6 +7089,8 @@ proto_register_cip(void)
       { &ei_mal_ot_size, { "cip.malformed.ot_size", PI_MALFORMED, PI_WARN, "Invalid O->T size - missing size field", EXPFILL }},
       { &ei_mal_to_size, { "cip.malformed.to_size", PI_MALFORMED, PI_WARN, "Invalid T->O size - missing size field", EXPFILL }},
       { &ei_mal_fwd_close_missing_data, { "cip.malformed.fwd_close_missing_data", PI_MALFORMED, PI_ERROR, "Forward Close response missing application reply data", EXPFILL }},
+      { &ei_mal_opt_attr_list, { "cip.malformed.opt_attr_list", PI_MALFORMED, PI_ERROR, "Optional attribute list missing data", EXPFILL }},
+      { &ei_mal_opt_service_list, { "cip.malformed.opt_service_list", PI_MALFORMED, PI_ERROR, "Optional service list missing data", EXPFILL }},
    };
 
    expert_module_t* expert_cip;
