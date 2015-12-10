@@ -2665,6 +2665,9 @@
    <property name="toolTip">
     <string>Mark the current conversation with its own color.</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
+   </property>
   </action>
   <action name="actionViewColorizeConversation2">
    <property name="text">
@@ -2672,6 +2675,9 @@
    </property>
    <property name="toolTip">
     <string>Mark the current conversation with its own color.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
    </property>
   </action>
   <action name="actionViewColorizeConversation3">
@@ -2681,6 +2687,9 @@
    <property name="toolTip">
     <string>Mark the current conversation with its own color.</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+3</string>
+   </property>
   </action>
   <action name="actionViewColorizeConversation4">
    <property name="text">
@@ -2688,6 +2697,9 @@
    </property>
    <property name="toolTip">
     <string>Mark the current conversation with its own color.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+4</string>
    </property>
   </action>
   <action name="actionViewColorizeConversation5">
@@ -2697,6 +2709,9 @@
    <property name="toolTip">
     <string>Mark the current conversation with its own color.</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+5</string>
+   </property>
   </action>
   <action name="actionViewColorizeConversation6">
    <property name="text">
@@ -2704,6 +2719,9 @@
    </property>
    <property name="toolTip">
     <string>Mark the current conversation with its own color.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+6</string>
    </property>
   </action>
   <action name="actionViewColorizeConversation7">
@@ -2713,6 +2731,9 @@
    <property name="toolTip">
     <string>Mark the current conversation with its own color.</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+7</string>
+   </property>
   </action>
   <action name="actionViewColorizeConversation8">
    <property name="text">
@@ -2721,6 +2742,9 @@
    <property name="toolTip">
     <string>Mark the current conversation with its own color.</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+8</string>
+   </property>
   </action>
   <action name="actionViewColorizeConversation9">
    <property name="text">
@@ -2728,6 +2752,9 @@
    </property>
    <property name="toolTip">
     <string>Mark the current conversation with its own color.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+9</string>
    </property>
   </action>
   <action name="actionViewColorizeConversation10">
