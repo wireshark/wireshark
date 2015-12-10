@@ -40,7 +40,7 @@
 #define PPP_IPX		0x2b	/* Novell IPX */
 #define PPP_VJC_COMP	0x2d	/* Van Jacobson Compressed TCP/IP */
 #define PPP_VJC_UNCOMP	0x2f	/* Van Jacobson Uncompressed TCP/IP */
-#define PPP_BCP		0x31	/* Bridging PDU */
+#define PPP_BCP_BPDU	0x31	/* Bridging PDU */
 #define PPP_ST		0x33	/* Stream Protocol (ST-II) */
 #define PPP_VINES	0x35	/* Banyan Vines */
 #define PPP_AT_EDDP	0x39	/* AppleTalk EDDP */
@@ -111,7 +111,7 @@
 #define PPP_DECNETCP	0x8027	/* DECnet Phase IV Control Protocol */
 #define PPP_ATCP	0x8029	/* AppleTalk Control Protocol */
 #define PPP_IPXCP	0x802b	/* Novell IPX Control Protocol */
-#define PPP_BRIDGENCP	0x8031	/* Bridging NCP */
+#define PPP_BCP_NCP	0x8031	/* Bridging NCP */
 #define PPP_SPCP	0x8033	/* Stream Protocol Control Protocol */
 #define PPP_BVCP	0x8035	/* Banyan Vines Control Protocol */
 #define PPP_MLCP	0x803d	/* Multi-Link Control Protocol */
