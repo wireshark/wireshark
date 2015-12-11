@@ -117,10 +117,10 @@ extcap_if_executable(const char *ifname)
 }
 
 static void
-extcap_if_cleanup(void)
+extcap_if_reset(void)
 {
-    if ( ifaces == NULL )
-        ifaces = g_hash_table_new(g_str_hash, g_str_equal);
+    if (ifaces == NULL)
+        ifaces = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 
     g_hash_table_remove_all(ifaces);
 }
@@ -130,14 +130,20 @@ extcap_if_add(gchar *ifname, gchar *extcap)
 {
     if ( g_hash_table_lookup(ifaces, ifname) == NULL )
         g_hash_table_insert(ifaces, ifname, extcap);
+    else {
+        g_free(ifname);
+        g_free(extcap);
+    }
 }
 
+/* Note: args does not need to be NULL-terminated. */
 static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
         void *cb_data, char **err_str, const char * ifname _U_) {
     const char *dirname = get_extcap_dir();
     GDir *dir;
     const gchar *file;
     gboolean keep_going;
+    gint i;
     gchar **argv;
 #ifdef _WIN32
     gchar **dll_search_envp;
@@ -162,33 +168,31 @@ static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
 #endif
 
     if ((dir = g_dir_open(dirname, 0, NULL)) != NULL) {
-#ifdef _WIN32
-        dirname = g_strescape(dirname,NULL);
-#endif
+        GString *extcap_path = NULL;
+
+        extcap_path = g_string_new("");
         while (keep_going && (file = g_dir_read_name(dir)) != NULL ) {
-            GString *extcap_string = NULL;
-            gchar *extcap = NULL;
             gchar *command_output = NULL;
             gboolean status = FALSE;
-            gint i;
             gint exit_status = 0;
             GError *error = NULL;
             gchar **envp = NULL;
 
             /* full path to extcap binary */
-            extcap_string = g_string_new("");
 #ifdef _WIN32
-            g_string_printf(extcap_string, "%s\\\\%s",dirname,file);
-            extcap = g_string_free(extcap_string, FALSE);
+            g_string_printf(extcap_path, "%s\\%s", dirname, file);
             envp = dll_search_envp;
 #else
-            g_string_printf(extcap_string, "%s/%s", dirname, file);
-            extcap = g_string_free(extcap_string, FALSE);
+            g_string_printf(extcap_path, "%s/%s", dirname, file);
 #endif
-            if ( extcap_if_exists(ifname) && !extcap_if_exists_for_extcap(ifname, extcap ) )
+            if ( extcap_if_exists(ifname) && !extcap_if_exists_for_extcap(ifname, extcap_path->str ) )
                 continue;
 
-            argv[0] = extcap;
+#ifdef _WIN32
+            argv[0] = g_strescape(extcap_path->str, NULL);
+#else
+            argv[0] = g_strdup(extcap_path->str);
+#endif
             for (i = 0; i < argc; ++i)
                 argv[i+1] = args[i];
             argv[argc+1] = NULL;
@@ -198,13 +202,14 @@ static void extcap_foreach(gint argc, gchar **args, extcap_cb_t cb,
                     &command_output, NULL, &exit_status, &error);
 
             if (status && exit_status == 0)
-            keep_going = cb(extcap, command_output, cb_data, err_str);
+            keep_going = cb(extcap_path->str, command_output, cb_data, err_str);
 
-            g_free(extcap);
+            g_free(argv[0]);
             g_free(command_output);
         }
 
         g_dir_close(dir);
+        g_string_free(extcap_path, TRUE);
     }
 
 #ifdef _WIN32
@@ -335,6 +340,7 @@ static gboolean interfaces_cb(const gchar *extcap, gchar *output, void *data,
         extcap_if_add(g_strdup(int_iter->call), g_strdup(extcap) );
         int_iter = int_iter->next_interface;
     }
+    extcap_free_interface(interfaces);
 
     return TRUE;
 }
@@ -348,7 +354,9 @@ extcap_interface_list(char **err_str) {
     if (err_str != NULL)
     *err_str = NULL;
 
-    extcap_if_cleanup();
+    /* ifaces is used as cache, do not destroy its contents when
+     * returning or no extcap interfaces can be queried for options */
+    extcap_if_reset();
 
     argv = g_strdup(EXTCAP_ARGUMENT_LIST_INTERFACES);
 
@@ -408,9 +416,10 @@ static gboolean search_cb(const gchar *extcap _U_, gchar *output, void *data,
 
 GList *
 extcap_get_if_configuration(const char * ifname) {
-    gchar *argv[4];
+    gchar *argv[3];
     GList *ret = NULL;
     gchar **err_str = NULL;
+    int i;
 
     if ( extcap_if_exists(ifname) )
     {
@@ -420,9 +429,11 @@ extcap_get_if_configuration(const char * ifname) {
         argv[0] = g_strdup(EXTCAP_ARGUMENT_CONFIG);
         argv[1] = g_strdup(EXTCAP_ARGUMENT_INTERFACE);
         argv[2] = g_strdup(ifname);
-        argv[3] = NULL;
 
-        extcap_foreach(4, argv, search_cb, &ret, err_str, ifname);
+        extcap_foreach(3, argv, search_cb, &ret, err_str, ifname);
+
+        for (i = 0; i < 3; i++)
+            g_free(argv[i]);
     }
 
     return ret;

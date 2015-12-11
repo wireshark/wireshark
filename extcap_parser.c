@@ -256,6 +256,7 @@ void extcap_free_tokenized_sentence(extcap_token_sentence *s) {
 
         extcap_free_tokenized_param(tv);
     }
+    g_free(s);
 }
 
 void extcap_free_tokenized_sentence_list(extcap_token_sentence *f) {
@@ -427,14 +428,19 @@ extcap_interface *extcap_new_interface(void) {
 }
 
 void extcap_free_interface(extcap_interface *i) {
-    if (i == NULL)
-        return;
+    extcap_interface *next_i = i;
 
-    if (i->call != NULL)
-        g_free(i->call);
+    while (i) {
+        next_i = i->next_interface;
+        if (i->call != NULL)
+            g_free(i->call);
 
-    if (i->display != NULL)
-        g_free(i->display);
+        if (i->display != NULL)
+            g_free(i->display);
+
+        g_free(i);
+        i = next_i;
+    }
 }
 
 extcap_dlt *extcap_new_dlt(void) {
