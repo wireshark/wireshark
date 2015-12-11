@@ -159,6 +159,7 @@ proto_reg_handoff_ulp(void)
   if (!initialized) {
     ulp_tcp_handle = find_dissector("ulp");
     dissector_add_string("media_type","application/oma-supl-ulp", ulp_tcp_handle);
+    dissector_add_string("media_type","application/vnd.omaloc-supl-init", ulp_tcp_handle);
     ulp_udp_handle = create_dissector_handle(dissect_ULP_PDU_PDU, proto_ulp);
     rrlp_handle = find_dissector("rrlp");
     lpp_handle = find_dissector("lpp");
