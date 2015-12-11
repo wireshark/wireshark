@@ -52,14 +52,25 @@ public:
 private:
     void convertTextFile();
     void enableHeaderWidgets(bool enable_buttons = true);
-    void check_line_edit(SyntaxLineEdit *le, const QString &num_str, int base, guint max_val, bool is_short, guint *val_ptr);
+    void check_line_edit(SyntaxLineEdit *le, bool &ok_enable, const QString &num_str, int base, guint max_val, bool is_short, guint *val_ptr);
+    bool checkDateTimeFormat(const QString &time_format);
+    void updateImportButtonState();
 
     Ui::ImportTextDialog *ti_ui_;
 
-    QPushButton *ok_button_;
+    QPushButton *import_button_;
     QList<QRadioButton *>encap_buttons_;
     text_import_info_t import_info_;
     QString capfile_name_;
+    bool file_ok_;
+    bool time_format_ok_;
+    bool ether_type_ok_;
+    bool proto_ok_;
+    bool source_port_ok_;
+    bool dest_port_ok_;
+    bool tag_ok_;
+    bool ppi_ok_;
+    bool max_len_ok_;
 
 public slots:
     int exec();
