@@ -547,7 +547,7 @@ const float ieee80211_float_htrates[MAX_MCS_INDEX+1][2][2] = {
   },
 };
 
-#define MAX_MCS_VHT_INDEX	9
+#define MAX_MCS_VHT_INDEX     9
 
 /*
  * Maps a VHT bandwidth index to ieee80211_vhtinfo.rates index.
@@ -908,7 +908,7 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
             proto_tree_add_uint(radio_tree, hf_wlan_radio_11ac_p_aid, tvb, 0, 0,
                      phdr->phy_info.info_11ac.partial_aid);
           }
-	}
+        }
         break;
       }
     }
