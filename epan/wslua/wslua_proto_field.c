@@ -336,6 +336,11 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     guint32 mask = wslua_optguint32(L, WSLUA_OPTARG_ProtoField_new_MASK, 0x0);
     const gchar *blob = luaL_optstring(L,WSLUA_OPTARG_ProtoField_new_DESCR,NULL);
 
+    if (!name[0]) {
+        WSLUA_ARG_ERROR(ProtoField_new,NAME,"cannot be an empty string");
+        return 0;
+    }
+
     if (lua_isnumber(L,WSLUA_ARG_ProtoField_new_TYPE)) {
         type = (enum ftenum)luaL_checkinteger(L,WSLUA_ARG_ProtoField_new_TYPE);
     } else {
@@ -514,6 +519,11 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     val64_string* vs64 = NULL;
     guint32 mask = wslua_optguint32(L,5,0);
     const gchar* blob = luaL_optstring(L,6,NULL);
+
+    if (!name[0]) {
+        luaL_argerror(L, 2, "cannot be an empty string");
+        return 0;
+    }
 
     if (lua_gettop(L) > 3 && !lua_isnil(L, 4)) {
         if (type == FT_FRAMENUM) {
@@ -696,6 +706,11 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
     guint32 mask = wslua_optguint32(L,5,0);
     const gchar* blob = luaL_optstring(L,6,NULL);
 
+    if (!name[0]) {
+        luaL_argerror(L, 2, "cannot be an empty string");
+        return 0;
+    }
+
     if (mask == 0x0 && base != BASE_NONE) {
         luaL_argerror(L,3,"Fieldbase (fielddisplay) must be base.NONE"
                       " if bitmask is zero.");
@@ -753,6 +768,11 @@ static int ProtoField_time(lua_State* L,enum ftenum type) {
     unsigned base = (unsigned)luaL_optinteger(L,3,ABSOLUTE_TIME_LOCAL);
     const gchar* blob = NULL;
 
+    if (!name[0]) {
+        luaL_argerror(L, 2, "cannot be an empty string");
+        return 0;
+    }
+
     if (type == FT_ABSOLUTE_TIME) {
       abbr = check_field_name(L,1,type);
       blob = luaL_optstring(L,4,NULL);
@@ -808,6 +828,11 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
     const gchar* abbr = check_field_name(L,1,type);
     const gchar* name = luaL_optstring(L,2,abbr);
     const gchar* blob = luaL_optstring(L,3,NULL);
+
+    if (!name[0]) {
+        luaL_argerror(L, 2, "cannot be an empty string");
+        return 0;
+    }
 
     f = g_new(wslua_field_t,1);
 
