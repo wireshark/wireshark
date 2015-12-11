@@ -2975,13 +2975,13 @@ proto_register_ipv6(void)
     };
 
     static hf_register_info hf_ipv6_hopopts[] = {
-        { &hf_ipv6_dstopts_nxt,
-            { "Next Header", "ipv6.dstopts.nxt",
+        { &hf_ipv6_hopopts_nxt,
+            { "Next Header", "ipv6.hopopts.nxt",
                 FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
                 NULL, HFILL }
         },
-        { &hf_ipv6_dstopts_length,
-            { "Length", "ipv6.dstopts.length",
+        { &hf_ipv6_hopopts_length,
+            { "Length", "ipv6.hopopts.length",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Extension Header Length", HFILL }
         }
@@ -3299,13 +3299,13 @@ proto_register_ipv6(void)
     };
 
     static hf_register_info hf_ipv6_dstopts[] = {
-        { &hf_ipv6_hopopts_nxt,
-            { "Next Header", "ipv6.hopopts.nxt",
+        { &hf_ipv6_dstopts_nxt,
+            { "Next Header", "ipv6.dstopts.nxt",
                 FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
                 NULL, HFILL }
         },
-        { &hf_ipv6_hopopts_length,
-            { "Length", "ipv6.hopopts.length",
+        { &hf_ipv6_dstopts_length,
+            { "Length", "ipv6.dstopts.length",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Extension Header Length", HFILL }
         }
