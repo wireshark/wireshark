@@ -471,6 +471,7 @@ static int hf_nfs4_attr_dir_create = -1;
 static int hf_nfs4_client_id = -1;
 static int hf_nfs4_stateid_other = -1;
 static int hf_nfs4_stateid_hash = -1;
+static int hf_nfs4_stateid_other_hash = -1;
 static int hf_nfs4_lock_reclaim = -1;
 static int hf_nfs4_aclflags = -1;
 static int hf_nfs4_aclflag_auto_inherit = -1;
@@ -7752,10 +7753,13 @@ static int
 dissect_nfs4_stateid(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash)
 {
 	proto_item *sh_item;
+	proto_item *soh_item;
 	proto_tree *newftree;
 	proto_item *fitem;
 	guint16	    sid_hash;
 	guint8	   *sidh_array;
+	guint8     *other_array;
+	guint32     other_hash;
 	int         old_offset = offset;
 
 	newftree = proto_tree_add_subtree(tree, tvb, offset, 4, ett_nfs4_stateid, &fitem, "stateid");
@@ -7767,6 +7771,10 @@ dissect_nfs4_stateid(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash)
 	PROTO_ITEM_SET_GENERATED(sh_item);
 	offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_seqid, offset);
 	proto_tree_add_item(newftree, hf_nfs4_stateid_other, tvb, offset, 12, ENC_NA);
+	other_array = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset, 12);
+	other_hash = crc32_ccitt(other_array, 12);
+	soh_item = proto_tree_add_uint(newftree, hf_nfs4_stateid_other_hash, tvb, offset, 12, other_hash);
+	PROTO_ITEM_SET_GENERATED(soh_item);
 	offset+=12;
 
 	if (hash)
@@ -12410,6 +12418,10 @@ proto_register_nfs(void)
 
 		{ &hf_nfs4_stateid_hash, {
 			"StateID Hash", "nfs.stateid4.hash", FT_UINT16, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_stateid_other_hash, {
+			"Data hash (CRC-32)", "nfs.stateid4.other.hash", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_aclflags, {
