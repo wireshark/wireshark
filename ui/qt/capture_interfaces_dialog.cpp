@@ -107,6 +107,7 @@ class InterfaceTreeWidgetItem : public QTreeWidgetItem
 public:
     InterfaceTreeWidgetItem(QTreeWidget *tree) : QTreeWidgetItem(tree)  {}
     bool operator< (const QTreeWidgetItem &other) const;
+    QList<int> points;
 };
 
 CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
@@ -459,8 +460,6 @@ void CaptureInterfacesDialog::updateInterfaces()
         interface_t *device;
 
         for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            QList<int> *points;
-
             device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
 
             /* Continue if capture device is hidden */
@@ -470,10 +469,9 @@ void CaptureInterfacesDialog::updateInterfaces()
             deviceMap[ui->interfaceTree->topLevelItemCount()] = i;
 
             // Traffic sparklines
-            points = new QList<int>();
             InterfaceTreeWidgetItem *ti = new InterfaceTreeWidgetItem(ui->interfaceTree);
             ti->setFlags(ti->flags() | Qt::ItemIsEditable);
-            ti->setData(col_traffic_, Qt::UserRole, qVariantFromValue(points));
+            ti->setData(col_traffic_, Qt::UserRole, qVariantFromValue(&ti->points));
 
             ti->setText(col_interface_, device->display_name);
             if (device->no_addresses > 0) {

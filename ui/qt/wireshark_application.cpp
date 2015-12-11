@@ -455,7 +455,7 @@ bool WiresharkApplication::event(QEvent *event)
 }
 
 void WiresharkApplication::clearRecentItems() {
-    qDeleteAll(recent_items_.begin(), recent_items_.end());
+    qDeleteAll(recent_items_);
     recent_items_.clear();
     emit updateRecentItemStatus(NULL, 0, false);
 }
@@ -473,6 +473,9 @@ void WiresharkApplication::cleanup()
     // Write the user's recent file(s) to disk.
     write_profile_recent();
     write_recent();
+
+    qDeleteAll(recent_items_);
+    recent_items_.clear();
 }
 
 void WiresharkApplication::itemStatusFinished(const QString filename, qint64 size, bool accessible) {
