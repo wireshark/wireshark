@@ -54,7 +54,7 @@ private:
     QComboBox *cur_combo_box_;
     int saved_combo_idx_;
 
-    void addColumn(bool visible, const char *title, int fmt, const char *custom_field, int custom_occurrence);
+    void addColumn(bool visible, const char *title, int fmt, const char *custom_fields, int custom_occurrence);
 
 private slots:
     void updateWidgets(void);
@@ -64,7 +64,7 @@ private slots:
     void comboDestroyed();
     void columnTitleEditingFinished();
     void columnTypeCurrentIndexChanged(int index);
-    void customFieldEditingFinished();
+    void customFieldsEditingFinished();
     void customOccurrenceEditingFinished();
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();

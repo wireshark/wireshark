@@ -48,9 +48,9 @@ typedef struct {
   gint                col_fmt;              /**< Format of column */
   gboolean           *fmt_matx;             /**< Specifies which formats apply to a column */
   gchar              *col_title;            /**< Column titles */
-  gchar              *col_custom_field;     /**< Custom column field */
+  gchar              *col_custom_fields;    /**< Custom column fields */
   gint                col_custom_occurrence;/**< Custom column field occurrence */
-  GSList             *col_custom_field_ids; /**< Custom column field id */
+  GSList             *col_custom_fields_ids;/**< Custom column fields id */
   struct epan_dfilter *col_custom_dfilter;  /**< Compiled custom column field */
   const gchar        *col_data;             /**< Column data */
   gchar              *col_buf;              /**< Buffer into which to copy data for column */

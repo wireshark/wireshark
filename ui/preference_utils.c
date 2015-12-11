@@ -316,7 +316,7 @@ prefs_store_ext(const char * module_name, const char *pref_name, const char *pre
 }
 
 gint
-column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field, gint custom_occurrence)
+column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_fields, gint custom_occurrence)
 {
     GList *clp;
     fmt_data *cfmt, *last_cfmt;
@@ -330,13 +330,13 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_field,
      */
     cfmt->title = g_strdup(title);
     cfmt->fmt = fmt;
-    cfmt->custom_field = g_strdup(custom_field);
+    cfmt->custom_fields = g_strdup(custom_fields);
     cfmt->custom_occurrence = custom_occurrence;
     cfmt->resolved = TRUE;
 
     colnr = g_list_length(prefs.col_list);
 
-    if (custom_field) {
+    if (custom_fields) {
         cfmt->visible = TRUE;
         clp = g_list_last(prefs.col_list);
         last_cfmt = (fmt_data *) clp->data;
@@ -365,7 +365,7 @@ column_prefs_remove_link(GList *col_link)
     cfmt = (fmt_data *) col_link->data;
 
     g_free(cfmt->title);
-    g_free(cfmt->custom_field);
+    g_free(cfmt->custom_fields);
     g_free(cfmt);
     prefs.col_list = g_list_remove_link(prefs.col_list, col_link);
 }

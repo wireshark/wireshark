@@ -75,12 +75,12 @@
    <item>
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>Field Name</string>
+      <string>Fields</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="SyntaxLineEdit" name="fieldNameLineEdit"/>
+    <widget class="SyntaxLineEdit" name="fieldsNameLineEdit"/>
    </item>
    <item>
     <spacer name="horizontalSpacer_4">

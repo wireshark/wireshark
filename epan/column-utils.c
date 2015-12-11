@@ -55,7 +55,7 @@ col_setup(column_info *cinfo, const gint num_cols)
   cinfo->col_first             = g_new(int, NUM_COL_FMTS);
   cinfo->col_last              = g_new(int, NUM_COL_FMTS);
   for (i = 0; i < num_cols; i++) {
-    cinfo->columns[i].col_custom_field_ids = NULL;
+    cinfo->columns[i].col_custom_fields_ids = NULL;
   }
   cinfo->col_expr.col_expr     = g_new(const gchar*, num_cols + 1);
   cinfo->col_expr.col_expr_val = g_new(gchar*, num_cols + 1);
@@ -75,13 +75,13 @@ col_custom_ids_free_wrapper(gpointer data, gpointer user_data _U_)
 }
 
 static void
-col_custom_field_ids_free(GSList** custom_field_id)
+col_custom_fields_ids_free(GSList** custom_fields_id)
 {
-  if (*custom_field_id != NULL) {
-    g_slist_foreach(*custom_field_id, col_custom_ids_free_wrapper, NULL);
-    g_slist_free(*custom_field_id);
+  if (*custom_fields_id != NULL) {
+    g_slist_foreach(*custom_fields_id, col_custom_ids_free_wrapper, NULL);
+    g_slist_free(*custom_fields_id);
   }
-  *custom_field_id = NULL;
+  *custom_fields_id = NULL;
 }
 
 /* Cleanup all the data structures for constructing column data; undoes
@@ -96,12 +96,12 @@ col_cleanup(column_info *cinfo)
     col_item = &cinfo->columns[i];
     g_free(col_item->fmt_matx);
     g_free(col_item->col_title);
-    g_free(col_item->col_custom_field);
+    g_free(col_item->col_custom_fields);
     dfilter_free(col_item->col_custom_dfilter);
     /* col_item->col_data points to col_buf or static memory */
     g_free(col_item->col_buf);
     g_free(cinfo->col_expr.col_expr_val[i]);
-    col_custom_field_ids_free(&col_item->col_custom_field_ids);
+    col_custom_fields_ids_free(&col_item->col_custom_fields_ids);
   }
 
   g_free(cinfo->columns);
@@ -305,10 +305,10 @@ void col_custom_set_edt(epan_dissect_t *edt, column_info *cinfo)
        i <= cinfo->col_last[COL_CUSTOM]; i++) {
     col_item = &cinfo->columns[i];
     if (col_item->fmt_matx[COL_CUSTOM] &&
-        col_item->col_custom_field &&
-        col_item->col_custom_field_ids) {
+        col_item->col_custom_fields &&
+        col_item->col_custom_fields_ids) {
         col_item->col_data = col_item->col_buf;
-        cinfo->col_expr.col_expr[i] = epan_custom_set(edt, col_item->col_custom_field_ids,
+        cinfo->col_expr.col_expr[i] = epan_custom_set(edt, col_item->col_custom_fields_ids,
                                      col_item->col_custom_occurrence,
                                      col_item->col_buf,
                                      cinfo->col_expr.col_expr_val[i],
@@ -331,17 +331,17 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
     int i_list = 0;
 
     col_item = &cinfo->columns[i];
-    col_custom_field_ids_free(&col_item->col_custom_field_ids);
+    col_custom_fields_ids_free(&col_item->col_custom_fields_ids);
 
     if (col_item->fmt_matx[COL_CUSTOM] &&
         col_item->col_custom_dfilter) {
       epan_dissect_prime_dfilter(edt, col_item->col_custom_dfilter);
-      if (col_item->col_custom_field) {
+      if (col_item->col_custom_fields) {
         gchar  **fields;
         guint    i_field = 0;
 
         /* Not using a GRegex here would improve performance. */
-        fields = g_regex_split(cinfo->prime_regex, col_item->col_custom_field,
+        fields = g_regex_split(cinfo->prime_regex, col_item->col_custom_fields,
                 G_REGEX_MATCH_ANCHORED);
 
         for (i_field =0; i_field < g_strv_length(fields); i_field += 1) {
@@ -355,8 +355,8 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
 
                     idx = g_new(int, 1);
                     *idx = id;
-                    col_item->col_custom_field_ids =
-                            g_slist_insert(col_item->col_custom_field_ids, idx, i_list);
+                    col_item->col_custom_fields_ids =
+                            g_slist_insert(col_item->col_custom_fields_ids, idx, i_list);
                     i_list += 1;
                 }
             }

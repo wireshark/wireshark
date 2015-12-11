@@ -5117,13 +5117,13 @@ rebuild_visible_columns_menu (void)
             cfmt = (fmt_data *) clp->data;
             if (cfmt->title[0]) {
                 if (cfmt->fmt == COL_CUSTOM) {
-                    title = g_strdup_printf ("%s  (%s)", cfmt->title, cfmt->custom_field);
+                    title = g_strdup_printf ("%s  (%s)", cfmt->title, cfmt->custom_fields);
                 } else {
                     title = g_strdup_printf ("%s  (%s)", cfmt->title, col_format_desc (cfmt->fmt));
                 }
             } else {
                 if (cfmt->fmt == COL_CUSTOM) {
-                    title = g_strdup_printf ("(%s)", cfmt->custom_field);
+                    title = g_strdup_printf ("(%s)", cfmt->custom_fields);
                 } else {
                     title = g_strdup_printf ("(%s)", col_format_desc (cfmt->fmt));
                 }

@@ -33,7 +33,7 @@ extern "C" {
 typedef struct _fmt_data {
   gchar *title;            /* title of the column */
   int fmt;                 /* format of column */
-  gchar *custom_field;     /* field name for COL_CUSTOM */
+  gchar *custom_fields;    /* fields names for COL_CUSTOM */
   gint custom_occurrence;  /* optional ordinal of occurrence of that field */
   gboolean visible;        /* if FALSE, hide this column */
   gboolean resolved;       /* if TRUE, show a more human-readable name */
@@ -64,9 +64,9 @@ gboolean             get_column_resolved(const gint);
 WS_DLL_PUBLIC
 void                 set_column_resolved(const gint, gboolean);
 WS_DLL_PUBLIC
-const gchar         *get_column_custom_field(const gint);
+const gchar         *get_column_custom_fields(const gint);
 WS_DLL_PUBLIC
-void                 set_column_custom_field(const gint, const char *);
+void                 set_column_custom_fields(const gint, const char *);
 WS_DLL_PUBLIC
 gint                 get_column_custom_occurrence(const gint);
 WS_DLL_PUBLIC

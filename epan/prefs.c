@@ -1557,10 +1557,10 @@ column_hidden_to_str_cb(pref_t* pref, gboolean default_val)
     while (clp) {
         gchar *prefs_fmt;
         cfmt = (fmt_data *) clp->data;
-        if ((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_field)) {
+        if ((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_fields)) {
             prefs_fmt = g_strdup_printf("%s:%s:%d:%c",
                     col_format_to_string(cfmt->fmt),
-                    cfmt->custom_field,
+                    cfmt->custom_fields,
                     cfmt->custom_occurrence,
                     cfmt->resolved ? 'R' : 'U');
         } else {
@@ -1646,11 +1646,11 @@ column_format_init_cb(pref_t* pref, GList** value)
         dest_cfmt = g_new(fmt_data,1);
         dest_cfmt->title = g_strdup(src_cfmt->title);
         dest_cfmt->fmt = src_cfmt->fmt;
-        if (src_cfmt->custom_field) {
-            dest_cfmt->custom_field = g_strdup(src_cfmt->custom_field);
+        if (src_cfmt->custom_fields) {
+            dest_cfmt->custom_fields = g_strdup(src_cfmt->custom_fields);
             dest_cfmt->custom_occurrence = src_cfmt->custom_occurrence;
         } else {
-            dest_cfmt->custom_field = NULL;
+            dest_cfmt->custom_fields = NULL;
             dest_cfmt->custom_occurrence = 0;
         }
         dest_cfmt->visible = src_cfmt->visible;
@@ -1681,11 +1681,11 @@ column_format_reset_cb(pref_t* pref)
         dest_cfmt = g_new(fmt_data,1);
         dest_cfmt->title = g_strdup(src_cfmt->title);
         dest_cfmt->fmt = src_cfmt->fmt;
-        if (src_cfmt->custom_field) {
-            dest_cfmt->custom_field = g_strdup(src_cfmt->custom_field);
+        if (src_cfmt->custom_fields) {
+            dest_cfmt->custom_fields = g_strdup(src_cfmt->custom_fields);
             dest_cfmt->custom_occurrence = src_cfmt->custom_occurrence;
         } else {
-            dest_cfmt->custom_field = NULL;
+            dest_cfmt->custom_fields = NULL;
             dest_cfmt->custom_occurrence = 0;
         }
         dest_cfmt->visible = src_cfmt->visible;
@@ -1734,7 +1734,7 @@ column_format_set_cb(pref_t* pref, const gchar* value, gboolean* changed _U_)
         try_convert_to_custom_column(&col_l_elt->data);
       } else {
         /* We don't need the custom column field on this pass. */
-        g_free(cfmt_check.custom_field);
+        g_free(cfmt_check.custom_fields);
       }
 
       /* Go past the format.  */
@@ -1799,8 +1799,8 @@ column_format_is_default_cb(pref_t* pref)
             def_cfmt = (fmt_data *) def_col->data;
             if ((g_strcmp0(cfmt->title, def_cfmt->title) != 0) ||
                     (cfmt->fmt != def_cfmt->fmt) ||
-                    (((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_field)) &&
-                     ((g_strcmp0(cfmt->custom_field, def_cfmt->custom_field) != 0) ||
+                    (((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_fields)) &&
+                     ((g_strcmp0(cfmt->custom_fields, def_cfmt->custom_fields) != 0) ||
                       (cfmt->resolved != def_cfmt->resolved)))) {
                 is_default = FALSE;
                 break;
@@ -1828,10 +1828,10 @@ column_format_to_str_cb(pref_t* pref, gboolean default_val)
     while (clp) {
         cfmt = (fmt_data *) clp->data;
         col_l = g_list_append(col_l, g_strdup(cfmt->title));
-        if ((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_field)) {
+        if ((cfmt->fmt == COL_CUSTOM) && (cfmt->custom_fields)) {
             prefs_fmt = g_strdup_printf("%s:%s:%d:%c",
                     col_format_to_string(cfmt->fmt),
-                    cfmt->custom_field,
+                    cfmt->custom_fields,
                     cfmt->custom_occurrence,
                     cfmt->resolved ? 'R' : 'U');
         } else {
@@ -2865,7 +2865,7 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
     gchar **cust_format_info;
     char *p;
     int col_fmt;
-    gchar *col_custom_field = NULL;
+    gchar *col_custom_fields = NULL;
     long col_custom_occurrence = 0;
     gboolean col_resolved = TRUE;
 
@@ -2877,17 +2877,17 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
         /* Yes. */
         col_fmt = COL_CUSTOM;
         cust_format_info = g_strsplit(&fmt[cust_format_len+1],":",3); /* add 1 for ':' */
-        col_custom_field = g_strdup(cust_format_info[0]);
-        if (col_custom_field && cust_format_info[1]) {
+        col_custom_fields = g_strdup(cust_format_info[0]);
+        if (col_custom_fields && cust_format_info[1]) {
             col_custom_occurrence = strtol(cust_format_info[1], &p, 10);
             if (p == cust_format_info[1] || *p != '\0') {
                 /* Not a valid number. */
-                g_free(col_custom_field);
+                g_free(col_custom_fields);
                 g_strfreev(cust_format_info);
                 return FALSE;
             }
         }
-        if (col_custom_field && cust_format_info[1] && cust_format_info[2]) {
+        if (col_custom_fields && cust_format_info[1] && cust_format_info[2]) {
             col_resolved = (cust_format_info[2][0] == 'U') ? FALSE : TRUE;
         }
         g_strfreev(cust_format_info);
@@ -2898,7 +2898,7 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
     }
 
     cfmt->fmt = col_fmt;
-    cfmt->custom_field = col_custom_field;
+    cfmt->custom_fields = col_custom_fields;
     cfmt->custom_occurrence = (int)col_custom_occurrence;
     cfmt->resolved = col_resolved;
     return TRUE;
@@ -3074,7 +3074,7 @@ pre_init_prefs(void)
         parse_column_format(cfmt, col_fmt[(i * 2) + 1]);
         cfmt->visible = TRUE;
         cfmt->resolved = TRUE;
-        cfmt->custom_field = NULL;
+        cfmt->custom_fields = NULL;
         cfmt->custom_occurrence = 0;
         prefs.col_list = g_list_append(prefs.col_list, cfmt);
     }
@@ -3724,8 +3724,8 @@ prefs_is_column_visible(const gchar *cols_hidden, fmt_data *cfmt)
              */
             if (cfmt->fmt != cfmt_hidden.fmt) {
                 /* No. */
-                g_free(cfmt_hidden.custom_field);
-                cfmt_hidden.custom_field = NULL;
+                g_free(cfmt_hidden.custom_fields);
+                cfmt_hidden.custom_fields = NULL;
                 continue;
             }
             if (cfmt->fmt == COL_CUSTOM) {
@@ -3733,18 +3733,18 @@ prefs_is_column_visible(const gchar *cols_hidden, fmt_data *cfmt)
                  * A custom column has to have the
                  * same custom field and occurrence.
                  */
-                if (cfmt_hidden.custom_field && cfmt->custom_field) {
-                    if (strcmp(cfmt->custom_field,
-                               cfmt_hidden.custom_field) != 0) {
+                if (cfmt_hidden.custom_fields && cfmt->custom_fields) {
+                    if (strcmp(cfmt->custom_fields,
+                               cfmt_hidden.custom_fields) != 0) {
                         /* Different fields. */
-                        g_free(cfmt_hidden.custom_field);
-                        cfmt_hidden.custom_field = NULL;
+                        g_free(cfmt_hidden.custom_fields);
+                        cfmt_hidden.custom_fields = NULL;
                         continue;
                     }
                     if (cfmt->custom_occurrence != cfmt_hidden.custom_occurrence) {
                         /* Different occurrences. */
-                        g_free(cfmt_hidden.custom_field);
-                        cfmt_hidden.custom_field = NULL;
+                        g_free(cfmt_hidden.custom_fields);
+                        cfmt_hidden.custom_fields = NULL;
                         continue;
                     }
                 }
@@ -3754,7 +3754,7 @@ prefs_is_column_visible(const gchar *cols_hidden, fmt_data *cfmt)
              * OK, they match, so it's one of the hidden fields,
              * hence not visible.
              */
-            g_free(cfmt_hidden.custom_field);
+            g_free(cfmt_hidden.custom_fields);
             g_free(cols);
             return FALSE;
         }
@@ -5020,7 +5020,7 @@ free_col_info(GList *list)
         cfmt = (fmt_data *)list->data;
 
         g_free(cfmt->title);
-        g_free(cfmt->custom_field);
+        g_free(cfmt->custom_fields);
         g_free(cfmt);
         list = g_list_next(list);
     }

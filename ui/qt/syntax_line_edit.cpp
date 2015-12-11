@@ -180,6 +180,32 @@ void SyntaxLineEdit::checkFieldName(QString field)
     }
 }
 
+void SyntaxLineEdit::checkCustomColumn(QString fields)
+{
+    gchar **splitted_fields;
+    guint    i_field;
+    if (fields.isEmpty()) {
+        setSyntaxState(SyntaxLineEdit::Empty);
+        return;
+    }
+
+    splitted_fields = g_regex_split_simple(" *([^ \\|]+) *(?:(?:\\|\\|)|(?:or))? *",
+                fields.toUtf8().constData(), G_REGEX_ANCHORED, G_REGEX_MATCH_ANCHORED);
+
+    for (i_field =0; i_field < g_strv_length(splitted_fields); i_field += 1) {
+        if (splitted_fields[i_field] && *splitted_fields[i_field]) {
+            if (proto_check_field_name(splitted_fields[i_field]) != 0) {
+                setSyntaxState(SyntaxLineEdit::Invalid);
+                g_strfreev(splitted_fields);
+                return;
+            }
+        }
+    }
+    g_strfreev(splitted_fields);
+
+    checkDisplayFilter(fields);
+}
+
 void SyntaxLineEdit::checkInteger(QString number)
 {
     if (number.isEmpty()) {

@@ -42,7 +42,7 @@
      </column>
      <column>
       <property name="text">
-       <string>Field Name</string>
+       <string>Fields</string>
       </property>
      </column>
      <column>

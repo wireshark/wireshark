@@ -935,7 +935,7 @@ packet_list_compare_custom(gint sort_id, gint text_sort_id, PacketListRecord *a,
 {
 	header_field_info *hfi;
 
-	hfi = proto_registrar_get_byname(cfile.cinfo.columns[sort_id].col_custom_field);
+	hfi = proto_registrar_get_byname(cfile.cinfo.columns[sort_id].col_custom_fields);
 
 	if (hfi == NULL) {
 		return frame_data_compare(cfile.epan, a->fdata, b->fdata, COL_NUMBER);

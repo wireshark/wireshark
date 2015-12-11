@@ -848,7 +848,7 @@ void PacketList::writeRecent(FILE *rf) {
         }
         col_fmt = get_column_format(col);
         if (col_fmt == COL_CUSTOM) {
-            fprintf (rf, " %%Cus:%s,", get_column_custom_field(col));
+            fprintf (rf, " %%Cus:%s,", get_column_custom_fields(col));
         } else {
             fprintf (rf, " %s,", col_format_to_string(col_fmt));
         }
@@ -903,7 +903,7 @@ QString PacketList::getFilterFromRowAndColumn()
             if (strlen(cap_file_->cinfo.col_expr.col_expr[ctx_column_]) != 0 &&
                 strlen(cap_file_->cinfo.col_expr.col_expr_val[ctx_column_]) != 0) {
                 if (cap_file_->cinfo.columns[ctx_column_].col_fmt == COL_CUSTOM) {
-                    header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.columns[ctx_column_].col_custom_field);
+                    header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.columns[ctx_column_].col_custom_fields);
                     if (hfi && hfi->parent == -1) {
                         /* Protocol only */
                         filter.append(cap_file_->cinfo.col_expr.col_expr[ctx_column_]);

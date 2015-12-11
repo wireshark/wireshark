@@ -728,7 +728,7 @@ set_column_resolved(const gint col, gboolean resolved)
 }
 
 const gchar *
-get_column_custom_field(const gint col)
+get_column_custom_fields(const gint col)
 {
   GList    *clp = g_list_nth(prefs.col_list, col);
   fmt_data *cfmt;
@@ -738,11 +738,11 @@ get_column_custom_field(const gint col)
 
   cfmt = (fmt_data *) clp->data;
 
-  return(cfmt->custom_field);
+  return(cfmt->custom_fields);
 }
 
 void
-set_column_custom_field(const gint col, const char *custom_field)
+set_column_custom_fields(const gint col, const char *custom_fields)
 {
   GList    *clp = g_list_nth(prefs.col_list, col);
   fmt_data *cfmt;
@@ -752,8 +752,8 @@ set_column_custom_field(const gint col, const char *custom_field)
 
   cfmt = (fmt_data *) clp->data;
 
-  g_free (cfmt->custom_field);
-  cfmt->custom_field = g_strdup (custom_field);
+  g_free (cfmt->custom_fields);
+  cfmt->custom_fields = g_strdup (custom_fields);
 }
 
 gint
@@ -797,8 +797,8 @@ get_column_tooltip(const gint col)
     cfmt = (fmt_data *) clp->data;
 
     if (cfmt->fmt == COL_CUSTOM) {
-        header_field_info *hfi = proto_registrar_get_byname(cfmt->custom_field);
-        /* Check if this is a valid custom_field */
+        header_field_info *hfi = proto_registrar_get_byname(cfmt->custom_fields);
+        /* Check if this is a valid custom_fields */
         if (hfi != NULL) {
             if (hfi->parent != -1) {
                 /* Prefix with protocol name */
@@ -811,7 +811,7 @@ get_column_tooltip(const gint col)
                 tooltip_text = g_strdup_printf("%s (%s)", hfi->name, hfi->abbrev);
             }
         } else {
-            tooltip_text = g_strdup_printf("Unknown Field: %s", get_column_custom_field(col));
+            tooltip_text = g_strdup_printf("Unknown Field: %s", get_column_custom_fields(col));
         }
     } else {
         tooltip_text = g_strdup(col_format_desc(cfmt->fmt));
@@ -835,17 +835,17 @@ build_column_format_array(column_info *cinfo, const gint num_cols, const gboolea
     col_item->col_title = g_strdup(get_column_title(i));
 
     if (col_item->col_fmt == COL_CUSTOM) {
-      col_item->col_custom_field = g_strdup(get_column_custom_field(i));
+      col_item->col_custom_fields = g_strdup(get_column_custom_fields(i));
       col_item->col_custom_occurrence = get_column_custom_occurrence(i);
-      if(!dfilter_compile(col_item->col_custom_field, &col_item->col_custom_dfilter, NULL)) {
+      if(!dfilter_compile(col_item->col_custom_fields, &col_item->col_custom_dfilter, NULL)) {
         /* XXX: Should we issue a warning? */
-        g_free(col_item->col_custom_field);
-        col_item->col_custom_field = NULL;
+        g_free(col_item->col_custom_fields);
+        col_item->col_custom_fields = NULL;
         col_item->col_custom_occurrence = 0;
         col_item->col_custom_dfilter = NULL;
       }
     } else {
-      col_item->col_custom_field = NULL;
+      col_item->col_custom_fields = NULL;
       col_item->col_custom_occurrence = 0;
       col_item->col_custom_dfilter = NULL;
     }

@@ -42,7 +42,7 @@ signals:
 
 private slots:
     void on_typeComboBox_activated(int index);
-    void on_fieldNameLineEdit_textEdited(const QString &field);
+    void on_fieldsNameLineEdit_textEdited(const QString &fields);
     void on_occurrenceLineEdit_textEdited(const QString &occurrence);
     void on_buttonBox_rejected();
     void on_buttonBox_accepted();
@@ -50,7 +50,7 @@ private slots:
 private:
     Ui::ColumnEditorFrame *ui;
     int cur_column_;
-    QString saved_field_;
+    QString saved_fields_;
     QString saved_occurrence_;
     void setFields(int index);
 };

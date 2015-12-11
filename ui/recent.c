@@ -1355,7 +1355,7 @@ recent_get_column_width(gint col)
 
   cfmt = get_column_format(col);
   if (cfmt == COL_CUSTOM) {
-    cfield = get_column_custom_field(col);
+    cfield = get_column_custom_fields(col);
   }
 
   col_l = g_list_first(recent.col_width_list);
@@ -1383,7 +1383,7 @@ recent_set_column_width(gint col, gint width)
 
   cfmt = get_column_format(col);
   if (cfmt == COL_CUSTOM) {
-    cfield = get_column_custom_field(col);
+    cfield = get_column_custom_fields(col);
   }
 
   col_l = g_list_first(recent.col_width_list);
@@ -1423,7 +1423,7 @@ recent_get_column_xalign(gint col)
 
   cfmt = get_column_format(col);
   if (cfmt == COL_CUSTOM) {
-    cfield = get_column_custom_field(col);
+    cfield = get_column_custom_fields(col);
   }
 
   col_l = g_list_first(recent.col_width_list);
@@ -1451,7 +1451,7 @@ recent_set_column_xalign(gint col, gchar xalign)
 
   cfmt = get_column_format(col);
   if (cfmt == COL_CUSTOM) {
-    cfield = get_column_custom_field(col);
+    cfield = get_column_custom_fields(col);
   }
 
   col_l = g_list_first(recent.col_width_list);

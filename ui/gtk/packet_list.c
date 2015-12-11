@@ -178,9 +178,9 @@ col_title_change_ok (GtkWidget *w, gpointer parent_w)
 	}
 
 	if (cur_fmt == COL_CUSTOM) {
-		const gchar *custom_field = get_column_custom_field(col_id);
-		if ((custom_field && strcmp (name, custom_field) != 0) || (custom_field == NULL)) {
-			set_column_custom_field (col_id, name);
+		const gchar *custom_fields = get_column_custom_fields(col_id);
+		if ((custom_fields && strcmp (name, custom_fields) != 0) || (custom_fields == NULL)) {
+			set_column_custom_fields(col_id, name);
 			recreate = TRUE;
 		}
 
@@ -339,7 +339,7 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	cur_fmt = get_column_format (col_id);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(format_cmb), cur_fmt);
 	if (cur_fmt == COL_CUSTOM) {
-		gtk_entry_set_text(GTK_ENTRY(field_te), get_column_custom_field(col_id));
+		gtk_entry_set_text(GTK_ENTRY(field_te), get_column_custom_fields(col_id));
 		g_snprintf(custom_occurrence_str, sizeof(custom_occurrence_str), "%d", get_column_custom_occurrence(col_id));
 		gtk_entry_set_text(GTK_ENTRY(occurrence_te), custom_occurrence_str);
 	}
@@ -1629,7 +1629,7 @@ packet_list_recent_write_all(FILE *rf)
 	for (col = 0; col < num_cols; col++) {
 		col_fmt = get_column_format(col);
 		if (col_fmt == COL_CUSTOM) {
-			fprintf (rf, " %%Cus:%s,", get_column_custom_field(col));
+			fprintf (rf, " %%Cus:%s,", get_column_custom_fields(col));
 		} else {
 			fprintf (rf, " %s,", col_format_to_string(col_fmt));
 		}

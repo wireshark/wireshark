@@ -593,7 +593,7 @@ get_filter_from_packet_list_row_and_column(gpointer data)
                 strlen(cfile.cinfo.col_expr.col_expr_val[column]) != 0) {
                 /* leak a little; is there a safe wmem_ scope here? */
                 if (cfile.cinfo.columns[column].col_fmt == COL_CUSTOM) {
-                    header_field_info *hfi = proto_registrar_get_byname(cfile.cinfo.columns[column].col_custom_field);
+                    header_field_info *hfi = proto_registrar_get_byname(cfile.cinfo.columns[column].col_custom_fields);
                     if (hfi && hfi->parent == -1) {
                         /* Protocol only */
                         buf = g_strdup(cfile.cinfo.col_expr.col_expr[column]);

@@ -630,7 +630,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_ber_identifier@Base 1.9.1
  get_ber_length@Base 1.9.1
  get_column_char_width@Base 1.9.1
- get_column_custom_field@Base 1.9.1
+ get_column_custom_fields@Base 2.1.0
  get_column_custom_occurrence@Base 1.9.1
  get_column_format@Base 1.9.1
  get_column_format_from_str@Base 1.9.1
@@ -1184,7 +1184,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  sctp_port_to_display@Base 1.99.2
  serv_name_lookup@Base 2.1.0
  set_actual_length@Base 1.9.1
- set_column_custom_field@Base 1.9.1
+ set_column_custom_fields@Base 2.1.0
  set_column_custom_occurrence@Base 1.9.1
  set_column_format@Base 1.9.1
  set_column_resolved@Base 1.9.1

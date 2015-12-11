@@ -46,7 +46,7 @@
 const int visible_col_           = 0;
 const int title_col_             = 1;
 const int type_col_              = 2;
-const int custom_field_col_      = 3;
+const int custom_fields_col_     = 3;
 const int custom_occurrence_col_ = 4;
 
 ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
@@ -58,7 +58,7 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
     ui->setupUi(this);
 
     int one_em = ui->columnTreeWidget->fontMetrics().height();
-    ui->columnTreeWidget->setColumnWidth(custom_field_col_, one_em * 10);
+    ui->columnTreeWidget->setColumnWidth(custom_fields_col_, one_em * 10);
     ui->columnTreeWidget->setColumnWidth(custom_occurrence_col_, one_em * 5);
 
     ui->columnTreeWidget->setMinimumWidth(one_em * 20);
@@ -72,7 +72,7 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
 
     for (GList *cur = g_list_first(prefs.col_list); cur != NULL && cur->data != NULL; cur = cur->next) {
         fmt_data *cfmt = (fmt_data *) cur->data;
-        addColumn(cfmt->visible, cfmt->title, cfmt->fmt, cfmt->custom_field, cfmt->custom_occurrence);
+        addColumn(cfmt->visible, cfmt->title, cfmt->fmt, cfmt->custom_fields, cfmt->custom_occurrence);
     }
 
     connect(ui->columnTreeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateWidgets()));
@@ -106,7 +106,7 @@ void ColumnPreferencesFrame::unstash()
         if (cfmt->fmt == COL_CUSTOM) {
             bool ok;
             int occurrence = (*it)->text(custom_occurrence_col_).toInt(&ok);
-            cfmt->custom_field = qstring_strdup((*it)->text(custom_field_col_));
+            cfmt->custom_fields = qstring_strdup((*it)->text(custom_fields_col_));
             cfmt->custom_occurrence = ok ? occurrence : 0;
         }
 
@@ -119,7 +119,7 @@ void ColumnPreferencesFrame::unstash()
                     old_cfmt->fmt != cfmt->fmt ||
                     old_cfmt->visible != cfmt->visible ||
                     (old_cfmt->fmt == COL_CUSTOM && (
-                         g_strcmp0(old_cfmt->custom_field, cfmt->custom_field) != 0 ||
+                         g_strcmp0(old_cfmt->custom_fields, cfmt->custom_fields) != 0 ||
                          old_cfmt->custom_occurrence != cfmt->custom_occurrence))) {
                 changed = true;
             }
@@ -156,8 +156,8 @@ void ColumnPreferencesFrame::keyPressEvent(QKeyEvent *evt)
             case title_col_:
                 columnTitleEditingFinished();
                 break;
-            case custom_field_col_:
-                customFieldEditingFinished();
+            case custom_fields_col_:
+                customFieldsEditingFinished();
                 columnTypeCurrentIndexChanged(new_idx);
                 break;
             case custom_occurrence_col_:
@@ -191,7 +191,7 @@ void ColumnPreferencesFrame::keyPressEvent(QKeyEvent *evt)
     QFrame::keyPressEvent(evt);
 }
 
-void ColumnPreferencesFrame::addColumn(bool visible, const char *title, int fmt, const char *custom_field, int custom_occurrence)
+void ColumnPreferencesFrame::addColumn(bool visible, const char *title, int fmt, const char *custom_fields, int custom_occurrence)
 {
     QTreeWidgetItem *item = new QTreeWidgetItem(ui->columnTreeWidget);
 
@@ -202,7 +202,7 @@ void ColumnPreferencesFrame::addColumn(bool visible, const char *title, int fmt,
     item->setText(type_col_, col_format_desc(fmt));
     item->setData(type_col_, Qt::UserRole, QVariant(fmt));
     if (fmt == COL_CUSTOM) {
-        item->setText(custom_field_col_, custom_field);
+        item->setText(custom_fields_col_, custom_fields);
         item->setText(custom_occurrence_col_, QString::number(custom_occurrence));
     }
 
@@ -228,8 +228,8 @@ void ColumnPreferencesFrame::on_columnTreeWidget_currentItemChanged(QTreeWidgetI
         ui->columnTreeWidget->removeItemWidget(previous, type_col_);
         previous->setText(type_col_, col_format_desc(previous->data(type_col_, Qt::UserRole).toInt()));
     }
-    if (previous && ui->columnTreeWidget->itemWidget(previous, custom_field_col_)) {
-        ui->columnTreeWidget->removeItemWidget(previous, custom_field_col_);
+    if (previous && ui->columnTreeWidget->itemWidget(previous, custom_fields_col_)) {
+        ui->columnTreeWidget->removeItemWidget(previous, custom_fields_col_);
     }
     if (previous && ui->columnTreeWidget->itemWidget(previous, custom_occurrence_col_)) {
         ui->columnTreeWidget->removeItemWidget(previous, custom_occurrence_col_);
@@ -269,13 +269,13 @@ void ColumnPreferencesFrame::on_columnTreeWidget_itemActivated(QTreeWidgetItem *
         editor = cur_combo_box_;
         break;
     }
-    case custom_field_col_:
+    case custom_fields_col_:
     {
         SyntaxLineEdit *syntax_edit = new SyntaxLineEdit();
-        saved_col_string_ = item->text(custom_field_col_);
+        saved_col_string_ = item->text(custom_fields_col_);
         connect(syntax_edit, SIGNAL(textChanged(QString)),
-                syntax_edit, SLOT(checkFieldName(QString)));
-        connect(syntax_edit, SIGNAL(editingFinished()), this, SLOT(customFieldEditingFinished()));
+                syntax_edit, SLOT(checkCustomColumn(QString)));
+        connect(syntax_edit, SIGNAL(editingFinished()), this, SLOT(customFieldsEditingFinished()));
         editor = cur_line_edit_ = syntax_edit;
 
         saved_combo_idx_ = item->data(type_col_, Qt::UserRole).toInt();
@@ -358,18 +358,18 @@ void ColumnPreferencesFrame::columnTypeCurrentIndexChanged(int index)
     item->setText(type_col_, col_format_desc(index));
 
     if (index != COL_CUSTOM) {
-        item->setText(custom_field_col_, "");
+        item->setText(custom_fields_col_, "");
         item->setText(custom_occurrence_col_, "");
     }
 }
 
-void ColumnPreferencesFrame::customFieldEditingFinished()
+void ColumnPreferencesFrame::customFieldsEditingFinished()
 {
     QTreeWidgetItem *item = ui->columnTreeWidget->currentItem();
     if (!cur_line_edit_ || !item) return;
 
-    item->setText(custom_field_col_, cur_line_edit_->text());
-    ui->columnTreeWidget->removeItemWidget(item, custom_field_col_);
+    item->setText(custom_fields_col_, cur_line_edit_->text());
+    ui->columnTreeWidget->removeItemWidget(item, custom_fields_col_);
 }
 
 void ColumnPreferencesFrame::customOccurrenceEditingFinished()
