@@ -646,7 +646,6 @@ static const true_false_string mip6_dmnp_v_flag_value = {
 #define FMIP6_FBACK_LEN       6
 #define FMIP6_FNA_LEN         2
 #define MIP6_EMH_LEN          0
-#define MIP6_HAS_LEN         18
 #define MIP6_HB_LEN           6
 #define MIP6_HI_LEN           4
 #define MIP6_HAck_LEN         4
@@ -750,14 +749,6 @@ static const true_false_string mip6_dmnp_v_flag_value = {
 #define FMIP6_FNA_RES_OFF     6
 #define FMIP6_FNA_OPTS_OFF    8
 #define FMIP6_FNA_RES_LEN     2
-
-#define MIP6_HAS_NRADR_OFF    6
-#define MIP6_HAS_RES_OFF      7
-#define MIP6_HAS_HAA_OFF      8
-#define MIP6_HAS_OPTS_OFF    24
-#define MIP6_HAS_NRADR_LEN    1
-#define MIP6_HAS_RES_LEN      1
-#define MIP6_HAS_HAA_LEN     16
 
 #define MIP6_HB_RES_OFF       6
 #define MIP6_HB_FLAGS_OFF     7
@@ -1012,6 +1003,10 @@ static int hf_fmip6_fback_status = -1;
 static int hf_fmip6_fback_k_flag = -1;
 static int hf_fmip6_fback_seqnr = -1;
 static int hf_fmip6_fback_lifetime = -1;
+
+static int hf_mip6_has_num_addrs = -1;
+static int hf_mip6_has_reserved = -1;
+static int hf_mip6_has_address = -1;
 
 static int hf_mip6_hb_u_flag = -1;
 static int hf_mip6_hb_r_flag = -1;
@@ -1488,6 +1483,61 @@ dissect_mip6_be(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
     }
 
     return MIP6_DATA_OFF + MIP6_BE_LEN;
+}
+
+/* Home Agent Switch Message */
+/*
+       0                   1                   2                   3
+       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+                                      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                                      |# of Addresses |   Reserved    |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                               |
+      +                                                               +
+      .                                                               .
+      .                      Home Agent Addresses                     .
+      .                                                               .
+      +                                                               +
+      |                                                               |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      |                                                               |
+      +                                                               +
+      .                                                               .
+      .                        Mobility Options                       .
+      .                                                               .
+      +                                                               +
+      |                                                               |
+      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
+
+static int
+dissect_mip6_has(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
+{
+    guint num_addrs, len;
+
+    num_addrs = tvb_get_guint8(tvb, MIP6_DATA_OFF);
+    len = 2 + num_addrs * 16;
+
+    if (mip6_tree) {
+        proto_tree *data_tree;
+        gint off;
+        guint i;
+
+        data_tree = proto_tree_add_subtree(mip6_tree, tvb, MIP6_DATA_OFF,
+                len, ett_mip6, NULL, "Home Agent Switch");
+
+        proto_tree_add_item(data_tree, hf_mip6_has_num_addrs, tvb,
+                MIP6_DATA_OFF, 1, ENC_BIG_ENDIAN);
+
+        proto_tree_add_item(data_tree, hf_mip6_has_reserved, tvb,
+                MIP6_DATA_OFF + 1, 1, ENC_BIG_ENDIAN);
+
+        for (i = 0, off = MIP6_DATA_OFF + 2; i < num_addrs; i++, off += 16) {
+            proto_tree_add_item(data_tree, hf_mip6_has_address, tvb, off, 16, ENC_NA);
+        }
+    }
+
+    return len;
 }
 
 static int
@@ -4109,8 +4159,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         break;
     case MIP6_HAS:
         /* 12 Home Agent Switch */
-        dissect_mip6_unknown(tvb, mip6_tree, pinfo);
-        offset = len;
+        offset = dissect_mip6_has(tvb, mip6_tree, pinfo);
         break;
     case MIP6_HB:
         /* 13 Heartbeat */
@@ -4419,7 +4468,21 @@ proto_register_mip6(void)
         FT_UINT16, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
-
+    { &hf_mip6_has_num_addrs,
+      { "Number of Addresses", "mip6.has.num_addrs",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_has_reserved,
+      { "Reserved", "mip6.has.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_has_address,
+      { "Address", "mip6.has.address",
+        FT_IPv6, BASE_NONE, NULL, 0,
+        "Home Agent Address", HFILL }
+    },
     { &hf_mip6_hb_u_flag,
       { "Unsolicited (U) flag", "mip6.hb.u_flag",
         FT_BOOLEAN, 8, TFS(&mip6_hb_u_flag_value), 0x02,
