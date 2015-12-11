@@ -110,7 +110,7 @@ proto_register_docsis_regrspmp (void)
   proto_register_field_array (proto_docsis_regrspmp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_regrspmp", dissect_regrspmp, proto_docsis_regrspmp);
+  register_dissector ("docsis_regrspmp", dissect_regrspmp, proto_docsis_regrspmp);
 }
 
 void

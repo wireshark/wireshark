@@ -2819,7 +2819,7 @@ void proto_register_mac_mgmt_msg_sbc(void)
 	proto_register_field_array(proto_mac_mgmt_msg_sbc_decoder, hf_sbc, array_length(hf_sbc));
 	proto_register_subtree_array(ett_sbc, array_length(ett_sbc));
 
-	new_register_dissector("mac_mgmt_msg_sbc_rsp_handler", dissect_mac_mgmt_msg_sbc_rsp_decoder, -1);
+	register_dissector("mac_mgmt_msg_sbc_rsp_handler", dissect_mac_mgmt_msg_sbc_rsp_decoder, -1);
 }
 
 void

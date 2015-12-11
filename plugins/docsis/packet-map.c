@@ -261,7 +261,7 @@ proto_register_docsis_map (void)
   proto_register_field_array (proto_docsis_map, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_map", dissect_map, proto_docsis_map);
+  register_dissector ("docsis_map", dissect_map, proto_docsis_map);
 }
 
 void

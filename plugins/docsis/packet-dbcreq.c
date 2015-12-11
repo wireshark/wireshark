@@ -104,7 +104,7 @@ proto_register_docsis_dbcreq (void)
   proto_register_field_array (proto_docsis_dbcreq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_dbcreq", dissect_dbcreq, proto_docsis_dbcreq);
+  register_dissector ("docsis_dbcreq", dissect_dbcreq, proto_docsis_dbcreq);
 }
 
 void

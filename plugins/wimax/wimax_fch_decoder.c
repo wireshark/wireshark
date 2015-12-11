@@ -242,7 +242,7 @@ void proto_register_wimax_fch(void)
 	proto_register_field_array(proto_wimax_fch_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("wimax_fch_burst_handler", dissect_wimax_fch_decoder, -1);
+	register_dissector("wimax_fch_burst_handler", dissect_wimax_fch_decoder, -1);
 }
 
 /*

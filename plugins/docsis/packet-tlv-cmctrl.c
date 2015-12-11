@@ -327,7 +327,7 @@ proto_register_cmctrl_tlv (void)
   proto_register_field_array (proto_cmctrl_tlv, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("cmctrl_tlv", dissect_cmctrl_tlv, proto_cmctrl_tlv);
+  register_dissector ("cmctrl_tlv", dissect_cmctrl_tlv, proto_cmctrl_tlv);
 }
 
 void

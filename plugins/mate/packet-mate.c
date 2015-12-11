@@ -394,7 +394,7 @@ proto_register_mate(void)
 	expert_mate = expert_register_protocol(proto_mate);
 	expert_register_field_array(expert_mate, ei, array_length(ei));
 
-	mate_handle = new_register_dissector("mate",mate_tree,proto_mate);
+	mate_handle = register_dissector("mate",mate_tree,proto_mate);
 	mate_module = prefs_register_protocol(proto_mate, proto_reg_handoff_mate);
 	prefs_register_filename_preference(mate_module, "config",
 					   "Configuration Filename",

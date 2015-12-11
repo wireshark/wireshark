@@ -1942,7 +1942,7 @@ void proto_register_ecat_mailbox(void)
    proto_register_field_array(proto_ecat_mailbox, hf,array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
-   new_register_dissector("ecat_mailbox", dissect_ecat_mailbox, proto_ecat_mailbox);
+   register_dissector("ecat_mailbox", dissect_ecat_mailbox, proto_ecat_mailbox);
 }
 
 void proto_reg_handoff_ecat_mailbox(void)

@@ -402,8 +402,8 @@ void proto_register_ircomm(void)
 
     /* Register protocol names and descriptions */
     proto_ircomm = proto_register_protocol("IrCOMM Protocol", "IrCOMM", "ircomm");
-    new_register_dissector("ircomm_raw", dissect_raw_ircomm, proto_ircomm);
-    new_register_dissector("ircomm_cooked", dissect_cooked_ircomm, proto_ircomm);
+    register_dissector("ircomm_raw", dissect_raw_ircomm, proto_ircomm);
+    register_dissector("ircomm_cooked", dissect_cooked_ircomm, proto_ircomm);
 
     /* Required function calls to register the header fields */
     proto_register_field_array(proto_ircomm, hf_ircomm, array_length(hf_ircomm));

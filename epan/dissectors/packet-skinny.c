@@ -9729,7 +9729,7 @@ proto_register_skinny(void)
     " \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &skinny_desegment);
 
-  skinny_handle = new_register_dissector("skinny", dissect_skinny, proto_skinny);
+  skinny_handle = register_dissector("skinny", dissect_skinny, proto_skinny);
 
   skinny_tap = register_tap("skinny");
 }

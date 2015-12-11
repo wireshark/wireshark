@@ -97,7 +97,7 @@ proto_register_docsis_cmctrlrsp (void)
   proto_register_field_array (proto_docsis_cmctrlrsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_cmctrlrsp", dissect_cmctrlrsp, proto_docsis_cmctrlrsp);
+  register_dissector ("docsis_cmctrlrsp", dissect_cmctrlrsp, proto_docsis_cmctrlrsp);
 }
 
 void

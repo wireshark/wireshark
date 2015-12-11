@@ -308,7 +308,7 @@ void proto_register_wimax(void)
 	proto_register_subtree_array(ett_reg, array_length(ett_reg));
 
 	/* Register the WiMax dissector */
-	new_register_dissector("wmx", dissect_wimax, proto_wimax);
+	register_dissector("wmx", dissect_wimax, proto_wimax);
 
 	wimax_module = prefs_register_protocol(proto_wimax, NULL);
 

@@ -80,7 +80,7 @@ proto_register_docsis_sync (void)
   proto_register_field_array (proto_docsis_sync, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_sync", dissect_sync, proto_docsis_sync);
+  register_dissector ("docsis_sync", dissect_sync, proto_docsis_sync);
 }
 
 void

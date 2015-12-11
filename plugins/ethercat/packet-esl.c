@@ -354,7 +354,7 @@ proto_register_esl(void) {
     proto_register_field_array(proto_esl,hf,array_length(hf));
     proto_register_subtree_array(ett,array_length(ett));
 
-    new_register_dissector("esl", dissect_esl_header, proto_esl);
+    register_dissector("esl", dissect_esl_header, proto_esl);
 }
 
 void

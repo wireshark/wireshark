@@ -12304,7 +12304,7 @@ proto_register_pn_io (void)
     expert_register_field_array(expert_pn_io, ei, array_length(ei));
 
     /* subdissector code */
-    new_register_dissector("pn_io", dissect_PNIO_heur, proto_pn_io);
+    register_dissector("pn_io", dissect_PNIO_heur, proto_pn_io);
     heur_pn_subdissector_list = register_heur_dissector_list("pn_io");
 
     register_cleanup_routine(pnio_cleanup);

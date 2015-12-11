@@ -577,7 +577,7 @@ proto_register_docsis_dccreq (void)
   proto_register_field_array (proto_docsis_dccreq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_dccreq", dissect_dccreq, proto_docsis_dccreq);
+  register_dissector ("docsis_dccreq", dissect_dccreq, proto_docsis_dccreq);
 }
 
 void

@@ -2197,7 +2197,7 @@ void proto_register_irda(void)
     proto_ttp   = proto_register_protocol("Tiny Transport Protocol", "TTP", "ttp");
 
     /* Register the dissector */
-    new_register_dissector("irda", dissect_irda, proto_irlap);
+    register_dissector("irda", dissect_irda, proto_irlap);
 
     /* Required function calls to register the header fields */
     proto_register_field_array(proto_irlap, hf_lap, array_length(hf_lap));

@@ -265,7 +265,7 @@ static gint *ett[] = {
 
   proto_register_field_array (proto_docsis_cmstatus, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
-  new_register_dissector ("docsis_cmstatus", dissect_cmstatus, proto_docsis_cmstatus);
+  register_dissector ("docsis_cmstatus", dissect_cmstatus, proto_docsis_cmstatus);
 }
 
 void

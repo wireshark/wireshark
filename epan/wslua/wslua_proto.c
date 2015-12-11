@@ -193,7 +193,7 @@ WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
 
     if(!proto->is_postdissector) {
         if (! proto->handle) {
-            proto->handle = new_register_dissector(proto->loname, dissect_lua, proto->hfid);
+            proto->handle = register_dissector(proto->loname, dissect_lua, proto->hfid);
         }
 
         register_postdissector(proto->handle);
@@ -354,7 +354,7 @@ static int Proto_set_dissector(lua_State* L) {
         lua_settable(L,1);
 
         if (! proto->handle) {
-            proto->handle = new_register_dissector(proto->loname, dissect_lua, proto->hfid);
+            proto->handle = register_dissector(proto->loname, dissect_lua, proto->hfid);
         }
     } else {
         luaL_argerror(L,2,"The dissector of a protocol must be a function");

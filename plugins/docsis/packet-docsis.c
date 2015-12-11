@@ -829,7 +829,7 @@ proto_register_docsis (void)
   proto_register_field_array (proto_docsis, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis", dissect_docsis, proto_docsis);
+  register_dissector ("docsis", dissect_docsis, proto_docsis);
 }
 
 void

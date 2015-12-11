@@ -2267,7 +2267,7 @@ void proto_register_mac_header_generic(void)
 	expert_register_field_array(expert_mac_header_generic, ei, array_length(ei));
 
 	/* register the generic mac header dissector */
-	new_register_dissector("mac_header_generic_handler", dissect_mac_header_generic_decoder, proto_mac_header_generic_decoder);
+	register_dissector("mac_header_generic_handler", dissect_mac_header_generic_decoder, proto_mac_header_generic_decoder);
 
 	/* Register the payload fragment table init routine */
 	register_init_routine(wimax_defragment_init);

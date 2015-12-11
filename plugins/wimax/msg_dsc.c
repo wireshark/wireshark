@@ -166,7 +166,7 @@ void proto_register_mac_mgmt_msg_dsc(void)
 	proto_register_field_array(proto_mac_mgmt_msg_dsc_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("mac_mgmt_msg_dsc_rsp_handler", dissect_mac_mgmt_msg_dsc_rsp_decoder, -1);
+	register_dissector("mac_mgmt_msg_dsc_rsp_handler", dissect_mac_mgmt_msg_dsc_rsp_decoder, -1);
 }
 
 void

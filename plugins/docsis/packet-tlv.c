@@ -6003,7 +6003,7 @@ proto_register_docsis_tlv (void)
   proto_register_field_array (proto_docsis_tlv, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_tlv", dissect_tlv, proto_docsis_tlv);
+  register_dissector ("docsis_tlv", dissect_tlv, proto_docsis_tlv);
 }
 
 void

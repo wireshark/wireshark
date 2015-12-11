@@ -101,7 +101,7 @@ proto_register_docsis_dbcrsp (void)
   proto_register_field_array (proto_docsis_dbcrsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_dbcrsp", dissect_dbcrsp, proto_docsis_dbcrsp);
+  register_dissector ("docsis_dbcrsp", dissect_dbcrsp, proto_docsis_dbcrsp);
 }
 
 

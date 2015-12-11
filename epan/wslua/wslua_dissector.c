@@ -614,7 +614,7 @@ WSLUA_METHOD DissectorTable_add_for_decode_as (lua_State *L) {
     dissector_handle_t handle = NULL;
 
     if (! proto->handle) {
-        proto->handle = new_register_dissector(proto->loname, dissect_lua, proto->hfid);
+        proto->handle = register_dissector(proto->loname, dissect_lua, proto->hfid);
     }
 
     handle = proto->handle;

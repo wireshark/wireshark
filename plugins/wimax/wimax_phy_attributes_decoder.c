@@ -171,7 +171,7 @@ void proto_register_wimax_phy_attributes(void)
 
 	proto_wimax_phy_attributes_decoder = proto_wimax;
 
-	new_register_dissector("wimax_phy_attributes_burst_handler", dissect_wimax_phy_attributes_decoder, -1);
+	register_dissector("wimax_phy_attributes_burst_handler", dissect_wimax_phy_attributes_decoder, -1);
 
 	proto_register_field_array(proto_wimax_phy_attributes_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

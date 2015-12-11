@@ -100,7 +100,7 @@ proto_register_docsis_intrngreq (void)
   proto_register_field_array (proto_docsis_intrngreq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_intrngreq", dissect_intrngreq, proto_docsis_intrngreq);
+  register_dissector ("docsis_intrngreq", dissect_intrngreq, proto_docsis_intrngreq);
 }
 
 void

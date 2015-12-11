@@ -102,7 +102,7 @@ proto_register_docsis_dsaack (void)
   proto_register_field_array (proto_docsis_dsaack, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_dsaack", dissect_dsaack, proto_docsis_dsaack);
+  register_dissector ("docsis_dsaack", dissect_dsaack, proto_docsis_dsaack);
 }
 
 void

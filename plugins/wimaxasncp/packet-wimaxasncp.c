@@ -3404,7 +3404,7 @@ proto_register_wimaxasncp(void)
 
 
         /* Register this dissector by name */
-    new_register_dissector("wimaxasncp", dissect_wimaxasncp, proto_wimaxasncp);
+    register_dissector("wimaxasncp", dissect_wimaxasncp, proto_wimaxasncp);
 
         /* Register preferences module (See Section 2.6 for more on
          * preferences) */

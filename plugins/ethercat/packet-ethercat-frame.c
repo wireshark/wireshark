@@ -135,7 +135,7 @@ void proto_register_ethercat_frame(void)
    proto_register_field_array(proto_ethercat_frame,hf,array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
-   new_register_dissector("ecatf", dissect_ethercat_frame, proto_ethercat_frame);
+   register_dissector("ecatf", dissect_ethercat_frame, proto_ethercat_frame);
 
    /* Define a handle (ecatf.type) for sub dissectors that want to dissect
       the Ethercat frame ether type (E88A4) payload. */

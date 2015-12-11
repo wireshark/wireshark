@@ -996,7 +996,7 @@ proto_register_docsis_ucd (void)
   expert_docsis_ucd = expert_register_protocol(proto_docsis_ucd);
   expert_register_field_array(expert_docsis_ucd, ei, array_length(ei));
 
-  new_register_dissector ("docsis_ucd", dissect_ucd, proto_docsis_ucd);
+  register_dissector ("docsis_ucd", dissect_ucd, proto_docsis_ucd);
 }
 
 void

@@ -125,7 +125,7 @@ void proto_register_wimax_ffb(void)
 	proto_register_field_array(proto_wimax_ffb_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("wimax_ffb_burst_handler", dissect_wimax_ffb_decoder, -1);
+	register_dissector("wimax_ffb_burst_handler", dissect_wimax_ffb_decoder, -1);
 }
 
 /*

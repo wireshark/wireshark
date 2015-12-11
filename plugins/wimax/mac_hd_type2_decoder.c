@@ -1366,7 +1366,7 @@ void proto_register_mac_header_type_2(void)
 	proto_register_field_array(proto_mac_header_type_2_decoder, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	new_register_dissector("mac_header_type_2_handler", dissect_mac_header_type_2_decoder, proto_mac_header_type_2_decoder);
+	register_dissector("mac_header_type_2_handler", dissect_mac_header_type_2_decoder, proto_mac_header_type_2_decoder);
 }
 
 /*

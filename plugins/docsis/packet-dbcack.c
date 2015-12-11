@@ -88,7 +88,7 @@ proto_register_docsis_dbcack (void)
   proto_register_field_array (proto_docsis_dbcack, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_dbcack", dissect_dbcack, proto_docsis_dbcack);
+  register_dissector ("docsis_dbcack", dissect_dbcack, proto_docsis_dbcack);
 }
 
 void

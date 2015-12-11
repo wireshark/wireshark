@@ -102,7 +102,7 @@ proto_register_docsis_regrsp (void)
   proto_register_field_array (proto_docsis_regrsp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_regrsp", dissect_regrsp, proto_docsis_regrsp);
+  register_dissector ("docsis_regrsp", dissect_regrsp, proto_docsis_regrsp);
 }
 
 void

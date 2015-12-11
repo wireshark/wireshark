@@ -102,7 +102,7 @@ proto_register_docsis_regack (void)
   proto_register_field_array (proto_docsis_regack, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_regack", dissect_regack, proto_docsis_regack);
+  register_dissector ("docsis_regack", dissect_regack, proto_docsis_regack);
 }
 
 void

@@ -229,7 +229,7 @@ proto_register_irsir(void)
 
 	proto_sir = proto_register_protocol(
 			"Serial Infrared", "SIR", "sir");
-	new_register_dissector("sir", dissect_sir, proto_sir);
+	register_dissector("sir", dissect_sir, proto_sir);
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(
 			proto_sir, hf_sir, array_length(hf_sir));

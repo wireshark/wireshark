@@ -127,7 +127,7 @@ proto_register_docsis_bintrngreq (void)
   proto_register_field_array (proto_docsis_bintrngreq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_bintrngreq", dissect_bintrngreq, proto_docsis_bintrngreq);
+  register_dissector ("docsis_bintrngreq", dissect_bintrngreq, proto_docsis_bintrngreq);
 }
 
 void

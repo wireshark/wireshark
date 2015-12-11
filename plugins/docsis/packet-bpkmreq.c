@@ -125,7 +125,7 @@ proto_register_docsis_bpkmreq (void)
   proto_register_field_array (proto_docsis_bpkmreq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_bpkmreq", dissect_bpkmreq,
+  register_dissector ("docsis_bpkmreq", dissect_bpkmreq,
                       proto_docsis_bpkmreq);
 }
 

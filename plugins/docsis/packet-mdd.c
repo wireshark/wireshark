@@ -735,7 +735,7 @@ void proto_register_docsis_mdd (void)
   proto_register_field_array (proto_docsis_mdd, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_mdd", dissect_mdd, proto_docsis_mdd);
+  register_dissector ("docsis_mdd", dissect_mdd, proto_docsis_mdd);
 }
 
 void

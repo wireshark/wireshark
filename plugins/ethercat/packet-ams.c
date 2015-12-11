@@ -1225,7 +1225,7 @@ void proto_register_ams(void)
    proto_register_field_array(proto_ams, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
 
-   new_register_dissector("ams", dissect_ams, proto_ams);
+   register_dissector("ams", dissect_ams, proto_ams);
 }
 
 /* The registration hand-off routing */

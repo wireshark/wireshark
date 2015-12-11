@@ -89,7 +89,7 @@ proto_register_docsis_dsareq (void)
   proto_register_field_array (proto_docsis_dsareq, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_dsareq", dissect_dsareq, proto_docsis_dsareq);
+  register_dissector ("docsis_dsareq", dissect_dsareq, proto_docsis_dsareq);
 }
 
 void

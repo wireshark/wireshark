@@ -217,7 +217,7 @@ void proto_register_mac_mgmt_msg(void)
 		"WiMax MAC Management Message", FT_UINT8, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 
 	/* Register dissector by name */
-	new_register_dissector("wmx_mac_mgmt_msg_decoder", dissect_mac_mgmt_msg_decoder,
+	register_dissector("wmx_mac_mgmt_msg_decoder", dissect_mac_mgmt_msg_decoder,
 	                   proto_mac_mgmt_msg_decoder);
 }
 

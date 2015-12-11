@@ -267,7 +267,7 @@ proto_register_docsis_mgmt (void)
   proto_register_field_array (proto_docsis_mgmt, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  new_register_dissector ("docsis_mgmt", dissect_macmgmt, proto_docsis_mgmt);
+  register_dissector ("docsis_mgmt", dissect_macmgmt, proto_docsis_mgmt);
 }
 
 void

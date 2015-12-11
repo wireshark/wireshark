@@ -208,7 +208,7 @@ void proto_register_wimax_harq_map(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_wimax_harq_map_decoder, hf_harq_map, array_length(hf_harq_map));
 
-	new_register_dissector("wimax_harq_map_handler", dissector_wimax_harq_map_decoder, proto_wimax_harq_map_decoder);
+	register_dissector("wimax_harq_map_handler", dissector_wimax_harq_map_decoder, proto_wimax_harq_map_decoder);
 }
 
 /*
