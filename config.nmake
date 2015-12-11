@@ -253,7 +253,7 @@ PCAP_NG_DEFAULT=^#define PCAP_NG_DEFAULT 1
 WANT_PACKET_EDITOR=^#define WANT_PACKET_EDITOR 1
 
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
-DOWNLOAD_TAG=2015-11-11
+DOWNLOAD_TAG=2015-12-11
 ##### Win32 Libraries #####
 #
 # Mandatory: GLib settings
@@ -515,7 +515,7 @@ GEOIP_PKG=1.6.6
 WINSPARKLE_PKG=0.3-44-g2c8d9d3-win32ws
 
 !else
-DOWNLOAD_TAG=2015-11-11
+DOWNLOAD_TAG=2015-12-11
 ##### Win64 Libraries #####
 #
 # Mandatory: GLib settings
