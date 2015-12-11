@@ -1890,6 +1890,14 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
                   /* Call dissector for interface */
                   next_tvb = tvb_new_subset_length (tvb, offset+8, item_length-2);
+
+                  /* If we don't have the connection info, we can't be sure of the data format, so
+                  ensure that the data can at least meet the minimum explicit message size. */
+                  if ((conn_info == NULL) && tvb_reported_length(next_tvb) < 2)
+                  {
+                     break;
+                  }
+
                   p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO, request_info);
                   if ( tvb_reported_length_remaining(next_tvb, 0) <= 0 || !dissector_try_uint(subdissector_sud_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
                   {
