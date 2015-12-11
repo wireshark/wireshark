@@ -210,7 +210,7 @@ static int hf_ieee802154_frame_type = -1;
 static int hf_ieee802154_security = -1;
 static int hf_ieee802154_pending = -1;
 static int hf_ieee802154_ack_request = -1;
-static int hf_ieee802154_intra_pan = -1;
+static int hf_ieee802154_pan_id_compression = -1;
 static int hf_ieee802154_seqno = -1;
 static int hf_ieee802154_src_addr_mode = -1;
 static int hf_ieee802154_dst_addr_mode = -1;
@@ -447,7 +447,7 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
         &hf_ieee802154_security,
         &hf_ieee802154_pending,
         &hf_ieee802154_ack_request,
-        &hf_ieee802154_intra_pan,
+        &hf_ieee802154_pan_id_compression,
         &hf_ieee802154_dst_addr_mode,
         &hf_ieee802154_version,
         &hf_ieee802154_src_addr_mode,
@@ -458,14 +458,14 @@ dissect_ieee802154_fcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
     fcf = tvb_get_letohs(tvb, *offset);
 
      /* Parse FCF Flags. */
-    packet->frame_type      = fcf & IEEE802154_FCF_TYPE_MASK;
-    packet->security_enable = fcf & IEEE802154_FCF_SEC_EN;
-    packet->frame_pending   = fcf & IEEE802154_FCF_FRAME_PND;
-    packet->ack_request     = fcf & IEEE802154_FCF_ACK_REQ;
-    packet->intra_pan       = fcf & IEEE802154_FCF_INTRA_PAN;
-    packet->version         = (fcf & IEEE802154_FCF_VERSION) >> 12;
-    packet->dst_addr_mode   = (fcf & IEEE802154_FCF_DADDR_MASK) >> 10;
-    packet->src_addr_mode   = (fcf & IEEE802154_FCF_SADDR_MASK) >> 14;
+    packet->frame_type          =  fcf & IEEE802154_FCF_TYPE_MASK;
+    packet->security_enable     =  fcf & IEEE802154_FCF_SEC_EN;
+    packet->frame_pending       =  fcf & IEEE802154_FCF_FRAME_PND;
+    packet->ack_request         =  fcf & IEEE802154_FCF_ACK_REQ;
+    packet->pan_id_compression  =  fcf & IEEE802154_FCF_PAN_ID_COMPRESSION;
+    packet->version             = (fcf & IEEE802154_FCF_VERSION) >> 12;
+    packet->dst_addr_mode       = (fcf & IEEE802154_FCF_DADDR_MASK) >> 10;
+    packet->src_addr_mode       = (fcf & IEEE802154_FCF_SADDR_MASK) >> 14;
 
     /* Display the frame type. */
     proto_item_append_text(tree, " %s", val_to_str_const(packet->frame_type, ieee802154_frame_types, "Reserved"));
@@ -793,7 +793,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
      *  - The Destination addressing doesn't exist, or the Intra-PAN bit is unset.
      */
     if ( ((packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) || (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT)) &&
-         ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) || (!packet->intra_pan)) ) {
+         ((packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) || (!packet->pan_id_compression)) ) {
         /* Source PAN is present, extract it and add it to the tree. */
         packet->src_pan = tvb_get_letohs(tvb, offset);
         if (tree) {
@@ -2481,11 +2481,11 @@ void proto_register_ieee802154(void)
 
         { &hf_ieee802154_ack_request,
         { "Acknowledge Request",            "wpan.ack_request", FT_BOOLEAN, 16, NULL, IEEE802154_FCF_ACK_REQ,
-            "Whether the sender of this packet requests acknowledgement or not.", HFILL }},
+            "Whether the sender of this packet requests acknowledgment or not.", HFILL }},
 
-        { &hf_ieee802154_intra_pan,
-        { "Intra-PAN",                      "wpan.intra_pan", FT_BOOLEAN, 16, NULL, IEEE802154_FCF_INTRA_PAN,
-            "Whether this packet originated and terminated within the same PAN or not.", HFILL }},
+        { &hf_ieee802154_pan_id_compression,
+        { "PAN ID Compression",             "wpan.pan_id_compression", FT_BOOLEAN, 16, NULL, IEEE802154_FCF_PAN_ID_COMPRESSION,
+            "Whether this packet contains the PAN ID or not.", HFILL }},
 
         { &hf_ieee802154_seqno,
         { "Sequence Number",                "wpan.seq_no", FT_UINT8, BASE_DEC, NULL, 0x0,

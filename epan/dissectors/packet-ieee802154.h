@@ -103,7 +103,7 @@
 #define IEEE802154_FCF_SEC_EN               0x0008
 #define IEEE802154_FCF_FRAME_PND            0x0010
 #define IEEE802154_FCF_ACK_REQ              0x0020
-#define IEEE802154_FCF_INTRA_PAN            0x0040  /* known as PAN ID Compression in IEEE 802.15.4-2006 */
+#define IEEE802154_FCF_PAN_ID_COMPRESSION   0x0040  /* known as Intra PAN prior to IEEE 802.15.4-2006 */
 #define IEEE802154_FCF_DADDR_MASK           0x0C00  /* destination addressing mask */
 #define IEEE802154_FCF_VERSION              0x3000
 #define IEEE802154_FCF_SADDR_MASK           0xC000  /* source addressing mask */
@@ -178,7 +178,7 @@ typedef struct {
     gboolean    security_enable;
     gboolean    frame_pending;
     gboolean    ack_request;
-    gboolean    intra_pan;
+    gboolean    pan_id_compression;
 
     guint8      seqno;
 
