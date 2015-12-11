@@ -1135,7 +1135,7 @@ static int hf_mip6_bi_coa_ipv4 = -1;
 static int hf_mip6_bi_coa_ipv6 = -1;
 
 static int hf_mip6_binding_refresh_request = -1;
-static int hf_mip6_unknown_mh_type = -1;
+static int hf_mip6_unknown_type_data = -1;
 static int hf_mip6_fast_neighbor_advertisement = -1;
 static int hf_mip6_vsm_data = -1;
 static int hf_mip6_vsm_req_data = -1;
@@ -1593,9 +1593,14 @@ dissect_mip6_hack(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 static int
 dissect_mip6_unknown(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo _U_)
 {
-    proto_tree_add_item(mip6_tree, hf_mip6_unknown_mh_type, tvb, MIP6_DATA_OFF, MIP6_DATA_OFF + 1, ENC_NA);
+    guint hdr_len, data_len;
 
-    return MIP6_DATA_OFF + 1;
+    hdr_len = (tvb_get_guint8(tvb, MIP6_HLEN_OFF) + 1) * 8;
+    data_len = hdr_len - MIP6_DATA_OFF;
+
+    proto_tree_add_item(mip6_tree, hf_mip6_unknown_type_data, tvb, MIP6_DATA_OFF, data_len, ENC_NA);
+
+    return hdr_len;
 }
 
 static int
@@ -4039,7 +4044,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Process mobility header */
     type = tvb_get_guint8(tvb, MIP6_TYPE_OFF);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext_const(type, &mip6_mh_types_ext, "<unknown>"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext(type, &mip6_mh_types_ext, "Unknown Mobility Header (%u)"));
     switch (type) {
     case MIP6_BRR:
         /* 0 Binding Refresh Request */
@@ -4130,8 +4135,7 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset = dissect_pmip6_lra(tvb, mip6_tree, pinfo, offset);
         break;
     default:
-        dissect_mip6_unknown(tvb, mip6_tree, pinfo);
-        offset = len;
+        offset = dissect_mip6_unknown(tvb, mip6_tree, pinfo);
         break;
     }
 
@@ -4846,8 +4850,8 @@ proto_register_mip6(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_mip6_unknown_mh_type,
-      { "Unknown MH Type", "mip6.unknown_mh_type",
+    { &hf_mip6_unknown_type_data,
+      { "Message Data", "mip6.unknown_type_data",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
