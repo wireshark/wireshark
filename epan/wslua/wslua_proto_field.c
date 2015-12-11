@@ -763,10 +763,10 @@ PROTOFIELD_BOOL(bool,FT_BOOLEAN)
 
 static int ProtoField_time(lua_State* L,enum ftenum type) {
     ProtoField f;
-    const gchar* abbr = NULL;
+    const gchar* abbr = check_field_name(L,1,type);
     const gchar* name = luaL_optstring(L,2,abbr);
     unsigned base = (unsigned)luaL_optinteger(L,3,ABSOLUTE_TIME_LOCAL);
-    const gchar* blob = NULL;
+    const gchar* blob = luaL_optstring(L,4,NULL);
 
     if (!name[0]) {
         luaL_argerror(L, 2, "cannot be an empty string");
@@ -774,15 +774,10 @@ static int ProtoField_time(lua_State* L,enum ftenum type) {
     }
 
     if (type == FT_ABSOLUTE_TIME) {
-      abbr = check_field_name(L,1,type);
-      blob = luaL_optstring(L,4,NULL);
-      if (base < ABSOLUTE_TIME_LOCAL || base > ABSOLUTE_TIME_DOY_UTC) {
-        luaL_argerror(L, 3, "Base must be either LOCAL, UTC, or DOY_UTC");
-        return 0;
-      }
-    } else {
-      abbr = check_field_name(L,1,type);
-      blob = luaL_optstring(L,3,NULL);
+        if (base < ABSOLUTE_TIME_LOCAL || base > ABSOLUTE_TIME_DOY_UTC) {
+            luaL_argerror(L, 3, "Base must be either LOCAL, UTC, or DOY_UTC");
+            return 0;
+        }
     }
 
     f = g_new(wslua_field_t,1);
@@ -796,9 +791,9 @@ static int ProtoField_time(lua_State* L,enum ftenum type) {
     f->base = base;
     f->mask = 0;
     if (blob && strcmp(blob, f->name) != 0) {
-      f->blob = g_strdup(blob);
+        f->blob = g_strdup(blob);
     } else {
-      f->blob = NULL;
+        f->blob = NULL;
     }
 
     pushProtoField(L,f);
@@ -845,9 +840,9 @@ static int ProtoField_other(lua_State* L,enum ftenum type) {
     f->base = BASE_NONE;
     f->mask = 0;
     if (blob && strcmp(blob, f->name) != 0) {
-      f->blob = g_strdup(blob);
+        f->blob = g_strdup(blob);
     } else {
-      f->blob = NULL;
+        f->blob = NULL;
     }
 
     pushProtoField(L,f);
