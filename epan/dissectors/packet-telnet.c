@@ -88,6 +88,8 @@ static int hf_tn3270_request = -1;
 static int hf_tn3270_regime_subopt_value = -1;
 static int hf_tn3270_regime_cmd = -1;
 
+static int hf_telnet_starttls = -1;
+
 static gint ett_telnet = -1;
 static gint ett_telnet_cmd = -1;
 static gint ett_telnet_subopt = -1;
@@ -127,6 +129,7 @@ static gint ett_xauth_subopt = -1;
 static gint ett_charset_subopt = -1;
 static gint ett_rsp_subopt = -1;
 static gint ett_comport_subopt = -1;
+static gint ett_starttls_subopt = -1;
 
 static expert_field ei_telnet_suboption_length = EI_INIT;
 static expert_field ei_telnet_invalid_subcommand = EI_INIT;
@@ -446,6 +449,13 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
     len--;
   }
 
+}
+
+static void
+dissect_starttls_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
+                       int len _U_, proto_tree *tree, proto_item *item _U_)
+{
+  proto_tree_add_item(tree, hf_telnet_starttls, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 static const value_string telnet_outmark_subopt_cmd_vals[] = {
@@ -1516,6 +1526,41 @@ static tn_opt options[] = {
     VARIABLE_LENGTH,
     1,
     dissect_comport_subopt
+  },
+  {
+    "Suppress Local Echo",                      /* draft-rfced-exp-atmar-00 */
+    NULL,
+    NO_LENGTH,
+    0,
+    NULL
+  },
+  {
+    "Start TLS",                                /* draft-ietf-tn3270e-telnet-tls-06 */
+    &ett_starttls_subopt,
+    FIXED_LENGTH,
+    1,
+    dissect_starttls_subopt
+  },
+  {
+    "KERMIT",                                   /* RFC 2840 */
+    NULL,
+    VARIABLE_LENGTH,
+    1,
+    NULL                                        /* XXX - stub */
+  },
+  {
+    "SEND-URL",                                 /* draft-croft-telnet-url-trans-00 */
+    NULL,
+    VARIABLE_LENGTH,
+    1,
+    NULL                                        /* XXX - stub */
+  },
+  {
+    "FORWARD_X",                                /* draft-altman-telnet-fwdx-03 */
+    NULL,
+    VARIABLE_LENGTH,
+    1,
+    NULL                                        /* XXX - stub */
   }
 
 };
@@ -2039,6 +2084,10 @@ proto_register_telnet(void)
       { "Cmd", "telnet.regime_cmd", FT_UINT8, BASE_DEC,
         NULL, 0, NULL, HFILL }
     },
+    { &hf_telnet_starttls,
+      { "Follows", "telnet.starttls", FT_UINT8, BASE_DEC,
+        NULL, 0, NULL, HFILL }
+    },
   };
   static gint *ett[] = {
     &ett_telnet,
@@ -2079,7 +2128,8 @@ proto_register_telnet(void)
     &ett_xauth_subopt,
     &ett_charset_subopt,
     &ett_rsp_subopt,
-    &ett_comport_subopt
+    &ett_comport_subopt,
+    &ett_starttls_subopt,
   };
 
   static ei_register_info ei[] = {
