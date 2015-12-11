@@ -5342,7 +5342,7 @@ proto_register_mip6(void)
     expert_module_t* expert_mip6;
 
     /* Register the protocol name and description */
-    proto_mip6 = proto_register_protocol("Mobile IPv6 / Network Mobility", "MIPv6", "mipv6");
+    proto_mip6 = proto_register_protocol("Mobile IPv6", "MIPv6", "mipv6");
 
     /* Register the dissector by name */
     /* register_dissector("mipv6", dissect_nemo, proto_nemo); */
