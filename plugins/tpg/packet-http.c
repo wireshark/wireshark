@@ -113,7 +113,7 @@ static void proto_register_http(void) {
 
 
 static void proto_reg_handoff_http(void) {
-    http_handle = new_create_dissector_handle(dissect_http, proto_http);
+    http_handle = create_dissector_handle(dissect_http, proto_http);
 
     dissector_delete_uint("tcp.port", 80, NULL);
     dissector_add_uint("tcp.port", 80, http_handle);

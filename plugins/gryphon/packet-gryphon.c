@@ -2862,7 +2862,7 @@ proto_reg_handoff_gryphon(void)
 {
     dissector_handle_t gryphon_handle;
 
-    gryphon_handle = new_create_dissector_handle(dissect_gryphon, proto_gryphon);
+    gryphon_handle = create_dissector_handle(dissect_gryphon, proto_gryphon);
     dissector_add_uint("tcp.port", 7000, gryphon_handle);
 }
 

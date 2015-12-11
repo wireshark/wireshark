@@ -431,13 +431,13 @@ proto_reg_handoff_mac_mgmt_msg_arq(void)
 {
 	dissector_handle_t arq_handle;
 
-	arq_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_arq_feedback_decoder, proto_mac_mgmt_msg_arq_decoder);
+	arq_handle = create_dissector_handle(dissect_mac_mgmt_msg_arq_feedback_decoder, proto_mac_mgmt_msg_arq_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_ARQ_FEEDBACK, arq_handle);
 
-	arq_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_arq_discard_decoder, proto_mac_mgmt_msg_arq_decoder);
+	arq_handle = create_dissector_handle(dissect_mac_mgmt_msg_arq_discard_decoder, proto_mac_mgmt_msg_arq_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_ARQ_DISCARD, arq_handle);
 
-	arq_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_arq_reset_decoder, proto_mac_mgmt_msg_arq_decoder);
+	arq_handle = create_dissector_handle(dissect_mac_mgmt_msg_arq_reset_decoder, proto_mac_mgmt_msg_arq_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_ARQ_RESET, arq_handle);
 }
 

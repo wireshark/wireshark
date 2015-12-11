@@ -2827,10 +2827,10 @@ proto_reg_handoff_mac_mgmt_msg_sbc(void)
 {
 	dissector_handle_t sbc_handle;
 
-	sbc_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_sbc_req_decoder, proto_mac_mgmt_msg_sbc_decoder);
+	sbc_handle = create_dissector_handle(dissect_mac_mgmt_msg_sbc_req_decoder, proto_mac_mgmt_msg_sbc_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_SBC_REQ, sbc_handle);
 
-	sbc_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_sbc_rsp_decoder, proto_mac_mgmt_msg_sbc_decoder);
+	sbc_handle = create_dissector_handle(dissect_mac_mgmt_msg_sbc_rsp_decoder, proto_mac_mgmt_msg_sbc_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_SBC_RSP, sbc_handle);
 }
 

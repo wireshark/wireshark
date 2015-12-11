@@ -113,7 +113,7 @@ void proto_reg_handoff_ioraw(void)
 {
    dissector_handle_t ioraw_handle;
 
-   ioraw_handle = new_create_dissector_handle(dissect_ioraw, proto_ioraw);
+   ioraw_handle = create_dissector_handle(dissect_ioraw, proto_ioraw);
 
    dissector_add_uint("ecatf.type", 3, ioraw_handle);
 }

@@ -1712,7 +1712,7 @@ void proto_reg_handoff_ecat(void)
 
    /* Register this dissector as a sub dissector to EtherCAT frame based on
       ether type. */
-   ecat_handle = new_create_dissector_handle(dissect_ecat_datagram, proto_ecat_datagram);
+   ecat_handle = create_dissector_handle(dissect_ecat_datagram, proto_ecat_datagram);
    dissector_add_uint("ecatf.type", 1 /* EtherCAT type */, ecat_handle);
 
    ecat_mailbox_handle = find_dissector("ecat_mailbox");

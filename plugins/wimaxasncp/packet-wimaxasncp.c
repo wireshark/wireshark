@@ -3466,12 +3466,12 @@ proto_reg_handoff_wimaxasncp(void)
     if (!inited)
     {
 
-        /*  Use new_create_dissector_handle() to indicate that
+        /*  Use create_dissector_handle() to indicate that
          *  dissect_wimaxasncp() returns the number of bytes it dissected (or
          *  0 if it thinks the packet does not belong to WiMAX ASN Control
          *  Plane).
          */
-        wimaxasncp_handle = new_create_dissector_handle(
+        wimaxasncp_handle = create_dissector_handle(
              dissect_wimaxasncp,
              proto_wimaxasncp);
 

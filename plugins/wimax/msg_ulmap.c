@@ -2959,7 +2959,7 @@ void proto_reg_handoff_mac_mgmt_msg_ulmap(void)
 {
 	dissector_handle_t ulmap_handle;
 
-	ulmap_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_ulmap_decoder, proto_mac_mgmt_msg_ulmap_decoder);
+	ulmap_handle = create_dissector_handle(dissect_mac_mgmt_msg_ulmap_decoder, proto_mac_mgmt_msg_ulmap_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_UL_MAP, ulmap_handle);
 }
 

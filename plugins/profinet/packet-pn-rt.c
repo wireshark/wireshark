@@ -994,7 +994,7 @@ proto_reg_handoff_pn_rt(void)
 {
     dissector_handle_t pn_rt_handle;
 
-    pn_rt_handle = new_create_dissector_handle(dissect_pn_rt, proto_pn_rt);
+    pn_rt_handle = create_dissector_handle(dissect_pn_rt, proto_pn_rt);
 
     dissector_add_uint("ethertype", ETHERTYPE_PROFINET, pn_rt_handle);
     dissector_add_uint("udp.port", 0x8892, pn_rt_handle);

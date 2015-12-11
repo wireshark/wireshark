@@ -169,9 +169,9 @@ void proto_reg_handoff_mac_mgmt_msg_pkm(void)
 	dissector_handle_t mac_mgmt_msg_pkm_req_handle;
 	dissector_handle_t mac_mgmt_msg_pkm_rsp_handle;
 
-	mac_mgmt_msg_pkm_req_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_pkm_req_decoder, proto_mac_mgmt_msg_pkm_decoder);
+	mac_mgmt_msg_pkm_req_handle = create_dissector_handle(dissect_mac_mgmt_msg_pkm_req_decoder, proto_mac_mgmt_msg_pkm_decoder);
 	dissector_add_uint( "wmx.mgmtmsg", MAC_MGMT_MSG_PKM_REQ, mac_mgmt_msg_pkm_req_handle );
-	mac_mgmt_msg_pkm_rsp_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_pkm_rsp_decoder, proto_mac_mgmt_msg_pkm_decoder);
+	mac_mgmt_msg_pkm_rsp_handle = create_dissector_handle(dissect_mac_mgmt_msg_pkm_rsp_decoder, proto_mac_mgmt_msg_pkm_decoder);
 	dissector_add_uint( "wmx.mgmtmsg", MAC_MGMT_MSG_PKM_RSP, mac_mgmt_msg_pkm_rsp_handle );
 }
 

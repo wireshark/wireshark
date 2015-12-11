@@ -518,10 +518,10 @@ proto_reg_handoff_mac_mgmt_msg_dreg(void)
 {
 	dissector_handle_t dreg_handle;
 
-	dreg_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dreg_req_decoder, proto_mac_mgmt_msg_dreg_req_decoder);
+	dreg_handle = create_dissector_handle(dissect_mac_mgmt_msg_dreg_req_decoder, proto_mac_mgmt_msg_dreg_req_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DREG_REQ, dreg_handle);
 
-	dreg_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dreg_cmd_decoder, proto_mac_mgmt_msg_dreg_cmd_decoder);
+	dreg_handle = create_dissector_handle(dissect_mac_mgmt_msg_dreg_cmd_decoder, proto_mac_mgmt_msg_dreg_cmd_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DREG_CMD, dreg_handle);
 }
 

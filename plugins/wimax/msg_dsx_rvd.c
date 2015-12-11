@@ -101,7 +101,7 @@ proto_reg_handoff_mac_mgmt_msg_dsx_rvd(void)
 {
 	dissector_handle_t handle;
 
-	handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dsx_rvd_decoder, proto_mac_mgmt_msg_dsx_rvd_decoder);
+	handle = create_dissector_handle(dissect_mac_mgmt_msg_dsx_rvd_decoder, proto_mac_mgmt_msg_dsx_rvd_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DSX_RVD, handle);
 }
 

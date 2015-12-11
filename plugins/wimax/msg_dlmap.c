@@ -3496,7 +3496,7 @@ void proto_reg_handoff_mac_mgmt_msg_dlmap(void)
 {
 	dissector_handle_t dlmap_handle;
 
-	dlmap_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dlmap_decoder, proto_mac_mgmt_msg_dlmap_decoder);
+	dlmap_handle = create_dissector_handle(dissect_mac_mgmt_msg_dlmap_decoder, proto_mac_mgmt_msg_dlmap_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DL_MAP, dlmap_handle);
 }
 

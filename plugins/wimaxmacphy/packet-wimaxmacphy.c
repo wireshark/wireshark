@@ -5465,7 +5465,7 @@ proto_reg_handoff_wimaxmacphy(void)
     static dissector_handle_t wimaxmacphy_handle;
 
     if (!inited) {
-        wimaxmacphy_handle = new_create_dissector_handle(dissect_wimaxmacphy, proto_wimaxmacphy);
+        wimaxmacphy_handle = create_dissector_handle(dissect_wimaxmacphy, proto_wimaxmacphy);
         dissector_add_for_decode_as("udp.port", wimaxmacphy_handle);
         inited = TRUE;
     }

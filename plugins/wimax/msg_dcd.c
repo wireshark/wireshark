@@ -1258,7 +1258,7 @@ void proto_reg_handoff_mac_mgmt_msg_dcd(void)
 {
 	dissector_handle_t dcd_handle;
 
-	dcd_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dcd_decoder, proto_mac_mgmt_msg_dcd_decoder);
+	dcd_handle = create_dissector_handle(dissect_mac_mgmt_msg_dcd_decoder, proto_mac_mgmt_msg_dcd_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DCD, dcd_handle);
 }
 

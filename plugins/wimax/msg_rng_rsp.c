@@ -952,7 +952,7 @@ void proto_reg_handoff_mac_mgmt_msg_rng_rsp(void)
 {
 	dissector_handle_t rng_rsp_handle;
 
-	rng_rsp_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_rng_rsp_decoder, proto_mac_mgmt_msg_rng_rsp_decoder);
+	rng_rsp_handle = create_dissector_handle(dissect_mac_mgmt_msg_rng_rsp_decoder, proto_mac_mgmt_msg_rng_rsp_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_RNG_RSP, rng_rsp_handle);
 
 	sbc_rsp_handle = find_dissector("mac_mgmt_msg_sbc_rsp_handler");

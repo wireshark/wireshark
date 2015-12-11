@@ -144,7 +144,7 @@ proto_reg_handoff_mac_mgmt_msg_clk_cmp(void)
 {
 	dissector_handle_t handle;
 
-	handle = new_create_dissector_handle(dissect_mac_mgmt_msg_clk_cmp_decoder, proto_mac_mgmt_msg_clk_cmp_decoder);
+	handle = create_dissector_handle(dissect_mac_mgmt_msg_clk_cmp_decoder, proto_mac_mgmt_msg_clk_cmp_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_CLK_CMP, handle);
 }
 

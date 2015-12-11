@@ -4056,7 +4056,7 @@ proto_reg_handoff_unistim(void) {
    static guint unistim_port;
 
    if (!initialized) {
-      unistim_handle=new_create_dissector_handle(dissect_unistim,proto_unistim);
+      unistim_handle=create_dissector_handle(dissect_unistim,proto_unistim);
       dissector_add_for_decode_as("udp.port", unistim_handle);
       initialized=TRUE;
    } else {

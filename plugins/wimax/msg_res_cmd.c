@@ -148,7 +148,7 @@ proto_reg_handoff_mac_mgmt_msg_res_cmd(void)
 {
 	dissector_handle_t handle;
 
-	handle = new_create_dissector_handle(dissect_mac_mgmt_msg_res_cmd_decoder, proto_mac_mgmt_msg_res_cmd_decoder);
+	handle = create_dissector_handle(dissect_mac_mgmt_msg_res_cmd_decoder, proto_mac_mgmt_msg_res_cmd_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_RES_CMD, handle);
 }
 

@@ -235,7 +235,7 @@ void proto_reg_handoff_nv(void)
 {
    dissector_handle_t nv_handle;
 
-   nv_handle = new_create_dissector_handle(dissect_nv, proto_nv);
+   nv_handle = create_dissector_handle(dissect_nv, proto_nv);
    dissector_add_uint("ecatf.type", 4, nv_handle);
 }
 

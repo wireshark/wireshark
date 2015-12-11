@@ -268,10 +268,10 @@ proto_reg_handoff_mac_mgmt_msg_dsd(void)
 {
 	dissector_handle_t dsd_handle;
 
-	dsd_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dsd_req_decoder, proto_mac_mgmt_msg_dsd_decoder);
+	dsd_handle = create_dissector_handle(dissect_mac_mgmt_msg_dsd_req_decoder, proto_mac_mgmt_msg_dsd_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DSD_REQ, dsd_handle);
 
-	dsd_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dsd_rsp_decoder, proto_mac_mgmt_msg_dsd_decoder);
+	dsd_handle = create_dissector_handle(dissect_mac_mgmt_msg_dsd_rsp_decoder, proto_mac_mgmt_msg_dsd_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DSD_RSP, dsd_handle);
 }
 

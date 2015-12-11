@@ -458,7 +458,7 @@ void proto_reg_handoff_opcua(void)
 
     if(!opcua_initialized)
     {
-        opcua_handle = new_create_dissector_handle(dissect_opcua, proto_opcua);
+        opcua_handle = create_dissector_handle(dissect_opcua, proto_opcua);
         opcua_initialized = TRUE;
     }
     else

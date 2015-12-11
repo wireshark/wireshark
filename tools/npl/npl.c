@@ -1843,7 +1843,7 @@ gen_proto_handoff(FILE *f, const char *proto_name)
 		"proto_reg_handoff_%s(void)\n"
 		"{\n", proto_name);
 
-	gen_fprintf(f, "\tdissector_handle_t %s_handle = new_create_dissector_handle(dissect_%s, proto_%s);\n", proto_name, proto_name, proto_name);
+	gen_fprintf(f, "\tdissector_handle_t %s_handle = create_dissector_handle(dissect_%s, proto_%s);\n", proto_name, proto_name, proto_name);
 
 #if 0
 	dissector_add_uint("REG", XXX, %s_handle);

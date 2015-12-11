@@ -335,7 +335,7 @@ proto_reg_handoff_mac_mgmt_msg_aas_beam(void)
 {
 	dissector_handle_t aas_handle;
 
-	aas_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_aas_beam_select_decoder, proto_mac_mgmt_msg_aas_beam_decoder);
+	aas_handle = create_dissector_handle(dissect_mac_mgmt_msg_aas_beam_select_decoder, proto_mac_mgmt_msg_aas_beam_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_AAS_BEAM_SELECT, aas_handle);
 }
 

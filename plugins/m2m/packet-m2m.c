@@ -809,7 +809,7 @@ void proto_reg_handoff_m2m(void)
 {
 	dissector_handle_t m2m_handle;
 
-	m2m_handle = new_create_dissector_handle(dissect_m2m, proto_m2m);
+	m2m_handle = create_dissector_handle(dissect_m2m, proto_m2m);
 	dissector_add_uint("ethertype", ETHERTYPE_WMX_M2M, m2m_handle);
 
 	/* find the wimax handlers */

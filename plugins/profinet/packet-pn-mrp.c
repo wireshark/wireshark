@@ -526,7 +526,7 @@ proto_reg_handoff_pn_mrp (void)
     dissector_handle_t mrp_handle;
 
 
-    mrp_handle = new_create_dissector_handle(dissect_PNMRP,proto_pn_mrp);
+    mrp_handle = create_dissector_handle(dissect_PNMRP,proto_pn_mrp);
     dissector_add_uint("ethertype", ETHERTYPE_MRP, mrp_handle);
 
 }

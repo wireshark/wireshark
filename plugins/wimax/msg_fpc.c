@@ -160,7 +160,7 @@ proto_reg_handoff_mac_mgmt_msg_fpc(void)
 {
 	dissector_handle_t fpc_handle;
 
-	fpc_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_fpc_decoder, proto_mac_mgmt_msg_fpc_decoder);
+	fpc_handle = create_dissector_handle(dissect_mac_mgmt_msg_fpc_decoder, proto_mac_mgmt_msg_fpc_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_FPC, fpc_handle);
 }
 

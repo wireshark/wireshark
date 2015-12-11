@@ -171,13 +171,13 @@ proto_reg_handoff_mac_mgmt_msg_dsa (void)
 {
 	dissector_handle_t dsa_handle;
 
-	dsa_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dsa_req_decoder, proto_mac_mgmt_msg_dsa_decoder);
+	dsa_handle = create_dissector_handle(dissect_mac_mgmt_msg_dsa_req_decoder, proto_mac_mgmt_msg_dsa_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DSA_REQ, dsa_handle);
 
-	dsa_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dsa_rsp_decoder, proto_mac_mgmt_msg_dsa_decoder);
+	dsa_handle = create_dissector_handle(dissect_mac_mgmt_msg_dsa_rsp_decoder, proto_mac_mgmt_msg_dsa_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DSA_RSP, dsa_handle);
 
-	dsa_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_dsa_ack_decoder, proto_mac_mgmt_msg_dsa_decoder);
+	dsa_handle = create_dissector_handle(dissect_mac_mgmt_msg_dsa_ack_decoder, proto_mac_mgmt_msg_dsa_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_DSA_ACK, dsa_handle);
 }
 

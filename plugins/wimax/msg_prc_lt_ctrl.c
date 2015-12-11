@@ -130,7 +130,7 @@ proto_reg_handoff_mac_mgmt_msg_prc_lt_ctrl(void)
 {
 	dissector_handle_t handle;
 
-	handle = new_create_dissector_handle(dissect_mac_mgmt_msg_prc_lt_ctrl_decoder, proto_mac_mgmt_msg_prc_lt_ctrl_decoder);
+	handle = create_dissector_handle(dissect_mac_mgmt_msg_prc_lt_ctrl_decoder, proto_mac_mgmt_msg_prc_lt_ctrl_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_PRC_LT_CTRL, handle);
 }
 

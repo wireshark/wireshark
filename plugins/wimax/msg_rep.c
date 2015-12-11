@@ -1555,10 +1555,10 @@ proto_reg_handoff_mac_mgmt_msg_rep(void)
 {
 	dissector_handle_t rep_handle;
 
-	rep_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_rep_req_decoder, proto_mac_mgmt_msg_rep_decoder);
+	rep_handle = create_dissector_handle(dissect_mac_mgmt_msg_rep_req_decoder, proto_mac_mgmt_msg_rep_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_REP_REQ, rep_handle);
 
-	rep_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_rep_rsp_decoder, proto_mac_mgmt_msg_rep_decoder);
+	rep_handle = create_dissector_handle(dissect_mac_mgmt_msg_rep_rsp_decoder, proto_mac_mgmt_msg_rep_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_REP_RSP, rep_handle);
 }
 

@@ -1235,7 +1235,7 @@ void proto_reg_handoff_ams(void)
    dissector_handle_t ams_handle, amstcp_handle;
 
    ams_handle = find_dissector("ams");
-   amstcp_handle = new_create_dissector_handle( dissect_amstcp, proto_ams );
+   amstcp_handle = create_dissector_handle( dissect_amstcp, proto_ams );
    dissector_add_uint("tcp.port", 0xbf02, amstcp_handle);
    dissector_add_uint("ecatf.type", 2, ams_handle);
 }

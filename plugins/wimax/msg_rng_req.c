@@ -624,7 +624,7 @@ void proto_reg_handoff_mac_mgmt_msg_rng_req(void)
 {
 	dissector_handle_t rng_req_handle;
 
-	rng_req_handle = new_create_dissector_handle(dissect_mac_mgmt_msg_rng_req_decoder, proto_mac_mgmt_msg_rng_req_decoder);
+	rng_req_handle = create_dissector_handle(dissect_mac_mgmt_msg_rng_req_decoder, proto_mac_mgmt_msg_rng_req_decoder);
 	dissector_add_uint("wmx.mgmtmsg", MAC_MGMT_MSG_RNG_REQ, rng_req_handle);
 }
 
