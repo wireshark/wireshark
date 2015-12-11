@@ -3679,6 +3679,611 @@ proto_reg_handoff_zbee_zcl_level_control(void)
 
 
 /* ########################################################################## */
+/* #### (0x0015) COMMISSIONING CLUSTER ###################################### */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+#define ZBEE_ZCL_COMMISSIONING_NUM_ETT                                      3
+
+/* Attributes */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_SHORT_ADDRESS                        0x0000  /* Short Address */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_EXTENDED_PAN_ID                      0x0001  /* Extended PAN Id */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_PAN_ID                               0x0002  /* PAN Id */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_CHANNEL_MASK                         0x0003  /* Channel Mask */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_PROTOCOL_VERSION                     0x0004  /* Protocol Version */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_STACK_PROFILE                        0x0005  /* Stack Profile */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_STARTUP_CONTROL                      0x0006  /* Startup Control */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_TRUST_CENTER_ADDRESS                 0x0010  /* Trust Center Address */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_TRUST_CENTER_MASTER_KEY              0x0011  /* Trust Center Master Key */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_NETWORK_KEY                          0x0012  /* Network Key */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_USE_INSECURE_JOIN                    0x0013  /* Use Insecure Join */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_PRECONFIGURED_LINK_KEY               0x0014  /* Preconfigured Link Key */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_NETWORK_KEY_SEQ_NUM                  0x0015  /* Network Key Sequence Number */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_NETWORK_KEY_TYPE                     0x0016  /* Network Key Type */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_NETWORK_MANAGER_ADDRESS              0x0017  /* Network Manager Address */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_SCAN_ATTEMPTS                        0x0020  /* Scan Attempts */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_TIME_BETWEEN_SCANS                   0x0021  /* Time Between Scans */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_REJOIN_INTERVAL                      0x0022  /* Rejoin Interval */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_MAX_REJOIN_INTERVAL                  0x0023  /* Max Rejoin Interval */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_INDIRECT_POLL_RATE                   0x0030  /* Indirect Poll Rate */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_PARENT_RETRY_THRESHOLD               0x0031  /* Parent Retry Threshold */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_CONCENTRATOR_FLAG                    0x0040  /* Concentrator Flag */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_CONCENTRATOR_RADIUS                  0x0041  /* Concentrator Radius */
+#define ZBEE_ZCL_ATTR_ID_COMMISSIONING_CONCENTRATOR_DISCOVERY_TIME          0x0042  /* Concentrator Discovery Time */
+
+/* Server Commands Received */
+#define ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTART_DEVICE                        0x00  /* Restart Device */
+#define ZBEE_ZCL_CMD_ID_COMMISSIONING_SAVE_STARTUP_PARAMETERS               0x01  /* Save Startup Parameters */
+#define ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTORE_STARTUP_PARAMETERS            0x02  /* Restore Startup Parameters */
+#define ZBEE_ZCL_CMD_ID_COMMISSIONING_RESET_STARTUP_PARAMETERS              0x03  /* Reset Startup Parameters */
+
+/* Server Commands Generated */
+#define ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTART_DEVICE_RESPONSE               0x00  /* Restart Device Response */
+#define ZBEE_ZCL_CMD_ID_COMMISSIONING_SAVE_STARTUP_PARAMETERS_RESPONSE      0x01  /* Save Startup Parameters Response */
+#define ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTORE_STARTUP_PARAMETERS_RESPONSE   0x02  /* Restore Startup Parameters Response */
+#define ZBEE_ZCL_CMD_ID_COMMISSIONING_RESET_STARTUP_PARAMETERS_RESPONSE     0x03  /* Reset Startup Parameters Response */
+
+/* Restart Device Options Field Mask Values */
+#define ZBEE_ZCL_COMMISSIONING_RESTART_DEVICE_OPTIONS_STARTUP_MODE          0x07
+#define ZBEE_ZCL_COMMISSIONING_RESTART_DEVICE_OPTIONS_IMMEDIATE             0x08
+#define ZBEE_ZCL_COMMISSIONING_RESTART_DEVICE_OPTIONS_RESERVED              0xF0
+
+/* Reset Startup Parameters Options Field Mask Values */
+#define ZBEE_ZCL_COMMISSIONING_RESET_STARTUP_OPTIONS_RESET_CURRENT          0x01
+#define ZBEE_ZCL_COMMISSIONING_RESET_STARTUP_OPTIONS_RESET_ALL              0x02
+#define ZBEE_ZCL_COMMISSIONING_RESET_STARTUP_OPTIONS_ERASE_INDEX            0x04
+#define ZBEE_ZCL_COMMISSIONING_RESET_STARTUP_OPTIONS_RESERVED               0xFC
+
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+void proto_register_zbee_zcl_commissioning(void);
+void proto_reg_handoff_zbee_zcl_commissioning(void);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_commissioning_restart_device                        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_commissioning_save_restore_startup_parameters       (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_commissioning_reset_startup_parameters              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_commissioning_response                              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+
+static void dissect_zcl_commissioning_attr_data                             (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Private functions prototype */
+
+/*************************/
+/* Global Variables      */
+/*************************/
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_commissioning = -1;
+
+static int hf_zbee_zcl_commissioning_attr_id = -1;
+static int hf_zbee_zcl_commissioning_attr_stack_profile = -1;
+static int hf_zbee_zcl_commissioning_attr_startup_control = -1;
+static int hf_zbee_zcl_commissioning_restart_device_options = -1;
+static int hf_zbee_zcl_commissioning_restart_device_options_startup_mode = -1;
+static int hf_zbee_zcl_commissioning_restart_device_options_immediate = -1;
+static int hf_zbee_zcl_commissioning_restart_device_options_reserved = -1;
+static int hf_zbee_zcl_commissioning_delay = -1;
+static int hf_zbee_zcl_commissioning_jitter = -1;
+static int hf_zbee_zcl_commissioning_options = -1;
+static int hf_zbee_zcl_commissioning_index = -1;
+static int hf_zbee_zcl_commissioning_reset_startup_options = -1;
+static int hf_zbee_zcl_commissioning_reset_startup_options_reset_current = -1;
+static int hf_zbee_zcl_commissioning_reset_startup_options_reset_all = -1;
+static int hf_zbee_zcl_commissioning_reset_startup_options_erase_index = -1;
+static int hf_zbee_zcl_commissioning_reset_startup_options_reserved = -1;
+static int hf_zbee_zcl_commissioning_status = -1;
+static int hf_zbee_zcl_commissioning_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_commissioning_srv_tx_cmd_id = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_commissioning = -1;
+static gint ett_zbee_zcl_commissioning_restart_device_options = -1;
+static gint ett_zbee_zcl_commissioning_reset_startup_options = -1;
+
+/* Attributes */
+static const value_string zbee_zcl_commissioning_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_SHORT_ADDRESS,                         "Short Address" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_EXTENDED_PAN_ID,                       "Extended PAN Id" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_PAN_ID,                                "PAN Id" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_CHANNEL_MASK,                          "Channel Mask" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_PROTOCOL_VERSION,                      "Protocol Version" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_STACK_PROFILE,                         "Stack Profile" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_STARTUP_CONTROL,                       "Startup Control" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_TRUST_CENTER_ADDRESS,                  "Trust Center Address" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_TRUST_CENTER_MASTER_KEY,               "Trust Center Master Key" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_NETWORK_KEY,                           "Network Key" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_USE_INSECURE_JOIN,                     "Use Insecure Join" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_PRECONFIGURED_LINK_KEY,                "Preconfigured Link Key" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_NETWORK_KEY_SEQ_NUM,                   "Network Key Sequence Number" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_NETWORK_KEY_TYPE,                      "Network Key Type" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_NETWORK_MANAGER_ADDRESS,               "Network Manager Address" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_SCAN_ATTEMPTS,                         "Scan Attempts" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_TIME_BETWEEN_SCANS,                    "Time Between Scans" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_REJOIN_INTERVAL,                       "Rejoin Interval" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_MAX_REJOIN_INTERVAL,                   "Max Rejoin Interval" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_INDIRECT_POLL_RATE,                    "Indirect Poll Rate" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_PARENT_RETRY_THRESHOLD,                "Parent Retry Threshold" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_CONCENTRATOR_FLAG,                     "Concentrator Flag" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_CONCENTRATOR_RADIUS,                   "Concentrator Radius" },
+    { ZBEE_ZCL_ATTR_ID_COMMISSIONING_CONCENTRATOR_DISCOVERY_TIME,           "Concentrator Discovery Time" },
+    { 0, NULL }
+};
+
+/* Server Commands Received */
+static const value_string zbee_zcl_commissioning_srv_rx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTART_DEVICE,                         "Commissioning" },
+    { ZBEE_ZCL_CMD_ID_COMMISSIONING_SAVE_STARTUP_PARAMETERS,                "Commissioning" },
+    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTORE_STARTUP_PARAMETERS,             "Commissioning" },
+    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESET_STARTUP_PARAMETERS,               "Commissioning" },
+    { 0, NULL }
+};
+
+/* Server Commands Generated */
+static const value_string zbee_zcl_commissioning_srv_tx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTART_DEVICE_RESPONSE,                "Commissioning" },
+    { ZBEE_ZCL_CMD_ID_COMMISSIONING_SAVE_STARTUP_PARAMETERS_RESPONSE,       "Commissioning" },
+    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTORE_STARTUP_PARAMETERS_RESPONSE,    "Commissioning" },
+    { ZBEE_ZCL_CMD_ID_COMMISSIONING_RESET_STARTUP_PARAMETERS_RESPONSE,      "Commissioning" },
+    { 0, NULL }
+};
+
+static const value_string zbee_zcl_commissioning_stack_profile_values[] = {
+    {0x01, "ZigBee Stack Profile"},
+    {0x02, "ZigBee PRO Stack Profile"},
+    {0, NULL}
+};
+
+static const value_string zbee_zcl_commissioning_startup_control_values[] = {
+    {0x00, "Device is part of the network indicated by the Extended PAN Id"},
+    {0x01, "Device should form a network with the Extended PAN Id"},
+    {0x02, "Device should rejoin the network with Extended PAN Id"},
+    {0x03, "Device should join the network using MAC Association"},
+    {0, NULL}
+};
+
+static const value_string zbee_zcl_commissioning_startup_mode_values[] ={
+    {0, "Restart Device using current set of startup parameters"},
+    {1, "Restart Device using current set of stack attributes"},
+    {0, NULL}
+};
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_commissioning
+ *  DESCRIPTION
+ *      ZigBee ZCL Commissioning cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static int
+dissect_zbee_zcl_commissioning(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    proto_tree        *payload_tree;
+    zbee_zcl_packet   *zcl;
+    guint             offset = 0;
+    guint8            cmd_id;
+    gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
+
+    /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_commissioning_srv_rx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_commissioning_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check if this command has a payload, then add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_commissioning, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTART_DEVICE:
+                    dissect_zcl_commissioning_restart_device(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_COMMISSIONING_RESET_STARTUP_PARAMETERS:
+                    dissect_zcl_commissioning_reset_startup_parameters(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_COMMISSIONING_SAVE_STARTUP_PARAMETERS:
+                case ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTORE_STARTUP_PARAMETERS:
+                    dissect_zcl_commissioning_save_restore_startup_parameters(tvb, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+    else { /* ZBEE_ZCL_FCF_TO_CLIENT */
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_commissioning_srv_tx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_commissioning_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check if this command has a payload, then add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_commissioning, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTART_DEVICE_RESPONSE:
+                case ZBEE_ZCL_CMD_ID_COMMISSIONING_SAVE_STARTUP_PARAMETERS_RESPONSE:
+                case ZBEE_ZCL_CMD_ID_COMMISSIONING_RESTORE_STARTUP_PARAMETERS_RESPONSE:
+                case ZBEE_ZCL_CMD_ID_COMMISSIONING_RESET_STARTUP_PARAMETERS_RESPONSE:
+                    dissect_zcl_commissioning_response(tvb, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_commissioning*/
+
+
+ /*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_commissioning_restart_device
+ *  DESCRIPTION
+ *      this function decodes the Restart Device payload.
+ *  PARAMETERS
+ *      tvb     - the tv buffer of the current data_type
+ *      tree    - the tree to append this item to
+ *      offset  - offset of data in tvb
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_commissioning_restart_device(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    static const int * restart_device_mask[] = {
+        &hf_zbee_zcl_commissioning_restart_device_options_startup_mode,
+        &hf_zbee_zcl_commissioning_restart_device_options_immediate,
+        &hf_zbee_zcl_commissioning_restart_device_options_reserved,
+        NULL
+    };
+
+    /* Retrieve "Options" field */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_commissioning_restart_device_options, ett_zbee_zcl_commissioning_restart_device_options, restart_device_mask, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Retrieve "Delay" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_commissioning_delay, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Retrieve "Jitter" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_commissioning_jitter, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+} /*dissect_zcl_commissioning_restart_device*/
+
+
+ /*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_commissioning_save_restore_startup_parameters
+ *  DESCRIPTION
+ *      this function decodes the Save and Restore payload.
+ *  PARAMETERS
+ *      tvb     - the tv buffer of the current data_type
+ *      tree    - the tree to append this item to
+ *      offset  - offset of data in tvb
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_commissioning_save_restore_startup_parameters(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Options" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_commissioning_options, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Retrieve "Index" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_commissioning_index, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+} /*dissect_zcl_commissioning_save_restore_startup_parameters*/
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_commissioning_reset_startup_parameters
+*  DESCRIPTION
+*      this function decodes the Reset Startup Parameters payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_commissioning_reset_startup_parameters(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    static const int * reset_startup_mask[] = {
+        &hf_zbee_zcl_commissioning_reset_startup_options_reset_current,
+        &hf_zbee_zcl_commissioning_reset_startup_options_reset_all,
+        &hf_zbee_zcl_commissioning_reset_startup_options_erase_index,
+        &hf_zbee_zcl_commissioning_reset_startup_options_reserved,
+        NULL
+    };
+
+   /* Retrieve "Options" field */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_commissioning_reset_startup_options, ett_zbee_zcl_commissioning_reset_startup_options, reset_startup_mask, ENC_LITTLE_ENDIAN);
+   *offset += 1;
+
+   /* Retrieve "Index" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_commissioning_index, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+   *offset += 1;
+
+} /*dissect_zcl_commissioning_reset_startup_parameters*/
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_commissioning_response
+*  DESCRIPTION
+*      this function decodes the Response payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_commissioning_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+   /* Retrieve "Status" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_commissioning_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+   *offset += 1;
+
+} /*dissect_zcl_commissioning_response*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_commissioning_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+dissect_zcl_commissioning_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    /* Dissect attribute data type and data */
+    switch ( attr_id ) {
+
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_STACK_PROFILE:
+            proto_tree_add_item(tree, hf_zbee_zcl_commissioning_attr_stack_profile, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_STARTUP_CONTROL:
+            proto_tree_add_item(tree, hf_zbee_zcl_commissioning_attr_startup_control, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_SHORT_ADDRESS:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_EXTENDED_PAN_ID:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_PAN_ID:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_CHANNEL_MASK:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_PROTOCOL_VERSION:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_TRUST_CENTER_ADDRESS:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_TRUST_CENTER_MASTER_KEY:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_NETWORK_KEY:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_USE_INSECURE_JOIN:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_PRECONFIGURED_LINK_KEY:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_NETWORK_KEY_SEQ_NUM:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_NETWORK_KEY_TYPE:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_NETWORK_MANAGER_ADDRESS:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_SCAN_ATTEMPTS:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_TIME_BETWEEN_SCANS:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_REJOIN_INTERVAL:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_MAX_REJOIN_INTERVAL:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_INDIRECT_POLL_RATE:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_PARENT_RETRY_THRESHOLD:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_CONCENTRATOR_FLAG:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_CONCENTRATOR_RADIUS:
+        case ZBEE_ZCL_ATTR_ID_COMMISSIONING_CONCENTRATOR_DISCOVERY_TIME:
+        default:
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+
+} /*dissect_zcl_commissioning_attr_data*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_commissioning
+ *  DESCRIPTION
+ *      ZigBee ZCL Commissioning cluster protocol registration routine.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+void
+proto_register_zbee_zcl_commissioning(void)
+{
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_commissioning_attr_id,
+            { "Attribute", "zbee_zcl_general.commissioning.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_commissioning_attr_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_commissioning_attr_stack_profile,
+            { "Stack Profile", "zbee_zcl_general.commissioning.attr.stack_profile", FT_UINT8, BASE_HEX, VALS(zbee_zcl_commissioning_stack_profile_values),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_commissioning_attr_startup_control,
+            { "Startup Control", "zbee_zcl_general.commissioning.attr.startup_control", FT_UINT8, BASE_HEX, VALS(zbee_zcl_commissioning_startup_control_values),
+            0x00, NULL, HFILL } },
+
+        /* start Restart Device Options fields */
+        { &hf_zbee_zcl_commissioning_restart_device_options,
+            { "Restart Device Options", "zbee_zcl_general.commissioning.restart_device_options", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_commissioning_restart_device_options_startup_mode,
+            { "Startup Mode", "zbee_zcl_general.commissioning.restart_device_options.startup_mode", FT_UINT8, BASE_HEX, VALS(zbee_zcl_commissioning_startup_mode_values),
+            ZBEE_ZCL_COMMISSIONING_RESTART_DEVICE_OPTIONS_STARTUP_MODE, NULL, HFILL } },
+
+        { &hf_zbee_zcl_commissioning_restart_device_options_immediate,
+            { "Immediate", "zbee_zcl_general.commissioning.restart_device_options.immediate", FT_BOOLEAN, 8, NULL,
+            ZBEE_ZCL_COMMISSIONING_RESTART_DEVICE_OPTIONS_IMMEDIATE, NULL, HFILL } },
+
+        { &hf_zbee_zcl_commissioning_restart_device_options_reserved,
+            { "Reserved", "zbee_zcl_general.commissioning.restart_device_options.reserved", FT_BOOLEAN, 8, NULL,
+            ZBEE_ZCL_COMMISSIONING_RESTART_DEVICE_OPTIONS_RESERVED, NULL, HFILL } },
+        /* end Restart Device Options fields */
+
+        { &hf_zbee_zcl_commissioning_delay,
+            { "Delay", "zbee_zcl_general.commissioning.delay", FT_UINT8, BASE_DEC, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_commissioning_jitter,
+            { "Jitter", "zbee_zcl_general.commissioning.jitter", FT_UINT8, BASE_DEC, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_commissioning_options,
+            { "Options (Reserved)", "zbee_zcl_general.commissioning.options", FT_UINT8, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_commissioning_index,
+            { "Index", "zbee_zcl_general.commissioning.index", FT_UINT8, BASE_DEC, NULL,
+            0x0, NULL, HFILL } },
+
+        /* start Reset Startup Options fields */
+        { &hf_zbee_zcl_commissioning_reset_startup_options,
+            { "Reset Startup Options", "zbee_zcl_general.commissioning.reset_startup_options", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_commissioning_reset_startup_options_reset_current,
+            { "Reset Current", "zbee_zcl_general.commissioning.reset_startup_options.current", FT_BOOLEAN, 8, NULL,
+            ZBEE_ZCL_COMMISSIONING_RESET_STARTUP_OPTIONS_RESET_CURRENT, NULL, HFILL } },
+
+        { &hf_zbee_zcl_commissioning_reset_startup_options_reset_all,
+            { "Reset All", "zbee_zcl_general.commissioning.reset_startup_options.reset_all", FT_BOOLEAN, 8, NULL,
+            ZBEE_ZCL_COMMISSIONING_RESET_STARTUP_OPTIONS_RESET_ALL, NULL, HFILL } },
+
+        { &hf_zbee_zcl_commissioning_reset_startup_options_erase_index,
+            { "Erase Index", "zbee_zcl_general.commissioning.reset_startup_options.erase_index", FT_BOOLEAN, 8, NULL,
+            ZBEE_ZCL_COMMISSIONING_RESET_STARTUP_OPTIONS_ERASE_INDEX, NULL, HFILL } },
+
+        { &hf_zbee_zcl_commissioning_reset_startup_options_reserved,
+            { "Reserved", "zbee_zcl_general.commissioning.reset_startup_options.reserved", FT_BOOLEAN, 8, NULL,
+            ZBEE_ZCL_COMMISSIONING_RESET_STARTUP_OPTIONS_RESERVED, NULL, HFILL } },
+        /* end Reset Startup Options fields */
+
+        { &hf_zbee_zcl_commissioning_status,
+            { "Status", "zbee_zcl_general.commissioning.status", FT_UINT8, BASE_HEX, VALS(zbee_zcl_status_names),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_commissioning_srv_rx_cmd_id,
+          { "Command", "zbee_zcl_general.commissioning.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_commissioning_srv_rx_cmd_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_commissioning_srv_tx_cmd_id,
+          { "Command", "zbee_zcl_general.commissioning.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_commissioning_srv_tx_cmd_names),
+            0x00, NULL, HFILL } }
+
+    };
+
+    /* ZCL Commissioning subtrees */
+    static gint *ett[ZBEE_ZCL_COMMISSIONING_NUM_ETT];
+    ett[0] = &ett_zbee_zcl_commissioning;
+    ett[1] = &ett_zbee_zcl_commissioning_restart_device_options;
+    ett[2] = &ett_zbee_zcl_commissioning_reset_startup_options;
+
+    /* Register the ZigBee ZCL Commissioning cluster protocol name and description */
+    proto_zbee_zcl_commissioning = proto_register_protocol("ZigBee ZCL Commissioning", "ZCL Commissioning", ZBEE_PROTOABBREV_ZCL_COMMISSIONING);
+    proto_register_field_array(proto_zbee_zcl_commissioning, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Commissioning dissector. */
+    register_dissector(ZBEE_PROTOABBREV_ZCL_COMMISSIONING, dissect_zbee_zcl_commissioning, proto_zbee_zcl_commissioning);
+
+} /*proto_register_zbee_zcl_commissioning*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_commissioning
+ *  DESCRIPTION
+ *      Hands off the ZCL Commissioning dissector.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_reg_handoff_zbee_zcl_commissioning(void)
+{
+    dissector_handle_t commissioning_handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    commissioning_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_COMMISSIONING);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_COMMISSIONING, commissioning_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_commissioning,
+                            ett_zbee_zcl_commissioning,
+                            ZBEE_ZCL_CID_COMMISSIONING,
+                            hf_zbee_zcl_commissioning_attr_id,
+                            hf_zbee_zcl_commissioning_srv_rx_cmd_id,
+                            hf_zbee_zcl_commissioning_srv_tx_cmd_id,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_commissioning_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_commissioning*/
+
+
+/* ########################################################################## */
 /* #### (0x0016) PARTITION ################################################## */
 /* ########################################################################## */
 

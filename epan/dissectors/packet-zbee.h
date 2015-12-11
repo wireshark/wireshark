@@ -1139,6 +1139,7 @@
 #define ZBEE_PROTOABBREV_ZCL_PART           "zbee_zcl_general.part"
 #define ZBEE_PROTOABBREV_ZCL_POLL           "zbee_zcl_general.poll"
 #define ZBEE_PROTOABBREV_ZCL_PWRPROF        "zbee_zcl_general.pwrprof"
+#define ZBEE_PROTOABBREV_ZCL_COMMISSIONING  "zbee_zcl_general.commissioning"
 #define ZBEE_PROTOABBREV_ZCL_ILLUMMEAS      "zbee_zcl_meas_sensing.illummeas"
 #define ZBEE_PROTOABBREV_ZCL_ILLUMLEVELSEN  "zbee_zcl_meas_sensing.illumlevelsen"
 #define ZBEE_PROTOABBREV_ZCL_PRESSMEAS      "zbee_zcl_meas_sensing.pressmeas"
