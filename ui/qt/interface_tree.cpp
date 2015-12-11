@@ -80,22 +80,19 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
 
 InterfaceTree::~InterfaceTree() {
 #ifdef HAVE_LIBPCAP
-    QTreeWidgetItemIterator iter(this);
-
     if (stat_cache_) {
       capture_stat_stop(stat_cache_);
       stat_cache_ = NULL;
     }
-
-    while (*iter) {
-        QList<int> *points;
-
-        points = (*iter)->data(IFTREE_COL_STATS, Qt::UserRole).value<QList<int> *>();
-        delete(points);
-        ++iter;
-    }
 #endif // HAVE_LIBPCAP
 }
+
+class InterfaceTreeWidgetItem : public QTreeWidgetItem
+{
+public:
+    InterfaceTreeWidgetItem() : QTreeWidgetItem()  {}
+    QList<int> points;
+};
 
 /* Resets the column count to the maximum colum count
  *
@@ -173,8 +170,6 @@ void InterfaceTree::display()
     resetColumnCount();
 
     for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-        QList<int> *points;
-
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
 
         /* Continue if capture device is hidden */
@@ -182,11 +177,10 @@ void InterfaceTree::display()
             continue;
         }
 
-        QTreeWidgetItem *ti = new QTreeWidgetItem();
+        InterfaceTreeWidgetItem *ti = new InterfaceTreeWidgetItem();
         ti->setText(IFTREE_COL_NAME, QString().fromUtf8(device.display_name));
         ti->setData(IFTREE_COL_NAME, Qt::UserRole, QString(device.name));
-        points = new QList<int>();
-        ti->setData(IFTREE_COL_STATS, Qt::UserRole, qVariantFromValue(points));
+        ti->setData(IFTREE_COL_STATS, Qt::UserRole, qVariantFromValue(&ti->points));
 #if HAVE_EXTCAP
         if ( device.if_info.type == IF_EXTCAP )
         {
