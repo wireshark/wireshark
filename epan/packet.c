@@ -2580,7 +2580,7 @@ dissector_handle_get_dissector_name(const dissector_handle_t handle)
 
 /* Create an anonymous handle for a new dissector. */
 dissector_handle_t
-new_create_dissector_handle(new_dissector_t dissector, const int proto)
+create_dissector_handle(new_dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
 
@@ -2618,7 +2618,7 @@ destroy_dissector_handle(dissector_handle_t handle)
 
 /* Register a new dissector by name. */
 dissector_handle_t
-new_register_dissector(const char *name, new_dissector_t dissector, const int proto)
+register_dissector(const char *name, new_dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
 
