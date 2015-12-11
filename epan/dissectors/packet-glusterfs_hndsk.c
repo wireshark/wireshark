@@ -62,6 +62,16 @@ static gint hf_gluster_hndsk_flags = -1;
 static gint ett_gluster_cbk = -1;
 static gint ett_gluster_hndsk = -1;
 
+/* CBK_CACHE_INVALIDATION */
+static gint hf_gluster_cbk_gfid = -1;
+static gint hf_gluster_cbk_upcall_event_type = -1;
+static gint hf_gluster_cbk_ci_flags = -1;
+static gint hf_gluster_cbk_ci_expire_time_attr = -1;
+static gint hf_gluster_cbk_ci_stat = -1;
+static gint hf_gluster_cbk_ci_parent_stat = -1;
+static gint hf_gluster_cbk_ci_oldparent_stat = -1;
+static gint hf_gluster_cbk_xdata = -1;
+
 /* procedures for GLUSTER_HNDSK_PROGRAM */
 static int
 gluster_hndsk_setvolume_reply(tvbuff_t *tvb, packet_info *pinfo,
@@ -173,6 +183,27 @@ gluster_hndsk_2_event_notify_reply(tvbuff_t *tvb,
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_gluster_hndsk_dict,
 								offset);
+	return offset;
+}
+
+/* In  rpc/xdr/src/glusterfs3-xdr.c. xdr_gfs3_cbk_cache_invalidation_req */
+static int
+gluster_cbk_cache_invalidation_call(tvbuff_t *tvb,
+				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+	int offset = 0;
+
+	offset = dissect_rpc_string(tvb, tree, hf_gluster_cbk_gfid, offset, NULL);
+	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_cbk_upcall_event_type, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_cbk_ci_flags, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_cbk_ci_expire_time_attr, offset);
+	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb,
+					hf_gluster_cbk_ci_stat, offset);
+	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb,
+					hf_gluster_cbk_ci_parent_stat, offset);
+	offset = glusterfs_rpc_dissect_gf_iatt(tree, tvb,
+					hf_gluster_cbk_ci_oldparent_stat, offset);
+	offset = gluster_rpc_dissect_dict(tree, tvb, hf_gluster_cbk_xdata, offset);
 	return offset;
 }
 
@@ -316,6 +347,10 @@ static const vsff gluster_cbk_proc[] = {
 	{ GF_CBK_NULL,      "NULL",      dissect_rpc_void, dissect_rpc_void },
 	{ GF_CBK_FETCHSPEC, "FETCHSPEC", dissect_rpc_unknown, dissect_rpc_unknown },
 	{ GF_CBK_INO_FLUSH, "INO_FLUSH", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GF_CBK_EVENT_NOTIFY, "EVENTNOTIFY", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GF_CBK_GET_SNAPS, "GETSNAPS", dissect_rpc_unknown, dissect_rpc_unknown },
+	{ GF_CBK_CACHE_INVALIDATION, "CACHE_INVALIDATION",
+	  gluster_cbk_cache_invalidation_call, dissect_rpc_unknown },
 	{ 0, NULL, NULL, NULL }
 };
 static const rpc_prog_vers_info gluster_cbk_vers_info[] = {
@@ -325,8 +360,18 @@ static const value_string gluster_cbk_proc_vals[] = {
 	{ GF_CBK_NULL,      "NULL" },
 	{ GF_CBK_FETCHSPEC, "FETCHSPEC" },
 	{ GF_CBK_INO_FLUSH, "INO_FLUSH" },
+	{ GF_CBK_EVENT_NOTIFY, "EVENTNOTIFY" },
+	{ GF_CBK_GET_SNAPS, "GETSNAPS" },
+	{ GF_CBK_CACHE_INVALIDATION, "CACHE_INVALIDATION" },
 	{ 0, NULL }
 };
+
+static const value_string gluster_cbk_upcall_event_type[] = {
+	{ GF_UPCALL_EVENT_NULL,      "NULL" },
+	{ GF_UPCALL_CACHE_INVALIDATION, "CACHE_INVALIDATION" },
+	{ 0, NULL }
+};
+static value_string_ext gluster_cbk_upcall_event_type_ext = VALUE_STRING_EXT_INIT(gluster_cbk_upcall_event_type);
 
 void
 proto_register_gluster_cbk(void)
@@ -338,7 +383,39 @@ proto_register_gluster_cbk(void)
 			{ "GlusterFS Callback", "glusterfs.cbk.proc",
 				FT_UINT32, BASE_DEC,
 				VALS(gluster_cbk_proc_vals), 0, NULL, HFILL }
-		}
+		},
+		{ &hf_gluster_cbk_gfid,
+			{ "GFID", "glusterfs.cbk.gfid", FT_STRING, BASE_NONE,
+				NULL, 0, NULL, HFILL }
+		},
+		{ &hf_gluster_cbk_upcall_event_type,
+			{ "Event Type", "glusterfs.cbk.upcall.event_type", FT_UINT32, BASE_DEC | BASE_EXT_STRING,
+				&gluster_cbk_upcall_event_type_ext, 0, NULL, HFILL }
+		},
+		{ &hf_gluster_cbk_ci_flags,
+			{ "Flags", "glusterfs.cbk.cache_invalidation.flags", FT_UINT32, BASE_DEC_HEX,
+				NULL, 0, NULL, HFILL }
+		},
+		{ &hf_gluster_cbk_ci_expire_time_attr,
+			{ "Expire Time Attr", "glusterfs.cbk.cache_invalidation.expire_time_attr",
+				FT_UINT32, BASE_OCT, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_gluster_cbk_ci_stat,
+			{ "Stat", "glusterfs.cbk.cache_invalidation.stat", FT_NONE, BASE_NONE, NULL,
+				0, NULL, HFILL }
+		},
+		{ &hf_gluster_cbk_ci_parent_stat,
+			{ "Parent Stat", "glusterfs.cbk.cache_invalidation.parent.stat", FT_NONE, BASE_NONE, NULL,
+				0, NULL, HFILL }
+		},
+		{ &hf_gluster_cbk_ci_oldparent_stat,
+			{ "Old Parent Stat", "glusterfs.cbk.cache_invalidation.oldparent.stat",
+				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_gluster_cbk_xdata,
+			{ "Xdata", "glusterfs.cbk.xdata", FT_STRING, BASE_NONE,
+				NULL, 0, NULL, HFILL }
+		},
 	};
 
 	/* Setup protocol subtree array */
