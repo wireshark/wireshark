@@ -2126,7 +2126,7 @@ void MainWindow::setTimestampFormat(QAction *action)
             cf_timestamp_auto_precision(capture_file_.capFile());
         }
         if (packet_list_) {
-            packet_list_->columnsChanged();
+            packet_list_->resetColumns();
         }
     }
 }
@@ -2148,7 +2148,7 @@ void MainWindow::setTimestampPrecision(QAction *action)
             cf_timestamp_auto_precision(capture_file_.capFile());
         }
         if (packet_list_) {
-            packet_list_->columnsChanged();
+            packet_list_->resetColumns();
         }
     }
 }
@@ -2167,7 +2167,7 @@ void MainWindow::on_actionViewTimeDisplaySecondsWithHoursAndMinutes_triggered(bo
         cf_timestamp_auto_precision(capture_file_.capFile());
     }
     if (packet_list_) {
-        packet_list_->columnsChanged();
+        packet_list_->resetColumns();
     }
 }
 
@@ -2191,7 +2191,7 @@ void MainWindow::setNameResolution()
     gbl_resolv_flags.transport_name = main_ui_->actionViewNameResolutionTransport->isChecked() ? TRUE : FALSE;
 
     if (packet_list_) {
-        packet_list_->columnsChanged();
+        packet_list_->resetColumns();
     }
 }
 

@@ -454,8 +454,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&capture_file_, SIGNAL(captureFileReadFinished()),
             wsApp, SLOT(updateTaps()));
 
-    connect(wsApp, SIGNAL(recentFilesRead()),
-            packet_list_, SLOT(applyRecentColumnWidths()));
     connect(wsApp, SIGNAL(columnsChanged()),
             packet_list_, SLOT(columnsChanged()));
     connect(wsApp, SIGNAL(preferencesChanged()),
