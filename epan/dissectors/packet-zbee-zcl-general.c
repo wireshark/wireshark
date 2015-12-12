@@ -3593,7 +3593,7 @@ dissect_zcl_pwr_prof_pwrprofstatersp(tvbuff_t *tvb, proto_tree *tree, guint *off
     guint8 power_profile_count;
 
     /* Retrieve "Total Profile Number" field */
-    power_profile_count = tvb_get_guint8(tvb, *offset);
+    power_profile_count = MIN(tvb_get_guint8(tvb, *offset), ZBEE_ZCL_PWR_PROF_NUM_PWR_PROF_ETT);
     proto_tree_add_item(tree, hf_zbee_zcl_pwr_prof_pwr_prof_count, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
