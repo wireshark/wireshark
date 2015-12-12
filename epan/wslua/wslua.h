@@ -522,7 +522,7 @@ extern int wslua_set__index(lua_State *L);
         return 0; \
     } \
     /* silly little trick so we can add a semicolon after this macro */ \
-    static int C##_set_##field(lua_State*)
+    typedef void __dummy##C##_set_##field
 
 #define WSLUA_ATTRIBUTE_GET(C,name,block) \
     static int C##_get_##name (lua_State* L) { \
@@ -531,7 +531,7 @@ extern int wslua_set__index(lua_State *L);
         return 1; \
     } \
     /* silly little trick so we can add a semicolon after this macro */ \
-    static int C##_get_##name(lua_State*)
+    typedef void __dummy##C##_get_##name
 
 #define WSLUA_ATTRIBUTE_NAMED_BOOLEAN_GETTER(C,name,member) \
     WSLUA_ATTRIBUTE_GET(C,name,{lua_pushboolean(L, obj->member );})
@@ -561,7 +561,7 @@ extern int wslua_set__index(lua_State *L);
         return 0; \
     } \
     /* silly little trick so we can add a semicolon after this macro */ \
-    static int C##_set_##name(lua_State*)
+    typedef void __dummy##C##_set_##name
 
 #define WSLUA_ATTRIBUTE_NAMED_BOOLEAN_SETTER(C,name,member) \
     WSLUA_ATTRIBUTE_SET(C,name, { \
@@ -597,7 +597,7 @@ extern int wslua_set__index(lua_State *L);
         return 0; \
     } \
     /* silly little trick so we can add a semicolon after this macro */ \
-    static int C##_set_##field(lua_State*)
+    typedef void __dummy##C##_set_##field
 
 #define WSLUA_ATTRIBUTE_STRING_SETTER(C,field,need_free) \
     WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(C,field,field,need_free)
