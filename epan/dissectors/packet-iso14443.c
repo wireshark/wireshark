@@ -113,6 +113,7 @@ static const value_string iso14443_block_type[] = {
 const true_false_string tfs_wupb_reqb = { "WUPB", "REQB" };
 const true_false_string tfs_compliant_not_compliant = { "Compliant", "Not compliant" };
 const true_false_string tfs_incomplete_complete = { "Incomplete", "Complete" };
+const true_false_string tfs_iso_propr = { "As defined in ISO14443-3", "Proprietary" };
 
 #define CT_BYTE 0x88
 
@@ -130,6 +131,8 @@ static dissector_table_t iso14443_cmd_type_table;
 static int ett_iso14443 = -1;
 static int ett_iso14443_hdr = -1;
 static int ett_iso14443_msg = -1;
+static int ett_iso14443_app_data = -1;
+static int ett_iso14443_prot_inf = -1;
 static int ett_iso14443_pcb = -1;
 
 static int hf_iso14443_hdr_ver = -1;
@@ -149,11 +152,19 @@ static int hf_iso14443_wupb = -1;
 static int hf_iso14443_n = -1;
 static int hf_iso14443_atqb_start = -1;
 static int hf_iso14443_app_data = -1;
-static int hf_iso14443_proto_info = -1;
+static int hf_iso14443_num_afi_apps = -1;
+static int hf_iso14443_total_num_apps = -1;
+static int hf_iso14443_prot_inf = -1;
+static int hf_iso14443_bit_rate_cap = -1;
+static int hf_iso14443_min_tr2 = -1;
+static int hf_iso14443_4_compl_atqb = -1;
+static int hf_iso14443_adc = -1;
+static int hf_iso14443_nad_supported = -1;
+static int hf_iso14443_cid_supported = -1;
 static int hf_iso14443_hlta = -1;
 static int hf_iso14443_sel = -1;
 static int hf_iso14443_nvb = -1;
-static int hf_iso14443_4_compliant = -1;
+static int hf_iso14443_4_compl_sak = -1;
 static int hf_iso14443_uid_complete = -1;
 static int hf_iso14443_ct = -1;
 static int hf_iso14443_uid_cln = -1;
@@ -228,17 +239,101 @@ dissect_iso14443_cmd_type_wupa(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
+static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo, proto_tree *tree, gboolean crc_dropped)
+{
+    proto_item *ti = proto_tree_get_parent(tree);
+    proto_item *app_data_it, *prot_inf_it;
+    proto_tree *app_data_tree, *prot_inf_tree;
+    gint app_data_offset, rem_len;
+    gboolean iso14443_adc;
+    guint8 prot_inf_len = 0;
+
+    col_set_str(pinfo->cinfo, COL_INFO, "ATQB");
+    proto_item_append_text(ti, ": ATQB");
+    proto_tree_add_item(tree, hf_iso14443_atqb_start,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_iso14443_pupi,
+            tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    app_data_offset = offset;
+    app_data_it = proto_tree_add_item(tree, hf_iso14443_app_data,
+            tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    /* we should not link the protocol info length to the "extended
+       ATQB supported" field in the WUPB - even if the PCD supports
+       extended ATQB, the PICC may still send a basic one */
+    rem_len = tvb_reported_length_remaining(tvb, offset);
+    if (!crc_dropped) {
+        if (rem_len == 5 || rem_len == 6)
+            prot_inf_len = rem_len - 2;
+    }
+    else if (rem_len == 3 || rem_len == 4)
+        prot_inf_len = rem_len;
+    /* XXX - exception if (prot_inf_len==0) */
+
+    prot_inf_it = proto_tree_add_item(tree, hf_iso14443_prot_inf,
+            tvb, offset, prot_inf_len, ENC_BIG_ENDIAN);
+    prot_inf_tree = proto_item_add_subtree(
+            prot_inf_it, ett_iso14443_prot_inf);
+    proto_tree_add_item(prot_inf_tree, hf_iso14443_bit_rate_cap,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* XXX - max_frame_size */
+    proto_tree_add_item(prot_inf_tree, hf_iso14443_min_tr2,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(prot_inf_tree, hf_iso14443_4_compl_atqb,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* XXX - FWI */
+    iso14443_adc = tvb_get_guint8(tvb, offset) & 0x04;
+    proto_tree_add_item(prot_inf_tree, hf_iso14443_adc,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    if (iso14443_adc) {
+        app_data_tree = proto_item_add_subtree(
+                app_data_it, ett_iso14443_app_data);
+        proto_tree_add_item(app_data_tree, hf_iso14443_afi,
+                tvb, app_data_offset, 1, ENC_BIG_ENDIAN);
+        app_data_offset++;
+        /* XXX - CRC_B app */
+        app_data_offset += 2;
+        proto_tree_add_item(app_data_tree, hf_iso14443_num_afi_apps,
+                tvb, app_data_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(app_data_tree, hf_iso14443_total_num_apps,
+                tvb, app_data_offset, 1, ENC_BIG_ENDIAN);
+    }
+    proto_tree_add_item(prot_inf_tree, hf_iso14443_nad_supported,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(prot_inf_tree, hf_iso14443_cid_supported,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* XXX - extended ATQB */
+    if (prot_inf_len>3)
+        offset++;
+
+    if (!crc_dropped) {
+        proto_tree_add_item(tree, hf_iso14443_crc,
+                tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
+        offset += CRC_LEN;
+    }
+
+    return offset;
+}
+
+
 static int
 dissect_iso14443_cmd_type_wupb(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
-    gboolean crc_dropped = (gboolean)GPOINTER_TO_UINT(data);
     proto_item *ti = proto_tree_get_parent(tree);
+    gboolean crc_dropped = (gboolean)GPOINTER_TO_UINT(data);
     gint offset = 0;
     guint8 param;
     const char *msg_type;
-    gint rem_len;
-    guint8 proto_info_len = 0;
 
     if (pinfo->p2p_dir == P2P_DIR_SENT) {
         proto_tree_add_item(tree, hf_iso14443_apf,
@@ -269,43 +364,7 @@ dissect_iso14443_cmd_type_wupb(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
-        col_set_str(pinfo->cinfo, COL_INFO, "ATQB");
-        proto_item_append_text(ti, ": ATQB");
-        proto_tree_add_item(tree, hf_iso14443_atqb_start,
-                tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
-
-        proto_tree_add_item(tree, hf_iso14443_pupi,
-                tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-
-        /* XXX - add a subtree and dissect the components */
-        proto_tree_add_item(tree, hf_iso14443_app_data,
-                tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-
-        /* we should not link the protocol info length to the "extended
-           ATQB supported" field in the WUPB - even if the PCD supports
-           extended ATQB, the PICC may still send a basic one */
-        rem_len = tvb_reported_length_remaining(tvb, offset);
-        if (!crc_dropped) {
-            if (rem_len == 5 || rem_len == 6)
-                proto_info_len = rem_len - 2;
-        }
-        else if (rem_len == 3 || rem_len == 4)
-            proto_info_len = rem_len;
-
-        /* XXX - exception if (proto_info_len==0) */
-        /* XXX - add a subtree and dissect the components */
-        proto_tree_add_item(tree, hf_iso14443_proto_info,
-                tvb, offset, proto_info_len, ENC_BIG_ENDIAN);
-        offset += proto_info_len;
-
-        if (!crc_dropped) {
-            proto_tree_add_item(tree, hf_iso14443_crc,
-                    tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
-            offset += CRC_LEN;
-        }
+        offset = dissect_iso14443_atqb(tvb, offset, pinfo, tree, crc_dropped);
     }
 
     return offset;
@@ -392,7 +451,7 @@ dissect_iso14443_cmd_type_uid(tvbuff_t *tvb, packet_info *pinfo,
         if (tvb_reported_length_remaining(tvb, offset) <= 3) {
             col_set_str(pinfo->cinfo, COL_INFO, "SAK");
             proto_item_append_text(ti, ": SAK");
-            proto_tree_add_item(tree, hf_iso14443_4_compliant,
+            proto_tree_add_item(tree, hf_iso14443_4_compl_sak,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_iso14443_uid_complete,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -937,9 +996,41 @@ proto_register_iso14443(void)
             { "Application data", "iso14443.application_data",
                 FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
         },
-        { &hf_iso14443_proto_info,
+        { &hf_iso14443_num_afi_apps,
+            { "Number of applications for this AFI", "iso14443.num_afi_apps",
+                FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }
+        },
+        { &hf_iso14443_total_num_apps,
+            { "Total number of applications", "iso14443.total_num_apps",
+                FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }
+        },
+        { &hf_iso14443_prot_inf,
             { "Protocol info", "iso14443.protocol_info",
                 FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_bit_rate_cap,
+            { "Bit rate capability", "iso14443.bit_rate_cap",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_min_tr2,
+            { "Minimum TR2", "iso14443.min_tr2",
+                FT_UINT8, BASE_HEX, NULL, 0x06, NULL, HFILL }
+        },
+        { &hf_iso14443_4_compl_atqb,
+            { "Compliant with ISO 14443-4", "iso14443.4_compliant", FT_BOOLEAN, 8,
+                TFS(&tfs_compliant_not_compliant), 0x01, NULL, HFILL }
+        },
+        { &hf_iso14443_adc,
+            { "Application Data Coding", "iso14443.adc", FT_BOOLEAN, 8,
+                TFS(&tfs_iso_propr), 0x04, NULL, HFILL }
+        },
+        { &hf_iso14443_nad_supported,
+            { "NAD", "iso14443.nad_supported", FT_BOOLEAN, 8,
+                TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }
+        },
+        { &hf_iso14443_cid_supported,
+            { "CID", "iso14443.cid_supported", FT_BOOLEAN, 8,
+                TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL }
         },
         { &hf_iso14443_hlta,
             { "HLTA", "iso14443.hlta",
@@ -953,7 +1044,7 @@ proto_register_iso14443(void)
             { "NVB", "iso14443.nvb",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
         },
-        { &hf_iso14443_4_compliant,
+        { &hf_iso14443_4_compl_sak,
             { "Compliant with ISO 14443-4", "iso14443.4_compliant", FT_BOOLEAN, 8,
                 TFS(&tfs_compliant_not_compliant), 0x20, NULL, HFILL }
         },
@@ -1055,6 +1146,8 @@ proto_register_iso14443(void)
         &ett_iso14443,
         &ett_iso14443_hdr,
         &ett_iso14443_msg,
+        &ett_iso14443_app_data,
+        &ett_iso14443_prot_inf,
         &ett_iso14443_pcb
     };
 
