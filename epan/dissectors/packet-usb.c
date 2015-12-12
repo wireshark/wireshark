@@ -3465,7 +3465,7 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
      *
      * When a capture file is transfered to a host with different endianness
      * than packet was captured then the necessary swapping happens in
-     * wiretap/pcap-common.c, pcap_process_linux_usb_pseudoheader().
+     * wiretap/pcap-common.c, pcap_byteswap_linux_usb_pseudoheader().
      */
 
     /* iso urbs on linux can't possibly contain a setup packet
