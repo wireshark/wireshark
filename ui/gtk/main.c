@@ -3154,9 +3154,10 @@ DIAG_ON(cast-qual)
     switch (user_font_apply()) {
         case FA_SUCCESS:
             break;
-        case FA_FONT_NOT_RESIZEABLE:
-            /* "user_font_apply()" popped up an alert box. */
-            /* turn off zooming - font can't be resized */
+        case FA_ZOOMED_TOO_FAR:
+            /* The zoom level is too big for this font; turn off zooming. */
+            recent.gui_zoom_level = 0;
+            break;
         case FA_FONT_NOT_AVAILABLE:
             /* XXX - did we successfully load the un-zoomed version earlier?
              If so, this *probably* means the font is available, but not at
@@ -3168,6 +3169,7 @@ DIAG_ON(cast-qual)
             /* in any other case than FA_SUCCESS, turn off zooming */
             recent.gui_zoom_level = 0;
             /* XXX: would it be a good idea to disable zooming (insensitive GUI)? */
+            break;
     }
 
     dnd_init(top_level);

@@ -79,8 +79,7 @@ view_zoom_in_cb(GtkWidget *w _U_, gpointer d _U_)
     case FA_SUCCESS:
         break;
 
-    case FA_FONT_NOT_RESIZEABLE:
-        /* "font_apply()" popped up an alert box. */
+    case FA_ZOOMED_TOO_FAR:
         recent.gui_zoom_level = save_gui_zoom_level;    /* undo zoom */
         break;
 
@@ -105,8 +104,7 @@ view_zoom_out_cb(GtkWidget *w _U_, gpointer d _U_)
     case FA_SUCCESS:
         break;
 
-    case FA_FONT_NOT_RESIZEABLE:
-        /* "font_apply()" popped up an alert box. */
+    case FA_ZOOMED_TOO_FAR:
         recent.gui_zoom_level = save_gui_zoom_level;    /* undo zoom */
         break;
 
@@ -131,8 +129,7 @@ view_zoom_100_cb(GtkWidget *w _U_, gpointer d _U_)
     case FA_SUCCESS:
         break;
 
-    case FA_FONT_NOT_RESIZEABLE:
-        /* "font_apply()" popped up an alert box. */
+    case FA_ZOOMED_TOO_FAR:
         recent.gui_zoom_level = save_gui_zoom_level;    /* undo zoom */
         break;
 
@@ -180,9 +177,7 @@ font_zoom(char *gui_font_name)
     long font_point_size_l;
 
     if (recent.gui_zoom_level == 0) {
-        /* There is no zoom factor - just return the name, so that if
-           this is GTK+ 1.2[.x] and the font name isn't an XLFD font
-           name, we don't fail. */
+        /* There is no zoom factor - just return the name */
         return g_strdup(gui_font_name);
     }
 
@@ -196,6 +191,9 @@ font_zoom(char *gui_font_name)
     /* calculate the new font size */
     font_point_size_l = strtol(font_name_p, NULL, 10);
     font_point_size_l += recent.gui_zoom_level;
+    /* make sure the size didn't become zero or negative */
+    if (font_point_size_l <= 0)
+        return NULL;
 
     /* build a new font name */
     new_font_name = g_strdup_printf("%s %ld", font_name_dup, font_point_size_l);
@@ -213,16 +211,8 @@ user_font_apply(void) {
 
     /* convert font name to reflect the zoom level */
     gui_font_name = font_zoom(prefs.gui_gtk2_font_name);
-    if (gui_font_name == NULL) {
-        /*
-         * This means the font name isn't an XLFD font name.
-         * We just report that for now as a font not available in
-         * multiple sizes.
-         */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-            "Your current font isn't available in any other sizes.\n");
-        return FA_FONT_NOT_RESIZEABLE;
-    }
+    if (gui_font_name == NULL)
+        return FA_ZOOMED_TOO_FAR;
 
     /* load normal font */
     new_r_font = pango_font_description_from_string(gui_font_name);
