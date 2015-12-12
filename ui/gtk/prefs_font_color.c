@@ -507,9 +507,8 @@ font_color_prefs_apply(GtkWidget *w _U_, gboolean redissect)
     case FA_SUCCESS:
       break;
 
-    case FA_FONT_NOT_RESIZEABLE:
-      /* "user_font_apply()" popped up an alert box. */
-      /* turn off zooming - font can't be resized */
+    case FA_ZOOMED_TOO_FAR:
+      /* zoomed too far - turn off zooming */
       recent.gui_zoom_level = 0;
       break;
 
