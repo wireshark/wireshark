@@ -454,6 +454,14 @@ static gint hf_btcommon_eir_ad_ips_local_east_coordinate = -1;
 static gint hf_btcommon_eir_ad_ips_tx_power_level = -1;
 static gint hf_btcommon_eir_ad_ips_floor_number = -1;
 static gint hf_btcommon_eir_ad_ips_altitude = -1;
+static gint hf_btcommon_eir_ad_tds_organization_id = -1;
+static gint hf_btcommon_eir_ad_tds_flags = -1;
+static gint hf_btcommon_eir_ad_tds_flags_reserved = -1;
+static gint hf_btcommon_eir_ad_tds_flags_transport_state = -1;
+static gint hf_btcommon_eir_ad_tds_flags_transport_data_incomplete = -1;
+static gint hf_btcommon_eir_ad_tds_flags_role = -1;
+static gint hf_btcommon_eir_ad_tds_data_length = -1;
+static gint hf_btcommon_eir_ad_tds_data = -1;
 static gint hf_btcommon_cod_class_of_device = -1;
 static gint hf_btcommon_cod_format_type = -1;
 static gint hf_btcommon_cod_major_service_class_information = -1;
@@ -545,6 +553,15 @@ static const int *hfx_btcommon_eir_ad_ips_uncertainty[] = {
     NULL
 };
 
+static const int *hfx_btcommon_eir_ad_tds_flags[] = {
+    &hf_btcommon_eir_ad_tds_flags_reserved,
+    &hf_btcommon_eir_ad_tds_flags_transport_state,
+    &hf_btcommon_eir_ad_tds_flags_transport_data_incomplete,
+    &hf_btcommon_eir_ad_tds_flags_role,
+    NULL
+};
+
+
 static gint ett_cod = -1;
 static gint ett_eir_ad = -1;
 static gint ett_eir_ad_entry = -1;
@@ -552,6 +569,7 @@ static gint ett_eir_ad_entry = -1;
 static expert_field ei_eir_ad_undecoded                               = EI_INIT;
 static expert_field ei_eir_ad_unknown                                 = EI_INIT;
 static expert_field ei_eir_ad_not_used                                = EI_INIT;
+static expert_field ei_eir_ad_invalid_length                          = EI_INIT;
 
 static dissector_handle_t btcommon_cod_handle;
 static dissector_handle_t btcommon_eir_handle;
@@ -560,6 +578,7 @@ static dissector_handle_t btcommon_le_channel_map_handle;
 static dissector_handle_t bthci_cmd_handle;
 
 static dissector_table_t  bluetooth_eir_ad_manufacturer_company_id;
+static dissector_table_t  bluetooth_eir_ad_tds_organization_id;
 
 wmem_tree_t *bthci_cmds = NULL;
 
@@ -1513,6 +1532,27 @@ static const value_string le_role_vals[] = {
 };
 value_string_ext le_role_vals_ext = VALUE_STRING_EXT_INIT(le_role_vals);
 
+static const value_string tds_organization_id_vals[] = {
+    { 0x00, "RFU" },
+    { 0x01, "Bluetooth SIG" },
+    {0, NULL }
+};
+
+static const value_string tds_role_vals[] = {
+    { 0x00, "Not Specified" },
+    { 0x01, "Seeker Only" },
+    { 0x02, "Provider Only" },
+    { 0x03, "Both Seeker and Provider" },
+    {0, NULL }
+};
+
+static const value_string tds_transport_state_vals[] = {
+    { 0x00, "Off" },
+    { 0x01, "On" },
+    { 0x02, "Temporarily Unavailable" },
+    { 0x03, "RFU" },
+    {0, NULL }
+};
 
 void proto_register_bthci_cmd(void);
 void proto_reg_handoff_bthci_cmd(void);
@@ -4947,8 +4987,8 @@ proto_reg_handoff_bthci_cmd(void)
     dissector_add_uint("hci_h1.type", BTHCI_CHANNEL_COMMAND, bthci_cmd_handle);
 }
 
-
 #define PROTO_DATA_BLUETOOTH_EIR_AD_MANUFACTURER_COMPANY_ID  0
+#define PROTO_DATA_BLUETOOTH_EIR_AD_TDS_ORGANIZATION_ID      1
 
 static void bluetooth_eir_ad_manufacturer_company_id_prompt(packet_info *pinfo, gchar* result)
 {
@@ -4973,6 +5013,29 @@ static gpointer bluetooth_eir_ad_manufacturer_company_id_value(packet_info *pinf
     return NULL;
 }
 
+static void bluetooth_eir_ad_tds_organization_id_prompt(packet_info *pinfo, gchar* result)
+{
+    guint8 *value_data;
+
+    value_data = (guint8 *) p_get_proto_data(pinfo->pool, pinfo, proto_btcommon, PROTO_DATA_BLUETOOTH_EIR_AD_TDS_ORGANIZATION_ID);
+    if (value_data)
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "TDS Organization ID 0x%02x as", (guint) *value_data);
+    else
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown TDS Organization ID");
+}
+
+static gpointer bluetooth_eir_ad_tds_organization_id_value(packet_info *pinfo)
+{
+    guint8 *value_data;
+
+    value_data = (guint8 *) p_get_proto_data(pinfo->pool, pinfo, proto_btcommon, PROTO_DATA_BLUETOOTH_EIR_AD_TDS_ORGANIZATION_ID);
+
+    if (value_data)
+        return GUINT_TO_POINTER((gulong)*value_data);
+
+    return NULL;
+}
+
 static gint
 dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetooth_eir_ad_data_t *bluetooth_eir_ad_data)
 {
@@ -4982,6 +5045,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
     gint         offset = 0;
     gint         offset_start;
     guint8       length;
+    guint8       sub_length;
     guint8       type;
     guint8       flags;
     guint8       data_size;
@@ -5330,14 +5394,49 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
 
             break;
         case 0x26: /* Transport Discovery Data */
-/* TODO */
+            end_offset = offset + length;
+            while (offset < end_offset) {
+                guint8 organization_id;
 
-            proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_cmd_le_event_mask, ett_eir_ad_entry, hfx_bthci_cmd_le_event_mask, ENC_LITTLE_ENDIAN);
-            offset += 1;
+                proto_tree_add_item(tree, hf_btcommon_eir_ad_tds_organization_id, tvb, offset, 1, ENC_NA);
+                organization_id = tvb_get_guint8(tvb, offset);
+                offset += 1;
 
-            sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_data, tvb, offset, length, ENC_NA);
-            expert_add_info(pinfo, sub_item, &ei_eir_ad_undecoded);
-            offset += length;
+                if (p_get_proto_data(pinfo->pool, pinfo, proto_btcommon, PROTO_DATA_BLUETOOTH_EIR_AD_TDS_ORGANIZATION_ID) == NULL) {
+                    guint8 *value_data;
+
+                    value_data = wmem_new(wmem_file_scope(), guint8);
+                    *value_data = organization_id;
+
+                    p_add_proto_data(pinfo->pool, pinfo, proto_btcommon, PROTO_DATA_BLUETOOTH_EIR_AD_TDS_ORGANIZATION_ID, value_data);
+                }
+
+                proto_tree_add_bitmask(tree, tvb, offset, hf_btcommon_eir_ad_tds_flags, ett_eir_ad_entry, hfx_btcommon_eir_ad_tds_flags, ENC_NA);
+                offset += 1;
+
+                sub_item = proto_tree_add_item(tree, hf_btcommon_eir_ad_tds_data_length, tvb, offset, 1, ENC_NA);
+                sub_length = tvb_get_guint8(tvb, offset);
+                offset += 1;
+
+                if (length > 3 && sub_length > length - 3) {
+                    expert_add_info(pinfo, sub_item, &ei_eir_ad_invalid_length);
+                }
+
+                if (sub_length > 0) {
+                    tvbuff_t  *new_tvb;
+
+                    new_tvb = tvb_new_subset_length(tvb, offset, sub_length);
+
+                    if (!dissector_try_uint_new(bluetooth_eir_ad_tds_organization_id, organization_id, new_tvb, pinfo, tree, TRUE, bluetooth_eir_ad_data)) {
+                        sub_item = proto_tree_add_item(tree, hf_btcommon_eir_ad_tds_data, tvb, offset, sub_length, ENC_NA);
+                        expert_add_info(pinfo, sub_item, &ei_eir_ad_undecoded);
+                    }
+
+                    offset += length;
+                }
+
+                length -= (3 + sub_length);
+            }
 
             break;
         case 0x3D: /* 3D Information Data */
@@ -6034,6 +6133,47 @@ proto_register_btcommon(void)
             FT_INT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL}
         },
+        {&hf_btcommon_eir_ad_tds_organization_id,
+            {"Organization ID", "btcommon.eir_ad.entry.tds.organization_id",
+            FT_UINT8, BASE_HEX, VALS(tds_organization_id_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_tds_flags,
+            {"Flags", "btcommon.eir_ad.entry.tds.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_tds_flags_reserved,
+            {"Reserved", "btcommon.eir_ad.entry.tds.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xE0,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_tds_flags_transport_state,
+            {"Transport State", "btcommon.eir_ad.entry.tds.flags.transport_state",
+            FT_UINT8, BASE_HEX, VALS(tds_transport_state_vals), 0x18,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_tds_flags_transport_data_incomplete,
+            {"Transport Data Incomplete", "btcommon.eir_ad.entry.tds.flags.transport_data_incomplete",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_tds_flags_role,
+            {"Role", "btcommon.eir_ad.entry.tds.flags.role",
+            FT_UINT8, BASE_HEX, VALS(tds_role_vals), 0x03,
+            NULL, HFILL}
+        },
+
+        {&hf_btcommon_eir_ad_tds_data_length,
+            {"Data Length", "btcommon.eir_ad.entry.tds.data_length",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btcommon_eir_ad_tds_data,
+            {"Data", "btcommon.eir_ad.entry.tds.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
         { &hf_btcommon_cod_class_of_device,
           { "Class of Device", "btcommon.cod.class_of_device",
             FT_UINT24, BASE_HEX, NULL, 0x0,
@@ -6387,14 +6527,20 @@ proto_register_btcommon(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_eir_ad_undecoded,       { "btcommon.eir_ad.undecoded", PI_UNDECODED, PI_NOTE, "Undecoded", EXPFILL }},
-        { &ei_eir_ad_unknown,         { "btcommon.eir_ad.unknown",   PI_PROTOCOL,  PI_WARN, "Unknown data", EXPFILL }},
-        { &ei_eir_ad_not_used,        { "btcommon.eir_ad.not_used",  PI_PROTOCOL,  PI_WARN, "Value should not be used", EXPFILL }},
+        { &ei_eir_ad_undecoded,       { "btcommon.eir_ad.undecoded",      PI_UNDECODED, PI_NOTE, "Undecoded", EXPFILL }},
+        { &ei_eir_ad_unknown,         { "btcommon.eir_ad.unknown",        PI_PROTOCOL,  PI_WARN, "Unknown data", EXPFILL }},
+        { &ei_eir_ad_not_used,        { "btcommon.eir_ad.not_used",       PI_PROTOCOL,  PI_WARN, "Value should not be used", EXPFILL }},
+        { &ei_eir_ad_invalid_length,  { "btcommon.eir_ad.invalid_length", PI_PROTOCOL,  PI_WARN, "Invalid Length", EXPFILL }},
     };
 
     static build_valid_func bluetooth_eir_ad_manufacturer_company_id_da_build_value[1] = {bluetooth_eir_ad_manufacturer_company_id_value};
     static decode_as_value_t bluetooth_eir_ad_manufacturer_company_id_da_values = {bluetooth_eir_ad_manufacturer_company_id_prompt, 1, bluetooth_eir_ad_manufacturer_company_id_da_build_value};
     static decode_as_t bluetooth_eir_ad_manufacturer_company_id_da = {"btcommon.eir_ad", "EIR/AD Manufacturer Company ID", "btcommon.eir_ad.manufacturer_company_id", 1, 0, &bluetooth_eir_ad_manufacturer_company_id_da_values, NULL, NULL,
+                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
+    static build_valid_func bluetooth_eir_ad_tds_organization_id_da_build_value[1] = {bluetooth_eir_ad_tds_organization_id_value};
+    static decode_as_value_t bluetooth_eir_ad_tds_organization_id_da_values = {bluetooth_eir_ad_tds_organization_id_prompt, 1, bluetooth_eir_ad_tds_organization_id_da_build_value};
+    static decode_as_t bluetooth_eir_ad_tds_organization_id_da = {"btcommon.eir_ad", "EIR/AD TDS Organization ID", "btcommon.eir_ad.tds_organization_id", 1, 0, &bluetooth_eir_ad_tds_organization_id_da_values, NULL, NULL,
                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     proto_btcommon = proto_register_protocol("Bluetooth Common", "BT Common", "btcommon");
@@ -6411,8 +6557,10 @@ proto_register_btcommon(void)
     btcommon_le_channel_map_handle = register_dissector("btcommon.le_channel_map", dissect_btcommon_le_channel_map, proto_btcommon);
 
     bluetooth_eir_ad_manufacturer_company_id = register_dissector_table("btcommon.eir_ad.manufacturer_company_id", "BT EIR/AD Manufacturer Company ID", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    bluetooth_eir_ad_tds_organization_id     = register_dissector_table("btcommon.eir_ad.tds_organization_id",     "BT EIR/AD TDS Organization ID",              FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
     register_decode_as(&bluetooth_eir_ad_manufacturer_company_id_da);
+    register_decode_as(&bluetooth_eir_ad_tds_organization_id_da);
 }
 
 /*
