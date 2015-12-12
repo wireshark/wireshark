@@ -896,6 +896,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 8;
 
     /* We don't have any 802.11 metadata yet. */
+    memset(&phdr, 0, sizeof(phdr));
     phdr.fcs_len = -1;
     phdr.decrypted = FALSE;
     phdr.datapad = FALSE;
