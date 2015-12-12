@@ -621,7 +621,7 @@ proto_reg_handoff_zbee_zcl_met_idt(void)
 /*************************/
 
 #define ZBEE_ZCL_APPL_EVTALT_NUM_GENERIC_ETT              1
-#define ZBEE_ZCL_APPL_EVTALT_NUM_STRUCT_ETT               8
+#define ZBEE_ZCL_APPL_EVTALT_NUM_STRUCT_ETT               15
 #define ZBEE_ZCL_APPL_EVTALT_NUM_ETT                      (ZBEE_ZCL_APPL_EVTALT_NUM_GENERIC_ETT + \
                                                           ZBEE_ZCL_APPL_EVTALT_NUM_STRUCT_ETT)
 /* Attributes - None */
