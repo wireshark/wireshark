@@ -1410,6 +1410,7 @@ guint32 no_ddi_entries, i;
 address     dst_addr, null_addr;
 conversation_t *conversation,*old_conversation = NULL;
 umts_fp_conversation_info_t *umts_fp_conversation_info _U_;
+void *conv_proto_data = NULL;
 
 transportLayerAddress_ipv4 = 0;
 BindingID_port = 0;
@@ -1454,9 +1455,11 @@ BindingID_port = 0;
             if(actx->pinfo->link_dir==P2P_DIR_DL){
                 umts_fp_conversation_info = wmem_new0(wmem_file_scope(), umts_fp_conversation_info_t);
                 /* Steal the old information */
-                if (old_conversation)
-                    memcpy(umts_fp_conversation_info,conversation_get_proto_data(old_conversation, proto_fp),sizeof(umts_fp_conversation_info_t));
-
+                if (old_conversation) {
+                    conv_proto_data = conversation_get_proto_data(old_conversation, proto_fp);
+                    if (conv_proto_data)
+                        memcpy(umts_fp_conversation_info,conv_proto_data,sizeof(umts_fp_conversation_info_t));
+                }
                 /* Overwrite the data */
                 umts_fp_conversation_info->iface_type        = IuB_Interface;
                 umts_fp_conversation_info->division          = Division_FDD;
