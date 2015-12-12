@@ -3143,8 +3143,7 @@ dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             break;
         case TLV_TYPE_UNKNOWN:
         default:
-            DISSECTOR_ASSERT_NOT_REACHED();
-            break;
+            return tvb_reported_length(tvb);
         }
 
         ti = proto_tree_add_item(tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
