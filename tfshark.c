@@ -1737,7 +1737,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt, frame_data *fd
   return passed || fdata->flags.dependent_of_displayed;
 }
 
-gboolean
+static gboolean
 local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr _U_, int *err, gchar **err_info _U_, gint64 *data_offset _U_, guint8** data_buffer)
 {
     /* int bytes_read; */
