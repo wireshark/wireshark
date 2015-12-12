@@ -682,6 +682,7 @@ void PacketList::columnsChanged()
     setColumnVisibility();
     create_far_overlay_ = true;
     packet_list_model_->resetColumns();
+    applyRecentColumnWidths();
     columns_changed_ = false;
 }
 
@@ -1010,7 +1011,6 @@ void PacketList::setCaptureFile(capture_file *cf)
     cap_file_ = cf;
     if (cap_file_ && columns_changed_) {
         columnsChanged();
-        applyRecentColumnWidths();
     }
     packet_list_model_->setCaptureFile(cf);
     create_near_overlay_ = true;
