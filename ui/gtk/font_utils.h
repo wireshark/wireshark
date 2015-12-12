@@ -40,7 +40,7 @@ extern void font_init(void);
 /** Return value from font_apply() */
 typedef enum {
 	FA_SUCCESS,             /**< function succeeded */
-	FA_FONT_NOT_RESIZEABLE, /**< the chosen font isn't resizable */
+	FA_ZOOMED_TOO_FAR,      /**< we've zoomed too far */
 	FA_FONT_NOT_AVAILABLE   /**< the chosen font isn't available */
 } fa_ret_t;
 
