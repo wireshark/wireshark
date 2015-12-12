@@ -103,8 +103,8 @@
 /* Define to use heimdal kerberos */
 #cmakedefine HAVE_HEIMDAL_KERBEROS 1
 
-/* Define unless inet/aton.h needs to be included */
-#cmakedefine HAVE_INET_ATON_H 1
+/* Define to 1 if you have the `inet_aton' function. */
+#cmakedefine HAVE_INET_ATON 1
 
 /* Define if inet_ntop() prototype exists */
 #cmakedefine HAVE_INET_NTOP_PROTO 1
