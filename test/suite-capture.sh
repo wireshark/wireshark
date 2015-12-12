@@ -89,7 +89,7 @@ capture_step_10packets() {
 		-w ./testout.pcap \
 		-c 10 \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
-		-f icmp \
+		-f "icmp || icmp6" \
 		>> ./testout.txt 2>&1
 	RETURNVALUE=$?
 	date >> ./testout.txt
@@ -140,7 +140,7 @@ capture_step_10packets_stdout() {
 		-c 10 \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
 		-w - \
-		-f icmp \
+		-f "icmp || icmp6" \
 		> ./testout.pcap 2>>./testout.txt
 	RETURNVALUE=$?
 	date >> ./testout.txt
@@ -274,7 +274,7 @@ capture_step_2multi_10packets() {
 		-w ./testout.pcap \
 		-c 10 \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
-		-f icmp \
+		-f "icmp || icmp6" \
 		>> ./testout.txt 2>&1
 
 	RETURNVALUE=$?
@@ -323,7 +323,7 @@ capture_step_read_filter() {
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
 		-2 -R 'dcerpc.cn_call_id==123456' \
 		-c 10 \
-		-f icmp \
+		-f "icmp || icmp6" \
 		>> ./testout.txt 2>&1
 	RETURNVALUE=$?
 	date >> ./testout.txt
@@ -372,7 +372,7 @@ capture_step_snapshot() {
 		-w ./testout.pcap \
 		-s 68 \
 		-a duration:$TRAFFIC_CAPTURE_DURATION \
-		-f icmp \
+		-f "icmp || icmp6" \
 		>> ./testout.txt 2>&1
 	RETURNVALUE=$?
 	date >> ./testout.txt
