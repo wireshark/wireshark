@@ -667,6 +667,11 @@ void PacketList::redrawVisiblePackets() {
     drawCurrentPacket();
 }
 
+void PacketList::resetColumns()
+{
+    packet_list_model_->resetColumns();
+}
+
 // prefs.col_list has changed.
 void PacketList::columnsChanged()
 {
@@ -681,7 +686,7 @@ void PacketList::columnsChanged()
     build_column_format_array(&cap_file_->cinfo, prefs.num_cols, FALSE);
     setColumnVisibility();
     create_far_overlay_ = true;
-    packet_list_model_->resetColumns();
+    resetColumns();
     applyRecentColumnWidths();
     columns_changed_ = false;
 }
@@ -697,12 +702,11 @@ void PacketList::fieldsChanged(capture_file *cf)
 
 // Column widths should
 // - Load from recent when we load a new profile (including at starting up).
+// - Reapply when changing columns.
 // - Persist across freezes and thaws.
 // - Persist across file closing and opening.
 // - Save to recent when we save our profile (including shutting down).
 // - Not be affected by the behavior of stretchLastSection.
-
-// Called via recentFilesRead.
 void PacketList::applyRecentColumnWidths()
 {
     // Either we've just started up or a profile has changed. Read

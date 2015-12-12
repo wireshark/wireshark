@@ -74,6 +74,7 @@ public:
     void setVerticalAutoScroll(bool enabled = true);
     void setCaptureInProgress(bool in_progress = false) { capture_in_progress_ = in_progress; tail_at_end_ = in_progress; }
     void captureFileReadFinished();
+    void resetColumns();
 
 protected:
     void showEvent(QShowEvent *);
@@ -126,6 +127,7 @@ private:
     void setRecentColumnWidth(int column);
     void initHeaderContextMenu();
     void drawCurrentPacket();
+    void applyRecentColumnWidths();
 
 signals:
     void packetDissectionChanged();
@@ -156,7 +158,6 @@ public slots:
     void redrawVisiblePackets();
     void columnsChanged();
     void fieldsChanged(capture_file *cf);
-    void applyRecentColumnWidths();
     void preferencesChanged();
 
 private slots:
