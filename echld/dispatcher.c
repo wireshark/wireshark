@@ -474,7 +474,7 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
 	int dp_open_errno, dp_read_errno;
 	char* error;
 
-	error = init_progfile_dir(argv0, (void *)main);
+	error = init_progfile_dir(argv0, main);
 
 	comp_info_str = get_compiled_version_info(NULL, epan_get_compiled_version_info);
 

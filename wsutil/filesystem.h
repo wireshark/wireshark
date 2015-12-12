@@ -40,7 +40,7 @@ extern "C" {
  * and save it for future use.  Returns NULL on success, and a
  * g_mallocated string containing an error on failure.
  */
-WS_DLL_PUBLIC char *init_progfile_dir(const char *arg0, void *function_addr);
+WS_DLL_PUBLIC char *init_progfile_dir(const char *arg0, int (*function_addr)(int, char **));
 
 /*
  * Get the directory in which the program resides.

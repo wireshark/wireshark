@@ -62,6 +62,7 @@
 #include <wsutil/report_err.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
+#include <wsutil/ws_diag_control.h>
 
 #include <wiretap/wtap.h>   /* for WTAP_ERR_SHORT_WRITE */
 
@@ -454,7 +455,7 @@ init_progfile_dir(const char *arg0
 #ifdef _WIN32
     _U_
 #endif
-, void *function_addr
+, int (*function_addr)(int, char **)
 #if defined(_WIN32) || !defined(HAVE_DLADDR)
     _U_
 #endif
@@ -560,8 +561,11 @@ init_progfile_dir(const char *arg0
          * path and obviate the need for us to determine the absolute
          * path.
          */
-        if (dladdr(function_addr, &info))
+DIAG_OFF(pedantic)
+        if (dladdr((void *)function_addr, &info)) {
+DIAG_ON(pedantic)
             execname = info.dli_fname;
+        }
     }
 #endif
     if (execname == NULL) {

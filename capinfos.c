@@ -1440,7 +1440,7 @@ main(int argc, char *argv[])
   init_open_routines();
 
 #ifdef HAVE_PLUGINS
-  if ((init_progfile_dir_error = init_progfile_dir(argv[0], (void *)main))) {
+  if ((init_progfile_dir_error = init_progfile_dir(argv[0], main))) {
     g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
     g_free(init_progfile_dir_error);
   } else {
