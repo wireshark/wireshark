@@ -227,7 +227,7 @@ tvbparse_wanted_t* tvbparse_chars(const int id,
     accept_str = (char *)g_malloc(256);
     memset(accept_str, 0x00, 256);
     for (i = 0; chr[i]; i++)
-        accept_str[(unsigned) chr[i]] = 0xFF;
+        accept_str[(unsigned)chr[i]] = (char)0xFF;
 
     w->condition = cond_chars_common;
     w->id = id;

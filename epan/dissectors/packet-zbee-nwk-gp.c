@@ -1121,9 +1121,9 @@ zbee_gp_make_nonce(zbee_nwk_green_power_packet *packet, gchar *nonce)
     nonce[11] = (guint8)((packet->security_frame_counter) >> 24 & 0xff);
     if ((packet->application_id == ZBEE_NWK_GP_APP_ID_ZGP) && (packet->direction !=
         ZBEE_NWK_GP_FC_EXT_DIRECTION_FROM_ZGPD)) {
-        nonce[12] = 0xa3;
+        nonce[12] = (gchar)0xa3;
     } else {
-        nonce[12] = 0x05;
+        nonce[12] = (gchar)0x05;
     }
     /* TODO: implement if application_id == ZB_ZGP_APP_ID_0000. */
     /* TODO: implement if application_id != ZB_ZGP_APP_ID_0000. */
