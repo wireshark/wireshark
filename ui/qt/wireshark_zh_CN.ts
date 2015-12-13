@@ -77,14 +77,6 @@
         <translation>名称:</translation>
     </message>
     <message>
-        <source>OK</source>
-        <translation type="vanished">确定</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">取消</translation>
-    </message>
-    <message>
         <location filename="address_editor_frame.cpp" line="147"/>
         <source>Can&apos;t assign %1 to %2</source>
         <translation>不能分配 %1 到 %2</translation>
@@ -639,8 +631,7 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="491"/>
         <source>Read filter:</source>
-        <oldsource>Display Filter:</oldsource>
-        <translation type="unfinished">显示筛选器:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="500"/>
@@ -1642,14 +1633,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Occurrence</source>
         <translation>发生</translation>
     </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">取消</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="vanished">确定</translation>
-    </message>
 </context>
 <context>
     <name>ColumnPreferencesFrame</name>
@@ -1856,6 +1839,11 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>应用显示筛选器 %1 &lt;%2/&gt;</translation>
     </message>
     <message>
+        <location filename="display_filter_edit.cpp" line="213"/>
+        <source>Apply a read filter %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="display_filter_edit.cpp" line="125"/>
         <source>Manage saved bookmarks.</source>
         <translation>管理保存的书签。</translation>
@@ -1864,11 +1852,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="display_filter_edit.cpp" line="159"/>
         <source>Apply this filter string to the display.</source>
         <translation>应用此筛选器字符串进行显示。</translation>
-    </message>
-    <message>
-        <location filename="display_filter_edit.cpp" line="213"/>
-        <source>Apply a read filter %1</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="347"/>
@@ -2614,14 +2597,6 @@ for filter files: %2.</source>
         <location filename="filter_expression_frame.ui" line="88"/>
         <source>Filter:</source>
         <translation>筛选器:</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="vanished">确定</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">取消</translation>
     </message>
     <message>
         <location filename="filter_expression_frame.cpp" line="52"/>
@@ -3637,9 +3612,8 @@ for filter files: %2.</source>
         <translation>间隔期没有分组</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="876"/>
         <source>%1 %2</source>
-        <translation>%1 %2</translation>
+        <translation type="vanished">%1 %2</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="877"/>
@@ -4277,22 +4251,32 @@ for filter files: %2.</source>
         <translation>IPv4</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="59"/>
+        <location filename="import_text_dialog.cpp" line="68"/>
         <source>Import From Hex Dump</source>
         <translation>从 Hex 转储文件导入</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="281"/>
+        <location filename="import_text_dialog.cpp" line="72"/>
+        <source>Import</source>
+        <translation type="unfinished">导入</translation>
+    </message>
+    <message>
+        <location filename="import_text_dialog.cpp" line="291"/>
         <source>Import Text File</source>
         <translation>导入文本文件</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="322"/>
+        <location filename="import_text_dialog.cpp" line="360"/>
         <source>Example: %1</source>
         <translation>示例: %1</translation>
     </message>
     <message>
-        <location filename="import_text_dialog.cpp" line="324"/>
+        <location filename="import_text_dialog.cpp" line="364"/>
+        <source>&lt;i&gt;(Wrong date format)&lt;/i&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="import_text_dialog.cpp" line="368"/>
         <source>&lt;i&gt;(No format will be applied)&lt;/i&gt;</source>
         <translation>&lt;i&gt;(不会应用任何格式变更)&lt;/i&gt;</translation>
     </message>
@@ -7974,43 +7958,83 @@ text-decoration: underline;
         <translation>没有已注册的 MTP3 统计</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2762"/>
+        <location filename="main_window.ui" line="2669"/>
+        <source>Ctrl+1</source>
+        <translation type="unfinished">Ctrl+1</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2680"/>
+        <source>Ctrl+2</source>
+        <translation type="unfinished">Ctrl+2</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2691"/>
+        <source>Ctrl+3</source>
+        <translation type="unfinished">Ctrl+3</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2702"/>
+        <source>Ctrl+4</source>
+        <translation type="unfinished">Ctrl+4</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2713"/>
+        <source>Ctrl+5</source>
+        <translation type="unfinished">Ctrl+5</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2724"/>
+        <source>Ctrl+6</source>
+        <translation type="unfinished">Ctrl+6</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2735"/>
+        <source>Ctrl+7</source>
+        <translation type="unfinished">Ctrl+7</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2746"/>
+        <source>Ctrl+8</source>
+        <translation type="unfinished">Ctrl+8</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2789"/>
         <source>Stream Analysis</source>
         <translation>流分析</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2770"/>
-        <location filename="main_window.ui" line="2773"/>
+        <location filename="main_window.ui" line="2797"/>
+        <location filename="main_window.ui" line="2800"/>
         <source>IAX2 Stream Analysis</source>
         <translation>IAX2 流分析</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2821"/>
+        <location filename="main_window.ui" line="2848"/>
         <source>UDP Multicast Streams</source>
         <translation>UDP 多播流</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2824"/>
+        <location filename="main_window.ui" line="2851"/>
         <source>Show UTP multicast stream statistics.</source>
         <translation>显示 UTP 多播流统计。</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2829"/>
+        <location filename="main_window.ui" line="2856"/>
         <source>WLAN Traffic</source>
         <translation>WLAN 流量</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2832"/>
+        <location filename="main_window.ui" line="2859"/>
         <source>Show IEEE 802.11 wireless LAN statistics.</source>
         <translation>显示 IEEE 802.11 无线 LAN 统计。</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2841"/>
+        <location filename="main_window.ui" line="2868"/>
         <source>Add a filter button</source>
         <translation>添加一个筛选器按钮</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2847"/>
+        <location filename="main_window.ui" line="2874"/>
         <source>Add a display filter button.</source>
         <translation>添加一个显示筛选器按钮。</translation>
     </message>
@@ -8651,48 +8675,48 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window.ui" line="2587"/>
-        <location filename="main_window.ui" line="2844"/>
+        <location filename="main_window.ui" line="2871"/>
         <source>Expression…</source>
         <translation>例外…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2743"/>
+        <location filename="main_window.ui" line="2770"/>
         <source>New Conversation Rule…</source>
         <translation>新建对话规则…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2786"/>
+        <location filename="main_window.ui" line="2813"/>
         <source>Enabled Protocols…</source>
         <oldsource>Enable Protocols…</oldsource>
         <translation>启用的协议…</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2797"/>
+        <location filename="main_window.ui" line="2824"/>
         <source>Wiki Protocol Page</source>
         <translation>Wiki 协议页面</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2800"/>
+        <location filename="main_window.ui" line="2827"/>
         <source>Open the Wireshark wiki page for this protocol.</source>
         <translation>打开针对此协议的 Wireshark Wiki 页面。</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2805"/>
+        <location filename="main_window.ui" line="2832"/>
         <source>Filter Field Reference</source>
         <translation>筛选器字段参考</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2808"/>
+        <location filename="main_window.ui" line="2835"/>
         <source>Open the display filter reference page for this filter field.</source>
         <translation>打开此筛选器字段的显示筛选器参考页面。</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2813"/>
+        <location filename="main_window.ui" line="2840"/>
         <source>Go to Linked Packet</source>
         <translation>转至链接的分组</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2816"/>
+        <location filename="main_window.ui" line="2843"/>
         <source>Go to the packet referenced by the selected field.</source>
         <translation>转至选定字段引用的分组。</translation>
     </message>
@@ -8814,106 +8838,106 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window.ui" line="2666"/>
-        <location filename="main_window.ui" line="2674"/>
-        <location filename="main_window.ui" line="2682"/>
-        <location filename="main_window.ui" line="2690"/>
-        <location filename="main_window.ui" line="2698"/>
-        <location filename="main_window.ui" line="2706"/>
-        <location filename="main_window.ui" line="2714"/>
-        <location filename="main_window.ui" line="2722"/>
-        <location filename="main_window.ui" line="2730"/>
-        <location filename="main_window.ui" line="2738"/>
+        <location filename="main_window.ui" line="2677"/>
+        <location filename="main_window.ui" line="2688"/>
+        <location filename="main_window.ui" line="2699"/>
+        <location filename="main_window.ui" line="2710"/>
+        <location filename="main_window.ui" line="2721"/>
+        <location filename="main_window.ui" line="2732"/>
+        <location filename="main_window.ui" line="2743"/>
+        <location filename="main_window.ui" line="2754"/>
+        <location filename="main_window.ui" line="2765"/>
         <source>Mark the current conversation with its own color.</source>
         <oldsource>Mark the current coversation with its own color.</oldsource>
         <translation>让当前的对话使用自己的颜色。</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2671"/>
+        <location filename="main_window.ui" line="2674"/>
         <source>Color &amp;2</source>
         <translation>颜色 &amp;2</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2679"/>
+        <location filename="main_window.ui" line="2685"/>
         <source>Color &amp;3</source>
         <translation>颜色 &amp;3</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2687"/>
+        <location filename="main_window.ui" line="2696"/>
         <source>Color &amp;4</source>
         <translation>颜色 &amp;4</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2695"/>
+        <location filename="main_window.ui" line="2707"/>
         <source>Color &amp;5</source>
         <translation>颜色 &amp;5</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2703"/>
+        <location filename="main_window.ui" line="2718"/>
         <source>Color &amp;6</source>
         <translation>颜色 &amp;6</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2711"/>
+        <location filename="main_window.ui" line="2729"/>
         <source>Color &amp;7</source>
         <translation>颜色 &amp;7</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2719"/>
+        <location filename="main_window.ui" line="2740"/>
         <source>Color &amp;8</source>
         <translation>颜色 &amp;8</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2727"/>
+        <location filename="main_window.ui" line="2751"/>
         <source>Color &amp;9</source>
         <translation>颜色 &amp;9</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2735"/>
+        <location filename="main_window.ui" line="2762"/>
         <source>Color 1&amp;0</source>
         <translation>颜色 1&amp;0</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2746"/>
+        <location filename="main_window.ui" line="2773"/>
         <source>Create a new coloring rule based on this conversation.</source>
         <translation>基于此对话创建一个新的着色规则。</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2751"/>
+        <location filename="main_window.ui" line="2778"/>
         <source>Reset Colorization</source>
         <translation>重置着色</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2754"/>
+        <location filename="main_window.ui" line="2781"/>
         <source>Reset colorized conversations.</source>
         <translation>重置着色的对话。</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2757"/>
+        <location filename="main_window.ui" line="2784"/>
         <source>Ctrl+Space</source>
         <translation>Ctrl+空格</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2765"/>
+        <location filename="main_window.ui" line="2792"/>
         <source>RTP Stream Analysis</source>
         <translation>RTP 流分析</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2778"/>
+        <location filename="main_window.ui" line="2805"/>
         <source>Edit Resolved Name</source>
         <translation>编辑解析的名称</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2781"/>
+        <location filename="main_window.ui" line="2808"/>
         <source>Manually edit a name resolution entry.</source>
         <translation>手动编辑一个名称解析项。</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2789"/>
+        <location filename="main_window.ui" line="2816"/>
         <source>Enable and disable specific protocols</source>
         <translation>启用和禁用特定的协议</translation>
     </message>
     <message>
-        <location filename="main_window.ui" line="2792"/>
+        <location filename="main_window.ui" line="2819"/>
         <source>Ctrl+Shift+E</source>
         <translation>Ctrl+Shift+E</translation>
     </message>
@@ -8924,27 +8948,27 @@ text-decoration: underline;
         <translation>检查更新</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="736"/>
+        <location filename="main_window.cpp" line="738"/>
         <source> before quitting</source>
         <translation>在退出前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="912"/>
+        <location filename="main_window.cpp" line="914"/>
         <source>Save packets before merging?</source>
         <translation>是否在合并之前保存分组？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="913"/>
+        <location filename="main_window.cpp" line="915"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>无法合并临时捕获文件。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="919"/>
+        <location filename="main_window.cpp" line="921"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>是否在合并前保存对“%1”的更改？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="921"/>
+        <location filename="main_window.cpp" line="923"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>在文件合并之前，其更改必须先保存。</translation>
     </message>
@@ -8954,119 +8978,115 @@ text-decoration: underline;
         <translation>无效显示筛选器</translation>
     </message>
     <message>
-        <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation type="vanished">筛选器表达式 %1 不是有效的显示筛选器 (%2)。</translation>
-    </message>
-    <message>
-        <location filename="main_window.cpp" line="978"/>
+        <location filename="main_window.cpp" line="980"/>
         <source>Invalid Read Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="979"/>
+        <location filename="main_window.cpp" line="981"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1069"/>
+        <location filename="main_window.cpp" line="1071"/>
         <source> before importing a new capture</source>
         <translation> 导入新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1382"/>
+        <location filename="main_window.cpp" line="1384"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>无法导出“%1”。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1383"/>
+        <location filename="main_window.cpp" line="1385"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>您不能将分组导出到当前捕获文件。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1470"/>
-        <location filename="main_window.cpp" line="1495"/>
+        <location filename="main_window.cpp" line="1472"/>
+        <location filename="main_window.cpp" line="1497"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1533"/>
+        <location filename="main_window.cpp" line="1535"/>
         <source>You have unsaved packets</source>
         <translation>您有未保存的分组</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1534"/>
+        <location filename="main_window.cpp" line="1536"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>若不保存，这些分组将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1537"/>
-        <location filename="main_window.cpp" line="1550"/>
+        <location filename="main_window.cpp" line="1539"/>
+        <location filename="main_window.cpp" line="1552"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>您是否要停止捕获，并保存已捕获的分组</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1539"/>
+        <location filename="main_window.cpp" line="1541"/>
         <source>Do you want to save the captured packets</source>
         <translation>是否希望保存已捕获的分组</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1541"/>
-        <location filename="main_window.cpp" line="1551"/>
+        <location filename="main_window.cpp" line="1543"/>
+        <location filename="main_window.cpp" line="1553"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1553"/>
+        <location filename="main_window.cpp" line="1555"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>若不保存，您已经捕获的分组将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1556"/>
+        <location filename="main_window.cpp" line="1558"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>是否希望保存对捕获文件“%1”%2 的更改？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1562"/>
+        <location filename="main_window.cpp" line="1564"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>若不保存，您的更改将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1574"/>
+        <location filename="main_window.cpp" line="1576"/>
         <source>Stop and Save</source>
         <translation>停止并保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1582"/>
+        <location filename="main_window.cpp" line="1584"/>
         <source>Stop and Quit without Saving</source>
         <translation>停止并退出，不保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1585"/>
+        <location filename="main_window.cpp" line="1587"/>
         <source>Quit without Saving</source>
         <translation>不保存，直接退出</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1590"/>
+        <location filename="main_window.cpp" line="1592"/>
         <source>Stop and Continue without Saving</source>
         <translation>停止并继续，不保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1593"/>
+        <location filename="main_window.cpp" line="1595"/>
         <source>Continue &amp;without Saving</source>
         <translation>不保存并继续(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1870"/>
+        <location filename="main_window.cpp" line="1872"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>文件名不能映射到UTF-8</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1888"/>
+        <location filename="main_window.cpp" line="1890"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Wireshark 网络分析器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1895"/>
+        <location filename="main_window.cpp" line="1897"/>
         <source>Capturing from %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9076,103 +9096,103 @@ text-decoration: underline;
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="782"/>
+        <location filename="main_window_slots.cpp" line="787"/>
         <source>Saving %1</source>
         <translation>正在保存 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="821"/>
+        <location filename="main_window_slots.cpp" line="826"/>
         <source>No interface selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="831"/>
+        <location filename="main_window_slots.cpp" line="836"/>
         <source>Invalid capture filter</source>
         <translation>无效捕获筛选器</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1029"/>
+        <location filename="main_window_slots.cpp" line="1034"/>
         <source>Clear Menu</source>
         <translation>清除菜单</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1520"/>
+        <location filename="main_window_slots.cpp" line="1525"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Wireshark 正在初始化，请稍候</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1677"/>
+        <location filename="main_window_slots.cpp" line="1682"/>
         <source>Export Selected Packet Bytes</source>
         <translation>导出选择分组字节流</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1679"/>
+        <location filename="main_window_slots.cpp" line="1684"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
         <translation>原始数据 (*.bin *.dat *.raw);;任意文件 (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1736"/>
+        <location filename="main_window_slots.cpp" line="1741"/>
         <source>No Keys</source>
         <translation>无密钥</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1737"/>
+        <location filename="main_window_slots.cpp" line="1742"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>没有可以保存的 SSL 会话密钥。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1743"/>
+        <location filename="main_window_slots.cpp" line="1748"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>导出 SSL 会话密钥 (%1 密钥%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1748"/>
+        <location filename="main_window_slots.cpp" line="1753"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation>SSL 会话密钥 (*.keys *.txt);;任意文件 (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1886"/>
+        <location filename="main_window_slots.cpp" line="1891"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>无法复制文本。请尝试其他对象。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2293"/>
-        <location filename="main_window_slots.cpp" line="3326"/>
+        <location filename="main_window_slots.cpp" line="2298"/>
+        <location filename="main_window_slots.cpp" line="3331"/>
         <source>Unable to build conversation filter.</source>
         <translation>无法建立对话筛选器。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2438"/>
+        <location filename="main_window_slots.cpp" line="2443"/>
         <source>No filter available. Try another </source>
         <translation>无筛选器可用。请尝试其他 </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3333"/>
+        <location filename="main_window_slots.cpp" line="3338"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>为此对话编译筛选器时出错。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3342"/>
+        <location filename="main_window_slots.cpp" line="3347"/>
         <source>No previous/next packet in conversation.</source>
         <translation>此对话中没有上一个/下一个分组。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3419"/>
+        <location filename="main_window_slots.cpp" line="3424"/>
         <source>No Interface Selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3426"/>
+        <location filename="main_window_slots.cpp" line="3431"/>
         <source> before starting a new capture</source>
         <translation>在开始新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3629"/>
+        <location filename="main_window_slots.cpp" line="3636"/>
         <source>Wiki Page for %1</source>
         <translation>%1 的 Wiki 页面</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3630"/>
+        <location filename="main_window_slots.cpp" line="3637"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wireshark Wiki 由社区进行维护。&lt;/p&gt;&lt;p&gt;您即将加载的页面可能是良好的、不完整的、有错误的，甚至不存在的。&lt;/p&gt;&lt;p&gt;继续访问该 Wiki？&lt;/p&gt;</translation>
     </message>
@@ -9800,52 +9820,52 @@ text-decoration: underline;
 <context>
     <name>PacketList</name>
     <message>
-        <location filename="packet_list.cpp" line="339"/>
+        <location filename="packet_list.cpp" line="337"/>
         <source>Summary as Text</source>
         <translation>摘要为文本</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="640"/>
+        <location filename="packet_list.cpp" line="627"/>
         <source>Align Left</source>
         <translation>左对齐</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="641"/>
+        <location filename="packet_list.cpp" line="628"/>
         <source>Align Center</source>
         <translation>居中对齐</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="642"/>
+        <location filename="packet_list.cpp" line="629"/>
         <source>Align Right</source>
         <translation>右对齐</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="644"/>
+        <location filename="packet_list.cpp" line="631"/>
         <source>Column Preferences</source>
         <translation>列首选项</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="645"/>
+        <location filename="packet_list.cpp" line="632"/>
         <source>Edit Column</source>
         <translation>编辑列</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="646"/>
+        <location filename="packet_list.cpp" line="633"/>
         <source>Resize To Contents</source>
         <translation>适应内容</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="647"/>
+        <location filename="packet_list.cpp" line="634"/>
         <source>Resolve Names</source>
         <translation>名称解析</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="652"/>
+        <location filename="packet_list.cpp" line="639"/>
         <source>Remove This Column</source>
         <translation>删除此列</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="998"/>
+        <location filename="packet_list.cpp" line="991"/>
         <source>Frame %1: %2
 
 </source>
@@ -9853,7 +9873,7 @@ text-decoration: underline;
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1002"/>
+        <location filename="packet_list.cpp" line="995"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ 注释文本超过 %1。正在停止。 ]</translation>
     </message>
@@ -9969,14 +9989,6 @@ text-decoration: underline;
         <location filename="preference_editor_frame.ui" line="52"/>
         <source>a preference</source>
         <translation>一个首选项</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="vanished">确定</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">取消</translation>
     </message>
     <message>
         <location filename="preference_editor_frame.cpp" line="73"/>
@@ -10144,10 +10156,6 @@ text-decoration: underline;
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove this profile.</source>
-        <translation type="vanished">移除该配置文件。</translation>
-    </message>
-    <message>
         <location filename="profile_dialog.ui" line="71"/>
         <source>Copy this profile.</source>
         <translation>复制该配置文件。</translation>
@@ -10191,14 +10199,6 @@ text-decoration: underline;
         <location filename="profile_dialog.cpp" line="207"/>
         <source>A profile already exists with this name</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Go to</source>
-        <translation type="vanished">转到</translation>
-    </message>
-    <message>
-        <source>A profile already exists with that name.</source>
-        <translation type="vanished">已存在该名称的配置文件。</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="306"/>
@@ -14826,7 +14826,7 @@ text-decoration: underline;
         <translation>流序列</translation>
     </message>
     <message>
-        <location filename="voip_calls_dialog.cpp" line="342"/>
+        <location filename="voip_calls_dialog.cpp" line="348"/>
         <source>No Audio</source>
         <translation>无音频</translation>
     </message>
