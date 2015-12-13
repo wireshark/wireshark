@@ -122,10 +122,10 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 		prefs_init();
 		expert_init();
 		packet_init();
+		capture_dissector_init();
 		proto_init(register_all_protocols_func, register_all_handoffs_func,
 		    cb, client_data);
 		packet_cache_proto_handles();
-		capture_dissector_init();
 		dfilter_init();
 		final_registration_all_protocols();
 		print_cache_field_handles();
