@@ -32,6 +32,7 @@
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/column.h>
+#include <epan/value_string.h>
 
 #include "ui/last_open_dir.h"
 #include "ui/recent.h"
@@ -81,33 +82,38 @@
 
 recent_settings_t recent;
 
-static const char *ts_type_text[] =
-  { "RELATIVE", "ABSOLUTE", "ABSOLUTE_WITH_DATE", "DELTA", "DELTA_DIS", "EPOCH", "UTC", "UTC_WITH_DATE", NULL };
+static const value_string ts_type_values[] = {
+  { TS_RELATIVE,             "RELATIVE"           },
+  { TS_ABSOLUTE,             "ABSOLUTE"           },
+  { TS_ABSOLUTE_WITH_YMD,    "ABSOLUTE_WITH_YMD"  },
+  { TS_ABSOLUTE_WITH_YDOY,   "ABSOLUTE_WITH_YDOY" },
+  { TS_ABSOLUTE_WITH_YMD,    "ABSOLUTE_WITH_DATE" },  /* Backward compability */
+  { TS_DELTA,                "DELTA"              },
+  { TS_DELTA_DIS,            "DELTA_DIS"          },
+  { TS_EPOCH,                "EPOCH"              },
+  { TS_UTC,                  "UTC"                },
+  { TS_UTC_WITH_YMD,         "UTC_WITH_YMD"       },
+  { TS_UTC_WITH_YDOY,        "UTC_WITH_YDOY"      },
+  { TS_UTC_WITH_YMD,         "UTC_WITH_DATE"      },  /* Backward compability */
+  { 0, NULL }
+};
 
-static const char *ts_precision_text[] =
-{ "AUTO", "SEC", "DSEC", "CSEC", "MSEC", "USEC", "NSEC", NULL };
+static const value_string ts_precision_values[] = {
+  { TS_PREC_AUTO,            "AUTO" },
+  { TS_PREC_FIXED_SEC,       "SEC"  },
+  { TS_PREC_FIXED_DSEC,      "DSEC" },
+  { TS_PREC_FIXED_CSEC,      "CSEC" },
+  { TS_PREC_FIXED_MSEC,      "MSEC" },
+  { TS_PREC_FIXED_USEC,      "USEC" },
+  { TS_PREC_FIXED_NSEC,      "NSEC" },
+  { 0, NULL }
+};
 
-static const char *ts_seconds_text[] =
-  { "SECONDS", "HOUR_MIN_SEC", NULL };
-
-/* Takes an string and a pointer to an array of strings, and a default int value.
- * The array must be terminated by a NULL string. If the string is found in the array
- * of strings, the index of that string in the array is returned. Otherwise, the
- * default value that was passed as the third argument is returned.
- */
-static int
-find_index_from_string_array(const char *needle, const char **haystack, int default_value)
-{
-  int i = 0;
-
-  while (haystack[i] != NULL) {
-    if (strcmp(needle, haystack[i]) == 0) {
-      return i;
-    }
-    i++;
-  }
-  return default_value;
-}
+static const value_string ts_seconds_values[] = {
+  { TS_SECONDS_DEFAULT,      "SECONDS"      },
+  { TS_SECONDS_HOUR_MIN_SEC, "HOUR_MIN_SEC" },
+  { 0, NULL }
+};
 
 static void
 free_col_width_info(recent_settings_t *rs)
@@ -748,19 +754,19 @@ write_profile_recent(void)
           recent.packet_list_colorize == TRUE ? "TRUE" : "FALSE");
 
   fprintf(rf, "\n# Timestamp display format.\n");
-  fprintf(rf, "# One of: RELATIVE, ABSOLUTE, ABSOLUTE_WITH_DATE, DELTA, DELTA_DIS, EPOCH, UTC, UTC_WITH_DATE\n");
+  fprintf(rf, "# One of: RELATIVE, ABSOLUTE, ABSOLUTE_WITH_YMD, ABSOLUTE_WITH_YDOY, DELTA, DELTA_DIS, EPOCH, UTC, UTC_WITH_YMD, UTC_WITH_YDOY\n");
   fprintf(rf, RECENT_GUI_TIME_FORMAT ": %s\n",
-          ts_type_text[recent.gui_time_format]);
+          val_to_str(recent.gui_time_format, ts_type_values, "RELATIVE"));
 
   fprintf(rf, "\n# Timestamp display precision.\n");
   fprintf(rf, "# One of: AUTO, SEC, DSEC, CSEC, MSEC, USEC, NSEC\n");
   fprintf(rf, RECENT_GUI_TIME_PRECISION ": %s\n",
-          ts_precision_text[recent.gui_time_precision]);
+          val_to_str(recent.gui_time_precision, ts_precision_values, "AUTO"));
 
   fprintf(rf, "\n# Seconds display format.\n");
   fprintf(rf, "# One of: SECONDS, HOUR_MIN_SEC\n");
   fprintf(rf, RECENT_GUI_SECONDS_FORMAT ": %s\n",
-          ts_seconds_text[recent.gui_seconds_format]);
+          val_to_str(recent.gui_seconds_format, ts_seconds_values, "SECONDS"));
 
   fprintf(rf, "\n# Zoom level.\n");
   fprintf(rf, "# A decimal number.\n");
@@ -999,13 +1005,13 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
     }
   } else if (strcmp(key, RECENT_GUI_TIME_FORMAT) == 0) {
     recent.gui_time_format =
-      (ts_type)find_index_from_string_array(value, ts_type_text, TS_RELATIVE);
+      (ts_type)str_to_val(value, ts_type_values, TS_RELATIVE);
   } else if (strcmp(key, RECENT_GUI_TIME_PRECISION) == 0) {
     recent.gui_time_precision =
-      find_index_from_string_array(value, ts_precision_text, TS_PREC_AUTO);
+      (ts_precision)str_to_val(value, ts_precision_values, TS_PREC_AUTO);
   } else if (strcmp(key, RECENT_GUI_SECONDS_FORMAT) == 0) {
     recent.gui_seconds_format =
-      (ts_seconds_type)find_index_from_string_array(value, ts_seconds_text, TS_SECONDS_DEFAULT);
+      (ts_seconds_type)str_to_val(value, ts_seconds_values, TS_SECONDS_DEFAULT);
   } else if (strcmp(key, RECENT_GUI_ZOOM_LEVEL) == 0) {
     num = strtol(value, &p, 0);
     if (p == value || *p != '\0')
