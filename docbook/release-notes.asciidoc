@@ -15,12 +15,186 @@ The following vulnerabilities have been fixed.
 
 * ws-salink:2015-31[]
 +
-A dissector went awry.
-// Fixed in master: gXXXX
-// Fixed in master-1.12: gXXXX
-(ws-buglink:XXXX[])
+NBAP dissector crashes.
+// Fixed in master: g5bf5656, g5b4ada1, g23379ae
+// Fixed in master-2.0: gfa117e7, g254731e
+// Fixed in master-1.12: gdaa562c, g3e1cd49, g884d49c
+(ws-buglink:11602[], ws-buglink:11835[], ws-buglink:11841[])
 //cve-idlink:2015-XXXX[]
 
+* ws-salink:2015-32[]
++
+UMTS FP dissector crashes.
+// Fixed in master: g2ae329a, g67b6d4f
+// Fixed in master-1.12: g66f27ab, g6ba5403
+(ws-buglink:11602[], ws-buglink:11606[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-33[]
++
+DCOM dissector crash.
+// Fixed in master: gd34267d
+// Fixed in master-1.12: gaf920d2
+(ws-buglink:11610[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-34[]
++
+AllJoyn dissector infinite loop.
+// Fixed in master: g40caff2
+// Fixed in master-1.12: g41e646e
+(ws-buglink:11607[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-35[]
++
+T.38 dissector crash.
+// Fixed in master: geb6ccb1
+// Fixed in master-1.12: gfcdb061
+(ws-buglink:9887[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-36[]
++
+SDP dissector crash.
+// Fixed in master: g2ddd92b
+// Fixed in master-1.12: ge197952
+(ws-buglink:9887[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-37[]
++
+NLM dissector crash.
+// Fixed in master: g81dfe6d
+// Fixed in master-2.0: g851782c
+// Fixed in master-1.12: g916dfc5
+//(ws-buglink:[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-38[]
++
+DNS dissector crash.
+// Fixed in master: g30651ab
+// Fixed in master-1.12: g960ac0b
+(ws-buglink:10988[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-39[]
++
+BER dissector crash.
+// Fixed in master: g921bb07
+// Fixed in master-2.0: g1e52fad
+// Fixed in master-1.12: g2c59970
+// (ws-buglink:[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-40[]
++
+Zlib decompression crash.
+// Fixed in master: gcec0593
+// Fixed in master-2.0: g7ea63cf
+// Fixed in master-1.12: gff0220f
+(ws-buglink:11548[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-41[]
++
+SCTP dissector crash.
+// Fixed in master: g2259bf8, g1b32d50
+// Fixed in master-2.0: ga77290c, ga9b4be9
+// Fixed in master-1.12: g39a50f4
+(ws-buglink:11767[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-42[]
++
+802.11 decryption crash.
+// Fixed in master: g40b2831, 83f2818
+// Fixed in master-2.0: gbf1fa88, gfc3b6a5
+// Fixed in master-1.12: ga6e8fc8, g8110a70
+(ws-buglink:11790[], ws-buglink:11826[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-43[]
++
+DIAMETER dissector crash.
+// Fixed in master: gaaa28a9
+// Fixed in master-2.0: g92c892e
+// Fixed in master-1.12: g644bc78
+(ws-buglink:11792[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-44[]
++
+VeriWave file parser crashes.
+// Fixed in master: gb8fa3d4, 185911d
+// Fixed in master-2.0: g135c8f0, ge4267dd
+// Fixed in master-1.12: gfef89fc, g51ccf92
+(ws-buglink:11789[], ws-buglink:11791[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-45[]
++
+RSVP dissector crash.
+// Fixed in master: g56baca6
+// Fixed in master-2.0: g9764685
+// Fixed in master-1.12: g5d20997
+(ws-buglink:11793[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-46[]
++
+ANSI A & GSM A dissector crashes.
+// Fixed in master: g15edc8d
+// Fixed in master-2.0: g61dcd11
+// Fixed in master-1.12: g8194323
+(ws-buglink:11797[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-47[]
++
+Ascend file parser crash.
+// Fixed in master: g338da1c
+// Fixed in master-2.0: g7abfa36
+// Fixed in master-1.12: g9cf09cf
+(ws-buglink:11794[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-48[]
++
+NBAP dissector crash.
+// Fixed in master: gd2644ae
+// Fixed in master-2.0: g4c499f5
+// Fixed in master-1.12: gea517f9
+(ws-buglink:11815[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-49[]
++
+RSL dissector crash.
+// Fixed in master: g2930d31
+// Fixed in master-2.0: gaba3635
+// Fixed in master-1.12: gf899e8a
+(ws-buglink:11829[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-50[]
++
+ZigBee ZCL dissector crash.
+// Fixed in master: g9352616, geb0c034
+// Fixed in master-2.0: gb11c868, g07dbf78
+// Fixed in master-1.12: g49e7e7f, g6b3755c
+(ws-buglink:11830[])
+//cve-idlink:2015-XXXX[]
+
+* ws-salink:2015-51[]
++
+Sniffer file parser crash.
+// Fixed in master: g53a3e53
+// Fixed in master-2.0: gdcba250
+// Fixed in master-1.12: g3a3ddbd
+(ws-buglink:11827[])
+//cve-idlink:2015-XXXX[]
 
 The following bugs have been fixed:
 
@@ -41,6 +215,8 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+NBAP
+ZigBee ZCL
 --sort-and-group--
 
 === New and Updated Capture File Support
