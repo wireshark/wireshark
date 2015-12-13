@@ -211,9 +211,9 @@ window_geom_load(const gchar       *name,
 
 /* parse values of particular types */
 static void
-parse_recent_boolean(const gchar *value_string, gboolean *valuep)
+parse_recent_boolean(const gchar *val_str, gboolean *valuep)
 {
-    if (g_ascii_strcasecmp(value_string, "true") == 0) {
+    if (g_ascii_strcasecmp(val_str, "true") == 0) {
         *valuep = TRUE;
     }
     else {
