@@ -26,6 +26,8 @@
 
 #include "config.h"
 
+#include "math.h"
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/asn1.h>
@@ -62,16 +64,281 @@ static gboolean ulp_desegment = TRUE;
 
 #include "packet-ulp-hf.c"
 static int hf_ulp_mobile_directory_number = -1;
+static int hf_ulp_ganssTimeModels_bit0 = -1;
+static int hf_ulp_ganssTimeModels_bit1 = -1;
+static int hf_ulp_ganssTimeModels_bit2 = -1;
+static int hf_ulp_ganssTimeModels_bit3 = -1;
+static int hf_ulp_ganssTimeModels_bit4 = -1;
+static int hf_ulp_ganssTimeModels_spare = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ulp = -1;
 static gint ett_ulp_setid = -1;
 static gint ett_ulp_thirdPartyId = -1;
+static gint ett_ulp_ganssTimeModels = -1;
 #include "packet-ulp-ett.c"
+
+static const value_string ulp_ganss_id_vals[] = {
+  {  0, "Galileo"},
+  {  1, "SBAS"},
+  {  2, "Modernized GPS"},
+  {  3, "QZSS"},
+  {  4, "GLONASS"},
+  {  5, "BDS"},
+  {  0, NULL},
+};
+
+static const value_string ulp_ganss_sbas_id_vals[] = {
+  {  0, "WAAS"},
+  {  1, "EGNOS"},
+  {  2, "MSAS"},
+  {  3, "GAGAN"},
+  {  0, NULL},
+};
+
+static void
+ulp_ganssDataBitInterval_fmt(gchar *s, guint32 v)
+{
+  if (v == 15) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "Time interval is not specified (15)");
+  } else {
+    double interval = (0.1*pow(2, (double)v));
+
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%g s (%u)", interval, v);
+  }
+}
+
+static void
+ulp_ExtendedEphemeris_validity_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%u h (%u)", 4*v, v);
+}
+
+static void
+ulp_PositionEstimate_latitude_fmt(gchar *s, guint32 v)
+{
+  double latitude = ((double)v*90)/pow(2,23);
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%g degrees (%u)", latitude, v);
+}
+
+static void
+ulp_PositionEstimate_longitude_fmt(gchar *s, guint32 v)
+{
+  double longitude = ((double)(gint32)v*360)/pow(2,24);
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%g degrees (%u)", longitude, v);
+}
+
+static void
+ulp_NMRelement_rxLev_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RxLev < -110 dBm (0)");
+  } else if (v == 63) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RxLev >= -48 dBm (63)");
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%d dBm <= RxLev < %d dBm (%u)", -111+v, -110+v, v);
+  }
+}
+
+static void
+ulp_UTRA_CarrierRSSI_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSSI < -100 dBm (0)");
+  } else if (v == 76) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSSI >= -25 dBm (76)");
+  } else if (v > 76) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "Spare (%u)", v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%d dBm <= RSSI < %d dBm (%u)", -101+v, -100+v, v);
+  }
+}
+
+static void
+ulp_PrimaryCCPCH_RSCP_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSCP < -115 dBm (0)");
+  } else if (v == 91) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSCP >= -25 dBm (91)");
+  } else if (v > 91) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "Spare (%u)", v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%d dBm <= RSCP < %d dBm (%u)", -116+v, -115+v, v);
+  }
+}
+
+static void
+ulp_CPICH_Ec_N0_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "CPICH Ec/N0 < -24 dB (0)");
+  } else if (v == 49) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "CPICH Ec/N0 >= 0 dB (49)");
+  } else if (v > 49) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "Spare (%u)", v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f dB <= CPICH Ec/N0 < %.1f dB (%u)", -24.5+((float)v/2), -24+((float)v/2), v);
+  }
+}
+
+static void
+ulp_CPICH_RSCP_fmt(gchar *s, guint32 v)
+{
+  if (v == 123) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "CPICH RSCP < -120 dBm (123)");
+  } else if (v > 123) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%d dBm <= CPICH RSCP < %d dBm (%u)", -244+v, -243+v, v);
+  } else if (v == 91) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "CPICH RSCP >= -25 dBm (91)");
+  } else if (v < 91) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%d dBm < CPICH RSCP <= %d dBm (%u)", -116+v, -115+v, v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "Spare (%u)", v);
+  }
+}
+
+static void
+ulp_QoP_horacc_fmt(gchar *s, guint32 v)
+{
+  double uncertainty = 10*(pow(1.1, (double)v)-1);
+
+  if (uncertainty < 1000) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%f m (%u)", uncertainty, v);
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%f km (%u)", uncertainty/1000, v);
+  }
+}
+
+static void
+ulp_QoP_veracc_fmt(gchar *s, guint32 v)
+{
+  double uncertainty = 45*(pow(1.025, (double)v)-1);
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%f m (%u)", uncertainty, v);
+}
+
+static void
+ulp_QoP_delay_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%g s (%u)", pow(2, (double)v), v);
+}
+
+static const true_false_string ulp_vertical_dir_val = {
+  "Downward",
+  "Upward"
+};
+
+static void
+ulp_RelativeTime_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f s (%u)", 0.01*v, v);
+}
+
+static void
+ulp_RSRP_Range_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRP < -140 dBm (0)");
+  } else if (v == 97) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRP >= -44 dBm (97)");
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%d dBm <= RSRP < %d dBm (%u)", -141+v, -140+v, v);
+  }
+}
+
+static void
+ulp_RSRQ_Range_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -19.5dB (0)");
+  } else if (v == 64) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "RSRQ >= -3 dB (34)");
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f dB <= RSRQ < %.1f dB (%u)", -20+((float)v/2), -19.5+((float)v/2), v);
+  }
+}
+
+static void
+ulp_SignalDelta_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%s dB (%u)", v ? "0.5" : "0", v);
+}
+
+static void
+ulp_locationAccuracy_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f m (%u)", 0.1*v, v);
+}
+
+static void
+ulp_WimaxRTD_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f us (%u)", 0.01*v, v);
+}
+
+static void
+ulp_WimaxNMR_rssi_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f dBm (%u)", -103.75+(0.25*v), v);
+}
+
+static void
+ulp_UTRAN_gpsReferenceTimeUncertainty_fmt(gchar *s, guint32 v)
+{
+  double uncertainty = 0.0022*(pow(1.18, (double)v)-1);
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%f us (%u)", uncertainty, v);
+}
+
+static const value_string ulp_ganss_time_id_vals[] = {
+  {  0, "Galileo"},
+  {  1, "QZSS"},
+  {  2, "GLONASS"},
+  {  3, "BDS"},
+  {  0, NULL},
+};
+
+static void
+ulp_utran_GANSSTimingOfCell_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2f us (%u)", 0.25*v, v);
+}
+
+static void
+ulp_Coordinate_latitude_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%f degrees (%u)",
+             ((float)v/8388607.0)*90, v);
+}
+
+static void
+ulp_Coordinate_longitude_fmt(gchar *s, guint32 v)
+{
+  gint32 longitude = (gint32) v;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%f degrees (%d)",
+             ((float)longitude/8388608.0)*180, longitude);
+}
 
 /* Include constants */
 #include "packet-ulp-val.h"
 
+typedef struct
+{
+  guint8 notif_enc_type;
+  guint8 ganss_req_gen_data_ganss_id;
+} ulp_private_data_t;
+
+static ulp_private_data_t* ulp_get_private_data(asn1_ctx_t *actx)
+{
+  if (actx->private_data == NULL) {
+    actx->private_data = wmem_new0(wmem_packet_scope(), ulp_private_data_t);
+  }
+  return (ulp_private_data_t*)actx->private_data;
+}
 
 #include "packet-ulp-fn.c"
 
@@ -103,7 +370,31 @@ void proto_register_ulp(void) {
     { &hf_ulp_mobile_directory_number,
       { "Mobile Directory Number", "ulp.mobile_directory_number",
         FT_STRING, BASE_NONE, NULL, 0,
-        NULL, HFILL }}
+        NULL, HFILL }},
+    { &hf_ulp_ganssTimeModels_bit0,
+      { "GPS", "ulp.ganssTimeModels.gps",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x8000,
+        NULL, HFILL }},
+    { &hf_ulp_ganssTimeModels_bit1,
+      { "Galileo", "ulp.ganssTimeModels.galileo",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x4000,
+        NULL, HFILL }},
+    { &hf_ulp_ganssTimeModels_bit2,
+      { "QZSS", "ulp.ganssTimeModels.qzss",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x2000,
+        NULL, HFILL }},
+    { &hf_ulp_ganssTimeModels_bit3,
+      { "GLONASS", "ulp.ganssTimeModels.glonass",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x1000,
+        NULL, HFILL }},
+    { &hf_ulp_ganssTimeModels_bit4,
+      { "BDS", "ulp.ganssTimeModels.bds",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0800,
+        NULL, HFILL }},
+    { &hf_ulp_ganssTimeModels_spare,
+      { "Spare", "ulp.ganssTimeModels.spare",
+        FT_UINT16, BASE_HEX, NULL, 0x07ff,
+        NULL, HFILL }},
   };
 
   /* List of subtrees */
@@ -111,6 +402,7 @@ void proto_register_ulp(void) {
     &ett_ulp,
     &ett_ulp_setid,
     &ett_ulp_thirdPartyId,
+    &ett_ulp_ganssTimeModels,
 #include "packet-ulp-ettarr.c"
   };
 

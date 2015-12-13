@@ -11,7 +11,6 @@ UNALIGNED
 ULP-PDU
 #.END
 
-
 #.TYPE_RENAME
 FrequencyInfo/modeSpecificInfo FrequencySpecificInfo
 #.END
@@ -22,6 +21,8 @@ FrequencyInfo/modeSpecificInfo/fdd  fdd_fr
 FrequencyInfo/modeSpecificInfo/tdd  tdd_fr
 SlpSessionID/sessionID  sessionSlpID
 SETId/min  minsi
+Coordinate/latitude CoordinateLatitude
+Coordinate/longitude CoordinateLongitude
 #.END
 
 #.FN_HDR ULP-PDU
@@ -49,6 +50,91 @@ guint32 UlpMessage;
 
 #.END
 
+#.FN_BODY Notification
+  ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
+
+  ulp_priv->notif_enc_type = -1;
+%(DEFAULT_BODY)s
+
+#.FN_BODY EncodingType VAL_PTR=&val
+  guint32 val;
+  ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
+
+%(DEFAULT_BODY)s
+  ulp_priv->notif_enc_type = (guint8) val;
+
+#.FN_BODY Notification/requestorId VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
+    switch(ulp_priv->notif_enc_type) {
+      case 0: /* UCS-2 */
+        actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0,
+                                                 tvb_reported_length(val_tvb),
+                                                 ENC_UCS_2|ENC_BIG_ENDIAN);
+        break;
+      case 1: /* GSM 7bits */
+        actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0,
+                                                 tvb_reported_length(val_tvb), ENC_3GPP_TS_23_038_7BITS|ENC_NA);
+        break;
+      case 2: /* UTF-8 */
+        actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0,
+                                                 tvb_reported_length(val_tvb), ENC_UTF_8|ENC_NA);
+        break;
+      default:
+        actx->created_item = proto_tree_add_string(tree, hf_index, val_tvb, 0,
+                                                   tvb_reported_length(val_tvb),
+                                                   tvb_bytes_to_str(wmem_packet_scope(), val_tvb, 0,
+                                                                    tvb_reported_length(val_tvb)));
+        break;
+    }
+  }
+
+#.TYPE_ATTR
+Notification/requestorId TYPE=FT_STRING DISPLAY=STR_UNICODE
+
+#.FN_BODY Notification/clientName VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
+    switch(ulp_priv->notif_enc_type) {
+      case 0: /* UCS-2 */
+        actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0,
+                                                 tvb_reported_length(val_tvb),
+                                                 ENC_UCS_2|ENC_BIG_ENDIAN);
+        break;
+      case 1: /* GSM 7bits */
+        actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0,
+                                                 tvb_reported_length(val_tvb), ENC_3GPP_TS_23_038_7BITS|ENC_NA);
+        break;
+      case 2: /* UTF-8 */
+        actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0,
+                                                 tvb_reported_length(val_tvb), ENC_UTF_8|ENC_NA);
+        break;
+      default:
+        actx->created_item = proto_tree_add_string(tree, hf_index, val_tvb, 0,
+                                                   tvb_reported_length(val_tvb),
+                                                   tvb_bytes_to_str(wmem_packet_scope(), val_tvb, 0,
+                                                                    tvb_reported_length(val_tvb)));
+        break;
+    }
+  }
+
+#.TYPE_ATTR
+Notification/clientName TYPE=FT_STRING DISPLAY=STR_UNICODE
+
+#.FN_BODY NavigationModel/gpsToe
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " hr");
+
+#.FN_BODY NavigationModel/toeLimit
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " hr");
+
 #.FN_BODY PosPayLoad/rrlpPayload  VAL_PTR = &rrlp_tvb
  tvbuff_t *rrlp_tvb;
 
@@ -57,6 +143,153 @@ guint32 UlpMessage;
   if (rrlp_tvb && rrlp_handle) {
     call_dissector(rrlp_handle, rrlp_tvb, %(ACTX)s->pinfo, tree);
   }
+
+#.FN_BODY PeriodicParams/intervalBetweenFixes
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " s");
+
+#.FN_BODY PeriodicParams/startTime
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " s");
+
+#.FN_BODY AreaEventParams/startTime
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " s");
+
+#.FN_BODY AreaEventParams/stopTime
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " s");
+
+#.FN_BODY RepeatedReportingParams/minimumIntervalTime
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " s");
+
+#.FN_BODY WLANAreaId/apMACAddress VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    proto_tree_add_item(tree, hf_index, val_tvb, 0, 6, ENC_NA);
+  }
+
+#.TYPE_ATTR
+WLANAreaId/apMACAddress TYPE=FT_ETHER
+
+#.TYPE_ATTR
+GANSSSignalsDescription/ganssId STRINGS=VALS(ulp_ganss_id_vals)
+
+#.FN_BODY TimeStamp/relativeTime
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " s");
+
+#.FN_BODY ReportingCriteria/minTimeInterval
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " s");
+
+#.FN_BODY TimeWindow/startTime
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " min");
+
+#.FN_BODY TimeWindow/stopTime
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " min");
+
+#.TYPE_ATTR
+GANSSPositionMethod/ganssId STRINGS=VALS(ulp_ganss_id_vals)
+
+#.FN_BODY GANSSPositionMethod/ganssSBASid VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    proto_tree_add_bits_item(tree, hf_index, val_tvb, 0, 3, ENC_NA);
+  }
+
+#.TYPE_ATTR
+GANSSPositionMethod/ganssSBASid TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(ulp_ganss_sbas_id_vals)
+
+#.FN_BODY GanssReqGenericData/ganssId VAL_PTR=&val
+  guint32 val;
+  ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
+
+%(DEFAULT_BODY)s
+  ulp_priv->ganss_req_gen_data_ganss_id = (guint8) val;
+
+#.TYPE_ATTR
+GanssReqGenericData/ganssId STRINGS=VALS(ulp_ganss_id_vals)
+
+#.FN_BODY GanssReqGenericData/ganssSBASid VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    proto_tree_add_bits_item(tree, hf_index, val_tvb, 0, 3, ENC_NA);
+  }
+
+#.TYPE_ATTR
+GanssReqGenericData/ganssSBASid TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(ulp_ganss_sbas_id_vals)
+
+#.FN_BODY GanssReqGenericData/ganssTimeModels VAL_PTR=&val_tvb
+  tvbuff_t *val_tvb;
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ulp_ganssTimeModels);
+    proto_tree_add_item(subtree, hf_ulp_ganssTimeModels_bit0, val_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_ganssTimeModels_bit1, val_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_ganssTimeModels_bit2, val_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_ganssTimeModels_bit3, val_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_ganssTimeModels_bit4, val_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_ganssTimeModels_spare, val_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY GanssNavigationModelData/ganssWeek
+  ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
+
+%(DEFAULT_BODY)s
+  if (ulp_priv->ganss_req_gen_data_ganss_id != 4) {
+    /* Not GLONASS */
+    proto_item_append_text(actx->created_item, " wk");
+  } else {
+    proto_item_append_text(actx->created_item, " d");
+  }
+
+#.FN_BODY GanssNavigationModelData/ganssToe VAL_PTR=&val
+  guint32 val;
+  ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
+
+%(DEFAULT_BODY)s
+
+#.FN_FTR GanssNavigationModelData/ganssToe
+  if (ulp_priv->ganss_req_gen_data_ganss_id != 4) {
+    /* Not GLONASS */
+    proto_item_append_text(actx->created_item, " h");
+  } else {
+    proto_item_set_text(actx->created_item, "%u min (%u)", 15*val, val);
+  }
+
+#.FN_BODY GanssNavigationModelData/t-toeLimit VAL_PTR=&val
+  guint32 val;
+  ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
+
+%(DEFAULT_BODY)s
+
+#.FN_FTR GanssNavigationModelData/t-toeLimit
+  if (ulp_priv->ganss_req_gen_data_ganss_id != 4) {
+    /* Not GLONASS */
+    proto_item_append_text(actx->created_item, " h");
+  } else {
+    proto_item_set_text(actx->created_item, "%u min (%u)", 30*val, val);
+  }
+
+#.FN_BODY GanssDataBits/ganssTODmin
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " s");
+
+#.TYPE_ATTR
+ReqDataBitAssistanceList/ganssDataBitInterval DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_ganssDataBitInterval_fmt)
+
+#.TYPE_ATTR
+ExtendedEphemeris/validity DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_ExtendedEphemeris_validity_fmt)
 
 #.FN_BODY Ver2-PosPayLoad-extension/lPPPayload/_item  VAL_PTR = &lpp_tvb
  tvbuff_t *lpp_tvb;
@@ -97,6 +330,397 @@ guint32 UlpMessage;
     dissect_e212_imsi(imsi_tvb, actx->pinfo, subtree, 0, 8, FALSE);
   }
 
+#.TYPE_ATTR
+IPAddress/ipv4Address TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
+IPAddress/ipv6Address TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
+
+#.TYPE_ATTR
+PositionEstimate/latitude DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_PositionEstimate_latitude_fmt)
+
+#.TYPE_ATTR
+PositionEstimate/longitude DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_PositionEstimate_longitude_fmt)
+
+#.TYPE_ATTR
+PositionEstimate/uncertainty/uncertaintySemiMajor DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_QoP_horacc_fmt)
+
+#.TYPE_ATTR
+PositionEstimate/uncertainty/uncertaintySemiMinor DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_QoP_horacc_fmt)
+
+#.FN_BODY PositionEstimate/uncertainty/orientationMajorAxis
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " degrees");
+
+#.FN_FTR PositionEstimate/confidence
+  proto_item_append_text(actx->created_item, "%%");
+
+#.FN_BODY AltitudeInfo/altitude
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " m");
+
+#.TYPE_ATTR
+AltitudeInfo/altUncertainty DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_QoP_veracc_fmt)
+
+#.TYPE_ATTR
+NMRelement/rxLev DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_NMRelement_rxLev_fmt)
+
+#.TYPE_ATTR
+UTRA-CarrierRSSI DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_UTRA_CarrierRSSI_fmt)
+
+#.TYPE_ATTR
+PrimaryCCPCH-RSCP DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_PrimaryCCPCH_RSCP_fmt)
+
+#.TYPE_ATTR
+CPICH-Ec-N0 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_CPICH_Ec_N0_fmt)
+
+#.TYPE_ATTR
+CPICH-RSCP DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_CPICH_RSCP_fmt)
+
+#.TYPE_ATTR
+QoP/horacc DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_QoP_horacc_fmt)
+
+#.TYPE_ATTR
+QoP/veracc DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_QoP_veracc_fmt)
+
+#.FN_BODY QoP/maxLocAge
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " s");
+
+#.TYPE_ATTR
+QoP/delay DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_QoP_delay_fmt)
+
+#.FN_BODY Horvel/bearing VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    actx->created_item = proto_tree_add_bits_item(tree, hf_index, val_tvb, 0, 9, ENC_BIG_ENDIAN);
+    proto_item_append_text(actx->created_item, " degrees");
+  }
+
+#.TYPE_ATTR
+Horvel/bearing TYPE=FT_UINT16 DISPLAY=BASE_DEC
+
+#.FN_BODY Horvel/horspeed VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_item_append_text(actx->created_item, " km/h");
+  }
+
+#.TYPE_ATTR
+Horvel/horspeed TYPE=FT_UINT16 DISPLAY=BASE_DEC
+
+#.FN_BODY Horandvervel/verdirect VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    actx->created_item = proto_tree_add_bits_item(tree, hf_index, val_tvb, 0, 1, ENC_NA);
+  }
+
+#.TYPE_ATTR
+Horandvervel/verdirect TYPE=FT_BOOLEAN STRINGS=TFS(&ulp_vertical_dir_val)
+
+#.FN_BODY Horandvervel/bearing VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    actx->created_item = proto_tree_add_bits_item(tree, hf_index, val_tvb, 0, 9, ENC_BIG_ENDIAN);
+    proto_item_append_text(actx->created_item, " degrees");
+  }
+
+#.TYPE_ATTR
+Horandvervel/bearing TYPE=FT_UINT16 DISPLAY=BASE_DEC
+
+#.FN_BODY Horandvervel/horspeed VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_item_append_text(actx->created_item, " km/h");
+  }
+
+#.TYPE_ATTR
+Horandvervel/horspeed TYPE=FT_UINT16 DISPLAY=BASE_DEC
+
+#.FN_BODY Horandvervel/verspeed VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_item_append_text(actx->created_item, " km/h");
+  }
+
+#.TYPE_ATTR
+Horandvervel/verspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC
+
+#.FN_BODY Horveluncert/bearing VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    actx->created_item = proto_tree_add_bits_item(tree, hf_index, val_tvb, 0, 9, ENC_BIG_ENDIAN);
+    proto_item_append_text(actx->created_item, " degrees");
+  }
+
+#.TYPE_ATTR
+Horveluncert/bearing TYPE=FT_UINT16 DISPLAY=BASE_DEC
+
+#.FN_BODY Horveluncert/horspeed VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_item_append_text(actx->created_item, " km/h");
+  }
+
+#.TYPE_ATTR
+Horveluncert/horspeed TYPE=FT_UINT16 DISPLAY=BASE_DEC
+
+#.FN_BODY Horveluncert/uncertspeed VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_item_append_text(actx->created_item, " km/h");
+  }
+
+#.TYPE_ATTR
+Horveluncert/uncertspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC
+
+#.FN_BODY Horandveruncert/verdirect VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    actx->created_item = proto_tree_add_bits_item(tree, hf_index, val_tvb, 0, 1, ENC_NA);
+  }
+
+#.TYPE_ATTR
+Horandveruncert/verdirect TYPE=FT_BOOLEAN STRINGS=TFS(&ulp_vertical_dir_val)
+
+#.FN_BODY Horandveruncert/bearing VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    actx->created_item = proto_tree_add_bits_item(tree, hf_index, val_tvb, 0, 9, ENC_BIG_ENDIAN);
+    proto_item_append_text(actx->created_item, " degrees");
+  }
+
+#.TYPE_ATTR
+Horandveruncert/bearing TYPE=FT_UINT16 DISPLAY=BASE_DEC
+
+#.FN_BODY Horandveruncert/horspeed VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_item_append_text(actx->created_item, " km/h");
+  }
+
+#.TYPE_ATTR
+Horandveruncert/horspeed TYPE=FT_UINT16 DISPLAY=BASE_DEC
+
+#.FN_BODY Horandveruncert/verspeed VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_item_append_text(actx->created_item, " km/h");
+  }
+
+#.TYPE_ATTR
+Horandveruncert/verspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC
+
+#.FN_BODY Horandveruncert/horuncertspeed VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_item_append_text(actx->created_item, " km/h");
+  }
+
+#.TYPE_ATTR
+Horandveruncert/horuncertspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC
+
+#.FN_BODY Horandveruncert/veruncertspeed VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_item_append_text(actx->created_item, " km/h");
+  }
+
+#.TYPE_ATTR
+Horandveruncert/veruncertspeed TYPE=FT_UINT8 DISPLAY=BASE_DEC
+
+#.TYPE_ATTR
+RelativeTime DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_RelativeTime_fmt)
+
+#.FN_BODY SupportedWLANApData/apMACAddress VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    proto_tree_add_item(tree, hf_index, val_tvb, 0, 6, ENC_NA);
+  }
+
+#.TYPE_ATTR
+SupportedWLANApData/apMACAddress TYPE=FT_ETHER
+
+#.TYPE_ATTR
+RSRP-Range DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_RSRP_Range_fmt)
+
+#.TYPE_ATTR
+RSRQ-Range DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_RSRQ_Range_fmt)
+
+#.FN_BODY WlanAPInformation/apMACAddress VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    proto_tree_add_item(tree, hf_index, val_tvb, 0, 6, ENC_NA);
+  }
+
+#.TYPE_ATTR
+WlanAPInformation/apMACAddress TYPE=FT_ETHER
+
+#.FN_BODY WlanAPInformation/apTransmitPower
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " dBm");
+
+#.FN_BODY WlanAPInformation/apAntennaGain
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " dBi");
+
+#.FN_BODY WlanAPInformation/apSignaltoNoise
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " dB");
+
+#.FN_BODY WlanAPInformation/apSignalStrength
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " dBm");
+
+#.FN_BODY WlanAPInformation/setTransmitPower
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " dBm");
+
+#.FN_BODY WlanAPInformation/setAntennaGain
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " dBi");
+
+#.FN_BODY WlanAPInformation/setSignaltoNoise
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " dB");
+
+#.FN_BODY WlanAPInformation/setSignalStrength
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " dBm");
+
+#.TYPE_ATTR
+WlanAPInformation/apSignalStrengthDelta DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_SignalDelta_fmt)
+
+#.TYPE_ATTR
+WlanAPInformation/apSignaltoNoiseDelta DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_SignalDelta_fmt)
+
+#.TYPE_ATTR
+WlanAPInformation/setSignalStrengthDelta DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_SignalDelta_fmt)
+
+#.TYPE_ATTR
+WlanAPInformation/setSignaltoNoiseDelta DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_SignalDelta_fmt)
+
+#.FN_BODY WlanAPInformation/apSSID VAL_PTR=&ssid_tvb HF_INDEX=-1
+  tvbuff_t *ssid_tvb;
+
+%(DEFAULT_BODY)s
+  if (ssid_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, ssid_tvb, 0, -1, ENC_ASCII|ENC_NA);
+  }
+
+#.TYPE_ATTR
+WlanAPInformation/apSSID TYPE=FT_STRING DISPLAY=STR_ASCII
+
+#.FN_BODY WlanAPInformation/setMACAddress VAL_PTR=&val_tvb HF_INDEX=-1
+  tvbuff_t *val_tvb;
+
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    proto_tree_add_item(tree, hf_index, val_tvb, 0, 6, ENC_NA);
+  }
+
+#.TYPE_ATTR
+WlanAPInformation/setMACAddress TYPE=FT_ETHER
+
+#.TYPE_ATTR
+LocationData/locationAccuracy DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_locationAccuracy_fmt)
+
+#.TYPE_ATTR
+WimaxRTD/rtd DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_WimaxRTD_fmt)
+
+#.TYPE_ATTR
+WimaxRTD/rTDstd DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_WimaxRTD_fmt)
+
+#.TYPE_ATTR
+WimaxNMR/relDelay DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_WimaxRTD_fmt)
+
+#.TYPE_ATTR
+WimaxNMR/relDelaystd DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_WimaxRTD_fmt)
+
+#.TYPE_ATTR
+WimaxNMR/rssi DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_WimaxNMR_rssi_fmt)
+
+#.FN_BODY WimaxNMR/rSSIstd
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " dB");
+
+#.TYPE_ATTR
+WimaxNMR/bSTxPower DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_WimaxNMR_rssi_fmt)
+
+#.FN_BODY WimaxNMR/cinr
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " dB");
+
+#.FN_BODY WimaxNMR/cINRstd
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " dB");
+
+#.TYPE_ATTR
+UTRAN-GPSReferenceTimeAssistance/gpsReferenceTimeUncertainty DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_UTRAN_gpsReferenceTimeUncertainty_fmt)
+
+#.TYPE_ATTR
+UTRAN-GPSReferenceTimeResult/gpsReferenceTimeUncertainty DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_UTRAN_gpsReferenceTimeUncertainty_fmt)
+
+#.TYPE_ATTR
+UTRAN-GANSSReferenceTimeAssistance/ganssTimeID STRINGS=VALS(ulp_ganss_time_id_vals)
+
+#.FN_BODY UTRAN-GANSSReferenceTime/ganssTOD
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " s");
+
+#.TYPE_ATTR
+UTRAN-GANSSReferenceTime/utran-GANSSTimingOfCell DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_utran_GANSSTimingOfCell_fmt)
+
+#.TYPE_ATTR
+UTRAN-GANSSReferenceTime/ganss-TODUncertainty DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_UTRAN_gpsReferenceTimeUncertainty_fmt)
+
+#.TYPE_ATTR
+UTRAN-GANSSReferenceTimeResult/ganssTimeID STRINGS=VALS(ulp_ganss_time_id_vals)
+
+#.TYPE_ATTR
+SET-GANSSReferenceTime/ganss-TODUncertainty ulp_UTRAN_gpsReferenceTimeUncertainty_fmtulp_UTRAN_gpsReferenceTimeUncertainty_fmt)
+
 #.FN_BODY ThirdPartyID/msisdn VAL_PTR=&msisdn_tvb
   tvbuff_t *msisdn_tvb;
 %(DEFAULT_BODY)s
@@ -133,7 +757,38 @@ guint32 UlpMessage;
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_~%%#", 69,
                                                       NULL);
 
+#.FN_BODY ReportingCap/minInt
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " s");
+
+#.FN_BODY ReportingCap/maxInt
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " min");
+
 #.TYPE_ATTR
-IPAddress/ipv4Address TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
-IPAddress/ipv6Address TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
+Coordinate/latitude DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_Coordinate_latitude_fmt)
+
+#.TYPE_ATTR
+Coordinate/longitude DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_Coordinate_longitude_fmt)
+
+#.FN_BODY CircularArea/radius
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " m");
+
+#.FN_BODY EllipticalArea/semiMajor
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " m");
+
+#.FN_BODY EllipticalArea/semiMinor
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " m");
+
+#.FN_BODY EllipticalArea/angle
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " degrees");
+
+#.FN_BODY PolygonArea/polygonHysteresis
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " m");
+
 #.END
