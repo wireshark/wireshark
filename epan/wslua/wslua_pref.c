@@ -237,12 +237,19 @@ static range_t* get_range(lua_State *L, int idx_r, int idx_m)
 static int Pref__gc(lua_State* L) {
     Pref pref = toPref(L,1);
 
+    /*
+     * Only free unregistered and deregistered Pref; those have
+     * a null name pointer.
+     *
+     * They've been deregistered by wslua_deregister_protocols(),
+     * which means that prefs_deregister_protocol() has been called
+     * on them, which means that if their value is something that's
+     * allocated, it's been freed, and we don't have to do that
+     * ourselves.
+     */
     if (! pref->name) {
-        /* Only free unregistered and deregistered Pref */
         g_free(pref->label);
         g_free(pref->desc);
-        if (pref->type == PREF_STRING)
-            g_free((void*)pref->value.s);
         g_free(pref);
     }
 
