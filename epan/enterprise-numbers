@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2015-12-05)
+(last updated 2015-12-11)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -127025,7 +127025,7 @@ Decentralization / Helenic Public Administra
 31861
   embinet GmbH
     Stephan Eisvogel
-      admins&embinet.de
+      info-iana&embinet.de
 31862
   Infinity Trust SRL
     Chifu Valerian
@@ -174026,7 +174026,7 @@ Decentralization / Helenic Public Administra
 43611
   Power Ethernet
     James Gardiner
-      james.gardiner&powerethernet.com
+      support&powerethernet.com
 43612
   IOLAN
     Ernst Lemm
@@ -174529,8 +174529,8 @@ Decentralization / Helenic Public Administra
       mmackenzie&standardimaging.com
 43737
   MedAllies
-    Devin Kusek
-      dkusek&medallies.com
+    Nicole Domkiw
+      ndomkiw&medallies.com
 43738
   Doshisha University
     TANAKA, Yasuhiro
@@ -183600,7 +183600,7 @@ Decentralization / Helenic Public Administra
     Thomas Naumann
       thomas.naumann&50hertz.com
 46005
-  SAG Informatik AG
+  SAG Services AG (formerly 'SAG Informatik AG')
     Anthony Uk
       sysadmin&sag-ag.ch
 46006
@@ -186798,7 +186798,7 @@ Decentralization / Helenic Public Administra
 46804
   Himnark CJSC
     Ruben Osipyan
-      melikyanarmen86&gmail.com
+      ruben&himnark.am
 46805
   Oncology Consultants
     Jerel Sukarangsan
@@ -186988,7 +186988,7 @@ Decentralization / Helenic Public Administra
     Bill McLaren
       billmcl&terremark.com
 46852
-  Viagogo
+  viagogo AG
     David Suart
       iana&viagogo.com
 46853
@@ -187023,6 +187023,302 @@ Decentralization / Helenic Public Administra
   Bittacle Consulting Limited
     Craig Baltzer
       Craig.Baltzer&bittacle.com
+46861
+  JVCKENWOOD Corporation
+    Manabu Sato
+      snmp.support&jvckenwood.com
+46862
+  Digital Life Promotion Association
+    Kazuhiro Tabuchi
+      info&dlpa.jp
+46863
+  Bosch Thermotechnik GmbH
+    Tobias Baumgartner
+      tobias.baumgartner2&de.bosch.com
+46864
+  Embedtronics Oy
+    Sami Kantoluoto
+      sami.kantoluoto&embedtronics.fi
+46865
+  IS4U, s.r.o.
+    Petr Dadák
+      tech&is4u.cz
+46866
+  Virdata NV
+    Jeremy De Clercq
+      jeremy.declercq&virdata.com
+46867
+  Synthetel Corporation
+    Shao Miller
+      iana-pen&synthetel.com
+46868
+  Secure Energy Services
+    Tim Nickerson
+      tnickerson&secure-energy.com
+46869
+  Torchmind
+    Johannes Donath
+      johannesd&torchmind.com
+46870
+  relaxt confusion labs e.U.
+    Thomas Gradisnik
+      tg&relaxt.at
+46871
+  Magic Mike, Ltd
+    Michael Bonhomme
+      michael.bonhomme&gmail.com
+46872
+  Bimex Energy AG
+    Lukas Kaufmann / Simon Kech
+      lukas.kaufmann&polytech.ch
+46873
+  y1s2
+    smail chamrah
+      yossefsaso2015&gmail.com
+46874
+  Wavenet sprl
+    Jean-Noël Wallez
+      iana&wavenet.be
+46875
+  prodot GmbH
+    Mischa Hueschen
+      mischa.hueschen&prodot.de
+46876
+  GE Lighting
+    SiNguyen Vo
+      singuyen.vo&ge.com
+46877
+  ATB Financial
+    Dustin Heywood
+      dheywood&atb.com
+46878
+  PermaGreen Supreme, Inc.
+    Christopher McChristian
+      clm&permagreen.com
+46879
+  Lengvarsky.com
+    Igor Lengvarsky
+      igor&lengvarsky.com
+46880
+  Technology Kitchen Corporation
+    Brad Claflin
+      bradclaflin&technologykitchen.com
+46881
+  henz.co
+    John Henz
+      john.henz&jhenz.net
+46882
+  LSTI
+    Philippe Bouchet
+      pbouchet&exchange.lsti.fr
+46883
+  Capsicum Business Architects
+    Michael Wyatt
+      mwyatt&capsi.com.au
+46884
+  Freie ev. Gemeinde Giessen
+    Peter Schuster
+      admin&feg-giessen.de
+46885
+  TwoFive, Inc.
+    Masatatsu Akamine
+      akamine&twofive25.com
+46886
+  Beken Learning Systems, Inc.
+    Steve Benoit
+      steve.benoit&bekenlearning.com
+46887
+  Bulletin.net Ltd
+    Kerry Sainsbury
+      kerry.sainsbury&bulletin.net
+46888
+  KRDS
+    Guillaume Simon
+      hosting&krds.com
+46889
+  Gravity Academy Engineering 
+    grant haywood
+      mrgranthaywood&gmail.com
+46890
+  SOLUM Co., Ltd.
+    ChangWoo Lee
+      cw0220.lee&solu-m.com
+46891
+  fmad engineering llc
+    Aaron Foo
+      aaron_ppus&fmad.com
+46892
+  TwelveBaud Studios, LLC
+    Andrew Cook
+      andrew.cook&twelvebaud.net
+46893
+  Antelope Enterprises
+    Joel Maslak
+      jmaslak&antelope.net
+46894
+  Hanwha S&C
+    See Yun Kim
+      seeyunk&hanwha.com
+46895
+  NexDefense, Inc.
+    Jeff Barber
+      jeff.barber&nexdefense.com
+46896
+  UNIACC Electronic Technology Ltd. of Suzhou
+    Kingtonlee
+      kingtonlee&sina.com
+46897
+  Virtual Hold Technology, LLC
+    Sean O'Rourke
+      sorourke&virtualhold.com
+46898
+  Hewlett Packard Enterprise
+    John Henz
+      john.henz&hpe.com
+46899
+  TDK LAMBDA LTD
+    SHMUEL MASSIL
+      samuel.m&tdk-lambda.co.il
+46900
+  TiePie engineering
+    Anton Poelsma
+      sysops&tiepie.nl
+46901
+  Wilhelmsen Loom Consulting
+    Lars Wilhelmsen
+      lars&sral.org
+46902
+  Keegan Moodley Ltd 
+    Keegan Moodley 
+      keeganmoodley96&gmail.com
+46903
+  DE-CIX Management GmbH
+    Kay Schroeder
+      kay.schroeder&de-cix.net
+46904
+  Sepura plc
+    Nick James
+      nick.james&sepura.com
+46905
+  KTI RÁDIO, spol. s r.o.
+    Miroslav Sajko
+      sajko&kti.sk
+46906
+  Enghouse Networks Nordics AB
+    Johan Norborg
+      johan.norborg&enghouse.com
+46907
+  Qognify LTD
+    Info at Qognify
+      info&qognify.com
+46908
+  Ascot Industrial
+    Marco Bambili
+      m.bambili&ascotinternational.it
+46909
+  Centric Housing & Healthcare
+    Erik van Alderwegen
+      erik.van.alderwegen&centric.eu
+46910
+  AIC S.A.
+    IT Department
+      it&myaic.com
+46911
+  KERLINK
+    Dubourg Ronan
+      ronan.dubourg&kerlink.fr
+46912
+  Nassauische Heimstaette Wohnungs- und Entwicklungsgesellschaft mbH
+    Michael Schreck
+      michael.schreck&naheimst.de
+46913
+  Hotspot Tiefenort
+    Thomas Pinkert
+      thomas.pinkert&hotspot-tiefenort.de
+46914
+  Administration des Ponts et Chaussées
+    Georges Goebel
+      georges.goebel&pch.etat.lu
+46915
+  raffel.biz
+    Joern Raffel
+      joern&raffel.biz
+46916
+  Aviva Voice Systems and Services SL
+    Javier Moreno
+      jmoreno&avivavoice.com
+46917
+  PC-TipTop
+    Robert Christian Strasser
+      robert.strasser&pc-tiptop.de
+46918
+  GRUPO REVENGA 
+    FRANCISCO JOSÉ ELENO PARDO
+      elias.molinedo&revenga.com
+46919
+  Aadi Network Tools
+    Hemant Kelkar
+      hemantkelkar2001&yahoo.com
+46920
+  DEVISE FUTURES - IT SOLUTIONS, LDA
+    José Eduardo Pina Miranda
+      jose.miranda&devisefutures.com
+46921
+  Universidade Federal de Sao Joao del-Rei
+    Roosevelt Mairink dos Santos Junior
+      mairink&ufsj.edu.br
+46922
+  Wolf GmbH
+    David Mager
+      David-Arpad.Mager&Wolf-Heiztechnik.de
+46923
+  LG&E-KU LLC
+    Steven Ramirez
+      Steven.Ramirez&lge-ku.com
+46924
+  Oncology Specialists of Charlotte, PA
+    Erin LeMire
+      elemire&oncologycharlotte.com
+46925
+  EEBus Initiative e.V.
+    Andreas Schwackenberg
+      schwackenberg&eebus.org
+46926
+  Midas Green Technologies
+    Chris Boyd
+      iana&midasgt.com
+46927
+  INVITE Networks Incorporated
+    Josh Whiting
+      josh&invitenetworks.com
+46928
+  r0ck.net
+    Cary Kempston
+      iana&r0ck.net
+46929
+  Uzma Iqbal MD PA
+    Barbara Hand
+      manager&houstoncenterofhope.com
+46930
+  Sandelman Software Works
+    Michael Richardson
+      mcr&sandelman.ca
+46931
+  Welch Allyn Singapore Pte Ltd
+    Michael Lim
+      michael.lim&welchallyn.com
+46932
+  OAO NEFAZ
+    Gavrilenko Sergey
+      admin&nefaz.ru
+46933
+  Business&Decision
+    Blyednova Iryna
+      iryna.blyednova&businessdecision.com
+46934
+  AFSOC
+    David Bricker
+      afsoc.csf.scp.cmia&us.af.mil
 
 
 End of Document
