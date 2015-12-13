@@ -38,7 +38,7 @@ static GHashTable *registered_capture_dissectors = NULL;
 
 void capture_dissector_init(void)
 {
-    registered_capture_dissectors = g_hash_table_new_full(g_int_hash, g_int_equal, NULL, NULL);
+    registered_capture_dissectors = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
 }
 
 void capture_dissector_cleanup(void)
@@ -52,19 +52,19 @@ void register_capture_dissector(gint linktype, capture_dissector_t dissector, co
     struct capture_dissector_handle *handle;
 
     /* Make sure the registration is unique */
-    g_assert(g_hash_table_lookup(registered_capture_dissectors, &linktype) == NULL);
+    g_assert(g_hash_table_lookup(registered_capture_dissectors, GUINT_TO_POINTER(linktype)) == NULL);
 
     handle                = wmem_new(wmem_epan_scope(), struct capture_dissector_handle);
     handle->linktype      = linktype;
     handle->dissector     = dissector;
     handle->protocol      = find_protocol_by_id(proto);
 
-    g_hash_table_insert(registered_capture_dissectors, (gpointer)&linktype, (gpointer) handle);
+    g_hash_table_insert(registered_capture_dissectors, GUINT_TO_POINTER(linktype), (gpointer) handle);
 }
 
 void call_capture_dissector(gint linktype, const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header)
 {
-    struct capture_dissector_handle* handle = (struct capture_dissector_handle *)g_hash_table_lookup(registered_capture_dissectors, &linktype);
+    struct capture_dissector_handle* handle = (struct capture_dissector_handle *)g_hash_table_lookup(registered_capture_dissectors, GUINT_TO_POINTER(linktype));
     if (handle == NULL)
         return;
 
