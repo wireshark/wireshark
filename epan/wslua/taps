@@ -47,7 +47,6 @@ ansi_map ../dissectors/packet-ansi_map.h ansi_map_tap_rec_t
 #epl ../dissectors/packet-epl.h epl_info_t
 eth ../dissectors/packet-eth.h eth_hdr
 #fc ../dissectors/packet-fc.h fc_hdr
-#fddi ../dissectors/packet-fddi.h fddi_info_t
 #gsm_a ../dissectors/packet-gsm_a.h gsm_a_info_t
 #gsm_map ../dissectors/packet-gsm_map.h gsm_map_info_t
 #h245 ../dissectors/packet-h245.h h245_info_t

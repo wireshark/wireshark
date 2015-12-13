@@ -37,6 +37,7 @@
 #include <epan/address_types.h>
 #include <epan/to_str.h>
 #include <wiretap/wtap.h>
+#include <epan/capture_dissectors.h>
 #include "packet-atalk.h"
 #include "packet-afp.h"
 
@@ -1579,8 +1580,8 @@ static const value_string llap_type_vals[] = {
 };
 static value_string_ext llap_type_vals_ext = VALUE_STRING_EXT_INIT(llap_type_vals);
 
-void
-capture_llap(packet_counts *ld)
+static void
+capture_llap(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
   ld->other++;
 }
@@ -2064,6 +2065,8 @@ proto_register_atalk(void)
 
   proto_zip = proto_register_protocol("Zone Information Protocol", "ZIP", "zip");
   proto_register_field_array(proto_zip, hf_zip, array_length(hf_zip));
+
+  register_capture_dissector(WTAP_ENCAP_LOCALTALK, capture_llap, proto_llap);
 
   atp_module = prefs_register_protocol(proto_atp, NULL);
   prefs_register_bool_preference(atp_module, "desegment",

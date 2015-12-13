@@ -91,7 +91,7 @@ capture_ieee8021ah(const guchar *pd, int offset, int len, packet_counts *ld)
             capture_ipx(ld);
         }
         else {
-            capture_llc(pd, offset + IEEE8021AH_LEN,len,ld);
+            capture_llc(pd, offset + IEEE8021AH_LEN,len,ld, NULL);
         }
     }
     else {

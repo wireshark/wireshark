@@ -233,10 +233,10 @@ capture_ethertype(guint16 etype, const guchar *pd, int offset, int len,
 		capture_vines(ld);
 		break;
 	case ETHERTYPE_BPQ:
-		capture_bpq(pd, offset, len, ld);
+		capture_bpq(pd, offset, len, ld, NULL);
 		break;
 	case ETHERTYPE_JUMBO_LLC:
-		capture_llc(pd, offset, len, ld);
+		capture_llc(pd, offset, len, ld, NULL);
 		break;
 	default:
 		ld->other++;

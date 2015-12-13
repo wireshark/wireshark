@@ -19,8 +19,6 @@
 #ifndef __PACKET_ATALK_H__
 #define __PACKET_ATALK_H__
 
-#include "ws_symbol_export.h"
-
 /*
  * DDP packet types.
  */
@@ -32,7 +30,5 @@
 #define DDP_ZIP		0x06
 #define DDP_ADSP	0x07
 #define DDP_EIGRP	0x58
-
-WS_DLL_PUBLIC void capture_llap(packet_counts *ld);
 
 #endif

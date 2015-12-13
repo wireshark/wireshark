@@ -102,7 +102,7 @@ dissect_bpq( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 }
 
 void
-capture_bpq( const guchar *pd, int offset, int len, packet_counts *ld)
+capture_bpq( const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	int l_offset;
 
@@ -114,7 +114,7 @@ capture_bpq( const guchar *pd, int offset, int len, packet_counts *ld)
 
 	l_offset = offset;
 	l_offset += BPQ_HEADER_SIZE; /* step over bpq header to point at the AX.25 packet*/
-	capture_ax25( pd, l_offset, len, ld );
+	capture_ax25( pd, l_offset, len, ld, pseudo_header );
 }
 
 void

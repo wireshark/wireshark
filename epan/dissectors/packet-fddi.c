@@ -32,7 +32,7 @@
 #include <wsutil/bitswap.h>
 #include <epan/prefs.h>
 #include <epan/conversation_table.h>
-#include "packet-fddi.h"
+#include <epan/capture_dissectors.h>
 #include "packet-llc.h"
 #include "packet-sflow.h"
 
@@ -123,6 +123,12 @@ static const value_string mac_subtype_vals[] = {
   { 0,                             NULL }
 };
 
+typedef struct _fddi_hdr {
+  guint8  fc;
+  address dst;
+  address src;
+} fddi_hdr;
+
 #define FDDI_HEADER_SIZE       13
 
 /* field positions */
@@ -193,10 +199,10 @@ fddi_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
   return 1;
 }
 
-void
-capture_fddi(const guchar *pd, int len, packet_counts *ld)
+static void
+capture_fddi(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
-  int offset = 0, fc;
+  int fc;
 
   if (!BYTES_ARE_IN_FRAME(0, len, FDDI_HEADER_SIZE + FDDI_PADDING)) {
     ld->other++;
@@ -226,7 +232,7 @@ capture_fddi(const guchar *pd, int len, packet_counts *ld)
     case FDDI_FC_LLC_ASYNC + 13 :
     case FDDI_FC_LLC_ASYNC + 14 :
     case FDDI_FC_LLC_ASYNC + 15 :
-      capture_llc(pd, offset, len, ld);
+      capture_llc(pd, offset, len, ld, pseudo_header);
       return;
     default :
       ld->other++;
@@ -512,6 +518,9 @@ proto_register_fddi(void)
    * We assume the MAC addresses in them aren't bitswapped.
    */
   register_dissector("fddi", dissect_fddi_not_bitswapped, proto_fddi);
+
+  register_capture_dissector(WTAP_ENCAP_FDDI, capture_fddi, proto_fddi);
+  register_capture_dissector(WTAP_ENCAP_FDDI_BITSWAPPED, capture_fddi, proto_fddi);
 
   fddi_module = prefs_register_protocol(proto_fddi, NULL);
   prefs_register_bool_preference(fddi_module, "padding",

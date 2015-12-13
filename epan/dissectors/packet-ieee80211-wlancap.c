@@ -25,6 +25,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <wiretap/wtap.h>
 #include <wsutil/pint.h>
 #include <wsutil/frequency-utils.h>
@@ -72,7 +73,7 @@ static gint ett_wlancap = -1;
 static dissector_handle_t wlancap_handle;
 
 void
-capture_wlancap(const guchar *pd, int offset, int len, packet_counts *ld)
+capture_wlancap(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint32 length;
 
@@ -91,7 +92,7 @@ capture_wlancap(const guchar *pd, int offset, int len, packet_counts *ld)
   offset += length;
 
   /* 802.11 header follows */
-  capture_ieee80211(pd, offset, len, ld);
+  capture_ieee80211(pd, offset, len, ld, pseudo_header);
 }
 
 /*
@@ -848,6 +849,7 @@ void proto_register_ieee80211_wlancap(void)
   proto_register_field_array(proto_wlancap, hf_wlancap,
                              array_length(hf_wlancap));
   register_dissector("wlancap", dissect_wlancap, proto_wlancap);
+  register_capture_dissector(WTAP_ENCAP_IEEE_802_11_AVS, capture_wlancap, proto_wlancap);
 
   wlancap_handle = create_dissector_handle(dissect_wlancap, proto_wlancap);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_AVS,

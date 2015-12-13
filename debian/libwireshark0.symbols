@@ -94,32 +94,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  call_per_oid_callback@Base 1.99.1
  camelSRTtype_naming@Base 1.9.1
  camel_opr_code_strings@Base 1.9.1
- capture_ap1394@Base 1.9.1
- capture_arcnet@Base 1.9.1
- capture_atm@Base 1.9.1
- capture_ax25@Base 1.9.1
- capture_ax25_kiss@Base 1.9.1
- capture_chdlc@Base 1.9.1
- capture_clip@Base 1.9.1
- capture_enc@Base 1.9.1
- capture_eth@Base 1.9.1
- capture_fddi@Base 1.9.1
- capture_fr@Base 1.9.1
- capture_i2c@Base 1.9.1
- capture_ieee80211@Base 1.9.1
- capture_ipfc@Base 1.9.1
- capture_llap@Base 1.9.1
- capture_loop@Base 1.99.3
- capture_null@Base 1.9.1
- capture_pktap@Base 1.12.0~rc1
- capture_ppi@Base 1.9.1
- capture_ppp_hdlc@Base 1.9.1
- capture_prism@Base 1.9.1
- capture_radiotap@Base 1.9.1
- capture_raw@Base 1.9.1
- capture_sll@Base 1.9.1
- capture_tr@Base 1.9.1
- capture_wlancap@Base 1.9.1
  check_xdlc_control@Base 1.9.1
  circuit_add_proto_data@Base 1.9.1
  circuit_get_proto_data@Base 1.9.1

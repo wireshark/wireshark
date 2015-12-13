@@ -1591,6 +1591,7 @@ set(LIBWIRESHARK_FILES
 	aftypes.c
 	app_mem_usage.c
 	asn1.c
+	capture_dissectors.c
 	charsets.c
 	circuit.c
 	column.c

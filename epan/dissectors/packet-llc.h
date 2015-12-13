@@ -24,7 +24,7 @@
 
 #include "ws_symbol_export.h"
 
-void capture_llc(const guchar *, int, int, packet_counts *);
+void capture_llc(const guchar *, int, int, packet_counts *, const union wtap_pseudo_header *pseudo_header);
 
 extern const value_string sap_vals[];
 

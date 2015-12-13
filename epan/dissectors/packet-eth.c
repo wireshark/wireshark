@@ -30,6 +30,7 @@
 #include <epan/expert.h>
 #include <epan/conversation_table.h>
 #include <epan/dissector_filters.h>
+#include <epan/capture_dissectors.h>
 #include <wsutil/pint.h>
 #include "packet-eth.h"
 #include "packet-ieee8023.h"
@@ -191,7 +192,7 @@ eth_build_filter(packet_info *pinfo)
 #define ETHERNET_SNAP   3
 
 void
-capture_eth(const guchar *pd, int offset, int len, packet_counts *ld)
+capture_eth(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint16 etype, length;
   int ethhdr_type;          /* the type of ethernet frame */
@@ -211,7 +212,7 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld)
     if ((pd[offset] == 0x01 || pd[offset] == 0x0C) && pd[offset+1] == 0x00
         && pd[offset+2] == 0x0C && pd[offset+3] == 0x00
         && pd[offset+4] == 0x00) {
-      capture_isl(pd, offset, len, ld);
+      capture_isl(pd, offset, len, ld, pseudo_header);
       return;
     }
   }
@@ -274,7 +275,7 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld)
       capture_ipx(ld);
       break;
     case ETHERNET_802_2:
-      capture_llc(pd, offset, len, ld);
+      capture_llc(pd, offset, len, ld, pseudo_header);
       break;
     case ETHERNET_II:
       capture_ethertype(etype, pd, offset, len, ld);
@@ -1013,6 +1014,7 @@ proto_register_eth(void)
   register_dissector("eth_withoutfcs", dissect_eth_withoutfcs, proto_eth);
   register_dissector("eth_withfcs", dissect_eth_withfcs, proto_eth);
   register_dissector("eth", dissect_eth_maybefcs, proto_eth);
+  register_capture_dissector(WTAP_ENCAP_ETHERNET, capture_eth, proto_eth);
   eth_tap = register_tap("eth");
 
   register_conversation_table(proto_eth, TRUE, eth_conversation_packet, eth_hostlist_packet);

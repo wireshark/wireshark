@@ -35,6 +35,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <wiretap/wtap.h>
@@ -45,7 +46,6 @@
 #include "packet-ip.h"
 #include "packet-ipv6.h"
 #include "packet-ppp.h"
-#include "packet-fr.h"
 #include "packet-juniper.h"
 #include "packet-sflow.h"
 #include "packet-l2tp.h"
@@ -207,7 +207,7 @@ static const xdlc_cf_items fr_cf_items_ext = {
 };
 
 void
-capture_fr(const guchar *pd, int offset, int len, packet_counts *ld)
+capture_fr(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint8  fr_octet;
   guint32 addr;
@@ -345,7 +345,7 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld)
         break;
 
       case NLPID_PPP:
-        capture_ppp_hdlc(pd, offset, len, ld);
+        capture_ppp_hdlc(pd, offset, len, ld, pseudo_header);
         break;
 
       case NLPID_SNAP:
@@ -383,7 +383,7 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld)
        * If the data does not start with unnumbered information (03) and
        * the DLCI# is not 0, then there may be Cisco Frame Relay encapsulation.
        */
-      capture_chdlc(pd, offset, len, ld);
+      capture_chdlc(pd, offset, len, ld, pseudo_header);
     }
     break;
 
@@ -393,7 +393,7 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld)
 
   case RAW_ETHER:
     if (addr != 0)
-      capture_eth(pd, offset, len, ld);
+      capture_eth(pd, offset, len, ld, pseudo_header);
     else
       ld->other++;
     break;
@@ -988,6 +988,8 @@ proto_register_fr(void)
   register_dissector("fr_uncompressed", dissect_fr_uncompressed, proto_fr);
   register_dissector("fr", dissect_fr, proto_fr);
   register_dissector("fr_stripped_address", dissect_fr_stripped_address, proto_fr);
+  register_capture_dissector(WTAP_ENCAP_FRELAY, capture_fr, proto_fr);
+  register_capture_dissector(WTAP_ENCAP_FRELAY_WITH_PHDR, capture_fr, proto_fr);
 
   frencap_module = prefs_register_protocol(proto_fr, NULL);
   /*

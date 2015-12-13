@@ -23,6 +23,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <wsutil/pint.h>
 #include <epan/etypes.h>
 #include <epan/prefs.h>
@@ -113,7 +114,7 @@ const value_string chdlc_vals[] = {
 };
 
 void
-capture_chdlc( const guchar *pd, int offset, int len, packet_counts *ld ) {
+capture_chdlc( const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_ ) {
   if (!BYTES_ARE_IN_FRAME(offset, len, 4)) {
     ld->other++;
     return;
@@ -231,6 +232,8 @@ proto_register_chdlc(void)
   proto_chdlc = proto_register_protocol("Cisco HDLC", "CHDLC", "chdlc");
   proto_register_field_array(proto_chdlc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  register_capture_dissector(WTAP_ENCAP_CHDLC, capture_chdlc, proto_chdlc);
 
   /* subdissector code */
   subdissector_table = register_dissector_table("chdlc.protocol",

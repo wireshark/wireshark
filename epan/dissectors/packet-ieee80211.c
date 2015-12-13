@@ -81,6 +81,7 @@
 #include <math.h>
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/exceptions.h>
 #include <wsutil/pint.h>
 #include <wsutil/str_util.h>
@@ -5742,10 +5743,10 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
         if ((pd[offset+hdr_length] == 0xff) && (pd[offset+hdr_length+1] == 0xff))
           capture_ipx (ld);
         else if ((pd[offset+hdr_length] == 0x00) && (pd[offset+hdr_length+1] == 0x00))
-          capture_llc (pd, offset + hdr_length + 2, len, ld);
+          capture_llc (pd, offset + hdr_length + 2, len, ld, NULL);
       }
       else {
-        capture_llc (pd, offset + hdr_length, len, ld);
+        capture_llc (pd, offset + hdr_length, len, ld, NULL);
       }
       break;
     }
@@ -5760,7 +5761,7 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
  * Handle 802.11 with a variable-length link-layer header.
  */
 void
-capture_ieee80211 (const guchar * pd, int offset, int len, packet_counts * ld)
+capture_ieee80211 (const guchar * pd, int offset, int len, packet_counts * ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
   capture_ieee80211_common (pd, offset, len, ld, FALSE);
 }
@@ -27072,6 +27073,9 @@ proto_register_ieee80211 (void)
   register_dissector("wlan_withfcs",            dissect_ieee80211_withfcs,            proto_wlan);
   register_dissector("wlan_withoutfcs",         dissect_ieee80211_withoutfcs,         proto_wlan);
   register_dissector("wlan_bsfc",               dissect_ieee80211_bsfc,               proto_wlan);
+
+  register_capture_dissector(WTAP_ENCAP_IEEE_802_11, capture_ieee80211, proto_wlan);
+  register_capture_dissector(WTAP_ENCAP_IEEE_802_11_WITH_RADIO, capture_ieee80211, proto_wlan);
 
   register_init_routine(wlan_defragment_init);
   register_cleanup_routine(wlan_defragment_cleanup);

@@ -24,8 +24,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <wiretap/wtap.h>
-#include "packet-arcnet.h"
 #include <epan/address_types.h>
 #include <epan/arcnet_pids.h>
 #include <epan/to_str.h>
@@ -81,12 +81,9 @@ static int arcnet_len(void)
   return 1;
 }
 
-void
-capture_arcnet (const guchar *pd, int len, packet_counts *ld,
-                gboolean has_offset, gboolean has_exception)
+static void
+capture_arcnet_common(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_, gboolean has_exception)
 {
-  int offset = has_offset ? 4 : 2;
-
   if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
     ld->other++;
     return;
@@ -157,6 +154,18 @@ capture_arcnet (const guchar *pd, int len, packet_counts *ld,
     ld->other++;
     break;
   }
+}
+
+static void
+capture_arcnet (const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+{
+  capture_arcnet_common(pd, 4, len, ld, pseudo_header, FALSE);
+}
+
+static void
+capture_arcnet_has_exception(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+{
+  capture_arcnet_common(pd, 2, len, ld, pseudo_header, TRUE);
 }
 
 static void
@@ -386,6 +395,9 @@ proto_register_arcnet (void)
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array (proto_arcnet, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
+
+  register_capture_dissector(WTAP_ENCAP_ARCNET_LINUX, capture_arcnet, proto_arcnet);
+  register_capture_dissector(WTAP_ENCAP_ARCNET, capture_arcnet_has_exception, proto_arcnet);
 
   arcnet_address_type = address_type_dissector_register("AT_ARCNET", "ARCNET Address", arcnet_to_str, arcnet_str_len, arcnet_col_filter_str, arcnet_len, NULL, NULL);
 }

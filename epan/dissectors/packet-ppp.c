@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <wsutil/pint.h>
 #include <wsutil/str_util.h>
 #include <epan/prefs.h>
@@ -1950,14 +1951,14 @@ decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
 }
 
 void
-capture_ppp_hdlc(const guchar *pd, int offset, int len, packet_counts *ld)
+capture_ppp_hdlc(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
     if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
         ld->other++;
         return;
     }
     if (pd[0] == CHDLC_ADDR_UNICAST || pd[0] == CHDLC_ADDR_MULTICAST) {
-        capture_chdlc(pd, offset, len, ld);
+        capture_chdlc(pd, offset, len, ld, pseudo_header);
         return;
     }
     if (!BYTES_ARE_IN_FRAME(offset, len, 4)) {
@@ -5597,6 +5598,8 @@ proto_register_ppp_raw_hdlc(void)
         "PPP-HDLC", "ppp_hdlc");
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_ppp_hdlc, hf, array_length(hf));
+
+    register_capture_dissector(WTAP_ENCAP_PPP, capture_ppp_hdlc, proto_ppp_hdlc);
 }
 
 void

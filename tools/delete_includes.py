@@ -119,26 +119,14 @@ includes_to_keep.append('string.h')
 # These are probably mostly redundant in that they are now covered by the check
 # for 'self-includes'...
 includes_to_keep.append('x11-keysym.h')
-includes_to_keep.append('packet-ppi.h')
 includes_to_keep.append('packet-dcom-dispatch.h')
 includes_to_keep.append('packet-ax25.h')
-includes_to_keep.append('packet-ax25-kiss.h')
-includes_to_keep.append('packet-i2c.h')
-includes_to_keep.append('packet-enc.h')
-includes_to_keep.append('packet-fr.h')
-includes_to_keep.append('packet-ap1394.h')
-includes_to_keep.append('packet-arcnet.h')
-includes_to_keep.append('packet-ipfc.h')
 includes_to_keep.append('packet-atm.h')
 includes_to_keep.append('packet-atalk.h')
-includes_to_keep.append('packet-clip.h')
-includes_to_keep.append('packet-raw.h')
 includes_to_keep.append('packet-ppp.h')
-includes_to_keep.append('packet-null.h')
 includes_to_keep.append('packet-scsi-mmc.h')
 includes_to_keep.append('packet-t30.h')
 includes_to_keep.append('packet-ssl.h')
-includes_to_keep.append('packet-pktap.h')
 
 
 

@@ -35,29 +35,7 @@
 
 #include "capture_info.h"
 
-#include <epan/dissectors/packet-ap1394.h>
-#include <epan/dissectors/packet-atalk.h>
-#include <epan/dissectors/packet-atm.h>
-#include <epan/dissectors/packet-ax25.h>
-#include <epan/dissectors/packet-clip.h>
-#include <epan/dissectors/packet-eth.h>
-#include <epan/dissectors/packet-fddi.h>
-#include <epan/dissectors/packet-fr.h>
-#include <epan/dissectors/packet-null.h>
-#include <epan/dissectors/packet-ppi.h>
-#include <epan/dissectors/packet-ppp.h>
-#include <epan/dissectors/packet-raw.h>
-#include <epan/dissectors/packet-sll.h>
-#include <epan/dissectors/packet-tr.h>
-#include <epan/dissectors/packet-ieee80211.h>
-#include <epan/dissectors/packet-ieee80211-radiotap.h>
-#include <epan/dissectors/packet-chdlc.h>
-#include <epan/dissectors/packet-ipfc.h>
-#include <epan/dissectors/packet-arcnet.h>
-#include <epan/dissectors/packet-enc.h>
-#include <epan/dissectors/packet-i2c.h>
-#include <epan/dissectors/packet-ax25-kiss.h>
-#include <epan/dissectors/packet-pktap.h>
+#include <epan/capture_dissectors.h>
 
 #include <wsutil/filesystem.h>
 
@@ -273,100 +251,7 @@ static void
 capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header)
 {
     counts->total++;
-    switch (wtap_linktype) {
-    case WTAP_ENCAP_ETHERNET:
-        capture_eth(pd, 0, caplen, counts);
-        break;
-    case WTAP_ENCAP_FDDI:
-    case WTAP_ENCAP_FDDI_BITSWAPPED:
-        capture_fddi(pd, caplen, counts);
-        break;
-    case WTAP_ENCAP_IEEE_802_11_PRISM:
-        capture_prism(pd, 0, caplen, counts);
-        break;
-    case WTAP_ENCAP_TOKEN_RING:
-        capture_tr(pd, 0, caplen, counts);
-        break;
-    case WTAP_ENCAP_NULL:
-        capture_null(pd, caplen, counts);
-        break;
-    case WTAP_ENCAP_LOOP:
-        capture_loop(pd, caplen, counts);
-        break;
-    case WTAP_ENCAP_PPP:
-        capture_ppp_hdlc(pd, 0, caplen, counts);
-        break;
-    case WTAP_ENCAP_RAW_IP:
-        capture_raw(pd, caplen, counts);
-        break;
-    case WTAP_ENCAP_SLL:
-        capture_sll(pd, caplen, counts);
-        break;
-    case WTAP_ENCAP_LINUX_ATM_CLIP:
-        capture_clip(pd, caplen, counts);
-        break;
-    case WTAP_ENCAP_IEEE_802_11:
-    case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-        capture_ieee80211(pd, 0, caplen, counts);
-        break;
-    case WTAP_ENCAP_IEEE_802_11_RADIOTAP:
-        capture_radiotap(pd, 0, caplen, counts);
-        break;
-    case WTAP_ENCAP_IEEE_802_11_AVS:
-        capture_wlancap(pd, 0, caplen, counts);
-        break;
-    case WTAP_ENCAP_CHDLC:
-        capture_chdlc(pd, 0, caplen, counts);
-        break;
-    case WTAP_ENCAP_LOCALTALK:
-        capture_llap(counts);
-        break;
-    case WTAP_ENCAP_ATM_PDUS:
-        capture_atm(pseudo_header, pd, caplen, counts);
-        break;
-    case WTAP_ENCAP_IP_OVER_FC:
-        capture_ipfc(pd, caplen, counts);
-        break;
-    case WTAP_ENCAP_ARCNET:
-        capture_arcnet(pd, caplen, counts, FALSE, TRUE);
-        break;
-    case WTAP_ENCAP_ARCNET_LINUX:
-        capture_arcnet(pd, caplen, counts, TRUE, FALSE);
-        break;
-    case WTAP_ENCAP_APPLE_IP_OVER_IEEE1394:
-        capture_ap1394(pd, 0, caplen, counts);
-        break;
-    case WTAP_ENCAP_FRELAY:
-    case WTAP_ENCAP_FRELAY_WITH_PHDR:
-        capture_fr(pd, 0, caplen, counts);
-        break;
-    case WTAP_ENCAP_ENC:
-        capture_enc(pd, caplen, counts);
-        break;
-    case WTAP_ENCAP_PPI:
-        capture_ppi(pd, caplen, counts);
-        break;
-    case WTAP_ENCAP_I2C:
-        capture_i2c(pseudo_header, counts);
-        break;
-    case WTAP_ENCAP_AX25_KISS:
-        capture_ax25_kiss(pd, 0, caplen, counts);
-        break;
-    case WTAP_ENCAP_AX25:
-        capture_ax25(pd, 0, caplen, counts);
-        break;
-        /* XXX - some ATM drivers on FreeBSD might prepend a 4-byte ATM
-           pseudo-header to DLT_ATM_RFC1483, with LLC header following;
-           we might have to implement that at some point. */
-    case WTAP_ENCAP_PKTAP:
-    case WTAP_ENCAP_USER2:
-        /* XXX - WTAP_ENCAP_USER2 to handle Mavericks' botch wherein it
-           uses DLT_USER2 for PKTAP; if you are using DLT_USER2 for your
-           own purposes, feel free to call your own capture_ routine for
-           WTAP_ENCAP_USER2. */
-        capture_pktap(pd, caplen, counts);
-        break;
-    }
+    call_capture_dissector(wtap_linktype, pd, 0, caplen, counts, pseudo_header);
 }
 
 

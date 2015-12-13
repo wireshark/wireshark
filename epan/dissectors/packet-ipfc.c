@@ -27,10 +27,10 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <wiretap/wtap.h>
 #include <epan/to_str.h>
 
-#include "packet-ipfc.h"
 #include "packet-llc.h"
 
 void proto_register_ipfc(void);
@@ -45,15 +45,15 @@ static int hf_ipfc_network_sa = -1;
 static gint ett_ipfc = -1;
 static dissector_handle_t llc_handle;
 
-void
-capture_ipfc (const guchar *pd, int len, packet_counts *ld)
+static void
+capture_ipfc (const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
   if (!BYTES_ARE_IN_FRAME(0, len, 16)) {
     ld->other++;
     return;
   }
 
-  capture_llc(pd, 16, len, ld);
+  capture_llc(pd, 16, len, ld, pseudo_header);
 }
 
 static int
@@ -114,6 +114,8 @@ proto_register_ipfc (void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ipfc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    register_capture_dissector(WTAP_ENCAP_IP_OVER_FC, capture_ipfc, proto_ipfc);
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.

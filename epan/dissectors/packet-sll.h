@@ -36,7 +36,4 @@
 #define LINUX_SLL_P_ISI		0x00F5  /* Intelligent Service Interface */
 #define LINUX_SLL_P_IEEE802154	0x00f6	/* 802.15.4 on monitor inteface */
 
-WS_DLL_PUBLIC
-void capture_sll(const guchar *, int, packet_counts *);
-
 #endif

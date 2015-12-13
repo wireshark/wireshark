@@ -23,10 +23,10 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <wsutil/pint.h>
 #include <epan/addr_resolv.h>
 
-#include "packet-ap1394.h"
 #include <epan/etypes.h>
 
 void proto_register_ap1394(void);
@@ -43,8 +43,8 @@ static dissector_table_t ethertype_subdissector_table;
 
 static dissector_handle_t data_handle;
 
-void
-capture_ap1394(const guchar *pd, int offset, int len, packet_counts *ld)
+static void
+capture_ap1394(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint16    etype;
 
@@ -118,6 +118,8 @@ proto_register_ap1394(void)
   proto_ap1394 = proto_register_protocol("Apple IP-over-IEEE 1394", "IP/IEEE1394", "ap1394");
   proto_register_field_array(proto_ap1394, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  register_capture_dissector(WTAP_ENCAP_APPLE_IP_OVER_IEEE1394, capture_ap1394, proto_ap1394);
 }
 
 void

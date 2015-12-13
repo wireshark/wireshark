@@ -25,8 +25,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <wiretap/wtap.h>
-#include "packet-raw.h"
 #include "packet-ip.h"
 #include "packet-ppp.h"
 
@@ -43,8 +43,8 @@ static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t ppp_hdlc_handle;
 
-void
-capture_raw(const guchar *pd, int len, packet_counts *ld)
+static void
+capture_raw(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
   /* So far, the only time we get raw connection types are with Linux and
    * Irix PPP connections.  We can't tell what type of data is coming down
@@ -55,16 +55,16 @@ capture_raw(const guchar *pd, int len, packet_counts *ld)
    * sometimes.  This check should be removed when 2.2 is out.
    */
   if (BYTES_ARE_IN_FRAME(0,len,2) && pd[0] == 0xff && pd[1] == 0x03) {
-    capture_ppp_hdlc(pd, 0, len, ld);
+    capture_ppp_hdlc(pd, 0, len, ld, pseudo_header);
   }
   /* The Linux ISDN driver sends a fake MAC address before the PPP header
    * on its ippp interfaces... */
   else if (BYTES_ARE_IN_FRAME(0,len,8) && pd[6] == 0xff && pd[7] == 0x03) {
-    capture_ppp_hdlc(pd, 6, len, ld);
+    capture_ppp_hdlc(pd, 6, len, ld, pseudo_header);
   }
   /* ...except when it just puts out one byte before the PPP header... */
   else if (BYTES_ARE_IN_FRAME(0,len,3) && pd[1] == 0xff && pd[2] == 0x03) {
-    capture_ppp_hdlc(pd, 1, len, ld);
+    capture_ppp_hdlc(pd, 1, len, ld, pseudo_header);
   }
   /* ...and if the connection is currently down, it sends 10 bytes of zeroes
    * instead of a fake MAC address and PPP header. */
@@ -172,6 +172,8 @@ proto_register_raw(void)
 
   proto_raw = proto_register_protocol("Raw packet data", "Raw", "raw");
   proto_register_subtree_array(ett, array_length(ett));
+
+  register_capture_dissector(WTAP_ENCAP_RAW_IP, capture_raw, proto_raw);
 }
 
 void

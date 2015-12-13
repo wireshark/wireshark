@@ -52,6 +52,7 @@
 #include "wmem/wmem.h"
 #include "expert.h"
 #include "print.h"
+#include "capture_dissectors.h"
 
 #ifdef HAVE_LUA
 #include <lua.h>
@@ -124,6 +125,7 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 		proto_init(register_all_protocols_func, register_all_handoffs_func,
 		    cb, client_data);
 		packet_cache_proto_handles();
+		capture_dissector_init();
 		dfilter_init();
 		final_registration_all_protocols();
 		print_cache_field_handles();
@@ -162,6 +164,7 @@ epan_cleanup(void)
 	prefs_cleanup();
 	packet_cleanup();
 	expert_cleanup();
+	capture_dissector_cleanup();
 #ifdef HAVE_LUA
 	wslua_cleanup();
 #endif

@@ -29,6 +29,7 @@ LIBWIRESHARK_SRC =		\
 	aftypes.c		\
 	app_mem_usage.c		\
 	asn1.c			\
+	capture_dissectors.c \
 	charsets.c		\
 	circuit.c		\
 	column.c		\
@@ -156,6 +157,7 @@ LIBWIRESHARK_INCLUDES =		\
 	asn1.h			\
 	ax25_pids.h		\
 	bridged_pids.h		\
+	capture_dissectors.h \
 	charsets.h		\
 	chdlctypes.h		\
 	circuit.h		\

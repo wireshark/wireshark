@@ -23,6 +23,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <wsutil/pint.h>
 #include <epan/oui.h>
 #include <epan/addr_resolv.h>
@@ -672,13 +673,13 @@ capture_lane(const union wtap_pseudo_header *pseudo_header, const guchar *pd,
   case TRAF_ST_LANE_802_3:
   case TRAF_ST_LANE_802_3_MC:
     /* Dissect as Ethernet */
-    capture_eth(pd, 2, len, ld);
+    capture_eth(pd, 2, len, ld, pseudo_header);
     break;
 
   case TRAF_ST_LANE_802_5:
   case TRAF_ST_LANE_802_5_MC:
     /* Dissect as Token-Ring */
-    capture_tr(pd, 2, len, ld);
+    capture_tr(pd, 2, len, ld, pseudo_header);
     break;
 
   default:
@@ -804,9 +805,9 @@ static const value_string ipsilon_type_vals[] = {
   { 0,                NULL }
 };
 
-void
-capture_atm(const union wtap_pseudo_header *pseudo_header, const guchar *pd,
-    int len, packet_counts *ld)
+static void
+capture_atm(const guchar *pd, int offset _U_,
+    int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header)
 {
   if (pseudo_header->atm.aal == AAL_5) {
     switch (pseudo_header->atm.type) {
@@ -815,7 +816,7 @@ capture_atm(const union wtap_pseudo_header *pseudo_header, const guchar *pd,
       /* Dissect as WTAP_ENCAP_ATM_RFC1483 */
       /* The ATM iptrace capture that we have shows LLC at this point,
        * so that's what I'm calling */
-      capture_llc(pd, 0, len, ld);
+      capture_llc(pd, 0, len, ld, pseudo_header);
       break;
 
     case TRAF_LANE:
@@ -2006,6 +2007,8 @@ proto_register_atm(void)
   register_dissector("atm_pw_untruncated", dissect_atm_pw_untruncated, proto_atm);
   register_dissector("atm_oam_cell", dissect_atm_oam_cell, proto_oamaal);
   register_dissector("atm_pw_oam_cell", dissect_atm_pw_oam_cell, proto_oamaal);
+
+  register_capture_dissector(WTAP_ENCAP_ATM_PDUS, capture_atm, proto_atm);
 
   atm_module = prefs_register_protocol ( proto_atm, NULL );
   prefs_register_bool_preference(atm_module, "dissect_lane_as_sscop", "Dissect LANE as SSCOP",

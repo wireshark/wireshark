@@ -24,13 +24,13 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/expert.h>
 #include <wsutil/pint.h>
 
 
 #include "packet-frame.h"
 #include "packet-eth.h"
-#include "packet-pktap.h"
 
 /* Needed for wtap_pcap_encap_to_wtap_encap(). */
 #include <wiretap/pcap-encap.h>
@@ -94,8 +94,8 @@ static dissector_handle_t pktap_handle;
  * to host byte order in libwiretap.
  */
 
-void
-capture_pktap(const guchar *pd, int len, packet_counts *ld)
+static void
+capture_pktap(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint32  hdrlen, rectype, dlt;
 
@@ -117,7 +117,7 @@ capture_pktap(const guchar *pd, int len, packet_counts *ld)
 	switch (dlt) {
 
 	case 1: /* DLT_EN10MB */
-		capture_eth(pd, hdrlen, len, ld);
+		capture_eth(pd, hdrlen, len, ld, pseudo_header);
 		return;
 
 	default:
@@ -277,6 +277,13 @@ proto_register_pktap(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_pktap = expert_register_protocol(proto_pktap);
 	expert_register_field_array(expert_pktap, ei, array_length(ei));
+
+	/* XXX - WTAP_ENCAP_USER2 to handle Mavericks' botch wherein it
+		uses DLT_USER2 for PKTAP; if you are using DLT_USER2 for your
+		own purposes, feel free to call your own capture_ routine for
+		WTAP_ENCAP_USER2. */
+	register_capture_dissector(WTAP_ENCAP_PKTAP, capture_pktap, proto_pktap);
+	register_capture_dissector(WTAP_ENCAP_USER2, capture_pktap, proto_pktap);
 
 	pktap_handle = register_dissector("pktap", dissect_pktap, proto_pktap);
 }

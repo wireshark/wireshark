@@ -110,7 +110,7 @@ capture_vlan(const guchar *pd, int offset, int len, packet_counts *ld ) {
     if ( pd[offset+4] == 0xff && pd[offset+5] == 0xff ) {
       capture_ipx(ld);
     } else {
-      capture_llc(pd,offset+4,len,ld);
+      capture_llc(pd,offset+4,len,ld, NULL);
     }
   } else {
     capture_ethertype(encap_proto, pd, offset+4, len, ld);

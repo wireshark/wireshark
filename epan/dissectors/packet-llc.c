@@ -251,7 +251,7 @@ llc_add_oui(guint32 oui, const char *table_name, const char *table_ui_name,
 }
 
 void
-capture_llc(const guchar *pd, int offset, int len, packet_counts *ld) {
+capture_llc(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_) {
 
 	int		is_snap;
 	guint16		control;

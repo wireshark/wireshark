@@ -26,10 +26,10 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/addr_resolv.h>
 #include <epan/aftypes.h>
 #include <wsutil/pint.h>
-#include "packet-enc.h"
 #include "packet-ip.h"
 #include "packet-ipv6.h"
 
@@ -65,8 +65,8 @@ static int hf_enc_flags = -1;
 
 static gint ett_enc = -1;
 
-void
-capture_enc(const guchar *pd, int len, packet_counts *ld)
+static void
+capture_enc(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint32 af;
 
@@ -181,6 +181,8 @@ proto_register_enc(void)
                                       "ENC", "enc");
   proto_register_field_array(proto_enc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  register_capture_dissector(WTAP_ENCAP_ENC, capture_enc, proto_enc);
 }
 
 void

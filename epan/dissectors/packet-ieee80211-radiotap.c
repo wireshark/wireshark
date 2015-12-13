@@ -28,6 +28,7 @@
 #include <errno.h>
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <wsutil/pint.h>
 #include <epan/crc32-tvb.h>
 #include <wsutil/frequency-utils.h>
@@ -36,9 +37,10 @@
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
 #include "packet-ieee80211.h"
-#include "packet-ieee80211-radiotap.h"
 #include "packet-ieee80211-radiotap-iter.h"
 
+void proto_register_radiotap(void);
+void proto_reg_handoff_radiotap(void);
 
 /* protocol */
 static int proto_radiotap = -1;
@@ -221,6 +223,16 @@ static int radiotap_tap = -1;
 
 /* Settings */
 static gboolean radiotap_bit14_fcs = FALSE;
+
+struct _radiotap_info {
+	guint radiotap_length;
+	guint32 rate;
+	gint8 dbm_antsignal;
+	gint8 dbm_antnoise;
+	guint32 freq;
+	guint32 flags;
+	guint64 tsft;
+};
 
 #define BITNO_32(x) (((x) >> 16) ? 16 + BITNO_16((x) >> 16) : BITNO_16((x)))
 #define BITNO_16(x) (((x) >> 8) ? 8 + BITNO_8((x) >> 8) : BITNO_8((x)))
@@ -443,8 +455,8 @@ static const true_false_string preamble_type = {
  *    dissectors, such as tcpdump(8), expect the padding.
  */
 
-void
-capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld)
+static void
+capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint16 it_len;
 	guint32 present, xpresent;
@@ -536,7 +548,7 @@ capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld)
 	if (rflags & IEEE80211_RADIOTAP_F_DATAPAD)
 		capture_ieee80211_datapad(pd, offset + it_len, len, ld);
 	else
-		capture_ieee80211(pd, offset + it_len, len, ld);
+		capture_ieee80211(pd, offset + it_len, len, ld, pseudo_header);
 }
 
 static int
@@ -2650,6 +2662,7 @@ void proto_register_radiotap(void)
 	expert_radiotap = expert_register_protocol(proto_radiotap);
 	expert_register_field_array(expert_radiotap, ei, array_length(ei));
 	register_dissector("radiotap", dissect_radiotap, proto_radiotap);
+	register_capture_dissector(WTAP_ENCAP_IEEE_802_11_RADIOTAP, capture_radiotap, proto_radiotap);
 
 	radiotap_tap = register_tap("radiotap");
 

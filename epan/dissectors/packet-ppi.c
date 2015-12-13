@@ -46,6 +46,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/exceptions.h>
 #include <epan/ptvcursor.h>
 #include <epan/prefs.h>
@@ -61,7 +62,6 @@
 #include "packet-frame.h"
 #include "packet-eth.h"
 #include "packet-ieee80211.h"
-#include "packet-ppi.h"
 
 /*
  * Per-Packet Information (PPI) header.
@@ -386,8 +386,8 @@ static reassembly_table ampdu_reassembly_table;
 static gboolean ppi_ampdu_reassemble = TRUE;
 
 
-void
-capture_ppi(const guchar *pd, int len, packet_counts *ld)
+static void
+capture_ppi(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
     guint32  dlt;
     guint    ppi_len;
@@ -403,10 +403,10 @@ capture_ppi(const guchar *pd, int len, packet_counts *ld)
     /* XXX - We should probably combine this with capture_info.c:capture_info_packet() */
     switch(dlt) {
         case 1: /* DLT_EN10MB */
-            capture_eth(pd, ppi_len, len, ld);
+            capture_eth(pd, ppi_len, len, ld, pseudo_header);
             return;
         case 105: /* DLT_DLT_IEEE802_11 */
-            capture_ieee80211(pd, ppi_len, len, ld);
+            capture_ieee80211(pd, ppi_len, len, ld, pseudo_header);
             return;
         default:
             break;
@@ -1494,6 +1494,7 @@ proto_register_ppi(void)
     expert_register_field_array(expert_ppi, ei, array_length(ei));
 
     ppi_handle = register_dissector("ppi", dissect_ppi, proto_ppi);
+    register_capture_dissector(WTAP_ENCAP_PPI, capture_ppi, proto_ppi);
 
     register_init_routine(ampdu_reassemble_init);
     register_cleanup_routine(ampdu_reassemble_cleanup);

@@ -25,11 +25,10 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/prefs.h>
 #include <epan/decode_as.h>
 #include <wiretap/wtap.h>
-
-#include "packet-i2c.h"
 
 void proto_register_i2c(void);
 void proto_reg_handoff_i2c(void);
@@ -85,8 +84,8 @@ static gpointer i2c_value(packet_info *pinfo _U_)
 	return 0;
 }
 
-void
-capture_i2c(union wtap_pseudo_header *pseudo_header, packet_counts *ld)
+static void
+capture_i2c(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header)
 {
 	if (pseudo_header->i2c.is_event) {
 		ld->i2c_event++;
@@ -247,6 +246,8 @@ proto_register_i2c(void)
 	proto_i2c = proto_register_protocol("Inter-Integrated Circuit", "I2C", "i2c");
 	proto_register_field_array(proto_i2c, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_capture_dissector(WTAP_ENCAP_I2C, capture_i2c, proto_i2c);
 
 	subdissector_table = register_dissector_table("i2c.message", "I2C messages dissector", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 

@@ -26,10 +26,10 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/expert.h>
 #include <wiretap/wtap.h>
 
-#include "packet-clip.h"
 #include "packet-ip.h"
 
 void proto_register_clip(void);
@@ -43,10 +43,10 @@ static expert_field ei_no_link_info = EI_INIT;
 
 static dissector_handle_t ip_handle;
 
-void
-capture_clip( const guchar *pd, int len, packet_counts *ld ) {
+static void
+capture_clip( const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_ ) {
 
-    capture_ip(pd, 0, len, ld);
+    capture_ip(pd, offset, len, ld);
 }
 
 static int
@@ -109,6 +109,8 @@ proto_register_clip(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_clip = expert_register_protocol(proto_clip);
   expert_register_field_array(expert_clip, ei, array_length(ei));
+
+  register_capture_dissector(WTAP_ENCAP_LINUX_ATM_CLIP, capture_clip, proto_clip);
 }
 
 void

@@ -25,6 +25,6 @@
 #ifndef __PACKET_BPQ_H__
 #define __PACKET_BPQ_H__
 
-void capture_bpq(const guchar *, int, int, packet_counts *);
+void capture_bpq(const guchar *, int, int, packet_counts *, const union wtap_pseudo_header *pseudo_header);
 
 #endif

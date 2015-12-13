@@ -111,9 +111,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/prefs.h>
 #include <wiretap/wtap.h>
-#include "packet-ax25-kiss.h"
 #include "packet-ax25.h"
 
 #define STRLEN	80
@@ -178,8 +178,8 @@ static const value_string kiss_frame_types[] = {
 	{ 0, NULL }
 };
 
-void
-capture_ax25_kiss( const guchar *pd, int offset, int len, packet_counts *ld)
+static void
+capture_ax25_kiss( const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	int    l_offset;
 	guint8 kiss_cmd;
@@ -195,14 +195,14 @@ capture_ax25_kiss( const guchar *pd, int offset, int len, packet_counts *ld)
 	l_offset += KISS_HEADER_SIZE; /* step over kiss header */
 	switch ( kiss_cmd & KISS_CMD_MASK )
 		{
-		case KISS_DATA_FRAME	: capture_ax25( pd, l_offset, len, ld ); break;
+		case KISS_DATA_FRAME	: capture_ax25( pd, l_offset, len, ld, pseudo_header ); break;
 		case KISS_TXDELAY	: break;
 		case KISS_PERSISTENCE	: break;
 		case KISS_SLOT_TIME	: break;
 		case KISS_TXTAIL	: break;
 		case KISS_FULLDUPLEX	: break;
 		case KISS_SETHARDWARE	: break;
-		case KISS_DATA_FRAME_ACK: l_offset += 2; capture_ax25( pd, l_offset, len, ld ); break;
+		case KISS_DATA_FRAME_ACK: l_offset += 2; capture_ax25( pd, l_offset, len, ld, pseudo_header ); break;
 		case KISS_POLL_MODE	: break;
 		case KISS_RETURN	: break;
 		default			: break;
@@ -431,6 +431,8 @@ proto_register_ax25_kiss(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_ax25_kiss, hf, array_length( hf ) );
 	proto_register_subtree_array( ett, array_length( ett ) );
+
+	register_capture_dissector(WTAP_ENCAP_AX25_KISS, capture_ax25_kiss, proto_ax25_kiss);
 
 	/* Register preferences module */
 	ax25_kiss_module = prefs_register_protocol( proto_ax25_kiss, NULL);

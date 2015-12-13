@@ -25,6 +25,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <wiretap/wtap.h>
 #include <wsutil/pint.h>
 #include "packet-ieee80211.h"
@@ -236,8 +237,8 @@ prism_rate_return(guint32 rate)
 }
 
 
-void
-capture_prism(const guchar *pd, int offset, int len, packet_counts *ld)
+static void
+capture_prism(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint32 cookie;
 
@@ -250,7 +251,7 @@ capture_prism(const guchar *pd, int offset, int len, packet_counts *ld)
   cookie = pntoh32(pd);
   if ((cookie == WLANCAP_MAGIC_COOKIE_V1) ||
       (cookie == WLANCAP_MAGIC_COOKIE_V2)) {
-    capture_wlancap(pd, offset, len, ld);
+    capture_wlancap(pd, offset, len, ld, pseudo_header);
     return;
   }
 
@@ -262,7 +263,7 @@ capture_prism(const guchar *pd, int offset, int len, packet_counts *ld)
   offset += PRISM_HEADER_LENGTH;
 
   /* 802.11 header follows */
-  capture_ieee80211(pd, offset, len, ld);
+  capture_ieee80211(pd, offset, len, ld, pseudo_header);
 }
 
 static int
@@ -557,6 +558,8 @@ void proto_register_ieee80211_prism(void)
                                         "prism");
   proto_register_field_array(proto_prism, hf_prism, array_length(hf_prism));
   proto_register_subtree_array(tree_array, array_length(tree_array));
+
+  register_capture_dissector(WTAP_ENCAP_IEEE_802_11_PRISM, capture_prism, proto_prism);
 }
 
 void proto_reg_handoff_ieee80211_prism(void)

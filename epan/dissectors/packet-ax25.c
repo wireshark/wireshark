@@ -45,6 +45,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <wiretap/wtap.h>
 #include <epan/to_str.h>
 #include <epan/xdlc.h>
@@ -254,7 +255,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 }
 
 void
-capture_ax25( const guchar *pd, int offset, int len, packet_counts *ld)
+capture_ax25( const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint8 control;
 	guint8 pid;
@@ -425,6 +426,8 @@ proto_register_ax25(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_ax25, hf, array_length(hf ) );
 	proto_register_subtree_array(ett, array_length(ett ) );
+
+	register_capture_dissector(WTAP_ENCAP_AX25, capture_ax25, proto_ax25);
 
 	/* Register dissector table for protocol IDs */
 	ax25_dissector_table = register_dissector_table("ax25.pid", "AX.25 protocol ID", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);

@@ -27,7 +27,7 @@
 #include <wsutil/pint.h>
 
 #include <epan/packet.h>
-#include "packet-null.h"
+#include <epan/capture_dissectors.h>
 #include "packet-ip.h"
 #include "packet-ipv6.h"
 #include "packet-ppp.h"
@@ -65,8 +65,8 @@ static const value_string family_vals[] = {
 static dissector_handle_t ppp_hdlc_handle;
 static dissector_handle_t data_handle;
 
-void
-capture_null( const guchar *pd, int len, packet_counts *ld )
+static void
+capture_null( const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_ )
 {
   guint32 null_header;
 
@@ -260,7 +260,7 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
     /*
      * Hand it to PPP.
      */
-    capture_ppp_hdlc(pd, 0, len, ld);
+    capture_ppp_hdlc(pd, 0, len, ld, pseudo_header);
   } else {
     /*
      * Treat it as a normal DLT_NULL header.
@@ -340,8 +340,8 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
   }
 }
 
-void
-capture_loop( const guchar *pd, int len, packet_counts *ld )
+static void
+capture_loop( const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_ )
 {
   guint32 loop_family;
 
@@ -534,6 +534,9 @@ proto_register_null(void)
   proto_null = proto_register_protocol("Null/Loopback", "Null", "null");
   proto_register_field_array(proto_null, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  register_capture_dissector(WTAP_ENCAP_NULL, capture_null, proto_null);
+  register_capture_dissector(WTAP_ENCAP_LOOP, capture_loop, proto_null);
 
   /* subdissector code */
   null_dissector_table = register_dissector_table("null.type",

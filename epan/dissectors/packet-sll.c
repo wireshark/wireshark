@@ -25,6 +25,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/arptypes.h>
 #include <wsutil/pint.h>
 #include "packet-sll.h"
@@ -136,8 +137,8 @@ static dissector_table_t sll_linux_dissector_table;
 static dissector_table_t gre_dissector_table;
 static dissector_handle_t data_handle;
 
-void
-capture_sll(const guchar *pd, int len, packet_counts *ld)
+static void
+capture_sll(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint16 protocol;
 
@@ -157,14 +158,14 @@ capture_sll(const guchar *pd, int len, packet_counts *ld)
 			/*
 			 * 802.2 LLC.
 			 */
-			capture_llc(pd, len, SLL_HEADER_SIZE, ld);
+			capture_llc(pd, len, SLL_HEADER_SIZE, ld, pseudo_header);
 			break;
 
 		case LINUX_SLL_P_ETHERNET:
 			/*
 			 * Ethernet.
 			 */
-			capture_eth(pd, SLL_HEADER_SIZE, len, ld);
+			capture_eth(pd, SLL_HEADER_SIZE, len, ld, pseudo_header);
 			break;
 
 		case LINUX_SLL_P_802_3:
@@ -179,7 +180,7 @@ capture_sll(const guchar *pd, int len, packet_counts *ld)
 			/*
 			 * PPP HDLC.
 			 */
-			capture_ppp_hdlc(pd, len, SLL_HEADER_SIZE, ld);
+			capture_ppp_hdlc(pd, len, SLL_HEADER_SIZE, ld, pseudo_header);
 			break;
 
 		default:
@@ -334,6 +335,8 @@ proto_register_sll(void)
 
 	proto_register_fields(proto_sll, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_capture_dissector(WTAP_ENCAP_SLL, capture_sll, proto_sll);
 
 	sll_handle = create_dissector_handle(dissect_sll, proto_sll);
 

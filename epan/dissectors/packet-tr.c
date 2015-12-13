@@ -24,6 +24,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/conversation_table.h>
@@ -246,7 +247,7 @@ static void
 add_ring_bridge_pairs(int rcf_len, tvbuff_t*, proto_tree *tree);
 
 void
-capture_tr(const guchar *pd, int offset, int len, packet_counts *ld) {
+capture_tr(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_) {
 
 	int			source_routed = 0;
 	int			frame_type;
@@ -365,7 +366,7 @@ capture_tr(const guchar *pd, int offset, int len, packet_counts *ld) {
 			ld->other++;
 			break;
 		case 1:
-			capture_llc(pd, offset, len, ld);
+			capture_llc(pd, offset, len, ld, pseudo_header);
 			break;
 		default:
 			/* non-MAC, non-LLC, i.e., "Reserved" */
@@ -800,6 +801,7 @@ proto_register_tr(void)
 	    &fix_linux_botches);
 
 	register_dissector("tr", dissect_tr, proto_tr);
+	register_capture_dissector(WTAP_ENCAP_TOKEN_RING, capture_tr, proto_tr);
 	tr_tap=register_tap("tr");
 
 	register_conversation_table(proto_tr, TRUE, tr_conversation_packet, tr_hostlist_packet);

@@ -1417,14 +1417,11 @@ DISSECTOR_INCLUDES =	\
 	packet-ansi_a.h	\
 	packet-ansi_map.h	\
 	packet-ansi_tcap.h	\
-	packet-ap1394.h	\
-	packet-arcnet.h	\
 	packet-arp.h	\
 	packet-atalk.h	\
 	packet-atm.h	\
 	packet-atn-ulcs.h	\
 	packet-ax25.h	\
-	packet-ax25-kiss.h	\
 	packet-bacapp.h	\
 	packet-ber.h	\
 	packet-bfd.h	\
@@ -1454,7 +1451,6 @@ DISSECTOR_INCLUDES =	\
 	packet-cip.h	\
 	packet-cipsafety.h	\
 	packet-clearcase.h	\
-	packet-clip.h	\
 	packet-cmip.h	\
 	packet-cmp.h	\
 	packet-cms.h	\
@@ -1499,7 +1495,6 @@ DISSECTOR_INCLUDES =	\
 	packet-e164.h	\
 	packet-e212.h	\
 	packet-edonkey.h	\
-	packet-enc.h	\
 	packet-epmd.h	\
 	packet-ess.h	\
 	packet-eth.h	\
@@ -1514,11 +1509,9 @@ DISSECTOR_INCLUDES =	\
 	packet-fcp.h	\
 	packet-fcsb3.h	\
 	packet-fcswils.h	\
-	packet-fddi.h	\
 	packet-ff.h	\
 	packet-fix.h	\
 	packet-fmp.h	\
-	packet-fr.h	\
 	packet-frame.h	\
 	packet-ftam.h	\
 	packet-giop.h	\
@@ -1547,14 +1540,12 @@ DISSECTOR_INCLUDES =	\
 	packet-h450-ros.h	\
 	packet-hpext.h	\
 	packet-http.h	\
-	packet-i2c.h	\
 	packet-iana-oui.h \
 	packet-iax2.h	\
 	packet-icmp.h	\
 	packet-idmp.h	\
 	packet-idp.h	\
 	packet-ieee80211.h	\
-	packet-ieee80211-radiotap.h	\
 	packet-ieee80211-radiotap-iter.h	\
 	packet-ieee80211-radiotap-defs.h	\
 	packet-ieee802154.h	\
@@ -1566,7 +1557,6 @@ DISSECTOR_INCLUDES =	\
 	packet-inap.h	\
 	packet-infiniband.h	\
 	packet-ip.h	\
-	packet-ipfc.h	\
 	packet-ipmi.h	\
 	packet-ipsec.h	\
 	packet-ipv6.h	\
@@ -1624,7 +1614,6 @@ DISSECTOR_INCLUDES =	\
 	packet-nlm.h	\
 	packet-ntlmssp.h	\
 	packet-ntp.h	\
-	packet-null.h	\
 	packet-ocsp.h	\
 	packet-opensafety.h	\
 	packet-osi.h	\
@@ -1647,9 +1636,7 @@ DISSECTOR_INCLUDES =	\
 	packet-pkixtsp.h	\
 	packet-pkinit.h	\
 	packet-pktc.h	\
-	packet-pktap.h	\
 	packet-portmap.h	\
-	packet-ppi.h		\
 	packet-ppi-geolocation-common.h		\
 	packet-ppp.h	\
 	packet-pres.h	\
@@ -1662,7 +1649,6 @@ DISSECTOR_INCLUDES =	\
 	packet-qsig.h	\
 	packet-radius.h	\
 	packet-ranap.h	\
-	packet-raw.h	\
 	packet-rdm.h	\
 	packet-rdt.h	\
 	packet-reload.h	\
