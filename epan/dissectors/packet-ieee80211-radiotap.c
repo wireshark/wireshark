@@ -455,7 +455,7 @@ static const true_false_string preamble_type = {
  *    dissectors, such as tcpdump(8), expect the padding.
  */
 
-static void
+static gboolean
 capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint16 it_len;
@@ -465,26 +465,21 @@ capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld, con
 
 	if (!BYTES_ARE_IN_FRAME(offset, len,
 				sizeof(struct ieee80211_radiotap_header))) {
-		ld->other++;
-		return;
+		return FALSE;
 	}
 	hdr = (const struct ieee80211_radiotap_header *)pd;
 	it_len = pletoh16(&hdr->it_len);
-	if (!BYTES_ARE_IN_FRAME(offset, len, it_len)) {
-		ld->other++;
-		return;
-	}
+	if (!BYTES_ARE_IN_FRAME(offset, len, it_len))
+		return FALSE;
 
 	if (it_len > len) {
 		/* Header length is bigger than total packet length */
-		ld->other++;
-		return;
+		return FALSE;
 	}
 
 	if (it_len < sizeof(struct ieee80211_radiotap_header)) {
 		/* Header length is shorter than fixed-length portion of header */
-		ld->other++;
-		return;
+		return FALSE;
 	}
 
 	present = pletoh32(&hdr->it_present);
@@ -495,8 +490,7 @@ capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld, con
 	xpresent = present;
 	while (xpresent & BIT(IEEE80211_RADIOTAP_EXT)) {
 		if (!BYTES_ARE_IN_FRAME(offset, 4, it_len)) {
-			ld->other++;
-			return;
+			return FALSE;
 		}
 		xpresent = pletoh32(pd + offset);
 		offset += 4;
@@ -519,8 +513,7 @@ capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld, con
 
 		if (it_len < 8) {
 			/* No room in header for this field. */
-			ld->other++;
-			return;
+			return FALSE;
 		}
 		/* That field is present, and it's 8 bytes long. */
 		offset += 8;
@@ -533,22 +526,20 @@ capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld, con
 	if (present & BIT(IEEE80211_RADIOTAP_FLAGS)) {
 		if (it_len < 1) {
 			/* No room in header for this field. */
-			ld->other++;
-			return;
+			return FALSE;
 		}
 		/* That field is present; fetch it. */
 		if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
-			ld->other++;
-			return;
+			return FALSE;
 		}
 		rflags = pd[offset];
 	}
 
 	/* 802.11 header follows */
 	if (rflags & IEEE80211_RADIOTAP_F_DATAPAD)
-		capture_ieee80211_datapad(pd, offset + it_len, len, ld, pseudo_header);
-	else
-		capture_ieee80211(pd, offset + it_len, len, ld, pseudo_header);
+		return capture_ieee80211_datapad(pd, offset + it_len, len, ld, pseudo_header);
+
+	return capture_ieee80211(pd, offset + it_len, len, ld, pseudo_header);
 }
 
 static int
@@ -2662,7 +2653,6 @@ void proto_register_radiotap(void)
 	expert_radiotap = expert_register_protocol(proto_radiotap);
 	expert_register_field_array(expert_radiotap, ei, array_length(ei));
 	register_dissector("radiotap", dissect_radiotap, proto_radiotap);
-	register_capture_dissector(WTAP_ENCAP_IEEE_802_11_RADIOTAP, capture_radiotap, proto_radiotap);
 
 	radiotap_tap = register_tap("radiotap");
 
@@ -2686,6 +2676,8 @@ void proto_reg_handoff_radiotap(void)
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_RADIOTAP,
 			   radiotap_handle);
+
+	register_capture_dissector("wtap_encap", WTAP_ENCAP_IEEE_802_11_RADIOTAP, capture_radiotap, proto_radiotap);
 }
 
 /*

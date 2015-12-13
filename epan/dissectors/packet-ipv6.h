@@ -168,7 +168,7 @@ struct ip6_shim {
 extern "C" {
 #endif /* __cplusplus */
 
-void capture_ipv6(const guchar *, int, int, packet_counts *, const union wtap_pseudo_header *pseudo_header);
+gboolean capture_ipv6(const guchar *, int, int, packet_counts *, const union wtap_pseudo_header *pseudo_header);
 
 #ifdef __cplusplus
 }

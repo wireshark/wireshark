@@ -84,7 +84,7 @@ static gpointer i2c_value(packet_info *pinfo _U_)
 	return 0;
 }
 
-static void
+static gboolean
 capture_i2c(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header)
 {
 	if (pseudo_header->i2c.is_event) {
@@ -92,6 +92,8 @@ capture_i2c(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld
 	} else {
 		ld->i2c_data++;
 	}
+
+	return TRUE;
 }
 
 static const char *
@@ -247,8 +249,6 @@ proto_register_i2c(void)
 	proto_register_field_array(proto_i2c, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_capture_dissector(WTAP_ENCAP_I2C, capture_i2c, proto_i2c);
-
 	subdissector_table = register_dissector_table("i2c.message", "I2C messages dissector", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
 	m = prefs_register_protocol(proto_i2c, NULL);
@@ -266,6 +266,7 @@ proto_reg_handoff_i2c(void)
 
 	i2c_handle = create_dissector_handle(dissect_i2c, proto_i2c);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_I2C, i2c_handle);
+	register_capture_dissector("wtap_encap", WTAP_ENCAP_I2C, capture_i2c, proto_i2c);
 }
 
 /*

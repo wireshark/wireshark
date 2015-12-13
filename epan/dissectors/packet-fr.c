@@ -206,7 +206,7 @@ static const xdlc_cf_items fr_cf_items_ext = {
   &hf_fr_ftype_s_u_ext
 };
 
-void
+static gboolean
 capture_fr(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint8  fr_octet;
@@ -217,10 +217,9 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld, const union
   /*
    * OK, fetch the address field - keep going until we get an EA bit.
    */
-  if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
-    ld->other++;
-    return;
-  }
+  if (!BYTES_ARE_IN_FRAME(offset, len, 1))
+    return FALSE;
+
   fr_octet = pd[offset];
   if (fr_octet & FRELAY_EA) {
     /*
@@ -228,8 +227,7 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld, const union
      * XXX - is this FRF.12 frame relay fragmentation?  If so, can
      * we handle that?
      */
-    ld->other++;
-    return;
+     return FALSE;
   }
   /*
    * The first octet contains the upper 6 bits of the DLCI, as well
@@ -242,10 +240,9 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld, const union
    * The second octet contains 4 more bits of DLCI, as well as FECN,
    * BECN, and DE.
    */
-  if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
-    ld->other++;
-    return;
-  }
+  if (!BYTES_ARE_IN_FRAME(offset, len, 1))
+    return FALSE;
+
   fr_octet = pd[offset];
   addr = (addr << 4) | ((fr_octet & FRELAY_SECOND_DLCI) >> 4);
   offset++;
@@ -258,10 +255,9 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld, const union
      * and lower DLCI or DL-CORE control plus the DLCI or DL-CORE
      * control indicator flag if EA is set.
      */
-    if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
-      ld->other++;
-      return;
-    }
+    if (!BYTES_ARE_IN_FRAME(offset, len, 1))
+      return FALSE;
+
     fr_octet = pd[offset];
     if (!(fr_octet & FRELAY_EA)) {
       /*
@@ -269,20 +265,18 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld, const union
        */
       addr = (addr << 7) | ((fr_octet & FRELAY_THIRD_DLCI) >> 1);
       offset++;
-      if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
-        ld->other++;
-        return;
-      }
+      if (!BYTES_ARE_IN_FRAME(offset, len, 1))
+        return FALSE;
+
       fr_octet = pd[offset];
       while (!(fr_octet & FRELAY_EA)) {
         /*
          * Bogus!  More than 4 octets of address.
          */
         offset++;
-        if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
-          ld->other++;
-          return;
-        }
+        if (!BYTES_ARE_IN_FRAME(offset, len, 1))
+          return FALSE;
+
         fr_octet = pd[offset];
       }
     }
@@ -306,10 +300,9 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld, const union
   switch (fr_encap) {
 
   case FRF_3_2:
-    if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
-      ld->other++;
-      return;
-    }
+    if (!BYTES_ARE_IN_FRAME(offset, len, 1))
+      return FALSE;
+
     fr_ctrl = pd[offset];
     if (fr_ctrl == XDLC_U) {
       offset++;
@@ -320,41 +313,34 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld, const union
        * protocols which do not have an NLPID assigned or do not
        * have a SNAP encapsulation" stuff from RFC 2427.
        */
-      if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
-        ld->other++;
-        return;
-      }
+      if (!BYTES_ARE_IN_FRAME(offset, len, 1))
+        return FALSE;
+
       fr_nlpid = pd[offset];
       if (fr_nlpid == 0) {
         offset++;
-        if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
-          ld->other++;
-          return;
-        }
+        if (!BYTES_ARE_IN_FRAME(offset, len, 1))
+          return FALSE;
+
         fr_nlpid = pd[offset];
       }
       offset++;
       switch (fr_nlpid) {
 
       case NLPID_IP:
-        capture_ip(pd, offset, len, ld, pseudo_header);
-        break;
+        return capture_ip(pd, offset, len, ld, pseudo_header);
 
       case NLPID_IP6:
-        capture_ipv6(pd, offset, len, ld, pseudo_header);
-        break;
+        return capture_ipv6(pd, offset, len, ld, pseudo_header);
 
       case NLPID_PPP:
-        capture_ppp_hdlc(pd, offset, len, ld, pseudo_header);
-        break;
+        return capture_ppp_hdlc(pd, offset, len, ld, pseudo_header);
 
       case NLPID_SNAP:
-        capture_snap(pd, offset, len, ld, pseudo_header);
-        break;
+        return capture_snap(pd, offset, len, ld, pseudo_header);
 
       default:
-        ld->other++;
-        break;
+        return FALSE;
       }
     } else {
       if (addr == 0) {
@@ -368,36 +354,34 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld, const union
          * XXX - but what is it?  Is Q.933 carried inside UI
          * frames or other types of frames or both?
          */
-        ld->other++;
-        return;
+        return FALSE;
       }
       if (fr_ctrl == (XDLC_U|XDLC_XID)) {
         /*
          * XID.
          */
-        ld->other++;
-        return;
+        return FALSE;
       }
 
       /*
        * If the data does not start with unnumbered information (03) and
        * the DLCI# is not 0, then there may be Cisco Frame Relay encapsulation.
        */
-      capture_chdlc(pd, offset, len, ld, pseudo_header);
+      return capture_chdlc(pd, offset, len, ld, pseudo_header);
     }
     break;
 
   case GPRS_NS:
-    ld->other++;
-    break;
+    return FALSE;
 
   case RAW_ETHER:
     if (addr != 0)
-      capture_eth(pd, offset, len, ld, pseudo_header);
-    else
-      ld->other++;
-    break;
+      return capture_eth(pd, offset, len, ld, pseudo_header);
+
+    return FALSE;
   }
+
+  return FALSE;
 }
 
 static void
@@ -988,8 +972,6 @@ proto_register_fr(void)
   register_dissector("fr_uncompressed", dissect_fr_uncompressed, proto_fr);
   register_dissector("fr", dissect_fr, proto_fr);
   register_dissector("fr_stripped_address", dissect_fr_stripped_address, proto_fr);
-  register_capture_dissector(WTAP_ENCAP_FRELAY, capture_fr, proto_fr);
-  register_capture_dissector(WTAP_ENCAP_FRELAY_WITH_PHDR, capture_fr, proto_fr);
 
   frencap_module = prefs_register_protocol(proto_fr, NULL);
   /*
@@ -1020,6 +1002,9 @@ proto_reg_handoff_fr(void)
 
   fr_phdr_handle = create_dissector_handle(dissect_fr_phdr, proto_fr);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FRELAY_WITH_PHDR, fr_phdr_handle);
+
+  register_capture_dissector("wtap_encap", WTAP_ENCAP_FRELAY, capture_fr, proto_fr);
+  register_capture_dissector("wtap_encap", WTAP_ENCAP_FRELAY_WITH_PHDR, capture_fr, proto_fr);
 
   eth_withfcs_handle = find_dissector("eth_withfcs");
   gprs_ns_handle = find_dissector("gprs_ns");

@@ -1950,35 +1950,28 @@ decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
     return next_tvb;
 }
 
-void
+gboolean
 capture_ppp_hdlc(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
-    if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
-        ld->other++;
-        return;
-    }
-    if (pd[0] == CHDLC_ADDR_UNICAST || pd[0] == CHDLC_ADDR_MULTICAST) {
-        capture_chdlc(pd, offset, len, ld, pseudo_header);
-        return;
-    }
-    if (!BYTES_ARE_IN_FRAME(offset, len, 4)) {
-        ld->other++;
-        return;
-    }
+    if (!BYTES_ARE_IN_FRAME(offset, len, 2))
+        return FALSE;
+
+    if (pd[0] == CHDLC_ADDR_UNICAST || pd[0] == CHDLC_ADDR_MULTICAST)
+        return capture_chdlc(pd, offset, len, ld, pseudo_header);
+
+    if (!BYTES_ARE_IN_FRAME(offset, len, 4))
+        return FALSE;
+
     switch (pntoh16(&pd[offset + 2])) {
     case PPP_IP:
-        capture_ip(pd, offset + 4, len, ld, pseudo_header);
-        break;
+        return capture_ip(pd, offset + 4, len, ld, pseudo_header);
     case PPP_IPX:
-        capture_ipx(pd, offset + 4, len, ld, pseudo_header);
-        break;
+        return capture_ipx(pd, offset + 4, len, ld, pseudo_header);
     case PPP_VINES:
-        capture_vines(pd, offset + 4, len, ld, pseudo_header);
-        break;
-    default:
-        ld->other++;
-        break;
+        return capture_vines(pd, offset + 4, len, ld, pseudo_header);
     }
+
+    return FALSE;
 }
 
 static void
@@ -5598,8 +5591,6 @@ proto_register_ppp_raw_hdlc(void)
         "PPP-HDLC", "ppp_hdlc");
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_ppp_hdlc, hf, array_length(hf));
-
-    register_capture_dissector(WTAP_ENCAP_PPP, capture_ppp_hdlc, proto_ppp_hdlc);
 }
 
 void
@@ -5613,6 +5604,7 @@ proto_reg_handoff_ppp_raw_hdlc(void)
     dissector_add_uint("gre.proto", ETHERTYPE_3GPP2, ppp_raw_hdlc_handle);
 
     heur_dissector_add("usb.bulk", dissect_ppp_usb, "PPP USB bulk endpoint", "ppp_usb_bulk", proto_ppp, HEURISTIC_ENABLE);
+    register_capture_dissector("wtap_encap", WTAP_ENCAP_PPP, capture_ppp_hdlc, proto_ppp_hdlc);
 }
 
 /*

@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/arptypes.h>
 #include <epan/addr_resolv.h>
 #include "packet-arp.h"
@@ -1358,6 +1359,13 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   return tvb_captured_length(tvb);
 }
 
+gboolean
+capture_arp(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld _U_, const union wtap_pseudo_header *pseudo_header _U_)
+{
+  ld->arp++;
+  return TRUE;
+}
+
 static const guint8 mac_allzero[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 static int
@@ -2013,6 +2021,7 @@ proto_reg_handoff_arp(void)
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_ARP_1201, arp_handle);
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_RARP_1201, arp_handle);
   dissector_add_uint("ax25.pid", AX25_P_ARP, arp_handle);
+  register_capture_dissector("ethertype", ETHERTYPE_ARP, capture_arp, proto_arp);
 }
 
 /*

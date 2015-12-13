@@ -32,16 +32,8 @@
 #include <epan/ppptypes.h>
 #include <epan/show_exception.h>
 #include <epan/decode_as.h>
-#include "packet-bpq.h"
+#include <epan/capture_dissectors.h>
 #include "packet-eth.h"
-#include "packet-ip.h"
-#include "packet-ipv6.h"
-#include "packet-ipx.h"
-#include "packet-vlan.h"
-#include "packet-ieee8021ah.h"
-#include "packet-vines.h"
-#include "packet-llc.h"
-
 
 void proto_register_ethertype(void);
 void proto_reg_handoff_ethertype(void);
@@ -204,46 +196,6 @@ static void add_dix_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh
 			    int trailer_id, tvbuff_t *tvb, tvbuff_t *next_tvb, int offset_after_etype,
 			    guint length_before, gint fcs_len);
 
-void
-capture_ethertype(guint16 etype, const guchar *pd, int offset, int len,
-		  packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
-{
-	switch (etype) {
-	case ETHERTYPE_ARP:
-		ld->arp++;
-		break;
-	case ETHERTYPE_IP:
-		capture_ip(pd, offset, len, ld, pseudo_header);
-		break;
-	case ETHERTYPE_IPv6:
-		capture_ipv6(pd, offset, len, ld, pseudo_header);
-		break;
-	case ETHERTYPE_IPX:
-		capture_ipx(pd, offset, len, ld, pseudo_header);
-		break;
-	case ETHERTYPE_VLAN:
-		capture_vlan(pd, offset, len, ld, pseudo_header);
-		break;
-	case ETHERTYPE_IEEE_802_1AD:
-	case ETHERTYPE_IEEE_802_1AH:
-		capture_ieee8021ah(pd, offset, len, ld, pseudo_header);
-		break;
-	case ETHERTYPE_VINES_IP:
-	case ETHERTYPE_VINES_ECHO:
-		capture_vines(pd, offset, len, ld, pseudo_header);
-		break;
-	case ETHERTYPE_BPQ:
-		capture_bpq(pd, offset, len, ld, pseudo_header);
-		break;
-	case ETHERTYPE_JUMBO_LLC:
-		capture_llc(pd, offset, len, ld, pseudo_header);
-		break;
-	default:
-		ld->other++;
-		break;
-	}
-}
-
 /*
 void
 ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
@@ -400,6 +352,7 @@ proto_register_ethertype(void)
 	/* subdissector code */
 	ethertype_dissector_table = register_dissector_table("ethertype",
 								"Ethertype", FT_UINT16, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	register_capture_dissector_table("ethertype", "Ethertype");
 
 	register_decode_as(&ethertype_da);
 }

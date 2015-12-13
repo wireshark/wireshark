@@ -33,14 +33,18 @@ extern "C" {
 /** @file
  */
 
-/** callback function definition: is a filter available for this packet? */
-typedef void (*capture_dissector_t)(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header);
+/** callback function definition for capture dissectors */
+typedef gboolean (*capture_dissector_t)(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header);
+
+/* a protocol uses the function to register a capture sub-dissector table
+ */
+WS_DLL_PUBLIC void register_capture_dissector_table(const char *name, const char *ui_name);
 
 
 /** Register a new capture dissector. */
-WS_DLL_PUBLIC void register_capture_dissector(gint linktype, capture_dissector_t dissector, const int proto);
+WS_DLL_PUBLIC void register_capture_dissector(const char* name, const guint32 pattern, capture_dissector_t dissector, const int proto);
 
-WS_DLL_PUBLIC void call_capture_dissector(gint linktype, const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header);
+WS_DLL_PUBLIC gboolean try_capture_dissector(const char* name, const guint32 pattern, const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header);
 
 extern void capture_dissector_init(void);
 extern void capture_dissector_cleanup(void);

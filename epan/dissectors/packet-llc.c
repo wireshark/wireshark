@@ -24,6 +24,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <wiretap/wtap.h>
 #include <wsutil/pint.h>
 #include <epan/oui.h>
@@ -250,17 +251,16 @@ llc_add_oui(guint32 oui, const char *table_name, const char *table_ui_name,
 	g_hash_table_insert(oui_info_table, GUINT_TO_POINTER(oui), new_info);
 }
 
-void
+gboolean
 capture_llc(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_) {
 
 	int		is_snap;
 	guint16		control;
 	int		llc_header_len;
 
-	if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
-		ld->other++;
-		return;
-	}
+	if (!BYTES_ARE_IN_FRAME(offset, len, 2))
+		return FALSE;
+
 	is_snap = (pd[offset] == SAP_SNAP) && (pd[offset+1] == SAP_SNAP);
 	llc_header_len = 2;	/* DSAP + SSAP */
 
@@ -272,56 +272,43 @@ capture_llc(const guchar *pd, int offset, int len, packet_counts *ld, const unio
 	 */
 	control = get_xdlc_control(pd, offset+2, pd[offset+1] & SSAP_CR_BIT);
 	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
-	if (!BYTES_ARE_IN_FRAME(offset, len, llc_header_len)) {
-		ld->other++;
-		return;
-	}
+	if (!BYTES_ARE_IN_FRAME(offset, len, llc_header_len))
+		return FALSE;
 
-	if (!XDLC_IS_INFORMATION(control)) {
-		ld->other++;
-		return;
-	}
+	if (!XDLC_IS_INFORMATION(control))
+		return FALSE;
+
 	if (is_snap)
-		capture_snap(pd, offset+llc_header_len, len, ld, pseudo_header);
-	else {
-		/* non-SNAP */
-		switch (pd[offset]) {
+		return capture_snap(pd, offset+llc_header_len, len, ld, pseudo_header);
 
-		case SAP_IP:
-			capture_ip(pd, offset + llc_header_len, len, ld, pseudo_header);
-			break;
+	/* non-SNAP */
+	switch (pd[offset]) {
 
-		case SAP_NETWARE1:
-		case SAP_NETWARE2:
-			capture_ipx(pd, offset + llc_header_len, len, ld, pseudo_header);
-			break;
+	case SAP_IP:
+		return capture_ip(pd, offset + llc_header_len, len, ld, pseudo_header);
 
-		case SAP_NETBIOS:
-			capture_netbios(pd, offset + llc_header_len, len, ld, pseudo_header);
-			break;
+	case SAP_NETWARE1:
+	case SAP_NETWARE2:
+		return capture_ipx(pd, offset + llc_header_len, len, ld, pseudo_header);
 
-		case SAP_VINES1:
-		case SAP_VINES2:
-			capture_vines(pd, offset + llc_header_len, len, ld, pseudo_header);
-			break;
+	case SAP_NETBIOS:
+		return capture_netbios(pd, offset + llc_header_len, len, ld, pseudo_header);
 
-		default:
-			ld->other++;
-			break;
-		}
+	case SAP_VINES1:
+	case SAP_VINES2:
+		return capture_vines(pd, offset + llc_header_len, len, ld, pseudo_header);
 	}
+	return FALSE;
 }
 
-void
+gboolean
 capture_snap(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint32		oui;
 	guint16		etype;
 
-	if (!BYTES_ARE_IN_FRAME(offset, len, 5)) {
-		ld->other++;
-		return;
-	}
+	if (!BYTES_ARE_IN_FRAME(offset, len, 5))
+		return FALSE;
 
 	oui = pd[offset] << 16 | pd[offset+1] << 8 | pd[offset+2];
 	etype = pntoh16(&pd[offset+3]);
@@ -337,12 +324,10 @@ capture_snap(const guchar *pd, int offset, int len, packet_counts *ld, const uni
 		   AppleTalk data packets - but used
 		   OUI_ENCAP_ETHER and an Ethernet
 		   packet type for AARP packets. */
-		capture_ethertype(etype, pd, offset+5, len, ld, pseudo_header);
-		break;
+		return try_capture_dissector("ethertype", etype, pd, offset+5, len, ld, pseudo_header);
 
 	case OUI_CISCO:
-		capture_ethertype(etype, pd, offset+5, len, ld, pseudo_header);
-		break;
+		return try_capture_dissector("ethertype", etype, pd, offset+5, len, ld, pseudo_header);
 
 	case OUI_MARVELL:
 		/*
@@ -351,13 +336,10 @@ capture_snap(const guchar *pd, int offset, int len, packet_counts *ld, const uni
 		 * the payload.  (We assume the header is
 		 * 5 bytes, for now).
 		 */
-		capture_ethertype(etype, pd, offset+5+5, len, ld, pseudo_header);
-		break;
-
-	default:
-		ld->other++;
-		break;
+		return try_capture_dissector("ethertype", etype, pd, offset+5+5, len, ld, pseudo_header);
 	}
+
+	return FALSE;
 }
 
 /* Used only for U frames */
@@ -944,6 +926,8 @@ proto_reg_handoff_llc(void)
 
 	dissector_add_uint("juniper.proto", JUNIPER_PROTO_LLC, llc_handle);
 	dissector_add_uint("juniper.proto", JUNIPER_PROTO_LLC_SNAP, llc_handle);
+
+	register_capture_dissector("ethertype", ETHERTYPE_JUMBO_LLC, capture_llc, proto_llc);
 
 	/*
 	 * Register all the fields for PIDs for various OUIs.

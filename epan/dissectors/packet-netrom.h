@@ -25,6 +25,6 @@
 #ifndef __PACKET_NETROM_H__
 #define __PACKET_NETROM_H__
 
-void capture_netrom(const guchar *, int, int, packet_counts *, const union wtap_pseudo_header *pseudo_header);
+gboolean capture_netrom(const guchar *, int, int, packet_counts *, const union wtap_pseudo_header *pseudo_header);
 
 #endif

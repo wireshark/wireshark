@@ -28,6 +28,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include "packet-ipx.h"
 #include "packet-sll.h"
 #include <epan/addr_resolv.h>
@@ -272,10 +273,11 @@ static const value_string ipxmsg_sigchar_vals[] = {
 	{ 0, NULL }
 };
 
-void
+gboolean
 capture_ipx(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	ld->ipx++;
+	return TRUE;
 }
 
 static int
@@ -1622,6 +1624,7 @@ proto_reg_handoff_ipx(void)
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPX_MESSAGE, ipxmsg_handle);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPX_MESSAGE1, ipxmsg_handle);
 
+	register_capture_dissector("ethertype", ETHERTYPE_IPX, capture_ipx, proto_ipx);
 	data_handle = find_dissector("data");
 }
 

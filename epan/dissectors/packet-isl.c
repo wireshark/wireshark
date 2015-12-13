@@ -88,15 +88,13 @@ static dissector_handle_t eth_withfcs_handle;
 static dissector_handle_t tr_handle;
 static dissector_handle_t data_handle;
 
-void
+gboolean
 capture_isl(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint8 type;
 
-  if (!BYTES_ARE_IN_FRAME(offset, len, ISL_HEADER_SIZE)) {
-    ld->other++;
-    return;
-  }
+  if (!BYTES_ARE_IN_FRAME(offset, len, ISL_HEADER_SIZE))
+    return FALSE;
 
   type = (pd[offset+5] >> 4)&0x0F;
 
@@ -104,18 +102,15 @@ capture_isl(const guchar *pd, int offset, int len, packet_counts *ld, const unio
 
   case TYPE_ETHER:
     offset += 14+12;    /* skip the header */
-    capture_eth(pd, offset, len, ld, pseudo_header);
-    break;
+    return capture_eth(pd, offset, len, ld, pseudo_header);
 
   case TYPE_TR:
     offset += 14+17;    /* skip the header */
-    capture_tr(pd, offset, len, ld, pseudo_header);
-    break;
-
-  default:
-    ld->other++;
+    return capture_tr(pd, offset, len, ld, pseudo_header);
     break;
   }
+
+  return FALSE;
 }
 
 static const value_string type_vals[] = {

@@ -191,16 +191,14 @@ eth_build_filter(packet_info *pinfo)
 #define ETHERNET_802_3  2
 #define ETHERNET_SNAP   3
 
-void
+gboolean
 capture_eth(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint16 etype, length;
   int ethhdr_type;          /* the type of ethernet frame */
 
-  if (!BYTES_ARE_IN_FRAME(offset, len, ETH_HEADER_SIZE)) {
-    ld->other++;
-    return;
-  }
+  if (!BYTES_ARE_IN_FRAME(offset, len, ETH_HEADER_SIZE))
+    return FALSE;
 
   etype = pntoh16(&pd[offset+12]);
 
@@ -212,8 +210,7 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld, const unio
     if ((pd[offset] == 0x01 || pd[offset] == 0x0C) && pd[offset+1] == 0x00
         && pd[offset+2] == 0x0C && pd[offset+3] == 0x00
         && pd[offset+4] == 0x00) {
-      capture_isl(pd, offset, len, ld, pseudo_header);
-      return;
+      return capture_isl(pd, offset, len, ld, pseudo_header);
     }
   }
 
@@ -236,10 +233,8 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld, const unio
    * frame; the dissector for those frames registers itself with
    * an ethernet type of ETHERTYPE_UNK.
    */
-  if (etype > IEEE_802_3_MAX_LEN && etype < ETHERNET_II_MIN_LEN) {
-    ld->other++;
-    return;
-  }
+  if (etype > IEEE_802_3_MAX_LEN && etype < ETHERNET_II_MIN_LEN)
+    return FALSE;
 
   if (etype <= IEEE_802_3_MAX_LEN && etype != ETHERTYPE_UNK) {
     length = etype;
@@ -272,15 +267,14 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld, const unio
 
   switch (ethhdr_type) {
     case ETHERNET_802_3:
-      capture_ipx(pd, offset, len, ld, pseudo_header);
-      break;
+      return capture_ipx(pd, offset, len, ld, pseudo_header);
     case ETHERNET_802_2:
-      capture_llc(pd, offset, len, ld, pseudo_header);
-      break;
+      return capture_llc(pd, offset, len, ld, pseudo_header);
     case ETHERNET_II:
-      capture_ethertype(etype, pd, offset, len, ld, pseudo_header);
-      break;
+      return try_capture_dissector("ethertype", etype, pd, offset, len, ld, pseudo_header);
   }
+
+  return FALSE;
 }
 
 static gboolean check_is_802_2(tvbuff_t *tvb, int fcs_len);
@@ -1014,7 +1008,6 @@ proto_register_eth(void)
   register_dissector("eth_withoutfcs", dissect_eth_withoutfcs, proto_eth);
   register_dissector("eth_withfcs", dissect_eth_withfcs, proto_eth);
   register_dissector("eth", dissect_eth_maybefcs, proto_eth);
-  register_capture_dissector(WTAP_ENCAP_ETHERNET, capture_eth, proto_eth);
   eth_tap = register_tap("eth");
 
   register_conversation_table(proto_eth, TRUE, eth_conversation_packet, eth_hostlist_packet);
@@ -1057,6 +1050,8 @@ proto_reg_handoff_eth(void)
   dissector_add_for_decode_as("udp.port", eth_withoutfcs_handle);
 
   dissector_add_for_decode_as("pcli.payload", eth_withoutfcs_handle);
+
+  register_capture_dissector("wtap_encap", WTAP_ENCAP_ETHERNET, capture_eth, proto_eth);
 }
 
 /*

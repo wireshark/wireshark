@@ -699,9 +699,6 @@ extern void dissect_file(struct epan_dissect *edt,
     struct wtap_pkthdr *phdr, tvbuff_t *tvb,
     frame_data *fd, column_info *cinfo);
 
-/* These functions are in packet-ethertype.c */
-extern void capture_ethertype(guint16 etype, const guchar *pd, int offset,
-		int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header);
 /* Structure passed to the ethertype dissector */
 typedef struct ethertype_data_s
 {

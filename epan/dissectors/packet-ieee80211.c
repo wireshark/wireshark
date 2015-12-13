@@ -5620,23 +5620,19 @@ add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t *tvb
 /* ************************************************************************* */
 /*          This is the capture function used to update packet counts        */
 /* ************************************************************************* */
-static void
+static gboolean
 capture_ieee80211_common (const guchar * pd, int offset, int len,
                           packet_counts * ld, const union wtap_pseudo_header *pseudo_header _U_, gboolean datapad)
 {
   guint16 fcf, hdr_length;
 
-  if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
-    ld->other += 1;
-    return;
-  }
+  if (!BYTES_ARE_IN_FRAME(offset, len, 2))
+    return FALSE;
 
   fcf = pletoh16 (&pd[offset]);
 
-  if (IS_PROTECTED(FCF_FLAGS(fcf)) && (wlan_ignore_wep == WLAN_IGNORE_WEP_NO)) {
-    ld->other += 1;
-    return;
-  }
+  if (IS_PROTECTED(FCF_FLAGS(fcf)) && (wlan_ignore_wep == WLAN_IGNORE_WEP_NO))
+    return FALSE;
 
   switch (COMPOSE_FRAME_TYPE (fcf)) {
 
@@ -5670,10 +5666,9 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
          * Look at the Mesh Control subfield of the QoS field and at the
          * purported mesh flag fields.
          */
-        if (!BYTES_ARE_IN_FRAME(offset, hdr_length, 1)) {
-          ld->other += 1;
-          return;
-        }
+        if (!BYTES_ARE_IN_FRAME(offset, hdr_length, 1))
+          return FALSE;
+
         mesh_flags = pd[hdr_length];
         if (has_mesh_control(fcf, pletoh16(&pd[qosoff]), mesh_flags)) {
           /* Yes, add the length of that in as well. */
@@ -5723,10 +5718,9 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
            as an encapsulated IPX frame, and then check whether the
            packet starts with 0x00 0x00 and, if so, treat it as an OLPC
            frame. */
-      if (!BYTES_ARE_IN_FRAME(offset+hdr_length, len, 2)) {
-        ld->other += 1;
-        return;
-      }
+      if (!BYTES_ARE_IN_FRAME(offset+hdr_length, len, 2))
+        return FALSE;
+
       if ((pd[offset+hdr_length] != 0xaa) && (pd[offset+hdr_length+1] != 0xaa)) {
 #if 0
         /* XXX - this requires us to parse the header to find the source
@@ -5735,45 +5729,42 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
           /* We have two MAC addresses after the header. */
           if ((memcmp(&pd[offset+hdr_length+6], pinfo->dl_src.data, 6) == 0) ||
               (memcmp(&pd[offset+hdr_length+6], pinfo->dl_dst.data, 6) == 0)) {
-            capture_eth (pd, offset + hdr_length, len, ld);
-            return;
+            return capture_eth (pd, offset + hdr_length, len, ld);
           }
         }
 #endif
         if ((pd[offset+hdr_length] == 0xff) && (pd[offset+hdr_length+1] == 0xff))
-          capture_ipx (pd, offset+hdr_length, len, ld, pseudo_header);
+          return capture_ipx (pd, offset+hdr_length, len, ld, pseudo_header);
         else if ((pd[offset+hdr_length] == 0x00) && (pd[offset+hdr_length+1] == 0x00))
-          capture_llc (pd, offset + hdr_length + 2, len, ld, pseudo_header);
+          return capture_llc (pd, offset + hdr_length + 2, len, ld, pseudo_header);
       }
       else {
-        capture_llc (pd, offset + hdr_length, len, ld, pseudo_header);
+        return capture_llc (pd, offset + hdr_length, len, ld, pseudo_header);
       }
       break;
     }
-
-    default:
-      ld->other += 1;
-      break;
   }
+
+  return FALSE;
 }
 
 /*
  * Handle 802.11 with a variable-length link-layer header.
  */
-void
+gboolean
 capture_ieee80211 (const guchar * pd, int offset, int len, packet_counts * ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
-  capture_ieee80211_common (pd, offset, len, ld, pseudo_header, FALSE);
+  return capture_ieee80211_common (pd, offset, len, ld, pseudo_header, FALSE);
 }
 
 /*
  * Handle 802.11 with a variable-length link-layer header and data padding.
  */
-void
+gboolean
 capture_ieee80211_datapad (const guchar * pd, int offset, int len,
                            packet_counts * ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
-  capture_ieee80211_common (pd, offset, len, ld, pseudo_header, TRUE);
+  return capture_ieee80211_common (pd, offset, len, ld, pseudo_header, TRUE);
 }
 
 
@@ -27074,9 +27065,6 @@ proto_register_ieee80211 (void)
   register_dissector("wlan_withoutfcs",         dissect_ieee80211_withoutfcs,         proto_wlan);
   register_dissector("wlan_bsfc",               dissect_ieee80211_bsfc,               proto_wlan);
 
-  register_capture_dissector(WTAP_ENCAP_IEEE_802_11, capture_ieee80211, proto_wlan);
-  register_capture_dissector(WTAP_ENCAP_IEEE_802_11_WITH_RADIO, capture_ieee80211, proto_wlan);
-
   register_init_routine(wlan_defragment_init);
   register_cleanup_routine(wlan_defragment_cleanup);
   register_init_routine(wlan_retransmit_init);
@@ -27303,6 +27291,9 @@ proto_reg_handoff_ieee80211(void)
 
   centrino_handle = create_dissector_handle( dissect_ieee80211_centrino, proto_centrino );
   dissector_add_uint("ethertype", ETHERTYPE_CENTRINO_PROMISC, centrino_handle);
+
+  register_capture_dissector("wtap_encap", WTAP_ENCAP_IEEE_802_11, capture_ieee80211, proto_wlan);
+  register_capture_dissector("wtap_encap", WTAP_ENCAP_IEEE_802_11_WITH_RADIO, capture_ieee80211, proto_wlan);
 
   /* Register handoff to Aruba GRE */
   dissector_add_uint("gre.proto", GRE_ARUBA_8200, ieee80211_handle);

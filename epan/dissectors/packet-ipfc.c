@@ -45,15 +45,13 @@ static int hf_ipfc_network_sa = -1;
 static gint ett_ipfc = -1;
 static dissector_handle_t llc_handle;
 
-static void
+static gboolean
 capture_ipfc (const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
-  if (!BYTES_ARE_IN_FRAME(0, len, 16)) {
-    ld->other++;
-    return;
-  }
+  if (!BYTES_ARE_IN_FRAME(0, len, 16))
+    return FALSE;
 
-  capture_llc(pd, 16, len, ld, pseudo_header);
+  return capture_llc(pd, 16, len, ld, pseudo_header);
 }
 
 static int
@@ -114,8 +112,6 @@ proto_register_ipfc (void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ipfc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    register_capture_dissector(WTAP_ENCAP_IP_OVER_FC, capture_ipfc, proto_ipfc);
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.
@@ -131,6 +127,8 @@ proto_reg_handoff_ipfc (void)
     dissector_add_uint("wtap_encap", WTAP_ENCAP_IP_OVER_FC, ipfc_handle);
 
     llc_handle = find_dissector ("llc");
+
+    register_capture_dissector("wtap_encap", WTAP_ENCAP_IP_OVER_FC, capture_ipfc, proto_ipfc);
 }
 
 /*

@@ -43,10 +43,10 @@ static expert_field ei_no_link_info = EI_INIT;
 
 static dissector_handle_t ip_handle;
 
-static void
+static gboolean
 capture_clip( const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_ ) {
 
-    capture_ip(pd, offset, len, ld, pseudo_header);
+    return capture_ip(pd, offset, len, ld, pseudo_header);
 }
 
 static int
@@ -109,8 +109,6 @@ proto_register_clip(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_clip = expert_register_protocol(proto_clip);
   expert_register_field_array(expert_clip, ei, array_length(ei));
-
-  register_capture_dissector(WTAP_ENCAP_LINUX_ATM_CLIP, capture_clip, proto_clip);
 }
 
 void
@@ -126,6 +124,8 @@ proto_reg_handoff_clip(void)
   clip_handle = create_dissector_handle(dissect_clip, proto_clip);
       /* XXX - no protocol, can't be disabled */
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LINUX_ATM_CLIP, clip_handle);
+
+  register_capture_dissector("wtap_encap", WTAP_ENCAP_LINUX_ATM_CLIP, capture_clip, proto_clip);
 }
 
 /*

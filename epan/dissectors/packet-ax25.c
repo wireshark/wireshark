@@ -254,7 +254,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	return tvb_captured_length(tvb);
 }
 
-void
+gboolean
 capture_ax25( const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint8 control;
@@ -262,10 +262,7 @@ capture_ax25( const guchar *pd, int offset, int len, packet_counts *ld, const un
 	int l_offset;
 
 	if ( ! BYTES_ARE_IN_FRAME( offset, len, AX25_HEADER_SIZE ) )
-		{
-		ld->other++;
-		return;
-		}
+		return FALSE;
 
 	l_offset = offset;
 	l_offset += AX25_ADDR_LEN; /* step over dst addr point at src addr */
@@ -277,7 +274,7 @@ capture_ax25( const guchar *pd, int offset, int len, packet_counts *ld, const un
 
 	/* decode the pid field (if appropriate) */
 	if ( XDLC_IS_INFORMATION( control ) )
-		{
+	{
 		l_offset += 1; /* step over control byte point at pid */
 		pid = pd[ l_offset ];
 
@@ -285,19 +282,15 @@ capture_ax25( const guchar *pd, int offset, int len, packet_counts *ld, const un
 		switch ( pid & 0x0ff )
 			{
 			case AX25_P_NETROM	:
-				capture_netrom( pd, l_offset, len, ld, pseudo_header );
-				break;
+				return capture_netrom( pd, l_offset, len, ld, pseudo_header );
 			case AX25_P_IP		:
-				capture_ip( pd, l_offset, len, ld, pseudo_header );
-				break;
+				return capture_ip( pd, l_offset, len, ld, pseudo_header );
 			case AX25_P_ARP		:
 				ld->arp++;
-				break;
-			default			:
-				ld->other++;
-				break;
+				return TRUE;
 			}
-		}
+	}
+	return FALSE;
 }
 
 void
@@ -435,8 +428,6 @@ proto_register_ax25(void)
 	proto_register_field_array( proto_ax25, hf, array_length(hf ) );
 	proto_register_subtree_array(ett, array_length(ett ) );
 
-	register_capture_dissector(WTAP_ENCAP_AX25, capture_ax25, proto_ax25);
-
 	/* Register dissector table for protocol IDs */
 	ax25_dissector_table = register_dissector_table("ax25.pid", "AX.25 protocol ID", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
@@ -446,6 +437,8 @@ proto_reg_handoff_ax25(void)
 {
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_AX25, ax25_handle);
 	dissector_add_uint("ip.proto", IP_PROTO_AX25, ax25_handle);
+
+	register_capture_dissector("wtap_encap", WTAP_ENCAP_AX25, capture_ax25, proto_ax25);
 
 	data_handle  = find_dissector( "data" );
 

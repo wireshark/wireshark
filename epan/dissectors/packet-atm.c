@@ -663,7 +663,7 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
-static void
+static gboolean
 capture_lane(const guchar *pd, int offset _U_,
     int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header)
 {
@@ -673,19 +673,15 @@ capture_lane(const guchar *pd, int offset _U_,
   case TRAF_ST_LANE_802_3:
   case TRAF_ST_LANE_802_3_MC:
     /* Dissect as Ethernet */
-    capture_eth(pd, 2, len, ld, pseudo_header);
-    break;
+    return capture_eth(pd, 2, len, ld, pseudo_header);
 
   case TRAF_ST_LANE_802_5:
   case TRAF_ST_LANE_802_5_MC:
     /* Dissect as Token-Ring */
-    capture_tr(pd, 2, len, ld, pseudo_header);
-    break;
-
-  default:
-    ld->other++;
-    break;
+    return capture_tr(pd, 2, len, ld, pseudo_header);
   }
+
+  return FALSE;
 }
 
 static int
@@ -805,7 +801,7 @@ static const value_string ipsilon_type_vals[] = {
   { 0,                NULL }
 };
 
-static void
+static gboolean
 capture_atm(const guchar *pd, int offset _U_,
     int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header)
 {
@@ -816,19 +812,13 @@ capture_atm(const guchar *pd, int offset _U_,
       /* Dissect as WTAP_ENCAP_ATM_RFC1483 */
       /* The ATM iptrace capture that we have shows LLC at this point,
        * so that's what I'm calling */
-      capture_llc(pd, 0, len, ld, pseudo_header);
-      break;
+      return capture_llc(pd, 0, len, ld, pseudo_header);
 
     case TRAF_LANE:
-      capture_lane(pd, offset, len, ld, pseudo_header);
-      break;
-
-    default:
-      ld->other++;
-      break;
+      return capture_lane(pd, offset, len, ld, pseudo_header);
     }
-  } else
-    ld->other++;
+  }
+  return FALSE;
 }
 
 static void
@@ -2008,8 +1998,6 @@ proto_register_atm(void)
   register_dissector("atm_oam_cell", dissect_atm_oam_cell, proto_oamaal);
   register_dissector("atm_pw_oam_cell", dissect_atm_pw_oam_cell, proto_oamaal);
 
-  register_capture_dissector(WTAP_ENCAP_ATM_PDUS, capture_atm, proto_atm);
-
   atm_module = prefs_register_protocol ( proto_atm, NULL );
   prefs_register_bool_preference(atm_module, "dissect_lane_as_sscop", "Dissect LANE as SSCOP",
                                  "Autodection between LANE and SSCOP is hard. As default LANE is preferred",
@@ -2044,6 +2032,7 @@ proto_reg_handoff_atm(void)
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS_UNTRUNCATED,
                 atm_untruncated_handle);
+  register_capture_dissector("wtap_encap", WTAP_ENCAP_ATM_PDUS, capture_atm, proto_atm);
 }
 
 /*

@@ -137,15 +137,14 @@ static dissector_table_t sll_linux_dissector_table;
 static dissector_table_t gre_dissector_table;
 static dissector_handle_t data_handle;
 
-static void
+static gboolean
 capture_sll(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint16 protocol;
 
-	if (!BYTES_ARE_IN_FRAME(0, len, SLL_HEADER_SIZE)) {
-		ld->other++;
-		return;
-	}
+	if (!BYTES_ARE_IN_FRAME(0, len, SLL_HEADER_SIZE))
+		return FALSE;
+
 	protocol = pntoh16(&pd[14]);
 	if (protocol <= 1536) {	/* yes, 1536 - that's how Linux does it */
 		/*
@@ -158,37 +157,31 @@ capture_sll(const guchar *pd, int offset _U_, int len, packet_counts *ld, const 
 			/*
 			 * 802.2 LLC.
 			 */
-			capture_llc(pd, len, SLL_HEADER_SIZE, ld, pseudo_header);
-			break;
+			return capture_llc(pd, len, SLL_HEADER_SIZE, ld, pseudo_header);
 
 		case LINUX_SLL_P_ETHERNET:
 			/*
 			 * Ethernet.
 			 */
-			capture_eth(pd, SLL_HEADER_SIZE, len, ld, pseudo_header);
-			break;
+			return capture_eth(pd, SLL_HEADER_SIZE, len, ld, pseudo_header);
 
 		case LINUX_SLL_P_802_3:
 			/*
 			 * Novell IPX inside 802.3 with no 802.2 LLC
 			 * header.
 			 */
-			capture_ipx(pd, SLL_HEADER_SIZE, len, ld, pseudo_header);
-			break;
+			return capture_ipx(pd, SLL_HEADER_SIZE, len, ld, pseudo_header);
 
 		case LINUX_SLL_P_PPPHDLC:
 			/*
 			 * PPP HDLC.
 			 */
-			capture_ppp_hdlc(pd, len, SLL_HEADER_SIZE, ld, pseudo_header);
-			break;
-
-		default:
-			ld->other++;
-			break;
+			return capture_ppp_hdlc(pd, len, SLL_HEADER_SIZE, ld, pseudo_header);
 		}
-	} else
-		capture_ethertype(protocol, pd, SLL_HEADER_SIZE, len, ld, pseudo_header);
+	} else {
+		return try_capture_dissector("ethertype", protocol, pd, SLL_HEADER_SIZE, len, ld, pseudo_header);
+	}
+	return FALSE;
 }
 
 static int
@@ -336,8 +329,6 @@ proto_register_sll(void)
 	proto_register_fields(proto_sll, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_capture_dissector(WTAP_ENCAP_SLL, capture_sll, proto_sll);
-
 	sll_handle = create_dissector_handle(dissect_sll, proto_sll);
 
 	sll_linux_dissector_table = register_dissector_table (
@@ -359,6 +350,7 @@ proto_reg_handoff_sll(void)
 	ethertype_handle = find_dissector("ethertype");
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_SLL, sll_handle);
+	register_capture_dissector("wtap_encap", WTAP_ENCAP_SLL, capture_sll, hfi_sll->id);
 }
 
 /*

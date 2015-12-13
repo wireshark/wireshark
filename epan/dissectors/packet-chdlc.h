@@ -32,7 +32,7 @@
 #define CHDLC_ADDR_MULTICAST	0x8f
 
 extern
-void capture_chdlc(const guchar *, int, int, packet_counts *, const union wtap_pseudo_header *pseudo_header);
+gboolean capture_chdlc(const guchar *, int, int, packet_counts *, const union wtap_pseudo_header *pseudo_header);
 
 extern const value_string chdlc_vals[];
 

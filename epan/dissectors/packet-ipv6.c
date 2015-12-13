@@ -28,6 +28,7 @@
 
 #include <math.h>
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/expert.h>
 #include <epan/ip_opts.h>
 #include <epan/addr_resolv.h>
@@ -524,16 +525,15 @@ static const value_string ipv6_opt_vals[] = {
 };
 
 
-void
+gboolean
 capture_ipv6(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
     guint8 nxt;
     int    advance;
 
-    if (!BYTES_ARE_IN_FRAME(offset, len, 4+4+16+16)) {
-        ld->other++;
-        return;
-    }
+    if (!BYTES_ARE_IN_FRAME(offset, len, 4+4+16+16))
+        return FALSE;
+
     nxt = pd[offset+6];           /* get the "next header" value */
     offset += 4+4+16+16;          /* skip past the IPv6 header */
 
@@ -542,55 +542,47 @@ again:
     case IP_PROTO_HOPOPTS:
     case IP_PROTO_ROUTING:
     case IP_PROTO_DSTOPTS:
-        if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
-            ld->other++;
-            return;
-        }
+        if (!BYTES_ARE_IN_FRAME(offset, len, 2))
+            return FALSE;
+
         nxt = pd[offset];
         advance = (pd[offset+1] + 1) << 3;
-        if (!BYTES_ARE_IN_FRAME(offset, len, advance)) {
-            ld->other++;
-            return;
-        }
+        if (!BYTES_ARE_IN_FRAME(offset, len, advance))
+            return FALSE;
+
         offset += advance;
         goto again;
     case IP_PROTO_FRAGMENT:
-        if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
-            ld->other++;
-            return;
-        }
+        if (!BYTES_ARE_IN_FRAME(offset, len, 2))
+            return FALSE;
+
         nxt = pd[offset];
         advance = 8;
-        if (!BYTES_ARE_IN_FRAME(offset, len, advance)) {
-            ld->other++;
-            return;
-        }
+        if (!BYTES_ARE_IN_FRAME(offset, len, advance))
+            return FALSE;
+
         offset += advance;
         goto again;
     case IP_PROTO_AH:
-        if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
-            ld->other++;
-            return;
-        }
+        if (!BYTES_ARE_IN_FRAME(offset, len, 2))
+            return FALSE;
+
         nxt = pd[offset];
         advance = 8 + ((pd[offset+1] - 1) << 2);
-        if (!BYTES_ARE_IN_FRAME(offset, len, advance)) {
-            ld->other++;
-            return;
-        }
+        if (!BYTES_ARE_IN_FRAME(offset, len, advance))
+            return FALSE;
+
         offset += advance;
         goto again;
     case IP_PROTO_SHIM6:
-        if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
-            ld->other++;
-            return;
-        }
+        if (!BYTES_ARE_IN_FRAME(offset, len, 2))
+            return FALSE;
+
         nxt = pd[offset];
         advance = (pd[offset+1] + 1) << 3;
-        if (!BYTES_ARE_IN_FRAME(offset, len, advance)) {
-            ld->other++;
-            return;
-        }
+        if (!BYTES_ARE_IN_FRAME(offset, len, advance))
+            return FALSE;
+
         offset += advance;
         goto again;
     }
@@ -620,8 +612,9 @@ again:
         ld->vines++;
         break;
     default:
-        ld->other++;
+        return FALSE;
     }
+    return TRUE;
 }
 
 /**
@@ -3567,6 +3560,7 @@ proto_reg_handoff_ipv6(void)
     dissector_add_uint("ipv6.nxt", IP_PROTO_DSTOPTS, ipv6_dstopts_handle);
 
     ip_dissector_table = find_dissector_table("ip.proto");
+    register_capture_dissector("ethertype", ETHERTYPE_IPv6, capture_ipv6, proto_ipv6);
 }
 
 /*

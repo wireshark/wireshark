@@ -37,8 +37,8 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <epan/capture_dissectors.h>
 
-#include "packet-bpq.h"
 #include "packet-ax25.h"
 
 #define STRLEN	80
@@ -101,20 +101,17 @@ dissect_bpq( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	return tvb_captured_length(tvb);
 }
 
-void
+static gboolean
 capture_bpq( const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	int l_offset;
 
 	if ( ! BYTES_ARE_IN_FRAME( offset, len, BPQ_HEADER_SIZE ) )
-		{
-		ld->other++;
-		return;
-		}
+		return FALSE;
 
 	l_offset = offset;
 	l_offset += BPQ_HEADER_SIZE; /* step over bpq header to point at the AX.25 packet*/
-	capture_ax25( pd, l_offset, len, ld, pseudo_header );
+	return capture_ax25( pd, l_offset, len, ld, pseudo_header );
 }
 
 void
@@ -152,6 +149,7 @@ proto_reg_handoff_bpq(void)
 
 	bpq_handle = create_dissector_handle( dissect_bpq, proto_bpq );
 	dissector_add_uint("ethertype", ETHERTYPE_BPQ, bpq_handle);
+	register_capture_dissector("ethertype", ETHERTYPE_BPQ, capture_bpq, proto_bpq);
 
 	/* BPQ is only implemented for AX.25 */
 	ax25_handle     = find_dissector( "ax25" );

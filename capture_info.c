@@ -251,7 +251,8 @@ static void
 capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header)
 {
     counts->total++;
-    call_capture_dissector(wtap_linktype, pd, 0, caplen, counts, pseudo_header);
+    if (!try_capture_dissector("wtap_encap", wtap_linktype, pd, 0, caplen, counts, pseudo_header))
+        counts->other++;
 }
 
 

@@ -1427,7 +1427,6 @@ DISSECTOR_INCLUDES =	\
 	packet-bfd.h	\
 	packet-bgp.h	\
 	packet-bluetooth.h	\
-	packet-bpq.h	\
 	packet-bssap.h	\
 	packet-bssgp.h	\
 	packet-btatt.h		\
@@ -1549,7 +1548,6 @@ DISSECTOR_INCLUDES =	\
 	packet-ieee80211-radiotap-iter.h	\
 	packet-ieee80211-radiotap-defs.h	\
 	packet-ieee802154.h	\
-	packet-ieee8021ah.h	\
 	packet-ieee8023.h	\
 	packet-ieee802a.h	\
 	packet-igmp.h	\
@@ -1729,7 +1727,6 @@ DISSECTOR_INCLUDES =	\
 	packet-usb.h	\
 	packet-usb-hid.h	\
 	packet-vines.h	\
-	packet-vlan.h	\
 	packet-wap.h	\
 	packet-wccp.h	\
 	packet-windows-common.h	\

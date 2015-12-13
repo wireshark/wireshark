@@ -28,6 +28,7 @@
 #endif
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/epan.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
@@ -879,6 +880,7 @@ proto_register_frame(void)
 	    "Wiretap encapsulation type", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
 	wtap_fts_rec_dissector_table = register_dissector_table("wtap_fts_rec",
 	    "Wiretap file type for file-type-specific records", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_ALLOW_DUPLICATE);
+	register_capture_dissector_table("wtap_encap", "Wiretap encapsulation type");
 
 	proto_frame = proto_register_protocol("Frame", "Frame", "frame");
 	proto_pkt_comment = proto_register_protocol("Packet comments", "Pkt_Comment", "pkt_comment");

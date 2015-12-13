@@ -83,6 +83,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include "packet-vines.h"
 #include <epan/etypes.h>
 #include <epan/ppptypes.h>
@@ -308,10 +309,11 @@ typedef struct _e_vipc {
 	guint16 vipc_err_len;
 } e_vipc;
 
-void
+gboolean
 capture_vines(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	ld->vines++;
+	return TRUE;
 }
 
 static dissector_handle_t vines_ip_handle;
@@ -2015,6 +2017,8 @@ proto_reg_handoff_vines_icp(void)
 	vines_icp_handle = create_dissector_handle(dissect_vines_icp,
 	    proto_vines_icp);
 	dissector_add_uint("vines_ip.protocol", VIP_PROTO_ICP, vines_icp_handle);
+	register_capture_dissector("ethertype", ETHERTYPE_VINES_IP, capture_vines, proto_vines_ip);
+	register_capture_dissector("ethertype", ETHERTYPE_VINES_ECHO, capture_vines, proto_vines_echo);
 }
 
 /*

@@ -65,31 +65,25 @@ static int hf_enc_flags = -1;
 
 static gint ett_enc = -1;
 
-static void
+static gboolean
 capture_enc(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint32 af;
 
-  if (!BYTES_ARE_IN_FRAME(0, len, (int)BSD_ENC_HDRLEN)) {
-    ld->other++;
-    return;
-  }
+  if (!BYTES_ARE_IN_FRAME(0, len, (int)BSD_ENC_HDRLEN))
+    return FALSE;
 
   af = pntoh32(pd + offsetof(struct enchdr, af));
   switch (af) {
 
   case BSD_AF_INET:
-    capture_ip(pd, BSD_ENC_HDRLEN, len, ld, pseudo_header);
-    break;
+    return capture_ip(pd, BSD_ENC_HDRLEN, len, ld, pseudo_header);
 
   case BSD_AF_INET6_BSD:
-    capture_ipv6(pd, BSD_ENC_HDRLEN, len, ld, pseudo_header);
-    break;
-
-  default:
-    ld->other++;
-    break;
+    return capture_ipv6(pd, BSD_ENC_HDRLEN, len, ld, pseudo_header);
   }
+
+  return FALSE;
 }
 
 static const value_string af_vals[] = {
@@ -181,8 +175,6 @@ proto_register_enc(void)
                                       "ENC", "enc");
   proto_register_field_array(proto_enc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-
-  register_capture_dissector(WTAP_ENCAP_ENC, capture_enc, proto_enc);
 }
 
 void
@@ -196,6 +188,8 @@ proto_reg_handoff_enc(void)
 
   enc_handle  = create_dissector_handle(dissect_enc, proto_enc);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ENC, enc_handle);
+
+  register_capture_dissector("wtap_encap", WTAP_ENCAP_ENC, capture_enc, proto_enc);
 }
 
 /*

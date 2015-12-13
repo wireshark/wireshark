@@ -28,6 +28,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>
@@ -566,12 +567,11 @@ ip_defragment_cleanup(void)
   reassembly_table_destroy(&ip_reassembly_table);
 }
 
-void
+gboolean
 capture_ip(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_) {
-  if (!BYTES_ARE_IN_FRAME(offset, len, IPH_MIN_LEN)) {
-    ld->other++;
-    return;
-  }
+  if (!BYTES_ARE_IN_FRAME(offset, len, IPH_MIN_LEN))
+    return FALSE;
+
   switch (pd[offset + 9]) {
     case IP_PROTO_TCP:
       ld->tcp++;
@@ -599,6 +599,9 @@ capture_ip(const guchar *pd, int offset, int len, packet_counts *ld, const union
     default:
       ld->other++;
   }
+
+  /* We're incrementing "other", so consider this our packet */
+  return TRUE;
 }
 
 #ifdef HAVE_GEOIP
@@ -3215,6 +3218,7 @@ proto_reg_handoff_ip(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP4, ip_handle);
 
   heur_dissector_add("tipc", dissect_ip_heur, "IP over TIPC", "ip_tipc", proto_ip, HEURISTIC_ENABLE);
+  register_capture_dissector("ethertype", ETHERTYPE_IP, capture_ip, proto_ip);
 }
 
 /*

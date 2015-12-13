@@ -237,33 +237,29 @@ prism_rate_return(guint32 rate)
 }
 
 
-static void
+static gboolean
 capture_prism(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint32 cookie;
 
-  if (!BYTES_ARE_IN_FRAME(offset, len, 4)) {
-    ld->other++;
-    return;
-  }
+  if (!BYTES_ARE_IN_FRAME(offset, len, 4))
+    return FALSE;
 
   /* Some captures with DLT_PRISM have the AVS WLAN header */
   cookie = pntoh32(pd);
   if ((cookie == WLANCAP_MAGIC_COOKIE_V1) ||
       (cookie == WLANCAP_MAGIC_COOKIE_V2)) {
-    capture_wlancap(pd, offset, len, ld, pseudo_header);
-    return;
+    return capture_wlancap(pd, offset, len, ld, pseudo_header);
   }
 
   /* Prism header */
-  if (!BYTES_ARE_IN_FRAME(offset, len, PRISM_HEADER_LENGTH)) {
-    ld->other++;
-    return;
-  }
+  if (!BYTES_ARE_IN_FRAME(offset, len, PRISM_HEADER_LENGTH))
+    return FALSE;
+
   offset += PRISM_HEADER_LENGTH;
 
   /* 802.11 header follows */
-  capture_ieee80211(pd, offset, len, ld, pseudo_header);
+  return capture_ieee80211(pd, offset, len, ld, pseudo_header);
 }
 
 static int
@@ -558,8 +554,6 @@ void proto_register_ieee80211_prism(void)
                                         "prism");
   proto_register_field_array(proto_prism, hf_prism, array_length(hf_prism));
   proto_register_subtree_array(tree_array, array_length(tree_array));
-
-  register_capture_dissector(WTAP_ENCAP_IEEE_802_11_PRISM, capture_prism, proto_prism);
 }
 
 void proto_reg_handoff_ieee80211_prism(void)
@@ -571,6 +565,8 @@ void proto_reg_handoff_ieee80211_prism(void)
   ieee80211_handle = find_dissector("wlan");
   ieee80211_radio_handle = find_dissector("wlan_radio");
   wlancap_handle = find_dissector("wlancap");
+
+  register_capture_dissector("wtap_encap", WTAP_ENCAP_IEEE_802_11_PRISM, capture_prism, proto_prism);
 }
 
 /*

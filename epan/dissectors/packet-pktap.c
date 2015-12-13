@@ -94,22 +94,18 @@ static dissector_handle_t pktap_handle;
  * to host byte order in libwiretap.
  */
 
-static void
+static gboolean
 capture_pktap(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint32  hdrlen, rectype, dlt;
 
 	hdrlen = pletoh32(pd);
-	if (hdrlen < MIN_PKTAP_HDR_LEN || !BYTES_ARE_IN_FRAME(0, len, hdrlen)) {
-		ld->other++;
-		return;
-	}
+	if (hdrlen < MIN_PKTAP_HDR_LEN || !BYTES_ARE_IN_FRAME(0, len, hdrlen))
+		return FALSE;
 
 	rectype = pletoh32(pd+4);
-	if (rectype != PKT_REC_PACKET) {
-		ld->other++;
-		return;
-	}
+	if (rectype != PKT_REC_PACKET)
+		return FALSE;
 
 	dlt = pletoh32(pd+4);
 
@@ -117,14 +113,11 @@ capture_pktap(const guchar *pd, int offset _U_, int len, packet_counts *ld, cons
 	switch (dlt) {
 
 	case 1: /* DLT_EN10MB */
-		capture_eth(pd, hdrlen, len, ld, pseudo_header);
-		return;
+		return capture_eth(pd, hdrlen, len, ld, pseudo_header);
 
-	default:
-		break;
 	}
 
-	ld->other++;
+	return FALSE;
 }
 
 static int
@@ -278,13 +271,6 @@ proto_register_pktap(void)
 	expert_pktap = expert_register_protocol(proto_pktap);
 	expert_register_field_array(expert_pktap, ei, array_length(ei));
 
-	/* XXX - WTAP_ENCAP_USER2 to handle Mavericks' botch wherein it
-		uses DLT_USER2 for PKTAP; if you are using DLT_USER2 for your
-		own purposes, feel free to call your own capture_ routine for
-		WTAP_ENCAP_USER2. */
-	register_capture_dissector(WTAP_ENCAP_PKTAP, capture_pktap, proto_pktap);
-	register_capture_dissector(WTAP_ENCAP_USER2, capture_pktap, proto_pktap);
-
 	pktap_handle = register_dissector("pktap", dissect_pktap, proto_pktap);
 }
 
@@ -292,6 +278,13 @@ void
 proto_reg_handoff_pktap(void)
 {
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_PKTAP, pktap_handle);
+
+	/* XXX - WTAP_ENCAP_USER2 to handle Mavericks' botch wherein it
+		uses DLT_USER2 for PKTAP; if you are using DLT_USER2 for your
+		own purposes, feel free to call your own capture_ routine for
+		WTAP_ENCAP_USER2. */
+	register_capture_dissector("wtap_encap", WTAP_ENCAP_PKTAP, capture_pktap, proto_pktap);
+	register_capture_dissector("wtap_encap", WTAP_ENCAP_USER2, capture_pktap, proto_pktap);
 }
 
 /*

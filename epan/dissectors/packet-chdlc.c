@@ -113,20 +113,17 @@ const value_string chdlc_vals[] = {
   {0,                     NULL}
 };
 
-void
+gboolean
 capture_chdlc( const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_ ) {
-  if (!BYTES_ARE_IN_FRAME(offset, len, 4)) {
-    ld->other++;
-    return;
-  }
+  if (!BYTES_ARE_IN_FRAME(offset, len, 4))
+    return FALSE;
+
   switch (pntoh16(&pd[offset + 2])) {
     case ETHERTYPE_IP:
-      capture_ip(pd, offset + 4, len, ld, pseudo_header);
-      break;
-    default:
-      ld->other++;
-      break;
+      return capture_ip(pd, offset + 4, len, ld, pseudo_header);
   }
+
+  return FALSE;
 }
 
 void
@@ -233,8 +230,6 @@ proto_register_chdlc(void)
   proto_register_field_array(proto_chdlc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_capture_dissector(WTAP_ENCAP_CHDLC, capture_chdlc, proto_chdlc);
-
   /* subdissector code */
   subdissector_table = register_dissector_table("chdlc.protocol",
                                                 "Cisco HDLC protocol",
@@ -265,6 +260,8 @@ proto_reg_handoff_chdlc(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_CHDLC_WITH_PHDR, chdlc_handle);
   dissector_add_uint("juniper.proto", JUNIPER_PROTO_CHDLC, chdlc_handle);
   dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_CHDLC, chdlc_handle);
+
+  register_capture_dissector("wtap_encap", WTAP_ENCAP_CHDLC, capture_chdlc, proto_chdlc);
 }
 
 

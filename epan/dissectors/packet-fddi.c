@@ -199,15 +199,14 @@ fddi_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
   return 1;
 }
 
-static void
+static gboolean
 capture_fddi(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
   int fc;
 
-  if (!BYTES_ARE_IN_FRAME(0, len, FDDI_HEADER_SIZE + FDDI_PADDING)) {
-    ld->other++;
-    return;
-  }
+  if (!BYTES_ARE_IN_FRAME(0, len, FDDI_HEADER_SIZE + FDDI_PADDING))
+    return FALSE;
+
   offset = FDDI_PADDING + FDDI_HEADER_SIZE;
 
   fc = (int) pd[FDDI_P_FC+FDDI_PADDING];
@@ -232,14 +231,10 @@ capture_fddi(const guchar *pd, int offset, int len, packet_counts *ld, const uni
     case FDDI_FC_LLC_ASYNC + 13 :
     case FDDI_FC_LLC_ASYNC + 14 :
     case FDDI_FC_LLC_ASYNC + 15 :
-      capture_llc(pd, offset, len, ld, pseudo_header);
-      return;
-    default :
-      ld->other++;
-      return;
-
+      return capture_llc(pd, offset, len, ld, pseudo_header);
   } /* fc */
 
+  return FALSE;
 } /* capture_fddi */
 
 static const gchar *
@@ -519,9 +514,6 @@ proto_register_fddi(void)
    */
   register_dissector("fddi", dissect_fddi_not_bitswapped, proto_fddi);
 
-  register_capture_dissector(WTAP_ENCAP_FDDI, capture_fddi, proto_fddi);
-  register_capture_dissector(WTAP_ENCAP_FDDI_BITSWAPPED, capture_fddi, proto_fddi);
-
   fddi_module = prefs_register_protocol(proto_fddi, NULL);
   prefs_register_bool_preference(fddi_module, "padding",
                                  "Add 3-byte padding to all FDDI packets",
@@ -552,6 +544,9 @@ proto_reg_handoff_fddi(void)
     create_dissector_handle(dissect_fddi_bitswapped, proto_fddi);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED,
                      fddi_bitswapped_handle);
+
+  register_capture_dissector("wtap_encap", WTAP_ENCAP_FDDI, capture_fddi, proto_fddi);
+  register_capture_dissector("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED, capture_fddi, proto_fddi);
 }
 
 /*

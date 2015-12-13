@@ -23,10 +23,10 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <wsutil/pint.h>
 #include <epan/addr_resolv.h>
 
-#include "packet-ieee8021ah.h"
 #include "packet-ipx.h"
 #include "packet-llc.h"
 #include <epan/etypes.h>
@@ -72,31 +72,33 @@ static int hf_ieee8021ah_trailer = -1;
 static gint ett_ieee8021ah = -1;
 static gint ett_ieee8021ad = -1;
 
+#define IEEE8021AD_LEN 4
+#define IEEE8021AH_LEN 18
+#define IEEE8021AH_ISIDMASK 0x00FFFFFF
+
 /* FUNCTIONS ************************************************************/
 
 
-void
+static gboolean
 capture_ieee8021ah(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
     guint16 encap_proto;
 
-    if (!BYTES_ARE_IN_FRAME(offset, len, IEEE8021AH_LEN + 1)) {
-        ld->other++;
-        return;
-    }
+    if (!BYTES_ARE_IN_FRAME(offset, len, IEEE8021AH_LEN + 1))
+        return FALSE;
+
     encap_proto = pntoh16( &pd[offset + IEEE8021AH_LEN - 2] );
     if (encap_proto <= IEEE_802_3_MAX_LEN) {
         if ( pd[offset + IEEE8021AH_LEN] == 0xff
              && pd[offset + IEEE8021AH_LEN + 1] == 0xff ) {
-            capture_ipx(pd, offset + IEEE8021AH_LEN, len, ld, pseudo_header);
+            return capture_ipx(pd, offset + IEEE8021AH_LEN, len, ld, pseudo_header);
         }
         else {
-            capture_llc(pd, offset + IEEE8021AH_LEN, len, ld, pseudo_header);
+            return capture_llc(pd, offset + IEEE8021AH_LEN, len, ld, pseudo_header);
         }
     }
-    else {
-        capture_ethertype(encap_proto, pd, offset + IEEE8021AH_LEN, len, ld, pseudo_header);
-    }
+
+    return try_capture_dissector("ethertype", encap_proto, pd, offset + IEEE8021AH_LEN, len, ld, pseudo_header);
 }
 
 /* Dissector *************************************************************/
@@ -438,6 +440,8 @@ proto_reg_handoff_ieee8021ah(void)
 
     old_ieee8021ah_ethertype = ieee8021ah_ethertype;
     dissector_add_uint("ethertype", ieee8021ah_ethertype, ieee8021ah_handle);
+    register_capture_dissector("ethertype", ETHERTYPE_IEEE_802_1AD, capture_ieee8021ah, proto_ieee8021ah);
+    register_capture_dissector("ethertype", ETHERTYPE_IEEE_802_1AH, capture_ieee8021ah, proto_ieee8021ah);
 
 }
 

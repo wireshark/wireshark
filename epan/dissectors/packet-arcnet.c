@@ -81,20 +81,18 @@ static int arcnet_len(void)
   return 1;
 }
 
-static void
+static gboolean
 capture_arcnet_common(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_, gboolean has_exception)
 {
   if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
-    ld->other++;
-    return;
+    return FALSE;
   }
 
   switch (pd[offset]) {
 
   case ARCNET_PROTO_IP_1051:
     /* No fragmentation stuff in the header */
-    capture_ip(pd, offset + 1, len, ld, pseudo_header);
-    break;
+    return capture_ip(pd, offset + 1, len, ld, pseudo_header);
 
   case ARCNET_PROTO_IP_1201:
     /*
@@ -125,8 +123,7 @@ capture_arcnet_common(const guchar *pd, int offset, int len, packet_counts *ld, 
      */
     offset++;
     if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
-      ld->other++;
-      return;
+      return FALSE;
     }
     if (has_exception && pd[offset] == 0xff) {
       /* This is an exception packet.  The flag value there is the
@@ -135,8 +132,7 @@ capture_arcnet_common(const guchar *pd, int offset, int len, packet_counts *ld, 
          type appears after the padding. */
       offset += 4;
     }
-    capture_ip(pd, offset + 3, len, ld, pseudo_header);
-    break;
+    return capture_ip(pd, offset + 3, len, ld, pseudo_header);
 
   case ARCNET_PROTO_ARP_1051:
   case ARCNET_PROTO_ARP_1201:
@@ -151,21 +147,22 @@ capture_arcnet_common(const guchar *pd, int offset, int len, packet_counts *ld, 
     break;
 
   default:
-    ld->other++;
-    break;
+    return FALSE;
   }
+
+  return TRUE;
 }
 
-static void
+static gboolean
 capture_arcnet (const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
-  capture_arcnet_common(pd, 4, len, ld, pseudo_header, FALSE);
+  return capture_arcnet_common(pd, 4, len, ld, pseudo_header, FALSE);
 }
 
-static void
+static gboolean
 capture_arcnet_has_exception(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
-  capture_arcnet_common(pd, 2, len, ld, pseudo_header, TRUE);
+  return capture_arcnet_common(pd, 2, len, ld, pseudo_header, TRUE);
 }
 
 static void
@@ -396,9 +393,6 @@ proto_register_arcnet (void)
   proto_register_field_array (proto_arcnet, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 
-  register_capture_dissector(WTAP_ENCAP_ARCNET_LINUX, capture_arcnet, proto_arcnet);
-  register_capture_dissector(WTAP_ENCAP_ARCNET, capture_arcnet_has_exception, proto_arcnet);
-
   arcnet_address_type = address_type_dissector_register("AT_ARCNET", "ARCNET Address", arcnet_to_str, arcnet_str_len, arcnet_col_filter_str, arcnet_len, NULL, NULL);
 }
 
@@ -411,9 +405,11 @@ proto_reg_handoff_arcnet (void)
   arcnet_handle = create_dissector_handle (dissect_arcnet, proto_arcnet);
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_ARCNET, arcnet_handle);
 
-  arcnet_linux_handle = create_dissector_handle (dissect_arcnet_linux,
-                                                 proto_arcnet);
+  arcnet_linux_handle = create_dissector_handle (dissect_arcnet_linux, proto_arcnet);
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_ARCNET_LINUX, arcnet_linux_handle);
+
+  register_capture_dissector("wtap_encap", WTAP_ENCAP_ARCNET_LINUX, capture_arcnet, proto_arcnet);
+  register_capture_dissector("wtap_encap", WTAP_ENCAP_ARCNET, capture_arcnet_has_exception, proto_arcnet);
   data_handle = find_dissector ("data");
 }
 

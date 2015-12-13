@@ -25,12 +25,12 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <wsutil/pint.h>
 #include <epan/expert.h>
 #include "packet-ieee8023.h"
 #include "packet-ipx.h"
 #include "packet-llc.h"
-#include "packet-vlan.h"
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
@@ -98,23 +98,22 @@ static gint ett_vlan = -1;
 
 static expert_field ei_vlan_len = EI_INIT;
 
-void
+static gboolean
 capture_vlan(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_ ) {
   guint16 encap_proto;
-  if ( !BYTES_ARE_IN_FRAME(offset,len,5) ) {
-    ld->other++;
-    return;
-  }
+  if ( !BYTES_ARE_IN_FRAME(offset,len,5) )
+    return FALSE;
+
   encap_proto = pntoh16( &pd[offset+2] );
   if ( encap_proto <= IEEE_802_3_MAX_LEN) {
     if ( pd[offset+4] == 0xff && pd[offset+5] == 0xff ) {
-      capture_ipx(pd,offset+4,len,ld, pseudo_header);
+      return capture_ipx(pd,offset+4,len,ld, pseudo_header);
     } else {
-      capture_llc(pd,offset+4,len,ld, pseudo_header);
+      return capture_llc(pd,offset+4,len,ld, pseudo_header);
     }
-  } else {
-    capture_ethertype(encap_proto, pd, offset+4, len, ld, pseudo_header);
   }
+
+  return try_capture_dissector("ethertype", encap_proto, pd, offset+4, len, ld, pseudo_header);
 }
 
 static void
@@ -269,6 +268,7 @@ proto_reg_handoff_vlan(void)
   ethertype_handle = find_dissector("ethertype");
 
   dissector_add_uint("ethertype", q_in_q_ethertype, vlan_handle);
+  register_capture_dissector("ethertype", ETHERTYPE_VLAN, capture_vlan, hfi_vlan->id);
 }
 
 /*

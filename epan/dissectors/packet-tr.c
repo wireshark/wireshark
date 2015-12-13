@@ -246,7 +246,7 @@ int check_for_old_linux(const guchar * pd)
 static void
 add_ring_bridge_pairs(int rcf_len, tvbuff_t*, proto_tree *tree);
 
-void
+gboolean
 capture_tr(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_) {
 
 	int			source_routed = 0;
@@ -260,10 +260,8 @@ capture_tr(const guchar *pd, int offset, int len, packet_counts *ld, const union
 	guint8			trn_fc;		/* field control field */
 	const guint8		*trn_shost;	/* source host */
 
-	if (!BYTES_ARE_IN_FRAME(offset, len, TR_MIN_HEADER_LEN)) {
-		ld->other++;
-		return;
-	}
+	if (!BYTES_ARE_IN_FRAME(offset, len, TR_MIN_HEADER_LEN))
+		return FALSE;
 
 	if ((x = check_for_old_linux(pd)))
 	{
@@ -359,20 +357,13 @@ capture_tr(const guchar *pd, int offset, int len, packet_counts *ld, const union
 
 	offset += actual_rif_bytes + TR_MIN_HEADER_LEN;
 
-	/* The package is either MAC or LLC */
+	/* The package is either MAC (0) or LLC (1)*/
 	switch (frame_type) {
-		/* MAC */
-		case 0:
-			ld->other++;
-			break;
 		case 1:
-			capture_llc(pd, offset, len, ld, pseudo_header);
-			break;
-		default:
-			/* non-MAC, non-LLC, i.e., "Reserved" */
-			ld->other++;
-			break;
+			return capture_llc(pd, offset, len, ld, pseudo_header);
 	}
+
+	return FALSE;
 }
 
 
@@ -801,7 +792,6 @@ proto_register_tr(void)
 	    &fix_linux_botches);
 
 	register_dissector("tr", dissect_tr, proto_tr);
-	register_capture_dissector(WTAP_ENCAP_TOKEN_RING, capture_tr, proto_tr);
 	tr_tap=register_tap("tr");
 
 	register_conversation_table(proto_tr, TRUE, tr_conversation_packet, tr_hostlist_packet);
@@ -822,6 +812,8 @@ proto_reg_handoff_tr(void)
 	tr_handle = find_dissector("tr");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_TOKEN_RING, tr_handle);
 	dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_TOKENRING, tr_handle);
+
+	register_capture_dissector("wtap_encap", WTAP_ENCAP_TOKEN_RING, capture_tr, proto_tr);
 }
 
 /*

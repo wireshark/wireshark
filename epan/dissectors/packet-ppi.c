@@ -386,33 +386,27 @@ static reassembly_table ampdu_reassembly_table;
 static gboolean ppi_ampdu_reassemble = TRUE;
 
 
-static void
+static gboolean
 capture_ppi(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
     guint32  dlt;
     guint    ppi_len;
 
     ppi_len = pletoh16(pd+2);
-    if(ppi_len < PPI_V0_HEADER_LEN || !BYTES_ARE_IN_FRAME(0, len, ppi_len)) {
-        ld->other++;
-        return;
-    }
+    if(ppi_len < PPI_V0_HEADER_LEN || !BYTES_ARE_IN_FRAME(0, len, ppi_len))
+        return FALSE;
 
     dlt = pletoh32(pd+4);
 
     /* XXX - We should probably combine this with capture_info.c:capture_info_packet() */
     switch(dlt) {
         case 1: /* DLT_EN10MB */
-            capture_eth(pd, ppi_len, len, ld, pseudo_header);
-            return;
+            return capture_eth(pd, ppi_len, len, ld, pseudo_header);
         case 105: /* DLT_DLT_IEEE802_11 */
-            capture_ieee80211(pd, ppi_len, len, ld, pseudo_header);
-            return;
-        default:
-            break;
+            return capture_ieee80211(pd, ppi_len, len, ld, pseudo_header);
     }
 
-    ld->other++;
+    return FALSE;
 }
 
 static void
@@ -1495,7 +1489,6 @@ proto_register_ppi(void)
     expert_register_field_array(expert_ppi, ei, array_length(ei));
 
     ppi_handle = register_dissector("ppi", dissect_ppi, proto_ppi);
-    register_capture_dissector(WTAP_ENCAP_PPI, capture_ppi, proto_ppi);
 
     register_init_routine(ampdu_reassemble_init);
     register_cleanup_routine(ampdu_reassemble_cleanup);
@@ -1520,6 +1513,7 @@ proto_reg_handoff_ppi(void)
     ppi_fnet_handle = find_dissector("ppi_fnet");
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_PPI, ppi_handle);
+    register_capture_dissector("wtap_encap", WTAP_ENCAP_PPI, capture_ppi, proto_ppi);
 }
 
 /*
