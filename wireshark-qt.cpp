@@ -1175,7 +1175,7 @@ DIAG_ON(cast-qual)
     // XXX Is there a better place to set the timestamp format & precision?
     timestamp_set_type(recent.gui_time_format);
     timestamp_set_precision(recent.gui_time_precision);
-    timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
+    timestamp_set_seconds_type (recent.gui_seconds_format);
 
 #ifdef HAVE_LIBPCAP
     fill_in_local_interfaces(main_window_update);
