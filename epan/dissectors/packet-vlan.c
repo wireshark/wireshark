@@ -99,7 +99,7 @@ static gint ett_vlan = -1;
 static expert_field ei_vlan_len = EI_INIT;
 
 void
-capture_vlan(const guchar *pd, int offset, int len, packet_counts *ld ) {
+capture_vlan(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_ ) {
   guint16 encap_proto;
   if ( !BYTES_ARE_IN_FRAME(offset,len,5) ) {
     ld->other++;
@@ -108,12 +108,12 @@ capture_vlan(const guchar *pd, int offset, int len, packet_counts *ld ) {
   encap_proto = pntoh16( &pd[offset+2] );
   if ( encap_proto <= IEEE_802_3_MAX_LEN) {
     if ( pd[offset+4] == 0xff && pd[offset+5] == 0xff ) {
-      capture_ipx(ld);
+      capture_ipx(pd,offset+4,len,ld, pseudo_header);
     } else {
-      capture_llc(pd,offset+4,len,ld, NULL);
+      capture_llc(pd,offset+4,len,ld, pseudo_header);
     }
   } else {
-    capture_ethertype(encap_proto, pd, offset+4, len, ld);
+    capture_ethertype(encap_proto, pd, offset+4, len, ld, pseudo_header);
   }
 }
 

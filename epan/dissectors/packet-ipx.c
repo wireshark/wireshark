@@ -273,7 +273,7 @@ static const value_string ipxmsg_sigchar_vals[] = {
 };
 
 void
-capture_ipx(packet_counts *ld)
+capture_ipx(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	ld->ipx++;
 }

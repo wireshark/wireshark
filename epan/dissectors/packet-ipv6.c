@@ -525,7 +525,7 @@ static const value_string ipv6_opt_vals[] = {
 
 
 void
-capture_ipv6(const guchar *pd, int offset, int len, packet_counts *ld)
+capture_ipv6(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
     guint8 nxt;
     int    advance;

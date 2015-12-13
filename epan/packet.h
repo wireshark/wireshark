@@ -701,7 +701,7 @@ extern void dissect_file(struct epan_dissect *edt,
 
 /* These functions are in packet-ethertype.c */
 extern void capture_ethertype(guint16 etype, const guchar *pd, int offset,
-		int len, packet_counts *ld);
+		int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header);
 /* Structure passed to the ethertype dissector */
 typedef struct ethertype_data_s
 {

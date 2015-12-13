@@ -567,7 +567,7 @@ ip_defragment_cleanup(void)
 }
 
 void
-capture_ip(const guchar *pd, int offset, int len, packet_counts *ld) {
+capture_ip(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_) {
   if (!BYTES_ARE_IN_FRAME(offset, len, IPH_MIN_LEN)) {
     ld->other++;
     return;

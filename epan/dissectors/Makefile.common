@@ -1609,7 +1609,6 @@ DISSECTOR_INCLUDES =	\
 	packet-netlink.h	\
 	packet-netrom.h	\
 	packet-nfs.h	\
-	packet-nhrp.h	\
 	packet-nisplus.h	\
 	packet-nlm.h	\
 	packet-ntlmssp.h	\

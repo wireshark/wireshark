@@ -282,27 +282,27 @@ capture_llc(const guchar *pd, int offset, int len, packet_counts *ld, const unio
 		return;
 	}
 	if (is_snap)
-		capture_snap(pd, offset+llc_header_len, len, ld);
+		capture_snap(pd, offset+llc_header_len, len, ld, pseudo_header);
 	else {
 		/* non-SNAP */
 		switch (pd[offset]) {
 
 		case SAP_IP:
-			capture_ip(pd, offset + llc_header_len, len, ld);
+			capture_ip(pd, offset + llc_header_len, len, ld, pseudo_header);
 			break;
 
 		case SAP_NETWARE1:
 		case SAP_NETWARE2:
-			capture_ipx(ld);
+			capture_ipx(pd, offset + llc_header_len, len, ld, pseudo_header);
 			break;
 
 		case SAP_NETBIOS:
-			capture_netbios(ld);
+			capture_netbios(pd, offset + llc_header_len, len, ld, pseudo_header);
 			break;
 
 		case SAP_VINES1:
 		case SAP_VINES2:
-			capture_vines(ld);
+			capture_vines(pd, offset + llc_header_len, len, ld, pseudo_header);
 			break;
 
 		default:
@@ -313,7 +313,7 @@ capture_llc(const guchar *pd, int offset, int len, packet_counts *ld, const unio
 }
 
 void
-capture_snap(const guchar *pd, int offset, int len, packet_counts *ld)
+capture_snap(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint32		oui;
 	guint16		etype;
@@ -337,11 +337,11 @@ capture_snap(const guchar *pd, int offset, int len, packet_counts *ld)
 		   AppleTalk data packets - but used
 		   OUI_ENCAP_ETHER and an Ethernet
 		   packet type for AARP packets. */
-		capture_ethertype(etype, pd, offset+5, len, ld);
+		capture_ethertype(etype, pd, offset+5, len, ld, pseudo_header);
 		break;
 
 	case OUI_CISCO:
-		capture_ethertype(etype, pd, offset+5, len, ld);
+		capture_ethertype(etype, pd, offset+5, len, ld, pseudo_header);
 		break;
 
 	case OUI_MARVELL:
@@ -351,7 +351,7 @@ capture_snap(const guchar *pd, int offset, int len, packet_counts *ld)
 		 * the payload.  (We assume the header is
 		 * 5 bytes, for now).
 		 */
-		capture_ethertype(etype, pd, offset+5+5, len, ld);
+		capture_ethertype(etype, pd, offset+5+5, len, ld, pseudo_header);
 		break;
 
 	default:

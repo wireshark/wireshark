@@ -79,11 +79,11 @@ capture_enc(const guchar *pd, int offset _U_, int len, packet_counts *ld, const 
   switch (af) {
 
   case BSD_AF_INET:
-    capture_ip(pd, BSD_ENC_HDRLEN, len, ld);
+    capture_ip(pd, BSD_ENC_HDRLEN, len, ld, pseudo_header);
     break;
 
   case BSD_AF_INET6_BSD:
-    capture_ipv6(pd, BSD_ENC_HDRLEN, len, ld);
+    capture_ipv6(pd, BSD_ENC_HDRLEN, len, ld, pseudo_header);
     break;
 
   default:

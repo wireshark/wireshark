@@ -40,7 +40,6 @@
 #include <epan/in_cksum.h>
 #include "packet-iana-oui.h"
 #include "packet-llc.h"
-#include "packet-nhrp.h"
 #include "packet-gre.h"
 
 void proto_register_nhrp(void);

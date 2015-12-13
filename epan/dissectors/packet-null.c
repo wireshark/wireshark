@@ -317,19 +317,19 @@ capture_null( const guchar *pd, int offset _U_, int len, packet_counts *ld, cons
      * BSD derivatives have different values?).
      */
     if (null_header > IEEE_802_3_MAX_LEN)
-      capture_ethertype((guint16) null_header, pd, 4, len, ld);
+      capture_ethertype((guint16) null_header, pd, 4, len, ld, pseudo_header);
     else {
 
       switch (null_header) {
 
       case BSD_AF_INET:
-        capture_ip(pd, 4, len, ld);
+        capture_ip(pd, 4, len, ld, pseudo_header);
         break;
 
       case BSD_AF_INET6_BSD:
       case BSD_AF_INET6_FREEBSD:
       case BSD_AF_INET6_DARWIN:
-        capture_ipv6(pd, 4, len, ld);
+        capture_ipv6(pd, 4, len, ld, pseudo_header);
         break;
 
       default:
@@ -354,13 +354,13 @@ capture_loop( const guchar *pd, int offset _U_, int len, packet_counts *ld, cons
   switch (loop_family) {
 
   case BSD_AF_INET:
-    capture_ip(pd, 4, len, ld);
+    capture_ip(pd, 4, len, ld, pseudo_header);
     break;
 
   case BSD_AF_INET6_BSD:
   case BSD_AF_INET6_FREEBSD:
   case BSD_AF_INET6_DARWIN:
-    capture_ipv6(pd, 4, len, ld);
+    capture_ipv6(pd, 4, len, ld, pseudo_header);
     break;
 
   default:

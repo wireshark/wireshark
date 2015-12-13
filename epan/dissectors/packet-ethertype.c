@@ -206,37 +206,37 @@ static void add_dix_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh
 
 void
 capture_ethertype(guint16 etype, const guchar *pd, int offset, int len,
-		  packet_counts *ld)
+		  packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	switch (etype) {
 	case ETHERTYPE_ARP:
 		ld->arp++;
 		break;
 	case ETHERTYPE_IP:
-		capture_ip(pd, offset, len, ld);
+		capture_ip(pd, offset, len, ld, pseudo_header);
 		break;
 	case ETHERTYPE_IPv6:
-		capture_ipv6(pd, offset, len, ld);
+		capture_ipv6(pd, offset, len, ld, pseudo_header);
 		break;
 	case ETHERTYPE_IPX:
-		capture_ipx(ld);
+		capture_ipx(pd, offset, len, ld, pseudo_header);
 		break;
 	case ETHERTYPE_VLAN:
-		capture_vlan(pd, offset, len, ld);
+		capture_vlan(pd, offset, len, ld, pseudo_header);
 		break;
 	case ETHERTYPE_IEEE_802_1AD:
 	case ETHERTYPE_IEEE_802_1AH:
-		capture_ieee8021ah(pd, offset, len, ld);
+		capture_ieee8021ah(pd, offset, len, ld, pseudo_header);
 		break;
 	case ETHERTYPE_VINES_IP:
 	case ETHERTYPE_VINES_ECHO:
-		capture_vines(ld);
+		capture_vines(pd, offset, len, ld, pseudo_header);
 		break;
 	case ETHERTYPE_BPQ:
-		capture_bpq(pd, offset, len, ld, NULL);
+		capture_bpq(pd, offset, len, ld, pseudo_header);
 		break;
 	case ETHERTYPE_JUMBO_LLC:
-		capture_llc(pd, offset, len, ld, NULL);
+		capture_llc(pd, offset, len, ld, pseudo_header);
 		break;
 	default:
 		ld->other++;

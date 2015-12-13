@@ -272,13 +272,13 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld, const unio
 
   switch (ethhdr_type) {
     case ETHERNET_802_3:
-      capture_ipx(ld);
+      capture_ipx(pd, offset, len, ld, pseudo_header);
       break;
     case ETHERNET_802_2:
       capture_llc(pd, offset, len, ld, pseudo_header);
       break;
     case ETHERNET_II:
-      capture_ethertype(etype, pd, offset, len, ld);
+      capture_ethertype(etype, pd, offset, len, ld, pseudo_header);
       break;
   }
 }

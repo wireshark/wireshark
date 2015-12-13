@@ -33,7 +33,7 @@ extern "C" {
 
 extern
 void capture_ieee80211 (const guchar *, int, int, packet_counts *, const union wtap_pseudo_header *pseudo_header);
-void capture_ieee80211_datapad (const guchar *, int, int, packet_counts *);
+void capture_ieee80211_datapad (const guchar *, int, int, packet_counts *, const union wtap_pseudo_header *pseudo_header);
 
 extern
 void capture_wlancap(const guchar *, int, int, packet_counts *, const union wtap_pseudo_header *pseudo_header);

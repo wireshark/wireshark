@@ -285,7 +285,7 @@ static const value_string max_frame_size_vals[] = {
 
 
 void
-capture_netbios(packet_counts *ld)
+capture_netbios(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	ld->netbios++;
 }

@@ -69,7 +69,7 @@ capture_raw(const guchar *pd, int offset _U_, int len, packet_counts *ld, const 
   /* ...and if the connection is currently down, it sends 10 bytes of zeroes
    * instead of a fake MAC address and PPP header. */
   else if (BYTES_ARE_IN_FRAME(0,len,10) && memcmp(pd, zeroes, 10) == 0) {
-    capture_ip(pd, 10, len, ld);
+    capture_ip(pd, 10, len, ld, pseudo_header);
   }
   else {
     /*
@@ -80,13 +80,13 @@ capture_raw(const guchar *pd, int offset _U_, int len, packet_counts *ld, const 
 
       case 0x40:
         /* IPv4 */
-        capture_ip(pd, 0, len, ld);
+        capture_ip(pd, 0, len, ld, pseudo_header);
         break;
 
 #if 0
       case 0x60:
         /* IPv6 */
-        capture_ipv6(pd, 0, len, ld);
+        capture_ipv6(pd, 0, len, ld, pseudo_header);
         break;
 #endif
       }

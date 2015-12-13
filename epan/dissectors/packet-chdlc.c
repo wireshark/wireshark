@@ -121,7 +121,7 @@ capture_chdlc( const guchar *pd, int offset, int len, packet_counts *ld, const u
   }
   switch (pntoh16(&pd[offset + 2])) {
     case ETHERTYPE_IP:
-      capture_ip(pd, offset + 4, len, ld);
+      capture_ip(pd, offset + 4, len, ld, pseudo_header);
       break;
     default:
       ld->other++;

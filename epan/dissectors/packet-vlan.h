@@ -22,6 +22,6 @@
 #ifndef __PACKET_VLAN_H__
 #define __PACKET_VLAN_H__
 
-void capture_vlan(const guchar *, int, int, packet_counts *);
+void capture_vlan(const guchar *, int, int, packet_counts *, const union wtap_pseudo_header *pseudo_header);
 
 #endif

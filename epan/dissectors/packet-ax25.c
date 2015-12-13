@@ -284,10 +284,18 @@ capture_ax25( const guchar *pd, int offset, int len, packet_counts *ld, const un
 		l_offset += 1; /* step over the pid and point to the first byte of the payload */
 		switch ( pid & 0x0ff )
 			{
-			case AX25_P_NETROM	: capture_netrom( pd, l_offset, len, ld ); break;
-			case AX25_P_IP		: capture_ip( pd, l_offset, len, ld ); break;
-			case AX25_P_ARP		: ld->arp++; break;
-			default			: ld->other++; break;
+			case AX25_P_NETROM	:
+				capture_netrom( pd, l_offset, len, ld, pseudo_header );
+				break;
+			case AX25_P_IP		:
+				capture_ip( pd, l_offset, len, ld, pseudo_header );
+				break;
+			case AX25_P_ARP		:
+				ld->arp++;
+				break;
+			default			:
+				ld->other++;
+				break;
 			}
 		}
 }

@@ -58,7 +58,7 @@ capture_ap1394(const guchar *pd, int offset, int len, packet_counts *ld, const u
 
   etype = pntoh16(&pd[offset]);
   offset += 2;
-  capture_ethertype(etype, pd, offset, len, ld);
+  capture_ethertype(etype, pd, offset, len, ld, pseudo_header);
 }
 
 static int

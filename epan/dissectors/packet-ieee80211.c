@@ -5622,7 +5622,7 @@ add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t *tvb
 /* ************************************************************************* */
 static void
 capture_ieee80211_common (const guchar * pd, int offset, int len,
-                          packet_counts * ld, gboolean datapad)
+                          packet_counts * ld, const union wtap_pseudo_header *pseudo_header _U_, gboolean datapad)
 {
   guint16 fcf, hdr_length;
 
@@ -5741,12 +5741,12 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
         }
 #endif
         if ((pd[offset+hdr_length] == 0xff) && (pd[offset+hdr_length+1] == 0xff))
-          capture_ipx (ld);
+          capture_ipx (pd, offset+hdr_length, len, ld, pseudo_header);
         else if ((pd[offset+hdr_length] == 0x00) && (pd[offset+hdr_length+1] == 0x00))
-          capture_llc (pd, offset + hdr_length + 2, len, ld, NULL);
+          capture_llc (pd, offset + hdr_length + 2, len, ld, pseudo_header);
       }
       else {
-        capture_llc (pd, offset + hdr_length, len, ld, NULL);
+        capture_llc (pd, offset + hdr_length, len, ld, pseudo_header);
       }
       break;
     }
@@ -5763,7 +5763,7 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
 void
 capture_ieee80211 (const guchar * pd, int offset, int len, packet_counts * ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
-  capture_ieee80211_common (pd, offset, len, ld, FALSE);
+  capture_ieee80211_common (pd, offset, len, ld, pseudo_header, FALSE);
 }
 
 /*
@@ -5771,9 +5771,9 @@ capture_ieee80211 (const guchar * pd, int offset, int len, packet_counts * ld, c
  */
 void
 capture_ieee80211_datapad (const guchar * pd, int offset, int len,
-                           packet_counts * ld)
+                           packet_counts * ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
-  capture_ieee80211_common (pd, offset, len, ld, TRUE);
+  capture_ieee80211_common (pd, offset, len, ld, pseudo_header, TRUE);
 }
 
 

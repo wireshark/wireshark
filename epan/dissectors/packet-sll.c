@@ -173,7 +173,7 @@ capture_sll(const guchar *pd, int offset _U_, int len, packet_counts *ld, const 
 			 * Novell IPX inside 802.3 with no 802.2 LLC
 			 * header.
 			 */
-			capture_ipx(ld);
+			capture_ipx(pd, SLL_HEADER_SIZE, len, ld, pseudo_header);
 			break;
 
 		case LINUX_SLL_P_PPPHDLC:
@@ -188,7 +188,7 @@ capture_sll(const guchar *pd, int offset _U_, int len, packet_counts *ld, const 
 			break;
 		}
 	} else
-		capture_ethertype(protocol, pd, SLL_HEADER_SIZE, len, ld);
+		capture_ethertype(protocol, pd, SLL_HEADER_SIZE, len, ld, pseudo_header);
 }
 
 static int

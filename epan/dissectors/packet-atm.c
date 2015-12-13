@@ -664,8 +664,8 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-capture_lane(const union wtap_pseudo_header *pseudo_header, const guchar *pd,
-    int len, packet_counts *ld)
+capture_lane(const guchar *pd, int offset _U_,
+    int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header)
 {
   /* Is it LE Control, 802.3, 802.5, or "none of the above"? */
   switch (pseudo_header->atm.subtype) {
@@ -820,7 +820,7 @@ capture_atm(const guchar *pd, int offset _U_,
       break;
 
     case TRAF_LANE:
-      capture_lane(pseudo_header, pd, len, ld);
+      capture_lane(pd, offset, len, ld, pseudo_header);
       break;
 
     default:

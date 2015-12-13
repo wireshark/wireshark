@@ -26,6 +26,6 @@
 #define IEEE8021AH_LEN 18
 #define IEEE8021AH_ISIDMASK 0x00FFFFFF
 
-void capture_ieee8021ah(const guchar *, int, int, packet_counts *);
+void capture_ieee8021ah(const guchar *, int, int, packet_counts *, const union wtap_pseudo_header *pseudo_header);
 
 #endif

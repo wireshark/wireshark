@@ -46,7 +46,7 @@ static dissector_handle_t ip_handle;
 static void
 capture_clip( const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_ ) {
 
-    capture_ip(pd, offset, len, ld);
+    capture_ip(pd, offset, len, ld, pseudo_header);
 }
 
 static int

@@ -93,7 +93,7 @@ capture_arcnet_common(const guchar *pd, int offset, int len, packet_counts *ld, 
 
   case ARCNET_PROTO_IP_1051:
     /* No fragmentation stuff in the header */
-    capture_ip(pd, offset + 1, len, ld);
+    capture_ip(pd, offset + 1, len, ld, pseudo_header);
     break;
 
   case ARCNET_PROTO_IP_1201:
@@ -135,7 +135,7 @@ capture_arcnet_common(const guchar *pd, int offset, int len, packet_counts *ld, 
          type appears after the padding. */
       offset += 4;
     }
-    capture_ip(pd, offset + 3, len, ld);
+    capture_ip(pd, offset + 3, len, ld, pseudo_header);
     break;
 
   case ARCNET_PROTO_ARP_1051:

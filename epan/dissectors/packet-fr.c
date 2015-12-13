@@ -337,11 +337,11 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld, const union
       switch (fr_nlpid) {
 
       case NLPID_IP:
-        capture_ip(pd, offset, len, ld);
+        capture_ip(pd, offset, len, ld, pseudo_header);
         break;
 
       case NLPID_IP6:
-        capture_ipv6(pd, offset, len, ld);
+        capture_ipv6(pd, offset, len, ld, pseudo_header);
         break;
 
       case NLPID_PPP:
@@ -349,7 +349,7 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld, const union
         break;
 
       case NLPID_SNAP:
-        capture_snap(pd, offset, len, ld);
+        capture_snap(pd, offset, len, ld, pseudo_header);
         break;
 
       default:

@@ -1967,13 +1967,13 @@ capture_ppp_hdlc(const guchar *pd, int offset, int len, packet_counts *ld, const
     }
     switch (pntoh16(&pd[offset + 2])) {
     case PPP_IP:
-        capture_ip(pd, offset + 4, len, ld);
+        capture_ip(pd, offset + 4, len, ld, pseudo_header);
         break;
     case PPP_IPX:
-        capture_ipx(ld);
+        capture_ipx(pd, offset + 4, len, ld, pseudo_header);
         break;
     case PPP_VINES:
-        capture_vines(ld);
+        capture_vines(pd, offset + 4, len, ld, pseudo_header);
         break;
     default:
         ld->other++;

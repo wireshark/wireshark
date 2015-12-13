@@ -28,7 +28,7 @@ void capture_llc(const guchar *, int, int, packet_counts *, const union wtap_pse
 
 extern const value_string sap_vals[];
 
-void capture_snap(const guchar *, int, int, packet_counts *);
+void capture_snap(const guchar *, int, int, packet_counts *, const union wtap_pseudo_header *pseudo_header);
 
 void dissect_snap(tvbuff_t *, int, packet_info *, proto_tree *,
     proto_tree *, int, int, int, int, int);

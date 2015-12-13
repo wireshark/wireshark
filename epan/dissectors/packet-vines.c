@@ -309,7 +309,7 @@ typedef struct _e_vipc {
 } e_vipc;
 
 void
-capture_vines(packet_counts *ld)
+capture_vines(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	ld->vines++;
 }

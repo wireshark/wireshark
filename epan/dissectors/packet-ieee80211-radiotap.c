@@ -546,7 +546,7 @@ capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld, con
 
 	/* 802.11 header follows */
 	if (rflags & IEEE80211_RADIOTAP_F_DATAPAD)
-		capture_ieee80211_datapad(pd, offset + it_len, len, ld);
+		capture_ieee80211_datapad(pd, offset + it_len, len, ld, pseudo_header);
 	else
 		capture_ieee80211(pd, offset + it_len, len, ld, pseudo_header);
 }
