@@ -397,18 +397,26 @@ check_for_dissector_plugin(GModule *handle)
 	/*
 	 * Do we have a register routine?
 	 */
-	if (g_module_symbol(handle, "plugin_register", &gp))
+	if (g_module_symbol(handle, "plugin_register", &gp)) {
+DIAG_OFF(pedantic)
 		register_protoinfo = (void (*)(void))gp;
-	else
+DIAG_ON(pedantic)
+	}
+	else {
 		register_protoinfo = NULL;
+	}
 
 	/*
 	 * Do we have a reg_handoff routine?
 	 */
-	if (g_module_symbol(handle, "plugin_reg_handoff", &gp))
+	if (g_module_symbol(handle, "plugin_reg_handoff", &gp)) {
+DIAG_OFF(pedantic)
 		reg_handoff = (void (*)(void))gp;
-	else
+DIAG_ON(pedantic)
+	}
+	else {
 		reg_handoff = NULL;
+	}
 
 	/*
 	 * If we have neither, we're not a dissector plugin.
