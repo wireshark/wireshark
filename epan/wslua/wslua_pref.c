@@ -276,13 +276,30 @@ static int Pref__gc(lua_State* L) {
     if (! pref->name) {
         g_free(pref->label);
         g_free(pref->desc);
-        if (pref->type == PREF_STRING) {
-            /*
-             * Free the initial string value; if it's not NULL, that
-             * means this is a never-registered protocol, so the
-             * initial value hasn't been freed.
-             */
-            g_free(pref->info.default_s);
+        switch (pref->type) {
+            case PREF_STRING:
+                /*
+                 * Free the initial string value; if it's not NULL, that
+                 * means this is a never-registered protocol, so the
+                 * initial value hasn't been freed.
+                 */
+                g_free(pref->info.default_s);
+                break;
+            case PREF_ENUM: {
+                /*
+                 * Free the enum values allocated in get_enum().
+                 */
+                const enum_val_t *enum_valp = pref->info.enum_info.enumvals;
+                while (enum_valp->name) {
+                    g_free((char *)enum_valp->name);
+                    g_free((char *)enum_valp->description);
+                    enum_valp++;
+                }
+                g_free ((enum_val_t *)pref->info.enum_info.enumvals);
+                break;
+            default:
+                break;
+            }
         }
         g_free(pref);
     }
