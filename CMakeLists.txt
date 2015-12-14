@@ -385,6 +385,10 @@ else()
 	set(WIRESHARK_EXTRA_COMPILER_COMMON_FLAGS
 		# The following are for C and C++
 		-Wpedantic
+		#
+		# As we use variadic macros, we don't want warnings
+		# about them, even with -Wpedantic.
+		#
 		-Wno-variadic-macros
 		#
 		# Various code blocks this one.
