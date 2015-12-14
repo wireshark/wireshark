@@ -102,11 +102,11 @@ check_function_exists("gethostbyname"    HAVE_GETHOSTBYNAME)
 check_function_exists("gethostbyname2"   HAVE_GETHOSTBYNAME2)
 check_function_exists("getopt_long"      HAVE_GETOPT_LONG)
 if(HAVE_GETOPT_LONG)
-    if(HAVE_GETOPT_H)
-        check_symbol_exists("optreset" "getopt.h" HAVE_OPTRESET)
-    else()
-        check_symbol_exists("optreset"           HAVE_OPTRESET)
-    endif()
+	if(HAVE_GETOPT_H)
+		check_symbol_exists("optreset" "getopt.h" HAVE_OPTRESET)
+	else()
+		check_symbol_exists("optreset"           HAVE_OPTRESET)
+	endif()
 endif()
 check_function_exists("getprotobynumber" HAVE_GETPROTOBYNUMBER)
 check_function_exists("inet_aton"        HAVE_INET_ATON)
@@ -203,3 +203,16 @@ else()
 		}" HAVE_GLIB_PRINTF_GROUPING)
 	cmake_pop_check_state()
 endif()
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#
