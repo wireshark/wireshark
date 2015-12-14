@@ -51,7 +51,7 @@ while ($line = <>) {
 	$file =~ s/\.\.\\\.\.\\//; # remove ../../
 	push(@$outpath, $file);
 
-	if(defined @defines) {
+	if(@defines) {
 	    push(@$file, "ifdef=" . $defines[-1]);
 	}
 
@@ -98,7 +98,7 @@ foreach $dir(sort @dirs) {
     $prev = $dir;
 }
 
-if(defined @ignored) {
+if(@ignored) {
 
     print STDERR "ERROR\nThe following directories have no known location on a U3 device:\n";
 
