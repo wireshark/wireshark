@@ -1532,12 +1532,6 @@ static const value_string le_role_vals[] = {
 };
 value_string_ext le_role_vals_ext = VALUE_STRING_EXT_INIT(le_role_vals);
 
-static const value_string tds_organization_id_vals[] = {
-    { 0x00, "RFU" },
-    { 0x01, "Bluetooth SIG" },
-    {0, NULL }
-};
-
 static const value_string tds_role_vals[] = {
     { 0x00, "Not Specified" },
     { 0x01, "Seeker Only" },
