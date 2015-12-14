@@ -101,13 +101,10 @@ static int new_pref(lua_State* L, pref_type_t type) {
     const gchar* label = luaL_optstring(L,1,NULL);
     const gchar* descr = luaL_optstring(L,3,"");
 
-    Pref pref = (wslua_pref_t *)g_malloc(sizeof(wslua_pref_t));
-    pref->name = NULL;
-    pref->label = label ? g_strdup(label) : NULL;
+    Pref pref = (wslua_pref_t *)g_malloc0(sizeof(wslua_pref_t));
+    pref->label = g_strdup(label);
     pref->desc = g_strdup(descr);
     pref->type = type;
-    pref->next = NULL;
-    pref->proto = NULL;
 
     switch(type) {
         case PREF_BOOL: {
@@ -123,6 +120,7 @@ static int new_pref(lua_State* L, pref_type_t type) {
         case PREF_STRING: {
             gchar* def = g_strdup(luaL_optstring(L,2,""));
             pref->value.s = def;
+            pref->info.default_s = def;
             break;
         }
         case PREF_ENUM: {
@@ -250,6 +248,8 @@ static int Pref__gc(lua_State* L) {
     if (! pref->name) {
         g_free(pref->label);
         g_free(pref->desc);
+        if (pref->type == PREF_STRING)
+          g_free(pref->info.default_s);
         g_free(pref);
     }
 
@@ -360,6 +360,8 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
                                                      pref->label,
                                                      pref->desc,
                                                      (const char **)(&(pref->value.s)));
+                    g_free(pref->info.default_s);
+                    pref->info.default_s = NULL;
                     break;
                 case PREF_ENUM:
                     prefs_register_enum_preference(prefs_p->proto->prefs_module,
