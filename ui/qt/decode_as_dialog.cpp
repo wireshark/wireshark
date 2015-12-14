@@ -361,6 +361,12 @@ void DecodeAsDialog::addRecord(bool copy_from_current)
     }
 
     activateLastItem();
+
+    if (ui->decodeAsTreeWidget->topLevelItemCount() > 0) {
+        for (int i = 0; i < ui->decodeAsTreeWidget->columnCount(); i++) {
+            ui->decodeAsTreeWidget->resizeColumnToContents(i);
+        }
+    }
 }
 
 void DecodeAsDialog::fillTypeColumn(QTreeWidgetItem *item)
