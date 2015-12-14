@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/exceptions.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
@@ -41,6 +42,7 @@
 #include <wsutil/utf8_entities.h>
 #include <wsutil/str_util.h>
 #include <wsutil/sha1.h>
+#include <wsutil/pint.h>
 
 #include "packet-tcp.h"
 #include "packet-ip.h"
@@ -4797,6 +4799,39 @@ tcp_flags_to_str_first_letter(const struct tcpheader *tcph)
     return buf;
 }
 
+static gboolean
+capture_tcp(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+{
+    guint16 src_port, dst_port, low_port, high_port;
+
+    if (!BYTES_ARE_IN_FRAME(offset, len, 4))
+        return FALSE;
+
+    ld->tcp++;
+
+    src_port = pntoh16(&pd[offset]);
+    dst_port = pntoh16(&pd[offset+2]);
+
+    if (src_port > dst_port) {
+        low_port = dst_port;
+        high_port = src_port;
+    } else {
+        low_port = src_port;
+        high_port = dst_port;
+    }
+
+    if (low_port != 0 &&
+        try_capture_dissector("tcp.port", low_port, pd, offset+20, len, ld, pseudo_header))
+        return TRUE;
+
+    if (high_port != 0 &&
+        try_capture_dissector("tcp.port", high_port, pd, offset+20, len, ld, pseudo_header))
+        return TRUE;
+
+    /* We've at least identified one type of packet, so this shouldn't be "other" */
+    return TRUE;
+}
+
 static int
 dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -6526,6 +6561,8 @@ proto_register_tcp(void)
         "TCP port", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
     heur_subdissector_list = register_heur_dissector_list("tcp");
 
+	register_capture_dissector_table("tcp.port", "TCP");
+
     /* Register configuration preferences */
     tcp_module = prefs_register_protocol(proto_tcp, NULL);
     prefs_register_bool_preference(tcp_module, "summary_in_tree",
@@ -6631,6 +6668,9 @@ proto_reg_handoff_tcp(void)
     data_handle = find_dissector("data");
     sport_handle = find_dissector("sport");
     tcp_tap = register_tap("tcp");
+
+    register_capture_dissector("ip.proto", IP_PROTO_TCP, capture_tcp, proto_tcp);
+    register_capture_dissector("ipv6.nxt", IP_PROTO_TCP, capture_tcp, proto_tcp);
 
     mptcp_tap = register_tap("mptcp");
 }

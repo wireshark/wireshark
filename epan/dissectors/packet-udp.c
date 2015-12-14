@@ -29,6 +29,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
@@ -37,6 +38,7 @@
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 #include <wsutil/utf8_entities.h>
+#include <wsutil/pint.h>
 
 #include "packet-udp.h"
 
@@ -689,6 +691,39 @@ udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   return offset;
 }
 
+static gboolean
+capture_udp(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+{
+  guint16 src_port, dst_port, low_port, high_port;
+
+  if (!BYTES_ARE_IN_FRAME(offset, len, 4))
+    return FALSE;
+
+  ld->udp++;
+
+  src_port = pntoh16(&pd[offset]);
+  dst_port = pntoh16(&pd[offset+2]);
+
+  if (src_port > dst_port) {
+    low_port = dst_port;
+    high_port = src_port;
+  } else {
+    low_port = src_port;
+    high_port = dst_port;
+  }
+
+  if (low_port != 0 &&
+      try_capture_dissector("udp.port", low_port, pd, offset+20, len, ld, pseudo_header))
+      return TRUE;
+
+  if (high_port != 0 &&
+      try_capture_dissector("udp.port", high_port, pd, offset+20, len, ld, pseudo_header))
+      return TRUE;
+
+  /* We've at least identified one type of packet, so this shouldn't be "other" */
+  return TRUE;
+}
+
 static void
 dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
 {
@@ -1095,6 +1130,8 @@ proto_register_udp(void)
                                                  "UDP port", FT_UINT16, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
   heur_subdissector_list = register_heur_dissector_list("udp");
 
+  register_capture_dissector_table("udp.port", "UDP");
+
   /* Register configuration preferences */
   udp_module = prefs_register_protocol(proto_udp, NULL);
   prefs_register_bool_preference(udp_module, "summary_in_tree",
@@ -1138,6 +1175,12 @@ proto_reg_handoff_udp(void)
 {
   dissector_add_uint("ip.proto", IP_PROTO_UDP, udp_handle);
   dissector_add_uint("ip.proto", IP_PROTO_UDPLITE, udplite_handle);
+
+  register_capture_dissector("ip.proto", IP_PROTO_UDP, capture_udp, hfi_udp->id);
+  register_capture_dissector("ip.proto", IP_PROTO_UDPLITE, capture_udp, hfi_udplite->id);
+  register_capture_dissector("ipv6.nxt", IP_PROTO_UDP, capture_udp, hfi_udp->id);
+  register_capture_dissector("ipv6.nxt", IP_PROTO_UDPLITE, capture_udp, hfi_udplite->id);
+
   data_handle = find_dissector("data");
   udp_tap = register_tap("udp");
   udp_follow_tap = register_tap("udp_follow");

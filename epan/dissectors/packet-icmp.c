@@ -41,6 +41,7 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 #include <epan/ipproto.h>
+#include <epan/capture_dissectors.h>
 
 #include "packet-ip.h"
 #include "packet-icmp.h"
@@ -1163,6 +1164,13 @@ get_best_guess_mstimeofday(tvbuff_t * tvb, gint offset, guint32 comp_ts)
 	return le_ts;
 }				/* get_best_guess_mstimeofday() */
 
+static gboolean
+capture_icmp(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+{
+	ld->icmp++;
+	return TRUE;
+}
+
 /*
  * RFC 792 for basic ICMP.
  * RFC 1191 for ICMP_FRAG_NEEDED (with MTU of next hop).
@@ -2043,6 +2051,8 @@ void proto_reg_handoff_icmp(void)
 	data_handle = find_dissector("data");
 
 	dissector_add_uint("ip.proto", IP_PROTO_ICMP, icmp_handle);
+	register_capture_dissector("ip.proto", IP_PROTO_ICMP, capture_icmp, proto_icmp);
+	register_capture_dissector("ipv6.nxt", IP_PROTO_ICMP, capture_icmp, proto_icmp);
 }
 
 /*

@@ -27294,6 +27294,7 @@ proto_reg_handoff_ieee80211(void)
 
   register_capture_dissector("wtap_encap", WTAP_ENCAP_IEEE_802_11, capture_ieee80211, proto_wlan);
   register_capture_dissector("wtap_encap", WTAP_ENCAP_IEEE_802_11_WITH_RADIO, capture_ieee80211, proto_wlan);
+  register_capture_dissector("ppi", 105 /* DLT_DLT_IEEE802_11 */, capture_ieee80211, proto_wlan);
 
   /* Register handoff to Aruba GRE */
   dissector_add_uint("gre.proto", GRE_ARUBA_8200, ieee80211_handle);

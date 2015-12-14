@@ -1968,16 +1968,7 @@ capture_ppp_hdlc(const guchar *pd, int offset, int len, packet_counts *ld, const
     if (!BYTES_ARE_IN_FRAME(offset, len, 4))
         return FALSE;
 
-    switch (pntoh16(&pd[offset + 2])) {
-    case PPP_IP:
-        return capture_ip(pd, offset + 4, len, ld, pseudo_header);
-    case PPP_IPX:
-        return capture_ipx(pd, offset + 4, len, ld, pseudo_header);
-    case PPP_VINES:
-        return capture_vines(pd, offset + 4, len, ld, pseudo_header);
-    }
-
-    return FALSE;
+    return try_capture_dissector("ppp_hdlc", pntoh16(&pd[offset + 2]), pd, offset + 4, len, ld, pseudo_header);
 }
 
 static void
@@ -5625,6 +5616,8 @@ proto_register_ppp_raw_hdlc(void)
         "PPP-HDLC", "ppp_hdlc");
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_field_array(proto_ppp_hdlc, hf, array_length(hf));
+
+    register_capture_dissector_table("ppp_hdlc", "PPP-HDLC");
 }
 
 void
@@ -5639,6 +5632,7 @@ proto_reg_handoff_ppp_raw_hdlc(void)
 
     heur_dissector_add("usb.bulk", dissect_ppp_usb, "PPP USB bulk endpoint", "ppp_usb_bulk", proto_ppp, HEURISTIC_ENABLE);
     register_capture_dissector("wtap_encap", WTAP_ENCAP_PPP, capture_ppp_hdlc, proto_ppp_hdlc);
+    register_capture_dissector("sll.ltype", LINUX_SLL_P_PPPHDLC, capture_ppp_hdlc, proto_ppp_hdlc);
 }
 
 /*

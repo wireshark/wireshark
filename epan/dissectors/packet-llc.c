@@ -928,6 +928,8 @@ proto_reg_handoff_llc(void)
 	dissector_add_uint("juniper.proto", JUNIPER_PROTO_LLC_SNAP, llc_handle);
 
 	register_capture_dissector("ethertype", ETHERTYPE_JUMBO_LLC, capture_llc, proto_llc);
+	register_capture_dissector("atm.aal5.type", TRAF_LLCMX, capture_llc, proto_llc);
+	register_capture_dissector("sll.ltype", LINUX_SLL_P_802_2, capture_llc, proto_llc);
 
 	/*
 	 * Register all the fields for PIDs for various OUIs.

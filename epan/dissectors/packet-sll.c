@@ -151,33 +151,7 @@ capture_sll(const guchar *pd, int offset _U_, int len, packet_counts *ld, const 
 		 * "proto" is *not* a length field, it's a Linux internal
 		 * protocol type.
 		 */
-		switch (protocol) {
-
-		case LINUX_SLL_P_802_2:
-			/*
-			 * 802.2 LLC.
-			 */
-			return capture_llc(pd, len, SLL_HEADER_SIZE, ld, pseudo_header);
-
-		case LINUX_SLL_P_ETHERNET:
-			/*
-			 * Ethernet.
-			 */
-			return capture_eth(pd, SLL_HEADER_SIZE, len, ld, pseudo_header);
-
-		case LINUX_SLL_P_802_3:
-			/*
-			 * Novell IPX inside 802.3 with no 802.2 LLC
-			 * header.
-			 */
-			return capture_ipx(pd, SLL_HEADER_SIZE, len, ld, pseudo_header);
-
-		case LINUX_SLL_P_PPPHDLC:
-			/*
-			 * PPP HDLC.
-			 */
-			return capture_ppp_hdlc(pd, len, SLL_HEADER_SIZE, ld, pseudo_header);
-		}
+		return try_capture_dissector("sll.ltype", protocol, pd, SLL_HEADER_SIZE, len, ld, pseudo_header);
 	} else {
 		return try_capture_dissector("ethertype", protocol, pd, SLL_HEADER_SIZE, len, ld, pseudo_header);
 	}
@@ -337,6 +311,7 @@ proto_register_sll(void)
 		FT_UINT16,
 		BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE
 	);
+	register_capture_dissector_table("sll.ltype", "Linux SLL protocol");
 }
 
 void

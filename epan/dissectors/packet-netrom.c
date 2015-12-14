@@ -45,9 +45,8 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
+#include <epan/capture_dissectors.h>
 #include <epan/ax25_pids.h>
-
-#include "packet-netrom.h"
 
 void proto_register_netrom(void);
 void proto_reg_handoff_netrom(void);
@@ -488,7 +487,7 @@ dissect_netrom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	return tvb_captured_length(tvb);
 }
 
-gboolean
+static gboolean
 capture_netrom( const guchar *pd _U_, int offset, int len, packet_counts *ld _U_, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	if ( ! BYTES_ARE_IN_FRAME( offset, len, NETROM_MIN_SIZE ) )
@@ -625,6 +624,7 @@ void
 proto_reg_handoff_netrom(void)
 {
 	dissector_add_uint( "ax25.pid", AX25_P_NETROM, create_dissector_handle( dissect_netrom, proto_netrom ) );
+	register_capture_dissector("ax25.pid", AX25_P_NETROM, capture_netrom, proto_netrom);
 
 	ip_handle   = find_dissector( "ip" );
 	data_handle = find_dissector( "data" );

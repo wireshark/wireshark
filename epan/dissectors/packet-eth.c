@@ -1052,6 +1052,10 @@ proto_reg_handoff_eth(void)
   dissector_add_for_decode_as("pcli.payload", eth_withoutfcs_handle);
 
   register_capture_dissector("wtap_encap", WTAP_ENCAP_ETHERNET, capture_eth, proto_eth);
+  register_capture_dissector("atm_lane", TRAF_ST_LANE_802_3, capture_eth, proto_eth);
+  register_capture_dissector("atm_lane", TRAF_ST_LANE_802_3_MC, capture_eth, proto_eth);
+  register_capture_dissector("ppi", 1 /* DLT_EN10MB */, capture_eth, proto_eth);
+  register_capture_dissector("sll.ltype", LINUX_SLL_P_ETHERNET, capture_eth, proto_eth);
 }
 
 /*

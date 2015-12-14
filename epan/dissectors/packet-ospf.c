@@ -64,6 +64,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 #include <epan/expert.h>
@@ -1038,6 +1039,14 @@ ospf_has_at_block(tvbuff_t *tvb, int offset, guint8 packet_type, guint8 version)
 
     return 0;
 }
+
+static gboolean
+capture_ospf(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+{
+    ld->ospf++;
+    return TRUE;
+}
+
 static int
 dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -3794,6 +3803,8 @@ proto_reg_handoff_ospf(void)
 
     ospf_handle = create_dissector_handle(dissect_ospf, proto_ospf);
     dissector_add_uint("ip.proto", IP_PROTO_OSPF, ospf_handle);
+    register_capture_dissector("ip.proto", IP_PROTO_OSPF, capture_ospf, proto_ospf);
+    register_capture_dissector("ipv6.nxt", IP_PROTO_OSPF, capture_ospf, proto_ospf);
     data_handle = find_dissector("data");
 }
 

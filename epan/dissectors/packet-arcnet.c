@@ -30,6 +30,7 @@
 #include <epan/arcnet_pids.h>
 #include <epan/to_str.h>
 #include "packet-ip.h"
+#include "packet-arp.h"
 
 void proto_register_arcnet(void);
 void proto_reg_handoff_arcnet(void);
@@ -139,7 +140,7 @@ capture_arcnet_common(const guchar *pd, int offset, int len, packet_counts *ld, 
     /*
      * XXX - do we have to worry about fragmentation for ARP?
      */
-    ld->arp++;
+    capture_arp(pd, offset + 1, len, ld, pseudo_header);
     break;
 
   case ARCNET_PROTO_IPX:

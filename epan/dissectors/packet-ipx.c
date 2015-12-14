@@ -1625,6 +1625,8 @@ proto_reg_handoff_ipx(void)
 	dissector_add_uint("ipx.socket", IPX_SOCKET_IPX_MESSAGE1, ipxmsg_handle);
 
 	register_capture_dissector("ethertype", ETHERTYPE_IPX, capture_ipx, proto_ipx);
+	register_capture_dissector("ppp_hdlc", PPP_IPX, capture_ipx, proto_ipx);
+	register_capture_dissector("sll.ltype", LINUX_SLL_P_802_3, capture_ipx, proto_ipx);
 	data_handle = find_dissector("data");
 }
 

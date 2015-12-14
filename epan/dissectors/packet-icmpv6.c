@@ -43,6 +43,7 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>
+#include <epan/capture_dissectors.h>
 
 #include "packet-ber.h"
 #include "packet-dns.h"
@@ -3450,6 +3451,12 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
     return mldr_offset;
 }
 
+static gboolean
+capture_icmpv6(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+{
+    ld->icmp++;
+    return TRUE;
+}
 
 static int
 dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -5356,6 +5363,8 @@ void
 proto_reg_handoff_icmpv6(void)
 {
     dissector_add_uint("ip.proto", IP_PROTO_ICMPV6, icmpv6_handle);
+    register_capture_dissector("ip.proto", IP_PROTO_ICMPV6, capture_icmpv6, proto_icmpv6);
+    register_capture_dissector("ipv6.nxt", IP_PROTO_ICMPV6, capture_icmpv6, proto_icmpv6);
 
     /*
      * Get a handle for the IPv6 dissector.

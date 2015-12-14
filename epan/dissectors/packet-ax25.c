@@ -51,9 +51,7 @@
 #include <epan/xdlc.h>
 #include <epan/ax25_pids.h>
 #include <epan/ipproto.h>
-#include "packet-ip.h"
 #include "packet-ax25.h"
-#include "packet-netrom.h"
 
 #define STRLEN	80
 
@@ -279,16 +277,7 @@ capture_ax25( const guchar *pd, int offset, int len, packet_counts *ld, const un
 		pid = pd[ l_offset ];
 
 		l_offset += 1; /* step over the pid and point to the first byte of the payload */
-		switch ( pid & 0x0ff )
-			{
-			case AX25_P_NETROM	:
-				return capture_netrom( pd, l_offset, len, ld, pseudo_header );
-			case AX25_P_IP		:
-				return capture_ip( pd, l_offset, len, ld, pseudo_header );
-			case AX25_P_ARP		:
-				ld->arp++;
-				return TRUE;
-			}
+		return try_capture_dissector("ax25.pid", pid & 0x0ff, pd, l_offset, len, ld, pseudo_header);
 	}
 	return FALSE;
 }
@@ -430,6 +419,7 @@ proto_register_ax25(void)
 
 	/* Register dissector table for protocol IDs */
 	ax25_dissector_table = register_dissector_table("ax25.pid", "AX.25 protocol ID", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+	register_capture_dissector_table("ax25.pid", "AX.25");
 }
 
 void

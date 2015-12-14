@@ -53,6 +53,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/prefs.h>
 #include <epan/exceptions.h>
 #include <epan/exported_pdu.h>
@@ -4686,6 +4687,13 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   proto_tree_move_item(sctp_tree, vt, pi);
 }
 
+static gboolean
+capture_sctp(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+{
+  ld->sctp++;
+  return TRUE;
+}
+
 static int
 dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -5075,6 +5083,8 @@ proto_reg_handoff_sctp(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_SCTP, sctp_handle);
   dissector_add_uint("ip.proto", IP_PROTO_SCTP, sctp_handle);
   dissector_add_uint("udp.port", UDP_TUNNELING_PORT, sctp_handle);
+  register_capture_dissector("ip.proto", IP_PROTO_SCTP, capture_sctp, proto_sctp);
+  register_capture_dissector("ipv6.nxt", IP_PROTO_SCTP, capture_sctp, proto_sctp);
 }
 
 /*

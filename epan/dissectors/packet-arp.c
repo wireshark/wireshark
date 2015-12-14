@@ -2022,6 +2022,7 @@ proto_reg_handoff_arp(void)
   dissector_add_uint("arcnet.protocol_id", ARCNET_PROTO_RARP_1201, arp_handle);
   dissector_add_uint("ax25.pid", AX25_P_ARP, arp_handle);
   register_capture_dissector("ethertype", ETHERTYPE_ARP, capture_arp, proto_arp);
+  register_capture_dissector("ax25.pid", AX25_P_ARP, capture_arp, proto_arp);
 }
 
 /*

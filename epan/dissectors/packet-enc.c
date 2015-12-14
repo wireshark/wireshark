@@ -27,19 +27,11 @@
 
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
-#include <epan/addr_resolv.h>
 #include <epan/aftypes.h>
 #include <wsutil/pint.h>
-#include "packet-ip.h"
-#include "packet-ipv6.h"
 
 void proto_register_enc(void);
 void proto_reg_handoff_enc(void);
-
-#ifndef offsetof
-/* Can't trust stddef.h to be there for us */
-# define offsetof(type, member) ((size_t)(&((type *)0)->member))
-#endif
 
 /* The header in OpenBSD Encapsulating Interface files. */
 
@@ -48,14 +40,15 @@ struct enchdr {
   guint32 spi;
   guint32 flags;
 };
-#define BSD_ENC_HDRLEN    sizeof(struct enchdr)
+#define BSD_ENC_HDRLEN    12
 
-# define BSD_ENC_M_CONF          0x0400  /* payload encrypted */
-# define BSD_ENC_M_AUTH          0x0800  /* payload authenticated */
-# define BSD_ENC_M_COMP          0x1000  /* payload compressed */
-# define BSD_ENC_M_AUTH_AH       0x2000  /* header authenticated */
+#define BSD_ENC_M_CONF          0x0400  /* payload encrypted */
+#define BSD_ENC_M_AUTH          0x0800  /* payload authenticated */
+#define BSD_ENC_M_COMP          0x1000  /* payload compressed */
+#define BSD_ENC_M_AUTH_AH       0x2000  /* header authenticated */
 
-static dissector_handle_t  data_handle, ip_handle, ipv6_handle;
+static dissector_table_t enc_dissector_table;
+static dissector_handle_t  data_handle;
 
 /* header fields */
 static int proto_enc = -1;
@@ -70,20 +63,11 @@ capture_enc(const guchar *pd, int offset _U_, int len, packet_counts *ld, const 
 {
   guint32 af;
 
-  if (!BYTES_ARE_IN_FRAME(0, len, (int)BSD_ENC_HDRLEN))
+  if (!BYTES_ARE_IN_FRAME(0, len, BSD_ENC_HDRLEN))
     return FALSE;
 
-  af = pntoh32(pd + offsetof(struct enchdr, af));
-  switch (af) {
-
-  case BSD_AF_INET:
-    return capture_ip(pd, BSD_ENC_HDRLEN, len, ld, pseudo_header);
-
-  case BSD_AF_INET6_BSD:
-    return capture_ipv6(pd, BSD_ENC_HDRLEN, len, ld, pseudo_header);
-  }
-
-  return FALSE;
+  af = pntoh32(pd);
+  return try_capture_dissector("enc", af, pd, BSD_ENC_HDRLEN, len, ld, pseudo_header);
 }
 
 static const value_string af_vals[] = {
@@ -124,34 +108,16 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
       );
     enc_tree = proto_item_add_subtree(ti, ett_enc);
 
-    proto_tree_add_uint(enc_tree, hf_enc_af, tvb,
-             offsetof(struct enchdr, af), sizeof(ench.af),
-             ench.af);
-    proto_tree_add_uint(enc_tree, hf_enc_spi, tvb,
-             offsetof(struct enchdr, spi), sizeof(ench.spi),
-             ench.spi);
-    proto_tree_add_uint(enc_tree, hf_enc_flags, tvb,
-             offsetof(struct enchdr, flags), sizeof(ench.flags),
-             ench.flags);
+    proto_tree_add_item(enc_tree, hf_enc_af, tvb, 0, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(enc_tree, hf_enc_spi, tvb, 4, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(enc_tree, hf_enc_flags, tvb, 8, 4, ENC_BIG_ENDIAN);
   }
 
   /* Set the tvbuff for the payload after the header */
   next_tvb = tvb_new_subset_remaining(tvb, BSD_ENC_HDRLEN);
-
-  switch (ench.af) {
-
-  case BSD_AF_INET:
-    call_dissector(ip_handle, next_tvb, pinfo, tree);
-    break;
-
-  case BSD_AF_INET6_BSD:
-    call_dissector(ipv6_handle, next_tvb, pinfo, tree);
-    break;
-
-  default:
+  if (!dissector_try_uint(enc_dissector_table, ench.af, next_tvb, pinfo, tree))
     call_dissector(data_handle, next_tvb, pinfo, tree);
-    break;
-  }
+
   return tvb_captured_length(tvb);
 }
 
@@ -175,6 +141,9 @@ proto_register_enc(void)
                                       "ENC", "enc");
   proto_register_field_array(proto_enc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  enc_dissector_table = register_dissector_table("enc", "OpenBSD Encapsulating device", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+  register_capture_dissector_table("enc", "ENC");
 }
 
 void
@@ -182,8 +151,6 @@ proto_reg_handoff_enc(void)
 {
   dissector_handle_t enc_handle;
 
-  ip_handle   = find_dissector("ip");
-  ipv6_handle = find_dissector("ipv6");
   data_handle = find_dissector("data");
 
   enc_handle  = create_dissector_handle(dissect_enc, proto_enc);

@@ -814,6 +814,8 @@ proto_reg_handoff_tr(void)
 	dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_TOKENRING, tr_handle);
 
 	register_capture_dissector("wtap_encap", WTAP_ENCAP_TOKEN_RING, capture_tr, proto_tr);
+	register_capture_dissector("atm_lane", TRAF_ST_LANE_802_5, capture_tr, proto_tr);
+	register_capture_dissector("atm_lane", TRAF_ST_LANE_802_5_MC, capture_tr, proto_tr);
 }
 
 /*

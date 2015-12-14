@@ -24,6 +24,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/etypes.h>
 #include <epan/in_cksum.h>
 #include <epan/expert.h>
@@ -308,6 +309,13 @@ dissect_gre_wccp2_redirect_header(tvbuff_t *tvb, int offset, proto_tree *tree)
     proto_tree_add_item(rh_tree, hf_gre_wccp_alternative_bucket, tvb, offset +2, 1, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rh_tree, hf_gre_wccp_primary_bucket, tvb, offset +3, 1, ENC_BIG_ENDIAN);
+}
+
+static gboolean
+capture_gre(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+{
+    ld->gre++;
+    return TRUE;
 }
 
 static int
@@ -747,6 +755,8 @@ proto_reg_handoff_gre(void)
 
     gre_handle = create_dissector_handle(dissect_gre, proto_gre);
     dissector_add_uint("ip.proto", IP_PROTO_GRE, gre_handle);
+    register_capture_dissector("ip.proto", IP_PROTO_GRE, capture_gre, proto_gre);
+    register_capture_dissector("ipv6.nxt", IP_PROTO_GRE, capture_gre, proto_gre);
     data_handle = find_dissector("data");
 }
 

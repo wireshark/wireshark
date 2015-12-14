@@ -668,20 +668,7 @@ capture_lane(const guchar *pd, int offset _U_,
     int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header)
 {
   /* Is it LE Control, 802.3, 802.5, or "none of the above"? */
-  switch (pseudo_header->atm.subtype) {
-
-  case TRAF_ST_LANE_802_3:
-  case TRAF_ST_LANE_802_3_MC:
-    /* Dissect as Ethernet */
-    return capture_eth(pd, 2, len, ld, pseudo_header);
-
-  case TRAF_ST_LANE_802_5:
-  case TRAF_ST_LANE_802_5_MC:
-    /* Dissect as Token-Ring */
-    return capture_tr(pd, 2, len, ld, pseudo_header);
-  }
-
-  return FALSE;
+  return try_capture_dissector("atm_lane", pseudo_header->atm.subtype, pd, 2, len, ld, pseudo_header);
 }
 
 static int
@@ -806,17 +793,7 @@ capture_atm(const guchar *pd, int offset _U_,
     int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header)
 {
   if (pseudo_header->atm.aal == AAL_5) {
-    switch (pseudo_header->atm.type) {
-
-    case TRAF_LLCMX:
-      /* Dissect as WTAP_ENCAP_ATM_RFC1483 */
-      /* The ATM iptrace capture that we have shows LLC at this point,
-       * so that's what I'm calling */
-      return capture_llc(pd, 0, len, ld, pseudo_header);
-
-    case TRAF_LANE:
-      return capture_lane(pd, offset, len, ld, pseudo_header);
-    }
+    return try_capture_dissector("atm.aal5.type", pseudo_header->atm.type, pd, offset, len, ld, pseudo_header);
   }
   return FALSE;
 }
@@ -1991,6 +1968,9 @@ proto_register_atm(void)
   atm_type_aal2_table = register_dissector_table("atm.aal2.type", "ATM AAL_2 type subdissector", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
   atm_type_aal5_table = register_dissector_table("atm.aal5.type", "ATM AAL_5 type subdissector", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
+  register_capture_dissector_table("atm.aal5.type", "ATM AAL_5");
+  register_capture_dissector_table("atm_lane", "ATM LAN Emulation");
+
   atm_handle = register_dissector("atm_truncated", dissect_atm_truncated, proto_atm);
   register_dissector("atm_pw_truncated", dissect_atm_pw_truncated, proto_atm);
   atm_untruncated_handle = register_dissector("atm_untruncated", dissect_atm_untruncated, proto_atm);
@@ -2033,6 +2013,7 @@ proto_reg_handoff_atm(void)
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS_UNTRUNCATED,
                 atm_untruncated_handle);
   register_capture_dissector("wtap_encap", WTAP_ENCAP_ATM_PDUS, capture_atm, proto_atm);
+  register_capture_dissector("atm.aal5.type", TRAF_LANE, capture_lane, proto_atm_lane);
 }
 
 /*

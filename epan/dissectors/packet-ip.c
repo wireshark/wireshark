@@ -572,36 +572,7 @@ capture_ip(const guchar *pd, int offset, int len, packet_counts *ld, const union
   if (!BYTES_ARE_IN_FRAME(offset, len, IPH_MIN_LEN))
     return FALSE;
 
-  switch (pd[offset + 9]) {
-    case IP_PROTO_TCP:
-      ld->tcp++;
-      break;
-    case IP_PROTO_UDP:
-    case IP_PROTO_UDPLITE:
-      ld->udp++;
-      break;
-    case IP_PROTO_ICMP:
-    case IP_PROTO_ICMPV6:   /* XXX - separate counters? */
-      ld->icmp++;
-      break;
-    case IP_PROTO_SCTP:
-      ld->sctp++;
-      break;
-    case IP_PROTO_OSPF:
-      ld->ospf++;
-      break;
-    case IP_PROTO_GRE:
-      ld->gre++;
-      break;
-    case IP_PROTO_VINES:
-      ld->vines++;
-      break;
-    default:
-      ld->other++;
-  }
-
-  /* We're incrementing "other", so consider this our packet */
-  return TRUE;
+  return try_capture_dissector("ip.proto", pd[offset + 9], pd, offset+IPH_MIN_LEN, len, ld, pseudo_header);
 }
 
 #ifdef HAVE_GEOIP
@@ -3135,6 +3106,7 @@ proto_register_ip(void)
   ip_dissector_table = register_dissector_table("ip.proto", "IP protocol",
                                                 FT_UINT8, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
   heur_subdissector_list = register_heur_dissector_list("ip");
+  register_capture_dissector_table("ip.proto", "IP protocol");
 
   /* Register configuration options */
   ip_module = prefs_register_protocol(proto_ip, NULL);
@@ -3216,9 +3188,13 @@ proto_reg_handoff_ip(void)
   dissector_add_for_decode_as("udp.port", ip_handle);
   dissector_add_for_decode_as("pcli.payload", ip_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP4, ip_handle);
+  dissector_add_uint("enc", BSD_AF_INET, ip_handle);
 
   heur_dissector_add("tipc", dissect_ip_heur, "IP over TIPC", "ip_tipc", proto_ip, HEURISTIC_ENABLE);
   register_capture_dissector("ethertype", ETHERTYPE_IP, capture_ip, proto_ip);
+  register_capture_dissector("ax25.pid", AX25_P_IP, capture_ip, proto_ip);
+  register_capture_dissector("enc", BSD_AF_INET, capture_ip, proto_ip);
+  register_capture_dissector("ppp_hdlc", PPP_IP, capture_ip, proto_ip);
 }
 
 /*

@@ -587,34 +587,7 @@ again:
         goto again;
     }
 
-    switch(nxt) {
-    case IP_PROTO_SCTP:
-        ld->sctp++;
-        break;
-    case IP_PROTO_TCP:
-        ld->tcp++;
-        break;
-    case IP_PROTO_UDP:
-    case IP_PROTO_UDPLITE:
-        ld->udp++;
-        break;
-    case IP_PROTO_ICMP:
-    case IP_PROTO_ICMPV6:       /* XXX - separate counters? */
-        ld->icmp++;
-        break;
-    case IP_PROTO_OSPF:
-        ld->ospf++;
-        break;
-    case IP_PROTO_GRE:
-        ld->gre++;
-        break;
-    case IP_PROTO_VINES:
-        ld->vines++;
-        break;
-    default:
-        return FALSE;
-    }
-    return TRUE;
+    return try_capture_dissector("ipv6.nxt", nxt, pd, offset, len, ld, pseudo_header);
 }
 
 /**
@@ -3473,6 +3446,7 @@ proto_register_ipv6(void)
     proto_register_field_array(proto_ipv6_dstopts, hf_ipv6_dstopts, array_length(hf_ipv6_dstopts));
 
     ipv6_next_header_dissector_table = register_dissector_table("ipv6.nxt", "IPv6 Next Header", FT_UINT32, BASE_DEC, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    register_capture_dissector_table("ipv6.nxt", "IPv6 Next Header");
 
     /* Register configuration options */
     ipv6_module = prefs_register_protocol(proto_ipv6, NULL);
@@ -3547,6 +3521,7 @@ proto_reg_handoff_ipv6(void)
     dissector_add_uint("pwach.channel_type", 0x57, ipv6_handle); /* IPv6, RFC4385 clause 6. */
     dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_IPv6, ipv6_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP6, ipv6_handle);
+    dissector_add_uint("enc", BSD_AF_INET6_BSD, ipv6_handle);
 
     dissector_add_for_decode_as("udp.port", ipv6_handle);
 
@@ -3561,6 +3536,7 @@ proto_reg_handoff_ipv6(void)
 
     ip_dissector_table = find_dissector_table("ip.proto");
     register_capture_dissector("ethertype", ETHERTYPE_IPv6, capture_ipv6, proto_ipv6);
+    register_capture_dissector("enc", BSD_AF_INET6_BSD, capture_ipv6, proto_ipv6);
 }
 
 /*

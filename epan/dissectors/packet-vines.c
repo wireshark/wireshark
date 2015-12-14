@@ -2019,6 +2019,9 @@ proto_reg_handoff_vines_icp(void)
 	dissector_add_uint("vines_ip.protocol", VIP_PROTO_ICP, vines_icp_handle);
 	register_capture_dissector("ethertype", ETHERTYPE_VINES_IP, capture_vines, proto_vines_ip);
 	register_capture_dissector("ethertype", ETHERTYPE_VINES_ECHO, capture_vines, proto_vines_echo);
+	register_capture_dissector("ppp_hdlc", PPP_VINES, capture_vines, proto_vines_echo);
+	register_capture_dissector("ip.proto", PPP_VINES, capture_vines, proto_vines_echo);
+	register_capture_dissector("ipv6.nxt", PPP_VINES, capture_vines, proto_vines_echo);
 }
 
 /*
