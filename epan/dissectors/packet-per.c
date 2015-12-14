@@ -2399,6 +2399,8 @@ gboolean get_size_constraint_from_stack(asn1_ctx_t *actx, const gchar *name, int
 
 static int
 dissect_per_T_direct_reference(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
+
+	DISSECTOR_ASSERT(actx);
 	offset = dissect_per_object_identifier_str(tvb, offset, actx, tree, hf_index, &actx->external.direct_reference);
 
 	actx->external.direct_ref_present = TRUE;
