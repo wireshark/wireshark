@@ -280,7 +280,7 @@ static int Pref__gc(lua_State* L) {
             case PREF_STRING:
                 /*
                  * Free the initial string value; if it's not NULL, that
-                 * means this is a never-registered protocol, so the
+                 * means this is a never-registered preference, so the
                  * initial value hasn't been freed.
                  */
                 g_free(pref->info.default_s);
@@ -297,9 +297,9 @@ static int Pref__gc(lua_State* L) {
                 }
                 g_free ((enum_val_t *)pref->info.enum_info.enumvals);
                 break;
+            }
             default:
                 break;
-            }
         }
         g_free(pref);
     }
