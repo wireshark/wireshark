@@ -233,6 +233,12 @@ static int hf_bcp_ncp_opt_type = -1;
 static int hf_bcp_ncp_opt_length = -1;
 static int hf_bcp_ncp_lan_seg_no = -1;
 static int hf_bcp_ncp_bridge_no = -1;
+static int hf_bcp_ncp_tinygram_comp = -1;
+static int hf_bcp_ncp_mac = -1;
+static int hf_bcp_ncp_mac_l = -1;
+static int hf_bcp_ncp_mac_m = -1;
+static int hf_bcp_ncp_stp_prot = -1;
+static int hf_bcp_ncp_ieee_802_tagged_frame = -1;
 
 static gint ett_bcp_ncp = -1;
 static gint ett_bcp_ncp_options = -1;
@@ -1418,16 +1424,16 @@ static ip_tcp_opt_type PPP_OPT_TYPES = {&hf_ppp_opt_type, &ett_ppp_opt_type,
 10       Bridge Control Packet Indicator
 
 */
-#define CI_BCPLCP_BRIDGE_ID 1
-#define CI_BCPLCP_LINE_ID 2
-#define CI_BCPLCP_MAC_SUPPORT 3
-#define CI_BCPLCP_TINYGRAM_COMP 4
-#define CI_BCPLCP_LAN_ID 5
-#define CI_BCPLCP_MAC_ADDRESS 6
-#define CI_BCPLCP_STP 7
-#define CI_BCPLCP_IEEE_802_TAGGED_FRAME 8
-#define CI_BCPLCP_MANAGEMENT_INLINE 9
-#define CI_BCPLCP_BCP_IND 10
+#define CI_BCPNCP_BRIDGE_ID 1
+#define CI_BCPNCP_LINE_ID 2
+#define CI_BCPNCP_MAC_SUPPORT 3
+#define CI_BCPNCP_TINYGRAM_COMP 4
+#define CI_BCPNCP_LAN_ID 5
+#define CI_BCPNCP_MAC_ADDRESS 6
+#define CI_BCPNCP_STP 7
+#define CI_BCPNCP_IEEE_802_TAGGED_FRAME 8
+#define CI_BCPNCP_MANAGEMENT_INLINE 9
+#define CI_BCPNCP_BCP_IND 10
 
 
 
@@ -1472,25 +1478,25 @@ static void dissect_bcp_ncp_bcp_ncp_bcp_ind(const ip_tcp_opt *optp,
     proto_tree *tree, void *data _U_);
 
 static const ip_tcp_opt bcp_ncp_opts[] = {
-    { CI_BCPLCP_BRIDGE_ID, "Bridge-Identification", &ett_bcp_ncp_bridge_id_opt,
+    { CI_BCPNCP_BRIDGE_ID, "Bridge-Identification", &ett_bcp_ncp_bridge_id_opt,
     OPT_LEN_FIXED_LENGTH, 4, dissect_bcp_ncp_bridge_id },
-    { CI_BCPLCP_LINE_ID, "Line-Identification", &ett_bcp_ncp_line_id_opt,
+    { CI_BCPNCP_LINE_ID, "Line-Identification", &ett_bcp_ncp_line_id_opt,
     OPT_LEN_FIXED_LENGTH, 4, dissect_bcp_ncp_line_id },
-    { CI_BCPLCP_MAC_SUPPORT, "MAC-Support", &ett_bcp_ncp_mac_sup_opt,
+    { CI_BCPNCP_MAC_SUPPORT, "MAC-Support", &ett_bcp_ncp_mac_sup_opt,
     OPT_LEN_FIXED_LENGTH, 3, dissect_bcp_ncp_mac_sup },
-    { CI_BCPLCP_TINYGRAM_COMP, "Tinygram-Compression", &ett_bcp_ncp_tinygram_comp_opt,
+    { CI_BCPNCP_TINYGRAM_COMP, "Tinygram-Compression", &ett_bcp_ncp_tinygram_comp_opt,
     OPT_LEN_FIXED_LENGTH, 3, dissect_bcp_ncp_tinygram_comp },
-    { CI_BCPLCP_LAN_ID, "LAN-Identification (obsoleted)", &ett_bcp_ncp_lan_id_opt,
+    { CI_BCPNCP_LAN_ID, "LAN-Identification (obsoleted)", &ett_bcp_ncp_lan_id_opt,
     OPT_LEN_FIXED_LENGTH, 3, dissect_bcp_ncp_lan_id },
-    { CI_BCPLCP_MAC_ADDRESS, "MAC-Address", &ett_bcp_ncp_mac_addr_opt,
+    { CI_BCPNCP_MAC_ADDRESS, "MAC-Address", &ett_bcp_ncp_mac_addr_opt,
     OPT_LEN_FIXED_LENGTH, 8, dissect_bcp_ncp_mac_addr },
-    { CI_BCPLCP_STP, "Spanning-Tree-Protocol (old formatted)", &ett_bcp_ncp_stp_opt,
+    { CI_BCPNCP_STP, "Spanning-Tree-Protocol (old formatted)", &ett_bcp_ncp_stp_opt,
     OPT_LEN_VARIABLE_LENGTH, 3, dissect_bcp_ncp_stp },
-    { CI_BCPLCP_IEEE_802_TAGGED_FRAME, "IEEE 802 Tagged Frame", &ett_bcp_ncp_ieee_802_tagged_frame_opt,
+    { CI_BCPNCP_IEEE_802_TAGGED_FRAME, "IEEE 802 Tagged Frame", &ett_bcp_ncp_ieee_802_tagged_frame_opt,
     OPT_LEN_FIXED_LENGTH, 3, dissect_bcp_ncp_ieee_802_tagged_frame },
-    { CI_BCPLCP_MANAGEMENT_INLINE, "Management Inline", &ett_bcp_ncp_management_inline_opt,
+    { CI_BCPNCP_MANAGEMENT_INLINE, "Management Inline", &ett_bcp_ncp_management_inline_opt,
     OPT_LEN_FIXED_LENGTH, 2, dissect_bcp_ncp_management_inline },
-    { CI_BCPLCP_BCP_IND, "Bridge Control Packet Indicator", &ett_bcp_ncp_bcp_ind_opt,
+    { CI_BCPNCP_BCP_IND, "Bridge Control Packet Indicator", &ett_bcp_ncp_bcp_ind_opt,
     OPT_LEN_FIXED_LENGTH, 2, dissect_bcp_ncp_bcp_ncp_bcp_ind }
 };
 
@@ -3195,7 +3201,10 @@ dissect_bcp_ncp_mac_sup(const ip_tcp_opt *optp, tvbuff_t *tvb,
         *optp->subtree_index, NULL, "%s",
         optp->name);
 
-    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+
+    proto_tree_add_item(tree, hf_bcp_bpdu_mac_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+
 }
 
 /*
@@ -3216,7 +3225,9 @@ dissect_bcp_ncp_tinygram_comp(const ip_tcp_opt *optp, tvbuff_t *tvb,
         *optp->subtree_index, NULL, "%s",
         optp->name);
 
-    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+
+    proto_tree_add_item(tree, hf_bcp_ncp_tinygram_comp, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 
@@ -3252,7 +3263,11 @@ dissect_bcp_ncp_mac_addr(const ip_tcp_opt *optp, tvbuff_t *tvb,
         *optp->subtree_index, NULL, "%s",
         optp->name);
 
-    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+
+    proto_tree_add_item(tree, hf_bcp_ncp_mac, tvb, offset, 6, ENC_NA);
+    proto_tree_add_item(tree, hf_bcp_ncp_mac_l, tvb, offset, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_bcp_ncp_mac_m, tvb, offset, 6, ENC_BIG_ENDIAN);
 }
 
 /*
@@ -3263,6 +3278,16 @@ dissect_bcp_ncp_mac_addr(const ip_tcp_opt *optp, tvbuff_t *tvb,
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
 
 */
+
+static const value_string bcp_ncp_stp_prot_vals[] = {
+    { 0, "Null (no Spanning Tree protocol supported)" },
+    { 1, "IEEE 802.1D spanning tree" },
+    { 2, "IEEE 802.1G extended spanning tree protocol" },
+    { 3, "IBM Source Route Spanning tree protocol" },
+    { 4, "DEC LANbridge 100 Spanning tree protocol" },
+    { 0,            NULL }
+};
+
 static void
 dissect_bcp_ncp_stp(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint length, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -3273,7 +3298,14 @@ dissect_bcp_ncp_stp(const ip_tcp_opt *optp, tvbuff_t *tvb,
         *optp->subtree_index, NULL, "%s",
         optp->name);
 
-    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+    length = length - 2;
+
+    while (length != 0) {
+        proto_tree_add_item(tree, hf_bcp_ncp_stp_prot, tvb, offset, 1, ENC_BIG_ENDIAN);
+        length--;
+        offset++;
+    }
 }
 
 /*
@@ -3294,7 +3326,9 @@ dissect_bcp_ncp_ieee_802_tagged_frame(const ip_tcp_opt *optp, tvbuff_t *tvb,
         *optp->subtree_index, NULL, "%s",
         optp->name);
 
-    dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+    offset = dissect_bcp_ncp_opt_type_len(tvb, offset, field_tree, optp->name);
+
+    proto_tree_add_item(tree, hf_bcp_ncp_ieee_802_tagged_frame, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 
@@ -6596,13 +6630,31 @@ proto_register_bcp_ncp(void)
                 NULL, 0x0, NULL, HFILL } },
         { &hf_bcp_ncp_opt_length,
             { "Length", "bcp_ncp.lcp.opt.length", FT_UINT8, BASE_DEC,
-               NULL, 0x0, NULL, HFILL } },
+                NULL, 0x0, NULL, HFILL } },
         { &hf_bcp_ncp_lan_seg_no,
             { "LAN Segment Number", "bcp_ncp.lcp.lan_seg_no", FT_UINT16, BASE_DEC,
-               NULL, 0xfff0, NULL, HFILL } },
+                NULL, 0xfff0, NULL, HFILL } },
         { &hf_bcp_ncp_bridge_no,
             { "Bridge Number", "bcp_ncp.lcp.bridge_no", FT_UINT16, BASE_DEC,
-               NULL, 0x000f, NULL, HFILL } },
+                NULL, 0x000f, NULL, HFILL } },
+       { &hf_bcp_ncp_tinygram_comp,
+            { "Tinygram-Compression", "bcp_ncp.lcp.tinygram_comp", FT_BOOLEAN, 8,
+                TFS(&tfs_enabled_disabled), 0x0, NULL, HFILL } },
+       { &hf_bcp_ncp_mac,
+            { "MAC Address", "bcp_ncp.lcp.mac_addres", FT_ETHER, BASE_NONE,
+                NULL, 0x0, NULL, HFILL } },
+       { &hf_bcp_ncp_mac_l,
+            { "L bit", "bcp_ncp.lcp.mac_l", FT_UINT48, BASE_HEX,
+                NULL, 0x0200000000, NULL, HFILL } },
+       { &hf_bcp_ncp_mac_m,
+           { "M bit", "bcp_ncp.lcp.mac_addre", FT_UINT48, BASE_HEX,
+                NULL, 0x0100000000, NULL, HFILL } },
+       { &hf_bcp_ncp_stp_prot,
+           { "Protocol", "bcp_ncp.lcp.stp_protocol", FT_UINT8, BASE_DEC,
+                VALS(bcp_ncp_stp_prot_vals), 0x0, NULL, HFILL } },
+       { &hf_bcp_ncp_ieee_802_tagged_frame,
+           { "IEEE-802-Tagged-Frame", "bcp_ncp.ieee_802_tagged_frame", FT_BOOLEAN, 8,
+                TFS(&tfs_enabled_disabled), 0x0, NULL, HFILL } },
 
     };
 
