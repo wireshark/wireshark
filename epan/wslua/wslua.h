@@ -170,6 +170,7 @@ typedef struct _wslua_pref_t {
                          option menu or combo box in
                          the preferences tab */
       } enum_info;            /**< for PREF_ENUM */
+      gchar* default_s;       /**< default value for value.s */
     } info;                    /**< display/text file information */
 
     struct _wslua_pref_t* next;
