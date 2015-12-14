@@ -2054,7 +2054,14 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 offset += 1;
 
                 if (length > 0) {
-                    call_dissector_with_data(btcommon_ad_handle, tvb_new_subset_length(tvb, offset, length), pinfo, tree, bluetooth_data);
+                    bluetooth_eir_ad_data_t *ad_data;
+
+                    ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+                    ad_data->interface_id = bluetooth_data->interface_id;
+                    ad_data->adapter_id = bluetooth_data->adapter_id;
+                    ad_data->bd_addr = bd_addr;
+
+                    call_dissector_with_data(btcommon_ad_handle, tvb_new_subset_length(tvb, offset, length), pinfo, tree, ad_data);
                     save_remote_device_name(tvb, offset, pinfo, length, bd_addr, bluetooth_data);
                     offset += length;
                 }
@@ -2944,6 +2951,14 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             break;
 
         case 0x0c51: /* Read Extended Inquiry Response */
+            {
+            bluetooth_eir_ad_data_t *eir_data;
+
+            eir_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+            eir_data->interface_id = bluetooth_data->interface_id;
+            eir_data->adapter_id = bluetooth_data->adapter_id;
+            eir_data->bd_addr = NULL;
+
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
             offset += 1;
@@ -2951,9 +2966,10 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
             proto_tree_add_item(tree, hf_bthci_evt_fec_required, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            call_dissector_with_data(btcommon_eir_handle, tvb_new_subset_length(tvb, offset, 240), pinfo, tree, bluetooth_data);
+            call_dissector_with_data(btcommon_eir_handle, tvb_new_subset_length(tvb, offset, 240), pinfo, tree, eir_data);
             offset += 240;
 
+            }
             break;
 
         case 0x0c55: /* Read Simple Pairing Mode */
@@ -4206,12 +4222,22 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x2f: /* Extended Inquiry Result */
+            {
+            bluetooth_eir_ad_data_t *eir_data;
+
             previous_offset = offset;
             offset = dissect_bthci_evt_inquire_result_with_rssi(tvb, offset, pinfo, bthci_evt_tree, bluetooth_data, bd_addr);
 
-            call_dissector_with_data(btcommon_eir_handle, tvb_new_subset_length(tvb, offset, 240), pinfo, bthci_evt_tree, bluetooth_data);
+            eir_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+            eir_data->interface_id = bluetooth_data->interface_id;
+            eir_data->adapter_id = bluetooth_data->adapter_id;
+            eir_data->bd_addr = bd_addr;
+
+
+            call_dissector_with_data(btcommon_eir_handle, tvb_new_subset_length(tvb, offset, 240), pinfo, bthci_evt_tree, eir_data);
             save_remote_device_name(tvb, offset, pinfo, 240, (offset - previous_offset <= 1) ? NULL : bd_addr, bluetooth_data);
             offset += 240;
+            }
 
             break;
 

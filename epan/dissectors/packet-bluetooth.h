@@ -251,6 +251,14 @@ typedef struct _bluetooth_hci_summary_tap_t {
     enum bluetooth_hci_summary_type  type;
 } bluetooth_hci_summary_tap_t;
 
+typedef struct _bluetooth_eir_ad_data_t {
+    guint32           interface_id;
+    guint32           adapter_id;
+
+    guint8           *bd_addr;
+} bluetooth_eir_ad_data_t;
+
+
 extern int bluetooth_device_tap;
 extern int bluetooth_hci_summary_tap;
 
