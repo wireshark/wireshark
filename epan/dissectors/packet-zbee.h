@@ -1125,6 +1125,8 @@
 #define ZBEE_PROTOABBREV_ZCL_IDENTIFY       "zbee_zcl_general.identify"
 #define ZBEE_PROTOABBREV_ZCL_GROUPS         "zbee_zcl_general.groups"
 #define ZBEE_PROTOABBREV_ZCL_SCENES         "zbee_zcl_general.scenes"
+#define ZBEE_PROTOABBREV_ZCL_ALARMS         "zbee_zcl_general.alarms"
+#define ZBEE_PROTOABBREV_ZCL_TIME           "zbee_zcl_general.time"
 #define ZBEE_PROTOABBREV_ZCL_THERMOSTAT     "zbee_zcl_hvac.thermostat"
 #define ZBEE_PROTOABBREV_ZCL_APPLEVTALT     "zbee_zcl_ha.applevtalt"
 #define ZBEE_PROTOABBREV_ZCL_APPLIDT        "zbee_zcl_ha.applident"
