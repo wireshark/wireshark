@@ -423,6 +423,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
             ieee_packet = (ieee802154_packet *)data;
 
+            memset(&nwkSecurityVector, 0, sizeof(nwkSecurityVector));
             nwkSecurityVector[0] = lwm_seq;
             nwkSecurityVector[1] = ((guint32)lwm_dst_addr<< 16) | lwm_dst_endp;
             nwkSecurityVector[2]= ((guint32) lwm_src_addr<< 16) | lwm_src_endp;
