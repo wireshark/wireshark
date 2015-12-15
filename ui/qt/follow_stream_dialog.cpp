@@ -969,9 +969,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
     {
     case FOLLOW_TCP:
     {
-        int stream_count = get_tcp_stream_count() - 1;
+        int stream_count = get_tcp_stream_count();
         ui->streamNumberSpinBox->blockSignals(true);
-        ui->streamNumberSpinBox->setMaximum(stream_count);
+        ui->streamNumberSpinBox->setMaximum(stream_count-1);
         ui->streamNumberSpinBox->setValue(get_follow_index(TCP_STREAM));
         ui->streamNumberSpinBox->blockSignals(false);
         ui->streamNumberSpinBox->setToolTip(tr("%Ln total stream(s).", "", stream_count));
@@ -988,9 +988,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
             return false;
         }
 
-        int stream_count = get_udp_stream_count() - 1;
+        int stream_count = get_udp_stream_count();
         ui->streamNumberSpinBox->blockSignals(true);
-        ui->streamNumberSpinBox->setMaximum(stream_count);
+        ui->streamNumberSpinBox->setMaximum(stream_count-1);
         ui->streamNumberSpinBox->setValue(get_follow_index(UDP_STREAM));
         ui->streamNumberSpinBox->blockSignals(false);
         ui->streamNumberSpinBox->setToolTip(tr("%Ln total stream(s).", "", stream_count));
