@@ -373,6 +373,246 @@ proto_reg_handoff_zbee_zcl_illum_meas(void)
 
 
 /* ########################################################################## */
+/* #### (0x0401) ILLUMINANCE LEVEL SENSING CLUSTER ########################## */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+#define ZBEE_ZCL_ILLUM_LEVEL_SEN_NUM_GENERIC_ETT                    1
+#define ZBEE_ZCL_ILLUM_LEVEL_SEN_NUM_ETT                            ZBEE_ZCL_ILLUM_LEVEL_SEN_NUM_GENERIC_ETT
+
+/* Attributes */
+#define ZBEE_ZCL_ATTR_ID_ILLUM_LEVEL_SEN_LEVEL_STATUS               0x0000  /* Level Status */
+#define ZBEE_ZCL_ATTR_ID_ILLUM_LEVEL_SEN_LIGHT_SENSOR_TYPE          0x0001  /* Light Sensor Type */
+#define ZBEE_ZCL_ATTR_ID_ILLUM_LEVEL_SEN_ILLUM_TARGET_LEVEL         0x0010  /* Illuminance Target Level */
+
+/* Server Commands Received - None */
+
+/* Server Commands Generated - None */
+
+#define ZBEE_ZCL_ATTR_ID_ILLUM_LEVEL_SEN_TOO_LOW_VALUE              0x0000  /* Too Low Value */
+#define ZBEE_ZCL_ATTR_ID_ILLUM_LEVEL_SEN_INVALID_VALUE              0x8000  /* Invalid Value */
+
+#define ZBEE_ZCL_ILLUM_LEVEL_SEN_SENSOR_TYPE_PHOTODIODE             0x00  /* Photodiode */
+#define ZBEE_ZCL_ILLUM_LEVEL_SEN_SENSOR_TYPE_CMOS                   0x01  /* CMOS */
+
+#define ZBEE_ZCL_ILLUM_LEVEL_SEN_ILLUM_ON_TARGET                    0x00  /* Illuminance on Target */
+#define ZBEE_ZCL_ILLUM_LEVEL_SEN_ILLUM_BELOW_TARGET                 0x01  /* Illuminance below Target */
+#define ZBEE_ZCL_ILLUM_LEVEL_SEN_ILLUM_ABOVE_TARGET                 0x02  /* Illuminance above Target */
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+void proto_register_zbee_zcl_illum_level_sen(void);
+void proto_reg_handoff_zbee_zcl_illum_level_sen(void);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_illum_level_sen_attr_data               (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Private functions prototype */
+static void decode_illum_level_sen_target_level                 (gchar *s, guint16 value);
+
+/*************************/
+/* Global Variables      */
+/*************************/
+
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_illum_level_sen = -1;
+
+static int hf_zbee_zcl_illum_level_sen_attr_id = -1;
+static int hf_zbee_zcl_illum_level_sen_level_status = -1;
+static int hf_zbee_zcl_illum_level_sen_light_sensor_type = -1;
+static int hf_zbee_zcl_illum_level_sen_illum_target_level = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_illum_level_sen = -1;
+
+/* Attributes */
+static const value_string zbee_zcl_illum_level_sen_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_ILLUM_LEVEL_SEN_LEVEL_STATUS,        "Level Status" },
+    { ZBEE_ZCL_ATTR_ID_ILLUM_LEVEL_SEN_LIGHT_SENSOR_TYPE,   "Light Sensor Type" },
+    { ZBEE_ZCL_ATTR_ID_ILLUM_LEVEL_SEN_ILLUM_TARGET_LEVEL,  "Illuminance Target Level" },
+    { 0, NULL }
+};
+
+static const value_string zbee_zcl_illum_level_sen_sensor_type_names[] = {
+    { ZBEE_ZCL_ILLUM_LEVEL_SEN_SENSOR_TYPE_PHOTODIODE,      "Photodiode" },
+    { ZBEE_ZCL_ILLUM_LEVEL_SEN_SENSOR_TYPE_CMOS,            "CMOS" },
+    { 0, NULL }
+};
+
+static const value_string zbee_zcl_illum_level_sen_level_status_names[] = {
+    { ZBEE_ZCL_ILLUM_LEVEL_SEN_ILLUM_ON_TARGET,             "Illuminance on Target" },
+    { ZBEE_ZCL_ILLUM_LEVEL_SEN_ILLUM_BELOW_TARGET,          "Illuminance below Target" },
+    { ZBEE_ZCL_ILLUM_LEVEL_SEN_ILLUM_ABOVE_TARGET,          "Illuminance above Target" },
+    { 0, NULL }
+};
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_illum_level_sen
+ *  DESCRIPTION
+ *      ZigBee ZCL Illuminance Level Sensing cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static int
+dissect_zbee_zcl_illum_level_sen(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
+{
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_illum_level_sen*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_illum_level_sen_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_illum_level_sen_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    /* Dissect attribute data type and data */
+    switch ( attr_id ) {
+
+        case ZBEE_ZCL_ATTR_ID_ILLUM_LEVEL_SEN_LEVEL_STATUS:
+            proto_tree_add_item(tree, hf_zbee_zcl_illum_level_sen_level_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_ILLUM_LEVEL_SEN_LIGHT_SENSOR_TYPE:
+            proto_tree_add_item(tree, hf_zbee_zcl_illum_level_sen_light_sensor_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_ILLUM_LEVEL_SEN_ILLUM_TARGET_LEVEL:
+            proto_tree_add_item(tree, hf_zbee_zcl_illum_level_sen_illum_target_level, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+            break;
+
+        default:
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+} /*dissect_zcl_illum_level_sen_attr_data*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *    decode_illum_level_sen_target_level
+ *  DESCRIPTION
+ *    this function decodes illuminance value
+ *  PARAMETERS
+ *      guint *s        - string to display
+ *      guint16 value   - value to decode
+ *  RETURNS
+ *    none
+ *---------------------------------------------------------------
+ */
+static void
+decode_illum_level_sen_target_level(gchar *s, guint16 value)
+{
+    if (value == ZBEE_ZCL_ATTR_ID_ILLUM_LEVEL_SEN_TOO_LOW_VALUE)
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Value too low to be measured");
+    else if (value == ZBEE_ZCL_ATTR_ID_ILLUM_LEVEL_SEN_INVALID_VALUE)
+        g_snprintf(s, ITEM_LABEL_LENGTH, "Invalid value");
+    else
+        /* calculate lux value from measured value according to doc 07-5123-04 */
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%d (=%f [lx])", value, pow(10,value/10000.0)-1);
+
+    return;
+} /*decode_illum_level_sen_value*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_illum_level_sen
+ *  DESCRIPTION
+ *      this function registers the ZCL Illuminance Level Sensing dissector
+ *      and all its information.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_register_zbee_zcl_illum_level_sen(void)
+{
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_illum_level_sen_attr_id,
+            { "Attribute", "zbee_zcl_meas_sensing.illumlevelsen.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_illum_level_sen_attr_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_illum_level_sen_level_status,
+            { "Level Status", "zbee_zcl_meas_sensing.illumlevelsen.attr.level_status", FT_UINT8, BASE_HEX, VALS(zbee_zcl_illum_level_sen_level_status_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_illum_level_sen_light_sensor_type,
+            { "Light Sensor Type", "zbee_zcl_meas_sensing.illumlevelsen.attr.light_sensor_type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_illum_level_sen_sensor_type_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_illum_level_sen_illum_target_level,
+            { "Target Level", "zbee_zcl_meas_sensing.illumlevelsen.attr.target_level", FT_UINT16, BASE_CUSTOM, CF_FUNC(decode_illum_level_sen_target_level),
+            0x00, NULL, HFILL } }
+    };
+
+    /* Register the ZigBee ZCL Illuminance Level Sensing cluster protocol name and description */
+    proto_zbee_zcl_illum_level_sen = proto_register_protocol("ZigBee ZCL Illuminance Level Sensing", "ZCL Illuminance Level Sensing", ZBEE_PROTOABBREV_ZCL_ILLUMLEVELSEN);
+    proto_register_field_array(proto_zbee_zcl_illum_level_sen, hf, array_length(hf));
+
+    /* Register the ZigBee ZCL Illuminance Level Sensing dissector. */
+    register_dissector(ZBEE_PROTOABBREV_ZCL_ILLUMLEVELSEN, dissect_zbee_zcl_illum_level_sen, proto_zbee_zcl_illum_level_sen);
+
+} /*proto_register_zbee_zcl_illum_level_sen*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_illum_level_sen
+ *  DESCRIPTION
+ *      Hands off the ZCL Illuminance Level Sensing dissector.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_reg_handoff_zbee_zcl_illum_level_sen(void)
+{
+    zbee_zcl_init_cluster(  proto_zbee_zcl_illum_level_sen,
+                            ett_zbee_zcl_illum_level_sen,
+                            ZBEE_ZCL_CID_ILLUMINANCE_LEVEL_SENSING,
+                            hf_zbee_zcl_illum_level_sen_attr_id,
+                            -1, -1,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_illum_level_sen_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_illum_level_sen*/
+
+
+
+/* ########################################################################## */
 /* #### (0x0402) TEMPERATURE MEASUREMENT CLUSTER ############################ */
 /* ########################################################################## */
 
