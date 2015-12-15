@@ -159,6 +159,11 @@ static int hf_radius_eap_fragment = -1;
 static int hf_radius_avp = -1;
 static int hf_radius_3gpp_ms_tmime_zone = -1;
 
+static int hf_radius_egress_vlanid_tag = -1;
+static int hf_radius_egress_vlanid_pad = -1;
+static int hf_radius_egress_vlanid = -1;
+
+
 static gint ett_radius = -1;
 static gint ett_radius_avp = -1;
 
@@ -777,6 +782,28 @@ dissect_radius_3gpp_ms_tmime_zone(proto_tree* tree, tvbuff_t* tvb, packet_info* 
 	return wmem_strdup_printf(wmem_packet_scope(), "Timezone: GMT %c%d hours %d minutes %s ",
 				  sign, oct / 4, oct % 4 * 15, val_to_str_const(daylight_saving_time, daylight_saving_time_vals, "Unknown"));
 
+}
+
+static const value_string egress_vlanid_tag_vals[] = {
+	{ 0x31, "Tagged"},
+	{ 0x32, "Untagged"},
+	{  0, NULL}
+};
+static const gchar *dissect_rfc4675_egress_vlanid(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
+	int len;
+	guint32 vlanid;
+
+	len = tvb_reported_length(tvb);
+	if (len != 4)
+		return "[wrong length for Egress-VLANID ]";
+
+	proto_tree_add_item(tree, hf_radius_egress_vlanid_tag, tvb, 0, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_radius_egress_vlanid_pad, tvb, 0, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_radius_egress_vlanid, tvb, 0, 4, ENC_BIG_ENDIAN);
+	vlanid = tvb_get_ntohl(tvb, 0);
+
+	return wmem_strdup_printf(wmem_packet_scope(), "%s Vlan ID: %u",
+				   val_to_str_const( ((vlanid&0xFF000000)>>24), egress_vlanid_tag_vals, "Unknown"), vlanid&0xFFF);
 }
 
 static void
@@ -2357,6 +2384,15 @@ static void register_radius_fields(const char* unused _U_) {
 		 { &hf_radius_avp,
 		 { "AVP", "radius.avp", FT_BYTES, BASE_NONE, NULL, 0x0,
 			 NULL, HFILL }},
+		 { &hf_radius_egress_vlanid_tag,
+		 { "Tag", "radius.egress_vlanid_tag", FT_UINT32, BASE_HEX, VALS(egress_vlanid_tag_vals), 0xFF000000,
+			 NULL, HFILL }},
+		 { &hf_radius_egress_vlanid_pad,
+		 { "Pad", "radius.egress_vlanid_pad", FT_UINT32, BASE_HEX, NULL, 0x00FFF000,
+			 NULL, HFILL }},
+		 { &hf_radius_egress_vlanid,
+		 { "Vlan ID", "radius.egress_vlanid", FT_UINT32, BASE_DEC, NULL, 0x00000FFF,
+			 NULL, HFILL }},
 		 { &hf_radius_3gpp_ms_tmime_zone,
 		 { "Timezone", "radius.3gpp_ms_tmime_zone", FT_BYTES, BASE_NONE, NULL, 0x0,
 			 NULL, HFILL }},
@@ -2432,6 +2468,8 @@ static void register_radius_fields(const char* unused _U_) {
 	radius_register_avp_dissector(0,8,dissect_framed_ip_address);
 	radius_register_avp_dissector(0,14,dissect_login_ip_host);
 	radius_register_avp_dissector(0,23,dissect_framed_ipx_network);
+	radius_register_avp_dissector(0,56,dissect_rfc4675_egress_vlanid);
+
 	radius_register_avp_dissector(VENDOR_COSINE,5,dissect_cosine_vpvc);
 	/*
 	 * XXX - should we just call dissect_ascend_data_filter()
