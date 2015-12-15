@@ -60,10 +60,6 @@
 
 void proto_register_t38(void);
 
-#define PORT_T38 6004
-static guint global_t38_tcp_port = PORT_T38;
-static guint global_t38_udp_port = PORT_T38;
-
 static int t38_tap = -1;
 
 /* dissect using the Pre Corrigendum T.38 ASN.1 specification (1998) */
@@ -273,25 +269,25 @@ void t38_add_address(packet_info *pinfo,
          */
         g_strlcpy(p_conversation_data->setup_method, setup_method, MAX_T38_SETUP_METHOD_SIZE);
         p_conversation_data->setup_frame_number = setup_frame_number;
-		p_conversation_data->src_t38_info.reass_ID = 0;
-		p_conversation_data->src_t38_info.reass_start_seqnum = -1;
-		p_conversation_data->src_t38_info.reass_data_type = 0;
-		p_conversation_data->src_t38_info.last_seqnum = -1;
-		p_conversation_data->src_t38_info.packet_lost = 0;
-		p_conversation_data->src_t38_info.burst_lost = 0;
-		p_conversation_data->src_t38_info.time_first_t4_data = 0;
-		p_conversation_data->src_t38_info.additional_hdlc_data_field_counter = 0;
-		p_conversation_data->src_t38_info.seqnum_prev_data_field = -1;
+        p_conversation_data->src_t38_info.reass_ID = 0;
+        p_conversation_data->src_t38_info.reass_start_seqnum = -1;
+        p_conversation_data->src_t38_info.reass_data_type = 0;
+        p_conversation_data->src_t38_info.last_seqnum = -1;
+        p_conversation_data->src_t38_info.packet_lost = 0;
+        p_conversation_data->src_t38_info.burst_lost = 0;
+        p_conversation_data->src_t38_info.time_first_t4_data = 0;
+        p_conversation_data->src_t38_info.additional_hdlc_data_field_counter = 0;
+        p_conversation_data->src_t38_info.seqnum_prev_data_field = -1;
 
-		p_conversation_data->dst_t38_info.reass_ID = 0;
-		p_conversation_data->dst_t38_info.reass_start_seqnum = -1;
-		p_conversation_data->dst_t38_info.reass_data_type = 0;
-		p_conversation_data->dst_t38_info.last_seqnum = -1;
-		p_conversation_data->dst_t38_info.packet_lost = 0;
-		p_conversation_data->dst_t38_info.burst_lost = 0;
-		p_conversation_data->dst_t38_info.time_first_t4_data = 0;
-		p_conversation_data->dst_t38_info.additional_hdlc_data_field_counter = 0;
-		p_conversation_data->dst_t38_info.seqnum_prev_data_field = -1;
+        p_conversation_data->dst_t38_info.reass_ID = 0;
+        p_conversation_data->dst_t38_info.reass_start_seqnum = -1;
+        p_conversation_data->dst_t38_info.reass_data_type = 0;
+        p_conversation_data->dst_t38_info.last_seqnum = -1;
+        p_conversation_data->dst_t38_info.packet_lost = 0;
+        p_conversation_data->dst_t38_info.burst_lost = 0;
+        p_conversation_data->dst_t38_info.time_first_t4_data = 0;
+        p_conversation_data->dst_t38_info.additional_hdlc_data_field_counter = 0;
+        p_conversation_data->dst_t38_info.seqnum_prev_data_field = -1;
 }
 
 
@@ -556,7 +552,7 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	proto_item *it;
 	proto_tree *tr;
 	guint32 offset=0;
-    tvbuff_t *next_tvb;
+        tvbuff_t *next_tvb;
 	guint16 ifp_packet_number=1;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.38");
@@ -742,14 +738,8 @@ proto_register_t38(void)
 		"be dissected as RTP packet or T.38 packet. If enabled there is a risk that T.38 UDPTL "
 		"packets with sequence number higher than 32767 may be dissected as RTP.",
 	    &dissect_possible_rtpv2_packets_as_rtp);
-	prefs_register_uint_preference(t38_module, "tcp.port",
-		"T.38 TCP Port",
-		"Set the TCP port for T.38 messages",
-		10, &global_t38_tcp_port);
-	prefs_register_uint_preference(t38_module, "udp.port",
-		"T.38 UDP Port",
-		"Set the UDP port for T.38 messages",
-		10, &global_t38_udp_port);
+	prefs_register_obsolete_preference(t38_module, "tcp.port");
+	prefs_register_obsolete_preference(t38_module, "udp.port");
 	prefs_register_bool_preference(t38_module, "reassembly",
 		"Reassemble T.38 PDUs over TPKT over TCP",
 		"Whether the dissector should reassemble T.38 PDUs spanning multiple TCP segments "
@@ -774,8 +764,6 @@ void
 proto_reg_handoff_t38(void)
 {
 	static gboolean t38_prefs_initialized = FALSE;
-	static guint tcp_port;
-	static guint udp_port;
 
 	if (!t38_prefs_initialized) {
 		t38_udp_handle=create_dissector_handle(dissect_t38_udp, proto_t38);
@@ -786,15 +774,5 @@ proto_reg_handoff_t38(void)
 		data_handle = find_dissector("data");
 		t38_prefs_initialized = TRUE;
 	}
-	else {
-		dissector_delete_uint("tcp.port", tcp_port, t38_tcp_handle);
-		dissector_delete_uint("udp.port", udp_port, t38_udp_handle);
-	}
-	tcp_port = global_t38_tcp_port;
-	udp_port = global_t38_udp_port;
-
-	dissector_add_uint("tcp.port", tcp_port, t38_tcp_handle);
-	dissector_add_uint("udp.port", udp_port, t38_udp_handle);
-
 }
 
