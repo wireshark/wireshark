@@ -31,6 +31,7 @@
 #include <epan/expert.h>
 #include <epan/asn1.h>
 #include "packet-kerberos.h"
+#include "packet-ssl-utils.h"
 #include "packet-tn3270.h"
 #include "packet-tn5250.h"
 
@@ -148,6 +149,7 @@ static dissector_handle_t telnet_handle;
 
 static dissector_handle_t tn3270_handle;
 static dissector_handle_t tn5250_handle;
+static dissector_handle_t ssl_handle;
 
 /* Some defines for Telnet */
 
@@ -214,6 +216,11 @@ typedef struct tn_opt {
                                   /* routine to dissect option */
 } tn_opt;
 
+typedef struct _telnet_conv_info {
+  guint32   starttls_requested_in;  /* Frame of first sender of START_TLS FOLLOWS */
+  guint32   starttls_port;          /* Source port for first sender */
+} telnet_conv_info_t;
+
 static void
 check_tn3270_model(packet_info *pinfo _U_, const char *terminaltype)
 {
@@ -252,6 +259,20 @@ check_for_tn3270(packet_info *pinfo _U_, const char *optname, const char *termin
       (strcmp(terminaltype,"IBM-5291-1") == 0) ||   /* 24 x 80 monochrome display*/
       (strcmp(terminaltype,"IBM-5251-11") == 0))    /* 24 x 80 monochrome display*/
     add_tn5250_conversation(pinfo, 0);
+}
+
+static telnet_conv_info_t *
+telnet_get_session(packet_info *pinfo)
+{
+  conversation_t        *conversation = find_or_create_conversation(pinfo);
+  telnet_conv_info_t    *telnet_info;
+
+  telnet_info = (telnet_conv_info_t*)conversation_get_proto_data(conversation, proto_telnet);
+  if (!telnet_info) {
+    telnet_info = wmem_new0(wmem_file_scope(), telnet_conv_info_t);
+    conversation_add_proto_data(conversation, proto_telnet, telnet_info);
+  }
+  return telnet_info;
 }
 
 static void
@@ -455,7 +476,19 @@ static void
 dissect_starttls_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset,
                        int len _U_, proto_tree *tree, proto_item *item _U_)
 {
+  telnet_conv_info_t *session = telnet_get_session(pinfo);
+
   proto_tree_add_item(tree, hf_telnet_starttls, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+  if (session->starttls_requested_in == 0) {
+    /* First sender (client or server) requesting to start TLS. */
+    session->starttls_requested_in = pinfo->fd->num;
+    session->starttls_port = pinfo->srcport;
+  } else if (session->starttls_requested_in < pinfo->fd->num &&
+      session->starttls_port != pinfo->srcport) {
+    /* Other side confirms that following data is TLS. */
+    ssl_starttls_ack(ssl_handle, pinfo, telnet_handle);
+  }
 }
 
 static const value_string telnet_outmark_subopt_cmd_vals[] = {
@@ -2165,6 +2198,7 @@ proto_reg_handoff_telnet(void)
   dissector_add_uint("tcp.port", TCP_PORT_TELNET, telnet_handle);
   tn3270_handle = find_dissector("tn3270");
   tn5250_handle = find_dissector("tn5250");
+  ssl_handle = find_dissector("ssl");
 }
 
 /*
