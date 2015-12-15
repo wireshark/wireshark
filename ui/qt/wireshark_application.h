@@ -111,6 +111,7 @@ public:
     const QString &windowTitleSeparator() const { return window_title_separator_; }
     const QString windowTitleString(QStringList title_parts);
     const QString windowTitleString(QString title_part) { return windowTitleString(QStringList() << title_part); }
+    void applyCustomColorsFromRecent();
 
     QTranslator translator;
     QTranslator translatorQt;
@@ -130,6 +131,7 @@ private:
     static QString window_title_separator_;
     QList<AppSignal> app_signals_;
     int active_captures_;
+    void storeCustomColorsInRecent();
 
 protected:
     bool event(QEvent *event);

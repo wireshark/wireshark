@@ -71,6 +71,7 @@
 #define RECENT_GUI_CONVERSATION_TABS          "gui.conversation_tabs"
 #define RECENT_GUI_ENDPOINT_TABS              "gui.endpoint_tabs"
 #define RECENT_GUI_RLC_PDUS_FROM_MAC_FRAMES   "gui.rlc_pdus_from_mac_frames"
+#define RECENT_GUI_CUSTOM_COLORS              "gui.custom_colors"
 
 #define RECENT_GUI_GEOMETRY                   "gui.geom."
 
@@ -588,6 +589,7 @@ write_recent(void)
   char        *pf_dir_path;
   char        *rf_path;
   FILE        *rf;
+  char        *string_list;
 
   /* To do:
    * - Split output lines longer than MAX_VAL_LEN
@@ -688,6 +690,12 @@ write_recent(void)
                        recent.privs_warn_if_no_npf);
 
   window_geom_recent_write_all(rf);
+
+  fprintf(rf, "\n# Custom colors.\n");
+  fprintf(rf, "# List of custom colors selected in Qt color picker.\n");
+  string_list = join_string_list(recent.custom_colors);
+  fprintf(rf, RECENT_GUI_CUSTOM_COLORS ": %s\n", string_list);
+  g_free(string_list);
 
   fclose(rf);
 
@@ -929,6 +937,8 @@ read_set_recent_common_pair_static(gchar *key, const gchar *value,
     parse_recent_boolean(value, &recent.privs_warn_if_elevated);
   } else if (strcmp(key, RECENT_KEY_PRIVS_WARN_IF_NO_NPF) == 0) {
     parse_recent_boolean(value, &recent.privs_warn_if_no_npf);
+  } else if (strcmp(key, RECENT_GUI_CUSTOM_COLORS) == 0) {
+    recent.custom_colors = prefs_get_string_list(value);
   }
 
   return PREFS_SET_OK;
