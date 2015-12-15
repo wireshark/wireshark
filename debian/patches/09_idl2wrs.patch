@@ -7,7 +7,7 @@ Author: Frederic Peters <fpeters@debian.org>
 @@ -65,41 +65,8 @@
      exit 1;
  fi
-
+ 
 -#
 -# Run wireshark backend, looking for wireshark_be.py and wireshark_gen.py
 -# in pythons's "site-packages" directory. If cannot find that, then
@@ -31,7 +31,7 @@ Author: Frederic Peters <fpeters@debian.org>
 -# set up a valid path.
 -
  exec omniidl -b wireshark_be $@
-
+ 
 -old code: not reached
 -
 -echo "idl2wrs Error: Could not find both wireshark_be.py AND wireshark_gen.py."
@@ -43,6 +43,6 @@ Author: Frederic Peters <fpeters@debian.org>
 -
 -exit 2
 -
-
+ 
  #
  # Editor modelines  -  http://www.wireshark.org/tools/modelines.html

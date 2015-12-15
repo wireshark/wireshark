@@ -4,7 +4,7 @@ Author: Frederic Peters <fpeters@debian.org>
 
 --- a/ui/gtk/about_dlg.c
 +++ b/ui/gtk/about_dlg.c
-@@ -506,7 +506,7 @@
+@@ -502,7 +502,7 @@
  #if defined(_WIN32)
    absolute_path = get_datafile_path("COPYING.txt");
  #else
@@ -12,3 +12,15 @@ Author: Frederic Peters <fpeters@debian.org>
 +  absolute_path = get_datafile_path("ABOUT.GPL");
  #endif
    page = text_page_new(absolute_path);
+ 
+--- a/ui/qt/about_dialog.cpp
++++ b/ui/qt/about_dialog.cpp
+@@ -312,7 +312,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
+ #if defined(_WIN32)
+     f_license.setFileName(get_datafile_path("COPYING.txt"));
+ #else
+-    f_license.setFileName(get_datafile_path("COPYING"));
++    f_license.setFileName(get_datafile_path("ABOUT.GPL"));
+ #endif
+ 
+     f_license.open(QFile::ReadOnly | QFile::Text);
