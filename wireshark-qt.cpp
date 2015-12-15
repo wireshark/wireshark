@@ -1381,10 +1381,10 @@ DIAG_ON(cast-qual)
     SimpleDialog::displayQueuedMessages(main_w);
 
     /* User could specify filename, or display filter, or both */
+    if (!dfilter.isEmpty())
+        main_w->filterPackets(dfilter, false);
     if (!cf_name.isEmpty()) {
         if (main_w->openCaptureFile(cf_name, read_filter, in_file_type)) {
-            if (!dfilter.isEmpty())
-                main_w->filterPackets(dfilter, false);
 
             /* Open stat windows; we do so after creating the main window,
                to avoid Qt warnings, and after successfully opening the
