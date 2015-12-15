@@ -1217,6 +1217,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-rtacser.c
 	dissectors/packet-rtcdc.c
 	dissectors/packet-rtcp.c
+	dissectors/packet-rtitcp.c
 	dissectors/packet-rtmpt.c
 	dissectors/packet-rtnet.c
 	dissectors/packet-rtp-events.c
