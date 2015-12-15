@@ -385,7 +385,7 @@ static gboolean ppi_ampdu_reassemble = TRUE;
 
 
 static gboolean
-capture_ppi(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_ppi(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
     guint32  dlt;
     guint    ppi_len;
@@ -396,7 +396,7 @@ capture_ppi(const guchar *pd, int offset _U_, int len, packet_counts *ld, const 
 
     dlt = pletoh32(pd+4);
 
-    return try_capture_dissector("ppi", dlt, pd, ppi_len, len, ld, pseudo_header);
+    return try_capture_dissector("ppi", dlt, pd, ppi_len, len, cpinfo, pseudo_header);
 }
 
 static void

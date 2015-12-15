@@ -252,7 +252,7 @@ llc_add_oui(guint32 oui, const char *table_name, const char *table_ui_name,
 }
 
 gboolean
-capture_llc(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_) {
+capture_llc(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_) {
 
 	int		is_snap;
 	guint16		control;
@@ -279,30 +279,30 @@ capture_llc(const guchar *pd, int offset, int len, packet_counts *ld, const unio
 		return FALSE;
 
 	if (is_snap)
-		return capture_snap(pd, offset+llc_header_len, len, ld, pseudo_header);
+		return capture_snap(pd, offset+llc_header_len, len, cpinfo, pseudo_header);
 
 	/* non-SNAP */
 	switch (pd[offset]) {
 
 	case SAP_IP:
-		return capture_ip(pd, offset + llc_header_len, len, ld, pseudo_header);
+		return capture_ip(pd, offset + llc_header_len, len, cpinfo, pseudo_header);
 
 	case SAP_NETWARE1:
 	case SAP_NETWARE2:
-		return capture_ipx(pd, offset + llc_header_len, len, ld, pseudo_header);
+		return capture_ipx(pd, offset + llc_header_len, len, cpinfo, pseudo_header);
 
 	case SAP_NETBIOS:
-		return capture_netbios(pd, offset + llc_header_len, len, ld, pseudo_header);
+		return capture_netbios(pd, offset + llc_header_len, len, cpinfo, pseudo_header);
 
 	case SAP_VINES1:
 	case SAP_VINES2:
-		return capture_vines(pd, offset + llc_header_len, len, ld, pseudo_header);
+		return capture_vines(pd, offset + llc_header_len, len, cpinfo, pseudo_header);
 	}
 	return FALSE;
 }
 
 gboolean
-capture_snap(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_snap(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint32		oui;
 	guint16		etype;
@@ -324,10 +324,10 @@ capture_snap(const guchar *pd, int offset, int len, packet_counts *ld, const uni
 		   AppleTalk data packets - but used
 		   OUI_ENCAP_ETHER and an Ethernet
 		   packet type for AARP packets. */
-		return try_capture_dissector("ethertype", etype, pd, offset+5, len, ld, pseudo_header);
+		return try_capture_dissector("ethertype", etype, pd, offset+5, len, cpinfo, pseudo_header);
 
 	case OUI_CISCO:
-		return try_capture_dissector("ethertype", etype, pd, offset+5, len, ld, pseudo_header);
+		return try_capture_dissector("ethertype", etype, pd, offset+5, len, cpinfo, pseudo_header);
 
 	case OUI_MARVELL:
 		/*
@@ -336,7 +336,7 @@ capture_snap(const guchar *pd, int offset, int len, packet_counts *ld, const uni
 		 * the payload.  (We assume the header is
 		 * 5 bytes, for now).
 		 */
-		return try_capture_dissector("ethertype", etype, pd, offset+5+5, len, ld, pseudo_header);
+		return try_capture_dissector("ethertype", etype, pd, offset+5+5, len, cpinfo, pseudo_header);
 	}
 
 	return FALSE;

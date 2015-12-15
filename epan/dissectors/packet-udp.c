@@ -692,14 +692,14 @@ udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static gboolean
-capture_udp(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_udp(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint16 src_port, dst_port, low_port, high_port;
 
   if (!BYTES_ARE_IN_FRAME(offset, len, 4))
     return FALSE;
 
-  ld->udp++;
+  cpinfo->counts->udp++;
 
   src_port = pntoh16(&pd[offset]);
   dst_port = pntoh16(&pd[offset+2]);
@@ -713,11 +713,11 @@ capture_udp(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld
   }
 
   if (low_port != 0 &&
-      try_capture_dissector("udp.port", low_port, pd, offset+20, len, ld, pseudo_header))
+      try_capture_dissector("udp.port", low_port, pd, offset+20, len, cpinfo, pseudo_header))
       return TRUE;
 
   if (high_port != 0 &&
-      try_capture_dissector("udp.port", high_port, pd, offset+20, len, ld, pseudo_header))
+      try_capture_dissector("udp.port", high_port, pd, offset+20, len, cpinfo, pseudo_header))
       return TRUE;
 
   /* We've at least identified one type of packet, so this shouldn't be "other" */

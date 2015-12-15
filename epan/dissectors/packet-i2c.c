@@ -85,12 +85,12 @@ static gpointer i2c_value(packet_info *pinfo _U_)
 }
 
 static gboolean
-capture_i2c(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header)
+capture_i2c(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
 	if (pseudo_header->i2c.is_event) {
-		ld->i2c_event++;
+		cpinfo->counts->i2c_event++;
 	} else {
-		ld->i2c_data++;
+		cpinfo->counts->i2c_data++;
 	}
 
 	return TRUE;

@@ -665,10 +665,10 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static gboolean
 capture_lane(const guchar *pd, int offset _U_,
-    int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header)
+    int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
   /* Is it LE Control, 802.3, 802.5, or "none of the above"? */
-  return try_capture_dissector("atm_lane", pseudo_header->atm.subtype, pd, 2, len, ld, pseudo_header);
+  return try_capture_dissector("atm_lane", pseudo_header->atm.subtype, pd, 2, len, cpinfo, pseudo_header);
 }
 
 static int
@@ -790,10 +790,10 @@ static const value_string ipsilon_type_vals[] = {
 
 static gboolean
 capture_atm(const guchar *pd, int offset _U_,
-    int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header)
+    int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
   if (pseudo_header->atm.aal == AAL_5) {
-    return try_capture_dissector("atm.aal5.type", pseudo_header->atm.type, pd, offset, len, ld, pseudo_header);
+    return try_capture_dissector("atm.aal5.type", pseudo_header->atm.type, pd, offset, len, cpinfo, pseudo_header);
   }
   return FALSE;
 }

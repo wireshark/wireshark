@@ -73,7 +73,7 @@ static gint ett_wlancap = -1;
 static dissector_handle_t wlancap_handle;
 
 gboolean
-capture_wlancap(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_wlancap(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint32 length;
 
@@ -88,7 +88,7 @@ capture_wlancap(const guchar *pd, int offset, int len, packet_counts *ld, const 
   offset += length;
 
   /* 802.11 header follows */
-  return capture_ieee80211(pd, offset, len, ld, pseudo_header);
+  return capture_ieee80211(pd, offset, len, cpinfo, pseudo_header);
 }
 
 /*

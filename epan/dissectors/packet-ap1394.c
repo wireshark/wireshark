@@ -44,7 +44,7 @@ static dissector_table_t ethertype_subdissector_table;
 static dissector_handle_t data_handle;
 
 static gboolean
-capture_ap1394(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_ap1394(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint16    etype;
 
@@ -57,7 +57,7 @@ capture_ap1394(const guchar *pd, int offset, int len, packet_counts *ld, const u
 
   etype = pntoh16(&pd[offset]);
   offset += 2;
-  return try_capture_dissector("ethertype", etype, pd, offset, len, ld, pseudo_header);
+  return try_capture_dissector("ethertype", etype, pd, offset, len, cpinfo, pseudo_header);
 }
 
 static int

@@ -526,7 +526,7 @@ static const value_string ipv6_opt_vals[] = {
 
 
 gboolean
-capture_ipv6(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_ipv6(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
     guint8 nxt;
     int    advance;
@@ -587,7 +587,7 @@ again:
         goto again;
     }
 
-    return try_capture_dissector("ipv6.nxt", nxt, pd, offset, len, ld, pseudo_header);
+    return try_capture_dissector("ipv6.nxt", nxt, pd, offset, len, cpinfo, pseudo_header);
 }
 
 /**

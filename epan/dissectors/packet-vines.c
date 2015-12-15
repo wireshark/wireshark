@@ -310,9 +310,9 @@ typedef struct _e_vipc {
 } e_vipc;
 
 gboolean
-capture_vines(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_vines(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
-	ld->vines++;
+	cpinfo->counts->vines++;
 	return TRUE;
 }
 

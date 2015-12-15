@@ -39,11 +39,6 @@
 
 #include <wsutil/filesystem.h>
 
-static void capture_info_packet(
-packet_counts *counts, gint wtap_linktype, const guchar *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header);
-
-
-
 typedef struct _info_data {
     packet_counts     counts;     /* several packet type counters */
     struct wtap*      wtap;       /* current wtap file */
@@ -202,6 +197,18 @@ gboolean capture_info_new_file(const char *new_filename)
         return TRUE;
 }
 
+static void
+capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header)
+{
+    capture_packet_info_t cpinfo;
+
+    /* Setup the capture packet structure */
+    cpinfo.counts = counts;
+
+    counts->total++;
+    if (!try_capture_dissector("wtap_encap", wtap_linktype, pd, 0, caplen, &cpinfo, pseudo_header))
+        counts->other++;
+}
 
 /* new packets arrived */
 void capture_info_new_packets(int to_read)
@@ -245,16 +252,6 @@ void capture_info_close(void)
     if(info_data.wtap)
         wtap_close(info_data.wtap);
 }
-
-
-static void
-capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header)
-{
-    counts->total++;
-    if (!try_capture_dissector("wtap_encap", wtap_linktype, pd, 0, caplen, counts, pseudo_header))
-        counts->other++;
-}
-
 
 #endif /* HAVE_LIBPCAP */
 

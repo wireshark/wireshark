@@ -29,7 +29,7 @@ typedef struct _eth_hdr {
 } eth_hdr;
 
 extern
-gboolean capture_eth(const guchar *, int, int, packet_counts *, const union wtap_pseudo_header *pseudo_header);
+gboolean capture_eth(const guchar *, int, int, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
 
 void add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 			  int trailer_id, tvbuff_t *tvb, tvbuff_t *trailer_tvb,

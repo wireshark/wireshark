@@ -200,7 +200,7 @@ fddi_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
 }
 
 static gboolean
-capture_fddi(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_fddi(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   int fc;
 
@@ -231,7 +231,7 @@ capture_fddi(const guchar *pd, int offset, int len, packet_counts *ld, const uni
     case FDDI_FC_LLC_ASYNC + 13 :
     case FDDI_FC_LLC_ASYNC + 14 :
     case FDDI_FC_LLC_ASYNC + 15 :
-      return capture_llc(pd, offset, len, ld, pseudo_header);
+      return capture_llc(pd, offset, len, cpinfo, pseudo_header);
   } /* fc */
 
   return FALSE;

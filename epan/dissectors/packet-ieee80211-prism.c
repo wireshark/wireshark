@@ -238,7 +238,7 @@ prism_rate_return(guint32 rate)
 
 
 static gboolean
-capture_prism(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_prism(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint32 cookie;
 
@@ -249,7 +249,7 @@ capture_prism(const guchar *pd, int offset, int len, packet_counts *ld, const un
   cookie = pntoh32(pd);
   if ((cookie == WLANCAP_MAGIC_COOKIE_V1) ||
       (cookie == WLANCAP_MAGIC_COOKIE_V2)) {
-    return capture_wlancap(pd, offset, len, ld, pseudo_header);
+    return capture_wlancap(pd, offset, len, cpinfo, pseudo_header);
   }
 
   /* Prism header */
@@ -259,7 +259,7 @@ capture_prism(const guchar *pd, int offset, int len, packet_counts *ld, const un
   offset += PRISM_HEADER_LENGTH;
 
   /* 802.11 header follows */
-  return capture_ieee80211(pd, offset, len, ld, pseudo_header);
+  return capture_ieee80211(pd, offset, len, cpinfo, pseudo_header);
 }
 
 static int

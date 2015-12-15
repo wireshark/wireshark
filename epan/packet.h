@@ -81,6 +81,10 @@ typedef struct _packet_counts {
 /** Number of packet counts. */
 #define PACKET_COUNTS_SIZE sizeof(packet_counts) / sizeof (gint)
 
+typedef struct _capture_packet_info {
+    packet_counts *counts;
+} capture_packet_info_t;
+
 extern void packet_init(void);
 extern void packet_cache_proto_handles(void);
 extern void packet_cleanup(void);

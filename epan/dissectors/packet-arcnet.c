@@ -83,7 +83,7 @@ static int arcnet_len(void)
 }
 
 static gboolean
-capture_arcnet_common(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_, gboolean has_exception)
+capture_arcnet_common(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_, gboolean has_exception)
 {
   if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
     return FALSE;
@@ -93,7 +93,7 @@ capture_arcnet_common(const guchar *pd, int offset, int len, packet_counts *ld, 
 
   case ARCNET_PROTO_IP_1051:
     /* No fragmentation stuff in the header */
-    return capture_ip(pd, offset + 1, len, ld, pseudo_header);
+    return capture_ip(pd, offset + 1, len, cpinfo, pseudo_header);
 
   case ARCNET_PROTO_IP_1201:
     /*
@@ -101,7 +101,7 @@ capture_arcnet_common(const guchar *pd, int offset, int len, packet_counts *ld, 
      *
      * XXX - on at least some versions of NetBSD, it appears that we
      * might we get ARCNET frames, not reassembled packets; we should
-     * perhaps bump "ld->other" for all but the first frame of a packet.
+     * perhaps bump "counts->other" for all but the first frame of a packet.
      *
      * XXX - but on FreeBSD it appears that we get reassembled packets
      * on input (but apparently we get frames on output - or maybe
@@ -133,18 +133,17 @@ capture_arcnet_common(const guchar *pd, int offset, int len, packet_counts *ld, 
          type appears after the padding. */
       offset += 4;
     }
-    return capture_ip(pd, offset + 3, len, ld, pseudo_header);
+    return capture_ip(pd, offset + 3, len, cpinfo, pseudo_header);
 
   case ARCNET_PROTO_ARP_1051:
   case ARCNET_PROTO_ARP_1201:
     /*
      * XXX - do we have to worry about fragmentation for ARP?
      */
-    capture_arp(pd, offset + 1, len, ld, pseudo_header);
-    break;
+    return capture_arp(pd, offset + 1, len, cpinfo, pseudo_header);
 
   case ARCNET_PROTO_IPX:
-    ld->ipx++;
+    cpinfo->counts->ipx++;
     break;
 
   default:
@@ -155,15 +154,15 @@ capture_arcnet_common(const guchar *pd, int offset, int len, packet_counts *ld, 
 }
 
 static gboolean
-capture_arcnet (const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_arcnet (const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
-  return capture_arcnet_common(pd, 4, len, ld, pseudo_header, FALSE);
+  return capture_arcnet_common(pd, 4, len, cpinfo, pseudo_header, FALSE);
 }
 
 static gboolean
-capture_arcnet_has_exception(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_arcnet_has_exception(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
-  return capture_arcnet_common(pd, 2, len, ld, pseudo_header, TRUE);
+  return capture_arcnet_common(pd, 2, len, cpinfo, pseudo_header, TRUE);
 }
 
 static void

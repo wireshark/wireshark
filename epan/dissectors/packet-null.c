@@ -66,7 +66,7 @@ static dissector_handle_t ppp_hdlc_handle;
 static dissector_handle_t data_handle;
 
 static gboolean
-capture_null( const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_ )
+capture_null( const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_ )
 {
   guint32 null_header;
 
@@ -259,7 +259,7 @@ capture_null( const guchar *pd, int offset _U_, int len, packet_counts *ld, cons
     /*
      * Hand it to PPP.
      */
-    return capture_ppp_hdlc(pd, 0, len, ld, pseudo_header);
+    return capture_ppp_hdlc(pd, 0, len, cpinfo, pseudo_header);
   } else {
     /*
      * Treat it as a normal DLT_NULL header.
@@ -315,18 +315,18 @@ capture_null( const guchar *pd, int offset _U_, int len, packet_counts *ld, cons
      * BSD derivatives have different values?).
      */
     if (null_header > IEEE_802_3_MAX_LEN)
-      return try_capture_dissector("ethertype", null_header, pd, 4, len, ld, pseudo_header);
+      return try_capture_dissector("ethertype", null_header, pd, 4, len, cpinfo, pseudo_header);
     else {
 
       switch (null_header) {
 
       case BSD_AF_INET:
-        return capture_ip(pd, 4, len, ld, pseudo_header);
+        return capture_ip(pd, 4, len, cpinfo, pseudo_header);
 
       case BSD_AF_INET6_BSD:
       case BSD_AF_INET6_FREEBSD:
       case BSD_AF_INET6_DARWIN:
-        return capture_ipv6(pd, 4, len, ld, pseudo_header);
+        return capture_ipv6(pd, 4, len, cpinfo, pseudo_header);
       }
     }
   }
@@ -335,7 +335,7 @@ capture_null( const guchar *pd, int offset _U_, int len, packet_counts *ld, cons
 }
 
 static gboolean
-capture_loop( const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_ )
+capture_loop( const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_ )
 {
   guint32 loop_family;
 
@@ -347,12 +347,12 @@ capture_loop( const guchar *pd, int offset _U_, int len, packet_counts *ld, cons
   switch (loop_family) {
 
   case BSD_AF_INET:
-    return capture_ip(pd, 4, len, ld, pseudo_header);
+    return capture_ip(pd, 4, len, cpinfo, pseudo_header);
 
   case BSD_AF_INET6_BSD:
   case BSD_AF_INET6_FREEBSD:
   case BSD_AF_INET6_DARWIN:
-    return capture_ipv6(pd, 4, len, ld, pseudo_header);
+    return capture_ipv6(pd, 4, len, cpinfo, pseudo_header);
   }
 
   return FALSE;

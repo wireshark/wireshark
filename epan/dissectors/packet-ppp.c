@@ -1957,18 +1957,18 @@ decode_fcs(tvbuff_t *tvb, proto_tree *fh_tree, int fcs_decode, int proto_offset)
 }
 
 gboolean
-capture_ppp_hdlc(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_ppp_hdlc(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
     if (!BYTES_ARE_IN_FRAME(offset, len, 2))
         return FALSE;
 
     if (pd[0] == CHDLC_ADDR_UNICAST || pd[0] == CHDLC_ADDR_MULTICAST)
-        return capture_chdlc(pd, offset, len, ld, pseudo_header);
+        return capture_chdlc(pd, offset, len, cpinfo, pseudo_header);
 
     if (!BYTES_ARE_IN_FRAME(offset, len, 4))
         return FALSE;
 
-    return try_capture_dissector("ppp_hdlc", pntoh16(&pd[offset + 2]), pd, offset + 4, len, ld, pseudo_header);
+    return try_capture_dissector("ppp_hdlc", pntoh16(&pd[offset + 2]), pd, offset + 4, len, cpinfo, pseudo_header);
 }
 
 static void

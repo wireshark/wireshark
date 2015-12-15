@@ -488,7 +488,7 @@ dissect_netrom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 }
 
 static gboolean
-capture_netrom( const guchar *pd _U_, int offset, int len, packet_counts *ld _U_, const union wtap_pseudo_header *pseudo_header _U_)
+capture_netrom( const guchar *pd _U_, int offset, int len, capture_packet_info_t *cpinfo _U_, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	if ( ! BYTES_ARE_IN_FRAME( offset, len, NETROM_MIN_SIZE ) )
 		return FALSE;

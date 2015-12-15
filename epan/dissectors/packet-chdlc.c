@@ -114,13 +114,13 @@ const value_string chdlc_vals[] = {
 };
 
 gboolean
-capture_chdlc( const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_ ) {
+capture_chdlc( const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_ ) {
   if (!BYTES_ARE_IN_FRAME(offset, len, 4))
     return FALSE;
 
   switch (pntoh16(&pd[offset + 2])) {
     case ETHERTYPE_IP:
-      return capture_ip(pd, offset + 4, len, ld, pseudo_header);
+      return capture_ip(pd, offset + 4, len, cpinfo, pseudo_header);
   }
 
   return FALSE;

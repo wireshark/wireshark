@@ -26,6 +26,6 @@
 #ifndef __PACKETVINES_H__
 #define __PACKETVINES_H__
 
-gboolean capture_vines(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header);
+gboolean capture_vines(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
 
 #endif /* packet-vines.h */

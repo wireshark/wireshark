@@ -179,7 +179,7 @@ static const value_string kiss_frame_types[] = {
 };
 
 static gboolean
-capture_ax25_kiss( const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_ax25_kiss( const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	int    l_offset;
 	guint8 kiss_cmd;
@@ -193,7 +193,7 @@ capture_ax25_kiss( const guchar *pd, int offset, int len, packet_counts *ld, con
 	switch ( kiss_cmd & KISS_CMD_MASK )
 	{
 		case KISS_DATA_FRAME	:
-			return capture_ax25( pd, l_offset, len, ld, pseudo_header );
+			return capture_ax25( pd, l_offset, len, cpinfo, pseudo_header );
 		case KISS_TXDELAY	: break;
 		case KISS_PERSISTENCE	: break;
 		case KISS_SLOT_TIME	: break;
@@ -202,7 +202,7 @@ capture_ax25_kiss( const guchar *pd, int offset, int len, packet_counts *ld, con
 		case KISS_SETHARDWARE	: break;
 		case KISS_DATA_FRAME_ACK:
 			l_offset += 2;
-			return capture_ax25( pd, l_offset, len, ld, pseudo_header );
+			return capture_ax25( pd, l_offset, len, cpinfo, pseudo_header );
 		case KISS_POLL_MODE	: break;
 		case KISS_RETURN	: break;
 		default			: break;

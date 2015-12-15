@@ -456,7 +456,7 @@ static const true_false_string preamble_type = {
  */
 
 static gboolean
-capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_radiotap(const guchar * pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint16 it_len;
 	guint32 present, xpresent;
@@ -537,9 +537,9 @@ capture_radiotap(const guchar * pd, int offset, int len, packet_counts * ld, con
 
 	/* 802.11 header follows */
 	if (rflags & IEEE80211_RADIOTAP_F_DATAPAD)
-		return capture_ieee80211_datapad(pd, offset + it_len, len, ld, pseudo_header);
+		return capture_ieee80211_datapad(pd, offset + it_len, len, cpinfo, pseudo_header);
 
-	return capture_ieee80211(pd, offset + it_len, len, ld, pseudo_header);
+	return capture_ieee80211(pd, offset + it_len, len, cpinfo, pseudo_header);
 }
 
 static int

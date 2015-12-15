@@ -192,7 +192,7 @@ eth_build_filter(packet_info *pinfo)
 #define ETHERNET_SNAP   3
 
 gboolean
-capture_eth(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_eth(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint16 etype, length;
   int ethhdr_type;          /* the type of ethernet frame */
@@ -210,7 +210,7 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld, const unio
     if ((pd[offset] == 0x01 || pd[offset] == 0x0C) && pd[offset+1] == 0x00
         && pd[offset+2] == 0x0C && pd[offset+3] == 0x00
         && pd[offset+4] == 0x00) {
-      return capture_isl(pd, offset, len, ld, pseudo_header);
+      return capture_isl(pd, offset, len, cpinfo, pseudo_header);
     }
   }
 
@@ -267,11 +267,11 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld, const unio
 
   switch (ethhdr_type) {
     case ETHERNET_802_3:
-      return capture_ipx(pd, offset, len, ld, pseudo_header);
+      return capture_ipx(pd, offset, len, cpinfo, pseudo_header);
     case ETHERNET_802_2:
-      return capture_llc(pd, offset, len, ld, pseudo_header);
+      return capture_llc(pd, offset, len, cpinfo, pseudo_header);
     case ETHERNET_II:
-      return try_capture_dissector("ethertype", etype, pd, offset, len, ld, pseudo_header);
+      return try_capture_dissector("ethertype", etype, pd, offset, len, cpinfo, pseudo_header);
   }
 
   return FALSE;

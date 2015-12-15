@@ -46,12 +46,12 @@ static gint ett_ipfc = -1;
 static dissector_handle_t llc_handle;
 
 static gboolean
-capture_ipfc (const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_ipfc (const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   if (!BYTES_ARE_IN_FRAME(0, len, 16))
     return FALSE;
 
-  return capture_llc(pd, 16, len, ld, pseudo_header);
+  return capture_llc(pd, 16, len, cpinfo, pseudo_header);
 }
 
 static int

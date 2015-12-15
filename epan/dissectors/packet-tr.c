@@ -247,7 +247,7 @@ static void
 add_ring_bridge_pairs(int rcf_len, tvbuff_t*, proto_tree *tree);
 
 gboolean
-capture_tr(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_) {
+capture_tr(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_) {
 
 	int			source_routed = 0;
 	int			frame_type;
@@ -360,7 +360,7 @@ capture_tr(const guchar *pd, int offset, int len, packet_counts *ld, const union
 	/* The package is either MAC (0) or LLC (1)*/
 	switch (frame_type) {
 		case 1:
-			return capture_llc(pd, offset, len, ld, pseudo_header);
+			return capture_llc(pd, offset, len, cpinfo, pseudo_header);
 	}
 
 	return FALSE;

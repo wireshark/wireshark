@@ -138,7 +138,7 @@ static dissector_table_t gre_dissector_table;
 static dissector_handle_t data_handle;
 
 static gboolean
-capture_sll(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_sll(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint16 protocol;
 
@@ -151,9 +151,9 @@ capture_sll(const guchar *pd, int offset _U_, int len, packet_counts *ld, const 
 		 * "proto" is *not* a length field, it's a Linux internal
 		 * protocol type.
 		 */
-		return try_capture_dissector("sll.ltype", protocol, pd, SLL_HEADER_SIZE, len, ld, pseudo_header);
+		return try_capture_dissector("sll.ltype", protocol, pd, SLL_HEADER_SIZE, len, cpinfo, pseudo_header);
 	} else {
-		return try_capture_dissector("ethertype", protocol, pd, SLL_HEADER_SIZE, len, ld, pseudo_header);
+		return try_capture_dissector("ethertype", protocol, pd, SLL_HEADER_SIZE, len, cpinfo, pseudo_header);
 	}
 	return FALSE;
 }

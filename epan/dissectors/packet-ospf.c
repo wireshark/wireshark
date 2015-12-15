@@ -1041,9 +1041,9 @@ ospf_has_at_block(tvbuff_t *tvb, int offset, guint8 packet_type, guint8 version)
 }
 
 static gboolean
-capture_ospf(const guchar *pd _U_, int offset _U_, int len _U_, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_ospf(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
-    ld->ospf++;
+    cpinfo->counts->ospf++;
     return TRUE;
 }
 

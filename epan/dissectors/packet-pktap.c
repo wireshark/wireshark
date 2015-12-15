@@ -95,7 +95,7 @@ static dissector_handle_t pktap_handle;
  */
 
 static gboolean
-capture_pktap(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_pktap(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint32  hdrlen, rectype, dlt;
 
@@ -113,7 +113,7 @@ capture_pktap(const guchar *pd, int offset _U_, int len, packet_counts *ld, cons
 	switch (dlt) {
 
 	case 1: /* DLT_EN10MB */
-		return capture_eth(pd, hdrlen, len, ld, pseudo_header);
+		return capture_eth(pd, hdrlen, len, cpinfo, pseudo_header);
 
 	}
 

@@ -44,7 +44,7 @@ static dissector_handle_t data_handle;
 static dissector_handle_t ppp_hdlc_handle;
 
 static gboolean
-capture_raw(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_raw(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   /* So far, the only time we get raw connection types are with Linux and
    * Irix PPP connections.  We can't tell what type of data is coming down
@@ -55,21 +55,21 @@ capture_raw(const guchar *pd, int offset _U_, int len, packet_counts *ld, const 
    * sometimes.  This check should be removed when 2.2 is out.
    */
   if (BYTES_ARE_IN_FRAME(0,len,2) && pd[0] == 0xff && pd[1] == 0x03) {
-    return capture_ppp_hdlc(pd, 0, len, ld, pseudo_header);
+    return capture_ppp_hdlc(pd, 0, len, cpinfo, pseudo_header);
   }
   /* The Linux ISDN driver sends a fake MAC address before the PPP header
    * on its ippp interfaces... */
   else if (BYTES_ARE_IN_FRAME(0,len,8) && pd[6] == 0xff && pd[7] == 0x03) {
-    return capture_ppp_hdlc(pd, 6, len, ld, pseudo_header);
+    return capture_ppp_hdlc(pd, 6, len, cpinfo, pseudo_header);
   }
   /* ...except when it just puts out one byte before the PPP header... */
   else if (BYTES_ARE_IN_FRAME(0,len,3) && pd[1] == 0xff && pd[2] == 0x03) {
-    return capture_ppp_hdlc(pd, 1, len, ld, pseudo_header);
+    return capture_ppp_hdlc(pd, 1, len, cpinfo, pseudo_header);
   }
   /* ...and if the connection is currently down, it sends 10 bytes of zeroes
    * instead of a fake MAC address and PPP header. */
   else if (BYTES_ARE_IN_FRAME(0,len,10) && memcmp(pd, zeroes, 10) == 0) {
-    return capture_ip(pd, 10, len, ld, pseudo_header);
+    return capture_ip(pd, 10, len, cpinfo, pseudo_header);
   }
   else {
     /*
@@ -80,12 +80,12 @@ capture_raw(const guchar *pd, int offset _U_, int len, packet_counts *ld, const 
 
       case 0x40:
         /* IPv4 */
-        return capture_ip(pd, 0, len, ld, pseudo_header);
+        return capture_ip(pd, 0, len, cpinfo, pseudo_header);
 
 #if 0
       case 0x60:
         /* IPv6 */
-        return capture_ipv6(pd, 0, len, ld, pseudo_header);
+        return capture_ipv6(pd, 0, len, cpinfo, pseudo_header);
 #endif
       }
     }

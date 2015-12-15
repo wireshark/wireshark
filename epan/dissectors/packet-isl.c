@@ -89,7 +89,7 @@ static dissector_handle_t tr_handle;
 static dissector_handle_t data_handle;
 
 gboolean
-capture_isl(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_isl(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint8 type;
 
@@ -102,11 +102,11 @@ capture_isl(const guchar *pd, int offset, int len, packet_counts *ld, const unio
 
   case TYPE_ETHER:
     offset += 14+12;    /* skip the header */
-    return capture_eth(pd, offset, len, ld, pseudo_header);
+    return capture_eth(pd, offset, len, cpinfo, pseudo_header);
 
   case TYPE_TR:
     offset += 14+17;    /* skip the header */
-    return capture_tr(pd, offset, len, ld, pseudo_header);
+    return capture_tr(pd, offset, len, cpinfo, pseudo_header);
     break;
   }
 

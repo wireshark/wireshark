@@ -207,7 +207,7 @@ static const xdlc_cf_items fr_cf_items_ext = {
 };
 
 static gboolean
-capture_fr(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_fr(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint8  fr_octet;
   guint32 addr;
@@ -328,16 +328,16 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld, const union
       switch (fr_nlpid) {
 
       case NLPID_IP:
-        return capture_ip(pd, offset, len, ld, pseudo_header);
+        return capture_ip(pd, offset, len, cpinfo, pseudo_header);
 
       case NLPID_IP6:
-        return capture_ipv6(pd, offset, len, ld, pseudo_header);
+        return capture_ipv6(pd, offset, len, cpinfo, pseudo_header);
 
       case NLPID_PPP:
-        return capture_ppp_hdlc(pd, offset, len, ld, pseudo_header);
+        return capture_ppp_hdlc(pd, offset, len, cpinfo, pseudo_header);
 
       case NLPID_SNAP:
-        return capture_snap(pd, offset, len, ld, pseudo_header);
+        return capture_snap(pd, offset, len, cpinfo, pseudo_header);
 
       default:
         return FALSE;
@@ -367,7 +367,7 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld, const union
        * If the data does not start with unnumbered information (03) and
        * the DLCI# is not 0, then there may be Cisco Frame Relay encapsulation.
        */
-      return capture_chdlc(pd, offset, len, ld, pseudo_header);
+      return capture_chdlc(pd, offset, len, cpinfo, pseudo_header);
     }
     break;
 
@@ -376,7 +376,7 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld, const union
 
   case RAW_ETHER:
     if (addr != 0)
-      return capture_eth(pd, offset, len, ld, pseudo_header);
+      return capture_eth(pd, offset, len, cpinfo, pseudo_header);
 
     return FALSE;
   }

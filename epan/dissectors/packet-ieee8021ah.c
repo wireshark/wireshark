@@ -80,7 +80,7 @@ static gint ett_ieee8021ad = -1;
 
 
 static gboolean
-capture_ieee8021ah(const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_ieee8021ah(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
     guint16 encap_proto;
 
@@ -91,14 +91,14 @@ capture_ieee8021ah(const guchar *pd, int offset, int len, packet_counts *ld, con
     if (encap_proto <= IEEE_802_3_MAX_LEN) {
         if ( pd[offset + IEEE8021AH_LEN] == 0xff
              && pd[offset + IEEE8021AH_LEN + 1] == 0xff ) {
-            return capture_ipx(pd, offset + IEEE8021AH_LEN, len, ld, pseudo_header);
+            return capture_ipx(pd, offset + IEEE8021AH_LEN, len, cpinfo, pseudo_header);
         }
         else {
-            return capture_llc(pd, offset + IEEE8021AH_LEN, len, ld, pseudo_header);
+            return capture_llc(pd, offset + IEEE8021AH_LEN, len, cpinfo, pseudo_header);
         }
     }
 
-    return try_capture_dissector("ethertype", encap_proto, pd, offset + IEEE8021AH_LEN, len, ld, pseudo_header);
+    return try_capture_dissector("ethertype", encap_proto, pd, offset + IEEE8021AH_LEN, len, cpinfo, pseudo_header);
 }
 
 /* Dissector *************************************************************/

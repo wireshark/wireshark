@@ -253,7 +253,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 }
 
 gboolean
-capture_ax25( const guchar *pd, int offset, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_ax25( const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	guint8 control;
 	guint8 pid;
@@ -277,7 +277,7 @@ capture_ax25( const guchar *pd, int offset, int len, packet_counts *ld, const un
 		pid = pd[ l_offset ];
 
 		l_offset += 1; /* step over the pid and point to the first byte of the payload */
-		return try_capture_dissector("ax25.pid", pid & 0x0ff, pd, l_offset, len, ld, pseudo_header);
+		return try_capture_dissector("ax25.pid", pid & 0x0ff, pd, l_offset, len, cpinfo, pseudo_header);
 	}
 	return FALSE;
 }

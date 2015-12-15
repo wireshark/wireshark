@@ -59,7 +59,7 @@ static int hf_enc_flags = -1;
 static gint ett_enc = -1;
 
 static gboolean
-capture_enc(const guchar *pd, int offset _U_, int len, packet_counts *ld, const union wtap_pseudo_header *pseudo_header _U_)
+capture_enc(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
   guint32 af;
 
@@ -67,7 +67,7 @@ capture_enc(const guchar *pd, int offset _U_, int len, packet_counts *ld, const 
     return FALSE;
 
   af = pntoh32(pd);
-  return try_capture_dissector("enc", af, pd, BSD_ENC_HDRLEN, len, ld, pseudo_header);
+  return try_capture_dissector("enc", af, pd, BSD_ENC_HDRLEN, len, cpinfo, pseudo_header);
 }
 
 static const value_string af_vals[] = {
