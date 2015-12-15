@@ -2465,8 +2465,8 @@ proto_register_radius(void)
 					 "Shared secret used to decode User Passwords and validate Response Authenticators",
 					 &shared_secret);
 	prefs_register_bool_preference(radius_module,"validate_authenticator","Validate Reponse Authenticator",
-                                   "Whether to check or not if Response Authenticator is correct. You need to define shared secret for this to work.",
-                                   &validate_authenticator);
+				       "Whether to check or not if Response Authenticator is correct. You need to define shared secret for this to work.",
+				       &validate_authenticator);
 	prefs_register_bool_preference(radius_module,"show_length","Show AVP Lengths",
 				       "Whether to add or not to the tree the AVP's payload length",
 				       &show_length);
