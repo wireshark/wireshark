@@ -703,8 +703,8 @@ read_disabled_heur_dissector_list(char **gpath_return, int *gopen_errno_return,
 static gint
 heur_compare(gconstpointer a, gconstpointer b)
 {
-  return strcmp(((heur_dtbl_entry_t*)a)->short_name,
-        ((heur_dtbl_entry_t*)b)->short_name);
+  return strcmp(((const heur_dtbl_entry_t *)a)->short_name,
+                ((const heur_dtbl_entry_t *)b)->short_name);
 }
 
 static void
