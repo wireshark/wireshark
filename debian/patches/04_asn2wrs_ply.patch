@@ -8,10 +8,11 @@ Author: Jakub Wilk <ubanus@users.sf.net>
 @@ -70,8 +70,8 @@
  import getopt
  import traceback
-
+ 
 -import lex
 -import yacc
 +from ply import lex
 +from ply import yacc
-
- from functools import partial
+ 
+ if sys.version_info[0] < 3:
+     from string import maketrans
