@@ -2354,6 +2354,11 @@ prefs_register_modules(void)
         "Custom window title. (Appended to existing titles.)", (const char **)&prefs.gui_window_title);
     g_free(tmp);
 
+    tmp = prefs.gui_prepend_window_title;
+    prefs_register_string_preference(gui_module, "prepend_window_title", "Custom window title prefix",
+        "Custom window title. (Prepended to existing titles.)", (const char **)&prefs.gui_prepend_window_title);
+    g_free(tmp);
+
     tmp = prefs.gui_start_title;
     prefs_register_string_preference(gui_module, "start_title", "Custom start page title",
         "Custom start page title", (const char**)(&prefs.gui_start_title));
@@ -3048,6 +3053,8 @@ pre_init_prefs(void)
 #endif
     if (prefs.gui_window_title) g_free(prefs.gui_window_title);
     prefs.gui_window_title           = g_strdup("");
+    if (prefs.gui_prepend_window_title) g_free(prefs.gui_prepend_window_title);
+    prefs.gui_prepend_window_title   = g_strdup("");
     if (prefs.gui_start_title) g_free(prefs.gui_start_title);
     prefs.gui_start_title            = g_strdup("The World's Most Popular Network Protocol Analyzer");
     prefs.gui_version_placement      = version_both;

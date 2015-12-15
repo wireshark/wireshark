@@ -1884,6 +1884,10 @@ void MainWindow::setWSWindowTitle(QString title)
         title = tr("The Wireshark Network Analyzer");
     }
 
+    if((prefs.gui_prepend_window_title != NULL) && (*prefs.gui_prepend_window_title != '\0')) {
+        title.prepend(QString("[%1] ").arg(prefs.gui_prepend_window_title));
+    }
+
     if((prefs.gui_window_title != NULL) && (*prefs.gui_window_title != '\0')) {
         title.append(QString(" [%1]").arg(prefs.gui_window_title));
     }

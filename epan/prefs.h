@@ -182,6 +182,7 @@ typedef struct _e_prefs {
   gboolean     gui_use_pref_save;
   gchar       *gui_webbrowser;
   gchar       *gui_window_title;
+  gchar       *gui_prepend_window_title;
   gchar       *gui_start_title;
   version_info_e gui_version_placement;
   gboolean     gui_auto_scroll_on_expand;
