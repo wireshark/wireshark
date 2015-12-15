@@ -75,6 +75,7 @@
 #include <QSocketNotifier>
 #include <QThread>
 #include <QUrl>
+#include <QColorDialog>
 
 #ifdef Q_OS_WIN
 #include <QDebug>
@@ -397,6 +398,38 @@ const QString WiresharkApplication::windowTitleString(QStringList title_parts)
     return title_parts.join(window_title_separator_);
 }
 
+void WiresharkApplication::applyCustomColorsFromRecent()
+{
+    int i = 0;
+    bool ok;
+    for (GList *custom_color = recent.custom_colors; custom_color; custom_color = custom_color->next) {
+        QRgb rgb = QString((const char *)custom_color->data).toUInt(&ok, 16);
+        if (ok) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+            QColorDialog::setCustomColor(i++, rgb);
+#else
+            QColorDialog::setCustomColor(i++, QColor(rgb));
+#endif
+        }
+    }
+}
+
+void WiresharkApplication::storeCustomColorsInRecent()
+{
+    if (QColorDialog::customCount()) {
+        prefs_clear_string_list(recent.custom_colors);
+        recent.custom_colors = NULL;
+        for (int i = 0; i < QColorDialog::customCount(); i++) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+            QRgb rgb = QColorDialog::customColor(i);
+#else
+            QRgb rgb = QColorDialog::customColor(i).rgb();
+#endif
+            recent.custom_colors = g_list_append(recent.custom_colors, g_strdup_printf("%08x", rgb));
+        }
+    }
+}
+
 void WiresharkApplication::setLastOpenDir(const char *dir_name)
 {
     qint64 len;
@@ -460,6 +493,7 @@ void WiresharkApplication::captureFileReadStarted()
 void WiresharkApplication::cleanup()
 {
     software_update_cleanup();
+    storeCustomColorsInRecent();
     // Write the user's recent file(s) to disk.
     write_profile_recent();
     write_recent();
