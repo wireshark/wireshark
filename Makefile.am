@@ -779,27 +779,29 @@ EXTRA_DIST = \
 	colorfilters		\
 	config.h.win32		\
 	config.nmake		\
-	debian/README.Debian	\
-	debian/README.Debian.security	\
 	debian/changelog	\
 	debian/compat		\
 	debian/control		\
 	debian/copyright	\
 	debian/dirs		\
 	debian/ethereal-common.NEWS	\
+	debian/geoip_db_paths	\
 	debian/headers-check.c	\
-	debian/libwireshark-data.install	\
-	debian/libwireshark-dev.install	\
 	debian/libwireshark0.install	\
 	debian/libwireshark0.symbols	\
-	debian/libwiretap-dev.install	\
+	debian/libwireshark-data.install	\
+	debian/libwireshark-dev.install	\
 	debian/libwiretap0.docs	\
 	debian/libwiretap0.install	\
 	debian/libwiretap0.symbols	\
-	debian/libwsutil-dev.install	\
+	debian/libwiretap-dev.install	\
+	debian/libwscodecs0.install	\
+	debian/libwscodecs0.symbols	\
 	debian/libwsutil0.install	\
 	debian/libwsutil0.symbols	\
+	debian/libwsutil-dev.install	\
 	debian/license-text-about-dialog	\
+	debian/patches/02_use_packaged_openlayers_js.patch	\
 	debian/patches/04_asn2wrs_ply.patch	\
 	debian/patches/05_note-README-when-running-as-root.patch	\
 	debian/patches/06_release-version.patch	\
@@ -829,6 +831,8 @@ EXTRA_DIST = \
 	debian/po/templates.pot	\
 	debian/po/vi.po	\
 	debian/postinst		\
+	debian/README.Debian	\
+	debian/README.Debian.security	\
 	debian/rules		\
 	debian/source/format	\
 	debian/templates	\
@@ -847,9 +851,9 @@ EXTRA_DIST = \
 	debian/wireshark-doc.docs	\
 	debian/wireshark-gtk.docs	\
 	debian/wireshark-gtk.install	\
-	debian/wireshark-qt.manpages \
 	debian/wireshark-qt.docs	\
 	debian/wireshark-qt.install	\
+	debian/wireshark-qt.manpages \
 	dfilters		\
 	doxygen_global.cfg	\
 	doxygen.cfg.in		\
