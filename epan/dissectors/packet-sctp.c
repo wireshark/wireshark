@@ -4117,8 +4117,6 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   /* create proto_tree stuff */
   chunk_item   = proto_tree_add_text(sctp_tree, chunk_tvb, CHUNK_HEADER_OFFSET, reported_length, "%s chunk", val_to_str_const(type, chunk_type_values, "RESERVED"));
   chunk_tree   = proto_item_add_subtree(chunk_item, ett_sctp_chunk);
-  if (reported_length % 4)
-    expert_add_info_format(pinfo, chunk_item, &ei_sctp_chunk_length_bad, "Chunk length is not padded to a multiple of 4 bytes (length=%d).", reported_length);
 
   if (tree) {
     /* then insert the chunk header components into the protocol tree */
