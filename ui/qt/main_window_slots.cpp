@@ -299,6 +299,9 @@ void MainWindow::filterPackets(QString new_filter, bool force)
     } else {
         emit displayFilterSuccess(false);
     }
+    if (packet_list_) {
+        packet_list_->resetColumns();
+    }
 }
 
 // A new layout should be applied when it differs from the old layout AND
