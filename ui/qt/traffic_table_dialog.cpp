@@ -86,6 +86,10 @@ TrafficTableDialog::TrafficTableDialog(QWidget &parent, CaptureFile &cf, const c
 
     connect(ui->trafficTableTabWidget, SIGNAL(currentChanged(int)),
             this, SLOT(itemSelectionChanged()));
+    connect(&cap_file_, SIGNAL(captureFileRetapStarted()),
+            this, SLOT(retapStarted()));
+    connect(&cap_file_, SIGNAL(captureFileRetapFinished()),
+            this, SLOT(retapFinished()));
 }
 
 TrafficTableDialog::~TrafficTableDialog()
@@ -175,6 +179,16 @@ void TrafficTableDialog::on_displayFilterCheckBox_toggled(bool checked)
     }
 
     cap_file_.retapPackets();
+}
+
+void TrafficTableDialog::retapStarted()
+{
+    ui->displayFilterCheckBox->setEnabled(false);
+}
+
+void TrafficTableDialog::retapFinished()
+{
+    ui->displayFilterCheckBox->setEnabled(true);
 }
 
 void TrafficTableDialog::setTabText(QWidget *tree, const QString &text)

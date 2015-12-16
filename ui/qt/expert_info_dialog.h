@@ -89,6 +89,7 @@ private:
 
 private slots:
     void retapPackets();
+    void retapStarted();
     void retapFinished();
 
     void updateWidgets();

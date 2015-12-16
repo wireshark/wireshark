@@ -202,6 +202,8 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file) :
         connect(fa, SIGNAL(triggered()), this, SLOT(filterActionTriggered()));
     }
 
+    connect(&cap_file_, SIGNAL(captureFileRetapStarted()),
+            this, SLOT(retapStarted()));
     connect(&cap_file_, SIGNAL(captureFileRetapFinished()),
             this, SLOT(retapFinished()));
     setDisplayFilter();
@@ -263,8 +265,14 @@ void ExpertInfoDialog::retapPackets()
     cap_file_.retapPackets();
 }
 
+void ExpertInfoDialog::retapStarted()
+{
+    ui->limitCheckBox->setEnabled(false);
+}
+
 void ExpertInfoDialog::retapFinished()
 {
+    ui->limitCheckBox->setEnabled(! file_closed_ && ! display_filter_.isEmpty());
     addPacketTreeItems();
     for (int i = 0; i < ui->expertInfoTreeWidget->topLevelItemCount(); i++) {
         QTreeWidgetItem *group_ti = ui->expertInfoTreeWidget->topLevelItem(i);
