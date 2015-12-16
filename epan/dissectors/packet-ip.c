@@ -2068,15 +2068,23 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
       return;
     }
   } else {
-    /*
-     * Now that we know that the total length of this IP datagram isn't
-     * obviously bogus, adjust the length of this tvbuff to include only
-     * the IP datagram.
-     */
-    set_actual_length(tvb, iph->ip_len);
-
-    if (tree)
-      proto_tree_add_uint(ip_tree, hf_ip_len, tvb, offset + 2, 2, iph->ip_len);
+    tf = proto_tree_add_uint(ip_tree, hf_ip_len, tvb, offset + 2, 2, iph->ip_len);
+    if (iph->ip_len > tvb_reported_length(tvb)) {
+      /*
+       * Length runs past the data we're given.
+       * Note that.
+       */
+      expert_add_info_format(pinfo, tf, &ei_ip_bogus_ip_length,
+                  "IPv4 total length exceeds packet length (%u bytes)",
+                  tvb_reported_length(tvb));
+    } else {
+      /*
+       * Now that we know that the total length of this IP datagram isn't
+       * obviously bogus, adjust the length of this tvbuff to include only
+       * the IP datagram.
+       */
+      set_actual_length(tvb, iph->ip_len);
+    }
   }
 
   iph->ip_id  = tvb_get_ntohs(tvb, offset + 4);
