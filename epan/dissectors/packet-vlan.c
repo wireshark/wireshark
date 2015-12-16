@@ -257,6 +257,8 @@ proto_reg_handoff_vlan(void)
   if (!prefs_initialized)
   {
     dissector_add_uint("ethertype", ETHERTYPE_VLAN, vlan_handle);
+    register_capture_dissector("ethertype", ETHERTYPE_VLAN, capture_vlan, hfi_vlan->id);
+
     prefs_initialized = TRUE;
   }
   else
@@ -268,7 +270,6 @@ proto_reg_handoff_vlan(void)
   ethertype_handle = find_dissector("ethertype");
 
   dissector_add_uint("ethertype", q_in_q_ethertype, vlan_handle);
-  register_capture_dissector("ethertype", ETHERTYPE_VLAN, capture_vlan, hfi_vlan->id);
 }
 
 /*
