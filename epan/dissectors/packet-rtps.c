@@ -91,6 +91,7 @@ static int hf_rtps_participant_idx              = -1;
 static int hf_rtps_nature_type                  = -1;
 
 static int hf_rtps_guid_prefix                  = -1;
+static int hf_rtps_guid_prefix_v2               = -1;
 static int hf_rtps_host_id                      = -1;
 static int hf_rtps_app_id                       = -1;
 static int hf_rtps_app_id_instance_id           = -1;
@@ -102,6 +103,7 @@ static int hf_rtps_sm_flags                     = -1;
 static int hf_rtps_sm_flags2                    = -1;
 static int hf_rtps_sm_octets_to_next_header     = -1;
 static int hf_rtps_sm_guid_prefix               = -1;
+static int hf_rtps_sm_guid_prefix_v2            = -1;
 static int hf_rtps_sm_host_id                   = -1;
 static int hf_rtps_sm_app_id                    = -1;
 static int hf_rtps_sm_instance_id_v1            = -1;
@@ -198,7 +200,6 @@ static int hf_rtps_param_app_kind               = -1;
 static int hf_rtps_param_entity                 = -1;
 static int hf_rtps_param_entity_key             = -1;
 static int hf_rtps_param_hf_entity_kind         = -1;
-static int hf_rtps_param_counter                = -1;
 static int hf_rtps_data_frag_number             = -1;
 static int hf_rtps_data_frag_num_fragments      = -1;
 static int hf_rtps_data_frag_size               = -1;
@@ -1475,21 +1476,14 @@ static void rtps_util_add_guid_prefix_v1(proto_tree *tree, tvbuff_t *tvb, gint o
  */
 static void rtps_util_add_guid_prefix_v2(proto_tree *tree, tvbuff_t *tvb, gint offset,
                                       int hf_prefix, int hf_host_id, int hf_app_id,
-                                      int hf_instance_id, const guint8 *label) {
-  const guint8 *safe_label;
-
-  safe_label = (label == NULL) ? (const guint8 *)"guidPrefix" : label;
-
+                                      int hf_instance_id) {
   if (tree) {
-    proto_item *hidden_item;
+    proto_item *ti;
     proto_tree *guid_tree;
 
     /* The text node (root of the guid prefix sub-tree) */
-    guid_tree = proto_tree_add_subtree(tree, tvb, offset, 12, ett_rtps_guid_prefix, NULL, safe_label);
-
-    /* The numeric value (used for searches) */
-    hidden_item = proto_tree_add_item(guid_tree, hf_prefix, tvb, offset, 8, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    ti = proto_tree_add_item(tree, hf_prefix, tvb, offset, 12, ENC_NA);
+    guid_tree = proto_item_add_subtree(ti, ett_rtps_guid_prefix);
 
     /* Host Id */
     proto_tree_add_item(guid_tree, hf_host_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1501,7 +1495,6 @@ static void rtps_util_add_guid_prefix_v2(proto_tree *tree, tvbuff_t *tvb, gint o
     proto_tree_add_item(guid_tree, hf_instance_id, tvb, offset+8, 4, ENC_BIG_ENDIAN);
   }
 }
-
 /* ------------------------------------------------------------------------- */
  /* Insert the entityId from the next 4 bytes. Since there are more than
   * one entityId, we need to specify also the IDs of the entityId (and its
@@ -3020,8 +3013,8 @@ static gboolean dissect_parameter_sequence_rti(proto_tree *rtps_parameter_tree, 
     case PID_ENTITY_VIRTUAL_GUID: {
       ENSURE_LENGTH(16);
       rtps_util_add_guid_prefix_v2(rtps_parameter_tree, tvb, offset,
-        hf_rtps_sm_guid_prefix, hf_rtps_sm_host_id, hf_rtps_sm_app_id,
-        hf_rtps_sm_instance_id, "virtualGUIDPrefix");
+        hf_rtps_sm_guid_prefix_v2, hf_rtps_sm_host_id, hf_rtps_sm_app_id,
+        hf_rtps_sm_instance_id);
       rtps_util_add_entity_id(rtps_parameter_tree, tvb, offset+12,
         hf_rtps_sm_entity_id, hf_rtps_sm_entity_id_key, hf_rtps_sm_entity_id_kind,
         ett_rtps_entity, "virtualGUIDSuffix", NULL);
@@ -4261,8 +4254,8 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
     */
     case PID_DIRECTED_WRITE: {
     ENSURE_LENGTH(16);
-    rtps_util_add_guid_prefix_v2(rtps_parameter_tree, tvb, offset, hf_rtps_sm_guid_prefix,
-                    hf_rtps_sm_host_id, hf_rtps_sm_app_id, hf_rtps_sm_instance_id, "guidPrefix");
+    rtps_util_add_guid_prefix_v2(rtps_parameter_tree, tvb, offset, hf_rtps_sm_guid_prefix_v2,
+                    hf_rtps_sm_host_id, hf_rtps_sm_app_id, hf_rtps_sm_instance_id);
     rtps_util_add_entity_id(rtps_parameter_tree, tvb, offset+12, hf_rtps_sm_entity_id,
                     hf_rtps_sm_entity_id_key, hf_rtps_sm_entity_id_kind, ett_rtps_entity,
                     "guidSuffix", NULL);
@@ -4408,8 +4401,8 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
      */
     case PID_ORIGINAL_WRITER_INFO:
       ENSURE_LENGTH(16);
-      rtps_util_add_guid_prefix_v2(rtps_parameter_tree, tvb, offset, hf_rtps_sm_guid_prefix,
-                    hf_rtps_sm_host_id, hf_rtps_sm_app_id, hf_rtps_sm_instance_id, "virtualGUIDPrefix");
+      rtps_util_add_guid_prefix_v2(rtps_parameter_tree, tvb, offset, hf_rtps_sm_guid_prefix_v2,
+                    hf_rtps_sm_host_id, hf_rtps_sm_app_id, hf_rtps_sm_instance_id);
       rtps_util_add_entity_id(rtps_parameter_tree, tvb, offset+12, hf_rtps_sm_entity_id,
                     hf_rtps_sm_entity_id_key, hf_rtps_sm_entity_id_kind, ett_rtps_entity,
                     "virtualGUIDSuffix", NULL);
@@ -4679,8 +4672,8 @@ static void dissect_APP_ACK_CONF(tvbuff_t *tvb,
 
       /* Virtual Writer Guid */
       rtps_util_add_guid_prefix_v2(sil_tree_writer, tvb, offset,
-        hf_rtps_sm_guid_prefix, hf_rtps_sm_host_id, hf_rtps_sm_app_id,
-        hf_rtps_sm_instance_id, "virtualGUIDPrefix");
+        hf_rtps_sm_guid_prefix_v2, hf_rtps_sm_host_id, hf_rtps_sm_app_id,
+        hf_rtps_sm_instance_id);
 
       rtps_util_add_entity_id(sil_tree_writer, tvb, offset+12,
         hf_rtps_sm_entity_id, hf_rtps_sm_entity_id_key, hf_rtps_sm_entity_id_kind,
@@ -5279,8 +5272,8 @@ static void dissect_DATA_v2(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
 
   /* If flag H is defined, read the GUID Prefix */
   if ((flags & FLAG_DATA_H) != 0) {
-    rtps_util_add_guid_prefix_v2(tree, tvb, offset, hf_rtps_sm_guid_prefix, hf_rtps_sm_host_id,
-                        hf_rtps_sm_app_id, hf_rtps_sm_instance_id, "keyHashPrefix");
+    rtps_util_add_guid_prefix_v2(tree, tvb, offset, hf_rtps_sm_guid_prefix_v2, hf_rtps_sm_host_id,
+                        hf_rtps_sm_app_id, hf_rtps_sm_instance_id);
 
     offset += 12;
   } else {
@@ -5394,8 +5387,8 @@ static void dissect_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 
   /* If flag H is defined, read the GUID Prefix */
   if ((flags & FLAG_DATA_H) != 0) {
-    rtps_util_add_guid_prefix_v2(tree, tvb, offset, hf_rtps_sm_guid_prefix,
-                    hf_rtps_sm_host_id, hf_rtps_sm_app_id, hf_rtps_sm_instance_id, "keyHashPrefix");
+    rtps_util_add_guid_prefix_v2(tree, tvb, offset, hf_rtps_sm_guid_prefix_v2,
+                    hf_rtps_sm_host_id, hf_rtps_sm_app_id, hf_rtps_sm_instance_id);
     offset += 12;
   } else {
     /* Flag H not set, use hostId, appId from the packet header */
@@ -6540,8 +6533,8 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
 
       guid_tree = proto_item_add_subtree(ti, ett_rtps_part_message_data);
 
-      rtps_util_add_guid_prefix_v2(guid_tree, tvb, offset, hf_rtps_sm_guid_prefix, hf_rtps_sm_host_id,
-                        hf_rtps_sm_app_id, hf_rtps_sm_instance_id, "participantGuidPrefix");
+      rtps_util_add_guid_prefix_v2(guid_tree, tvb, offset, hf_rtps_sm_guid_prefix_v2, hf_rtps_sm_host_id,
+                        hf_rtps_sm_app_id, hf_rtps_sm_instance_id);
       offset += 12;
 
       /* Kind */
@@ -7205,8 +7198,8 @@ void dissect_INFO_SRC(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 fla
                         hf_rtps_sm_instance_id_v1, hf_rtps_sm_app_kind,
                         NULL);   /* Use default 'guidPrefix' */
   } else {
-      rtps_util_add_guid_prefix_v2(tree, tvb, offset, hf_rtps_guid_prefix,
-                        hf_rtps_host_id, hf_rtps_app_id, hf_rtps_sm_instance_id, NULL);
+      rtps_util_add_guid_prefix_v2(tree, tvb, offset, hf_rtps_guid_prefix_v2,
+                        hf_rtps_host_id, hf_rtps_app_id, hf_rtps_sm_instance_id);
   }
 }
 
@@ -7333,8 +7326,8 @@ static void dissect_INFO_DST(tvbuff_t *tvb, packet_info *pinfo, gint offset, gui
                         hf_rtps_sm_instance_id_v1, hf_rtps_sm_app_kind,
                         NULL);
   } else {
-      rtps_util_add_guid_prefix_v2(tree, tvb, offset, hf_rtps_guid_prefix,
-                        hf_rtps_host_id, hf_rtps_app_id, hf_rtps_sm_instance_id, NULL);
+      rtps_util_add_guid_prefix_v2(tree, tvb, offset, hf_rtps_guid_prefix_v2,
+                        hf_rtps_host_id, hf_rtps_app_id, hf_rtps_sm_instance_id);
   }
 }
 
@@ -7582,8 +7575,8 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                         hf_rtps_guid_prefix, hf_rtps_host_id, hf_rtps_app_id,
                         hf_rtps_app_id_instance_id, hf_rtps_app_id_app_kind, NULL);
     else
-      rtps_util_add_guid_prefix_v2(rtps_tree, tvb, offset+8, hf_rtps_guid_prefix,
-                        hf_rtps_host_id, hf_rtps_app_id, hf_rtps_sm_instance_id, NULL);
+      rtps_util_add_guid_prefix_v2(rtps_tree, tvb, offset+8, hf_rtps_guid_prefix_v2,
+                        hf_rtps_host_id, hf_rtps_app_id, hf_rtps_sm_instance_id);
 
     guid.host_id = tvb_get_ntohl(tvb, offset+8);
     guid.app_id = tvb_get_ntohl(tvb, offset+12);
@@ -7878,6 +7871,17 @@ void proto_register_rtps(void) {
         HFILL }
     },
 
+    { &hf_rtps_guid_prefix_v2, {
+        "guidPrefix",
+        "rtps.guidPrefix",
+        FT_BYTES,
+        BASE_NONE,
+        NULL,
+        0,
+        "a generic guidPrefix that is transmitted inside the submessage (this is NOT the guidPrefix described in the packet header",
+        HFILL }
+    },
+
     /* Host ID ------------------------------------------------------------- */
     { &hf_rtps_host_id, {               /* HIDDEN */
         "hostId",
@@ -7989,7 +7993,18 @@ void proto_register_rtps(void) {
         BASE_HEX,
         NULL,
         0,
-        "a generic guidPrefix that is transmitted inside the submessage (this is NOT the guidPrefix described in the packet header",
+        "a generic guidPrefix that is transmitted inside the submessage (this is NOT the guidPrefix described in the packet header)",
+        HFILL }
+    },
+
+    { &hf_rtps_sm_guid_prefix_v2, {
+        "guidPrefix",
+        "rtps.sm.guidPrefix",
+        FT_BYTES,
+        BASE_NONE,
+        NULL,
+        0,
+        "a generic guidPrefix that is transmitted inside the submessage (this is NOT the guidPrefix described in the packet header)",
         HFILL }
     },
 
@@ -8801,12 +8816,6 @@ void proto_register_rtps(void) {
     { &hf_rtps_param_hf_entity_kind,
       { "entityKind", "rtps.param.guid.entityKind",
         FT_UINT8, BASE_HEX, VALS(entity_kind_vals), 0,
-        NULL, HFILL }
-    },
-
-    { &hf_rtps_param_counter,
-      { "Counter", "rtps.param.guid.counter",
-        FT_UINT32, BASE_HEX, NULL, 0,
         NULL, HFILL }
     },
 
