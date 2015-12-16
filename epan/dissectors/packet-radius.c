@@ -157,6 +157,8 @@ static int hf_radius_ascend_data_filter_reserved = -1;
 static int hf_radius_vsa_fragment = -1;
 static int hf_radius_eap_fragment = -1;
 static int hf_radius_avp = -1;
+static int hf_radius_avp_length = -1;
+static int hf_radius_avp_type = -1;
 static int hf_radius_3gpp_ms_tmime_zone = -1;
 
 static int hf_radius_egress_vlanid_tag = -1;
@@ -1337,6 +1339,9 @@ void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_
 
 			vendor_tree = proto_item_add_subtree(avp_item,vendor->ett);
 
+			proto_tree_add_item(vendor_tree, hf_radius_avp_type, tvb, offset-6, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(vendor_tree, hf_radius_avp_length, tvb, offset-5, 1, ENC_BIG_ENDIAN);
+
 			while (offset < max_offset) {
 				guint32 avp_vsa_type;
 				guint32 avp_vsa_len;
@@ -1466,6 +1471,9 @@ void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_
 		}
 
 		avp_tree = proto_item_add_subtree(avp_item,dictionary_entry->ett);
+
+		proto_tree_add_item(avp_tree, hf_radius_avp_type, tvb, offset-2, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(avp_tree, hf_radius_avp_length, tvb, offset-1, 1, ENC_BIG_ENDIAN);
 
 		if (show_length) {
 			avp_len_item = proto_tree_add_uint(avp_tree,
@@ -2403,6 +2411,12 @@ static void register_radius_fields(const char* unused _U_) {
 			 NULL, HFILL }},
 		 { &hf_radius_avp,
 		 { "AVP", "radius.avp", FT_BYTES, BASE_NONE, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_avp_length,
+		 { "AVP Length", "radius.avp.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+			 NULL, HFILL }},
+		 { &hf_radius_avp_type,
+		 { "AVP Type", "radius.avp.type", FT_UINT8, BASE_DEC, NULL, 0x0,
 			 NULL, HFILL }},
 		 { &hf_radius_egress_vlanid_tag,
 		 { "Tag", "radius.egress_vlanid_tag", FT_UINT32, BASE_HEX, VALS(egress_vlan_tag_vals), 0xFF000000,
