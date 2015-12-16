@@ -45,9 +45,11 @@
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
+#include <wsutil/ws_diag_control.h>
 #include <wsutil/file_util.h>
 
 #ifdef HAVE_LIBZ
+#define ZLIB_CONST
 #include <zlib.h>
 #endif /* HAVE_LIBZ */
 
@@ -473,7 +475,13 @@ zlib_read(FILE_T state, unsigned char *buf, unsigned int count)
         ret = inflate(strm, Z_NO_FLUSH);
 #endif
         state->avail_in = strm->avail_in;
+#ifdef z_const
+DIAG_OFF(cast-qual)
+        state->next_in = (unsigned char *)strm->next_in;
+DIAG_ON(cast-qual)
+#else
         state->next_in = strm->next_in;
+#endif
         if (ret == Z_STREAM_ERROR) {
             state->err = WTAP_ERR_DECOMPRESS;
             state->err_info = strm->msg;
@@ -1672,7 +1680,13 @@ gzwfile_write(GZWFILE_T state, const void *buf, guint len)
             n = state->size - strm->avail_in;
             if (n > len)
                 n = len;
+#ifdef z_const
+DIAG_OFF(cast-qual)
+            memcpy((Bytef *)strm->next_in + strm->avail_in, buf, n);
+DIAG_ON(cast-qual)
+#else
             memcpy(strm->next_in + strm->avail_in, buf, n);
+#endif
             strm->avail_in += n;
             state->pos += n;
             buf = (const char *)buf + n;
@@ -1688,10 +1702,12 @@ gzwfile_write(GZWFILE_T state, const void *buf, guint len)
 
         /* directly compress user buffer to file */
         strm->avail_in = len;
-#if ZLIB_CONST
+#ifdef z_const
         strm->next_in = (z_const Bytef *)buf;
 #else
+DIAG_OFF(cast-qual)
         strm->next_in = (Bytef *)buf;
+DIAG_ON(cast-qual)
 #endif
         state->pos += len;
         if (gz_comp(state, Z_NO_FLUSH) == -1)
