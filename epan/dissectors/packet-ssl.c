@@ -2017,7 +2017,7 @@ dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
 
     if (tree) {
         ti = proto_tree_add_item(tree, hf_ssl_heartbeat_message, tvb,
-                                 offset, record_length - 32, ENC_NA);
+                                 offset, record_length, ENC_NA);
         tls_heartbeat_tree = proto_item_add_subtree(ti, ett_ssl_heartbeat);
     }
 
