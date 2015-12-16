@@ -104,6 +104,7 @@ static const gchar *default_media_types[] = {
     "application/ccmp+xml",
     "application/cpim-pidf+xml",
     "application/cpl+xml",
+    "application/dds-web+xml",
     "application/mathml+xml",
     "application/media_control+xml",
     "application/note+xml",
