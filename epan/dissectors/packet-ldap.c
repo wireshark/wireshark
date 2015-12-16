@@ -5891,6 +5891,9 @@ proto_reg_handoff_ldap(void)
   oid_add_from_string("LDAP_SERVER_SHUTDOWN_NOTIFY_OID","1.2.840.113556.1.4.1907");
   oid_add_from_string("LDAP_SERVER_RANGE_RETRIEVAL_NOERR_OID","1.2.840.113556.1.4.1948");
 
+  /* RFC2798 */
+  oid_add_from_string("inetOrgPerson","2.16.840.1.113730.3.2.2");
+
   dissector_add_string("ldap.name", "netlogon", create_dissector_handle(dissect_NetLogon_PDU, proto_cldap));
   dissector_add_string("ldap.name", "objectGUID", create_dissector_handle(dissect_ldap_guid, proto_ldap));
   dissector_add_string("ldap.name", "supportedControl", create_dissector_handle(dissect_ldap_oid, proto_ldap));
@@ -5915,7 +5918,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2354 "../../asn1/ldap/packet-ldap-template.c"
+#line 2357 "../../asn1/ldap/packet-ldap-template.c"
 
 
 }
