@@ -28,7 +28,6 @@
 #include <string.h>
 
 #ifdef HAVE_LIBZ
-#define ZLIB_CONST
 #include <zlib.h>
 #endif
 

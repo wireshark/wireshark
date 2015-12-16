@@ -48,7 +48,6 @@
 #include <wsutil/file_util.h>
 
 #ifdef HAVE_LIBZ
-#define ZLIB_CONST
 #include <zlib.h>
 #endif /* HAVE_LIBZ */
 
@@ -129,7 +128,7 @@ struct wtap_reader {
     const char *err_info;      /* additional error information string for some errors */
 
     guint avail_in;            /* number of bytes available at next_in */
-    const guint8 *next_in;     /* next input byte */
+    unsigned char *next_in;    /* next input byte */
 #ifdef HAVE_LIBZ
     /* zlib inflate stream */
     z_stream strm;             /* stream structure in-place (not a pointer) */
@@ -1673,7 +1672,7 @@ gzwfile_write(GZWFILE_T state, const void *buf, guint len)
             n = state->size - strm->avail_in;
             if (n > len)
                 n = len;
-            memcpy((Bytef *)strm->next_in + strm->avail_in, buf, n);
+            memcpy(strm->next_in + strm->avail_in, buf, n);
             strm->avail_in += n;
             state->pos += n;
             buf = (const char *)buf + n;
@@ -1689,7 +1688,11 @@ gzwfile_write(GZWFILE_T state, const void *buf, guint len)
 
         /* directly compress user buffer to file */
         strm->avail_in = len;
+#if ZLIB_CONST
         strm->next_in = (z_const Bytef *)buf;
+#else
+        strm->next_in = (Bytef *)buf;
+#endif
         state->pos += len;
         if (gz_comp(state, Z_NO_FLUSH) == -1)
             return 0;
