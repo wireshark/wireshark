@@ -88,4 +88,6 @@ const true_false_string tfs_acknowledged_not_acknowledged = { "Acknowledged", "N
 const true_false_string tfs_response_request = { "Response", "Request" };
 const true_false_string tfs_defined_not_defined = { "Defined", "Not defined" };
 const true_false_string tfs_constructed_primitive = { "Constructed", "Primitive" };
+const true_false_string tfs_client_server = { "Client", "Server" };
+const true_false_string tfs_server_client = { "Server", "Client" };
 

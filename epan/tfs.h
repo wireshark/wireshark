@@ -103,6 +103,8 @@ WS_DLL_PUBLIC const true_false_string tfs_acknowledged_not_acknowledged;
 WS_DLL_PUBLIC const true_false_string tfs_response_request;
 WS_DLL_PUBLIC const true_false_string tfs_defined_not_defined;
 WS_DLL_PUBLIC const true_false_string tfs_constructed_primitive;
+WS_DLL_PUBLIC const true_false_string tfs_client_server;
+WS_DLL_PUBLIC const true_false_string tfs_server_client;
 
 #ifdef __cplusplus
 }

@@ -1334,6 +1334,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_asynchronous_synchronous@Base 1.99.1
  tfs_available_not_available@Base 1.9.1
  tfs_capable_not_capable@Base 1.9.1
+ tfs_client_server@Base 2.1.0
  tfs_command_response@Base 1.9.1
  tfs_complete_incomplete@Base 1.12.0~rc1
  tfs_confirmed_unconfirmed@Base 1.12.0~rc1
@@ -1373,6 +1374,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_required_not_required@Base 1.99.0
  tfs_response_request@Base 1.99.8
  tfs_restricted_allowed@Base 1.9.1
+ tfs_server_client@Base 2.1.0
  tfs_set_notset@Base 1.9.1
  tfs_shared_independent@Base 1.9.1
  tfs_success_fail@Base 1.9.1

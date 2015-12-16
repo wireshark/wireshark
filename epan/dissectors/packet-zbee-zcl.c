@@ -1995,10 +1995,6 @@ void decode_zcl_time_in_minutes(gchar *s, guint16 value)
 void proto_register_zbee_zcl(void)
 {
     guint i, j;
-    static const true_false_string tfs_client_server = {
-        "To Client",
-        "To Server"
-    };
 
     static hf_register_info hf[] = {
         { &hf_zbee_zcl_fcf_frame_type,

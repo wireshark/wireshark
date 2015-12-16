@@ -126,8 +126,6 @@ static expert_field ei_icq_unknown_command = EI_INIT;
 #define ICQ5_SERVER 0
 #define ICQ5_CLIENT 1
 
-const true_false_string tfs_client_server = { "Client", "Server" };
-
 static void
 dissect_icqv5Server(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree *tree, int pktsize);
