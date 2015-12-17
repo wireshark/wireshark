@@ -27,10 +27,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-/* XXX - try to remove this later */
-#include <epan/prefs.h>
-/* XXX - try to remove this later */
-
 #include <wiretap/wtap.h>
 
 #include "capture_info.h"
@@ -39,38 +35,28 @@
 
 #include <wsutil/filesystem.h>
 
-typedef struct _info_data {
-    packet_counts     counts;     /* several packet type counters */
-    struct wtap*      wtap;       /* current wtap file */
-    capture_info      ui;         /* user interface data */
-} info_data_t;
-
-
-static info_data_t info_data;
-
-
 /* open the info */
-void capture_info_open(capture_session *cap_session)
+void capture_info_open(capture_session *cap_session, info_data_t* cap_info)
 {
-    info_data.counts.total      = 0;
-    info_data.counts.sctp       = 0;
-    info_data.counts.tcp        = 0;
-    info_data.counts.udp        = 0;
-    info_data.counts.icmp       = 0;
-    info_data.counts.ospf       = 0;
-    info_data.counts.gre        = 0;
-    info_data.counts.ipx        = 0;
-    info_data.counts.netbios    = 0;
-    info_data.counts.vines      = 0;
-    info_data.counts.other      = 0;
-    info_data.counts.arp        = 0;
-    info_data.counts.i2c_event  = 0;
-    info_data.counts.i2c_data   = 0;
+    cap_info->counts.total      = 0;
+    cap_info->counts.sctp       = 0;
+    cap_info->counts.tcp        = 0;
+    cap_info->counts.udp        = 0;
+    cap_info->counts.icmp       = 0;
+    cap_info->counts.ospf       = 0;
+    cap_info->counts.gre        = 0;
+    cap_info->counts.ipx        = 0;
+    cap_info->counts.netbios    = 0;
+    cap_info->counts.vines      = 0;
+    cap_info->counts.other      = 0;
+    cap_info->counts.arp        = 0;
+    cap_info->counts.i2c_event  = 0;
+    cap_info->counts.i2c_data   = 0;
 
-    info_data.wtap = NULL;
-    info_data.ui.counts = &info_data.counts;
+    cap_info->wtap = NULL;
+    cap_info->ui.counts = &cap_info->counts;
 
-    capture_info_ui_create(&info_data.ui, cap_session);
+    capture_info_ui_create(&cap_info->ui, cap_session);
 }
 
 
@@ -175,19 +161,19 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 }
 
 /* new file arrived */
-gboolean capture_info_new_file(const char *new_filename)
+gboolean capture_info_new_file(const char *new_filename, info_data_t* cap_info)
 {
     int err;
     gchar *err_info;
     gchar *err_msg;
 
 
-    if(info_data.wtap != NULL) {
-        wtap_close(info_data.wtap);
+    if(cap_info->wtap != NULL) {
+        wtap_close(cap_info->wtap);
     }
 
-    info_data.wtap = wtap_open_offline(new_filename, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
-    if (!info_data.wtap) {
+    cap_info->wtap = wtap_open_offline(new_filename, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
+    if (!cap_info->wtap) {
         err_msg = g_strdup_printf(cf_open_error_message(err, err_info, FALSE, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN),
                                   new_filename);
         g_warning("capture_info_new_file: %d (%s)", err, err_msg);
@@ -211,7 +197,7 @@ capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd,
 }
 
 /* new packets arrived */
-void capture_info_new_packets(int to_read)
+void capture_info_new_packets(int to_read, info_data_t* cap_info)
 {
     int err;
     gchar *err_info;
@@ -222,35 +208,35 @@ void capture_info_new_packets(int to_read)
     const guchar *buf;
 
 
-    info_data.ui.new_packets = to_read;
+    cap_info->ui.new_packets = to_read;
 
     /*g_warning("new packets: %u", to_read);*/
 
     while (to_read > 0) {
-        wtap_cleareof(info_data.wtap);
-        if (wtap_read(info_data.wtap, &err, &err_info, &data_offset)) {
-            phdr = wtap_phdr(info_data.wtap);
+        wtap_cleareof(cap_info->wtap);
+        if (wtap_read(cap_info->wtap, &err, &err_info, &data_offset)) {
+            phdr = wtap_phdr(cap_info->wtap);
             pseudo_header = &phdr->pseudo_header;
             wtap_linktype = phdr->pkt_encap;
-            buf = wtap_buf_ptr(info_data.wtap);
+            buf = wtap_buf_ptr(cap_info->wtap);
 
-            capture_info_packet(&info_data.counts, wtap_linktype, buf, phdr->caplen, pseudo_header);
+            capture_info_packet(&cap_info->counts, wtap_linktype, buf, phdr->caplen, pseudo_header);
 
             /*g_warning("new packet");*/
             to_read--;
         }
     }
 
-    capture_info_ui_update(&info_data.ui);
+    capture_info_ui_update(&cap_info->ui);
 }
 
 
 /* close the info */
-void capture_info_close(void)
+void capture_info_close(info_data_t* cap_info)
 {
-    capture_info_ui_destroy(&info_data.ui);
-    if(info_data.wtap)
-        wtap_close(info_data.wtap);
+    capture_info_ui_destroy(&cap_info->ui);
+    if(cap_info->wtap)
+        wtap_close(cap_info->wtap);
 }
 
 #endif /* HAVE_LIBPCAP */

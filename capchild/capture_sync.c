@@ -339,7 +339,7 @@ init_pipe_args(int *argc) {
 #define ARGV_NUMBER_LEN 24
 /* a new capture run: start a new dumpcap task and hand over parameters through command line */
 gboolean
-sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, void (*update_cb)(void))
+sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, info_data_t* cap_data, void (*update_cb)(void))
 {
     char ssnap[ARGV_NUMBER_LEN];
     char scount[ARGV_NUMBER_LEN];
@@ -772,6 +772,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
 
     cap_session->fork_child_status = 0;
     cap_session->capture_opts = capture_opts;
+    cap_session->cap_data_info = cap_data;
 
     /* we might wait for a moment till child is ready, so update screen now */
     if (update_cb) update_cb();

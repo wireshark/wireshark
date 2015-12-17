@@ -113,6 +113,7 @@
 #endif /* _WIN32 */
 #include <capchild/capture_session.h>
 #include <capchild/capture_sync.h>
+#include <capture_info.h>
 #endif /* HAVE_LIBPCAP */
 #include "log.h"
 #include <epan/funnel.h>
@@ -184,6 +185,7 @@ static gboolean print_packet_counts;
 
 static capture_options global_capture_opts;
 static capture_session global_capture_session;
+static info_data_t global_info_data;
 
 #ifdef SIGINFO
 static gboolean infodelay;      /* if TRUE, don't print capture info in SIGINFO handler */
@@ -2562,7 +2564,7 @@ capture(void)
   fflush(stderr);
   g_string_free(str, TRUE);
 
-  ret = sync_pipe_start(&global_capture_opts, &global_capture_session, NULL);
+  ret = sync_pipe_start(&global_capture_opts, &global_capture_session, &global_info_data, NULL);
 
   if (!ret)
     return FALSE;

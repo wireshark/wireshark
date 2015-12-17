@@ -23,15 +23,13 @@
 #ifndef __CAPTURE_GLOBALS_H__
 #define __CAPTURE_GLOBALS_H__
 
-#include <capchild/capture_session.h>
+#include "capture_opts.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 extern capture_options global_capture_opts;
-
-extern capture_session global_capture_session;
 
 #ifdef __cplusplus
 }

@@ -30,6 +30,7 @@
  */
 
 #include "capture_opts.h"
+#include "capture_info.h"
 #include "capchild/capture_session.h"
 
 #ifdef __cplusplus
@@ -66,7 +67,7 @@ capture_callback_remove(capture_callback_t func, gpointer user_data);
  * @return TRUE if the capture starts successfully, FALSE otherwise.
  */
 extern gboolean
-capture_start(capture_options *capture_opts, capture_session *cap_session, void(*update_cb)(void));
+capture_start(capture_options *capture_opts, capture_session *cap_session, info_data_t* cap_data, void(*update_cb)(void));
 
 /** Stop a capture session (usually from a menu item). */
 extern void

@@ -39,23 +39,12 @@
 #include "capture_opts.h"
 #include <capchild/capture_session.h>
 
+/* XXX - Should be temporary until packet_counts is removed */
+#include <epan/packet.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-/* open the info - init values (wtap, counts), create dialog */
-extern void capture_info_open(capture_session *cap_session);
-
-/* new file arrived - (eventually close old wtap), open wtap */
-extern gboolean capture_info_new_file(const char *new_filename);
-
-/* new packets arrived - read from wtap, count */
-extern void capture_info_new_packets(int to_read);
-
-/* close the info - close wtap, destroy dialog */
-extern void capture_info_close(void);
-
-
 
 /** Current Capture info. */
 typedef struct {
@@ -68,6 +57,23 @@ typedef struct {
     gint            new_packets;    /**< packets since last update */
 } capture_info;
 
+typedef struct _info_data {
+    packet_counts     counts;     /* several packet type counters */
+    struct wtap*      wtap;       /* current wtap file */
+    capture_info      ui;         /* user interface data */
+} info_data_t;
+
+/* open the info - init values (wtap, counts), create dialog */
+extern void capture_info_open(capture_session *cap_session, info_data_t* cap_info);
+
+/* new file arrived - (eventually close old wtap), open wtap */
+extern gboolean capture_info_new_file(const char *new_filename, info_data_t* cap_info);
+
+/* new packets arrived - read from wtap, count */
+extern void capture_info_new_packets(int to_read, info_data_t* cap_info);
+
+/* close the info - close wtap, destroy dialog */
+extern void capture_info_close(info_data_t* cap_info);
 
 /** Create the capture info dialog */
 extern void

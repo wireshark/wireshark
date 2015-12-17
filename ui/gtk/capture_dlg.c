@@ -5401,7 +5401,7 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
      this capture. */
   collect_ifaces(&global_capture_opts);
 
-  if (capture_start(&global_capture_opts, &global_capture_session, main_window_update)) {
+  if (capture_start(&global_capture_opts, &global_capture_session, &global_info_data, main_window_update)) {
     /* The capture succeeded, which means the capture filters specified are
        valid; add them to the recent capture filter lists for the interfaces.
 

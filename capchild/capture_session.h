@@ -45,7 +45,7 @@ typedef enum {
 } capture_state;
 
 struct _capture_file;
-
+struct _info_data;
 /*
  * State of a capture session.
  */
@@ -64,6 +64,7 @@ typedef struct _capture_session {
     guint32   count;                      /**< Total number of frames captured */
     capture_options *capture_opts;        /**< options for this capture */
     struct    _capture_file *cf;          /**< handle to cfile */
+    struct _info_data *cap_data_info;          /**< stats for this capture */
 } capture_session;
 
 extern void

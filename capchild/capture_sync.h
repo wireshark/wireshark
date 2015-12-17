@@ -36,6 +36,8 @@
 extern "C" {
 #endif /* __cplusplus */
 
+struct _info_data;
+
 /**
  * Start a new capture session.
  *  Create a capture child which is doing the real capture work.
@@ -50,7 +52,7 @@ extern "C" {
  *  @return             TRUE if a capture could be started, FALSE if not
  */
 extern gboolean
-sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, void(*update_cb)(void));
+sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, struct _info_data* cap_data, void(*update_cb)(void));
 
 /** User wants to stop capturing, gracefully close the capture child */
 extern void

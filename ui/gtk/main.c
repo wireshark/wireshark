@@ -224,6 +224,7 @@
 #ifdef HAVE_LIBPCAP
 capture_options global_capture_opts;
 capture_session global_capture_session;
+info_data_t global_info_data;
 #endif
 
 capture_file cfile;
@@ -646,7 +647,7 @@ copy_selected_plist_cb(GtkWidget *w _U_, gpointer data _U_, COPY_SELECTED_E acti
     {
     case COPY_SELECTED_DESCRIPTION:
         if (cfile.finfo_selected->rep &&
-            strlen (cfile.finfo_selected->rep->representation) > 0) {
+            strlen(cfile.finfo_selected->rep->representation) > 0) {
             g_string_append(gtk_text_str, cfile.finfo_selected->rep->representation);
         }
         break;
@@ -3297,7 +3298,7 @@ main(int argc, char *argv[])
                to use for this capture. */
             if (global_capture_opts.ifaces->len == 0)
                 collect_ifaces(&global_capture_opts);
-            if (capture_start(&global_capture_opts, &global_capture_session,main_window_update)) {
+            if (capture_start(&global_capture_opts, &global_capture_session, &global_info_data,main_window_update)) {
                 /* The capture started.  Open stat windows; we do so after creating
                    the main window, to avoid GTK warnings, and after successfully
                    opening the capture file, so we know we have something to compute

@@ -126,7 +126,7 @@ capture_callback_remove(capture_callback_t func, gpointer user_data)
  * @return TRUE if the capture starts successfully, FALSE otherwise.
  */
 gboolean
-capture_start(capture_options *capture_opts, capture_session *cap_session, void(*update_cb)(void))
+capture_start(capture_options *capture_opts, capture_session *cap_session, info_data_t* cap_data, void(*update_cb)(void))
 {
   gboolean ret;
   GString *source;
@@ -138,7 +138,7 @@ capture_start(capture_options *capture_opts, capture_session *cap_session, void(
   cf_set_tempfile_source((capture_file *)cap_session->cf, source->str);
   g_string_free(source, TRUE);
   /* try to start the capture child process */
-  ret = sync_pipe_start(capture_opts, cap_session, update_cb);
+  ret = sync_pipe_start(capture_opts, cap_session, cap_data, update_cb);
   if(!ret) {
       if(capture_opts->save_file != NULL) {
           g_free(capture_opts->save_file);
@@ -156,7 +156,7 @@ capture_start(capture_options *capture_opts, capture_session *cap_session, void(
       capture_callback_invoke(capture_cb_capture_prepared, cap_session);
 
       if(capture_opts->show_info)
-        capture_info_open(cap_session);
+        capture_info_open(cap_session, cap_data);
   }
 
   return ret;
@@ -346,7 +346,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
   }
 
   if(capture_opts->show_info) {
-    if (!capture_info_new_file(new_file))
+    if (!capture_info_new_file(new_file, cap_session->cap_data_info))
       return FALSE;
   }
 
@@ -403,7 +403,7 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
 #endif
 
   if(capture_opts->show_info)
-    capture_info_new_packets(to_read);
+    capture_info_new_packets(to_read, cap_session->cap_data_info);
 }
 
 
@@ -594,7 +594,7 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
   }
 
   if(capture_opts->show_info)
-    capture_info_close();
+    capture_info_close(cap_session->cap_data_info);
 
   cap_session->state = CAPTURE_STOPPED;
 
@@ -631,7 +631,7 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
     /* close the currently loaded capture file */
     cf_close((capture_file *)cap_session->cf);
 
-    capture_start(capture_opts, cap_session,NULL); /*XXX is this NULL ok or we need an update_cb???*/
+    capture_start(capture_opts, cap_session, cap_session->cap_data_info, NULL); /*XXX is this NULL ok or we need an update_cb???*/
   } else {
     /* We're not doing a capture any more, so we don't have a save file. */
     g_free(capture_opts->save_file);

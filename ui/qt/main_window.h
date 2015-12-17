@@ -87,6 +87,7 @@ public:
     QString getFilter();
 #ifdef HAVE_LIBPCAP
     capture_session *captureSession() { return &cap_session_; }
+    info_data_t *captureInfoData() { return &info_data_; }
 #endif
 
     virtual QMenu *createPopupMenu();
@@ -151,6 +152,7 @@ private:
 #ifdef HAVE_LIBPCAP
     capture_session cap_session_;
     CaptureInterfacesDialog capture_interfaces_dialog_;
+    info_data_t info_data_;
 #endif
 
     // Pipe input

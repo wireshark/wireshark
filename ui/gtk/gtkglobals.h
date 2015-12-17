@@ -37,6 +37,9 @@
  *  GTK global definitions. For example a pointer to the main application window.
  */
 
+#include <capchild/capture_session.h>
+#include <capture_info.h>
+
 /** Application window. */
 extern GtkWidget *top_level;
 
@@ -48,5 +51,9 @@ extern GtkWidget *byte_nb_ptr_gbl;
 
 /** The filter text entry in the filter toolbar. */
 extern GtkWidget   *main_display_filter_widget;
+
+extern capture_session global_capture_session;
+
+extern info_data_t global_info_data;
 
 #endif
