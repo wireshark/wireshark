@@ -491,19 +491,17 @@ typedef struct nspr_pktracepart_v26
 } nspr_pktracepart_v26_t;
 #define nspr_pktracepart_v26_s    ((guint32)(sizeof(nspr_pktracepart_v26_t)))
 
-#define myoffsetof(type,fieldname) (&(((type*)0)->fieldname))
-
 #define __TNDO(phdr,enumprefix,structname,hdrname)\
     static const guint8 enumprefix##_##hdrname##_offset = (guint8)sizeof(nspr_##structname##_t);
 
 #define __TNO(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
-    static const guint8 enumprefix##_##hdrname##_offset = (guint8)GPOINTER_TO_INT(myoffsetof(nspr_##structname##_t,structprefix##_##structfieldname));
+    static const guint8 enumprefix##_##hdrname##_offset = (guint8)GPOINTER_TO_INT(offsetof(nspr_##structname##_t,structprefix##_##structfieldname));
 
 #define __TNL(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
     static const guint8 enumprefix##_##hdrname##_len = (guint8)sizeof(((nspr_##structname##_t*)0)->structprefix##_##structfieldname);
 
 #define __TNV1O(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
-    static const guint8 enumprefix##_##hdrname##_offset = (guint8)GPOINTER_TO_INT(myoffsetof(nspr_##structname##_t,structfieldname));
+    static const guint8 enumprefix##_##hdrname##_offset = (guint8)GPOINTER_TO_INT(offsetof(nspr_##structname##_t,structfieldname));
 
 #define __TNV1L(phdr,enumprefix,structprefix,structname,hdrname,structfieldname) \
     static const guint8 enumprefix##_##hdrname##_len = (guint8)sizeof(((nspr_##structname##_t*)0)->structfieldname);

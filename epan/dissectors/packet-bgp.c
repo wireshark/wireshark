@@ -603,11 +603,6 @@ void proto_reg_handoff_bgp(void);
 #define BGP_NLRI_TLV_LEN_NODE_FLAG_BITS                 1
 
 
-#ifndef offsetof
-#define offsetof(type, member)  ((size_t)(&((type *)0)->member))
-#endif
-
-
 static const value_string bgptypevals[] = {
     { BGP_OPEN,                "OPEN Message" },
     { BGP_UPDATE,              "UPDATE Message" },

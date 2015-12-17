@@ -604,11 +604,6 @@ static gboolean g_esp_do_sequence_analysis = TRUE;
 /* Place AH payload in sub tree */
 static gboolean g_ah_payload_in_subtree = FALSE;
 
-#ifndef offsetof
-#define offsetof(type, member)  ((size_t)(&((type *)0)->member))
-#endif
-
-
 
 
 #ifdef HAVE_LIBGCRYPT

@@ -29,10 +29,6 @@
 #include <epan/to_str.h>
 #include <epan/expert.h>
 
-#ifndef offsetof
-#define offsetof(type, member)  ((size_t)(&((type *)0)->member))
-#endif
-
 /*
  * See
  *

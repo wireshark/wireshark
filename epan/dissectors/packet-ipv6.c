@@ -491,10 +491,6 @@ static gboolean try_heuristic_first = FALSE;
 /* Display IPv6 extension headers under the root tree */
 static gboolean ipv6_exthdr_under_root = FALSE;
 
-#ifndef offsetof
-#define offsetof(type, member)  ((size_t)(&((type *)0)->member))
-#endif
-
 /*
  * defragmentation of IPv6
  */
