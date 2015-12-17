@@ -39,7 +39,7 @@
 #include <epan/charsets.h>
 #include <epan/packet.h>
 
-#include "packet_panes.h"
+#include "ui/recent.h"
 
 #define MARGIN 2
 #define REFRESH_TIMEOUT 10

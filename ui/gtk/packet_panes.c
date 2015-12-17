@@ -1430,7 +1430,7 @@ proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
 }
 
 void
-select_bytes_view (GtkWidget *w _U_, gpointer data _U_, gint view)
+select_bytes_view (GtkWidget *w _U_, gpointer data _U_, bytes_view_type view)
 {
     if (recent.gui_bytes_view != view) {
         recent.gui_bytes_view = view;
