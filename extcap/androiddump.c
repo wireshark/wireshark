@@ -500,7 +500,7 @@ static char *adb_send_and_read(socket_handle_t sock, const char *adb_service, ch
 
     adb_service_length = strlen(adb_service);
 
-    result = send(sock, adb_service, adb_service_length, 0);
+    result = send(sock, adb_service, (int) adb_service_length, 0);
     if (result != (gssize) adb_service_length) {
         if (verbose)
             fprintf(stderr, "ERROR: Error while sending <%s> to ADB\n", adb_service);
@@ -1351,7 +1351,7 @@ static int capture_android_bluetooth_external_parser(char *interface,
     struct sockaddr_in             server;
     int                            captured_length;
     char                          *serial_number = NULL;
-    size_t                         serial_number_length;
+    size_t                         serial_number_length = 0;
 
     SET_DATA(timestamp, value_u64, buffer);
     SET_DATA(h4_header, value_own_pcap_bluetooth_h4_header, packet);
