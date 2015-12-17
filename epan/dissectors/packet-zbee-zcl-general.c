@@ -3639,7 +3639,7 @@ proto_register_zbee_zcl_level_control(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     /* Register the ZigBee ZCL Level Control dissector. */
-    new_register_dissector(ZBEE_PROTOABBREV_ZCL_LEVEL_CONTROL, dissect_zbee_zcl_level_control, proto_zbee_zcl_level_control);
+    register_dissector(ZBEE_PROTOABBREV_ZCL_LEVEL_CONTROL, dissect_zbee_zcl_level_control, proto_zbee_zcl_level_control);
 
 } /*proto_register_zbee_zcl_level_control*/
 
