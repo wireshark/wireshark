@@ -1606,9 +1606,9 @@ static const GtkRadioActionEntry main_menu_bar_radio_view_time_fileformat_prec_e
 static void
 select_bytes_view_cb (GtkRadioAction *action, GtkRadioAction *current _U_, gpointer user_data _U_)
 {
-    gint value;
+    bytes_view_type value;
 
-    value = gtk_radio_action_get_current_value (action);
+    value = (bytes_view_type)gtk_radio_action_get_current_value (action);
     /* Fix me */
     select_bytes_view( NULL, NULL, value);
 }

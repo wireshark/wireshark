@@ -1031,7 +1031,7 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
     num = strtol(value, &p, 0);
     if (p == value || *p != '\0')
       return PREFS_SET_SYNTAX_ERR;      /* number was bad */
-    recent.gui_bytes_view = (gint)num;
+    recent.gui_bytes_view = (bytes_view_type)num;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED) == 0) {
     if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.gui_geometry_main_maximized = TRUE;
@@ -1294,7 +1294,7 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
   recent.gui_time_precision        = TS_PREC_AUTO;
   recent.gui_seconds_format        = TS_SECONDS_DEFAULT;
   recent.gui_zoom_level            = 0;
-  recent.gui_bytes_view            = 0;
+  recent.gui_bytes_view            = BYTES_HEX;
 
   /* pane size of zero will autodetect */
   recent.gui_geometry_main_upper_pane   = 0;

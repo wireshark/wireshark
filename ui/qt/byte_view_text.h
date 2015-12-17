@@ -29,6 +29,7 @@
 #include <epan/tvbuff.h>
 
 #include "proto_tree.h"
+#include "ui/recent.h"
 
 #include <QAbstractScrollArea>
 #include <QMenu>
@@ -36,12 +37,6 @@
 class QActionGroup;
 
 // XXX - Is there any reason we shouldn't add ByteViewImage, etc?
-
-// XXX Copied from gtk/packet_panes.h
-typedef enum {
-    BYTES_HEX,
-    BYTES_BITS
-} bytes_view_type;
 
 class ByteViewText : public QAbstractScrollArea
 {
@@ -107,7 +102,6 @@ private:
 
     // Data
     packet_char_enc encoding_;  // ASCII or EBCDIC
-    bytes_view_type format_;    // bytes in hex or bytes as bits
     QActionGroup *format_actions_;
     QMenu ctx_menu_;
 

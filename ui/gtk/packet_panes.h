@@ -24,6 +24,7 @@
 #ifndef __PACKET_PANES_H__
 #define __PACKET_PANES_H__
 
+#include "ui/recent.h"
 #include <epan/addr_resolv.h>
 
 /** @file
@@ -215,11 +216,7 @@ extern void collapse_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view);
  */
 extern gboolean tree_view_select(GtkWidget *widget, GdkEventButton *event);
 
-typedef enum {
-  BYTES_HEX,
-  BYTES_BITS
-} bytes_view_type;
-extern void select_bytes_view (GtkWidget *widget, gpointer data, gint view);
+extern void select_bytes_view (GtkWidget *widget, gpointer data, bytes_view_type view);
 
 /** init the expert colors */
 extern void proto_draw_colors_init(void);
