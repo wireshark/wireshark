@@ -124,6 +124,12 @@
  * https://raw.githubusercontent.com/splunk/ipfix/master/app/Splunk_TA_IPFIX/bin/IPFIX/information-elements/5951.xml
  */
 
+/*
+ * December 2015: uhei:  Add Barracuda NGFirewall extensions
+ * used documentation found at:
+ * https://techlib.barracuda.com/NG61/ConfigAuditReportingIPFIX
+ */
+
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -295,10 +301,11 @@ typedef enum {
     TF_NTOP,
     TF_IXIA,
     TF_NETSCALER,
+    TF_BARRACUDA,
     TF_NO_VENDOR_INFO
 } v9_v10_tmplt_fields_type_t;
 #define TF_NUM 2
-#define TF_NUM_EXT 7   /* includes vendor fields */
+#define TF_NUM_EXT 8   /* includes vendor fields */
 
 typedef struct _v9_v10_tmplt {
     /* For linking back to show where fields were defined */
@@ -1100,6 +1107,64 @@ static const value_string v10_template_types_netscaler[] = {
 };
 static value_string_ext v10_template_types_netscaler_ext = VALUE_STRING_EXT_INIT(v10_template_types_netscaler);
 
+/* Barracuda NGFirewall IPFIX */
+static const value_string v10_template_types_barracuda[] = {
+    {  1, "Timestamp" },
+    {  2, "LogOp" },
+    {  3, "TrafficType" },
+    {  4, "FW Rule" },
+    {  5, "ServiceName" },
+    {  6, "Reason" },
+    {  7, "ReasonText" },
+    {  8, "BindIPv4Address" },
+    {  9, "BindTransportPort" },
+    {  10, "ConnIPv4Address" },
+    {  11, "ConnTransportPort" },
+    {  12, "AuditCounter" },
+    { 0, NULL }
+};
+static value_string_ext v10_template_types_barracuda_ext = VALUE_STRING_EXT_INIT(v10_template_types_barracuda);
+
+static const value_string v10_barracuda_logop[] = {
+    { 0, "Unknown" },
+    { 1, "Allow" },
+    { 2, "LocalAllow" },
+    { 3, "Block" },
+    { 4, "LocalBlock" },
+    { 5, "Remove" },
+    { 6, "LocalRemove" },
+    { 7, "Drop" },
+    { 8, "Terminate" },
+    { 9, "LocalTerminate" },
+    { 10, "Change" },
+    { 11, "Operation" },
+    { 12, "Startup" },
+    { 13, "Configuration" },
+    { 14, "Rule" },
+    { 15, "State" },
+    { 16, "LocalState" },
+    { 17, "Process" },
+    { 18, "AdminAction" },
+    { 19, "Deny" },
+    { 20, "LocalDeny" },
+    { 21, "SecurityEvent" },
+    { 22, "Sync" },
+    { 23, "Fail" },
+    { 24, "LocalFail" },
+    { 25, "ARP" },
+    { 26, "Detect" },
+    { 27, "LocalDetect" },
+    { 28, "IntermediateReport" },
+    { 0, NULL }
+};
+
+static const value_string v10_barracuda_traffictype[] = {
+    { 0, "Forwarding" },
+    { 1, "Local In" },
+    { 2, "Local Out" },
+    { 3, "Loopback" },
+    { 0, NULL }
+};
 
 static const value_string v9_scope_field_types[] = {
     { 1, "System" },
@@ -1324,6 +1389,7 @@ static int      hf_cflow_template_plixer_field_type                 = -1;
 static int      hf_cflow_template_ntop_field_type                   = -1;
 static int      hf_cflow_template_ixia_field_type                   = -1;
 static int      hf_cflow_template_netscaler_field_type              = -1;
+static int      hf_cflow_template_barracuda_field_type              = -1;
 
 
 /*
@@ -2035,6 +2101,20 @@ static int      hf_pie_netscaler_cacheredirclientconnectioncoreid        = -1;
 static int      hf_pie_netscaler_cacheredirclientconnectiontransactionid = -1;
 
 
+static int      hf_pie_barracuda                                         = -1;
+static int      hf_pie_barracuda_timestamp                               = -1;
+static int      hf_pie_barracuda_logop                                   = -1;
+static int      hf_pie_barracuda_traffictype                             = -1;
+static int      hf_pie_barracuda_fwrule                                  = -1;
+static int      hf_pie_barracuda_servicename                             = -1;
+static int      hf_pie_barracuda_reason                                  = -1;
+static int      hf_pie_barracuda_reasontext                              = -1;
+static int      hf_pie_barracuda_bindipv4address                         = -1;
+static int      hf_pie_barracuda_bindtransportport                       = -1;
+static int      hf_pie_barracuda_connipv4address                         = -1;
+static int      hf_pie_barracuda_conntransportport                       = -1;
+static int      hf_pie_barracuda_auditcounter                            = -1;
+
 static int      hf_string_len_short = -1;
 static int      hf_string_len_long  = -1;
 
@@ -2174,6 +2254,8 @@ pen_to_type_hf_list(guint32 pen) {
         return TF_IXIA;
     case VENDOR_NETSCALER:
         return TF_NETSCALER;
+    case VENDOR_BARRACUDA:
+        return TF_BARRACUDA;
     default:
         return TF_NO_VENDOR_INFO;
     }
@@ -3143,7 +3225,8 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                          plixer_pie_seen = FALSE,
                          ntop_pie_seen = FALSE,
                          ixia_pie_seen = FALSE,
-                         netscaler_pie_seen = FALSE;
+                         netscaler_pie_seen = FALSE,
+                         barracuda_pie_seen = FALSE;
 
 
     guint8       ip_protocol = 0;
@@ -3261,6 +3344,13 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                     proto_item *pie_netscaler_ti = proto_tree_add_item(pdutree, hf_pie_netscaler, tvb, 0, 0, ENC_NA);
                     PROTO_ITEM_SET_HIDDEN(pie_netscaler_ti);
                     netscaler_pie_seen = TRUE;
+                }
+                break;
+            case VENDOR_BARRACUDA:
+                if (!barracuda_pie_seen) {
+                    proto_item *pie_barracuda_ti = proto_tree_add_item(pdutree, hf_pie_barracuda, tvb, 0, 0, ENC_NA);
+                    PROTO_ITEM_SET_HIDDEN(pie_barracuda_ti);
+                    barracuda_pie_seen = TRUE;
                 }
                 break;
 
@@ -6824,6 +6914,57 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
             /* END Netscaler Communications */
 
+            /* START Barracuda Communications */
+        case ((VENDOR_BARRACUDA << 16) | 1):
+            ti = proto_tree_add_item(pdutree, hf_pie_barracuda_timestamp,
+                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_BARRACUDA << 16) | 2):
+            ti = proto_tree_add_item(pdutree, hf_pie_barracuda_logop,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_BARRACUDA << 16) | 3):
+            ti = proto_tree_add_item(pdutree, hf_pie_barracuda_traffictype,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_BARRACUDA << 16) | 4):
+            ti = proto_tree_add_item(pdutree, hf_pie_barracuda_fwrule,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_BARRACUDA << 16) | 5):
+            ti = proto_tree_add_item(pdutree, hf_pie_barracuda_servicename,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_BARRACUDA << 16) | 6):
+            ti = proto_tree_add_item(pdutree, hf_pie_barracuda_reason,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_BARRACUDA << 16) | 7):
+            ti = proto_tree_add_item(pdutree, hf_pie_barracuda_reasontext,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_BARRACUDA << 16) | 8):
+            ti = proto_tree_add_ipv4(pdutree, hf_pie_barracuda_bindipv4address,
+                                     tvb, offset, 4, tvb_get_ipv4(tvb, offset));
+            break;
+        case ((VENDOR_BARRACUDA << 16) | 9):
+            ti = proto_tree_add_item(pdutree, hf_pie_barracuda_bindtransportport,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_BARRACUDA << 16) | 10):
+            ti = proto_tree_add_ipv4(pdutree, hf_pie_barracuda_connipv4address,
+                                     tvb, offset, 4, tvb_get_ipv4(tvb, offset));
+            break;
+        case ((VENDOR_BARRACUDA << 16) | 11):
+            ti = proto_tree_add_item(pdutree, hf_pie_barracuda_conntransportport,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_BARRACUDA << 16) | 12):
+            ti = proto_tree_add_item(pdutree, hf_pie_barracuda_auditcounter,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+            /* END Barracuda Communications */
+
         default:  /* Unknown Field ID */
             if ((hdrinfo_p->vspec == 9) || (pen == REVPEN)) {
                 ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_unknown_field_type,
@@ -6914,6 +7055,7 @@ static const int *v10_template_type_hf_list[TF_NUM_EXT] = {
     &hf_cflow_template_ntop_field_type,
     &hf_cflow_template_ixia_field_type,
     &hf_cflow_template_netscaler_field_type,
+    &hf_cflow_template_barracuda_field_type,
     NULL};
 
 static value_string_ext *v9_template_type_vse_list[TF_NUM] = {
@@ -6926,6 +7068,7 @@ static value_string_ext *v10_template_type_vse_list[TF_NUM_EXT] = {
     &v10_template_types_ntop_ext,
     &v10_template_types_ixia_ext,
     &v10_template_types_netscaler_ext,
+    &v10_template_types_barracuda_ext,
     NULL};
 
 static int
@@ -9610,6 +9753,11 @@ proto_register_netflow(void)
           FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_netscaler_ext, 0x7FFF,
           "Template field type", HFILL}
         },
+        {&hf_cflow_template_barracuda_field_type,
+         {"Type", "cflow.template_barracuda_field_type",
+          FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_barracuda_ext, 0x7FFF,
+          "Template field type", HFILL}
+        },
         {&hf_cflow_template_ipfix_field_type_enterprise,
          {"Type", "cflow.template_ipfix_field_type_enterprise",
           FT_UINT16, BASE_DEC, NULL, 0x7FFF,
@@ -11410,6 +11558,84 @@ proto_register_netflow(void)
           NULL, HFILL}
         },
 
+        /* Barracuda root (a hidden item to allow filtering) */
+        {&hf_pie_barracuda,
+         {"Barracuda", "cflow.pie.barracuda",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Barracuda, 10704 / 1 */
+        {&hf_pie_barracuda_timestamp,
+         {"Timestamp", "cflow.pie.barracuda.timestamp",
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+          "Seconds since epoch", HFILL}
+        },
+        /* Barracuda, 10704 / 2 */
+        {&hf_pie_barracuda_logop,
+         {"LogOp", "cflow.pie.barracuda.logop",
+          FT_UINT8, BASE_DEC, VALS(v10_barracuda_logop), 0x0,
+          NULL, HFILL}
+        },
+        /* Barracuda, 10704 / 3 */
+        {&hf_pie_barracuda_traffictype,
+         {"Traffic Type", "cflow.pie.barracuda.traffictype",
+          FT_UINT8, BASE_DEC, VALS(v10_barracuda_traffictype), 0x0,
+          NULL, HFILL}
+        },
+        /* Barracuda, 10704 / 4 */
+        {&hf_pie_barracuda_fwrule,
+         {"FW Rule", "cflow.pie.barracuda.fwrule",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          "Name of FW Rule", HFILL}
+        },
+        /* Barracuda, 10704 / 5 */
+        {&hf_pie_barracuda_servicename,
+         {"Service Name", "cflow.pie.barracuda.servicename",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          "Name of Service", HFILL}
+        },
+        /* Barracuda, 10704 / 6 */
+        {&hf_pie_barracuda_reason,
+         {"Reason", "cflow.pie.barracuda.reason",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Barracuda, 10704 / 7 */
+        {&hf_pie_barracuda_reasontext,
+         {"Reason Text", "cflow.pie.barracuda.reasontext",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Barracuda, 10704 / 8 */
+        {&hf_pie_barracuda_bindipv4address,
+         {"Bind IPv4 Address", "cflow.pie.barracuda.bindipv4address",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Barracuda, 10704 / 9 */
+        {&hf_pie_barracuda_bindtransportport,
+         {"Bind Transport Port", "cflow.pie.barracuda.bindtransportport",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Barracuda, 10704 / 10 */
+        {&hf_pie_barracuda_connipv4address,
+         {"Conn IPv4 Address", "cflow.pie.barracuda.connipv4address",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Barracuda, 10704 / 11 */
+        {&hf_pie_barracuda_conntransportport,
+         {"Conn Transport Port", "cflow.pie.barracuda.conntransportport",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Barracuda, 10704 / 12 */
+        {&hf_pie_barracuda_auditcounter,
+         {"Audit Counter", "cflow.pie.barracuda.auditcounter",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Internal Data Counter", HFILL}
+        },
 
         {&hf_string_len_short,
          {"String_len_short", "cflow.string_len_short",
