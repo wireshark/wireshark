@@ -1023,6 +1023,23 @@ register_string_like_preference(module_t *module, const char *name,
 }
 
 /*
+ * For use by UI code that sets preferences.
+ */
+void
+prefs_set_string_like_value(pref_t *pref, const gchar *value, gboolean *changed)
+{
+    if (*pref->varp.string) {
+        if (strcmp(*pref->varp.string, value) != 0) {
+            *changed = TRUE;
+            g_free((void *)*pref->varp.string);
+            *pref->varp.string = g_strdup(value);
+        }
+    } else if (value) {
+        *pref->varp.string = g_strdup(value);
+    }
+}
+
+/*
  * Register a preference with a character-string value.
  */
 void
@@ -1105,6 +1122,36 @@ prefs_register_range_preference(module_t *module, const char *name,
     preference->varp.range = var;
     preference->default_val.range = range_copy(*var);
     preference->stashed_val.range = NULL;
+}
+
+static gboolean
+prefs_set_range_value_work(pref_t *pref, const gchar *value,
+                           gboolean return_range_errors, gboolean *changed)
+{
+    range_t *newrange;
+
+    if (range_convert_str_work(&newrange, value, pref->info.max_value,
+                               return_range_errors) != CVT_NO_ERROR) {
+        return FALSE;        /* number was bad */
+    }
+
+    if (!ranges_are_equal(*pref->varp.range, newrange)) {
+        *changed = TRUE;
+        g_free(*pref->varp.range);
+        *pref->varp.range = newrange;
+    } else {
+        g_free(newrange);
+    }
+    return TRUE;
+}
+
+/*
+ * For use by UI code that sets preferences.
+ */
+gboolean
+prefs_set_range_value(pref_t *pref, const gchar *value, gboolean *changed)
+{
+    return prefs_set_range_value_work(pref, value, TRUE, changed);
 }
 
 /*
@@ -1456,15 +1503,7 @@ column_hidden_set_cb(pref_t* pref, const gchar* value, gboolean* changed)
     fmt_data    *cfmt;
     pref_t  *format_pref;
 
-    if (*pref->varp.string) {
-        if (strcmp(*pref->varp.string, value) != 0) {
-            *changed = TRUE;
-            g_free((void *)*pref->varp.string);
-            *pref->varp.string = g_strdup(value);
-        }
-    } else if (value) {
-        *pref->varp.string = g_strdup(value);
-    }
+    prefs_set_string_like_value(pref, value, changed);
 
     /*
      * Set the "visible" flag for the existing columns; we need to
@@ -1995,11 +2034,7 @@ colorized_frame_reset_cb(pref_t* pref)
 static prefs_set_pref_e
 colorized_frame_set_cb(pref_t* pref, const gchar* value, gboolean* changed)
 {
-    if (strcmp(*pref->varp.string, value) != 0) {
-        *changed = TRUE;
-        g_free((void *)*pref->varp.string);
-        *pref->varp.string = g_strdup(value);
-    }
+    prefs_set_string_like_value(pref, value, changed);
 
     return PREFS_SET_OK;
 }
@@ -4394,29 +4429,14 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
         case PREF_STRING:
         case PREF_FILENAME:
         case PREF_DIRNAME:
-            if (strcmp(*pref->varp.string, value) != 0) {
-                module->prefs_changed = TRUE;
-                g_free((void *)*pref->varp.string);
-                *pref->varp.string = g_strdup(value);
-            }
+            prefs_set_string_like_value(pref, value, &module->prefs_changed);
             break;
 
         case PREF_RANGE:
         {
-            range_t *newrange;
-
-            if (range_convert_str_work(&newrange, value, pref->info.max_value,
-                                       return_range_errors) != CVT_NO_ERROR) {
+            if (!prefs_set_range_value_work(pref, value, return_range_errors,
+                                            &module->prefs_changed))
                 return PREFS_SET_SYNTAX_ERR;        /* number was bad */
-            }
-
-            if (!ranges_are_equal(*pref->varp.range, newrange)) {
-                module->prefs_changed = TRUE;
-                g_free(*pref->varp.range);
-                *pref->varp.range = newrange;
-            } else {
-                g_free (newrange);
-            }
             break;
         }
 

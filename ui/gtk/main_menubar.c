@@ -4784,7 +4784,6 @@ menu_prefs_change_ok (GtkWidget *w, gpointer parent_w)
     module_t    *module    = (module_t *)g_object_get_data (G_OBJECT(w), "module");
     pref_t      *pref      = (pref_t *)g_object_get_data (G_OBJECT(w), "pref");
     const gchar *new_value = gtk_entry_get_text(GTK_ENTRY(entry));
-    range_t     *newrange;
     gchar       *p;
     guint        uval;
 
@@ -4803,25 +4802,14 @@ menu_prefs_change_ok (GtkWidget *w, gpointer parent_w)
         }
         break;
     case PREF_STRING:
-        if (strcmp (*pref->varp.string, new_value) != 0) {
-            module->prefs_changed = TRUE;
-            g_free((void*)*pref->varp.string);
-            *pref->varp.string = g_strdup(new_value);
-        }
+        prefs_set_string_like_value(pref, new_value, &module->prefs_changed);
         break;
     case PREF_RANGE:
-        if (range_convert_str(&newrange, new_value, pref->info.max_value) != CVT_NO_ERROR) {
+        if (!prefs_set_range_value(pref, new_value, &module->prefs_changed)) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                           "The value \"%s\" isn't a valid range.",
                           new_value);
             return;
-        }
-        if (!ranges_are_equal(*pref->varp.range, newrange)) {
-            module->prefs_changed = TRUE;
-            g_free(*pref->varp.range);
-            *pref->varp.range = newrange;
-        } else {
-            g_free (newrange);
         }
         break;
     default:

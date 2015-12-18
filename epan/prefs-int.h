@@ -174,6 +174,21 @@ struct preference {
  */
 typedef prefs_set_pref_e (*pref_set_pair_cb) (gchar *key, const gchar *value, void *private_data, gboolean return_range_errors);
 
+/** Set the value of a string-like preference. */
+WS_DLL_PUBLIC
+void
+prefs_set_string_like_value(pref_t *pref, const gchar *value, gboolean *changed);
+
+/** Set the value of a range preference.  Return FALSE on error, TRUE otherwise. */
+WS_DLL_PUBLIC
+gboolean
+prefs_set_range_value(pref_t *pref, const gchar *value, gboolean *changed);
+
+/** Set the value of an enum preference. */
+WS_DLL_PUBLIC
+void
+prefs_set_enum_value(pref_t *pref, const gchar *value, gboolean *changed);
+
 /** read the preferences file (or similar) and call the callback
  * function to set each key/value pair found
  */

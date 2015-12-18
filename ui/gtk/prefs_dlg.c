@@ -1085,36 +1085,19 @@ pref_fetch(pref_t *pref, gpointer user_data)
   case PREF_FILENAME:
   case PREF_DIRNAME:
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
-    if (strcmp(*pref->varp.string, str_val) != 0) {
-      *pref_changed_p = TRUE;
-      g_free((void *)*pref->varp.string);
-      *pref->varp.string = g_strdup(str_val);
-    }
+    prefs_set_string_like_value(pref, str_val, pref_changed_p);
     break;
 
   case PREF_RANGE:
-  {
-    range_t *newrange;
-    convert_ret_t ret;
-
     str_val = gtk_entry_get_text(GTK_ENTRY(pref->control));
-    ret = range_convert_str(&newrange, str_val, pref->info.max_value);
-    if (ret != CVT_NO_ERROR)
+    if (!prefs_set_range_value(pref, str_val, pref_changed_p))
 #if 0
       return PREFS_SET_SYNTAX_ERR;      /* range was bad */
 #else
       return 0; /* XXX - should fail */
 #endif
 
-    if (!ranges_are_equal(*pref->varp.range, newrange)) {
-      *pref_changed_p = TRUE;
-      g_free(*pref->varp.range);
-      *pref->varp.range = newrange;
-    } else
-      g_free(newrange);
-
     break;
-  }
 
   case PREF_STATIC_TEXT:
   case PREF_UAT:
