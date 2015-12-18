@@ -184,7 +184,6 @@ static int hf_rtps_history_kind                 = -1;
 static int hf_rtps_data_status_info             = -1;
 static int hf_rtps_param_serialize_encap_kind   = -1;
 static int hf_rtps_param_serialize_encap_len    = -1;
-static int hf_rtps_param_status_info            = -1;
 static int hf_rtps_param_transport_priority     = -1;
 static int hf_rtps_param_type_max_size_serialized = -1;
 static int hf_rtps_param_entity_name            = -1;
@@ -330,6 +329,10 @@ static int hf_rtps_flag_data_present16                          = -1;
 static int hf_rtps_flag_offsetsn_present                        = -1;
 static int hf_rtps_flag_inline_qos16_v2                         = -1;
 static int hf_rtps_flag_timestamp_present                       = -1;
+static int hf_rtps_flag_unregistered                            = -1;
+static int hf_rtps_flag_disposed                                = -1;
+static int hf_rtps_param_status_info_flags                      = -1;
+
 static int hf_rtps_flag_participant_announcer                   = -1;
 static int hf_rtps_flag_participant_detector                    = -1;
 static int hf_rtps_flag_publication_announcer                   = -1;
@@ -1103,6 +1106,19 @@ static const int* INFO_REPLY_FLAGS[] = {
   NULL
 };
 
+/* It is a 4 bytes field but with these 8 bits is enough */
+static const int* STATUS_INFO_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_reserved04,                     /* Bit 2 */
+  &hf_rtps_flag_unregistered,                   /* Bit 1 */
+  &hf_rtps_flag_disposed,                       /* Bit 0 */
+  NULL
+};
+
 static const int* BUILTIN_ENDPOINT_FLAGS[] = {
   &hf_rtps_flag_participant_message_datareader,     /* Bit 11 */
   &hf_rtps_flag_participant_message_datawriter,     /* Bit 10 */
@@ -1118,6 +1134,7 @@ static const int* BUILTIN_ENDPOINT_FLAGS[] = {
   &hf_rtps_flag_participant_announcer,              /* Bit 0 */
   NULL
 };
+
 /* Vendor specific: RTI */
 static const int* APP_ACK_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
@@ -1211,7 +1228,7 @@ static wmem_map_t * registry = NULL;
 /* *********************************************************************** */
 /* Appends extra formatting for those submessages that have a status info
  */
-static void info_summary_append_ex(packet_info *pinfo,
+static void append_status_info(packet_info *pinfo,
                         guint32 writer_id,
                         guint32 status_info) {
 
@@ -1242,43 +1259,59 @@ static void info_summary_append_ex(packet_info *pinfo,
    *      1         |         1             | [ud]
    */
   /*                 0123456 */
-  char buffer[10] = "(?[??])";
+  gchar * writerId = NULL;
+  gchar * disposeFlag = NULL;
+  gchar * unregisterFlag = NULL;
+  wmem_strbuf_t *buffer = wmem_strbuf_new_label(wmem_packet_scope());
 
-  switch(writer_id)
-  {
-  case ENTITYID_PARTICIPANT:
-    buffer[1] = 'P';
-    break;
-  case ENTITYID_BUILTIN_TOPIC_WRITER:
-    buffer[1] = 't';
-    break;
-  case ENTITYID_BUILTIN_PUBLICATIONS_WRITER:
-    buffer[1] = 'w';
-    break;
-  case ENTITYID_BUILTIN_SUBSCRIPTIONS_WRITER:
-    buffer[1] = 'r';
-    break;
-  case ENTITYID_BUILTIN_SDP_PARTICIPANT_WRITER:
-    buffer[1] = 'p';
-    break;
-  case ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER:
-    buffer[1] = 'm';
-    break;
-  default:
+  switch(writer_id) {
+    case ENTITYID_PARTICIPANT:
+      writerId = "P";
+      break;
+    case ENTITYID_BUILTIN_TOPIC_WRITER:
+      writerId = "t";
+      break;
+    case ENTITYID_BUILTIN_PUBLICATIONS_WRITER:
+      writerId = "w";
+      break;
+    case ENTITYID_BUILTIN_SUBSCRIPTIONS_WRITER:
+      writerId = "r";
+      break;
+    case ENTITYID_BUILTIN_SDP_PARTICIPANT_WRITER:
+      writerId = "p";
+      break;
+    case ENTITYID_P2P_BUILTIN_PARTICIPANT_MESSAGE_WRITER:
+      writerId = "m";
+      break;
+    default:
     /* Unknown writer ID, don't format anything */
-    return;
+      break;
   }
 
   switch(status_info) {
-    case 0: buffer[3] = '_'; buffer[4] = '_'; break;
-    case 1: buffer[3] = '_'; buffer[4] = 'D'; break;
-    case 2: buffer[3] = 'U'; buffer[4] = '_'; break;
-    case 3: buffer[3] = 'U'; buffer[4] = 'D'; break;
+    case 0: unregisterFlag = "_"; disposeFlag = "_"; break;
+    case 1: unregisterFlag = "_"; disposeFlag = "D"; break;
+    case 2: unregisterFlag = "U"; disposeFlag = "_"; break;
+    case 3: unregisterFlag = "U"; disposeFlag = "D"; break;
     default:  /* Unknown status info, omit it */
-            buffer[2] = ')';
-            buffer[3] = '\0';
+      break;
   }
-  col_append_str(pinfo->cinfo, COL_INFO, buffer);
+
+  if (writerId != NULL || unregisterFlag != NULL ||
+          disposeFlag != NULL ) {
+    wmem_strbuf_append(buffer, "(");
+    if (writerId != NULL) {
+        wmem_strbuf_append(buffer, writerId);
+    }
+    if (unregisterFlag != NULL || disposeFlag != NULL) {
+      wmem_strbuf_append(buffer, "[");
+      wmem_strbuf_append(buffer, unregisterFlag);
+      wmem_strbuf_append(buffer, disposeFlag);
+      wmem_strbuf_append(buffer, "]");
+    }
+    wmem_strbuf_append(buffer, ")");
+    col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(buffer));
+   }
 }
 
 /* *********************************************************************** */
@@ -4293,14 +4326,17 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
      * |    long              statusInfo                               |
      * +---------------+---------------+---------------+---------------+
      */
-    case PID_STATUS_INFO:
+    case PID_STATUS_INFO: {
       ENSURE_LENGTH(4);
       /* PID_STATUS_INFO is always coded in network byte order (big endian) */
-      proto_tree_add_item(rtps_parameter_tree, hf_rtps_param_status_info, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_bitmask(rtps_parameter_tree, tvb, offset,
+              hf_rtps_param_status_info_flags, ett_rtps_flags,
+              STATUS_INFO_FLAGS, ENC_BIG_ENDIAN);
       if (pStatusInfo != NULL) {
         *pStatusInfo = NEXT_guint32(tvb, offset, ENC_BIG_ENDIAN);
       }
       break;
+    }
 
     /* 0...2...........7...............15.............23...............31
     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -5373,7 +5409,7 @@ static void dissect_DATA_v2(tvbuff_t *tvb, packet_info *pinfo, gint offset, guin
                         octets_to_next_header - (offset - old_offset) + 4,
                         "serializedData", vendor_id, from_builtin_writer, guid);
   }
-  info_summary_append_ex(pinfo, wid, status_info);
+  append_status_info(pinfo, wid, status_info);
 }
 
 static void dissect_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags,
@@ -6632,7 +6668,7 @@ static void dissect_RTPS_DATA(tvbuff_t *tvb, packet_info *pinfo, gint offset, gu
     }
   }
 
-  info_summary_append_ex(pinfo, wid, status_info);
+  append_status_info(pinfo, wid, status_info);
 }
 
 /* *********************************************************************** */
@@ -6759,7 +6795,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
                         octets_to_next_header - (offset - old_offset) + 4,
                         label, vendor_id, from_builtin_writer, NULL);
   }
-  info_summary_append_ex(pinfo, wid, status_info);
+  append_status_info(pinfo, wid, status_info);
 }
 
 /* *********************************************************************** */
@@ -7056,7 +7092,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
       offset += sample_info_length[count];
     }
   }
-  info_summary_append_ex(pinfo, wid, status_info);
+  append_status_info(pinfo, wid, status_info);
 }
 
 /* *********************************************************************** */
@@ -8784,13 +8820,6 @@ void proto_register_rtps(void) {
         NULL, HFILL }
     },
 
-    { &hf_rtps_param_status_info,
-      { "statusInfo", "rtps.param.statusInfo",
-        FT_UINT32, BASE_HEX, NULL, 0,
-        "State information of the data object to which the message apply (i.e. lifecycle)",
-        HFILL }
-    },
-
     /* Parameter / NtpTime ------------------------------------------------- */
     { &hf_rtps_param_ntpt_sec, {
       "seconds", "rtps.param.ntpTime.sec",
@@ -9472,6 +9501,20 @@ void proto_register_rtps(void) {
     { &hf_rtps_flag_timestamp_present, {
         "Timestamp present", "rtps.flag.offsetsn_present",
         FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0001, NULL, HFILL }
+    },
+    { &hf_rtps_param_status_info_flags,
+      { "Flags", "rtps.param.status_info",
+        FT_UINT32, BASE_HEX, NULL, 0,
+        "bitmask representing the flags in PID_STATUS_INFO",
+        HFILL }
+    },
+    { &hf_rtps_flag_unregistered, {
+        "Unregistered", "rtps.flag.unregistered",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x0002, NULL, HFILL }
+    },
+    { &hf_rtps_flag_disposed, {
+        "Disposed", "rtps.flag.undisposed",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x0001, NULL, HFILL }
     },
     { &hf_rtps_flag_participant_announcer, {
         "Participant Announcer", "rtps.flag.participant_announcer",
