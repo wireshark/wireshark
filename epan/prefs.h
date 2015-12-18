@@ -525,11 +525,6 @@ WS_DLL_PUBLIC GList *prefs_get_string_list(const gchar *str);
 /* Clear the given list of string data. */
 WS_DLL_PUBLIC void prefs_clear_string_list(GList *sl);
 
-/*
- * Register all non-dissector modules' preferences.
- */
-WS_DLL_PUBLIC void prefs_register_modules(void);
-
 /** Fetch a short preference type name, e.g. "Integer".
  *
  * @param pref A preference.

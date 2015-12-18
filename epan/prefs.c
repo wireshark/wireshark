@@ -53,10 +53,15 @@
 #include <epan/stats_tree.h>
 
 /* Internal functions */
+
+/*
+ * Register all non-dissector modules' preferences.
+ */
 static module_t *find_subtree(module_t *parent, const char *tilte);
 static module_t *prefs_register_module_or_subtree(module_t *parent,
     const char *name, const char *title, const char *description, gboolean is_subtree,
     void (*apply_cb)(void), gboolean use_gui);
+static void prefs_register_modules(void);
 static prefs_set_pref_e set_pref(gchar*, const gchar*, void *, gboolean);
 static void free_col_info(GList *);
 static void pre_init_prefs(void);
@@ -2069,7 +2074,7 @@ static module_t *gui_module = NULL;
 static module_t *gui_color_module = NULL;
 static module_t *nameres_module = NULL;
 
-void
+static void
 prefs_register_modules(void)
 {
     module_t *printing, *capture_module, *console_module,
