@@ -99,9 +99,6 @@ typedef guint16 lbm_uint16_t;
 typedef guint32 lbm_uint32_t;
 typedef guint64 lbm_uint64_t;
 #define SIZEOF(TYPE, MEMBER) (gint)(sizeof(((TYPE *)0)->MEMBER))
-#ifndef offsetof
-#define offsetof(type, member)  ((size_t)(&((type *)0)->member))
-#endif
 #define OFFSETOF(TYPE, MEMBER) (gint)(offsetof(TYPE, MEMBER))
 #define STRINGIZE(a) #a
 #define MAKESTRING(a) STRINGIZE(a)
