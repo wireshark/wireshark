@@ -218,6 +218,18 @@ prefs_init(void)
     prefs_top_level_modules = wmem_tree_new(wmem_epan_scope());
 }
 
+/*
+ * Free the strings for a string-like preference.
+ */
+static void
+free_string_like_preference(pref_t *pref)
+{
+    g_free((char *)*pref->varp.string);
+    *pref->varp.string = NULL;
+    g_free(pref->default_val.string);
+    pref->default_val.string = NULL;
+}
+
 static void
 free_pref(gpointer data, gpointer user_data _U_)
 {
@@ -1040,6 +1052,18 @@ prefs_set_string_like_value(pref_t *pref, const gchar *value, gboolean *changed)
 }
 
 /*
+ * Reset the value of a string-like preference.
+ */
+static void
+reset_string_like_preference(pref_t *pref)
+{
+DIAG_OFF(cast-qual)
+    g_free((void *)*pref->varp.string);
+DIAG_ON(cast-qual)
+    *pref->varp.string = g_strdup(pref->default_val.string);
+}
+
+/*
  * Register a preference with a character-string value.
  */
 void
@@ -1480,22 +1504,6 @@ static char * console_log_level_to_str_cb(pref_t* pref, gboolean default_val) {
 #define PRS_COL_NUM                      "column.number"
 static module_t *gui_column_module = NULL;
 
-static void
-column_hidden_free_cb(pref_t* pref)
-{
-    g_free((char *)*pref->varp.string);
-    *pref->varp.string = NULL;
-    g_free(pref->default_val.string);
-    pref->default_val.string = NULL;
-}
-
-static void
-column_hidden_reset_cb(pref_t* pref)
-{
-    g_free((void *)*pref->varp.string);
-    *pref->varp.string = g_strdup(pref->default_val.string);
-}
-
 static prefs_set_pref_e
 column_hidden_set_cb(pref_t* pref, const gchar* value, gboolean* changed)
 {
@@ -1753,7 +1761,7 @@ column_format_set_cb(pref_t* pref, const gchar* value, gboolean* changed _U_)
     }
 
     prefs_clear_string_list(col_l);
-    column_hidden_free_cb(hidden_pref);
+    free_string_like_preference(hidden_pref);
     return PREFS_SET_OK;
 }
 
@@ -2013,24 +2021,6 @@ capture_column_to_str_cb(pref_t* pref, gboolean default_val)
     return capture_column_str;
 }
 
-
-static void
-colorized_frame_free_cb(pref_t* pref)
-{
-    g_free((char *)*pref->varp.string);
-    *pref->varp.string = NULL;
-    g_free(pref->default_val.string);
-    pref->default_val.string = NULL;
-
-}
-
-static void
-colorized_frame_reset_cb(pref_t* pref)
-{
-    g_free((void *)*pref->varp.string);
-    *pref->varp.string = g_strdup(pref->default_val.string);
-}
-
 static prefs_set_pref_e
 colorized_frame_set_cb(pref_t* pref, const gchar* value, gboolean* changed)
 {
@@ -2145,8 +2135,8 @@ prefs_register_modules(void)
 
     gui_column_module = prefs_register_subtree(gui_module, "Columns", "Columns", NULL);
 
-    custom_cbs.free_cb = column_hidden_free_cb;
-    custom_cbs.reset_cb = column_hidden_reset_cb;
+    custom_cbs.free_cb = free_string_like_preference;
+    custom_cbs.reset_cb = reset_string_like_preference;
     custom_cbs.set_cb = column_hidden_set_cb;
     custom_cbs.type_name_cb = column_hidden_type_name_cb;
     custom_cbs.type_description_cb = column_hidden_type_description_cb;
@@ -2222,8 +2212,8 @@ prefs_register_modules(void)
     prefs_register_color_preference(gui_color_module, "stream.server.bg", "TCP stream window color preference",
         "TCP stream window color preference", &prefs.st_server_bg);
 
-    custom_cbs.free_cb = colorized_frame_free_cb;
-    custom_cbs.reset_cb = colorized_frame_reset_cb;
+    custom_cbs.free_cb = free_string_like_preference;
+    custom_cbs.reset_cb = reset_string_like_preference;
     custom_cbs.set_cb = colorized_frame_set_cb;
     custom_cbs.type_name_cb = colorized_frame_type_name_cb;
     custom_cbs.type_description_cb = colorized_frame_type_description_cb;
@@ -2234,8 +2224,8 @@ prefs_register_modules(void)
         "Filter Colorized Foreground", &custom_cbs, (const char **)&prefs.gui_colorized_fg);
     g_free(tmp);
 
-    custom_cbs.free_cb = colorized_frame_free_cb;
-    custom_cbs.reset_cb = colorized_frame_reset_cb;
+    custom_cbs.free_cb = free_string_like_preference;
+    custom_cbs.reset_cb = reset_string_like_preference;
     custom_cbs.set_cb = colorized_frame_set_cb;
     custom_cbs.type_name_cb = colorized_frame_type_name_cb;
     custom_cbs.type_description_cb = colorized_frame_type_description_cb;
@@ -3160,8 +3150,7 @@ reset_pref(pref_t *pref)
     case PREF_STRING:
     case PREF_FILENAME:
     case PREF_DIRNAME:
-        g_free((void *)*pref->varp.string);
-        *pref->varp.string = g_strdup(pref->default_val.string);
+        reset_string_like_preference(pref);
         break;
 
     case PREF_RANGE:
