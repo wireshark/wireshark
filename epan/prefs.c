@@ -53,10 +53,6 @@
 #include <epan/stats_tree.h>
 
 /* Internal functions */
-
-/*
- * Register all non-dissector modules' preferences.
- */
 static module_t *find_subtree(module_t *parent, const char *tilte);
 static module_t *prefs_register_module_or_subtree(module_t *parent,
     const char *name, const char *title, const char *description, gboolean is_subtree,
