@@ -331,17 +331,17 @@ PLEASE NOTE: One option MUST be selected.</string>
             </property>
             <item>
              <property name="text">
-              <string>Kilobytes</string>
+              <string>kilobytes</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>Megabytes</string>
+              <string>megabytes</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>Gigabytes</string>
+              <string>gigabytes</string>
              </property>
             </item>
            </widget>
@@ -731,17 +731,17 @@ PLEASE NOTE: One option MUST be selected.</string>
             </property>
             <item>
              <property name="text">
-              <string>Kilobytes</string>
+              <string>kilobytes</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>Megabytes</string>
+              <string>megabytes</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>Gigabytes</string>
+              <string>gigabytes</string>
              </property>
             </item>
            </widget>
