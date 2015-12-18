@@ -1135,6 +1135,7 @@
 #define ZBEE_PROTOABBREV_ZCL_IAS_ZONE       "zbee_zcl_ias.zone"
 #define ZBEE_PROTOABBREV_ZCL_ONOFF          "zbee_zcl_general.onoff"
 #define ZBEE_PROTOABBREV_ZCL_LEVEL_CONTROL  "zbee_zcl_general.level_control"
+#define ZBEE_PROTOABBREV_ZCL_RSSI_LOCATION  "zbee_zcl_general.rssi_location"
 #define ZBEE_PROTOABBREV_ZCL_OTA            "zbee_zcl_general.ota"
 #define ZBEE_PROTOABBREV_ZCL_PART           "zbee_zcl_general.part"
 #define ZBEE_PROTOABBREV_ZCL_POLL           "zbee_zcl_general.poll"

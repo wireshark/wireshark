@@ -3675,6 +3675,1213 @@ proto_reg_handoff_zbee_zcl_level_control(void)
 } /*proto_reg_handoff_zbee_zcl_level_control*/
 
 
+/* ########################################################################## */
+/* #### (0x000B) RSSI LOCATION CLUSTER ###################################### */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+#define ZBEE_ZCL_RSSI_LOCATION_NUM_ETT                                      3
+
+/* Attributes */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE                        0x0000  /* Location Type */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_METHOD                      0x0001  /* Location Method */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_AGE                         0x0002  /* Location Age */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_QUALITY_MEASURE                      0x0003  /* Quality Measure */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_NUMBER_OF_DEVICES                    0x0004  /* Number of Devices */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_COORDINATE_1                         0x0010  /* Coordinate 1 */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_COORDINATE_2                         0x0011  /* Coordinate 2 */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_COORDINATE_3                         0x0012  /* Coordinate 3 */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_POWER                                0x0013  /* Power */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_PATH_LOSS_EXPONENT                   0x0014  /* Path Loss Exponent */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_REPORTING_PERIOD                     0x0015  /* Reporting Period */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_CALCULATION_PERIOD                   0x0016  /* Calculation Period */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_NUMBER_RSSI_MEAS                     0x0017  /* Number RSSI Measurements */
+
+/* Location Type Mask Values */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE_ABSOLUTE               0x01    /* Absolute/Measured */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE_2D                     0x02    /* 2D/3D */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE_COORDINATE             0x0C    /* Coordinate System */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE_RESERVED               0xF0    /* Coordinate System */
+
+/* Location Method Values */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_METHOD_LATERATION           0x00    /* Lateration */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_METHOD_SIGNPOSTING          0x01    /* Signposting */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_METHOD_RF_FINGERPRINTING    0x02    /* RF Fingerprinting */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_METHOD_OUT_OF_BAND          0x03    /* Out of Band */
+#define ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_METHOD_CENTRALIZED          0x04    /* Centralized */
+
+/* Server Commands Received */
+#define ZBEE_ZCL_CMD_ID_RSSI_LOCATION_SET_ABSOLUTE_LOCATION                 0x00    /* Set Absolute Location */
+#define ZBEE_ZCL_CMD_ID_RSSI_LOCATION_SET_DEVICE_CONFIG                     0x01    /* Set Device Configuration */
+#define ZBEE_ZCL_CMD_ID_RSSI_LOCATION_GET_DEVICE_CONFIG                     0x02    /* Get Device Configuration */
+#define ZBEE_ZCL_CMD_ID_RSSI_LOCATION_GET_LOCATION_DATA                     0x03    /* Get Location Data */
+#define ZBEE_ZCL_CMD_ID_RSSI_LOCATION_RSSI_RESPONSE                         0x04    /* RSSI Response */
+#define ZBEE_ZCL_CMD_ID_RSSI_LOCATION_SEND_PINGS                            0x05    /* Send Pings */
+#define ZBEE_ZCL_CMD_ID_RSSI_LOCATION_ANCHOR_NODE_ANNOUNCE                  0x06    /* Anchor Node Announce */
+
+
+/* Server Commands Generated */
+#define ZBEE_ZCL_CMD_ID_RSSI_LOCATION_DEVICE_CONFIG_RESPONSE                0x00    /* Device Configuration Response */
+#define ZBEE_ZCL_CMD_ID_RSSI_LOCATION_LOCATION_DATA_RESPONSE                0x01    /* Location Data Response */
+#define ZBEE_ZCL_CMD_ID_RSSI_LOCATION_LOCATION_DATA_NOTIF                   0x02    /* Location Data Notification */
+#define ZBEE_ZCL_CMD_ID_RSSI_LOCATION_COMPACT_LOCATION_DATA_NOTIF           0x03    /* Compact Location Data Notification */
+#define ZBEE_ZCL_CMD_ID_RSSI_LOCATION_RSSI_PING                             0x04    /* RSSI Ping */
+#define ZBEE_ZCL_CMD_ID_RSSI_LOCATION_RSSI_REQUEST                          0x05    /* RSSI Request */
+#define ZBEE_ZCL_CMD_ID_RSSI_LOCATION_REPORT_RSSI_MEAS                      0x06    /* Report RSSI Measurements */
+#define ZBEE_ZCL_CMD_ID_RSSI_LOCATION_REQUEST_OWN_LOCATION                  0x07    /* Request Own Location */
+
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+void proto_register_zbee_zcl_rssi_location(void);
+void proto_reg_handoff_zbee_zcl_rssi_location(void);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_rssi_location_set_absolute_location                         (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_rssi_location_set_device_config                             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_rssi_location_get_device_config                             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_rssi_location_get_location_data                             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_rssi_location_rssi_response                                 (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_rssi_location_send_pings                                    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_rssi_location_anchor_node_announce                          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+
+static void dissect_zcl_rssi_location_device_config_response                        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_rssi_location_location_data_response                        (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_rssi_location_location_data_notif                           (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_rssi_location_compact_location_data_notif                   (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_rssi_location_rssi_ping                                     (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_rssi_location_report_rssi_meas                              (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_rssi_location_request_own_location                          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+
+static void dissect_zcl_rssi_location_attr_data                        (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Private functions prototype */
+
+/*************************/
+/* Global Variables      */
+/*************************/
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_rssi_location = -1;
+
+static int hf_zbee_zcl_rssi_location_attr_id = -1;
+static int hf_zbee_zcl_rssi_location_location_type = -1;
+static int hf_zbee_zcl_rssi_location_location_type_absolute = -1;
+static int hf_zbee_zcl_rssi_location_location_type_2D = -1;
+static int hf_zbee_zcl_rssi_location_location_type_coordinate_system = -1;
+static int hf_zbee_zcl_rssi_location_location_type_reserved = -1;
+static int hf_zbee_zcl_rssi_location_attr_id_location_method = -1;
+static int hf_zbee_zcl_rssi_location_coordinate1 = -1;
+static int hf_zbee_zcl_rssi_location_coordinate2 = -1;
+static int hf_zbee_zcl_rssi_location_coordinate3 = -1;
+static int hf_zbee_zcl_rssi_location_power = -1;
+static int hf_zbee_zcl_rssi_location_path_loss_expo = -1;
+static int hf_zbee_zcl_rssi_location_calc_period = -1;
+static int hf_zbee_zcl_rssi_location_number_rssi_meas = -1;
+static int hf_zbee_zcl_rssi_location_reporting_period = -1;
+static int hf_zbee_zcl_rssi_location_target_add = -1;
+static int hf_zbee_zcl_rssi_location_header = -1;
+static int hf_zbee_zcl_rssi_location_header_abs_only = -1;
+static int hf_zbee_zcl_rssi_location_header_recalc = -1;
+static int hf_zbee_zcl_rssi_location_header_bcast_ind = -1;
+static int hf_zbee_zcl_rssi_location_header_bcast_res = -1;
+static int hf_zbee_zcl_rssi_location_header_compact_res = -1;
+static int hf_zbee_zcl_rssi_location_header_res = -1;
+static int hf_zbee_zcl_rssi_location_number_responses = -1;
+static int hf_zbee_zcl_rssi_location_replaying_device = -1;
+static int hf_zbee_zcl_rssi_location_rssi = -1;
+static int hf_zbee_zcl_rssi_location_anchor_node_add = -1;
+static int hf_zbee_zcl_rssi_location_status = -1;
+static int hf_zbee_zcl_rssi_location_quality_measure = -1;
+static int hf_zbee_zcl_rssi_location_location_age = -1;
+static int hf_zbee_zcl_rssi_location_reporting_add = -1;
+static int hf_zbee_zcl_rssi_location_no_of_neigh = -1;
+static int hf_zbee_zcl_rssi_location_neighbour_add = -1;
+static int hf_zbee_zcl_rssi_location_request_add = -1;
+static int hf_zbee_zcl_rssi_location_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_rssi_location_srv_tx_cmd_id = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_rssi_location = -1;
+static gint ett_zbee_zcl_rssi_location_location_type = -1;
+static gint ett_zbee_zcl_rssi_location_header = -1;
+
+/* Attributes */
+static const value_string zbee_zcl_rssi_location_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE,                     "Location Type" },
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_METHOD,                   "Location Method" },
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_AGE,                      "Location Age" },
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_QUALITY_MEASURE,                   "Quality Measure" },
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_NUMBER_OF_DEVICES,                 "Number of Devices" },
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_COORDINATE_1,                      "Coordinate 1" },
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_COORDINATE_2,                      "Coordinate 2" },
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_COORDINATE_3,                      "Coordinate 3" },
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_POWER,                             "Power" },
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_PATH_LOSS_EXPONENT,                "Path Loss Exponent" },
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_REPORTING_PERIOD,                  "Reporting Period" },
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_CALCULATION_PERIOD,                "Calculation Period" },
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_NUMBER_RSSI_MEAS,                  "Number RSSI Measurements" },
+    { 0, NULL }
+};
+
+/* Server Commands Received */
+static const value_string zbee_zcl_rssi_location_srv_rx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_RSSI_LOCATION_SET_ABSOLUTE_LOCATION,              "Set Absolute Location" },
+    { ZBEE_ZCL_CMD_ID_RSSI_LOCATION_SET_DEVICE_CONFIG,                  "Set Device Configuration" },
+    { ZBEE_ZCL_CMD_ID_RSSI_LOCATION_GET_DEVICE_CONFIG,                  "Get Device Configuration" },
+    { ZBEE_ZCL_CMD_ID_RSSI_LOCATION_GET_LOCATION_DATA,                  "Get Location Data" },
+    { ZBEE_ZCL_CMD_ID_RSSI_LOCATION_RSSI_RESPONSE,                      "RSSI Response" },
+    { ZBEE_ZCL_CMD_ID_RSSI_LOCATION_SEND_PINGS,                         "Send Pings" },
+    { ZBEE_ZCL_CMD_ID_RSSI_LOCATION_ANCHOR_NODE_ANNOUNCE,               "Anchor Node Announce" },
+    { 0, NULL }
+};
+
+/* Server Commands Generated */
+static const value_string zbee_zcl_rssi_location_srv_tx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_RSSI_LOCATION_DEVICE_CONFIG_RESPONSE,             "Device Configuration Response" },
+    { ZBEE_ZCL_CMD_ID_RSSI_LOCATION_LOCATION_DATA_RESPONSE,             "Location Data Response" },
+    { ZBEE_ZCL_CMD_ID_RSSI_LOCATION_LOCATION_DATA_NOTIF,                "Location Data Notification" },
+    { ZBEE_ZCL_CMD_ID_RSSI_LOCATION_COMPACT_LOCATION_DATA_NOTIF,        "Compact Location Data Notification" },
+    { ZBEE_ZCL_CMD_ID_RSSI_LOCATION_RSSI_PING,                          "RSSI Ping" },
+    { ZBEE_ZCL_CMD_ID_RSSI_LOCATION_RSSI_REQUEST,                       "RSSI Request" },
+    { ZBEE_ZCL_CMD_ID_RSSI_LOCATION_REPORT_RSSI_MEAS,                   "Report RSSI Measurements" },
+    { ZBEE_ZCL_CMD_ID_RSSI_LOCATION_REQUEST_OWN_LOCATION,               "Request Own Location" },
+    { 0, NULL }
+};
+
+/* Location Method Values */
+static const value_string zbee_zcl_rssi_location_location_method_values[] = {
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_METHOD_LATERATION,        "Lateration" },
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_METHOD_SIGNPOSTING,       "Signposting" },
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_METHOD_RF_FINGERPRINTING, "RF Fingerprinting" },
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_METHOD_OUT_OF_BAND,       "Out of Band" },
+    { ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_METHOD_CENTRALIZED,       "Centralized" },
+    { 0, NULL }
+};
+
+/* Location type absolute values*/
+static const value_string zbee_zcl_rssi_location_location_type_abs_values[] = {
+    {0, "Measured Location"},
+    {1, "Absolute Location"},
+    {0, NULL}
+};
+
+/* Location type 2D/3D values*/
+static const value_string zbee_zcl_rssi_location_location_type_2D_values[] = {
+    {0, "Three Dimensional"},
+    {1, "Two Dimensional"},
+    {0, NULL}
+};
+
+/* Location type Coordinate System values*/
+static const value_string zbee_zcl_rssi_location_location_type_coordinate_values[] = {
+    {0, "Rectangular"},
+    {1, "Reserved"},
+    {2, "Reserved"},
+    {3, "Reserved"},
+    {0, NULL}
+};
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_rssi_location
+ *  DESCRIPTION
+ *      ZigBee ZCL RSSI Location cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static int
+dissect_zbee_zcl_rssi_location(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    proto_tree        *payload_tree;
+    zbee_zcl_packet   *zcl;
+    guint             offset = 0;
+    guint8            cmd_id;
+    gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
+
+    /*  Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_rssi_location_srv_rx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check if this command has a payload, then add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_rssi_location, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_RSSI_LOCATION_SET_ABSOLUTE_LOCATION:
+                    dissect_zcl_rssi_location_set_absolute_location(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_RSSI_LOCATION_SET_DEVICE_CONFIG:
+                    dissect_zcl_rssi_location_set_device_config(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_RSSI_LOCATION_GET_DEVICE_CONFIG:
+                    dissect_zcl_rssi_location_get_device_config(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_RSSI_LOCATION_GET_LOCATION_DATA:
+                    dissect_zcl_rssi_location_get_location_data(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_RSSI_LOCATION_RSSI_RESPONSE:
+                    dissect_zcl_rssi_location_rssi_response(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_RSSI_LOCATION_SEND_PINGS:
+                    dissect_zcl_rssi_location_send_pings(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_RSSI_LOCATION_ANCHOR_NODE_ANNOUNCE:
+                    dissect_zcl_rssi_location_anchor_node_announce(tvb, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+    else { /* ZBEE_ZCL_FCF_TO_CLIENT */
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_rssi_location_srv_tx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check if this command has a payload, then add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_rssi_location, NULL, "Payload");
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_RSSI_LOCATION_DEVICE_CONFIG_RESPONSE:
+                    dissect_zcl_rssi_location_device_config_response(tvb, payload_tree, &offset);
+                    break;
+                case ZBEE_ZCL_CMD_ID_RSSI_LOCATION_LOCATION_DATA_RESPONSE:
+                    dissect_zcl_rssi_location_location_data_response(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_RSSI_LOCATION_LOCATION_DATA_NOTIF:
+                    dissect_zcl_rssi_location_location_data_notif(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_RSSI_LOCATION_COMPACT_LOCATION_DATA_NOTIF:
+                    dissect_zcl_rssi_location_compact_location_data_notif(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_RSSI_LOCATION_RSSI_PING:
+                    dissect_zcl_rssi_location_rssi_ping(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_RSSI_LOCATION_RSSI_REQUEST:
+                    /* No Payload */
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_RSSI_LOCATION_REPORT_RSSI_MEAS:
+                    dissect_zcl_rssi_location_report_rssi_meas(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_RSSI_LOCATION_REQUEST_OWN_LOCATION:
+                    dissect_zcl_rssi_location_request_own_location(tvb, payload_tree, &offset);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_rssi_location*/
+
+
+ /*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_rssi_location_set_absolute_location
+ *  DESCRIPTION
+ *      this function decodes the Set Absolute Location payload.
+ *  PARAMETERS
+ *      tvb     - the tv buffer of the current data_type
+ *      tree    - the tree to append this item to
+ *      offset  - offset of data in tvb
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_rssi_location_set_absolute_location(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Coordinate 1" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate1, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Coordinate 2" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate2, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Coordinate 3" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate3, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Power" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_power, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Path Loss Exponent" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_path_loss_expo, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+} /*dissect_zcl_rssi_location_set_absolute_location*/
+
+
+ /*FUNCTION:--------------------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_rssi_location_set_device_config
+ *  DESCRIPTION
+ *      this function decodes the Set Device Configuration payload.
+ *  PARAMETERS
+ *      tvb     - the tv buffer of the current data_type
+ *      tree    - the tree to append this item to
+ *      offset  - offset of data in tvb
+ *  RETURNS
+ *      none
+ *------------------------------------------------------------------------------
+ */
+static void
+dissect_zcl_rssi_location_set_device_config(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Power" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_power, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Path Loss Exponent" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_path_loss_expo, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Calculation Period" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_calc_period, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Number RSSI Measurements" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_number_rssi_meas, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Retrieve "Reporting Period" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_reporting_period, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+} /*dissect_zcl_rssi_location_set_device_config*/
+
+
+/*FUNCTION:-------------------------------------------------------------------
+*  NAME
+*      dissect_zcl_rssi_location_get_device_config
+*  DESCRIPTION
+*      this function decodes the Get Device Configuration payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*-----------------------------------------------------------------------------
+*/
+static void
+dissect_zcl_rssi_location_get_device_config(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Target Address" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_target_add, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    *offset += 8;
+
+} /*dissect_zcl_rssi_location_get_device_config*/
+
+
+/*FUNCTION:-------------------------------------------------------------------
+*  NAME
+*      dissect_zcl_rssi_location_get_location_data
+*  DESCRIPTION
+*      this function decodes the Get Location Data payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*-----------------------------------------------------------------------------
+*/
+static void
+dissect_zcl_rssi_location_get_location_data(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+     guint8 header;
+
+    static const int * location_header_fields[] = {
+        &hf_zbee_zcl_rssi_location_header_abs_only,
+        &hf_zbee_zcl_rssi_location_header_recalc,
+        &hf_zbee_zcl_rssi_location_header_bcast_ind,
+        &hf_zbee_zcl_rssi_location_header_bcast_res,
+        &hf_zbee_zcl_rssi_location_header_compact_res,
+        &hf_zbee_zcl_rssi_location_header_res,
+        NULL
+    };
+
+    /* Retrieve "8-bit header" field */
+    header = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_rssi_location_header, ett_zbee_zcl_rssi_location_header, location_header_fields, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Retrieve the number reponses field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_number_responses, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Retrieve the IEEE address field */
+    if(header & 0x04)
+    {
+        proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_target_add, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+        *offset += 8;
+    }
+
+} /*dissect_zcl_rssi_location_get_location_data*/
+
+
+/*FUNCTION:--------------------------------------------------------------------
+*  NAME
+*      dissect_zcl_rssi_location_rssi_response
+*  DESCRIPTION
+*      this function decodes the RSSI Response payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*------------------------------------------------------------------------------
+*/
+static void
+dissect_zcl_rssi_location_rssi_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+   /* Retrieve "Replaying Device" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_replaying_device, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+   *offset += 8;
+
+   /* Retrieve "Coordinate 1" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate1, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+   *offset += 2;
+
+   /* Retrieve "Coordinate 2" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate2, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+   *offset += 2;
+
+   /* Retrieve "Coordinate 3" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate3, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+   *offset += 2;
+
+   /* Retrieve "RSSI" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_rssi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+   *offset += 1;
+
+   /* Retrieve "Number RSSI Measurements" field */
+   proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_number_rssi_meas, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+   *offset += 1;
+
+} /*dissect_zcl_rssi_location_rssi_response*/
+
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_rssi_location_send_pings
+*  DESCRIPTION
+*      this function decodes the Send Pings payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_rssi_location_send_pings(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Target Address" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_target_add, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    *offset += 8;
+
+    /* Retrieve "Number RSSI Measurements" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_number_rssi_meas, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    /* Retrieve "Calculation Period" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_calc_period, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+} /*dissect_zcl_rssi_location_send_pings*/
+
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_rssi_location_anchor_node_announce
+*  DESCRIPTION
+*      this function decodes the Anchor Node Announce payload
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_rssi_location_anchor_node_announce(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Anchor Node Address" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_anchor_node_add, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    *offset += 8;
+
+    /* Retrieve "Coordinate 1" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate1, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Coordinate 2" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate2, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Coordinate 3" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate3, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+} /*dissect_zcl_rssi_location_anchor_node_announce*/
+
+
+/*FUNCTION:--------------------------------------------------------------------
+*  NAME
+*      dissect_zcl_rssi_location_device_config_response
+*  DESCRIPTION
+*      this function decodes the Device Configuration Response payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*------------------------------------------------------------------------------
+*/
+static void
+dissect_zcl_rssi_location_device_config_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+   guint8 status;
+
+   /* Retrieve "Status" field */
+   status = tvb_get_guint8(tvb, *offset);
+   proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+   *offset += 1;
+
+   if(status == ZBEE_ZCL_STAT_SUCCESS)
+   {
+       /* Retrieve "Power" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_power, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+       *offset += 2;
+
+       /* Retrieve "Path Loss Exponent" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_path_loss_expo, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+       *offset += 2;
+
+       /* Retrieve "Calculation Period" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_calc_period, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+       *offset += 2;
+
+       /* Retrieve "Number RSSI Measurements" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_number_rssi_meas, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+       *offset += 1;
+
+       /* Retrieve "Reporting Period" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_reporting_period, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+       *offset += 2;
+   }
+
+} /*dissect_zcl_rssi_location_device_config_response*/
+
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_rssi_location_location_data_response
+*  DESCRIPTION
+*      this function decodes the Location Data Response payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_rssi_location_location_data_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+   guint8 status;
+
+   /* Retrieve "Status" field */
+   status = tvb_get_guint8(tvb, *offset);
+   proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+   *offset += 1;
+
+   if(status == ZBEE_ZCL_STAT_SUCCESS)
+   {
+       /* Retrieve "Location Type" field */
+       dissect_zcl_rssi_location_attr_data(tree, tvb, offset, ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE, ZBEE_ZCL_8_BIT_DATA);
+
+       /* Retrieve "Coordinate 1" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate1, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+       *offset += 2;
+
+       /* Retrieve "Coordinate 2" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate2, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+       *offset += 2;
+
+       /* Retrieve "Coordinate 3" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate3, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+       *offset += 2;
+
+       /* Retrieve "Power" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_power, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+       *offset += 2;
+
+       /* Retrieve "Path Loss Exponent" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_path_loss_expo, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+       *offset += 2;
+
+       /* Retrieve "Location Method" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_attr_id_location_method, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+       *offset += 1;
+
+       /* Retrieve "Quality Measure" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_quality_measure, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+       *offset += 1;
+
+       /* Retrieve "Location Age" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_location_age, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+       *offset += 2;
+   }
+
+} /*dissect_zcl_rssi_location_location_data_response*/
+
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_rssi_location_location_data_notif
+*  DESCRIPTION
+*      this function decodes the Location Data Notification payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_rssi_location_location_data_notif(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8 temp;
+
+    /* Retrieve "Location Type" field */
+    temp = tvb_get_guint8(tvb, *offset);
+    dissect_zcl_rssi_location_attr_data(tree, tvb, offset, ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE, ZBEE_ZCL_8_BIT_DATA);
+
+    /* Retrieve "Coordinate 1" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate1, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Coordinate 2" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate2, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+   if((temp & ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE_2D) != 0x02)
+   {
+       /* Retrieve "Coordinate 3" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate3, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+       *offset += 2;
+   }
+
+       /* Retrieve "Power" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_power, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+       *offset += 2;
+
+       /* Retrieve "Path Loss Exponent" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_path_loss_expo, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+       *offset += 2;
+
+   if((temp & ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE_COORDINATE) != 0x0C)
+   {
+       /* Retrieve "Location Method" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_attr_id_location_method, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+       *offset += 1;
+
+       /* Retrieve "Quality Measure" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_quality_measure, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+       *offset += 1;
+
+       /* Retrieve "Location Age" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_location_age, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+       *offset += 2;
+
+   }
+
+} /*dissect_zcl_rssi_location_location_data_notif*/
+
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_rssi_location_compact_location_data_notif
+*  DESCRIPTION
+*      this function decodes the Location Data Notification payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_rssi_location_compact_location_data_notif(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8 temp;
+
+    /* Retrieve "Location Type" field */
+    temp = tvb_get_guint8(tvb, *offset);
+    dissect_zcl_rssi_location_attr_data(tree, tvb, offset, ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE, ZBEE_ZCL_8_BIT_DATA);
+
+    /* Retrieve "Coordinate 1" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate1, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve "Coordinate 2" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate2, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+   if((temp & ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE_2D) != 0x02)
+   {
+       /* Retrieve "Coordinate 3" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate3, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+       *offset += 2;
+   }
+
+   if((temp & ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE_COORDINATE) != 0x0C)
+   {
+       /* Retrieve "Quality Measure" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_quality_measure, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+       *offset += 1;
+
+       /* Retrieve "Location Age" field */
+       proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_location_age, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+       *offset += 2;
+
+   }
+
+} /*dissect_zcl_rssi_location_compact_location_data_notif*/
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_rssi_location_rssi_ping
+*  DESCRIPTION
+*      this function decodes the RSSI Ping payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_rssi_location_rssi_ping(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+   /* Retrieve "Location Type" field */
+    dissect_zcl_rssi_location_attr_data(tree, tvb, offset, ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE, ZBEE_ZCL_8_BIT_DATA);
+
+
+} /*dissect_zcl_rssi_location_rssi_ping*/
+
+
+/*FUNCTION:------------------------------------------------------
+*  NAME
+*      dissect_zcl_rssi_location_report_rssi_meas
+*  DESCRIPTION
+*      this function decodes the Report RSSI Measurements payload
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*---------------------------------------------------------------
+*/
+static void
+dissect_zcl_rssi_location_report_rssi_meas(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8 count, i;
+    /* Retrieve "Reporting Address" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_reporting_add, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    *offset += 8;
+
+    /* Retrieve "Number of Neighbours" field */
+    count = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_no_of_neigh, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+    for( i = 0; i < count; i++)
+    {
+        /* Retrieve "Neighbour Address" field */
+        proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_neighbour_add, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+        *offset += 8;
+
+        /* Retrieve "Coordinate 1" field */
+        proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate1, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+
+        /* Retrieve "Coordinate 2" field */
+        proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate2, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+
+        /* Retrieve "Coordinate 3" field */
+        proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_coordinate3, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+
+        /* Retrieve "RSSI" field */
+        proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_rssi, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        *offset += 1;
+
+        /* Retrieve "Number RSSI Measurements" field */
+        proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_number_rssi_meas, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        *offset += 1;
+    }
+
+} /*dissect_zcl_rssi_location_report_rssi_meas*/
+
+
+/*FUNCTION:-------------------------------------------------------------------
+*  NAME
+*      dissect_zcl_rssi_location_request_own_location
+*  DESCRIPTION
+*      this function decodes the Request Own Location payload.
+*  PARAMETERS
+*      tvb     - the tv buffer of the current data_type
+*      tree    - the tree to append this item to
+*      offset  - offset of data in tvb
+*  RETURNS
+*      none
+*-----------------------------------------------------------------------------
+*/
+static void
+dissect_zcl_rssi_location_request_own_location(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Retrieve "Requesting Address Address" field */
+    proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_request_add, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    *offset += 8;
+
+} /*dissect_zcl_rssi_location_request_own_location*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_rssi_location_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+dissect_zcl_rssi_location_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    static const int *location_type[] = {
+        &hf_zbee_zcl_rssi_location_location_type_absolute,
+        &hf_zbee_zcl_rssi_location_location_type_2D,
+        &hf_zbee_zcl_rssi_location_location_type_coordinate_system,
+        &hf_zbee_zcl_rssi_location_location_type_reserved,
+        NULL
+    };
+
+    /* Dissect attribute data type and data */
+    switch ( attr_id ) {
+
+        case ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE:
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_rssi_location_location_type, ett_zbee_zcl_rssi_location_location_type, location_type, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_METHOD:
+            proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_attr_id_location_method, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_AGE:
+        case ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_QUALITY_MEASURE:
+        case ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_NUMBER_OF_DEVICES:
+        case ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_COORDINATE_1:
+        case ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_COORDINATE_2:
+        case ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_COORDINATE_3:
+        case ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_POWER:
+        case ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_PATH_LOSS_EXPONENT:
+        case ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_REPORTING_PERIOD:
+        case ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_CALCULATION_PERIOD:
+        case ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_NUMBER_RSSI_MEAS:
+        default:
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+
+} /*dissect_zcl_rssi_location_attr_data*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_rssi_location
+ *  DESCRIPTION
+ *      ZigBee ZCL RSSI Location cluster protocol registration routine.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+void
+proto_register_zbee_zcl_rssi_location(void)
+{
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_rssi_location_attr_id,
+            { "Attribute", "zbee_zcl_general.rssi_location.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_rssi_location_attr_names),
+            0x00, NULL, HFILL } },
+
+        /* start Location Type fields */
+        { &hf_zbee_zcl_rssi_location_location_type,
+            { "Location Type", "zbee_zcl_general.rssi_location.attr_id.location_type", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_location_type_absolute,
+            { "Location Type Absolute/Measured", "zbee_zcl_general.rssi_location.attr_id.location_type.abs", FT_UINT8, BASE_HEX, VALS(zbee_zcl_rssi_location_location_type_abs_values),
+            ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE_ABSOLUTE, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_location_type_2D,
+            { "Location Type 2D/3D", "zbee_zcl_general.rssi_location.attr_id.location_type.2D", FT_UINT8, BASE_HEX, VALS(zbee_zcl_rssi_location_location_type_2D_values),
+            ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE_2D, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_location_type_coordinate_system,
+            { "Location Type Coordinate System", "zbee_zcl_general.rssi_location.attr_id.location_type.coordinate", FT_UINT8, BASE_HEX, VALS(zbee_zcl_rssi_location_location_type_coordinate_values),
+            ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE_COORDINATE, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_location_type_reserved,
+            { "Reserved", "zbee_zcl_general.rssi_location.attr_id.location_type.reserved", FT_BOOLEAN, 8, NULL,
+            ZBEE_ZCL_ATTR_ID_RSSI_LOCATION_LOCATION_TYPE_RESERVED, NULL, HFILL } },
+        /* end Location Type fields */
+
+        { &hf_zbee_zcl_rssi_location_attr_id_location_method,
+            { "Location Method", "zbee_zcl_general.rssi_location.attr_id.location_method", FT_UINT8, BASE_HEX, VALS(zbee_zcl_rssi_location_location_method_values),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_coordinate1,
+            { "Coordinate 1", "zbee_zcl_general.rssi_location.coordinate1", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_coordinate2,
+            { "Coordinate 2", "zbee_zcl_general.rssi_location.coordinate2", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_coordinate3,
+            { "Coordinate 3", "zbee_zcl_general.rssi_location.coordinate3", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_power,
+            { "Power", "zbee_zcl_general.rssi_location.power", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_path_loss_expo,
+            { "Path Loss Exponent", "zbee_zcl_general.rssi_location.path_loss_exponent", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_calc_period,
+            { "Calculation Period", "zbee_zcl_general.rssi_location.calc_period", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_number_rssi_meas,
+            { "Number RSSI Measurements", "zbee_zcl_general.rssi_location.number_rssi_meas", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_reporting_period,
+            { "Reporting Period", "zbee_zcl_general.rssi_location.reporting_period", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_target_add,
+            { "Target Address", "zbee_zcl_general.rssi_location.target_add", FT_UINT64, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_header,
+            { "Header Data", "zbee_zcl_general.rssi_location.location_header", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_header_abs_only,
+            { "Absolute Only", "zbee_zcl_general.rssi_location.header.abs_only", FT_BOOLEAN, 8, NULL,
+            0x01, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_header_recalc,
+            { "Recalculate", "zbee_zcl_general.rssi_location.header.recalc", FT_BOOLEAN, 8, NULL,
+            0x02, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_header_bcast_ind,
+            { "Broadcast Indicator", "zbee_zcl_general.rssi_location.header.bcast_ind", FT_BOOLEAN, 8, NULL,
+            0x04, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_header_bcast_res,
+            { "Broadcast Response", "zbee_zcl_general.rssi_location.header.bcast_response", FT_BOOLEAN, 8, NULL,
+            0x08, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_header_compact_res,
+            { "Compact Response", "zbee_zcl_general.rssi_location.compact_res", FT_BOOLEAN, 8, NULL,
+            0x10, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_header_res,
+            { "Reserved", "zbee_zcl_general.rssi_location.reserved", FT_BOOLEAN, 8, NULL,
+            0xD0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_number_responses,
+            { "Number Responses", "zbee_zcl_general.rssi_location.number_responses", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_replaying_device,
+            { "Replying Device", "zbee_zcl_general.rssi_location.replying_device", FT_UINT64, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_rssi,
+            { "RSSI", "zbee_zcl_general.rssi_location.rssi", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_anchor_node_add,
+            { "Anchor Node Address", "zbee_zcl_general.rssi_location.anchor_node_add", FT_UINT64, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_status,
+            { "Status", "zbee_zcl_general.rssi_location.status", FT_UINT8, BASE_HEX, VALS(zbee_zcl_status_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_quality_measure,
+            { "Quality Measure", "zbee_zcl_general.rssi_location.quality_measure", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_location_age,
+            { "Location Age", "zbee_zcl_general.rssi_location.location_age", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_reporting_add,
+            { "Reporting Address", "zbee_zcl_general.rssi_location.reporting_add", FT_UINT64, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_no_of_neigh,
+            { "Number of Neighbours", "zbee_zcl_general.rssi_location.no_of_neigh", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_neighbour_add,
+            { "Neighbour Address", "zbee_zcl_general.rssi_location.neighbour_add", FT_UINT64, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_request_add,
+            { "Requesting Address", "zbee_zcl_general.rssi_location.request_add", FT_UINT64, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_srv_rx_cmd_id,
+          { "Command", "zbee_zcl_general.rssi_location.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_rssi_location_srv_rx_cmd_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_rssi_location_srv_tx_cmd_id,
+          { "Command", "zbee_zcl_general.rssi_location.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_rssi_location_srv_tx_cmd_names),
+            0x00, NULL, HFILL } }
+
+    };
+
+    /* ZCL RSSI Location subtrees */
+    static gint *ett[ZBEE_ZCL_RSSI_LOCATION_NUM_ETT];
+    ett[0] = &ett_zbee_zcl_rssi_location;
+    ett[1] = &ett_zbee_zcl_rssi_location_location_type;
+    ett[2] = &ett_zbee_zcl_rssi_location_header;
+
+    /* Register the ZigBee ZCL RSSI Location cluster protocol name and description */
+    proto_zbee_zcl_rssi_location = proto_register_protocol("ZigBee ZCL RSSI Location", "ZCL RSSI Location", ZBEE_PROTOABBREV_ZCL_RSSI_LOCATION);
+    proto_register_field_array(proto_zbee_zcl_rssi_location, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL RSSI Location dissector. */
+    register_dissector(ZBEE_PROTOABBREV_ZCL_RSSI_LOCATION, dissect_zbee_zcl_rssi_location, proto_zbee_zcl_rssi_location);
+
+} /*proto_register_zbee_zcl_rssi_location*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_rssi_location
+ *  DESCRIPTION
+ *      Hands off the ZCL RSSI Location dissector.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_reg_handoff_zbee_zcl_rssi_location(void)
+{
+    dissector_handle_t rssi_location_handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    rssi_location_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_RSSI_LOCATION);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_RSSI_LOCATION, rssi_location_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_rssi_location,
+                            ett_zbee_zcl_rssi_location,
+                            ZBEE_ZCL_CID_RSSI_LOCATION,
+                            hf_zbee_zcl_rssi_location_attr_id,
+                            hf_zbee_zcl_rssi_location_srv_rx_cmd_id,
+                            hf_zbee_zcl_rssi_location_srv_tx_cmd_id,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_rssi_location_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_rssi_location*/
 
 
 
