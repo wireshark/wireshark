@@ -1500,7 +1500,7 @@ void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compre
     }
 }
 
-bool MainWindow::testCaptureFileClose(bool from_quit, QString before_what) {
+bool MainWindow::testCaptureFileClose(bool from_quit, QString before_what, bool restart) {
     bool capture_in_progress = FALSE;
 
     if (!capture_file_.capFile() || capture_file_.capFile()->state == FILE_CLOSED)
@@ -1571,7 +1571,11 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString before_what) {
             msg_dialog.addButton(QMessageBox::Cancel);
 
             if (capture_in_progress) {
-                saveButton = msg_dialog.addButton(tr("Stop and Save"), QMessageBox::AcceptRole);
+                if (restart) {
+                    saveButton = msg_dialog.addButton(tr("Save before Continue"), QMessageBox::AcceptRole);
+                } else {
+                    saveButton = msg_dialog.addButton(tr("Stop and Save"), QMessageBox::AcceptRole);
+                }
             } else {
                 saveButton = msg_dialog.addButton(QMessageBox::Save);
             }
@@ -1587,8 +1591,14 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString before_what) {
                 }
             } else {
                 if (capture_in_progress) {
-                    discardButton = msg_dialog.addButton(tr("Stop and Continue without Saving"),
-                                                         QMessageBox::DestructiveRole);
+                    if (restart) {
+                        discardButton = msg_dialog.addButton(tr("Continue without Saving"),
+                                                             QMessageBox::DestructiveRole);
+                    }
+                    else {
+                        discardButton = msg_dialog.addButton(tr("Stop and Continue without Saving"),
+                                                             QMessageBox::DestructiveRole);
+                    }
                 } else {
                     discardButton = msg_dialog.addButton(tr("Continue &without Saving"), QMessageBox::DestructiveRole);
                 }
@@ -1613,16 +1623,19 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString before_what) {
             }
             else if(msg_dialog.clickedButton() == discardButton)
             {
+                if (!restart)
+                {
 #ifdef HAVE_LIBPCAP
-                /*
-                 * If there's a capture in progress; we have to stop the capture
-                 * and then do the close.
-                 */
-                if (capture_in_progress)
-                    captureStop();
+                    /*
+                     * If there's a capture in progress; we have to stop the capture
+                     * and then do the close.
+                     */
+                    if (capture_in_progress)
+                        captureStop();
 #endif
-                /* Just close the file, discarding changes */
-                cf_close(capture_file_.capFile());
+                    /* Just close the file, discarding changes */
+                    cf_close(capture_file_.capFile());
+                }
                 return true;
             }
             else    //cancelButton or some other unspecified button

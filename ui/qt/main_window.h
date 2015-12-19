@@ -179,7 +179,7 @@ private:
     void exportDissections(export_type_e export_type);
 
     void fileAddExtension(QString &file_name, int file_type, bool compressed);
-    bool testCaptureFileClose(bool from_quit = false, QString before_what = QString());
+    bool testCaptureFileClose(bool from_quit = false, QString before_what = QString(), bool restart = false);
     void captureStop();
 
     void initMainToolbarIcons();
