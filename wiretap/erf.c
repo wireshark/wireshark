@@ -219,6 +219,7 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
       case ERF_TYPE_ETH:
       case ERF_TYPE_COLOR_ETH:
       case ERF_TYPE_DSM_COLOR_ETH:
+      case ERF_TYPE_COLOR_HASH_ETH:
         if (!wtap_read_bytes(wth->fh,&eth_hdr,sizeof(eth_hdr),err,err_info)) {
           if (*err == WTAP_ERR_SHORT_READ) {
             /* Subheader missing, not an ERF file */
@@ -437,6 +438,7 @@ static gboolean erf_read_header(FILE_T fh,
     case ERF_TYPE_HDLC_POS:
     case ERF_TYPE_COLOR_HDLC_POS:
     case ERF_TYPE_DSM_COLOR_HDLC_POS:
+    case ERF_TYPE_COLOR_HASH_POS:
     case ERF_TYPE_ATM:
     case ERF_TYPE_AAL5:
       break;
@@ -444,6 +446,7 @@ static gboolean erf_read_header(FILE_T fh,
     case ERF_TYPE_ETH:
     case ERF_TYPE_COLOR_ETH:
     case ERF_TYPE_DSM_COLOR_ETH:
+    case ERF_TYPE_COLOR_HASH_ETH:
       if (!wtap_read_bytes(fh, &eth_hdr, sizeof(eth_hdr), err, err_info))
         return FALSE;
       if (bytes_read != NULL)
@@ -546,6 +549,7 @@ static gboolean erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pse
         case ERF_TYPE_ETH:
         case ERF_TYPE_COLOR_ETH:
         case ERF_TYPE_DSM_COLOR_ETH:
+        case ERF_TYPE_COLOR_HASH_ETH:
           phtons(&erf_subhdr[0], pseudo_header->erf.subhdr.eth_hdr);
           subhdr_size += (int)sizeof(struct erf_eth_hdr);
           break;
