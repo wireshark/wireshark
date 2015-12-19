@@ -3228,7 +3228,6 @@ prefs_reset(void)
     /*
      * Free the filter expression list.
      */
-
     filter_expression_free(*pfilter_expression_head);
     *pfilter_expression_head = NULL;
 
@@ -3255,7 +3254,6 @@ prefs_reset(void)
    and a pointer to the path of the file into "*pf_path_return", and
    return NULL. */
 e_prefs *
-
 read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
            char **gpf_path_return, int *pf_errno_return,
            int *pf_read_errno_return, char **pf_path_return)
