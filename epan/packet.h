@@ -56,33 +56,8 @@ struct epan_range;
 	((guint)(offset) + (guint)(len) > (guint)(offset) && \
 	 (guint)(offset) + (guint)(len) <= (guint)(captured_len))
 
-/*
- * GTK+ only.
- * If we add this to the Qt UI we should modernize the statistics we show.
- * At the very least we should remove or hide IPX and VINES.
- */
-typedef struct _packet_counts {
-  gint           sctp;
-  gint           tcp;
-  gint           udp;
-  gint           icmp;
-  gint           ospf;
-  gint           gre;
-  gint           netbios;
-  gint           ipx;
-  gint           vines;
-  gint           other;
-  gint           total;
-  gint           arp;
-  gint           i2c_event;
-  gint           i2c_data;
-} packet_counts;
-
-/** Number of packet counts. */
-#define PACKET_COUNTS_SIZE sizeof(packet_counts) / sizeof (gint)
-
 typedef struct _capture_packet_info {
-    packet_counts *counts;
+    GHashTable *counts;
 } capture_packet_info_t;
 
 extern void packet_init(void);

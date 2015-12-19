@@ -1362,7 +1362,7 @@ dissect_ax25arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 gboolean
 capture_arp(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
-  cpinfo->counts->arp++;
+  capture_dissector_increment_count(cpinfo, proto_arp);
   return TRUE;
 }
 

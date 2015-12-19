@@ -572,6 +572,7 @@ capture_ip(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo,
   if (!BYTES_ARE_IN_FRAME(offset, len, IPH_MIN_LEN))
     return FALSE;
 
+  capture_dissector_increment_count(cpinfo, proto_ip);
   return try_capture_dissector("ip.proto", pd[offset + 9], pd, offset+IPH_MIN_LEN, len, cpinfo, pseudo_header);
 }
 

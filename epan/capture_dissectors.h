@@ -25,6 +25,7 @@
 
 #include "ws_symbol_export.h"
 #include <wiretap/wtap.h>
+#include <capture_info.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,6 +46,9 @@ WS_DLL_PUBLIC void register_capture_dissector_table(const char *name, const char
 WS_DLL_PUBLIC void register_capture_dissector(const char* name, const guint32 pattern, capture_dissector_t dissector, const int proto);
 
 WS_DLL_PUBLIC gboolean try_capture_dissector(const char* name, const guint32 pattern, const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header);
+
+WS_DLL_PUBLIC guint32 capture_dissector_get_count(packet_counts* counts, const int proto);
+WS_DLL_PUBLIC void capture_dissector_increment_count(capture_packet_info_t *cpinfo, const int proto);
 
 extern void capture_dissector_init(void);
 extern void capture_dissector_cleanup(void);

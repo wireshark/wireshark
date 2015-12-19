@@ -29,6 +29,7 @@
 #include <gtk/gtk.h>
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 
 #include "ui/capture.h"
 #include "../capture_info.h"
@@ -54,14 +55,19 @@
 /* corresponding value packet_counts, to speed up (and simplify) output of values */
 typedef struct {
   const gchar *title;
-  gint        *value_ptr;
+  int         proto;
   GtkWidget   *label, *value_lb, *percent_pb, *percent_lb;
 } capture_info_counts_t;
+
+/** Number of packet counts. */
+#define PACKET_COUNTS_SIZE 12
 
 /* all data we need to know of this dialog, after creation finished */
 typedef struct {
   GtkWidget             *cap_w;
   GtkWidget             *running_time_lb;
+  capture_info_counts_t  total_count;
+  capture_info_counts_t  other_count;
   capture_info_counts_t  counts[PACKET_COUNTS_SIZE];
   guint                  timer_id;
   time_t                 start_time;
@@ -105,6 +111,45 @@ capture_info_ui_update_cb(gpointer data)
   return TRUE;   /* call the timer again */
 }
 
+static void
+capture_info_count_init(capture_info_counts_t* count, int idx, GtkWidget *percent_pb, gboolean show, GtkWidget *counts_grid)
+{
+  count->label = gtk_label_new(count->title);
+  gtk_misc_set_alignment(GTK_MISC(count->label), 0.0f, 0.5f);
+
+  count->value_lb = gtk_label_new("0");
+  gtk_misc_set_alignment(GTK_MISC(count->value_lb), 0.5f, 0.5f);
+
+  count->percent_pb = percent_pb;
+
+  if (!show) /* Do for all but "total" */
+  {
+    /* downsize the default size of this progress bar in x direction (def:150), */
+    /* otherwise it will become too large and the dialog will look ugly */
+    /* XXX: use a TreeView instead of a grid in order to fix this */
+    gtk_widget_set_size_request(count->percent_pb, 70, -1);
+  }
+
+  count->percent_lb = gtk_label_new("0.0%");
+  gtk_misc_set_alignment(GTK_MISC(count->percent_lb), 1.0f, 0.5f);
+
+  ws_gtk_grid_attach_extended(GTK_GRID(counts_grid), count->label,
+                                0, idx, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
+  ws_gtk_grid_attach_extended(GTK_GRID(counts_grid), count->value_lb,
+                                1, idx, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
+  ws_gtk_grid_attach_extended(GTK_GRID(counts_grid), count->percent_pb,
+                                2, idx, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
+  ws_gtk_grid_attach_extended(GTK_GRID(counts_grid), count->percent_lb,
+                                3, idx, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
+
+  gtk_widget_show(count->label);
+  gtk_widget_show(count->value_lb);
+  gtk_widget_show(count->percent_pb);
+  /* don't show percentages for the "total" row */
+  if (show) {
+    gtk_widget_show(count->percent_lb);
+  }
+}
 
 /* create the capture info dialog */
 /* will keep pointers to the fields in the counts parameter */
@@ -121,34 +166,33 @@ capture_info_ui_create(capture_info *cinfo, capture_session *cap_session)
   GString           *str;
 
   info = g_new0(capture_info_ui_t,1);
-  info->counts[0].title      = "Total";
-  info->counts[0].value_ptr  = &(cinfo->counts->total);
-  info->counts[1].title      = "SCTP";
-  info->counts[1].value_ptr  = &(cinfo->counts->sctp);
-  info->counts[2].title      = "TCP";
-  info->counts[2].value_ptr  = &(cinfo->counts->tcp);
-  info->counts[3].title      = "UDP";
-  info->counts[3].value_ptr  = &(cinfo->counts->udp);
-  info->counts[4].title      = "ICMP";
-  info->counts[4].value_ptr  = &(cinfo->counts->icmp);
-  info->counts[5].title      = "ARP";
-  info->counts[5].value_ptr  = &(cinfo->counts->arp);
-  info->counts[6].title      = "OSPF";
-  info->counts[6].value_ptr  = &(cinfo->counts->ospf);
-  info->counts[7].title      = "GRE";
-  info->counts[7].value_ptr  = &(cinfo->counts->gre);
-  info->counts[8].title      = "NetBIOS";
-  info->counts[8].value_ptr  = &(cinfo->counts->netbios);
-  info->counts[9].title      = "IPX";
-  info->counts[9].value_ptr  = &(cinfo->counts->ipx);
-  info->counts[10].title     = "VINES";
-  info->counts[10].value_ptr = &(cinfo->counts->vines);
-  info->counts[11].title     = "Other";
-  info->counts[11].value_ptr = &(cinfo->counts->other);
-  info->counts[12].title     = "I2C Events";
-  info->counts[12].value_ptr = &(cinfo->counts->i2c_event);
-  info->counts[13].title     = "I2C Data";
-  info->counts[13].value_ptr = &(cinfo->counts->i2c_data);
+  info->total_count.title      = "Total";
+  info->other_count.title      = "Other";
+
+  info->counts[0].title      = "SCTP";
+  info->counts[0].proto      = proto_get_id_by_short_name(info->counts[0].title);
+  info->counts[1].title      = "TCP";
+  info->counts[1].proto      = proto_get_id_by_short_name(info->counts[1].title);
+  info->counts[2].title      = "UDP";
+  info->counts[2].proto      = proto_get_id_by_short_name(info->counts[2].title);
+  info->counts[3].title      = "ICMP";
+  info->counts[3].proto      = proto_get_id_by_short_name(info->counts[3].title);
+  info->counts[4].title      = "ARP";
+  info->counts[4].proto      = proto_get_id_by_short_name(info->counts[4].title);
+  info->counts[5].title      = "OSPF";
+  info->counts[5].proto      = proto_get_id_by_short_name(info->counts[5].title);
+  info->counts[6].title      = "GRE";
+  info->counts[6].proto      = proto_get_id_by_short_name(info->counts[6].title);
+  info->counts[7].title      = "NetBIOS";
+  info->counts[7].proto      = proto_get_id_by_short_name(info->counts[7].title);
+  info->counts[8].title      = "IPX";
+  info->counts[8].proto      = proto_get_id_by_short_name(info->counts[8].title);
+  info->counts[9].title     = "VINES";
+  info->counts[9].proto      = proto_get_id_by_short_name(info->counts[9].title);
+  info->counts[10].title     = "I2C Events";
+  info->counts[10].proto      = proto_get_id_by_short_name(info->counts[10].title);
+  info->counts[11].title     = "I2C Data";
+  info->counts[11].proto      = proto_get_id_by_short_name(info->counts[11].title);
 
   /*
    * Create the dialog window, with a title that includes the interfaces
@@ -182,48 +226,13 @@ capture_info_ui_create(capture_info *cinfo, capture_session *cap_session)
   ws_gtk_grid_set_row_spacing(GTK_GRID(counts_grid), 0);
   ws_gtk_grid_set_column_spacing(GTK_GRID(counts_grid), 5);
 
+  capture_info_count_init(&info->total_count, 0, gtk_label_new("% of total"), FALSE, counts_grid);
+
   for (i = 0; i < PACKET_COUNTS_SIZE; i++) {
-    info->counts[i].label = gtk_label_new(info->counts[i].title);
-    gtk_misc_set_alignment(GTK_MISC(info->counts[i].label), 0.0f, 0.5f);
-
-    info->counts[i].value_lb = gtk_label_new("0");
-    gtk_misc_set_alignment(GTK_MISC(info->counts[i].value_lb), 0.5f, 0.5f);
-
-    if (i == 0) {
-      /* do not build a progress bar for the "total" row */
-      /* (as this could suggest a "buffer full" to the user) */
-      /* simply put a label here */
-      info->counts[i].percent_pb = gtk_label_new("% of total");
-    } else {
-      /* build a progress bar in the other rows */
-      info->counts[i].percent_pb = gtk_progress_bar_new();
-
-      /* downsize the default size of this progress bar in x direction (def:150), */
-      /* otherwise it will become too large and the dialog will look ugly */
-      /* XXX: use a TreeView instead of a grid in order to fix this */
-      gtk_widget_set_size_request(info->counts[i].percent_pb, 70, -1);
-    }
-
-    info->counts[i].percent_lb = gtk_label_new("0.0%");
-    gtk_misc_set_alignment(GTK_MISC(info->counts[i].percent_lb), 1.0f, 0.5f);
-
-    ws_gtk_grid_attach_extended(GTK_GRID(counts_grid), info->counts[i].label,
-                                0, i, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
-    ws_gtk_grid_attach_extended(GTK_GRID(counts_grid), info->counts[i].value_lb,
-                                1, i, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
-    ws_gtk_grid_attach_extended(GTK_GRID(counts_grid), info->counts[i].percent_pb,
-                                2, i, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
-    ws_gtk_grid_attach_extended(GTK_GRID(counts_grid), info->counts[i].percent_lb,
-                                3, i, 1, 1, (GtkAttachOptions)(GTK_EXPAND|GTK_FILL), (GtkAttachOptions)0, 0, 0);
-
-    gtk_widget_show(info->counts[i].label);
-    gtk_widget_show(info->counts[i].value_lb);
-    gtk_widget_show(info->counts[i].percent_pb);
-    /* don't show percentages for the "total" row */
-    if (i != 0) {
-      gtk_widget_show(info->counts[i].percent_lb);
-    }
+    capture_info_count_init(&info->counts[i], i+1, gtk_progress_bar_new(), TRUE, counts_grid);
   }
+
+  capture_info_count_init(&info->other_count, i+1, gtk_progress_bar_new(), TRUE, counts_grid);
 
   /* Running time */
   running_grid = ws_gtk_grid_new();
@@ -280,6 +289,26 @@ capture_info_ui_create(capture_info *cinfo, capture_session *cap_session)
   info->timer_id = g_timeout_add(1000, capture_info_ui_update_cb,cinfo);
 }
 
+static void
+capture_info_count_update(capture_info_counts_t* count, capture_info *cinfo)
+{
+  gchar label_str[64];
+  float pb_frac;
+  guint32 proto_count;
+
+  proto_count = capture_dissector_get_count(cinfo->counts, count->proto);
+
+  g_snprintf(label_str, sizeof(label_str), "%d", proto_count);
+  gtk_label_set_text(GTK_LABEL(count->value_lb), label_str);
+
+  pb_frac = (cinfo->counts->total != 0) ?
+     ((float)proto_count / cinfo->counts->total) : 0.0f;
+
+  /* don't try to update the "total" row progress bar */
+  gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(count->percent_pb), pb_frac);
+  g_snprintf(label_str, sizeof(label_str), "%.1f%%", pb_frac * 100.0);
+  gtk_label_set_text(GTK_LABEL(count->percent_lb), label_str);
+}
 
 /* update the capture info dialog */
 /* As this function is a bit time critical while capturing, */
@@ -303,20 +332,25 @@ capture_info    *cinfo)
   /* if we have new packets, update all rows */
   if (cinfo->new_packets) {
     float pb_frac;
+
+    /* First setup total */
+    g_snprintf(label_str, sizeof(label_str), "%d", cinfo->counts->total);
+    gtk_label_set_text(GTK_LABEL(info->total_count.value_lb), label_str);
+
     for (i = 0; i < PACKET_COUNTS_SIZE; i++) {
-      g_snprintf(label_str, sizeof(label_str), "%d", *info->counts[i].value_ptr);
-      gtk_label_set_text(GTK_LABEL(info->counts[i].value_lb), label_str);
-
-      pb_frac = (*info->counts[0].value_ptr != 0) ?
-        ((float)*info->counts[i].value_ptr / *info->counts[0].value_ptr) : 0.0f;
-
-      /* don't try to update the "total" row progress bar */
-      if (i != 0) {
-        gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(info->counts[i].percent_pb), pb_frac);
-        g_snprintf(label_str, sizeof(label_str), "%.1f%%", pb_frac * 100.0);
-        gtk_label_set_text(GTK_LABEL(info->counts[i].percent_lb), label_str);
-      }
+      capture_info_count_update(&info->counts[i], cinfo);
     }
+
+    /* Now handle "other" packets */
+    g_snprintf(label_str, sizeof(label_str), "%d", cinfo->counts->other);
+    gtk_label_set_text(GTK_LABEL(info->other_count.value_lb), label_str);
+
+    pb_frac = (cinfo->counts->total != 0) ?
+        ((float)cinfo->counts->other / cinfo->counts->total) : 0.0f;
+
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(info->other_count.percent_pb), pb_frac);
+    g_snprintf(label_str, sizeof(label_str), "%.1f%%", pb_frac * 100.0);
+    gtk_label_set_text(GTK_LABEL(info->other_count.percent_lb), label_str);
   }
 }
 

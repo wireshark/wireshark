@@ -39,12 +39,16 @@
 #include "capture_opts.h"
 #include <capchild/capture_session.h>
 
-/* XXX - Should be temporary until packet_counts is removed */
-#include <epan/packet.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+typedef struct {
+    GHashTable*       counts_hash; /* packet counters keyed by proto */
+    gint              other;      /* Packets not counted in the hash total */
+    gint              total;      /* Cache of total packets */
+
+} packet_counts;
 
 /** Current Capture info. */
 typedef struct {
@@ -58,7 +62,7 @@ typedef struct {
 } capture_info;
 
 typedef struct _info_data {
-    packet_counts     counts;     /* several packet type counters */
+    packet_counts     counts;     /* Packet counting */
     struct wtap*      wtap;       /* current wtap file */
     capture_info      ui;         /* user interface data */
 } info_data_t;

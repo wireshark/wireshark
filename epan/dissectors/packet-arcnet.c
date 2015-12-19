@@ -54,6 +54,9 @@ static int arcnet_address_type = -1;
 static dissector_table_t arcnet_dissector_table;
 static dissector_handle_t data_handle;
 
+/* Cache protocol for packet counting */
+static int proto_ipx = -1;
+
 static int arcnet_str_len(const address* addr _U_)
 {
   return 5;
@@ -143,7 +146,7 @@ capture_arcnet_common(const guchar *pd, int offset, int len, capture_packet_info
     return capture_arp(pd, offset + 1, len, cpinfo, pseudo_header);
 
   case ARCNET_PROTO_IPX:
-    cpinfo->counts->ipx++;
+    capture_dissector_increment_count(cpinfo, proto_ipx);
     break;
 
   default:
@@ -407,6 +410,8 @@ proto_reg_handoff_arcnet (void)
 
   arcnet_linux_handle = create_dissector_handle (dissect_arcnet_linux, proto_arcnet);
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_ARCNET_LINUX, arcnet_linux_handle);
+
+  proto_ipx = proto_get_id_by_filter_name("ipx");
 
   register_capture_dissector("wtap_encap", WTAP_ENCAP_ARCNET_LINUX, capture_arcnet, proto_arcnet);
   register_capture_dissector("wtap_encap", WTAP_ENCAP_ARCNET, capture_arcnet_has_exception, proto_arcnet);

@@ -4807,7 +4807,7 @@ capture_tcp(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_in
     if (!BYTES_ARE_IN_FRAME(offset, len, 4))
         return FALSE;
 
-    cpinfo->counts->tcp++;
+    capture_dissector_increment_count(cpinfo, proto_tcp);
 
     src_port = pntoh16(&pd[offset]);
     dst_port = pntoh16(&pd[offset+2]);

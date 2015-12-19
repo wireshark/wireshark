@@ -38,20 +38,14 @@
 /* open the info */
 void capture_info_open(capture_session *cap_session, info_data_t* cap_info)
 {
-    cap_info->counts.total      = 0;
-    cap_info->counts.sctp       = 0;
-    cap_info->counts.tcp        = 0;
-    cap_info->counts.udp        = 0;
-    cap_info->counts.icmp       = 0;
-    cap_info->counts.ospf       = 0;
-    cap_info->counts.gre        = 0;
-    cap_info->counts.ipx        = 0;
-    cap_info->counts.netbios    = 0;
-    cap_info->counts.vines      = 0;
-    cap_info->counts.other      = 0;
-    cap_info->counts.arp        = 0;
-    cap_info->counts.i2c_event  = 0;
-    cap_info->counts.i2c_data   = 0;
+    if (cap_info->counts.counts_hash != NULL)
+    {
+        /* Clean up any previous lists of packet counts */
+        g_hash_table_destroy(cap_info->counts.counts_hash);
+    }
+    cap_info->counts.counts_hash = g_hash_table_new_full( g_direct_hash, g_direct_equal, NULL, g_free );
+    cap_info->counts.other = 0;
+    cap_info->counts.total = 0;
 
     cap_info->wtap = NULL;
     cap_info->ui.counts = &cap_info->counts;
@@ -184,16 +178,16 @@ gboolean capture_info_new_file(const char *new_filename, info_data_t* cap_info)
 }
 
 static void
-capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header)
+capture_info_packet(info_data_t* cap_info, gint wtap_linktype, const guchar *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header)
 {
     capture_packet_info_t cpinfo;
 
     /* Setup the capture packet structure */
-    cpinfo.counts = counts;
+    cpinfo.counts = cap_info->counts.counts_hash;
 
-    counts->total++;
+    cap_info->counts.total++;
     if (!try_capture_dissector("wtap_encap", wtap_linktype, pd, 0, caplen, &cpinfo, pseudo_header))
-        counts->other++;
+        cap_info->counts.other++;
 }
 
 /* new packets arrived */
@@ -220,7 +214,7 @@ void capture_info_new_packets(int to_read, info_data_t* cap_info)
             wtap_linktype = phdr->pkt_encap;
             buf = wtap_buf_ptr(cap_info->wtap);
 
-            capture_info_packet(&cap_info->counts, wtap_linktype, buf, phdr->caplen, pseudo_header);
+            capture_info_packet(cap_info, wtap_linktype, buf, phdr->caplen, pseudo_header);
 
             /*g_warning("new packet");*/
             to_read--;

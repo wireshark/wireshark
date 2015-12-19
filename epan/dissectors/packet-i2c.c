@@ -34,6 +34,9 @@ void proto_register_i2c(void);
 void proto_reg_handoff_i2c(void);
 
 static int proto_i2c = -1;
+static int proto_i2c_event = -1;
+static int proto_i2c_data = -1;
+
 
 static int hf_i2c_bus = -1;
 static int hf_i2c_event = -1;
@@ -88,9 +91,9 @@ static gboolean
 capture_i2c(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
 	if (pseudo_header->i2c.is_event) {
-		cpinfo->counts->i2c_event++;
+		capture_dissector_increment_count(cpinfo, proto_i2c_event);
 	} else {
-		cpinfo->counts->i2c_data++;
+		capture_dissector_increment_count(cpinfo, proto_i2c_data);
 	}
 
 	return TRUE;
@@ -244,6 +247,10 @@ proto_register_i2c(void)
 	static decode_as_value_t i2c_da_values = {i2c_prompt, 1, i2c_da_build_value};
 	static decode_as_t i2c_da = {"i2c", "I2C Message", "i2c.message", 1, 0, &i2c_da_values, NULL, NULL,
 									decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
+	/* Placeholders for capture statistics */
+	proto_i2c_event = proto_register_protocol("I2C Events", "I2C Events", "i2c_event");
+	proto_i2c_data = proto_register_protocol("I2C Data", "I2C Data", "i2c_data");
 
 	proto_i2c = proto_register_protocol("Inter-Integrated Circuit", "I2C", "i2c");
 	proto_register_field_array(proto_i2c, hf, array_length(hf));

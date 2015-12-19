@@ -256,6 +256,7 @@ static gint ett_vines_rtp_control_flags = -1;
 static gint ett_vines_rtp_mtype = -1;
 static gint ett_vines_rtp_flags = -1;
 
+static int proto_vines = -1;
 static int proto_vines_icp = -1;
 static int hf_vines_icp_exception_code = -1;
 static int hf_vines_icp_metric = -1;
@@ -311,7 +312,7 @@ typedef struct _e_vipc {
 gboolean
 capture_vines(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
-	cpinfo->counts->vines++;
+	capture_dissector_increment_count(cpinfo, proto_vines);
 	return TRUE;
 }
 
@@ -2004,6 +2005,8 @@ proto_register_vines_icp(void)
 
 	proto_vines_icp = proto_register_protocol(
 	    "Banyan Vines ICP", "Vines ICP", "vines_icp");
+	/* Placeholder for capture statistics */
+	proto_vines = proto_register_protocol("VINES", "VINES", "vines");
 	proto_register_field_array(proto_vines_icp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }

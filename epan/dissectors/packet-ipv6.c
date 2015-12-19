@@ -530,6 +530,8 @@ capture_ipv6(const guchar *pd, int offset, int len, capture_packet_info_t *cpinf
     if (!BYTES_ARE_IN_FRAME(offset, len, 4+4+16+16))
         return FALSE;
 
+    capture_dissector_increment_count(cpinfo, proto_ipv6);
+
     nxt = pd[offset+6];           /* get the "next header" value */
     offset += 4+4+16+16;          /* skip past the IPv6 header */
 
