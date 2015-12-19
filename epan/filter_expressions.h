@@ -38,7 +38,7 @@ struct filter_expression {
 	gchar	*label;
 	gchar	*expression;
 
-    gint	 index;
+	gint	 index;
 	gboolean enabled;	/* Can be set to FALSE by Preferences Dialog */
 	gboolean deleted;	/* Can be set to TRUE by Preferences Dialog (GTK+ only) */
 
@@ -58,7 +58,7 @@ WS_DLL_PUBLIC
 struct filter_expression *filter_expression_new(const gchar *label,
     const gchar *expr, const gboolean enabled);
 
-void filter_expression_init(gboolean prefs);
+void filter_expression_init(void);
 
 /** Clear the filter expression list.
  * Frees each item in the list. Caller should set list_head to NULL afterward.

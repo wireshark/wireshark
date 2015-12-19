@@ -2926,7 +2926,7 @@ init_prefs(void)
 
     prefs_register_modules();
 
-    filter_expression_init(TRUE);
+    filter_expression_init();
 
     prefs_initialized = TRUE;
 }
