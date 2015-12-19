@@ -565,7 +565,7 @@ expert_comp_dlg_event_cb(GtkWidget *w _U_, GdkEventButton *event _U_, gpointer u
 static gboolean
 edit_capture_comment_dlg_event_cb(GtkWidget *w _U_, GdkEventButton *event _U_, gpointer user_data _U_)
 {
-    edit_capture_comment_dlg_launch();
+    edit_capture_comment_dlg_launch(NULL, NULL);
     return TRUE;
 }
 

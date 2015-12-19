@@ -367,6 +367,11 @@ This will let you add a comment to a single packet. Note that the ability
 to save packet comments depends on your file format. E.g. pcapng supports
 comments, pcap does not.
 
+|menu:Capture Comment...[]               ||
+This will let you add a capture comment. Note that the ability to save
+capture comments depends on your file format. E.g. pcapng supports
+comments, pcap does not.
+
 |menu:Configuration Profiles...[]             |kbd:[Shift+Ctrl+A]|
 This menu item brings up a dialog box for handling configuration profiles.  More
 detail is provided in <<ChCustConfigProfilesSection>>.

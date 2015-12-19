@@ -168,9 +168,8 @@ edit_capture_comment_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 }
 
 void
-edit_capture_comment_dlg_launch (void)
+edit_capture_comment_dlg_launch (GtkAction *action _U_, gpointer data _U_)
 {
-
   GtkWidget *vbox;
   GtkWidget *view;
   GtkWidget *scroll;
@@ -178,7 +177,6 @@ edit_capture_comment_dlg_launch (void)
   GtkWidget *ok_bt, *cancel_bt, *help_bt;
   GtkTextBuffer *buffer = NULL;
   const gchar *comment_str = NULL;
-  gchar *buf_str;
 
   if (edit_or_add_capture_comment_dlg != NULL) {
     /* There's already an "Edit Capture Comment" dialog box; reactivate it. */
@@ -212,12 +210,8 @@ edit_capture_comment_dlg_launch (void)
 
   /* Get the comment */
   comment_str = cf_read_shb_comment(&cfile);
-  /*g_warning("Fetched comment '%s'",opt_comment);*/
-
   if(comment_str != NULL){
-    buf_str = g_strdup_printf("%s", comment_str);
-    gtk_text_buffer_set_text (buffer, buf_str, -1);
-    g_free(buf_str);
+    gtk_text_buffer_set_text (buffer, comment_str, -1);
   }
 
   /* Button row. */
@@ -240,9 +234,7 @@ edit_capture_comment_dlg_launch (void)
   gtk_widget_grab_default (ok_bt);
   g_signal_connect (edit_or_add_capture_comment_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
-
   gtk_widget_show (edit_or_add_capture_comment_dlg);
-
 }
 
 

@@ -859,6 +859,7 @@ static const char *ui_desc_menubar =
 "        <menuitem name='EditPacket' action='/Edit/EditPacket'/>\n"
 #endif
 "        <menuitem name='AddEditPktComment' action='/Edit/AddEditPktComment'/>\n"
+"        <menuitem name='AddEditCaptureComment' action='/Edit/AddEditCaptureComment'/>\n"
 "        <separator/>\n"
 "        <menuitem name='ConfigurationProfiles' action='/Edit/ConfigurationProfiles'/>\n"
 "        <menuitem name='Preferences' action='/Edit/Preferences'/>\n"
@@ -1364,15 +1365,16 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Edit/ConfigurationProfiles", NULL,                   "_Configuration Profiles...",           "<shift><control>A",        NULL,           G_CALLBACK(profile_dialog_cb) },
    { "/Edit/Preferences",           GTK_STOCK_PREFERENCES,  "_Preferences...",                      "<shift><control>P",        NULL,           G_CALLBACK(menus_prefs_cb) },
 #ifdef WANT_PACKET_EDITOR
-   { "/Edit/EditPacket",                NULL,               "_Edit Packet",                         NULL,                       NULL,           G_CALLBACK(edit_window_cb) },
+   { "/Edit/EditPacket",                NULL,               "_Edit Packet",                          NULL,                      NULL,           G_CALLBACK(edit_window_cb) },
 #endif
-   { "/Edit/AddEditPktComment",         WIRESHARK_STOCK_EDIT,   "Packet Comment...",   NULL,                   NULL,           G_CALLBACK(edit_packet_comment_dlg) },
+   { "/Edit/AddEditPktComment",         WIRESHARK_STOCK_EDIT,   "Packet Comment...",                 NULL,                      NULL,           G_CALLBACK(edit_packet_comment_dlg) },
+   { "/Edit/AddEditCaptureComment",     NULL,                   "Capture Comment...",                NULL,                      NULL,           G_CALLBACK(edit_capture_comment_dlg_launch) },
 
-   { "/View/TimeDisplayFormat",     NULL,                   "_Time Display Format",                 NULL,                       NULL,           NULL },
+   { "/View/TimeDisplayFormat",     NULL,                   "_Time Display Format",                  NULL,                      NULL,           NULL },
 
-   { "/View/NameResolution",                    NULL,        "Name Resol_ution",                     NULL,                       NULL,           NULL },
-   { "/View/NameResolution/ResolveName",        NULL,        "_Resolve Name",                        NULL,                       NULL,           G_CALLBACK(resolve_name_cb) },
-   { "/View/NameResolution/ManuallyResolveName",NULL,        "Manually Resolve Name",                NULL,                       NULL,           G_CALLBACK(manual_addr_resolv_dlg) },
+   { "/View/NameResolution",                    NULL,        "Name Resol_ution",                     NULL,                      NULL,           NULL },
+   { "/View/NameResolution/ResolveName",        NULL,        "_Resolve Name",                        NULL,                      NULL,           G_CALLBACK(resolve_name_cb) },
+   { "/View/NameResolution/ManuallyResolveName",NULL,        "Manually Resolve Name",                NULL,                      NULL,           G_CALLBACK(manual_addr_resolv_dlg) },
 
    { "/View/ZoomIn",                GTK_STOCK_ZOOM_IN,      "_Zoom In",                             "<control>plus",            NULL,           G_CALLBACK(view_zoom_in_cb) },
    { "/View/ZoomOut",               GTK_STOCK_ZOOM_OUT,     "Zoom _Out",                            "<control>minus",           NULL,           G_CALLBACK(view_zoom_out_cb) },
@@ -2241,9 +2243,9 @@ static const GtkActionEntry packet_list_menu_popup_action_entries[] = {
   { "/TimeShift",                       WIRESHARK_STOCK_TIME,   "Time Shift...",                NULL,                   NULL,           G_CALLBACK(time_shift_cb) },
   { "/ManuallyResolveAddress",          NULL,                   "Manually Resolve Address",     NULL,                   NULL,           G_CALLBACK(manual_addr_resolv_dlg) },
 #ifdef WANT_PACKET_EDITOR
-   { "/Edit/EditPacket",                NULL,               "_Edit Packet",                         NULL,                       NULL,           G_CALLBACK(edit_window_cb) },
+   { "/Edit/EditPacket",                NULL,                   "_Edit Packet",                 NULL,                   NULL,           G_CALLBACK(edit_window_cb) },
 #endif
-  { "/Edit/AddEditPktComment",          WIRESHARK_STOCK_EDIT,   "Packet Comment...",   NULL,                   NULL,           G_CALLBACK(edit_packet_comment_dlg) },
+  { "/Edit/AddEditPktComment",          WIRESHARK_STOCK_EDIT,   "Packet Comment...",            NULL,                   NULL,           G_CALLBACK(edit_packet_comment_dlg) },
 
   { "/Conversation Filter",             NULL, "Conversation Filter",    NULL, NULL, NULL },
   { "/Colorize Conversation",           NULL, "Colorize Conversation",  NULL, NULL, NULL },
@@ -4601,6 +4603,8 @@ set_menus_for_selected_packet(capture_file *cf)
 #endif /* WANT_PACKET_EDITOR */
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/AddEditPktComment",
                          frame_selected && wtap_dump_can_write(cf->linktypes, WTAP_COMMENT_PER_PACKET));
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/AddEditCaptureComment",
+                         frame_selected && wtap_dump_can_write(cf->linktypes, WTAP_COMMENT_PER_PACKET));
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/IgnorePacket",
                          frame_selected);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/IgnoreAllDisplayedPackets",
@@ -5181,7 +5185,7 @@ menus_set_column_align_default (gboolean right_justify)
         menu_item_child = gtk_bin_get_child(GTK_BIN(child_list_item->data));
         if (menu_item_child != NULL) {
             menu_item_name = gtk_label_get_text(GTK_LABEL(menu_item_child));
-            menu_item_len = strlen (menu_item_name);
+            menu_item_len = strlen(menu_item_name);
             if(strncmp(menu_item_name, "Align Left", 10) == 0) {
                 if (!right_justify && menu_item_len == 10) {
                     gtk_label_set_text(GTK_LABEL(menu_item_child), "Align Left\t(default)");
