@@ -3244,6 +3244,8 @@ usb_set_addr(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint16 bus_id
     pinfo->ptype = PT_USB;
     pinfo->srcport = src_addr->endpoint;
     pinfo->destport = dst_addr->endpoint;
+    /* sent/received is from the perspective of the USB host */
+    pinfo->p2p_dir = req ? P2P_DIR_SENT : P2P_DIR_RECV;
 
     str_src_addr = address_to_str(wmem_packet_scope(), &pinfo->src);
     str_dst_addr = address_to_str(wmem_packet_scope(), &pinfo->dst);
@@ -3514,10 +3516,13 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
         proto_tree_add_uint(iso_desc_tree, hf_usb_iso_len, tvb, offset, 4, iso_len);
         offset += 4;
 
-        /* When the ISO status is OK and there is ISO data and this ISO data is
-         * fully captured then show this data.
+        /* Show the ISO data if we captured them and either the status
+           is OK or the packet is sent from host to device.
+           The Linux kernel sets the status field in outgoing isochronous
+           URBs to -EXDEV and fills the data part with valid data.
          */
-        if (!iso_status && iso_len && data_base + iso_off + iso_len <= tvb_captured_length(tvb)) {
+        if ((pinfo->p2p_dir==P2P_DIR_SENT || !iso_status) &&
+                iso_len && data_base + iso_off + iso_len <= tvb_captured_length(tvb)) {
             proto_tree_add_item(iso_desc_tree, hf_usb_iso_data, tvb, data_base + iso_off, iso_len, ENC_NA);
             proto_tree_set_appendix(iso_desc_tree, tvb, (gint)(data_base+iso_off), (gint)iso_len);
         }
