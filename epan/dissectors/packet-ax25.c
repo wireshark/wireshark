@@ -285,13 +285,6 @@ capture_ax25( const guchar *pd, int offset, int len, capture_packet_info_t *cpin
 void
 proto_register_ax25(void)
 {
-	static const true_false_string flags_set_truth =
-		{
-		"Set",
-		"Not set"
-		};
-
-
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_ax25_dst,
@@ -361,12 +354,12 @@ proto_register_ax25(void)
 		},
 		{ &hf_ax25_p,
 			{ "Poll",			"ax25.ctl.p",
-			FT_BOOLEAN, 8, TFS(&flags_set_truth), XDLC_P_F,
+			FT_BOOLEAN, 8, TFS(&tfs_set_notset), XDLC_P_F,
 			NULL, HFILL }
 		},
 		{ &hf_ax25_f,
 			{ "Final",			"ax25.ctl.f",
-			FT_BOOLEAN, 8, TFS(&flags_set_truth), XDLC_P_F,
+			FT_BOOLEAN, 8, TFS(&tfs_set_notset), XDLC_P_F,
 			NULL, HFILL }
 		},
 		{ &hf_ax25_ftype_s,

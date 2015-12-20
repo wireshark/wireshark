@@ -500,13 +500,6 @@ capture_netrom( const guchar *pd _U_, int offset, int len, capture_packet_info_t
 void
 proto_register_netrom(void)
 {
-	static const true_false_string flags_set_truth =
-		{
-		"Set",
-		"Not set"
-		};
-
-
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_netrom_src,
@@ -566,17 +559,17 @@ proto_register_netrom(void)
 		},
 		{ &hf_netrom_more,
 			{ "More",			"netrom.flag.more",
-			FT_BOOLEAN, 8, TFS(&flags_set_truth), NETROM_MORE_FLAG,
+			FT_BOOLEAN, 8, TFS(&tfs_set_notset), NETROM_MORE_FLAG,
 			"More flag", HFILL }
 		},
 		{ &hf_netrom_nak,
 			{ "NAK",			"netrom.flag.nak",
-			FT_BOOLEAN, 8, TFS(&flags_set_truth), NETROM_NAK_FLAG,
+			FT_BOOLEAN, 8, TFS(&tfs_set_notset), NETROM_NAK_FLAG,
 			"NAK flag", HFILL }
 		},
 		{ &hf_netrom_choke,
 			{ "Choke",			"netrom.flag.choke",
-			FT_BOOLEAN, 8, TFS(&flags_set_truth), NETROM_CHOKE_FLAG,
+			FT_BOOLEAN, 8, TFS(&tfs_set_notset), NETROM_CHOKE_FLAG,
 			"Choke flag", HFILL }
 		},
 		{ &hf_netrom_user,
