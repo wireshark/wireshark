@@ -346,7 +346,7 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
     }
 
     /* Encrypted key is in the information element field of the EAPOL key packet */
-    szEncryptedKey = (guint8 *)g_memdup(pEAPKey->ie, key_bytes_len);
+    szEncryptedKey = (guint8 *)wmem_memdup(wmem_packet_scope(), pEAPKey->ie, key_bytes_len);
 
     DEBUG_DUMP("Encrypted Broadcast key:", szEncryptedKey, key_bytes_len);
     DEBUG_DUMP("KeyIV:", pEAPKey->key_iv, 16);
@@ -452,7 +452,6 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
     /* AirPDcapRsnaMng() function will extract the right piece of the GTK for decryption. (The first 16 bytes of the GTK are used for decryption.) */
     memset(sa->wpa.ptk, 0, sizeof(sa->wpa.ptk));
     memcpy(sa->wpa.ptk+32, szEncryptedKey, key_len);
-    g_free(szEncryptedKey);
     return AIRPDCAP_RET_SUCCESS_HANDSHAKE;
 }
 
