@@ -61,6 +61,7 @@ static int hf_smtp_rsp_code = -1;
 static int hf_smtp_rsp_parameter = -1;
 static int hf_smtp_username = -1;
 static int hf_smtp_password = -1;
+static int hf_smtp_username_password = -1;
 static int hf_smtp_eom = -1;
 
 static int hf_smtp_data_fragments = -1;
@@ -79,6 +80,8 @@ static int ett_smtp_cmdresp = -1;
 
 static gint ett_smtp_data_fragment = -1;
 static gint ett_smtp_data_fragments = -1;
+
+static expert_field ei_smtp_base64_decode = EI_INIT;
 
 static gboolean    smtp_auth_parameter_decoding_enabled     = FALSE;
 /* desegmentation of SMTP command and response lines */
@@ -314,6 +317,7 @@ decode_plain_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gint                       length_user2;
   gint                       length_pass;
   guint8                    *decrypt   = NULL;
+  proto_item                *ti;
 
   decrypt = tvb_get_string_enc(wmem_packet_scope(), tvb, a_offset, a_linelen, ENC_ASCII);
   if (smtp_auth_parameter_decoding_enabled) {
@@ -339,10 +343,9 @@ decode_plain_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
   }
   else {
-    proto_tree_add_string(tree, hf_smtp_username, tvb,
-                          a_offset, a_linelen, decrypt);
-    proto_tree_add_string(tree, hf_smtp_password, tvb,
-                          a_offset, a_linelen, decrypt);
+    ti = proto_tree_add_item(tree, hf_smtp_username_password, tvb,
+                          a_offset, a_linelen, ENC_ASCII|ENC_NA);
+    expert_add_info(pinfo, ti, &ei_smtp_base64_decode);
     col_append_str(pinfo->cinfo, COL_INFO, format_text(decrypt, a_linelen));
   }
 }
@@ -1203,6 +1206,10 @@ proto_register_smtp(void)
       { "Password", "smtp.auth.password",
         FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+    { &hf_smtp_username_password,
+      { "Username/Password", "smtp.auth.username_password",
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
     { &hf_smtp_eom,
       { "EOM", "smtp.eom",
         FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -1256,13 +1263,21 @@ proto_register_smtp(void)
     &ett_smtp_data_fragments,
 
   };
+
+  static ei_register_info ei[] = {
+    { &ei_smtp_base64_decode, { "smtp.base64_decode", PI_PROTOCOL, PI_WARN, "base64 decode failed or is not enabled (check SMTP preferences)", EXPFILL }},
+  };
+
   module_t *smtp_module;
+  expert_module_t* expert_smtp;
 
   proto_smtp = proto_register_protocol("Simple Mail Transfer Protocol",
                                        "SMTP", "smtp");
 
   proto_register_field_array(proto_smtp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_smtp = expert_register_protocol(proto_smtp);
+  expert_register_field_array(expert_smtp, ei, array_length(ei));
   register_init_routine (&smtp_data_reassemble_init);
   register_cleanup_routine (&smtp_data_reassemble_cleanup);
 
