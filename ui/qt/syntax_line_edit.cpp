@@ -26,6 +26,7 @@
 #include <epan/prefs.h>
 #include <epan/proto.h>
 #include <epan/dfilter/dfilter.h>
+#include <epan/column-info.h>
 
 #include "syntax_line_edit.h"
 
@@ -189,7 +190,7 @@ void SyntaxLineEdit::checkCustomColumn(QString fields)
         return;
     }
 
-    splitted_fields = g_regex_split_simple(" *([^ \\|]+) *(?:(?:\\|\\|)|(?:or))? *",
+    splitted_fields = g_regex_split_simple(COL_CUSTOM_PRIME_REGEX,
                 fields.toUtf8().constData(), G_REGEX_ANCHORED, G_REGEX_MATCH_ANCHORED);
 
     for (i_field =0; i_field < g_strv_length(splitted_fields); i_field += 1) {
