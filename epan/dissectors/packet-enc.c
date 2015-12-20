@@ -55,8 +55,13 @@ static int proto_enc = -1;
 static int hf_enc_af = -1;
 static int hf_enc_spi = -1;
 static int hf_enc_flags = -1;
+static int hf_enc_flags_payload_enc = -1;
+static int hf_enc_flags_payload_auth = -1;
+static int hf_enc_flags_payload_compress = -1;
+static int hf_enc_flags_header_auth = -1;
 
 static gint ett_enc = -1;
+static gint ett_enc_flag = -1;
 
 static gboolean
 capture_enc(const guchar *pd, int offset _U_, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
@@ -84,33 +89,30 @@ dissect_enc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   proto_tree    *enc_tree;
   proto_item    *ti;
 
+  static const int *flags[] = {
+    &hf_enc_flags_payload_enc,
+    &hf_enc_flags_payload_auth,
+    &hf_enc_flags_payload_compress,
+    &hf_enc_flags_header_auth,
+    NULL
+  };
+
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENC");
 
-  /* Copy out the enc header to insure alignment */
-  tvb_memcpy(tvb, (guint8 *)&ench, 0, sizeof(ench));
-
-  /* Byteswap the header now */
-  ench.spi = g_ntohl(ench.spi);
-  /* ench.af = g_ntohl(ench.af); */
-  /* ench.flags = g_ntohl(ench.flags); */
+  ench.af = tvb_get_ntohl(tvb, 0);
+  ench.spi = tvb_get_ntohl(tvb, 4);
 
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_enc, tvb, 0,
                                         BSD_ENC_HDRLEN,
-                                        "Enc %s, SPI 0x%8.8x, %s%s%s%s",
+                                        "Enc %s, SPI 0x%8.8x",
                                         val_to_str(ench.af, af_vals, "unknown (%u)"),
-                                        ench.spi,
-                                        ench.flags ? "" : "unprotected",
-                                        ench.flags & BSD_ENC_M_AUTH ? "authentic" : "",
-                                        (ench.flags & (BSD_ENC_M_AUTH|BSD_ENC_M_CONF)) ==
-                                        (BSD_ENC_M_AUTH|BSD_ENC_M_CONF) ? ", " : "",
-                                        ench.flags & BSD_ENC_M_CONF ? "confidential" : ""
-      );
+                                        ench.spi);
     enc_tree = proto_item_add_subtree(ti, ett_enc);
 
     proto_tree_add_item(enc_tree, hf_enc_af, tvb, 0, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(enc_tree, hf_enc_spi, tvb, 4, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(enc_tree, hf_enc_flags, tvb, 8, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(enc_tree, tvb, 8, hf_enc_flags, ett_enc_flag, flags, ENC_BIG_ENDIAN);
   }
 
   /* Set the tvbuff for the payload after the header */
@@ -134,8 +136,24 @@ proto_register_enc(void)
     { &hf_enc_flags,
       { "Flags", "enc.flags", FT_UINT32, BASE_HEX, NULL, 0x0,
         "ENC flags", HFILL }},
+    { &hf_enc_flags_payload_enc,
+      { "Payload encrypted", "enc.flags.payload_enc", FT_BOOLEAN, 32, NULL, BSD_ENC_M_CONF,
+        NULL, HFILL }},
+    { &hf_enc_flags_payload_auth,
+      { "Payload encrypted", "enc.flags.payload_auth", FT_BOOLEAN, 32, NULL, BSD_ENC_M_AUTH,
+        NULL, HFILL }},
+    { &hf_enc_flags_payload_compress,
+      { "Payload encrypted", "enc.flags.payload_compress", FT_BOOLEAN, 32, NULL, BSD_ENC_M_COMP,
+        NULL, HFILL }},
+    { &hf_enc_flags_header_auth,
+      { "Payload encrypted", "enc.flags.header_auth", FT_BOOLEAN, 32, NULL, BSD_ENC_M_AUTH_AH,
+        NULL, HFILL }},
   };
-  static gint *ett[] = { &ett_enc };
+  static gint *ett[] =
+  {
+      &ett_enc,
+      &ett_enc_flag
+  };
 
   proto_enc = proto_register_protocol("OpenBSD Encapsulating device",
                                       "ENC", "enc");
