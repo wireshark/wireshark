@@ -36,7 +36,7 @@ extern "C" {
 
 #define COL_MAX_LEN 256
 #define COL_MAX_INFO_LEN 4096
-#define COL_CUSTOM_PRIME_REGEX " *([^ \\|]+) *(?:(?:\\|\\|)|(?:or))? *"
+#define COL_CUSTOM_PRIME_REGEX " *([^ \\|]+) *(?:(?:\\|\\|)|(?:or)| *$){1}"
 
 /** Column expression */
 typedef struct {
