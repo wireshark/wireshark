@@ -433,6 +433,10 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
     }
 
     key_len = (sa->wpa.key_ver==AIRPDCAP_WPA_KEY_VER_NOT_CCMP)?TKIP_GROUP_KEY_LEN:CCMP_GROUP_KEY_LEN;
+    if (key_len > key_bytes_len) {
+        /* the key required for this protocol is longer than the key that we just calculated */
+        return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+    }
 
     /* Decrypted key is now in szEncryptedKey with len of key_len */
     DEBUG_DUMP("Broadcast key:", szEncryptedKey, key_len);
