@@ -1171,7 +1171,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 	gint64	bytes_read;
 	char	record_type[2];
 	char	record_length[4]; /* only 1st 2 bytes are length */
-	guint16	type, length;
+	guint	type, length;
 	struct frame2_rec frame2;
 	struct frame4_rec frame4;
 	struct frame6_rec frame6;
@@ -1218,6 +1218,13 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 			return -1;
 		}
 
+		/* Do we have an f_frame2_struct worth of data? */
+		if (length < sizeof frame2) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup("ngsniffer: REC_FRAME2 record length is less than record header length");
+			return -1;
+		}
+
 		/* Read the f_frame2_struct */
 		bytes_read = ng_file_read(&frame2, (unsigned int)sizeof frame2,
 		   wth, is_random, err, err_info);
@@ -1249,6 +1256,23 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 			return -1;
 		}
 
+		/*
+		 * XXX - it looks as if some version 4 captures have
+		 * a bogus record length, based on the assumption
+		 * that the record is a frame2 record, i.e. the length
+		 * was calculated based on the record being a frame2
+		 * record, so it's too short by (sizeof frame4 - sizeof frame2).
+		 */
+		if (ngsniffer->maj_vers < 5 && ngsniffer->min_vers >= 95)
+			length += sizeof frame4 - sizeof frame2;
+
+		/* Do we have an f_frame4_struct worth of data? */
+		if (length < sizeof frame4) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup("ngsniffer: REC_FRAME4 record length is less than record header length");
+			return -1;
+		}
+
 		/* Read the f_frame4_struct */
 		bytes_read = ng_file_read(&frame4, (unsigned int)sizeof frame4,
 		    wth, is_random, err, err_info);
@@ -1264,24 +1288,19 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		size = pletoh16(&frame4.size);
 		true_size = pletoh16(&frame4.true_size);
 
-		/*
-		 * XXX - it looks as if some version 4 captures have
-		 * a bogus record length, based on the assumption
-		 * that the record is a frame2 record.
-		 */
-		if (ngsniffer->maj_vers >= 5)
-			length -= sizeof frame4;	/* we already read that much */
-		else {
-			if (ngsniffer->min_vers >= 95)
-				length -= sizeof frame2;
-			else
-				length -= sizeof frame4;
-		}
+		length -= sizeof frame4;	/* we already read that much */
 
 		set_pseudo_header_frame4(&phdr->pseudo_header, &frame4);
 		break;
 
 	case REC_FRAME6:
+		/* Do we have an f_frame6_struct worth of data? */
+		if (length < sizeof frame6) {
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup("ngsniffer: REC_FRAME6 record length is less than record header length");
+			return -1;
+		}
+
 		/* Read the f_frame6_struct */
 		bytes_read = ng_file_read(&frame6, (unsigned int)sizeof frame6,
 		    wth, is_random, err, err_info);
@@ -1365,7 +1384,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 	}
 
 	phdr->pkt_encap = fix_pseudo_header(wth->file_encap,
-	    buf, length, &phdr->pseudo_header);
+	    buf, size, &phdr->pseudo_header);
 
 	/*
 	 * 40-bit time stamp, in units of timeunit picoseconds.
