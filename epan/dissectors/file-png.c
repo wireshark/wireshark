@@ -48,6 +48,8 @@
 #define CHUNK_TYPE_tIME   MAKE_TYPE_VAL('t', 'I', 'M', 'E')
 #define CHUNK_TYPE_IDAT   MAKE_TYPE_VAL('I', 'D', 'A', 'T')
 #define CHUNK_TYPE_IEND   MAKE_TYPE_VAL('I', 'E', 'N', 'D')
+#define CHUNK_TYPE_tRNS   MAKE_TYPE_VAL('t', 'R', 'N', 'S')
+#define CHUNK_TYPE_PLTE   MAKE_TYPE_VAL('P', 'L', 'T', 'E')
 
 static const value_string chunk_types[] = {
     { CHUNK_TYPE_IHDR, "Image Header" },
@@ -63,6 +65,8 @@ static const value_string chunk_types[] = {
     { CHUNK_TYPE_tIME, "Image last-modification time" },
     { CHUNK_TYPE_IDAT, "Image data chunk" },
     { CHUNK_TYPE_IEND, "Image Trailer" },
+    { CHUNK_TYPE_tRNS, "Transparency" },
+    { CHUNK_TYPE_PLTE, "Palette" },
     { 0, NULL }
 };
 
