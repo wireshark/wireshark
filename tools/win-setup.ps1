@@ -241,6 +241,7 @@ function Bootstrap7Zip() {
     $searchDirs = @(
         "${env:ProgramFiles}\7-Zip"
         "${env:ProgramFiles(x86)}\7-Zip"
+        "${env:ProgramW6432}\7-Zip"
         "${env:ChocolateyInstall}\bin"
         "${env:ChocolateyInstall}\tools"
         "$binDir"
