@@ -45,7 +45,7 @@
     <message>
         <location filename="about_dialog.ui" line="210"/>
         <source>Keyboard Shortcuts</source>
-        <translation>键盘快捷键</translation>
+        <translation>快捷键</translation>
     </message>
     <message>
         <location filename="about_dialog.ui" line="227"/>
@@ -233,18 +233,18 @@
         <translation>另存为图像</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="268"/>
-        <location filename="bluetooth_devices_dialog.cpp" line="287"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="267"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="286"/>
         <source>true</source>
         <translation>是</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="369"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="371"/>
         <source>Save Table Image</source>
         <translation>保存表格图像</translation>
     </message>
     <message>
-        <location filename="bluetooth_devices_dialog.cpp" line="371"/>
+        <location filename="bluetooth_devices_dialog.cpp" line="373"/>
         <source>PNG Image (*.png)</source>
         <translation>PNG 图像 (*.png)</translation>
     </message>
@@ -480,12 +480,12 @@
         <translation>等待中</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="704"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="711"/>
         <source>Save Table Image</source>
         <translation>保存表格图像</translation>
     </message>
     <message>
-        <location filename="bluetooth_hci_summary_dialog.cpp" line="706"/>
+        <location filename="bluetooth_hci_summary_dialog.cpp" line="713"/>
         <source>PNG Image (*.png)</source>
         <translation>PNG 图像 (*.png)</translation>
     </message>
@@ -506,17 +506,17 @@
         <translation>以十六进制显示字节</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="72"/>
+        <location filename="byte_view_text.cpp" line="74"/>
         <source>Show bytes as bits</source>
         <translation>以二进制显示字节</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="247"/>
+        <location filename="byte_view_text.cpp" line="252"/>
         <source>Byte %1</source>
         <translation>字节 %1</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="250"/>
+        <location filename="byte_view_text.cpp" line="255"/>
         <source>Bytes %1-%2</source>
         <translation>字节 %1-%2</translation>
     </message>
@@ -631,7 +631,7 @@
     <message>
         <location filename="capture_file_dialog.cpp" line="491"/>
         <source>Read filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>读取过滤器:</translation>
     </message>
     <message>
         <location filename="capture_file_dialog.cpp" line="500"/>
@@ -877,7 +877,7 @@
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="285"/>
         <source>Capture filter</source>
-        <translation>捕获筛选器</translation>
+        <translation>捕获过滤器</translation>
     </message>
     <message>
         <location filename="capture_file_properties_dialog.cpp" line="286"/>
@@ -992,7 +992,7 @@
     <message>
         <location filename="capture_filter_combo.cpp" line="47"/>
         <source>Capture filter selector</source>
-        <translation>捕获筛选器选择</translation>
+        <translation>捕获过滤器选择器</translation>
     </message>
 </context>
 <context>
@@ -1000,12 +1000,12 @@
     <message>
         <location filename="capture_filter_edit.cpp" line="117"/>
         <source>Capture filter entry</source>
-        <translation>捕获筛选器</translation>
+        <translation>捕获过滤器</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="123"/>
         <source>Enter a capture filter %1</source>
-        <translation>输入捕获筛选器 %1</translation>
+        <translation>输入捕获过滤器 %1</translation>
     </message>
     <message>
         <location filename="capture_filter_edit.cpp" line="134"/>
@@ -1015,7 +1015,7 @@
     <message>
         <location filename="capture_filter_edit.cpp" line="169"/>
         <source>Apply this filter string to the display.</source>
-        <translation>应用此筛选器字符串进行显示。</translation>
+        <translation>应用此过滤器字符串进行显示。</translation>
     </message>
 </context>
 <context>
@@ -1038,7 +1038,7 @@
     <message>
         <location filename="capture_interfaces_dialog.ui" line="78"/>
         <source>Capture Filter</source>
-        <translation>捕获筛选器</translation>
+        <translation>捕获过滤器</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="88"/>
@@ -1084,53 +1084,55 @@
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="339"/>
-        <location filename="capture_interfaces_dialog.ui" line="739"/>
-        <source>Megabytes</source>
-        <translation>兆字节</translation>
+        <location filename="capture_interfaces_dialog.ui" line="745"/>
+        <source>megabytes</source>
+        <oldsource>Megabytes</oldsource>
+        <translation type="unfinished">兆字节</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="334"/>
-        <location filename="capture_interfaces_dialog.ui" line="734"/>
-        <source>Kilobytes</source>
-        <translation>千字节</translation>
+        <location filename="capture_interfaces_dialog.ui" line="740"/>
+        <source>kilobytes</source>
+        <oldsource>Kilobytes</oldsource>
+        <translation type="unfinished">千字节</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="357"/>
-        <location filename="capture_interfaces_dialog.ui" line="702"/>
+        <location filename="capture_interfaces_dialog.ui" line="708"/>
         <source>seconds</source>
         <translation>秒</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="362"/>
-        <location filename="capture_interfaces_dialog.ui" line="707"/>
+        <location filename="capture_interfaces_dialog.ui" line="713"/>
         <source>minutes</source>
         <translation>分钟</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="367"/>
-        <location filename="capture_interfaces_dialog.ui" line="712"/>
+        <location filename="capture_interfaces_dialog.ui" line="718"/>
         <source>hours</source>
         <translation>小时</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="639"/>
-        <location filename="capture_interfaces_dialog.ui" line="787"/>
+        <location filename="capture_interfaces_dialog.ui" line="645"/>
+        <location filename="capture_interfaces_dialog.ui" line="793"/>
         <source>Stop capturing after the specified number of packets have been captured.</source>
         <translation>超过指定数量的分组被捕获后，停止捕获。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="655"/>
-        <location filename="capture_interfaces_dialog.ui" line="730"/>
+        <location filename="capture_interfaces_dialog.ui" line="661"/>
+        <location filename="capture_interfaces_dialog.ui" line="736"/>
         <source>Stop capturing after the specified amount of data has been captured.</source>
         <translation>超过指定数量的分组被捕获后，停止捕获。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="671"/>
+        <location filename="capture_interfaces_dialog.ui" line="677"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;超过指定数量的分组被捕获后，停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="681"/>
+        <location filename="capture_interfaces_dialog.ui" line="687"/>
         <source>packets</source>
         <translation>分组</translation>
     </message>
@@ -1179,7 +1181,7 @@
     <message>
         <location filename="capture_interfaces_dialog.ui" line="128"/>
         <source>Capture Filter for selected Interfaces:</source>
-        <translation>选择接口的捕获筛选器：</translation>
+        <translation>所选择接口的捕获过滤器:</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="158"/>
@@ -1218,9 +1220,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="344"/>
-        <location filename="capture_interfaces_dialog.ui" line="744"/>
-        <source>Gigabytes</source>
-        <translation>千兆字节</translation>
+        <location filename="capture_interfaces_dialog.ui" line="750"/>
+        <source>gigabytes</source>
+        <oldsource>Gigabytes</oldsource>
+        <translation type="unfinished">千兆字节</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="443"/>
@@ -1233,193 +1236,193 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>使用一个环形缓冲器，采用</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="463"/>
-        <location filename="capture_interfaces_dialog.ui" line="803"/>
+        <location filename="capture_interfaces_dialog.ui" line="469"/>
+        <location filename="capture_interfaces_dialog.ui" line="809"/>
         <source>files</source>
         <translation>文件</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="501"/>
+        <location filename="capture_interfaces_dialog.ui" line="507"/>
         <source>Options</source>
         <translation>选项</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="509"/>
+        <location filename="capture_interfaces_dialog.ui" line="515"/>
         <source>Display Options</source>
         <translation>显示选项</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="518"/>
+        <location filename="capture_interfaces_dialog.ui" line="524"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;使用此功能将会立即在主屏幕中显示捕获的分组。请注意：这将减慢捕获速度，因此可能会增加分组丢失的情况。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="521"/>
+        <location filename="capture_interfaces_dialog.ui" line="527"/>
         <source>Update list of packets in real-time</source>
         <translation>实时更新分组列表</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="528"/>
+        <location filename="capture_interfaces_dialog.ui" line="534"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当“实时更新分组列表”选项启用时，自动滚动“分组列表”到最新捕获的分组。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="531"/>
+        <location filename="capture_interfaces_dialog.ui" line="537"/>
         <source>Automatically scroll during live capture</source>
         <translation>实时捕获时自动滚屏</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="538"/>
+        <location filename="capture_interfaces_dialog.ui" line="544"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获时，显示捕获信息对话框。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="541"/>
+        <location filename="capture_interfaces_dialog.ui" line="547"/>
         <source>Show extra capture information dialog</source>
         <translation>显示额外的捕获信息对话框</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="564"/>
+        <location filename="capture_interfaces_dialog.ui" line="570"/>
         <source>Name Resolution</source>
         <translation>解析名称</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="573"/>
+        <location filename="capture_interfaces_dialog.ui" line="579"/>
         <source>Perform MAC layer name resolution while capturing.</source>
         <translation>在捕获期间进行 MAC 层名称解析。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="576"/>
+        <location filename="capture_interfaces_dialog.ui" line="582"/>
         <source>Resolve MAC Addresses</source>
         <translation>MAC地址解析</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="583"/>
+        <location filename="capture_interfaces_dialog.ui" line="589"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获期间进行网络层名称解析。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="586"/>
+        <location filename="capture_interfaces_dialog.ui" line="592"/>
         <source>Resolve network names</source>
         <translation>解析网络名称</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="593"/>
+        <location filename="capture_interfaces_dialog.ui" line="599"/>
         <source>Perform transport layer name resolution while capturing.</source>
         <translation>在捕获期间进行传输层名称解析。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="596"/>
+        <location filename="capture_interfaces_dialog.ui" line="602"/>
         <source>Resolve transport names</source>
         <translation>解析传输层名称</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="624"/>
+        <location filename="capture_interfaces_dialog.ui" line="630"/>
         <source>Stop capture automatically after…</source>
         <oldsource>Stop capture automatically after...</oldsource>
         <translation>自动停止捕获，在经过…</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="688"/>
-        <location filename="capture_interfaces_dialog.ui" line="698"/>
-        <location filename="capture_interfaces_dialog.ui" line="752"/>
+        <location filename="capture_interfaces_dialog.ui" line="694"/>
+        <location filename="capture_interfaces_dialog.ui" line="704"/>
+        <location filename="capture_interfaces_dialog.ui" line="758"/>
         <source>Stop capturing after the specified amount of time has passed.</source>
         <translation>经过指定的时间后，停止捕获。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="720"/>
+        <location filename="capture_interfaces_dialog.ui" line="726"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;超过指定数量的分组被捕获后，停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="810"/>
+        <location filename="capture_interfaces_dialog.ui" line="816"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;创建的文件超过指定数量后停止捕获。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="117"/>
+        <location filename="capture_interfaces_dialog.cpp" line="118"/>
         <source>Capture Interfaces</source>
         <translation>捕获接口</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="123"/>
+        <location filename="capture_interfaces_dialog.cpp" line="124"/>
         <source>Start</source>
         <translation>开始</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="259"/>
-        <location filename="capture_interfaces_dialog.cpp" line="530"/>
-        <location filename="capture_interfaces_dialog.cpp" line="537"/>
+        <location filename="capture_interfaces_dialog.cpp" line="260"/>
+        <location filename="capture_interfaces_dialog.cpp" line="528"/>
+        <location filename="capture_interfaces_dialog.cpp" line="535"/>
         <source>enabled</source>
         <translation>启用</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="259"/>
-        <location filename="capture_interfaces_dialog.cpp" line="530"/>
-        <location filename="capture_interfaces_dialog.cpp" line="537"/>
+        <location filename="capture_interfaces_dialog.cpp" line="260"/>
+        <location filename="capture_interfaces_dialog.cpp" line="528"/>
+        <location filename="capture_interfaces_dialog.cpp" line="535"/>
         <source>disabled</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="278"/>
+        <location filename="capture_interfaces_dialog.cpp" line="279"/>
         <source>Specify a Capture File</source>
         <translation>指定捕获文件</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="480"/>
+        <location filename="capture_interfaces_dialog.cpp" line="478"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="480"/>
+        <location filename="capture_interfaces_dialog.cpp" line="478"/>
         <source>Addresses</source>
         <translation>地址</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="480"/>
+        <location filename="capture_interfaces_dialog.cpp" line="478"/>
         <source>Address</source>
         <translation>地址</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="490"/>
+        <location filename="capture_interfaces_dialog.cpp" line="488"/>
         <source>no addresses</source>
         <translation>无地址</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="517"/>
+        <location filename="capture_interfaces_dialog.cpp" line="515"/>
         <source>default</source>
         <translation>默认</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="537"/>
+        <location filename="capture_interfaces_dialog.cpp" line="535"/>
         <source>n/a</source>
         <translation>n/a</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="671"/>
-        <location filename="capture_interfaces_dialog.cpp" line="679"/>
-        <location filename="capture_interfaces_dialog.cpp" line="690"/>
-        <location filename="capture_interfaces_dialog.cpp" line="694"/>
-        <location filename="capture_interfaces_dialog.cpp" line="707"/>
-        <location filename="capture_interfaces_dialog.cpp" line="715"/>
+        <location filename="capture_interfaces_dialog.cpp" line="669"/>
+        <location filename="capture_interfaces_dialog.cpp" line="677"/>
+        <location filename="capture_interfaces_dialog.cpp" line="688"/>
+        <location filename="capture_interfaces_dialog.cpp" line="692"/>
+        <location filename="capture_interfaces_dialog.cpp" line="705"/>
+        <location filename="capture_interfaces_dialog.cpp" line="713"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="672"/>
-        <location filename="capture_interfaces_dialog.cpp" line="680"/>
-        <location filename="capture_interfaces_dialog.cpp" line="708"/>
-        <location filename="capture_interfaces_dialog.cpp" line="716"/>
+        <location filename="capture_interfaces_dialog.cpp" line="670"/>
+        <location filename="capture_interfaces_dialog.cpp" line="678"/>
+        <location filename="capture_interfaces_dialog.cpp" line="706"/>
+        <location filename="capture_interfaces_dialog.cpp" line="714"/>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
         <translation>多文件：请求的文件尺寸太大！文件尺寸不能超过2GiB。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="691"/>
+        <location filename="capture_interfaces_dialog.cpp" line="689"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
         <translation>多个文件：没有给出捕获文件名！如果您想使用多个文件，必须指定一个文件名。</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="695"/>
+        <location filename="capture_interfaces_dialog.cpp" line="693"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation>多个文件：未给出文件大小限制！如果您想使用多个文件，必须指定切换到下一个捕获文件的文件大小或者时长。</translation>
@@ -1477,14 +1480,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Automatic scrolling in live capture</source>
         <translation>实时捕获时自动滚屏</translation>
     </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture summary dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;在捕获进行时，显示捕获概要对话框。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Show the capture summary dialog while capturing</source>
-        <translation type="vanished">捕获时显示捕获汇总对话框</translation>
-    </message>
 </context>
 <context>
     <name>ColoringRulesDialog</name>
@@ -1501,7 +1496,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="coloring_rules_dialog.ui" line="44"/>
         <source>Filter</source>
-        <translation>筛选器</translation>
+        <translation>过滤器</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.ui" line="52"/>
@@ -1566,7 +1561,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="117"/>
         <source>Save filters in a file.</source>
-        <translation>保存筛选器到文件。</translation>
+        <translation>保存过滤器到文件。</translation>
     </message>
     <message>
         <location filename="coloring_rules_dialog.cpp" line="182"/>
@@ -1623,8 +1618,9 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="column_editor_frame.ui" line="78"/>
-        <source>Field Name</source>
-        <translation>字段名称</translation>
+        <source>Fields</source>
+        <oldsource>Field Name</oldsource>
+        <translation type="unfinished">字段名称</translation>
     </message>
     <message>
         <location filename="column_editor_frame.ui" line="101"/>
@@ -1656,9 +1652,9 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="column_preferences_frame.ui" line="45"/>
-        <source>Field Name</source>
-        <oldsource>Field name</oldsource>
-        <translation>字段名称</translation>
+        <source>Fields</source>
+        <oldsource>Field Name</oldsource>
+        <translation type="unfinished">字段名称</translation>
     </message>
     <message>
         <location filename="column_preferences_frame.ui" line="50"/>
@@ -1672,7 +1668,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="compiled_filter_output.ui" line="14"/>
         <source>Compiled Filter Output</source>
-        <translation>编译筛选器输出</translation>
+        <translation>编译的过滤器输出</translation>
     </message>
     <message>
         <location filename="compiled_filter_output.cpp" line="46"/>
@@ -1682,7 +1678,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="compiled_filter_output.cpp" line="47"/>
         <source>Copy filter text to the clipboard.</source>
-        <translation>复制筛选器文本到剪贴板。</translation>
+        <translation>复制过滤器文本到剪贴板。</translation>
     </message>
 </context>
 <context>
@@ -1816,7 +1812,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_combo.cpp" line="81"/>
         <source>Select from previously used filters.</source>
-        <translation>选择以前使用过的筛选器。</translation>
+        <translation>选择使用过的过滤器。</translation>
     </message>
 </context>
 <context>
@@ -1824,22 +1820,22 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_edit.cpp" line="105"/>
         <source>Display filter entry</source>
-        <translation>显示筛选器条目</translation>
+        <translation>显示过滤器</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="209"/>
         <source>Enter a display filter %1</source>
-        <translation>输入显示筛选器 %1</translation>
+        <translation>输入显示过滤器 %1</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="204"/>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
-        <translation>应用显示筛选器 %1 &lt;%2/&gt;</translation>
+        <translation>应用显示过滤器 %1 &lt;%2/&gt;</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="213"/>
         <source>Apply a read filter %1</source>
-        <translation type="unfinished"></translation>
+        <translation>应用读取过滤器 %1</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="125"/>
@@ -1849,7 +1845,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_edit.cpp" line="159"/>
         <source>Apply this filter string to the display.</source>
-        <translation>应用此筛选器字符串进行显示。</translation>
+        <translation>应用此过滤器字符串进行显示。</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="347"/>
@@ -1864,7 +1860,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_edit.cpp" line="351"/>
         <source>Manage Filter Expressions</source>
-        <translation>管理筛选器表达式</translation>
+        <translation>管理过滤器表达式</translation>
     </message>
     <message>
         <location filename="display_filter_edit.cpp" line="377"/>
@@ -1880,7 +1876,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="display_filter_edit.cpp" line="332"/>
         <source>Invalid filter: </source>
         <oldsource>Invalid filter</oldsource>
-        <translation>无效筛选器:</translation>
+        <translation>无效的过滤器:</translation>
     </message>
 </context>
 <context>
@@ -1893,7 +1889,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="24"/>
         <source>Select a field to start building a display filter.</source>
-        <translation>选择一个字段以开始建立一个显示筛选器。</translation>
+        <translation>选择一个字段开始建立一个显示过滤器。</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="27"/>
@@ -1965,7 +1961,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="177"/>
         <source>No display filter</source>
-        <translation>无显示筛选器</translation>
+        <translation>无显示过滤器</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.ui" line="184"/>
@@ -1975,7 +1971,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_expression_dialog.cpp" line="70"/>
         <source>Display Filter Expression</source>
-        <translation>显示筛选器例外</translation>
+        <translation>显示过滤器表达式</translation>
     </message>
     <message>
         <location filename="display_filter_expression_dialog.cpp" line="187"/>
@@ -1985,7 +1981,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="display_filter_expression_dialog.cpp" line="191"/>
         <source>Click OK to insert this filter</source>
-        <translation>点击确定插入此筛选器</translation>
+        <translation>点击确定插入此过滤器</translation>
     </message>
 </context>
 <context>
@@ -2167,7 +2163,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="expert_info_dialog.ui" line="59"/>
         <source>Limit to Display Filter</source>
-        <translation>限制到显示筛选器</translation>
+        <translation>显示过滤器的限制</translation>
     </message>
     <message>
         <location filename="expert_info_dialog.ui" line="79"/>
@@ -2242,33 +2238,33 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>专家信息</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="256"/>
+        <location filename="expert_info_dialog.cpp" line="258"/>
         <source>Endpoint expert failed to set filter</source>
         <translation>专家端点设置过滤器失败</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="451"/>
-        <location filename="expert_info_dialog.cpp" line="452"/>
+        <location filename="expert_info_dialog.cpp" line="459"/>
+        <location filename="expert_info_dialog.cpp" line="460"/>
         <source>Capture file closed.</source>
         <translation>捕获文件已关闭。</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="454"/>
+        <location filename="expert_info_dialog.cpp" line="462"/>
         <source>No display filter</source>
         <translation>无显示过滤器</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="455"/>
+        <location filename="expert_info_dialog.cpp" line="463"/>
         <source>No display filter set.</source>
         <translation>没有设置显示过滤器。</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="457"/>
+        <location filename="expert_info_dialog.cpp" line="465"/>
         <source>Limit information to &quot;%1&quot;.</source>
         <translation>限制信息至“%1”。</translation>
     </message>
     <message>
-        <location filename="expert_info_dialog.cpp" line="458"/>
+        <location filename="expert_info_dialog.cpp" line="466"/>
         <source>Display filter: &quot;%1&quot;</source>
         <translation>显示过滤器：“%1”</translation>
     </message>
@@ -2391,7 +2387,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="export_pdu_dialog.ui" line="45"/>
         <source>Display filter:</source>
-        <translation>显示筛选器:</translation>
+        <translation>显示过滤器:</translation>
     </message>
 </context>
 <context>
@@ -2489,34 +2485,34 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="filter_dialog.ui" line="38"/>
         <source>Filter</source>
-        <translation>筛选器</translation>
+        <translation>过滤器</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="48"/>
         <source>Create a new filter.</source>
-        <translation>创建一个新的筛选器。</translation>
+        <translation>创建一个新的过滤器。</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="62"/>
         <source>Remove this filter.</source>
         <oldsource>Remove this profile.</oldsource>
-        <translation>移除此筛选器。</translation>
+        <translation>移除此过滤器。</translation>
     </message>
     <message>
         <location filename="filter_dialog.ui" line="73"/>
         <source>Copy this filter.</source>
         <oldsource>Copy this profile.</oldsource>
-        <translation>复制此筛选器。</translation>
+        <translation>复制此过滤器。</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="74"/>
         <source>Capture Filters</source>
-        <translation>捕获筛选器</translation>
+        <translation>捕获过滤器</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="86"/>
         <source>Display Filters</source>
-        <translation>显示筛选器</translation>
+        <translation>显示过滤器</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="116"/>
@@ -2527,13 +2523,13 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="filter_dialog.cpp" line="166"/>
         <source>New capture filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
-        <translation>新建捕获筛选器</translation>
+        <translation>新建捕获过滤器</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="170"/>
         <source>New display filter</source>
         <extracomment>This text is automatically filled in when a new filter is created</extracomment>
-        <translation>新建显示筛选器</translation>
+        <translation>新建显示过滤器</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="215"/>
@@ -2547,30 +2543,30 @@ PLEASE NOTE: One option MUST be selected.</source>
 for filter files: %2.</source>
         <translation>无法创建目录
 “%1”
-为筛选器文件：%2。</translation>
+为过滤器文件: %2。</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="230"/>
         <source>Unable to save capture filter settings.</source>
-        <translation>无法保存捕获筛选器设置。</translation>
+        <translation>无法保存捕获过滤器设置。</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="231"/>
         <source>Could not save to your capture filter file
 &quot;%1&quot;: %2.</source>
-        <translation>未能保存您的捕获筛选器文件
+        <translation>未能保存您的捕获过滤器文件
 “%1”：%2。</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="234"/>
         <source>Unable to save display filter settings.</source>
-        <translation>无法保存显示筛选器设置。</translation>
+        <translation>无法保存显示过滤器设置。</translation>
     </message>
     <message>
         <location filename="filter_dialog.cpp" line="235"/>
         <source>Could not save to your display filter file
 &quot;%1&quot;: %2.</source>
-        <translation>未能保存您的显示筛选器文件
+        <translation>未能保存您的显示过滤器文件
 “%1”：%2。</translation>
     </message>
 </context>
@@ -2584,7 +2580,7 @@ for filter files: %2.</source>
     <message>
         <location filename="filter_expression_frame.ui" line="32"/>
         <source>Filter Expression Preferences…</source>
-        <translation>筛选器表达式首选项…</translation>
+        <translation>过滤器表达式首选项…</translation>
     </message>
     <message>
         <location filename="filter_expression_frame.ui" line="52"/>
@@ -2594,12 +2590,12 @@ for filter files: %2.</source>
     <message>
         <location filename="filter_expression_frame.ui" line="88"/>
         <source>Filter:</source>
-        <translation>筛选器:</translation>
+        <translation>过滤器:</translation>
     </message>
     <message>
         <location filename="filter_expression_frame.cpp" line="52"/>
         <source>Apply this filter</source>
-        <translation>应用此筛选器</translation>
+        <translation>应用此过滤器</translation>
     </message>
 </context>
 <context>
@@ -2623,7 +2619,7 @@ for filter files: %2.</source>
     <message>
         <location filename="filter_expressions_preferences_frame.ui" line="34"/>
         <source>Filter Expression</source>
-        <translation>筛选器表达式</translation>
+        <translation>过滤器表达式</translation>
     </message>
 </context>
 <context>
@@ -2774,7 +2770,7 @@ for filter files: %2.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="919"/>
         <source>Error creating filter for this stream.</source>
-        <translation>为这条流创建筛选器时出错。</translation>
+        <translation>为这个流创建过滤器时出错。</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="920"/>
@@ -2836,22 +2832,22 @@ for filter files: %2.</source>
         <translation>提示。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.ui" line="64"/>
+        <location filename="follow_stream_dialog.ui" line="68"/>
         <source>Show data as</source>
         <translation>显示数据为</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.ui" line="91"/>
+        <location filename="follow_stream_dialog.ui" line="95"/>
         <source>Stream</source>
         <translation>流</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.ui" line="105"/>
+        <location filename="follow_stream_dialog.ui" line="109"/>
         <source>Find:</source>
         <translation>查找:</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.ui" line="115"/>
+        <location filename="follow_stream_dialog.ui" line="119"/>
         <source>Find &amp;Next</source>
         <translation>查找下一个(&amp;N)</translation>
     </message>
@@ -2901,17 +2897,17 @@ for filter files: %2.</source>
     <message>
         <location filename="font_color_preferences_frame.ui" line="199"/>
         <source>Sample valid filter</source>
-        <translation>有效的筛选器</translation>
+        <translation>有效过滤器示例</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.ui" line="209"/>
         <source>Sample invalid filter</source>
-        <translation>无效的筛选器</translation>
+        <translation>无效过滤器示例</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.ui" line="219"/>
         <source>Sample deprecated filter</source>
-        <translation>不推荐的筛选器</translation>
+        <translation>不推荐的过滤器示例</translation>
     </message>
     <message>
         <location filename="font_color_preferences_frame.cpp" line="195"/>
@@ -3206,7 +3202,7 @@ for filter files: %2.</source>
     <message>
         <location filename="io_graph_dialog.ui" line="81"/>
         <source>Display filter</source>
-        <translation>显示筛选器</translation>
+        <translation>显示过滤器</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="86"/>
@@ -3608,10 +3604,6 @@ for filter files: %2.</source>
         <location filename="io_graph_dialog.cpp" line="872"/>
         <source>No packets in interval</source>
         <translation>间隔期没有分组</translation>
-    </message>
-    <message>
-        <source>%1 %2</source>
-        <translation type="vanished">%1 %2</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="877"/>
@@ -4256,7 +4248,7 @@ for filter files: %2.</source>
     <message>
         <location filename="import_text_dialog.cpp" line="72"/>
         <source>Import</source>
-        <translation type="unfinished">导入</translation>
+        <translation>导入</translation>
     </message>
     <message>
         <location filename="import_text_dialog.cpp" line="291"/>
@@ -4271,7 +4263,7 @@ for filter files: %2.</source>
     <message>
         <location filename="import_text_dialog.cpp" line="364"/>
         <source>&lt;i&gt;(Wrong date format)&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;i&gt;(日期格式错误)&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="import_text_dialog.cpp" line="368"/>
@@ -4292,7 +4284,7 @@ for filter files: %2.</source>
         <translation>正在等待启动%1</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="232"/>
+        <location filename="interface_tree.cpp" line="226"/>
         <source>Interface information not available</source>
         <translation>接口信息不可用</translation>
     </message>
@@ -4300,16 +4292,16 @@ for filter files: %2.</source>
 <context>
     <name>InterfaceTreeDelegate</name>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="964"/>
-        <location filename="capture_interfaces_dialog.cpp" line="997"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1046"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1066"/>
+        <location filename="capture_interfaces_dialog.cpp" line="962"/>
+        <location filename="capture_interfaces_dialog.cpp" line="995"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1044"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1064"/>
         <source>enabled</source>
         <translation>启用</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="965"/>
-        <location filename="capture_interfaces_dialog.cpp" line="998"/>
+        <location filename="capture_interfaces_dialog.cpp" line="963"/>
+        <location filename="capture_interfaces_dialog.cpp" line="996"/>
         <source>disabled</source>
         <translation>关闭</translation>
     </message>
@@ -4546,12 +4538,12 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="409"/>
         <source>Display filter:</source>
-        <translation>显示筛选器:</translation>
+        <translation>显示过滤器:</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="419"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation>使用显示筛选器重新生成统计</translation>
+        <translation>使用这个显示过滤器重新生成统计</translation>
     </message>
     <message>
         <location filename="lbm_lbtrm_transport_dialog.ui" line="422"/>
@@ -5067,12 +5059,12 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="613"/>
         <source>Display filter:</source>
-        <translation>显示筛选器:</translation>
+        <translation>显示过滤器:</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="623"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation>使用显示筛选器重新生成统计</translation>
+        <translation>使用这个显示过滤器重新生成统计</translation>
     </message>
     <message>
         <location filename="lbm_lbtru_transport_dialog.ui" line="626"/>
@@ -5372,12 +5364,12 @@ for filter files: %2.</source>
     <message>
         <location filename="lbm_stream_dialog.ui" line="64"/>
         <source>Display filter:</source>
-        <translation>显示筛选器:</translation>
+        <translation>显示过滤器:</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="74"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation>使用显示筛选器重新生成统计</translation>
+        <translation>使用这个显示过滤器重新生成统计</translation>
     </message>
     <message>
         <location filename="lbm_stream_dialog.ui" line="77"/>
@@ -5451,7 +5443,7 @@ for filter files: %2.</source>
 &lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
-&lt;h3&gt;有价值的节省时间的键盘快捷键&lt;/h3&gt;
+&lt;h3&gt;有价值的节省时间的快捷键&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
 
 &lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;复位图形到初始状态&lt;/td&gt;&lt;/th&gt;
@@ -5783,17 +5775,17 @@ for filter files: %2.</source>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="471"/>
         <source>LTE Mac Statistics</source>
-        <translation>LTE Mac 快捷键</translation>
+        <translation>LTE MAC 统计</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="505"/>
         <source>Include SR frames in filter</source>
-        <translation>筛选器中包括 SR 帧</translation>
+        <translation>过滤器中包括 SR 帧</translation>
     </message>
     <message>
         <location filename="lte_mac_statistics_dialog.cpp" line="507"/>
         <source>Include RACH frames in filter</source>
-        <translation>筛选器中包括 RACH 帧</translation>
+        <translation>过滤器中包括 RACH 帧</translation>
     </message>
 </context>
 <context>
@@ -6190,12 +6182,12 @@ for filter files: %2.</source>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="671"/>
         <source>Include SR frames in filter</source>
-        <translation>筛选器中包括 SR 帧</translation>
+        <translation>过滤器中包括 SR 帧</translation>
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="673"/>
         <source>Include RACH frames in filter</source>
-        <translation>筛选器中包括 RACH 帧</translation>
+        <translation>过滤器中包括 RACH 帧</translation>
     </message>
     <message>
         <location filename="lte_rlc_statistics_dialog.cpp" line="676"/>
@@ -6414,7 +6406,7 @@ for filter files: %2.</source>
     <message>
         <location filename="main_welcome.ui" line="162"/>
         <source>…using this filter:</source>
-        <translation>…使用筛选器:</translation>
+        <translation>…使用这个过滤器:</translation>
     </message>
     <message>
         <location filename="main_welcome.ui" line="214"/>
@@ -6518,32 +6510,32 @@ text-decoration: underline;
 &lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="204"/>
+        <location filename="main_welcome.cpp" line="206"/>
         <source>You are running Wireshark </source>
         <translation>正在运行 Wireshark</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="206"/>
+        <location filename="main_welcome.cpp" line="208"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="209"/>
+        <location filename="main_welcome.cpp" line="211"/>
         <source> You receive automatic updates.</source>
         <translation>接受自动更新。</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="211"/>
+        <location filename="main_welcome.cpp" line="213"/>
         <source> You have disabled automatic updates.</source>
         <translation>禁止自动更新。</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="283"/>
+        <location filename="main_welcome.cpp" line="285"/>
         <source>not found</source>
         <translation>未找到</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="356"/>
+        <location filename="main_welcome.cpp" line="359"/>
         <source>Copy file path</source>
         <translation>复制文件路径</translation>
     </message>
@@ -6614,12 +6606,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="355"/>
         <source>Apply as Filter</source>
-        <translation>作为筛选器应用</translation>
+        <translation>作为过滤器应用</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="366"/>
         <source>Prepare a Filter</source>
-        <translation>准备筛选器</translation>
+        <translation>准备过滤器</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="377"/>
@@ -6731,12 +6723,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="653"/>
         <source>Main Toolbar</source>
-        <translation>主工具条</translation>
+        <translation>主工具栏</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="701"/>
         <source>Display Filter Toolbar</source>
-        <translation>显示筛选器工具条</translation>
+        <translation>显示过滤器工具栏</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="738"/>
@@ -6822,7 +6814,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="832"/>
         <source>Wireshark Filter</source>
-        <translation>Wireshark 筛选器</translation>
+        <translation>Wireshark 过滤器</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="837"/>
@@ -7093,7 +7085,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1166"/>
         <source>Capture filters</source>
-        <translation>捕获筛选器</translation>
+        <translation>捕获过滤器</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1171"/>
@@ -7150,7 +7142,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1276"/>
         <source>As Filter</source>
-        <translation>作为筛选器</translation>
+        <translation>作为过滤器</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1282"/>
@@ -7193,7 +7185,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="392"/>
         <source>Conversation Filter</source>
-        <translation>对话筛选器</translation>
+        <translation>对话过滤器</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="486"/>
@@ -7344,7 +7336,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1279"/>
         <source>Copy this item as a display filter</source>
-        <translation>复制此项为显示筛选器</translation>
+        <translation>复制此项为显示过滤器</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1387"/>
@@ -8018,7 +8010,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2429"/>
         <source>Show the currently supported protocols and display filter fields</source>
-        <translation>显示当前支持的协议并显示筛选器字段</translation>
+        <translation>显示当前支持的协议和显示过滤器字段</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2482"/>
@@ -8088,42 +8080,47 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2678"/>
         <source>Ctrl+1</source>
-        <translation type="unfinished">Ctrl+1</translation>
+        <translation>Ctrl+1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2689"/>
         <source>Ctrl+2</source>
-        <translation type="unfinished">Ctrl+2</translation>
+        <translation>Ctrl+2</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2700"/>
         <source>Ctrl+3</source>
-        <translation type="unfinished">Ctrl+3</translation>
+        <translation>Ctrl+3</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2711"/>
         <source>Ctrl+4</source>
-        <translation type="unfinished">Ctrl+4</translation>
+        <translation>Ctrl+4</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2722"/>
         <source>Ctrl+5</source>
-        <translation type="unfinished">Ctrl+5</translation>
+        <translation>Ctrl+5</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2733"/>
         <source>Ctrl+6</source>
-        <translation type="unfinished">Ctrl+6</translation>
+        <translation>Ctrl+6</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2744"/>
         <source>Ctrl+7</source>
-        <translation type="unfinished">Ctrl+7</translation>
+        <translation>Ctrl+7</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2755"/>
         <source>Ctrl+8</source>
-        <translation type="unfinished">Ctrl+8</translation>
+        <translation>Ctrl+8</translation>
+    </message>
+    <message>
+        <location filename="main_window.ui" line="2766"/>
+        <source>Ctrl+9</source>
+        <translation type="unfinished">Ctrl+9</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2798"/>
@@ -8159,12 +8156,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2877"/>
         <source>Add a filter button</source>
-        <translation>添加一个筛选器按钮</translation>
+        <translation>添加一个过滤器按钮</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2883"/>
         <source>Add a display filter button.</source>
-        <translation>添加一个显示筛选器按钮。</translation>
+        <translation>添加一个显示过滤器按钮。</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1146"/>
@@ -8179,7 +8176,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1163"/>
         <source>Capture &amp;Filters…</source>
-        <translation>捕获筛选器(&amp;F)…</translation>
+        <translation>捕获过滤器(&amp;F)…</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1193"/>
@@ -8282,12 +8279,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1377"/>
         <source>Display Filters…</source>
-        <translation>显示筛选器…</translation>
+        <translation>显示过滤器…</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1382"/>
         <source>Display Filter &amp;Macros…</source>
-        <translation>显示筛选器宏(&amp;M)…</translation>
+        <translation>显示过滤器宏(&amp;M)…</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1398"/>
@@ -8357,27 +8354,27 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="1997"/>
         <source>Create graphs based on display filter fields</source>
-        <translation>根据显示筛选器字段创建图形</translation>
+        <translation>基于显示过滤器字段创建图形</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2008"/>
         <source>&amp;Main Toolbar</source>
-        <translation>主工具条(&amp;M)</translation>
+        <translation>主工具栏(&amp;M)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2011"/>
         <source>Show or hide the main toolbar</source>
-        <translation>显示或隐藏主工具条</translation>
+        <translation>显示或隐藏主工具栏</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2022"/>
         <source>&amp;Filter Toolbar</source>
-        <translation>筛选器工具条(&amp;F)</translation>
+        <translation>过滤器工具栏(&amp;F)</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2025"/>
         <source>Show or hide the display filter toolbar</source>
-        <translation>显示或隐藏显示筛选器工具条</translation>
+        <translation>显示或隐藏显示过滤器工具栏</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2030"/>
@@ -8684,7 +8681,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2349"/>
         <source>Show or hide the wireless toolbar</source>
-        <translation>显示或隐藏无线工具条</translation>
+        <translation>显示或隐藏无线工具栏</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2360"/>
@@ -8799,13 +8796,13 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2593"/>
         <source>&amp;Expression…</source>
-        <translation>例外(&amp;E)…</translation>
+        <translation>表达式(&amp;E)…</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2596"/>
         <location filename="main_window.ui" line="2880"/>
         <source>Expression…</source>
-        <translation>例外…</translation>
+        <translation>表达式…</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2779"/>
@@ -8831,12 +8828,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2841"/>
         <source>Filter Field Reference</source>
-        <translation>筛选器字段参考</translation>
+        <translation>过滤器字段参考</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2844"/>
         <source>Open the display filter reference page for this filter field.</source>
-        <translation>打开此筛选器字段的显示筛选器参考页面。</translation>
+        <translation>打开此过滤器字段的显示过滤器参考。</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2849"/>
@@ -8922,7 +8919,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2599"/>
         <source>Add an expression to the display filter.</source>
-        <translation>添加一个例外到显示筛选器。</translation>
+        <translation>添加一个表达式到显示过滤器。</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2604"/>
@@ -9076,266 +9073,266 @@ text-decoration: underline;
         <translation>检查更新</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="738"/>
+        <location filename="main_window.cpp" line="736"/>
         <source> before quitting</source>
         <translation>在退出前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="914"/>
+        <location filename="main_window.cpp" line="912"/>
         <source>Save packets before merging?</source>
         <translation>是否在合并之前保存分组？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="915"/>
+        <location filename="main_window.cpp" line="913"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>无法合并临时捕获文件。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="921"/>
+        <location filename="main_window.cpp" line="919"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>是否在合并前保存对“%1”的更改？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="923"/>
+        <location filename="main_window.cpp" line="921"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>在文件合并之前，其更改必须先保存。</translation>
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="215"/>
         <source>Invalid Display Filter</source>
-        <translation>无效显示筛选器</translation>
+        <translation>无效显示过滤器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="980"/>
+        <location filename="main_window.cpp" line="978"/>
         <source>Invalid Read Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>无效读取过滤器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="981"/>
+        <location filename="main_window.cpp" line="979"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>过滤器表达式 %1 不是有效的读取过滤器 (%2)。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1071"/>
+        <location filename="main_window.cpp" line="1069"/>
         <source> before importing a new capture</source>
         <translation> 导入新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1384"/>
+        <location filename="main_window.cpp" line="1382"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>无法导出“%1”。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1385"/>
+        <location filename="main_window.cpp" line="1383"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>您不能将分组导出到当前捕获文件。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1472"/>
-        <location filename="main_window.cpp" line="1497"/>
+        <location filename="main_window.cpp" line="1470"/>
+        <location filename="main_window.cpp" line="1495"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1535"/>
+        <location filename="main_window.cpp" line="1533"/>
         <source>You have unsaved packets</source>
         <translation>您有未保存的分组</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1536"/>
+        <location filename="main_window.cpp" line="1534"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>若不保存，这些分组将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1539"/>
-        <location filename="main_window.cpp" line="1552"/>
+        <location filename="main_window.cpp" line="1537"/>
+        <location filename="main_window.cpp" line="1550"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>您是否要停止捕获，并保存已捕获的分组</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1541"/>
+        <location filename="main_window.cpp" line="1539"/>
         <source>Do you want to save the captured packets</source>
         <translation>是否希望保存已捕获的分组</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1543"/>
-        <location filename="main_window.cpp" line="1553"/>
+        <location filename="main_window.cpp" line="1541"/>
+        <location filename="main_window.cpp" line="1551"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1555"/>
+        <location filename="main_window.cpp" line="1553"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>若不保存，您已经捕获的分组将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1558"/>
+        <location filename="main_window.cpp" line="1556"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>是否希望保存对捕获文件“%1”%2 的更改？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1564"/>
+        <location filename="main_window.cpp" line="1562"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>若不保存，您的更改将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1576"/>
+        <location filename="main_window.cpp" line="1574"/>
         <source>Stop and Save</source>
         <translation>停止并保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1584"/>
+        <location filename="main_window.cpp" line="1582"/>
         <source>Stop and Quit without Saving</source>
         <translation>停止并退出，不保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1587"/>
+        <location filename="main_window.cpp" line="1585"/>
         <source>Quit without Saving</source>
         <translation>不保存，直接退出</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1592"/>
+        <location filename="main_window.cpp" line="1590"/>
         <source>Stop and Continue without Saving</source>
         <translation>停止并继续，不保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1595"/>
+        <location filename="main_window.cpp" line="1593"/>
         <source>Continue &amp;without Saving</source>
         <translation>不保存并继续(&amp;W)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1872"/>
+        <location filename="main_window.cpp" line="1870"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>文件名不能映射到UTF-8</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1890"/>
+        <location filename="main_window.cpp" line="1888"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Wireshark 网络分析器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1897"/>
+        <location filename="main_window.cpp" line="1895"/>
         <source>Capturing from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>正在捕获 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="688"/>
+        <location filename="main_window_slots.cpp" line="691"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="778"/>
+        <location filename="main_window_slots.cpp" line="781"/>
         <source>Saving %1</source>
         <translation>正在保存 %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="817"/>
+        <location filename="main_window_slots.cpp" line="820"/>
         <source>No interface selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="827"/>
+        <location filename="main_window_slots.cpp" line="830"/>
         <source>Invalid capture filter</source>
-        <translation>无效捕获筛选器</translation>
+        <translation>无效捕获过滤器</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1025"/>
+        <location filename="main_window_slots.cpp" line="1028"/>
         <source>Clear Menu</source>
         <translation>清除菜单</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1519"/>
+        <location filename="main_window_slots.cpp" line="1522"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Wireshark 正在初始化，请稍候</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1676"/>
+        <location filename="main_window_slots.cpp" line="1679"/>
         <source>Export Selected Packet Bytes</source>
         <translation>导出选择分组字节流</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1678"/>
+        <location filename="main_window_slots.cpp" line="1681"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
         <translation>原始数据 (*.bin *.dat *.raw);;任意文件 (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1735"/>
+        <location filename="main_window_slots.cpp" line="1738"/>
         <source>No Keys</source>
         <translation>无密钥</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1736"/>
+        <location filename="main_window_slots.cpp" line="1739"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>没有可以保存的 SSL 会话密钥。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1742"/>
+        <location filename="main_window_slots.cpp" line="1745"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>导出 SSL 会话密钥 (%1 密钥%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1747"/>
+        <location filename="main_window_slots.cpp" line="1750"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation>SSL 会话密钥 (*.keys *.txt);;任意文件 (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1885"/>
+        <location filename="main_window_slots.cpp" line="1888"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>无法复制文本。请尝试其他对象。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2292"/>
-        <location filename="main_window_slots.cpp" line="3357"/>
+        <location filename="main_window_slots.cpp" line="2295"/>
+        <location filename="main_window_slots.cpp" line="3360"/>
         <source>Unable to build conversation filter.</source>
-        <translation>无法建立对话筛选器。</translation>
+        <translation>无法建立对话过滤器。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2450"/>
+        <location filename="main_window_slots.cpp" line="2453"/>
         <source>No filter available. Try another </source>
-        <translation>无筛选器可用。请尝试其他 </translation>
+        <translation>无过滤器可用。请尝试其他 </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3364"/>
+        <location filename="main_window_slots.cpp" line="3367"/>
         <source>Error compiling filter for this conversation.</source>
-        <translation>为此对话编译筛选器时出错。</translation>
+        <translation>为此对话编译过滤器时出错。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3373"/>
+        <location filename="main_window_slots.cpp" line="3376"/>
         <source>No previous/next packet in conversation.</source>
         <translation>此对话中没有上一个/下一个分组。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3450"/>
+        <location filename="main_window_slots.cpp" line="3453"/>
         <source>No Interface Selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3457"/>
+        <location filename="main_window_slots.cpp" line="3460"/>
         <source> before starting a new capture</source>
         <translation>在开始新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3662"/>
+        <location filename="main_window_slots.cpp" line="3665"/>
         <source>Wiki Page for %1</source>
         <translation>%1 的 Wiki 页面</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3663"/>
+        <location filename="main_window_slots.cpp" line="3666"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wireshark Wiki 由社区进行维护。&lt;/p&gt;&lt;p&gt;您即将加载的页面可能是良好的、不完整的、有错误的，甚至不存在的。&lt;/p&gt;&lt;p&gt;继续访问该 Wiki？&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="248"/>
+        <location filename="main_window.h" line="250"/>
         <source>Loading</source>
         <translation>正在载入</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="250"/>
+        <location filename="main_window.h" line="252"/>
         <source>Reloading</source>
         <translation>正在重新加载</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="251"/>
+        <location filename="main_window.h" line="253"/>
         <source>Rescanning</source>
         <translation>正在重新扫描</translation>
     </message>
@@ -9386,7 +9383,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window_preferences_frame.ui" line="104"/>
         <source>filter entries</source>
-        <translation>筛选器项目</translation>
+        <translation>过滤器项目</translation>
     </message>
     <message>
         <location filename="main_window_preferences_frame.ui" line="131"/>
@@ -9993,7 +9990,7 @@ text-decoration: underline;
         <translation>删除此列</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="991"/>
+        <location filename="packet_list.cpp" line="995"/>
         <source>Frame %1: %2
 
 </source>
@@ -10001,7 +9998,7 @@ text-decoration: underline;
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="995"/>
+        <location filename="packet_list.cpp" line="999"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ 注释文本超过 %1。正在停止。 ]</translation>
     </message>
@@ -10281,7 +10278,7 @@ text-decoration: underline;
     <message>
         <location filename="profile_dialog.ui" line="60"/>
         <source>Remove this profile. The Default profile and system provided profiles cannot be removed.</source>
-        <translation type="unfinished"></translation>
+        <translation>移除此配置文件。默认配置和系统提供的配置不能移除。</translation>
     </message>
     <message>
         <location filename="profile_dialog.ui" line="71"/>
@@ -10296,37 +10293,37 @@ text-decoration: underline;
     <message>
         <location filename="profile_dialog.cpp" line="169"/>
         <source>Created from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>创建自 %1</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="174"/>
         <source>Created from default settings</source>
-        <translation type="unfinished"></translation>
+        <translation>根据默认设置创建</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="177"/>
         <source>Renamed from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>重命名自 %1</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="183"/>
         <source>Go to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>转到 %1</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="198"/>
         <source>This is a system provided profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>这是一个系统提供的配置文件。</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="202"/>
         <source>A profile already exists with this name.</source>
-        <translation type="unfinished"></translation>
+        <translation>已存在该名称的配置文件。</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="207"/>
         <source>A profile already exists with this name</source>
-        <translation type="unfinished"></translation>
+        <translation>已存在该名称的配置文件。</translation>
     </message>
     <message>
         <location filename="profile_dialog.cpp" line="306"/>
@@ -10352,7 +10349,7 @@ text-decoration: underline;
     <message>
         <location filename="proto_tree.cpp" line="203"/>
         <source>Colorize with Filter</source>
-        <translation>用筛选器着色</translation>
+        <translation>用过滤器着色</translation>
     </message>
     <message>
         <location filename="proto_tree.cpp" line="382"/>
@@ -10465,12 +10462,12 @@ text-decoration: underline;
     <message>
         <location filename="protocol_hierarchy_dialog.cpp" line="301"/>
         <source>No display filter.</source>
-        <translation>无显示筛选器。</translation>
+        <translation>无显示过滤器。</translation>
     </message>
     <message>
         <location filename="protocol_hierarchy_dialog.cpp" line="303"/>
         <source>Display filter: %1</source>
-        <translation>显示筛选器: %1</translation>
+        <translation>显示过滤器: %1</translation>
     </message>
 </context>
 <context>
@@ -10667,12 +10664,12 @@ text-decoration: underline;
     <message>
         <location filename="filter_action.cpp" line="67"/>
         <source>Apply as Filter</source>
-        <translation>作为筛选器应用</translation>
+        <translation>作为过滤器应用</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="70"/>
         <source>Prepare a Filter</source>
-        <translation>准备筛选器</translation>
+        <translation>准备过滤器</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="73"/>
@@ -10682,7 +10679,7 @@ text-decoration: underline;
     <message>
         <location filename="filter_action.cpp" line="76"/>
         <source>Conversation Filter</source>
-        <translation>对话筛选器</translation>
+        <translation>对话过滤器</translation>
     </message>
     <message>
         <location filename="filter_action.cpp" line="79"/>
@@ -11063,19 +11060,19 @@ text-decoration: underline;
         <translation>优先级</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="339"/>
+        <location filename="main_welcome.cpp" line="342"/>
         <source>Show in Finder</source>
         <translation>在 Finder 中显示</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="341"/>
+        <location filename="main_welcome.cpp" line="344"/>
         <source>Show in Folder</source>
         <translation>在 Finder 中显示</translation>
     </message>
     <message>
         <location filename="filter_expressions_preferences_frame.cpp" line="270"/>
         <source>My Filter</source>
-        <translation>我的筛选器</translation>
+        <translation>我的过滤器</translation>
     </message>
 </context>
 <context>
@@ -12386,12 +12383,12 @@ text-decoration: underline;
     <message>
         <location filename="rtp_stream_dialog.ui" line="169"/>
         <source>Prepare Filter</source>
-        <translation>准备筛选器</translation>
+        <translation>准备过滤器</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="172"/>
         <source>Prepare a filter matching the selected stream(s).</source>
-        <translation>将匹配上的选中的流作为筛选器。</translation>
+        <translation>将匹配上的选中的流作为过滤器。</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="175"/>
@@ -12878,7 +12875,7 @@ text-decoration: underline;
     <message>
         <location filename="sctp_assoc_analyse_dialog.ui" line="76"/>
         <source>Filter Association</source>
-        <translation>筛选器关联</translation>
+        <translation>过滤器关联</translation>
     </message>
     <message>
         <location filename="sctp_assoc_analyse_dialog.ui" line="92"/>
@@ -13433,12 +13430,12 @@ text-decoration: underline;
     <message>
         <location filename="search_frame.ui" line="109"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5) or a plain string (e.g. My String).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;以显示筛选器语法 (如 ip.addr==10.1.1.1)、十六进制字符串 (如 fffffda5) 或纯字符串 (如 My String) 搜索数据。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;以显示筛过滤语法 (如 ip.addr==10.1.1.1)、十六进制字符串 (如 fffffda5) 或纯字符串 (如 My String) 搜索数据。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="search_frame.ui" line="113"/>
         <source>Display filter</source>
-        <translation>显示筛选器</translation>
+        <translation>显示过滤器</translation>
     </message>
     <message>
         <location filename="search_frame.ui" line="118"/>
@@ -13468,12 +13465,12 @@ text-decoration: underline;
     <message>
         <location filename="search_frame.cpp" line="227"/>
         <source>Invalid filter.</source>
-        <translation>无效筛选器。</translation>
+        <translation>无效过滤器。</translation>
     </message>
     <message>
         <location filename="search_frame.cpp" line="233"/>
         <source>That filter doesn&apos;t test anything.</source>
-        <translation>该筛选器未测试任何项目。</translation>
+        <translation>该过滤器未测试任何项目。</translation>
     </message>
     <message>
         <location filename="search_frame.cpp" line="241"/>
@@ -13518,7 +13515,7 @@ text-decoration: underline;
     <message>
         <location filename="search_frame.cpp" line="341"/>
         <source>No packet matched that filter.</source>
-        <translation>无分组与该筛选器匹配。</translation>
+        <translation>无分组与该过滤器匹配。</translation>
     </message>
 </context>
 <context>
@@ -13922,7 +13919,7 @@ text-decoration: underline;
     <message>
         <location filename="supported_protocols_dialog.ui" line="26"/>
         <source>Filter</source>
-        <translation>筛选器</translation>
+        <translation>过滤器</translation>
     </message>
     <message>
         <location filename="supported_protocols_dialog.ui" line="31"/>
@@ -14047,7 +14044,7 @@ text-decoration: underline;
 &lt;/body&gt;&lt;/html&gt;</oldsource>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
-&lt;h3&gt;有价值的和惊人的节省时间的键盘快捷键&lt;/h3&gt;
+&lt;h3&gt;有价值的和惊人的节省时间的快捷键&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
 
 &lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;放大&lt;/td&gt;&lt;/th&gt;
@@ -14085,7 +14082,7 @@ text-decoration: underline;
     <message>
         <location filename="tcp_stream_dialog.ui" line="75"/>
         <source>&lt;small&gt;&lt;i&gt;Mouse over for shortcuts&lt;/i&gt;&lt;/small&gt;</source>
-        <translation>&lt;small&gt;&lt;i&gt;鼠标快捷键&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation>&lt;small&gt;&lt;i&gt;鼠标悬停显示快捷键&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="87"/>
@@ -14627,12 +14624,12 @@ text-decoration: underline;
     <message>
         <location filename="tap_parameter_dialog.ui" line="44"/>
         <source>Display filter:</source>
-        <translation>显示筛选器:</translation>
+        <translation>显示过滤器:</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="54"/>
         <source>Regenerate statistics using this display filter</source>
-        <translation>使用此显示筛选器重新生成统计</translation>
+        <translation>使用此显示过滤器重新生成统计</translation>
     </message>
     <message>
         <location filename="tap_parameter_dialog.ui" line="57"/>
@@ -14777,12 +14774,12 @@ text-decoration: underline;
     <message>
         <location filename="traffic_table_dialog.ui" line="45"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;只显示匹配当前显示筛选器的对话&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;只显示匹配当前显示过滤器的对话&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="48"/>
         <source>Limit to display filter</source>
-        <translation>限制到显示筛选器</translation>
+        <translation>显示过滤器的限制</translation>
     </message>
     <message>
         <location filename="traffic_table_dialog.ui" line="68"/>
@@ -14946,7 +14943,7 @@ text-decoration: underline;
     <message>
         <location filename="voip_calls_dialog.cpp" line="186"/>
         <source>Prepare Filter</source>
-        <translation>准备筛选器</translation>
+        <translation>准备过滤器</translation>
     </message>
     <message>
         <location filename="voip_calls_dialog.cpp" line="187"/>
@@ -14989,7 +14986,7 @@ text-decoration: underline;
     <message>
         <location filename="wireless_frame.ui" line="127"/>
         <source>FCS Filter</source>
-        <translation>FCS 筛选器</translation>
+        <translation>FCS 过滤器</translation>
     </message>
     <message>
         <location filename="wireless_frame.ui" line="135"/>
