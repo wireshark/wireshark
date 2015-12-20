@@ -24,12 +24,10 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/******************************************************************************/
-/*	File includes																					*/
-/*																										*/
 #include "airpdcap_rijndael.h"
 
 #include	"airpdcap_debug.h"
+#include <epan/wmem/wmem.h>
 #include <glib.h>
 #include <wsutil/aes.h>
 
@@ -53,7 +51,7 @@ AES_unwrap(UCHAR *kek, UINT16 key_len, UCHAR *cipher_text, UINT16 cipher_len)
 
 	/* Allocate buffer for the unwrapped key */
 
-	output = (guint8 *) g_malloc0(cipher_len);
+	output = (guint8 *)wmem_alloc(wmem_packet_scope(), cipher_len);
 
 	/* Initialize variables */
 
