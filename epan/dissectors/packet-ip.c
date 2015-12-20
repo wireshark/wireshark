@@ -3203,6 +3203,7 @@ proto_reg_handoff_ip(void)
   register_capture_dissector("ax25.pid", AX25_P_IP, capture_ip, proto_ip);
   register_capture_dissector("enc", BSD_AF_INET, capture_ip, proto_ip);
   register_capture_dissector("ppp_hdlc", PPP_IP, capture_ip, proto_ip);
+  register_capture_dissector("llc.dsap", SAP_IP, capture_ip, proto_ip);
 }
 
 /*

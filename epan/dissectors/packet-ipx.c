@@ -1627,6 +1627,8 @@ proto_reg_handoff_ipx(void)
 	register_capture_dissector("ethertype", ETHERTYPE_IPX, capture_ipx, proto_ipx);
 	register_capture_dissector("ppp_hdlc", PPP_IPX, capture_ipx, proto_ipx);
 	register_capture_dissector("sll.ltype", LINUX_SLL_P_802_3, capture_ipx, proto_ipx);
+	register_capture_dissector("llc.dsap", SAP_NETWARE1, capture_ipx, proto_ipx);
+	register_capture_dissector("llc.dsap", SAP_NETWARE2, capture_ipx, proto_ipx);
 	data_handle = find_dissector("data");
 }
 

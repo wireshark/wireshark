@@ -27,6 +27,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/capture_dissectors.h>
 #include <epan/llcsaps.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
@@ -284,7 +285,7 @@ static const value_string max_frame_size_vals[] = {
 };
 
 
-gboolean
+static gboolean
 capture_netbios(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
 {
 	cpinfo->counts->netbios++;
@@ -1488,6 +1489,7 @@ proto_reg_handoff_netbios(void)
 	netbios_handle = create_dissector_handle(dissect_netbios,
 	    proto_netbios);
 	dissector_add_uint("llc.dsap", SAP_NETBIOS, netbios_handle);
+	register_capture_dissector("llc.dsap", SAP_NETBIOS, capture_netbios, proto_netbios);
 	data_handle = find_dissector("data");
 }
 

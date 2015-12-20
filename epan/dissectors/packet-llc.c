@@ -38,7 +38,6 @@
 #include "packet-ip.h"
 #include "packet-ipx.h"
 #include "packet-netbios.h"
-#include "packet-vines.h"
 #include "packet-sll.h"
 #include "packet-juniper.h"
 
@@ -282,23 +281,7 @@ capture_llc(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo
 		return capture_snap(pd, offset+llc_header_len, len, cpinfo, pseudo_header);
 
 	/* non-SNAP */
-	switch (pd[offset]) {
-
-	case SAP_IP:
-		return capture_ip(pd, offset + llc_header_len, len, cpinfo, pseudo_header);
-
-	case SAP_NETWARE1:
-	case SAP_NETWARE2:
-		return capture_ipx(pd, offset + llc_header_len, len, cpinfo, pseudo_header);
-
-	case SAP_NETBIOS:
-		return capture_netbios(pd, offset + llc_header_len, len, cpinfo, pseudo_header);
-
-	case SAP_VINES1:
-	case SAP_VINES2:
-		return capture_vines(pd, offset + llc_header_len, len, cpinfo, pseudo_header);
-	}
-	return FALSE;
+	return try_capture_dissector("llc.dsap", pd[offset], pd, offset + llc_header_len, len, cpinfo, pseudo_header);
 }
 
 gboolean
@@ -838,6 +821,7 @@ proto_register_llc(void)
 	  "LLC SAP", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 	xid_subdissector_table = register_dissector_table("llc.xid_dsap",
 	  "LLC XID SAP", FT_UINT8, BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
+    register_capture_dissector_table("llc.dsap", "LLC");
 
 	register_dissector("llc", dissect_llc, proto_llc);
 }

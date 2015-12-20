@@ -38,7 +38,6 @@
 #include "packet-chdlc.h"
 #include "packet-ip.h"
 #include "packet-ipx.h"
-#include "packet-vines.h"
 #include <epan/nlpid.h>
 #include <epan/crc16-tvb.h>
 #include <epan/crc32-tvb.h>
