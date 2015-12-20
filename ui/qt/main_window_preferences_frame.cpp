@@ -138,6 +138,7 @@ void MainWindowPreferencesFrame::updateWidgets()
     ui->maxFilterLineEdit->setText(QString::number(pref_recent_df_entries_max_->stashed_val.uint));
     ui->maxRecentLineEdit->setText(QString::number(pref_recent_files_count_max_->stashed_val.uint));
 
+    ui->confirmUnsavedCheckBox->setChecked(pref_ask_unsaved_->stashed_val.boolval);
     ui->autoScrollCheckBox->setChecked(pref_auto_scroll_on_expand_->stashed_val.boolval);
     ui->autoScrollPercentageLineEdit->setText(QString::number(pref_auto_scroll_on_expand_->stashed_val.uint));
 
