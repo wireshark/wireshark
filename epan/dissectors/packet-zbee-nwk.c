@@ -275,20 +275,10 @@ ieee802154_map_tab_t zbee_nwk_map = { NULL, NULL };
 GHashTable *zbee_table_nwk_keyring = NULL;
 GHashTable *zbee_table_link_keyring = NULL;
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      zbee_get_bit_field
- *  DESCRIPTION
- *      Extracts an integer sub-field from an int with a given mask
- *      if the mask is 0, this will return 0, if the mask is non-
- *      continuous the output is undefined.
- *  PARAMETERS
- *      guint       input
- *      guint       mask
- *  RETURNS
- *      guint
- *---------------------------------------------------------------
- */
+/**
+ *Extracts an integer sub-field from an int with a given mask
+ *
+*/
 guint
 zbee_get_bit_field(guint input, guint mask)
 {
@@ -302,19 +292,14 @@ zbee_get_bit_field(guint input, guint mask)
     return (input & mask);
 } /* zbee_get_bit_field */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_nwk_heur
- *  DESCRIPTION
- *      Heuristic interpreter for the ZigBee network dissectors.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      Boolean value, whether it handles the packet or not.
- *---------------------------------------------------------------
- */
+/**
+ *Heuristic interpreter for the ZigBee network dissectors.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@return Boolean value, whether it handles the packet or not.
+*/
 static gboolean
 dissect_zbee_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -338,20 +323,14 @@ dissect_zbee_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     return TRUE;
 } /* dissect_zbee_heur */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_nwk_full
- *  DESCRIPTION
- *      ZigBee NWK packet dissection routine for 2006, 2007 and Pro stack versions.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      void *data          - raw packet private data.
- *  RETURNS
- *      int
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee NWK packet dissection routine for 2006, 2007 and Pro stack versions.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param data raw packet private data.
+*/
 
 static int
 dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -672,20 +651,14 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     return tvb_captured_length(tvb);
 } /* dissect_zbee_nwk */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_nwk
- *  DESCRIPTION
- *      ZigBee packet dissection with proto version determination.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      void *data          - raw packet private data.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee packet dissection with proto version determination.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param data raw packet private data.
+*/
 static int
 dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -703,21 +676,13 @@ dissect_zbee_nwk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     return tvb_captured_length(tvb);
 }
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_nwk_cmd
- *  DESCRIPTION
- *      ZigBee Network command packet dissection routine for Wireshark.
- *          note: this dissector differs from others in that it shouldn't be
- *                  passed the main tree pointer, but the nwk tree instead.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Network command packet dissection routine for Wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 static void dissect_zbee_nwk_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, zbee_nwk_packet* packet)
 {
     proto_tree  *cmd_tree;
@@ -810,21 +775,16 @@ static void dissect_zbee_nwk_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 } /* dissect_zbee_nwk_cmd */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_nwk_route_req
- *  DESCRIPTION
- *      Helper dissector for the Route Request command.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to the command subtree.
- *      zbee_nwk_packet *packet - pointer to the network packet struct.
- *      offset              - offset into the tvb to begin dissection.
- *  RETURNS
- *      guint               - offset after command dissection.
- *---------------------------------------------------------------
- */
+/**
+ *Helper dissector for the Route Request command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to the command subtree.
+ *@param packet pointer to the network packet struct.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+*/
 static guint
 dissect_zbee_nwk_route_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, zbee_nwk_packet * packet, guint offset)
 {
@@ -878,20 +838,15 @@ dissect_zbee_nwk_route_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     return offset;
 } /* dissect_zbee_nwk_route_req */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_nwk_route_rep
- *  DESCRIPTION
- *      Helper dissector for the Route Reply command.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to the command subtree.
- *      offset              - offset into the tvb to begin dissection.
- *  RETURNS
- *      guint               - offset after command dissection.
- *---------------------------------------------------------------
- */
+/**
+ *Helper dissector for the Route Reply command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to the command subtree.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+*/
 static guint
 dissect_zbee_nwk_route_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint8 version)
 {
@@ -957,20 +912,15 @@ dissect_zbee_nwk_route_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     return offset;
 } /* dissect_zbee_nwk_route_rep */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_nwk_status
- *  DESCRIPTION
- *      Helper dissector for the Network Status command.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to the command subtree.
- *      offset              - offset into the tvb to begin dissection.
- *  RETURNS
- *      guint               - offset after command dissection.
- *---------------------------------------------------------------
- */
+/**
+ *Helper dissector for the Network Status command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to the command subtree.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+*/
 static guint
 dissect_zbee_nwk_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
@@ -994,19 +944,14 @@ dissect_zbee_nwk_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     return offset;
 } /* dissect_zbee_nwk_status */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_nwk_leave
- *  DESCRIPTION
- *      Helper dissector for the Leave command.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to the command subtree.
- *      offset              - offset into the tvb to begin dissection.
- *  RETURNS
- *      guint               - offset after command dissection.
- *---------------------------------------------------------------
- */
+/**
+ *Helper dissector for the Leave command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to the command subtree.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+*/
 static guint
 dissect_zbee_nwk_leave(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
@@ -1025,21 +970,16 @@ dissect_zbee_nwk_leave(tvbuff_t *tvb, proto_tree *tree, guint offset)
     return offset;
 } /* dissect_zbee_nwk_leave */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_nwk_route_rec
- *  DESCRIPTION
- *      Helper dissector for the Reoute Record command.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to the command subtree.
- *      zbee_nwk_packet *packet - pointer to the network packet struct.
- *      offset              - offset into the tvb to begin dissection.
- *  RETURNS
- *      guint               - offset after command dissection.
- *---------------------------------------------------------------
- */
+/**
+ *Helper dissector for the Reoute Record command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to the command subtree.
+ *@param packet pointer to the network packet struct.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+*/
 static guint
 dissect_zbee_nwk_route_rec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, zbee_nwk_packet * packet, guint offset)
 {
@@ -1068,21 +1008,16 @@ dissect_zbee_nwk_route_rec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     return offset;
 } /* dissect_zbee_nwk_route_rec */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_nwk_rejoin_req
- *  DESCRIPTION
- *      Helper dissector for the Rejoin Request command.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to the command subtree.
- *      zbee_nwk_packet *packet - pointer to the network packet struct.
- *      offset              - offset into the tvb to begin dissection.
- *  RETURNS
- *      guint               - offset after command dissection.
- *---------------------------------------------------------------
- */
+/**
+ *Helper dissector for the Rejoin Request command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to the command subtree.
+ *@param packet pointer to the network packet struct.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+*/
 static guint
 dissect_zbee_nwk_rejoin_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, zbee_nwk_packet * packet, guint offset)
 {
@@ -1106,21 +1041,16 @@ dissect_zbee_nwk_rejoin_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 } /* dissect_zbee_nwk_rejoin_req */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_nwk_rejoin_resp
- *  DESCRIPTION
- *      Helper dissector for the Rejoin Response command.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to the command subtree.
- *      zbee_nwk_packet *packet - pointer to the network packet struct.
- *      offset              - offset into the tvb to begin dissection.
- *  RETURNS
- *      guint               - offset after command dissection.
- *---------------------------------------------------------------
- */
+/**
+ *Helper dissector for the Rejoin Response command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to the command subtree.
+ *@param packet pointer to the network packet struct.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+*/
 static guint
 dissect_zbee_nwk_rejoin_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, zbee_nwk_packet * packet, guint offset)
 {
@@ -1147,19 +1077,14 @@ dissect_zbee_nwk_rejoin_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return offset;
 } /* dissect_zbee_nwk_rejoin_resp */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_nwk_link_status
- *  DESCRIPTION
- *      Helper dissector for the Link Status command.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to the command subtree.
- *      offset              - offset into the tvb to begin dissection.
- *  RETURNS
- *      guint               - offset after command dissection.
- *---------------------------------------------------------------
- */
+/**
+ *Helper dissector for the Link Status command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to the command subtree.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+*/
 static guint
 dissect_zbee_nwk_link_status(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
@@ -1193,20 +1118,15 @@ dissect_zbee_nwk_link_status(tvbuff_t *tvb, proto_tree *tree, guint offset)
     return offset;
 } /* dissect_zbee_nwk_link_status */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_nwk_report
- *  DESCRIPTION
- *      Helper dissector for the Network Report command.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to the command subtree.
- *      offset              - offset into the tvb to begin dissection.
- *  RETURNS
- *      guint               - offset after command dissection.
- *---------------------------------------------------------------
- */
+/**
+ *Helper dissector for the Network Report command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to the command subtree.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+*/
 static guint
 dissect_zbee_nwk_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
@@ -1243,20 +1163,15 @@ dissect_zbee_nwk_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     return offset;
 } /* dissect_zbee_nwk_report */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_nwk_update
- *  DESCRIPTION
- *      Helper dissector for the Network Update command.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to the command subtree.
- *      offset              - offset into the tvb to begin dissection.
- *  RETURNS
- *      guint               - offset after command dissection.
- *---------------------------------------------------------------
- */
+/**
+ *Helper dissector for the Network Update command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to the command subtree.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+*/
 static guint
 dissect_zbee_nwk_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
@@ -1299,19 +1214,14 @@ dissect_zbee_nwk_update(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     return offset;
 } /* dissect_zbee_nwk_update */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_beacon_heur
- *  DESCRIPTION
- *      Heuristic interpreter for the ZigBee PRO beacon dissectors.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      Boolean value, whether it handles the packet or not.
- *---------------------------------------------------------------
- */
+/**
+ *Heuristic interpreter for the ZigBee PRO beacon dissectors.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@return Boolean value, whether it handles the packet or not.
+*/
 static gboolean
 dissect_zbee_beacon_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -1327,19 +1237,13 @@ dissect_zbee_beacon_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return TRUE;
 } /* dissect_zbee_beacon_heur */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_beacon
- *  DESCRIPTION
- *      Dissector for ZigBee network beacons.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *Dissector for ZigBee network beacons.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     ieee802154_packet   *packet;
@@ -1433,19 +1337,14 @@ static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     return tvb_captured_length(tvb);
 } /* dissect_zbee_beacon */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbip_beacon_heur
- *  DESCRIPTION
- *      Heuristic interpreter for the ZigBee IP beacon dissectors.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      Boolean value, whether it handles the packet or not.
- *---------------------------------------------------------------
- */
+/**
+ *Heuristic interpreter for the ZigBee IP beacon dissectors.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@return Boolean value, whether it handles the packet or not.
+*/
 static gboolean
 dissect_zbip_beacon_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -1461,19 +1360,13 @@ dissect_zbip_beacon_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return TRUE;
 } /* dissect_zbip_beacon_heur */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbip_beacon
- *  DESCRIPTION
- *      Dissector for ZigBee IP beacons.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *Dissector for ZigBee IP beacons.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 static int dissect_zbip_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     ieee802154_packet   *packet = (ieee802154_packet *)data;
@@ -1533,17 +1426,10 @@ static int dissect_zbip_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     return tvb_captured_length(tvb);
 } /* dissect_zbip_beacon */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_register_zbee_nwk
- *  DESCRIPTION
- *      ZigBee protocol registration routine.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee protocol registration routine.
+ *
+*/
 void proto_register_zbee_nwk(void)
 {
     static hf_register_info hf[] = {
@@ -1929,17 +1815,10 @@ void proto_register_zbee_nwk(void)
     zbee_security_register(NULL, proto_zbee_nwk);
 } /* proto_register_zbee_nwk */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_reg_handoff_zbee_nwk
- *  DESCRIPTION
- *      Registers the zigbee dissector with Wireshark.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *Registers the zigbee dissector with Wireshark.
+ *
+*/
 void proto_reg_handoff_zbee_nwk(void)
 {
     /* Find the other dissectors we need. */
@@ -1974,20 +1853,10 @@ static void free_keyring_val(gpointer a)
     g_free(slist);
 }
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_init_zbee_nwk
- *  DESCRIPTION
- *      Init routine for the nwk dissector. Creates a
- *      hash table for mapping 16-bit to 64-bit addresses and
- *      populates it with static address pairs from a UAT
- *      preference table.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *Init routine for the nwk dissector. Creates a
+ *
+*/
 static void
 proto_init_zbee_nwk(void)
 {
