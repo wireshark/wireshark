@@ -414,6 +414,7 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
 
             if (rsn_id != 0xdd){
                 if (key_index+1 >= key_bytes_len){
+                    g_free(szEncryptedKey);
                     return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
                 }
                 key_index += decrypted_data[key_index+1]+2;
@@ -423,8 +424,10 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
         }
 
         if (key_found){
-            if (key_index+8 >= key_bytes_len)
+            if (key_index+8 >= key_bytes_len) {
+                g_free(szEncryptedKey);
                 return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
+            }
 
             /* Skip over the GTK header info, and don't copy past the end of the encrypted data */
             memcpy(szEncryptedKey, decrypted_data+key_index+8, key_bytes_len-key_index-8);
@@ -436,6 +439,7 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
     key_len = (sa->wpa.key_ver==AIRPDCAP_WPA_KEY_VER_NOT_CCMP)?TKIP_GROUP_KEY_LEN:CCMP_GROUP_KEY_LEN;
     if (key_len > key_bytes_len) {
         /* the key required for this protocol is longer than the key that we just calculated */
+        g_free(szEncryptedKey);
         return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
     }
 
