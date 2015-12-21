@@ -28,20 +28,7 @@
 
 #define INVALID_SSN	0xff
 
-#define PPCAP_REV_DOC_PC1 1
-#define PPCAP_REV_DOC_2014_MAR 2
-
-
-static const enum_val_t rev_doc[]  = {
-{ "rev pc1",	"FDTs 2012 Rev PC1",	PPCAP_REV_DOC_PC1 },
-{ "rev ",		"FDTS 2014 Rev", 		PPCAP_REV_DOC_2014_MAR },
-{ NULL,		NULL,		0}
-};
-
-
 void proto_register_ppcap(void);
-
-static gint global_ppcap_rev_doc = PPCAP_REV_DOC_2014_MAR;
 
 static guint8 ssn;
 
@@ -53,6 +40,8 @@ static dissector_handle_t ranap_handle; /* RANAP handle */
 static dissector_handle_t h248_handle;  /* H248 handle */
 static dissector_handle_t sip_handle;   /* SIP handle  */
 static dissector_handle_t sccp_handle;  /* SCCP handle */
+static dissector_handle_t sgsap_handle; /* SGSAP handle */
+static dissector_handle_t gtpv2_handle; /* GTPv2 handle */
 static dissector_handle_t data_handle;  /* DATA handle */
 
 static dissector_table_t sccp_ssn_dissector_table;
@@ -71,7 +60,8 @@ static const value_string payload_tag_values[] = {
 	{  4,	"Destination Address"},
 	{  5,	"Local Port"},
 	{  6,	"Remote Port"},
-	{  7,	"Transfer Protocol for SIP/SIP-I message"},
+	{  7,	"Transfer Protocol used for message"},
+	{  8,	"SCTP association ID" },
 	{256,	"Info String"},
 	{0,	NULL},
 
@@ -112,7 +102,7 @@ static int hf_ppcap_info = -1;
 static int hf_ppcap_payload_data = -1;
 static int hf_ppcap_local_port = -1;
 static int hf_ppcap_remote_port = -1;
-static int hf_ppcap_tcp_sip_type = -1;
+static int hf_ppcap_transport_prot = -1;
 
 /* Initiliaze the subtree pointers*/
 
@@ -128,7 +118,9 @@ typedef enum {
 	PPCAP_RANAP   = 4,
 	PPCAP_H248    = 5,
 	PPCAP_SIP     = 6,
-	PPCAP_SCCP    = 7
+	PPCAP_SCCP    = 7,
+	PPCAP_SGSAP   = 8,
+	PPCAP_GTPV2   = 9
 } payload_type_type;
 
 static int dissect_ppcap_payload_type(tvbuff_t *, proto_tree *, int, payload_type_type *);
@@ -137,7 +129,8 @@ static int dissect_ppcap_destination_address(tvbuff_t *, packet_info *, proto_tr
 static int dissect_ppcap_info_string(tvbuff_t *, proto_tree *, int);
 static int dissect_ppcap_local_port(tvbuff_t *, proto_tree *, int);
 static int dissect_ppcap_remote_port(tvbuff_t *,proto_tree *, int);
-static int dissect_ppcap_tcp_sip_msg(tvbuff_t *,proto_tree *, int);
+static int dissect_ppcap_transport_protocol(tvbuff_t *,proto_tree *, int);
+static int dissect_ppcap_sctp_assoc(tvbuff_t *, proto_tree *, int);
 static int dissect_ppcap_payload_data(tvbuff_t *, packet_info *, proto_tree *, int, proto_tree *, payload_type_type);
 
 /*Dissecting the function PPCAP */
@@ -178,19 +171,18 @@ dissect_ppcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 			offset = dissect_ppcap_destination_address(tvb, pinfo, ppcap_tree1, offset);
 			break;
 		case 5:
-			if(global_ppcap_rev_doc == PPCAP_REV_DOC_2014_MAR)
 			offset = dissect_ppcap_local_port(tvb,ppcap_tree1, offset);
 			break;
 		case 6:
-			if(global_ppcap_rev_doc == PPCAP_REV_DOC_2014_MAR)
 			offset = dissect_ppcap_remote_port(tvb,ppcap_tree1, offset);
 			break;
 		case 7:
-			if(global_ppcap_rev_doc == PPCAP_REV_DOC_2014_MAR)
-			offset = dissect_ppcap_tcp_sip_msg(tvb,ppcap_tree1, offset);
+			offset = dissect_ppcap_transport_protocol(tvb,ppcap_tree1, offset);
+			break;
+		case 8:
+			offset = dissect_ppcap_sctp_assoc(tvb, ppcap_tree1, offset);
 			break;
 		case 256:
-			if(global_ppcap_rev_doc == PPCAP_REV_DOC_PC1)
 			offset = dissect_ppcap_info_string(tvb, ppcap_tree1, offset);
 			break;
 		}
@@ -233,6 +225,10 @@ dissect_ppcap_payload_type(tvbuff_t *tvb, proto_tree * ppcap_tree1, int offset, 
 		*payload_type = PPCAP_SIP;
 	}else if (strcmp(string,"sccp")  == 0) {
 		*payload_type = PPCAP_SCCP;
+	}else if (strcmp(string, "sgsap") == 0) {
+		*payload_type = PPCAP_SGSAP;
+	}else if (strcmp(string, "gtpv2") == 0) {
+		*payload_type = PPCAP_GTPV2;
 	}
 
 	proto_tree_add_item(ppcap_tree1, hf_ppcap_payload_type, tvb, offset, msg_len, ENC_UTF_8|ENC_NA);
@@ -485,21 +481,27 @@ dissect_ppcap_remote_port(tvbuff_t *tvb,proto_tree * ppcap_tree1, int offset)
 
 /*
   *******************************************************
-  *               TCP SIP MESSAGE                       *
+  *               Transport protocol                    *
   *                                                     *
   *******************************************************
 */
 
 static int
-dissect_ppcap_tcp_sip_msg(tvbuff_t *tvb,proto_tree * ppcap_tree1, int offset)
+dissect_ppcap_transport_protocol(tvbuff_t *tvb,proto_tree * ppcap_tree1, int offset)
 {
-	proto_tree_add_item( ppcap_tree1, hf_ppcap_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-	offset  = offset + 2;
-	proto_tree_add_item(ppcap_tree1, hf_ppcap_tcp_sip_type, tvb, offset, 4, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(ppcap_tree1, hf_ppcap_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset = offset + 2;
+	proto_tree_add_item(ppcap_tree1, hf_ppcap_transport_prot, tvb, offset, 4, ENC_ASCII | ENC_NA);
 	offset += 4;
+
 	return offset;
 }
 
+static int
+dissect_ppcap_sctp_assoc(tvbuff_t *tvb _U_, proto_tree * tree _U_, int offset)
+{
+	return offset;
+}
 
 /* Dissecting the function Payload Data to call the protocol that based upon the type decided in the Payload Type */
 
@@ -555,6 +557,12 @@ dissect_ppcap_payload_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppcap
 		break;
 	case PPCAP_SCCP:
 		call_dissector(sccp_handle, next_tvb, pinfo, tree);   /* calling the SCCP handle */
+		break;
+	case PPCAP_SGSAP:
+		call_dissector(sgsap_handle, next_tvb, pinfo, tree);   /* calling the SGSAP handle */
+		break;
+	case PPCAP_GTPV2:
+		call_dissector(gtpv2_handle, next_tvb, pinfo, tree);   /* calling the GTPv2 handle */
 		break;
 	default:
 		call_dissector(data_handle, next_tvb, pinfo, tree);   /* calling the DATA handle */
@@ -645,8 +653,8 @@ module_t *ppcap_module;
 	{ &hf_ppcap_remote_port,
 	{ "Remote Port",         "ppcap.remote_port",    FT_UINT16,
 		BASE_DEC,       NULL,   0x00,   NULL,     HFILL}},
-	{ &hf_ppcap_tcp_sip_type,
-	{ "Transport Protocol for SIP/SIP-I Message" , "ppcap.tcp_sip_type", FT_STRING,
+	{ &hf_ppcap_transport_prot,
+	{ "Transport Protocol" , "ppcap.transport_prot", FT_STRING,
 		BASE_NONE,      NULL,   0x0    , NULL,    HFILL}},
 	};
 
@@ -660,7 +668,7 @@ module_t *ppcap_module;
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("ppcap", dissect_ppcap, proto_ppcap);
 	ppcap_module = prefs_register_protocol(proto_ppcap, proto_reg_handoff_ppcap);
-	prefs_register_enum_preference(ppcap_module,"rev_doc","PPCAP, Select the document","Select Document",&global_ppcap_rev_doc,rev_doc,TRUE);
+	prefs_register_obsolete_preference(ppcap_module, "rev_doc");
 
 }
 
@@ -673,7 +681,9 @@ void proto_reg_handoff_ppcap(void)
 	ranap_handle = find_dissector("ranap"); /* calling the protocol RANAP */
 	h248_handle  = find_dissector("h248");  /* calling the protocol H248 */
 	sip_handle   = find_dissector("sip");   /* calling the protocol SIP */
-	sccp_handle  = find_dissector("sccp");  /* calling the protocol SCCP */
+	sccp_handle  = find_dissector("sccp");   /* calling the protocol SCCP */
+	sgsap_handle = find_dissector("sgsap"); /* calling the protocol SGSAP */
+	gtpv2_handle = find_dissector("gtpv2"); /* calling the protocol GTPv2 */
 	data_handle  = find_dissector("data");  /* calling the protocol DATA */
 
 	sccp_ssn_dissector_table = find_dissector_table("sccp.ssn");
