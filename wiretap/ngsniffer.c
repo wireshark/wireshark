@@ -1240,7 +1240,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		size = pletoh16(&frame2.size);
 		true_size = pletoh16(&frame2.true_size);
 
-		rec_length_remaining -= sizeof frame2;	/* we already read that much */
+		rec_length_remaining -= (guint)sizeof frame2;	/* we already read that much */
 
 		set_pseudo_header_frame2(wth, &phdr->pseudo_header, &frame2);
 		break;
@@ -1288,7 +1288,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		size = pletoh16(&frame4.size);
 		true_size = pletoh16(&frame4.true_size);
 
-		rec_length_remaining -= sizeof frame4;	/* we already read that much */
+		rec_length_remaining -= (guint)sizeof frame4;	/* we already read that much */
 
 		set_pseudo_header_frame4(&phdr->pseudo_header, &frame4);
 		break;
@@ -1316,7 +1316,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		size = pletoh16(&frame6.size);
 		true_size = pletoh16(&frame6.true_size);
 
-		rec_length_remaining -= sizeof frame6;	/* we already read that much */
+		rec_length_remaining -= (guint)sizeof frame6;	/* we already read that much */
 
 		set_pseudo_header_frame6(wth, &phdr->pseudo_header, &frame6);
 		break;
