@@ -958,34 +958,6 @@ write_file_header (void)
     }
 }
 
-static void
-write_file_trailer (void)
-{
-    int      err;
-    gboolean success;
-
-    if (use_pcapng) {
-        success = pcapng_write_interface_statistics_block(output_file,
-                                                          0,
-                                                          &bytes_written,
-                                                          "Counters provided by text2pcap",
-                                                          0,
-                                                          0,
-                                                          num_packets_written,
-                                                          0,
-                                                          &err);
-
-    } else {
-        success = TRUE;
-    }
-    if (!success) {
-        fprintf(stderr, "File write error [%s] : %s\n",
-                output_filename, g_strerror(err));
-        exit(1);
-    }
-   return;
-}
-
 /*----------------------------------------------------------------------
  * Append a token to the packet preamble.
  */
@@ -1948,7 +1920,6 @@ main(int argc, char *argv[])
     yylex();
 
     write_current_packet(FALSE);
-    write_file_trailer();
     fclose(input_file);
     fclose(output_file);
     if (debug)
