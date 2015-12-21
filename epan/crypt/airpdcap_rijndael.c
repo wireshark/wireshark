@@ -53,7 +53,7 @@ AES_unwrap(UCHAR *kek, UINT16 key_len, UCHAR *cipher_text, UINT16 cipher_len)
 
 	/* Allocate buffer for the unwrapped key */
 
-	output = (guint8 *) g_malloc(cipher_len);
+	output = (guint8 *) g_malloc0(cipher_len);
 
 	/* Initialize variables */
 

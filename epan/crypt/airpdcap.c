@@ -414,6 +414,7 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
 
             if (rsn_id != 0xdd){
                 if (key_index+1 >= key_bytes_len){
+                    g_free(decrypted_data);
                     g_free(szEncryptedKey);
                     return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
                 }
@@ -425,6 +426,7 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
 
         if (key_found){
             if (key_index+8 >= key_bytes_len) {
+                g_free(decrypted_data);
                 g_free(szEncryptedKey);
                 return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
             }
