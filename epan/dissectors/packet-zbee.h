@@ -1152,6 +1152,8 @@
 #define ZBEE_PROTOABBREV_ZCL_KE             "zbee_zcl_se.ke"
 #define ZBEE_PROTOABBREV_ZCL_MSG            "zbee_zcl_se.msg"
 #define ZBEE_PROTOABBREV_ZCL_TUN            "zbee_zcl_se.tun"
+#define ZBEE_PROTOABBREV_ZCL_SHADE_CONFIG   "zbee_zcl_closures.shade_config"
+#define ZBEE_PROTOABBREV_ZCL_DOOR_LOCK      "zbee_zcl_closures.door_lock"
 
 /* Helper Functions */
 extern guint zbee_get_bit_field(guint input, guint mask);
