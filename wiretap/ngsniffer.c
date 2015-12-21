@@ -802,7 +802,7 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 	char record_type[2];
 	char record_length[4]; /* only the first 2 bytes are length,
 				  the last 2 are "reserved" and are thrown away */
-	guint16 type, length;
+	guint16 rec_type, rec_length_remaining;
 	int bytes_to_read;
 	unsigned char buffer[256];
 
@@ -820,12 +820,12 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 			return 0;	/* EOF */
 		}
 
-		type = pletoh16(record_type);
-		if ((type != REC_HEADER1) && (type != REC_HEADER2)
-			&& (type != REC_HEADER3) && (type != REC_HEADER4)
-			&& (type != REC_HEADER5) && (type != REC_HEADER6)
-			&& (type != REC_HEADER7)
-			&& ((type != REC_V2DESC) || (maj_vers > 2)) ) {
+		rec_type = pletoh16(record_type);
+		if ((rec_type != REC_HEADER1) && (rec_type != REC_HEADER2)
+			&& (rec_type != REC_HEADER3) && (rec_type != REC_HEADER4)
+			&& (rec_type != REC_HEADER5) && (rec_type != REC_HEADER6)
+			&& (rec_type != REC_HEADER7)
+			&& ((rec_type != REC_V2DESC) || (maj_vers > 2)) ) {
 			/*
 			 * Well, this is either some unknown header type
 			 * (we ignore this case), an uncompressed data
@@ -847,7 +847,7 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 			return -1;
 		}
 
-		length = pletoh16(record_length);
+		rec_length_remaining = pletoh16(record_length);
 
 		/*
 		 * Is this is an "Internetwork analyzer" capture, and
@@ -860,12 +860,12 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 		 * does this apply only to sync?)
 		 */
 		if ((network == NETWORK_SYNCHRO || network == NETWORK_ASYNC) &&
-		    type == REC_HEADER2) {
+		    rec_type == REC_HEADER2) {
 			/*
 			 * Yes, get the first up-to-256 bytes of the
 			 * record data.
 			 */
-			bytes_to_read = MIN(length, (int)sizeof buffer);
+			bytes_to_read = MIN(rec_length_remaining, (int)sizeof buffer);
 			bytes_read = file_read(buffer, bytes_to_read,
 				wth->fh);
 			if (bytes_read != bytes_to_read) {
@@ -879,7 +879,7 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 
 			case 2:
 				if (process_rec_header2_v2(wth, buffer,
-				    length, err, err_info) < 0)
+				    rec_length_remaining, err, err_info) < 0)
 					return -1;
 				break;
 
@@ -887,7 +887,7 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 			case 4:
 			case 5:
 				if (process_rec_header2_v145(wth, buffer,
-				    length, maj_vers, err, err_info) < 0)
+				    rec_length_remaining, maj_vers, err, err_info) < 0)
 					return -1;
 				break;
 			}
@@ -895,14 +895,14 @@ process_header_records(wtap *wth, int *err, gchar **err_info, gint16 maj_vers,
 			/*
 			 * Skip the rest of the record.
 			 */
-			if (length > sizeof buffer) {
-				if (file_seek(wth->fh, length - sizeof buffer,
+			if (rec_length_remaining > sizeof buffer) {
+				if (file_seek(wth->fh, rec_length_remaining - sizeof buffer,
 				    SEEK_CUR, err) == -1)
 					return -1;
 			}
 		} else {
 			/* Nope, just skip over the data. */
-			if (file_seek(wth->fh, length, SEEK_CUR, err) == -1)
+			if (file_seek(wth->fh, rec_length_remaining, SEEK_CUR, err) == -1)
 				return -1;
 		}
 	}
@@ -1170,7 +1170,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 	gint64	bytes_read;
 	char	record_type[2];
 	char	record_length[4]; /* only 1st 2 bytes are length */
-	guint	type, length;
+	guint	rec_type, rec_length_remaining;
 	struct frame2_rec frame2;
 	struct frame4_rec frame4;
 	struct frame6_rec frame6;
@@ -1200,11 +1200,11 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		return -1;
 	}
 
-	type = pletoh16(record_type);
-	length = pletoh16(record_length);
+	rec_type = pletoh16(record_type);
+	rec_length_remaining = pletoh16(record_length);
 
 	ngsniffer = (ngsniffer_t *)wth->priv;
-	switch (type) {
+	switch (rec_type) {
 
 	case REC_FRAME2:
 		if (ngsniffer->network == NETWORK_ATM) {
@@ -1218,7 +1218,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		}
 
 		/* Do we have an f_frame2_struct worth of data? */
-		if (length < sizeof frame2) {
+		if (rec_length_remaining < sizeof frame2) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("ngsniffer: REC_FRAME2 record length is less than record header length");
 			return -1;
@@ -1239,7 +1239,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		size = pletoh16(&frame2.size);
 		true_size = pletoh16(&frame2.true_size);
 
-		length -= sizeof frame2;	/* we already read that much */
+		rec_length_remaining -= sizeof frame2;	/* we already read that much */
 
 		set_pseudo_header_frame2(wth, &phdr->pseudo_header, &frame2);
 		break;
@@ -1263,10 +1263,10 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		 * record, so it's too short by (sizeof frame4 - sizeof frame2).
 		 */
 		if (ngsniffer->maj_vers < 5 && ngsniffer->min_vers >= 95)
-			length += sizeof frame4 - sizeof frame2;
+			rec_length_remaining += sizeof frame4 - sizeof frame2;
 
 		/* Do we have an f_frame4_struct worth of data? */
-		if (length < sizeof frame4) {
+		if (rec_length_remaining < sizeof frame4) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("ngsniffer: REC_FRAME4 record length is less than record header length");
 			return -1;
@@ -1287,14 +1287,14 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		size = pletoh16(&frame4.size);
 		true_size = pletoh16(&frame4.true_size);
 
-		length -= sizeof frame4;	/* we already read that much */
+		rec_length_remaining -= sizeof frame4;	/* we already read that much */
 
 		set_pseudo_header_frame4(&phdr->pseudo_header, &frame4);
 		break;
 
 	case REC_FRAME6:
 		/* Do we have an f_frame6_struct worth of data? */
-		if (length < sizeof frame6) {
+		if (rec_length_remaining < sizeof frame6) {
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = g_strdup("ngsniffer: REC_FRAME6 record length is less than record header length");
 			return -1;
@@ -1315,7 +1315,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		size = pletoh16(&frame6.size);
 		true_size = pletoh16(&frame6.true_size);
 
-		length -= sizeof frame6;	/* we already read that much */
+		rec_length_remaining -= sizeof frame6;	/* we already read that much */
 
 		set_pseudo_header_frame6(wth, &phdr->pseudo_header, &frame6);
 		break;
@@ -1337,9 +1337,9 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 			 * Treat the entire record as padding, so we
 			 * skip it.
 			 */
-			*padding = length;
+			*padding = rec_length_remaining;
 		}
-		return type;	/* unknown type */
+		return rec_type;	/* unknown type */
 	}
 
 	/*
@@ -1348,7 +1348,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 	 * Is the frame data size greater than than what's left of the
 	 * record?
 	 */
-	if (size > length) {
+	if (size > rec_length_remaining) {
 		/*
 		 * Yes - treat this as an error.
 		 */
@@ -1362,7 +1362,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		 * Padding, if the frame data size is less than what's
 		 * left of the record.
 		 */
-		*padding = length - size;
+		*padding = rec_length_remaining - size;
 	}
 
 	phdr->rec_type = REC_TYPE_PACKET;
@@ -1416,7 +1416,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 	phdr->ts.secs = (time_t)tsecs;
 	phdr->ts.nsecs = (int)(tpsecs/1000);	/* psecs to nsecs */
 
-	return type;	/* success */
+	return rec_type;	/* success */
 }
 
 static void
