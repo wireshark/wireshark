@@ -435,8 +435,6 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
             /* Skip over the GTK header info, and don't copy past the end of the encrypted data */
             memcpy(szEncryptedKey, decrypted_data+key_index+8, key_bytes_len-key_index-8);
         }
-
-        g_free(decrypted_data);
     }
 
     key_len = (sa->wpa.key_ver==AIRPDCAP_WPA_KEY_VER_NOT_CCMP)?TKIP_GROUP_KEY_LEN:CCMP_GROUP_KEY_LEN;
@@ -456,7 +454,6 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
     /* AirPDcapRsnaMng() function will extract the right piece of the GTK for decryption. (The first 16 bytes of the GTK are used for decryption.) */
     memset(sa->wpa.ptk, 0, sizeof(sa->wpa.ptk));
     memcpy(sa->wpa.ptk+32, szEncryptedKey, key_len);
-    g_free(szEncryptedKey);
     return AIRPDCAP_RET_SUCCESS_HANDSHAKE;
 }
 
