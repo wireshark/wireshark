@@ -42,6 +42,8 @@
 #include <epan/sigcomp-udvm.h>
 #include <epan/sigcomp_state_hdlr.h>
 
+#include <wsutil/sha1.h>
+
 void proto_register_sigcomp(void);
 void proto_reg_handoff_sigcomp(void);
 
