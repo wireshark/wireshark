@@ -1208,7 +1208,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		 * record, so it's too short by (sizeof frame4 - sizeof frame2).
 		 */
 		if (ngsniffer->maj_vers < 5 && ngsniffer->min_vers >= 95)
-			rec_length_remaining += sizeof frame4 - sizeof frame2;
+			rec_length_remaining += (guint)(sizeof frame4 - sizeof frame2);
 
 		/* Do we have an f_frame4_struct worth of data? */
 		if (rec_length_remaining < sizeof frame4) {
