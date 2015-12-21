@@ -229,6 +229,7 @@ proto_register_socketcan(void)
 		"CAN",				/* short name */
 		"can"				/* abbrev     */
 		);
+	register_dissector("can", dissect_socketcan, proto_can);
 
 	proto_register_field_array(proto_can, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
