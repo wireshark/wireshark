@@ -4,17 +4,54 @@
 
 <application id="16777317" name="Nokia Solutions and Networks (NSN) Hd Application" uri="none">
 
-	<avp name="User-Agent-Type" code="2016" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
-		<type type-name="Enumerated"/>
-		<enum name="NON_MOBILE_BROWSER" code="0"/>
-		<enum name="MOBILE_BROWSER"     code="1"/>
-	</avp>
+  <avp name="User-Agent-Type" code="2016" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Enumerated"/>
+    <enum name="NON_MOBILE_BROWSER" code="0"/>
+    <enum name="MOBILE_BROWSER"     code="1"/>
+  </avp>
 </application>
 
 <application id="16777246"	name="NSN Unified Charging Trigger Function (UCTF)" uri="none"/>
 
 <vendor vendor-id="NokiaSolutionsAndNetworks"	code="28458"	name="Nokia Solutions and Networks">
-    <avp name="Account-State" code="60528" mandatory-flag="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+
+  <avp name="NSN-IN-Information" code="100" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-Calling-Partys-Category"/>
+      <gavp name="NSN-High-Layer-Compatibility"/>
+      <gavp name="NSN-VLR-Number"/>
+      <gavp name="NSN-Answer-Time-Stamp"/>
+      <gavp name="NSN-Time-Zone"/>
+      <gavp name="NSN-Redirecting-Party-Id"/>
+      <gavp name="NSN-Generic-Service-Data"/>
+      <gavp name="NSN-Roaming-Indication"/>
+      <gavp name="NSN-IN-Bearer-Service"/>
+      <gavp name="NSN-NP-Information"/>
+      <gavp name="NSN-Connection-Type"/>
+      <gavp name="NSN-A-Party-Member-Type"/>
+      <gavp name="NSN-B-Party-Member-Type"/>
+      <gavp name="NSN-Access-Type"/>
+      <gavp name="NSN-AoC-Tariff"/>
+      <gavp name="NSN-Account-Information"/>
+      <gavp name="NSN-Subscriber-Status"/>
+      <gavp name="NSN-Message-Warning-Time"/>
+      <gavp name="NSN-Language-ID"/>
+      <gavp name="Currency-Code"/>
+      <gavp name="NSN-Customer-Group-ID"/>
+      <gavp name="NSN-GSM-Charge-Advice-Information"/>
+      <gavp name="NSN-Method-Name"/>
+      <gavp name="NSN-Reference-Number"/>
+      <gavp name="NSN-Inband-Announcement"/>
+      <gavp name="NSN-Outband-Information"/>
+      <gavp name="NSN-Account-Location-Id"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-Account-Location-Id" code="223" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="Account-State" code="60528" mandatory-flag="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
         <type type-name="UTF8String" />
     </avp>
 
