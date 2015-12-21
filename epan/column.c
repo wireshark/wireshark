@@ -872,6 +872,23 @@ build_column_format_array(column_info *cinfo, const gint num_cols, const gboolea
         col_item->col_custom_occurrence = 0;
         col_item->col_custom_dfilter = NULL;
       }
+      if (col_item->col_custom_fields) {
+        gchar **fields = g_regex_split(cinfo->prime_regex, col_item->col_custom_fields,
+                                       G_REGEX_MATCH_ANCHORED);
+        guint i_field;
+
+        for (i_field = 0; i_field < g_strv_length(fields); i_field++) {
+          if (fields[i_field] && *fields[i_field]) {
+            header_field_info *hfinfo = proto_registrar_get_byname(fields[i_field]);
+            if (hfinfo) {
+              int *idx = g_new(int, 1);
+              *idx = hfinfo->id;
+              col_item->col_custom_fields_ids = g_slist_append(col_item->col_custom_fields_ids, idx);
+            }
+          }
+        }
+        g_strfreev(fields);
+      }
     } else {
       col_item->col_custom_fields = NULL;
       col_item->col_custom_occurrence = 0;

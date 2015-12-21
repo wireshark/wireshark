@@ -328,41 +328,11 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
 
   for (i = cinfo->col_first[COL_CUSTOM];
        i <= cinfo->col_last[COL_CUSTOM]; i++) {
-    int i_list = 0;
-
     col_item = &cinfo->columns[i];
-    col_custom_fields_ids_free(&col_item->col_custom_fields_ids);
 
     if (col_item->fmt_matx[COL_CUSTOM] &&
         col_item->col_custom_dfilter) {
       epan_dissect_prime_dfilter(edt, col_item->col_custom_dfilter);
-      if (col_item->col_custom_fields) {
-        gchar  **fields;
-        guint    i_field = 0;
-
-        /* Not using a GRegex here would improve performance. */
-        fields = g_regex_split(cinfo->prime_regex, col_item->col_custom_fields,
-                G_REGEX_MATCH_ANCHORED);
-
-        for (i_field =0; i_field < g_strv_length(fields); i_field += 1) {
-            if (fields[i_field] && *fields[i_field]) {
-                int id;
-
-                header_field_info* hfinfo = proto_registrar_get_byname(fields[i_field]);
-                id = hfinfo ? hfinfo->id : -1;
-                if (id >= 0) {
-                    int *idx;
-
-                    idx = g_new(int, 1);
-                    *idx = id;
-                    col_item->col_custom_fields_ids =
-                            g_slist_insert(col_item->col_custom_fields_ids, idx, i_list);
-                    i_list += 1;
-                }
-            }
-        }
-        g_strfreev(fields);
-      }
     }
   }
 }
