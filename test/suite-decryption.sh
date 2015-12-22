@@ -91,7 +91,7 @@ decryption_step_80211_wpa_eap() {
 # WPA decode with message1+2 only and secure bit set on message 2
 # Included in git sources test/captures/wpa-test-decode.pcap.gz
 decryption_step_80211_wpa_eapol_incomplete_rekeys() {
-        $TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+        env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
                 -o "wlan.enable_decryption: TRUE" \
                 -r "$CAPTURE_DIR/wpa-test-decode.pcap.gz" \
                 -Y "icmp.resp_to == 4263" \
