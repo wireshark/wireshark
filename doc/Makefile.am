@@ -307,6 +307,7 @@ EXTRA_DIST =				\
 	perlnoutf.pl			\
 	randpkt.pod			\
 	randpkt.txt			\
+	randpktdump.pod			\
 	rawshark.pod			\
 	reordercap.pod			\
 	sgml.doc.template		\
