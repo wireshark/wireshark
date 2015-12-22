@@ -2445,7 +2445,7 @@ int main(int argc, char **argv) {
             do_dlts = 1;
             break;
         case OPT_INTERFACE:
-            interface = strdup(optarg);
+            interface = optarg;
             break;
         case OPT_CONFIG:
             do_config = 1;
@@ -2457,13 +2457,13 @@ int main(int argc, char **argv) {
             /* currently unused */
             break;
         case OPT_FIFO:
-            fifo = strdup(optarg);
+            fifo = optarg;
             break;
         case OPT_HELP:
             help();
             return 0;
         case OPT_CONFIG_ADB_SERVER_IP:
-            adb_server_ip = strdup(optarg);
+            adb_server_ip = optarg;
             break;
         case OPT_CONFIG_ADB_SERVER_TCP_PORT:
             adb_server_tcp_port = &local_adb_server_tcp_port;
@@ -2488,7 +2488,7 @@ int main(int argc, char **argv) {
             bt_forward_socket = (g_ascii_strncasecmp(optarg, "TRUE", 4) == 0);
             break;
         case OPT_CONFIG_BT_LOCAL_IP:
-            bt_local_ip = strdup(optarg);
+            bt_local_ip = optarg;
             break;
         case OPT_CONFIG_BT_LOCAL_TCP_PORT:
             bt_local_tcp_port = &local_bt_local_tcp_port;
