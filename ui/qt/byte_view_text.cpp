@@ -86,6 +86,11 @@ ByteViewText::ByteViewText(QWidget *parent, tvbuff_t *tvb, proto_tree *tree, QTr
     setMouseTracking(true);
 }
 
+ByteViewText::~ByteViewText()
+{
+    ctx_menu_.clear();
+}
+
 void ByteViewText::setEncoding(packet_char_enc encoding)
 {
     encoding_ = encoding;
