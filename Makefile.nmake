@@ -463,6 +463,7 @@ sshdump.exe	: $(LIBS_CHECK) config.h sshdump.obj wsutil\libwsutil.lib wiretap\wi
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "sshdump.exe.manifest" -outputresource:sshdump.exe;1
 !ENDIF
+!ENDIF
 
 randpktdump.exe	: $(LIBS_CHECK) config.h randpktdump.obj randpkt-core.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib
 	@echo Linking $@
