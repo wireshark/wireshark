@@ -36,21 +36,38 @@
 #define IEEE802154_FCS_LEN                  2
 
 /*  Command Frame Identifier Types Definions */
-#define IEEE802154_CMD_ASRQ                 0x01
-#define IEEE802154_CMD_ASRSP                0x02
-#define IEEE802154_CMD_DISAS                0x03
-#define IEEE802154_CMD_DATA_RQ              0x04
-#define IEEE802154_CMD_PANID_ERR            0x05
-#define IEEE802154_CMD_ORPH_NOTIF           0x06
-#define IEEE802154_CMD_BCN_RQ               0x07
-#define IEEE802154_CMD_COORD_REAL           0x08
-#define IEEE802154_CMD_GTS_REQ              0x09
-#define IEEE802145_CMD_MAX_ID               0x09
+#define IEEE802154_CMD_ASSOC_REQ                0x01
+#define IEEE802154_CMD_ASSOC_RSP                0x02
+#define IEEE802154_CMD_DISASSOC_NOTIFY          0x03
+#define IEEE802154_CMD_DATA_RQ                  0x04
+#define IEEE802154_CMD_PANID_CONFLICT           0x05
+#define IEEE802154_CMD_ORPHAN_NOTIFY            0x06
+#define IEEE802154_CMD_BEACON_REQ               0x07
+#define IEEE802154_CMD_COORD_REALIGN            0x08
+#define IEEE802154_CMD_GTS_REQ                  0x09
+#define IEEE802154_CMD_TRLE_MGMT_REQ            0x0a
+#define IEEE802154_CMD_TRLE_MGMT_RSP            0x0b
+/* 0x0c-0x12 reserved in IEEE802.15.4-2015 */
+#define IEEE802154_CMD_DSME_ASSOC_REQ           0x13
+#define IEEE802154_CMD_DSME_ASSOC_RSP           0x14
+#define IEEE802154_CMD_DSME_GTS_REQ             0x15
+#define IEEE802154_CMD_DSME_GTS_RSP             0x16
+#define IEEE802154_CMD_DSME_GTS_NOTIFY          0x17
+#define IEEE802154_CMD_DSME_INFO_REQ            0x18
+#define IEEE802154_CMD_DSME_INFO_RSP            0x19
+#define IEEE802154_CMD_DSME_BEACON_ALLOC_NOTIFY 0x1a
+#define IEEE802154_CMD_DSME_BEACON_COLL_NOTIFY  0x1b
+#define IEEE802154_CMD_DSME_LINK_REPORT         0x1c
+/* 0x1d-0x1f reserved in IEEE802.15.4-2015 */
+#define IEEE802154_CMD_RIT_DATA_REQ             0x20
+#define IEEE802154_CMD_DBS_REQ                  0x21
+#define IEEE802154_CMD_DBS_RSP                  0x22
+/* 0x22-0x1f reserved in IEEE802.15.4-2015 */
 
 /*  Definitions for Association Response Command */
-#define IEEE802154_CMD_ASRSP_AS_SUCCESS     0x00
-#define IEEE802154_CMD_ASRSP_PAN_FULL       0x01
-#define IEEE802154_CMD_ASRSP_PAN_DENIED     0x02
+#define IEEE802154_CMD_ASRSP_AS_SUCCESS         0x00
+#define IEEE802154_CMD_ASRSP_PAN_FULL           0x01
+#define IEEE802154_CMD_ASRSP_PAN_DENIED         0x02
 
 /*  Bit Masks for Capability Information Field
     Included in Association Req. command    */
@@ -104,24 +121,43 @@
 #define IEEE802154_FCF_FRAME_PND            0x0010
 #define IEEE802154_FCF_ACK_REQ              0x0020
 #define IEEE802154_FCF_PAN_ID_COMPRESSION   0x0040  /* known as Intra PAN prior to IEEE 802.15.4-2006 */
+#define IEEE802154_FCF_SEQNO_SUPPRESSION    0x0100
+#define IEEE802154_FCF_IE_PRESENT           0x0200
 #define IEEE802154_FCF_DADDR_MASK           0x0C00  /* destination addressing mask */
 #define IEEE802154_FCF_VERSION              0x3000
 #define IEEE802154_FCF_SADDR_MASK           0xC000  /* source addressing mask */
 
 /* Frame Type Definitions */
-#define IEEE802154_FCF_BEACON               0x0000  /* Beacon Frame */
-#define IEEE802154_FCF_DATA                 0x0001  /* Data Frame */
-#define IEEE802154_FCF_ACK                  0x0002  /* Acknowlegement Frame */
-#define IEEE802154_FCF_CMD                  0x0003  /* Command Frame */
+#define IEEE802154_FCF_BEACON                  0x0  /* Beacon Frame */
+#define IEEE802154_FCF_DATA                    0x1  /* Data Frame */
+#define IEEE802154_FCF_ACK                     0x2  /* Acknowlegement Frame */
+#define IEEE802154_FCF_CMD                     0x3  /* MAC Command Frame */
+#define IEEE802154_FCF_RESERVED                0x4  /* reserved */
+#define IEEE802154_FCF_MULTIPURPOSE            0x5  /* Multipurpose */
+#define IEEE802154_FCF_FRAGMENT                0x6  /* Fragment or Frak */
+#define IEEE802154_FCF_EXTENDED                0x7  /* Extended */
 
 /* Frame version definitions. */
-#define IEEE802154_VERSION_2003             0x0
-#define IEEE802154_VERSION_2006             0x1
+#define IEEE802154_VERSION_2003                0x0
+#define IEEE802154_VERSION_2006                0x1
+#define IEEE802154_VERSION_2012e               0x2
+#define IEEE802154_VERSION_RESERVED            0x3
 
 /* Address Mode Definitions */
-#define IEEE802154_FCF_ADDR_NONE            0x0000
-#define IEEE802154_FCF_ADDR_SHORT           0x0002
-#define IEEE802154_FCF_ADDR_EXT             0x0003
+#define IEEE802154_FCF_ADDR_NONE               0x0
+#define IEEE802154_FCF_ADDR_RESERVED           0x1
+#define IEEE802154_FCF_ADDR_SHORT              0x2
+#define IEEE802154_FCF_ADDR_EXT                0x3
+
+/* Header IE Fields */
+#define IEEE802154_HEADER_IE_TYPE_MASK      0x8000
+#define IEEE802154_HEADER_IE_ID_MASK        0x7F80
+#define IEEE802154_HEADER_IE_LENGTH_MASK    0x007F
+
+/* Payload IE Fields */
+#define IEEE802154_PAYLOAD_IE_TYPE_MASK     0x8000
+#define IEEE802154_PAYLOAD_IE_ID_MASK       0x7800
+#define IEEE802154_PAYLOAD_IE_LENGTH_MASK   0x07FF
 
 /*  Bit-masks for CC24xx style FCS */
 #define IEEE802154_CC24xx_CORRELATION       0x7F00
@@ -160,6 +196,13 @@ typedef enum {
     KEY_ID_MODE_KEY_EXPLICIT_8 = 0x03
 } ieee802154_key_id_mode;
 
+/* Header IE Element ID */
+#define IEEE802154_HEADER_IE_EID_TERM1      0x7e
+#define IEEE802154_HEADER_IE_EID_TERM2      0x7f
+
+/* Payload IE Group ID */
+#define IEEE802154_PAYLOAD_IE_GID_TERM       0xf
+
 /* IEEE 802.15.4 cipher block size. */
 #define IEEE802154_CIPHER_SIZE              16
 
@@ -179,8 +222,13 @@ typedef struct {
     gboolean    frame_pending;
     gboolean    ack_request;
     gboolean    pan_id_compression;
+    gboolean    seqno_suppression;
+    gboolean    ie_present;
 
     guint8      seqno;
+
+    /* determined during processing of Header IE*/
+    gboolean    payload_ie_present;
 
     /* Addressing Info. */
     guint16     dst_pan;
