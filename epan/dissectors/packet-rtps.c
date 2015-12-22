@@ -406,6 +406,7 @@ static expert_field ei_rtps_unsupported_non_builtin_param_seq    = EI_INIT;
 /***************************************************************************/
 static guint rtps_max_batch_samples_dissected = 16;
 static gboolean enable_topic_info = FALSE;
+static dissector_table_t rtps_type_name_table;
 
 /***************************************************************************/
 /* Value-to-String Tables */
@@ -2848,23 +2849,56 @@ static type_mapping * rtps_util_get_topic_info(endpoint_guid * guid) {
   return result;
 }
 
-static void rtps_util_show_topic_info(proto_tree *tree, tvbuff_t *tvb,
-        gint offset, endpoint_guid * guid) {
-  if (enable_topic_info && tree) {
+static void rtps_util_format_typename(gchar * type_name, gchar ** output) {
+   gchar ** tokens;
+   gchar * result_caps;
+   /* The standard specifies that the max size of a type name
+      can be 255 bytes */
+   tokens = g_strsplit(type_name, "::", 255);
+   result_caps = g_strjoinv("_", tokens);
+   *output = g_ascii_strdown(result_caps, -1);
+
+   g_strfreev(tokens);
+   g_free(result_caps);
+}
+
+static gboolean rtps_util_show_topic_info(proto_tree *tree, packet_info *pinfo,
+        tvbuff_t *tvb, gint offset, endpoint_guid * guid) {
+  if (enable_topic_info) {
     type_mapping * type_mapping_object = rtps_util_get_topic_info(guid);
     if (type_mapping_object != NULL) {
       proto_tree * topic_info_tree;
       proto_item * ti;
-      topic_info_tree = proto_tree_add_subtree(tree, tvb, offset, 0,
+      gchar * dissector_name = NULL;
+      tvbuff_t *next_tvb;
+
+      /* This part shows information available for the sample */
+      if (tree) {
+        topic_info_tree = proto_tree_add_subtree(tree, tvb, offset, 0,
                 ett_rtps_topic_info, NULL, "[Topic Information (from Discovery)]");
-      ti = proto_tree_add_string(topic_info_tree, hf_rtps_param_topic_name, tvb, offset, 0,
+        ti = proto_tree_add_string(topic_info_tree, hf_rtps_param_topic_name, tvb, offset, 0,
             type_mapping_object->topic_name);
-      PROTO_ITEM_SET_GENERATED(ti);
-      ti = proto_tree_add_string(topic_info_tree, hf_rtps_param_type_name, tvb, offset, 0,
+        PROTO_ITEM_SET_GENERATED(ti);
+        ti = proto_tree_add_string(topic_info_tree, hf_rtps_param_type_name, tvb, offset, 0,
             type_mapping_object->type_name);
-      PROTO_ITEM_SET_GENERATED(ti);
+        PROTO_ITEM_SET_GENERATED(ti);
+      }
+      col_append_sep_str(pinfo->cinfo, COL_INFO, " -> ", type_mapping_object->topic_name);
+      /* This part tries to dissect the content using a dissector */
+      next_tvb = tvb_new_subset_remaining(tvb, offset);
+      /* After calling this API, we must call g_free in dissector_name */
+      rtps_util_format_typename(type_mapping_object->type_name, &dissector_name);
+      if (dissector_try_string(rtps_type_name_table, dissector_name, next_tvb, pinfo, tree, NULL)) {
+          g_free(dissector_name);
+          return TRUE;
+      } else {
+          g_free(dissector_name);
+          return FALSE;
+      }
     }
   }
+  /* Return false so the content is dissected by the codepath following this one */
+  return FALSE;
 }
 
 /* *********************************************************************** */
@@ -4738,7 +4772,6 @@ static void dissect_APP_ACK_CONF(tvbuff_t *tvb,
   }
 }
 
-
 /* *********************************************************************** */
 /* * Serialized data dissector                                           * */
 /* *********************************************************************** */
@@ -4757,8 +4790,10 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
   rtps_parameter_sequence_tree = proto_tree_add_subtree(tree, tvb, offset, size,
           ett_rtps_serialized_data, &ti, label);
 
-  /* Add Topic Information if enabled (checked inside)*/
-  rtps_util_show_topic_info(rtps_parameter_sequence_tree, tvb, offset, guid);
+  /* Add Topic Information if enabled (checked inside). This call attemps to dissect
+   * the sample and will return TRUE if it did. We should return in that case.*/
+  if (rtps_util_show_topic_info(rtps_parameter_sequence_tree, pinfo, tvb, offset, guid))
+      return;
 
   /* Encapsulation ID */
   encapsulation_id =  NEXT_guint16(tvb, offset, ENC_BIG_ENDIAN);   /* Always big endian */
@@ -4810,7 +4845,6 @@ static void dissect_APP_ACK(tvbuff_t *tvb,
   gboolean little_endian,
   int octets_to_next_header,
   proto_tree *tree,
-  guint16 vendor_id,
   proto_item *item)
   {
   /*
@@ -4880,7 +4914,7 @@ static void dissect_APP_ACK(tvbuff_t *tvb,
 
   /* virtualWriterCount */
   virtual_writer_count = NEXT_guint32(tvb, offset, little_endian);
-  proto_tree_add_item(tree, hf_rtps_param_app_ack_virtual_writer_count, tvb, offset+4, 4,
+  proto_tree_add_item(tree, hf_rtps_param_app_ack_virtual_writer_count, tvb, offset, 4,
     little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
   offset += 4;
 
@@ -4972,16 +5006,9 @@ static void dissect_APP_ACK(tvbuff_t *tvb,
         offset += 2;
 
         if (interval_payload_length > 0) {
-          dissect_serialized_data(sil_tree_interval,
-            pinfo,
-            tvb,
-            offset,
-            interval_payload_length,
-            "payload",
-            vendor_id,
-            FALSE /* from_builtin_writer */,
-            NULL /* guid pointer */);
-          offset += interval_payload_length;
+          proto_tree_add_item(sil_tree_interval, hf_rtps_serialized_data, tvb, offset,
+                  interval_payload_length, ENC_NA);
+          offset += ((interval_payload_length + 3) & 0xfffffffc);
         }
 
         ++current_interval_count;
@@ -4989,7 +5016,7 @@ static void dissect_APP_ACK(tvbuff_t *tvb,
       } /* interval list */
 
       /* Count */
-      proto_tree_add_item(tree, hf_rtps_param_app_ack_count, tvb, offset+4, 4,
+      proto_tree_add_item(tree, hf_rtps_param_app_ack_count, tvb, offset, 4,
         little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
       offset += 4;
 
@@ -7442,7 +7469,7 @@ static gboolean dissect_rtps_submessage_v2(tvbuff_t *tvb, packet_info *pinfo, gi
       break;
 
     case SUBMESSAGE_APP_ACK:
-      dissect_APP_ACK(tvb, pinfo, offset, flags, little_endian, octets_to_next_header, rtps_submessage_tree, vendor_id, submessage_item);
+      dissect_APP_ACK(tvb, pinfo, offset, flags, little_endian, octets_to_next_header, rtps_submessage_tree, submessage_item);
       break;
 
     case SUBMESSAGE_APP_ACK_CONF:
@@ -9564,6 +9591,8 @@ void proto_register_rtps(void) {
               &enable_topic_info);
   register_init_routine(rtps_init);
 
+  rtps_type_name_table = register_dissector_table("rtps.type_name", "RTPS Type Name",
+          FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 }
 
 
