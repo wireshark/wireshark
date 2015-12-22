@@ -23,28 +23,6 @@
 
 #include "tango_colors.h"
 
-/*
- * Initialize a color with R, G, and B values, including any toolkit-dependent
- * work that needs to be done.
- */
-gboolean
-initialize_color(color_t *color, guint16 red, guint16 green, guint16 blue)
-{
-    QColor qc;
-
-    // color_t uses 16-bit components to match Gtk+. Qt use 8.
-    qc.setRgb(red>>8, green>>8, blue>>8);
-    if (!qc.isValid())
-        return FALSE;
-
-    // Match what color_filters.c does.
-    color->red = red;
-    color->green = green;
-    color->blue = blue;
-    color->pixel = 0;
-    return TRUE;
-}
-
 const QColor ColorUtils::expert_color_comment    = QColor ( 0xb7, 0xf7, 0x74 );        /* Green */
 const QColor ColorUtils::expert_color_chat       = QColor ( 0x80, 0xb7, 0xf7 );        /* Light blue */
 const QColor ColorUtils::expert_color_note       = QColor ( 0xa0, 0xff, 0xff );        /* Bright turquoise */

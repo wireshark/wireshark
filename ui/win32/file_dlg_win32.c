@@ -41,7 +41,7 @@
 #include "epan/addr_resolv.h"
 #include "epan/prefs.h"
 
-#include "color_filters.h"
+#include "epan/color_filters.h"
 
 #include "ui/alert_box.h"
 #include "ui/help_url.h"
@@ -49,6 +49,7 @@
 #include "ui/simple_dialog.h"
 #include "ui/ssl_key_export.h"
 #include "ui/util.h"
+#include "ui/ui_util.h"
 
 #include "file_dlg_win32.h"
 
@@ -898,6 +899,7 @@ win32_export_color_file(HWND h_wnd, capture_file *cf, gpointer filter_list) {
     TCHAR  file_name[MAX_PATH] = _T("");
     gchar *dirname;
     int    ofnsize;
+    gchar *err_msg = NULL;
 
     ofnsize = win32_get_ofnsize();
     ofn = g_malloc0(ofnsize);
@@ -927,8 +929,12 @@ win32_export_color_file(HWND h_wnd, capture_file *cf, gpointer filter_list) {
     /* XXX - Support marked filters */
     if (GetSaveFileName(ofn)) {
         g_free( (void *) ofn);
-        if (!color_filters_export(utf_16to8(file_name), filter_list, FALSE /* all filters */))
+        if (!color_filters_export(utf_16to8(file_name), filter_list, FALSE /* all filters */, &err_msg))
+        {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+            g_free(err_msg);
             return;
+        }
 
         /* Save the directory name for future file dialogs. */
         dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
@@ -944,6 +950,7 @@ win32_import_color_file(HWND h_wnd, gpointer color_filters) {
     TCHAR  file_name[MAX_PATH] = _T("");
     gchar *dirname;
     int    ofnsize;
+    gchar *err_msg = NULL;
 
     ofnsize = win32_get_ofnsize();
     ofn = g_malloc0(ofnsize);
@@ -971,8 +978,11 @@ win32_import_color_file(HWND h_wnd, gpointer color_filters) {
     /* XXX - Support export limited to selected filters */
     if (GetOpenFileName(ofn)) {
         g_free( (void *) ofn);
-        if (!color_filters_import(utf_16to8(file_name), color_filters))
+        if (!color_filters_import(utf_16to8(file_name), color_filters, &err_msg, initialize_color, color_filter_add_cb)) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+            g_free(err_msg);
             return;
+        }
 
         /* Save the directory name for future file dialogs. */
         dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */

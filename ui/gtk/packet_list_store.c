@@ -42,8 +42,7 @@
 #include <epan/epan_dissect.h>
 #include <epan/column.h>
 
-#include "color.h"
-#include "color_filters.h"
+#include <epan/color_filters.h>
 #include "frame_tvbuff.h"
 
 #include "globals.h"

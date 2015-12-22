@@ -38,7 +38,7 @@
 #include "ui/capture.h"
 #endif
 
-#include "color_filters.h"
+#include "epan/color_filters.h"
 
 #include "wsutil/file_util.h"
 #include "wsutil/filesystem.h"
@@ -1397,7 +1397,11 @@ void MainWindow::checkDisplayFilter()
 
 void MainWindow::fieldsChanged()
 {
-    color_filters_reload();
+    gchar *err_msg = NULL;
+    if (!color_filters_reload(&err_msg, initialize_color, color_filter_add_cb)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+        g_free(err_msg);
+    }
     tap_listeners_dfilter_recompile();
 
     emit checkDisplayFilter();
@@ -2245,7 +2249,7 @@ void MainWindow::on_actionViewNormalSize_triggered()
 
 void MainWindow::on_actionViewColorizePacketList_triggered(bool checked) {
     recent.packet_list_colorize = checked;
-    color_filters_enable(checked);
+    packet_list_enable_color(checked);
     packet_list_->packetListModel()->resetColorized();
 }
 
@@ -2302,7 +2306,11 @@ void MainWindow::colorizeConversation(bool create_rule)
                     packet_list_, SLOT(recolorPackets()));
             coloring_rules_dialog.exec();
         } else {
-            color_filters_set_tmp(cc_num, filter, FALSE);
+            gchar *err_msg = NULL;
+            if (!color_filters_set_tmp(cc_num, filter, FALSE, &err_msg)) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+                g_free(err_msg);
+            }
             packet_list_->recolorPackets();
         }
     }
@@ -2322,7 +2330,11 @@ void MainWindow::colorizeWithFilter()
 
     if (ok) {
         // Assume "Color X"
-        color_filters_set_tmp(color_number, filter.toUtf8().constData(), FALSE);
+        gchar *err_msg = NULL;
+        if (color_filters_set_tmp(color_number, filter.toUtf8().constData(), FALSE, &err_msg)) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+            g_free(err_msg);
+        }
         packet_list_->recolorPackets();
     } else {
         // New coloring rule
@@ -2336,7 +2348,11 @@ void MainWindow::colorizeWithFilter()
 
 void MainWindow::on_actionViewColorizeResetColorization_triggered()
 {
-    color_filters_reset_tmp();
+    gchar *err_msg = NULL;
+    if (!color_filters_reset_tmp(&err_msg)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+        g_free(err_msg);
+    }
     packet_list_->recolorPackets();
     setMenusForSelectedPacket();
 }

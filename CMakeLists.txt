@@ -1014,7 +1014,7 @@ add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
 if(NOT WIN32)
-	add_custom_target(dumpabi DEPENDS dumpabi-libwireshark dumpabi-libwiretap dumpabi-libwsutil color.h)
+	add_custom_target(dumpabi DEPENDS dumpabi-libwireshark dumpabi-libwiretap dumpabi-libwsutil)
 endif()
 
 if(ENABLE_ECHLD)
@@ -1695,7 +1695,6 @@ if( (BUILD_wireshark AND QT_FOUND) OR (BUILD_wireshark_gtk AND GTK_FOUND) )
 	set(WIRESHARK_SRC
 		capture_info.c
 		capture_opts.c
-		color_filters.c
 		file.c
 		fileset.c
 		summary.c

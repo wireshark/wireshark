@@ -26,7 +26,7 @@
 
 #include <glib.h>
 
-#include "color.h"
+#include <epan/color_filters.h>
 
 #include <QBrush>
 #include <QColor>
@@ -63,6 +63,8 @@ public slots:
 private:
     static const QList<QRgb> graph_colors_;
 };
+
+void color_filter_qt_add_cb(color_filter_t *colorf, gpointer user_data);
 
 #endif // COLOR_UTILS_H
 

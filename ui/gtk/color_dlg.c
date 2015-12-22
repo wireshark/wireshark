@@ -28,8 +28,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-
-#include "../color_filters.h"
+#include <epan/color_filters.h>
 
 #include "simple_dialog.h"
 
@@ -149,6 +148,17 @@ int color_selected_count(void)
   return count;
 }
 
+
+/* a new color filter was read in from a filter file */
+void
+color_filter_add_cb(color_filter_t *colorf, gpointer user_data)
+{
+  GtkWidget        *color_filters = (GtkWidget*)user_data;
+
+  add_filter_to_list(colorf, color_filters, FALSE);
+
+  gtk_widget_grab_focus(color_filters);
+}
 /* Create the "Coloring Rules" dialog. */
 static GtkWidget*
 colorize_dialog_new (char *filter)
@@ -406,7 +416,7 @@ colorize_dialog_new (char *filter)
   gtk_widget_grab_focus(color_filters);
 
   /* prepare filter list content */
-  color_filters_clone(color_filters);
+  color_filters_clone(color_filters, color_filter_add_cb);
   g_object_set_data(G_OBJECT(color_win), COLOR_FILTER_LIST, &color_filter_edit_list);
 
   gtk_widget_show_all(color_win);
@@ -734,18 +744,6 @@ add_filter_to_list(gpointer filter_arg, gpointer list_arg, gboolean prepend)
   }
 }
 
-
-/* a new color filter was read in from a filter file */
-void
-color_filter_add_cb(color_filter_t *colorf, gpointer user_data)
-{
-  GtkWidget        *color_filters = (GtkWidget*)user_data;
-
-  add_filter_to_list(colorf, color_filters, FALSE);
-
-  gtk_widget_grab_focus(color_filters);
-}
-
 /* Create a new filter, add it to the list, and pop up an
    "Edit color filter" dialog box to edit it. */
 static void
@@ -955,6 +953,7 @@ static void
 color_clear_cmd(GtkWidget *widget)
 {
   GtkWidget * color_filters;
+  gchar* err_msg = NULL;
 
   color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(widget), COLOR_FILTERS_CL);
 
@@ -964,7 +963,11 @@ color_clear_cmd(GtkWidget *widget)
   }
 
   /* try to read the global filters */
-  color_filters_read_globals(color_filters);
+  if (!color_filters_read_globals(color_filters, &err_msg, initialize_color, color_filter_add_cb))
+  {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+    g_free(err_msg);
+  }
 }
 
 /* User pressed "clear" button: ask user before really doing it */
@@ -1013,12 +1016,17 @@ color_clear_cb(GtkWidget *widget, gpointer data _U_) {
 static void
 overwrite_existing_colorfilters_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
 {
+  gchar* err_msg = NULL;
+
   switch (btn) {
   case(ESD_BTN_SAVE):
     /* overwrite the file*/
-    if (!color_filters_write(color_filter_edit_list))
+    if (!color_filters_write(color_filter_edit_list, &err_msg))
+    {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "Could not open colorfilter file: %s", g_strerror(errno));
+                    "Could not open colorfilter file: %s", err_msg);
+      g_free(err_msg);
+    }
     else
       prefs.unknown_colorfilters = FALSE;
     break;
@@ -1032,6 +1040,7 @@ overwrite_existing_colorfilters_cb(gpointer dialog _U_, gint btn, gpointer data 
 static void
 colorfilters_main_save(void)
 {
+  gchar* err_msg = NULL;
   if (prefs.unknown_colorfilters) {
     gpointer dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE,
       "Obsolete or unrecognized color filters have been detected. "
@@ -1041,8 +1050,9 @@ colorfilters_main_save(void)
 
     simple_dialog_set_cb(dialog, overwrite_existing_colorfilters_cb, NULL);
   } else {
-    if (!color_filters_write(color_filter_edit_list))
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not open filter file: %s", g_strerror(errno));
+    if (!color_filters_write(color_filter_edit_list, &err_msg))
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not open filter file: %s", err_msg);
+      g_free(err_msg);
   }
 }
 
@@ -1064,6 +1074,8 @@ color_ok_cb(GtkButton *button _U_, gpointer user_data _U_)
 static void
 color_apply_cb(GtkButton *button _U_, gpointer user_data _U_)
 {
+  gchar* err_msg = NULL;
+
   /* if we don't have a Save button, just save the settings now */
   if (!prefs.gui_use_pref_save)
     colorfilters_main_save();
@@ -1071,7 +1083,10 @@ color_apply_cb(GtkButton *button _U_, gpointer user_data _U_)
   /* Apply the coloring rules, both the temporary ones in
    * color_filter_tmp_list as the permanent ones in color_filter_edit_list
    * */
-  color_filters_apply(color_filter_tmp_list, color_filter_edit_list);
+  if (!color_filters_apply(color_filter_tmp_list, color_filter_edit_list, &err_msg)) {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+    g_free(err_msg);
+  }
 
   /* colorize list */
   packet_list_colorize_packets();

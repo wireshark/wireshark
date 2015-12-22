@@ -48,8 +48,10 @@
 #include "ui/util.h"
 
 #include "qt_ui_utils.h"
+#include "color_utils.h"
+#include "coloring_rules_dialog.h"
 
-#include "color_filters.h"
+#include "epan/color_filters.h"
 #include "log.h"
 #include "recent_file_status.h"
 
@@ -303,6 +305,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     char  *gdp_path, *dp_path;
     char  *rf_path;
     int    rf_open_errno;
+    gchar *err_msg = NULL;
 
     /* First check if profile exists */
     if (!profile_exists(profile_name, FALSE)) {
@@ -366,7 +369,7 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     timestamp_set_type (recent.gui_time_format);
     timestamp_set_precision(recent.gui_time_precision);
     timestamp_set_seconds_type (recent.gui_seconds_format);
-    color_filters_enable(recent.packet_list_colorize);
+    packet_list_enable_color(recent.packet_list_colorize);
     tap_update_timer_.setInterval(prefs.tap_update_interval);
 
     prefs_to_capture_opts();
@@ -391,7 +394,10 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     }
 
     /* Reload color filters */
-    color_filters_reload();
+    if (!color_filters_reload(&err_msg, initialize_color, color_filter_add_cb)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+        g_free(err_msg);
+    }
 
     emit localInterfaceListChanged();
     emit packetDissectionChanged();

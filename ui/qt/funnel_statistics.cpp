@@ -23,13 +23,13 @@
 
 #include <glib.h>
 
-#include "color.h"
-#include "color_filters.h"
+#include "epan/color_filters.h"
 #include "file.h"
 
 #include "epan/funnel.h"
 
 #include "ui/progress_dlg.h"
+#include "ui/simple_dialog.h"
 
 #include "funnel_statistics.h"
 #include "funnel_string_dialog.h"
@@ -230,7 +230,11 @@ void funnel_statistics_set_filter(funnel_ops_id_t *ops_id, const char* filter_st
 }
 
 void funnel_statistics_set_color_filter_slot(guint8 filter_num, const gchar* filter_string) {
-    color_filters_set_tmp(filter_num, (gchar *)filter_string, FALSE);
+    gchar *err_msg = NULL;
+    if (!color_filters_set_tmp(filter_num, (gchar *)filter_string, FALSE, &err_msg)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+        g_free(err_msg);
+    }
 }
 
 gboolean funnel_statistics_open_file(funnel_ops_id_t *ops_id, const char* fname, const char* filter, char**) {

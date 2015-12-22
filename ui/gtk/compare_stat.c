@@ -64,8 +64,7 @@
 #include "globals.h"
 
 /* Color settings */
-#include "color.h"
-#include "color_filters.h"
+#include <epan/color_filters.h>
 #include "packet_list.h"
 
 
@@ -539,6 +538,7 @@ comparestat_draw(void *arg)
 	frame_info *fInfo;
 	guint32 first_file_amount, second_file_amount;
 	char* addr_str;
+	gchar *err_msg = NULL;
 
 	/* initial steps, clear all data before start*/
 	cs->zebra_time.secs=0;
@@ -591,7 +591,10 @@ comparestat_draw(void *arg)
 		g_string_printf(filter_str, "%s %s %s %s", "eth.dst==", addr_str, "|| eth.dst==", addr_str);
 		wmem_free(NULL, addr_str);
 	}
-	color_filters_set_tmp(COLOR_N, filter_str->str, FALSE);
+	if (!color_filters_set_tmp(COLOR_N, filter_str->str, FALSE, &err_msg)) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+		g_free(err_msg);
+	}
 	packet_list_colorize_packets();
 	/* Variance */
 	cs->stats.variance=compare_variance;

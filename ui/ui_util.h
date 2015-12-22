@@ -31,6 +31,7 @@
 
 #include "epan/packet_info.h"
 #include "epan/column-utils.h"
+#include "epan/color_filters.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -81,6 +82,15 @@ void packet_list_moveto_end(void);
 gboolean packet_list_check_end(void); /* GTK+ only */
 gboolean packet_list_select_row_from_data(frame_data *fdata_needle);
 void packet_list_resize_column(gint col);
+
+/* XXX - Yes this isn't the best place, but they are used by file_dlg_win32.c, which is supposed
+         to be GUI independent, but has lots of GTK leanings.  But if you put these in a GTK UI
+         header file, file_dlg_win32.c complains about all of the GTK structures also in the header
+         files
+         Function names make it clear where they are coming from
+*/
+gboolean initialize_color(color_t *color, guint16 red, guint16 green, guint16 blue);
+void color_filter_add_cb(color_filter_t *colorf, gpointer user_data);
 
 #ifdef __cplusplus
 }

@@ -26,8 +26,7 @@
 
 #include <epan/dfilter/dfilter.h>
 
-#include "../color.h"
-#include "../color_filters.h"
+#include <epan/color_filters.h>
 
 #include "ui/simple_dialog.h"
 

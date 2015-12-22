@@ -300,7 +300,7 @@ endif
 dumpabi-libwireshark: all abi-descriptor.xml
 	rm -rf abi-check-headers abi_dumps .libs/*.abi.tar.gz
 	mkdir abi-check-headers
-	cp ../color.h ../config.h ../register.h abi-check-headers/
+	cp ../config.h ../register.h abi-check-headers/
 	mkdir abi-check-headers/epan
 	cp *.h abi-check-headers/epan
 	mkdir abi-check-headers/crypt

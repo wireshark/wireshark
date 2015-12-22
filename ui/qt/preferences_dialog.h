@@ -26,8 +26,6 @@
 
 #include <glib.h>
 
-#include "color.h"
-
 #include <epan/prefs.h>
 
 #include "wireshark_application.h"

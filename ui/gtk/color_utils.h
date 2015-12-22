@@ -24,19 +24,11 @@
 #define  __COLORS_H__
 
 #include "ui/gtk/gui_utils.h"
+#include <epan/color_filters.h>
 
 /** @file
  *  Definitions for color structures and routines
  */
-
-/** The color white. */
-extern GdkColor WHITE;
-
-/** The color light-grey. */
-extern GdkColor LTGREY;
-
-/** The color black. */
-extern GdkColor BLACK;
 
 /** Initialize the colors. */
 void colors_init(void);

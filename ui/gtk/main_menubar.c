@@ -38,7 +38,7 @@
 #include <epan/plugin_if.h>
 
 #include "globals.h"
-#include "color_filters.h"
+#include <epan/color_filters.h>
 
 #include "ui/main_statusbar.h"
 #include "ui/preference_utils.h"
@@ -193,9 +193,13 @@ colorize_conversation_cb(conversation_filter_t* color_filter, int action_num)
 {
     gchar *filter = NULL;
     packet_info *pi = &cfile.edt->pi;
+    gchar *err_msg = NULL;
 
     if (action_num == 255) {
-        color_filters_reset_tmp();
+        if (!color_filters_reset_tmp(&err_msg)) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+            g_free(err_msg);
+        }
         packet_list_colorize_packets();
     } else if (cfile.current_frame) {
         if (color_filter == NULL) {
@@ -239,7 +243,10 @@ colorize_conversation_cb(conversation_filter_t* color_filter, int action_num)
             color_display_with_filter(filter);
         } else {
             /* Set one of the temporary coloring filters */
-            color_filters_set_tmp(action_num, filter, FALSE);
+            if (!color_filters_set_tmp(action_num, filter, FALSE, &err_msg)) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+                g_free(err_msg);
+            }
             packet_list_colorize_packets();
         }
 

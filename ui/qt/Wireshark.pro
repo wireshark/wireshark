@@ -191,7 +191,6 @@ SOURCES_WS_C = \
     ../../capture_info.c  \
     ../../capture_opts.c \
     ../../cfile.c \
-    ../../color_filters.c \
     ../../extcap.c \
     ../../extcap_parser.c \
     ../../file.c  \

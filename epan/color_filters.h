@@ -22,11 +22,40 @@
 #ifndef  __COLOR_FILTERS_H__
 #define  __COLOR_FILTERS_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 struct epan_dissect;
+
+/*
+ * Data structure holding RGB value for a color.
+ *
+ * XXX - yes, I know, there's a "pixel" value in there as well; for
+ * now, it's intended to look just like a GdkColor but not to require
+ * that any GTK+ header files be included in order to use it.
+ * The way we handle colors needs to be cleaned up somewhat, in order
+ * to keep toolkit-specific stuff separate from toolkit-independent stuff.
+ */
+typedef struct {
+	guint32 pixel;
+	guint16 red;
+	guint16 green;
+	guint16 blue;
+} color_t;
+
+/** Initialize a color with R, G, and B values, including any toolkit-dependent
+ ** work that needs to be done.
+ *
+ * @param color the color_t to be filled
+ * @param red the red value for the color
+ * @param green the green value for the color
+ * @param blue the blue value for the color
+ * @return TRUE if it succeeds, FALSE if it fails
+ */
+typedef gboolean (*initialize_color_func)(color_t *color, guint16 red, guint16 green, guint16 blue);
 
 #define CONVERSATION_COLOR_PREFIX       "___conversation_color_filter___"
 /** @file
@@ -49,34 +78,34 @@ typedef struct _color_filter {
     void      *color_edit_dlg_info; /* if filter is being edited, ptr to req'd info. GTK+ only. */
 } color_filter_t;
 
+/** A color filter was added (while importing).
+ * (color_filters.c calls this for every filter coming in)
+ *
+ * @param colorf the new color filter
+ * @param user_data from caller
+ */
+typedef void (*color_filter_add_cb_func)(color_filter_t *colorf, gpointer user_data);
 
 /** Init the color filters (incl. initial read from file). */
-void color_filters_init(void);
+WS_DLL_PUBLIC gboolean color_filters_init(gchar** err_msg, initialize_color_func init_func, color_filter_add_cb_func add_cb);
 
 /** Reload the color filters */
-void color_filters_reload(void);
+WS_DLL_PUBLIC gboolean color_filters_reload(gchar** err_msg, initialize_color_func init_func, color_filter_add_cb_func add_cb);
 
 /** Cleanup remaining color filter zombies */
-void color_filters_cleanup(void);
+WS_DLL_PUBLIC void color_filters_cleanup(void);
 
 /** Color filters currently used?
  *
  * @return TRUE, if filters are used
  */
-gboolean color_filters_used(void);
+WS_DLL_PUBLIC gboolean color_filters_used(void);
 
 /** Are there any temporary coloring filters used?
  *
  * @return TRUE, if temporary coloring filters are used
  */
-gboolean tmp_color_filters_used(void);
-
-/** En-/disable color filters
- *
- * @param enable TRUE to enable (default)
- */
-void
-color_filters_enable(gboolean enable);
+WS_DLL_PUBLIC gboolean tmp_color_filters_used(void);
 
 /** Set the filter string of a temporary color filter
  *
@@ -84,43 +113,43 @@ color_filters_enable(gboolean enable);
  * @param filter the new filter-string
  * @param disabled whether the filter-rule should be disabled
  */
-void
-color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled);
+WS_DLL_PUBLIC gboolean
+color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled, gchar **err_msg);
 
 /** Get a temporary color filter.
  *
  * @param filter_num A number from 1 to 10 specifying the color to fetch.
  * @return The corresponding color or NULL.
  */
-const color_filter_t *
+WS_DLL_PUBLIC const color_filter_t *
 color_filters_tmp_color(guint8 filter_num);
 
 /** Reset the temporary color filters
  *
  */
-void
-color_filters_reset_tmp(void);
+WS_DLL_PUBLIC gboolean
+color_filters_reset_tmp(gchar **err_msg);
 
 /* Prime the epan_dissect_t with all the compiler
  * color filters of the current filter list.
  *
  * @param the epan dissector details
  */
-void color_filters_prime_edt(struct epan_dissect *edt);
+WS_DLL_PUBLIC void color_filters_prime_edt(struct epan_dissect *edt);
 
 /** Colorize a specific packet.
  *
  * @param edt the dissected packet
  * @return the matching color filter or NULL
  */
-const color_filter_t *
+WS_DLL_PUBLIC const color_filter_t *
 color_filters_colorize_packet(struct epan_dissect *edt);
 
 /** Clone the currently active filter list.
  *
  * @param user_data will be returned by each call to to color_filter_add_cb()
  */
-void color_filters_clone(gpointer user_data);
+WS_DLL_PUBLIC void color_filters_clone(gpointer user_data, color_filter_add_cb_func add_cb);
 
 /** Load filters (import) from some other filter file.
  *
@@ -128,23 +157,14 @@ void color_filters_clone(gpointer user_data);
  * @param user_data will be returned by each call to to color_filter_add_cb()
  * @return TRUE, if read succeeded
  */
-gboolean color_filters_import(const gchar *path, const gpointer user_data);
+WS_DLL_PUBLIC gboolean color_filters_import(const gchar *path, const gpointer user_data, gchar** err_msg, initialize_color_func init_func, color_filter_add_cb_func add_cb);
 
 /** Read filters from the global filter file (not the users file).
  *
  * @param user_data will be returned by each call to to color_filter_add_cb()
  * @return TRUE, if read succeeded
  */
-gboolean color_filters_read_globals(gpointer user_data);
-
-/** A color filter was added (while importing).
- * (color_filters.c calls this for every filter coming in)
- *
- * @param colorf the new color filter
- * @param user_data from caller
- */
-void color_filter_add_cb (color_filter_t *colorf, gpointer user_data);
-
+WS_DLL_PUBLIC gboolean color_filters_read_globals(gpointer user_data, gchar** err_msg, initialize_color_func init_func, color_filter_add_cb_func add_cb);
 
 
 /** Apply a changed filter list.
@@ -152,14 +172,14 @@ void color_filter_add_cb (color_filter_t *colorf, gpointer user_data);
  * @param tmp_cfl the temporary color filter list to apply
  * @param edit_cfl the edited permanent color filter list to apply
  */
-void color_filters_apply(GSList *tmp_cfl, GSList *edit_cfl);
+WS_DLL_PUBLIC gboolean color_filters_apply(GSList *tmp_cfl, GSList *edit_cfl, gchar** err_msg);
 
 /** Save filters in users filter file.
  *
  * @param cfl the filter list to write
  * @return TRUE if write succeeded
  */
-gboolean color_filters_write(GSList *cfl);
+WS_DLL_PUBLIC gboolean color_filters_write(GSList *cfl, gchar** err_msg);
 
 /** Save filters (export) to some other filter file.
  *
@@ -168,7 +188,7 @@ gboolean color_filters_write(GSList *cfl);
  * @param only_selected TRUE if only the selected filters should be saved
  * @return TRUE, if write succeeded
  */
-gboolean color_filters_export(const gchar *path, const GSList *cfl, gboolean only_selected);
+WS_DLL_PUBLIC gboolean color_filters_export(const gchar *path, const GSList *cfl, gboolean only_selected, gchar** err_msg);
 
 /** Create a new color filter (g_malloc'ed).
  *
@@ -179,7 +199,7 @@ gboolean color_filters_export(const gchar *path, const GSList *cfl, gboolean onl
  * @param disabled gboolean
  * @return the new color filter
  */
-color_filter_t *color_filter_new(
+WS_DLL_PUBLIC color_filter_t *color_filter_new(
     const gchar *name, const gchar *filter_string,
     color_t *bg_color, color_t *fg_color, gboolean disabled);
 
@@ -187,13 +207,13 @@ color_filter_t *color_filter_new(
  *
  * @param colorf the color filter to be removed
  */
-void color_filter_delete(color_filter_t *colorf);
+WS_DLL_PUBLIC void color_filter_delete(color_filter_t *colorf);
 
 /** Delete a filter list including all entries.
  *
  * @param cfl the filter list to delete
  */
-void color_filter_list_delete(GSList **cfl);
+WS_DLL_PUBLIC void color_filter_list_delete(GSList **cfl);
 
 #ifdef __cplusplus
 }

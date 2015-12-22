@@ -26,17 +26,14 @@
 
 #include <gtk/gtk.h>
 
-#include "../color.h"
-
-
 #include "ui/gtk/color_utils.h"
 #if 0
 static GdkColormap*	sys_cmap;
 static GdkColormap*	our_cmap = NULL;
 #endif
-GdkColor	WHITE = { 0, 65535, 65535, 65535 };
-/*GdkColor	LTGREY = { 0, 57343, 57343, 57343 };*/
-GdkColor	BLACK = { 0, 0, 0, 0 };
+/* static GdkColor	WHITE = { 0, 65535, 65535, 65535 }; */
+/*static GdkColor	LTGREY = { 0, 57343, 57343, 57343 };*/
+/* static GdkColor	BLACK = { 0, 0, 0, 0 }; */
 
 /*
  * Initialize a color with R, G, and B values, including any toolkit-dependent

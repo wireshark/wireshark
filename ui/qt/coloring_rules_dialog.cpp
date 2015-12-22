@@ -28,9 +28,10 @@
 #include "coloring_rules_dialog.h"
 #include <ui_coloring_rules_dialog.h>
 
-#include "color.h"
-#include "color_filters.h"
+#include "epan/color_filters.h"
 
+#include "ui/simple_dialog.h"
+#include "ui/simple_dialog.h"
 #include "epan/dfilter/dfilter.h"
 #include "epan/prefs.h"
 
@@ -39,6 +40,7 @@
 #include "wsutil/filesystem.h"
 
 #include "color_utils.h"
+#include "ui/ui_util.h"
 #include "display_filter_combo.h"
 #include "syntax_line_edit.h"
 #include "wireshark_application.h"
@@ -60,15 +62,6 @@
 // - Make the filter column narrower? It's easy to run into Qt's annoying
 //   habit of horizontally scrolling QTreeWidgets here.
 
-// Callback for color_filters_clone.
-void
-color_filter_add_cb(color_filter_t *colorf, gpointer user_data)
-{
-    ColoringRulesDialog *coloring_rules_dialog = static_cast<ColoringRulesDialog*>(user_data);
-
-    if (!coloring_rules_dialog) return;
-    coloring_rules_dialog->addColor(colorf);
-}
 
 enum {
     name_col_ = 0,
@@ -93,7 +86,7 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
     ui->coloringRulesTreeWidget->setDropIndicatorShown(true);
     ui->coloringRulesTreeWidget->setDragDropMode(QAbstractItemView::InternalMove);
 
-    color_filters_clone(this);
+    color_filters_clone(this, color_filter_add_cb);
 
     for (int i = 0; i < ui->coloringRulesTreeWidget->columnCount(); i++) {
         ui->coloringRulesTreeWidget->setItemDelegateForColumn(i, &coloring_rules_tree_delegate_);
@@ -330,7 +323,11 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
     if (button == import_button_) {
         QString file_name = QFileDialog::getOpenFileName(this, wsApp->windowTitleString(tr("Import Coloring Rules")),
                                                          wsApp->lastOpenDir().path());
-        color_filters_import(file_name.toUtf8().constData(), this);
+        gchar* err_msg = NULL;
+        if (!color_filters_import(file_name.toUtf8().constData(), this, &err_msg, initialize_color, color_filter_add_cb)) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+            g_free(err_msg);
+        }
     } else if (button == export_button_) {
         int num_items = ui->coloringRulesTreeWidget->selectedItems().count();
 
@@ -345,7 +342,11 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
                                                          wsApp->lastOpenDir().path());
         if (!file_name.isEmpty()) {
             GSList *cfl = createColorFilterList();
-            color_filters_export(file_name.toUtf8().constData(), cfl, FALSE);
+            gchar* err_msg = NULL;
+            if (!color_filters_export(file_name.toUtf8().constData(), cfl, FALSE, &err_msg)) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+                g_free(err_msg);
+            }
             color_filter_list_delete(&cfl);
         }
     }
@@ -354,6 +355,7 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
 void ColoringRulesDialog::on_buttonBox_accepted()
 {
     GSList *cfl = createColorFilterList();
+    gchar* err_msg = NULL;
     if (prefs.unknown_colorfilters) {
         QMessageBox mb;
         mb.setText(tr("Your coloring rules file contains unknown rules"));
@@ -365,9 +367,13 @@ void ColoringRulesDialog::on_buttonBox_accepted()
         int result = mb.exec();
         if (result != QMessageBox::Save) return;
     }
-    color_filters_apply(conversation_colors_, cfl);
-    if (!color_filters_write(cfl)) {
-        QMessageBox::warning(this, tr("Unable to save coloring rules"), g_strerror(errno));
+    if (!color_filters_apply(conversation_colors_, cfl, &err_msg)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+        g_free(err_msg);
+    }
+    if (!color_filters_write(cfl, &err_msg)) {
+        QMessageBox::warning(this, tr("Unable to save coloring rules: %s"), g_strerror(errno));
+        g_free(err_msg);
     }
     color_filter_list_delete(&cfl);
 }
@@ -428,6 +434,38 @@ void ColoringRulesTreeDelegate::ruleNameChanged(const QString name)
         name_edit->setSyntaxState(SyntaxLineEdit::Valid);
     }
 
+}
+
+/*
+ * Initialize a color with R, G, and B values, including any toolkit-dependent
+ * work that needs to be done.
+ */
+gboolean
+initialize_color(color_t *color, guint16 red, guint16 green, guint16 blue)
+{
+    QColor qc;
+
+    // color_t uses 16-bit components to match Gtk+. Qt use 8.
+    qc.setRgb(red>>8, green>>8, blue>>8);
+    if (!qc.isValid())
+        return FALSE;
+
+    // Match what color_filters.c does.
+    color->red = red;
+    color->green = green;
+    color->blue = blue;
+    color->pixel = 0;
+    return TRUE;
+}
+
+// Callback for color_filters_clone.
+void
+color_filter_add_cb(color_filter_t *colorf, gpointer user_data)
+{
+    ColoringRulesDialog *coloring_rules_dialog = static_cast<ColoringRulesDialog*>(user_data);
+
+    if (!coloring_rules_dialog) return;
+    coloring_rules_dialog->addColor(colorf);
 }
 
 /*

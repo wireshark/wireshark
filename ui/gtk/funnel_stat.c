@@ -44,7 +44,8 @@
 #include <epan/funnel.h>
 
 #include "ui/progress_dlg.h"
-#include "../color_filters.h"
+#include "ui/simple_dialog.h"
+#include <epan/color_filters.h>
 
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/dlg_utils.h"
@@ -465,7 +466,11 @@ static void funnel_set_filter(funnel_ops_id_t *ops_id _U_, const char* filter_st
 }
 
 static void funnel_set_color_filter_slot(guint8 filt_nr, const gchar* filter_string) {
-    color_filters_set_tmp(filt_nr, (gchar *)filter_string, FALSE);
+    gchar *err_msg = NULL;
+    if (!color_filters_set_tmp(filt_nr, (gchar *)filter_string, FALSE, &err_msg)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+        g_free(err_msg);
+    }
 }
 
 static void funnel_apply_filter(funnel_ops_id_t *ops_id _U_) {

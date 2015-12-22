@@ -1592,6 +1592,7 @@ set(LIBWIRESHARK_FILES
 	capture_dissectors.c
 	charsets.c
 	circuit.c
+	color_filters.c
 	column.c
 	column-utils.c
 	conversation.c
@@ -1764,7 +1765,7 @@ endif()
 
 ABICHECK(libwireshark)
 
-set(TOP_LEVEL_HEADERS ${CMAKE_BINARY_DIR}/config.h ${CMAKE_SOURCE_DIR}/color.h ${CMAKE_SOURCE_DIR}/register.h)
+set(TOP_LEVEL_HEADERS ${CMAKE_BINARY_DIR}/config.h ${CMAKE_SOURCE_DIR}/register.h)
 file(GLOB CRYPT_HEADERS crypt/*.h)
 file(GLOB COMPRESS_HEADERS compress/*.h)
 file(GLOB DFILTER_HEADERS dfilter/*.h ../tools/lemon/cppmagic.h)

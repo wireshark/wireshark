@@ -26,8 +26,6 @@
 
 #include <glib.h>
 
-#include "color.h"
-
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 

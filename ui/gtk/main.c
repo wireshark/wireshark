@@ -97,8 +97,7 @@
 #include "../file.h"
 #include "../frame_tvbuff.h"
 #include "../summary.h"
-#include "../color.h"
-#include "../color_filters.h"
+#include <epan/color_filters.h>
 #include "../register.h"
 #include "../ringbuffer.h"
 #include "../log.h"
@@ -355,6 +354,7 @@ void
 colorize_selected_ptree_cb(GtkWidget *w _U_, gpointer data _U_, guint8 filt_nr)
 {
     char *filter = NULL;
+    gchar *err_msg = NULL;
 
     if (cfile.finfo_selected) {
         filter = proto_construct_match_selected_string(cfile.finfo_selected,
@@ -370,9 +370,16 @@ colorize_selected_ptree_cb(GtkWidget *w _U_, gpointer data _U_, guint8 filt_nr)
             color_display_with_filter(filter);
         } else {
             if (filt_nr==255) {
-                color_filters_reset_tmp();
+                if (!color_filters_reset_tmp(&err_msg)) {
+                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+                    g_free(err_msg);
+                }
             } else {
-                color_filters_set_tmp(filt_nr,filter, FALSE);
+                if (!color_filters_set_tmp(filt_nr,filter, FALSE, &err_msg)) {
+                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+                    g_free(err_msg);
+                }
+
             }
             packet_list_colorize_packets();
         }
@@ -1351,7 +1358,7 @@ main_colorize_changed(gboolean packet_list_colorize)
     /* change colorization */
     if(packet_list_colorize != recent.packet_list_colorize) {
         recent.packet_list_colorize = packet_list_colorize;
-        color_filters_enable(packet_list_colorize);
+        packet_list_enable_color(packet_list_colorize);
         packet_list_colorize_packets();
     }
 }
@@ -2215,7 +2222,7 @@ main(int argc, char *argv[])
     gint                 pl_size = 280, tv_size = 95, bv_size = 75;
     gchar               *rc_file, *cf_name = NULL, *rfilter = NULL, *dfilter = NULL, *jfilter = NULL;
     dfilter_t           *rfcode = NULL;
-    gchar               *err_msg;
+    gchar               *err_msg = NULL;
     gboolean             rfilter_parse_failed = FALSE;
     e_prefs             *prefs_p;
     char                 badopt;
@@ -3135,7 +3142,7 @@ main(int argc, char *argv[])
         g_free(rf_path);
     }
 
-    color_filters_enable(recent.packet_list_colorize);
+    packet_list_enable_color(recent.packet_list_colorize);
 
     /* rearrange all the widgets as we now have all recent settings ready for this */
     main_widgets_rearrange();
@@ -3173,7 +3180,10 @@ main(int argc, char *argv[])
 
     dnd_init(top_level);
 
-    color_filters_init();
+    if (!color_filters_init(&err_msg, initialize_color, color_filter_add_cb)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+        g_free(err_msg);
+    }
 #ifdef HAVE_LIBPCAP
     capture_filter_init();
 #endif
@@ -3886,6 +3896,7 @@ void change_configuration_profile (const gchar *profile_name)
     char  *gdp_path, *dp_path;
     char  *rf_path;
     int    rf_open_errno;
+    gchar* err_msg = NULL;
 
     /* First check if profile exists */
     if (!profile_exists(profile_name, FALSE)) {
@@ -3933,7 +3944,7 @@ void change_configuration_profile (const gchar *profile_name)
     }
     timestamp_set_type (recent.gui_time_format);
     timestamp_set_seconds_type (recent.gui_seconds_format);
-    color_filters_enable(recent.packet_list_colorize);
+    packet_list_enable_color(recent.packet_list_colorize);
 
     prefs_to_capture_opts();
     prefs_apply_all();
@@ -3955,7 +3966,10 @@ void change_configuration_profile (const gchar *profile_name)
     }
 
     /* Reload color filters */
-    color_filters_reload();
+    if (!color_filters_reload(&err_msg, initialize_color, color_filter_add_cb)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+        g_free(err_msg);
+    }
 
     /* Reload list of interfaces on welcome page */
     welcome_if_panel_reload();
@@ -3975,8 +3989,13 @@ void change_configuration_profile (const gchar *profile_name)
 void
 main_fields_changed (void)
 {
+    gchar* err_msg = NULL;
+
     /* Reload color filters */
-    color_filters_reload();
+    if (!color_filters_reload(&err_msg, initialize_color, color_filter_add_cb)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+        g_free(err_msg);
+    }
 
     /* Syntax check filter */
     filter_te_syntax_check_cb(main_display_filter_widget, NULL);

@@ -23,8 +23,6 @@
 
 #include <glib.h>
 
-#include "color.h"
-
 #include <epan/column-info.h>
 #include <epan/column.h>
 #include <epan/prefs.h>

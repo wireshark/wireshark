@@ -454,6 +454,15 @@ androiddump.exe	: $(LIBS_CHECK) config.h androiddump.obj wsutil\libwsutil.lib wi
 	mt.exe -nologo -manifest "androiddump.exe.manifest" -outputresource:androiddump.exe;1
 !ENDIF
 
+randpktdump.exe	: $(LIBS_CHECK) config.h randpktdump.obj randpkt-core.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:randpktdump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS randpktdump.obj randpkt-core.obj $(randpktdump_LIBS)
+<<
+!IFDEF MANIFEST_INFO_REQUIRED
+	mt.exe -nologo -manifest "randpktdump.exe.manifest" -outputresource:randpktdump.exe;1
+!ENDIF
+
 !IFDEF LIBSSH_DIR
 sshdump.exe	: $(LIBS_CHECK) config.h sshdump.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib
 	@echo Linking $@
@@ -463,15 +472,6 @@ sshdump.exe	: $(LIBS_CHECK) config.h sshdump.obj wsutil\libwsutil.lib wiretap\wi
 !IFDEF MANIFEST_INFO_REQUIRED
 	mt.exe -nologo -manifest "sshdump.exe.manifest" -outputresource:sshdump.exe;1
 !ENDIF
-!ENDIF
-
-randpktdump.exe	: $(LIBS_CHECK) config.h randpktdump.obj randpkt-core.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib
-	@echo Linking $@
-	$(LINK) @<<
-		/OUT:randpktdump.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:WINDOWS randpktdump.obj randpkt-core.obj $(randpktdump_LIBS)
-<<
-!IFDEF MANIFEST_INFO_REQUIRED
-	mt.exe -nologo -manifest "randpktdump.exe.manifest" -outputresource:randpktdump.exe;1
 !ENDIF
 
 dumpcap.exe	: $(LIBS_CHECK) config.h $(dumpcap_OBJECTS) caputils wsutil\libwsutil.lib image\dumpcap.res

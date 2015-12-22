@@ -50,7 +50,6 @@ SHARK_COMMON_SRC =	\
 # corresponding headers
 SHARK_COMMON_INCLUDES =	\
 	cfile.h			\
-	color.h			\
 	extcap.h		\
 	extcap_parser.h		\
 	file.h			\
@@ -64,7 +63,6 @@ WIRESHARK_COMMON_SRC =	\
 	$(SHARK_COMMON_SRC)	\
 	capture_info.c	\
 	capture_opts.c	\
-	color_filters.c	\
 	file.c		\
 	fileset.c	\
 	summary.c
@@ -73,7 +71,6 @@ WIRESHARK_COMMON_SRC =	\
 WIRESHARK_COMMON_INCLUDES =	\
 	capture_info.h	\
 	capture_opts.h	\
-	color_filters.h	\
 	globals.h	\
 	log.h		\
 	summary.h	\

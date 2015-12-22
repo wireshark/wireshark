@@ -44,8 +44,7 @@
 #include "packet-frame.h"
 #include "log.h"
 
-#include "color.h"
-#include "color_filters.h"
+#include <epan/color_filters.h>
 
 void proto_register_frame(void);
 void proto_reg_handoff_frame(void);

@@ -49,7 +49,7 @@
 #include "ui/gtk/packet_history.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/menus.h"
-#include "color_filters.h"
+#include <epan/color_filters.h>
 #include "ui/gtk/color_utils.h"
 #include "ui/gtk/packet_win.h"
 #include "ui/gtk/main.h"

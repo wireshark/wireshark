@@ -53,9 +53,8 @@
 #include <epan/dfilter/dfilter-macro.h>
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
+#include <epan/color_filters.h>
 
-#include "color.h"
-#include "color_filters.h"
 #include "cfile.h"
 #include "file.h"
 #include "fileset.h"

@@ -29,7 +29,7 @@ extern "C" {
 
 #include <glib.h>
 
-#include "color.h"
+#include "color_filters.h"
 
 #include <epan/params.h>
 #include <epan/range.h>

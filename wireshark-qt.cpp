@@ -72,8 +72,7 @@
 
 /* general (not Qt specific) */
 #include "file.h"
-#include "color.h"
-#include "color_filters.h"
+#include "epan/color_filters.h"
 #include "log.h"
 
 #include "epan/rtd_table.h"
@@ -89,6 +88,8 @@
 #include "ui/util.h"
 
 #include "ui/qt/conversation_dialog.h"
+#include "ui/qt/color_utils.h"
+#include "ui/qt/coloring_rules_dialog.h"
 #include "ui/qt/endpoint_dialog.h"
 #include "ui/qt/main_window.h"
 #include "ui/qt/response_time_delay_dialog.h"
@@ -1341,16 +1342,20 @@ int main(int argc, char *argv[])
         g_free(rf_path);
     }
 
-    color_filters_enable(recent.packet_list_colorize);
+    packet_list_enable_color(recent.packet_list_colorize);
 
     g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: fetch recent color settings");
-    color_filters_enable(TRUE);
+    packet_list_enable_color(TRUE);
 
 ////////
 
 
 ////////
-    color_filters_init();
+    gchar* err_msg = NULL;
+    if (!color_filters_init(&err_msg, initialize_color, color_filter_add_cb)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+        g_free(err_msg);
+    }
 
 ////////
 

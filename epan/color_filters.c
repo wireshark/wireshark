@@ -35,20 +35,17 @@
 #include <wsutil/file_util.h>
 
 #include <epan/packet.h>
-#include "color.h"
 #include "color_filters.h"
 #include "file.h"
 #include <epan/dfilter/dfilter.h>
 #include <epan/prefs.h>
 
-#include "ui/simple_dialog.h"
-#include "ui/ui_util.h"
 
 #define RED_COMPONENT(x)   (guint16) (((((x) >> 16) & 0xff) * 65535 / 255))
 #define GREEN_COMPONENT(x) (guint16) (((((x) >>  8) & 0xff) * 65535 / 255))
 #define BLUE_COMPONENT(x)  (guint16) ( (((x)        & 0xff) * 65535 / 255))
 
-static gboolean read_users_filters(GSList **cfl);
+static gboolean read_users_filters(GSList **cfl, gchar** err_msg, initialize_color_func init_func, color_filter_add_cb_func add_cb);
 
 /* the currently active filters */
 static GSList *color_filter_list = NULL;
@@ -87,7 +84,7 @@ color_filter_new(const gchar *name,          /* The name of the filter to create
 
 /* Add ten empty (temporary) colorfilters for easy coloring */
 static void
-color_filters_add_tmp(GSList **cfl)
+color_filters_add_tmp(GSList **cfl, initialize_color_func init_func)
 {
     gchar          *name = NULL;
     guint32         i;
@@ -107,11 +104,11 @@ color_filters_add_tmp(GSList **cfl)
 
         /* retrieve background and foreground colors */
         cval = strtoul(fg_colors[i-1], NULL, 16);
-        initialize_color(&fg_color, RED_COMPONENT(cval),
+        init_func(&fg_color, RED_COMPONENT(cval),
                          GREEN_COMPONENT(cval),
                          BLUE_COMPONENT(cval) );
         cval = strtoul(bg_colors[i-1], NULL, 16);
-        initialize_color(&bg_color, RED_COMPONENT(cval),
+        init_func(&bg_color, RED_COMPONENT(cval),
                          GREEN_COMPONENT(cval),
                          BLUE_COMPONENT(cval) );
         colorf = color_filter_new(name, NULL, &bg_color, &fg_color, TRUE);
@@ -138,17 +135,16 @@ color_filters_find_by_name_cb(gconstpointer arg1, gconstpointer arg2)
 
 
 /* Set the filter off a temporary colorfilters and enable it */
-void
-color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled)
+gboolean
+color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled, gchar **err_msg)
 {
     gchar          *name = NULL;
     const gchar    *tmpfilter = NULL;
     GSList         *cfl;
     color_filter_t *colorf;
     dfilter_t      *compiled_filter;
-    gchar          *err_msg;
     guint8         i;
-
+    gchar          *local_err_msg = NULL;
     /* Go through the temporary filters and look for the same filter string.
      * If found, clear it so that a filter can be "moved" up and down the list
      */
@@ -171,11 +167,10 @@ color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled)
              * or if we found a matching filter string which need to be cleared
              */
             tmpfilter = ( (filter==NULL) || (i!=filt_nr) ) ? "frame" : filter;
-            if (!dfilter_compile(tmpfilter, &compiled_filter, &err_msg)) {
-                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                              "Could not compile color filter name: \"%s\""
-                              " text: \"%s\".\n%s", name, filter, err_msg);
-                g_free(err_msg);
+            if (!dfilter_compile(tmpfilter, &compiled_filter, &local_err_msg)) {
+                *err_msg = g_strdup_printf( "Could not compile color filter name: \"%s\" text: \"%s\".\n%s", name, filter, local_err_msg);
+                g_free(local_err_msg);
+                return FALSE;
             } else {
                 if (colorf->filter_text != NULL)
                     g_free(colorf->filter_text);
@@ -191,7 +186,7 @@ color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled)
         }
         g_free(name);
     }
-    return;
+    return TRUE;
 }
 
 const color_filter_t *
@@ -211,17 +206,18 @@ color_filters_tmp_color(guint8 filter_num) {
 }
 
 /* Reset the temporary colorfilters */
-void
-color_filters_reset_tmp(void)
+gboolean
+color_filters_reset_tmp(gchar **err_msg)
 {
     guint8 i;
 
     for ( i=1 ; i<=10 ; i++ ) {
-        color_filters_set_tmp(i, NULL, TRUE);
+        if (!color_filters_set_tmp(i, NULL, TRUE, err_msg))
+            return FALSE;
     }
     /* Remember that there are now *no* temporary coloring filters set */
     tmp_colors_set = FALSE;
-    return;
+    return TRUE;
 }
 
 /* delete the specified filter */
@@ -296,23 +292,33 @@ color_filter_list_clone(GSList *cfl)
 }
 
 /* Initialize the filter structures (reading from file) for general running, including app startup */
-void
-color_filters_init(void)
+gboolean
+color_filters_init(gchar** err_msg, initialize_color_func init_func, color_filter_add_cb_func add_cb)
 {
     /* delete all currently existing filters */
     color_filter_list_delete(&color_filter_list);
 
     /* start the list with the temporary colorizing rules */
-    color_filters_add_tmp(&color_filter_list);
+    color_filters_add_tmp(&color_filter_list, init_func);
 
     /* try to read the users filters */
-    if (!read_users_filters(&color_filter_list))
+    if (!read_users_filters(&color_filter_list, err_msg, init_func, add_cb)) {
+        gchar* local_err_msg = NULL;
+
         /* if that failed, try to read the global filters */
-        color_filters_read_globals(&color_filter_list);
+        if (!color_filters_read_globals(&color_filter_list, &local_err_msg, init_func, add_cb)) {
+            /* Show the first error */
+            g_free(local_err_msg);
+        }
+
+        return (*err_msg == NULL);
+    }
+
+    return TRUE;
 }
 
-void
-color_filters_reload(void)
+gboolean
+color_filters_reload(gchar** err_msg, initialize_color_func init_func, color_filter_add_cb_func add_cb)
 {
     /* "move" old entries to the deleted list
      * we must keep them until the dissection no longer needs them */
@@ -320,12 +326,21 @@ color_filters_reload(void)
     color_filter_list = NULL;
 
     /* start the list with the temporary colorizing rules */
-    color_filters_add_tmp(&color_filter_list);
+    color_filters_add_tmp(&color_filter_list, init_func);
 
     /* try to read the users filters */
-    if (!read_users_filters(&color_filter_list))
+    if (!read_users_filters(&color_filter_list, err_msg, init_func, add_cb)) {
+        gchar* local_err_msg = NULL;
+
         /* if that failed, try to read the global filters */
-        color_filters_read_globals(&color_filter_list);
+        if (!color_filters_read_globals(&color_filter_list, &local_err_msg, init_func, add_cb)) {
+            /* Show the first error */
+            g_free(local_err_msg);
+        }
+
+        return (*err_msg == NULL);
+    }
+    return TRUE;
 }
 
 void
@@ -335,32 +350,44 @@ color_filters_cleanup(void)
     color_filter_list_delete(&color_filter_deleted_list);
 }
 
+typedef struct _color_clone
+{
+    gpointer user_data;
+    color_filter_add_cb_func add_cb;
+} color_clone_t;
+
 static void
 color_filters_clone_cb(gpointer filter_arg, gpointer user_data)
 {
+    color_clone_t* clone_data = (color_clone_t*)user_data;
     color_filter_t * new_colorf = color_filter_clone((color_filter_t *)filter_arg);
-    color_filter_add_cb (new_colorf, user_data);
+
+    clone_data->add_cb (new_colorf, clone_data->user_data);
 }
 
 void
-color_filters_clone(gpointer user_data)
+color_filters_clone(gpointer user_data, color_filter_add_cb_func add_cb)
 {
-    g_slist_foreach(color_filter_list, color_filters_clone_cb, user_data);
+    color_clone_t clone_data;
+
+    clone_data.user_data = user_data;
+    clone_data.add_cb = add_cb;
+    g_slist_foreach(color_filter_list, color_filters_clone_cb, &clone_data);
 }
 
 
 static void
-color_filter_compile_cb(gpointer filter_arg, gpointer unused _U_)
+color_filter_compile_cb(gpointer filter_arg, gpointer err)
 {
     color_filter_t *colorf = (color_filter_t *)filter_arg;
-    gchar *err_msg;
+    gchar **err_msg = (gchar**)err;
+    gchar *local_err_msg = NULL;
 
     g_assert(colorf->c_colorfilter == NULL);
-    if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &err_msg)) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "Could not compile color filter name: \"%s\" text: \"%s\".\n%s",
-                      colorf->filter_name, colorf->filter_text, err_msg);
-        g_free(err_msg);
+    if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &local_err_msg)) {
+        *err_msg = g_strdup_printf("Could not compile color filter name: \"%s\" text: \"%s\".\n%s",
+                      colorf->filter_name, colorf->filter_text, local_err_msg);
+        g_free(local_err_msg);
         /* this filter was compilable before, so this should never happen */
         /* except if the OK button of the parent window has been clicked */
         /* so don't use g_assert_not_reached() but check the filters again */
@@ -368,17 +395,17 @@ color_filter_compile_cb(gpointer filter_arg, gpointer unused _U_)
 }
 
 static void
-color_filter_validate_cb(gpointer filter_arg, gpointer unused _U_)
+color_filter_validate_cb(gpointer filter_arg, gpointer err)
 {
     color_filter_t *colorf = (color_filter_t *)filter_arg;
-    gchar *err_msg;
+    gchar **err_msg = (gchar**)err;
+    gchar *local_err_msg;
 
     g_assert(colorf->c_colorfilter == NULL);
-    if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &err_msg)) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "Removing color filter name: \"%s\" text: \"%s\".\n%s",
-                      colorf->filter_name, colorf->filter_text, err_msg);
-        g_free(err_msg);
+    if (!dfilter_compile(colorf->filter_text, &colorf->c_colorfilter, &local_err_msg)) {
+        *err_msg = g_strdup_printf("Removing color filter name: \"%s\" text: \"%s\".\n%s",
+                      colorf->filter_name, colorf->filter_text, local_err_msg);
+        g_free(local_err_msg);
         /* Delete the color filter from the list of color filters. */
         color_filter_valid_list = g_slist_remove(color_filter_valid_list, colorf);
         color_filter_delete(colorf);
@@ -386,9 +413,13 @@ color_filter_validate_cb(gpointer filter_arg, gpointer unused _U_)
 }
 
 /* apply changes from the edit list */
-void
-color_filters_apply(GSList *tmp_cfl, GSList *edit_cfl)
+gboolean
+color_filters_apply(GSList *tmp_cfl, GSList *edit_cfl, gchar** err_msg)
 {
+    gboolean ret = TRUE;
+
+    *err_msg = NULL;
+
     /* "move" old entries to the deleted list
      * we must keep them until the dissection no longer needs them */
     color_filter_deleted_list = g_slist_concat(color_filter_deleted_list, color_filter_list);
@@ -401,13 +432,21 @@ color_filters_apply(GSList *tmp_cfl, GSList *edit_cfl)
                                              color_filter_list_clone(edit_cfl) );
 
     /* compile all filter */
-    g_slist_foreach(color_filter_valid_list, color_filter_validate_cb, NULL);
+    g_slist_foreach(color_filter_valid_list, color_filter_validate_cb, err_msg);
+    if (*err_msg != NULL) {
+        ret = FALSE;
+    }
 
     /* clone all list entries from tmp/edit to normal list */
     color_filter_list = color_filter_list_clone(color_filter_valid_list);
 
     /* compile all filter */
-    g_slist_foreach(color_filter_list, color_filter_compile_cb, NULL);
+    g_slist_foreach(color_filter_list, color_filter_compile_cb, err_msg);
+    if (*err_msg != NULL) {
+        ret = FALSE;
+    }
+
+    return ret;
 }
 
 gboolean
@@ -421,13 +460,6 @@ tmp_color_filters_used(void)
 {
     return tmp_colors_set;
 }
-
-void
-color_filters_enable(gboolean enable)
-{
-    packet_list_enable_color(enable);
-}
-
 
 /* prepare the epan_dissect_t for the filter */
 static void
@@ -478,7 +510,7 @@ color_filters_colorize_packet(epan_dissect_t *edt)
 /* XXX - Would it make more sense to use GStrings here instead of reallocing
    our buffers? */
 static gboolean
-read_filters_file(FILE *f, gpointer user_data)
+read_filters_file(FILE *f, gpointer user_data, gchar** err_msg, initialize_color_func init_func, color_filter_add_cb_func add_cb)
 {
 #define INIT_BUF_SIZE 128
     gchar    *name             = NULL;
@@ -490,6 +522,7 @@ read_filters_file(FILE *f, gpointer user_data)
     guint16   fg_r, fg_g, fg_b, bg_r, bg_g, bg_b;
     gboolean  disabled         = FALSE;
     gboolean  skip_end_of_line = FALSE;
+    gboolean  ret = TRUE;
 
     name = (gchar *)g_malloc(name_len + 1);
     filter_exp = (gchar *)g_malloc(filter_exp_len + 1);
@@ -584,34 +617,32 @@ read_filters_file(FILE *f, gpointer user_data)
             color_t bg_color, fg_color;
             color_filter_t *colorf;
             dfilter_t *temp_dfilter;
-            gchar *err_msg;
+            gchar *local_err_msg = NULL;
 
-            if (!dfilter_compile(filter_exp, &temp_dfilter, &err_msg)) {
+            if (!dfilter_compile(filter_exp, &temp_dfilter, &local_err_msg)) {
                 g_warning("Could not compile \"%s\" in colorfilters file.\n%s",
-                          name, err_msg);
-                g_free(err_msg);
+                          name, local_err_msg);
+                g_free(local_err_msg);
                 prefs.unknown_colorfilters = TRUE;
 
                 skip_end_of_line = TRUE;
                 continue;
             }
 
-            if (!initialize_color(&fg_color, fg_r, fg_g, fg_b)) {
+            if (!init_func(&fg_color, fg_r, fg_g, fg_b)) {
                 /* oops */
-                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                              "Could not allocate foreground color "
-                              "specified in input file for %s.", name);
+                *err_msg = g_strdup_printf("Could not allocate foreground color specified in input file for %s.", name);
                 dfilter_free(temp_dfilter);
                 skip_end_of_line = TRUE;
+                ret = FALSE;
                 continue;
             }
-            if (!initialize_color(&bg_color, bg_r, bg_g, bg_b)) {
+            if (!init_func(&bg_color, bg_r, bg_g, bg_b)) {
                 /* oops */
-                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                              "Could not allocate background color "
-                              "specified in input file for %s.", name);
+                *err_msg = g_strdup_printf("Could not allocate background color specified in input file for %s.", name);
                 dfilter_free(temp_dfilter);
                 skip_end_of_line = TRUE;
+                ret = FALSE;
                 continue;
             }
 
@@ -627,7 +658,7 @@ read_filters_file(FILE *f, gpointer user_data)
                 /* external call */
                 /* just editing, don't need the compiled filter */
                 dfilter_free(temp_dfilter);
-                color_filter_add_cb (colorf, user_data);
+                add_cb(colorf, user_data);
             }
         }    /* if sscanf */
 
@@ -636,12 +667,12 @@ read_filters_file(FILE *f, gpointer user_data)
 
     g_free(name);
     g_free(filter_exp);
-    return TRUE;
+    return ret;
 }
 
 /* read filters from the user's filter file */
 static gboolean
-read_users_filters(GSList **cfl)
+read_users_filters(GSList **cfl, gchar** err_msg, initialize_color_func init_func, color_filter_add_cb_func add_cb)
 {
     gchar    *path;
     FILE     *f;
@@ -651,8 +682,7 @@ read_users_filters(GSList **cfl)
     path = get_persconffile_path("colorfilters", TRUE);
     if ((f = ws_fopen(path, "r")) == NULL) {
         if (errno != ENOENT) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "Could not open filter file\n\"%s\": %s.", path,
+            *err_msg = g_strdup_printf("Could not open filter file\n\"%s\": %s.", path,
                           g_strerror(errno));
         }
         g_free(path);
@@ -661,14 +691,14 @@ read_users_filters(GSList **cfl)
     g_free(path);
     path = NULL;
 
-    ret = read_filters_file(f, cfl);
+    ret = read_filters_file(f, cfl, err_msg, init_func, add_cb);
     fclose(f);
     return ret;
 }
 
 /* read filters from the filter file */
 gboolean
-color_filters_read_globals(gpointer user_data)
+color_filters_read_globals(gpointer user_data, gchar** err_msg, initialize_color_func init_func, color_filter_add_cb_func add_cb)
 {
     gchar    *path;
     FILE     *f;
@@ -678,8 +708,7 @@ color_filters_read_globals(gpointer user_data)
     path = get_datafile_path("colorfilters");
     if ((f = ws_fopen(path, "r")) == NULL) {
         if (errno != ENOENT) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "Could not open global filter file\n\"%s\": %s.", path,
+            *err_msg = g_strdup_printf("Could not open global filter file\n\"%s\": %s.", path,
                           g_strerror(errno));
         }
         g_free(path);
@@ -688,26 +717,25 @@ color_filters_read_globals(gpointer user_data)
     g_free(path);
     path = NULL;
 
-    ret = read_filters_file(f, user_data);
+    ret = read_filters_file(f, user_data, err_msg, init_func, add_cb);
     fclose(f);
     return ret;
 }
 
 /* read filters from some other filter file (import) */
 gboolean
-color_filters_import(const gchar *path, const gpointer user_data)
+color_filters_import(const gchar *path, const gpointer user_data, gchar** err_msg, initialize_color_func init_func, color_filter_add_cb_func add_cb)
 {
     FILE     *f;
     gboolean  ret;
 
     if ((f = ws_fopen(path, "r")) == NULL) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "Could not open\n%s\nfor reading: %s.",
+        *err_msg = g_strdup_printf("Could not open\n%s\nfor reading: %s.",
                       path, g_strerror(errno));
         return FALSE;
     }
 
-    ret = read_filters_file(f, user_data);
+    ret = read_filters_file(f, user_data, err_msg, init_func, add_cb);
     fclose(f);
     return ret;
 }
@@ -757,7 +785,7 @@ write_filters_file(const GSList *cfl, FILE *f, gboolean only_selected)
 
 /* save filters in users filter file */
 gboolean
-color_filters_write(GSList *cfl)
+color_filters_write(GSList *cfl, gchar** err_msg)
 {
     gchar *pf_dir_path;
     gchar *path;
@@ -766,8 +794,7 @@ color_filters_write(GSList *cfl)
     /* Create the directory that holds personal configuration files,
        if necessary.  */
     if (create_persconffile_dir(&pf_dir_path) == -1) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "Can't create directory\n\"%s\"\nfor color files: %s.",
+        *err_msg = g_strdup_printf("Can't create directory\n\"%s\"\nfor color files: %s.",
                       pf_dir_path, g_strerror(errno));
         g_free(pf_dir_path);
         return FALSE;
@@ -775,8 +802,7 @@ color_filters_write(GSList *cfl)
 
     path = get_persconffile_path("colorfilters", TRUE);
     if ((f = ws_fopen(path, "w+")) == NULL) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "Could not open\n%s\nfor writing: %s.",
+        *err_msg = g_strdup_printf("Could not open\n%s\nfor writing: %s.",
                       path, g_strerror(errno));
         g_free(path);
         return FALSE;
@@ -789,13 +815,12 @@ color_filters_write(GSList *cfl)
 
 /* save filters in some other filter file (export) */
 gboolean
-color_filters_export(const gchar *path, const GSList *cfl, gboolean only_marked)
+color_filters_export(const gchar *path, const GSList *cfl, gboolean only_marked, gchar** err_msg)
 {
     FILE *f;
 
     if ((f = ws_fopen(path, "w+")) == NULL) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "Could not open\n%s\nfor writing: %s.",
+        *err_msg = g_strdup_printf("Could not open\n%s\nfor writing: %s.",
                       path, g_strerror(errno));
         return FALSE;
     }
