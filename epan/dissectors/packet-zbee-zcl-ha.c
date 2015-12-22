@@ -203,41 +203,28 @@ static const value_string zbee_zcl_appl_idt_ceced_spec_ver_names[] = {
 /* Function Bodies       */
 /*************************/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zcl_appl_idt
- *  DESCRIPTION
- *      ZigBee ZCL Appliance Identification cluster dissector for wireshark.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee ZCL Appliance Identification cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 static int
 dissect_zbee_zcl_appl_idt(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
 	return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_appl_idt*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_appl_idt_attr_data
- *  DESCRIPTION
- *      this function is called by ZCL foundation dissector in order to decode
- *      specific cluster attributes data.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
- *      guint data_type     - attribute data type
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
 void
 dissect_zcl_appl_idt_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
 {
@@ -296,18 +283,10 @@ dissect_zcl_appl_idt_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
 
 } /*dissect_zcl_appl_idt_attr_data*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_register_zbee_zcl_appl_idt
- *  DESCRIPTION
- *      this function registers the ZCL Appliance Identification dissector
- *      and all its information.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function registers the ZCL Appliance Identification dissector
+ *
+*/
 void
 proto_register_zbee_zcl_appl_idt(void)
 {
@@ -358,17 +337,10 @@ proto_register_zbee_zcl_appl_idt(void)
     register_dissector(ZBEE_PROTOABBREV_ZCL_APPLIDT, dissect_zbee_zcl_appl_idt, proto_zbee_zcl_appl_idt);
 } /*proto_register_zbee_zcl_appl_idt*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_reg_handoff_zbee_zcl_appl_idt
- *  DESCRIPTION
- *      Hands off the Zcl Appliance Identification dissector.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *Hands off the Zcl Appliance Identification dissector.
+ *
+*/
 void
 proto_reg_handoff_zbee_zcl_appl_idt(void)
 {
@@ -492,41 +464,28 @@ static const value_string zbee_zcl_met_idt_data_quality_names[] = {
 /* Function Bodies       */
 /*************************/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zcl_met_idt
- *  DESCRIPTION
- *      ZigBee ZCL Meter Identification cluster dissector for wireshark.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee ZCL Meter Identification cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 static int
 dissect_zbee_zcl_met_idt(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
     return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_met_idt*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_met_idt_attr_data
- *  DESCRIPTION
- *      this function is called by ZCL foundation dissector in order to decode
- *      specific cluster attributes data.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
- *      guint data_type     - attribute data type
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
 void
 dissect_zcl_met_idt_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
 {
@@ -550,18 +509,10 @@ dissect_zcl_met_idt_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, gu
 
 } /*dissect_zcl_met_idt_attr_data*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_register_zbee_zcl_met_idt
- *  DESCRIPTION
- *      this function registers the ZCL Meter Identification dissector
- *      and all its information.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function registers the ZCL Meter Identification dissector
+ *
+*/
 void
 proto_register_zbee_zcl_met_idt(void)
 {
@@ -589,17 +540,10 @@ proto_register_zbee_zcl_met_idt(void)
     register_dissector(ZBEE_PROTOABBREV_ZCL_METIDT, dissect_zbee_zcl_met_idt, proto_zbee_zcl_met_idt);
 } /*proto_register_zbee_zcl_met_idt*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_reg_handoff_zbee_zcl_met_idt
- *  DESCRIPTION
- *      Hands off the Zcl Meter Identification dissector.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *Hands off the Zcl Meter Identification dissector.
+ *
+*/
 void
 proto_reg_handoff_zbee_zcl_met_idt(void)
 {
@@ -743,19 +687,13 @@ static const value_string zbee_zcl_appl_evtalt_status_names[] = {
 /* Function Bodies       */
 /*************************/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zcl_appl_evtalt
- *  DESCRIPTION
- *      ZigBee ZCL Appliance Events and Alerts cluster dissector for wireshark.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee ZCL Appliance Events and Alerts cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 static int
 dissect_zbee_zcl_appl_evtalt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -831,19 +769,13 @@ dissect_zbee_zcl_appl_evtalt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_appl_evtalt*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_appl_evtalt_alerts_struct
- *  DESCRIPTION
- *      This function is called in order to decode alerts structure payload
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      guint *offset       - offset in the tvb buffer
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called in order to decode alerts structure payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset offset in the tvb buffer
+*/
 static void
 dissect_zcl_appl_evtalt_alerts_struct(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -855,19 +787,13 @@ dissect_zcl_appl_evtalt_alerts_struct(tvbuff_t *tvb, proto_tree *tree, guint *of
     *offset += 3;
 } /*dissect_zcl_appl_evtalt_alerts_struct*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_appl_evtalt_get_alerts
- *  DESCRIPTION
- *      This function is called in order to decode the GetAlertsRespose payload
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      guint *offset       - offset in the tvb buffer
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called in order to decode the GetAlertsRespose payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset offset in the tvb buffer
+*/
 static void
 dissect_zcl_appl_evtalt_get_alerts_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -892,19 +818,13 @@ dissect_zcl_appl_evtalt_get_alerts_rsp(tvbuff_t *tvb, proto_tree *tree, guint *o
     }
 } /*dissect_zcl_appl_evtalt_get_alerts_rsp*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_appl_evtalt_event_notif
- *  DESCRIPTION
- *      This function is called in order to decode the EventNotification payload
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      guint *offset       - offset in the tvb buffer
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called in order to decode the EventNotification payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset offset in the tvb buffer
+*/
 static void
 dissect_zcl_appl_evtalt_event_notif(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -916,18 +836,10 @@ dissect_zcl_appl_evtalt_event_notif(tvbuff_t *tvb, proto_tree *tree, guint *offs
     *offset += 1;
 } /*dissect_zcl_appl_evtalt_event_notif*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_register_zbee_zcl_appl_evtalt
- *  DESCRIPTION
- *      this function registers the ZCL Appliance Events and Alert dissector
- *      and all its information.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function registers the ZCL Appliance Events and Alert dissector
+ *
+*/
 void
 proto_register_zbee_zcl_appl_evtalt(void)
 {
@@ -1001,17 +913,10 @@ proto_register_zbee_zcl_appl_evtalt(void)
     register_dissector(ZBEE_PROTOABBREV_ZCL_APPLEVTALT, dissect_zbee_zcl_appl_evtalt, proto_zbee_zcl_appl_evtalt);
 } /*proto_register_zbee_zcl_appl_evtalt*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_reg_handoff_zbee_zcl_appl_evtalt
- *  DESCRIPTION
- *      Hands off the Zcl Appliance Events And Alerts dissector.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *Hands off the Zcl Appliance Events And Alerts dissector.
+ *
+*/
 void
 proto_reg_handoff_zbee_zcl_appl_evtalt(void)
 {
@@ -1122,19 +1027,13 @@ static const value_string zbee_zcl_appl_stats_srv_tx_cmd_names[] = {
 /* Function Bodies       */
 /*************************/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zcl_appl_stats
- *  DESCRIPTION
- *      ZigBee ZCL Appliance Statistics cluster dissector for wireshark.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee ZCL Appliance Statistics cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 static int
 dissect_zbee_zcl_appl_stats (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -1215,19 +1114,13 @@ dissect_zbee_zcl_appl_stats (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_appl_stats*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_appl_stats_log_req
- *  DESCRIPTION
- *      this function is called in order to decode "LogRequest" payload command.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      guint *offset       - pointer to buffer offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called in order to decode "LogRequest" payload command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to buffer offset
+*/
 static void
 dissect_zcl_appl_stats_log_req(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1236,20 +1129,13 @@ dissect_zcl_appl_stats_log_req(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 4;
 } /*dissect_zcl_appl_stats_log_req*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_appl_stats_log_rsp
- *  DESCRIPTION
- *      this function is called in order to decode "LogNotification" and
- *      "LogResponse" payload command.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      guint *offset       - pointer to buffer offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called in order to decode "LogNotification" and
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to buffer offset
+*/
 static void
 dissect_zcl_appl_stats_log_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1273,20 +1159,13 @@ dissect_zcl_appl_stats_log_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += log_len;
 }/*dissect_zcl_appl_stats_log_rsp*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_appl_stats_log_queue_rsp
- *  DESCRIPTION
- *      this function is called in order to decode "LogQueueResponse" and
- *      "StatisticsAvailable" payload command.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      guint *offset       - pointer to buffer offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called in order to decode "LogQueueResponse" and
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to buffer offset
+*/
 static void
 dissect_zcl_appl_stats_log_queue_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1307,19 +1186,12 @@ dissect_zcl_appl_stats_log_queue_rsp(tvbuff_t *tvb, proto_tree *tree, guint *off
     }
 }/*dissect_zcl_appl_stats_log_queue_rsp*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      decode_zcl_appl_stats_utc_time
- *  DESCRIPTION
- *      this function decodes utc time, with peculiarity case for
- *      appliance statitics specifications.
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint32 value   - value to decode
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes utc time, with peculiarity case for
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_zcl_appl_stats_utc_time(gchar *s, guint32 value)
 {
@@ -1334,18 +1206,10 @@ decode_zcl_appl_stats_utc_time(gchar *s, guint32 value)
     }
 } /* decode_zcl_appl_stats_utc_time */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_register_zbee_zcl_appl_stats
- *  DESCRIPTION
- *      this function registers the ZCL Appliance Statistics dissector
- *      and all its information.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function registers the ZCL Appliance Statistics dissector
+ *
+*/
 void
 proto_register_zbee_zcl_appl_stats(void)
 {
@@ -1407,17 +1271,10 @@ proto_register_zbee_zcl_appl_stats(void)
     register_dissector(ZBEE_PROTOABBREV_ZCL_APPLSTATS, dissect_zbee_zcl_appl_stats, proto_zbee_zcl_appl_stats);
 } /* proto_register_zbee_zcl_appl_stats */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_reg_handoff_zbee_zcl_appl_stats
- *  DESCRIPTION
- *      Hands off the Zcl Appliance Statistics cluster dissector.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *Hands off the Zcl Appliance Statistics cluster dissector.
+ *
+*/
 void
 proto_reg_handoff_zbee_zcl_appl_stats(void)
 {

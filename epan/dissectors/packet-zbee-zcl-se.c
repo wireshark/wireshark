@@ -196,22 +196,15 @@ static const value_string zbee_zcl_msg_ctrl_importance_names[] = {
 /* Function Bodies       */
 /*************************/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_msg_attr_data
- *  DESCRIPTION
- *      this function is called by ZCL foundation dissector in order to decode
- *      specific cluster attributes data.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
- *      guint data_type     - attribute data type
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
 static void
 dissect_zcl_msg_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
 {
@@ -230,19 +223,13 @@ dissect_zcl_msg_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint1
     }
 } /*dissect_zcl_ias_zone_attr_data*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zcl_msg
- *  DESCRIPTION
- *      ZigBee ZCL Messaging cluster dissector for wireshark.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee ZCL Messaging cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 static int
 dissect_zbee_zcl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -335,19 +322,13 @@ dissect_zbee_zcl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_msg*/
 
- /*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_msg_display
- *  DESCRIPTION
- *      This function manages the Display Message payload
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function manages the Display Message payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_msg_display(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -402,19 +383,13 @@ dissect_zcl_msg_display(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 
 } /*dissect_zcl_msg_display*/
 
- /*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_msg_cancel
- *  DESCRIPTION
- *      This function manages the Cancel Message payload
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function manages the Cancel Message payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_msg_cancel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset)
 {
@@ -436,19 +411,13 @@ dissect_zcl_msg_cancel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 } /* dissect_zcl_msg_cancel */
 
 
- /*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_msg_cancel_all
- *  DESCRIPTION
- *      Send Cancel All command
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *Send Cancel All command
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_msg_cancel_all(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -462,19 +431,13 @@ dissect_zcl_msg_cancel_all(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 
 } /* dissect_zcl_msg_cancel_all */
 
- /*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_msg_get_cancel
- *  DESCRIPTION
- *      Send Cancel All command
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *Send Cancel All command
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_msg_get_cancel(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -489,19 +452,13 @@ dissect_zcl_msg_get_cancel(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 } /* dissect_zcl_msg_get_cancel */
 
 
- /*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_msg_confirm
- *  DESCRIPTION
- *      This function manages the Message Confirmation payload
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function manages the Message Confirmation payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_msg_confirm(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -539,16 +496,10 @@ dissect_zcl_msg_confirm(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 
 } /* dissect_zcl_msg_confirm */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      decode_zcl_msg_duration
- *  DESCRIPTION
- *    this function decodes duration in minute type variable
- *  PARAMETERS
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes duration in minute type variable
+ *
+*/
 static void
 decode_zcl_msg_duration(gchar *s, guint16 value)
 {
@@ -559,19 +510,12 @@ decode_zcl_msg_duration(gchar *s, guint16 value)
     return;
 } /*decode_zcl_msg_duration*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      decode_zcl_msg_start_time
- *  DESCRIPTION
- *      this function decodes start time, with peculiarity case for
- *      messaging specifications.
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint32 value   - value to decode
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes start time, with peculiarity case for
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_zcl_msg_start_time(gchar *s, guint32 value)
 {
@@ -586,18 +530,10 @@ decode_zcl_msg_start_time(gchar *s, guint32 value)
     }
 } /* decode_zcl_msg_start_time */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_register_zbee_zcl_msg
- *  DESCRIPTION
- *      this function registers the ZCL Messaging dissector
- *      and all its information.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function registers the ZCL Messaging dissector
+ *
+*/
 void
 proto_register_zbee_zcl_msg(void)
 {
@@ -726,17 +662,10 @@ proto_register_zbee_zcl_msg(void)
     register_dissector(ZBEE_PROTOABBREV_ZCL_MSG, dissect_zbee_zcl_msg, proto_zbee_zcl_msg);
 } /*proto_register_zbee_zcl_msg*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_reg_handoff_zbee_zcl_msg
- *  DESCRIPTION
- *      Hands off the Zcl Messaging dissector.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *Hands off the Zcl Messaging dissector.
+ *
+*/
 void
 proto_reg_handoff_zbee_zcl_msg(void)
 {
@@ -915,22 +844,15 @@ static const value_string zbee_zcl_tun_status_names[] = {
 /* Function Bodies       */
 /*************************/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_tun_attr_data
- *  DESCRIPTION
- *      this function is called by ZCL foundation dissector in order to decode
- *      specific cluster attributes data.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
- *      guint data_type     - attribute data type
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
 static void
 dissect_zcl_tun_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
 {
@@ -953,19 +875,13 @@ dissect_zcl_tun_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint1
     }
 } /*dissect_zcl_ias_zone_attr_data*/
 
- /*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_tun_request_tunnel
- *  DESCRIPTION
- *      This function manages the Display Message payload
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function manages the Display Message payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_tun_request_tunnel(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -982,19 +898,13 @@ dissect_zcl_tun_request_tunnel(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 2;
 }
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_tun_close_tunnel
- *  DESCRIPTION
- *      This function manages the Display Message payload
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function manages the Display Message payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_tun_close_tunnel(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1002,19 +912,13 @@ dissect_zcl_tun_close_tunnel(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 2;
 }
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_tun_transfer_data
- *  DESCRIPTION
- *      This function manages the Display Message payload
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function manages the Display Message payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_tun_transfer_data(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1028,19 +932,13 @@ dissect_zcl_tun_transfer_data(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += length;
 }
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_tun_transfer_data_error
- *  DESCRIPTION
- *      This function manages the Display Message payload
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function manages the Display Message payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_tun_transfer_data_error(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1051,19 +949,13 @@ dissect_zcl_tun_transfer_data_error(tvbuff_t *tvb, proto_tree *tree, guint *offs
     *offset += 1;
 }
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_tun_ack_transfer_data
- *  DESCRIPTION
- *      This function manages the Display Message payload
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function manages the Display Message payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_tun_ack_transfer_data(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1074,19 +966,13 @@ dissect_zcl_tun_ack_transfer_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
     *offset += 2;
 }
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_tun_ready_data
- *  DESCRIPTION
- *      This function manages the Display Message payload
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function manages the Display Message payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_tun_ready_data(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1097,19 +983,13 @@ dissect_zcl_tun_ready_data(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 2;
 }
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_tun_get_supported
- *  DESCRIPTION
- *      This function manages the Display Message payload
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function manages the Display Message payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_tun_get_supported(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1117,19 +997,13 @@ dissect_zcl_tun_get_supported(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 2;
 }
 
- /*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_tun_request_tunnel_rsp
- *  DESCRIPTION
- *      This function manages the Display Message payload
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function manages the Display Message payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_tun_request_tunnel_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1143,19 +1017,13 @@ dissect_zcl_tun_request_tunnel_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offse
     *offset += 2;
 }
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_tun_get_supported_rsp
- *  DESCRIPTION
- *      This function manages the Display Message payload
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function manages the Display Message payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_tun_get_supported_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1182,19 +1050,13 @@ dissect_zcl_tun_get_supported_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset
     }
 }
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_tun_closure_notify
- *  DESCRIPTION
- *      This function manages the Display Message payload
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function manages the Display Message payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_tun_closure_notify(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1202,19 +1064,13 @@ dissect_zcl_tun_closure_notify(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 2;
 }
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zcl_tun
- *  DESCRIPTION
- *      ZigBee ZCL Messaging cluster dissector for wireshark.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee ZCL Messaging cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 static int
 dissect_zbee_zcl_tun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -1335,18 +1191,10 @@ dissect_zbee_zcl_tun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_tun*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_register_zbee_zcl_tun
- *  DESCRIPTION
- *      this function registers the ZCL Messaging dissector
- *      and all its information.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function registers the ZCL Messaging dissector
+ *
+*/
 void
 proto_register_zbee_zcl_tun(void)
 {
@@ -1437,17 +1285,10 @@ proto_register_zbee_zcl_tun(void)
 
 } /* proto_register_zbee_zcl_tun */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_reg_handoff_zbee_zcl_tun
- *  DESCRIPTION
- *      Hands off the Zcl Messaging dissector.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *Hands off the Zcl Messaging dissector.
+ *
+*/
 void
 proto_reg_handoff_zbee_zcl_tun(void)
 {
@@ -1608,19 +1449,13 @@ static const value_string zbee_zcl_ke_status_names[] = {
 /*************************/
 
 
- /*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_ke_suite1_certificate
- *  DESCRIPTION
- *      This function dissects the Suite 1 Certificate
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function dissects the Suite 1 Certificate
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_ke_suite1_certificate(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1638,19 +1473,13 @@ dissect_zcl_ke_suite1_certificate(tvbuff_t *tvb, proto_tree *tree, guint *offset
 
 } /*dissect_zcl_ke_suite1_certificate*/
 
- /*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_ke_suite2_certificate
- *  DESCRIPTION
- *      This function dissects the Suite 2 Certificate
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function dissects the Suite 2 Certificate
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_ke_suite2_certificate(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1706,19 +1535,13 @@ dissect_zcl_ke_suite2_certificate(tvbuff_t *tvb, proto_tree *tree, guint *offset
 
 } /*dissect_zcl_ke_suite2_certificate*/
 
- /*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_ke_initiate_req
- *  DESCRIPTION
- *      This function manages the Initiate Key Establishment message
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function manages the Initiate Key Establishment message
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_ke_initiate(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1754,19 +1577,13 @@ dissect_zcl_ke_initiate(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     }
 } /* dissect_zcl_ke_initiate */
 
- /*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_ke_ephemeral_qeu
- *  DESCRIPTION
- *      This function dissects the Ephemeral Data QEU
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function dissects the Ephemeral Data QEU
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static int
 dissect_zcl_ke_ephemeral_qeu(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1780,19 +1597,13 @@ dissect_zcl_ke_ephemeral_qeu(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     return tvb_captured_length(tvb);
 }
 
- /*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_ke_ephemeral_qev
- *  DESCRIPTION
- *      This function dissects the Ephemeral Data QEV
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function dissects the Ephemeral Data QEV
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static int
 dissect_zcl_ke_ephemeral_qev(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1806,19 +1617,13 @@ dissect_zcl_ke_ephemeral_qev(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     return tvb_captured_length(tvb);
 }
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_ke_confirm_macu
- *  DESCRIPTION
- *      This function dissects the Confirm MACU
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function dissects the Confirm MACU
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static int
 dissect_zcl_ke_confirm_macu(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1827,19 +1632,13 @@ dissect_zcl_ke_confirm_macu(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     return tvb_captured_length(tvb);
 }
 
- /*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_ke_confirm_macv
- *  DESCRIPTION
- *      This function dissects the Confirm MACV
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function dissects the Confirm MACV
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static int
 dissect_zcl_ke_confirm_macv(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1848,19 +1647,13 @@ dissect_zcl_ke_confirm_macv(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     return tvb_captured_length(tvb);
 }
 
- /*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_ke_terminate
- *  DESCRIPTION
- *      This function dissects the Terminate Key Establishment message
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      offset              - offset
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function dissects the Terminate Key Establishment message
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
 static void
 dissect_zcl_ke_terminate(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
@@ -1874,19 +1667,13 @@ dissect_zcl_ke_terminate(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 2;
 }
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zcl_ke
- *  DESCRIPTION
- *      ZigBee ZCL Key Establishment cluster dissector for wireshark.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee ZCL Key Establishment cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 static int
 dissect_zbee_zcl_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -1975,18 +1762,10 @@ dissect_zbee_zcl_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 } /*dissect_zbee_zcl_ke*/
 
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_register_zbee_zcl_ke
- *  DESCRIPTION
- *      this function registers the ZCL Messaging dissector
- *      and all its information.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function registers the ZCL Messaging dissector
+ *
+*/
 void
 proto_register_zbee_zcl_ke(void)
 {
@@ -2105,17 +1884,10 @@ proto_register_zbee_zcl_ke(void)
     register_dissector(ZBEE_PROTOABBREV_ZCL_KE, dissect_zbee_zcl_ke, proto_zbee_zcl_ke);
 } /*proto_register_zbee_zcl_ke*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_reg_handoff_zbee_zcl_ke
- *  DESCRIPTION
- *      Hands off the Zcl Key Establishment dissector.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *Hands off the Zcl Key Establishment dissector.
+ *
+*/
 void
 proto_reg_handoff_zbee_zcl_ke(void)
 {

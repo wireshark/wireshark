@@ -248,19 +248,13 @@ static int  dissect_zcl_thermostat_schedule(proto_tree *tree, tvbuff_t *tvb, gui
 static void dissect_zcl_thermostat_schedule_days(proto_tree *tree, tvbuff_t *tvb, guint offset);
 static void dissect_zcl_thermostat_schedule_mode(proto_tree *tree, tvbuff_t *tvb, guint offset);
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_thermostat_schedule_days
- *  DESCRIPTION
- *      Helper function to dissect a Thermostat scheduling days bitmask.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint  offset       - payload offset of the ZoneStatus value.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *Helper function to dissect a Thermostat scheduling days bitmask.
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset payload offset of the ZoneStatus value.
+*/
 static void
 dissect_zcl_thermostat_schedule_days(proto_tree *tree, tvbuff_t *tvb, guint offset)
 {
@@ -282,19 +276,13 @@ dissect_zcl_thermostat_schedule_days(proto_tree *tree, tvbuff_t *tvb, guint offs
 
 } /* dissect_zcl_thermostat_schedule_days */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_thermostat_schedule_mode
- *  DESCRIPTION
- *      Helper function to dissect a Thermostat scheduling mode bitmask.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint  offset       - payload offset of the ZoneStatus value.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *Helper function to dissect a Thermostat scheduling mode bitmask.
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset payload offset of the ZoneStatus value.
+*/
 static void
 dissect_zcl_thermostat_schedule_mode(proto_tree *tree, tvbuff_t *tvb, guint offset)
 {
@@ -309,21 +297,14 @@ dissect_zcl_thermostat_schedule_mode(proto_tree *tree, tvbuff_t *tvb, guint offs
         ett_zbee_zcl_thermostat_schedule_mode, thermostat_schedule_modes, ENC_NA);
 }
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_thermostat_cmd_schedule
- *  DESCRIPTION
- *      Helper function to dissect a Thermostat schedule, which has
- *      a common format in both the Set Weekly Schedule, and Get
- *      Weekly Schedule Response commands.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint  offset       - payload offset of the ZoneStatus value.
- *  RETURNS
- *      int                 - length of parsed data.
- *---------------------------------------------------------------
- */
+/**
+ *Helper function to dissect a Thermostat schedule, which has
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset payload offset of the ZoneStatus value.
+ *@return length of parsed data.
+*/
 static int
 dissect_zcl_thermostat_schedule(proto_tree *tree, tvbuff_t *tvb, guint offset)
 {
@@ -370,20 +351,15 @@ dissect_zcl_thermostat_schedule(proto_tree *tree, tvbuff_t *tvb, guint offset)
     return (offset - start);
 } /* dissect_zcl_thermostat_cmd_schedule */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zcl_thermostat
- *  DESCRIPTION
- *      ZigBee ZCL Thermostat cluster dissector for wireshark.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      void *data          - pointer to ZCL packet structure.
- *  RETURNS
- *      int                 - length of parsed data.
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee ZCL Thermostat cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param data pointer to ZCL packet structure.
+ *@return length of parsed data.
+*/
 static int
 dissect_zbee_zcl_thermostat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -466,22 +442,15 @@ dissect_zbee_zcl_thermostat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return tvb_captured_length(tvb);
 } /* dissect_zbee_zcl_thermostat */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_thermostat_attr_data
- *  DESCRIPTION
- *      this function is called by ZCL foundation dissector in order to decode
- *      specific cluster attributes data.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
- *      guint data_type     - attribute data type
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
 static void
 dissect_zcl_thermostat_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
 {
@@ -493,17 +462,10 @@ dissect_zcl_thermostat_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset,
     }
 } /*dissect_zcl_thermostat_attr_data*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_register_zbee_zcl_ias_zone
- *  DESCRIPTION
- *      ZigBee ZCL IAS Zone cluste protocol registration.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee ZCL IAS Zone cluste protocol registration.
+ *
+*/
 void
 proto_register_zbee_zcl_thermostat(void)
 {
@@ -608,17 +570,10 @@ proto_register_zbee_zcl_thermostat(void)
     register_dissector(ZBEE_PROTOABBREV_ZCL_THERMOSTAT, dissect_zbee_zcl_thermostat, proto_zbee_zcl_thermostat);
 } /*proto_register_zbee_zcl_thermostat*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_reg_handoff_zbee_zcl_thermostat
- *  DESCRIPTION
- *      Hands off the ZCL Thermostat dissector.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *Hands off the ZCL Thermostat dissector.
+ *
+*/
 void
 proto_reg_handoff_zbee_zcl_thermostat(void)
 {
@@ -811,19 +766,13 @@ static void dissect_zcl_ias_zone_attr_data  (proto_tree *tree, tvbuff_t *tvb, gu
 /* ZoneStatus bitmask helper */
 static void dissect_zcl_ias_zone_status     (proto_tree *tree, tvbuff_t *tvb, guint offset);
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_ias_zone_status
- *  DESCRIPTION
- *      Helper function to dissect the IAS ZoneStatus bitmask.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint  offset       - payload offset of the ZoneStatus value.
- *  RETURNS
- *      int                 - length of parsed data.
- *---------------------------------------------------------------
- */
+/**
+ *Helper function to dissect the IAS ZoneStatus bitmask.
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset payload offset of the ZoneStatus value.
+*/
 static void
 dissect_zcl_ias_zone_status(proto_tree *tree, tvbuff_t *tvb, guint offset)
 {
@@ -843,20 +792,15 @@ dissect_zcl_ias_zone_status(proto_tree *tree, tvbuff_t *tvb, guint offset)
 
 } /* dissect_zcl_ias_zone_status */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zcl_ias_zone
- *  DESCRIPTION
- *      ZigBee ZCL IAS Zone cluster dissector for wireshark.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      void *data          - pointer to ZCL packet structure.
- *  RETURNS
- *      int                 - length of parsed data.
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee ZCL IAS Zone cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param data pointer to ZCL packet structure.
+ *@return length of parsed data.
+*/
 static int
 dissect_zbee_zcl_ias_zone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -925,22 +869,15 @@ dissect_zbee_zcl_ias_zone(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     return tvb_reported_length(tvb);
 } /* dissect_zbee_zcl_ias_zone */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_ias_zone_attr_data
- *  DESCRIPTION
- *      this function is called by ZCL foundation dissector in order to decode
- *      specific cluster attributes data.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
- *      guint data_type     - attribute data type
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
 static void
 dissect_zcl_ias_zone_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
 {
@@ -968,17 +905,10 @@ dissect_zcl_ias_zone_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
     }
 } /*dissect_zcl_ias_zone_attr_data*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_reg_handoff_zbee_zcl_ias_zone
- *  DESCRIPTION
- *      Hands off the ZCL IAS Zone dissector.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *Hands off the ZCL IAS Zone dissector.
+ *
+*/
 void
 proto_reg_handoff_zbee_zcl_ias_zone(void)
 {
@@ -998,17 +928,10 @@ proto_reg_handoff_zbee_zcl_ias_zone(void)
                          );
 } /*proto_reg_handoff_zbee_zcl_ias_zone*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_register_zbee_zcl_ias_zone
- *  DESCRIPTION
- *      ZigBee ZCL IAS Zone cluste protocol registration.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee ZCL IAS Zone cluste protocol registration.
+ *
+*/
 void
 proto_register_zbee_zcl_ias_zone(void)
 {

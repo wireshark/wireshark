@@ -126,41 +126,28 @@ static const value_string zbee_zcl_illum_meas_sensor_type_names[] = {
 /* Function Bodies       */
 /*************************/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zcl_illum_meas
- *  DESCRIPTION
- *      ZigBee ZCL Illuminance Measurement cluster dissector for wireshark.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee ZCL Illuminance Measurement cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 static int
 dissect_zbee_zcl_illum_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
     return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_illum_meas*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_illum_meas_attr_data
- *  DESCRIPTION
- *      this function is called by ZCL foundation dissector in order to decode
- *      specific cluster attributes data.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
- *      guint data_type     - attribute data type
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
 static void
 dissect_zcl_illum_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
 {
@@ -198,18 +185,12 @@ dissect_zcl_illum_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset,
     }
 } /*dissect_zcl_illum_meas_attr_data*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_illum_meas_value
- *  DESCRIPTION
- *    this function decodes illuminance value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes illuminance value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_illum_meas_value(gchar *s, guint16 value)
 {
@@ -224,18 +205,12 @@ decode_illum_meas_value(gchar *s, guint16 value)
     return;
 } /*decode_illum_meas_value*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_illum_meas_min_value
- *  DESCRIPTION
- *    this function decodes minimum illuminance value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes minimum illuminance value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_illum_meas_min_value(gchar *s, guint16 value)
 {
@@ -248,18 +223,12 @@ decode_illum_meas_min_value(gchar *s, guint16 value)
     return;
 } /*decode_illum_meas_min_value*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_illum_meas_max_value
- *  DESCRIPTION
- *    this function decodes maximum illuminance value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes maximum illuminance value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_illum_meas_max_value(gchar *s, guint16 value)
 {
@@ -272,18 +241,12 @@ decode_illum_meas_max_value(gchar *s, guint16 value)
     return;
 } /*decode_illum_meas_max_value*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_illum_meas_tolerance
- *  DESCRIPTION
- *    this function decodes tolerance value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes tolerance value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_illum_meas_tolerance(gchar *s, guint16 value)
 {
@@ -295,18 +258,10 @@ decode_illum_meas_tolerance(gchar *s, guint16 value)
     return;
 } /*decode_illum_meas_tolerance*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_register_zbee_zcl_illum_meas
- *  DESCRIPTION
- *      this function registers the ZCL Illuminance Measurement dissector
- *      and all its information.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function registers the ZCL Illuminance Measurement dissector
+ *
+*/
 void
 proto_register_zbee_zcl_illum_meas(void)
 {
@@ -348,17 +303,10 @@ proto_register_zbee_zcl_illum_meas(void)
 } /*proto_register_zbee_zcl_illum_meas*/
 
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_reg_handoff_zbee_zcl_illum_meas
- *  DESCRIPTION
- *      Hands off the ZCL Illuminance Measurement dissector.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *Hands off the ZCL Illuminance Measurement dissector.
+ *
+*/
 void
 proto_reg_handoff_zbee_zcl_illum_meas(void)
 {
@@ -455,41 +403,28 @@ static const value_string zbee_zcl_illum_level_sen_level_status_names[] = {
 /* Function Bodies       */
 /*************************/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zcl_illum_level_sen
- *  DESCRIPTION
- *      ZigBee ZCL Illuminance Level Sensing cluster dissector for wireshark.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee ZCL Illuminance Level Sensing cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 static int
 dissect_zbee_zcl_illum_level_sen(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
     return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_illum_level_sen*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_illum_level_sen_attr_data
- *  DESCRIPTION
- *      this function is called by ZCL foundation dissector in order to decode
- *      specific cluster attributes data.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
- *      guint data_type     - attribute data type
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
 static void
 dissect_zcl_illum_level_sen_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
 {
@@ -517,18 +452,12 @@ dissect_zcl_illum_level_sen_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *of
     }
 } /*dissect_zcl_illum_level_sen_attr_data*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_illum_level_sen_target_level
- *  DESCRIPTION
- *    this function decodes illuminance value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes illuminance value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_illum_level_sen_target_level(gchar *s, guint16 value)
 {
@@ -543,18 +472,10 @@ decode_illum_level_sen_target_level(gchar *s, guint16 value)
     return;
 } /*decode_illum_level_sen_value*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_register_zbee_zcl_illum_level_sen
- *  DESCRIPTION
- *      this function registers the ZCL Illuminance Level Sensing dissector
- *      and all its information.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function registers the ZCL Illuminance Level Sensing dissector
+ *
+*/
 void
 proto_register_zbee_zcl_illum_level_sen(void)
 {
@@ -587,17 +508,10 @@ proto_register_zbee_zcl_illum_level_sen(void)
 } /*proto_register_zbee_zcl_illum_level_sen*/
 
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_reg_handoff_zbee_zcl_illum_level_sen
- *  DESCRIPTION
- *      Hands off the ZCL Illuminance Level Sensing dissector.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *Hands off the ZCL Illuminance Level Sensing dissector.
+ *
+*/
 void
 proto_reg_handoff_zbee_zcl_illum_level_sen(void)
 {
@@ -689,41 +603,28 @@ static const value_string zbee_zcl_temp_meas_attr_names[] = {
 /* Function Bodies       */
 /*************************/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zcl_temp_meas
- *  DESCRIPTION
- *      ZigBee ZCL Temperature Measurement cluster dissector for wireshark.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee ZCL Temperature Measurement cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 static int
 dissect_zbee_zcl_temp_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
     return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_temp_meas*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_temp_meas_attr_data
- *  DESCRIPTION
- *      this function is called by ZCL foundation dissector in order to decode
- *      specific cluster attributes data.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
- *      guint data_type     - attribute data type
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
 static void
 dissect_zcl_temp_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
 {
@@ -757,18 +658,12 @@ dissect_zcl_temp_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, 
 
 } /*dissect_zcl_temp_meas_attr_data*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_temp_meas_value
- *  DESCRIPTION
- *    this function decodes temperature value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes temperature value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_temp_meas_value(gchar *s, gint16 value)
 {
@@ -780,18 +675,12 @@ decode_temp_meas_value(gchar *s, gint16 value)
     return;
 } /*decode_temp_meas_value*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_temp_meas_min_value
- *  DESCRIPTION
- *    this function decodes minimum temperature value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes minimum temperature value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_temp_meas_min_value(gchar *s, gint16 value)
 {
@@ -804,18 +693,12 @@ decode_temp_meas_min_value(gchar *s, gint16 value)
     return;
 } /*decode_temp_meas_min_value*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_temp_meas_max_value
- *  DESCRIPTION
- *    this function decodes maximum temperature value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes maximum temperature value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_temp_meas_max_value(gchar *s, gint16 value)
 {
@@ -827,18 +710,12 @@ decode_temp_meas_max_value(gchar *s, gint16 value)
     return;
 } /*decode_temp_meas_max_value*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_temp_meas_tolerance
- *  DESCRIPTION
- *    this function decodes tolerance value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes tolerance value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_temp_meas_tolerance(gchar *s, guint16 value)
 {
@@ -850,18 +727,10 @@ decode_temp_meas_tolerance(gchar *s, guint16 value)
     return;
 } /*decode_temp_meas_tolerance*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_register_zbee_zcl_temp_meas
- *  DESCRIPTION
- *      this function registers the ZCL Temperature Measurement dissector
- *      and all its information.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function registers the ZCL Temperature Measurement dissector
+ *
+*/
 void
 proto_register_zbee_zcl_temp_meas(void)
 {
@@ -897,17 +766,10 @@ proto_register_zbee_zcl_temp_meas(void)
     register_dissector(ZBEE_PROTOABBREV_ZCL_TEMPMEAS, dissect_zbee_zcl_temp_meas, proto_zbee_zcl_temp_meas);
 } /*proto_register_zbee_zcl_temp_meas*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_reg_handoff_zbee_zcl_temp_meas
- *  DESCRIPTION
- *      Hands off the ZCL Temperature Measurement dissector.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *Hands off the ZCL Temperature Measurement dissector.
+ *
+*/
 void
 proto_reg_handoff_zbee_zcl_temp_meas(void)
 {
@@ -1016,41 +878,28 @@ static const value_string zbee_zcl_press_meas_attr_names[] = {
 /* Function Bodies       */
 /*************************/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zcl_press_meas
- *  DESCRIPTION
- *      ZigBee ZCL Pressure Measurement cluster dissector for wireshark.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee ZCL Pressure Measurement cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 static int
 dissect_zbee_zcl_press_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
     return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_press_meas*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_press_meas_attr_data
- *  DESCRIPTION
- *      this function is called by ZCL foundation dissector in order to decode
- *      specific cluster attributes data.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
- *      guint data_type     - attribute data type
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
 static void
 dissect_zcl_press_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
 {
@@ -1108,18 +957,12 @@ dissect_zcl_press_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset,
     }
 } /*dissect_zcl_press_meas_attr_data*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_press_meas_value
- *  DESCRIPTION
- *    this function decodes pressure value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes pressure value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_press_meas_value(gchar *s, gint16 value)
 {
@@ -1133,18 +976,12 @@ decode_press_meas_value(gchar *s, gint16 value)
     return;
 } /*decode_press_meas_value*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_press_meas_min_value
- *  DESCRIPTION
- *    this function decodes minimum pressure value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes minimum pressure value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_press_meas_min_value(gchar *s, gint16 value)
 {
@@ -1156,18 +993,12 @@ decode_press_meas_min_value(gchar *s, gint16 value)
     return;
 } /*decode_press_meas_min_value*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_press_meas_max_value
- *  DESCRIPTION
- *    this function decodes maximum pressure value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes maximum pressure value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_press_meas_max_value(gchar *s, gint16 value)
 {
@@ -1179,18 +1010,12 @@ decode_press_meas_max_value(gchar *s, gint16 value)
     return;
 } /*decode_press_meas_max_value*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_press_meas_tolerance
- *  DESCRIPTION
- *    this function decodes tolerance value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes tolerance value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_press_meas_tolerance(gchar *s, guint16 value)
 {
@@ -1202,18 +1027,10 @@ decode_press_meas_tolerance(gchar *s, guint16 value)
     return;
 } /*decode_press_meas_tolerance*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_register_zbee_zcl_press_meas
- *  DESCRIPTION
- *      this function registers the ZCL Pressure Measurement dissector
- *      and all its information.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function registers the ZCL Pressure Measurement dissector
+ *
+*/
 void
 proto_register_zbee_zcl_press_meas(void)
 {
@@ -1269,17 +1086,10 @@ proto_register_zbee_zcl_press_meas(void)
     register_dissector(ZBEE_PROTOABBREV_ZCL_PRESSMEAS, dissect_zbee_zcl_press_meas, proto_zbee_zcl_press_meas);
 } /*proto_register_zbee_zcl_press_meas*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_reg_handoff_zbee_zcl_press_meas
- *  DESCRIPTION
- *      Hands off the ZCL Pressure Measurement dissector.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *Hands off the ZCL Pressure Measurement dissector.
+ *
+*/
 void
 proto_reg_handoff_zbee_zcl_press_meas(void)
 {
@@ -1631,41 +1441,28 @@ static const value_string zbee_zcl_relhum_meas_attr_names[] = {
 /* Function Bodies       */
 /*************************/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zcl_relhum_meas
- *  DESCRIPTION
- *      ZigBee ZCL Relative Humidity Measurement cluster dissector for wireshark.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_info *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee ZCL Relative Humidity Measurement cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 static int
 dissect_zbee_zcl_relhum_meas(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
 {
     return tvb_captured_length(tvb);
 } /*dissect_zbee_zcl_relhum_meas*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zcl_relhum_meas_attr_data
- *  DESCRIPTION
- *      this function is called by ZCL foundation dissector in order to decode
- *      specific cluster attributes data.
- *  PARAMETERS
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      guint *offset       - pointer to buffer offset
- *      guint16 attr_id     - attribute identifier
- *      guint data_type     - attribute data type
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+ *@param attr_id attribute identifier
+ *@param data_type attribute data type
+*/
 static void
 dissect_zcl_relhum_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
 {
@@ -1698,18 +1495,12 @@ dissect_zcl_relhum_meas_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset
     }
 } /*dissect_zcl_relhum_meas_attr_data*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_relhum_meas_value
- *  DESCRIPTION
- *    this function decodes relative humidity value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes relative humidity value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_relhum_meas_value(gchar *s, guint16 value)
 {
@@ -1721,18 +1512,12 @@ decode_relhum_meas_value(gchar *s, guint16 value)
     return;
 } /*decode_relhum_meas_value*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_relhum_meas_min_value
- *  DESCRIPTION
- *    this function decodes minimum relative humidity value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes minimum relative humidity value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_relhum_meas_min_value(gchar *s, guint16 value)
 {
@@ -1744,18 +1529,12 @@ decode_relhum_meas_min_value(gchar *s, guint16 value)
     return;
 } /*decode_relhum_meas_min_value*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_relhum_meas_max_value
- *  DESCRIPTION
- *    this function decodes maximum relative humidity value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes maximum relative humidity value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_relhum_meas_max_value(gchar *s, guint16 value)
 {
@@ -1767,18 +1546,12 @@ decode_relhum_meas_max_value(gchar *s, guint16 value)
     return;
 } /*decode_relhum_meas_max_value*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *    decode_relhum_meas_tolerance
- *  DESCRIPTION
- *    this function decodes tolerance value
- *  PARAMETERS
- *      guint *s        - string to display
- *      guint16 value   - value to decode
- *  RETURNS
- *    none
- *---------------------------------------------------------------
- */
+/**
+ *This function decodes tolerance value
+ *
+ *@param s string to display
+ *@param value value to decode
+*/
 static void
 decode_relhum_meas_tolerance(gchar *s, guint16 value)
 {
@@ -1790,18 +1563,10 @@ decode_relhum_meas_tolerance(gchar *s, guint16 value)
     return;
 } /*decode_relhum_meas_tolerance*/
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_register_zbee_zcl_relhum_meas
- *  DESCRIPTION
- *      this function registers the ZCL Relative Humidity Measurement dissector
- *      and all its information.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *This function registers the ZCL Relative Humidity Measurement dissector
+ *
+*/
 void
 proto_register_zbee_zcl_relhum_meas(void)
 {
@@ -1838,17 +1603,10 @@ proto_register_zbee_zcl_relhum_meas(void)
 } /*proto_register_zbee_zcl_relhum_meas*/
 
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      proto_reg_handoff_zbee_zcl_relhum_meas
- *  DESCRIPTION
- *      Hands off the ZCL Relative Humidity Measurement dissector.
- *  PARAMETERS
- *      none
- *  RETURNS
- *      none
- *---------------------------------------------------------------
- */
+/**
+ *Hands off the ZCL Relative Humidity Measurement dissector.
+ *
+*/
 void
 proto_reg_handoff_zbee_zcl_relhum_meas(void)
 {
