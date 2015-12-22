@@ -198,19 +198,19 @@ proto_register_zbee_zcl_shade_configuration(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_shade_configuration_status_shade_operational,
-            { "Shade Operational", "zbee_zcl_closures.shade_configuration.attr.status.shade_operational", FT_BOOLEAN, 8, TFS(&tfs_no_yes),
+            { "Shade Operational", "zbee_zcl_closures.shade_configuration.attr.status.shade_operational", FT_BOOLEAN, BASE_DEC, TFS(&tfs_no_yes),
             ZBEE_ZCL_SHADE_CONFIGURATION_STATUS_SHADE_OPERATIONAL, NULL, HFILL } },
 
         { &hf_zbee_zcl_shade_configuration_status_shade_adjusting,
-            { "Shade Adjusting", "zbee_zcl_closures.shade_configuration.attr.status.shade_adjusting", FT_BOOLEAN, 8, TFS(&tfs_no_yes),
+            { "Shade Adjusting", "zbee_zcl_closures.shade_configuration.attr.status.shade_adjusting", FT_BOOLEAN, BASE_DEC, TFS(&tfs_no_yes),
             ZBEE_ZCL_SHADE_CONFIGURATION_STATUS_SHADE_ADJUSTING, NULL, HFILL } },
 
         { &hf_zbee_zcl_shade_configuration_status_shade_direction,
-            { "Shade Direction", "zbee_zcl_closures.shade_configuration.attr.status.shade_direction", FT_UINT8, 8, VALS(zbee_zcl_shade_configuration_shade_motor_direction_names),
+            { "Shade Direction", "zbee_zcl_closures.shade_configuration.attr.status.shade_direction", FT_UINT8, BASE_DEC, VALS(zbee_zcl_shade_configuration_shade_motor_direction_names),
             ZBEE_ZCL_SHADE_CONFIGURATION_STATUS_SHADE_DIRECTION, NULL, HFILL } },
 
         { &hf_zbee_zcl_shade_configuration_status_motor_forward_direction,
-            { "Motor Forward Direction", "zbee_zcl_closures.shade_configuration.attr.status.motor_forward_direction", FT_UINT8, 8, VALS(zbee_zcl_shade_configuration_shade_motor_direction_names),
+            { "Motor Forward Direction", "zbee_zcl_closures.shade_configuration.attr.status.motor_forward_direction", FT_UINT8, BASE_DEC, VALS(zbee_zcl_shade_configuration_shade_motor_direction_names),
             ZBEE_ZCL_SHADE_CONFIGURATION_STATUS_MOTOR_FORWARD_DIRECTION, NULL, HFILL } },
         /* end Shade Configuration Status fields */
 
