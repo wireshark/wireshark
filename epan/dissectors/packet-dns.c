@@ -3870,9 +3870,11 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   dns_stats->packet_rcode = rcode;
   dns_stats->packet_opcode = opcode;
   dns_stats->packet_qr = flags >> 15;
-  get_dns_name_type_class(tvb, cur_off, dns_data_offset, &name, &name_len, &qtype, &qclass);
-  dns_stats->packet_qtype = qtype;
-  dns_stats->packet_qclass = qclass;
+  if (quest > 0) {
+    get_dns_name_type_class(tvb, cur_off, dns_data_offset, &name, &name_len, &qtype, &qclass);
+    dns_stats->packet_qtype = qtype;
+    dns_stats->packet_qclass = qclass;
+  }
   dns_stats->payload_size = tvb_captured_length(tvb);
   dns_stats->nquestions = quest;
   dns_stats->nanswers = ans;
