@@ -66,12 +66,290 @@
 		<enum name="CHANGEINQOS_RESIDUAL_BER" code="18"/>
 		<enum name="CHANGEINQOS_SDU_ERROR_RATIO" code="19"/>
 		<enum name="CHANGEINQOS_TRANSFER_DELAY" code="20"/>
+		<enum name="CHANGEINQOS_TRAFFIC_HANDLING_PRIORITY" code="21"/>
+		<enum name="CHANGEINQOS_GUARANTEED_BIT_RATE_FOR_UPLINK" code="22"/>
+		<enum name="CHANGEINQOS_GUARANTEED_BIT_RATE_FOR_DOWNLINK" code="23"/>
+		<enum name="CHANGEINLOCATION_MCC" code="30"/>
+		<enum name="CHANGEINLOCATION_MNC" code="31"/>
+		<enum name="CHANGEINLOCATION_RAC" code="32"/>
+		<enum name="CHANGEINLOCATION_LAC" code="33"/>
+		<enum name="CHANGEINLOCATION_CellId" code="34"/>
 	</avp>
 	<avp name="User-Location-Information" code="267" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
 		<type type-name="OctetString"/>
 	</avp>
 	<avp name="Volume-Quota-Threshold" code="268" vendor-id="Vodafone" mandatory="mustnot" vendor-bit="must">
 		<type type-name="Unsigned32"/>
+	</avp>
+
+	<avp name="Envelope" code="269" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<grouped>
+			<gavp name="Envelope-Start-Time"/>
+			<gavp name="Envelope-End-Time"/>
+			<gavp name="CC-Total-Octets"/>
+			<gavp name="CC-Input-Octets"/>
+			<gavp name="CC-Output-Octets"/>
+			<gavp name="CC-Service-Specific-Units"/>
+		</grouped>
+	</avp>
+
+	<avp name="Envelope-Start-Time" code="270" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="Time"/>
+	</avp>
+
+	<avp name="Envelope-End-Time" code="271" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="Time"/>
+	</avp>
+
+	<avp name="Envelope-Reporting" code="272" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="Unsigned32"/>
+		<enum name="DO_NOT_REPORT_ENVELOPES" code="0"/>
+		<enum name="REPORT_ENVELOPES" code="1"/>
+		<enum name="REPORT_ENVELOPES_WITH_VOLUME" code="2"/>
+	</avp>
+
+	<avp name="Unit-Quota-Threshold" code="273" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="Unsigned32"/>
+	</avp>
+
+	<avp name="Time-Quota-Mechanism" code="274" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<grouped>
+			<gavp name="Time-Quota-Type"/>
+			<gavp name="Base-Time-Interval"/>
+		</grouped>
+	</avp>
+
+	<avp name="Time-Quota-Type" code="275" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="Enumerated"/>
+		<enum name="PARKING_METER" code="2"/>
+		<enum name="CONTINUOUS_TIME_PERIOD" code="3"/>
+	</avp>
+
+	<avp name="Base-Time-Interval" code="276" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="Unsigned32"/>
+	</avp>
+
+	<avp name="Offline-Charging" code="277" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<grouped>
+			<gavp name="Rulebase-Id"/>
+			<gavp name="Quota-Consumption-Time"/>
+			<gavp name="Time-Quota-Mechanism"/>
+			<gavp name="Envelope-Reporting"/>
+			<gavp name="Multiple-Services-Credit-Control"/>
+		</grouped>
+	</avp>
+
+	<avp name="Traffic-Redirected" code="278" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<grouped>
+			<gavp name="User-Agent"/>
+			<gavp name="User-URL"/>
+		</grouped>
+	</avp>
+
+	<avp name="User-Agent" code="279" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="UTF8String"/>
+	</avp>
+
+	<avp name="User-URL" code="280" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="UTF8String"/>
+	</avp>
+
+	<avp name="URL-Append" code="281" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="Enumerated"/>
+		<enum name="DO_NOT_APPEND_URL" code="0"/>
+		<enum name="APPEND_URL" code="1"/>
+	</avp>
+
+	<avp name="Route-Record" code="282" mandatory="must" vendor-bit="mustnot">
+		<type type-name="DiameterIdentity"/>
+	</avp>
+
+	<avp name="Roaming-Info" code="400" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="UTF8String"/>
+	</avp>
+
+	<avp name="PoC-Address-Participants-List" code="401" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<grouped>
+			<gavp name="PoC-Number-Recipients"/>
+			<gavp name="PoC-Addresses-Participants"/>
+		</grouped>
+	</avp>
+
+	<avp name="PoC-Number-Recipients" code="402" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="Integer32"/>
+	</avp>
+
+	<avp name="PoC-Addresses-Participants" code="403" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<grouped>
+			<gavp name="PoC-Addresses-Participants-Type"/>
+			<gavp name="PoC-Addresses-Participants-Data"/>
+		</grouped>
+	</avp>
+
+	<avp name="PoC-Addresses-Participants-Type" code="404" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="Unsigned32"/>
+		<enum name="END_USER_E164" code="0"/>
+		<enum name="END_USER_IMSI" code="1"/>
+		<enum name="END_USER_SIP_URI" code="2"/>
+		<enum name="END_USER_NAI" code="3"/>
+		<enum name="END_USER_PRIVATE" code="4"/>
+	</avp>
+
+	<avp name="PoC-Addresses-Participants-Data" code="405" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="UTF8String"/>
+	</avp>
+
+	<avp name="PoC-Group-Name" code="406" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="UTF8String"/>
+	</avp>
+
+	<avp name="PoC-SessionId" code="407" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="UTF8String"/>
+	</avp>
+
+	<avp name="PoC-Controlling-Address" code="408" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="UTF8String"/>
+	</avp>
+
+	<avp name="IMS-Feature-Tag" code="550" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="UTF8String"/>
+	</avp>
+
+	<avp name="SMS-Information" code="600" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<grouped>
+			<gavp name="Client-Address"/>
+			<gavp name="Originator-SCCP-Address"/>
+			<gavp name="Recipient-SCCP-Address"/>
+			<gavp name="SMSC-Address"/>
+			<gavp name="SM-Data-Coding-Scheme"/>
+			<gavp name="SM-Destination-Interface"/>
+			<gavp name="SM-Message-Text"/>
+			<gavp name="SM-Originator-Interface"/>
+			<gavp name="SM-Protocol-ID"/>
+			<gavp name="SM-Reply-Path-Requested"/>
+			<gavp name="SM-User-Data-Header"/>
+			<gavp name="User-Session-Id"/>
+		</grouped>
+	</avp>
+
+	<avp name="Client-Address" code="601" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="IPAddress"/>
+	</avp>
+
+	<avp name="SM-Interface-Id" code="603" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="UTF8String"/>
+	</avp>
+
+	<avp name="SM-Interface-Port" code="604" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="UTF8String"/>
+	</avp>
+
+	<avp name="SM-Interface-Text" code="605" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="UTF8String"/>
+	</avp>
+
+	<avp name="SM-Interface-Type" code="606" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="Unsigned32"/>
+		<enum name="Unknown" code="0"/>
+		<enum name="MOBILE_ORIGINATING" code="1"/>
+		<enum name="MOBILE_TERMINATING" code="2"/>
+		<enum name="APPLICATION_ORIGINATING" code="3"/>
+		<enum name="APPLICATION_TERMINATION" code="4"/>
+	</avp>
+
+	<avp name="Originator-SCCP-Address" code="607" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="IPAddress"/>
+	</avp>
+
+	<avp name="Recipient-SCCP-Address" code="608" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="IPAddress"/>
+	</avp>
+
+	<avp name="SM-Reply-Path-Requested" code="609" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="Unsigned32"/>
+		<enum name="No Reply Path Set" code="0"/>
+		<enum name="Reply path Set" code="1"/>
+	</avp>
+
+	<avp name="SM-Data-Coding-Scheme" code="610" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="Integer32"/>
+	</avp>
+
+	<avp name="SM-Destination-Interface" code="611" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<grouped>
+			<gavp name="SM-Interface-Id"/>
+			<gavp name="SM-Interface-Text"/>
+			<gavp name="SM-Interface-Port"/>
+			<gavp name="SM-Interface-Type"/>
+		</grouped>
+	</avp>
+
+	<avp name="SM-Message-Text" code="612" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="OctetString"/>
+	</avp>
+
+	<avp name="SM-Originator-Interface" code="613" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<grouped>
+			<gavp name="SM-Interface-Id"/>
+			<gavp name="SM-Interface-Text"/>
+			<gavp name="SM-Interface-Port"/>
+			<gavp name="SM-Interface-Type"/>
+		</grouped>
+	</avp>
+
+	<avp name="SM-Protocol-ID" code="614" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="OctetString"/>
+	</avp>
+
+	<avp name="SMSC-Address" code="615" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="IPAddress"/>
+	</avp>
+
+	<avp name="SM-User-Data-Header" code="616" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="OctetString"/>
+	</avp>
+
+	<avp name="VF-Announcement-Instructions" code="700" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<grouped>
+			<gavp name="VF-Announcement-Number"/>
+			<gavp name="VF-Announcement-Type"/>
+			<gavp name="VF-Announcement-Order"/>
+			<gavp name="VF-Announcement-Variable-Part"/>
+		</grouped>
+	</avp>
+
+	<avp name="VF-Announcement-Number" code="701" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="Unsigned32"/>
+	</avp>
+
+	<avp name="VF-Announcement-Order" code="702" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="Unsigned32"/>
+	</avp>
+
+	<avp name="VF-Announcement-Type" code="703" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="Unsigned32"/>
+		<enum name="PREQUOTA_ANNOUNCEMENT" code="0"/>
+		<enum name="POSTQUOTA_ANNOUNCEMENT" code="1"/>
+	</avp>
+
+	<avp name="VF-Announcement-Variable-Part" code="704" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<grouped>
+			<gavp name="VF-Announcement-Variable-Part-Type"/>
+			<gavp name="VF-Announcement-Variable-Part-Data"/>
+		</grouped>
+	</avp>
+
+	<avp name="VF-Announcement-Variable-Part-Data" code="705" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="UTF8String"/>
+	</avp>
+
+	<avp name="VF-Announcement-Variable-Part-Type" code="706" mandatory="must" vendor-bit="must" vendor-id="Vodafone">
+		<type type-name="Unsigned32"/>
+		<enum name="INTEGER" code="0"/>
+		<enum name="NUMBER" code="1"/>
+		<enum name="TIME" code="2"/>
+		<enum name="DATE" code="3"/>
+		<enum name="PRICE" code="4"/>
 	</avp>
 
 </application>

@@ -6900,7 +6900,8 @@
 	<application id="16777340"	name="3GPP PC6/PC7"			uri="http://www.3gpp.org/ftp/Specs/html-info/29345.htm"/>
 	<!-- application 16777341	is defined in Nokia.xml -->
 	<application id="16777342"	name="3GPP Np"				uri="http://www.3gpp.org/ftp/Specs/html-info/29217.htm"/>
-	<application id="4294967295"	name="Relay"				uri="http://tools.ietf.org/html/rfc6733"/>
+  <application id="16777999" name="S6b Application (One-AAA)"	uri="none"/>
+  <application id="4294967295"	name="Relay"				uri="http://tools.ietf.org/html/rfc6733"/>
 	<!-- *********************** End Application IDs ************************** -->
 
 
