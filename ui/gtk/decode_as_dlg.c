@@ -685,7 +685,7 @@ decode_simple (GtkWidget *notebook_pg)
         if (add_reset_list) {
             selector_type = g_new(guint,1);
             *selector_type = GPOINTER_TO_UINT(value_ptr);
-            decode_build_reset_list(g_strdup(table_name), FT_UINT32, selector_type, NULL, NULL);
+            decode_build_reset_list(table_name, FT_UINT32, selector_type, NULL, NULL);
         }
     }
 

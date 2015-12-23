@@ -146,8 +146,7 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
                 }
             }
             if (is_valid) {
-                decode_build_reset_list(g_strdup(values[0]), selector_type,
-                        g_strdup(values[1]), NULL, NULL);
+                decode_build_reset_list(values[0], selector_type, values[1], NULL, NULL);
             }
         } else {
             retval = PREFS_SET_SYNTAX_ERR;
@@ -183,13 +182,13 @@ load_decode_as_entries(void)
 
 void
 decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
-                         gpointer key, gpointer value _U_,
+                         const gpointer key, gpointer value _U_,
                          gpointer user_data _U_)
 {
     dissector_delete_item_t *item;
 
     item = g_new(dissector_delete_item_t,1);
-    item->ddi_table_name = table_name;
+    item->ddi_table_name = g_strdup(table_name);
     item->ddi_selector_type = selector_type;
     switch (selector_type) {
 
@@ -204,7 +203,7 @@ decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
     case FT_STRINGZ:
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
-        item->ddi_selector.sel_string = (char *)key;
+        item->ddi_selector.sel_string = g_strdup((char *)key);
         break;
 
     default:
@@ -240,11 +239,13 @@ decode_clear_all(void)
         case FT_STRINGZPAD:
             dissector_reset_string(item->ddi_table_name,
                                    item->ddi_selector.sel_string);
+            g_free(item->ddi_selector.sel_string);
             break;
 
         default:
             g_assert_not_reached();
         }
+        g_free((gchar *)item->ddi_table_name);
         g_free(item);
     }
     g_slist_free(dissector_reset_list);
