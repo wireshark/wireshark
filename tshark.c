@@ -2564,6 +2564,9 @@ capture(void)
   fflush(stderr);
   g_string_free(str, TRUE);
 
+  /* initialize the counts hash with null */
+  global_info_data.counts.counts_hash = NULL;
+
   ret = sync_pipe_start(&global_capture_opts, &global_capture_session, &global_info_data, NULL);
 
   if (!ret)
