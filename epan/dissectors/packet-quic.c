@@ -997,9 +997,11 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
                 tag_len -= 4;
             break;
             case TAG_CCS:
-                proto_tree_add_item(tag_tree, hf_quic_tag_ccs, tvb, tag_offset_start + tag_offset, 8, ENC_NA);
-                tag_offset += 8;
-                tag_len -= 8;
+                while(tag_len > 0){
+                    proto_tree_add_item(tag_tree, hf_quic_tag_ccs, tvb, tag_offset_start + tag_offset, 8, ENC_NA);
+                    tag_offset += 8;
+                    tag_len -= 8;
+                }
             break;
             case TAG_PDMD:
                 proto_tree_add_item(tag_tree, hf_quic_tag_pdmd, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA);
