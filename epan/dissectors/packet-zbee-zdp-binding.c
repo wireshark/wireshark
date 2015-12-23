@@ -36,19 +36,13 @@
  * HELPER FUNCTIONS
  **************************************
  */
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      zdp_parse_bind_table_entry
- *  DESCRIPTION
- *      Parses and displays a single binding table entry.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *Parses and displays a single binding table entry.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 zdp_parse_bind_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 version)
 {
@@ -107,20 +101,13 @@ zdp_parse_bind_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint
  * BINDING REQUESTS
  **************************************
  */
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_req_end_device_bind
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the end device bind
- *      request. Cluster ID = 0x0020.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the end device bind
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_req_end_device_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
@@ -167,20 +154,13 @@ dissect_zbee_zdp_req_end_device_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_req_end_device_bind */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_req_bind
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the bind request.
- *      Cluster ID = 0x0021.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the bind request.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_req_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
@@ -233,20 +213,13 @@ dissect_zbee_zdp_req_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_req_bind */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_req_unbind
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the unbind request.
- *      Cluster ID = 0x0022.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the unbind request.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_req_unbind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
@@ -299,20 +272,13 @@ dissect_zbee_zdp_req_unbind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_req_unbind */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_req_bind_register
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the bind register
- *      request. Cluster ID = 0x0023.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the bind register
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_req_bind_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -327,20 +293,13 @@ dissect_zbee_zdp_req_bind_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_req_bind_register */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_req_replace_device
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the replace device
- *      request. Cluster ID = 0x0024.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the replace device
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_req_replace_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -362,20 +321,13 @@ dissect_zbee_zdp_req_replace_device(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_req_replace_device */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_req_store_bak_bind_entry
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the store backup binding
- *      entry request. Cluster ID = 0x0025.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the store backup binding
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_req_store_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
@@ -414,20 +366,13 @@ dissect_zbee_zdp_req_store_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, pro
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_req_store_bak_bind_entry */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_req_remove_bak_bind_entry
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the remove backup binding
- *      entry request. Cluster ID = 0x0026.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the remove backup binding
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_req_remove_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
@@ -466,20 +411,13 @@ dissect_zbee_zdp_req_remove_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, pr
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_req_remove_bak_bind_entry */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_req_backup_bind_table
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the backup binding
- *      table request. Cluster ID = 0x0027.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the backup binding
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_req_backup_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
@@ -505,20 +443,13 @@ dissect_zbee_zdp_req_backup_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto_
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_req_backup_bind_table */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_req_recover_bind_table
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the recover binding
- *      table request. Cluster ID = 0x0028.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the recover binding
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_req_recover_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -531,20 +462,13 @@ dissect_zbee_zdp_req_recover_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_req_recover_bind_table */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_req_backup_source_bind
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the backup source binding
- *      request. Cluster ID = 0x0029.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the backup source binding
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_req_backup_source_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -569,20 +493,13 @@ dissect_zbee_zdp_req_backup_source_bind(tvbuff_t *tvb, packet_info *pinfo, proto
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_req_backup_source_bind */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_req_recover_source_bind
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the recover source
- *      binding request. Cluster ID = 0x002a.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the recover source
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_req_recover_source_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -599,20 +516,13 @@ dissect_zbee_zdp_req_recover_source_bind(tvbuff_t *tvb, packet_info *pinfo, prot
  * BINDING RESPONSES
  **************************************
  */
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_rsp_end_device_bind
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the end device bind
- *      response. Cluster ID = 0x8020.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the end device bind
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_rsp_end_device_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -627,20 +537,13 @@ dissect_zbee_zdp_rsp_end_device_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_rsp_end_device_bind */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_rsp_bind
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the bind response.
- *      Cluster ID = 0x8021.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the bind response.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_rsp_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -655,20 +558,13 @@ dissect_zbee_zdp_rsp_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_rsp_bind */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_rsp_unbind
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the unbind response.
- *      Cluster ID = 0x8022.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the unbind response.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_rsp_unbind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -683,20 +579,13 @@ dissect_zbee_zdp_rsp_unbind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_rsp_unbind */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_rsp_bind_register
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the bind registration
- *      response. Cluster ID = 0x8023.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the bind registration
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_rsp_bind_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
@@ -725,20 +614,13 @@ dissect_zbee_zdp_rsp_bind_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_rsp_bind_register */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_rsp_replace_device
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the device replacement
- *      response. Cluster ID = 0x8024.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the device replacement
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_rsp_replace_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -753,20 +635,13 @@ dissect_zbee_zdp_rsp_replace_device(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_rsp_replace_device */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_rsp_store_bak_bind_entry
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the store backup binding
- *      table entry response. Cluster ID = 0x8025.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the store backup binding
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_rsp_store_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -781,20 +656,13 @@ dissect_zbee_zdp_rsp_store_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, pro
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_rsp_store_bak_bind_entry */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_rsp_remove_bak_bind_entry
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the remove backup binding
- *      table entry response. Cluster ID = 0x8026.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the remove backup binding
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_rsp_remove_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -809,20 +677,13 @@ dissect_zbee_zdp_rsp_remove_bak_bind_entry(tvbuff_t *tvb, packet_info *pinfo, pr
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_rsp_remove_bak_bind_entry */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_rsp_backup_bind_table
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the backup binding
- *      table response. Cluster ID = 0x8027.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the backup binding
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_rsp_backup_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -839,20 +700,13 @@ dissect_zbee_zdp_rsp_backup_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto_
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_rsp_backup_bind_table */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_rsp_recover_bind_table
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the recover binding
- *      table response. Cluster ID = 0x8028.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the recover binding
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_rsp_recover_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version)
 {
@@ -883,20 +737,13 @@ dissect_zbee_zdp_rsp_recover_bind_table(tvbuff_t *tvb, packet_info *pinfo, proto
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_rsp_recover_bind_table */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_rsp_backup_source_bind
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the backup source binding
- *      response. Cluster ID = 0x8029.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the backup source binding
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_rsp_backup_source_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -911,20 +758,13 @@ dissect_zbee_zdp_rsp_backup_source_bind(tvbuff_t *tvb, packet_info *pinfo, proto
     zdp_dump_excess(tvb, offset, pinfo, tree);
 } /* dissect_zbee_zdp_rsp_backup_source_bind */
 
-/*FUNCTION:------------------------------------------------------
- *  NAME
- *      dissect_zbee_zdp_rsp_recover_source_bind
- *  DESCRIPTION
- *      ZigBee Device Profile dissector for the recover source binding
- *      response. Cluster ID = 0x8029.
- *  PARAMETERS
- *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
- *      packet_into *pinfo  - pointer to packet information fields
- *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
- *  RETURNS
- *      void
- *---------------------------------------------------------------
- */
+/**
+ *ZigBee Device Profile dissector for the recover source binding
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
 void
 dissect_zbee_zdp_rsp_recover_source_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
