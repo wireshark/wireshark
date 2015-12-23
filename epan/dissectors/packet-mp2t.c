@@ -229,6 +229,7 @@ static int hf_msg_ts_packet_reassembled = -1;
 
 static expert_field ei_mp2t_pointer = EI_INIT;
 static expert_field ei_mp2t_cc_drop = EI_INIT;
+static expert_field ei_mp2t_invalid_afc = EI_INIT;
 
 static const fragment_items mp2t_msg_frag_items = {
     /* Fragment subtrees */
@@ -1114,11 +1115,12 @@ dissect_tsp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     mp2t_tree = proto_item_add_subtree( ti, ett_mp2t );
 
     header = tvb_get_ntohl(tvb, offset);
-
-    pid = (header & MP2T_PID_MASK) >> MP2T_PID_SHIFT;
-    cc  = (header & MP2T_CC_MASK)  >> MP2T_CC_SHIFT;
-    tsc = (header & MP2T_TSC_MASK);
     pusi_flag = (header & 0x00400000);
+    pid = (header & MP2T_PID_MASK) >> MP2T_PID_SHIFT;
+    tsc = (header & MP2T_TSC_MASK);
+    afc = (header & MP2T_AFC_MASK) >> MP2T_AFC_SHIFT;
+    cc  = (header & MP2T_CC_MASK)  >> MP2T_CC_SHIFT;
+
     proto_item_append_text(ti, " PID=0x%x CC=%d", pid, cc);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG TS");
 
@@ -1134,13 +1136,10 @@ dissect_tsp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     afci = proto_tree_add_item( mp2t_header_tree, hf_mp2t_afc, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item( mp2t_header_tree, hf_mp2t_cc, tvb, offset, 4, ENC_BIG_ENDIAN);
 
-    afc = (header & MP2T_AFC_MASK) >> MP2T_AFC_SHIFT;
-
     mp2t_data = get_mp2t_conversation_data(conv);
 
     pid_analysis = get_pid_analysis(mp2t_data, pid);
 
-    /* Find out the payload type based on the payload */
     if (pid_analysis->pload_type == pid_pload_unknown) {
         if (pid == MP2T_PID_NULL) {
             pid_analysis->pload_type = pid_pload_null;
@@ -1151,12 +1150,19 @@ dissect_tsp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     if (pid_analysis->pload_type == pid_pload_docsis && (afc != 1)) {
         /* DOCSIS packets should not have an adaptation field */
-        proto_item_append_text(afci, " (Invalid for DOCSIS packets, should be 1)");
+        if (afc != 1) {
+            expert_add_info_format(pinfo, afci, &ei_mp2t_invalid_afc,
+                    "Adaptation Field Control for DOCSIS packets must be 0x01");
+        }
     }
 
     if (pid_analysis->pload_type == pid_pload_null) {
-        /* Nothing more to do */
         col_set_str(pinfo->cinfo, COL_INFO, "NULL packet");
+        if (afc != 1) {
+            expert_add_info_format(pinfo, afci, &ei_mp2t_invalid_afc,
+                    "Adaptation Field Control for NULL packets must be 0x01");
+        }
+        /* Nothing more to do */
         return;
     }
 
@@ -1517,6 +1523,8 @@ proto_register_mp2t(void)
     static ei_register_info ei[] = {
         { &ei_mp2t_pointer, { "mp2t.pointer_too_large", PI_MALFORMED, PI_ERROR, "Pointer value is too large", EXPFILL }},
         { &ei_mp2t_cc_drop, { "mp2t.cc.drop", PI_MALFORMED, PI_ERROR, "Detected missing TS frames", EXPFILL }},
+        { &ei_mp2t_invalid_afc, { "mp2t.afc.invalid", PI_PROTOCOL, PI_WARN,
+                                    "Adaptation Field Control contains an invalid value", EXPFILL }}
     };
 
     expert_module_t* expert_mp2t;
