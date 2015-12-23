@@ -564,7 +564,7 @@ endif()
 #
 if( NOT CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	#
-	# Try the GCC-and-copatible -fvisibility-hidden first.
+	# Try the GCC-and-compatible -fvisibility-hidden first.
 	#
 	check_c_compiler_flag(-fvisibility=hidden FVHIDDEN)
 	if(FVHIDDEN)
