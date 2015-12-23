@@ -752,7 +752,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  hostlist_table_set_gui_info@Base 1.99.0
  http_dissector_add@Base 1.9.1
  http_port_add@Base 1.9.1
- ieee80211_float_htrates@Base 1.99.1
+ ieee80211_htrate@Base 2.1.0
  ieee80211_supported_rates_vals_ext@Base 1.99.1
  ieee802a_add_oui@Base 1.9.1
  in_cksum@Base 1.9.1

@@ -1460,16 +1460,14 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			 * 802.11n doesn't support.)
 			 */
 			if (can_calculate_rate && mcs <= MAX_MCS_INDEX
-			    && ieee80211_float_htrates[mcs][bandwidth][gi_length] != 0.0) {
-				col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f",
-					     ieee80211_float_htrates[mcs][bandwidth][gi_length]);
+					&& ieee80211_ht_Dbps[mcs] != 0) {
+				float rate = ieee80211_htrate(mcs, bandwidth, gi_length);
+				col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%.1f", rate);
 				if (tree) {
 					rate_ti = proto_tree_add_float_format(radiotap_tree,
-					    hf_radiotap_datarate,
-					    tvb, offset, 3,
-					    ieee80211_float_htrates[mcs][bandwidth][gi_length],
-					    "Data Rate: %.1f Mb/s",
-					    ieee80211_float_htrates[mcs][bandwidth][gi_length]);
+						hf_radiotap_datarate,
+						tvb, offset, 3, rate,
+						"Data Rate: %.1f Mb/s", rate);
 					PROTO_ITEM_SET_GENERATED(rate_ti);
 				}
 			}

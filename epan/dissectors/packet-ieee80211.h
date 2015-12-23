@@ -61,7 +61,8 @@ int add_tagged_field(packet_info *pinfo, proto_tree *tree,
  */
 #define MAX_MCS_INDEX 76
 
-WS_DLL_PUBLIC const float ieee80211_float_htrates[MAX_MCS_INDEX+1][2][2];
+WS_DLL_PUBLIC const guint16 ieee80211_ht_Dbps[MAX_MCS_INDEX+1];
+float ieee80211_htrate(int mcs_index, gboolean bandwidth, gboolean short_gi);
 
 WS_DLL_PUBLIC value_string_ext ieee80211_supported_rates_vals_ext;
 
