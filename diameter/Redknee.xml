@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<vendor vendor-id="Redknee" code="5562" name="Redknee">
+	<avp name="Subscriber-Information" code="101" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="Name-Value-Pair"/>
+		</grouped>
+	</avp>
+	<avp name="NSR-Information" code="102" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="Name-Value-Pair"/>
+		</grouped>
+	</avp>
+	<avp name="Group-Information" code="103" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="Group-Id"/>
+			<gavp name="Name-Value-Pair"/>
+		</grouped>
+	</avp>
+	<avp name="Group-NSR-Information" code="104" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="Group-Id"/>
+			<gavp name="Name-Value-Pair"/>
+		</grouped>
+	</avp>
+	<avp name="Name-Value-Pair" code="105" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="Name"/>
+			<gavp name="Value"/>
+		</grouped>
+	</avp>
+	<avp name="Name" code="106" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Value" code="107" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Group-Id" code="108" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Policy-Information" code="109" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="Subscriber-Information"/>
+			<gavp name="NSR-Information"/>
+			<gavp name="Group-Information"/>
+			<gavp name="Group-NSR-Information"/>
+		</grouped>
+	</avp>
+	<avp name="Reversal-Id" code="110" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Subscription-Id" code="111" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="Subscription-Id-Type"/>
+			<gavp name="Subscription-Id-Data"/>
+		</grouped>
+	</avp>
+	<avp name="Subscription-Id-Type" code="112" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned32"/>
+		<enum name="NATIVE_CUSTOMER_ID" code="-1"/>
+		<enum name="CUSTOMER_ID" code="50"/>
+	</avp>
+	<avp name="Subscription-Id-Data" code="113" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<!--
+		XXX - Which is the real code 114?
+		<avp name="Client-Accessibility-Report-Id" code="114" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+			<type type-name="Unsigned64"/>
+		</avp>
+	-->
+	<avp name="Min-Requested-Service-Unit" code="114" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="CC-Money"/>
+		</grouped>
+	</avp>
+	<avp name="Accessible-Client-Host" code="115" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="DiameterIdentity"/>
+	</avp>
+
+	<avp name="PPI-Information" code="1102" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="Product-Id"/>
+			<gavp name="Purpose"/>
+			<gavp name="Access-Frontend-Id"/>
+			<gavp name="Merchant-Id"/>
+			<gavp name="Consumer-Account-Id"/>
+			<gavp name="Currency"/>
+			<gavp name="Transparent-Data"/>
+			<gavp name="Timeout"/>
+			<gavp name="Method-Name"/>
+			<gavp name="Error-Info"/>
+			<gavp name="Expiry-Date"/>
+			<gavp name="Date-Of-Last-Recharge"/>
+			<gavp name="Old-Expiry-Date"/>
+			<gavp name="New-Expiry-Date"/>
+			<gavp name="Error-Cause"/>
+			<gavp name="Original-Charge-Time"/>
+			<gavp name="Requestor-Credentials"/>
+			<gavp name="Routing-Info"/>
+			<gavp name="Account-Type"/>
+			<gavp name="Cluster-Name"/>
+			<gavp name="Calculated-Amount"/>
+			<gavp name="Account"/>
+			<gavp name="Timestamp-For-Rating"/>
+			<gavp name="Transaction-Status"/>
+			<gavp name="Balance"/>
+			<gavp name="AoC-Price"/>
+			<gavp name="Recipient"/>
+			<gavp name="Reversal-Id"/>
+		</grouped>
+	</avp>
+	<avp name="AoC-Price" code="1123" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Balance" code="1126" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Language-ID" code="1130" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Product-Id" code="1170" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Purpose" code="1171" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Access-Frontend-Id" code="1172" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Merchant-Id" code="1173" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Consumer-Account-Id" code="1174" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Currency" code="1175" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Transparent-Data" code="1176" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Timeout" code="1177" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="Timeout-Mode"/>
+			<gavp name="Timeout-Value"/>
+		</grouped>
+	</avp>
+	<avp name="Method-Name" code="1178" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned32"/>
+		<enum name="AUTHORIZE_AMOUNT" code="1"/>
+		<enum name="CAPTURE_AMOUNT" code="2"/>
+		<enum name="CHARGE_AMOUNT" code="3"/>
+		<enum name="RECHARGE_AMOUNT" code="4"/>
+		<enum name="REFUND" code="5"/>
+		<enum name="GET_CONSUMER_ACCOUNT_LIST" code="6"/>
+		<enum name="ADVICE_OF_CHARGE" code="7"/>
+		<enum name="GET_TA_STATE" code="8"/>
+		<enum name="CANCEL_TA" code="9"/>
+		<enum name="CHECK_ACCOUNT_INFORMATION" code="10"/>
+		<enum name="CHECK_DISCOUNT_INFORMATION" code="11"/>
+		<enum name="CHECK_RECENT_TRANSCACTION" code="13"/>
+		<enum name="ACTIVATE_SUBSCRIBER_LIFE_CYCLE" code="14"/>
+		<enum name="TRANSFER_AMOUNT" code="15"/>
+		<enum name="RECHARGE_REVERSAL" code="16"/>
+	</avp>
+	<avp name="Error-Info" code="1179" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="No-Money-Flow"/>
+			<gavp name="Error-Item"/>
+		</grouped>
+	</avp>
+	<avp name="Expiry-Date" code="1180" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="Expiry-Date-Mode"/>
+			<gavp name="Expiry-Date-Value"/>
+		</grouped>
+	</avp>
+	<avp name="Date-Of-Last-Recharge" code="1181" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Old-Expiry-Date" code="1182" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="New-Expiry-Date" code="1183" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Error-Cause" code="1184" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Original-Charge-Time" code="1185" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Account" code="1186" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="Account-Id"/>
+			<gavp name="Account-Type"/>
+			<gavp name="Account-Owner-Id"/>
+			<gavp name="Account-Approved"/>
+			<gavp name="Account-Current-Balance"/>
+			<gavp name="Account-Current-Authorized-Amount"/>
+			<gavp name="Account-Last-Balance-Mod-Date"/>
+			<gavp name="Account-Expiry-Date"/>
+			<gavp name="Currency"/>
+		</grouped>
+	</avp>
+	<avp name="Timestamp-For-Rating" code="1187" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Transaction-Status" code="1188" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned32"/>
+		<enum name="REQUESTED" code="0"/>
+		<enum name="PROCESSED" code="1"/>
+		<enum name="TIMEOUT" code="2"/>
+		<enum name="FAILED" code="3"/>
+		<enum name="AUTHORIZED" code="5"/>
+		<enum name="CAPTUREREQUESTED" code="6"/>
+		<enum name="OPEN" code="8"/>
+	</avp>
+	<avp name="Timeout-Mode" code="1189" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned32"/>
+		<enum name="MODE_CLASSIFIED" code="1"/>
+		<enum name="MODE_ABSOLUTE" code="2"/>
+		<enum name="MODE_MINUTES_CLASSIFIED" code="3"/>
+		<enum name="MODE_MINUTES_ABSOLUTE" code="4"/>
+	</avp>
+	<avp name="Timeout-Value" code="1190" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="No-Money-Flow" code="1191" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Error-Item" code="1192" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="Functional-Unit-Id"/>
+			<gavp name="Error-Id"/>
+			<gavp name="Error-Text"/>
+		</grouped>
+	</avp>
+	<avp name="Functional-Unit-Id" code="1193" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Error-Id" code="1194" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Error-Text" code="1195" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Expiry-Date-Mode" code="1196" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned32"/>
+		<enum name="MODE_SET_ABSOLUTE_DATE" code="1"/>
+		<enum name="MODE_ADD_DELTA_DAYS" code="2"/>
+		<enum name="MODE_USE_DEFAULT" code="3"/>
+		<enum name="MODE_NO_CHANGE" code="4"/>
+	</avp>
+	<avp name="Expiry-Date-Value" code="1197" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Account-Id" code="1198" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Account-Type" code="1199" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned32"/>
+		<enum name="UNKNOWN" code="0"/>
+		<enum name="CONSUMER_PREPAID" code="1"/>
+		<enum name="CONSUMER_POSTPAID" code="2"/>
+		<enum name="LOYALTY_ACCOUNT" code="8"/>
+	</avp>
+	<avp name="Account-Owner-Id" code="1200" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Account-Approved" code="1201" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Account-Current-Balance" code="1202" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Account-Current-Authorized-Amount" code="1203" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Account-Last-Balance-Mod-Date" code="1204" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Account-Expiry-Date" code="1205" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Calculated-Amount" code="1206" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Requestor-Credentials" code="1207" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="Requestor-Role"/>
+			<gavp name="Requestor-User-Id"/>
+			<gavp name="Requestor-PIN"/>
+		</grouped>
+	</avp>
+	<avp name="Routing-Info" code="1208" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Cluster-Name" code="1209" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Requestor-Role" code="1210" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Requestor-User-Id" code="1211" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Requestor-PIN" code="1212" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Inband-Announcement" code="1214" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="Anno-Id"/>
+			<gavp name="Language-ID"/>
+			<gavp name="Anno-Variable-Part"/>
+		</grouped>
+	</avp>
+	<avp name="Anno-Id" code="1215" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Anno-Variable-Part" code="1216" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="Variable-Part-Type"/>
+			<gavp name="Variable-Part-Value"/>
+		</grouped>
+	</avp>
+	<avp name="Variable-Part-Type" code="1217" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="Unsigned32"/>
+		<enum name="TYPE_INTEGER" code="0"/>
+		<enum name="TYPE_NUMBER" code="1"/>
+		<enum name="TYPE_TIME" code="2"/>
+		<enum name="TYPE_DATE" code="3"/>
+		<enum name="TYPE_PRICE" code="4"/>
+	</avp>
+	<avp name="Variable-Part-Value" code="1218" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Recipient" code="1224" mandatory="must" vendor-bit="must" vendor-id="Redknee">
+		<grouped>
+			<gavp name="Subscription-Id"/>
+			<gavp name="Consumer-Account-Id"/>
+		</grouped>
+	</avp>
+</vendor>

@@ -93,7 +93,8 @@ dist_diameter_DATA = $(_CUSTOM_diameter_xml_files_) \
 	diameter/Nokia.xml \
 	diameter/NokiaSolutionsAndNetworks.xml \
 	diameter/HP.xml \
-	diameter/Oracle.xml
+	diameter/Oracle.xml \
+	diameter/Redknee.xml
 
 #
 # Install the DTDs directory files in the "dtds" subdirectory

@@ -26,6 +26,7 @@
 	<!ENTITY NokiaSolutionsAndNetworks	SYSTEM "NokiaSolutionsAndNetworks.xml">
 	<!ENTITY HP			SYSTEM "HP.xml">
 	<!ENTITY Oracle			SYSTEM "Oracle.xml">
+	<!ENTITY Redknee		SYSTEM "Redknee.xml">
 	<!ENTITY Custom			SYSTEM "Custom.xml">
 ]>
 <dictionary>
@@ -5003,7 +5004,7 @@
 			<enum name="IPv4" code="0"/>
 			<enum name="IPv6" code="1"/>
 			<enum name="IPv4v6" code="2"/>
-      <enum name="IPv4_OR_IPv6" code="3"/>
+			<enum name="IPv4_OR_IPv6" code="3"/>
 		</avp>
 		<avp name="Roaming-Restricted-Due-To-Unsupported-Feature" code="1457" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
@@ -6900,8 +6901,8 @@
 	<application id="16777340"	name="3GPP PC6/PC7"			uri="http://www.3gpp.org/ftp/Specs/html-info/29345.htm"/>
 	<!-- application 16777341	is defined in Nokia.xml -->
 	<application id="16777342"	name="3GPP Np"				uri="http://www.3gpp.org/ftp/Specs/html-info/29217.htm"/>
-  <application id="16777999" name="S6b Application (One-AAA)"	uri="none"/>
-  <application id="4294967295"	name="Relay"				uri="http://tools.ietf.org/html/rfc6733"/>
+	<application id="16777999"	name="S6b Application (One-AAA)"	uri="none"/>
+	<application id="4294967295"	name="Relay"				uri="http://tools.ietf.org/html/rfc6733"/>
 	<!-- *********************** End Application IDs ************************** -->
 
 
@@ -6917,11 +6918,24 @@
 	<vendor vendor-id="Acision"			code="3830"	name="Acision"/>
 	<vendor vendor-id="SKT"				code="5806"	name="SK Telecom"/>
 	<vendor vendor-id="TGPP"			code="10415"	name="3GPP"/>
-	<vendor vendor-id="VerizonWireless"		code="12951"	name="Verizon Wireless"/>
 	<vendor vendor-id="ETSI"			code="13019"	name="ETSI"/>
 	<vendor vendor-id="Tango"			code="13421"	name="Tango Telecom Limited"/>
 	<vendor vendor-id="ChinaTelecom"		code="81000"	name="China Telecom"/>
 	<vendor vendor-id="TGPPCX"			code="16777216"	name="3GPP CX/DX"/>
+
+	<vendor vendor-id="VerizonWireless"		code="12951"	name="Verizon Wireless">
+		<avp name="Charging-Group-ID" code="6069" mandatory="must" vendor-bit="must" vendor-id="VerizonWireless">
+			<type type-name="UTF8String"/>
+		</avp>
+	</vendor>
+	<vendor vendor-id="WiMax"			code="24757"	name="WiMax">
+		<avp name="Active-Time" code="39" mandatory="must" vendor-bit="must" vendor-id="WiMax">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="WiMax-BSID" code="46" mandatory="must" vendor-bit="must" vendor-id="WiMax">
+			<type type-name="UTF8String"/>
+		</avp>
+	</vendor>
 	<!-- *********************** End Vendors ************************** -->
 
 	&nasreq;
@@ -6943,5 +6957,6 @@
 	&NokiaSolutionsAndNetworks;
 	&HP;
 	&Oracle;
+	&Redknee;
 	&Custom;
 </dictionary>
