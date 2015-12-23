@@ -1157,7 +1157,6 @@ dissect_tsp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (pid_analysis->pload_type == pid_pload_null) {
         /* Nothing more to do */
         col_set_str(pinfo->cinfo, COL_INFO, "NULL packet");
-        proto_item_append_text(afci, " (Should be 0 for NULL packets)");
         return;
     }
 
