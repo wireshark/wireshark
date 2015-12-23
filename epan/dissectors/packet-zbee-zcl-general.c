@@ -4883,7 +4883,874 @@ proto_reg_handoff_zbee_zcl_rssi_location(void)
                          );
 } /*proto_reg_handoff_zbee_zcl_rssi_location*/
 
+/****************************************************************************************************/
+/****************************************************************************************************/
+/****************************************************************************************************/
 
+
+/* Reliability Enumeration Values */
+#define ZBEE_ZCL_RELIABILITY_NO_FAULT_DETECTED              0x00    /* No Fault Detected */
+#define ZBEE_ZCL_RELIABILITY_NO_SENSOR                      0x01    /* No Sensor */
+#define ZBEE_ZCL_RELIABILITY_OVER_RANGE                     0x02    /* Over Range */
+#define ZBEE_ZCL_RELIABILITY_UNDER_RANGE                    0x03    /* Under Range */
+#define ZBEE_ZCL_RELIABILITY_OPEN_LOOP                      0x04    /* Open Loop */
+#define ZBEE_ZCL_RELIABILITY_SHORTED_LOOP                   0x05    /* Shorted Loop */
+#define ZBEE_ZCL_RELIABILITY_NO_OUTPUT                      0x06    /* No Output */
+#define ZBEE_ZCL_RELIABILITY_UNRELIABLE_OTHER               0x07    /* Unreliable Other */
+#define ZBEE_ZCL_RELIABILITY_PROCESS_ERROR                  0x08    /* Process Error */
+#define ZBEE_ZCL_RELIABILITY_MULTI_STATE_FAULT              0x09    /* Multi-State Fault */
+#define ZBEE_ZCL_RELIABILITY_CONFIGURATION_ERROR            0x0A    /* Configuration Error */
+
+static const value_string zbee_zcl_reliability_names[] = {
+    {ZBEE_ZCL_RELIABILITY_NO_FAULT_DETECTED,    "No Fault Detected"},
+    {ZBEE_ZCL_RELIABILITY_NO_SENSOR,            "No Sensor"},
+    {ZBEE_ZCL_RELIABILITY_OVER_RANGE,           "Over Range"},
+    {ZBEE_ZCL_RELIABILITY_UNDER_RANGE,          "Under Range"},
+    {ZBEE_ZCL_RELIABILITY_OPEN_LOOP,            "Open Loop"},
+    {ZBEE_ZCL_RELIABILITY_SHORTED_LOOP,         "Shorted Loop"},
+    {ZBEE_ZCL_RELIABILITY_NO_OUTPUT,            "No Output"},
+    {ZBEE_ZCL_RELIABILITY_UNRELIABLE_OTHER,     "Unreliable Other"},
+    {ZBEE_ZCL_RELIABILITY_PROCESS_ERROR,        "Process Error"},
+    {ZBEE_ZCL_RELIABILITY_MULTI_STATE_FAULT,    "Multi-State Fault"},
+    {ZBEE_ZCL_RELIABILITY_CONFIGURATION_ERROR,  "Configuration Error"},
+    {0, NULL}
+};
+
+/* Status Flags Mask Values */
+#define ZBEE_ZCL_STATUS_IN_ALARM                0x01      /* In Alarm Flag */
+#define ZBEE_ZCL_STATUS_FAULT                   0x02      /* Fault Flag */
+#define ZBEE_ZCL_STATUS_OVERRIDDEN              0x04      /* Overridden Flag */
+#define ZBEE_ZCL_STATUS_OUT_OF_SERVICE          0x08      /* Out of Service Flag */
+
+static const value_string zbee_zcl_status_values[] = {
+    {0, "False"},
+    {1, "True"},
+    {0, NULL}
+};
+
+/* ########################################################################## */
+/* #### (0x0012) MULTISTATE INPUT (BASIC) CLUSTER ########################### */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+#define ZBEE_ZCL_MULTISTATE_INPUT_BASIC_NUM_ETT                                 2
+
+/*Attributes*/
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_STATE_TEXT                      0x000E  /* State Text */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_DESCRIPTION                     0x001C  /* Description */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_NUMBER_OF_STATES                0x004A  /* Number of States */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_OUT_OF_SERVICE                  0x0051  /* Out of Service */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_PRESENT_VALUE                   0x0055  /* Present Value */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_RELIABILITY                     0x0067  /* Reliability */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_STATUS_FLAGS                    0x006F  /* Status Flags */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_APPLICATION_TYPE                0x0100  /* Application Type */
+
+/*Server commands received - none*/
+
+/*Server commands generated - none*/
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+void proto_register_zbee_zcl_multistate_input_basic(void);
+void proto_reg_handoff_zbee_zcl_multistate_input_basic(void);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_multistate_input_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Private functions prototype */
+
+/*************************/
+/* Global Variables      */
+/*************************/
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_multistate_input_basic = -1;
+
+static int hf_zbee_zcl_multistate_input_basic_attr_id = -1;
+static int hf_zbee_zcl_multistate_input_basic_status_flags = -1;
+static int hf_zbee_zcl_multistate_input_basic_status_in_alarm = -1;
+static int hf_zbee_zcl_multistate_input_basic_status_fault = -1;
+static int hf_zbee_zcl_multistate_input_basic_status_overridden = -1;
+static int hf_zbee_zcl_multistate_input_basic_status_out_of_service = -1;
+static int hf_zbee_zcl_multistate_input_basic_reliability = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_multistate_input_basic = -1;
+static gint ett_zbee_zcl_multistate_input_basic_status_flags = -1;
+
+/* Attributes */
+static const value_string zbee_zcl_multistate_input_basic_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_STATE_TEXT,           "State Text" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_DESCRIPTION,          "Description" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_NUMBER_OF_STATES,     "Number of States" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_OUT_OF_SERVICE,       "Out of Service" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_PRESENT_VALUE,        "Present Value" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_RELIABILITY,          "Reliability" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_STATUS_FLAGS,         "Status Flags" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_APPLICATION_TYPE,     "Application Type" },
+    { 0, NULL }
+};
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_multistate_input_basic
+ *  DESCRIPTION
+ *      ZigBee ZCL Multistate Input Basic cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+
+static int
+dissect_zbee_zcl_multistate_input_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
+{
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_multistate_input_basic*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_multistate_input_basic_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+dissect_zcl_multistate_input_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    static const int * status_flags[] = {
+        &hf_zbee_zcl_multistate_input_basic_status_in_alarm,
+        &hf_zbee_zcl_multistate_input_basic_status_fault,
+        &hf_zbee_zcl_multistate_input_basic_status_overridden,
+        &hf_zbee_zcl_multistate_input_basic_status_out_of_service,
+        NULL
+    };
+
+    /* Dissect attribute data type and data */
+    switch (attr_id) {
+
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_RELIABILITY:
+            proto_tree_add_item(tree, hf_zbee_zcl_multistate_input_basic_reliability, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_STATUS_FLAGS:
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_multistate_input_basic_status_flags, ett_zbee_zcl_multistate_input_basic_status_flags, status_flags, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_DESCRIPTION:
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_NUMBER_OF_STATES:
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_OUT_OF_SERVICE:
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_PRESENT_VALUE:
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_INPUT_BASIC_APPLICATION_TYPE:
+        default:
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+
+} /*dissect_zcl_multistate_input_basic_attr_data*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_multistate_input_basic
+ *  DESCRIPTION
+ *      ZigBee ZCL Multistate Input Basic cluster protocol registration routine.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+void
+proto_register_zbee_zcl_multistate_input_basic(void)
+{
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_multistate_input_basic_attr_id,
+            { "Attribute", "zbee_zcl_general.multistate_input_basic.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_multistate_input_basic_attr_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_input_basic_reliability,
+            { "Reliability", "zbee_zcl_general.multistate_input_basic.attr.reliability", FT_UINT8, BASE_HEX, VALS(zbee_zcl_reliability_names),
+            0x00, NULL, HFILL } },
+
+        /* start Status Flags fields */
+        { &hf_zbee_zcl_multistate_input_basic_status_flags,
+            { "Status Flags", "zbee_zcl_general.multistate_input_basic.attr.status", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_input_basic_status_in_alarm,
+            { "In Alarm Status", "zbee_zcl_general.multistate_input_basic.attr.status.in_alarm", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_IN_ALARM, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_input_basic_status_fault,
+            { "Fault Status", "zbee_zcl_general.multistate_input_basic.attr.status.fault", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_FAULT, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_input_basic_status_overridden,
+            { "Overridden Status", "zbee_zcl_general.multistate_input_basic.attr.status.overridden", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_OVERRIDDEN, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_input_basic_status_out_of_service,
+            { "Out of Service Status", "zbee_zcl_general.multistate_input_basic.attr.status.out_of_service", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_OUT_OF_SERVICE, NULL, HFILL } }
+        /* end Status Flags fields */
+    };
+
+    /* ZCL Multistate Input Basic subtrees */
+    static gint *ett[ZBEE_ZCL_MULTISTATE_INPUT_BASIC_NUM_ETT];
+
+    ett[0] = &ett_zbee_zcl_multistate_input_basic;
+    ett[1] = &ett_zbee_zcl_multistate_input_basic_status_flags;
+
+    /* Register the ZigBee ZCL Multistate Input Basic cluster protocol name and description */
+    proto_zbee_zcl_multistate_input_basic = proto_register_protocol("ZigBee ZCL Multistate Input Basic", "ZCL Multistate Input Basic", ZBEE_PROTOABBREV_ZCL_MULTISTATE_INPUT_BASIC);
+    proto_register_field_array(proto_zbee_zcl_multistate_input_basic, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Multistate Input Basic dissector. */
+    register_dissector(ZBEE_PROTOABBREV_ZCL_MULTISTATE_INPUT_BASIC, dissect_zbee_zcl_multistate_input_basic, proto_zbee_zcl_multistate_input_basic);
+} /*proto_register_zbee_zcl_multistate_input_basic*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_multistate_input_basic
+ *  DESCRIPTION
+ *      Hands off the ZCL Multistate Input Basic dissector.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_reg_handoff_zbee_zcl_multistate_input_basic(void)
+{
+    dissector_handle_t multistate_input_basic_handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    multistate_input_basic_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_MULTISTATE_INPUT_BASIC);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_MULTISTATE_INPUT_BASIC, multistate_input_basic_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_multistate_input_basic,
+                            ett_zbee_zcl_multistate_input_basic,
+                            ZBEE_ZCL_CID_MULTISTATE_INPUT_BASIC,
+                            hf_zbee_zcl_multistate_input_basic_attr_id,
+                            -1, -1,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_multistate_input_basic_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_multistate_input_basic*/
+
+
+/* ########################################################################## */
+/* #### (0x0013) MULTISTATE OUTPUT (BASIC) CLUSTER ########################## */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+#define ZBEE_ZCL_MULTISTATE_OUTPUT_BASIC_NUM_ETT                                 4
+
+/*Attributes*/
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_STATE_TEXT                      0x000E  /* State Text */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_DESCRIPTION                     0x001C  /* Description */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_NUMBER_OF_STATES                0x004A  /* Number of States */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_OUT_OF_SERVICE                  0x0051  /* Out of Service */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_PRESENT_VALUE                   0x0055  /* Present Value */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_PRIORITY_ARRAY                  0x0057  /* Priority Array */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_RELIABILITY                     0x0067  /* Reliability */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_RELINQUISH_DEFAULT              0x0068  /* Relinquish Default */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_STATUS_FLAGS                    0x006F  /* Status Flags */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_APPLICATION_TYPE                0x0100  /* Application Type */
+
+/*Server commands received - none*/
+
+/*Server commands generated - none*/
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+void proto_register_zbee_zcl_multistate_output_basic(void);
+void proto_reg_handoff_zbee_zcl_multistate_output_basic(void);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_multistate_output_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Private functions prototype */
+
+/*************************/
+/* Global Variables      */
+/*************************/
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_multistate_output_basic = -1;
+
+static int hf_zbee_zcl_multistate_output_basic_attr_id = -1;
+static int hf_zbee_zcl_multistate_output_basic_status_flags = -1;
+static int hf_zbee_zcl_multistate_output_basic_status_in_alarm = -1;
+static int hf_zbee_zcl_multistate_output_basic_status_fault = -1;
+static int hf_zbee_zcl_multistate_output_basic_status_overridden = -1;
+static int hf_zbee_zcl_multistate_output_basic_status_out_of_service = -1;
+static int hf_zbee_zcl_multistate_output_basic_reliability = -1;
+static int hf_zbee_zcl_multistate_output_basic_priority_array_bool = -1;
+static int hf_zbee_zcl_multistate_output_basic_priority_array_sing_prec = -1;
+static int hf_zbee_zcl_multistate_output_basic_priority_array = -1;
+static int hf_zbee_zcl_multistate_output_basic_structure = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_multistate_output_basic = -1;
+static gint ett_zbee_zcl_multistate_output_basic_status_flags = -1;
+static gint ett_zbee_zcl_multistate_output_basic_priority_array = -1;
+static gint ett_zbee_zcl_multistate_output_basic_priority_array_structure = -1;
+
+/* Attributes */
+static const value_string zbee_zcl_multistate_output_basic_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_STATE_TEXT,           "State Text" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_DESCRIPTION,          "Description" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_NUMBER_OF_STATES,     "Number of States" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_OUT_OF_SERVICE,       "Out of Service" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_PRESENT_VALUE,        "Present Value" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_PRIORITY_ARRAY,       "Priority Array" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_RELIABILITY,          "Reliability" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_RELINQUISH_DEFAULT,   "Relinquish Default" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_STATUS_FLAGS,         "Status Flags" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_APPLICATION_TYPE,     "Application Type" },
+    { 0, NULL }
+};
+
+static const value_string zbee_zcl_multistate_output_basic_priority_array_bool_values[] = {
+    { 0x01, "Valid" },
+    { 0x00, "Invalid" },
+    { 0, NULL }
+};
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_multistate_output_basic
+ *  DESCRIPTION
+ *      ZigBee ZCL Multistate Output Basic cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+
+static int
+dissect_zbee_zcl_multistate_output_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
+{
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_multistate_output_basic*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_multistate_output_basic_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+dissect_zcl_multistate_output_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    proto_item  *ti = NULL, *tj = NULL;
+    proto_tree  *sub_tree = NULL, *sub = NULL;
+    int i;
+
+    static const int * status_flags[] = {
+        &hf_zbee_zcl_multistate_output_basic_status_in_alarm,
+        &hf_zbee_zcl_multistate_output_basic_status_fault,
+        &hf_zbee_zcl_multistate_output_basic_status_overridden,
+        &hf_zbee_zcl_multistate_output_basic_status_out_of_service,
+        NULL
+    };
+
+    /* Dissect attribute data type and data */
+    switch (attr_id) {
+
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_PRIORITY_ARRAY:
+            ti = proto_tree_add_item(tree,hf_zbee_zcl_multistate_output_basic_priority_array, tvb, *offset, 80, ENC_NA);
+            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_multistate_output_basic_priority_array);
+
+            for( i = 1; i <= 16; i++)
+            {
+                tj = proto_tree_add_item(sub_tree, hf_zbee_zcl_multistate_output_basic_structure, tvb, *offset, 5, ENC_NA);
+                proto_item_append_text(tj," %d",i);
+                sub = proto_item_add_subtree(tj, ett_zbee_zcl_multistate_output_basic_priority_array_structure);
+                proto_tree_add_item(sub, hf_zbee_zcl_multistate_output_basic_priority_array_bool, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+                *offset += 1;
+                proto_tree_add_item(sub, hf_zbee_zcl_multistate_output_basic_priority_array_sing_prec, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+                *offset += 4;
+            }
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_RELIABILITY:
+            proto_tree_add_item(tree, hf_zbee_zcl_multistate_output_basic_reliability, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_STATUS_FLAGS:
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_multistate_output_basic_status_flags, ett_zbee_zcl_multistate_output_basic_status_flags, status_flags, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_DESCRIPTION:
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_NUMBER_OF_STATES:
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_OUT_OF_SERVICE:
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_RELINQUISH_DEFAULT:
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_PRESENT_VALUE:
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_OUTPUT_BASIC_APPLICATION_TYPE:
+        default:
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+
+} /*dissect_zcl_multistate_output_basic_attr_data*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_multistate_output_basic
+ *  DESCRIPTION
+ *      ZigBee ZCL Multistate Output Basic cluster protocol registration routine.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+void
+proto_register_zbee_zcl_multistate_output_basic(void)
+{
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_multistate_output_basic_attr_id,
+            { "Attribute", "zbee_zcl_general.multistate_output_basic.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_multistate_output_basic_attr_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_output_basic_reliability,
+            { "Reliability", "zbee_zcl_general.multistate_output_basic.attr.reliability", FT_UINT8, BASE_HEX, VALS(zbee_zcl_reliability_names),
+            0x00, NULL, HFILL } },
+
+        /* start Status Flags fields */
+        { &hf_zbee_zcl_multistate_output_basic_status_flags,
+            { "Status Flags", "zbee_zcl_general.multistate_output_basic.attr.status", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_output_basic_status_in_alarm,
+            { "In Alarm Status", "zbee_zcl_general.multistate_output_basic.attr.status.in_alarm", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_IN_ALARM, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_output_basic_status_fault,
+            { "Fault Status", "zbee_zcl_general.multistate_output_basic.attr.status.fault", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_FAULT, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_output_basic_status_overridden,
+            { "Overridden Status", "zbee_zcl_general.multistate_output_basic.attr.status.overridden", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_OVERRIDDEN, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_output_basic_status_out_of_service,
+            { "Out of Service Status", "zbee_zcl_general.multistate_output_basic.attr.status.out_of_service", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_OUT_OF_SERVICE, NULL, HFILL } },
+        /* end Status Flags fields */
+
+        { &hf_zbee_zcl_multistate_output_basic_priority_array_bool,
+            { "Valid/Invalid", "zbee_zcl_general.multistate_output_basic.attr.priority_array.bool", FT_UINT8, BASE_HEX, VALS(zbee_zcl_multistate_output_basic_priority_array_bool_values),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_output_basic_priority_array_sing_prec,
+            { "Priority Value", "zbee_zcl_general.multistate_output_basic.attr.priority_array.sing_prec", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } } ,
+
+        { &hf_zbee_zcl_multistate_output_basic_priority_array,
+            { "Priority Array", "zbee_zcl_general.multistate_output_basic.priority_array.", FT_NONE, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_output_basic_structure,
+            { "Structure", "zbee_zcl_general.multistate_output_basic.structure.", FT_NONE, BASE_NONE, NULL,
+            0x00, NULL, HFILL } }
+};
+
+    /* ZCL Multistate Output Basic subtrees */
+    static gint *ett[ZBEE_ZCL_MULTISTATE_OUTPUT_BASIC_NUM_ETT];
+
+    ett[0] = &ett_zbee_zcl_multistate_output_basic;
+    ett[1] = &ett_zbee_zcl_multistate_output_basic_status_flags;
+    ett[2] = &ett_zbee_zcl_multistate_output_basic_priority_array;
+    ett[3] = &ett_zbee_zcl_multistate_output_basic_priority_array_structure;
+
+    /* Register the ZigBee ZCL Multistate Output Basic cluster protocol name and description */
+    proto_zbee_zcl_multistate_output_basic = proto_register_protocol("ZigBee ZCL Multistate Output Basic", "ZCL Multistate Output Basic", ZBEE_PROTOABBREV_ZCL_MULTISTATE_OUTPUT_BASIC);
+    proto_register_field_array(proto_zbee_zcl_multistate_output_basic, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Multistate Output Basic dissector. */
+    register_dissector(ZBEE_PROTOABBREV_ZCL_MULTISTATE_OUTPUT_BASIC, dissect_zbee_zcl_multistate_output_basic, proto_zbee_zcl_multistate_output_basic);
+} /*proto_register_zbee_zcl_multistate_output_basic*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_multistate_output_basic
+ *  DESCRIPTION
+ *      Hands off the ZCL Multistate Output Basic dissector.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_reg_handoff_zbee_zcl_multistate_output_basic(void)
+{
+    dissector_handle_t multistate_output_basic_handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    multistate_output_basic_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_MULTISTATE_OUTPUT_BASIC);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_MULTISTATE_OUTPUT_BASIC, multistate_output_basic_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_multistate_output_basic,
+                            ett_zbee_zcl_multistate_output_basic,
+                            ZBEE_ZCL_CID_MULTISTATE_OUTPUT_BASIC,
+                            hf_zbee_zcl_multistate_output_basic_attr_id,
+                            -1,-1,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_multistate_output_basic_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_multistate_output_basic*/
+
+
+/* ########################################################################## */
+/* #### (0x0014) MULTISTATE VALUE (BASIC) CLUSTER ########################### */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+#define ZBEE_ZCL_MULTISTATE_VALUE_BASIC_NUM_ETT                                 4
+
+/*Attributes*/
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_STATE_TEXT                      0x000E  /* State Text */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_DESCRIPTION                     0x001C  /* Description */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_NUMBER_OF_STATES                0x004A  /* Number of States */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_OUT_OF_SERVICE                  0x0051  /* Out of Service */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_PRESENT_VALUE                   0x0055  /* Present Value */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_PRIORITY_ARRAY                  0x0057  /* Priority Array */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_RELIABILITY                     0x0067  /* Reliability */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_RELINQUISH_DEFAULT              0x0068  /* Relinquish Default */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_STATUS_FLAGS                    0x006F  /* Status Flags */
+#define ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_APPLICATION_TYPE                0x0100  /* Application Type */
+
+/*Server commands received - none*/
+
+/*Server commands generated - none*/
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+void proto_register_zbee_zcl_multistate_value_basic(void);
+void proto_reg_handoff_zbee_zcl_multistate_value_basic(void);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_multistate_value_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Private functions prototype */
+
+/*************************/
+/* Global Variables      */
+/*************************/
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_multistate_value_basic = -1;
+
+static int hf_zbee_zcl_multistate_value_basic_attr_id = -1;
+static int hf_zbee_zcl_multistate_value_basic_status_flags = -1;
+static int hf_zbee_zcl_multistate_value_basic_status_in_alarm = -1;
+static int hf_zbee_zcl_multistate_value_basic_status_fault = -1;
+static int hf_zbee_zcl_multistate_value_basic_status_overridden = -1;
+static int hf_zbee_zcl_multistate_value_basic_status_out_of_service = -1;
+static int hf_zbee_zcl_multistate_value_basic_reliability = -1;
+static int hf_zbee_zcl_multistate_value_basic_priority_array_bool = -1;
+static int hf_zbee_zcl_multistate_value_basic_priority_array_sing_prec = -1;
+static int hf_zbee_zcl_multistate_value_basic_priority_array = -1;
+static int hf_zbee_zcl_multistate_value_basic_structure = -1;
+
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_multistate_value_basic = -1;
+static gint ett_zbee_zcl_multistate_value_basic_status_flags = -1;
+static gint ett_zbee_zcl_multistate_value_basic_priority_array = -1;
+static gint ett_zbee_zcl_multistate_value_basic_priority_array_structure = -1;
+
+/* Attributes */
+static const value_string zbee_zcl_multistate_value_basic_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_STATE_TEXT,           "State Text" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_DESCRIPTION,          "Description" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_NUMBER_OF_STATES,     "Number of States" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_OUT_OF_SERVICE,       "Out of Service" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_PRESENT_VALUE,        "Present Value" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_PRIORITY_ARRAY,       "Priority Array" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_RELIABILITY,          "Reliability" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_RELINQUISH_DEFAULT,   "Relinquish Default" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_STATUS_FLAGS,         "Status Flags" },
+    { ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_APPLICATION_TYPE,     "Application Type" },
+    { 0, NULL }
+};
+
+static const value_string zbee_zcl_multistate_value_basic_priority_array_bool_values[] = {
+    { 0x01, "Valid" },
+    { 0x00, "Invalid" },
+    { 0, NULL }
+};
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_multistate_value_basic
+ *  DESCRIPTION
+ *      ZigBee ZCL Multistate Value Basic cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+
+static int
+dissect_zbee_zcl_multistate_value_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
+{
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_multistate_value_basic*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_multistate_value_basic_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+dissect_zcl_multistate_value_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    proto_item  *ti = NULL, *tj = NULL;
+    proto_tree  *sub_tree = NULL, *sub = NULL;
+    int i;
+
+    static const int * status_flags[] = {
+        &hf_zbee_zcl_multistate_value_basic_status_in_alarm,
+        &hf_zbee_zcl_multistate_value_basic_status_fault,
+        &hf_zbee_zcl_multistate_value_basic_status_overridden,
+        &hf_zbee_zcl_multistate_value_basic_status_out_of_service,
+        NULL
+    };
+
+    /* Dissect attribute data type and data */
+    switch (attr_id) {
+
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_PRIORITY_ARRAY:
+            ti = proto_tree_add_item(tree,hf_zbee_zcl_multistate_value_basic_priority_array, tvb, *offset, 80, ENC_NA);
+            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_multistate_value_basic_priority_array);
+
+            for( i = 1; i <= 16; i++)
+            {
+                tj = proto_tree_add_item(sub_tree,hf_zbee_zcl_multistate_value_basic_structure, tvb, *offset, 5,ENC_NA);
+                proto_item_append_text(tj," %d",i);
+                sub = proto_item_add_subtree(tj, ett_zbee_zcl_multistate_value_basic_priority_array_structure);
+                proto_tree_add_item(sub, hf_zbee_zcl_multistate_value_basic_priority_array_bool, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+                *offset += 1;
+                proto_tree_add_item(sub, hf_zbee_zcl_multistate_value_basic_priority_array_sing_prec, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+                *offset += 4;
+            }
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_RELIABILITY:
+            proto_tree_add_item(tree, hf_zbee_zcl_multistate_value_basic_reliability, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_STATUS_FLAGS:
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_multistate_value_basic_status_flags, ett_zbee_zcl_multistate_value_basic_status_flags, status_flags, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_DESCRIPTION:
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_NUMBER_OF_STATES:
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_OUT_OF_SERVICE:
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_RELINQUISH_DEFAULT:
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_PRESENT_VALUE:
+        case ZBEE_ZCL_ATTR_ID_MULTISTATE_VALUE_BASIC_APPLICATION_TYPE:
+        default:
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+
+} /*dissect_zcl_multistate_value_basic_attr_data*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_multistate_value_basic
+ *  DESCRIPTION
+ *      ZigBee ZCL Multistate Value Basic cluster protocol registration routine.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+void
+proto_register_zbee_zcl_multistate_value_basic(void)
+{
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_multistate_value_basic_attr_id,
+            { "Attribute", "zbee_zcl_general.multistate_value_basic.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_multistate_value_basic_attr_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_value_basic_reliability,
+            { "Reliability", "zbee_zcl_general.multistate_value_basic.attr.reliability", FT_UINT8, BASE_HEX, VALS(zbee_zcl_reliability_names),
+            0x00, NULL, HFILL } },
+
+        /* start Status Flags fields */
+        { &hf_zbee_zcl_multistate_value_basic_status_flags,
+            { "Status Flags", "zbee_zcl_general.multistate_value_basic.attr.status", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_value_basic_status_in_alarm,
+            { "In Alarm Status", "zbee_zcl_general.multistate_value_basic.attr.status.in_alarm", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_IN_ALARM, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_value_basic_status_fault,
+            { "Fault Status", "zbee_zcl_general.multistate_value_basic.attr.status.fault", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_FAULT, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_value_basic_status_overridden,
+            { "Overridden Status", "zbee_zcl_general.multistate_value_basic.attr.status.overridden", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_OVERRIDDEN, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_value_basic_status_out_of_service,
+            { "Out of Service Status", "zbee_zcl_general.multistate_value_basic.attr.status.out_of_service", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_OUT_OF_SERVICE, NULL, HFILL } },
+        /* end Status Flags fields */
+
+        { &hf_zbee_zcl_multistate_value_basic_priority_array_bool,
+            { "Valid/Invalid", "zbee_zcl_general.multistate_value_basic.attr.priority_array.bool", FT_UINT8, BASE_HEX, VALS(zbee_zcl_multistate_value_basic_priority_array_bool_values),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_value_basic_priority_array_sing_prec,
+            { "Priority Value", "zbee_zcl_general.multistate_value_basic.attr.priority_array.sing_prec", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_value_basic_priority_array,
+            { "Priority Array", "zbee_zcl_general.multistate_value_basic.priority_array.", FT_NONE, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_multistate_value_basic_structure,
+            { "Structure", "zbee_zcl_general.multistate_value_basic.structure.", FT_NONE, BASE_NONE, NULL,
+            0x00, NULL, HFILL } }
+    };
+
+    /* ZCL Multistate Value Basic subtrees */
+    static gint *ett[ZBEE_ZCL_MULTISTATE_VALUE_BASIC_NUM_ETT];
+
+    ett[0] = &ett_zbee_zcl_multistate_value_basic;
+    ett[1] = &ett_zbee_zcl_multistate_value_basic_status_flags;
+    ett[2] = &ett_zbee_zcl_multistate_value_basic_priority_array;
+    ett[3] = &ett_zbee_zcl_multistate_value_basic_priority_array_structure;
+
+    /* Register the ZigBee ZCL Multistate Value Basic cluster protocol name and description */
+    proto_zbee_zcl_multistate_value_basic = proto_register_protocol("ZigBee ZCL Multistate Value Basic", "ZCL Multistate Value Basic", ZBEE_PROTOABBREV_ZCL_MULTISTATE_VALUE_BASIC);
+    proto_register_field_array(proto_zbee_zcl_multistate_value_basic, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Multistate Value Basic dissector. */
+    register_dissector(ZBEE_PROTOABBREV_ZCL_MULTISTATE_VALUE_BASIC, dissect_zbee_zcl_multistate_value_basic, proto_zbee_zcl_multistate_value_basic);
+} /*proto_register_zbee_zcl_multistate_value_basic*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_multistate_value_basic
+ *  DESCRIPTION
+ *      Hands off the ZCL Multistate Value Basic dissector.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_reg_handoff_zbee_zcl_multistate_value_basic(void)
+{
+    dissector_handle_t multistate_value_basic_handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    multistate_value_basic_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_MULTISTATE_VALUE_BASIC);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_MULTISTATE_VALUE_BASIC, multistate_value_basic_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_multistate_value_basic,
+                            ett_zbee_zcl_multistate_value_basic,
+                            ZBEE_ZCL_CID_MULTISTATE_VALUE_BASIC,
+                            hf_zbee_zcl_multistate_value_basic_attr_id,
+                            -1, -1,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_multistate_value_basic_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_multistate_value_basic*/
 
 /* ########################################################################## */
 /* #### (0x0015) COMMISSIONING CLUSTER ###################################### */
