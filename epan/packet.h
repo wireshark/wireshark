@@ -127,7 +127,7 @@ typedef enum {
 } heuristic_enable_e;
 
 typedef void (*DATFunc) (const gchar *table_name, ftenum_t selector_type,
-    gpointer key, gpointer value, gpointer user_data);
+    const gpointer key, gpointer value, gpointer user_data);
 typedef void (*DATFunc_handle) (const gchar *table_name, gpointer value,
     gpointer user_data);
 typedef void (*DATFunc_table) (const gchar *table_name, const gchar *ui_name,
