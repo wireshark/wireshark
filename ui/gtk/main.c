@@ -3181,8 +3181,10 @@ main(int argc, char *argv[])
     /* the window can be sized only, if it's not already shown, so do it now! */
     main_load_window_geometry(top_level);
 
+#ifdef HAVE_LIBPCAP
     /* initialize the packet counters */
     global_info_data.counts.counts_hash = NULL;
+#endif
 
     g_timeout_add(info_update_freq, resolv_update_cb, NULL);
 

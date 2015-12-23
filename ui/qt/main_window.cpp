@@ -612,8 +612,10 @@ MainWindow::MainWindow(QWidget *parent) :
     plugin_if_register_gui_cb(PLUGIN_IF_PREFERENCE_SAVE, plugin_if_mainwindow_preference);
     plugin_if_register_gui_cb(PLUGIN_IF_GOTO_FRAME, plugin_if_mainwindow_gotoframe);
 
+#ifdef HAVE_LIBPCAP
     /* Initialize packet counter */
     info_data_.counts.counts_hash = NULL;
+#endif
 
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }
