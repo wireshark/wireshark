@@ -78,6 +78,7 @@ filter_expression_free(struct filter_expression *list_head)
     filter_expression_free(list_head->next);
     g_free(list_head->label);
     g_free(list_head->expression);
+    g_free(list_head);
 }
 
 
