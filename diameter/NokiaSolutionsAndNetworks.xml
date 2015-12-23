@@ -2,18 +2,169 @@
 
 <!-- Nokia Solutions and Networks vendor-specific AVPs.  -->
 
-<application id="16777317" name="Nokia Solutions and Networks (NSN) Hd Application" uri="none">
-
-  <avp name="User-Agent-Type" code="2016" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
-    <type type-name="Enumerated"/>
-    <enum name="NON_MOBILE_BROWSER" code="0"/>
-    <enum name="MOBILE_BROWSER"     code="1"/>
-  </avp>
-</application>
-
+<application id="16777317" name="Nokia Solutions and Networks (NSN) Hd Application" uri="none"/>
 <application id="16777246"	name="NSN Unified Charging Trigger Function (UCTF)" uri="none"/>
 
 <vendor vendor-id="NokiaSolutionsAndNetworks"	code="28458"	name="Nokia Solutions and Networks">
+
+  <avp name="NSN-Nokia-Siemens-Information" code="1" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-Service-Information"/>
+      <gavp name="NSN-Extra-Information"/>
+      <gavp name="NSN-Emergency-Call-Indication"/>
+      <gavp name="NSN-Refer-To-Header"/>
+      <gavp name="NSN-Accept-Contact-Header"/>
+      <gavp name="NSN-Diversion-Header"/>
+      <gavp name="NSN-History-Info-Header"/>
+      <gavp name="NSN-User-Agent-Information"/>
+      <gavp name="NSN-Release-Reason-Information"/>
+      <gavp name="NSN-Served-User-IP-Address"/>
+      <gavp name="NSN-Served-User-Port-Number"/>
+      <gavp name="NSN-Last-Known-Activity-Time-Stamp"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-3GPP-Charging-ID" code="2" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="OctetString"/>
+  </avp>
+
+  <avp name="NSN-Accounting-Session-ID" code="3" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Service-Information" code="4" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-Closed-User-Group-Identification"/>
+      <gavp name="NSN-Call-Forwarding-Indication"/>
+      <gavp name="NSN-SEE-Transparent-Data"/>
+      <gavp name="NSN-FCI-Data"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-Closed-User-Group-Identification" code="5" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Call-Forwarding-Indication" code="6" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-SEE-Transparent-Data" code="7" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-FCI-Data" code="8" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="OctetString"/>
+  </avp>
+
+  <avp name="NSN-Access-Information" code="9" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-Access-Information-Header"/>
+      <gavp name="NSN-Time-Stamp"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-Access-Information-Header" code="10" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Time-Stamp" code="11" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Time"/>
+  </avp>
+
+  <avp name="NSN-SCSCF-CDR-Version" code="12" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+
+  <avp name="NSN-Signaling-Volume" code="13" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Total-Volume" code="14" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Extra-Bearer-Volume" code="15" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Sub-Record-Type" code="16" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-MSISDN" code="17" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-3GPP-IMSI" code="18" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Extra-Information" code="19" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-Number-Of-Occurrence"/>
+      <gavp name="NSN-Info-Code"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-Number-Of-Occurrence" code="20" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="NSN-Info-Code" code="21" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="NSN-Emergency-Call-Indication" code="22" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+    <enum name="NO" code="0"/>
+    <enum name="YES" code="1"/>
+  </avp>
+
+  <avp name="NSN-Refer-To-Header" code="23" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Accept-Contact-Header" code="24" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-To-Header" code="25" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-From-Header" code="26" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Diversion-Header" code="27" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-History-Info-Header" code="28" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-User-Agent-Information" code="29" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Release-Reason-Information" code="30" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Served-User-IP-Address" code="31" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="IPAddress"/>
+  </avp>
+
+  <avp name="NSN-Served-User-Port-Number" code="32" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="NSN-Last-Known-Activity-Time-Stamp" code="33" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Time"/>
+  </avp>
 
   <avp name="NSN-IN-Information" code="100" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
     <grouped>
@@ -47,8 +198,559 @@
     </grouped>
   </avp>
 
+  <avp name="NSN-PPI-Information" code="102" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-Product-Id"/>
+      <gavp name="NSN-Purpose"/>
+      <gavp name="NSN-Access-Frontend-Id"/>
+      <gavp name="NSN-Merchant-Id"/>
+      <gavp name="NSN-Consumer-Account-Id"/>
+      <gavp name="NSN-Currency"/>
+      <gavp name="NSN-Transparent-Data"/>
+      <gavp name="NSN-Timeout"/>
+      <gavp name="NSN-Method-Name"/>
+      <gavp name="NSN-Error-Info"/>
+      <gavp name="NSN-Expiry-Date"/>
+      <gavp name="NSN-Date-Of-Last-Recharge"/>
+      <gavp name="NSN-Old-Expiry-Date"/>
+      <gavp name="NSN-New-Expiry-Date"/>
+      <gavp name="NSN-Error-Cause"/>
+      <gavp name="NSN-Original-Charge-Time"/>
+      <gavp name="NSN-Calculated-Amount"/>
+      <gavp name="NSN-Account"/>
+      <gavp name="NSN-Timestamp-For-Rating"/>
+      <gavp name="NSN-Transaction-Status"/>
+      <gavp name="NSN-Balance"/>
+      <gavp name="NSN-AoC-Price"/>
+      <gavp name="NSN-Requestor-Credentials"/>
+      <gavp name="NSN-Routing-Info"/>
+      <gavp name="NSN-Cluster-Name"/>
+      <gavp name="NSN-Recipient"/>
+      <gavp name="RKN-Reversal-Id"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-Calling-Partys-Category" code="110" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="NSN-High-Layer-Compatibility" code="111" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="OctetString"/>
+  </avp>
+
+  <avp name="NSN-VLR-Number" code="112" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Time-Zone" code="113" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="OctetString"/>
+  </avp>
+
+  <avp name="NSN-Answer-Time-Stamp" code="114" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="OctetString"/>
+  </avp>
+
+  <avp name="NSN-CC-Time-Fraction" code="115" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Integer32"/>
+  </avp>
+
+  <avp name="NSN-AoC-Tariff" code="120" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-AoC-Price"/>
+      <gavp name="NSN-AoC-Start-Time"/>
+      <gavp name="NSN-AoC-Unit"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-AoC-Start-Time" code="121" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="NSN-AoC-Unit" code="122" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="NSN-AoC-Price" code="123" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="NSN-Account-Information" code="124" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-Account-ID"/>
+      <gavp name="NSN-Balance"/>
+      <gavp name="NSN-Generic-Account-Information"/>
+      <gavp name="NSN-Account-Name"/>
+      <gavp name="NSN-Account-Last-Balance-Mod-Date"/>
+      <gavp name="NSN-Account-Expiry-Date"/>
+      <gavp name="NSN-Account-Current-Balance"/>
+      <gavp name="NSN-Account-Current-Authorized-Amount"/>
+      <gavp name="NSN-Calculated-Amount"/>
+      <gavp name="NSN-Authorized-Amount"/>
+      <gavp name="NSN-Charged-Amount"/>
+    </grouped>
+  </avp>
+
+
+  <avp name="NSN-Account-ID" code="125" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Integer32"/>
+  </avp>
+
+  <avp name="NSN-Balance" code="126" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="NSN-Generic-Account-Information" code="127" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="OctetString"/>
+  </avp>
+
+  <avp name="NSN-Subscriber-Status" code="128" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="NSN-Message-Warning-Time" code="129" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Time"/>
+  </avp>
+
+  <avp name="NSN-Language-ID" code="130" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="NSN-Customer-Group-ID" code="131" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Redirecting-Party-Id" code="132" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Generic-Service-Data" code="133" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="OctetString"/>
+  </avp>
+
+  <avp name="NSN-Roaming-Indication" code="134" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+    <enum name="Not roaming" code="0"/>
+    <enum name="Roaming" code="1"/>
+  </avp>
+
+  <avp name="NSN-IN-Bearer-Service" code="135" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+    <enum name="BEARER_SERVICE_SPEECH" code="0"/>
+    <enum name="BEARER_SERVICE_DATA" code="1"/>
+    <enum name="BEARER_SERVICE_FAX" code="2"/>
+    <enum name="BEARER_SERVICE_UMTS_64KB_VIDEO" code="3"/>
+  </avp>
+
+  <avp name="NSN-NP-Information" code="136" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Connection-Type" code="140" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+    <enum name="Error" code="0"/>
+    <enum name="Standard destination" code="1"/>
+    <enum name="No answer destination" code="2"/>
+    <enum name="Busy destination" code="3"/>
+    <enum name="Overflow destination" code="4"/>
+    <enum name="Follow me destination" code="5"/>
+    <enum name="User announcement" code="6"/>
+    <enum name="Time dependant destination" code="7"/>
+    <enum name="Service announcement" code="9"/>
+    <enum name="Call to admin menu" code="14"/>
+    <enum name="Emergency call" code="15"/>
+    <enum name="Alternate destination" code="17"/>
+  </avp>
+
+  <avp name="NSN-A-Party-Member-Type" code="141" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+    <enum name="On-net" code="1"/>
+    <enum name="Off-net" code="2"/>
+    <enum name="Partner-on-net" code="4"/>
+  </avp>
+
+  <avp name="NSN-B-Party-Member-Type" code="142" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+    <enum name="On-net" code="1"/>
+    <enum name="Off-net" code="2"/>
+    <enum name="Admin" code="3"/>
+    <enum name="Partner-on-net" code="4"/>
+    <enum name="Virtual-on-net" code="5"/>
+  </avp>
+
+  <avp name="NSN-Access-Type" code="143" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+    <enum name="Direct Terminating" code="0"/>
+    <enum name="Direct Originating" code="1"/>
+    <enum name="Dialled Access" code="2"/>
+    <enum name="Partner Dialled" code="5"/>
+    <enum name="Offnet Dialled" code="7"/>
+    <enum name="UCB preceded" code="10"/>
+    <enum name="Rerouting preceeded" code="11"/>
+    <enum name="CC preceeded" code="12"/>
+    <enum name="PS PDP Context Establishment Ack" code="15"/>
+    <enum name="PS Routing Area Update" code="16"/>
+  </avp>
+
+  <avp name="NSN-GSM-Charge-Advice-Information" code="150" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-Initial-E-Parameters"/>
+      <gavp name="NSN-Update-E-Parameters"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-Initial-E-Parameters" code="151" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-E-Parameter-Set"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-E-Parameter-Set" code="152" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-E1-Parameter"/>
+      <gavp name="NSN-E2-Parameter"/>
+      <gavp name="NSN-E3-Parameter"/>
+      <gavp name="NSN-E4-Parameter"/>
+      <gavp name="NSN-E5-Parameter"/>
+      <gavp name="NSN-E6-Parameter"/>
+      <gavp name="NSN-E7-Parameter"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-E1-Parameter" code="153" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Integer32"/>
+  </avp>
+
+  <avp name="NSN-E2-Parameter" code="154" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Integer32"/>
+  </avp>
+
+  <avp name="NSN-E3-Parameter" code="155" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Integer32"/>
+  </avp>
+
+  <avp name="NSN-E4-Parameter" code="156" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Integer32"/>
+  </avp>
+
+  <avp name="NSN-E5-Parameter" code="157" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Integer32"/>
+  </avp>
+
+  <avp name="NSN-E6-Parameter" code="158" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Integer32"/>
+  </avp>
+
+  <avp name="NSN-E7-Parameter" code="159" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Integer32"/>
+  </avp>
+
+  <avp name="NSN-Update-E-Parameters" code="160" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-E-Parameter-Set"/>
+      <gavp name="Tariff-Time-Change"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-Product-Id" code="170" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Purpose" code="171" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Access-Frontend-Id" code="172" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Merchant-Id" code="173" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Consumer-Account-Id" code="174" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Currency" code="175" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Transparent-Data" code="176" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Timeout" code="177" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-Timeout-Mode"/>
+      <gavp name="NSN-Timeout-Value"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-Method-Name" code="178" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+    <enum name="AUTHORIZE_AMOUNT" code="1"/>
+    <enum name="CAPTURE_AMOUNT" code="2"/>
+    <enum name="CHARGE_AMOUNT" code="3"/>
+    <enum name="RECHARGE_AMOUNT" code="4"/>
+    <enum name="REFUND" code="5"/>
+    <enum name="GET_CONSUMER_ACCOUNT_LIST" code="6"/>
+    <enum name="ADVICE_OF_CHARGE" code="7"/>
+    <enum name="GET_TA_STATE" code="8"/>
+    <enum name="CANCEL_TA" code="9"/>
+    <enum name="CHECK_ACCOUNT_INFORMATION" code="10"/>
+    <enum name="CHECK_DISCOUNT_INFORMATION" code="11"/>
+    <enum name="CHECK_RECENT_TRANSCACTION" code="13"/>
+    <enum name="ACTIVATE_SUBSCRIBER_LIFE_CYCLE" code="14"/>
+    <enum name="TRANSFER_AMOUNT" code="15"/>
+    <enum name="RECHARGE_REVERSAL" code="16"/>
+  </avp>
+  <avp name="NSN-Error-Info" code="179" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-No-Money-Flow"/>
+      <gavp name="NSN-Error-Item"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-Expiry-Date" code="180" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-Expiry-Date-Mode"/>
+      <gavp name="NSN-Expiry-Date-Value"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-Date-Of-Last-Recharge" code="181" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Old-Expiry-Date" code="182" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-New-Expiry-Date" code="183" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Error-Cause" code="184" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Original-Charge-Time" code="185" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Account" code="186" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-Account-Id"/>
+      <gavp name="NSN-Account-Type"/>
+      <gavp name="NSN-Account-Owner-Id"/>
+      <gavp name="NSN-Account-Approved"/>
+      <gavp name="NSN-Account-Current-Balance"/>
+      <gavp name="NSN-Account-Current-Authorized-Amount"/>
+      <gavp name="NSN-Account-Last-Balance-Mod-Date"/>
+      <gavp name="NSN-Account-Expiry-Date"/>
+      <gavp name="NSN-Currency"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-Timestamp-For-Rating" code="187" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Transaction-Status" code="188" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+    <enum name="REQUESTED" code="0"/>
+    <enum name="PROCESSED" code="1"/>
+    <enum name="TIMEOUT" code="2"/>
+    <enum name="FAILED" code="3"/>
+    <enum name="AUTHORIZED" code="5"/>
+    <enum name="CAPTUREREQUESTED" code="6"/>
+    <enum name="OPEN" code="8"/>
+  </avp>
+
+  <avp name="NSN-Timeout-Mode" code="189" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+    <enum name="MODE_CLASSIFIED" code="1"/>
+    <enum name="MODE_ABSOLUTE" code="2"/>
+    <enum name="MODE_MINUTES_CLASSIFIED" code="3"/>
+    <enum name="MODE_MINUTES_ABSOLUTE" code="4"/>
+  </avp>
+
+  <avp name="NSN-Timeout-Value" code="190" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-No-Money-Flow" code="191" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="NSN-Error-Item" code="192" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-Functional-Unit-Id"/>
+      <gavp name="NSN-Error-Id"/>
+      <gavp name="NSN-Error-Text"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-Functional-Unit-Id" code="193" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Error-Id" code="194" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Error-Text" code="195" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Expiry-Date-Mode" code="196" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+    <enum name="MODE_SET_ABSOLUTE_DATE" code="1"/>
+    <enum name="MODE_ADD_DELTA_DAYS" code="2"/>
+    <enum name="MODE_USE_DEFAULT" code="3"/>
+    <enum name="MODE_NO_CHANGE" code="4"/>
+  </avp>
+
+  <avp name="NSN-Expiry-Date-Value" code="197" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Account-Id" code="198" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Account-Type" code="199" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+    <enum name="UNKNOWN" code="0"/>
+    <enum name="CONSUMER_PREPAID" code="1"/>
+    <enum name="CONSUMER_POSTPAID" code="2"/>
+    <enum name="LOYALTY_ACCOUNT" code="8"/>
+  </avp>
+
+  <avp name="NSN-Account-Owner-Id" code="200" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Account-Approved" code="201" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="NSN-Account-Current-Balance" code="202" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Account-Current-Authorized-Amount" code="203" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Account-Last-Balance-Mod-Date" code="204" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Account-Expiry-Date" code="205" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Calculated-Amount" code="206" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned64"/>
+  </avp>
+
+  <avp name="NSN-Requestor-Credentials" code="207" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-Requestor-Role"/>
+      <gavp name="NSN-Requestor-User-Id"/>
+      <gavp name="NSN-Requestor-PIN"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-Routing-Info" code="208" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Cluster-Name" code="209" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Requestor-Role" code="210" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="NSN-Requestor-User-Id" code="211" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Requestor-PIN" code="212" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Reference-Number" code="213" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="OctetString"/>
+  </avp>
+
+  <avp name="NSN-Inband-Announcement" code="214" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-Anno-Id"/>
+      <gavp name="NSN-Language-ID"/>
+      <gavp name="NSN-Anno-Variable-Part"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-Anno-Id" code="215" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+  <avp name="NSN-Anno-Variable-Part" code="216" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="NSN-Variable-Part-Type"/>
+      <gavp name="NSN-Variable-Part-Value"/>
+    </grouped>
+  </avp>
+
+  <avp name="NSN-Variable-Part-Type" code="217" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Unsigned32"/>
+    <enum name="TYPE_INTEGER" code="0"/>
+    <enum name="TYPE_NUMBER" code="1"/>
+    <enum name="TYPE_TIME" code="2"/>
+    <enum name="TYPE_DATE" code="3"/>
+    <enum name="TYPE_PRICE" code="4"/>
+  </avp>
+
+  <avp name="NSN-Variable-Part-Value" code="218" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Outband-Information" code="219" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="OctetString"/>
+  </avp>
+
+  <avp name="NSN-Account-Name" code="220" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Authorized-Amount" code="221" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Integer64"/>
+  </avp>
+
+  <avp name="NSN-Charged-Amount" code="222" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Integer64"/>
+  </avp>
+
   <avp name="NSN-Account-Location-Id" code="223" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
     <type type-name="UTF8String"/>
+  </avp>
+
+  <avp name="NSN-Recipient" code="224" mandatory="must" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <grouped>
+      <gavp name="Subscription-Id"/>
+      <gavp name="RKN-Subscription-Id"/>
+      <gavp name="NSN-Consumer-Account-Id"/>
+    </grouped>
+  </avp>
+
+  <avp name="User-Agent-Type" code="2016" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
+    <type type-name="Enumerated"/>
+    <enum name="NON_MOBILE_BROWSER" code="0"/>
+    <enum name="MOBILE_BROWSER"     code="1"/>
   </avp>
 
   <avp name="Account-State" code="60528" mandatory-flag="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="NokiaSolutionsAndNetworks">
