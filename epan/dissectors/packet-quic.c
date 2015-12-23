@@ -1562,10 +1562,12 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     }
 
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Seq: %" G_GINT64_MODIFIER "u", seq);
+
     if(cid){
         col_append_fstr(pinfo->cinfo, COL_INFO, ", CID: %" G_GINT64_MODIFIER "u", cid);
     }
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", Seq: %" G_GINT64_MODIFIER "u", seq);
+
 
     return offset;
 }
