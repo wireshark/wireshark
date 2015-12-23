@@ -1183,7 +1183,8 @@ dissect_quic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, guint
         if(tag_len){
             /* Wrong Tag len... */
             proto_tree_add_expert(tag_tree, pinfo, &ei_quic_tag_unknown, tvb, tag_offset_start + tag_offset, tag_len);
-            tag_len  -= tag_len;
+            tag_offset += tag_len;
+            tag_len -= tag_len;
         }
 
         tag_number--;
