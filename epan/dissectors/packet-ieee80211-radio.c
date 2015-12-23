@@ -206,92 +206,43 @@ static const int ieee80211_vht_bw2rate_index[] = {
 struct mcs_vht_info {
   const char *modulation;
   const char *coding_rate;
-  float       rates[4][2];
+  float data_bits_per_symbol; /* assuming 20MHz / 52 subcarriers */
 };
 
 static const struct mcs_vht_info ieee80211_vhtinfo[MAX_MCS_VHT_INDEX+1] = {
   /* MCS  0  */
-  { "BPSK",  "1/2",
-    { /* 20 Mhz */  {    6.5f,  /* SGI */    7.2f, },
-      /* 40 Mhz */  {   13.5f,  /* SGI */   15.0f, },
-      /* 80 Mhz */  {   29.3f,  /* SGI */   32.5f, },
-      /* 160 Mhz */ {   58.5f,  /* SGI */   65.0f, }
-    }
-  },
+  { "BPSK",  "1/2", 26 },
   /* MCS  1  */
-  { "QPSK",  "1/2",
-    { /* 20 Mhz */  {   13.0f,  /* SGI */   14.4f, },
-      /* 40 Mhz */  {   27.0f,  /* SGI */   30.0f, },
-      /* 80 Mhz */  {   58.5f,  /* SGI */   65.0f, },
-      /* 160 Mhz */ {  117.0f,  /* SGI */  130.0f, }
-    }
-  },
+  { "QPSK",  "1/2", 52 },
   /* MCS  2  */
-  { "QPSK",  "3/4",
-    { /* 20 Mhz */  {   19.5f,  /* SGI */   21.7f, },
-      /* 40 Mhz */  {   40.5f,  /* SGI */   45.0f, },
-      /* 80 Mhz */  {   87.8f,  /* SGI */   97.5f, },
-      /* 160 Mhz */ {  175.5f,  /* SGI */  195.0f, }
-    }
-  },
+  { "QPSK",  "3/4", 78 },
   /* MCS  3  */
-  { "16-QAM", "1/2",
-    { /* 20 Mhz */  {   26.0f,  /* SGI */   28.9f, },
-      /* 40 Mhz */  {   54.0f,  /* SGI */   60.0f, },
-      /* 80 Mhz */  {  117.0f,  /* SGI */  130.0f, },
-      /* 160 Mhz */ {  234.0f,  /* SGI */  260.0f, }
-    }
-  },
+  { "16-QAM", "1/2", 104 },
   /* MCS  4  */
-  { "16-QAM", "3/4",
-    { /* 20 Mhz */  {   39.0f,  /* SGI */   43.3f, },
-      /* 40 Mhz */  {   81.0f,  /* SGI */   90.0f, },
-      /* 80 Mhz */  {  175.5f,  /* SGI */  195.0f, },
-      /* 160 Mhz */ {  351.0f,  /* SGI */  390.0f, }
-    }
-  },
+  { "16-QAM", "3/4", 156 },
   /* MCS  5  */
-  { "64-QAM", "2/3",
-    { /* 20 Mhz */  {   52.0f,  /* SGI */   57.8f, },
-      /* 40 Mhz */  {  108.0f,  /* SGI */  120.0f, },
-      /* 80 Mhz */  {  234.0f,  /* SGI */  260.0f, },
-      /* 160 Mhz */ {  468.0f,  /* SGI */  520.0f, }
-    }
-  },
+  { "64-QAM", "2/3", 208 },
   /* MCS  6  */
-  { "64-QAM", "3/4",
-    { /* 20 Mhz */  {   58.5f,  /* SGI */   65.0f, },
-      /* 40 Mhz */  {  121.5f,  /* SGI */  135.0f, },
-      /* 80 Mhz */  {  263.3f,  /* SGI */  292.5f, },
-      /* 160 Mhz */ {  526.5f,  /* SGI */  585.0f, }
-    }
-  },
+  { "64-QAM", "3/4", 234 },
   /* MCS  7  */
-  { "64-QAM", "5/6",
-    { /* 20 Mhz */  {   65.0f,  /* SGI */   72.2f, },
-      /* 40 Mhz */  {  135.0f,  /* SGI */  150.0f, },
-      /* 80 Mhz */  {  292.5f,  /* SGI */  325.0f, },
-      /* 160 Mhz */ {  585.0f,  /* SGI */  650.0f, }
-    }
-  },
+  { "64-QAM", "5/6", 260 },
   /* MCS  8  */
-  { "256-QAM", "3/4",
-    { /* 20 Mhz */  {   78.0f,  /* SGI */   86.7f, },
-      /* 40 Mhz */  {  162.0f,  /* SGI */  180.0f, },
-      /* 80 Mhz */  {  351.0f,  /* SGI */  390.0f, },
-      /* 160 Mhz */ {  702.0f,  /* SGI */  780.0f, }
-    }
-  },
+  { "256-QAM", "3/4", 312 },
   /* MCS  9  */
-  { "256-QAM", "5/6",
-    { /* 20 Mhz */  {    0.0f,  /* SGI */    0.0f, },
-      /* 40 Mhz */  {  180.0f,  /* SGI */  200.0f, },
-      /* 80 Mhz */  {  390.0f,  /* SGI */  433.3f, },
-      /* 160 Mhz */ {  780.0f,  /* SGI */  866.7f, }
-    }
-  }
+  { "256-QAM", "5/6", (float)(1040/3.0) }
 };
 
+/* map a bandwidth index to the number of data subcarriers */
+static const guint subcarriers[4] = { 52, 108, 234, 468 };
+
+/*
+ * Calculates data rate corresponding to a given 802.11ac MCS index,
+ * bandwidth, and guard interval.
+ */
+float ieee80211_vhtrate(int mcs_index, guint bandwidth_index, gboolean short_gi)
+{
+    return (float)(ieee80211_vhtinfo[mcs_index].data_bits_per_symbol * subcarriers[bandwidth_index] / (short_gi ? 3.6 : 4.0) / 52.0);
+}
 
 static gint ett_wlan_radio = -1;
 static gint ett_wlan_radio_11ac_user = -1;
@@ -530,7 +481,7 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
                * If we can calculate the data rate for this user, do so.
                */
               if (can_calculate_rate && phdr->phy_info.info_11ac.mcs[i] <= MAX_MCS_VHT_INDEX) {
-                data_rate = ieee80211_vhtinfo[phdr->phy_info.info_11ac.mcs[i]].rates[bandwidth][phdr->phy_info.info_11ac.short_gi] * phdr->phy_info.info_11ac.nss[i];
+                data_rate = ieee80211_vhtrate(phdr->phy_info.info_11ac.mcs[i], bandwidth, phdr->phy_info.info_11ac.short_gi) * phdr->phy_info.info_11ac.nss[i];
                 if (data_rate != 0.0f) {
                   proto_tree_add_float_format_value(user_tree, hf_wlan_radio_data_rate, tvb, 0, 0,
                         data_rate,
