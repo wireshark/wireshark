@@ -1592,11 +1592,11 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_leave_children,
-        { "Remove Children",            "zbee_zdp.leave.children", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        { "Remove Children",            "zbee_zdp.leave.children", FT_BOOLEAN, 8, NULL, ZBEE_ZDP_MGMT_LEAVE_CHILDREN,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_leave_rejoin,
-        { "Rejoin",                     "zbee_zdp.leave.rejoin", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+        { "Rejoin",                     "zbee_zdp.leave.rejoin", FT_BOOLEAN, 8, NULL, ZBEE_ZDP_MGMT_LEAVE_REJOIN,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_significance,
