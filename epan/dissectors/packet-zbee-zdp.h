@@ -178,9 +178,8 @@
 #define ZBEE_ZDP_ADDR_MODE_GROUP            0x01
 #define ZBEE_ZDP_ADDR_MODE_UNICAST          0x03
 
-/* See Figure 2.58 Format of the Mgmt_Leave_req Command Frame */
-#define ZBEE_ZDP_MGMT_LEAVE_CHILDREN        0x02
-#define ZBEE_ZDP_MGMT_LEAVE_REJOIN          0x01
+#define ZBEE_ZDP_MGMT_LEAVE_CHILDREN        0x40
+#define ZBEE_ZDP_MGMT_LEAVE_REJOIN          0x80
 
 #define ZBEE_ZDP_NWKUPDATE_SCAN_MAX         0x05
 #define ZBEE_ZDP_NWKUPDATE_CHANNEL_HOP      0xfe
