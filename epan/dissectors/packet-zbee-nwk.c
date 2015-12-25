@@ -59,6 +59,8 @@ static guint       dissect_zbee_nwk_rejoin_resp(tvbuff_t *tvb, packet_info *pinf
 static guint       dissect_zbee_nwk_link_status(tvbuff_t *tvb, proto_tree *tree, guint offset);
 static guint       dissect_zbee_nwk_report     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 static guint       dissect_zbee_nwk_update     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+static guint       dissect_zbee_nwk_ed_timeout_request(tvbuff_t *tvb, proto_tree *tree, guint offset);
+static guint       dissect_zbee_nwk_ed_timeout_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 static void        proto_init_zbee_nwk         (void);
 static void        proto_cleanup_zbee_nwk(void);
 void               proto_register_zbee_nwk(void);
@@ -138,6 +140,12 @@ static int hf_zbee_nwk_cmd_update_count = -1;
 static int hf_zbee_nwk_cmd_update_id = -1;
 static int hf_zbee_nwk_panid = -1;
 static int hf_zbee_nwk_cmd_epid = -1;
+static int hf_zbee_nwk_cmd_end_device_timeout_request_enum = -1;
+static int hf_zbee_nwk_cmd_end_device_configuration = -1;
+static int hf_zbee_nwk_cmd_end_device_timeout_resp_status = -1;
+static int hf_zbee_nwk_cmd_end_device_timeout_resp_parent_info = -1;
+static int hf_zbee_nwk_cmd_prnt_info_mac_data_poll_keepalive_supported = -1;
+static int hf_zbee_nwk_cmd_prnt_info_ed_to_req_keepalive_supported = -1;
 
 /*  ZigBee Beacons */
 static int hf_zbee_beacon_protocol = -1;
@@ -166,6 +174,7 @@ static gint ett_zbee_nwk_cmd = -1;
 static gint ett_zbee_nwk_cmd_options = -1;
 static gint ett_zbee_nwk_cmd_cinfo = -1;
 static gint ett_zbee_nwk_cmd_link = -1;
+static gint ett_zbee_nwk_cmd_ed_to_rsp_prnt_info = -1;
 
 static expert_field ei_zbee_nwk_missing_payload = EI_INIT;
 
@@ -203,6 +212,8 @@ static const value_string zbee_nwk_cmd_names[] = {
     { ZBEE_NWK_CMD_LINK_STATUS,     "Link Status" },
     { ZBEE_NWK_CMD_NWK_REPORT,      "Network Report" },
     { ZBEE_NWK_CMD_NWK_UPDATE,      "Network Update" },
+    { ZBEE_NWK_CMD_ED_TIMEOUT_REQUEST,  "End Device Timeout Request" },
+    { ZBEE_NWK_CMD_ED_TIMEOUT_RESPONSE, "End Device Timeout Response" },
     { 0, NULL }
 };
 
@@ -265,6 +276,36 @@ static const value_string zbee_nwk_stack_profiles[] = {
     { 0x02, "ZigBee PRO" },
     { 0, NULL }
 };
+
+
+/* ED Requested Timeout Enumerated Values */
+static const value_string zbee_nwk_end_device_timeout_request[] = {
+    { 0, "10 sec" },
+    { 1, "1 min" },
+    { 2, "4 min" },
+    { 3, "8 min" },
+    { 4, "16 min" },
+    { 5, "32 min" },
+    { 6, "64 min" },
+    { 7, "128 min" },
+    { 8, "256 min" },
+    { 9, "512 min" },
+    { 10, "1024 min" },
+    { 11, "2048 min" },
+    { 12, "4096 min" },
+    { 13, "8192 min" },
+    { 14, "16384 min" },
+    { 0, NULL }
+};
+
+
+/* End Device Timeout Response Status Codes */
+static const value_string zbee_nwk_end_device_timeout_resp_status[] = {
+    { 0,      "Success" },
+    { 1,      "Incorrect value" },
+    { 0, NULL }
+};
+
 
 /* TODO: much of the following copied from ieee80154 dissector */
 /*-------------------------------------
@@ -755,6 +796,16 @@ static void dissect_zbee_nwk_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             offset = dissect_zbee_nwk_update(tvb, pinfo, cmd_tree, offset);
             break;
 
+        case ZBEE_NWK_CMD_ED_TIMEOUT_REQUEST:
+            /* Network End Device Timeout Request Command. */
+            offset = dissect_zbee_nwk_ed_timeout_request(tvb, cmd_tree, offset);
+            break;
+
+        case ZBEE_NWK_CMD_ED_TIMEOUT_RESPONSE:
+            /* Network End Device Timeout Response Command. */
+            offset = dissect_zbee_nwk_ed_timeout_response(tvb, pinfo, cmd_tree, offset);
+            break;
+
         default:
             /* Just break out and let the overflow handler deal with the payload. */
             break;
@@ -1117,6 +1168,63 @@ dissect_zbee_nwk_link_status(tvbuff_t *tvb, proto_tree *tree, guint offset)
     /* TODO: Update the info column. */
     return offset;
 } /* dissect_zbee_nwk_link_status */
+
+/**
+ *Helper dissector for the End Device Timeout Request command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to the command subtree.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+*/
+static guint
+dissect_zbee_nwk_ed_timeout_request(tvbuff_t *tvb, proto_tree *tree, guint offset)
+{
+    /* See 3.4.11 End Device Timeout Request Command */
+
+    /* 3.4.11.3.1 Requested Timeout Field */
+    proto_tree_add_item(tree, hf_zbee_nwk_cmd_end_device_timeout_request_enum, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    /* 3.4.11.3.2 End Device Configuration Field */
+    proto_tree_add_item(tree, hf_zbee_nwk_cmd_end_device_configuration, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    return offset;
+} /* dissect_zbee_nwk_ed_timeout_request */
+
+/**
+ *Helper dissector for the End Device Timeout Response command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to the command subtree.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+*/
+static guint
+dissect_zbee_nwk_ed_timeout_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
+{
+    static const int * end_device_parent_info[] = {
+        &hf_zbee_nwk_cmd_prnt_info_mac_data_poll_keepalive_supported,
+        &hf_zbee_nwk_cmd_prnt_info_ed_to_req_keepalive_supported,
+        NULL
+    };
+    guint status = tvb_get_guint8(tvb, offset);
+    /* 3.4.12 End Device Timeout Response Command */
+
+    /* status */
+    proto_tree_add_item(tree, hf_zbee_nwk_cmd_end_device_timeout_resp_status, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    /* Parent Information bitmask */
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zbee_nwk_cmd_end_device_timeout_resp_parent_info, ett_zbee_nwk_cmd_ed_to_rsp_prnt_info, end_device_parent_info, ENC_NA);
+    offset++;
+
+    proto_item_append_text(tree, ", %s", val_to_str_const(status, zbee_nwk_end_device_timeout_resp_status, "Unknown Status"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(status, zbee_nwk_end_device_timeout_resp_status, "Unknown Status"));
+
+    return offset;
+} /* dissect_zbee_nwk_ed_timeout_response */
 
 /**
  *Helper dissector for the Network Report command.
@@ -1715,6 +1823,32 @@ void proto_register_zbee_nwk(void)
             { "Extended PAN ID",        "zbee_nwk.cmd.epid", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
+            { &hf_zbee_nwk_cmd_end_device_timeout_request_enum,
+            { "Requested Timeout Enumeration",        "zbee_nwk.cmd.ed_tmo_req", FT_UINT8, BASE_DEC,
+              VALS(zbee_nwk_end_device_timeout_request), 0, NULL, HFILL }},
+
+            { &hf_zbee_nwk_cmd_end_device_configuration,
+            { "End Device Configuration",        "zbee_nwk.cmd.ed_config", FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+            { &hf_zbee_nwk_cmd_end_device_timeout_resp_status,
+            { "Status",        "zbee_nwk.cmd.ed_tmo_rsp_status", FT_UINT8, BASE_DEC,
+              VALS(zbee_nwk_end_device_timeout_resp_status), 0, NULL, HFILL }},
+
+            { &hf_zbee_nwk_cmd_end_device_timeout_resp_parent_info,
+            { "Parent Information",        "zbee_nwk.cmd.ed_prnt_info", FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
+            { &hf_zbee_nwk_cmd_prnt_info_mac_data_poll_keepalive_supported,
+            { "MAC Data Poll Keepalive",           "zbee_nwk.cmd.ed_prnt_info.mac_data_poll_keepalive", FT_BOOLEAN, 8, NULL,
+              ZBEE_NWK_CMD_ED_TIMEO_RSP_PRNT_INFO_MAC_DATA_POLL_KEEPAL_SUPP,
+              NULL, HFILL }},
+
+            { &hf_zbee_nwk_cmd_prnt_info_ed_to_req_keepalive_supported,
+            { "End Device Timeout Request Keepalive",           "zbee_nwk.cmd.ed_prnt_info.ed_tmo_req_keepalive", FT_BOOLEAN, 8, NULL,
+              ZBEE_NWK_CMD_ED_TIMEO_RSP_PRNT_INFO_ED_TIMOU_REQ_KEEPAL_SUPP,
+              NULL, HFILL }},
+
             { &hf_zbee_beacon_protocol,
             { "Protocol ID",            "zbee_beacon.protocol", FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
@@ -1784,7 +1918,8 @@ void proto_register_zbee_nwk(void)
         &ett_zbee_nwk_cmd,
         &ett_zbee_nwk_cmd_options,
         &ett_zbee_nwk_cmd_cinfo,
-        &ett_zbee_nwk_cmd_link
+        &ett_zbee_nwk_cmd_link,
+        &ett_zbee_nwk_cmd_ed_to_rsp_prnt_info
     };
 
     static ei_register_info ei[] = {

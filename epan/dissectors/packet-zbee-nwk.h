@@ -61,6 +61,8 @@
 #define ZBEE_NWK_CMD_LINK_STATUS                0x08    /* ZigBee 2007 and later */
 #define ZBEE_NWK_CMD_NWK_REPORT                 0x09    /* ZigBee 2007 and later */
 #define ZBEE_NWK_CMD_NWK_UPDATE                 0x0a    /* ZigBee 2007 and later */
+#define ZBEE_NWK_CMD_ED_TIMEOUT_REQUEST         0x0b    /* r21 */
+#define ZBEE_NWK_CMD_ED_TIMEOUT_RESPONSE        0x0c    /* r21 */
 
 /*  ZigBee NWK Route Options Flags */
 #define ZBEE_NWK_CMD_ROUTE_OPTION_REPAIR        0x80    /* ZigBee 2004 only. */
@@ -98,6 +100,10 @@
 #define ZBEE_NWK_CMD_NWK_UPDATE_COUNT_MASK      0x1f
 #define ZBEE_NWK_CMD_NWK_UPDATE_ID_MASK         0xe0
 #define ZBEE_NWK_CMD_NWK_UPDATE_ID_PAN_UPDATE   0x00
+
+/* ZigBee NWK Values of the Parent Information Bitmask (Table 3.47) */
+#define ZBEE_NWK_CMD_ED_TIMEO_RSP_PRNT_INFO_MAC_DATA_POLL_KEEPAL_SUPP  0x01
+#define ZBEE_NWK_CMD_ED_TIMEO_RSP_PRNT_INFO_ED_TIMOU_REQ_KEEPAL_SUPP   0x02
 
 /* Network Status Code Definitions. */
 #define ZBEE_NWK_STATUS_NO_ROUTE_AVAIL      0x00
