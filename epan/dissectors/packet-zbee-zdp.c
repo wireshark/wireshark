@@ -243,6 +243,7 @@ const value_string zbee_zdp_cluster_names[] = {
     { ZBEE_ZDP_REQ_USER_DESC,           "User Descriptor Request" },
     { ZBEE_ZDP_REQ_DISCOVERY_CACHE,     "Discovery Cache Request" },
     { ZBEE_ZDP_REQ_DEVICE_ANNCE,        "Device Announcement" },
+    { ZBEE_ZDP_REQ_PARENT_ANNCE,        "Parent Announce" },
     { ZBEE_ZDP_REQ_SET_USER_DESC,       "Set User Descriptor Request" },
     { ZBEE_ZDP_REQ_SYSTEM_SERVER_DISC,  "Server Discovery Request" },
     { ZBEE_ZDP_REQ_STORE_DISCOVERY,     "Store Discovery Request" },
@@ -1071,6 +1072,9 @@ dissect_zbee_zdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             break;
         case ZBEE_ZDP_REQ_EXT_ACTIVE_EP:
             dissect_zbee_zdp_req_ext_active_ep(zdp_tvb, pinfo, zdp_tree);
+            break;
+        case ZBEE_ZDP_REQ_PARENT_ANNCE:
+            dissect_zbee_zdp_parent_annce(zdp_tvb, pinfo, zdp_tree);
             break;
         case ZBEE_ZDP_REQ_END_DEVICE_BIND:
             dissect_zbee_zdp_req_end_device_bind(zdp_tvb, pinfo, zdp_tree, nwk->version);

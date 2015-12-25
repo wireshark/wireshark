@@ -51,6 +51,7 @@
 #define ZBEE_ZDP_REQ_FIND_NODE_CACHE        0x001c  /* ZigBee 2006 & later. */
 #define ZBEE_ZDP_REQ_EXT_SIMPLE_DESC        0x001d  /* ZigBee 2007 & later. */
 #define ZBEE_ZDP_REQ_EXT_ACTIVE_EP          0x001e  /* ZigBee 2007 & later. */
+#define ZBEE_ZDP_REQ_PARENT_ANNCE           0x001f  /* r21 */
 #define ZBEE_ZDP_REQ_END_DEVICE_BIND        0x0020
 #define ZBEE_ZDP_REQ_BIND                   0x0021
 #define ZBEE_ZDP_REQ_UNBIND                 0x0022
@@ -333,6 +334,7 @@ extern void dissect_zbee_zdp_req_complex_desc       (tvbuff_t *tvb, packet_info 
 extern void dissect_zbee_zdp_req_user_desc          (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_req_discovery_cache    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_device_annce           (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+extern void dissect_zbee_zdp_parent_annce           (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_req_set_user_desc      (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version);
 extern void dissect_zbee_zdp_req_system_server_disc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 extern void dissect_zbee_zdp_req_store_discovery    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);

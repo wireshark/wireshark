@@ -306,6 +306,36 @@ dissect_zbee_zdp_device_annce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 } /* dissect_zbee_zdp_device_annce */
 
 /**
+ *ZigBee Device Profile dissector for the parent announce
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+void
+dissect_zbee_zdp_parent_annce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint   offset = 0;
+    guint   n_children;
+    guint   i;
+    guint64 ext_addr;
+
+    n_children  = zbee_parse_uint(tree, hf_zbee_zdp_device, tvb, &offset, (int)1, NULL);
+    zbee_append_info(tree, pinfo, ", # children %d :", n_children);
+    for (i = 0 ; i < n_children ; ++i)
+    {
+        ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, (int)sizeof(guint64), NULL);
+        if (i == 0)
+        {
+            zbee_append_info(tree, pinfo, n_children == 1 ? " %s" : " %s ...", eui64_to_display(wmem_packet_scope(), ext_addr));
+        }
+    }
+
+    /* Dump any leftover bytes. */
+    zdp_dump_excess(tvb, offset, pinfo, tree);
+} /* dissect_zbee_zdp_parent_annce */
+
+/**
  *ZigBee Device Profile dissector for the end set user
  *
  *@param tvb pointer to buffer containing raw packet.
