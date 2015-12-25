@@ -1125,20 +1125,21 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             dissect_ieee802154_pendaddr(tvb, pinfo, ieee802154_tree, &offset);   /* Pending address list */
         }
 
-        /**
-         *  In IEEE802.15.4-2003 and 2006 the command identifier is considered to be part of the header
-         * and is thus not encrypted. For IEEE802.15.4-2012e and later the command id is considered to be
-         * part of the payload, is encrypted, and follows the payload IEs. Thus we only parse the command id
-         * here for 2006 and earlier frames. */
-        packet->command_id = tvb_get_guint8(tvb, offset);
-        if (tree) {
-            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_cmd_id, tvb, offset, 1, packet->command_id);
+        if (packet->frame_type == IEEE802154_FCF_CMD) {
+            /**
+             *  In IEEE802.15.4-2003 and 2006 the command identifier is considered to be part of the header
+             * and is thus not encrypted. For IEEE802.15.4-2012e and later the command id is considered to be
+             * part of the payload, is encrypted, and follows the payload IEs. Thus we only parse the command id
+             * here for 2006 and earlier frames. */
+            packet->command_id = tvb_get_guint8(tvb, offset);
+            if (tree) {
+                proto_tree_add_uint(ieee802154_tree, hf_ieee802154_cmd_id, tvb, offset, 1, packet->command_id);
+            }
+            offset++;
+
+            /* Display the command identifier in the info column. */
+            col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet->command_id, ieee802154_cmd_names, "Unknown Command"));
         }
-        offset++;
-
-        /* Display the command identifier in the info column. */
-        col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(packet->command_id, ieee802154_cmd_names, "Unknown Command"));
-
     }
     else {
         if (packet->ie_present) {
