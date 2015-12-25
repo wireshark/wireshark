@@ -90,6 +90,7 @@ static int hf_zbee_zdp_server_pri_bind = -1;
 static int hf_zbee_zdp_server_bak_bind = -1;
 static int hf_zbee_zdp_server_pri_disc = -1;
 static int hf_zbee_zdp_server_bak_disc = -1;
+static int hf_zbee_zdp_server_stk_compl_rev = -1;
 
 /* Node descriptor indicies. */
 static int hf_zbee_zdp_node_type = -1;
@@ -676,6 +677,7 @@ zdp_parse_server_flags(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
         &hf_zbee_zdp_server_bak_bind,
         &hf_zbee_zdp_server_pri_disc,
         &hf_zbee_zdp_server_bak_disc,
+        &hf_zbee_zdp_server_stk_compl_rev,
         NULL
     };
 
@@ -1421,6 +1423,10 @@ void proto_register_zbee_zdp(void)
 
         { &hf_zbee_zdp_server_bak_disc,
         { "Backup Discovery Cache",     "zbee_zdp.server.bak_bind", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_SERVER_BACKUP_DISC,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_server_stk_compl_rev,
+          { "Stack Compliance Revision",   "zbee_zdp.server.stack_compiance_revision", FT_UINT16, BASE_DEC, NULL, ZBEE_ZDP_NODE_SERVER_STACK_COMPL_REV,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_type,
