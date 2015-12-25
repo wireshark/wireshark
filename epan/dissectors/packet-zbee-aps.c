@@ -55,6 +55,8 @@ static guint   dissect_zbee_aps_switch_key     (tvbuff_t *tvb, packet_info *pinf
 static guint   dissect_zbee_aps_auth_challenge (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 static guint   dissect_zbee_aps_auth_data      (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
 static guint   dissect_zbee_aps_tunnel         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, void *data);
+static guint   dissect_zbee_aps_verify_key     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset);
+static guint   dissect_zbee_aps_confirm_key    (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset);
 static guint   dissect_zbee_t2                 (tvbuff_t *tvb, proto_tree *tree, guint16 cluster_id);
 
 /* Helper routine. */
@@ -105,12 +107,14 @@ static int hf_zbee_aps_cmd_device = -1;
 static int hf_zbee_aps_cmd_challenge = -1;
 static int hf_zbee_aps_cmd_mac = -1;
 static int hf_zbee_aps_cmd_key = -1;
+static int hf_zbee_aps_cmd_key_hash = -1;
 static int hf_zbee_aps_cmd_key_type = -1;
 static int hf_zbee_aps_cmd_dst = -1;
 static int hf_zbee_aps_cmd_src = -1;
 static int hf_zbee_aps_cmd_seqno = -1;
 static int hf_zbee_aps_cmd_short_addr = -1;
 static int hf_zbee_aps_cmd_device_status = -1;
+static int hf_zbee_aps_cmd_status = -1;
 static int hf_zbee_aps_cmd_ea_key_type = -1;
 static int hf_zbee_aps_cmd_ea_data = -1;
 
@@ -240,6 +244,8 @@ static const value_string zbee_aps_cmd_names[] = {
     { ZBEE_APS_CMD_EA_INIT_MAC_DATA,"EA Initiator MAC" },
     { ZBEE_APS_CMD_EA_RESP_MAC_DATA,"EA Responder MAC" },
     { ZBEE_APS_CMD_TUNNEL,          "Tunnel" },
+    { ZBEE_APS_CMD_VERIFY_KEY,      "Verify Key" },
+    { ZBEE_APS_CMD_CONFIRM_KEY,     "Confirm Key" },
     { 0, NULL }
 };
 
@@ -272,6 +278,31 @@ static const value_string zbee_aps_update_status_names[] = {
     { ZBEE_APS_CMD_UPDATE_HIGH_UNSEC_REJOIN,    "High security, unsecured rejoin" },
     { 0, NULL }
 };
+
+
+/* Update Device Status Names */
+static const value_string zbee_aps_status_names[] = {
+    { ZBEE_APP_STATUS_SUCCESS,               "SUCCESS" },
+    { ZBEE_APP_STATUS_ASDU_TOO_LONG,         "ASDU_TOO_LONG" },
+    { ZBEE_APP_STATUS_DEFRAG_DEFERRED,       "DEFRAG_DEFERRED" },
+    { ZBEE_APP_STATUS_DEFRAG_UNSUPPORTED,    "DEFRAG_UNSUPPORTED" },
+    { ZBEE_APP_STATUS_ILLEGAL_REQUEST,       "ILLEGAL_REQUEST" },
+    { ZBEE_APP_STATUS_INVALID_BINDING,       "INVALID_BINDING" },
+    { ZBEE_APP_STATUS_INVALID_GROUP,         "INVALID_GROUP" },
+    { ZBEE_APP_STATUS_INVALID_PARAMETER,     "INVALID_PARAMETER" },
+    { ZBEE_APP_STATUS_NO_ACK,                "NO_ACK" },
+    { ZBEE_APP_STATUS_NO_BOUND_DEVICE,       "NO_BOUND_DEVICE" },
+    { ZBEE_APP_STATUS_NO_SHORT_ADDRESS,      "NO_SHORT_ADDRESS" },
+    { ZBEE_APP_STATUS_NOT_SUPPORTED,         "NOT_SUPPORTED" },
+    { ZBEE_APP_STATUS_SECURED_LINK_KEY,      "SECURED_LINK_KEY" },
+    { ZBEE_APP_STATUS_SECURED_NWK_KEY,       "SECURED_NWK_KEY" },
+    { ZBEE_APP_STATUS_SECURITY_FAIL,         "SECURITY_FAIL" },
+    { ZBEE_APP_STATUS_TABLE_FULL,            "TABLE_FULL" },
+    { ZBEE_APP_STATUS_UNSECURED,             "UNSECURED" },
+    { ZBEE_APP_STATUS_UNSUPPORTED_ATTRIBUTE, "UNSUPPORTED_ATTRIBUTE" },
+    { 0, NULL }
+};
+
 
 /* Outdated ZigBee 2004 Value Strings. */
 static const value_string zbee_apf_type_names[] = {
@@ -1143,6 +1174,16 @@ static void dissect_zbee_aps_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             offset = dissect_zbee_aps_tunnel(tvb, pinfo, cmd_tree, offset, data);
             break;
 
+        case ZBEE_APS_CMD_VERIFY_KEY:
+            /* Verify Key Command. */
+            offset = dissect_zbee_aps_verify_key(tvb, pinfo, cmd_tree, offset);
+            break;
+
+        case ZBEE_APS_CMD_CONFIRM_KEY:
+            /* Confirm Key  Command. */
+            offset = dissect_zbee_aps_confirm_key(tvb, pinfo, cmd_tree, offset);
+            break;
+
         default:
             break;
     } /* switch */
@@ -1339,6 +1380,67 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     /* Done */
     return offset;
 } /* dissect_zbee_aps_transport_key */
+
+
+/**
+ *Helper dissector for the Verify Key Command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to the command subtree.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+*/
+static guint
+dissect_zbee_aps_verify_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+{
+    /* display the key type. */
+    proto_tree_add_item(tree, hf_zbee_aps_cmd_key_type, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    /* Get and display the source address. */
+    proto_tree_add_item(tree, hf_zbee_aps_cmd_src, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    offset += 8;
+
+    /* This value is the outcome of executing the specialized keyed hash
+     * function specified in section B.1.4 using a key with the 1-octet string
+     * 03 as the input string.
+     */
+    proto_tree_add_item(tree, hf_zbee_aps_cmd_key_hash, tvb, offset, ZBEE_APS_CMD_KEY_LENGTH, ENC_NA);
+    offset += ZBEE_APS_CMD_KEY_LENGTH;
+
+    /* Done */
+    return offset;
+} /* dissect_zbee_aps_verify_key */
+
+
+/**
+ *Helper dissector for the Confirm Key command.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to the command subtree.
+ *@param  offset into the tvb to begin dissection.
+ *@return offset after command dissection.
+*/
+static guint
+dissect_zbee_aps_confirm_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint offset)
+{
+    /* display status. */
+    guint status = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_zbee_aps_cmd_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+    /* display the key type. */
+    proto_tree_add_item(tree, hf_zbee_aps_cmd_key_type, tvb, offset, 1, ENC_NA);
+    offset += 1;
+    proto_tree_add_item(tree, hf_zbee_aps_cmd_dst, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    offset += 8;
+
+    proto_item_append_text(tree, ", %s", val_to_str_const(status, zbee_aps_status_names, "Unknown Status"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(status, zbee_aps_status_names, "Unknown Status"));
+    /* Done */
+    return offset;
+} /* dissect_zbee_aps_confirm_key */
 
 /**
  *Helper dissector for the Update Device command.
@@ -1878,6 +1980,10 @@ void proto_register_zbee_aps(void)
             { "Key",                    "zbee_aps.cmd.key", FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
+            { &hf_zbee_aps_cmd_key_hash,
+            { "Key Hash",                    "zbee_aps.cmd.key_hash", FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
             { &hf_zbee_aps_cmd_key_type,
             { "Key Type",               "zbee_aps.cmd.key_type", FT_UINT8, BASE_HEX,
                     VALS(zbee_aps_key_names), 0x0, NULL, HFILL }},
@@ -1899,9 +2005,14 @@ void proto_register_zbee_aps(void)
                 "The device whose status is being updated.", HFILL }},
 
             { &hf_zbee_aps_cmd_device_status,
-            { "Device Status",          "zbee_aps.cmd.status", FT_UINT8, BASE_HEX,
+            { "Device Status",          "zbee_aps.cmd.update_status", FT_UINT8, BASE_HEX,
                     VALS(zbee_aps_update_status_names), 0x0,
                 "Update device status.", HFILL }},
+
+            { &hf_zbee_aps_cmd_status,
+            { "Status",          "zbee_aps.cmd.status", FT_UINT8, BASE_HEX,
+                    VALS(zbee_aps_status_names), 0x0,
+                "APS status.", HFILL }},
 
             { &hf_zbee_aps_cmd_ea_key_type,
             { "Key Type",               "zbee_aps.cmd.ea.key_type", FT_UINT8, BASE_HEX,

@@ -62,6 +62,8 @@
 #define ZBEE_APS_CMD_EA_INIT_MAC_DATA       0x0c
 #define ZBEE_APS_CMD_EA_RESP_MAC_DATA       0x0d
 #define ZBEE_APS_CMD_TUNNEL                 0x0e
+#define ZBEE_APS_CMD_VERIFY_KEY             0x0f
+#define ZBEE_APS_CMD_CONFIRM_KEY            0x10
 
 #define ZBEE_APS_CMD_KEY_TC_MASTER          0x00
 #define ZBEE_APS_CMD_KEY_STANDARD_NWK       0x01
@@ -245,6 +247,26 @@
 #define ZBEE_APS_T2_CID_BTADR                       0xf001
 #define ZBEE_APS_T2_CID_BTARXOWIDR                  0xf00a
 #define ZBEE_APS_T2_CID_BTARACR                     0xf00e
+
+
+#define ZBEE_APP_STATUS_SUCCESS                     0x00 /*A request has been executed successfully.*/
+#define ZBEE_APP_STATUS_ASDU_TOO_LONG               0xa0 /*A transmit request failed since the ASDU is too large and fragmentation is not supported.*/
+#define ZBEE_APP_STATUS_DEFRAG_DEFERRED             0xa1 /*A received fragmented frame could not be defragmented at the current time.*/
+#define ZBEE_APP_STATUS_DEFRAG_UNSUPPORTED          0xa2 /*A received fragmented frame could not be defragmented since the device does not support fragmentation.*/
+#define ZBEE_APP_STATUS_ILLEGAL_REQUEST             0xa3 /*A parameter value was out of range.*/
+#define ZBEE_APP_STATUS_INVALID_BINDING             0xa4 /*An APSME-UNBIND.request failed due to the requested binding link not existing in the binding table.*/
+#define ZBEE_APP_STATUS_INVALID_GROUP               0xa5 /*An APSME-REMOVE-GROUP.request has been issued with a group identifier that does not appear in the group table.*/
+#define ZBEE_APP_STATUS_INVALID_PARAMETER           0xa6 /*A parameter value was invalid or out of range.*/
+#define ZBEE_APP_STATUS_NO_ACK                      0xa7 /*An APSDE-DATA.request requesting acknowledged trans-mission failed due to no acknowledgement being received.*/
+#define ZBEE_APP_STATUS_NO_BOUND_DEVICE             0xa8 /*An APSDE-DATA.request with a destination addressing mode set to 0x00 failed due to there being no devices bound to this device.*/
+#define ZBEE_APP_STATUS_NO_SHORT_ADDRESS            0xa9 /*An APSDE-DATA.request with a destination addressing mode set to 0x03 failed due to no corresponding short address found*/
+#define ZBEE_APP_STATUS_NOT_SUPPORTED               0xaa /*An APSDE-DATA.request with a destination addressing mode set to 0x00 failed due to a binding table not being supported on the device.*/
+#define ZBEE_APP_STATUS_SECURED_LINK_KEY            0xab /*An ASDU was received that was secured using a link key.*/
+#define ZBEE_APP_STATUS_SECURED_NWK_KEY             0xac /*An ASDU was received that was secured using a network key.*/
+#define ZBEE_APP_STATUS_SECURITY_FAIL               0xad /*An APSDE-DATA.request requesting security has resulted in an error during the corresponding security processing.*/
+#define ZBEE_APP_STATUS_TABLE_FULL                  0xae /*An APSME-BIND.request or APSME.ADD-GROUP.request issued when the binding or group tables, respectively, were full.*/
+#define ZBEE_APP_STATUS_UNSECURED                   0xaf /*An ASDU was received without any security.*/
+#define ZBEE_APP_STATUS_UNSUPPORTED_ATTRIBUTE       0xb0 /*An APSME-GET.request or APSME-SET.request has been issued with an unknown attribute identifier.*/
 
 /*  Structure to contain the APS frame information */
 typedef struct{
