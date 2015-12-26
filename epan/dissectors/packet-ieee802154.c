@@ -494,7 +494,6 @@ static int ieee802_15_4_short_address_len(void)
 /**
  * Dissector helper, parses and displays the frame control field.
  *
- *@param packet packet info structure.
  *@param tvb pointer to buffer containing raw packet.
  *@param pinfo pointer to packet information fields
  *@param tree pointer to data tree wireshark uses to display packet.
@@ -1372,7 +1371,6 @@ dissect_ieee802154_fcs:
  *@param tvb pointer to buffer containing raw packet.
  *@param pinfo pointer to packet information fields (unused).
  *@param tree pointer to command subtree.
- *@param packet IEEE 802.15.4 packet information (unused).
  *@param offset offset into the tvbuff to begin dissection.
 */
 static void
@@ -1398,7 +1396,6 @@ dissect_ieee802154_superframe(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
  *@param tvb            - pointer to buffer containing raw packet.
  *@param pinfo          - pointer to packet information fields (unused).
  *@param tree           - pointer to command subtree.
- *@param packet   - IEEE 802.15.4 packet information (unused).
  *@param offset         - offset into the tvbuff to begin dissection.
 */
 static void
@@ -1478,7 +1475,6 @@ dissect_ieee802154_gtsinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
  *@param tvb pointer to buffer containing raw packet.
  *@param pinfo pointer to packet information fields (unused).
  *@param tree pointer to command subtree.
- *@param packet IEEE 802.15.4 packet information (unused).
  *@offset offset into the tvbuff to begin dissection.
 */
 static void
@@ -1619,6 +1615,9 @@ dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     } while ((tvb_reported_length(tvb) > 1) && (id != IEEE802154_PAYLOAD_IE_GID_TERM));
 }
 
+static const true_false_string tfs_cinfo_device_type = { "FFD", "RFD" };
+static const true_false_string tfs_cinfo_power_src = { "AC/Mains Power", "Battery" };
+
 /**
  *Command subdissector routine for the Association request command.
  *
@@ -1627,8 +1626,6 @@ dissect_ieee802154_payload_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
  *@param tree pointer to protocol tree.
  *@param packet IEEE 802.15.4 packet information.
 */
-static const true_false_string tfs_cinfo_device_type = { "FFD", "RFD" };
-static const true_false_string tfs_cinfo_power_src = { "AC/Mains Power", "Battery" };
 
 static void
 dissect_ieee802154_assoc_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
@@ -1847,6 +1844,9 @@ dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
 } /* dissect_ieee802154_realign */
 
+static const true_false_string tfs_gtsreq_dir = { "Receive", "Transmit" };
+static const true_false_string tfs_gtsreq_type= { "Allocate GTS", "Deallocate GTS" };
+
 /**
  *Command subdissector routine for the GTS request command.
  *
@@ -1860,8 +1860,6 @@ dissect_ieee802154_realign(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
  *@param tree pointer to protocol tree.
  *@param packet IEEE 802.15.4 packet information (unused).
 */
-static const true_false_string tfs_gtsreq_dir = { "Receive", "Transmit" };
-static const true_false_string tfs_gtsreq_type= { "Allocate GTS", "Deallocate GTS" };
 
 static void
 dissect_ieee802154_gtsreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
@@ -2525,7 +2523,7 @@ gboolean ieee802154_short_addr_invalidate(guint16 short_addr, guint16 pan, guint
  * dissassociation occurs.
  *
  *@param long_addr 16-bit short address
- *@param Frame number when mapping became invalid
+ *@param fnum Frame number when mapping became invalid
  *@return TRUE If record was updated, FALSE otherwise
 */
 gboolean ieee802154_long_addr_invalidate(guint64 long_addr, guint fnum)
