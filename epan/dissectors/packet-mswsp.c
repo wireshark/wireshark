@@ -337,6 +337,7 @@ static int SMB2 = 2;
 void proto_reg_handoff_mswsp(void);
 
 static expert_field ei_missing_msg_context = EI_INIT;
+static expert_field ei_mswsp_msg_cpmsetbinding_ccolumns = EI_INIT;
 
 static int proto_mswsp = -1;
 static int hf_mswsp_msg = -1;
@@ -5897,6 +5898,7 @@ static int dissect_CPMSetBindings(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		proto_item *ti;
 		proto_tree *tree, *pad_tree;
 		guint32 size, num, n;
+		gint64 column_size;
 
 		ti = proto_tree_add_item(parent_tree, hf_mswsp_msg, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(ti, ett_mswsp_msg);
@@ -5923,10 +5925,19 @@ static int dissect_CPMSetBindings(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 		num = tvb_get_letohl(tvb, offset);
 		request.ccolumns = num;
-		proto_tree_add_item(tree, hf_mswsp_msg_cpmsetbinding_ccolumns, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(tree, hf_mswsp_msg_cpmsetbinding_ccolumns, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmsetbinding_acolumns, tvb, offset, size-4, ENC_NA);
+
+		/* Sanity check size value */
+		column_size = num*sizeof(struct CTableColumn);
+		if (column_size > tvb_reported_length_remaining(tvb, offset))
+		{
+			expert_add_info(pinfo, ti, &ei_mswsp_msg_cpmsetbinding_ccolumns);
+			return tvb_reported_length(tvb);
+		}
+
 		ct = get_create_converstation_data(pinfo);
 
 		request.acolumns = (struct CTableColumn*)wmem_alloc(wmem_file_scope(),
@@ -8026,7 +8037,8 @@ proto_register_mswsp(void)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_missing_msg_context, { "mswsp.msg.cpmgetrows.missing_msg_context", PI_SEQUENCE, PI_WARN, "previous messages needed for context not captured", EXPFILL }}
+		{ &ei_missing_msg_context, { "mswsp.msg.cpmgetrows.missing_msg_context", PI_SEQUENCE, PI_WARN, "previous messages needed for context not captured", EXPFILL }},
+		{ &ei_mswsp_msg_cpmsetbinding_ccolumns, { "mswsp.msg.cpmsetbinding.ccolumns.invalude", PI_PROTOCOL, PI_WARN, "Invalid number of cColumns for packet", EXPFILL }}
 	};
 	int i;
 
