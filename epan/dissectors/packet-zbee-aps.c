@@ -1726,7 +1726,7 @@ dissect_app_end:
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param tree pointer to the command subtree.
- *@param clisuer_id ZigBee Test Profile #2 cluster ID.
+ *@param cluster_id ZigBee Test Profile #2 cluster ID.
 */
 static guint
 dissect_zbee_t2(tvbuff_t *tvb, proto_tree *tree, guint16 cluster_id)
