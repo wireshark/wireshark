@@ -1866,7 +1866,7 @@ static void http2_stats_tree_init(stats_tree* st)
 
 static int http2_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
 {
-    struct HTTP2Tap *pi = (struct HTTP2Tap *)p;
+    const struct HTTP2Tap *pi = (const struct HTTP2Tap *)p;
     tick_stat_node(st, st_str_http2, 0, FALSE);
     stats_tree_tick_pivot(st, st_node_http2_type,
             val_to_str(pi->type, http2_type_vals, "Unknown type (%d)"));
