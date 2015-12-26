@@ -621,7 +621,16 @@ typedef enum {
 
 /**
  * @macro
- * Default maximum concurrent streams.
+ *
+ * Default maximum number of incoming concurrent streams.  Use
+ * `nghttp2_submit_settings()` with
+ * :enum:`NGHTTP2_SETTINGS_MAX_CONCURRENT_STREAMS` to change the
+ * maximum number of incoming concurrent streams.
+ *
+ * .. note::
+ *
+ *   The maximum number of outgoing concurrent streams is 100 by
+ *   default.
  */
 #define NGHTTP2_INITIAL_MAX_CONCURRENT_STREAMS ((1U << 31) - 1)
 
@@ -2881,9 +2890,9 @@ NGHTTP2_EXTERN int nghttp2_session_consume_stream(nghttp2_session *session,
  * not exist.  The created idle stream will depend on root stream
  * (stream 0) with weight 16.
  *
- * If stream denoted by ``pri_spec->stream_id`` is not found, we use
- * default priority instead of given |pri_spec|.  That is make stream
- * depend on root stream with weight 16.
+ * Otherwise, if stream denoted by ``pri_spec->stream_id`` is not
+ * found, we use default priority instead of given |pri_spec|.  That
+ * is make stream depend on root stream with weight 16.
  *
  * This function returns 0 if it succeeds, or one of the following
  * negative error codes:
@@ -2898,6 +2907,51 @@ NGHTTP2_EXTERN int
 nghttp2_session_change_stream_priority(nghttp2_session *session,
                                        int32_t stream_id,
                                        const nghttp2_priority_spec *pri_spec);
+
+/**
+ * @function
+ *
+ * Creates idle stream with the given |stream_id|, and priority
+ * |pri_spec|.
+ *
+ * The stream creation is done without sending PRIORITY frame, which
+ * means that peer does not know about the existence of this idle
+ * stream in the local endpoint.
+ *
+ * RFC 7540 does not disallow the use of creation of idle stream with
+ * odd or even stream ID regardless of client or server.  So this
+ * function can create odd or even stream ID regardless of client or
+ * server.  But probably it is a bit safer to use the stream ID the
+ * local endpoint can initiate (in other words, use odd stream ID for
+ * client, and even stream ID for server), to avoid potential
+ * collision from peer's instruction.  Also we can use
+ * `nghttp2_session_set_next_stream_id()` to avoid to open created
+ * idle streams accidentally if we follow this recommendation.
+ *
+ * If |session| is initialized as server, and ``pri_spec->stream_id``
+ * points to the idle stream, the idle stream is created if it does
+ * not exist.  The created idle stream will depend on root stream
+ * (stream 0) with weight 16.
+ *
+ * Otherwise, if stream denoted by ``pri_spec->stream_id`` is not
+ * found, we use default priority instead of given |pri_spec|.  That
+ * is make stream depend on root stream with weight 16.
+ *
+ * This function returns 0 if it succeeds, or one of the following
+ * negative error codes:
+ *
+ * :enum:`NGHTTP2_ERR_NOMEM`
+ *     Out of memory.
+ * :enum:`NGHTTP2_ERR_INVALID_ARGUMENT`
+ *     Attempted to depend on itself; or stream denoted by |stream_id|
+ *     already exists; or |stream_id| cannot be used to create idle
+ *     stream (in other words, local endpoint has already opened
+ *     stream ID greater than or equal to the given stream ID; or
+ *     |stream_id| is 0
+ */
+NGHTTP2_EXTERN int
+nghttp2_session_create_idle_stream(nghttp2_session *session, int32_t stream_id,
+                                   const nghttp2_priority_spec *pri_spec);
 
 /**
  * @function
@@ -3540,14 +3594,20 @@ NGHTTP2_EXTERN int nghttp2_submit_settings(nghttp2_session *session,
  * :enum:`NGHTTP2_ERR_INVALID_ARGUMENT`
  *     The |stream_id| is 0; The |stream_id| does not designate stream
  *     that peer initiated.
+ * :enum:`NGHTTP2_ERR_STREAM_CLOSED`
+ *     The stream was alreay closed; or the |stream_id| is invalid.
  *
  * .. warning::
  *
  *   This function returns assigned promised stream ID if it succeeds.
- *   But that stream is not opened yet.  The application must not
- *   submit frame to that stream ID before
- *   :type:`nghttp2_before_frame_send_callback` is called for this
- *   frame.
+ *   As of 1.16.0, stream object for pushed resource is created when
+ *   this function succeeds.  In that case, the application can submit
+ *   push response for the promised frame.
+ *
+ *   In 1.15.0 or prior versions, pushed stream is not opened yet when
+ *   this function succeeds.  The application must not submit frame to
+ *   that stream ID before :type:`nghttp2_before_frame_send_callback`
+ *   is called for this frame.
  *
  */
 NGHTTP2_EXTERN int32_t
