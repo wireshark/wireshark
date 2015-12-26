@@ -40,7 +40,6 @@
  *Parses and displays a single binding table entry.
  *
  *@param tvb pointer to buffer containing raw packet.
- *@param pinfo pointer to packet information fields
  *@param tree pointer to data tree Wireshark uses to display packet.
 */
 void

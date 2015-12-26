@@ -39,7 +39,6 @@
  *Parses and displays a single network descriptor
  *
  *@param tvb pointer to buffer containing raw packet.
- *@param pinfo pointer to packet information fields
  *@param tree pointer to data tree Wireshark uses to display packet.
 */
 static void
@@ -87,7 +86,6 @@ zdp_parse_nwk_desc(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 versio
  *Parses and displays a neighbor table entry.
  *
  *@param tvb pointer to buffer containing raw packet.
- *@param pinfo pointer to packet information fields
  *@param tree pointer to data tree Wireshark uses to display packet.
 */
 static void
