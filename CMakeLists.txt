@@ -1158,6 +1158,12 @@ configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h
 configure_file(${CMAKE_SOURCE_DIR}/version.h.in ${CMAKE_BINARY_DIR}/version.h)
 #set_target_properties(${CMAKE_BINARY_DIR}/version.h PROPERTIES FOLDER "Auxiliary")
 
+set( prefix "${CMAKE_INSTALL_PREFIX}" )
+set( exec_prefix "\${prefix}" )
+set( libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}" )
+set( includedir  "\${prefix}/include" )
+set( plugindir "\${libdir}/${PLUGIN_INSTALL_DIR}" )
+
 set(ICON_PATH "${CMAKE_SOURCE_DIR}/image/")
 set( IN_FILES
 	adns_dll.rc
