@@ -511,12 +511,12 @@
         <translation>Afficher les octets en bits</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="252"/>
+        <location filename="byte_view_text.cpp" line="257"/>
         <source>Byte %1</source>
         <translation>Octets %1</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="255"/>
+        <location filename="byte_view_text.cpp" line="260"/>
         <source>Bytes %1-%2</source>
         <translation>Octets %1-%2</translation>
     </message>
@@ -1089,14 +1089,14 @@
         <location filename="capture_interfaces_dialog.ui" line="745"/>
         <source>megabytes</source>
         <oldsource>Megabytes</oldsource>
-        <translation type="unfinished">Mégaoctets</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="334"/>
         <location filename="capture_interfaces_dialog.ui" line="740"/>
         <source>kilobytes</source>
         <oldsource>Kilobytes</oldsource>
-        <translation type="unfinished">Kiloctets</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="357"/>
@@ -1224,7 +1224,7 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <location filename="capture_interfaces_dialog.ui" line="750"/>
         <source>gigabytes</source>
         <oldsource>Gigabytes</oldsource>
-        <translation type="unfinished">Gigaoctets</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="443"/>
@@ -9297,7 +9297,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <translation>Utiliser les paramètres système</translation>
     </message>
     <message>
-        <location filename="main_window_preferences_frame.cpp" line="185"/>
+        <location filename="main_window_preferences_frame.cpp" line="186"/>
         <source>Open Files In</source>
         <translation>Ouvrir les fichiers dans</translation>
     </message>

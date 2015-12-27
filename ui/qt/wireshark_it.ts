@@ -511,12 +511,12 @@
         <translation>Mostra byte come bit</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="252"/>
+        <location filename="byte_view_text.cpp" line="257"/>
         <source>Byte %1</source>
         <translation>Byte %1</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="255"/>
+        <location filename="byte_view_text.cpp" line="260"/>
         <source>Bytes %1-%2</source>
         <translation>Byte %1-%2</translation>
     </message>
@@ -1089,14 +1089,14 @@
         <location filename="capture_interfaces_dialog.ui" line="745"/>
         <source>megabytes</source>
         <oldsource>Megabytes</oldsource>
-        <translation type="unfinished">Megabyte</translation>
+        <translation>megabyte</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="334"/>
         <location filename="capture_interfaces_dialog.ui" line="740"/>
         <source>kilobytes</source>
         <oldsource>Kilobytes</oldsource>
-        <translation type="unfinished">Kilobyte</translation>
+        <translation>kilobyte</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="357"/>
@@ -1224,7 +1224,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <location filename="capture_interfaces_dialog.ui" line="750"/>
         <source>gigabytes</source>
         <oldsource>Gigabytes</oldsource>
-        <translation type="unfinished">Gigabyte</translation>
+        <translation>gigabyte</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="443"/>
@@ -8008,7 +8008,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2757"/>
         <source>Ctrl+9</source>
-        <translation type="unfinished">Ctrl+9</translation>
+        <translation>Ctrl+9</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2789"/>
@@ -9335,7 +9335,7 @@ a:hover {
         <translation>Usa le impostazioni di sistema</translation>
     </message>
     <message>
-        <location filename="main_window_preferences_frame.cpp" line="185"/>
+        <location filename="main_window_preferences_frame.cpp" line="186"/>
         <source>Open Files In</source>
         <translation>Apri file in</translation>
     </message>

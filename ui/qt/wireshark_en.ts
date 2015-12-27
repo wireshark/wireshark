@@ -511,12 +511,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="252"/>
+        <location filename="byte_view_text.cpp" line="257"/>
         <source>Byte %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="255"/>
+        <location filename="byte_view_text.cpp" line="260"/>
         <source>Bytes %1-%2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9219,7 +9219,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_preferences_frame.cpp" line="185"/>
+        <location filename="main_window_preferences_frame.cpp" line="186"/>
         <source>Open Files In</source>
         <translation type="unfinished"></translation>
     </message>

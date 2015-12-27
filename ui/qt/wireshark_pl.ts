@@ -511,12 +511,12 @@
         <translation>Pokaż bitowo</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="252"/>
+        <location filename="byte_view_text.cpp" line="257"/>
         <source>Byte %1</source>
         <translation>Bajt %1</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="255"/>
+        <location filename="byte_view_text.cpp" line="260"/>
         <source>Bytes %1-%2</source>
         <translation>Bajty %1-%2</translation>
     </message>
@@ -1087,14 +1087,14 @@
         <location filename="capture_interfaces_dialog.ui" line="745"/>
         <source>megabytes</source>
         <oldsource>Megabytes</oldsource>
-        <translation type="unfinished">Mebibajtach</translation>
+        <translation>megabajty</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="334"/>
         <location filename="capture_interfaces_dialog.ui" line="740"/>
         <source>kilobytes</source>
         <oldsource>Kilobytes</oldsource>
-        <translation type="unfinished">Kibibajtach</translation>
+        <translation>kilobajty</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="357"/>
@@ -1222,7 +1222,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <location filename="capture_interfaces_dialog.ui" line="750"/>
         <source>gigabytes</source>
         <oldsource>Gigabytes</oldsource>
-        <translation type="unfinished">Gibibajtów</translation>
+        <translation>gigabajty</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="443"/>
@@ -8008,7 +8008,7 @@ text-decoration: underline;
     <message>
         <location filename="main_window.ui" line="2757"/>
         <source>Ctrl+9</source>
-        <translation type="unfinished">Ctrl+9</translation>
+        <translation>Ctrl+9</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2789"/>
@@ -9335,7 +9335,7 @@ text-decoration: underline;
         <translation>Używaj ustawień systemowych</translation>
     </message>
     <message>
-        <location filename="main_window_preferences_frame.cpp" line="185"/>
+        <location filename="main_window_preferences_frame.cpp" line="186"/>
         <source>Open Files In</source>
         <translation>Otwieraj pliki w</translation>
     </message>
