@@ -511,12 +511,12 @@
         <translation>Mostra byte come bit</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="252"/>
+        <location filename="byte_view_text.cpp" line="257"/>
         <source>Byte %1</source>
         <translation>Byte %1</translation>
     </message>
     <message>
-        <location filename="byte_view_text.cpp" line="255"/>
+        <location filename="byte_view_text.cpp" line="260"/>
         <source>Bytes %1-%2</source>
         <translation>Byte %1-%2</translation>
     </message>
@@ -1089,14 +1089,14 @@
         <location filename="capture_interfaces_dialog.ui" line="745"/>
         <source>megabytes</source>
         <oldsource>Megabytes</oldsource>
-        <translation type="unfinished">Megabyte</translation>
+        <translation>megabyte</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="334"/>
         <location filename="capture_interfaces_dialog.ui" line="740"/>
         <source>kilobytes</source>
         <oldsource>Kilobytes</oldsource>
-        <translation type="unfinished">Kilobyte</translation>
+        <translation>kilobyte</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="357"/>
@@ -1224,7 +1224,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <location filename="capture_interfaces_dialog.ui" line="750"/>
         <source>gigabytes</source>
         <oldsource>Gigabytes</oldsource>
-        <translation type="unfinished">Gigabyte</translation>
+        <translation>gigabyte</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.ui" line="443"/>
@@ -1621,7 +1621,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <location filename="column_editor_frame.ui" line="78"/>
         <source>Fields</source>
         <oldsource>Field Name</oldsource>
-        <translation type="unfinished">Nome del campo</translation>
+        <translation>Campi</translation>
     </message>
     <message>
         <location filename="column_editor_frame.ui" line="101"/>
@@ -1655,7 +1655,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <location filename="column_preferences_frame.ui" line="45"/>
         <source>Fields</source>
         <oldsource>Field Name</oldsource>
-        <translation type="unfinished">Nome del campo</translation>
+        <translation>Campi</translation>
     </message>
     <message>
         <location filename="column_preferences_frame.ui" line="50"/>
@@ -8129,7 +8129,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2766"/>
         <source>Ctrl+9</source>
-        <translation type="unfinished">Ctrl+9</translation>
+        <translation>Ctrl+9</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2798"/>
@@ -9076,33 +9076,33 @@ a:hover {
         <translation>Ctrl+Maiusc+E</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="353"/>
+        <location filename="main_window.cpp" line="356"/>
         <source>Check for Updates</source>
         <oldsource>Check for Updates...</oldsource>
         <translation>Verifica aggiornamenti</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="736"/>
+        <location filename="main_window.cpp" line="739"/>
         <source> before quitting</source>
         <translation>prima di uscire</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="912"/>
+        <location filename="main_window.cpp" line="915"/>
         <source>Save packets before merging?</source>
         <translation>Salvare i pacchetti prima di unire?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="913"/>
+        <location filename="main_window.cpp" line="916"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>Un file di cattura temporaneo non può essere unito.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="919"/>
+        <location filename="main_window.cpp" line="922"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Salvare le modifiche a &quot;%1&quot; prima di unire?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="921"/>
+        <location filename="main_window.cpp" line="924"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Le modifiche devono essere salvate prima di unire.</translation>
     </message>
@@ -9112,115 +9112,125 @@ a:hover {
         <translation>Filtro di visualizzazione non valido</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="978"/>
+        <location filename="main_window.cpp" line="981"/>
         <source>Invalid Read Filter</source>
         <translation>Filtro di lettura non valido</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="979"/>
+        <location filename="main_window.cpp" line="982"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation>L&apos;espressione %1 non è un filtro di lettura valido. (%2).</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1069"/>
+        <location filename="main_window.cpp" line="1072"/>
         <source> before importing a new capture</source>
         <translation>prima di importare una nuova cattura</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1382"/>
+        <location filename="main_window.cpp" line="1385"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>Impossibile esportare su &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1383"/>
+        <location filename="main_window.cpp" line="1386"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>Non puoi esportare pacchetti sul file di cattura attuale.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1470"/>
-        <location filename="main_window.cpp" line="1495"/>
+        <location filename="main_window.cpp" line="1473"/>
+        <location filename="main_window.cpp" line="1498"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1533"/>
+        <location filename="main_window.cpp" line="1536"/>
         <source>You have unsaved packets</source>
         <translation>Ci sono pacchetti non salvati</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1534"/>
+        <location filename="main_window.cpp" line="1537"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>Saranno persi se non li salvi.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1537"/>
-        <location filename="main_window.cpp" line="1550"/>
+        <location filename="main_window.cpp" line="1540"/>
+        <location filename="main_window.cpp" line="1553"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>Vuoi interrompere la cattura e salvare i pacchetti catturati</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1539"/>
+        <location filename="main_window.cpp" line="1542"/>
         <source>Do you want to save the captured packets</source>
         <translation>Vuoi salvare i pacchetti catturati </translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1541"/>
-        <location filename="main_window.cpp" line="1551"/>
+        <location filename="main_window.cpp" line="1544"/>
+        <location filename="main_window.cpp" line="1554"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1553"/>
+        <location filename="main_window.cpp" line="1556"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>I pacchetti catturati saranno persi se non li salvi.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1556"/>
+        <location filename="main_window.cpp" line="1559"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Vuoi salvare le modifiche che hai apportato al file di cattura &quot;%1&quot;%2?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1562"/>
+        <location filename="main_window.cpp" line="1565"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Le modifiche saranno perse se non le salvi.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1574"/>
+        <location filename="main_window.cpp" line="1578"/>
+        <source>Save before Continue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="1580"/>
         <source>Stop and Save</source>
         <translation>Ferma e salva</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1582"/>
+        <location filename="main_window.cpp" line="1589"/>
         <source>Stop and Quit without Saving</source>
         <translation>Ferma ed esci senza salvare</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1585"/>
+        <location filename="main_window.cpp" line="1592"/>
         <source>Quit without Saving</source>
         <translation>Esci senza salvare</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1590"/>
+        <location filename="main_window.cpp" line="1598"/>
+        <source>Continue without Saving</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window.cpp" line="1602"/>
         <source>Stop and Continue without Saving</source>
         <translation>Ferma e continua senza salvare</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1593"/>
+        <location filename="main_window.cpp" line="1606"/>
         <source>Continue &amp;without Saving</source>
         <translation>Continua &amp;senza salvare</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1870"/>
+        <location filename="main_window.cpp" line="1886"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Il nome del file non può essere associato in UTF-8)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1888"/>
+        <location filename="main_window.cpp" line="1904"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Wireshark l&apos;analizzatore di rete</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1895"/>
+        <location filename="main_window.cpp" line="1911"/>
         <source>Capturing from %1</source>
         <translation>Cattura da %1</translation>
     </message>
@@ -9321,12 +9331,17 @@ a:hover {
         <translation>prima di iniziare una nuova cattura</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3665"/>
+        <location filename="main_window_slots.cpp" line="3478"/>
+        <source> before restarting a new capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="main_window_slots.cpp" line="3669"/>
         <source>Wiki Page for %1</source>
         <translation>Pagina wiki per %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3666"/>
+        <location filename="main_window_slots.cpp" line="3670"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Il Wiki di Wireshark è gestito dalla comunità.&lt;/p&gt;&lt;p&gt;La pagina che stai per caricare potrebbe essere perfetta, incompleta, errata o inesistente.&lt;/p&gt;&lt;p&gt;Vuoi proseguire?&lt;/p&gt;</translation>
     </message>
@@ -9456,7 +9471,7 @@ a:hover {
         <translation>Usa le impostazioni di sistema</translation>
     </message>
     <message>
-        <location filename="main_window_preferences_frame.cpp" line="185"/>
+        <location filename="main_window_preferences_frame.cpp" line="186"/>
         <source>Open Files In</source>
         <translation>Apri file in</translation>
     </message>
