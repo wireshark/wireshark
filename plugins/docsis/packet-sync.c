@@ -43,7 +43,7 @@ dissect_sync (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
   proto_item *it;
   proto_tree *sync_tree;
 
-  col_set_str(pinfo->cinfo, COL_INFO, "Sync Message:");
+  col_set_str(pinfo->cinfo, COL_INFO, "Sync Message");
 
   if (tree)
     {
