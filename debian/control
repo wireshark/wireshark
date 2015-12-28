@@ -61,6 +61,7 @@ Description: network traffic analyzer - meta-package
 Package: wireshark-qt
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, wireshark-common (= ${binary:Version}), xdg-utils
+Recommends: libqt5multimedia5-plugins
 Replaces: ethereal (<< 1.0.0-3), wireshark (<< 2.0.0~)
 Breaks: ethereal (<< 1.0.0-3), wireshark (<< 2.0.0~)
 Description: network traffic analyzer - Qt version
