@@ -124,7 +124,7 @@ struct preference {
         guint *uint;
         gboolean *boolp;
         gint *enump;
-        const char **string;
+        char **string;
         range_t **range;
         struct epan_uat* uat;
         color_t *colorp;

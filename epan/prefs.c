@@ -225,7 +225,7 @@ prefs_init(void)
 static void
 free_string_like_preference(pref_t *pref)
 {
-    g_free((char *)*pref->varp.string);
+    g_free(*pref->varp.string);
     *pref->varp.string = NULL;
     g_free(pref->default_val.string);
     pref->default_val.string = NULL;
@@ -248,7 +248,7 @@ free_pref(gpointer data, gpointer user_data _U_)
     case PREF_STRING:
     case PREF_FILENAME:
     case PREF_DIRNAME:
-        g_free((char *)*pref->varp.string);
+        g_free(*pref->varp.string);
         *pref->varp.string = NULL;
         g_free(pref->default_val.string);
         pref->default_val.string = NULL;
@@ -1001,16 +1001,17 @@ prefs_register_enum_preference(module_t *module, const char *name,
     preference->info.enum_info.radio_buttons = radio_buttons;
 }
 
-static pref_t*
+static void
 register_string_like_preference(module_t *module, const char *name,
                                 const char *title, const char *description,
-                                const char **var, pref_type_t type)
+                                char **var, pref_type_t type,
+                                struct pref_custom_cbs* custom_cbs,
+                                gboolean free_tmp)
 {
-    pref_t *preference;
-    char *varcopy;
+    pref_t *pref;
+    gchar *tmp;
 
-    preference = register_preference(module, name, title, description,
-                                     type);
+    pref = register_preference(module, name, title, description, type);
 
     /*
      * String preference values should be non-null (as you can't
@@ -1021,18 +1022,22 @@ register_string_like_preference(module_t *module, const char *name,
      * If the value is a null pointer, make it a copy of a null
      * string, otherwise make it a copy of the value.
      */
+    tmp = *var;
     if (*var == NULL) {
         *var = g_strdup("");
-        varcopy = g_strdup("");
     } else {
         *var = g_strdup(*var);
-        varcopy = g_strdup(*var);
     }
-    preference->varp.string = var;
-    preference->default_val.string = varcopy;
-    preference->stashed_val.string = NULL;
-
-    return preference;
+    if (free_tmp) {
+        g_free(tmp);
+    }
+    pref->varp.string = var;
+    pref->default_val.string = g_strdup(*var);
+    pref->stashed_val.string = NULL;
+    if (type == PREF_CUSTOM) {
+        g_assert(custom_cbs);
+        pref->custom_cbs = *custom_cbs;
+    }
 }
 
 /*
@@ -1044,7 +1049,7 @@ prefs_set_string_like_value(pref_t *pref, const gchar *value, gboolean *changed)
     if (*pref->varp.string) {
         if (strcmp(*pref->varp.string, value) != 0) {
             *changed = TRUE;
-            g_free((void *)*pref->varp.string);
+            g_free(*pref->varp.string);
             *pref->varp.string = g_strdup(value);
         }
     } else if (value) {
@@ -1058,9 +1063,7 @@ prefs_set_string_like_value(pref_t *pref, const gchar *value, gboolean *changed)
 static void
 reset_string_like_preference(pref_t *pref)
 {
-DIAG_OFF(cast-qual)
-    g_free((void *)*pref->varp.string);
-DIAG_ON(cast-qual)
+    g_free(*pref->varp.string);
     *pref->varp.string = g_strdup(pref->default_val.string);
 }
 
@@ -1072,28 +1075,11 @@ prefs_register_string_preference(module_t *module, const char *name,
                                  const char *title, const char *description,
                                  const char **var)
 {
-    register_string_like_preference(module, name, title, description, var,
-                                    PREF_STRING);
+DIAG_OFF(cast-qual)
+    register_string_like_preference(module, name, title, description,
+                                    (char **)var, PREF_STRING, NULL, FALSE);
+DIAG_ON(cast-qual)
 }
-
-/*
- * Register a "custom" preference with a character-string value.
- * XXX - This should be temporary until we can find a better way
- * to do "custom" preferences
- */
-static void
-prefs_register_string_custom_preference(module_t *module, const char *name,
-                                 const char *title, const char *description,
-                                 struct pref_custom_cbs* custom_cbs, const char **var)
-{
-    pref_t *preference;
-
-    preference = register_string_like_preference(module, name, title, description, var,
-                                    PREF_CUSTOM);
-
-    preference->custom_cbs = *custom_cbs;
-}
-
 
 /*
  * Register a preference with a file name (string) value.
@@ -1103,8 +1089,10 @@ prefs_register_filename_preference(module_t *module, const char *name,
                                    const char *title, const char *description,
                                    const char **var)
 {
-    register_string_like_preference(module, name, title, description, var,
-                                    PREF_FILENAME);
+DIAG_OFF(cast-qual)
+    register_string_like_preference(module, name, title, description,
+                                    (char **)var, PREF_FILENAME, NULL, FALSE);
+DIAG_ON(cast-qual)
 }
 
 /*
@@ -1115,8 +1103,10 @@ prefs_register_directory_preference(module_t *module, const char *name,
                                    const char *title, const char *description,
                                    const char **var)
 {
-    register_string_like_preference(module, name, title, description, var,
-                                    PREF_DIRNAME);
+DIAG_OFF(cast-qual)
+    register_string_like_preference(module, name, title, description,
+                                    (char **)var, PREF_DIRNAME, NULL, FALSE);
+DIAG_ON(cast-qual)
 }
 
 /*
@@ -2076,7 +2066,6 @@ prefs_register_modules(void)
     module_t *printing, *capture_module, *console_module,
         *gui_layout_module, *gui_font_module;
     struct pref_custom_cbs custom_cbs;
-    gchar *tmp;
 
     if (protocols_module != NULL) {
         /* Already setup preferences */
@@ -2143,8 +2132,9 @@ prefs_register_modules(void)
     custom_cbs.type_description_cb = column_hidden_type_description_cb;
     custom_cbs.is_default_cb = column_hidden_is_default_cb;
     custom_cbs.to_str_cb = column_hidden_to_str_cb;
-    prefs_register_string_custom_preference(gui_column_module, PRS_COL_HIDDEN, "Packet list hidden columns",
-        "List all columns to hide in the packet list", &custom_cbs, (const char **)&cols_hidden_list);
+    register_string_like_preference(gui_column_module, PRS_COL_HIDDEN, "Packet list hidden columns",
+        "List all columns to hide in the packet list",
+        &cols_hidden_list, PREF_CUSTOM, &custom_cbs, FALSE);
 
     custom_cbs.free_cb = column_format_free_cb;
     custom_cbs.reset_cb = column_format_reset_cb;
@@ -2176,15 +2166,13 @@ prefs_register_modules(void)
 
     prefs_register_obsolete_preference(gui_font_module, "font_name");
 
-    tmp = prefs.gui_gtk2_font_name;
-    prefs_register_string_preference(gui_font_module, "gtk2.font_name", "Font name",
-        "Font name for packet list, protocol tree, and hex dump panes. (GTK+)", (const char **)&prefs.gui_gtk2_font_name);
-    g_free(tmp);
+    register_string_like_preference(gui_font_module, "gtk2.font_name", "Font name",
+        "Font name for packet list, protocol tree, and hex dump panes. (GTK+)",
+        &prefs.gui_gtk2_font_name, PREF_STRING, NULL, TRUE);
 
-    tmp = prefs.gui_qt_font_name;
-    prefs_register_string_preference(gui_font_module, "qt.font_name", "Font name",
-        "Font name for packet list, protocol tree, and hex dump panes. (Qt)", (const char **)&prefs.gui_qt_font_name);
-    g_free(tmp);
+    register_string_like_preference(gui_font_module, "qt.font_name", "Font name",
+        "Font name for packet list, protocol tree, and hex dump panes. (Qt)",
+        &prefs.gui_qt_font_name, PREF_STRING, NULL, TRUE);
 
     /* User Interface : Colors */
     gui_color_module = prefs_register_subtree(gui_module, "Colors", "Colors", NULL);
@@ -2220,10 +2208,9 @@ prefs_register_modules(void)
     custom_cbs.type_description_cb = colorized_frame_type_description_cb;
     custom_cbs.is_default_cb = colorized_frame_is_default_cb;
     custom_cbs.to_str_cb = colorized_frame_to_str_cb;
-    tmp = prefs.gui_colorized_fg;
-    prefs_register_string_custom_preference(gui_column_module, "colorized_frame.fg", "Colorized Foreground",
-        "Filter Colorized Foreground", &custom_cbs, (const char **)&prefs.gui_colorized_fg);
-    g_free(tmp);
+    register_string_like_preference(gui_column_module, "colorized_frame.fg", "Colorized Foreground",
+        "Filter Colorized Foreground",
+        &prefs.gui_colorized_fg, PREF_CUSTOM, &custom_cbs, TRUE);
 
     custom_cbs.free_cb = free_string_like_preference;
     custom_cbs.reset_cb = reset_string_like_preference;
@@ -2232,10 +2219,9 @@ prefs_register_modules(void)
     custom_cbs.type_description_cb = colorized_frame_type_description_cb;
     custom_cbs.is_default_cb = colorized_frame_is_default_cb;
     custom_cbs.to_str_cb = colorized_frame_to_str_cb;
-    tmp = prefs.gui_colorized_bg;
-    prefs_register_string_custom_preference(gui_column_module, "colorized_frame.bg", "Colorized Background",
-        "Filter Colorized Background", &custom_cbs, (const char **)&prefs.gui_colorized_bg);
-    g_free(tmp);
+    register_string_like_preference(gui_column_module, "colorized_frame.bg", "Colorized Background",
+        "Filter Colorized Background",
+        &prefs.gui_colorized_bg, PREF_CUSTOM, &custom_cbs, TRUE);
 
     prefs_register_color_preference(gui_color_module, "color_filter_bg.valid", "Valid color filter background",
         "Valid color filter background", &prefs.gui_text_valid);
@@ -2263,10 +2249,9 @@ prefs_register_modules(void)
                                    10,
                                    &prefs.gui_recent_df_entries_max);
 
-    tmp = prefs.gui_fileopen_dir;
-    prefs_register_directory_preference(gui_module, "fileopen.dir", "Start Directory",
-        "Directory to start in when opening File Open dialog.", (const char **)&prefs.gui_fileopen_dir);
-    g_free(tmp);
+    register_string_like_preference(gui_module, "fileopen.dir", "Start Directory",
+        "Directory to start in when opening File Open dialog.",
+        &prefs.gui_fileopen_dir, PREF_DIRNAME, NULL, TRUE);
 
     prefs_register_obsolete_preference(gui_module, "fileopen.remembered_dir");
 
@@ -2328,10 +2313,9 @@ prefs_register_modules(void)
                        "Filter Toolbar style",
                        &prefs.gui_toolbar_filter_style, gui_toolbar_style, FALSE);
 
-    tmp = prefs.gui_webbrowser;
-    prefs_register_string_preference(gui_module, "webbrowser", "The path to the webbrowser",
-        "The path to the webbrowser (Ex: mozilla)", (const char **)&prefs.gui_webbrowser);
-    g_free(tmp);
+    register_string_like_preference(gui_module, "webbrowser", "The path to the webbrowser",
+        "The path to the webbrowser (Ex: mozilla)",
+        &prefs.gui_webbrowser, PREF_STRING, NULL, TRUE);
 
     prefs_register_bool_preference(gui_module, "update.enabled",
                                    "Check for updates",
@@ -2349,20 +2333,17 @@ prefs_register_modules(void)
                                    10,
                                    &prefs.gui_update_interval);
 
-    tmp = prefs.gui_window_title;
-    prefs_register_string_preference(gui_module, "window_title", "Custom window title",
-        "Custom window title. (Appended to existing titles.)", (const char **)&prefs.gui_window_title);
-    g_free(tmp);
+    register_string_like_preference(gui_module, "window_title", "Custom window title",
+        "Custom window title. (Appended to existing titles.)",
+        &prefs.gui_window_title, PREF_STRING, NULL, TRUE);
 
-    tmp = prefs.gui_prepend_window_title;
-    prefs_register_string_preference(gui_module, "prepend_window_title", "Custom window title prefix",
-        "Custom window title. (Prepended to existing titles.)", (const char **)&prefs.gui_prepend_window_title);
-    g_free(tmp);
+    register_string_like_preference(gui_module, "prepend_window_title", "Custom window title prefix",
+        "Custom window title. (Prepended to existing titles.)",
+        &prefs.gui_prepend_window_title, PREF_STRING, NULL, TRUE);
 
-    tmp = prefs.gui_start_title;
-    prefs_register_string_preference(gui_module, "start_title", "Custom start page title",
-        "Custom start page title", (const char**)(&prefs.gui_start_title));
-    g_free(tmp);
+    register_string_like_preference(gui_module, "start_title", "Custom start page title",
+        "Custom start page title",
+        &prefs.gui_start_title, PREF_STRING, NULL, TRUE);
 
     prefs_register_enum_preference(gui_module, "version_placement",
                        "Show version in the start page and/or main screen's title bar",
@@ -2457,44 +2438,46 @@ prefs_register_modules(void)
     capture_module = prefs_register_module(NULL, "capture", "Capture",
         "CAPTURE", NULL, FALSE);
 
-    prefs_register_string_preference(capture_module, "device", "Default capture device",
-        "Default capture device", (const char **)&prefs.capture_device);
+    register_string_like_preference(capture_module, "device", "Default capture device",
+        "Default capture device",
+        &prefs.capture_device, PREF_STRING, NULL, FALSE);
 
-    prefs_register_string_preference(capture_module, "devices_linktypes", "Interface link-layer header type",
+    register_string_like_preference(capture_module, "devices_linktypes", "Interface link-layer header type",
         "Interface link-layer header types (Ex: en0(1),en1(143),...)",
-        (const char **)&prefs.capture_devices_linktypes);
+        &prefs.capture_devices_linktypes, PREF_STRING, NULL, FALSE);
 
-    prefs_register_string_preference(capture_module, "devices_descr", "Interface descriptions",
+    register_string_like_preference(capture_module, "devices_descr", "Interface descriptions",
         "Interface descriptions (Ex: eth0(eth0 descr),eth1(eth1 descr),...)",
-        (const char **)&prefs.capture_devices_descr);
+        &prefs.capture_devices_descr, PREF_STRING, NULL, FALSE);
 
-    prefs_register_string_preference(capture_module, "devices_hide", "Hide interface",
-        "Hide interface? (Ex: eth0,eth3,...)", (const char **)&prefs.capture_devices_hide);
+    register_string_like_preference(capture_module, "devices_hide", "Hide interface",
+        "Hide interface? (Ex: eth0,eth3,...)",
+        &prefs.capture_devices_hide, PREF_STRING, NULL, FALSE);
 
-    prefs_register_string_preference(capture_module, "devices_monitor_mode", "Capture in monitor mode",
+    register_string_like_preference(capture_module, "devices_monitor_mode", "Capture in monitor mode",
         "By default, capture in monitor mode on interface? (Ex: eth0,eth3,...)",
-        (const char **)&prefs.capture_devices_monitor_mode);
+        &prefs.capture_devices_monitor_mode, PREF_STRING, NULL, FALSE);
 
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
-    prefs_register_string_preference(capture_module, "devices_buffersize", "Interface buffer size",
+    register_string_like_preference(capture_module, "devices_buffersize", "Interface buffer size",
         "Interface buffer size (Ex: en0(1),en1(143),...)",
-        ((const char **)&prefs.capture_devices_buffersize));
+        &prefs.capture_devices_buffersize, PREF_STRING, NULL, FALSE);
 #endif
 
-    prefs_register_string_preference(capture_module, "devices_snaplen", "Interface snap length",
+    register_string_like_preference(capture_module, "devices_snaplen", "Interface snap length",
         "Interface snap length (Ex: en0(65535),en1(1430),...)",
-        (const char **)&prefs.capture_devices_snaplen);
+        &prefs.capture_devices_snaplen, PREF_STRING, NULL, FALSE);
 
-    prefs_register_string_preference(capture_module, "devices_pmode", "Interface promiscuous mode",
+    register_string_like_preference(capture_module, "devices_pmode", "Interface promiscuous mode",
         "Interface promiscuous mode (Ex: en0(0),en1(1),...)",
-        (const char **)&prefs.capture_devices_pmode);
+        &prefs.capture_devices_pmode, PREF_STRING, NULL, FALSE);
 
     prefs_register_bool_preference(capture_module, "prom_mode", "Capture in promiscuous mode",
         "Capture in promiscuous mode?", &prefs.capture_prom_mode);
 
-    prefs_register_string_preference(capture_module, "devices_filter", "Interface capture filter",
+    register_string_like_preference(capture_module, "devices_filter", "Interface capture filter",
         "Interface capture filter (Ex: en0(tcp),en1(udp),...)",
-        (const char **)&prefs.capture_devices_filter);
+        &prefs.capture_devices_filter, PREF_STRING, NULL, FALSE);
 
     prefs_register_bool_preference(capture_module, "pcap_ng", "Capture in Pcap-NG format",
         "Capture in Pcap-NG format?", &prefs.capture_pcap_ng);
@@ -2544,16 +2527,14 @@ prefs_register_modules(void)
                                    &prefs.pr_dest, print_dest_vals, TRUE);
 
 #ifndef _WIN32
-    tmp = prefs.pr_cmd;
-    prefs_register_string_preference(printing, "command", "Command",
-        "Output gets piped to this command when the destination is set to \"command\"", (const char**)(&prefs.pr_cmd));
-    g_free(tmp);
+    register_string_like_preference(printing, "command", "Command",
+        "Output gets piped to this command when the destination is set to \"command\"",
+        &prefs.pr_cmd, PREF_STRING, NULL, TRUE);
 #endif
 
-    tmp = prefs.pr_file;
-    prefs_register_filename_preference(printing, "file", "File",
-        "This is the file that gets written to when the destination is set to \"file\"", (const char**)(&prefs.pr_file));
-    g_free(tmp);
+    register_string_like_preference(printing, "file", "File",
+        "This is the file that gets written to when the destination is set to \"file\"",
+        &prefs.pr_file, PREF_FILENAME, NULL, TRUE);
 
     /* Statistics */
     stats_module = prefs_register_module(NULL, "statistics", "Statistics",

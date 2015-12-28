@@ -117,7 +117,7 @@ pref_unstash(pref_t *pref, gpointer changed_p)
   case PREF_DIRNAME:
     if (strcmp(*pref->varp.string, pref->stashed_val.string) != 0) {
       *pref_changed_p = TRUE;
-      g_free((void *)*pref->varp.string);
+      g_free(*pref->varp.string);
       *pref->varp.string = g_strdup(pref->stashed_val.string);
     }
     break;
@@ -300,7 +300,7 @@ prefs_store_ext(const char * module_name, const char *pref_name, const char *pre
     if (strcmp(*pref->varp.string, pref->stashed_val.string) != 0)
     {
       pref_changed = TRUE;
-      g_free((void *)*pref->varp.string);
+      g_free(*pref->varp.string);
       *pref->varp.string = g_strdup(pref->stashed_val.string);
     }
   }
