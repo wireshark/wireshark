@@ -373,8 +373,8 @@ stats_tree_get_cfg_by_abbr(const char *abbr)
 static gint
 compare_stat_menu_item(gconstpointer stat_a, gconstpointer stat_b)
 {
-    stats_tree_cfg* stat_cfg_a = (stats_tree_cfg*)stat_a;
-    stats_tree_cfg* stat_cfg_b = (stats_tree_cfg*)stat_b;
+    const stats_tree_cfg* stat_cfg_a = (const stats_tree_cfg*)stat_a;
+    const stats_tree_cfg* stat_cfg_b = (const stats_tree_cfg*)stat_b;
 
     return strcmp(stat_cfg_a->name, stat_cfg_b->name);
 }

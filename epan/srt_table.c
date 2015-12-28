@@ -200,8 +200,8 @@ void srt_table_dissector_init(register_srt_t* srt, GArray* srt_array, srt_gui_in
 static gint
 insert_sorted_by_table_name(gconstpointer aparam, gconstpointer bparam)
 {
-    const register_srt_t *a = (register_srt_t *)aparam;
-    const register_srt_t *b = (register_srt_t *)bparam;
+    const register_srt_t *a = (const register_srt_t *)aparam;
+    const register_srt_t *b = (const register_srt_t *)bparam;
 
     return g_ascii_strcasecmp(proto_get_protocol_short_name(find_protocol_by_id(a->proto_id)), proto_get_protocol_short_name(find_protocol_by_id(b->proto_id)));
 }

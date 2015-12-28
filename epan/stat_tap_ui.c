@@ -133,8 +133,8 @@ static GSList *registered_stat_tables = NULL;
 static gint
 insert_sorted_by_cli_string(gconstpointer aparam, gconstpointer bparam)
 {
-    const new_stat_tap_ui *a = (new_stat_tap_ui *)aparam;
-    const new_stat_tap_ui *b = (new_stat_tap_ui *)bparam;
+    const new_stat_tap_ui *a = (const new_stat_tap_ui *)aparam;
+    const new_stat_tap_ui *b = (const new_stat_tap_ui *)bparam;
 
     return g_ascii_strcasecmp(a->cli_string, b->cli_string);
 }

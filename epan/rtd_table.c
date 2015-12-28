@@ -71,8 +71,8 @@ static GSList *registered_rtd_tables = NULL;
 static gint
 insert_sorted_by_table_name(gconstpointer aparam, gconstpointer bparam)
 {
-    const register_rtd_t *a = (register_rtd_t *)aparam;
-    const register_rtd_t *b = (register_rtd_t *)bparam;
+    const register_rtd_t *a = (const register_rtd_t *)aparam;
+    const register_rtd_t *b = (const register_rtd_t *)bparam;
 
     return g_ascii_strcasecmp(proto_get_protocol_short_name(find_protocol_by_id(a->proto_id)), proto_get_protocol_short_name(find_protocol_by_id(b->proto_id)));
 }
