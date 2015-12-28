@@ -1740,7 +1740,7 @@ dissect_fastmsg_readresp_frame(tvbuff_t *tvb, proto_tree *fastmsg_tree, packet_i
             /* Start at front of list and cycle through possible instances of multiple fastmsg_dataitem frames, looking for match */
             wmem_list_frame_t *frame = wmem_list_head(conv->fastmsg_dataitems);
 
-            while (frame) {
+            while (frame && (tvb_reported_length_remaining(payload_tvb, payload_offset) > 0)) {
                 dataitem = (fastmsg_dataitem *)wmem_list_frame_data(frame);
 
                 /* If the stored base address of the current data item matches the current base address of this response frame */
@@ -2573,10 +2573,9 @@ get_selfm_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_, void *data 
 {
     guint message_len=0;  /* message length, inclusive of header, data, crc */
 
-    /* XXX: this logic doesn't take into account the offset */
     /* Get length byte from message */
     if (tvb_reported_length(tvb) > 2) {
-        message_len = tvb_get_guint8(tvb, 2);
+        message_len = tvb_get_guint8(tvb, offset+2);
     }
     /* for 2-byte poll messages, set the length to 2 */
     else if (tvb_reported_length(tvb) == 2) {
@@ -2614,25 +2613,6 @@ dissect_selfm_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     tcp_dissect_pdus(selfm_tvb, pinfo, tree, selfm_desegment, 2,
                    get_selfm_len, dissect_selfm, data);
-
-    return length;
-}
-
-/******************************************************************************************************/
-/* Dissect "simple" SEL protocol payload (no TCP re-assembly) */
-/******************************************************************************************************/
-static int
-dissect_selfm_simple(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
-{
-    gint length = tvb_reported_length(tvb);
-
-    /* Check for a SEL Protocol packet.  It should begin with 0xA5 */
-    if(length < 2 || tvb_get_guint8(tvb, 0) != 0xA5) {
-        /* Not a SEL Protocol packet, just happened to use the same port */
-        return 0;
-    }
-
-    dissect_selfm(tvb, pinfo, tree, data);
 
     return length;
 }
@@ -3018,7 +2998,7 @@ proto_register_selfm(void)
     proto_selfm = proto_register_protocol("SEL Protocol", "SEL Protocol", "selfm");
 
     /* Registering protocol to be called by another dissector */
-    register_dissector("selfm", dissect_selfm_simple, proto_selfm);
+    register_dissector("selfm", dissect_selfm_tcp, proto_selfm);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_selfm, selfm_hf, array_length(selfm_hf));
