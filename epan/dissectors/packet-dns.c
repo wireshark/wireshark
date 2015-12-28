@@ -4044,7 +4044,7 @@ static void dns_stats_tree_init(stats_tree* st)
 
 static int dns_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
 {
-    struct DnsTap *pi = (struct DnsTap *)p;
+    const struct DnsTap *pi = (const struct DnsTap *)p;
     tick_stat_node(st, st_str_packets, 0, FALSE);
     stats_tree_tick_pivot(st, st_node_packet_qr,
             val_to_str(pi->packet_qr, dns_qr_vals, "Unknown qr (%d)"));

@@ -2830,13 +2830,13 @@ static void rtps_util_store_type_mapping(tvbuff_t *tvb, gint offset,
   }
 }
 static guint hash_by_guid(gconstpointer key) {
-  endpoint_guid * guid = (endpoint_guid *) key;
+  const endpoint_guid * guid = (const endpoint_guid *) key;
   return g_int_hash(&(guid->app_id));
 }
 
 static gboolean compare_by_guid(gconstpointer a, gconstpointer b) {
-  endpoint_guid * guid_a = (endpoint_guid *) a;
-  endpoint_guid * guid_b = (endpoint_guid *) b;
+  const endpoint_guid * guid_a = (const endpoint_guid *) a;
+  const endpoint_guid * guid_b = (const endpoint_guid *) b;
   return memcmp(guid_a, guid_b, sizeof(endpoint_guid)) == 0;
 }
 

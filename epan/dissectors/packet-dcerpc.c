@@ -1078,7 +1078,7 @@ dcerpc_fragment_temporary_key(const packet_info *pinfo, const guint32 id,
                               const void *data)
 {
     dcerpc_fragment_key *key = g_slice_new(dcerpc_fragment_key);
-    e_dce_dg_common_hdr_t *hdr = (e_dce_dg_common_hdr_t *)data;
+    const e_dce_dg_common_hdr_t *hdr = (const e_dce_dg_common_hdr_t *)data;
 
     key->src = pinfo->src;
     key->dst = pinfo->dst;
@@ -1094,7 +1094,7 @@ dcerpc_fragment_persistent_key(const packet_info *pinfo, const guint32 id,
                                const void *data)
 {
     dcerpc_fragment_key *key = g_slice_new(dcerpc_fragment_key);
-    e_dce_dg_common_hdr_t *hdr = (e_dce_dg_common_hdr_t *)data;
+    const e_dce_dg_common_hdr_t *hdr = (const e_dce_dg_common_hdr_t *)data;
 
     copy_address(&key->src, &pinfo->src);
     copy_address(&key->dst, &pinfo->dst);
@@ -1939,7 +1939,7 @@ dcerpcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const 
     guint i = 0;
     srt_stat_table *dcerpc_srt_table;
     srt_data_t *data = (srt_data_t *)pss;
-    const dcerpc_info *ri = (dcerpc_info *)prv;
+    const dcerpc_info *ri = (const dcerpc_info *)prv;
     dcerpcstat_tap_data_t* tap_data;
 
     dcerpc_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);

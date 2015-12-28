@@ -289,7 +289,7 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 {
 	rtd_data_t* rtd_data = (rtd_data_t*)prs;
 	rtd_stat_table* rs = &rtd_data->stat_table;
-	const radius_info_t *ri = (radius_info_t *)pri;
+	const radius_info_t *ri = (const radius_info_t *)pri;
 	nstime_t delta;
 	radius_category radius_cat = RADIUS_CAT_OTHERS;
 	int ret = 0;

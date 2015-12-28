@@ -1518,7 +1518,7 @@ static GHashTable *epl_duplication_table = NULL;
 static guint
 epl_duplication_hash(gconstpointer k)
 {
-	duplication_key *key = (duplication_key*)k;
+	const duplication_key *key = (const duplication_key*)k;
 	guint hash;
 
 	hash = ((key->src)<<24) | ((key->dest)<<16)|
@@ -1531,8 +1531,8 @@ epl_duplication_hash(gconstpointer k)
 static gint
 epl_duplication_equal(gconstpointer k1, gconstpointer k2)
 {
-	duplication_key *key1 = (duplication_key*)k1;
-	duplication_key *key2 = (duplication_key*)k2;
+	const duplication_key *key1 = (const duplication_key*)k1;
+	const duplication_key *key2 = (const duplication_key*)k2;
 	gint hash;
 
 	hash = (key1->src == key2->src)&&(key1->dest == key2->dest)&&

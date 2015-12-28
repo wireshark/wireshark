@@ -128,8 +128,8 @@ register_ct_t* get_conversation_by_proto_id(int proto_id)
 static gint
 insert_sorted_by_table_name(gconstpointer aparam, gconstpointer bparam)
 {
-    const register_ct_t *a = (register_ct_t *)aparam;
-    const register_ct_t *b = (register_ct_t *)bparam;
+    const register_ct_t *a = (const register_ct_t *)aparam;
+    const register_ct_t *b = (const register_ct_t *)bparam;
 
     return g_ascii_strcasecmp(proto_get_protocol_short_name(find_protocol_by_id(a->proto_id)), proto_get_protocol_short_name(find_protocol_by_id(b->proto_id)));
 }

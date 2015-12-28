@@ -788,7 +788,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 static int devicenet_addr_to_str(const address* addr, gchar *buf, int buf_len _U_)
 {
-    guint8 addrdata = *((guint8*)addr->data) & 0x3F;
+    guint8 addrdata = *((const guint8*)addr->data) & 0x3F;
     gchar *start_buf = buf;
 
     buf = uint_to_str_back(buf, addrdata);

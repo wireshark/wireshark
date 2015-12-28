@@ -219,7 +219,7 @@ static void hpfeeds_stats_tree_init(stats_tree* st)
 
 static int hpfeeds_stats_tree_packet(stats_tree* st _U_, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* p)
 {
-    struct HpfeedsTap *pi = (struct HpfeedsTap *)p;
+    const struct HpfeedsTap *pi = (const struct HpfeedsTap *)p;
     wmem_list_frame_t* head = wmem_list_head(channels_list);
     wmem_list_frame_t* cur = head;
     struct channel_node* ch_node;
