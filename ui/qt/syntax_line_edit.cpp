@@ -183,19 +183,17 @@ void SyntaxLineEdit::checkFieldName(QString field)
 
 void SyntaxLineEdit::checkCustomColumn(QString fields)
 {
-    gchar **splitted_fields;
-    guint    i_field;
     if (fields.isEmpty()) {
         setSyntaxState(SyntaxLineEdit::Empty);
         return;
     }
 
-    splitted_fields = g_regex_split_simple(COL_CUSTOM_PRIME_REGEX,
+    gchar **splitted_fields = g_regex_split_simple(COL_CUSTOM_PRIME_REGEX,
                 fields.toUtf8().constData(), G_REGEX_ANCHORED, G_REGEX_MATCH_ANCHORED);
 
-    for (i_field =0; i_field < g_strv_length(splitted_fields); i_field += 1) {
-        if (splitted_fields[i_field] && *splitted_fields[i_field]) {
-            if (proto_check_field_name(splitted_fields[i_field]) != 0) {
+    for (guint i = 0; i < g_strv_length(splitted_fields); i++) {
+        if (splitted_fields[i] && *splitted_fields[i]) {
+            if (proto_check_field_name(splitted_fields[i]) != 0) {
                 setSyntaxState(SyntaxLineEdit::Invalid);
                 g_strfreev(splitted_fields);
                 return;
