@@ -133,7 +133,7 @@ public:
             status = "Marker missing?";
             bg_color = color_rtp_warn_;
         } else if (statinfo->flags & STAT_FLAG_PT_T_EVENT) {
-            status = QString("PT=%u telephone/event").arg(statinfo->pt);
+            status = QString("PT=%1 telephone/event").arg(statinfo->pt);
             /* XXX add color? */
             bg_color = color_pt_event_;
         } else {
