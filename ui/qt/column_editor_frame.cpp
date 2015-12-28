@@ -64,7 +64,7 @@ void ColumnEditorFrame::setFields(int index)
 
     if (index == COL_CUSTOM) {
         ui->fieldNameLineEdit->setText(saved_field_);
-        ui->fieldNameLineEdit->checkFieldName(saved_field_);
+        ui->fieldNameLineEdit->checkCustomColumn(saved_field_);
         ui->occurrenceLineEdit->setText(saved_occurrence_);
         ui->occurrenceLineEdit->checkInteger(saved_occurrence_);
         if ((ui->fieldNameLineEdit->syntaxState() != SyntaxLineEdit::Valid) ||
@@ -97,7 +97,7 @@ void ColumnEditorFrame::on_typeComboBox_activated(int index)
 
 void ColumnEditorFrame::on_fieldNameLineEdit_textEdited(const QString &field)
 {
-    ui->fieldNameLineEdit->checkFieldName(field);
+    ui->fieldNameLineEdit->checkCustomColumn(field);
     if (ui->typeComboBox->currentIndex() != COL_CUSTOM) {
         ui->typeComboBox->setCurrentIndex(COL_CUSTOM);
         ui->occurrenceLineEdit->setText(saved_occurrence_);

@@ -26,6 +26,7 @@
 #include <epan/prefs.h>
 #include <epan/proto.h>
 #include <epan/dfilter/dfilter.h>
+#include <epan/column-info.h>
 
 #include "syntax_line_edit.h"
 
@@ -178,6 +179,30 @@ void SyntaxLineEdit::checkFieldName(QString field)
     } else {
         checkDisplayFilter(field);
     }
+}
+
+void SyntaxLineEdit::checkCustomColumn(QString fields)
+{
+    if (fields.isEmpty()) {
+        setSyntaxState(SyntaxLineEdit::Empty);
+        return;
+    }
+
+    gchar **splitted_fields = g_regex_split_simple(COL_CUSTOM_PRIME_REGEX,
+                fields.toUtf8().constData(), G_REGEX_ANCHORED, G_REGEX_MATCH_ANCHORED);
+
+    for (guint i = 0; i < g_strv_length(splitted_fields); i++) {
+        if (splitted_fields[i] && *splitted_fields[i]) {
+            if (proto_check_field_name(splitted_fields[i]) != 0) {
+                setSyntaxState(SyntaxLineEdit::Invalid);
+                g_strfreev(splitted_fields);
+                return;
+            }
+        }
+    }
+    g_strfreev(splitted_fields);
+
+    checkDisplayFilter(fields);
 }
 
 void SyntaxLineEdit::checkInteger(QString number)

@@ -274,7 +274,7 @@ void ColumnPreferencesFrame::on_columnTreeWidget_itemActivated(QTreeWidgetItem *
         SyntaxLineEdit *syntax_edit = new SyntaxLineEdit();
         saved_col_string_ = item->text(custom_field_col_);
         connect(syntax_edit, SIGNAL(textChanged(QString)),
-                syntax_edit, SLOT(checkFieldName(QString)));
+                syntax_edit, SLOT(checkCustomColumn(QString)));
         connect(syntax_edit, SIGNAL(editingFinished()), this, SLOT(customFieldEditingFinished()));
         editor = cur_line_edit_ = syntax_edit;
 
