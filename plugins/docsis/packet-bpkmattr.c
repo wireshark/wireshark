@@ -432,7 +432,7 @@ proto_register_docsis_bpkmattr (void)
     },
 #endif
     {&hf_docsis_bpkmattr_cbc_iv,
-     {"14 CBC IV", "docsis_bpkmattr.cbciv",
+     {"15 CBC IV", "docsis_bpkmattr.cbciv",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "Cypher Block Chaining", HFILL}
     },
