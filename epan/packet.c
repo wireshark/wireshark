@@ -2156,7 +2156,7 @@ has_heur_dissector_list(const gchar *name) {
 
 heur_dtbl_entry_t* find_heur_dissector_by_unique_short_name(const char *short_name)
 {
-	return (heur_dtbl_entry_t*)g_hash_table_lookup(heuristic_short_names, (gpointer)short_name);
+	return (heur_dtbl_entry_t*)g_hash_table_lookup(heuristic_short_names, short_name);
 }
 
 void
@@ -2205,7 +2205,7 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, const char *dis
 	}
 
 	/* Ensure short_name is unique */
-	if (g_hash_table_lookup(heuristic_short_names, (gpointer)short_name) != NULL) {
+	if (g_hash_table_lookup(heuristic_short_names, short_name) != NULL) {
 		g_error("Duplicate heuristic short_name \"%s\"!"
 			" This might be caused by an inappropriate plugin or a development error.", short_name);
 	}

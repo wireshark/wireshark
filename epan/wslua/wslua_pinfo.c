@@ -97,7 +97,7 @@ static int PrivateTable__index(lua_State* L) {
     const gchar* name = luaL_checkstring(L,2);
     const gchar* string;
 
-    string = (const gchar *)(g_hash_table_lookup (priv->table, (gpointer) name));
+    string = (const gchar *)(g_hash_table_lookup (priv->table, name));
 
     if (string) {
         lua_pushstring(L, string);

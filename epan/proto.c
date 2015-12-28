@@ -5321,7 +5321,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	}
 	g_hash_table_insert(proto_names, key, (gpointer)name);
 
-	existing_protocol = (const protocol_t *)g_hash_table_lookup(proto_short_names, (gpointer)short_name);
+	existing_protocol = (const protocol_t *)g_hash_table_lookup(proto_short_names, short_name);
 	if (existing_protocol != NULL) {
 		g_error("Duplicate protocol short_name \"%s\"!"
 			" This might be caused by an inappropriate plugin or a development error.", short_name);
@@ -5339,7 +5339,7 @@ proto_register_protocol(const char *name, const char *short_name,
 			" Allowed are lower characters, digits, '-', '_' and '.'."
 			" This might be caused by an inappropriate plugin or a development error.", filter_name);
 	}
-	existing_protocol = (const protocol_t *)g_hash_table_lookup(proto_filter_names, (gpointer)filter_name);
+	existing_protocol = (const protocol_t *)g_hash_table_lookup(proto_filter_names, filter_name);
 	if (existing_protocol != NULL) {
 		g_error("Duplicate protocol filter_name \"%s\"!"
 			" This might be caused by an inappropriate plugin or a development error.", filter_name);
@@ -5533,7 +5533,7 @@ proto_get_id_by_filter_name(const gchar *filter_name)
 
 	DISSECTOR_ASSERT_HINT(filter_name, "No filter name present");
 
-	protocol = (const protocol_t *)g_hash_table_lookup(proto_filter_names, (gpointer)filter_name);
+	protocol = (const protocol_t *)g_hash_table_lookup(proto_filter_names, filter_name);
 
 	if (protocol == NULL)
 		return -1;
@@ -5547,7 +5547,7 @@ proto_get_id_by_short_name(const gchar *short_name)
 
 	DISSECTOR_ASSERT_HINT(short_name, "No short name present");
 
-	protocol = (const protocol_t *)g_hash_table_lookup(proto_short_names, (gpointer)short_name);
+	protocol = (const protocol_t *)g_hash_table_lookup(proto_short_names, short_name);
 
 	if (protocol == NULL)
 		return -1;
