@@ -65,25 +65,29 @@ void proto_reg_handoff_ipv6(void);
 #define IPv6_HDR_TCLS(ipv6)     ((guint8)(g_ntohl((ipv6)->ip6_flow) >> 20))
 
 /* Option types and related macros */
-#define IP6OPT_PAD1                     0x00    /* 00 0 00000 */
-#define IP6OPT_PADN                     0x01    /* 00 0 00001 */
-#define IP6OPT_TEL                      0x04    /* 00 0 00100 */
-#define IP6OPT_RTALERT                  0x05    /* 00 0 00101 */
-#define IP6OPT_CALIPSO                  0x07    /* 00 0 00111 */
-#define IP6OPT_QUICKSTART               0x26    /* 00 1 00110 */
-#define IP6OPT_ENDI                     0x8A    /* 10 0 01010 */
-#define IP6OPT_EXP_1E                   0x1E    /* 00 0 11110 */
-#define IP6OPT_EXP_3E                   0x3E    /* 00 1 11110 */
-#define IP6OPT_EXP_5E                   0x5E    /* 01 0 11110 */
-#define IP6OPT_RPL                      0x63    /* 01 1 00011 */
-#define IP6OPT_MPL                      0x6D    /* 01 1 01101 */
-#define IP6OPT_EXP_7E                   0x7E    /* 01 1 11110 */
-#define IP6OPT_EXP_9E                   0x9E    /* 10 0 11110 */
-#define IP6OPT_EXP_BE                   0xBE    /* 10 1 11110 */
+#define IP6OPT_PAD1                     0x00    /* 00 0 00000 =   0 */
+#define IP6OPT_PADN                     0x01    /* 00 0 00001 =   1 */
+#define IP6OPT_TEL                      0x04    /* 00 0 00100 =   4 */
+#define IP6OPT_RTALERT                  0x05    /* 00 0 00101 =   5 */
+#define IP6OPT_CALIPSO                  0x07    /* 00 0 00111 =   7 */
+#define IP6OPT_SMF_DPD                  0x08    /* 00 0 01000 =   8 */
+#define IP6OPT_EXP_1E                   0x1E    /* 00 0 11110 =  30 */
+#define IP6OPT_QUICKSTART               0x26    /* 00 1 00110 =  38 */
+#define IP6OPT_EXP_3E                   0x3E    /* 00 1 11110 =  62 */
+#define IP6OPT_EXP_5E                   0x5E    /* 01 0 11110 =  94 */
+#define IP6OPT_RPL                      0x63    /* 01 1 00011 =  99 */
+#define IP6OPT_MPL                      0x6D    /* 01 1 01101 = 109 */
+#define IP6OPT_EXP_7E                   0x7E    /* 01 1 11110 = 126 */
+#define IP6OPT_ENDI                     0x8A    /* 10 0 01010 = 138 */
+#define IP6OPT_ILNP_NONCE               0x8B    /* 10 0 01011 = 139 */
+#define IP6OPT_LIO                      0x8C    /* 10 0 01100 = 140 */
+#define IP6OPT_EXP_9E                   0x9E    /* 10 0 11110 = 158 */
+#define IP6OPT_EXP_BE                   0xBE    /* 10 1 11110 = 190 */
 #define IP6OPT_JUMBO                    0xC2    /* 11 0 00010 = 194 */
-#define IP6OPT_HOME_ADDRESS             0xC9    /* 11 0 01001 */
-#define IP6OPT_EXP_DE                   0xDE    /* 11 0 11110 */
-#define IP6OPT_EXP_FE                   0xFE    /* 11 1 11110 */
+#define IP6OPT_HOME_ADDRESS             0xC9    /* 11 0 01001 = 201 */
+#define IP6OPT_EXP_DE                   0xDE    /* 11 0 11110 = 222 */
+#define IP6OPT_IP_DFF                   0xEE    /* 11 1 01110 = 238 */
+#define IP6OPT_EXP_FE                   0xFE    /* 11 1 11110 = 254 */
 
 #define IP6OPT_RTALERT_MLD              0       /* Datagram contains MLD msg */
 #define IP6OPT_RTALERT_RSVP             1       /* Datagram contains RSVP msg */
@@ -496,30 +500,34 @@ static gboolean ipv6_exthdr_under_root = FALSE;
  */
 static reassembly_table ipv6_reassembly_table;
 
-/* http://www.iana.org/assignments/icmpv6-parameters (last updated 2012-12-22) */
+/* http://www.iana.org/assignments/ipv6-parameters (last updated 2015-07-07) */
 static const value_string ipv6_opt_vals[] = {
-    { IP6OPT_PAD1,         "Pad1" },
-    { IP6OPT_PADN,         "PadN" },
-    { IP6OPT_TEL,          "Tunnel Encapsulation Limit" },
-    { IP6OPT_RTALERT,      "Router Alert" },
-    { IP6OPT_CALIPSO,      "Calipso" },
-    { IP6OPT_QUICKSTART,   "Quick Start" },
-    { IP6OPT_ENDI,         "Endpoint Identification" },
-    { IP6OPT_EXP_1E,       "Experimental (0x1E)" },
-    { IP6OPT_EXP_3E,       "Experimental (0x3E)" },
-    { IP6OPT_EXP_5E,       "Experimental (0x5E)" },
-    { IP6OPT_RPL,          "RPL Option" },
-    { IP6OPT_MPL,          "MPL Option" },
-    { IP6OPT_EXP_7E,       "Experimental (0x7E)" },
-    { IP6OPT_EXP_9E,       "Experimental (0x9E)" },
-    { IP6OPT_EXP_BE,       "Experimental (0xBE)" },
-    { IP6OPT_JUMBO,        "Jumbo Payload" },
-    { IP6OPT_HOME_ADDRESS, "Home Address" },
-    { IP6OPT_EXP_DE,       "Experimental (0xDE)" },
-    { IP6OPT_EXP_FE,       "Experimental (0xFE)" },
+    { IP6OPT_PAD1,          "Pad1"                          },
+    { IP6OPT_PADN,          "PadN"                          },
+    { IP6OPT_TEL,           "Tunnel Encapsulation Limit"    },
+    { IP6OPT_RTALERT,       "Router Alert"                  },
+    { IP6OPT_CALIPSO,       "CALIPSO"                       },
+    { IP6OPT_SMF_DPD,       "SMF_DPD"                       },
+    { IP6OPT_EXP_1E,        "Experimental (0x1E)"           },
+    { IP6OPT_QUICKSTART,    "Quick-Start"                   },
+    { IP6OPT_EXP_3E,        "Experimental (0x3E)"           },
+    { IP6OPT_EXP_5E,        "Experimental (0x5E)"           },
+    { IP6OPT_RPL,           "RPL Option"                    },
+    { IP6OPT_MPL,           "MPL Option"                    },
+    { IP6OPT_EXP_7E,        "Experimental (0x7E)"           },
+    { IP6OPT_ENDI,          "Endpoint Identification"       },
+    { IP6OPT_ILNP_NONCE,    "ILNP Nonce"                    },
+    { IP6OPT_LIO,           "Line-Identification Option"    },
+    { IP6OPT_EXP_9E,        "Experimental (0x9E)"           },
+    { IP6OPT_EXP_BE,        "Experimental (0xBE)"           },
+    { IP6OPT_JUMBO,         "Jumbo Payload"                 },
+    { IP6OPT_HOME_ADDRESS,  "Home Address"                  },
+    { IP6OPT_EXP_DE,        "Experimental (0xDE)"           },
+    { IP6OPT_IP_DFF,        "IP_DFF"                        },
+    { IP6OPT_EXP_FE,        "Experimental (0xFE)"           },
     { 0, NULL }
 };
-
+value_string_ext ipv6_opt_vals_ext = VALUE_STRING_EXT_INIT(ipv6_opt_vals);
 
 gboolean
 capture_ipv6(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header _U_)
@@ -1143,7 +1151,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, co
         opt_type = tvb_get_guint8(tvb, offset);
 
         /* Add option name to option root label */
-        proto_item_append_text(ti_opt, " (%s", val_to_str(opt_type, ipv6_opt_vals, "Unknown %d"));
+        proto_item_append_text(ti_opt, " (%s", val_to_str_ext(opt_type, &ipv6_opt_vals_ext, "Unknown %u"));
 
         /* The Pad1 option is a special case, and contains no data. */
         if (opt_type == IP6OPT_PAD1) {
@@ -2693,7 +2701,7 @@ proto_register_ipv6(void)
         },
         { &hf_ipv6_opt_type,
             { "Type", "ipv6.opt.type",
-                FT_UINT8, BASE_DEC, VALS(ipv6_opt_vals), 0x0,
+                FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipv6_opt_vals_ext, 0x0,
                 "Option type", HFILL }
         },
         { &hf_ipv6_opt_length,
