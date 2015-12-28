@@ -46,21 +46,21 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 	guint32	addr;
 	unsigned int nmask_bits;
 
-	const char *has_slash, *net_str;
-	char *addr_str;
+	const char *slash, *net_str;
+	const char *addr_str;
+	char *addr_str_to_free = NULL;
 	fvalue_t *nmask_fvalue;
-	gboolean free_addr_str = FALSE;
 
 	/* Look for CIDR: Is there a single slash in the string? */
-	has_slash = strchr(s, '/');
-	if (has_slash) {
+	slash = strchr(s, '/');
+	if (slash) {
 		/* Make a copy of the string up to but not including the
 		 * slash; that's the address portion. */
-		addr_str = wmem_strndup(NULL, s, has_slash - s);
-		free_addr_str = TRUE;
+		addr_str_to_free = wmem_strndup(NULL, s, slash - s);
+		addr_str = addr_str_to_free;
 	}
 	else {
-		addr_str = (char*)s;
+		addr_str = s;
 	}
 
 	if (!get_host_ipaddr(addr_str, &addr)) {
@@ -68,19 +68,19 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 			*err_msg = g_strdup_printf("\"%s\" is not a valid hostname or IPv4 address.",
 			    addr_str);
 		}
-		if (free_addr_str)
-			wmem_free(NULL, addr_str);
+		if (addr_str_to_free)
+			wmem_free(NULL, addr_str_to_free);
 		return FALSE;
 	}
 
-	if (free_addr_str)
-		wmem_free(NULL, addr_str);
+	if (addr_str_to_free)
+		wmem_free(NULL, addr_str_to_free);
 	ipv4_addr_set_net_order_addr(&(fv->value.ipv4), addr);
 
 	/* If CIDR, get netmask bits. */
-	if (has_slash) {
+	if (slash) {
 		/* Skip past the slash */
-		net_str = has_slash + 1;
+		net_str = slash + 1;
 
 		/* XXX - this is inefficient */
 		nmask_fvalue = fvalue_from_unparsed(FT_UINT32, net_str, FALSE, err_msg);
