@@ -53,6 +53,12 @@
  *   Stage 3
  *   (3GPP TS 24.008 version 12.10.0 Release 12)
  *
+ *   Reference [13]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 13.4.0 Release 13)
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -191,6 +197,7 @@ static const value_string gsm_gm_elem_strings[] = {
 	{ DE_PTMSI_TYPE,		 "P-TMSI type" },
 	{ DE_LAI_2,			 "Location Area Identification 2" },
 	{ DE_NET_RES_ID_CONT,		 "Network resource identifier container" },
+	{ DE_EXT_DRX_PARAMS,		 "Extended DRX parameters" },
 	/* Session Management Information Elements 10.5.6 */
 	{ DE_ACC_POINT_NAME,		 "Access Point Name" },
 	{ DE_NET_SAPI,			 "Network Service Access Point Identifier" },
@@ -213,6 +220,7 @@ static const value_string gsm_gm_elem_strings[] = {
 	{ DE_SM_NOTIF_IND,		 "Notification indicator" },
 	{ DE_SM_CONNECTIVITY_TYPE,	 "Connectivity type" },
 	{ DE_SM_WLAN_OFFLOAD_ACCEPT,	 "WLAN offload acceptability" },
+	{ DE_NBIFOM_CONT,		 "NBIFOM container" },
 	/* GPRS Common Information Elements 10.5.7 */
 	{ DE_PDP_CONTEXT_STAT,		 "PDP Context Status" },
 	{ DE_RAD_PRIO,			 "Radio Priority" },
@@ -347,6 +355,8 @@ static int hf_gsm_a_gm_ue_usage_setting = -1;
 static int hf_gsm_a_gm_voice_domain_pref_for_eutran = -1;
 static int hf_gsm_a_gm_ptmsi_type = -1;
 static int hf_gsm_a_gm_nri_cont = -1;
+static int hf_gsm_a_gm_paging_time_window = -1;
+static int hf_gsm_a_gm_edrx_value = -1;
 static int hf_gsm_a_sm_pdp_type_org = -1;
 static int hf_gsm_a_sm_qos_mean_thr = -1;
 static int hf_gsm_a_sm_qos_peak_thr = -1;
@@ -367,6 +377,7 @@ static int hf_gsm_a_sm_qos_max_bitrate_downl_ext2 = -1;
 static int hf_gsm_a_sm_qos_guar_bitrate_upl_ext2 = -1;
 static int hf_gsm_a_sm_qos_guar_bitrate_downl_ext2 = -1;
 static int hf_gsm_a_sm_qos_maximum_sdu_size = -1;
+static int hf_gsm_a_sm_eplmnc = -1;
 static int hf_gsm_a_sm_ratc = -1;
 static int hf_gsm_a_sm_cause = -1;
 static int hf_gsm_a_sm_cause_2 = -1;
@@ -380,6 +391,7 @@ static int hf_gsm_a_sm_notif_ind = -1;
 static int hf_gsm_a_sm_connectivity_type = -1;
 static int hf_gsm_a_sm_wlan_utran_offload_accept = -1;
 static int hf_gsm_a_sm_wlan_eutran_offload_accept = -1;
+static int hf_gsm_a_sm_nbifom_cont = -1;
 static int hf_gsm_a_gm_rac_ctrled_early_cm_sending = -1;
 static int hf_gsm_a_gm_rac_pseudo_sync = -1;
 static int hf_gsm_a_gm_rac_vgcs = -1;
@@ -499,6 +511,7 @@ static int hf_gsm_a_gm_sm_pco_reject_code = -1;
 static int hf_gsm_a_gm_sm_pco_prefix_length = -1;
 static int hf_gsm_a_gm_sm_pco_ipv4 = -1;
 static int hf_gsm_a_gm_sm_pco_ipv4_link_mtu_size = -1;
+static int hf_gsm_a_gm_sm_pco_nbifom_mode = -1;
 static int hf_gsm_a_gm_sm_pco_sel_bearer_ctrl_mode = -1;
 static int hf_gsm_a_sm_pdp_type_number = -1;
 static int hf_gsm_a_sm_pdp_address = -1;
@@ -3656,6 +3669,55 @@ de_gmm_net_res_id_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 	return len;
 }
 
+/* [13] 10.5.5.32 Extended DRX parameters */
+static const value_string gsm_a_gm_paging_time_window_vals[] = {
+	{0x0,	"0 second"},
+	{0x1,	"1 second"},
+	{0x2,	"2 seconds"},
+	{0x3,	"3 seconds"},
+	{0x4,	"4 seconds"},
+	{0x5,	"5 seconds"},
+	{0x6,	"6 seconds"},
+	{0x7,	"7 seconds"},
+	{0x8,	"8 seconds"},
+	{0x9,	"9 seconds"},
+	{0xa,	"10 seconds"},
+	{0xb,	"12 seconds"},
+	{0xc,	"14 seconds"},
+	{0xd,	"16 seconds"},
+	{0xe,	"18 seconds"},
+	{0xf,	"20 seconds"},
+	{  0,	NULL }
+};
+
+static const value_string gsm_a_gm_edrx_vals[] = {
+	{0x0,	"GERAN: 1.88 s / UTRAN: 10.24 s / E-UTRAN: 5.12 s"},
+	{0x1,	"GERAN: 3.76 s / UTRAN: 20.48 s / E-UTRAN: 10.24 s"},
+	{0x2,	"GERAN: 7.53 s / UTRAN: 40.96 s / E-UTRAN: 20.48 s"},
+	{0x3,	"GERAN: 12.24 s / UTRAN: 81.92 s / E-UTRAN: 40.96 s"},
+	{0x4,	"GERAN: 24.48 s / UTRAN: 163.84 s / E-UTRAN: 81.92 s"},
+	{0x5,	"GERAN: 48.96 s / UTRAN: 327.68 s / E-UTRAN: 163.84 s"},
+	{0x6,	"GERAN: 97.92 s / UTRAN: 655.36 s / E-UTRAN: 327.68 s"},
+	{0x7,	"GERAN: 195.84 s / UTRAN: 1310.72 s / E-UTRAN: 655.36 s"},
+	{0x8,	"GERAN: 391.68 s / UTRAN: 1966.08 s / E-UTRAN: 1310.72 s"},
+	{0x9,	"GERAN: 783.36 s / UTRAN: 2621.44 s / E-UTRAN: 2621.44 s"},
+	{0xa,	"GERAN: 1566.72 s / UTRAN: reserved / E-UTRAN: reserved"},
+	{0xb,	"GERAN: 3133.44 s / UTRAN: reserved / E-UTRAN: reserved"},
+	{  0,	NULL }
+};
+
+static guint16
+de_gmm_ext_drx_params(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	guint32	curr_offset;
+
+	curr_offset = offset;
+
+	proto_tree_add_item(tree, hf_gsm_a_gm_paging_time_window, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_gm_edrx_value, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+
+	return len;
+}
 /*
  * [7] 10.5.7.1
  */
@@ -3826,6 +3888,7 @@ static const value_string gsm_a_gm_gprs_timer3_unit_vals[] = {
 	{ 0x03, "value is incremented in multiples of 2 seconds" },
 	{ 0x04, "value is incremented in multiples of 30 seconds" },
 	{ 0x05, "value is incremented in multiples of 1 minute" },
+	{ 0x06, "value is incremented in multiples of 320 hours (for T3312/T3412 extended), 1 hour otherwise" },
 	{ 0x07, "value indicates that the timer is deactivated" },
 	{ 0, NULL }
 };
@@ -4065,6 +4128,8 @@ static const range_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0x0010, 0x0010, "IPv4 Link MTU Request" },
 	{ 0x0011, 0x0011, "MS support of Local address in TFT indicator" },
 	{ 0x0012, 0x0012, "P-CSCF Re-selection support" },
+	{ 0x0013, 0x0013, "NBIFOM request indicator" },
+	{ 0x0014, 0x0014, "NBIFOM mode" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4087,6 +4152,8 @@ static const range_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x0010, 0x0010, "IPv4 Link MTU" },
 	{ 0x0011, 0x0011, "Network support of Local address in TFT indicator" },
 	{ 0x0012, 0x0012, "Reserved" },
+	{ 0x0013, 0x0013, "NBIFOM accepted indicator" },
+	{ 0x0014, 0x0014, "Reserved" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4101,6 +4168,12 @@ static const value_string gsm_a_gm_link_dir_vals[] = {
 static const value_string gsm_a_gm_sel_bearer_ctrl_mode_vals[] = {
 	{ 1, "MS only" },
 	{ 2, "MS/NW" },
+	{ 0, NULL }
+};
+
+static const value_string gsm_a_gm_nbifom_mode_vals[] = {
+	{ 1, "UE-initiated" },
+	{ 2, "network-initiated" },
 	{ 0, NULL }
 };
 
@@ -4216,6 +4289,11 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				if ((link_dir == P2P_DIR_DL) && (e_len == 2)) {
 					guint16 word = tvb_get_ntohs(tvb, curr_offset);
 					proto_tree_add_uint_format_value(pco_tree, hf_gsm_a_gm_sm_pco_ipv4_link_mtu_size, tvb, curr_offset, 2, word, "%u octets", word);
+				}
+				break;
+			case 0x0014:
+				if ((link_dir == P2P_DIR_UL) && (e_len == 1)) {
+					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_nbifom_mode, tvb, curr_offset, 1, ENC_NA);
 				}
 				break;
 			default:
@@ -4863,6 +4941,11 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 /*
  * [12] 10.5.6.5a Re-attempt indicator
  */
+const true_false_string gsm_a_gm_eplmnc_value = {
+	"MS is not allowed to re-attempt the procedure in an equivalent PLMN",
+	"MS is allowed to re-attempt the procedure in an equivalent PLMN"
+};
+
 const true_false_string gsm_a_gm_ratc_value = {
 	"MS is not allowed to re-attempt the procedure in S1 mode",
 	"MS is allowed to re-attempt the procedure in S1 mode"
@@ -4875,7 +4958,8 @@ de_sm_re_attempt_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
 	curr_offset = offset;
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, offset << 3, 7, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, offset << 3, 6, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_sm_eplmnc, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_gsm_a_sm_ratc, tvb, offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
@@ -4931,6 +5015,7 @@ static const value_string gsm_a_sm_cause_vals[] = {
 	{ 0x65, "Message not compatible with the protocol state" },
 	{ 0x6f, "Protocol error, unspecified" },
 	{ 0x70, "APN restriction value incompatible with active PDP context" },
+	{ 0x71, "Multiple accesses to a PDN connection not allowed" },
 	{ 0, NULL }
 };
 static value_string_ext gsm_a_sm_cause_vals_ext = VALUE_STRING_EXT_INIT(gsm_a_sm_cause_vals);
@@ -5631,6 +5716,17 @@ de_sm_wlan_offload_accept(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 	return (len);
 }
 
+/*
+ * [13] 10.5.6.21 NBIFOM container
+ */
+static guint16
+de_sm_nbifom_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+	proto_tree_add_item(tree, hf_gsm_a_sm_nbifom_cont, tvb, offset, len, ENC_NA);
+
+	return len;
+}
+
 guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len) = {
 	/* GPRS Mobility Management Information Elements 10.5.5 */
 	de_gmm_add_upd_type,               /* Additional Update Type */
@@ -5669,6 +5765,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	de_gmm_ptmsi_type,                 /* P-TMSI type */
 	de_gmm_lai_2,                      /* Location Area Identification 2 */
 	de_gmm_net_res_id_cont,            /* Network resource identifier container */
+	de_gmm_ext_drx_params,             /* Extended DRX parameters */
 	/* Session Management Information Elements 10.5.6 */
 	de_sm_apn,                         /* Access Point Name */
 	de_sm_nsapi,                       /* Network Service Access Point Identifier */
@@ -5691,6 +5788,7 @@ guint16 (*gm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 	de_sm_notif_ind,                   /* Notification indicator */
 	de_sm_connectivity_type,           /* Connectivity type */
 	de_sm_wlan_offload_accept,         /* WLAN offload acceptability */
+	de_sm_nbifom_cont,                 /* NBIFOM container */
 	/* GPRS Common Information Elements 10.5.7 */
 	de_gc_context_stat,                /* PDP Context Status */
 	de_gc_radio_prio,                  /* Radio Priority */
@@ -5771,6 +5869,8 @@ dtap_gmm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV(0x39, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3312 extended value");
 
+	ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -5832,6 +5932,8 @@ dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	ELEM_OPT_TLV(0x66, GSM_A_PDU_TYPE_GM, DE_ADD_NET_FEAT_SUP, NULL);
 
 	ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
+
+	ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6213,6 +6315,8 @@ dtap_gmm_rau_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 	ELEM_OPT_TLV(0x39, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3312 extended value");
 
+	ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6274,6 +6378,8 @@ dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 	ELEM_OPT_TLV(0x66, GSM_A_PDU_TYPE_GM, DE_ADD_NET_FEAT_SUP, NULL);
 
 	ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
+
+	ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6489,6 +6595,8 @@ dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TV_SHORT(0xC0, GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
 
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6535,6 +6643,8 @@ dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
 
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6563,6 +6673,8 @@ dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Back-off timer value");
 
 	ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_RE_ATTEMPT_IND, NULL);
+
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6599,6 +6711,8 @@ dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
 	ELEM_OPT_TV_SHORT(0xC0, GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
+
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6640,6 +6754,8 @@ dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
 
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6669,6 +6785,8 @@ dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_RE_ATTEMPT_IND, NULL);
 
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6696,6 +6814,8 @@ dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6720,6 +6840,8 @@ dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	ELEM_MAND_V( GSM_A_PDU_TYPE_GM, DE_SM_CAUSE, NULL);
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
+
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6764,6 +6886,8 @@ dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
 
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6795,6 +6919,8 @@ dtap_sm_mod_pdp_req_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
 
 	ELEM_OPT_TV_SHORT(0xC0, GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
 
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6817,6 +6943,8 @@ dtap_sm_mod_pdp_acc_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guin
 	pinfo->link_dir = P2P_DIR_UL;
 
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
+
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6851,6 +6979,8 @@ dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 
 	ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
 
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6880,6 +7010,8 @@ dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 	ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Back-off timer value");
 
 	ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_RE_ATTEMPT_IND, NULL);
+
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6913,6 +7045,8 @@ dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
 	ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
 
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6936,6 +7070,8 @@ dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
 
 	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT, NULL);
+
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -6972,6 +7108,8 @@ dtap_sm_req_sec_pdp_act(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 	/* C- WLAN offload acceptability 10.5.6.20 O TV 1 */
 	ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
 
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
+
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
 
@@ -6997,6 +7135,8 @@ dtap_sm_req_sec_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
 	/* 27 Protocol configuration options Protocol configuration options 10.5.6.3 O TLV 3 - 253 */
 	ELEM_OPT_TLV( 0x27, GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT, NULL);
+
+	ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -7130,6 +7270,8 @@ dtap_sm_act_mbms_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 	ELEM_OPT_TLV( 0x35, GSM_A_PDU_TYPE_GM, DE_MBMS_PROT_CONF_OPT, NULL);
 
 	ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3396 value");
+
+	ELEM_OPT_TLV(0x6B, GSM_A_PDU_TYPE_GM, DE_RE_ATTEMPT_IND, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_gm_extraneous_data);
 }
@@ -7793,6 +7935,16 @@ proto_register_gsm_a_gm(void)
 		    FT_UINT16, BASE_HEX, NULL, 0xffc0,
 		    NULL, HFILL }
 		},
+		{ &hf_gsm_a_gm_paging_time_window,
+		  { "Paging Time Window", "gsm_a.gm.gmm.paging_time_window",
+		    FT_UINT8, BASE_HEX, VALS(gsm_a_gm_paging_time_window_vals), 0xf0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_gm_edrx_value,
+		  { "eDRX value", "gsm_a.gm.gmm.edrx_value",
+		    FT_UINT8, BASE_HEX, VALS(gsm_a_gm_edrx_vals), 0x0f,
+		    NULL, HFILL }
+		},
 		{ &hf_gsm_a_sm_pdp_type_org,
 		  { "PDP type organization", "gsm_a.gm.sm.pdp_type_org",
 		    FT_UINT8, BASE_DEC, VALS(gsm_a_sm_pdp_type_org_vals), 0x0f,
@@ -7886,6 +8038,11 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_sm_qos_guar_bitrate_downl_ext2,
 		  { "Guaranteed bitrate for downlink (extended-2)", "gsm_a.gm.sm.qos.guar_bitrate_downl_ext2",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_sm_eplmnc,
+		  { "EPLMNC", "gsm_a.gm.sm.re_attempt_ind.eplmnc",
+		    FT_BOOLEAN, 8, TFS(&gsm_a_gm_eplmnc_value), 0x02,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_ratc,
@@ -8071,6 +8228,11 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_sm_wlan_eutran_offload_accept,
 		  { "WLAN E-UTRAN offload acceptability", "gsm_a.gm.sm.wlan_eutran_offload_accept",
 		    FT_BOOLEAN, BASE_NONE, TFS(&gsm_a_sm_wlan_eutran_offload_accept_value), 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_gsm_a_sm_nbifom_cont,
+		  { "NBIFOM container content", "gsm_a.gm.sm.nbifom_cont",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_gm_rac_ctrled_early_cm_sending,
@@ -8454,6 +8616,7 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_sm_pco_prefix_length, { "Prefix length", "gsm_a.gm.sm.pco.ipv6_prefix_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_ipv4, { "IPv4", "gsm_a.gm.sm.pco.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_ipv4_link_mtu_size, { "IPv4 link MTU size", "gsm_a.gm.sm.pco.ipv4_link_mtu_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_gsm_a_gm_sm_pco_nbifom_mode, { "NBIFOM mode", "gsm_a.gm.sm.pco.nbifom_mode", FT_UINT8, BASE_HEX, VALS(gsm_a_gm_nbifom_mode_vals), 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_sel_bearer_ctrl_mode, { "Selected Bearer Control Mode", "gsm_a.gm.sm.pco.sel_bearer_ctrl_mode", FT_UINT8, BASE_DEC, VALS(gsm_a_gm_sel_bearer_ctrl_mode_vals), 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_sm_pdp_type_number, { "PDP type number", "gsm_a.gm.sm.pdp_type_number", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_sm_pdp_address, { "PDP address", "gsm_a.gm.sm.pdp_address", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},

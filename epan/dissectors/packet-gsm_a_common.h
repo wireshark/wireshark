@@ -1147,6 +1147,7 @@ typedef enum
     DE_PTMSI_TYPE,                  /* [10] 10.5.5.29 P-TMSI type */
     DE_LAI_2,                       /* [10] 10.5.5.30 Location Area Identification 2 */
     DE_NET_RES_ID_CONT,             /* [11] 10.5.5.31 Network resource identifier container */
+    DE_EXT_DRX_PARAMS,              /* 10.5.5.32 Extended DRX parameters */
     /* Session Management Information Elements [3] 10.5.6 */
     DE_ACC_POINT_NAME,              /* Access Point Name */
     DE_NET_SAPI,                    /* Network Service Access Point Identifier */
@@ -1169,6 +1170,7 @@ typedef enum
     DE_SM_NOTIF_IND,                /* Notification indicator */
     DE_SM_CONNECTIVITY_TYPE,        /* Connectivity type */
     DE_SM_WLAN_OFFLOAD_ACCEPT,      /* WLAN offload acceptability */
+    DE_NBIFOM_CONT,                 /* NBIFOM container */
     /* GPRS Common Information Elements [8] 10.5.7 */
     DE_PDP_CONTEXT_STAT,            /* [8] 10.5.7.1     PDP Context Status */
     DE_RAD_PRIO,                    /* [8] 10.5.7.2     Radio Priority */
