@@ -44,149 +44,7 @@
 
 #include <extcap_parser.h>
 #include <extcap_argument_file.h>
-
-class ExtArgMultiSelect : public ExtcapArgument
-{
-public:
-    ExtArgMultiSelect(extcap_arg * argument) :
-        ExtcapArgument(argument), treeView(0), viewModel(0) {};
-
-    virtual QList<QStandardItem *> valueWalker(ExtcapValueList list, QStringList &defaults)
-    {
-        ExtcapValueList::iterator iter = list.begin();
-        QList<QStandardItem *> items;
-
-        while ( iter != list.end() )
-        {
-            QStandardItem * item = new QStandardItem((*iter).value());
-            if ( (*iter).enabled() == false )
-            {
-                item->setSelectable(false);
-            }
-            else
-                item->setSelectable(true);
-
-            item->setData((*iter).call(), Qt::UserRole);
-            if ((*iter).isDefault())
-                defaults << (*iter).call();
-
-            item->setEditable(false);
-            QList<QStandardItem *> childs = valueWalker((*iter).children(), defaults);
-            if ( childs.length() > 0 )
-                item->appendRows(childs);
-
-            items << item;
-            ++iter;
-        }
-
-        return items;
-    }
-
-    void selectItemsWalker(QStandardItem * item, QStringList defaults)
-    {
-        QModelIndexList results;
-        QModelIndex index;
-
-        if ( item->hasChildren() )
-        {
-            for (int row = 0; row < item->rowCount(); row++)
-            {
-                QStandardItem * child = item->child(row);
-                if ( child != 0 )
-                {
-                    selectItemsWalker(child, defaults);
-                }
-            }
-        }
-
-        QString data = item->data(Qt::UserRole).toString();
-
-        if ( defaults.contains(data) )
-        {
-            treeView->selectionModel()->select(item->index(), QItemSelectionModel::Select);
-            index = item->index();
-            while ( index.isValid() )
-            {
-                treeView->setExpanded(index, true);
-                index = index.parent();
-            }
-        }
-    }
-
-    virtual QWidget * createEditor(QWidget * parent)
-    {
-        QStringList defaults;
-
-        QList<QStandardItem *> items = valueWalker(values, defaults);
-        if (items.length() == 0)
-            return new QWidget();
-
-        if ( _default != 0 )
-             defaults = _default->toString().split(",", QString::SkipEmptyParts);
-
-        viewModel = new QStandardItemModel();
-        QList<QStandardItem *>::const_iterator iter = items.constBegin();
-        while ( iter != items.constEnd() )
-        {
-            ((QStandardItemModel *)viewModel)->appendRow((*iter));
-            ++iter;
-        }
-
-        treeView = new QTreeView(parent);
-        treeView->setModel(viewModel);
-
-        /* Shows at minimum 6 entries at most desktops */
-        treeView->setMinimumHeight(100);
-        treeView->setHeaderHidden(true);
-        treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-        treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-
-        for (int row = 0; row < viewModel->rowCount(); row++ )
-            selectItemsWalker(((QStandardItemModel*)viewModel)->item(row), defaults);
-
-        return treeView;
-    }
-
-    virtual QString value()
-    {
-        if ( viewModel == 0 )
-            return QString();
-
-        QStringList result;
-        QModelIndexList selected = treeView->selectionModel()->selectedIndexes();
-
-        if ( selected.size() <= 0 )
-            return QString();
-
-        QModelIndexList::const_iterator iter = selected.constBegin();
-        while ( iter != selected.constEnd() )
-        {
-            QModelIndex index = (QModelIndex)(*iter);
-
-            result << viewModel->data(index, Qt::UserRole).toString();
-
-            ++iter;
-        }
-
-        return result.join(QString(","));
-    }
-
-    virtual QString defaultValue()
-    {
-        if ( _argument != 0 && _argument->default_complex != 0)
-        {
-            gchar * str = extcap_get_complex_as_string(_argument->default_complex);
-            if ( str != 0 )
-                return QString(str);
-        }
-
-        return QString();
-    }
-
-private:
-    QTreeView * treeView;
-    QAbstractItemModel * viewModel;
-};
+#include <extcap_argument_multiselect.h>
 
 class ExtArgSelector : public ExtcapArgument
 {
@@ -219,6 +77,8 @@ public:
                 boxSelection->setCurrentIndex(selected);
         }
 
+        connect ( boxSelection, SIGNAL(currentIndexChanged(int)), SLOT(onIntChanged(int)) );
+
         return boxSelection;
     }
 
@@ -237,6 +97,7 @@ public:
     }
 
 private:
+
     QComboBox * boxSelection;
 };
 
@@ -287,6 +148,8 @@ public:
                         anyChecked = true;
                     }
                 }
+
+                connect(radio, SIGNAL(clicked(bool)), SLOT(onBoolChanged(bool)));
                 selectorGroup->addButton(radio, count);
 
                 vrLayout->addWidget(radio);
@@ -319,6 +182,7 @@ public:
     }
 
 private:
+
     QButtonGroup * selectorGroup;
     QList<QString> * callStrings;
 };
@@ -349,6 +213,8 @@ public:
             if ( _default->toString().compare("true") )
                 boolBox->setCheckState(Qt::Checked);
         }
+
+        connect (boolBox, SIGNAL(stateChanged(int)), SLOT(onIntChanged(int)));
 
         return boolBox;
     }
@@ -381,11 +247,13 @@ public:
     }
 
 private:
+
     QCheckBox * boolBox;
 };
 
 class ExtArgText : public ExtcapArgument
 {
+
 public:
     ExtArgText(extcap_arg * argument) :
         ExtcapArgument(argument), textBox(0)
@@ -402,6 +270,8 @@ public:
         if ( _argument->tooltip != NULL )
             textBox->setToolTip(QString().fromUtf8(_argument->tooltip));
 
+        connect(textBox , SIGNAL(textChanged(QString)), SLOT(onStringChanged(QString)));
+
         return textBox;
     }
 
@@ -411,6 +281,14 @@ public:
             return QString();
 
         return textBox->text();
+    }
+
+    virtual bool isValid()
+    {
+        if ( isRequired() && value().length() == 0 )
+            return false;
+
+        return true;
     }
 
     virtual QString defaultValue()
@@ -426,6 +304,7 @@ public:
     }
 
 protected:
+
     QLineEdit * textBox;
 };
 
@@ -438,6 +317,7 @@ public:
     virtual QWidget * createEditor(QWidget * parent)
     {
         textBox = (QLineEdit *)ExtArgText::createEditor(parent);
+        textBox->disconnect(SIGNAL(textChanged(QString)));
 
         if ( _argument->arg_type == EXTCAP_ARG_INTEGER || _argument->arg_type == EXTCAP_ARG_UNSIGNED )
         {
@@ -465,6 +345,8 @@ public:
 
         textBox->setText(defaultValue());
 
+        connect(textBox, SIGNAL(textChanged(QString)), SLOT(onStringChanged(QString)));
+
         return textBox;
     };
 
@@ -488,6 +370,7 @@ public:
 
         return result;
     }
+
 };
 
 ExtcapValue::~ExtcapValue() {}
@@ -582,6 +465,12 @@ QString ExtcapArgument::value()
     return QString();
 }
 
+
+bool ExtcapArgument::isValid()
+{
+    return value().length() > 0;
+}
+
 QString ExtcapArgument::defaultValue()
 {
     return QString();
@@ -607,6 +496,22 @@ void ExtcapArgument::setDefault(GHashTable * defaultsList)
             keys = keys->next;
         }
     }
+}
+
+bool ExtcapArgument::isRequired()
+{
+    if ( _argument != NULL )
+        return _argument->is_required;
+
+    return FALSE;
+}
+
+bool ExtcapArgument::isDefault()
+{
+    if ( value().compare(defaultValue()) == 0 )
+        return true;
+
+    return false;
 }
 
 ExtcapArgument * ExtcapArgument::create(extcap_arg * argument, GHashTable * device_defaults)
@@ -640,6 +545,23 @@ ExtcapArgument * ExtcapArgument::create(extcap_arg * argument, GHashTable * devi
     result->setDefault(device_defaults);
 
     return result;
+}
+
+/* The following is a necessity, because Q_Object does not do well with multiple inheritances */
+void ExtcapArgument::onStringChanged(QString)
+{
+    emit valueChanged();
+}
+
+void ExtcapArgument::onIntChanged(int)
+{
+    if ( isValid() )
+        emit valueChanged();
+}
+
+void ExtcapArgument::onBoolChanged(bool)
+{
+    emit valueChanged();
 }
 
 /*

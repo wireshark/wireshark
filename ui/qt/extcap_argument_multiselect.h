@@ -1,4 +1,4 @@
-/* extcap_argument_file.h
+/* extcap_argument_multiselect.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,40 +19,46 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef UI_QT_EXTCAP_ARGUMENT_FILE_H_
-#define UI_QT_EXTCAP_ARGUMENT_FILE_H_
+#ifndef UI_QT_EXTCAP_ARGUMENT_MULTISELECT_H_
+#define UI_QT_EXTCAP_ARGUMENT_MULTISELECT_H_
 
 #include <QObject>
 #include <QWidget>
-#include <QLineEdit>
+#include <QStandardItem>
+#include <QTreeView>
+#include <QAbstractItemModel>
+#include <QItemSelection>
 
 #include <extcap_parser.h>
 #include <extcap_argument.h>
 
-class ExtcapArgumentFileSelection : public ExtcapArgument
+class ExtArgMultiSelect : public ExtcapArgument
 {
     Q_OBJECT
-
 public:
-    ExtcapArgumentFileSelection(extcap_arg * argument);
-    virtual ~ExtcapArgumentFileSelection();
-
-    virtual QWidget * createEditor(QWidget * parent);
+    ExtArgMultiSelect(extcap_arg * argument);
+    virtual ~ExtArgMultiSelect();
 
     virtual QString value();
-
-    virtual bool isValid();
+    virtual QString defaultValue();
 
 protected:
-    QLineEdit * textBox;
+    virtual QList<QStandardItem *> valueWalker(ExtcapValueList list, QStringList &defaults);
+    void selectItemsWalker(QStandardItem * item, QStringList defaults);
+    virtual QWidget * createEditor(QWidget * parent);
 
-private slots:
-    /* opens the file dialog */
-    void openFileDialog();
+private Q_SLOTS:
+
+    void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
+
+private:
+
+    QTreeView * treeView;
+    QAbstractItemModel * viewModel;
 
 };
 
-#endif /* UI_QT_EXTCAP_ARGUMENT_FILE_H_ */
+#endif /* UI_QT_EXTCAP_ARGUMENT_MULTISELECT_H_ */
 
 /*
  * Editor modelines

@@ -62,17 +62,14 @@ ExtcapOptionsDialog::ExtcapOptionsDialog(QWidget *parent) :
     ui(new Ui::ExtcapOptionsDialog),
     device_name(""),
     device_idx(0),
-    device_defaults(NULL),
-    start_bt_(NULL)
+    device_defaults(NULL)
 {
     ui->setupUi(this);
 
     setWindowTitle(wsApp->windowTitleString(tr("Extcap Interface Options")));
 
-    start_bt_ = ui->buttonBox->addButton(tr("Start"), QDialogButtonBox::AcceptRole);
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start"));
 
-    start_bt_->setEnabled((global_capture_opts.num_selected > 0)? true: false);
-    connect(start_bt_, SIGNAL(clicked(bool)), this, SLOT(start_button_clicked()));
 }
 
 ExtcapOptionsDialog * ExtcapOptionsDialog::createForDevice(QString &dev_name, QWidget *parent)
@@ -116,11 +113,30 @@ ExtcapOptionsDialog::~ExtcapOptionsDialog()
     delete ui;
 }
 
-void ExtcapOptionsDialog::start_button_clicked()
+void ExtcapOptionsDialog::on_buttonBox_accepted()
 {
-    if (saveOptionsToPreferences()) {
+    if (saveOptionToCaptureInfo()) {
         accept();
     }
+}
+
+void ExtcapOptionsDialog::anyValueChanged()
+{
+    /* Guard, that only extcap arguments are given, which should be the case anyway */
+    if ( dynamic_cast<ExtcapArgument *>(QObject::sender()) == NULL )
+        return;
+
+    bool allowStart = true;
+
+    ExtcapArgumentList::const_iterator iter;
+
+    for(iter = extcapArguments.constBegin(); iter != extcapArguments.constEnd() && allowStart; ++iter)
+    {
+        if ( (*iter)->isRequired() && ! (*iter)->isValid() )
+            allowStart = false;
+    }
+
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(allowStart);
 }
 
 void ExtcapOptionsDialog::updateWidgets()
@@ -128,6 +144,7 @@ void ExtcapOptionsDialog::updateWidgets()
     GList * arguments = NULL, * walker = NULL, * item = NULL;
     QWidget * lblWidget = NULL, *editWidget = NULL;
     ExtcapArgument * argument = NULL;
+    bool allowStart = true;
 
     unsigned int counter = 0;
 
@@ -158,6 +175,12 @@ void ExtcapOptionsDialog::updateWidgets()
                     {
                         layout->addWidget(editWidget, counter, 1, Qt::AlignVCenter);
                     }
+
+                    if ( argument->isRequired() && ! argument->isValid() )
+                        allowStart = false;
+
+                    connect(argument, SIGNAL(valueChanged()), this, SLOT(anyValueChanged()));
+
                     counter++;
                 }
             }
@@ -167,10 +190,15 @@ void ExtcapOptionsDialog::updateWidgets()
         walker = walker->next;
     }
 
-    if ( counter > 0 ) {
+    if ( counter > 0 )
+    {
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(allowStart);
+
         ui->verticalLayout->addLayout(layout);
         ui->verticalLayout->addSpacerItem(new QSpacerItem(20, 100, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    } else {
+    }
+    else
+    {
         delete layout;
     }
 }
@@ -178,7 +206,7 @@ void ExtcapOptionsDialog::updateWidgets()
 // Not sure why we have to do this manually.
 void ExtcapOptionsDialog::on_buttonBox_rejected()
 {
-    if (saveOptionsToPreferences()) {
+    if (saveOptionToCaptureInfo()) {
         reject();
     }
 }
@@ -189,7 +217,7 @@ void ExtcapOptionsDialog::on_buttonBox_helpRequested()
     wsApp->helpTopicAction(HELP_EXTCAP_OPTIONS_DIALOG);
 }
 
-bool ExtcapOptionsDialog::saveOptionsToPreferences()
+bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
 {
     GHashTable * ret_args;
     interface_t device;

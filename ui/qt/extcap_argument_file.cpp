@@ -44,6 +44,12 @@ ExtcapArgumentFileSelection::ExtcapArgumentFileSelection (extcap_arg * argument)
     _default = new QVariant(QString(""));
 }
 
+ExtcapArgumentFileSelection::~ExtcapArgumentFileSelection()
+{
+    if ( textBox != NULL )
+        delete textBox;
+}
+
 QWidget * ExtcapArgumentFileSelection::createEditor(QWidget * parent)
 {
     QWidget * fileWidget = new QWidget(parent);
@@ -98,6 +104,13 @@ void ExtcapArgumentFileSelection::openFileDialog()
 
     if ( QFileInfo(filename).exists() )
         textBox->setText(filename);
+}
+
+bool ExtcapArgumentFileSelection::isValid()
+{
+    if ( textBox->text().length() > 0 )
+        return true;
+    return false;
 }
 
 /*

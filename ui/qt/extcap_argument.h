@@ -87,7 +87,14 @@ public:
     virtual QString value();
     virtual QString defaultValue();
 
+    bool isDefault();
+    bool isValid();
+    bool isRequired();
+
     static ExtcapArgument * create(extcap_arg * argument = 0, GHashTable * device_defaults = 0);
+
+Q_SIGNALS:
+    void valueChanged();
 
 protected:
 
@@ -99,6 +106,13 @@ protected:
 
     extcap_arg * _argument;
     QVariant * _default;
+
+private Q_SLOTS:
+
+    void onStringChanged(QString);
+    void onIntChanged(int);
+    void onBoolChanged(bool);
+
 };
 
 #endif /* UI_QT_EXTCAP_ARGUMENT_H_ */

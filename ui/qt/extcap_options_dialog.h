@@ -53,11 +53,12 @@ public:
     ~ExtcapOptionsDialog();
     static ExtcapOptionsDialog * createForDevice(QString &device_name, QWidget *parent = 0);
 
-private slots:
-    void start_button_clicked();
+private Q_SLOTS:
+    void on_buttonBox_accepted();
     void on_buttonBox_rejected();
     void on_buttonBox_helpRequested();
     void updateWidgets();
+    void anyValueChanged();
 
 private:
     explicit ExtcapOptionsDialog(QWidget *parent = 0);
@@ -66,11 +67,10 @@ private:
     QString device_name;
     guint device_idx;
     GHashTable * device_defaults;
-    QPushButton *start_bt_;
 
     ExtcapArgumentList extcapArguments;
 
-    bool saveOptionsToPreferences();
+    bool saveOptionToCaptureInfo();
 };
 
 #endif /* HAVE_EXTCAP */

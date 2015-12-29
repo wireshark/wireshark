@@ -541,7 +541,7 @@ static int list_config(char *interface, unsigned int remote_port)
 
 	g_print("arg {number=%u}{call=--remote-host}{display=Remote SSH server address}"
 		"{type=string}{tooltip=The remote SSH host. It can be both "
-		"an IP address or a hostname}\n", inc++);
+		"an IP address or a hostname}{required=true}\n", inc++);
 	g_print("arg {number=%u}{call=--remote-port}{display=Remote SSH server port}"
 		"{type=unsigned}{default=22}{tooltip=The remote SSH host port (1-65535)}"
 		"{range=1,65535}\n", inc++);

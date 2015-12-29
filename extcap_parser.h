@@ -67,7 +67,8 @@ typedef enum {
     EXTCAP_PARAM_NAME,
     EXTCAP_PARAM_ENABLED,
     EXTCAP_PARAM_FILE_MUSTEXIST,
-    EXTCAP_PARAM_PARENT
+    EXTCAP_PARAM_PARENT,
+    EXTCAP_PARAM_REQUIRED
 } extcap_param_type;
 
 /* Values for a given sentence; values are all stored as a call
@@ -105,6 +106,8 @@ typedef struct _extcap_arg {
     gchar *display;
     gchar *tooltip;
     gboolean fileexists;
+
+    gboolean is_required;
 
     extcap_arg_type arg_type;
 

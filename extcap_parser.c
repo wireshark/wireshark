@@ -345,6 +345,8 @@ extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
             tv->param_type = EXTCAP_PARAM_ENABLED;
         } else if (g_ascii_strcasecmp(tv->arg, "parent") == 0) {
             tv->param_type = EXTCAP_PARAM_PARENT;
+        } else if (g_ascii_strcasecmp(tv->arg, "required") == 0) {
+            tv->param_type = EXTCAP_PARAM_REQUIRED;
         } else {
             tv->param_type = EXTCAP_PARAM_UNKNOWN;
         }
@@ -475,6 +477,7 @@ extcap_arg *extcap_new_arg(void) {
     r->range_end = NULL;
     r->default_complex = NULL;
     r->fileexists = FALSE;
+    r->is_required = FALSE;
 
     r->values = NULL;
     /*r->next_arg = NULL; */
@@ -589,6 +592,11 @@ extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence *s) {
         if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_FILE_MUSTEXIST))
                 != NULL) {
             target_arg->fileexists = (v->value[0] == 't' || v->value[0] == 'T');
+        }
+
+        if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_REQUIRED))
+                != NULL) {
+            target_arg->is_required = (v->value[0] == 't' || v->value[0] == 'T');
         }
 
         if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_TYPE))

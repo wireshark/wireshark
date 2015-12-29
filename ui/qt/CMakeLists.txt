@@ -161,6 +161,7 @@ if(ENABLE_EXTCAP)
 		${WIRESHARK_QT_HEADERS}
 		extcap_argument.h
 		extcap_argument_file.h
+		extcap_argument_multiselect.h
 		extcap_options_dialog.h
 	)
 endif()
@@ -307,6 +308,7 @@ if(ENABLE_EXTCAP)
 		${WIRESHARK_QT_SRC}
 		extcap_argument.cpp
 		extcap_argument_file.cpp
+		extcap_argument_multiselect.cpp
 		extcap_options_dialog.cpp
 	)
 endif()
