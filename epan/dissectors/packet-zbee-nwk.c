@@ -1105,11 +1105,13 @@ dissect_zbee_nwk_rejoin_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  *@return offset after command dissection.
 */
 static guint
-dissect_zbee_nwk_rejoin_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, zbee_nwk_packet * packet, guint offset)
+dissect_zbee_nwk_rejoin_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, zbee_nwk_packet * packet _U_, guint offset)
 {
     guint8  status;
+    guint16 new_address;
 
     /* Get and display the short address. */
+    new_address = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(tree, hf_zbee_nwk_cmd_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
@@ -1120,7 +1122,7 @@ dissect_zbee_nwk_rejoin_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Update the info column. */
     if (status == IEEE802154_CMD_ASRSP_AS_SUCCESS) {
-       col_append_fstr(pinfo->cinfo, COL_INFO, ", Address: 0x%04x", packet->src);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", New Address: 0x%04x", new_address);
     }
     else {
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str_const(status, zbee_nwk_rejoin_codes, "Unknown Rejoin Response"));
