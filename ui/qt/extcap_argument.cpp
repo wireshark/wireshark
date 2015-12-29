@@ -47,6 +47,7 @@
 
 #include <extcap.h>
 #include <epan/prefs.h>
+#include <epan/prefs-int.h>
 #include <color_utils.h>
 
 #include <extcap_parser.h>
@@ -280,11 +281,8 @@ bool ExtArgBool::defaultBool()
 
     if ( _argument )
     {
-        if ( _argument->default_complex )
-        {
-            if ( extcap_complex_get_bool(_argument->default_complex) == (gboolean)TRUE )
-                result = true;
-        }
+        if ( extcap_complex_get_bool(_argument->default_complex) == (gboolean)TRUE )
+            result = true;
     }
 
     return result;
@@ -485,6 +483,12 @@ void ExtcapValue::setChildren(ExtcapValueList children)
     _children.append(children);
 }
 
+ExtcapArgument::ExtcapArgument(QObject *parent) :
+        QObject(parent), _argument(0), _label(0),
+        label_style(QString("QLabel { color: %1; }"))
+{
+}
+
 ExtcapArgument::ExtcapArgument(extcap_arg * argument, QObject *parent) :
         QObject(parent), _argument(argument), _label(0),
         label_style(QString("QLabel { color: %1; }"))
@@ -497,9 +501,21 @@ ExtcapArgument::ExtcapArgument(extcap_arg * argument, QObject *parent) :
     }
 }
 
+ExtcapArgument::ExtcapArgument(const ExtcapArgument &obj) :
+        QObject(obj.parent()), _argument(obj._argument), _label(0),
+        label_style(QString("QLabel { color: %1; }"))
+{
+    if ( _argument->values != 0 )
+    {
+        ExtcapValueList elements = loadValues(QString(""));
+        if ( elements.length() > 0 )
+            values.append(elements);
+    }
+}
+
 ExtcapValueList ExtcapArgument::loadValues(QString parent)
 {
-    if (_argument->values == 0 )
+    if (_argument == 0 || _argument->values == 0 )
         return ExtcapValueList();
 
     GList * walker = 0;
@@ -532,7 +548,6 @@ ExtcapValueList ExtcapArgument::loadValues(QString parent)
 }
 
 ExtcapArgument::~ExtcapArgument() {
-    // TODO Auto-generated destructor stub
 }
 
 QWidget * ExtcapArgument::createLabel(QWidget * parent)
@@ -544,7 +559,10 @@ QWidget * ExtcapArgument::createLabel(QWidget * parent)
 
     QString text = QString().fromUtf8(_argument->display);
 
-    _label = new QLabel(text, parent);
+    if ( _label == 0 )
+        _label = new QLabel(text, parent);
+    else
+        _label->setText(text);
 
     _label->setProperty("isRequired", QString(isRequired() ? "true" : "false"));
 
@@ -553,7 +571,7 @@ QWidget * ExtcapArgument::createLabel(QWidget * parent)
     if ( _argument->tooltip != 0 )
         _label->setToolTip(QString().fromUtf8(_argument->tooltip));
 
-    return _label;
+    return (QWidget *)_label;
 }
 
 QWidget * ExtcapArgument::createEditor(QWidget *)
@@ -574,6 +592,12 @@ QString ExtcapArgument::value()
 QString ExtcapArgument::prefValue()
 {
     return value();
+}
+
+void ExtcapArgument::resetValue()
+{
+    if (_argument && _argument->storeval)
+        memset(_argument->storeval, 0, 128 * sizeof(char));
 }
 
 bool ExtcapArgument::isValid()
@@ -599,10 +623,16 @@ QString ExtcapArgument::defaultValue()
 
 QString ExtcapArgument::prefKey(const QString & device_name)
 {
-    if ( ! _argument->save )
+    struct preference * pref = NULL;
+
+    if ( _argument == 0 || ! _argument->save )
         return QString();
 
-    return QString(extcap_settings_key(device_name.toStdString().c_str(), _argument->call));
+    pref = extcap_pref_for_argument(device_name.toStdString().c_str(), _argument);
+    if ( pref != NULL )
+        return QString(pref->name);
+
+    return QString();
 }
 
 bool ExtcapArgument::isRequired()

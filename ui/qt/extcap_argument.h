@@ -82,8 +82,9 @@ class ExtcapArgument: public QObject
     Q_OBJECT
 
 public:
+	ExtcapArgument(QObject *parent=0);
     ExtcapArgument(extcap_arg * argument, QObject *parent=0);
-
+    ExtcapArgument(const ExtcapArgument &obj);
     virtual ~ExtcapArgument();
 
     virtual QWidget * createLabel(QWidget * parent = 0);
@@ -95,11 +96,13 @@ public:
     virtual QString defaultValue();
 
     bool isDefault();
-    bool isValid();
+    virtual bool isValid();
     bool isRequired();
 
     QString prefKey(const QString & device_name);
     virtual QString prefValue();
+
+    void resetValue();
 
     static ExtcapArgument * create(extcap_arg * argument = 0);
 
@@ -115,7 +118,7 @@ protected:
     ExtcapValueList values;
 
     extcap_arg * _argument;
-    QWidget * _label;
+    QLabel * _label;
 
     const QString label_style;
 
@@ -126,6 +129,8 @@ private Q_SLOTS:
     void onBoolChanged(bool);
 
 };
+
+Q_DECLARE_METATYPE(ExtcapArgument)
 
 class ExtArgText : public ExtcapArgument
 {

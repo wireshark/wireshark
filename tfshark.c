@@ -80,6 +80,10 @@
 #include <epan/dissectors/packet-kerberos.h>
 #endif
 
+#ifdef HAVE_EXTCAP
+#include "extcap.h"
+#endif
+
 #include <wiretap/wtap-int.h>
 #include <wiretap/file_wrappers.h>
 
@@ -859,6 +863,9 @@ main(int argc, char *argv[])
        * cruft getting in the way. Makes the results of running
        * $ ./tools/valgrind-wireshark -n
        * much more useful. */
+#ifdef HAVE_EXTCAP
+      extcap_cleanup();
+#endif
       epan_cleanup();
       return 0;
     }
@@ -987,6 +994,9 @@ main(int argc, char *argv[])
     if (!dfilter_compile(rfilter, &rfcode, &err_msg)) {
       cmdarg_err("%s", err_msg);
       g_free(err_msg);
+#ifdef HAVE_EXTCAP
+      extcap_cleanup();
+#endif
       epan_cleanup();
       return 2;
     }
@@ -997,6 +1007,9 @@ main(int argc, char *argv[])
     if (!dfilter_compile(dfilter, &dfcode, &err_msg)) {
       cmdarg_err("%s", err_msg);
       g_free(err_msg);
+#ifdef HAVE_EXTCAP
+      extcap_cleanup();
+#endif
       epan_cleanup();
       return 2;
     }
@@ -1042,6 +1055,9 @@ main(int argc, char *argv[])
     /* TODO: if tfshark is ever changed to give the user a choice of which
        open_routine reader to use, then the following needs to change. */
     if (cf_open(&cfile, cf_name, WTAP_TYPE_AUTO, FALSE, &err) != CF_OK) {
+#ifdef HAVE_EXTCAP
+      extcap_cleanup();
+#endif
       epan_cleanup();
       return 2;
     }
@@ -1080,6 +1096,9 @@ main(int argc, char *argv[])
   draw_tap_listeners(TRUE);
   funnel_dump_all_text_windows();
   epan_free(cfile.epan);
+#ifdef HAVE_EXTCAP
+  extcap_cleanup();
+#endif
   epan_cleanup();
 
   output_fields_free(output_fields);

@@ -1733,7 +1733,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 #endif
 #ifdef HAVE_EXTCAP
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: cleaning extcap pipe");
-        extcap_cleanup(cap_session->capture_opts);
+        extcap_if_cleanup(cap_session->capture_opts);
 #endif
         capture_input_closed(cap_session, primary_msg);
         g_free(primary_msg);

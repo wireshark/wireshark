@@ -852,6 +852,10 @@ int main(int argc, char *argv[])
 
     ret_val = wsApp->exec();
 
+#ifdef HAVE_EXTCAP
+    extcap_cleanup();
+#endif
+
     epan_cleanup();
 
     AirPDcapDestroyContext(&airpdcap_ctx);
