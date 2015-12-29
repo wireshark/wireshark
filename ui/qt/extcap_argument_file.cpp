@@ -57,15 +57,16 @@ QWidget * ExtcapArgumentFileSelection::createEditor(QWidget * parent)
 {
     QString storeval;
     QString text = defaultValue();
+    QString buttonText(UTF8_HORIZONTAL_ELLIPSIS);
 
     QWidget * fileWidget = new QWidget(parent);
     QHBoxLayout * editLayout = new QHBoxLayout();
     QMargins margins = editLayout->contentsMargins();
     editLayout->setContentsMargins(0, 0, 0, margins.bottom());
     fileWidget->setContentsMargins(margins.left(), margins.right(), 0, margins.bottom());
-    QPushButton * button = new QPushButton(UTF8_HORIZONTAL_ELLIPSIS, fileWidget);
+    QPushButton * button = new QPushButton(buttonText, fileWidget);
 
-    textBox = new QLineEdit(defaultValue(), parent);
+    textBox = new QLineEdit(text, parent);
     textBox->setReadOnly(true);
 
     if ( _argument->storeval )

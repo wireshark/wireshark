@@ -118,6 +118,7 @@ typedef struct _extcap_arg {
     extcap_complex *default_complex;
 
     gchar * storeval;
+    gchar * device_name;
 
     GList * values;
 } extcap_arg;

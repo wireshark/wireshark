@@ -350,7 +350,7 @@ void extcap_free_arg(extcap_arg *a) {
     g_free(a->tooltip);
     g_free(a->fileextension);
     g_free(a->regexp);
-    g_free(a->storeval);
+    g_free(a->device_name);
 
     if (a->range_start != NULL)
         extcap_free_complex(a->range_start);

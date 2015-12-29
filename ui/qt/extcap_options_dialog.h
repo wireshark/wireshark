@@ -56,6 +56,7 @@ public:
 private Q_SLOTS:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
+    void on_buttonBox_clicked(QAbstractButton *button);
     void on_buttonBox_helpRequested();
     void updateWidgets();
     void anyValueChanged();
@@ -69,8 +70,11 @@ private:
 
     ExtcapArgumentList extcapArguments;
 
+    void loadArguments();
+
     bool saveOptionToCaptureInfo();
     void storeValues();
+    void resetValues();
 };
 
 #endif /* HAVE_EXTCAP */

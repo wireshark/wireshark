@@ -190,29 +190,24 @@ void ExtcapOptionsDialog::anyValueChanged()
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(allowStart);
 }
 
-void ExtcapOptionsDialog::updateWidgets()
+void ExtcapOptionsDialog::loadArguments()
 {
-    GList * arguments = NULL, * walker = NULL, * item = NULL;
-    QWidget * lblWidget = NULL, *editWidget = NULL;
+    GList * arguments = NULL, * item = NULL;
     ExtcapArgument * argument = NULL;
-    bool allowStart = true;
-
-    unsigned int counter = 0;
 
     if ( device_name.length() == 0  )
         return;
 
-    arguments = extcap_get_if_configuration((const char *)( device_name.toStdString().c_str() ) );
-    walker = g_list_first(arguments);
+    extcapArguments.clear();
 
-    QGridLayout * layout = new QGridLayout();
+    arguments = g_list_first(extcap_get_if_configuration((const char *)( device_name.toStdString().c_str() ) ));
 
     ExtcapArgumentList required;
     ExtcapArgumentList optional;
 
-    while ( walker != NULL )
+    while ( arguments != NULL )
     {
-        item = g_list_first((GList *)(walker->data));
+        item = g_list_first((GList *)(arguments->data));
         while ( item != NULL )
         {
             argument = ExtcapArgument::create((extcap_arg *)(item->data));
@@ -226,7 +221,7 @@ void ExtcapOptionsDialog::updateWidgets()
             }
             item = item->next;
         }
-        walker = walker->next;
+        arguments = g_list_next(arguments);
     }
 
     if ( required.length() > 0 )
@@ -234,24 +229,52 @@ void ExtcapOptionsDialog::updateWidgets()
 
     if ( optional.length() > 0 )
         extcapArguments << optional;
+}
+
+void ExtcapOptionsDialog::updateWidgets()
+{
+    QWidget * lblWidget = NULL, *editWidget = NULL;
+    ExtcapArgument * argument = NULL;
+    bool allowStart = true;
+
+    unsigned int counter = 0;
+
+    if ( device_name.length() == 0  )
+        return;
+
+    /* find existing layout */
+    if (ui->verticalLayout->children().count() > 0)
+    {
+        QGridLayout * layout = (QGridLayout *)ui->verticalLayout->itemAt(0);
+        ui->verticalLayout->removeItem(layout);
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    }
+
+    QGridLayout * layout = new QGridLayout();
+
+    /* Load all extcap arguments */
+    loadArguments();
+
 
     ExtcapArgumentList::iterator iter = extcapArguments.begin();
     while ( iter != extcapArguments.end() )
     {
-        lblWidget = (*iter)->createLabel((QWidget *)this);
+        argument = (ExtcapArgument *)(*iter);
+        lblWidget = argument->createLabel((QWidget *)this);
         if ( lblWidget != NULL )
         {
             layout->addWidget(lblWidget, counter, 0, Qt::AlignVCenter);
-            editWidget = (*iter)->createEditor((QWidget *) this);
+            editWidget = argument->createEditor((QWidget *) this);
             if ( editWidget != NULL )
             {
+                editWidget->setProperty(QString("extcap").toLocal8Bit(), QVariant::fromValue(argument));
                 layout->addWidget(editWidget, counter, 1, Qt::AlignVCenter);
             }
 
-            if ( (*iter)->isRequired() && ! (*iter)->isValid() )
+            if ( argument->isRequired() && ! argument->isValid() )
                 allowStart = false;
 
-            connect((*iter), SIGNAL(valueChanged()), this, SLOT(anyValueChanged()));
+            connect(argument, SIGNAL(valueChanged()), this, SLOT(anyValueChanged()));
 
             counter++;
         }
@@ -326,6 +349,59 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
     return true;
 }
 
+void ExtcapOptionsDialog::on_buttonBox_clicked(QAbstractButton *button)
+{
+    /* Only the save button has the ActionRole */
+    if ( ui->buttonBox->buttonRole(button) == QDialogButtonBox::ResetRole )
+        resetValues();
+}
+
+void ExtcapOptionsDialog::resetValues()
+{
+    ExtcapArgumentList::const_iterator iter;
+    QString value;
+
+    if (ui->verticalLayout->children().count() > 0)
+    {
+        QGridLayout * layout = (QGridLayout *)ui->verticalLayout->findChild<QGridLayout *>();
+
+        for ( int row = 0; row < layout->rowCount(); row++ )
+        {
+            QWidget * child = layout->itemAtPosition(row, 1)->widget();
+
+            if ( child )
+            {
+                /* Don't need labels, the edit widget contains the extcapargument property value */
+                ExtcapArgument * arg = 0;
+                QVariant prop = child->property(QString("extcap").toLocal8Bit());
+
+                if ( prop.isValid() && prop.canConvert<ExtcapArgument *>())
+                {
+                    arg = prop.value<ExtcapArgument *>();
+
+                    /* value<> can fail */
+                    if (arg)
+                    {
+                        arg->resetValue();
+
+                        /* replacing the edit widget after resetting will lead to default value */
+                        layout->removeItem(layout->itemAtPosition(row, 1));
+                        QWidget * editWidget = arg->createEditor((QWidget *) this);
+                        if ( editWidget != NULL )
+                        {
+                            editWidget->setProperty(QString("extcap").toLocal8Bit(), QVariant::fromValue(arg));
+                            layout->addWidget(editWidget, row, 1, Qt::AlignVCenter);
+                        }
+                    }
+                }
+            }
+        }
+
+        /* this stores all values to the preferences */
+        storeValues();
+    }
+}
+
 void ExtcapOptionsDialog::storeValues()
 {
     GHashTable * entries = g_hash_table_new(g_str_hash, g_str_equal);
@@ -379,7 +455,7 @@ void ExtcapOptionsDialog::storeValues()
             gchar * val = g_strdup(value.length() == 0 ? " " : value.toStdString().c_str());
 
             /* Setting the internally stored value for the preference to the new value */
-            (*iter)->argument()->storeval = g_strdup(val);
+            extcap_pref_store((*iter)->argument(), val);
 
             g_hash_table_insert(entries, g_strdup(key.toStdString().c_str()), val);
         }
@@ -388,10 +464,8 @@ void ExtcapOptionsDialog::storeValues()
     if ( g_hash_table_size(entries) > 0 )
     {
         if ( prefs_store_ext_multiple("extcap", entries) )
-        {
-            wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
             wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
-        }
+
     }
 }
 

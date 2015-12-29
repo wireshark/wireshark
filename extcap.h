@@ -28,6 +28,8 @@
 
 #include <glib.h>
 
+#include "ws_symbol_export.h"
+
 #ifdef _WIN32
 #include <windows.h>
 #include <wsutil/unicode-utils.h>
@@ -57,6 +59,8 @@ typedef struct _extcap_info {
     gchar * version;
 } extcap_info;
 
+struct _extcap_arg;
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -85,9 +89,6 @@ extcap_get_if_configuration(const char * ifname);
 gboolean
 extcap_has_configuration(const char * ifname, gboolean is_required);
 
-/* converts an extcap setting to its equivalent preference key */
-gchar * extcap_settings_key(const gchar * ifname, const gchar * setting);
-
 #ifdef WIN32
 HANDLE
 extcap_get_win32_handle();
@@ -99,8 +100,18 @@ extcap_init_interfaces(capture_options * capture_opts);
 gboolean
 extcap_create_pipe(char ** fifo);
 
+/* Clean up all if related stuff */
 void
-extcap_cleanup(capture_options * capture_opts _U_);
+extcap_if_cleanup(capture_options * capture_opts _U_);
+
+struct preference *
+extcap_pref_for_argument(const gchar *ifname, struct _extcap_arg * arg);
+
+void
+extcap_pref_store(struct _extcap_arg * arg, const char * newval);
+
+/* Clean up global extcap stuff on program exit */
+void extcap_cleanup(void);
 
 #ifdef __cplusplus
 }

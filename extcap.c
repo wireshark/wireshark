@@ -57,6 +57,8 @@
 static HANDLE pipe_h = NULL;
 #endif
 
+#define EXTCAP_PREF_SIZE 256
+
 /* internal container, for all the extcap interfaces that have been found.
  * will be resetted by every call to extcap_interface_list() and is being
  * used in extcap_get_if_* as well as extcap_init_interfaces to ensure,
@@ -69,6 +71,12 @@ static GHashTable *ifaces = NULL;
  * used for printing information about all extcap interfaces found
  */
 static GHashTable *tools = NULL;
+
+/* internal container, to map preferences for extcap utilities to dynamic
+ * memory content, which survives extcap if garbage collection, and does
+ * not lead to dangling pointers
+ */
+static GHashTable *extcap_prefs_dynamic_vals = NULL;
 
 /* Callback definition for extcap_foreach */
 typedef gboolean (*extcap_cb_t)(const gchar *extcap, const gchar *ifname, gchar *output, void *data,
@@ -417,6 +425,41 @@ void extcap_register_preferences(void)
     }
 }
 
+void extcap_cleanup(void)
+{
+    if (extcap_prefs_dynamic_vals) {
+        g_hash_table_destroy(extcap_prefs_dynamic_vals);
+    }
+}
+
+void extcap_pref_store(extcap_arg * arg, const char * newval)
+{
+    if (arg && arg->storeval != NULL)
+    {
+        memset(arg->storeval, 0, EXTCAP_PREF_SIZE * sizeof(char));
+        if ( newval )
+            g_snprintf(arg->storeval, EXTCAP_PREF_SIZE, "%s", newval);
+    }
+
+}
+
+static gchar * extcap_prefs_dynamic_valptr(const char *name)
+{
+    gchar *valp;
+    if (!extcap_prefs_dynamic_vals) {
+        /* Initialize table only as needed, most preferences are not dynamic */
+        extcap_prefs_dynamic_vals = g_hash_table_new_full(g_str_hash, g_str_equal,
+                g_free, g_free);
+    }
+    valp = (gchar *)g_hash_table_lookup(extcap_prefs_dynamic_vals, name);
+    if (!valp) {
+        /* New dynamic pref, allocate, initialize and store. */
+        valp = g_new0(gchar, EXTCAP_PREF_SIZE);
+        g_hash_table_insert(extcap_prefs_dynamic_vals, g_strdup(name), valp);
+    }
+    return valp;
+}
+
 static void extcap_free_if_configuration(GList *list)
 {
     GList *elem, *sl;
@@ -433,32 +476,25 @@ static void extcap_free_if_configuration(GList *list)
     g_list_free(list);
 }
 
-gchar * extcap_settings_key(const gchar * ifname, const gchar * setting)
-{
-    gchar * setting_nohyphen;
-    gchar * ifname_underscore;
-    gchar * ifname_lower;
-    gchar * key;
-    GRegex * regex = g_regex_new ("(?![a-zA-Z1-9_]).", (GRegexCompileFlags) 0, (GRegexMatchFlags) 0, NULL );
+struct preference *
+extcap_pref_for_argument(const gchar *ifname, struct _extcap_arg * arg) {
+    struct preference * pref = NULL;
 
-    if (!regex)
-        return NULL;
+    GRegex * regex = g_regex_new ("[-]+", (GRegexCompileFlags) 0, (GRegexMatchFlags) 0, NULL );
+    if (regex) {
+        if ( prefs_find_module("extcap") ) {
+            gchar * pref_name = g_regex_replace(regex, arg->call, strlen(arg->call), 0, "", (GRegexMatchFlags) 0, NULL );
+            gchar * pref_ifname = g_strdup(g_strconcat(ifname, ".", pref_name, NULL));
 
-    setting_nohyphen =
-        g_regex_replace_literal(regex, setting, strlen(setting), 0,
-            "", (GRegexMatchFlags) 0, NULL );
-    ifname_underscore =
-        g_regex_replace_literal(regex, ifname, strlen(ifname), 0,
-            "_", (GRegexMatchFlags) 0, NULL );
-    ifname_lower = g_utf8_strdown(ifname_underscore, -1);
-    key = g_strconcat(ifname_lower, ".", setting_nohyphen, NULL);
+            pref = prefs_find_preference(prefs_find_module("extcap"), pref_ifname);
 
-    g_free(setting_nohyphen);
-    g_free(ifname_underscore);
-    g_free(ifname_lower);
-    g_regex_unref(regex);
+            g_free(pref_name);
+            g_free(pref_ifname);
+        }
+        g_regex_unref(regex);
+    }
 
-    return key;
+    return pref;
 }
 
 static gboolean search_cb(const gchar *extcap _U_, const gchar *ifname _U_, gchar *output, void *data,
@@ -482,29 +518,44 @@ static gboolean search_cb(const gchar *extcap _U_, const gchar *ifname _U_, gcha
     if ( dev_module ) {
         GList * walker = arguments;
 
-        while ( walker != NULL ) {
-            extcap_arg * arg = (extcap_arg *)walker->data;
+        GRegex * regex = g_regex_new ("[-]+", (GRegexCompileFlags) 0, (GRegexMatchFlags) 0, NULL );
+        if (regex) {
+            while ( walker != NULL ) {
+                extcap_arg * arg = (extcap_arg *)walker->data;
+                arg->device_name = g_strdup(ifname);
 
-            if ( arg->save ) {
-                struct preference * pref = NULL;
-                gchar * pref_ifname = extcap_settings_key(ifname, arg->call);
+                if ( arg->save ) {
+                    struct preference * pref = NULL;
 
-                if ( ( pref = prefs_find_preference(dev_module, pref_ifname) ) == NULL ) {
-                    /* Set an initial value */
-                    if ( ! arg->storeval && arg->default_complex )
-                        arg->storeval = g_strdup(arg->default_complex->_val);
+                    gchar * pref_name = g_regex_replace(regex, arg->call, strlen(arg->call), 0, "", (GRegexMatchFlags) 0, NULL );
+                    gchar * pref_ifname = g_strdup(g_strconcat(ifname, ".", pref_name, NULL));
 
-                    prefs_register_string_preference(dev_module, g_strdup(pref_ifname),
-                            arg->display, arg->display, (const gchar **)(void*)(&arg->storeval));
-                } else {
-                    /* Been here before, restore stored value */
-                    if (! arg->storeval && pref->varp.string)
-                        arg->storeval = g_strdup(*(pref->varp.string));
+                    if ( ( pref = prefs_find_preference(dev_module, pref_ifname) ) == NULL ) {
+                        /* Set an initial value */
+                        if ( ! arg->storeval && arg->default_complex )
+                        {
+                            arg->storeval = extcap_prefs_dynamic_valptr(pref_ifname);
+                            g_snprintf(arg->storeval, EXTCAP_PREF_SIZE, "%s", arg->default_complex->_val);
+                        }
+
+                        prefs_register_string_preference(dev_module, g_strdup(pref_ifname),
+                                arg->display, arg->display, (const gchar **)&(arg->storeval));
+                    } else {
+                        /* Been here before, restore stored value */
+                        if (! arg->storeval && pref->varp.string)
+                        {
+                            arg->storeval = extcap_prefs_dynamic_valptr(pref_ifname);
+                            g_snprintf(arg->storeval, EXTCAP_PREF_SIZE, "%s", *(pref->varp.string));
+                        }
                     }
-                g_free(pref_ifname);
-            }
 
-            walker = g_list_next(walker);
+                    g_free(pref_name);
+                    g_free(pref_ifname);
+                }
+
+                walker = g_list_next(walker);
+            }
+            g_regex_unref(regex);
         }
     }
 
@@ -592,7 +643,7 @@ extcap_has_configuration(const char * ifname, gboolean is_required) {
     return found;
 }
 
-void extcap_cleanup(capture_options * capture_opts) {
+void extcap_if_cleanup(capture_options * capture_opts) {
     interface_options interface_opts;
     guint icnt = 0;
 
@@ -691,15 +742,15 @@ static void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
 static
 GPtrArray * extcap_prepare_arguments(interface_options interface_opts)
 {
-	GPtrArray *result = NULL;
+    GPtrArray *result = NULL;
 #if ARG_DEBUG
     gchar **tmp;
     int tmp_i;
 #endif
 
-	if (interface_opts.if_type == IF_EXTCAP )
-	{
-		result = g_ptr_array_new();
+    if (interface_opts.if_type == IF_EXTCAP )
+    {
+        result = g_ptr_array_new();
 
 #define add_arg(X) g_ptr_array_add(result, g_strdup(X))
 
@@ -781,9 +832,9 @@ GPtrArray * extcap_prepare_arguments(interface_options interface_opts)
         }
 #endif
 
-	}
+    }
 
-	return result;
+    return result;
 }
 
 /* call mkfifo for each extcap,
