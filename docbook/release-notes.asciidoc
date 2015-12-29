@@ -11,7 +11,7 @@ used for troubleshooting, analysis, development and education.
 
 // Link templates: ws-buglink:5000[]  ws-buglink:6000[Wireshark bug]  cve-idlink:2013-2486[]
 
-The following vulnerabilities have been fixed.
+The following vulnerabilities have been fixed:
 
 * ws-salink:2015-31[]
 +
@@ -109,7 +109,7 @@ SCTP dissector crash.
 * ws-salink:2015-42[]
 +
 802.11 decryption crash.
-// Fixed in master: g40b2831, 83f2818
+// Fixed in master: g40b2831, g83f2818
 // Fixed in master-2.0: gbf1fa88, gfc3b6a5
 // Fixed in master-1.12: ga6e8fc8, g8110a70
 (ws-buglink:11790[], ws-buglink:11826[])
@@ -127,7 +127,7 @@ DIAMETER dissector crash.
 * ws-salink:2015-44[]
 +
 VeriWave file parser crashes.
-// Fixed in master: gb8fa3d4, 185911d
+// Fixed in master: gb8fa3d4, g185911d
 // Fixed in master-2.0: g135c8f0, ge4267dd
 // Fixed in master-1.12: gfef89fc, g51ccf92
 (ws-buglink:11789[], ws-buglink:11791[])
@@ -196,12 +196,46 @@ Sniffer file parser crash.
 (ws-buglink:11827[])
 //cve-idlink:2015-XXXX[]
 
+The Windows installers are now built using NSIS 2.50 in order to avoid
+http://nsis.sourceforge.net/Docs/AppendixF.html[DLL hijacking flaws].
+
 The following bugs have been fixed:
 
 //* Wireshark always manages to score tickets for Burning Man, Coachella, and
 //  SXSW while you end up working double shifts. (ws-buglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v1.12.9rc0..| grep ' Bug:' | cut -f2 -d: | sort -n -u ` ; do gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* Zooming out (Ctrl+-) too far crashes Wireshark. (ws-buglink:8854[])
+
+* IPv6 Next Header is Unknown yet Wireshark tries parsing an IPv6 Extension Header. (ws-buglink:9996[])
+
+* IPv6 Mobility Header Link-Layer Address Mobility Option is parsed incorrectly. (ws-buglink:10627[])
+
+* Windows Wireshark Installer does not detect WinPcap which is already installed. (ws-buglink:10867[])
+
+* SSL Decrypted Packet Not Decoded As HTTP. (ws-buglink:10984[])
+
+* Wireshark crashes when using the VoIP player. (ws-buglink:11596[])
+
+* [GSMTAP] Incorrect decoding of MS Radio Access Capability using alternative coding. (ws-buglink:11599[])
+
+* TCP sequence analysis (expert info) does not work in 802.1ah frames. (ws-buglink:11629[])
+
+* No correct GVCP info message for READREG_ACK command. (ws-buglink:11639[])
+
+* Bug in EtherCAT dissector with mailbox response. (ws-buglink:11652[])
+
+* NLM v4 statistics crash. (ws-buglink:11654[])
+
+* Malformed packet with IPv6 mobility header. (ws-buglink:11728[])
+
+* LDAP decode shows invalid number of results for searchResEntry packets. (ws-buglink:11761[])
+
+* IPv6 RPL Routing Header with length of 8 bytes still reads an address. (ws-buglink:11803[])
+
+* g_utf8_validate assertion when reassembling GSM SMS messages encoded in UCS2. (ws-buglink:11809[])
+
+* MPEG2TS NULL pkt: AFC: "Should be 0 for NULL packets" wrong. (ws-buglink:11921[])
 
 
 === New and Updated Features
@@ -215,7 +249,42 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+6LoWPAN
+802.1ah
+AllJoyn
+ANSI A
+ASN.1 BER
+CLNP
+CMS
+DCOM
+DIAMETER
+DNS
+ERF
+GSM A
+GSM SMS
+GTP
+GVCP
+HiSLIP
+IEEE 802.11
+IPv4
+IPv6
+L2TP
+LDAP
+MIP6
+MP2T
 NBAP
+NLM
+ONC RPC
+PCP
+RSL
+RSVP
+SCTP
+SDP
+SIGCOMP
+SNMP
+SPDY
+T.38
+UMTS FP
 ZigBee ZCL
 --sort-and-group--
 
@@ -223,6 +292,10 @@ ZigBee ZCL
 
 //There is no new or updated capture file support in this release.
 --sort-and-group--
+Ascend
+ERF
+Sniffer
+VeriWave
 --sort-and-group--
 
 == Getting Wireshark
