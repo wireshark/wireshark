@@ -5779,7 +5779,7 @@ proto_register_nas_eps(void)
     },
     { &hf_nas_eps_esm_ratc,
         { "RATC", "nas_eps.esm.ratc",
-        FT_BOOLEAN, 8, TFS(&nas_eps_emm_active_flg_value), 0x01,
+        FT_BOOLEAN, 8, TFS(&nas_eps_esm_ratc_value), 0x01,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_linked_bearer_id,
