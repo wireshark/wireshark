@@ -71,7 +71,6 @@ QWidget * ExtcapArgumentFileSelection::createEditor(QWidget * parent)
         button->setToolTip(QString().fromUtf8(_argument->tooltip));
     }
 
-
     connect(button, SIGNAL(clicked()), (QObject *)this, SLOT(openFileDialog()));
 
     editLayout->addWidget(textBox);
@@ -98,12 +97,23 @@ void ExtcapArgumentFileSelection::openFileDialog()
     if (QFileInfo(filename).exists())
         workingDir = QFileInfo(filename).dir();
 
+    QString fileExt(tr("Any File (*.*)"));
+    if ( _argument->fileextension != NULL )
+    {
+        QString givenExt = QString().fromUtf8(_argument->fileextension);
+        if ( givenExt.length() != 0 )
+            fileExt.prepend(";;").prepend(givenExt);
+    }
+
     filename = QFileDialog::getOpenFileName((QWidget *)(textBox->parent()),
         QString().fromUtf8(_argument->display) + " " + tr("Open File"),
-        workingDir.absolutePath(), tr("All Files (*.*)"));
+        workingDir.absolutePath(), fileExt);
 
-    if ( QFileInfo(filename).exists() )
+    if ( ! fileExists() || QFileInfo(filename).exists() )
+    {
         textBox->setText(filename);
+        emit valueChanged();
+    }
 }
 
 bool ExtcapArgumentFileSelection::isValid()

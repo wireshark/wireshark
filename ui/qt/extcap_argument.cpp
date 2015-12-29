@@ -506,6 +506,14 @@ bool ExtcapArgument::isRequired()
     return FALSE;
 }
 
+bool ExtcapArgument::fileExists()
+{
+    if ( _argument != NULL )
+        return _argument->fileexists;
+
+    return FALSE;
+}
+
 bool ExtcapArgument::isDefault()
 {
     if ( value().compare(defaultValue()) == 0 )

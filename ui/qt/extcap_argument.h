@@ -98,6 +98,8 @@ Q_SIGNALS:
 
 protected:
 
+    bool fileExists();
+
     void setDefault(GHashTable * defaultsList);
 
     ExtcapValueList loadValues(QString parent);

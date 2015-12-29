@@ -339,6 +339,8 @@ extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
             tv->param_type = EXTCAP_PARAM_TOOLTIP;
         } else if (g_ascii_strcasecmp(tv->arg, "mustexist") == 0) {
             tv->param_type = EXTCAP_PARAM_FILE_MUSTEXIST;
+        } else if (g_ascii_strcasecmp(tv->arg, "fileext") == 0) {
+            tv->param_type = EXTCAP_PARAM_FILE_EXTENSION;
         } else if (g_ascii_strcasecmp(tv->arg, "name") == 0) {
             tv->param_type = EXTCAP_PARAM_NAME;
         } else if (g_ascii_strcasecmp(tv->arg, "enabled") == 0) {
@@ -477,6 +479,7 @@ extcap_arg *extcap_new_arg(void) {
     r->range_end = NULL;
     r->default_complex = NULL;
     r->fileexists = FALSE;
+    r->fileextension = NULL;
     r->is_required = FALSE;
 
     r->values = NULL;
@@ -502,6 +505,9 @@ void extcap_free_arg(extcap_arg *a) {
 
     if (a->tooltip != NULL)
         g_free(a->tooltip);
+
+    if (a->fileextension != NULL)
+        g_free(a->fileextension);
 
     if (a->range_start != NULL)
         extcap_free_complex(a->range_start);
@@ -592,6 +598,11 @@ extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence *s) {
         if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_FILE_MUSTEXIST))
                 != NULL) {
             target_arg->fileexists = (v->value[0] == 't' || v->value[0] == 'T');
+        }
+
+        if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_FILE_EXTENSION))
+                != NULL) {
+            target_arg->fileextension = g_strdup(v->value);
         }
 
         if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_REQUIRED))
