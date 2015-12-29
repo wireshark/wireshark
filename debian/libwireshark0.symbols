@@ -75,6 +75,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  bluetooth_company_id_vals_ext@Base 1.99.6
  bluetooth_uuid_vals@Base 1.99.2
  bluetooth_uuid_vals_ext@Base 1.99.2
+ bluetooth_uuids@Base 2.1.0
  bssgp_cause_vals_ext@Base 1.9.1
  bthci_evt_hci_version@Base 1.99.6
  bthci_evt_lmp_version@Base 1.99.6
@@ -94,6 +95,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  call_per_oid_callback@Base 1.99.1
  camelSRTtype_naming@Base 1.9.1
  camel_opr_code_strings@Base 1.9.1
+ capture_dissector_get_count@Base 2.1.0
+ capture_dissector_increment_count@Base 2.1.0
  check_xdlc_control@Base 1.9.1
  circuit_add_proto_data@Base 1.9.1
  circuit_get_proto_data@Base 1.9.1
@@ -128,6 +131,24 @@ libwireshark.so.0 libwireshark0 #MINVER#
  col_set_time@Base 1.9.1
  col_set_writable@Base 1.9.1
  col_setup@Base 1.9.1
+ color_filter_delete@Base 2.1.0
+ color_filter_list_delete@Base 2.1.0
+ color_filter_new@Base 2.1.0
+ color_filters_apply@Base 2.1.0
+ color_filters_cleanup@Base 2.1.0
+ color_filters_clone@Base 2.1.0
+ color_filters_colorize_packet@Base 2.1.0
+ color_filters_export@Base 2.1.0
+ color_filters_import@Base 2.1.0
+ color_filters_init@Base 2.1.0
+ color_filters_prime_edt@Base 2.1.0
+ color_filters_read_globals@Base 2.1.0
+ color_filters_reload@Base 2.1.0
+ color_filters_reset_tmp@Base 2.1.0
+ color_filters_set_tmp@Base 2.1.0
+ color_filters_tmp_color@Base 2.1.0
+ color_filters_used@Base 2.1.0
+ color_filters_write@Base 2.1.0
  column_dump_column_formats@Base 1.12.0~rc1
  conv_filter_list@Base 2.0.0
  conversation_add_proto_data@Base 1.9.1
@@ -752,6 +773,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  hostlist_table_set_gui_info@Base 1.99.0
  http_dissector_add@Base 1.9.1
  http_port_add@Base 1.9.1
+ ieee80211_ht_Dbps@Base 2.1.0
  ieee80211_htrate@Base 2.1.0
  ieee80211_supported_rates_vals_ext@Base 1.99.1
  ieee802a_add_oui@Base 1.9.1
@@ -763,8 +785,10 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ip_checksum_tvb@Base 1.99.0
  ipopt_type_class_vals@Base 1.9.1
  ipopt_type_number_vals@Base 1.9.1
+ ipproto_val_ext@Base 2.1.0
  ipprotostr@Base 1.9.1
  ipv4_get_net_order_addr@Base 1.9.1
+ ipv6extprotostr@Base 2.1.0
  is_big_endian@Base 1.9.1
  is_broadcast_bssid@Base 2.0.0
  is_tpkt@Base 1.9.1
@@ -772,6 +796,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  isup_message_type_value_acro_ext@Base 1.9.1
  join_string_list@Base 1.99.0
  ldap_procedure_names@Base 1.99.8
+ link_type_vals@Base 2.1.0
  list_stat_cmd_args@Base 1.9.1
  llc_add_oui@Base 1.9.1
  load_export_pdu_tags@Base 1.12.0~rc1
@@ -877,6 +902,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_register_directory_preference@Base 1.9.1
  prefs_register_enum_preference@Base 1.9.1
  prefs_register_filename_preference@Base 1.9.1
+ prefs_register_module@Base 2.1.0
  prefs_register_obsolete_preference@Base 1.9.1
  prefs_register_protocol@Base 1.9.1
  prefs_register_protocol_subtree@Base 1.9.1
@@ -884,11 +910,14 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_register_stat@Base 1.9.1
  prefs_register_static_text_preference@Base 1.9.1
  prefs_register_string_preference@Base 1.9.1
+ prefs_register_subtree@Base 2.1.0
  prefs_register_uat_preference@Base 1.9.1
  prefs_register_uat_preference_qt@Base 1.12.0~rc1
  prefs_register_uint_preference@Base 1.9.1
  prefs_reset@Base 1.9.1
  prefs_set_pref@Base 1.9.1
+ prefs_set_range_value@Base 2.1.0
+ prefs_set_string_like_value@Base 2.1.0
  print_bookmark@Base 1.12.0~rc1
  print_finale@Base 1.12.0~rc1
  print_hex_data@Base 1.12.0~rc1
@@ -1096,9 +1125,12 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_ber_oid_dissector_handle@Base 1.9.1
  register_ber_oid_syntax@Base 1.9.1
  register_ber_syntax_dissector@Base 2.1.0
+ register_capture_dissector@Base 2.1.0
+ register_capture_dissector_table@Base 2.1.0
+ register_cleanup_routine@Base 1.99.8
+ register_conversation_filter@Base 2.0.0
  register_count@Base 1.9.1
  register_custom_dissector_table@Base 1.99.8
- register_conversation_filter@Base 2.0.0
  register_custom_dissector_table@Base 1.99.8
  register_decode_as@Base 1.12.0~rc1
  register_dissector@Base 2.1.0
@@ -1109,12 +1141,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_giop_user_module@Base 1.9.1
  register_heur_dissector_list@Base 1.9.1
  register_init_routine@Base 1.9.1
- register_cleanup_routine@Base 1.99.8
- register_new_stat_tap_ui@Base 1.99.8
  register_postdissector@Base 1.9.1
  register_postseq_cleanup_routine@Base 1.9.1
  register_rtd_table@Base 1.99.8
  register_srt_table@Base 1.99.8
+ register_stat_tap_table_ui@Base 2.1.0
  register_stat_tap_ui@Base 1.99.1
  register_tap@Base 1.9.1
  register_tap_listener@Base 1.9.1
@@ -1251,6 +1282,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  stats_tree_sort_compare@Base 1.12.0~rc1
  stats_tree_tick_pivot@Base 1.9.1
  stats_tree_tick_range@Base 1.9.1
+ str_to_ip6@Base 2.1.0
+ str_to_ip@Base 2.1.0
  str_to_str@Base 1.9.1
  str_to_val@Base 1.9.1
  str_to_val_idx@Base 1.9.1
@@ -1342,9 +1375,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  timestamp_set_precision@Base 1.9.1
  timestamp_set_seconds_type@Base 1.9.1
  timestamp_set_type@Base 1.9.1
+ tmp_color_filters_used@Base 2.1.0
  trans2_cmd_vals_ext@Base 1.9.1
  tree_expanded@Base 1.12.0~rc1
  tree_expanded_set@Base 1.12.0~rc1
+ try_capture_dissector@Base 2.1.0
  try_rval_to_str@Base 1.9.1
  try_rval_to_str_idx@Base 1.9.1
  try_serv_name_lookup@Base 2.1.0
@@ -1555,8 +1590,13 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_gc@Base 1.9.1
  wmem_init@Base 1.12.0~rc1
  wmem_int64_hash@Base 1.12.0~rc1
+ wmem_itree_find_intervals@Base 2.1.0
+ wmem_itree_insert@Base 2.1.0
+ wmem_itree_is_empty@Base 2.1.0
+ wmem_itree_new@Base 2.1.0
  wmem_list_append@Base 1.12.0~rc1
  wmem_list_count@Base 1.12.0~rc1
+ wmem_list_find@Base 2.1.0
  wmem_list_frame_data@Base 1.12.0~rc1
  wmem_list_frame_next@Base 1.12.0~rc1
  wmem_list_frame_prev@Base 1.12.0~rc1
