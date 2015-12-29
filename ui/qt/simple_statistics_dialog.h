@@ -31,7 +31,7 @@ class SimpleStatisticsDialog : public TapParameterDialog
     Q_OBJECT
 
 public:
-    SimpleStatisticsDialog(QWidget &parent, CaptureFile &cf, struct _new_stat_tap_ui *stu, const QString filter, int help_topic = 0);
+    SimpleStatisticsDialog(QWidget &parent, CaptureFile &cf, struct _stat_tap_table_ui *stu, const QString filter, int help_topic = 0);
     static TapParameterDialog *createSimpleStatisticsDialog(QWidget &parent, const QString cfg_str, const QString filter, CaptureFile &cf);
 
 protected:
@@ -43,7 +43,7 @@ protected:
     void addMissingRows(struct _new_stat_data_t *stat_data);
 
 private:
-    struct _new_stat_tap_ui *stu_;
+    struct _stat_tap_table_ui *stu_;
 
     // Callbacks for register_tap_listener
     static void tapReset(void *sd_ptr);
@@ -56,7 +56,7 @@ private slots:
 
 /** Register function to register dissectors that support a "simple" statistics table.
  *
- * @param data new_stat_tap_ui* representing dissetor stat table
+ * @param data stat_tap_table_ui* representing dissetor stat table
  */
 void register_simple_stat_tables(gpointer data, gpointer);
 

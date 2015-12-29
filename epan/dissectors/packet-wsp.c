@@ -5561,7 +5561,7 @@ static stat_tap_table_item wsp_stat_fields[] = {
 static int unknown_pt_idx;
 static int unknown_sc_idx;
 
-static void wsp_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void wsp_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
 	int num_fields = sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item);
 	stat_tap_table* pt_table = new_stat_tap_init_table("PDU Types", num_fields, 0, NULL, gui_callback, gui_data);
@@ -7317,7 +7317,7 @@ proto_register_sir(void)
         { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
     };
 
-    static new_stat_tap_ui wsp_stat_table = {
+    static stat_tap_table_ui wsp_stat_table = {
         REGISTER_STAT_GROUP_TELEPHONY,
         "WAP-WSP Packet Counter",
         "wsp",
@@ -7347,7 +7347,7 @@ proto_register_sir(void)
     proto_register_field_array(proto_sir, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_new_stat_tap_ui(&wsp_stat_table);
+    register_stat_tap_table_ui(&wsp_stat_table);
 
 }
 

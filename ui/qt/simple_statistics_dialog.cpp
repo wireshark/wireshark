@@ -32,7 +32,7 @@
 // To do:
 // - Hide rows with zero counts.
 
-static QHash<const QString, new_stat_tap_ui *> cfg_str_to_stu_;
+static QHash<const QString, stat_tap_table_ui *> cfg_str_to_stu_;
 
 extern "C" {
 static void
@@ -50,7 +50,7 @@ simple_stat_init(const char *args, void*) {
 }
 
 void register_simple_stat_tables(gpointer data, gpointer) {
-    new_stat_tap_ui *stu = (new_stat_tap_ui*)data;
+    stat_tap_table_ui *stu = (stat_tap_table_ui*)data;
 
     cfg_str_to_stu_[stu->cli_string] = stu;
     TapParameterDialog::registerDialog(
@@ -154,7 +154,7 @@ private:
     const stat_tap_table_item_type *fields_;
 };
 
-SimpleStatisticsDialog::SimpleStatisticsDialog(QWidget &parent, CaptureFile &cf, struct _new_stat_tap_ui *stu, const QString filter, int help_topic) :
+SimpleStatisticsDialog::SimpleStatisticsDialog(QWidget &parent, CaptureFile &cf, struct _stat_tap_table_ui *stu, const QString filter, int help_topic) :
     TapParameterDialog(parent, cf, help_topic),
     stu_(stu)
 {
@@ -182,7 +182,7 @@ TapParameterDialog *SimpleStatisticsDialog::createSimpleStatisticsDialog(QWidget
         return NULL;
     }
 
-    new_stat_tap_ui *stu = cfg_str_to_stu_[cfg_str];
+    stat_tap_table_ui *stu = cfg_str_to_stu_[cfg_str];
 
     return new SimpleStatisticsDialog(parent, cf, stu, filter);
 }

@@ -791,7 +791,7 @@ static stat_tap_table_item mtp3_stat_fields[] = {
   {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg Bytes", "%f"},
 };
 
-static void mtp3_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void mtp3_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
   int num_fields = sizeof(mtp3_stat_fields)/sizeof(stat_tap_table_item);
   stat_tap_table* table;
@@ -1031,7 +1031,7 @@ proto_register_mtp3(void)
     { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
   };
 
-  static new_stat_tap_ui mtp3_stat_table = {
+  static stat_tap_table_ui mtp3_stat_table = {
     REGISTER_STAT_GROUP_TELEPHONY_MTP3,
     "MTP3 Statistics",
     "mtp3",
@@ -1099,7 +1099,7 @@ proto_register_mtp3(void)
          "Decode the spare bits of the SIO as the MSU priority (a national option in ITU)",
          &mtp3_show_itu_priority);
 
-  register_new_stat_tap_ui(&mtp3_stat_table);
+  register_stat_tap_table_ui(&mtp3_stat_table);
 }
 
 void

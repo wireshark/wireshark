@@ -5617,7 +5617,7 @@ typedef enum
 
 static stat_tap_table_item bootp_stat_fields[] = {{TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "DHCP Message Type", "%-25s"}, {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Packets", "%d"}};
 
-static void bootp_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void bootp_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
 	int num_fields = sizeof(bootp_stat_fields)/sizeof(stat_tap_table_item);
 	stat_tap_table* table = new_stat_tap_init_table("DHCP Statistics", num_fields, 0, NULL, gui_callback, gui_data);
@@ -7828,7 +7828,7 @@ proto_register_bootp(void)
 		{ PARAM_FILTER, "filter", "Filter", NULL, TRUE }
 	};
 
-	static new_stat_tap_ui bootp_stat_table = {
+	static stat_tap_table_ui bootp_stat_table = {
 		REGISTER_STAT_GROUP_UNSORTED,
 		"DHCP (BOOTP) Statistics",
 		"bootp",
@@ -7903,7 +7903,7 @@ proto_register_bootp(void)
 				      "Custom BootP/DHCP Options (Excl. suboptions)",
 				      bootp_uat);
 
-	register_new_stat_tap_ui(&bootp_stat_table);
+	register_stat_tap_table_ui(&bootp_stat_table);
 }
 
 void

@@ -51,7 +51,7 @@ typedef struct _gtk_simplestat_t {
 typedef struct _simple_stat_t {
 	const char *filter;
 	gtk_simplestat_t_t gtk_data;
-	new_stat_tap_ui *new_stat_tap;
+	stat_tap_table_ui *new_stat_tap;
 	new_stat_data_t data;
 } simple_stat_t;
 
@@ -193,7 +193,7 @@ simple_stat_reset(void *arg)
 }
 
 static void
-init_simple_stat_tables(new_stat_tap_ui *new_stat_tap, const char *filter)
+init_simple_stat_tables(stat_tap_table_ui *new_stat_tap, const char *filter)
 {
 	simple_stat_t *ss;
 	GString *error_string;
@@ -248,7 +248,7 @@ init_simple_stat_tables(new_stat_tap_ui *new_stat_tap, const char *filter)
 static void
 gtk_simple_stat_init(const char *opt_arg, void *userdata)
 {
-	new_stat_tap_ui *new_stat_tap = (new_stat_tap_ui*)userdata;
+	stat_tap_table_ui *new_stat_tap = (stat_tap_table_ui*)userdata;
 	const char *filter=NULL;
 	char* err;
 
@@ -266,7 +266,7 @@ gtk_simple_stat_init(const char *opt_arg, void *userdata)
 
 void register_simple_stat_tables(gpointer data, gpointer user_data _U_)
 {
-	new_stat_tap_ui *new_stat_tap = (new_stat_tap_ui*)data;
+	stat_tap_table_ui *new_stat_tap = (stat_tap_table_ui*)data;
 	tap_param_dlg* stat_dlg;
 
 	stat_dlg = g_new(tap_param_dlg, 1);

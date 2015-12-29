@@ -7900,7 +7900,7 @@ static guint facility_reason_idx[FACILITY_REASONS];
 
 static guint other_idx;
 
-static void h225_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void h225_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
   int num_fields = sizeof(h225_stat_fields)/sizeof(stat_tap_table_item);
   stat_tap_table* table = new_stat_tap_init_table("H.225 Messages and Message Reasons", num_fields, 0, NULL, gui_callback, gui_data);
@@ -11612,7 +11612,7 @@ void proto_register_h225(void) {
     { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
   };
 
-  static new_stat_tap_ui h225_stat_table = {
+  static stat_tap_table_ui h225_stat_table = {
     REGISTER_STAT_GROUP_TELEPHONY,
     "H.225",
     PFNAME,
@@ -11675,7 +11675,7 @@ void proto_register_h225(void) {
 
   register_rtd_table(proto_h225_ras, PFNAME, NUM_RAS_STATS, 1, ras_message_category, h225rassrt_packet, NULL);
 
-  register_new_stat_tap_ui(&h225_stat_table);
+  register_stat_tap_table_ui(&h225_stat_table);
 
   oid_add_from_string("Version 1","0.0.8.2250.0.1");
   oid_add_from_string("Version 2","0.0.8.2250.0.2");

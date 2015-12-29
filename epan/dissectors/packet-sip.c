@@ -4835,7 +4835,7 @@ static stat_tap_table_item sip_stat_fields[] = {
     {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Max Setup (s)", "%8.2f"},
 };
 
-static void sip_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void sip_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     /* XXX Should we have a single request + response table instead? */
     int num_fields = sizeof(sip_stat_fields)/sizeof(stat_tap_table_item);
@@ -6300,7 +6300,7 @@ void proto_register_sip(void)
       { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
     };
 
-    static new_stat_tap_ui sip_stat_table = {
+    static stat_tap_table_ui sip_stat_table = {
       REGISTER_STAT_GROUP_TELEPHONY,
       "SIP Statistics",
       "sip",
@@ -6409,7 +6409,7 @@ void proto_register_sip(void)
 
     ext_hdr_subdissector_table = register_dissector_table("sip.hdr", "SIP Extension header", FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-    register_new_stat_tap_ui(&sip_stat_table);
+    register_stat_tap_table_ui(&sip_stat_table);
 
     /* compile patterns */
     ws_mempbrk_compile(&pbrk_comma_semi, ",;");

@@ -101,7 +101,7 @@ simple_draw(void *arg)
 }
 
 static void
-init_stat_table(new_stat_tap_ui *new_stat_tap, const char *filter)
+init_stat_table(stat_tap_table_ui *new_stat_tap, const char *filter)
 {
 	GString *error_string;
 	table_stat_t* ui;
@@ -125,7 +125,7 @@ init_stat_table(new_stat_tap_ui *new_stat_tap, const char *filter)
 static void
 simple_stat_init(const char *opt_arg, void* userdata)
 {
-	new_stat_tap_ui *new_stat_tap = (new_stat_tap_ui*)userdata;
+	stat_tap_table_ui *new_stat_tap = (stat_tap_table_ui*)userdata;
 	const char *filter=NULL;
 	char* err = NULL;
 
@@ -143,7 +143,7 @@ simple_stat_init(const char *opt_arg, void* userdata)
 void
 register_simple_stat_tables(gpointer data, gpointer user_data _U_)
 {
-	new_stat_tap_ui *new_stat_tap = (new_stat_tap_ui*)data;
+	stat_tap_table_ui *new_stat_tap = (stat_tap_table_ui*)data;
 	stat_tap_ui ui_info;
 
 	ui_info.group = new_stat_tap->group;

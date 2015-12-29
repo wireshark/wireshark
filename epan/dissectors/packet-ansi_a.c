@@ -10590,7 +10590,7 @@ typedef enum
 static stat_tap_table_item dtap_stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "IEI", "0x%02x  "}, {TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Message Name", "%-50s"},
     {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "%d"}};
 
-static void ansi_a_dtap_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void ansi_a_dtap_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     int num_fields = sizeof(dtap_stat_fields)/sizeof(stat_tap_table_item);
     stat_tap_table* table = new_stat_tap_init_table("ANSI A-I/F DTAP Statistics", num_fields, 0, NULL, gui_callback, gui_data);
@@ -10658,7 +10658,7 @@ ansi_a_stat_reset(stat_tap_table* table)
 static stat_tap_table_item bsmap_stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "IEI", "0x%02x  "}, {TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Message Name", "%-50s"},
     {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "%d"}};
 
-static void ansi_a_bsmap_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void ansi_a_bsmap_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     int num_fields = sizeof(bsmap_stat_fields)/sizeof(stat_tap_table_item);
     stat_tap_table* table = new_stat_tap_init_table("ANSI A-I/F BSMAP Statistics", num_fields, 0, NULL, gui_callback, gui_data);
@@ -12756,7 +12756,7 @@ proto_register_ansi_a(void)
     gint **ett;
     gint ett_len = (NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+MAX_NUM_ELEM_1+NUM_FWD_MS_INFO_REC+NUM_REV_MS_INFO_REC) * sizeof(gint *);
 
-    static new_stat_tap_ui dtap_stat_table = {
+    static stat_tap_table_ui dtap_stat_table = {
         REGISTER_STAT_GROUP_TELEPHONY_ANSI,
         "A-I/F DTAP Statistics",
         "ansi_a",
@@ -12771,7 +12771,7 @@ proto_register_ansi_a(void)
         NULL
     };
 
-    static new_stat_tap_ui bsmap_stat_table = {
+    static stat_tap_table_ui bsmap_stat_table = {
         REGISTER_STAT_GROUP_TELEPHONY_ANSI,
         "A-I/F BSMAP Statistics",
         "ansi_a",
@@ -12903,8 +12903,8 @@ proto_register_ansi_a(void)
 
     g_free(ett);
 
-    register_new_stat_tap_ui(&dtap_stat_table);
-    register_new_stat_tap_ui(&bsmap_stat_table);
+    register_stat_tap_table_ui(&dtap_stat_table);
+    register_stat_tap_table_ui(&bsmap_stat_table);
 }
 
 

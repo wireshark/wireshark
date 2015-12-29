@@ -29,7 +29,7 @@
 
 /** Register function to register dissectors that support a "simple" statistics table.
  *
- * @param data new_stat_tap_ui* representing dissetor stat table
+ * @param data stat_tap_table_ui* representing dissetor stat table
  * @param user_data is unused
  */
 void register_simple_stat_tables(gpointer data, gpointer user_data);

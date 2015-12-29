@@ -1220,7 +1220,7 @@ typedef enum
 
 static stat_tap_table_item camel_stat_fields[] = {{TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Message Type or Reason", "%-25s"}, {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Count", "%d"}};
 
-static void camel_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void camel_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
   int num_fields = sizeof(camel_stat_fields)/sizeof(stat_tap_table_item);
   stat_tap_table* table = new_stat_tap_init_table("CAMEL Message Counters", num_fields, 0, NULL, gui_callback, gui_data);
@@ -1532,7 +1532,7 @@ void proto_register_camel(void) {
     { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
   };
 
-  static new_stat_tap_ui camel_stat_table = {
+  static stat_tap_table_ui camel_stat_table = {
     REGISTER_STAT_GROUP_TELEPHONY_GSM,
     "CAMEL Messages and Response Status",
     PSNAME,
@@ -1604,7 +1604,7 @@ void proto_register_camel(void) {
   camel_tap=register_tap(PSNAME);
 
   register_srt_table(proto_camel, PSNAME, 1, camelstat_packet, camelstat_init, NULL);
-  register_new_stat_tap_ui(&camel_stat_table);
+  register_stat_tap_table_ui(&camel_stat_table);
 }
 
 /*

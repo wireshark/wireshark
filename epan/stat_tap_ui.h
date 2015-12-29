@@ -132,14 +132,14 @@ typedef void (*new_stat_tap_gui_reset_cb)(stat_tap_table* stat_table, void* gui_
 typedef void (*new_stat_tap_gui_free_cb)(stat_tap_table* stat_table, void* gui_data); /* GTK+ only? */
 
 /*
- * UI information for a tap.
+ * UI information for a tap with a table-based UI.
  */
-typedef struct _new_stat_tap_ui {
+typedef struct _stat_tap_table_ui {
     register_stat_group_t  group;      /* group to which statistic belongs */
     const char            *title;      /* title of statistic */
     const char            *tap_name;
     const char            *cli_string; /* initial part of the "-z" argument for statistic */
-    void (* stat_tap_init_cb)(struct _new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data);
+    void (* stat_tap_init_cb)(struct _stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data);
     tap_packet_cb packet_func;
     void (* stat_tap_reset_table_cb)(stat_tap_table* table);
     void (* stat_tap_free_table_item_cb)(stat_tap_table* table, guint row, guint column, stat_tap_table_item_type* field_data);
@@ -149,13 +149,13 @@ typedef struct _new_stat_tap_ui {
     size_t                 nparams;    /* number of parameters */
     tap_param             *params;     /* pointer to table of parameter info */
     GArray                *tables;     /* An array of stat_tap_table* */
-} new_stat_tap_ui;
+} stat_tap_table_ui;
 
 
 /** tap data
  */
 typedef struct _new_stat_data_t {
-    new_stat_tap_ui *stat_tap_data;
+    stat_tap_table_ui *stat_tap_data;
     void        *user_data;       /**< "GUI" specifics (if necessary) */
 } new_stat_data_t;
 
@@ -167,30 +167,30 @@ typedef struct _new_stat_data_t {
  */
 WS_DLL_PUBLIC void register_stat_tap_ui(stat_tap_ui *ui, void *userdata);
 
-WS_DLL_PUBLIC void register_new_stat_tap_ui(new_stat_tap_ui *ui);
+WS_DLL_PUBLIC void register_stat_tap_table_ui(stat_tap_table_ui *ui);
 WS_DLL_PUBLIC void new_stat_tap_iterate_tables(GFunc func, gpointer user_data);
-WS_DLL_PUBLIC void new_stat_tap_get_filter(new_stat_tap_ui* new_stat, const char *opt_arg, const char **filter, char** err);
+WS_DLL_PUBLIC void new_stat_tap_get_filter(stat_tap_table_ui* new_stat, const char *opt_arg, const char **filter, char** err);
 WS_DLL_PUBLIC stat_tap_table* new_stat_tap_init_table(const char *name, int num_fields, int num_elements,
                 const char *filter_string, new_stat_tap_gui_init_cb gui_callback, void* gui_data);
-WS_DLL_PUBLIC void new_stat_tap_add_table(new_stat_tap_ui* new_stat, stat_tap_table* table);
+WS_DLL_PUBLIC void new_stat_tap_add_table(stat_tap_table_ui* new_stat, stat_tap_table* table);
 
 WS_DLL_PUBLIC void new_stat_tap_init_table_row(stat_tap_table *stat_table, guint table_index, guint num_fields, const stat_tap_table_item_type* fields);
 WS_DLL_PUBLIC stat_tap_table_item_type* new_stat_tap_get_field_data(const stat_tap_table *stat_table, guint table_index, guint field_index);
 WS_DLL_PUBLIC void new_stat_tap_set_field_data(stat_tap_table *stat_table, guint table_index, guint field_index, stat_tap_table_item_type* field_data);
-WS_DLL_PUBLIC void reset_stat_table(new_stat_tap_ui* new_stat, new_stat_tap_gui_reset_cb gui_callback, void *callback_data);
+WS_DLL_PUBLIC void reset_stat_table(stat_tap_table_ui* new_stat, new_stat_tap_gui_reset_cb gui_callback, void *callback_data);
 
-/** Free all of the tables associated with a new_stat_tap_ui.
+/** Free all of the tables associated with a stat_tap_table_ui.
  *
  * Frees data created by stat_tap_ui.stat_tap_init_cb.
- * new_stat_tap_ui.stat_tap_free_table_item_cb is called for each index in each
+ * stat_tap_table_ui.stat_tap_free_table_item_cb is called for each index in each
  * row.
  *
- * @param new_stat Parent new_stat_tap_ui struct, provided by the dissector.
+ * @param new_stat Parent stat_tap_table_ui struct, provided by the dissector.
  * @param gui_callback Per-table callback, run before rows are removed.
  * Provided by the UI.
  * @param callback_data Data for the per-table callback.
  */
-WS_DLL_PUBLIC void free_stat_tables(new_stat_tap_ui* new_stat, new_stat_tap_gui_free_cb gui_callback, void *callback_data);
+WS_DLL_PUBLIC void free_stat_tables(stat_tap_table_ui* new_stat, new_stat_tap_gui_free_cb gui_callback, void *callback_data);
 
 
 WS_DLL_PUBLIC gboolean process_stat_cmd_arg(char *optstr);

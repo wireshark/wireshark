@@ -2485,7 +2485,7 @@ static stat_tap_table_item gsm_map_stat_fields[] = {
   {TABLE_ITEM_FLOAT, TAP_ALIGN_RIGHT, "Avg Bytes", "%d"},
 };
 
-static void gsm_map_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
+static void gsm_map_stat_init(stat_tap_table_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
   int num_fields = sizeof(gsm_map_stat_fields)/sizeof(stat_tap_table_item);
   stat_tap_table* table;
@@ -3104,7 +3104,7 @@ void proto_register_gsm_map(void) {
     { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
   };
 
-  static new_stat_tap_ui gsm_map_stat_table = {
+  static stat_tap_table_ui gsm_map_stat_table = {
     REGISTER_STAT_GROUP_TELEPHONY_GSM,
     "MAP Operation",
     "gsm_map",
@@ -3163,7 +3163,7 @@ void proto_register_gsm_map(void) {
                                   "When enabled, dissector will use the non 3GPP standard extensions from Ericsson (that can override the standard ones)",
                                   &pref_ericsson_proprietary_ext);
 
-  register_new_stat_tap_ui(&gsm_map_stat_table);
+  register_stat_tap_table_ui(&gsm_map_stat_table);
 }
 
 /*
