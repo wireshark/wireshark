@@ -1327,6 +1327,7 @@ static int      ett_field               = -1;
 static int      ett_dataflowset         = -1;
 static int      ett_fwdstat             = -1;
 static int      ett_mpls_label          = -1;
+static int      ett_tcpflags            = -1;
 /*
  * cflow header
  */
@@ -1424,6 +1425,24 @@ static int      hf_cflow_marked_tos                                 = -1;
 static int      hf_cflow_flags                                      = -1;
 static int      hf_cflow_tcpflags                                   = -1;
 static int      hf_cflow_tcpflags16                                 = -1;
+static int      hf_cflow_tcpflags_fin                               = -1;
+static int      hf_cflow_tcpflags_syn                               = -1;
+static int      hf_cflow_tcpflags_rst                               = -1;
+static int      hf_cflow_tcpflags_psh                               = -1;
+static int      hf_cflow_tcpflags_ack                               = -1;
+static int      hf_cflow_tcpflags_urg                               = -1;
+static int      hf_cflow_tcpflags16_fin                             = -1;
+static int      hf_cflow_tcpflags16_syn                             = -1;
+static int      hf_cflow_tcpflags16_rst                             = -1;
+static int      hf_cflow_tcpflags16_psh                             = -1;
+static int      hf_cflow_tcpflags16_ack                             = -1;
+static int      hf_cflow_tcpflags16_urg                             = -1;
+static int      hf_cflow_tcpflags16_ece                             = -1;
+static int      hf_cflow_tcpflags16_cwr                             = -1;
+static int      hf_cflow_tcpflags16_ns                              = -1;
+static int      hf_cflow_tcpflags_reserved                          = -1;
+static int      hf_cflow_tcpflags16_reserved                        = -1;
+static int      hf_cflow_tcpflags16_zero                            = -1;
 static int      hf_cflow_dstas                                      = -1;
 static int      hf_cflow_srcas                                      = -1;
 static int      hf_cflow_dstmask                                    = -1;
@@ -2141,6 +2160,32 @@ static const value_string special_mpls_top_label_type[] = {
     {4, "BGP"},
     {5, "LDP"},
     {0, NULL }
+};
+
+static const int * tcp_flags[] = {
+    &hf_cflow_tcpflags_reserved,
+    &hf_cflow_tcpflags_urg,
+    &hf_cflow_tcpflags_ack,
+    &hf_cflow_tcpflags_psh,
+    &hf_cflow_tcpflags_rst,
+    &hf_cflow_tcpflags_syn,
+    &hf_cflow_tcpflags_fin,
+    NULL
+};
+
+static const int * tcp_flags16[] = {
+    &hf_cflow_tcpflags16_zero,
+    &hf_cflow_tcpflags16_reserved,
+    &hf_cflow_tcpflags16_ns,
+    &hf_cflow_tcpflags16_cwr,
+    &hf_cflow_tcpflags16_ece,
+    &hf_cflow_tcpflags16_urg,
+    &hf_cflow_tcpflags16_ack,
+    &hf_cflow_tcpflags16_psh,
+    &hf_cflow_tcpflags16_rst,
+    &hf_cflow_tcpflags16_syn,
+    &hf_cflow_tcpflags16_fin,
+    NULL
 };
 
 static proto_item *
@@ -3391,11 +3436,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 6: /* TCP flags */
             if (length == 1) {
-                ti = proto_tree_add_item(pdutree, hf_cflow_tcpflags,
-                                         tvb, offset, length, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_bitmask(pdutree, tvb, offset, hf_cflow_tcpflags, ett_tcpflags, tcp_flags, ENC_NA);
             } else {
-                ti = proto_tree_add_item(pdutree, hf_cflow_tcpflags16,
-                                         tvb, offset, length, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_bitmask(pdutree, tvb, offset, hf_cflow_tcpflags16, ett_tcpflags, tcp_flags16, ENC_NA);
             }
             break;
 
@@ -7926,6 +7969,96 @@ proto_register_netflow(void)
           FT_UINT16, BASE_HEX, NULL, 0x0,
           NULL, HFILL}
         },
+        {&hf_cflow_tcpflags_fin,
+         {"FIN", "cflow.tcpflags.fin",
+          FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x01,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags_syn,
+         {"SYN", "cflow.tcpflags.syn",
+          FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x02,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags_rst,
+         {"RST", "cflow.tcpflags.rst",
+          FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x04,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags_psh,
+         {"PSH", "cflow.tcpflags.psh",
+          FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x08,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags_ack,
+         {"ACK", "cflow.tcpflags.ack",
+          FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x10,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags_urg,
+         {"URG", "cflow.tcpflags.urg",
+          FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x20,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags16_fin,
+         {"FIN", "cflow.tcpflags.fin",
+          FT_BOOLEAN, 16, TFS(&tfs_used_notused), 0x0001,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags16_syn,
+         {"SYN", "cflow.tcpflags.syn",
+          FT_BOOLEAN, 16, TFS(&tfs_used_notused), 0x0002,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags16_rst,
+         {"RST", "cflow.tcpflags.rst",
+          FT_BOOLEAN, 16, TFS(&tfs_used_notused), 0x0004,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags16_psh,
+         {"PSH", "cflow.tcpflags.psh",
+          FT_BOOLEAN, 16, TFS(&tfs_used_notused), 0x0008,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags16_ack,
+         {"ACK", "cflow.tcpflags.ack",
+          FT_BOOLEAN, 16, TFS(&tfs_used_notused), 0x0010,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags16_urg,
+         {"URG", "cflow.tcpflags.urg",
+          FT_BOOLEAN, 16, TFS(&tfs_used_notused), 0x0020,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags16_ece,
+         {"ECN Echo", "cflow.tcpflags.ece",
+          FT_BOOLEAN, 16, TFS(&tfs_used_notused), 0x0040,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags16_cwr,
+         {"CWR", "cflow.tcpflags.cwr",
+          FT_BOOLEAN, 16, TFS(&tfs_used_notused), 0x0080,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags16_ns,
+         {"ECN Nonce Sum", "cflow.tcpflags.ns",
+          FT_BOOLEAN, 16, TFS(&tfs_used_notused), 0x0100,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags_reserved,
+         {"Reserved", "cflow.tcpflags.reserved",
+          FT_UINT8, BASE_HEX, NULL, 0xc0,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags16_reserved,
+         {"Reserved", "cflow.tcpflags.reserved",
+          FT_UINT16, BASE_HEX, NULL, 0x0e00,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags16_zero,
+         {"Zero (Header Length)", "cflow.tcpflags.zero",
+          FT_UINT16, BASE_HEX, NULL, 0xf000,
+          NULL, HFILL}
+        },
         {&hf_cflow_srcas,
          {"SrcAS", "cflow.srcas",
           FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -11680,7 +11813,8 @@ proto_register_netflow(void)
         &ett_field,
         &ett_dataflowset,
         &ett_fwdstat,
-        &ett_mpls_label
+        &ett_mpls_label,
+        &ett_tcpflags
     };
 
     static ei_register_info ei[] = {
