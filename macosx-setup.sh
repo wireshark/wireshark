@@ -57,7 +57,7 @@ XZ_VERSION=5.0.4
 #
 # In case we want to build with cmake.
 #
-CMAKE_VERSION=2.8.12.2
+CMAKE_VERSION=${CMAKE_VERSION-2.8.12.2}
 
 #
 # The following libraries and tools are required even to build only TShark.
@@ -330,7 +330,7 @@ install_cmake() {
             #
             # Download the DMG, run the installer.
             #
-            [ -f cmake-$CMAKE_VERSION-Darwin64-universal.dmg ] || curl -O http://www.cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
+            [ -f cmake-$CMAKE_VERSION-Darwin64-universal.dmg ] || curl -O https://cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
             sudo hdiutil attach cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
             sudo installer -target / -pkg /Volumes/cmake-$CMAKE_VERSION-Darwin64-universal/cmake-$CMAKE_VERSION-Darwin64-universal.pkg || exit 1
             sudo hdiutil detach /Volumes/cmake-$CMAKE_VERSION-Darwin64-universal
@@ -352,7 +352,7 @@ install_cmake() {
             else
                 type="Darwin-x86_64"
             fi
-            [ -f cmake-$CMAKE_VERSION-$type.dmg ] || curl -O http://www.cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-$type.dmg || exit 1
+            [ -f cmake-$CMAKE_VERSION-$type.dmg ] || curl -O https://cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-$type.dmg || exit 1
             sudo hdiutil attach cmake-$CMAKE_VERSION-$type.dmg || exit 1
             sudo ditto /Volumes/cmake-$CMAKE_VERSION-$type/CMake.app /Applications/CMake.app || exit 1
 
