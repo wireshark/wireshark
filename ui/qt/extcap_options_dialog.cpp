@@ -54,6 +54,11 @@
 
 #include "qt_ui_utils.h"
 
+#include <epan/prefs.h>
+#include <ui/preference_utils.h>
+
+#include <ui/qt/wireshark_application.h>
+
 #include <ui/qt/extcap_argument.h>
 #include <ui/qt/extcap_argument_file.h>
 #include <ui/qt/extcap_argument_multiselect.h>
@@ -68,6 +73,7 @@ ExtcapOptionsDialog::ExtcapOptionsDialog(QWidget *parent) :
 
     setWindowTitle(wsApp->windowTitleString(tr("Extcap Interface Options")));
 
+    ui->checkSaveOnStart->setCheckState(prefs.extcap_save_on_start ? Qt::Checked : Qt::Unchecked);
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Start"));
 }
@@ -118,6 +124,12 @@ ExtcapOptionsDialog::~ExtcapOptionsDialog()
 void ExtcapOptionsDialog::on_buttonBox_accepted()
 {
     if (saveOptionToCaptureInfo()) {
+        /* Starting a new capture with those values */
+        prefs.extcap_save_on_start = ui->checkSaveOnStart->checkState() == Qt::Checked;
+
+        if ( prefs.extcap_save_on_start )
+            storeValues();
+
         accept();
     }
 }
@@ -281,7 +293,7 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
     device = g_array_index(global_capture_opts.all_ifaces, interface_t, device_idx);
     global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, device_idx);
 
-    ret_args = g_hash_table_new(g_str_hash, g_str_equal);
+    ret_args = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 
     ExtcapArgumentList::const_iterator iter;
 
@@ -301,6 +313,7 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
 
         gchar * call_string = g_strdup(call.toStdString().c_str());
         gchar * value_string = g_strdup(value.toStdString().c_str());
+
         g_hash_table_insert(ret_args, call_string, value_string );
     }
 
@@ -312,6 +325,77 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
 
     return true;
 }
+
+void ExtcapOptionsDialog::storeValues()
+{
+    GHashTable * entries = g_hash_table_new(g_str_hash, g_str_equal);
+    ExtcapArgumentList::const_iterator iter;
+
+    QString value;
+
+    /* All arguments are being iterated, to ensure, that any error handling catches all arguments */
+    for(iter = extcapArguments.constBegin(); iter != extcapArguments.constEnd(); ++iter)
+    {
+        ExtcapArgument * argument = (ExtcapArgument *)(*iter);
+
+        /* The dynamic casts are necessary, because we come here using the Signal/Slot system
+         * of Qt, and -in short- Q_OBJECT classes cannot be multiple inherited. Another possibility
+         * would be to use Q_INTERFACE, but this causes way more nightmares, and we really just
+         * need here an explicit cast for the check functionality */
+        if ( dynamic_cast<ExtArgBool *>((*iter)) != NULL)
+        {
+            value = ((ExtArgBool *)*iter)->prefValue();
+        }
+        else if ( dynamic_cast<ExtArgRadio *>((*iter)) != NULL)
+        {
+            value = ((ExtArgRadio *)*iter)->prefValue();
+        }
+        else if ( dynamic_cast<ExtArgSelector *>((*iter)) != NULL)
+        {
+            value = ((ExtArgSelector *)*iter)->prefValue();
+        }
+        else if ( dynamic_cast<ExtArgMultiSelect *>((*iter)) != NULL)
+        {
+            value = ((ExtArgMultiSelect *)*iter)->prefValue();
+        }
+        else if ( dynamic_cast<ExtcapArgumentFileSelection *>((*iter)) != NULL)
+        {
+            value = ((ExtcapArgumentFileSelection *)*iter)->prefValue();
+        }
+        else if ( dynamic_cast<ExtArgNumber *>((*iter)) != NULL)
+        {
+            value = ((ExtArgNumber *)*iter)->prefValue();
+        }
+        else if ( dynamic_cast<ExtArgText *>((*iter)) != NULL)
+        {
+            value = ((ExtArgText *)*iter)->prefValue();
+        }
+        else
+            value = (*iter)->prefValue();
+
+        QString prefKey = QString("%1.%2").arg(device_name).arg(argument->prefKey());
+        if ( prefKey.length() > 0 )
+        {
+            gchar * key = g_strdup(prefKey.toStdString().c_str());
+            gchar * val = g_strdup(value.length() == 0 ? " " : value.toStdString().c_str());
+
+            /* Setting the internally stored value for the preference to the new value */
+            (*iter)->argument()->storeval = g_strdup(val);
+
+            g_hash_table_insert(entries, key, val);
+        }
+    }
+
+    if ( g_hash_table_size(entries) > 0 )
+    {
+        if ( prefs_store_ext_multiple("extcap", entries) )
+        {
+            wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
+            wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
+        }
+    }
+}
+
 
 #endif /* HAVE_LIBPCAP */
 

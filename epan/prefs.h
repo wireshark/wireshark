@@ -236,6 +236,9 @@ typedef struct _e_prefs {
   gint         st_sort_defcolflag;
   gboolean     st_sort_defdescending;
   gboolean     st_sort_showfullname;
+#ifdef HAVE_EXTCAP
+  gboolean     extcap_save_on_start;
+#endif
 } e_prefs;
 
 WS_DLL_PUBLIC e_prefs prefs;

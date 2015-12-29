@@ -150,7 +150,8 @@ These options do have types, for which the following types are being supported:
      the user input for validity beyond normal data type or range checks. Back-slashes
      must be escaped (as in \\b for \b)
 
- * PASSWORD - Let the user provide a masked string to the capture
+ * PASSWORD - Let the user provide a masked string to the capture. Password strings are
+   not saved, when the extcap configuration is being saved
 
    arg {number=0}{call=--password}{display=The user password}{tooltip=The password for the connection}{type=password}
 

@@ -78,7 +78,10 @@ def extcap_config(interface):
 	args.append ( (2, '--verify', 'Verify', 'Verify package content', 'boolflag', '{default=yes}') )
 	args.append ( (3, '--remote', 'Remote Channel', 'Remote Channel Selector', 'selector', ''))
 	args.append ( (4, '--fake_ip', 'Fake IP Address', 'Use this ip address as sender', 'string', '{save=false}{validation=\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b}'))
-	args.append ( (5, '--password', 'Password', 'Package message password', 'password', '') )
+	args.append ( (5, '--ltest', 'Long Test', 'Long Test Value', 'long', '{default=123123123123123123}'))
+	args.append ( (6, '--d1test', 'Double 1 Test', 'Long Test Value', 'double', '{default=123.456}'))
+	args.append ( (7, '--d2test', 'Double 2 Test', 'Long Test Value', 'double', '{default= 123,456}'))
+	args.append ( (8, '--password', 'Password', 'Package message password', 'password', '') )
 
 	values.append ( (3, "if1", "Remote1", "true" ) )
 	values.append ( (3, "if2", "Remote2", "false" ) )

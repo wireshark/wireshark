@@ -48,6 +48,10 @@
 #include <zlib.h>      /* to get the libz version number */
 #endif
 
+#ifdef HAVE_EXTCAP
+#include <extcap.h>
+#endif
+
 #ifdef HAVE_LIBPORTAUDIO
 #include <portaudio.h>
 #endif /* HAVE_LIBPORTAUDIO */
@@ -2589,6 +2593,10 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_PLUGINS
     register_all_plugin_tap_listeners();
+#endif
+
+#ifdef HAVE_EXTCAP
+    extcap_register_preferences();
 #endif
 
     register_all_tap_listeners();

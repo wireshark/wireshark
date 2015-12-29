@@ -70,6 +70,10 @@
 #include <codecs/codecs.h>
 #endif
 
+#ifdef HAVE_EXTCAP
+#include <extcap.h>
+#endif
+
 /* general (not Qt specific) */
 #include "file.h"
 #include "epan/color_filters.h"
@@ -837,6 +841,10 @@ int main(int argc, char *argv[])
             by stats_tree_stat.c and need to registered before that */
 #ifdef HAVE_PLUGINS
     register_all_plugin_tap_listeners();
+#endif
+
+#ifdef HAVE_EXTCAP
+    extcap_register_preferences();
 #endif
 
     register_all_tap_listeners();

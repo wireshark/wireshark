@@ -70,6 +70,7 @@ private:
     ExtcapArgumentList extcapArguments;
 
     bool saveOptionToCaptureInfo();
+    void storeValues();
 };
 
 #endif /* HAVE_EXTCAP */

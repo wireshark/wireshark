@@ -63,6 +63,10 @@ typedef struct _extcap_info {
 extern "C" {
 #endif /* __cplusplus */
 
+/* Registers preferences for all interfaces */
+void
+extcap_register_preferences(void);
+
 /* try to get if capabilities from extcap */
 if_capabilities_t *
 extcap_get_if_dlts(const gchar * ifname, char ** err_str);

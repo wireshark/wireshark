@@ -40,9 +40,12 @@
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
+#include <QRegExp>
 
 #include <glib.h>
 #include <log.h>
+
+#include <extcap.h>
 #include <epan/prefs.h>
 #include <color_utils.h>
 
@@ -57,6 +60,7 @@ QWidget * ExtArgSelector::createEditor(QWidget * parent)
 {
     int counter = 0;
     int selected = -1;
+    QString stored = _argument->storeval ? QString(_argument->storeval) : QString();
 
     boxSelection = new QComboBox(parent);
 
@@ -67,7 +71,10 @@ QWidget * ExtArgSelector::createEditor(QWidget * parent)
         while ( iter != values.constEnd() )
         {
             boxSelection->addItem((*iter).value(), (*iter).call());
-            if ( (*iter).isDefault() )
+
+            if ( ! _argument->storeval && (*iter).isDefault() )
+                selected = counter;
+            else if ( _argument->storeval && stored.compare((*iter).call()) == 0 )
                 selected = counter;
 
             counter++;
@@ -135,7 +142,7 @@ QWidget * ExtArgRadio::createEditor(QWidget * parent)
         ExtcapValueList::const_iterator iter = values.constBegin();
 
         while ( iter != values.constEnd() )
-       {
+        {
             QRadioButton * radio = new QRadioButton((*iter).value());
             QString callString = (*iter).call();
             callStrings->append(callString);
@@ -219,6 +226,15 @@ QWidget * ExtArgBool::createEditor(QWidget * parent)
     if ( _argument->tooltip != NULL )
         boolBox->setToolTip(QString().fromUtf8(_argument->tooltip));
 
+    if ( _argument->storeval )
+    {
+        QRegExp regexp(EXTCAP_BOOLEAN_REGEX);
+
+        bool savedstate = ( regexp.indexIn(QString(_argument->storeval[0]), 0) != -1 );
+        if ( savedstate != state )
+            state = savedstate;
+    }
+
     boolBox->setCheckState(state ? Qt::Checked : Qt::Unchecked );
 
     connect (boolBox, SIGNAL(stateChanged(int)), SLOT(onIntChanged(int)));
@@ -241,6 +257,13 @@ QString ExtArgBool::value()
 {
     if ( boolBox == NULL || _argument->arg_type == EXTCAP_ARG_BOOLFLAG )
         return QString();
+    return QString(boolBox->checkState() == Qt::Checked ? "true" : "false");
+}
+
+QString ExtArgBool::prefValue()
+{
+    if ( boolBox == NULL )
+        return QString("false");
     return QString(boolBox->checkState() == Qt::Checked ? "true" : "false");
 }
 
@@ -279,7 +302,16 @@ ExtArgText::ExtArgText(extcap_arg * argument) :
 
 QWidget * ExtArgText::createEditor(QWidget * parent)
 {
+    QString storeValue;
     QString text = defaultValue();
+
+    if ( _argument->storeval )
+    {
+        QString storeValue = _argument->storeval;
+
+        if ( storeValue.length() > 0 && storeValue.compare(text) != 0 )
+            text = storeValue.trimmed();
+    }
 
     textBox = new QLineEdit(text, parent);
 
@@ -334,7 +366,17 @@ ExtArgNumber::ExtArgNumber(extcap_arg * argument) :
 
 QWidget * ExtArgNumber::createEditor(QWidget * parent)
 {
+    QString storeValue;
     QString text = defaultValue();
+
+    if ( _argument->storeval )
+    {
+        QString storeValue = _argument->storeval;
+
+        if ( storeValue.length() > 0 && storeValue.compare(text) != 0 )
+            text = storeValue;
+    }
+
     textBox = (QLineEdit *)ExtArgText::createEditor(parent);
     textBox->disconnect(SIGNAL(textChanged(QString)));
 
@@ -525,6 +567,10 @@ QString ExtcapArgument::value()
     return QString();
 }
 
+QString ExtcapArgument::prefValue()
+{
+    return value();
+}
 
 bool ExtcapArgument::isValid()
 {
@@ -544,8 +590,15 @@ QString ExtcapArgument::defaultValue()
         if ( str != 0 )
             return QString(str);
     }
-
     return QString();
+}
+
+QString ExtcapArgument::prefKey()
+{
+    if ( ! _argument->save )
+        return QString();
+
+    return QString(_argument->call).replace("-", "");
 }
 
 bool ExtcapArgument::isRequired()

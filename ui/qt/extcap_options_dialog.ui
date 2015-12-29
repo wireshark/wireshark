@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>55</height>
+    <height>92</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -19,6 +19,23 @@
   <layout class="QVBoxLayout" name="verticalLayout_12">
    <item>
     <layout class="QVBoxLayout" name="verticalLayout"/>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="checkSaveOnStart">
+     <property name="text">
+      <string>Save parameter on capture start</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">

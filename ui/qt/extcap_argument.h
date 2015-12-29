@@ -98,6 +98,9 @@ public:
     bool isValid();
     bool isRequired();
 
+    QString prefKey();
+    virtual QString prefValue();
+
     static ExtcapArgument * create(extcap_arg * argument = 0);
 
 Q_SIGNALS:
@@ -189,6 +192,7 @@ public:
     virtual QString value();
     virtual bool isValid();
     virtual QString defaultValue();
+    virtual QString prefValue();
 
 private:
 

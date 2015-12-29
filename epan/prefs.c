@@ -2082,12 +2082,34 @@ prefs_register_modules(void)
 {
     module_t *printing, *capture_module, *console_module,
         *gui_layout_module, *gui_font_module;
+#ifdef HAVE_EXTCAP
+    module_t *extcap_module;
+#endif
+
     struct pref_custom_cbs custom_cbs;
 
     if (protocols_module != NULL) {
         /* Already setup preferences */
         return;
     }
+
+#ifdef HAVE_EXTCAP
+    /* GUI
+     * These are "simple" GUI preferences that can be read/written using the
+     * preference module API.  These preferences still use their own
+     * configuration screens for access, but this cuts down on the
+     * preference "string compare list" in set_pref()
+     */
+    extcap_module = prefs_register_module(NULL, "extcap", "Extcap Utilities",
+        "Extcap Utilities", NULL, FALSE);
+
+    /* Setting default value to true */
+    prefs.extcap_save_on_start = TRUE;
+    prefs_register_bool_preference(extcap_module, "gui_save_on_start",
+                                   "Save arguments on start of capture",
+                                   "Save arguments on start of capture",
+                                   &prefs.extcap_save_on_start);
+#endif
 
     /* GUI
      * These are "simple" GUI preferences that can be read/written using the

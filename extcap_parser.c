@@ -353,6 +353,7 @@ void extcap_free_arg(extcap_arg *a) {
     g_free(a->tooltip);
     g_free(a->fileextension);
     g_free(a->regexp);
+    g_free(a->storeval);
 
     if (a->range_start != NULL)
         extcap_free_complex(a->range_start);
@@ -404,6 +405,7 @@ extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence *s) {
     if (sent == EXTCAP_SENTENCE_ARG) {
         target_arg = g_new0(extcap_arg, 1);
         target_arg->arg_type = EXTCAP_ARG_UNKNOWN;
+        target_arg->save = TRUE;
 
         if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_ARGNUM))
                 == NULL) {
@@ -489,7 +491,7 @@ extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence *s) {
         } else if (g_ascii_strcasecmp(v->value, "password") == 0) {
             target_arg->arg_type = EXTCAP_ARG_PASSWORD;
             /* default setting is to not save passwords */
-            target_arg->do_not_save = TRUE;
+            target_arg->save = FALSE;
         } else if (g_ascii_strcasecmp(v->value, "fileselect") == 0) {
             target_arg->arg_type = EXTCAP_ARG_FILESELECT;
         } else if (g_ascii_strcasecmp(v->value, "multicheck") == 0) {
@@ -502,7 +504,7 @@ extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence *s) {
 
         if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_SAVE))
                 != NULL) {
-            target_arg->do_not_save = ! g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, v->value, G_REGEX_CASELESS, (GRegexMatchFlags)0 );
+            target_arg->save = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, v->value, G_REGEX_CASELESS, (GRegexMatchFlags)0 );
         }
 
         if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_RANGE))

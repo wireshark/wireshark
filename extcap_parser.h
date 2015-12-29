@@ -107,7 +107,7 @@ typedef struct _extcap_arg {
     gboolean fileexists;
 
     gboolean is_required;
-    gboolean do_not_save;
+    gboolean save;
 
     gchar * regexp;
 
@@ -116,6 +116,8 @@ typedef struct _extcap_arg {
     extcap_complex *range_start;
     extcap_complex *range_end;
     extcap_complex *default_complex;
+
+    gchar * storeval;
 
     GList * values;
 } extcap_arg;
