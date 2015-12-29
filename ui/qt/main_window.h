@@ -237,7 +237,7 @@ public slots:
     void updatePreferenceActions();
     void updateRecentActions();
 
-    void setWSWindowTitle(QString title = NULL);
+    void setWSWindowTitle(QString title = QString());
 
     void captureCapturePrepared(capture_session *);
     void captureCaptureUpdateStarted(capture_session *);
