@@ -169,6 +169,11 @@ void InterfaceTree::display()
        reset it to ensure that the interface list is properly displayed */
     resetColumnCount();
 
+    // List physical interfaces first. Alternatively we could sort them by
+    // traffic, interface name, or most recently used.
+    QList<QTreeWidgetItem *> phys_ifaces;
+    QList<QTreeWidgetItem *> virt_ifaces;
+
     for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
 
@@ -197,16 +202,12 @@ void InterfaceTree::display()
                     ti->setFont(IFTREE_COL_NAME, ti_font );
                 }
             }
+            virt_ifaces << ti;
+        } else
+#endif
+        {
+            phys_ifaces << ti;
         }
-#endif
-        addTopLevelItem(ti);
-        // XXX Add other device information
-        resizeColumnToContents(IFTREE_COL_NAME);
-        resizeColumnToContents(IFTREE_COL_STATS);
-
-#if HAVE_EXTCAP
-        resizeColumnToContents(IFTREE_COL_EXTCAP);
-#endif
 
         if (strstr(prefs.capture_device, device.name) != NULL) {
             device.selected = TRUE;
@@ -218,6 +219,18 @@ void InterfaceTree::display()
             ti->setSelected(true);
         }
     }
+
+    if (!phys_ifaces.isEmpty()) addTopLevelItems(phys_ifaces);
+    if (!virt_ifaces.isEmpty()) addTopLevelItems(virt_ifaces);
+
+    // XXX Add other device information
+    resizeColumnToContents(IFTREE_COL_NAME);
+    resizeColumnToContents(IFTREE_COL_STATS);
+
+#if HAVE_EXTCAP
+    resizeColumnToContents(IFTREE_COL_EXTCAP);
+#endif
+
 #else
     QTreeWidgetItem *ti = new QTreeWidgetItem();
 
