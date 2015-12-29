@@ -68,7 +68,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 static void
-init_gtk_simple_stat_table(new_stat_tap_table* stat_table, void* gui_data)
+init_gtk_simple_stat_table(stat_tap_table* stat_table, void* gui_data)
 {
 	guint i;
 	new_stat_data_t* stat_data = (new_stat_data_t*)gui_data;
@@ -81,7 +81,7 @@ init_gtk_simple_stat_table(new_stat_tap_table* stat_table, void* gui_data)
 	/* XXX - Use # columns/fields, etc to compute a better value */
 	gtk_window_set_default_size(GTK_WINDOW(ss->gtk_data.win), 600, 300);
 
-	for (i = 0, columns = start_columns, field = stat_data->new_stat_tap_data->fields;
+	for (i = 0, columns = start_columns, field = stat_data->stat_tap_data->fields;
 			i < stat_table->num_fields;
 			i++, columns++, field++)
 	{
@@ -121,7 +121,7 @@ simple_stat_draw(void *arg)
 	GtkListStore *store;
 	new_stat_data_t *stats = (new_stat_data_t*)arg;
 	simple_stat_t *ss = (simple_stat_t*)stats->user_data;
-	new_stat_tap_table* table;
+	stat_tap_table* table;
 	stat_tap_table_item* field;
 	stat_tap_table_item_type* field_data;
 	GtkTreeIter iter;
@@ -132,7 +132,7 @@ simple_stat_draw(void *arg)
 	gtk_list_store_clear(store);
 
 	/* XXX - Only support a single table at the moment */
-	table = g_array_index(stats->new_stat_tap_data->tables, new_stat_tap_table*, table_index);
+	table = g_array_index(stats->stat_tap_data->tables, stat_tap_table*, table_index);
 
 	for (element = 0; element < table->num_elements; element++)
 	{
@@ -143,7 +143,7 @@ simple_stat_draw(void *arg)
 
 		gtk_list_store_append(store, &iter);
 
-		for (field = stats->new_stat_tap_data->fields; field_index < table->num_fields; field_index++, field++)
+		for (field = stats->stat_tap_data->fields; field_index < table->num_fields; field_index++, field++)
 		{
 			field_data = new_stat_tap_get_field_data(table, element, field_index);
 
@@ -172,7 +172,7 @@ simple_stat_draw(void *arg)
 }
 
 static void
-reset_table_data(new_stat_tap_table* table _U_, void* gui_data)
+reset_table_data(stat_tap_table* table _U_, void* gui_data)
 {
 	GtkListStore *store;
 	gtk_simplestat_t_t* gtk_data = (gtk_simplestat_t_t*)gui_data;
@@ -187,7 +187,7 @@ simple_stat_reset(void *arg)
 	new_stat_data_t *stats = (new_stat_data_t*)arg;
 	simple_stat_t *ss = (simple_stat_t*)stats->user_data;
 
-	reset_stat_table(stats->new_stat_tap_data, reset_table_data, &ss->gtk_data);
+	reset_stat_table(stats->stat_tap_data, reset_table_data, &ss->gtk_data);
 
 	set_window_title(ss->gtk_data.win, ss->new_stat_tap->title);
 }
@@ -214,7 +214,7 @@ init_simple_stat_tables(new_stat_tap_ui *new_stat_tap, const char *filter)
 
 	ss->filter = g_strdup(filter);
 	ss->new_stat_tap = new_stat_tap;
-	ss->data.new_stat_tap_data = new_stat_tap;
+	ss->data.stat_tap_data = new_stat_tap;
 	ss->data.user_data = ss;
 
 	new_stat_tap->stat_tap_init_cb(new_stat_tap, init_gtk_simple_stat_table, &ss->data);

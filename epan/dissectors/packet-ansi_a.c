@@ -10593,7 +10593,7 @@ static stat_tap_table_item dtap_stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RIG
 static void ansi_a_dtap_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     int num_fields = sizeof(dtap_stat_fields)/sizeof(stat_tap_table_item);
-    new_stat_tap_table* table = new_stat_tap_init_table("ANSI A-I/F DTAP Statistics", num_fields, 0, NULL, gui_callback, gui_data);
+    stat_tap_table* table = new_stat_tap_init_table("ANSI A-I/F DTAP Statistics", num_fields, 0, NULL, gui_callback, gui_data);
     int i = 0;
     stat_tap_table_item_type items[sizeof(dtap_stat_fields)/sizeof(stat_tap_table_item)];
 
@@ -10620,7 +10620,7 @@ ansi_a_dtap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *e
     new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
     const ansi_a_tap_rec_t      *data_p = (const ansi_a_tap_rec_t *)data;
     stat_tap_table_item_type* dtap_data;
-    new_stat_tap_table* table;
+    stat_tap_table* table;
     guint i = 0, idx;
 
     if (data_p->pdu_type == BSSAP_PDU_TYPE_DTAP)
@@ -10628,7 +10628,7 @@ ansi_a_dtap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *e
         if (my_try_val_to_str_idx(data_p->message_type, ansi_a_dtap_strings, &idx) == NULL)
             return FALSE;
 
-        table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, i);
+        table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
 
         dtap_data = new_stat_tap_get_field_data(table, data_p->message_type, COUNT_COLUMN);
         dtap_data->value.uint_value++;
@@ -10641,7 +10641,7 @@ ansi_a_dtap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *e
 }
 
 static void
-ansi_a_stat_reset(new_stat_tap_table* table)
+ansi_a_stat_reset(stat_tap_table* table)
 {
     guint element;
     stat_tap_table_item_type* item_data;
@@ -10661,7 +10661,7 @@ static stat_tap_table_item bsmap_stat_fields[] = {{TABLE_ITEM_UINT, TAP_ALIGN_RI
 static void ansi_a_bsmap_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
     int num_fields = sizeof(bsmap_stat_fields)/sizeof(stat_tap_table_item);
-    new_stat_tap_table* table = new_stat_tap_init_table("ANSI A-I/F BSMAP Statistics", num_fields, 0, NULL, gui_callback, gui_data);
+    stat_tap_table* table = new_stat_tap_init_table("ANSI A-I/F BSMAP Statistics", num_fields, 0, NULL, gui_callback, gui_data);
     int i = 0;
     stat_tap_table_item_type items[sizeof(bsmap_stat_fields)/sizeof(stat_tap_table_item)];
 
@@ -10688,7 +10688,7 @@ ansi_a_bsmap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *
     new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
     const ansi_a_tap_rec_t      *data_p = (const ansi_a_tap_rec_t *)data;
     stat_tap_table_item_type* dtap_data;
-    new_stat_tap_table* table;
+    stat_tap_table* table;
     guint i = 0, idx;
 
     if (data_p->pdu_type == BSSAP_PDU_TYPE_BSMAP)
@@ -10696,7 +10696,7 @@ ansi_a_bsmap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *
         if (my_try_val_to_str_idx(data_p->message_type, ansi_a_bsmap_strings, &idx) == NULL)
             return FALSE;
 
-        table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, i);
+        table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
 
         dtap_data = new_stat_tap_get_field_data(table, data_p->message_type, COUNT_COLUMN);
         dtap_data->value.uint_value++;

@@ -5564,9 +5564,9 @@ static int unknown_sc_idx;
 static void wsp_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
 	int num_fields = sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item);
-	new_stat_tap_table* pt_table = new_stat_tap_init_table("PDU Types", num_fields, 0, NULL, gui_callback, gui_data);
+	stat_tap_table* pt_table = new_stat_tap_init_table("PDU Types", num_fields, 0, NULL, gui_callback, gui_data);
 	stat_tap_table_item_type pt_items[sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item)];
-	new_stat_tap_table* sc_table = new_stat_tap_init_table("Status Codes", num_fields, 0, NULL, gui_callback, gui_data);
+	stat_tap_table* sc_table = new_stat_tap_init_table("Status Codes", num_fields, 0, NULL, gui_callback, gui_data);
 	stat_tap_table_item_type sc_items[sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item)];
 	int table_idx;
 
@@ -5614,13 +5614,13 @@ wsp_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
 {
 	new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
 	const wsp_info_value_t *value = (const wsp_info_value_t *)wiv_ptr;
-	new_stat_tap_table *pt_table, *sc_table;
+	stat_tap_table *pt_table, *sc_table;
 	guint element;
 	stat_tap_table_item_type* item_data;
 	gboolean found;
 
-	pt_table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, 0);
-	sc_table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, 1);
+	pt_table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
+	sc_table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 1);
 
 	found = FALSE;
 	for (element = 0; element < pt_table->num_elements; element++) {
@@ -5658,7 +5658,7 @@ wsp_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
 }
 
 static void
-wsp_stat_reset(new_stat_tap_table* table)
+wsp_stat_reset(stat_tap_table* table)
 {
 	guint element;
 	stat_tap_table_item_type* item_data;
@@ -5672,7 +5672,7 @@ wsp_stat_reset(new_stat_tap_table* table)
 }
 
 static void
-wsp_stat_free_table_item(new_stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
+wsp_stat_free_table_item(stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
 {
 	if (column != MESSAGE_TYPE_COLUMN) return;
 	g_free((char*)field_data->value.string_value);

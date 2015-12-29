@@ -197,8 +197,8 @@ void SimpleStatisticsDialog::addMissingRows(struct _new_stat_data_t *stat_data)
     // the top-level tree item text set to the column labels for that table.
 
     // Add any missing tables and rows.
-    for (guint table_idx = 0; table_idx < stat_data->new_stat_tap_data->tables->len; table_idx++) {
-        new_stat_tap_table* st_table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, table_idx);
+    for (guint table_idx = 0; table_idx < stat_data->stat_tap_data->tables->len; table_idx++) {
+        stat_tap_table* st_table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, table_idx);
         QTreeWidgetItem *ti = NULL;
 
         if ((int) table_idx >= statsTreeWidget()->topLevelItemCount()) {
@@ -227,7 +227,7 @@ void SimpleStatisticsDialog::tapReset(void *sd_ptr)
     SimpleStatisticsDialog *ss_dlg = static_cast<SimpleStatisticsDialog *>(sd->user_data);
     if (!ss_dlg) return;
 
-    reset_stat_table(sd->new_stat_tap_data, NULL, NULL);
+    reset_stat_table(sd->stat_tap_data, NULL, NULL);
     ss_dlg->statsTreeWidget()->clear();
 }
 
@@ -256,7 +256,7 @@ void SimpleStatisticsDialog::tapDraw(void *sd_ptr)
 void SimpleStatisticsDialog::fillTree()
 {
     new_stat_data_t stat_data;
-    stat_data.new_stat_tap_data = stu_;
+    stat_data.stat_tap_data = stu_;
     stat_data.user_data = this;
 
     stu_->stat_tap_init_cb(stu_, NULL, NULL);

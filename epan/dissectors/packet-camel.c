@@ -8184,7 +8184,7 @@ static stat_tap_table_item camel_stat_fields[] = {{TABLE_ITEM_STRING, TAP_ALIGN_
 static void camel_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
   int num_fields = sizeof(camel_stat_fields)/sizeof(stat_tap_table_item);
-  new_stat_tap_table* table = new_stat_tap_init_table("CAMEL Message Counters", num_fields, 0, NULL, gui_callback, gui_data);
+  stat_tap_table* table = new_stat_tap_init_table("CAMEL Message Counters", num_fields, 0, NULL, gui_callback, gui_data);
   int i;
   stat_tap_table_item_type items[sizeof(camel_stat_fields)/sizeof(stat_tap_table_item)];
 
@@ -8215,11 +8215,11 @@ camel_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_
 {
   new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
   const struct camelsrt_info_t *csi = (const struct camelsrt_info_t *) csi_ptr;
-  new_stat_tap_table* table;
+  stat_tap_table* table;
   stat_tap_table_item_type* msg_data;
   guint i = 0;
 
-  table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, i);
+  table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
   if (csi->opcode >= table->num_elements)
     return FALSE;
   msg_data = new_stat_tap_get_field_data(table, csi->opcode, COUNT_COLUMN);
@@ -8230,7 +8230,7 @@ camel_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_
 }
 
 static void
-camel_stat_reset(new_stat_tap_table* table)
+camel_stat_reset(stat_tap_table* table)
 {
   guint element;
   stat_tap_table_item_type* item_data;
@@ -8244,7 +8244,7 @@ camel_stat_reset(new_stat_tap_table* table)
 }
 
 static void
-camel_stat_free_table_item(new_stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
+camel_stat_free_table_item(stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
 {
   if (column != MESSAGE_TYPE_COLUMN) return;
   g_free((char*)field_data->value.string_value);

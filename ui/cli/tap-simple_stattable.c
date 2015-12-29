@@ -43,30 +43,30 @@ simple_draw(void *arg)
     size_t i;
     guint table_index, element, field_index;
     stat_tap_table_item* field;
-    new_stat_tap_table* table;
+    stat_tap_table* table;
     stat_tap_table_item_type* field_data;
     gchar fmt_string[250];
 
 	/* printing results */
 	printf("\n");
 	printf("=====================================================================================================\n");
-	printf("%s:\n", stat_data->new_stat_tap_data->title);
+	printf("%s:\n", stat_data->stat_tap_data->title);
 	printf("Filter for statistics: %s\n", stats->filter ? stats->filter : "");
 
-    for (i = 0, field = stat_data->new_stat_tap_data->fields; i < stat_data->new_stat_tap_data->nfields; i++, field++)
+    for (i = 0, field = stat_data->stat_tap_data->fields; i < stat_data->stat_tap_data->nfields; i++, field++)
     {
 		printf("%s |", field->column_name);
     }
 	printf("\n");
 
     /* To iterate is human, and to recurse is divine.  I am human */
-    for (table_index = 0; table_index < stat_data->new_stat_tap_data->tables->len; table_index++)
+    for (table_index = 0; table_index < stat_data->stat_tap_data->tables->len; table_index++)
     {
-        table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, table_index);
+        table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, table_index);
 	    printf("%s\n", table->title);
         for (element = 0; element < table->num_elements; element++)
         {
-            for (field_index = 0, field = stat_data->new_stat_tap_data->fields; field_index < table->num_fields; field_index++, field++)
+            for (field_index = 0, field = stat_data->stat_tap_data->fields; field_index < table->num_fields; field_index++, field++)
             {
                 field_data = new_stat_tap_get_field_data(table, element, field_index);
                 if (field_data->type == TABLE_ITEM_NONE) /* Nothing for us here */
@@ -108,7 +108,7 @@ init_stat_table(new_stat_tap_ui *new_stat_tap, const char *filter)
 
 	ui = g_new0(table_stat_t, 1);
 	ui->filter = g_strdup(filter);
-	ui->stats.new_stat_tap_data = new_stat_tap;
+	ui->stats.stat_tap_data = new_stat_tap;
 	ui->stats.user_data = ui;
 
     new_stat_tap->stat_tap_init_cb(new_stat_tap, NULL, NULL);

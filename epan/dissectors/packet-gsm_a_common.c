@@ -3531,7 +3531,7 @@ static stat_tap_table_item gsm_a_stat_fields[] = {
 static void gsm_a_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data, const char *table_title, const value_string *msg_strings)
 {
     int num_fields = sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item);
-    new_stat_tap_table* table;
+    stat_tap_table* table;
     guint i;
     stat_tap_table_item_type items[sizeof(gsm_a_stat_fields)/sizeof(stat_tap_table_item)];
 
@@ -3625,7 +3625,7 @@ gsm_a_stat_packet(void *tapdata, const void *gatr_ptr, guint8 pdu_type, int prot
 {
     new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
     const gsm_a_tap_rec_t *gatr = (const gsm_a_tap_rec_t *) gatr_ptr;
-    new_stat_tap_table* table;
+    stat_tap_table* table;
     stat_tap_table_item_type* msg_data;
     guint i = 0;
 
@@ -3633,7 +3633,7 @@ gsm_a_stat_packet(void *tapdata, const void *gatr_ptr, guint8 pdu_type, int prot
     if (pdu_type == BSSAP_PDU_TYPE_DTAP && (int)gatr->protocol_disc != protocol_disc) return FALSE;
     if (pdu_type == GSM_A_PDU_TYPE_SACCH && gatr->protocol_disc != 0) return FALSE;
 
-    table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, i);
+    table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
     msg_data = new_stat_tap_get_field_data(table, gatr->message_type, COUNT_COLUMN);
     msg_data->value.uint_value++;
     new_stat_tap_set_field_data(table, gatr->message_type, COUNT_COLUMN, msg_data);
@@ -3702,7 +3702,7 @@ gsm_a_sacch_rr_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t
 }
 
 static void
-gsm_a_stat_reset(new_stat_tap_table* table)
+gsm_a_stat_reset(stat_tap_table* table)
 {
     guint element;
     stat_tap_table_item_type* item_data;
@@ -3716,7 +3716,7 @@ gsm_a_stat_reset(new_stat_tap_table* table)
 }
 
 static void
-gsm_a_stat_free_table_item(new_stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
+gsm_a_stat_free_table_item(stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
 {
     if (column != MSG_NAME_COLUMN) return;
     g_free((char*)field_data->value.string_value);

@@ -794,7 +794,7 @@ static stat_tap_table_item mtp3_stat_fields[] = {
 static void mtp3_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
   int num_fields = sizeof(mtp3_stat_fields)/sizeof(stat_tap_table_item);
-  new_stat_tap_table* table;
+  stat_tap_table* table;
 
   table = new_stat_tap_init_table("MTP3 Statistics", num_fields, 0, NULL, gui_callback, gui_data);
   new_stat_tap_add_table(new_stat, table);
@@ -807,7 +807,7 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
   const mtp3_tap_rec_t  *m3tr = (const mtp3_tap_rec_t *)m3tr_ptr;
   gboolean found = FALSE;
   guint element;
-  new_stat_tap_table* table;
+  stat_tap_table* table;
   stat_tap_table_item_type* item_data;
   guint msu_count;
   guint byte_count;
@@ -825,7 +825,7 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
   /*
    * look for opc/dpc pair
    */
-  table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, 0);
+  table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
   for (element = 0; element < table->num_elements; element++)
   {
     stat_tap_table_item_type *opc_data, *dpc_data, *si_data;
@@ -912,7 +912,7 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
 }
 
 static void
-mtp3_stat_reset(new_stat_tap_table* table)
+mtp3_stat_reset(stat_tap_table* table)
 {
   guint element;
   stat_tap_table_item_type* item_data;
@@ -930,7 +930,7 @@ mtp3_stat_reset(new_stat_tap_table* table)
 }
 
 static void
-mtp3_stat_free_table_item(new_stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
+mtp3_stat_free_table_item(stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
 {
   switch(column) {
     case OPC_COLUMN:

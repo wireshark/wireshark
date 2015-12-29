@@ -4839,8 +4839,8 @@ static void sip_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gu
 {
     /* XXX Should we have a single request + response table instead? */
     int num_fields = sizeof(sip_stat_fields)/sizeof(stat_tap_table_item);
-    new_stat_tap_table *req_table = new_stat_tap_init_table("SIP Requests", num_fields, 0, NULL, gui_callback, gui_data);
-    new_stat_tap_table *resp_table = new_stat_tap_init_table("SIP Responses", num_fields, 0, NULL, gui_callback, gui_data);
+    stat_tap_table *req_table = new_stat_tap_init_table("SIP Requests", num_fields, 0, NULL, gui_callback, gui_data);
+    stat_tap_table *resp_table = new_stat_tap_init_table("SIP Responses", num_fields, 0, NULL, gui_callback, gui_data);
     stat_tap_table_item_type items[sizeof(sip_stat_fields)/sizeof(stat_tap_table_item)];
     guint i;
 
@@ -4878,12 +4878,12 @@ sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
 {
     new_stat_data_t* stat_data = (new_stat_data_t*) tapdata;
     const sip_info_value_t *info_value = (const sip_info_value_t *) siv_ptr;
-    new_stat_tap_table *cur_table = NULL;
+    stat_tap_table *cur_table = NULL;
     guint cur_row = 0;  /* 0 = Unknown for both tables */
 
     if (info_value->request_method && info_value->response_code < 1) {
         /* Request table */
-        new_stat_tap_table *req_table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, 0);
+        stat_tap_table *req_table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
         stat_tap_table_item_type *item_data;
         guint element;
 
@@ -4898,7 +4898,7 @@ sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
 
     } else if (info_value->response_code > 0) {
         /* Response table */
-        new_stat_tap_table *resp_table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, 1);
+        stat_tap_table *resp_table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 1);
         guint response_code = info_value->response_code;
         stat_tap_table_item_type *item_data;
         guint element;
@@ -4970,7 +4970,7 @@ sip_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, 
 }
 
 static void
-sip_stat_reset(new_stat_tap_table* table)
+sip_stat_reset(stat_tap_table* table)
 {
     guint element;
     stat_tap_table_item_type* item_data;
@@ -5006,7 +5006,7 @@ sip_stat_reset(new_stat_tap_table* table)
 }
 
 static void
-sip_stat_free_table_item(new_stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
+sip_stat_free_table_item(stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
 {
     if (column != REQ_RESP_METHOD_COLUMN) return;
     g_free((char*)field_data->value.string_value);

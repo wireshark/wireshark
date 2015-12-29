@@ -2488,7 +2488,7 @@ static stat_tap_table_item gsm_map_stat_fields[] = {
 static void gsm_map_stat_init(new_stat_tap_ui* new_stat, new_stat_tap_gui_init_cb gui_callback, void* gui_data)
 {
   int num_fields = sizeof(gsm_map_stat_fields)/sizeof(stat_tap_table_item);
-  new_stat_tap_table* table;
+  stat_tap_table* table;
   guint i;
   stat_tap_table_item_type items[sizeof(gsm_map_stat_fields)/sizeof(stat_tap_table_item)];
 
@@ -2530,12 +2530,12 @@ gsm_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _
 {
   new_stat_data_t* stat_data = (new_stat_data_t*)tapdata;
   const gsm_map_tap_rec_t *gmtr = (const gsm_map_tap_rec_t *)gmtr_ptr;
-  new_stat_tap_table* table;
+  stat_tap_table* table;
   stat_tap_table_item_type *invoke_data, *fwd_bytes_data, *result_data, *rev_bytes_data, *avg_data;
   guint invokes, fwd_bytes, results, rev_bytes;
   guint i = 0;
 
-  table = g_array_index(stat_data->new_stat_tap_data->tables, new_stat_tap_table*, i);
+  table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
 
   invoke_data = new_stat_tap_get_field_data(table, gmtr->opcode, INVOKES_COLUMN);
   fwd_bytes_data = new_stat_tap_get_field_data(table, gmtr->opcode, NUM_BYTES_FWD_COLUMN);
@@ -2584,7 +2584,7 @@ gsm_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _
 }
 
 static void
-gsm_map_stat_reset(new_stat_tap_table* table)
+gsm_map_stat_reset(stat_tap_table* table)
 {
   guint element;
   stat_tap_table_item_type* item_data;
@@ -2598,7 +2598,7 @@ gsm_map_stat_reset(new_stat_tap_table* table)
 }
 
 static void
-gsm_map_stat_free_table_item(new_stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
+gsm_map_stat_free_table_item(stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
 {
   if (column != OP_CODE_COLUMN) return;
   g_free((char*)field_data->value.string_value);
