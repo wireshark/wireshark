@@ -163,8 +163,8 @@ void new_stat_tap_get_filter(stat_tap_table_ui* new_stat, const char *opt_arg, c
         }
     }
 
-    if (new_stat->new_stat_filter_check_cb)
-        new_stat->new_stat_filter_check_cb(opt_arg, filter, err);
+    if (new_stat->stat_filter_check_cb)
+        new_stat->stat_filter_check_cb(opt_arg, filter, err);
 }
 
 stat_tap_table* new_stat_tap_init_table(const char *name, int num_fields, int num_elements,

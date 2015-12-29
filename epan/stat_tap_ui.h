@@ -143,7 +143,7 @@ typedef struct _stat_tap_table_ui {
     tap_packet_cb packet_func;
     void (* stat_tap_reset_table_cb)(stat_tap_table* table);
     void (* stat_tap_free_table_item_cb)(stat_tap_table* table, guint row, guint column, stat_tap_table_item_type* field_data);
-    void (* new_stat_filter_check_cb)(const char *opt_arg, const char **filter, char** err); /* Dissector chance to reject filter */
+    void (* stat_filter_check_cb)(const char *opt_arg, const char **filter, char** err); /* Dissector chance to reject filter */
     size_t                 nfields;    /* number of fields */
     stat_tap_table_item*   fields;
     size_t                 nparams;    /* number of parameters */
