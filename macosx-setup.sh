@@ -69,19 +69,19 @@ PKG_CONFIG_VERSION=0.28
 #
 # One or more of the following libraries are required to build Wireshark.
 #
-# If you don't want to build with Qt, comment out the QT_VERSION= line.
+# To override the versions of QT and GTK call the script with some of the
+# variables set to the new values. Setting a variable to empty will disable
+# the toolkit, e.g.
+# "GTK_VERSION=3.5.2 QT_VERSION= ./macos-setup.sh"
+# will build with GTK3 and without QT.
+#
 # Note that Qt 5, prior to 5.5.0, mishandles context menus in ways that,
 # for example, cause them not to work reliably in the packet detail or
 # packet data pane; see, for example, Qt bugs QTBUG-31937, QTBUG-41017,
 # and QTBUG-43464, all of which seem to be the same bug.
 #
-# If you want to build with GTK+ 2, comment out the GTK_VERSION=3.* line
-# and un-comment the GTK_VERSION=2.* line.
-#
-# If you don't want to build with GTK+ at all, comment out both lines.
-#
-QT_VERSION=5.5.0
-GTK_VERSION=2.24.17
+QT_VERSION=${QT_VERSION-5.5.0}
+GTK_VERSION=${GTK_VERSION-2.24.17}
 #GTK_VERSION=3.5.2
 if [ "$GTK_VERSION" ]; then
     #
