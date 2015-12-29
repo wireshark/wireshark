@@ -9083,12 +9083,12 @@ text-decoration: underline;
     <message>
         <location filename="main_window.cpp" line="1590"/>
         <source>Stop and Continue without Saving</source>
-        <translation>Stoppen und ohne zu speichern weitermachen</translation>
+        <translation>Stoppen und Fortsetzen ohne zu Speichern</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1593"/>
         <source>Continue &amp;without Saving</source>
-        <translation>&amp;Weitermachen ohne zu speichern</translation>
+        <translation>Fortsetzen &amp;ohne zu speichern</translation>
     </message>
     <message>
         <location filename="main_window.cpp" line="1870"/>
