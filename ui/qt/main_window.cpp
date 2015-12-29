@@ -1827,7 +1827,7 @@ void MainWindow::setTitlebarForCaptureFile()
             // XXX - on non-Mac platforms, put in the application
             // name?
             //
-            setWSWindowTitle(QString("[*]%1").arg(cf_get_tempfile_source(capture_file_.capFile())));
+            setWindowTitle(QString("[*]%1").arg(cf_get_tempfile_source(capture_file_.capFile())));
         } else {
             //
             // For a user file, set the full path; that way,
@@ -1847,9 +1847,9 @@ void MainWindow::setTitlebarForCaptureFile()
             QFileInfo fi(utf8_filename);
             if (utf8_filename == NULL) {
                 // So what the heck else can we do here?
-                setWSWindowTitle(tr("(File name can't be mapped to UTF-8)"));
+                setWindowTitle(tr("(File name can't be mapped to UTF-8)"));
             } else {
-                setWSWindowTitle(fi.fileName());
+                setWindowTitle(fi.fileName());
                 g_free(utf8_filename);
             }
         }
@@ -1857,32 +1857,23 @@ void MainWindow::setTitlebarForCaptureFile()
     } else {
         /* We have no capture file. */
         setWindowFilePath(NULL);
-        setWSWindowTitle();
+        setDefaultWindowTitle();
     }
 }
 
-void MainWindow::setWSWindowTitle(QString title)
+void MainWindow::setDefaultWindowTitle()
 {
-
-    if(title.isEmpty()) {
-        title = tr("The Wireshark Network Analyzer");
-    }
-
-    if((prefs.gui_window_title != NULL) && (*prefs.gui_window_title != '\0')) {
-        title.append(QString(" [%1]").arg(prefs.gui_window_title));
-    }
-
-    setWindowTitle(title);
+    setWindowTitle(tr("The Wireshark Network Analyzer"));
 }
 
 void MainWindow::setTitlebarForCaptureInProgress()
 {
     setWindowFilePath(NULL);
     if (capture_file_.capFile()) {
-        setWSWindowTitle(tr("Capturing from %1").arg(cf_get_tempfile_source(capture_file_.capFile())));
+        setWindowTitle(tr("Capturing from %1").arg(cf_get_tempfile_source(capture_file_.capFile())));
     } else {
         /* We have no capture in progress. */
-        setWSWindowTitle();
+        setDefaultWindowTitle();
     }
 }
 

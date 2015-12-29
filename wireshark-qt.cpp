@@ -1329,8 +1329,6 @@ DIAG_ON(cast-qual)
 
     wsApp->setMonospaceFont(prefs.gui_qt_font_name);
 
-    /* For update of WindowTitle (When use gui.window_title preference) */
-    main_w->setWSWindowTitle();
 ////////
 
     /* Read the dynamic part of the recent file, as we have the gui now ready for
