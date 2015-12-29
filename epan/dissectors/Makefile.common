@@ -1377,6 +1377,7 @@ DISSECTOR_SRC = \
 	packet-zbee-security.c	\
 	packet-zbee-zcl.c	\
 	packet-zbee-zcl-closures.c      \
+	packet-zbee-zcl-lighting.c	\
 	packet-zbee-zcl-general.c	\
 	packet-zbee-zcl-ha.c	\
 	packet-zbee-zcl-meas-sensing.c	\
