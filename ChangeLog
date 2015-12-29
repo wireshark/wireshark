@@ -1,3 +1,41 @@
+commit 20ce5cc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Dec 29 20:02:30 2015 +0000
+
+    Revert "Qt: Remove usage of setWindowFilePath"
+    
+    Follow up to ge0c78b4.
+    
+    This reverts commit 7fed2f4304268a7558c42e406ba6a2bd5b6b0731.
+    
+    Change-Id: Iac4c580c1a73480bf8014b84ec84676460fc874c
+    Reviewed-on: https://code.wireshark.org/review/12925
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit e0c78b4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Dec 29 19:39:35 2015 +0000
+
+    Revert "Qt: Add support of gui.window_title"
+    
+    It broke the OS X build.
+    
+    This reverts commit 77a8f26bc2289ab3e5bef106ad419063eaaf34e8.
+    
+    Change-Id: I3af5a4a2799518ac55c9d63ee3d07cbdcc0bc015
+    Reviewed-on: https://code.wireshark.org/review/12924
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 0cf1f32
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Dec 29 10:25:04 2015 -0800
+
+    Build 2.0.1.
+    
+    Change-Id: Iddb9bb73ba7ba5309f52f478d1d40ebd9d4a470e
+    Reviewed-on: https://code.wireshark.org/review/12922
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
 commit 77a8f26
 Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
 Date:   Tue Dec 15 12:12:27 2015 +0100
