@@ -189,7 +189,7 @@ void InterfaceTree::display()
 #if HAVE_EXTCAP
         if ( device.if_info.type == IF_EXTCAP )
         {
-            if ( extcap_has_configuration((const char *)(device.name)) )
+            if ( extcap_has_configuration((const char *)(device.name), FALSE) )
             {
                 ti->setIcon(IFTREE_COL_EXTCAP, extcap_icon);
                 ti->setData(IFTREE_COL_EXTCAP, Qt::UserRole, QString(device.if_info.extcap));

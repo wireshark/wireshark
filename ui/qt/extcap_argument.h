@@ -27,8 +27,15 @@
 #include <QLabel>
 #include <QVariant>
 #include <QList>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QButtonGroup>
+#include <QCheckBox>
 
 #include <extcap_parser.h>
+
+#define EXTCAP_GUI_BLANK_LABEL "QLabel { color : ; }"
+#define EXTCAP_GUI_ERROR_LABEL "QLabel { color : red; }"
 
 class ExtcapValue;
 
@@ -108,6 +115,9 @@ protected:
 
     extcap_arg * _argument;
     QVariant * _default;
+    QWidget * _label;
+
+    const QString label_style;
 
 private Q_SLOTS:
 
@@ -115,6 +125,78 @@ private Q_SLOTS:
     void onIntChanged(int);
     void onBoolChanged(bool);
 
+};
+
+class ExtArgText : public ExtcapArgument
+{
+
+public:
+    ExtArgText(extcap_arg * argument);
+
+    virtual QWidget * createEditor(QWidget * parent);
+    virtual QString value();
+    virtual bool isValid();
+    virtual QString defaultValue();
+
+protected:
+
+    QLineEdit * textBox;
+};
+
+class ExtArgNumber : public ExtArgText
+{
+public:
+    ExtArgNumber(extcap_arg * argument);
+
+    virtual QWidget * createEditor(QWidget * parent);
+    virtual QString defaultValue();
+};
+
+class ExtArgSelector : public ExtcapArgument
+{
+public:
+    ExtArgSelector(extcap_arg * argument);
+
+    virtual QWidget * createEditor(QWidget * parent);
+    virtual QString value();
+    virtual bool isValid();
+
+private:
+
+    QComboBox * boxSelection;
+};
+
+class ExtArgRadio : public ExtcapArgument
+{
+public:
+    ExtArgRadio(extcap_arg * argument);
+
+    virtual QWidget * createEditor(QWidget * parent);
+    virtual QString value();
+    virtual bool isValid();
+
+private:
+
+    QButtonGroup * selectorGroup;
+    QList<QString> * callStrings;
+};
+
+class ExtArgBool : public ExtcapArgument
+{
+public:
+    ExtArgBool(extcap_arg * argument);
+
+    virtual QWidget * createLabel(QWidget * parent);
+    virtual QWidget * createEditor(QWidget * parent);
+
+    virtual QString call();
+    virtual QString value();
+    virtual bool isValid();
+    virtual QString defaultValue();
+
+private:
+
+    QCheckBox * boolBox;
 };
 
 #endif /* UI_QT_EXTCAP_ARGUMENT_H_ */

@@ -67,7 +67,7 @@ GList *
 extcap_get_if_configuration(const char * ifname);
 
 gboolean
-extcap_has_configuration(const char * ifname);
+extcap_has_configuration(const char * ifname, gboolean is_required);
 
 #ifdef WIN32
 HANDLE

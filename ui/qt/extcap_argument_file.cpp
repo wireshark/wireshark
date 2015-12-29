@@ -35,8 +35,10 @@
 #include <QFileInfo>
 #include <QVariant>
 
-#include <extcap_parser.h>
+#include <epan/prefs.h>
+#include <color_utils.h>
 
+#include <extcap_parser.h>
 
 ExtcapArgumentFileSelection::ExtcapArgumentFileSelection (extcap_arg * argument) :
     ExtcapArgument(argument), textBox(0)
@@ -118,9 +120,16 @@ void ExtcapArgumentFileSelection::openFileDialog()
 
 bool ExtcapArgumentFileSelection::isValid()
 {
-    if ( textBox->text().length() > 0 )
-        return true;
-    return false;
+    bool valid = false;
+
+    if ( textBox->text().length() > 0 || ! isRequired() )
+        valid = true;
+
+    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_text_invalid).name();
+    QString txtStyle("QLineEdit { background-color: %1; } ");
+    textBox->setStyleSheet( txtStyle.arg(valid ? QString("") : lblInvalidColor) );
+
+    return valid;
 }
 
 /*

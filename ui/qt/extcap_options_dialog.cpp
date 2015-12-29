@@ -56,6 +56,7 @@
 
 #include <ui/qt/extcap_argument.h>
 #include <ui/qt/extcap_argument_file.h>
+#include <ui/qt/extcap_argument_multiselect.h>
 
 ExtcapOptionsDialog::ExtcapOptionsDialog(QWidget *parent) :
     QDialog(parent),
@@ -104,6 +105,9 @@ ExtcapOptionsDialog * ExtcapOptionsDialog::createForDevice(QString &dev_name, QW
 
     resultDialog->updateWidgets();
 
+    /* mark required fields */
+    resultDialog->anyValueChanged();
+
     return resultDialog;
 }
 
@@ -122,18 +126,55 @@ void ExtcapOptionsDialog::on_buttonBox_accepted()
 
 void ExtcapOptionsDialog::anyValueChanged()
 {
-    /* Guard, that only extcap arguments are given, which should be the case anyway */
-    if ( dynamic_cast<ExtcapArgument *>(QObject::sender()) == NULL )
-        return;
-
     bool allowStart = true;
 
     ExtcapArgumentList::const_iterator iter;
 
-    for(iter = extcapArguments.constBegin(); iter != extcapArguments.constEnd() && allowStart; ++iter)
+    /* All arguments are being iterated, to ensure, that any error handling catches all arguments */
+    for(iter = extcapArguments.constBegin(); iter != extcapArguments.constEnd(); ++iter)
     {
-        if ( (*iter)->isRequired() && ! (*iter)->isValid() )
-            allowStart = false;
+        /* The dynamic casts are necessary, because we come here using the Signal/Slot system
+         * of Qt, and -in short- Q_OBJECT classes cannot be multiple inherited. Another possibility
+         * would be to use Q_INTERFACE, but this causes way more nightmares, and we really just
+         * need here an explicit cast for the check functionality */
+        if ( dynamic_cast<ExtArgBool *>((*iter)) != NULL)
+        {
+            if ( ! ((ExtArgBool *)*iter)->isValid() )
+                allowStart = false;
+        }
+        else if ( dynamic_cast<ExtArgRadio *>((*iter)) != NULL)
+        {
+            if ( ! ((ExtArgRadio *)*iter)->isValid() )
+                allowStart = false;
+        }
+        else if ( dynamic_cast<ExtArgSelector *>((*iter)) != NULL)
+        {
+            if ( ! ((ExtArgSelector *)*iter)->isValid() )
+                allowStart = false;
+        }
+        else if ( dynamic_cast<ExtArgMultiSelect *>((*iter)) != NULL)
+        {
+            if ( ! ((ExtArgMultiSelect *)*iter)->isValid() )
+                allowStart = false;
+        }
+        else if ( dynamic_cast<ExtcapArgumentFileSelection *>((*iter)) != NULL)
+        {
+            if ( ! ((ExtcapArgumentFileSelection *)*iter)->isValid() )
+                allowStart = false;
+        }
+        else if ( dynamic_cast<ExtArgNumber *>((*iter)) != NULL)
+        {
+            if ( ! ((ExtArgNumber *)*iter)->isValid() )
+                allowStart = false;
+        }
+        else if ( dynamic_cast<ExtArgText *>((*iter)) != NULL)
+        {
+            if ( ! ((ExtArgText *)*iter)->isValid() )
+                allowStart = false;
+        }
+        else
+            if ( ! (*iter)->isValid() )
+                allowStart = false;
     }
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(allowStart);
@@ -156,6 +197,9 @@ void ExtcapOptionsDialog::updateWidgets()
 
     QGridLayout * layout = new QGridLayout();
 
+    ExtcapArgumentList required;
+    ExtcapArgumentList optional;
+
     while ( walker != NULL )
     {
         item = g_list_first((GList *)(walker->data));
@@ -164,34 +208,50 @@ void ExtcapOptionsDialog::updateWidgets()
             argument = ExtcapArgument::create((extcap_arg *)(item->data), device_defaults);
             if ( argument != NULL )
             {
-                extcapArguments << argument;
+                if ( argument->isRequired() )
+                    required << argument;
+                else
+                    optional << argument;
 
-                lblWidget = argument->createLabel((QWidget *)this);
-                if ( lblWidget != NULL )
-                {
-                    layout->addWidget(lblWidget, counter, 0, Qt::AlignVCenter);
-                    editWidget = argument->createEditor((QWidget *) this);
-                    if ( editWidget != NULL )
-                    {
-                        layout->addWidget(editWidget, counter, 1, Qt::AlignVCenter);
-                    }
-
-                    if ( argument->isRequired() && ! argument->isValid() )
-                        allowStart = false;
-
-                    connect(argument, SIGNAL(valueChanged()), this, SLOT(anyValueChanged()));
-
-                    counter++;
-                }
             }
-
             item = item->next;
         }
         walker = walker->next;
     }
 
+    if ( required.length() > 0 )
+        extcapArguments << required;
+
+    if ( optional.length() > 0 )
+        extcapArguments << optional;
+
+    ExtcapArgumentList::iterator iter = extcapArguments.begin();
+    while ( iter != extcapArguments.end() )
+    {
+        lblWidget = (*iter)->createLabel((QWidget *)this);
+        if ( lblWidget != NULL )
+        {
+            layout->addWidget(lblWidget, counter, 0, Qt::AlignVCenter);
+            editWidget = (*iter)->createEditor((QWidget *) this);
+            if ( editWidget != NULL )
+            {
+                layout->addWidget(editWidget, counter, 1, Qt::AlignVCenter);
+            }
+
+            if ( (*iter)->isRequired() && ! (*iter)->isValid() )
+                allowStart = false;
+
+            connect((*iter), SIGNAL(valueChanged()), this, SLOT(anyValueChanged()));
+
+            counter++;
+        }
+        ++iter;
+    }
+
     if ( counter > 0 )
     {
+        setStyleSheet ( "QLabel[isRequired=\"true\"] { font-weight: bold; } ");
+
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(allowStart);
 
         ui->verticalLayout->addLayout(layout);

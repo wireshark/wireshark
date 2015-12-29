@@ -300,6 +300,21 @@ extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
             return NULL ;
         }
 
+        /* caught a regex quantifier end bracket and not the end of the line.
+         * let's find the correct end bracket */
+        if ( *(e+1) != '{' && strlen ( e ) > 1 ) {
+            gchar *f = (e + 1);
+
+            while ( ( f = g_strstr_len(f, -1, "}") ) != NULL) {
+                if ( strlen ( f ) <= 1 || *(f+1) == '{' )
+                    break;
+                f++;
+            }
+
+            if ( f != NULL )
+                e = f;
+        }
+
         if ((eq = g_strstr_len(b, -1, "=")) == NULL) {
             /* printf("debug - tokenizer - invalid, missing =\n"); */
             extcap_free_tokenized_sentence(rs);
@@ -349,6 +364,8 @@ extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
             tv->param_type = EXTCAP_PARAM_PARENT;
         } else if (g_ascii_strcasecmp(tv->arg, "required") == 0) {
             tv->param_type = EXTCAP_PARAM_REQUIRED;
+        } else if (g_ascii_strcasecmp(tv->arg, "validation") == 0) {
+            tv->param_type = EXTCAP_PARAM_VALIDATION;
         } else {
             tv->param_type = EXTCAP_PARAM_UNKNOWN;
         }
@@ -480,6 +497,7 @@ extcap_arg *extcap_new_arg(void) {
     r->default_complex = NULL;
     r->fileexists = FALSE;
     r->fileextension = NULL;
+    r->regexp = NULL;
     r->is_required = FALSE;
 
     r->values = NULL;
@@ -508,6 +526,9 @@ void extcap_free_arg(extcap_arg *a) {
 
     if (a->fileextension != NULL)
         g_free(a->fileextension);
+
+    if (a->regexp != NULL)
+        g_free(a->regexp);
 
     if (a->range_start != NULL)
         extcap_free_complex(a->range_start);
@@ -603,6 +624,11 @@ extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence *s) {
         if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_FILE_EXTENSION))
                 != NULL) {
             target_arg->fileextension = g_strdup(v->value);
+        }
+
+        if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_VALIDATION))
+                != NULL) {
+            target_arg->regexp = g_strdup(v->value);
         }
 
         if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_REQUIRED))

@@ -40,338 +40,364 @@
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
-#include <QTreeView>
+
+#include <epan/prefs.h>
+#include <color_utils.h>
 
 #include <extcap_parser.h>
 #include <extcap_argument_file.h>
 #include <extcap_argument_multiselect.h>
 
-class ExtArgSelector : public ExtcapArgument
+ExtArgSelector::ExtArgSelector(extcap_arg * argument) :
+        ExtcapArgument(argument), boxSelection(0) {}
+
+QWidget * ExtArgSelector::createEditor(QWidget * parent)
 {
-public:
-    ExtArgSelector(extcap_arg * argument) :
-        ExtcapArgument(argument), boxSelection(0) {};
+    int counter = 0;
+    int selected = -1;
 
-    virtual QWidget * createEditor(QWidget * parent)
+    boxSelection = new QComboBox(parent);
+
+    if ( values.length() > 0 )
     {
-        int counter = 0;
-        int selected = -1;
+        ExtcapValueList::const_iterator iter = values.constBegin();
 
-        boxSelection = new QComboBox(parent);
-
-        if ( values.length() > 0 )
+        while ( iter != values.constEnd() )
         {
-            ExtcapValueList::const_iterator iter = values.constBegin();
+            boxSelection->addItem((*iter).value(), (*iter).call());
+            if ( (*iter).isDefault() )
+                selected = counter;
 
-            while ( iter != values.constEnd() )
-            {
-                boxSelection->addItem((*iter).value(), (*iter).call());
-                if ( (*iter).isDefault() )
-                    selected = counter;
-
-                counter++;
-                ++iter;
-            }
-
-            if ( selected > -1 && selected < boxSelection->count() )
-                boxSelection->setCurrentIndex(selected);
+            counter++;
+            ++iter;
         }
 
-        connect ( boxSelection, SIGNAL(currentIndexChanged(int)), SLOT(onIntChanged(int)) );
-
-        return boxSelection;
+        if ( selected > -1 && selected < boxSelection->count() )
+            boxSelection->setCurrentIndex(selected);
     }
 
-    virtual QString value()
-    {
-        if ( boxSelection == 0 )
-            return QString();
+    connect ( boxSelection, SIGNAL(currentIndexChanged(int)), SLOT(onIntChanged(int)) );
+
+    return boxSelection;
+}
+
+bool ExtArgSelector::isValid()
+{
+    bool valid = true;
+
+    if ( value().length() == 0 && isRequired() )
+        valid = false;
+
+    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_text_invalid).name();
+    QString cmbBoxStyle("QComboBox { background-color: %1; } ");
+    boxSelection->setStyleSheet( cmbBoxStyle.arg(valid ? QString("") : lblInvalidColor) );
+
+    return valid;
+}
+
+QString ExtArgSelector::value()
+{
+    if ( boxSelection == 0 )
+        return QString();
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
-        QVariant data = boxSelection->currentData();
+    QVariant data = boxSelection->currentData();
 #else
-        QVariant data = boxSelection->itemData(boxSelection->currentIndex());
+    QVariant data = boxSelection->itemData(boxSelection->currentIndex());
 #endif
 
-        return data.toString();
-    }
+    return data.toString();
+}
 
-private:
+ExtArgRadio::ExtArgRadio(extcap_arg * argument) :
+        ExtcapArgument(argument), selectorGroup(0), callStrings(0) {}
 
-    QComboBox * boxSelection;
-};
-
-class ExtArgRadio : public ExtcapArgument
+QWidget * ExtArgRadio::createEditor(QWidget * parent)
 {
-public:
-    ExtArgRadio(extcap_arg * argument) :
-        ExtcapArgument(argument), selectorGroup(0), callStrings(0)
+
+    int count = 0;
+    bool anyChecked = false;
+
+    selectorGroup = new QButtonGroup(parent);
+    QWidget * radioButtons = new QWidget;
+    QVBoxLayout * vrLayout = new QVBoxLayout();
+    QMargins margins = vrLayout->contentsMargins();
+    vrLayout->setContentsMargins(0, 0, 0, margins.bottom());
+    if ( callStrings != 0 )
+        delete callStrings;
+
+    callStrings = new QList<QString>();
+
+    if ( values.length() > 0  )
     {
-    };
+        ExtcapValueList::const_iterator iter = values.constBegin();
 
-    virtual QWidget * createEditor(QWidget * parent)
-    {
+        while ( iter != values.constEnd() )
+       {
+            QRadioButton * radio = new QRadioButton((*iter).value());
+            QString callString = (*iter).call();
+            callStrings->append(callString);
 
-        int count = 0;
-        bool anyChecked = false;
-
-        selectorGroup = new QButtonGroup(parent);
-        QWidget * radioButtons = new QWidget;
-        QVBoxLayout * vrLayout = new QVBoxLayout();
-        QMargins margins = vrLayout->contentsMargins();
-        vrLayout->setContentsMargins(0, 0, 0, margins.bottom());
-        if ( callStrings != 0 )
-            delete callStrings;
-
-        callStrings = new QList<QString>();
-
-        if ( values.length() > 0  )
-        {
-            ExtcapValueList::const_iterator iter = values.constBegin();
-
-            while ( iter != values.constEnd() )
-           {
-                QRadioButton * radio = new QRadioButton((*iter).value());
-                QString callString = (*iter).call();
-                callStrings->append(callString);
-
-                if ( _default != NULL && (*iter).isDefault() )
+            if ( _default != NULL && (*iter).isDefault() )
+            {
+                radio->setChecked(true);
+                anyChecked = true;
+            }
+            else if (_default != NULL)
+            {
+                if ( callString.compare(_default->toString()) == 0 )
                 {
                     radio->setChecked(true);
                     anyChecked = true;
                 }
-                else if (_default != NULL)
-                {
-                    if ( callString.compare(_default->toString()) == 0 )
-                    {
-                        radio->setChecked(true);
-                        anyChecked = true;
-                    }
-                }
-
-                connect(radio, SIGNAL(clicked(bool)), SLOT(onBoolChanged(bool)));
-                selectorGroup->addButton(radio, count);
-
-                vrLayout->addWidget(radio);
-                count++;
-
-                ++iter;
             }
+
+            connect(radio, SIGNAL(clicked(bool)), SLOT(onBoolChanged(bool)));
+            selectorGroup->addButton(radio, count);
+
+            vrLayout->addWidget(radio);
+            count++;
+
+            ++iter;
         }
-
-        /* No default was provided, and not saved value exists */
-        if ( anyChecked == false && count > 0 )
-            ((QRadioButton*)(selectorGroup->button(0)))->setChecked(true);
-
-        radioButtons->setLayout(vrLayout);
-
-        return radioButtons;
     }
 
-    virtual QString value()
+    /* No default was provided, and not saved value exists */
+    if ( anyChecked == false && count > 0 )
+        ((QRadioButton*)(selectorGroup->button(0)))->setChecked(true);
+
+    radioButtons->setLayout(vrLayout);
+
+    return radioButtons;
+}
+
+QString ExtArgRadio::value()
+{
+    int idx = 0;
+    if ( selectorGroup == 0 || callStrings == 0 )
+        return QString();
+
+    idx = selectorGroup->checkedId();
+    if ( idx > -1 && callStrings->length() > idx )
+        return callStrings->takeAt(idx);
+
+    return QString();
+}
+
+bool ExtArgRadio::isValid()
+{
+    bool valid = true;
+    int idx = 0;
+
+    if ( isRequired() )
     {
-        int idx = 0;
         if ( selectorGroup == 0 || callStrings == 0 )
-            return QString();
+            valid = false;
+        else
+        {
+            idx = selectorGroup->checkedId();
+            if ( idx == -1 || callStrings->length() <= idx )
+                valid = false;
+        }
+    }
 
-        idx = selectorGroup->checkedId();
-        if ( idx > -1 && callStrings->length() > idx )
-            return callStrings->takeAt(idx);
+    /* If nothing is selected, but a selection is required, the only thing that
+     * can be marked is the label */
+    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_text_invalid).name();
+    _label->setStyleSheet ( label_style.arg(valid ? QString("") : lblInvalidColor) );
 
+    return valid;
+}
+
+ExtArgBool::ExtArgBool(extcap_arg * argument) :
+        ExtcapArgument(argument), boolBox(0) {}
+
+QWidget * ExtArgBool::createLabel(QWidget * parent)
+{
+    return new QWidget(parent);
+}
+
+QWidget * ExtArgBool::createEditor(QWidget * parent)
+{
+    boolBox = new QCheckBox(QString().fromUtf8(_argument->display), parent);
+    if ( _argument->tooltip != NULL )
+        boolBox->setToolTip(QString().fromUtf8(_argument->tooltip));
+
+    if ( _argument->default_complex != NULL )
+        if ( extcap_complex_get_bool(_argument->default_complex) == (gboolean)TRUE )
+            boolBox->setCheckState(Qt::Checked);
+
+    if ( _default != NULL )
+    {
+        if ( _default->toString().compare("true") )
+            boolBox->setCheckState(Qt::Checked);
+    }
+
+    connect (boolBox, SIGNAL(stateChanged(int)), SLOT(onIntChanged(int)));
+
+    return boolBox;
+}
+
+QString ExtArgBool::call()
+{
+    if ( boolBox == NULL )
+        return QString("");
+
+    if ( _argument->arg_type == EXTCAP_ARG_BOOLEAN )
+        return ExtcapArgument::call();
+
+    return QString(boolBox->checkState() == Qt::Checked ? _argument->call : "");
+}
+
+QString ExtArgBool::value()
+{
+    if ( boolBox == NULL || _argument->arg_type == EXTCAP_ARG_BOOLFLAG )
         return QString();
-    }
+    return QString(boolBox->checkState() == Qt::Checked ? "true" : "false");
+}
 
-private:
-
-    QButtonGroup * selectorGroup;
-    QList<QString> * callStrings;
-};
-
-class ExtArgBool : public ExtcapArgument
+bool ExtArgBool::isValid()
 {
-public:
-    ExtArgBool(extcap_arg * argument) :
-        ExtcapArgument(argument), boolBox(0) {};
+    /* A bool is allways valid, but the base function checks on string length,
+     * which will fail with boolflags */
+    return true;
+}
 
-    virtual QWidget * createLabel(QWidget * parent)
-    {
-        return new QWidget(parent);
-    }
-
-    virtual QWidget * createEditor(QWidget * parent)
-    {
-        boolBox = new QCheckBox(QString().fromUtf8(_argument->display), parent);
-        if ( _argument->tooltip != NULL )
-            boolBox->setToolTip(QString().fromUtf8(_argument->tooltip));
-
-        if ( _argument->default_complex != NULL )
-            if ( extcap_complex_get_bool(_argument->default_complex) == (gboolean)TRUE )
-                boolBox->setCheckState(Qt::Checked);
-
-        if ( _default != NULL )
-        {
-            if ( _default->toString().compare("true") )
-                boolBox->setCheckState(Qt::Checked);
-        }
-
-        connect (boolBox, SIGNAL(stateChanged(int)), SLOT(onIntChanged(int)));
-
-        return boolBox;
-    }
-
-    virtual QString call()
-    {
-        if ( boolBox == NULL )
-            return QString("");
-
-        if ( _argument->arg_type == EXTCAP_ARG_BOOLEAN )
-            return ExtcapArgument::call();
-
-        return QString(boolBox->checkState() == Qt::Checked ? _argument->call : "");
-    }
-
-    virtual QString value()
-    {
-        if ( boolBox == NULL || _argument->arg_type == EXTCAP_ARG_BOOLFLAG )
-            return QString();
-        return QString(boolBox->checkState() == Qt::Checked ? "true" : "false");
-    }
-
-    virtual QString defaultValue()
-    {
-        if ( _argument != 0 && _argument->default_complex != NULL )
-            if ( extcap_complex_get_bool(_argument->default_complex) == (gboolean)TRUE )
-                return QString("true");
-
-        return QString("false");
-    }
-
-private:
-
-    QCheckBox * boolBox;
-};
-
-class ExtArgText : public ExtcapArgument
+QString ExtArgBool::defaultValue()
 {
+    if ( _argument != 0 && _argument->default_complex != NULL )
+        if ( extcap_complex_get_bool(_argument->default_complex) == (gboolean)TRUE )
+            return QString("true");
 
-public:
-    ExtArgText(extcap_arg * argument) :
-        ExtcapArgument(argument), textBox(0)
-    {
-        _default = new QVariant(QString(""));
-    };
+    return QString("false");
+}
 
-    virtual QWidget * createEditor(QWidget * parent)
-    {
-        textBox = new QLineEdit(_default->toString(), parent);
+ExtArgText::ExtArgText(extcap_arg * argument) :
+    ExtcapArgument(argument), textBox(0)
+{
+    _default = new QVariant(QString(""));
+}
 
-        textBox->setText(defaultValue());
+QWidget * ExtArgText::createEditor(QWidget * parent)
+{
+    textBox = new QLineEdit(_default->toString(), parent);
 
-        if ( _argument->tooltip != NULL )
-            textBox->setToolTip(QString().fromUtf8(_argument->tooltip));
+    textBox->setText(defaultValue());
 
-        connect(textBox , SIGNAL(textChanged(QString)), SLOT(onStringChanged(QString)));
+    if ( _argument->tooltip != NULL )
+        textBox->setToolTip(QString().fromUtf8(_argument->tooltip));
 
-        return textBox;
-    }
+    connect(textBox , SIGNAL(textChanged(QString)), SLOT(onStringChanged(QString)));
 
-    virtual QString value()
-    {
-        if ( textBox == 0 )
-            return QString();
+    return textBox;
+}
 
-        return textBox->text();
-    }
-
-    virtual bool isValid()
-    {
-        if ( isRequired() && value().length() == 0 )
-            return false;
-
-        return true;
-    }
-
-    virtual QString defaultValue()
-    {
-        if ( _argument != 0 && _argument->default_complex != 0)
-        {
-            gchar * str = extcap_get_complex_as_string(_argument->default_complex);
-            if ( str != 0 )
-                return QString(str);
-        }
-
+QString ExtArgText::value()
+{
+    if ( textBox == 0 )
         return QString();
-    }
 
-protected:
+    return textBox->text();
+}
 
-    QLineEdit * textBox;
-};
-
-class ExtArgNumber : public ExtArgText
+bool ExtArgText::isValid()
 {
-public:
-    ExtArgNumber(extcap_arg * argument) :
-        ExtArgText(argument) {};
+    bool valid = true;
 
-    virtual QWidget * createEditor(QWidget * parent)
+    if ( isRequired() && value().length() == 0 )
+        valid = false;
+
+    /* validation should only be checked if there is a value. if the argument
+     * must be present (isRequired) the check above will handle that */
+    if ( valid && _argument->regexp != NULL && value().length() > 0)
     {
-        textBox = (QLineEdit *)ExtArgText::createEditor(parent);
-        textBox->disconnect(SIGNAL(textChanged(QString)));
-
-        if ( _argument->arg_type == EXTCAP_ARG_INTEGER || _argument->arg_type == EXTCAP_ARG_UNSIGNED )
+        QString regexp = QString().fromUtf8(_argument->regexp);
+        if ( regexp.length() > 0 )
         {
-            QIntValidator * textValidator = new QIntValidator(parent);
-            if ( _argument->range_start != NULL )
-                textValidator->setBottom(extcap_complex_get_int(_argument->range_start));
-
-            if ( _argument->arg_type == EXTCAP_ARG_UNSIGNED && textValidator->bottom() < 0 )
-                textValidator->setBottom(0);
-
-            if ( _argument->range_end != NULL )
-                textValidator->setTop(extcap_complex_get_int(_argument->range_end));
-            textBox->setValidator(textValidator);
+            QRegExp expr(regexp);
+            if ( ! expr.isValid() || expr.indexIn(value(), 0) == -1 )
+                valid = false;
         }
-        else if ( _argument->arg_type == EXTCAP_ARG_DOUBLE )
-        {
-            QDoubleValidator * textValidator = new QDoubleValidator(parent);
-            if ( _argument->range_start != NULL )
-                textValidator->setBottom(extcap_complex_get_double(_argument->range_start));
-            if ( _argument->range_end != NULL )
-                textValidator->setTop(extcap_complex_get_double(_argument->range_end));
-
-            textBox->setValidator(textValidator);
-        }
-
-        textBox->setText(defaultValue());
-
-        connect(textBox, SIGNAL(textChanged(QString)), SLOT(onStringChanged(QString)));
-
-        return textBox;
-    };
-
-    virtual QString defaultValue()
-    {
-        QString result;
-
-        if ( _argument != 0 && _argument->default_complex != NULL )
-        {
-            if ( _argument->arg_type == EXTCAP_ARG_DOUBLE )
-                result = QString::number(extcap_complex_get_double(_argument->default_complex));
-            else if ( _argument->arg_type == EXTCAP_ARG_INTEGER )
-                result = QString::number(extcap_complex_get_int(_argument->default_complex));
-            else if ( _argument->arg_type == EXTCAP_ARG_UNSIGNED )
-                result = QString::number(extcap_complex_get_uint(_argument->default_complex));
-            else if ( _argument->arg_type == EXTCAP_ARG_LONG )
-                result = QString::number(extcap_complex_get_long(_argument->default_complex));
-            else
-                result = QString();
-        }
-
-        return result;
     }
 
-};
+    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_text_invalid).name();
+    QString txtStyle("QLineEdit { background-color: %1; } ");
+    textBox->setStyleSheet( txtStyle.arg(valid ? QString("") : lblInvalidColor) );
+
+    return valid;
+}
+
+QString ExtArgText::defaultValue()
+{
+    if ( _argument != 0 && _argument->default_complex != 0)
+    {
+        gchar * str = extcap_get_complex_as_string(_argument->default_complex);
+        if ( str != 0 )
+            return QString(str);
+    }
+
+    return QString();
+}
+
+ExtArgNumber::ExtArgNumber(extcap_arg * argument) :
+        ExtArgText(argument) {}
+
+QWidget * ExtArgNumber::createEditor(QWidget * parent)
+{
+    textBox = (QLineEdit *)ExtArgText::createEditor(parent);
+    textBox->disconnect(SIGNAL(textChanged(QString)));
+
+    if ( _argument->arg_type == EXTCAP_ARG_INTEGER || _argument->arg_type == EXTCAP_ARG_UNSIGNED )
+    {
+        QIntValidator * textValidator = new QIntValidator(parent);
+        if ( _argument->range_start != NULL )
+            textValidator->setBottom(extcap_complex_get_int(_argument->range_start));
+
+        if ( _argument->arg_type == EXTCAP_ARG_UNSIGNED && textValidator->bottom() < 0 )
+            textValidator->setBottom(0);
+
+        if ( _argument->range_end != NULL )
+            textValidator->setTop(extcap_complex_get_int(_argument->range_end));
+        textBox->setValidator(textValidator);
+    }
+    else if ( _argument->arg_type == EXTCAP_ARG_DOUBLE )
+    {
+        QDoubleValidator * textValidator = new QDoubleValidator(parent);
+        if ( _argument->range_start != NULL )
+            textValidator->setBottom(extcap_complex_get_double(_argument->range_start));
+        if ( _argument->range_end != NULL )
+            textValidator->setTop(extcap_complex_get_double(_argument->range_end));
+
+        textBox->setValidator(textValidator);
+    }
+
+    textBox->setText(defaultValue());
+
+    connect(textBox, SIGNAL(textChanged(QString)), SLOT(onStringChanged(QString)));
+
+    return textBox;
+}
+
+QString ExtArgNumber::defaultValue()
+{
+    QString result;
+
+    if ( _argument != 0 && _argument->default_complex != NULL )
+    {
+        if ( _argument->arg_type == EXTCAP_ARG_DOUBLE )
+            result = QString::number(extcap_complex_get_double(_argument->default_complex));
+        else if ( _argument->arg_type == EXTCAP_ARG_INTEGER )
+            result = QString::number(extcap_complex_get_int(_argument->default_complex));
+        else if ( _argument->arg_type == EXTCAP_ARG_UNSIGNED )
+            result = QString::number(extcap_complex_get_uint(_argument->default_complex));
+        else if ( _argument->arg_type == EXTCAP_ARG_LONG )
+            result = QString::number(extcap_complex_get_long(_argument->default_complex));
+        else
+            result = QString();
+    }
+
+    return result;
+}
 
 ExtcapValue::~ExtcapValue() {}
 
@@ -388,7 +414,8 @@ void ExtcapValue::setChildren(ExtcapValueList children)
 }
 
 ExtcapArgument::ExtcapArgument(extcap_arg * argument, QObject *parent) :
-        QObject(parent), _argument(argument), _default(0)
+        QObject(parent), _argument(argument), _default(0), _label(0),
+        label_style(QString("QLabel { color: %1; }"))
 {
     if ( _argument->values != 0 )
     {
@@ -441,13 +468,20 @@ QWidget * ExtcapArgument::createLabel(QWidget * parent)
     if ( _argument == 0 || _argument->display == 0 )
         return 0;
 
+    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_text_invalid).name();
+
     QString text = QString().fromUtf8(_argument->display);
 
-    QLabel * label = new QLabel(text, parent);
-    if ( _argument->tooltip != 0 )
-        label->setToolTip(QString().fromUtf8(_argument->tooltip));
+    _label = new QLabel(text, parent);
 
-    return label;
+    _label->setProperty("isRequired", QString(isRequired() ? "true" : "false"));
+
+    _label->setStyleSheet ( label_style.arg(QString("")) );
+
+    if ( _argument->tooltip != 0 )
+        _label->setToolTip(QString().fromUtf8(_argument->tooltip));
+
+    return _label;
 }
 
 QWidget * ExtcapArgument::createEditor(QWidget *)
@@ -468,6 +502,11 @@ QString ExtcapArgument::value()
 
 bool ExtcapArgument::isValid()
 {
+    /* Unrequired arguments are always valid, except if validity checks fail,
+     * which must be checked in an derived class, not here */
+    if ( ! isRequired() )
+        return true;
+
     return value().length() > 0;
 }
 

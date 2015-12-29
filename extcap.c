@@ -440,7 +440,7 @@ extcap_get_if_configuration(const char * ifname) {
 }
 
 gboolean
-extcap_has_configuration(const char * ifname) {
+extcap_has_configuration(const char * ifname, gboolean is_required) {
     GList * arguments = 0;
     GList * walker = 0, * item = 0;
 
@@ -455,7 +455,11 @@ extcap_has_configuration(const char * ifname) {
         while ( item != NULL && ! found )
         {
             if ( (extcap_arg *)(item->data) != NULL )
-                found = TRUE;
+            {
+                /* Should required options be present, or any kind of options */
+                if ( ! is_required || ((extcap_arg *)(item->data))->is_required )
+                    found = TRUE;
+            }
 
             item = item->next;
         }
@@ -869,7 +873,7 @@ void extcap_debug_arguments ( extcap_arg *arg_iter )
         for ( walker = g_list_first ( arg_iter->value_list ); walker; walker = walker->next )
         {
             v = (extcap_value *)walker->data;
-            if (v->is_default == TRUE)
+            if (v->is_default)
             printf("*");
             printf("\tcall=\"%p\" display=\"%p\"\n", v->call, v->display);
             printf("\tcall=\"%s\" display=\"%s\"\n", v->call, v->display);

@@ -53,6 +53,10 @@
 #define VERSION_FLAVOR ""
 #endif
 
+#if HAVE_EXTCAP
+#include <extcap.h>
+#endif
+
 MainWelcome::MainWelcome(QWidget *parent) :
     QFrame(parent),
     welcome_ui_(new Ui::MainWelcome),
@@ -230,6 +234,19 @@ void MainWelcome::appInitialized()
 void MainWelcome::interfaceDoubleClicked(QTreeWidgetItem *item, int)
 {
     if (item) {
+#if HAVE_EXTCAP
+        QString extcap_string = QVariant(item->data(IFTREE_COL_EXTCAP, Qt::UserRole)).toString();
+        /* We trust the string here. If this interface is really extcap, the string is
+         * being checked immediatly before the dialog is being generated */
+        if ( extcap_string.length() > 0 ) {
+            QString device_name = QVariant(item->data(IFTREE_COL_NAME, Qt::UserRole)).toString();
+            /* this checks if configuration is required and not yet provided or saved via prefs */
+            if ( extcap_has_configuration((const char *)(device_name.toStdString().c_str()), TRUE ) ) {
+                emit showExtcapOptions(device_name);
+                return;
+            }
+        }
+#endif
         emit startCapture();
     }
 }

@@ -32,11 +32,14 @@
 #include <QPushButton>
 #include <QVariant>
 
+#include <epan/prefs.h>
+#include <color_utils.h>
+
 #include <extcap_parser.h>
 #include <extcap_argument_multiselect.h>
 
 ExtArgMultiSelect::ExtArgMultiSelect(extcap_arg * argument) :
-        ExtcapArgument(argument), treeView(0), viewModel(0) {};
+        ExtcapArgument(argument), treeView(0), viewModel(0) {}
 
 ExtArgMultiSelect::~ExtArgMultiSelect()
 {
@@ -185,6 +188,31 @@ QString ExtArgMultiSelect::defaultValue()
 void ExtArgMultiSelect::selectionChanged(const QItemSelection &, const QItemSelection &)
 {
     emit valueChanged();
+}
+
+bool ExtArgMultiSelect::isValid()
+{
+    bool valid = true;
+
+    if ( isRequired() )
+    {
+        if ( viewModel == 0 )
+            valid = false;
+        else
+        {
+            QStringList result;
+            QModelIndexList selected = treeView->selectionModel()->selectedIndexes();
+
+            if ( selected.size() <= 0 )
+                valid = false;
+        }
+    }
+
+    QString lblInvalidColor = ColorUtils::fromColorT(prefs.gui_text_invalid).name();
+    QString txtStyle("QTreeView { background-color: %1; } ");
+    treeView->setStyleSheet( txtStyle.arg(valid ? QString("") : lblInvalidColor) );
+
+    return valid;
 }
 
 

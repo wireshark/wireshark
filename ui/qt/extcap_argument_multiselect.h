@@ -41,6 +41,7 @@ public:
 
     virtual QString value();
     virtual QString defaultValue();
+    virtual bool isValid();
 
 protected:
     virtual QList<QStandardItem *> valueWalker(ExtcapValueList list, QStringList &defaults);
