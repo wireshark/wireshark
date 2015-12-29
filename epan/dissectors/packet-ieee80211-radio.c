@@ -239,7 +239,7 @@ static const guint subcarriers[4] = { 52, 108, 234, 468 };
  * Calculates data rate corresponding to a given 802.11ac MCS index,
  * bandwidth, and guard interval.
  */
-float ieee80211_vhtrate(int mcs_index, guint bandwidth_index, gboolean short_gi)
+static float ieee80211_vhtrate(int mcs_index, guint bandwidth_index, gboolean short_gi)
 {
     return (float)(ieee80211_vhtinfo[mcs_index].data_bits_per_symbol * subcarriers[bandwidth_index] / (short_gi ? 3.6 : 4.0) / 52.0);
 }
