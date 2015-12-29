@@ -1381,6 +1381,7 @@ typedef enum
     DE_EMM_GEN_MSG_CONT,        /* 9.9.3.43 Generic message container */
     DE_EMM_VOICE_DMN_PREF,      /* 9.9.3.44 Voice domain preference and UE's usage setting */
     DE_EMM_GUTI_TYPE,           /* 9.9.3.45 GUTI type */
+    DE_EMM_EXT_DRX_PARAMS,      /* 9.9.3.46 Extended DRX parameters */
     DE_EMM_NONE                 /* NONE */
 
 }

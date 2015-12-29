@@ -21,7 +21,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * References: 3GPP TS 24.301 V12.9.0 (2015-06)
+ * References: 3GPP TS 24.301 V13.4.0 (2015-12)
  */
 
 #include "config.h"
@@ -197,6 +197,7 @@ static int hf_nas_eps_esm_notif_ind = -1;
 static int hf_nas_eps_esm_pdn_type = -1;
 static int hf_nas_eps_esm_pdn_ipv4 = -1;
 static int hf_nas_eps_esm_pdn_ipv6_if_id = -1;
+static int hf_nas_eps_esm_eplmnc = -1;
 static int hf_nas_eps_esm_ratc = -1;
 static int hf_nas_eps_esm_linked_bearer_id = -1;
 
@@ -304,6 +305,8 @@ static const value_string nas_msg_esm_strings[] = {
     { 0xda, "ESM information response"},
     { 0xdb, "Notification"},
     { 0xe8, "ESM status"},
+    { 0xe9, "Remote UE report"},
+    { 0xea, "Remote UE report response"},
     { 0,    NULL }
 };
 static value_string_ext nas_msg_esm_strings_ext = VALUE_STRING_EXT_INIT(nas_msg_esm_strings);
@@ -672,6 +675,7 @@ static const value_string nas_emm_elem_strings[] = {
     { DE_EMM_GEN_MSG_CONT, "Generic message container" },                      /* 9.9.3.43 Generic message container */
     { DE_EMM_VOICE_DMN_PREF, "Voice domain preference and UEs usage setting" },/* 9.9.3.44 Voice domain preference and UEs usage setting */
     { DE_EMM_GUTI_TYPE, "GUTI type" },                                         /* 9.9.3.45 GUTI type */
+    { DE_EMM_EXT_DRX_PARAMS, "Extended DRX parameters" },                      /* 9.9.3.46 Extended DRX parameters */
     { 0, NULL }
 };
 value_string_ext nas_emm_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_emm_elem_strings);
@@ -744,6 +748,7 @@ typedef enum
     DE_EMM_GEN_MSG_CONT,        /* 9.9.3.43 Generic message container */
     DE_EMM_VOICE_DMN_PREF,      /* 9.9.3.44 Voice domain preference and UEs usage setting */
     DE_EMM_GUTI_TYPE,           /* 9.9.3.45 GUTI type */
+    DE_EMM_EXT_DRX_PARAMS       /* 9.9.3.46 Extended DRX parameters */
     DE_EMM_NONE                 /* NONE */
 }
 nas_emm_elem_idx_t;
@@ -2199,6 +2204,11 @@ de_emm_guti_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     return (curr_offset - offset);
 }
 
+/*
+ * 9.9.3.46 Extended DRX parameters
+ * See subclause 10.5.5.32 in 3GPP TS 24.008
+ */
+
  /*
  * 9.9.4    EPS Session Management (ESM) information elements
  */
@@ -2564,6 +2574,7 @@ static const value_string nas_eps_esm_cause_vals[] = {
     { 0x65, "Message not compatible with the protocol state"},
     { 0x6f, "Protocol error, unspecified"},
     { 0x70, "APN restriction value incompatible with active EPS bearer context"},
+    { 0x71, "Multiple accesses to a PDN connection not allowed"},
     { 0, NULL }
 };
 static value_string_ext nas_eps_esm_cause_vals_ext = VALUE_STRING_EXT_INIT(nas_eps_esm_cause_vals);
@@ -2751,6 +2762,11 @@ static const value_string nas_eps_esm_pdn_type_values[] = {
 /*
  * 9.9.4.13a Re-attempt indicator
  */
+const true_false_string nas_eps_esm_eplmnc_value = {
+    "UE is not allowed to re-attempt the procedure in an equivalent PLMN",
+    "UE is allowed to re-attempt the procedure in an equivalent PLMN"
+};
+
 const true_false_string nas_eps_esm_ratc_value = {
     "UE is not allowed to re-attempt the procedure in A/Gb mode or Iu mode",
     "UE is allowed to re-attempt the procedure in A/Gb mode or Iu mode"
@@ -2764,7 +2780,8 @@ de_esm_re_attempt_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 
     curr_offset = offset;
 
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, offset << 3, 7, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, offset << 3, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_esm_eplmnc, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_nas_eps_esm_ratc, tvb, offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
@@ -2805,6 +2822,11 @@ static const value_string nas_eps_esm_request_type_values[] = {
 /*
  * 9.9.4.18 WLAN offload acceptability
  * See subclause 10.5.6.20 in 3GPP TS 24.008
+ * packet-gsm_a_gm.c
+ */
+/*
+ * 9.9.4.19 NBIFOM container
+ * See subclause 10.5.6.24 in 3GPP TS 24.008
  * packet-gsm_a_gm.c
  */
 
@@ -2854,7 +2876,7 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     de_emm_ue_net_cap,          /* 9.9.3.34 UE network capability */
     de_emm_ue_ra_cap_inf_upd_need, /* 9.9.3.35  UE radio capability information update needed */
     de_emm_ue_sec_cap,          /* 9.9.3.36 UE security capability */
-    NULL,                       /* 9.9.3.37 Emergency Number List (packet-gsm_A_dtap.c) */
+    NULL,                       /* 9.9.3.37 Emergency Number List (packet-gsm_a_dtap.c) */
     NULL,                       /* 9.9.3.38 CLI */
     de_emm_ss_code,             /* 9.9.3.39 SS Code */
     de_emm_lcs_ind,             /* 9.9.3.40 LCS indicator */
@@ -2863,6 +2885,7 @@ guint16 (*emm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     de_emm_gen_msg_cont,        /* 9.9.3.43 Generic message container */
     NULL,                       /* 9.9.3.44 Voice domain preference and UE's usage setting */
     de_emm_guti_type,           /* 9.9.3.45 GUTI type */
+    NULL,                       /* 9.9.3.46 Extended DRX parameters */
     NULL,   /* NONE */
 };
 
@@ -2888,8 +2911,9 @@ typedef enum
     DE_ESM_REQ_TYPE,                /* 9.9.4.14 Request type */
     DE_ESM_TRAF_FLOW_AGR_DESC,      /* 9.9.4.15 Traffic flow aggregate description */
     DE_ESM_TRAF_FLOW_TEMPL,         /* 9.9.4.16 Traffic flow template */
-    DE_ESM_TID,                     /* 9.9.4.17 Transaction identifier  */
-    DE_ESM_WLAN_OFFLOAD_ACCEPT,     /* 9.9.4.18 WLAN offload acceptability  */
+    DE_ESM_TID,                     /* 9.9.4.17 Transaction identifier */
+    DE_ESM_WLAN_OFFLOAD_ACCEPT,     /* 9.9.4.18 WLAN offload acceptability */
+    DE_ESM_NBIFOM_CONT,             /* 9.9.4.19 NBIFOM container */
     DE_ESM_NONE                     /* NONE */
 }
 nas_esm_elem_idx_t;
@@ -2916,6 +2940,7 @@ static const value_string nas_esm_elem_strings[] = {
     { DE_ESM_TRAF_FLOW_TEMPL, "Traffic flow template" },                /* 9.9.4.16 Traffic flow template */
     { DE_ESM_TID, "Transaction identifier" },                           /* 9.9.4.17 Transaction identifier */
     { DE_ESM_WLAN_OFFLOAD_ACCEPT, "WLAN offload acceptability" },       /* 9.9.4.18 WLAN offload acceptability */
+    { DE_ESM_NBIFOM_CONT, "NBIFOM container" },                         /* 9.9.4.19 NBIFOM container */
     { 0, NULL }
 };
 value_string_ext nas_esm_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_esm_elem_strings);
@@ -2943,8 +2968,9 @@ guint16 (*esm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     NULL,                           /* 9.9.4.14 Request type */
     NULL,                           /* 9.9.4.15 Traffic flow aggregate description */
     NULL,                           /* 9.9.4.16 Traffic flow template */
-    NULL,                           /* 9.9.4.17 Transaction identifier  */
-    NULL,                           /* 9.9.4.18 WLAN offload acceptability  */
+    NULL,                           /* 9.9.4.17 Transaction identifier */
+    NULL,                           /* 9.9.4.18 WLAN offload acceptability */
+    NULL,                           /* 9.9.4.19 NBIFOM container */
     NULL,   /* NONE */
 };
 
@@ -3006,6 +3032,8 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3412 extended value");
     /* 6A   T3324 value GPRS timer 2 9.9.3.16A O   TLV  3 */
     ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324");
+    /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3 */
+    ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -3128,6 +3156,8 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
     /* 5E   T3412 extended value  GPRS timer 3 9.9.3.16B O  TLV 3 */
     ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3412 extended value");
+    /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3 */
+    ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -3723,6 +3753,8 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3412 extended value");
     /* 6A   T3324 value GPRS timer 2 9.9.3.16A O   TLV  3 */
     ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324");
+    /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3 */
+    ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -3833,6 +3865,8 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3324 value");
     /* 5E   T3412 extended value  GPRS timer 3 9.9.3.16B O  TLV 3 */
     ELEM_OPT_TLV(0x5E, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3412 extended value");
+    /* 6E   Extended DRX parameters Extended DRX parameters 9.9.3.46 O   TLV  3 */
+    ELEM_OPT_TLV(0x6E, GSM_A_PDU_TYPE_GM, DE_EXT_DRX_PARAMS, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -3937,6 +3971,8 @@ nas_esm_act_ded_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info 
 
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
+    /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
+    ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -3961,6 +3997,8 @@ nas_esm_act_ded_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info 
     ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
+    /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
+    ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4010,6 +4048,8 @@ nas_esm_act_ded_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info 
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
     /* C-   WLAN offload indication  WLAN offload indication 9.9.4.18 O  TV 1 */
     ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
+    /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
+    ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4105,6 +4145,8 @@ nas_esm_act_def_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info 
     ELEM_OPT_TV_SHORT(0xB0 , GSM_A_PDU_TYPE_GM, DE_SM_CONNECTIVITY_TYPE, NULL);
     /* C-   WLAN offload indication  WLAN offload indication 9.9.4.18 O  TV 1 */
     ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
+    /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
+    ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4133,6 +4175,8 @@ nas_esm_bearer_res_all_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Back-off timer value");
     /* 6B   Re-attempt indicator Re-attempt indicator 9.9.4.13A O TLV 3 */
     ELEM_OPT_TLV(0x6B, NAS_PDU_TYPE_ESM, DE_ESM_RE_ATTEMPT_IND, NULL);
+    /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
+    ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4172,6 +4216,8 @@ nas_esm_bearer_res_all_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
     /* C-   Device properties  Device properties 9.9.2.0A O   TV  1 */
     ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
+    /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
+    ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4199,6 +4245,8 @@ nas_esm_bearer_res_mod_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - Back-off timer value");
     /* 6B   Re-attempt indicator Re-attempt indicator 9.9.4.13A O TLV 3 */
     ELEM_OPT_TLV(0x6B, NAS_PDU_TYPE_ESM, DE_ESM_RE_ATTEMPT_IND, NULL);
+    /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
+    ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4238,6 +4286,8 @@ nas_esm_bearer_res_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
     /* C-   Device properties  Device properties 9.9.2.0A O   TV  1 */
     ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
+    /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
+    ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4262,6 +4312,8 @@ nas_esm_deact_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *p
 
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
+    /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
+    ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4289,6 +4341,8 @@ nas_esm_deact_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     ELEM_OPT_TLV(0x37, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_3, " - T3396 value");
     /* C-   WLAN offload indication  WLAN offload indication 9.9.4.18 O  TV 1 */
     ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
+    /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
+    ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4373,6 +4427,8 @@ nas_esm_mod_eps_bearer_ctx_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
+    /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
+    ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4396,6 +4452,8 @@ nas_esm_mod_eps_bearer_ctx_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     ELEM_MAND_V(NAS_PDU_TYPE_ESM, DE_ESM_CAUSE, NULL);
     /* 27   Protocol configuration options  Protocol configuration options 9.9.4.11 O   TLV 3-253 */
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
+    /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
+    ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4436,6 +4494,8 @@ nas_esm_mod_eps_bearer_ctx_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
     /* C-   WLAN offload indication  WLAN offload indication 9.9.4.18 O  TV 1 */
     ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_SM_WLAN_OFFLOAD_ACCEPT, " - WLAN offload indication");
+    /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
+    ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4525,11 +4585,13 @@ nas_esm_pdn_con_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     ELEM_OPT_TLV( 0x27 , GSM_A_PDU_TYPE_GM, DE_PRO_CONF_OPT , NULL );
     /* C-   Device properties  Device properties 9.9.2.0A O   TV  1 */
     ELEM_OPT_TV_SHORT(0xC0 , GSM_A_PDU_TYPE_GM, DE_DEVICE_PROPERTIES, NULL);
+    /* 33   NBIFOM container  NBIFOM container 9.9.4.19 O   TLV 3-257 */
+    ELEM_OPT_TLV(0x33, GSM_A_PDU_TYPE_GM, DE_NBIFOM_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
 /*
- * 8.3.20 PDN disconnect reject
+ * 8.3.21 PDN disconnect reject
  */
 static void
 nas_esm_pdn_disc_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
@@ -4552,7 +4614,7 @@ nas_esm_pdn_disc_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
 /*
- * 8.3.21 PDN disconnect request
+ * 8.3.22 PDN disconnect request
  */
 static void
 nas_esm_pdn_disc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
@@ -4584,6 +4646,46 @@ nas_esm_pdn_disc_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
+/*
+ * 8.3.23 Remote UE report
+ */
+static void
+nas_esm_remote_ue_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    /*guint32 consumed;*/
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len    = len;
+
+    if (len == 0)
+        return;
+
+    pinfo->link_dir = P2P_DIR_UL;
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
+}
+/*
+ * 8.3.24 Remote UE report response
+ */
+static void
+nas_esm_remote_ue_report_resp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    /*guint32 consumed;*/
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len    = len;
+
+    if (len == 0)
+        return;
+
+    pinfo->link_dir = P2P_DIR_DL;
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
+}
 
 
 #define NUM_NAS_MSG_ESM (sizeof(nas_msg_esm_strings)/sizeof(value_string))
@@ -4612,6 +4714,8 @@ static void (*nas_msg_esm_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     nas_esm_inf_resp,                   /* ESM information response*/
     nas_esm_notification,               /* Notification */
     nas_esm_status,                     /* ESM status */
+    nas_esm_remote_ue_report,           /* Remote UE report */
+    nas_esm_remote_ue_report_resp,      /* Remote UE report response */
 
     NULL,   /* NONE */
 };
@@ -5779,9 +5883,14 @@ proto_register_nas_eps(void)
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL}
     },
+    { &hf_nas_eps_esm_eplmnc,
+        { "EPLMNC", "nas_eps.esm.eplmnc",
+        FT_BOOLEAN, 8, TFS(&nas_eps_esm_eplmnc_value), 0x02,
+        NULL, HFILL }
+    },
     { &hf_nas_eps_esm_ratc,
         { "RATC", "nas_eps.esm.ratc",
-        FT_BOOLEAN, 8, TFS(&nas_eps_emm_active_flg_value), 0x01,
+        FT_BOOLEAN, 8, TFS(&nas_eps_esm_ratc_value), 0x01,
         NULL, HFILL }
     },
     { &hf_nas_eps_esm_linked_bearer_id,
