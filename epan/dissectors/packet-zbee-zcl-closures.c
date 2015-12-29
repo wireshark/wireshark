@@ -409,7 +409,7 @@ dissect_zbee_zcl_door_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         /* Check if this command has a payload, then add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
         if (rem_len > 0) {
-            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_door_lock, NULL, "Payload");
+            /*payload_tree =*/ proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_door_lock, NULL, "Payload");
 
             /* Call the appropriate command dissector */
             switch (cmd_id) {
