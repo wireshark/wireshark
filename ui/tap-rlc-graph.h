@@ -83,7 +83,7 @@ struct rlc_graph {
 };
 
 gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *tg, gboolean stream_known,
-                                    char **err_string, gboolean *free_err_string);
+                                    char **err_string);
 void rlc_graph_segment_list_free(struct rlc_graph * );
 
 
@@ -92,7 +92,7 @@ int compare_rlc_headers(guint16 ueid1, guint16 channelType1, guint16 channelId1,
                         guint16 ueid2, guint16 channelType2, guint16 channelId2, guint8 rlcMode2, guint8 direction2,
                         gboolean isControlFrame);
 rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf, struct rlc_segment *hdrs,
-                                         gchar **err_msg, gboolean *free_err_msg);
+                                         gchar **err_msg);
 int rlc_lte_tap_for_graph_data(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip);
 
 

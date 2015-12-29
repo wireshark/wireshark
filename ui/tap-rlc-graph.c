@@ -108,7 +108,7 @@ tap_lte_rlc_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, c
  * depending upon which GUI toolkit is being used. */
 rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
                                          struct rlc_segment *hdrs,
-                                         gchar **err_msg, gboolean *free_err_msg)
+                                         gchar **err_msg)
 {
     frame_data     *fdata;
     epan_dissect_t  edt;
@@ -127,7 +127,6 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
 
     /* No real filter yet */
     if (!dfilter_compile("rlc-lte", &sfcode, err_msg)) {
-        *free_err_msg = TRUE;
         return NULL;
     }
 
@@ -156,16 +155,14 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
         /* This "shouldn't happen", as the graph menu items won't
          * even be enabled if the selected packet isn't an RLC PDU.
          */
-        *err_msg = "Selected packet doesn't have an RLC PDU";
-        *free_err_msg = FALSE;
+        *err_msg = g_strdup("Selected packet doesn't have an RLC PDU");
         return NULL;
     }
     /* XXX fix this later, we should show a dialog allowing the user
      * to select which session he wants here */
     if (th.num_hdrs>1){
         /* Can only handle a single RLC channel yet */
-        *err_msg = "The selected packet has more than one LTE RLC channel in it.";
-        *free_err_msg = FALSE;
+        *err_msg = g_strdup("The selected packet has more than one LTE RLC channel in it.");
         return NULL;
     }
 
@@ -250,7 +247,7 @@ int rlc_lte_tap_for_graph_data(void *pct, packet_info *pinfo, epan_dissect_t *ed
 /* If don't have a channel, try to get one from current frame, then read all frames looking for data
  * for that channel. */
 gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gboolean stream_known,
-                                    char **err_string, gboolean *free_err_string)
+                                    char **err_string)
 {
     struct rlc_segment current;
     GString    *error_string;
@@ -263,7 +260,7 @@ gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gbool
     }
 
     if (!stream_known) {
-        struct rlc_lte_tap_info *header = select_rlc_lte_session(cf, &current, err_string, free_err_string);
+        struct rlc_lte_tap_info *header = select_rlc_lte_session(cf, &current, err_string);
         if (!header) {
             /* Didn't have a channel, and current frame didn't provide one */
             return FALSE;
@@ -294,8 +291,7 @@ gboolean rlc_graph_segment_list_get(capture_file *cf, struct rlc_graph *g, gbool
     remove_tap_listener(g);
 
     if (g->last_segment == NULL) {
-        *err_string = "No packets found";
-        *free_err_string = FALSE;
+        *err_string = g_strdup("No packets found");
         return FALSE;
     }
 

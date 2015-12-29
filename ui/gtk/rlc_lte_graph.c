@@ -376,16 +376,13 @@ void rlc_lte_graph_cb(GtkAction *action _U_, gpointer user_data _U_)
     struct rlc_segment current;
     struct gtk_rlc_graph *g;
     gchar    *err_msg = NULL;
-    gboolean free_err_msg = FALSE;
 
     debug(DBS_FENTRY) puts("rlc_lte_graph_cb()");
 
     /* Can we choose an RLC channel from the selected frame? */
-    if (!select_rlc_lte_session(&cfile, &current, &err_msg, &free_err_msg)) {
+    if (!select_rlc_lte_session(&cfile, &current, &err_msg)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
-        if (free_err_msg) {
-            g_free(err_msg);
-        }
+        g_free(err_msg);
         return;
     }
 
@@ -397,7 +394,11 @@ void rlc_lte_graph_cb(GtkAction *action _U_, gpointer user_data _U_)
     graph_initialize_values(g);
 
     /* Get our list of segments from the packet list */
-    rlc_graph_segment_list_get(&cfile, &(g->graph), FALSE, &err_msg, &free_err_msg);
+    if (!rlc_graph_segment_list_get(&cfile, &(g->graph), FALSE, &err_msg)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+        g_free(err_msg);
+        return;
+    }
 
     create_gui(g);
     graph_init_sequence(g);
@@ -409,7 +410,6 @@ void rlc_lte_graph_known_channel_launch(guint16 ueid, guint8 rlcMode,
 {
     struct gtk_rlc_graph *g;
     gchar    *err_msg = NULL;
-    gboolean free_err_msg = FALSE;
 
     debug(DBS_FENTRY) puts("rlc_lte_graph_known_channel_launch()");
 
@@ -429,7 +429,11 @@ void rlc_lte_graph_known_channel_launch(guint16 ueid, guint8 rlcMode,
     g->graph.channelSet = TRUE;
 
     /* Get our list of segments from the packet list */
-    rlc_graph_segment_list_get(&cfile, &(g->graph), TRUE, &err_msg, &free_err_msg);
+    if (!rlc_graph_segment_list_get(&cfile, &(g->graph), TRUE, &err_msg)) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
+        g_free(err_msg);
+        return;
+    }
 
     create_gui(g);
     graph_init_sequence(g);

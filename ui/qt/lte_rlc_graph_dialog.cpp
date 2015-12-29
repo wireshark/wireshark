@@ -200,17 +200,14 @@ void LteRlcGraphDialog::findChannel()
     disconnect(rp, SIGNAL(mouseMove(QMouseEvent*)), this, SLOT(mouseMoved(QMouseEvent*)));
 
     char *err_string = NULL;
-    gboolean free_err_string = FALSE;
 
     // Rescan for channel data.
     rlc_graph_segment_list_free(&graph_);
     if (!rlc_graph_segment_list_get(cap_file_.capFile(), &graph_, graph_.channelSet,
-                                    &err_string, &free_err_string)) {
+                                    &err_string)) {
         // Pop up an error box to report error.
         simple_error_message_box("%s", err_string);
-        if (free_err_string) {
-            g_free(err_string);
-        }
+        g_free(err_string);
         return;
     }
 
