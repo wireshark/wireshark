@@ -60,7 +60,7 @@ SCTP dissector crash.
 * ws-salink:2015-42[]
 +
 802.11 decryption crash.
-// Fixed in master: g40b2831, 83f2818
+// Fixed in master: g40b2831, g83f2818
 // Fixed in master-2.0: gbf1fa88, gfc3b6a5
 // Fixed in master-1.12: ga6e8fc8, g8110a70
 (ws-buglink:11790[], ws-buglink:11826[])
@@ -78,7 +78,7 @@ DIAMETER dissector crash.
 * ws-salink:2015-44[]
 +
 VeriWave file parser crashes.
-// Fixed in master: gb8fa3d4, 185911d
+// Fixed in master: gb8fa3d4, g185911d
 // Fixed in master-2.0: g135c8f0, ge4267dd
 // Fixed in master-1.12: gfef89fc, g51ccf92
 (ws-buglink:11789[], ws-buglink:11791[])
@@ -146,8 +146,6 @@ Sniffer file parser crash.
 // Fixed in master-1.12: g3a3ddbd
 (ws-buglink:11827[])
 //cve-idlink:2015-XXXX[]
-
-// 2.0 only ====
 
 * ws-salink:2015-52[]
 +
