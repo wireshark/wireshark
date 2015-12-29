@@ -17,11 +17,11 @@ The init callback routine:
    which will be executed before any packet is passed to the tap. Here you
    should create the "static" nodes of your tree. As well as initialize your
    data.
-   
+
 The (per)packet callback routine:
    As the tap_packet callback is going to be called for every packet, it
    should be used to increment the counters.
-   
+
 The cleanup callback:
    It is called at the destruction of the stats_tree and might be used to
    free ....
@@ -79,21 +79,21 @@ static gchar* st_str_udp_term = "UDP terminations";
 /* this one initializes the tree, creating the root nodes */
 extern void udp_term_stats_tree_init(stats_tree* st) {
 	/* we create a node under which we'll add every termination */
-	st_udp_term = stats_tree_create_node(st, st_str_udp_term, 0, TRUE);	
+	st_udp_term = stats_tree_create_node(st, st_str_udp_term, 0, TRUE);
 }
 
 /* this one will be called with every udp packet */
-extern int udp_term_stats_tree_packet(stats_tree *st, /* st as it was passed to us */ 
+extern int udp_term_stats_tree_packet(stats_tree *st, /* st as it was passed to us */
                                       packet_info *pinfo,  /* we'll fetch the addresses from here */
-                                      epan_dissect_t *edt _U_, /* unused */ 
+                                      epan_dissect_t *edt _U_, /* unused */
                                       const void *p) /* we'll use this to fetch the ports */
 {
 	static guint8 str[128];
 	e_udphdr* udphdr = (e_udphdr*) p;
-	
+
 	/* we increment by one (tick) the root node */
 	tick_stat_node(st, st_str_udp_term, 0, FALSE);
-	
+
 	/* we then tick a node for this src_addr:src_port
 	   if the node doesn't exists it will be created */
 	g_snprintf(str, sizeof(str),"%s:%u",address_to_str(&pinfo->net_src),udphdr->sport);
@@ -102,7 +102,7 @@ extern int udp_term_stats_tree_packet(stats_tree *st, /* st as it was passed to 
 	/* same thing for dst */
 	g_snprintf(str, sizeof(str),"%s:%u",address_to_str(&pinfo->net_dst),udphdr->dport);
 	tick_stat_node(st, str, st_udp_term, FALSE);
-	
+
 	return 1;
 }
 
@@ -111,13 +111,13 @@ WS_DLL_PUBLIC_DEF const gchar version[] = "0.0";
 
 WS_DLL_PUBLIC_DEF void plugin_register_tap_listener(void) {
 
-    stats_tree_register("udp", /* the proto we are going to "tap" */
-                        "udp_terms", /* the abbreviation for this tree (to be used as -z udp_terms,tree) */
-                        st_str_udp_term, /* the name of the menu and window (use "/" for sub menus)*/
-                        0, /* tap listener flags for per-packet callback */
-                        udp_term_stats_tree_packet, /* the per packet callback */
-                        udp_term_stats_tree_init, /* the init callback */
-                        NULL ); /* the cleanup callback (in this case there isn't) */
+    stats_tree_register_plugin("udp", /* the proto we are going to "tap" */
+                               "udp_terms", /* the abbreviation for this tree (to be used as -z udp_terms,tree) */
+                               st_str_udp_term, /* the name of the menu and window (use "/" for sub menus)*/
+                               0, /* tap listener flags for per-packet callback */
+                               udp_term_stats_tree_packet, /* the per packet callback */
+                               udp_term_stats_tree_init, /* the init callback */
+                               NULL ); /* the cleanup callback (in this case there isn't) */
 
 }
 #endif
@@ -132,8 +132,11 @@ the stats_tree API
 stats_tree_register( tapname, abbr, name, flags, packet_cb, init_cb, cleanup_cb);
  registers a new stats tree
 
+stats_tree_register_plugin(tapname, abbr, name, flags, packet_cb, init_cb, cleanup_cb);
+ registers a new stats tree from a plugin
+
 stats_tree_parent_id_by_name( st, parent_name)
-  returns the id of a candidate parent node given its name 
+  returns the id of a candidate parent node given its name
 
 
 Node functions
@@ -192,7 +195,7 @@ resets to zero a stat_node
 Averages work by tracking both the number of items added to node (the ticking
 action) and the value of each item added to the node. This is done
 automatically for ranged nodes; for other node types you need to call one of
-the functions below to associate item values with each tick. 
+the functions below to associate item values with each tick.
 
 avg_stat_node_add_value_notick(st,name,parent_id,with_children,value)
 avg_stat_node_add_value(st,name,parent_id,with_children,value)
@@ -214,10 +217,10 @@ with avg_stat_node_add_value as this will lead to incorrect results for the
 average value.
 
 stats_tree now also support setting flags per node to control the behaviour
-of these nodes. This can be done using the stat_node_set_flags and 
+of these nodes. This can be done using the stat_node_set_flags and
 stat_node_clear_flags functions. Currently these flags are defined:
 
-	ST_FLG_DEF_NOEXPAND: By default the top-level nodes in a tree are 
+	ST_FLG_DEF_NOEXPAND: By default the top-level nodes in a tree are
 			automatically expanded in the GUI. Setting this flag on
 			such a node	prevents the node from automatically expanding.
 	ST_FLG_SORT_TOP: Nodes with this flag is sorted separately from nodes

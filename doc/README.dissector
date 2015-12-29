@@ -41,6 +41,7 @@ Laurent Deniel <laurent.deniel[AT]free.fr>
 Gerald Combs <gerald[AT]wireshark.org>
 Guy Harris <guy[AT]alum.mit.edu>
 Ulf Lamping <ulf.lamping[AT]web.de>
+Barbu Paul - Gheorghe <barbu.paul.gheorghe[AT]gmail.com>
 
 1. Setting up your protocol dissector code.
 
@@ -404,6 +405,16 @@ Pointer-retrieval:
  * boundaries of the buffer.  Also see the warning in the Portability section.
  */
 guint8* tvb_get_ptr(tvbuff_t *tvb, gint offset, gint length);
+
+Length query:
+Get amount of captured data in the buffer (which is *NOT* necessarily the
+length of the packet). You probably want tvb_reported_length instead:
+
+    guint tvb_captured_length(const tvbuff_t *tvb);
+
+Get reported length of buffer:
+
+    guint tvb_reported_length(const tvbuff_t *tvb);
 
 
 1.4 Functions to handle columns in the traffic summary window.
@@ -2695,7 +2706,7 @@ upon the conversation index and values inside the request packets.
 NOTE:   This sections assumes that all information is available to
     create a complete conversation, source port/address and
     destination port/address.  If either the destination port or
-    address is know, see section 2.4 Dynamic server port dissector
+    address is known, see section 2.4 Dynamic server port dissector
     registration.
 
 For protocols that negotiate a secondary port connection, for example

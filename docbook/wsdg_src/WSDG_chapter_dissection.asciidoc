@@ -1060,18 +1060,14 @@ Here is a mechanism to produce statistics from the above TAP interface.
 ----
 /* register all http trees */
 static void register_foo_stat_trees(void) {
-    stats_tree_register("foo", "foo", "Foo/Packet Types",
+    stats_tree_register_plugin("foo", "foo", "Foo/Packet Types", 0,
         foo_stats_tree_packet, foo_stats_tree_init, NULL);
 }
-
-WS_DLL_PUBLIC_DEF const gchar version[] = "0.0";
 
 WS_DLL_PUBLIC_DEF void plugin_register_tap_listener(void)
 {
     register_foo_stat_trees();
 }
-
-#endif
 ----
 ====
 
@@ -1079,14 +1075,16 @@ Working from the bottom up, first the plugin interface entry point is defined,
 +plugin_register_tap_listener()+. This simply calls the initialisation function
 +register_foo_stat_trees()+.
 
-This in turn calls the +stats_tree_register()+ function, which takes three
-strings, and three functions.
+This in turn calls the +stats_tree_register_plugin()+ function, which takes three
+strings, an integer, and three callback functions.
 
 . This is the tap name that is registered.
 
 . An abbreviation of the stats name.
 
 . The name of the stats module. A $$'/'$$ character can be used to make sub menus.
+
+. Flags for per-packet callback
 
 . The function that will called to generate the stats.
 
