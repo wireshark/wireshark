@@ -1600,9 +1600,15 @@ if(ENABLE_EXTCAP)
 	)
 	list(APPEND copy_data_files_depends "${DATAFILE_DIR}/extcap")
 endif()
+set(_help_files
+	help/capture_filters.txt
+	help/capturing.txt
+	help/display_filters.txt
+	help/getting_started.txt
+	help/overview.txt
+)
 if(WIN32)
 	file(TO_NATIVE_PATH "${DATAFILE_DIR}/help" _help_dest_dir)
-	file(GLOB _help_files RELATIVE "${CMAKE_SOURCE_DIR}" "help/*.txt")
 	foreach(_help_file IN LISTS _help_files)
 		add_custom_command(OUTPUT "${DATAFILE_DIR}/${_help_file}"
 			COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/help"
@@ -1615,7 +1621,7 @@ if(WIN32)
 		list(APPEND copy_data_files_depends "${DATAFILE_DIR}/${_help_file}")
 	endforeach()
 else()
-	list(APPEND DATA_FILES_SRC "help/*.txt")
+	list(APPEND DATA_FILES_SRC ${_help_files})
 endif(WIN32)
 
 # Create help/faq.txt when missing
