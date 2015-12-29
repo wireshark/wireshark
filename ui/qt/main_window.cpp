@@ -1817,6 +1817,26 @@ void MainWindow::initFreezeActions()
 void MainWindow::setTitlebarForCaptureFile()
 {
     if (capture_file_.capFile() && capture_file_.capFile()->filename) {
+        //
+        // Qt *REALLY* doesn't like windows that sometimes have a
+        // title set with setWindowTitle() and other times have a
+        // file path set; apparently, once you've set the title
+        // with setWindowTitle(), it sticks, and setWindowFilePath()
+        // has no effect.  It appears to can clear the title with
+        // setWindowTitle(NULL), but that clears the actual title in
+        // the title bar, and setWindowFilePath() then, I guess, sees
+        // that there's already a file path, and does nothing, leaving
+        // the title bar empty.  So you then have to clear the file path
+        // with setWindowFilePath(NULL), and then set it.
+        //
+        // Maybe there's a #include "you're holding it wrong" here.
+        // However, I really don't want to hear from people who think
+        // that a window can never be associated with something other
+        // than a user file at time T1 and with a user file at time T2,
+        // given that, in Wireshark, a window can be associated with a
+        // live capture at time T1 and then, after you've saved the live
+        // capture to a user file, associated with a user file at time T2.
+        //
         if (capture_file_.capFile()->is_tempfile) {
             //
             // For a temporary file, put the source of the data
@@ -1827,6 +1847,7 @@ void MainWindow::setTitlebarForCaptureFile()
             // XXX - on non-Mac platforms, put in the application
             // name?
             //
+            setWindowFilePath(NULL);
             setWindowTitle(QString("[*]%1").arg(cf_get_tempfile_source(capture_file_.capFile())));
         } else {
             //
@@ -1844,12 +1865,13 @@ void MainWindow::setTitlebarForCaptureFile()
                                                      NULL,
                                                      NULL,
                                                      NULL);
-            QFileInfo fi(utf8_filename);
             if (utf8_filename == NULL) {
-                // So what the heck else can we do here?
+            	// So what the heck else can we do here?
                 setWindowTitle(tr("(File name can't be mapped to UTF-8)"));
             } else {
-                setWindowTitle(fi.fileName());
+                setWindowTitle(NULL);
+                setWindowFilePath(NULL);
+                setWindowFilePath(utf8_filename);
                 g_free(utf8_filename);
             }
         }
