@@ -81,6 +81,7 @@ static int hf_zbee_nwk_security = -1;
 static int hf_zbee_nwk_source_route = -1;
 static int hf_zbee_nwk_ext_dst = -1;
 static int hf_zbee_nwk_ext_src = -1;
+static int hf_zbee_nwk_end_device_initiator = -1;
 static int hf_zbee_nwk_dst = -1;
 static int hf_zbee_nwk_src = -1;
 static int hf_zbee_nwk_radius = -1;
@@ -406,6 +407,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         &hf_zbee_nwk_source_route,
         &hf_zbee_nwk_ext_dst,
         &hf_zbee_nwk_ext_src,
+        &hf_zbee_nwk_end_device_initiator,
         NULL
     };
 
@@ -1577,6 +1579,10 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_nwk_ext_src,
             { "Extended Source",        "zbee_nwk.ext_src", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_EXT_SOURCE,
+                NULL, HFILL }},
+
+            { &hf_zbee_nwk_end_device_initiator,
+            { "End Device Initiator",   "zbee_nwk.end_device_initiator", FT_BOOLEAN, 16, NULL, ZBEE_NWK_FCF_END_DEVICE_INITIATOR,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_dst,

@@ -33,6 +33,7 @@
 #define ZBEE_NWK_FCF_SOURCE_ROUTE           0x0400  /* ZigBee 2006 and Later */
 #define ZBEE_NWK_FCF_EXT_DEST               0x0800  /* ZigBee 2006 and Later */
 #define ZBEE_NWK_FCF_EXT_SOURCE             0x1000  /* ZigBee 2006 and Later */
+#define ZBEE_NWK_FCF_END_DEVICE_INITIATOR   0x2000  /* ZigBee PRO r21 */
 
 /*  ZigBee NWK FCF Frame Types */
 #define ZBEE_NWK_FCF_DATA                   0x0000
