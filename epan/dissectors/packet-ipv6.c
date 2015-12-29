@@ -236,6 +236,9 @@ static int hf_ipv6_opt_rpl_flag_f               = -1;
 static int hf_ipv6_opt_rpl_flag_rsv             = -1;
 static int hf_ipv6_opt_rpl_instance_id          = -1;
 static int hf_ipv6_opt_rpl_senderrank           = -1;
+static int hf_ipv6_opt_ilnp_nonce               = -1;
+static int hf_ipv6_opt_lio_len                  = -1;
+static int hf_ipv6_opt_lio_id                   = -1;
 static int hf_ipv6_opt_mpl_flag                 = -1;
 static int hf_ipv6_opt_mpl_flag_s               = -1;
 static int hf_ipv6_opt_mpl_flag_m               = -1;
@@ -243,6 +246,12 @@ static int hf_ipv6_opt_mpl_flag_v               = -1;
 static int hf_ipv6_opt_mpl_flag_rsv             = -1;
 static int hf_ipv6_opt_mpl_sequence             = -1;
 static int hf_ipv6_opt_mpl_seed_id              = -1;
+static int hf_ipv6_opt_dff_flags                = -1;
+static int hf_ipv6_opt_dff_flag_ver             = -1;
+static int hf_ipv6_opt_dff_flag_dup             = -1;
+static int hf_ipv6_opt_dff_flag_ret             = -1;
+static int hf_ipv6_opt_dff_flag_rsv             = -1;
+static int hf_ipv6_opt_dff_seqnum               = -1;
 static int hf_ipv6_opt_experimental             = -1;
 static int hf_ipv6_opt_unknown_data             = -1;
 static int hf_ipv6_opt_unknown                  = -1;
@@ -374,6 +383,7 @@ static gint ett_ipv6                    = -1;
 static gint ett_ipv6_opt                = -1;
 static gint ett_ipv6_opt_rpl            = -1;
 static gint ett_ipv6_opt_mpl            = -1;
+static gint ett_ipv6_opt_dff_flags      = -1;
 static gint ett_ipv6_fraghdr            = -1;
 static gint ett_ipv6_routing            = -1;
 static gint ett_ipv6_routing_srh_flags  = -1;
@@ -1514,6 +1524,57 @@ dissect_opt_home_address(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_t
 }
 
 /*
+ * ILNP Nonce Option
+ *
+
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    | Next Header   | Hdr Ext Len   |  Option Type  | Option Length |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    /                         Nonce Value                           /
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
+static void
+dissect_opt_ilnp_nonce(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *opt_tree,
+                            struct opt_proto_item *opt_ti _U_, guint8 opt_len)
+{
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_ilnp_nonce, tvb, offset + 2, opt_len, ENC_NA);
+}
+
+/*
+ * Line-Identification Option
+ *
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+                                   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                                   |  Option Type  | Option Length |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   | LineIDLen     |     Line ID...
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
+static void
+dissect_opt_lio(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
+                            struct opt_proto_item *opt_ti _U_, guint8 opt_len)
+{
+    proto_item *ti;
+    guint8 line_id_len;
+
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_lio_len, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+    line_id_len = tvb_get_guint8(tvb, offset + 2);
+    if (line_id_len == 0) {
+        return;
+    }
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_lio_id, tvb, offset + 2, 1, ENC_BIG_ENDIAN|ENC_ASCII);
+
+    if (line_id_len > 1 && opt_len > line_id_len - 1) {
+        ti = proto_tree_add_item(opt_tree, hf_ipv6_opt_unknown_data,
+                tvb, offset + 3 + line_id_len, opt_len - line_id_len - 1, ENC_NA);
+        expert_add_info(pinfo, ti, &ei_ipv6_opt_unknown_data);
+    }
+}
+
+/*
  * MPL Option
  *
       0                   1                   2                   3
@@ -1548,6 +1609,51 @@ dissect_opt_mpl(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *
     if (seed_id_len > 0) {
         proto_tree_add_item(opt_tree, hf_ipv6_opt_mpl_seed_id, tvb, offset, seed_id_len, ENC_NA);
     }
+}
+
+/*
+ * IPv6 DFF Header
+ *
+                          1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |  Next Header  |  Hdr Ext Len  |  OptTypeDFF   | OptDataLenDFF |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |VER|D|R|0|0|0|0|        Sequence Number        |      Pad1     |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
+static void
+dissect_opt_dff(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
+                            struct opt_proto_item *opt_ti, guint8 opt_len)
+{
+    static const int *dff_flags[] = {
+        &hf_ipv6_opt_dff_flag_ver,
+        &hf_ipv6_opt_dff_flag_dup,
+        &hf_ipv6_opt_dff_flag_ret,
+        &hf_ipv6_opt_dff_flag_rsv,
+        NULL
+    };
+
+    /* Header length is 3 octets */
+    /* http://www.rfc-editor.org/errata_search.php?eid=3937 */
+    if (opt_len != 3) {
+        expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
+                               "IPv6 DFF: Invalid length (%u bytes)", opt_len);
+    }
+    proto_tree_add_bitmask(opt_tree, tvb, offset + 2, hf_ipv6_opt_dff_flags,
+                            ett_ipv6_opt_dff_flags, dff_flags, ENC_NA);
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_dff_seqnum, tvb, offset + 3, 2, ENC_BIG_ENDIAN);
+}
+
+static void
+dissect_opt_unknown(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
+                            struct opt_proto_item *opt_ti _U_, guint8 opt_len)
+{
+    proto_item *ti;
+
+    ti = proto_tree_add_item(opt_tree, hf_ipv6_opt_unknown, tvb,
+                        offset + 2, opt_len, ENC_NA);
+    expert_add_info(pinfo, ti, &ei_ipv6_opt_unknown_data);
 }
 
 static int
@@ -1655,11 +1761,24 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, co
         case IP6OPT_CALIPSO:
             dissect_opt_calipso(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
+        case IP6OPT_SMF_DPD:
+            /* TODO: Dissect SMF_DPD */
+            dissect_opt_unknown(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            break;
         case IP6OPT_HOME_ADDRESS:
             dissect_opt_home_address(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
+        case IP6OPT_ILNP_NONCE:
+            dissect_opt_ilnp_nonce(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            break;
+        case IP6OPT_LIO:
+            dissect_opt_lio(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            break;
         case IP6OPT_MPL:
             dissect_opt_mpl(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
+            break;
+        case IP6OPT_IP_DFF:
+            dissect_opt_dff(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_EXP_1E:
         case IP6OPT_EXP_3E:
@@ -1673,9 +1792,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, co
                                 offset + 2, opt_len, ENC_NA);
             break;
         default:
-            ti = proto_tree_add_item(opt_tree, hf_ipv6_opt_unknown, tvb,
-                                offset + 2, opt_len, ENC_NA);
-            expert_add_info(pinfo, ti, &ei_ipv6_opt_unknown_data);
+            dissect_opt_unknown(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         }
         offset += 2 + opt_len;
@@ -3150,6 +3267,21 @@ proto_register_ipv6(void)
                 FT_UINT16, BASE_HEX, NULL, 0x0,
                 "Set to zero by the source and to DAGRank(rank) by a router that forwards inside the RPL network", HFILL }
         },
+        { &hf_ipv6_opt_ilnp_nonce,
+            { "ILNP Nonce", "ipv6.opt.ilnp_nonce",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_lio_len,
+            { "LineIDLen", "ipv6.opt.lio.length",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_lio_id,
+            { "Line ID", "ipv6.opt.lio.line_id",
+                FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
         { &hf_ipv6_opt_mpl_flag,
             { "Flag", "ipv6.opt.mpl.flag",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -3184,6 +3316,36 @@ proto_register_ipv6(void)
             { "Seed ID", "ipv6.opt.mpl.seed_id",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 "Uniquely identifies the MPL Seed that initiated dissemination of the MPL Data Message", HFILL }
+        },
+        { &hf_ipv6_opt_dff_flags,
+            { "Flags", "ipv6.opt.dff.flags",
+                FT_UINT8, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_ipv6_opt_dff_flag_ver,
+            { "Version (VER)", "ipv6.opt.dff.flag.ver",
+                FT_UINT8, BASE_DEC, NULL, 0xC0,
+                "The version of DFF that is used", HFILL }
+        },
+        { &hf_ipv6_opt_dff_flag_dup,
+            { "Duplicate (DUP)", "ipv6.opt.dff.flag.dup",
+                FT_BOOLEAN, 8, NULL, 0x20,
+                "Indicates the packet is being retransmitted", HFILL }
+        },
+        { &hf_ipv6_opt_dff_flag_ret,
+            { "Return (RET)", "ipv6.opt.dff.flag.ret",
+                FT_BOOLEAN, 8, NULL, 0x10,
+                "Must be set to 1 prior to sending the packet back to the Previous Hop", HFILL }
+        },
+        { &hf_ipv6_opt_dff_flag_rsv,
+            { "Reserved", "ipv6.opt.dff.flag.rsv",
+                FT_UINT8, BASE_HEX, NULL, 0x0F,
+                "Reserved (must be zero)", HFILL }
+        },
+        { &hf_ipv6_opt_dff_seqnum,
+            { "Sequence Number", "ipv6.opt.dff.sequence_number",
+                FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+                NULL, HFILL }
         },
         { &hf_ipv6_opt_experimental,
             { "Experimental Option", "ipv6.opt.experimental",
@@ -3676,6 +3838,7 @@ proto_register_ipv6(void)
         &ett_ipv6_opt,
         &ett_ipv6_opt_rpl,
         &ett_ipv6_opt_mpl,
+        &ett_ipv6_opt_dff_flags,
         &ett_ipv6_fraghdr,
         &ett_ipv6_routing,
         &ett_ipv6_routing_srh_flags,
