@@ -1646,7 +1646,7 @@ list(APPEND copy_data_files_depends "${DATAFILE_DIR}/help/faq.txt")
 # Install LUA files in staging directory such that LUA can used when Wireshark
 # is ran from the build directory. For install targets, see
 # epan/wslua/CMakeLists.txt
-if(LUA_FOUND)
+if(LUA_FOUND AND ENABLE_LUA)
 	set(_lua_files
 		"${CMAKE_BINARY_DIR}/epan/wslua/init.lua"
 		"${CMAKE_SOURCE_DIR}/epan/wslua/console.lua"
