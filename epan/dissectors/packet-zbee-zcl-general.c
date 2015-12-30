@@ -4929,6 +4929,861 @@ static const value_string zbee_zcl_status_values[] = {
 };
 
 /* ########################################################################## */
+/* #### (0x000F) BINARY INPUT (BASIC) CLUSTER ############################### */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+/*Attributes*/
+#define ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_ACTIVE_TEXT                     0x0004  /* Active Text */
+#define ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_DESCRIPTION                     0x001C  /* Description */
+#define ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_INACTIVE_TEXT                   0x002E  /* Inactive Text */
+#define ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_OUT_OF_SERVICE                  0x0051  /* Out of Service */
+#define ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_POLARITY                        0x0054  /* Polarity */
+#define ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_PRESENT_VALUE                   0x0055  /* Present Value */
+#define ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_RELIABILITY                     0x0067  /* Reliability */
+#define ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_STATUS_FLAGS                    0x006F  /* Status Flags */
+#define ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_APPLICATION_TYPE                0x0100  /* Application Type */
+
+/*Server commands received - none*/
+
+/*Server commands generated - none*/
+
+static const value_string zbee_zcl_binary_input_polarity_values[] = {
+    {0, "Normal"},
+    {1, "Reversed"},
+    {0, NULL}
+};
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+void proto_register_zbee_zcl_binary_input_basic(void);
+void proto_reg_handoff_zbee_zcl_binary_input_basic(void);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_binary_input_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Private functions prototype */
+
+/*************************/
+/* Global Variables      */
+/*************************/
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_binary_input_basic = -1;
+
+static int hf_zbee_zcl_binary_input_basic_attr_id = -1;
+static int hf_zbee_zcl_binary_input_basic_status_flags = -1;
+static int hf_zbee_zcl_binary_input_basic_status_in_alarm = -1;
+static int hf_zbee_zcl_binary_input_basic_status_fault = -1;
+static int hf_zbee_zcl_binary_input_basic_status_overridden = -1;
+static int hf_zbee_zcl_binary_input_basic_status_out_of_service = -1;
+static int hf_zbee_zcl_binary_input_basic_polarity = -1;
+static int hf_zbee_zcl_binary_input_basic_reliability= -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_binary_input_basic = -1;
+static gint ett_zbee_zcl_binary_input_basic_status_flags = -1;
+
+/* Attributes */
+static const value_string zbee_zcl_binary_input_basic_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_ACTIVE_TEXT,          "Active Text" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_DESCRIPTION,          "Description" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_INACTIVE_TEXT,        "Inactive Text" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_OUT_OF_SERVICE,       "Out of Service" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_POLARITY,             "Polarity" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_PRESENT_VALUE,        "Present Value" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_RELIABILITY,          "Reliability" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_STATUS_FLAGS,         "Status Flags" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_APPLICATION_TYPE,     "Application Type" },
+    { 0, NULL }
+};
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_binary_input_basic
+ *  DESCRIPTION
+ *      ZigBee ZCL Binary Input Basic cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      int                 - length of parsed data.
+ *---------------------------------------------------------------
+ */
+
+static int
+dissect_zbee_zcl_binary_input_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
+{
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_binary_input_basic*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_binary_input_basic_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+dissect_zcl_binary_input_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    static const int * status_flags[] = {
+        &hf_zbee_zcl_binary_input_basic_status_in_alarm,
+        &hf_zbee_zcl_binary_input_basic_status_fault,
+        &hf_zbee_zcl_binary_input_basic_status_overridden,
+        &hf_zbee_zcl_binary_input_basic_status_out_of_service,
+        NULL
+    };
+
+    /* Dissect attribute data type and data */
+    switch (attr_id) {
+
+        case ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_POLARITY:
+            proto_tree_add_item(tree, hf_zbee_zcl_binary_input_basic_polarity, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+
+        case ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_RELIABILITY:
+            proto_tree_add_item(tree, hf_zbee_zcl_binary_input_basic_reliability, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_STATUS_FLAGS:
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_binary_input_basic_status_flags, ett_zbee_zcl_binary_input_basic_status_flags, status_flags, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_ACTIVE_TEXT:
+        case ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_INACTIVE_TEXT:
+        case ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_DESCRIPTION:
+        case ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_OUT_OF_SERVICE:
+        case ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_PRESENT_VALUE:
+        case ZBEE_ZCL_ATTR_ID_BINARY_INPUT_BASIC_APPLICATION_TYPE:
+        default:
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+
+} /*dissect_zcl_binary_input_basic_attr_data*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_binary_input_basic
+ *  DESCRIPTION
+ *      ZigBee ZCL Binary Input Basic cluster protocol registration routine.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_register_zbee_zcl_binary_input_basic(void)
+{
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_binary_input_basic_attr_id,
+            { "Attribute", "zbee_zcl_general.binary_input_basic.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_binary_input_basic_attr_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_input_basic_reliability,
+            { "Reliability", "zbee_zcl_general.binary_input_basic.attr.reliability", FT_UINT8, BASE_HEX, VALS(zbee_zcl_reliability_names),
+            0x00, NULL, HFILL } },
+
+        /* start Status Flags fields */
+        { &hf_zbee_zcl_binary_input_basic_status_flags,
+            { "Status Flags", "zbee_zcl_general.binary_input_basic.attr.status", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_input_basic_status_in_alarm,
+            { "In Alarm Status", "zbee_zcl_general.binary_input_basic.attr.status.in_alarm", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_IN_ALARM, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_input_basic_status_fault,
+            { "Fault Status", "zbee_zcl_general.binary_input_basic.attr.status.fault", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_FAULT, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_input_basic_status_overridden,
+            { "Overridden Status", "zbee_zcl_general.binary_input_basic.attr.status.overridden", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_OVERRIDDEN, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_input_basic_status_out_of_service,
+            { "Out of Service Status", "zbee_zcl_general.binary_input_basic.attr.status.out_of_service", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_OUT_OF_SERVICE, NULL, HFILL } },
+        /* end Status Flags fields */
+
+        { &hf_zbee_zcl_binary_input_basic_polarity,
+            { "Polarity", "zbee_zcl_general.binary_input_basic.attr.polarity", FT_UINT8, BASE_HEX, VALS(zbee_zcl_binary_input_polarity_values),
+            0x00, NULL, HFILL } }
+
+    };
+
+    /* ZCL Binary Input Basic subtrees */
+    static gint *ett[]={
+             &ett_zbee_zcl_binary_input_basic,
+             &ett_zbee_zcl_binary_input_basic_status_flags
+    };
+
+    /* Register the ZigBee ZCL Binary Input Basic cluster protocol name and description */
+    proto_zbee_zcl_binary_input_basic = proto_register_protocol("ZigBee ZCL Binary Input Basic", "ZCL Binary Input Basic", ZBEE_PROTOABBREV_ZCL_BINARY_INPUT_BASIC);
+    proto_register_field_array(proto_zbee_zcl_binary_input_basic, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Binary Input Basic dissector. */
+    register_dissector(ZBEE_PROTOABBREV_ZCL_BINARY_INPUT_BASIC, dissect_zbee_zcl_binary_input_basic, proto_zbee_zcl_binary_input_basic);
+} /*proto_register_zbee_zcl_binary_input_basic*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_binary_input_basic
+ *  DESCRIPTION
+ *      Hands off the ZCL Binary Input Basic dissector.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_reg_handoff_zbee_zcl_binary_input_basic(void)
+{
+    dissector_handle_t binary_input_basic_handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    binary_input_basic_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_BINARY_INPUT_BASIC);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_BINARY_INPUT_BASIC, binary_input_basic_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_binary_input_basic,
+                            ett_zbee_zcl_binary_input_basic,
+                            ZBEE_ZCL_CID_BINARY_INPUT_BASIC,
+                            hf_zbee_zcl_binary_input_basic_attr_id,
+                            -1, -1,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_binary_input_basic_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_binary_input_basic*/
+
+/* ########################################################################## */
+/* #### (0x0010) BINARY OUTPUT (BASIC) CLUSTER ############################## */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+/*Attributes*/
+#define ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_ACTIVE_TEXT                     0x0004  /* Active Text */
+#define ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_DESCRIPTION                     0x001C  /* Description */
+#define ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_INACTIVE_TEXT                   0x002E  /* Inactive Text */
+#define ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_MIN_OFF_TIME                    0x0042  /* Maximum Off Time */
+#define ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_MIN_ON_TIME                     0x0043  /* Minimum On Time */
+#define ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_OUT_OF_SERVICE                  0x0051  /* Out of Service */
+#define ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_POLARITY                        0x0054  /* Polarity */
+#define ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_PRESENT_VALUE                   0x0055  /* Present Value */
+#define ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_PRIORITY_ARRAY                  0x0057  /* Priority Array */
+#define ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_RELIABILITY                     0x0067  /* Reliability */
+#define ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_RELINQUISH_DEFAULT              0x0068  /* Relinquish Default */
+#define ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_STATUS_FLAGS                    0x006F  /* Status Flags */
+#define ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_APPLICATION_TYPE                0x0100  /* Application Type */
+
+/*Server commands received - none*/
+
+/*Server commands generated - none*/
+
+static const value_string zbee_zcl_binary_output_polarity_values[] = {
+    {0, "Normal"},
+    {1, "Reversed"},
+    {0, NULL}
+};
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+void proto_register_zbee_zcl_binary_output_basic(void);
+void proto_reg_handoff_zbee_zcl_binary_output_basic(void);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_binary_output_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Private functions prototype */
+
+/*************************/
+/* Global Variables      */
+/*************************/
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_binary_output_basic = -1;
+
+static int hf_zbee_zcl_binary_output_basic_attr_id = -1;
+static int hf_zbee_zcl_binary_output_basic_status_flags = -1;
+static int hf_zbee_zcl_binary_output_basic_status_in_alarm = -1;
+static int hf_zbee_zcl_binary_output_basic_status_fault = -1;
+static int hf_zbee_zcl_binary_output_basic_status_overridden = -1;
+static int hf_zbee_zcl_binary_output_basic_status_out_of_service = -1;
+static int hf_zbee_zcl_binary_output_basic_priority_array_bool = -1;
+static int hf_zbee_zcl_binary_output_basic_priority_array_sing_prec = -1;
+static int hf_zbee_zcl_binary_output_basic_polarity = -1;
+static int hf_zbee_zcl_binary_output_basic_reliability = -1;
+static int hf_zbee_zcl_binary_output_basic_priority_array = -1;
+static int hf_zbee_zcl_binary_output_basic_structure = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_binary_output_basic = -1;
+static gint ett_zbee_zcl_binary_output_basic_status_flags = -1;
+static gint ett_zbee_zcl_binary_output_basic_priority_array = -1;
+static gint ett_zbee_zcl_binary_output_basic_priority_array_structure = -1;
+
+/* Attributes */
+static const value_string zbee_zcl_binary_output_basic_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_ACTIVE_TEXT,          "Active Text" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_DESCRIPTION,          "Description" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_INACTIVE_TEXT,        "Inactive Text" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_MIN_OFF_TIME,         "Minimum Off Time" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_MIN_ON_TIME,          "Minimum On Time" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_OUT_OF_SERVICE,       "Out of Service" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_POLARITY,             "Polarity" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_PRESENT_VALUE,        "Present Value" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_PRIORITY_ARRAY,       "Priority Array" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_RELIABILITY,          "Reliability" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_RELINQUISH_DEFAULT,   "Relinquish Default" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_STATUS_FLAGS,         "Status Flags" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_APPLICATION_TYPE,     "Application Type" },
+    { 0, NULL }
+};
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_binary_output_basic
+ *  DESCRIPTION
+ *      ZigBee ZCL Binary Output Basic cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      int                 - length of parsed data.
+ *---------------------------------------------------------------
+ */
+
+static int
+dissect_zbee_zcl_binary_output_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
+{
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_binary_output_basic*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_binary_output_basic_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+dissect_zcl_binary_output_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    proto_item  *ti = NULL, *tj = NULL;
+    proto_tree  *sub_tree = NULL, *sub = NULL;
+    int i;
+
+    static const int * status_flags[] = {
+        &hf_zbee_zcl_binary_output_basic_status_in_alarm,
+        &hf_zbee_zcl_binary_output_basic_status_fault,
+        &hf_zbee_zcl_binary_output_basic_status_overridden,
+        &hf_zbee_zcl_binary_output_basic_status_out_of_service,
+        NULL
+    };
+
+    /* Dissect attribute data type and data */
+    switch (attr_id) {
+
+        case ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_PRIORITY_ARRAY:
+            ti = proto_tree_add_item(tree,hf_zbee_zcl_binary_output_basic_priority_array, tvb, *offset, 80, ENC_NA);
+            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_binary_output_basic_priority_array);
+
+            for(i = 1; i <= 16; i++)
+            {
+                tj = proto_tree_add_item(sub_tree, hf_zbee_zcl_binary_output_basic_structure, tvb, *offset, 5, ENC_NA);
+                proto_item_append_text(tj," %d",i);
+                sub = proto_item_add_subtree(tj, ett_zbee_zcl_binary_output_basic_priority_array_structure);
+                proto_tree_add_item(sub, hf_zbee_zcl_binary_output_basic_priority_array_bool, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+                *offset += 1;
+                proto_tree_add_item(sub, hf_zbee_zcl_binary_output_basic_priority_array_sing_prec, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+                *offset += 4;
+            }
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_POLARITY:
+            proto_tree_add_item(tree, hf_zbee_zcl_binary_output_basic_polarity, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_RELIABILITY:
+            proto_tree_add_item(tree, hf_zbee_zcl_binary_output_basic_reliability, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_STATUS_FLAGS:
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_binary_output_basic_status_flags, ett_zbee_zcl_binary_output_basic_status_flags, status_flags, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_ACTIVE_TEXT:
+        case ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_DESCRIPTION:
+        case ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_INACTIVE_TEXT:
+        case ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_MIN_OFF_TIME:
+        case ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_MIN_ON_TIME:
+        case ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_OUT_OF_SERVICE:
+        case ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_PRESENT_VALUE:
+        case ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_RELINQUISH_DEFAULT:
+        case ZBEE_ZCL_ATTR_ID_BINARY_OUTPUT_BASIC_APPLICATION_TYPE:
+        default:
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+
+} /*dissect_zcl_binary_output_basic_attr_data*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_binary_output_basic
+ *  DESCRIPTION
+ *      ZigBee ZCL Binary Output Basic cluster protocol registration routine.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_register_zbee_zcl_binary_output_basic(void)
+{
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_binary_output_basic_attr_id,
+            { "Attribute", "zbee_zcl_general.binary_output_basic.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_binary_output_basic_attr_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_output_basic_reliability,
+            { "Reliability", "zbee_zcl_general.binary_output_basic.attr.reliability", FT_UINT8, BASE_HEX, VALS(zbee_zcl_reliability_names),
+            0x00, NULL, HFILL } },
+
+        /* start Status Flags fields */
+        { &hf_zbee_zcl_binary_output_basic_status_flags,
+            { "Status Flags", "zbee_zcl_general.binary_output_basic.attr.status", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_output_basic_status_in_alarm,
+            { "In Alarm Status", "zbee_zcl_general.binary_output_basic.attr.status.in_alarm", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_IN_ALARM, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_output_basic_status_fault,
+            { "Fault Status", "zbee_zcl_general.binary_output_basic.attr.status.fault", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_FAULT, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_output_basic_status_overridden,
+            { "Overridden Status", "zbee_zcl_general.binary_output_basic.attr.status.overridden", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_OVERRIDDEN, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_output_basic_status_out_of_service,
+            { "Out of Service Status", "zbee_zcl_general.binary_output_basic.attr.status.out_of_service", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_OUT_OF_SERVICE, NULL, HFILL } },
+        /* end Status Flags fields */
+
+        { &hf_zbee_zcl_binary_output_basic_polarity,
+            { "Polarity", "zbee_zcl_general.binary_output_basic.attr.polarity", FT_UINT8, BASE_HEX, VALS(zbee_zcl_binary_output_polarity_values),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_output_basic_priority_array_bool,
+            { "Valid/Invalid", "zbee_zcl_general.binary_output_basic.attr.priority_array.bool", FT_BOOLEAN, 8, TFS(&tfs_invalid_valid),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_output_basic_priority_array_sing_prec,
+            { "Priority Value", "zbee_zcl_general.binary_output_basic.attr.priority_array.sing_prec", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_output_basic_priority_array,
+            { "Priority Array", "zbee_zcl_general.binary_output_basic.priority_array.", FT_NONE, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_output_basic_structure,
+            { "Structure", "zbee_zcl_general.binary_output_basic.structure.", FT_NONE, BASE_NONE, NULL,
+            0x00, NULL, HFILL } }
+    };
+
+    /* ZCL Binary Output Basic subtrees */
+    static gint *ett[]={
+            &ett_zbee_zcl_binary_output_basic,
+            &ett_zbee_zcl_binary_output_basic_status_flags,
+            &ett_zbee_zcl_binary_output_basic_priority_array,
+            &ett_zbee_zcl_binary_output_basic_priority_array_structure
+    };
+
+    /* Register the ZigBee ZCL Binary Output Basic cluster protocol name and description */
+    proto_zbee_zcl_binary_output_basic = proto_register_protocol("ZigBee ZCL Binary Output Basic", "ZCL Binary Output Basic", ZBEE_PROTOABBREV_ZCL_BINARY_OUTPUT_BASIC);
+    proto_register_field_array(proto_zbee_zcl_binary_output_basic, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Binary Output Basic dissector. */
+    register_dissector(ZBEE_PROTOABBREV_ZCL_BINARY_OUTPUT_BASIC, dissect_zbee_zcl_binary_output_basic, proto_zbee_zcl_binary_output_basic);
+} /*proto_register_zbee_zcl_binary_output_basic*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_binary_output_basic
+ *  DESCRIPTION
+ *      Hands off the ZCL Binary Output Basic dissector.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_reg_handoff_zbee_zcl_binary_output_basic(void)
+{
+    dissector_handle_t binary_output_basic_handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    binary_output_basic_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_BINARY_OUTPUT_BASIC);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_BINARY_OUTPUT_BASIC, binary_output_basic_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_binary_output_basic,
+                            ett_zbee_zcl_binary_output_basic,
+                            ZBEE_ZCL_CID_BINARY_OUTPUT_BASIC,
+                            hf_zbee_zcl_binary_output_basic_attr_id,
+                            -1, -1,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_binary_output_basic_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_binary_output_basic*/
+
+/* ########################################################################## */
+/* #### (0x0011) BINARY VALUE (BASIC) CLUSTER ############################### */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+/*Attributes*/
+#define ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_ACTIVE_TEXT                     0x0004  /* Active Text */
+#define ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_DESCRIPTION                     0x001C  /* Description */
+#define ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_INACTIVE_TEXT                   0x002E  /* Inactive Text */
+#define ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_MIN_OFF_TIME                    0x0042  /* Maximum Off Time */
+#define ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_MIN_ON_TIME                     0x0043  /* Minimum On Time */
+#define ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_OUT_OF_SERVICE                  0x0051  /* Out of Service */
+#define ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_PRESENT_VALUE                   0x0055  /* Present Value */
+#define ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_PRIORITY_ARRAY                  0x0057  /* Priority Array */
+#define ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_RELIABILITY                     0x0067  /* Reliability */
+#define ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_RELINQUISH_DEFAULT              0x0068  /* Relinquish Default */
+#define ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_STATUS_FLAGS                    0x006F  /* Status Flags */
+#define ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_APPLICATION_TYPE                0x0100  /* Application Type */
+
+/*Server commands received - none*/
+
+/*Server commands generated - none*/
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+void proto_register_zbee_zcl_binary_value_basic(void);
+void proto_reg_handoff_zbee_zcl_binary_value_basic(void);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_binary_value_basic_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Private functions prototype */
+
+/*************************/
+/* Global Variables      */
+/*************************/
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_binary_value_basic = -1;
+
+static int hf_zbee_zcl_binary_value_basic_attr_id = -1;
+static int hf_zbee_zcl_binary_value_basic_status_flags = -1;
+static int hf_zbee_zcl_binary_value_basic_status_in_alarm = -1;
+static int hf_zbee_zcl_binary_value_basic_status_fault = -1;
+static int hf_zbee_zcl_binary_value_basic_status_overridden = -1;
+static int hf_zbee_zcl_binary_value_basic_status_out_of_service = -1;
+static int hf_zbee_zcl_binary_value_basic_priority_array_bool = -1;
+static int hf_zbee_zcl_binary_value_basic_priority_array_sing_prec = -1;
+static int hf_zbee_zcl_binary_value_basic_reliability = -1;
+static int hf_zbee_zcl_binary_value_basic_priority_array = -1;
+static int hf_zbee_zcl_binary_value_basic_structure = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_binary_value_basic = -1;
+static gint ett_zbee_zcl_binary_value_basic_status_flags = -1;
+static gint ett_zbee_zcl_binary_value_basic_priority_array = -1;
+static gint ett_zbee_zcl_binary_value_basic_priority_array_structure = -1;
+
+/* Attributes */
+static const value_string zbee_zcl_binary_value_basic_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_ACTIVE_TEXT,          "Active Text" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_DESCRIPTION,          "Description" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_INACTIVE_TEXT,        "Inactive Text" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_MIN_OFF_TIME,         "Minimum Off Time" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_MIN_ON_TIME,          "Minimum On Time" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_OUT_OF_SERVICE,       "Out of Service" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_PRESENT_VALUE,        "Present Value" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_PRIORITY_ARRAY,       "Priority Array" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_RELIABILITY,          "Reliability" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_RELINQUISH_DEFAULT,   "Relinquish Default" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_STATUS_FLAGS,         "Status Flags" },
+    { ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_APPLICATION_TYPE,     "Application Type" },
+    { 0, NULL }
+};
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_binary_value_basic
+ *  DESCRIPTION
+ *      ZigBee ZCL Binary Value Basic cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      int                 - length of parsed data.
+ *---------------------------------------------------------------
+ */
+
+static int
+dissect_zbee_zcl_binary_value_basic(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
+{
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_binary_value_basic*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_binary_value_basic_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+dissect_zcl_binary_value_basic_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    proto_item  *ti = NULL, *tj = NULL;
+    proto_tree  *sub_tree = NULL, *sub = NULL;
+    int i;
+
+    static const int * status_flags[] = {
+        &hf_zbee_zcl_binary_value_basic_status_in_alarm,
+        &hf_zbee_zcl_binary_value_basic_status_fault,
+        &hf_zbee_zcl_binary_value_basic_status_overridden,
+        &hf_zbee_zcl_binary_value_basic_status_out_of_service,
+        NULL
+    };
+
+    /* Dissect attribute data type and data */
+    switch (attr_id) {
+
+        case ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_PRIORITY_ARRAY:
+            ti = proto_tree_add_item(tree,hf_zbee_zcl_binary_value_basic_priority_array, tvb, *offset, 80, ENC_NA);
+            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_binary_value_basic_priority_array);
+
+            for( i = 1; i <= 16; i++)
+            {
+                tj = proto_tree_add_item(sub_tree, hf_zbee_zcl_binary_value_basic_structure, tvb, *offset, 5, ENC_NA);
+                proto_item_append_text(tj," %d",i);
+                sub = proto_item_add_subtree(tj, ett_zbee_zcl_binary_value_basic_priority_array_structure);
+                proto_tree_add_item(sub, hf_zbee_zcl_binary_value_basic_priority_array_bool, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+                *offset += 1;
+                proto_tree_add_item(sub, hf_zbee_zcl_binary_value_basic_priority_array_sing_prec, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+                *offset += 4;
+            }
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_RELIABILITY:
+            proto_tree_add_item(tree, hf_zbee_zcl_binary_value_basic_reliability, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_STATUS_FLAGS:
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_binary_value_basic_status_flags, ett_zbee_zcl_binary_value_basic_status_flags, status_flags, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_ACTIVE_TEXT:
+        case ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_DESCRIPTION:
+        case ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_INACTIVE_TEXT:
+        case ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_MIN_OFF_TIME:
+        case ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_MIN_ON_TIME:
+        case ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_OUT_OF_SERVICE:
+        case ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_PRESENT_VALUE:
+        case ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_RELINQUISH_DEFAULT:
+        case ZBEE_ZCL_ATTR_ID_BINARY_VALUE_BASIC_APPLICATION_TYPE:
+        default:
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+
+} /*dissect_zcl_binary_value_basic_attr_data*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_binary_value_basic
+ *  DESCRIPTION
+ *      ZigBee ZCL Binary Value Basic cluster protocol registration routine.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_register_zbee_zcl_binary_value_basic(void)
+{
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_binary_value_basic_attr_id,
+            { "Attribute", "zbee_zcl_general.binary_value_basic.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_binary_value_basic_attr_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_value_basic_reliability,
+            { "Reliability", "zbee_zcl_general.binary_value_basic.attr.reliability", FT_UINT8, BASE_HEX, VALS(zbee_zcl_reliability_names),
+            0x00, NULL, HFILL } },
+
+        /* start Status Flags fields */
+        { &hf_zbee_zcl_binary_value_basic_status_flags,
+            { "Status Flags", "zbee_zcl_general.binary_value_basic.attr.status", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_value_basic_status_in_alarm,
+            { "In Alarm Status", "zbee_zcl_general.binary_value_basic.attr.status.in_alarm", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_IN_ALARM, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_value_basic_status_fault,
+            { "Fault Status", "zbee_zcl_general.binary_value_basic.attr.status.fault", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_FAULT, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_value_basic_status_overridden,
+            { "Overridden Status", "zbee_zcl_general.binary_value_basic.attr.status.overridden", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_OVERRIDDEN, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_value_basic_status_out_of_service,
+            { "Out of Service Status", "zbee_zcl_general.binary_value_basic.attr.status.out_of_service", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            ZBEE_ZCL_STATUS_OUT_OF_SERVICE, NULL, HFILL } },
+        /* end Status Flags fields */
+
+        { &hf_zbee_zcl_binary_value_basic_priority_array_bool,
+            { "Valid/Invalid", "zbee_zcl_general.binary_value_basic.attr.priority_array.bool", FT_BOOLEAN, 8,TFS(&tfs_invalid_valid),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_value_basic_priority_array_sing_prec,
+            { "Priority Value", "zbee_zcl_general.binary_value_basic.attr.priority_array.sing_prec", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_value_basic_priority_array,
+            { "Priority Array", "zbee_zcl_general.binary_value_basic.priority_array.", FT_NONE, BASE_NONE, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_binary_value_basic_structure,
+            { "Structure", "zbee_zcl_general.binary_value_basic.structure.", FT_NONE, BASE_NONE, NULL,
+            0x00, NULL, HFILL } }
+    };
+
+    /* ZCL Binary Value Basic subtrees */
+    static gint *ett[]={
+        &ett_zbee_zcl_binary_value_basic,
+        &ett_zbee_zcl_binary_value_basic_status_flags,
+        &ett_zbee_zcl_binary_value_basic_priority_array,
+        &ett_zbee_zcl_binary_value_basic_priority_array_structure
+    };
+
+    /* Register the ZigBee ZCL Binary Value Basic cluster protocol name and description */
+    proto_zbee_zcl_binary_value_basic = proto_register_protocol("ZigBee ZCL Binary Value Basic", "ZCL Binary Value Basic", ZBEE_PROTOABBREV_ZCL_BINARY_VALUE_BASIC);
+    proto_register_field_array(proto_zbee_zcl_binary_value_basic, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Binary Value Basic dissector. */
+    register_dissector(ZBEE_PROTOABBREV_ZCL_BINARY_VALUE_BASIC, dissect_zbee_zcl_binary_value_basic, proto_zbee_zcl_binary_value_basic);
+} /*proto_register_zbee_zcl_binary_value_basic*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_binary_value_basic
+ *  DESCRIPTION
+ *      Hands off the ZCL Binary Value Basic dissector.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_reg_handoff_zbee_zcl_binary_value_basic(void)
+{
+    dissector_handle_t binary_value_basic_handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    binary_value_basic_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_BINARY_VALUE_BASIC);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_BINARY_VALUE_BASIC, binary_value_basic_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_binary_value_basic,
+                            ett_zbee_zcl_binary_value_basic,
+                            ZBEE_ZCL_CID_BINARY_VALUE_BASIC,
+                            hf_zbee_zcl_binary_value_basic_attr_id,
+                            -1, -1,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_binary_value_basic_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_binary_value_basic*/
+
+
+/* ########################################################################## */
 /* #### (0x0012) MULTISTATE INPUT (BASIC) CLUSTER ########################### */
 /* ########################################################################## */
 

@@ -1144,6 +1144,9 @@
 #define ZBEE_PROTOABBREV_ZCL_MULTISTATE_VALUE_BASIC           "zbee_zcl_general.multistate.value.basic"
 #define ZBEE_PROTOABBREV_ZCL_MULTISTATE_INPUT_BASIC           "zbee_zcl_general.multistate.input.basic"
 #define ZBEE_PROTOABBREV_ZCL_MULTISTATE_OUTPUT_BASIC          "zbee_zcl_general.multistate.output.basic"
+#define ZBEE_PROTOABBREV_ZCL_BINARY_INPUT_BASIC               "zbee_zcl_general.binary_input_basic"               /* Newly Added by SRIB */
+#define ZBEE_PROTOABBREV_ZCL_BINARY_OUTPUT_BASIC              "zbee_zcl_general.binary_output_basic"              /* Newly Added by SRIB */
+#define ZBEE_PROTOABBREV_ZCL_BINARY_VALUE_BASIC               "zbee_zcl_general.binary_value_basic"               /* Newly Added by SRIB */
 #define ZBEE_PROTOABBREV_ZCL_ILLUMMEAS      "zbee_zcl_meas_sensing.illummeas"
 #define ZBEE_PROTOABBREV_ZCL_ILLUMLEVELSEN  "zbee_zcl_meas_sensing.illumlevelsen"
 #define ZBEE_PROTOABBREV_ZCL_PRESSMEAS      "zbee_zcl_meas_sensing.pressmeas"
