@@ -662,7 +662,17 @@ typedef struct frame_data_s
 {
     int file_type_subtype;
     const gchar  *pkt_comment; /**< NULL if not available */
+    struct epan_dissect *color_edt; /** Used strictly for "coloring rules" */
+
 } frame_data_t;
+
+/* Structure passed to the file dissector */
+typedef struct file_data_s
+{
+    const gchar  *pkt_comment; /**< NULL if not available */
+    struct epan_dissect *color_edt; /** Used strictly for "coloring rules" */
+
+} file_data_t;
 
 /*
  * Dissectors should never modify the record data.

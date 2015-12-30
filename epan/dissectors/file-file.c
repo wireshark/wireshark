@@ -88,13 +88,16 @@ call_file_record_end_routine(gpointer routine, gpointer dummy _U_)
 
 /* XXX - "packet comment" is passed into dissector as data, but currently doesn't have a use */
 static int
-dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
+dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
 	proto_item  *volatile ti = NULL;
 	guint	     cap_len = 0, frame_len = 0;
+	proto_tree  *volatile fh_tree = NULL;
 	proto_tree  *volatile tree;
 	proto_item  *item;
 	const gchar *cap_plurality, *frame_plurality;
+	const color_filter_t *color_filter;
+	file_data_t *file_data = (file_data_t*)data;
 
 	tree=parent_tree;
 
@@ -105,7 +108,6 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	if(!proto_field_is_referenced(tree, proto_file)) {
 		tree=NULL;
 	} else {
-		proto_tree *fh_tree;
 		gboolean old_visible;
 
 		/* Put in frame header information. */
@@ -171,16 +173,6 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 						    pinfo->fd->file_off, pinfo->fd->file_off);
 		}
 #endif
-
-		if(pinfo->fd->color_filter != NULL) {
-			const color_filter_t *color_filter = (const color_filter_t *)pinfo->fd->color_filter;
-			item = proto_tree_add_string(fh_tree, hf_file_color_filter_name, tvb,
-						     0, 0, color_filter->filter_name);
-			PROTO_ITEM_SET_GENERATED(item);
-			item = proto_tree_add_string(fh_tree, hf_file_color_filter_text, tvb,
-						     0, 0, color_filter->filter_text);
-			PROTO_ITEM_SET_GENERATED(item);
-		}
 	}
 
 	if (pinfo->fd->flags.ignored) {
@@ -304,6 +296,19 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			show_exception(tvb, pinfo, parent_tree, EXCEPT_CODE, GET_MESSAGE);
 		}
 		ENDTRY;
+	}
+
+	/* XXX optimize this so it doesn't need to scan the second time */
+	color_filter = color_filters_colorize_packet(file_data->color_edt);
+
+	if (color_filter) {
+		pinfo->fd->color_filter = color_filter;
+		item = proto_tree_add_string(fh_tree, hf_file_color_filter_name, tvb,
+					     0, 0, color_filter->filter_name);
+		PROTO_ITEM_SET_GENERATED(item);
+		item = proto_tree_add_string(fh_tree, hf_file_color_filter_text, tvb,
+					     0, 0, color_filter->filter_text);
+		PROTO_ITEM_SET_GENERATED(item);
 	}
 
 	tap_queue_packet(file_tap, pinfo, NULL);

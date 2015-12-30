@@ -178,9 +178,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	guint	     cap_len = 0, frame_len = 0;
 	proto_tree  *volatile tree;
 	proto_tree  *comments_tree;
+	proto_tree  *volatile fh_tree = NULL;
 	proto_item  *item;
 	const gchar *cap_plurality, *frame_plurality;
 	frame_data_t *fr_data = (frame_data_t*)data;
+	const color_filter_t *color_filter;
 
 	tree=parent_tree;
 
@@ -273,7 +275,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				expert_add_info(pinfo, NULL, &ei_arrive_time_out_of_range);
 		}
 	} else {
-		proto_tree *fh_tree;
 		gboolean old_visible;
 
 		/* Put in frame header information. */
@@ -457,16 +458,6 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 						    "%" G_GINT64_MODIFIER "d (0x%" G_GINT64_MODIFIER "x)",
 						    pinfo->fd->file_off, pinfo->fd->file_off);
 		}
-
-		if (pinfo->fd->color_filter != NULL) {
-			const color_filter_t *color_filter = (const color_filter_t *)pinfo->fd->color_filter;
-			item = proto_tree_add_string(fh_tree, hf_frame_color_filter_name, tvb,
-						     0, 0, color_filter->filter_name);
-			PROTO_ITEM_SET_GENERATED(item);
-			item = proto_tree_add_string(fh_tree, hf_frame_color_filter_text, tvb,
-						     0, 0, color_filter->filter_text);
-			PROTO_ITEM_SET_GENERATED(item);
-		}
 	}
 
 	if (pinfo->fd->flags.ignored) {
@@ -623,6 +614,19 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			show_exception(tvb, pinfo, parent_tree, EXCEPT_CODE, GET_MESSAGE);
 		}
 		ENDTRY;
+	}
+
+	/* XXX optimize this so it doesn't need to scan the second time */
+	color_filter = color_filters_colorize_packet(fr_data->color_edt);
+
+	if (color_filter) {
+		pinfo->fd->color_filter = color_filter;
+		item = proto_tree_add_string(fh_tree, hf_frame_color_filter_name, tvb,
+					     0, 0, color_filter->filter_name);
+		PROTO_ITEM_SET_GENERATED(item);
+		item = proto_tree_add_string(fh_tree, hf_frame_color_filter_text, tvb,
+					     0, 0, color_filter->filter_text);
+		PROTO_ITEM_SET_GENERATED(item);
 	}
 
 	tap_queue_packet(frame_tap, pinfo, NULL);

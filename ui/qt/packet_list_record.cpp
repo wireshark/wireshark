@@ -151,9 +151,6 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
      */
     epan_dissect_run(&edt, cap_file->cd_t, &phdr, frame_tvbuff_new_buffer(fdata_, &buf), fdata_, cinfo);
 
-    if (dissect_color)
-        fdata_->color_filter = color_filters_colorize_packet(&edt);
-
     if (dissect_columns) {
         /* "Stringify" non frame_data vals */
         epan_dissect_fill_in_columns(&edt, FALSE, FALSE /* fill_fd_columns */);

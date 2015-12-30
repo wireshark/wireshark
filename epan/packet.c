@@ -489,6 +489,7 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	else
 		frame_dissector_data.pkt_comment = NULL;
 	frame_dissector_data.file_type_subtype = file_type_subtype;
+	frame_dissector_data.color_edt = edt; /* Used strictly for "coloring rules" */
 
 	TRY {
 		/* Add this tvbuffer into the data_src list */
@@ -518,6 +519,8 @@ void
 dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	       tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
 {
+	file_data_t file_dissector_data;
+
 	if (cinfo != NULL)
 		col_init(cinfo, edt->session);
 	edt->pi.epan = edt->session;
@@ -546,15 +549,15 @@ dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 
 
 	TRY {
-		const gchar *pkt_comment;
-
 		/* pkt comment use first user, later from phdr */
 		if (fd->flags.has_user_comment)
-			pkt_comment = epan_get_user_comment(edt->session, fd);
+			file_dissector_data.pkt_comment = epan_get_user_comment(edt->session, fd);
 		else if (fd->flags.has_phdr_comment)
-			pkt_comment = phdr->opt_comment;
+			file_dissector_data.pkt_comment = phdr->opt_comment;
 		else
-			pkt_comment = NULL;
+			file_dissector_data.pkt_comment = NULL;
+		file_dissector_data.color_edt = edt; /* Used strictly for "coloring rules" */
+
 
 		/* Add this tvbuffer into the data_src list */
 		add_new_data_source(&edt->pi, edt->tvb, "File");
@@ -563,7 +566,7 @@ dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 		 * sub-dissector can throw, dissect_frame() itself may throw
 		 * a ReportedBoundsError in bizarre cases. Thus, we catch the exception
 		 * in this function. */
-		call_dissector_with_data(file_handle, edt->tvb, &edt->pi, edt->tree, (void*)pkt_comment);
+		call_dissector_with_data(file_handle, edt->tvb, &edt->pi, edt->tree, &file_dissector_data);
 
 	}
 	CATCH(BoundsError) {

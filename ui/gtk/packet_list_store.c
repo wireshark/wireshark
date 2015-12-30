@@ -1163,9 +1163,6 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	 */
 	epan_dissect_run(&edt, cfile.cd_t, &phdr, frame_tvbuff_new_buffer(fdata, &buf), fdata, cinfo);
 
-	if (dissect_color)
-		fdata->color_filter = color_filters_colorize_packet(&edt);
-
 	if (dissect_columns) {
 		/* "Stringify" non frame_data vals */
 		epan_dissect_fill_in_columns(&edt, FALSE, FALSE /* fill_fd_columns */);

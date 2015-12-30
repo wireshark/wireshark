@@ -39,6 +39,7 @@
 #include "file.h"
 #include <epan/dfilter/dfilter.h>
 #include <epan/prefs.h>
+#include <epan/epan_dissect.h>
 
 
 #define RED_COMPONENT(x)   (guint16) (((((x) >> 16) & 0xff) * 65535 / 255))
@@ -130,7 +131,7 @@ color_filters_find_by_name_cb(gconstpointer arg1, gconstpointer arg2)
     const color_filter_t *colorf = (const color_filter_t *)arg1;
     const gchar          *name   = (const gchar *)arg2;
 
-    return (strstr(colorf->filter_name, name)==NULL) ? -1 : 0 ;
+    return strcmp(colorf->filter_name, name);
 }
 
 
@@ -162,7 +163,7 @@ color_filters_set_tmp(guint8 filt_nr, const gchar *filter, gboolean disabled, gc
         /* Only change the filter rule if this is the rule to change or if
          * a matching filter string has been found
          */
-        if(colorf && ( (i==filt_nr) || (strstr(filter,colorf->filter_text)!=NULL) ) ) {
+        if(colorf && ( (i==filt_nr) || (!strcmp(filter, colorf->filter_text)) ) ) {
             /* set filter string to "frame" if we are resetting the rules
              * or if we found a matching filter string which need to be cleared
              */
@@ -489,7 +490,7 @@ color_filters_colorize_packet(epan_dissect_t *edt)
     color_filter_t *colorf;
 
     /* If we have color filters, "search" for the matching one. */
-    if (color_filters_used()) {
+    if ((edt->tree != NULL) && (color_filters_used())) {
         curr = color_filter_list;
 
         while(curr != NULL) {
