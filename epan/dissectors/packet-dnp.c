@@ -2844,6 +2844,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
         /* And increment the point address, may be overwritten by an index value */
         al_ptaddr++;
+      } else {
+        offset = data_pos;
       }
       if (start_offset > offset) {
         expert_add_info(pinfo, point_item, &ei_dnp_invalid_length);
