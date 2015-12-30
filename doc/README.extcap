@@ -87,10 +87,11 @@ interface.
 Example:
 
 $ extcapbin --extcap-interface IFACE --extcap-config
-arg {number=0}{call=--delay}{display=Time delay}{tooltip=Time delay between packages}{type=integer}{range=1,15}
+arg {number=0}{call=--delay}{display=Time delay}{tooltip=Time delay between packages}{type=integer}{range=1,15}{required=true}
 arg {number=1}{call=--message}{display=Message}{tooltip=Package message content}{type=string}
 arg {number=2}{call=--verify}{display=Verify}{tooltip=Verify package content}{type=boolflag}
 arg {number=3}{call=--remote}{display=Remote Channel}{tooltip=Remote Channel Selector}{type=selector}
+arg {number=4}{call=--server}{display=IP address for log server}{type=string}{validation=\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b}
 value {arg=3}{value=if1}{display=Remote1}{default=true}
 value {arg=3}{value=if2}{display=Remote2}{default=false}
 
@@ -139,7 +140,11 @@ These options do have types, for which the following types are being supported:
 
  * STRING - Let the user provide a string to the capture
 
-   arg {number=1}{call=--message}{display=Message}{tooltip=Package message content}{type=string}
+   arg {number=1}{call=--server}{display=IP Address}{tooltip=IP Address for log server}{type=string}{validation=\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b}
+
+   - validation allows to provide a regular expression string, which is used to check
+     the user input for validity beyond normal data type or range checks. Back-slashes
+     must be escaped (as in \\b for \b)
 
  * BOOLEAN,BOOLFLAG - this provides the possibility to set a true/false value.
    BOOLFLAG values will only appear in the command-line if set to true, otherwise they
@@ -160,6 +165,17 @@ These options do have types, for which the following types are being supported:
    arg {number=3}{call=--remote}{display=Remote Channel}{tooltip=Remote Channel Selector}{type=selector}
    value {arg=3}{value=if1}{display=Remote1}{default=true}
    value {arg=3}{value=if2}{display=Remote2}{default=false}
+
+
+VALIDATION OF ARGUMENTS
+=======================
+Arguments may be set with "{required=true}" which enforces a value being provided, before a capture can be started
+using the extcap options dialog. This is not being checked, if the extcap is started via a simple double-click. The
+necessary fields are marked for the customer, to ensure a visibility for the end customer of the required argument.
+
+Additionally text and number arguments may also be checked using a regular expression, which is provided using
+the validation attribute (see example above). The syntax for such a check is the same as for Qt RegExp classes.
+This feature is only active in the Qt version of Wireshark.
 
 
 DEVELOPMENT
