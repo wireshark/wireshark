@@ -4050,10 +4050,24 @@ decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
             proto_item_append_text(te, " : %s", tvb_ip6_to_str(tvb, offset + 5));
             break;
         case 0x8d:
-            proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 9, 16, ENC_NA);
-            proto_item_append_text(te, " : %s / %s", tvb_ip_to_str(tvb, offset + 5),
-                                   tvb_ip6_to_str(tvb, offset + 9));
+            if (length == 6) {
+                struct e_in6_addr ipv6;
+                memset(&ipv6, 0, sizeof(struct e_in6_addr));
+                proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_ipv6_format_value(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 9, 0, &ipv6, "dynamic");
+                proto_item_append_text(te, " : %s / dynamic", tvb_ip_to_str(tvb, offset + 5));
+            } else if (length == 18) {
+                proto_tree_add_ipv4_format_value(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 5, 0, 0, "dynamic");
+                proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 5, 16, ENC_NA);
+                proto_item_append_text(te, " : dynamic / %s", tvb_ip6_to_str(tvb, offset + 5));
+            } else if (length == 22) {
+                proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 9, 16, ENC_NA);
+                proto_item_append_text(te, " : %s / %s", tvb_ip_to_str(tvb, offset + 5),
+                                       tvb_ip6_to_str(tvb, offset + 9));
+            } else {
+                proto_tree_add_expert_format(ext_tree_user, pinfo, &ei_gtp_ext_length_mal, tvb, offset + 3, length, "Wrong length indicated. Expected 6, 18 or 22, got %u", length);
+            }
             break;
         }
     } else
