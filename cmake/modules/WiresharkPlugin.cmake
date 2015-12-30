@@ -47,13 +47,11 @@ macro(ADD_PLUGIN_LIBRARY _plugin)
 	)
 
 	# Try to force output to ${PLUGIN_DIR} without the configuration
-	# type appended.
+	# type appended. Needed for CPack on Windows.
 	foreach(_config_type ${CMAKE_CONFIGURATION_TYPES})
 		string(TOUPPER ${_config_type} _config_upper)
 		set_target_properties(${_plugin} PROPERTIES
-			#ARCHIVE_OUTPUT_DIRECTORY_${_config_upper} ${PLUGIN_DIR}
-			LIBRARY_OUTPUT_DIRECTORY_${_config_upper} ${PLUGIN_DIR}
-			#RUNTIME_OUTPUT_DIRECTORY_${_config_upper} ${PLUGIN_DIR}
+			LIBRARY_OUTPUT_DIRECTORY_${_config_upper} ${CMAKE_BINARY_DIR}/run/${_config_type}/plugins
 		)
 	endforeach()
 
