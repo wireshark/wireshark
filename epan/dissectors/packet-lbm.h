@@ -127,7 +127,7 @@ typedef guint64 lbm_uint64_t;
         inet_aton(new_buf, &addr); \
         (((rec_t*)rec)->field_name ## _val_h) = g_ntohl(addr.s_addr); \
     } \
-    static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) \
+    static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) \
     {\
         if (((rec_t*)rec)->field_name ) \
         { \
@@ -170,7 +170,7 @@ typedef guint64 lbm_uint64_t;
         inet_aton(new_buf, &addr); \
         (((rec_t*)rec)->field_name ## _val_h) = g_ntohl(addr.s_addr); \
     } \
-    static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) \
+    static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* u1 _U_, const void* u2 _U_) \
     {\
         if (((rec_t*)rec)->field_name ) \
         { \

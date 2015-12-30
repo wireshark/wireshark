@@ -250,7 +250,7 @@ uat_t* uat_get_table_by_name(const char* name) {
 
 static void putfld(FILE* fp, void* rec, uat_field_t* f) {
     guint fld_len;
-    const char* fld_ptr;
+    char* fld_ptr;
 
     f->cb.tostr(rec,&fld_ptr,&fld_len,f->cbdata.tostr,f->fld_data);
 
@@ -290,7 +290,7 @@ static void putfld(FILE* fp, void* rec, uat_field_t* f) {
             g_assert_not_reached();
     }
 
-    g_free((char*)fld_ptr);
+    g_free(fld_ptr);
 }
 
 gboolean uat_save(uat_t* uat, char** error) {

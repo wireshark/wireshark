@@ -169,7 +169,7 @@ static void limit_buttons(uat_t *uat) {
 
 static char *fld_tostr(void *rec, uat_field_t *f) {
 	guint	    len;
-	const char *ptr;
+	char       *ptr;
 	char       *out;
 
 	f->cb.tostr(rec, &ptr, &len, f->cbdata.tostr, f->fld_data);
@@ -199,7 +199,7 @@ static char *fld_tostr(void *rec, uat_field_t *f) {
 			break;
 	}
 
-	g_free((char*)ptr);
+	g_free(ptr);
 	return out;
 }
 

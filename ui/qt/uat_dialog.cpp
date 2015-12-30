@@ -162,8 +162,8 @@ QString UatDialog::fieldString(guint row, guint column)
 
     void *rec = UAT_INDEX_PTR(uat_, row);
     uat_field_t *field = &uat_->fields[column];
-    guint    length;
-    const char *str;
+    guint length;
+    char *str;
 
     field->cb.tostr(rec, &str, &length, field->cbdata.tostr, field->fld_data);
 
@@ -189,7 +189,7 @@ QString UatDialog::fieldString(guint row, guint column)
         break;
     }
 
-    g_free((char*)str);
+    g_free(str);
     return string_rep;
 }
 
@@ -497,10 +497,10 @@ void UatDialog::addRecord(bool copy_from_current)
             switch (field->mode) {
             case PT_TXTMOD_ENUM:
                 guint length;
-                const char *str;
+                char *str;
                 field->cb.tostr(rec, &str, &length, field->cbdata.tostr, field->fld_data);
                 field->cb.set(rec, str, length, field->cbdata.set, field->fld_data);
-                g_free((char*)str);
+                g_free(str);
                 break;
             case PT_TXTMOD_NONE:
                 break;

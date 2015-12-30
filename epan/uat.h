@@ -151,7 +151,7 @@ typedef void (*uat_fld_set_cb_t)(void*, const char*, unsigned, const void*, cons
  * given a record returns a string representation of the field
  * mandatory
  */
-typedef void (*uat_fld_tostr_cb_t)(void*, const char**, unsigned*, const void*, const void*);
+typedef void (*uat_fld_tostr_cb_t)(void*, char**, unsigned*, const void*, const void*);
 
 /***********
  * Text Mode
@@ -374,7 +374,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
     char* new_buf = g_strndup(buf,len); \
 	g_free((((rec_t*)rec)->field_name)); \
 	(((rec_t*)rec)->field_name) = new_buf; } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
 		if (((rec_t*)rec)->field_name ) { \
 			*out_ptr = g_strdup((((rec_t*)rec)->field_name)); \
 			*out_len = (unsigned)strlen((((rec_t*)rec)->field_name)); \
@@ -429,7 +429,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 	char* new_val = uat_unesc(buf,len,&(((rec_t*)rec)->len_element)); \
         g_free((((rec_t*)rec)->ptr_element)); \
 	(((rec_t*)rec)->ptr_element) = new_val; }\
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
 	if (((rec_t*)rec)->ptr_element ) { \
 		*out_ptr = uat_esc(((rec_t*)rec)->ptr_element, (((rec_t*)rec)->len_element)); \
 		*out_len = (unsigned)strlen(*out_ptr); \
@@ -455,8 +455,8 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 	g_free((((rec_t*)rec)->ptr_element)); \
 	(((rec_t*)rec)->ptr_element) = new_buf; \
 	(((rec_t*)rec)->len_element) = len; } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
-	*out_ptr = ((rec_t*)rec)->ptr_element ? (const char*)g_memdup(((rec_t*)rec)->ptr_element,((rec_t*)rec)->len_element) : g_strdup(""); \
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+	*out_ptr = ((rec_t*)rec)->ptr_element ? (char*)g_memdup(((rec_t*)rec)->ptr_element,((rec_t*)rec)->len_element) : g_strdup(""); \
 	*out_len = ((rec_t*)rec)->len_element; }
 
 #define UAT_FLD_BUFFER(basename,field_name,title,desc) \
@@ -472,7 +472,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 	char* tmp_str = g_strndup(buf,len); \
 	((rec_t*)rec)->field_name = (guint)strtol(tmp_str,NULL,10); \
 	g_free(tmp_str); } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
 	*out_ptr = g_strdup_printf("%d",((rec_t*)rec)->field_name); \
 	*out_len = (unsigned)strlen(*out_ptr); }
 
@@ -492,7 +492,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 	char* tmp_str = g_strndup(buf,len); \
 	((rec_t*)rec)->field_name = (guint)strtol(tmp_str,NULL,16); \
 	g_free(tmp_str); } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
 	*out_ptr = g_strdup_printf("%x",((rec_t*)rec)->field_name); \
 	*out_len = (unsigned)strlen(*out_ptr); }
 
@@ -520,7 +520,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 		} \
 	} \
 	g_free(str); } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* vs, const void* UNUSED_PARAMETER(u2)) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* vs, const void* UNUSED_PARAMETER(u2)) {\
 	guint i; \
 	for(i=0;((const value_string*)vs)[i].strptr;i++) { \
 		if ( ((const value_string*)vs)[i].value == ((rec_t*)rec)->field_name ) { \
@@ -546,7 +546,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 		} \
 	} \
 	g_free(str);} \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(vs), const void* UNUSED_PARAMETER(u2)) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(vs), const void* UNUSED_PARAMETER(u2)) {\
 		if (((rec_t*)rec)->field_name ) { \
 			*out_ptr = g_strdup((((rec_t*)rec)->field_name)); \
 			*out_len = (unsigned)strlen((((rec_t*)rec)->field_name)); \
@@ -573,7 +573,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 		((rec_t*)rec)->dissector_field = find_dissector("data"); \
 		((rec_t*)rec)->name_field = NULL; \
 		} } \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
 	if ( ((rec_t*)rec)->name_field ) { \
 		*out_ptr = g_strdup((((rec_t*)rec)->name_field)); \
 		*out_len = (unsigned)strlen(*out_ptr); \
@@ -594,7 +594,7 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 		range_convert_str(&(((rec_t*)rec)->field_name), rng,GPOINTER_TO_UINT(u2)); \
 		g_free(rng); \
 	} \
-static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
 	if ( ((rec_t*)rec)->field_name ) { \
 		*out_ptr = range_convert_range(NULL, ((rec_t*)rec)->field_name); \
 		*out_len = (unsigned)strlen(*out_ptr); \
