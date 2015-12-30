@@ -1029,13 +1029,11 @@ static const value_string opt53_text[] = {
 	{ 11,	"Lease Unassigned" },		/* RFC4388 */
 	{ 12,	"Lease Unknown" },		/* RFC4388 */
 	{ 13,	"Lease Active" },		/* RFC4388 */
-	/* draft-ietf-dhc-leasequery-09.txt
-	{ 13,	"Lease query" },			*/
-	{ 14,	"Lease known" },
-	{ 15,	"Lease unknown" },
-	{ 16,	"Lease active" },
-	{ 17,	"Unimplemented" },
-
+	{ 14,	"Bulk Lease Query" },		/* RFC6926 */
+	{ 15,	"Lease Query Done" },		/* RFC6926 */
+	{ 16,	"Active LeaseQuery" },		/* RFC7724 */
+	{ 17,	"Lease Query Status" },		/* RFC7724 */
+	{ 18,	"TLS" },			/* RFC7724 */
 	{ 0,	NULL }
 };
 
