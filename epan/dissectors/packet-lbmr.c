@@ -226,7 +226,7 @@ static void lbtrdma_transport_build_key(guint32 * key_value, wmem_tree_key_t * k
 {
     guint32 val;
 
-    memcpy((void *) &val, (void *) transport->source_address.data, sizeof(guint32));
+    memcpy(&val, transport->source_address.data, sizeof(guint32));
     key_value[LBTRDMA_KEY_ELEMENT_SOURCE_ADDRESS] = val;
     key_value[LBTRDMA_KEY_ELEMENT_SESSION_ID] = transport->session_id;
     key_value[LBTRDMA_KEY_ELEMENT_PORT] = (guint32) transport->port;
