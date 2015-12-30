@@ -3900,12 +3900,26 @@ decode_gtp_user_addr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_
             proto_item_append_text(te, " : %s", ip6_to_str((struct e_in6_addr *) &addr_ipv6));
             break;
         case 0x8d:
-            addr_ipv4 = tvb_get_ipv4(tvb, offset + 5);
-            proto_tree_add_ipv4(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 4, addr_ipv4);
-            tvb_get_ipv6(tvb, offset + 9, &addr_ipv6);
-            proto_tree_add_ipv6(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 9, 16, (guint8 *) & addr_ipv6);
-            proto_item_append_text(te, " : %s / %s", ip_to_str((guint8 *) & addr_ipv4),
-                                   ip6_to_str((struct e_in6_addr *) &addr_ipv6));
+            if (length == 6) {
+                addr_ipv4 = tvb_get_ipv4(tvb, offset + 5);
+                proto_tree_add_ipv4(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 4, addr_ipv4);
+                memset(&addr_ipv6, 0, sizeof(struct e_in6_addr));
+                proto_tree_add_ipv6_format_value(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 9, 0, (const guint8*)&addr_ipv6, "dynamic");
+                proto_item_append_text(te, " : %s / dynamic", ip_to_str((guint8 *) & addr_ipv4));
+            } else if (length == 18) {
+                proto_tree_add_ipv4_format_value(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 5, 0, 0, "dynamic");
+                proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 5, 16, ENC_NA);
+                proto_item_append_text(te, " : dynamic / %s", ip6_to_str((struct e_in6_addr *) &addr_ipv6));
+            } else if (length == 22) {
+                addr_ipv4 = tvb_get_ipv4(tvb, offset + 5);
+                proto_tree_add_ipv4(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 4, addr_ipv4);
+                tvb_get_ipv6(tvb, offset + 9, &addr_ipv6);
+                proto_tree_add_ipv6(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 9, 16, (guint8 *) & addr_ipv6);
+                proto_item_append_text(te, " : %s / %s", ip_to_str((guint8 *) & addr_ipv4),
+                                       ip6_to_str((struct e_in6_addr *) &addr_ipv6));
+            } else {
+                proto_tree_add_expert_format(ext_tree_user, pinfo, &ei_gtp_ext_length_mal, tvb, offset + 3, length, "Wrong length indicated. Expected 6, 18 or 22, got %u", length);
+            }
             break;
         }
     } else
