@@ -314,6 +314,7 @@ HEADERS += $$HEADERS_WS_C \
     export_pdu_dialog.h \
     extcap_argument.h \
     extcap_argument_file.h \
+    extcap_argument_multiselect.h \
     extcap_options_dialog.h \
     filter_action.h \
     filter_expression_frame.h \
@@ -702,6 +703,7 @@ SOURCES += \
     export_pdu_dialog.cpp \
     extcap_argument.cpp \
     extcap_argument_file.cpp \
+    extcap_argument_multiselect.cpp \
     extcap_options_dialog.cpp \
     file_set_dialog.cpp \
     filter_action.cpp \
