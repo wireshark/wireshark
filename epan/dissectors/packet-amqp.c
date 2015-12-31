@@ -10902,8 +10902,7 @@ get_amqp_1_0_type_value_formatter(tvbuff_t *tvb,
         format_name=(char*)type_name;
       else
       {
-        format_name = (char*) wmem_alloc(wmem_packet_scope(), MAX_BUFFER);
-        g_snprintf(format_name, MAX_BUFFER, "%s : %s", name, type_name);
+        format_name = wmem_strdup_printf(wmem_packet_scope(), "%s : %s", name, type_name);
       }
     }
     AMQP_INCREMENT(offset, type_length_size, bound);
