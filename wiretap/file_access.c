@@ -1200,12 +1200,17 @@ wtap_fdreopen(wtap *wth, const char *filename, int *err)
 	return TRUE;
 }
 
-/* Table of the file types and subtypes we know about.
+/* Table of the file types and subtypes for which we have built-in support.
    Entries must be sorted by WTAP_FILE_TYPE_SUBTYPE_xxx values in ascending
    order.
 
    These are used to report what type and subtype a given file is and
-   to let the user select a format when writing out packets. */
+   to let the user select a format when writing out packets.
+
+   This table is what we start with, but it can be modified.
+   If we need to modify it, we allocate a GArray, copy the entries
+   in the above table to that GArray, use the copy as the table, and
+   make all changes to the copy. */
 static const struct file_type_subtype_info dump_open_table_base[] = {
 	/* WTAP_FILE_TYPE_SUBTYPE_UNKNOWN (only used internally for initialization) */
 	{ NULL, NULL, NULL, NULL,
@@ -1609,16 +1614,31 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  NULL, NULL, NULL },
 };
 
-gint wtap_num_file_types_subtypes = sizeof(dump_open_table_base) / sizeof(struct file_type_subtype_info);
-
-static GArray*  dump_open_table_arr = NULL;
+/*
+ * Pointer to the table we're currently using.  It's initialized to point
+ * to the static table, but, if we have to allocate the GArray, it's
+ * changed to point to the data in the GArray.
+ */
 static const struct file_type_subtype_info* dump_open_table = dump_open_table_base;
 
-/* initialize the file types array if it has not being initialized yet */
-static void
-init_file_types_subtypes(void)
-{
+/*
+ * Number of elements in the table we're currently using.  It's initialized
+ * to the number of elements in the static table, but, if we have to
+ * allocate the GArray, it's changed to have the size of the GArray.
+ */
+gint wtap_num_file_types_subtypes = sizeof(dump_open_table_base) / sizeof(struct file_type_subtype_info);
 
+/*
+ * Pointer to the GArray; NULL until it's needed.
+ */
+static GArray*  dump_open_table_arr = NULL;
+
+/*
+ * Create the GArray from the static table if it hasn't already been created.
+ */
+static void
+init_file_types_subtypes_garray(void)
+{
 	if (dump_open_table_arr) return;
 
 	dump_open_table_arr = g_array_new(FALSE,TRUE,sizeof(struct file_type_subtype_info));
@@ -1634,7 +1654,6 @@ int
 wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const int subtype)
 {
 	struct file_type_subtype_info* finfo;
-	init_file_types_subtypes();
 
 	if (!fi || !fi->name || !fi->short_name || subtype > wtap_num_file_types_subtypes) {
 		g_error("no file type info or invalid file type to register");
@@ -1649,6 +1668,11 @@ wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const 
 			return subtype;
 		}
 
+		/*
+		 * Create the GArray if it hasn't already been created.
+		 */
+		init_file_types_subtypes_garray();
+
 		g_array_append_val(dump_open_table_arr,*fi);
 
 		dump_open_table = (const struct file_type_subtype_info*)(void *)dump_open_table_arr->data;
@@ -1662,8 +1686,16 @@ wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const 
 		return subtype;
 	}
 
-	/* yes, we're going to cast to change its const-ness */
-	finfo = (struct file_type_subtype_info*)(&dump_open_table[subtype]);
+	/*
+	 * Create the GArray if it hasn't already been created.
+	 */
+	init_file_types_subtypes_garray();
+
+	/*
+	 * Get the pointer from the GArray, so that we get a non-const
+	 * pointer.
+	 */
+	finfo = &g_array_index(dump_open_table_arr, struct file_type_subtype_info, subtype);
 	/*finfo->name = fi->name;*/
 	/*finfo->short_name = fi->short_name;*/
 	finfo->default_file_extension     = fi->default_file_extension;
@@ -1690,8 +1722,16 @@ wtap_deregister_file_type_subtype(const int subtype)
 		return;
 	}
 
-	/* yes, we're going to cast to change its const-ness */
-	finfo = (struct file_type_subtype_info*)(&dump_open_table[subtype]);
+	/*
+	 * Create the GArray if it hasn't already been created.
+	 */
+	init_file_types_subtypes_garray();
+
+	/*
+	 * Get the pointer from the GArray, so that we get a non-const
+	 * pointer.
+	 */
+	finfo = &g_array_index(dump_open_table_arr, struct file_type_subtype_info, subtype);
 	/* unfortunately, it's not safe to null-out the name or short_name; bunch of other code doesn't guard aainst that, afaict */
 	/*finfo->name = NULL;*/
 	/*finfo->short_name = NULL;*/
