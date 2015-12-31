@@ -100,6 +100,11 @@ static const value_string iso14443_short_frame[] = {
     { 0, NULL }
 };
 
+/* the bits in the ATS' TO byte indicating which other bytes are transmitted */
+#define HAVE_TC1 0x40
+#define HAVE_TB1 0x20
+#define HAVE_TA1 0x10
+
 #define I_BLOCK_TYPE 0x00
 #define R_BLOCK_TYPE 0x02
 #define S_BLOCK_TYPE 0x03
@@ -185,6 +190,11 @@ static int hf_iso14443_rats_start = -1;
 static int hf_iso14443_fsdi = -1;
 static int hf_iso14443_cid = -1;
 static int hf_iso14443_tl = -1;
+static int hf_iso14443_t0 = -1;
+static int hf_iso14443_tc1 = -1;
+static int hf_iso14443_tb1 = -1;
+static int hf_iso14443_ta1 = -1;
+static int hf_iso14443_hist_bytes = -1;
 static int hf_iso14443_attrib_start = -1;
 static int hf_iso14443_pupi = -1;
 static int hf_iso14443_param1 = -1;
@@ -494,9 +504,9 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
 {
     gboolean crc_dropped = (gboolean)GPOINTER_TO_UINT(data);
     proto_item *ti = proto_tree_get_parent(tree);
-    gint offset = 0;
+    gint offset = 0, offset_tl, hist_len;
     guint8 fsdi, cid;
-    guint8 tl;
+    guint8 tl, t0 = 0;
 
     if (pinfo->p2p_dir == P2P_DIR_SENT) {
         col_set_str(pinfo->cinfo, COL_INFO, "RATS");
@@ -521,11 +531,39 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
     else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         col_set_str(pinfo->cinfo, COL_INFO, "ATS");
         proto_item_append_text(ti, ": ATS");
+        offset_tl = offset;
         tl = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_iso14443_tl,
                 tvb, offset, 1, ENC_BIG_ENDIAN);
-        /* TL includes itself */
-        offset += tl;
+        offset++;
+        /* the length in TL includes the TL byte itself */
+        if (tl >= 2) {
+            t0 = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_iso14443_t0,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+        }
+        if (t0 & HAVE_TC1) {
+            proto_tree_add_item(tree, hf_iso14443_tc1,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+        }
+        if (t0 & HAVE_TB1) {
+            proto_tree_add_item(tree, hf_iso14443_tb1,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+        }
+        if (t0 & HAVE_TA1) {
+            proto_tree_add_item(tree, hf_iso14443_ta1,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+        }
+        hist_len = tl - (offset - offset_tl);
+        if (hist_len > 0) {
+            proto_tree_add_item(tree, hf_iso14443_hist_bytes,
+                    tvb, offset, hist_len, ENC_NA);
+            offset += hist_len;
+        }
         if (!crc_dropped) {
             proto_tree_add_item(tree, hf_iso14443_crc,
                     tvb, offset, CRC_LEN, ENC_BIG_ENDIAN);
@@ -1142,6 +1180,26 @@ proto_register_iso14443(void)
         { &hf_iso14443_tl,
             { "Length byte TL", "iso14443.tl",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_t0,
+            { "Format byte T0", "iso14443.t0",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_tc1,
+            { "Interface byte TC1", "iso14443.tc1",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_tb1,
+            { "Interface byte TB1", "iso14443.tb1",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_ta1,
+            { "Interface byte TA1", "iso14443.ta1",
+                FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+        },
+        { &hf_iso14443_hist_bytes,
+            { "Historical bytes", "iso14443.hist_bytes",
+                FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_iso14443_attrib_start,
             { "Start byte", "iso14443.attrib_start",
