@@ -27,6 +27,9 @@ hook_script=${GIT_DIR:-.git}/hooks/pre-commit
 # invocations via relative paths (such as ../tools/pre-commit):
 cd "$(git rev-parse --show-toplevel)"
 
+# Path to excluded files listing
+excludes=./tools/pre-commit-checkignore.txt
+
 # Check for newer (actually, different) versions of the pre-commit script
 # (but only if invoked as hook, i.e. the commit ID is not given as argument).
 if [ -z "$1" ] && ! cmp -s "$hook_script" tools/pre-commit; then
@@ -36,6 +39,11 @@ fi
 exit_status=0
 
 for FILE in `git diff-index --cached --name-status ${COMMIT_ID} | grep -v "^D" | cut -f2 | grep "\.[ch]$" | grep -v "extcap/"` ; do
+
+    #Skip if listed
+    if [ -e $excludes ] && grep -Fxq "$FILE" "$excludes"; then
+        continue
+    fi
 
     #Check if checkhf is good
     ./tools/checkhf.pl $FILE            || exit_status=1
