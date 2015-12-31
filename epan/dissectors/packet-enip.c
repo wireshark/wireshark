@@ -2098,7 +2098,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                      guint32 *datap;
 
                      port = tvb_get_ntohs(tvb, offset+8);
-                     datap = wmem_alloc(wmem_file_scope(), sizeof(guint32));
+                     datap = (guint32 *)wmem_alloc(wmem_file_scope(), sizeof(guint32));
                      *datap = tvb_get_ipv4(tvb, offset+10);
 
                      if (item == SOCK_ADR_INFO_OT)
