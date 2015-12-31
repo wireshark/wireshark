@@ -7041,16 +7041,16 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				    guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr,
 				    const wbxml_decoding *map)
 {
-	guint32     tvb_len = tvb_reported_length (tvb);
-	guint32     off     = offset;
-	guint32     len;
-	guint       str_len;
-	guint32     ent;
-	guint32     idx;
-	guint8      peek;
-	guint8      attr_save_known   = 0; /* Will contain peek & 0x3F (attr identity) */
-	const char *attr_save_literal = NULL; /* Will contain the LITERAL attr identity */
-	gchar      *str;
+	guint32      tvb_len = tvb_reported_length (tvb);
+	guint32      off     = offset;
+	guint32      len;
+	guint        str_len;
+	guint32      ent;
+	guint32      idx;
+	guint8       peek;
+	guint8       attr_save_known   = 0; /* Will contain peek & 0x3F (attr identity) */
+	const char  *attr_save_literal = NULL; /* Will contain the LITERAL attr identity */
+	const gchar *str;
 
 	DebugLog(("parse_wbxml_attr_defined (level = %u, offset = %u)\n", level, offset));
 	/* Parse attributes */
@@ -7158,7 +7158,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 		case 0xC1: /* EXT_1 */
 		case 0xC2: /* EXT_2 */
 			/* Extension tokens */
-			str = (char*)((map != NULL) ? map_token (map->global, 0, peek) : "Single-byte extension");
+			str = (map != NULL) ? map_token (map->global, 0, peek) : "Single-byte extension";
 			proto_tree_add_string_format(tree, hf_wbxml_extension_token, tvb, off, 1, str,
 					     "  %3d |  Attr | A %3d    | EXT_%1x      (Extension Token)    |     %s(%s)",
 					     level, *codepage_attr, peek & 0x0f, Indent (level), str);
@@ -7216,10 +7216,10 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 			off = tvb_len;
 			break;
 		} else { /* Known atribute token */
-			char* s;
+			const char* s;
 			if (peek & 0x80) { /* attrValue */
 				if (map != NULL) {
-					s = (char*)map_token (map->attrValue, *codepage_attr, peek);
+					s = map_token (map->attrValue, *codepage_attr, peek);
 				} else {
 					s = wmem_strdup_printf(wmem_packet_scope(), "attrValue_0x%02X", peek);
 				}
@@ -7230,7 +7230,7 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				off++;
 			} else { /* attrStart */
 				if (map != NULL) {
-					s = (char*)map_token (map->attrStart, *codepage_attr, peek);
+					s = map_token (map->attrStart, *codepage_attr, peek);
 				} else {
 					s = wmem_strdup_printf(wmem_packet_scope(), "attrStart_0x%02X", peek);
 				}
@@ -7276,24 +7276,24 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			 guint32 str_tbl, guint8 *level, guint8 *codepage_stag, guint8 *codepage_attr,
 			 const wbxml_decoding *map)
 {
-	guint32     tvb_len  = tvb_reported_length (tvb);
-	guint32     off      = offset;
-	guint32     len;
-	guint       str_len;
-	guint32     ent;
-	guint32     idx;
-	guint8      peek;
-	guint32     tag_len;                     /* Length of the index (uintvar) from a LITERAL tag */
-	guint8      tag_save_known      = 0;     /* Will contain peek & 0x3F (tag identity) */
-	guint8      tag_new_known       = 0;     /* Will contain peek & 0x3F (tag identity) */
-	const char *tag_save_literal    = NULL;  /* Will contain the LITERAL tag identity */
-	const char *tag_new_literal;             /* Will contain the LITERAL tag identity */
-	gchar      *str;
-	guint8      parsing_tag_content = FALSE; /* Are we parsing content from a
-					            tag with content: <x>Content</x>
+	guint32      tvb_len  = tvb_reported_length (tvb);
+	guint32      off      = offset;
+	guint32      len;
+	guint        str_len;
+	guint32      ent;
+	guint32      idx;
+	guint8       peek;
+	guint32      tag_len;                     /* Length of the index (uintvar) from a LITERAL tag */
+	guint8       tag_save_known      = 0;     /* Will contain peek & 0x3F (tag identity) */
+	guint8       tag_new_known       = 0;     /* Will contain peek & 0x3F (tag identity) */
+	const char  *tag_save_literal    = NULL;  /* Will contain the LITERAL tag identity */
+	const char  *tag_new_literal;             /* Will contain the LITERAL tag identity */
+	const gchar *str;
+	guint8       parsing_tag_content = FALSE; /* Are we parsing content from a
+						     tag with content: <x>Content</x>
 
-					            The initial state is FALSE.
-					            This state will trigger recursion. */
+						     The initial state is FALSE.
+						     This state will trigger recursion. */
 
 	DebugLog(("parse_wbxml_tag_defined (level = %u, offset = %u)\n", *level, offset));
 	while (off < tvb_len) {
@@ -7412,7 +7412,7 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		case 0xC1: /* EXT_1 */
 		case 0xC2: /* EXT_2 */
 			/* Extension tokens */
-			str = (char*)((map != NULL) ? map_token (map->global, 0, peek) : "Single-byte extension");
+			str = (map != NULL) ? map_token (map->global, 0, peek) : "Single-byte extension";
 			proto_tree_add_string_format(tree, hf_wbxml_extension_token, tvb, off, 1, str,
 					     "  %3d | Tag   | T %3d    | EXT_%1x      (Extension Token)    | %s(%s)",
 					     *level, *codepage_stag, peek & 0x0f, Indent (*level), str);
