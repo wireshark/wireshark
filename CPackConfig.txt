@@ -19,11 +19,44 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-set(CPACK_PACKAGE_NAME wireshark)
+# XXX The CMake documentation recommends setting CPACK_PROJECT_CONFIG_FILE
+# instead.
+if(WIN32)
+        # To do:
+        # - Add WinPCap
+        # - Add USBPcap
+        # - Add CLI DLLs
+        # - Add common (Glib, etc) DLLs
+        # - Add Qt DLLs
+        # - Add
+        set(CPACK_PACKAGE_NAME Wireshark)
+        set(CPACK_GENERATOR "WIX")
+else()
+        # XXX Currently unused and untested.
+        set(CPACK_PACKAGE_NAME wireshark)
+        set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_SYSTEM_NAME}-${CPACK_PACKAGE_VERSION})
+        # Win:        WIX, NSIS, ZIP, SOURCE_ZIP, CYGWIN_BINARY, SOURCE_CYGWIN,
+        # Linux/Unix: DEB, RPM, STGZ, TBZ2, TZ, SOURCE_TZ, SOURCE_TGZ
+        # OSX:        PACKAGEMAKER, OSXX11
+        # Syntax: "Type1;Type2;Type3"
+        set(CPACK_GENERATOR "TBZ2")
+        set(CPACK_SOURCE_GENERATOR "TBZ2")
+        set(CPACK_PACKAGE_INSTALL_DIRECTORY "/usr")
+endif()
+
+# WiX
+
+# WiX wants RTF. CPack+WiX wants a file extension.
+set(CPACK_WIX_LICENSE_RTF "${CMAKE_SOURCE_DIR}/packaging/wix/gpl-2.0.rtf")
+set(CPACK_WIX_PRODUCT_ICON "${CMAKE_SOURCE_DIR}/image/wireshark.ico")
+#set(CPACK_WIX_UI_BANNER "${CMAKE_SOURCE_DIR}/image/wix-ui-banner.png")
+#set(CPACK_WIX_UI_DIALOG "${CMAKE_SOURCE_DIR}/image/wix-ui-dialog.png")
+
+set(CPACK_WIX_UPGRADE_GUID "5809F81A-587D-470D-8016-DA480DAE379F")
+
 set(CPACK_PACKAGE_DESCRIPTION "A set of command line and gui tools to capture and decode traffic")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Packet capturing and decoding")
 set(CPACK_PACKAGE_VENDOR "Wireshark developers")
-set(CPACK_PACKAGE_NAME "wireshark")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_MAJOR_VERSION}")
 set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_MINOR_VERSION}")
@@ -31,17 +64,10 @@ set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_PATCH_VERSION}${PROJECT_VERSION_EXTEN
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 set(CPACK_PACKAGE_CONTACT "wireshark-users@wireshark.org")
 # set(CPACK_PACKAGE_EXECUTABLES "wireshark")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING")
 set(CPACK_STRIP_FILES true)
 
 set(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "/usr")
-# Win:        NSIS, ZIP, SOURCE_ZIP, CYGWIN_BINARY, SOURCE_CYGWIN,
-# Linux/Unix: DEB, RPM, STGZ, TBZ2, TZ, SOURCE_TZ, SOURCE_TGZ
-# OSX:        PACKAGEMAKER, OSXX11
-# Syntax: "Type1;Type2;Type3"
-set(CPACK_GENERATOR "TBZ2")
-set(CPACK_SOURCE_GENERATOR "TBZ2")
 
 #===============================================
 IF(APPLE)
@@ -76,4 +102,3 @@ ENDIF(APPLE)
 #===============================================
 
 include(CPack)
-
