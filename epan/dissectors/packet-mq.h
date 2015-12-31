@@ -2491,24 +2491,6 @@ typedef struct _mq_parm_t
 #define MQ_MQGA_LAST                      9000
 
 /****************************************************************/
-/* Values Related to MQINQMP Function                           */
-/****************************************************************/
-
-/* Inquire on all properties -  "%" */
-#define MQ_MQPROP_INQUIRE_ALL     (MQPTR)"%",\
-    0,\
-    0,\
-    1,\
-    MQCCSI_APPL
-
-/* Inquire on all 'usr' properties - "usr.%" */
-#define MQ_MQPROP_INQUIRE_ALL_USR (MQPTR)"usr.%",\
-    0,\
-    0,\
-    5,\
-    MQCCSI_APPL
-
-/****************************************************************/
 /* Values Related to MQOPEN Function                            */
 /****************************************************************/
 
