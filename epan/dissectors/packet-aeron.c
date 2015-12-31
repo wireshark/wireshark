@@ -659,7 +659,7 @@ static void aeron_fragment_frame_add(aeron_fragment_t * fragment, aeron_frame_in
 /*----------------------------------------------------------------------------*/
 static gboolean aeron_is_address_multicast(const address * addr)
 {
-    guint8 * addr_data = (guint8 *) addr->data;
+    const guint8 * addr_data = (const guint8 *) addr->data;
 
     switch (addr->type)
     {
@@ -872,7 +872,7 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
     {
         case AT_IPv4:
             {
-                guint8 * dst_addr = (guint8 *) pinfo->dst.data;
+                const guint8 * dst_addr = (const guint8 *) pinfo->dst.data;
 
                 cinfo->addr1 = wmem_new0(wmem_packet_scope(), address);
                 cinfo->addr2 = wmem_new0(wmem_packet_scope(), address);
@@ -927,7 +927,7 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
             break;
         case AT_IPv6:
             {
-                guint8 * dst_addr = (guint8 *) pinfo->dst.data;
+                const guint8 * dst_addr = (const guint8 *) pinfo->dst.data;
 
                 cinfo->addr1 = wmem_new0(wmem_packet_scope(), address);
                 cinfo->addr2 = wmem_new0(wmem_packet_scope(), address);
