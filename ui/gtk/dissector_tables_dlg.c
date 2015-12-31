@@ -102,7 +102,7 @@ typedef struct dissector_tables_trees dissector_tables_trees_t;
 static void
 proto_add_to_list(dissector_tables_tree_info_t *tree_info,
                   GtkTreeStore *store,
-                  gchar        *str,
+                  const gchar  *str,
                   const gchar  *proto_name)
 {
     gtk_tree_store_insert_with_values(store, &tree_info->new_iter, &tree_info->iter, G_MAXINT,
@@ -120,7 +120,8 @@ decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type,
     dtbl_entry_t       *dtbl_entry;
     dissector_handle_t  handle;
     guint32             port;
-    gchar              *str;
+    gchar              *int_str;
+    const gchar        *dissector_name_str;
     dissector_tables_tree_info_t *tree_info;
 
     tree_info = (dissector_tables_tree_info_t *)user_data;
@@ -138,27 +139,24 @@ decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type,
         case FT_UINT32:
             port = GPOINTER_TO_UINT(key);
             /* Hack: Use fixed width rj str so alpha sort (strcmp) will sort field numerically */
-            str = g_strdup_printf ("%10d", port);
-            proto_add_to_list(tree_info, store, str, proto_name);
-            g_free (str);
+            int_str = g_strdup_printf ("%10d", port);
+            proto_add_to_list(tree_info, store, int_str, proto_name);
+            g_free (int_str);
             break;
 
         case FT_STRING:
         case FT_STRINGZ:
         case FT_UINT_STRING:
         case FT_STRINGZPAD:
-            str = (gchar*) key;
-            proto_add_to_list(tree_info, store, str, proto_name);
+            proto_add_to_list(tree_info, store, key, proto_name);
             break;
 
         case FT_BYTES:
         case FT_GUID:
-            str = (gchar*)dissector_handle_get_dissector_name(handle);
-            if (str == NULL)
-            {
-                str = "<Unknown>";
-            }
-            proto_add_to_list(tree_info, store, str, proto_name);
+            dissector_name_str = dissector_handle_get_dissector_name(handle);
+            if (dissector_name_str == NULL)
+                dissector_name_str = "<Unknown>";
+            proto_add_to_list(tree_info, store, dissector_name_str, proto_name);
             break;
 
         default:
