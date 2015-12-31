@@ -957,8 +957,7 @@ store_nfs_file_handle(nfs_fhandle_data_t *nfs_fh)
 
 	new_nfs_fh = wmem_new(wmem_file_scope(), nfs_fhandle_data_t);
 	new_nfs_fh->len = nfs_fh->len;
-	new_nfs_fh->fh = (const unsigned char *)wmem_alloc(wmem_file_scope(), sizeof(guint32)*(nfs_fh->len/4));
-	memcpy((void *)new_nfs_fh->fh, nfs_fh->fh, nfs_fh->len);
+	new_nfs_fh->fh = (const unsigned char *)wmem_memdup(wmem_file_scope(), nfs_fh->fh, nfs_fh->len);
 	fhlen = nfs_fh->len/4;
 	fhkey[0].length = 1;
 	fhkey[0].key	= &fhlen;
