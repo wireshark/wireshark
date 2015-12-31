@@ -456,33 +456,29 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
 
     /* 2) use the 1st nibble logic (see BCP 4928, RFC 4385 and 5586) */
-    if (first_nibble == 4) {
+    switch(first_nibble) {
+    case 4:
         call_dissector(dissector_ip, next_tvb, pinfo, tree);
         /* IP dissector may reduce the length of the tvb.
            We need to do the same, so that ethernet trailer is detected. */
         set_actual_length(tvb, offset+tvb_reported_length(next_tvb));
-        return;
-    } else if (first_nibble == 6) {
+        break;
+    case 6:
         call_dissector(dissector_ipv6, next_tvb, pinfo, tree);
         /* IPv6 dissector may reduce the length of the tvb.
            We need to do the same, so that ethernet trailer is detected. */
         set_actual_length(tvb, offset+tvb_reported_length(next_tvb));
-        return;
-    } else if (first_nibble == 1) {
+        break;
+    case 1:
         call_dissector(dissector_pw_ach, next_tvb, pinfo, tree);
-        return;
-    } else if (tvb_captured_length(next_tvb) >= 14) {
-        guint16 etype = tvb_get_ntohs(next_tvb, 12);
-        if ((etype == ETHERTYPE_IP) ||(etype == ETHERTYPE_ARP) ||
-            (etype == ETHERTYPE_ARP) ||(etype == ETHERTYPE_VLAN) ||
-            (etype ==ETHERTYPE_IPv6)) {
-            /* This looks like an ethernet packet with a known ethertype.
-               Decode payload as Ethernet PW */
-            call_dissector(dissector_pw_eth_heuristic, next_tvb, pinfo, tree);
-            return;
-        }
+        break;
+    case 0:
+        call_dissector(dissector_pw_eth_heuristic, next_tvb, pinfo, tree);
+        break;
+    default:
+        call_dissector(dissector_data, next_tvb, pinfo, tree);
+        break;
     }
-    call_dissector(dissector_data, next_tvb, pinfo, tree);
 }
 
 void
