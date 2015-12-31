@@ -556,7 +556,7 @@ gint16 csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pD
  * displayed to show there was a choice
  *****************************************************************************/
 #define M_CHOICE_IL(_STRUCT, _MEMBER, _CHOICE, _ElementCount, _HF_PTR)\
-  {CSN_CHOICE, _ElementCount, {(void*)_CHOICE}, offsetof(_STRUCT, _MEMBER), FALSE, NULL, NULL, 0, _HF_PTR, NULL, NULL}
+	{CSN_CHOICE, _ElementCount, {(const void*)_CHOICE}, offsetof(_STRUCT, _MEMBER), FALSE, NULL, NULL, 0, _HF_PTR, NULL, NULL}
 
 /******************************************************************************
  * M_FIXED(Par1, Par2, Par3)
