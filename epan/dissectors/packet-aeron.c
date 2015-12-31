@@ -881,10 +881,8 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
                     guint8 * addr1;
                     guint8 * addr2;
 
-                    addr1 = (guint8 *) wmem_alloc(wmem_packet_scope(), (size_t) addr_len);
-                    addr2 = (guint8 *) wmem_alloc(wmem_packet_scope(), (size_t) addr_len);
-                    memcpy((void *) addr1, (void *) dst_addr, (size_t) addr_len);
-                    memcpy((void *) addr2, (void *) dst_addr, (size_t) addr_len);
+                    addr1 = (guint8 *) wmem_memdup(wmem_packet_scope(), (const void *) dst_addr, (size_t) addr_len);
+                    addr2 = (guint8 *) wmem_memdup(wmem_packet_scope(), (const void *) dst_addr, (size_t) addr_len);
                     if ((dst_addr[addr_len - 1] & 0x1) != 0)
                     {
                         /* Address is odd, so it's the data group (in addr2). Increment the last byte of addr1 for the control group. */
@@ -938,10 +936,8 @@ static aeron_conversation_info_t * aeron_setup_conversation_info(const packet_in
                     guint8 * addr1;
                     guint8 * addr2;
 
-                    addr1 = (guint8 *) wmem_alloc(wmem_packet_scope(), (size_t) addr_len);
-                    addr2 = (guint8 *) wmem_alloc(wmem_packet_scope(), (size_t) addr_len);
-                    memcpy((void *) addr1, (void *) dst_addr, (size_t) addr_len);
-                    memcpy((void *) addr2, (void *) dst_addr, (size_t) addr_len);
+                    addr1 = (guint8 *) wmem_memdup(wmem_packet_scope(), (const void *) dst_addr, (size_t) addr_len);
+                    addr2 = (guint8 *) wmem_memdup(wmem_packet_scope(), (const void *) dst_addr, (size_t) addr_len);
                     if ((dst_addr[addr_len - 1] & 0x1) != 0)
                     {
                         /* Address is odd, so it's the data group (in addr2). Increment the last byte of addr1 for the control group. */
