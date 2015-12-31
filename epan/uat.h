@@ -522,17 +522,15 @@ static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, g
 	g_free(str); } \
 static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out_ptr, unsigned* out_len, const void* vs, const void* UNUSED_PARAMETER(u2)) {\
 	guint i; \
-	char *str = g_strdup(default_str); \
-	*out_ptr = str; \
-	*out_len = (unsigned)strlen(default_str);\
 	for(i=0;((const value_string*)vs)[i].strptr;i++) { \
 		if ( ((const value_string*)vs)[i].value == ((rec_t*)rec)->field_name ) { \
-			g_free(str); \
 			*out_ptr = g_strdup(((const value_string*)vs)[i].strptr); \
 			*out_len = (unsigned)strlen(*out_ptr); \
 			return; \
 		} \
-	} } \
+	} \
+	*out_ptr = g_strdup(default_str); \
+	*out_len = (unsigned)strlen(default_str); }
 
 #define UAT_VS_CSTRING_DEF(basename,field_name,rec_t,default_val,default_str) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* vs, const void* UNUSED_PARAMETER(u2)) {\
