@@ -3752,8 +3752,8 @@ struct axset {
 ** Compare to axset structures for sorting purposes
 */
 static int axset_compare(const void *a, const void *b){
-  struct axset *p1 = (struct axset*)a;
-  struct axset *p2 = (struct axset*)b;
+  const struct axset *p1 = (const struct axset*)a;
+  const struct axset *p2 = (const struct axset*)b;
   int c;
   c = p2->nAction - p1->nAction;
   if( c==0 ){
@@ -4334,8 +4334,8 @@ void CompressTables(struct lemon *lemp)
 ** token actions.
 */
 static int stateResortCompare(const void *a, const void *b){
-  const struct state *pA = *(const struct state**)a;
-  const struct state *pB = *(const struct state**)b;
+  const struct state *pA = *(const struct state *const *)a;
+  const struct state *pB = *(const struct state *const *)b;
   int n;
 
   n = pB->nNtAct - pA->nNtAct;
@@ -4639,8 +4639,8 @@ struct symbol *Symbol_new(const char *x)
 */
 int Symbolcmpp(const void *_a, const void *_b)
 {
-  const struct symbol *a = *(const struct symbol **) _a;
-  const struct symbol *b = *(const struct symbol **) _b;
+  const struct symbol *a = *(const struct symbol *const *) _a;
+  const struct symbol *b = *(const struct symbol *const *) _b;
   int i1 = a->type==MULTITERMINAL ? 3 : a->name[0]>'Z' ? 2 : 1;
   int i2 = b->type==MULTITERMINAL ? 3 : b->name[0]>'Z' ? 2 : 1;
   return i1==i2 ? a->index - b->index : i1 - i2;
@@ -4800,8 +4800,8 @@ struct symbol **Symbol_arrayof(void)
 /* Compare two configurations */
 int Configcmp(const char *_a,const char *_b)
 {
-  const struct config *a = (struct config *) _a;
-  const struct config *b = (struct config *) _b;
+  const struct config *a = (const struct config *) _a;
+  const struct config *b = (const struct config *) _b;
   int x;
   x = a->rp->index - b->rp->index;
   if( x==0 ) x = a->dot - b->dot;
