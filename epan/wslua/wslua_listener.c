@@ -44,7 +44,7 @@ static int tap_packet_cb_error_handler(lua_State* L) {
     static gchar* last_error = NULL;
     static int repeated = 0;
     static int next = 2;
-    const gchar* where =  (lua_pinfo) ?
+    gchar* where =  (lua_pinfo) ?
         wmem_strdup_printf(NULL, "Lua: on packet %i Error During execution of Listener Packet Callback",lua_pinfo->fd->num) :
         wmem_strdup_printf(NULL, "Lua: Error During execution of Listener Packet Callback") ;
 
@@ -56,8 +56,7 @@ static int tap_packet_cb_error_handler(lua_State* L) {
         last_error = g_strdup(error);
         repeated = 0;
         next = 2;
-        wmem_free(NULL, (void*) where);
-        where = NULL;
+        wmem_free(NULL, where);
         return 0;
     }
 
@@ -76,7 +75,7 @@ static int tap_packet_cb_error_handler(lua_State* L) {
         report_failure("%s:\n %s",where,error);
     }
 
-    wmem_free(NULL, (void*) where);
+    wmem_free(NULL, where);
     return 0;
 }
 
