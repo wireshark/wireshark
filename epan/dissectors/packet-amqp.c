@@ -10883,7 +10883,7 @@ get_amqp_1_0_type_value_formatter(tvbuff_t *tvb,
     guint32    hf_amqp_subtype_count = 0;
     const int  **hf_amqp_subtypes = NULL;
     const char *type_name = NULL;
-    char       *format_name = NULL;
+    const char *format_name = NULL;
     guint      type_length_size;
 
     code = get_amqp_1_0_type_formatter(tvb,
@@ -10897,9 +10897,9 @@ get_amqp_1_0_type_value_formatter(tvbuff_t *tvb,
     if ((name != NULL) || (type_name != NULL))
     {
       if (type_name == NULL)
-        format_name=(char*)name;
+        format_name = name;
       else if (name == NULL)
-        format_name=(char*)type_name;
+        format_name = type_name;
       else
       {
         format_name = wmem_strdup_printf(wmem_packet_scope(), "%s : %s", name, type_name);
