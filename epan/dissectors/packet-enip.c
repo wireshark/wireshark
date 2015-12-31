@@ -2094,19 +2094,24 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                   request_info = (enip_request_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
                   if (request_info != NULL)
                   {
+                     guint16 port;
+                     guint32 *datap;
+
+                     port = tvb_get_ntohs(tvb, offset+8);
+                     datap = wmem_alloc(wmem_file_scope(), sizeof(guint32));
+                     *datap = tvb_get_ipv4(tvb, offset+10);
+
                      if (item == SOCK_ADR_INFO_OT)
                      {
-                        request_info->cip_info->connInfo->O2T.port = tvb_get_ntohs(tvb, offset+8);
-                        request_info->cip_info->connInfo->O2T.ipaddress.type = AT_IPv4;
-                        request_info->cip_info->connInfo->O2T.ipaddress.data = wmem_alloc(wmem_file_scope(), sizeof(guint32));
-                        *((guint32*)request_info->cip_info->connInfo->O2T.ipaddress.data) = tvb_get_ipv4(tvb, offset+10);
+                        request_info->cip_info->connInfo->O2T.port = port;
+                        set_address(&request_info->cip_info->connInfo->O2T.ipaddress,
+			            AT_IPv4, sizeof(guint32), datap);
                      }
                      else
                      {
-                        request_info->cip_info->connInfo->T2O.port = tvb_get_ntohs(tvb, offset+8);
-                        request_info->cip_info->connInfo->T2O.ipaddress.type = AT_IPv4;
-                        request_info->cip_info->connInfo->T2O.ipaddress.data = wmem_alloc(wmem_file_scope(), sizeof(guint32));
-                        *((guint32*)request_info->cip_info->connInfo->T2O.ipaddress.data) = tvb_get_ipv4(tvb, offset+10);
+                        request_info->cip_info->connInfo->T2O.port = port;
+                        set_address(&request_info->cip_info->connInfo->T2O.ipaddress,
+			            AT_IPv4, sizeof(guint32), datap);
                      }
                   }
                }
