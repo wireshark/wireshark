@@ -1354,7 +1354,7 @@ int main(int argc, char *argv[])
 
 ////////
     gchar* err_msg = NULL;
-    if (!color_filters_init(&err_msg, initialize_color, color_filter_add_cb)) {
+    if (!color_filters_init(&err_msg, color_filter_add_cb)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
     }

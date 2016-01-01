@@ -3810,6 +3810,10 @@ prefs_capture_options_dialog_column_is_visible(const gchar *column)
 #define PRS_GUI_FILTER_EXPR              "gui.filter_expressions.expr"
 #define PRS_GUI_FILTER_ENABLED           "gui.filter_expressions.enabled"
 
+/*
+ * Extract the red, green, and blue components of a 24-bit RGB value
+ * and convert them from [0,255] to [0,65535].
+ */
 #define RED_COMPONENT(x)   (guint16) (((((x) >> 16) & 0xff) * 65535 / 255))
 #define GREEN_COMPONENT(x) (guint16) (((((x) >>  8) & 0xff) * 65535 / 255))
 #define BLUE_COMPONENT(x)  (guint16) ( (((x)        & 0xff) * 65535 / 255))

@@ -39,17 +39,6 @@ typedef struct {
 	guint16 blue;
 } color_t;
 
-/** Initialize a color with R, G, and B values, including any toolkit-dependent
- ** work that needs to be done.
- *
- * @param color the color_t to be filled
- * @param red the red value for the color
- * @param green the green value for the color
- * @param blue the blue value for the color
- * @return TRUE if it succeeds, FALSE if it fails
- */
-typedef gboolean (*initialize_color_func)(color_t *color, guint16 red, guint16 green, guint16 blue);
-
 #define CONVERSATION_COLOR_PREFIX       "___conversation_color_filter___"
 /** @file
  *  Color filters.
@@ -80,10 +69,10 @@ typedef struct _color_filter {
 typedef void (*color_filter_add_cb_func)(color_filter_t *colorf, gpointer user_data);
 
 /** Init the color filters (incl. initial read from file). */
-WS_DLL_PUBLIC gboolean color_filters_init(gchar** err_msg, initialize_color_func init_func, color_filter_add_cb_func add_cb);
+WS_DLL_PUBLIC gboolean color_filters_init(gchar** err_msg, color_filter_add_cb_func add_cb);
 
 /** Reload the color filters */
-WS_DLL_PUBLIC gboolean color_filters_reload(gchar** err_msg, initialize_color_func init_func, color_filter_add_cb_func add_cb);
+WS_DLL_PUBLIC gboolean color_filters_reload(gchar** err_msg, color_filter_add_cb_func add_cb);
 
 /** Cleanup remaining color filter zombies */
 WS_DLL_PUBLIC void color_filters_cleanup(void);
@@ -150,14 +139,14 @@ WS_DLL_PUBLIC void color_filters_clone(gpointer user_data, color_filter_add_cb_f
  * @param user_data will be returned by each call to to color_filter_add_cb()
  * @return TRUE, if read succeeded
  */
-WS_DLL_PUBLIC gboolean color_filters_import(const gchar *path, const gpointer user_data, gchar** err_msg, initialize_color_func init_func, color_filter_add_cb_func add_cb);
+WS_DLL_PUBLIC gboolean color_filters_import(const gchar *path, const gpointer user_data, gchar** err_msg, color_filter_add_cb_func add_cb);
 
 /** Read filters from the global filter file (not the users file).
  *
  * @param user_data will be returned by each call to to color_filter_add_cb()
  * @return TRUE, if read succeeded
  */
-WS_DLL_PUBLIC gboolean color_filters_read_globals(gpointer user_data, gchar** err_msg, initialize_color_func init_func, color_filter_add_cb_func add_cb);
+WS_DLL_PUBLIC gboolean color_filters_read_globals(gpointer user_data, gchar** err_msg, color_filter_add_cb_func add_cb);
 
 
 /** Apply a changed filter list.

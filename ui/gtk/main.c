@@ -3177,7 +3177,7 @@ main(int argc, char *argv[])
 
     dnd_init(top_level);
 
-    if (!color_filters_init(&err_msg, initialize_color, color_filter_add_cb)) {
+    if (!color_filters_init(&err_msg, color_filter_add_cb)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
     }
@@ -3963,7 +3963,7 @@ void change_configuration_profile (const gchar *profile_name)
     }
 
     /* Reload color filters */
-    if (!color_filters_reload(&err_msg, initialize_color, color_filter_add_cb)) {
+    if (!color_filters_reload(&err_msg, color_filter_add_cb)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
     }
@@ -3989,7 +3989,7 @@ main_fields_changed (void)
     gchar* err_msg = NULL;
 
     /* Reload color filters */
-    if (!color_filters_reload(&err_msg, initialize_color, color_filter_add_cb)) {
+    if (!color_filters_reload(&err_msg, color_filter_add_cb)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
     }

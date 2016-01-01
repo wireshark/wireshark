@@ -54,8 +54,21 @@ ColorUtils::ColorUtils(QObject *parent) :
 {
 }
 
+//
+// A color_t has RGB values in [0,65535].
+// Qt RGB colors have RGB values in [0,255].
+//
+// 65535/255 = 257 = 0x0101, so converting from [0,255] to
+// [0,65535] involves just shifting the 8-bit value left 8 bits
+// and ORing them together.
+//
+// Converting from [0,65535] to [0,255] without rounding involves
+// just shifting the 16-bit value right 8 bits; I guess you could
+// round them by adding 0x80 to the value before shifting.
+//
 QColor ColorUtils::fromColorT (const color_t *color) {
     if (!color) return QColor();
+    // Convert [0,65535] values to [0,255] values
     return QColor(color->red >> 8, color->green >> 8, color->blue >> 8);
 }
 
@@ -67,6 +80,8 @@ QColor ColorUtils::fromColorT(color_t color)
 const color_t ColorUtils::toColorT(const QColor color)
 {
     color_t colort;
+
+    // Convert [0,255] values to [0,65535] values
     colort.red = (color.red() << 8) | color.red();
     colort.green = (color.green() << 8) | color.green();
     colort.blue = (color.blue() << 8) | color.blue();

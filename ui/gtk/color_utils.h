@@ -1,5 +1,5 @@
-/* colors.h
- * Definitions for color structures and routines
+/* color_utils.h
+ * Definitions for GTK+ color conversion routines.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -20,8 +20,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef  __COLORS_H__
-#define  __COLORS_H__
+#ifndef  __COLOR_UTILS_H__
+#define  __COLOR_UTILS_H__
 
 #include "ui/gtk/gui_utils.h"
 #include <epan/color_filters.h>
@@ -36,15 +36,39 @@
  * @param source the source color_t
  */
 void color_t_to_gdkcolor(GdkColor *target, const color_t *source);
+
+/** Convert color_t to GdkRGBA.
+ *
+ * @param target the GdkRGBA to be filled
+ * @param source the source color_t
+ */
 void color_t_to_gdkRGBAcolor(GdkRGBA *target, const color_t *source);
+
 /** Convert GdkColor to color_t.
  *
  * @param target the source color_t
  * @param source the GdkColor to be filled
  */
 void gdkcolor_to_color_t(color_t *target, const GdkColor *source);
+
+/** Convert GdkRGBA to color_t.
+ *
+ * @param target the source color_t
+ * @param source the GdkRGBA to be filled
+ */
 void gdkRGBAcolor_to_color_t(color_t *target, const GdkRGBA *source);
 
+/** Convert GdkColor to GdkRGBA.
+ *
+ * @param target the source GdkColor
+ * @param source the GdkRGBA to be filled
+ */
 void GdkColor_to_GdkRGBA(GdkRGBA *target, const GdkColor *source);
+
+/** Convert GdkRGBA to GdkColor.
+ *
+ * @param target the source GdkColor
+ * @param source the GdkRGBA to be filled
+ */
 void gdkRGBAcolor_to_GdkColor(GdkColor *target, const GdkRGBA *source);
-#endif /* __COLORS_H__ */
+#endif /* __COLOR_UTILS_H__ */

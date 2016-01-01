@@ -2277,7 +2277,7 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
     }
 
     /* Try to open the color filter file. */
-    if (!color_filters_import(cf_name, color_filters, &err_msg, initialize_color, color_filter_add_cb)) {
+    if (!color_filters_import(cf_name, color_filters, &err_msg, color_filter_add_cb)) {
       /* We couldn't open it; don't dismiss the open dialog box,
          just leave it around so that the user can, after they
          dismiss the alert box popped up for the open error,

@@ -978,7 +978,7 @@ win32_import_color_file(HWND h_wnd, gpointer color_filters) {
     /* XXX - Support export limited to selected filters */
     if (GetOpenFileName(ofn)) {
         g_free( (void *) ofn);
-        if (!color_filters_import(utf_16to8(file_name), color_filters, &err_msg, initialize_color, color_filter_add_cb)) {
+        if (!color_filters_import(utf_16to8(file_name), color_filters, &err_msg, color_filter_add_cb)) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
             g_free(err_msg);
             return;

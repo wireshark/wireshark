@@ -1,5 +1,5 @@
 /* color_utils.c
- * Toolkit-dependent implementations of routines to handle colors.
+ * GTK+ color conversion routines.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -28,25 +28,6 @@
 
 #include "ui/gtk/color_utils.h"
 
-/*
- * Initialize a color with R, G, and B values, including any toolkit-dependent
- * work that needs to be done.
- * Returns TRUE if it succeeds, FALSE if it fails.
- */
-gboolean
-initialize_color(color_t *color, guint16 red, guint16 green, guint16 blue)
-{
-	GdkColor gdk_color;
-
-	gdk_color.pixel = 0;
-	gdk_color.red = red;
-	gdk_color.green = green;
-	gdk_color.blue = blue;
-
-	gdkcolor_to_color_t(color, &gdk_color);
-	return TRUE;
-}
-
 void
 color_t_to_gdkcolor(GdkColor *target, const color_t *source)
 {
@@ -64,6 +45,7 @@ color_t_to_gdkRGBAcolor(GdkRGBA *target, const color_t *source)
 	target->green = source->green / 65535.0;
 	target->blue  = source->blue / 65535.0;
 }
+
 void
 gdkcolor_to_color_t(color_t *target, const GdkColor *source)
 {

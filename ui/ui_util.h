@@ -89,7 +89,6 @@ void packet_list_resize_column(gint col);
          files
          Function names make it clear where they are coming from
 */
-gboolean initialize_color(color_t *color, guint16 red, guint16 green, guint16 blue);
 void color_filter_add_cb(color_filter_t *colorf, gpointer user_data);
 
 #ifdef __cplusplus

@@ -963,7 +963,7 @@ color_clear_cmd(GtkWidget *widget)
   }
 
   /* try to read the global filters */
-  if (!color_filters_read_globals(color_filters, &err_msg, initialize_color, color_filter_add_cb))
+  if (!color_filters_read_globals(color_filters, &err_msg, color_filter_add_cb))
   {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
     g_free(err_msg);

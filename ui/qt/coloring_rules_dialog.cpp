@@ -324,7 +324,7 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
         QString file_name = QFileDialog::getOpenFileName(this, wsApp->windowTitleString(tr("Import Coloring Rules")),
                                                          wsApp->lastOpenDir().path());
         gchar* err_msg = NULL;
-        if (!color_filters_import(file_name.toUtf8().constData(), this, &err_msg, initialize_color, color_filter_add_cb)) {
+        if (!color_filters_import(file_name.toUtf8().constData(), this, &err_msg, color_filter_add_cb)) {
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
             g_free(err_msg);
         }
@@ -434,27 +434,6 @@ void ColoringRulesTreeDelegate::ruleNameChanged(const QString name)
         name_edit->setSyntaxState(SyntaxLineEdit::Valid);
     }
 
-}
-
-/*
- * Initialize a color with R, G, and B values, including any toolkit-dependent
- * work that needs to be done.
- */
-gboolean
-initialize_color(color_t *color, guint16 red, guint16 green, guint16 blue)
-{
-    QColor qc;
-
-    // color_t uses 16-bit components to match Gtk+. Qt use 8.
-    qc.setRgb(red>>8, green>>8, blue>>8);
-    if (!qc.isValid())
-        return FALSE;
-
-    // Match what color_filters.c does.
-    color->red = red;
-    color->green = green;
-    color->blue = blue;
-    return TRUE;
 }
 
 // Callback for color_filters_clone.
