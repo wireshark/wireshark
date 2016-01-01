@@ -32,15 +32,8 @@ struct epan_dissect;
 
 /*
  * Data structure holding RGB value for a color.
- *
- * XXX - yes, I know, there's a "pixel" value in there as well; for
- * now, it's intended to look just like a GdkColor but not to require
- * that any GTK+ header files be included in order to use it.
- * The way we handle colors needs to be cleaned up somewhat, in order
- * to keep toolkit-specific stuff separate from toolkit-independent stuff.
  */
 typedef struct {
-	guint32 pixel;
 	guint16 red;
 	guint16 green;
 	guint16 blue;

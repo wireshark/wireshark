@@ -454,7 +454,6 @@ initialize_color(color_t *color, guint16 red, guint16 green, guint16 blue)
     color->red = red;
     color->green = green;
     color->blue = blue;
-    color->pixel = 0;
     return TRUE;
 }
 

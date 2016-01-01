@@ -67,7 +67,6 @@ QColor ColorUtils::fromColorT(color_t color)
 const color_t ColorUtils::toColorT(const QColor color)
 {
     color_t colort;
-    colort.pixel = 0;
     colort.red = (color.red() << 8) | color.red();
     colort.green = (color.green() << 8) | color.green();
     colort.blue = (color.blue() << 8) | color.blue();

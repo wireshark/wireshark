@@ -50,7 +50,7 @@ initialize_color(color_t *color, guint16 red, guint16 green, guint16 blue)
 void
 color_t_to_gdkcolor(GdkColor *target, const color_t *source)
 {
-	target->pixel = source->pixel;
+	target->pixel = 0;
 	target->red   = source->red;
 	target->green = source->green;
 	target->blue  = source->blue;
@@ -67,7 +67,6 @@ color_t_to_gdkRGBAcolor(GdkRGBA *target, const color_t *source)
 void
 gdkcolor_to_color_t(color_t *target, const GdkColor *source)
 {
-	target->pixel = source->pixel;
 	target->red   = source->red;
 	target->green = source->green;
 	target->blue  = source->blue;
@@ -76,7 +75,6 @@ gdkcolor_to_color_t(color_t *target, const GdkColor *source)
 void
 gdkRGBAcolor_to_color_t(color_t *target, const GdkRGBA *source)
 {
-	target->pixel = 0;
 	target->red   = (guint16)(source->red*65535);
 	target->green = (guint16)(source->green*65535);
 	target->blue  = (guint16)(source->blue*65535);
