@@ -106,12 +106,13 @@
 void proto_register_ansi_map(void);
 void proto_reg_handoff_ansi_map(void);
 
-/* Preference settings default */
+/* Preference settings */
 #define MAX_SSN 254
 static range_t *global_ssn_range;
-gint ansi_map_response_matching_type = 1;
-
-#define ANSI_MAP_TID_ONLY 0
+#define ANSI_MAP_TID_ONLY            0
+#define ANSI_MAP_TID_AND_SOURCE      1
+#define ANSI_MAP_TID_SOURCE_AND_DEST 2
+static gint ansi_map_response_matching_type = ANSI_MAP_TID_AND_SOURCE;
 
 static dissector_handle_t ansi_map_handle=NULL;
 
@@ -422,9 +423,10 @@ update_saved_invokedata(packet_info *pinfo, struct ansi_tcap_private_t *p_privat
             case ANSI_MAP_TID_ONLY:
                 buf = wmem_strdup(wmem_packet_scope(), p_private_tcap->TransactionID_str);
                 break;
-            case 1:
+            case ANSI_MAP_TID_AND_SOURCE:
                 buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s",p_private_tcap->TransactionID_str,src_str);
                 break;
+            case ANSI_MAP_TID_SOURCE_AND_DEST:
             default:
                 buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s%s",p_private_tcap->TransactionID_str,src_str,dst_str);
                 break;
@@ -4343,9 +4345,10 @@ find_saved_invokedata(asn1_ctx_t *actx, struct ansi_tcap_private_t *p_private_tc
         case ANSI_MAP_TID_ONLY:
             g_snprintf(buf,1024,"%s",p_private_tcap->TransactionID_str);
             break;
-        case 1:
+        case ANSI_MAP_TID_AND_SOURCE:
             g_snprintf(buf,1024,"%s%s",p_private_tcap->TransactionID_str,dst_str);
             break;
+        case ANSI_MAP_TID_SOURCE_AND_DEST:
         default:
             g_snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,dst_str,src_str);
             break;
@@ -5427,9 +5430,9 @@ void proto_register_ansi_map(void) {
     expert_module_t* expert_ansi_map;
 
     static const enum_val_t ansi_map_response_matching_type_values[] = {
-        {"Only Transaction ID will be used in Invoke/response matching",                    "Transaction ID only", 0},
-        {"Transaction ID and Source will be used in Invoke/response matching",                "Transaction ID and Source", 1},
-        {"Transaction ID Source and Destination will be used in Invoke/response matching",    "Transaction ID Source and Destination", 2},
+        {"Only Transaction ID will be used in Invoke/response matching",                    "Transaction ID only", ANSI_MAP_TID_ONLY},
+        {"Transaction ID and Source will be used in Invoke/response matching",                "Transaction ID and Source", ANSI_MAP_TID_AND_SOURCE},
+        {"Transaction ID Source and Destination will be used in Invoke/response matching",    "Transaction ID Source and Destination", ANSI_MAP_TID_SOURCE_AND_DEST},
         {NULL, NULL, -1}
     };
 
