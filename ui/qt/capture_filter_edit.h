@@ -50,7 +50,7 @@ private slots:
     void initCaptureFilter();
     void applyCaptureFilter();
     void checkFilter(const QString &text);
-    void setFilterSyntaxState(QString filter, bool valid, QString err_msg);
+    void setFilterSyntaxState(QString filter, int state, QString err_msg);
     void bookmarkClicked();
 
 private:

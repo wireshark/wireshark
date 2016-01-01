@@ -43,7 +43,7 @@ private:
     QString filter_text_;
 
 signals:
-    void syntaxResult(QString filter, bool valid, QString err_msg);
+    void syntaxResult(QString filter, int state, QString err_msg);
 };
 
 #endif // CAPTURE_FILTER_SYNTAX_WORKER_H
