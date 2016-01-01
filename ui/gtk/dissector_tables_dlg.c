@@ -148,7 +148,7 @@ decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type,
         case FT_STRINGZ:
         case FT_UINT_STRING:
         case FT_STRINGZPAD:
-            proto_add_to_list(tree_info, store, key, proto_name);
+            proto_add_to_list(tree_info, store, (const gchar*)key, proto_name);
             break;
 
         case FT_BYTES:
