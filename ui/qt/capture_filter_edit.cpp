@@ -205,8 +205,8 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(initCaptureFilter()));
     connect(syntax_thread, SIGNAL(started()), syntax_worker_, SLOT(start()));
     connect(syntax_thread, SIGNAL(started()), this, SLOT(checkFilter()));
-    connect(syntax_worker_, SIGNAL(syntaxResult(QString,bool,QString)),
-            this, SLOT(setFilterSyntaxState(QString,bool,QString)));
+    connect(syntax_worker_, SIGNAL(syntaxResult(QString,int,QString)),
+            this, SLOT(setFilterSyntaxState(QString,int,QString)));
     connect(syntax_thread, SIGNAL(finished()), syntax_worker_, SLOT(deleteLater()));
     syntax_thread->start();
 
@@ -286,7 +286,7 @@ void CaptureFilterEdit::checkFilter(const QString& text)
     }
 
     if (empty) {
-        setFilterSyntaxState(text, true, QString());
+        setFilterSyntaxState(text, Empty, QString());
     } else {
         syntax_worker_->checkFilter(text);
     }
@@ -304,13 +304,13 @@ void CaptureFilterEdit::initCaptureFilter()
 #endif // HAVE_LIBPCAP
 }
 
-void CaptureFilterEdit::setFilterSyntaxState(QString filter, bool valid, QString err_msg)
+void CaptureFilterEdit::setFilterSyntaxState(QString filter, int state, QString err_msg)
 {
+    bool valid = (state != Invalid);
+
     if (filter.compare(text()) == 0) { // The user hasn't changed the filter
-        if (valid) {
-            setSyntaxState(text().isEmpty() ? Empty : Valid);
-        } else {
-            setSyntaxState(Invalid);
+        setSyntaxState((SyntaxState)state);
+        if (!valid) {
             emit pushFilterSyntaxStatus(err_msg);
         }
     }
