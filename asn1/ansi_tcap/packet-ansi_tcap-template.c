@@ -43,8 +43,11 @@
 void proto_register_ansi_tcap(void);
 void proto_reg_handoff_ansi_tcap(void);
 
-/* Preferences defaults */
-gint ansi_tcap_response_matching_type = 0;
+/* Preference settings */
+#define ANSI_TCAP_TID_ONLY            0
+#define ANSI_TCAP_TID_AND_SOURCE      1
+#define ANSI_TCAP_TID_SOURCE_AND_DEST 2
+static gint ansi_tcap_response_matching_type = ANSI_TCAP_TID_ONLY;
 
 /* Initialize the protocol and registered fields */
 static int proto_ansi_tcap = -1;
@@ -195,12 +198,13 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
           /* Only do this once XXX I hope it's the right thing to do */
           /* The hash string needs to contain src and dest to distiguish differnt flows */
           switch(ansi_tcap_response_matching_type){
-                        case 0:
+                        case ANSI_TCAP_TID_ONLY:
                                 buf = wmem_strdup(wmem_packet_scope(), ansi_tcap_private.TransactionID_str);
                                 break;
-                        case 1:
+                        case ANSI_TCAP_TID_AND_SOURCE:
                                 buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s",ansi_tcap_private.TransactionID_str,src);
                                 break;
+                        case ANSI_TCAP_TID_SOURCE_AND_DEST:
                         default:
                                 buf = wmem_strdup_printf(wmem_packet_scope(), "%s%s%s",ansi_tcap_private.TransactionID_str,src,dst);
                                 break;
@@ -243,12 +247,13 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
   buf[0] = '\0';
   /* Reverse order to invoke */
   switch(ansi_tcap_response_matching_type){
-        case 0:
+        case ANSI_TCAP_TID_ONLY:
                 g_snprintf(buf,MAX_TID_STR_LEN,"%s",ansi_tcap_private.TransactionID_str);
                 break;
-        case 1:
+        case ANSI_TCAP_TID_AND_SOURCE:
                 g_snprintf(buf,MAX_TID_STR_LEN,"%s%s",ansi_tcap_private.TransactionID_str,dst);
                 break;
+        case ANSI_TCAP_TID_SOURCE_AND_DEST:
         default:
                 g_snprintf(buf,MAX_TID_STR_LEN,"%s%s%s",ansi_tcap_private.TransactionID_str,dst,src);
                 break;
@@ -501,9 +506,9 @@ proto_register_ansi_tcap(void)
     expert_module_t* expert_ansi_tcap;
 
     static const enum_val_t ansi_tcap_response_matching_type_values[] = {
-        {"Only Transaction ID will be used in Invoke/response matching",                        "Transaction ID only", 0},
-        {"Transaction ID and Source will be used in Invoke/response matching",                  "Transaction ID and Source", 1},
-        {"Transaction ID Source and Destination will be used in Invoke/response matching",      "Transaction ID Source and Destination", 2},
+        {"Only Transaction ID will be used in Invoke/response matching",                        "Transaction ID only", ANSI_TCAP_TID_ONLY},
+        {"Transaction ID and Source will be used in Invoke/response matching",                  "Transaction ID and Source", ANSI_TCAP_TID_AND_SOURCE},
+        {"Transaction ID Source and Destination will be used in Invoke/response matching",      "Transaction ID Source and Destination", ANSI_TCAP_TID_SOURCE_AND_DEST},
         {NULL, NULL, -1}
     };
 
