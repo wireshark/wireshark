@@ -27,9 +27,6 @@
 #include <gtk/gtk.h>
 
 #include "ui/gtk/color_utils.h"
-/* static GdkColor	WHITE = { 0, 65535, 65535, 65535 }; */
-/*static GdkColor	LTGREY = { 0, 57343, 57343, 57343 };*/
-/* static GdkColor	BLACK = { 0, 0, 0, 0 }; */
 
 /*
  * Initialize a color with R, G, and B values, including any toolkit-dependent
