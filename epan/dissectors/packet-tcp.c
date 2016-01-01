@@ -5177,9 +5177,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            tcpd->ts_mru_syn.nsecs = pinfo->fd->abs_ts.nsecs;
         }
     }
-    if(tcph->th_flags & TH_FIN)
+    if(tcph->th_flags & TH_FIN) {
         /* XXX - find a way to know the server port and output only that one */
         expert_add_info(pinfo, tf_fin, &ei_tcp_connection_fin);
+        tcpinfo.fin = TRUE;
+    }
     if(tcph->th_flags & TH_RST)
         /* XXX - find a way to know the server port and output only that one */
         expert_add_info(pinfo, tf_rst, &ei_tcp_connection_rst);
