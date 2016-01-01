@@ -692,7 +692,7 @@ read_users_filters(GSList **cfl, gchar** err_msg, color_filter_add_cb_func add_c
         fclose(f);
         return FALSE;
     }
-        
+
     fclose(f);
     return TRUE;
 }
@@ -725,7 +725,7 @@ color_filters_read_globals(gpointer user_data, gchar** err_msg, color_filter_add
         fclose(f);
         return FALSE;
     }
-        
+
     fclose(f);
     return TRUE;
 }
@@ -750,7 +750,7 @@ color_filters_import(const gchar *path, const gpointer user_data, gchar** err_ms
         fclose(f);
         return FALSE;
     }
-        
+
     fclose(f);
     return TRUE;
 }
