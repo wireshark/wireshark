@@ -717,7 +717,7 @@ static http_info_value_t	*stat_info;
 
 static int
 dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		     proto_tree *tree, http_conv_t *conv_data, const char* proto_tag, int proto)
+		     proto_tree *tree, http_conv_t *conv_data, const char* proto_tag, int proto, struct tcpinfo *tcpinfo)
 {
 	proto_tree	*http_tree = NULL;
 	proto_item	*ti = NULL;
@@ -822,9 +822,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * contain a message body, so ignore the Content-Length header
 		 * which is done by disabling body desegmentation.
 		 */
-		gboolean try_desegment_body = http_desegment_body &&
-			!(conv_data->request_method &&
-			  g_str_equal(conv_data->request_method, "HEAD"));
+		gboolean try_desegment_body = (http_desegment_body &&
+			(!(conv_data->request_method && g_str_equal(conv_data->request_method, "HEAD"))) &&
+			((tcpinfo == NULL) || (tcpinfo->fin == FALSE)));
 		if (!req_resp_hdrs_do_reassembly(tvb, offset, pinfo,
 		    http_desegment_headers, try_desegment_body)) {
 			/*
@@ -2998,6 +2998,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	int		len;
 	conversation_t *conversation;
 	dissector_handle_t next_handle = NULL;
+	struct tcpinfo *tcpinfo = (struct tcpinfo *)data;
 
 	conv_data = get_http_conversation_data(pinfo, &conversation);
 	/* Call HTTP2 dissector directly when detected via heuristics, but not
@@ -3006,7 +3007,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	    conv_data->upgrade != UPGRADE_HTTP2) {
 		if (pinfo->can_desegment > 0)
 			pinfo->can_desegment++;
-		return call_dissector_only(http2_handle, tvb, pinfo, tree, NULL);
+		return call_dissector_only(http2_handle, tvb, pinfo, tree, data);
 	}
 
 	/*
@@ -3043,7 +3044,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 				call_dissector_only(next_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
 				break;
 			}
-			len = dissect_http_message(tvb, offset, pinfo, tree, conv_data, "HTTP", proto_http);
+			len = dissect_http_message(tvb, offset, pinfo, tree, conv_data, "HTTP", proto_http, tcpinfo);
 			if (len == -1)
 				break;
 			offset += len;
@@ -3096,7 +3097,7 @@ dissect_ssdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	http_conv_t	*conv_data;
 
 	conv_data = get_http_conversation_data(pinfo, &conversation);
-	dissect_http_message(tvb, 0, pinfo, tree, conv_data, "SSDP", proto_ssdp);
+	dissect_http_message(tvb, 0, pinfo, tree, conv_data, "SSDP", proto_ssdp, NULL);
 	return tvb_captured_length(tvb);
 }
 
