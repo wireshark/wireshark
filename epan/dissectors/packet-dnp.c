@@ -194,18 +194,18 @@
 /* Application Layer Data Object Qualifier */
 /***************************************************************************/
 /* Bit-Masks */
-#define AL_OBJQ_INDEX          0x70     /* x111xxxx Masks Index from Qualifier */
-#define AL_OBJQ_CODE           0x0F     /* xxxx1111 Masks Code from Qualifier */
+#define AL_OBJQ_PREFIX         0x70    /* x111xxxx Masks Prefix from Qualifier */
+#define AL_OBJQ_RANGE          0x0F    /* xxxx1111 Masks Range from Qualifier */
 
-/* Index Size (3-bits x111xxxx)            */
-/* When Qualifier Code != 11               */
-#define AL_OBJQL_IDX_NI        0x00    /* Objects are Packed with no index */
-#define AL_OBJQL_IDX_1O        0x01    /* Objects are prefixed w/ 1-octet index */
-#define AL_OBJQL_IDX_2O        0x02    /* Objects are prefixed w/ 2-octet index */
-#define AL_OBJQL_IDX_4O        0x03    /* Objects are prefixed w/ 4-octet index */
-#define AL_OBJQL_IDX_1OS       0x04    /* Objects are prefixed w/ 1-octet object size */
-#define AL_OBJQL_IDX_2OS       0x05    /* Objects are prefixed w/ 2-octet object size */
-#define AL_OBJQL_IDX_4OS       0x06    /* Objects are prefixed w/ 4-octet object size */
+/* Index Size (3-bits x111xxxx) */
+/* When Qualifier Code != 11    */
+#define AL_OBJQL_PREFIX_NI     0x00    /* Objects are Packed with no index */
+#define AL_OBJQL_PREFIX_1O     0x01    /* Objects are prefixed w/ 1-octet index */
+#define AL_OBJQL_PREFIX_2O     0x02    /* Objects are prefixed w/ 2-octet index */
+#define AL_OBJQL_PREFIX_4O     0x03    /* Objects are prefixed w/ 4-octet index */
+#define AL_OBJQL_PREFIX_1OS    0x04    /* Objects are prefixed w/ 1-octet object size */
+#define AL_OBJQL_PREFIX_2OS    0x05    /* Objects are prefixed w/ 2-octet object size */
+#define AL_OBJQL_PREFIX_4OS    0x06    /* Objects are prefixed w/ 4-octet object size */
 
 /* When Qualifier Code == 11 */
 #define AL_OBJQL_IDX11_1OIS    0x01    /* 1 octet identifier size */
@@ -214,18 +214,18 @@
 
 /* Qualifier Code (4-bits) */
 /* 4-bits ( xxxx1111 ) */
-#define AL_OBJQL_CODE_SSI8     0x00    /* 00 8-bit Start and Stop Indices in Range Field */
-#define AL_OBJQL_CODE_SSI16    0x01    /* 01 16-bit Start and Stop Indices in Range Field */
-#define AL_OBJQL_CODE_SSI32    0x02    /* 02 32-bit Start and Stop Indices in Range Field */
-#define AL_OBJQL_CODE_AA8      0x03    /* 03 8-bit Absolute Address in Range Field */
-#define AL_OBJQL_CODE_AA16     0x04    /* 04 16-bit Absolute Address in Range Field */
-#define AL_OBJQL_CODE_AA32     0x05    /* 05 32-bit Absolute Address in Range Field */
-#define AL_OBJQL_CODE_R0       0x06    /* 06 Length of Range field is 0 (no range field) */
-#define AL_OBJQL_CODE_SF8      0x07    /* 07 8-bit Single Field Quantity */
-#define AL_OBJQL_CODE_SF16     0x08    /* 08 16-bit Single Field Quantity */
-#define AL_OBJQL_CODE_SF32     0x09    /* 09 32-bit Single Field Quantity */
+#define AL_OBJQL_RANGE_SSI8    0x00    /* 00 8-bit Start and Stop Indices in Range Field */
+#define AL_OBJQL_RANGE_SSI16   0x01    /* 01 16-bit Start and Stop Indices in Range Field */
+#define AL_OBJQL_RANGE_SSI32   0x02    /* 02 32-bit Start and Stop Indices in Range Field */
+#define AL_OBJQL_RANGE_AA8     0x03    /* 03 8-bit Absolute Address in Range Field */
+#define AL_OBJQL_RANGE_AA16    0x04    /* 04 16-bit Absolute Address in Range Field */
+#define AL_OBJQL_RANGE_AA32    0x05    /* 05 32-bit Absolute Address in Range Field */
+#define AL_OBJQL_RANGE_R0      0x06    /* 06 Length of Range field is 0 (no range field) */
+#define AL_OBJQL_RANGE_SF8     0x07    /* 07 8-bit Single Field Quantity */
+#define AL_OBJQL_RANGE_SF16    0x08    /* 08 16-bit Single Field Quantity */
+#define AL_OBJQL_RANGE_SF32    0x09    /* 09 32-bit Single Field Quantity */
                            /*  0x0A       10 Reserved  */
-#define AL_OBJQL_CODE_FF       0x0B    /* 11 Free-format Qualifier, range field has 1 octet count of objects */
+#define AL_OBJQL_RANGE_FF      0x0B    /* 11 Free-format Qualifier, range field has 1 octet count of objects */
                            /*  0x0C       12 Reserved  */
                            /*  0x0D       13 Reserved  */
                            /*  0x0E       14 Reserved  */
@@ -622,8 +622,8 @@ static int hf_dnp3_al_iin_ebo = -1;
 static int hf_dnp3_al_iin_oae = -1;
 static int hf_dnp3_al_iin_cc = -1;
 static int hf_dnp3_al_obj = -1;
-static int hf_dnp3_al_objq_index = -1;
-static int hf_dnp3_al_objq_code = -1;
+static int hf_dnp3_al_objq_prefix = -1;
+static int hf_dnp3_al_objq_range = -1;
 static int hf_dnp3_al_range_start8 = -1;
 static int hf_dnp3_al_range_stop8 = -1;
 static int hf_dnp3_al_range_start16 = -1;
@@ -867,36 +867,36 @@ static const value_string dnp3_al_iin_vals[] = {
   { 0, NULL }
 };
 
-/* Application Layer Object Qualifier Index Values When Qualifier Code != 11 */
-static const value_string dnp3_al_objq_index_vals[] = {
-  { AL_OBJQL_IDX_NI,    "None" },
-  { AL_OBJQL_IDX_1O,    "1-Octet Indexing" },
-  { AL_OBJQL_IDX_2O,    "2-Octet Indexing" },
-  { AL_OBJQL_IDX_4O,    "4-Octet Indexing" },
-  { AL_OBJQL_IDX_1OS,   "1-Octet Object Size" },
-  { AL_OBJQL_IDX_2OS,   "2-Octet Object Size" },
-  { AL_OBJQL_IDX_4OS,   "4-Octet Object Size" },
+/* Application Layer Object Qualifier Prefix Values When Qualifier Code != 11 */
+static const value_string dnp3_al_objq_prefix_vals[] = {
+  { AL_OBJQL_PREFIX_NI,    "None" },
+  { AL_OBJQL_PREFIX_1O,    "1-Octet Index Prefix" },
+  { AL_OBJQL_PREFIX_2O,    "2-Octet Index Prefix" },
+  { AL_OBJQL_PREFIX_4O,    "4-Octet Index Prefix" },
+  { AL_OBJQL_PREFIX_1OS,   "1-Octet Object Size Prefix" },
+  { AL_OBJQL_PREFIX_2OS,   "2-Octet Object Size Prefix" },
+  { AL_OBJQL_PREFIX_4OS,   "4-Octet Object Size Prefix" },
   { 0, NULL }
 };
-static value_string_ext dnp3_al_objq_index_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_objq_index_vals);
+static value_string_ext dnp3_al_objq_prefix_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_objq_prefix_vals);
 
-/* Application Layer Object Qualifier Code Values */
-static const value_string dnp3_al_objq_code_vals[] = {
-  { AL_OBJQL_CODE_SSI8,     "8-bit Start and Stop Indices" },
-  { AL_OBJQL_CODE_SSI16,    "16-bit Start and Stop Indices" },
-  { AL_OBJQL_CODE_SSI32,    "32-bit Start and Stop Indices" },
-  { AL_OBJQL_CODE_AA8,      "8-bit Absolute Address in Range Field" },
-  { AL_OBJQL_CODE_AA16,     "16-bit Absolute Address in Range Field" },
-  { AL_OBJQL_CODE_AA32,     "32-bit Absolute Address in Range Field" },
-  { AL_OBJQL_CODE_R0,       "No Range Field" },
-  { AL_OBJQL_CODE_SF8,      "8-bit Single Field Quantity" },
-  { AL_OBJQL_CODE_SF16,     "16-bit Single Field Quantity" },
-  { AL_OBJQL_CODE_SF32,     "32-bit Single Field Quantity" },
+/* Application Layer Object Qualifier Range Values */
+static const value_string dnp3_al_objq_range_vals[] = {
+  { AL_OBJQL_RANGE_SSI8,    "8-bit Start and Stop Indices" },
+  { AL_OBJQL_RANGE_SSI16,   "16-bit Start and Stop Indices" },
+  { AL_OBJQL_RANGE_SSI32,   "32-bit Start and Stop Indices" },
+  { AL_OBJQL_RANGE_AA8,     "8-bit Absolute Address in Range Field" },
+  { AL_OBJQL_RANGE_AA16,    "16-bit Absolute Address in Range Field" },
+  { AL_OBJQL_RANGE_AA32,    "32-bit Absolute Address in Range Field" },
+  { AL_OBJQL_RANGE_R0,      "No Range Field" },
+  { AL_OBJQL_RANGE_SF8,     "8-bit Single Field Quantity" },
+  { AL_OBJQL_RANGE_SF16,    "16-bit Single Field Quantity" },
+  { AL_OBJQL_RANGE_SF32,    "32-bit Single Field Quantity" },
   { 10,                     "Reserved" },
-  { AL_OBJQL_CODE_FF,       "Free-format Qualifier" },
+  { AL_OBJQL_RANGE_FF,      "Free-format Qualifier" },
   { 0, NULL }
 };
-static value_string_ext dnp3_al_objq_code_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_objq_code_vals);
+static value_string_ext dnp3_al_objq_range_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_objq_range_vals);
 
 /* Application Layer Data Object Values */
 static const value_string dnp3_al_obj_vals[] = {
@@ -1473,55 +1473,55 @@ dnp3_al_process_iin(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *a
   proto_tree_add_item(iin_tree, hf_dnp3_al_iin_fcni,  tvb, offset, 2, ENC_BIG_ENDIAN);
 }
 
-/*****************************************************************/
-/* Function to determine Application Layer Object Index size and */
-/* Point address.                                                */
-/*****************************************************************/
+/**************************************************************/
+/* Function to determine Application Layer Object Prefix size */
+/* and Point address.                                         */
+/**************************************************************/
 static int
-dnp3_al_obj_procindex(tvbuff_t *tvb, int offset, guint8 al_objq_index, guint32 *al_ptaddr, proto_tree *item_tree)
+dnp3_al_obj_procprefix(tvbuff_t *tvb, int offset, guint8 al_objq_prefix, guint32 *al_ptaddr, proto_tree *item_tree)
 {
-  int         indexbytes = 0;
-  proto_item *index_item;
+  int         prefixbytes = 0;
+  proto_item *prefix_item;
 
-  switch (al_objq_index)
+  switch (al_objq_prefix)
   {
-    case AL_OBJQL_IDX_NI:        /* No Index */
-      indexbytes = 0;
-      index_item = proto_tree_add_uint(item_tree, hf_dnp3_al_point_index, tvb, offset, 0, *al_ptaddr);
-      PROTO_ITEM_SET_GENERATED(index_item);
+    case AL_OBJQL_PREFIX_NI:        /* No Prefix */
+      prefixbytes = 0;
+      prefix_item = proto_tree_add_uint(item_tree, hf_dnp3_al_point_index, tvb, offset, 0, *al_ptaddr);
+      PROTO_ITEM_SET_GENERATED(prefix_item);
       break;
-    case AL_OBJQL_IDX_1O:
+    case AL_OBJQL_PREFIX_1O:
       *al_ptaddr = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(item_tree, hf_dnp3_al_index8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      indexbytes = 1;
+      prefixbytes = 1;
       break;
-    case AL_OBJQL_IDX_2O:
+    case AL_OBJQL_PREFIX_2O:
       *al_ptaddr = tvb_get_letohs(tvb, offset);
       proto_tree_add_item(item_tree, hf_dnp3_al_index16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      indexbytes = 2;
+      prefixbytes = 2;
       break;
-    case AL_OBJQL_IDX_4O:
+    case AL_OBJQL_PREFIX_4O:
       *al_ptaddr = tvb_get_letohl(tvb, offset);
       proto_tree_add_item(item_tree, hf_dnp3_al_index32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      indexbytes = 4;
+      prefixbytes = 4;
       break;
-    case AL_OBJQL_IDX_1OS:
+    case AL_OBJQL_PREFIX_1OS:
       *al_ptaddr = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(item_tree, hf_dnp3_al_size8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      indexbytes = 1;
+      prefixbytes = 1;
       break;
-    case AL_OBJQL_IDX_2OS:
+    case AL_OBJQL_PREFIX_2OS:
       *al_ptaddr = tvb_get_letohs(tvb, offset);
       proto_tree_add_item(item_tree, hf_dnp3_al_size16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      indexbytes = 2;
+      prefixbytes = 2;
       break;
-    case AL_OBJQL_IDX_4OS:
+    case AL_OBJQL_PREFIX_4OS:
       *al_ptaddr = tvb_get_letohl(tvb, offset);
       proto_tree_add_item(item_tree, hf_dnp3_al_size32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      indexbytes = 4;
+      prefixbytes = 4;
       break;
   }
-  return indexbytes;
+  return prefixbytes;
 }
 
 /*****************************************************************/
@@ -1675,7 +1675,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
                        guint16 *al_objtype, nstime_t *al_cto)
 {
 
-  guint8      al_objq, al_objq_index, al_objq_code, al_oct_len = 0, bitindex;
+  guint8      al_objq, al_objq_prefix, al_objq_range, al_oct_len = 0, bitindex;
   guint16     al_obj, temp;
   guint32     al_ptaddr = 0;
   int         num_items = 0;
@@ -1707,25 +1707,25 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
   /* Object Qualifier */
   al_objq = tvb_get_guint8(tvb, offset);
-  al_objq_index = al_objq & AL_OBJQ_INDEX;
-  al_objq_index = al_objq_index >> 4;
-  al_objq_code = al_objq & AL_OBJQ_CODE;
+  al_objq_prefix = al_objq & AL_OBJQ_PREFIX;
+  al_objq_prefix = al_objq_prefix >> 4;
+  al_objq_range = al_objq & AL_OBJQ_RANGE;
 
   qualifier_tree = proto_tree_add_subtree_format(object_tree, tvb, offset, 1, ett_dnp3_al_obj_qualifier, NULL,
-    "Qualifier Field, Prefix: %s, Code: %s",
-    val_to_str_ext_const(al_objq_index, &dnp3_al_objq_index_vals_ext, "Unknown Index Type"),
-    val_to_str_ext_const(al_objq_code, &dnp3_al_objq_code_vals_ext, "Unknown Code Type"));
-  proto_tree_add_item(qualifier_tree, hf_dnp3_al_objq_index, tvb, offset, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(qualifier_tree, hf_dnp3_al_objq_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+    "Qualifier Field, Prefix: %s, Range: %s",
+    val_to_str_ext_const(al_objq_prefix, &dnp3_al_objq_prefix_vals_ext, "Unknown Prefix Type"),
+    val_to_str_ext_const(al_objq_range, &dnp3_al_objq_range_vals_ext, "Unknown Range Type"));
+  proto_tree_add_item(qualifier_tree, hf_dnp3_al_objq_prefix, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(qualifier_tree, hf_dnp3_al_objq_range, tvb, offset, 1, ENC_BIG_ENDIAN);
 
   offset += 1;
 
   /* Create (possibly synthesized) number of items and range field tree */
   range_tree = proto_tree_add_subtree(object_tree, tvb, offset, 0, ett_dnp3_al_obj_range, &range_item, "Number of Items: ");
 
-  switch (al_objq_code)
+  switch (al_objq_range)
   {
-    case AL_OBJQL_CODE_SSI8:           /* 8-bit Start and Stop Indices in Range Field */
+    case AL_OBJQL_RANGE_SSI8:           /* 8-bit Start and Stop Indices in Range Field */
       num_items = ( tvb_get_guint8(tvb, offset+1) - tvb_get_guint8(tvb, offset) + 1);
       PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_guint8(tvb, offset);
@@ -1733,7 +1733,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       proto_tree_add_item(range_tree, hf_dnp3_al_range_stop8, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
       rangebytes = 2;
       break;
-    case AL_OBJQL_CODE_SSI16:          /* 16-bit Start and Stop Indices in Range Field */
+    case AL_OBJQL_RANGE_SSI16:          /* 16-bit Start and Stop Indices in Range Field */
       num_items = ( tvb_get_letohs(tvb, offset+2) - tvb_get_letohs(tvb, (offset)) + 1);
       PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_letohs(tvb, offset);
@@ -1741,7 +1741,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       proto_tree_add_item(range_tree, hf_dnp3_al_range_stop16, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
       rangebytes = 4;
       break;
-    case AL_OBJQL_CODE_SSI32:          /* 32-bit Start and Stop Indices in Range Field */
+    case AL_OBJQL_RANGE_SSI32:          /* 32-bit Start and Stop Indices in Range Field */
       num_items = ( tvb_get_letohl(tvb, offset+4) - tvb_get_letohl(tvb, offset) + 1);
       PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_letohl(tvb, offset);
@@ -1749,46 +1749,46 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       proto_tree_add_item(range_tree, hf_dnp3_al_range_stop32, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
       rangebytes = 8;
       break;
-    case AL_OBJQL_CODE_AA8:            /* 8-bit Absolute Address in Range Field */
+    case AL_OBJQL_RANGE_AA8:            /* 8-bit Absolute Address in Range Field */
       num_items = 1;
       PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_abs8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       rangebytes = 1;
       break;
-    case AL_OBJQL_CODE_AA16:           /* 16-bit Absolute Address in Range Field */
+    case AL_OBJQL_RANGE_AA16:           /* 16-bit Absolute Address in Range Field */
       num_items = 1;
       PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_letohs(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_abs16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
       rangebytes = 2;
       break;
-    case AL_OBJQL_CODE_AA32:           /* 32-bit Absolute Address in Range Field */
+    case AL_OBJQL_RANGE_AA32:           /* 32-bit Absolute Address in Range Field */
       num_items = 1;
       PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_letohl(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_abs32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
       rangebytes = 4;
       break;
-    case AL_OBJQL_CODE_SF8:            /* 8-bit Single Field Quantity in Range Field */
+    case AL_OBJQL_RANGE_SF8:            /* 8-bit Single Field Quantity in Range Field */
       num_items = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_quant8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       rangebytes = 1;
       proto_item_set_len(range_item, rangebytes);
       break;
-    case AL_OBJQL_CODE_SF16:           /* 16-bit Single Field Quantity in Range Field */
+    case AL_OBJQL_RANGE_SF16:           /* 16-bit Single Field Quantity in Range Field */
       num_items = tvb_get_letohs(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_quant16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
       rangebytes = 2;
       proto_item_set_len(range_item, rangebytes);
       break;
-    case AL_OBJQL_CODE_SF32:           /* 32-bit Single Field Quantity in Range Field */
+    case AL_OBJQL_RANGE_SF32:           /* 32-bit Single Field Quantity in Range Field */
       num_items = tvb_get_letohl(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_quant32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
       rangebytes = 4;
       proto_item_set_len(range_item, rangebytes);
       break;
-    case AL_OBJQL_CODE_FF:            /* 8 bit object count in Range Field */
+    case AL_OBJQL_RANGE_FF:            /* 8 bit object count in Range Field */
       num_items = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_quant8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       rangebytes = 1;
@@ -1799,20 +1799,21 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   }
   proto_item_append_text(range_item, "%d", num_items);
 
+  /* A negative number of items is an error */
   if (num_items < 0) {
     proto_item_append_text(range_item, " (bogus)");
     expert_add_info(pinfo, range_item, &ei_dnp_num_items_neg);
     return tvb_captured_length(tvb);
   }
 
-
+  /* Move offset past any range field */
   offset += rangebytes;
 
   bitindex = 0; /* Temp variable for cycling through points when object values are encoded into
                    bits; primarily objects 0x0101, 0x0301 & 0x1001 */
 
   /* Only process the point information for replies or items with point index lists */
-  if (!header_only || al_objq_index > 0) {
+  if (!header_only || al_objq_prefix > 0) {
     int item_num;
     int start_offset;
 
@@ -1822,21 +1823,22 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       proto_item *point_item;
       proto_tree *point_tree;
       guint       data_pos;
-      int         indexbytes;
+      int         prefixbytes;
 
-      /* Create Point item and Process Index */
-      if (al_objq_index <= AL_OBJQL_IDX_4O)
+      /* Create Point item and process prefix */
+      if (al_objq_prefix <= AL_OBJQL_PREFIX_4O)
         point_tree = proto_tree_add_subtree(object_tree, tvb, offset, -1, ett_dnp3_al_obj_point, &point_item, "Point Number");
       else
         point_tree = proto_tree_add_subtree(object_tree, tvb, offset, -1, ett_dnp3_al_obj_point, &point_item, "Object: Size");
 
       data_pos   = offset;
-      indexbytes = dnp3_al_obj_procindex(tvb, offset, al_objq_index, &al_ptaddr, point_tree);
+      prefixbytes = dnp3_al_obj_procprefix(tvb, offset, al_objq_prefix, &al_ptaddr, point_tree);
       proto_item_append_text(point_item, " %u", al_ptaddr);
-      proto_item_set_len(point_item, indexbytes);
-      data_pos += indexbytes;
+      proto_item_set_len(point_item, prefixbytes);
+      data_pos += prefixbytes;
 
-      if (!header_only || (AL_OBJQL_IDX_1OS <= al_objq_index && al_objq_index <= AL_OBJQL_IDX_4OS)) {
+      if (!header_only || (AL_OBJQL_PREFIX_1OS <= al_objq_prefix && al_objq_prefix <= AL_OBJQL_PREFIX_4OS)) {
+        /* Process the object values */
         guint8       al_2bit, al_ptflags, al_bi_val, al_tcc_code, da_len;
         gint16       al_val_int16;
         guint16      al_val_uint16, al_ctlobj_stat;
@@ -1915,9 +1917,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             }
 
             offset += 2 + da_len;
-
             break;
-
 
           /* Device Attributes - Strings */
           case AL_OBJ_DA_USR_ATTR:
@@ -1940,7 +1940,6 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             proto_item_append_text(object_item, ", Value: %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset+2, da_len, ENC_ASCII));
 
             offset += 2 + da_len;
-
             break;
 
           /* Bit-based Data objects here */
@@ -1969,7 +1968,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               proto_item_append_text(point_item, ", Value: %u", al_bit);
             }
             proto_tree_add_boolean(point_tree, hf_dnp3_al_bit, tvb, offset, 1, al_bit);
-            proto_item_set_len(point_item, indexbytes + 1);
+            proto_item_set_len(point_item, prefixbytes + 1);
 
             /* Increment the bit index for next cycle */
             bitindex++;
@@ -1979,9 +1978,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             if ((bitindex > 7) || (item_num == (num_items-1)))
             {
               bitindex = 0;
-              offset += (indexbytes + 1);
+              offset += (prefixbytes + 1);
             }
-
             break;
 
           case AL_OBJ_2BI_NF:    /* Double-bit Input No Flags (Obj:03, Var:01) */
@@ -1989,7 +1987,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             if (bitindex > 3)
             {
               bitindex = 0;
-              offset += (indexbytes + 1);
+              offset += (prefixbytes + 1);
             }
 
             /* Extract the Double-bit from the packed byte */
@@ -1998,19 +1996,17 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
             proto_item_append_text(point_item, ", Value: %u", al_2bit);
             proto_tree_add_uint(point_tree, hf_dnp3_al_2bit, tvb, offset, 1, al_2bit);
-            proto_item_set_len(point_item, indexbytes + 1);
+            proto_item_set_len(point_item, prefixbytes + 1);
 
             /* If we've read the last item, then move the offset past this byte */
             if (item_num == (num_items-1))
             {
-              offset += (indexbytes + 1);
+              offset += (prefixbytes + 1);
             }
 
             /* Increment the bit index for next cycle */
             bitindex++;
-
             break;
-
 
           case AL_OBJ_BI_STAT:    /* Binary Input With Status (Obj:01, Var:02) */
           case AL_OBJ_BIC_NOTIME: /* Binary Input Change Without Time (Obj:02, Var:01) */
@@ -2087,7 +2083,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
             /* Get Point Flags */
             al_ptflags = tvb_get_guint8(tvb, data_pos);
-            dnp3_al_obj_quality(tvb, (offset+indexbytes), al_ptflags, point_tree, point_item, BIN_IN);
+            dnp3_al_obj_quality(tvb, (offset+prefixbytes), al_ptflags, point_tree, point_item, BIN_IN);
             data_pos += 1;
 
 
@@ -2434,7 +2430,6 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
             proto_item_set_len(point_item, data_pos - offset);
             offset = data_pos;
-
             break;
 
           case AL_OBJ_AI_32:        /* 32-Bit Analog Input (Obj:30, Var:01) */
@@ -2630,7 +2625,6 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
             proto_item_set_len(point_item, data_pos - offset);
             offset = data_pos;
-
             break;
 
           case AL_OBJ_TD:    /* Time and Date (Obj:50, Var:01) */
@@ -2762,7 +2756,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             data_pos += 1;
 
             /* Optional text */
-            file_data_size = al_ptaddr - (data_pos - offset - indexbytes);
+            file_data_size = al_ptaddr - (data_pos - offset - prefixbytes);
             if ((file_data_size) > 0) {
               proto_tree_add_item(point_tree, hf_dnp3_al_file_data, tvb, data_pos, file_data_size, ENC_NA);
               data_pos += file_data_size;
@@ -2785,7 +2779,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             data_pos += 4;
 
             /* File data */
-            file_data_size = al_ptaddr - (data_pos - offset - indexbytes);
+            file_data_size = al_ptaddr - (data_pos - offset - prefixbytes);
             if ((file_data_size) > 0) {
               proto_tree_add_item(point_tree, hf_dnp3_al_file_data, tvb, data_pos, file_data_size, ENC_NA);
               data_pos += file_data_size;
@@ -2812,7 +2806,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             data_pos += 1;
 
             /* Optional text */
-            file_data_size = al_ptaddr - (data_pos - offset - indexbytes);
+            file_data_size = al_ptaddr - (data_pos - offset - prefixbytes);
             if ((file_data_size) > 0) {
               proto_tree_add_item(point_tree, hf_dnp3_al_file_data, tvb, data_pos, file_data_size, ENC_NA);
               data_pos += file_data_size;
@@ -2845,7 +2839,9 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
         /* And increment the point address, may be overwritten by an index value */
         al_ptaddr++;
-      } else {
+      }
+      else {
+        /* No objects, just prefixes, move past prefix values */
         offset = data_pos;
       }
       if (start_offset > offset) {
@@ -3844,16 +3840,16 @@ proto_register_dnp3(void)
         "Application Layer Object", HFILL }
     },
 
-    { &hf_dnp3_al_objq_index,
-      { "Index Prefix", "dnp3.al.objq.index",
-        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &dnp3_al_objq_index_vals_ext, AL_OBJQ_INDEX,
-        "Object Index Prefixing", HFILL }
+    { &hf_dnp3_al_objq_prefix,
+      { "Prefix Code", "dnp3.al.objq.prefix",
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &dnp3_al_objq_prefix_vals_ext, AL_OBJQ_PREFIX,
+        "Object Prefix Code", HFILL }
     },
 
-    { &hf_dnp3_al_objq_code,
-      { "Qualifier Code", "dnp3.al.objq.code",
-        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &dnp3_al_objq_code_vals_ext, AL_OBJQ_CODE,
-        "Object Qualifier Code", HFILL }
+    { &hf_dnp3_al_objq_range,
+      { "Range Code", "dnp3.al.objq.range",
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &dnp3_al_objq_range_vals_ext, AL_OBJQ_RANGE,
+        "Object Range Specifier Code", HFILL }
     },
 
     { &hf_dnp3_al_range_start8,
