@@ -2533,9 +2533,6 @@ main(int argc, char *argv[])
     init_report_err(failure_alert_box, open_failure_alert_box,
                     read_failure_alert_box, write_failure_alert_box);
 
-    /* Initialize whatever we need to allocate colors for GTK+ */
-    colors_init();
-
     /* Non-blank filter means we're remote. Throttle splash screen and resolution updates. */
     filter = get_conn_cfilter();
     if ( *filter != '\0' ) {

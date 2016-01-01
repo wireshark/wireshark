@@ -27,10 +27,6 @@
 #include <gtk/gtk.h>
 
 #include "ui/gtk/color_utils.h"
-#if 0
-static GdkColormap*	sys_cmap;
-static GdkColormap*	our_cmap = NULL;
-#endif
 /* static GdkColor	WHITE = { 0, 65535, 65535, 65535 }; */
 /*static GdkColor	LTGREY = { 0, 57343, 57343, 57343 };*/
 /* static GdkColor	BLACK = { 0, 0, 0, 0 }; */
@@ -49,63 +45,10 @@ initialize_color(color_t *color, guint16 red, guint16 green, guint16 blue)
 	gdk_color.red = red;
 	gdk_color.green = green;
 	gdk_color.blue = blue;
-#if 0
-	if (!get_color(&gdk_color))
-		return FALSE;
-#endif
+
 	gdkcolor_to_color_t(color, &gdk_color);
 	return TRUE;
 }
-
-/* Initialize the colors */
-void
-colors_init(void)
-{
-#if 0
-	gboolean got_white, got_black;
-
-	sys_cmap = gdk_colormap_get_system();
-
-	/* Allocate "constant" colors. */
-	got_white = get_color(&WHITE);
-	got_black = get_color(&BLACK);
-	/* Got milk? */
-	if (!got_white) {
-		if (!got_black)
-			simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-				"Could not allocate colors black or white.");
-		else
-			simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-				"Could not allocate color white.");
-	} else {
-		if (!got_black)
-			simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-				"Could not allocate color black.");
-	}
-#endif
-
-}
-#if 0
-/* allocate a color from the color map */
-gboolean
-get_color(GdkColor *new_color)
-{
-	GdkVisual *pv;
-
-	if (!our_cmap) {
-		if (!gdk_colormap_alloc_color (sys_cmap, new_color, FALSE,
-			TRUE)) {
-			pv = gdk_visual_get_best();
-			if (!(our_cmap = gdk_colormap_new(pv, TRUE))) {
-				simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-					"Could not create new colormap");
-			}
-		} else
-			return (TRUE);
-	}
-	return (gdk_colormap_alloc_color(our_cmap, new_color, FALSE, TRUE));
-}
-#endif
 
 void
 color_t_to_gdkcolor(GdkColor *target, const color_t *source)

@@ -30,18 +30,6 @@
  *  Definitions for color structures and routines
  */
 
-/** Initialize the colors. */
-void colors_init(void);
-
-#if 0
-/** Allocate a color from the color map.
- *
- * @param new_color the new color
- * @return TRUE if the allocation succeeded
- */
-gboolean get_color(GdkColor *new_color);
-#endif
-
 /** Convert color_t to GdkColor.
  *
  * @param target the GdkColor to be filled

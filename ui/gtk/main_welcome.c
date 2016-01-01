@@ -1244,30 +1244,10 @@ welcome_new(void)
     GtkWidget *file_child_box;
 
     /* prepare colors */
-#if 0
-    /* Allocating color isn't necessary? */
-
-    /* "page" background */
-    get_color(&welcome_bg);
-
-    /* header bar background color */
-    get_color(&header_bar_bg);
-
-    /* topic header background color */
-    get_color(&topic_header_bg);
-
-    /* topic content background color */
-    get_color(&topic_content_bg);
-#endif
 #if GTK_CHECK_VERSION(3,0,0)
     rgba_topic_item_idle_bg = rgba_topic_content_bg;
 #else
     topic_item_idle_bg = topic_content_bg;
-#endif
-#if 0
-    /* Allocating collor isn't necessary? */
-    /* topic item entered color */
-    get_color(&topic_item_entered_bg);
 #endif
     welcome_scrollw = scrolled_window_new(NULL, NULL);
 

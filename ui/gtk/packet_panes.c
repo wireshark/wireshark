@@ -1146,14 +1146,6 @@ void proto_draw_colors_init(void)
     if(colors_ok) {
         return;
     }
-#if 0
-    /* Allocating collor isn't necessary? */
-    get_color(&expert_color_chat);
-    get_color(&expert_color_note);
-    get_color(&expert_color_warn);
-    get_color(&expert_color_error);
-    get_color(&expert_color_foreground);
-#endif
     expert_color_comment_str = gdk_color_to_string(&expert_color_comment);
     expert_color_chat_str = gdk_color_to_string(&expert_color_chat);
     expert_color_note_str = gdk_color_to_string(&expert_color_note);
@@ -1161,9 +1153,6 @@ void proto_draw_colors_init(void)
     expert_color_error_str = gdk_color_to_string(&expert_color_error);
     expert_color_foreground_str = gdk_color_to_string(&expert_color_foreground);
 
-#if 0
-    get_color(&hidden_proto_item);
-#endif
     colors_ok = TRUE;
 }
 
