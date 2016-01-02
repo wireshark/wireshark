@@ -221,46 +221,44 @@ enum TransportFormatSet_type_enum transportFormatSet_type;
 /* This table is used externally from FP, MAC and such, TODO: merge this with
  * lch_contents[] */
 guint8 lchId_type_table[]= {
-	MAC_CONTENT_UNKNOWN,	/*Should't happen*/
-	MAC_CONTENT_DCCH,		/* 1 to 4 SRB => DCCH*/
+	MAC_CONTENT_UNKNOWN,	/* Shouldn't happen*/
+	MAC_CONTENT_DCCH,	/* 1 to 4 SRB => DCCH*/
 	MAC_CONTENT_DCCH,
 	MAC_CONTENT_DCCH,
 	MAC_CONTENT_DCCH,
 	MAC_CONTENT_CS_DTCH,	/* 5 to 7 Conv CS speech => ?*/
 	MAC_CONTENT_CS_DTCH,
 	MAC_CONTENT_CS_DTCH,
-	MAC_CONTENT_DCCH,		/* 8 SRB => DCCH*/
+	MAC_CONTENT_DCCH,	/* 8 SRB => DCCH*/
 	MAC_CONTENT_PS_DTCH,	/* 9 maps to DTCH*/
 	MAC_CONTENT_UNKNOWN,	/* 10 Conv CS unknown*/
 	MAC_CONTENT_PS_DTCH,	/* 11 Interactive PS => DTCH*/
 	MAC_CONTENT_PS_DTCH,	/* 12 Streaming PS => DTCH*/
 	MAC_CONTENT_CS_DTCH,	/* 13 Streaming CS*/
-	MAC_CONTENT_PS_DTCH,	/* 14 Interatictive PS => DTCH*/
-	MAC_CONTENT_CCCH		/* This is CCCH? */
+	MAC_CONTENT_PS_DTCH,	/* 14 Interactive PS => DTCH*/
+	MAC_CONTENT_CCCH	/* This is CCCH? */
 };
 /* Preference variables */
-static int lch1_content = MAC_CONTENT_DCCH;
-static int lch2_content = MAC_CONTENT_DCCH;
-static int lch3_content = MAC_CONTENT_DCCH;
-static int lch4_content = MAC_CONTENT_DCCH;
-static int lch5_content = MAC_CONTENT_CS_DTCH;
-static int lch6_content = MAC_CONTENT_CS_DTCH;
-static int lch7_content = MAC_CONTENT_CS_DTCH;
-static int lch8_content = MAC_CONTENT_DCCH;
-static int lch9_content = MAC_CONTENT_PS_DTCH;
-static int lch10_content = MAC_CONTENT_UNKNOWN;
-static int lch11_content = MAC_CONTENT_PS_DTCH;
-static int lch12_content = MAC_CONTENT_PS_DTCH;
-static int lch13_content = MAC_CONTENT_CS_DTCH;
-static int lch14_content = MAC_CONTENT_PS_DTCH;
-static int lch15_content = MAC_CONTENT_CCCH;
-static int lch16_content = MAC_CONTENT_DCCH;
 /* Array with preference variables for easy looping, TODO: merge this with
  * lchId_type_table[] */
-static int * lch_contents[] = {&lch1_content, &lch2_content, &lch3_content,
-	&lch4_content, &lch5_content, &lch6_content, &lch7_content, &lch8_content,
-	&lch9_content, &lch10_content, &lch11_content, &lch12_content, &lch13_content,
-	&lch14_content, &lch15_content, &lch16_content};
+static int lch_contents[16] = {
+	MAC_CONTENT_DCCH,
+	MAC_CONTENT_DCCH,
+	MAC_CONTENT_DCCH,
+	MAC_CONTENT_DCCH,
+	MAC_CONTENT_CS_DTCH,
+	MAC_CONTENT_CS_DTCH,
+	MAC_CONTENT_CS_DTCH,
+	MAC_CONTENT_DCCH,
+	MAC_CONTENT_PS_DTCH,
+	MAC_CONTENT_UNKNOWN,
+	MAC_CONTENT_PS_DTCH,
+	MAC_CONTENT_PS_DTCH,
+	MAC_CONTENT_CS_DTCH,
+	MAC_CONTENT_PS_DTCH,
+	MAC_CONTENT_CCCH,
+	MAC_CONTENT_DCCH
+};
 static const enum_val_t content_types[] = {
 	{"MAC_CONTENT_UNKNOWN", "MAC_CONTENT_UNKNOWN", MAC_CONTENT_UNKNOWN},
 	{"MAC_CONTENT_DCCH", "MAC_CONTENT_DCCH", MAC_CONTENT_DCCH},
@@ -426,7 +424,7 @@ static void nbap_init(void){
                        g_free);
 
     for (i = 0; i < 15; i++) {
-        lchId_type_table[i+1] = *lch_contents[i];
+        lchId_type_table[i+1] = lch_contents[i];
     }
 }
 
@@ -513,7 +511,7 @@ void proto_register_nbap(void)
 
 	/* Register preferences for mapping logical channel IDs to MAC content types. */
 	for (i = 0; i < 16; i++) {
-		prefs_register_enum_preference(nbap_module, ch_strings[i].name, ch_strings[i].title, ch_strings[i].description, lch_contents[i], content_types, FALSE);
+		prefs_register_enum_preference(nbap_module, ch_strings[i].name, ch_strings[i].title, ch_strings[i].description, &lch_contents[i], content_types, FALSE);
 	}
 
 	/* Register dissector tables */
