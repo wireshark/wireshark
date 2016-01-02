@@ -93,7 +93,7 @@ if [ "$GTK_VERSION" ]; then
 
     ATK_VERSION=2.8.0
     PANGO_VERSION=1.30.1
-    PNG_VERSION=1.6.17
+    PNG_VERSION=1.6.20
     PIXMAN_VERSION=0.26.0
     CAIRO_VERSION=1.12.2
     GDK_PIXBUF_VERSION=2.28.0
@@ -2336,7 +2336,7 @@ echo ""
 pkg_config_path=/usr/local/lib/pkgconfig
 if [ "$QT_VERSION" ]; then
     qt_base_path=$HOME/Qt$QT_VERSION/$QT_MAJOR_MINOR_VERSION/clang_64
-    pkg_config_path="$pkg_config_path":"$qt_base_path/clang_64/lib/pkgconfig"
+    pkg_config_path="$pkg_config_path":"$qt_base_path/lib/pkgconfig"
     CMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH":"$qt_base_path/lib/cmake"
 fi
 pkg_config_path="$pkg_config_path":/usr/X11/lib/pkgconfig
