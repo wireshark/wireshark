@@ -19,9 +19,15 @@ find_program( SH_EXECUTABLE
 include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( SH DEFAULT_MSG SH_EXECUTABLE )
 
-# FIXME: Don't match on the name but check whether the argument is
-#   accepted or not. OTOH, if it isn't accepted, build will fail on Win.
+# Ensure this is Cygwin bash
 if( WIN32 )
+  execute_process( COMMAND ${SH_EXECUTABLE} --version OUTPUT_VARIABLE SH_VERSION )
+  string( FIND "${SH_VERSION}" "cygwin" SH_IS_CYGWIN )
+  if( ${SH_IS_CYGWIN} LESS 0 )
+      set( BAD_SH ${SH_EXECUTABLE} )
+      unset( SH_EXECUTABLE CACHE )
+      message( FATAL_ERROR "The bash executable (${BAD_SH}) isn't from Cygwin.  Check your path" )
+  endif()
   set( SH_FLAGS1 -o )
   set( SH_FLAGS2 igncr )
 endif()
