@@ -671,6 +671,8 @@ wmem_test_array(void)
         g_assert(val == i);
     }
 
+    wmem_destroy_array(array);
+
     array = wmem_array_sized_new(allocator, sizeof(guint32), 73);
     wmem_array_set_null_terminator(array);
     for (i=0; i<75; i++)
@@ -724,6 +726,8 @@ wmem_test_array(void)
     raw = (guint32*)wmem_array_get_raw(array);
     g_assert(raw[wmem_array_get_count(array)] == 0);
     g_assert(raw[wmem_array_get_count(array) - 1] == lastint);
+
+    wmem_destroy_array(array);
 
     wmem_destroy_allocator(allocator);
 }

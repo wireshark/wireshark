@@ -1989,6 +1989,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_ascii_strdown@Base 1.12.0~rc1
  wmem_cleanup@Base 1.12.0~rc1
  wmem_destroy_allocator@Base 1.9.1
+ wmem_destroy_array@Base 3.3.0
  wmem_destroy_list@Base 1.12.0~rc1
  wmem_double_hash@Base 1.12.0~rc1
  wmem_epan_scope@Base 1.9.1

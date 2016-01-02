@@ -158,6 +158,13 @@ wmem_array_get_count(wmem_array_t *array)
     return array->elem_count;
 }
 
+void
+wmem_destroy_array(wmem_array_t *array)
+{
+    wmem_free(array->allocator, array->buf);
+    wmem_free(array->allocator, array);
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

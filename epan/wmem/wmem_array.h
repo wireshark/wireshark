@@ -80,6 +80,10 @@ WS_DLL_PUBLIC
 guint
 wmem_array_get_count(wmem_array_t *array);
 
+WS_DLL_PUBLIC
+void
+wmem_destroy_array(wmem_array_t *array);
+
 /**   @}
  *  @} */
 
