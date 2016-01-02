@@ -1098,14 +1098,18 @@ static int
 dissect_eigrp_ipv4_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
                          packet_info *pinfo, int offset, int unreachable)
 {
-    guint8      ip_addr[4], length;
+    guint8 length;
+    union {
+       guint8 addr_bytes[4];
+       guint32 addr;
+    } ip_addr;
     int         addr_len;
     proto_item *ti_prefixlen, *ti_dst;
     int         first = TRUE;
 
     for (; tvb_reported_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
         length = tvb_get_guint8(tvb, offset);
-        addr_len = ipv4_addr_and_mask(tvb, offset + 1, ip_addr, length);
+        addr_len = ipv4_addr_and_mask(tvb, offset + 1, ip_addr.addr_bytes, length);
 
         if (addr_len < 0) {
             ti_prefixlen = proto_tree_add_item(tree, hf_eigrp_ipv4_prefixlen,
@@ -1119,8 +1123,8 @@ dissect_eigrp_ipv4_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
             proto_tree_add_item(tree, hf_eigrp_ipv4_prefixlen, tvb, offset, 1,
                                 ENC_BIG_ENDIAN);
             offset += 1;
-            SET_ADDRESS(&addr, AT_IPv4, 4, ip_addr);
-            ti_dst = proto_tree_add_ipv4(tree, hf_eigrp_ipv4_destination, tvb, offset, addr_len, *ip_addr);
+            SET_ADDRESS(&addr, AT_IPv4, 4, ip_addr.addr_bytes);
+            ti_dst = proto_tree_add_ipv4(tree, hf_eigrp_ipv4_destination, tvb, offset, addr_len, ip_addr.addr);
 
             /* add it to the top level line */
             proto_item_append_text(ti,"  %c   %s/%u", first ? '=':',',
