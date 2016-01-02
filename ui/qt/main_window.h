@@ -463,6 +463,7 @@ private slots:
     void on_actionAnalyzeFollowTCPStream_triggered();
     void on_actionAnalyzeFollowUDPStream_triggered();
     void on_actionAnalyzeFollowSSLStream_triggered();
+    void on_actionAnalyzeFollowHTTPStream_triggered();
     void statCommandExpertInfo(const char *, void *);
     void on_actionAnalyzeExpertInfo_triggered();
 

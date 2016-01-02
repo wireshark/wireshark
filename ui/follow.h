@@ -44,7 +44,8 @@ typedef struct {
 typedef enum {
     FOLLOW_TCP,
     FOLLOW_SSL,
-    FOLLOW_UDP
+    FOLLOW_UDP,
+    FOLLOW_HTTP
 } follow_type_t;
 
 /* Show Stream */

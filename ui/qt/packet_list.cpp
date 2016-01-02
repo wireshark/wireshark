@@ -326,6 +326,7 @@ PacketList::PacketList(QWidget *parent) :
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
     submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowSSLStream"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTPStream"));
 
     ctx_menu_.addSeparator();
 

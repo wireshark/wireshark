@@ -72,6 +72,7 @@ WIRESHARK_COMMON_GTK_SRC = \
 	filter_utils.c		\
 	find_dlg.c		\
 	firewall_dlg.c		\
+	follow_http.c		\
 	follow_ssl.c		\
 	follow_stream.c		\
 	follow_tcp.c		\
@@ -199,6 +200,7 @@ noinst_HEADERS = \
 	filter_utils.h		\
 	find_dlg.h		\
 	firewall_dlg.h		\
+	follow_http.h		\
 	follow_ssl.h		\
 	follow_stream.h		\
 	follow_tcp.h		\

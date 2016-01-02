@@ -252,9 +252,9 @@ void FollowStreamDialog::filterOut()
     close();
 }
 
-void FollowStreamDialog::on_cbDirections_currentIndexChanged(int index)
+void FollowStreamDialog::on_cbDirections_currentIndexChanged(int idx)
 {
-    switch(index)
+    switch(idx)
     {
     case 0 :
         follow_info_.show_stream = BOTH_HOSTS;
@@ -272,10 +272,10 @@ void FollowStreamDialog::on_cbDirections_currentIndexChanged(int index)
     readStream();
 }
 
-void FollowStreamDialog::on_cbCharset_currentIndexChanged(int index)
+void FollowStreamDialog::on_cbCharset_currentIndexChanged(int idx)
 {
-    if (index < 0) return;
-    follow_info_.show_type = static_cast<show_type_t>(ui->cbCharset->itemData(index).toInt());
+    if (idx < 0) return;
+    follow_info_.show_type = static_cast<show_type_t>(ui->cbCharset->itemData(idx).toInt());
     readStream();
 }
 
@@ -359,6 +359,10 @@ FollowStreamDialog::readStream()
 
     case FOLLOW_SSL :
         ret = readSslStream();
+        break;
+
+    case FOLLOW_HTTP :
+        ret = readHttpStream();
         break;
 
     default :
@@ -465,6 +469,39 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *, const
     return FALSE;
 }
 
+//Copy from ui/gtk/follow_http.c
+static gboolean
+http_queue_packet_data(void *tapdata, packet_info *pinfo,
+                      epan_dissect_t *, const void *data)
+{
+    follow_record_t *follow_record;
+    follow_info_t *follow_info = (follow_info_t *)tapdata;
+    tvbuff_t *next_tvb = (tvbuff_t *)data;
+
+    follow_record = g_new(follow_record_t,1);
+
+    follow_record->data = g_byte_array_sized_new(tvb_captured_length(next_tvb));
+    follow_record->data = g_byte_array_append(follow_record->data,
+                                              tvb_get_ptr(next_tvb, 0, -1),
+                                              tvb_captured_length(next_tvb));
+
+    if (follow_info->client_port == 0) {
+        follow_info->client_port = pinfo->srcport;
+        copy_address(&follow_info->client_ip, &pinfo->src);
+    }
+
+    if (addresses_equal(&follow_info->client_ip, &pinfo->src) && follow_info->client_port == pinfo->srcport)
+        follow_record->is_server = FALSE;
+    else
+        follow_record->is_server = TRUE;
+
+    /* update stream counter */
+    follow_info->bytes_written[follow_record->is_server] += follow_record->data->len;
+
+    follow_info->payload = g_list_append(follow_info->payload, follow_record);
+    return FALSE;
+}
+
 /*
  * XXX - the routine pointed to by "print_line_fcn_p" doesn't get handed lines,
  * it gets handed bufferfuls.  That's fine for "follow_write_raw()"
@@ -512,6 +549,52 @@ FollowStreamDialog::readSslStream()
                                      rec->is_from_server, rec->packet_num, global_pos);
             g_free(buffer);
             if (frs_return == FRS_PRINT_ERROR)
+                return frs_return;
+        }
+    }
+
+    return FRS_OK;
+}
+
+/* XXX - Currently the same as readUdpStream() */
+frs_return_t
+FollowStreamDialog::readHttpStream()
+{
+    guint32 global_client_pos = 0, global_server_pos = 0;
+    guint32 *global_pos;
+    gboolean skip;
+    GList* cur;
+    frs_return_t frs_return;
+    follow_record_t *follow_record;
+    char *buffer;
+
+    for (cur = follow_info_.payload; cur; cur = g_list_next(cur)) {
+        follow_record = (follow_record_t *)cur->data;
+        skip = FALSE;
+        if (!follow_record->is_server) {
+            global_pos = &global_client_pos;
+            if(follow_info_.show_stream == FROM_SERVER) {
+                skip = TRUE;
+            }
+        } else {
+            global_pos = &global_server_pos;
+            if (follow_info_.show_stream == FROM_CLIENT) {
+                skip = TRUE;
+            }
+        }
+
+        if (!skip) {
+            buffer = (char *)g_memdup(follow_record->data->data,
+                                      follow_record->data->len);
+
+            frs_return = showBuffer(
+                        buffer,
+                        follow_record->data->len,
+                        follow_record->is_server,
+                        follow_record->packet_num,
+                        global_pos);
+            g_free(buffer);
+            if(frs_return == FRS_PRINT_ERROR)
                 return frs_return;
         }
     }
@@ -856,7 +939,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
     follow_stats_t      stats;
     tcp_stream_chunk    sc;
     size_t              nchars;
-    gboolean is_tcp = FALSE, is_udp = FALSE;
+    gboolean is_tcp = FALSE, is_udp = FALSE, is_http = FALSE;
 
     resetStream();
 
@@ -873,6 +956,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
     }
 
     proto_get_frame_protocols(cap_file_.capFile()->edt->pi.layers, NULL, &is_tcp, &is_udp, NULL, NULL, NULL, NULL);
+    is_http = proto_is_frame_protocol(cap_file_.capFile()->edt->pi.layers, "http");
 
     switch (follow_type_)
     {
@@ -897,6 +981,12 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
             return false;
         }
         break;
+    case FOLLOW_HTTP:
+        if (!is_http) {
+            QMessageBox::warning(this, tr("Error following stream."), tr("Please make sure you have a HTTP packet selected."));
+            return false;
+        }
+        break;
     }
 
     if (follow_type_ == FOLLOW_TCP || follow_type_ == FOLLOW_SSL)
@@ -912,7 +1002,11 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
         follow_filter = gchar_free_to_qstring(
             build_follow_index_filter((follow_type_ == FOLLOW_TCP) ? TCP_STREAM : UDP_STREAM));
     } else {
-        follow_filter = gchar_free_to_qstring(build_follow_conv_filter(&cap_file_.capFile()->edt->pi));
+        if (follow_type_ == FOLLOW_HTTP) {
+            follow_filter = gchar_free_to_qstring(build_follow_conv_filter(&cap_file_.capFile()->edt->pi, "http"));
+        } else {
+            follow_filter = gchar_free_to_qstring(build_follow_conv_filter(&cap_file_.capFile()->edt->pi, NULL));
+        }
     }
     if (follow_filter.isEmpty()) {
         QMessageBox::warning(this,
@@ -1006,6 +1100,14 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
             return false;
         }
         break;
+    case FOLLOW_HTTP:
+        /* data will be passed via tap callback*/
+        if (!registerTapListener("http_follow", &follow_info_,
+                                 follow_filter.toUtf8().constData(),
+                                 0, NULL, http_queue_packet_data, NULL)) {
+            return false;
+        }
+        break;
     }
 
     beginRetapPackets();
@@ -1022,6 +1124,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
         break;
     case FOLLOW_UDP:
     case FOLLOW_SSL:
+    case FOLLOW_HTTP:
         removeTapListeners();
         break;
     }
@@ -1097,6 +1200,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
     switch (follow_type_)
     {
     case FOLLOW_TCP:
+    case FOLLOW_HTTP:
         port0 = tcp_port_to_display(NULL, stats.port[0]);
         port1 = tcp_port_to_display(NULL, stats.port[1]);
         break;
@@ -1230,6 +1334,13 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
                                                follow_info_.bytes_written[0] + follow_info_.bytes_written[1],
                      format_size_unit_bytes|format_size_prefix_si)));
         setWindowSubtitle(tr("Follow SSL Stream (%1)").arg(follow_filter));
+        break;
+    case FOLLOW_HTTP:
+        both_directions_string = QString("Entire conversation (%1)")
+                .arg(gchar_free_to_qstring(format_size(
+                                               stats.bytes_written[0] + stats.bytes_written[1],
+                     format_size_unit_bytes|format_size_prefix_si)));
+        setWindowSubtitle(tr("Follow HTTP Stream (%1)").arg(follow_filter));
         break;
     }
 

@@ -386,6 +386,7 @@
      <addaction name="actionAnalyzeFollowTCPStream"/>
      <addaction name="actionAnalyzeFollowUDPStream"/>
      <addaction name="actionAnalyzeFollowSSLStream"/>
+     <addaction name="actionAnalyzeFollowHTTPStream"/>
     </widget>
     <widget class="QMenu" name="menuConversationFilter">
      <property name="title">
@@ -1697,6 +1698,14 @@
    </property>
    <property name="text">
     <string>SSL Stream</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeFollowHTTPStream">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>HTTP Stream</string>
    </property>
   </action>
   <action name="actionStatisticsTcpStreamTcptrace">

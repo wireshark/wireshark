@@ -54,11 +54,12 @@ typedef struct _tcp_stream_chunk {
 /** Build a follow filter based on the current packet's conversation.
  *
  * @param packet_info [in] The current packet.
+ * @param append_filter [in] Optional filter to && (AND) to generated one.
  * @return A filter that specifies the conversation. Must be g_free()d
  * the caller.
  */
 WS_DLL_PUBLIC
-gchar* build_follow_conv_filter( packet_info * packet_info);
+gchar* build_follow_conv_filter( packet_info * packet_info, const char* append_filter);
 
 /** Build a follow filter based on the current TCP/UDP stream index.
  * follow_index() must be called prior to calling this.

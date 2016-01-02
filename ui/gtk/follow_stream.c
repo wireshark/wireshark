@@ -87,6 +87,9 @@ follow_read_stream(follow_info_t *follow_info,
     case FOLLOW_SSL :
         return follow_read_ssl_stream(follow_info, print_line_fcn_p, arg);
 
+    case FOLLOW_HTTP :
+        return follow_read_http_stream(follow_info, print_line_fcn_p, arg);
+
     default :
         g_assert_not_reached();
         return (frs_return_t)0;
@@ -865,6 +868,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
         break;
 
     case FOLLOW_UDP :
+    case FOLLOW_HTTP :
         for(cur = follow_info->payload; cur; cur = g_list_next(cur))
             if(cur->data) {
             follow_record = (follow_record_t *)cur->data;

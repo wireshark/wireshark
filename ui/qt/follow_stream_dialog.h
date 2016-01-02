@@ -79,8 +79,8 @@ protected:
     void keyPressEvent(QKeyEvent *event);
 
 private slots:
-    void on_cbCharset_currentIndexChanged(int index);
-    void on_cbDirections_currentIndexChanged(int index);
+    void on_cbCharset_currentIndexChanged(int idx);
+    void on_cbDirections_currentIndexChanged(int idx);
     void on_bFind_clicked();
     void on_leFind_returnPressed();
 
@@ -113,6 +113,7 @@ private:
     frs_return_t readTcpStream();
     frs_return_t readUdpStream();
     frs_return_t readSslStream();
+    frs_return_t readHttpStream();
 
     void followStream();
     void addText(QString text, gboolean is_from_server, guint32 packet_num);

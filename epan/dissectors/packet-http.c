@@ -60,6 +60,7 @@ void proto_reg_handoff_message_http(void);
 
 static int http_tap = -1;
 static int http_eo_tap = -1;
+static int http_follow_tap = -1;
 
 static int proto_http = -1;
 static int proto_http2 = -1;
@@ -1181,6 +1182,11 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
+	/* Give the follw tap what we've currently dissected */
+	if(have_tap_listener(http_follow_tap)) {
+		tap_queue_packet(http_follow_tap, pinfo, tvb_new_subset_length(tvb, 0, offset));
+	}
+
 	reported_datalen = tvb_reported_length_remaining(tvb, offset);
 	datalen = tvb_captured_length_remaining(tvb, offset);
 
@@ -1442,6 +1448,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			eo_info->payload_data = tvb_get_ptr(next_tvb, 0, eo_info->payload_len);
 
 			tap_queue_packet(http_eo_tap, pinfo, eo_info);
+		}
+
+		/* Save values for the Export Object GUI feature if we have
+		 * an active listener to process it (which happens when
+		 * the export object window is open). */
+		if(have_tap_listener(http_follow_tap)) {
+			tap_queue_packet(http_follow_tap, pinfo, next_tvb);
 		}
 
 		/*
@@ -3497,6 +3510,7 @@ proto_register_http(void)
 	 */
 	http_tap = register_tap("http"); /* HTTP statistics tap */
 	http_eo_tap = register_tap("http_eo"); /* HTTP Export Object tap */
+	http_follow_tap = register_tap("http_follow"); /* HTTP Follow tap */
 }
 
 /*

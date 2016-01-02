@@ -86,7 +86,7 @@ follow_stats(follow_stats_t* stats)
    chance that two streams could intersect, but not a
    very good one */
 gchar*
-build_follow_conv_filter( packet_info *pi ) {
+build_follow_conv_filter( packet_info *pi, const char* append_filter ) {
   char* buf;
   int len;
   conversation_t *conv=NULL;
@@ -122,7 +122,11 @@ build_follow_conv_filter( packet_info *pi ) {
     /* TCP over IPv4/6 */
     tcpd=get_tcp_conversation_data(conv, pi);
     if (tcpd) {
-      buf = g_strdup_printf("tcp.stream eq %d", tcpd->stream);
+      if (append_filter == NULL) {
+        buf = g_strdup_printf("tcp.stream eq %d", tcpd->stream);
+      } else {
+        buf = g_strdup_printf("((tcp.stream eq %d) && (%s))", tcpd->stream, append_filter);
+      }
       stream_to_follow[TCP_STREAM] = tcpd->stream;
       if (pi->net_src.type == AT_IPv4) {
         len = 4;
@@ -142,7 +146,11 @@ build_follow_conv_filter( packet_info *pi ) {
     /* UDP over IPv4/6 */
     udpd=get_udp_conversation_data(conv, pi);
     if (udpd) {
-      buf = g_strdup_printf("udp.stream eq %d", udpd->stream);
+      if (append_filter == NULL) {
+        buf = g_strdup_printf("udp.stream eq %d", udpd->stream);
+      } else {
+        buf = g_strdup_printf("((udp.stream eq %d) && (%s))", udpd->stream, append_filter);
+      }
       stream_to_follow[UDP_STREAM] = udpd->stream;
       if (pi->net_src.type == AT_IPv4) {
         len = 4;

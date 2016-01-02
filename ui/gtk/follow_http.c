@@ -1,5 +1,5 @@
-/* follow_udp.c
- * UDP specific routines for following traffic streams
+/* follow_http.c
+ * HTTP specific routines for following traffic streams
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -38,10 +38,10 @@
 #include "ui/gtk/follow_stream.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/main.h"
-#include "ui/gtk/follow_udp.h"
+#include "ui/gtk/follow_http.h"
 
 static gboolean
-udp_queue_packet_data(void *tapdata, packet_info *pinfo,
+http_queue_packet_data(void *tapdata, packet_info *pinfo,
                       epan_dissect_t *edt _U_, const void *data)
 {
     follow_record_t *follow_record;
@@ -72,11 +72,11 @@ udp_queue_packet_data(void *tapdata, packet_info *pinfo,
     return FALSE;
 }
 
-/* Follow the UDP stream, if any, to which the last packet that we called
+/* Follow the HTTP stream, if any, to which the last packet that we called
    a dissection routine on belongs (this might be the most recently
    selected packet, or it might be the last packet in the file). */
 void
-follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
+follow_http_stream_cb(GtkWidget *w _U_, gpointer data _U_)
 {
     GtkWidget *filter_te, *filter_cm;
     gchar *follow_filter;
@@ -90,11 +90,11 @@ follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
     follow_stats_t stats;
     follow_info_t *follow_info;
     GString *msg;
-    gboolean is_udp = FALSE;
+    gboolean is_http = FALSE;
 
-    is_udp = proto_is_frame_protocol(cfile.edt->pi.layers, "udp");
+    is_http = proto_is_frame_protocol(cfile.edt->pi.layers, "http");
 
-    if (!is_udp) {
+    if (!is_http) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "Error following stream.  Please make\n"
                       "sure you have a UDP packet selected.");
@@ -102,19 +102,19 @@ follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
     }
 
     follow_info = g_new0(follow_info_t, 1);
-    follow_info->follow_type = FOLLOW_UDP;
+    follow_info->follow_type = FOLLOW_HTTP;
 
-    /* Create a new filter that matches all packets in the UDP stream,
+    /* Create a new filter that matches all packets in the HTTP stream,
        and set the display filter entry accordingly */
-    follow_filter = build_follow_conv_filter(&cfile.edt->pi, NULL);
+    follow_filter = build_follow_conv_filter(&cfile.edt->pi, "http");
     if (!follow_filter)
-        {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                          "Error creating filter for this stream.\n"
-                          "A network layer header is needed");
-            g_free(follow_info);
-            return;
-        }
+    {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                        "Error creating filter for this stream.\n"
+                        "A network layer header is needed");
+        g_free(follow_info);
+        return;
+    }
 
     /* Set the display filter entry accordingly */
     filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
@@ -143,11 +143,11 @@ follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
     }
 
     /* data will be passed via tap callback*/
-    msg = register_tap_listener("udp_follow", follow_info, follow_filter,
-                                0, NULL, udp_queue_packet_data, NULL);
+    msg = register_tap_listener("http_follow", follow_info, follow_filter,
+                                0, NULL, http_queue_packet_data, NULL);
     if (msg) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "Can't register udp_follow tap: %s\n",
+                      "Can't register http_follow tap: %s\n",
                       msg->str);
         g_free(follow_info->filter_out_filter);
         g_free(follow_info);
@@ -183,8 +183,8 @@ follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
         hostname1 = get_hostname(ipaddr);
     }
 
-    port0 = udp_port_to_display(NULL, stats.port[0]);
-    port1 = udp_port_to_display(NULL, stats.port[1]);
+    port0 = tcp_port_to_display(NULL, stats.port[0]);
+    port1 = tcp_port_to_display(NULL, stats.port[1]);
 
     follow_info->is_ipv6 = stats.is_ipv6;
 
@@ -219,7 +219,7 @@ follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
                             follow_info->bytes_written[1]);
     }
 
-    follow_stream("Follow UDP Stream", follow_info, both_directions_string,
+    follow_stream("Follow HTTP Stream", follow_info, both_directions_string,
                   server_to_client_string, client_to_server_string);
 
     wmem_free(NULL, port0);
@@ -249,7 +249,7 @@ follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
  * correctly but get extra blank lines very other line when printed.
  */
 frs_return_t
-follow_read_udp_stream(follow_info_t *follow_info,
+follow_read_http_stream(follow_info_t *follow_info,
                        gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
                        void *arg)
 {

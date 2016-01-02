@@ -65,6 +65,7 @@
 #include "ui/gtk/summary_dlg.h"
 #include "ui/gtk/prefs_dlg.h"
 #include "ui/gtk/packet_win.h"
+#include "ui/gtk/follow_http.h"
 #include "ui/gtk/follow_tcp.h"
 #include "ui/gtk/follow_udp.h"
 #include "ui/gtk/follow_ssl.h"
@@ -1002,6 +1003,7 @@ static const char *ui_desc_menubar =
 "      <menuitem name='FollowTCPStream' action='/Analyze/FollowTCPStream'/>\n"
 "      <menuitem name='FollowUDPStream' action='/Analyze/FollowUDPStream'/>\n"
 "      <menuitem name='FollowSSLStream' action='/Analyze/FollowSSLStream'/>\n"
+"      <menuitem name='FollowHTTPStream' action='/Analyze/FollowHTTPStream'/>\n"
 "      <menuitem name='ExpertInfo' action='/Analyze/ExpertInfo'/>\n"
 "      <menu name= 'ConversationFilterMenu' action='/Analyze/ConversationFilter'>\n"
 "        <placeholder name='Filters'/>\n"
@@ -1436,6 +1438,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Analyze/FollowTCPStream",                            NULL,       "Follow TCP Stream",                    NULL, NULL, G_CALLBACK(follow_tcp_stream_cb) },
    { "/Analyze/FollowUDPStream",                            NULL,       "Follow UDP Stream",                    NULL, NULL, G_CALLBACK(follow_udp_stream_cb) },
    { "/Analyze/FollowSSLStream",                            NULL,       "Follow SSL Stream",                    NULL, NULL, G_CALLBACK(follow_ssl_stream_cb) },
+   { "/Analyze/FollowHTTPStream",                           NULL,       "Follow HTTP Stream",                   NULL, NULL, G_CALLBACK(follow_http_stream_cb) },
 
    { "/Analyze/ExpertInfo",          WIRESHARK_STOCK_EXPERT_INFO,       "Expert _Info",               NULL, NULL, G_CALLBACK(expert_comp_dlg_launch) },
 
@@ -2201,6 +2204,7 @@ static const char *ui_desc_packet_list_menu_popup =
 "     <menuitem name='FollowTCPStream' action='/Follow TCP Stream'/>\n"
 "     <menuitem name='FollowUDPStream' action='/Follow UDP Stream'/>\n"
 "     <menuitem name='FollowSSLStream' action='/Follow SSL Stream'/>\n"
+"     <menuitem name='FollowHTTPStream' action='/Follow HTTP Stream'/>\n"
 "     <separator/>\n"
 "     <menu name= 'Copy' action='/Copy'>\n"
 "        <menuitem name='SummaryTxt' action='/Copy/SummaryTxt'/>\n"
@@ -2265,6 +2269,7 @@ static const GtkActionEntry packet_list_menu_popup_action_entries[] = {
   { "/Follow TCP Stream",                           NULL,       "Follow TCP Stream",                    NULL, NULL, G_CALLBACK(follow_tcp_stream_cb) },
   { "/Follow UDP Stream",                           NULL,       "Follow UDP Stream",                    NULL, NULL, G_CALLBACK(follow_udp_stream_cb) },
   { "/Follow SSL Stream",                           NULL,       "Follow SSL Stream",                    NULL, NULL, G_CALLBACK(follow_ssl_stream_cb) },
+  { "/Follow HTTP Stream",                          NULL,       "Follow HTTP Stream",                   NULL, NULL, G_CALLBACK(follow_http_stream_cb) },
 
   { "/Copy",        NULL, "Copy",                   NULL, NULL, NULL },
   { "/Copy/SummaryTxt",                             NULL,       "Summary (Text)",                       NULL, NULL, G_CALLBACK(packet_list_menu_copy_sum_txt) },
@@ -2329,6 +2334,7 @@ static const char *ui_desc_tree_view_menu_popup =
 "     <menuitem name='FollowTCPStream' action='/Follow TCP Stream'/>\n"
 "     <menuitem name='FollowUDPStream' action='/Follow UDP Stream'/>\n"
 "     <menuitem name='FollowSSLStream' action='/Follow SSL Stream'/>\n"
+"     <menuitem name='FollowHTTPStream' action='/Follow HTTP Stream'/>\n"
 "     <separator/>\n"
 "     <menu name= 'Copy' action='/Copy'>\n"
 "        <menuitem name='Description' action='/Copy/Description'/>\n"
@@ -2387,6 +2393,7 @@ static const GtkActionEntry tree_view_menu_popup_action_entries[] = {
   { "/Follow TCP Stream",                           NULL,       "Follow TCP Stream",                    NULL, NULL, G_CALLBACK(follow_tcp_stream_cb) },
   { "/Follow UDP Stream",                           NULL,       "Follow UDP Stream",                    NULL, NULL, G_CALLBACK(follow_udp_stream_cb) },
   { "/Follow SSL Stream",                           NULL,       "Follow SSL Stream",                    NULL, NULL, G_CALLBACK(follow_ssl_stream_cb) },
+  { "/Follow HTTP Stream",                          NULL,       "Follow HTTP Stream",                   NULL, NULL, G_CALLBACK(follow_http_stream_cb) },
 
   { "/Copy",        NULL, "Copy",                   NULL, NULL, NULL },
   { "/Copy/Description",                            NULL,       "Description",                      NULL, NULL, G_CALLBACK(tree_view_menu_copy_desc) },
@@ -4533,7 +4540,7 @@ set_menus_for_selected_packet(capture_file *cf)
     gboolean    properties = FALSE;
     const char *abbrev     = NULL;
     char       *prev_abbrev;
-    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_ssl = FALSE, is_lte_rlc = FALSE;
+    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_ssl = FALSE, is_lte_rlc = FALSE, is_http = FALSE;
 
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
@@ -4556,8 +4563,10 @@ set_menus_for_selected_packet(capture_file *cf)
            than one time reference frame or the current frame isn't a
            time reference frame). (XXX - why check frame_selected?) */
     if (cf->edt)
+    {
         proto_get_frame_protocols(cf->edt->pi.layers, &is_ip, &is_tcp, &is_udp, &is_sctp, &is_ssl, NULL, &is_lte_rlc);
-
+        is_http = proto_is_frame_protocol(cf->edt->pi.layers, "http");
+    }
     if (cf->edt && cf->edt->tree) {
         GPtrArray          *ga;
         header_field_info  *hfinfo;
@@ -4663,11 +4672,16 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected ? is_udp : FALSE);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowSSLStream",
                          frame_selected ? is_ssl : FALSE);
+    set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/FollowHTTPStream",
+                         frame_selected ? is_http : FALSE);
+
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FollowSSLStream",
                          frame_selected ? is_ssl : FALSE);
-
     set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FollowUDPStream",
                          frame_selected ? is_udp : FALSE);
+    set_menu_sensitivity(ui_manager_tree_view_menu, "/TreeViewPopup/FollowHTTPStream",
+                         frame_selected ? is_http : FALSE);
+
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/ColorizeConversation",
                          frame_selected);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/DecodeAs",
@@ -4704,6 +4718,8 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected ? is_udp : FALSE);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowSSLStream",
                          frame_selected ? is_ssl : FALSE);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/FollowHTTPStream",
+                         frame_selected ? is_http : FALSE);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/DecodeAs",
                          frame_selected && decode_as_ok());
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NameResolution/ResolveName",
