@@ -1403,7 +1403,9 @@ dissect_dstopts(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void *data
 }
 
 /* START SHIM6 PART */
-static guint16 shim_checksum(tvbuff_t *tvb, int offset, int len)
+
+static guint16
+shim6_checksum(tvbuff_t *tvb, int offset, int len)
 {
     vec_t cksum_vec[1];
 
@@ -1814,8 +1816,9 @@ static const value_string shimctrlvals[] = {
     { 0, NULL }
 };
 
-static void ipv6_shim6_checkum_additional_info(tvbuff_t * tvb, packet_info * pinfo,
-                                               proto_item * it_cksum, int offset, gboolean is_cksum_correct)
+static void
+add_shim6_checksum_additional_info(tvbuff_t * tvb, packet_info * pinfo,
+                proto_item * it_cksum, int offset, gboolean is_cksum_correct)
 {
     proto_tree *checksum_tree;
     proto_item *item;
@@ -1905,17 +1908,17 @@ dissect_shim6(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _
         p++;
 
         /* Checksum */
-        csum = shim_checksum(tvb, offset, len);
+        csum = shim6_checksum(tvb, offset, len);
 
         if (csum == 0) {
             ti = proto_tree_add_uint_format_value(shim_tree, hf_ipv6_shim6_checksum, tvb, p, 2,
                                                   tvb_get_ntohs(tvb, p), "0x%04x [correct]", tvb_get_ntohs(tvb, p));
-            ipv6_shim6_checkum_additional_info(tvb, pinfo, ti, p, TRUE);
+            add_shim6_checksum_additional_info(tvb, pinfo, ti, p, TRUE);
         } else {
             ti = proto_tree_add_uint_format_value(shim_tree, hf_ipv6_shim6_checksum, tvb, p, 2,
                                                   tvb_get_ntohs(tvb, p), "0x%04x [incorrect: should be 0x%04x]",
                                                   tvb_get_ntohs(tvb, p), in_cksum_shouldbe(tvb_get_ntohs(tvb, p), csum));
-            ipv6_shim6_checkum_additional_info(tvb, pinfo, ti, p, FALSE);
+            add_shim6_checksum_additional_info(tvb, pinfo, ti, p, FALSE);
         }
         p += 2;
 
