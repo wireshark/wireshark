@@ -71,7 +71,9 @@ dissector_table_t etsi_arg_local_dissector_table;
 dissector_table_t etsi_res_local_dissector_table;
 dissector_table_t etsi_err_local_dissector_table;
 
-static gint g_facility_encoding = 0; /* Default to QSIG */
+#define FACILITY_QSIG	0
+#define FACILITY_ETSI	1
+static gint g_facility_encoding = FACILITY_QSIG;
 
 void proto_reg_handoff_q932(void);
 /* Subdissectors */
@@ -328,8 +330,8 @@ void proto_register_q932(void) {
   expert_module_t* expert_q932;
 
   static const enum_val_t facility_encoding[] = {
-    {"Facility as QSIG", "Dissect facility as QSIG", 0},
-    {"Facility as ETSI", "Dissect facility as ETSI", 1},
+    {"Facility as QSIG", "Dissect facility as QSIG", FACILITY_QSIG},
+    {"Facility as ETSI", "Dissect facility as ETSI", FACILITY_ETSI},
     {NULL, NULL, -1}
   };
 
@@ -381,7 +383,7 @@ void proto_reg_handoff_q932(void) {
     q932_ros_handle = find_dissector("q932.ros");
   }
 
-  if(g_facility_encoding == 0){
+  if(g_facility_encoding == FACILITY_QSIG){
     q932_rose_ctx.arg_local_dissector_table = qsig_arg_local_dissector_table;
     q932_rose_ctx.res_local_dissector_table = qsig_res_local_dissector_table;
     q932_rose_ctx.err_local_dissector_table = qsig_err_local_dissector_table;

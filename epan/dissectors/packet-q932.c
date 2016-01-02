@@ -139,7 +139,9 @@ dissector_table_t etsi_arg_local_dissector_table;
 dissector_table_t etsi_res_local_dissector_table;
 dissector_table_t etsi_err_local_dissector_table;
 
-static gint g_facility_encoding = 0; /* Default to QSIG */
+#define FACILITY_QSIG	0
+#define FACILITY_ETSI	1
+static gint g_facility_encoding = FACILITY_QSIG;
 
 void proto_reg_handoff_q932(void);
 /* Subdissectors */
@@ -657,7 +659,7 @@ static int dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-q932-fn.c ---*/
-#line 141 "../../asn1/q932/packet-q932-template.c"
+#line 143 "../../asn1/q932/packet-q932-template.c"
 
 /*--- dissect_q932_facility_ie -------------------------------------------------------*/
 static void
@@ -980,7 +982,7 @@ void proto_register_q932(void) {
         "AddressInformation", HFILL }},
 
 /*--- End of included file: packet-q932-hfarr.c ---*/
-#line 311 "../../asn1/q932/packet-q932-template.c"
+#line 313 "../../asn1/q932/packet-q932-template.c"
   };
 
   /* List of subtrees */
@@ -1005,7 +1007,7 @@ void proto_register_q932(void) {
     &ett_q932_NetworkFacilityExtension_U,
 
 /*--- End of included file: packet-q932-ettarr.c ---*/
-#line 318 "../../asn1/q932/packet-q932-template.c"
+#line 320 "../../asn1/q932/packet-q932-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -1019,8 +1021,8 @@ void proto_register_q932(void) {
   expert_module_t* expert_q932;
 
   static const enum_val_t facility_encoding[] = {
-    {"Facility as QSIG", "Dissect facility as QSIG", 0},
-    {"Facility as ETSI", "Dissect facility as ETSI", 1},
+    {"Facility as QSIG", "Dissect facility as QSIG", FACILITY_QSIG},
+    {"Facility as ETSI", "Dissect facility as ETSI", FACILITY_ETSI},
     {NULL, NULL, -1}
   };
 
@@ -1072,7 +1074,7 @@ void proto_reg_handoff_q932(void) {
     q932_ros_handle = find_dissector("q932.ros");
   }
 
-  if(g_facility_encoding == 0){
+  if(g_facility_encoding == FACILITY_QSIG){
     q932_rose_ctx.arg_local_dissector_table = qsig_arg_local_dissector_table;
     q932_rose_ctx.res_local_dissector_table = qsig_res_local_dissector_table;
     q932_rose_ctx.err_local_dissector_table = qsig_err_local_dissector_table;
