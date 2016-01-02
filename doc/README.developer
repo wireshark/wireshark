@@ -75,7 +75,10 @@ AIX, for example, doesn't do so by default). C++-style comments can be
 used in C++ code, of course.
 
 In general, don't use C99 features since some C compilers used to compile
-Wireshark don't support C99 (E.G. Microsoft C).
+Wireshark, such as Microsoft's C compiler, don't support all C99
+features.  The C99 features that can be used are:
+
+	variadic macros
 
 Don't initialize variables in their declaration with non-constant
 values. Not all compilers support this. E.g. don't use
