@@ -288,14 +288,16 @@ int main(int argc, char *argv[])
 	wtap_dumper* savedump;
 	int i;
 
+#ifdef _WIN32
+	WSADATA wsaData;
+#endif  /* _WIN32 */
+
 	if (argc == 1) {
 		help(argv[0]);
 		return EXIT_FAILURE;
 	}
 
 #ifdef _WIN32
-	WSADATA wsaData;
-
 	attach_parent_console();
 #endif  /* _WIN32 */
 
