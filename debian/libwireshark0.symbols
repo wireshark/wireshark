@@ -74,6 +74,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ber_decode_as_foreach@Base 1.9.1
  ber_set_filename@Base 1.9.1
  bluetooth_company_id_vals_ext@Base 1.99.6
+ bluetooth_gatt_has_no_parameter@Base 2.1.0
  bluetooth_uuid_vals@Base 1.99.2
  bluetooth_uuid_vals_ext@Base 1.99.2
  bluetooth_uuids@Base 2.1.0
@@ -458,6 +459,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  eap_type_vals_ext@Base 1.9.1
  ecn_short_vals_ext@Base 2.0.0
  ecn_vals_ext@Base 2.0.0
+ ei_btatt_invalid_usage@Base 2.1.0
  elem_lv@Base 1.9.1
  elem_t@Base 1.9.1
  elem_tlv@Base 1.9.1

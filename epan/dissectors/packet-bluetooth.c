@@ -197,7 +197,7 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x1812,   "Human Interface Device" },
     { 0x1813,   "Scan Parameters" },
     { 0x1814,   "Running Speed and Cadence" },
-    { 0x1815,   "Automation IO" }, /* Not adopted, 0.9 now (6th June 2015) */
+    { 0x1815,   "Automation IO" },
     { 0x1816,   "Cycling Speed and Cadence" },
     { 0x1818,   "Cycling Power" },
     { 0x1819,   "Location and Navigation" },
@@ -340,12 +340,12 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2906,   "Valid Range" },
     { 0x2907,   "External Report Reference" },
     { 0x2908,   "Report Reference" },
-    { 0x2909,   "Number of Digitals" }, /* Not adopted, 0.9 now (18th July 2015) */
+    { 0x2909,   "Number of Digitals" },
     { 0x290A,   "Value Trigger Setting" },
     { 0x290B,   "Environmental Sensing Configuration" },
     { 0x290C,   "Environmental Sensing Measurement" },
     { 0x290D,   "Environmental Sensing Trigger Setting" },
-    { 0x290E,   "Time Trigger Setting" }, /* Not adopted, 0.9 now (18th July 2015) */
+    { 0x290E,   "Time Trigger Setting" },
     /* Characteristics - https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx */
     { 0x2A00,   "Device Name" },
     { 0x2A01,   "Appearance" },
@@ -417,9 +417,9 @@ const value_string bluetooth_uuid_vals[] = {
     { 0x2A53,   "RSC Measurement" },
     { 0x2A54,   "RSC Feature" },
     { 0x2A55,   "SC Control Point" },
-    { 0x2A56,   "Digital" },    /* Not adopted, 0.9 now (6th June 2015) */
-    { 0x2A58,   "Analog" },     /* Not adopted, 0.9 now (6th June 2015) */
-    { 0x2A5A,   "Aggregate" },  /* Not adopted, 0.9 now (6th June 2015) */
+    { 0x2A56,   "Digital" },
+    { 0x2A58,   "Analog" },
+    { 0x2A5A,   "Aggregate" },
     { 0x2A5B,   "CSC Measurement" },
     { 0x2A5C,   "CSC Feature" },
     { 0x2A5D,   "Sensor Location" },
