@@ -4048,6 +4048,23 @@ s7comm_decode_ud_cpu_szl_subfunc(tvbuff_t *tvb,
                                     szl_decoded = TRUE;
                                 }
                                 break;
+                            case 0x00a0:
+                            case 0x01a0:
+                            case 0x04a0:
+                            case 0x05a0:
+                            case 0x06a0:
+                            case 0x07a0:
+                            case 0x08a0:
+                            case 0x09a0:
+                            case 0x0aa0:
+                            case 0x0ba0:
+                            case 0x0ca0:
+                            case 0x0da0:
+                            case 0x0ea0:
+                                /* the data structure is the same as used when CPU is sending online such messages */
+                                offset = s7comm_decode_ud_cpu_diagnostic_message(tvb, pinfo, FALSE, szl_item_tree, offset);
+                                szl_decoded = TRUE;
+                                break;
                             case 0x0131:
                                 if (idx == 0x0001) {
                                     offset = s7comm_decode_szl_id_0131_idx_0001(tvb, szl_item_tree, offset);

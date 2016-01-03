@@ -158,8 +158,8 @@ static const value_string param_errcode_names[] = {
     { S7COMM_PERRCOD_NO_ERROR,                      "No error" },
     { S7COMM_PERRCOD_INVALID_BLOCK_TYPE_NUM,        "Invalid block type number" },
     { S7COMM_PERRCOD_INVALID_PARAM,                 "Invalid parameter" },
-    { S7COMM_PERRCOD_PG_RESOURCE_ERROR,             "PG resource error" },
-    { S7COMM_PERRCOD_PLC_RESOURCE_ERROR,            "PLC resource error" },
+    { S7COMM_PERRCOD_PG_RESOURCE_ERROR,             "PG ressource error" },
+    { S7COMM_PERRCOD_PLC_RESOURCE_ERROR,            "PLC ressource error" },
     { S7COMM_PERRCOD_PROTOCOL_ERROR,                "Protocol error" },
     { S7COMM_PERRCOD_USER_BUFFER_TOO_SHORT,         "User buffer too short" },
     { S7COMM_PERRCOD_REQ_INI_ERR,                   "Request error" },
@@ -304,6 +304,11 @@ static const value_string item_transportsizenames[] = {
  */
 #define S7COMM_SYNTAXID_S7ANY               0x10        /* Address data S7-Any pointer-like DB1.DBX10.2 */
 #define S7COMM_SYNTAXID_PBC_ID              0x13        /* R_ID for PBC */
+#define S7COMM_SYNTAXID_ALARM_LOCKFREESET   0x15        /* Alarm lock/free dataset */
+#define S7COMM_SYNTAXID_ALARM_INDSET        0x16        /* Alarm indication dataset */
+#define S7COMM_SYNTAXID_ALARM_ACKSET        0x19        /* Alarm acknowledge message dataset */
+#define S7COMM_SYNTAXID_ALARM_QUERYREQSET   0x1a        /* Alarm query request dataset */
+#define S7COMM_SYNTAXID_NOTIFY_INDSET       0x1c        /* Notify indication dataset */
 #define S7COMM_SYNTAXID_DRIVEESANY          0xa2        /* seen on Drive ES Starter with routing over S7 */
 #define S7COMM_SYNTAXID_1200SYM             0xb2        /* Symbolic address mode of S7-1200 */
 #define S7COMM_SYNTAXID_DBREAD              0xb0        /* Kind of DB block read, seen only at an S7-400 */
@@ -312,6 +317,11 @@ static const value_string item_transportsizenames[] = {
 static const value_string item_syntaxid_names[] = {
     { S7COMM_SYNTAXID_S7ANY,                "S7ANY" },
     { S7COMM_SYNTAXID_PBC_ID,               "PBC-R_ID" },
+    { S7COMM_SYNTAXID_ALARM_LOCKFREESET,    "ALARM_LOCKFREE" },
+    { S7COMM_SYNTAXID_ALARM_INDSET,         "ALARM_IND" },
+    { S7COMM_SYNTAXID_ALARM_ACKSET,         "ALARM_ACK" },
+    { S7COMM_SYNTAXID_ALARM_QUERYREQSET,    "ALARM_QUERYREQ" },
+    { S7COMM_SYNTAXID_NOTIFY_INDSET,        "NOTIFY_IND" },
     { S7COMM_SYNTAXID_DRIVEESANY,           "DRIVEESANY" },
     { S7COMM_SYNTAXID_1200SYM,              "1200SYM" },
     { S7COMM_SYNTAXID_DBREAD,               "DBREAD" },
@@ -407,7 +417,7 @@ static const value_string subblktype_names[] = {
 
 static const value_string blocksecurity_names[] = {
     { S7COMM_BLOCKSECURITY_OFF,             "None" },
-    { S7COMM_BLOCKSECURITY_KNOWHOWPROTECT,  "Kow How Protect" },
+    { S7COMM_BLOCKSECURITY_KNOWHOWPROTECT,  "Know How Protect" },
     { 0,                                    NULL }
 };
 /**************************************************************************
@@ -455,6 +465,7 @@ static const value_string userdata_lastdataunit_names[] = {
 /**************************************************************************
  * Names of Function groups in userdata parameter part
  */
+#define S7COMM_UD_FUNCGROUP_MODETRANS       0x0
 #define S7COMM_UD_FUNCGROUP_PROG            0x1
 #define S7COMM_UD_FUNCGROUP_CYCLIC          0x2
 #define S7COMM_UD_FUNCGROUP_BLOCK           0x3
@@ -464,6 +475,7 @@ static const value_string userdata_lastdataunit_names[] = {
 #define S7COMM_UD_FUNCGROUP_TIME            0x7
 
 static const value_string userdata_functiongroup_names[] = {
+    { S7COMM_UD_FUNCGROUP_MODETRANS,        "Mode-transition" },
     { S7COMM_UD_FUNCGROUP_PROG,             "Programmer commands" },
     { S7COMM_UD_FUNCGROUP_CYCLIC,           "Cyclic data" },        /* to read data from plc without a request */
     { S7COMM_UD_FUNCGROUP_BLOCK,            "Block functions" },
@@ -555,7 +567,7 @@ static const value_string userdata_prog_subfunc_names[] = {
     { S7COMM_UD_SUBF_PROG_REMOVEDIAGDATA,   "Remove diag data" },               /* Stop online block view */
     { S7COMM_UD_SUBF_PROG_ERASE,            "Erase" },
     { S7COMM_UD_SUBF_PROG_FORCE,            "Forces" },
-    { S7COMM_UD_SUBF_PROG_REQDIAGDATA2,     "Request diag data (Type2)" },      /* Start online block view */
+    { S7COMM_UD_SUBF_PROG_REQDIAGDATA2,     "Request diag data (Type 2)" },     /* Start online block view */
     { 0,                                    NULL }
 };
 
@@ -567,7 +579,7 @@ static const value_string userdata_prog_subfunc_names[] = {
 
 static const value_string userdata_cyclic_subfunc_names[] = {
     { S7COMM_UD_SUBF_CYCLIC_MEM,            "Memory" },                         /* read data from memory (DB/M/etc.) */
-    { S7COMM_UD_SUBF_CYCLIC_UNSUBSCRIBE,    "Unsubscribe" },                    /* Unsubcribe (diable) cyclic data */
+    { S7COMM_UD_SUBF_CYCLIC_UNSUBSCRIBE,    "Unsubscribe" },                    /* Unsubcribe (disable) cyclic data */
     { 0,                                    NULL }
 };
 
@@ -592,11 +604,19 @@ static const value_string userdata_block_subfunc_names[] = {
 static const value_string userdata_cpu_subfunc_names[] = {
     { S7COMM_UD_SUBF_CPU_READSZL,           "Read SZL" },
     { S7COMM_UD_SUBF_CPU_MSGS,              "Message service" },                /* Header constant is also different here */
-    { S7COMM_UD_SUBF_CPU_TRANSSTOP,         "Transition to STOP" },             /* PLC changed state to STOP */
-    { S7COMM_UD_SUBF_CPU_ALARMIND,          "ALARM indication" },               /* PLC is indicating a ALARM message */
-    { S7COMM_UD_SUBF_CPU_ALARMINIT,         "ALARM initiate" },                 /* HMI/SCADA initiating ALARM subscription */
-    { S7COMM_UD_SUBF_CPU_ALARMACK1,         "ALARM ack 1" },                    /* Alarm was acknowledged in HMI/SCADA */
-    { S7COMM_UD_SUBF_CPU_ALARMACK2,         "ALARM ack 2" },                    /* Alarm was acknowledged in HMI/SCADA */
+    { S7COMM_UD_SUBF_CPU_DIAGMSG,           "Diagnostic message" },             /* Diagnostic message from PLC */
+    { S7COMM_UD_SUBF_CPU_ALARM8_IND,        "ALARM_8 indication" },             /* PLC is indicating an ALARM message, using ALARM_8 SFBs */
+    { S7COMM_UD_SUBF_CPU_NOTIFY_IND,        "NOTIFY indication" },              /* PLC is indicating a NOTIFY message, using NOTIFY SFBs */
+    { S7COMM_UD_SUBF_CPU_ALARM8LOCK,        "ALARM_8 lock" },                   /* Lock an ALARM message from HMI/SCADA */
+    { S7COMM_UD_SUBF_CPU_ALARM8UNLOCK,      "ALARM_8 unlock" },                 /* Unlock an ALARM message from HMI/SCADA */
+    { S7COMM_UD_SUBF_CPU_ALARMS_IND,        "ALARM_S indication" },             /* PLC is indicating an ALARM message, using ALARM_S/ALARM_D SFCs */
+    { S7COMM_UD_SUBF_CPU_ALARMSQ_IND,       "ALARM_SQ indication" },            /* PLC is indicating an ALARM message, using ALARM_SQ/ALARM_DQ SFCs */
+    { S7COMM_UD_SUBF_CPU_ALARMQUERY,        "ALARM query" },                    /* HMI/SCADA query of ALARMs */
+    { S7COMM_UD_SUBF_CPU_ALARMACK,          "ALARM ack" },                      /* Alarm was acknowledged in HMI/SCADA */
+    { S7COMM_UD_SUBF_CPU_ALARMACK_IND,      "ALARM ack indication" },           /* Alarm acknowledge indication from CPU to HMI */
+    { S7COMM_UD_SUBF_CPU_ALARM8LOCK_IND,    "ALARM lock indication" },          /* Alarm lock indication from CPU to HMI */
+    { S7COMM_UD_SUBF_CPU_ALARM8UNLOCK_IND,  "ALARM unlock indication" },        /* Alarm unlock indication from CPU to HMI */
+    { S7COMM_UD_SUBF_CPU_NOTIFY8_IND,       "NOTIFY_8 indication" },
     { 0,                                    NULL }
 };
 
@@ -1041,15 +1061,741 @@ static gint hf_s7comm_cycl_interval_time = -1;              /* Interval time, 1 
 static gint hf_s7comm_pbc_unknown = -1;                     /* unknown, 1 byte */
 static gint hf_s7comm_pbc_r_id = -1;                        /* Request ID R_ID, 4 bytes as hex */
 
+/* Alarm messages */
+static gint hf_s7comm_cpu_alarm_message_item = -1;
+static gint hf_s7comm_cpu_alarm_message_obj_item = -1;
+static gint hf_s7comm_cpu_alarm_message_function = -1;
+static gint hf_s7comm_cpu_alarm_message_nr_objects = -1;
+static gint hf_s7comm_cpu_alarm_message_nr_add_values = -1;
+static gint hf_s7comm_cpu_alarm_message_eventid = -1;
+static gint hf_s7comm_cpu_alarm_message_timestamp_coming = -1;
+static gint hf_s7comm_cpu_alarm_message_timestamp_going = -1;
+static gint hf_s7comm_cpu_alarm_message_associated_value = -1;
+static gint hf_s7comm_cpu_alarm_message_eventstate = -1;
+static gint hf_s7comm_cpu_alarm_message_state = -1;
+static gint hf_s7comm_cpu_alarm_message_ackstate_coming = -1;
+static gint hf_s7comm_cpu_alarm_message_ackstate_going = -1;
+static gint hf_s7comm_cpu_alarm_message_event_coming = -1;
+static gint hf_s7comm_cpu_alarm_message_event_going = -1;
+static gint hf_s7comm_cpu_alarm_message_event_lastchanged = -1;
+static gint hf_s7comm_cpu_alarm_message_event_reserved = -1;
+
+static gint hf_s7comm_cpu_alarm_message_signal_sig1 = -1;
+static gint hf_s7comm_cpu_alarm_message_signal_sig2 = -1;
+static gint hf_s7comm_cpu_alarm_message_signal_sig3 = -1;
+static gint hf_s7comm_cpu_alarm_message_signal_sig4 = -1;
+static gint hf_s7comm_cpu_alarm_message_signal_sig5 = -1;
+static gint hf_s7comm_cpu_alarm_message_signal_sig6 = -1;
+static gint hf_s7comm_cpu_alarm_message_signal_sig7 = -1;
+static gint hf_s7comm_cpu_alarm_message_signal_sig8 = -1;
+static gint ett_s7comm_cpu_alarm_message_signal = -1;
+static const int *s7comm_cpu_alarm_message_signal_fields[] = {
+    &hf_s7comm_cpu_alarm_message_signal_sig1,
+    &hf_s7comm_cpu_alarm_message_signal_sig2,
+    &hf_s7comm_cpu_alarm_message_signal_sig3,
+    &hf_s7comm_cpu_alarm_message_signal_sig4,
+    &hf_s7comm_cpu_alarm_message_signal_sig5,
+    &hf_s7comm_cpu_alarm_message_signal_sig6,
+    &hf_s7comm_cpu_alarm_message_signal_sig7,
+    &hf_s7comm_cpu_alarm_message_signal_sig8,
+    NULL
+};
+
+static gint hf_s7comm_cpu_alarm_query_unknown1 = -1;
+static gint hf_s7comm_cpu_alarm_query_querytype = -1;
+static gint hf_s7comm_cpu_alarm_query_unknown2 = -1;
+static gint hf_s7comm_cpu_alarm_query_alarmtype = -1;
+static gint hf_s7comm_cpu_alarm_query_completelen = -1;
+static gint hf_s7comm_cpu_alarm_query_datasetlen = -1;
+static gint hf_s7comm_cpu_alarm_query_resunknown1 = -1;
+
+/* CPU diagnostic messages */
+static gint hf_s7comm_cpu_diag_msg_item = -1;
+static gint hf_s7comm_cpu_diag_msg_eventid = -1;
+static gint hf_s7comm_cpu_diag_msg_eventid_class = -1;
+static gint hf_s7comm_cpu_diag_msg_eventid_ident_entleave = -1;
+static gint hf_s7comm_cpu_diag_msg_eventid_ident_diagbuf = -1;
+static gint hf_s7comm_cpu_diag_msg_eventid_ident_interr = -1;
+static gint hf_s7comm_cpu_diag_msg_eventid_ident_exterr = -1;
+static gint hf_s7comm_cpu_diag_msg_eventid_nr = -1;
+static gint hf_s7comm_cpu_diag_msg_prioclass = -1;
+static gint hf_s7comm_cpu_diag_msg_obnumber = -1;
+static gint hf_s7comm_cpu_diag_msg_datid = -1;
+static gint hf_s7comm_cpu_diag_msg_info1 = -1;
+static gint hf_s7comm_cpu_diag_msg_info2 = -1;
+
+static gint ett_s7comm_cpu_diag_msg_eventid = -1;
+static const int *s7comm_cpu_diag_msg_eventid_fields[] = {
+    &hf_s7comm_cpu_diag_msg_eventid_class,
+    &hf_s7comm_cpu_diag_msg_eventid_ident_entleave,
+    &hf_s7comm_cpu_diag_msg_eventid_ident_diagbuf,
+    &hf_s7comm_cpu_diag_msg_eventid_ident_interr,
+    &hf_s7comm_cpu_diag_msg_eventid_ident_exterr,
+    &hf_s7comm_cpu_diag_msg_eventid_nr,
+    NULL
+};
+
+static const true_false_string tfs_s7comm_cpu_diag_msg_eventid_ident_entleave = {
+    "Event entering",
+    "Event leaving"
+};
+
+static const value_string cpu_diag_msg_eventid_class_names[] = {
+    { 0x01,                                 "Standard OB events" },
+    { 0x02,                                 "Synchronous errors" },
+    { 0x03,                                 "Asynchronous errors" },
+    { 0x04,                                 "Mode transitions" },
+    { 0x05,                                 "Run-time events" },
+    { 0x06,                                 "Communication events" },
+    { 0x07,                                 "Events for fail-safe and fault-tolerant systems" },
+    { 0x08,                                 "Standardized diagnostic data on modules" },
+    { 0x09,                                 "Predefined user events" },
+    { 0x0a,                                 "Freely definable events" },
+    { 0x0b,                                 "Freely definable events" },
+    { 0x0c,                                 "Reserved" },
+    { 0x0d,                                 "Reserved" },
+    { 0x0e,                                 "Reserved" },
+    { 0x0f,                                 "Events for modules other than CPUs" },
+    { 0,                                    NULL }
+};
+
+static const value_string cpu_diag_eventid_fix_names[] = {
+    { 0x113A,                               "Start request for cyclic interrupt OB with special handling (S7-300 only)" },
+    { 0x1155,                               "Status alarm for PROFIBUS DP" },
+    { 0x1156,                               "Update interrupt for PROFIBUS DP" },
+    { 0x1157,                               "Manufacturer interrupt for PROFIBUS DP" },
+    { 0x1158,                               "Status interrupt for PROFINET IO" },
+    { 0x1159,                               "Update interrupt for PROFINET IO" },
+    { 0x115A,                               "Manufacturer interrupt for PROFINET IO" },
+    { 0x115B,                               "IO: Profile-specific interrupt" },
+    { 0x116A,                               "Technology synchronization interrupt" },
+    { 0x1381,                               "Request for manual warm restart" },
+    { 0x1382,                               "Request for automatic warm restart" },
+    { 0x1383,                               "Request for manual hot restart" },
+    { 0x1384,                               "Request for automatic hot restart" },
+    { 0x1385,                               "Request for manual cold restart" },
+    { 0x1386,                               "Request for automatic cold restart" },
+    { 0x1387,                               "Master CPU: request for manual cold restart" },
+    { 0x1388,                               "Master CPU: request for automatic cold restart" },
+    { 0x138A,                               "Master CPU: request for manual warm restart" },
+    { 0x138B,                               "Master CPU: request for automatic warm restart" },
+    { 0x138C,                               "Standby CPU: request for manual hot restart" },
+    { 0x138D,                               "Standby CPU: request for automatic hot restart" },
+    { 0x2521,                               "BCD conversion error" },
+    { 0x2522,                               "Area length error when reading" },
+    { 0x2523,                               "Area length error when writing" },
+    { 0x2524,                               "Area error when reading" },
+    { 0x2525,                               "Area error when writing" },
+    { 0x2526,                               "Timer number error" },
+    { 0x2527,                               "Counter number error" },
+    { 0x2528,                               "Alignment error when reading" },
+    { 0x2529,                               "Alignment error when writing" },
+    { 0x2530,                               "Write error when accessing the DB" },
+    { 0x2531,                               "Write error when accessing the DI" },
+    { 0x2532,                               "Block number error when opening a DB" },
+    { 0x2533,                               "Block number error when opening a DI" },
+    { 0x2534,                               "Block number error when calling an FC" },
+    { 0x2535,                               "Block number error when calling an FB" },
+    { 0x253A,                               "DB not loaded" },
+    { 0x253C,                               "FC not loaded" },
+    { 0x253D,                               "SFC not loaded" },
+    { 0x253E,                               "FB not loaded" },
+    { 0x253F,                               "SFB not loaded" },
+    { 0x2942,                               "I/O access error, reading" },
+    { 0x2943,                               "I/O access error, writing" },
+    { 0x3267,                               "End of module reconfiguration" },
+    { 0x3367,                               "Start of module reconfiguration" },
+    { 0x34A4,                               "PROFInet Interface DB can be addressed again" },
+    { 0x3501,                               "Cycle time exceeded" },
+    { 0x3502,                               "User interface (OB or FRB) request error" },
+    { 0x3503,                               "Delay too long processing a priority class" },
+    { 0x3505,                               "Time-of-day interrupt(s) skipped due to new clock setting" },
+    { 0x3506,                               "Time-of-day interrupt(s) skipped when changing to RUN after HOLD" },
+    { 0x3507,                               "Multiple OB request errors caused internal buffer overflow" },
+    { 0x3508,                               "Synchronous cycle interrupt-timing error" },
+    { 0x3509,                               "Interrupt loss due to excess interrupt load" },
+    { 0x350A,                               "Resume RUN mode after CiR" },
+    { 0x350B,                               "Technology synchronization interrupt - timing error" },
+    { 0x3571,                               "Nesting depth too high in nesting levels" },
+    { 0x3572,                               "Nesting depth for Master Control Relays too high" },
+    { 0x3573,                               "Nesting depth too high after synchronous errors" },
+    { 0x3574,                               "Nesting depth for block calls (U stack) too high" },
+    { 0x3575,                               "Nesting depth for block calls (B stack) too high" },
+    { 0x3576,                               "Local data allocation error" },
+    { 0x3578,                               "Unknown instruction" },
+    { 0x357A,                               "Jump instruction to target outside of the block" },
+    { 0x3582,                               "Memory error detected and corrected by operating system" },
+    { 0x3583,                               "Accumulation of detected and corrected memo errors" },
+    { 0x3585,                               "Error in the PC operating system (only for LC RTX)" },
+    { 0x3587,                               "Multi-bit memory error detected and corrected" },
+    { 0x35A1,                               "User interface (OB or FRB) not found" },
+    { 0x35A2,                               "OB not loaded (started by SFC or operating system due to configuration)" },
+    { 0x35A3,                               "Error when operating system accesses a block" },
+    { 0x35A4,                               "PROFInet Interface DB cannot be addressed" },
+    { 0x35D2,                               "Diagnostic entries cannot be sent at present" },
+    { 0x35D3,                               "Synchronization frames cannot be sent" },
+    { 0x35D4,                               "Illegal time jump resulting from synchronization" },
+    { 0x35D5,                               "Error adopting the synchronization time" },
+    { 0x35E1,                               "Incorrect frame ID in GD" },
+    { 0x35E2,                               "GD packet status cannot be entered in DB" },
+    { 0x35E3,                               "Frame length error in GD" },
+    { 0x35E4,                               "Illegal GD packet number received" },
+    { 0x35E5,                               "Error accessing DB in communication SFBs for configured S7 connections" },
+    { 0x35E6,                               "GD total status cannot be entered in DB" },
+    { 0x3821,                               "BATTF: failure on at least one backup battery of the central rack, problem eliminated" },
+    { 0x3822,                               "BAF: failure of backup voltage on central rack, problem eliminated" },
+    { 0x3823,                               "24 volt supply failure on central rack, problem eliminated" },
+    { 0x3825,                               "BATTF: failure on at least one backup battery of the redundant central rack, problem eliminated" },
+    { 0x3826,                               "BAF: failure of backup voltage on redundant central rack, problem eliminated" },
+    { 0x3827,                               "24 volt supply failure on redundant central rack, problem eliminated" },
+    { 0x3831,                               "BATTF: failure of at least one backup battery of the expansion rack, problem eliminated" },
+    { 0x3832,                               "BAF: failure of backup voltage on expansion rack, problem eliminated" },
+    { 0x3833,                               "24 volt supply failure on at least one expansion rack, problem eliminated" },
+    { 0x3842,                               "Module OK" },
+    { 0x3854,                               "PROFINET IO interface submodule/submodule and matches the configured interface submodule/submodule" },
+    { 0x3855,                               "PROFINET IO interface submodule/submodule inserted, but does not match the configured interface submodule/submodule" },
+    { 0x3856,                               "PROFINET IO interface submodule/submodule inserted, but error in module parameter assignment" },
+    { 0x3858,                               "PROFINET IO interface submodule access error corrected" },
+    { 0x3861,                               "Module/interface module inserted, module type OK" },
+    { 0x3863,                               "Module/interface module plugged in, but wrong module type" },
+    { 0x3864,                               "Module/interface module plugged in, but causing problem (type ID unreadable)" },
+    { 0x3865,                               "Module plugged in, but error in module parameter assignment" },
+    { 0x3866,                               "Module can be addressed again, load voltage error removed" },
+    { 0x3881,                               "Interface error leaving state" },
+    { 0x3884,                               "Interface module plugged in" },
+    { 0x38B3,                               "I/O access error when updating the process image input table" },
+    { 0x38B4,                               "I/O access error when transferring the process image to the output modules" },
+    { 0x38C1,                               "Expansion rack operational again (1 to 21), leaving state" },
+    { 0x38C2,                               "Expansion rack operational again but mismatch between setpoint and actual configuration" },
+    { 0x38C4,                               "Distributed I/Os: station failure, leaving state" },
+    { 0x38C5,                               "Distributed I/Os: station fault, leaving state" },
+    { 0x38C6,                               "Expansion rack operational again, but error(s) in module parameter assignment" },
+    { 0x38C7,                               "DP: station operational again, but error(s) in module parameter assignment" },
+    { 0x38C8,                               "DP: station operational again, but mismatch between setpoint and actual configuration" },
+    { 0x38CB,                               "PROFINET IO station operational again" },
+    { 0x38CC,                               "PROFINET IO station error corrected" },
+    { 0x3921,                               "BATTF: failure on at least one backup battery of the central rack" },
+    { 0x3922,                               "BAF: failure of backup voltage on central rack" },
+    { 0x3923,                               "24 volt supply failure on central rack" },
+    { 0x3925,                               "BATTF: failure on at least one backup battery of the redundant central rack" },
+    { 0x3926,                               "BAF: failure of backup voltage on redundant central rack" },
+    { 0x3927,                               "24 volt supply failure on redundant central rack" },
+    { 0x3931,                               "BATTF: failure of at least one backup battery of the expansion rack" },
+    { 0x3932,                               "BAF: failure of backup voltage on expansion rack" },
+    { 0x3933,                               "24 volt supply failure on at least one expansion rack" },
+    { 0x3942,                               "Module error" },
+    { 0x3951,                               "PROFINET IO submodule removed" },
+    { 0x3954,                               "PROFINET IO interface submodule/submodule removed" },
+    { 0x3961,                               "Module/interface module removed, cannot be addressed" },
+    { 0x3966,                               "Module cannot be addressed, load voltage error" },
+    { 0x3968,                               "Module reconfiguration has ended with error" },
+    { 0x3984,                               "Interface module removed" },
+    { 0x3981,                               "Interface error entering state" },
+    { 0x3986,                               "Performance of an H-Sync link negatively affected" },
+    { 0x39B1,                               "I/O access error when updating the process image input table" },
+    { 0x39B2,                               "I/O access error when transferring the process image to the output modules" },
+    { 0x39B3,                               "I/O access error when updating the process image input table" },
+    { 0x39B4,                               "I/O access error when transferring the process image to the output modules" },
+    { 0x39C1,                               "Expansion rack failure (1 to 21), entering state" },
+    { 0x39C3,                               "Distributed I/Os: master system failure entering state" },
+    { 0x39C4,                               "Distributed I/Os: station failure, entering state" },
+    { 0x39C5,                               "Distributed I/Os: station fault, entering state" },
+    { 0x39CA,                               "PROFINET IO system failure" },
+    { 0x39CB,                               "PROFINET IO station failure" },
+    { 0x39CC,                               "PROFINET IO station error" },
+    { 0x39CD,                               "PROFINET IO station operational again, but expected configuration does not match actual configuration" },
+    { 0x39CE,                               "PROFINET IO station operational again, but error(s) in module parameter assignment" },
+    { 0x42F3,                               "Checksum error detected and corrected by the operating system" },
+    { 0x42F4,                               "Standby CPU: connection/update via SFC90 is locked in the master CPU" },
+    { 0x4300,                               "Backed-up power on" },
+    { 0x4301,                               "Mode transition from STOP to STARTUP" },
+    { 0x4302,                               "Mode transition from STARTUP to RUN" },
+    { 0x4303,                               "STOP caused by stop switch being activated" },
+    { 0x4304,                               "STOP caused by PG STOP operation or by SFB 20 STOP" },
+    { 0x4305,                               "HOLD: breakpoint reached" },
+    { 0x4306,                               "HOLD: breakpoint exited" },
+    { 0x4307,                               "Memory reset started by PG operation" },
+    { 0x4308,                               "Memory reset started by switch setting" },
+    { 0x4309,                               "Memory reset started automatically (power on not backed up)" },
+    { 0x430A,                               "HOLD exited, transition to STOP" },
+    { 0x430D,                               "STOP caused by other CPU in multicomputing" },
+    { 0x430E,                               "Memory reset executed" },
+    { 0x430F,                               "STOP on the module due to STOP on a CPU" },
+    { 0x4318,                               "Start of CiR" },
+    { 0x4319,                               "CiR completed" },
+    { 0x4357,                               "Module watchdog started" },
+    { 0x4358,                               "All modules are ready for operation" },
+    { 0x43B0,                               "Firmware update was successful" },
+    { 0x43B4,                               "Error in firmware fuse" },
+    { 0x43B6,                               "Firmware updates canceled by redundant modules" },
+    { 0x43D3,                               "STOP on standby CPU" },
+    { 0x43DC,                               "Abort during link-up with switchover" },
+    { 0x43DE,                               "Updating aborted due to monitoring time being exceeded during the n-th attempt, new update attempt initiated" },
+    { 0x43DF,                               "Updating aborted for final time due to monitoring time being exceeded after completing the maximum amount of attempts. User intervention required" },
+    { 0x43E0,                               "Change from solo mode after link-up" },
+    { 0x43E1,                               "Change from link-up after updating" },
+    { 0x43E2,                               "Change from updating to redundant mode" },
+    { 0x43E3,                               "Master CPU: change from redundant mode to solo mode" },
+    { 0x43E4,                               "Standby CPU: change from redundant mode after error-search mode" },
+    { 0x43E5,                               "Standby CPU: change from error-search mode after link-up or STOP" },
+    { 0x43E6,                               "Link-up aborted on the standby CPU" },
+    { 0x43E7,                               "Updating aborted on the standby CPU" },
+    { 0x43E8,                               "Standby CPU: change from link-up after startup" },
+    { 0x43E9,                               "Standby CPU: change from startup after updating" },
+    { 0x43F1,                               "Reserve-master switchover" },
+    { 0x43F2,                               "Coupling of incompatible H-CPUs blocked by system program" },
+    { 0x4510,                               "STOP violation of the CPU's data range" },
+    { 0x4520,                               "DEFECTIVE: STOP not possible" },
+    { 0x4521,                               "DEFECTIVE: failure of instruction processing processor" },
+    { 0x4522,                               "DEFECTIVE: failure of clock chip" },
+    { 0x4523,                               "DEFECTIVE: failure of clock pulse generator" },
+    { 0x4524,                               "DEFECTIVE: failure of timer update function" },
+    { 0x4525,                               "DEFECTIVE: failure of multicomputing synchronization" },
+    { 0x4527,                               "DEFECTIVE: failure of I/O access monitoring" },
+    { 0x4528,                               "DEFECTIVE: failure of scan time monitoring" },
+    { 0x4530,                               "DEFECTIVE: memory test error in internal memory" },
+    { 0x4532,                               "DEFECTIVE: failure of core resources" },
+    { 0x4536,                               "DEFECTIVE: switch defective" },
+    { 0x4540,                               "STOP: Memory expansion of the internal work memory has gaps. First memory expansion too small or missing" },
+    { 0x4541,                               "STOP caused by priority class system" },
+    { 0x4542,                               "STOP caused by object management system" },
+    { 0x4543,                               "STOP caused by test functions" },
+    { 0x4544,                               "STOP caused by diagnostic system" },
+    { 0x4545,                               "STOP caused by communication system" },
+    { 0x4546,                               "STOP caused by CPU memory management" },
+    { 0x4547,                               "STOP caused by process image management" },
+    { 0x4548,                               "STOP caused by I/O management" },
+    { 0x454A,                               "STOP caused by configuration: an OB deselected with STEP 7 was being loaded into the CPU during STARTUP" },
+    { 0x4550,                               "DEFECTIVE: internal system error" },
+    { 0x4555,                               "No restart possible, monitoring time elapsed" },
+    { 0x4556,                               "STOP: memory reset request from communication system / due to data inconsistency" },
+    { 0x4562,                               "STOP caused by programming error (OB not loaded or not possible)" },
+    { 0x4563,                               "STOP caused by I/O access error (OB not loaded or not possible)" },
+    { 0x4567,                               "STOP caused by H event" },
+    { 0x4568,                               "STOP caused by time error (OB not loaded or not possible)" },
+    { 0x456A,                               "STOP caused by diagnostic interrupt (OB not loaded or not possible)" },
+    { 0x456B,                               "STOP caused by removing/inserting module (OB not loaded or not possible)" },
+    { 0x456C,                               "STOP caused by CPU hardware error (OB not loaded or not possible, or no FRB)" },
+    { 0x456D,                               "STOP caused by program sequence error (OB not loaded or not possible)" },
+    { 0x456E,                               "STOP caused by communication error (OB not loaded or not possible)" },
+    { 0x456F,                               "STOP caused by rack failure OB (OB not loaded or not possible)" },
+    { 0x4570,                               "STOP caused by process interrupt (OB not loaded or not possible)" },
+    { 0x4571,                               "STOP caused by nesting stack error" },
+    { 0x4572,                               "STOP caused by master control relay stack error" },
+    { 0x4573,                               "STOP caused by exceeding the nesting depth for synchronous errors" },
+    { 0x4574,                               "STOP caused by exceeding interrupt stack nesting depth in the priority class stack" },
+    { 0x4575,                               "STOP caused by exceeding block stack nesting depth in the priority class stack" },
+    { 0x4576,                               "STOP caused by error when allocating the local data" },
+    { 0x4578,                               "STOP caused by unknown opcode" },
+    { 0x457A,                               "STOP caused by code length error" },
+    { 0x457B,                               "STOP caused by DB not being loaded on on-board I/Os" },
+    { 0x457D,                               "Reset/clear request because the version of the internal interface to the integrated technology was changed" },
+    { 0x457F,                               "STOP caused by STOP command" },
+    { 0x4580,                               "STOP: back-up buffer contents inconsistent (no transition to RUN)" },
+    { 0x4590,                               "STOP caused by overloading the internal functions" },
+    { 0x45D5,                               "LINK-UP rejected due to mismatched CPU memory configuration of the sub-PLC" },
+    { 0x45D6,                               "LINK-UP rejected due to mismatched system program of the sub-PLC" },
+    { 0x45D8,                               "DEFECTIVE: hardware fault detected due to other error" },
+    { 0x45D9,                               "STOP due to SYNC module error" },
+    { 0x45DA,                               "STOP due to synchronization error between H CPUs" },
+    { 0x45DD,                               "LINK-UP rejected due to running test or other online functions" },
+    { 0x4926,                               "DEFECTIVE: failure of the watchdog for I/O access" },
+    { 0x4931,                               "STOP or DEFECTIVE: memory test error in memory submodule" },
+    { 0x4933,                               "Checksum error" },
+    { 0x4934,                               "DEFECTIVE: memory not available" },
+    { 0x4935,                               "DEFECTIVE: cancelled by watchdog/processor exceptions" },
+    { 0x4949,                               "STOP caused by continuous hardware interrupt" },
+    { 0x494D,                               "STOP caused by I/O error" },
+    { 0x494E,                               "STOP caused by power failure" },
+    { 0x494F,                               "STOP caused by configuration error" },
+    { 0x4959,                               "One or more modules not ready for operation" },
+    { 0x497C,                               "STOP caused by integrated technology" },
+    { 0x49A0,                               "STOP caused by parameter assignment error or non-permissible variation of setpoint and actual extension: Start-up blocked" },
+    { 0x49A1,                               "STOP caused by parameter assignment error: memory reset request" },
+    { 0x49A2,                               "STOP caused by error in parameter modification: startup disabled" },
+    { 0x49A3,                               "STOP caused by error in parameter modification: memory reset request" },
+    { 0x49A4,                               "STOP: inconsistency in configuration data" },
+    { 0x49A5,                               "STOP: distributed I/Os: inconsistency in the loaded configuration information" },
+    { 0x49A6,                               "STOP: distributed I/Os: invalid configuration information" },
+    { 0x49A7,                               "STOP: distributed I/Os: no configuration information" },
+    { 0x49A8,                               "STOP: error indicated by the interface module for the distributed I/Os" },
+    { 0x49B1,                               "Firmware update data incorrect" },
+    { 0x49B2,                               "Firmware update: hardware version does not match firmware" },
+    { 0x49B3,                               "Firmware update: module type does not match firmware" },
+    { 0x49D0,                               "LINK-UP aborted due to violation of coordination rules" },
+    { 0x49D1,                               "LINK-UP/UPDATE sequence aborted" },
+    { 0x49D2,                               "Standby CPU changed to STOP due to STOP on the master CPU during link-up" },
+    { 0x49D4,                               "STOP on a master, since partner CPU is also a master (link-up error)" },
+    { 0x49D7,                               "LINK-UP rejected due to change in user program or in configuration" },
+    { 0x510F,                               "A problem as occurred with WinLC. This problem has caused the CPU to go into STOP mode or has caused a fault in the CPU" },
+    { 0x530D,                               "New startup information in the STOP mode" },
+    { 0x5311,                               "Startup despite Not Ready message from module(s)" },
+    { 0x5371,                               "Distributed I/Os: end of the synchronization with a DP master" },
+    { 0x5380,                               "Diagnostic buffer entries of interrupt and asynchronous errors disabled" },
+    { 0x5395,                               "Distributed I/Os: reset of a DP master" },
+    { 0x53A2,                               "Download of technology firmware successful" },
+    { 0x53A4,                               "Download of technology DB not successful" },
+    { 0x53FF,                               "Reset to factory setting" },
+    { 0x5445,                               "Start of System reconfiguration in RUN mode" },
+    { 0x5481,                               "All licenses for runtime software are complete again" },
+    { 0x5498,                               "No more inconsistency with DP master systems due to CiR" },
+    { 0x5545,                               "Start of System reconfiguration in RUN mode" },
+    { 0x5581,                               "One or several licenses for runtime software are missing" },
+    { 0x558A,                               "Difference between the MLFB of the configured and inserted CPU" },
+    { 0x558B,                               "Difference in the firmware version of the configured and inserted CPU" },
+    { 0x5598,                               "Start of possible inconsistency with DP master systems due to CiR" },
+    { 0x55A5,                               "Version conflict: internal interface with integrated technology" },
+    { 0x55A6,                               "The maximum number of technology objects has been exceeded" },
+    { 0x55A7,                               "A technology DB of this type is already present" },
+    { 0x5879,                               "Diagnostic message from DP interface: EXTF LED off" },
+    { 0x5960,                               "Parameter assignment error when switching" },
+    { 0x5961,                               "Parameter assignment error" },
+    { 0x5962,                               "Parameter assignment error preventing startup" },
+    { 0x5963,                               "Parameter assignment error with memory reset request" },
+    { 0x5966,                               "Parameter assignment error when switching" },
+    { 0x5969,                               "Parameter assignment error with startup blocked" },
+    { 0x596A,                               "PROFINET IO: IP address of an IO device already present" },
+    { 0x596B,                               "IP address of an Ethernet interface already exists" },
+    { 0x596C,                               "Name of an Ethernet interface already exists" },
+    { 0x596D,                               "The existing network configuration does not mach the system requirements or configuration" },
+    { 0x5979,                               "Diagnostic message from DP interface: EXTF LED on" },
+    { 0x597C,                               "DP Global Control command failed or moved" },
+    { 0x597C,                               "DP command Global Control failure or moved" },
+    { 0x59A0,                               "The interrupt can not be associated in the CPU" },
+    { 0x59A1,                               "Configuration error in the integrated technology" },
+    { 0x59A3,                               "Error when downloading the integrated technology" },
+    { 0x6253,                               "Firmware update: End of firmware download over the network" },
+    { 0x6316,                               "Interface error when starting programmable controller" },
+    { 0x6390,                               "Formatting of Micro Memory Card complete" },
+    { 0x6353,                               "Firmware update: Start of firmware download over the network" },
+    { 0x6500,                               "Connection ID exists twice on module" },
+    { 0x6501,                               "Connection resources inadequate" },
+    { 0x6502,                               "Error in the connection description" },
+    { 0x6510,                               "CFB structure error detected in instance DB when evaluating EPROM" },
+    { 0x6514,                               "GD packet number exists twice on the module" },
+    { 0x6515,                               "Inconsistent length specifications in GD configuration information" },
+    { 0x6521,                               "No memory submodule and no internal memory available" },
+    { 0x6522,                               "Illegal memory submodule: replace submodule and reset memory" },
+    { 0x6523,                               "Memory reset request due to error accessing submodule" },
+    { 0x6524,                               "Memory reset request due to error in block header" },
+    { 0x6526,                               "Memory reset request due to memory replacement" },
+    { 0x6527,                               "Memory replaced, therefore restart not possible" },
+    { 0x6528,                               "Object handling function in the STOP/HOLD mode, no restart possible" },
+    { 0x6529,                               "No startup possible during the \"load user program\" function" },
+    { 0x652A,                               "No startup because block exists twice in user memory" },
+    { 0x652B,                               "No startup because block is too long for submodule - replace submodule" },
+    { 0x652C,                               "No startup due to illegal OB on submodule" },
+    { 0x6532,                               "No startup because illegal configuration information on submodule" },
+    { 0x6533,                               "Memory reset request because of invalid submodule content" },
+    { 0x6534,                               "No startup: block exists more than once on submodule" },
+    { 0x6535,                               "No startup: not enough memory to transfer block from submodule" },
+    { 0x6536,                               "No startup: submodule contains an illegal block number" },
+    { 0x6537,                               "No startup: submodule contains a block with an illegal length" },
+    { 0x6538,                               "Local data or write-protection ID (for DB) of a block illegal for CPU" },
+    { 0x6539,                               "Illegal command in block (detected by compiler)" },
+    { 0x653A,                               "Memory reset request because local OB data on submodule too short" },
+    { 0x6543,                               "No startup: illegal block type" },
+    { 0x6544,                               "No startup: attribute \"relevant for processing\" illegal" },
+    { 0x6545,                               "Source language illegal" },
+    { 0x6546,                               "Maximum amount of configuration information reached" },
+    { 0x6547,                               "Parameter assignment error assigning parameters to modules (not on P bus, cancel download)" },
+    { 0x6548,                               "Plausibility error during block check" },
+    { 0x6549,                               "Structure error in block" },
+    { 0x6550,                               "A block has an error in the CRC" },
+    { 0x6551,                               "A block has no CRC" },
+    { 0x6560,                               "SCAN overflow" },
+    { 0x6805,                               "Resource problem on configured connections, eliminated" },
+    { 0x6881,                               "Interface error leaving state" },
+    { 0x6905,                               "Resource problem on configured connections" },
+    { 0x6981,                               "Interface error entering state" },
+    { 0x72A2,                               "Failure of a DP master or a DP master system" },
+    { 0x72A3,                               "Redundancy restored on the DP slave" },
+    { 0x72DB,                               "Safety program: safety mode disabled" },
+    { 0x72E0,                               "Loss of redundancy in communication, problem eliminated" },
+    { 0x7301,                               "Loss of redundancy (1 of 2) due to failure of a CPU" },
+    { 0x7302,                               "Loss of redundancy (1 of 2) due to STOP on the standby triggered by user" },
+    { 0x7303,                               "H system (1 of 2) changed to redundant mode" },
+    { 0x7323,                               "Discrepancy found in operating system data" },
+    { 0x7331,                               "Standby-master switchover due to master failure" },
+    { 0x7333,                               "Standby-master switchover due to system modification during runtime" },
+    { 0x7334,                               "Standby-master switchover due to communication error at the synchronization module" },
+    { 0x7340,                               "Synchronization error in user program due to elapsed wait time" },
+    { 0x7341,                               "Synchronization error in user program due to waiting at different synchronization points" },
+    { 0x7342,                               "Synchronization error in operating system due to waiting at different synchronization points" },
+    { 0x7343,                               "Synchronization error in operating system due to elapsed wait time" },
+    { 0x7344,                               "Synchronization error in operating system due to incorrect data" },
+    { 0x734A,                               "The \"Re-enable\" job triggered by SFC 90 \"H_CTRL\" was executed" },
+    { 0x73A3,                               "Loss of redundancy on the DP slave" },
+    { 0x73C1,                               "Update process canceled" },
+    { 0x73C2,                               "Updating aborted due to monitoring time being exceeded during the n-th attempt (1 = n = max. possible number of update attempts after abort due to excessive monitoring time)" },
+    { 0x73D8,                               "Safety mode disabled" },
+    { 0x73E0,                               "Loss of redundancy in communication" },
+    { 0x73DB,                               "Safety program: safety mode enabled" },
+    { 0x74DD,                               "Safety program: Shutdown of a fail-save runtime group disabled" },
+    { 0x74DE,                               "Safety program: Shutdown of the F program disabled" },
+    { 0x74DF,                               "Start of F program initialization" },
+    { 0x7520,                               "Error in RAM comparison" },
+    { 0x7521,                               "Error in comparison of process image output value" },
+    { 0x7522,                               "Error in comparison of memory bits, timers, or counters" },
+    { 0x75D1,                               "Safety program: Internal CPU error" },
+    { 0x75D2,                               "Safety program error: Cycle time time-out" },
+    { 0x75D6,                               "Data corrupted in safety program prior to the output to F I/O" },
+    { 0x75D7,                               "Data corrupted in safety program prior to the output to partner F-CPU" },
+    { 0x75D9,                               "Invalid REAL number in a DB" },
+    { 0x75DA,                               "Safety program: Error in safety data format" },
+    { 0x75DC,                               "Runtime group, internal protocol error" },
+    { 0x75DD,                               "Safety program: Shutdown of a fail-save runtime group enabled" },
+    { 0x75DE,                               "Safety program: Shutdown of the F program enabled" },
+    { 0x75DF,                               "End of F program initialization" },
+    { 0x75E1,                               "Safety program: Error in FB \"F_PLK\" or \"F_PLK_O\" or \"F_CYC_CO\" or \"F_TEST\" or \"F_TESTC\"" },
+    { 0x75E2,                               "Safety program: Area length error" },
+    { 0x7852,                               "SYNC module inserted" },
+    { 0x7855,                               "SYNC module eliminated" },
+    { 0x78D3,                               "Communication error between PROFIsafe and F I/O" },
+    { 0x78D4,                               "Error in safety relevant communication between F CPUs" },
+    { 0x78D5,                               "Error in safety relevant communication between F CPUs" },
+    { 0x78E3,                               "F-I/O device input channel depassivated" },
+    { 0x78E4,                               "F-I/O device output channel depassivated" },
+    { 0x78E5,                               "F-I/O device depassivated" },
+    { 0x7934,                               "Standby-master switchover due to connection problem at the SYNC module" },
+    { 0x7950,                               "Synchronization module missing" },
+    { 0x7951,                               "Change at the SYNC module without Power On" },
+    { 0x7952,                               "SYNC module removed" },
+    { 0x7953,                               "Change at the SYNC-module without reset" },
+    { 0x7954,                               "SYNC module: rack number assigned twice" },
+    { 0x7955,                               "SYNC module error" },
+    { 0x7956,                               "Illegal rack number set on SYNC module" },
+    { 0x7960,                               "Redundant I/O: Time-out of discrepancy time at digital input, error is not yet localized" },
+    { 0x7961,                               "Redundant I/O, digital input error: Signal change after expiration of the discrepancy time" },
+    { 0x7962,                               "Redundant I/O: Digital input error" },
+    { 0x796F,                               "Redundant I/O: The I/O was globally disabled" },
+    { 0x7970,                               "Redundant I/O: Digital output error" },
+    { 0x7980,                               "Redundant I/O: Time-out of discrepancy time at analog input" },
+    { 0x7981,                               "Redundant I/O: Analog input error" },
+    { 0x7990,                               "Redundant I/O: Analog output error" },
+    { 0x79D3,                               "Communication error between PROFIsafe and F I/O" },
+    { 0x79D4,                               "Error in safety relevant communication between F CPUs" },
+    { 0x79D5,                               "Error in safety relevant communication between F CPUs" },
+    { 0x79E3,                               "F-I/O device input channel passivated" },
+    { 0x79E4,                               "F-I/O device output channel passivated" },
+    { 0x79E5,                               "F-I/O device passivated" },
+    { 0x79E6,                               "Inconsistent safety program" },
+    { 0x79E7,                               "Simulation block (F system block) loaded" },
+    { 0,                                    NULL }
+};
+static value_string_ext cpu_diag_eventid_fix_names_ext = VALUE_STRING_EXT_INIT(cpu_diag_eventid_fix_names);
+
+static const value_string cpu_diag_eventid_0x8_0x9_names[] = {
+    { 0x8000,                               "Module fault/OK" },
+    { 0x8001,                               "Internal error" },
+    { 0x8002,                               "External error" },
+    { 0x8003,                               "Channel error" },
+    { 0x8004,                               "No external auxiliary voltage" },
+    { 0x8005,                               "No front connector" },
+    { 0x8006,                               "No parameter assignment" },
+    { 0x8007,                               "Incorrect parameters in module" },
+    { 0x8030,                               "User submodule incorrect/not found" },
+    { 0x8031,                               "Communication problem" },
+    { 0x8032,                               "Operating mode: RUN/STOP (STOP: entering state, RUN: leaving state)" },
+    { 0x8033,                               "Time monitoring responded (watchdog)" },
+    { 0x8034,                               "Internal module power failure" },
+    { 0x8035,                               "BATTF: battery exhausted" },
+    { 0x8036,                               "Total backup failed" },
+    { 0x8040,                               "Expansion rack failed" },
+    { 0x8041,                               "Processor failure" },
+    { 0x8042,                               "EPROM error" },
+    { 0x8043,                               "RAM error" },
+    { 0x8044,                               "ADC/DAC error" },
+    { 0x8045,                               "Fuse blown" },
+    { 0x8046,                               "Hardware interrupt lost Any" },
+    { 0x8050,                               "Configuration/parameter assignment error" },
+    { 0x8051,                               "Common mode error" },
+    { 0x8052,                               "Short circuit to phase" },
+    { 0x8053,                               "Short circuit to ground" },
+    { 0x8054,                               "Wire break" },
+    { 0x8055,                               "Reference channel error" },
+    { 0x8056,                               "Below measuring range" },
+    { 0x8057,                               "Above measuring range Analog input" },
+    { 0x8060,                               "Configuration/parameter assignment error" },
+    { 0x8061,                               "Common mode error" },
+    { 0x8062,                               "Short circuit to phase" },
+    { 0x8063,                               "Short circuit to ground" },
+    { 0x8064,                               "Wire break" },
+    { 0x8066,                               "No load voltage" },
+    { 0x8070,                               "Configuration/parameter assignment error" },
+    { 0x8071,                               "Chassis ground fault" },
+    { 0x8072,                               "Short circuit to phase (sensor)" },
+    { 0x8073,                               "Short circuit to ground (sensor)" },
+    { 0x8074,                               "Wire break" },
+    { 0x8075,                               "No sensor power supply Digital input" },
+    { 0x8080,                               "Configuration/parameter assignment error" },
+    { 0x8081,                               "Chassis ground fault" },
+    { 0x8082,                               "Short circuit to phase" },
+    { 0x8083,                               "Short circuit to ground" },
+    { 0x8084,                               "Wire break" },
+    { 0x8085,                               "Fuse tripped" },
+    { 0x8086,                               "No load voltage" },
+    { 0x8087,                               "Excess temperature Digital output" },
+    { 0x80B0,                               "Counter module, signal A faulty" },
+    { 0x80B1,                               "Counter module, signal B faulty" },
+    { 0x80B2,                               "Counter module, signal N faulty" },
+    { 0x80B3,                               "Counter module, incorrect value passed between the channels" },
+    { 0x80B4,                               "Counter module, 5.2 V sensor supply faulty" },
+    { 0x80B5,                               "Counter module, 24 V sensor supply faulty" },
+    { 0x9001,                               "Automatic/Manual mode (coming=man,going=auto)" },
+    { 0x9002,                               "OPEN/CLOSED, ON/OFF" },
+    { 0x9003,                               "Manual command enable" },
+    { 0x9004,                               "Unit protective command (OPEN/CLOSED)" },
+    { 0x9005,                               "Process enable" },
+    { 0x9006,                               "System protection command" },
+    { 0x9007,                               "Process value monitoring responded" },
+    { 0x9008,                               "Manipulated variable monitoring responded" },
+    { 0x9009,                               "System deviation greater than permitted" },
+    { 0x900A,                               "Limit position error" },
+    { 0x900B,                               "Runtime error" },
+    { 0x900C,                               "Command execution error (sequencer)" },
+    { 0x900D,                               "Operating status running > OPEN" },
+    { 0x900E,                               "Operating status running > CLOSED" },
+    { 0x900F,                               "Command blocking" },
+    { 0x9011,                               "Process status OPEN/ON" },
+    { 0x9012,                               "Process status CLOSED/OFF" },
+    { 0x9013,                               "Process status intermediate position" },
+    { 0x9014,                               "Process status ON via AUTO" },
+    { 0x9015,                               "Process status ON via manual" },
+    { 0x9016,                               "Process status ON via protective command" },
+    { 0x9017,                               "Process status OFF via AUTO" },
+    { 0x9018,                               "Process status OFF via manual" },
+    { 0x9019,                               "Process status OFF via protective command" },
+    { 0x9021,                               "Function error on approach" },
+    { 0x9022,                               "Function error on leaving" },
+    { 0x9031,                               "Actuator (DE/WE) limit position OPEN" },
+    { 0x9032,                               "Actuator (DE/WE) limit position not OPEN" },
+    { 0x9033,                               "Actuator (DE/WE) limit position CLOSED" },
+    { 0x9034,                               "Actuator (DE/WE) limit position not CLOSED" },
+    { 0x9041,                               "Illegal status, tolerance time elapsed" },
+    { 0x9042,                               "Illegal status, tolerance time not elapsed" },
+    { 0x9043,                               "Interlock error, tolerance time = 0" },
+    { 0x9044,                               "Interlock error, tolerance time > 0" },
+    { 0x9045,                               "No reaction" },
+    { 0x9046,                               "Final status exited illegally, tolerance time = 0" },
+    { 0x9047,                               "Final status exited illegally, tolerance time > 0" },
+    { 0x9050,                               "Upper limit of signal range USR" },
+    { 0x9051,                               "Upper limit of measuring range UMR" },
+    { 0x9052,                               "Lower limit of signal range LSR" },
+    { 0x9053,                               "Lower limit of measuring range LMR" },
+    { 0x9054,                               "Upper alarm limit UAL" },
+    { 0x9055,                               "Upper warning limit UWL" },
+    { 0x9056,                               "Upper tolerance limit UTL" },
+    { 0x9057,                               "Lower tolerance limit LTL" },
+    { 0x9058,                               "Lower warning limit LWL" },
+    { 0x9059,                               "Lower alarm limit LAL" },
+    { 0x9060,                               "GRAPH7 step entering/leaving" },
+    { 0x9061,                               "GRAPH7 interlock error" },
+    { 0x9062,                               "GRAPH7 execution error" },
+    { 0x9063,                               "GRAPH7 error noted" },
+    { 0x9064,                               "GRAPH7 error acknowledged" },
+    { 0x9070,                               "Trend exceeded in positive direction" },
+    { 0x9071,                               "Trend exceeded in negative direction" },
+    { 0x9072,                               "No reaction" },
+    { 0x9073,                               "Final state exited illegally" },
+    { 0x9080,                               "Limit value exceeded, tolerance time = 0" },
+    { 0x9081,                               "Limit value exceeded, tolerance time > 0" },
+    { 0x9082,                               "Below limit value, tolerance time = 0" },
+    { 0x9083,                               "Below limit value, tolerance time > 0" },
+    { 0x9084,                               "Gradient exceeded, tolerance time = 0" },
+    { 0x9085,                               "Gradient exceeded, tolerance time > 0" },
+    { 0x9086,                               "Below gradient, tolerance time = 0" },
+    { 0x9087,                               "Below gradient, tolerance time > 0" },
+    { 0x9090,                               "User parameter assignment error entering/leaving" },
+    { 0x90F0,                               "Overflow" },
+    { 0x90F1,                               "Underflow" },
+    { 0x90F2,                               "Division by 0" },
+    { 0x90F3,                               "Illegal calculation operation" },
+    { 0,                                    NULL }
+};
+static value_string_ext cpu_diag_eventid_0x8_0x9_names_ext = VALUE_STRING_EXT_INIT(cpu_diag_eventid_0x8_0x9_names);
+
+/**************************************************************************
+ * Type of alarmquery in alarm query request
+ */
+#define S7COMM_ALARM_MESSAGE_QUERYTYPE_BYALARMTYPE      1
+#define S7COMM_ALARM_MESSAGE_QUERYTYPE_BYEVENTID        3
+
+static const value_string alarm_message_querytype_names[] = {
+    { S7COMM_ALARM_MESSAGE_QUERYTYPE_BYALARMTYPE,      "ByAlarmtype" },
+    { S7COMM_ALARM_MESSAGE_QUERYTYPE_BYEVENTID,        "ByEventID" },
+    { 0,                                                NULL }
+};
+
+/**************************************************************************
+ * Alarmtype in alarm query
+ */
+#define S7COMM_ALARM_MESSAGE_QUERY_ALARMTYPE_SCAN       1
+#define S7COMM_ALARM_MESSAGE_QUERY_ALARMTYPE_ALARM_8    2
+#define S7COMM_ALARM_MESSAGE_QUERY_ALARMTYPE_ALARM_S    4
+
+static const value_string alarm_message_query_alarmtype_names[] = {
+    { S7COMM_ALARM_MESSAGE_QUERY_ALARMTYPE_SCAN,        "SCAN" },
+    { S7COMM_ALARM_MESSAGE_QUERY_ALARMTYPE_ALARM_8,     "ALARM_8" },
+    { S7COMM_ALARM_MESSAGE_QUERY_ALARMTYPE_ALARM_S,     "ALARM_S" },
+    { 0,                                                NULL }
+};
+
+/* CPU message service */
+static gint hf_s7comm_cpu_msgservice_subscribe_events = -1;
+static gint hf_s7comm_cpu_msgservice_subscribe_events_modetrans = -1;
+static gint hf_s7comm_cpu_msgservice_subscribe_events_system = -1;
+static gint hf_s7comm_cpu_msgservice_subscribe_events_userdefined = -1;
+static gint hf_s7comm_cpu_msgservice_subscribe_events_alarms = -1;
+static gint ett_s7comm_cpu_msgservice_subscribe_events = -1;
+static const int *s7comm_cpu_msgservice_subscribe_events_fields[] = {
+    &hf_s7comm_cpu_msgservice_subscribe_events_modetrans,
+    &hf_s7comm_cpu_msgservice_subscribe_events_system,
+    &hf_s7comm_cpu_msgservice_subscribe_events_userdefined,
+    &hf_s7comm_cpu_msgservice_subscribe_events_alarms,
+    NULL
+};
+static gint hf_s7comm_cpu_msgservice_req_reserved1 = -1;
+static gint hf_s7comm_cpu_msgservice_username = -1;
+static gint hf_s7comm_cpu_msgservice_almtype = -1;
+static gint hf_s7comm_cpu_msgservice_req_reserved2 = -1;
+static gint hf_s7comm_cpu_msgservice_res_result = -1;
+static gint hf_s7comm_cpu_msgservice_res_reserved1 = -1;
+static gint hf_s7comm_cpu_msgservice_res_reserved2 = -1;
+static gint hf_s7comm_cpu_msgservice_res_reserved3 = -1;
+
+static const value_string cpu_msgservice_almtype_names[] = {
+    { 0,                                    "SCAN_ABORT" },
+    { 1,                                    "SCAN_INITIATE" },
+    { 4,                                    "ALARM_ABORT" },
+    { 5,                                    "ALARM_INITIATE" },
+    { 8,                                    "ALARM_S_ABORT" },
+    { 9,                                    "ALARM_S_INITIATE" },
+    { 0,                                    NULL }
+};
+
+static gint hf_s7comm_modetrans_param_subfunc = -1;
+static const value_string modetrans_param_subfunc_names[] = {
+    { 0,                                    "STOP" },
+    { 1,                                    "Warm Restart" },
+    { 2,                                    "RUN" },
+    { 0,                                    NULL }
+};
+
 /* These are the ids of the subtrees that we are creating */
-static gint ett_s7comm = -1;                                /* S7 communication tree, parent of all other subtree */
-static gint ett_s7comm_header = -1;                         /* Subtree for header block */
-static gint ett_s7comm_param = -1;                          /* Subtree for parameter block */
-static gint ett_s7comm_param_item = -1;                     /* Subtree for items in parameter block */
-static gint ett_s7comm_param_subitem = -1;                  /* Subtree for subitems under items in parameter block */
-static gint ett_s7comm_data = -1;                           /* Subtree for data block */
-static gint ett_s7comm_data_item = -1;                      /* Subtree for an item in data block */
-static gint ett_s7comm_item_address = -1;                   /* Subtree for an address (byte/bit) */
+static gint ett_s7comm = -1;                                        /* S7 communication tree, parent of all other subtree */
+static gint ett_s7comm_header = -1;                                 /* Subtree for header block */
+static gint ett_s7comm_param = -1;                                  /* Subtree for parameter block */
+static gint ett_s7comm_param_item = -1;                             /* Subtree for items in parameter block */
+static gint ett_s7comm_param_subitem = -1;                          /* Subtree for subitems under items in parameter block */
+static gint ett_s7comm_data = -1;                                   /* Subtree for data block */
+static gint ett_s7comm_data_item = -1;                              /* Subtree for an item in data block */
+static gint ett_s7comm_item_address = -1;                           /* Subtree for an address (byte/bit) */
+static gint ett_s7comm_cpu_alarm_message = -1;                      /* Subtree for an alarm message */
+static gint ett_s7comm_cpu_alarm_message_object = -1;               /* Subtree for an alarm message block*/
+static gint ett_s7comm_cpu_alarm_message_timestamp = -1;            /* Subtree for an alarm message timestamp */
+static gint ett_s7comm_cpu_alarm_message_associated_value = -1;     /* Subtree for an alarm message associated value */
+static gint ett_s7comm_cpu_diag_msg = -1;                           /* Subtree for a CPU diagnostic message */
 
 static const char mon_names[][4] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
@@ -1096,14 +1842,15 @@ s7comm_guint8_from_bcd(guint8 i)
 /*******************************************************************************************************
  *
  * Helper for time functions
- * Add a BCD coded timestamp (10 Bytes length) to tree
+ * Add a BCD coded timestamp (10/8 Bytes length) to tree
  *
  *******************************************************************************************************/
 static guint32
 s7comm_add_timestamp_to_tree(tvbuff_t *tvb,
                              proto_tree *tree,
                              guint32 offset,
-                             gboolean append_text)
+                             gboolean append_text,
+                             gboolean has_ten_bytes)          /* if this is false the [0] reserved and [1] year bytes are missing */
 {
     guint8 timestamp[10];
     guint8 i;
@@ -1114,12 +1861,24 @@ s7comm_add_timestamp_to_tree(tvbuff_t *tvb,
     proto_item *item = NULL;
     proto_item *time_tree = NULL;
     struct tm mt;
+    int timestamp_size = 10;
 
-    /* The low nibble of byte 10 is weekday, the high nibble the LSD of msec */
-    for (i = 0;i < 9; i++) {
-        timestamp[i] = s7comm_guint8_from_bcd(tvb_get_guint8(tvb, offset + i));
+    if (has_ten_bytes) {
+        /* The low nibble of byte 10 is weekday, the high nibble the LSD of msec */
+        for (i = 0; i < 9; i++) {
+            timestamp[i] = s7comm_guint8_from_bcd(tvb_get_guint8(tvb, offset + i));
+        }
+        tmp = tvb_get_guint8(tvb, offset + 9) >> 4;
+    } else {
+        /* this is a 8 byte timestamp, where the reserved and the year byte is missing */
+        timestamp_size = 8;
+        timestamp[0] = 0;
+        timestamp[1] = 19;  /* start with 19.., will be corrected later */
+        for (i = 0; i < 7; i++) {
+            timestamp[i + 2] = s7comm_guint8_from_bcd(tvb_get_guint8(tvb, offset + i));
+        }
+        tmp = tvb_get_guint8(tvb, offset + 7) >> 4;
     }
-    tmp = tvb_get_guint8(tvb, offset + 9) >> 4;
     timestamp[9] = s7comm_guint8_from_bcd(tmp);
 
     msec = (guint16)timestamp[8] * 10 + (guint16)timestamp[9];
@@ -1140,17 +1899,19 @@ s7comm_add_timestamp_to_tree(tvbuff_t *tvb,
     mt.tm_isdst = -1;
     tv.secs = mktime(&mt);
     tv.nsecs = msec * 1000000;
-    item = proto_tree_add_time_format(tree, hf_s7comm_data_ts, tvb, offset, 10, &tv,
+    item = proto_tree_add_time_format(tree, hf_s7comm_data_ts, tvb, offset, timestamp_size, &tv,
         "S7 Timestamp: %s %2d, %d %02d:%02d:%02d.%03d", mon_names[mt.tm_mon], mt.tm_mday,
         mt.tm_year + 1900, mt.tm_hour, mt.tm_min, mt.tm_sec,
         msec);
     time_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
 
     /* timefunction: s7 timestamp */
-    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_reserved, tvb, offset, 1, timestamp[0]);
-    offset += 1;
-    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_year1, tvb, offset, 1, year_org);
-    offset += 1;
+    if (has_ten_bytes) {
+        proto_tree_add_uint(time_tree, hf_s7comm_data_ts_reserved, tvb, offset, 1, timestamp[0]);
+        offset += 1;
+        proto_tree_add_uint(time_tree, hf_s7comm_data_ts_year1, tvb, offset, 1, year_org);
+        offset += 1;
+    }
     proto_tree_add_uint(time_tree, hf_s7comm_data_ts_year2, tvb, offset, 1, timestamp[2]);
     offset += 1;
     proto_tree_add_uint(time_tree, hf_s7comm_data_ts_month, tvb, offset, 1, timestamp[3]);
@@ -2033,6 +2794,463 @@ s7comm_decode_ud_pbc_subfunc(tvbuff_t *tvb,
 
 /*******************************************************************************************************
  *
+ * PDU Type: User Data -> Message services
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_message_service(tvbuff_t *tvb,
+                              packet_info *pinfo,
+                              proto_tree *data_tree,
+                              guint8 type,                /* Type of data (request/response) */
+                              guint16 dlength,            /* length of data part given in header */
+                              guint32 offset)             /* Offset on data part +4 */
+{
+    guint8 events;
+    guint8 almtype;
+    gchar events_string[42];
+
+    switch (type) {
+        case S7COMM_UD_TYPE_REQ:
+            events = tvb_get_guint8(tvb, offset);
+            proto_tree_add_bitmask(data_tree, tvb, offset, hf_s7comm_cpu_msgservice_subscribe_events,
+                ett_s7comm_cpu_msgservice_subscribe_events, s7comm_cpu_msgservice_subscribe_events_fields, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_req_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+
+            g_strlcpy(events_string, "", sizeof(events_string));
+            if (events & 0x01) g_strlcat(events_string, "MODE,", sizeof(events_string));    /* Change in mode-transition: Stop, Run, by Push and Function-group=0, Subfunction: 0=Stop, 1=Warm Restart, 2=RUN */
+            if (events & 0x02) g_strlcat(events_string, "SYS,", sizeof(events_string));     /* System diagnostics */
+            if (events & 0x04) g_strlcat(events_string, "USR,", sizeof(events_string));     /* User-defined diagnostic messages */
+            if (events & 0x08) g_strlcat(events_string, "-4-,", sizeof(events_string));     /* currently unknown flag */
+            if (events & 0x10) g_strlcat(events_string, "-5-,", sizeof(events_string));     /* currently unknown flag */
+            if (events & 0x20) g_strlcat(events_string, "-6-,", sizeof(events_string));     /* currently unknown flag */
+            if (events & 0x40) g_strlcat(events_string, "-7-,", sizeof(events_string));     /* currently unknown flag */
+            if (events & 0x80) g_strlcat(events_string, "ALM,", sizeof(events_string));     /* Program block message, type of message in additional field */
+            if (strlen(events_string) > 2)
+                events_string[strlen(events_string) - 1 ] = '\0';
+            col_append_fstr(pinfo->cinfo, COL_INFO, " SubscribedEvents=(%s)", events_string);
+
+            proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_username, tvb, offset, 8, ENC_ASCII|ENC_NA);
+            offset += 8;
+            if ((events & 0x80) && (dlength > 10)) {
+                almtype = tvb_get_guint8(tvb, offset);
+                proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_almtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " AlmType=%s", val_to_str(almtype, cpu_msgservice_almtype_names, "Unknown type: 0x%02x"));
+                offset += 1;
+                proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_req_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+            }
+            break;
+        case S7COMM_UD_TYPE_RES:
+            proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_res_result, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_res_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            if (dlength > 2) {
+                almtype = tvb_get_guint8(tvb, offset);
+                proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_almtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " AlmType=%s", val_to_str(almtype, cpu_msgservice_almtype_names, "Unknown type: 0x%02x"));
+                offset += 1;
+                proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_res_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_res_reserved3, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+            }
+            break;
+    }
+
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
+ * PDU Type: User Data -> Function group 4 -> alarm, main tree for all except query response
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_ud_cpu_alarm_main(tvbuff_t *tvb,
+                                packet_info *pinfo,
+                                proto_tree *data_tree,
+                                guint8 type,                /* Type of data (request/response) */
+                                guint8 subfunc,             /* Subfunction */
+                                guint32 offset)             /* Offset on data part +4 */
+{
+    guint32 start_offset;
+    guint32 asc_start_offset;
+    guint32 msg_obj_start_offset;
+    guint32 ev_id;
+    proto_item *msg_item = NULL;
+    proto_tree *msg_item_tree = NULL;
+    proto_item *msg_obj_item = NULL;
+    proto_tree *msg_obj_item_tree = NULL;
+    proto_item *msg_work_item = NULL;
+    proto_tree *msg_work_item_tree = NULL;
+    guint8 nr_objects;
+    guint8 i;
+    guint8 syntax_id;
+    guint8 nr_of_additional_values;
+    guint8 signalstate;
+    guint8 sig_nr;
+    guint8 ret_val;
+    guint8 querytype;
+    guint8 varspec_length;
+
+    start_offset = offset;
+
+    msg_item = proto_tree_add_item(data_tree, hf_s7comm_cpu_alarm_message_item, tvb, offset, 0, ENC_NA);
+    msg_item_tree = proto_item_add_subtree(msg_item, ett_s7comm_cpu_alarm_message);
+
+    if (subfunc == S7COMM_UD_SUBF_CPU_ALARM8_IND || subfunc == S7COMM_UD_SUBF_CPU_ALARMACK_IND ||
+        subfunc == S7COMM_UD_SUBF_CPU_ALARMSQ_IND || subfunc == S7COMM_UD_SUBF_CPU_ALARMS_IND ||
+        subfunc == S7COMM_UD_SUBF_CPU_NOTIFY_IND || subfunc == S7COMM_UD_SUBF_CPU_NOTIFY8_IND) {
+        msg_work_item = proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_timestamp_coming, tvb, offset, 8, ENC_NA);
+        msg_work_item_tree = proto_item_add_subtree(msg_work_item, ett_s7comm_cpu_alarm_message_timestamp);
+        offset = s7comm_add_timestamp_to_tree(tvb, msg_work_item_tree, offset, TRUE, FALSE);
+    }
+    proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_function, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    nr_objects = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(msg_item_tree, hf_s7comm_cpu_alarm_message_nr_objects, tvb, offset, 1, nr_objects);
+    offset += 1;
+    for (i = 1; i <= nr_objects; i++) {
+        msg_obj_start_offset = offset;
+        msg_obj_item = proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_obj_item, tvb, offset, 0, ENC_NA);
+        msg_obj_item_tree = proto_item_add_subtree(msg_obj_item, ett_s7comm_cpu_alarm_message_object);
+        proto_item_append_text(msg_obj_item_tree, " [%d]", i);
+        if (type == S7COMM_UD_TYPE_REQ || type == S7COMM_UD_TYPE_PUSH) {
+            proto_tree_add_item(msg_obj_item_tree, hf_s7comm_item_varspec, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            varspec_length = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(msg_obj_item_tree, hf_s7comm_item_varspec_length, tvb, offset, 1, varspec_length);
+            offset += 1;
+            syntax_id = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(msg_obj_item_tree, hf_s7comm_item_syntax_id, tvb, offset, 1, syntax_id);
+            offset += 1;
+            switch (syntax_id) {
+                case S7COMM_SYNTAXID_ALARM_LOCKFREESET:
+                case S7COMM_SYNTAXID_ALARM_INDSET:
+                case S7COMM_SYNTAXID_NOTIFY_INDSET:
+                case S7COMM_SYNTAXID_ALARM_ACKSET:
+                    nr_of_additional_values = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_uint(msg_obj_item_tree, hf_s7comm_cpu_alarm_message_nr_add_values, tvb, offset, 1, nr_of_additional_values);
+                    offset += 1;
+                    ev_id = tvb_get_ntohl(tvb, offset);
+                    proto_tree_add_uint(msg_obj_item_tree, hf_s7comm_cpu_alarm_message_eventid, tvb, offset, 4, ev_id);
+                    offset += 4;
+                    proto_item_append_text(msg_obj_item_tree, ": EventID=0x%08x", ev_id);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " EventID=0x%08x", ev_id);
+                    if (syntax_id == S7COMM_SYNTAXID_ALARM_INDSET || syntax_id == S7COMM_SYNTAXID_NOTIFY_INDSET) {
+                        signalstate = tvb_get_guint8(tvb, offset);
+                        proto_tree_add_bitmask(msg_obj_item_tree, tvb, offset, hf_s7comm_cpu_alarm_message_eventstate,
+                            ett_s7comm_cpu_alarm_message_signal, s7comm_cpu_alarm_message_signal_fields, ENC_BIG_ENDIAN);
+                        offset += 1;
+                        /* show SIG with True values for a quick overview in info-column */
+                        if (signalstate > 0) {
+                            col_append_fstr(pinfo->cinfo, COL_INFO, " On=[");
+                            for (sig_nr = 0; sig_nr < 8; sig_nr++) {
+                                if (signalstate & 0x01) {
+                                    signalstate >>= 1;
+                                    if (signalstate == 0) {
+                                        col_append_fstr(pinfo->cinfo, COL_INFO, "SIG_%d", sig_nr + 1);
+                                    } else {
+                                        col_append_fstr(pinfo->cinfo, COL_INFO, "SIG_%d,", sig_nr + 1);
+                                    }
+                                } else {
+                                    signalstate >>= 1;
+                                }
+                            }
+                            col_append_fstr(pinfo->cinfo, COL_INFO, "]");
+                        }
+                        proto_tree_add_bitmask(msg_obj_item_tree, tvb, offset, hf_s7comm_cpu_alarm_message_state,
+                            ett_s7comm_cpu_alarm_message_signal, s7comm_cpu_alarm_message_signal_fields, ENC_BIG_ENDIAN);
+                        offset += 1;
+                    }
+                    if (syntax_id == S7COMM_SYNTAXID_ALARM_INDSET || syntax_id == S7COMM_SYNTAXID_ALARM_ACKSET || syntax_id == S7COMM_SYNTAXID_NOTIFY_INDSET) {
+                        proto_tree_add_bitmask(msg_obj_item_tree, tvb, offset, hf_s7comm_cpu_alarm_message_ackstate_going,
+                            ett_s7comm_cpu_alarm_message_signal, s7comm_cpu_alarm_message_signal_fields, ENC_BIG_ENDIAN);
+                        offset += 1;
+                        proto_tree_add_bitmask(msg_obj_item_tree, tvb, offset, hf_s7comm_cpu_alarm_message_ackstate_coming,
+                            ett_s7comm_cpu_alarm_message_signal, s7comm_cpu_alarm_message_signal_fields, ENC_BIG_ENDIAN);
+                        offset += 1;
+                    }
+                    if (syntax_id == S7COMM_SYNTAXID_NOTIFY_INDSET) {
+                        proto_tree_add_bitmask(msg_obj_item_tree, tvb, offset, hf_s7comm_cpu_alarm_message_event_going,
+                            ett_s7comm_cpu_alarm_message_signal, s7comm_cpu_alarm_message_signal_fields, ENC_BIG_ENDIAN);
+                        offset += 1;
+                        proto_tree_add_bitmask(msg_obj_item_tree, tvb, offset, hf_s7comm_cpu_alarm_message_event_coming,
+                            ett_s7comm_cpu_alarm_message_signal, s7comm_cpu_alarm_message_signal_fields, ENC_BIG_ENDIAN);
+                        offset += 1;
+                        proto_tree_add_bitmask(msg_obj_item_tree, tvb, offset, hf_s7comm_cpu_alarm_message_event_lastchanged,
+                            ett_s7comm_cpu_alarm_message_signal, s7comm_cpu_alarm_message_signal_fields, ENC_BIG_ENDIAN);
+                        offset += 1;
+                        proto_tree_add_item(msg_obj_item_tree, hf_s7comm_cpu_alarm_message_event_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        offset += 1;
+                    }
+                    if (syntax_id == S7COMM_SYNTAXID_ALARM_INDSET || syntax_id == S7COMM_SYNTAXID_NOTIFY_INDSET) {
+                        if (nr_of_additional_values > 0) {
+                            asc_start_offset = offset;
+                            msg_work_item = proto_tree_add_item(msg_obj_item_tree, hf_s7comm_cpu_alarm_message_associated_value, tvb, offset, 0, ENC_NA);
+                            msg_work_item_tree = proto_item_add_subtree(msg_work_item, ett_s7comm_cpu_alarm_message_associated_value);
+                            offset = s7comm_decode_response_read_data(tvb, msg_work_item_tree, nr_of_additional_values, offset);
+                            proto_item_set_len(msg_work_item_tree, offset - asc_start_offset);
+                        }
+                    }
+                    break;
+                case S7COMM_SYNTAXID_ALARM_QUERYREQSET:
+                    proto_tree_add_item(msg_obj_item_tree, hf_s7comm_cpu_alarm_query_unknown1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+                    querytype = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_uint(msg_obj_item_tree, hf_s7comm_cpu_alarm_query_querytype, tvb, offset, 1, querytype);
+                    offset += 1;
+                    proto_tree_add_item(msg_obj_item_tree, hf_s7comm_cpu_alarm_query_unknown2, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+                    ev_id = tvb_get_ntohl(tvb, offset);
+                    /* there is a querytype=8, which only occurs when a previous SZL request 0x131 index 0x10 has a missing flag in funk_1 */
+                    switch (querytype) {
+                        case S7COMM_ALARM_MESSAGE_QUERYTYPE_BYALARMTYPE:
+                            proto_tree_add_item(msg_obj_item_tree, hf_s7comm_cpu_alarm_query_alarmtype, tvb, offset, 4, ENC_BIG_ENDIAN);
+                            col_append_fstr(pinfo->cinfo, COL_INFO, " ByAlarmtype=%s",
+                                val_to_str(ev_id, alarm_message_query_alarmtype_names, "Unknown Alarmtype: %u"));
+                            break;
+                        case S7COMM_ALARM_MESSAGE_QUERYTYPE_BYEVENTID:
+                            proto_tree_add_item(msg_obj_item_tree, hf_s7comm_cpu_alarm_message_eventid, tvb, offset, 4, ENC_BIG_ENDIAN);
+                            col_append_fstr(pinfo->cinfo, COL_INFO, " ByEventID=0x%08x", ev_id);
+                            break;
+                        default:
+                            break;
+                    }
+                    offset += 4;
+                    break;
+                default:
+                    /* for current unknown syntax id, set offset to end of dataset. The varspec_length includes
+                     * the byte for the syntax_id, so minus one.
+                     */
+                    offset += (varspec_length - 1);
+                    break;
+            }
+        } else if (type == S7COMM_UD_TYPE_RES) {
+            ret_val = tvb_get_guint8(tvb, offset);
+            proto_item_append_text(msg_obj_item_tree, ": (%s)", val_to_str(ret_val, s7comm_item_return_valuenames, "Unknown code: 0x%02x"));
+            proto_tree_add_uint(msg_obj_item_tree, hf_s7comm_data_returncode, tvb, offset, 1, ret_val);
+            offset += 1;
+        }
+        proto_item_set_len(msg_obj_item_tree, offset - msg_obj_start_offset);
+    }
+    proto_item_set_len(msg_item_tree, offset - start_offset);
+    return offset;
+}
+/*******************************************************************************************************
+ *
+ * PDU Type: User Data -> Function group 4 -> alarm query response
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_ud_cpu_alarm_query_response(tvbuff_t *tvb,
+                                          packet_info *pinfo,
+                                          proto_tree *data_tree,
+                                          guint32 offset)             /* Offset on data part +4 */
+{
+    proto_item *msg_item = NULL;
+    proto_tree *msg_item_tree = NULL;
+    proto_item *msg_obj_item = NULL;
+    proto_tree *msg_obj_item_tree = NULL;
+    proto_item *msg_work_item = NULL;
+    proto_tree *msg_work_item_tree = NULL;
+    guint32 start_offset;
+    guint32 msg_obj_start_offset;
+    guint32 asc_start_offset;
+    guint32 ev_id;
+    guint8 returncode;
+    guint8 alarmtype;
+    guint16 complete_length;
+    gint32 remaining_length;
+    guint8 n_blocks;
+    guint8 func;
+
+    start_offset = offset;
+    msg_item = proto_tree_add_item(data_tree, hf_s7comm_cpu_alarm_message_item, tvb, offset, 0, ENC_NA);
+    msg_item_tree = proto_item_add_subtree(msg_item, ett_s7comm_cpu_alarm_message);
+    /* An alarm response may take more that one response telegram. If it's split into many telegrams,
+     * then the inner telegrams begins with the dataset parts without any header.
+     * The last telegrams of this sequence has the first two bytes zero.
+     */
+    func = tvb_get_guint8(tvb, offset);
+    n_blocks = tvb_get_guint8(tvb, offset + 1);
+    if (func == 0) {
+        proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_function, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_nr_objects, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        if (n_blocks == 0) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, " [Last]");
+            proto_item_set_len(msg_item_tree, offset - start_offset);
+            return offset;
+        }
+    }
+    if (func > 0) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [Continuation]");
+        complete_length = func;
+        remaining_length = (gint32)complete_length;
+        returncode = S7COMM_ITEM_RETVAL_DATA_OK;
+    } else {
+        returncode = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint(msg_item_tree, hf_s7comm_data_returncode, tvb, offset, 1, returncode);
+        offset += 1;
+        proto_tree_add_item(msg_item_tree, hf_s7comm_data_transport_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        /* As with ALARM_S it's only possible to send one alarm description in a single response telegram,
+         * they are splitted into many telegrams. Therefore the complete length field is set to 0xffff.
+         * To reuse the following dissect-loop, the remaining length is set to zero.
+         */
+        complete_length = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_uint(msg_item_tree, hf_s7comm_cpu_alarm_query_completelen, tvb, offset, 2, complete_length);
+        remaining_length = (gint32)complete_length;
+        if (remaining_length == 0xffff) {
+            remaining_length = 0;
+        }
+        offset += 2;
+    }
+
+    if (returncode == S7COMM_ITEM_RETVAL_DATA_OK) {
+        do {
+            msg_obj_start_offset = offset;
+            msg_obj_item = proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_obj_item, tvb, offset, 0, ENC_NA);
+            msg_obj_item_tree = proto_item_add_subtree(msg_obj_item, ett_s7comm_cpu_alarm_message_object);
+
+            proto_tree_add_item(msg_obj_item_tree, hf_s7comm_cpu_alarm_query_datasetlen, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_item(msg_obj_item_tree, hf_s7comm_cpu_alarm_query_resunknown1, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            /* begin of count dataset length */
+            alarmtype = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint(msg_obj_item_tree, hf_s7comm_cpu_alarm_query_alarmtype, tvb, offset, 1, alarmtype);
+            proto_item_append_text(msg_obj_item_tree, " (Alarmtype=%s)", val_to_str(alarmtype, alarm_message_query_alarmtype_names, "Unknown Alarmtype: %u"));
+            offset += 1;
+            ev_id = tvb_get_ntohl(tvb, offset);
+            proto_tree_add_uint(msg_obj_item_tree, hf_s7comm_cpu_alarm_message_eventid, tvb, offset, 4, ev_id);
+            proto_item_append_text(msg_obj_item_tree, ": EventID=0x%08x", ev_id);
+            offset += 4;
+            proto_tree_add_item(msg_obj_item_tree, hf_s7comm_cpu_alarm_query_resunknown1, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_bitmask(msg_obj_item_tree, tvb, offset, hf_s7comm_cpu_alarm_message_eventstate,
+                ett_s7comm_cpu_alarm_message_signal, s7comm_cpu_alarm_message_signal_fields, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_bitmask(msg_obj_item_tree, tvb, offset, hf_s7comm_cpu_alarm_message_ackstate_going,
+                ett_s7comm_cpu_alarm_message_signal, s7comm_cpu_alarm_message_signal_fields, ENC_BIG_ENDIAN);
+            offset += 1;
+            proto_tree_add_bitmask(msg_obj_item_tree, tvb, offset, hf_s7comm_cpu_alarm_message_ackstate_coming,
+                ett_s7comm_cpu_alarm_message_signal, s7comm_cpu_alarm_message_signal_fields, ENC_BIG_ENDIAN);
+            offset += 1;
+            if (alarmtype == S7COMM_ALARM_MESSAGE_QUERY_ALARMTYPE_ALARM_S) {
+                /* 8 bytes timestamp (coming)*/
+                msg_work_item = proto_tree_add_item(msg_obj_item_tree, hf_s7comm_cpu_alarm_message_timestamp_coming, tvb, offset, 8, ENC_NA);
+                msg_work_item_tree = proto_item_add_subtree(msg_work_item, ett_s7comm_cpu_alarm_message_timestamp);
+                offset = s7comm_add_timestamp_to_tree(tvb, msg_work_item_tree, offset, TRUE, FALSE);
+                /* Associated value of coming alarm */
+                asc_start_offset = offset;
+                msg_work_item = proto_tree_add_item(msg_obj_item_tree, hf_s7comm_cpu_alarm_message_associated_value, tvb, offset, 0, ENC_NA);
+                msg_work_item_tree = proto_item_add_subtree(msg_work_item, ett_s7comm_cpu_alarm_message_associated_value);
+                offset = s7comm_decode_response_read_data(tvb, msg_work_item_tree, 1, offset);
+                proto_item_set_len(msg_work_item_tree, offset - asc_start_offset);
+                /* 8 bytes timestamp (going)
+                 * If all bytes in timestamp are zero, then the message is still active. */
+                msg_work_item = proto_tree_add_item(msg_obj_item_tree, hf_s7comm_cpu_alarm_message_timestamp_going, tvb, offset, 8, ENC_NA);
+                msg_work_item_tree = proto_item_add_subtree(msg_work_item, ett_s7comm_cpu_alarm_message_timestamp);
+                offset = s7comm_add_timestamp_to_tree(tvb, msg_work_item_tree, offset, TRUE, FALSE);
+                /* Associated value of going alarm  */
+                asc_start_offset = offset;
+                msg_work_item = proto_tree_add_item(msg_obj_item_tree, hf_s7comm_cpu_alarm_message_associated_value, tvb, offset, 0, ENC_NA);
+                msg_work_item_tree = proto_item_add_subtree(msg_work_item, ett_s7comm_cpu_alarm_message_associated_value);
+                offset = s7comm_decode_response_read_data(tvb, msg_work_item_tree, 1, offset);
+                proto_item_set_len(msg_work_item_tree, offset - asc_start_offset);
+            }
+            remaining_length = remaining_length - (offset - msg_obj_start_offset);
+            proto_item_set_len(msg_obj_item_tree, offset - msg_obj_start_offset);
+        } while (remaining_length > 0);
+    }
+    proto_item_set_len(msg_item_tree, offset - start_offset);
+
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
+ * PDU Type: User Data -> Function group 4 -> diagnostic message
+ * Also used as a dataset in the diagnostic buffer, read with SZL-ID 0x00a0 index 0.
+ *
+ *******************************************************************************************************/
+guint32
+s7comm_decode_ud_cpu_diagnostic_message(tvbuff_t *tvb,
+                                        packet_info *pinfo,
+                                        gboolean add_info_to_col,
+                                        proto_tree *data_tree,
+                                        guint32 offset)
+{
+    proto_item *msg_item = NULL;
+    proto_tree *msg_item_tree = NULL;
+    guint16 eventid;
+    guint16 eventid_masked;
+    const gchar *event_text;
+    gboolean has_text = FALSE;
+
+    msg_item = proto_tree_add_item(data_tree, hf_s7comm_cpu_diag_msg_item, tvb, offset, 20, ENC_NA);
+    msg_item_tree = proto_item_add_subtree(msg_item, ett_s7comm_cpu_diag_msg);
+
+    eventid = tvb_get_ntohs(tvb, offset);
+    if ((eventid >= 0x8000) && (eventid <= 0x9fff)) {
+        eventid_masked = eventid & 0xf0ff;
+        if ((event_text = try_val_to_str_ext(eventid_masked, &cpu_diag_eventid_0x8_0x9_names_ext))) {
+            if (add_info_to_col) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Event='%s'", event_text);
+            }
+            has_text = TRUE;
+        } else {
+            if (add_info_to_col) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, " EventID=0x%04x", eventid);
+            }
+        }
+    } else if ((eventid >= 0x1000) && (eventid < 0x8000)) {
+        if ((event_text = try_val_to_str_ext(eventid, &cpu_diag_eventid_fix_names_ext))) {
+            if (add_info_to_col) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Event='%s'", event_text);
+            }
+            has_text = TRUE;
+        } else {
+            if (add_info_to_col) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, " EventID=0x%04x", eventid);
+            }
+        }
+    } else {
+        if (add_info_to_col) {
+            col_append_fstr(pinfo->cinfo, COL_INFO, " EventID=0x%04x", eventid);
+        }
+    }
+    proto_tree_add_bitmask(msg_item_tree, tvb, offset, hf_s7comm_cpu_diag_msg_eventid,
+            ett_s7comm_cpu_diag_msg_eventid, s7comm_cpu_diag_msg_eventid_fields, ENC_BIG_ENDIAN);
+    if (has_text) {
+        proto_item_append_text(msg_item_tree, ": Event='%s'", event_text);
+    } else {
+        proto_item_append_text(msg_item_tree, ": EventID=0x%04x", eventid);
+    }
+    offset += 2;
+    proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_diag_msg_prioclass, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_diag_msg_obnumber, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_diag_msg_datid, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_diag_msg_info1, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_diag_msg_info2, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    offset = s7comm_add_timestamp_to_tree(tvb, msg_item_tree, offset, FALSE, FALSE);
+
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
  * PDU Type: User Data -> Function group 7 -> time functions
  *
  *******************************************************************************************************/
@@ -2053,7 +3271,7 @@ s7comm_decode_ud_time_subfunc(tvbuff_t *tvb,
             if (type == S7COMM_UD_TYPE_RES) {                   /*** Response ***/
                 if (ret_val == S7COMM_ITEM_RETVAL_DATA_OK) {
                     proto_item_append_text(data_tree, ": ");
-                    offset = s7comm_add_timestamp_to_tree(tvb, data_tree, offset, TRUE);
+                    offset = s7comm_add_timestamp_to_tree(tvb, data_tree, offset, TRUE, TRUE);
                 }
                 know_data = TRUE;
             }
@@ -2063,7 +3281,7 @@ s7comm_decode_ud_time_subfunc(tvbuff_t *tvb,
             if (type == S7COMM_UD_TYPE_REQ) {                   /*** Request ***/
                 if (ret_val == S7COMM_ITEM_RETVAL_DATA_OK) {
                     proto_item_append_text(data_tree, ": ");
-                    offset = s7comm_add_timestamp_to_tree(tvb, data_tree, offset, TRUE);
+                    offset = s7comm_add_timestamp_to_tree(tvb, data_tree, offset, TRUE, TRUE);
                 }
                 know_data = TRUE;
             }
@@ -2539,6 +3757,12 @@ s7comm_decode_ud(tvbuff_t *tvb,
                 val_to_str(subfunc, userdata_time_subfunc_names, "Unknown subfunc: 0x%02x"));
             proto_item_append_text(param_tree, " ->(%s)", val_to_str(subfunc, userdata_time_subfunc_names, "Unknown subfunc: 0x%02x"));
             break;
+        case S7COMM_UD_FUNCGROUP_MODETRANS:
+            proto_tree_add_uint(param_tree, hf_s7comm_modetrans_param_subfunc, tvb, offset_temp, 1, subfunc);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " -> [%s]",
+                val_to_str(subfunc, modetrans_param_subfunc_names, "Unknown subfunc: 0x%02x"));
+            proto_item_append_text(param_tree, " ->(%s)", val_to_str(subfunc, modetrans_param_subfunc_names, "Unknown subfunc: 0x%02x"));
+            break;
         default:
             proto_tree_add_uint(param_tree, hf_s7comm_userdata_param_subfunc, tvb, offset_temp, 1, subfunc);
             break;
@@ -2599,6 +3823,20 @@ s7comm_decode_ud(tvbuff_t *tvb,
                 case S7COMM_UD_FUNCGROUP_CPU:
                     if (subfunc == S7COMM_UD_SUBF_CPU_READSZL) {
                         offset = s7comm_decode_ud_cpu_szl_subfunc(tvb, pinfo, data_tree, type, ret_val, len, dlength, data_unit_ref, last_data_unit, offset);
+                    } else if (subfunc == S7COMM_UD_SUBF_CPU_NOTIFY_IND || subfunc == S7COMM_UD_SUBF_CPU_NOTIFY8_IND
+                            || subfunc == S7COMM_UD_SUBF_CPU_ALARM8_IND || subfunc == S7COMM_UD_SUBF_CPU_ALARMSQ_IND
+                            || subfunc == S7COMM_UD_SUBF_CPU_ALARMS_IND || subfunc == S7COMM_UD_SUBF_CPU_ALARMACK_IND
+                            || subfunc == S7COMM_UD_SUBF_CPU_ALARMACK
+                            || subfunc == S7COMM_UD_SUBF_CPU_ALARM8LOCK || subfunc == S7COMM_UD_SUBF_CPU_ALARM8LOCK_IND
+                            || subfunc == S7COMM_UD_SUBF_CPU_ALARM8UNLOCK || subfunc == S7COMM_UD_SUBF_CPU_ALARM8UNLOCK_IND
+                            || (subfunc == S7COMM_UD_SUBF_CPU_ALARMQUERY && type != S7COMM_UD_TYPE_RES)) {
+                        offset = s7comm_decode_ud_cpu_alarm_main(tvb, pinfo, data_tree, type, subfunc, offset);
+                    } else if (subfunc == S7COMM_UD_SUBF_CPU_ALARMQUERY && type == S7COMM_UD_TYPE_RES) {
+                        offset = s7comm_decode_ud_cpu_alarm_query_response(tvb, pinfo, data_tree, offset);
+                    } else if (subfunc == S7COMM_UD_SUBF_CPU_DIAGMSG) {
+                        offset = s7comm_decode_ud_cpu_diagnostic_message(tvb, pinfo, TRUE, data_tree, offset);
+                    } else if (subfunc == S7COMM_UD_SUBF_CPU_MSGS) {
+                        offset = s7comm_decode_message_service(tvb, pinfo, data_tree, type, dlength - 4, offset);
                     } else {
                         /* print other currently unknown data as raw bytes */
                         proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength - 4, ENC_NA);
@@ -3396,6 +4634,188 @@ proto_register_s7comm (void)
         { "PBC BSEND/BRECV R_ID", "s7comm.pbc.req.bsend.r_id", FT_UINT32, BASE_HEX, NULL, 0x0,
           NULL, HFILL }},
 
+        /* CPU alarms */
+        { &hf_s7comm_cpu_alarm_message_item,
+        { "Alarm message", "s7comm.alarm.message", FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_message_obj_item,
+        { "Message object", "s7comm.alarm.message_object", FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_message_function,
+        { "Function identifier", "s7comm.alarm.function", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_message_nr_objects,
+        { "Number of message objects", "s7comm.alarm.nr_objects", FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_message_nr_add_values,
+        { "Number of associated values", "s7comm.alarm.nr_add_values", FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_message_eventid,
+        { "EventID", "s7comm.alarm.event_id", FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_message_timestamp_coming,
+        { "Timestamp message coming", "s7comm.alarm.timestamp_coming", FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_message_timestamp_going,
+        { "Timestamp message going", "s7comm.alarm.timestamp_going", FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_message_associated_value,
+        { "Associated value(s)", "s7comm.alarm.associated_value", FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_message_eventstate,
+        { "EventState", "s7comm.alarm.eventstate", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_message_signal_sig1,
+        { "SIG_1", "s7comm.alarm.signal.sig1", FT_BOOLEAN, 8, NULL, 0x01,
+          "Current state of Signal SIG_1", HFILL }},
+        { &hf_s7comm_cpu_alarm_message_signal_sig2,
+        { "SIG_2", "s7comm.alarm.signal.sig2", FT_BOOLEAN, 8, NULL, 0x02,
+          "Current state of Signal SIG_2", HFILL }},
+        { &hf_s7comm_cpu_alarm_message_signal_sig3,
+        { "SIG_3", "s7comm.alarm.signal.sig3", FT_BOOLEAN, 8, NULL, 0x04,
+          "Current state of Signal SIG_3", HFILL }},
+        { &hf_s7comm_cpu_alarm_message_signal_sig4,
+        { "SIG_4", "s7comm.alarm.signal.sig4", FT_BOOLEAN, 8, NULL, 0x08,
+          "Current state of Signal SIG_4", HFILL }},
+        { &hf_s7comm_cpu_alarm_message_signal_sig5,
+        { "SIG_5", "s7comm.alarm.signal.sig5", FT_BOOLEAN, 8, NULL, 0x10,
+          "Current state of Signal SIG_5", HFILL }},
+        { &hf_s7comm_cpu_alarm_message_signal_sig6,
+        { "SIG_6", "s7comm.alarm.signal.sig6", FT_BOOLEAN, 8, NULL, 0x20,
+          "Current state of Signal SIG_6", HFILL }},
+        { &hf_s7comm_cpu_alarm_message_signal_sig7,
+        { "SIG_7", "s7comm.alarm.signal.sig7", FT_BOOLEAN, 8, NULL, 0x40,
+          "Current state of Signal SIG_7", HFILL }},
+        { &hf_s7comm_cpu_alarm_message_signal_sig8,
+        { "SIG_8", "s7comm.alarm.signal.sig8", FT_BOOLEAN, 8, NULL, 0x80,
+          "Current state of Signal SIG_8", HFILL }},
+        { &hf_s7comm_cpu_alarm_message_state,
+        { "State", "s7comm.alarm.state", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_message_ackstate_coming,
+        { "AckState coming", "s7comm.alarm.ack_state.coming", FT_UINT8, BASE_HEX, NULL, 0x0,
+          "Acknowledge state coming (1=Event acknowledged, 0=Event not acknowledged)", HFILL }},
+        { &hf_s7comm_cpu_alarm_message_ackstate_going,
+        { "AckState going", "s7comm.alarm.ack_state.going", FT_UINT8, BASE_HEX, NULL, 0x0,
+          "Acknowledge state going (1=Event acknowledged, 0=Event not acknowledged)", HFILL }},
+         { &hf_s7comm_cpu_alarm_message_event_coming,
+        { "Event coming", "s7comm.alarm.event.coming", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_message_event_going,
+        { "Event going", "s7comm.alarm.event.going", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_message_event_lastchanged,
+        { "Event last changed", "s7comm.alarm.event.lastchanged", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_message_event_reserved,
+        { "Reserved", "s7comm.alarm.event.reserved", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        /* Alarm message query */
+        { &hf_s7comm_cpu_alarm_query_unknown1,
+        { "Unknown/Reserved (1)", "s7comm.alarm.query.unknown1", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_query_querytype,
+        { "Querytype", "s7comm.alarm.query.querytype", FT_UINT8, BASE_DEC, VALS(alarm_message_querytype_names), 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_query_unknown2,
+        { "Unknown/Reserved (2)", "s7comm.alarm.query.unknown2", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_query_alarmtype,
+        { "Alarmtype", "s7comm.alarm.query.alarmtype", FT_UINT32, BASE_DEC, VALS(alarm_message_query_alarmtype_names), 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_query_completelen,
+        { "Complete data length", "s7comm.alarm.query.complete_length", FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Complete data length (with ALARM_S this is 0xffff, as they might be splitted into many telegrams)", HFILL }},
+        { &hf_s7comm_cpu_alarm_query_datasetlen,
+        { "Length of dataset", "s7comm.alarm.query.dataset_length", FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_alarm_query_resunknown1,
+        { "Unknown", "s7comm.alarm.query.resunknown1", FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        /* CPU diagnostic messages */
+        { &hf_s7comm_cpu_diag_msg_item,
+        { "CPU diagnostic message", "s7comm.cpu.diag_msg", FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_diag_msg_eventid,
+        { "Event ID", "s7comm.cpu.diag_msg.eventid", FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_diag_msg_eventid_class,
+        { "Event class", "s7comm.cpu.diag_msg.eventid.class", FT_UINT16, BASE_HEX, VALS(cpu_diag_msg_eventid_class_names), 0xf000,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_diag_msg_eventid_ident_entleave,
+        { "Event entering state", "s7comm.cpu.diag_msg.eventid.ident.entleave", FT_BOOLEAN, 16, TFS(&tfs_s7comm_cpu_diag_msg_eventid_ident_entleave), 0x0100,
+          "Event identifier: 0=Event leaving state,1=Event entering state", HFILL }},
+        { &hf_s7comm_cpu_diag_msg_eventid_ident_diagbuf,
+        { "Entry in diagnostic buffer", "s7comm.cpu.diag_msg.eventid.ident.diagbuf", FT_BOOLEAN, 16, NULL, 0x0200,
+          "Event identifier: Entry in diagnostic buffer", HFILL }},
+        { &hf_s7comm_cpu_diag_msg_eventid_ident_interr,
+        { "Internal error", "s7comm.cpu.diag_msg.eventid.ident.interr", FT_BOOLEAN, 16, NULL, 0x0400,
+          "Event identifier: Internal error", HFILL }},
+        { &hf_s7comm_cpu_diag_msg_eventid_ident_exterr,
+        { "External error", "s7comm.cpu.diag_msg.eventid.ident.exterr", FT_BOOLEAN, 16, NULL, 0x0800,
+          "Event identifier: External error", HFILL }},
+        { &hf_s7comm_cpu_diag_msg_eventid_nr,
+        { "Event number", "s7comm.cpu.diag_msg.eventid.nr", FT_UINT16, BASE_HEX, NULL, 0x00ff,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_diag_msg_prioclass,
+        { "Priority class", "s7comm.cpu.diag_msg.prioclass", FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_diag_msg_obnumber,
+        { "OB number", "s7comm.cpu.diag_msg.obnumber", FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_diag_msg_datid,
+        { "DatID", "s7comm.cpu.diag_msg.datid", FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_diag_msg_info1,
+        { "INFO1 Additional information 1", "s7comm.cpu.diag_msg.info1", FT_UINT16, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_diag_msg_info2,
+        { "INFO2 Additional information 2", "s7comm.cpu.diag_msg.info2", FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        /* CPU message service */
+        { &hf_s7comm_cpu_msgservice_subscribe_events,
+        { "Subscribed events", "s7comm.cpu.msg.events.modetrans", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_msgservice_subscribe_events_modetrans,
+        { "Mode-transition", "s7comm.cpu.msg.events.modetrans", FT_BOOLEAN, 8, NULL, 0x01,
+          "MODE: Register for mode-transition events via func-group=0 and subfunction=state", HFILL }},
+        { &hf_s7comm_cpu_msgservice_subscribe_events_system,
+        { "System-diagnostics", "s7comm.cpu.msg.events.system", FT_BOOLEAN, 8, NULL, 0x02,
+          "SYS: Register for system diagnostic events", HFILL }},
+        { &hf_s7comm_cpu_msgservice_subscribe_events_userdefined,
+        { "Userdefined", "s7comm.cpu.msg.events.userdefined", FT_BOOLEAN, 8, NULL, 0x04,
+          "USR: Register system user-defined diagnostic messages", HFILL }},
+        { &hf_s7comm_cpu_msgservice_subscribe_events_alarms,
+        { "Alarms", "s7comm.cpu.msg.events.alarms", FT_BOOLEAN, 8, NULL, 0x80,
+          "ALM: Register alarm events (ALARM, SCAN, ALARM_S) type of event defined in additional field", HFILL }},
+        { &hf_s7comm_cpu_msgservice_req_reserved1,
+        { "Reserved/Unknown", "s7comm.cpu.msg.req_reserved1", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_msgservice_username,
+        { "Username", "s7comm.cpu.msg.username", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_msgservice_almtype,
+        { "Alarm type", "s7comm.cpu.msg.almtype", FT_UINT8, BASE_DEC, VALS(cpu_msgservice_almtype_names), 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_msgservice_req_reserved2,
+        { "Reserved/Unknown", "s7comm.cpu.msg.req_reserved2", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_msgservice_res_result,
+        { "Result", "s7comm.cpu.msg.res_result", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_msgservice_res_reserved1,
+        { "Reserved/Unknown", "s7comm.cpu.msg.res_reserved1", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_msgservice_res_reserved2,
+        { "Reserved/Unknown", "s7comm.cpu.msg.res_reserved2", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cpu_msgservice_res_reserved3,
+        { "Reserved/Unknown", "s7comm.cpu.msg.res_reserved3", FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_modetrans_param_subfunc,
+        { "Current mode", "s7comm.param.modetrans.subfunc", FT_UINT8, BASE_DEC, VALS(modetrans_param_subfunc_names), 0x0,
+          NULL, HFILL }},
+
         /* TIA Portal stuff */
         { &hf_s7comm_tia1200_item_reserved1,
         { "1200 sym Reserved", "s7comm.tiap.item.reserved1", FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -3437,6 +4857,14 @@ proto_register_s7comm (void)
         &ett_s7comm_item_address,
         &ett_s7comm_diagdata_registerflag,
         &ett_s7comm_userdata_blockinfo_flags,
+        &ett_s7comm_cpu_alarm_message,
+        &ett_s7comm_cpu_alarm_message_object,
+        &ett_s7comm_cpu_alarm_message_signal,
+        &ett_s7comm_cpu_alarm_message_timestamp,
+        &ett_s7comm_cpu_alarm_message_associated_value,
+        &ett_s7comm_cpu_diag_msg,
+        &ett_s7comm_cpu_diag_msg_eventid,
+        &ett_s7comm_cpu_msgservice_subscribe_events
     };
 
     proto_s7comm = proto_register_protocol (

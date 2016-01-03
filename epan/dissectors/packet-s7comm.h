@@ -41,11 +41,19 @@
  */
 #define S7COMM_UD_SUBF_CPU_READSZL          0x01
 #define S7COMM_UD_SUBF_CPU_MSGS             0x02
-#define S7COMM_UD_SUBF_CPU_TRANSSTOP        0x03
-#define S7COMM_UD_SUBF_CPU_ALARMIND         0x11
-#define S7COMM_UD_SUBF_CPU_ALARMINIT        0x13
-#define S7COMM_UD_SUBF_CPU_ALARMACK1        0x0b
-#define S7COMM_UD_SUBF_CPU_ALARMACK2        0x0c
+#define S7COMM_UD_SUBF_CPU_DIAGMSG          0x03
+#define S7COMM_UD_SUBF_CPU_ALARM8_IND       0x05
+#define S7COMM_UD_SUBF_CPU_NOTIFY_IND       0x06
+#define S7COMM_UD_SUBF_CPU_ALARM8LOCK       0x07
+#define S7COMM_UD_SUBF_CPU_ALARM8UNLOCK     0x08
+#define S7COMM_UD_SUBF_CPU_ALARMACK         0x0b
+#define S7COMM_UD_SUBF_CPU_ALARMACK_IND     0x0c
+#define S7COMM_UD_SUBF_CPU_ALARM8LOCK_IND   0x0d
+#define S7COMM_UD_SUBF_CPU_ALARM8UNLOCK_IND 0x0e
+#define S7COMM_UD_SUBF_CPU_ALARMSQ_IND      0x11
+#define S7COMM_UD_SUBF_CPU_ALARMS_IND       0x12
+#define S7COMM_UD_SUBF_CPU_ALARMQUERY       0x13
+#define S7COMM_UD_SUBF_CPU_NOTIFY8_IND      0x16
 
 /**************************************************************************
  * Names of types in userdata parameter part
@@ -55,6 +63,8 @@
 #define S7COMM_UD_TYPE_RES                  0x8
 
 extern const value_string s7comm_item_return_valuenames[];
+
+guint32 s7comm_decode_ud_cpu_diagnostic_message(tvbuff_t *tvb, packet_info *pinfo, gboolean add_info_to_col, proto_tree *data_tree, guint32 offset);
 
 #endif
 
