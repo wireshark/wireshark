@@ -403,6 +403,11 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name)
     emit packetDissectionChanged();
 }
 
+void WiresharkApplication::reloadLuaPluginsDelayed()
+{
+    QTimer::singleShot(0, this, SIGNAL(reloadLuaPlugins()));
+}
+
 const QString WiresharkApplication::windowTitleString(QStringList title_parts)
 {
     QMutableStringListIterator tii(title_parts);

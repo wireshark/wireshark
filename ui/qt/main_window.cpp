@@ -475,6 +475,8 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(checkDisplayFilter()));
     connect(wsApp, SIGNAL(fieldsChanged()),
             this, SLOT(fieldsChanged()));
+    connect(wsApp, SIGNAL(reloadLuaPlugins()),
+            this, SLOT(reloadLuaPlugins()));
 
     connect(main_ui_->mainStack, SIGNAL(currentChanged(int)),
             this, SLOT(mainStackChanged(int)));

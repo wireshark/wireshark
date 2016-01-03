@@ -27,6 +27,7 @@
 #include "file.h"
 
 #include "epan/funnel.h"
+#include "epan/prefs.h"
 
 #include "ui/progress_dlg.h"
 #include "ui/simple_dialog.h"
@@ -55,7 +56,8 @@ static const gchar *funnel_statistics_get_filter(funnel_ops_id_t *ops_id);
 static void funnel_statistics_set_filter(funnel_ops_id_t *ops_id, const char* filter_string);
 static void funnel_statistics_set_color_filter_slot(guint8 filter_num, const gchar* filter_string);
 static gboolean funnel_statistics_open_file(funnel_ops_id_t *ops_id, const char* fname, const char* filter, char**);
-static void funnel_statistics_reload(funnel_ops_id_t *ops_id);
+static void funnel_statistics_reload_packets(funnel_ops_id_t *ops_id);
+static void funnel_statistics_reload_lua_plugins(funnel_ops_id_t *ops_id);
 static void funnel_statistics_apply_filter(funnel_ops_id_t *ops_id);
 static gboolean browser_open_url(const gchar *url);
 static void browser_open_data_file(const gchar *filename);
@@ -135,7 +137,8 @@ FunnelStatistics::FunnelStatistics(QObject *parent, CaptureFile &cf) :
     funnel_ops_->set_filter = funnel_statistics_set_filter;
     funnel_ops_->set_color_filter_slot = funnel_statistics_set_color_filter_slot;
     funnel_ops_->open_file = funnel_statistics_open_file;
-    funnel_ops_->reload = funnel_statistics_reload;
+    funnel_ops_->reload_packets = funnel_statistics_reload_packets;
+    funnel_ops_->reload_lua_plugins = funnel_statistics_reload_lua_plugins;
     funnel_ops_->apply_filter = funnel_statistics_apply_filter;
     funnel_ops_->browser_open_url = browser_open_url;
     funnel_ops_->browser_open_data_file = browser_open_data_file;
@@ -169,6 +172,11 @@ void FunnelStatistics::emitSetDisplayFilter(const QString filter)
 void FunnelStatistics::reloadPackets()
 {
     capture_file_.reload();
+}
+
+void FunnelStatistics::reloadLuaPlugins()
+{
+    wsApp->reloadLuaPluginsDelayed();
 }
 
 void FunnelStatistics::emitApplyDisplayFilter()
@@ -250,11 +258,18 @@ gboolean funnel_statistics_open_file(funnel_ops_id_t *ops_id, const char* fname,
     return TRUE;
 }
 
-void funnel_statistics_reload(funnel_ops_id_t *ops_id) {
+void funnel_statistics_reload_packets(funnel_ops_id_t *ops_id) {
     FunnelStatistics *funnel_statistics = dynamic_cast<FunnelStatistics *>((FunnelStatistics *)ops_id);
     if (!funnel_statistics) return;
 
     funnel_statistics->reloadPackets();
+}
+
+void funnel_statistics_reload_lua_plugins(funnel_ops_id_t *ops_id) {
+    FunnelStatistics *funnel_statistics = dynamic_cast<FunnelStatistics *>((FunnelStatistics *)ops_id);
+    if (!funnel_statistics) return;
+
+    funnel_statistics->reloadLuaPlugins();
 }
 
 void funnel_statistics_apply_filter(funnel_ops_id_t *ops_id) {

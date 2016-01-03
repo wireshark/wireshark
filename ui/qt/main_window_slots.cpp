@@ -1462,6 +1462,34 @@ void MainWindow::fieldsChanged()
     emit reloadFields();
 }
 
+void MainWindow::reloadLuaPlugins()
+{
+#ifdef HAVE_LUA
+    if (wsApp->isReloadingLua())
+        return;
+
+    wsApp->setReloadingLua(true);
+
+    wslua_reload_plugins(NULL, NULL);
+    funnel_statistics_reload_menus();
+    reloadDynamicMenus();
+    closePacketDialogs();
+
+    // Preferences may have been deleted so close all widgets using prefs
+    proto_tree_->closeContextMenu();
+    main_ui_->preferenceEditorFrame->animatedHide();
+
+    char *gdp_path, *dp_path;
+    wsApp->readConfigurationFiles(&gdp_path, &dp_path, true);
+
+    fieldsChanged();
+    redissectPackets();
+
+    wsApp->setReloadingLua(false);
+    SimpleDialog::displayQueuedMessages();
+#endif
+}
+
 void MainWindow::showAccordionFrame(AccordionFrame *show_frame, bool toggle)
 {
     QList<AccordionFrame *>frame_list = QList<AccordionFrame *>()
@@ -2669,30 +2697,7 @@ void MainWindow::on_actionAnalyzeDecodeAs_triggered()
 
 void MainWindow::on_actionAnalyzeReloadLuaPlugins_triggered()
 {
-#ifdef HAVE_LUA
-    if (wsApp->isReloadingLua())
-        return;
-
-    wsApp->setReloadingLua(true);
-
-    wslua_reload_plugins(NULL, NULL);
-    funnel_statistics_reload_menus();
-    reloadDynamicMenus();
-    closePacketDialogs();
-
-    // Preferences may have been deleted so close all widgets using prefs
-    proto_tree_->closeContextMenu();
-    main_ui_->preferenceEditorFrame->animatedHide();
-
-    char *gdp_path, *dp_path;
-    wsApp->readConfigurationFiles(&gdp_path, &dp_path, true);
-
-    fieldsChanged();
-    redissectPackets();
-
-    wsApp->setReloadingLua(false);
-    SimpleDialog::displayQueuedMessages();
-#endif
+    reloadLuaPlugins();
 }
 
 void MainWindow::openFollowStreamDialog(follow_type_t type) {

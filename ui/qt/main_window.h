@@ -288,6 +288,7 @@ private slots:
     void redissectPackets();
     void checkDisplayFilter();
     void fieldsChanged();
+    void reloadLuaPlugins();
     void showAccordionFrame(AccordionFrame *show_frame, bool toggle = false);
     void showColumnEditor(int column);
     void showPreferenceEditor(); // module_t *, pref *

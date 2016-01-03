@@ -103,6 +103,7 @@ public:
     void setMonospaceFont(const char *font_string);
     int monospaceTextSize(const char *str);
     void setConfigurationProfile(const gchar *profile_name);
+    void reloadLuaPluginsDelayed();
     bool isInitialized() { return initialized_; }
     void setReloadingLua(bool is_reloading) { is_reloading_lua_ = is_reloading; }
     bool isReloadingLua() { return is_reloading_lua_; }
@@ -153,6 +154,7 @@ signals:
     void addressResolutionChanged();
     void checkDisplayFilter();
     void fieldsChanged();
+    void reloadLuaPlugins();
 
     void openStatCommandDialog(const QString &menu_path, const char *arg, void *userdata);
     void openTapParameterDialog(const QString cfg_str, const QString arg, void *userdata);

@@ -824,14 +824,40 @@ WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /* Apply the filter in the mai
 }
 
 
-WSLUA_FUNCTION wslua_reload(lua_State* L) { /* Reload the current capture file. */
+WSLUA_FUNCTION wslua_reload(lua_State* L) { /* Reload the current capture file.  Obsolete, use reload_packets() */
 
-    if (!ops->reload) {
+    if (!ops->reload_packets) {
         WSLUA_ERROR(reload, "GUI not available");
         return 0;
     }
 
-    ops->reload(ops->ops_id);
+    ops->reload_packets(ops->ops_id);
+
+    return 0;
+}
+
+
+WSLUA_FUNCTION wslua_reload_packets(lua_State* L) { /* Reload the current capture file. */
+
+    if (!ops->reload_packets) {
+        WSLUA_ERROR(reload, "GUI not available");
+        return 0;
+    }
+
+    ops->reload_packets(ops->ops_id);
+
+    return 0;
+}
+
+
+WSLUA_FUNCTION wslua_reload_lua_plugins(lua_State* L) { /* Reload all Lua plugins. */
+
+    if (!ops->reload_lua_plugins) {
+        WSLUA_ERROR(reload_lua_plugins, "GUI not available");
+        return 0;
+    }
+
+    ops->reload_lua_plugins(ops->ops_id);
 
     return 0;
 }
