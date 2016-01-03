@@ -180,7 +180,6 @@ WS_DLL_PUBLIC gboolean host_name_lookup_process(void);
 WS_DLL_PUBLIC const gchar *get_hostname(const guint addr);
 
 /* get_hostname6 returns the host name, or numeric addr if not found */
-struct e_in6_addr;
 WS_DLL_PUBLIC const gchar* get_hostname6(const struct e_in6_addr *ad);
 
 /* get_ether_name returns the logical name if found in ethers files else

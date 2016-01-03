@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <epan/guid-utils.h>
 #include <epan/wmem/wmem.h>
+#include <epan/ipv6-utils.h>
 #include "wsutil/ws_mempbrk.h"
 
 #ifdef __cplusplus
@@ -55,7 +56,6 @@ extern "C" {
 struct tvbuff;
 typedef struct tvbuff tvbuff_t;
 
-struct e_in6_addr; /* ipv6-utils.h */
 struct nstime_t;   /* nstime.h */
 
 /** @defgroup tvbuff Testy, Virtual(-izable) Buffers

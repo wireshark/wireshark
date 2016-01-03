@@ -28,6 +28,7 @@
 #include "wsutil/nstime.h"
 #include "time_fmt.h"
 #include <epan/packet_info.h>
+#include <epan/ipv6-utils.h>
 #include "ws_symbol_export.h"
 #include "wmem/wmem.h"
 
@@ -48,8 +49,6 @@ extern "C" {
  * These are utility functions which convert various types to strings,
  * but for which no more specific module applies.
  */
-
-struct     e_in6_addr;
 
 WS_DLL_PUBLIC gchar* address_to_str(wmem_allocator_t *scope, const address *addr);
 WS_DLL_PUBLIC gchar* address_with_resolution_to_str(wmem_allocator_t *scope, const address *addr);
