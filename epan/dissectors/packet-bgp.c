@@ -1847,7 +1847,7 @@ decode_path_prefix4(proto_tree *tree, packet_info *pinfo, int hf_path_id, int hf
     /* snarf path identifier length and prefix */
     path_identifier = tvb_get_ntohl(tvb, offset);
     plen = tvb_get_guint8(tvb, offset + 4);
-    length = ipv4_addr_and_mask(tvb, offset + 4 + 1, ip_addr.addr_bytes, plen);
+    length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset + 4 + 1, ip_addr.addr_bytes, plen);
     if (length < 0) {
         proto_tree_add_expert_format(tree, pinfo, &ei_bgp_length_invalid, tvb, offset + 4 , 1, "%s length %u invalid (> 32)",
             tag, plen);
@@ -1882,7 +1882,7 @@ decode_prefix4(proto_tree *tree, packet_info *pinfo, proto_item *parent_item, in
 
     /* snarf length and prefix */
     plen = tvb_get_guint8(tvb, offset);
-    length = ipv4_addr_and_mask(tvb, offset + 1, ip_addr.addr_bytes, plen);
+    length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset + 1, ip_addr.addr_bytes, plen);
     if (length < 0) {
         proto_tree_add_expert_format(tree, pinfo, &ei_bgp_length_invalid, tvb, offset, 1, "%s length %u invalid (> 32)",
             tag, plen);
@@ -1920,7 +1920,7 @@ decode_prefix6(proto_tree *tree, packet_info *pinfo, int hf_addr, tvbuff_t *tvb,
 
     /* snarf length and prefix */
     plen = tvb_get_guint8(tvb, offset);
-    length = ipv6_addr_and_mask(tvb, offset + 1, &addr, plen);
+    length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset + 1, &addr, plen);
     if (length < 0) {
         proto_tree_add_expert_format(tree, pinfo, &ei_bgp_length_invalid, tvb, offset, 1, "%s length %u invalid",
             tag, plen);
@@ -1958,7 +1958,7 @@ decode_fspec_match_prefix6(proto_tree *tree, proto_item *parent_item, int hf_add
       poffset_place = 0;
       plength_place = 1;
     }
-    length = ipv6_addr_and_mask(tvb, offset + 2, &addr, plen);
+    length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset + 2, &addr, plen);
     if (length < 0) {
         expert_add_info_format(pinfo, parent_item, &ei_bgp_prefix_length_err, "Length is invalid %u", plen);
         return -1;
@@ -4189,7 +4189,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                     return -1;
                 }
                 plen -= (labnum * 3*8);
-                length = ipv4_addr_and_mask(tvb, offset, ip4addr.addr_bytes, plen);
+                length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset, ip4addr.addr_bytes, plen);
                 if (length < 0) {
                     proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                         "%s Labeled IPv4 prefix length %u invalid",
@@ -4296,7 +4296,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 tnl_id = tvb_get_ntohs(tvb, offset + 1);
                 offset += 3; /* Length + Tunnel Id */
                 plen -= 16; /* 2-octet Identifier */
-                length = ipv4_addr_and_mask(tvb, offset, ip4addr.addr_bytes, plen);
+                length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset, ip4addr.addr_bytes, plen);
                 if (length < 0) {
                     proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                         "%s Tunnel IPv4 prefix length %u invalid",
@@ -4343,7 +4343,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 }
                 plen -= 8*8;
 
-                length = ipv4_addr_and_mask(tvb, offset + 8, ip4addr.addr_bytes, plen);
+                length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset + 8, ip4addr.addr_bytes, plen);
                 if (length < 0) {
                 proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                              "%s Labeled VPN IPv4 prefix length %u invalid",
@@ -4402,7 +4402,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 }
                 plen -= (labnum * 3*8);
 
-                length = ipv6_addr_and_mask(tvb, offset, &ip6addr, plen);
+                length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset, &ip6addr, plen);
                 if (length < 0) {
                     proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                         "%s Labeled IPv6 prefix length %u invalid",
@@ -4444,7 +4444,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 tnl_id = tvb_get_ntohs(tvb, offset + 1);
                 offset += 3; /* Length + Tunnel Id */
                 plen -= 16; /* 2-octet Identifier */
-                length = ipv6_addr_and_mask(tvb, offset, &ip6addr, plen);
+                length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset, &ip6addr, plen);
                 if (length < 0) {
                     proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                         "%s Tunnel IPv6 prefix length %u invalid",
@@ -4493,7 +4493,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 switch (rd_type) {
 
                     case FORMAT_AS2_LOC:
-                        length = ipv6_addr_and_mask(tvb, offset + 8, &ip6addr, plen);
+                        length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset + 8, &ip6addr, plen);
                         if (length < 0) {
                             proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                                 "%s Labeled VPN IPv6 prefix length %u invalid",
@@ -4514,7 +4514,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         break;
 
                     case FORMAT_IP_LOC:
-                        length = ipv6_addr_and_mask(tvb, offset + 8, &ip6addr, plen);
+                        length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset + 8, &ip6addr, plen);
                         if (length < 0) {
                             proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                                 "%s Labeled VPN IPv6 prefix length %u invalid",
@@ -4535,7 +4535,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         break;
 
                     case FORMAT_AS4_LOC:
-                        length = ipv6_addr_and_mask(tvb, offset + 8, &ip6addr, plen);
+                        length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset + 8, &ip6addr, plen);
                         if (length < 0) {
                             proto_tree_add_expert_format(tree, pinfo, &ei_bgp_prefix_length_invalid, tvb, start_offset, 1,
                                                 "%s Labeled VPN IPv6 prefix length %u invalid",

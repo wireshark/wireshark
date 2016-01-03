@@ -3723,10 +3723,10 @@ static gboolean
 process_node(proto_node *ptree_node, header_field_info *hfinformation,
 		      const gchar* proto_field, guint32* p_result)
 {
-	field_info        *finfo;
-	proto_node        *proto_sibling_node;
-	header_field_info *hfssrc;
-	ipv4_addr         *ipv4;
+	field_info         *finfo;
+	proto_node         *proto_sibling_node;
+	header_field_info  *hfssrc;
+	ipv4_addr_and_mask *ipv4;
 
 	finfo = PNODE_FINFO(ptree_node);
 
@@ -3743,7 +3743,7 @@ process_node(proto_node *ptree_node, header_field_info *hfinformation,
 			finfo = PNODE_FINFO(ptree_node);
 			if (hfssrc == finfo->hfinfo) {
 				if (hfinformation->type == FT_IPv4) {
-					ipv4 = (ipv4_addr *)fvalue_get(&finfo->value);
+					ipv4 = (ipv4_addr_and_mask *)fvalue_get(&finfo->value);
 					*p_result = ipv4_get_net_order_addr(ipv4);
 				}
 				else {

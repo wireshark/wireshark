@@ -117,8 +117,8 @@ static const guint8 bitmasks[9] =
 static gint
 cmp_compare(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	const ipv6_addr *a = &(fv_a->value.ipv6);
-	const ipv6_addr *b = &(fv_b->value.ipv6);
+	const ipv6_addr_and_prefix *a = &(fv_a->value.ipv6);
+	const ipv6_addr_and_prefix *b = &(fv_b->value.ipv6);
 	guint32	prefix;
 	int pos = 0;
 
@@ -185,8 +185,8 @@ cmp_le(const fvalue_t *fv_a, const fvalue_t *fv_b)
 static gboolean
 cmp_bitwise_and(const fvalue_t *fv_a, const fvalue_t *fv_b)
 {
-	const ipv6_addr *a = &(fv_a->value.ipv6);
-	const ipv6_addr *b = &(fv_b->value.ipv6);
+	const ipv6_addr_and_prefix *a = &(fv_a->value.ipv6);
+	const ipv6_addr_and_prefix *b = &(fv_b->value.ipv6);
 	guint32	prefix;
 	int pos = 0;
 

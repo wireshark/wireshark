@@ -4527,13 +4527,13 @@ const gchar *
 proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 		 gchar *result, gchar *expr, const int size)
 {
-	guint32            number;
-	guint64            number64;
-	guint8            *bytes;
-	ipv4_addr         *ipv4;
-	struct e_in6_addr *ipv6;
-	address            addr;
-	guint32            n_addr; /* network-order IPv4 address */
+	guint32             number;
+	guint64             number64;
+	guint8             *bytes;
+	ipv4_addr_and_mask *ipv4;
+	struct e_in6_addr  *ipv6;
+	address             addr;
+	guint32             n_addr; /* network-order IPv4 address */
 
 	const true_false_string  *tfstring;
 
@@ -4802,7 +4802,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 						break;
 
 					case FT_IPv4:
-						ipv4 = (ipv4_addr *)fvalue_get(&finfo->value);
+						ipv4 = (ipv4_addr_and_mask *)fvalue_get(&finfo->value);
 						n_addr = ipv4_get_net_order_addr(ipv4);
 						set_address (&addr, AT_IPv4, 4, &n_addr);
 						address_to_str_buf(&addr, result+offset_r, size-offset_r);
@@ -6623,17 +6623,17 @@ label_fill_descr(char *label_str, gsize pos, const header_field_info *hfinfo, co
 void
 proto_item_fill_label(field_info *fi, gchar *label_str)
 {
-	header_field_info *hfinfo;
-	guint8		  *bytes;
-	guint32		   integer;
-	guint64		   integer64;
-	ipv4_addr	  *ipv4;
-	e_guid_t	  *guid;
-	guint32		   n_addr; /* network-order IPv4 address */
-	gchar	      *name;
-	address		   addr;
-	char		  *addr_str;
-	char          *tmp;
+	header_field_info  *hfinfo;
+	guint8		   *bytes;
+	guint32		    integer;
+	guint64		    integer64;
+	ipv4_addr_and_mask *ipv4;
+	e_guid_t	   *guid;
+	guint32		    n_addr; /* network-order IPv4 address */
+	gchar	           *name;
+	address		    addr;
+	char		   *addr_str;
+	char               *tmp;
 
 	if (!fi) {
 		if (label_str)
@@ -6820,7 +6820,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 			break;
 
 		case FT_IPv4:
-			ipv4 = (ipv4_addr *)fvalue_get(&fi->value);
+			ipv4 = (ipv4_addr_and_mask *)fvalue_get(&fi->value);
 			n_addr = ipv4_get_net_order_addr(ipv4);
 
 			addr.type = AT_IPv4;

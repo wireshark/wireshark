@@ -201,23 +201,23 @@ typedef struct _fvalue_t {
 	ftype_t	*ftype;
 	union {
 		/* Put a few basic types in here */
-		guint32		uinteger;
-		gint32		sinteger;
-		guint64		integer64;
-		guint64		uinteger64;
-		gint64		sinteger64;
-		gdouble		floating;
-		gchar		*string;
-		guchar		*ustring;
-		GByteArray	*bytes;
-		ipv4_addr	ipv4;
-		ipv6_addr	ipv6;
-		e_guid_t	guid;
-		nstime_t	time;
-		tvbuff_t	*tvb;
-		GRegex	        *re;
-		guint16		sfloat_ieee_11073;
-		guint32		float_ieee_11073;
+		guint32			uinteger;
+		gint32			sinteger;
+		guint64			integer64;
+		guint64			uinteger64;
+		gint64			sinteger64;
+		gdouble			floating;
+		gchar			*string;
+		guchar			*ustring;
+		GByteArray		*bytes;
+		ipv4_addr_and_mask	ipv4;
+		ipv6_addr_and_prefix	ipv6;
+		e_guid_t		guid;
+		nstime_t		time;
+		tvbuff_t		*tvb;
+		GRegex			*re;
+		guint16			sfloat_ieee_11073;
+		guint32			float_ieee_11073;
 	} value;
 
 	/* The following is provided for private use

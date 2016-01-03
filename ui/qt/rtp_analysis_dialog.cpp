@@ -1369,10 +1369,10 @@ void RtpAnalysisDialog::saveCsv(RtpAnalysisDialog::StreamDirection direction)
 // Adapted from rtp_analysis.c:process_node
 guint32 RtpAnalysisDialog::processNode(proto_node *ptree_node, header_field_info *hfinformation, const gchar *proto_field, bool *ok)
 {
-    field_info        *finfo;
-    proto_node        *proto_sibling_node;
-    header_field_info *hfssrc;
-    ipv4_addr         *ipv4;
+    field_info         *finfo;
+    proto_node         *proto_sibling_node;
+    header_field_info  *hfssrc;
+    ipv4_addr_and_mask *ipv4;
 
     finfo = PNODE_FINFO(ptree_node);
 
@@ -1391,7 +1391,7 @@ guint32 RtpAnalysisDialog::processNode(proto_node *ptree_node, header_field_info
             if (hfssrc == finfo->hfinfo) {
                 guint32 result;
                 if (hfinformation->type == FT_IPv4) {
-                    ipv4 = (ipv4_addr *)fvalue_get(&finfo->value);
+                    ipv4 = (ipv4_addr_and_mask *)fvalue_get(&finfo->value);
                     result = ipv4_get_net_order_addr(ipv4);
                 } else {
                     result = fvalue_get_uinteger(&finfo->value);

@@ -1113,7 +1113,7 @@ dissect_eigrp_ipv4_addrs (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 
     for (; tvb_reported_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
         length = tvb_get_guint8(tvb, offset);
-        addr_len = ipv4_addr_and_mask(tvb, offset + 1, ip_addr.addr_bytes, length);
+        addr_len = tvb_get_ipv4_addr_with_prefix_len(tvb, offset + 1, ip_addr.addr_bytes, length);
 
         if (addr_len < 0) {
             /* Invalid prefix length, more than 32 bits */
@@ -1167,7 +1167,7 @@ dissect_eigrp_ipv6_addrs (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 
     for (; tvb_reported_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
         length = tvb_get_guint8(tvb, offset);
-        addr_len = ipv6_addr_and_mask(tvb, offset + 1, &addr, length);
+        addr_len = tvb_get_ipv6_addr_with_prefix_len(tvb, offset + 1, &addr, length);
 
         if (addr_len < 0) {
             /* Invalid prefix length, more than 128 bits */

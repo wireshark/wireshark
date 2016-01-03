@@ -817,7 +817,7 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
     while (length > 0) {
         ctrl_info = tvb_get_guint8(tvb, offset+4);
         bit_length = ctrl_info & 0x3f;
-        byte_length = ipv4_addr_and_mask(tvb, offset+5, prefix, bit_length);
+        byte_length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset+5, prefix, bit_length);
         if (byte_length == -1) {
             proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
                  "IPv4 prefix has an invalid length: %d bits", bit_length );
@@ -1447,7 +1447,7 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
     while (length > 0) {
         ctrl_info = tvb_get_guint8(tvb, offset+4);
         bit_length = tvb_get_guint8(tvb, offset+5);
-        byte_length = ipv6_addr_and_mask(tvb, offset+6, &prefix, bit_length);
+        byte_length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset+6, &prefix, bit_length);
         if (byte_length == -1) {
             proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
                 "IPv6 prefix has an invalid length: %d bits", bit_length );

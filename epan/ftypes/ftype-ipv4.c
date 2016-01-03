@@ -30,8 +30,8 @@
 static void
 set_uinteger(fvalue_t *fv, guint32 value)
 {
-	ipv4_addr_set_net_order_addr(&(fv->value.ipv4), value);
-	ipv4_addr_set_netmask_bits(&(fv->value.ipv4), 32);
+	ipv4_addr_and_mask_set_net_order_addr(&(fv->value.ipv4), value);
+	ipv4_addr_and_mask_set_netmask_bits(&(fv->value.ipv4), 32);
 }
 
 static gpointer
@@ -75,7 +75,7 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 
 	if (addr_str_to_free)
 		wmem_free(NULL, addr_str_to_free);
-	ipv4_addr_set_net_order_addr(&(fv->value.ipv4), addr);
+	ipv4_addr_and_mask_set_net_order_addr(&(fv->value.ipv4), addr);
 
 	/* If CIDR, get netmask bits. */
 	if (slash) {
@@ -97,11 +97,11 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 			}
 			return FALSE;
 		}
-		ipv4_addr_set_netmask_bits(&fv->value.ipv4, nmask_bits);
+		ipv4_addr_and_mask_set_netmask_bits(&fv->value.ipv4, nmask_bits);
 	}
 	else {
 		/* Not CIDR; mask covers entire address. */
-		ipv4_addr_set_netmask_bits(&(fv->value.ipv4), 32);
+		ipv4_addr_and_mask_set_netmask_bits(&(fv->value.ipv4), 32);
 	}
 
 	return TRUE;
@@ -119,43 +119,43 @@ val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 static void
 val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf)
 {
-	ipv4_addr_str_buf(&fv->value.ipv4, buf);
+	ipv4_addr_and_mask_str_buf(&fv->value.ipv4, buf);
 }
 
 static gboolean
 cmp_eq(const fvalue_t *a, const fvalue_t *b)
 {
-	return ipv4_addr_eq(&a->value.ipv4, &b->value.ipv4);
+	return ipv4_addr_and_mask_eq(&a->value.ipv4, &b->value.ipv4);
 }
 
 static gboolean
 cmp_ne(const fvalue_t *a, const fvalue_t *b)
 {
-	return ipv4_addr_ne(&a->value.ipv4, &b->value.ipv4);
+	return ipv4_addr_and_mask_ne(&a->value.ipv4, &b->value.ipv4);
 }
 
 static gboolean
 cmp_gt(const fvalue_t *a, const fvalue_t *b)
 {
-	return ipv4_addr_gt(&a->value.ipv4, &b->value.ipv4);
+	return ipv4_addr_and_mask_gt(&a->value.ipv4, &b->value.ipv4);
 }
 
 static gboolean
 cmp_ge(const fvalue_t *a, const fvalue_t *b)
 {
-	return ipv4_addr_ge(&a->value.ipv4, &b->value.ipv4);
+	return ipv4_addr_and_mask_ge(&a->value.ipv4, &b->value.ipv4);
 }
 
 static gboolean
 cmp_lt(const fvalue_t *a, const fvalue_t *b)
 {
-	return ipv4_addr_lt(&a->value.ipv4, &b->value.ipv4);
+	return ipv4_addr_and_mask_lt(&a->value.ipv4, &b->value.ipv4);
 }
 
 static gboolean
 cmp_le(const fvalue_t *a, const fvalue_t *b)
 {
-	return ipv4_addr_le(&a->value.ipv4, &b->value.ipv4);
+	return ipv4_addr_and_mask_le(&a->value.ipv4, &b->value.ipv4);
 }
 
 static gboolean

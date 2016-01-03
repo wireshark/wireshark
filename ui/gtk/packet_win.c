@@ -615,7 +615,7 @@ new_finfo_window(GtkWidget *w, struct FieldinfoWinData *DataPtr)
 		g_signal_connect(fvalue_edit, "toggled", G_CALLBACK(finfo_boolean_changed), DataPtr);
 
 	} else if (finfo_type == FT_IPv4) {
-		guint32 net_addr = ipv4_get_net_order_addr((ipv4_addr *)fvalue_get(&finfo->value));
+		guint32 net_addr = ipv4_get_net_order_addr((ipv4_addr_and_mask *)fvalue_get(&finfo->value));
 #if GTK_CHECK_VERSION(3,0,0)
 		GtkAdjustment *adj;
 #else

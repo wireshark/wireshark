@@ -33,6 +33,6 @@ struct e_in6_addr {
 typedef struct {
 	struct e_in6_addr addr;
 	guint32 prefix;
-} ipv6_addr;
+} ipv6_addr_and_prefix;
 
 #endif /* __IPV6_UTILS_H__ */
