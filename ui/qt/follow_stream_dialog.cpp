@@ -294,7 +294,17 @@ void FollowStreamDialog::on_streamNumberSpinBox_valueChanged(int stream_num)
     if (file_closed_) return;
 
     if (stream_num >= 0) {
-        follow_index((follow_type_ == FOLLOW_TCP) ? TCP_STREAM : UDP_STREAM, stream_num);
+        switch(follow_type_)
+        {
+        case FOLLOW_TCP:
+        case FOLLOW_SSL:
+        case FOLLOW_HTTP:
+            follow_index(TCP_STREAM, stream_num);
+            break;
+        case FOLLOW_UDP:
+            follow_index(UDP_STREAM, stream_num);
+            break;
+        }
         follow(QString(), true);
     }
 }
@@ -482,6 +492,7 @@ http_queue_packet_data(void *tapdata, packet_info *pinfo,
     follow_record->data = g_byte_array_append(follow_record->data,
                                               tvb_get_ptr(next_tvb, 0, -1),
                                               tvb_captured_length(next_tvb));
+    follow_record->packet_num = pinfo->fd->num;
 
     if (follow_info->client_port == 0) {
         follow_info->client_port = pinfo->srcport;
@@ -980,6 +991,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
         }
         break;
     case FOLLOW_HTTP:
+        removeStreamControls();
         if (!is_http) {
             QMessageBox::warning(this, tr("Error following stream."), tr("Please make sure you have a HTTP packet selected."));
             return false;
@@ -987,18 +999,35 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
         break;
     }
 
-    if (follow_type_ == FOLLOW_TCP || follow_type_ == FOLLOW_SSL)
+    switch (follow_type_)
     {
+    case FOLLOW_TCP:
+    case FOLLOW_SSL:
+    case FOLLOW_HTTP:
         /* Create a new filter that matches all packets in the TCP stream,
            and set the display filter entry accordingly */
         reset_tcp_reassembly();
-    } else {
+        break;
+    case FOLLOW_UDP:
         reset_udp_follow();
+        break;
     }
 
     if (use_stream_index) {
-        follow_filter = gchar_free_to_qstring(
-            build_follow_index_filter((follow_type_ == FOLLOW_TCP) ? TCP_STREAM : UDP_STREAM));
+        switch(follow_type_)
+        {
+        case FOLLOW_TCP:
+        case FOLLOW_SSL:
+            follow_filter = gchar_free_to_qstring(build_follow_index_filter(TCP_STREAM));
+            break;
+        case FOLLOW_HTTP:
+            follow_filter = gchar_free_to_qstring(build_follow_index_filter(TCP_STREAM));
+            follow_filter = QString("((%1) && (http))").arg(follow_filter);
+            break;
+        case FOLLOW_UDP:
+            follow_filter = gchar_free_to_qstring(build_follow_index_filter(UDP_STREAM));
+            break;
+        }
     } else {
         if (follow_type_ == FOLLOW_HTTP) {
             follow_filter = gchar_free_to_qstring(build_follow_conv_filter(&cap_file_.capFile()->edt->pi, "http"));
