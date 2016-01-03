@@ -1,4 +1,4 @@
-/* ipv6-utils.h
+/* ipv6.h
  * Definitions for IPv6 packet disassembly
  *
  * Wireshark - Network traffic analyzer

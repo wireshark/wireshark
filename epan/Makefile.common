@@ -211,7 +211,7 @@ LIBWIRESHARK_INCLUDES =		\
 	ip_opts.h		\
 	ipproto.h		\
 	ipv4.h			\
-	ipv6-utils.h		\
+	ipv6.h			\
 	lapd_sapi.h		\
 	llcsaps.h		\
 	next_tvb.h		\

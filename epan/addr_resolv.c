@@ -118,7 +118,7 @@
 
 #include "packet.h"
 #include "addr_and_mask.h"
-#include "ipv6-utils.h"
+#include "ipv6.h"
 #include "addr_resolv.h"
 #include "wsutil/filesystem.h"
 

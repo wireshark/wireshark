@@ -28,7 +28,7 @@
 #include "wsutil/nstime.h"
 #include "time_fmt.h"
 #include <epan/packet_info.h>
-#include <epan/ipv6-utils.h>
+#include <epan/ipv6.h>
 #include "ws_symbol_export.h"
 #include "wmem/wmem.h"
 

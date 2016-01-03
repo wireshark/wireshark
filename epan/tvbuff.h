@@ -36,7 +36,7 @@
 #include <glib.h>
 #include <epan/guid-utils.h>
 #include <epan/wmem/wmem.h>
-#include <epan/ipv6-utils.h>
+#include <epan/ipv6.h>
 
 #include <wsutil/nstime.h>
 #include "wsutil/ws_mempbrk.h"

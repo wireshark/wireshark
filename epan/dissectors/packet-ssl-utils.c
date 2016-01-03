@@ -36,7 +36,7 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/addr_resolv.h>
-#include <epan/ipv6-utils.h>
+#include <epan/ipv6.h>
 #include <epan/expert.h>
 #include <epan/asn1.h>
 #include <wsutil/filesystem.h>

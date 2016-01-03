@@ -190,7 +190,7 @@ ftype_can_matches(enum ftenum ftype);
 /* ---------------- FVALUE ----------------- */
 
 #include <epan/ipv4.h>
-#include <epan/ipv6-utils.h>
+#include <epan/ipv6.h>
 #include <epan/guid-utils.h>
 
 #include <epan/tvbuff.h>

@@ -29,7 +29,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include <epan/ipv6-utils.h>
+#include <epan/ipv6.h>
 #include <epan/prefs.h>
 #include "ws_symbol_export.h"
 

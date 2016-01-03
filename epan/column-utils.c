@@ -32,7 +32,7 @@
 #include "wsutil/pint.h"
 #include "addr_resolv.h"
 #include "address_types.h"
-#include "ipv6-utils.h"
+#include "ipv6.h"
 #include "osi-utils.h"
 #include "value_string.h"
 #include "column-info.h"

@@ -24,7 +24,7 @@
 #ifndef __PACKET_IPV6_H_DEFINED__
 #define __PACKET_IPV6_H_DEFINED__
 
-#include <epan/ipv6-utils.h>
+#include <epan/ipv6.h>
 
 /* this definition makes trouble with Microsoft Platform SDK: ws2tcpip.h and is used nowhere */
 /*#define INET6_ADDRSTRLEN    46*/

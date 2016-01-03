@@ -23,7 +23,7 @@
 #include <string.h>
 
 #include <ftypes-int.h>
-#include <epan/ipv6-utils.h>
+#include <epan/ipv6.h>
 #include <epan/addr_resolv.h>
 
 static void
