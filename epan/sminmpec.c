@@ -47026,6 +47026,8 @@ const value_string sminmpec_values[] = {
     { 47003, "JSC VELAN" },
     { 47004, "Secucloud Network GmbH" },
     { 47005, "Fort Lewis College" },
+    { 47006, "TransneftEnergy, LLC" },
+    { 47007, "Ascent Resources" },
     {    0, NULL}
 };
 
