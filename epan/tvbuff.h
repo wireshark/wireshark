@@ -37,6 +37,8 @@
 #include <epan/guid-utils.h>
 #include <epan/wmem/wmem.h>
 #include <epan/ipv6-utils.h>
+
+#include <wsutil/nstime.h>
 #include "wsutil/ws_mempbrk.h"
 
 #ifdef __cplusplus
@@ -55,8 +57,6 @@ extern "C" {
 
 struct tvbuff;
 typedef struct tvbuff tvbuff_t;
-
-struct nstime_t;   /* nstime.h */
 
 /** @defgroup tvbuff Testy, Virtual(-izable) Buffers
  *
@@ -375,8 +375,8 @@ WS_DLL_PUBLIC gdouble tvb_get_ieee_double(tvbuff_t *tvb, const gint offset, cons
  * for purely multi-byte encodings such as ENC_UTF_16, ENC_UCS_*, etc.
  */
 WS_DLL_PUBLIC
-struct nstime_t* tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
-                              const guint encoding, struct nstime_t* ns, gint *endoff);
+nstime_t* tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
+                              const guint encoding, nstime_t* ns, gint *endoff);
 
 /* Similar to above, but returns a GByteArray based on the case-insensitive
  * hex-char strings with optional separators, and with optional leading spaces.
