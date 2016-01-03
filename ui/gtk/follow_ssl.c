@@ -71,12 +71,10 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     follow_info_t *      follow_info = (follow_info_t*) tapdata;
     SslDecryptedRecord * rec = NULL;
     SslDataInfo *        appl_data = NULL;
-    int                  proto_ssl = GPOINTER_TO_INT(ssl);
-    SslPacketInfo *      pi = NULL;
+    SslPacketInfo *      pi = (SslPacketInfo*)ssl;
     show_stream_t        from = FROM_CLIENT;
 
     /* Skip packets without decrypted payload data. */
-    pi = (SslPacketInfo*) p_get_proto_data(wmem_file_scope(), pinfo, proto_ssl, 0);
     if (!pi || !pi->appl_data) return FALSE;
 
     /* Compute the packet's sender. */

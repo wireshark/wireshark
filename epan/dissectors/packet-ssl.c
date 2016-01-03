@@ -777,7 +777,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         if (need_desegmentation) {
           ssl_debug_printf("  need_desegmentation: offset = %d, reported_length_remaining = %d\n",
                            offset, tvb_reported_length_remaining(tvb, offset));
-          tap_queue_packet(ssl_tap, pinfo, GINT_TO_POINTER(proto_ssl));
+          tap_queue_packet(ssl_tap, pinfo, p_get_proto_data(wmem_file_scope(), pinfo, proto_ssl, 0));
           return tvb_captured_length(tvb);
         }
 
@@ -789,7 +789,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     ssl_debug_flush();
 
-    tap_queue_packet(ssl_tap, pinfo, GINT_TO_POINTER(proto_ssl));
+    tap_queue_packet(ssl_tap, pinfo, p_get_proto_data(wmem_file_scope(), pinfo, proto_ssl, 0));
 
     return tvb_captured_length(tvb);
 }
