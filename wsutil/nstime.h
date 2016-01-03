@@ -36,7 +36,7 @@ extern "C" {
  */
 
 /** data structure to hold time values with nanosecond resolution*/
-typedef struct nstime_t {
+typedef struct {
 	time_t	secs;
 	int	nsecs;
 } nstime_t;
