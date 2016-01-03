@@ -177,6 +177,9 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'epan/dfilter/grammar.h': [
         'UNKNOWN',
     ],
+    'epan/dfilter/grammar.c': [
+        'UNKNOWN',
+    ],
     'plugins/mate/mate_grammar.h': [
         'UNKNOWN',
     ],
