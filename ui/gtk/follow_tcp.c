@@ -56,6 +56,9 @@
 #include "ui/gtk/follow_stream.h"
 #include "ws_symbol_export.h"
 
+static frs_return_t
+follow_read_tcp_stream(follow_info_t *follow_info, follow_print_line_func follow_print, void *arg);
+
 /* With MSVC and a libwireshark.dll, we need a special declaration. */
 WS_DLL_PUBLIC FILE *data_out_file;
 
@@ -108,6 +111,7 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 
     follow_info = g_new0(follow_info_t, 1);
     follow_info->follow_type = FOLLOW_TCP;
+    follow_info->read_stream = follow_read_tcp_stream;
 
     /* Create a new filter that matches all packets in the TCP stream,
        and set the display filter entry accordingly */
@@ -328,9 +332,9 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
  * This might or might not be the reason why C arrays display
  * correctly but get extra blank lines very other line when printed.
  */
-frs_return_t
+static frs_return_t
 follow_read_tcp_stream(follow_info_t *follow_info,
-    gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
+    follow_print_line_func follow_print,
     void *arg)
 {
     tcp_stream_chunk    sc;
@@ -401,7 +405,7 @@ follow_read_tcp_stream(follow_info_t *follow_info,
             bytes_read += nchars;
 
             if (!skip) {
-                frs_return = follow_show(follow_info, print_line_fcn_p, buffer,
+                frs_return = follow_show(follow_info, follow_print, buffer,
                                         nchars, is_server, arg, global_pos,
                                         &server_packet_count,
                                         &client_packet_count);

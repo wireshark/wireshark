@@ -27,7 +27,12 @@
 #include <gtk/gtk.h>
 #include <ui/follow.h>
 
-typedef struct {
+struct _follow_info;
+
+typedef gboolean (*follow_print_line_func)(char *, size_t, gboolean, void *);
+typedef frs_return_t (*follow_read_stream_func)(struct _follow_info *follow_info, follow_print_line_func follow_print, void *arg);
+
+typedef struct _follow_info {
     follow_type_t   follow_type;
     show_stream_t   show_stream;
     show_type_t     show_type;
@@ -47,6 +52,7 @@ typedef struct {
     guint           bytes_written[2]; /* Index with FROM_CLIENT or FROM_SERVER for readability. */
     guint           client_port;
     address         client_ip;
+    follow_read_stream_func read_stream;
 } follow_info_t;
 
 #define E_FOLLOW_INFO_KEY "follow_info_key"
@@ -62,18 +68,13 @@ void follow_stream(const gchar *title, follow_info_t *follow_info,
                    gchar *server_to_client_string,
                    gchar *client_to_server_string);
 frs_return_t follow_show(follow_info_t *follow_info,
-                         gboolean (*print_line)(char *, size_t, gboolean, void *),
+                         follow_print_line_func follow_print,
                          char *buffer, size_t nchars, gboolean is_server,
                          void *arg, guint32 *global_pos,
                          guint32 *server_packet_count,
                          guint32 *client_packet_count);
 gboolean follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
                                  void *arg);
-
-frs_return_t follow_read_http_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);
-frs_return_t follow_read_tcp_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);
-frs_return_t follow_read_udp_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);
-frs_return_t follow_read_ssl_stream(follow_info_t *follow_info, gboolean (*print_line)(char *, size_t, gboolean, void *), void *arg);
 
 #endif /* __FOLLOW_STREAM_H__ */
 

@@ -40,6 +40,9 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/follow_http.h"
 
+static frs_return_t
+follow_read_http_stream(follow_info_t *follow_info, follow_print_line_func follow_print, void *arg);
+
 static gboolean
 http_queue_packet_data(void *tapdata, packet_info *pinfo,
                       epan_dissect_t *edt _U_, const void *data)
@@ -103,6 +106,7 @@ follow_http_stream_cb(GtkWidget *w _U_, gpointer data _U_)
 
     follow_info = g_new0(follow_info_t, 1);
     follow_info->follow_type = FOLLOW_HTTP;
+    follow_info->read_stream = follow_read_http_stream;
 
     /* Create a new filter that matches all packets in the HTTP stream,
        and set the display filter entry accordingly */
@@ -248,9 +252,9 @@ follow_http_stream_cb(GtkWidget *w _U_, gpointer data _U_)
  * This might or might not be the reason why C arrays display
  * correctly but get extra blank lines very other line when printed.
  */
-frs_return_t
+static frs_return_t
 follow_read_http_stream(follow_info_t *follow_info,
-                       gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
+                       follow_print_line_func follow_print,
                        void *arg)
 {
     guint32 global_client_pos = 0, global_server_pos = 0;
@@ -283,7 +287,7 @@ follow_read_http_stream(follow_info_t *follow_info,
             buffer = (char *)g_memdup(follow_record->data->data,
                                      follow_record->data->len);
 
-            frs_return = follow_show(follow_info, print_line_fcn_p,
+            frs_return = follow_show(follow_info, follow_print,
                                      buffer,
                                      follow_record->data->len,
                                      follow_record->is_server, arg,

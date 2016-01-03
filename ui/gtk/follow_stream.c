@@ -76,24 +76,12 @@ follow_read_stream(follow_info_t *follow_info,
            gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
            void *arg)
 {
-    switch(follow_info->follow_type) {
-
-    case FOLLOW_TCP :
-        return follow_read_tcp_stream(follow_info, print_line_fcn_p, arg);
-
-    case FOLLOW_UDP :
-        return follow_read_udp_stream(follow_info, print_line_fcn_p, arg);
-
-    case FOLLOW_SSL :
-        return follow_read_ssl_stream(follow_info, print_line_fcn_p, arg);
-
-    case FOLLOW_HTTP :
-        return follow_read_http_stream(follow_info, print_line_fcn_p, arg);
-
-    default :
+    if (follow_info->read_stream == NULL) {
         g_assert_not_reached();
         return (frs_return_t)0;
     }
+
+    return follow_info->read_stream(follow_info, print_line_fcn_p, arg);
 }
 
 gboolean
@@ -903,7 +891,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 
 frs_return_t
 follow_show(follow_info_t *follow_info,
-            gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
+            follow_print_line_func follow_print,
             char *buffer, size_t nchars, gboolean is_from_server, void *arg,
             guint32 *global_pos, guint32 *server_packet_count,
             guint32 *client_packet_count)
@@ -917,7 +905,7 @@ follow_show(follow_info_t *follow_info,
     case SHOW_EBCDIC:
         /* If our native arch is ASCII, call: */
         EBCDIC_to_ASCII(buffer, (guint) nchars);
-        if (!(*print_line_fcn_p) (buffer, nchars, is_from_server, arg))
+        if (!follow_print(buffer, nchars, is_from_server, arg))
             return FRS_PRINT_ERROR;
         break;
 
@@ -925,7 +913,7 @@ follow_show(follow_info_t *follow_info,
         /* If our native arch is EBCDIC, call:
          * ASCII_TO_EBCDIC(buffer, nchars);
          */
-        if (!(*print_line_fcn_p) (buffer, nchars, is_from_server, arg))
+        if (!follow_print(buffer, nchars, is_from_server, arg))
             return FRS_PRINT_ERROR;
         break;
 
@@ -933,7 +921,7 @@ follow_show(follow_info_t *follow_info,
         /* Don't translate, no matter what the native arch
          * is.
          */
-        if (!(*print_line_fcn_p) (buffer, nchars, is_from_server, arg))
+        if (!follow_print(buffer, nchars, is_from_server, arg))
             return FRS_PRINT_ERROR;
         break;
 
@@ -980,7 +968,7 @@ follow_show(follow_info_t *follow_info,
             (*global_pos) += i;
             *cur++ = '\n';
             *cur = 0;
-            if (!(*print_line_fcn_p) (hexbuf, strlen(hexbuf), is_from_server, arg))
+            if (!follow_print(hexbuf, strlen(hexbuf), is_from_server, arg))
                 return FRS_PRINT_ERROR;
         }
         break;
@@ -990,7 +978,7 @@ follow_show(follow_info_t *follow_info,
         g_snprintf(initbuf, sizeof(initbuf), "char peer%d_%d[] = {\n",
                is_from_server ? 1 : 0,
                is_from_server ? (*server_packet_count)++ : (*client_packet_count)++);
-        if (!(*print_line_fcn_p) (initbuf, strlen(initbuf), is_from_server, arg))
+        if (!follow_print(initbuf, strlen(initbuf), is_from_server, arg))
             return FRS_PRINT_ERROR;
 
         while (current_pos < nchars) {
@@ -1022,7 +1010,7 @@ follow_show(follow_info_t *follow_info,
             (*global_pos) += i;
             hexbuf[cur++] = '\n';
             hexbuf[cur] = 0;
-            if (!(*print_line_fcn_p) (hexbuf, strlen(hexbuf), is_from_server, arg))
+            if (!follow_print(hexbuf, strlen(hexbuf), is_from_server, arg))
                 return FRS_PRINT_ERROR;
         }
         break;

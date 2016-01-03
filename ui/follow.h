@@ -79,11 +79,6 @@ typedef struct {
     GByteArray *data;
 } follow_record_t;
 
-#ifdef HAVE_LIBZ
-gboolean
-parse_http_header(char *data, size_t len, size_t *content_start);
-#endif
-
 #ifdef __cplusplus
 }
 #endif

@@ -61,6 +61,10 @@
 #include <epan/dissectors/packet-ssl-utils.h>
 #endif
 
+static frs_return_t
+follow_read_ssl_stream(follow_info_t *follow_info, follow_print_line_func follow_print, void *arg);
+
+
 static gboolean
 ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ssl)
 {
@@ -156,6 +160,7 @@ follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 
     follow_info = g_new0(follow_info_t, 1);
     follow_info->follow_type = FOLLOW_SSL;
+    follow_info->read_stream = follow_read_ssl_stream;
 
     /* Create a new filter that matches all packets in the SSL stream,
        and set the display filter entry accordingly */
@@ -300,9 +305,9 @@ follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
  * This might or might not be the reason why C arrays display
  * correctly but get extra blank lines very other line when printed.
  */
-frs_return_t
+static frs_return_t
 follow_read_ssl_stream(follow_info_t *follow_info,
-               gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
+               follow_print_line_func follow_print,
                void *arg)
 {
     guint32      global_client_pos = 0, global_server_pos = 0;
@@ -330,7 +335,7 @@ follow_read_ssl_stream(follow_info_t *follow_info,
             size_t nchars = rec->data.data_len;
             gchar *buffer = (gchar *)g_memdup(rec->data.data, (guint) nchars);
 
-            frs_return = follow_show(follow_info, print_line_fcn_p, buffer, nchars,
+            frs_return = follow_show(follow_info, follow_print, buffer, nchars,
                 rec->is_from_server, arg, global_pos,
                 &server_packet_count, &client_packet_count);
             g_free(buffer);
