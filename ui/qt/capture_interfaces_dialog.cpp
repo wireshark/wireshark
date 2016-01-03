@@ -512,8 +512,6 @@ void CaptureInterfacesDialog::updateInterfaces()
                 device->has_snaplen = FALSE;
             }
 
-            QString snaplen_string = device->has_snaplen ? QString::number(device->snaplen) : tr("default");
-
 #ifdef SHOW_BUFFER_COLUMN
             if (capture_dev_user_buffersize_find(device->name) != -1) {
                 buffer = capture_dev_user_buffersize_find(device->name);
@@ -525,14 +523,30 @@ void CaptureInterfacesDialog::updateInterfaces()
 
             ti->setText(col_link_, linkname);
 
-            ti->setText(col_pmode_, device->pmode ? tr("enabled") : tr("disabled"));
-
-            ti->setText(col_snaplen_, snaplen_string);
+#ifdef HAVE_EXTCAP
+            if (device->if_info.type == IF_EXTCAP) {
+                /* extcap interfaces does not have this settings */
+                ti->setText(col_pmode_, tr("n/a"));
+                ti->setText(col_snaplen_, tr("n/a"));
 #ifdef SHOW_BUFFER_COLUMN
-            ti->setText(col_buffer_, QString::number(device->buffer));
+                ti->setText(col_buffer_, tr("n/a"));
 #endif
 #ifdef SHOW_MONITOR_COLUMN
-            ti->setText(col_monitor_, QString(device->monitor_mode_supported? (device->monitor_mode_enabled ? tr("enabled") : tr("disabled")) : tr("n/a")));
+                ti->setText(col_monitor_, tr("n/a"));
+#endif
+            } else {
+#endif
+                QString snaplen_string = device->has_snaplen ? QString::number(device->snaplen) : tr("default");
+                ti->setText(col_pmode_, device->pmode ? tr("enabled") : tr("disabled"));
+                ti->setText(col_snaplen_, snaplen_string);
+#ifdef SHOW_BUFFER_COLUMN
+                ti->setText(col_buffer_, QString::number(device->buffer));
+#endif
+#ifdef SHOW_MONITOR_COLUMN
+                ti->setText(col_monitor_, QString(device->monitor_mode_supported? (device->monitor_mode_enabled ? tr("enabled") : tr("disabled")) : tr("n/a")));
+#endif
+#ifdef HAVE_EXTCAP
+            }
 #endif
             gchar* prefFilter = capture_dev_user_cfilter_find(device->name);
             if (prefFilter) {
@@ -922,11 +936,11 @@ QWidget* InterfaceTreeDelegate::createEditor( QWidget *parent, const QStyleOptio
     guint snap = WTAP_MAX_PACKET_SIZE;
     GList *links = NULL;
 
-    if (index.column() > 1) {
-        interface_t *device;
+    if (index.column() > 1 && index.data().toString().compare(QString("n/a"))) {
         QTreeWidgetItem *ti = tree_->topLevelItem(index.row());
         QString interface_name = ti->text(col_interface_);
-        device = find_device_by_if_name(interface_name);
+        interface_t *device = find_device_by_if_name(interface_name);
+
         if (device) {
 #ifdef SHOW_BUFFER_COLUMN
             buffer = device->buffer;
@@ -990,14 +1004,12 @@ QWidget* InterfaceTreeDelegate::createEditor( QWidget *parent, const QStyleOptio
 #ifdef SHOW_MONITOR_COLUMN
         case col_monitor_:
         {
-             if (index.data().toString().compare(QString("n/a"))) {
-                QComboBox *cb = new QComboBox(parent);
-                cb->addItem(QString(tr("enabled")));
-                cb->addItem(QString(tr("disabled")));
-                connect(cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(monitor_changed(QString)));
-                w = (QWidget*) cb;
-             }
-             break;
+            QComboBox *cb = new QComboBox(parent);
+            cb->addItem(QString(tr("enabled")));
+            cb->addItem(QString(tr("disabled")));
+            connect(cb, SIGNAL(currentIndexChanged(QString)), this, SLOT(monitor_changed(QString)));
+            w = (QWidget*) cb;
+            break;
         }
 #endif
         case col_filter_:
