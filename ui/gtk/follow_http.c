@@ -104,6 +104,8 @@ follow_http_stream_cb(GtkWidget *w _U_, gpointer data _U_)
         return;
     }
 
+    reset_stream_follow(TCP_STREAM);
+
     follow_info = g_new0(follow_info_t, 1);
     follow_info->follow_type = FOLLOW_HTTP;
     follow_info->read_stream = follow_read_http_stream;

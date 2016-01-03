@@ -162,7 +162,7 @@ follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 
     /* Create a new filter that matches all packets in the SSL stream,
        and set the display filter entry accordingly */
-    reset_tcp_reassembly();
+    reset_stream_follow(TCP_STREAM);
     follow_filter = build_follow_conv_filter(&cfile.edt->pi, NULL);
     if (!follow_filter)
     {

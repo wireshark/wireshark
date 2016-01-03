@@ -104,6 +104,8 @@ follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
         return;
     }
 
+    reset_stream_follow(UDP_STREAM);
+
     follow_info = g_new0(follow_info_t, 1);
     follow_info->follow_type = FOLLOW_UDP;
     follow_info->read_stream = follow_read_udp_stream;

@@ -1165,9 +1165,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  reset_rtd_table@Base 1.99.8
  reset_srt_table@Base 1.99.8
  reset_stat_table@Base 1.99.8
+ reset_stream_follow@Base 2.1.0
  reset_tap_listeners@Base 1.9.1
- reset_tcp_reassembly@Base 1.9.1
- reset_udp_follow@Base 1.99.2
  rose_ctx_clean_data@Base 1.9.1
  rose_ctx_init@Base 1.9.1
  rpc_init_prog@Base 1.9.1

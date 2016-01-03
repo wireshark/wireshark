@@ -52,6 +52,7 @@ void proto_register_tcp(void);
 void proto_reg_handoff_tcp(void);
 
 static int tcp_tap = -1;
+static int tcp_follow_tap = -1;
 static int mptcp_tap = -1;
 
 /* Place TCP summary in proto tree */
@@ -107,9 +108,6 @@ enum mptcp_dsn_conversion {
 } ;
 
 static gint tcp_default_window_scaling = (gint)WindowScaling_NotKnown;
-
-
-extern FILE* data_out_file;
 
 static int proto_tcp = -1;
 static int proto_mptcp = -1;
@@ -2180,6 +2178,12 @@ again:
             }
 
             nbytes = tvb_reported_length_remaining(tvb, offset);
+
+            /* Give the follow tap what we've currently dissected */
+            if(have_tap_listener(tcp_follow_tap)) {
+                tap_queue_packet(tcp_follow_tap, pinfo, tvb_new_subset_length(tvb, offset, nbytes));
+            }
+
             proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb, offset,
                 nbytes, NULL, "%sTCP segment data (%u byte%s)", str, nbytes,
                 plurality(nbytes, "", "s"));
@@ -2259,6 +2263,11 @@ again:
          */
         tcpinfo->seq = seq;
 
+        /* Give the follow tap what we've currently dissected */
+        if(have_tap_listener(tcp_follow_tap)) {
+            tap_queue_packet(tcp_follow_tap, pinfo, tvb_new_subset_length(tvb, 0, offset));
+        }
+
         process_tcp_payload(tvb, offset, pinfo, tree, tcp_tree,
                             sport, dport, 0, 0, FALSE, tcpd, tcpinfo);
         called_dissector = TRUE;
@@ -2321,6 +2330,11 @@ again:
 
             /* indicate that this is reassembled data */
             tcpinfo->is_reassembled = TRUE;
+
+            /* Give the follow tap the payload */
+            if(have_tap_listener(tcp_follow_tap)) {
+                tap_queue_packet(tcp_follow_tap, pinfo, next_tvb);
+            }
 
             /* call subdissector */
             process_tcp_payload(next_tvb, 0, pinfo, tree, tcp_tree, sport,
@@ -2536,6 +2550,12 @@ again:
          * was, and report it as a continuation of that, instead?
          */
         nbytes = tvb_reported_length_remaining(tvb, deseg_offset);
+
+        /* Give the follow tap what we've currently dissected */
+        if(have_tap_listener(tcp_follow_tap)) {
+            tap_queue_packet(tcp_follow_tap, pinfo, tvb_new_subset_length(tvb, deseg_offset, nbytes));
+        }
+
         proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb, deseg_offset,
             -1, NULL, "TCP segment data (%u byte%s)", nbytes,
             plurality(nbytes, "", "s"));
@@ -4742,6 +4762,12 @@ dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 seq,
            we don't report it as a malformed frame. */
         save_fragmented = pinfo->fragmented;
         pinfo->fragmented = TRUE;
+
+        /* Give the follow tap what we've currently dissected */
+        if(have_tap_listener(tcp_follow_tap)) {
+            tap_queue_packet(tcp_follow_tap, pinfo, tvb_new_subset_length(tvb, 0, offset));
+        }
+
         process_tcp_payload(tvb, offset, pinfo, tree, tcp_tree, sport, dport,
                             seq, nxtseq, TRUE, tcpd, tcpinfo);
         pinfo->fragmented = save_fragmented;
@@ -5472,23 +5498,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
        (it could be an ACK-only packet) */
     captured_length_remaining = tvb_captured_length_remaining(tvb, offset);
 
-    if (tcph->th_have_seglen) {
-        if( data_out_file ) {
-            reassemble_tcp( tcpd->stream,                         /* tcp stream index */
-                            tcph->th_seq,                         /* sequence number */
-                            tcph->th_ack,                         /* acknowledgment number */
-                            tcph->th_seglen,                      /* data length */
-                            (const gchar*)tvb_get_ptr(tvb, offset, captured_length_remaining), /* data */
-                            captured_length_remaining,            /* captured data length */
-                            ( tcph->th_flags & TH_SYN ),          /* is syn set? */
-                            &pinfo->net_src,
-                            &pinfo->net_dst,
-                            pinfo->srcport,
-                            pinfo->destport,
-                            pinfo->fd->num);
-        }
-    }
-
     tap_queue_packet(tcp_tap, pinfo, tcph);
 
     /* if it is an MPTCP packet */
@@ -5542,6 +5551,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                      * but make sure we don't offer desegmentation any more
                      */
                     pinfo->can_desegment = 0;
+
+                    /* Give the follow tap the payload */
+                    if(have_tap_listener(tcp_follow_tap)) {
+                        tap_queue_packet(tcp_follow_tap, pinfo, next_tvb);
+                    }
 
                     process_tcp_payload(next_tvb, 0, pinfo, tree, tcp_tree, tcph->th_sport, tcph->th_dport, tcph->th_seq,
                                         nxtseq, FALSE, tcpd, &tcpinfo);
@@ -6670,6 +6684,7 @@ proto_reg_handoff_tcp(void)
     data_handle = find_dissector("data");
     sport_handle = find_dissector("sport");
     tcp_tap = register_tap("tcp");
+    tcp_follow_tap = register_tap("tcp_follow");
 
     register_capture_dissector("ip.proto", IP_PROTO_TCP, capture_tcp, proto_tcp);
     register_capture_dissector("ipv6.nxt", IP_PROTO_TCP, capture_tcp, proto_tcp);

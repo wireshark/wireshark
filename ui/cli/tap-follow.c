@@ -314,7 +314,7 @@ followFree(
 }
 
 static int
-followUdpPacket(
+follow_common_stream_packet(
   void           *contextp,
   packet_info    *pip,
   epan_dissect_t *edp _U_,
@@ -898,7 +898,7 @@ followTcp(
   followArgRange(&opt_argp, fp);
   followArgDone(opt_argp);
 
-  reset_tcp_reassembly();
+  reset_stream_follow(TCP_STREAM);
   if (fp->stream_index != G_MAXUINT32)
   {
     if (!follow_index(TCP_STREAM, fp->stream_index))
@@ -917,8 +917,9 @@ followTcp(
 
   followFileOpen(fp);
 
-  errp = register_tap_listener("frame", fp, NULL, 0,
-                               NULL, NULL, followDraw);
+  errp = register_tap_listener("tcp_follow", fp, followStrFilter(fp), 0,
+                               NULL, follow_common_stream_packet, followDraw);
+
   if (errp != NULL)
   {
     followFree(fp);
@@ -945,7 +946,7 @@ followUdp(
   followArgRange(&opt_argp, fp);
   followArgDone(opt_argp);
 
-  reset_udp_follow();
+  reset_stream_follow(UDP_STREAM);
   if (fp->stream_index != G_MAXUINT32)
   {
     if (!follow_index(UDP_STREAM, fp->stream_index))
@@ -965,7 +966,7 @@ followUdp(
   followFileOpen(fp);
 
   errp = register_tap_listener("udp_follow", fp, followStrFilter(fp), 0,
-                               NULL, followUdpPacket, followDraw);
+                               NULL, follow_common_stream_packet, followDraw);
   if (errp != NULL)
   {
     followFree(fp);
@@ -992,7 +993,7 @@ followSsl(
   followArgRange(&opt_argp, fp);
   followArgDone(opt_argp);
 
-  reset_tcp_reassembly();
+  reset_stream_follow(TCP_STREAM);
   if (fp->stream_index == G_MAXUINT32)
   {
     followExit("SSL only supports index filters.");

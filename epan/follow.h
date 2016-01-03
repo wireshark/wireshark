@@ -90,13 +90,8 @@ gboolean follow_index(stream_type stream, guint32 addr);
 WS_DLL_PUBLIC
 guint32 get_follow_index(stream_type stream);
 
-void reassemble_tcp( guint32, guint32, guint32, guint32, const char*, guint32,
-                     int, address *, address *, guint, guint, guint32 );
 WS_DLL_PUBLIC
-void  reset_tcp_reassembly( void );
-
-WS_DLL_PUBLIC
-void reset_udp_follow(void);
+void reset_stream_follow(stream_type stream);
 
 typedef struct {
 	guint8		ip_address[2][MAX_IPADDR_LEN];

@@ -110,10 +110,8 @@ private:
                 guint32 packet_num, guint32 *global_pos);
 
     frs_return_t readStream();
-    frs_return_t readTcpStream();
-    frs_return_t readUdpStream();
+    frs_return_t readFollowStream();
     frs_return_t readSslStream();
-    frs_return_t readHttpStream();
 
     void followStream();
     void addText(QString text, gboolean is_from_server, guint32 packet_num);

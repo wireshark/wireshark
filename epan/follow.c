@@ -65,9 +65,6 @@ static guint   port[2];
 static guint   bytes_written[2];
 static gboolean is_ipv6 = FALSE;
 
-static int check_fragments( int, tcp_stream_chunk *, guint32 );
-static void write_packet_data( int, tcp_stream_chunk *, const char * );
-
 void
 follow_stats(follow_stats_t* stats)
 {
@@ -193,11 +190,45 @@ udp_follow_packet(void *tapdata _U_, packet_info *pinfo,
   return FALSE;
 }
 
+
+/* here we are going to try and reconstruct the data portion of a TCP
+   session. We will try and handle duplicates, TCP fragments, and out
+   of order packets in a smart way. */
+
+static tcp_frag *frags[2] = { 0, 0 };
+static guint32 seq[2];
+static guint8 src_addr[2][MAX_IPADDR_LEN];
+static guint src_port[2] = { 0, 0 };
+
 void
-reset_udp_follow(void) {
-  remove_tap_listener(&stream_to_follow[UDP_STREAM]);
-  find_addr[UDP_STREAM] = FALSE;
-  find_index[UDP_STREAM] = FALSE;
+reset_stream_follow(stream_type stream) {
+  tcp_frag *current, *next;
+  int i;
+
+  remove_tap_listener(&stream_to_follow[stream]);
+  find_addr[stream] = FALSE;
+  find_index[stream] = FALSE;
+  if (stream == TCP_STREAM) {
+    empty_tcp_stream = TRUE;
+    incomplete_tcp_stream = FALSE;
+
+    for( i=0; i<2; i++ ) {
+      seq[i] = 0;
+      memset(src_addr[i], '\0', MAX_IPADDR_LEN);
+      src_port[i] = 0;
+      memset(ip_address[i], '\0', MAX_IPADDR_LEN);
+      port[i] = 0;
+      bytes_written[i] = 0;
+      current = frags[i];
+      while( current ) {
+        next = current->next;
+        g_free( current->data );
+        g_free( current );
+        current = next;
+      }
+      frags[i] = NULL;
+    }
+  }
 }
 
 gchar*
@@ -276,327 +307,6 @@ follow_index(stream_type stream, guint32 indx)
 guint32
 get_follow_index(stream_type stream) {
   return stream_to_follow[stream];
-}
-
-/* here we are going to try and reconstruct the data portion of a TCP
-   session. We will try and handle duplicates, TCP fragments, and out
-   of order packets in a smart way. */
-
-static tcp_frag *frags[2] = { 0, 0 };
-static guint32 seq[2];
-static guint8 src_addr[2][MAX_IPADDR_LEN];
-static guint src_port[2] = { 0, 0 };
-
-void
-reassemble_tcp( guint32 tcp_stream, guint32 sequence, guint32 acknowledgement,
-                guint32 length, const char* data, guint32 data_length,
-                int synflag, address *net_src, address *net_dst,
-                guint srcport, guint dstport, guint32 packet_num) {
-  guint8 srcx[MAX_IPADDR_LEN], dstx[MAX_IPADDR_LEN];
-  int src_index, j, first = 0, len;
-  guint32 newseq;
-  tcp_frag *tmp_frag;
-  tcp_stream_chunk sc;
-
-  src_index = -1;
-
-  /* First, check if this packet should be processed. */
-  if (find_index[TCP_STREAM]) {
-    if ((port[0] == srcport && port[1] == dstport &&
-         addresses_equal(&tcp_addr[0], net_src) &&
-         addresses_equal(&tcp_addr[1], net_dst))
-        ||
-        (port[1] == srcport && port[0] == dstport &&
-         addresses_equal(&tcp_addr[1], net_src) &&
-         addresses_equal(&tcp_addr[0], net_dst))) {
-      find_index[TCP_STREAM] = FALSE;
-      stream_to_follow[TCP_STREAM] = tcp_stream;
-    }
-    else {
-      return;
-    }
-  }
-  else if ( tcp_stream != stream_to_follow[TCP_STREAM] )
-    return;
-
-  if ((net_src->type != AT_IPv4 && net_src->type != AT_IPv6) ||
-      (net_dst->type != AT_IPv4 && net_dst->type != AT_IPv6))
-    return;
-
-  if (net_src->type == AT_IPv4)
-    len = 4;
-  else
-    len = 16;
-
-  memcpy(srcx, net_src->data, len);
-  memcpy(dstx, net_dst->data, len);
-
-  /* follow_tcp_index() needs to learn address/port pairs */
-  if (find_addr[TCP_STREAM]) {
-    find_addr[TCP_STREAM] = FALSE;
-    memcpy(ip_address[0], net_src->data, net_src->len);
-    port[0] = srcport;
-    memcpy(ip_address[1], net_dst->data, net_dst->len);
-    port[1] = dstport;
-    if (net_src->type == AT_IPv6 && net_dst->type == AT_IPv6) {
-      is_ipv6 = TRUE;
-    } else {
-      is_ipv6 = FALSE;
-    }
-  }
-
-  /* Check to see if we have seen this source IP and port before.
-     (Yes, we have to check both source IP and port; the connection
-     might be between two different ports on the same machine.) */
-  for( j=0; j<2; j++ ) {
-    if (memcmp(src_addr[j], srcx, len) == 0 && src_port[j] == srcport ) {
-      src_index = j;
-    }
-  }
-  /* we didn't find it if src_index == -1 */
-  if( src_index < 0 ) {
-    /* assign it to a src_index and get going */
-    for( j=0; j<2; j++ ) {
-      if( src_port[j] == 0 ) {
-        memcpy(src_addr[j], srcx, len);
-        src_port[j] = srcport;
-        src_index = j;
-        first = 1;
-        break;
-      }
-    }
-  }
-  if( src_index < 0 ) {
-    fprintf( stderr, "ERROR in reassemble_tcp: Too many addresses!\n");
-    return;
-  }
-
-  if( data_length < length ) {
-    incomplete_tcp_stream = TRUE;
-  }
-
-  /* Before adding data for this flow to the data_out_file, check whether
-   * this frame acks fragments that were already seen. This happens when
-   * frames are not in the capture file, but were actually seen by the
-   * receiving host (Fixes bug 592).
-   */
-  if( frags[1-src_index] ) {
-    memcpy(sc.src_addr, dstx, len);
-    sc.src_port = dstport;
-    sc.dlen     = 0;        /* Will be filled in in check_fragments */
-    while ( check_fragments( 1-src_index, &sc, acknowledgement ) )
-      ;
-  }
-
-  /* Initialize our stream chunk.  This data gets written to disk. */
-  memcpy(sc.src_addr, srcx, len);
-  sc.src_port   = srcport;
-  sc.dlen       = data_length;
-  sc.packet_num = packet_num;
-
-  /* now that we have filed away the srcs, lets get the sequence number stuff
-     figured out */
-  if( first ) {
-    /* this is the first time we have seen this src's sequence number */
-    seq[src_index] = sequence + length;
-    if( synflag ) {
-      seq[src_index]++;
-    }
-    /* write out the packet data */
-    write_packet_data( src_index, &sc, data );
-    return;
-  }
-  /* if we are here, we have already seen this src, let's
-     try and figure out if this packet is in the right place */
-  if( LT_SEQ(sequence, seq[src_index]) ) {
-    /* this sequence number seems dated, but
-       check the end to make sure it has no more
-       info than we have already seen */
-    newseq = sequence + length;
-    if( GT_SEQ(newseq, seq[src_index]) ) {
-      guint32 new_len;
-
-      /* this one has more than we have seen. let's get the
-         payload that we have not seen. */
-
-      new_len = seq[src_index] - sequence;
-
-      if ( data_length <= new_len ) {
-        data = NULL;
-        data_length = 0;
-        incomplete_tcp_stream = TRUE;
-      } else {
-        data += new_len;
-        data_length -= new_len;
-      }
-      sc.dlen = data_length;
-      sequence = seq[src_index];
-      length = newseq - seq[src_index];
-
-      /* this will now appear to be right on time :) */
-    }
-  }
-  if ( EQ_SEQ(sequence, seq[src_index]) ) {
-    /* right on time */
-    seq[src_index] += length;
-    if( synflag ) seq[src_index]++;
-    if( data ) {
-      write_packet_data( src_index, &sc, data );
-    }
-    /* done with the packet, see if it caused a fragment to fit */
-    while( check_fragments( src_index, &sc, 0 ) )
-      ;
-  }
-  else {
-    /* out of order packet */
-    if(data_length > 0 && GT_SEQ(sequence, seq[src_index]) ) {
-      tmp_frag = (tcp_frag *)g_malloc( sizeof( tcp_frag ) );
-      tmp_frag->data = (gchar *)g_malloc( data_length );
-      tmp_frag->seq = sequence;
-      tmp_frag->len = length;
-      tmp_frag->data_len = data_length;
-      memcpy( tmp_frag->data, data, data_length );
-      if( frags[src_index] ) {
-        tmp_frag->next = frags[src_index];
-      } else {
-        tmp_frag->next = NULL;
-      }
-      frags[src_index] = tmp_frag;
-    }
-  }
-} /* end reassemble_tcp */
-
-/* here we search through all the frag we have collected to see if
-   one fits */
-static int
-check_fragments( int idx, tcp_stream_chunk *sc, guint32 acknowledged ) {
-  tcp_frag *prev = NULL;
-  tcp_frag *current;
-  guint32 lowest_seq;
-  gchar *dummy_str;
-
-  current = frags[idx];
-  if( current ) {
-    lowest_seq = current->seq;
-    while( current ) {
-      if( GT_SEQ(lowest_seq, current->seq) ) {
-        lowest_seq = current->seq;
-      }
-
-      if( LT_SEQ(current->seq, seq[idx]) ) {
-        guint32 newseq;
-        /* this sequence number seems dated, but
-           check the end to make sure it has no more
-           info than we have already seen */
-        newseq = current->seq + current->len;
-        if( GT_SEQ(newseq, seq[idx]) ) {
-          guint32 new_pos;
-
-          /* this one has more than we have seen. let's get the
-             payload that we have not seen. This happens when
-             part of this frame has been retransmitted */
-
-          new_pos = seq[idx] - current->seq;
-
-          if ( current->data_len > new_pos ) {
-            sc->dlen = current->data_len - new_pos;
-            write_packet_data( idx, sc, current->data + new_pos );
-          }
-
-          seq[idx] += (current->len - new_pos);
-        }
-
-        /* Remove the fragment from the list as the "new" part of it
-         * has been processed or its data has been seen already in
-         * another packet. */
-        if( prev ) {
-          prev->next = current->next;
-        } else {
-          frags[idx] = current->next;
-        }
-        g_free( current->data );
-        g_free( current );
-        return 1;
-      }
-
-      if( EQ_SEQ(current->seq, seq[idx]) ) {
-        /* this fragment fits the stream */
-        if( current->data ) {
-          sc->dlen = current->data_len;
-          write_packet_data( idx, sc, current->data );
-        }
-        seq[idx] += current->len;
-        if( prev ) {
-          prev->next = current->next;
-        } else {
-          frags[idx] = current->next;
-        }
-        g_free( current->data );
-        g_free( current );
-        return 1;
-      }
-      prev = current;
-      current = current->next;
-    }
-    if( GT_SEQ(acknowledged, lowest_seq) ) {
-      /* There are frames missing in the capture file that were seen
-       * by the receiving host. Add dummy stream chunk with the data
-       * "[xxx bytes missing in capture file]".
-       */
-      dummy_str = g_strdup_printf("[%d bytes missing in capture file]",
-                        (int)(lowest_seq - seq[idx]) );
-      sc->dlen = (guint32) strlen(dummy_str);
-      write_packet_data( idx, sc, dummy_str );
-      g_free(dummy_str);
-      seq[idx] = lowest_seq;
-      return 1;
-    }
-  }
-  return 0;
-}
-
-/* this should always be called before we start to reassemble a stream */
-void
-reset_tcp_reassembly(void)
-{
-  tcp_frag *current, *next;
-  int i;
-
-  empty_tcp_stream = TRUE;
-  incomplete_tcp_stream = FALSE;
-  find_addr[TCP_STREAM] = FALSE;
-  find_index[TCP_STREAM] = FALSE;
-  for( i=0; i<2; i++ ) {
-    seq[i] = 0;
-    memset(src_addr[i], '\0', MAX_IPADDR_LEN);
-    src_port[i] = 0;
-    memset(ip_address[i], '\0', MAX_IPADDR_LEN);
-    port[i] = 0;
-    bytes_written[i] = 0;
-    current = frags[i];
-    while( current ) {
-      next = current->next;
-      g_free( current->data );
-      g_free( current );
-      current = next;
-    }
-    frags[i] = NULL;
-  }
-}
-
-static void
-write_packet_data( int idx, tcp_stream_chunk *sc, const char *data )
-{
-  size_t ret;
-
-  ret = fwrite( sc, 1, sizeof(tcp_stream_chunk), data_out_file );
-  DISSECTOR_ASSERT(sizeof(tcp_stream_chunk) == ret);
-
-  ret = fwrite( data, 1, sc->dlen, data_out_file );
-  DISSECTOR_ASSERT(sc->dlen == ret);
-
-  bytes_written[idx] += sc->dlen;
-  empty_tcp_stream = FALSE;
 }
 
 /*
