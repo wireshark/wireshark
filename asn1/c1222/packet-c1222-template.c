@@ -923,7 +923,9 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
   gint len2;
   int cmd_err;
   gboolean ind;
+#ifdef HAVE_LIBGCRYPT
   guchar *buffer;
+#endif
   tvbuff_t *epsem_buffer = NULL;
   gboolean crypto_good = FALSE;
   gboolean crypto_bad = FALSE;
@@ -967,9 +969,9 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       len2 = tvb_reported_length_remaining(tvb, offset);
       if (len2 <= 0)
         return offset;
-      buffer = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, len2);
       epsem_buffer = tvb_new_subset_remaining(tvb, offset);
 #ifdef HAVE_LIBGCRYPT
+      buffer = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, len2);
       if (c1222_decrypt) {
         if (!decrypt_packet(buffer, len2, FALSE)) {
           crypto_bad = TRUE;

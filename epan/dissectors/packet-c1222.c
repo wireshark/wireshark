@@ -974,7 +974,9 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
   gint len2;
   int cmd_err;
   gboolean ind;
+#ifdef HAVE_LIBGCRYPT
   guchar *buffer;
+#endif
   tvbuff_t *epsem_buffer = NULL;
   gboolean crypto_good = FALSE;
   gboolean crypto_bad = FALSE;
@@ -1018,9 +1020,9 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       len2 = tvb_reported_length_remaining(tvb, offset);
       if (len2 <= 0)
         return offset;
-      buffer = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, len2);
       epsem_buffer = tvb_new_subset_remaining(tvb, offset);
 #ifdef HAVE_LIBGCRYPT
+      buffer = (guchar *)tvb_memdup(wmem_packet_scope(), tvb, offset, len2);
       if (c1222_decrypt) {
         if (!decrypt_packet(buffer, len2, FALSE)) {
           crypto_bad = TRUE;
@@ -1566,7 +1568,7 @@ static int dissect_MESSAGE_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-c1222-fn.c ---*/
-#line 1048 "../../asn1/c1222/packet-c1222-template.c"
+#line 1050 "../../asn1/c1222/packet-c1222-template.c"
 
 /**
  * Dissects a a full (reassembled) C12.22 message.
@@ -1952,7 +1954,7 @@ void proto_register_c1222(void) {
         "OCTET_STRING_SIZE_CONSTR002", HFILL }},
 
 /*--- End of included file: packet-c1222-hfarr.c ---*/
-#line 1329 "../../asn1/c1222/packet-c1222-template.c"
+#line 1331 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   /* List of subtrees */
@@ -1975,7 +1977,7 @@ void proto_register_c1222(void) {
     &ett_c1222_Calling_authentication_value_c1221_U,
 
 /*--- End of included file: packet-c1222-ettarr.c ---*/
-#line 1339 "../../asn1/c1222/packet-c1222-template.c"
+#line 1341 "../../asn1/c1222/packet-c1222-template.c"
   };
 
   static ei_register_info ei[] = {
