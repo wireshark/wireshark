@@ -993,6 +993,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_registrar_get_abbrev@Base 1.9.1
  proto_registrar_get_byname@Base 1.9.1
  proto_registrar_get_ftype@Base 1.9.1
+ proto_registrar_get_id_byname@Base 2.1.0
  proto_registrar_get_name@Base 1.99.8
  proto_registrar_get_nth@Base 1.9.1
  proto_registrar_get_parent@Base 1.9.1
