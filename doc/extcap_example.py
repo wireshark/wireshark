@@ -40,6 +40,7 @@ other script-based formates beside VBScript
 
 """
 
+from __future__ import print_function
 import os
 import sys
 import signal
@@ -52,11 +53,39 @@ from threading import Thread
 
 ERROR_USAGE		= 0
 ERROR_ARG 		= 1
-ERROR_INTERFACE = 2
+ERROR_INTERFACE	= 2
 ERROR_FIFO 		= 3
+ERROR_DELAY		= 4
 
 doExit = False
 globalinterface = 0
+
+"""
+This code has been taken from http://stackoverflow.com/questions/5943249/python-argparse-and-controlling-overriding-the-exit-status-code - originally developed by Rob Cowie http://stackoverflow.com/users/46690/rob-cowie
+"""
+class ArgumentParser(argparse.ArgumentParser):
+	def _get_action_from_name(self, name):
+		"""Given a name, get the Action instance registered with this parser.
+		If only it were made available in the ArgumentError object. It is
+		passed as it's first arg...
+		"""
+		container = self._actions
+		if name is None:
+			return None
+		for action in container:
+			if '/'.join(action.option_strings) == name:
+				return action
+			elif action.metavar == name:
+				return action
+			elif action.dest == name:
+				return action
+
+	def error(self, message):
+		exc = sys.exc_info()[1]
+		if exc:
+			exc.argument = self._get_action_from_name(exc.argument_name)
+			raise exc
+		super(ArgumentParser, self).error(message)
 
 def signalHandler(signal, frame):
 	global doExit
@@ -214,6 +243,23 @@ def extcap_capture(interface, fifo, delay, verify, message, remote, fake_ip):
 
 	fh.close()
 
+def extcap_close_fifo(interface, fifo):
+	global doExit
+
+	signal.signal(signal.SIGINT, signalHandler)
+	signal.signal(signal.SIGTERM , signalHandler)
+
+	tdelay = delay if delay != 0 else 5
+
+	try:
+		os.stat(fifo)
+	except OSError:
+		doExit = True
+		print ( "Fifo does not exist!" )
+
+	fh = open(fifo, 'w+b', 0 )
+	fh.close()
+
 ####
 
 def usage():
@@ -227,7 +273,7 @@ if __name__ == '__main__':
 	message = ""
 	fake_ip = ""
 
-	parser = argparse.ArgumentParser(
+	parser = ArgumentParser(
 		prog="Extcap Example",
 		description="Extcap example program for python"
 		)
@@ -243,12 +289,26 @@ if __name__ == '__main__':
 
 	# Interface Arguments
 	parser.add_argument("--verify", help="Demonstrates a verification bool flag", action="store_true" )
-	parser.add_argument("--delay", help="Demonstrates an integer variable", type=int, default=0, choices=[0, 1, 2, 3, 4, 5] )
+	parser.add_argument("--delay", help="Demonstrates an integer variable", type=int, default=0, choices=[0, 1, 2, 3, 4, 5, 6] )
 	parser.add_argument("--remote", help="Demonstrates a selector choice", default="if1", choices=["if1", "if2"] )
 	parser.add_argument("--message", help="Demonstrates string variable", nargs='?', default="" )
 	parser.add_argument("--fake_ip", help="Add a fake sender IP adress", nargs='?', default="127.0.0.1" )
 
-	args, unknown = parser.parse_known_args()
+	try:
+		args, unknown = parser.parse_known_args()
+	except argparse.ArgumentError, exc:
+		print( "%s: %s" % ( exc.argument.dest, exc.message ), file=sys.stderr)
+		fifo_found = 0
+		fifo = ""
+		for arg in sys.argv:
+			if (arg == "--fifo" or arg == "--extcap-fifo") :
+				fifo_found = 1
+			elif ( fifo_found == 1 ):
+				fifo = arg
+				break
+		extcap_close_fifo("", fifo)
+		sys.exit(ERROR_ARG)
+
 	if ( len(sys.argv) <= 1 ):
 		parser.exit("No arguments given!")
 
@@ -282,6 +342,12 @@ if __name__ == '__main__':
 	elif args.capture:
 		if args.fifo is None:
 			sys.exit(ERROR_FIFO)
+		# The following code demonstrates error management with extcap
+		if args.delay > 5:
+			print("Value for delay [%d] too high" % args.delay, file=sys.stderr)
+			extcap_close_fifo(interface, args.fifo)
+			sys.exit(ERROR_DELAY)
+
 		extcap_capture(interface, args.fifo, args.delay, args.verify, message, args.remote, fake_ip)
 	else:
 		usage()

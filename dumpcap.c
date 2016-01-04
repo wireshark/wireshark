@@ -1466,12 +1466,14 @@ cap_pipe_open_live(char *pipename,
 #else /* _WIN32 */
     char    *pncopy, *pos;
     wchar_t *err_str;
-    interface_options interface_opts;
 #ifdef HAVE_EXTCAP
     char* extcap_pipe_name;
-    gboolean extcap_pipe;
 #endif
 #endif
+#ifdef HAVE_EXTCAP
+    gboolean extcap_pipe = FALSE;
+#endif
+    interface_options interface_opts;
     ssize_t  b;
     int      fd = -1, sel_ret;
     size_t   bytes_read;
@@ -1498,7 +1500,15 @@ cap_pipe_open_live(char *pipename,
           return;
        }
     } else {
+
+        interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
+
 #ifndef _WIN32
+#ifdef HAVE_EXTCAP
+        if ( g_strrstr(interface_opts.name, EXTCAP_PIPE_PREFIX) != NULL )
+            extcap_pipe = TRUE;
+#endif
+
         if (ws_stat64(pipename, &pipe_stat) < 0) {
             if (errno == ENOENT || errno == ENOTDIR)
                 pcap_opts->cap_pipe_err = PIPNEXIST;
@@ -1585,6 +1595,7 @@ cap_pipe_open_live(char *pipename,
             }
             return;
         }
+
 #else /* _WIN32 */
 #define PIPE_STR "\\pipe\\"
         /* Under Windows, named pipes _must_ have the form
@@ -1606,8 +1617,6 @@ cap_pipe_open_live(char *pipename,
             pcap_opts->cap_pipe_err = PIPNEXIST;
             return;
         }
-
-        interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
 #ifdef HAVE_EXTCAP
         extcap_pipe_name = g_strconcat("\\\\.\\pipe\\", EXTCAP_PIPE_PREFIX, NULL);
         extcap_pipe = strstr(interface_opts.name, extcap_pipe_name) ? TRUE : FALSE;
@@ -1678,6 +1687,10 @@ cap_pipe_open_live(char *pipename,
                 b = cap_pipe_read(fd, ((char *)&magic)+bytes_read,
                                   sizeof magic-bytes_read,
                                   pcap_opts->from_cap_socket);
+                /* jump messaging, if extcap had an error, stderr will provide the correct message */
+                if (extcap_pipe && b <= 0)
+                    goto error;
+
                 if (b <= 0) {
                     if (b == 0)
                         g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open.");
@@ -1704,6 +1717,10 @@ cap_pipe_open_live(char *pipename,
         /* We don't have to worry about cap_pipe_read_mtx here */
         g_async_queue_push(pcap_opts->cap_pipe_pending_q, pcap_opts->cap_pipe_buf);
         g_async_queue_pop(pcap_opts->cap_pipe_done_q);
+        /* jump messaging, if extcap had an error, stderr will provide the correct message */
+        if (pcap_opts->cap_pipe_bytes_read <= 0 && extcap_pipe)
+            goto error;
+
         if (pcap_opts->cap_pipe_bytes_read <= 0) {
             if (pcap_opts->cap_pipe_bytes_read == 0)
                 g_snprintf(errmsg, errmsgl, "End of file on pipe magic during open.");
