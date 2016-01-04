@@ -2088,7 +2088,7 @@ WS_DLL_PUBLIC header_field_info* proto_registrar_get_byname(const char *field_na
 /** Get the header_field id based upon a field name.
  @param field_name the field name to search for
  @return the field id for the registered item */
-extern int proto_registrar_get_id_byname(const char *field_name);
+WS_DLL_PUBLIC int proto_registrar_get_id_byname(const char *field_name);
 
 /** Get enum ftenum FT_ of registered header_field number n.
  @param n item # n (0-indexed)

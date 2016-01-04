@@ -3719,75 +3719,6 @@ create_rtp_dialog(user_data_t* user_data)
 
 
 /****************************************************************************/
-static gboolean
-process_node(proto_node *ptree_node, header_field_info *hfinformation,
-		      const gchar* proto_field, guint32* p_result)
-{
-	field_info         *finfo;
-	proto_node         *proto_sibling_node;
-	header_field_info  *hfssrc;
-	ipv4_addr_and_mask *ipv4;
-
-	finfo = PNODE_FINFO(ptree_node);
-
-	/* Caller passed top of the protocol tree. Expected child node */
-	g_assert(finfo);
-
-	if (hfinformation == (finfo->hfinfo)) {
-		hfssrc = proto_registrar_get_byname(proto_field);
-		if (hfssrc == NULL)
-			return FALSE;
-		for (ptree_node = ptree_node->first_child;
-		     ptree_node != NULL;
-		     ptree_node = ptree_node->next) {
-			finfo = PNODE_FINFO(ptree_node);
-			if (hfssrc == finfo->hfinfo) {
-				if (hfinformation->type == FT_IPv4) {
-					ipv4 = (ipv4_addr_and_mask *)fvalue_get(&finfo->value);
-					*p_result = ipv4_get_net_order_addr(ipv4);
-				}
-				else {
-					*p_result = fvalue_get_uinteger(&finfo->value);
-				}
-				return TRUE;
-			}
-		}
-		if (!ptree_node)
-			return FALSE;
-	}
-
-	proto_sibling_node = ptree_node->next;
-
-	if (proto_sibling_node) {
-		return process_node(proto_sibling_node, hfinformation, proto_field, p_result);
-	}
-	else
-	return FALSE;
-}
-
-/****************************************************************************/
-static gboolean
-get_int_value_from_proto_tree(proto_tree  *protocol_tree,
-			      const gchar *proto_name,
-			      const gchar *proto_field,
-			      guint32     *p_result)
-{
-	proto_node	  *ptree_node;
-	header_field_info *hfinformation;
-
-	hfinformation = proto_registrar_get_byname(proto_name);
-	if (hfinformation == NULL)
-		return FALSE;
-
-	ptree_node = ((proto_node *)protocol_tree)->first_child;
-	if (!ptree_node)
-		return FALSE;
-
-	return process_node(ptree_node, hfinformation, proto_field, p_result);
-}
-
-
-/****************************************************************************/
 void
 rtp_analysis(address *src_fwd,
 	     guint32  port_src_fwd,
@@ -3921,9 +3852,9 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	address	      dst_rev;
 	guint32	      port_dst_rev;
 	guint32	      ssrc_rev	    = 0;
-	unsigned int  version_fwd;
+	GPtrArray    *gp;
 
-	const gchar  *filter_text = "rtp && rtp.version && rtp.ssrc && (ip || ipv6)";
+	const gchar  filter_text[] = "rtp && rtp.version == 2 && rtp.ssrc && (ip || ipv6)";
 	dfilter_t    *sfcode;
 	gchar        *err_msg;
 	capture_file *cf;
@@ -3932,7 +3863,15 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	GList	     *filtered_list = NULL;
 	guint	      nfound;
 	epan_dissect_t	   edt;
+	int	      hfid_rtp_ssrc;
 	rtp_stream_info_t *strinfo;
+
+	/* Try to get the hfid for "rtp.ssrc". */
+	hfid_rtp_ssrc = proto_registrar_get_id_byname("rtp.ssrc");
+	if (hfid_rtp_ssrc == -1) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "There is no \"rtp.ssrc\" field in this version of Wireshark.");
+		return;
+	}
 
 	/* Try to compile the filter. */
 	if (!dfilter_compile(filter_text, &sfcode, &err_msg)) {
@@ -3953,13 +3892,17 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 		return;	/* error reading the record */
 	epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 	epan_dissect_prime_dfilter(&edt, sfcode);
+	epan_dissect_prime_hfid(&edt, hfid_rtp_ssrc);
 	epan_dissect_run(&edt, cf->cd_t, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
 
-	/* if it is not an rtp packet, show the rtpstream dialog */
+	/*
+	 * Packet must be an RTPv2 packet with an SSRC; we use the filter to
+	 * check.
+	 */
 	if (!dfilter_apply_edt(sfcode, &edt)) {
 		epan_dissect_cleanup(&edt);
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Please select an RTP packet.");
+		    "Please select an RTPv2 packet with an SSID.");
 		return;
 	}
 
@@ -3975,19 +3918,16 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	port_src_rev = edt.pi.destport;
 	port_dst_rev = edt.pi.srcport;
 
-	/* check if it is RTP Version 2 */
-	if (!get_int_value_from_proto_tree(edt.tree, "rtp", "rtp.version", &version_fwd) || version_fwd != 2) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "Only RTP version 2 is supported.");
-		return;
-	}
-
 	/* now we need the SSRC value of the current frame */
-	if (!get_int_value_from_proto_tree(edt.tree, "rtp", "rtp.ssrc", &ssrc_fwd)) {
+	gp = proto_get_finfo_ptr_array(edt.tree, hfid_rtp_ssrc);
+	if (gp == NULL || gp->len == 0) {
+		/* XXX - should not happen, as the filter inculdes rtp.ssrc */
+		epan_dissect_cleanup(&edt);
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "SSRC value not found.");
 		return;
 	}
+	ssrc_fwd = fvalue_get_uinteger(&((field_info *)gp->pdata[0])->value);
 
 	/* Scan for rtpstream */
 	rtpstream_scan(rtpstream_dlg_get_tapinfo(), &cfile, NULL);

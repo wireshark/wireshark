@@ -372,7 +372,7 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, struct _r
         findStreams();
     }
 
-    if (num_streams_ < 1) {
+    if (err_str_.isEmpty() && num_streams_ < 1) {
         err_str_ = tr("No streams found.");
     }
 
@@ -1366,75 +1366,6 @@ void RtpAnalysisDialog::saveCsv(RtpAnalysisDialog::StreamDirection direction)
     }
 }
 
-// Adapted from rtp_analysis.c:process_node
-guint32 RtpAnalysisDialog::processNode(proto_node *ptree_node, header_field_info *hfinformation, const gchar *proto_field, bool *ok)
-{
-    field_info         *finfo;
-    proto_node         *proto_sibling_node;
-    header_field_info  *hfssrc;
-    ipv4_addr_and_mask *ipv4;
-
-    finfo = PNODE_FINFO(ptree_node);
-
-    /* Caller passed top of the protocol tree. Expected child node */
-    g_assert(finfo);
-
-    if (hfinformation == (finfo->hfinfo)) {
-        hfssrc = proto_registrar_get_byname(proto_field);
-        if (hfssrc == NULL) {
-            return 0;
-        }
-        for (ptree_node = ptree_node->first_child;
-             ptree_node != NULL;
-             ptree_node = ptree_node->next) {
-            finfo = PNODE_FINFO(ptree_node);
-            if (hfssrc == finfo->hfinfo) {
-                guint32 result;
-                if (hfinformation->type == FT_IPv4) {
-                    ipv4 = (ipv4_addr_and_mask *)fvalue_get(&finfo->value);
-                    result = ipv4_get_net_order_addr(ipv4);
-                } else {
-                    result = fvalue_get_uinteger(&finfo->value);
-                }
-                if (ok) *ok = true;
-                return result;
-            }
-        }
-        if (!ptree_node) {
-            return 0;
-        }
-    }
-
-    proto_sibling_node = ptree_node->next;
-
-    if (proto_sibling_node) {
-        return processNode(proto_sibling_node, hfinformation, proto_field, ok);
-    } else {
-        return 0;
-    }
-}
-
-// Adapted from rtp_analysis.c:get_int_value_from_proto_tree
-guint32 RtpAnalysisDialog::getIntFromProtoTree(proto_tree *protocol_tree, const gchar *proto_name, const gchar *proto_field, bool *ok)
-{
-    proto_node *ptree_node;
-    header_field_info *hfinformation;
-
-    if (ok) *ok = false;
-
-    hfinformation = proto_registrar_get_byname(proto_name);
-    if (hfinformation == NULL) {
-        return 0;
-    }
-
-    ptree_node = ((proto_node *)protocol_tree)->first_child;
-    if (!ptree_node) {
-        return 0;
-    }
-
-    return processNode(ptree_node, hfinformation, proto_field, ok);
-}
-
 bool RtpAnalysisDialog::eventFilter(QObject *, QEvent *event)
 {
     if (event->type() != QEvent::KeyPress) return false;
@@ -1464,14 +1395,24 @@ void RtpAnalysisDialog::graphClicked(QMouseEvent *event)
 
 void RtpAnalysisDialog::findStreams()
 {
-    const gchar *filter_text = "rtp && rtp.version && rtp.ssrc";
+    const gchar filter_text[] = "rtp && rtp.version == 2 && rtp.ssrc && (ip || ipv6)";
     dfilter_t *sfcode;
     gchar *err_msg;
 
+    /* Try to get the hfid for "rtp.ssrc". */
+    int hfid_rtp_ssrc = proto_registrar_get_id_byname("rtp.ssrc");
+    if (hfid_rtp_ssrc == -1) {
+        err_str_ = tr("There is no \"rtp.ssrc\" field in this version of Wireshark.");
+        updateWidgets();
+        return;
+    }
+
+    /* Try to compile the filter. */
     if (!dfilter_compile(filter_text, &sfcode, &err_msg)) {
-        QMessageBox::warning(this, tr("No RTP packets found"), QString("%1").arg(err_msg));
+        err_str_ = QString(err_msg);
         g_free(err_msg);
-        close();
+        updateWidgets();
+        return;
     }
 
     if (!cap_file_.capFile() || !cap_file_.capFile()->current_frame) close();
@@ -1484,14 +1425,18 @@ void RtpAnalysisDialog::findStreams()
 
     epan_dissect_init(&edt, cap_file_.capFile()->epan, TRUE, FALSE);
     epan_dissect_prime_dfilter(&edt, sfcode);
+    epan_dissect_prime_hfid(&edt, hfid_rtp_ssrc);
     epan_dissect_run(&edt, cap_file_.capFile()->cd_t, &cap_file_.capFile()->phdr,
                      frame_tvbuff_new_buffer(fdata, &cap_file_.capFile()->buf), fdata, NULL);
 
-    // This shouldn't happen (the menu item should be disabled) but check anyway
+    /*
+     * Packet must be an RTPv2 packet with an SSRC; we use the filter to
+     * check.
+     */
     if (!dfilter_apply_edt(sfcode, &edt)) {
         epan_dissect_cleanup(&edt);
         dfilter_free(sfcode);
-        err_str_ = tr("Please select an RTP packet");
+        err_str_ = tr("Please select an RTPv2 packet with an SSRC value");
         updateWidgets();
         return;
     }
@@ -1510,23 +1455,16 @@ void RtpAnalysisDialog::findStreams()
     port_src_rev_ = edt.pi.destport;
     port_dst_rev_ = edt.pi.srcport;
 
-    /* Check if it is RTP Version 2 */
-    unsigned int  version_fwd;
-    bool ok;
-    version_fwd = getIntFromProtoTree(edt.tree, "rtp", "rtp.version", &ok);
-    if (!ok || version_fwd != 2) {
-        err_str_ = tr("RTP version %1 found. Only version 2 is supported.").arg(version_fwd);
-        updateWidgets();
-        return;
-    }
-
     /* now we need the SSRC value of the current frame */
-    ssrc_fwd_ = getIntFromProtoTree(edt.tree, "rtp", "rtp.ssrc", &ok);
-    if (!ok) {
+    GPtrArray *gp = proto_get_finfo_ptr_array(edt.tree, hfid_rtp_ssrc);
+    if (gp == NULL || gp->len == 0) {
+        /* XXX - should not happen, as the filter includes rtp.ssrc */
+        epan_dissect_cleanup(&edt);
         err_str_ = tr("SSRC value not found.");
         updateWidgets();
         return;
     }
+    ssrc_fwd_ = fvalue_get_uinteger(&((field_info *)gp->pdata[0])->value);
 
     /* Register the tap listener */
     memset(&tapinfo_, 0, sizeof(rtpstream_tapinfo_t));
