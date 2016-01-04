@@ -1365,7 +1365,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
     case FOLLOW_HTTP:
         both_directions_string = QString("Entire conversation (%1)")
                 .arg(gchar_free_to_qstring(format_size(
-                                               stats.bytes_written[0] + stats.bytes_written[1],
+                                               follow_info_.bytes_written[0] + follow_info_.bytes_written[1],
                      format_size_unit_bytes|format_size_prefix_si)));
         setWindowSubtitle(tr("Follow HTTP Stream (%1)").arg(follow_filter));
         break;
