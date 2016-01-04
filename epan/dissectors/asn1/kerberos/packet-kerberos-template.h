@@ -35,6 +35,9 @@ typedef struct _kerberos_callbacks {
 
 /* Function prototypes */
 
+gboolean
+kerberos_is_win2k_pkinit(asn1_ctx_t *actx);
+
 gint
 dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean do_col_info, kerberos_callbacks *cb);
 

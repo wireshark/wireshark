@@ -53,10 +53,11 @@ static int hf_pkinit_pkAuthenticator = -1;        /* PKAuthenticator */
 static int hf_pkinit_clientPublicValue = -1;      /* SubjectPublicKeyInfo */
 static int hf_pkinit_supportedCMSTypes = -1;      /* SEQUENCE_OF_AlgorithmIdentifier */
 static int hf_pkinit_supportedCMSTypes_item = -1;  /* AlgorithmIdentifier */
+static int hf_pkinit_clientDHNonce = -1;          /* DHNonce */
 static int hf_pkinit_cusec = -1;                  /* INTEGER */
 static int hf_pkinit_ctime = -1;                  /* KerberosTime */
 static int hf_pkinit_paNonce = -1;                /* INTEGER_0_4294967295 */
-static int hf_pkinit_paChecksum = -1;             /* Checksum */
+static int hf_pkinit_paChecksum = -1;             /* OCTET_STRING */
 static int hf_pkinit_realm = -1;                  /* Realm */
 static int hf_pkinit_principalName = -1;          /* PrincipalName */
 static int hf_pkinit_dhSignedData = -1;           /* ContentInfo */
@@ -64,6 +65,15 @@ static int hf_pkinit_encKeyPack = -1;             /* ContentInfo */
 static int hf_pkinit_subjectPublicKey = -1;       /* BIT_STRING */
 static int hf_pkinit_dhNonce = -1;                /* INTEGER */
 static int hf_pkinit_dhKeyExpiration = -1;        /* KerberosTime */
+static int hf_pkinit_kdcName = -1;                /* PrincipalName */
+static int hf_pkinit_kdcRealm = -1;               /* Realm */
+static int hf_pkinit_cusecWin2k = -1;             /* INTEGER_0_4294967295 */
+static int hf_pkinit_paNonceWin2k = -1;           /* INTEGER_M2147483648_2147483647 */
+static int hf_pkinit_signed_auth_pack = -1;       /* ContentInfo */
+static int hf_pkinit_trusted_certifiers = -1;     /* SEQUENCE_OF_TrustedCA */
+static int hf_pkinit_trusted_certifiers_item = -1;  /* TrustedCA */
+static int hf_pkinit_kdc_cert = -1;               /* OCTET_STRING */
+static int hf_pkinit_encryption_cert = -1;        /* OCTET_STRING */
 
 /*--- End of included file: packet-pkinit-hf.c ---*/
 #line 33 "./asn1/pkinit/packet-pkinit-template.c"
@@ -81,14 +91,16 @@ static gint ett_pkinit_PKAuthenticator = -1;
 static gint ett_pkinit_KRB5PrincipalName = -1;
 static gint ett_pkinit_PaPkAsRep = -1;
 static gint ett_pkinit_KDCDHKeyInfo = -1;
+static gint ett_pkinit_PKAuthenticator_Win2k = -1;
+static gint ett_pkinit_PA_PK_AS_REQ_Win2k = -1;
 
 /*--- End of included file: packet-pkinit-ett.c ---*/
 #line 36 "./asn1/pkinit/packet-pkinit-template.c"
 
 static int dissect_KerberosV5Spec2_KerberosTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
-static int dissect_KerberosV5Spec2_Checksum(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 static int dissect_KerberosV5Spec2_Realm(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 static int dissect_KerberosV5Spec2_PrincipalName(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
+static int dissect_pkinit_PKAuthenticator_Win2k(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 
 /*--- Included file: packet-pkinit-fn.c ---*/
@@ -147,6 +159,16 @@ dissect_pkinit_PaPkAsReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 static int
+dissect_pkinit_DHNonce(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
 dissect_pkinit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
@@ -165,18 +187,35 @@ dissect_pkinit_INTEGER_0_4294967295(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
+
+static int
+dissect_pkinit_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t PKAuthenticator_sequence[] = {
   { &hf_pkinit_cusec        , BER_CLASS_CON, 0, 0, dissect_pkinit_INTEGER },
   { &hf_pkinit_ctime        , BER_CLASS_CON, 1, 0, dissect_KerberosV5Spec2_KerberosTime },
   { &hf_pkinit_paNonce      , BER_CLASS_CON, 2, 0, dissect_pkinit_INTEGER_0_4294967295 },
-  { &hf_pkinit_paChecksum   , BER_CLASS_CON, 3, 0, dissect_KerberosV5Spec2_Checksum },
+  { &hf_pkinit_paChecksum   , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_pkinit_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_pkinit_PKAuthenticator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 17 "./asn1/pkinit/pkinit.cnf"
+	if (kerberos_is_win2k_pkinit(actx)) {
+		return dissect_pkinit_PKAuthenticator_Win2k(implicit_tag, tvb, offset, actx, tree, hf_index);
+	}
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PKAuthenticator_sequence, hf_index, ett_pkinit_PKAuthenticator);
+
+
+
 
   return offset;
 }
@@ -199,6 +238,7 @@ static const ber_sequence_t AuthPack_sequence[] = {
   { &hf_pkinit_pkAuthenticator, BER_CLASS_CON, 0, 0, dissect_pkinit_PKAuthenticator },
   { &hf_pkinit_clientPublicValue, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_pkix1explicit_SubjectPublicKeyInfo },
   { &hf_pkinit_supportedCMSTypes, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_pkinit_SEQUENCE_OF_AlgorithmIdentifier },
+  { &hf_pkinit_clientDHNonce, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_pkinit_DHNonce },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -274,6 +314,60 @@ dissect_pkinit_KDCDHKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
   return offset;
 }
 
+
+
+static int
+dissect_pkinit_INTEGER_M2147483648_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t PKAuthenticator_Win2k_sequence[] = {
+  { &hf_pkinit_kdcName      , BER_CLASS_CON, 0, 0, dissect_KerberosV5Spec2_PrincipalName },
+  { &hf_pkinit_kdcRealm     , BER_CLASS_CON, 1, 0, dissect_KerberosV5Spec2_Realm },
+  { &hf_pkinit_cusecWin2k   , BER_CLASS_CON, 2, 0, dissect_pkinit_INTEGER_0_4294967295 },
+  { &hf_pkinit_ctime        , BER_CLASS_CON, 3, 0, dissect_KerberosV5Spec2_KerberosTime },
+  { &hf_pkinit_paNonceWin2k , BER_CLASS_CON, 4, 0, dissect_pkinit_INTEGER_M2147483648_2147483647 },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkinit_PKAuthenticator_Win2k(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   PKAuthenticator_Win2k_sequence, hf_index, ett_pkinit_PKAuthenticator_Win2k);
+
+  return offset;
+}
+
+
+static const ber_sequence_t PA_PK_AS_REQ_Win2k_sequence[] = {
+  { &hf_pkinit_signed_auth_pack, BER_CLASS_CON, 0, 0, dissect_cms_ContentInfo },
+  { &hf_pkinit_trusted_certifiers, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_pkinit_SEQUENCE_OF_TrustedCA },
+  { &hf_pkinit_kdc_cert     , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkinit_OCTET_STRING },
+  { &hf_pkinit_encryption_cert, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkinit_OCTET_STRING },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_pkinit_PA_PK_AS_REQ_Win2k(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   PA_PK_AS_REQ_Win2k_sequence, hf_index, ett_pkinit_PA_PK_AS_REQ_Win2k);
+
+  return offset;
+}
+
+
+
+int
+dissect_pkinit_PA_PK_AS_REP_Win2k(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_pkinit_PaPkAsRep(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static int dissect_AuthPack_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
@@ -317,12 +411,6 @@ dissect_pkinit_PA_PK_AS_REP(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ct
 static int
 dissect_KerberosV5Spec2_KerberosTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
   offset = dissect_krb5_ctime(tree, tvb, offset, actx);
-  return offset;
-}
-
-static int
-dissect_KerberosV5Spec2_Checksum(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
-  offset = dissect_krb5_Checksum(tree, tvb, offset, actx);
   return offset;
 }
 
@@ -399,6 +487,10 @@ void proto_register_pkinit(void) {
       { "AlgorithmIdentifier", "pkinit.AlgorithmIdentifier_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_pkinit_clientDHNonce,
+      { "clientDHNonce", "pkinit.clientDHNonce",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "DHNonce", HFILL }},
     { &hf_pkinit_cusec,
       { "cusec", "pkinit.cusec",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -412,9 +504,9 @@ void proto_register_pkinit(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_4294967295", HFILL }},
     { &hf_pkinit_paChecksum,
-      { "paChecksum", "pkinit.paChecksum_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "Checksum", HFILL }},
+      { "paChecksum", "pkinit.paChecksum",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
     { &hf_pkinit_realm,
       { "realm", "pkinit.realm_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -443,9 +535,45 @@ void proto_register_pkinit(void) {
       { "dhKeyExpiration", "pkinit.dhKeyExpiration_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "KerberosTime", HFILL }},
+    { &hf_pkinit_kdcName,
+      { "kdcName", "pkinit.kdcName_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PrincipalName", HFILL }},
+    { &hf_pkinit_kdcRealm,
+      { "kdcRealm", "pkinit.kdcRealm_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Realm", HFILL }},
+    { &hf_pkinit_cusecWin2k,
+      { "cusec", "pkinit.cusec",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_4294967295", HFILL }},
+    { &hf_pkinit_paNonceWin2k,
+      { "nonce", "pkinit.nonce",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "INTEGER_M2147483648_2147483647", HFILL }},
+    { &hf_pkinit_signed_auth_pack,
+      { "signed-auth-pack", "pkinit.signed_auth_pack_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ContentInfo", HFILL }},
+    { &hf_pkinit_trusted_certifiers,
+      { "trusted-certifiers", "pkinit.trusted_certifiers",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_OF_TrustedCA", HFILL }},
+    { &hf_pkinit_trusted_certifiers_item,
+      { "TrustedCA", "pkinit.TrustedCA",
+        FT_UINT32, BASE_DEC, VALS(pkinit_TrustedCA_vals), 0,
+        NULL, HFILL }},
+    { &hf_pkinit_kdc_cert,
+      { "kdc-cert", "pkinit.kdc_cert",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_pkinit_encryption_cert,
+      { "encryption-cert", "pkinit.encryption_cert",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-pkinit-hfarr.c ---*/
-#line 87 "./asn1/pkinit/packet-pkinit-template.c"
+#line 81 "./asn1/pkinit/packet-pkinit-template.c"
   };
 
   /* List of subtrees */
@@ -462,9 +590,11 @@ void proto_register_pkinit(void) {
     &ett_pkinit_KRB5PrincipalName,
     &ett_pkinit_PaPkAsRep,
     &ett_pkinit_KDCDHKeyInfo,
+    &ett_pkinit_PKAuthenticator_Win2k,
+    &ett_pkinit_PA_PK_AS_REQ_Win2k,
 
 /*--- End of included file: packet-pkinit-ettarr.c ---*/
-#line 92 "./asn1/pkinit/packet-pkinit-template.c"
+#line 86 "./asn1/pkinit/packet-pkinit-template.c"
   };
 
   /* Register protocol */
@@ -488,6 +618,6 @@ void proto_reg_handoff_pkinit(void) {
 
 
 /*--- End of included file: packet-pkinit-dis-tab.c ---*/
-#line 107 "./asn1/pkinit/packet-pkinit-template.c"
+#line 101 "./asn1/pkinit/packet-pkinit-template.c"
 }
 

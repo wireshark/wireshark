@@ -155,6 +155,14 @@ PADATA-TYPE PROT_PREFIX UPPER_CASE
 	case KERBEROS_PA_TGS_REQ:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_Applications);
 		break;
+	case KERBEROS_PA_PK_AS_REP_19:
+		private_data->is_win2k_pkinit = TRUE;
+		if (kerberos_private_is_kdc_req(private_data)) {
+			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PA_PK_AS_REQ_Win2k);
+		} else {
+			offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PA_PK_AS_REP_Win2k);
+		}
+		break;
 	case KERBEROS_PA_PK_AS_REQ:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_pkinit_PaPkAsReq);
 		break;

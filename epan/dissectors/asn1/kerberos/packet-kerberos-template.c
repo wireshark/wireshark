@@ -87,6 +87,7 @@ typedef struct kerberos_key {
 
 typedef struct {
 	guint32 msg_type;
+	gboolean is_win2k_pkinit;
 	guint32 errorcode;
 	gboolean try_nt_status;
 	guint32 etype;
@@ -223,6 +224,26 @@ kerberos_get_private_data(asn1_ctx_t *actx)
 		actx->private_data = wmem_new0(wmem_packet_scope(), kerberos_private_data_t);
 	}
 	return (kerberos_private_data_t *)(actx->private_data);
+}
+
+static gboolean
+kerberos_private_is_kdc_req(kerberos_private_data_t *private_data)
+{
+	switch (private_data->msg_type) {
+	case KERBEROS_APPLICATIONS_AS_REQ:
+	case KERBEROS_APPLICATIONS_TGS_REQ:
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+gboolean
+kerberos_is_win2k_pkinit(asn1_ctx_t *actx)
+{
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+
+	return private_data->is_win2k_pkinit;
 }
 
 #ifdef HAVE_KERBEROS
