@@ -119,6 +119,18 @@ static int 	(*p_pcap_free_datalinks)(int *);
 static char     *(*p_bpf_image) (const struct bpf_insn *, int);
 #endif
 
+#ifdef HAVE_PCAP_CREATE
+static pcap_t*	(*p_pcap_create) (const char *, char *);
+static int	    (*p_pcap_set_snaplen) (pcap_t *, int);
+static int	    (*p_pcap_set_promisc) (pcap_t *, int);
+static int	    (*p_pcap_can_set_rfmon) (pcap_t *);
+static int	    (*p_pcap_set_rfmon) (pcap_t *, int);
+static int	    (*p_pcap_set_timeout) (pcap_t *, int);
+static int	    (*p_pcap_set_buffer_size) (pcap_t *, int);
+static int	    (*p_pcap_activate) (pcap_t *);
+static const char* (*p_pcap_statustostr)(int);
+#endif
+
 typedef struct {
 	const char	*name;
 	gpointer	*ptr;
@@ -193,6 +205,17 @@ load_wpcap(void)
 #endif
 #ifdef HAVE_BPF_IMAGE
 		SYM(bpf_image, FALSE),
+#endif
+#ifdef HAVE_PCAP_CREATE
+		SYM(pcap_create, FALSE),
+		SYM(pcap_set_snaplen, FALSE),
+		SYM(pcap_set_promisc, FALSE),
+		SYM(pcap_can_set_rfmon, TRUE),
+		SYM(pcap_set_rfmon, TRUE),
+		SYM(pcap_set_timeout, FALSE),
+		SYM(pcap_set_buffer_size, FALSE),
+		SYM(pcap_activate, FALSE),
+		SYM(pcap_statustostr, TRUE),
 #endif
 		{ NULL, NULL, FALSE }
 	};
@@ -443,6 +466,83 @@ pcap_freealldevs(pcap_if_t *a)
 {
 	g_assert(has_wpcap && p_pcap_freealldevs != NULL);
 	p_pcap_freealldevs(a);
+}
+#endif
+
+#ifdef HAVE_PCAP_CREATE
+pcap_t *
+pcap_create(const char *a, char *b)
+{
+	g_assert(has_wpcap && p_pcap_create != NULL);
+	return p_pcap_create(a, b);
+}
+
+int
+pcap_set_snaplen(pcap_t *a, int b)
+{
+	g_assert(has_wpcap && p_pcap_set_snaplen != NULL);
+	return p_pcap_set_snaplen(a, b);
+}
+
+int
+pcap_set_promisc(pcap_t *a, int b)
+{
+	g_assert(has_wpcap && p_pcap_set_promisc != NULL);
+	return p_pcap_set_promisc(a, b);
+}
+
+int
+pcap_can_set_rfmon(pcap_t *a)
+{
+	g_assert(has_wpcap);
+	if (p_pcap_can_set_rfmon != NULL) {
+		return p_pcap_can_set_rfmon(a);
+	}
+	return 0;
+}
+
+int
+pcap_set_rfmon(pcap_t *a, int b)
+{
+	g_assert(has_wpcap && p_pcap_set_rfmon != NULL);
+	return p_pcap_set_rfmon(a, b);
+}
+
+int
+pcap_set_timeout(pcap_t *a, int b)
+{
+	g_assert(has_wpcap && pcap_set_timeout != NULL);
+	return p_pcap_set_timeout(a, b);
+}
+int
+pcap_set_buffer_size(pcap_t *a, int b)
+{
+	g_assert(has_wpcap && pcap_set_timeout != NULL);
+	return p_pcap_set_buffer_size(a, b);
+}
+
+int
+pcap_activate(pcap_t *a)
+{
+	g_assert(has_wpcap && pcap_activate != NULL);
+	return p_pcap_activate(a);
+
+}
+
+const char *
+pcap_statustostr(int a)
+{
+    static char ebuf[15 + 10 + 1];
+
+    g_assert(has_wpcap);
+    if (pcap_statustostr != NULL) {
+        return pcap_statustostr(a);
+    }
+
+    /* XXX copy routine from pcap.c ??? */
+    (void)g_snprintf(ebuf, sizeof ebuf, "Don't have pcap_statustostr(), can't translate error: %d", a);
+    return(ebuf);
+
 }
 #endif
 
