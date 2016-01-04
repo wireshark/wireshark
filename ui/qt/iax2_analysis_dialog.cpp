@@ -297,14 +297,21 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     save_menu->addAction(ui->actionSaveGraph);
     ui->buttonBox->button(QDialogButtonBox::Save)->setMenu(save_menu);
 
-    const gchar *filter_text = "iax2 && (ip || ipv6)";
+#if 0
+    /* Only accept Voice or MiniPacket packets */
+    const gchar filter_text[] = "iax2.call && (ip || ipv6)";
+#else
+    const gchar filter_text[] = "iax2 && (ip || ipv6)";
+#endif
     dfilter_t *sfcode;
     gchar *err_msg;
 
+    /* Try to compile the filter. */
     if (!dfilter_compile(filter_text, &sfcode, &err_msg)) {
-        QMessageBox::warning(this, tr("No IAX2 packets found"), QString("%1").arg(err_msg));
+        err_str_ = QString(err_msg);
         g_free(err_msg);
-        close();
+        updateWidgets();
+        return;
     }
 
     if (!cap_file_.capFile() || !cap_file_.capFile()->current_frame) close();
@@ -342,17 +349,6 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     copy_address(&(dst_rev_), &(edt.pi.src));
     port_src_rev_ = edt.pi.destport;
     port_dst_rev_ = edt.pi.srcport;
-
-#if 0
-    /* check if it is Voice or MiniPacket */
-    bool ok;
-    getIntFromProtoTree(edt.tree, "iax2", "iax2.call", &ok);
-    if (!ok) {
-        err_str_ = tr("Please select an IAX2 packet.");
-        updateWidgets();
-        return;
-    }
-#endif
 
 #ifdef IAX2_RTP_STREAM_CHECK
     rtpstream_tapinfot tapinfo;
@@ -1206,77 +1202,6 @@ void Iax2AnalysisDialog::saveCsv(Iax2AnalysisDialog::StreamDirection direction)
         }
     }
 }
-
-#if 0
-// Adapted from iax2_analysis.c:process_node
-guint32 Iax2AnalysisDialog::processNode(proto_node *ptree_node, header_field_info *hfinformation, const gchar *proto_field, bool *ok)
-{
-    field_info        *finfo;
-    proto_node        *proto_sibling_node;
-    header_field_info *hfssrc;
-    ipv4_addr         *ipv4;
-
-    finfo = PNODE_FINFO(ptree_node);
-
-    /* Caller passed top of the protocol tree. Expected child node */
-    g_assert(finfo);
-
-    if (hfinformation == (finfo->hfinfo)) {
-        hfssrc = proto_registrar_get_byname(proto_field);
-        if (hfssrc == NULL) {
-            return 0;
-        }
-        for (ptree_node = ptree_node->first_child;
-             ptree_node != NULL;
-             ptree_node = ptree_node->next) {
-            finfo = PNODE_FINFO(ptree_node);
-            if (hfssrc == finfo->hfinfo) {
-                guint32 result;
-                if (hfinformation->type == FT_IPv4) {
-                    ipv4 = (ipv4_addr *)fvalue_get(&finfo->value);
-                    result = ipv4_get_net_order_addr(ipv4);
-                } else {
-                    result = fvalue_get_uinteger(&finfo->value);
-                }
-                if (ok) *ok = true;
-                return result;
-            }
-        }
-        if (!ptree_node) {
-            return 0;
-        }
-    }
-
-    proto_sibling_node = ptree_node->next;
-
-    if (proto_sibling_node) {
-        return processNode(proto_sibling_node, hfinformation, proto_field, ok);
-    } else {
-        return 0;
-    }
-}
-
-// Adapted from iax2_analysis.c:get_int_value_from_proto_tree
-guint32 Iax2AnalysisDialog::getIntFromProtoTree(proto_tree *protocol_tree, const gchar *proto_name, const gchar *proto_field, bool *ok)
-{
-    proto_node *ptree_node;
-    header_field_info *hfinformation;
-
-    if (ok) *ok = false;
-
-    hfinformation = proto_registrar_get_byname(proto_name);
-    if (hfinformation == NULL) {
-        return 0;
-    }
-
-    ptree_node = ((proto_node *)protocol_tree)->first_child;
-    if (!ptree_node) {
-        return 0;
-    }
-
-    return processNode(ptree_node, hfinformation, proto_field, ok);
-}
-#endif
 
 bool Iax2AnalysisDialog::eventFilter(QObject *, QEvent *event)
 {

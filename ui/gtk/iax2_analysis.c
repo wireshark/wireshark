@@ -3398,81 +3398,6 @@ create_iax2_dialog(user_data_t* user_data)
 	gtk_widget_grab_focus(list_fwd);
 }
 
-#if 0
-/****************************************************************************/
-static gboolean
-process_node(proto_node *ptree_node, header_field_info *hfinformation,
-							const gchar* proto_field, guint32* p_result)
-{
-	field_info        *finfo;
-	proto_node        *proto_sibling_node;
-	header_field_info *hfssrc;
-	ipv4_addr         *ipv4;
-
-	finfo = PNODE_FINFO(ptree_node);
-
-	if (hfinformation == (finfo->hfinfo)) {
-		hfssrc = proto_registrar_get_byname(proto_field);
-		if (hfssrc == NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      "Bad field name.");
-			return FALSE;
-			}
-		for (ptree_node = ptree_node->first_child;
-		     ptree_node != NULL;
-		     ptree_node = ptree_node->next) {
-			finfo = PNODE_FINFO(ptree_node);
-			if (hfssrc == finfo->hfinfo) {
-				if (hfinformation->type == FT_IPv4) {
-					ipv4      = fvalue_get(&finfo->value);
-					*p_result = ipv4_get_net_order_addr(ipv4);
-				}
-				else {
-					*p_result = fvalue_get_uinteger(&finfo->value);
-				}
-				return TRUE;
-			}
-		}
-		if (!ptree_node)
-			return FALSE;
-	}
-
-	proto_sibling_node = ptree_node->next;
-
-	if (proto_sibling_node) {
-		return process_node(proto_sibling_node, hfinformation, proto_field, p_result);
-	}
-	else
-	return FALSE;
-}
-
-/****************************************************************************/
-static gboolean
-get_int_value_from_proto_tree(proto_tree *protocol_tree,
-						 const gchar* proto_name,
-						 const gchar* proto_field,
-						 guint32* p_result)
-{
-	proto_node      *ptree_node;
-	header_field_info     *hfinformation;
-
-	hfinformation = proto_registrar_get_byname(proto_name);
-	if (hfinformation == NULL) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "Bad proto.");
-		return FALSE;
-		}
-
-	ptree_node = ((proto_node *)protocol_tree)->first_child;
-	if (!ptree_node) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "No info.");
-		return FALSE;
-		}
-	return process_node(ptree_node, hfinformation, proto_field, p_result);
-}
-#endif
-
 /****************************************************************************/
 static void
 iax2_analysis(
@@ -3600,7 +3525,12 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	guint16 port_dst_rev;
 	/* unsigned int ptype; */
 
-	const gchar  *filter_text = "iax2 && (ip || ipv6)";
+#if 0
+	/* Only accept Voice or MiniPacket packets */
+	const gchar  filter_text[] = "iax2.call && (ip || ipv6)";
+#else
+	const gchar  filter_text[] = "iax2 && (ip || ipv6)";
+#endif
 	dfilter_t    *sfcode;
 	gchar        *err_msg;
 	capture_file *cf;
@@ -3640,14 +3570,6 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 		    "Please select an IAX2 packet.");
 		return;
 	}
-#if 0
-	/* check if it is Voice or MiniPacket */
-	if (!get_int_value_from_proto_tree(edt->tree, "iax2", "iax2.call", &ptype)) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Please select a Voice packet.");
-		return;
-	}
-#endif
 
 	/* ok, it is a IAX2 frame, so let's get the ip and port values */
 	copy_address(&(ip_src_fwd), &(edt.pi.src));
