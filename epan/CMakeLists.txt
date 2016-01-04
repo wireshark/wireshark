@@ -712,6 +712,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ged125.c
 	dissectors/packet-geneve.c
 	dissectors/packet-gift.c
+	dissectors/packet-gfp.c
 	dissectors/packet-giop.c
 	dissectors/packet-git.c
 	dissectors/packet-glbp.c

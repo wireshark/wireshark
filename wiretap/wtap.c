@@ -953,6 +953,13 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_ISO14443 */
 	{ "ISO 14443 contactless smartcard standards", "iso14443" },
+
+	/* WTAP_ENCAP_GFP_T */
+	{ "ITU-T G.7041/Y.1303 Generic Framing Procedure Transparent mode", "gfp-t" },
+
+	/* WTAP_ENCAP_GFP_F */
+	{ "ITU-T G.7041/Y.1303 Generic Framing Procedure Frame-mapped mode", "gfp-f" }
+
 };
 
 WS_DLL_LOCAL

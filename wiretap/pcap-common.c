@@ -306,10 +306,9 @@ static const struct {
 
 	{ 169,		WTAP_ENCAP_GPRS_LLC },
 
-	/*
-	 * 170 and 171 are reserved for ITU-T G.7041/Y.1303 Generic
-	 * Framing Procedure.
-	 */
+	/* ITU-T G.7041/Y.1303 Generic Framing Procedure. */
+	{ 170,		WTAP_ENCAP_GFP_T },
+	{ 171,		WTAP_ENCAP_GFP_F },
 
 	/* Registered by Gcom, Inc. */
 	{ 172,		WTAP_ENCAP_GCOM_TIE1 },

@@ -264,6 +264,8 @@ extern "C" {
 #define WTAP_ENCAP_JSON                         175
 #define WTAP_ENCAP_NSTRACE_3_5                  176
 #define WTAP_ENCAP_ISO14443                     177
+#define WTAP_ENCAP_GFP_T                        178
+#define WTAP_ENCAP_GFP_F                        179
 /* After adding new item here, please also add new item to encap_table_base array */
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
