@@ -113,8 +113,8 @@ iousers_draw(void *arg)
 					       "u  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  %6"
 					       G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  ",
 						src, dst,
-						iui->tx_frames, iui->tx_bytes,
 						iui->rx_frames, iui->rx_bytes,
+						iui->tx_frames, iui->tx_bytes,
 						iui->tx_frames+iui->rx_frames,
 						iui->tx_bytes+iui->rx_bytes
 					);
@@ -127,8 +127,8 @@ iousers_draw(void *arg)
 					       "u  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  %6"
 					       G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER "u  ",
 						src_addr, dst_addr,
-						iui->tx_frames, iui->tx_bytes,
 						iui->rx_frames, iui->rx_bytes,
+						iui->tx_frames, iui->tx_bytes,
 						iui->tx_frames+iui->rx_frames,
 						iui->tx_bytes+iui->rx_bytes
 					);
