@@ -80,7 +80,8 @@ change_dissector_if_matched(gpointer item, gpointer user_data)
 {
     dissector_handle_t handle = (dissector_handle_t)item;
     lookup_entry_t * lookup = (lookup_entry_t *)user_data;
-    if (strcmp(lookup->dissector_short_name, dissector_handle_get_short_name(handle)) == 0) {
+    const gchar *proto_short_name = dissector_handle_get_short_name(handle);
+    if (proto_short_name && strcmp(lookup->dissector_short_name, proto_short_name) == 0) {
         lookup->handle = handle;
     }
 }
