@@ -270,9 +270,10 @@ void extcap_free_tokenized_sentence_list(extcap_token_sentence *f) {
 }
 
 extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
-    gchar *b, *e, *eq;
-
     extcap_token_param *tv = NULL;
+    GRegex * regex = NULL;
+    GMatchInfo * match_info = NULL;
+    GError * error = NULL;
 
     extcap_token_sentence *rs = g_new(extcap_token_sentence, 1);
 
@@ -280,106 +281,83 @@ extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
     rs->next_sentence = NULL;
     rs->param_list = NULL;
 
-    if ((b = g_strstr_len(s, -1, " ")) == NULL) {
+    /* Regex for catching just the allowed values for sentences */
+    if ( ( regex = g_regex_new ( "^[\\t| ]*(arg|value|interface|dlt)(?=[\\t| ]+\\{)",
+            (GRegexCompileFlags) G_REGEX_CASELESS, (GRegexMatchFlags) 0, NULL ) ) != NULL ) {
+        g_regex_match ( regex, s, (GRegexMatchFlags) 0, &match_info );
+
+        if ( g_match_info_matches ( match_info ) )
+            rs->sentence = g_match_info_fetch(match_info, 0);
+
+        g_match_info_free ( match_info );
+        g_regex_unref ( regex );
+    }
+    /* No valid sentence found, exiting here */
+    if ( rs->sentence == NULL ) {
         extcap_free_tokenized_sentence(rs);
-        return NULL ;
+        return NULL;
     }
 
-    rs->sentence = g_strndup(s, b - s);
+    /* Capture the argument and the value of the list. This will ensure,
+     * that regex patterns given to {validation=} are parsed correctly,
+     * as long as }{ does not occur within the pattern */
+    regex = g_regex_new ( "\\{([a-zA-Z_-]*?)\\=(.*?)\\}(?=\\{|$|\\s)",
+            (GRegexCompileFlags) G_REGEX_CASELESS, (GRegexMatchFlags) 0, NULL );
+    if ( regex != NULL ) {
+        g_regex_match_full(regex, s, -1, 0, (GRegexMatchFlags) 0, &match_info, &error );
+        while(g_match_info_matches(match_info)) {
+            gchar * arg = g_match_info_fetch ( match_info, 1 );
 
-    if ((b = g_strstr_len(s, -1, "{")) == NULL) {
-        /* printf("debug - tokenizer - sentence with no values\n"); */
-        extcap_free_tokenized_sentence(rs);
-        return NULL ;
-    }
+            if ( arg == NULL )
+                break;
 
-    while (b != NULL ) {
-        if ((e = g_strstr_len(b, -1, "}")) == NULL) {
-            /* printf("debug - tokenizer - invalid, missing }\n"); */
-            extcap_free_tokenized_sentence(rs);
-            return NULL ;
-        }
+            tv = g_new(extcap_token_param, 1);
+            tv->arg = arg;
+            tv->value = g_match_info_fetch ( match_info, 2 );
 
-        /* caught a regex quantifier end bracket and not the end of the line.
-         * let's find the correct end bracket */
-        if ( *(e+1) != '{' && strlen ( e ) > 1 ) {
-            gchar *f = (e + 1);
-
-            while ( ( f = g_strstr_len(f, -1, "}") ) != NULL) {
-                if ( strlen ( f ) <= 1 || *(f+1) == '{' )
-                    break;
-                f++;
+            if (g_ascii_strcasecmp(tv->arg, "number") == 0) {
+                tv->param_type = EXTCAP_PARAM_ARGNUM;
+            } else if (g_ascii_strcasecmp(tv->arg, "call") == 0) {
+                tv->param_type = EXTCAP_PARAM_CALL;
+            } else if (g_ascii_strcasecmp(tv->arg, "display") == 0) {
+                tv->param_type = EXTCAP_PARAM_DISPLAY;
+            } else if (g_ascii_strcasecmp(tv->arg, "type") == 0) {
+                tv->param_type = EXTCAP_PARAM_TYPE;
+            } else if (g_ascii_strcasecmp(tv->arg, "arg") == 0) {
+                tv->param_type = EXTCAP_PARAM_ARG;
+            } else if (g_ascii_strcasecmp(tv->arg, "default") == 0) {
+                tv->param_type = EXTCAP_PARAM_DEFAULT;
+            } else if (g_ascii_strcasecmp(tv->arg, "value") == 0) {
+                tv->param_type = EXTCAP_PARAM_VALUE;
+            } else if (g_ascii_strcasecmp(tv->arg, "range") == 0) {
+                tv->param_type = EXTCAP_PARAM_RANGE;
+            } else if (g_ascii_strcasecmp(tv->arg, "tooltip") == 0) {
+                tv->param_type = EXTCAP_PARAM_TOOLTIP;
+            } else if (g_ascii_strcasecmp(tv->arg, "mustexist") == 0) {
+                tv->param_type = EXTCAP_PARAM_FILE_MUSTEXIST;
+            } else if (g_ascii_strcasecmp(tv->arg, "fileext") == 0) {
+                tv->param_type = EXTCAP_PARAM_FILE_EXTENSION;
+            } else if (g_ascii_strcasecmp(tv->arg, "name") == 0) {
+                tv->param_type = EXTCAP_PARAM_NAME;
+            } else if (g_ascii_strcasecmp(tv->arg, "enabled") == 0) {
+                tv->param_type = EXTCAP_PARAM_ENABLED;
+            } else if (g_ascii_strcasecmp(tv->arg, "parent") == 0) {
+                tv->param_type = EXTCAP_PARAM_PARENT;
+            } else if (g_ascii_strcasecmp(tv->arg, "required") == 0) {
+                tv->param_type = EXTCAP_PARAM_REQUIRED;
+            } else if (g_ascii_strcasecmp(tv->arg, "validation") == 0) {
+                tv->param_type = EXTCAP_PARAM_VALIDATION;
+            } else {
+                tv->param_type = EXTCAP_PARAM_UNKNOWN;
             }
 
-            if ( f != NULL )
-                e = f;
+            tv->next_token = rs->param_list;
+            rs->param_list = tv;
+
+            g_match_info_next(match_info, &error);
         }
-
-        if ((eq = g_strstr_len(b, -1, "=")) == NULL) {
-            /* printf("debug - tokenizer - invalid, missing =\n"); */
-            extcap_free_tokenized_sentence(rs);
-            return NULL ;
-        }
-
-        b++;
-        e--;
-
-        if (b >= eq || e <= eq) {
-            /* printf("debug - tokenizer - invalid, missing arg or value in {}\n"); */
-            extcap_free_tokenized_sentence(rs);
-            return NULL ;
-        }
-
-        tv = g_new(extcap_token_param, 1);
-        tv->arg = g_strndup(b, eq - b);
-        tv->value = g_strndup(eq + 1, e - eq);
-
-        if (g_ascii_strcasecmp(tv->arg, "number") == 0) {
-            tv->param_type = EXTCAP_PARAM_ARGNUM;
-        } else if (g_ascii_strcasecmp(tv->arg, "call") == 0) {
-            tv->param_type = EXTCAP_PARAM_CALL;
-        } else if (g_ascii_strcasecmp(tv->arg, "display") == 0) {
-            tv->param_type = EXTCAP_PARAM_DISPLAY;
-        } else if (g_ascii_strcasecmp(tv->arg, "type") == 0) {
-            tv->param_type = EXTCAP_PARAM_TYPE;
-        } else if (g_ascii_strcasecmp(tv->arg, "arg") == 0) {
-            tv->param_type = EXTCAP_PARAM_ARG;
-        } else if (g_ascii_strcasecmp(tv->arg, "default") == 0) {
-            tv->param_type = EXTCAP_PARAM_DEFAULT;
-        } else if (g_ascii_strcasecmp(tv->arg, "value") == 0) {
-            tv->param_type = EXTCAP_PARAM_VALUE;
-        } else if (g_ascii_strcasecmp(tv->arg, "range") == 0) {
-            tv->param_type = EXTCAP_PARAM_RANGE;
-        } else if (g_ascii_strcasecmp(tv->arg, "tooltip") == 0) {
-            tv->param_type = EXTCAP_PARAM_TOOLTIP;
-        } else if (g_ascii_strcasecmp(tv->arg, "mustexist") == 0) {
-            tv->param_type = EXTCAP_PARAM_FILE_MUSTEXIST;
-        } else if (g_ascii_strcasecmp(tv->arg, "fileext") == 0) {
-            tv->param_type = EXTCAP_PARAM_FILE_EXTENSION;
-        } else if (g_ascii_strcasecmp(tv->arg, "name") == 0) {
-            tv->param_type = EXTCAP_PARAM_NAME;
-        } else if (g_ascii_strcasecmp(tv->arg, "enabled") == 0) {
-            tv->param_type = EXTCAP_PARAM_ENABLED;
-        } else if (g_ascii_strcasecmp(tv->arg, "parent") == 0) {
-            tv->param_type = EXTCAP_PARAM_PARENT;
-        } else if (g_ascii_strcasecmp(tv->arg, "required") == 0) {
-            tv->param_type = EXTCAP_PARAM_REQUIRED;
-        } else if (g_ascii_strcasecmp(tv->arg, "validation") == 0) {
-            tv->param_type = EXTCAP_PARAM_VALIDATION;
-        } else {
-            tv->param_type = EXTCAP_PARAM_UNKNOWN;
-        }
-
-        tv->next_token = rs->param_list;
-        rs->param_list = tv;
-
-        /* printf("debug - tokenizer - got '%s' = '%s'\n", tv->arg, tv->value); */
-
-        b = e + 1;
-        if ((size_t) (b - s) > strlen(s))
-            break;
-
-        b = g_strstr_len(b, -1, "{");
+        g_match_info_free(match_info);
+        g_regex_unref(regex);
     }
 
     return rs;
