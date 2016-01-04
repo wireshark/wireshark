@@ -2246,7 +2246,6 @@ WS_DLL_PUBLIC gboolean proto_tracking_interesting_fields(const proto_tree *tree)
 
 /** Return GPtrArray* of field_info pointers for all hfindex that appear in
     tree. Works with any tree, primed or unprimed, and is slower than
-WS_DLL_PUBLIC
     proto_get_finfo_ptr_array because it has to search through the tree.
  @param tree tree of interest
  @param hfindex index of field info of interest
