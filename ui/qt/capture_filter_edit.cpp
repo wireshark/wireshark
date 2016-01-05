@@ -310,7 +310,7 @@ void CaptureFilterEdit::setFilterSyntaxState(QString filter, int state, QString 
 
     if (filter.compare(text()) == 0) { // The user hasn't changed the filter
         setSyntaxState((SyntaxState)state);
-        if (!valid) {
+        if (!err_msg.isEmpty()) {
             emit pushFilterSyntaxStatus(err_msg);
         }
     }
