@@ -39,14 +39,14 @@
 #include <sys/socket.h>
 #endif
 
-#include <wtap.h>
-#include <libpcap.h>
+#include <wiretap/wtap.h>
+#include <wiretap/libpcap.h>
 
 #include "caputils/capture_ifinfo.h"
 #include "caputils/capture-pcap-util.h"
 #include "caputils/capture-pcap-util-int.h"
 
-#include "wsutil/file_util.h"
+#include <wsutil/file_util.h>
 
 #ifndef _WIN32
 #include <netinet/in.h>
