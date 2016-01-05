@@ -673,7 +673,7 @@ static int hf_tetra_type3_05 = -1;                /* T_type3_05 */
 static int hf_tetra_type3_elements_05 = -1;       /* T_type3_elements_05 */
 static int hf_tetra_called_party_sna = -1;        /* INTEGER_0_255 */
 static int hf_tetra_called_party_ssi = -1;        /* INTEGER_0_16777215 */
-static int hf_tetra_called_party_ssi_extention = -1;  /* T_called_party_ssi_extention */
+static int hf_tetra_called_party_ssi_extension = -1;  /* T_called_party_ssi_extension */
 static int hf_tetra_called_party_extention = -1;  /* INTEGER_0_16777215 */
 static int hf_tetra_data_01 = -1;                 /* T_data_01 */
 static int hf_tetra_element1 = -1;                /* Type1 */
@@ -960,7 +960,7 @@ static gint ett_tetra_T_type2_element_03 = -1;
 static gint ett_tetra_T_type3_05 = -1;
 static gint ett_tetra_T_type3_elements_05 = -1;
 static gint ett_tetra_Calling_party_address_type = -1;
-static gint ett_tetra_T_called_party_ssi_extention = -1;
+static gint ett_tetra_T_called_party_ssi_extension = -1;
 static gint ett_tetra_Proprietary = -1;
 static gint ett_tetra_T_data_01 = -1;
 static gint ett_tetra_Type1 = -1;
@@ -3459,16 +3459,16 @@ dissect_tetra_T_simple_duplex_selection(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
-static const per_sequence_t T_called_party_ssi_extention_sequence[] = {
+static const per_sequence_t T_called_party_ssi_extension_sequence[] = {
   { &hf_tetra_called_party_ssi, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16777215 },
   { &hf_tetra_called_party_extention, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_16777215 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_tetra_T_called_party_ssi_extention(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tetra_T_called_party_ssi_extension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_T_called_party_ssi_extention, T_called_party_ssi_extention_sequence);
+                                   ett_tetra_T_called_party_ssi_extension, T_called_party_ssi_extension_sequence);
 
   return offset;
 }
@@ -3477,14 +3477,14 @@ dissect_tetra_T_called_party_ssi_extention(tvbuff_t *tvb _U_, int offset _U_, as
 static const value_string tetra_Calling_party_address_type_vals[] = {
   {   0, "called-party-sna" },
   {   1, "called-party-ssi" },
-  {   2, "called-party-ssi-extention" },
+  {   2, "called-party-ssi-extension" },
   { 0, NULL }
 };
 
 static const per_choice_t Calling_party_address_type_choice[] = {
   {   0, &hf_tetra_called_party_sna, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_255 },
   {   1, &hf_tetra_called_party_ssi, ASN1_NO_EXTENSIONS     , dissect_tetra_INTEGER_0_16777215 },
-  {   2, &hf_tetra_called_party_ssi_extention, ASN1_NO_EXTENSIONS     , dissect_tetra_T_called_party_ssi_extention },
+  {   2, &hf_tetra_called_party_ssi_extension, ASN1_NO_EXTENSIONS     , dissect_tetra_T_called_party_ssi_extension },
   { 0, NULL, 0, NULL }
 };
 
@@ -11683,8 +11683,8 @@ void proto_register_tetra (void)
       { "called-party-ssi", "tetra.called_party_ssi",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_16777215", HFILL }},
-    { &hf_tetra_called_party_ssi_extention,
-      { "called-party-ssi-extention", "tetra.called_party_ssi_extention_element",
+    { &hf_tetra_called_party_ssi_extension,
+      { "called-party-ssi-extension", "tetra.called_party_ssi_extension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_tetra_called_party_extention,
@@ -11994,7 +11994,7 @@ void proto_register_tetra (void)
     &ett_tetra_T_type3_05,
     &ett_tetra_T_type3_elements_05,
     &ett_tetra_Calling_party_address_type,
-    &ett_tetra_T_called_party_ssi_extention,
+    &ett_tetra_T_called_party_ssi_extension,
     &ett_tetra_Proprietary,
     &ett_tetra_T_data_01,
     &ett_tetra_Type1,

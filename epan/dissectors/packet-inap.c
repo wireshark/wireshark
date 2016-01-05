@@ -1051,7 +1051,7 @@ static int hf_inap_cause_indicator = -1;
 static gint ett_inap = -1;
 static gint ett_inapisup_parameter = -1;
 static gint ett_inap_HighLayerCompatibility = -1;
-static gint ett_inap_extention_data = -1;
+static gint ett_inap_extension_data = -1;
 static gint ett_inap_cause = -1;
 
 
@@ -1521,7 +1521,7 @@ static int
 dissect_inap_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 213 "../../asn1/inap/inap.cnf"
   proto_tree *ext_tree;
-  ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_inap_extention_data, NULL, "Extension Data");
+  ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_inap_extension_data, NULL, "Extension Data");
   if (obj_id){
 	 offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
@@ -11697,7 +11697,7 @@ void proto_register_inap(void) {
     &ett_inap,
     &ett_inapisup_parameter,
     &ett_inap_HighLayerCompatibility,
-    &ett_inap_extention_data,
+    &ett_inap_extension_data,
     &ett_inap_cause,
 
 /*--- Included file: packet-inap-ettarr.c ---*/

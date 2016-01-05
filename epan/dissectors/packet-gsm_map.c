@@ -1967,7 +1967,7 @@ static gint ett_gsm_map_GeographicalInformation = -1;
 static gint ett_gsm_map_apn_str = -1;
 static gint ett_gsm_map_LocationNumber = -1;
 static gint ett_gsm_map_ericsson_locationInformation = -1;
-static gint ett_gsm_map_extention_data = -1;
+static gint ett_gsm_map_extension_data = -1;
 static gint ett_gsm_map_tbcd_digits = -1;
 static gint ett_gsm_map_ussd_string = -1;
 
@@ -3395,7 +3395,7 @@ static int
 dissect_gsm_map_T_extType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 231 "../../asn1/gsm_map/gsm_map.cnf"
   proto_tree *ext_tree;
-  ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gsm_map_extention_data, NULL, "Extension Data");
+  ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gsm_map_extension_data, NULL, "Extension Data");
   if (actx->external.direct_ref_present){
 	 offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
@@ -30356,7 +30356,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_apn_str,
     &ett_gsm_map_LocationNumber,
     &ett_gsm_map_ericsson_locationInformation,
-    &ett_gsm_map_extention_data,
+    &ett_gsm_map_extension_data,
     &ett_gsm_map_tbcd_digits,
     &ett_gsm_map_ussd_string,
 

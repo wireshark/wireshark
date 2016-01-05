@@ -80,7 +80,7 @@ static int hf_inap_cause_indicator = -1;
 static gint ett_inap = -1;
 static gint ett_inapisup_parameter = -1;
 static gint ett_inap_HighLayerCompatibility = -1;
-static gint ett_inap_extention_data = -1;
+static gint ett_inap_extension_data = -1;
 static gint ett_inap_cause = -1;
 
 #include "packet-inap-ett.c"
@@ -222,7 +222,7 @@ void proto_register_inap(void) {
     &ett_inap,
     &ett_inapisup_parameter,
     &ett_inap_HighLayerCompatibility,
-    &ett_inap_extention_data,
+    &ett_inap_extension_data,
     &ett_inap_cause,
 #include "packet-inap-ettarr.c"
   };

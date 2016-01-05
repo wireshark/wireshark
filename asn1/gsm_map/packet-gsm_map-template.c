@@ -176,7 +176,7 @@ static gint ett_gsm_map_GeographicalInformation = -1;
 static gint ett_gsm_map_apn_str = -1;
 static gint ett_gsm_map_LocationNumber = -1;
 static gint ett_gsm_map_ericsson_locationInformation = -1;
-static gint ett_gsm_map_extention_data = -1;
+static gint ett_gsm_map_extension_data = -1;
 static gint ett_gsm_map_tbcd_digits = -1;
 static gint ett_gsm_map_ussd_string = -1;
 
@@ -3082,7 +3082,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_apn_str,
     &ett_gsm_map_LocationNumber,
     &ett_gsm_map_ericsson_locationInformation,
-    &ett_gsm_map_extention_data,
+    &ett_gsm_map_extension_data,
     &ett_gsm_map_tbcd_digits,
     &ett_gsm_map_ussd_string,
 

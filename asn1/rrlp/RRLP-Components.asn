@@ -1055,7 +1055,7 @@ Rel7-MsrPosition-Req-Extension ::= SEQUENCE {
 	add-GPS-AssistData								Add-GPS-AssistData		OPTIONAL,
 	ganssMultiFreqMeasurementRequest				NULL					OPTIONAL,
 	...
-	-- Further Release 7 extentions here
+	-- Further Release 7 extensions here
 }
 
 -- additional satellite systems may be added in future versions of the protocol

@@ -2290,9 +2290,13 @@ CALLMODE ::= ENUMERATED
 Calling-party-address-type ::= CHOICE {
 	called-party-sna [0] INTEGER ( 0..255 ),
 	called-party-ssi [1] INTEGER ( 0..16777215 ),
-	called-party-ssi-extention [2] SEQUENCE {
+	-- WS modification: fix misspelling
+	called-party-ssi-extension [2] SEQUENCE {
+	-- End WS modification
 	called-party-ssi INTEGER ( 0..16777215 ),
+	-- WS modification: fix misspelling
 	called-party-extention INTEGER ( 0..16777215 )
+	-- End WS modification
   }
 }
 

@@ -1346,7 +1346,7 @@ Attribute-Extensions-Pattern ::=
                                                 {@.extension-attribute-identifier})
                                }}
 
--- conjunction with the extention attribute in Order to
+-- conjunction with the extension attribute in Order to
 -- perform Pattern matthing operations on it. it may be
 -- defined in terms of other Patterns within this
 -- Standard.

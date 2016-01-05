@@ -10700,7 +10700,9 @@ SignallingConnectionReleaseIndication ::= SEQUENCE {
 		laterNonCriticalExtensions		SEQUENCE {
 			-- Container for additional R99 extensions
 			signallingConnectionReleaseIndication-r3-add-ext		BIT STRING		OPTIONAL,
-			v860nonCriticalExtentions		SEQUENCE {
+	-- WS modification: fix misspelling
+			v860nonCriticalExtensions		SEQUENCE {
+	-- End WS modification
 				signallingConnectionReleaseIndication-v860ext
 												SignallingConnectionReleaseIndication-v860ext,
 				nonCriticalExtensions			SEQUENCE {}		OPTIONAL

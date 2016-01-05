@@ -23249,7 +23249,9 @@ SysInfoType1 ::=					SEQUENCE {
 	-- Extension mechanism for non- release99 information
 		v3a0NonCriticalExtensions		SEQUENCE {
 			sysInfoType1-v3a0ext			SysInfoType1-v3a0ext-IEs,
-			v860NonCriticalExtentions		SEQUENCE {
+-- WS modification: fix misspelling
+			v860NonCriticalExtensions		SEQUENCE {
+	-- End WS modification
 				sysInfoType1-v860ext			SysInfoType1-v860ext-IEs,
 				nonCriticalExtensions			SEQUENCE {} OPTIONAL
 			}							OPTIONAL

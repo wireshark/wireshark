@@ -229,7 +229,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 
 #.FN_BODY PrivateExtension/extType
   proto_tree *ext_tree;
-  ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gsm_map_extention_data, NULL, "Extension Data");
+  ext_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gsm_map_extension_data, NULL, "Extension Data");
   if (actx->external.direct_ref_present){
 	 offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
