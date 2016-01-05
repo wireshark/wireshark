@@ -61,21 +61,16 @@ check_function_exists( "pcap_freecode" HAVE_PCAP_FREECODE )
 # update libpcap without updating the headers.
 #
 check_function_exists( "pcap_breakloop" HAVE_PCAP_BREAKLOOP )
-# FIXME: The code (at least) in dumpcap assumes that PCAP_CREATE is not
-#        available on Windows
-if( WIN32 )
-  #
-  # This is always the case with WinPcap.
-  #
-  set(CAN_SET_CAPTURE_BUFFER_SIZE TRUE)
-else()
-  check_function_exists( "pcap_create" HAVE_PCAP_CREATE )
-  if ( HAVE_PCAP_CREATE )
-    #
-    # For libpcap, we can set the buffer size if we have pcap_create().
-    #
-    set( CAN_SET_CAPTURE_BUFFER_SIZE TRUE )
-  endif()
+check_function_exists( "pcap_create" HAVE_PCAP_CREATE )
+if( HAVE_PCAP_CREATE OR WIN32 )
+ #
+ # If we have pcap_create(), we have pcap_set_buffer_size(), and
+ # can set the capture buffer size.
+ #
+ # Otherwise, if this is Windows, we have pcap_setbuff(), and can
+ # set the capture buffer size.
+ #
+ set( CAN_SET_CAPTURE_BUFFER_SIZE TRUE )
 endif()
 check_function_exists( "pcap_datalink_name_to_val" HAVE_PCAP_DATALINK_NAME_TO_VAL )
 check_function_exists( "pcap_datalink_val_to_description" HAVE_PCAP_DATALINK_VAL_TO_DESCRIPTION )

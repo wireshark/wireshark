@@ -112,23 +112,23 @@ static int	(*p_pcap_set_datalink)(pcap_t *, int);
 #endif
 
 #ifdef HAVE_PCAP_FREE_DATALINKS
-static int 	(*p_pcap_free_datalinks)(int *);
+static int	(*p_pcap_free_datalinks)(int *);
 #endif
 
 #ifdef HAVE_BPF_IMAGE
-static char     *(*p_bpf_image) (const struct bpf_insn *, int);
+static char	*(*p_bpf_image)(const struct bpf_insn *, int);
 #endif
 
 #ifdef HAVE_PCAP_CREATE
-static pcap_t*	(*p_pcap_create) (const char *, char *);
-static int	    (*p_pcap_set_snaplen) (pcap_t *, int);
-static int	    (*p_pcap_set_promisc) (pcap_t *, int);
-static int	    (*p_pcap_can_set_rfmon) (pcap_t *);
-static int	    (*p_pcap_set_rfmon) (pcap_t *, int);
-static int	    (*p_pcap_set_timeout) (pcap_t *, int);
-static int	    (*p_pcap_set_buffer_size) (pcap_t *, int);
-static int	    (*p_pcap_activate) (pcap_t *);
-static const char* (*p_pcap_statustostr)(int);
+static pcap_t	*(*p_pcap_create)(const char *, char *);
+static int	(*p_pcap_set_snaplen)(pcap_t *, int);
+static int	(*p_pcap_set_promisc)(pcap_t *, int);
+static int	(*p_pcap_can_set_rfmon)(pcap_t *);
+static int	(*p_pcap_set_rfmon)(pcap_t *, int);
+static int	(*p_pcap_set_timeout)(pcap_t *, int);
+static int	(*p_pcap_set_buffer_size)(pcap_t *, int);
+static int	(*p_pcap_activate)(pcap_t *);
+static const char *(*p_pcap_statustostr)(int);
 #endif
 
 typedef struct {
@@ -207,14 +207,14 @@ load_wpcap(void)
 		SYM(bpf_image, FALSE),
 #endif
 #ifdef HAVE_PCAP_CREATE
-		SYM(pcap_create, FALSE),
-		SYM(pcap_set_snaplen, FALSE),
-		SYM(pcap_set_promisc, FALSE),
+		SYM(pcap_create, TRUE),
+		SYM(pcap_set_snaplen, TRUE),
+		SYM(pcap_set_promisc, TRUE),
 		SYM(pcap_can_set_rfmon, TRUE),
 		SYM(pcap_set_rfmon, TRUE),
 		SYM(pcap_set_timeout, FALSE),
 		SYM(pcap_set_buffer_size, FALSE),
-		SYM(pcap_activate, FALSE),
+		SYM(pcap_activate, TRUE),
 		SYM(pcap_statustostr, TRUE),
 #endif
 		{ NULL, NULL, FALSE }
@@ -979,6 +979,40 @@ cant_get_if_list_error_message(const char *err_str)
 		    err_str);
 	}
 	return g_strdup_printf("Can't get list of interfaces: %s", err_str);
+}
+
+if_capabilities_t *
+get_if_capabilities_local(interface_options *interface_opts, char **err_str)
+{
+	/*
+	 * We're not getting capaibilities for a remote device; use
+	 * pcap_create() and pcap_activate() if we have them, so that
+	 * we can set various options, otherwise use pcap_open_live().
+	 */
+#ifdef HAVE_PCAP_CREATE
+	if (p_pcap_create != NULL)
+		return get_if_capabilities_pcap_create(interface_opts, err_str);
+#endif
+	return get_if_capabilities_pcap_open_live(interface_opts, err_str);
+}
+
+pcap_t *
+open_capture_device_local(capture_options *capture_opts,
+    interface_options *interface_opts, int timeout,
+    char (*open_err_str)[PCAP_ERRBUF_SIZE])
+{
+	/*
+	 * We're not opening a remote device; use pcap_create() and
+	 * pcap_activate() if we have them, so that we can set various
+	 * options, otherwise use pcap_open_live().
+	 */
+#ifdef HAVE_PCAP_CREATE
+	if (p_pcap_create != NULL)
+		return open_capture_device_pcap_create(capture_opts,
+		    interface_opts, timeout, open_err_str);
+#endif
+	return open_capture_device_pcap_open_live(interface_opts, timeout,
+	    open_err_str);
 }
 
 /*

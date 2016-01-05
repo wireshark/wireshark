@@ -422,6 +422,35 @@ have_high_resolution_timestamp(pcap_t *pcap_h)
 
 #endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
+if_capabilities_t *
+get_if_capabilities_local(interface_options *interface_opts, char **err_str)
+{
+#ifdef HAVE_PCAP_CREATE
+	return get_if_capabilities_pcap_create(interface_opts, err_str);
+#else
+	return get_if_capabilities_pcap_open_live(interface_opts, err_str);
+#endif
+}
+
+pcap_t *
+open_capture_device_local(capture_options *capture_opts,
+    interface_options *interface_opts, int timeout,
+    char (*open_err_str)[PCAP_ERRBUF_SIZE])
+{
+	/*
+	 * We're not opening a remote device; use pcap_create() and
+	 * pcap_activate() if we have them, so that we can set various
+	 * options, otherwise use pcap_open_live().
+	 */
+#ifdef HAVE_PCAP_CREATE
+	return open_capture_device_pcap_create(capture_opts,
+	    interface_opts, timeout, open_err_str);
+#else
+	return open_capture_device_pcap_open_live(interface_opts, timeout,
+	    open_err_str);
+#endif
+}
+
 /*
  * Get the versions of libpcap, libpcap, and libnl with which we were
  * compiled, and append them to a GString.

@@ -39,9 +39,44 @@
 #include <sys/socket.h>
 #endif
 
+/*
+ * Linux bonding devices mishandle unknown ioctls; they fail
+ * with ENODEV rather than ENOTSUP, EOPNOTSUPP, or ENOTTY,
+ * so pcap_can_set_rfmon() returns a "no such device" indication
+ * if we try to do SIOCGIWMODE on them.
+ *
+ * So, on Linux, we check for bonding devices, if we can, before
+ * trying pcap_can_set_rfmon(), as pcap_can_set_rfmon() will
+ * end up trying SIOCGIWMODE on the device if that ioctl exists.
+ */
+#if defined(HAVE_PCAP_CREATE) && defined(__linux__)
+
+#include <sys/ioctl.h>
+
+/*
+ * If we're building for a Linux version that supports bonding,
+ * HAVE_BONDING will be defined.
+ */
+
+#ifdef HAVE_LINUX_SOCKIOS_H
+#include <linux/sockios.h>
+#endif
+
+#ifdef HAVE_LINUX_IF_BONDING_H
+#include <linux/if_bonding.h>
+#endif
+
+#if defined(BOND_INFO_QUERY_OLD) || defined(SIOCBONDINFOQUERY)
+#define HAVE_BONDING
+#endif
+
+#endif /* defined(HAVE_PCAP_CREATE) && defined(__linux__) */
+
 #include "caputils/capture_ifinfo.h"
 #include "caputils/capture-pcap-util.h"
 #include "caputils/capture-pcap-util-int.h"
+
+#include "log.h"
 
 #include <wsutil/file_util.h>
 
@@ -52,6 +87,14 @@
 #ifdef _WIN32
 #include "caputils/capture_win_ifnames.h" /* windows friendly interface names */
 #endif
+
+/*
+ * Standard secondary message for unexpected errors.
+ */
+static const char please_report[] =
+    "Please report this to the Wireshark developers.\n"
+    "https://bugs.wireshark.org/\n"
+    "(This is not a crash; please do not report it as such.)";
 
 /*
  * Given an interface name, find the "friendly name" and interface
@@ -635,9 +678,679 @@ linktype_val_to_name(int dlt)
 	return pcap_datalink_val_to_name(dlt);
 }
 
-int linktype_name_to_val(const char *linktype)
+int
+linktype_name_to_val(const char *linktype)
 {
 	return pcap_datalink_name_to_val(linktype);
+}
+
+/*
+ * Get the data-link type for a libpcap device.
+ * This works around AIX 5.x's non-standard and incompatible-with-the-
+ * rest-of-the-universe libpcap.
+ */
+int
+get_pcap_datalink(pcap_t *pch, const char *devicename
+#ifndef _AIX
+    _U_)
+#else
+    )
+#endif
+{
+	int datalink;
+#ifdef _AIX
+	const char *ifacename;
+#endif
+
+	datalink = pcap_datalink(pch);
+#ifdef _AIX
+
+	/*
+	 * The libpcap that comes with AIX 5.x uses RFC 1573 ifType values
+	 * rather than DLT_ values for link-layer types; the ifType values
+	 * for LAN devices are:
+	 *
+	 *  Ethernet        6
+	 *  802.3           7
+	 *  Token Ring      9
+	 *  FDDI            15
+	 *
+	 * and the ifType value for a loopback device is 24.
+	 *
+	 * The AIX names for LAN devices begin with:
+	 *
+	 *  Ethernet                en
+	 *  802.3                   et
+	 *  Token Ring              tr
+	 *  FDDI                    fi
+	 *
+	 * and the AIX names for loopback devices begin with "lo".
+	 *
+	 * (The difference between "Ethernet" and "802.3" is presumably
+	 * whether packets have an Ethernet header, with a packet type,
+	 * or an 802.3 header, with a packet length, followed by an 802.2
+	 * header and possibly a SNAP header.)
+	 *
+	 * If the device name matches "datalink" interpreted as an ifType
+	 * value, rather than as a DLT_ value, we will assume this is AIX's
+	 * non-standard, incompatible libpcap, rather than a standard libpcap,
+	 * and will map the link-layer type to the standard DLT_ value for
+	 * that link-layer type, as that's what the rest of Wireshark expects.
+	 *
+	 * (This means the capture files won't be readable by a tcpdump
+	 * linked with AIX's non-standard libpcap, but so it goes.  They
+	 * *will* be readable by standard versions of tcpdump, Wireshark,
+	 * and so on.)
+	 *
+	 * XXX - if we conclude we're using AIX libpcap, should we also
+	 * set a flag to cause us to assume the time stamps are in
+	 * seconds-and-nanoseconds form, and to convert them to
+	 * seconds-and-microseconds form before processing them and
+	 * writing them out?
+	 */
+
+	/*
+	 * Find the last component of the device name, which is the
+	 * interface name.
+	 */
+	ifacename = strchr(devicename, '/');
+	if (ifacename == NULL)
+		ifacename = devicename;
+
+	/* See if it matches any of the LAN device names. */
+	if (strncmp(ifacename, "en", 2) == 0) {
+		if (datalink == 6) {
+			/*
+			 * That's the RFC 1573 value for Ethernet;
+			 * map it to DLT_EN10MB.
+			 */
+			datalink = 1;
+		}
+	} else if (strncmp(ifacename, "et", 2) == 0) {
+		if (datalink == 7) {
+			/*
+			 * That's the RFC 1573 value for 802.3;
+			 * map it to DLT_EN10MB.
+			 *
+			 * (libpcap, tcpdump, Wireshark, etc. don't
+			 * care if it's Ethernet or 802.3.)
+			 */
+			datalink = 1;
+		}
+	} else if (strncmp(ifacename, "tr", 2) == 0) {
+		if (datalink == 9) {
+			/*
+			 * That's the RFC 1573 value for 802.5 (Token Ring);
+			 * map it to DLT_IEEE802, which is what's used for
+			 * Token Ring.
+			 */
+			datalink = 6;
+		}
+	} else if (strncmp(ifacename, "fi", 2) == 0) {
+		if (datalink == 15) {
+			/*
+			 * That's the RFC 1573 value for FDDI;
+			 * map it to DLT_FDDI.
+			 */
+			datalink = 10;
+		}
+	} else if (strncmp(ifacename, "lo", 2) == 0) {
+		if (datalink == 24) {
+			/*
+			 * That's the RFC 1573 value for "software loopback"
+			 * devices; map it to DLT_NULL, which is what's used
+			 * for loopback devices on BSD.
+			 */
+			datalink = 0;
+		}
+	}
+#endif
+
+	return datalink;
+}
+
+/* Set the data link type on a pcap. */
+gboolean
+set_pcap_datalink(pcap_t *pcap_h, int datalink, char *name,
+    char *errmsg, size_t errmsg_len,
+    char *secondary_errmsg, size_t secondary_errmsg_len)
+{
+	char *set_datalink_err_str;
+
+	if (datalink == -1)
+		return TRUE; /* just use the default */
+#ifdef HAVE_PCAP_SET_DATALINK
+	if (pcap_set_datalink(pcap_h, datalink) == 0)
+		return TRUE; /* no error */
+	set_datalink_err_str = pcap_geterr(pcap_h);
+#else
+	/* Let them set it to the type it is; reject any other request. */
+	if (get_pcap_datalink(pcap_h, name) == datalink)
+		return TRUE; /* no error */
+	set_datalink_err_str =
+		"That DLT isn't one of the DLTs supported by this device";
+#endif
+	g_snprintf(errmsg, (gulong) errmsg_len, "Unable to set data link type on interface '%s' (%s).",
+	    name, set_datalink_err_str);
+	/*
+	 * If the error isn't "XXX is not one of the DLTs supported by this device",
+	 * tell the user to tell the Wireshark developers about it.
+	 */
+	if (strstr(set_datalink_err_str, "is not one of the DLTs supported by this device") == NULL)
+		g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, please_report);
+	else
+		secondary_errmsg[0] = '\0';
+	return FALSE;
+}
+
+static data_link_info_t *
+create_data_link_info(int dlt)
+{
+	data_link_info_t *data_link_info;
+	const char *text;
+
+	data_link_info = (data_link_info_t *)g_malloc(sizeof (data_link_info_t));
+	data_link_info->dlt = dlt;
+	text = pcap_datalink_val_to_name(dlt);
+	if (text != NULL)
+		data_link_info->name = g_strdup(text);
+	else
+		data_link_info->name = g_strdup_printf("DLT %d", dlt);
+	text = pcap_datalink_val_to_description(dlt);
+	if (text != NULL)
+		data_link_info->description = g_strdup(text);
+	else
+		data_link_info->description = NULL;
+	return data_link_info;
+}
+
+#ifdef HAVE_PCAP_CREATE
+#if defined(HAVE_BONDING) && defined(HAVE_PCAP_CREATE)
+static gboolean
+is_linux_bonding_device(const char *ifname)
+{
+	int fd;
+	struct ifreq ifr;
+	ifbond ifb;
+
+	fd = socket(PF_INET, SOCK_DGRAM, 0);
+	if (fd == -1)
+		return FALSE;
+
+	memset(&ifr, 0, sizeof ifr);
+	g_strlcpy(ifr.ifr_name, ifname, sizeof ifr.ifr_name);
+	memset(&ifb, 0, sizeof ifb);
+	ifr.ifr_data = (caddr_t)&ifb;
+#if defined(SIOCBONDINFOQUERY)
+	if (ioctl(fd, SIOCBONDINFOQUERY, &ifr) == 0) {
+		close(fd);
+		return TRUE;
+	}
+#else
+	if (ioctl(fd, BOND_INFO_QUERY_OLD, &ifr) == 0) {
+		close(fd);
+		return TRUE;
+	}
+#endif
+
+	close(fd);
+	return FALSE;
+}
+#elif defined(HAVE_PCAP_CREATE)
+static gboolean
+is_linux_bonding_device(const char *ifname _U_)
+{
+	return FALSE;
+}
+#endif
+
+static GList *
+get_data_link_types(pcap_t *pch, interface_options *interface_opts,
+    char **err_str)
+{
+	GList *data_link_types;
+	int deflt;
+#ifdef HAVE_PCAP_LIST_DATALINKS
+	int *linktypes;
+	int i, nlt;
+#endif
+	data_link_info_t *data_link_info;
+
+	deflt = get_pcap_datalink(pch, interface_opts->name);
+#ifdef HAVE_PCAP_LIST_DATALINKS
+	nlt = pcap_list_datalinks(pch, &linktypes);
+	if (nlt == 0 || linktypes == NULL) {
+		pcap_close(pch);
+		if (err_str != NULL)
+			*err_str = NULL; /* an empty list doesn't mean an error */
+		return NULL;
+	}
+	data_link_types = NULL;
+	for (i = 0; i < nlt; i++) {
+		data_link_info = create_data_link_info(linktypes[i]);
+
+		/*
+		 * XXX - for 802.11, make the most detailed 802.11
+		 * version the default, rather than the one the
+		 * device has as the default?
+		 */
+		if (linktypes[i] == deflt)
+			data_link_types = g_list_prepend(data_link_types,
+			    data_link_info);
+		else
+			data_link_types = g_list_append(data_link_types,
+			    data_link_info);
+	}
+#ifdef HAVE_PCAP_FREE_DATALINKS
+	pcap_free_datalinks(linktypes);
+#else
+	/*
+	 * In Windows, there's no guarantee that if you have a library
+	 * built with one version of the MSVC++ run-time library, and
+	 * it returns a pointer to allocated data, you can free that
+	 * data from a program linked with another version of the
+	 * MSVC++ run-time library.
+	 *
+	 * This is not an issue on UN*X.
+	 *
+	 * See the mail threads starting at
+	 *
+	 *	https://www.winpcap.org/pipermail/winpcap-users/2006-September/001421.html
+	 *
+	 * and
+	 *
+	 *	https://www.winpcap.org/pipermail/winpcap-users/2008-May/002498.html
+	 */
+#ifndef _WIN32
+#define xx_free free  /* hack so checkAPIs doesn't complain */
+	xx_free(linktypes);
+#endif /* _WIN32 */
+#endif /* HAVE_PCAP_FREE_DATALINKS */
+#else /* HAVE_PCAP_LIST_DATALINKS */
+
+	data_link_info = create_data_link_info(deflt);
+	data_link_types = g_list_append(data_link_types, data_link_info);
+#endif /* HAVE_PCAP_LIST_DATALINKS */
+
+    if (err_str != NULL)
+        *err_str = NULL;
+    return data_link_types;
+}
+
+if_capabilities_t *
+get_if_capabilities_pcap_create(interface_options *interface_opts,
+    char **err_str)
+{
+	if_capabilities_t *caps;
+	char errbuf[PCAP_ERRBUF_SIZE];
+	pcap_t *pch;
+	int status;
+
+	/*
+	 * Allocate the interface capabilities structure.
+	 */
+	caps = (if_capabilities_t *)g_malloc(sizeof *caps);
+
+	pch = pcap_create(interface_opts->name, errbuf);
+	if (pch == NULL) {
+		if (err_str != NULL)
+			*err_str = g_strdup(errbuf);
+		g_free(caps);
+		return NULL;
+	}
+	if (is_linux_bonding_device(interface_opts->name)) {
+		/*
+		 * Linux bonding device; not Wi-Fi, so no monitor mode, and
+		 * calling pcap_can_set_rfmon() might get a "no such device"
+		 * error.
+		 */
+		status = 0;
+	} else {
+		/*
+		 * Not a Linux bonding device, so go ahead.
+		 */
+		status = pcap_can_set_rfmon(pch);
+	}
+	if (status < 0) {
+		/* Error. */
+		if (status == PCAP_ERROR)
+			*err_str = g_strdup_printf("pcap_can_set_rfmon() failed: %s",
+			    pcap_geterr(pch));
+		else
+			*err_str = g_strdup(pcap_statustostr(status));
+		pcap_close(pch);
+		g_free(caps);
+		return NULL;
+	}
+	if (status == 0)
+		caps->can_set_rfmon = FALSE;
+	else if (status == 1) {
+		caps->can_set_rfmon = TRUE;
+		if (interface_opts->monitor_mode)
+			pcap_set_rfmon(pch, 1);
+	} else {
+		if (err_str != NULL) {
+			*err_str = g_strdup_printf("pcap_can_set_rfmon() returned %d",
+			    status);
+		}
+		pcap_close(pch);
+		g_free(caps);
+		return NULL;
+	}
+
+	status = pcap_activate(pch);
+	if (status < 0) {
+		/* Error.  We ignore warnings (status > 0). */
+		if (err_str != NULL) {
+			if (status == PCAP_ERROR)
+				*err_str = g_strdup_printf("pcap_activate() failed: %s",
+				    pcap_geterr(pch));
+			else
+				*err_str = g_strdup(pcap_statustostr(status));
+		}
+		pcap_close(pch);
+		g_free(caps);
+		return NULL;
+	}
+
+	caps->data_link_types = get_data_link_types(pch, interface_opts,
+	    err_str);
+	if (caps->data_link_types == NULL) {
+		pcap_close(pch);
+		if (err_str != NULL)
+			*err_str = NULL; /* an empty list doesn't mean an error */
+		g_free(caps);
+		return NULL;
+	}
+
+	pcap_close(pch);
+
+	if (err_str != NULL)
+		*err_str = NULL;
+	return caps;
+}
+
+pcap_t *
+open_capture_device_pcap_create(capture_options *capture_opts
+#ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
+    ,
+#else
+    _U_,
+#endif
+    interface_options *interface_opts, int timeout,
+    char (*open_err_str)[PCAP_ERRBUF_SIZE])
+{
+	pcap_t *pcap_h;
+	int err;
+
+	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+	    "Calling pcap_create() using %s.", interface_opts->name);
+	pcap_h = pcap_create(interface_opts->name, *open_err_str);
+	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+	    "pcap_create() returned %p.", (void *)pcap_h);
+	if (pcap_h != NULL) {
+		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+		    "Calling pcap_set_snaplen() with snaplen %d.",
+		    interface_opts->snaplen);
+		pcap_set_snaplen(pcap_h, interface_opts->snaplen);
+		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+		    "Calling pcap_set_promisc() with promisc_mode %d.",
+		    interface_opts->promisc_mode);
+		pcap_set_promisc(pcap_h, interface_opts->promisc_mode);
+		pcap_set_timeout(pcap_h, timeout);
+
+#ifdef HAVE_PCAP_SET_TSTAMP_PRECISION
+		/*
+		 * If we're writing pcap-ng files, try to enable
+		 * nanosecond-resolution capture; any code that
+		 * can read pcap-ng files must be able to handle
+		 * nanosecond-resolution time stamps.  We don't
+		 * care whether it succeeds or fails - if it fails,
+		 * we just use the microsecond-precision time stamps
+		 * we get.
+		 *
+		 * If we're writing pcap files, don't try to enable
+		 * nanosecond-resolution capture, as not all code
+		 * that reads pcap files recognizes the nanosecond-
+		 * resolution pcap file magic number.
+		 * We don't care whether this succeeds or fails; if it
+		 * fails (because we don't have pcap_set_tstamp_precision(),
+		 * or because we do but the OS or device doesn't support
+		 * nanosecond resolution timing), we just use microsecond-
+		 * resolution time stamps.
+		 */
+		if (capture_opts->use_pcapng)
+			request_high_resolution_timestamp(pcap_h);
+#endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
+
+		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+		    "buffersize %d.", interface_opts->buffer_size);
+		if (interface_opts->buffer_size != 0)
+			pcap_set_buffer_size(pcap_h,
+			    interface_opts->buffer_size * 1024 * 1024);
+		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+		    "monitor_mode %d.", interface_opts->monitor_mode);
+		if (interface_opts->monitor_mode)
+			pcap_set_rfmon(pcap_h, 1);
+		err = pcap_activate(pcap_h);
+		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+		    "pcap_activate() returned %d.", err);
+		if (err < 0) {
+			/* Failed to activate, set to NULL */
+			if (err == PCAP_ERROR)
+				g_strlcpy(*open_err_str, pcap_geterr(pcap_h),
+				    sizeof *open_err_str);
+			else
+				g_strlcpy(*open_err_str, pcap_statustostr(err),
+				    sizeof *open_err_str);
+			pcap_close(pcap_h);
+			pcap_h = NULL;
+		}
+	}
+	return pcap_h;
+}
+#endif /* HAVE_PCAP_CREATE */
+
+if_capabilities_t *
+get_if_capabilities_pcap_open_live(interface_options *interface_opts,
+    char **err_str)
+{
+	if_capabilities_t *caps;
+	char errbuf[PCAP_ERRBUF_SIZE];
+	pcap_t *pch;
+
+	/*
+	 * Allocate the interface capabilities structure.
+	 */
+	caps = (if_capabilities_t *)g_malloc(sizeof *caps);
+
+	pch = pcap_open_live(interface_opts->name, MIN_PACKET_SIZE, 0, 0,
+	    errbuf);
+	caps->can_set_rfmon = FALSE;
+	if (pch == NULL) {
+		if (err_str != NULL)
+			*err_str = g_strdup(errbuf[0] == '\0' ? "Unknown error (pcap bug; actual error cause not reported)" : errbuf);
+		g_free(caps);
+		return NULL;
+	}
+	caps->data_link_types = get_data_link_types(pch, interface_opts,
+	    err_str);
+	if (caps->data_link_types == NULL) {
+		pcap_close(pch);
+		if (err_str != NULL)
+			*err_str = NULL; /* an empty list doesn't mean an error */
+		g_free(caps);
+		return NULL;
+	}
+
+	pcap_close(pch);
+
+	if (err_str != NULL)
+		*err_str = NULL;
+	return caps;
+}
+
+pcap_t *
+open_capture_device_pcap_open_live(interface_options *interface_opts,
+    int timeout, char (*open_err_str)[PCAP_ERRBUF_SIZE])
+{
+	pcap_t *pcap_h;
+
+	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+	    "pcap_open_live() calling using name %s, snaplen %d, promisc_mode %d.",
+	    interface_opts->name, interface_opts->snaplen,
+	    interface_opts->promisc_mode);
+	pcap_h = pcap_open_live(interface_opts->name, interface_opts->snaplen,
+	    interface_opts->promisc_mode, timeout, *open_err_str);
+	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+	    "pcap_open_live() returned %p.", (void *)pcap_h);
+
+#ifdef _WIN32
+	/* If the open succeeded, try to set the capture buffer size. */
+	if (pcap_h && interface_opts->buffer_size > 1) {
+		/*
+		 * We have no mechanism to report a warning if this
+		 * fails; we just keep capturing with the smaller buffer,
+		 * as is the case on systems with BPF and pcap_create()
+		 * and pcap_set_buffer_size(), where pcap_activate() just
+		 * silently clamps the buffer size to the maximum.
+		 */
+		pcap_setbuff(pcap_h, interface_opts->buffer_size * 1024 * 1024);
+	}
+#endif
+
+	return pcap_h;
+}
+
+/*
+ * Get the capabilities of a network device.
+ */
+if_capabilities_t *
+get_if_capabilities(interface_options *interface_opts, char **err_str)
+{
+#if defined(HAVE_PCAP_OPEN) && defined(HAVE_PCAP_REMOTE)
+    if_capabilities_t *caps;
+    char errbuf[PCAP_ERRBUF_SIZE];
+    pcap_t *pch;
+    int deflt;
+    data_link_info_t *data_link_info;
+
+    if (strncmp (interface_opts->name, "rpcap://", 8) == 0) {
+        struct pcap_rmtauth auth;
+
+        /*
+         * Allocate the interface capabilities structure.
+         */
+        caps = (if_capabilities_t *)g_malloc(sizeof *caps);
+
+        auth.type = interface_opts->auth_type == CAPTURE_AUTH_PWD ?
+            RPCAP_RMTAUTH_PWD : RPCAP_RMTAUTH_NULL;
+        auth.username = interface_opts->auth_username;
+        auth.password = interface_opts->auth_password;
+
+        /*
+         * WinPcap 4.1.2, and possibly earlier versions, have a bug
+         * wherein, when an open with an rpcap: URL fails, the error
+         * message for the error is not copied to errbuf and whatever
+         * on-the-stack junk is in errbuf is treated as the error
+         * message.
+         *
+         * To work around that (and any other bugs of that sort), we
+         * initialize errbuf to an empty string.  If we get an error
+         * and the string is empty, we report it as an unknown error.
+         * (If we *don't* get an error, and the string is *non*-empty,
+         * that could be a warning returned, such as "can't turn
+         * promiscuous mode on"; we currently don't do so.)
+         */
+        errbuf[0] = '\0';
+        pch = pcap_open(interface_opts->name, MIN_PACKET_SIZE, 0, 0, &auth,
+            errbuf);
+	if (pch == NULL) {
+		if (err_str != NULL)
+			*err_str = g_strdup(errbuf[0] == '\0' ? "Unknown error (pcap bug; actual error cause not reported)" : errbuf);
+		g_free(caps);
+		return NULL;
+	}
+        deflt = get_pcap_datalink(pch, interface_opts->name);
+        data_link_info = create_data_link_info(deflt);
+        caps->data_link_types = g_list_append(caps->data_link_types,
+                                              data_link_info);
+        pcap_close(pch);
+
+        if (err_str != NULL)
+            *err_str = NULL;
+        return caps;
+    }
+#endif /* defined(HAVE_PCAP_OPEN) && defined(HAVE_PCAP_REMOTE) */
+
+    /*
+     * Local interface.
+     */
+    return get_if_capabilities_local(interface_opts, err_str);
+}
+
+pcap_t *
+open_capture_device(capture_options *capture_opts,
+    interface_options *interface_opts, int timeout,
+    char (*open_err_str)[PCAP_ERRBUF_SIZE])
+{
+	pcap_t *pcap_h;
+#if defined(HAVE_PCAP_OPEN) && defined(HAVE_PCAP_REMOTE)
+	struct pcap_rmtauth auth;
+#endif
+
+	/* Open the network interface to capture from it.
+	   Some versions of libpcap may put warnings into the error buffer
+	   if they succeed; to tell if that's happened, we have to clear
+	   the error buffer, and check if it's still a null string.  */
+	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Entering open_capture_device().");
+	(*open_err_str)[0] = '\0';
+#if defined(HAVE_PCAP_OPEN) && defined(HAVE_PCAP_REMOTE)
+	/*
+	 * If we're opening a remote device, use pcap_open(); that's currently
+	 * the only open routine that supports remote devices.
+	 */
+	if (strncmp (interface_opts->name, "rpcap://", 8) == 0) {
+		auth.type = interface_opts->auth_type == CAPTURE_AUTH_PWD ?
+		    RPCAP_RMTAUTH_PWD : RPCAP_RMTAUTH_NULL;
+		auth.username = interface_opts->auth_username;
+		auth.password = interface_opts->auth_password;
+
+		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+		    "Calling pcap_open() using name %s, snaplen %d, promisc_mode %d, datatx_udp %d, nocap_rpcap %d.",
+		    interface_opts->name, interface_opts->snaplen,
+		    interface_opts->promisc_mode, interface_opts->datatx_udp,
+		    interface_opts->nocap_rpcap);
+		pcap_h = pcap_open(interface_opts->name, interface_opts->snaplen,
+		    /* flags */
+		    (interface_opts->promisc_mode ? PCAP_OPENFLAG_PROMISCUOUS : 0) |
+		    (interface_opts->datatx_udp ? PCAP_OPENFLAG_DATATX_UDP : 0) |
+		    (interface_opts->nocap_rpcap ? PCAP_OPENFLAG_NOCAPTURE_RPCAP : 0),
+		    timeout, &auth, *open_err_str);
+		if (pcap_h == NULL) {
+			/* Error - did pcap actually supply an error message? */
+			if ((*open_err_str)[0] == '\0') {
+				/*
+				 * Work around known WinPcap bug wherein
+				 * no error message is filled in on a
+				 * failure to open an rpcap: URL.
+				 */
+				g_strlcpy(*open_err_str,
+				    "Unknown error (pcap bug; actual error cause not reported)",
+				    sizeof *open_err_str);
+			}
+		}
+		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+		    "pcap_open() returned %p.", (void *)pcap_h);
+		g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "open_capture_device %s : %s", pcap_h ? "SUCCESS" : "FAILURE", interface_opts->name);
+		return pcap_h;
+	}
+#endif
+
+	pcap_h = open_capture_device_local(capture_opts, interface_opts,
+	    timeout, open_err_str);
+	g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "open_capture_device %s : %s", pcap_h ? "SUCCESS" : "FAILURE", interface_opts->name);
+	return pcap_h;
 }
 
 #endif /* HAVE_LIBPCAP */
