@@ -877,7 +877,7 @@ proto_register_zvt(void)
     for(i=0; i<array_length(apdu_info); i++) {
         g_hash_table_insert(apdu_table,
                             GUINT_TO_POINTER((guint)apdu_info[i].ctrl),
-                            (const gpointer)(&apdu_info[i]));
+                            (gpointer)(&apdu_info[i]));
     }
 
     proto_zvt = proto_register_protocol(

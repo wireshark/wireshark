@@ -183,7 +183,7 @@ load_decode_as_entries(void)
 
 void
 decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
-                         const gpointer key, gpointer value _U_,
+                         gpointer key, gpointer value _U_,
                          gpointer user_data _U_)
 {
     dissector_delete_item_t *item;

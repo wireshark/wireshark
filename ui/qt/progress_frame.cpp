@@ -40,7 +40,8 @@
 // - Start adding the progress bar to dialogs.
 // - Don't complain so loudly when the user stops a capture.
 
-progdlg_t *create_progress_dlg(const gpointer top_level_window, const gchar *, const gchar *,
+progdlg_t *
+create_progress_dlg(gpointer top_level_window, const gchar *, const gchar *,
                                gboolean terminate_is_stop, gboolean *stop_flag) {
     ProgressFrame *pf;
     QWidget *main_window;
@@ -64,7 +65,7 @@ progdlg_t *create_progress_dlg(const gpointer top_level_window, const gchar *, c
 }
 
 progdlg_t *
-delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_title, const gchar *item_title,
+delayed_create_progress_dlg(gpointer top_level_window, const gchar *task_title, const gchar *item_title,
                             gboolean terminate_is_stop, gboolean *stop_flag,
                             const GTimeVal *, gfloat progress)
 {

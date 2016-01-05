@@ -1980,14 +1980,14 @@ typedef struct dissector_foreach_table_info {
  * This is used if we directly process the hash table.
  */
 static void
-dissector_all_tables_foreach_table_func (gpointer key, const gpointer value, const gpointer user_data)
+dissector_all_tables_foreach_table_func (gpointer key, gpointer value, gpointer user_data)
 {
 	dissector_table_t               table;
 	dissector_foreach_table_info_t *info;
 
 	table = (dissector_table_t)value;
 	info  = (dissector_foreach_table_info_t *)user_data;
-	(*info->caller_func)((gchar*)key, table->ui_name, info->caller_data);
+	(*info->caller_func)((gchar *)key, table->ui_name, info->caller_data);
 }
 
 /*
@@ -2415,12 +2415,12 @@ typedef struct heur_dissector_foreach_table_info {
  * This is used if we directly process the hash table.
  */
 static void
-dissector_all_heur_tables_foreach_table_func (gpointer key, const gpointer value, const gpointer user_data)
+dissector_all_heur_tables_foreach_table_func (gpointer key, gpointer value, gpointer user_data)
 {
 	heur_dissector_foreach_table_info_t *info;
 
 	info = (heur_dissector_foreach_table_info_t *)user_data;
-    (*info->caller_func)((gchar*)key, (struct heur_dissector_list *)value, info->caller_data);
+    (*info->caller_func)((gchar *)key, (struct heur_dissector_list *)value, info->caller_data);
 }
 
 /*
@@ -2478,7 +2478,7 @@ display_heur_dissector_table_entries(const char *table_name,
 }
 
 static void
-dissector_dump_heur_decodes_display(const gchar *table_name, struct heur_dissector_list *listptr _U_, const gpointer user_data _U_)
+dissector_dump_heur_decodes_display(const gchar *table_name, struct heur_dissector_list *listptr _U_, gpointer user_data _U_)
 {
 	heur_dissector_table_foreach(table_name, display_heur_dissector_table_entries, NULL);
 }
@@ -2774,7 +2774,7 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 
 static void
 dissector_dump_decodes_display(const gchar *table_name,
-			       ftenum_t selector_type _U_, const gpointer key, const gpointer value,
+			       ftenum_t selector_type _U_, gpointer key, gpointer value,
 			       gpointer user_data _U_)
 {
 	guint32             selector       = GPOINTER_TO_UINT (key);

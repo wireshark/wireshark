@@ -6303,14 +6303,14 @@ proto_register_dvbci(void)
     for(i=0; i<array_length(spdu_info); i++) {
         g_hash_table_insert(spdu_table,
                             GUINT_TO_POINTER((guint)spdu_info[i].tag),
-                            (const gpointer)(&spdu_info[i]));
+                            (gpointer)(&spdu_info[i]));
     }
 
     apdu_table = g_hash_table_new(g_direct_hash, g_direct_equal);
     for(i=0; i<array_length(apdu_info); i++) {
         g_hash_table_insert(apdu_table,
                             GUINT_TO_POINTER((guint)apdu_info[i].tag),
-                            (const gpointer)(&apdu_info[i]));
+                            (gpointer)(&apdu_info[i]));
     }
 
     proto_dvbci = proto_register_protocol("DVB Common Interface", "DVB-CI", "dvb-ci");

@@ -474,8 +474,8 @@ GtkTreeIter
 ws_combo_box_append_text_and_pointer_full(GtkComboBox   *combo_box,
                                           GtkTreeIter   *parent_iter,
                                           const gchar   *text,
-                                          const gpointer ptr,
-                                          const gboolean sensitive);
+                                          gconstpointer  ptr,
+                                          gboolean       sensitive);
 
 /**
  * ws_combo_box_append_text_and_pointer:
@@ -491,7 +491,7 @@ ws_combo_box_append_text_and_pointer_full(GtkComboBox   *combo_box,
 GtkTreeIter
 ws_combo_box_append_text_and_pointer(GtkComboBox    *combo_box,
                                      const gchar    *text,
-                                     const gpointer  ptr);
+                                     gconstpointer   ptr);
 
 /**
  * ws_combo_box_get_active_pointer:

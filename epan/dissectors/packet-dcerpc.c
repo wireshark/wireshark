@@ -945,9 +945,9 @@ decode_dcerpc_binding_cmp(gconstpointer a, gconstpointer b)
 
 /* remove a binding (looking the same way as the given one) */
 static gboolean
-decode_dcerpc_binding_reset(const char *name _U_, const gpointer pattern)
+decode_dcerpc_binding_reset(const char *name _U_, gconstpointer pattern)
 {
-    decode_dcerpc_bind_values_t *binding = (decode_dcerpc_bind_values_t*)pattern;
+    const decode_dcerpc_bind_values_t *binding = (const decode_dcerpc_bind_values_t *)pattern;
     GSList *le;
     decode_dcerpc_bind_values_t *old_binding;
 
@@ -970,7 +970,7 @@ decode_dcerpc_binding_reset(const char *name _U_, const gpointer pattern)
 }
 
 static gboolean
-dcerpc_decode_as_change(const char *name, const gpointer pattern, gpointer handle, gchar* list_name)
+dcerpc_decode_as_change(const char *name, gconstpointer pattern, gpointer handle, gchar* list_name)
 {
     decode_dcerpc_bind_values_t *binding = (decode_dcerpc_bind_values_t*)pattern;
     decode_dcerpc_bind_values_t *stored_binding;

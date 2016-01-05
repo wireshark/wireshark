@@ -733,7 +733,7 @@ color_filters_read_globals(gpointer user_data, gchar** err_msg, color_filter_add
 
 /* read filters from some other filter file (import) */
 gboolean
-color_filters_import(const gchar *path, const gpointer user_data, gchar** err_msg, color_filter_add_cb_func add_cb)
+color_filters_import(const gchar *path, gpointer user_data, gchar **err_msg, color_filter_add_cb_func add_cb)
 {
     FILE     *f;
     int       ret;

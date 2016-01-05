@@ -109,7 +109,7 @@ typedef enum {
 } dissector_table_allow_e;
 
 typedef void (*DATFunc) (const gchar *table_name, ftenum_t selector_type,
-    const gpointer key, gpointer value, gpointer user_data);
+    gpointer key, gpointer value, gpointer user_data);
 typedef void (*DATFunc_handle) (const gchar *table_name, gpointer value,
     gpointer user_data);
 typedef void (*DATFunc_table) (const gchar *table_name, const gchar *ui_name,

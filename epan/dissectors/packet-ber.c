@@ -406,13 +406,13 @@ static void ber_populate_list(const gchar *table_name _U_, decode_as_add_to_list
     ber_decode_as_foreach(decode_ber_add_to_list, &populate);
 }
 
-static gboolean ber_decode_as_reset(const char *name _U_, const gpointer pattern _U_)
+static gboolean ber_decode_as_reset(const char *name _U_, gconstpointer pattern _U_)
 {
     ber_decode_as(NULL);
     return FALSE;
 }
 
-static gboolean ber_decode_as_change(const char *name _U_, const gpointer pattern _U_, gpointer handle _U_, gchar* list_name)
+static gboolean ber_decode_as_change(const char *name _U_, gconstpointer pattern _U_, gpointer handle _U_, gchar* list_name)
 {
     ber_decode_as(list_name);
     return FALSE;

@@ -78,7 +78,7 @@ struct progdlg {
  * be read.
  */
 progdlg_t *
-create_progress_dlg(const gpointer top_level_window _U_, const gchar *task_title, const gchar *item_title,
+create_progress_dlg(gpointer top_level_window _U_, const gchar *task_title, const gchar *item_title,
                     gboolean terminate_is_stop, gboolean *stop_flag)
 {
     progdlg_t *dlg;
@@ -226,7 +226,7 @@ create_progress_dlg(const gpointer top_level_window _U_, const gchar *task_title
 }
 
 progdlg_t *
-delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_title,
+delayed_create_progress_dlg(gpointer top_level_window, const gchar *task_title,
                             const gchar *item_title, gboolean terminate_is_stop,
                             gboolean *stop_flag, const GTimeVal *start_time, gfloat progress)
 {

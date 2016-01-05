@@ -290,7 +290,7 @@ proto_register_hdcp2(void)
     for(i=0; i<array_length(msg_info); i++) {
         g_hash_table_insert(msg_table,
                 GUINT_TO_POINTER((guint)msg_info[i].id),
-                (const gpointer)(&msg_info[i]));
+                (gpointer)(&msg_info[i]));
     }
 
     proto_hdcp2 = proto_register_protocol(

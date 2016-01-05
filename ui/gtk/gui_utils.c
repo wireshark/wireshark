@@ -1601,8 +1601,8 @@ GtkTreeIter
 ws_combo_box_append_text_and_pointer_full(GtkComboBox    *combo_box,
                                           GtkTreeIter    *parent_iter,
                                           const gchar    *text,
-                                          const gpointer  ptr,
-                                          const gboolean  sensitive)
+                                          gconstpointer   ptr,
+                                          gboolean        sensitive)
 {
     GtkTreeIter   iter;
     GtkTreeStore *store;
@@ -1629,7 +1629,7 @@ ws_combo_box_append_text_and_pointer_full(GtkComboBox    *combo_box,
 GtkTreeIter
 ws_combo_box_append_text_and_pointer(GtkComboBox    *combo_box,
                                      const gchar    *text,
-                                     const gpointer  ptr)
+                                     gconstpointer   ptr)
 {
     return ws_combo_box_append_text_and_pointer_full(combo_box, NULL, text, ptr, TRUE);
 }

@@ -99,7 +99,7 @@ void decode_as_default_populate_list(const gchar *table_name, decode_as_add_to_l
     dissector_table_foreach_handle(table_name, decode_proto_add_to_list, &populate);
 }
 
-gboolean decode_as_default_reset(const char *name, const gpointer pattern)
+gboolean decode_as_default_reset(const gchar *name, gconstpointer pattern)
 {
     switch (get_dissector_table_selector_type(name)) {
     case FT_UINT8:
@@ -121,7 +121,7 @@ gboolean decode_as_default_reset(const char *name, const gpointer pattern)
     return TRUE;
 }
 
-gboolean decode_as_default_change(const char *name, const gpointer pattern, gpointer handle, gchar* list_name _U_)
+gboolean decode_as_default_change(const gchar *name, gconstpointer pattern, gpointer handle, gchar *list_name _U_)
 {
     dissector_handle_t* dissector = (dissector_handle_t*)handle;
     if (dissector != NULL) {

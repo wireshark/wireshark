@@ -55,7 +55,7 @@ typedef struct progdlg progdlg_t;
  *   set to TRUE if the user hits that button
  * @return The newly created progress dialog
  */
-progdlg_t *create_progress_dlg(const gpointer top_level_window, const gchar *task_title, const gchar *item_title,
+progdlg_t *create_progress_dlg(gpointer top_level_window, const gchar *task_title, const gchar *item_title,
     gboolean terminate_is_stop, gboolean *stop_flag);
 
 /**
@@ -76,8 +76,7 @@ progdlg_t *create_progress_dlg(const gpointer top_level_window, const gchar *tas
  * @param progress The current progress (0..1)
  * @return The newly created progress dialog
  */
-progdlg_t *
-delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_title, const gchar *item_title,
+progdlg_t *delayed_create_progress_dlg(gpointer top_level_window, const gchar *task_title, const gchar *item_title,
     gboolean terminate_is_stop, gboolean *stop_flag,
     const GTimeVal *start_time, gfloat progress);
 
