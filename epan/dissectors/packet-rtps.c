@@ -6891,7 +6891,8 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
     proto_tree *sil_tree;
     sample_info_count = 0;
 
-    sil_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtps_sample_info_list, &list_item, "Sample Info List");
+    sil_tree = proto_tree_add_subtree(tree, tvb, offset, octectsToSLEncapsulationId,
+            ett_rtps_sample_info_list, &list_item, "Sample Info List");
 
     /* Allocate sample_info_flags and sample_info_length
      * to store a copy of the flags for each sample info */
@@ -6922,7 +6923,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
       sample_info_flags[sample_info_count] = flags2;
       proto_tree_add_bitmask_value(si_tree, tvb, offset, hf_rtps_sm_flags2, ett_rtps_flags, RTPS_SAMPLE_INFO_FLAGS16, flags2);
       offset += 2;
-      proto_tree_add_item(tree, hf_rtps_data_batch_octets_to_inline_qos, tvb,
+      proto_tree_add_item(si_tree, hf_rtps_data_batch_octets_to_inline_qos, tvb,
                         offset, 2, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
       offset += 2;
 
@@ -6939,8 +6940,8 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
 
       /* Serialized data length */
       sample_info_length[sample_info_count] = NEXT_guint32(tvb, offset, little_endian);
-      proto_tree_add_item(tree, hf_rtps_data_batch_serialized_data_length, tvb,
-                        offset, 4, sample_info_length[sample_info_count]);
+      proto_tree_add_item(si_tree, hf_rtps_data_batch_serialized_data_length, tvb,
+                        offset, 4, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
       offset += 4;
 
       /* Timestamp [only if T==1] */
@@ -6951,7 +6952,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
 
       /* Offset SN [only if O==1] */
       if ((flags2 & FLAG_SAMPLE_INFO_O) != 0) {
-        proto_tree_add_item(tree, hf_rtps_data_batch_offset_sn, tvb,
+        proto_tree_add_item(si_tree, hf_rtps_data_batch_offset_sn, tvb,
                         offset, 4, little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN);
         offset += 4;
       }
