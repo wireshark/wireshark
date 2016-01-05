@@ -58,7 +58,7 @@ static int hf_btavrcp_unit_unknown                                         = -1;
 static int hf_btavrcp_unit_type                                            = -1;
 static int hf_btavrcp_unit_id                                              = -1;
 static int hf_btavrcp_subunit_page                                         = -1;
-static int hf_btavrcp_subunit_extention_code                               = -1;
+static int hf_btavrcp_subunit_extension_code                               = -1;
 static int hf_btavrcp_item                                                 = -1;
 static int hf_btavrcp_folder                                               = -1;
 static int hf_btavrcp_player_id                                            = -1;
@@ -985,7 +985,7 @@ static gint
 dissect_subunit(tvbuff_t *tvb, proto_tree *tree, gint offset, gboolean is_command)
 {
     proto_tree_add_item(tree, hf_btavrcp_subunit_page, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_btavrcp_subunit_extention_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_btavrcp_subunit_extension_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     if (!is_command) {
@@ -2386,8 +2386,8 @@ proto_register_btavrcp(void)
             FT_UINT8, BASE_HEX, VALS(subunit_type_vals), 0xF8,
             NULL, HFILL }
         },
-        { &hf_btavrcp_subunit_extention_code,
-            { "Extention Code",                  "btavrcp.subunit.extention_code",
+        { &hf_btavrcp_subunit_extension_code,
+            { "Extension Code",                  "btavrcp.subunit.extension_code",
             FT_UINT8, BASE_HEX, NULL, 0x07,
             NULL, HFILL }
         },
