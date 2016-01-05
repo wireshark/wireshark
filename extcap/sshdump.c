@@ -154,8 +154,8 @@ static struct option longopts[] = {
 	{ 0, 0, 0, 0}
 };
 
-#define verbose_print(...) { if (verbose) g_print(__VA_ARGS__); }
-#define errmsg_print(...) { g_print(__VA_ARGS__); g_print("\n"); }
+#define verbose_print(...) { if (verbose) printf(__VA_ARGS__); }
+#define errmsg_print(...) { fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); }
 
 static char* local_interfaces_to_filter(unsigned int remote_port);
 
@@ -403,55 +403,55 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 
 static void help(const char* binname)
 {
-	g_print("Help\n");
-	g_print(" Usage:\n");
-	g_print(" %s --extcap-interfaces\n", binname);
-	g_print(" %s --extcap-interface=INTERFACE --extcap-dlts\n", binname);
-	g_print(" %s --extcap-interface=INTERFACE --extcap-config\n", binname);
-	g_print(" %s --extcap-interface=INTERFACE --remote-host myhost --remote-port 22222 "
+	printf("Help\n");
+	printf(" Usage:\n");
+	printf(" %s --extcap-interfaces\n", binname);
+	printf(" %s --extcap-interface=INTERFACE --extcap-dlts\n", binname);
+	printf(" %s --extcap-interface=INTERFACE --extcap-config\n", binname);
+	printf(" %s --extcap-interface=INTERFACE --remote-host myhost --remote-port 22222 "
 		"--remote-username myuser --remote-interface eth2 --remote-capture-bin /bin/dumpcap "
 		"--fifo=FILENAME --capture\n", binname);
-	g_print("\n\n");
-	g_print("  --help: print this help\n");
-	g_print("  --version: print the version\n");
-	g_print("  --verbose: print more messages\n");
-	g_print("  --extcap-interfaces: list the interfaces\n");
-	g_print("  --extcap-interface <iface>: specify the interface\n");
-	g_print("  --extcap-dlts: list the DTLs for an interface\n");
-	g_print("  --extcap-config: list the additional configuration for an interface\n");
-	g_print("  --extcap-capture-filter <filter>: the capture filter\n");
-	g_print("  --capture: run the capture\n");
-	g_print("  --fifo <file>: dump data to file or fifo\n");
-	g_print("  --remote-host <host>: the remote SSH host\n");
-	g_print("  --remote-port <port>: the remote SSH port (default: 22)\n");
-	g_print("  --remote-username <username>: the remote SSH username (default: the current user)\n");
-	g_print("  --remote-password <password>: the remote SSH password. If not specified, ssh-agent and ssh-key are used\n");
-	g_print("  --sshkey <public key path>: the path of the ssh key\n");
-	g_print("  --sshkey-passphrase <public key passphrase>: the passphrase to unlock public ssh\n");
-	g_print("  --remote-interface <iface>: the remote capture interface (default: eth0)\n");
-	g_print("  --remote-capture-bin <capture bin>: the remote dumcap binary (default: %s)\n", DEFAULT_CAPTURE_BIN);
-	g_print("  --remote-filter <filter>: a filter for remote capture (default: don't listen on local local interfaces IPs)\n");
+	printf("\n\n");
+	printf("  --help: print this help\n");
+	printf("  --version: print the version\n");
+	printf("  --verbose: print more messages\n");
+	printf("  --extcap-interfaces: list the interfaces\n");
+	printf("  --extcap-interface <iface>: specify the interface\n");
+	printf("  --extcap-dlts: list the DTLs for an interface\n");
+	printf("  --extcap-config: list the additional configuration for an interface\n");
+	printf("  --extcap-capture-filter <filter>: the capture filter\n");
+	printf("  --capture: run the capture\n");
+	printf("  --fifo <file>: dump data to file or fifo\n");
+	printf("  --remote-host <host>: the remote SSH host\n");
+	printf("  --remote-port <port>: the remote SSH port (default: 22)\n");
+	printf("  --remote-username <username>: the remote SSH username (default: the current user)\n");
+	printf("  --remote-password <password>: the remote SSH password. If not specified, ssh-agent and ssh-key are used\n");
+	printf("  --sshkey <public key path>: the path of the ssh key\n");
+	printf("  --sshkey-passphrase <public key passphrase>: the passphrase to unlock public ssh\n");
+	printf("  --remote-interface <iface>: the remote capture interface (default: eth0)\n");
+	printf("  --remote-capture-bin <capture bin>: the remote dumcap binary (default: %s)\n", DEFAULT_CAPTURE_BIN);
+	printf("  --remote-filter <filter>: a filter for remote capture (default: don't listen on local local interfaces IPs)\n");
 }
 
 static int list_interfaces(void)
 {
-	g_print("interface {value=%s}{display=SSH remote capture}\n", SSH_EXTCAP_INTERFACE);
+	printf("interface {value=%s}{display=SSH remote capture}\n", SSH_EXTCAP_INTERFACE);
 	return EXIT_SUCCESS;
 }
 
 static int list_dlts(const char *interface)
 {
 	if (!interface) {
-		g_print("ERROR: No interface specified.\n");
+		printf("ERROR: No interface specified.\n");
 		return EXIT_FAILURE;
 	}
 
 	if (g_strcmp0(interface, SSH_EXTCAP_INTERFACE)) {
-		g_print("ERROR: interface must be %s\n", SSH_EXTCAP_INTERFACE);
+		printf("ERROR: interface must be %s\n", SSH_EXTCAP_INTERFACE);
 		return EXIT_FAILURE;
 	}
 
-	g_print("dlt {number=147}{name=%s}{display=Remote capture dependant DLT}\n", SSH_EXTCAP_INTERFACE);
+	printf("dlt {number=147}{name=%s}{display=Remote capture dependant DLT}\n", SSH_EXTCAP_INTERFACE);
 	return EXIT_SUCCESS;
 }
 
@@ -539,33 +539,33 @@ static int list_config(char *interface, unsigned int remote_port)
 
 	ipfilter = local_interfaces_to_filter(remote_port);
 
-	g_print("arg {number=%u}{call=--remote-host}{display=Remote SSH server address}"
+	printf("arg {number=%u}{call=--remote-host}{display=Remote SSH server address}"
 		"{type=string}{tooltip=The remote SSH host. It can be both "
 		"an IP address or a hostname}{required=true}\n", inc++);
-	g_print("arg {number=%u}{call=--remote-port}{display=Remote SSH server port}"
+	printf("arg {number=%u}{call=--remote-port}{display=Remote SSH server port}"
 		"{type=unsigned}{default=22}{tooltip=The remote SSH host port (1-65535)}"
 		"{range=1,65535}\n", inc++);
-	g_print("arg {number=%u}{call=--remote-username}{display=Remote SSH server username}"
+	printf("arg {number=%u}{call=--remote-username}{display=Remote SSH server username}"
 		"{type=string}{default=%s}{tooltip=The remote SSH username. If not provided, "
 		"the current user will be used}\n", inc++, g_get_user_name());
-	g_print("arg {number=%u}{call=--remote-password}{display=Remote SSH server password}"
+	printf("arg {number=%u}{call=--remote-password}{display=Remote SSH server password}"
 		"{type=string}{tooltip=The SSH password, used when other methods (SSH agent "
 		"or key files) are unavailable.}\n", inc++);
-	g_print("arg {number=%u}{call=--sshkey}{display=Path to SSH private key}"
+	printf("arg {number=%u}{call=--sshkey}{display=Path to SSH private key}"
 		"{type=fileselect}{tooltip=The path on the local filesystem of the private ssh key}\n",
 		inc++);
-	g_print("arg {number=%u}{call--sshkey-passphrase}{display=SSH key passphrase}\n"
+	printf("arg {number=%u}{call--sshkey-passphrase}{display=SSH key passphrase}\n"
 		"{type=string}{tooltip=Passphrase to unlock the SSH private key}\n",
 		inc++);
-	g_print("arg {number=%u}{call=--remote-interface}{display=Remote interface}"
+	printf("arg {number=%u}{call=--remote-interface}{display=Remote interface}"
 		"{type=string}{default=eth0}{tooltip=The remote network interface used for capture"
 		"}\n", inc++);
-	g_print("arg {number=%u}{call=--remote-capture-bin}{display=Remote capture binary}"
+	printf("arg {number=%u}{call=--remote-capture-bin}{display=Remote capture binary}"
 		"{type=string}{default=%s}{tooltip=The remote dumpcap binary used "
 		"for capture.}\n", inc++, DEFAULT_CAPTURE_BIN);
-	g_print("arg {number=%u}{call=--remote-filter}{display=Remote capture filter}"
+	printf("arg {number=%u}{call=--remote-filter}{display=Remote capture filter}"
 		"{type=string}{default=%s}{tooltip=The remote capture filter}\n", inc++, ipfilter);
-	g_print("arg {number=%u}{call=--remote-count}{display=Packets to capture}"
+	printf("arg {number=%u}{call=--remote-count}{display=Packets to capture}"
 		"{type=unsigned}{default=0}{tooltip=The number of remote packets to capture. (Default: inf)}\n",
 		inc++);
 
@@ -686,7 +686,7 @@ int main(int argc, char **argv)
 			break;
 
 		case OPT_VERSION:
-			g_print("%u.%u.%u\n", SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR, SSHDUMP_VERSION_RELEASE);
+			printf("%u.%u.%u\n", SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR, SSHDUMP_VERSION_RELEASE);
 			return EXIT_SUCCESS;
 
 		case OPT_LIST_INTERFACES:
@@ -726,7 +726,7 @@ int main(int argc, char **argv)
 		case OPT_REMOTE_PORT:
 			remote_port = (unsigned int)strtoul(optarg, NULL, 10);
 			if (remote_port > 65535 || remote_port == 0) {
-				g_print("Invalid port: %s\n", optarg);
+				printf("Invalid port: %s\n", optarg);
 				return EXIT_FAILURE;
 			}
 			break;
@@ -787,17 +787,17 @@ int main(int argc, char **argv)
 
 		case ':':
 			/* missing option argument */
-			g_print("Option '%s' requires an argument\n", argv[optind - 1]);
+			printf("Option '%s' requires an argument\n", argv[optind - 1]);
 			break;
 
 		default:
-			g_print("Invalid option: %s\n", argv[optind - 1]);
+			printf("Invalid option: %s\n", argv[optind - 1]);
 			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind != argc) {
-		g_print("Unexpected extra option: %s\n", argv[optind]);
+		printf("Unexpected extra option: %s\n", argv[optind]);
 		return EXIT_FAILURE;
 	}
 
