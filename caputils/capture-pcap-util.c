@@ -39,9 +39,6 @@
 #include <sys/socket.h>
 #endif
 
-#include <wiretap/wtap.h>
-#include <wiretap/libpcap.h>
-
 #include "caputils/capture_ifinfo.h"
 #include "caputils/capture-pcap-util.h"
 #include "caputils/capture-pcap-util-int.h"

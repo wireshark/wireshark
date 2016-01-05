@@ -33,9 +33,6 @@
 
 #include <glib.h>
 
-#include <wiretap/wtap.h>
-#include <wiretap/libpcap.h>
-
 #include <ntddndis.h>
 
 #ifndef NDIS_IF_MAX_STRING_SIZE
