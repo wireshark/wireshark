@@ -1,6 +1,6 @@
 /* packet-osc.c
  * Routines for "Open Sound Control" packet dissection
- * Copyright 2014 Hanspeter Portner <dev@open-music-kontrollers.ch>
+ * Copyright 2014-2016 Hanspeter Portner <dev@open-music-kontrollers.ch>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -75,18 +75,33 @@ static const char valid_format_chars [] = {
     '\0'
 };
 
-#define MIDI_STATUS_CONTROLLER 0xB0
+typedef enum _MIDI_Status_Type {
+    MIDI_STATUS_NOTE_OFF                = 0x8,
+    MIDI_STATUS_NOTE_ON                 = 0x9,
+    MIDI_STATUS_NOTE_PRESSURE           = 0xA,
+    MIDI_STATUS_CONTROLLER              = 0xB,
+    MIDI_STATUS_PROGRAM_CHANGE          = 0xC,
+    MIDI_STATUS_CHANNEL_PRESSURE        = 0xD,
+    MIDI_STATUS_PITCH_BENDER            = 0xE
+} MIDI_Status_Type;
 
 /* Standard MIDI Message Type */
 static const value_string MIDI_status [] = {
-    { 0x00, "Invalid Message" },
-    { 0x80, "Note Off" },
-    { 0x90, "Note On" },
-    { 0xA0, "Note Pressure" },
+    { 0x0, "Invalid Message" },
+    { MIDI_STATUS_NOTE_OFF, "Note Off" },
+    { MIDI_STATUS_NOTE_ON, "Note On" },
+    { MIDI_STATUS_NOTE_PRESSURE, "Note Pressure" },
     { MIDI_STATUS_CONTROLLER, "Controller" },
-    { 0xC0, "Program Change" },
-    { 0xD0, "Channel Pressure" },
-    { 0xE0, "Pitch Bender" },
+    { MIDI_STATUS_PROGRAM_CHANGE, "Program Change" },
+    { MIDI_STATUS_CHANNEL_PRESSURE, "Channel Pressure" },
+    { MIDI_STATUS_PITCH_BENDER, "Pitch Bender" },
+
+    {0, NULL }
+};
+static value_string_ext MIDI_status_ext = VALUE_STRING_EXT_INIT(MIDI_status);
+
+/* Standard MIDI Message Type */
+static const value_string MIDI_system [] = {
     { 0xF0, "System Exclusive Begin" },
     { 0xF1, "MTC Quarter Frame" },
     { 0xF2, "Song Position" },
@@ -101,7 +116,99 @@ static const value_string MIDI_status [] = {
 
     {0, NULL }
 };
-static value_string_ext MIDI_status_ext = VALUE_STRING_EXT_INIT(MIDI_status);
+static value_string_ext MIDI_system_ext = VALUE_STRING_EXT_INIT(MIDI_system);
+
+/* Standard MIDI Note Numbers */
+static const value_string MIDI_note [] = {
+    { 0x00, "C-0" }, { 0x01, "#C-0" },
+    { 0x02, "D-0" }, { 0x03, "#D-0" },
+    { 0x04, "E-0" },
+    { 0x05, "F-0" }, { 0x06, "#F-0" },
+    { 0x07, "G-0" }, { 0x08, "#G-0" },
+    { 0x09, "A-0" }, { 0x0A, "#A-0" },
+    { 0x0B, "H-0" },
+
+    { 0x0C, "C-1" }, { 0x0D, "#C-1" },
+    { 0x0E, "D-1" }, { 0x0F, "#D-1" },
+    { 0x10, "E-1" },
+    { 0x11, "F-1" }, { 0x12, "#F-1" },
+    { 0x13, "G-1" }, { 0x14, "#G-1" },
+    { 0x15, "A-1" }, { 0x16, "#A-1" },
+    { 0x17, "H-1" },
+
+    { 0x18, "C-2" }, { 0x19, "#C-2" },
+    { 0x1A, "D-2" }, { 0x1B, "#D-2" },
+    { 0x1C, "E-2" },
+    { 0x1D, "F-2" }, { 0x1E, "#F-2" },
+    { 0x1F, "G-2" }, { 0x20, "#G-2" },
+    { 0x21, "A-2" }, { 0x22, "#A-2" },
+    { 0x23, "H-2" },
+
+    { 0x24, "C-3" }, { 0x25, "#C-3" },
+    { 0x26, "D-3" }, { 0x27, "#D-3" },
+    { 0x28, "E-3" },
+    { 0x29, "F-3" }, { 0x2A, "#F-3" },
+    { 0x2B, "G-3" }, { 0x2C, "#G-3" },
+    { 0x2D, "A-3" }, { 0x2E, "#A-3" },
+    { 0x2F, "H-3" },
+
+    { 0x30, "C-4" }, { 0x31, "#C-4" },
+    { 0x32, "D-4" }, { 0x33, "#D-4" },
+    { 0x34, "E-4" },
+    { 0x35, "F-4" }, { 0x36, "#F-4" },
+    { 0x37, "G-4" }, { 0x38, "#G-4" },
+    { 0x39, "A-4" }, { 0x3A, "#A-4" },
+    { 0x3B, "H-4" },
+
+    { 0x3C, "C-5" }, { 0x3D, "#C-5" },
+    { 0x3E, "D-5" }, { 0x3F, "#D-5" },
+    { 0x40, "E-5" },
+    { 0x41, "F-5" }, { 0x42, "#F-5" },
+    { 0x43, "G-5" }, { 0x44, "#G-5" },
+    { 0x45, "A-5" }, { 0x46, "#A-5" },
+    { 0x47, "H-5" },
+
+    { 0x48, "C-6" }, { 0x49, "#C-6" },
+    { 0x4A, "D-6" }, { 0x4B, "#D-6" },
+    { 0x4C, "E-6" },
+    { 0x4D, "F-6" }, { 0x4E, "#F-6" },
+    { 0x4F, "G-6" }, { 0x50, "#G-6" },
+    { 0x51, "A-6" }, { 0x52, "#A-6" },
+    { 0x53, "H-6" },
+
+    { 0x54, "C-7" }, { 0x55, "#C-7" },
+    { 0x56, "D-7" }, { 0x57, "#D-7" },
+    { 0x58, "E-7" },
+    { 0x59, "F-7" }, { 0x5A, "#F-7" },
+    { 0x5B, "G-7" }, { 0x5C, "#G-7" },
+    { 0x5D, "A-7" }, { 0x5E, "#A-7" },
+    { 0x5F, "H-7" },
+
+    { 0x60, "C-8" }, { 0x61, "#C-8" },
+    { 0x62, "D-8" }, { 0x63, "#D-8" },
+    { 0x64, "E-8" },
+    { 0x65, "F-8" }, { 0x66, "#F-8" },
+    { 0x67, "G-8" }, { 0x68, "#G-8" },
+    { 0x69, "A-8" }, { 0x6A, "#A-8" },
+    { 0x6B, "H-8" },
+
+    { 0x6C, "C-9" }, { 0x6D, "#C-9" },
+    { 0x6E, "D-9" }, { 0x6F, "#D-9" },
+    { 0x70, "E-9" },
+    { 0x71, "F-9" }, { 0x72, "#F-9" },
+    { 0x73, "G-9" }, { 0x74, "#G-9" },
+    { 0x75, "A-9" }, { 0x76, "#A-9" },
+    { 0x77, "H-9" },
+
+    { 0x78, "C-10" }, { 0x79, "#C-10" },
+    { 0x7A, "D-10" }, { 0x7B, "#D-10" },
+    { 0x7C, "E-10" },
+    { 0x7D, "F-10" }, { 0x7E, "#F-10" },
+    { 0x7F, "G-10" },
+
+    { 0, NULL }
+};
+static value_string_ext MIDI_note_ext = VALUE_STRING_EXT_INIT(MIDI_note);
 
 /* Standard MIDI Controller Numbers */
 static const value_string MIDI_control [] = {
@@ -230,12 +337,17 @@ static int hf_osc_message_rgba_green_type = -1;
 static int hf_osc_message_rgba_blue_type = -1;
 static int hf_osc_message_rgba_alpha_type = -1;
 
+static int hf_osc_message_midi_port_type = -1;
+static int hf_osc_message_midi_system_type = -1;
 static int hf_osc_message_midi_channel_type = -1;
 static int hf_osc_message_midi_status_type = -1;
 static int hf_osc_message_midi_data1_type = -1;
 static int hf_osc_message_midi_data2_type = -1;
+static int hf_osc_message_midi_velocity_type = -1;
+static int hf_osc_message_midi_pressure_type = -1;
+static int hf_osc_message_midi_note_type = -1;
 static int hf_osc_message_midi_controller_type = -1;
-static int hf_osc_message_midi_value_type = -1;
+static int hf_osc_message_midi_bender_type = -1;
 
 /* Initialize the subtree pointers */
 static int ett_osc_packet = -1;
@@ -433,61 +545,166 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
                 const gchar *status_str;
                 proto_item  *mi = NULL;
                 proto_tree  *midi_tree;
-                guint8       channel;
-                guint8       status;
+                guint8       port;
+                guint8       command;
                 guint8       data1;
                 guint8       data2;
+                guint8       status;
+                guint8       channel;
+                guint8       system;
+                guint8       status_shifted;
 
-                channel = tvb_get_guint8(tvb, offset);
-                status  = tvb_get_guint8(tvb, offset+1);
+                port = tvb_get_guint8(tvb, offset);
+                command  = tvb_get_guint8(tvb, offset+1);
                 data1   = tvb_get_guint8(tvb, offset+2);
                 data2   = tvb_get_guint8(tvb, offset+3);
 
-                status_str = val_to_str_ext_const(status, &MIDI_status_ext, "Unknown");
+                status  = command & 0xF0;
+                channel = command & 0x0F;
 
-                if(status == MIDI_STATUS_CONTROLLER) /* MIDI Controller */
+                system = status == 0xF0; /* is system message */
+                status_shifted = status >> 4;
+
+                if(system)
+                    status_str = val_to_str_ext_const(command, &MIDI_system_ext, "Unknown");
+                else
+                    status_str = val_to_str_ext_const(status_shifted, &MIDI_status_ext, "Unknown");
+
+                if(system)
                 {
-                    const gchar *control_str;
-                    control_str = val_to_str_ext_const(data1, &MIDI_control_ext, "Unknown");
-
                     mi = proto_tree_add_none_format(message_tree, hf_osc_message_midi_type, tvb, offset, 4,
-                            "MIDI: Channel %2i, %s (0x%02x), %s (0x%02x), 0x%02x",
-                            channel,
-                            status_str, status,
-                            control_str, data1,
-                            data2);
+                            "MIDI: Port %i, %s, %i, %i",
+                            port, status_str, data1, data2);
                 }
                 else
                 {
-                    mi = proto_tree_add_none_format(message_tree, hf_osc_message_midi_type, tvb, offset, 4,
-                            "MIDI: Channel %2i, %s (0x%02x), 0x%02x, 0x%02x",
-                            channel,
-                            status_str, status,
-                            data1, data2);
+                    switch(status_shifted)
+                    {
+                        case MIDI_STATUS_NOTE_ON:
+                        case MIDI_STATUS_NOTE_OFF:
+                        case MIDI_STATUS_NOTE_PRESSURE:
+                        {
+                            const gchar *note_str;
+                            note_str = val_to_str_ext_const(data1, &MIDI_note_ext, "Unknown");
+
+                            mi = proto_tree_add_none_format(message_tree, hf_osc_message_midi_type, tvb, offset, 4,
+                                    "MIDI: Port %i, Channel %i, %s, %s, %i",
+                                    port, channel, status_str, note_str, data2);
+                            break;
+                        }
+                        case MIDI_STATUS_CONTROLLER:
+                        {
+                            const gchar *control_str;
+                            control_str = val_to_str_ext_const(data1, &MIDI_control_ext, "Unknown");
+
+                            mi = proto_tree_add_none_format(message_tree, hf_osc_message_midi_type, tvb, offset, 4,
+                                    "MIDI: Port %i, Channel %i, %s, %s, %i",
+                                    port, channel, status_str, control_str, data2);
+                            break;
+                        }
+                        case MIDI_STATUS_PITCH_BENDER:
+                        {
+                            const gint bender = (((gint)data2 << 7) || (gint)data1) - 0x2000;
+
+                            mi = proto_tree_add_none_format(message_tree, hf_osc_message_midi_type, tvb, offset, 4,
+                                    "MIDI: Port %i, Channel %i, %s, %i",
+                                    port, channel, status_str, bender);
+                            break;
+                        }
+                        default:
+                        {
+                            mi = proto_tree_add_none_format(message_tree, hf_osc_message_midi_type, tvb, offset, 4,
+                                    "MIDI: Port %i, Channel %i, %s, %i, %i",
+                                    port, channel, status_str, data1, data2);
+                            break;
+                        }
+                    }
                 }
                 midi_tree = proto_item_add_subtree(mi, ett_osc_midi);
 
-                proto_tree_add_item(midi_tree, hf_osc_message_midi_channel_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(midi_tree, hf_osc_message_midi_port_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
 
-                proto_tree_add_item(midi_tree, hf_osc_message_midi_status_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
-
-                if(status == MIDI_STATUS_CONTROLLER)
+                if(system)
                 {
-                    proto_tree_add_item(midi_tree, hf_osc_message_midi_controller_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(midi_tree, hf_osc_message_midi_system_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
 
-                    proto_tree_add_item(midi_tree, hf_osc_message_midi_value_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset += 1;
-                }
-                else
-                {
                     proto_tree_add_item(midi_tree, hf_osc_message_midi_data1_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
 
                     proto_tree_add_item(midi_tree, hf_osc_message_midi_data2_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
+                }
+                else
+                {
+                    proto_tree_add_item(midi_tree, hf_osc_message_midi_status_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(midi_tree, hf_osc_message_midi_channel_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+
+                    switch(status_shifted)
+                    {
+                        case MIDI_STATUS_NOTE_ON:
+                        case MIDI_STATUS_NOTE_OFF:
+                        {
+                            proto_tree_add_item(midi_tree, hf_osc_message_midi_note_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset += 1;
+
+                            proto_tree_add_item(midi_tree, hf_osc_message_midi_velocity_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset += 1;
+
+                            break;
+                        }
+                        case MIDI_STATUS_NOTE_PRESSURE:
+                        {
+                            proto_tree_add_item(midi_tree, hf_osc_message_midi_note_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset += 1;
+
+                            proto_tree_add_item(midi_tree, hf_osc_message_midi_pressure_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset += 1;
+
+                            break;
+                        }
+                        case MIDI_STATUS_CONTROLLER:
+                        {
+                            proto_tree_add_item(midi_tree, hf_osc_message_midi_controller_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset += 1;
+
+                            proto_tree_add_item(midi_tree, hf_osc_message_midi_data2_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset += 1;
+
+                            break;
+                        }
+                        case MIDI_STATUS_CHANNEL_PRESSURE:
+                        {
+                            proto_tree_add_item(midi_tree, hf_osc_message_midi_pressure_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset += 1;
+
+                            proto_tree_add_item(midi_tree, hf_osc_message_midi_data2_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset += 1;
+
+                            break;
+                        }
+                        case MIDI_STATUS_PITCH_BENDER:
+                        {
+                            const gint bender = (((gint)data2 << 7) || (gint)data1) - 0x2000;
+
+                            proto_tree_add_int(midi_tree, hf_osc_message_midi_bender_type, tvb, offset, 2, bender);
+                            offset += 2;
+
+                            break;
+                        }
+                        default:
+                        {
+                            proto_tree_add_item(midi_tree, hf_osc_message_midi_data1_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset += 1;
+
+                            proto_tree_add_item(midi_tree, hf_osc_message_midi_data2_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            offset += 1;
+
+                            break;
+                        }
+                    }
                 }
 
                 break;
@@ -838,30 +1055,50 @@ proto_register_osc(void)
                 FT_NONE, BASE_NONE,
                 NULL, 0x0,
                 "MIDI value", HFILL } },
-        { &hf_osc_message_midi_channel_type, { "Channel", "osc.message.midi.channel",
+        { &hf_osc_message_midi_port_type, { "Port", "osc.message.midi.port",
                 FT_UINT8, BASE_DEC,
                 NULL, 0x0,
-                "MIDI channel", HFILL } },
+                "MIDI port", HFILL } },
+        { &hf_osc_message_midi_system_type, { "System", "osc.message.midi.system",
+                FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+                &MIDI_system_ext, 0x0,
+                "MIDI system", HFILL } },
         { &hf_osc_message_midi_status_type, { "Status", "osc.message.midi.status",
                 FT_UINT8, BASE_HEX | BASE_EXT_STRING,
-                &MIDI_status_ext, 0x0,
-                "MIDI status message", HFILL } },
+                &MIDI_status_ext, 0xF0,
+                "MIDI status", HFILL } },
+        { &hf_osc_message_midi_channel_type, { "Channel", "osc.message.midi.channel",
+                FT_UINT8, BASE_DEC,
+                NULL, 0x0F,
+                "MIDI channel", HFILL } },
         { &hf_osc_message_midi_data1_type, { "Data1", "osc.message.midi.data1",
-                FT_UINT8, BASE_HEX,
-                NULL, 0x0,
-                "MIDI data value 1", HFILL } },
+                FT_UINT8, BASE_DEC,
+                NULL, 0x7F,
+                "MIDI data 1", HFILL } },
         { &hf_osc_message_midi_data2_type, { "Data2", "osc.message.midi.data2",
-                FT_UINT8, BASE_HEX,
-                NULL, 0x0,
-                "MIDI data value 2", HFILL } },
+                FT_UINT8, BASE_DEC,
+                NULL, 0x7F,
+                "MIDI data 2", HFILL } },
+        { &hf_osc_message_midi_velocity_type, { "Velocity", "osc.message.midi.velocity",
+                FT_UINT8, BASE_DEC,
+                NULL, 0x7F,
+                "MIDI note velocity", HFILL } },
+        { &hf_osc_message_midi_pressure_type, { "Pressure", "osc.message.midi.pressure",
+                FT_UINT8, BASE_DEC,
+                NULL, 0x7F,
+                "MIDI note/channel pressure", HFILL } },
+        { &hf_osc_message_midi_note_type, { "Note", "osc.message.midi.note",
+                FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+                &MIDI_note_ext, 0x7F,
+                "MIDI note", HFILL } },
         { &hf_osc_message_midi_controller_type, { "Controller", "osc.message.midi.controller",
-                FT_UINT8, BASE_HEX | BASE_EXT_STRING,
-                &MIDI_control_ext, 0x0,
-                "MIDI controller message", HFILL } },
-        { &hf_osc_message_midi_value_type, { "Value", "osc.message.midi.value",
-                FT_UINT8, BASE_HEX,
-                NULL, 0x0,
-                "MIDI controller value", HFILL } }
+                FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+                &MIDI_control_ext, 0x7F,
+                "MIDI controller", HFILL } },
+        { &hf_osc_message_midi_bender_type, { "Bender", "osc.message.midi.bender",
+                FT_INT16, BASE_DEC,
+                NULL, 0x7F7F,
+                "MIDI bender", HFILL } }
     };
 
     /* Setup protocol subtree array */
