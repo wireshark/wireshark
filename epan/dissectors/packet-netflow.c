@@ -6769,11 +6769,11 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 223):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icasessionupdatebeginsec,
-                                     tvb, offset, length, ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 224):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icasessionupdateendsec,
-                                     tvb, offset, length, ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 225):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icachannelid1,
@@ -6833,7 +6833,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 239):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_applicationstartuptime,
-                                     tvb, offset, length, ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 240):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaapplicationterminationtype,
@@ -6893,11 +6893,11 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_NETSCALER << 16) | 254):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icanetworkupdatestarttime,
-                                     tvb, offset, length, ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 255):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icanetworkupdateendtime,
-                                     tvb, offset, length, ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_NETSCALER << 16) | 256):
             ti = proto_tree_add_item(pdutree, hf_pie_netscaler_icaclientsidesrtt,
@@ -11411,14 +11411,14 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 223 */
         {&hf_pie_netscaler_icasessionupdatebeginsec,
          {"ICA Session Update Begin Sec", "cflow.pie.netscaler.ica-session-update-begin-sec",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
-          "ICA Session Update Begin Sec (s)", HFILL}
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+          NULL, HFILL}
         },
         /* netscaler, 5951 / 224 */
         {&hf_pie_netscaler_icasessionupdateendsec,
          {"ICA Session Update End Sec", "cflow.pie.netscaler.ica-session-update-end-sec",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
-          "ICA Session Update End Sec (s)", HFILL}
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+          NULL, HFILL}
         },
         /* netscaler, 5951 / 225 */
         {&hf_pie_netscaler_icachannelid1,
@@ -11507,8 +11507,8 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 239 */
         {&hf_pie_netscaler_applicationstartuptime,
          {"Application Startup Time", "cflow.pie.netscaler.application-startup-time",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
-          "Application Startup Time (s)", HFILL}
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+          NULL, HFILL}
         },
         /* netscaler, 5951 / 240 */
         {&hf_pie_netscaler_icaapplicationterminationtype,
@@ -11543,7 +11543,7 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 245 */
         {&hf_pie_netscaler_icaappprocessid,
          {"ICA App Process ID", "cflow.pie.netscaler.ica-app-processid",
-          FT_UINT32, BASE_HEX, NULL, 0x0,
+          FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
           NULL, HFILL}
         },
         /* netscaler, 5951 / 246 */
@@ -11597,14 +11597,14 @@ proto_register_netflow(void)
         /* netscaler, 5951 / 254 */
         {&hf_pie_netscaler_icanetworkupdatestarttime,
          {"ICA Network Update Start Time", "cflow.pie.netscaler.ica-network-update-start-time",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
-          "ICA Network Update Start Time (s)", HFILL}
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+          NULL, HFILL}
         },
         /* netscaler, 5951 / 255 */
         {&hf_pie_netscaler_icanetworkupdateendtime,
          {"ICA Network Update End Time", "cflow.pie.netscaler.ica-network-update-end-time",
-          FT_UINT64, BASE_DEC, NULL, 0x0,
-          "ICA Network Update End Time (s)", HFILL}
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+          NULL, HFILL}
         },
         /* netscaler, 5951 / 256 */
         {&hf_pie_netscaler_icaclientsidesrtt,
