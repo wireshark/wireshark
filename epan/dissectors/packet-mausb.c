@@ -98,10 +98,22 @@ static int hf_mausb_ep_handle_resp_buf_size = -1;
 static int hf_mausb_ep_handle_resp_iso_prog_dly = -1;
 static int hf_mausb_ep_handle_resp_iso_resp_dly = -1;
 
-/* CancelTransferReq & Resp packet specific */
+/* (Clear/Cancel)TransferReq & Resp packet specific */
+static int hf_mausb_clear_transfers_info_block = -1;
+static int hf_mausb_clear_transfers_status_block = -1;
 static int hf_mausb_cancel_transfer_rsvd = -1;
+static int hf_mausb_clear_transfers_req_num = -1;
+static int hf_mausb_clear_transfers_req_rsvd = -1;
+static int hf_mausb_clear_transfers_resp_num = -1;
+static int hf_mausb_clear_transfers_resp_rsvd = -1;
 static int hf_mausb_cancel_transfer_status = -1;
 static int hf_mausb_cancel_transfer_rsvd_2 = -1;
+static int hf_mausb_clear_transfers_status = -1;
+static int hf_mausb_clear_transfers_partial = -1;
+static int hf_mausb_clear_transfers_start_req_id = -1;
+static int hf_mausb_clear_transfers_last_req_id = -1;
+static int hf_mausb_clear_transfers_req_block_rsvd = -1;
+static int hf_mausb_clear_transfers_resp_block_rsvd = -1;
 static int hf_mausb_cancel_transfer_seq_num = -1;
 static int hf_mausb_cancel_transfer_byte_offset = -1;
 
@@ -212,8 +224,8 @@ enum mausb_pkt_type {
     EPInactivateResp      ,
     EPResetReq            ,
     EPResetResp           ,
-    EPClearTransferReq    ,
-    EPClearTransferResp   ,
+    ClearTransfersReq     ,
+    ClearTransfersResp    ,
     EPHandleDeleteReq     ,
     EPHandleDeleteResp    ,
 
@@ -297,8 +309,8 @@ static const value_string mausb_type_string[] = {
     { EPInactivateResp     , "EPInactivateResp" },
     { EPResetReq           , "EPResetReq" },
     { EPResetResp          , "EPResetResp" },
-    { EPClearTransferReq   , "EPClearTransferReq" },
-    { EPClearTransferResp  , "EPClearTransferResp" },
+    { ClearTransfersReq    , "ClearTransfersReq" },
+    { ClearTransfersResp   , "ClearTransfersResp" },
     { EPHandleDeleteReq    , "EPHandleDeleteReq" },
     { EPHandleDeleteResp   , "EPHandleDeleteResp" },
 
@@ -438,6 +450,8 @@ static const value_string mausb_status_string[] = {
 #define MAUSB_MGMT_NUM_EP_DES_MASK 0x001f
 #define MAUSB_MGMT_SIZE_EP_DES_OFFSET 5
 #define MAUSB_MGMT_SIZE_EP_DES_MASK (0x003f << MAUSB_MGMT_SIZE_EP_DES_OFFSET)
+
+#define MAUSB_MGMT_CLEAR_TRANSFER_RESP_NUM_MASK 0x1f
 
 /* CapResp Bitfield Masks */
 #define MAUSB_CAP_RESP_NUM_STREAM_MASK 0x1f
@@ -600,6 +614,11 @@ static const value_string mausb_cancel_transfer_status_string[] = {
 
 #define MAUSB_CANCEL_TRANSFER_STATUS_MASK 0x03
 
+#define MAUSB_CLEAR_TRANSFERS_RESP_NUM_MASK 0x1f
+#define MAUSB_CLEAR_TRANSFERS_STATUS_MASK 0x01
+#define MAUSB_CLEAR_TRANSFERS_PARTIAL_MASK 0x02
+#define MAUSB_CLEAR_TRANSFERS_RESP_BLOCK_RSVD_MASK 0xfffffffc
+
 /** Common header fields, per section 6.2.1 */
 struct mausb_header {
     /* DWORD 0 */
@@ -750,6 +769,7 @@ static gint ett_mausb_present_time = -1;
 static gint ett_mausb_timestamp = -1;
 static gint ett_mgmt = -1;
 static gint ett_dev_cap = -1;
+static gint ett_clear_transfers_block = -1;
 
 
 #define USB_DT_EP_SIZE              7
@@ -976,6 +996,111 @@ static guint8 mausb_get_size_ep_des(tvbuff_t *tvb, gint offset)
     size_ep_des = (temp_buffer >> MAUSB_MGMT_SIZE_EP_DES_OFFSET);
 
     return size_ep_des;
+}
+
+/* dissect an individual block for ClearTransfers */
+static guint16 dissect_clear_transfers_block(proto_tree *tree,
+               tvbuff_t *tvb, gint16 offset, gboolean req)
+{
+    proto_item *ti;
+    proto_tree *block_tree;
+
+    if (req) {
+        ti = proto_tree_add_item(tree, hf_mausb_clear_transfers_info_block,
+                                 tvb, offset, 8, ENC_NA);
+    } else {
+        ti = proto_tree_add_item(tree, hf_mausb_clear_transfers_status_block,
+                                 tvb, offset, 16, ENC_NA);
+    }
+
+    block_tree = proto_item_add_subtree(ti, ett_clear_transfers_block);
+
+
+    /* EP Handle */
+    offset += dissect_ep_handle(block_tree, tvb, offset);
+
+    /* Stream ID */
+    proto_tree_add_item(block_tree, hf_mausb_stream_id, tvb, offset, 2,
+                        ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    if (req) {
+        /* Start Request ID */
+        proto_tree_add_item(block_tree, hf_mausb_clear_transfers_start_req_id,
+                            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        /* Rsvd */
+        proto_tree_add_item(block_tree, hf_mausb_clear_transfers_req_block_rsvd,
+                            tvb, offset, 3, ENC_NA);
+        offset += 3;
+
+    } else {
+        /* Cancel Status */
+        proto_tree_add_item(block_tree, hf_mausb_clear_transfers_status,
+                            tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        /* Partial Delivery */
+        proto_tree_add_item(block_tree, hf_mausb_clear_transfers_partial,
+                            tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        /* Rsvd */
+        proto_tree_add_item(block_tree, hf_mausb_clear_transfers_resp_block_rsvd,
+                            tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        /* Last Request ID */
+        proto_tree_add_item(block_tree, hf_mausb_clear_transfers_last_req_id,
+                            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        /* Delivered Sequence Number */
+        proto_tree_add_item(block_tree, hf_mausb_cancel_transfer_seq_num, tvb,
+                            offset, 3, ENC_LITTLE_ENDIAN);
+        offset += 3;
+        /* Delivered Byte Offset */
+        proto_tree_add_item(block_tree, hf_mausb_cancel_transfer_byte_offset,
+                            tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    }
+
+    return offset;
+}
+
+/* dissects portions of a MA USB packet specific to ClearTransfers packets */
+static guint16 dissect_mausb_mgmt_pkt_clear_transfers(proto_tree *tree,
+               tvbuff_t *tvb, gint16 offset, gboolean req)
+{
+    guint8 num_block;
+    int i;
+
+    num_block = tvb_get_guint8(tvb, offset);
+    if (req) {
+        /* Number of entries */
+        proto_tree_add_item(tree, hf_mausb_clear_transfers_req_num, tvb,
+                            offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        /* Rsvd */
+        proto_tree_add_item(tree, hf_mausb_clear_transfers_req_rsvd, tvb,
+                            offset, 3, ENC_NA);
+        offset += 3;
+
+    } else {
+        num_block &= MAUSB_MGMT_CLEAR_TRANSFER_RESP_NUM_MASK;
+
+        /* Number of entries */
+        proto_tree_add_item(tree, hf_mausb_clear_transfers_resp_num, tvb,
+                            offset, 1, ENC_LITTLE_ENDIAN);
+        /* Rsvd */
+        proto_tree_add_item(tree, hf_mausb_clear_transfers_resp_rsvd, tvb,
+                            offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    }
+
+    for (i = 0; i < num_block; i++) {
+        offset = dissect_clear_transfers_block(tree, tvb, offset, req);
+    }
+
+    return offset;
 }
 
 /* dissects portions of a MA USB packet specific to Endpoint Handle Request packets */
@@ -1239,13 +1364,16 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
     case EPInactivateResp:
     case EPResetReq:
     case EPResetResp:
-    case EPClearTransferReq:
-    case EPClearTransferResp:
         proto_tree_add_item(mgmt_tree, hf_mausb_mgmt_type_spec_generic,
                             tvb, offset, type_spec_len, ENC_NA);
         offset += type_spec_len;
         break;
-
+    case ClearTransfersReq:
+        offset = dissect_mausb_mgmt_pkt_clear_transfers(mgmt_tree, tvb, offset, TRUE);
+        break;
+    case ClearTransfersResp:
+        offset = dissect_mausb_mgmt_pkt_clear_transfers(mgmt_tree, tvb, offset, FALSE);
+        break;
     case EPHandleDeleteReq:
         offset = dissect_mausb_mgmt_pkt_ep_handle(mgmt_tree, tvb, pinfo,
                                                   offset, TRUE, TRUE);
@@ -2122,12 +2250,42 @@ proto_register_mausb(void)
 
     };
 
-    /* CancelTransferReq/Resp specific fields */
+    /* (Cancel/Clear)Transfer(Req/Resp) specific fields */
     static hf_register_info hf_cancel_transfer[] = {
+        { &hf_mausb_clear_transfers_info_block,
+            { "Clear Transfers Information Block", "mausb.clear_transfers.info", FT_NONE, 0,
+              NULL, 0, NULL, HFILL
+            }
+        },
+        { &hf_mausb_clear_transfers_status_block,
+            { "Cancel Transfers Status Block", "mausb.clear_transfers.status", FT_NONE, 0,
+              NULL, 0, NULL, HFILL
+            }
+        },
         { &hf_mausb_cancel_transfer_rsvd,
             { "Reserved", "mausb.cancel_transfer.rsvd", FT_NONE, 0,
               NULL, 0, NULL, HFILL
             }
+        },
+        { &hf_mausb_clear_transfers_req_num,
+            { "Number of Blocks", "mausb.clear_transfers_req.num", FT_UINT8, BASE_DEC,
+              NULL, 0, NULL, HFILL
+            }
+        },
+        { &hf_mausb_clear_transfers_req_rsvd,
+             { "Reserved", "mausb.clear_transfers_req.rsvd", FT_NONE, 0,
+               NULL, 0, NULL, HFILL
+             }
+        },
+        { &hf_mausb_clear_transfers_resp_num,
+            { "Number of Blocks", "mausb.clear_transfers_resp.num", FT_UINT32, BASE_DEC,
+              NULL, MAUSB_CLEAR_TRANSFERS_RESP_NUM_MASK , NULL, HFILL
+            }
+        },
+        { &hf_mausb_clear_transfers_resp_rsvd,
+             { "Reserved", "mausb.clear_transfers_resp.rsvd", FT_UINT32, BASE_HEX,
+               NULL, ~MAUSB_CLEAR_TRANSFERS_RESP_NUM_MASK, NULL, HFILL
+             }
         },
         { &hf_mausb_cancel_transfer_status,
             { "Status", "mausb.cancel_transfer.status", FT_UINT24, BASE_HEX,
@@ -2140,7 +2298,40 @@ proto_register_mausb(void)
               NULL, ~MAUSB_CANCEL_TRANSFER_STATUS_MASK, NULL, HFILL
             }
         },
-        { &hf_mausb_cancel_transfer_seq_num,
+        { &hf_mausb_clear_transfers_status,
+            { "Cancellation Status", "mausb.clear_transfers.status", FT_BOOLEAN, 6,
+              TFS(&tfs_success_fail), MAUSB_CLEAR_TRANSFERS_STATUS_MASK,
+              NULL, HFILL
+            }
+        },
+        { &hf_mausb_clear_transfers_partial,
+            { "Partial Delivery", "mausb.clear_transfers.partial", FT_BOOLEAN, 6,
+              TFS(&tfs_true_false), MAUSB_CLEAR_TRANSFERS_PARTIAL_MASK,
+              NULL, HFILL
+            }
+       },
+       { &hf_mausb_clear_transfers_start_req_id,
+           { "Start Request ID", "mausb.clear_transfers.start_reqid", FT_UINT8, BASE_DEC,
+             NULL, 0, NULL, HFILL
+           }
+       },
+       { &hf_mausb_clear_transfers_last_req_id,
+           { "Last Request ID", "mausb.clear_transfers.last_reqid", FT_UINT8, BASE_DEC,
+             NULL, 0, NULL, HFILL
+           }
+       },
+       { &hf_mausb_clear_transfers_req_block_rsvd,
+            { "Reserved", "mausb.clear_transfers_req.block_rsvd", FT_NONE, 0,
+              NULL, 0, NULL, HFILL
+            }
+       },
+       { &hf_mausb_clear_transfers_resp_block_rsvd,
+            { "Reserved", "mausb.clear_transfers_resp.block_rsvd", FT_UINT32, BASE_HEX,
+              NULL, MAUSB_CLEAR_TRANSFERS_RESP_BLOCK_RSVD_MASK, NULL, HFILL
+            }
+       },
+
+       { &hf_mausb_cancel_transfer_seq_num,
             { "Delivered Sequence Number", "mausb.cancel_transfer.seqnum",
               FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL
             }
@@ -2150,9 +2341,7 @@ proto_register_mausb(void)
               FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
             }
         },
-
     };
-
 
     /* Setup protocol subtree array */
     static gint *ett[] = {
@@ -2164,7 +2353,8 @@ proto_register_mausb(void)
         &ett_mausb_present_time,
         &ett_mausb_timestamp,
         &ett_mgmt,
-        &ett_dev_cap
+        &ett_dev_cap,
+        &ett_clear_transfers_block
     };
 
     static ei_register_info ei[] = {
