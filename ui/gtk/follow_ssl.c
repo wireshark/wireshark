@@ -31,7 +31,6 @@
 #include <gtk/gtk.h>
 
 #include <epan/follow.h>
-#include <epan/dissectors/packet-ipv6.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/epan_dissect.h>
@@ -226,21 +225,15 @@ follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
     follow_stats(&stats);
 
     if (stats.is_ipv6) {
-        struct e_in6_addr ipaddr;
-        memcpy(&ipaddr, stats.ip_address[0], 16);
-        hostname0 = get_hostname6(&ipaddr);
-        memcpy(&ipaddr, stats.ip_address[1], 16);
-        hostname1 = get_hostname6(&ipaddr);
+        hostname0 = get_hostname6(&stats.ip_address[0].ipv6);
+        hostname1 = get_hostname6(&stats.ip_address[1].ipv6);
     } else {
-        guint32 ipaddr;
-        memcpy(&ipaddr, stats.ip_address[0], 4);
-        hostname0 = get_hostname(ipaddr);
-        memcpy(&ipaddr, stats.ip_address[1], 4);
-        hostname1 = get_hostname(ipaddr);
+        hostname0 = get_hostname(stats.ip_address[0].ipv4);
+        hostname1 = get_hostname(stats.ip_address[1].ipv4);
     }
 
-    port0 = (char*)tcp_port_to_display(NULL, stats.port[0]);
-    port1 = (char*)tcp_port_to_display(NULL, stats.port[1]);
+    port0 = tcp_port_to_display(NULL, stats.port[0]);
+    port1 = tcp_port_to_display(NULL, stats.port[1]);
 
     follow_info->is_ipv6 = stats.is_ipv6;
 
@@ -250,8 +243,8 @@ follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 
     /* ...and then the server-to-client and client-to-server directions. */
     if ((follow_info->client_port == stats.port[0]) &&
-        ((stats.is_ipv6 && (memcmp(follow_info->client_ip.data, stats.ip_address[0], 16) == 0)) ||
-         (!stats.is_ipv6 && (memcmp(follow_info->client_ip.data, stats.ip_address[0], 4) == 0)))) {
+        ((stats.is_ipv6 && (memcmp(follow_info->client_ip.data, &stats.ip_address[0], 16) == 0)) ||
+         (!stats.is_ipv6 && (memcmp(follow_info->client_ip.data, &stats.ip_address[0], 4) == 0)))) {
         server_hostname = hostname0;
         server_port = port0;
         client_hostname = hostname1;

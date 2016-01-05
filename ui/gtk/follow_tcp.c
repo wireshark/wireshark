@@ -187,30 +187,24 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
     follow_stats(&stats);
 
     if (stats.is_ipv6) {
-        struct e_in6_addr ipaddr;
-        memcpy(&ipaddr, stats.ip_address[0], 16);
-        hostname0 = get_hostname6(&ipaddr);
-        memcpy(&ipaddr, stats.ip_address[1], 16);
-        hostname1 = get_hostname6(&ipaddr);
+        hostname0 = get_hostname6(&stats.ip_address[0].ipv6);
+        hostname1 = get_hostname6(&stats.ip_address[1].ipv6);
     } else {
-        guint32 ipaddr;
-        memcpy(&ipaddr, stats.ip_address[0], 4);
-        hostname0 = get_hostname(ipaddr);
-        memcpy(&ipaddr, stats.ip_address[1], 4);
-        hostname1 = get_hostname(ipaddr);
+        hostname0 = get_hostname(stats.ip_address[0].ipv4);
+        hostname1 = get_hostname(stats.ip_address[1].ipv4);
     }
 
     follow_info->is_ipv6 = stats.is_ipv6;
 
-    port0 = (char*)tcp_port_to_display(NULL, stats.port[0]);
-    port1 = (char*)tcp_port_to_display(NULL, stats.port[1]);
+    port0 = tcp_port_to_display(NULL, stats.port[0]);
+    port1 = tcp_port_to_display(NULL, stats.port[1]);
 
     /* Both Stream Directions */
     both_directions_string = g_strdup_printf("Entire conversation (%u bytes)", follow_info->bytes_written[0] + follow_info->bytes_written[1]);
 
     if ((follow_info->client_port == stats.port[0]) &&
-        ((stats.is_ipv6 && (memcmp(follow_info->client_ip.data, stats.ip_address[0], 16) == 0)) ||
-         (!stats.is_ipv6 && (memcmp(follow_info->client_ip.data, stats.ip_address[0], 4) == 0)))) {
+        ((stats.is_ipv6 && (memcmp(follow_info->client_ip.data, &stats.ip_address[0], 16) == 0)) ||
+         (!stats.is_ipv6 && (memcmp(follow_info->client_ip.data, &stats.ip_address[0], 4) == 0)))) {
         server_to_client_string =
             g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
                             hostname0, port0,

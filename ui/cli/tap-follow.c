@@ -328,7 +328,7 @@ follow_common_stream_packet(
 
   if (tvbp->length > 0)
   {
-    memcpy(sc.src_addr, pip->net_src.data, pip->net_src.len);
+    memcpy(&sc.src_addr, pip->net_src.data, pip->net_src.len);
     sc.src_port   = pip->srcport;
     sc.dlen       = tvbp->length;
     sc.packet_num = pip->fd->num;
@@ -391,7 +391,7 @@ followSslPacket(
 
   if (length > 0)
   {
-    memcpy(sc.src_addr, pip->net_src.data, pip->net_src.len);
+    memcpy(&sc.src_addr, pip->net_src.data, pip->net_src.len);
     sc.src_port   = pip->srcport;
     sc.dlen       = length;
     sc.packet_num = pip->fd->num;
@@ -518,15 +518,15 @@ followDraw(
 
   if ((fp->type == type_TCP) || (fp->type == type_UDP))
   {
-    static const guint8 ip_zero[MAX_IPADDR_LEN] = {0};
+    static const stream_addr ip_zero = {0};
     follow_stats_t      stats;
     address_type        type;
 
     follow_stats(&stats);
 
     if (stats.port[0] == 0 && stats.port[1] == 0 &&
-        memcmp(stats.ip_address[0], ip_zero, sizeof ip_zero) == 0 &&
-        memcmp(stats.ip_address[1], ip_zero, sizeof ip_zero) == 0)
+        memcmp(&stats.ip_address[0], &ip_zero, sizeof ip_zero) == 0 &&
+        memcmp(&stats.ip_address[1], &ip_zero, sizeof ip_zero) == 0)
     {
       type = AT_NONE;
       len  = 0;
@@ -544,7 +544,7 @@ followDraw(
 
     for (node = 0; node < 2; node++)
     {
-      memcpy(fp->addrBuf[node], stats.ip_address[node], len);
+      memcpy(fp->addrBuf[node], &stats.ip_address[node], len);
       set_address(&fp->addr[node], type, len, fp->addrBuf[node]);
       fp->port[node] = stats.port[node];
     }
@@ -559,7 +559,7 @@ followDraw(
     {
       /* no data */
       sc.dlen = 0;
-      memcpy(sc.src_addr, fp->addr[0].data, fp->addr[0].len) ;
+      memcpy(&sc.src_addr, fp->addr[0].data, fp->addr[0].len) ;
       sc.src_port = fp->port[0];
       break;
     }
@@ -571,7 +571,7 @@ followDraw(
   }
 
   /* node 0 is source of first chunk with data */
-  if (memcmp(sc.src_addr, fp->addr[0].data, fp->addr[0].len) == 0 &&
+  if (memcmp(&sc.src_addr, fp->addr[0].data, fp->addr[0].len) == 0 &&
       sc.src_port == fp->port[0])
   {
     addr[0] = &fp->addr[0];
@@ -608,7 +608,7 @@ followDraw(
 
   while (chunk <= fp->chunkMax)
   {
-    node = (memcmp(addr[0]->data, sc.src_addr, addr[0]->len) == 0 &&
+    node = (memcmp(addr[0]->data, &sc.src_addr, addr[0]->len) == 0 &&
             port[0] == sc.src_port) ? 0 : 1;
 
     if (chunk < fp->chunkMin)

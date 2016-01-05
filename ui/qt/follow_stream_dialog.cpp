@@ -1145,17 +1145,11 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
     follow_stats(&stats);
 
     if (stats.is_ipv6) {
-        struct e_in6_addr ipaddr;
-        memcpy(&ipaddr, stats.ip_address[0], 16);
-        hostname0 = get_hostname6(&ipaddr);
-        memcpy(&ipaddr, stats.ip_address[1], 16);
-        hostname1 = get_hostname6(&ipaddr);
+        hostname0 = get_hostname6(&stats.ip_address[0].ipv6);
+        hostname1 = get_hostname6(&stats.ip_address[1].ipv6);
     } else {
-        guint32 ipaddr;
-        memcpy(&ipaddr, stats.ip_address[0], 4);
-        hostname0 = get_hostname(ipaddr);
-        memcpy(&ipaddr, stats.ip_address[1], 4);
-        hostname1 = get_hostname(ipaddr);
+        hostname0 = get_hostname(stats.ip_address[0].ipv4);
+        hostname1 = get_hostname(stats.ip_address[1].ipv4);
     }
 
     switch (follow_type_)
@@ -1175,8 +1169,8 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index)
     follow_info_.is_ipv6 = stats.is_ipv6;
 
     if ((follow_info_.client_port == stats.port[0]) &&
-        ((stats.is_ipv6 && (memcmp(follow_info_.client_ip.data, stats.ip_address[0], 16) == 0)) ||
-            (!stats.is_ipv6 && (memcmp(follow_info_.client_ip.data, stats.ip_address[0], 4) == 0)))) {
+        ((stats.is_ipv6 && (memcmp(follow_info_.client_ip.data, &stats.ip_address[0], 16) == 0)) ||
+            (!stats.is_ipv6 && (memcmp(follow_info_.client_ip.data, &stats.ip_address[0], 4) == 0)))) {
         server_to_client_string =
                 QString("%1:%2 %3 %4:%5 (%6)")
                 .arg(hostname0).arg(port0)

@@ -40,8 +40,6 @@
 #include <epan/conversation.h>
 #include <epan/tap.h>
 
-#define MAX_IPADDR_LEN  16
-
 typedef struct _tcp_frag {
   guint32             seq;
   guint32             len;
@@ -60,7 +58,7 @@ static guint32 stream_to_follow[MAX_STREAM] = {0};
 static gboolean find_addr[MAX_STREAM] = {FALSE};
 static gboolean find_index[MAX_STREAM] = {FALSE};
 static address tcp_addr[2];
-static guint8  ip_address[2][MAX_IPADDR_LEN];
+static stream_addr ip_address[2];
 static guint   port[2];
 static guint   bytes_written[2];
 static gboolean is_ipv6 = FALSE;
@@ -71,11 +69,11 @@ follow_stats(follow_stats_t* stats)
   int i;
 
   for (i = 0; i < 2 ; i++) {
-    memcpy(stats->ip_address[i], ip_address[i], MAX_IPADDR_LEN);
+    stats->ip_address[i] = ip_address[i];
     stats->port[i] = port[i];
     stats->bytes_written[i] = bytes_written[i];
-    stats->is_ipv6 = is_ipv6;
   }
+  stats->is_ipv6 = is_ipv6;
 }
 
 /* This will build a display filter text that will only
@@ -163,8 +161,8 @@ build_follow_conv_filter( packet_info *pi, const char* append_filter ) {
   else {
     return NULL;
   }
-  memcpy(ip_address[0], pi->net_src.data, len);
-  memcpy(ip_address[1], pi->net_dst.data, len);
+  memcpy(&ip_address[0], pi->net_src.data, len);
+  memcpy(&ip_address[1], pi->net_dst.data, len);
   port[0] = pi->srcport;
   port[1] = pi->destport;
   return buf;
@@ -180,8 +178,8 @@ udp_follow_packet(void *tapdata _U_, packet_info *pinfo,
     } else {
       is_ipv6 = FALSE;
     }
-    memcpy(ip_address[0], pinfo->net_src.data, pinfo->net_src.len);
-    memcpy(ip_address[1], pinfo->net_dst.data, pinfo->net_dst.len);
+    memcpy(&ip_address[0], pinfo->net_src.data, pinfo->net_src.len);
+    memcpy(&ip_address[1], pinfo->net_dst.data, pinfo->net_dst.len);
     port[0] = pinfo->srcport;
     port[1] = pinfo->destport;
     find_addr[UDP_STREAM] = FALSE;
@@ -197,7 +195,7 @@ udp_follow_packet(void *tapdata _U_, packet_info *pinfo,
 
 static tcp_frag *frags[2] = { 0, 0 };
 static guint32 seq[2];
-static guint8 src_addr[2][MAX_IPADDR_LEN];
+static stream_addr src_addr[2];
 static guint src_port[2] = { 0, 0 };
 
 void
@@ -214,9 +212,9 @@ reset_stream_follow(stream_type stream) {
 
     for( i=0; i<2; i++ ) {
       seq[i] = 0;
-      memset(src_addr[i], '\0', MAX_IPADDR_LEN);
+      memset(&src_addr[i], 0, sizeof(src_addr[i]));
       src_port[i] = 0;
-      memset(ip_address[i], '\0', MAX_IPADDR_LEN);
+      memset(&ip_address[i], 0, sizeof(src_addr[i]));
       port[i] = 0;
       bytes_written[i] = 0;
       current = frags[i];
@@ -273,16 +271,16 @@ follow_addr(stream_type stream, const address *addr0, guint port0,
   }
 
 
-  memcpy(ip_address[0], addr0->data, addr0->len);
+  memcpy(&ip_address[0], addr0->data, addr0->len);
   port[0] = port0;
 
-  memcpy(ip_address[1], addr1->data, addr1->len);
+  memcpy(&ip_address[1], addr1->data, addr1->len);
   port[1] = port1;
 
   if (stream == TCP_STREAM) {
     find_index[TCP_STREAM] = TRUE;
-    set_address(&tcp_addr[0], addr0->type, addr0->len, ip_address[0]);
-    set_address(&tcp_addr[1], addr1->type, addr1->len, ip_address[1]);
+    set_address(&tcp_addr[0], addr0->type, addr0->len, &ip_address[0]);
+    set_address(&tcp_addr[1], addr1->type, addr1->len, &ip_address[1]);
   }
 
   return TRUE;

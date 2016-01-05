@@ -30,9 +30,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 #include <epan/packet.h>
+#include <epan/ipv6.h>
 #include "ws_symbol_export.h"
-
-#define MAX_IPADDR_LEN	16
 
 typedef enum {
   TCP_STREAM = 0,
@@ -40,12 +39,17 @@ typedef enum {
   MAX_STREAM
 } stream_type;
 
+typedef union _stream_addr {
+  guint32 ipv4;
+  struct e_in6_addr ipv6;
+} stream_addr;
+
 /* With MSVC and a libwireshark.dll, we need a special declaration. */
 WS_DLL_PUBLIC gboolean empty_tcp_stream;
 WS_DLL_PUBLIC gboolean incomplete_tcp_stream;
 
 typedef struct _tcp_stream_chunk {
-  guint8      src_addr[MAX_IPADDR_LEN];
+  stream_addr src_addr;
   guint16     src_port;
   guint32     dlen;
   guint32     packet_num;
@@ -94,10 +98,10 @@ WS_DLL_PUBLIC
 void reset_stream_follow(stream_type stream);
 
 typedef struct {
-	guint8		ip_address[2][MAX_IPADDR_LEN];
-	guint32		port[2];
-	unsigned int	bytes_written[2];
-	gboolean        is_ipv6;
+  stream_addr ip_address[2];
+  guint32     port[2];
+  guint       bytes_written[2];
+  gboolean    is_ipv6;
 } follow_stats_t;
 
 WS_DLL_PUBLIC

@@ -42,7 +42,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/epan_dissect.h>
 #include <wsutil/filesystem.h>
-#include <epan/dissectors/packet-ipv6.h>
 
 #include <ui/alert_box.h>
 #include <ui/last_open_dir.h>
