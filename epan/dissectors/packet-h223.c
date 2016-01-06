@@ -1324,7 +1324,7 @@ dissect_h223_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, circuit
              * PDU.
              *
              * However, if we return that, it means that we get called twice
-             * for the next packet; this makes it hard to tell how far throught
+             * for the next packet; this makes it hard to tell how far through
              * the stream we are and we have to start messing about with
              * getting the seqno from the superdissector's private data. So we
              * don't do that.

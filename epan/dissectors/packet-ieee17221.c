@@ -5051,7 +5051,7 @@ proto_register_17221(void)
       },
 #endif
       { &hf_adp_assoc_id,
-         { "Assocation ID", "ieee17221.assocation_id",
+         { "Association ID", "ieee17221.association_id",
             FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
 #if 0
@@ -5226,7 +5226,7 @@ proto_register_17221(void)
 
       /* ACQUIRE_ENTITY */
       { &hf_aecp_persistent_flag,
-         { "Peristent Flag", "ieee17221.flags.persistent",
+         { "Persistent Flag", "ieee17221.flags.persistent",
             FT_BOOLEAN, 32, NULL, AECP_PERSISTENT_FLAG_MASK, NULL, HFILL }
       },
       { &hf_aecp_release_flag,
@@ -5323,7 +5323,7 @@ proto_register_17221(void)
             FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_avb_info_propegation_delay,
-         {"Progagation Delay", "ieee17221.avb_info_propegation_delay",
+         {"Propagation Delay", "ieee17221.avb_info_propagation_delay",
             FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aecp_avb_info_gptp_domain_number,
@@ -5928,7 +5928,7 @@ proto_register_17221(void)
       },/* draft spec says this is defined by control_type field *
          * start_operation does not include a control type field *
          * There is an operation type table 7.83 that has not    *
-         * yet beed defined. control_type may be part of a       *
+         * yet been defined. control_type may be part of a       *
          * descriptor; will check                                */
 
       /* ABORT_OPERATION */
@@ -6421,7 +6421,7 @@ proto_register_17221(void)
             FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aem_avb_offset_scaled_log_variance,
-         {"Scaled Log Variance", "ieee17221.offset_scaled_log_varianc",
+         {"Scaled Log Variance", "ieee17221.offset_scaled_log_variance",
             FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aem_avb_clock_accuracy,
@@ -6923,7 +6923,7 @@ proto_register_17221(void)
             FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
       { &hf_aem_color_space,
-         {"Color Space", "ieee17221.color_sapce",
+         {"Color Space", "ieee17221.color_space",
             FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
 #if 0

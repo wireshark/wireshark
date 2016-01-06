@@ -2311,7 +2311,7 @@ proto_register_rdm(void)
 				NULL, HFILL }},
 
 		{ &hf_rdm_pd_manu_label,
-			{ "Manufacturur Label", "rdm.pd.manu_label",
+			{ "Manufacturer Label", "rdm.pd.manu_label",
 				FT_STRING, BASE_NONE, NULL, 0x0,
 				NULL, HFILL }},
 
@@ -2367,12 +2367,12 @@ proto_register_rdm(void)
 				NULL, HFILL }},
 
 		{ &hf_rdm_pd_dmx_pers_current,
-			{ "Current DMX Personallity", "rdm.pd.dmx_pers_current",
+			{ "Current DMX Personality", "rdm.pd.dmx_pers_current",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }},
 
 		{ &hf_rdm_pd_dmx_pers_total,
-			{ "Total nr. DMX Personallities", "rdm.pd.dmx_pers_total",
+			{ "Total nr. DMX Personalities", "rdm.pd.dmx_pers_total",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }},
 
@@ -2622,7 +2622,7 @@ proto_register_rdm(void)
 				NULL, HFILL }},
 
 		{ &hf_rdm_pd_parameter_default_value,
-			{ "Delauft Value", "rdm.pd.parameter.default_value",
+			{ "Default Value", "rdm.pd.parameter.default_value",
 				FT_UINT32, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }},
 

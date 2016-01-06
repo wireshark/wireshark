@@ -90,7 +90,7 @@ static gint ett_svhdx_tunnel_file_info_response = -1;
 static const value_string rsvd_operation_code_vals[] = {
         { 1, "RSVD_TUNNEL_GET_FILE_INFO" },
         { 2, "RSVD_TUNNEL_SCSI" },
-        { 3, "RSVD_TUNNEL_CHECK_CONNECTON_STATUS" },
+        { 3, "RSVD_TUNNEL_CHECK_CONNECTION_STATUS" },
         { 4, "RSVD_TUNNEL_SRB_STATUS" },
         { 5, "RSVD_TUNNEL_GET_DISK_INFO" },
         { 6, "RSVD_TUNNEL_VALIDATE_DISK" },

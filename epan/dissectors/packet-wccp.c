@@ -2424,7 +2424,7 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset,
   wccp2r1_alt_assignment_map=FALSE;
 
   /* ugly hack: we first need to check for the address table
-     compnent, otherwise we cannot print the IP's.
+     component, otherwise we cannot print the IP's.
   */
   find_wccp_address_table(tvb,offset,pinfo,wccp_tree, &wccp_wccp_address_table);
 
@@ -2854,7 +2854,7 @@ proto_register_wccp(void)
     },
     { &hf_item_length,
       { "Length", "wccp.item_length", FT_UINT16, BASE_DEC, 0x0, 0x0,
-        "The Length ofthe WCCPv2 item", HFILL }
+        "The Length of the WCCPv2 item", HFILL }
     },
     { &hf_item_type,
       { "Type", "wccp.item_type", FT_UINT16, BASE_DEC, VALS(info_type_vals), 0x0,

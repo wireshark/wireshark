@@ -191,7 +191,7 @@ tr_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
  * so the frame the sniffer gets is fine (just has extra sr routing).
  * In the first instance (driver hacking frame in situ) the sniffer gets a garbled
  * frame.
- * This function trys to detect this and returns the offset of where
+ * This function tries to detect this and returns the offset of where
  * the frame really starts.
  * This only detects frames that we have sent ourselves so if we are packet sniffing
  * on the machine we are watching this is useful.

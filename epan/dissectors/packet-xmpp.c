@@ -941,27 +941,27 @@ proto_register_xmpp(void) {
         { &hf_xmpp_jingle_cont_desc_enc,
           {
               "ENCRYPTION", "xmpp.jingle.content.description.encryption", FT_NONE, BASE_NONE, NULL, 0x0,
-              "iq jingle content descryption encryption", HFILL
+              "iq jingle content description encryption", HFILL
           }},
         { &hf_xmpp_jingle_cont_desc_enc_zrtp_hash,
           {
               "ZRTP-HASH", "xmpp.jingle.content.description.encryption.zrtp-hash", FT_NONE, BASE_NONE, NULL, 0x0,
-              "iq jingle content descryption encryption zrtp-hash", HFILL
+              "iq jingle content description encryption zrtp-hash", HFILL
           }},
         { &hf_xmpp_jingle_cont_desc_enc_crypto,
           {
               "CRYPTO", "xmpp.jingle.content.description.encryption.crypto", FT_NONE, BASE_NONE, NULL, 0x0,
-              "iq jingle content descryption encryption crypto", HFILL
+              "iq jingle content description encryption crypto", HFILL
           }},
         { &hf_xmpp_jingle_cont_desc_bandwidth,
           {
               "BANDWIDTH", "xmpp.jingle.content.description.bandwidth", FT_NONE, BASE_NONE, NULL, 0x0,
-              "iq jingle content descryption bandwidth", HFILL
+              "iq jingle content description bandwidth", HFILL
           }},
         { &hf_xmpp_jingle_cont_desc_rtp_hdr,
           {
               "RTP-HDREXT", "xmpp.jingle.content.description.rtp-hdrext", FT_NONE, BASE_NONE, NULL, 0x0,
-              "iq jingle content descryption rtp-hdrext", HFILL
+              "iq jingle content description rtp-hdrext", HFILL
           }},
         { &hf_xmpp_jingle_reason,
           {
@@ -1460,7 +1460,7 @@ proto_register_xmpp(void) {
 
     xmpp_module = prefs_register_protocol(proto_xmpp, NULL);
     prefs_register_bool_preference(xmpp_module, "desegment",
-                                   "Reasemble XMPP messages",
+                                   "Reassemble XMPP messages",
                                    "Whether the XMPP dissector should reassemble messages. "
                                    "To use this option, you must also enable"
                                    " \"Allow subdissectors to reassemble TCP streams\""

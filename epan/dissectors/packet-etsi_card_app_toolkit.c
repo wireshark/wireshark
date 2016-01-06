@@ -661,7 +661,7 @@ static const value_string bearer_descr_vals[] = {
 	{ 0x01, "CSD" },
 	{ 0x02, "GPRS / UTRAN packet service / E-UTRAN" },
 	{ 0x03, "default bearer for requested transport layer" },
-	{ 0x04, "local link techonlogy independent" },
+	{ 0x04, "local link technology independent" },
 	{ 0x05, "Bluetooth" },
 	{ 0x06, "IrDA" },
 	{ 0x07, "RS232" },
@@ -790,7 +790,7 @@ static const value_string transport_ptype_vals[] = {
 	{ 0x02, "TCP, UICC in client mode, remote connection" },
 	{ 0x03, "TCP, UICC in server mode" },
 	{ 0x04, "UDP, UICC in client mode, local connection" },
-	{ 0x05, "TCP, UICC in client mode, locel connection" },
+	{ 0x05, "TCP, UICC in client mode, local connection" },
 	{ 0x06, "direct communication channel" },
 	{ 0, NULL }
 };
@@ -1684,7 +1684,7 @@ proto_register_card_app_toolkit(void)
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_bearer_gprs_mean,
-			{ "Mean Throuhgput Class", "etsi_cat.comp_tlv.bearer.gprs.mean",
+			{ "Mean Throughput Class", "etsi_cat.comp_tlv.bearer.gprs.mean",
 			  FT_UINT8, BASE_DEC, NULL, 0,
 			  NULL, HFILL },
 		},

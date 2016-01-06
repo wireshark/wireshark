@@ -83,7 +83,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 
 	/*
 	 * Check if it is an ASCII based protocol with reasonable length
-	 * packets, if not return, and try annother dissector.
+	 * packets, if not return, and try another dissector.
 	 */
 	if (linelen < 8) {
 		/*
@@ -238,7 +238,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 						t.nsecs = 0;
 
 						/*
-						 * Format ascii representaion of time
+						 * Format ascii representation of time
 						 */
 						ptr = abs_time_secs_to_str(wmem_packet_scope(), t.secs, ABSOLUTE_TIME_LOCAL, TRUE);
 						proto_tree_add_time_format_value(reqresp_tree, hf_kismet_time, tvb, offset, tokenlen, &t, "%s", ptr);

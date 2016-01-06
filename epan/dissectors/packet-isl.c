@@ -262,7 +262,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
 
       next_tvb = tvb_new_subset(payload_tvb, 12, captured_length, length);
 
-      /* Dissect the payload as an Etherner frame.
+      /* Dissect the payload as an Ethernet frame.
 
         Catch BoundsError and ReportedBoundsError, so that if the
         reported length of "next_tvb" was reduced by some dissector

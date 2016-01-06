@@ -1977,7 +1977,7 @@ proto_register_isi(void)
 		{ &hf_isi_gps_satellites,
 		  { "Visible Satellites", "isi.gps.satellites", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_isi_gps_prn,
-		  { "Pseudeorandom Noise (PRN)", "isi.gps.sat.prn", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
+		  { "Pseudorandom Noise (PRN)", "isi.gps.sat.prn", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_isi_gps_sat_used,
 		  { "in use", "isi.gps.sat.used", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_isi_gps_sat_strength,

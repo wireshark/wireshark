@@ -2336,7 +2336,7 @@ VariablePartsArray ::= SEQUENCE SIZE (1..5) OF VariablePart
 
 -- InitialDPArgExtension notes: not recursive, exported,
 -- locally refd 1 times, import refd 0 times
--- Udated from ETSI TS 129 078 V6.4.0 (2004-3GPP TS 29.078 version 6.4.0 Release 6 1 12)
+-- Updated from ETSI TS 129 078 V6.4.0 (2004-3GPP TS 29.078 version 6.4.0 Release 6 1 12)
 InitialDPArgExtension  ::= SEQUENCE {
 	gmscAddress							[0] ISDN-AddressString						OPTIONAL,
 	forwardingDestinationNumber			[1] CalledPartyNumber						OPTIONAL,

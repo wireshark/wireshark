@@ -2380,7 +2380,7 @@ proto_register_rohc(void)
     static hf_register_info hf[] =
         {
             { &hf_rohc_padding,
-              { "Padding","rohc.pading",
+              { "Padding","rohc.padding",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL , HFILL
               }

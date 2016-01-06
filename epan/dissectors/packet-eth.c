@@ -681,7 +681,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     if (fcs_len != 0) {
       /* If fcs_len is 4, we assume we definitely have an FCS.
          Otherwise, then, if the frame is big enough that, if we
-         have a trailer, it probably inclues an FCS, and we have
+         have a trailer, it probably includes an FCS, and we have
          enough space in the trailer for the FCS, we assume we
          have an FCS.
 
@@ -903,7 +903,7 @@ proto_register_eth(void)
 
     { &hf_eth_fcs_bad,
       { "FCS Bad", "eth.fcs_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-        "True: checksum doesn't matche packet content; False: does match content or not checked", HFILL }},
+        "True: checksum doesn't match packet content; False: does match content or not checked", HFILL }},
 
     { &hf_eth_lg,
       { "LG bit", "eth.lg", FT_BOOLEAN, 24,

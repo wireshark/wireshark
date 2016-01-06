@@ -451,7 +451,7 @@ zbee_security_handoff(void)
  *      tvbuff_t    *tvb    - pointer to buffer containing raw packet.
  *      packet_info *pinfo  - pointer to packet information fields
  *      proto_tree  *tree   - pointer to data tree Wireshark uses to display packet.
- *      guint       offset  - pointer to the start of the auxilliary security header.
+ *      guint       offset  - pointer to the start of the auxiliary security header.
  *      guint64     src64   - extended source address, or 0 if unknown.
  *  RETURNS
  *      tvbuff_t *
@@ -1148,7 +1148,7 @@ zbee_sec_hash(guint8 *input, guint input_len, guint8 *output)
     }
     /* Create the subsequent hash blocks using the formula: Hash[i] = E(Hash[i-1], M[i]) XOR M[i]
      *
-     * because we can't garauntee that M will be exactly a multiple of the
+     * because we can't guarantee that M will be exactly a multiple of the
      * block size, we will need to copy it into local buffers and pad it.
      *
      * Note that we check for the next cipher block at the end of the loop

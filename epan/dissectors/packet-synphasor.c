@@ -1130,7 +1130,7 @@ static gint dissect_DIGUNIT(tvbuff_t *tvb, proto_tree *tree, gint offset, gint c
 						  "Masks for digital status words (%u)", cnt);
 
 	/* Mask words for digital status words. Two 16-bit words for each digital word. The first
-	 * inidcates the normal status of the inputs, the second indicated the valid bits in
+	 * indicates the normal status of the inputs, the second indicated the valid bits in
 	 * the status word
 	 */
 	for (i = 0; i < cnt; i++) {

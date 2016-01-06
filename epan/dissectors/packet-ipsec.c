@@ -422,7 +422,7 @@ UAT_CSTRING_CB_DEF(uat_esp_sa_records, authentication_key_string, uat_esp_sa_rec
 
 
 /* Configure a new SA (programmatically, most likely from a private dissector).
-   The arugments here are deliberately in the same string formats as the UAT fields
+   The arguments here are deliberately in the same string formats as the UAT fields
    in order to keep code paths common.
    Note that an attempt to match with these entries will be made *before* entries
    added through the UAT entry interface/file. */
@@ -704,7 +704,7 @@ static int get_ipv6_suffix(char* ipv6_suffix, char *ipv6_address)
    Return : Return the remaining number of char of the IPv6 address parsed
    Params:
       - char *ipv6_addr : the valid ipv6 address to parse in char *
-      - char *ipv6_addr_expansed : the expanded ipv6 address associated in char *
+      - char *ipv6_addr_expanded : the expanded ipv6 address associated in char *
 
       ex: if IPv6 address is "3ffe::1" the IPv6 expanded address
             will be "3FFE0000000000000000000000000001" and the function will return 0
@@ -769,7 +769,7 @@ get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr)
             the previous one was valid.
    Params:
       - char *ipv4_addr : the valid ipv4 address to parse in char *
-      - char *ipv4_addr_expansed : the expanded ipv4 address associated in char *
+      - char *ipv4_addr_expanded : the expanded ipv4 address associated in char *
 
       ex: if IPv4 address is "190.*.*.1" the IPv4 expanded address will be "BE****01" and
             the function will return 0
@@ -997,7 +997,7 @@ filter_spi_match(gchar *spi, gchar *filter)
            gcry_cipher_hd_t **cipher_hd,
            gboolean **cipher_hd_created
 
-   Description : Give Encryption Algo, Key and Authentification Algo for a Packet if a corresponding SA is available in a Security Association database
+   Description : Give Encryption Algo, Key and Authentication Algo for a Packet if a corresponding SA is available in a Security Association database
    Return: If the SA is not present, FALSE is then returned.
    Params:
       - g_esp_sa_database *sad : the Security Association Database
@@ -1083,9 +1083,9 @@ get_esp_sa(gint protocol_typ, gchar *src,  gchar *dst,  gint spi,
         *encryption_key_len = record->encryption_key_length;
       }
 
-      /* Tell the caller whether cypher_hd has been created yet and a pointer.
+      /* Tell the caller whether cipher_hd has been created yet and a pointer.
          Pass pointer to created flag so that caller can set if/when
-         it opens the cypher_hd. */
+         it opens the cipher_hd. */
       *cipher_hd = &record->cipher_hd;
       *cipher_hd_created = &record->cipher_hd_created;
     }
@@ -1224,7 +1224,7 @@ Return : void
 Params:
 - proto_tree *tree : the current tree
 - tvbuff_t *tvb : the tvbuffer
-- gint len : length of the data availabale in tvbuff
+- gint len : length of the data available in tvbuff
 - gint esp_auth_len : size of authenticator field
 - guint8 *authenticator_data_computed : give the authenticator computed (only needed when authentication_ok and !authentication_checking_ok
 - gboolean authentication_ok : set to true if the authentication checking has been run successfully

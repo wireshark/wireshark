@@ -813,7 +813,7 @@ proto_register_adb_service(void)
 
     module = prefs_register_protocol(proto_adb_service, NULL);
     prefs_register_static_text_preference(module, "version",
-            "ADB Service protocol version is compatibile pior to: adb 1.0.31",
+            "ADB Service protocol version is compatible prior to: adb 1.0.31",
             "Version of protocol supported by this dissector.");
 
     prefs_register_bool_preference(module, "framebuffer_more_details",

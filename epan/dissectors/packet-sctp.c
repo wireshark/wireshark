@@ -4899,7 +4899,7 @@ proto_register_sctp(void)
     { &hf_sctp_ack_tsn,                             { "Acknowledges TSN",                               "sctp.ack",                                             FT_UINT32, BASE_DEC, NULL,                                             0x0,                                NULL, HFILL } },
     { &hf_sctp_ack_frame,                           { "Acknowledges TSN in frame",                      "sctp.ack_frame",                                       FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_ACK),                0x0,                                NULL, HFILL } },
     { &hf_sctp_retransmitted_after_ack,             { "Chunk was acked prior to retransmission",        "sctp.retransmitted_after_ack",                         FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                NULL, HFILL } },
-    { &hf_sctp_assoc_index,                         { "Assocation index",                               "sctp.assoc_index",                                     FT_UINT16, BASE_DEC, NULL,                                             0x0,                                NULL, HFILL } }
+    { &hf_sctp_assoc_index,                         { "Association index",                              "sctp.assoc_index",                                     FT_UINT16, BASE_DEC, NULL,                                             0x0,                                NULL, HFILL } }
 
  };
 

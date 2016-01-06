@@ -1019,7 +1019,7 @@ proto_register_hartip(void)
         "Error Code", HFILL }
     },
 
-    /* HARTIP Pass-through commads. */
+    /* HARTIP Pass-through commands. */
     { &hf_hartip_pt_preambles,
       { "Preambles",           "hart_ip.pt.preambles",
         FT_BYTES, BASE_NONE, NULL, 0x0,

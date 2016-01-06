@@ -1,6 +1,6 @@
 /* packet-kink.c
  * Routines for KINK packet disassembly
- * It is referrenced draft-ietf-kink-kink-jp-04.txt,v 1.14 2003/02/10
+ * It is referenced draft-ietf-kink-kink-jp-04.txt,v 1.14 2003/02/10
  *
  * Copyright 2004, Takeshi Nakashima <T.Nakashima@jp.yokogawa.com>
  *
@@ -251,7 +251,7 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_tree_add_uint(kink_tree, hf_kink_next_payload, tvb, offset, 1, next_payload);
   offset ++;
 
-  /* A is 1bit field. The caluculation of A is shown below.
+  /* A is 1bit field. The calculation of A is shown below.
    * The logical product of 1octet value and 0x80 is performed.
    * And It is performed 7bit right shift.
    */

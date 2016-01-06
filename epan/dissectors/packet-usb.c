@@ -3465,7 +3465,7 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
      * byte order. The fields coming from the USB communication are in little
      * endian format (see usb_20.pdf, chapter 8.1 Byte/Bit ordering).
      *
-     * When a capture file is transfered to a host with different endianness
+     * When a capture file is transferred to a host with different endianness
      * than packet was captured then the necessary swapping happens in
      * wiretap/pcap-common.c, pcap_byteswap_linux_usb_pseudoheader().
      */

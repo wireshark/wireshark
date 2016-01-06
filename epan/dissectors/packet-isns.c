@@ -1,4 +1,4 @@
-/* XXX fixme   can not reassemple multiple isns PDU fragments into one
+/* XXX fixme   can not reassemble multiple isns PDU fragments into one
   isns PDU
 */
 

@@ -209,7 +209,7 @@ Cmd_TokenizeString(const char* text)
 		}
 
 		if (*text == '\n') {
-			/* a newline seperates commands in the buffer */
+			/* a newline separates commands in the buffer */
 			text++;
 			break;
 		}

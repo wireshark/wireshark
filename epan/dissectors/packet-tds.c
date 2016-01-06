@@ -105,7 +105,7 @@
  *   netlib stuff anyway, so no big loss.
  * . The older two layer version of the code dissected the PDU's, but the new
  *   version does not yet, it only labels the names. I need an elegant way to
- *   deal with dissecting data crossing (netlib and tcp) packet boundries.  I
+ *   deal with dissecting data crossing (netlib and tcp) packet boundaries.  I
  *   think I have one, but ran out of time to do it.
  * . It will only work on little endian platforms.  Or rather I should say,
  *   the client that was captured must be little endian.  TDS 7.0/8.0 is
@@ -114,7 +114,7 @@
  * . result sets that span netlib packets are not working
  * . TDS 7 and 4.2 result sets are not working yet
  *
- * All that said, the code does deal gracefully with different boudary
+ * All that said, the code does deal gracefully with different boundary
  * conditions and what remains are the easier bits, IMHO.
  *
  * XXX - "real packets" means "TCP segments", for TCP.

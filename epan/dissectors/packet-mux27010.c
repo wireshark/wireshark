@@ -1250,7 +1250,7 @@ proto_register_mux27010 (void)
             FT_UINT8, BASE_HEX, NULL, 0xFF, NULL, HFILL }},
 
         { &hf_mux27010_controlchannel_detailedvalue_response,
-          { "Resposne", "mux27010.controlchannel.value.detailedvalue.response",
+          { "Response", "mux27010.controlchannel.value.detailedvalue.response",
             FT_UINT8, BASE_DEC, VALS(detailedvalue_response_vals), 0, NULL, HFILL }},
 
         /*Test Command*/
@@ -1295,7 +1295,7 @@ proto_register_mux27010 (void)
           { "Break Signal", "mux27010.controlchannel.value.detailedvaluemscbreak",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-        /*Parameter Negotation*/
+        /*Parameter Negotiation*/
 
         { &hf_mux27010_controlchanneldetailedvaluepndlci,
           { "DLCI", "mux27010.controlchannel.value.detailedvaluepndlci",
@@ -1417,7 +1417,7 @@ proto_register_mux27010 (void)
 
     expert_module_t* expert_mux27010;
 
-    /*Register protocoll*/
+    /*Register protocol*/
     proto_mux27010 = proto_register_protocol ("MUX27010 Protocol", "MUX27010", "mux27010");
 
     /*Register arrays*/

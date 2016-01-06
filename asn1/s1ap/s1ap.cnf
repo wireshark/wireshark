@@ -319,7 +319,7 @@ tvbuff_t *parameter_tvb=NULL;
 	handover_type_value = 0;
 
 #.FN_BODY Source-ToTarget-TransparentContainer VAL_PTR = &parameter_tvb
-# I think the message is "directly encoded" into the octest string(no "double encoding")
+# I think the message is "directly encoded" into the octet string(no "double encoding")
 # (Compare RANAP)
 # Annex A
 # ...Therefore the container content is encoded according to the
@@ -381,7 +381,7 @@ tvbuff_t *parameter_tvb=NULL;
 		col_set_writable(actx->pinfo->cinfo, TRUE);
 	}
 #.FN_BODY Target-ToSource-TransparentContainer VAL_PTR = &parameter_tvb
-# I think the message is "directly encoded" into the octest string(no "double encoding")
+# I think the message is "directly encoded" into the octet string(no "double encoding")
 # See Target-ToSource-TransparentContainer in RANAP
 
  tvbuff_t *parameter_tvb;

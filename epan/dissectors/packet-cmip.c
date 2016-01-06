@@ -5871,7 +5871,7 @@ void proto_register_cmip(void) {
   register_ber_oid_dissector("2.9.3.2.7.49", dissect_ActiveDestination_PDU, proto_cmip, "activeDestination(49)");
   register_ber_oid_dissector("2.9.3.2.7.50", dissect_Allomorphs_PDU, proto_cmip, "allomorphs(50)");
   register_ber_oid_dissector("2.9.3.2.7.51", dissect_BackUpDestinationList_PDU, proto_cmip, "backUpDestinationList(51)");
-  register_ber_oid_dissector("2.9.3.2.7.52", dissect_CapacityAlarmThreshold_PDU, proto_cmip, "capacityAlarmTreshold(52)");
+  register_ber_oid_dissector("2.9.3.2.7.52", dissect_CapacityAlarmThreshold_PDU, proto_cmip, "capacityAlarmThreshold(52)");
   register_ber_oid_dissector("2.9.3.2.7.53", dissect_ConfirmedMode_PDU, proto_cmip, "confirmedMode(53)");
   register_ber_oid_dissector("2.9.3.2.7.54", dissect_CurrentLogSize_PDU, proto_cmip, "currentLogSize(54)");
   register_ber_oid_dissector("2.9.3.2.7.55", dissect_Destination_PDU, proto_cmip, "destination(55)");

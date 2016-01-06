@@ -127,7 +127,7 @@ static const value_string mpeg_sect_table_id_vals[] = {
     { TID_NIT_OTHER,   "Network Information Table (NIT), other network" },
     { TID_SDT,         "Service Description Table (SDT), current network" },
     { TID_SDT_OTHER,   "Service Description (SDT), other network" },
-    { TID_BAT,         "Bouquet Associatoin Table (BAT)" },
+    { TID_BAT,         "Bouquet Association Table (BAT)" },
     { TID_EIT,         "Event Information Table (EIT), actual TS" },
     { TID_EIT_OTHER,   "Event Information Table (EIT), other TS" },
     { TID_TDT,         "Time and Date Table (TDT)" },

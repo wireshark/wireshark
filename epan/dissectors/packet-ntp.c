@@ -145,7 +145,7 @@ static const value_string ver_nums[] = {
 	{ 0,	NULL}
 };
 
-/* Mode, 3bit field representing mode of comunication.
+/* Mode, 3bit field representing mode of communication.
  */
 #define NTP_MODE_MASK   7
 
@@ -331,7 +331,7 @@ static const true_false_string tfs_ctrl_peer_status_reach = {"reachability okay 
 
 static const value_string ctrl_peer_status_selection_types[] = {
 	{ 0,		"rejected" },
-	{ 1,		"passed sanity checks (tests 1 trough 8 in Section 3.4.3)" },
+	{ 1,		"passed sanity checks (tests 1 through 8 in Section 3.4.3)" },
 	{ 2,		"passed correctness checks (intersection algorithm in Section 4.2.1)" },
 	{ 3,		"passed candidate checks (if limit check implemented)" },
 	{ 4,		"passed outlyer checks (clustering algorithm in Section 4.2.2)" },

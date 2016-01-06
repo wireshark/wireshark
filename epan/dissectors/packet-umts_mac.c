@@ -1075,7 +1075,7 @@ static int dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 /**
 * Dissect hsdsch_common channel.
 *
-* This will dissect hsdsch common channels, we handle this seperately
+* This will dissect hsdsch common channels, we handle this separately
 * since we might have to deal with MAC-ehs and or MAC-c headers
 * (in the MAC PDU).
 *

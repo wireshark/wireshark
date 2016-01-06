@@ -38,7 +38,7 @@ enum { MSDP_SA     = 1,
        MSDP_KEEP_ALIVE,
        MSDP_NOTIFICATION,
 
-       /* Theses are only assigned in MSDP spec. Their use is specifed
+       /* These are only assigned in MSDP spec. Their use is specified
         * elsewhere */
        MSDP_TRACE_IN_PROGRESS,
        MSDP_TRACE_REPLY

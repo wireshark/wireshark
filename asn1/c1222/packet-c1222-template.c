@@ -865,7 +865,7 @@ decrypt_packet(guchar *buffer, guint32 length, gboolean decrypt)
  * Checks to make sure that a complete, valid BER-encoded length is in the buffer.
  *
  * \param tvb contains the buffer to be examined
- * \param offset is the offset within the buffer at which the BER-encded length begins
+ * \param offset is the offset within the buffer at which the BER-encoded length begins
  * \returns TRUE if a complete, valid BER-encoded length is in the buffer; otherwise FALSE
  */
 static gboolean

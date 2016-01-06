@@ -3235,7 +3235,7 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
     }
 }
 
-/* Show the calcaulted roundtrip delay info by adding protocol tree items
+/* Show the calculated roundtrip delay info by adding protocol tree items
    and appending text to the info column */
 static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                      guint frame, guint gap_between_reports,

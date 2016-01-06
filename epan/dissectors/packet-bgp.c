@@ -5144,7 +5144,7 @@ dissect_bgp_open(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 }
 
 /*
- * Heursitic for auto-detecton os ASN length 2 or 4 bytes
+ * Heuristic for auto-detection of ASN length 2 or 4 bytes
  */
 
 static guint8
@@ -5162,7 +5162,7 @@ heuristic_as2_or_4_from_as_path(tvbuff_t *tvb, gint as_path_offset, gint end_att
     /* Heuristic is done in two phases
      * First we try to identify the as length (2 or 4 bytes)
      * then we do check that our assumption is ok
-     * recalculing the offset and checking we end up with the right result
+     * recalculating the offset and checking we end up with the right result
     * k is used to navigate into the AS_PATH */
     k = as_path_offset;
     /* case of AS_PATH type being explicitly 4 bytes ASN */
@@ -5202,7 +5202,7 @@ heuristic_as2_or_4_from_as_path(tvbuff_t *tvb, gint as_path_offset, gint end_att
         *number_as_segment = counter_as_segment;
         return(bgp_asn_len);
     }
-    /* case of a empty path attribut */
+    /* case of a empty path attribute */
     if (as_path_offset == end_attr_offset)
     {
         *number_as_segment = 0;
@@ -5213,7 +5213,7 @@ heuristic_as2_or_4_from_as_path(tvbuff_t *tvb, gint as_path_offset, gint end_att
     /* we do run the heuristic on first segment and look at next segment if it exists */
     k++;
     length = tvb_get_guint8(tvb, k++);
-    /* let's do some cheking with an as length 2 bytes */
+    /* let's do some checking with an as length 2 bytes */
     offset_check = k + 2*length;
     next_type = tvb_get_guint8(tvb, offset_check);
     /* we do have one segment made of 2 bytes ASN we do reach the end of the attribute taking

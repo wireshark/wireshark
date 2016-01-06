@@ -2257,7 +2257,7 @@ dissect_opensafety_epl(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tr
         else
             epl_msgtype = OPENSAFETY_ACYCLIC_DATA;
 
-        /* We check if we have a asynchronous message, or a synchronoues message. In case of
+        /* We check if we have a asynchronous message, or a synchronous message. In case of
          * asynchronous messages, SPDO packages are not valid. */
 
         result = opensafety_package_dissector("openSAFETY/Powerlink", "",

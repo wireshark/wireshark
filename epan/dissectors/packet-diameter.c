@@ -377,7 +377,7 @@ diameterstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_
 	srt_stat_table *diameter_srt_table;
 	int* idx;
 
-    /* XXX - This is a hack/workaround support so reseting/freeing parameters at the dissector
+    /* XXX - This is a hack/workaround support so resetting/freeing parameters at the dissector
        level doesn't need to be supported. */
 	if (diameterstat_cmd_str_hash != NULL)
 	{
@@ -390,7 +390,7 @@ diameterstat_init(struct register_srt* srt _U_, GArray* srt_array, srt_gui_init_
 	g_hash_table_insert(diameterstat_cmd_str_hash, "Unknown", idx);
 
 	/** @todo the filter to use in stead of NULL is "diameter.cmd.code"
-	 * to enable the filter popup in the service response time dalouge
+	 * to enable the filter popup in the service response time dialogue
 	 * Note to make it work the command code must be stored rather than the
 	 * index.
 	 */
@@ -408,7 +408,7 @@ diameterstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 	int* idx = NULL;
 
 	/* Process only answers where corresponding request is found.
-	 * Unpaired daimeter messages are currently not supported by statistics.
+	 * Unpaired diameter messages are currently not supported by statistics.
 	 * Return 0, since redraw is not needed. */
 	if(!diameter || diameter->processing_request || !diameter->req_frame)
 		return 0;
@@ -1411,7 +1411,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	}
 
 	/* Handle requests for which no answers were found and
-	 * anawers for which no requests were found in the tap listener.
+	 * answers for which no requests were found in the tap listener.
 	 * In case if you don't need unpaired requests/answers use:
 	 * if (diameter_pair->processing_request || !diameter_pair->req_frame)
 	 *   return;
@@ -2371,7 +2371,7 @@ proto_reg_handoff_diameter(void)
 		/* AVP Code: 97 Framed-IPv6-Address */
 		dissector_add_uint("diameter.base", 97, create_dissector_handle(dissect_diameter_base_framed_ipv6_prefix, proto_diameter));
 
-		/* AVP Code: 265 Suported-Vendor-Id */
+		/* AVP Code: 265 Supported-Vendor-Id */
 		dissector_add_uint("diameter.base", 265, create_dissector_handle(dissect_diameter_vendor_id, proto_diameter));
 
 		/* AVP Code: 266 Vendor-Id */

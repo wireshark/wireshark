@@ -117,7 +117,7 @@ struct shb {
 };
 #define SECTION_HEADER_BLOCK_TYPE 0x0A0D0D0A
 
-/* Interface Decription Block without options and trailing Block Total Length */
+/* Interface Description Block without options and trailing Block Total Length */
 struct idb {
         guint32 block_type;
         guint32 block_total_length;

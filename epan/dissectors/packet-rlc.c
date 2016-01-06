@@ -521,7 +521,7 @@ static int moduloCompare(guint16 a, guint16 b, guint16 modulus)
 
 static guint16 getChannelSNModulus(struct rlc_channel * ch_lookup)
 {
-    if( RLC_UM == ch_lookup->mode){ /*FIXME: This is a very heuristic way to detemine SN bitwidth. */
+    if( RLC_UM == ch_lookup->mode){ /*FIXME: This is a very heuristic way to determine SN bitwidth. */
         return 128;
     } else {
         return 4096;
@@ -542,7 +542,7 @@ free_sequence_table_entry_data(gpointer data)
     }
 }
 
-/** Utility functions used for various comparions/cleanups in tree **/
+/** Utility functions used for various comparisons/cleanups in tree **/
 static gint
 rlc_simple_key_cmp(gconstpointer b_ptr, gconstpointer a_ptr, gpointer ignore _U_){
     if( GPOINTER_TO_INT(a_ptr) > GPOINTER_TO_INT(b_ptr) ){
@@ -1139,7 +1139,7 @@ add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
             if (frags[start] != NULL) {
                 endlist->list->data = GINT_TO_POINTER(start-1);
             }
-            /* NOTE: frags[start] is wmem_alloced and will remain until file closes, we would want to free it here maybe. */
+            /* NOTE: frags[start] is wmem_alloc'ed and will remain until file closes, we would want to free it here maybe. */
             return NULL;
         }
 
@@ -1382,7 +1382,7 @@ translate_hex_key(gchar * char_key){
 /** @brief Deciphers a given tvb
  *
  * Note that the actual KASUMI implementation needs to be placed into
- * epan/crypt/kasumi.* by "end users" since due to patents the acutal implementation
+ * epan/crypt/kasumi.* by "end users" since due to patents the actual implementation
  * cannot be distributed openly at the moment.
  *
  * Refer to 3GPP TS 35.201 and 3GPP TS 35.202 for further information.
@@ -1421,7 +1421,7 @@ rlc_decipher_tvb(tvbuff_t *tvb, packet_info *pinfo, guint32 counter, guint8 rbid
     for(i = 0; i< tvb_captured_length(tvb)-header_size; i++ ){
         out[i+header_size] = tvb_get_guint8(tvb, header_size+i);
     }
-    /*Call KASUMI confidentiality function, note that rbid is zero indxed*/
+    /*Call KASUMI confidentiality function, note that rbid is zero indexed*/
     f8( key_in, counter, rbid-1, dir, &out[header_size], (tvb_captured_length(tvb)-header_size)*8 );
 
     /*Restore header in tvb*/
@@ -1509,7 +1509,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
             /*Initializes counter*/
             counter_init[rlcinf->rbid[pos]][0] = TRUE;
             counter_init[rlcinf->rbid[pos]][1] = TRUE;
-            /*Find apropriate start value*/
+            /*Find appropriate start value*/
             g_tree_foreach(c_inf->start_ps, (GTraverseFunc)iter_same, &frame_num);
 
             /*Set COUNTER value accordingly as specified by 6.4.8 in 3GPP TS 33.102 */
@@ -1706,7 +1706,7 @@ rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             offs = 0;
             break;
         case RLC_TM:
-            /* fall trough */
+            /* fall through */
         case RLC_UNKNOWN_MODE:
         default:
             return -1;

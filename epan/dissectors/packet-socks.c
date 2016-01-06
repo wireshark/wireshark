@@ -230,7 +230,7 @@ static const value_string gssapi_command_table[] = {
 
 static const char *get_auth_method_name( guint Number){
 
-/* return the name of the authenication method */
+/* return the name of the authentication method */
 
     if ( Number == 0) return "No authentication";
     if ( Number == 1) return "GSSAPI";
@@ -931,7 +931,7 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* Call TCP dissector for the port that was passed during the           */
 /* connect process                                  */
 /* Load pointer to pinfo->XXXport depending upon the direction,     */
-/* change pinfo port to the remote port, call next dissecotr to decode  */
+/* change pinfo port to the remote port, call next dissector to decode  */
 /* the payload, and restore the pinfo port after that is done.      */
 
     guint32 *ptr;

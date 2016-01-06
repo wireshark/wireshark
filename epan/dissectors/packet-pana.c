@@ -21,7 +21,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 /* This protocol implements PANA as of the IETF RFC 5191.
- * (Note: This dissector was udated to reflect
+ * (Note: This dissector was updated to reflect
  * draft-ietf-pana-pana-18 which is a workitem of the ietf workgroup
  * internet area/pana. I believe draft-18 then became RFC 5191).
  */

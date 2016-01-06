@@ -3363,7 +3363,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         svcaction = tvb_get_ntohs(tvb, offset);
         if (cdata && cdata->itlq) {
             /* We must store the service action for this itlq
-             * so we can indentify what the data contains
+             * so we can identify what the data contains
              */
             if ((!pinfo->fd->flags.visited) || (!cdata->itlq->extra_data)) {
                 scsi_osd_extra_data_t *extra_data;

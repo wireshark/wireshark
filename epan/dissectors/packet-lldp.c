@@ -1986,7 +1986,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	}
 	case 0x04:	/* Protocol ID */
 	{
-		/* Get protocal id length */
+		/* Get protocol id length */
 		tempByte = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(tree, hf_ieee_802_1_proto_id_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -2035,7 +2035,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		proto_tree_add_item(tree, hf_ieee_8021az_feature_flag_cbs, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		tempByte = (tvb_get_guint8(tvb, offset) & 0x7);
-		/* 0 implies 8 trafffic classes supported */
+		/* 0 implies 8 traffic classes supported */
 		proto_tree_add_uint_format_value(tree, hf_ieee_8021az_maxtcs, tvb, offset, 1, tempByte, "%u (0x%X)", tempByte ? tempByte : 8, tempByte);
 
 		offset++;

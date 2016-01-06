@@ -147,7 +147,7 @@ enum {
 	DHCP_FO_PD_BINDING_STATUS,
 	DHCP_FO_PD_ASSIGNED_IP_ADDRESS,
 	DHCP_FO_PD_SENDING_SERVER_IP_ADDRESS,
-	DHCP_FO_PD_ADDRESSES_TRANSFERED,
+	DHCP_FO_PD_ADDRESSES_TRANSFERRED,
 	DHCP_FO_PD_CLIENT_IDENTIFIER,
 	DHCP_FO_PD_CLIENT_HARDWARE_ADDRESS,
 	DHCP_FO_PD_FTDDNS,
@@ -182,7 +182,7 @@ static const value_string option_code_vals[] =
 	{DHCP_FO_PD_BINDING_STATUS,			"binding-status"},
 	{DHCP_FO_PD_ASSIGNED_IP_ADDRESS,		"assigned-IP-address"},
 	{DHCP_FO_PD_SENDING_SERVER_IP_ADDRESS,		"sending-server-IP-address"},
-	{DHCP_FO_PD_ADDRESSES_TRANSFERED,		"addresses-transferred"},
+	{DHCP_FO_PD_ADDRESSES_TRANSFERRED,		"addresses-transferred"},
 	{DHCP_FO_PD_CLIENT_IDENTIFIER,			"client-identifier"},
 	{DHCP_FO_PD_CLIENT_HARDWARE_ADDRESS,		"client-hardware-address"},
 	{DHCP_FO_PD_FTDDNS,				"FTDDNS"},
@@ -549,7 +549,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			    offset, option_length, ENC_BIG_ENDIAN);
 			break;
 
-		case DHCP_FO_PD_ADDRESSES_TRANSFERED:
+		case DHCP_FO_PD_ADDRESSES_TRANSFERRED:
 			if (option_length != 4) {
 				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "addresses transferred is not 4 bytes long");
 				break;

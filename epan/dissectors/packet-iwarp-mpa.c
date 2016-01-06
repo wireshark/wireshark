@@ -254,7 +254,7 @@ get_first_marker_offset(mpa_state_t *state, struct tcpinfo *tcpinfo,
 
 /*
  * Returns the total length of this FPDU under the assumption that a TCP
- * segement carries only one FPDU.
+ * segment carries only one FPDU.
  */
 static guint32
 fpdu_total_length(struct tcpinfo *tcpinfo)
@@ -350,7 +350,7 @@ is_mpa_req(tvbuff_t *tvb, packet_info *pinfo)
 		 */
 		state = init_mpa_state();
 
-		/* anaylize MPA connection parameter and record them */
+		/* analyze MPA connection parameter and record them */
 		mcrres = tvb_get_guint8(tvb, 16);
 		state->ini_exp_m_res = mcrres & MPA_MARKER_FLAG;
 		state->crc = mcrres & MPA_CRC_FLAG;
@@ -711,7 +711,7 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * libpcap was not able to capture every packet) or lost alignment (the
 		 * MPA FPDU header does not start right after TCP header).
 		 * We consider the above to be an error since we make the assumption
-		 * that	exactly one MPA FPDU is contained in one TCP segement and starts
+		 * that	exactly one MPA FPDU is contained in one TCP segment and starts
 		 * always either with a Marker or the ULPDU_LENGTH header field.
 		 */
 		exp_ulpdu_length = expected_ulpdu_length(state, tcpinfo, endpoint);

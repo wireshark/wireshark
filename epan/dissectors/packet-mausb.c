@@ -1320,7 +1320,7 @@ static guint16 dissect_mausb_mgmt_pkt_cancel_transfer( proto_tree *tree,
 
 }
 
-/* dissects portions of a MA USB packet specific to particaular management packets */
+/* dissects portions of a MA USB packet specific to particular management packets */
 static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
         proto_tree *tree, tvbuff_t *tvb,
         packet_info *pinfo, gint16 start)

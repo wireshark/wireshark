@@ -144,7 +144,7 @@ typedef enum {
   MIP_NATT_TUNNEL_DATA = 4,
   MIP_REGISTRATION_REVOCATION = 7,
   MIP_REGISTRATION_REVOCATION_ACK = 15,
-  MIP_HANDOFF_REQEST = 16,
+  MIP_HANDOFF_REQUEST = 16,
   MIP_HANDOFF_REPLY = 17,
   MIP_REGIONAL_REG_REQ = 18,
   MIP_REGIONAL_REG_REP = 19,
@@ -159,7 +159,7 @@ static const value_string mip_types[] = {
   {MIP_NATT_TUNNEL_DATA,                "NAT Traversal Tunnel Data"},
   {MIP_REGISTRATION_REVOCATION,         "Registration Revocation"},
   {MIP_REGISTRATION_REVOCATION_ACK,     "Registration Revocation Acknowledgement"},
-  {MIP_HANDOFF_REQEST,                  "NAT Traversal Tunnel Data"},
+  {MIP_HANDOFF_REQUEST,                 "NAT Traversal Tunnel Data"},
   {MIP_HANDOFF_REPLY,                   "NAT Traversal Tunnel Data"},
   {MIP_REGIONAL_REG_REQ,                "NAT Traversal Tunnel Data"},
   {MIP_REGIONAL_REG_REP,                "NAT Traversal Tunnel Data"},
@@ -463,7 +463,7 @@ dissect_mip_priv_ext_3gpp2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
   offset+=2;
 
   switch(type){
-  case 16: /* PPP Link Indicato  X.S0011-003-C v1.0 */
+  case 16: /* PPP Link Indicator  X.S0011-003-C v1.0 */
     proto_tree_add_item(tree, hf_mip_nvse_3gpp2_type16_value, tvb, offset, 2, ENC_BIG_ENDIAN);
     break;
   case 17: /* DNS server IP address X.S0011-002-C v3.0*/

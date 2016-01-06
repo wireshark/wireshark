@@ -1358,7 +1358,7 @@ static const value_string ndps_error_types[] = {
     { 0xFFFFFB47, "Notify Unknown Session" },
     { 0xFFFFFB48, "Notify No Attribute Values" },
     { 0xFFFFFB49, "Notify DS Value Size Too Large" },
-    { 0xFFFFFB4A, "Notify Service Name Must be Fully Distiguished" },
+    { 0xFFFFFB4A, "Notify Service Name Must be Fully Distinguished" },
     { 0xFFFFFB4B, "Notify Failed Login" },
     { 0xFFFFFB4C, "Notify Failed to Create Context" },
     { 0xFFFFFB4D, "Notify Failed to Get Messages" },
@@ -1937,7 +1937,7 @@ static const value_string ndps_error_types[] = {
     { 0xffffff67, "(-153) Directory Full" },
     { 0xffffff68, "(-152) Invalid Volume" },
     { 0xffffff69, "(-151) No Spool Space" },
-    { 0xffffff6a, "(-150) No Alloc Space/Target Not a Subdirectory/Insuffficient Memory" },
+    { 0xffffff6a, "(-150) No Alloc Space/Target Not a Subdirectory/Insufficient Memory" },
     { 0xffffff6b, "(-149) File Detached" },
     { 0xffffff6c, "(-148) No Write Privilege" },
     { 0xffffff6d, "(-147) No Read Privilege" },
@@ -4289,7 +4289,7 @@ dissect_ndps_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
  *
  * SPX EOM not being set indicates we are inside or at the
  * beginning of a fragment. But when the end of the fragment
- * is encounterd the flag is set. So we must mark what the
+ * is encountered the flag is set. So we must mark what the
  * frame number is of the end fragment so that we will be
  * able to redissect if the user clicks on the packet
  * or resorts/filters the trace.
@@ -4393,7 +4393,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, spx_info *spx_i
                 }
                 else
                 {
-                    /* This is either a beggining or middle fragment on second dissection */
+                    /* This is either a beginning or middle fragment on second dissection */
                     next_tvb = tvb_new_subset_remaining(tvb, 0);
                     if (!spx_info_p->eom)
                     {

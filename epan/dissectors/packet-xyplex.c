@@ -107,7 +107,7 @@ dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     offset += 8;
 
     /* Look for all future TCP conversations between the
-     * requestiong server and the Xyplex host using the
+     * requesting server and the Xyplex host using the
      * return_port.
      */
     conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -141,7 +141,7 @@ dissect_xyplex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
   /*
    * This must be the TCP data stream.  This will just be
-   * the raw data being transfered from the remote server
+   * the raw data being transferred from the remote server
    * and the Xyplex serial port.
    */
   col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d Data",

@@ -296,7 +296,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             if (tree) {
                 my_pt = proto_tree_add_double(ppi_sensor_tree, hf_ppi_sensor_val_x, tvb, offset, 4, c_val);
                 proto_item_append_text (my_pt, " %s", unit_str);
-                curr_native_val = c_val * base_10_expt(scalefactor); /* this will almost always be eqaul to the original val */
+                curr_native_val = c_val * base_10_expt(scalefactor); /* this will almost always be equal to the original val */
                 proto_item_set_text(sensor_line, "Sensor: %s %f %s", type_str, curr_native_val, unit_str);
             }
             offset+=4;
@@ -310,7 +310,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             if (tree) {
                 my_pt = proto_tree_add_double(ppi_sensor_tree, hf_ppi_sensor_val_y, tvb, offset, 4, c_val);
                 proto_item_append_text (my_pt, " %s", unit_str);
-                curr_native_val = c_val * base_10_expt(scalefactor); /* this will almost always be eqaul to the original val */
+                curr_native_val = c_val * base_10_expt(scalefactor); /* this will almost always be equal to the original val */
                 proto_item_set_text(sensor_line, "Sensor: %s %f %s", type_str, curr_native_val, unit_str);
 
             }
@@ -325,7 +325,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             if (tree) {
                 my_pt = proto_tree_add_double(ppi_sensor_tree, hf_ppi_sensor_val_z, tvb, offset, 4, c_val);
                 proto_item_append_text (my_pt, " %s", unit_str);
-                curr_native_val = c_val * base_10_expt(scalefactor); /* this will almost always be eqaul to the original val */
+                curr_native_val = c_val * base_10_expt(scalefactor); /* this will almost always be equal to the original val */
                 proto_item_set_text(sensor_line, "Sensor: %s %f %s", type_str, curr_native_val, unit_str);
             }
             offset+=4;
@@ -339,7 +339,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             if (tree) {
                 my_pt = proto_tree_add_double(ppi_sensor_tree, hf_ppi_sensor_val_t, tvb, offset, 4, c_val);
                 proto_item_append_text (my_pt, " %s", unit_str);
-                curr_native_val = c_val * base_10_expt(scalefactor); /* this will almost always be eqaul to the original val */
+                curr_native_val = c_val * base_10_expt(scalefactor); /* this will almost always be equal to the original val */
                 proto_item_set_text(sensor_line, "Sensor: %s %f %s", type_str, curr_native_val, unit_str);
             }
             offset+=4;

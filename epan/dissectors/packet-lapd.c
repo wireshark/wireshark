@@ -169,7 +169,7 @@ typedef struct lapd_byte_state {
 
 typedef struct lapd_ppi {
 	gboolean		has_crc; 		/* CRC is captured with LAPD the frames */
-	lapd_byte_state_t	start_byte_state; 	/* LAPD bitstream byte state at the beginnigng of processing the packet */
+	lapd_byte_state_t	start_byte_state; 	/* LAPD bitstream byte state at the beginning of processing the packet */
 } lapd_ppi_t;
 
 /* Fill values in lapd_byte_state struct */

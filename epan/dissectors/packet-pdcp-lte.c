@@ -509,7 +509,7 @@ static guint pdcp_result_hash_func(gconstpointer v)
 }
 
 /* pdcp_channel_hash_key fits into the pointer, so just copy the value into
-   a guint, cast to apointer and return that as the key */
+   a guint, cast to a pointer and return that as the key */
 static gpointer get_channel_hash_key(pdcp_channel_hash_key *key)
 {
     guint  asInt = 0;

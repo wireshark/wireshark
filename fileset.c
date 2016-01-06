@@ -254,7 +254,7 @@ void fileset_update_dlg(void *window)
     GList         *le;
 
 
-    /* add all entires to the dialog */
+    /* add all entries to the dialog */
     le = g_list_first(set.entries);
     while(le) {
         fileset_dlg_add_file((fileset_entry *)le->data, window);
@@ -327,7 +327,7 @@ fileset_get_current(void)
     fileset_entry *entry;
 
 
-    /* add all entires to the dialog */
+    /* add all entries to the dialog */
     le = g_list_first(set.entries);
     while(le) {
         entry = (fileset_entry *)le->data;

@@ -875,7 +875,7 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
                         /* "hi" component by 16-bits and then OR them together into a combined 32-bit int.           */
                         /* Following that operation, use some memcpy magic to copy the 4 raw data bytes from the     */
                         /* 32-bit integer into a standard float.  Not sure if there is a cleaner way possible using  */
-                        /* the Wireshark libaries, but this seems to work OK.                                        */
+                        /* the Wireshark libraries, but this seems to work OK.                                        */
 
                         modflt_lo = tvb_get_ntohs(next_tvb, data_offset);
                         modflt_hi = tvb_get_ntohs(next_tvb, data_offset+2);

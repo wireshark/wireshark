@@ -74,7 +74,7 @@ static dissector_handle_t data_handle;
 static dissector_table_t  encap_dissector_table;
 
 /* ************************************************************************* */
-/*                WLAN radio header felds                                    */
+/*                WLAN radio header fields                                    */
 /* ************************************************************************* */
 
 static int hf_option_tag = -1;
@@ -545,7 +545,7 @@ proto_reg_handoff_tzsp(void)
     /* Get the data dissector for handling unknown encapsulation types. */
     data_handle = find_dissector("data");
 
-    /* Register this protocol as an ecapsulation type. */
+    /* Register this protocol as an encapsulation type. */
     dissector_add_uint("wtap_encap", WTAP_ENCAP_TZSP, tzsp_handle);
 
     encap_dissector_table = find_dissector_table("wtap_encap");

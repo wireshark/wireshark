@@ -1722,7 +1722,7 @@ dissector_add_for_decode_as(const char *name, dissector_handle_t handle)
 	}
 
 	/* Ensure the protocol is unique.  This prevents confusion when using Decode As
-	   with duplicative entires */
+	   with duplicative entries */
 	if (sub_dissectors->allow_dup_proto == DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE)
 	{
 		for (entry = sub_dissectors->dissector_handles; entry != NULL; entry = g_slist_next(entry))

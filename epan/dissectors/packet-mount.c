@@ -123,7 +123,7 @@ static const value_string mount3_mountstat3[] =
  * Formally, hf_mount3_status only define the status codes returned by version
  * 3 of the protocol.
  * Though not formally defined in the standard, we use the same
- * value-to-string mappings as version 3 since we belive that this mapping
+ * value-to-string mappings as version 3 since we believe that this mapping
  * is consistant with most v1 and v2 implementations.
  */
 static int

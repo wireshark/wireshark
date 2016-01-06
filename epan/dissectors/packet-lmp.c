@@ -1625,7 +1625,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                        (l & 0x02) ? "Line/MS Overhead Transparency " : "",
                                        (l & 0x04) ? "Section/RS Overhead Transparency " : "");
 
-                /* Contiguous Concatentation Types */
+                /* Contiguous Concatenation Types */
                 proto_tree_add_bitmask(lmp_object_tree, tvb, offset2+3, hf_lmp_filter[LMPF_VAL_SERVICE_CONFIG_CPSA_CCT_FLAGS], lmp_subtree[LMP_TREE_SERVICE_CONFIG_CPSA_CCT_FLAGS], cct_flags, ENC_NA);
 
                 /* Min and Max NCC */
@@ -2349,7 +2349,7 @@ proto_register_lmp(void)
          { "Summary - Unacceptable non-negotiable parameters", "lmp.error.summary_bad_params",
            FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
         {&hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_RENEGOTIATE],
-         { "Summary - Renegotiate Parametere", "lmp.error.summary_renegotiate",
+         { "Summary - Renegotiate Parameter", "lmp.error.summary_renegotiate",
            FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
         {&hf_lmp_filter[LMPF_VAL_ERROR_SUMMARY_BAD_TE_LINK],
          { "Summary - Bad TE Link Object", "lmp.error.summary_bad_te_link",

@@ -309,7 +309,7 @@ dissect_mmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 dissect_mmrp_common2(vect_attr_tree, tvb, msg_offset + vect_offset);
 
                 if (attribute_type == MMRP_ATTRIBUTE_TYPE_MAC) {
-                    /* MMRP FirstValue is a Mac Adress*/
+                    /* MMRP FirstValue is a Mac Address*/
                     proto_tree_add_item(vect_attr_tree, hf_mmrp_first_value, tvb,
                                         MMRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + vect_offset,
                                         attribute_length, ENC_NA);
@@ -320,7 +320,7 @@ dissect_mmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
                 }
                 else if (attribute_type == MMRP_ATTRIBUTE_TYPE_SERVICE) {
-                    /* MMRP Service Requierment*/
+                    /* MMRP Service Requirement*/
                     proto_tree_add_item(vect_attr_tree, hf_mmrp_first_value, tvb,
                                         MMRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + vect_offset,
                                         attribute_length, ENC_NA);

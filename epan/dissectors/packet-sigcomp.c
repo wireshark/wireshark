@@ -1121,7 +1121,7 @@ static void udvm_state_create(guint8 *state_buff,guint8 *state_identifier,guint1
     if ( dummy_buff == NULL ) {
         g_hash_table_insert(state_buffer_table, g_strdup(partial_state_str), state_buff);
     } else {
-        /* The buffer allocated by sigcomp-udvm.c wasen't needed so free it
+        /* The buffer allocated by sigcomp-udvm.c wasn't needed so free it
          */
         g_free(state_buff);
 
@@ -1670,7 +1670,7 @@ decomp_dispatch_get_bits(
     }
 
     /*
-     * Check we can suppy the required number of bits now, before we alter
+     * Check we can supply the required number of bits now, before we alter
      * the input buffer's state.
      */
     if (*remaining_bits + extra_bytes_available * 8 < length)
@@ -3084,7 +3084,7 @@ execute_next_instruction:
                                 current_address, addr, length, start_value, multy_offset);
         }
         current_address = next_operand_address;
-        /* exetute the instruction
+        /* execute the instruction
          * The sequence of values used by the MEMSET instruction is specified by
          * the following formula:
          *
@@ -4304,7 +4304,7 @@ execute_next_instruction:
                                 "Addr: %u ## END-MESSAGE (requested_feedback_location=%u, returned_parameters_location=%u, state_length=%u, state_address=%u, state_instruction=%u, minimum_access_length=%u, state_retention_priority=%u)",
                                 current_address, requested_feedback_location, returned_parameters_location, state_length, state_address, state_instruction, minimum_access_length,state_retention_priority);
         }
-        /* TODO: This isn't currently totaly correct as END_INSTRUCTION might not create state */
+        /* TODO: This isn't currently totally correct as END_INSTRUCTION might not create state */
         no_of_state_create++;
         if ( no_of_state_create > 4 ) {
             result_code = 12;

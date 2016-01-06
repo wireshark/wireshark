@@ -1515,7 +1515,7 @@ finished_fwd:
             goto finished_checking_retransmission_type;
         }
 
-        /* If the segment came relativly close since the segment with the highest
+        /* If the segment came relatively close since the segment with the highest
          * seen sequence number and it doesn't look like a retransmission
          * then it is an OUT-OF-ORDER segment.
          */
@@ -1556,7 +1556,7 @@ finished_checking_retransmission_type:
     nextseq = seq+seglen;
     if ((seglen || flags&(TH_SYN|TH_FIN)) && tcpd->fwd->segment_count < TCP_MAX_UNACKED_SEGMENTS) {
         /* Add this new sequence number to the fwd list.  But only if there
-	 * aren't "too many" unacked segements (e.g., we're not seeing the ACKs).
+	 * aren't "too many" unacked segments (e.g., we're not seeing the ACKs).
 	 */
         ual = wmem_new(wmem_file_scope(), tcp_unacked_t);
         ual->next=tcpd->fwd->segments;
@@ -2191,7 +2191,7 @@ again:
         }
 
         /* The above code only finds retransmission if the PDU boundaries and the seq coinside I think
-         * If we have sequience analysis active use the TCP_A_RETRANSMISSION flag.
+         * If we have sequence analysis active use the TCP_A_RETRANSMISSION flag.
          * XXXX Could the above code be improved?
          */
         if((tcpd->ta) && ((tcpd->ta->flags&TCP_A_RETRANSMISSION) == TCP_A_RETRANSMISSION)){

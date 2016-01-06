@@ -1877,7 +1877,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
 
 
 /*
- * Scan trough all frame data and recalculate the ref time
+ * Scan through all frame data and recalculate the ref time
  * without rereading the file.
  * XXX - do we need a progres bar or is this fast enough?
  */

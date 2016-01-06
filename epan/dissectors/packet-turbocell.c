@@ -160,7 +160,7 @@ dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     if (remaining_length > 6) {
 
         /* If the first character is a printable character that means we have a payload with network info */
-        /* I couldn't find anything in the header that would definitvely indicate if payload is either data or network info */
+        /* I couldn't find anything in the header that would definitively indicate if payload is either data or network info */
         /* Since the frame size is limited this should work ok */
 
         if (tvb_get_guint8(tvb, 0x14)>=0x20){

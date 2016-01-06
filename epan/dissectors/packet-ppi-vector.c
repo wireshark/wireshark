@@ -126,7 +126,7 @@ enum ppi_vector_type {
 #define PPI_VECTOR_MASK_EXT         0x80000000  /* 31 */
 
 /*  There are currently only three vector flags.
- *  These control the units/interpreration of a vector
+ *  These control the units/interpretation of a vector
  */
 #define PPI_VECTOR_VFLAGS_DEFINES_FORWARD   0x00000001
 
@@ -269,7 +269,7 @@ static expert_field ei_ppi_vector_present_bit = EI_INIT;
 static expert_field ei_ppi_vector_length = EI_INIT;
 
 
-/* We want to abbreviate this field into a single line. Does so without any string maniuplation */
+/* We want to abbreviate this field into a single line. Does so without any string manipulation */
 static void
 annotate_vector_chars(guint32 chars, proto_tree *my_pt)
 {
@@ -734,7 +734,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, packet_info *pinfo, int offset, gint length
          relativeto_str = " RelativeTo: Forward";
     }
    /*
-    * vchars is another field that we want to pre-process simillar to vflags and for the same reasons.
+    * vchars is another field that we want to pre-process similar to vflags and for the same reasons.
     * we perform separate length checks depending on if vector_flags is present (which would precede vector_chars)
     */
     if      ( ( (present & PPI_VECTOR_MASK_VFLAGS)) && (present & PPI_VECTOR_MASK_VCHARS) && length_remaining >= 8)
@@ -1045,7 +1045,7 @@ proto_register_ppi_vector(void)
             "Specifies if the Vector flags bitfield is present", HFILL } },
 
         { &hf_ppi_vector_present_vchars,
-          { "Vector chararacteristics", "ppi_vector.present.chars",
+          { "Vector characteristics", "ppi_vector.present.chars",
             FT_BOOLEAN, 32, NULL, PPI_VECTOR_MASK_VCHARS,
             "Specifies if the Vector chars  bitfield is present", HFILL } },
 

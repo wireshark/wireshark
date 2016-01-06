@@ -1982,7 +1982,7 @@ dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, prot
 
 /*
  * Dissect GlusterFS/NFS NFSv3 File Handle - glusterfs-3.3+
- * The filehandle is alway 32 bytes and first 4 bytes of ident ":OGL"
+ * The filehandle is always 32 bytes and first 4 bytes of ident ":OGL"
  */
 static int
 dissect_fhandle_data_GLUSTER(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)

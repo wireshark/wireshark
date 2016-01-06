@@ -1784,7 +1784,7 @@ index_get_field_name(const per_sequence_t *sequence, int idx)
 /* this functions decodes a SEQUENCE
    it can only handle SEQUENCES with at most 32 DEFAULT or OPTIONAL fields
 18.1 extension bit
-18.2 optinal/default items in root
+18.2 optional/default items in root
 18.3 we ignore the case where n>64K
 18.4 the root sequence
 	   18.5
@@ -2216,7 +2216,7 @@ guint32 dissect_per_bit_string_containing_pdu_new(tvbuff_t *tvb, guint32 offset,
 	return offset;
 }
 
-/* this fucntion dissects an OCTET STRING
+/* this function dissects an OCTET STRING
 	16.1
 	16.2
 	16.3

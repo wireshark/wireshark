@@ -334,7 +334,7 @@ static const value_string item_syntaxid_names[] = {
  */
 #define S7COMM_DATA_TRANSPORT_SIZE_NULL     0
 #define S7COMM_DATA_TRANSPORT_SIZE_BBIT     3           /* bit access, len is in bits */
-#define S7COMM_DATA_TRANSPORT_SIZE_BBYTE    4           /* byte/word/dword acces, len is in bits */
+#define S7COMM_DATA_TRANSPORT_SIZE_BBYTE    4           /* byte/word/dword access, len is in bits */
 #define S7COMM_DATA_TRANSPORT_SIZE_BINT     5           /* integer access, len is in bits */
 #define S7COMM_DATA_TRANSPORT_SIZE_BDINT    6           /* integer access, len is in bytes */
 #define S7COMM_DATA_TRANSPORT_SIZE_BREAL    7           /* real access, len is in bytes */
@@ -470,7 +470,7 @@ static const value_string userdata_lastdataunit_names[] = {
 #define S7COMM_UD_FUNCGROUP_CYCLIC          0x2
 #define S7COMM_UD_FUNCGROUP_BLOCK           0x3
 #define S7COMM_UD_FUNCGROUP_CPU             0x4
-#define S7COMM_UD_FUNCGROUP_SEC             0x5                     /* Security funnctions e.g. plc password */
+#define S7COMM_UD_FUNCGROUP_SEC             0x5                     /* Security functions e.g. plc password */
 #define S7COMM_UD_FUNCGROUP_PBC             0x6                     /* PBC = Programmable Block Communication (PBK in german) */
 #define S7COMM_UD_FUNCGROUP_TIME            0x7
 
@@ -579,7 +579,7 @@ static const value_string userdata_prog_subfunc_names[] = {
 
 static const value_string userdata_cyclic_subfunc_names[] = {
     { S7COMM_UD_SUBF_CYCLIC_MEM,            "Memory" },                         /* read data from memory (DB/M/etc.) */
-    { S7COMM_UD_SUBF_CYCLIC_UNSUBSCRIBE,    "Unsubscribe" },                    /* Unsubcribe (disable) cyclic data */
+    { S7COMM_UD_SUBF_CYCLIC_UNSUBSCRIBE,    "Unsubscribe" },                    /* Unsubscribe (disable) cyclic data */
     { 0,                                    NULL }
 };
 
@@ -1802,7 +1802,7 @@ static const char mon_names[][4] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "
 /*******************************************************************************************************
  *
  * Converts a siemens special timestamp to a string of 25+1 bytes length (e.g. "Apr 15, 2009 12:49:30.520").
- * The timestamp is 6 bytes long, one word is the number of days since 1.1.1984, and 4 bytes millisecods of the day
+ * The timestamp is 6 bytes long, one word is the number of days since 1.1.1984, and 4 bytes milliseconds of the day
  *
  *******************************************************************************************************/
 static void
@@ -3690,7 +3690,7 @@ s7comm_decode_ud(tvbuff_t *tvb,
     param_tree = proto_item_add_subtree(item, ett_s7comm_param);
 
     /* Try do decode some functions...
-     * Some functions may use data that does't fit one telegram
+     * Some functions may use data that doesn't fit one telegram
      */
     offset_temp = offset;   /* Save offset */
     /* 3 bytes constant head */
@@ -4067,7 +4067,7 @@ dissect_s7comm(tvbuff_t *tvb,
     /* Show pdu type beside the header tree */
     proto_item_append_text(s7comm_header_tree, ": (%s)", val_to_str(rosctr, rosctr_names, "Unknown ROSCTR: 0x%02x"));
     offset += 1;
-    /* Redundacy ID, reserved */
+    /* Redundancy ID, reserved */
     proto_tree_add_item(s7comm_header_tree, hf_s7comm_header_redid, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     /* Protocol Data Unit Reference */

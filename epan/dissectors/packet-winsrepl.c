@@ -428,7 +428,7 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	/* ALIGN to 4 Byte */
 	/* winsrepl_offset += ((winsrepl_offset & (4-1)) == 0 ? 0 : (4 - (winsrepl_offset & (4-1)))); */
 	/* Windows including w2k8 add 4 padding bytes, when it's already 4 byte
-	 * alligned... This happens when the name has a "scope" part
+	 * aligned... This happens when the name has a "scope" part
 	 */
 	winsrepl_offset += 4 - (winsrepl_offset & (4-1));
 
@@ -550,7 +550,7 @@ dissect_winsrepl_replication(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	repl_tree = proto_tree_add_subtree(winsrepl_tree, winsrepl_tvb, winsrepl_offset, -1,
 							ett_winsrepl_replication, &repl_item, "WREPL_REPLICATION");
 
-	/* REPLIICATION_CMD */
+	/* REPLICATION_CMD */
 	command = (enum wrepl_replication_cmd)tvb_get_ntohl(winsrepl_tvb, winsrepl_offset);
 	proto_tree_add_uint(repl_tree, hf_winsrepl_replication_command, winsrepl_tvb, winsrepl_offset, 4, command);
 	winsrepl_offset += 4;

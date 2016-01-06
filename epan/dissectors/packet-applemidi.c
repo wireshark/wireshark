@@ -241,7 +241,7 @@ test_applemidi(tvbuff_t *tvb, guint16 *command_p, gboolean conversation_establis
 
 	/* If the conversation is establised (one prior packet with a valid known command)
 	 * we won't check the commands anymore - this way we still show new commands
-	 * Apple might introduct as "unknown" instead of punting to RTP-dissector */
+	 * Apple might introduce as "unknown" instead of punting to RTP-dissector */
 	if ( conversation_established ) {
 		return TRUE;
 	}

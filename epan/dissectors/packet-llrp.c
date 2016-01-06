@@ -640,7 +640,7 @@ static const value_string tlv_type[] = {
     { LLRP_TLV_C1G2_INVENTORY_COMMAND,  "C1G2 Inventory Command"                         },
     { LLRP_TLV_C1G2_FILTER,             "C1G2 Filter"                                    },
     { LLRP_TLV_C1G2_TAG_INV_MASK,       "C1G2 Tag Inventory Mask"                        },
-    { LLRP_TLV_C1G2_TAG_INV_AWARE_FLTR, "C1G2 Tag Inventory State-Aware Filtre Action"   },
+    { LLRP_TLV_C1G2_TAG_INV_AWARE_FLTR, "C1G2 Tag Inventory State-Aware Filter Action"   },
     { LLRP_TLV_C1G2_TAG_INV_UNAWR_FLTR, "C1G2 Tag Inventory State-Unaware Filter Action" },
     { LLRP_TLV_C1G2_RF_CONTROL,         "C1G2 RF Control"                                },
     { LLRP_TLV_C1G2_SINGULATION_CTRL,   "C1G2 Singulation Control"                       },

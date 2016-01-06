@@ -126,7 +126,7 @@ static void dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #define MM_CONTENT_HDR          0xAE    /* Content                      */
 #define MM_START_HDR            0xAF    /* X-Mms-Start                  */
 #define MM_ADDITIONAL_HDR       0xB0    /* Additional-headers           */
-#define MM_DISTRIBUION_IND_HDR  0xB1    /* X-Mms-Distribution-Indcator  */
+#define MM_DISTRIBUION_IND_HDR  0xB1    /* X-Mms-Distribution-Indicator */
 #define MM_ELEMENT_DESCR_HDR    0xB2    /* X-Mms-Element-Descriptor     */
 #define MM_LIMIT_HDR            0xB3    /* X-Mms-Limit                  */
 

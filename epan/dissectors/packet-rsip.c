@@ -141,7 +141,7 @@ static const value_string addr_type_vals[] = {
 	{ 1,	"IPv4" },
 	{ 2,	"IPv4 Netmask" },
 	{ 3,	"IPv6" },
-	{ 4,	"Fully Qualified Doman Name" },
+	{ 4,	"Fully Qualified Domain Name" },
 	{ 0,	NULL }
 };
 
@@ -800,7 +800,7 @@ rsip_message_query_request(tvbuff_t *tvb, proto_tree *rsip_tree,
 	   <Address Tuple> ::= <Indicator (address)>
 	                       <Address>
 
-	   <Netwrok Tuple> ::= <Indicator (network)>
+	   <Network Tuple> ::= <Indicator (network)>
 	                       <Address (network)>
 	                       <Address (netmask)>
 	*/

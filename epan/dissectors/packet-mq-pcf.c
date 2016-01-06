@@ -694,14 +694,14 @@ void proto_register_mqpcf(void)
 
     mq_pcf_module = prefs_register_protocol(proto_mqpcf, NULL);
     prefs_register_uint_preference(mq_pcf_module, "maxprm",
-        "Set the maximun number of parameter in the PCF to decode",
+        "Set the maximum number of parameters in the PCF to decode",
         "When dissecting PCF there can be a lot of parameters."
         " You can limit the number of parameter decoded, before it continue with the next PCF.",
         10, &mq_pcf_maxprm);
     prefs_register_uint_preference(mq_pcf_module, "maxlst",
-        "Set the maximun number of Parameter List that are displayed",
+        "Set the maximum number of Parameter List that are displayed",
         "When dissecting a parameter of a PCFm, if it is a StringList, IntegerList or Integer64 List, "
-        " You can limit the number of element displayed, before it continue with the next Parameter.",
+        " You can limit the number of elements displayed, before it continues with the next Parameter.",
         10, &mq_pcf_maxlst);
 
 }

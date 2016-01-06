@@ -344,12 +344,12 @@ void proto_reg_handoff_zep(void)
     if ( !inited) {
         dissector_handle_t h;
         /* Get dissector handles. */
-        if ( !(h = find_dissector("wpan")) ) { /* Try use built-in 802.15.4 disector */
-            h = find_dissector("ieee802154");  /* otherwise use older 802.15.4 plugin disector */
+        if ( !(h = find_dissector("wpan")) ) { /* Try use built-in 802.15.4 dissector */
+            h = find_dissector("ieee802154");  /* otherwise use older 802.15.4 plugin dissector */
         }
         ieee802154_handle = h;
-        if ( !(h = find_dissector("wpan_cc24xx")) ) { /* Try use built-in 802.15.4 (Chipcon) disector */
-            h = find_dissector("ieee802154_ccfcs");   /* otherwise use older 802.15.4 (Chipcon) plugin disector */
+        if ( !(h = find_dissector("wpan_cc24xx")) ) { /* Try use built-in 802.15.4 (Chipcon) dissector */
+            h = find_dissector("ieee802154_ccfcs");   /* otherwise use older 802.15.4 (Chipcon) plugin dissector */
         }
         ieee802154_ccfcs_handle = h;
         data_handle = find_dissector("data");

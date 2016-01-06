@@ -1673,7 +1673,7 @@ dissect_exteap_wps(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     col_append_str(pinfo->cinfo, COL_INFO, ", WPS");
 
 
-  /* Flag field, if msg-len flag set, add approriate field  */
+  /* Flag field, if msg-len flag set, add appropriate field  */
   flags = tvb_get_guint8(tvb,offset);
   pi = proto_tree_add_item(eap_tree, hf_eapwps_flags,      tvb, offset, 1, ENC_BIG_ENDIAN);
   pt = proto_item_add_subtree(pi, ett_eap_wps_flags);

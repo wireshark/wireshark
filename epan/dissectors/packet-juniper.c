@@ -596,7 +596,7 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (!dissector_try_uint(payload_table, proto, next_tvb, pinfo, tree))
     {
       /* XXX - left in for posterity, dissection was never done */
-      /* case JUNIPER_PROTO_OAM: FIXME call OAM disector without leading HEC byte */
+      /* case JUNIPER_PROTO_OAM: FIXME call OAM dissector without leading HEC byte */
 
       call_dissector(data_handle, next_tvb, pinfo, tree);
     }

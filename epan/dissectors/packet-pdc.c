@@ -372,7 +372,7 @@ static int dissect_pdc_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 	default:
 		break;
 	};
-	return (length);  /* XXX: returned length ignored by caller: Remove keeping track of data rocessed ?         */
+	return (length);  /* XXX: returned length ignored by caller: Remove keeping track of data processed ?         */
 			  /*      col_set_str() could then be done separately with 'if (tree)' around the dissection */
 }
 

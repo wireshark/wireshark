@@ -1004,7 +1004,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
             proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_mu_mimo_flg,
                 tvb, offset, 1, vht_mu_mimo_flg, "VHT MU MIMO: %u ",vht_mu_mimo_flg);
 
-            /*** extract user Postiion in case of mu-mimo ***/
+            /*** extract user Position in case of mu-mimo ***/
             vht_user_pos = (vht_user_pos & 0x03);
             proto_tree_add_uint_format(tap_tree, hf_radiotap_vht_user_pos,
                 tvb, offset, 1, vht_user_pos, "VHT User Pos: %u ",vht_user_pos);

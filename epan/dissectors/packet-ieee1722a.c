@@ -252,7 +252,7 @@ static int dissect_1722a (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         ieee1722a_tree = proto_item_add_subtree(ti, ett_1722a);
     }
 
-    /* Version field ends the common AVTPDU. Now parse the specfic packet type */
+    /* Version field ends the common AVTPDU. Now parse the specific packet type */
     subtype = tvb_get_guint8(tvb, IEEE_1722A_CD_OFFSET);
     subtype &= IEEE_1722A_SUBTYPE_MASK;
 

@@ -30,7 +30,7 @@
 typedef struct _media_packet_info_t {
     nstime_t  abs_ts;
     nstime_t  first_abs_ts;
-    gdouble   cummulative_frame_duration;
+    gdouble   cumulative_frame_duration;
     gdouble   avrcp_song_position;
     guint32   stream_number;
 } media_packet_info_t;

@@ -168,7 +168,7 @@ static header_field_info hfi_mint_data_vlan MINT_HF_INIT =
 		0x0, NULL, HFILL };
 
 static header_field_info hfi_mint_data_seqno MINT_HF_INIT =
-	{ "Seqence Number",	"mint.data.seqno", FT_UINT32, BASE_DEC, NULL,
+	{ "Sequence Number",	"mint.data.seqno", FT_UINT32, BASE_DEC, NULL,
 		0x0, NULL, HFILL };
 
 static header_field_info hfi_mint_data_unknown1 MINT_HF_INIT =

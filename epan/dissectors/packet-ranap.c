@@ -60,7 +60,7 @@
 #define PSNAME "RANAP"
 #define PFNAME "ranap"
 
-/* Higest Ranap_ProcedureCode_value, use in heuristics */
+/* Highest Ranap_ProcedureCode_value, use in heuristics */
 #define RANAP_MAX_PC  45 /* id_RANAPenhancedRelocation =  45 */
 
 

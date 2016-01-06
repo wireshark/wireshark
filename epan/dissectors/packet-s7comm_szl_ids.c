@@ -146,7 +146,7 @@ static const value_string szl_id_partlist_ex_names[] = {
     { 0x0781,                               "Startup information of all OBs of one priority class before processing" },
     { 0x0782,                               "Startup events of all OBs of one priority class before processing" },
     { 0x07a0,                               "All entries of the test and installation function" },
-    { 0x0822,                               "Data records of all interrupts of one class and for which the ccorresponding interrupt OB is loaded, class specified by index" },
+    { 0x0822,                               "Data records of all interrupts of one class and for which the corresponding interrupt OB is loaded, class specified by index" },
     { 0x0881,                               "Startup information of all OBs before processing" },
     { 0x0882,                               "Startup events of all OBs before processing" },
     { 0x08a0,                               "All entries due to operating statuses" },

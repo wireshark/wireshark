@@ -1024,7 +1024,7 @@ dissect_zbee_nwk_leave(tvbuff_t *tvb, proto_tree *tree, guint offset)
 } /* dissect_zbee_nwk_leave */
 
 /**
- *Helper dissector for the Reoute Record command.
+ *Helper dissector for the Route Record command.
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param pinfo pointer to packet information fields

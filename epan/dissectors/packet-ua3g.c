@@ -1127,7 +1127,7 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                             proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_start_rtp_parameter_value, tvb, offset, parameter_length, ENC_NA);
                         }
                         break;
-                    case 0x06: /* Echo Cancelation Enabler */
+                    case 0x06: /* Echo Cancellation Enabler */
                     case 0x07: /* Silence Suppression Enabler */
                     case 0x0A: /* Post Filtering Enabler */
                     case 0x0B: /* High Pass Filtering Enabler */

@@ -212,7 +212,7 @@ dissect_kingfisher(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
             proto_tree_add_protocol_format(tree, proto_kingfisher, tvb, 0, -1, "Kingfisher Protocol, %s", func_string);
             return TRUE;
         }
-        /* othervise it is way too short to be kingfisger */
+        /* otherwise it is way too short to be kingfisher */
         return FALSE;
     }
 

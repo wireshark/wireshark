@@ -324,7 +324,7 @@ static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	{
 		guint16 au_headers_length;     /* total length of AU headers */
 		guint16 totalbits;             /* keeps track of total number of AU header bits treated (used to determine end of AU headers) */
-		int deltabits;                 /* keeps track of extra bits per AU header treated (used to determine end of AU heafers ) */
+		int deltabits;                 /* keeps track of extra bits per AU header treated (used to determine end of AU headers ) */
 		offset_struct s_offset;
 		offset_struct* poffset;
 		guint16 nbmessage_bytes;       /*nb of message data bytes */

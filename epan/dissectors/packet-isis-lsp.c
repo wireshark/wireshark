@@ -589,7 +589,7 @@ dissect_lsp_mt_id(tvbuff_t *tvb, proto_tree *tree, int offset)
  * Name: dissect_metric()
  *
  * Description:
- *    Display a metric prefix portion.  ISIS has the concept of multple
+ *    Display a metric prefix portion.  ISIS has the concept of multiple
  *    metric per prefix (default, delay, expense, and error).  This
  *    routine assists other dissectors by adding a single one of
  *    these to the display tree..
@@ -2129,7 +2129,7 @@ dissect_isis_lsp_clv_sid_label_binding(tvbuff_t *tvb, packet_info* pinfo, proto_
  * Name: dissect_lsp_authentication_clv()
  *
  * Description:
- *    Decode for a lsp packets authenticaion clv.  Calls into the
+ *    Decode for a lsp packets authentication clv.  Calls into the
  *    clv common one.
  *
  * Input:
@@ -2153,7 +2153,7 @@ dissect_lsp_authentication_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tr
  * Name: dissect_lsp_ip_authentication_clv()
  *
  * Description:
- *    Decode for a lsp packets authenticaion clv.  Calls into the
+ *    Decode for a lsp packets authentication clv.  Calls into the
  *    clv common one.
  *
  * Input:
@@ -2392,7 +2392,7 @@ dissect_lsp_instance_identifier_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
  * Description: Called by function dissect_lsp_ext_is_reachability_clv().
  *
  *   This function is called by dissect_lsp_ext_is_reachability_clv()
- *   for dissect the administrive group sub-CLV (code 3).
+ *   for dissect the administrative group sub-CLV (code 3).
  *
  * Input:
  *   tvbuff_t * : tvbuffer for packet data

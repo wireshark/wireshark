@@ -70,7 +70,7 @@ extern void proto_reg_handoff_distcc(void);
 
 #define DESEGMENT_TCP(x) \
     if(distcc_desegment && pinfo->can_desegment){\
-        /* only attempt reassembly if whe have the full segment */\
+        /* only attempt reassembly if we have the full segment */\
         if(tvb_captured_length_remaining(tvb, offset)==tvb_reported_length_remaining(tvb, offset)){\
             if(parameter>tvb_captured_length_remaining(tvb, offset)){\
                 proto_tree_add_expert_format(tree, pinfo, &ei_distcc_short_pdu, tvb, offset-12, -1, "[Short " x " PDU]");\

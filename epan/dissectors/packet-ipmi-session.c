@@ -130,7 +130,7 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		payloadtype &= 0x3f;
 
 		/* IPMI v2.0 packets have session ID BEFORE the session
-		   sequence number; just after authentification and payload
+		   sequence number; just after authentication and payload
 		   types. The OEM Explicit payload type has 6 more bytes
 		   (IANA + Payload ID) before the session ID. */
 		if (payloadtype == IPMI_OEM_EXPLICIT) {

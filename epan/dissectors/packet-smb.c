@@ -1149,7 +1149,7 @@ feed_eo_smb(guint16 cmd, guint16 fid, tvbuff_t * tvb, packet_info *pinfo, guint1
 	tap_queue_packet(smb_eo_tap, pinfo, eo_info);
 } /* feed_eo_smb */
 
-/* Compare funtion to maintain the GSL_fid_info ordered
+/* Compare function to maintain the GSL_fid_info ordered
    Order criteria: packet where the fid was opened */
 static gint
 fid_cmp(smb_fid_info_t *fida, smb_fid_info_t *fidb)

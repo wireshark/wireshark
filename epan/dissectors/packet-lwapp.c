@@ -565,7 +565,7 @@ proto_reg_handoff_lwapp(void)
      * becoming obscelete, but we still wanted to dissect the
      * packets.
      *
-     * Next, lwapp can be over UDP, but packged for L3 tunneling.  This
+     * Next, lwapp can be over UDP, but packaged for L3 tunneling.  This
      * is the new-style.  In this case, LWAP headers are just transmitted
      * via UDP.
      *

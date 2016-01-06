@@ -1959,7 +1959,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 							nstime_delta(&delta, &pinfo->fd->abs_ts, &radius_call->req_time);
 							item = proto_tree_add_time(radius_tree, hf_radius_time, tvb, 0, 0, &delta);
 							PROTO_ITEM_SET_GENERATED(item);
-							/* Resonse Authenticator Validation */
+							/* Response Authenticator Validation */
 							if (validate_authenticator && *shared_secret != '\0')
 							{
 								proto_item * authenticator_tree;

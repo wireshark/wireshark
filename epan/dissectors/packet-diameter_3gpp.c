@@ -2084,7 +2084,7 @@ proto_register_diameter_3gpp(void)
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_feature_list_gx_flags_bit21,
-            { "Conditionali APN Policy Info", "diameter.3gpp.feature_list_gx_flags_bit21",
+            { "Conditional APN Policy Info", "diameter.3gpp.feature_list_gx_flags_bit21",
             FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x00200000,
             NULL, HFILL }
         },

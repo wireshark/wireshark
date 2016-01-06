@@ -797,7 +797,7 @@ proto_register_zbee_zcl_power_config(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_power_config_batt_voltage,
-            { "Measured Battey Voltage", "zbee_zcl_general.power_config.attr.batt_voltage", FT_UINT8, BASE_CUSTOM, CF_FUNC(decode_power_conf_voltage),
+            { "Measured Battery Voltage", "zbee_zcl_general.power_config.attr.batt_voltage", FT_UINT8, BASE_CUSTOM, CF_FUNC(decode_power_conf_voltage),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_power_config_batt_ah_rating,
@@ -4159,7 +4159,7 @@ dissect_zcl_rssi_location_get_location_data(tvbuff_t *tvb, proto_tree *tree, gui
     proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_rssi_location_header, ett_zbee_zcl_rssi_location_header, location_header_fields, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
-    /* Retrieve the number reponses field */
+    /* Retrieve the number responses field */
     proto_tree_add_item(tree, hf_zbee_zcl_rssi_location_number_responses, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
@@ -7444,7 +7444,7 @@ dissect_zbee_zcl_part(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
  *  NAME
  *      dissect_zcl_part_trasfpartframe
  *  DESCRIPTION
- *      This function manages the Trasfer Partition Frame payload
+ *      This function manages the Transfer Partition Frame payload
  *  PARAMETERS
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
@@ -8342,7 +8342,7 @@ dissect_zcl_ota_imageblockreq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     /* Check if there are optional fields */
 
     if (field_ctrl & ZBEE_ZCL_OTA_FIELD_CTRL_IEEE_ADDR_PRESENT) {
-        /* 'Requerst Node Address' field present, retrieves it */
+        /* 'Request Node Address' field present, retrieves it */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_req_node_addr, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
         *offset += 8;
     }
@@ -8400,7 +8400,7 @@ dissect_zcl_ota_imagepagereq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     /* Check if there are optional fields */
 
     if (field_ctrl & ZBEE_ZCL_OTA_FIELD_CTRL_IEEE_ADDR_PRESENT) {
-        /* 'Requerst Node Address' field present, retrieves it */
+        /* 'Request Node Address' field present, retrieves it */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_req_node_addr, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
         *offset += 8;
     }
@@ -8557,7 +8557,7 @@ dissect_zcl_ota_upgradeendrsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_ota_queryspecfilereq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    /* 'Requerst Node Address' field present, retrieves it */
+    /* 'Request Node Address' field present, retrieves it */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_req_node_addr, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
     *offset += 8;
 

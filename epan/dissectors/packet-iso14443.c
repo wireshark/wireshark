@@ -1066,7 +1066,7 @@ proto_register_iso14443(void)
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
         },
         { &hf_iso14443_bit_frame_anticoll,
-            { "Bit frame anicollision", "iso14443.bit_frame_anticoll",
+            { "Bit frame anticollision", "iso14443.bit_frame_anticoll",
                 FT_UINT8, BASE_HEX, NULL, 0x1F, NULL, HFILL }
         },
         { &hf_iso14443_apf,

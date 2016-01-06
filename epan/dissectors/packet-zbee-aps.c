@@ -1962,7 +1962,7 @@ void proto_register_zbee_aps(void)
 
             { &hf_zbee_aps_cmd_initiator_flag,
             { "Initiator",              "zbee_aps.cmd.init_flag", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-                "Inidicates the destination of the transport-key command requested this key.", HFILL }},
+                "Indicates the destination of the transport-key command requested this key.", HFILL }},
 
             { &hf_zbee_aps_cmd_device,
             { "Device Address",         "zbee_aps.cmd.device", FT_EUI64, BASE_NONE, NULL, 0x0,

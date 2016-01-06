@@ -2369,7 +2369,7 @@ static void cyclic_setup(packet_info* pinfo, guint16 offset, gboolean request, t
 			case 1: /* edit */
 			case 2: /* finalise */
 			case 3: /* delete */
-				/* no mode specific datan */
+				/* no mode specific data */
 			break;
 
 			case 4: /* exist */
@@ -2501,7 +2501,7 @@ static void program_control(int offset, gboolean request, tvbuff_t *tvb, proto_t
 /*                                                                      */
 /*  Returns: nothing                                                    */
 /*                                                                      */
-/* Notes: for querys, the "offset" points to the "target".              */
+/* Notes: for queries, the "offset" points to the "target".              */
 /*         for responses, the "offset" points to the "status".          */
 /*                                                                      */
 /*  sample ECMP Request Frame                                           */
@@ -2559,7 +2559,7 @@ static void modbus_pdu(int offset, gboolean request, tvbuff_t *tvb, packet_info*
 /*                                                                      */
 /*  Returns: nothing                                                    */
 /*                                                                      */
-/*  Notes: for querys, the "offset" points to the "size".               */
+/*  Notes: for queries, the "offset" points to the "size".               */
 /*         for responses, the "offset" points to the size.              */
 /*                                                                      */
 /*  sample ECMP Request Frame (Read Holding Registers)                  */
@@ -2629,7 +2629,7 @@ static void interrogate(packet_info* pinfo, int offset, gboolean request, tvbuff
 /*                                                                      */
 /*  Returns: nothing                                                    */
 /*                                                                      */
-/*  Notes: for querys, the "offset" points to the "item type".          */
+/*  Notes: for queries, the "offset" points to the "item type".          */
 /*         for responses, the "offset" points to the "item type".       */
 /*                                                                      */
 /*  sample ECMP Request Frame                          	                */

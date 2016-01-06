@@ -382,8 +382,8 @@ static const value_string zbee_nwk_gp_app_id_names[] = {
     XXX( /*FP*/ ZB_GP_CMD_ID_STEP_HUE_UP                              , 0x43, "Step Hue Up" ) \
     XXX( /*FP*/ ZB_GP_CMD_ID_STEP_HUW_DOWN                            , 0x44, "Step Hue Down" ) \
     XXX( /*F */ ZB_GP_CMD_ID_MOVE_SATURATION_STOP                     , 0x45, "Move Saturation Stop" ) \
-    XXX( /*FP*/ ZB_GP_CMD_ID_MOVE_SATUREATION_UP                      , 0x46, "Move Saturation Up" ) \
-    XXX( /*FP*/ ZB_GP_CMD_ID_MOVE_SATUREATION_DOWN                    , 0x47, "Move Saturation Down" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_MOVE_SATURATION_UP                       , 0x46, "Move Saturation Up" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_MOVE_SATURATION_DOWN                     , 0x47, "Move Saturation Down" ) \
     XXX( /*FP*/ ZB_GP_CMD_ID_STEP_SATURATION_UP                       , 0x48, "Step Saturation Up" ) \
     XXX( /*FP*/ ZB_GP_CMD_ID_STEP_SATURATION_DOWN                     , 0x49, "Step Saturation Down" ) \
     XXX( /*FP*/ ZB_GP_CMD_ID_MOVE_COLOR                               , 0x4A, "Move Color" ) \
@@ -816,7 +816,7 @@ dissect_zbee_nwk_gp_cmd_attr_reporting(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 } /* dissect_zbee_nwk_gp_cmd_attr_reporting */
 
 /**
- *Dissector for ZigBee Green Power comissioning reply.
+ *Dissector for ZigBee Green Power commissioning reply.
  *
  *@param tvb pointer to buffer containing raw packet.
  *@param pinfo pointer to packet information fields.
@@ -1031,8 +1031,8 @@ dissect_zbee_nwk_gp_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         case ZB_GP_CMD_ID_MOVE_DOWN_WITH_ON_OFF:
         case ZB_GP_CMD_ID_MOVE_HUE_UP:
         case ZB_GP_CMD_ID_MOVE_HUE_DOWN:
-        case ZB_GP_CMD_ID_MOVE_SATUREATION_UP:
-        case ZB_GP_CMD_ID_MOVE_SATUREATION_DOWN:
+        case ZB_GP_CMD_ID_MOVE_SATURATION_UP:
+        case ZB_GP_CMD_ID_MOVE_SATURATION_DOWN:
             offset = dissect_zbee_nwk_gp_cmd_move_up_down(tvb, pinfo, cmd_tree, packet, offset);
             break;
         case ZB_GP_CMD_ID_STEP_UP:

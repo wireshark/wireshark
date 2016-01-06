@@ -670,7 +670,7 @@ attr_find_pred(gpointer key, gpointer value _U_, gpointer user_data)
     return FALSE;
 }
 
-/*Functions returns element's attibute by name and set as read*/
+/*Functions returns element's attribute by name and set as read*/
 xmpp_attr_t*
 xmpp_get_attr(xmpp_element_t *element, const gchar* attr_name)
 {
@@ -687,7 +687,7 @@ xmpp_get_attr(xmpp_element_t *element, const gchar* attr_name)
     return result;
 }
 
-/*Functions returns element's attibute by name and namespace abbrev*/
+/*Functions returns element's attribute by name and namespace abbrev*/
 static xmpp_attr_t*
 xmpp_get_attr_ext(xmpp_element_t *element, const gchar* attr_name, const gchar* ns_abbrev)
 {

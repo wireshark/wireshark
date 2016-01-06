@@ -309,7 +309,7 @@ void proto_register_vrrp(void)
                 "IPv6 address associated with the virtual router", HFILL }},
 
         { &hf_vrrp_auth_string,
-            {"Authentification String", "vrrp.auth_string",
+            {"Authentication String", "vrrp.auth_string",
                 FT_STRING, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
     };
@@ -338,7 +338,7 @@ void proto_register_vrrp(void)
 
     prefs_register_bool_preference(vrrp_module, "v3_checksum_as_in_v2",
         "Calculate V3 checksum as in V2 for IPv4 packets",
-        "There is some ambigiousy on how to calculate V3 checksums"
+        "There is some ambiguity on how to calculate V3 checksums"
         "As in V3 will use a pseudo header(which may only be implemented for IPv6 by some manufacturers)",
         &g_vrrp_v3_checksum_as_in_v2);
 

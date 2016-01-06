@@ -644,7 +644,7 @@ dissect_hello_ipv6_int_addr_clv(tvbuff_t *tvb, packet_info* pinfo,
  * Name: dissect_hello_authentication_clv()
  *
  * Description:
- *    Decode for a hello packets authenticaion clv.
+ *    Decode for a hello packets authentication clv.
  *      Calls into the CLV common one.
  *
  * Input:
@@ -668,7 +668,7 @@ dissect_hello_authentication_clv(tvbuff_t *tvb, packet_info* pinfo,
  * Name: dissect_hello_ip_authentication_clv()
  *
  * Description:
- *    Decode for a hello packets IP authenticaion clv.
+ *    Decode for a hello packets IP authentication clv.
  *      Calls into the CLV common one.
  *
  * Input:

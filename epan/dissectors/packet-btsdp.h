@@ -168,7 +168,7 @@
 /* This structure is passed to other dissectors
  * and contains information about the relation between service, PSM/server
  * channel, local/remote service. The btrfcomm and btl2cap dissectors
- * need this information to determine the kind of data transfered on
+ * need this information to determine the kind of data transferred on
  * dynamically assigned server channels and PSM's, respectively.
  */
 typedef struct _btsdp_data_t {

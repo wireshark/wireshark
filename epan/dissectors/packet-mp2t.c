@@ -282,7 +282,7 @@ typedef struct mp2t_analysis_data {
 
     /* This structure contains a tree containing data for the
      * individual pid's, this is only used when packets are
-     * processed sequencially.
+     * processed sequentially.
      */
     wmem_tree_t    *pid_table;
 
@@ -339,7 +339,7 @@ typedef struct pid_analysis_data {
 typedef struct ts_analysis_data {
     guint16  pid;
     gint8    cc_prev;      /* Previous CC number */
-    guint8   skips;          /* Skips between CCs max 14 */
+    guint8   skips;          /* Skips between Ccs max 14 */
 } ts_analysis_data_t;
 
 
@@ -473,7 +473,7 @@ mp2t_get_packet_length(tvbuff_t *tvb, guint offset, packet_info *pinfo,
         if ( (pload_type == pid_pload_docsis && remaining_len < 4) ||
                 (pload_type == pid_pload_sect && remaining_len < 3) ||
                 (pload_type == pid_pload_pes && remaining_len < 5) ) {
-            /* Not enough info to determine the size of the encapulated packet */
+            /* Not enough info to determine the size of the encapsulated packet */
             /* Just add the fragment and we'll check out the length later */
             return -1;
         }
@@ -855,9 +855,9 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     gboolean detected_drop = FALSE;
     guint32 skips = 0;
 
-    /* The initial sequencial processing stage */
+    /* The initial sequential processing stage */
     if (!pinfo->fd->flags.visited) {
-        /* This is the sequencial processing stage */
+        /* This is the sequential processing stage */
         pid_data = get_pid_analysis(mp2t_data, pid);
 
         cc_prev = pid_data->cc_prev;

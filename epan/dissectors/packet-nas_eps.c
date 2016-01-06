@@ -4915,7 +4915,7 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
             offset++;
         }
     }
-    /* Messge type IE*/
+    /* Message type IE*/
     oct = tvb_get_guint8(tvb,offset);
     msg_fcn_p = NULL;
     ett_tree = -1;
@@ -5036,7 +5036,7 @@ dissect_nas_eps_plain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
  */
 
 /*
- * All messages recived here will have the security header:
+ * All messages received here will have the security header:
  *  Figure 9.1.2: General message organization example for a security protected NAS message
  *      9.3.1 Bits 5 to 8 of the first octet of every EPS Mobility Management (EMM)
  *            message contain the Security header type IE.

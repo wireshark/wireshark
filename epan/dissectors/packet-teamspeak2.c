@@ -1016,25 +1016,25 @@ void proto_register_ts2(void)
                 NULL, HFILL }
         },
         { &hf_ts2_channel_id,
-            { "Channel Id", "ts2.chanelid",
+            { "Channel Id", "ts2.channelid",
                 FT_UINT32, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_ts2_channel_name,
-            { "Channel Name", "ts2.chanelname",
+            { "Channel Name", "ts2.channelname",
                 FT_STRINGZ, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_ts2_channel_topic,
-            { "Channel Topic", "ts2.chaneltopic",
+            { "Channel Topic", "ts2.channeltopic",
                 FT_STRINGZ, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_ts2_channel_description,
-            { "Channel Description", "ts2.chaneldescription",
+            { "Channel Description", "ts2.channeldescription",
                 FT_STRINGZ, BASE_NONE,
                 NULL, 0x0,
                 NULL, HFILL }

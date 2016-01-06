@@ -1750,7 +1750,7 @@ dissect_acse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	case SES_DISCONNECT:			/*   RLRQ   */
 	case SES_FINISH:			/*   RLRE   */
 	case SES_ABORT:				/*   ABRT   */
-	case CLSES_UNIT_DATA:		/* AARQ Connetctionless session */
+	case CLSES_UNIT_DATA:		/* AARQ Connectionless session */
 		break;
 	case SES_DATA_TRANSFER:
 		oid=find_oid_by_pres_ctx_id(pinfo, indir_ref);

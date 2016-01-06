@@ -264,7 +264,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 
 	proto_tree *edp_tuples_leaf_tree;
 
-	/* add column iformation marking this as EDP (Enterasys Discover Protocol */
+	/* add column information marking this as EDP (Enterasys Discover Protocol */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISMP.EDP");
 	col_clear(pinfo->cinfo, COL_INFO);
 

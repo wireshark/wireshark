@@ -64,7 +64,7 @@
 
   <!-- the frame contents are stored in a div, so we can toggle it -->
   <div width="100%" id="{$frame_c}" style="display:none">
-    <!-- loop trough all proto tags, but skip the "geninfo" one -->
+    <!-- loop through all proto tags, but skip the "geninfo" one -->
     <xsl:for-each select="proto[@name!='geninfo']">
 
       <xsl:variable name="proto" select="concat($frame_id,@name,count(preceding-sibling::proto)+1)"/>

@@ -343,7 +343,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   proto_tree_add_item(tree, saved_hf, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
 
 #.FN_HDR SourceRNC-ToTargetRNC-TransparentContainer
-/* If SourceRNC-ToTargetRNC-TransparentContainer is called trough
+/* If SourceRNC-ToTargetRNC-TransparentContainer is called through
    dissect_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU
    ProtocolIE_ID may be unset
    */

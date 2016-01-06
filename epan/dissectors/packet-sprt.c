@@ -555,8 +555,8 @@ static const value_string sprt_jminfo_tbc_call_funct_name[] = {
     { SPRT_JMINFO_TBC_CALL_FUNCT_PSTN_MULTIMEDIA_TERM,      "PSTN Multimedia terminal (ITU-T Rec. H.324)" },
     { SPRT_JMINFO_TBC_CALL_FUNCT_TEXTPHONE_ITU_T_REC_V18,   "Textphone (ITU-T Rec. V.18)" },
     { SPRT_JMINFO_TBC_CALL_FUNCT_VIDEOTEXT_ITU_T_REC_T101,  "Videotext (ITU-T Rec. T.101)" },
-    { SPRT_JMINFO_TBC_CALL_FUNCT_TRANS_FAX_ITU_T_REC_T30,   "Transmit facsimilie from call terminal (ITU-T Rec. T.30)" },
-    { SPRT_JMINFO_TBC_CALL_FUNCT_RECV_FAX_ITU_T_REC_T30,    "Receive facsimilie at call terminal (ITU-T Rec. T.30)" },
+    { SPRT_JMINFO_TBC_CALL_FUNCT_TRANS_FAX_ITU_T_REC_T30,   "Transmit facsimile from call terminal (ITU-T Rec. T.30)" },
+    { SPRT_JMINFO_TBC_CALL_FUNCT_RECV_FAX_ITU_T_REC_T30,    "Receive facsimile at call terminal (ITU-T Rec. T.30)" },
     { SPRT_JMINFO_TBC_CALL_FUNCT_DATA_V_SERIES_MODEM_REC,   "Data (V-series modem Recommendations)" },
     { 0, NULL }
 };
@@ -1794,7 +1794,7 @@ proto_register_sprt(void)
         {
             &hf_sprt_payload_msg_init_assym_data_types,
             {
-                "Assymetrical data types",
+                "Asymmetrical data types",
                 "sprt.payload.msg_init.assym_data_types",
                 FT_BOOLEAN,
                 16,

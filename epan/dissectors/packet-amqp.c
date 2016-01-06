@@ -1408,7 +1408,7 @@ static int hf_amqp_1_0_replyTo_str = -1;
 static int hf_amqp_1_0_mechanisms_sym = -1;
 
 /* Several field can be of multiple types. To distinguish it among hf_amqp_1_0_* variables,
- * table below "translates" original hf_amqp_1_0_* variable to the type-speficic one.
+ * table below "translates" original hf_amqp_1_0_* variable to the type-specific one.
  * Each row contains synonym fields for {FT_NONE, FT_UINT, FT_STRING, FT_BYTES, FT_GUID}
  * NULL indicates no synonym of a given type
  * FT_NONE field must be always present
@@ -10710,8 +10710,8 @@ get_amqp_1_0_value_formatter(tvbuff_t *tvb,
         }
         else if(code == AMQP_1_0_TYPE_NULL)
         {
-            /* null value says that a particular field was optional and is omited
-             * the omited fields of standard structutes are not shown
+            /* null value says that a particular field was optional and is omitted
+             * the omitted fields of standard structures are not shown
              * however, we still display null values of custom lists, maps and arrays */
             if(hf_amqp_type == hf_amqp_1_0_list)
             {

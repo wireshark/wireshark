@@ -201,7 +201,7 @@ static int proto_AllJoyn_ardp = -1;  /* The top level. Entire AllJoyn Reliable D
 #define ARDP_HEADER_LEN_OFFSET   1 /* Offset into the ARDP header for the actual length of the header. */
 
 /* These are bit masks for ARDP flags. */
-/* These bits are depricated and do not exist for version 1. */
+/* These bits are deprecated and do not exist for version 1. */
 #define ARDP_SYN 0x01
 #define ARDP_ACK 0x02
 #define ARDP_EAK 0x04
@@ -232,7 +232,7 @@ static int hf_ardp_nsa = -1;    /* next sequence to ack */
 static int hf_ardp_fss = -1;    /* fragment starting sequence number */
 static int hf_ardp_fcnt = -1;   /* fragment count */
 static int hf_ardp_bmp = -1;    /* EACK bitmap */
-static int hf_ardp_segmax = -1; /* The maximum number of outstanding segments the other side can send without acknowledgement. */
+static int hf_ardp_segmax = -1; /* The maximum number of outstanding segments the other side can send without acknowledgment. */
 static int hf_ardp_segbmax = -1;/* The maximum segment size we are willing to receive. */
 static int hf_ardp_dackt = -1;  /* Receiver's delayed ACK timeout. Used in TTL estimate prior to sending a message. */
 static int hf_ardp_options = -1;/* Options for the connection. Always Sequenced Delivery Mode (SDM). */
@@ -330,7 +330,7 @@ static const value_string mess_header_field_encoding_vals[] = {
 /* This is used to round up offsets into a packet to an even two byte
  * boundary from starting_offset.
  * @param current_offset is the current offset into the packet.
- * @param starting_offset is offset into the packet from the begining of
+ * @param starting_offset is offset into the packet from the beginning of
  *        the message.
  * @returns the offset rounded up to the next even two byte boundary from
             start of the message.
@@ -346,7 +346,7 @@ static gint round_to_2byte(gint current_offset,
 /* This is used to round up offsets into a packet to an even four byte
  * boundary from starting_offset.
  * @param current_offset is the current offset into the packet.
- * @param starting_offset is offset into the packet from the begining of
+ * @param starting_offset is offset into the packet from the beginning of
  *        the message.
  * @returns the offset rounded up to the next even four byte boundary from
             start of the message.
@@ -362,7 +362,7 @@ static gint round_to_4byte(gint current_offset,
 /* This is used to round up offsets into a packet to an even eight byte
  * boundary from starting_offset.
  * @param current_offset is the current offset into the packet.
- * @param starting_offset is offset into the packet from the begining of
+ * @param starting_offset is offset into the packet from the beginning of
  *        the message.
  * @returns the offset rounded up to the next even eight byte boundary from
             start of the message.
@@ -399,7 +399,7 @@ get_uint32(tvbuff_t *tvb,
 
 /* This is called by dissect_AllJoyn_message() to handle the initial byte for
  * a connect message.
- * If it was the intial byte for a connect message and was handled then return
+ * If it was the initial byte for a connect message and was handled then return
  * the number of bytes consumed out of the packet. If not an connect initial
  * byte message or unhandled return 0.
  * @param tvb is the incoming network data buffer.
@@ -423,7 +423,7 @@ handle_message_connect(tvbuff_t    *tvb,
     if(0 == the_one_byte) {
         col_set_str(pinfo->cinfo, COL_INFO, "CONNECT-initial byte");
 
-        /* Now add the value as a subtree to the inital byte. */
+        /* Now add the value as a subtree to the initial byte. */
         proto_tree_add_item(message_tree, hf_alljoyn_connect_byte_value, tvb, offset, 1, ENC_NA);
         offset += 1;
     }
@@ -707,7 +707,7 @@ pad_according_to_type(gint offset, gint field_starting_offset, gint max_offset, 
  * to an item. This is complicated a bit by the fact that structures can be nested.
  * @param item is the item to append the signature data to.
  * @param signature points to the signature to be appended.
- * @param signature_max_length is the specificied maximum length of this signature.
+ * @param signature_max_length is the specified maximum length of this signature.
  * @param type_stop is the character when indicates the end of the signature.
  */
 static void
@@ -1046,7 +1046,7 @@ parse_arg(tvbuff_t     *tvb,
         header_type_name = "object path";
         length = get_uint32(tvb, offset, encoding) + 1;
 
-        /* The + 4 is for the length specifier. Object pathes may be of "any length"
+        /* The + 4 is for the length specifier. Object paths may be of "any length"
            according to D-Bus spec. But there are practical limits. */
         if(length < 0 || length > MAX_ARRAY_LEN || length + 4 > tvb_reported_length_remaining(tvb, offset)) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: Object path length is %d. Only %d bytes left in packet.",
@@ -2163,7 +2163,7 @@ typedef struct _alljoyn_ardp_tree_data
  * @param tvb is the incoming network data buffer.
  * @param pinfo contains information about the incoming packet which
  *         we update as we dissect the packet.
- * @param tree_data is the destinationn of the data..
+ * @param tree_data is the destination of the data..
  */
 static void
 ardp_parse_header(tvbuff_t *tvb,
@@ -2863,7 +2863,7 @@ proto_register_AllJoyn(void)
         },
 
         /*
-         * Strings are composed of a size and a data arrray.
+         * Strings are composed of a size and a data array.
          */
         {&hf_alljoyn_string,
          {"Bus Name", "alljoyn.string",

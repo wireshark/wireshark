@@ -732,7 +732,7 @@ dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	GOV	- Group_of_VideoObjectPlane
 	VOP	- Video Object Plane
 	VP	- Video Plane
-	Otherwies it's a VOP fragment.
+	Otherwise it's a VOP fragment.
 
 	visual_object_sequence_start_code: The visual_object_sequence_start_code is
 	the bit string '000001B0' in hexadecimal. It initiates a visual session.

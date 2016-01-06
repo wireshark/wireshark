@@ -264,7 +264,7 @@ proto_register_epon(void)
     },
     { &ei_epon_dpoe_bad,
       { "epon.dpoe.expert", PI_MALFORMED, PI_ERROR,
-        "DPoE security byte must be 0x55 if encrypton is disabled.", EXPFILL }
+        "DPoE security byte must be 0x55 if encryption is disabled.", EXPFILL }
     },
     { &ei_epon_dpoe_encrypted_data,
       { "epon.dpoe.encrypted.expert", PI_UNDECODED, PI_NOTE,

@@ -835,7 +835,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 
           We need to keep track of this on a per transaction basis since
           for error recoverylevel 0 and when the A bit is clear in a
-          Data-In PDU, there will not be a LUN field in teh iscsi layer.
+          Data-In PDU, there will not be a LUN field in the iscsi layer.
         */
         if(tvb_get_guint8(tvb, offset+8)&0x40){
             /* volume set addressing */
@@ -1668,7 +1668,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             cdb_tvb=tvb_new_subset(tvb, cdb_offset, tvb_len, tvb_rlen);
         }
         dissect_scsi_cdb(cdb_tvb, pinfo, tree, SCSI_DEV_UNKNOWN, &cdata->itlq, itl);
-        /* we don't want the immediata below to overwrite our CDB info */
+        /* we don't want the immediate below to overwrite our CDB info */
         col_set_fence(pinfo->cinfo, COL_INFO);
 
         /* where there any ImmediateData ? */

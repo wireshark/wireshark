@@ -547,7 +547,7 @@ static spdy_stream_info_t* spdy_get_stream_info(spdy_conv_t *conv_data,
 }
 
 /*
- * Adds a data chunk to a given SPDY converstaion/stream.
+ * Adds a data chunk to a given SPDY conversation/stream.
  */
 static void spdy_add_data_chunk(spdy_conv_t *conv_data,
                                 guint32 stream_id,

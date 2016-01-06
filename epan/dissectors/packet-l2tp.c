@@ -214,7 +214,7 @@ static dissector_table_t pw_type_table;
 
 #define CONTROL_BIT(msg_info)        (msg_info & 0x8000) /* Type bit control = 1 data = 0 */
 #define LENGTH_BIT(msg_info)         (msg_info & 0x4000) /* Length bit = 1  */
-#define RESERVE_BITS(msg_info)       (msg_info &0x37F8)  /* Reserved bit - usused */
+#define RESERVE_BITS(msg_info)       (msg_info &0x37F8)  /* Reserved bit - unused */
 #define SEQUENCE_BIT(msg_info)       (msg_info & 0x0800) /* SEQUENCE bit = 1 Ns and Nr fields */
 #define OFFSET_BIT(msg_info)         (msg_info & 0x0200) /* Offset */
 #define PRIORITY_BIT(msg_info)       (msg_info & 0x0100) /* Priority */
@@ -701,7 +701,7 @@ static const value_string cablelabs_avp_type_vals[] = {
     { 103, "Downstream QAM Channel Modulation" },
     { 104, "Downstream QAM Channel J.83 Annex" },
     { 105, "Downstream QAM Channel Symbol Rate" },
-    { 106, "Downstream QAM Channel Interleaver Depth" },
+    { 106, "Downstream QAM Channel Interleave Depth" },
     { 107, "Downstream QAM Channel RF Block Muting53" },
     /* 7.5.4 DEPI Redundancy Capabilities AVPs */
     { 200, "DEPI Redundancy Capabilities" },
@@ -2733,7 +2733,7 @@ proto_register_l2tp(void)
 
         { &hf_l2tp_offset,
           { "Offset","l2tp.offset", FT_UINT16, BASE_DEC, NULL, 0x0,
-            "Number of octest past the L2TP header at which the payload data starts.", HFILL }},
+            "Number of octets past the L2TP header at which the payload data starts.", HFILL }},
 
         { &hf_l2tp_avp_mandatory,
           { "Mandatory", "l2tp.avp.mandatory", FT_BOOLEAN, 16, NULL, 0x8000,

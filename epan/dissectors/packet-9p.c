@@ -65,8 +65,8 @@
  * @_9P_RCREATE:   response with file access information
  * @_9P_TREAD:     request to transfer data from a file or directory
  * @_9P_RREAD:     response with data requested
- * @_9P_TWRITE:    reuqest to transfer data to a file
- * @_9P_RWRITE:    response with out much data was transfered to file
+ * @_9P_TWRITE:    request to transfer data to a file
+ * @_9P_RWRITE:    response with out much data was transferred to file
  * @_9P_TCLUNK:    forget about a handle to an entity within the file system
  * @_9P_RCLUNK:    response when server has forgotten about the handle
  * @_9P_TREMOVE:   request to remove an entity from the hierarchy
@@ -293,7 +293,7 @@ static value_string_ext ninep_mode_vals_ext = VALUE_STRING_EXT_INIT(ninep_mode_v
  *
  * QID types are a subset of permissions - they are primarily
  * used to differentiate semantics for a file system entity via
- * a jump-table.  Their value is also the most signifigant 16 bits
+ * a jump-table.  Their value is also the most significant 16 bits
  * of the permission_t
  *
  * See Also: http://plan9.bell-labs.com/magic/man2html/2/stat
@@ -1129,7 +1129,7 @@ static void conv_set_fid_nocopy(packet_info *pinfo, guint32 fid, const char *pat
 	if (!val) {
 		val = _9p_hash_new_val(0);
 		val->data = wmem_tree_new(wmem_file_scope());
-		/* val->len is intentionnaly left to 0 so the tree won't be freed */
+		/* val->len is intentionally left to 0 so the tree won't be freed */
 		_9p_hash_set(pinfo, _9P_NOTAG, fid, val);
 	}
 

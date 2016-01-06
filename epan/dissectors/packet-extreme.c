@@ -1073,7 +1073,7 @@ dissect_edp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		case EDP_TYPE_ESRP: /* Extreme Standby Router Protocol */
 			dissect_esrp_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
 			break;
-		case EDP_TYPE_EAPS: /* Ethernet Automatic Protection Swtiching */
+		case EDP_TYPE_EAPS: /* Ethernet Automatic Protection Switching */
 			dissect_eaps_tlv(tvb, pinfo, offset, tlv_length, edp_tree);
 			break;
 		case EDP_TYPE_ESL: /* EAPS shared link */

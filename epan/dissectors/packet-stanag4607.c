@@ -1481,7 +1481,7 @@ proto_register_stanag4607(void)
 			NULL, HFILL }
 		},
 		{ &hf_4607_jobdef_sense_mdv,
-			{ "Nominal Sensor Minimum Dectectable Velocity (MDV)", "s4607.job.sense.mdv",
+			{ "Nominal Sensor Minimum Detectable Velocity (MDV)", "s4607.job.sense.mdv",
 			FT_UINT8, BASE_CUSTOM,
 			CF_FUNC(prt_none8), 0x0,
 			NULL, HFILL }

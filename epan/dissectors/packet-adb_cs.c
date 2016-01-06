@@ -422,7 +422,7 @@ proto_register_adb_cs(void)
 
     module = prefs_register_protocol(proto_adb_cs, NULL);
     prefs_register_static_text_preference(module, "version",
-            "ADB CS protocol version is compatibile pior to: adb 1.0.31",
+            "ADB CS protocol version is compatible prior to: adb 1.0.31",
             "Version of protocol supported by this dissector.");
 
     prefs_register_uint_preference(module, "server_port",

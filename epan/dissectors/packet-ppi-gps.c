@@ -468,7 +468,7 @@ proto_register_ppi_gps(void) {
         { &hf_ppi_gps_present_ept,
           { "error_t", "ppi_gps.present.ept",
             FT_BOOLEAN, 32, NULL, PPI_GPS_MASK_EPT,
-            "Specifies if the estimed time error field is present (ept)", HFILL } },
+            "Specifies if the estimated time error field is present (ept)", HFILL } },
 
         { &hf_ppi_gps_present_descr,
           { "Description", "ppi_gps.present.descr",

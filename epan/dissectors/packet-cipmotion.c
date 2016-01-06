@@ -30,7 +30,7 @@
 #include "packet-cip.h"
 
 void proto_register_cipmotion(void);
-/* The entry point to the actual disection is: dissect_cipmotion */
+/* The entry point to the actual dissection is: dissect_cipmotion */
 void proto_reg_handoff_cipmotion(void);
 
 /* Protocol handle for CIP Motion */

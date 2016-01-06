@@ -491,7 +491,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 	}
 
 	/*
-	 * XXX - this will thow an exception if a snapshot length cut short
+	 * XXX - this will throw an exception if a snapshot length cut short
 	 * the data.  We may want to try to dissect the data in that case,
 	 * and we may even want to try to decompress it, *but* we will
 	 * want to mark the buffer of decompressed data as incomplete, so
@@ -608,7 +608,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 					/*
 					 * This is the first pass through
 					 * the packets, so copy it to the
-					 * buffer of unco,pressed data.
+					 * buffer of uncompressed data.
 					 */
 					*dst = *src;
 					if ( dst++ == buf_end)

@@ -546,7 +546,7 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
   guint32           nb_pass = 0;
   gboolean          found = FALSE;
 
-  /* We are going to try password encrypted in keytab as well, it's an idean of Stefan Metzmacher <metze@samba.org>
+  /* We are going to try password encrypted in keytab as well, it's an idea of Stefan Metzmacher <metze@samba.org>
    * The idea is to be able to test all the key of domain in once and to be able to decode the NTLM dialogs */
 
   memset(sessionkey, 0, NTLMSSP_KEY_LEN);
@@ -566,7 +566,7 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
     }
   }
   else {
-    /* Unable to calculate the session not enought space in buffer, note this is unlikely to happen but ......*/
+    /* Unable to calculate the session not enough space in buffer, note this is unlikely to happen but ......*/
     return;
   }
   domain_len = strlen(ntlmssph->domain_name);
@@ -574,7 +574,7 @@ create_ntlmssp_v2_key(const char *nt_password _U_, const guint8 *serverchallenge
     str_to_unicode(ntlmssph->domain_name, domain_name_unicode);
   }
   else {
-    /* Unable to calculate the session not enought space in buffer, note this is unlikely to happen but ......*/
+    /* Unable to calculate the session not enough space in buffer, note this is unlikely to happen but ......*/
     return;
   }
   while (i < nb_pass) {

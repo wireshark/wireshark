@@ -2154,7 +2154,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
          * disallows sending UDP datagrams without checksums. Likewise, 6LoWPAN
          * requires that we recompute the checksum.
          *
-         * If the datagram is incomplete, then leave the checsum at 0.
+         * If the datagram is incomplete, then leave the checksum at 0.
          */
 #if 0
         /*

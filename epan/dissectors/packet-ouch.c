@@ -1376,7 +1376,7 @@ dissect_ouch_heur(
         return FALSE;
     }
 
-    /* Peform dissection of this (initial) packet */
+    /* Perform dissection of this (initial) packet */
     dissect_ouch(tvb, pinfo, tree, NULL);
 
     return TRUE;
@@ -1527,7 +1527,7 @@ proto_register_ouch(void)
             NULL, HFILL }},
 
         { &hf_ouch_quantity_prevented_from_trading,
-          { "Quanity Prevented from Trading",
+          { "Quantity Prevented from Trading",
             "ouch.quantity_prevented_from_trading",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},

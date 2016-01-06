@@ -2784,7 +2784,7 @@ proto_register_btobex(void)
             NULL, HFILL}
         },
         { &hf_authentication_parameter,
-          { "Autentication Parameter", "btobex.authentication",
+          { "Authentication Parameter", "btobex.authentication",
             FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL}
         },

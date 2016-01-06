@@ -1587,7 +1587,7 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         }
 
         /*
-         * The larged size in for non-SMB NBSS traffic is
+         * The largest size in for non-SMB NBSS traffic is
          * 17 bits (0x1FFFF).
          *
          * The SMB1 unix extensions and the SMB2 multi credit

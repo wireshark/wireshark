@@ -1834,7 +1834,7 @@ dissect_spice_display_server(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 
             offset += dissect_Mask(tvb, pinfo, tree, offset);
 
-            if (data_size != 5) { /* if it's not a SOLID brush, it's a PATTERN, dissect its image descriptior */
+            if (data_size != 5) { /* if it's not a SOLID brush, it's a PATTERN, dissect its image descriptor */
                 offset += dissect_Image(tvb, tree, pinfo, offset);
             }
             break;
@@ -3577,7 +3577,7 @@ proto_register_spice(void)
             NULL, HFILL }
         },
         { &hf_main_cap_semi_migrate,
-          { "Semi-seamless migratation capability", "spice.main_cap_semi_migrate",
+          { "Semi-seamless migration capability", "spice.main_cap_semi_migrate",
             FT_BOOLEAN, 4, TFS(&tfs_set_notset), SPICE_MAIN_CAP_SEMI_SEAMLESS_MIGRATE_MASK,
             NULL, HFILL }
         },
@@ -3787,7 +3787,7 @@ proto_register_spice(void)
             NULL, HFILL }
         },
         { &hf_cursor_trail_visible,
-          { "Cursor trail visiblity", "spice.cursor_trail_visible",
+          { "Cursor trail visibility", "spice.cursor_trail_visible",
             FT_UINT8, BASE_DEC, VALS(cursor_visible_vs), 0x0,
             NULL, HFILL }
         },
@@ -3877,7 +3877,7 @@ proto_register_spice(void)
             NULL, HFILL }
         },
         { &hf_pixmap_address,
-          { "Pixmap palettte pointer", "spice.pixmap_palette_address",
+          { "Pixmap palette pointer", "spice.pixmap_palette_address",
             FT_UINT32, BASE_HEX_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -4412,7 +4412,7 @@ proto_register_spice(void)
             NULL, HFILL }
         },
         { &hf_vd_agent_cap_sparse_monitors_config,
-          { "Sparse monitors config", "spice.vd_agent_cap_sparese_monitors_config",
+          { "Sparse monitors config", "spice.vd_agent_cap_sparse_monitors_config",
             FT_BOOLEAN, 32, TFS(&tfs_set_notset), VD_AGENT_CAP_SPARSE_MONITORS_CONFIG,
             NULL, HFILL }
         },

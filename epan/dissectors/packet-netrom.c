@@ -53,8 +53,8 @@ void proto_reg_handoff_netrom(void);
 
 #define STRLEN 80
 
-#define NETROM_MIN_SIZE		   7	/* minumum payload for a routing packet */
-#define NETROM_HEADER_SIZE	  20	/* minumum payload for a normal packet */
+#define NETROM_MIN_SIZE		   7	/* minimum payload for a routing packet */
+#define NETROM_HEADER_SIZE	  20	/* minimum payload for a normal packet */
 
 #define	NETROM_PROTOEXT		0x00
 #define	NETROM_CONNREQ		0x01

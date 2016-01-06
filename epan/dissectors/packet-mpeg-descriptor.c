@@ -346,7 +346,7 @@ static const value_string mpeg_descr_iso639_type_vals[] = {
     { 0x00, "Undefined" },
     { 0x01, "Clean Effects" },
     { 0x02, "Hearing Impaired" },
-    { 0x03, "Visual Impaired Comentary" },
+    { 0x03, "Visual Impaired Commentary" },
 
     { 0x00, NULL }
 };
@@ -1111,7 +1111,7 @@ static const value_string mpeg_descr_linkage_target_listed_vals[] = {
 
 static const value_string mpeg_descr_linkage_event_simulcast_vals[] = {
     { 0x0, "Events are offset in time" },
-    { 0x1, "Target and source events are being sumulcast" },
+    { 0x1, "Target and source events are being simulcast" },
 
     { 0x0, NULL }
 };
@@ -1589,7 +1589,7 @@ static const value_string mpeg_descr_content_nibble_vals[] = {
     { 0xB1, "black and white" },
     { 0xB2, "unpublished" },
     { 0xB3, "live broadcast" },
-    { 0xBF, "user defined (special charateristics)" },
+    { 0xBF, "user defined (special characteristics)" },
 
     { 0x00, NULL }
 };
@@ -2332,7 +2332,7 @@ static int hf_mpeg_descr_private_data = -1;
 
 static const value_string mpeg_descr_extension_tag_extension_vals[] = {
     { EXT_TAG_IMG_ICON,      "Image Icon Descriptor" },
-    { EXT_TAG_CPCM_DLV,      "CPCM Delivery Dignalling Descriptor" },
+    { EXT_TAG_CPCM_DLV,      "CPCM Delivery Signalling Descriptor" },
     { EXT_TAG_CP,            "CP Descriptor" },
     { EXT_TAG_CP_ID,         "CP Identifier Descriptor" },
     { EXT_TAG_T2,            "T2 Delivery System Descriptor" },

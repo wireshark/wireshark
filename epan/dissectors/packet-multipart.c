@@ -137,7 +137,7 @@ static dissector_table_t media_type_dissector_table;
 static dissector_handle_t data_handle;
 static dissector_handle_t media_handle;
 
-/* Determins if bodies with no media type dissector shoud be displayed
+/* Determines if bodies with no media type dissector should be displayed
  * as raw text, may cause problems with images sound etc
  * TODO improve to check for different content types ?
  */
@@ -668,7 +668,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
                         break;
                         case POS_CONTENT_TRANSFER_ENCODING:
                         {
-                            /* The Content-Transfeing starts at colon_offset + 1 */
+                            /* The Content-Transferring starts at colon_offset + 1 */
                             gint cr_offset = index_of_char(value_str, '\r');
 
                             if (cr_offset > 0) {

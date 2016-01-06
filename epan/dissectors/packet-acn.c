@@ -1319,7 +1319,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     case ACN_DMP_VECTOR_UNKNOWN:
       break;
     case ACN_DMP_VECTOR_GET_PROPERTY:
-      /* Rip trough property address */
+      /* Rip through property address */
       while (data_offset < end_offset) {
         old_offset      = data_offset;
         data_offset     = acn_add_dmp_address(tvb, pinfo, pdu_tree, data_offset, &adt);
@@ -1406,7 +1406,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
       }
       break;
     case ACN_DMP_VECTOR_UNMAP_PROPERTY:
-      /* Rip trough Actaul Proptery Address */
+      /* Rip through Actual Property Address */
       while (data_offset < end_offset) {
         old_offset      = data_offset;
         data_offset     = acn_add_dmp_address(tvb, pinfo, pdu_tree, data_offset, &adt);
@@ -1414,7 +1414,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
       }
       break;
     case ACN_DMP_VECTOR_SUBSCRIBE:
-      /* Rip trough Proptery Address */
+      /* Rip through Property Address */
       while (data_offset < end_offset) {
         old_offset      = data_offset;
         data_offset     = acn_add_dmp_address(tvb, pinfo, pdu_tree, data_offset, &adt);
@@ -1422,7 +1422,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
       }
       break;
     case ACN_DMP_VECTOR_UNSUBSCRIBE:
-      /* Rip trough Proptery Address */
+      /* Rip through Property Address */
       while (data_offset < end_offset) {
         old_offset      = data_offset;
         data_offset     = acn_add_dmp_address(tvb, pinfo, pdu_tree, data_offset, &adt);
@@ -1430,7 +1430,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
       }
       break;
     case ACN_DMP_VECTOR_GET_PROPERTY_FAIL:
-      /* Rip trough Address-Reason Code Pairs */
+      /* Rip through Address-Reason Code Pairs */
       while (data_offset < end_offset) {
         old_offset      = data_offset;
         data_offset     = acn_add_dmp_address(tvb, pinfo, pdu_tree, data_offset, &adt);
@@ -1443,7 +1443,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
       }
       break;
     case ACN_DMP_VECTOR_SET_PROPERTY_FAIL:
-      /* Rip trough Address-Reason Code Pairs */
+      /* Rip through Address-Reason Code Pairs */
       while (data_offset < end_offset) {
         old_offset      = data_offset;
         data_offset     = acn_add_dmp_address(tvb, pinfo, pdu_tree, data_offset, &adt);
@@ -1456,7 +1456,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
       }
       break;
     case ACN_DMP_VECTOR_MAP_PROPERTY_FAIL:
-      /* Rip trough Address-Reason Code Pairs */
+      /* Rip through Address-Reason Code Pairs */
       while (data_offset < end_offset) {
         old_offset      = data_offset;
         data_offset     = acn_add_dmp_address(tvb, pinfo, pdu_tree, data_offset, &adt);
@@ -1469,7 +1469,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
       }
       break;
     case ACN_DMP_VECTOR_SUBSCRIBE_ACCEPT:
-      /* Rip through Property Addrsses */
+      /* Rip through Property Addresses */
       while (data_offset < end_offset) {
         old_offset      = data_offset;
         data_offset     = acn_add_dmp_address(tvb, pinfo, pdu_tree, data_offset, &adt);
@@ -1477,7 +1477,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
       }
       break;
     case ACN_DMP_VECTOR_SUBSCRIBE_REJECT:
-      /* Rip trough Address-Reason Code Pairs */
+      /* Rip through Address-Reason Code Pairs */
       while (data_offset < end_offset) {
         old_offset      = data_offset;
         data_offset     = acn_add_dmp_address(tvb, pinfo, pdu_tree, data_offset, &adt);
@@ -1808,7 +1808,7 @@ dissect_acn_sdt_client_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 /*  level    : 8 bit value                                                    */
 /*  string   : pointer to buffer to fill                                      */
 /*  leading_char: character to buffer left of digits                             */
-/*  min_char : mininum number of characters (for filling, not including space)*/
+/*  min_char : minimum number of characters (for filling, not including space)*/
 /*  show_zero: show zeros or dots                                             */
 /* also adds a space to right end                                             */
 /*                                                                            */

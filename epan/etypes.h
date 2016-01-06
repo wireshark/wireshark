@@ -269,7 +269,7 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_MINT
-#define ETHERTYPE_MINT			0x8783	/* Motorola Media Indepentent Network Transport */
+#define ETHERTYPE_MINT			0x8783	/* Motorola Media Independent Network Transport */
 #endif
 
 #ifndef ETHERTYPE_MAC_CONTROL

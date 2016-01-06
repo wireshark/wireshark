@@ -1503,7 +1503,7 @@ proto_register_alcap(void)
     { &hf_alcap_compat_pass_on_sni,
       { "Pass-On SNI", "alcap.compat.pass.sni",
         FT_UINT8, BASE_DEC, VALS(send_notification), 0x40,
-        "Send Notificaation Indicator", HFILL }
+        "Send Notification Indicator", HFILL }
     },
     { &hf_alcap_compat_pass_on_ii,
       { "Pass-On II", "alcap.compat.pass.ii",
@@ -1513,7 +1513,7 @@ proto_register_alcap(void)
     { &hf_alcap_compat_general_sni,
       { "General SNI", "alcap.compat.general.sni",
         FT_UINT8, BASE_DEC, VALS(send_notification), 0x04,
-        "Send Notificaation Indicator", HFILL }
+        "Send Notification Indicator", HFILL }
     },
     { &hf_alcap_compat_general_ii,
       { "General II", "alcap.compat.general.ii",

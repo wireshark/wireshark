@@ -6,7 +6,7 @@
  *          <anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
- * Modified 2004-01-10 by Anders Broman to add abillity to dissect
+ * Modified 2004-01-10 by Anders Broman to add ability to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
  * Copyright 2004-2005, Anders Broman <anders.broman@ericsson.com>
@@ -2357,7 +2357,7 @@ static const true_false_string isup_solicited_information_ind_value = {
 
 static const true_false_string isup_continuity_ind_value = {
   "Continuity check successful",
-  "Continuity ckec failed"
+  "Continuity check failed"
 };
 
 #define CHARGE_NO_IND       0
@@ -2941,7 +2941,7 @@ static int hf_optimisation_mode  = -1;
 static int hf_max_codec_modes  = -1;
 static int hf_bearer_control_tunneling          = -1;
 static int hf_Local_BCU_ID                      = -1;
-static int hf_late_cut_trough_cap_ind           = -1;
+static int hf_late_cut_through_cap_ind           = -1;
 static int hf_bat_ase_signal                    = -1;
 static int hf_bat_ase_duration                  = -1;
 static int hf_bat_ase_bearer_redir_ind          = -1;
@@ -4403,7 +4403,7 @@ static const true_false_string Bearer_Control_Tunnelling_ind_value  = {
   "No indication"
 };
 
-static const true_false_string late_cut_trough_cap_ind_value  = {
+static const true_false_string late_cut_through_cap_ind_value  = {
   "Late Cut-through supported",
   "Late Cut-through not supported"
 };
@@ -4528,7 +4528,7 @@ static const value_string BAT_ASE_Report_Reason_vals[] = {
   { 0x02,   "BICC data with unrecognized information element, discarded"},
   { 0,  NULL }
 };
-/* This routine should bve called with offset at Organization_Identifier not the lengh indicator
+/* This routine should be called with offset at Organization_Identifier not the lengh indicator
  * because of use from other disectors.
  */
 extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int len) {
@@ -4718,7 +4718,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
                                                val_to_str_ext(identifier, &bat_ase_list_of_Identifiers_vals_ext, "unknown (%u)"));
 
     if (identifier != CODEC) {
-      /* identifier, length indicator and compabillity info must be printed inside CODEC */
+      /* identifier, length indicator and compatibility info must be printed inside CODEC */
       /* dissection in order to use dissect_codec routine for codec list */
       proto_tree_add_uint(bat_ase_element_tree , hf_bat_ase_identifier , parameter_tvb,
                           offset - length_ind_len, 1, identifier);
@@ -4913,7 +4913,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
         break;
       case BEARER_REDIRECTION_CAPABILITY :
         tempdata = tvb_get_guint8(parameter_tvb, offset);
-        proto_tree_add_boolean(bat_ase_element_tree, hf_late_cut_trough_cap_ind , parameter_tvb, offset, 1, tempdata);
+        proto_tree_add_boolean(bat_ase_element_tree, hf_late_cut_through_cap_ind , parameter_tvb, offset, 1, tempdata);
         offset = offset + content_len;
         break;
       case BEARER_REDIRECTION_INDICATORS :
@@ -6431,7 +6431,7 @@ dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, proto_tree *para
 
 }
 /* ------------------------------------------------------------------
-  Dissector Parameter Redirection number restiriction
+  Dissector Parameter Redirection number restriction
  */
 static const value_string isup_redirection_presentation_indicator_vals[] = {
     { 0x00 , "Presentation allowed" },
@@ -6594,7 +6594,7 @@ dissect_isup_redirect_capability_parameter(tvbuff_t *parameter_tvb, proto_tree *
 
   switch (itu_isup_variant) {
     case ISUP_JAPAN_VARIANT:
-    /* Fall trough */
+    /* Fall through */
     case ISUP_JAPAN_TTC_VARIANT:
       proto_tree_add_item(parameter_tree, hf_isup_extension_ind,             parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(parameter_tree, hf_japan_isup_redirect_capability, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -6817,7 +6817,7 @@ dissect_isup_redirect_counter_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 
   switch (itu_isup_variant) {
     case ISUP_JAPAN_VARIANT:
-    /* Fall trough */
+    /* Fall through */
     case ISUP_JAPAN_TTC_VARIANT:
       proto_tree_add_item(parameter_tree, hf_japan_isup_redirect_counter, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
       break;
@@ -8339,7 +8339,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
   guint16     chg_inf_type = 0xffff;
 
   /* Dissect all optional parameters while end of message isn't reached */
-  parameter_type = 0xFF; /* Start-initializiation since parameter_type is used for while-condition */
+  parameter_type = 0xFF; /* Start-initialization since parameter_type is used for while-condition */
 
   while ((tvb_reported_length_remaining(optional_parameters_tvb, offset)  >= 1) && (parameter_type != PARAM_TYPE_END_OF_OPT_PARAMS)) {
     parameter_type = tvb_get_guint8(optional_parameters_tvb, offset);
@@ -8356,7 +8356,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
       /* Handle national extensions here */
       switch (itu_isup_variant) {
         case ISUP_JAPAN_VARIANT:
-        /* Fall trough */
+        /* Fall through */
         case ISUP_JAPAN_TTC_VARIANT:
           proto_tree_add_uint_format_value(parameter_tree, hf_isup_opt_parameter_type, optional_parameters_tvb, offset, PARAMETER_TYPE_LENGTH,
                                      parameter_type,
@@ -8630,7 +8630,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
           default:
             switch (itu_isup_variant) {
               case ISUP_JAPAN_VARIANT:
-              /* Fall trough */
+              /* Fall through */
               case ISUP_JAPAN_TTC_VARIANT:
                 switch (parameter_type) {
                   case JAPAN_ISUP_PARAM_CALLED_DIRECTORY_NUMBER:
@@ -8701,7 +8701,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
 
 /* ------------------------------------------------------------------
   Dissector all ANSI optional parameters
-  TODO: Actullay make this dissect ANSI :) - It's still plain old ITU for now
+  TODO: Actually make this dissect ANSI :) - It's still plain old ITU for now
 */
 static void
 dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *pinfo, proto_tree *isup_tree, guint8 itu_isup_variant)
@@ -8713,7 +8713,7 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_i
   guint8      octet;
 
   /* Dissect all optional parameters while end of message isn't reached */
-  parameter_type = 0xFF; /* Start-initializiation since parameter_type is used for while-condition */
+  parameter_type = 0xFF; /* Start-initialization since parameter_type is used for while-condition */
 
   while ((tvb_reported_length_remaining(optional_parameters_tvb, offset)  >= 1) && (parameter_type != PARAM_TYPE_END_OF_OPT_PARAMS)) {
     parameter_type = tvb_get_guint8(optional_parameters_tvb, offset);
@@ -9034,7 +9034,7 @@ dissect_ansi_isup_circuit_validation_test_resp_message(tvbuff_t *message_tvb, pr
   gint        offset = 0;
   gint        parameter_type, actual_length;
 
-  /* Do stuff for first mandatory fixed parameter: CVR Repsonse Indicator */
+  /* Do stuff for first mandatory fixed parameter: CVR Response Indicator */
   parameter_type = ANSI_ISUP_PARAM_TYPE_CVR_RESP_IND;
   parameter_tree = proto_tree_add_subtree(isup_tree, message_tvb, offset, CVR_RESP_IND_LENGTH,
                                     ett_isup_parameter, &parameter_item, "CVR Response Indicator");
@@ -10314,7 +10314,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
                                  message_type);
       break;
   case ISUP_JAPAN_VARIANT:
-  /* Fall trough */
+  /* Fall through */
   case ISUP_JAPAN_TTC_VARIANT:
       type_item = proto_tree_add_uint_format_value(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type,
                                  "%s (%u)",
@@ -10593,7 +10593,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
           }
           break;
         case ISUP_JAPAN_VARIANT:
-        /* Fall trough */
+        /* Fall through */
         case ISUP_JAPAN_TTC_VARIANT:
           switch (message_type) {
             case MESSAGE_TYPE_JAPAN_CHARG_INF:
@@ -10764,7 +10764,7 @@ dissect_bicc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       used_value_string_ext = &russian_isup_message_type_value_acro_ext;
       break;
     case ISUP_JAPAN_VARIANT:
-    /* Fall trough */
+    /* Fall through */
     case ISUP_JAPAN_TTC_VARIANT:
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "BICC(Japan)");
       used_value_string_ext = &japan_isup_message_type_value_acro_ext;
@@ -11228,7 +11228,7 @@ proto_register_isup(void)
         NULL, HFILL }},
 
     { &hf_isup_solicited_indicator,
-      { "Solicited indicator",  "isup.solicided_indicator",
+      { "Solicited indicator",  "isup.solicited_indicator",
         FT_BOOLEAN, 16, TFS(&isup_solicited_information_ind_value), H_16BIT_MASK,
         NULL, HFILL }},
 
@@ -11348,7 +11348,7 @@ proto_register_isup(void)
         NULL, HFILL }},
 
     { &hf_isup_event_presentation_restricted_ind,
-      { "Event presentation restricted indicator",  "isup.event_presentatiation_restr_ind",
+      { "Event presentation restricted indicator",  "isup.event_presentation_restr_ind",
         FT_BOOLEAN, 8, TFS(&isup_event_presentation_restricted_ind_value), H_8BIT_MASK,
         NULL, HFILL }},
 
@@ -11827,9 +11827,9 @@ proto_register_isup(void)
         FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_late_cut_trough_cap_ind,
-      { "Late Cut-through capability indicator",  "bat_ase.late_cut_trough_cap_ind",
-        FT_BOOLEAN, 8, TFS(&late_cut_trough_cap_ind_value), 0x01,
+    { &hf_late_cut_through_cap_ind,
+      { "Late Cut-through capability indicator",  "bat_ase.late_cut_through_cap_ind",
+        FT_BOOLEAN, 8, TFS(&late_cut_through_cap_ind_value), 0x01,
         NULL, HFILL }},
 
     { &hf_bat_ase_signal,

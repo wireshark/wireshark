@@ -891,7 +891,7 @@ proto_register_adb(void)
 
     module = prefs_register_protocol(proto_adb, NULL);
     prefs_register_static_text_preference(module, "version",
-            "ADB protocol version is compatibile pior to: adb 1.0.31",
+            "ADB protocol version is compatible prior to: adb 1.0.31",
             "Version of protocol supported by this dissector.");
 }
 

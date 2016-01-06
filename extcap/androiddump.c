@@ -1607,7 +1607,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
     uint32_t                      *reported_length;
     uint32_t                      *captured_length;
     uint32_t                      *flags;
-/*    uint32_t                     *cummulative_dropped_packets; */
+/*    uint32_t                     *cumulative_dropped_packets; */
     uint64_t                      *timestamp;
     char                          *payload                     =  packet + sizeof(own_pcap_bluetooth_h4_header) + 24;
     own_pcap_bluetooth_h4_header  *h4_header;
@@ -1615,7 +1615,7 @@ static int capture_android_bluetooth_btsnoop_net(char *interface, char *fifo,
     SET_DATA(reported_length, value_u32, packet + sizeof(own_pcap_bluetooth_h4_header) + 0);
     SET_DATA(captured_length, value_u32, packet + sizeof(own_pcap_bluetooth_h4_header) + 4);
     SET_DATA(flags, value_u32, packet + sizeof(own_pcap_bluetooth_h4_header) + 8);
-/*    SET_DATA(cummulative_dropped_packets, value_u32, packet + sizeof(own_pcap_bluetooth_h4_header) + 12); */
+/*    SET_DATA(cumulative_dropped_packets, value_u32, packet + sizeof(own_pcap_bluetooth_h4_header) + 12); */
     SET_DATA(timestamp, value_u64, packet + sizeof(own_pcap_bluetooth_h4_header) + 16);
     SET_DATA(h4_header, value_own_pcap_bluetooth_h4_header, payload - sizeof(own_pcap_bluetooth_h4_header));
 

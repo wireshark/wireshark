@@ -1139,7 +1139,7 @@ again:
                      * which we stopped.
                      *
                      * Convert that back into an offset
-                     * relative to the beginninng of
+                     * relative to the beginning of
                      * "tvb", by taking the length of
                      * "tvb" and subtracting the offset
                      * relative to the end.
@@ -2377,7 +2377,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
 
-    /* We have a valid message type, so move foward, filling in the
+    /* We have a valid message type, so move forward, filling in the
      * tree by adding the length, is_escape boolean and padding_length,
      * if present in the original packet
      */

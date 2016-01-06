@@ -1324,7 +1324,7 @@ manuf_name_lookup(const guint8 *addr)
     }
 
     /* Mask out the broadcast/multicast flag but not the locally
-     * administered flag as localy administered means: not assigend
+     * administered flag as locally administered means: not assigned
      * by the IEEE but the local administrator instead.
      * 0x01 multicast / broadcast bit
      * 0x02 locally administered bit */

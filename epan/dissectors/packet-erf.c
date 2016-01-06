@@ -1434,7 +1434,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         hdlc_type = ERF_HDLC_CHDLC;
       else {
         /* Anything to check for to recognize Frame Relay or MTP2?
-           Should we require PPP packets to beging with FF 03? */
+           Should we require PPP packets to begin with FF 03? */
         hdlc_type = ERF_HDLC_PPP;
       }
     }

@@ -359,11 +359,11 @@ static const enum_val_t pref_vdp_codec[] = {
 /* APT-X Codec */
 static int  proto_aptx                            = -1;
 static int  hf_aptx_data                          = -1;
-static int  hf_aptx_cummulative_frame_duration    = -1;
+static int  hf_aptx_cumulative_frame_duration    = -1;
 static int  hf_aptx_delta_time                    = -1;
 static int  hf_aptx_avrcp_song_position           = -1;
 static int  hf_aptx_delta_time_from_the_beginning = -1;
-static int  hf_aptx_cummulative_duration          = -1;
+static int  hf_aptx_cumulative_duration          = -1;
 static int  hf_aptx_diff                          = -1;
 static gint ett_aptx                              = -1;
 static dissector_handle_t aptx_handle;
@@ -1446,7 +1446,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 media_packet_info_t          *previous_media_packet_info;
                 media_packet_info_t          *current_media_packet_info;
                 nstime_t                      first_abs_ts;
-                gdouble                       cummulative_frame_duration;
+                gdouble                       cumulative_frame_duration;
                 gdouble                       avrcp_song_position = -1.0;
                 btavrcp_song_position_data_t *song_position_data;
 
@@ -1509,7 +1509,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (previous_media_packet_info && previous_media_packet_info->stream_number == sep_data.stream_number ) {
                     sep_data.previous_media_packet_info = previous_media_packet_info;
                     first_abs_ts = previous_media_packet_info->first_abs_ts;
-                    cummulative_frame_duration = previous_media_packet_info->cummulative_frame_duration;
+                    cumulative_frame_duration = previous_media_packet_info->cumulative_frame_duration;
                     if (avrcp_song_position == -1.0)
                         avrcp_song_position = previous_media_packet_info->avrcp_song_position;
                     else
@@ -1518,11 +1518,11 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (avrcp_song_position == -1.0)
                         avrcp_song_position = 0.0;
                     first_abs_ts = pinfo->fd->abs_ts;
-                    cummulative_frame_duration = 0.0;
+                    cumulative_frame_duration = 0.0;
                     sep_data.previous_media_packet_info = (media_packet_info_t *) wmem_new(wmem_epan_scope(), media_packet_info_t);
                     sep_data.previous_media_packet_info->abs_ts = pinfo->fd->abs_ts;
                     sep_data.previous_media_packet_info->first_abs_ts = first_abs_ts;
-                    sep_data.previous_media_packet_info->cummulative_frame_duration = cummulative_frame_duration;
+                    sep_data.previous_media_packet_info->cumulative_frame_duration = cumulative_frame_duration;
                     sep_data.previous_media_packet_info->avrcp_song_position = avrcp_song_position;
                     sep_data.previous_media_packet_info->stream_number = sep_data.stream_number;
                 }
@@ -1539,7 +1539,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     current_media_packet_info = wmem_new(wmem_file_scope(), media_packet_info_t);
                     current_media_packet_info->abs_ts = pinfo->fd->abs_ts;
                     current_media_packet_info->first_abs_ts = first_abs_ts;
-                    current_media_packet_info->cummulative_frame_duration = cummulative_frame_duration;
+                    current_media_packet_info->cumulative_frame_duration = cumulative_frame_duration;
                     current_media_packet_info->avrcp_song_position = avrcp_song_position;
                     current_media_packet_info->stream_number = sep_data.stream_number;
 
@@ -2762,7 +2762,7 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree          *aptx_tree;
     proto_item          *pitem;
     bta2dp_codec_info_t *info;
-    gdouble              cummulative_frame_duration = 0;
+    gdouble              cumulative_frame_duration = 0;
 
     info = (bta2dp_codec_info_t *) data;
 
@@ -2845,9 +2845,9 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         expected_speed_data = frequency * (sample_bits / 8.0) * number_of_channels;
         frame_duration = (((double) frame_length / (double) expected_speed_data) * 1000.0);
 
-        cummulative_frame_duration = (tvb_reported_length(tvb) / 4.0) * frame_duration;
+        cumulative_frame_duration = (tvb_reported_length(tvb) / 4.0) * frame_duration;
 
-        pitem = proto_tree_add_double(aptx_tree, hf_aptx_cummulative_frame_duration, tvb, 0, 0, cummulative_frame_duration);
+        pitem = proto_tree_add_double(aptx_tree, hf_aptx_cumulative_frame_duration, tvb, 0, 0, cumulative_frame_duration);
         proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);
 
@@ -2869,13 +2869,13 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             PROTO_ITEM_SET_GENERATED(pitem);
 
             if (!pinfo->fd->flags.visited)
-                info->current_media_packet_info->cummulative_frame_duration += cummulative_frame_duration;
+                info->current_media_packet_info->cumulative_frame_duration += cumulative_frame_duration;
 
-            pitem = proto_tree_add_double(aptx_tree, hf_aptx_cummulative_duration, tvb, 0, 0, info->previous_media_packet_info->cummulative_frame_duration);
+            pitem = proto_tree_add_double(aptx_tree, hf_aptx_cumulative_duration, tvb, 0, 0, info->previous_media_packet_info->cumulative_frame_duration);
             proto_item_append_text(pitem, " ms");
             PROTO_ITEM_SET_GENERATED(pitem);
 
-            pitem = proto_tree_add_double(aptx_tree, hf_aptx_diff, tvb, 0, 0, info->previous_media_packet_info->cummulative_frame_duration - nstime_to_msec(&delta));
+            pitem = proto_tree_add_double(aptx_tree, hf_aptx_diff, tvb, 0, 0, info->previous_media_packet_info->cumulative_frame_duration - nstime_to_msec(&delta));
             proto_item_append_text(pitem, " ms");
             PROTO_ITEM_SET_GENERATED(pitem);
         }
@@ -2893,8 +2893,8 @@ proto_register_aptx(void)
             FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_aptx_cummulative_frame_duration,
-            { "Cummulative Frame Duration",      "aptx.cummulative_frame_duration",
+        { &hf_aptx_cumulative_frame_duration,
+            { "Cumulative Frame Duration",      "aptx.cumulative_frame_duration",
             FT_DOUBLE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
@@ -2913,8 +2913,8 @@ proto_register_aptx(void)
             FT_DOUBLE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_aptx_cummulative_duration,
-            { "Cummulative Music Duration",      "aptx.cummulative_music_duration",
+        { &hf_aptx_cumulative_duration,
+            { "Cumulative Music Duration",      "aptx.cumulative_music_duration",
             FT_DOUBLE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
@@ -3073,7 +3073,7 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     bta2dp_codec_info.current_media_packet_info  = sep_data.current_media_packet_info;
 
 #if RTP_PLAYER_WORKAROUND == TRUE
-    /* XXX: Workaround to get multiple RTP streams, because converation are too
+    /* XXX: Workaround to get multiple RTP streams, because conversations are too
        weak to recognize Bluetooth streams (key is: guint32 interface_id, guint32 adapter_id, guint32 chandle, guint32 cid, guint32 direction -> guint32 stream_number) */
     pinfo->srcport = sep_data.stream_number;
     pinfo->destport = sep_data.stream_number;
@@ -3309,7 +3309,7 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     btvdp_codec_info.content_protection_type = sep_data.content_protection_type;
 
 #if RTP_PLAYER_WORKAROUND == TRUE
-    /* XXX: Workaround to get multiple RTP streams, because converation are too
+    /* XXX: Workaround to get multiple RTP streams, because conversations are too
        weak to recognize Bluetooth streams (key is: guint32 interface_id, guint32 adapter_id, guint32 chandle, guint32 cid, guint32 direction -> guint32 stream_number) */
     pinfo->srcport = sep_data.stream_number;
     pinfo->destport = sep_data.stream_number;

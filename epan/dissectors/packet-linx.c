@@ -441,7 +441,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 					/* how many sequence numbers will be there? */
 					/* this is not implemented due to a lack of documentation with */
-					/* longer seqence numbers. */
+					/* longer sequence numbers. */
 					/* guess there will be padding if the Seqno doesn't reach */
 					/* a 32bit boundary */
 

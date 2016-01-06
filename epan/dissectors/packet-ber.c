@@ -3604,7 +3604,7 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
     first_delim[0]  = 0;
     second_delim[0] = 0;
     ret = sscanf( tmpstr, "%14d%1[.,+-Z]%4d%1[+-Z]%4d", &tmp_int, first_delim, &first_digits, second_delim, &second_digits);
-    /* tmp_int does not contain valid value bacause of overflow but we use it just for format checking */
+    /* tmp_int does not contain valid value because of overflow but we use it just for format checking */
     if (ret < 1) {
         /* Nothing matched */
         goto invalid;
@@ -4033,7 +4033,7 @@ dissect_ber_bitstring32(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *par
     tree = proto_item_get_subtree(actx->created_item);
     if (bit_fields && tree && tmp_tvb) {
         /* tmp_tvb points to the actual bitstring (including any pad bits at the end.
-         * note that this bitstring is not neccessarily always encoded as 4 bytes
+         * note that this bitstring is not necessarily always encoded as 4 bytes
          * so we have to read it byte by byte.
          */
         val = 0;

@@ -4388,7 +4388,7 @@ process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
         ioffset = ioffset+values->vvalue;
         ioffset += align_4(tvb, ioffset);
     }
-    if (iter_flags & DSI_ENTRY_RDN) { /* Relative Distiguished Name */
+    if (iter_flags & DSI_ENTRY_RDN) { /* Relative Distinguished Name */
         values->vvalue = tvb_get_letohl(tvb, ioffset);         /* Length of string */
         ioffset = ioffset+4;
         values->vstring = get_string(tvb, ioffset, values->vvalue);
@@ -8193,7 +8193,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
             if (ncp_rec->func == 0x17 && ncp_rec->subfunc == 0x1a) {
                 dissect_ncp_23_26_reply(tvb, ncp_tree);
             }
-            /* Process ncp 87/72 bytes transfered value. */
+            /* Process ncp 87/72 bytes transferred value. */
             if (ncp_rec->func == 0x57 && ncp_rec->subfunc == 0x48) {
                 dissect_ncp_87_72_reply(tvb, ncp_tree);
             }

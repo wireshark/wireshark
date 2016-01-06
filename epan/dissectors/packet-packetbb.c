@@ -865,7 +865,7 @@ void proto_register_packetbb(void) {
         NULL, HFILL }
     },
     { &hf_packetbb_msgheader_seqnr,
-      { "Squence number", "packetbb.msg.seqnum",
+      { "Sequence number", "packetbb.msg.seqnum",
         FT_UINT16, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },

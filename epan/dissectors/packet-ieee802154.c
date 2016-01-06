@@ -2069,7 +2069,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb, guint offset, packet_info *pinfo, ieee
     /*
      * Oh God! The specification is so bad. This is the worst
      * case of design-by-committee I've ever seen in my life.
-     * The IEEE has created an unintelligable mess in order
+     * The IEEE has created an unintelligible mess in order
      * to decipher which key is used for which message.
      *
      * Let's hope it's simpler to implement for dissecting only.
@@ -2156,7 +2156,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb, guint offset, packet_info *pinfo, ieee
         guint                   l_m = captured_len;
         guint                   l_a = offset;
 
-        /* Adjust the lengths of the plantext and additional data if unencrypted. */
+        /* Adjust the lengths of the plaintext and additional data if unencrypted. */
         if (!IEEE802154_IS_ENCRYPTED(packet->security_level)) {
             l_a += l_m;
             l_m = 0;
@@ -2434,7 +2434,7 @@ gboolean ieee802154_long_addr_equal(gconstpointer a, gconstpointer b)
  *@param short_addr 16-bit short address
  *@param pan 16-bit PAN id
  *@param long_addr 64-bit long (extended) address
- *@param proto ointer to name of current protocol
+ *@param proto pointer to name of current protocol
  *@param fnum Frame number this mapping became valid
  *@return TRUE Record was updated, FALSE Couldn't find it
 */
@@ -2493,7 +2493,7 @@ ieee802154_map_rec *ieee802154_addr_update(ieee802154_map_tab_t *au_ieee802154_m
 /**
  *Marks a mapping record associated with device with short_addr
  *as invalid at a certain frame number, typically when a
- *dissassociation occurs.
+ *disassociation occurs.
  *
  *@param short_addr 16-bit short address
  *@param pan 16-bit PAN id
@@ -2521,7 +2521,7 @@ gboolean ieee802154_short_addr_invalidate(guint16 short_addr, guint16 pan, guint
 /**
  * Mark a mapping record associated with device with long_addr
  * as invalid at a certain frame number, typically when a
- * dissassociation occurs.
+ * disassociation occurs.
  *
  *@param long_addr 16-bit short address
  *@param fnum Frame number when mapping became invalid

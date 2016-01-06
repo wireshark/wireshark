@@ -336,7 +336,7 @@ proto_register_mcpe(void)
             );
 
     /*
-     * Register detailed diessection arrays.
+     * Register detailed dissection arrays.
      */
     proto_register_field_array(proto_mcpe, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));

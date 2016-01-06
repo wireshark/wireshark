@@ -1161,7 +1161,7 @@ static void register_dtd(dtd_build_data_t *dtd_data, GString *errors)
             root_element->attributes = g_hash_table_new(g_str_hash, g_str_equal);
         }
 
-        /* we then create all the sub hierachies to catch the recurred cases */
+        /* we then create all the sub hierarchies to catch the recurred cases */
         g_ptr_array_add(hier, root_name);
 
         while(root_element->element_names->len) {

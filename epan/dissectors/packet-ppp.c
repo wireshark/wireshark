@@ -2486,7 +2486,7 @@ dissect_lcp_auth_opt(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     }
 }
 
-/* Asuming it's this one:
+/* Assuming it's this one:
  * http://tools.ietf.org/html/draft-ietf-pppext-cobs-00
  */
 static void

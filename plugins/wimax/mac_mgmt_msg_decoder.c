@@ -314,7 +314,7 @@ void proto_reg_handoff_mac_mgmt_msg(void)
 	if (mgt_msg_handle)
 		dissector_add_uint( "wmx.mgmtmsg", MAC_MGMT_MSG_MOB_NBR_ADV, mgt_msg_handle );
 
-	/* find the Scanning Interval Allocation Reqest message handler */
+	/* find the Scanning Interval Allocation Request message handler */
 	mgt_msg_handle = find_dissector("mac_mgmt_msg_mob_scn_req_handler");
 	if (mgt_msg_handle)
 		dissector_add_uint( "wmx.mgmtmsg", MAC_MGMT_MSG_MOB_SCN_REQ, mgt_msg_handle );

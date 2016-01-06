@@ -428,7 +428,7 @@ static const value_string rsl_msg_type_vals[] = {
 /* 0x37 */ {  RSL_MSG_REMOTE_CODEC_CONF_REP, "REMOTE CODEC CONFiguration REPort" },      /* 8.4.23 */
 /* 0x38 */ {  RSL_MSG_R_T_D_REP,         "Round Trip Delay REPort" },                    /* 8.4.24 */
 /* 0x39 */ {  RSL_MSG_PRE_HANDO_NOTIF,   "PRE-HANDOver NOTIFication" },                  /* 8.4.25 */
-/* 0x3a */ {  RSL_MSG_MR_CODEC_MOD_REQ,  "MultiRate CODEC MODification REQest" },        /* 8.4.26 */
+/* 0x3a */ {  RSL_MSG_MR_CODEC_MOD_REQ,  "MultiRate CODEC MODification REQuest" },       /* 8.4.26 */
 /* 0x3b */ {  RSL_MSG_MR_CODEC_MOD_ACK,  "MultiRate CODEC MOD ACKnowledge" },            /* 8.4.27 */
 /* 0x3c */ {  RSL_MSG_MR_CODEC_MOD_NACK, "MultiRate CODEC MOD Negative ACKnowledge" },   /* 8.4.28 */
 /* 0x3d */ {  RSL_MSG_MR_CODEC_MOD_PER,  "MultiRate CODEC MOD PERformed" },              /* 8.4.29 */

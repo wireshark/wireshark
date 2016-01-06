@@ -2407,7 +2407,7 @@ dissect_megaco_servicechangedescriptor(tvbuff_t *tvb, proto_tree *megaco_tree,  
         case MEGACO_PROFILE_TOKEN:
         case MEGACO_VERSION_TOKEN:
         case MEGACO_METHOD_TOKEN:
-            /* No special dissection: fall trough */
+            /* No special dissection: fall through */
         default:
         /* Unknown or:
          * extension            = extensionParameter parmValue

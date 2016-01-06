@@ -1589,7 +1589,7 @@ proto_register_ses(void)
 			&hf_beginning_of_SSDU,
 			{
 				"beginning of SSDU",
-				"ses.begininng_of_SSDU",
+				"ses.beginning_of_SSDU",
 				FT_BOOLEAN, 8,
 				NULL,
 				BEGINNING_SPDU,

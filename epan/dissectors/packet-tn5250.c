@@ -1384,7 +1384,7 @@ static const value_string vals_tn5250_dckf_function_code[] = {
 /* 15.27.4.3 READ TEXT SCREEN Command */
 
 static const range_string vals_tn5250_rts_partition[] = {
-  { 0x00, 0x00, "Valid Parition ID" },
+  { 0x00, 0x00, "Valid Partition ID" },
   { 0x01, 0xFF, "Invalid Partition ID" },
   { 0,  0,      NULL}
 };

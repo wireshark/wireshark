@@ -778,7 +778,7 @@ proto_register_forces(void)
             FT_UINT32, BASE_DEC, VALS(association_setup_result_at_vals), 0x0, NULL, HFILL }
         },
         { &hf_forces_astreason_tlv_teardown_reason,
-            { "AStreason TLV TearDonw Reason", "forces.astreason.tlv.teardonw.reason",
+            { "AStreason TLV TearDown Reason", "forces.astreason.tlv.teardown.reason",
             FT_UINT32, BASE_DEC, VALS(teardown_reason_at_vals), 0x0, NULL, HFILL }
         },
         { &hf_forces_unknown_tlv,

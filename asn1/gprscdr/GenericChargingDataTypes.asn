@@ -49,7 +49,7 @@ FROM CMIP-1 {joint-iso-itu-t ms (9) cmip (1) version1 (1) protocol (3)}
 --
 -- from Rec. X.2ab[304]  Editor's note:  clarify if this definition is still needed.  It appears that it ends in Nirvana.
 
--- WS imports localy
+-- WS imports locally
 --ManagementExtension
 --FROM Attribute-ASN1Module {joint-iso-itu-t ms (9) smi (3) part2 (2) asn1Module (2) 1}
 --

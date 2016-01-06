@@ -526,7 +526,7 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
         bit_offset += 4;
         proto_tree_add_bits_item(toc_tree, hf_amr_toc_q, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset += 1;
-        /* 2 pading bits */
+        /* 2 padding bits */
         bit_offset += 2;
         offset     += 1;
     }

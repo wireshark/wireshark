@@ -3251,7 +3251,7 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 				 *   - 1 byte for subindex
 				 *   - 1 byte for reserved and padding */
 
-				/* Guarding against readout of padding. Probaility is nearly zero, as
+				/* Guarding against readout of padding. Probability is nearly zero, as
 				 * padding was checked above, but to be sure, this remains here */
 				if ( (guint32)( padding + 8 ) >= datalength )
 					break;

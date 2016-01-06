@@ -897,7 +897,7 @@ static bitfield_info bfinfo_v3_prefix_options = {
     &hf_ospf_v3_prefix_option, &ett_ospf_v3_prefix_options,
     bf_v3_prefix_options, array_length(bf_v3_prefix_options)
 };
-/* Structure used for dissecing the Options bitfield of the Optional Router Informational
+/* Structure used for dissecting the Options bitfield of the Optional Router Informational
    Capabilities RI LSA. */
 static bitfield_info bfinfo_ri_options = {
     &hf_ospf_ri_options, &ett_ospf_ri_options,

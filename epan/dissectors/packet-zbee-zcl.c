@@ -2205,7 +2205,7 @@ void proto_register_zbee_zcl(void)
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_maxnum,
-            { "Maxiumum Number", "zbee_zcl.attr.maxnum", FT_UINT8, BASE_DEC, NULL, 0x0,
+            { "Maximum Number", "zbee_zcl.attr.maxnum", FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_attr_str_len,

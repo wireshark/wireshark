@@ -591,7 +591,7 @@ proto_register_zbee_zcl_msg(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_msg_ext_ctrl_status,
-            { "Message Confirmation Satus", "zbee_zcl_se.msg.message.ext.ctrl.status", FT_BOOLEAN, 8, TFS(&tfs_confirmed_unconfirmed),
+            { "Message Confirmation Status", "zbee_zcl_se.msg.message.ext.ctrl.status", FT_BOOLEAN, 8, TFS(&tfs_confirmed_unconfirmed),
             ZBEE_ZCL_MSG_EXT_CTRL_STATUS_MASK, NULL, HFILL } },
 /* End of 'Extended Message Control' fields */
 

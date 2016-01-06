@@ -138,36 +138,36 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             /* A flag, 1 bit */
             proto_tree_add_bits_item(rfc2190_tree, hf_rfc2190_advanced_prediction, tvb, (offset<<3)+6, 1, ENC_BIG_ENDIAN);
 
-            /* Reserved 2nd octect, 1 bit + 3rd octect 3 bits */
+            /* Reserved 2nd octet, 1 bit + 3rd octet 3 bits */
             proto_tree_add_uint( rfc2190_tree, hf_rfc2190_r, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xe0 ) >> 5 ) );
 
             offset++;
 
-            /* DBQ 3 octect, 2 bits */
+            /* DBQ 3 octet, 2 bits */
             proto_tree_add_item( rfc2190_tree, hf_rfc2190_dbq, tvb, offset, 1, ENC_BIG_ENDIAN );
-            /* TRB 3 octect, 3 bits */
+            /* TRB 3 octet, 3 bits */
             proto_tree_add_item( rfc2190_tree, hf_rfc2190_trb, tvb, offset, 1, ENC_BIG_ENDIAN );
             offset++;
 
-            /* TR 4 octect, 8 bits */
+            /* TR 4 octet, 8 bits */
             proto_tree_add_item( rfc2190_tree, hf_rfc2190_tr, tvb, offset, 1, ENC_NA );
 
             offset++;
 
         } else { /* MODE B or MODE C */
-            /* QUANT 2 octect, 5 bits */
+            /* QUANT 2 octet, 5 bits */
             proto_tree_add_item( rfc2190_tree, hf_rfc2190_quant, tvb, offset, 1, ENC_NA);
 
             offset++;
 
-            /* GOBN 3 octect, 5 bits */
+            /* GOBN 3 octet, 5 bits */
             proto_tree_add_item( rfc2190_tree, hf_rfc2190_gobn, tvb, offset, 1, ENC_NA);
-            /* MBA 3 octect, 3 bits + 4 octect 6 bits */
+            /* MBA 3 octet, 3 bits + 4 octet 6 bits */
             proto_tree_add_uint( rfc2190_tree, hf_rfc2190_mba, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x7 ) << 6 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xfc ) >> 2 ) );
 
             offset++;
 
-            /* Reserved 4th octect, 2 bits */
+            /* Reserved 4th octet, 2 bits */
             proto_tree_add_uint( rfc2190_tree, hf_rfc2190_r, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x3 ) );
 
             offset++;
@@ -181,40 +181,40 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             /* A flag, 1 bit */
             proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_advanced_prediction, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x10 );
 
-            /* HMV1 5th octect, 4 bits + 6th octect 3 bits*/
+            /* HMV1 5th octet, 4 bits + 6th octet 3 bits*/
             proto_tree_add_uint( rfc2190_tree, hf_rfc2190_hmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0xf ) << 3 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xe0 ) >> 5) );
 
             offset++;
 
-            /* VMV1 6th octect, 5 bits + 7th octect 2 bits*/
+            /* VMV1 6th octet, 5 bits + 7th octet 2 bits*/
             proto_tree_add_uint( rfc2190_tree, hf_rfc2190_vmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x1f ) << 2 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xc0 ) >> 6) );
 
             offset++;
 
-            /* HMV2 7th octect, 6 bits + 8th octect 1 bit*/
+            /* HMV2 7th octet, 6 bits + 8th octet 1 bit*/
             proto_tree_add_uint( rfc2190_tree, hf_rfc2190_hmv2, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x3f ) << 1 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xf0 ) >> 7) );
 
             offset++;
 
-            /* VMV2 8th octect, 7 bits*/
+            /* VMV2 8th octet, 7 bits*/
             proto_tree_add_item( rfc2190_tree, hf_rfc2190_vmv2, tvb, offset, 1, ENC_NA);
 
             offset++;
 
             if(rfc2190_version == 0x03) { /* MODE C */
-                /* Reserved 9th to 11th octect, 8 + 8 + 3 bits */
+                /* Reserved 9th to 11th octet, 8 + 8 + 3 bits */
                 proto_tree_add_uint( rfc2190_tree, hf_rfc2190_rr, tvb, offset, 3, ( tvb_get_guint8( tvb, offset ) << 11 ) + ( tvb_get_guint8( tvb, offset + 1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 2 ) & 0xe0 ) >> 5 ) );
 
                 offset+=2;
 
-                /* DBQ 11th octect, 2 bits */
+                /* DBQ 11th octet, 2 bits */
                 proto_tree_add_item( rfc2190_tree, hf_rfc2190_dbq, tvb, offset, 1, ENC_BIG_ENDIAN );
-                /* TRB 11th octect, 3 bits */
+                /* TRB 11th octet, 3 bits */
                 proto_tree_add_item( rfc2190_tree, hf_rfc2190_trb, tvb, offset, 1, ENC_BIG_ENDIAN );
 
                 offset++;
 
-                /* TR 12th octect, 8 bits */
+                /* TR 12th octet, 8 bits */
                 proto_tree_add_uint( rfc2190_tree, hf_rfc2190_tr, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
 
                 offset++;

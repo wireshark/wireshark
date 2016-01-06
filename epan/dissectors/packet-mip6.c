@@ -5122,7 +5122,7 @@ proto_register_mip6(void)
     { &hf_pmip6_lra_status,
       { "Status", "mip6.lra.status",
         FT_UINT8, BASE_DEC, VALS(pmip6_lra_status_vals), 0x0,
-        "Indicating the result ofprocessing the Localized Routing Acknowledgment message.", HFILL }
+        "Indicating the result of processing the Localized Routing Acknowledgment message.", HFILL }
     },
 
     { &hf_pmip6_lra_lifetime,

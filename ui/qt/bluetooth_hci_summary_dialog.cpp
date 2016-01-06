@@ -400,7 +400,7 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
         if (tap_hci->type != BLUETOOTH_HCI_SUMMARY_EVENT_OPCODE && tap_hci->type != BLUETOOTH_HCI_SUMMARY_VENDOR_EVENT_OPCODE)
             item->setText(column_number_occurrence, QString::number(item->text(column_number_occurrence).toInt() + 1));
 
-        /* I belive bthci_cmd/bthci_evt already add frame item */
+        /* I believe bthci_cmd/bthci_evt already add frame item */
         if (tap_hci->type == BLUETOOTH_HCI_SUMMARY_VENDOR_OPCODE ||
                 tap_hci->type == BLUETOOTH_HCI_SUMMARY_VENDOR_EVENT_OPCODE)
             break;
@@ -449,7 +449,7 @@ gboolean BluetoothHciSummaryDialog::tapPacket(void *tapinfo_ptr, packet_info *pi
 
         item->setText(column_number_occurrence, QString::number(item->text(column_number_occurrence).toInt() + 1));
 
-        /* I belive bthci_cmd/bthci_evt already add frame item */
+        /* I believe bthci_cmd/bthci_evt already add frame item */
         if (tap_hci->type == BLUETOOTH_HCI_SUMMARY_VENDOR_EVENT)
             break;
 
