@@ -1725,12 +1725,10 @@ dissect_dcom_BSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 {
 	guint32 u32MaxCount;
 	guint32 u32ArraySize;
-	guint32 u32StrStart;
+	gint strStart, subStart, realOffset;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
-	guint32 u32SubStart;
 	guint32 u32ByteLength;
-	guint32	u32RealOffset;
 	gboolean isPrintable;
 
 	/* alignment of 4 needed */
@@ -1741,7 +1739,7 @@ dissect_dcom_BSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	/* add subtree item */
 	sub_item = proto_tree_add_string(tree, hfindex, tvb, offset, 0, "");
 	sub_tree = proto_item_add_subtree(sub_item, ett_dcom_lpwstr);
-	u32SubStart = offset;
+	subStart = offset;
 
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, di, drep,
 			hf_dcom_max_count, &u32MaxCount);
@@ -1750,21 +1748,26 @@ dissect_dcom_BSTR(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_dcom_dcerpc_array_size(tvb, offset, pinfo, sub_tree, di, drep,
 			&u32ArraySize);
 
-	u32RealOffset = offset + u32ArraySize*2;
+	if ((guint32)offset + u32ArraySize*2 > G_MAXINT)
+		return offset;
 
-	u32StrStart = offset;
+	realOffset = offset + u32ArraySize*2;
+
+	strStart = offset;
 	offset = dcom_tvb_get_nwstringz0(tvb, offset, u32ArraySize*2, pszStr, u32MaxStr, &isPrintable);
 
-	proto_tree_add_string(sub_tree, hfindex, tvb, u32StrStart, offset - u32StrStart, pszStr);
+	proto_tree_add_string(sub_tree, hfindex, tvb, strStart, offset - strStart, pszStr);
 
 	/* update subtree header */
 	proto_item_append_text(sub_item, "%s%s%s",
 	isPrintable ? "\"" : "", pszStr, isPrintable ? "\"" : "");
-	if ((int) (u32RealOffset - u32SubStart) <= 0)
-		THROW(ReportedBoundsError);
-	proto_item_set_len(sub_item, u32RealOffset - u32SubStart);
+	if (realOffset <= subStart) {
+		/* XXX - expert info */
+		return offset;
+	}
+	proto_item_set_len(sub_item, realOffset - subStart);
 
-	return u32RealOffset;
+	return realOffset;
 }
 
 
