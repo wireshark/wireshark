@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V12.2.0 (2014-06)
+-- 3GPP TS 36.413 V13.1.0 (2015-12)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -6,7 +6,7 @@
 --
 -- **************************************************************
 
-S1AP-IEs { 
+S1AP-IEs {
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 eps-Access (21) modules (3) s1ap (1) version1 (1) s1ap-IEs (2) }
 
@@ -18,7 +18,7 @@ IMPORTS
 	id-E-RABInformationListItem,
 	id-E-RABItem,
 	id-Bearers-SubjectToStatusTransfer-Item,
-	id-Time-Synchronization-Info,
+	id-Time-Synchronisation-Info,
 	id-x2TNLConfigurationInfo,
 	id-eNBX2ExtendedTransportLayerAddresses,
 	id-MDTConfiguration,
@@ -34,6 +34,18 @@ IMPORTS
 	id-DLCOUNTValueExtended,
 	id-ReceiveStatusOfULPDCPSDUsExtended,
 	id-eNBIndirectX2TransportLayerAddresses,
+	id-Muting-Availability-Indication,
+	id-Muting-Pattern-Information,
+	id-Synchronisation-Information,
+	id-uE-HistoryInformationFromTheUE,
+	id-LoggedMBSFNMDT,
+	id-SON-Information-Report,
+	id-ProSeUEtoNetworkRelaying,
+	id-ULCOUNTValuePDCP-SNlength18,
+	id-DLCOUNTValuePDCP-SNlength18,
+	id-ReceiveStatusOfULPDCPSDUsPDCP-SNlength18,
+	id-M6Configuration,
+	id-M7Configuration,
 	maxnoofCSGs,
 	maxnoofE-RABs,
 	maxnoofErrors,
@@ -61,7 +73,10 @@ IMPORTS
 	maxnoofMDTPLMNs,
 	maxnoofCellsforRestart,
 	maxnoofRestartTAIs,
-	maxnoofRestartEmergencyAreaIDs
+	maxnoofRestartEmergencyAreaIDs,
+	maxnoofMBSFNAreaMDT,
+	maxEARFCN,
+	maxnoofCellsineNB
 
 
 
@@ -81,6 +96,17 @@ FROM S1AP-CommonDataTypes
 FROM S1AP-Containers;	
 
 -- A
+
+Additional-GUTI::= SEQUENCE {
+	gUMMEI					GUMMEI,
+	m-TMSI					M-TMSI,
+	iE-Extensions			ProtocolExtensionContainer { {Additional-GUTI-ExtIEs} } OPTIONAL,
+	...
+}
+
+Additional-GUTI-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 AreaScopeOfMDT ::= CHOICE {	
 	cellBased					CellBasedMDT,
@@ -122,9 +148,12 @@ Bearers-SubjectToStatusTransfer-Item ::= SEQUENCE {
 }
 
 Bearers-SubjectToStatusTransfer-ItemExtIEs S1AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-ULCOUNTValueExtended				CRITICALITY ignore	EXTENSION COUNTValueExtended				PRESENCE optional	}|
-	{ ID id-DLCOUNTValueExtended				CRITICALITY ignore	EXTENSION COUNTValueExtended				PRESENCE optional	}|
-	{ ID id-ReceiveStatusOfULPDCPSDUsExtended	CRITICALITY ignore	EXTENSION ReceiveStatusOfULPDCPSDUsExtended		PRESENCE optional	},
+	{ ID id-ULCOUNTValueExtended						CRITICALITY ignore	EXTENSION COUNTValueExtended				PRESENCE optional}|
+	{ ID id-DLCOUNTValueExtended						CRITICALITY ignore	EXTENSION COUNTValueExtended				PRESENCE optional}|
+	{ ID id-ReceiveStatusOfULPDCPSDUsExtended			CRITICALITY ignore	EXTENSION ReceiveStatusOfULPDCPSDUsExtended		PRESENCE optional}|
+	{ ID id-ULCOUNTValuePDCP-SNlength18					CRITICALITY ignore	EXTENSION COUNTvaluePDCP-SNlength18			PRESENCE optional}|
+	{ ID id-DLCOUNTValuePDCP-SNlength18					CRITICALITY ignore	EXTENSION COUNTvaluePDCP-SNlength18			PRESENCE optional}|
+	{ ID id-ReceiveStatusOfULPDCPSDUsPDCP-SNlength18	CRITICALITY ignore	EXTENSION ReceiveStatusOfULPDCPSDUsPDCP-SNlength18	PRESENCE optional},
 	...
 }
 
@@ -442,6 +471,17 @@ COUNTValueExtended-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+COUNTvaluePDCP-SNlength18 ::= SEQUENCE {
+	pDCP-SNlength18				PDCP-SNlength18,
+	hFNforPDCP-SNlength18		HFNforPDCP-SNlength18,
+	iE-Extensions				ProtocolExtensionContainer { {COUNTvaluePDCP-SNlength18-ExtIEs} } OPTIONAL,
+	...
+}
+
+COUNTvaluePDCP-SNlength18-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 CriticalityDiagnostics ::= SEQUENCE {
 	procedureCode					ProcedureCode														OPTIONAL,
 	triggeringMessage				TriggeringMessage													OPTIONAL,
@@ -491,7 +531,11 @@ Data-Forwarding-Not-Possible ::= ENUMERATED {
 
 -- E
 
+EARFCN ::= INTEGER(0..maxEARFCN, ...)
+
 ECGIList ::= SEQUENCE (SIZE(1..maxnoofCellID)) OF EUTRAN-CGI
+
+PWSfailedECGIList ::= SEQUENCE (SIZE(1..maxnoofCellsineNB)) OF EUTRAN-CGI
 
 EmergencyAreaIDList ::= SEQUENCE (SIZE(1..maxnoofEmergencyAreaID)) OF EmergencyAreaID
 
@@ -534,6 +578,8 @@ CompletedCellinEAI-Item ::= SEQUENCE {
 CompletedCellinEAI-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+ECGI-List ::= SEQUENCE (SIZE(1..maxnoofCellsineNB)) OF EUTRAN-CGI
 
 EmergencyAreaIDListForRestart	::= SEQUENCE (SIZE(1..maxnoofRestartEmergencyAreaIDs)) OF EmergencyAreaID
 
@@ -659,6 +705,44 @@ EUTRAN-CGI-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 
 EUTRANRoundTripDelayEstimationInfo ::= INTEGER (0..2047)
 
+ExpectedUEBehaviour ::= SEQUENCE {
+	expectedActivity		ExpectedUEActivityBehaviour OPTIONAL,
+	expectedHOInterval		ExpectedHOInterval		 	OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { ExpectedUEBehaviour-ExtIEs} } OPTIONAL,
+	...
+}
+
+ExpectedUEBehaviour-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ExpectedUEActivityBehaviour ::= SEQUENCE {
+	expectedActivityPeriod					ExpectedActivityPeriod					OPTIONAL,
+	expectedIdlePeriod						ExpectedIdlePeriod						OPTIONAL,
+	sourceofUEActivityBehaviourInformation	SourceOfUEActivityBehaviourInformation	OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { ExpectedUEActivityBehaviour-ExtIEs} } OPTIONAL,
+	...
+}
+
+ExpectedUEActivityBehaviour-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ExpectedActivityPeriod ::= INTEGER (1..30|40|50|60|80|100|120|150|180|181,...)
+
+ExpectedIdlePeriod ::= INTEGER (1..30|40|50|60|80|100|120|150|180|181,...)
+
+SourceOfUEActivityBehaviourInformation ::= ENUMERATED {
+	subscription-information,
+	statistics,
+	...
+}
+
+ExpectedHOInterval ::= ENUMERATED {
+	sec15, sec30, sec60, sec90, sec120, sec180, long-time,
+	...
+}
+
 ExtendedRNC-ID					::= INTEGER (4096..65535)
 
 ExtendedRepetitionPeriod ::= INTEGER (4096..131071)
@@ -776,6 +860,7 @@ HFN ::= INTEGER (0..1048575)
 
 HFNModified ::= INTEGER (0..131071)
 
+HFNforPDCP-SNlength18 ::= INTEGER (0..16383)
 
 -- I
 
@@ -796,7 +881,9 @@ ImmediateMDT-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-M3Configuration		CRITICALITY ignore	EXTENSION M3Configuration		PRESENCE conditional}|
 	{ ID id-M4Configuration		CRITICALITY ignore	EXTENSION M4Configuration		PRESENCE conditional}|
 	{ ID id-M5Configuration		CRITICALITY ignore	EXTENSION M5Configuration		PRESENCE conditional}|
-	{ ID id-MDT-Location-Info	CRITICALITY ignore	EXTENSION MDT-Location-Info		PRESENCE optional},
+	{ ID id-MDT-Location-Info	CRITICALITY ignore	EXTENSION MDT-Location-Info		PRESENCE optional}|
+	{ ID id-M6Configuration		CRITICALITY ignore	EXTENSION M6Configuration		PRESENCE conditional}|
+	{ ID id-M7Configuration		CRITICALITY ignore	EXTENSION M7Configuration		PRESENCE conditional},
 	...
 }
 
@@ -862,7 +949,18 @@ LPPa-PDU ::=  OCTET STRING
 
 LHN-ID ::=  OCTET STRING(SIZE (32..256))
 
-Links-to-log ::= ENUMERATED {uplink, downlink, both-uplink-and-downlink, ...}
+Links-to-log ::= ENUMERATED {uplink, downlink, both-uplink-and-downlink, ...} 
+
+ListeningSubframePattern ::= SEQUENCE {
+	pattern-period				ENUMERATED {ms1280, ms2560, ms5120, ms10240, ...},
+	pattern-offset				INTEGER (0..10239, ...),
+	iE-Extensions				ProtocolExtensionContainer { { ListeningSubframePattern-ExtIEs} } OPTIONAL,
+	...
+}
+
+ListeningSubframePattern-ExtIEs	S1AP-PROTOCOL-EXTENSION ::= {
+...
+}
 
 LoggedMDT ::= SEQUENCE {
 	loggingInterval				LoggingInterval,
@@ -878,6 +976,18 @@ LoggedMDT-ExtIEs	S1AP-PROTOCOL-EXTENSION ::= {
 LoggingInterval ::= ENUMERATED {ms128, ms256, ms512, ms1024, ms2048, ms3072, ms4096, ms6144}
 
 LoggingDuration ::= ENUMERATED {m10, m20, m40, m60, m90, m120}
+
+LoggedMBSFNMDT ::= SEQUENCE {
+	loggingInterval				LoggingInterval,
+	loggingDuration				LoggingDuration,
+	mBSFN-ResultToLog			MBSFN-ResultToLog		OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { { LoggedMBSFNMDT-ExtIEs } } OPTIONAL,
+	...
+}
+
+LoggedMBSFNMDT-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 -- M
 
@@ -919,11 +1029,42 @@ M5Configuration-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 
 M5period ::= ENUMERATED {ms1024, ms2048, ms5120, ms10240, min1, ... } 
 
+M6Configuration ::= SEQUENCE {
+	m6report-Interval	M6report-Interval,
+	m6delay-threshold	M6delay-threshold		OPTIONAL,
+-- This IE shall be present if the M6 Links to log IE is set to "uplink" or to "both-uplink-and-downlink" --
+	m6-links-to-log		Links-to-log,
+	iE-Extensions		ProtocolExtensionContainer { { M6Configuration-ExtIEs} } OPTIONAL,
+	...
+}
+
+M6Configuration-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+M6report-Interval ::= ENUMERATED { ms1024, ms2048, ms5120, ms10240, ... }
+
+M6delay-threshold ::= ENUMERATED { ms30, ms40, ms50, ms60, ms70, ms80, ms90, ms100, ms150, ms300, ms500, ms750, ... }
+
+M7Configuration ::= SEQUENCE {
+	m7period			M7period,
+	m7-links-to-log		Links-to-log,
+	iE-Extensions		ProtocolExtensionContainer { { M7Configuration-ExtIEs} } OPTIONAL,
+	...
+}
+
+M7Configuration-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+M7period ::= INTEGER(1..60, ...)
+
 MDT-Activation 	::= ENUMERATED { 
 	immediate-MDT-only,
 	immediate-MDT-and-Trace,
 	logged-MDT-only,
-	...
+	...,
+	logged-MBSFN-MDT
 }
 
 MDT-Location-Info ::= BIT STRING (SIZE (8))
@@ -942,6 +1083,19 @@ MDT-Configuration-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 
 ManagementBasedMDTAllowed ::= ENUMERATED {allowed, ...}
 
+MBSFN-ResultToLog ::= SEQUENCE (SIZE(1..maxnoofMBSFNAreaMDT)) OF MBSFN-ResultToLogInfo
+
+MBSFN-ResultToLogInfo ::= SEQUENCE {
+	mBSFN-AreaId		INTEGER (0..255)		OPTIONAL,
+	carrierFreq			EARFCN,	
+	iE-Extensions		ProtocolExtensionContainer { { MBSFN-ResultToLogInfo-ExtIEs} } OPTIONAL,
+	...
+}
+
+MBSFN-ResultToLogInfo-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 MDTPLMNList ::= SEQUENCE (SIZE(1..maxnoofMDTPLMNs)) OF PLMNidentity
 
 PrivacyIndicator ::= ENUMERATED {
@@ -953,7 +1107,14 @@ PrivacyIndicator ::= ENUMERATED {
 MDTMode ::= CHOICE {
 	immediateMDT				ImmediateMDT,
 	loggedMDT					LoggedMDT,
-	...
+	...,
+	mDTMode-Extension			MDTMode-Extension
+}
+
+MDTMode-Extension ::= ProtocolIE-SingleContainer {{ MDTMode-ExtensionIE }}
+
+MDTMode-ExtensionIE S1AP-PROTOCOL-IES ::= {
+	{ ID id-LoggedMBSFNMDT		CRITICALITY ignore	TYPE LoggedMBSFNMDT		PRESENCE mandatory}
 }
 
 MeasurementsToActivate ::= BIT STRING (SIZE (8))
@@ -981,6 +1142,24 @@ M-TMSI			::= OCTET STRING (SIZE (4))
 
 MSClassmark2	::= OCTET STRING
 MSClassmark3	::= OCTET STRING
+
+MutingAvailabilityIndication ::= ENUMERATED {
+	available,
+	unavailable,
+	...
+}
+
+
+MutingPatternInformation ::= SEQUENCE {
+	muting-pattern-period				ENUMERATED {ms0, ms1280, ms2560, ms5120, ms10240, ...},
+	muting-pattern-offset				INTEGER (0..10239, ...)		OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {MutingPatternInformation-ExtIEs} } OPTIONAL,
+	...
+}
+
+MutingPatternInformation-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 -- N
 
@@ -1039,6 +1218,8 @@ PDCP-SN ::= INTEGER (0..4095)
 
 PDCP-SNExtended ::= INTEGER (0..32767)
 
+PDCP-SNlength18 ::= INTEGER (0..262143)
+
 M1PeriodicReporting ::= SEQUENCE { 
 	reportInterval				ReportIntervalMDT,
 	reportAmount				ReportAmountMDT,
@@ -1066,6 +1247,36 @@ Pre-emptionVulnerability ::= ENUMERATED {
 
 PriorityLevel				::= INTEGER { spare (0), highest (1), lowest (14), no-priority (15) } (0..15)
 
+ProSeAuthorized ::= SEQUENCE {
+	proSeDirectDiscovery		ProSeDirectDiscovery									OPTIONAL,
+	proSeDirectCommunication	ProSeDirectCommunication								OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {ProSeAuthorized-ExtIEs} }	OPTIONAL,
+	...
+}
+
+ProSeAuthorized-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-ProSeUEtoNetworkRelaying	CRITICALITY ignore	EXTENSION ProSeUEtoNetworkRelaying		PRESENCE optional},
+	...
+}
+
+ProSeDirectDiscovery ::= ENUMERATED { 
+	authorized,
+	not-authorized,
+	...
+}
+
+	ProSeUEtoNetworkRelaying ::= ENUMERATED {
+	authorized,
+	not-authorized,
+	...
+}
+
+ProSeDirectCommunication ::= ENUMERATED { 
+	authorized,
+	not-authorized,
+	...
+}
+
 PS-ServiceNotAvailable ::= ENUMERATED {
 	ps-service-not-available,
 	...
@@ -1080,6 +1291,8 @@ QCI						::= INTEGER (0..255)
 ReceiveStatusofULPDCPSDUs ::= BIT STRING (SIZE(4096))
 
 ReceiveStatusOfULPDCPSDUsExtended ::= BIT STRING (SIZE(1..16384))
+
+ReceiveStatusOfULPDCPSDUsPDCP-SNlength18 ::= BIT STRING (SIZE(1..131072))
 
 RelativeMMECapacity				::= INTEGER (0..255)
 
@@ -1140,10 +1353,20 @@ ReportArea ::= ENUMERATED {
 
 RepetitionPeriod ::= INTEGER (0..4095)
 
+RLFReportInformation ::= SEQUENCE {
+	uE-RLF-Report-Container							UE-RLF-Report-Container,
+	uE-RLF-Report-Container-for-extended-bands		UE-RLF-Report-Container-for-extended-bands		OPTIONAL,
+	iE-Extensions									ProtocolExtensionContainer {{ RLFReportInformation-ExtIEs}} OPTIONAL,
+	...
+}
 
-RNC-ID					::= INTEGER (0..4095)
+RLFReportInformation-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
-RRC-Container	::= OCTET STRING
+RNC-ID ::= INTEGER (0..4095)
+
+RRC-Container ::= OCTET STRING
 
 RRC-Establishment-Cause ::= ENUMERATED {
 	emergency,
@@ -1157,7 +1380,7 @@ RRC-Establishment-Cause ::= ENUMERATED {
 
 ECGIListForRestart ::= SEQUENCE (SIZE(1..maxnoofCellsforRestart)) OF EUTRAN-CGI
 
-Routing-ID		::= INTEGER (0..255)
+Routing-ID ::= INTEGER (0..255)
 
 -- S
 
@@ -1183,13 +1406,22 @@ SerialNumber ::= BIT STRING (SIZE (16))
 SONInformation ::= CHOICE{
 	sONInformationRequest		SONInformationRequest,
 	sONInformationReply			SONInformationReply,
-	...
+	...,
+	sONInformation-Extension	SONInformation-Extension
+}
+
+SONInformation-Extension ::= ProtocolIE-SingleContainer {{ SONInformation-ExtensionIE }}
+
+SONInformation-ExtensionIE S1AP-PROTOCOL-IES ::= {
+	{ ID id-SON-Information-Report	CRITICALITY ignore	TYPE SONInformationReport	PRESENCE mandatory}
 }
 
 SONInformationRequest ::= ENUMERATED { 
 	x2TNL-Configuration-Info,
 	...,
-	time-Synchronization-Info}
+	time-Synchronisation-Info,
+	activate-Muting,
+	deactivate-Muting}
 
 SONInformationReply ::= SEQUENCE {
 	x2TNLConfigurationInfo			X2TNLConfigurationInfo			OPTIONAL,
@@ -1198,11 +1430,16 @@ SONInformationReply ::= SEQUENCE {
 }
 
 SONInformationReply-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
--- Extension for Release 9 to transfer Time synchronization information --
-	{ID id-Time-Synchronization-Info		CRITICALITY ignore	EXTENSION TimeSynchronizationInfo	PRESENCE optional	},
-	...
+-- Extension for Release 9 to transfer Time synchronisation information --
+	{ID id-Time-Synchronisation-Info		CRITICALITY ignore	EXTENSION TimeSynchronisationInfo		PRESENCE optional},
+	...,
+	{ID id-Muting-Pattern-Information		CRITICALITY ignore	EXTENSION MutingPatternInformation	PRESENCE optional}
 }
 
+SONInformationReport ::= CHOICE{
+	rLFReportInformation		RLFReportInformation,
+	...
+}
 
 SONConfigurationTransfer ::= SEQUENCE {
 	targeteNB-ID					TargeteNB-ID,
@@ -1214,11 +1451,26 @@ SONConfigurationTransfer ::= SEQUENCE {
 
 SONConfigurationTransfer-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 10 to transfer the IP addresses of the eNB initiating the ANR action --
-	{ID id-x2TNLConfigurationInfo	CRITICALITY ignore	EXTENSION X2TNLConfigurationInfo				PRESENCE conditional
-	-- This IE shall be present if the SON Information IE contains the SON Information Request IE and the SON Information Request IE is set to “X2TNL Configuration Info” --																						},
+	{ID id-x2TNLConfigurationInfo		CRITICALITY ignore	EXTENSION X2TNLConfigurationInfo				PRESENCE conditional
+	-- This IE shall be present if the SON Information IE contains the SON Information Request IE and the SON Information Request IE is set to "X2TNL Configuration Info" --}|
+-- Extension for Release 12 to transfer information concerning the source cell of synchronisation and the aggressor cell --
+	{ID id-Synchronisation-Information	CRITICALITY ignore	EXTENSION SynchronisationInformation			PRESENCE conditional
+	-- This IE shall be present if the SON Information IE contains the SON Information Request IE set to " Activate Muting " --},
 	...
 }
 
+
+SynchronisationInformation ::= SEQUENCE {
+	sourceStratumLevel				StratumLevel				OPTIONAL,
+	listeningSubframePattern		ListeningSubframePattern	OPTIONAL,
+	aggressoreCGI-List				ECGI-List					OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {SynchronisationInformation-ExtIEs} } OPTIONAL,
+	...
+}
+
+SynchronisationInformation-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 
 Source-ToTarget-TransparentContainer ::= OCTET STRING
@@ -1260,7 +1512,8 @@ SourceeNB-ToTargeteNB-TransparentContainer		::= SEQUENCE {
 }
 
 SourceeNB-ToTargeteNB-TransparentContainer-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
-	{ID id-MobilityInformation	CRITICALITY ignore	EXTENSION MobilityInformation	PRESENCE optional},
+	{ID id-MobilityInformation				CRITICALITY ignore	EXTENSION MobilityInformation				PRESENCE optional}|
+	{ID id-uE-HistoryInformationFromTheUE	CRITICALITY ignore	EXTENSION UE-HistoryInformationFromTheUE		PRESENCE optional},
 	...
 }
 
@@ -1305,16 +1558,18 @@ SupportedTAs-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 
 StratumLevel ::= INTEGER (0..3, ...)
 
-SynchronizationStatus ::= ENUMERATED { synchronous, asynchronous, ... }
+SynchronisationStatus ::= ENUMERATED { synchronous, asynchronous, ... }
 
-TimeSynchronizationInfo ::= SEQUENCE {
+TimeSynchronisationInfo ::= SEQUENCE {
 	stratumLevel					StratumLevel,
-	synchronizationStatus			SynchronizationStatus,
-	iE-Extensions					ProtocolExtensionContainer { { TimeSynchronizationInfo-ExtIEs} } OPTIONAL,
+	synchronisationStatus			SynchronisationStatus,
+	iE-Extensions					ProtocolExtensionContainer { { TimeSynchronisationInfo-ExtIEs} } OPTIONAL,
 	...
 }
 
-TimeSynchronizationInfo-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+TimeSynchronisationInfo-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	-- Extension for Release 12 to transfer Muting Availability Indication --
+	{ID id-Muting-Availability-Indication		CRITICALITY ignore	EXTENSION MutingAvailabilityIndication	PRESENCE optional},
 	...
 }
 
@@ -1587,6 +1842,9 @@ UEIdentityIndexValue	::=	BIT STRING (SIZE (10))
 
 UE-HistoryInformation ::= SEQUENCE (SIZE(1..maxnoofCells)) OF LastVisitedCell-Item
 
+UE-HistoryInformationFromTheUE ::= OCTET STRING
+-- This IE is a transparent container and shall be encoded as the VisitedCellInfoList field contained in the UEInformationResponse message as defined in TS 36.331 [16]
+
 UEPagingID ::= CHOICE {
 	s-TMSI		S-TMSI,
 	iMSI		IMSI,
@@ -1594,6 +1852,14 @@ UEPagingID ::= CHOICE {
 	}
 
 UERadioCapability ::= OCTET STRING
+
+UERadioCapabilityForPaging ::= OCTET STRING
+
+UE-RLF-Report-Container ::= OCTET STRING
+-- This IE is a transparent container and shall be encoded as the rlf-Report-r9 field contained in the UEInformationResponse message as defined in TS 36.331 [16]
+
+UE-RLF-Report-Container-for-extended-bands ::= OCTET STRING
+-- This IE is a transparent container and shall be encoded as the rlf-Report-v9e0 contained in the UEInformationResponse message as defined in TS 36.331 [16]
 
 UESecurityCapabilities ::= SEQUENCE {
 	encryptionAlgorithms			EncryptionAlgorithms,
@@ -1681,3 +1947,4 @@ ENBIndirectX2TransportLayerAddresses ::= SEQUENCE (SIZE(1..maxnoofeNBX2TLAs)) OF
 -- Z
 
 END
+

@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V12.2.0 (2014-06)
+-- 3GPP TS 36.413 V13.1.0 (2015-12)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -30,7 +30,7 @@ FROM S1AP-CommonDataTypes
 	DownlinkUEAssociatedLPPaTransport,
 	DownlinkNASTransport,
 	DownlinkNonUEAssociatedLPPaTransport,
-	DownlinkS1cdma2000tunneling,
+	DownlinkS1cdma2000tunnelling,
 	ENBDirectInformationTransfer,
 	ENBStatusTransfer,
 	ENBConfigurationUpdate,
@@ -75,6 +75,8 @@ FROM S1AP-CommonDataTypes
 	S1SetupResponse,
 	E-RABModifyRequest,
 	E-RABModifyResponse,
+	E-RABModificationIndication,
+	E-RABModificationConfirm,
 	E-RABReleaseCommand,
 	E-RABReleaseResponse,
 	E-RABReleaseIndication,
@@ -94,12 +96,18 @@ FROM S1AP-CommonDataTypes
 	UplinkUEAssociatedLPPaTransport,
 	UplinkNASTransport,
 	UplinkNonUEAssociatedLPPaTransport,
-	UplinkS1cdma2000tunneling,
+	UplinkS1cdma2000tunnelling,
 	WriteReplaceWarningRequest,
 	WriteReplaceWarningResponse,
 	ENBConfigurationTransfer,
 	MMEConfigurationTransfer,
-	PWSRestartIndication
+	PWSRestartIndication,
+	UEContextModificationIndication,
+	UEContextModificationConfirm,
+	RerouteNASRequest,
+-- WS modification: avoid duplicate imports as asn2wrs.py builds a single list
+--	PWSfailedECGIList,
+	PWSFailureIndication
 
 
 FROM S1AP-PDU-Contents
@@ -109,7 +117,7 @@ FROM S1AP-PDU-Contents
 	id-downlinkUEAssociatedLPPaTransport,
 	id-downlinkNASTransport,
 	id-downlinkNonUEAssociatedLPPaTransport,
-	id-DownlinkS1cdma2000tunneling,
+	id-DownlinkS1cdma2000tunnelling,
 	id-eNBStatusTransfer,
 	id-ErrorIndication,
 	id-HandoverCancel,
@@ -136,6 +144,7 @@ FROM S1AP-PDU-Contents
 	id-Reset,
 	id-S1Setup,
 	id-E-RABModify,
+	id-E-RABModificationIndication,
 	id-E-RABRelease,
 	id-E-RABReleaseIndication,
 	id-E-RABSetup,
@@ -149,11 +158,15 @@ FROM S1AP-PDU-Contents
 	id-uplinkUEAssociatedLPPaTransport,
 	id-uplinkNASTransport,
 	id-uplinkNonUEAssociatedLPPaTransport,
-	id-UplinkS1cdma2000tunneling,
+	id-UplinkS1cdma2000tunnelling,
 	id-WriteReplaceWarning,
 	id-eNBConfigurationTransfer,
 	id-MMEConfigurationTransfer,
-	id-PWSRestartIndication
+	id-PWSRestartIndication,
+	id-UEContextModificationIndication,
+	id-RerouteNASRequest,
+	id-PWSfailedECGIList,
+	id-PWSFailureIndication
 FROM S1AP-Constants;
 
 
@@ -240,7 +253,9 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-1 S1AP-ELEMENTARY-PROCEDURE ::= {
 	mMEConfigurationUpdate			|
 	writeReplaceWarning				,
 	...,
-	uERadioCapabilityMatch
+	uERadioCapabilityMatch						|
+	e-RABModificationIndication					|
+	uEContextModificationIndication
 }
 
 S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {	
@@ -253,8 +268,8 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	errorIndication					|
 	nASNonDeliveryIndication		|
 	uEContextReleaseRequest			|
-	downlinkS1cdma2000tunneling		|
-	uplinkS1cdma2000tunneling		|
+	downlinkS1cdma2000tunnelling		|
+	uplinkS1cdma2000tunnelling		|
 	uECapabilityInfoIndication		|
 	eNBStatusTransfer				|
 	mMEStatusTransfer				|
@@ -277,7 +292,9 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	uplinkUEAssociatedLPPaTransport	|
 	downlinkNonUEAssociatedLPPaTransport	|
 	uplinkNonUEAssociatedLPPaTransport	|
-	pWSRestartIndication
+	pWSRestartIndication			|
+	rerouteNASRequest				|
+	pWSFailureIndication
 }
 
 -- **************************************************************
@@ -430,15 +447,15 @@ mMEConfigurationUpdate S1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				reject
 }
 
-downlinkS1cdma2000tunneling S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE		DownlinkS1cdma2000tunneling
-	PROCEDURE CODE			id-DownlinkS1cdma2000tunneling
+downlinkS1cdma2000tunnelling S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DownlinkS1cdma2000tunnelling
+	PROCEDURE CODE			id-DownlinkS1cdma2000tunnelling
 	CRITICALITY				ignore
 }
 
-uplinkS1cdma2000tunneling S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE		UplinkS1cdma2000tunneling
-	PROCEDURE CODE			id-UplinkS1cdma2000tunneling
+uplinkS1cdma2000tunnelling S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UplinkS1cdma2000tunnelling
+	PROCEDURE CODE			id-UplinkS1cdma2000tunnelling
 	CRITICALITY				ignore
 }
 
@@ -607,6 +624,32 @@ uERadioCapabilityMatch S1AP-ELEMENTARY-PROCEDURE ::= {
 	SUCCESSFUL OUTCOME		UERadioCapabilityMatchResponse
 	PROCEDURE CODE			id-UERadioCapabilityMatch
 	CRITICALITY				reject
+}
+
+e-RABModificationIndication S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		E-RABModificationIndication
+	SUCCESSFUL OUTCOME		E-RABModificationConfirm
+	PROCEDURE CODE			id-E-RABModificationIndication
+	CRITICALITY				reject
+}
+
+uEContextModificationIndication S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEContextModificationIndication
+	SUCCESSFUL OUTCOME		UEContextModificationConfirm
+	PROCEDURE CODE			id-UEContextModificationIndication
+	CRITICALITY				reject
+}
+
+rerouteNASRequest S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RerouteNASRequest
+	PROCEDURE CODE			id-RerouteNASRequest
+	CRITICALITY				reject
+}
+
+pWSFailureIndication S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PWSFailureIndication
+	PROCEDURE CODE			id-PWSFailureIndication
+	CRITICALITY				ignore
 }
 
 END

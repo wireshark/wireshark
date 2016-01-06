@@ -1,10 +1,11 @@
--- 3GPP TS 36.413 V12.2.0 (2014-06)
+-- 3GPP TS 36.413 V13.1.0 (2015-12)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
 -- Constant definitions
 --
 -- **************************************************************
+
 
 S1AP-Constants { 
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
@@ -52,8 +53,8 @@ id-ErrorIndication							ProcedureCode ::= 15
 id-NASNonDeliveryIndication					ProcedureCode ::= 16
 id-S1Setup									ProcedureCode ::= 17
 id-UEContextReleaseRequest					ProcedureCode ::= 18
-id-DownlinkS1cdma2000tunneling				ProcedureCode ::= 19
-id-UplinkS1cdma2000tunneling				ProcedureCode ::= 20
+id-DownlinkS1cdma2000tunnelling				ProcedureCode ::= 19
+id-UplinkS1cdma2000tunnelling				ProcedureCode ::= 20
 id-UEContextModification					ProcedureCode ::= 21
 id-UECapabilityInfoIndication				ProcedureCode ::= 22
 id-UEContextRelease							ProcedureCode ::= 23
@@ -83,6 +84,10 @@ id-downlinkNonUEAssociatedLPPaTransport		ProcedureCode ::= 46
 id-uplinkNonUEAssociatedLPPaTransport		ProcedureCode ::= 47
 id-UERadioCapabilityMatch					ProcedureCode ::= 48
 id-PWSRestartIndication						ProcedureCode ::= 49
+id-E-RABModificationIndication				ProcedureCode ::= 50
+id-PWSFailureIndication						ProcedureCode ::= 51
+id-RerouteNASRequest						ProcedureCode ::= 52
+id-UEContextModificationIndication			ProcedureCode ::= 53
 
 -- **************************************************************
 --
@@ -112,6 +117,7 @@ maxnoofForbLACs							INTEGER ::= 4096
 maxnoofForbTACs							INTEGER ::= 4096
 maxnoofIndividualS1ConnectionsToReset	INTEGER ::= 256
 maxnoofCells							INTEGER ::= 16
+maxnoofCellsineNB						INTEGER ::= 256
 maxnoofTAIforWarning					INTEGER ::= 65535 
 maxnoofCellID							INTEGER ::= 65535 
 maxnoofEmergencyAreaID					INTEGER ::= 65535 
@@ -129,6 +135,8 @@ maxnoofMDTPLMNs							INTEGER ::= 16
 maxnoofCellsforRestart					INTEGER ::= 256
 maxnoofRestartTAIs						INTEGER ::= 2048
 maxnoofRestartEmergencyAreaIDs			INTEGER ::= 256
+maxEARFCN								INTEGER ::= 262143
+maxnoofMBSFNAreaMDT						INTEGER ::= 8
 
 -- **************************************************************
 --
@@ -146,7 +154,6 @@ id-Unknown-5										ProtocolIE-ID ::= 5
 id-Unknown-6										ProtocolIE-ID ::= 6
 id-Unknown-7										ProtocolIE-ID ::= 7
 id-eNB-UE-S1AP-ID									ProtocolIE-ID ::= 8
---WS extension
 id-Unknown-9										ProtocolIE-ID ::= 9
 id-Unknown-10										ProtocolIE-ID ::= 10
 id-Unknown-11										ProtocolIE-ID ::= 11
@@ -222,7 +229,6 @@ id-UERadioCapability								ProtocolIE-ID ::= 74
 id-GUMMEI-ID										ProtocolIE-ID ::= 75
 --WS extension
 id-Unknown-76										ProtocolIE-ID ::= 76
-id-Unknown-77										ProtocolIE-ID ::= 77
 id-E-RABInformationListItem							ProtocolIE-ID ::= 78
 id-Direct-Forwarding-Path-Availability				ProtocolIE-ID ::= 79
 id-UEIdentityIndexValue								ProtocolIE-ID ::= 80
@@ -294,7 +300,7 @@ id-CellAccessMode									ProtocolIE-ID ::= 145
 id-CSGMembershipStatus 								ProtocolIE-ID ::= 146
 id-LPPa-PDU											ProtocolIE-ID ::= 147
 id-Routing-ID										ProtocolIE-ID ::= 148
-id-Time-Synchronization-Info						ProtocolIE-ID ::= 149
+id-Time-Synchronisation-Info						ProtocolIE-ID ::= 149
 id-PS-ServiceNotAvailable							ProtocolIE-ID ::= 150
 id-PagingPriority									ProtocolIE-ID ::= 151
 id-x2TNLConfigurationInfo							ProtocolIE-ID ::= 152
@@ -339,5 +345,33 @@ id-EmergencyAreaIDListForRestart					ProtocolIE-ID ::= 190
 id-KillAllWarningMessages							ProtocolIE-ID ::= 191
 id-Masked-IMEISV									ProtocolIE-ID ::= 192
 id-eNBIndirectX2TransportLayerAddresses				ProtocolIE-ID ::= 193
+id-uE-HistoryInformationFromTheUE					ProtocolIE-ID ::= 194
+id-ProSeAuthorized									ProtocolIE-ID ::= 195
+id-ExpectedUEBehaviour								ProtocolIE-ID ::= 196
+id-LoggedMBSFNMDT									ProtocolIE-ID ::= 197
+id-UERadioCapabilityForPaging						ProtocolIE-ID ::= 198
+id-E-RABToBeModifiedListBearerModInd				ProtocolIE-ID ::= 199
+id-E-RABToBeModifiedItemBearerModInd				ProtocolIE-ID ::= 200
+id-E-RABNotToBeModifiedListBearerModInd				ProtocolIE-ID ::= 201
+id-E-RABNotToBeModifiedItemBearerModInd				ProtocolIE-ID ::= 202
+id-E-RABModifyListBearerModConf						ProtocolIE-ID ::= 203
+id-E-RABModifyItemBearerModConf						ProtocolIE-ID ::= 204
+id-E-RABFailedToModifyListBearerModConf				ProtocolIE-ID ::= 205
+id-SON-Information-Report							ProtocolIE-ID ::= 206
+id-Muting-Availability-Indication					ProtocolIE-ID ::= 207
+id-Muting-Pattern-Information						ProtocolIE-ID ::= 208
+id-Synchronisation-Information						ProtocolIE-ID ::= 209
+id-E-RABToBeReleasedListBearerModConf				ProtocolIE-ID ::= 210
+id-ProSeUEtoNetworkRelaying							ProtocolIE-ID ::= 216
+id-ULCOUNTValuePDCP-SNlength18						ProtocolIE-ID ::= 217
+id-DLCOUNTValuePDCP-SNlength18						ProtocolIE-ID ::= 218
+id-ReceiveStatusOfULPDCPSDUsPDCP-SNlength18			ProtocolIE-ID ::= 219
+id-M6Configuration									ProtocolIE-ID ::= 220
+id-M7Configuration									ProtocolIE-ID ::= 221
+id-PWSfailedECGIList								ProtocolIE-ID ::= 222
+id-MME-Group-ID										ProtocolIE-ID ::= 223
+id-Additional-GUTI									ProtocolIE-ID ::= 224
+id-S1-Message										ProtocolIE-ID ::= 225
+id-CSGMembershipInfo								ProtocolIE-ID ::= 226
 
 END

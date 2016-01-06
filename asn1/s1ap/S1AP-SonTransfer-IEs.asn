@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V12.2.0 (2014-06)
+-- 3GPP TS 36.413 V13.1.0 (2015-12)
 -- B.2	ASN.1 definition
 -- **************************************************************
 --
@@ -7,6 +7,7 @@
 -- using the same rules as applicable for the S1AP-IEs module.
 -- 
 -- **************************************************************
+
 
 SonTransfer-IEs
 
@@ -203,7 +204,8 @@ HOReport::= SEQUENCE {
 	hosourceID				IRAT-Cell-ID,
 	hoTargetID				IRAT-Cell-ID,
 	candidateCellList		CandidateCellList,
-	...
+	...,
+	candidatePCIList		CandidatePCIList	OPTIONAL
 }
 
 HoType ::= ENUMERATED {
@@ -219,6 +221,14 @@ HoReportType ::= ENUMERATED {
 }
 
 CandidateCellList ::= SEQUENCE (SIZE(1..maxnoofcandidateCells)) OF IRAT-Cell-ID
+
+CandidatePCIList ::= SEQUENCE (SIZE(1..maxnoofcandidateCells)) OF CandidatePCI
+
+CandidatePCI ::= SEQUENCE {
+	pCI			INTEGER (0..503),
+	eARFCN		OCTET STRING,
+	...
+}
 
 --
 -- IEs for E-UTRAN Cell Activation application
@@ -283,7 +293,6 @@ TooEarlyInterRATHOReportReportFromEUTRAN ::= SEQUENCE {
 	...
 }
 
--- WS allready in S1AP-IEs.asn
 --MobilityInformation ::= BIT STRING (SIZE(32))
 
 
@@ -325,5 +334,6 @@ maxnoofcandidateCells						INTEGER ::= 16
 maxnoofCellineNB							INTEGER ::= 256
 
 END
+
 
 
