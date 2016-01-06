@@ -3392,7 +3392,12 @@ fi
 if test "x$have_good_c_ares" = "xyes" ; then
 	c_ares_message="yes"
 else
-	c_ares_message="no"
+	if test "x$have_good_adns" = "xyes" ; then
+		c_ares_message="no"
+	else
+		# We should make this an error at some point.
+		c_ares_message="no. This can cause serious performance issues."
+	fi
 fi
 
 if test "x$have_good_adns" = "xyes" ; then
@@ -3401,7 +3406,8 @@ else
 	if test "x$have_good_c_ares" = "xyes" ; then
 		adns_message="no (using c-ares instead)"
 	else
-		adns_message="no"
+		# We should make this an error at some point.
+		adns_message="no. This can cause serious performance issues."
 	fi
 fi
 
