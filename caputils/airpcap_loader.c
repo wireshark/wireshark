@@ -24,14 +24,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_LIBPCAP
 #include <glib.h>
-#include <gmodule.h>
-
-#include <pcap.h>
-
-#include <wiretap/wtap.h>
-#endif
 
 #include <epan/crypt/airpdcap_ws.h>
 #include <epan/strutil.h>
