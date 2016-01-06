@@ -551,7 +551,7 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
                 guint8       data2;
                 guint8       status;
                 guint8       channel;
-                guint8       system;
+                gboolean     system_msg;
                 guint8       status_shifted;
 
                 port = tvb_get_guint8(tvb, offset);
@@ -562,15 +562,15 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
                 status  = command & 0xF0;
                 channel = command & 0x0F;
 
-                system = status == 0xF0; /* is system message */
+                system_msg = status == 0xF0; /* is system message */
                 status_shifted = status >> 4;
 
-                if(system)
+                if(system_msg)
                     status_str = val_to_str_ext_const(command, &MIDI_system_ext, "Unknown");
                 else
                     status_str = val_to_str_ext_const(status_shifted, &MIDI_status_ext, "Unknown");
 
-                if(system)
+                if(system_msg)
                 {
                     mi = proto_tree_add_none_format(message_tree, hf_osc_message_midi_type, tvb, offset, 4,
                             "MIDI: Port %i, %s, %i, %i",
@@ -625,7 +625,7 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
                 proto_tree_add_item(midi_tree, hf_osc_message_midi_port_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
 
-                if(system)
+                if(system_msg)
                 {
                     proto_tree_add_item(midi_tree, hf_osc_message_midi_system_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
