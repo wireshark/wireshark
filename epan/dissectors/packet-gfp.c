@@ -379,6 +379,8 @@ dissect_gfp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
         default:
             break;
     }
+    *offset += payload_len;
+    *offset += fcs_len;
 }
 
 static int
