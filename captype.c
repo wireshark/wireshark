@@ -42,6 +42,8 @@
 
 #include <glib.h>
 
+#include <wiretap/wtap.h>
+
 #include <wsutil/crash_info.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
@@ -53,7 +55,6 @@
 #include <wsutil/plugins.h>
 #endif
 
-#include "wtap.h"
 #include <wsutil/report_err.h>
 #include <wsutil/str_util.h>
 

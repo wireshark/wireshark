@@ -28,9 +28,9 @@
 #include <glib.h>
 #include <gmodule.h>
 
-
-#include <wtap.h>
 #include <pcap.h>
+
+#include <wiretap/wtap.h>
 #endif
 
 #include <epan/crypt/airpdcap_ws.h>

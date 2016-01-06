@@ -36,7 +36,7 @@
 #include <zlib.h>      /* to get the libz version number */
 #endif
 
-#include "wtap.h"
+#include <wiretap/wtap.h>
 
 #ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"

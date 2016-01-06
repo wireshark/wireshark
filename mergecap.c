@@ -39,7 +39,8 @@
 #endif
 
 #include <string.h>
-#include "wtap.h"
+
+#include <wiretap/wtap.h>
 
 #ifndef HAVE_GETOPT_LONG
 #include <wsutil/wsgetopt.h>

@@ -73,6 +73,8 @@
 #include <zlib.h>     /* to get the libz version number */
 #endif
 
+#include <wiretap/wtap.h>
+
 #include <wsutil/crash_info.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
@@ -83,7 +85,6 @@
 #include <wsutil/plugins.h>
 #endif
 
-#include "wtap.h"
 #include <wsutil/report_err.h>
 #include <wsutil/str_util.h>
 #include <wsutil/file_util.h>

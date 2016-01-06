@@ -23,9 +23,10 @@
 #include <ui_compiled_filter_output.h>
 #include "compiled_filter_output.h"
 
-#include "capture_opts.h"
-#include "wtap.h"
 #include <pcap.h>
+
+#include "capture_opts.h"
+#include <wiretap/wtap.h>
 #include "ui/capture_globals.h"
 
 #include "wireshark_application.h"

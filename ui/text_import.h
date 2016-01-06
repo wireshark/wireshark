@@ -30,7 +30,8 @@
 #define __TEXT_IMPORT_H__
 
 #include <glib.h>
-#include "wtap.h"
+
+#include <wiretap/wtap.h>
 
 #ifdef __cplusplus
 extern "C" {
