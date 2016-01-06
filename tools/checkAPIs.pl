@@ -1382,6 +1382,7 @@ my @ShadowVariable = (
         'index',
         'time',
         'strlen',
+        'system'
 );
 
 sub checkShadowVariable($$$)
