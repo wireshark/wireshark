@@ -955,7 +955,7 @@ proto_register_ns(void)
 		},
 
 		{ &hf_ns_tcpdbg_rtrtt,
-		  { "TcpAck", "nstrace.tcpdbg.tcpack",
+		  { "TcpRTT", "nstrace.tcpdbg.rtrtt",
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
