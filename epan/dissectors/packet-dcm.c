@@ -6890,7 +6890,7 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
             /* we need 6 bytes at least to get PDU length */
             pinfo->desegment_offset = offset;
             pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-            return TRUE;
+            return tvb_captured_length(tvb);
         }
     }
     else {
@@ -6951,11 +6951,7 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 
             pinfo->desegment_offset = offset;
             pinfo->desegment_len = (pdu_len+6) - (tlen-offset);
-
-            /*  Why return a Boolean for a deliberate int function? No clue, but
-                no better working example found.
-            */
-            return TRUE;
+            return tvb_captured_length(tvb);
         }
 
         /* Process a whole PDU */
