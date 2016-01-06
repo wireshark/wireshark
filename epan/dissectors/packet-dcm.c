@@ -6966,7 +6966,7 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
         pdu_start =  pdu_start + pdu_len + 6;
         if (pdu_start <= old_pdu_start) {
             expert_add_info_format(pinfo, NULL, &ei_dcm_invalid_pdu_length, "Invalid PDU length (%u)", pdu_len);
-            THROW(ReportedBoundsError);
+            break;
         }
 
         if (pdu_start < tlen - 6) {
