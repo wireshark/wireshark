@@ -73,6 +73,7 @@ my $last_change = 0;
 my $num_commits = 0;
 my $commit_id = '';
 my $repo_branch = "unknown";
+my $git_executable = "git";
 my $git_description = undef;
 my $get_vcs = 0;
 my $set_vcs = 0;
@@ -120,6 +121,12 @@ sub read_repo_info {
 	my $do_hack = 1;
 	my $info_source = "Unknown";
 
+	# Make sure git is available.
+	if (!`$git_executable --version`) {
+		print STDERR "Git unavailable. Git revision will be missing from version string.\n";
+		return;
+	}
+
 	if ($version_pref{"pkg_enable"} > 0) {
 		$package_format = $version_pref{"pkg_format"};
 	}
@@ -132,7 +139,7 @@ sub read_repo_info {
 		$info_cmd = "svn info $srcdir";
 	} elsif (-d "$srcdir/.git/svn") {
 		$info_source = "Command line (git-svn)";
-		$info_cmd = "(cd $srcdir; git svn info)";
+		$info_cmd = "(cd $srcdir; $git_executable svn info)";
 	}
 
 	#Git can give us:
@@ -163,13 +170,13 @@ sub read_repo_info {
 			use warnings "all";
 			no warnings "all";
 
-			chomp($line = qx{git --git-dir="$srcdir"/.git log -1 --pretty=format:%at});
+			chomp($line = qx{$git_executable --git-dir="$srcdir"/.git log -1 --pretty=format:%at});
 			if ($? == 0 && length($line) > 1) {
 				$last_change = $line;
 			}
 
 			# Commits since last annotated tag.
-			chomp($line = qx{git --git-dir="$srcdir"/.git describe --long --always --match "v*"});
+			chomp($line = qx{$git_executable --git-dir="$srcdir"/.git describe --long --always --match "v*"});
 			if ($? == 0 && length($line) > 1) {
 				my @parts = split(/-/, $line);
 				$git_description = $line;
@@ -184,7 +191,7 @@ sub read_repo_info {
 
 			# This will break in some cases. Hopefully not during
 			# official package builds.
-			chomp($line = qx{git --git-dir="$srcdir"/.git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\}});
+			chomp($line = qx{$git_executable --git-dir="$srcdir"/.git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\}});
 			if ($? == 0 && length($line) > 1) {
 				$repo_branch = basename($line);
 			}
@@ -263,21 +270,21 @@ sub read_repo_info {
 			# If someone had properly tagged 1.9.0 we could also use
 			# "git describe --abbrev=1 --tags HEAD"
 
-			$info_cmd = "(cd $srcdir; git log --format='%b' -n 1)";
+			$info_cmd = "(cd $srcdir; $git_executable log --format='%b' -n 1)";
 			$line = qx{$info_cmd};
 			if (defined($line)) {
 				if ($line =~ /svn path=.*; revision=(\d+)/) {
 					$num_commits = $1;
 				}
 			}
-			$info_cmd = "(cd $srcdir; git log --format='%ad' -n 1 --date=iso)";
+			$info_cmd = "(cd $srcdir; $git_executable log --format='%ad' -n 1 --date=iso)";
 			$line = qx{$info_cmd};
 			if (defined($line)) {
 				if ($line =~ /(\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
 					$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
 				}
 			}
-			$info_cmd = "(cd $srcdir; git branch)";
+			$info_cmd = "(cd $srcdir; $git_executable branch)";
 			$line = qx{$info_cmd};
 			if (defined($line)) {
 				if ($line =~ /\* (\S+)/) {
@@ -687,6 +694,7 @@ sub get_config {
 		   "help|h", \$show_help,
 		   "get-vcs|get-svn|g", \$get_vcs,
 		   "set-vcs|set-svn|s", \$set_vcs,
+		   "git-bin", \$git_executable,
 		   "print-vcs", \$print_vcs,
 		   "set-version|v", \$set_version,
 		   "set-release|r|package-version|p", \$set_release
