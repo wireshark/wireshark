@@ -642,7 +642,7 @@ endif()
 # - set HAVE_XXX
 
 #The minimum package list
-set(PACKAGELIST Gettext M GLIB2 GMODULE2 GTHREAD2 LEX YACC Perl SED SH PythonInterp)
+set(PACKAGELIST Gettext M Git GLIB2 GMODULE2 GTHREAD2 LEX YACC Perl SED SH PythonInterp)
 set(LEX_REQUIRED TRUE)
 set(GLIB2_REQUIRED TRUE)
 set(GLIB2_FIND_REQUIRED TRUE)
@@ -1142,11 +1142,14 @@ else()
 	set(WS_MSVC_NORETURN " ")
 endif()
 
+if (${GIT_EXECUTABLE})
+	set(GIT_BIN_PARAM "--git-bin ${GIT_EXECUTABLE}")
+endif()
 set( VERSION ${PROJECT_VERSION} )
 execute_process(
 	COMMAND ${PERL_EXECUTABLE}
 		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
-		--print-vcs
+		--print-vcs ${GIT_BIN_PARAM}
 		${CMAKE_CURRENT_SOURCE_DIR}
 	OUTPUT_VARIABLE VERSION_H_CONTENT
 )
