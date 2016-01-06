@@ -204,7 +204,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 	 * to something past this segment, we'd have to remember the urgent
 	 * pointer setting for this conversation.
 	 */
-	if (tcpinfo && tcpinfo->urgent &&      /* if urgent pointer set */
+	if (tcpinfo && IS_TH_URG(tcpinfo->flags) &&      /* if urgent pointer set */
 	    length >= tcpinfo->urgent_pointer) /* and it's in this frame */
 	{
 		/* Get urgent byte into Temp */
@@ -428,7 +428,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 				                   "Startup info received");
 		}
 		else
-		if (tcpinfo && tcpinfo->urgent && length >= tcpinfo->urgent_pointer)
+		if (tcpinfo && IS_TH_URG(tcpinfo->flags) && length >= tcpinfo->urgent_pointer)
 		{
 			/* Urgent pointer inside current data represents a control message */
 			col_append_str(pinfo->cinfo, COL_INFO, "Control Message");

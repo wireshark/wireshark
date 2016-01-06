@@ -4946,7 +4946,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     tcph->th_seq = tvb_get_ntohl(tvb, offset + 4);
     tcph->th_ack = tvb_get_ntohl(tvb, offset + 8);
     th_off_x2 = tvb_get_guint8(tvb, offset + 12);
-    tcph->th_flags = tvb_get_ntohs(tvb, offset + 12) & 0x0FFF;
+    tcpinfo.flags = tcph->th_flags = tvb_get_ntohs(tvb, offset + 12) & TH_MASK;
     tcph->th_win = tvb_get_ntohs(tvb, offset + 14);
     real_window = tcph->th_win;
     tcph->th_hlen = hi_nibble(th_off_x2) * 4;  /* TCP header length, in bytes */
@@ -5216,7 +5216,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if(tcph->th_flags & TH_FIN) {
         /* XXX - find a way to know the server port and output only that one */
         expert_add_info(pinfo, tf_fin, &ei_tcp_connection_fin);
-        tcpinfo.fin = TRUE;
     }
     if(tcph->th_flags & TH_RST)
         /* XXX - find a way to know the server port and output only that one */
@@ -5396,14 +5395,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     item = proto_tree_add_item_ret_uint(tcp_tree, hf_tcp_urgent_pointer, tvb, offset + 18, 2, ENC_BIG_ENDIAN, &th_urp);
 
-    if (tcph->th_flags & TH_URG) {
+    if (IS_TH_URG(tcph->th_flags)) {
         /* Export the urgent pointer, for the benefit of protocols such as
            rlogin. */
-        tcpinfo.urgent = TRUE;
         tcpinfo.urgent_pointer = (guint16)th_urp;
         tcp_info_append_uint(pinfo, "Urg", th_urp);
     } else {
-        tcpinfo.urgent = FALSE;
          if (th_urp) {
             /* Note if the urgent pointer field is non-zero */
             expert_add_info(pinfo, item, &ei_tcp_urgent_pointer_non_zero);

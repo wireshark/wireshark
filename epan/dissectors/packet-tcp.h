@@ -44,6 +44,9 @@ extern "C" {
 #define TH_RES  0x0E00 /* 3 reserved bits */
 #define TH_MASK 0x0FFF
 
+#define IS_TH_FIN(x) (x & TH_FIN)
+#define IS_TH_URG(x) (x & TH_URG)
+
 /* Idea for gt: either x > y, or y is much bigger (assume wrap) */
 #define GT_SEQ(x, y) ((gint32)((y) - (x)) < 0)
 #define LT_SEQ(x, y) ((gint32)((x) - (y)) < 0)
@@ -106,8 +109,7 @@ struct tcpinfo {
 	guint32 nxtseq;          /* Sequence number of first byte after data */
 	guint32 lastackseq;      /* Sequence number of last ack */
 	gboolean is_reassembled; /* This is reassembled data. */
-	gboolean fin;            /* TRUE if FIN flag bit is set */
-	gboolean urgent;         /* TRUE if "urgent_pointer" is valid */
+	guint16	flags;           /* TCP flags */
 	guint16	urgent_pointer;  /* Urgent pointer value for the current packet. */
 };
 

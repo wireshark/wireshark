@@ -824,7 +824,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		gboolean try_desegment_body = (http_desegment_body &&
 			(!(conv_data->request_method && g_str_equal(conv_data->request_method, "HEAD"))) &&
-			((tcpinfo == NULL) || (tcpinfo->fin == FALSE)));
+			((tcpinfo == NULL) || (!IS_TH_FIN(tcpinfo->flags))));
 		if (!req_resp_hdrs_do_reassembly(tvb, offset, pinfo,
 		    http_desegment_headers, try_desegment_body)) {
 			/*
