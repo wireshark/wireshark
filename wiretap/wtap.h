@@ -760,20 +760,22 @@ struct ieee_802_11ad {
     guint8   mcs;            /* MCS index */
 };
 
+union ieee_802_11_phy_info {
+    struct ieee_802_11_fhss info_11_fhss;
+    struct ieee_802_11b info_11b;
+    struct ieee_802_11a info_11a;
+    struct ieee_802_11g info_11g;
+    struct ieee_802_11n info_11n;
+    struct ieee_802_11ac info_11ac;
+    struct ieee_802_11ad info_11ad;
+};
+
 struct ieee_802_11_phdr {
     gint     fcs_len;        /* Number of bytes of FCS - -1 means "unknown" */
     gboolean decrypted;      /* TRUE if frame is decrypted even if "protected" bit is set */
     gboolean datapad;        /* TRUE if frame has padding between 802.11 header and payload */
     guint    phy;            /* PHY type */
-    union {
-        struct ieee_802_11_fhss info_11_fhss;
-        struct ieee_802_11b info_11b;
-        struct ieee_802_11a info_11a;
-        struct ieee_802_11g info_11g;
-        struct ieee_802_11n info_11n;
-        struct ieee_802_11ac info_11ac;
-        struct ieee_802_11ad info_11ad;
-    } phy_info;
+    union ieee_802_11_phy_info phy_info;
 
     /* Which of this information is present? */
     guint    has_channel:1;
