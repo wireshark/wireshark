@@ -22,14 +22,28 @@
  */
 
 /*
+ * Specification 1.1 (http://opensoundcontrol.org/spec-1_1)
+ * - TCP dissection with: SLIP framing
  * Specification 1.0 (http://opensoundcontrol.org/spec-1_0)
  * - based on default argument types: i,f,s,b
  * - including widely used extension types: T,F,N,I,h,d,t,S,c,r,m
+ * - TCP dissection with: int32 size prefix framing
+ * References
+ * - Schmeder, A., Freed, A., and Wessel, D.,
+ *   "Best practices for Open Sound Control",
+ *   Linux Audio Conference, Utrecht, The Netherlands, 2010.
+ * - Freed, A., Schmeder, A.,
+ *   "Features and Future of Open Sound Control version 1.1 for NIME",
+ *   NIME Conference 2009.
+ * - Wright, M., Freed, A.,
+ *   "Open Sound Control: A New Protocol for Communicating with Sound Synthesizers",
+ *   International Computer Music Conference, Thessaloniki, Greece, 1997.
+ * - https://tools.ietf.org/html/rfc1055 (SLIP)
  */
 
 #include "config.h"
 
-
+#include <string.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/exceptions.h>
@@ -604,7 +618,7 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
                         }
                         case MIDI_STATUS_PITCH_BENDER:
                         {
-                            const gint bender = (((gint)data2 << 7) || (gint)data1) - 0x2000;
+                            const gint bender = (((gint)data2 << 7) | (gint)data1) - 0x2000;
 
                             mi = proto_tree_add_none_format(message_tree, hf_osc_message_midi_type, tvb, offset, 4,
                                     "MIDI: Port %i, Channel %i, %s, %i",
@@ -687,7 +701,7 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
                         }
                         case MIDI_STATUS_PITCH_BENDER:
                         {
-                            const gint bender = (((gint)data2 << 7) || (gint)data1) - 0x2000;
+                            const gint bender = (((gint)data2 << 7) | (gint)data1) - 0x2000;
 
                             proto_tree_add_int(midi_tree, hf_osc_message_midi_bender_type, tvb, offset, 2, bender);
                             offset += 2;
@@ -833,7 +847,7 @@ dissect_osc_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     }
 }
 
-/* OSC TCP */
+/* OSC TCP (OSC-1.0) */
 
 static guint
 get_osc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
@@ -852,11 +866,176 @@ dissect_osc_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 }
 
 static int
-dissect_osc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_osc_tcp_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_osc_pdu_len,
                      dissect_osc_tcp_pdu, data);
     return tvb_reported_length(tvb);
+}
+
+/* OSC TCP (OSC-1.1) */
+#define SLIP_END                0xC0 /* 300 (octal), 192 (decimal), indicates end of packet */
+#define SLIP_ESC                0xDB /* 333 (octal), 219 (decimal), indicates byte stuffing */
+#define SLIP_END_REPLACE        0xDC /* 334 (octal), 220 (decimal), ESC ESC_END means END data byte */
+#define SLIP_ESC_REPLACE        0xDD /* 335 (octal), 221 (decimal), ESC ESC_ESC means ESC data byte */
+
+static inline gint
+slip_decoded_len(const guint8 *src, guint available)
+{
+    const guint8 *ptr;
+    const guint8 *end = src + available;
+    gint decoded_len = 0;
+    gboolean escaped = FALSE;
+
+    for(ptr = src; ptr < end; ptr++)
+    {
+        if(escaped)
+        {
+            switch(*ptr)
+            {
+                case SLIP_END_REPLACE:
+                    /* fall-through */
+                case SLIP_ESC_REPLACE:
+                    escaped = FALSE;
+                    decoded_len++;
+                    break;
+                default:
+                    return -1; /* decode failed */
+            }
+        }
+        else /* !escaped */
+        {
+            switch(*ptr)
+            {
+                case SLIP_END:
+                    return decoded_len;
+                case SLIP_ESC:
+                    escaped = TRUE;
+                    break;
+                default:
+                    decoded_len++;
+                    break;
+            }
+        }
+    }
+
+    return -1; /* decode failed */
+}
+
+static inline void
+slip_decode(guint8 *dst, const guint8 *src, guint available)
+{
+    const guint8 *ptr;
+    guint8 *tar = dst;
+    const guint8 *end = src + available;
+
+    for(ptr = src; ptr < end; ptr++)
+    {
+        switch(*ptr)
+        {
+            case SLIP_END:
+                return;
+            case SLIP_ESC:
+                break;
+            case SLIP_END_REPLACE:
+                *tar++ = SLIP_END;
+                break;
+            case SLIP_ESC_REPLACE:
+                *tar++ = SLIP_ESC;
+                break;
+            default:
+                *tar++ = *ptr;
+                break;
+        }
+    }
+}
+
+static int
+dissect_osc_tcp_1_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    guint offset = 0;
+
+    while(offset < tvb_reported_length(tvb))
+    {
+        const gint available = tvb_reported_length_remaining(tvb, offset);
+        const guint8 *encoded_buf = tvb_get_ptr(tvb, offset, -1);
+        const guint8 *slip_end_found = (const guint8 *)memchr(encoded_buf, SLIP_END, available);
+        guint encoded_len;
+        gint decoded_len;
+        guint8 *decoded_buf;
+        tvbuff_t *next_tvb;
+
+        if(!slip_end_found) /* no SLIP'd stream ending in this chunk */
+        {
+            /* we ran out of data: ask for more */
+            pinfo->desegment_offset = offset;
+            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+            return (offset + available);
+        }
+
+        encoded_len = (guint)(slip_end_found + 1 - encoded_buf);
+        if(encoded_len > 1) /* we have a non-empty SLIP'd stream*/
+        {
+            decoded_len = slip_decoded_len(encoded_buf, encoded_len);
+            if(decoded_len != -1) /* is a valid SLIP'd stream */
+            {
+                decoded_buf = (guint8 *)g_malloc(decoded_len);
+                if(decoded_buf)
+                {
+                    slip_decode(decoded_buf, encoded_buf, encoded_len);
+
+                    next_tvb = tvb_new_child_real_data(tvb, decoded_buf, decoded_len, decoded_len);
+                    tvb_set_free_cb(next_tvb, g_free);
+
+                    add_new_data_source(pinfo, next_tvb, "SLIP-decoded Data");
+                    dissect_osc_pdu_common(next_tvb, pinfo, tree, data, 0, decoded_len);
+                }
+                else
+                {
+                    return 0; /* failed to allocate new buffer */
+                }
+            }
+            else
+            {
+                return 0; /* failed to decode SLIP'd stream */
+            }
+        }
+
+        offset += encoded_len;
+    }
+
+    /* end of the tvb coincided with the end of a SLIP'd stream */
+    return tvb_captured_length(tvb);
+}
+
+/* OSC TCP (OSC-1.0, OSC-1.1 fork) */
+
+static int
+dissect_osc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    /*
+     * int32 size prefix framing (OSC-1.0)
+     * ... {(int32 size)(OSC packet)} ... {(int32 size)(OSC packet)} ...
+     */
+
+    /*
+     * SLIP framing (OSC-1.1)
+     * ... {SLIP'd(OSC packet)} ... {SLIP'd(OSC)} ...
+     */
+
+    const guint8 first_byte = tvb_get_guint8(tvb, 0);
+    const gboolean slip_encoded = (first_byte == SLIP_END) /* empty SLIP frame*/
+        || (first_byte == '/') /* SLIP'd OSC message frame */
+        || (first_byte == '#'); /* SLIP'd OSC bundle frame */
+
+    if(slip_encoded)
+    {
+        /* assume SLIP framing (OSC-1.1) */
+        return dissect_osc_tcp_1_1(tvb, pinfo, tree, data);
+    }
+
+    /* assume int32 size-prefixed framing (OSC-1.0) */
+    return dissect_osc_tcp_1_0(tvb, pinfo, tree, data);
 }
 
 /* OSC UDP */
@@ -1114,7 +1293,7 @@ proto_register_osc(void)
 
     module_t *osc_module;
 
-    proto_osc = proto_register_protocol("Open Sound Control Protocol", "OSC", "osc");
+    proto_osc = proto_register_protocol("Open Sound Control Encoding", "OSC", "osc");
 
     proto_register_field_array(proto_osc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
