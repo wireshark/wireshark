@@ -47,7 +47,7 @@ GList *get_interface_list(int *err, char **err_str);
 GList *get_remote_interface_list(const char *hostname, const char *port,
                                  int auth_type, const char *username,
                                  const char *passwd, int *err, char **err_str);
-#endif
+#endif /* HAVE_PCAP_REMOTE */
 
 const char *linktype_val_to_name(int dlt);
 int linktype_name_to_val(const char *linktype);
@@ -66,13 +66,13 @@ gboolean set_pcap_datalink(pcap_t *pcap_h, int datalink, char *name,
 gboolean have_high_resolution_timestamp(pcap_t *pcap_h);
 #endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
-#endif /* HAVE_LIBPCAP */
-
 extern if_capabilities_t *get_if_capabilities(interface_options *interface_opts,
     char **err_str);
 extern pcap_t *open_capture_device(capture_options *capture_opts,
     interface_options *interface_opts, int timeout,
     char (*open_err_str)[PCAP_ERRBUF_SIZE]);
+
+#endif /* HAVE_LIBPCAP */
 
 extern void get_compiled_caplibs_version(GString *str);
 
