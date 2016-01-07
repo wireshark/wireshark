@@ -1626,7 +1626,7 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 int
 create_persconffile_dir(char **pf_dir_path_return)
 {
-  return create_persconffile_profile(persconfprofile, pf_dir_path_return);
+    return create_persconffile_profile(persconfprofile, pf_dir_path_return);
 }
 
 int
