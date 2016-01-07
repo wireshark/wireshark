@@ -73,6 +73,8 @@ static GtkToolItem *zoom_in_button, *zoom_out_button, *zoom_100_button, *coloriz
 static GtkToolItem *resize_columns_button;
 static GtkToolItem *color_display_button, *prefs_button, *help_button;
 
+extern capture_file cfile;
+
 /*
  * Redraw all toolbars
  */
@@ -280,6 +282,57 @@ plugin_if_maintoolbar_goto_frame(gconstpointer user_data)
     }
 }
 
+#ifdef HAVE_LIBPCAP
+
+static void plugin_if_maintoolbar_get_ws_info(gconstpointer user_data)
+{
+    GHashTable * dataSet = (GHashTable *)user_data;
+    ws_info_t *ws_info = NULL;
+
+    if (g_hash_table_lookup_extended(dataSet, "ws_info", NULL, (void**)&ws_info))
+    {
+        capture_file *cf = &cfile;
+
+        if (cf->state != FILE_CLOSED)
+        {
+            ws_info->ws_info_supported = TRUE;
+            ws_info->cf_state = cf->state;
+            ws_info->cf_count = cf->count;
+
+            if (ws_info->cf_filename != NULL)
+                g_free(ws_info->cf_filename);
+            ws_info->cf_filename = g_strdup(cf->filename);
+
+            if (cf->state == FILE_READ_DONE)
+            {
+                ws_info->cf_framenr = (cf->current_frame)->num;
+                ws_info->frame_passed_dfilter = ((cf->current_frame)->flags.passed_dfilter) == 0 ? FALSE : TRUE;
+            }
+            else
+            {
+                ws_info->cf_framenr = 0;
+                ws_info->frame_passed_dfilter = FALSE;
+            }
+        }
+        else if (ws_info->cf_state != FILE_CLOSED)
+        {
+            /* Initialise the ws_info structure */
+            ws_info->ws_info_supported = TRUE;
+            ws_info->cf_count = 0;
+
+            if (ws_info->cf_filename != NULL)
+                g_free(ws_info->cf_filename);
+            ws_info->cf_filename = NULL;
+
+            ws_info->cf_framenr = 0;
+            ws_info->frame_passed_dfilter = FALSE;
+            ws_info->cf_state = FILE_CLOSED;
+        }
+    }
+}
+
+#endif /* HAVE_LIBPCAP */
+
 /*
  * Create all toolbars (currently only the main toolbar)
  */
@@ -415,6 +468,9 @@ toolbar_new(void)
     toolbar_redraw_all();
 
     plugin_if_register_gui_cb(PLUGIN_IF_GOTO_FRAME, plugin_if_maintoolbar_goto_frame);
+#ifdef HAVE_LIBPCAP
+    plugin_if_register_gui_cb(PLUGIN_IF_GET_WS_INFO, plugin_if_maintoolbar_get_ws_info);
+#endif /* HAVE_LIBPCAP */
 
     return main_tb;
 }

@@ -136,6 +136,61 @@ static void plugin_if_mainwindow_gotoframe(gconstpointer user_data)
     }
 }
 
+#ifdef HAVE_LIBPCAP
+
+static void plugin_if_mainwindow_get_ws_info(gconstpointer user_data)
+{
+    if (gbl_cur_main_window_ != NULL && user_data != NULL)
+    {
+        GHashTable * dataSet = (GHashTable *)user_data;
+        ws_info_t *ws_info = NULL;
+
+        if (g_hash_table_lookup_extended(dataSet, "ws_info", NULL, (void**)&ws_info))
+        {
+            CaptureFile *cfWrap = gbl_cur_main_window_->captureFile();
+            capture_file *cf = cfWrap->capFile();
+
+            ws_info->ws_info_supported = true;
+
+            if (cf != NULL)
+            {
+                ws_info->cf_state = cf->state;
+                ws_info->cf_count = cf->count;
+
+                if (ws_info->cf_filename != NULL)
+                    g_free(ws_info->cf_filename);
+                ws_info->cf_filename = g_strdup(cf->filename);
+
+                if (cf->state == FILE_READ_DONE)
+                {
+                    ws_info->cf_framenr = (cf->current_frame)->num;
+                    ws_info->frame_passed_dfilter = ((cf->current_frame)->flags.passed_dfilter) == 0 ? FALSE : TRUE;
+                }
+                else
+                {
+                    ws_info->cf_framenr = 0;
+                    ws_info->frame_passed_dfilter = FALSE;
+                }
+            }
+            else if (ws_info->cf_state != FILE_CLOSED)
+            {
+                /* Initialise the ws_info structure */
+                ws_info->cf_count = 0;
+
+                if (ws_info->cf_filename != NULL)
+                    g_free(ws_info->cf_filename);
+                ws_info->cf_filename = NULL;
+
+                ws_info->cf_framenr = 0;
+                ws_info->frame_passed_dfilter = false;
+                ws_info->cf_state = FILE_CLOSED;
+            }
+        }
+    }
+}
+
+#endif /* HAVE_LIBPCAP */
+
 gpointer
 simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
 {
@@ -616,6 +671,9 @@ MainWindow::MainWindow(QWidget *parent) :
     plugin_if_register_gui_cb(PLUGIN_IF_FILTER_ACTION_PREPARE, plugin_if_mainwindow_apply_filter );
     plugin_if_register_gui_cb(PLUGIN_IF_PREFERENCE_SAVE, plugin_if_mainwindow_preference);
     plugin_if_register_gui_cb(PLUGIN_IF_GOTO_FRAME, plugin_if_mainwindow_gotoframe);
+#ifdef HAVE_LIBPCAP
+    plugin_if_register_gui_cb(PLUGIN_IF_GET_WS_INFO, plugin_if_mainwindow_get_ws_info);
+#endif
 
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
 }

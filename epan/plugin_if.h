@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <epan/epan.h>
 #include <epan/packet_info.h>
+#include <cfile.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -163,6 +164,21 @@ WS_DLL_PUBLIC void ext_menubar_add_website(ext_menu_t * parent, const gchar *lab
 
 
 /*
+ * Structure definition for the plugin_if_get_ws_info function
+ */
+
+typedef struct _ws_info_t
+{
+    gboolean ws_info_supported;                 /* false if no libpcap */
+    file_state cf_state;                        /* Current state of capture file */
+    gchar *cf_filename;                         /* Name of capture file */
+    guint32 cf_count;                           /* Total number of frames */
+    guint32 cf_framenr;                         /**< Currently displayed frame number */
+    gboolean frame_passed_dfilter;              /**< true = display, false = no display */
+} ws_info_t;
+
+
+/*
  * Enumeration of possible actions, which are registered in GUI interfaces
  */
 typedef enum
@@ -176,8 +192,11 @@ typedef enum
     /* Saves a preference entry */
     PLUGIN_IF_PREFERENCE_SAVE,
 
-	/* Jumps to the provided frame number */
-	PLUGIN_IF_GOTO_FRAME
+    /* Jumps to the provided frame number */
+    PLUGIN_IF_GOTO_FRAME,
+
+    /* Gets status information about the currently loaded capture file */
+    PLUGIN_IF_GET_WS_INFO
 } plugin_if_callback_t;
 
 
@@ -194,6 +213,8 @@ WS_DLL_PUBLIC void plugin_if_save_preference(const char * pref_module, const cha
 /* Jumps to the given frame number */
 WS_DLL_PUBLIC void plugin_if_goto_frame(guint32 framenr);
 
+/* Takes a snapshot of status information from Wireshark */
+WS_DLL_PUBLIC void plugin_if_get_ws_info(ws_info_t ** ws_info);
 
 /* Private Method for retrieving the menubar entries
  *

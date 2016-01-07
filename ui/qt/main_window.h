@@ -93,6 +93,7 @@ public:
     virtual QMenu *createPopupMenu();
 
     void gotoFrame(int packet_num);
+    CaptureFile *captureFile() { return &capture_file_; }
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
