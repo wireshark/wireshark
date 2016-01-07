@@ -1062,6 +1062,16 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction)
         return;
     }
 
+    if (save_format == save_audio_au_) {
+        if ((((direction == dir_forward_) || (direction == dir_both_)) &&
+             (fwd_statinfo_.pt != PT_PCMU) && (fwd_statinfo_.pt != PT_PCMA)) ||
+             (((direction == dir_reverse_) || (direction == dir_both_)) &&
+             (rev_statinfo_.pt != PT_PCMU) && (rev_statinfo_.pt != PT_PCMA))) {
+            QMessageBox::warning(this, tr("Warning"), tr("Can't save in a file: saving in au format supported only for alaw/ulaw streams"));
+            return;
+        }
+    }
+
     QFile      save_file(file_path);
     gint16     sample;
     gchar      pd[4];
