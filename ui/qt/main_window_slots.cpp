@@ -3545,11 +3545,10 @@ void MainWindow::on_actionCaptureStop_triggered()
 void MainWindow::on_actionCaptureRestart_triggered()
 {
     QString before_what(tr(" before restarting a new capture"));
-    if (!testCaptureFileClose(FALSE, before_what, true))
+    if (!testCaptureFileClose(false, before_what, true))
         return;
 
 /* TODO: GTK use only this: capture_restart(&cap_session_); */
-    captureStop();
     startCapture();
 }
 

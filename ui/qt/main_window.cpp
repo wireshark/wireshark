@@ -1504,24 +1504,27 @@ void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compre
 }
 
 bool MainWindow::testCaptureFileClose(bool from_quit, QString before_what, bool restart) {
-    bool capture_in_progress = FALSE;
+    bool capture_in_progress = false;
+    bool do_close_file = false;
 
     if (!capture_file_.capFile() || capture_file_.capFile()->state == FILE_CLOSED)
         return true; /* Already closed, nothing to do */
 
 #ifdef HAVE_LIBPCAP
-    if (capture_file_.capFile()->state == FILE_READ_IN_PROGRESS && capture_file_.capFile()->count>0) {
+    if (capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
         /* This is true if we're reading a capture file *or* if we're doing
          a live capture.  If we're reading a capture file, the main loop
          is busy reading packets, and only accepting input from the
          progress dialog, so we can't get here, so this means we're
          doing a capture. */
-        capture_in_progress = TRUE;
+        capture_in_progress = true;
     }
 #endif
 
     if (prefs.gui_ask_unsaved) {
-        if (cf_has_unsaved_data(capture_file_.capFile()) || capture_in_progress) {
+        if (cf_has_unsaved_data(capture_file_.capFile()) ||
+            (capture_in_progress && capture_file_.capFile()->count > 0))
+        {
             QMessageBox msg_dialog;
             QString question;
             QPushButton *saveButton;
@@ -1613,54 +1616,42 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString before_what, bool 
              *
              * Therefore we should use clickedButton() to determine which button was clicked. */
 
-            if(msg_dialog.clickedButton() == saveButton)
-            {
+            if (msg_dialog.clickedButton() == saveButton) {
 #ifdef HAVE_LIBPCAP
                 /* If there's a capture in progress, we have to stop the capture
-             and then do the save. */
+                   and then do the save. */
                 if (capture_in_progress)
                     captureStop();
 #endif
                 /* Save the file and close it */
-                saveCaptureFile(capture_file_.capFile(), TRUE);
-            }
-            else if(msg_dialog.clickedButton() == discardButton)
-            {
-                if (!restart)
-                {
-#ifdef HAVE_LIBPCAP
-                    /*
-                     * If there's a capture in progress; we have to stop the capture
-                     * and then do the close.
-                     */
-                    if (capture_in_progress)
-                        captureStop();
-#endif
-                    /* Just close the file, discarding changes */
-                    cf_close(capture_file_.capFile());
-                }
-                return true;
-            }
-            else    //cancelButton or some other unspecified button
-            {
+                saveCaptureFile(capture_file_.capFile(), true);
+            } else if(msg_dialog.clickedButton() == discardButton) {
+                /* Just close the file, discarding changes */
+                do_close_file = true;
+            } else {
+                // cancelButton or some other unspecified button
                 return false;
             }
-
         } else {
-            /* Unchanged file, just close it */
-            capture_file_.capFile()->state = FILE_READ_ABORTED;
-            cf_close(capture_file_.capFile());
+            /* Unchanged file or capturing with no packets */
+            do_close_file = true;
         }
     } else {
         /* User asked not to be bothered by those prompts, just close it.
          XXX - should that apply only to saving temporary files? */
+        do_close_file = true;
+    }
+
+    if (do_close_file) {
 #ifdef HAVE_LIBPCAP
         /* If there's a capture in progress, we have to stop the capture
            and then do the close. */
         if (capture_in_progress)
             captureStop();
 #endif
-        cf_close(capture_file_.capFile());
+        /* captureStop() will close the file if not having any packets */
+        if (capture_file_.capFile())
+            cf_close(capture_file_.capFile());
     }
 
     return true; /* File closed */
