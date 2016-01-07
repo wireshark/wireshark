@@ -84,6 +84,7 @@ const value_string expert_group_vals[] = {
 	{ PI_SECURITY,          "Security" },
 	{ PI_COMMENTS_GROUP,    "Comment" },
 	{ PI_DECRYPTION,        "Decryption" },
+	{ PI_ASSUMPTION,        "Assumption" },
 	{ 0, NULL }
 };
 

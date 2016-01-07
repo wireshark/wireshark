@@ -759,6 +759,8 @@ typedef proto_node proto_item;
 #define PI_COMMENTS_GROUP       0x0b000000
 /** The protocol field indicates a decryption problem */
 #define PI_DECRYPTION           0x0c000000
+/** The protocol field has incomplete data, decode based on assumed value */
+#define PI_ASSUMPTION           0x0d000000
 
 /* add more, see https://wiki.wireshark.org/Development/ExpertInfo */
 
