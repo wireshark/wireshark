@@ -1275,8 +1275,11 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
         }
         bit_offset += LOWPAN_IPV6_FLOW_LABEL_BITS;
     }
-    ipv6.ip6_flow = g_ntohl(ipv6.ip6_flow | (ipv6_class << LOWPAN_IPV6_FLOW_LABEL_BITS));
-    ipv6.ip6_vfc = ((0x6 << 4) | (ipv6_class >> 4));
+
+    /* Rebuild the IPv6 flow label, traffic class and version fields. */
+    ipv6.ip6_flow |= ((guint32)ipv6_class << LOWPAN_IPV6_FLOW_LABEL_BITS);
+    ipv6.ip6_flow |= ((guint32)0x6 << (LOWPAN_IPV6_TRAFFIC_CLASS_BITS + LOWPAN_IPV6_FLOW_LABEL_BITS));
+    ipv6.ip6_flow = g_ntohl(ipv6.ip6_flow);
 
     /* Parse the IPv6 next header field. */
     if (next_header == LOWPAN_HC1_NEXT_UDP) {
@@ -1583,9 +1586,10 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     }
     else ipv6.ip6_flow = 0;
 
-    /* Rebuild the IPv6 flow label and traffic class fields. */
-    ipv6.ip6_flow = g_ntohl(ipv6.ip6_flow) | (ipv6_class << LOWPAN_IPV6_FLOW_LABEL_BITS);
-    ipv6.ip6_vfc = (0x6 << 4) | (ipv6_class >> 4);
+    /* Rebuild the IPv6 flow label, traffic class and version fields. */
+    ipv6.ip6_flow |= ((guint32)ipv6_class << LOWPAN_IPV6_FLOW_LABEL_BITS);
+    ipv6.ip6_flow |= ((guint32)0x6 << (LOWPAN_IPV6_TRAFFIC_CLASS_BITS + LOWPAN_IPV6_FLOW_LABEL_BITS));
+    ipv6.ip6_flow = g_ntohl(ipv6.ip6_flow);
 
     /* Convert back to byte offsets. */
     offset >>= 3;
