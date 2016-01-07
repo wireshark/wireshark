@@ -45,7 +45,9 @@
 #include <QHeaderView>
 #include <QTimer>
 
+#ifdef HAVE_LIBPCAP
 const int stat_update_interval_ = 1000; // ms
+#endif
 
 InterfaceTree::InterfaceTree(QWidget *parent) :
     QTreeWidget(parent)
