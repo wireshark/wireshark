@@ -864,46 +864,6 @@ create_data_link_info(int dlt)
 	return data_link_info;
 }
 
-#ifdef HAVE_PCAP_CREATE
-#if defined(HAVE_BONDING) && defined(HAVE_PCAP_CREATE)
-static gboolean
-is_linux_bonding_device(const char *ifname)
-{
-	int fd;
-	struct ifreq ifr;
-	ifbond ifb;
-
-	fd = socket(PF_INET, SOCK_DGRAM, 0);
-	if (fd == -1)
-		return FALSE;
-
-	memset(&ifr, 0, sizeof ifr);
-	g_strlcpy(ifr.ifr_name, ifname, sizeof ifr.ifr_name);
-	memset(&ifb, 0, sizeof ifb);
-	ifr.ifr_data = (caddr_t)&ifb;
-#if defined(SIOCBONDINFOQUERY)
-	if (ioctl(fd, SIOCBONDINFOQUERY, &ifr) == 0) {
-		close(fd);
-		return TRUE;
-	}
-#else
-	if (ioctl(fd, BOND_INFO_QUERY_OLD, &ifr) == 0) {
-		close(fd);
-		return TRUE;
-	}
-#endif
-
-	close(fd);
-	return FALSE;
-}
-#elif defined(HAVE_PCAP_CREATE)
-static gboolean
-is_linux_bonding_device(const char *ifname _U_)
-{
-	return FALSE;
-}
-#endif
-
 static GList *
 get_data_link_types(pcap_t *pch, interface_options *interface_opts,
     char **err_str)
@@ -976,6 +936,46 @@ get_data_link_types(pcap_t *pch, interface_options *interface_opts,
         *err_str = NULL;
     return data_link_types;
 }
+
+#ifdef HAVE_PCAP_CREATE
+#ifdef HAVE_BONDING
+static gboolean
+is_linux_bonding_device(const char *ifname)
+{
+	int fd;
+	struct ifreq ifr;
+	ifbond ifb;
+
+	fd = socket(PF_INET, SOCK_DGRAM, 0);
+	if (fd == -1)
+		return FALSE;
+
+	memset(&ifr, 0, sizeof ifr);
+	g_strlcpy(ifr.ifr_name, ifname, sizeof ifr.ifr_name);
+	memset(&ifb, 0, sizeof ifb);
+	ifr.ifr_data = (caddr_t)&ifb;
+#if defined(SIOCBONDINFOQUERY)
+	if (ioctl(fd, SIOCBONDINFOQUERY, &ifr) == 0) {
+		close(fd);
+		return TRUE;
+	}
+#else
+	if (ioctl(fd, BOND_INFO_QUERY_OLD, &ifr) == 0) {
+		close(fd);
+		return TRUE;
+	}
+#endif
+
+	close(fd);
+	return FALSE;
+}
+#else
+static gboolean
+is_linux_bonding_device(const char *ifname _U_)
+{
+	return FALSE;
+}
+#endif
 
 if_capabilities_t *
 get_if_capabilities_pcap_create(interface_options *interface_opts,
