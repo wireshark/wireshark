@@ -1298,3 +1298,52 @@
 		<type type-name="Unsigned32"/>
 	</avp>
 </application>	<!-- 3GPP MB2c -->
+
+<application id="16777336"	name="3GPP PC4a"			uri="http://www.3gpp.org/ftp/Specs/html-info/29344.htm">
+
+	<command name="ProSe-Subscriber-Information" code="8388664" vendor-id="TGPP"/>
+	<command name="Update-ProSe-Subscriber-Data" code="8388665" vendor-id="TGPP"/>
+	<command name="ProSe-Notify" code="8388666" vendor-id="TGPP"/>
+	<command name="Reset" code="8388667" vendor-id="TGPP"/>
+	<command name="ProSe-Initial-Location-Information" code="8388713" vendor-id="TGPP"/>
+
+	<avp name="ProSe-Subscription-Data" code="3701" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+		<grouped>
+      <gavp name="ProSe-Permission"/>
+      <gavp name="ProSe-Allowed-PLMN"/>
+      <gavp name="3GPP-Charging-Characteristics"/>
+    </grouped>
+	</avp>
+  <avp name="ProSe-Permission" code="3702" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+    <type type-name="Unsigned32"/>
+  </avp>
+  <avp name="ProSe-Allowed-PLMN" code="3703" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+    <grouped>
+      <gavp name="Visited-PLMN-Id"/>
+      <gavp name="Authorized-Discovery-Range"/>
+      <gavp name="ProSe-Direct-Allowed"/>
+    </grouped>
+  </avp>
+  <avp name="ProSe-Direct-Allowed" code="3704" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+    <type type-name="Unsigned32"/>
+  </avp>
+  <avp name="UPR-Flags" code="3705" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+    <type type-name="Unsigned32"/>
+  </avp>
+  <avp name="PNR-Flags" code="3706" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+    <type type-name="Unsigned32"/>
+  </avp>
+  <avp name="ProSe-Initial-Location-Information" code="3707" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+    <grouped>
+      <gavp name="MME-Name"/>
+      <gavp name="E-UTRAN-Cell-Global-Identity"/>
+      <gavp name="Tracking-Area-Identity"/>
+      <gavp name="Age-Of-Location-Information"/>
+    </grouped>
+  </avp>
+  <avp name="Authorized-Discovery-Range" code="3708" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+    <type type-name="Unsigned32"/>
+  </avp>
+
+</application>
+<!-- 3GPP PC4a -->

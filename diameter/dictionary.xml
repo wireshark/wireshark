@@ -161,10 +161,10 @@
       8388661 Nokia Extended Command Request/Answer (ECR/ECA) [Timo_Perala]
       8388662 GCS-Action-Request/Answer (GAR/GAA) [3GPP TS 29.468][Kimmo_Kymalainen]
       8388663 GCS-Notification-Request/Answer (GNR/GNA) [3GPP TS 29.468][Kimmo_Kymalainen]
-      8388664 ProSe-Subscriber-Information-Request/Answer (PIR/PIA) [3GPP TS 29.344][Kimmo_Kymalainen]
-      8388665 Update-ProSe-Subscriber-Data-Request/Answer (UPR/UPA) [3GPP TS 29.344][Kimmo_Kymalainen]
-      8388666 ProSe-Notify-Request/Answer (PNR/PNA) [3GPP TS 29.344][Kimmo_Kymalainen]
-      8388667 Reset-Request/Answer (RSR/RSA) [3GPP TS 29.344][Kimmo_Kymalainen]
+      8388664 ProSe-Subscriber-Information-Request/Answer (PIR/PIA) [3GPP TS 29.344][Kimmo_Kymalainen]  TGPP.xml
+      8388665 Update-ProSe-Subscriber-Data-Request/Answer (UPR/UPA) [3GPP TS 29.344][Kimmo_Kymalainen]  TGPP.xml
+      8388666 ProSe-Notify-Request/Answer (PNR/PNA) [3GPP TS 29.344][Kimmo_Kymalainen]                  TGPP.xml
+      8388667 Reset-Request/Answer (RSR/RSA) [3GPP TS 29.344][Kimmo_Kymalainen]                         TGPP.xml
       8388668 ProSe-Authorization-Request/Answer (PAR/PAA) [3GPP TS 29.345][Kimmo_Kymalainen]
       8388669 ProSe-Discovery-Request/Answer (PDR/PDA) [3GPP TS 29.345][Kimmo_Kymalainen]
       8388670 ProSe-Match-Request/Answer (PMR/PMA) [3GPP TS 29.345][Kimmo_Kymalainen]
@@ -210,7 +210,7 @@
       8388710 Rivada Xa Resource-Release-Request/Answer (ARRR/ARRA) [Vincent_D_Onofrio]
       8388711 Rivada Xa Resource-Release-Notification-Request/Answer (ARNR/ARNA) [Vincent_D_Onofrio]
       8388712 Rivada Xh User-Data-Request/Answer (HUDR/HUDA) [Vincent_D_Onofrio]
-      8388713 ProSe-Initial-Location-Information-Request/Answer (PSR/PSA) [3GPP TS 29.344][Kimmo_Kymalainen]
+      8388713 ProSe-Initial-Location-Information-Request/Answer (PSR/PSA) [3GPP TS 29.344][Kimmo_Kymalainen] TGPP.xml
       8388714 Nokia Session-Sync-Request/Answer (SSR/SSA) [Timo_Perala]
       8388715 Nokia Session-Mass-Sync-Request/Answer (SMR/SMA) [Timo_Perala]
       8388716 Nokia Fetch-Session-Request/Answer (FSR/FSA) [Timo_Perala]
@@ -1724,7 +1724,8 @@
 			<enum name="DIAMETER_INVALID_HDR_BITS" code="3008"/>
 			<enum name="DIAMETER_INVALID_AVP_BITS" code="3009"/>
 			<enum name="DIAMETER_UNKNOWN_PEER" code="3010"/>
-			<!-- 3011-3999 Unassigned -->
+			<enum name="DIAMETER_REALM_REDIRECT_INDICATION" code="3011"/>
+			<!-- 3012-3999 Unassigned -->
 			<enum name="DIAMETER_AUTHENTICATION_REJECTED" code="4001"/>
 			<enum name="DIAMETER_OUT_OF_SPACE" code="4002"/>
 			<enum name="DIAMETER_ELECTION_LOST" code="4003"/>
@@ -1736,7 +1737,8 @@
 			<enum name="DIAMETER_CREDIT_CONTROL_NOT_APPLICABLE" code="4011"/>
 			<enum name="DIAMETER_CREDIT_LIMIT_REACHED" code="4012"/>
 			<enum name="DIAMETER_USER_NAME_REQUIRED" code="4013"/>
-			<!-- 4014-4999 Unassigned -->
+			<enum name="RESOURCE_FAILURE" code="4014"/>
+			<!-- 4015-4999 Unassigned -->
 			<enum name="DIAMETER_AVP_UNSUPPORTED" code="5001"/>
 			<enum name="DIAMETER_UNKNOWN_SESSION_ID" code="5002"/>
 			<enum name="DIAMETER_AUTHORIZATION_REJECTED" code="5003"/>
@@ -1771,8 +1773,15 @@
 			<enum name="DIAMETER_ERROR_TOO_MUCH_DATA" code="5039"/>
 			<enum name="DIAMETER_ERROR_NOT SUPPORTED_USER_DATA" code="5040"/>
 			<enum name="DIAMETER_ERROR_MIP6_AUTH_MODE" code="5041"/>
+			<enum name="UNKNOWN_BINDING_TEMPLATE_NAME" code="5042"/>
+			<enum name="BINDING_FAILURE" code="5043"/>
+			<enum name="MAX_BINDINGS_SET_FAILURE" code="5044"/>
+			<enum name="MAXIMUM_BINDINGS_REACHED_FOR_ENDPOINT" code="5045"/>
+			<enum name="SESSION_EXISTS" code="5046"/>
+			<enum name="INSUFFICIENT_CLASSIFIERS" code="5047"/>
+			<enum name="DIAMETER_ERROR_EAP_CODE_UNKNOWN" code="5048"/>
 
-			<!-- (Ericsson) SCAP Result Codes, see 155 19-FAY 112 51/2 rev B -->
+      <!-- (Ericsson) SCAP Result Codes, see 155 19-FAY 112 51/2 rev B -->
 			<enum name="DIAMETER_END_USER_SERVICE_DENIED" code="4241"/>
 			<enum name="DIAMETER_END_USER_NOT_FOUND" code="5241"/>
 			<!-- END SCAP Result Codes -->
@@ -1892,6 +1901,30 @@
 			<enum name="DIAMETER_AUTH_EXPIRED" code="6"/>
 			<enum name="DIAMETER_USER_MOVED" code="7"/>
 			<enum name="DIAMETER_SESSION_TIMEOUT" code="8"/>
+			<enum name="Unassigned" code="9"/>
+			<enum name="Unassigned" code="10"/>
+			<enum name="User Request" code="11"/>
+			<enum name="Lost Carrier" code="12"/>
+			<enum name="Lost Service" code="13"/>
+			<enum name="Idle Timeout" code="14"/>
+			<enum name="Session Timeout" code="15"/>
+			<enum name="Admin Reset" code="16"/>
+			<enum name="Admin Reboot" code="17"/>
+			<enum name="Port Error" code="18"/>
+			<enum name="NAS Error" code="19"/>
+			<enum name="NAS Request" code="20"/>
+			<enum name="NAS Reboot" code="21"/>
+			<enum name="Port Unneeded" code="22"/>
+			<enum name="Port Preempted" code="23"/>
+			<enum name="Port Suspended" code="24"/>
+			<enum name="Service Unavailable" code="25"/>
+			<enum name="Callback" code="26"/>
+			<enum name="User Error" code="27"/>
+			<enum name="Host Request" code="28"/>
+			<enum name="Supplicant Restart" code="29"/>
+			<enum name="Reauthentication Failure" code="30"/>
+			<enum name="Reauthentication Failure" code="31"/>
+			<enum name="Port Administratively Disabled" code="32"/>
 		</avp>
 		<avp name="Origin-Realm" code="296" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
 			<type type-name="DiameterIdentity"/>
@@ -6894,8 +6927,8 @@
 	<application id="16777333"	name="Rivada Xf"			uri="none"/>
 	<application id="16777334"	name="Rivada Xp"			uri="none"/>
 	<application id="16777335"	name="3GPP MB2-C"			uri="http://www.3gpp.org/ftp/Specs/html-info/29468.htm"/>
-	<application id="16777336"	name="3GPP PC4a"			uri="http://www.3gpp.org/ftp/Specs/html-info/29344.htm"/>
-	<application id="16777337"	name="3GPP PC2"				uri="http://www.3gpp.org/ftp/Specs/html-info/29343.htm"/>
+  <!-- application 16777336 (3GPP PC4a)	is defined in TGPP.xml -->
+  <application id="16777337"	name="3GPP PC2"				uri="http://www.3gpp.org/ftp/Specs/html-info/29343.htm"/>
 	<application id="16777338"	name="Juniper Domain Policy"		uri="none"/>
 	<application id="16777339"	name="Host Observer"			uri="none"/>
 	<application id="16777340"	name="3GPP PC6/PC7"			uri="http://www.3gpp.org/ftp/Specs/html-info/29345.htm"/>
@@ -6903,6 +6936,16 @@
 	<application id="16777342"	name="3GPP Np"				uri="http://www.3gpp.org/ftp/Specs/html-info/29217.htm"/>
 	<application id="16777999"	name="S6b Application (One-AAA)"	uri="none"/>
 	<application id="4294967295"	name="Relay"				uri="http://tools.ietf.org/html/rfc6733"/>
+  <!--
+16777341 Nokia Sdr Application [Timo_Perala]
+16777342 3GPP Np [3GPP TS 29.217][Kimmo_Kymalainen]
+16777343 Sandvine Location Relay Service [Inian_Vasanth]
+16777344 Sandvine Fairshare Traffic Management Service [Inian_Vasanth]
+16777345 3GPP S6t [3GPP TS 29.336][Kimmo_Kymalainen]
+16777346 3GPP T6a/T6b [3GPP TS 29.128][Kimmo_Kymalainen]
+16777347 3GPP Ns [3GPP TS 29.153][Kimmo_Kymalainen]
+16777348 3GPP Nt [3GPP TS 29.154][Kimmo_Kymalainen]
+  -->
 	<!-- *********************** End Application IDs ************************** -->
 
 
