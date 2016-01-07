@@ -879,10 +879,19 @@ get_data_link_types(pcap_t *pch, interface_options *interface_opts,
 	deflt = get_pcap_datalink(pch, interface_opts->name);
 #ifdef HAVE_PCAP_LIST_DATALINKS
 	nlt = pcap_list_datalinks(pch, &linktypes);
-	if (nlt == 0 || linktypes == NULL) {
+	if (nlt < 0) {
+		/*
+		 * This either returns a negative number for an error
+		 *  or returns a number > 0 and sets linktypes.
+		 */
 		pcap_close(pch);
-		if (err_str != NULL)
-			*err_str = NULL; /* an empty list doesn't mean an error */
+		if (err_str != NULL) {
+			if (nlt == PCAP_ERROR)
+				*err_str = g_strdup_printf("pcap_list_datalinks() failed: %s",
+				    pcap_geterr(pch));
+			else
+				*err_str = g_strdup(pcap_statustostr(nlt));
+		}
 		return NULL;
 	}
 	data_link_types = NULL;
@@ -932,9 +941,9 @@ get_data_link_types(pcap_t *pch, interface_options *interface_opts,
 	data_link_types = g_list_append(data_link_types, data_link_info);
 #endif /* HAVE_PCAP_LIST_DATALINKS */
 
-    if (err_str != NULL)
-        *err_str = NULL;
-    return data_link_types;
+	if (err_str != NULL)
+		*err_str = NULL;
+	return data_link_types;
 }
 
 #ifdef HAVE_PCAP_CREATE
@@ -1057,8 +1066,6 @@ get_if_capabilities_pcap_create(interface_options *interface_opts,
 	    err_str);
 	if (caps->data_link_types == NULL) {
 		pcap_close(pch);
-		if (err_str != NULL)
-			*err_str = NULL; /* an empty list doesn't mean an error */
 		g_free(caps);
 		return NULL;
 	}
@@ -1177,8 +1184,6 @@ get_if_capabilities_pcap_open_live(interface_options *interface_opts,
 	    err_str);
 	if (caps->data_link_types == NULL) {
 		pcap_close(pch);
-		if (err_str != NULL)
-			*err_str = NULL; /* an empty list doesn't mean an error */
 		g_free(caps);
 		return NULL;
 	}
