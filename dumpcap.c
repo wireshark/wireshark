@@ -2228,7 +2228,12 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
             if (pcap_opts->cap_pipe_h == INVALID_HANDLE_VALUE) {
 #endif
                 if (pcap_opts->cap_pipe_err == PIPNEXIST) {
-                    /* Pipe doesn't exist, so output message for interface */
+                    /*
+                     * We tried opening as an interface, and that failed,
+                     * so we tried to open it as a pipe, but the pipe
+                     * doesn't exist.  Report the error message for
+                     * the interface.
+                     */
                     get_capture_device_open_failure_messages(open_err_str,
                                                              interface_opts.name,
                                                              errmsg,
