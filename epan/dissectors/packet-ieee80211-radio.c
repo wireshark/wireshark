@@ -674,7 +674,7 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
   }
 
   if (phdr->presence_flags & PHDR_802_11_HAS_SIGNAL_DBM) {
-    col_add_fstr(pinfo->cinfo, COL_RSSI, "%u dBm", phdr->signal_dbm);
+    col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", phdr->signal_dbm);
   } else if (phdr->presence_flags & PHDR_802_11_HAS_SIGNAL_PERCENT) {
     col_add_fstr(pinfo->cinfo, COL_RSSI, "%u%%", phdr->signal_percent);
   }
