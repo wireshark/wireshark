@@ -270,7 +270,7 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
   }
 
   if (phdr->has_signal_dbm) {
-    col_add_fstr(pinfo->cinfo, COL_RSSI, "%u dBm", phdr->signal_dbm);
+    col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", phdr->signal_dbm);
   } else if (phdr->has_signal_percent) {
     col_add_fstr(pinfo->cinfo, COL_RSSI, "%u%%", phdr->signal_percent);
   }
