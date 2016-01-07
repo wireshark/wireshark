@@ -106,12 +106,6 @@ static GArray          *if_array;
 static if_stat_cache_t *sc;
 static GtkWidget       *cap_if_top_vb, *cap_if_sw;
 
-/*
- * Timeout, in milliseconds, for reads from the stream of captured packets.
- */
-#define CAP_READ_TIMEOUT 250
-
-
 /* the "runtime" data of one interface */
 typedef struct if_dlg_data_s {
     gchar     *device;
