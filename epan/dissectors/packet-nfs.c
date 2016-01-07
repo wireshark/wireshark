@@ -1166,7 +1166,7 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 		g_hash_table_remove(nfs_name_snoop_matched, key);
 	}
 
-	g_hash_table_remove(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
+	g_hash_table_steal(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
 	g_hash_table_insert(nfs_name_snoop_matched, key, nns);
 }
 
