@@ -42,6 +42,7 @@ public:
     explicit MainWelcome(QWidget *parent = 0);
     virtual ~MainWelcome();
     InterfaceTree *getInterfaceTree();
+    const QString captureFilter();
 
 protected:
     void resizeEvent(QResizeEvent *event);

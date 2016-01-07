@@ -198,6 +198,11 @@ InterfaceTree *MainWelcome::getInterfaceTree()
     return welcome_ui_->interfaceTree;
 }
 
+const QString MainWelcome::captureFilter()
+{
+    return welcome_ui_->captureFilterComboBox->currentText();
+}
+
 void MainWelcome::appInitialized()
 {
     // XXX Add a "check for updates" link?

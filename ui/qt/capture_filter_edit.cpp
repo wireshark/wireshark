@@ -176,8 +176,8 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
                 "}"
                 );
         connect(apply_button_, SIGNAL(clicked()), this, SLOT(applyCaptureFilter()));
-        connect(this, SIGNAL(returnPressed()), this, SLOT(applyCaptureFilter()));
     }
+    connect(this, SIGNAL(returnPressed()), this, SLOT(applyCaptureFilter()));
 
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     QSize bksz;
@@ -267,11 +267,11 @@ void CaptureFilterEdit::resizeEvent(QResizeEvent *)
     }
 }
 
-void CaptureFilterEdit::checkFilter(const QString& text)
+void CaptureFilterEdit::checkFilter(const QString& filter)
 {
-    setSyntaxState(Empty);
+    setSyntaxState(Busy);
     popFilterSyntaxStatus();
-    bool empty = text.isEmpty();
+    bool empty = filter.isEmpty();
 
     if (bookmark_button_) {
         bookmark_button_->setEnabled(false);
@@ -286,9 +286,9 @@ void CaptureFilterEdit::checkFilter(const QString& text)
     }
 
     if (empty) {
-        setFilterSyntaxState(text, Empty, QString());
+        setFilterSyntaxState(filter, Empty, QString());
     } else {
-        syntax_worker_->checkFilter(text);
+        syntax_worker_->checkFilter(filter);
     }
 }
 
@@ -306,8 +306,6 @@ void CaptureFilterEdit::initCaptureFilter()
 
 void CaptureFilterEdit::setFilterSyntaxState(QString filter, int state, QString err_msg)
 {
-    bool valid = (state != Invalid);
-
     if (filter.compare(text()) == 0) { // The user hasn't changed the filter
         setSyntaxState((SyntaxState)state);
         if (!err_msg.isEmpty()) {
@@ -315,42 +313,16 @@ void CaptureFilterEdit::setFilterSyntaxState(QString filter, int state, QString 
         }
     }
 
-#ifdef HAVE_LIBPCAP
-    if (syntaxState() != Invalid) {
+    bool valid = (state != Invalid);
+
+    if (valid) {
         if (bookmark_button_) {
             bookmark_button_->setEnabled(true);
         }
         if (apply_button_) {
             apply_button_->setEnabled(true);
         }
-        valid = true;
-        g_free(global_capture_opts.default_options.cfilter);
-        if (filter.isEmpty()) {
-            global_capture_opts.default_options.cfilter = NULL;
-        } else {
-            global_capture_opts.default_options.cfilter = qstring_strdup(filter);
-        }
-
-        if (global_capture_opts.num_selected > 0) {
-            interface_t device;
-
-            for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-                device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-                if (!device.selected) {
-                    continue;
-                }
-//                if (device.active_dlt == -1) {
-//                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The link type of interface %s was not specified.", device.name);
-//                    continue;  /* Programming error: somehow managed to select an "unsupported" entry */
-//                }
-                g_array_remove_index(global_capture_opts.all_ifaces, i);
-                device.cfilter = qstring_strdup(filter);
-                g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-//                update_filter_string(device.name, filter_text);
-            }
-        }
     }
-#endif // HAVE_LIBPCAP
 
     emit captureFilterSyntaxChanged(valid);
 }

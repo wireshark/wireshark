@@ -44,8 +44,10 @@ static QMutex pcap_compile_mtx_;
 #include <QDebug>
 #include <QThread>
 #define DEBUG_SYNTAX_CHECK(state1, state2) qDebug() << "CF state" << QThread::currentThreadId() << state1 << "->" << state2 << ":" << filter_text_ << ":" << filter
+#define DEBUG_SLEEP_TIME 5000 // ms
 #else
 #define DEBUG_SYNTAX_CHECK(state1, state2)
+#define DEBUG_SLEEP_TIME 0 // ms
 #endif
 
 #define DUMMY_SNAPLENGTH                65535
@@ -100,6 +102,10 @@ void CaptureFilterSyntaxWorker::start() {
             pc_err = pcap_compile(pd, &fcode, filter.toUtf8().constData(), 1 /* Do optimize */, PCAP_NETMASK_UNKNOWN);
 #else
             pc_err = pcap_compile(pd, &fcode, filter.toUtf8().constData(), 1 /* Do optimize */, 0);
+#endif
+
+#if DEBUG_SLEEP_TIME > 0
+            QThread::msleep(DEBUG_SLEEP_TIME);
 #endif
 
             if (pc_err) {
