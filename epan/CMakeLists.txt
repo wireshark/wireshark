@@ -1460,8 +1460,9 @@ set(DISSECTOR_SRC
 	dissectors/packet-zbee-nwk-gp.c
 	dissectors/packet-zbee-security.c
 	dissectors/packet-zbee-zcl.c
-        dissectors/packet-zbee-zcl-closures.c
-        dissectors/packet-zbee-zcl-lighting.c
+	dissectors/packet-zbee-zcl-closures.c
+	dissectors/packet-zbee-zcl-lighting.c
+	dissectors/packet-zbee-zcl-hvac.c
 	dissectors/packet-zbee-zcl-general.c
 	dissectors/packet-zbee-zcl-ha.c
 	dissectors/packet-zbee-zcl-meas-sensing.c
