@@ -880,11 +880,27 @@ void MainWindow::startCapture() {
 
         /* The capture succeeded, which means the capture filter syntax is
          valid; add this capture filter to the recent capture filter list. */
+        QByteArray filter_ba;
         for (i = 0; i < global_capture_opts.ifaces->len; i++) {
             interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
             if (interface_opts.cfilter) {
-//              cfilter_combo_add_recent(interface_opts.cfilter);
+                recent_add_cfilter(interface_opts.name, interface_opts.cfilter);
+                if (filter_ba.isEmpty()) {
+                    filter_ba = interface_opts.cfilter;
+                } else {
+                    /* Not the first selected interface; is its capture filter
+                       the same as the one the other interfaces we've looked
+                       at have? */
+                    if (strcmp(interface_opts.cfilter, filter_ba.constData()) != 0) {
+                      /* No, so not all selected interfaces have the same capture
+                         filter. */
+                        filter_ba.clear();
+                    }
+                }
             }
+        }
+        if (!filter_ba.isEmpty()) {
+            recent_add_cfilter(NULL, filter_ba.constData());
         }
     } else {
         CaptureFile::globalCapFile()->window = NULL;
