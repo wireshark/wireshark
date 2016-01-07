@@ -193,7 +193,8 @@ static INT AirPDcapRsna4WHandshake(
     PAIRPDCAP_CONTEXT ctx,
     const UCHAR *data,
     AIRPDCAP_SEC_ASSOCIATION *sa,
-    INT offset)
+    INT offset,
+    const guint tot_len)
     ;
 /**
  * It checks whether the specified key is corrected or not.
@@ -265,36 +266,12 @@ extern "C" {
 
 const guint8 broadcast_mac[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
-
-/* NOTE : this assumes the WPA RSN IE format.  If it were to be a generic RSN IE, then
-   we would need to change the structure since it could be variable length depending on the number
-   of unicast OUI and auth OUI. */
-typedef struct {
-    guint8 bElementID;
-    guint8 bLength;
-    guint8  OUI[4];
-    guint16 iVersion;
-    guint8  multicastOUI[4];
-    guint16 iUnicastCount;      /* this should always be 1 for WPA client */
-    guint8  unicastOUI[4];
-    guint16 iAuthCount;         /* this should always be 1 for WPA client */
-    guint8  authOUI[4];
-    guint16 iWPAcap;
-} RSN_IE;
-
 #define EAPKEY_MIC_LEN  16  /* length of the MIC key for EAPoL_Key packet's MIC using MD5 */
 #define NONCE_LEN 32
 
 #define TKIP_GROUP_KEY_LEN 32
 #define CCMP_GROUP_KEY_LEN 16
-/* Minimum size of the key bytes payload for a TKIP group key in an M3 message*/
-#define TKIP_GROUP_KEYBYTES_LEN ( sizeof(RSN_IE) + 8 + TKIP_GROUP_KEY_LEN + 6 ) /* 72 */
-/* arbitrary upper limit */
-#define TKIP_GROUP_KEYBYTES_LEN_MAX ( TKIP_GROUP_KEYBYTES_LEN + 28 )
-/* Minimum size of the key bytes payload for a TKIP group key in a group key message */
-#define TKIP_GROUP_KEYBYTES_LEN_GKEY (8 + 8 + TKIP_GROUP_KEY_LEN ) /* 48 */
-/*  size of CCMP key bytes payload */
-#define CCMP_GROUP_KEYBYTES_LEN ( sizeof(RSN_IE) + 8 + CCMP_GROUP_KEY_LEN + 6 ) /* 56 */
+
 typedef struct {
     guint8  type;
     guint8  key_information[2];  /* Make this an array to avoid alignment issues */
@@ -306,17 +283,19 @@ typedef struct {
     guint8  key_id[8];
     guint8  key_mic[EAPKEY_MIC_LEN];
     guint8  key_data_len[2];  /* Make this an array rather than a U16 to avoid alignment shifting */
-    guint8  ie[TKIP_GROUP_KEYBYTES_LEN_MAX]; /* Make this an array to avoid alignment issues */
 } EAPOL_RSN_KEY,  * P_EAPOL_RSN_KEY;
-#define RSN_KEY_WITHOUT_KEYBYTES_LEN sizeof(EAPOL_RSN_KEY)-TKIP_GROUP_KEYBYTES_LEN_MAX
+
+/* Minimum possible key data size (at least one GTK KDE with CCMP key) */
+#define GROUP_KEY_MIN_LEN 8 + CCMP_GROUP_KEY_LEN
 /* Minimum possible group key msg size (group key msg using CCMP as cipher)*/
-#define GROUP_KEY_PAYLOAD_LEN_MIN RSN_KEY_WITHOUT_KEYBYTES_LEN+CCMP_GROUP_KEY_LEN
+#define GROUP_KEY_PAYLOAD_LEN_MIN sizeof(EAPOL_RSN_KEY) + GROUP_KEY_MIN_LEN
 
 /* XXX - what if this doesn't get the key? */
 static INT
-AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption_key, PAIRPDCAP_SEC_ASSOCIATION sa, gboolean group_hshake)
+AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decryption_key, PAIRPDCAP_SEC_ASSOCIATION sa, guint eapol_len)
 {
     guint8 key_version;
+    guint8 *key_data;
     guint8  *szEncryptedKey;
     guint16 key_bytes_len = 0; /* Length of the total key data field */
     guint16 key_len;           /* Actual group key length */
@@ -341,12 +320,13 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
         }
     }
 
-    if (key_bytes_len > TKIP_GROUP_KEYBYTES_LEN_MAX || key_bytes_len == 0) { /* Don't read past the end of pEAPKey->ie */
+    if (key_bytes_len < GROUP_KEY_MIN_LEN || key_bytes_len > eapol_len - sizeof(EAPOL_RSN_KEY)) {
         return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
     }
 
     /* Encrypted key is in the information element field of the EAPOL key packet */
-    szEncryptedKey = (guint8 *)g_memdup(pEAPKey->ie, key_bytes_len);
+    key_data = (guint8 *)pEAPKey + sizeof(EAPOL_RSN_KEY);
+    szEncryptedKey = (guint8 *)g_memdup(key_data, key_bytes_len);
 
     DEBUG_DUMP("Encrypted Broadcast key:", szEncryptedKey, key_bytes_len);
     DEBUG_DUMP("KeyIV:", pEAPKey->key_iv, 16);
@@ -392,15 +372,9 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
         /* AES CCMP key */
 
         guint8 key_found;
+        guint8 key_length;
         guint16 key_index;
         guint8 *decrypted_data;
-
-        /* If this EAPOL frame is part of a separate group key handshake then this contains no    */
-        /* RSN IE, so we can deduct that from the calculation.                                    */
-        if (group_hshake)
-            sa->wpa.key_ver = (key_bytes_len >= (TKIP_GROUP_KEYBYTES_LEN_GKEY))?AIRPDCAP_WPA_KEY_VER_NOT_CCMP:AIRPDCAP_WPA_KEY_VER_AES_CCMP;
-        else
-            sa->wpa.key_ver = (key_bytes_len >= (TKIP_GROUP_KEYBYTES_LEN))?AIRPDCAP_WPA_KEY_VER_NOT_CCMP:AIRPDCAP_WPA_KEY_VER_AES_CCMP;
 
         /* Unwrap the key; the result is key_bytes_len in length */
         decrypted_data = AES_unwrap(decryption_key, 16, szEncryptedKey,  key_bytes_len);
@@ -412,34 +386,49 @@ AirPDcapDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8  *decryption
 
         key_found = FALSE;
         key_index = 0;
-        while(key_index < key_bytes_len && !key_found){
+
+        /* Parse Key data until we found GTK KDE */
+        /* GTK KDE = 00-0F-AC 01 */
+        while(key_index < (key_bytes_len - 6) && !key_found){
             guint8 rsn_id;
+            guint32 type;
 
             /* Get RSN ID */
             rsn_id = decrypted_data[key_index];
+            type = ((decrypted_data[key_index + 2] << 24) +
+                    (decrypted_data[key_index + 3] << 16) +
+                    (decrypted_data[key_index + 4] << 8) +
+                     (decrypted_data[key_index + 5]));
 
-            if (rsn_id != 0xdd){
-                if (key_index+1 >= key_bytes_len){
-                    g_free(decrypted_data);
-                    g_free(szEncryptedKey);
-                    return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
-                }
-                key_index += decrypted_data[key_index+1]+2;
-            }else{
+            if (rsn_id == 0xdd && type == 0x000fac01) {
                 key_found = TRUE;
+            } else {
+                key_index += decrypted_data[key_index+1]+2;
             }
         }
 
         if (key_found){
-            if (key_index+8 >= key_bytes_len) {
+            key_length = decrypted_data[key_index+1] - 6;
+
+            if (key_index+8 >= key_bytes_len ||
+                key_length > key_bytes_len - key_index - 8) {
                 g_free(decrypted_data);
                 g_free(szEncryptedKey);
                 return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
             }
 
             /* Skip over the GTK header info, and don't copy past the end of the encrypted data */
-            memcpy(szEncryptedKey, decrypted_data+key_index+8, key_bytes_len-key_index-8);
+            memcpy(szEncryptedKey, decrypted_data+key_index+8, key_length);
+        } else {
+            g_free(decrypted_data);
+            g_free(szEncryptedKey);
+            return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
         }
+
+        if (key_length == TKIP_GROUP_KEY_LEN)
+            sa->wpa.key_ver = AIRPDCAP_WPA_KEY_VER_NOT_CCMP;
+        else
+            sa->wpa.key_ver = AIRPDCAP_WPA_KEY_VER_AES_CCMP;
 
         g_free(decrypted_data);
     }
@@ -570,7 +559,7 @@ static INT AirPDcapScanForKeys(
         }
 
         /* It could be a Pairwise Key exchange, check */
-        if (AirPDcapRsna4WHandshake(ctx, data, sa, offset) == AIRPDCAP_RET_SUCCESS_HANDSHAKE)
+        if (AirPDcapRsna4WHandshake(ctx, data, sa, offset, tot_len) == AIRPDCAP_RET_SUCCESS_HANDSHAKE)
             return AIRPDCAP_RET_SUCCESS_HANDSHAKE;
 
         if (mac_header_len + GROUP_KEY_PAYLOAD_LEN_MIN > tot_len) {
@@ -617,7 +606,7 @@ static INT AirPDcapScanForKeys(
         }
 
         /* Try to extract the group key and install it in the SA */
-        return (AirPDcapDecryptWPABroadcastKey(pEAPKey, sta_sa->wpa.ptk+16, sa, TRUE));
+        return (AirPDcapDecryptWPABroadcastKey(pEAPKey, sta_sa->wpa.ptk+16, sa, tot_len-offset+1));
 
     }else{
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapScanForKeys", "Skipping: not an EAPOL packet", AIRPDCAP_DEBUG_LEVEL_3);
@@ -1212,7 +1201,8 @@ AirPDcapRsna4WHandshake(
     PAIRPDCAP_CONTEXT ctx,
     const UCHAR *data,
     AIRPDCAP_SEC_ASSOCIATION *sa,
-    INT offset)
+    INT offset,
+    const guint tot_len)
 {
     AIRPDCAP_KEY_ITEM *tmp_key, *tmp_pkt_key, pkt_key;
     AIRPDCAP_SEC_ASSOCIATION *tmp_sa;
@@ -1424,7 +1414,7 @@ AirPDcapRsna4WHandshake(
             if (broadcast_sa == NULL){
                 return AIRPDCAP_RET_REQ_DATA;
             }
-            return (AirPDcapDecryptWPABroadcastKey(pEAPKey, sa->wpa.ptk+16, broadcast_sa, FALSE));
+            return (AirPDcapDecryptWPABroadcastKey(pEAPKey, sa->wpa.ptk+16, broadcast_sa, tot_len-offset+1));
         }
     }
 
