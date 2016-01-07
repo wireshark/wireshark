@@ -22,6 +22,10 @@
 
 #include "config.h"
 
+#include <glib.h>
+
+#ifdef HAVE_LIBPCAP
+
 #include <string.h>
 
 #include <epan/prefs.h>
@@ -61,8 +65,6 @@
 #include "ui/gtk/main_welcome.h"
 
 #include "ui/gtk/old-gtk-compat.h"
-
-#ifdef HAVE_LIBPCAP
 
 #ifdef HAVE_AIRPCAP
 #include "../../image/toolbar/capture_airpcap_16.xpm"
