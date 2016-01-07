@@ -49,7 +49,7 @@ public slots:
 private slots:
     void initCaptureFilter();
     void applyCaptureFilter();
-    void checkFilter(const QString &text);
+    void checkFilter(const QString &filter);
     void setFilterSyntaxState(QString filter, int state, QString err_msg);
     void bookmarkClicked();
 

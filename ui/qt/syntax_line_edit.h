@@ -38,7 +38,7 @@ class SyntaxLineEdit : public QLineEdit
     Q_ENUMS(SyntaxState)
 public:
     explicit SyntaxLineEdit(QWidget *parent = 0);
-    enum SyntaxState { Empty, Invalid, Deprecated, Valid };
+    enum SyntaxState { Empty, Busy, Invalid, Deprecated, Valid };
 
     SyntaxState syntaxState() const { return syntax_state_; }
     void setSyntaxState(SyntaxState state = Empty);
@@ -79,6 +79,7 @@ private:
     QString deprecated_token_;
     QString syntax_error_message_;
     QString token_chars_;
+    QColor busy_fg_;
 
 private slots:
     void insertFieldCompletion(const QString &completion_text);
