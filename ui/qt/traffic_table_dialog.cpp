@@ -100,8 +100,8 @@ TrafficTableDialog::~TrafficTableDialog()
 const QList<int> TrafficTableDialog::defaultProtos() const
 {
     // Reasonable defaults?
-    return QList<int>() << proto_get_id_by_filter_name( "tcp" ) << proto_get_id_by_filter_name( "eth" )
-                        << proto_get_id_by_filter_name( "ip" ) << proto_get_id_by_filter_name( "ipv6" )
+    return QList<int>() << proto_get_id_by_filter_name( "eth" ) << proto_get_id_by_filter_name( "ip" )
+                        << proto_get_id_by_filter_name( "ipv6" ) << proto_get_id_by_filter_name( "tcp" )
                         << proto_get_id_by_filter_name( "udp" );
 }
 
