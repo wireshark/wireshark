@@ -1544,6 +1544,7 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 #endif
     ws_statb64 s_buf;
     int ret;
+    int save_errno;
 
     if (profilename) {
         /*
@@ -1558,7 +1559,18 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
          * If not then create it.
          */
         pf_dir_path = get_profiles_dir ();
-        if (ws_stat64(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
+        if (ws_stat64(pf_dir_path, &s_buf) != 0) {
+            if (errno != ENOENT) {
+                /* Some other problem; give up now. */
+                save_errno = errno;
+                *pf_dir_path_return = g_strdup(pf_dir_path);
+                errno = save_errno;
+                return -1;
+            }
+
+            /*
+             * It doesn't exist; try to create it.
+             */
             ret = ws_mkdir(pf_dir_path, 0755);
             if (ret == -1) {
                 *pf_dir_path_return = g_strdup(pf_dir_path);
@@ -1568,7 +1580,14 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
     }
 
     pf_dir_path = get_persconffile_dir(profilename);
-    if (ws_stat64(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
+    if (ws_stat64(pf_dir_path, &s_buf) != 0) {
+        if (errno != ENOENT) {
+            /* Some other problem; give up now. */
+            save_errno = errno;
+            *pf_dir_path_return = g_strdup(pf_dir_path);
+            errno = save_errno;
+            return -1;
+        }
 #ifdef _WIN32
         /*
          * Does the parent directory of that directory
@@ -1587,6 +1606,16 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
         if (pf_dir_parent_path_len > 0
             && pf_dir_parent_path[pf_dir_parent_path_len - 1] != ':'
             && ws_stat64(pf_dir_parent_path, &s_buf) != 0) {
+            /*
+             * Not a drive letter and the stat() failed.
+             */
+            if (errno != ENOENT) {
+                /* Some other problem; give up now. */
+                save_errno = errno;
+                *pf_dir_path_return = g_strdup(pf_dir_path);
+                errno = save_errno;
+                return -1;
+            }
             /*
              * No, it doesn't exist - make it first.
              */
