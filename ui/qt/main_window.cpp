@@ -463,7 +463,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(recentFilesRead()),
             this, SLOT(updateRecentActions()));
     connect(wsApp, SIGNAL(packetDissectionChanged()),
-            this, SLOT(redissectPackets()));
+            this, SLOT(redissectPackets()), Qt::QueuedConnection);
     connect(wsApp, SIGNAL(appInitialized()),
             this, SLOT(filterExpressionsChanged()));
     connect(wsApp, SIGNAL(filterExpressionsChanged()),
