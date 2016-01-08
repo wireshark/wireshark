@@ -90,7 +90,7 @@ static tap_packet_t tap_packet_array[TAP_PACKET_QUEUE_LEN];
 static guint tap_packet_index;
 
 typedef struct _tap_listener_t {
-	struct _tap_listener_t *next;
+	volatile struct _tap_listener_t *next;
 	int tap_id;
 	gboolean needs_redraw;
 	guint flags;
@@ -293,7 +293,7 @@ tap_queue_packet(int tap_id, packet_info *pinfo, const void *tap_specific_data)
 
 void tap_build_interesting (epan_dissect_t *edt)
 {
-	tap_listener_t *tl;
+	volatile tap_listener_t *tl;
 
 	/* nothing to do, just return */
 	if(!tap_listener_queue){
@@ -302,7 +302,7 @@ void tap_build_interesting (epan_dissect_t *edt)
 
 	/* loop over all tap listeners and build the list of all
 	   interesting hf_fields */
-	for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
+	for(tl=tap_listener_queue;tl;tl=tl->next){
 		if(tl->code){
 			epan_dissect_prime_dfilter(edt, tl->code);
 		}
@@ -335,7 +335,7 @@ void
 tap_push_tapped_queue(epan_dissect_t *edt)
 {
 	tap_packet_t *tp;
-	tap_listener_t *tl;
+	volatile tap_listener_t *tl;
 	guint i;
 
 	/* nothing to do, just return */
@@ -353,7 +353,7 @@ tap_push_tapped_queue(epan_dissect_t *edt)
 	/* loop over all tap listeners and call the listener callback
 	   for all packets that match the filter. */
 	for(i=0;i<tap_packet_index;i++){
-		for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
+		for(tl=tap_listener_queue;tl;tl=tl->next){
 			tp=&tap_packet_array[i];
 			/* Don't tap the packet if it's an "error" unless the listener tells us to */
 			if (!(tp->flags & TAP_PACKET_IS_ERROR_PACKET) || (tl->flags & TL_REQUIRES_ERROR_PACKETS))
@@ -422,9 +422,9 @@ fetch_tapped_data(int tap_id, int idx)
 void
 reset_tap_listeners(void)
 {
-	tap_listener_t *tl;
+	volatile tap_listener_t *tl;
 
-	for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
+	for(tl=tap_listener_queue;tl;tl=tl->next){
 		if(tl->reset){
 			tl->reset(tl->tapdata);
 		}
@@ -444,9 +444,9 @@ reset_tap_listeners(void)
 void
 draw_tap_listeners(gboolean draw_all)
 {
-	tap_listener_t *tl;
+	volatile tap_listener_t *tl;
 
-	for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
+	for(tl=tap_listener_queue;tl;tl=tl->next){
 		if(tl->needs_redraw || draw_all){
 			if(tl->draw){
 				tl->draw(tl->tapdata);
@@ -496,6 +496,20 @@ find_tap_id(const char *name)
 	return 0;
 }
 
+static void
+free_tap_listener(volatile tap_listener_t *tl)
+{
+	if(!tl)
+		return;
+	if(tl->code){
+		dfilter_free(tl->code);
+	}
+	g_free(tl->fstring);
+DIAG_OFF(cast-qual)
+	g_free((gpointer)tl);
+DIAG_ON(cast-qual)
+}
+
 /* this function attaches the tap_listener to the named tap.
  * function returns :
  *     NULL: ok.
@@ -506,8 +520,9 @@ GString *
 register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 		      guint flags, tap_reset_cb reset, tap_packet_cb packet, tap_draw_cb draw)
 {
-	tap_listener_t *tl;
+	volatile tap_listener_t *tl;
 	int tap_id;
+	dfilter_t *code=NULL;
 	GString *error_string;
 	gchar *err_msg;
 
@@ -518,29 +533,29 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 		return error_string;
 	}
 
-	tl=(tap_listener_t *)g_malloc(sizeof(tap_listener_t));
-	tl->code=NULL;
+	tl=(volatile tap_listener_t *)g_malloc0(sizeof(tap_listener_t));
 	tl->needs_redraw=TRUE;
 	tl->flags=flags;
 	if(fstring){
-		if(!dfilter_compile(fstring, &tl->code, &err_msg)){
+		if(!dfilter_compile(fstring, &code, &err_msg)){
 			error_string = g_string_new("");
 			g_string_printf(error_string,
 			    "Filter \"%s\" is invalid - %s",
 			    fstring, err_msg);
 			g_free(err_msg);
-			g_free(tl);
+			free_tap_listener(tl);
 			return error_string;
 		}
 	}
 	tl->fstring=g_strdup(fstring);
+	tl->code=code;
 
 	tl->tap_id=tap_id;
 	tl->tapdata=tapdata;
 	tl->reset=reset;
 	tl->packet=packet;
 	tl->draw=draw;
-	tl->next=(tap_listener_t *)tap_listener_queue;
+	tl->next=tap_listener_queue;
 
 	tap_listener_queue=tl;
 
@@ -552,7 +567,8 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 GString *
 set_tap_dfilter(void *tapdata, const char *fstring)
 {
-	tap_listener_t *tl=NULL,*tl2;
+	volatile tap_listener_t *tl=NULL,*tl2;
+	dfilter_t *code=NULL;
 	GString *error_string;
 	gchar *err_msg;
 
@@ -561,9 +577,9 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 	}
 
 	if(tap_listener_queue->tapdata==tapdata){
-		tl=(tap_listener_t *)tap_listener_queue;
+		tl=tap_listener_queue;
 	} else {
-		for(tl2=(tap_listener_t *)tap_listener_queue;tl2->next;tl2=tl2->next){
+		for(tl2=tap_listener_queue;tl2->next;tl2=tl2->next){
 			if(tl2->next->tapdata==tapdata){
 				tl=tl2->next;
 				break;
@@ -580,7 +596,7 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 		tl->needs_redraw=TRUE;
 		g_free(tl->fstring);
 		if(fstring){
-			if(!dfilter_compile(fstring, &tl->code, &err_msg)){
+			if(!dfilter_compile(fstring, &code, &err_msg)){
 				tl->fstring=NULL;
 				error_string = g_string_new("");
 				g_string_printf(error_string,
@@ -591,6 +607,7 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 			}
 		}
 		tl->fstring=g_strdup(fstring);
+		tl->code=code;
 	}
 
 	return NULL;
@@ -601,22 +618,25 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 void
 tap_listeners_dfilter_recompile(void)
 {
-	tap_listener_t *tl;
+	volatile tap_listener_t *tl;
+	dfilter_t *code;
 	gchar *err_msg;
 
-	for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
+	for(tl=tap_listener_queue;tl;tl=tl->next){
 		if(tl->code){
 			dfilter_free(tl->code);
 			tl->code=NULL;
 		}
 		tl->needs_redraw=TRUE;
+		code=NULL;
 		if(tl->fstring){
-			if(!dfilter_compile(tl->fstring, &tl->code, &err_msg)){
+			if(!dfilter_compile(tl->fstring, &code, &err_msg)){
 				g_free(err_msg);
 				/* Not valid, make a dfilter matching no packets */
-				dfilter_compile("frame.number == 0", &tl->code, &err_msg);
+				dfilter_compile("frame.number == 0", &code, &err_msg);
 			}
 		}
+		tl->code=code;
 	}
 }
 
@@ -625,17 +645,17 @@ tap_listeners_dfilter_recompile(void)
 void
 remove_tap_listener(void *tapdata)
 {
-	tap_listener_t *tl=NULL,*tl2;
+	volatile tap_listener_t *tl=NULL,*tl2;
 
 	if(!tap_listener_queue){
 		return;
 	}
 
 	if(tap_listener_queue->tapdata==tapdata){
-		tl=(tap_listener_t *)tap_listener_queue;
+		tl=tap_listener_queue;
 		tap_listener_queue=tap_listener_queue->next;
 	} else {
-		for(tl2=(tap_listener_t *)tap_listener_queue;tl2->next;tl2=tl2->next){
+		for(tl2=tap_listener_queue;tl2->next;tl2=tl2->next){
 			if(tl2->next->tapdata==tapdata){
 				tl=tl2->next;
 				tl2->next=tl2->next->next;
@@ -644,16 +664,7 @@ remove_tap_listener(void *tapdata)
 
 		}
 	}
-
-	if(tl){
-		if(tl->code){
-			dfilter_free(tl->code);
-		}
-		g_free(tl->fstring);
-		g_free(tl);
-	}
-
-	return;
+	free_tap_listener(tl);
 }
 
 /*
@@ -698,9 +709,9 @@ have_tap_listener(int tap_id)
 gboolean
 have_filtering_tap_listeners(void)
 {
-	tap_listener_t *tl;
+	volatile tap_listener_t *tl;
 
-	for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
+	for(tl=tap_listener_queue;tl;tl=tl->next){
 		if(tl->code)
 			return TRUE;
 	}
@@ -715,10 +726,10 @@ have_filtering_tap_listeners(void)
 guint
 union_of_tap_listener_flags(void)
 {
-	tap_listener_t *tl;
+	volatile tap_listener_t *tl;
 	guint flags = 0;
 
-	for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
+	for(tl=tap_listener_queue;tl;tl=tl->next){
 		flags|=tl->flags;
 	}
 	return flags;
