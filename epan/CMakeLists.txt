@@ -922,6 +922,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-lapdm.c
 	dissectors/packet-laplink.c
 	dissectors/packet-lapsat.c
+	dissectors/packet-lat.c
 	dissectors/packet-lbm.c
 	dissectors/packet-lbmc.c
 	dissectors/packet-lbmpdm.c
