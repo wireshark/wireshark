@@ -88,6 +88,8 @@
 #include <epan/asn1.h>
 #include <epan/tap.h>
 #include <epan/uat.h>
+#include <epan/addr_resolv.h>
+#include <epan/follow.h>
 #include <epan/exported_pdu.h>
 #include <wsutil/str_util.h>
 #include "packet-tcp.h"
@@ -449,6 +451,64 @@ ssl_parse_old_keys(void)
         }
         wmem_free(NULL, old_keys);
     }
+}
+
+
+static gboolean
+ssl_follow_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *ssl)
+{
+    follow_info_t *      follow_info = (follow_info_t*) tapdata;
+    SslDecryptedRecord * rec = NULL;
+    SslDataInfo *        appl_data = NULL;
+    SslPacketInfo *      pi = (SslPacketInfo*)ssl;
+    show_stream_t        from = FROM_CLIENT;
+
+    /* Skip packets without decrypted payload data. */
+    if (!pi || !pi->appl_data) return FALSE;
+
+    /* Compute the packet's sender. */
+    if (follow_info->client_port == 0) {
+        follow_info->client_port = pinfo->srcport;
+        copy_address(&follow_info->client_ip, &pinfo->src);
+    }
+    if (addresses_equal(&follow_info->client_ip, &pinfo->src) &&
+            follow_info->client_port == pinfo->srcport) {
+        from = FROM_CLIENT;
+    } else {
+        from = FROM_SERVER;
+    }
+
+    for (appl_data = pi->appl_data; appl_data != NULL; appl_data = appl_data->next) {
+
+        /* TCP segments that contain the end of two or more SSL PDUs will be
+           queued to SSL taps for each of those PDUs. Therefore a single
+           packet could be processed by this SSL tap listener multiple times.
+           The following test handles that scenario by treating the
+           follow_info->bytes_written[] values as the next expected
+           appl_data->seq. Any appl_data instances that fall below that have
+           already been processed and must be skipped. */
+        if (appl_data->seq < follow_info->bytes_written[from]) continue;
+
+        /* Allocate a SslDecryptedRecord to hold the current appl_data
+           instance's decrypted data. Even though it would be possible to
+           consolidate multiple appl_data instances into a single rec, it is
+           beneficial to use a one-to-one mapping. This affords the Follow
+           Stream dialog view modes (ASCII, EBCDIC, Hex Dump, C Arrays, Raw)
+           the opportunity to accurately reflect SSL PDU boundaries. Currently
+           the Hex Dump view does by starting a new line, and the C Arrays
+           view does by starting a new array declaration. */
+        rec = (SslDecryptedRecord*) g_malloc(sizeof(SslDecryptedRecord) + appl_data->plain_data.data_len);
+        rec->is_from_server = from == FROM_SERVER;
+        rec->data.data = (guchar*) (rec + 1);
+        rec->data.data_len = appl_data->plain_data.data_len;
+        memcpy(rec->data.data, appl_data->plain_data.data, appl_data->plain_data.data_len);
+
+        /* Append the record to the follow_info structure. */
+        follow_info->payload = g_list_append(follow_info->payload, rec);
+        follow_info->bytes_written[from] += rec->data.data_len;
+    }
+
+    return FALSE;
 }
 
 /*********************************************************************
@@ -4068,6 +4128,9 @@ proto_register_ssl(void)
     ssl_tap = register_tap("ssl");
     ssl_debug_printf("proto_register_ssl: registered tap %s:%d\n",
         "ssl", ssl_tap);
+
+    register_follow_stream(proto_ssl, "ssl", tcp_follow_conv_filter, tcp_follow_index_filter, tcp_follow_address_filter,
+                            tcp_port_to_display, ssl_follow_tap_listener);
 }
 
 /* If this dissector uses sub-dissector registration add a registration

@@ -63,7 +63,7 @@ WS_DLL_PUBLIC gchar* tvb_address_with_resolution_to_str(wmem_allocator_t *scope,
  *
  * Otherwise, it returns NULL.
  */
-const gchar *address_to_name(const address *addr);
+WS_DLL_PUBLIC const gchar *address_to_name(const address *addr);
 
 /*
  * address_to_display takes as input an "address", as defined in address.h .

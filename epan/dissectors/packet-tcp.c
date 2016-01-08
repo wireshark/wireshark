@@ -745,6 +745,54 @@ tcp_build_filter(packet_info *pinfo)
     return NULL;
 }
 
+gchar* tcp_follow_conv_filter(packet_info* pinfo, int* stream)
+{
+    conversation_t *conv;
+    struct tcp_analysis *tcpd;
+
+    if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
+        (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
+        && (conv=find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
+                pinfo->srcport, pinfo->destport, 0)) != NULL )
+    {
+        /* TCP over IPv4/6 */
+        tcpd=get_tcp_conversation_data(conv, pinfo);
+        if (tcpd == NULL)
+            return NULL;
+
+        *stream = tcpd->stream;
+        return g_strdup_printf("tcp.stream eq %d", tcpd->stream);
+    }
+
+    return NULL;
+}
+
+gchar* tcp_follow_index_filter(int stream)
+{
+    return g_strdup_printf("tcp.stream eq %d", stream);
+}
+
+gchar* tcp_follow_address_filter(address* src_addr, address* dst_addr, int src_port, int dst_port)
+{
+    const gchar  *ip_version = src_addr->type == AT_IPv6 ? "v6" : "";
+    gchar         src_addr_str[MAX_IP6_STR_LEN];
+    gchar         dst_addr_str[MAX_IP6_STR_LEN];
+
+    address_to_str_buf(src_addr, src_addr_str, sizeof(src_addr_str));
+    address_to_str_buf(dst_addr, dst_addr_str, sizeof(dst_addr_str));
+
+    return g_strdup_printf("((ip%s.src eq %s and tcp.srcport eq %d) and "
+                     "(ip%s.dst eq %s and tcp.dstport eq %d))"
+                     " or "
+                     "((ip%s.src eq %s and tcp.srcport eq %d) and "
+                     "(ip%s.dst eq %s and tcp.dstport eq %d))",
+                     ip_version, src_addr_str, src_port,
+                     ip_version, dst_addr_str, dst_port,
+                     ip_version, dst_addr_str, dst_port,
+                     ip_version, src_addr_str, src_port);
+
+}
+
 /* TCP structs and definitions */
 
 /* **************************************************************************
@@ -2265,7 +2313,7 @@ again:
 
         /* Give the follow tap what we've currently dissected */
         if(have_tap_listener(tcp_follow_tap)) {
-            tap_queue_packet(tcp_follow_tap, pinfo, tvb_new_subset_length(tvb, 0, offset));
+            tap_queue_packet(tcp_follow_tap, pinfo, tvb_new_subset_remaining(tvb, offset));
         }
 
         process_tcp_payload(tvb, offset, pinfo, tree, tcp_tree,
@@ -6669,6 +6717,8 @@ proto_register_tcp(void)
         &mptcp_analyze_mappings);
 
     register_conversation_table(proto_mptcp, FALSE, mptcpip_conversation_packet, tcpip_hostlist_packet);
+    register_follow_stream(proto_tcp, "tcp_follow", tcp_follow_conv_filter, tcp_follow_index_filter, tcp_follow_address_filter,
+                            tcp_port_to_display, follow_tvb_tap_listener);
 }
 
 void

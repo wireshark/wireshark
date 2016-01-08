@@ -93,7 +93,6 @@ noinst_HEADERS = \
 	last_open_dir.h		\
 	file_dialog.h		\
 	filters.h		\
-	follow.h		\
 	help_url.h		\
 	packet_list_utils.h	\
 	iface_lists.h		\

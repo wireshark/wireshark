@@ -28,7 +28,7 @@
 
 #include "epan/conversation_table.h"
 
-#include "ui/follow.h"
+#include "epan/follow.h"
 
 #include "capture_file.h"
 #include "filter_action.h"

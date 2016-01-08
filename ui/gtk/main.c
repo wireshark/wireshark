@@ -172,7 +172,6 @@
 #include "ui/gtk/packet_win.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/find_dlg.h"
-#include "ui/gtk/follow_tcp.h"
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/about_dlg.h"
 #include "ui/gtk/help_dlg.h"

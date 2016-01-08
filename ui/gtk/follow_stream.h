@@ -25,18 +25,11 @@
 #define __FOLLOW_STREAM_H__
 
 #include <gtk/gtk.h>
-#include <ui/follow.h>
+#include <epan/follow.h>
 
-struct _follow_info;
 
-typedef gboolean (*follow_print_line_func)(char *, size_t, gboolean, void *);
-typedef frs_return_t (*follow_read_stream_func)(struct _follow_info *follow_info, follow_print_line_func follow_print, void *arg);
-
-typedef struct _follow_info {
-    follow_type_t   follow_type;
-    show_stream_t   show_stream;
+typedef struct _gtk_follow_info {
     show_type_t     show_type;
-    char            *data_out_filename;
     GtkWidget       *text;
     GtkWidget       *ascii_bt;
     GtkWidget       *ebcdic_bt;
@@ -44,37 +37,38 @@ typedef struct _follow_info {
     GtkWidget       *carray_bt;
     GtkWidget       *raw_bt;
     GtkWidget       *find_dlg_w;
-    gboolean        is_ipv6;
-    char            *filter_out_filter;
     GtkWidget       *filter_te;
     GtkWidget       *streamwindow;
-    GList           *payload;
-    guint           bytes_written[2]; /* Index with FROM_CLIENT or FROM_SERVER for readability. */
-    guint           client_port;
-    address         client_ip;
     follow_read_stream_func read_stream;
-} follow_info_t;
+} gtk_follow_info_t;
 
 #define E_FOLLOW_INFO_KEY "follow_info_key"
 
-/* List of "follow_info_t" structures for all "Follow TCP Stream" windows,
-   so we can redraw them all if the colors or font changes. */
-extern GList *follow_infos;
+/** Redraw the text in all "Follow TCP Stream" windows. */
+extern void follow_stream_redraw_all(void);
 
-void follow_load_text(follow_info_t *follow_info);
-void follow_filter_out_stream(GtkWidget * w, gpointer parent_w);
-void follow_stream(const gchar *title, follow_info_t *follow_info,
-                   gchar *both_directions_string,
-                   gchar *server_to_client_string,
-                   gchar *client_to_server_string);
-frs_return_t follow_show(follow_info_t *follow_info,
-                         follow_print_line_func follow_print,
-                         char *buffer, size_t nchars, gboolean is_server,
-                         void *arg, guint32 *global_pos,
-                         guint32 *server_packet_count,
-                         guint32 *client_packet_count);
-gboolean follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
-                                 void *arg);
+/** User requested the "Follow TCP Stream" dialog box by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void follow_tcp_stream_cb( GtkWidget *widget, gpointer data);
+
+/* Follow the UDP stream, if any, to which the last packet that we called
+   a dissection routine on belongs (this might be the most recently
+   selected packet, or it might be the last packet in the file). */
+void follow_udp_stream_cb(GtkWidget * w, gpointer data _U_);
+
+/* Follow the HTTP stream, if any, to which the last packet that we called
+   a dissection routine on belongs (this might be the most recently
+   selected packet, or it might be the last packet in the file). */
+void follow_http_stream_cb(GtkWidget * w, gpointer data _U_);
+
+/* Follow the SSL stream, if any, to which the last packet that we called
+   a dissection routine on belongs (this might be the most recently
+   selected packet, or it might be the last packet in the file). */
+void follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_);
+
 
 #endif /* __FOLLOW_STREAM_H__ */
 

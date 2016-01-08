@@ -21,6 +21,7 @@
 
 #include "conversation_dialog.h"
 
+#include <epan/prefs.h>
 #include <epan/dissectors/packet-tcp.h>
 
 #include "ui/recent.h"

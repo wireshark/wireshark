@@ -424,6 +424,11 @@ WS_DLL_PUBLIC guint32 get_tcp_stream_count(void);
  */
 WS_DLL_PUBLIC guint32 get_mptcp_stream_count(void);
 
+/* Follow Stream functionality shared with HTTP (and SSL?) */
+extern gchar* tcp_follow_conv_filter(packet_info* pinfo, int* stream);
+extern gchar* tcp_follow_index_filter(int stream);
+extern gchar* tcp_follow_address_filter(address* src_addr, address* dst_addr, int src_port, int dst_port);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -53,11 +53,7 @@ set(WIRESHARK_GTK_SRC
 	filter_utils.c
 	find_dlg.c
 	firewall_dlg.c
-	follow_http.c
-	follow_ssl.c
 	follow_stream.c
-	follow_tcp.c
-	follow_udp.c
 	font_utils.c
 	goto_dlg.c
 	graph_analysis.c

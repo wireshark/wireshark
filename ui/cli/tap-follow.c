@@ -33,107 +33,53 @@
 #include <glib.h>
 #include <epan/addr_resolv.h>
 #include <epan/charsets.h>
-#include <epan/epan_dissect.h>
 #include <epan/follow.h>
 #include <epan/stat_tap_ui.h>
 #include <epan/tap.h>
-#include <epan/tvbuff-int.h>
-
-#include "wsutil/file_util.h"
-#include "wsutil/tempfile.h"
-
-#ifdef SSL_PLUGIN
-#include "packet-ssl-utils.h"
-#else
-#include <epan/dissectors/packet-ssl-utils.h>
-#endif
 
 void register_tap_listener_follow(void);
 
-WS_DLL_PUBLIC FILE *data_out_file;
-
-typedef enum
-{
-  type_TCP,
-  type_UDP,
-  type_SSL
-} type_e;
-
-typedef enum
-{
-  mode_HEX,
-  mode_ASCII,
-  mode_EBCDIC,
-  mode_RAW
-} mode_e;
-
-typedef struct
-{
-  type_e        type;
-  mode_e        mode;
-
-  /* filter */
-  guint32       stream_index;
-  address       addr[2];
-  int           port[2];
-  guint8        addrBuf[2][16];
+typedef struct _cli_follow_info {
+  show_type_t     show_type;
+  register_follow_t* follower;
 
   /* range */
   guint32       chunkMin;
   guint32       chunkMax;
 
-  /* stream chunk file */
-  FILE         *filep;
-  gchar        *filenamep;
-} follow_t;
+  /* filter */
+  int           stream_index;
+  int           port[2];
+  address       addr[2];
+  guint8        addrBuf[2][16];
+
+} cli_follow_info_t;
+
 
 #define STR_FOLLOW      "follow,"
-#define STR_FOLLOW_TCP  STR_FOLLOW "tcp"
-#define STR_FOLLOW_UDP  STR_FOLLOW "udp"
-#define STR_FOLLOW_SSL  STR_FOLLOW "ssl"
 
 #define STR_HEX         ",hex"
 #define STR_ASCII       ",ascii"
 #define STR_EBCDIC      ",ebcdic"
 #define STR_RAW         ",raw"
 
-static void
-followExit(
-  const char *strp
-  )
+static void follow_exit(const char *strp)
 {
   fprintf(stderr, "tshark: follow - %s\n", strp);
   exit(1);
 }
 
-static const char *
-followStrType(
-  const follow_t *fp
-  )
+static const char * follow_str_type(cli_follow_info_t* cli_follow_info)
 {
-  switch (fp->type)
+  switch (cli_follow_info->show_type)
   {
-  case type_TCP:        return "tcp";
-  case type_UDP:        return "udp";
-  case type_SSL:        return "ssl";
-  }
-
-  g_assert_not_reached();
-
-  return "<unknown-type>";
-}
-
-static const char *
-followStrMode(
-  const follow_t *fp
-  )
-{
-  switch (fp->mode)
-  {
-  case mode_HEX:        return "hex";
-  case mode_ASCII:      return "ascii";
-  case mode_EBCDIC:     return "ebcdic";
-  case mode_RAW:        return "raw";
+  case SHOW_HEXDUMP:    return "hex";
+  case SHOW_ASCII:      return "ascii";
+  case SHOW_EBCDIC:     return "ebcdic";
+  case SHOW_RAW:        return "raw";
+  default:
+    g_assert_not_reached();
+    break;
   }
 
   g_assert_not_reached();
@@ -141,305 +87,30 @@ followStrMode(
   return "<unknown-mode>";
 }
 
-static const char *
-followStrFilter(
-  const follow_t *fp
-  )
-{
-  static char   filter[512];
-  int           len     = 0;
-  const gchar  *verp;
-  gchar        *udpfilter;
-  gchar         ip0[MAX_IP6_STR_LEN];
-  gchar         ip1[MAX_IP6_STR_LEN];
-
-  if (fp->stream_index != G_MAXUINT32)
-  {
-    switch (fp->type)
-    {
-    case type_TCP:
-    case type_SSL:
-      len = g_snprintf(filter, sizeof filter,
-                     "tcp.stream eq %d", fp->stream_index);
-      break;
-    case type_UDP:
-      udpfilter = build_follow_index_filter(UDP_STREAM);
-      len = g_snprintf(filter, sizeof filter,
-                     "%s", udpfilter);
-      g_free(udpfilter);
-      break;
-    }
-  }
-  else
-  {
-    verp = fp->addr[0].type == AT_IPv6 ? "v6" : "";
-    address_to_str_buf(&fp->addr[0], ip0, sizeof ip0);
-    address_to_str_buf(&fp->addr[1], ip1, sizeof ip1);
-
-    switch (fp->type)
-    {
-    case type_TCP:
-      len = g_snprintf(filter, sizeof filter,
-                     "((ip%s.src eq %s and tcp.srcport eq %d) and "
-                     "(ip%s.dst eq %s and tcp.dstport eq %d))"
-                     " or "
-                     "((ip%s.src eq %s and tcp.srcport eq %d) and "
-                     "(ip%s.dst eq %s and tcp.dstport eq %d))",
-                     verp, ip0, fp->port[0],
-                     verp, ip1, fp->port[1],
-                     verp, ip1, fp->port[1],
-                     verp, ip0, fp->port[0]);
-      break;
-    case type_UDP:
-      len = g_snprintf(filter, sizeof filter,
-                     "((ip%s.src eq %s and udp.srcport eq %d) and "
-                     "(ip%s.dst eq %s and udp.dstport eq %d))"
-                     " or "
-                     "((ip%s.src eq %s and udp.srcport eq %d) and "
-                     "(ip%s.dst eq %s and udp.dstport eq %d))",
-                     verp, ip0, fp->port[0],
-                     verp, ip1, fp->port[1],
-                     verp, ip1, fp->port[1],
-                     verp, ip0, fp->port[0]);
-      break;
-    case type_SSL:
-      break;
-    }
-  }
-
-  if (len == 0)
-  {
-    followExit("Don't know how to create filter.");
-  }
-
-  if (len == sizeof filter)
-  {
-    followExit("Filter buffer overflow.");
-  }
-
-  return filter;
-}
-
 static void
-followFileClose(
-  follow_t *fp
-  )
+follow_free(follow_info_t *follow_info)
 {
-  if (fp->filep != NULL)
-  {
-    fclose(fp->filep);
-    fp->filep = NULL;
-    if (fp->type == type_TCP)
-    {
-      data_out_file = NULL;
-    }
-  }
+  cli_follow_info_t* cli_follow_info = (cli_follow_info_t*)follow_info->gui_data;
 
-  if (fp->filenamep != NULL)
-  {
-    ws_unlink(fp->filenamep);
-    g_free(fp->filenamep);
-    fp->filenamep = NULL;
-  }
-}
-
-static void
-followFileOpen(
-  follow_t *fp
-  )
-{
-  int   fd;
-  char *tempfilep;
-
-  if (fp->type == type_TCP && data_out_file != NULL)
-  {
-    followExit("Only one TCP stream can be followed at a time.");
-  }
-
-  followFileClose(fp);
-
-  fd = create_tempfile(&tempfilep, "follow");
-  if (fd == -1)
-  {
-    followExit("Error creating temp file.");
-  }
-
-  fp->filenamep = g_strdup(tempfilep);
-  if (fp->filenamep == NULL)
-  {
-    ws_close(fd);
-    ws_unlink(tempfilep);
-    followExit("Error duping temp file name.");
-  }
-
-  fp->filep = ws_fdopen(fd, "w+b");
-  if (fp->filep == NULL)
-  {
-    ws_close(fd);
-    ws_unlink(fp->filenamep);
-    g_free(fp->filenamep);
-    fp->filenamep = NULL;
-    followExit("Error opening temp file stream.");
-  }
-
-  if (fp->type == type_TCP)
-  {
-    data_out_file = fp->filep;
-  }
-}
-
-static follow_t *
-followAlloc(
-  type_e        type
-  )
-{
-  follow_t *fp;
-
-  fp = (follow_t *)g_malloc0(sizeof *fp);
-
-  fp->type = type;
-  set_address(&fp->addr[0], AT_NONE, 0, fp->addrBuf[0]);
-  set_address(&fp->addr[1], AT_NONE, 0, fp->addrBuf[1]);
-
-  return fp;
-}
-
-static void
-followFree(
-  follow_t *fp
-  )
-{
-  followFileClose(fp);
-  g_free(fp);
-}
-
-static int
-follow_common_stream_packet(
-  void           *contextp,
-  packet_info    *pip,
-  epan_dissect_t *edp _U_,
-  const void     *datap
-  )
-{
-  follow_t         *fp   = (follow_t *)contextp;
-  const tvbuff_t   *tvbp = (const tvbuff_t *)datap;
-  tcp_stream_chunk  sc;
-  size_t            size;
-
-  if (tvbp->length > 0)
-  {
-    memcpy(&sc.src_addr, pip->net_src.data, pip->net_src.len);
-    sc.src_port   = pip->srcport;
-    sc.dlen       = tvbp->length;
-    sc.packet_num = pip->fd->num;
-
-    size = fwrite(&sc, 1, sizeof sc, fp->filep);
-    if (sizeof sc != size)
-    {
-      followExit("Error writing stream chunk header.");
-    }
-
-    size = fwrite(tvbp->real_data, 1, sc.dlen, fp->filep);
-    if (sc.dlen != size)
-    {
-      followExit("Error writing stream chunk data.");
-    }
-  }
-
-  return 0;
-}
-
-static int
-followSslPacket(
-  void           *contextp,
-  packet_info    *pip,
-  epan_dissect_t *edp  _U_,
-  const void     *datap
-  )
-{
-  follow_t         *fp   = (follow_t *)contextp;
-  SslPacketInfo    *spip = (SslPacketInfo *)datap;
-  SslDataInfo      *sdip;
-  gint              length;
-  tcp_stream_chunk  sc;
-  size_t            size;
-
-  if (spip == NULL)
-  {
-    return 0;
-  }
-
-  if (fp->addr[0].type == AT_NONE)
-  {
-    memcpy(fp->addrBuf[0], pip->net_src.data, pip->net_src.len);
-    set_address(&fp->addr[0], pip->net_src.type, pip->net_src.len,
-                fp->addrBuf[0]);
-    fp->port[0] = pip->srcport;
-
-    memcpy(fp->addrBuf[1], pip->net_dst.data, pip->net_dst.len);
-    set_address(&fp->addr[1], pip->net_dst.type, pip->net_dst.len,
-                fp->addrBuf[1]);
-    fp->port[1] = pip->destport;
-  }
-
-  /* total length */
-  for (length = 0, sdip = spip->appl_data; sdip != NULL; sdip = sdip->next)
-  {
-    length += sdip->plain_data.data_len;
-  }
-
-
-  if (length > 0)
-  {
-    memcpy(&sc.src_addr, pip->net_src.data, pip->net_src.len);
-    sc.src_port   = pip->srcport;
-    sc.dlen       = length;
-    sc.packet_num = pip->fd->num;
-
-    size = fwrite(&sc, 1, sizeof sc, fp->filep);
-    if (sizeof sc != size)
-    {
-      followExit("Error writing stream chunk header.");
-    }
-
-    for (sdip = spip->appl_data; sdip != NULL; sdip = sdip->next)
-    {
-      if (sdip->plain_data.data_len > 0)
-      {
-        size = fwrite(sdip->plain_data.data, 1, sdip->plain_data.data_len,
-                      fp->filep);
-        if (sdip->plain_data.data_len != size)
-        {
-          followExit("Error writing stream chunk data.");
-        }
-      }
-    }
-  }
-
-  return 0;
+  g_free(cli_follow_info);
+  g_free(follow_info->filter_out_filter);
+  g_free(follow_info);
 }
 
 #define BYTES_PER_LINE  16
-#define OFFSET_START    0
 #define OFFSET_LEN      8
 #define OFFSET_SPACE    2
-#define HEX_START       (OFFSET_START + OFFSET_LEN + OFFSET_SPACE)
+#define HEX_START       (OFFSET_LEN + OFFSET_SPACE)
 #define HEX_LEN         (BYTES_PER_LINE * 3)    /* extra space at column 8 */
 #define HEX_SPACE       2
 #define ASCII_START     (HEX_START + HEX_LEN + HEX_SPACE)
 #define ASCII_LEN       (BYTES_PER_LINE + 1)    /* extra space at column 8 */
-#define ASCII_SPACE     0
-#define LINE_LEN        (ASCII_START + ASCII_LEN + ASCII_SPACE)
+#define LINE_LEN        (ASCII_START + ASCII_LEN)
 
 static const char       bin2hex[] = {'0', '1', '2', '3', '4', '5', '6', '7',
                                      '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-static void
-followPrintHex(
-  const char *prefixp,
-  guint32     offset,
-  void       *datap,
-  int         len
-  )
+
+static void follow_print_hex(const char *prefixp, guint32 offset, void *datap, int len)
 {
   int           ii;
   int           jj;
@@ -492,248 +163,135 @@ followPrintHex(
   }
 }
 
-static void
-followDraw(
-  void *contextp
-  )
+static void follow_draw(void *contextp)
 {
   static const char     separator[] =
     "===================================================================\n";
 
-  follow_t         *fp = (follow_t *)contextp;
-  tcp_stream_chunk  sc;
-  int               node;
-  const address    *addr[2];
-  int               port[2];
+  follow_info_t *follow_info = (follow_info_t*)contextp;
+  cli_follow_info_t* cli_follow_info = (cli_follow_info_t*)follow_info->gui_data;
   gchar             buf[MAX_IP6_STR_LEN];
-  guint32           ii;
-  guint32           jj;
-  guint32           len;
-  guint32           chunk;
-  guint32           offset[2];
-  guint8            bin[4096];
-  char              data[(sizeof bin * 2) + 2];
-
-  g_assert(sizeof bin % BYTES_PER_LINE == 0);
-
-  if ((fp->type == type_TCP) || (fp->type == type_UDP))
-  {
-    static const stream_addr ip_zero = {0};
-    follow_stats_t      stats;
-    address_type        type;
-
-    follow_stats(&stats);
-
-    if (stats.port[0] == 0 && stats.port[1] == 0 &&
-        memcmp(&stats.ip_address[0], &ip_zero, sizeof ip_zero) == 0 &&
-        memcmp(&stats.ip_address[1], &ip_zero, sizeof ip_zero) == 0)
-    {
-      type = AT_NONE;
-      len  = 0;
-    }
-    else if (stats.is_ipv6)
-    {
-      type = AT_IPv6;
-      len  = 16;
-    }
-    else
-    {
-      type = AT_IPv4;
-      len  = 4;
-    }
-
-    for (node = 0; node < 2; node++)
-    {
-      memcpy(fp->addrBuf[node], &stats.ip_address[node], len);
-      set_address(&fp->addr[node], type, len, fp->addrBuf[node]);
-      fp->port[node] = stats.port[node];
-    }
-  }
-
-  /* find first stream chunk */
-  rewind(fp->filep);
-  for (chunk = 0;;)
-  {
-    len = (guint32)fread(&sc, 1, sizeof sc, fp->filep);
-    if (len != sizeof sc)
-    {
-      /* no data */
-      sc.dlen = 0;
-      memcpy(&sc.src_addr, fp->addr[0].data, fp->addr[0].len) ;
-      sc.src_port = fp->port[0];
-      break;
-    }
-    if (sc.dlen > 0)
-    {
-      chunk++;
-      break;
-    }
-  }
-
-  /* node 0 is source of first chunk with data */
-  if (memcmp(&sc.src_addr, fp->addr[0].data, fp->addr[0].len) == 0 &&
-      sc.src_port == fp->port[0])
-  {
-    addr[0] = &fp->addr[0];
-    port[0] = fp->port[0];
-    addr[1] = &fp->addr[1];
-    port[1] = fp->port[1];
-  }
-  else
-  {
-    addr[0] = &fp->addr[1];
-    port[0] = fp->port[1];
-    addr[1] = &fp->addr[0];
-    port[1] = fp->port[0];
-  }
+  guint32 global_client_pos = 0, global_server_pos = 0;
+  guint32 *global_pos;
+  guint32           ii, jj;
+  char              *buffer;
+  GList             *cur;
+  follow_record_t   *follow_record;
+  guint             chunk;
 
   printf("\n%s", separator);
-  printf("Follow: %s,%s\n", followStrType(fp), followStrMode(fp));
-  printf("Filter: %s\n", followStrFilter(fp));
+  printf("Follow: %s,%s\n", proto_get_protocol_filter_name(get_follow_proto_id(cli_follow_info->follower)), follow_str_type(cli_follow_info));
+  printf("Filter: %s\n", follow_info->filter_out_filter);
 
-  for (node = 0; node < 2; node++)
+  address_to_str_buf(&follow_info->client_ip, buf, sizeof buf);
+  if (follow_info->client_ip.type == AT_IPv6)
+    printf("Node 0: [%s]:%d\n", buf, follow_info->client_port);
+  else
+    printf("Node 0: %s:%d\n", buf, follow_info->client_port);
+
+  address_to_str_buf(&follow_info->server_ip, buf, sizeof buf);
+  if (follow_info->client_ip.type == AT_IPv6)
+    printf("Node 1: [%s]:%d\n", buf, follow_info->server_port);
+  else
+    printf("Node 1: %s:%d\n", buf, follow_info->server_port);
+
+  for (cur = follow_info->payload, chunk = 0;
+       cur != NULL;
+       cur = g_list_next(cur), chunk++)
   {
-    address_to_str_buf(addr[node], buf, sizeof buf);
-    if (addr[node]->type == AT_IPv6)
-    {
-      printf("Node %d: [%s]:%d\n", node, buf, port[node]);
+    follow_record = (follow_record_t *)cur->data;
+    if (!follow_record->is_server) {
+      global_pos = &global_client_pos;
+    } else {
+      global_pos = &global_server_pos;
     }
-    else
+
+    /* ignore chunks not in range */
+    if ((chunk < cli_follow_info->chunkMin) || (chunk > cli_follow_info->chunkMax)) {
+      (*global_pos) += follow_record->data->len;
+      continue;
+    }
+
+    switch (cli_follow_info->show_type)
     {
-      printf("Node %d: %s:%d\n", node, buf, port[node]);
+    case SHOW_HEXDUMP:
+      break;
+
+    case SHOW_ASCII:
+    case SHOW_EBCDIC:
+      printf("%s%u\n", follow_record->is_server ? "\t" : "", follow_record->data->len);
+      break;
+
+    case SHOW_RAW:
+      if (follow_record->is_server)
+      {
+        putchar('\t');
+      }
+      break;
+    default:
+      g_assert_not_reached();
+    }
+
+    switch (cli_follow_info->show_type)
+    {
+    case SHOW_HEXDUMP:
+      follow_print_hex(follow_record->is_server ? "\t" : "", *global_pos, follow_record->data->data, follow_record->data->len);
+      (*global_pos) += follow_record->data->len;
+      break;
+
+    case SHOW_ASCII:
+    case SHOW_EBCDIC:
+      buffer = (char *)g_malloc(follow_record->data->len+2);
+
+      for (ii = 0; ii < follow_record->data->len; ii++)
+      {
+        switch (follow_record->data->data[ii])
+        {
+        case '\r':
+        case '\n':
+          buffer[ii] = follow_record->data->data[ii];
+          break;
+        default:
+          buffer[ii] = g_ascii_isprint(follow_record->data->data[ii]) ? follow_record->data->data[ii] : '.';
+          break;
+        }
+      }
+
+      buffer[ii++] = '\n';
+      buffer[ii] = 0;
+      if (cli_follow_info->show_type == SHOW_EBCDIC) {
+        EBCDIC_to_ASCII(buffer, ii);
+      }
+      printf("%s", buffer);
+      g_free(buffer);
+      break;
+
+    case SHOW_RAW:
+      buffer = (char *)g_malloc((follow_record->data->len*2)+2);
+
+      for (ii = 0, jj = 0; ii < follow_record->data->len; ii++)
+      {
+        buffer[jj++] = bin2hex[follow_record->data->data[ii] >> 4];
+        buffer[jj++] = bin2hex[follow_record->data->data[ii] & 0xf];
+      }
+
+      buffer[jj++] = '\n';
+      buffer[jj] = 0;
+      printf("%s", buffer);
+      g_free(buffer);
+      break;
+
+    default:
+      g_assert_not_reached();
     }
   }
-
-  offset[0] = offset[1] = 0;
-
-  while (chunk <= fp->chunkMax)
-  {
-    node = (memcmp(addr[0]->data, &sc.src_addr, addr[0]->len) == 0 &&
-            port[0] == sc.src_port) ? 0 : 1;
-
-    if (chunk < fp->chunkMin)
-    {
-      while (sc.dlen > 0)
-      {
-        len = sc.dlen < sizeof bin ? sc.dlen : (guint32)sizeof bin;
-        sc.dlen -= len;
-        if (fread(bin, 1, len, fp->filep) != len)
-        {
-          followExit("Error reading stream chunk data.");
-        }
-        offset[node] += len;
-      }
-    }
-    else
-    {
-      switch (fp->mode)
-      {
-      case mode_HEX:
-        break;
-
-      case mode_ASCII:
-      case mode_EBCDIC:
-        printf("%s%u\n", node ? "\t" : "", sc.dlen);
-        break;
-
-      case mode_RAW:
-        if (node)
-        {
-          putchar('\t');
-        }
-        break;
-      }
-
-      while (sc.dlen > 0)
-      {
-        len = sc.dlen < sizeof bin ? sc.dlen : (guint32)sizeof bin;
-        sc.dlen -= len;
-        if (fread(bin, 1, len, fp->filep) != len)
-        {
-          followExit("Error reading stream chunk data.");
-        }
-
-        switch (fp->mode)
-        {
-        case mode_HEX:
-          followPrintHex(node ? "\t" : "", offset[node], bin, len);
-          break;
-
-        case mode_ASCII:
-        case mode_EBCDIC:
-          for (ii = 0; ii < len; ii++)
-          {
-            switch (bin[ii])
-            {
-            case '\r':
-            case '\n':
-              data[ii] = bin[ii];
-            break;
-            default:
-              data[ii] = g_ascii_isprint(bin[ii]) ? bin[ii] : '.';
-              break;
-            }
-          }
-          if (sc.dlen == 0)
-          {
-            data[ii++] = '\n';
-          }
-          data[ii] = 0;
-          if (fp->mode == mode_EBCDIC) {
-            EBCDIC_to_ASCII(data, ii);
-          }
-          printf("%s", data);
-          break;
-
-        case mode_RAW:
-          for (ii = 0, jj = 0; ii < len; ii++)
-          {
-            data[jj++] = bin2hex[bin[ii] >> 4];
-            data[jj++] = bin2hex[bin[ii] & 0xf];
-          }
-          if (sc.dlen == 0)
-          {
-            data[jj++] = '\n';
-          }
-          data[jj] = 0;
-          printf("%s", data);
-        }
-
-        offset[node] += len;
-      }
-    }
-
-    for (;;)
-    {
-      len = (guint32)fread(&sc, 1, sizeof sc, fp->filep);
-      if (len != sizeof sc)
-      {
-        /* no more data */
-        sc.dlen = 0;
-        goto done;
-      }
-      if (sc.dlen > 0)
-      {
-        chunk++;
-        break;
-      }
-    }
-  }
-
-done:
 
   printf("%s", separator);
-
-  followFileClose(fp);
 }
 
-static gboolean
-followArgStrncmp(
-  const char **opt_argp,
-  const char  *strp
-  )
+static gboolean follow_arg_strncmp(const char **opt_argp, const char *strp)
 {
-  int           len     = (guint32)strlen(strp);
+  int len = strlen(strp);
 
   if (strncmp(*opt_argp, strp, len) == 0)
   {
@@ -744,39 +302,32 @@ followArgStrncmp(
 }
 
 static void
-followArgMode(
-  const char **opt_argp,
-  follow_t    *fp
-  )
+follow_arg_mode(const char **opt_argp, follow_info_t *follow_info)
 {
-  if (followArgStrncmp(opt_argp, STR_HEX))
+  cli_follow_info_t* cli_follow_info = (cli_follow_info_t*)follow_info->gui_data;
+
+  if (follow_arg_strncmp(opt_argp, STR_HEX))
   {
-    fp->mode = mode_HEX;
+    cli_follow_info->show_type = SHOW_HEXDUMP;
   }
-  else if (followArgStrncmp(opt_argp, STR_ASCII))
+  else if (follow_arg_strncmp(opt_argp, STR_ASCII))
   {
-    fp->mode = mode_ASCII;
+    cli_follow_info->show_type = SHOW_ASCII;
   }
-  else if (followArgStrncmp(opt_argp, STR_EBCDIC))
+  else if (follow_arg_strncmp(opt_argp, STR_EBCDIC))
   {
-    fp->mode = mode_EBCDIC;
+    cli_follow_info->show_type = SHOW_EBCDIC;
   }
-  else if (followArgStrncmp(opt_argp, STR_RAW))
+  else if (follow_arg_strncmp(opt_argp, STR_RAW))
   {
-    fp->mode = mode_RAW;
+    cli_follow_info->show_type = SHOW_RAW;
   }
   else
   {
-    followExit("Invalid display mode.");
+    follow_exit("Invalid display mode.");
   }
 }
 
-static void
-followArgFilter(
-  const char **opt_argp,
-  follow_t    *fp
-  )
-{
 #define _STRING(s)      # s
 #define STRING(s)       _STRING(s)
 
@@ -785,265 +336,170 @@ followArgFilter(
 #define ADDRv6_FMT      ",[%" STRING(ADDR_CHARS) "[^]]]:%d%n"
 #define ADDRv4_FMT      ",%" STRING(ADDR_CHARS) "[^:]:%d%n"
 
+static void
+follow_arg_filter(const char **opt_argp, follow_info_t *follow_info)
+{
   int           len;
   unsigned int  ii;
   char          addr[ADDR_LEN];
+  cli_follow_info_t* cli_follow_info = (cli_follow_info_t*)follow_info->gui_data;
 
-  if (sscanf(*opt_argp, ",%u%n", &fp->stream_index, &len) == 1 &&
+  if (sscanf(*opt_argp, ",%u%n", &cli_follow_info->stream_index, &len) == 1 &&
       ((*opt_argp)[len] == 0 || (*opt_argp)[len] == ','))
   {
     *opt_argp += len;
   }
   else
   {
-    for (ii = 0; ii < sizeof fp->addr/sizeof *fp->addr; ii++)
+    for (ii = 0; ii < sizeof cli_follow_info->addr/sizeof *cli_follow_info->addr; ii++)
     {
-      if ((sscanf(*opt_argp, ADDRv6_FMT, addr, &fp->port[ii], &len) != 2 &&
-           sscanf(*opt_argp, ADDRv4_FMT, addr, &fp->port[ii], &len) != 2) ||
-          fp->port[ii] <= 0 || fp->port[ii] > G_MAXUINT16)
+      if ((sscanf(*opt_argp, ADDRv6_FMT, addr, &cli_follow_info->port[ii], &len) != 2 &&
+           sscanf(*opt_argp, ADDRv4_FMT, addr, &cli_follow_info->port[ii], &len) != 2) ||
+          cli_follow_info->port[ii] <= 0 || cli_follow_info->port[ii] > G_MAXUINT16)
       {
-        followExit("Invalid address:port pair.");
+        follow_exit("Invalid address:port pair.");
       }
 
       if (strcmp("ip6", host_ip_af(addr)) == 0)
       {
-        if (!get_host_ipaddr6(addr, (struct e_in6_addr *)fp->addrBuf[ii]))
+        if (!get_host_ipaddr6(addr, (struct e_in6_addr *)cli_follow_info->addrBuf[ii]))
         {
-          followExit("Can't get IPv6 address");
+          follow_exit("Can't get IPv6 address");
         }
-        set_address(&fp->addr[ii], AT_IPv6, 16, fp->addrBuf[ii]);
+        set_address(&cli_follow_info->addr[ii], AT_IPv6, 16, cli_follow_info->addrBuf[ii]);
       }
       else
       {
-        if (!get_host_ipaddr(addr, (guint32 *)fp->addrBuf[ii]))
+        if (!get_host_ipaddr(addr, (guint32 *)cli_follow_info->addrBuf[ii]))
         {
-          followExit("Can't get IPv4 address");
+          follow_exit("Can't get IPv4 address");
         }
-        set_address(&fp->addr[ii], AT_IPv4, 4, fp->addrBuf[ii]);
+        set_address(&cli_follow_info->addr[ii], AT_IPv4, 4, cli_follow_info->addrBuf[ii]);
       }
 
       *opt_argp += len;
     }
 
-    if (fp->addr[0].type != fp->addr[1].type)
+    if (cli_follow_info->addr[0].type != cli_follow_info->addr[1].type)
     {
-      followExit("Mismatched IP address types.");
+      follow_exit("Mismatched IP address types.");
     }
-    fp->stream_index = G_MAXUINT32;
+    cli_follow_info->stream_index = -1;
   }
 }
 
-static void
-followArgRange(
-  const char **opt_argp,
-  follow_t    *fp
-  )
+static void follow_arg_range(const char **opt_argp, cli_follow_info_t* cli_follow_info)
 {
   int           len;
 
   if (**opt_argp == 0)
   {
-    fp->chunkMin = 1;
-    fp->chunkMax = G_MAXUINT32;
+    cli_follow_info->chunkMin = 1;
+    cli_follow_info->chunkMax = G_MAXUINT32;
   }
   else
   {
-    if (sscanf(*opt_argp, ",%u-%u%n",  &fp->chunkMin, &fp->chunkMax, &len) == 2)
+    if (sscanf(*opt_argp, ",%u-%u%n",  &cli_follow_info->chunkMin, &cli_follow_info->chunkMax, &len) == 2)
     {
       *opt_argp += len;
     }
-    else if (sscanf(*opt_argp, ",%u%n", &fp->chunkMin, &len) == 1)
+    else if (sscanf(*opt_argp, ",%u%n", &cli_follow_info->chunkMin, &len) == 1)
     {
-      fp->chunkMax = fp->chunkMin;
+      cli_follow_info->chunkMax = cli_follow_info->chunkMin;
       *opt_argp += len;
     }
     else
     {
-      followExit("Invalid range.");
+      follow_exit("Invalid range.");
     }
 
-    if (fp->chunkMin < 1 || fp->chunkMin > fp->chunkMax)
+    if (cli_follow_info->chunkMin < 1 || cli_follow_info->chunkMin > cli_follow_info->chunkMax)
     {
-      followExit("Invalid range value.");
+      follow_exit("Invalid range value.");
     }
   }
 }
 
 static void
-followArgDone(
-  const char *opt_argp
-  )
+follow_arg_done(const char *opt_argp)
 {
   if (*opt_argp != 0)
   {
-    followExit("Invalid parameter.");
+    follow_exit("Invalid parameter.");
   }
 }
 
-static void
-followTcp(
-  const char *opt_argp,
-  void       *userdata _U_
-  )
+static void follow_stream(const char *opt_argp, void *userdata)
 {
-  follow_t *fp;
+  follow_info_t *follow_info;
+  cli_follow_info_t* cli_follow_info;
   GString  *errp;
+  register_follow_t* follower = (register_follow_t*)userdata;
+  follow_index_filter_func index_filter;
+  follow_address_filter_func address_filter;
 
-  opt_argp += strlen(STR_FOLLOW_TCP);
+  opt_argp += strlen(STR_FOLLOW);
+  opt_argp += strlen(proto_get_protocol_filter_name(get_follow_proto_id(follower)));
 
-  fp = followAlloc(type_TCP);
+  cli_follow_info = g_new0(cli_follow_info_t, 1);
+  follow_info = g_new0(follow_info_t, 1);
+  follow_info->gui_data = cli_follow_info;
+  cli_follow_info->follower = follower;
 
-  followArgMode(&opt_argp, fp);
-  followArgFilter(&opt_argp, fp);
-  followArgRange(&opt_argp, fp);
-  followArgDone(opt_argp);
+  follow_arg_mode(&opt_argp, follow_info);
+  follow_arg_filter(&opt_argp, follow_info);
+  follow_arg_range(&opt_argp, cli_follow_info);
+  follow_arg_done(opt_argp);
 
-  reset_stream_follow(TCP_STREAM);
-  if (fp->stream_index != G_MAXUINT32)
+  if (cli_follow_info->stream_index >= 0)
   {
-    if (!follow_index(TCP_STREAM, fp->stream_index))
+    index_filter = get_follow_index_func(follower);
+    follow_info->filter_out_filter = index_filter(cli_follow_info->stream_index);
+    if (follow_info->filter_out_filter == NULL)
     {
-      followExit("Can't follow TCP index.");
+      follow_exit("Error creating filter for this stream.");
     }
   }
   else
   {
-    if (!follow_addr(TCP_STREAM, &fp->addr[0], fp->port[0],
-                     &fp->addr[1], fp->port[1]))
+    address_filter = get_follow_address_func(follower);
+    follow_info->filter_out_filter = address_filter(&cli_follow_info->addr[0], &cli_follow_info->addr[1], cli_follow_info->port[0], cli_follow_info->port[1]);
+    if (follow_info->filter_out_filter == NULL)
     {
-      followExit("Can't follow TCP address/port pairs.");
+      follow_exit("Error creating filter for this address/port pair.\n");
     }
   }
 
-  followFileOpen(fp);
-
-  errp = register_tap_listener("tcp_follow", fp, followStrFilter(fp), 0,
-                               NULL, follow_common_stream_packet, followDraw);
+  errp = register_tap_listener(get_follow_tap_string(follower), follow_info, follow_info->filter_out_filter, 0,
+                               NULL, get_follow_tap_handler(follower), follow_draw);
 
   if (errp != NULL)
   {
-    followFree(fp);
+    follow_free(follow_info);
     g_string_free(errp, TRUE);
-    followExit("Error registering TCP tap listener.");
+    follow_exit("Error registering tap listener.");
   }
 }
 
 static void
-followUdp(
-  const char *opt_argp,
-  void       *userdata _U_
-  )
+follow_register(gpointer data, gpointer user_data _U_)
 {
-  follow_t *fp;
-  GString  *errp;
+  register_follow_t *follower = (register_follow_t*)data;
+  stat_tap_ui follow_ui;
 
-  opt_argp += strlen(STR_FOLLOW_UDP);
-
-  fp = followAlloc(type_UDP);
-
-  followArgMode(&opt_argp, fp);
-  followArgFilter(&opt_argp, fp);
-  followArgRange(&opt_argp, fp);
-  followArgDone(opt_argp);
-
-  reset_stream_follow(UDP_STREAM);
-  if (fp->stream_index != G_MAXUINT32)
-  {
-    if (!follow_index(UDP_STREAM, fp->stream_index))
-    {
-      followExit("Can't follow UDP index.");
-    }
-  }
-  else
-  {
-    if (!follow_addr(UDP_STREAM, &fp->addr[0], fp->port[0],
-                     &fp->addr[1], fp->port[1]))
-    {
-      followExit("Can't follow UDP address/port pairs.");
-    }
-  }
-
-  followFileOpen(fp);
-
-  errp = register_tap_listener("udp_follow", fp, followStrFilter(fp), 0,
-                               NULL, follow_common_stream_packet, followDraw);
-  if (errp != NULL)
-  {
-    followFree(fp);
-    g_string_free(errp, TRUE);
-    followExit("Error registering UDP tap listner.");
-  }
+  follow_ui.group = REGISTER_STAT_GROUP_GENERIC;
+  follow_ui.title = NULL;   /* construct this from the protocol info? */
+  follow_ui.cli_string = follow_get_stat_tap_string(follower);
+  follow_ui.tap_init_cb = follow_stream;
+  follow_ui.nparams = 0;
+  follow_ui.params = NULL;
+  register_stat_tap_ui(&follow_ui, follower);
 }
-
-static void
-followSsl(
-  const char *opt_argp,
-  void       *userdata _U_
-  )
-{
-  follow_t *fp;
-  GString  *errp;
-
-  opt_argp += strlen(STR_FOLLOW_SSL);
-
-  fp = followAlloc(type_SSL);
-
-  followArgMode(&opt_argp, fp);
-  followArgFilter(&opt_argp, fp);
-  followArgRange(&opt_argp, fp);
-  followArgDone(opt_argp);
-
-  reset_stream_follow(TCP_STREAM);
-  if (fp->stream_index == G_MAXUINT32)
-  {
-    followExit("SSL only supports index filters.");
-  }
-
-  followFileOpen(fp);
-
-  errp = register_tap_listener("ssl", fp, followStrFilter(fp), 0,
-                               NULL, followSslPacket, followDraw);
-  if (errp != NULL)
-  {
-    followFree(fp);
-    g_string_free(errp, TRUE);
-    followExit("Error registering SSL tap listener.");
-  }
-}
-
-static stat_tap_ui followTcp_ui = {
-  REGISTER_STAT_GROUP_GENERIC,
-  NULL,
-  STR_FOLLOW_TCP,
-  followTcp,
-  0,
-  NULL
-};
-
-static stat_tap_ui followUdp_ui = {
-  REGISTER_STAT_GROUP_GENERIC,
-  NULL,
-  STR_FOLLOW_UDP,
-  followUdp,
-  0,
-  NULL
-};
-
-static stat_tap_ui followSsl_ui = {
-  REGISTER_STAT_GROUP_GENERIC,
-  NULL,
-  STR_FOLLOW_SSL,
-  followSsl,
-  0,
-  NULL
-};
 
 void
 register_tap_listener_follow(void)
 {
-  register_stat_tap_ui(&followTcp_ui, NULL);
-  register_stat_tap_ui(&followUdp_ui, NULL);
-  register_stat_tap_ui(&followSsl_ui, NULL);
+  follow_iterate_followers(follow_register, NULL);
 }
 
 /*

@@ -25,286 +25,177 @@
 #include "config.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/to_str.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/dissectors/packet-udp.h>
 #include "follow.h"
-#include <epan/conversation.h>
 #include <epan/tap.h>
 
-typedef struct _tcp_frag {
-  guint32             seq;
-  guint32             len;
-  guint32             data_len;
-  gchar              *data;
-  struct _tcp_frag   *next;
-} tcp_frag;
+struct register_follow {
+    int proto_id;              /* protocol id (0-indexed) */
+    const char* tap_listen_str;      /* string used in register_tap_listener */
+    follow_conv_filter_func conv_filter;  /* generate "conversation" filter to follow */
+    follow_index_filter_func index_filter; /* generate stream/index filter to follow */
+    follow_address_filter_func address_filter; /* generate address filter to follow */
+    follow_port_to_display_func port_to_display; /* port to name resolution for follow type */
+    follow_tap_func tap_handler; /* tap listener handler */
+};
 
-WS_DLL_PUBLIC_DEF
-FILE* data_out_file = NULL;
+static GSList *registered_followers = NULL;
 
-gboolean empty_tcp_stream;
-gboolean incomplete_tcp_stream;
-
-static guint32 stream_to_follow[MAX_STREAM] = {0};
-static gboolean find_addr[MAX_STREAM] = {FALSE};
-static gboolean find_index[MAX_STREAM] = {FALSE};
-static address tcp_addr[2];
-static stream_addr ip_address[2];
-static guint   port[2];
-static guint   bytes_written[2];
-static gboolean is_ipv6 = FALSE;
-
-void
-follow_stats(follow_stats_t* stats)
+static gint
+insert_sorted_by_name(gconstpointer aparam, gconstpointer bparam)
 {
-  int i;
+    const register_follow_t *a = (const register_follow_t *)aparam;
+    const register_follow_t *b = (const register_follow_t *)bparam;
 
-  for (i = 0; i < 2 ; i++) {
-    stats->ip_address[i] = ip_address[i];
-    stats->port[i] = port[i];
-    stats->bytes_written[i] = bytes_written[i];
-  }
-  stats->is_ipv6 = is_ipv6;
+    return g_ascii_strcasecmp(proto_get_protocol_short_name(find_protocol_by_id(a->proto_id)), proto_get_protocol_short_name(find_protocol_by_id(b->proto_id)));
 }
 
-/* This will build a display filter text that will only
-   pass the packets related to the stream. There is a
-   chance that two streams could intersect, but not a
-   very good one */
-gchar*
-build_follow_conv_filter( packet_info *pi, const char* append_filter ) {
-  char* buf;
-  int len;
-  conversation_t *conv=NULL;
-  struct tcp_analysis *tcpd;
-  struct udp_analysis *udpd;
-  wmem_list_frame_t* protos;
-  int proto_id;
-  const char* proto_name;
-  gboolean is_tcp = FALSE, is_udp = FALSE;
-
-  protos = wmem_list_head(pi->layers);
-
-  /* walk the list of a available protocols in the packet to
-      figure out if any of them affect context sensitivity */
-  while (protos != NULL)
-  {
-    proto_id = GPOINTER_TO_INT(wmem_list_frame_data(protos));
-    proto_name = proto_get_protocol_filter_name(proto_id);
-
-    if (!strcmp(proto_name, "tcp")) {
-        is_tcp = TRUE;
-    } else if (!strcmp(proto_name, "udp")) {
-        is_udp = TRUE;
-    }
-
-    protos = wmem_list_frame_next(protos);
-  }
-
-  if( ((pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4) ||
-       (pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6))
-       && is_tcp && (conv=find_conversation(pi->fd->num, &pi->src, &pi->dst, pi->ptype,
-              pi->srcport, pi->destport, 0)) != NULL ) {
-    /* TCP over IPv4/6 */
-    tcpd=get_tcp_conversation_data(conv, pi);
-    if (tcpd) {
-      if (append_filter == NULL) {
-        buf = g_strdup_printf("tcp.stream eq %d", tcpd->stream);
-      } else {
-        buf = g_strdup_printf("((tcp.stream eq %d) && (%s))", tcpd->stream, append_filter);
-      }
-      stream_to_follow[TCP_STREAM] = tcpd->stream;
-      if (pi->net_src.type == AT_IPv4) {
-        len = 4;
-        is_ipv6 = FALSE;
-      } else {
-        len = 16;
-        is_ipv6 = TRUE;
-      }
-    } else {
-      return NULL;
-    }
-  }
-  else if( ((pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4) ||
-            (pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6))
-          && is_udp && (conv=find_conversation(pi->fd->num, &pi->src, &pi->dst, pi->ptype,
-              pi->srcport, pi->destport, 0)) != NULL ) {
-    /* UDP over IPv4/6 */
-    udpd=get_udp_conversation_data(conv, pi);
-    if (udpd) {
-      if (append_filter == NULL) {
-        buf = g_strdup_printf("udp.stream eq %d", udpd->stream);
-      } else {
-        buf = g_strdup_printf("((udp.stream eq %d) && (%s))", udpd->stream, append_filter);
-      }
-      stream_to_follow[UDP_STREAM] = udpd->stream;
-      if (pi->net_src.type == AT_IPv4) {
-        len = 4;
-        is_ipv6 = FALSE;
-      } else {
-        len = 16;
-        is_ipv6 = TRUE;
-      }
-    } else {
-      return NULL;
-    }
-  }
-  else {
-    return NULL;
-  }
-  memcpy(&ip_address[0], pi->net_src.data, len);
-  memcpy(&ip_address[1], pi->net_dst.data, len);
-  port[0] = pi->srcport;
-  port[1] = pi->destport;
-  return buf;
-}
-
-static gboolean
-udp_follow_packet(void *tapdata _U_, packet_info *pinfo,
-                  epan_dissect_t *edt _U_, const void *data _U_)
+void register_follow_stream(const int proto_id, const char* tap_listener,
+                            follow_conv_filter_func conv_filter, follow_index_filter_func index_filter, follow_address_filter_func address_filter,
+                            follow_port_to_display_func port_to_display, follow_tap_func tap_handler)
 {
-  if (find_addr[UDP_STREAM]) {
-    if (pinfo->net_src.type == AT_IPv6) {
-      is_ipv6 = TRUE;
-    } else {
-      is_ipv6 = FALSE;
-    }
-    memcpy(&ip_address[0], pinfo->net_src.data, pinfo->net_src.len);
-    memcpy(&ip_address[1], pinfo->net_dst.data, pinfo->net_dst.len);
-    port[0] = pinfo->srcport;
-    port[1] = pinfo->destport;
-    find_addr[UDP_STREAM] = FALSE;
-  }
+  register_follow_t *follower;
+  DISSECTOR_ASSERT(tap_listener);
+  DISSECTOR_ASSERT(conv_filter);
+  DISSECTOR_ASSERT(index_filter);
+  DISSECTOR_ASSERT(address_filter);
+  DISSECTOR_ASSERT(port_to_display);
+  DISSECTOR_ASSERT(tap_handler);
 
-  return FALSE;
+  follower = g_new(register_follow_t,1);
+
+  follower->proto_id       = proto_id;
+  follower->tap_listen_str = tap_listener;
+  follower->conv_filter    = conv_filter;
+  follower->index_filter   = index_filter;
+  follower->address_filter = address_filter;
+  follower->port_to_display = port_to_display;
+  follower->tap_handler    = tap_handler;
+
+  registered_followers = g_slist_insert_sorted(registered_followers, follower, insert_sorted_by_name);
 }
 
+int get_follow_proto_id(register_follow_t* follower)
+{
+  if (follower == NULL)
+    return -1;
+
+  return follower->proto_id;
+}
+
+const char* get_follow_tap_string(register_follow_t* follower)
+{
+  if (follower == NULL)
+    return "";
+
+  return follower->tap_listen_str;
+}
+
+follow_conv_filter_func get_follow_conv_func(register_follow_t* follower)
+{
+  return follower->conv_filter;
+}
+
+follow_index_filter_func get_follow_index_func(register_follow_t* follower)
+{
+  return follower->index_filter;
+}
+
+follow_address_filter_func get_follow_address_func(register_follow_t* follower)
+{
+  return follower->address_filter;
+}
+
+follow_port_to_display_func get_follow_port_to_display(register_follow_t* follower)
+{
+  return follower->port_to_display;
+}
+
+follow_tap_func get_follow_tap_handler(register_follow_t* follower)
+{
+  return follower->tap_handler;
+}
+
+
+register_follow_t* get_follow_by_name(const char* proto_short_name)
+{
+  guint i, size = g_slist_length(registered_followers);
+  register_follow_t *follower;
+  GSList   *slist;
+
+  for (i = 0; i < size; i++) {
+    slist = g_slist_nth(registered_followers, i);
+    follower = (register_follow_t*)slist->data;
+
+    if (strcmp(proto_short_name, proto_get_protocol_short_name(find_protocol_by_id(follower->proto_id))) == 0)
+      return follower;
+  }
+
+  return NULL;
+}
+
+void follow_iterate_followers(GFunc func, gpointer user_data)
+{
+    g_slist_foreach(registered_followers, func, user_data);
+}
+
+gchar* follow_get_stat_tap_string(register_follow_t* follower)
+{
+    GString *cmd_str = g_string_new("follow,");
+    g_string_append(cmd_str, proto_get_protocol_filter_name(follower->proto_id));
+    return g_string_free(cmd_str, FALSE);
+}
 
 /* here we are going to try and reconstruct the data portion of a TCP
    session. We will try and handle duplicates, TCP fragments, and out
    of order packets in a smart way. */
-
-static tcp_frag *frags[2] = { 0, 0 };
-static guint32 seq[2];
-static stream_addr src_addr[2];
-static guint src_port[2] = { 0, 0 };
-
 void
-reset_stream_follow(stream_type stream) {
-  tcp_frag *current, *next;
-  int i;
-
-  remove_tap_listener(&stream_to_follow[stream]);
-  find_addr[stream] = FALSE;
-  find_index[stream] = FALSE;
-  if (stream == TCP_STREAM) {
-    empty_tcp_stream = TRUE;
-    incomplete_tcp_stream = FALSE;
-
-    for( i=0; i<2; i++ ) {
-      seq[i] = 0;
-      memset(&src_addr[i], 0, sizeof(src_addr[i]));
-      src_port[i] = 0;
-      memset(&ip_address[i], 0, sizeof(src_addr[i]));
-      port[i] = 0;
-      bytes_written[i] = 0;
-      current = frags[i];
-      while( current ) {
-        next = current->next;
-        g_free( current->data );
-        g_free( current );
-        current = next;
-      }
-      frags[i] = NULL;
-    }
-  }
-}
-
-gchar*
-build_follow_index_filter(stream_type stream) {
-  gchar *buf;
-
-  find_addr[stream] = TRUE;
-  if (stream == TCP_STREAM) {
-    buf = g_strdup_printf("tcp.stream eq %d", stream_to_follow[TCP_STREAM]);
-  } else {
-    GString * error_string;
-    buf = g_strdup_printf("udp.stream eq %d", stream_to_follow[UDP_STREAM]);
-    error_string = register_tap_listener("udp_follow", &stream_to_follow[UDP_STREAM], buf, 0, NULL, udp_follow_packet, NULL);
-    if (error_string) {
-      g_string_free(error_string, TRUE);
-    }
-  }
-  return buf;
-}
-
-/* select a tcp stream to follow via it's address/port pairs */
-gboolean
-follow_addr(stream_type stream, const address *addr0, guint port0,
-            const address *addr1, guint port1)
+follow_reset_stream(follow_info_t* info)
 {
-  if (addr0 == NULL || addr1 == NULL || addr0->type != addr1->type ||
-      port0 > G_MAXUINT16 || port1 > G_MAXUINT16 )  {
-    return FALSE;
-  }
-
-  if (find_index[stream] || find_addr[stream]) {
-    return FALSE;
-  }
-
-  switch (addr0->type) {
-  default:
-    return FALSE;
-  case AT_IPv4:
-  case AT_IPv6:
-    is_ipv6 = addr0->type == AT_IPv6;
-    break;
-  }
-
-
-  memcpy(&ip_address[0], addr0->data, addr0->len);
-  port[0] = port0;
-
-  memcpy(&ip_address[1], addr1->data, addr1->len);
-  port[1] = port1;
-
-  if (stream == TCP_STREAM) {
-    find_index[TCP_STREAM] = TRUE;
-    set_address(&tcp_addr[0], addr0->type, addr0->len, &ip_address[0]);
-    set_address(&tcp_addr[1], addr1->type, addr1->len, &ip_address[1]);
-  }
-
-  return TRUE;
+    info->bytes_written[0] = info->bytes_written[1] = 0;
+    info->client_port = 0;
+    info->server_port = 0;
+    info->client_ip.type = FT_NONE;
+    info->client_ip.len = 0;
+    info->server_ip.type = FT_NONE;
+    info->server_ip.len = 0;
 }
 
-/* select a stream to follow via its index */
 gboolean
-follow_index(stream_type stream, guint32 indx)
+follow_tvb_tap_listener(void *tapdata, packet_info *pinfo,
+                      epan_dissect_t *edt _U_, const void *data)
 {
-  if (find_index[stream] || find_addr[stream]) {
+    follow_record_t *follow_record;
+    follow_info_t *follow_info = (follow_info_t *)tapdata;
+    tvbuff_t *next_tvb = (tvbuff_t *)data;
+
+    follow_record = g_new(follow_record_t,1);
+
+    follow_record->data = g_byte_array_sized_new(tvb_captured_length(next_tvb));
+    follow_record->data = g_byte_array_append(follow_record->data,
+                                              tvb_get_ptr(next_tvb, 0, -1),
+                                              tvb_captured_length(next_tvb));
+
+    if (follow_info->client_port == 0) {
+        follow_info->client_port = pinfo->srcport;
+        copy_address(&follow_info->client_ip, &pinfo->src);
+        follow_info->server_port = pinfo->destport;
+        copy_address(&follow_info->server_ip, &pinfo->dst);
+    }
+
+    if (addresses_equal(&follow_info->client_ip, &pinfo->src) && follow_info->client_port == pinfo->srcport)
+        follow_record->is_server = FALSE;
+    else
+        follow_record->is_server = TRUE;
+
+    /* update stream counter */
+    follow_info->bytes_written[follow_record->is_server] += follow_record->data->len;
+
+    follow_info->payload = g_list_append(follow_info->payload, follow_record);
     return FALSE;
-  }
-
-  find_addr[stream] = TRUE;
-  stream_to_follow[stream] = indx;
-  memset(ip_address, 0, sizeof ip_address);
-  port[0] = port[1] = 0;
-
-  return TRUE;
-}
-
-guint32
-get_follow_index(stream_type stream) {
-  return stream_to_follow[stream];
 }
 
 /*

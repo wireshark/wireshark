@@ -35,7 +35,7 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 #include "color_utils.h"
-#include "follow_tcp.h"
+#include "follow_stream.h"
 #include "font_utils.h"
 #include "packet_panes.h"
 #include "prefs_font_color.h"
@@ -528,7 +528,7 @@ font_color_prefs_apply(GtkWidget *w _U_, gboolean redissect)
     redraw_packet_bytes_all();
   }
 
-  follow_tcp_redraw_all();
+  follow_stream_redraw_all();
 }
 
 

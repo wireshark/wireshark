@@ -44,8 +44,7 @@
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/main.h"
 #include "ui/gtk/stock_icons.h"
-#include "ui/gtk/follow_tcp.h"
-#include "ui/gtk/follow_udp.h"
+#include "ui/gtk/follow_stream.h"
 #include "ui/gtk/keys.h"
 
 

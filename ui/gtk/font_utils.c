@@ -42,7 +42,7 @@
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/font_utils.h"
 #include "ui/gtk/packet_panes.h"
-#include "ui/gtk/follow_tcp.h"
+#include "ui/gtk/follow_stream.h"
 #include "ui/gtk/packet_list.h"
 
 
@@ -235,7 +235,7 @@ user_font_apply(void) {
     redraw_packet_bytes_all();
 
     /* Redraw the "Follow TCP Stream" windows. */
-    follow_tcp_redraw_all();
+    follow_stream_redraw_all();
 
     /* We're no longer using the old fonts; unreference them. */
     if (old_r_font != NULL)

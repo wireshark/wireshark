@@ -29,11 +29,14 @@
 
 #include <epan/addr_resolv.h>
 #include <epan/follow.h>
+#include <epan/epan_dissect.h>
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/charsets.h>
+#include <epan/tap.h>
 
 #include <epan/print.h>
+#include <epan/dissectors/packet-ssl-utils.h>
 
 #include <ui/alert_box.h>
 #include <ui/last_open_dir.h>
@@ -42,6 +45,8 @@
 #include <wsutil/file_util.h>
 #include <wsutil/ws_version_info.h>
 
+#include "gtkglobals.h"
+#include "ui/gtk/keys.h"
 #include "ui/gtk/color_utils.h"
 #include "ui/gtk/stock_icons.h"
 #include "ui/gtk/dlg_utils.h"
@@ -53,6 +58,7 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/old-gtk-compat.h"
 
+#include <wsutil/utf8_entities.h>
 #ifdef _WIN32
 #include "wsutil/tempfile.h"
 #include "ui/win32/print_win32.h"
@@ -69,22 +75,214 @@ static void follow_find_destroy_cb(GtkWidget * win _U_, gpointer data);
 static void follow_find_button_cb(GtkWidget * w, gpointer data);
 static void follow_destroy_cb(GtkWidget *w, gpointer data _U_);
 
-GList *follow_infos = NULL;
+static void follow_stream(const gchar *title, follow_info_t *follow_info,
+          gchar *both_directions_string, gchar *server_to_client_string, gchar *client_to_server_string);
+static frs_return_t follow_show(follow_info_t *follow_info,
+            follow_print_line_func follow_print,
+            char *buffer, size_t nchars, gboolean is_from_server, void *arg,
+            guint32 *global_pos, guint32 *server_packet_count,
+            guint32 *client_packet_count);
 
+static GList *follow_infos = NULL;
+
+/*
+ * XXX - the routine pointed to by "print_line_fcn_p" doesn't get handed lines,
+ * it gets handed bufferfuls.  That's fine for "follow_write_raw()"
+ * and "follow_add_to_gtk_text()", but, as "follow_print_text()" calls
+ * the "print_line()" routine from "print.c", and as that routine might
+ * genuinely expect to be handed a line (if, for example, it's using
+ * some OS or desktop environment's printing API, and that API expects
+ * to be handed lines), "follow_print_text()" should probably accumulate
+ * lines in a buffer and hand them "print_line()".  (If there's a
+ * complete line in a buffer - i.e., there's nothing of the line in
+ * the previous buffer or the next buffer - it can just hand that to
+ * "print_line()" after filtering out non-printables, as an
+ * optimization.)
+ *
+ * This might or might not be the reason why C arrays display
+ * correctly but get extra blank lines very other line when printed.
+ */
 static frs_return_t
-follow_read_stream(follow_info_t *follow_info,
-           gboolean (*print_line_fcn_p)(char *, size_t, gboolean, void *),
-           void *arg)
+follow_common_read_stream(follow_info_t *follow_info,
+    follow_print_line_func follow_print,
+    void *arg)
 {
-    if (follow_info->read_stream == NULL) {
-        g_assert_not_reached();
-        return (frs_return_t)0;
+    guint32 global_client_pos = 0, global_server_pos = 0;
+    guint32 server_packet_count = 0;
+    guint32 client_packet_count = 0;
+    guint32 *global_pos;
+    gboolean skip;
+    GList* cur;
+    frs_return_t frs_return;
+    follow_record_t *follow_record;
+    char *buffer;
+
+
+    for (cur = follow_info->payload; cur; cur = g_list_next(cur)) {
+        follow_record = (follow_record_t *)cur->data;
+        skip = FALSE;
+        if (!follow_record->is_server) {
+            global_pos = &global_client_pos;
+            if(follow_info->show_stream == FROM_SERVER) {
+                skip = TRUE;
+            }
+        } else {
+            global_pos = &global_server_pos;
+            if (follow_info->show_stream == FROM_CLIENT) {
+                skip = TRUE;
+            }
+        }
+
+        if (!skip) {
+            buffer = (char *)g_memdup(follow_record->data->data,
+                                     follow_record->data->len);
+
+            frs_return = follow_show(follow_info, follow_print,
+                                     buffer,
+                                     follow_record->data->len,
+                                     follow_record->is_server, arg,
+                                     global_pos,
+                                     &server_packet_count,
+                                     &client_packet_count);
+            g_free(buffer);
+            if(frs_return == FRS_PRINT_ERROR)
+                return frs_return;
+        }
     }
 
-    return follow_info->read_stream(follow_info, print_line_fcn_p, arg);
+    return FRS_OK;
 }
 
-gboolean
+static void follow_stream_cb(register_follow_t* follower, follow_read_stream_func read_stream_func, GtkWidget * w _U_, gpointer data _U_)
+{
+    GtkWidget   *filter_cm;
+    GtkWidget   *filter_te;
+    gchar       *follow_filter;
+    const gchar *previous_filter;
+    int         filter_out_filter_len;
+    const char  *hostname0, *hostname1;
+    char        *port0, *port1;
+    gchar       *server_to_client_string = NULL;
+    gchar       *client_to_server_string = NULL;
+    gchar       *both_directions_string = NULL;
+    follow_info_t  *follow_info;
+    gtk_follow_info_t *gtk_follow_info;
+    GString *msg;
+    gboolean is_follow = FALSE;
+    guint32 ignore_stream;
+    char  stream_window_title[256];
+
+    is_follow = proto_is_frame_protocol(cfile.edt->pi.layers, proto_get_protocol_filter_name(get_follow_proto_id(follower)));
+
+    if (!is_follow) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "Error following stream.  Please make\n"
+                      "sure you have a %s packet selected.", proto_get_protocol_short_name(find_protocol_by_id(get_follow_proto_id(follower))));
+        return;
+    }
+
+    gtk_follow_info = g_new0(gtk_follow_info_t, 1);
+    follow_info = g_new0(follow_info_t, 1);
+    gtk_follow_info->read_stream = read_stream_func;
+    follow_info->gui_data = gtk_follow_info;
+
+    /* Create a new filter that matches all packets in the TCP stream,
+       and set the display filter entry accordingly */
+    follow_filter = get_follow_conv_func(follower)(&cfile.edt->pi, &ignore_stream);
+    if (!follow_filter) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "Error creating filter for this stream.\n"
+                      "A transport or network layer header is needed");
+        g_free(gtk_follow_info);
+        g_free(follow_info);
+        return;
+    }
+
+    /* Set the display filter entry accordingly */
+    filter_cm = (GtkWidget *)g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
+    filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
+
+    /* needed in follow_filter_out_stream(), is there a better way? */
+    gtk_follow_info->filter_te = filter_te;
+
+    /* save previous filter, const since we're not supposed to alter */
+    previous_filter =
+        (const gchar *)gtk_entry_get_text(GTK_ENTRY(filter_te));
+
+    /* allocate our new filter. API claims g_malloc terminates program on failure */
+    /* my calc for max alloc needed is really +10 but when did a few extra bytes hurt ? */
+    filter_out_filter_len = (int)(strlen(follow_filter) + strlen(previous_filter) + 16);
+    follow_info->filter_out_filter = (gchar *)g_malloc(filter_out_filter_len);
+
+    /* append the negation */
+    if(strlen(previous_filter)) {
+        g_snprintf(follow_info->filter_out_filter, filter_out_filter_len,
+            "%s and !(%s)", previous_filter, follow_filter);
+    } else {
+        g_snprintf(follow_info->filter_out_filter, filter_out_filter_len,
+            "!(%s)", follow_filter);
+    }
+
+    /* data will be passed via tap callback*/
+    msg = register_tap_listener(get_follow_tap_string(follower), follow_info, follow_filter,
+                                0, NULL, get_follow_tap_handler(follower), NULL);
+    if (msg) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "Can't register %s tap: %s\n",
+                      get_follow_tap_string(follower), msg->str);
+        g_free(gtk_follow_info);
+        g_free(follow_info->filter_out_filter);
+        g_free(follow_info);
+        g_free(follow_filter);
+        return;
+    }
+
+    gtk_entry_set_text(GTK_ENTRY(filter_te), follow_filter);
+
+    /* Run the display filter so it goes in effect - even if it's the
+       same as the previous display filter. */
+    main_filter_packets(&cfile, follow_filter, TRUE);
+
+    remove_tap_listener(follow_info);
+
+    hostname0 = address_to_name(&follow_info->client_ip);
+    hostname1 = address_to_name(&follow_info->server_ip);
+
+    port0 = get_follow_port_to_display(follower)(NULL, follow_info->client_port);
+    port1 = get_follow_port_to_display(follower)(NULL, follow_info->server_port);
+
+    /* Both Stream Directions */
+    both_directions_string = g_strdup_printf("Entire conversation (%u bytes)", follow_info->bytes_written[0] + follow_info->bytes_written[1]);
+
+    server_to_client_string =
+        g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
+                        hostname0, port0,
+                        hostname1, port1,
+                        follow_info->bytes_written[0]);
+
+    client_to_server_string =
+        g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
+                        hostname1, port1,
+                        hostname0, port0,
+                        follow_info->bytes_written[1]);
+
+    g_snprintf(stream_window_title, 256, "Follow %s Stream (%s)",
+                    proto_get_protocol_short_name(find_protocol_by_id(get_follow_proto_id(follower))), follow_filter);
+    follow_stream(stream_window_title, follow_info, both_directions_string,
+                  server_to_client_string, client_to_server_string);
+
+    /* Free the filter string, as we're done with it. */
+    g_free(follow_filter);
+
+    wmem_free(NULL, port0);
+    wmem_free(NULL, port1);
+    g_free(both_directions_string);
+    g_free(server_to_client_string);
+    g_free(client_to_server_string);
+
+}
+
+static gboolean
 follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_from_server,
                void *arg)
 {
@@ -165,39 +363,13 @@ follow_write_raw(char *buffer, size_t nchars, gboolean is_from_server _U_, void 
     return TRUE;
 }
 
-/* Handles the display style toggling */
 static void
-follow_charset_toggle_cb(GtkWidget * w _U_, gpointer data)
-{
-    follow_info_t    *follow_info = (follow_info_t *)data;
-
-    /*
-     * A radio button toggles when it goes on and when it goes
-     * off, so when you click a radio button two signals are
-     * delivered.  We only want to reprocess the display once,
-     * so we do it only when the button goes on.
-     */
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w))) {
-        if (w == follow_info->ebcdic_bt)
-            follow_info->show_type = SHOW_EBCDIC;
-        else if (w == follow_info->hexdump_bt)
-            follow_info->show_type = SHOW_HEXDUMP;
-        else if (w == follow_info->carray_bt)
-            follow_info->show_type = SHOW_CARRAY;
-        else if (w == follow_info->ascii_bt)
-            follow_info->show_type = SHOW_ASCII;
-        else if (w == follow_info->raw_bt)
-            follow_info->show_type = SHOW_RAW;
-        follow_load_text(follow_info);
-    }
-}
-
-void
 follow_load_text(follow_info_t *follow_info)
 {
     GtkTextBuffer *buf;
+    gtk_follow_info_t *gtk_follow_info = (gtk_follow_info_t *)follow_info->gui_data;
 
-    buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(follow_info->text));
+    buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(gtk_follow_info->text));
 
     /* prepare colors one time for repeated use by follow_add_to_gtk_text */
     color_t_to_gdkcolor(&server_fg, &prefs.st_server_fg);
@@ -218,27 +390,56 @@ follow_load_text(follow_info_t *follow_info)
     /* Delete any info already in text box */
     gtk_text_buffer_set_text(buf, "", -1);
 
-    follow_read_stream(follow_info, follow_add_to_gtk_text,
-               follow_info->text);
+    gtk_follow_info->read_stream(follow_info, follow_add_to_gtk_text,
+               gtk_follow_info->text);
 }
 
-void
+/* Handles the display style toggling */
+static void
+follow_charset_toggle_cb(GtkWidget * w _U_, gpointer data)
+{
+    follow_info_t    *follow_info = (follow_info_t *)data;
+    gtk_follow_info_t *gtk_follow_info = (gtk_follow_info_t *)follow_info->gui_data;
+
+    /*
+     * A radio button toggles when it goes on and when it goes
+     * off, so when you click a radio button two signals are
+     * delivered.  We only want to reprocess the display once,
+     * so we do it only when the button goes on.
+     */
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(w))) {
+        if (w == gtk_follow_info->ebcdic_bt)
+            gtk_follow_info->show_type = SHOW_EBCDIC;
+        else if (w == gtk_follow_info->hexdump_bt)
+            gtk_follow_info->show_type = SHOW_HEXDUMP;
+        else if (w == gtk_follow_info->carray_bt)
+            gtk_follow_info->show_type = SHOW_CARRAY;
+        else if (w == gtk_follow_info->ascii_bt)
+            gtk_follow_info->show_type = SHOW_ASCII;
+        else if (w == gtk_follow_info->raw_bt)
+            gtk_follow_info->show_type = SHOW_RAW;
+        follow_load_text(follow_info);
+    }
+}
+
+static void
 follow_filter_out_stream(GtkWidget * w _U_, gpointer data)
 {
     follow_info_t    *follow_info = (follow_info_t *)data;
+    gtk_follow_info_t *gtk_follow_info = (gtk_follow_info_t *)follow_info->gui_data;
 
     /* Lock out user from messing with us. (ie. don't free our data!) */
-    gtk_widget_set_sensitive(follow_info->streamwindow, FALSE);
+    gtk_widget_set_sensitive(gtk_follow_info->streamwindow, FALSE);
 
     /* Set the display filter. */
-    gtk_entry_set_text(GTK_ENTRY(follow_info->filter_te),
+    gtk_entry_set_text(GTK_ENTRY(gtk_follow_info->filter_te),
                follow_info->filter_out_filter);
 
     /* Run the display filter so it goes in effect. */
     main_filter_packets(&cfile, follow_info->filter_out_filter, FALSE);
 
     /* we force a subsequent close */
-    window_destroy(follow_info->streamwindow);
+    window_destroy(gtk_follow_info->streamwindow);
 
     return;
 }
@@ -247,22 +448,23 @@ static void
 follow_find_cb(GtkWidget * w _U_, gpointer data)
 {
     follow_info_t       *follow_info = (follow_info_t *)data;
+    gtk_follow_info_t   *gtk_follow_info = (gtk_follow_info_t *)follow_info->gui_data;
     GtkWidget           *find_dlg_w, *main_vb, *buttons_row, *find_lb;
     GtkWidget           *find_hb, *find_text_box, *find_bt, *cancel_bt;
 
-    if (follow_info->find_dlg_w != NULL) {
+    if (gtk_follow_info->find_dlg_w != NULL) {
         /* There's already a dialog box; reactivate it. */
-        reactivate_window(follow_info->find_dlg_w);
+        reactivate_window(gtk_follow_info->find_dlg_w);
         return;
     }
 
     /* Create the find box */
     find_dlg_w = dlg_window_new("Wireshark: Find text");
     gtk_window_set_transient_for(GTK_WINDOW(find_dlg_w),
-                                GTK_WINDOW(follow_info->streamwindow));
+                                GTK_WINDOW(gtk_follow_info->streamwindow));
     gtk_widget_set_size_request(find_dlg_w, 225, -1);
     gtk_window_set_destroy_with_parent(GTK_WINDOW(find_dlg_w), TRUE);
-    follow_info->find_dlg_w = find_dlg_w;
+    gtk_follow_info->find_dlg_w = find_dlg_w;
 
     g_signal_connect(find_dlg_w, "destroy", G_CALLBACK(follow_find_destroy_cb),
                     follow_info);
@@ -317,6 +519,7 @@ follow_find_button_cb(GtkWidget * w, gpointer data)
     gboolean        found;
     const gchar     *find_string;
     follow_info_t   *follow_info = (follow_info_t *)data;
+    gtk_follow_info_t *gtk_follow_info = (gtk_follow_info_t *)follow_info->gui_data;
     GtkTextBuffer   *buffer;
     GtkTextIter     iter, match_start, match_end;
     GtkTextMark     *last_pos_mark;
@@ -327,7 +530,7 @@ follow_find_button_cb(GtkWidget * w, gpointer data)
     find_string = gtk_entry_get_text(GTK_ENTRY(find_string_w));
 
     /* Get the buffer associated with the follow stream */
-    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(follow_info->text));
+    buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(gtk_follow_info->text));
     gtk_text_buffer_get_start_iter(buffer, &iter);
 
     /* Look for the search string in the buffer */
@@ -345,7 +548,7 @@ follow_find_button_cb(GtkWidget * w, gpointer data)
         last_pos_mark = gtk_text_buffer_create_mark (buffer,
                                                      "last_position",
                                                      &match_end, FALSE);
-        gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(follow_info->text), last_pos_mark);
+        gtk_text_view_scroll_mark_onscreen(GTK_TEXT_VIEW(gtk_follow_info->text), last_pos_mark);
     } else {
         /* We didn't find a match */
         simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
@@ -362,10 +565,11 @@ follow_find_button_cb(GtkWidget * w, gpointer data)
 static void
 follow_find_destroy_cb(GtkWidget * win _U_, gpointer data)
 {
-    follow_info_t    *follow_info = (follow_info_t *)data;
+    follow_info_t     *follow_info = (follow_info_t *)data;
+    gtk_follow_info_t *gtk_follow_info = (gtk_follow_info_t *)follow_info->gui_data;
 
     /* Note that we no longer have a dialog box. */
-    follow_info->find_dlg_w = NULL;
+    gtk_follow_info->find_dlg_w = NULL;
 }
 
 static void
@@ -375,6 +579,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
     gboolean        to_file;
     const char      *print_dest;
     follow_info_t   *follow_info =(follow_info_t *) data;
+    gtk_follow_info_t *gtk_follow_info = (gtk_follow_info_t *)follow_info->gui_data;
 #ifdef _WIN32
     gboolean        win_printer = FALSE;
     int             tmp_fd;
@@ -447,7 +652,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
     if (!print_preamble(stream, cfile.filename, get_ws_vcs_version_info()))
         goto print_error;
 
-    switch (follow_read_stream(follow_info, follow_print_text, stream)) {
+    switch (gtk_follow_info->read_stream(follow_info, follow_print_text, stream)) {
     case FRS_OK:
         break;
     case FRS_OPEN_ERROR:
@@ -525,8 +730,9 @@ follow_save_as_ok_cb(gchar *to_name, follow_info_t *follow_info)
 {
     FILE        *fh;
     print_stream_t    *stream;
+    gtk_follow_info_t *gtk_follow_info = (gtk_follow_info_t *)follow_info->gui_data;
 
-    if (follow_info->show_type == SHOW_RAW) {
+    if (gtk_follow_info->show_type == SHOW_RAW) {
         /* Write the data out as raw binary data */
         fh = ws_fopen(to_name, "wb");
     } else {
@@ -538,8 +744,8 @@ follow_save_as_ok_cb(gchar *to_name, follow_info_t *follow_info)
         return FALSE;
     }
 
-    if (follow_info->show_type == SHOW_RAW) {
-        switch (follow_read_stream(follow_info, follow_write_raw, fh)) {
+    if (gtk_follow_info->show_type == SHOW_RAW) {
+        switch (gtk_follow_info->read_stream(follow_info, follow_write_raw, fh)) {
         case FRS_OK:
             if (fclose(fh) == EOF) {
                 write_failure_alert_box(to_name, errno);
@@ -559,7 +765,7 @@ follow_save_as_ok_cb(gchar *to_name, follow_info_t *follow_info)
         }
     } else {
         stream = print_stream_text_stdio_new(fh);
-        switch (follow_read_stream(follow_info, follow_print_text, stream)) {
+        switch (gtk_follow_info->read_stream(follow_info, follow_print_text, stream)) {
         case FRS_OK:
             if (!destroy_print_stream(stream)) {
                 write_failure_alert_box(to_name, errno);
@@ -637,7 +843,7 @@ remember_follow_info(follow_info_t *follow_info)
     follow_infos = g_list_append(follow_infos, follow_info);
 }
 
-#define IS_SHOW_TYPE(x) (follow_info->show_type == x ? 1 : 0)
+#define IS_SHOW_TYPE(x) (gtk_follow_info->show_type == x ? 1 : 0)
 /* Remove a "follow_info_t" structure from the list. */
 static void
 forget_follow_info(follow_info_t *follow_info)
@@ -645,7 +851,7 @@ forget_follow_info(follow_info_t *follow_info)
     follow_infos = g_list_remove(follow_infos, follow_info);
 }
 
-void
+static void
 follow_stream(const gchar *title, follow_info_t *follow_info,
           gchar *both_directions_string,
           gchar *server_to_client_string, gchar *client_to_server_string)
@@ -654,14 +860,14 @@ follow_stream(const gchar *title, follow_info_t *follow_info,
     GtkWidget    *hbox, *bbox, *button, *radio_bt;
     GtkWidget    *stream_fr, *stream_vb, *direction_hbox;
     GtkWidget    *stream_cmb;
-    follow_stats_t stats;
+    gtk_follow_info_t *gtk_follow_info = (gtk_follow_info_t *)follow_info->gui_data;
 
-    follow_info->show_type = SHOW_RAW;
+    gtk_follow_info->show_type = SHOW_RAW;
 
     streamwindow = dlg_window_new(title);
 
     /* needed in follow_filter_out_stream(), is there a better way? */
-    follow_info->streamwindow = streamwindow;
+    gtk_follow_info->streamwindow = streamwindow;
 
     gtk_widget_set_name(streamwindow, title);
     gtk_window_set_default_size(GTK_WINDOW(streamwindow), DEF_WIDTH, DEF_HEIGHT);
@@ -672,11 +878,7 @@ follow_stream(const gchar *title, follow_info_t *follow_info,
     gtk_container_add(GTK_CONTAINER(streamwindow), vbox);
 
     /* content frame */
-    if (incomplete_tcp_stream) {
-        stream_fr = gtk_frame_new("Stream Content (incomplete)");
-    } else {
-        stream_fr = gtk_frame_new("Stream Content");
-    }
+    stream_fr = gtk_frame_new("Stream Content");
     gtk_box_pack_start(GTK_BOX (vbox), stream_fr, TRUE, TRUE, 0);
     gtk_widget_show(stream_fr);
 
@@ -695,7 +897,7 @@ follow_stream(const gchar *title, follow_info_t *follow_info,
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text), GTK_WRAP_WORD_CHAR);
 
     gtk_container_add(GTK_CONTAINER(txt_scrollw), text);
-    follow_info->text = text;
+    gtk_follow_info->text = text;
 
     /* direction hbox */
     direction_hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1, FALSE);
@@ -740,18 +942,13 @@ follow_stream(const gchar *title, follow_info_t *follow_info,
     gtk_widget_set_tooltip_text(button, "Print the content as currently displayed");
     gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0);
 
-    /* Stream to show */
-    follow_stats(&stats);
-
-    follow_info->is_ipv6 = stats.is_ipv6;
-
     /* ASCII radio button */
     radio_bt = gtk_radio_button_new_with_label(NULL, "ASCII");
     gtk_widget_set_tooltip_text(radio_bt, "Stream data output in \"ASCII\" format");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), IS_SHOW_TYPE(SHOW_ASCII));
     gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
     g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb), follow_info);
-    follow_info->ascii_bt = radio_bt;
+    gtk_follow_info->ascii_bt = radio_bt;
 
     /* EBCDIC radio button */
     radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_get_group(GTK_RADIO_BUTTON(radio_bt)),
@@ -760,7 +957,7 @@ follow_stream(const gchar *title, follow_info_t *follow_info,
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), IS_SHOW_TYPE(SHOW_EBCDIC));
     gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
     g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb), follow_info);
-    follow_info->ebcdic_bt = radio_bt;
+    gtk_follow_info->ebcdic_bt = radio_bt;
 
     /* HEX DUMP radio button */
     radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_get_group(GTK_RADIO_BUTTON(radio_bt)),
@@ -769,7 +966,7 @@ follow_stream(const gchar *title, follow_info_t *follow_info,
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), IS_SHOW_TYPE(SHOW_HEXDUMP));
     gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
     g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb),follow_info);
-    follow_info->hexdump_bt = radio_bt;
+    gtk_follow_info->hexdump_bt = radio_bt;
 
     /* C Array radio button */
     radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_get_group(GTK_RADIO_BUTTON(radio_bt)),
@@ -778,7 +975,7 @@ follow_stream(const gchar *title, follow_info_t *follow_info,
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), IS_SHOW_TYPE(SHOW_CARRAY));
     gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
     g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb), follow_info);
-    follow_info->carray_bt = radio_bt;
+    gtk_follow_info->carray_bt = radio_bt;
 
     /* Raw radio button */
     radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_get_group(GTK_RADIO_BUTTON(radio_bt)),
@@ -790,7 +987,7 @@ follow_stream(const gchar *title, follow_info_t *follow_info,
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), IS_SHOW_TYPE(SHOW_RAW));
     gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
     g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb), follow_info);
-    follow_info->raw_bt = radio_bt;
+    gtk_follow_info->raw_bt = radio_bt;
 
     /* Button row: help, filter out, close button */
     bbox = dlg_button_row_new(WIRESHARK_STOCK_FILTER_OUT_STREAM, GTK_STOCK_CLOSE, GTK_STOCK_HELP,
@@ -840,56 +1037,32 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 {
     follow_info_t *follow_info;
     follow_record_t *follow_record;
+    gtk_follow_info_t *gtk_follow_info;
     GList *cur;
-    int i;
 
     follow_info = (follow_info_t *)g_object_get_data(G_OBJECT(w), E_FOLLOW_INFO_KEY);
+    gtk_follow_info = (gtk_follow_info_t *)follow_info->gui_data;
 
-    switch(follow_info->follow_type) {
+    for(cur = follow_info->payload; cur; cur = g_list_next(cur))
+        if(cur->data) {
+        follow_record = (follow_record_t *)cur->data;
+            if(follow_record->data)
+                g_byte_array_free(follow_record->data, TRUE);
 
-    case FOLLOW_TCP :
-        i = ws_unlink(follow_info->data_out_filename);
-        if(i != 0) {
-            g_warning("Follow: Couldn't remove temporary file: \"%s\", errno: %s (%u)",
-                      follow_info->data_out_filename, g_strerror(errno), errno);
+            g_free(follow_record);
         }
-        break;
 
-    case FOLLOW_UDP :
-    case FOLLOW_HTTP :
-        for(cur = follow_info->payload; cur; cur = g_list_next(cur))
-            if(cur->data) {
-            follow_record = (follow_record_t *)cur->data;
-                if(follow_record->data)
-                    g_byte_array_free(follow_record->data, TRUE);
+    g_list_free(follow_info->payload);
 
-                g_free(follow_record);
-            }
-
-        g_list_free(follow_info->payload);
-        break;
-
-    case FOLLOW_SSL :
-        /* free decrypted data list*/
-        for (cur = follow_info->payload; cur; cur = g_list_next(cur))
-            if (cur->data)
-                {
-                    g_free(cur->data);
-                    cur->data = NULL;
-                }
-        g_list_free (follow_info->payload);
-        break;
-    }
-
-    g_free(follow_info->data_out_filename);
     g_free(follow_info->filter_out_filter);
     g_free((gpointer)follow_info->client_ip.data);
     forget_follow_info(follow_info);
+    g_free(gtk_follow_info);
     g_free(follow_info);
     gtk_widget_destroy(w);
 }
 
-frs_return_t
+static frs_return_t
 follow_show(follow_info_t *follow_info,
             follow_print_line_func follow_print,
             char *buffer, size_t nchars, gboolean is_from_server, void *arg,
@@ -899,8 +1072,9 @@ follow_show(follow_info_t *follow_info,
     gchar initbuf[256];
     guint32 current_pos;
     static const gchar hexchars[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+    gtk_follow_info_t *gtk_follow_info = (gtk_follow_info_t *)follow_info->gui_data;
 
-    switch (follow_info->show_type) {
+    switch (gtk_follow_info->show_type) {
 
     case SHOW_EBCDIC:
         /* If our native arch is ASCII, call: */
@@ -1022,6 +1196,123 @@ follow_show(follow_info_t *follow_info,
     }
 
     return FRS_OK;
+}
+
+/* Follow the TCP stream, if any, to which the last packet that we called
+   a dissection routine on belongs (this might be the most recently
+   selected packet, or it might be the last packet in the file). */
+void
+follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
+{
+    register_follow_t* follower = get_follow_by_name("TCP");
+
+    follow_stream_cb(follower, follow_common_read_stream, w, data);
+}
+
+/* Follow the UDP stream, if any, to which the last packet that we called
+   a dissection routine on belongs (this might be the most recently
+   selected packet, or it might be the last packet in the file). */
+void
+follow_udp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
+{
+    register_follow_t* follower = get_follow_by_name("UDP");
+
+    follow_stream_cb(follower, follow_common_read_stream, w, data);
+}
+
+/* Follow the HTTP stream, if any, to which the last packet that we called
+   a dissection routine on belongs (this might be the most recently
+   selected packet, or it might be the last packet in the file). */
+void
+follow_http_stream_cb(GtkWidget * w _U_, gpointer data _U_)
+{
+    register_follow_t* follower = get_follow_by_name("HTTP");
+
+    follow_stream_cb(follower, follow_common_read_stream, w, data);
+}
+
+/*
+ * XXX - the routine pointed to by "print_line_fcn_p" doesn't get handed lines,
+ * it gets handed bufferfuls.  That's fine for "follow_write_raw()"
+ * and "follow_add_to_gtk_text()", but, as "follow_print_text()" calls
+ * the "print_line()" routine from "print.c", and as that routine might
+ * genuinely expect to be handed a line (if, for example, it's using
+ * some OS or desktop environment's printing API, and that API expects
+ * to be handed lines), "follow_print_text()" should probably accumulate
+ * lines in a buffer and hand them "print_line()".  (If there's a
+ * complete line in a buffer - i.e., there's nothing of the line in
+ * the previous buffer or the next buffer - it can just hand that to
+ * "print_line()" after filtering out non-printables, as an
+ * optimization.)
+ *
+ * This might or might not be the reason why C arrays display
+ * correctly but get extra blank lines very other line when printed.
+ */
+static frs_return_t
+follow_read_ssl_stream(follow_info_t *follow_info,
+               follow_print_line_func follow_print,
+               void *arg)
+{
+    guint32      global_client_pos = 0, global_server_pos = 0;
+    guint32      server_packet_count = 0;
+    guint32      client_packet_count = 0;
+    guint32 *    global_pos;
+    GList *      cur;
+    frs_return_t frs_return;
+
+    for (cur = follow_info->payload; cur; cur = g_list_next(cur)) {
+        SslDecryptedRecord * rec = (SslDecryptedRecord*) cur->data;
+        gboolean             include_rec = FALSE;
+
+        if (rec->is_from_server) {
+            global_pos = &global_server_pos;
+            include_rec = (follow_info->show_stream == BOTH_HOSTS) ||
+                (follow_info->show_stream == FROM_SERVER);
+        } else {
+            global_pos = &global_client_pos;
+            include_rec = (follow_info->show_stream == BOTH_HOSTS) ||
+                (follow_info->show_stream == FROM_CLIENT);
+        }
+
+        if (include_rec) {
+            size_t nchars = rec->data.data_len;
+            gchar *buffer = (gchar *)g_memdup(rec->data.data, (guint) nchars);
+
+            frs_return = follow_show(follow_info, follow_print, buffer, nchars,
+                rec->is_from_server, arg, global_pos,
+                &server_packet_count, &client_packet_count);
+            g_free(buffer);
+            if (frs_return == FRS_PRINT_ERROR)
+                return frs_return;
+        }
+    }
+
+    return FRS_OK;
+}
+
+
+/* Follow the SSL stream, if any, to which the last packet that we called
+   a dissection routine on belongs (this might be the most recently
+   selected packet, or it might be the last packet in the file). */
+void
+follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
+{
+    register_follow_t* follower = get_follow_by_name("SSL");
+
+    follow_stream_cb(follower, follow_read_ssl_stream, w, data);
+}
+
+static void
+follow_redraw(gpointer data, gpointer user_data _U_)
+{
+    follow_load_text((follow_info_t *)data);
+}
+
+/* Redraw the text in all "Follow Stream" windows. */
+void
+follow_stream_redraw_all(void)
+{
+    g_list_foreach(follow_infos, follow_redraw, NULL);
 }
 
 /*

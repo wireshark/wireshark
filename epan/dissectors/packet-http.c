@@ -35,6 +35,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/follow.h>
+#include <epan/addr_resolv.h>
 #include <epan/uat.h>
 #include <epan/strutil.h>
 #include <epan/stats_tree.h>
@@ -603,6 +605,29 @@ http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 	}
 
 	return 1;
+}
+
+static gchar* http_add_http_filter(gchar* filter)
+{
+	gchar *http_buf = g_strdup_printf("((%s) && (http))", filter);
+	g_free(filter);
+
+	return http_buf;
+}
+
+static gchar* http_follow_conv_filter(packet_info *pinfo, int* stream)
+{
+	return http_add_http_filter(tcp_follow_conv_filter(pinfo, stream));
+}
+
+static gchar* http_follow_index_filter(int stream)
+{
+	return http_add_http_filter(tcp_follow_index_filter(stream));
+}
+
+static gchar* http_follow_address_filter(address* src_addr, address* dst_addr, int src_port, int dst_port)
+{
+	return http_add_http_filter(tcp_follow_address_filter(src_addr, dst_addr, src_port, dst_port));
 }
 
 
@@ -3512,6 +3537,9 @@ proto_register_http(void)
 	http_tap = register_tap("http"); /* HTTP statistics tap */
 	http_eo_tap = register_tap("http_eo"); /* HTTP Export Object tap */
 	http_follow_tap = register_tap("http_follow"); /* HTTP Follow tap */
+
+	register_follow_stream(proto_http, "http_follow", http_follow_conv_filter, http_follow_index_filter, http_follow_address_filter,
+							tcp_port_to_display, follow_tvb_tap_listener);
 }
 
 /*
@@ -3566,7 +3594,6 @@ proto_reg_handoff_http(void)
 	stats_tree_register("http", "http",     "HTTP/Packet Counter",   0, http_stats_tree_packet,      http_stats_tree_init, NULL );
 	stats_tree_register("http", "http_req", "HTTP/Requests",         0, http_req_stats_tree_packet,  http_req_stats_tree_init, NULL );
 	stats_tree_register("http", "http_srv", "HTTP/Load Distribution",0, http_reqs_stats_tree_packet, http_reqs_stats_tree_init, NULL );
-
 }
 
 /*

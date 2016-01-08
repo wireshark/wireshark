@@ -34,6 +34,7 @@
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 #include <epan/prefs.h>
+#include <epan/follow.h>
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
@@ -398,6 +399,53 @@ udp_build_filter(packet_info *pinfo)
     }
 
     return NULL;
+}
+
+static gchar* udp_follow_conv_filter(packet_info *pinfo, int* stream)
+{
+    conversation_t *conv;
+    struct udp_analysis *udpd;
+
+    if( ((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
+            (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
+          && (conv=find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
+              pinfo->srcport, pinfo->destport, 0)) != NULL )
+    {
+        /* UDP over IPv4/6 */
+        udpd=get_udp_conversation_data(conv, pinfo);
+        if (udpd == NULL)
+            return NULL;
+
+        *stream = udpd->stream;
+        return g_strdup_printf("udp.stream eq %d", udpd->stream);
+    }
+
+    return NULL;
+}
+
+static gchar* udp_follow_index_filter(int stream)
+{
+    return g_strdup_printf("udp.stream eq %d", stream);
+}
+
+static gchar* udp_follow_address_filter(address* src_addr, address* dst_addr, int src_port, int dst_port)
+{
+    const gchar  *ip_version = src_addr->type == AT_IPv6 ? "v6" : "";
+    gchar         src_addr_str[MAX_IP6_STR_LEN];
+    gchar         dst_addr_str[MAX_IP6_STR_LEN];
+
+    address_to_str_buf(src_addr, src_addr_str, sizeof(src_addr_str));
+    address_to_str_buf(dst_addr, dst_addr_str, sizeof(dst_addr_str));
+
+    return g_strdup_printf("((ip%s.src eq %s and udp.srcport eq %d) and "
+                     "(ip%s.dst eq %s and udp.dstport eq %d))"
+                     " or "
+                     "((ip%s.src eq %s and udp.srcport eq %d) and "
+                     "(ip%s.dst eq %s and udp.dstport eq %d))",
+                     ip_version, src_addr_str, src_port,
+                     ip_version, dst_addr_str, dst_port,
+                     ip_version, dst_addr_str, dst_port,
+                     ip_version, src_addr_str, src_port);
 }
 
 
@@ -1165,6 +1213,8 @@ proto_register_udp(void)
   register_decode_as(&udp_da);
   register_conversation_table(proto_udp, FALSE, udpip_conversation_packet, udpip_hostlist_packet);
   register_conversation_filter("udp", "UDP", udp_filter_valid, udp_build_filter);
+  register_follow_stream(proto_udp, "udp_follow", udp_follow_conv_filter, udp_follow_index_filter, udp_follow_address_filter,
+                         udp_port_to_display, follow_tvb_tap_listener);
 
   register_init_routine(udp_init);
 

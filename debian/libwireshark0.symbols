@@ -44,6 +44,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  add_new_data_source@Base 1.9.1
  add_srt_table_data@Base 1.99.8
  address_to_display@Base 1.99.2
+ address_to_name@Base 2.1.0
  address_to_str@Base 1.12.0~rc1
  address_with_resolution_to_str@Base 1.99.3
  address_to_str_buf@Base 1.9.1
@@ -80,8 +81,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  bthci_evt_hci_version@Base 1.99.6
  bthci_evt_lmp_version@Base 1.99.6
  build_column_format_array@Base 1.9.1
- build_follow_conv_filter@Base 1.12.0~rc1
- build_follow_index_filter@Base 1.12.0~rc1
  byte_array_dup@Base 1.9.1
  byte_array_equal@Base 1.9.1
  bytes_to_hexstr@Base 2.1.0
@@ -187,7 +186,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  crc6_compute_tvb@Base 1.99.0
  create_dissector_handle@Base 2.1.0
  create_dissector_handle_with_name@Base 2.1.0
- data_out_file@Base 1.9.1
  dcerpc_get_proto_hf_opnum@Base 2.1.0
  dcerpc_get_proto_name@Base 1.9.1
  dcerpc_get_proto_sub_dissector@Base 1.9.1
@@ -464,7 +462,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  elem_tv_short@Base 1.9.1
  elem_v@Base 1.9.1
  elem_v_short@Base 1.9.1
- empty_tcp_stream@Base 1.9.1
  epan_cleanup@Base 1.9.1
  epan_dissect_cleanup@Base 1.9.1
  epan_dissect_fake_protocols@Base 1.9.1
@@ -547,9 +544,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  find_sid_name@Base 1.9.1
  find_stream_circ@Base 1.9.1
  find_tap_id@Base 1.9.1
- follow_addr@Base 1.99.2
- follow_index@Base 1.99.2
- follow_stats@Base 1.9.1
+ follow_iterate_followers@Base 2.1.0
+ follow_reset_stream@Base 2.1.0
+ follow_tvb_tap_listener@Base 2.1.0
  format_text@Base 1.9.1
  format_text_chr@Base 1.12.0~rc1
  format_text_wsp@Base 1.9.1
@@ -683,8 +680,15 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_ebcdic_string@Base 1.12.0~rc1
  get_eth_hashtable@Base 1.12.0~rc1
  get_ether_name@Base 1.9.1
+ get_follow_address_func@Base 2.1.0
+ get_follow_by_name@Base 2.1.0
+ get_follow_conv_func@Base 2.1.0
+ get_follow_index_func@Base 2.1.0
+ get_follow_port_to_display@Base 2.1.0
+ get_follow_proto_id@Base 2.1.0
+ get_follow_tap_handler@Base 2.1.0
+ get_follow_tap_string@Base 2.1.0
  get_export_pdu_tap_list@Base 1.99.0
- get_follow_index@Base 1.99.2
  get_hash_ether_status@Base 1.99.3
  get_hash_ether_hexaddr@Base 1.99.3
  get_hash_ether_resolved_name@Base 1.99.3
@@ -779,7 +783,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ieee80211_supported_rates_vals_ext@Base 1.99.1
  ieee802a_add_oui@Base 1.9.1
  in_cksum@Base 1.9.1
- incomplete_tcp_stream@Base 1.9.1
  init_srt_table@Base 1.99.8
  init_srt_table_row@Base 1.99.8
  ip_checksum@Base 1.99.0
@@ -1140,6 +1143,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_dissector@Base 2.1.0
  register_dissector_table@Base 1.9.1
  register_export_pdu_tap@Base 1.99.0
+ register_follow_stream@Base 2.1.0
  register_final_registration_routine@Base 1.9.1
  register_giop_user@Base 1.9.1
  register_giop_user_module@Base 1.9.1
@@ -1167,7 +1171,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  reset_rtd_table@Base 1.99.8
  reset_srt_table@Base 1.99.8
  reset_stat_table@Base 1.99.8
- reset_stream_follow@Base 2.1.0
  reset_tap_listeners@Base 1.9.1
  rose_ctx_clean_data@Base 1.9.1
  rose_ctx_init@Base 1.9.1
