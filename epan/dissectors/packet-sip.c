@@ -3206,7 +3206,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         if (sub_value_offset == value_len)
                         {
                             /* Didn't find method name */
-                            THROW(ReportedBoundsError);
                             return offset - orig_offset;
                         }
 
@@ -3222,7 +3221,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                                              sip_headers[POS_CSEQ].name,
                                                              strlen_to_copy);
                             }
-                            THROW(ReportedBoundsError);
                             return offset - orig_offset;
                         }
                         else {
@@ -3305,7 +3303,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         if (sub_value_offset == linelen)
                         {
                             /* Didn't find method name */
-                            THROW(ReportedBoundsError);
                             return offset - orig_offset;
                         }
 
