@@ -36,6 +36,7 @@
 #include <epan/packet_info.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/tap.h>
+#include <wsutil/ws_diag_control.h>
 
 static gboolean tapping_is_active=FALSE;
 
@@ -138,7 +139,9 @@ check_for_tap_plugin(GModule *handle)
 	/*
 	 * Yes - this plugin includes one or more taps.
 	 */
+DIAG_OFF(pedantic)
 	register_tap_listener_fn = (void (*)(void))gp;
+DIAG_ON(pedantic)
 
 	/*
 	 * Add this one to the list of tap plugins.
