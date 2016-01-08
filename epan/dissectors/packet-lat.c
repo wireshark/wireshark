@@ -543,7 +543,7 @@ proto_register_lat(void)
 		{ "Unknown command data", "lat.unknown_command_data", FT_BYTES,
 		  0, NULL, 0x0,
 		  NULL, HFILL}},
-        };
+	};
 	static gint *ett[] = {
 		&ett_lat,
 	};
@@ -559,7 +559,20 @@ proto_reg_handoff_lat(void)
 {
 	dissector_handle_t lat_handle;
 
-        data_handle = find_dissector("data");
-        lat_handle = create_dissector_handle(dissect_lat, proto_lat);
+	data_handle = find_dissector("data");
+	lat_handle = create_dissector_handle(dissect_lat, proto_lat);
 	dissector_add_uint("ethertype", ETHERTYPE_LAT, lat_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
