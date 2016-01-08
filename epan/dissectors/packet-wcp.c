@@ -517,7 +517,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 					 * The data offset runs past the
 					 * end of the data.
 					 */
-					THROW(ReportedBoundsError);
+					return NULL;
 				}
 				data_offset = pntoh16(src) & WCP_OFFSET_MASK;
 				if ((*src & 0xf0) == 0x10){
@@ -531,7 +531,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 						 * The data count runs past the
 						 * end of the data.
 						 */
-						THROW(ReportedBoundsError);
+						return NULL;
 					}
 					data_cnt = *(src + 2) + 1;
 					if ( tree) {
