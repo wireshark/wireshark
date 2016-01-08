@@ -1092,7 +1092,7 @@ static const char *wtap_errlist[] = {
 	"Files can't be saved in that format",
 
 	/* WTAP_ERR_UNWRITABLE_ENCAP */
-	"Files from that network type can't be saved in that format",
+	"Packets with that network type can't be saved in that format",
 
 	/* WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED */
 	"That file format doesn't support per-packet encapsulations",
