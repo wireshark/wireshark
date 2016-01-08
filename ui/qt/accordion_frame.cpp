@@ -50,7 +50,7 @@ AccordionFrame::AccordionFrame(QWidget *parent) :
     animation_ = new QPropertyAnimation(this, "maximumHeight", this);
     animation_->setDuration(duration_);
     animation_->setEasingCurve(QEasingCurve::InOutQuad);
-    connect(animation_, SIGNAL(finished()), this, SLOT(animationFinish()));
+    connect(animation_, SIGNAL(finished()), this, SLOT(animationFinished()));
 }
 
 void AccordionFrame::animatedShow()
@@ -98,14 +98,12 @@ void AccordionFrame::animatedHide()
     }
 }
 
-void AccordionFrame::animationFinish()
+void AccordionFrame::animationFinished()
 {
     if (animation_->currentValue().toInt() < 1) {
         hide();
         setMaximumHeight(frame_height_);
     }
-
-    emit animationFinished();
 }
 
 /*
