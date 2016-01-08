@@ -358,7 +358,7 @@ dissect_lat_header(tvbuff_t *tvb, int offset, proto_tree *tree)
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_lat_ack_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	offset += 1;
+	/*offset += 1;*/
 
 	return num_slots;
 }
