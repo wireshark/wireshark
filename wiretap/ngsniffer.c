@@ -740,16 +740,21 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	tm.tm_year = ((start_date&DOS_YEAR_MASK)>>DOS_YEAR_SHIFT) + DOS_YEAR_OFFSET;
 	tm.tm_mon = ((start_date&DOS_MONTH_MASK)>>DOS_MONTH_SHIFT) + DOS_MONTH_OFFSET;
 	tm.tm_mday = ((start_date&DOS_DAY_MASK)>>DOS_DAY_SHIFT);
+	/*
+	 * The time does not appear to act as an offset; only the date.
+	 * XXX - sometimes it does appear to act as an offset; is this
+	 * version-dependent?
+	 */
 #if 0
-	/* The time does not appear to act as an offset; only the date */
 	start_time = pletoh16(&version.time);
 	tm.tm_hour = (start_time&0xf800)>>11;
 	tm.tm_min = (start_time&0x7e0)>>5;
 	tm.tm_sec = (start_time&0x1f)<<1;
-#endif
+#else
 	tm.tm_hour = 0;
 	tm.tm_min = 0;
 	tm.tm_sec = 0;
+#endif
 	tm.tm_isdst = -1;
 	ngsniffer->start = mktime(&tm);
 	/*
