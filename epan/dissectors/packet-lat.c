@@ -401,7 +401,7 @@ proto_register_lat(void)
 		  NULL, 0x02, NULL, HFILL}},
 
 	    { &hf_lat_cmd,
-		{ "Command", "lat.command", FT_UINT8, BASE_HEX,
+		{ "Command", "lat.command", FT_UINT8, BASE_DEC,
 		  VALS(command_vals), 0xFC, NULL, HFILL}},
 
 	    { &hf_lat_num_slots,
