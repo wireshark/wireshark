@@ -550,7 +550,6 @@ validate_boolean(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, int of
     if (booleanByte != FALSE && booleanByte != TRUE)
     {
         expert_add_info(pinfo, boolean_item, &ei_openwire_encoding_not_supported);
-        THROW(ReportedBoundsError);
     }
 }
 
