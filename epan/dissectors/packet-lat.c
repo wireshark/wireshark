@@ -44,6 +44,8 @@
  */
 
 static int proto_lat = -1;
+static int hf_lat_rrf = -1;
+static int hf_lat_master = -1;
 static int hf_lat_cmd = -1;
 static int hf_lat_num_slots = -1;
 static int hf_lat_remote_connid = -1;
@@ -54,24 +56,24 @@ static int hf_lat_slotcmd_local_session = -1;
 static int hf_lat_slotcmd_remote_session = -1;
 static int hf_lat_slotcmd_length = -1;
 static int hf_lat_slotcmd_command = -1;
-static int hf_lat_circuit_timer = -1;
-static int hf_lat_hiver = -1;
-static int hf_lat_lover = -1;
-static int hf_lat_latver = -1;
-static int hf_lat_latver_minor = -1;
-static int hf_lat_incarnation = -1;
+static int hf_lat_server_circuit_timer = -1;
+static int hf_lat_high_prtcl_ver = -1;
+static int hf_lat_low_prtcl_ver = -1;
+static int hf_lat_cur_prtcl_ver = -1;
+static int hf_lat_cur_prtcl_eco = -1;
+static int hf_lat_msg_inc = -1;
 static int hf_lat_change_flags = -1;
-static int hf_lat_mtu = -1;
-static int hf_lat_multicast_timer = -1;
+static int hf_lat_data_link_rcv_frame_size = -1;
+static int hf_lat_node_multicast_timer = -1;
 static int hf_lat_node_status = -1;
-static int hf_lat_group_length = -1;
-static int hf_lat_groups = -1;
-static int hf_lat_nodename = -1;
-static int hf_lat_greeting = -1;
-static int hf_lat_num_services = -1;
+static int hf_lat_node_group_len = -1;
+static int hf_lat_node_groups = -1;
+static int hf_lat_node_name = -1;
+static int hf_lat_node_description = -1;
+static int hf_lat_service_name_count = -1;
 static int hf_lat_service_rating = -1;
 static int hf_lat_service_name = -1;
-static int hf_lat_service_ident = -1;
+static int hf_lat_service_description = -1;
 static int hf_lat_unknown_command_data = -1;
 
 static gint ett_lat = -1;
@@ -79,34 +81,35 @@ static gint ett_lat = -1;
 static dissector_handle_t data_handle;
 
 /* LAT commands. */
-#define LAT_CCMD_SREPLY		0x00 /* From Host */
-#define LAT_CCMD_SDATA		0x01 /* From Host: Response required */
-#define LAT_CCMD_SESSION	0x02 /* To Host */
-#define LAT_CCMD_CONNECT	0x06
-#define LAT_CCMD_CONREF		0x08 /* Connection Refused (I think) */
-#define LAT_CCMD_CONACK		0x04
-#define LAT_CCMD_DISCON		0x0A
-#define LAT_CCMD_SERVICE	0x28
-#define LAT_CCMD_ENQUIRE	0x38
-#define LAT_CCMD_ENQREPLY	0x3C
+#define LAT_CCMD_RUN			0
+#define LAT_CCMD_START			1
+#define LAT_CCMD_STOP			2
+#define LAT_CCMD_SERVICE_ANNOUNCEMENT	10
+#define LAT_CCMD_COMMAND		12
+#define LAT_CCMD_STATUS			13
+#define LAT_CCMD_SOLICIT_INFORMATION	14
+#define LAT_CCMD_RESPONSE_INFORMATION	15
 
 static const value_string command_vals[] = {
-	{ LAT_CCMD_SREPLY,   "Session reply" },
-	{ LAT_CCMD_SDATA,    "Session data" },
-	{ LAT_CCMD_SESSION,  "Session" },
-	{ LAT_CCMD_CONNECT,  "Connect" },
-	{ LAT_CCMD_CONREF,   "Connection refused" },
-	{ LAT_CCMD_CONACK,   "Connection ACK" },
-	{ LAT_CCMD_DISCON,   "Disconnect" },
-	{ LAT_CCMD_SERVICE,  "Service" },
-	{ LAT_CCMD_ENQUIRE,  "Enquire" },
-	{ LAT_CCMD_ENQREPLY, "Enquire reply" },
-	{ 0,                 NULL },
+	{ LAT_CCMD_RUN,                  "Run" },
+	{ LAT_CCMD_START,                "Start" },
+	{ LAT_CCMD_STOP,                 "Stop" },
+	{ LAT_CCMD_SERVICE_ANNOUNCEMENT, "Service announcement" },
+	{ LAT_CCMD_COMMAND,              "Command" },
+	{ LAT_CCMD_STATUS,               "Status" },
+	{ LAT_CCMD_SOLICIT_INFORMATION,  "Solicit information" },
+	{ LAT_CCMD_RESPONSE_INFORMATION, "Response information" },
+	{ 0,                             NULL },
 };
 
-static void dissect_lat_sreply(tvbuff_t *tvb, int offset, proto_tree *tree);
-
-static void dissect_lat_service(tvbuff_t *tvb, int offset, proto_tree *tree);
+static void dissect_lat_run(tvbuff_t *tvb, int offset, proto_tree *tree);
+static void dissect_lat_start(tvbuff_t *tvb, int offset, proto_tree *tree);
+static void dissect_lat_stop(tvbuff_t *tvb, int offset, proto_tree *tree);
+static void dissect_lat_service_announcement(tvbuff_t *tvb, int offset, proto_tree *tree);
+static void dissect_lat_command(tvbuff_t *tvb, int offset, proto_tree *tree);
+static void dissect_lat_status(tvbuff_t *tvb, int offset, proto_tree *tree);
+static void dissect_lat_solicit_information(tvbuff_t *tvb, int offset, proto_tree *tree);
+static void dissect_lat_response_information(tvbuff_t *tvb, int offset, proto_tree *tree);
 
 static int dissect_lat_string(tvbuff_t *tvb, int offset, int hf,
     proto_tree *tree);
@@ -127,7 +130,7 @@ dissect_lat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 	col_add_str(pinfo->cinfo, COL_PROTOCOL, "LAT");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	command = tvb_get_guint8(tvb, offset);
+	command = tvb_get_guint8(tvb, offset) >> 2;
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
 	    val_to_str(command, command_vals, "Unknown command (%02x)"));
@@ -137,56 +140,48 @@ dissect_lat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		    ENC_NA);
 		lat_tree = proto_item_add_subtree(ti, ett_lat);
 
-		/* LAT header */
-		proto_tree_add_uint(lat_tree, hf_lat_cmd, tvb, offset, 1,
-		    command);
+		/* First byte of LAT header */
+		proto_tree_add_item(lat_tree, hf_lat_rrf, tvb, offset, 1,
+		    ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(lat_tree, hf_lat_master, tvb, offset, 1,
+		    ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(lat_tree, hf_lat_cmd, tvb, offset, 1,
+		    ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		switch (command) {
 
-		case LAT_CCMD_SREPLY:
-			dissect_lat_sreply(tvb, offset, lat_tree);
+		case LAT_CCMD_RUN:
+			dissect_lat_run(tvb, offset, lat_tree);
 			break;
 
-#if 0
-		case LAT_CCMD_SDATA:
-			dissect_lat_header(tvb, offset, lat_tree);
+		case LAT_CCMD_START:
+			dissect_lat_start(tvb, offset, lat_tree);
 			break;
 
-		case LAT_CCMD_SESSION:
-			dissect_lat_header(tvb, offset, lat_tree);
+		case LAT_CCMD_STOP:
+			dissect_lat_stop(tvb, offset, lat_tree);
 			break;
 
-		case LAT_CCMD_CONNECT:
-			dissect_lat_connect(tvb, offset, lat_tree);
+		case LAT_CCMD_SERVICE_ANNOUNCEMENT:
+			dissect_lat_service_announcement(tvb, offset, lat_tree);
 			break;
 
-		case LAT_CCMD_CONREF:
-			dissect_lat_conref(tvb, offset, lat_tree);
+		case LAT_CCMD_COMMAND:
+			dissect_lat_command(tvb, offset, lat_tree);
 			break;
 
-		case LAT_CCMD_CONACK:
-			dissect_lat_conack(tvb, offset, lat_tree);
+		case LAT_CCMD_STATUS:
+			dissect_lat_status(tvb, offset, lat_tree);
 			break;
 
-		case LAT_CCMD_DISCON:
-			dissect_lat_discon(tvb, offset, lat_tree);
-			break;
-#endif
-
-		case LAT_CCMD_SERVICE:
-			dissect_lat_service(tvb, offset, lat_tree);
+		case LAT_CCMD_SOLICIT_INFORMATION:
+			dissect_lat_solicit_information(tvb, offset, lat_tree);
 			break;
 
-#if 0
-		case LAT_CCMD_ENQUIRE:
-			dissect_lat_enquire(tvb, offset, lat_tree);
+		case LAT_CCMD_RESPONSE_INFORMATION:
+			dissect_lat_response_information(tvb, offset, lat_tree);
 			break;
-
-		case LAT_CCMD_ENQREPLY:
-			dissect_lat_enqreply(tvb, offset, lat_tree);
-			break;
-#endif
 
 		default:
 			proto_tree_add_item(lat_tree, hf_lat_unknown_command_data,
@@ -199,13 +194,29 @@ dissect_lat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 }
 
 static void
-dissect_lat_sreply(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_lat_run(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	guint8 num_slots;
 
 	num_slots = dissect_lat_header(tvb, offset, tree);
 	offset += 1 + 2 + 2 + 1 + 1;
 	dissect_lat_slots(tvb, offset, num_slots, tree);
+}
+
+static void
+dissect_lat_start(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	dissect_lat_header(tvb, offset, tree);
+	offset += 1 + 2 + 2 + 1 + 1;
+	/* XXX - dissect the rest of it */
+}
+
+static void
+dissect_lat_stop(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	dissect_lat_header(tvb, offset, tree);
+	offset += 1 + 2 + 2 + 1 + 1;
+	/* XXX - dissect the rest of it */
 }
 
 static const value_string node_status_vals[] = {
@@ -215,74 +226,107 @@ static const value_string node_status_vals[] = {
 };
 
 static void
-dissect_lat_service(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_lat_service_announcement(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	guint8 timer;
-	guint8 group_length;
-	guint8 num_services;
+	guint8 node_group_len;
+	guint8 service_name_count;
 	int i;
 
 	timer = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_lat_circuit_timer, tvb,
-	    offset, 1, timer, "Circuit timer: %u milliseconds", timer*10);
+	proto_tree_add_uint_format_value(tree, hf_lat_server_circuit_timer, tvb,
+	    offset, 1, timer, "%u milliseconds", timer*10);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_lat_hiver, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_lat_high_prtcl_ver, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_lat_lover, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_lat_low_prtcl_ver, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_lat_latver, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_lat_cur_prtcl_ver, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_lat_latver_minor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_lat_cur_prtcl_eco, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_lat_incarnation, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_lat_msg_inc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_lat_change_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_lat_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_lat_data_link_rcv_frame_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	timer = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint_format(tree, hf_lat_multicast_timer, tvb,
+	proto_tree_add_uint_format(tree, hf_lat_node_multicast_timer, tvb,
 	    offset, 1, timer, "Multicast timer: %u seconds", timer);
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_lat_node_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
-	group_length = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint(tree, hf_lat_group_length, tvb, offset, 1,
-	    group_length);
+	node_group_len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_lat_node_group_len, tvb, offset, 1,
+	    node_group_len);
 	offset += 1;
 
-	/* XXX - what are these? */
-	proto_tree_add_item(tree, hf_lat_groups, tvb, offset, group_length, ENC_NA);
-	offset += group_length;
+	/* This is a bitmask */
+	proto_tree_add_item(tree, hf_lat_node_groups, tvb, offset, node_group_len, ENC_NA);
+	offset += node_group_len;
 
-	offset = dissect_lat_string(tvb, offset, hf_lat_nodename, tree);
+	offset = dissect_lat_string(tvb, offset, hf_lat_node_name, tree);
 
-	offset = dissect_lat_string(tvb, offset, hf_lat_greeting, tree);
+	offset = dissect_lat_string(tvb, offset, hf_lat_node_description, tree);
 
-	num_services = tvb_get_guint8(tvb, offset);
-	proto_tree_add_uint(tree, hf_lat_num_services, tvb, offset, 1,
-	    num_services);
+	service_name_count = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_lat_service_name_count, tvb, offset, 1,
+	    service_name_count);
 	offset += 1;
 
-	for (i = 0; i < num_services; i++) {
+	for (i = 0; i < service_name_count; i++) {
 		proto_tree_add_item(tree, hf_lat_service_rating, tvb,
 		    offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 		offset = dissect_lat_string(tvb, offset, hf_lat_service_name,
 		    tree);
-		offset = dissect_lat_string(tvb, offset, hf_lat_service_ident,
+		offset = dissect_lat_string(tvb, offset, hf_lat_service_description,
 		    tree);
 	}
+	/* XXX - more to dissect here */
+}
+
+static void
+dissect_lat_command(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	/* XXX - dissect this */
+	proto_tree_add_item(tree, hf_lat_unknown_command_data,
+	    tvb, offset, -1, ENC_NA);
+}
+
+static void
+dissect_lat_status(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	/* XXX - dissect this */
+	proto_tree_add_item(tree, hf_lat_unknown_command_data,
+	    tvb, offset, -1, ENC_NA);
+}
+
+static void
+dissect_lat_solicit_information(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	/* XXX - dissect this */
+	proto_tree_add_item(tree, hf_lat_unknown_command_data,
+	    tvb, offset, -1, ENC_NA);
+}
+
+static void
+dissect_lat_response_information(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	/* XXX - dissect this */
+	proto_tree_add_item(tree, hf_lat_unknown_command_data,
+	    tvb, offset, -1, ENC_NA);
 }
 
 static int
@@ -348,10 +392,17 @@ void
 proto_register_lat(void)
 {
 	static hf_register_info hf[] = {
+	    { &hf_lat_rrf,
+		{ "RRF", "lat.rrf", FT_BOOLEAN, 8,
+		  NULL, 0x01, NULL, HFILL}},
+
+	    { &hf_lat_master,
+		{ "Master", "lat.master", FT_BOOLEAN, 8,
+		  NULL, 0x02, NULL, HFILL}},
+
 	    { &hf_lat_cmd,
 		{ "Command", "lat.command", FT_UINT8, BASE_HEX,
-		  VALS(command_vals), 0x0,
-		  NULL, HFILL}},
+		  VALS(command_vals), 0xFC, NULL, HFILL}},
 
 	    { &hf_lat_num_slots,
 		{ "Number of slots", "lat.num_slots", FT_UINT8, BASE_DEC,
@@ -398,48 +449,48 @@ proto_register_lat(void)
 		  BASE_HEX, NULL, 0x0,
 		  NULL, HFILL}},
 
-	    { &hf_lat_circuit_timer,
-		{ "Circuit timer", "lat.circuit_timer", FT_UINT8,
+	    { &hf_lat_server_circuit_timer,
+		{ "Server circuit timer", "lat.server_circuit_timer", FT_UINT8,
 		  BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
 
-	    { &hf_lat_hiver,
-		{ "Highest protocol version acceptable", "lat.hiver", FT_UINT8,
+	    { &hf_lat_high_prtcl_ver,
+		{ "Highest protocol version supported", "lat.high_prtcl_ver", FT_UINT8,
 		  BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
 
-	    { &hf_lat_lover,
-		{ "Lowest protocol version acceptable", "lat.lover", FT_UINT8,
+	    { &hf_lat_low_prtcl_ver,
+		{ "Lowest protocol version supported", "lat.low_prtcl_ver", FT_UINT8,
 		  BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
 
-	    { &hf_lat_latver,
-		{ "LAT version number", "lat.latver", FT_UINT8,
+	    { &hf_lat_cur_prtcl_ver,
+		{ "Protocol version of this message", "lat.cur_prtcl_ver", FT_UINT8,
 		  BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
 
-	    { &hf_lat_latver_minor,
-		{ "LAT minor version number (?)", "lat.latver_minor", FT_UINT8,
+	    { &hf_lat_cur_prtcl_eco,
+		{ "ECO level of current protocol version", "lat.cur_prtcl_eco", FT_UINT8,
 		  BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
 
-	    { &hf_lat_incarnation,
-		{ "Message incarnation (?)", "lat.incarnation", FT_UINT8,
+	    { &hf_lat_msg_inc,
+		{ "Message incarnation", "lat.msg_inc", FT_UINT8,
 		  BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
 
 	    { &hf_lat_change_flags,
-		{ "Change flags (?)", "lat.change_flags", FT_UINT8,
+		{ "Change flags", "lat.change_flags", FT_UINT8,
 		  BASE_HEX, NULL, 0x0,
 		  NULL, HFILL}},
 
-	    { &hf_lat_mtu,
-		{ "MTU", "lat.mtu", FT_UINT16,
+	    { &hf_lat_data_link_rcv_frame_size,
+		{ "Maximum LAT message size", "lat.data_link_rcv_frame_size", FT_UINT16,
 		  BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
 
-	    { &hf_lat_multicast_timer,
-		{ "Multicast timer", "lat.multicast_timer", FT_UINT8,
+	    { &hf_lat_node_multicast_timer,
+		{ "Node multicast timer", "lat.node_multicast_timer", FT_UINT8,
 		  BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
 
@@ -448,33 +499,33 @@ proto_register_lat(void)
 		  BASE_DEC, VALS(node_status_vals), 0x0,
 		  NULL, HFILL}},
 
-	    { &hf_lat_group_length,
-		{ "Group length", "lat.group_length", FT_UINT8,
+	    { &hf_lat_node_group_len,
+		{ "Node group length", "lat.node_group_len", FT_UINT8,
 		  BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
 
-	    { &hf_lat_groups,
-		{ "Groups", "lat.groups", FT_BYTES,
+	    { &hf_lat_node_groups,
+		{ "Node groups", "lat.node_groups", FT_BYTES,
 		  BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}},
 
-	    { &hf_lat_nodename,
-		{ "Node name", "lat.nodename", FT_UINT_STRING,
+	    { &hf_lat_node_name,
+		{ "Node name", "lat.node_name", FT_UINT_STRING,
 		  0, NULL, 0x0,
 		  NULL, HFILL}},
 
-	    { &hf_lat_greeting,
-		{ "Greeting", "lat.greeting", FT_UINT_STRING,
+	    { &hf_lat_node_description,
+		{ "Node description", "lat.node_description", FT_UINT_STRING,
 		  0, NULL, 0x0,
 		  NULL, HFILL}},
 
-	    { &hf_lat_num_services,
-		{ "Number of services", "lat.num_services", FT_UINT8,
+	    { &hf_lat_service_name_count,
+		{ "Number of service names", "lat.service_name_count", FT_UINT8,
 		  BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
 
 	    { &hf_lat_service_rating,
-		{ "Rating", "lat.service_rating", FT_UINT8,
+		{ "Service rating", "lat.service.rating", FT_UINT8,
 		  BASE_DEC, NULL, 0x0,
 		  NULL, HFILL}},
 
@@ -483,8 +534,8 @@ proto_register_lat(void)
 		  0, NULL, 0x0,
 		  NULL, HFILL}},
 
-	    { &hf_lat_service_ident,
-		{ "Service identification", "lat.service.ident", FT_UINT_STRING,
+	    { &hf_lat_service_description,
+		{ "Service description", "lat.service.description", FT_UINT_STRING,
 		  0, NULL, 0x0,
 		  NULL, HFILL}},
 
