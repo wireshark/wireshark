@@ -122,8 +122,7 @@ void InterfaceTree::showEvent(QShowEvent *) {
 #endif // HAVE_LIBPCAP
 }
 
-#include <QDebug>
-void InterfaceTree::resizeEvent(QResizeEvent *)
+void InterfaceTree::resizeEvent(QResizeEvent *evt)
 {
     int max_if_width = width() * 2 / 3; // Arbitrary
 
@@ -134,6 +133,8 @@ void InterfaceTree::resizeEvent(QResizeEvent *)
     }
 
     setUpdatesEnabled(true);
+
+    QTreeWidget::resizeEvent(evt);
 }
 
 void InterfaceTree::display()
@@ -175,6 +176,7 @@ void InterfaceTree::display()
     // traffic, interface name, or most recently used.
     QList<QTreeWidgetItem *> phys_ifaces;
     QList<QTreeWidgetItem *> virt_ifaces;
+    QTreeWidgetItem *selected_iface = NULL;
 
     for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
         device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
@@ -213,17 +215,18 @@ void InterfaceTree::display()
 
         if (strstr(prefs.capture_device, device.name) != NULL) {
             device.selected = TRUE;
+            selected_iface = ti;
             global_capture_opts.num_selected++;
             global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
             g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-        }
-        if (device.selected) {
-            ti->setSelected(true);
         }
     }
 
     if (!phys_ifaces.isEmpty()) addTopLevelItems(phys_ifaces);
     if (!virt_ifaces.isEmpty()) addTopLevelItems(virt_ifaces);
+    if (selected_iface) {
+        setCurrentItem(selected_iface);
+    }
 
     // XXX Add other device information
     resizeColumnToContents(IFTREE_COL_NAME);
