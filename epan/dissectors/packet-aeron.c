@@ -1448,56 +1448,50 @@ static void aeron_frame_stream_analysis_setup(packet_info * pinfo, aeron_packet_
 
 static void aeron_frame_info_setup(packet_info * pinfo, aeron_transport_t * transport, aeron_packet_info_t * info, aeron_frame_info_t * finfo)
 {
-    if (transport != NULL)
+    if (!transport || !aeron_sequence_analysis || !finfo || PINFO_FD_VISITED(pinfo))
+        return;
+
+    if ((info->info_flags & AERON_PACKET_INFO_FLAGS_STREAM_ID_VALID) != 0)
     {
-        if (aeron_sequence_analysis && (finfo != NULL))
+        aeron_stream_t * stream;
+
+        stream = aeron_transport_stream_find(transport, info->stream_id);
+        if (stream == NULL)
         {
-            if (PINFO_FD_VISITED(pinfo) == 0)
+            stream = aeron_transport_stream_add(transport, info->stream_id);
+        }
+        if ((info->info_flags & AERON_PACKET_INFO_FLAGS_TERM_ID_VALID) != 0)
+        {
+            aeron_term_t * term;
+            gboolean new_term = FALSE;
+
+            term = aeron_stream_term_find(stream, info->term_id);
+            if (term == NULL)
             {
-                if ((info->info_flags & AERON_PACKET_INFO_FLAGS_STREAM_ID_VALID) != 0)
+                term = aeron_stream_term_add(stream, info->term_id);
+                new_term = TRUE;
+            }
+            if ((info->info_flags & AERON_PACKET_INFO_FLAGS_TERM_OFFSET_VALID) != 0)
+            {
+                aeron_frame_stream_analysis_setup(pinfo, info, finfo, stream, term, new_term);
+            }
+            else
+            {
+                aeron_term_frame_add(term, finfo, 0);
+                if (info->type == HDR_TYPE_NAK)
                 {
-                    aeron_stream_t * stream;
-
-                    stream = aeron_transport_stream_find(transport, info->stream_id);
-                    if (stream == NULL)
-                    {
-                        stream = aeron_transport_stream_add(transport, info->stream_id);
-                    }
-                    if ((info->info_flags & AERON_PACKET_INFO_FLAGS_TERM_ID_VALID) != 0)
-                    {
-                        aeron_term_t * term;
-                        gboolean new_term = FALSE;
-
-                        term = aeron_stream_term_find(stream, info->term_id);
-                        if (term == NULL)
-                        {
-                            term = aeron_stream_term_add(stream, info->term_id);
-                            new_term = TRUE;
-                        }
-                        if ((info->info_flags & AERON_PACKET_INFO_FLAGS_TERM_OFFSET_VALID) != 0)
-                        {
-                            aeron_frame_stream_analysis_setup(pinfo, info, finfo, stream, term, new_term);
-                        }
-                        else
-                        {
-                            aeron_term_frame_add(term, finfo, 0);
-                            if (info->type == HDR_TYPE_NAK)
-                            {
-                                aeron_frame_nak_analysis_setup(info, finfo, term);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        aeron_stream_frame_add(stream, finfo, 0);
-                    }
-                }
-                else
-                {
-                    aeron_transport_frame_add(transport, finfo, 0);
+                    aeron_frame_nak_analysis_setup(info, finfo, term);
                 }
             }
         }
+        else
+        {
+            aeron_stream_frame_add(stream, finfo, 0);
+        }
+    }
+    else
+    {
+        aeron_transport_frame_add(transport, finfo, 0);
     }
 }
 
