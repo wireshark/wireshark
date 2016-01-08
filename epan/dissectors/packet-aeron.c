@@ -1212,7 +1212,8 @@ static void aeron_frame_nak_analysis_setup(aeron_packet_info_t * info, aeron_fra
     finfo->nak_analysis->unrecovered_length = info->nak_length;
 }
 
-static void aeron_frame_stream_analysis_setup(packet_info * pinfo, aeron_packet_info_t * info, aeron_frame_info_t * finfo, aeron_stream_t * stream, aeron_term_t * term, gboolean new_term)
+/* return 0 for success and -1 for error */
+static int aeron_frame_stream_analysis_setup(packet_info * pinfo, aeron_packet_info_t * info, aeron_frame_info_t * finfo, aeron_stream_t * stream, aeron_term_t * term, gboolean new_term)
 {
     aeron_stream_rcv_t * rcv = NULL;
     /*  dp is the current data position (from this frame). */
@@ -1257,7 +1258,7 @@ static void aeron_frame_stream_analysis_setup(packet_info * pinfo, aeron_packet_
             dp.term_id = info->term_id;
             dp.term_offset = info->term_offset;
             if (!aeron_pos_add_length(&dp, info->length, stream->term_length))
-                THROW(ReportedBoundsError);
+                return -1;
             if (pdpv)
             {
                 if (dp.term_id > stream->high.term_id)
@@ -1386,7 +1387,7 @@ static void aeron_frame_stream_analysis_setup(packet_info * pinfo, aeron_packet_
                         expected_dp.term_id = pdp.term_id;
                         expected_dp.term_offset = pdp.term_offset;
                         if (!aeron_pos_add_length(&expected_dp, info->length, stream->term_length))
-                            THROW(ReportedBoundsError);
+                            return -1;
                         erc = aeron_pos_compare(&expected_dp, &dp);
                         if (erc > 0)
                         {
@@ -1444,12 +1445,16 @@ static void aeron_frame_stream_analysis_setup(packet_info * pinfo, aeron_packet_
     {
         aeron_term_frame_add(term, finfo, frame_flags);
     }
+
+    return 0;
 }
 
-static void aeron_frame_info_setup(packet_info * pinfo, aeron_transport_t * transport, aeron_packet_info_t * info, aeron_frame_info_t * finfo)
+/* return 0 for success and -1 for error */
+static int aeron_frame_info_setup(packet_info * pinfo, aeron_transport_t * transport, aeron_packet_info_t * info, aeron_frame_info_t * finfo)
 {
     if (!transport || !aeron_sequence_analysis || !finfo || PINFO_FD_VISITED(pinfo))
-        return;
+        /* XXX - is it an error if transport, aeron_sequence_analysis or finfo are NULL? */
+        return 0;
 
     if ((info->info_flags & AERON_PACKET_INFO_FLAGS_STREAM_ID_VALID) != 0)
     {
@@ -1473,7 +1478,8 @@ static void aeron_frame_info_setup(packet_info * pinfo, aeron_transport_t * tran
             }
             if ((info->info_flags & AERON_PACKET_INFO_FLAGS_TERM_OFFSET_VALID) != 0)
             {
-                aeron_frame_stream_analysis_setup(pinfo, info, finfo, stream, term, new_term);
+                if (aeron_frame_stream_analysis_setup(pinfo, info, finfo, stream, term, new_term) < 0)
+                    return -1;
             }
             else
             {
@@ -1493,6 +1499,8 @@ static void aeron_frame_info_setup(packet_info * pinfo, aeron_transport_t * tran
     {
         aeron_transport_frame_add(transport, finfo, 0);
     }
+
+    return 0;
 }
 
 static void aeron_sequence_report_frame(tvbuff_t * tvb, proto_tree * tree, aeron_frame_info_t * finfo)
@@ -2190,7 +2198,7 @@ static int dissect_aeron_pad(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     frame_length = tvb_get_letohl(tvb, offset + O_AERON_PAD_FRAME_LENGTH);
     rounded_length = (int) aeron_pos_roundup(frame_length);
     if (rounded_length < 0)
-        THROW(ReportedBoundsError);
+        return 0;
     term_offset = tvb_get_letohl(tvb, offset + O_AERON_PAD_TERM_OFFSET);
     session_id = tvb_get_letohl(tvb, offset + O_AERON_PAD_SESSION_ID);
     transport = aeron_transport_add(cinfo, session_id, pinfo->fd->num);
@@ -2206,7 +2214,8 @@ static int dissect_aeron_pad(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     pktinfo.data_length = pad_length;
     pktinfo.type = HDR_TYPE_PAD;
     pktinfo.flags = tvb_get_guint8(tvb, offset + O_AERON_PAD_FLAGS);
-    aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo);
+    if (aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo) < 0)
+        return 0;
 
     aeron_info_stream_progress_report(pinfo, HDR_TYPE_PAD, pktinfo.flags, term_id, term_offset, finfo);
     pad_item = proto_tree_add_none_format(tree, hf_aeron_pad, tvb, offset, -1, "Pad Frame: Term 0x%x, Ofs %" G_GUINT32_FORMAT ", Len %" G_GUINT32_FORMAT "(%d)",
@@ -2331,7 +2340,7 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
         offset_increment = aeron_pos_roundup(frame_length);
         rounded_length = (int) offset_increment;
         if (rounded_length < 0)
-            THROW(ReportedBoundsError);
+            return 0;
         data_length = frame_length - O_AERON_DATA_DATA;
     }
     term_offset = tvb_get_letohl(tvb, offset + O_AERON_DATA_TERM_OFFSET);
@@ -2348,7 +2357,8 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
     pktinfo.data_length = data_length;
     pktinfo.type = HDR_TYPE_DATA;
     pktinfo.flags = tvb_get_guint8(tvb, offset + O_AERON_DATA_FLAGS);
-    aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo);
+    if (aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo) < 0)
+        return 0;
 
     aeron_info_stream_progress_report(pinfo, HDR_TYPE_DATA, pktinfo.flags, term_id, term_offset, finfo);
     data_item = proto_tree_add_none_format(tree, hf_aeron_data, tvb, offset, -1, "Data Frame: Term 0x%x, Ofs %" G_GUINT32_FORMAT ", Len %" G_GUINT32_FORMAT "(%d)",
@@ -2437,7 +2447,7 @@ static int dissect_aeron_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     frame_length = tvb_get_letohl(tvb, offset + O_AERON_NAK_FRAME_LENGTH);
     rounded_length = (int) aeron_pos_roundup(frame_length);
     if (rounded_length < 0)
-        THROW(ReportedBoundsError);
+        return 0;
     session_id = tvb_get_letohl(tvb, offset + O_AERON_NAK_SESSION_ID);
     transport = aeron_transport_add(cinfo, session_id, pinfo->fd->num);
     stream_id = tvb_get_letohl(tvb, offset + O_AERON_NAK_STREAM_ID);
@@ -2452,7 +2462,8 @@ static int dissect_aeron_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     pktinfo.nak_length = nak_length;
     pktinfo.type = HDR_TYPE_NAK;
     pktinfo.flags = tvb_get_guint8(tvb, offset + O_AERON_NAK_FLAGS);
-    aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo);
+    if (aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo) < 0)
+        return 0;
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "NAK");
     nak_item = proto_tree_add_none_format(tree, hf_aeron_nak, tvb, offset, -1, "NAK Frame: Term 0x%x, Ofs %" G_GUINT32_FORMAT ", Len %" G_GUINT32_FORMAT,
@@ -2521,7 +2532,7 @@ static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     feedback_length = frame_length - O_AERON_SM_FEEDBACK;
     rounded_length = (int) aeron_pos_roundup(frame_length);
     if (rounded_length < 0)
-        THROW(ReportedBoundsError);
+        return 0;
     session_id = tvb_get_letohl(tvb, offset + O_AERON_SM_SESSION_ID);
     transport = aeron_transport_add(cinfo, session_id, pinfo->fd->num);
     stream_id = tvb_get_letohl(tvb, offset + O_AERON_SM_STREAM_ID);
@@ -2548,7 +2559,8 @@ static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     pktinfo.length = 0;
     pktinfo.data_length = 0;
     pktinfo.type = HDR_TYPE_SM;
-    aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo);
+    if (aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo) < 0)
+        return 0;
 
     aeron_info_stream_progress_report(pinfo, HDR_TYPE_SM, pktinfo.flags, term_id, consumption_offset, finfo);
     sm_item = proto_tree_add_none_format(tree, hf_aeron_sm, tvb, offset, -1, "Status Message: Term 0x%x, ConsumptionOfs %" G_GUINT32_FORMAT ", RcvWindow %" G_GUINT32_FORMAT,
@@ -2615,7 +2627,7 @@ static int dissect_aeron_err(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     }
     rounded_length = (int) aeron_pos_roundup(frame_length);
     if (rounded_length < 0)
-        THROW(ReportedBoundsError);
+        return 0;
     proto_item_set_len(err_item, rounded_length);
     if (frame_length < L_AERON_ERR_MIN)
     {
@@ -2662,7 +2674,7 @@ static int dissect_aeron_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, 
     frame_length = tvb_get_letohl(tvb, offset + O_AERON_SETUP_FRAME_LENGTH);
     rounded_length = (int) aeron_pos_roundup(frame_length);
     if (rounded_length < 0)
-        THROW(ReportedBoundsError);
+        return 0;
     term_offset = tvb_get_letohl(tvb, offset + O_AERON_SETUP_TERM_OFFSET);
     session_id = tvb_get_letohl(tvb, offset + O_AERON_SETUP_SESSION_ID);
     transport = aeron_transport_add(cinfo, session_id, pinfo->fd->num);
@@ -2679,7 +2691,8 @@ static int dissect_aeron_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, 
     pktinfo.receiver_window = 0;
     pktinfo.type = HDR_TYPE_SETUP;
     pktinfo.flags = 0;
-    aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo);
+    if (aeron_frame_info_setup(pinfo, transport, &pktinfo, finfo) < 0)
+        return 0;
     term_length = tvb_get_letohl(tvb, offset + O_AERON_SETUP_TERM_LENGTH);
     mtu = tvb_get_letohl(tvb, offset + O_AERON_SETUP_MTU);
     aeron_set_stream_mtu_term_length(pinfo, transport, stream_id, mtu, term_length);
