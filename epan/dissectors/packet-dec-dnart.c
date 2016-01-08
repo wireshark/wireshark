@@ -172,17 +172,6 @@ static gint ett_dec_sess_contents = -1;
 static gint dec_dna_total_bytes_this_segment = 0;
 static gint dec_dna_previous_total = 0;
 
-/*static const value_string protocol_id_vals[] = {
-    { 0x6001, "DEC DNA dump/load" },
-    { 0x6002, "DEC DNA Remote Console" },
-    { 0x6003, "DEC DNA routing" },
-    { 0x6004, "DEC DNA Local Area Transport" },
-    { 0x6005, "DEC DNA diagnostics" },
-    { 0x6006, "DEC DNA Customer specific" },
-    { 0x6007, "DEC DNA System Communication Architecture" },
-    { 0,    NULL }
-};*/
-
 static const value_string rt_msg_type_vals[] = {
     { 0x0   , "Initialization message" },
     { 0x1   , "Verification message" },
