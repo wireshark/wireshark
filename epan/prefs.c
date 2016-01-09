@@ -734,6 +734,8 @@ call_apply_cb(const void *key _U_, void *value, void *data _U_)
             (*module->apply_cb)();
         module->prefs_changed = FALSE;
     }
+    if (module->submodules)
+        wmem_tree_foreach(module->submodules, call_apply_cb, NULL);
     return FALSE;
 }
 
@@ -840,6 +842,7 @@ register_preference(module_t *module, const char *name, const char *title,
 typedef struct {
     GList *list_entry;
     const char *name;
+    module_t *submodule;
 } find_pref_arg_t;
 
 static gint
@@ -868,11 +871,15 @@ module_find_pref_cb(const void *key _U_, void *value, void *data)
         return FALSE;
 
     arg->list_entry = list_entry;
+    arg->submodule = module;
     return TRUE;
 }
 
-struct preference *
-prefs_find_preference(module_t *module, const char *name)
+/* Tries to find a preference, setting containing_module to the (sub)module
+ * holding this preference. */
+static struct preference *
+prefs_find_preference_with_submodule(module_t *module, const char *name,
+        module_t **containing_module)
 {
     find_pref_arg_t arg;
     GList *list_entry;
@@ -882,6 +889,7 @@ prefs_find_preference(module_t *module, const char *name)
 
     list_entry = g_list_find_custom(module->prefs, name,
         preference_match);
+    arg.submodule = NULL;
 
     if (list_entry == NULL)
     {
@@ -898,7 +906,16 @@ prefs_find_preference(module_t *module, const char *name)
     if (list_entry == NULL)
         return NULL;    /* no such preference */
 
+    if (containing_module)
+        *containing_module = arg.submodule ? arg.submodule : module;
+
     return (struct preference *) list_entry->data;
+}
+
+struct preference *
+prefs_find_preference(module_t *module, const char *name)
+{
+    return prefs_find_preference_with_submodule(module, name, NULL);
 }
 
 /*
@@ -3964,7 +3981,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
     static gchar *filter_label = NULL;
     static gboolean filter_enabled = FALSE;
     gchar    *filter_expr = NULL;
-    module_t *module;
+    module_t *module, *containing_module;
     pref_t   *pref;
 
     if (strcmp(pref_name, PRS_GUI_FILTER_LABEL) == 0) {
@@ -4094,7 +4111,10 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             }
         }
 
-        pref = prefs_find_preference(module, dotp);
+        /* The pref is located in the module or a submodule.
+         * Assume module, then search for a submodule holding the pref. */
+        containing_module = module;
+        pref = prefs_find_preference_with_submodule(module, dotp, &containing_module);
 
         if (pref == NULL) {
             prefs.unknown_prefs = TRUE;
@@ -4104,6 +4124,8 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
              */
             if ((strcmp(pref_name, PRS_COL_HIDDEN) == 0) ||
                 (strcmp(pref_name, PRS_COL_FMT) == 0)) {
+                /* While this has a subtree, there is no apply callback, so no
+                 * need to use prefs_find_preference_with_submodule. */
                 pref = prefs_find_preference(module, pref_name);
             }
             else if (strcmp(module->name, "mgcp") == 0) {
@@ -4368,7 +4390,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             if (p == value || *p != '\0')
                 return PREFS_SET_SYNTAX_ERR;        /* number was bad */
             if (*pref->varp.uint != uval) {
-                module->prefs_changed = TRUE;
+                containing_module->prefs_changed = TRUE;
                 *pref->varp.uint = uval;
             }
             break;
@@ -4380,7 +4402,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             else
                 bval = FALSE;
             if (*pref->varp.boolp != bval) {
-                module->prefs_changed = TRUE;
+                containing_module->prefs_changed = TRUE;
                 *pref->varp.boolp = bval;
             }
             break;
@@ -4390,7 +4412,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             enum_val = find_val_for_string(value, pref->info.enum_info.enumvals,
                                            *pref->varp.enump);
             if (*pref->varp.enump != enum_val) {
-                module->prefs_changed = TRUE;
+                containing_module->prefs_changed = TRUE;
                 *pref->varp.enump = enum_val;
             }
             break;
@@ -4398,13 +4420,13 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
         case PREF_STRING:
         case PREF_FILENAME:
         case PREF_DIRNAME:
-            prefs_set_string_like_value(pref, value, &module->prefs_changed);
+            prefs_set_string_like_value(pref, value, &containing_module->prefs_changed);
             break;
 
         case PREF_RANGE:
         {
             if (!prefs_set_range_value_work(pref, value, return_range_errors,
-                                            &module->prefs_changed))
+                                            &containing_module->prefs_changed))
                 return PREFS_SET_SYNTAX_ERR;        /* number was bad */
             break;
         }
@@ -4415,7 +4437,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
             if ((pref->varp.colorp->red != RED_COMPONENT(cval)) ||
                 (pref->varp.colorp->green != GREEN_COMPONENT(cval)) ||
                 (pref->varp.colorp->blue != BLUE_COMPONENT(cval))) {
-                module->prefs_changed = TRUE;
+                containing_module->prefs_changed = TRUE;
                 pref->varp.colorp->red   = RED_COMPONENT(cval);
                 pref->varp.colorp->green = GREEN_COMPONENT(cval);
                 pref->varp.colorp->blue  = BLUE_COMPONENT(cval);
@@ -4424,7 +4446,7 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
         }
 
         case PREF_CUSTOM:
-            return pref->custom_cbs.set_cb(pref, value, &module->prefs_changed);
+            return pref->custom_cbs.set_cb(pref, value, &containing_module->prefs_changed);
 
         case PREF_STATIC_TEXT:
         case PREF_UAT:
