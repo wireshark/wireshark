@@ -25,6 +25,15 @@
 
 #include "epan/packet.h"
 #include "epan/prefs.h"
+#include "wsutil/report_err.h"
+
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+#ifdef HAVE_WINSOCK2_H
+#   include <winsock2.h>    /* Needed for AF_INET on Windows */
+#endif
+#include "wsutil/inet_v6defs.h"
 
 #include "packet-uaudp.h"
 
@@ -357,12 +366,12 @@ static int dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     /* server address, if present, has precedence on ports */
     if (use_sys_ip) {
         /* use server address to find direction*/
-        if (memcmp((pinfo->src).data, sys_ip, 4*sizeof(guint8)) == 0)
+        if (memcmp((pinfo->src).data, sys_ip, 4) == 0)
         {
             _dissect_uaudp(tvb, pinfo, tree, SYS_TO_TERM);
             return tvb_captured_length(tvb);
         }
-        else if (memcmp((pinfo->dst).data, sys_ip, 4*sizeof(guint8)) == 0)
+        else if (memcmp((pinfo->dst).data, sys_ip, 4) == 0)
         {
             _dissect_uaudp(tvb, pinfo, tree, TERM_TO_SYS);
             return tvb_captured_length(tvb);
@@ -383,35 +392,6 @@ static int dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
     _dissect_uaudp(tvb, pinfo, tree, DIR_UNKNOWN);
     return tvb_captured_length(tvb);
-}
-
-/* XXX: Presumably there's a util fcn for this ... */
-static gboolean str_to_addr_ip(const gchar *addr, guint8 *ad)
-{
-    int          i;
-    const gchar *p = addr;
-    guint32      value;
-
-    if (addr == NULL)
-        return FALSE;
-
-    for (i=0; i<4; i++)
-    {
-        value = 0;
-        while (*p != '.' && *p != '\0')
-        {
-            value = value * 10 + (*p - '0');
-            p++;
-        }
-        if (value > 255)
-        {
-            return FALSE;
-        }
-        ad[i] = value;
-        p++;
-    }
-
-    return TRUE;
 }
 
 
@@ -657,14 +637,12 @@ void proto_reg_handoff_uaudp(void)
             if (ports[i].last_port)
                 dissector_delete_uint("udp.port", ports[i].last_port, uaudp_handle);
         }
-        if (str_to_addr_ip(pref_sys_ip_s, sys_ip))
-        {
-            use_sys_ip = TRUE;
-        }
-        else
-        {
-            use_sys_ip = FALSE;
-            pref_sys_ip_s = "";
+        if (*pref_sys_ip_s) {
+            use_sys_ip = inet_pton(AF_INET, pref_sys_ip_s, sys_ip) == 1;
+            if (!use_sys_ip) {
+                report_failure("Invalid value for pref uaudp.system_ip: %s",
+                        pref_sys_ip_s);
+            }
         }
     }
 
