@@ -2350,7 +2350,7 @@ ptvcursor_add(ptvcursor_t *ptvc, int hfindex, gint length,
 	offset = ptvc->offset;
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 	get_hfi_length(hfinfo, ptvc->tvb, offset, &length, &item_length);
-	ptvc->offset += get_full_length(hfinfo, ptvc->tvb, offset, length, 
+	ptvc->offset += get_full_length(hfinfo, ptvc->tvb, offset, length,
 	    item_length, encoding);
 
 	test_length(hfinfo, ptvc->tvb, offset, item_length);
