@@ -737,54 +737,54 @@ while (<>) {
 
 if ($totalerrorcount > 0) {
 	print "\n\nTOTAL ERRORS: $totalerrorcount";
+
+	if ($filecount > 1) {
+		print " ($errorfilecount files)\n";
+
+		print "NO FIELDS: " . scalar(@nofieldfilelist) . "\n";
+		print "AUTOMATED: " . (scalar(@asn1automatedfilelist) + scalar(@dcerpcautomatedfilelist) + scalar(@idl2wrsautomatedfilelist)) . "\n";
+		print "NO PROTOCOL: " . scalar(@noregprotocolfilelist) . "\n";
+
+		print "\nASN.1 AUTOMATED FILE LIST\n";
+		foreach (@asn1automatedfilelist) {
+			print $_;
+		}
+		print "\nDCE/RPC AUTOMATED FILE LIST\n";
+		foreach (@dcerpcautomatedfilelist) {
+			print $_;
+		}
+		print "\nIDL2WRS AUTOMATED FILE LIST\n";
+		foreach (@idl2wrsautomatedfilelist) {
+			print $_;
+		}
+		print "\n\"FILE MANIPULATION\" FILE LIST\n";
+		@uniquefilelist = grep{ not $unique{$_}++} @filemanipulationfilelist;
+		foreach (@uniquefilelist) {
+			print $_;
+		}
+		print "\nREMOVE PREFIX FILE LIST\n";
+		@uniquefilelist = grep{ not $unique{$_}++} @prefixfilelist;
+		foreach (@uniquefilelist) {
+			print $_;
+		}
+		print "\nNO PROTOCOL REGISTERED FILE LIST\n";
+		foreach (@noregprotocolfilelist) {
+			print $_;
+		}
+		print "\nNO FIELDS FILE LIST\n";
+		foreach (@nofieldfilelist) {
+			print $_;
+		}
+
+		print "\nPERIOD IN PROTO FILTER NAME FILE LIST\n";
+		foreach (@periodinfilternamefilelist) {
+			print $_;
+		}
+	} else {
+		print "\n";
+	}
+
+	exit(1); # exit 1 if ERROR
 }
-
-if ($filecount > 1) {
-	print " ($errorfilecount files)\n";
-
-	print "NO FIELDS: " . scalar(@nofieldfilelist) . "\n";
-	print "AUTOMATED: " . (scalar(@asn1automatedfilelist) + scalar(@dcerpcautomatedfilelist) + scalar(@idl2wrsautomatedfilelist)) . "\n";
-	print "NO PROTOCOL: " . scalar(@noregprotocolfilelist) . "\n";
-
-	print "\nASN.1 AUTOMATED FILE LIST\n";
-	foreach (@asn1automatedfilelist) {
-		print $_;
-	}
-	print "\nDCE/RPC AUTOMATED FILE LIST\n";
-	foreach (@dcerpcautomatedfilelist) {
-		print $_;
-	}
-	print "\nIDL2WRS AUTOMATED FILE LIST\n";
-	foreach (@idl2wrsautomatedfilelist) {
-		print $_;
-	}
-	print "\n\"FILE MANIPULATION\" FILE LIST\n";
-	@uniquefilelist = grep{ not $unique{$_}++} @filemanipulationfilelist;
-	foreach (@uniquefilelist) {
-		print $_;
-	}
-	print "\nREMOVE PREFIX FILE LIST\n";
-	@uniquefilelist = grep{ not $unique{$_}++} @prefixfilelist;
-	foreach (@uniquefilelist) {
-		print $_;
-	}
-	print "\nNO PROTOCOL REGISTERED FILE LIST\n";
-	foreach (@noregprotocolfilelist) {
-		print $_;
-	}
-	print "\nNO FIELDS FILE LIST\n";
-	foreach (@nofieldfilelist) {
-		print $_;
-	}
-
-	print "\nPERIOD IN PROTO FILTER NAME FILE LIST\n";
-	foreach (@periodinfilternamefilelist) {
-		print $_;
-	}
-}
-
-print "\n";
-
-exit (($totalerrorcount == 0) ? 0 : 1);   # exit 1 if ERROR
 
 __END__
