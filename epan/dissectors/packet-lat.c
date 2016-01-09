@@ -332,10 +332,9 @@ dissect_lat_response_information(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_lat_string(tvbuff_t *tvb, int offset, int hf, proto_tree *tree)
 {
-	proto_item *ti;
 	gint item_length;
 
-	ti = proto_tree_add_item_ret_length(tree, hf, tvb, offset, 1, ENC_LITTLE_ENDIAN, &item_length);
+	proto_tree_add_item_ret_length(tree, hf, tvb, offset, 1, ENC_LITTLE_ENDIAN, &item_length);
 	return offset + item_length;
 }
 
