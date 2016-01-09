@@ -2543,9 +2543,6 @@ DIAG_ON(cast-qual)
      * https://code.wireshark.org/review/gitweb?p=wireshark.git;a=commit;h=9e277ae6154fd04bf6a0a34ec5655a73e5a736a3
      */
 
-    /* this is to keep tap extensions updating once every 3 seconds */
-    tap_update_timer_id = g_timeout_add(prefs_p->tap_update_interval, tap_update_cb, NULL);
-
     splash_update(RA_CONFIGURATION, NULL, (gpointer)splash_win);
     proto_help_init();
     cap_file_init(&cfile);
@@ -3123,6 +3120,9 @@ DIAG_ON(cast-qual)
     main_load_window_geometry(top_level);
 
     g_timeout_add(info_update_freq, resolv_update_cb, NULL);
+
+    /* this is to keep tap extensions updating once every 3 seconds */
+    tap_update_timer_id = g_timeout_add(prefs_p->tap_update_interval, tap_update_cb, NULL);
 
     /* If we were given the name of a capture file, read it in now;
      we defer it until now, so that, if we can't open it, and pop
