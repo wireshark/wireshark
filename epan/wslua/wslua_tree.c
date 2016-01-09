@@ -801,6 +801,7 @@ static int TreeItem_get_len(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
     int len = 0;
 
+    /* XXX - this is *NOT* guaranteed to return a correct value! */
     len = proto_item_get_len(ti->item);
 
     lua_pushinteger(L, len > 0 ? len : 0);

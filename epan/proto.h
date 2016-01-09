@@ -1003,6 +1003,27 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    const gint start, gint length, const guint encoding);
 
 /** Add an item to a proto_tree, using the text label registered to that item.
+   The item is extracted from the tvbuff handed to it.
+
+   Return the length of the item through the pointer.
+ @param tree the tree to append this item to
+ @param hfinfo field
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param encoding data encoding
+ @param retval pointer to variable to set to the item length
+ @return the newly created item */
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_new_ret_length(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
+    const gint start, gint length, const guint encoding, gint *retval);
+
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_length(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+			      const gint start, gint length,
+			      const guint encoding, gint *retval);
+
+/** Add an item to a proto_tree, using the text label registered to that item.
 The item is extracted from the tvbuff handed to it, and the retrieved
 value is also set to *retval so the caller gets it back for other uses.
 
@@ -1019,7 +1040,7 @@ encoding in the tvbuff
 The length argument must
 be set to the appropriate size of the native type as in other proto_add routines.
 
-Integers of 8, 16, 24 and 32 bits can be retreived with these functions.
+Integers of 8, 16, 24 and 32 bits can be retrieved with these functions.
 
 @param tree the tree to append this item to
 @param hfindex field
@@ -2734,6 +2755,9 @@ proto_custom_set(proto_tree* tree, GSList *field_id,
 #ifdef NEW_PROTO_TREE_API
 #define proto_tree_add_item(tree, hfinfo, tvb, start, length, encoding) \
         proto_tree_add_item_new(tree, hfinfo, tvb, start, length, encoding)
+
+#define proto_tree_add_item_ret_length(tree, hfinfo, tvb, start, length, encoding, retval) \
+        proto_tree_add_item_new_ret_length(tree, hfinfo, tvb, start, length, encoding, retval)
 
 #define proto_tree_add_boolean(tree, hfinfo, tvb, start, length, value) \
 	proto_tree_add_boolean(tree, (hfinfo)->id, tvb, start, length, value)

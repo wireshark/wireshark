@@ -333,9 +333,10 @@ static int
 dissect_lat_string(tvbuff_t *tvb, int offset, int hf, proto_tree *tree)
 {
 	proto_item *ti;
+	gint item_length;
 
-	ti = proto_tree_add_item(tree, hf, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	return offset + proto_item_get_len(ti);
+	ti = proto_tree_add_item_ret_length(tree, hf, tvb, offset, 1, ENC_LITTLE_ENDIAN, &item_length);
+	return offset + item_length;
 }
 
 static guint

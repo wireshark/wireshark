@@ -2562,6 +2562,9 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     /* sccp_length = proto_item_get_len(sccp_item);
      * sccp_length -= parameter_length;
      * proto_item_set_len(sccp_item, sccp_length);
+     *
+     * except that proto_item_get_len() is *NOT* guaranteed to return
+     * a correct value - if the item has been "faked", it will be wrong
      */
     break;
 
