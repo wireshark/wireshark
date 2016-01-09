@@ -317,7 +317,7 @@ void MainWelcome::updateRecentFiles() {
         rfRow++;
     }
 
-    while (recent_files_->count() > (int) prefs.gui_recent_files_count_max) {
+    while ((unsigned)recent_files_->count() > prefs.gui_recent_files_count_max) {
         recent_files_->takeItem(recent_files_->count());
     }
     if (recent_files_->count() > 0) {
