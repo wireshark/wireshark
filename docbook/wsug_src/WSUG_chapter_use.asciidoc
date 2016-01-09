@@ -781,7 +781,7 @@ The packet list pane displays all the packets in the current capture file.
 
 [[ChUseWiresharkListPane]]
 .The ``Packet List'' pane
-image::wsug_graphics/ws-list-pane.png[]
+image::wsug_graphics/ws-list-pane.png[scaledwidth="100%"]
 
 Each line in the packet list corresponds to one packet in the capture file. If
 you select a line in this pane, more details will be displayed in the ``Packet
@@ -814,9 +814,61 @@ The default columns will show:
 
 * button:[Protocol] The protocol name in a short (perhaps abbreviated) version.
 
+* button:[Length] The length of each packet.
+
 * button:[Info] Additional information about the packet content.
 
-There is a context menu (right mouse click) available, see details in
+The first column shows how each packet is related to the selected packet. For
+example, in the image above the first packet is selected, which is a DNS
+request. Wireshark shows a rightward arrow for the request itself, followed by a
+leftward arrow for the response in packet 2. Why is there a dashed line? There
+are more DNS packets further down that use the same port numbers. Wireshark
+treats them as belonging to the same conversation and draws a line connecting
+them.
+
+// Images were created on OS X 10.11 using a retina display. Lines were
+// 36 physical pixels high.
+
+[horizontal]
+.Related packet symbols
+
+image:wsug_graphics/related-first.png[height="18px"]::
+  First packet in a conversation.
+
+image:wsug_graphics/related-current.png[height="18px"]::
+  Part of the selected conversation
+
+image:wsug_graphics/related-other.png[height="18px"]::
+  _Not_ part of the selected conversation
+
+image:wsug_graphics/related-last.png[height="18px"]::
+  Last packet in a conversation.
+
+image:wsug_graphics/related-request.png[height="18px"]::
+  Request.
+
+image:wsug_graphics/related-response.png[height="18px"]::
+  Response.
+
+image:wsug_graphics/related-ack.png[height="18px"]::
+  The selected packet acknowledges this packet.
+
+image:wsug_graphics/related-dup-ack.png[height="18px"]::
+  The selected packet is a duplicate acknowledgement of this packet.
+
+image:wsug_graphics/related-segment.png[height="18px"]::
+  The selected packet is related to this packet in some other way, e.g. as part
+  of reassembly.
+
+The packet list has an _Intelligent Scrollbar_ which shows a miniature map of
+nearby packets. Each https://en.wikipedia.org/wiki/Raster_graphics[raster line]
+of the scrollbar corresponds to a single packet, so the number of packets shown
+in the map depends on your physical display and the height of the packet list. A
+tall packet list on a high-resolution (``Retina'') display will show you quite a
+few packets. In the image above the scrollbar shows the status of more than 500
+packets along with the 15 shown in the packet list itself.
+
+Right clicking will show a context menu, described in
 <<ChWorkPacketListPanePopUpMenu>>.
 
 [[ChUsePacketDetailsPaneSection]]

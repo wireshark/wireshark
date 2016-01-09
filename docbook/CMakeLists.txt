@@ -77,6 +77,15 @@ set(WSUG_FILES
 )
 
 set(WSUG_GRAPHICS
+	wsug_graphics/related-ack.png
+	wsug_graphics/related-current.png
+	wsug_graphics/related-dup-ack.png
+	wsug_graphics/related-first.png
+	wsug_graphics/related-last.png
+	wsug_graphics/related-other.png
+	wsug_graphics/related-request.png
+	wsug_graphics/related-response.png
+	wsug_graphics/related-segment.png
 	wsug_graphics/ws-analyze-menu.png
 	wsug_graphics/ws-bytes-pane-tabs.png
 	wsug_graphics/ws-bytes-pane.png
