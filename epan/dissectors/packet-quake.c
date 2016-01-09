@@ -152,13 +152,12 @@ dissect_quake_CCREQ_CONNECT
 (tvbuff_t *tvb, proto_tree *tree)
 {
 	gint offset;
-	proto_item *ti;
 	gint item_len;
 
 	offset = 0;
 
 	if (tree) {
-		ti = proto_tree_add_item_ret_length(tree, hf_quake_CCREQ_CONNECT_game,
+		proto_tree_add_item_ret_length(tree, hf_quake_CCREQ_CONNECT_game,
 			tvb, offset, -1, ENC_ASCII|ENC_NA, &item_len);
 		offset += item_len;
 
@@ -173,13 +172,12 @@ dissect_quake_CCREQ_SERVER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
 	gint offset;
-	proto_item *ti;
 	gint item_len;
 
 	offset = 0;
 
 	if (tree) {
-		ti = proto_tree_add_item_ret_length(tree, hf_quake_CCREQ_SERVER_INFO_game,
+		proto_tree_add_item_ret_length(tree, hf_quake_CCREQ_SERVER_INFO_game,
 			tvb, offset, -1, ENC_ASCII|ENC_NA, &item_len);
 		offset += item_len;
 		proto_tree_add_item(tree, hf_quake_CCREQ_SERVER_INFO_version,
@@ -244,23 +242,22 @@ dissect_quake_CCREP_SERVER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
 	gint offset;
-	proto_item *ti;
 	gint item_len;
 
 	offset = 0;
 
 	if (tree) {
-		ti = proto_tree_add_item_ret_length(tree,
+		proto_tree_add_item_ret_length(tree,
 			hf_quake_CCREP_SERVER_INFO_address, tvb, offset, -1,
 			ENC_ASCII|ENC_NA, &item_len);
 		offset += item_len;
 
-		ti = proto_tree_add_item_ret_length(tree,
+		proto_tree_add_item_ret_length(tree,
 			hf_quake_CCREP_SERVER_INFO_server, tvb, offset, -1,
 			ENC_ASCII|ENC_NA, &item_len);
 		offset += item_len;
 
-		ti = proto_tree_add_item_ret_length(tree,
+		proto_tree_add_item_ret_length(tree,
 			hf_quake_CCREP_SERVER_INFO_map, tvb, offset, -1,
 			ENC_ASCII|ENC_NA, &item_len);
 		offset += item_len;
@@ -282,7 +279,6 @@ dissect_quake_CCREP_PLAYER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
 	gint offset;
-	proto_item *ti;
 	guint32 colors;
 	guint32 color_shirt;
 	guint32 color_pants;
@@ -297,7 +293,7 @@ dissect_quake_CCREP_PLAYER_INFO
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
-		ti = proto_tree_add_item_ret_length(tree, hf_quake_CCREP_PLAYER_INFO_name,
+		proto_tree_add_item_ret_length(tree, hf_quake_CCREP_PLAYER_INFO_name,
 			tvb, offset, -1, ENC_ASCII|ENC_NA, &item_len);
 		offset += item_len;
 
@@ -335,7 +331,6 @@ dissect_quake_CCREP_RULE_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
 	gint offset;
-	proto_item *ti;
 	gint item_len;
 
 	if (tvb_reported_length(tvb) == 0) return;
@@ -343,7 +338,7 @@ dissect_quake_CCREP_RULE_INFO
 	offset = 0;
 
 	if (tree) {
-		ti = proto_tree_add_item_ret_length(tree, hf_quake_CCREP_RULE_INFO_rule,
+		proto_tree_add_item_ret_length(tree, hf_quake_CCREP_RULE_INFO_rule,
 			tvb, offset, -1, ENC_ASCII|ENC_NA, &item_len);
 		offset += item_len;
 
