@@ -16,19 +16,18 @@
 # http://mark-story.com/posts/view/using-git-commit-hooks-to-prevent-stupid-mistakes
 #
 
-unset GREP_OPTIONS
-
 # If the commit identifier is not given, use HEAD instead.
 COMMIT_ID="${1:-HEAD}"
+
 # Path to hook script in the .git directory
 hook_script=${GIT_DIR:-.git}/hooks/pre-commit
+
+# Path to check script in the tools directory
+check_script=./tools/pre-commit-check.py
 
 # Always start in the root directory of the source tree, this allows for
 # invocations via relative paths (such as ../tools/pre-commit):
 cd "$(git rev-parse --show-toplevel)"
-
-# Path to excluded files listing
-excludes=./tools/pre-commit-checkignore.txt
 
 # Check for newer (actually, different) versions of the pre-commit script
 # (but only if invoked as hook, i.e. the commit ID is not given as argument).
@@ -38,26 +37,13 @@ fi
 
 exit_status=0
 
-for FILE in `git diff-index --cached --name-status ${COMMIT_ID} | grep -v "^D" | cut -f2 | grep "\.[ch]$" | grep -v "extcap/"` ; do
-
-    #Skip if listed
-    if [ -e $excludes ] && grep -Fxq "$FILE" "$excludes"; then
-        continue
-    fi
-
-    #Check if checkhf is good
-    ./tools/checkhf.pl $FILE            || exit_status=1
-
-    #Check if checkAPIs is good
-    ./tools/checkAPIs.pl -p $FILE       || exit_status=1
-
-    #Check if fix-encoding-args is good
-    ./tools/fix-encoding-args.pl $FILE  || exit_status=1
-
-    #Check if checkfiltername is good
-    ./tools/checkfiltername.pl $FILE    || exit_status=1
-
-done
+if [ -e "$check_script" ]
+then
+    python "$check_script" ${COMMIT_ID} || exit_status=1
+else
+    echo "File '$check_script' not found. Aborting."
+    exit 1
+fi
 
 # If there are whitespace errors, print the offending file names and fail. (from git pre-commit.sample)
 git diff-index --check --cached ${COMMIT_ID}    || exit_status=1
