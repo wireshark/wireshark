@@ -22,10 +22,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -406,143 +402,116 @@ proto_register_lat(void)
 
 	    { &hf_lat_num_slots,
 		{ "Number of slots", "lat.num_slots", FT_UINT8, BASE_DEC,
-		  NULL, 0x0,
-		  NULL, HFILL}},
+		  NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_remote_connid,
 		{ "Remote connection ID", "lat.remote_connid", FT_UINT16,
-		  BASE_HEX, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_local_connid,
 		{ "Local connection ID", "lat.local_connid", FT_UINT16,
-		  BASE_HEX, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_seq_number,
 		{ "Sequence number", "lat.seq_number", FT_UINT8,
-		  BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_ack_number,
 		{ "Ack number", "lat.ack_number", FT_UINT8,
-		  BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_slotcmd_local_session,
 		{ "Local session", "lat.slotcmd.local_session", FT_UINT8,
-		  BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_slotcmd_remote_session,
 		{ "Remote session", "lat.slotcmd.remote_session", FT_UINT8,
-		  BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_slotcmd_length,
 		{ "Length", "lat.slotcmd.length", FT_UINT8,
-		  BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_slotcmd_command,
 		{ "Command", "lat.slotcmd.command", FT_UINT8,
-		  BASE_HEX, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_server_circuit_timer,
 		{ "Server circuit timer", "lat.server_circuit_timer", FT_UINT8,
-		  BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_high_prtcl_ver,
 		{ "Highest protocol version supported", "lat.high_prtcl_ver", FT_UINT8,
-		  BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_low_prtcl_ver,
 		{ "Lowest protocol version supported", "lat.low_prtcl_ver", FT_UINT8,
-		  BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_cur_prtcl_ver,
 		{ "Protocol version of this message", "lat.cur_prtcl_ver", FT_UINT8,
-		  BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_cur_prtcl_eco,
 		{ "ECO level of current protocol version", "lat.cur_prtcl_eco", FT_UINT8,
-		  BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_msg_inc,
 		{ "Message incarnation", "lat.msg_inc", FT_UINT8,
-		  BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_change_flags,
 		{ "Change flags", "lat.change_flags", FT_UINT8,
-		  BASE_HEX, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_data_link_rcv_frame_size,
 		{ "Maximum LAT message size", "lat.data_link_rcv_frame_size", FT_UINT16,
-		  BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_node_multicast_timer,
 		{ "Node multicast timer", "lat.node_multicast_timer", FT_UINT8,
-		  BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_node_status,
 		{ "Node status", "lat.node_status", FT_UINT8,
-		  BASE_DEC, VALS(node_status_vals), 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, VALS(node_status_vals), 0x0, NULL, HFILL}},
 
 	    { &hf_lat_node_group_len,
 		{ "Node group length", "lat.node_group_len", FT_UINT8,
-		  BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_node_groups,
 		{ "Node groups", "lat.node_groups", FT_BYTES,
-		  BASE_NONE, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_node_name,
 		{ "Node name", "lat.node_name", FT_UINT_STRING,
-		  0, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_node_description,
 		{ "Node description", "lat.node_description", FT_UINT_STRING,
-		  0, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_service_name_count,
 		{ "Number of service names", "lat.service_name_count", FT_UINT8,
-		  BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_service_rating,
 		{ "Service rating", "lat.service.rating", FT_UINT8,
-		  BASE_DEC, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_service_name,
 		{ "Service name", "lat.service.name", FT_UINT_STRING,
-		  0, NULL, 0x0,
+		  BASE_NONE, NULL, 0x0,
 		  NULL, HFILL}},
 
 	    { &hf_lat_service_description,
 		{ "Service description", "lat.service.description", FT_UINT_STRING,
-		  0, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
 	    { &hf_lat_unknown_command_data,
 		{ "Unknown command data", "lat.unknown_command_data", FT_BYTES,
-		  0, NULL, 0x0,
-		  NULL, HFILL}},
+		  BASE_NONE, NULL, 0x0, NULL, HFILL}},
 	};
 	static gint *ett[] = {
 		&ett_lat,
