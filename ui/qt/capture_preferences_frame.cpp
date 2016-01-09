@@ -93,7 +93,16 @@ void CapturePreferencesFrame::updateWidgets()
         if (device.hidden) {
             continue;
         }
-        ui->defaultInterfaceComboBox->addItem(QString((const char *)device.display_name));
+        // InterfaceTree matches against device.name when selecting the
+        // default interface, so add it here if needed. On Windows this
+        // means that we show the user a big ugly UUID-laden device path.
+        // We might be able to work around that by passing device.name as
+        // the userData argument to addItem instead.
+        QString item_text = device.display_name;
+        if (!item_text.contains(device.name)) {
+            item_text.append(QString(" (%1)").arg(device.name));
+        }
+        ui->defaultInterfaceComboBox->addItem(item_text);
     }
 
     if (!default_device_string.isEmpty()) {
