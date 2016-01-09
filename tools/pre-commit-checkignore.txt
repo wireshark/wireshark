@@ -9,3 +9,4 @@
 #
 
 tools/lemon/lemon.c
+tools/lemon/lempar.c
