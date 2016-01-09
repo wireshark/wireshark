@@ -256,7 +256,7 @@ PS$>choco install python2
 
 Chocolatey installs Python 2 in 'C:\tools\python2' by default.
 
-[[ChSetupsubversion]]
+[[ChSetupGit]]
 
 ==== Install Git
 
@@ -273,21 +273,26 @@ There are several ways in which Git can be installed. Most packages are
 available at the URLs below or via https://chocolatey.org/[Chocolatey].
 Note that many of the GUI interfaces depend on the command line version.
 
+If installing the Windows version of git select the
+'Use Git from the Windows Command Prompt' (in chocolatey the '/GitOnlyOnPath'
+option).  Do *not* select the 'Use Git and optional Unix tools from the Windows Command Prompt'
+option (in chocolatey the '/GitAndUnixToolsOnPath' option).
+
 ===== The Official Windows Installer
 
-The official command-line installer is available at http://msysgit.github.io/.
+The official command-line installer is available at https://git-scm.com/download/win.
 
 ===== Git Extensions
 
 Git Extensions is a native Windows graphical Git client for
 Windows.  You can download the installer from
-http://code.google.com/p/gitextensions/.
+https://github.com/gitextensions/gitextensions/releases/latest.
 
 ===== TortoiseGit
 
 TortoiseGit is a native Windows graphical Git
 similar to TortoiseSVN. You can download the installer from
-http://code.google.com/p/tortoisegit/.
+https://tortoisegit.org/download/.
 
 ===== Command Line client via Chocolatey
 
@@ -299,12 +304,12 @@ PS$> choco install git
 ===== Others
 
 A list of other GUI interfaces for Git can be found at
-http://git-scm.com/downloads/guis
+https://git-scm.com/downloads/guis
 
 
 [[ChSetupCMake]]
 
-=== Install CMake
+==== Install CMake
 
 Get the CMake installer from https://cmake.org/download/[] and install CMake into
 the default location.  Ensure the directory containing cmake.exe is added to your path.

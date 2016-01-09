@@ -32,7 +32,7 @@ Wireshark source code. The code is stored inside Wireshark project's Git
 repository located at a server at the wireshark.org domain.
 
 Changes to the official repository are managed using the
-https://code.google.com/p/gerrit/[Gerrit] code review system. Gerrit
+https://www.gerritcodereview.com/[Gerrit] code review system. Gerrit
 makes it easy to test and discuss changes before they are
 pushed to the main repository. For an overview of Gerrit see the
 https://code.wireshark.org/review/Documentation/intro-quick.html[Quick
