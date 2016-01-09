@@ -3463,8 +3463,8 @@ cf_goto_frame(capture_file *cf, guint fnumber)
 {
   frame_data *fdata;
 
-  if (cf == NULL) {
-    /* we don't have a loaded capture file - fix for bug 11810*/
+  if (cf == NULL || cf->frames == NULL) {
+    /* we don't have a loaded capture file - fix for bugs 11810 & 11989 */
     statusbar_push_temporary_msg("There is no file loaded");
     return FALSE;   /* we failed to go to that packet */
   }
