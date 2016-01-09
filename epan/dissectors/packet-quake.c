@@ -151,19 +151,15 @@ static void
 dissect_quake_CCREQ_CONNECT
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	gint offset;
+	gint offset = 0;
 	gint item_len;
 
-	offset = 0;
-
-	if (tree) {
-		proto_tree_add_item_ret_length(tree, hf_quake_CCREQ_CONNECT_game,
+	proto_tree_add_item_ret_length(tree, hf_quake_CCREQ_CONNECT_game,
 			tvb, offset, -1, ENC_ASCII|ENC_NA, &item_len);
-		offset += item_len;
+	offset += item_len;
 
-		proto_tree_add_item(tree, hf_quake_CCREQ_CONNECT_version,
+	proto_tree_add_item(tree, hf_quake_CCREQ_CONNECT_version,
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	}
 }
 
 
@@ -171,18 +167,14 @@ static void
 dissect_quake_CCREQ_SERVER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	gint offset;
+	gint offset = 0;
 	gint item_len;
 
-	offset = 0;
-
-	if (tree) {
-		proto_tree_add_item_ret_length(tree, hf_quake_CCREQ_SERVER_INFO_game,
+	proto_tree_add_item_ret_length(tree, hf_quake_CCREQ_SERVER_INFO_game,
 			tvb, offset, -1, ENC_ASCII|ENC_NA, &item_len);
-		offset += item_len;
-		proto_tree_add_item(tree, hf_quake_CCREQ_SERVER_INFO_version,
+	offset += item_len;
+	proto_tree_add_item(tree, hf_quake_CCREQ_SERVER_INFO_version,
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	}
 }
 
 
@@ -190,10 +182,8 @@ static void
 dissect_quake_CCREQ_PLAYER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	if (tree) {
-		 proto_tree_add_item(tree, hf_quake_CCREQ_PLAYER_INFO_player,
+	proto_tree_add_item(tree, hf_quake_CCREQ_PLAYER_INFO_player,
 			tvb, 0, 1, ENC_LITTLE_ENDIAN);
-	}
 }
 
 
@@ -201,10 +191,8 @@ static void
 dissect_quake_CCREQ_RULE_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	if (tree) {
-		proto_tree_add_item(tree, hf_quake_CCREQ_RULE_INFO_lastrule,
+	proto_tree_add_item(tree, hf_quake_CCREQ_RULE_INFO_lastrule,
 			tvb, 0, -1, ENC_ASCII|ENC_NA);
-	}
 }
 
 
@@ -219,10 +207,8 @@ dissect_quake_CCREP_ACCEPT
 	c = find_or_create_conversation(pinfo);
 	conversation_set_dissector(c, quake_handle);
 
-	if (tree) {
-		proto_tree_add_uint(tree, hf_quake_CCREP_ACCEPT_port,
+	proto_tree_add_uint(tree, hf_quake_CCREP_ACCEPT_port,
 			tvb, 0, 4, port);
-	}
 }
 
 
@@ -230,10 +216,8 @@ static void
 dissect_quake_CCREP_REJECT
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	if (tree) {
-		proto_tree_add_item(tree, hf_quake_CCREP_REJECT_reason,
+	proto_tree_add_item(tree, hf_quake_CCREP_REJECT_reason,
 			tvb, 0, -1, ENC_ASCII|ENC_NA);
-	}
 }
 
 
@@ -241,36 +225,32 @@ static void
 dissect_quake_CCREP_SERVER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	gint offset;
+	gint offset = 0;
 	gint item_len;
 
-	offset = 0;
-
-	if (tree) {
-		proto_tree_add_item_ret_length(tree,
+	proto_tree_add_item_ret_length(tree,
 			hf_quake_CCREP_SERVER_INFO_address, tvb, offset, -1,
 			ENC_ASCII|ENC_NA, &item_len);
-		offset += item_len;
+	offset += item_len;
 
-		proto_tree_add_item_ret_length(tree,
+	proto_tree_add_item_ret_length(tree,
 			hf_quake_CCREP_SERVER_INFO_server, tvb, offset, -1,
 			ENC_ASCII|ENC_NA, &item_len);
-		offset += item_len;
+	offset += item_len;
 
-		proto_tree_add_item_ret_length(tree,
+	proto_tree_add_item_ret_length(tree,
 			hf_quake_CCREP_SERVER_INFO_map, tvb, offset, -1,
 			ENC_ASCII|ENC_NA, &item_len);
-		offset += item_len;
+	offset += item_len;
 
-		proto_tree_add_item(tree, hf_quake_CCREP_SERVER_INFO_num_player,
+	proto_tree_add_item(tree, hf_quake_CCREP_SERVER_INFO_num_player,
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		offset += 1;
-		proto_tree_add_item(tree, hf_quake_CCREP_SERVER_INFO_max_player,
+	offset += 1;
+	proto_tree_add_item(tree, hf_quake_CCREP_SERVER_INFO_max_player,
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		offset += 1;
-		proto_tree_add_item(tree, hf_quake_CCREQ_SERVER_INFO_version,
+	offset += 1;
+	proto_tree_add_item(tree, hf_quake_CCREQ_SERVER_INFO_version,
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	}
 }
 
 
@@ -278,7 +258,7 @@ static void
 dissect_quake_CCREP_PLAYER_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	gint offset;
+	gint offset = 0;
 	guint32 colors;
 	guint32 color_shirt;
 	guint32 color_pants;
@@ -286,43 +266,39 @@ dissect_quake_CCREP_PLAYER_INFO
 	proto_tree *colors_tree;
 	gint item_len;
 
-	offset = 0;
-
-	if (tree) {
-		proto_tree_add_item(tree, hf_quake_CCREQ_PLAYER_INFO_player,
+	proto_tree_add_item(tree, hf_quake_CCREQ_PLAYER_INFO_player,
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		offset += 1;
+	offset += 1;
 
-		proto_tree_add_item_ret_length(tree, hf_quake_CCREP_PLAYER_INFO_name,
+	proto_tree_add_item_ret_length(tree, hf_quake_CCREP_PLAYER_INFO_name,
 			tvb, offset, -1, ENC_ASCII|ENC_NA, &item_len);
-		offset += item_len;
+	offset += item_len;
 
-		colors       = tvb_get_letohl(tvb, offset + 0);
-		color_shirt = (colors >> 4) & 0x0f;
-		color_pants = (colors     ) & 0x0f;
+	colors       = tvb_get_letohl(tvb, offset + 0);
+	color_shirt = (colors >> 4) & 0x0f;
+	color_pants = (colors     ) & 0x0f;
 
-		colors_item = proto_tree_add_uint(tree,
+	colors_item = proto_tree_add_uint(tree,
 			hf_quake_CCREP_PLAYER_INFO_colors,
 			tvb, offset, 4, colors);
-		colors_tree = proto_item_add_subtree(colors_item,
-				ett_quake_control_colors);
-		proto_tree_add_uint(colors_tree,
+	colors_tree = proto_item_add_subtree(colors_item,
+			ett_quake_control_colors);
+	proto_tree_add_uint(colors_tree,
 			hf_quake_CCREP_PLAYER_INFO_colors_shirt,
 			tvb, offset, 1, color_shirt);
-		proto_tree_add_uint(colors_tree,
+	proto_tree_add_uint(colors_tree,
 			hf_quake_CCREP_PLAYER_INFO_colors_pants,
 			tvb, offset, 1, color_pants);
-		offset += 4;
-		proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_frags,
+	offset += 4;
+	proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_frags,
 			tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset += 4;
-		proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_connect_time,
+	offset += 4;
+	proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_connect_time,
 			tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset += 4;
+	offset += 4;
 
-		proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_address,
+	proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_address,
 			tvb, offset, -1, ENC_ASCII|ENC_NA);
-	}
 }
 
 
@@ -330,21 +306,17 @@ static void
 dissect_quake_CCREP_RULE_INFO
 (tvbuff_t *tvb, proto_tree *tree)
 {
-	gint offset;
+	gint offset = 0;
 	gint item_len;
 
 	if (tvb_reported_length(tvb) == 0) return;
 
-	offset = 0;
-
-	if (tree) {
-		proto_tree_add_item_ret_length(tree, hf_quake_CCREP_RULE_INFO_rule,
+	proto_tree_add_item_ret_length(tree, hf_quake_CCREP_RULE_INFO_rule,
 			tvb, offset, -1, ENC_ASCII|ENC_NA, &item_len);
-		offset += item_len;
+	offset += item_len;
 
-		proto_tree_add_item(tree, hf_quake_CCREP_RULE_INFO_value,
+	proto_tree_add_item(tree, hf_quake_CCREP_RULE_INFO_value,
 			tvb, offset, -1, ENC_ASCII|ENC_NA);
-	}
 }
 
 
@@ -353,7 +325,7 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8		command;
 	int		direction;
-	proto_tree	*control_tree = NULL;
+	proto_tree	*control_tree;
 	tvbuff_t	*next_tvb;
 
 	command = tvb_get_guint8(tvb, 0);
@@ -363,14 +335,12 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			val_to_str(command,names_control_command, "%u"),
 			val_to_str(direction,names_control_direction,"%u"));
 
-	if (tree) {
-		control_tree = proto_tree_add_subtree_format(tree, tvb,
-				0, -1, ett_quake_control, NULL, "Control %s: %s",
-				val_to_str(direction, names_control_direction, "%u"),
-				val_to_str(command, names_control_command, "%u"));
-		proto_tree_add_uint(control_tree, hf_quake_control_command,
-					tvb, 0, 1, command);
-	}
+	control_tree = proto_tree_add_subtree_format(tree, tvb,
+			0, -1, ett_quake_control, NULL, "Control %s: %s",
+			val_to_str(direction, names_control_direction, "%u"),
+			val_to_str(command, names_control_command, "%u"));
+	proto_tree_add_uint(control_tree, hf_quake_control_command,
+			tvb, 0, 1, command);
 
 	next_tvb = tvb_new_subset_remaining(tvb, 1);
 	switch (command) {
@@ -420,8 +390,11 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	proto_tree	*quake_tree = NULL;
+	proto_tree	*quake_tree;
+	proto_item	*quake_item;
 	guint16		flags;
+	proto_item	*flags_item;
+	proto_tree	*flags_tree;
 	guint32		sequence = 0;
 	tvbuff_t	*next_tvb;
 
@@ -430,30 +403,26 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 	flags = tvb_get_ntohs(tvb, 2);
 
-	if (tree) {
-		proto_item *quake_item;
-		quake_item = proto_tree_add_item(tree, proto_quake,
-				tvb, 0, -1, ENC_NA);
-		quake_tree = proto_item_add_subtree(quake_item, ett_quake);
-	}
+	quake_item = proto_tree_add_item(tree, proto_quake, tvb, 0, -1, ENC_NA);
+	quake_tree = proto_item_add_subtree(quake_item, ett_quake);
 
-	if (quake_tree) {
-		proto_item* flags_item;
-		proto_tree* flags_tree;
-
-		flags_item = proto_tree_add_item(quake_tree, hf_quake_header_flags,
+	flags_item = proto_tree_add_item(quake_tree, hf_quake_header_flags,
 			tvb, 2, 2, ENC_BIG_ENDIAN);
-		flags_tree = proto_item_add_subtree(flags_item, ett_quake_flags);
-		proto_tree_add_item(flags_tree, hf_quake_header_flags_data, tvb, 2, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(flags_tree, hf_quake_header_flags_ack, tvb, 2, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(flags_tree, hf_quake_header_flags_no_ack, tvb, 2, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(flags_tree, hf_quake_header_flags_endmsg, tvb, 2, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(flags_tree, hf_quake_header_flags_unreliable, tvb, 2, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(flags_tree, hf_quake_header_flags_control, tvb, 2, 2, ENC_BIG_ENDIAN);
+	flags_tree = proto_item_add_subtree(flags_item, ett_quake_flags);
+	proto_tree_add_item(flags_tree, hf_quake_header_flags_data,
+			tvb, 2, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_quake_header_flags_ack,
+			tvb, 2, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_quake_header_flags_no_ack,
+			tvb, 2, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_quake_header_flags_endmsg,
+			tvb, 2, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_quake_header_flags_unreliable,
+			tvb, 2, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(flags_tree, hf_quake_header_flags_control,
+			tvb, 2, 2, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(quake_tree, hf_quake_header_length,
-			tvb, 0, 2, ENC_BIG_ENDIAN);
-	}
+	proto_tree_add_item(quake_tree, hf_quake_header_length, tvb, 0, 2, ENC_BIG_ENDIAN);
 
 	if (flags == NETFLAG_CTL) {
 		next_tvb = tvb_new_subset_remaining(tvb, 4);
