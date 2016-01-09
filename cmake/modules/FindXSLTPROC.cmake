@@ -216,6 +216,7 @@ MACRO(XML2HHP _target_dep _guide _docbooksource)
             --stringparam admon.graphics.path ${_gfxdir}/
             --nonet custom_layer_chm.xsl
             ${_docbook_plain_title}
+        MAIN_DEPENDENCY ${_docbooksource}
         DEPENDS
             ${_dbk_dep}
             # AsciiDoc uses UTF-8 by default, which is unsupported by HTML

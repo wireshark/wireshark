@@ -107,6 +107,9 @@ MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conf_files _src_files _built_deps )
             ${_src_deps}
             ${${_built_deps}}
     )
+    unset(_src_deps)
+    unset(_conf_deps)
+    unset(_conf_opts_list)
 ENDMACRO()
 
 MACRO( ASCIIDOC2HTML _output _asciidocsource _conf_files )
@@ -149,6 +152,8 @@ MACRO( ASCIIDOC2HTML _output _asciidocsource _conf_files )
             ${_conf_deps}
             ${_otherdependencies}
     )
+    unset(_conf_deps)
+    unset(_conf_opts_list)
 ENDMACRO()
 
 MACRO( ASCIIDOC2TXT _output _asciidocsource _conf_files )
@@ -196,6 +201,8 @@ MACRO( ASCIIDOC2TXT _output _asciidocsource _conf_files )
             ${_asciidocsource}
             ${_conf_deps}
     )
+    unset(_conf_deps)
+    unset(_conf_opts_list)
 ENDMACRO()
 
 # news: release-notes.txt
@@ -241,4 +248,6 @@ MACRO( ASCIIDOC2PDF _output _asciidocsource _conf_files _paper )
             ${_conf_deps}
             ${_otherdependencies}
     )
+    unset(_conf_deps)
+    unset(_conf_opts_list)
 ENDMACRO()
