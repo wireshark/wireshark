@@ -1152,8 +1152,10 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 					  create_proto_tree,
 					  FALSE /* proto_tree_visible */);
 
-	if (dissect_color)
+	if (dissect_color) {
 		color_filters_prime_edt(&edt);
+		fdata->flags.need_colorize = 1;
+	}
 	if (dissect_columns)
 		col_custom_prime_edt(&edt, cinfo);
 

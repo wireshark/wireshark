@@ -84,6 +84,7 @@ typedef struct _frame_data {
     unsigned int has_ts         : 1; /**< 1 = has time stamp, 0 = no time stamp */
     unsigned int has_phdr_comment : 1; /** 1 = there's comment for this packet */
     unsigned int has_user_comment : 1; /** 1 = user set (also deleted) comment for this packet */
+    unsigned int need_colorize  : 1; /**< 1 = need to (re-)calculate packet color */
   } flags;
   gint16       tsprec;       /**< Time stamp precision */
 

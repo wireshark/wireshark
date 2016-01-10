@@ -1099,6 +1099,15 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   if (dfcode != NULL) {
       epan_dissect_prime_dfilter(edt, dfcode);
   }
+#if 0
+  /* Prepare coloring rules, this ensures that display filter rules containing
+   * frame.color_rule references are still processed.
+   * TODO: actually detect that situation or maybe apply other optimizations? */
+  if (edt->tree && color_filters_used()) {
+    color_filters_prime_edt(edt);
+    fdata->flags.need_colorize = 1;
+  }
+#endif
 
   /* Dissect the frame. */
   epan_dissect_run_with_taps(edt, cf->cd_t, phdr, frame_tvbuff_new(fdata, buf), fdata, cinfo);

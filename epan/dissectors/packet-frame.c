@@ -616,11 +616,15 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		ENDTRY;
 	}
 
-	/* XXX optimize this so it doesn't need to scan the second time */
-	color_filter = color_filters_colorize_packet(fr_data->color_edt);
-
-	if (color_filter) {
+	/* Attempt to (re-)calculate color filters (if any). */
+	if (pinfo->fd->flags.need_colorize) {
+		color_filter = color_filters_colorize_packet(fr_data->color_edt);
 		pinfo->fd->color_filter = color_filter;
+		pinfo->fd->flags.need_colorize = 0;
+	} else {
+		color_filter = pinfo->fd->color_filter;
+	}
+	if (color_filter) {
 		item = proto_tree_add_string(fh_tree, hf_frame_color_filter_name, tvb,
 					     0, 0, color_filter->filter_name);
 		PROTO_ITEM_SET_GENERATED(item);
