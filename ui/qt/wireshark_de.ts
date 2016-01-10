@@ -1352,15 +1352,15 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="260"/>
-        <location filename="capture_interfaces_dialog.cpp" line="528"/>
-        <location filename="capture_interfaces_dialog.cpp" line="535"/>
+        <location filename="capture_interfaces_dialog.cpp" line="540"/>
+        <location filename="capture_interfaces_dialog.cpp" line="546"/>
         <source>enabled</source>
         <translation>aktivieren</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="260"/>
-        <location filename="capture_interfaces_dialog.cpp" line="528"/>
-        <location filename="capture_interfaces_dialog.cpp" line="535"/>
+        <location filename="capture_interfaces_dialog.cpp" line="540"/>
+        <location filename="capture_interfaces_dialog.cpp" line="546"/>
         <source>disabled</source>
         <translation>deaktivieren</translation>
     </message>
@@ -1390,40 +1390,44 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>keine Adressen</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="515"/>
+        <location filename="capture_interfaces_dialog.cpp" line="539"/>
         <source>default</source>
         <translation>Standard</translation>
     </message>
     <message>
+        <location filename="capture_interfaces_dialog.cpp" line="529"/>
+        <location filename="capture_interfaces_dialog.cpp" line="530"/>
+        <location filename="capture_interfaces_dialog.cpp" line="532"/>
         <location filename="capture_interfaces_dialog.cpp" line="535"/>
+        <location filename="capture_interfaces_dialog.cpp" line="546"/>
         <source>n/a</source>
         <translation>Nicht verfügbar</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="668"/>
-        <location filename="capture_interfaces_dialog.cpp" line="676"/>
-        <location filename="capture_interfaces_dialog.cpp" line="687"/>
-        <location filename="capture_interfaces_dialog.cpp" line="691"/>
-        <location filename="capture_interfaces_dialog.cpp" line="704"/>
-        <location filename="capture_interfaces_dialog.cpp" line="712"/>
+        <location filename="capture_interfaces_dialog.cpp" line="682"/>
+        <location filename="capture_interfaces_dialog.cpp" line="690"/>
+        <location filename="capture_interfaces_dialog.cpp" line="701"/>
+        <location filename="capture_interfaces_dialog.cpp" line="705"/>
+        <location filename="capture_interfaces_dialog.cpp" line="718"/>
+        <location filename="capture_interfaces_dialog.cpp" line="726"/>
         <source>Error</source>
         <translation>Fehler</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="669"/>
-        <location filename="capture_interfaces_dialog.cpp" line="677"/>
-        <location filename="capture_interfaces_dialog.cpp" line="705"/>
-        <location filename="capture_interfaces_dialog.cpp" line="713"/>
+        <location filename="capture_interfaces_dialog.cpp" line="683"/>
+        <location filename="capture_interfaces_dialog.cpp" line="691"/>
+        <location filename="capture_interfaces_dialog.cpp" line="719"/>
+        <location filename="capture_interfaces_dialog.cpp" line="727"/>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
         <translation>Dateisatz: Angeforderte Dateigröße zu groß! Die Dateigröße kann nicht größer als 2 GiB sein.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="688"/>
+        <location filename="capture_interfaces_dialog.cpp" line="702"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
         <translation>Dateisatz: Keinen Dateinamen angeben! Wenn ein Dateisatz genutzt werden soll, muss ein Dateiname angegeben werden.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="692"/>
+        <location filename="capture_interfaces_dialog.cpp" line="706"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation>Dateisatz: Kein Limit angegeben! Wenn ein Dateisatz genutzt werden soll, muss eine Dateigröße oder eine Laufzeit angegeben werden, bei der zur nächsten Datei gewechselt wird.</translation>
@@ -4310,16 +4314,16 @@ für die Filterdateien kann nicht erstellt werden:
 <context>
     <name>InterfaceTreeDelegate</name>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="961"/>
-        <location filename="capture_interfaces_dialog.cpp" line="994"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1043"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1063"/>
+        <location filename="capture_interfaces_dialog.cpp" line="975"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1007"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1055"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1075"/>
         <source>enabled</source>
         <translation>aktiviert</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="962"/>
-        <location filename="capture_interfaces_dialog.cpp" line="995"/>
+        <location filename="capture_interfaces_dialog.cpp" line="976"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1008"/>
         <source>disabled</source>
         <translation>deaktiviert</translation>
     </message>
@@ -9126,88 +9130,88 @@ text-decoration: underline;
         <translation>Ungültiger Mitschnittfilter</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1037"/>
+        <location filename="main_window_slots.cpp" line="1053"/>
         <source>Clear Menu</source>
         <translation>Menüeinträge löschen</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1528"/>
+        <location filename="main_window_slots.cpp" line="1544"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Bitte Warten während Wireshark initalisiert wird</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1685"/>
+        <location filename="main_window_slots.cpp" line="1701"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Ausgewählte Paketbytes exportieren</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1687"/>
+        <location filename="main_window_slots.cpp" line="1703"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
         <translation>Rohdaten (*.bin *.dat *.raw);; Alle Dateien (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1744"/>
+        <location filename="main_window_slots.cpp" line="1760"/>
         <source>No Keys</source>
         <translation>Keine Schlüssel</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1745"/>
+        <location filename="main_window_slots.cpp" line="1761"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Es sind keine SSL Sitzungsschlüssel zum speichern vorhanden.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1751"/>
+        <location filename="main_window_slots.cpp" line="1767"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>SSL Sitzungsschlüssel exportieren (%1 key%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1756"/>
+        <location filename="main_window_slots.cpp" line="1772"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation>SSL Sitzungsschlüssel (*.keys *.txt);; Alle Dateien (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1894"/>
+        <location filename="main_window_slots.cpp" line="1910"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Text konnte nicht kopiert werden. Probieren sie einen anderen Eintrag.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2301"/>
-        <location filename="main_window_slots.cpp" line="3334"/>
+        <location filename="main_window_slots.cpp" line="2317"/>
+        <location filename="main_window_slots.cpp" line="3350"/>
         <source>Unable to build conversation filter.</source>
         <translation>Verbindungsfilter kann nicht erstellt werden.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2446"/>
+        <location filename="main_window_slots.cpp" line="2462"/>
         <source>No filter available. Try another </source>
         <translation>Kein Filter verfügbar. Probieren Sie einen anderen.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3341"/>
+        <location filename="main_window_slots.cpp" line="3357"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Fehler beim Erstellen eines Filters für diese Verbindung.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3350"/>
+        <location filename="main_window_slots.cpp" line="3366"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Kein vorheriges/nächstes Paket in dieser Verbindung.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3427"/>
+        <location filename="main_window_slots.cpp" line="3443"/>
         <source>No Interface Selected</source>
         <translation>Kein Interface ausgewählt</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3434"/>
+        <location filename="main_window_slots.cpp" line="3450"/>
         <source> before starting a new capture</source>
         <translation>vor dem Starten einer neuen Aufzeichnung</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3639"/>
+        <location filename="main_window_slots.cpp" line="3655"/>
         <source>Wiki Page for %1</source>
         <translation>Wikiseite für %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3640"/>
+        <location filename="main_window_slots.cpp" line="3656"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Das Wireshark Wiki wird durch die Community gepflegt.&lt;/p&gt;&lt;p&gt;Die Seite, die aufgerufen werden soll, kann wundervoll, unvollständig, falsch oder gar nicht vorhanden sein.&lt;/p&gt;&lt;p&gt;Zum Wiki geheni?&lt;/p&gt;</translation>
     </message>
@@ -11642,22 +11646,22 @@ text-decoration: underline;
         <translation>RTP Daten können nicht gesichert werden.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1472"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1482"/>
         <source>No RTP packets found</source>
         <translation>Keine RTP Pakete gefunden</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1494"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1504"/>
         <source>Please select an RTP packet</source>
         <translation>Bitte ein RTP Paket auswählen</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1518"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1528"/>
         <source>RTP version %1 found. Only version 2 is supported.</source>
         <translation>RTP Version %1 gefunden. Es wird nur Version 2 unterstützt.</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1526"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1536"/>
         <source>SSRC value not found.</source>
         <translation>SSRC Wert nicht gefunden.</translation>
     </message>
@@ -11754,7 +11758,8 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1061"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1076"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1070"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1086"/>
         <source>Warning</source>
         <translation>Warnungen</translation>
     </message>
@@ -11764,32 +11769,37 @@ text-decoration: underline;
         <translation>Dieses Format kann nicht gespeichert werden</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1076"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1070"/>
+        <source>Can&apos;t save in a file: saving in au format supported only for alaw/ulaw streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.cpp" line="1086"/>
         <source>Unable to save %1</source>
         <translation>Kann %1 nicht sichern</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1080"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1090"/>
         <source>Saving %1</source>
         <translation>Speichere %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1302"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1312"/>
         <source>Save forward stream CSV</source>
         <translation>Hinweg Stream als CSV speichern</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1305"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1315"/>
         <source>Save reverse stream CSV</source>
         <translation>Rückweg Stream als CSV speichern</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1309"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1319"/>
         <source>Save CSV</source>
         <translation>Als CSV speichern</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1315"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1325"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>Komma getrennte Werte (*.csv)</translation>
     </message>

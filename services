@@ -7753,7 +7753,7 @@ storman          4178/udp # StorMan [Werner_Guertler] [Werner_Guertler] 2009-05-
 MaxumSP          4179/tcp # Maxum Services [Greg_Stine] [Greg_Stine] 2007-07-05
 MaxumSP          4179/udp # Maxum Services [Greg_Stine] [Greg_Stine] 2007-07-05
 httpx            4180/tcp # HTTPX [Paul_McGough] [Paul_McGough] 2007-02
-httpx            4180/udp # HTTPX [Paul_McGough] [Paul_McGough] 2007-02
+httpx            4180/udp # HTTPX [Paul_McGough] [Paul_McGough] 2007-02 2016-01-05
 macbak           4181/tcp # MacBak [Wes_Peters] [Wes_Peters] 2007-04
 macbak           4181/udp # MacBak [Wes_Peters] [Wes_Peters] 2007-04
 pcptcpservice    4182/tcp # Production Company Pro TCP Service [Ben_McNeill] [Ben_McNeill] 2007-05
