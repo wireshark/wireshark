@@ -907,6 +907,69 @@ static int hf_btatt_ots_size_from = -1;
 static int hf_btatt_ots_size_to = -1;
 static int hf_btatt_ots_object_first_created = -1;
 static int hf_btatt_ots_object_last_modified = -1;
+static int hf_btatt_plx_spot_check_measurement_flags = -1;
+static int hf_btatt_plx_spot_check_measurement_flags_reserved = -1;
+static int hf_btatt_plx_spot_check_measurement_flags_device_clock_is_not_set = -1;
+static int hf_btatt_plx_spot_check_measurement_flags_pulse_amplitude_index = -1;
+static int hf_btatt_plx_spot_check_measurement_flags_device_and_sensor_status = -1;
+static int hf_btatt_plx_spot_check_measurement_flags_measurement_status = -1;
+static int hf_btatt_plx_spot_check_measurement_flags_timestamp = -1;
+static int hf_btatt_plx_spo2 = -1;
+static int hf_btatt_plx_pulse_rate = -1;
+static int hf_btatt_plx_spot_check_measurement_timestamp = -1;
+static int hf_btatt_plx_measurement_status = -1;
+static int hf_btatt_plx_measurement_status_invalid_measurement_detected = -1;
+static int hf_btatt_plx_measurement_status_questionable_measurement_detected = -1;
+static int hf_btatt_plx_measurement_status_measurement_unavailable = -1;
+static int hf_btatt_plx_measurement_status_calibration_ongoing = -1;
+static int hf_btatt_plx_measurement_status_data_for_testing = -1;
+static int hf_btatt_plx_measurement_status_data_for_demonstration = -1;
+static int hf_btatt_plx_measurement_status_data_from_measurement_storage = -1;
+static int hf_btatt_plx_measurement_status_fully_qualified_data = -1;
+static int hf_btatt_plx_measurement_status_validated_data = -1;
+static int hf_btatt_plx_measurement_status_early_estimated_data = -1;
+static int hf_btatt_plx_measurement_status_measurement_ongoing = -1;
+static int hf_btatt_plx_measurement_status_reserved = -1;
+static int hf_btatt_plx_device_and_sensor_status = -1;
+static int hf_btatt_plx_device_and_sensor_status_reserved = -1;
+static int hf_btatt_plx_device_and_sensor_status_sensor_disconnected = -1;
+static int hf_btatt_plx_device_and_sensor_status_sensor_malfunctioning = -1;
+static int hf_btatt_plx_device_and_sensor_status_sensor_displaced = -1;
+static int hf_btatt_plx_device_and_sensor_status_unknown_sensor_connected = -1;
+static int hf_btatt_plx_device_and_sensor_status_sensor_unconnected_to_user = -1;
+static int hf_btatt_plx_device_and_sensor_status_sensor_interference_detected = -1;
+static int hf_btatt_plx_device_and_sensor_status_signal_analysis_ongoing = -1;
+static int hf_btatt_plx_device_and_sensor_status_questionable_pulse_detected = -1;
+static int hf_btatt_plx_device_and_sensor_status_non_pulsatile_signal_detected = -1;
+static int hf_btatt_plx_device_and_sensor_status_erratic_signal_detected = -1;
+static int hf_btatt_plx_device_and_sensor_status_low_perfusion_detected = -1;
+static int hf_btatt_plx_device_and_sensor_status_poor_signal_detected = -1;
+static int hf_btatt_plx_device_and_sensor_status_inadequate_signal_detected = -1;
+static int hf_btatt_plx_device_and_sensor_status_signal_processing_irregularity_detected = -1;
+static int hf_btatt_plx_device_and_sensor_status_equipment_malfunction_detected = -1;
+static int hf_btatt_plx_device_and_sensor_status_extended_display_update_ongoing = -1;
+static int hf_btatt_plx_pulse_amplitude_index = -1;
+static int hf_btatt_plx_spo2pr_spot_check = -1;
+static int hf_btatt_plx_spo2pr_normal = -1;
+static int hf_btatt_plx_spo2pr_fast = -1;
+static int hf_btatt_plx_spo2pr_slow = -1;
+static int hf_btatt_plx_continuous_measurement_flags = -1;
+static int hf_btatt_plx_continuous_measurement_flags_reserved = -1;
+static int hf_btatt_plx_continuous_measurement_flags_pulse_amplitude_index = -1;
+static int hf_btatt_plx_continuous_measurement_flags_device_and_sensor_status = -1;
+static int hf_btatt_plx_continuous_measurement_flags_measurement_status = -1;
+static int hf_btatt_plx_continuous_measurement_flags_spo2pr_slow = -1;
+static int hf_btatt_plx_continuous_measurement_flags_spo2pr_fast = -1;
+static int hf_btatt_plx_features_supported_features = -1;
+static int hf_btatt_plx_features_supported_features_reserved = -1;
+static int hf_btatt_plx_features_supported_features_multiple_bonds = -1;
+static int hf_btatt_plx_features_supported_features_pulse_amplitude_index = -1;
+static int hf_btatt_plx_features_supported_features_spo2pr_slow = -1;
+static int hf_btatt_plx_features_supported_features_spo2pr_fast = -1;
+static int hf_btatt_plx_features_supported_features_timestamp_storage_for_spot_check = -1;
+static int hf_btatt_plx_features_supported_features_measurement_storage_for_spot_check = -1;
+static int hf_btatt_plx_features_supported_features_device_and_sensor_status = -1;
+static int hf_btatt_plx_features_supported_features_measurement_status = -1;
 static int hf_gatt_nordic_uart_tx = -1;
 static int hf_gatt_nordic_uart_rx = -1;
 static int hf_gatt_nordic_dfu_packet = -1;
@@ -1622,6 +1685,76 @@ static const int *hfx_btatt_ots_flags[] = {
     &hf_btatt_ots_flags_change_occured_to_the_object_metadata,
     &hf_btatt_ots_flags_change_occured_to_the_object_contents,
     &hf_btatt_ots_flags_source_of_change,
+    NULL
+};
+
+static const int *hfx_btatt_plx_spot_check_measurement_flags[] = {
+    &hf_btatt_plx_spot_check_measurement_flags_reserved,
+    &hf_btatt_plx_spot_check_measurement_flags_device_clock_is_not_set,
+    &hf_btatt_plx_spot_check_measurement_flags_pulse_amplitude_index,
+    &hf_btatt_plx_spot_check_measurement_flags_device_and_sensor_status,
+    &hf_btatt_plx_spot_check_measurement_flags_measurement_status,
+    &hf_btatt_plx_spot_check_measurement_flags_timestamp,
+    NULL
+};
+
+static const int *hfx_btatt_plx_measurement_status[] = {
+    &hf_btatt_plx_measurement_status_invalid_measurement_detected,
+    &hf_btatt_plx_measurement_status_questionable_measurement_detected,
+    &hf_btatt_plx_measurement_status_measurement_unavailable,
+    &hf_btatt_plx_measurement_status_calibration_ongoing,
+    &hf_btatt_plx_measurement_status_data_for_testing,
+    &hf_btatt_plx_measurement_status_data_for_demonstration,
+    &hf_btatt_plx_measurement_status_data_from_measurement_storage,
+    &hf_btatt_plx_measurement_status_fully_qualified_data,
+    &hf_btatt_plx_measurement_status_validated_data,
+    &hf_btatt_plx_measurement_status_early_estimated_data,
+    &hf_btatt_plx_measurement_status_measurement_ongoing,
+    &hf_btatt_plx_measurement_status_reserved,
+    NULL
+};
+
+static const int *hfx_btatt_plx_device_and_sensor_status[] = {
+    &hf_btatt_plx_device_and_sensor_status_reserved,
+    &hf_btatt_plx_device_and_sensor_status_sensor_disconnected,
+    &hf_btatt_plx_device_and_sensor_status_sensor_malfunctioning,
+    &hf_btatt_plx_device_and_sensor_status_sensor_displaced,
+    &hf_btatt_plx_device_and_sensor_status_unknown_sensor_connected,
+    &hf_btatt_plx_device_and_sensor_status_sensor_unconnected_to_user,
+    &hf_btatt_plx_device_and_sensor_status_sensor_interference_detected,
+    &hf_btatt_plx_device_and_sensor_status_signal_analysis_ongoing,
+    &hf_btatt_plx_device_and_sensor_status_questionable_pulse_detected,
+    &hf_btatt_plx_device_and_sensor_status_non_pulsatile_signal_detected,
+    &hf_btatt_plx_device_and_sensor_status_erratic_signal_detected,
+    &hf_btatt_plx_device_and_sensor_status_low_perfusion_detected,
+    &hf_btatt_plx_device_and_sensor_status_poor_signal_detected,
+    &hf_btatt_plx_device_and_sensor_status_inadequate_signal_detected,
+    &hf_btatt_plx_device_and_sensor_status_signal_processing_irregularity_detected,
+    &hf_btatt_plx_device_and_sensor_status_equipment_malfunction_detected,
+    &hf_btatt_plx_device_and_sensor_status_extended_display_update_ongoing,
+    NULL
+};
+
+static const int *hfx_btatt_plx_continuous_measurement_flags[] = {
+    &hf_btatt_plx_continuous_measurement_flags_reserved,
+    &hf_btatt_plx_continuous_measurement_flags_pulse_amplitude_index,
+    &hf_btatt_plx_continuous_measurement_flags_device_and_sensor_status,
+    &hf_btatt_plx_continuous_measurement_flags_measurement_status,
+    &hf_btatt_plx_continuous_measurement_flags_spo2pr_slow,
+    &hf_btatt_plx_continuous_measurement_flags_spo2pr_fast,
+    NULL
+};
+
+static const int *hfx_btatt_plx_features_supported_features[] = {
+    &hf_btatt_plx_features_supported_features_reserved,
+    &hf_btatt_plx_features_supported_features_multiple_bonds,
+    &hf_btatt_plx_features_supported_features_pulse_amplitude_index,
+    &hf_btatt_plx_features_supported_features_spo2pr_slow,
+    &hf_btatt_plx_features_supported_features_spo2pr_fast,
+    &hf_btatt_plx_features_supported_features_timestamp_storage_for_spot_check,
+    &hf_btatt_plx_features_supported_features_measurement_storage_for_spot_check,
+    &hf_btatt_plx_features_supported_features_device_and_sensor_status,
+    &hf_btatt_plx_features_supported_features_measurement_status,
     NULL
 };
 
@@ -5652,7 +5785,9 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         break;
     case 0x2A52: /* Record Access Control Point */
-        if (service_uuid.bt_uuid == GATT_SERVICE_GLUCOSE || service_uuid.bt_uuid == GATT_SERVICE_CONTINUOUS_GLUCOSE_MONITORING) {
+        if (service_uuid.bt_uuid == GATT_SERVICE_GLUCOSE ||
+                service_uuid.bt_uuid == GATT_SERVICE_CONTINUOUS_GLUCOSE_MONITORING ||
+                service_uuid.bt_uuid == GATT_SERVICE_PULSE_OXIMETER) {
             if (is_writeable_response(att_data->opcode) || att_data->opcode == ATT_OPCODE_HANDLE_VALUE_CONFIRMATION)
                 break;
 
@@ -5970,6 +6105,142 @@ dissect_attribute_value(proto_tree *tree, proto_item *patron_item, packet_info *
 
         proto_tree_add_item(tree, hf_btatt_sensor_location, tvb, offset, 1, ENC_NA);
         offset += 1;
+
+        break;
+    case 0x2A5E: /* PLX Spot-Check Measurement */
+        if (service_uuid.bt_uuid == GATT_SERVICE_PULSE_OXIMETER) {
+            if (att_data->opcode == ATT_OPCODE_HANDLE_VALUE_CONFIRMATION)
+                break;
+
+            if (att_data->opcode != ATT_OPCODE_HANDLE_VALUE_INDICATION)
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_plx_spot_check_measurement_flags, ett_btatt_value, hfx_btatt_plx_spot_check_measurement_flags, ENC_NA);
+        flags = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        sub_item = proto_tree_add_item(tree, hf_btatt_plx_spo2pr_spot_check, tvb, offset, 4, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_btatt_value);
+
+        proto_tree_add_item(sub_tree, hf_btatt_plx_spo2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(sub_tree, hf_btatt_plx_pulse_rate, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        if (flags & 0x01) {
+            sub_item = proto_tree_add_item(tree, hf_btatt_plx_spot_check_measurement_timestamp, tvb, offset, 7, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_value);
+
+            call_dissector_with_data(find_dissector("btgatt.uuid0x2a08"), tvb_new_subset(tvb, offset, 7, 7), pinfo, sub_tree, att_data);
+            offset += 7;
+        }
+
+        if (flags & 0x02) {
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_plx_measurement_status, ett_btatt_value, hfx_btatt_plx_measurement_status, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x04) {
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_plx_device_and_sensor_status, ett_btatt_value, hfx_btatt_plx_device_and_sensor_status, ENC_LITTLE_ENDIAN);
+            offset += 3;
+        }
+
+        if (flags & 0x08) {
+            proto_tree_add_item(tree, hf_btatt_plx_pulse_amplitude_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        break;
+    case 0x2A5F: /* PLX Continuous Measurement */
+        if (service_uuid.bt_uuid == GATT_SERVICE_PULSE_OXIMETER) {
+            if (att_data->opcode != ATT_OPCODE_HANDLE_VALUE_NOTIFICATION)
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_plx_continuous_measurement_flags, ett_btatt_value, hfx_btatt_plx_continuous_measurement_flags, ENC_NA);
+        flags = tvb_get_guint8(tvb, offset);
+        offset += 1;
+
+        sub_item = proto_tree_add_item(tree, hf_btatt_plx_spo2pr_normal, tvb, offset, 4, ENC_NA);
+        sub_tree = proto_item_add_subtree(sub_item, ett_btatt_value);
+
+        proto_tree_add_item(sub_tree, hf_btatt_plx_spo2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(sub_tree, hf_btatt_plx_pulse_rate, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        if (flags & 0x01) {
+            sub_item = proto_tree_add_item(tree, hf_btatt_plx_spo2pr_fast, tvb, offset, 4, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_value);
+
+            proto_tree_add_item(sub_tree, hf_btatt_plx_spo2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(sub_tree, hf_btatt_plx_pulse_rate, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x02) {
+            sub_item = proto_tree_add_item(tree, hf_btatt_plx_spo2pr_slow, tvb, offset, 4, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_btatt_value);
+
+            proto_tree_add_item(sub_tree, hf_btatt_plx_spo2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+
+            proto_tree_add_item(sub_tree, hf_btatt_plx_pulse_rate, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x04) {
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_plx_measurement_status, ett_btatt_value, hfx_btatt_plx_measurement_status, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x08) {
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_plx_device_and_sensor_status, ett_btatt_value, hfx_btatt_plx_device_and_sensor_status, ENC_LITTLE_ENDIAN);
+            offset += 3;
+        }
+
+        if (flags & 0x10) {
+            proto_tree_add_item(tree, hf_btatt_plx_pulse_amplitude_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        break;
+    case 0x2A60: /* PLX Features */
+        if (service_uuid.bt_uuid == GATT_SERVICE_PULSE_OXIMETER) {
+            if (is_readable_request(att_data->opcode))
+                break;
+
+            if (!is_readable_response(att_data->opcode))
+                expert_add_info(pinfo, tree, &ei_btatt_invalid_usage);
+        }
+
+        if (bluetooth_gatt_has_no_parameter(att_data->opcode))
+            break;
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_plx_features_supported_features, ett_btatt_value, hfx_btatt_plx_features_supported_features, ENC_LITTLE_ENDIAN);
+        flags = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+        offset += 2;
+
+        if (flags & 0x01) {
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_plx_measurement_status, ett_btatt_value, hfx_btatt_plx_measurement_status, ENC_LITTLE_ENDIAN);
+            offset += 2;
+        }
+
+        if (flags & 0x02) {
+            proto_tree_add_bitmask(tree, tvb, offset, hf_btatt_plx_device_and_sensor_status, ett_btatt_value, hfx_btatt_plx_device_and_sensor_status, ENC_LITTLE_ENDIAN);
+            offset += 3;
+        }
 
         break;
     case 0x2A63: /* Cycling Power Measurement */
@@ -13976,6 +14247,322 @@ proto_register_btatt(void)
         {&hf_btatt_ots_object_last_modified,
             {"Last Modified", "btatt.ots.last_modified",
             FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_spot_check_measurement_flags,
+            {"Flags", "btatt.plxs.spot_check_measurement.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_spot_check_measurement_flags_reserved,
+            {"Reserved", "btatt.plxs.spot_check_measurement.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xE0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_spot_check_measurement_flags_device_clock_is_not_set,
+            {"Device Clock is not Set", "btatt.plxs.spot_check_measurement.flags.device_clock_is_not_set",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_spot_check_measurement_flags_pulse_amplitude_index,
+            {"Pulse Amplitude Index", "btatt.plxs.spot_check_measurement.flags.pulse_amplitude_index",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_spot_check_measurement_flags_device_and_sensor_status,
+            {"Device and Sensor Status", "btatt.plxs.spot_check_measurement.flags.device_and_sensor_status",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_spot_check_measurement_flags_measurement_status,
+            {"Measurement Status", "btatt.plxs.spot_check_measurement.flags.measurement_status",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_spot_check_measurement_flags_timestamp,
+            {"Timestamp", "btatt.plxs.spot_check_measurement.flags.timestamp",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_spo2,
+            {"SpO2", "btatt.plxs.spot_check_measurement.spo2",
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_pulse_rate,
+            {"Pulse Rate", "btatt.plxs.spot_check_measurement.pulse_rate",
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_spot_check_measurement_timestamp,
+            {"Timestamp", "btatt.plxs.spot_check_measurement.timestamp",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_measurement_status,
+            {"Timestamp", "btatt.plxs.spot_check_measurement.measurement_status",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_measurement_status_invalid_measurement_detected,
+            {"Invalid Measurement Detected", "btatt.plxs.spot_check_measurement.measurement_status.invalid_measurement_detected",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_measurement_status_questionable_measurement_detected,
+            {"Questionable Measurement Detected", "btatt.plxs.spot_check_measurement.measurement_status.questionable_measurement_detected",
+            FT_BOOLEAN, 16, NULL, 0x4000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_measurement_status_measurement_unavailable,
+            {"Measurement Unavailable", "btatt.plxs.spot_check_measurement.measurement_status.measurement_unavailable",
+            FT_BOOLEAN, 16, NULL, 0x2000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_measurement_status_calibration_ongoing,
+            {"Calibration Ongoing", "btatt.plxs.spot_check_measurement.measurement_status.calibration_ongoing",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_measurement_status_data_for_testing,
+            {"Data for Testing", "btatt.plxs.spot_check_measurement.measurement_status.data_for_testing",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_measurement_status_data_for_demonstration,
+            {"Data for Demonstration", "btatt.plxs.spot_check_measurement.measurement_status.data_for_demonstration",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_measurement_status_data_from_measurement_storage,
+            {"Data from Measurement Storage", "btatt.plxs.spot_check_measurement.measurement_status.data_from_measurement_storage",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_measurement_status_fully_qualified_data,
+            {"Fully Qualified Data", "btatt.plxs.spot_check_measurement.measurement_status.fully_qualified_data",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_measurement_status_validated_data,
+            {"Validated Data", "btatt.plxs.spot_check_measurement.measurement_status.validated_data",
+            FT_BOOLEAN, 16, NULL, 0x0080,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_measurement_status_early_estimated_data,
+            {"Early Estimated Data", "btatt.plxs.spot_check_measurement.measurement_status.early_estimated_data",
+            FT_BOOLEAN, 16, NULL, 0x0040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_measurement_status_measurement_ongoing,
+            {"Measurement Ongoing", "btatt.plxs.spot_check_measurement.measurement_status.measurement_ongoing",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_measurement_status_reserved,
+            {"Reserved", "btatt.plxs.spot_check_measurement.measurement_status.reserved",
+            FT_BOOLEAN, 16, NULL, 0x001F,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status,
+            {"Device and Sensor Status", "btatt.plxs.spot_check_measurement.device_and_sensor_status",
+            FT_UINT24, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_reserved,
+            {"Reserved", "btatt.plxs.spot_check_measurement.device_and_sensor_status.reserved",
+            FT_UINT24, BASE_HEX, NULL, 0xFF0000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_sensor_disconnected,
+            {"Sensor Disconnected", "btatt.plxs.spot_check_measurement.device_and_sensor_status.sensor_disconnected",
+            FT_BOOLEAN, 24, NULL, 0x008000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_sensor_malfunctioning,
+            {"Sensor Malfunctioning", "btatt.plxs.spot_check_measurement.device_and_sensor_status.sensor_malfunctioning",
+            FT_BOOLEAN, 24, NULL, 0x004000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_sensor_displaced,
+            {"Sensor Displaced", "btatt.plxs.spot_check_measurement.device_and_sensor_status.sensor_displaced",
+            FT_BOOLEAN, 24, NULL, 0x002000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_unknown_sensor_connected,
+            {"Unknown Sensor Connected", "btatt.plxs.spot_check_measurement.device_and_sensor_status.unknown_sensor_connected",
+            FT_BOOLEAN, 24, NULL, 0x001000,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_sensor_unconnected_to_user,
+            {"Unconnected to User", "btatt.plxs.spot_check_measurement.device_and_sensor_status.unconnected_to_user",
+            FT_BOOLEAN, 24, NULL, 0x000800,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_sensor_interference_detected,
+            {"Interference Detected", "btatt.plxs.spot_check_measurement.device_and_sensor_status.interference_detected",
+            FT_BOOLEAN, 24, NULL, 0x000400,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_signal_analysis_ongoing,
+            {"Signal Analysis Ongoing", "btatt.plxs.spot_check_measurement.device_and_sensor_status.signal_analysis_ongoing",
+            FT_BOOLEAN, 24, NULL, 0x000200,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_questionable_pulse_detected,
+            {"Questionable Pulse Detected", "btatt.plxs.spot_check_measurement.device_and_sensor_status.questionable_pulse_detected",
+            FT_BOOLEAN, 24, NULL, 0x000100,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_non_pulsatile_signal_detected,
+            {"Non Pulsatile Signal Detected", "btatt.plxs.spot_check_measurement.device_and_sensor_status.non_pulsatile_signal_detected",
+            FT_BOOLEAN, 24, NULL, 0x000080,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_erratic_signal_detected,
+            {"Erratic Signal Detected", "btatt.plxs.spot_check_measurement.device_and_sensor_status.erratic_signal_detected",
+            FT_BOOLEAN, 24, NULL, 0x000040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_low_perfusion_detected,
+            {"Low Perfusion Detected", "btatt.plxs.spot_check_measurement.device_and_sensor_status.low_perfusion_detected",
+            FT_BOOLEAN, 24, NULL, 0x000020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_poor_signal_detected,
+            {"Poor Signal Detected", "btatt.plxs.spot_check_measurement.device_and_sensor_status.poor_signal_detected",
+            FT_BOOLEAN, 24, NULL, 0x000010,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_inadequate_signal_detected,
+            {"Inadequate Signal Detected", "btatt.plxs.spot_check_measurement.device_and_sensor_status.inadequate_signal_detected",
+            FT_BOOLEAN, 24, NULL, 0x000008,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_signal_processing_irregularity_detected,
+            {"Signal Processing Irregularity Detected", "btatt.plxs.spot_check_measurement.device_and_sensor_status.signal_processing_irregularity_detected",
+            FT_BOOLEAN, 24, NULL, 0x000004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_equipment_malfunction_detected,
+            {"Equipment Malfunction Detected", "btatt.plxs.spot_check_measurement.device_and_sensor_status.equipment_malfunction_detected",
+            FT_BOOLEAN, 24, NULL, 0x000002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_device_and_sensor_status_extended_display_update_ongoing,
+            {"Extended Display Update Ongoing", "btatt.plxs.spot_check_measurement.device_and_sensor_status.extended_display_update_ongoing",
+            FT_BOOLEAN, 24, NULL, 0x000001,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_pulse_amplitude_index,
+            {"Pulse Amplitude Index", "btatt.plxs.spot_check_measurement.pulse_amplitude_index",
+            FT_IEEE_11073_SFLOAT, BASE_FLOAT, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_spo2pr_spot_check,
+            {"SpO2PR Spot Check", "btatt.plxs.spo2pr_spot_check",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_spo2pr_normal,
+            {"SpO2PR Normal", "btatt.plxs.spo2pr_normal",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_spo2pr_fast,
+            {"SpO2PR Fast", "btatt.plxs.spo2pr_fast",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_spo2pr_slow,
+            {"SpO2PR Slow", "btatt.plxs.spo2pr_slow",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_continuous_measurement_flags,
+            {"Flags", "btatt.plxs.continuous_measurement.flags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_continuous_measurement_flags_reserved,
+            {"Reserved", "btatt.plxs.continuous_measurement.flags.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xE0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_continuous_measurement_flags_pulse_amplitude_index,
+            {"Pulse Amplitude Index", "btatt.plxs.continuous_measurement.flags.pulse_amplitude_index",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_continuous_measurement_flags_device_and_sensor_status,
+            {"Device and Sensor Status", "btatt.plxs.continuous_measurement.flags.device_and_sensor_status",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_continuous_measurement_flags_measurement_status,
+            {"Measurement Status", "btatt.plxs.continuous_measurement.flags.measurement_status",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_continuous_measurement_flags_spo2pr_slow,
+            {"SpO2PR-Slow", "btatt.plxs.continuous_measurement.flags.spo2pr_slow",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_continuous_measurement_flags_spo2pr_fast,
+            {"SpO2PR-Fast", "btatt.plxs.continuous_measurement.flags.spo2pr_fast",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL}
+        },
+
+        {&hf_btatt_plx_features_supported_features,
+            {"Supported Features", "btatt.plxs.features.supported_features",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_features_supported_features_reserved,
+            {"Reserved", "btatt.plxs.features.supported_features.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFF00,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_features_supported_features_multiple_bonds,
+            {"Multiple Bonds", "btatt.plxs.features.supported_features.multiple_bonds",
+            FT_BOOLEAN, 16, NULL, 0x0080,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_features_supported_features_pulse_amplitude_index,
+            {"Pulse Amplitude Index", "btatt.plxs.features.supported_features.pulse_amplitude_index",
+            FT_BOOLEAN, 16, NULL, 0x0040,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_features_supported_features_spo2pr_slow,
+            {"SpO2PR-Slow", "btatt.plxs.features.supported_features.spo2pr_slow",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_features_supported_features_spo2pr_fast,
+            {"SpO2PR-Fast", "btatt.plxs.features.supported_features.spo2pr_fast",
+            FT_BOOLEAN, 16, NULL, 0x0010,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_features_supported_features_timestamp_storage_for_spot_check,
+            {"Timestamp Storage for Spot-Check", "btatt.plxs.features.supported_features.timestamp_storage_for_spot_check",
+            FT_BOOLEAN, 16, NULL, 0x0008,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_features_supported_features_measurement_storage_for_spot_check,
+            {"Measurement Storage for Spot-Check", "btatt.plxs.features.supported_features.measurement_storage_for_spot_check",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_features_supported_features_device_and_sensor_status,
+            {"Device and Sensor Status", "btatt.plxs.features.supported_features.device_and_sensor_status",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL}
+        },
+        {&hf_btatt_plx_features_supported_features_measurement_status,
+            {"Measurement Status", "btatt.plxs.features.supported_features.measurement_status",
+            FT_BOOLEAN, 16, NULL, 0x0001,
             NULL, HFILL}
         },
         {&hf_btatt_valid_range_lower_inclusive_value,
