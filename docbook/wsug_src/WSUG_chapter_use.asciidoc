@@ -942,19 +942,19 @@ all the tab labels.
 The statusbar displays informational messages.
 
 In general, the left side will show context related information, the middle part
-will show the current number of packets, and the right side will show the
-selected configuration profile. Drag the handles between the text areas to
-change the size.
+will show information about the current capture file, and the right side will
+show the selected configuration profile. Drag the handles between the text areas
+to change the size.
 
 [[ChUseWiresharkStatusbarEmpty]]
 .The initial Statusbar
-image::wsug_graphics/ws-statusbar-empty.png[]
+image::wsug_graphics/ws-statusbar-empty.png[height="22px"]
 
 This statusbar is shown while no capture file is loaded, e.g. when Wireshark is started.
 
 [[ChUseWiresharkStatusbarLoaded]]
 .The Statusbar with a loaded capture file
-image::wsug_graphics/ws-statusbar-loaded.png[]
+image::wsug_graphics/ws-statusbar-loaded.png[height="22px"]
 
 * *The colorized bullet* on the left shows the highest expert info level found
   in the currently loaded capture file. Hovering the mouse over this icon will
@@ -963,22 +963,26 @@ image::wsug_graphics/ws-statusbar-loaded.png[]
   expert info, see <<ChAdvExpert>>.
 
 * *The left side* shows information about the capture file, its name, its size
-  and the elapsed time while it was being captured.
+  and the elapsed time while it was being captured. Hovering over a file name
+  will show its full path and size.
 
 * *The middle part* shows the current number of packets in the capture file. The
   following values are displayed:
 
-  - _Packets:_ the number of captured packets
+  - _Packets:_ The number of captured packets.
 
-  - _Displayed:_ the number of packets currently being displayed
+  - _Displayed:_ The number of packets currently being displayed.
 
-  - _Marked:_ the number of marked packets
+  - _Marked:_ The number of marked packets (only displayed if packets are
+  marked).
 
-  - _Dropped:_ the number of dropped packets (only displayed if Wireshark was
-  unable to capture all packets)
+  - _Dropped:_ The number of dropped packets (only displayed if Wireshark was
+  unable to capture all packets).
 
-  - *Ignored:* the number of ignored packets (only displayed if packets are
-  ignored)
+  - _Ignored:_ The number of ignored packets (only displayed if packets are
+  ignored).
+
+  - _Load time:_ The time it took to load the capture (wall clock time).
 
 * *The right side* shows the selected configuration profile. Clicking in this
   part of the statusbar will bring up a menu with all available configuration
@@ -986,13 +990,13 @@ image::wsug_graphics/ws-statusbar-loaded.png[]
 
 [[ChUseWiresharkStatusbarProfile]]
 .The Statusbar with a configuration profile menu
-image::wsug_graphics/ws-statusbar-profile.png[]
+image::wsug_graphics/ws-statusbar-profile.png[height="192px"]
 
 For a detailed description of configuration profiles, see <<ChCustConfigProfilesSection>>.
 
 [[ChUseWiresharkStatusbarSelected]]
 .The Statusbar with a selected protocol field
-image::wsug_graphics/ws-statusbar-selected.png[]
+image::wsug_graphics/ws-statusbar-selected.png[height="22px"]
 
 This is displayed if you have selected a protocol field from the ``Packet
 Details'' pane.
@@ -1000,14 +1004,14 @@ Details'' pane.
 
 [TIP]
 ====
-The value between the brackets (in this example `arp.opcode`) can be used as a
-display filter string, representing the selected protocol field.
+The value between the parentheses (in this example `ipv6.src') can be used as a
+display filter, representing the selected protocol field.
 ====
 
 [[ChUseWiresharkStatusbarFilter]]
 
 .The Statusbar with a display filter message
-image::wsug_graphics/ws-statusbar-filter.png[]
+image::wsug_graphics/ws-statusbar-filter.png[height="22px"]
 
 This is displayed if you are trying to use a display filter which may have
 unexpected results. For a detailed description, see
