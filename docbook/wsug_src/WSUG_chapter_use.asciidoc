@@ -836,10 +836,10 @@ image:wsug_graphics/related-first.png[height="18px"]::
   First packet in a conversation.
 
 image:wsug_graphics/related-current.png[height="18px"]::
-  Part of the selected conversation
+  Part of the selected conversation.
 
 image:wsug_graphics/related-other.png[height="18px"]::
-  _Not_ part of the selected conversation
+  _Not_ part of the selected conversation.
 
 image:wsug_graphics/related-last.png[height="18px"]::
   Last packet in a conversation.
@@ -884,24 +884,23 @@ pane) in a more detailed form.
 image::wsug_graphics/ws-details-pane.png[]
 
 This pane shows the protocols and protocol fields of the packet selected in the
-``Packet List'' pane. The protocols and fields of the packet are displayed using a
-tree, which can be expanded and collapsed.
+``Packet List'' pane. The protocols and fields of the packet shown in a tree
+which can be expanded and collapsed.
 
-There is a context menu (right mouse click) available, see details in
+There is a context menu (right mouse click) available. See details in
 <<ChWorkPacketDetailsPanePopUpMenu>>.
 
-Some protocol fields are specially displayed.
+Some protocol fields have special meanings.
 
-* *Generated fields* Wireshark itself will generate additional protocol fields
-  which are surrounded by brackets. The information in these fields is derived
-  from the known context to other packets in the capture file. For example,
-  Wireshark is doing a sequence/acknowledge analysis of each TCP stream, which
-  is displayed in the [SEQ/ACK analysis] fields of the TCP protocol.
+* *Generated fields.* Wireshark itself will generate additional protocol
+  information which isn't present in the captured data. This information is
+  enclosed in square brackets (`[' and `]'). Generated information includes
+  response times, TCP analysis, GeoIP information, and checksum validation.
 
-* *Links* If Wireshark detected a relationship to another packet in the capture
-  file, it will generate a link to that packet. Links are underlined and
-  displayed in blue. If double-clicked, Wireshark jumps to the corresponding
-  packet.
+* *Links.* If Wireshark detects a relationship to another packet in the capture
+  file it will generate a link to that packet. Links are underlined and
+  displayed in blue. If you double-clicked on a link  Wireshark will jump to the
+  corresponding packet.
 
 [[ChUsePacketBytesPaneSection]]
 
@@ -915,25 +914,22 @@ The packet bytes pane shows the data of the current packet (selected in the
 .The ``Packet Bytes'' pane
 image::wsug_graphics/ws-bytes-pane.png[]
 
-As usual for a hexdump, the left side shows the offset in the packet data, in
-the middle the packet data is shown in a hexadecimal representation and on the
-right the corresponding ASCII characters (or . if not appropriate) are
-displayed.
+The ``Packet Bytes'' pane shows a canonical
+https://en.wikipedia.org/wiki/Hex_dump[hex dump] of the packet data. Each line
+contains the data offset, sixteen hexadecimal bytes, and sixteen ASCII bytes.
+Non-printalbe bytes are replaced with a period (`.').
 
 Depending on the packet data, sometimes more than one page is available, e.g.
-when Wireshark has reassembled some packets into a single chunk of data, see
-<<ChAdvReassemblySection>>. In this case there are some additional tabs shown at
-the bottom of the pane to let you select the page you want to see.
+when Wireshark has reassembled some packets into a single chunk of data. (See
+<<ChAdvReassemblySection>> for details). In this case you can see each data
+source by clicking its corresponding tab at the bottom of the pane.
 
 [[ChUseWiresharkBytesPaneTabs]]
 .The ``Packet Bytes'' pane with tabs
 image::wsug_graphics/ws-bytes-pane-tabs.png[]
 
-[NOTE]
-====
-The additional pages might contain data picked from multiple packets.
-====
-
+Additional pages typically contain data reassembled from multiple packets or
+decrypted data.
 
 The context menu (right mouse click) of the tab labels will show a list of all
 available pages. This can be helpful if the size in the pane is too small for
