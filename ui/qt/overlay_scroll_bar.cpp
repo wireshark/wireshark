@@ -28,6 +28,10 @@
 
 // To do:
 // - The slider hole doesn't match up with the slider on OS X + Qt 5.3.2.
+// - Instead of drawing the map over the scrollbar we could draw it to the
+//   right of the scrollbar. Many text editors to this. It would let us
+//   widen the map a bit, which would in turn let us add frame size or
+//   timing information.
 
 OverlayScrollBar::OverlayScrollBar(Qt::Orientation orientation, QWidget *parent) :
     QScrollBar(orientation, parent = 0),
