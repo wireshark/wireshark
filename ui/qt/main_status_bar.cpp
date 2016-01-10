@@ -293,7 +293,7 @@ void MainStatusBar::popFileStatus() {
 }
 
 void MainStatusBar::pushFieldStatus(const QString &message) {
-    if (message.isNull()) {
+    if (message.isEmpty()) {
         popFieldStatus();
     } else {
         info_status_.pushText(message, STATUS_CTX_FIELD);
@@ -306,7 +306,7 @@ void MainStatusBar::popFieldStatus() {
 
 void MainStatusBar::pushByteStatus(const QString &message)
 {
-    if (message.isNull()) {
+    if (message.isEmpty()) {
         popByteStatus();
     } else {
         info_status_.pushText(message, STATUS_CTX_BYTE);
@@ -319,7 +319,11 @@ void MainStatusBar::popByteStatus()
 }
 
 void MainStatusBar::pushFilterStatus(const QString &message) {
-    info_status_.pushText(message, STATUS_CTX_FILTER);
+    if (message.isEmpty()) {
+        popFilterStatus();
+    } else {
+        info_status_.pushText(message, STATUS_CTX_FILTER);
+    }
     expertUpdate();
 }
 
@@ -328,7 +332,11 @@ void MainStatusBar::popFilterStatus() {
 }
 
 void MainStatusBar::pushPacketStatus(const QString &message) {
-    packet_status_.pushText(message, STATUS_CTX_MAIN);
+    if (message.isEmpty()) {
+        popPacketStatus();
+    } else {
+        packet_status_.pushText(message, STATUS_CTX_MAIN);
+    }
 }
 
 void MainStatusBar::popPacketStatus() {
