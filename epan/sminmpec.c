@@ -29878,7 +29878,7 @@ const value_string sminmpec_values[] = {
     { 29855, "T-Mobile Crna Gora d.o.o." },
     { 29856, "anapol" },
     { 29857, "Ready Set Companies" },
-    { 29858, "Chrysler LLC" },
+    { 29858, "FCA US LLC (formerly 'Chrysler LLC')" },
     { 29859, "KJC Systems Ltd Co" },
     { 29860, "Octopus Technologies Ltd" },
     { 29861, "N-iX LLC" },
@@ -47028,6 +47028,11 @@ const value_string sminmpec_values[] = {
     { 47005, "Fort Lewis College" },
     { 47006, "TransneftEnergy, LLC" },
     { 47007, "Ascent Resources" },
+    { 47008, "MBDA France" },
+    { 47009, "ISIS Bilisim Teknolojileri San. Tic. Ltd. Sti." },
+    { 47010, "UK Ministry of Defence" },
+    { 47011, "Ozarks Community Hospital" },
+    { 47012, "SIMP" },
     {    0, NULL}
 };
 

@@ -1350,15 +1350,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="260"/>
-        <location filename="capture_interfaces_dialog.cpp" line="528"/>
-        <location filename="capture_interfaces_dialog.cpp" line="535"/>
+        <location filename="capture_interfaces_dialog.cpp" line="540"/>
+        <location filename="capture_interfaces_dialog.cpp" line="546"/>
         <source>enabled</source>
         <translation>有効</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="260"/>
-        <location filename="capture_interfaces_dialog.cpp" line="528"/>
-        <location filename="capture_interfaces_dialog.cpp" line="535"/>
+        <location filename="capture_interfaces_dialog.cpp" line="540"/>
+        <location filename="capture_interfaces_dialog.cpp" line="546"/>
         <source>disabled</source>
         <translation>無効</translation>
     </message>
@@ -1388,40 +1388,44 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>アドレスがありません</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="515"/>
+        <location filename="capture_interfaces_dialog.cpp" line="539"/>
         <source>default</source>
         <translation>デフォルト</translation>
     </message>
     <message>
+        <location filename="capture_interfaces_dialog.cpp" line="529"/>
+        <location filename="capture_interfaces_dialog.cpp" line="530"/>
+        <location filename="capture_interfaces_dialog.cpp" line="532"/>
         <location filename="capture_interfaces_dialog.cpp" line="535"/>
+        <location filename="capture_interfaces_dialog.cpp" line="546"/>
         <source>n/a</source>
         <translation>割当なし</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="669"/>
-        <location filename="capture_interfaces_dialog.cpp" line="677"/>
-        <location filename="capture_interfaces_dialog.cpp" line="688"/>
-        <location filename="capture_interfaces_dialog.cpp" line="692"/>
-        <location filename="capture_interfaces_dialog.cpp" line="705"/>
-        <location filename="capture_interfaces_dialog.cpp" line="713"/>
+        <location filename="capture_interfaces_dialog.cpp" line="683"/>
+        <location filename="capture_interfaces_dialog.cpp" line="691"/>
+        <location filename="capture_interfaces_dialog.cpp" line="702"/>
+        <location filename="capture_interfaces_dialog.cpp" line="706"/>
+        <location filename="capture_interfaces_dialog.cpp" line="719"/>
+        <location filename="capture_interfaces_dialog.cpp" line="727"/>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="670"/>
-        <location filename="capture_interfaces_dialog.cpp" line="678"/>
-        <location filename="capture_interfaces_dialog.cpp" line="706"/>
-        <location filename="capture_interfaces_dialog.cpp" line="714"/>
+        <location filename="capture_interfaces_dialog.cpp" line="684"/>
+        <location filename="capture_interfaces_dialog.cpp" line="692"/>
+        <location filename="capture_interfaces_dialog.cpp" line="720"/>
+        <location filename="capture_interfaces_dialog.cpp" line="728"/>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
         <translation>複数ファイル:要求したファイルサイズが大きすぎます! ファイルサイズは2GB より大きくできません</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="689"/>
+        <location filename="capture_interfaces_dialog.cpp" line="703"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
         <translation>キャプチャファイル名が指定されていません! 複数ファイルを利用したい場合にはファイル名を指定しなくてはいけません</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="693"/>
+        <location filename="capture_interfaces_dialog.cpp" line="707"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation>複数ファイル:ファイルの限界が指定されていません 次のキャプチャファイルへ切り替えるためのファイルサイズか間隔を指定する必要があります。</translation>
@@ -1597,10 +1601,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Unable to save coloring rules: %s</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Unable to save coloring rules</source>
-        <translation type="vanished">色分けルールを保存できません。</translation>
-    </message>
 </context>
 <context>
     <name>ColumnEditorFrame</name>
@@ -1674,12 +1674,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>解析したフィルタ出力</translation>
     </message>
     <message>
-        <location filename="compiled_filter_output.cpp" line="46"/>
+        <location filename="compiled_filter_output.cpp" line="47"/>
         <source>Copy</source>
         <translation>コピー</translation>
     </message>
     <message>
-        <location filename="compiled_filter_output.cpp" line="47"/>
+        <location filename="compiled_filter_output.cpp" line="48"/>
         <source>Copy filter text to the clipboard.</source>
         <translation>フィルタテキストをクリップボードにコピー</translation>
     </message>
@@ -2396,30 +2396,26 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>ExtcapArgumentFileSelection</name>
     <message>
-        <location filename="extcap_argument_file.cpp" line="100"/>
+        <location filename="extcap_argument_file.cpp" line="102"/>
         <source>Any File (*.*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="extcap_argument_file.cpp" line="109"/>
+        <location filename="extcap_argument_file.cpp" line="111"/>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
-    </message>
-    <message>
-        <source>All Files (*.*)</source>
-        <translation type="vanished">すべてのファイル (*.*)</translation>
     </message>
 </context>
 <context>
     <name>ExtcapOptionsDialog</name>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="69"/>
-        <location filename="extcap_options_dialog.cpp" line="103"/>
+        <location filename="extcap_options_dialog.cpp" line="70"/>
+        <location filename="extcap_options_dialog.cpp" line="104"/>
         <source>Extcap Interface Options</source>
         <translation>Extcapインタフェースオプション</translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="71"/>
+        <location filename="extcap_options_dialog.cpp" line="72"/>
         <source>Start</source>
         <translation>開始</translation>
     </message>
@@ -2727,113 +2723,109 @@ for filter files: %2.</source>
         <translation>としてストリームコンテントを保存</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="677"/>
+        <location filename="follow_stream_dialog.cpp" line="670"/>
         <source>
 [Stream output truncated]</source>
         <translation>[ストリーム出力が省略されました]</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="946"/>
+        <location filename="follow_stream_dialog.cpp" line="937"/>
         <source>No capture file.</source>
         <translation>キャプチャファイルがありません</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="946"/>
+        <location filename="follow_stream_dialog.cpp" line="937"/>
         <source>Please make sure you have a capture file opened.</source>
         <translation>キャプチャファイルが開かれているか確認してください</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="952"/>
-        <location filename="follow_stream_dialog.cpp" line="963"/>
-        <location filename="follow_stream_dialog.cpp" line="969"/>
-        <location filename="follow_stream_dialog.cpp" line="977"/>
-        <location filename="follow_stream_dialog.cpp" line="984"/>
+        <location filename="follow_stream_dialog.cpp" line="943"/>
+        <location filename="follow_stream_dialog.cpp" line="954"/>
+        <location filename="follow_stream_dialog.cpp" line="960"/>
+        <location filename="follow_stream_dialog.cpp" line="968"/>
+        <location filename="follow_stream_dialog.cpp" line="976"/>
         <source>Error following stream.</source>
         <translation>ストリーム分析のエラー</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="952"/>
+        <location filename="follow_stream_dialog.cpp" line="943"/>
         <source>Capture file invalid.</source>
         <translation>キャプチャファイルが無効です</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="963"/>
+        <location filename="follow_stream_dialog.cpp" line="954"/>
         <source>Please make sure you have a TCP packet selected.</source>
         <translation>TCPパケットを選んだか確認してください</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="969"/>
+        <location filename="follow_stream_dialog.cpp" line="960"/>
         <source>Please make sure you have a UDP packet selected.</source>
         <translation>UDPパケットを選んだか確認してください</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="978"/>
+        <location filename="follow_stream_dialog.cpp" line="969"/>
         <source>Please make sure you have an SSL packet selected.</source>
         <translation>SSLパケットを選んだか確認してください</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="984"/>
+        <location filename="follow_stream_dialog.cpp" line="976"/>
         <source>Please make sure you have a HTTP packet selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1011"/>
+        <location filename="follow_stream_dialog.cpp" line="1020"/>
         <source>Error creating filter for this stream.</source>
         <translation>このストリームのフィルタ作成エラー</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1012"/>
+        <location filename="follow_stream_dialog.cpp" line="1021"/>
         <source>A transport or network layer header is needed.</source>
         <translation>トランスポート層かネットワーク層のヘッダーが必要です。</translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="1069"/>
-        <location filename="follow_stream_dialog.cpp" line="1088"/>
+        <location filename="follow_stream_dialog.cpp" line="1085"/>
+        <location filename="follow_stream_dialog.cpp" line="1104"/>
         <source>%Ln total stream(s).</source>
         <translation>
             <numerusform>%Ln 全ストリーム</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1159"/>
         <source>Could not read from temporary file %1: %2</source>
-        <translation>一時ファイルから読み込めませんでした。 %1: %2</translation>
+        <translation type="vanished">一時ファイルから読み込めませんでした。 %1: %2</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1164"/>
-        <location filename="follow_stream_dialog.cpp" line="1421"/>
         <source>Short read from temporary file %1: expected %2, got %3</source>
-        <translation>一時ファイルから一部を読み込みました。 %1: 予想 %2, 実際 %3</translation>
+        <translation type="vanished">一時ファイルから一部を読み込みました。 %1: 予想 %2, 実際 %3</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1320"/>
+        <location filename="follow_stream_dialog.cpp" line="1222"/>
         <source>Follow TCP Stream (%1)</source>
         <translation>TCPストリームを追跡 (%1)</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1327"/>
+        <location filename="follow_stream_dialog.cpp" line="1229"/>
         <source>Follow UDP Stream (%1)</source>
         <translation>UDPストリームを追跡 (%1)</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1334"/>
+        <location filename="follow_stream_dialog.cpp" line="1236"/>
         <source>Follow SSL Stream (%1)</source>
         <translation>SSLストリームを追跡 (%1)</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1341"/>
+        <location filename="follow_stream_dialog.cpp" line="1243"/>
         <source>Follow HTTP Stream (%1)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1365"/>
+        <location filename="follow_stream_dialog.cpp" line="1267"/>
         <source>File closed.</source>
         <translation>ファイルを閉じました。</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1473"/>
         <source>Error reading temporary file</source>
-        <translation>一時ファイル読み込みエラー</translation>
+        <translation type="vanished">一時ファイル読み込みエラー</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.ui" line="20"/>
@@ -3893,123 +3885,121 @@ for filter files: %2.</source>
         <translation>RTPデータを保存できません。</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="305"/>
         <source>No IAX2 packets found</source>
-        <translation>IAX2パケットがありませんでした。</translation>
+        <translation type="vanished">IAX2パケットがありませんでした。</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="327"/>
+        <location filename="iax2_analysis_dialog.cpp" line="334"/>
         <source>Please select an IAX2 packet</source>
         <translation>IAX2パケットを選んでください。</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="351"/>
         <source>Please select an IAX2 packet.</source>
-        <translation>IAX2パケットを選んでください</translation>
+        <translation type="vanished">IAX2パケットを選んでください</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="444"/>
+        <location filename="iax2_analysis_dialog.cpp" line="440"/>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation> G: パケットへ移動, N: 次の問題パケット</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="565"/>
+        <location filename="iax2_analysis_dialog.cpp" line="561"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>PDF形式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="566"/>
+        <location filename="iax2_analysis_dialog.cpp" line="562"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>PNG形式 (*.png)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="567"/>
+        <location filename="iax2_analysis_dialog.cpp" line="563"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>ビットマップ形式 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="569"/>
+        <location filename="iax2_analysis_dialog.cpp" line="565"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG形式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="580"/>
+        <location filename="iax2_analysis_dialog.cpp" line="576"/>
         <source>Save Graph As</source>
         <translation>としてグラフを保存</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="739"/>
+        <location filename="iax2_analysis_dialog.cpp" line="735"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>ファイルに保存できません。:パケットの長さが違います。</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="750"/>
+        <location filename="iax2_analysis_dialog.cpp" line="746"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation>ファイルに保存できません。:ファイル入出力問題</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="872"/>
+        <location filename="iax2_analysis_dialog.cpp" line="868"/>
         <source>Save forward stream audio</source>
         <translation>順方向のストリームオーディオを保存</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="875"/>
+        <location filename="iax2_analysis_dialog.cpp" line="871"/>
         <source>Save reverse stream audio</source>
         <translation>逆方向のストリームオーディオを保存</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="879"/>
+        <location filename="iax2_analysis_dialog.cpp" line="875"/>
         <source>Save audio</source>
         <translation>オーディオを保存</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="883"/>
+        <location filename="iax2_analysis_dialog.cpp" line="879"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun オーディオ型式 (*.au)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="885"/>
+        <location filename="iax2_analysis_dialog.cpp" line="881"/>
         <source>;;Raw (*.raw)</source>
         <translation>;;Raw型式 (*.raw)</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="902"/>
-        <location filename="iax2_analysis_dialog.cpp" line="917"/>
+        <location filename="iax2_analysis_dialog.cpp" line="898"/>
+        <location filename="iax2_analysis_dialog.cpp" line="913"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="902"/>
+        <location filename="iax2_analysis_dialog.cpp" line="898"/>
         <source>Unable to save in that format</source>
         <translation>そのフォーマットで保存できません。</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="917"/>
+        <location filename="iax2_analysis_dialog.cpp" line="913"/>
         <source>Unable to save %1</source>
         <translation>%1を保存できません。</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="921"/>
+        <location filename="iax2_analysis_dialog.cpp" line="917"/>
         <source>Saving %1</source>
         <translation>%1 を保存</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1143"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1139"/>
         <source>Save forward stream CSV</source>
         <translation>順方向のストリーム CSVを保存</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1146"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1142"/>
         <source>Save reverse stream CSV</source>
         <translation>逆方向のストリーム CSVを保存</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1150"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1146"/>
         <source>Save CSV</source>
         <translation>Save CSV</translation>
     </message>
     <message>
-        <location filename="iax2_analysis_dialog.cpp" line="1156"/>
+        <location filename="iax2_analysis_dialog.cpp" line="1152"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>CSV形式 (*.csv)</translation>
     </message>
@@ -4288,17 +4278,17 @@ for filter files: %2.</source>
 <context>
     <name>InterfaceTree</name>
     <message>
-        <location filename="interface_tree.cpp" line="66"/>
+        <location filename="interface_tree.cpp" line="68"/>
         <source>Welcome screen list</source>
         <translation>ウェルカムスクリーンリスト</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="72"/>
+        <location filename="interface_tree.cpp" line="74"/>
         <source>Waiting for startup%1</source>
         <translation>開始までお待ちください%1</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="239"/>
+        <location filename="interface_tree.cpp" line="244"/>
         <source>Interface information not available</source>
         <translation>インタフェース情報が利用できません</translation>
     </message>
@@ -4306,16 +4296,16 @@ for filter files: %2.</source>
 <context>
     <name>InterfaceTreeDelegate</name>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="962"/>
-        <location filename="capture_interfaces_dialog.cpp" line="995"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1044"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1064"/>
+        <location filename="capture_interfaces_dialog.cpp" line="976"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1008"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1056"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1076"/>
         <source>enabled</source>
         <translation>有効</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="963"/>
-        <location filename="capture_interfaces_dialog.cpp" line="996"/>
+        <location filename="capture_interfaces_dialog.cpp" line="977"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1009"/>
         <source>disabled</source>
         <translation>無効</translation>
     </message>
@@ -6498,32 +6488,32 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="206"/>
+        <location filename="main_welcome.cpp" line="213"/>
         <source>You are running Wireshark </source>
         <translation>Wiresharkを起動中です</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="208"/>
+        <location filename="main_welcome.cpp" line="215"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="211"/>
+        <location filename="main_welcome.cpp" line="218"/>
         <source> You receive automatic updates.</source>
         <translation>自動アップデートを受信します</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="213"/>
+        <location filename="main_welcome.cpp" line="220"/>
         <source> You have disabled automatic updates.</source>
         <translation>自動アップデートを無効にしました。</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="285"/>
+        <location filename="main_welcome.cpp" line="305"/>
         <source>not found</source>
         <translation>見つかりません</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="359"/>
+        <location filename="main_welcome.cpp" line="378"/>
         <source>Copy file path</source>
         <translation>ファイルパスをコピー</translation>
     </message>
@@ -9239,93 +9229,93 @@ a:hover {
         <translation>無効なキャプチャフィルタ</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1028"/>
+        <location filename="main_window_slots.cpp" line="1074"/>
         <source>Clear Menu</source>
         <translation>メニューをクリア</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1528"/>
+        <location filename="main_window_slots.cpp" line="1574"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Wiresharkが初期化する間お待ちください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1685"/>
+        <location filename="main_window_slots.cpp" line="1731"/>
         <source>Export Selected Packet Bytes</source>
         <translation>選択したパケットデータ部をエキスポート</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1687"/>
+        <location filename="main_window_slots.cpp" line="1733"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
         <translation>Raw形式 (*.bin *.dat *.raw);;すべてのファイル (*.*</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1744"/>
+        <location filename="main_window_slots.cpp" line="1790"/>
         <source>No Keys</source>
         <translation>キーはありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1745"/>
+        <location filename="main_window_slots.cpp" line="1791"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>保存する SSLセッション鍵はありません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1751"/>
+        <location filename="main_window_slots.cpp" line="1797"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>SSLセッション鍵をエキスポート (%1 鍵%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1756"/>
+        <location filename="main_window_slots.cpp" line="1802"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation>SSLセッション鍵 (*.keys *.txt);;すべてのファイル (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1894"/>
+        <location filename="main_window_slots.cpp" line="1940"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>テキストコピーできません 別に試してください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2301"/>
-        <location filename="main_window_slots.cpp" line="3383"/>
+        <location filename="main_window_slots.cpp" line="2347"/>
+        <location filename="main_window_slots.cpp" line="3429"/>
         <source>Unable to build conversation filter.</source>
         <translation>会話フィルタを作成できません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2471"/>
+        <location filename="main_window_slots.cpp" line="2517"/>
         <source>No filter available. Try another </source>
         <translation>フィルタが利用できません 別に試してください</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3390"/>
+        <location filename="main_window_slots.cpp" line="3436"/>
         <source>Error compiling filter for this conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3399"/>
+        <location filename="main_window_slots.cpp" line="3445"/>
         <source>No previous/next packet in conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3476"/>
+        <location filename="main_window_slots.cpp" line="3522"/>
         <source>No Interface Selected</source>
         <translation>インターフェースが選択されていません</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3483"/>
+        <location filename="main_window_slots.cpp" line="3529"/>
         <source> before starting a new capture</source>
         <translation>新規キャプチャを開始する前に</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3501"/>
+        <location filename="main_window_slots.cpp" line="3547"/>
         <source> before restarting a new capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3692"/>
+        <location filename="main_window_slots.cpp" line="3738"/>
         <source>Wiki Page for %1</source>
         <translation>%1 の Wikiページ</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3693"/>
+        <location filename="main_window_slots.cpp" line="3739"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;ワイヤーシャークWikiはコミュニティによって運営されています。&lt;/p&gt;&lt;p&gt;いま見ているページはすばらしかったり、不完全だったり、間違っていたり、存在しないかもしれません。&lt;/p&gt;&lt;p&gt;Wikiに移動しますか？&lt;/p&gt;</translation>
     </message>
@@ -11069,12 +11059,12 @@ a:hover {
         <translation>優先度</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="342"/>
+        <location filename="main_welcome.cpp" line="361"/>
         <source>Show in Finder</source>
         <translation>ファインダーで表示</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="344"/>
+        <location filename="main_welcome.cpp" line="363"/>
         <source>Show in Folder</source>
         <translation>フォルダで表示</translation>
     </message>
@@ -11760,22 +11750,19 @@ a:hover {
         <translation>RTPデータを保存することができません</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1472"/>
         <source>No RTP packets found</source>
-        <translation>RTPパケットが見つかりませんでした</translation>
+        <translation type="vanished">RTPパケットが見つかりませんでした</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1494"/>
         <source>Please select an RTP packet</source>
-        <translation>どうか1つのRTPパケットを選んでください</translation>
+        <translation type="vanished">どうか1つのRTPパケットを選んでください</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1518"/>
         <source>RTP version %1 found. Only version 2 is supported.</source>
-        <translation>RTP バージョン %1 が見つかりました。バージョン2だけがサポートされています。</translation>
+        <translation type="vanished">RTP バージョン %1 が見つかりました。バージョン2だけがサポートされています。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1526"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1473"/>
         <source>SSRC value not found.</source>
         <translation>SSRC 値が見つかりませんでした</translation>
     </message>
@@ -11872,7 +11859,8 @@ a:hover {
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1061"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1076"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1070"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1086"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
@@ -11882,34 +11870,49 @@ a:hover {
         <translation>そのフォーマットで保存できません</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1076"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1070"/>
+        <source>Can&apos;t save in a file: saving in au format supported only for alaw/ulaw streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.cpp" line="1086"/>
         <source>Unable to save %1</source>
         <translation>%1を保存できません</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1080"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1090"/>
         <source>Saving %1</source>
         <translation>%1 保存中</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1302"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1312"/>
         <source>Save forward stream CSV</source>
         <translation>順方向ストリームをCSVで保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1305"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1315"/>
         <source>Save reverse stream CSV</source>
         <translation>逆方向のストリームをCSVで保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1309"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1319"/>
         <source>Save CSV</source>
         <translation>CSVを保存</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1315"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1325"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>カンマ区切りテキスト形式 (*.csv)</translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.cpp" line="1415"/>
+        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rtp_analysis_dialog.cpp" line="1449"/>
+        <source>Please select an RTPv2 packet with an SSRC value</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
