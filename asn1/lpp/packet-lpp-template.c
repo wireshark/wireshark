@@ -1,6 +1,6 @@
 /* packet-lpp.c
  * Routines for 3GPP LTE Positioning Protocol (LPP) packet dissection
- * Copyright 2011-2015 Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2011-2016 Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -20,7 +20,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * Ref 3GPP TS 36.355 version 12.4.0 Release 12
+ * Ref 3GPP TS 36.355 version 13.0.0 Release 13
  * http://www.3gpp.org
  */
 
@@ -1624,6 +1624,14 @@ lpp_ue_RxTxTimeDiff_fmt(gchar *s, guint32 v)
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "20472 Ts <= T (4095)");
   }
+}
+
+static void
+lpp_mbs_beaconMeasElt_codePhase_fmt(gchar *s, guint32 v)
+{
+  double codePhase = (double)v*pow(2, -21);
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%g ms (%u)", codePhase, v);
 }
 
 #include "packet-lpp-fn.c"

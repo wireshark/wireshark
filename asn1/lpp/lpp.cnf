@@ -1,6 +1,6 @@
 # lpp.cnf
 # lpp conformation file
-# Copyright 2011-2015 Pascal Quantin
+# Copyright 2011-2016 Pascal Quantin
 
 #.OPT
 PER
@@ -301,6 +301,32 @@ VerticalAccuracy/confidence DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_confidence_f
 
 #.FN_FTR ResponseTime/eag_1/responseTimeEarlyFix-r12
   proto_item_append_text(actx->created_item, " s");
+
+#.FN_BODY LocationSource-r13 VAL_PTR = &locSource_tvb LEN_PTR = &len
+  tvbuff_t *locSource_tvb = NULL;
+  int len;
+
+%(DEFAULT_BODY)s
+  if(locSource_tvb){
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
+    if (len >= 1) {
+      proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_a_gnss, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+    if (len >= 2) {
+      proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_wlan, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+    if (len >= 3) {
+      proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_bt, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+    if (len >= 4) {
+      proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_tbs, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+    if (len >= 5) {
+      proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_sensor, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+  }
 
 #.TYPE_ATTR
 OTDOA-NeighbourCellInfoElement/expectedRSTD DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_expectedRSTD_fmt)
@@ -1627,5 +1653,157 @@ MeasuredResultsElement/ue-RxTxTimeDiff DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_u
     }
     if (len >= 3) {
       proto_tree_add_item(subtree, hf_lpp_T_ecid_MeasSupported_ueRxTxSup, ecid_MeasSupported_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+  }
+
+#.TYPE_ATTR
+MBS-BeaconMeasElement-r13/codePhase-r13 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_mbs_beaconMeasElt_codePhase_fmt)
+
+#.TYPE_ATTR
+MBS-BeaconMeasElement-r13/codePhaseRMSError-r13 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_codePhaseRMSError_fmt)
+
+#.FN_BODY TBS-ProvideCapabilities-r13/tbs-Modes-r13 VAL_PTR = &tbs_Modes_tvb LEN_PTR = &len
+  tvbuff_t *tbs_Modes_tvb = NULL;
+  int len;
+
+%(DEFAULT_BODY)s
+  if(tbs_Modes_tvb){
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
+    if (len >= 1) {
+      proto_tree_add_item(subtree, hf_lpp_T_tbs_Modes_r13_standalone, tbs_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+    if (len >= 3) {
+      proto_tree_add_item(subtree, hf_lpp_T_tbs_Modes_r13_ue_assisted, tbs_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+  }
+
+#.FN_FTR Sensor-MeasurementList-r13/uncompensatedBarometricPressure-r13
+  proto_item_append_text(actx->created_item, " Pa");
+
+#.FN_BODY Sensor-ProvideCapabilities-r13/sensor-Modes-r13 VAL_PTR = &sensor_Modes_tvb LEN_PTR = &len
+  tvbuff_t *sensor_Modes_tvb = NULL;
+  int len;
+
+%(DEFAULT_BODY)s
+  if(sensor_Modes_tvb){
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
+    if (len >= 1) {
+      proto_tree_add_item(subtree, hf_lpp_T_sensor_Modes_r13_standalone, sensor_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+    if (len >= 3) {
+      proto_tree_add_item(subtree, hf_lpp_T_sensor_Modes_r13_ue_assisted, sensor_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+  }
+
+#.FN_FTR WLAN-MeasurementElement-r13/rssi-r13
+  proto_item_append_text(actx->created_item, " dBm");
+
+#.TYPE_ATTR
+WLAN-AP-Identifier-r13/bssid-r13 TYPE=FT_ETHER
+
+#.TYPE_ATTR
+WLAN-AP-Identifier-r13/ssid-r13 TYPE=FT_STRING DISPLAY=STR_ASCII
+
+#.FN_BODY WLAN-AP-Identifier-r13/ssid-r13 VAL_PTR=&ssid_tvb HF_INDEX=-1
+  tvbuff_t *ssid_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  actx->created_item = proto_tree_add_item(tree, hf_index, ssid_tvb, 0, -1, ENC_ASCII|ENC_NA);
+
+#.FN_BODY WLAN-RequestLocationInformation-r13/requestedMeasurements-r13 VAL_PTR = &requestedMeasurements_tvb LEN_PTR = &len
+  tvbuff_t *requestedMeasurements_tvb = NULL;
+  int len;
+
+%(DEFAULT_BODY)s
+  if(requestedMeasurements_tvb){
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
+    if (len >= 1) {
+      proto_tree_add_item(subtree, hf_lpp_T_requestedMeasurements_r13_rssi, requestedMeasurements_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+    if (len >= 2) {
+      proto_tree_add_item(subtree, hf_lpp_T_requestedMeasurements_r13_rtt, requestedMeasurements_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+  }
+
+#.FN_BODY WLAN-ProvideCapabilities-r13/wlan-Modes-r13 VAL_PTR = &wlan_Modes_tvb LEN_PTR = &len
+  tvbuff_t *wlan_Modes_tvb = NULL;
+  int len;
+
+%(DEFAULT_BODY)s
+  if(wlan_Modes_tvb){
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
+    if (len >= 1) {
+      proto_tree_add_item(subtree, hf_lpp_T_wlan_Modes_r13_standalone, wlan_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+    if (len >= 3) {
+      proto_tree_add_item(subtree, hf_lpp_T_wlan_Modes_r13_ue_assisted, wlan_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+  }
+
+#.FN_BODY WLAN-ProvideCapabilities-r13/wlan-MeasSupported-r13 VAL_PTR = &wlan_MeasSupported_tvb LEN_PTR = &len
+  tvbuff_t *wlan_MeasSupported_tvb = NULL;
+  int len;
+
+%(DEFAULT_BODY)s
+  if(wlan_MeasSupported_tvb){
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
+    if (len >= 1) {
+      proto_tree_add_item(subtree, hf_lpp_T_wlan_MeasSupported_r13_rssi_r13, wlan_MeasSupported_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+    if (len >= 2) {
+      proto_tree_add_item(subtree, hf_lpp_T_wlan_MeasSupported_r13_rtt_r13, wlan_MeasSupported_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+  }
+
+#.TYPE_ATTR
+BT-MeasurementElement-r13/btAddr-r13 TYPE=FT_ETHER DISPLAY=BASE_NONE
+
+#.FN_BODY BT-MeasurementElement-r13/btAddr-r13 VAL_PTR=&btAddr_tvb HF_INDEX=-1
+  tvbuff_t *btAddr_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  actx->created_item = proto_tree_add_item(tree, hf_index, btAddr_tvb, 0, 6, ENC_NA);
+
+#.FN_FTR BT-MeasurementElement-r13/rssi-r13
+  proto_item_append_text(actx->created_item, " dBm");
+
+#.FN_BODY BT-RequestLocationInformation-r13/requestedMeasurements-r13 VAL_PTR = &requestedMeasurements_tvb LEN_PTR = &len
+  tvbuff_t *requestedMeasurements_tvb = NULL;
+  int len;
+
+%(DEFAULT_BODY)s
+  if(requestedMeasurements_tvb){
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
+    if (len >= 1) {
+      proto_tree_add_item(subtree, hf_lpp_T_requestedMeasurements_r13_01_rssi, requestedMeasurements_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+  }
+
+#.FN_BODY BT-ProvideCapabilities-r13/bt-Modes-r13 VAL_PTR = &bt_Modes_tvb LEN_PTR = &len
+  tvbuff_t *bt_Modes_tvb = NULL;
+  int len;
+
+%(DEFAULT_BODY)s
+  if(bt_Modes_tvb){
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
+    if (len >= 1) {
+      proto_tree_add_item(subtree, hf_lpp_T_bt_Modes_r13_standalone, bt_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+    if (len >= 3) {
+      proto_tree_add_item(subtree, hf_lpp_T_bt_Modes_r13_ue_assisted, bt_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
   }

@@ -1,4 +1,4 @@
--- 3GPP TS 36.355 V12.4.0 (2015-03)
+-- 3GPP TS 36.355 V13.0.0 (2015-12)
 --
 
 LPP-PDU-Definitions {
@@ -74,7 +74,13 @@ RequestCapabilities-r9-IEs ::= SEQUENCE {
 	otdoa-RequestCapabilities			OTDOA-RequestCapabilities			OPTIONAL,	-- Need ON
 	ecid-RequestCapabilities			ECID-RequestCapabilities			OPTIONAL,	-- Need ON
 	epdu-RequestCapabilities			EPDU-Sequence						OPTIONAL,	-- Need ON
-	...
+	...,
+	[[	sensor-RequestCapabilities-r13	Sensor-RequestCapabilities-r13		OPTIONAL,	-- Need ON
+		tbs-RequestCapabilities-r13		TBS-RequestCapabilities-r13			OPTIONAL,	-- Need ON
+		wlan-RequestCapabilities-r13	WLAN-RequestCapabilities-r13		OPTIONAL,	-- Need ON
+		bt-RequestCapabilities-r13		BT-RequestCapabilities-r13			OPTIONAL	-- Need ON
+	]]
+
 }
 
 
@@ -94,7 +100,12 @@ ProvideCapabilities-r9-IEs ::= SEQUENCE {
 	otdoa-ProvideCapabilities			OTDOA-ProvideCapabilities			OPTIONAL,
 	ecid-ProvideCapabilities			ECID-ProvideCapabilities			OPTIONAL,
 	epdu-ProvideCapabilities			EPDU-Sequence						OPTIONAL,
-	...
+	...,
+	[[	sensor-ProvideCapabilities-r13 	Sensor-ProvideCapabilities-r13 		OPTIONAL,
+		tbs-ProvideCapabilities-r13		TBS-ProvideCapabilities-r13			OPTIONAL,
+		wlan-ProvideCapabilities-r13	WLAN-ProvideCapabilities-r13		OPTIONAL,
+		bt-ProvideCapabilities-r13		BT-ProvideCapabilities-r13			OPTIONAL
+	]]
 }
 
 
@@ -153,7 +164,16 @@ RequestLocationInformation-r9-IEs ::= SEQUENCE {
 	otdoa-RequestLocationInformation	OTDOA-RequestLocationInformation	OPTIONAL,	-- Need ON
 	ecid-RequestLocationInformation		ECID-RequestLocationInformation		OPTIONAL,	-- Need ON
 	epdu-RequestLocationInformation		EPDU-Sequence						OPTIONAL,	-- Need ON
-	...
+	...,
+	[[
+	sensor-RequestLocationInformation-r13
+										Sensor-RequestLocationInformation-r13
+																			OPTIONAL,	-- Need ON
+	tbs-RequestLocationInformation-r13	TBS-RequestLocationInformation-r13	OPTIONAL,	-- Need ON
+	wlan-RequestLocationInformation-r13	WLAN-RequestLocationInformation-r13	OPTIONAL,	-- Need ON
+	bt-RequestLocationInformation-r13	BT-RequestLocationInformation-r13	OPTIONAL	-- Need ON
+	]]
+
 }
 
 
@@ -174,7 +194,16 @@ ProvideLocationInformation-r9-IEs ::= SEQUENCE {
 	otdoa-ProvideLocationInformation	OTDOA-ProvideLocationInformation	OPTIONAL,
 	ecid-ProvideLocationInformation		ECID-ProvideLocationInformation		OPTIONAL,
 	epdu-ProvideLocationInformation		EPDU-Sequence						OPTIONAL,
-	...
+	...,
+	[[
+	sensor-ProvideLocationInformation-r13
+										Sensor-ProvideLocationInformation-r13
+																			OPTIONAL,
+	tbs-ProvideLocationInformation-r13	TBS-ProvideLocationInformation-r13	OPTIONAL,
+	wlan-ProvideLocationInformation-r13	WLAN-ProvideLocationInformation-r13	OPTIONAL,
+	bt-ProvideLocationInformation-r13	BT-ProvideLocationInformation-r13	OPTIONAL
+	]]
+
 }
 
 
@@ -520,6 +549,9 @@ CommonIEsProvideLocationInformation ::= SEQUENCE {
 	locationError				LocationError			OPTIONAL,
 	...,
 	[[	earlyFixReport-r12		EarlyFixReport-r12		OPTIONAL
+	]],
+	[[	locationSource-r13		LocationSource-r13		OPTIONAL,
+		locationTimestamp-r13 	UTCTime 				OPTIONAL
 	]]
 }
 
@@ -561,6 +593,12 @@ EarlyFixReport-r12 ::= ENUMERATED {
 	noMoreMessages,
 	moreMessagesOnTheWay
 }
+
+LocationSource-r13 ::= BIT STRING {	a-gnss				(0),
+									wlan				(1),
+									bt					(2),
+									tbs					(3),
+									sensor				(4) } (SIZE(1..16))
 
 
 CommonIEsAbort ::= SEQUENCE {
@@ -1411,7 +1449,7 @@ AlmanacECEF-SBAS-AlmanacSet ::= SEQUENCE {
 
 AlmanacBDS-AlmanacSet-r12 ::= SEQUENCE {
 	svID					SV-ID,
-	bdsAlmToa-r12			INTEGER (0..255)						OPTIONAL,	-- Cond NotSameForAllSV
+	bdsAlmToa-r12			INTEGER (0..255)					OPTIONAL,	-- Cond NotSameForAllSV
 	bdsAlmSqrtA-r12			INTEGER (0..16777215),
 	bdsAlmE-r12				INTEGER (0..131071),
 	bdsAlmW-r12				INTEGER (-8388608..8388607),
@@ -1421,7 +1459,7 @@ AlmanacBDS-AlmanacSet-r12 ::= SEQUENCE {
 	bdsAlmDeltaI-r12		INTEGER (-32768..32767),
 	bdsAlmA0-r12			INTEGER (-1024..1023),
 	bdsAlmA1-r12			INTEGER (-1024..1023),
-	bdsSvHealth-r12			BIT STRING (SIZE(9))					OPTIONAL,	-- Cond SV-ID
+	bdsSvHealth-r12			BIT STRING (SIZE(9))				OPTIONAL,	-- Cond SV-ID
 	...
 }
 
@@ -1608,9 +1646,9 @@ GNSS-GenericAssistDataReqElement ::= SEQUENCE {
 
 
 GNSS-ReferenceTimeReq ::= SEQUENCE {
-    	gnss-TimeReqPrefList	SEQUENCE (SIZE (1..8)) OF GNSS-ID,
-    	gps-TOW-assistReq		BOOLEAN								OPTIONAL, -- Cond gps
-    	notOfLeapSecReq			BOOLEAN								OPTIONAL, -- Cond glonass
+	gnss-TimeReqPrefList	SEQUENCE (SIZE (1..8)) OF GNSS-ID,
+	gps-TOW-assistReq		BOOLEAN								OPTIONAL, -- Cond gps
+	notOfLeapSecReq			BOOLEAN								OPTIONAL, -- Cond glonass
 	...
 }
 
@@ -1667,15 +1705,15 @@ SatListRelatedDataList ::= SEQUENCE (SIZE (1..64)) OF SatListRelatedDataElement
 
 SatListRelatedDataElement ::= SEQUENCE {
 	svID 				SV-ID,
-    	iod 				BIT STRING (SIZE(11)),
-    	clockModelID		INTEGER (1..8)			OPTIONAL,
-     orbitModelID		INTEGER (1..8)			OPTIONAL,
-    	...
+	iod 				BIT STRING (SIZE(11)),
+	clockModelID		INTEGER (1..8)			OPTIONAL,
+orbitModelID		INTEGER (1..8)			OPTIONAL,
+	...
 }
 
 ReqNavListInfo ::=	SEQUENCE {
 	svReqList				BIT STRING (SIZE (64)),
-    	clockModelID-PrefList	SEQUENCE (SIZE (1..8)) OF	INTEGER (1..8)		OPTIONAL,
+	clockModelID-PrefList	SEQUENCE (SIZE (1..8)) OF	INTEGER (1..8)		OPTIONAL,
 	orbitModelID-PrefList	SEQUENCE (SIZE (1..8)) OF	INTEGER (1..8)		OPTIONAL,
 	addNavparamReq			BOOLEAN				OPTIONAL,	-- Cond orbitModelID-2
 	...
@@ -1882,7 +1920,7 @@ GNSS-SupportElement ::= SEQUENCE {
 }
 
 AssistanceDataSupportList ::= SEQUENCE {
-    	gnss-CommonAssistanceDataSupport	GNSS-CommonAssistanceDataSupport,
+	gnss-CommonAssistanceDataSupport	GNSS-CommonAssistanceDataSupport,
 	gnss-GenericAssistanceDataSupport	GNSS-GenericAssistanceDataSupport,
 	...
 }
@@ -1931,7 +1969,7 @@ GNSS-GenericAssistanceDataSupport ::=
 
 GNSS-GenericAssistDataSupportElement ::= SEQUENCE {
 	gnss-ID 							GNSS-ID,
-	sbas-ID								SBAS-ID 					OPTIONAL, -- Cond GNSSIDSBAS
+	sbas-ID								SBAS-ID 					OPTIONAL, -- Cond GNSS-ID-SBAS
 	gnss-TimeModelsSupport				GNSS-TimeModelListSupport
 																	OPTIONAL, -- Cond TimeModSup
 	gnss-DifferentialCorrectionsSupport	GNSS-DifferentialCorrectionsSupport
@@ -2211,6 +2249,270 @@ ECID-TargetDeviceErrorCauses ::= SEQUENCE {
 	rsrqMeasurementNotPossible				NULL		OPTIONAL,
 	ueRxTxMeasurementNotPossible			NULL		OPTIONAL,
 	...
+}
+
+
+TBS-ProvideLocationInformation-r13 ::= SEQUENCE {
+		tbs-MeasurementList-r13			TBS-MeasurementList-r13		OPTIONAL,
+		tbs-Error-r13					TBS-Error-r13				OPTIONAL,
+		...
+}
+
+
+TBS-MeasurementList-r13 ::= SEQUENCE {
+	measurementReferenceTime-r13	UTCTime	OPTIONAL,
+	mbs-SgnMeasList-r13				MBS-BeaconMeasList-r13 OPTIONAL, -- Cond MBS
+	...
+}
+
+
+MBS-BeaconMeasList-r13 ::= SEQUENCE (SIZE(1..64)) OF MBS-BeaconMeasElement-r13
+
+MBS-BeaconMeasElement-r13 ::= SEQUENCE {
+	transmitterID-r13 INTEGER (0..32767),
+	codePhase-r13 INTEGER (0..2097151),
+	codePhaseRMSError-r13 INTEGER (0..63),
+	...
+}
+
+
+TBS-RequestLocationInformation-r13 ::= SEQUENCE {
+	mbsSgnMeasListReq				BOOLEAN,
+	...
+}
+
+
+TBS-ProvideCapabilities-r13 ::= SEQUENCE {
+	tbs-Modes-r13			BIT STRING { 	standalone 	(0),
+											ue-assisted	(2) } (SIZE (1..8)),
+...
+}
+
+
+TBS-RequestCapabilities-r13 ::= SEQUENCE {
+	...
+}
+
+TBS-Error-r13 ::= CHOICE {
+	locationServerErrorCauses-r13		TBS-LocationServerErrorCauses-r13,
+	targetDeviceErrorCauses-r13			TBS-TargetDeviceErrorCauses-r13,
+	...
+}
+
+
+TBS-LocationServerErrorCauses-r13 ::= SEQUENCE {
+	cause-r13		ENUMERATED	{	undefined,
+									...
+								},
+	...
+}
+
+
+TBS-TargetDeviceErrorCauses-r13 ::= SEQUENCE {
+	cause-r13		ENUMERATED {	undefined,
+									thereWereNotEnoughMBSBeaconsReceived,
+									...
+							},
+	...
+}
+
+
+Sensor-ProvideLocationInformation-r13 ::= SEQUENCE {
+	sensor-MeasurementList-r13						Sensor-MeasurementList-r13	OPTIONAL,
+	sensor-Error-r13									Sensor-Error-r13	OPTIONAL,
+	...
+}
+
+
+Sensor-MeasurementList-r13 ::= SEQUENCE {
+	measurementReferenceTime-r13			UTCTime		OPTIONAL,
+	uncompensatedBarometricPressure-r13 	INTEGER (30000..115000)	OPTIONAL, -- Cond Barometer
+	...
+}
+
+
+Sensor-RequestLocationInformation-r13 ::= SEQUENCE {
+	uncompensatedBarometricPressureReq		BOOLEAN,
+	...
+}
+
+
+Sensor-ProvideCapabilities-r13 ::= SEQUENCE {
+	sensor-Modes-r13			BIT STRING { 	standalone	(0),
+												ue-assisted	(2)  } (SIZE (1..8)),
+	...
+}
+
+
+Sensor-RequestCapabilities-r13 ::= SEQUENCE {
+	...
+}
+
+Sensor-Error-r13 ::= CHOICE {
+	targetServerErrorCauses-r13			Sensor-LocationServerErrorCauses-r13,
+	targetDeviceErrorCauses-r13			Sensor-TargetDeviceErrorCauses-r13,
+	...
+}
+
+
+Sensor-LocationServerErrorCauses-r13 ::= SEQUENCE {
+	cause-r13					ENUMERATED	{	undefined,
+												...},
+...
+}
+
+
+Sensor-TargetDeviceErrorCauses-r13 ::= SEQUENCE {
+	cause-r13			ENUMERATED		{	undefined,
+											...},
+...
+}
+
+
+WLAN-ProvideLocationInformation-r13 ::= SEQUENCE {
+	wlan-MeasurementList-r13		WLAN-MeasurementList-r13	OPTIONAL,
+	measurementReferenceTime-r13	UTCTime						OPTIONAL,
+	wlan-Error-r13					WLAN-Error-r13				OPTIONAL,
+	...
+}
+
+
+WLAN-MeasurementList-r13 ::= SEQUENCE (SIZE(1..maxWLANAPSize-r13)) OF WLAN-MeasurementElement-r13
+
+WLAN-MeasurementElement-r13 ::= SEQUENCE {
+	wlan-AP-Identifier-r13		WLAN-AP-Identifier-r13,
+	rssi-r13					INTEGER(-127..128)	OPTIONAL,
+	rtt-r13						WLAN-RTT-r13	OPTIONAL,
+	apChannelFrequency			INTEGER(0..256)	OPTIONAL,
+	servingFlag					BOOLEAN			OPTIONAL,
+	...
+}
+
+WLAN-AP-Identifier-r13 ::= SEQUENCE {
+	bssid-r13							OCTET STRING (SIZE (6)),
+	ssid-r13							OCTET STRING (SIZE (1..32))	OPTIONAL,
+	...
+}
+
+WLAN-RTT-r13 ::= SEQUENCE {
+	rttValue-r13     INTEGER(0..16777215),
+	rttUnits-r13     ENUMERATED { 	microseconds,
+									hundredsofnanoseconds,
+									tensofnanoseconds,
+									nanoseconds,
+									tenthsofnanoseconds,
+									... },
+	rttAccuracy-r13  INTEGER(0..255)		OPTIONAL,
+	...
+}
+
+maxWLANAPSize-r13			INTEGER ::= 64
+
+WLAN-RequestLocationInformation-r13 ::= SEQUENCE {
+	requestedMeasurements-r13	BIT STRING {
+											rssi		(0),
+											rtt			(1)} (SIZE(1..8)),
+	...
+}
+
+
+WLAN-ProvideCapabilities-r13 ::= SEQUENCE {
+	wlan-Modes-r13			BIT STRING { 	standalone		(0),
+											ue-assisted		(2)}	(SIZE (1..8)),
+	wlan-MeasSupported-r13	BIT STRING	{
+											rssi-r13		(0),
+											rtt-r13			(1)}	(SIZE(1..8)),
+	...
+}
+
+
+WLAN-RequestCapabilities-r13 ::= SEQUENCE {
+	...
+}
+
+
+WLAN-Error-r13 ::= CHOICE {
+	locationServerErrorCauses-r13		WLAN-LocationServerErrorCauses-r13,
+	targetDeviceErrorCauses-r13			WLAN-TargetDeviceErrorCauses-r13,
+	...
+}
+
+
+WLAN-LocationServerErrorCauses-r13 ::= SEQUENCE {
+	cause-r13								ENUMERATED	{undefined,	...}
+}
+
+
+WLAN-TargetDeviceErrorCauses-r13 ::= SEQUENCE {
+	cause-r13									ENUMERATED {undefined,
+														requestedMeasurementsNotAvailable,
+														notAllrequestedMeasurementsPossible,
+														...
+														},
+	wlan-AP-RSSI-MeasurementNotPossible-r13				NULL		OPTIONAL,
+	wlan-AP-RTT-MeasurementNotPossible-r13				NULL		OPTIONAL,
+	...
+}
+
+
+BT-ProvideLocationInformation-r13 ::= SEQUENCE {
+	bt-MeasurementList-r13				BT-MeasurementList-r13	OPTIONAL,
+	measurementReferenceTime-r13		UTCTime	OPTIONAL,
+	bt-Error-r13						BT-Error-r13			OPTIONAL,
+	...
+}
+
+
+BT-MeasurementList-r13 ::= SEQUENCE (SIZE(1.. maxBTBeaconSize-r13)) OF BT-MeasurementElement-r13
+
+
+BT-MeasurementElement-r13 ::= SEQUENCE {
+	btAddr-r13						BIT STRING (SIZE (48)),
+	rssi-r13 						INTEGER(-128..127)		OPTIONAL,
+	...
+}
+
+maxBTBeaconSize-r13				INTEGER ::= 32
+
+BT-RequestLocationInformation-r13 ::= SEQUENCE {
+	requestedMeasurements-r13	BIT STRING {
+											rssi		(0)} (SIZE(1..8)),
+	...
+}
+
+
+BT-ProvideCapabilities-r13 ::= SEQUENCE {
+	bt-Modes-r13			BIT STRING { 	standalone		(0),
+											ue-assisted		(2)}	(SIZE (1..8)),
+	...
+}
+
+
+BT-RequestCapabilities-r13 ::= SEQUENCE {
+	...
+}
+
+
+BT-Error-r13 ::= CHOICE {
+	locationServerErrorCauses-r13		BT-LocationServerErrorCauses-r13,
+	targetDeviceErrorCauses-r13			BT-TargetDeviceErrorCauses-r13,
+	...
+}
+
+
+BT-LocationServerErrorCauses-r13 ::= SEQUENCE {
+	cause-r13								ENUMERATED	{undefined,	...}
+}
+
+
+BT-TargetDeviceErrorCauses-r13 ::= SEQUENCE {
+	cause-r13									ENUMERATED {undefined,
+														requestedMeasurementsNotAvailable,
+														notAllrequestedMeasurementsPossible,
+														...
+														},
+	bt-Beacon-rssiMeasurementNotPossible-r13	NULL		OPTIONAL,
+...
 }
 
 
