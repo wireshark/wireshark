@@ -439,6 +439,21 @@ dissect_fix_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return TRUE;
 }
 
+static gboolean
+dissect_fix_heur_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    dissector_handle_t *app_handle = (dissector_handle_t *) data;
+    /* get at least the fix version: 8=FIX.x.x */
+    if (fix_marker(tvb, 0) != 0) {
+        /* not a fix packet */
+        return FALSE;
+    }
+
+    dissect_fix_pdus(tvb, pinfo, tree, data);
+    *app_handle = fix_handle;
+    return TRUE;
+}
+
 /* Register the protocol with Wireshark */
 static void fix_prefs(void)
 {
@@ -528,6 +543,7 @@ proto_reg_handoff_fix(void)
 {
     /* Let the tcp dissector know that we're interested in traffic      */
     heur_dissector_add("tcp", dissect_fix_heur, "FIX over TCP", "fix_tcp", proto_fix, HEURISTIC_ENABLE);
+    heur_dissector_add("ssl", dissect_fix_heur_ssl, "FIX over SSL", "fix_ssl", proto_fix, HEURISTIC_ENABLE);
     /* Register a fix handle to "tcp.port" to be able to do 'decode-as' */
     dissector_add_for_decode_as("tcp.port", fix_handle);
 }
