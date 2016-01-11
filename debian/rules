@@ -16,7 +16,7 @@ endif
 export DH_OPTIONS
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
-ifeq (,$(filter $(distrelease),wheezy))
+ifneq (,$(filter $(distrelease),wheezy))
 export DEB_LDFLAGS_MAINT_APPEND = -Wl,-Bsymbolic
 endif
 
