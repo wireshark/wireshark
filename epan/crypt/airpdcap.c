@@ -661,9 +661,13 @@ INT AirPDcapPacketProcess(
         return AIRPDCAP_RET_REQ_DATA;
     }
 
-    /* check if the packet is of data type */
-    if (AIRPDCAP_TYPE(data[0])!=AIRPDCAP_TYPE_DATA) {
-        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "not data packet", AIRPDCAP_DEBUG_LEVEL_5);
+    /* check if the packet is of data or robust managment type */
+    if (!((AIRPDCAP_TYPE(data[0])==AIRPDCAP_TYPE_DATA) ||
+          (AIRPDCAP_TYPE(data[0])==AIRPDCAP_TYPE_MANAGEMENT &&
+           (AIRPDCAP_SUBTYPE(data[0])==AIRPDCAP_SUBTYPE_DISASS ||
+            AIRPDCAP_SUBTYPE(data[0])==AIRPDCAP_SUBTYPE_DEAUTHENTICATION ||
+            AIRPDCAP_SUBTYPE(data[0])==AIRPDCAP_SUBTYPE_ACTION)))) {
+        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "not data nor robust mgmt packet", AIRPDCAP_DEBUG_LEVEL_5);
         return AIRPDCAP_RET_NO_DATA;
     }
 
@@ -682,7 +686,11 @@ INT AirPDcapPacketProcess(
     /* get BSSID */
     if ( (addr=AirPDcapGetBssidAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
         memcpy(id.bssid, addr, AIRPDCAP_MAC_LEN);
+#ifdef _DEBUG
+        g_snprintf(msgbuf, MSGBUF_LEN, "BSSID_MAC: %02X.%02X.%02X.%02X.%02X.%02X\t",
+                   id.bssid[0],id.bssid[1],id.bssid[2],id.bssid[3],id.bssid[4],id.bssid[5]);
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
+#endif
     } else {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "BSSID not found", AIRPDCAP_DEBUG_LEVEL_5);
         return AIRPDCAP_RET_REQ_DATA;
@@ -691,7 +699,11 @@ INT AirPDcapPacketProcess(
     /* get STA address */
     if ( (addr=AirPDcapGetStaAddress((const AIRPDCAP_MAC_FRAME_ADDR4 *)(data))) != NULL) {
         memcpy(id.sta, addr, AIRPDCAP_MAC_LEN);
+#ifdef _DEBUG
+        g_snprintf(msgbuf, MSGBUF_LEN, "STA_MAC: %02X.%02X.%02X.%02X.%02X.%02X\t",
+                   id.sta[0],id.sta[1],id.sta[2],id.sta[3],id.sta[4],id.sta[5]);
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", msgbuf, AIRPDCAP_DEBUG_LEVEL_3);
+#endif
     } else {
         AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapPacketProcess", "SA not found", AIRPDCAP_DEBUG_LEVEL_5);
         return AIRPDCAP_RET_REQ_DATA;
@@ -1590,11 +1602,11 @@ AirPDcapStoreSa(
  * key caching.  In each case, it's more important to return a value than
  * to return a _correct_ value, so we fudge addresses in some cases, e.g.
  * the BSSID in bridged connections.
- * FromDS    ToDS    Sta    BSSID
- * 0         0       addr2  addr3
- * 0         1       addr2  addr1
- * 1         0       addr1  addr2
- * 1         1       addr2  addr1
+ * FromDS    ToDS   Sta      BSSID
+ * 0         0      addr1/2  addr3
+ * 0         1      addr2    addr1
+ * 1         0      addr1    addr2
+ * 1         1      addr2    addr1
  */
 
 static const UCHAR *
@@ -1603,6 +1615,10 @@ AirPDcapGetStaAddress(
 {
     switch(AIRPDCAP_DS_BITS(frame->fc[1])) { /* Bit 1 = FromDS, bit 0 = ToDS */
         case 0:
+            if (memcmp(frame->addr2, frame->addr3, AIRPDCAP_MAC_LEN) == 0)
+                return frame->addr1;
+            else
+                return frame->addr2;
         case 1:
             return frame->addr2;
         case 2:

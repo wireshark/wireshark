@@ -112,6 +112,7 @@ static void ccmp_init_blocks(
 	UINT8 a[AES_BLOCK_LEN],
 	UINT8 b[AES_BLOCK_LEN])
 {
+	UINT8 mgmt = (AIRPDCAP_TYPE(wh->fc[0]) == AIRPDCAP_TYPE_MANAGEMENT);
 #define IS_4ADDRESS(wh) \
 	((wh->fc[1] & AIRPDCAP_FC1_DIR_MASK) == AIRPDCAP_FC1_DIR_DSTODS)
 #define IS_QOS_DATA(wh) AIRPDCAP_QOS_HAS_SEQ(wh)
@@ -144,7 +145,10 @@ static void ccmp_init_blocks(
 	*/
 	aad[0] = 0;     /* AAD length >> 8 */
 	/* NB: aad[1] set below */
-	aad[2] = (UINT8)(wh->fc[0] & 0x8f);    /* XXX magic #s */
+	if (!mgmt)
+		aad[2] = (UINT8)(wh->fc[0] & 0x8f);    /* XXX magic #s */
+	else
+		aad[2] = wh->fc[0];
 	aad[3] = (UINT8)(wh->fc[1] & 0xc7);    /* XXX magic #s */
 	/* NB: we know 3 addresses are contiguous */
 	memcpy(aad + 4, &wh->addr1[0], 3 * AIRPDCAP_MAC_LEN);
@@ -188,6 +192,8 @@ static void ccmp_init_blocks(
 			b0[1] = 0;
 			aad[1] = 22;
 		}
+		if (mgmt)
+			b0[1] |= 0x10; /* set MGMT flag */
 		memset(&aad[26], 0, 4);
 	}
 
