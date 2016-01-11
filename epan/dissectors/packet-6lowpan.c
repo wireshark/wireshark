@@ -144,9 +144,6 @@ void proto_reg_handoff_6lowpan(void);
 #define LOWPAN_IPHC_ECN_BITS            2
 #define LOWPAN_IPHC_DSCP_BITS           6
 #define LOWPAN_IPHC_LABEL_BITS          20
-/* Bitmasks for the reconstructed traffic class field. */
-#define LOWPAN_IPHC_TRAFFIC_ECN         0x03
-#define LOWPAN_IPHC_TRAFFIC_DSCP        0xfc
 
 /* NHC Patterns. */
 #define LOWPAN_NHC_PATTERN_EXT          0x0e
@@ -198,6 +195,7 @@ void proto_reg_handoff_6lowpan(void);
 static int proto_6lowpan = -1;
 static int hf_6lowpan_pattern = -1;
 static int hf_6lowpan_nhc_pattern = -1;
+static int hf_6lowpan_padding = -1;
 
 /* Header compression fields. */
 static int hf_6lowpan_hc1_encoding = -1;
@@ -289,7 +287,6 @@ static gint ett_6lowpan_bcast = -1;
 static gint ett_6lowpan_mesh = -1;
 static gint ett_6lowpan_mesh_flags = -1;
 static gint ett_6lowpan_frag = -1;
-static gint ett_6lopwan_traffic_class = -1;
 
 static expert_field ei_6lowpan_hc1_more_bits = EI_INIT;
 static expert_field ei_6lowpan_illegal_dest_addr_mode = EI_INIT;
@@ -1463,7 +1460,9 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     lowpan_context_data *sctx;
     lowpan_context_data *dctx;
     /* IPv6 header */
-    guint8              ipv6_class = 0;
+    guint8              ipv6_dscp = 0;
+    guint8              ipv6_ecn = 0;
+    guint32             ipv6_flowlabel = 0;
     struct ip6_hdr      ipv6;
     tvbuff_t *          ipv6_tvb;
     /* Next header chain */
@@ -1553,41 +1552,47 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     offset <<= 3;
     /* Parse the ECN field. */
     if (iphc_traffic != LOWPAN_IPHC_FLOW_COMPRESSED) {
-        ipv6_class |= tvb_get_bits8(tvb, offset, LOWPAN_IPHC_ECN_BITS);
+        ipv6_ecn = tvb_get_bits8(tvb, offset, LOWPAN_IPHC_ECN_BITS);
+        if (tree) {
+            proto_tree_add_bits_item(tree, hf_6lowpan_ecn, tvb, offset, LOWPAN_IPHC_ECN_BITS, ENC_BIG_ENDIAN);
+        }
         offset += LOWPAN_IPHC_ECN_BITS;
     }
     /* Parse the DSCP field. */
     if ((iphc_traffic == LOWPAN_IPHC_FLOW_CLASS_LABEL) || (iphc_traffic == LOWPAN_IPHC_FLOW_CLASS)) {
-        ipv6_class |= (tvb_get_bits8(tvb, offset, LOWPAN_IPHC_DSCP_BITS) << LOWPAN_IPHC_ECN_BITS);
+        ipv6_dscp = tvb_get_bits8(tvb, offset, LOWPAN_IPHC_DSCP_BITS);
+        if (tree) {
+            proto_tree_add_bits_item(tree, hf_6lowpan_dscp, tvb, offset, LOWPAN_IPHC_DSCP_BITS, LOWPAN_IPHC_DSCP_BITS);
+        }
         offset += LOWPAN_IPHC_DSCP_BITS;
     }
-    /* Display the traffic class field only if included inline. */
-    if ((tree) && (iphc_traffic != LOWPAN_IPHC_FLOW_COMPRESSED)) {
-        /* Create a tree for the traffic class. */
-        proto_tree *    tf_tree;
-        proto_item *    ti;
-        ti = proto_tree_add_uint(tree, hf_6lowpan_traffic_class, tvb, offset>>3, 1, ipv6_class);
-        tf_tree = proto_item_add_subtree(ti, ett_6lopwan_traffic_class);
-
-        /* Add the ECN and DSCP fields. */
-        proto_tree_add_uint(tf_tree, hf_6lowpan_ecn, tvb, offset>>3, 1, ipv6_class & LOWPAN_IPHC_TRAFFIC_ECN);
-        proto_tree_add_uint(tf_tree, hf_6lowpan_dscp, tvb, offset>>3, 1, ipv6_class & LOWPAN_IPHC_TRAFFIC_DSCP);
+    /* Add a generated entry to show the IPv6 traffic class byte. */
+    if (tree && (ipv6_dscp || ipv6_ecn)) {
+        proto_item *tclass_item;
+        tclass_item = proto_tree_add_uint(tree, hf_6lowpan_traffic_class, tvb, 0, 0,
+                                          (ipv6_dscp << LOWPAN_IPHC_ECN_BITS) | ipv6_ecn);
+        PROTO_ITEM_SET_GENERATED(tclass_item);
     }
 
-    /* Parse and display the traffic label. */
+    /* Parse the flow label. */
     if ((iphc_traffic == LOWPAN_IPHC_FLOW_CLASS_LABEL) || (iphc_traffic == LOWPAN_IPHC_FLOW_ECN_LABEL)) {
         /* Pad to 4-bits past the start of the byte. */
-        offset += ((4 - offset) & 0x7);
-        ipv6.ip6_flow = tvb_get_bits32(tvb, offset, LOWPAN_IPHC_LABEL_BITS, ENC_BIG_ENDIAN);
+        guint pad_bits = ((4 - offset) & 0x7);
+        if (tree && pad_bits) {
+            proto_tree_add_bits_item(tree, hf_6lowpan_padding, tvb, offset, pad_bits, ENC_BIG_ENDIAN);
+        }
+        offset += pad_bits;
+        ipv6_flowlabel = tvb_get_bits32(tvb, offset, LOWPAN_IPHC_LABEL_BITS, ENC_BIG_ENDIAN);
         if (tree) {
             proto_tree_add_bits_item(tree, hf_6lowpan_flow_label, tvb, offset, LOWPAN_IPHC_LABEL_BITS, ENC_BIG_ENDIAN);
         }
         offset += LOWPAN_IPHC_LABEL_BITS;
     }
-    else ipv6.ip6_flow = 0;
 
     /* Rebuild the IPv6 flow label, traffic class and version fields. */
-    ipv6.ip6_flow |= ((guint32)ipv6_class << LOWPAN_IPV6_FLOW_LABEL_BITS);
+    ipv6.ip6_flow = ipv6_flowlabel;
+    ipv6.ip6_flow |= ((guint32)ipv6_ecn << LOWPAN_IPV6_FLOW_LABEL_BITS);
+    ipv6.ip6_flow |= ((guint32)ipv6_dscp << (LOWPAN_IPHC_ECN_BITS + LOWPAN_IPV6_FLOW_LABEL_BITS));
     ipv6.ip6_flow |= ((guint32)0x6 << (LOWPAN_IPV6_TRAFFIC_CLASS_BITS + LOWPAN_IPV6_FLOW_LABEL_BITS));
     ipv6.ip6_flow = g_ntohl(ipv6.ip6_flow);
 
@@ -2647,6 +2652,9 @@ proto_register_6lowpan(void)
         { &hf_6lowpan_nhc_pattern,
           { "Pattern",                        "6lowpan.nhc.pattern",
             FT_UINT8, BASE_HEX, VALS(lowpan_nhc_patterns), 0x0, NULL, HFILL }},
+        { &hf_6lowpan_padding,
+          { "Padding",                        "6lowpan.padding",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         /* HC1 header fields. */
         { &hf_6lowpan_hc1_encoding,
@@ -2771,13 +2779,13 @@ proto_register_6lowpan(void)
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_6lowpan_flow_label,
           { "Flow label",                     "6lowpan.flow",
-            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+            FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_6lowpan_ecn,
           { "ECN",                            "6lowpan.ecn",
-            FT_UINT8, BASE_HEX, NULL, LOWPAN_IPHC_TRAFFIC_ECN, NULL, HFILL }},
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_6lowpan_dscp,
           { "DSCP",                           "6lowpan.dscp",
-            FT_UINT8, BASE_HEX, NULL, LOWPAN_IPHC_TRAFFIC_DSCP, NULL, HFILL }},
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_6lowpan_next_header,
           { "Next header",                    "6lowpan.next",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -2892,7 +2900,6 @@ proto_register_6lowpan(void)
         &ett_6lowpan_mesh,
         &ett_6lowpan_mesh_flags,
         &ett_6lowpan_frag,
-        &ett_6lopwan_traffic_class,
         /* Reassembly subtrees. */
         &ett_6lowpan_fragment,
         &ett_6lowpan_fragments
