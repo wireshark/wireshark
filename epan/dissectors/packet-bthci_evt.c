@@ -364,6 +364,7 @@ static int hf_pending_response_time_delta = -1;
 static expert_field ei_event_undecoded = EI_INIT;
 static expert_field ei_event_unknown_event = EI_INIT;
 static expert_field ei_event_unknown_command = EI_INIT;
+static expert_field ei_parameter_unexpected = EI_INIT;
 static expert_field ei_manufacturer_data_changed = EI_INIT;
 
 static dissector_table_t vendor_dissector_table;
@@ -1761,8 +1762,14 @@ dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 key[2].key    = NULL;
 
                 hci_vendor_data = (hci_vendor_data_t *) wmem_tree_lookup32_array(bluetooth_data->hci_vendors, key);
-                if (hci_vendor_data)
-                    dissector_try_uint_new(hci_vendor_table, hci_vendor_data->manufacturer, tvb, pinfo, main_tree, TRUE, bluetooth_data);
+                if (hci_vendor_data) {
+                    gint sub_offset;
+
+                    sub_offset = dissector_try_uint_new(hci_vendor_table, hci_vendor_data->manufacturer, tvb, pinfo, main_tree, TRUE, bluetooth_data);
+
+                    if (sub_offset > 0 && sub_offset < tvb_captured_length_remaining(tvb, offset))
+                        proto_tree_add_expert(tree, pinfo, &ei_parameter_unexpected, tvb, offset + sub_offset, tvb_captured_length_remaining(tvb, sub_offset + offset));
+                }
             }
         }
 
@@ -2364,8 +2371,14 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
                 key[2].key    = NULL;
 
                 hci_vendor_data = (hci_vendor_data_t *) wmem_tree_lookup32_array(bluetooth_data->hci_vendors, key);
-                if (hci_vendor_data)
-                    dissector_try_uint_new(hci_vendor_table, hci_vendor_data->manufacturer, tvb, pinfo, main_tree, TRUE, bluetooth_data);
+                if (hci_vendor_data) {
+                    gint sub_offset;
+
+                    sub_offset = dissector_try_uint_new(hci_vendor_table, hci_vendor_data->manufacturer, tvb, pinfo, main_tree, TRUE, bluetooth_data);
+
+                    if (sub_offset > 0 && sub_offset < tvb_captured_length_remaining(tvb, offset))
+                        proto_tree_add_expert(tree, pinfo, &ei_parameter_unexpected, tvb, offset + sub_offset, tvb_captured_length_remaining(tvb, sub_offset + offset));
+                }
             }
         }
 
@@ -4361,8 +4374,14 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     key[2].key    = NULL;
 
                     hci_vendor_data = (hci_vendor_data_t *) wmem_tree_lookup32_array(bluetooth_data->hci_vendors, key);
-                    if (hci_vendor_data)
-                        dissector_try_uint_new(hci_vendor_table, hci_vendor_data->manufacturer, tvb, pinfo, tree, TRUE, bluetooth_data);
+                    if (hci_vendor_data) {
+                        gint sub_offset;
+
+                        sub_offset = dissector_try_uint_new(hci_vendor_table, hci_vendor_data->manufacturer, tvb, pinfo, tree, TRUE, bluetooth_data);
+
+                        if (sub_offset > 0 && sub_offset < tvb_captured_length_remaining(tvb, offset))
+                            proto_tree_add_expert(bthci_evt_tree, pinfo, &ei_parameter_unexpected, tvb, offset + sub_offset, tvb_captured_length_remaining(tvb, sub_offset + offset));
+                    }
                 }
             }
 
@@ -6104,9 +6123,10 @@ proto_register_bthci_evt(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_event_undecoded,            { "bthci_evt.expert.event.undecoded",                 PI_UNDECODED, PI_NOTE, "Event undecoded", EXPFILL }},
+        { &ei_event_undecoded,            { "bthci_evt.expert.event.undecoded",                 PI_UNDECODED, PI_NOTE,     "Event undecoded", EXPFILL }},
         { &ei_event_unknown_event,        { "bthci_evt.expert.event.unknown_event",             PI_PROTOCOL, PI_WARN,      "Unknown event", EXPFILL }},
         { &ei_event_unknown_command,      { "bthci_evt.expert.event.unknown_command",           PI_PROTOCOL, PI_WARN,      "Unknown command", EXPFILL }},
+        { &ei_parameter_unexpected,      { "bthci_evt.expert.parameter.unexpected",             PI_PROTOCOL, PI_WARN,      "Unexpected command parameter", EXPFILL }},
         { &ei_manufacturer_data_changed,  { "bthci_evt.expert.event.manufacturer_data_changed", PI_PROTOCOL, PI_WARN,      "Manufacturer data changed", EXPFILL }}
     };
 

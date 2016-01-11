@@ -3306,8 +3306,14 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 key[2].key    = NULL;
 
                 hci_vendor_data = (hci_vendor_data_t *) wmem_tree_lookup32_array(bluetooth_data->hci_vendors, key);
-                if (hci_vendor_data)
-                    dissector_try_uint_new(hci_vendor_table, hci_vendor_data->manufacturer, tvb, pinfo, tree, TRUE, bluetooth_data);
+                if (hci_vendor_data) {
+                    gint sub_offset;
+
+                    sub_offset = dissector_try_uint_new(hci_vendor_table, hci_vendor_data->manufacturer, tvb, pinfo, tree, TRUE, bluetooth_data);
+
+                    if (sub_offset > 0 && sub_offset < tvb_captured_length_remaining(tvb, offset))
+                        proto_tree_add_expert(bthci_cmd_tree, pinfo, &ei_command_parameter_unexpected, tvb, offset + sub_offset, tvb_captured_length_remaining(tvb, sub_offset + offset));
+                }
             }
         }
 
