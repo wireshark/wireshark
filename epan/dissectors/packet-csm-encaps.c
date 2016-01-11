@@ -276,7 +276,10 @@ dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
         i=6;
 
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_reserved, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_reserved, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
         if (i<length)
         {
             if (show_error_param)
@@ -285,45 +288,162 @@ dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                 proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param1, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN);
             i+=2;
         }
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param2, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param3, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param4, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param5, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param6, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param7, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param8, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param9, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param10, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param11, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param12, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param13, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param14, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param15, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param16, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param17, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param18, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param19, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param20, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param21, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param22, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param23, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param24, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param25, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param26, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param27, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param28, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param29, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param30, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param31, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param32, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param33, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param34, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param35, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param36, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param37, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param38, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param39, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
-        if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param40, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param2, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param3, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param4, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param5, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param6, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param7, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param8, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param9, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param10, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param11, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param12, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param13, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param14, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param15, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param16, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param17, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param18, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param19, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param20, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param21, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param22, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param23, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param24, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param25, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param26, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param27, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param28, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param29, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param30, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param31, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param32, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param33, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param34, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param35, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param36, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param37, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param38, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param39, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
+        if (i < length) {
+            proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param40, tvb, 12 + i - 6, 2, ENC_LITTLE_ENDIAN);
+            i += 2;
+        }
 
         for (; i<length; i+=2)
             proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN);
