@@ -1912,7 +1912,7 @@ void proto_register_spdy(void)
   expert_spdy = expert_register_protocol(proto_spdy);
   expert_register_field_array(expert_spdy, ei, array_length(ei));
 
-  register_dissector("spdy", dissect_spdy, proto_spdy);
+  spdy_handle = register_dissector("spdy", dissect_spdy, proto_spdy);
 
   spdy_module = prefs_register_protocol(proto_spdy, NULL);
   prefs_register_bool_preference(spdy_module, "assemble_data_frames",
@@ -1930,9 +1930,6 @@ void proto_register_spdy(void)
                                  "Whether to uncompress entity bodies that are compressed "
                                  "using \"Content-Encoding: \"",
                                  &spdy_decompress_body);
-
-  /** Create dissector handle and register for dissection. */
-  spdy_handle = create_dissector_handle(dissect_spdy, proto_spdy);
 
   register_init_routine(&spdy_init_protocol);
 

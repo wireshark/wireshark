@@ -419,9 +419,7 @@ static expert_field ei_dns_undecoded_option = EI_INIT;
 
 static dissector_table_t dns_tsig_dissector_table=NULL;
 
-/* Added to be able to configure DNS ports. */
-static dissector_handle_t dns_tcp_handle;
-static dissector_handle_t dns_udp_handle;
+static dissector_handle_t dns_handle;
 
 static range_t *global_dns_tcp_port_range;
 static range_t *global_dns_udp_port_range;
@@ -4094,40 +4092,36 @@ proto_reg_handoff_dns(void)
   static gboolean Initialized = FALSE;
 
   if (!Initialized) {
-    dissector_handle_t dns_sctp_handle;
     dissector_handle_t mdns_udp_handle;
     dissector_handle_t llmnr_udp_handle;
 
-    dns_udp_handle = create_dissector_handle(dissect_dns_udp_sctp, proto_dns);
-    dns_tcp_handle = create_dissector_handle(dissect_dns_tcp, proto_dns);
-    dns_sctp_handle  = create_dissector_handle(dissect_dns_udp_sctp, proto_dns);
     mdns_udp_handle  = create_dissector_handle(dissect_mdns_udp, proto_mdns);
     llmnr_udp_handle = create_dissector_handle(dissect_llmnr_udp, proto_llmnr);
     dissector_add_uint("udp.port", UDP_PORT_MDNS, mdns_udp_handle);
-    dissector_add_uint("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
+    dissector_add_uint("tcp.port", TCP_PORT_MDNS, dns_handle);
     dissector_add_uint("udp.port", UDP_PORT_LLMNR, llmnr_udp_handle);
-    dissector_add_uint("sctp.port", SCTP_PORT_DNS, dns_sctp_handle);
+    dissector_add_uint("sctp.port", SCTP_PORT_DNS, dns_handle);
 #if 0
-    dissector_add_uint("sctp.ppi",  DNS_PAYLOAD_PROTOCOL_ID, dns_sctp_handle);
+    dissector_add_uint("sctp.ppi",  DNS_PAYLOAD_PROTOCOL_ID, dns_handle);
 #endif
     stats_tree_register("dns", "dns", "DNS", 0, dns_stats_tree_packet, dns_stats_tree_init, NULL);
     gssapi_handle  = find_dissector("gssapi");
     ntlmssp_handle = find_dissector("ntlmssp");
-    ssl_dissector_add(TCP_PORT_DNS_TLS, dns_tcp_handle);
-    dtls_dissector_add(UDP_PORT_DNS_DTLS, dns_udp_handle);
+    ssl_dissector_add(TCP_PORT_DNS_TLS, dns_handle);
+    dtls_dissector_add(UDP_PORT_DNS_DTLS, dns_handle);
     Initialized    = TRUE;
 
   } else {
-    dissector_delete_uint_range("tcp.port", dns_tcp_port_range, dns_tcp_handle);
-    dissector_delete_uint_range("udp.port", dns_udp_port_range, dns_udp_handle);
+    dissector_delete_uint_range("tcp.port", dns_tcp_port_range, dns_handle);
+    dissector_delete_uint_range("udp.port", dns_udp_port_range, dns_handle);
     g_free(dns_tcp_port_range);
     g_free(dns_udp_port_range);
   }
 
   dns_tcp_port_range = range_copy(global_dns_tcp_port_range);
   dns_udp_port_range = range_copy(global_dns_udp_port_range);
-  dissector_add_uint_range("tcp.port", dns_tcp_port_range, dns_tcp_handle);
-  dissector_add_uint_range("udp.port", dns_udp_port_range, dns_udp_handle);
+  dissector_add_uint_range("tcp.port", dns_tcp_port_range, dns_handle);
+  dissector_add_uint_range("udp.port", dns_udp_port_range, dns_handle);
 }
 
 void
@@ -5620,7 +5614,7 @@ proto_register_dns(void)
 
   dns_tsig_dissector_table = register_dissector_table("dns.tsig.mac", "DNS TSIG MAC Dissectors", FT_STRING, BASE_NONE, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE);
 
-  register_dissector("dns", dissect_dns, proto_dns);
+  dns_handle = register_dissector("dns", dissect_dns, proto_dns);
 
   dns_tap = register_tap("dns");
 }

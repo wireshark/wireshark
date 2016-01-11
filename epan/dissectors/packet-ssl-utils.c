@@ -4152,6 +4152,9 @@ ssl_association_add(const char* dissector_table_name, dissector_handle_t main_ha
 {
     DISSECTOR_ASSERT(main_handle);
     DISSECTOR_ASSERT(subdissector_handle);
+    /* Registration is required for Export PDU feature to work properly. */
+    DISSECTOR_ASSERT_HINT(dissector_handle_get_dissector_name(subdissector_handle),
+            "SSL appdata dissectors must register with register_dissector()!");
     ssl_debug_printf("association_add %s port %d handle %p\n", dissector_table_name, port, (void *)subdissector_handle);
 
     if (port) {
