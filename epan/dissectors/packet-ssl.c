@@ -914,14 +914,15 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
 static void
 process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                    proto_tree *tree, SslSession *session);
+                    proto_tree *tree, SslSession *session,
+                    dissector_handle_t app_handle_port);
 
 static void
 desegment_ssl(tvbuff_t *tvb, packet_info *pinfo, int offset,
               guint32 seq, guint32 nxtseq,
               SslSession *session,
               proto_tree *root_tree, proto_tree *tree,
-              SslFlow *flow)
+              SslFlow *flow, dissector_handle_t app_handle_port)
 {
     fragment_head *ipfd_head;
     gboolean       must_desegment;
@@ -1029,7 +1030,7 @@ again:
          * contain a continuation of a higher-level PDU.
          * Call the normal subdissector.
          */
-        process_ssl_payload(tvb, offset, pinfo, tree, session);
+        process_ssl_payload(tvb, offset, pinfo, tree, session, app_handle_port);
         called_dissector = TRUE;
 
         /* Did the subdissector ask us to desegment some more data
@@ -1083,7 +1084,7 @@ again:
             add_new_data_source(pinfo, next_tvb, "Reassembled SSL");
 
             /* call subdissector */
-            process_ssl_payload(next_tvb, 0, pinfo, tree, session);
+            process_ssl_payload(next_tvb, 0, pinfo, tree, session, app_handle_port);
             called_dissector = TRUE;
 
             /*
@@ -1339,7 +1340,8 @@ export_pdu_packet(tvbuff_t *tvb, packet_info *pinfo, guint tag, const gchar *nam
 
 static void
 process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                    proto_tree *tree, SslSession *session)
+                    proto_tree *tree, SslSession *session,
+                    dissector_handle_t app_handle_port)
 {
     tvbuff_t *next_tvb;
     heur_dtbl_entry_t *hdtbl_entry;
@@ -1347,36 +1349,54 @@ process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    if (session->app_handle) {
-        ssl_debug_printf("%s: found handle %p (%s)\n", G_STRFUNC,
-                         (void *)session->app_handle,
-                         dissector_handle_get_dissector_name(session->app_handle));
-
+    /* If the appdata proto is not yet known (no STARTTLS), try heuristics
+     * first, then ports-based dissectors. Port 443 is too overloaded... */
+    if (!session->app_handle) {
+        /* The heuristics dissector should set the app_handle if it wants to be
+         * called in the future. */
         if (dissector_try_heuristic(ssl_heur_subdissector_list, next_tvb,
-                                    pinfo, proto_tree_get_root(tree), &hdtbl_entry, NULL)) {
+                                    pinfo, proto_tree_get_root(tree), &hdtbl_entry,
+                                    &session->app_handle)) {
+            ssl_debug_printf("%s: found heuristics dissector %s, app_handle is %p (%s)\n",
+                             G_STRFUNC, hdtbl_entry->short_name,
+                             (void *)session->app_handle,
+                             dissector_handle_get_dissector_name(session->app_handle));
             if (have_tap_listener(exported_pdu_tap)) {
                 export_pdu_packet(next_tvb, pinfo, EXP_PDU_TAG_HEUR_PROTO_NAME, hdtbl_entry->short_name);
             }
+            return;
+        }
+        if (app_handle_port) {
+            /* Heuristics failed, just try the port-based dissector. */
+            session->app_handle = app_handle_port;
         } else {
-            if (have_tap_listener(exported_pdu_tap)) {
-                export_pdu_packet(next_tvb, pinfo, EXP_PDU_TAG_PROTO_NAME,
-                                  dissector_handle_get_dissector_name(session->app_handle));
-            }
-            saved_match_port = pinfo->match_uint;
-            if (ssl_packet_from_server(session, ssl_associations, pinfo)) {
-                pinfo->match_uint = pinfo->srcport;
-            } else {
-                pinfo->match_uint = pinfo->destport;
-            }
-            call_dissector(session->app_handle, next_tvb, pinfo, proto_tree_get_root(tree));
-            pinfo->match_uint = saved_match_port;
+            /* No heuristics, no port-based proto, unknown protocol. */
+            return;
         }
     }
+
+    ssl_debug_printf("%s: found handle %p (%s)\n", G_STRFUNC,
+                     (void *)session->app_handle,
+                     dissector_handle_get_dissector_name(session->app_handle));
+
+    if (have_tap_listener(exported_pdu_tap)) {
+        export_pdu_packet(next_tvb, pinfo, EXP_PDU_TAG_PROTO_NAME,
+                          dissector_handle_get_dissector_name(session->app_handle));
+    }
+    saved_match_port = pinfo->match_uint;
+    if (ssl_packet_from_server(session, ssl_associations, pinfo)) {
+        pinfo->match_uint = pinfo->srcport;
+    } else {
+        pinfo->match_uint = pinfo->destport;
+    }
+    call_dissector(session->app_handle, next_tvb, pinfo, proto_tree_get_root(tree));
+    pinfo->match_uint = saved_match_port;
 }
 
 static void
 dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset,
-                    proto_tree *tree, SslSession *session)
+                    proto_tree *tree, SslSession *session,
+                    dissector_handle_t app_handle_port)
 {
     gboolean     save_fragmented;
     guint16      save_can_desegment;
@@ -1407,7 +1427,7 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset,
         pinfo->can_desegment = 2;
         desegment_ssl(next_tvb, pinfo, 0, appl_data->seq, appl_data->nxtseq,
                       session, proto_tree_get_root(tree), tree,
-                      appl_data->flow);
+                      appl_data->flow, app_handle_port);
     } else if (session->app_handle) {
         /* No - just call the subdissector.
            Mark this as fragmented, so if somebody throws an exception,
@@ -1416,7 +1436,7 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset,
         save_fragmented = pinfo->fragmented;
         pinfo->fragmented = TRUE;
 
-        process_ssl_payload(next_tvb, 0, pinfo, tree, session);
+        process_ssl_payload(next_tvb, 0, pinfo, tree, session, app_handle_port);
         pinfo->fragmented = save_fragmented;
     }
 
@@ -1683,6 +1703,9 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         break;
     }
     case SSL_ID_APP_DATA:
+    {
+        dissector_handle_t app_handle;
+
         if (ssl){
             decrypt_ssl3_record(tvb, pinfo, offset,
                 record_length, content_type, ssl, TRUE);
@@ -1697,29 +1720,37 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
         /* app_handle discovery is done here instead of dissect_ssl_payload()
          * because the protocol name needs to be displayed below. */
-        if (!session->app_handle) {
+        app_handle = session->app_handle;
+        if (!app_handle) {
             /* Unknown protocol handle, ssl_starttls_ack was not called before.
-             * Try to find an appropriate dissection handle and cache it. */
-            dissector_handle_t handle;
-            handle = dissector_get_uint_handle(ssl_associations, pinfo->srcport);
-            handle = handle ? handle : dissector_get_uint_handle(ssl_associations, pinfo->destport);
-            if (handle) session->app_handle = handle;
+             * Try to find a port-based protocol and use it if there is no
+             * heuristics dissector (see process_ssl_payload). */
+            app_handle = dissector_get_uint_handle(ssl_associations, pinfo->srcport);
+            if (!app_handle) app_handle = dissector_get_uint_handle(ssl_associations, pinfo->destport);
         }
 
         proto_item_set_text(ssl_record_tree,
            "%s Record Layer: %s Protocol: %s",
             val_to_str_const(session->version, ssl_version_short_names, "SSL"),
             val_to_str_const(content_type, ssl_31_content_type, "unknown"),
-            session->app_handle
-            ? dissector_handle_get_dissector_name(session->app_handle)
+            app_handle ? dissector_handle_get_dissector_name(app_handle)
             : "Application Data");
 
         proto_tree_add_item(ssl_record_tree, hf_ssl_record_appdata, tvb,
                        offset, record_length, ENC_NA);
 
-        dissect_ssl_payload(tvb, pinfo, offset, tree, session);
+        dissect_ssl_payload(tvb, pinfo, offset, tree, session, app_handle);
+
+        /* Set app proto again in case the heuristics found a different proto. */
+        if (session->app_handle != app_handle)
+            proto_item_set_text(ssl_record_tree,
+               "%s Record Layer: %s Protocol: %s",
+                val_to_str_const(session->version, ssl_version_short_names, "SSL"),
+                val_to_str_const(content_type, ssl_31_content_type, "unknown"),
+                dissector_handle_get_dissector_name(session->app_handle));
 
         break;
+    }
     case SSL_ID_HEARTBEAT:
       {
         tvbuff_t *decrypted;

@@ -1439,6 +1439,17 @@ dissect_http2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     return (TRUE);
 }
 
+static gboolean
+dissect_http2_heur_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    dissector_handle_t *app_handle = (dissector_handle_t *) data;
+    if (dissect_http2_heur(tvb, pinfo, tree, NULL)) {
+        *app_handle = http2_handle;
+        return TRUE;
+    }
+    return FALSE;
+}
+
 void
 proto_register_http2(void)
 {
@@ -1852,7 +1863,7 @@ proto_register_http2(void)
 
     prefs_register_obsolete_preference(http2_module, "heuristic_http2");
 
-    register_dissector("http2", dissect_http2, proto_http2);
+    http2_handle = register_dissector("http2", dissect_http2, proto_http2);
 
     http2_tap = register_tap("http2");
 }
@@ -1879,10 +1890,9 @@ proto_reg_handoff_http2(void)
 {
     data_handle = find_dissector("data");
 
-    http2_handle = create_dissector_handle(dissect_http2, proto_http2);
     dissector_add_for_decode_as("tcp.port", http2_handle);
 
-    heur_dissector_add("ssl", dissect_http2_heur, "HTTP2 over SSL", "http2_ssl", proto_http2, HEURISTIC_ENABLE);
+    heur_dissector_add("ssl", dissect_http2_heur_ssl, "HTTP2 over SSL", "http2_ssl", proto_http2, HEURISTIC_ENABLE);
     heur_dissector_add("http", dissect_http2_heur, "HTTP2 over TCP", "http2_tcp", proto_http2, HEURISTIC_ENABLE);
 
     stats_tree_register("http2", "http2", "HTTP2", 0, http2_stats_tree_packet, http2_stats_tree_init, NULL);
