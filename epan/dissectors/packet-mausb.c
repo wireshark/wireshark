@@ -33,6 +33,7 @@
 #include "packet-tcp.h"
 #include "packet-llc.h"
 #include "packet-usb.h"
+#include "packet-mausb.h"
 
 void proto_reg_handoff_mausb(void);
 void proto_register_mausb(void);
@@ -49,6 +50,16 @@ static int hf_mausb_flag_host = -1;
 static int hf_mausb_flag_retry = -1;
 static int hf_mausb_flag_timestamp = -1;
 static int hf_mausb_flag_reserved = -1;
+
+
+static const int *mausb_flag_fields[] = {
+    &hf_mausb_flag_host,
+    &hf_mausb_flag_retry,
+    &hf_mausb_flag_timestamp,
+    &hf_mausb_flag_reserved,
+    NULL
+};
+
 static int hf_mausb_type = -1;
 static int hf_mausb_length = -1;
 static int hf_mausb_dev_handle = -1;
@@ -126,11 +137,29 @@ static int hf_mausb_tflag_neg = -1;
 static int hf_mausb_tflag_eot = -1;
 static int hf_mausb_tflag_type = -1;
 static int hf_mausb_tflag_rsvd = -1;
+
+static const int *mausb_tflag_fields[] = {
+    &hf_mausb_tflag_arq,
+    &hf_mausb_tflag_neg,
+    &hf_mausb_tflag_eot,
+    &hf_mausb_tflag_type,
+    &hf_mausb_tflag_rsvd,
+    NULL
+};
+
 static int hf_mausb_num_iso_hdr = -1;
 static int hf_mausb_iflags = -1;
 static int hf_mausb_iflag_mtd = -1;
 static int hf_mausb_iflag_hdr_format = -1;
 static int hf_mausb_iflag_asap = -1;
+
+static const int *mausb_iflag_fields[] = {
+    &hf_mausb_iflag_mtd,
+    &hf_mausb_iflag_hdr_format,
+    &hf_mausb_iflag_asap,
+    NULL
+};
+
 static int hf_mausb_stream_id = -1;
 static int hf_mausb_seq_num = -1;
 static int hf_mausb_req_id = -1;
@@ -147,7 +176,6 @@ static int hf_mausb_nom_interval = -1;
 
 static int hf_mausb_mtd = -1;
 static int hf_mausb_rem_size_credit = -1;
-static int hf_mausb_payload = -1;
 
 /* expert info fields */
 static expert_field ei_ep_handle_len = EI_INIT;
@@ -187,19 +215,6 @@ static const value_string mausb_version_string[] = {
 #define MAUSB_FLAG_TIMESTAMP  (1 << 2)
 #define MAUSB_FLAG_RESERVED   (1 << 3)
 #define MAUSB_FLAG_OFFSET     4
-
-
-static const value_string mausb_flag_string[] = {
-    { 0,                                                         "(None)"                   },
-    { MAUSB_FLAG_HOST,                                           "(Host)"                   },
-    { MAUSB_FLAG_RETRY,                                          "(Retry)"                  },
-    { MAUSB_FLAG_TIMESTAMP,                                      "(Timestamp)"              },
-    { MAUSB_FLAG_HOST  | MAUSB_FLAG_RETRY,                       "(Host, Retry)"            },
-    { MAUSB_FLAG_HOST  | MAUSB_FLAG_TIMESTAMP,                   "(Host, Timestamp)"        },
-    { MAUSB_FLAG_RETRY | MAUSB_FLAG_TIMESTAMP,                   "(Retry, Timestamp)"       },
-    { MAUSB_FLAG_HOST | MAUSB_FLAG_RETRY | MAUSB_FLAG_TIMESTAMP, "(Host, Retry, Timestamp)" },
-    { 0, NULL}
-};
 
 /* Packet Types, per 6.2.1.3 */
 #define MAUSB_PKT_TYPE_MASK       0xC0
@@ -532,70 +547,7 @@ static const value_string mausb_transfer_type_string[] = {
     { 0, NULL}
 };
 
-static const value_string mausb_tflag_string[] = {
-    { MAUSB_TX_TYPE_CTRL,                                     "Control"                 },
-    { MAUSB_TX_TYPE_CTRL | MAUSB_TFLAG_ARQ,                   "Control (ARQ)"           },
-    { MAUSB_TX_TYPE_CTRL | MAUSB_TFLAG_NEG,                   "Control (NEG)"           },
-    { MAUSB_TX_TYPE_CTRL | MAUSB_TFLAG_EOT,                   "Control (EoT)"           },
-    { MAUSB_TX_TYPE_CTRL | MAUSB_TFLAG_ARQ | MAUSB_TFLAG_NEG, "Control (ARQ, NEG)"      },
-    { MAUSB_TX_TYPE_CTRL | MAUSB_TFLAG_ARQ | MAUSB_TFLAG_EOT, "Control (ARQ, EoT)"      },
-    { MAUSB_TX_TYPE_CTRL | MAUSB_TFLAG_NEG | MAUSB_TFLAG_EOT, "Control (NEG, EoT)"      },
-    { MAUSB_TX_TYPE_CTRL | MAUSB_TFLAG_ARQ
-       | MAUSB_TFLAG_NEG | MAUSB_TFLAG_EOT,                   "Control (ARQ, NEG, EoT)" },
-
-    { MAUSB_TX_TYPE_ISOC,                                     "Isochronous"                 },
-    { MAUSB_TX_TYPE_ISOC | MAUSB_TFLAG_ARQ,                   "Isochronous (ARQ)"           },
-    { MAUSB_TX_TYPE_ISOC | MAUSB_TFLAG_NEG,                   "Isochronous (NEG)"           },
-    { MAUSB_TX_TYPE_ISOC | MAUSB_TFLAG_EOT,                   "Isochronous (EoT)"           },
-    { MAUSB_TX_TYPE_ISOC | MAUSB_TFLAG_ARQ | MAUSB_TFLAG_NEG, "Isochronous (ARQ, NEG)"      },
-    { MAUSB_TX_TYPE_ISOC | MAUSB_TFLAG_ARQ | MAUSB_TFLAG_EOT, "Isochronous (ARQ, EoT)"      },
-    { MAUSB_TX_TYPE_ISOC | MAUSB_TFLAG_NEG | MAUSB_TFLAG_EOT, "Isochronous (NEG, EoT)"      },
-    { MAUSB_TX_TYPE_ISOC | MAUSB_TFLAG_ARQ
-       | MAUSB_TFLAG_NEG | MAUSB_TFLAG_EOT,                   "Isochronous (ARQ, NEG, EoT)" },
-
-    { MAUSB_TX_TYPE_BULK,                                     "Bulk"                 },
-    { MAUSB_TX_TYPE_BULK | MAUSB_TFLAG_ARQ,                   "Bulk (ARQ)"           },
-    { MAUSB_TX_TYPE_BULK | MAUSB_TFLAG_NEG,                   "Bulk (NEG)"           },
-    { MAUSB_TX_TYPE_BULK | MAUSB_TFLAG_EOT,                   "Bulk (EoT)"           },
-    { MAUSB_TX_TYPE_BULK | MAUSB_TFLAG_ARQ | MAUSB_TFLAG_NEG, "Bulk (ARQ, NEG)"      },
-    { MAUSB_TX_TYPE_BULK | MAUSB_TFLAG_ARQ | MAUSB_TFLAG_EOT, "Bulk (ARQ, EoT)"      },
-    { MAUSB_TX_TYPE_BULK | MAUSB_TFLAG_NEG | MAUSB_TFLAG_EOT, "Bulk (NEG, EoT)"      },
-    { MAUSB_TX_TYPE_BULK | MAUSB_TFLAG_ARQ
-       | MAUSB_TFLAG_NEG | MAUSB_TFLAG_EOT,                   "Bulk (ARQ, NEG, EoT)" },
-
-    { MAUSB_TX_TYPE_INTR,                                     "Interrupt"                 },
-    { MAUSB_TX_TYPE_INTR | MAUSB_TFLAG_ARQ,                   "Interrupt (ARQ)"           },
-    { MAUSB_TX_TYPE_INTR | MAUSB_TFLAG_NEG,                   "Interrupt (NEG)"           },
-    { MAUSB_TX_TYPE_INTR | MAUSB_TFLAG_EOT,                   "Interrupt (EoT)"           },
-    { MAUSB_TX_TYPE_INTR | MAUSB_TFLAG_ARQ | MAUSB_TFLAG_NEG, "Interrupt (ARQ, NEG)"      },
-    { MAUSB_TX_TYPE_INTR | MAUSB_TFLAG_ARQ | MAUSB_TFLAG_EOT, "Interrupt (ARQ, EoT)"      },
-    { MAUSB_TX_TYPE_INTR | MAUSB_TFLAG_NEG | MAUSB_TFLAG_EOT, "Interrupt (NEG, EoT)"      },
-    { MAUSB_TX_TYPE_INTR | MAUSB_TFLAG_ARQ
-       | MAUSB_TFLAG_NEG | MAUSB_TFLAG_EOT,                   "Interrupt (ARQ, NEG, EoT)" },
-    { 0, NULL}
-};
-
-
 const true_false_string tfs_ep_handle_resp_dir = { "IN", "OUT or Control" };
-
-/* TODO: Short/Medium/Long Format */
-/* The meaning of the format number is based on the Iso packet contents */
-static const value_string mausb_iflag_string[] = {
-    { (0 << 1),                                      "Format 0"            },
-    { (0 << 1) | MAUSB_IFLAG_MTD,                    "Format 0 (MTD)"      },
-    { (0 << 1) | MAUSB_IFLAG_ASAP,                   "Format 0 (ASAP)"     },
-    { (0 << 1) | MAUSB_IFLAG_MTD | MAUSB_IFLAG_ASAP, "Format 0 (MTD, ASAP)"},
-    { (1 << 1),                                      "Format 1"            },
-    { (1 << 1) | MAUSB_IFLAG_MTD,                    "Format 1 (MTD)"      },
-    { (1 << 1) | MAUSB_IFLAG_ASAP,                   "Format 1 (ASAP)"     },
-    { (1 << 1) | MAUSB_IFLAG_MTD | MAUSB_IFLAG_ASAP, "Format 1 (MTD, ASAP)"},
-    { (2 << 1),                                      "Format 2"            },
-    { (2 << 1) | MAUSB_IFLAG_MTD,                    "Format 2 (MTD)"      },
-    { (2 << 1) | MAUSB_IFLAG_ASAP,                   "Format 2 (ASAP)"     },
-    { (2 << 1) | MAUSB_IFLAG_MTD | MAUSB_IFLAG_ASAP, "Format 2 (MTD, ASAP)"},
-    { 0, NULL}
-};
-
 
 #define MAUSB_TRANSFER_TYPE_OFFSET 3 /* Offset from start of TFlags Field */
                                      /* (EPS not included) */
@@ -619,41 +571,6 @@ static const value_string mausb_cancel_transfer_status_string[] = {
 #define MAUSB_CLEAR_TRANSFERS_PARTIAL_MASK 0x02
 #define MAUSB_CLEAR_TRANSFERS_RESP_BLOCK_RSVD_MASK 0xfffffffc
 
-/** Common header fields, per section 6.2.1 */
-struct mausb_header {
-    /* DWORD 0 */
-    guint8   ver_flags;
-    guint8   type;
-    guint16  length;
-    /* DWORD 1 */
-    guint16  handle;
-    guint8   ma_dev_addr;
-    guint8   mass_id;
-    /* DWORD 2 */
-    guint8   status;
-    union {
-        guint16 token;
-        struct {
-            guint8   eps_tflags;
-            union {
-                guint16  stream_id;
-                guint16  num_headers_iflags;
-            } u1;
-            /* DWORD 3 */
-            guint32  seq_num; /* Note: only 24 bits used */
-            guint8   req_id;
-            /* DWORD 4 */
-            union {
-                guint32  credit;
-                guint32  present_time_num_seg;
-            } u2;
-            /* DWORD 5 */
-            guint32  timestamp;
-            /* DWORD 6 */
-            guint32  tx_dly; /* Note: if no timestamp, tx_dly will be in DWORD 5 */
-        } s;
-    } u;
-};
 
 /* We need at least the first DWORD to determine the packet length (for TCP) */
 #define MAUSB_MIN_LENGTH 4
@@ -665,7 +582,7 @@ struct mausb_header {
 
 /*** Packet parsing helper functions ***/
 
-static gboolean mausb_is_from_host(struct mausb_header *header)
+gboolean mausb_is_from_host(struct mausb_header *header)
 {
     return (MAUSB_FLAG_HOST << MAUSB_FLAG_OFFSET) & header->ver_flags;
 }
@@ -733,18 +650,17 @@ static gboolean mausb_is_setup_response(struct mausb_header *header)
     return FALSE;
 }
 
-
 /*** EP Handle parsing helper functions */
 
-static guint8 mausb_ep_handle_ep_num(guint16 handle) {
+guint8 mausb_ep_handle_ep_num(guint16 handle) {
     return (handle & MAUSB_EP_HANDLE_EP_NUM) >> MAUSB_EP_HANDLE_EP_NUM_OFFSET;
 }
 
-static guint8 mausb_ep_handle_dev_addr(guint16 handle) {
+guint8 mausb_ep_handle_dev_addr(guint16 handle) {
     return (handle & MAUSB_EP_HANDLE_DEV_ADDR) >> MAUSB_EP_HANDLE_DEV_ADDR_OFFSET;
 }
 
-static guint8 mausb_ep_handle_bus_num(guint16 handle) {
+guint8 mausb_ep_handle_bus_num(guint16 handle) {
     return (handle & MAUSB_EP_HANDLE_BUS_NUM) >> MAUSB_EP_HANDLE_BUS_NUM_OFFSET;
 }
 
@@ -1455,33 +1371,196 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
     return offset;
 }
 
-static conversation_t
-*get_mausb_conversation(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
-                        guint16 handle, gboolean is_data, gboolean req)
+void mausb_set_usb_conv_info(usb_conv_info_t *usb_conv_info,
+                             struct mausb_header *header)
 {
-    conversation_t *conversation = NULL;
-    guint16 device_address;
-    guint16 bus_num;
-    int endpoint;
-
-    /* Treat data packets the same as URBs */
-    if (is_data) {
-        device_address = mausb_ep_handle_dev_addr(handle);
-        endpoint = mausb_ep_handle_ep_num(handle);
-        bus_num = mausb_ep_handle_bus_num(handle);
-
-        usb_set_addr(tree, tvb, pinfo, bus_num, device_address, endpoint, req);
-        conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst,
-                                            pinfo->srcport, pinfo->destport);
-    }
-    /* TODO: track control & management packet conversations */
-
-    return conversation;
+        usb_conv_info->is_request = mausb_is_transfer_req(header);
+        usb_conv_info->bus_id = mausb_ep_handle_bus_num(header->handle);
+        usb_conv_info->device_address = mausb_ep_handle_dev_addr(header->handle);
+        usb_conv_info->direction = mausb_is_from_host(header);
+        usb_conv_info->endpoint = mausb_ep_handle_ep_num(header->handle);
+        usb_conv_info->is_setup = mausb_has_setup_data(header) ||
+                                  mausb_is_setup_response(header);
+        switch (mausb_tx_type(header)) {
+        case MAUSB_TX_TYPE_CTRL:
+                usb_conv_info->transfer_type = URB_CONTROL;
+                break;
+        case MAUSB_TX_TYPE_ISOC:
+                usb_conv_info->transfer_type = URB_ISOCHRONOUS;
+                break;
+        case MAUSB_TX_TYPE_BULK:
+                usb_conv_info->transfer_type = URB_BULK;
+                break;
+        case MAUSB_TX_TYPE_INTR:
+                usb_conv_info->transfer_type = URB_INTERRUPT;
+                break;
+        default:
+                usb_conv_info->transfer_type = URB_UNKNOWN;
+                break;
+        }
 }
 
 /* Used to detect multiple MA Packets in a single TCP packet */
 /* Not used for MA Packets in SNAP Packets */
 static gint mausb_num_pdus = 0;
+
+
+/* dissect fields common to all MAUSB packet types */
+static int
+dissect_mausb_pkt_common(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *mausb_tree, struct mausb_header *header)
+{
+    proto_item *len_field;
+
+    /* MAUSB Protocol Version */
+    header->ver_flags = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(mausb_tree, hf_mausb_version, tvb,
+            offset, 1, ENC_LITTLE_ENDIAN);
+
+    /* Flags */
+    proto_tree_add_bitmask(mausb_tree, tvb, offset, hf_mausb_flags,
+            ett_mausb_flags, mausb_flag_fields, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    /* Packet Type */
+    header->type = tvb_get_guint8(tvb, offset);
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(header->type, mausb_type_string, "%d"));
+    proto_tree_add_item(mausb_tree, hf_mausb_type, tvb,
+            offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    /* Packet Length */
+    header->length = tvb_get_letohs(tvb, offset);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Length=%u", header->length);
+    len_field = proto_tree_add_item(mausb_tree, hf_mausb_length, tvb,
+            offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* Check to see if length field is valid */
+    if (tvb_reported_length(tvb) != header->length) {
+        expert_add_info(pinfo, len_field, &ei_len);
+    }
+
+    /* Is the next field a device handle or an endpoint handle */
+    header->handle = tvb_get_letohs(tvb, offset);
+
+    if (mausb_is_mgmt_pkt(header)) {
+        proto_tree_add_item(mausb_tree, hf_mausb_dev_handle, tvb,
+              offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+    } else {
+        offset += dissect_ep_handle(mausb_tree, tvb, offset);
+    }
+
+    /* MA Device Address */
+    header->ma_dev_addr = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(mausb_tree, hf_mausb_ma_dev_addr, tvb,
+            offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    /* SSID */
+    header->mass_id = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(mausb_tree, hf_mausb_ssid, tvb,
+            offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    /* Status */
+    header->status = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(mausb_tree, hf_mausb_status, tvb,
+            offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset;
+}
+
+/* dissect datapacket specific values */
+static int
+dissect_mausb_pkt_data(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *mausb_tree, struct mausb_header *header)
+{
+    /* EPS */
+    header->u.s.eps_tflags = tvb_get_guint8(tvb, offset);
+    if (mausb_is_from_host(header)) {
+        proto_tree_add_item(mausb_tree, hf_mausb_eps_rsvd, tvb,
+            offset, 1, ENC_LITTLE_ENDIAN);
+    } else {
+        proto_tree_add_item(mausb_tree, hf_mausb_eps, tvb,
+            offset, 1, ENC_LITTLE_ENDIAN);
+    }
+
+    /* T-Flags */
+    proto_tree_add_bitmask(mausb_tree, tvb, offset, hf_mausb_tflags,
+            ett_mausb_tflags, mausb_tflag_fields, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    if (mausb_is_iso_pkt(header)) {
+        /* Number of Headers */
+        header->u.s.u1.num_headers_iflags = tvb_get_letohs(tvb, offset);
+        proto_tree_add_item(mausb_tree, hf_mausb_num_iso_hdr, tvb,
+            offset, 2, ENC_LITTLE_ENDIAN);
+
+        /* I-Flags */
+        proto_tree_add_bitmask(mausb_tree, tvb, offset, hf_mausb_iflags,
+                ett_mausb_iflags, mausb_iflag_fields, ENC_LITTLE_ENDIAN);
+
+    } else {
+        /* Stream ID */
+        header->u.s.u1.stream_id = tvb_get_letohs(tvb, offset);
+        proto_tree_add_item(mausb_tree, hf_mausb_stream_id, tvb,
+            offset, 2, ENC_LITTLE_ENDIAN);
+    }
+    offset += 2;
+
+    /* Sequence Number */
+    header->u.s.seq_num = tvb_get_letoh24(tvb, offset);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " SeqNum=%u", header->u.s.seq_num);
+    proto_tree_add_item(mausb_tree, hf_mausb_seq_num, tvb,
+        offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    /* Request ID */
+    header->u.s.req_id = tvb_get_guint8(tvb, offset);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " ReqID=%u", header->u.s.req_id);
+    proto_tree_add_item(mausb_tree, hf_mausb_req_id, tvb,
+        offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    if (mausb_is_iso_pkt(header)) {
+        /* Presentation Time */
+        header->u.s.u2.present_time_num_seg = tvb_get_letohl(tvb, offset);
+        dissect_mausb_present_time(mausb_tree, tvb, offset);
+
+        /* Number of Segments */
+        proto_tree_add_item(mausb_tree, hf_mausb_num_segs, tvb,
+            offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+
+        /* MA USB Timestamp */
+        if (mausb_has_timestamp(header)) {
+            header->u.s.timestamp = tvb_get_letohl(tvb, offset);
+            dissect_mausb_timestamp(mausb_tree, tvb, offset);
+            offset += 4;
+        }
+
+        /* Media Time/Transmission Delay */
+        if (mausb_has_mtd(header)) {
+            header->u.s.tx_dly = tvb_get_letohl(tvb, offset);
+            proto_tree_add_item(mausb_tree, hf_mausb_mtd, tvb,
+                offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+        }
+
+    /* Not Iso */
+    } else {
+        /* Remaining Size/Credit */
+        header->u.s.u2.credit = tvb_get_letohl(tvb, offset);
+        proto_tree_add_item(mausb_tree, hf_mausb_rem_size_credit, tvb,
+            offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+    }
+
+    return offset;
+}
 
 /* Code to actually dissect the packets */
 static int
@@ -1490,21 +1569,10 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;
-    proto_item *len_field;
     proto_tree *mausb_tree;
-    proto_tree *flags_tree;
-    proto_tree *tflags_tree;
-    proto_tree *iflags_tree;
     /* Other misc. local variables. */
     struct mausb_header header;
     gint offset = 0;
-    gint payload_len;
-
-    /* Variables needed to follow the conversation */
-    usb_conv_info_t      *usb_conv_info = NULL;
-    usb_trans_info_t     *usb_trans_info = NULL;
-    conversation_t       *conversation;
-
 
     memset(&header, 0, sizeof(struct mausb_header));
 
@@ -1527,83 +1595,7 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Add an item to the subtree, see section 1.5 of README.dissector for more
      * information. */
 
-    /* MAUSB Protocol Version */
-    header.ver_flags = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(mausb_tree, hf_mausb_version, tvb,
-            offset, 1, ENC_LITTLE_ENDIAN);
-
-    /* Flags */
-    ti = proto_tree_add_item(mausb_tree, hf_mausb_flags, tvb,
-            offset, 1, ENC_LITTLE_ENDIAN);
-
-    flags_tree = proto_item_add_subtree(ti, ett_mausb_flags);
-        proto_tree_add_item(flags_tree, hf_mausb_flag_host, tvb,
-             offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_mausb_flag_retry, tvb,
-             offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_mausb_flag_timestamp, tvb,
-             offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_mausb_flag_reserved, tvb,
-             offset, 1, ENC_LITTLE_ENDIAN);
-    offset += 1;
-
-    /* Packet Type */
-    header.type = tvb_get_guint8(tvb, offset);
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(header.type, mausb_type_string, "%d"));
-    proto_tree_add_item(mausb_tree, hf_mausb_type, tvb,
-            offset, 1, ENC_LITTLE_ENDIAN);
-    offset += 1;
-
-    /* Packet Length */
-    header.length = tvb_get_letohs(tvb, offset);
-    col_append_fstr(pinfo->cinfo, COL_INFO, " Length=%u", header.length);
-    len_field = proto_tree_add_item(mausb_tree, hf_mausb_length, tvb,
-            offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
-
-    /* Check to see if length field is valid */
-    if (tvb_reported_length(tvb) != header.length) {
-        expert_add_info(pinfo, len_field, &ei_len);
-    }
-
-
-    /* Is the next field a device handle or an endpoint handle */
-    header.handle = tvb_get_letohs(tvb, offset);
-
-    /* Once we have the endpoint/device handle,
-     * we can find the right conversation */
-    conversation = get_mausb_conversation(mausb_tree, tvb, pinfo, header.handle,
-                                          mausb_is_data_pkt(&header),
-                                          mausb_is_from_host(&header));
-
-    if (mausb_is_mgmt_pkt(&header)) {
-
-        proto_tree_add_item(mausb_tree, hf_mausb_dev_handle, tvb,
-              offset, 2, ENC_LITTLE_ENDIAN);
-        offset += 2;
-
-    } else {
-        offset += dissect_ep_handle(mausb_tree, tvb, offset);
-
-    }
-
-    /* MA Device Address */
-    header.ma_dev_addr = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(mausb_tree, hf_mausb_ma_dev_addr, tvb,
-            offset, 1, ENC_LITTLE_ENDIAN);
-    offset += 1;
-
-    /* SSID */
-    header.mass_id = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(mausb_tree, hf_mausb_ssid, tvb,
-            offset, 1, ENC_LITTLE_ENDIAN);
-    offset += 1;
-
-    /* Status */
-    header.status = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(mausb_tree, hf_mausb_status, tvb,
-            offset, 1, ENC_LITTLE_ENDIAN);
-    offset += 1;
+    offset = dissect_mausb_pkt_common(tvb, offset, pinfo, mausb_tree, &header);
 
     if (mausb_is_mgmt_pkt(&header)) {
 
@@ -1622,161 +1614,23 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Dissect additional management fields (when applicable) */
         if (offset < header.length) {
-
             offset = dissect_mausb_mgmt_pkt_flds(&header, mausb_tree, tvb,
                         pinfo, offset);
         }
 
-
     }
     else if (mausb_is_data_pkt(&header)) {
+        dissect_mausb_pkt_data(tvb, offset, pinfo, mausb_tree, &header);
 
-        /* EPS */
-        header.u.s.eps_tflags = tvb_get_guint8(tvb, offset);
-        if (mausb_is_from_host(&header)) {
-            proto_tree_add_item(mausb_tree, hf_mausb_eps_rsvd, tvb,
-                offset, 1, ENC_LITTLE_ENDIAN);
-        } else {
-            proto_tree_add_item(mausb_tree, hf_mausb_eps, tvb,
-                offset, 1, ENC_LITTLE_ENDIAN);
-        }
-
-
-        /* T-Flags */
-        ti = proto_tree_add_item(mausb_tree, hf_mausb_tflags, tvb,
-            offset, 1, ENC_LITTLE_ENDIAN);
-
-        tflags_tree = proto_item_add_subtree(ti, ett_mausb_tflags);
-            proto_tree_add_item(tflags_tree, hf_mausb_tflag_arq, tvb,
-                offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tflags_tree, hf_mausb_tflag_neg, tvb,
-                offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tflags_tree, hf_mausb_tflag_eot, tvb,
-                offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tflags_tree, hf_mausb_tflag_type, tvb,
-                offset, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item(tflags_tree, hf_mausb_tflag_rsvd, tvb,
-                offset, 1, ENC_LITTLE_ENDIAN);
-        offset += 1;
-
-        if (mausb_is_iso_pkt(&header)) {
-            /* Number of Headers */
-            header.u.s.u1.num_headers_iflags = tvb_get_letohs(tvb, offset);
-            proto_tree_add_item(mausb_tree, hf_mausb_num_iso_hdr, tvb,
-                offset, 2, ENC_LITTLE_ENDIAN);
-
-            /* I-Flags */
-            ti = proto_tree_add_item(mausb_tree, hf_mausb_iflags, tvb,
-                offset, 1, ENC_LITTLE_ENDIAN);
-
-            iflags_tree = proto_item_add_subtree(ti, ett_mausb_iflags);
-                proto_tree_add_item(iflags_tree, hf_mausb_iflag_asap, tvb,
-                    offset, 1, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(iflags_tree, hf_mausb_iflag_hdr_format, tvb,
-                    offset, 1, ENC_LITTLE_ENDIAN);
-                proto_tree_add_item(iflags_tree, hf_mausb_iflag_mtd, tvb,
-                    offset, 1, ENC_LITTLE_ENDIAN);
-
-        } else {
-            /* Stream ID */
-            header.u.s.u1.stream_id = tvb_get_letohs(tvb, offset);
-            proto_tree_add_item(mausb_tree, hf_mausb_stream_id, tvb,
-                offset, 2, ENC_LITTLE_ENDIAN);
-        }
-        offset += 2;
-
-        /* Sequence Number */
-        header.u.s.seq_num = tvb_get_letoh24(tvb, offset);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " SeqNum=%u", header.u.s.seq_num);
-        proto_tree_add_item(mausb_tree, hf_mausb_seq_num, tvb,
-            offset, 3, ENC_LITTLE_ENDIAN);
-        offset += 3;
-
-        /* Request ID */
-        header.u.s.req_id = tvb_get_guint8(tvb, offset);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " ReqID=%u", header.u.s.req_id);
-        proto_tree_add_item(mausb_tree, hf_mausb_req_id, tvb,
-            offset, 1, ENC_LITTLE_ENDIAN);
-        offset += 1;
-
-        if (mausb_is_iso_pkt(&header)) {
-            /* Presentation Time */
-            header.u.s.u2.present_time_num_seg = tvb_get_letohl(tvb, offset);
-            dissect_mausb_present_time(mausb_tree, tvb, offset);
-
-            /* Number of Segments */
-            proto_tree_add_item(mausb_tree, hf_mausb_num_segs, tvb,
-                offset, 4, ENC_LITTLE_ENDIAN);
-            offset += 4;
-
-            /* MA USB Timestamp */
-            if (mausb_has_timestamp(&header)) {
-                header.u.s.timestamp = tvb_get_letohl(tvb, offset);
-                dissect_mausb_timestamp(mausb_tree, tvb, offset);
-                offset += 4;
-            }
-
-            /* Media Time/Transmission Delay */
-            if (mausb_has_mtd(&header)) {
-                header.u.s.tx_dly = tvb_get_letohl(tvb, offset);
-                proto_tree_add_item(mausb_tree, hf_mausb_mtd, tvb,
-                    offset, 4, ENC_LITTLE_ENDIAN);
-                offset += 4;
-            }
-
-        /* Not Iso */
-        } else {
-            /* Remaining Size/Credit */
-            header.u.s.u2.credit = tvb_get_letohl(tvb, offset);
-            proto_tree_add_item(mausb_tree, hf_mausb_rem_size_credit, tvb,
-                offset, 4, ENC_LITTLE_ENDIAN);
-            offset += 4;
-        }
-
-        /* If there is a usb conversation, find it */
-        if (!(mausb_is_transfer_ack(&header))) {
-
-            usb_conv_info = get_usb_conv_info(conversation);
-
-            /* TODO: set all the usb_conv_info values */
-            usb_conv_info->is_request = mausb_is_transfer_req(&header);
-
-            usb_trans_info = usb_get_trans_info(tvb, pinfo, tree, USB_HEADER_MAUSB,
-                                                usb_conv_info, header.u.s.req_id);
-            usb_conv_info->usb_trans_info = usb_trans_info;
-        }
-
-        /* If this packet contains USB Setup Data */
-        if (mausb_has_setup_data(&header)) {
-            offset = dissect_usb_setup_request(pinfo, mausb_tree, tvb, offset,
-                                               URB_SUBMIT, usb_conv_info,
-                                               USB_HEADER_MAUSB);
-        }
-
-        if (mausb_is_setup_response(&header)) {
-            offset = dissect_usb_setup_response(pinfo, mausb_tree, tvb, offset,
-                                                URB_COMPLETE, usb_conv_info);
-        }
-        /*
-         * TODO: dissect MA USB Payload with USB class dissectors
-         *       (ex: MBIM, USB Audio, etc.)
-         */
-
-        /* Everything after the header is payload */
-        payload_len = header.length - offset;
-
-        if (0 < payload_len) {
-            proto_tree_add_item(mausb_tree, hf_mausb_payload, tvb,
-                offset, payload_len, ENC_NA);
-            offset += payload_len;
+        if (!mausb_is_transfer_ack(&header)) {
+            dissect_usb_common(tvb, pinfo, tree, USB_HEADER_MAUSB, &header);
         }
     }
 
     col_append_str(pinfo->cinfo, COL_INFO, "]");
     col_set_fence(pinfo->cinfo, COL_INFO);
 
-    return offset;
-
+    return header.length;
 }
 
 /* Code to dissect the stream */
@@ -1812,7 +1666,7 @@ proto_register_mausb(void)
         },
         { &hf_mausb_flags,
             { "Flags", "mausb.flags", FT_UINT8, BASE_HEX,
-              VALS(mausb_flag_string), MAUSB_FLAG_MASK, NULL, HFILL
+              NULL, MAUSB_FLAG_MASK, NULL, HFILL
             }
         },
 
@@ -1940,7 +1794,7 @@ proto_register_mausb(void)
         },
         { &hf_mausb_tflags,
             { "Transfer Flags", "mausb.tflag", FT_UINT8, BASE_HEX,
-              VALS(mausb_tflag_string), MAUSB_TFLAG_MASK, NULL, HFILL
+              NULL, MAUSB_TFLAG_MASK, NULL, HFILL
             }
         },
 
@@ -1985,7 +1839,7 @@ proto_register_mausb(void)
         },
         { &hf_mausb_iflags,
             { "Isochronous Flags", "mausb.iflag", FT_UINT16, BASE_HEX,
-              VALS(mausb_iflag_string), MAUSB_IFLAG_MASK, NULL, HFILL
+              NULL, MAUSB_IFLAG_MASK, NULL, HFILL
             }
         },
 
@@ -2068,11 +1922,6 @@ proto_register_mausb(void)
               NULL, 0, NULL, HFILL
             }
         },
-        { &hf_mausb_payload,
-            { "USB Data Payload", "mausb.payload", FT_NONE, 0,
-              NULL, 0, NULL, HFILL
-            }
-        }
     };
 
 

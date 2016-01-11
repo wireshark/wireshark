@@ -1584,6 +1584,7 @@ DISSECTOR_INCLUDES =	\
 	packet-lpp.h		\
 	packet-lte-rrc.h	\
 	packet-mac-lte.h		\
+	packet-mausb.h	\
 	packet-mbim.h	\
 	packet-mbtcp.h	\
 	packet-mgcp.h		\
