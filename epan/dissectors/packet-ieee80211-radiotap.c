@@ -158,6 +158,7 @@ static int hf_radiotap_vht_p_aid = -1;
 static int hf_radiotap_vht_user = -1;
 
 /* "Present" flags */
+static int hf_radiotap_present_word = -1;
 static int hf_radiotap_present_tsft = -1;
 static int hf_radiotap_present_flags = -1;
 static int hf_radiotap_present_rate = -1;
@@ -200,6 +201,7 @@ static int hf_radiotap_fcs_bad = -1;
 
 static gint ett_radiotap = -1;
 static gint ett_radiotap_present = -1;
+static gint ett_radiotap_present_word = -1;
 static gint ett_radiotap_flags = -1;
 static gint ett_radiotap_rxflags = -1;
 static gint ett_radiotap_channel_flags = -1;
@@ -548,6 +550,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 {
 	proto_tree *radiotap_tree     = NULL;
 	proto_item *present_item      = NULL;
+	proto_tree *present_tree      = NULL;
+	proto_item *present_word_item = NULL;
 	proto_tree *present_word_tree = NULL;
 	proto_tree *ft;
 	proto_item *ti                = NULL;
@@ -646,6 +650,8 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 
 		present_item = proto_tree_add_item(radiotap_tree,
 		    hf_radiotap_present, tvb, 4, n_bitmaps * 4, ENC_NA);
+		present_tree = proto_item_add_subtree(present_item,
+		    ett_radiotap_present);
 
 		for (i = 0; i < n_bitmaps; i++) {
 			guint32 bmap = pletoh32(bmap_start + 4 * i);
@@ -653,11 +659,16 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			rtap_ns_offset = rtap_ns_offset_next;
 			rtap_ns_offset_next += 32;
 
-			present_word_tree =
-			    proto_item_add_subtree(present_item,
-			      ett_radiotap_present);
-
 			offset = 4 * i;
+
+			present_word_item =
+			    proto_tree_add_item(present_tree,
+			      hf_radiotap_present_word,
+			      tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
+
+			present_word_tree =
+			    proto_item_add_subtree(present_word_item,
+			      ett_radiotap_present_word);
 
 			rtap_ns = rtap_ns_next;
 
@@ -672,7 +683,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 				     BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE)))
 				== (BIT(IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE) |
 				    BIT(IEEE80211_RADIOTAP_VENDOR_NAMESPACE))) {
-				expert_add_info_format(pinfo, present_item,
+				expert_add_info_format(pinfo, present_word_item,
 				    &ei_radiotap_present,
 				    "Both radiotap and vendor namespace specified in bitmask word %u",
 				    i);
@@ -756,7 +767,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			/* Check if Reserved/Not Defined is not "zero" */
 			if(bmap & IEEE80211_RADIOTAP_NOTDEFINED)
 			{
-				expert_add_info(pinfo, present_item,
+				expert_add_info(pinfo, present_word_item,
 				    &ei_radiotap_present_reserved);
 			}
  always_bits:
@@ -1813,6 +1824,11 @@ void proto_register_radiotap(void)
 		  FT_NONE, BASE_NONE, NULL, 0x0,
 		  "Bitmask indicating which fields are present", HFILL}},
 
+		{&hf_radiotap_present_word,
+		 {"Present flags word", "radiotap.present.flags",
+		  FT_UINT32, BASE_HEX, NULL, 0x0,
+		  "Word from present flags bitmask", HFILL}},
+
 #define RADIOTAP_MASK(name)	BIT(IEEE80211_RADIOTAP_ ##name)
 
 		/* Boolean 'present' flags */
@@ -2610,6 +2626,7 @@ void proto_register_radiotap(void)
 	static gint *ett[] = {
 		&ett_radiotap,
 		&ett_radiotap_present,
+		&ett_radiotap_present_word,
 		&ett_radiotap_flags,
 		&ett_radiotap_rxflags,
 		&ett_radiotap_channel_flags,
