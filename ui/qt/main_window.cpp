@@ -739,7 +739,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     }
 
     QString before_what(tr(" before quitting"));
-    if (!testCaptureFileClose(TRUE, before_what)) {
+    if (!testCaptureFileClose(before_what, QuitButtons)) {
         event->ignore();
         return;
     }
@@ -1072,7 +1072,7 @@ void MainWindow::importCaptureFile() {
     ImportTextDialog import_dlg;
 
     QString before_what(tr(" before importing a new capture"));
-    if (!testCaptureFileClose(FALSE, before_what))
+    if (!testCaptureFileClose(before_what))
         return;
 
     import_dlg.exec();
@@ -1505,7 +1505,7 @@ void MainWindow::fileAddExtension(QString &file_name, int file_type, bool compre
     }
 }
 
-bool MainWindow::testCaptureFileClose(bool from_quit, QString before_what, bool restart) {
+bool MainWindow::testCaptureFileClose(QString before_what, FileCloseButtons buttons) {
     bool capture_in_progress = false;
     bool do_close_file = false;
 
@@ -1579,38 +1579,43 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString before_what, bool 
             msg_dialog.addButton(QMessageBox::Cancel);
 
             if (capture_in_progress) {
-                if (restart) {
-                    saveButton = msg_dialog.addButton(tr("Save before Continue"), QMessageBox::AcceptRole);
+                QString saveButtonText;
+                if (buttons == RestartButtons) {
+                    saveButtonText = tr("Save before Continue");
                 } else {
-                    saveButton = msg_dialog.addButton(tr("Stop and Save"), QMessageBox::AcceptRole);
+                    saveButtonText = tr("Stop and Save");
                 }
+                saveButton = msg_dialog.addButton(saveButtonText, QMessageBox::AcceptRole);
             } else {
                 saveButton = msg_dialog.addButton(QMessageBox::Save);
             }
             msg_dialog.setDefaultButton(saveButton);
 
-            if (from_quit) {
-                if (capture_file_.capFile()->state == FILE_READ_IN_PROGRESS) {
-                    discardButton = msg_dialog.addButton(tr("Stop and Quit without Saving"),
-                                                         QMessageBox::DestructiveRole);
-                } else {
-                    discardButton = msg_dialog.addButton(tr("Quit without Saving"),
-                                                         QMessageBox::DestructiveRole);
+            QString discardButtonText;
+            if (capture_in_progress) {
+                switch (buttons) {
+                case QuitButtons:
+                    discardButtonText = tr("Stop and Quit without Saving");
+                    break;
+                case RestartButtons:
+                    discardButtonText = tr("Continue without Saving");
+                    break;
+                default:
+                    discardButtonText = tr("Stop and Continue without Saving");
+                    break;
                 }
             } else {
-                if (capture_in_progress) {
-                    if (restart) {
-                        discardButton = msg_dialog.addButton(tr("Continue without Saving"),
-                                                             QMessageBox::DestructiveRole);
-                    }
-                    else {
-                        discardButton = msg_dialog.addButton(tr("Stop and Continue without Saving"),
-                                                             QMessageBox::DestructiveRole);
-                    }
-                } else {
-                    discardButton = msg_dialog.addButton(tr("Continue &without Saving"), QMessageBox::DestructiveRole);
+                switch (buttons) {
+                case QuitButtons:
+                    discardButtonText = tr("Quit without Saving");
+                    break;
+                case RestartButtons:
+                default:
+                    discardButtonText = tr("Continue without Saving");
+                    break;
                 }
             }
+            discardButton = msg_dialog.addButton(discardButtonText, QMessageBox::DestructiveRole);
 
             msg_dialog.exec();
             /* According to the Qt doc:

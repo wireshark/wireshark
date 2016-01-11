@@ -120,6 +120,12 @@ private:
         CopySelectedValue
     };
 
+    enum FileCloseButtons {
+        DefaultButtons,
+        QuitButtons,
+        RestartButtons
+    };
+
     Ui::MainWindow *main_ui_;
     QMenu *open_recent_menu_;
     QSplitter master_split_;
@@ -179,7 +185,7 @@ private:
     void exportDissections(export_type_e export_type);
 
     void fileAddExtension(QString &file_name, int file_type, bool compressed);
-    bool testCaptureFileClose(bool from_quit = false, QString before_what = QString(), bool restart = false);
+    bool testCaptureFileClose(QString before_what = QString(), FileCloseButtons buttons = DefaultButtons);
     void captureStop();
 
     void initMainToolbarIcons();

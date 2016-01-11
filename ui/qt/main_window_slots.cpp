@@ -202,7 +202,7 @@ bool MainWindow::openCaptureFile(QString cf_path, QString read_filter, unsigned 
             }
         }
 
-        if (!testCaptureFileClose(false)) {
+        if (!testCaptureFileClose()) {
             return false;
         }
 
@@ -3532,7 +3532,7 @@ void MainWindow::on_actionCaptureStart_triggered()
 
     /* XXX - will closing this remove a temporary file? */
     QString before_what(tr(" before starting a new capture"));
-    if (testCaptureFileClose(FALSE, before_what)) {
+    if (testCaptureFileClose(before_what)) {
         startCapture();
     } else {
         // simply clicking the button sets it to 'checked' even though we've
@@ -3550,7 +3550,7 @@ void MainWindow::on_actionCaptureStop_triggered()
 void MainWindow::on_actionCaptureRestart_triggered()
 {
     QString before_what(tr(" before restarting a new capture"));
-    if (!testCaptureFileClose(false, before_what, true))
+    if (!testCaptureFileClose(before_what, RestartButtons))
         return;
 
 /* TODO: GTK use only this: capture_restart(&cap_session_); */
