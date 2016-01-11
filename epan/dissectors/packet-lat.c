@@ -29,6 +29,9 @@
 #include <epan/packet.h>
 #include "etypes.h"
 
+void proto_register_lat(void);
+void proto_reg_handoff_lat(void);
+
 /*
  * Information on LAT taken from the Linux "latd" at
  *
