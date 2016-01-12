@@ -3165,9 +3165,17 @@ proto_register_acn(void)
         "DMX Start Code", HFILL }
     },
 
+    /*
+     * If you want the pretty-printed data in the field, for filtering
+     * purposes, you have to make it an FT_STRING.
+     *
+     * If you want the raw data in the field, for filtering purposes,
+     * you have to make it an FT_BYTES *AND* use "proto_tree_add_bytes_format()"
+     * to put the pretty-printed data into the display but not the field.
+     */
     { &hf_acn_dmx_data,
       { "Data", "acn.dmx.data",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
 
