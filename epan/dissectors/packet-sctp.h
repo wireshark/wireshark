@@ -28,6 +28,10 @@
 
 #include "ws_symbol_export.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #define MAXIMUM_NUMBER_OF_TVBS 2048
 
 struct _sctp_info {
@@ -116,6 +120,10 @@ typedef struct _sctp_frag_msg {
 	 ((t) == SCTP_PKTDROP_CHUNK_ID))
 
 WS_DLL_PUBLIC const value_string chunk_type_values[];
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif
 
