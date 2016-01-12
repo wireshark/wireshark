@@ -798,6 +798,15 @@ static const value_string dvbci_apdu_tag[] = {
     { 0, NULL }
 };
 
+WS_DLL_PUBLIC_DEF const value_string dvbci_event[] = {
+    { DVBCI_EVT_DATA_HOST_TO_CAM, "data transfer Host -> CAM" },
+    { DVBCI_EVT_DATA_CAM_TO_HOST, "data transfer CAM -> Host" },
+    { DVBCI_EVT_CIS_READ,         "read the Card Information Structure (CIS)" },
+    { DVBCI_EVT_COR_WRITE,        "write into the Configuration Option Register (COR)" },
+    { DVBCI_EVT_HW_EVT,           "hardware event" },
+    { 0, NULL }
+};
+
 static int proto_dvbci = -1;
 
 static const gchar *dvbci_sek = NULL;

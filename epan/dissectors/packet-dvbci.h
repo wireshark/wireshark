@@ -39,15 +39,7 @@
    event can't be determined by looking at source and destination addresses */
 #define DVBCI_EVT_INVALID_EVT       0x00
 
-static const value_string dvbci_event[] = {
-    { DVBCI_EVT_DATA_HOST_TO_CAM, "data transfer Host -> CAM" },
-    { DVBCI_EVT_DATA_CAM_TO_HOST, "data transfer CAM -> Host" },
-    { DVBCI_EVT_CIS_READ,         "read the Card Information Structure (CIS)" },
-    { DVBCI_EVT_COR_WRITE,
-        "write into the Configuration Option Register (COR)" },
-    { DVBCI_EVT_HW_EVT,           "hardware event" },
-    { 0, NULL }
-};
+WS_DLL_PUBLIC const value_string dvbci_event[];
 
 gint dvbci_set_addrs(guint8 event, packet_info *pinfo);
 guint8 dvbci_get_evt_from_addrs(packet_info *pinfo);
