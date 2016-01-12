@@ -682,7 +682,7 @@ PICS.    */
 		if (param_len == 0)
 			break;
 
-			proto_tree_add_item(param_tree,
+		proto_tree_add_item(param_tree,
 			    hf_calling_session_selector,
 			    tvb, offset, param_len, ENC_NA);
 		break;
