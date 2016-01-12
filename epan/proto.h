@@ -633,7 +633,7 @@ typedef struct field_info {
  * crumb_bit_length is the number of contiguous bits of this crumb.
  * The first element of an array of bits_specs describes the most significant crumb of the output value.
  * The second element of an array of bits_specs describes the next-most significant crumb of the output value, etc.
- * The array is terminated by a sentinal entry with crumb_bit_length of 0.
+ * The array is terminated by a sentinel entry with crumb_bit_length of 0.
 */
 typedef struct
 {
