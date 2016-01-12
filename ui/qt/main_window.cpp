@@ -622,7 +622,7 @@ MainWindow::~MainWindow()
 
 QString MainWindow::getFilter()
 {
-    return df_combo_box_->itemText(df_combo_box_->count());
+    return df_combo_box_->currentText();
 }
 
 QMenu *MainWindow::createPopupMenu()
