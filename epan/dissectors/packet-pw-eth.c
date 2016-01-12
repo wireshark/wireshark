@@ -141,7 +141,7 @@ dissect_pw_eth_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         call_dissector(pw_eth_handle_cw, tvb, pinfo, tree);
     else
         call_dissector(pw_eth_handle_nocw, tvb, pinfo, tree);
-	return tvb_captured_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 void
