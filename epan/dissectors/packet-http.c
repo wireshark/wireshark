@@ -607,30 +607,6 @@ http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_dissect_t* e
 	return 1;
 }
 
-static gchar* http_add_http_filter(gchar* filter)
-{
-	gchar *http_buf = g_strdup_printf("((%s) && (http))", filter);
-	g_free(filter);
-
-	return http_buf;
-}
-
-static gchar* http_follow_conv_filter(packet_info *pinfo, int* stream)
-{
-	return http_add_http_filter(tcp_follow_conv_filter(pinfo, stream));
-}
-
-static gchar* http_follow_index_filter(int stream)
-{
-	return http_add_http_filter(tcp_follow_index_filter(stream));
-}
-
-static gchar* http_follow_address_filter(address* src_addr, address* dst_addr, int src_port, int dst_port)
-{
-	return http_add_http_filter(tcp_follow_address_filter(src_addr, dst_addr, src_port, dst_port));
-}
-
-
 static void
 dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		     const char *line)
@@ -3538,7 +3514,7 @@ proto_register_http(void)
 	http_eo_tap = register_tap("http_eo"); /* HTTP Export Object tap */
 	http_follow_tap = register_tap("http_follow"); /* HTTP Follow tap */
 
-	register_follow_stream(proto_http, "http_follow", http_follow_conv_filter, http_follow_index_filter, http_follow_address_filter,
+	register_follow_stream(proto_http, "http_follow", tcp_follow_conv_filter, tcp_follow_index_filter, tcp_follow_address_filter,
 							tcp_port_to_display, follow_tvb_tap_listener);
 }
 
