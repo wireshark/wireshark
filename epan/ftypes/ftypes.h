@@ -38,7 +38,7 @@ enum ftenum {
 	FT_BOOLEAN,	/* TRUE and FALSE come from <glib.h> */
 	FT_UINT8,
 	FT_UINT16,
-	FT_UINT24,	/* really a UINT32, but displayed as 3 hex-digits if FD_HEX*/
+	FT_UINT24,	/* really a UINT32, but displayed as 6 hex-digits if FD_HEX*/
 	FT_UINT32,
 	FT_UINT40,	/* really a UINT64, but displayed as 10 hex-digits if FD_HEX*/
 	FT_UINT48,	/* really a UINT64, but displayed as 12 hex-digits if FD_HEX*/
