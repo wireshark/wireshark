@@ -4748,7 +4748,7 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
                               giop_message_flags, ENC_BIG_ENDIAN);
       if ((header.flags & GIOP_MESSAGE_FLAGS_ENDIANNESS) == 0)
         proto_item_append_text(ti, ", (Big Endian)");  /* hack to show "Big Endian" when endianness flag == 0 */
-        break;
+      break;
     case 0:
       proto_tree_add_boolean(header_tree, hf_giop_message_flags_little_endian, tvb, 6, 1, stream_is_big_endian ? 0 : 1);
       break;
