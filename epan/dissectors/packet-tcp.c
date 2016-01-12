@@ -243,6 +243,7 @@ static int hf_tcp_option_mptcp_recv_key = -1;
 static int hf_tcp_option_mptcp_sender_rand = -1;
 static int hf_tcp_option_mptcp_sender_trunc_hmac = -1;
 static int hf_tcp_option_mptcp_sender_hmac = -1;
+static int hf_tcp_option_mptcp_addaddr_trunc_hmac = -1;
 static int hf_tcp_option_mptcp_data_ack_raw = -1;
 static int hf_tcp_option_mptcp_data_seq_no_raw = -1;
 static int hf_tcp_option_mptcp_subflow_seq_no = -1;
@@ -3554,6 +3555,12 @@ dissect_tcpopt_mptcp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
             if (optlen % 4 == 2) {
                 proto_tree_add_item(mptcp_tree,
                             hf_tcp_option_mptcp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+            }
+
+            if (optlen == 16 || optlen == 18 || optlen == 28 || optlen == 30) {
+                proto_tree_add_item(mptcp_tree,
+                            hf_tcp_option_mptcp_addaddr_trunc_hmac, tvb, offset, 8, ENC_BIG_ENDIAN);
             }
             break;
 
@@ -6063,6 +6070,10 @@ proto_register_tcp(void)
         { &hf_tcp_option_mptcp_sender_hmac,
           { "Sender's HMAC", "tcp.options.mptcp.sendhmac", FT_BYTES,
             BASE_NONE, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_mptcp_addaddr_trunc_hmac,
+          { "Truncated HMAC", "tcp.options.mptcp.addaddrtrunchmac", FT_UINT64,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
         { &hf_tcp_option_mptcp_data_ack_raw,
           { "Original MPTCP Data ACK", "tcp.options.mptcp.rawdataack", FT_UINT64,
