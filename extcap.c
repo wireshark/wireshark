@@ -384,12 +384,16 @@ extcap_interface_list(char **err_str) {
 
 static void extcap_free_if_configuration(GList *list)
 {
-    GList *elem;
+    GList *elem, *sl;
 
     for (elem = g_list_first(list); elem; elem = elem->next)
     {
-        if (elem->data != NULL)
-            g_list_free_full(g_list_first((GList *)elem->data), g_free);
+        if (elem->data != NULL) {
+            /* g_list_free_full() only exists since 2.28. */
+            sl = g_list_first((GList *)elem->data);
+            g_list_foreach(sl, (GFunc)g_free, NULL);
+            g_list_free(sl);
+	}
     }
     g_list_free(list);
 }
