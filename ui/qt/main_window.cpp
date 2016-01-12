@@ -1838,19 +1838,19 @@ void MainWindow::setTitlebarForCaptureFile()
                                                      NULL,
                                                      NULL,
                                                      NULL);
-            QFileInfo fi(utf8_filename);
-            if (utf8_filename == NULL) {
+            if (utf8_filename) {
+                QFileInfo fi(utf8_filename);
+                setWSWindowTitle(fi.fileName());
+                setWindowFilePath(utf8_filename);
+                g_free(utf8_filename);
+            } else {
                 // So what the heck else can we do here?
                 setWSWindowTitle(tr("(File name can't be mapped to UTF-8)"));
-            } else {
-                setWSWindowTitle(fi.fileName());
-                g_free(utf8_filename);
             }
         }
         setWindowModified(cf_has_unsaved_data(capture_file_.capFile()));
     } else {
         /* We have no capture file. */
-        setWindowFilePath(NULL);
         setWSWindowTitle();
     }
 }
@@ -1867,11 +1867,11 @@ void MainWindow::setWSWindowTitle(QString title)
     }
 
     setWindowTitle(title);
+    setWindowFilePath(NULL);
 }
 
 void MainWindow::setTitlebarForCaptureInProgress()
 {
-    setWindowFilePath(NULL);
     if (capture_file_.capFile()) {
         setWSWindowTitle(tr("Capturing from %1").arg(cf_get_tempfile_source(capture_file_.capFile())));
     } else {
