@@ -1366,9 +1366,9 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 		*sid_str=NULL;
 
 	if(hf_sid==-1){
-	/* if no tree, just return the offset of the end_of_SID+1 */
-	if (!parent_tree)
-		return(offset+(6+(num_auth*4)));
+		/* if no tree, just return the offset of the end_of_SID+1 */
+		if (!parent_tree)
+			return(offset+(6+(num_auth*4)));
 
 		hf_sid=hf_nt_sid;
 	}
