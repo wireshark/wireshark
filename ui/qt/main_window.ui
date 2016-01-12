@@ -1447,7 +1447,7 @@
     <string>Unmark all displayed packets</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Alt+M</string>
+    <string>Ctrl+Alt+M</string>
    </property>
   </action>
   <action name="actionEditNextMark">
@@ -1458,7 +1458,7 @@
     <string>Go to the next marked packet</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Shift+N</string>
+    <string>Ctrl+Shift+N</string>
    </property>
   </action>
   <action name="actionEditPreviousMark">
@@ -1469,7 +1469,7 @@
     <string>Go to the previous marked packet</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Shift+B</string>
+    <string>Ctrl+Shift+B</string>
    </property>
   </action>
   <action name="actionEditIgnorePacket">
@@ -2103,7 +2103,7 @@
     <string>Show packet times as the date and time of day.</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Alt+1</string>
+    <string>Ctrl+Alt+1</string>
    </property>
   </action>
   <action name="actionViewTimeDisplayFormatDateYDOYandTimeOfDay">
@@ -2128,7 +2128,7 @@
     <string>Show packet times as the date and time of day.</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Alt+2</string>
+    <string>Ctrl+Alt+2</string>
    </property>
   </action>
   <action name="actionViewTimeDisplayFormatSecondsSinceEpoch">
@@ -2142,7 +2142,7 @@
     <string>Show packet times as the seconds since the UNIX / POSIX epoch (1970-01-01).</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Alt+3</string>
+    <string>Ctrl+Alt+3</string>
    </property>
   </action>
   <action name="actionViewTimeDisplayFormatSecondsSinceBeginningOfCapture">
@@ -2156,7 +2156,7 @@
     <string>Show packet times as the date and time of day.</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Alt+4</string>
+    <string>Ctrl+Alt+4</string>
    </property>
   </action>
   <action name="actionViewTimeDisplayFormatSecondsSincePreviousCapturedPacket">
@@ -2170,7 +2170,7 @@
     <string>Show packet times as the seconds since the previous captured packet.</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Alt+5</string>
+    <string>Ctrl+Alt+5</string>
    </property>
   </action>
   <action name="actionViewTimeDisplayFormatSecondsSincePreviousDisplayedPacket">
@@ -2184,7 +2184,7 @@
     <string>Show packet times as the seconds since the previous displayed packet.</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Alt+6</string>
+    <string>Ctrl+Alt+6</string>
    </property>
   </action>
   <action name="actionViewTimeDisplayFormatUTCDateYMDandTimeOfDay">
@@ -2198,7 +2198,7 @@
     <string>Show packet times as the UTC date and time of day.</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Alt+7</string>
+    <string>Ctrl+Alt+7</string>
    </property>
   </action>
   <action name="actionViewTimeDisplayFormatUTCDateYDOYandTimeOfDay">
@@ -2223,7 +2223,7 @@
     <string>Show packet times as the UTC time of day.</string>
    </property>
    <property name="shortcut">
-    <string>Meta+Alt+8</string>
+    <string>Ctrl+Alt+8</string>
    </property>
   </action>
   <action name="actionViewTimeDisplayFormatPrecisionAutomatic">
