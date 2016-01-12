@@ -358,7 +358,7 @@ simple_dialog_cancel_cb(GtkWidget *w, gpointer win) {
   if (callback_fct)
     (callback_fct) (win, button, data);
 
-    window_destroy(GTK_WIDGET(win));
+  window_destroy(GTK_WIDGET(win));
 }
 
 void
