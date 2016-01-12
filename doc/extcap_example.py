@@ -90,6 +90,7 @@ def extcap_config(interface):
 
 
 def extcap_interfaces():
+	print ("extcap {version=1.0}")
 	print ("interface {value=example1}{display=Example interface usage for extcap}")
 
 def extcap_dlts(interface):

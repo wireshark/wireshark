@@ -30,7 +30,7 @@ typedef enum {
     EXTCAP_SENTENCE_UNKNOWN,
     EXTCAP_SENTENCE_ARG,
     EXTCAP_SENTENCE_VALUE,
-    EXTCAP_SENTENCE_FLAG,
+    EXTCAP_SENTENCE_EXTCAP,
     EXTCAP_SENTENCE_INTERFACE,
     EXTCAP_SENTENCE_DLT
 } extcap_sentence_type;
@@ -70,7 +70,8 @@ typedef enum {
     EXTCAP_PARAM_FILE_EXTENSION,
     EXTCAP_PARAM_PARENT,
     EXTCAP_PARAM_REQUIRED,
-    EXTCAP_PARAM_VALIDATION
+    EXTCAP_PARAM_VALIDATION,
+    EXTCAP_PARAM_VERSION
 } extcap_param_type;
 
 /* Values for a given sentence; values are all stored as a call
@@ -132,7 +133,9 @@ typedef struct _extcap_if {
 typedef struct _extcap_interface {
     gchar *call;
     gchar *display;
+    gchar *version;
 
+    extcap_sentence_type if_type;
     struct _extcap_interface *next_interface;
 } extcap_interface;
 

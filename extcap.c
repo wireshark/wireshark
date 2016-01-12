@@ -62,6 +62,12 @@ static HANDLE pipe_h = NULL;
  */
 static GHashTable *ifaces = NULL;
 
+/* internal container, for all the extcap executables that have been found.
+ * will be resetted by every call to extcap_interface_list() and is being
+ * used for printing information about all extcap interfaces found
+ */
+static GHashTable *tools = NULL;
+
 /* Callback definition for extcap_foreach */
 typedef gboolean (*extcap_cb_t)(const gchar *extcap, gchar *output, void *data,
         gchar **err_str);
@@ -117,15 +123,6 @@ extcap_if_executable(const char *ifname)
 }
 
 static void
-extcap_if_reset(void)
-{
-    if (ifaces == NULL)
-        ifaces = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
-
-    g_hash_table_remove_all(ifaces);
-}
-
-static void
 extcap_if_add(gchar *ifname, gchar *extcap)
 {
     if ( g_hash_table_lookup(ifaces, ifname) == NULL )
@@ -134,6 +131,32 @@ extcap_if_add(gchar *ifname, gchar *extcap)
         g_free(ifname);
         g_free(extcap);
     }
+}
+
+static void
+extcap_tool_add(gchar *extcap, extcap_interface *tool)
+{
+    char * toolname = NULL;
+    extcap_info * extcap_tool = NULL;
+
+    if ( extcap == NULL )
+        return;
+
+    toolname = g_path_get_basename(extcap);
+    extcap_tool = (extcap_info *)g_hash_table_lookup(tools, toolname);
+
+    if ( tools != NULL && extcap_tool == NULL ) {
+        extcap_info * store = (extcap_info *)g_new0(extcap_info, 1);
+        store->version = g_strdup ( tool->version );
+        store->full_path = extcap;
+        store->basename = g_strdup ( toolname );
+
+        g_hash_table_insert(tools, g_strdup(toolname), store);
+    } else {
+        g_free(extcap);
+    }
+
+    g_free(toolname);
 }
 
 /* Note: args does not need to be NULL-terminated. */
@@ -317,7 +340,7 @@ static gboolean interfaces_cb(const gchar *extcap, gchar *output, void *data,
 
     int_iter = interfaces;
     while (int_iter != NULL ) {
-        if ( extcap_if_exists(int_iter->call) )
+        if ( int_iter->if_type == EXTCAP_SENTENCE_INTERFACE && extcap_if_exists(int_iter->call) )
         {
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING, "Extcap interface \"%s\" is already provided by \"%s\" ",
                     int_iter->call, (gchar *)extcap_if_executable(int_iter->call) );
@@ -325,19 +348,29 @@ static gboolean interfaces_cb(const gchar *extcap, gchar *output, void *data,
             continue;
         }
 
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  Interface [%s] \"%s\" ",
-                int_iter->call, int_iter->display);
+        if ( int_iter->if_type == EXTCAP_SENTENCE_INTERFACE )
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  Interface [%s] \"%s\" ",
+                    int_iter->call, int_iter->display);
+        else if ( int_iter->if_type == EXTCAP_SENTENCE_EXTCAP )
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  Extcap [%s] ", int_iter->call);
 
-        if_info = g_new0(if_info_t, 1);
-        if_info->name = g_strdup(int_iter->call);
-        if_info->friendly_name = g_strdup(int_iter->display);
+        if ( int_iter->if_type == EXTCAP_SENTENCE_INTERFACE ) {
+            if_info = g_new0(if_info_t, 1);
+            if_info->name = g_strdup(int_iter->call);
+            if_info->friendly_name = g_strdup(int_iter->display);
 
-        if_info->type = IF_EXTCAP;
+            if_info->type = IF_EXTCAP;
 
-        if_info->extcap = g_strdup(extcap);
-        *il = g_list_append(*il, if_info);
+            if_info->extcap = g_strdup(extcap);
+            *il = g_list_append(*il, if_info);
 
-        extcap_if_add(g_strdup(int_iter->call), g_strdup(extcap) );
+            extcap_if_add(g_strdup(int_iter->call), g_strdup(extcap) );
+        }
+
+        /* Call for interfaces and tools alike. Multiple calls (because a tool has multiple
+         * interfaces) are handled internally */
+        extcap_tool_add(g_strdup(extcap), int_iter);
+
         int_iter = int_iter->next_interface;
     }
     extcap_free_interface(interfaces);
@@ -358,6 +391,23 @@ if_info_compare(gconstpointer a, gconstpointer b)
     return comp;
 }
 
+GHashTable *
+extcap_tools_list(void) {
+    if ( tools == NULL || g_hash_table_size(tools) == 0 )
+        extcap_interface_list(NULL);
+
+    return tools;
+}
+
+static void
+extcap_free_info (gpointer data) {
+    extcap_info * info = (extcap_info *)data;
+
+    g_free (info->basename);
+    g_free (info->full_path);
+    g_free (info->version);
+}
+
 GList *
 extcap_interface_list(char **err_str) {
     gchar *argv;
@@ -369,7 +419,15 @@ extcap_interface_list(char **err_str) {
 
     /* ifaces is used as cache, do not destroy its contents when
      * returning or no extcap interfaces can be queried for options */
-    extcap_if_reset();
+    if (ifaces == NULL)
+        ifaces = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+    else
+        g_hash_table_remove_all(ifaces);
+
+    if (tools == NULL)
+        tools = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, extcap_free_info);
+    else
+        g_hash_table_remove_all(tools);
 
     argv = g_strdup(EXTCAP_ARGUMENT_LIST_INTERFACES);
 
@@ -393,7 +451,7 @@ static void extcap_free_if_configuration(GList *list)
             sl = g_list_first((GList *)elem->data);
             g_list_foreach(sl, (GFunc)g_free, NULL);
             g_list_free(sl);
-	}
+        }
     }
     g_list_free(list);
 }

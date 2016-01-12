@@ -53,6 +53,10 @@
 #include "wsutil/copyright_info.h"
 #include "wsutil/ws_version_info.h"
 
+#ifdef HAVE_EXTCAP
+#include "extcap.h"
+#endif
+
 #include "qt_ui_utils.h"
 
 #include <QFontMetrics>
@@ -114,6 +118,28 @@ const QString AboutDialog::plugins_scan()
                 .arg(plugin_row[2]) // Type
                 .arg(short_file);
     }
+
+    GHashTable * tools = extcap_tools_list();
+    if ( tools != NULL && g_hash_table_size(tools) > 0 )
+    {
+        QString short_file;
+        GList * walker = g_list_first(g_hash_table_get_keys(tools));
+        while ( walker )
+        {
+            extcap_info * tool = (extcap_info *)g_hash_table_lookup(tools, walker->data);
+            if ( tool != NULL )
+            {
+                short_file = fontMetrics().elidedText(tool->full_path, Qt::ElideMiddle, one_em*22);
+                plugin_table += QString("<tr><td>%1</td><td>%2</td><td>%3</td><td>%4</td></tr>\n")
+                       .arg(tool->basename) // Name
+                       .arg(tool->version) // Version
+                       .arg("extcap") // Type
+                       .arg(short_file);
+            }
+            walker = g_list_next(walker);
+        }
+    }
+
     return plugin_table;
 }
 

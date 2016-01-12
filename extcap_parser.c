@@ -282,7 +282,7 @@ extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
     rs->param_list = NULL;
 
     /* Regex for catching just the allowed values for sentences */
-    if ( ( regex = g_regex_new ( "^[\\t| ]*(arg|value|interface|dlt)(?=[\\t| ]+\\{)",
+    if ( ( regex = g_regex_new ( "^[\\t| ]*(arg|value|interface|extcap|dlt)(?=[\\t| ]+\\{)",
             (GRegexCompileFlags) G_REGEX_CASELESS, (GRegexMatchFlags) 0, NULL ) ) != NULL ) {
         g_regex_match ( regex, s, (GRegexMatchFlags) 0, &match_info );
 
@@ -347,6 +347,8 @@ extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
                 tv->param_type = EXTCAP_PARAM_REQUIRED;
             } else if (g_ascii_strcasecmp(tv->arg, "validation") == 0) {
                 tv->param_type = EXTCAP_PARAM_VALIDATION;
+            } else if (g_ascii_strcasecmp(tv->arg, "version") == 0) {
+                tv->param_type = EXTCAP_PARAM_VERSION;
             } else {
                 tv->param_type = EXTCAP_PARAM_UNKNOWN;
             }
@@ -408,11 +410,8 @@ void extcap_free_value(extcap_value *v) {
     if (v == NULL)
         return;
 
-    if (v->call != NULL)
-        g_free(v->call);
-
-    if (v->display != NULL)
-        g_free(v->display);
+    g_free(v->call);
+    g_free(v->display);
 
     g_free(v);
 }
@@ -420,7 +419,8 @@ void extcap_free_value(extcap_value *v) {
 extcap_interface *extcap_new_interface(void) {
     extcap_interface *r = g_new(extcap_interface, 1);
 
-    r->call = r->display = NULL;
+    r->call = r->display = r->version = NULL;
+    r->if_type = EXTCAP_SENTENCE_UNKNOWN;
     r->next_interface = NULL;
 
     return r;
@@ -456,11 +456,8 @@ void extcap_free_dlt(extcap_dlt *d) {
     if (d == NULL)
         return;
 
-    if (d->name != NULL)
-        g_free(d->name);
-
-    if (d->display != NULL)
-        g_free(d->display);
+    g_free(d->name);
+    g_free(d->display);
 }
 
 extcap_arg *extcap_new_arg(void) {
@@ -493,20 +490,11 @@ void extcap_free_arg(extcap_arg *a) {
     if (a == NULL)
         return;
 
-    if (a->call != NULL)
-        g_free(a->call);
-
-    if (a->display != NULL)
-        g_free(a->display);
-
-    if (a->tooltip != NULL)
-        g_free(a->tooltip);
-
-    if (a->fileextension != NULL)
-        g_free(a->fileextension);
-
-    if (a->regexp != NULL)
-        g_free(a->regexp);
+    g_free(a->call);
+    g_free(a->display);
+    g_free(a->tooltip);
+    g_free(a->fileextension);
+    g_free(a->regexp);
 
     if (a->range_start != NULL)
         extcap_free_complex(a->range_start);
@@ -780,7 +768,8 @@ int extcap_parse_interface_sentence(extcap_token_sentence *s,
 
     if (g_ascii_strcasecmp(s->sentence, "interface") == 0) {
         sent = EXTCAP_SENTENCE_INTERFACE;
-        /* printf("INTERFACE sentence\n"); */
+    } else if (g_ascii_strcasecmp(s->sentence, "extcap") == 0) {
+        sent = EXTCAP_SENTENCE_EXTCAP;
     }
 
     if (sent == EXTCAP_SENTENCE_UNKNOWN)
@@ -788,21 +777,30 @@ int extcap_parse_interface_sentence(extcap_token_sentence *s,
 
     *ri = extcap_new_interface();
 
+    (*ri)->if_type = sent;
+
     if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_VALUE))
-            == NULL) {
+            == NULL && sent == EXTCAP_SENTENCE_INTERFACE) {
         printf("No value in INTERFACE sentence\n");
         extcap_free_interface(*ri);
         return -1;
     }
-    (*ri)->call = g_strdup(v->value);
+    if ( v != NULL )
+       (*ri)->call = g_strdup(v->value);
 
     if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_DISPLAY))
-            == NULL) {
+            == NULL && sent == EXTCAP_SENTENCE_INTERFACE) {
         printf("No display in INTERFACE sentence\n");
         extcap_free_interface(*ri);
         return -1;
     }
-    (*ri)->display = g_strdup(v->value);
+    if ( v != NULL )
+        (*ri)->display = g_strdup(v->value);
+
+    if ((v = extcap_find_param_by_type(s->param_list, EXTCAP_PARAM_VERSION))
+            != NULL) {
+        (*ri)->version = g_strdup(v->value);
+    }
 
     return 1;
 }

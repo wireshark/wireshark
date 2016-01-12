@@ -49,6 +49,12 @@
 #define EXTCAP_ARGUMENT_CAPTURE_FILTER          "--extcap-capture-filter"
 #define EXTCAP_ARGUMENT_RUN_PIPE                "--fifo"
 
+typedef struct _extcap_info {
+    gchar * basename;
+    gchar * full_path;
+    gchar * version;
+} extcap_info;
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -60,6 +66,10 @@ extcap_get_if_dlts(const gchar * ifname, char ** err_str);
 /* get a list of all capture interfaces */
 GList *
 extcap_interface_list(char **err_str);
+
+/* get a list of all available extcap tools */
+GHashTable *
+extcap_tools_list(void);
 
 /* returns the configuration for the given interface name, or an
  * empty list, if no configuration has been found */
