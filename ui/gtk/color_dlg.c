@@ -1050,9 +1050,10 @@ colorfilters_main_save(void)
 
     simple_dialog_set_cb(dialog, overwrite_existing_colorfilters_cb, NULL);
   } else {
-    if (!color_filters_write(color_filter_edit_list, &err_msg))
+    if (!color_filters_write(color_filter_edit_list, &err_msg)) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not open filter file: %s", err_msg);
       g_free(err_msg);
+    }
   }
 }
 
