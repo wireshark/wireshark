@@ -103,6 +103,7 @@ static int hf_ppcap_payload_data = -1;
 static int hf_ppcap_local_port = -1;
 static int hf_ppcap_remote_port = -1;
 static int hf_ppcap_transport_prot = -1;
+static int hf_ppcap_sctp_assoc = -1;
 
 /* Initiliaze the subtree pointers*/
 
@@ -500,6 +501,18 @@ dissect_ppcap_transport_protocol(tvbuff_t *tvb,proto_tree * ppcap_tree1, int off
 static int
 dissect_ppcap_sctp_assoc(tvbuff_t *tvb _U_, proto_tree * tree _U_, int offset)
 {
+	guint16 length;
+	length = tvb_get_ntohs(tvb, offset);
+
+	proto_tree_add_item(tree, hf_ppcap_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+	offset = offset + 2;
+
+	proto_tree_add_item(tree, hf_ppcap_sctp_assoc, tvb, offset, length, ENC_ASCII | ENC_NA);
+
+	if (length % 4)
+		length = length + (4 - (length % 4));
+	offset += length;
+
 	return offset;
 }
 
@@ -656,6 +669,9 @@ module_t *ppcap_module;
 	{ &hf_ppcap_transport_prot,
 	{ "Transport Protocol" , "ppcap.transport_prot", FT_STRING,
 		BASE_NONE,      NULL,   0x0    , NULL,    HFILL}},
+	{ &hf_ppcap_sctp_assoc,
+	{ "SCTP Association ID" , "ppcap.sctp_assoc", FT_STRING,
+		BASE_NONE,      NULL,   0x0    , NULL,    HFILL } },
 	};
 
 	static gint *ett[]= {
