@@ -27,6 +27,8 @@
 #include <wsutil/pint.h>
 #endif
 
+#include <epan/prefs.h>
+
 #include "ui/recent.h"
 #include "ui/traffic_table_ui.h"
 
