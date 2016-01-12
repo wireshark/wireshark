@@ -710,11 +710,13 @@ static int ws80211_create_on_demand_interface(const char *name)
 	NLA_PUT_U32(msg, NL80211_ATTR_IFTYPE, NL80211_IFTYPE_MONITOR);
 
 	err = nl80211_do_cmd(msg, cb);
+	nlmsg_free(msg);
 	if (err)
 		return err;
 	return ws80211_iface_up(name);
 
 nla_put_failure:
+	nlmsg_free(msg);
 	fprintf(stderr, "building message failed\n");
 	return 2;
 }
@@ -775,9 +777,11 @@ int ws80211_set_freq(const char *name, int freq, int chan_type)
 		break;
 	}
 	err = nl80211_do_cmd(msg, cb);
+	nlmsg_free(msg);
 	return err;
 
 nla_put_failure:
+	nlmsg_free(msg);
 	fprintf(stderr, "building message failed\n");
 	return 2;
 
