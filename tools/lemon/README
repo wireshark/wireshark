@@ -13,5 +13,6 @@ arguments. The changes were submitted to the Lemon maintainer,
 but have not appeared in the official Lemon distribution.
 
 
-
+A copy of all Wireshark changes are available at
+  https://github.com/alagoutte/sqlite/tree/wireshark
 
