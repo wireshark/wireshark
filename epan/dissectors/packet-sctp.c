@@ -51,6 +51,7 @@
 
 #include "config.h"
 
+#include "ws_symbol_export.h"
 
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>

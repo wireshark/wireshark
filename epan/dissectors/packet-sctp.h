@@ -26,6 +26,8 @@
 #ifndef __PACKET_SCTP_H__
 #define __PACKET_SCTP_H__
 
+#include "ws_symbol_export.h"
+
 #define MAXIMUM_NUMBER_OF_TVBS 2048
 
 struct _sctp_info {
