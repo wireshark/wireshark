@@ -168,6 +168,7 @@ struct ptvcursor {
 
 static const char *hf_try_val_to_str(guint32 value, const header_field_info *hfinfo);
 static const char *hf_try_val64_to_str(guint64 value, const header_field_info *hfinfo);
+static int hfinfo_container_bitwidth(const header_field_info *hfinfo);
 
 static void label_mark_truncated(char *label_str, gsize name_pos);
 #define LABEL_MARK_TRUNCATED_START(label_str) label_mark_truncated(label_str, 0)
@@ -4640,7 +4641,7 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 
 			val <<= hfinfo_bitshift(hf);
 
-			p = decode_bitfield_value(fi->rep->representation, val, hf->bitmask, hfinfo_bitwidth(hf));
+			p = decode_bitfield_value(fi->rep->representation, val, hf->bitmask, hfinfo_container_bitwidth(hf));
 			ret = (int) (p - fi->rep->representation);
 		}
 
@@ -7193,7 +7194,7 @@ fill_label_boolean(field_info *fi, gchar *label_str)
 	value = fvalue_get_uinteger64(&fi->value);
 	if (hfinfo->bitmask) {
 		/* Figure out the bit width */
-		bitwidth = hfinfo_bitwidth(hfinfo);
+		bitwidth = hfinfo_container_bitwidth(hfinfo);
 
 		/* Un-shift bits */
 		unshifted_value = value;
@@ -7270,15 +7271,15 @@ fill_label_bitfield(field_info *fi, gchar *label_str, gboolean is_signed)
 	header_field_info *hfinfo = fi->hfinfo;
 
 	/* Figure out the bit width */
-	bitwidth = hfinfo_bitwidth(hfinfo);
+	bitwidth = hfinfo_container_bitwidth(hfinfo);
 
 	/* Un-shift bits */
 	if (is_signed)
-		unshifted_value = fvalue_get_sinteger(&fi->value);
+		value = fvalue_get_sinteger(&fi->value);
 	else
-		unshifted_value = fvalue_get_uinteger(&fi->value);
+		value = fvalue_get_uinteger(&fi->value);
 
-	value = unshifted_value;
+	unshifted_value = value;
 	if (hfinfo->bitmask) {
 		unshifted_value <<= hfinfo_bitshift(hfinfo);
 	}
@@ -7326,17 +7327,17 @@ fill_label_bitfield64(field_info *fi, gchar *label_str, gboolean is_signed)
 	header_field_info *hfinfo = fi->hfinfo;
 
 	/* Figure out the bit width */
-	bitwidth = hfinfo_bitwidth(hfinfo);
+	bitwidth = hfinfo_container_bitwidth(hfinfo);
 
 	/* Un-shift bits */
 	if (is_signed)
-		unshifted_value = fvalue_get_sinteger64(&fi->value);
+		value = fvalue_get_sinteger64(&fi->value);
 	else
-		unshifted_value = fvalue_get_uinteger64(&fi->value);
+		value = fvalue_get_uinteger64(&fi->value);
 
-	value = unshifted_value;
+	unshifted_value = value;
 	if (hfinfo->bitmask) {
-		unshifted_value <<= hfinfo_bitshift(hfinfo); /* XXX 64-bit function needed? */
+		unshifted_value <<= hfinfo_bitshift(hfinfo);
 	}
 
 	/* Create the bitfield first */
@@ -7459,16 +7460,23 @@ hfinfo_bitshift(const header_field_info *hfinfo)
 	return ws_ctz(hfinfo->bitmask);
 }
 
-int
-hfinfo_bitwidth(const header_field_info *hfinfo)
+static int
+hfinfo_mask_bitwidth(const header_field_info *hfinfo)
+{
+    if (!hfinfo->bitmask) {
+        return 0;
+    }
+
+    /* ilog2 = first set bit, ctz = last set bit */
+    return ws_ilog2(hfinfo->bitmask) - ws_ctz(hfinfo->bitmask) + 1;
+}
+
+static int
+hfinfo_type_bitwidth(enum ftenum type)
 {
 	int bitwidth = 0;
 
-	if (!hfinfo->bitmask) {
-		return 0;
-	}
-
-	switch (hfinfo->type) {
+	switch (type) {
 		case FT_UINT8:
 		case FT_INT8:
 			bitwidth = 8;
@@ -7501,9 +7509,6 @@ hfinfo_bitwidth(const header_field_info *hfinfo)
 		case FT_INT64:
 			bitwidth = 64;
 			break;
-		case FT_BOOLEAN:
-			bitwidth = hfinfo->display; /* hacky? :) */
-			break;
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
 			;
@@ -7511,47 +7516,38 @@ hfinfo_bitwidth(const header_field_info *hfinfo)
 	return bitwidth;
 }
 
+
 static int
-_hfinfo_type_hex_octet(int type)
+hfinfo_container_bitwidth(const header_field_info *hfinfo)
 {
-	switch (type) {
-		case FT_INT8:
-		case FT_UINT8:
-			return 2;
-
-		case FT_UINT16:
-		case FT_INT16:
-			return 4;
-
-		case FT_UINT24:
-		case FT_INT24:
-			return 6;
-
-		case FT_UINT32:
-		case FT_INT32:
-			return 8;
-
-		case FT_UINT40:
-		case FT_INT40:
-			return 10;
-
-		case FT_UINT48:
-		case FT_INT48:
-			return 12;
-
-		case FT_UINT56:
-		case FT_INT56:
-			return 14;
-
-		case FT_UINT64:
-		case FT_INT64:
-			return 16;
-
-		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
-			;
+	if (!hfinfo->bitmask) {
+		return 0;
 	}
-	return -1;
+
+	if (hfinfo->type == FT_BOOLEAN) {
+		return hfinfo->display; /* hacky? :) */
+	}
+
+	return hfinfo_type_bitwidth(hfinfo->type);
+}
+
+static int
+hfinfo_hex_digits(const header_field_info *hfinfo)
+{
+	int bitwidth;
+
+	/* If we have a bitmask, hfinfo->type is the width of the container, so not
+	 * appropriate to determine the number of hex digits for the field.
+	 * So instead, we compute it from the bitmask.
+	 */
+	if (hfinfo->bitmask != 0) {
+		bitwidth = hfinfo_mask_bitwidth(hfinfo);
+	} else {
+		bitwidth = hfinfo_type_bitwidth(hfinfo->type);
+	}
+
+	/* Divide by 4, rounding up, to get number of hex digits. */
+	return (bitwidth + 3) / 4;
 }
 
 static const char *
@@ -7568,7 +7564,7 @@ hfinfo_number_value_format_display(const header_field_info *hfinfo, int display,
 
 		case BASE_DEC_HEX:
 			*(--ptr) = ')';
-			ptr = hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
+			ptr = hex_to_str_back(ptr, hfinfo_hex_digits(hfinfo), value);
 			*(--ptr) = '(';
 			*(--ptr) = ' ';
 			ptr = isint ? int_to_str_back(ptr, (gint32) value) : uint_to_str_back(ptr, value);
@@ -7578,14 +7574,14 @@ hfinfo_number_value_format_display(const header_field_info *hfinfo, int display,
 			return oct_to_str_back(ptr, value);
 
 		case BASE_HEX:
-			return hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
+			return hex_to_str_back(ptr, hfinfo_hex_digits(hfinfo), value);
 
 		case BASE_HEX_DEC:
 			*(--ptr) = ')';
 			ptr = isint ? int_to_str_back(ptr, (gint32) value) : uint_to_str_back(ptr, value);
 			*(--ptr) = '(';
 			*(--ptr) = ' ';
-			ptr = hex_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
+			ptr = hex_to_str_back(ptr, hfinfo_hex_digits(hfinfo), value);
 			return ptr;
 
 		case BASE_PT_UDP:
@@ -7616,7 +7612,7 @@ hfinfo_number_value_format_display64(const header_field_info *hfinfo, int displa
 
 			case BASE_DEC_HEX:
 				*(--ptr) = ')';
-				ptr = hex64_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
+				ptr = hex64_to_str_back(ptr, hfinfo_hex_digits(hfinfo), value);
 				*(--ptr) = '(';
 				*(--ptr) = ' ';
 				ptr = isint ? int64_to_str_back(ptr, (gint64) value) : uint64_to_str_back(ptr, value);
@@ -7626,14 +7622,14 @@ hfinfo_number_value_format_display64(const header_field_info *hfinfo, int displa
 				return oct64_to_str_back(ptr, value);
 
 			case BASE_HEX:
-				return hex64_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
+				return hex64_to_str_back(ptr, hfinfo_hex_digits(hfinfo), value);
 
 			case BASE_HEX_DEC:
 				*(--ptr) = ')';
 				ptr = isint ? int64_to_str_back(ptr, (gint64) value) : uint64_to_str_back(ptr, value);
 				*(--ptr) = '(';
 				*(--ptr) = ' ';
-				ptr = hex64_to_str_back(ptr, _hfinfo_type_hex_octet(hfinfo->type), value);
+				ptr = hex64_to_str_back(ptr, hfinfo_hex_digits(hfinfo), value);
 				return ptr;
 
 			default:

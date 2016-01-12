@@ -2067,9 +2067,9 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     if (tree) {
         /* !!! warning: (4-bit) version, (6-bit) DSCP, (2-bit) ECN and (20-bit) Flow */
 
-        /* _format_value() used to elide leading zeros from hex representation for IPv6 Traffic Class */
-        ti = proto_tree_add_uint_format_value(ipv6_tree, hf_ipv6_tclass, tvb,
-                            offset + IP6H_CTL_FLOW, 4, g_ntohl(ipv6->ip6_flow), "0x%02x", tfc);
+
+        ti = proto_tree_add_item(ipv6_tree, hf_ipv6_tclass, tvb,
+                            offset + IP6H_CTL_FLOW, 4, ENC_BIG_ENDIAN);
         proto_item_append_text(ti, " (DSCP: %s, ECN: %s)",
                             val_to_str_ext_const(IPDSFIELD_DSCP(tfc), &dscp_short_vals_ext, "Unknown"),
                             val_to_str_ext_const(IPDSFIELD_ECN(tfc), &ecn_short_vals_ext, "Unknown"));

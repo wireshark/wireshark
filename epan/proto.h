@@ -2311,12 +2311,6 @@ WS_DLL_PUBLIC void tree_expanded_set(int tree_type, gboolean value);
 #define g_ptr_array_len(a)      ((a)?(a)->len:0)
 #endif
 
-/** Get number of bits of a header_field.
- @param hfinfo header_field
- @return the bitwidth */
-extern int
-hfinfo_bitwidth(const header_field_info *hfinfo);
-
 WS_DLL_PUBLIC int
 hfinfo_bitshift(const header_field_info *hfinfo);
 
