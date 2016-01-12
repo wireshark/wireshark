@@ -723,7 +723,9 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	* + End of options 4 bytes
 	*/
 	/* XXX add the length of exported bdu tag(s) here */
-	packet_buf = (guint8 *)g_malloc(packet_size + 12);
+	packet_buf = (guint8 *)g_malloc(packet_size + 12+1);
+    /* Terminate buffer*/
+    packet_buf[packet_size + 12] = 0;
 
 	packet_buf[0] = 0;
 	packet_buf[1] = 12; /* EXP_PDU_TAG_PROTO_NAME */
@@ -982,6 +984,8 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err, gchar **err_info)
 	if (memcmp(magic_buf, xml_magic, sizeof(xml_magic)) != 0){
 		return WTAP_OPEN_NOT_MINE;
 	}
+	/* Protect from overrunning the buffer*/
+	magic_buf[512 - 1] = 0;
 	/* File header should contain something like fileFormatVersion="32.423 V8.1.0" */
 	curr_pos = strstr(magic_buf, "fileFormatVersion");
 
