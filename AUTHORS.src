@@ -3663,7 +3663,7 @@ Pratik Yeole		<pyeole[AT]ncsu.edu> {
          Fixed incorrect decoding of Network Layer Reachability Information (NLRI) in BGP UPDATE message with add-path support
 }
 
-Guillaume Autran	<gautran[AT]clearpathrobotics.com> {
+Guillaume Autran	<gautran[AT]clearpath.ai> {
 	TCPROS support
 }
 
