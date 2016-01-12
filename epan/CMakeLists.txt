@@ -1468,6 +1468,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-zbee-zcl-meas-sensing.c
 	dissectors/packet-zbee-zcl-misc.c
 	dissectors/packet-zbee-zcl-se.c
+	dissectors/packet-zbee-zcl-sas.c
 	dissectors/packet-zbee-zdp-binding.c
 	dissectors/packet-zbee-zdp-discovery.c
 	dissectors/packet-zbee-zdp-management.c
