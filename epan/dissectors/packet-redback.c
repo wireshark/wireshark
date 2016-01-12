@@ -222,6 +222,7 @@ proto_register_redback(void)
 
 	proto_redback = proto_register_protocol("Redback", "Redback", "redback");
 	hfi_redback   = proto_registrar_get_nth(proto_redback);
+	register_dissector("redback", dissect_redback, proto_redback);
 
 	proto_register_fields(proto_redback, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
