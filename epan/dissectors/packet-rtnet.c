@@ -629,7 +629,7 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-  if (ver == 1)
+  if (ver == 1) {
     switch (type) {
       case RTMAC_TYPE_TDMA_V1:
         dissect_rtnet_tdma_v1(next_tvb, pinfo, tree);
@@ -639,10 +639,10 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         call_dissector(dissector, next_tvb, pinfo, tree);
         break;
     }
-  else
+  } else {
     if (flags & RTMAC_FLAG_TUNNEL)
       call_dissector(dissector, next_tvb, pinfo, tree);
-    else
+    else {
       switch (type) {
         case RTMAC_TYPE_TDMA:
           dissect_rtnet_tdma(next_tvb, pinfo, tree);
@@ -652,8 +652,10 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
           call_dissector(data_handle, next_tvb, pinfo, tree);
           break;
       }
+    }
+  }
 
-    return tvb_captured_length(tvb);
+  return tvb_captured_length(tvb);
 }
 
 static int
