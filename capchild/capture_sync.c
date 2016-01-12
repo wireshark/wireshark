@@ -392,7 +392,7 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
     cap_session->fork_child = WS_INVALID_PID;
 
 #ifdef HAVE_EXTCAP
-    if (!extcaps_init_initerfaces(capture_opts)) {
+    if (!extcap_init_interfaces(capture_opts)) {
         report_failure("Unable to init extcaps. (tmp fifo already exists?)");
         return FALSE;
     }

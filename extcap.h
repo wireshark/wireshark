@@ -75,7 +75,7 @@ extcap_get_win32_handle();
 #endif
 
 gboolean
-extcaps_init_initerfaces(capture_options * capture_opts);
+extcap_init_interfaces(capture_options * capture_opts);
 
 gboolean
 extcap_create_pipe(char ** fifo);

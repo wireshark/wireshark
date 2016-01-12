@@ -57,7 +57,7 @@ static HANDLE pipe_h = NULL;
 
 /* internal container, for all the extcap interfaces that have been found.
  * will be resetted by every call to extcap_interface_list() and is being
- * used in extcap_get_if_* as well as extcaps_init_initerfaces to ensure,
+ * used in extcap_get_if_* as well as extcap_init_interfaces to ensure,
  * that only extcap interfaces are being given to underlying extcap programs
  */
 static GHashTable *ifaces = NULL;
@@ -345,6 +345,19 @@ static gboolean interfaces_cb(const gchar *extcap, gchar *output, void *data,
     return TRUE;
 }
 
+static gint
+if_info_compare(gconstpointer a, gconstpointer b)
+{
+    gint comp = 0;
+    if_info_t * if_a = (if_info_t *)a;
+    if_info_t * if_b = (if_info_t *)b;
+
+    if ( (comp = g_strcmp0(if_a->name, if_b->name)) == 0 )
+        return g_strcmp0(if_a->friendly_name, if_b->friendly_name);
+
+    return comp;
+}
+
 GList *
 extcap_interface_list(char **err_str) {
     gchar *argv;
@@ -366,12 +379,7 @@ extcap_interface_list(char **err_str) {
 
     g_free(argv);
 
-    return ret;
-}
-
-static void g_free_1(gpointer data, gpointer user_data _U_)
-{
-    g_free(data);
+    return g_list_sort ( ret, if_info_compare );
 }
 
 static void extcap_free_if_configuration(GList *list)
@@ -380,15 +388,8 @@ static void extcap_free_if_configuration(GList *list)
 
     for (elem = g_list_first(list); elem; elem = elem->next)
     {
-        GList *arg_list;
-        if (elem->data == NULL)
-        {
-            continue;
-        }
-
-        arg_list = g_list_first((GList *)elem->data);
-        g_list_foreach(arg_list, g_free_1, NULL);
-        g_list_free(arg_list);
+        if (elem->data != NULL)
+            g_list_free_full(g_list_first((GList *)elem->data), g_free);
     }
     g_list_free(list);
 }
@@ -568,7 +569,7 @@ static void extcap_child_watch_cb(GPid pid, gint status _U_, gpointer user_data)
 /* call mkfifo for each extcap,
  * returns FALSE if there's an error creating a FIFO */
 gboolean
-extcaps_init_initerfaces(capture_options *capture_opts)
+extcap_init_interfaces(capture_options *capture_opts)
 {
     guint i;
     interface_options interface_opts;
