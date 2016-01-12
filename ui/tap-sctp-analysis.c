@@ -223,9 +223,9 @@ find_assoc(sctp_tmp_info_t *needle)
 	{
 		while (list)
 		{
-		    info = (sctp_assoc_info_t*)(list->data);
-		    if (needle->assoc_id == info->assoc_id)
-		        return info;
+			info = (sctp_assoc_info_t*)(list->data);
+			if (needle->assoc_id == info->assoc_id)
+				return info;
 
 			list = g_list_previous(list);
 		}
