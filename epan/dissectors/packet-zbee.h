@@ -1151,6 +1151,9 @@
 #define ZBEE_PROTOABBREV_ZCL_BINARY_INPUT_BASIC               "zbee_zcl_general.binary_input_basic"               /* Newly Added by SRIB */
 #define ZBEE_PROTOABBREV_ZCL_BINARY_OUTPUT_BASIC              "zbee_zcl_general.binary_output_basic"              /* Newly Added by SRIB */
 #define ZBEE_PROTOABBREV_ZCL_BINARY_VALUE_BASIC               "zbee_zcl_general.binary_value_basic"               /* Newly Added by SRIB */
+#define ZBEE_PROTOABBREV_ZCL_ANALOG_VALUE_BASIC               "zbee_zcl_general.analog.value.basic"
+#define ZBEE_PROTOABBREV_ZCL_ANALOG_INPUT_BASIC               "zbee_zcl_general.analog.input.basic"
+#define ZBEE_PROTOABBREV_ZCL_ANALOG_OUTPUT_BASIC              "zbee_zcl_general.analog.output.basic"
 #define ZBEE_PROTOABBREV_ZCL_ILLUMMEAS      "zbee_zcl_meas_sensing.illummeas"
 #define ZBEE_PROTOABBREV_ZCL_ILLUMLEVELSEN  "zbee_zcl_meas_sensing.illumlevelsen"
 #define ZBEE_PROTOABBREV_ZCL_PRESSMEAS      "zbee_zcl_meas_sensing.pressmeas"
