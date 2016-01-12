@@ -198,6 +198,12 @@ parseReservedText ( guint8* pTpktData )
 
     return value;
 }
+
+/*
+ * Length of the TPKT text-layer header.
+ */
+static const int TEXT_LAYER_LENGTH   = 9;
+
 /*
  * Dissect ASCII TPKT-encapsulated data in a TCP stream.
  */

@@ -35,8 +35,6 @@
  * TPKT header must be at least "4+min_len" in order for this to be a
  * valid TPKT PDU for the protocol in question.
  */
-static const int TEXT_LAYER_LENGTH   = 9;
-
 WS_DLL_PUBLIC int is_tpkt(tvbuff_t *tvb, int min_len);
 
 /*
@@ -45,7 +43,6 @@ WS_DLL_PUBLIC int is_tpkt(tvbuff_t *tvb, int min_len);
 WS_DLL_PUBLIC void dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, gboolean desegment,
     dissector_handle_t subdissector_handle);
-
 
 /*
  * Check whether this could be a ASCII TPKT-encapsulated PDU.
@@ -56,7 +53,6 @@ WS_DLL_PUBLIC void dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo,
  * TPKT header must be at least "8+min_len" in order for this to be a
  * valid TPKT PDU for the protocol in question.
  */
-
 extern guint16 is_asciitpkt(tvbuff_t *tvb);
 
 /*
@@ -64,4 +60,3 @@ extern guint16 is_asciitpkt(tvbuff_t *tvb);
  */
 extern void dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, dissector_handle_t subdissector_handle);
-
