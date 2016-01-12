@@ -291,7 +291,7 @@ static void follow_draw(void *contextp)
 
 static gboolean follow_arg_strncmp(const char **opt_argp, const char *strp)
 {
-  int len = strlen(strp);
+  size_t len = strlen(strp);
 
   if (strncmp(*opt_argp, strp, len) == 0)
   {
