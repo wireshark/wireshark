@@ -2466,7 +2466,7 @@ proto_register_ipv6(void)
                 NULL, HFILL }
         },
         { &hf_ipv6_flow,
-            { "Flowlabel", "ipv6.flow",
+            { "Flow label", "ipv6.flow",
                 FT_UINT32, BASE_HEX, NULL, 0x000FFFFF,
                 NULL, HFILL }
         },
