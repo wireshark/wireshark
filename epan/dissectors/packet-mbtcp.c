@@ -1077,7 +1077,7 @@ dissect_modbus_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tre
                 default:
                     if (payload_len > 1)
                         dissect_modbus_data(tvb, pinfo, modbus_tree, function_code, payload_start, payload_len-1, register_format, reg_base);
-                        break;
+                    break;
             }
 
             break;
@@ -1414,7 +1414,7 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
                 default:
                     if (payload_len > 1)
                         dissect_modbus_data(tvb, pinfo, modbus_tree, function_code, payload_start, payload_len-1, register_format, reg_base);
-                        break;
+                    break;
             } /* mei_code */
             break;
 
