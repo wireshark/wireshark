@@ -47,8 +47,8 @@ typedef union _EslFlagsUnion
         guint16    extended     : 1;
         guint16    port11       : 1;
         guint16    port10       : 1;
-        guint16    crcError     : 1;
         guint16    alignError   : 1;
+        guint16    crcError     : 1;
         guint16    timeStampEna : 1;
         guint16    port9        : 1;
         guint16    port8        : 1;
@@ -73,8 +73,8 @@ typedef union _EslFlagsUnion
 #define esl_extended_bitmask     0x0100
 #define esl_port11_bitmask       0x0200
 #define esl_port10_bitmask       0x0400
-#define esl_crcError_bitmask     0x0800
-#define esl_alignError_bitmask   0x1000
+#define esl_alignError_bitmask   0x0800
+#define esl_crcError_bitmask     0x1000
 #define esl_timeStampEna_bitmask 0x2000
 #define esl_port9_bitmask        0x4000
 #define esl_port8_bitmask        0x8000
@@ -192,8 +192,9 @@ dissect_esl_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
             flags =  tvb_get_letohs(tvb, offset);
             proto_tree_add_uint(esl_header_tree, hf_esl_port, tvb, offset, 2, flags_to_port(flags));
 
-            proto_tree_add_item(esl_header_tree, hf_esl_crcerror, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(esl_header_tree, hf_esl_alignerror, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(esl_header_tree, hf_esl_crcerror, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
             offset+=2;
 
             proto_tree_add_item(esl_header_tree, hf_esl_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
