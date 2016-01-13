@@ -32,6 +32,7 @@
 
 #include "packet-tcp.h"
 #include "packet-aim.h"
+#include "packet-ssl.h"
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
@@ -461,6 +462,8 @@ static expert_field ei_aim_messageblock_len = EI_INIT;
 
 /* desegmentation of AIM over TCP */
 static gboolean aim_desegment = TRUE;
+
+static dissector_handle_t aim_handle;
 
 
 const aim_subtype
@@ -1462,6 +1465,19 @@ dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	return tvb_reported_length(tvb);
 }
 
+static int
+dissect_aim_ssl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	dissector_handle_t *app_handle = (dissector_handle_t *) data;
+	/* XXX improve heuristics */
+	if (tvb_reported_length(tvb) < 1 || tvb_get_guint8(tvb, 0) != 0x2a) {
+		return FALSE;
+	}
+	dissect_aim(tvb, pinfo, tree, NULL);
+	*app_handle = aim_handle;
+	return TRUE;
+}
+
 
 /* Register the protocol with Wireshark */
 void
@@ -1696,6 +1712,7 @@ proto_register_aim(void)
 
 	/* Register the protocol name and description */
 	proto_aim = proto_register_protocol("AOL Instant Messenger", "AIM", "aim");
+	aim_handle = register_dissector("aim", dissect_aim, proto_aim);
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_aim, hf, array_length(hf));
@@ -1715,10 +1732,10 @@ proto_register_aim(void)
 void
 proto_reg_handoff_aim(void)
 {
-	dissector_handle_t aim_handle;
-
-	aim_handle = create_dissector_handle(dissect_aim, proto_aim);
 	dissector_add_uint("tcp.port", TCP_PORT_AIM, aim_handle);
+	ssl_dissector_add(0, aim_handle);
+	/* Heuristics disabled by default, it is really weak... */
+	heur_dissector_add("ssl", dissect_aim_ssl_heur, "AIM over SSL", "aim_ssl", proto_aim, HEURISTIC_DISABLE);
 }
 
 /*
