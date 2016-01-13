@@ -1980,7 +1980,7 @@ void proto_register_gvsp(void)
 
     proto_gvsp = proto_register_protocol("GigE Vision Streaming Protocol", "GVSP", "gvsp");
 
-    register_dissector("gvsp", dissect_gvsp, proto_gvsp);
+    gvsp_handle = register_dissector("gvsp", dissect_gvsp, proto_gvsp);
 
     proto_register_field_array(proto_gvsp, hfgvsp, array_length(hfgvsp));
     proto_register_subtree_array(ett, array_length(ett));
@@ -1994,7 +1994,6 @@ void proto_reg_handoff_gvsp(void)
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        gvsp_handle = create_dissector_handle((new_dissector_t)dissect_gvsp, proto_gvsp);
         dissector_add_for_decode_as("udp.port", gvsp_handle);
         heur_dissector_add("udp", dissect_gvsp_heur, "GigE Vision over UDP", "gvsp_udp", proto_gvsp, HEURISTIC_ENABLE);
         initialized = TRUE;

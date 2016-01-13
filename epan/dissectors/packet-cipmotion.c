@@ -260,6 +260,8 @@ static gint ett_group_sync          = -1;
 static gint ett_axis_status_set     = -1;
 static gint ett_command_control     = -1;
 
+static dissector_handle_t cipmotion_handle;
+
 /* These are the BITMASKS for the Time Data Set header field */
 #define TIME_DATA_SET_TIME_STAMP                0x1
 #define TIME_DATA_SET_TIME_OFFSET               0x2
@@ -2921,16 +2923,12 @@ proto_register_cipmotion(void)
    /* Register the subtrees for the protocol dissection */
    proto_register_subtree_array(cip_subtree, array_length(cip_subtree));
 
-   register_dissector( "cipmotion", dissect_cipmotion, proto_cipmotion);
+   cipmotion_handle = register_dissector("cipmotion", dissect_cipmotion, proto_cipmotion);
 }
 
 void proto_reg_handoff_cipmotion(void)
 {
-   dissector_handle_t cipmotion_handle;
-
-   /* Create and register dissector for I/O data handling */
-   cipmotion_handle = create_dissector_handle( dissect_cipmotion, proto_cipmotion );
-   dissector_add_for_decode_as("enip.io", cipmotion_handle );
+   dissector_add_for_decode_as("enip.io", cipmotion_handle);
 }
 
 /*

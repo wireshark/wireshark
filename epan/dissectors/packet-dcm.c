@@ -7272,7 +7272,7 @@ proto_register_dcm(void)
     expert_register_field_array(expert_dcm, ei, array_length(ei));
 
     /* Allow other dissectors to find this one by name. */
-    register_dissector("dicom", dissect_dcm_static, proto_dcm);
+    dcm_handle = register_dissector("dicom", dissect_dcm_static, proto_dcm);
 
     dcm_module = prefs_register_protocol(proto_dcm, dcm_apply_settings);
 
@@ -7331,8 +7331,6 @@ proto_register_dcm(void)
 void
 proto_reg_handoff_dcm(void)
 {
-
-    dcm_handle = create_dissector_handle(dissect_dcm_static, proto_dcm);
 
     dcm_apply_settings();       /* Register static ports */
 

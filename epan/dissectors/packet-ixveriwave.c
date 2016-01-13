@@ -1681,7 +1681,6 @@ void proto_reg_handoff_ixveriwave(void)
     /* handle for 802.11+radio information dissector */
     ieee80211_radio_handle   = find_dissector("wlan_radio");
 
-    ixveriwave_handle           = create_dissector_handle(dissect_ixveriwave, proto_ixveriwave);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_IXVERIWAVE, ixveriwave_handle);
 }
 

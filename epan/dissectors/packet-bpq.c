@@ -48,6 +48,7 @@
 void proto_register_bpq(void);
 void proto_reg_handoff_bpq(void);
 
+static dissector_handle_t bpq_handle;
 static dissector_handle_t ax25_handle;
 
 static int proto_bpq            = -1;
@@ -135,7 +136,7 @@ proto_register_bpq(void)
 	proto_bpq = proto_register_protocol( "Amateur Radio BPQ", "BPQ", "bpq" );
 
 	/* Register the dissector */
-	register_dissector( "bpq", dissect_bpq, proto_bpq );
+	bpq_handle = register_dissector("bpq", dissect_bpq, proto_bpq);
 
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array( proto_bpq, hf, array_length( hf ) );
@@ -145,9 +146,6 @@ proto_register_bpq(void)
 void
 proto_reg_handoff_bpq(void)
 {
-	dissector_handle_t bpq_handle;
-
-	bpq_handle = create_dissector_handle( dissect_bpq, proto_bpq );
 	dissector_add_uint("ethertype", ETHERTYPE_BPQ, bpq_handle);
 	register_capture_dissector("ethertype", ETHERTYPE_BPQ, capture_bpq, proto_bpq);
 

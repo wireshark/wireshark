@@ -66,6 +66,8 @@ void proto_reg_handoff_isup(void);
 void proto_register_bicc(void);
 void proto_reg_handoff_bicc(void);
 
+static dissector_handle_t isup_handle;
+
 #define ISUP_ITU_STANDARD_VARIANT 0
 #define ISUP_FRENCH_VARIANT       1
 #define ISUP_ISRAELI_VARIANT      2
@@ -12383,7 +12385,7 @@ proto_register_isup(void)
   proto_isup = proto_register_protocol("ISDN User Part",
                                        "ISUP", "isup");
 
-  register_dissector("isup", dissect_isup, proto_isup);
+  isup_handle = register_dissector("isup", dissect_isup, proto_isup);
 
 /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_isup, hf, array_length(hf));
@@ -12422,10 +12424,8 @@ proto_register_isup(void)
 void
 proto_reg_handoff_isup(void)
 {
-  dissector_handle_t isup_handle;
   dissector_handle_t application_isup_handle;
 
-  isup_handle = create_dissector_handle(dissect_isup, proto_isup);
   application_isup_handle = create_dissector_handle(dissect_application_isup, proto_isup);
   dissector_add_uint("mtp3.service_indicator", MTP_SI_ISUP, isup_handle);
   dissector_add_string("media_type", "application/isup", application_isup_handle);

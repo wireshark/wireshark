@@ -226,6 +226,8 @@ static expert_field ei_dhcpv6_bulk_leasequery_bad_query_type = EI_INIT;
 static expert_field ei_dhcpv6_bulk_leasequery_no_lq_relay_data = EI_INIT;
 static expert_field ei_dhcpv6_bulk_leasequery_bad_msg_type = EI_INIT;
 
+static dissector_handle_t dhcpv6_handle;
+
 #define UDP_PORT_DHCPV6_DOWNSTREAM      546
 #define UDP_PORT_DHCPV6_UPSTREAM        547
 
@@ -2398,7 +2400,7 @@ proto_register_dhcpv6(void)
     expert_register_field_array(expert_dhcpv6_bulk_leasequery, ei_bulk_leasequery, array_length(ei_bulk_leasequery));
 
     /* Allow other dissectors to find this one by name. */
-    register_dissector("dhcpv6", dissect_dhcpv6_stream, proto_dhcpv6);
+    dhcpv6_handle = register_dissector("dhcpv6", dissect_dhcpv6_stream, proto_dhcpv6);
 
     dhcpv6_module = prefs_register_protocol(proto_dhcpv6, NULL);
     prefs_register_bool_preference(dhcpv6_module, "cablelabs_interface_id",
@@ -2416,9 +2418,8 @@ proto_register_dhcpv6(void)
 void
 proto_reg_handoff_dhcpv6(void)
 {
-    dissector_handle_t dhcpv6_handle, dhcpv6_bulkquery_handle;
+    dissector_handle_t dhcpv6_bulkquery_handle;
 
-    dhcpv6_handle = create_dissector_handle(dissect_dhcpv6_stream, proto_dhcpv6);
     dissector_add_uint("udp.port", UDP_PORT_DHCPV6_DOWNSTREAM, dhcpv6_handle);
     dissector_add_uint("udp.port", UDP_PORT_DHCPV6_UPSTREAM, dhcpv6_handle);
 

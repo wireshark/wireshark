@@ -3198,14 +3198,13 @@ void proto_register_mysql(void)
 				       "Whether the MySQL dissector should display the SQL query string in the INFO column.",
 				       &mysql_showquery);
 
-	 register_dissector("mysql", dissect_mysql, proto_mysql);
+	mysql_handle = register_dissector("mysql", dissect_mysql, proto_mysql);
 }
 
 /* dissector registration */
 void proto_reg_handoff_mysql(void)
 {
 	ssl_handle = find_dissector("ssl");
-	mysql_handle = create_dissector_handle(dissect_mysql, proto_mysql);
 	dissector_add_uint("tcp.port", TCP_PORT_MySQL, mysql_handle);
 }
 

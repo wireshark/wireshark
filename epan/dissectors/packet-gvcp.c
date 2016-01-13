@@ -487,6 +487,8 @@ static int ett_gvcp_payload_cmd_subtree = -1;
 static int ett_gvcp_payload_ack_subtree = -1;
 static int ett_gvcp_bootstrap_fields = -1;
 
+static dissector_handle_t gvcp_handle;
+
 
 /*Device Mode*/
 static const value_string devicemodenames_class[] = {
@@ -1513,13 +1515,8 @@ static void dissect_writereg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 	/* Automatically learn messaging channel port. Dissect as GVCP. */
 	if (addr == GVCP_MC_DESTINATION_PORT)
 	{
-		dissector_handle_t gvcp_handle;
-		gvcp_handle = find_dissector("gvcp");
-		if (gvcp_handle != NULL)
-		{
-			/* For now we simply (always) add ports. Maybe we should remove when the dissector gets unloaded? */
-			dissector_add_uint("udp.port", value, gvcp_handle);
-		}
+		/* XXX For now we simply (always) add ports. Maybe we should remove when the dissector gets unloaded? */
+		dissector_add_uint("udp.port", value, gvcp_handle);
 	}
 
 	if (num_registers > 1)
@@ -3814,7 +3811,7 @@ void proto_register_gvcp(void)
 
 	proto_gvcp = proto_register_protocol("GigE Vision Control Protocol", "GVCP", "gvcp");
 
-	register_dissector("gvcp", dissect_gvcp, proto_gvcp);
+	gvcp_handle = register_dissector("gvcp", dissect_gvcp, proto_gvcp);
 
 	proto_register_field_array(proto_gvcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -3824,9 +3821,7 @@ void proto_register_gvcp(void)
 
 void proto_reg_handoff_gvcp(void)
 {
-		static dissector_handle_t gvcp_handle;
-		gvcp_handle = create_dissector_handle((new_dissector_t)dissect_gvcp, proto_gvcp);
-		dissector_add_uint("udp.port", global_gvcp_port, gvcp_handle);
+	dissector_add_uint("udp.port", global_gvcp_port, gvcp_handle);
 }
 
 /*

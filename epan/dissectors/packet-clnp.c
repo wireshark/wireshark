@@ -738,7 +738,7 @@ proto_register_clnp(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_clnp = expert_register_protocol(proto_clnp);
     expert_register_field_array(expert_clnp, ei, array_length(ei));
-    register_dissector("clnp", dissect_clnp, proto_clnp);
+    clnp_handle = register_dissector("clnp", dissect_clnp, proto_clnp);
     clnp_heur_subdissector_list = register_heur_dissector_list("clnp");
     register_init_routine(clnp_reassemble_init);
     register_cleanup_routine(clnp_reassemble_cleanup);
@@ -772,7 +772,6 @@ proto_reg_handoff_clnp(void)
     idrp_handle = find_dissector("idrp");
     data_handle = find_dissector("data");
 
-    clnp_handle = create_dissector_handle(dissect_clnp, proto_clnp);
     dissector_add_uint("osinl.incl", NLPID_ISO8473_CLNP, clnp_handle);
     dissector_add_uint("osinl.incl", NLPID_NULL, clnp_handle); /* Inactive subset */
     dissector_add_uint("x.25.spi", NLPID_ISO8473_CLNP, clnp_handle);

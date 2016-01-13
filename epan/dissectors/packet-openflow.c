@@ -159,7 +159,7 @@ proto_register_openflow(void)
     proto_openflow = proto_register_protocol("OpenFlow",
             "OpenFlow", "openflow");
 
-    register_dissector("openflow", dissect_openflow, proto_openflow);
+    openflow_handle = register_dissector("openflow", dissect_openflow, proto_openflow);
 
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_openflow, hf, array_length(hf));
@@ -191,7 +191,6 @@ proto_reg_handoff_openflow(void)
     static int currentPort;
 
     if (!initialized) {
-        openflow_handle = create_dissector_handle(dissect_openflow, proto_openflow);
         heur_dissector_add("tcp", dissect_openflow_heur, "OpenFlow over TCP", "openflow_tcp", proto_openflow, HEURISTIC_ENABLE);
         initialized = TRUE;
     } else {

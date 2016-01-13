@@ -251,6 +251,8 @@ static gint ett_selfm_fastmsg_element       = -1;
 /* Expert fields */
 static expert_field ei_selfm_crc16_incorrect = EI_INIT;
 
+static dissector_handle_t selfm_handle;
+
 #define PORT_SELFM    0
 
 #define CMD_FAST_MSG            0xA546
@@ -2998,7 +3000,7 @@ proto_register_selfm(void)
     proto_selfm = proto_register_protocol("SEL Protocol", "SEL Protocol", "selfm");
 
     /* Registering protocol to be called by another dissector */
-    register_dissector("selfm", dissect_selfm_tcp, proto_selfm);
+    selfm_handle = register_dissector("selfm", dissect_selfm_tcp, proto_selfm);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_selfm, selfm_hf, array_length(selfm_hf));
@@ -3048,12 +3050,10 @@ void
 proto_reg_handoff_selfm(void)
 {
     static int selfm_prefs_initialized = FALSE;
-    static dissector_handle_t selfm_handle;
     static unsigned int selfm_port;
 
     /* Make sure to use SEL FM Protocol Preferences field to determine default TCP port */
     if (! selfm_prefs_initialized) {
-        selfm_handle = create_dissector_handle(dissect_selfm_tcp, proto_selfm);
         selfm_prefs_initialized = TRUE;
     }
     else {

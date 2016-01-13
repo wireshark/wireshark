@@ -65,6 +65,7 @@ void proto_register_peekremote(void);
 void proto_reg_handoff_peekremote(void);
 
 static int proto_peekremote;
+static dissector_handle_t peekremote_handle;
 
 /*
  * XXX - we don't have all the MCS index values here.
@@ -679,17 +680,14 @@ proto_register_peekremote(void)
   expert_peekremote = expert_register_protocol(proto_peekremote);
   expert_register_field_array(expert_peekremote, ei, array_length(ei));
 
-  register_dissector("peekremote", dissect_peekremote_legacy, proto_peekremote);
+  peekremote_handle = register_dissector("peekremote", dissect_peekremote_legacy, proto_peekremote);
 }
 
 void
 proto_reg_handoff_peekremote(void)
 {
-  dissector_handle_t peekremote_handle;
-
   wlan_radio_handle = find_dissector("wlan_radio");
 
-  peekremote_handle = create_dissector_handle(dissect_peekremote_legacy, proto_peekremote);
   dissector_add_uint("udp.port", 5000, peekremote_handle);
 
   heur_dissector_add("udp", dissect_peekremote_new, "OmniPeek Remote over UDP", "peekremote_udp", proto_peekremote, HEURISTIC_ENABLE);

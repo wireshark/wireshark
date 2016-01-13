@@ -69,6 +69,8 @@ static expert_field ei_xip_next_header = EI_INIT;
 static expert_field ei_xip_bad_num_dst = EI_INIT;
 static expert_field ei_xip_bad_num_src = EI_INIT;
 
+static dissector_handle_t xip_handle;
+
 /* XIA principals. */
 #define XIDTYPE_NAT		0x00
 #define XIDTYPE_AD		0x10
@@ -681,9 +683,9 @@ proto_register_xip(void)
 	proto_xip = proto_register_protocol(
 		"eXpressive Internet Protocol",
 		"XIP",
-	        "xip");
+		"xip");
 
-	register_dissector("xip", dissect_xip, proto_xip);
+	xip_handle = register_dissector("xip", dissect_xip, proto_xip);
 	proto_register_field_array(proto_xip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
@@ -694,9 +696,6 @@ proto_register_xip(void)
 void
 proto_reg_handoff_xip(void)
 {
-	dissector_handle_t xip_handle;
-
-	xip_handle = create_dissector_handle(dissect_xip, proto_xip);
 	dissector_add_uint("ethertype", ETHERTYPE_XIP, xip_handle);
 
 	xip_serval_handle = find_dissector("xipserval");

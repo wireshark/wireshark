@@ -60,6 +60,8 @@ static gint ett_nwp_neigh_tree		= -1;
 
 static expert_field ei_nwp_bad_type = EI_INIT;
 
+static dissector_handle_t nwp_handle;
+
 #define NWP_XID_CHUNK_LEN	4
 #define NWP_XID_LEN		20
 /* Two characters for every byte + 4 for "hid-" + 1 for "\0" */
@@ -345,7 +347,7 @@ proto_register_nwp(void)
 		"NWP",
 	        "nwp");
 
-	register_dissector("nwp", dissect_nwp, proto_nwp);
+	nwp_handle = register_dissector("nwp", dissect_nwp, proto_nwp);
 	proto_register_field_array(proto_nwp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
@@ -356,8 +358,6 @@ proto_register_nwp(void)
 void
 proto_reg_handoff_nwp(void)
 {
-	dissector_handle_t nwp_handle;
-	nwp_handle = create_dissector_handle(dissect_nwp, proto_nwp);
 	dissector_add_uint("ethertype", ETHERTYPE_NWP, nwp_handle);
 }
 

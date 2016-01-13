@@ -3037,7 +3037,7 @@ proto_register_tipc(void)
 	tipc_heur_subdissector_list = register_heur_dissector_list("tipc");
 
 	/* Register by name */
-	register_dissector("tipc", dissect_tipc, proto_tipc);
+	tipc_handle = register_dissector("tipc", dissect_tipc, proto_tipc);
 
 	register_init_routine(tipc_defragment_init);
 	register_cleanup_routine(tipc_defragment_cleanup);
@@ -3099,7 +3099,6 @@ proto_reg_handoff_tipc(void)
 	static range_t *tipc_udp_port_range;
 
 	if (!inited) {
-		tipc_handle = create_dissector_handle(dissect_tipc, proto_tipc);
 		tipc_tcp_handle = create_dissector_handle(dissect_tipc_tcp, proto_tipc);
 		ip_handle = find_dissector("ip");
 		data_handle = find_dissector("data");

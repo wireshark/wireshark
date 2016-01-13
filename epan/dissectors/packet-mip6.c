@@ -69,6 +69,8 @@
 void proto_register_mip6(void);
 void proto_reg_handoff_mip6(void);
 
+static dissector_handle_t mip6_handle;
+
 #define UDP_PORT_PMIP6_CNTL 5436
 
 static dissector_table_t mip6_vsm_dissector_table;
@@ -5412,7 +5414,7 @@ proto_register_mip6(void)
     proto_mip6 = proto_register_protocol("Mobile IPv6", "MIPv6", "mipv6");
 
     /* Register the dissector by name */
-    /* register_dissector("mipv6", dissect_nemo, proto_nemo); */
+    mip6_handle = register_dissector("mip6", dissect_mip6, proto_mip6);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_mip6, hf, array_length(hf));
@@ -5426,10 +5428,6 @@ proto_register_mip6(void)
 void
 proto_reg_handoff_mip6(void)
 {
-    dissector_handle_t mip6_handle;
-
-    /* mip6_handle = find_dissector("mipv6"); */
-    mip6_handle = create_dissector_handle(dissect_mip6, proto_mip6);
     dissector_add_uint("ip.proto", IP_PROTO_MIPV6_OLD, mip6_handle);
     dissector_add_uint("ip.proto", IP_PROTO_MIPV6, mip6_handle);
     /* Add support for PMIPv6 control messages over IPV4 */

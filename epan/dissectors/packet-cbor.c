@@ -71,6 +71,8 @@ static expert_field ei_cbor_invalid_minor_type  = EI_INIT;
 static expert_field ei_cbor_invalid_element     = EI_INIT;
 static expert_field ei_cbor_too_long_length     = EI_INIT;
 
+static dissector_handle_t cbor_handle;
+
 #define CBOR_TYPE_USIGNED_INT   0
 #define CBOR_TYPE_NEGATIVE_INT  1
 #define CBOR_TYPE_BYTE_STRING   2
@@ -853,15 +855,12 @@ proto_register_cbor(void)
 	expert_cbor = expert_register_protocol(proto_cbor);
 	expert_register_field_array(expert_cbor, ei, array_length(ei));
 
-	register_dissector("cbor", dissect_cbor, proto_cbor);
+	cbor_handle = register_dissector("cbor", dissect_cbor, proto_cbor);
 }
 
 void
 proto_reg_handoff_cbor(void)
 {
-	static dissector_handle_t cbor_handle;
-
-	cbor_handle = create_dissector_handle(dissect_cbor, proto_cbor);
 	dissector_add_string("media_type", "application/cbor", cbor_handle); /* RFC 7049 */
 }
 

@@ -2308,7 +2308,7 @@ void proto_register_mgcp(void)
 	register_init_routine(&mgcp_init_protocol);
 	register_cleanup_routine(&mgcp_cleanup_protocol);
 
-	register_dissector("mgcp", dissect_mgcp, proto_mgcp);
+	mgcp_handle = register_dissector("mgcp", dissect_mgcp, proto_mgcp);
 
 	/* Register our configuration options */
 	mgcp_module = prefs_register_protocol(proto_mgcp, proto_reg_handoff_mgcp);
@@ -2377,7 +2377,6 @@ void proto_reg_handoff_mgcp(void)
 	{
 		/* Get a handle for the SDP dissector. */
 		sdp_handle = find_dissector("sdp");
-		mgcp_handle = create_dissector_handle(dissect_mgcp, proto_mgcp);
 		mgcp_tpkt_handle = create_dissector_handle(dissect_tpkt_mgcp, proto_mgcp);
 		mgcp_prefs_initialized = TRUE;
 	}

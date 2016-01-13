@@ -138,6 +138,7 @@ static wimaxasncp_dict_tlv_t wimaxasncp_tlv_not_found =
     NULL, NULL, NULL
 };
 
+static dissector_handle_t wimaxasncp_handle;
 static dissector_handle_t eap_handle;
 
 /* ------------------------------------------------------------------------- */
@@ -3404,7 +3405,7 @@ proto_register_wimaxasncp(void)
 
 
         /* Register this dissector by name */
-    register_dissector("wimaxasncp", dissect_wimaxasncp, proto_wimaxasncp);
+    wimaxasncp_handle = register_dissector("wimaxasncp", dissect_wimaxasncp, proto_wimaxasncp);
 
         /* Register preferences module (See Section 2.6 for more on
          * preferences) */
@@ -3460,20 +3461,10 @@ void
 proto_reg_handoff_wimaxasncp(void)
 {
     static gboolean           inited      = FALSE;
-    static dissector_handle_t wimaxasncp_handle;
     static int                currentPort = -1;
 
     if (!inited)
     {
-
-        /*  Use create_dissector_handle() to indicate that
-         *  dissect_wimaxasncp() returns the number of bytes it dissected (or
-         *  0 if it thinks the packet does not belong to WiMAX ASN Control
-         *  Plane).
-         */
-        wimaxasncp_handle = create_dissector_handle(
-             dissect_wimaxasncp,
-             proto_wimaxasncp);
 
         /* Find the EAP dissector */
         eap_handle = find_dissector("eap");

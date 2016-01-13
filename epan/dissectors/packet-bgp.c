@@ -77,6 +77,8 @@
 void proto_register_bgp(void);
 void proto_reg_handoff_bgp(void);
 
+static dissector_handle_t bgp_handle;
+
 /* #define MAX_STR_LEN 256 */
 
 /* some handy things to know */
@@ -8390,15 +8392,12 @@ proto_register_bgp(void)
       "BGP dissector detect the length of the AS number in AS_PATH attributes automatically or manually (NOTE: Automatic detection is not 100% accurate)",
       &bgp_asn_len, asn_len, FALSE);
 
-    register_dissector("bgp", dissect_bgp, proto_bgp);
+    bgp_handle = register_dissector("bgp", dissect_bgp, proto_bgp);
 }
 
 void
 proto_reg_handoff_bgp(void)
 {
-    dissector_handle_t bgp_handle;
-
-    bgp_handle = create_dissector_handle(dissect_bgp, proto_bgp);
     dissector_add_uint("tcp.port", BGP_TCP_PORT, bgp_handle);
 }
 /*

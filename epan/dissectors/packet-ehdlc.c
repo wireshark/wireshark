@@ -60,6 +60,8 @@ static int hf_ehdlc_s_ftype = -1;
 static int hf_ehdlc_ftype_i = -1;
 static int hf_ehdlc_ftype_s_u_ext = -1;
 
+static dissector_handle_t ehdlc_handle;
+
 /* Used only for U frames */
 static const xdlc_cf_items ehdlc_cf_items = {
 	NULL,
@@ -313,19 +315,16 @@ proto_register_ehdlc(void)
 	proto_register_field_array(proto_ehdlc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("ehdlc", dissect_ehdlc, proto_ehdlc);
+	ehdlc_handle = register_dissector("ehdlc", dissect_ehdlc, proto_ehdlc);
 }
 
 void
 proto_reg_handoff_ehdlc(void)
 {
-    dissector_handle_t ehdlc_handle;
-
 	sub_handles[SUB_RSL]  = find_dissector("gsm_abis_rsl");
 	sub_handles[SUB_OML]  = find_dissector("gsm_abis_oml");
 	sub_handles[SUB_DATA] = find_dissector("data");
 
-    ehdlc_handle = create_dissector_handle( dissect_ehdlc, proto_ehdlc );
 	dissector_add_uint("l2tp.pw_type", L2TPv3_PROTOCOL_ERICSSON, ehdlc_handle);
 }
 

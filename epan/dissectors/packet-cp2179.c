@@ -273,6 +273,8 @@ static int hf_cp2179_2bitstatusstatus5 = -1;
 static int hf_cp2179_2bitstatusstatus6 = -1;
 static int hf_cp2179_2bitstatusstatus7 = -1;
 
+static dissector_handle_t cp2179_handle;
+
 static const int *cp2179_simplestatus_bits[] = {
   &hf_cp2179_simplestatusbit0,
   &hf_cp2179_simplestatusbit1,
@@ -1355,7 +1357,7 @@ proto_register_cp2179(void)
     module_t *cp2179_module;
 
     proto_cp2179 = proto_register_protocol ("CP2179 Protocol", "CP2179", "cp2179");
-    register_dissector("cp2179", dissect_cp2179, proto_cp2179);
+    cp2179_handle = register_dissector("cp2179", dissect_cp2179, proto_cp2179);
     proto_register_field_array(proto_cp2179, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -1382,11 +1384,9 @@ void
 proto_reg_handoff_cp2179(void)
 {
    static int cp2179_prefs_initialized = FALSE;
-   static dissector_handle_t cp2179_handle;
    static unsigned int cp2179_port;
 
     if (!cp2179_prefs_initialized){
-        cp2179_handle = create_dissector_handle(dissect_cp2179, proto_cp2179);
         cp2179_prefs_initialized = TRUE;
     }
      else {

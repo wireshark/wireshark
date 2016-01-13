@@ -314,6 +314,8 @@ static expert_field ei_mal_svalidator_timeout_multiplier = EI_INIT;
 static expert_field ei_mal_svalidator_coordination_conn_inst = EI_INIT;
 static expert_field ei_mal_svalidator_prod_cons_fault_count = EI_INIT;
 
+static dissector_handle_t cipsafety_handle;
+
 const value_string cipsafety_ssn_date_vals[8] = {
 
    { 0,     "NULL SSN" },
@@ -2582,7 +2584,7 @@ proto_register_cipsafety(void)
    expert_cip_safety = expert_register_protocol(proto_cipsafety);
    expert_register_field_array(expert_cip_safety, ei, array_length(ei));
 
-   register_dissector( "cipsafety", dissect_cipsafety, proto_cipsafety);
+   cipsafety_handle = register_dissector( "cipsafety", dissect_cipsafety, proto_cipsafety);
 
    /* Register CIP Safety objects */
    proto_cip_class_s_supervisor = proto_register_protocol("CIP Safety Supervisor",
@@ -2611,7 +2613,7 @@ proto_register_cipsafety(void)
 void
 proto_reg_handoff_cipsafety(void)
 {
-   dissector_handle_t cip_class_s_supervisor_handle, cipsafety_handle;
+   dissector_handle_t cip_class_s_supervisor_handle;
 
    /* Create and register dissector handle for Safety Supervisor */
    cip_class_s_supervisor_handle = create_dissector_handle( dissect_cip_class_s_supervisor, proto_cip_class_s_supervisor );
@@ -2622,8 +2624,7 @@ proto_reg_handoff_cipsafety(void)
    dissector_add_uint( "cip.class.iface", CI_CLS_SAFETY_VALIDATOR, cip_class_s_validator_handle );
    heur_dissector_add("cip.sc", dissect_class_svalidator_heur, "CIP Safety Validator", "s_validator_cip", proto_cip_class_s_validator, HEURISTIC_ENABLE);
 
-   /* Create and register dissector for I/O data handling */
-   cipsafety_handle = create_dissector_handle( dissect_cipsafety, proto_cipsafety );
+   /* Register dissector for I/O data handling */
    dissector_add_for_decode_as("enip.io", cipsafety_handle );
 
    proto_cip = proto_get_id_by_filter_name( "cip" );

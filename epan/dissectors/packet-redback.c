@@ -222,14 +222,12 @@ proto_register_redback(void)
 
 	proto_redback = proto_register_protocol("Redback", "Redback", "redback");
 	hfi_redback   = proto_registrar_get_nth(proto_redback);
-	register_dissector("redback", dissect_redback, proto_redback);
+	redback_handle = register_dissector("redback", dissect_redback, proto_redback);
 
 	proto_register_fields(proto_redback, hfi, array_length(hfi));
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_redback = expert_register_protocol(proto_redback);
 	expert_register_field_array(expert_redback, ei, array_length(ei));
-
-	redback_handle = create_dissector_handle(dissect_redback, proto_redback);
 }
 
 void

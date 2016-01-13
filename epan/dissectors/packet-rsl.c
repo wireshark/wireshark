@@ -219,6 +219,7 @@ static expert_field ei_rsl_facility_information_element_3gpp_ts_44071 = EI_INIT;
 static expert_field ei_rsl_embedded_message_tfo_configuration = EI_INIT;
 
 static proto_tree *top_tree;
+static dissector_handle_t rsl_handle;
 static dissector_handle_t gsm_cbch_handle;
 static dissector_handle_t gsm_cbs_handle;
 static dissector_handle_t gsm_a_ccch_handle;
@@ -4450,7 +4451,7 @@ void proto_register_rsl(void)
     expert_rsl = expert_register_protocol(proto_rsl);
     expert_register_field_array(expert_rsl, ei, array_length(ei));
 
-    register_dissector("gsm_abis_rsl", dissect_rsl, proto_rsl);
+    rsl_handle = register_dissector("gsm_abis_rsl", dissect_rsl, proto_rsl);
 
     rsl_module = prefs_register_protocol(proto_rsl, proto_reg_handoff_rsl);
     prefs_register_bool_preference(rsl_module, "use_ipaccess_rsl",
@@ -4462,9 +4463,6 @@ void proto_register_rsl(void)
 void
 proto_reg_handoff_rsl(void)
 {
-    dissector_handle_t rsl_handle;
-
-    rsl_handle = create_dissector_handle(dissect_rsl, proto_rsl);
     dissector_add_uint("lapd.gsm.sapi", LAPD_GSM_SAPI_RA_SIG_PROC, rsl_handle);
 
     gsm_cbch_handle = find_dissector("gsm_cbch");

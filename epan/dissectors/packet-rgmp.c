@@ -44,6 +44,8 @@ static int hf_maddr        = -1;
 
 static int ett_rgmp = -1;
 
+static dissector_handle_t rgmp_handle;
+
 #define MC_RGMP 0xe0000019
 
 static const value_string rgmp_types[] = {
@@ -132,15 +134,12 @@ proto_register_rgmp(void)
     proto_register_field_array(proto_rgmp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("rgmp", dissect_rgmp, proto_rgmp);
+    rgmp_handle = register_dissector("rgmp", dissect_rgmp, proto_rgmp);
 }
 
 void
 proto_reg_handoff_rgmp(void)
 {
-    dissector_handle_t rgmp_handle;
-
-    rgmp_handle = create_dissector_handle(dissect_rgmp, proto_rgmp);
     dissector_add_uint("igmp.type", IGMP_RGMP_HELLO, rgmp_handle);
     dissector_add_uint("igmp.type", IGMP_RGMP_BYE, rgmp_handle);
     dissector_add_uint("igmp.type", IGMP_RGMP_JOIN, rgmp_handle);

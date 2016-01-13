@@ -40,6 +40,8 @@
 void proto_register_mongo(void);
 void proto_reg_handoff_mongo(void);
 
+static dissector_handle_t mongo_handle;
+
 /* This is not IANA assigned nor registered */
 #define TCP_PORT_MONGO 27017
 
@@ -1032,7 +1034,7 @@ proto_register_mongo(void)
   proto_mongo = proto_register_protocol("Mongo Wire Protocol", "MONGO", "mongo");
 
   /* Allow dissector to find be found by name. */
-  register_dissector("mongo", dissect_mongo, proto_mongo);
+  mongo_handle = register_dissector("mongo", dissect_mongo, proto_mongo);
 
   proto_register_field_array(proto_mongo, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -1052,12 +1054,9 @@ void
 proto_reg_handoff_mongo(void)
 {
   static gboolean initialized = FALSE;
-  static dissector_handle_t mongo_handle;
   static int currentPort;
 
   if (!initialized) {
-
-    mongo_handle = create_dissector_handle(dissect_mongo, proto_mongo);
     initialized = TRUE;
   } else {
     dissector_delete_uint("tcp.port", currentPort, mongo_handle);

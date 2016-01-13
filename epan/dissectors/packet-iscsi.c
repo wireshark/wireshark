@@ -3075,7 +3075,7 @@ proto_register_iscsi(void)
 
     /* Register the protocol name and description */
     proto_iscsi = proto_register_protocol("iSCSI", "iSCSI", "iscsi");
-    register_dissector("iscsi", dissect_iscsi_handle, proto_iscsi);
+    iscsi_handle = register_dissector("iscsi", dissect_iscsi_handle, proto_iscsi);
 
     /* Required function calls to register the header fields and
      * subtrees used */
@@ -3168,7 +3168,6 @@ proto_reg_handoff_iscsi(void)
 {
     heur_dissector_add("tcp", dissect_iscsi_heur, "iSCSI over TCP", "iscsi_tcp", proto_iscsi, HEURISTIC_ENABLE);
 
-    iscsi_handle = create_dissector_handle(dissect_iscsi_handle, proto_iscsi);
     dissector_add_for_decode_as("tcp.port", iscsi_handle);
 }
 

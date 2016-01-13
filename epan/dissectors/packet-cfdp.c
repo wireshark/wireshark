@@ -127,6 +127,7 @@ static gint ett_cfdp_flow_label = -1;
 static expert_field ei_cfdp_bad_length = EI_INIT;
 
 
+static dissector_handle_t cfdp_handle;
 /* Generic data handle */
 static dissector_handle_t data_handle;
 
@@ -1625,17 +1626,14 @@ proto_register_cfdp(void)
     expert_cfdp = expert_register_protocol(proto_cfdp);
     expert_register_field_array(expert_cfdp, ei, array_length(ei));
 
-    register_dissector ( "cfdp", dissect_cfdp, proto_cfdp );
+    cfdp_handle = register_dissector("cfdp", dissect_cfdp, proto_cfdp);
 }
 
 void
 proto_reg_handoff_cfdp(void)
 {
-    static dissector_handle_t cfdp_handle;
-
-    cfdp_handle = create_dissector_handle(dissect_cfdp, proto_cfdp);
     dissector_add_uint("ccsds.apid", CFDP_APID, cfdp_handle);
-    dissector_add_for_decode_as ( "udp.port", cfdp_handle );
+    dissector_add_for_decode_as("udp.port", cfdp_handle);
     data_handle = find_dissector("data");
 }
 
