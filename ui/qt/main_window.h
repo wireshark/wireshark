@@ -417,7 +417,7 @@ private slots:
     void colorizeConversation(bool create_rule = false);
     void colorizeWithFilter();
     void on_actionViewColorizeResetColorization_triggered();
-    void on_actionViewColorizeNewConversationRule_triggered();
+    void on_actionViewColorizeNewColoringRule_triggered();
     void on_actionViewResizeColumns_triggered();
 
     void on_actionViewInternalsConversationHashTables_triggered();

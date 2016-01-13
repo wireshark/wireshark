@@ -1200,11 +1200,9 @@ void MainWindow::setMenusForSelectedPacket()
     foreach (QAction *cc_action, cc_actions) {
         cc_action->setEnabled(frame_selected);
     }
-    main_ui_->actionViewColorizeNewConversationRule->setEnabled(frame_selected);
+    main_ui_->actionViewColorizeNewColoringRule->setEnabled(frame_selected);
 
     main_ui_->actionViewColorizeResetColorization->setEnabled(tmp_color_filters_used());
-
-    main_ui_->actionViewColorizeNewConversationRule->setEnabled(frame_selected);
 
     main_ui_->actionViewShowPacketInNewWindow->setEnabled(frame_selected);
     main_ui_->actionViewEditResolvedName->setEnabled(frame_selected && is_ip);
@@ -1242,7 +1240,7 @@ void MainWindow::setMenusForSelectedPacket()
             connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
         }
 
-        QAction *conv_rule_action = submenu->addAction(main_ui_->actionViewColorizeNewConversationRule->text());
+        QAction *conv_rule_action = submenu->addAction(main_ui_->actionViewColorizeNewColoringRule->text());
         conv_rule_action->setData(conv_action->data());
         conv_rule_action->setEnabled(enable);
         connect(conv_rule_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
@@ -1375,7 +1373,7 @@ void MainWindow::setMenusForSelectedTreeRow(field_info *fi) {
         connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
     }
 
-    QAction *conv_rule_action = proto_tree_->colorizeMenu()->addAction(main_ui_->actionViewColorizeNewConversationRule->text());
+    QAction *conv_rule_action = proto_tree_->colorizeMenu()->addAction(main_ui_->actionViewColorizeNewColoringRule->text());
     conv_rule_action->setData(field_filter);
     conv_rule_action->setEnabled(!field_filter.isEmpty());
     connect(conv_rule_action, SIGNAL(triggered()), this, SLOT(colorizeWithFilter()));
@@ -2433,7 +2431,7 @@ void MainWindow::on_actionViewColorizeResetColorization_triggered()
     setMenusForSelectedPacket();
 }
 
-void MainWindow::on_actionViewColorizeNewConversationRule_triggered()
+void MainWindow::on_actionViewColorizeNewColoringRule_triggered()
 {
     colorizeConversation(true);
 }
