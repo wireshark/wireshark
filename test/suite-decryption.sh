@@ -105,6 +105,27 @@ decryption_step_80211_wpa_eapol_incomplete_rekeys() {
         test_step_ok
 }
 
+# WPA decode management frames with MFP enabled (802.11w)
+# Included in git sources test/captures/wpa-test-decode-mgmt.pcap.gz
+decryption_step_80211_wpa_psk_mfp() {
+        local out frames
+        out=$($TESTS_DIR/run_and_catch_crashes env $TS_DC_ENV $TSHARK $TS_DC_ARGS \
+                -o "wlan.enable_decryption: TRUE" \
+                -r "$CAPTURE_DIR/wpa-test-decode-mgmt.pcap.gz" \
+		-Y "wlan_mgt.fixed.reason_code == 2 || wlan_mgt.fixed.category_code == 3" \
+		2>&1)
+        RETURNVALUE=$?
+        frames=$(echo "$out" | wc -l)
+        if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+                echo "$out" > ./wpa_psk_mfp.txt
+                test_step_failed "Error during test execution: see $PWD/wpa_psk_mfp.txt"
+                return
+        elif [ $frames -ne 3 ]; then
+            test_step_failed "Not able to decode All Management frames ($frames/3)"
+            return
+        fi
+        test_step_ok
+}
 
 # DTLS
 # https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil.tgz
@@ -283,6 +304,7 @@ decryption_step_http2() {
 tshark_decryption_suite() {
 	test_step_add "IEEE 802.11 WPA PSK Decryption" decryption_step_80211_wpa_psk
 	test_step_add "IEEE 802.11 WPA PSK Decryption2 (EAPOL frames missing with a Win 10 client)" decryption_step_80211_wpa_eapol_incomplete_rekeys
+	test_step_add "IEEE 802.11 WPA PSK Decryption of Management frames (802.11w)" decryption_step_80211_wpa_psk_mfp
 	test_step_add "IEEE 802.11 WPA EAP Decryption" decryption_step_80211_wpa_eap
 	test_step_add "DTLS Decryption" decryption_step_dtls
 	test_step_add "SSL Decryption (private key)" decryption_step_ssl
