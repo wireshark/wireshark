@@ -328,7 +328,7 @@
      <addaction name="actionViewColorizeConversation10"/>
      <addaction name="separator"/>
      <addaction name="actionViewColorizeResetColorization"/>
-     <addaction name="actionViewColorizeNewConversationRule"/>
+     <addaction name="actionViewColorizeNewColoringRule"/>
     </widget>
     <widget class="QMenu" name="menuInternals">
      <property name="title">
@@ -2787,12 +2787,12 @@
     <string>Mark the current conversation with its own color.</string>
    </property>
   </action>
-  <action name="actionViewColorizeNewConversationRule">
+  <action name="actionViewColorizeNewColoringRule">
    <property name="text">
-    <string>New Conversation Rule…</string>
+    <string>New Coloring Rule…</string>
    </property>
    <property name="toolTip">
-    <string>Create a new coloring rule based on this conversation.</string>
+    <string>Create a new coloring rule based on this field.</string>
    </property>
   </action>
   <action name="actionViewColorizeResetColorization">
