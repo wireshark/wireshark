@@ -723,17 +723,15 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	* + End of options 4 bytes
 	*/
 	/* XXX add the length of exported bdu tag(s) here */
-	packet_buf = (guint8 *)g_malloc(packet_size + 12+1);
-    /* Terminate buffer*/
-    packet_buf[packet_size + 12] = 0;
+	packet_buf = (guint8 *)g_malloc(packet_size + 12 + 1);
 
 	packet_buf[0] = 0;
-	packet_buf[1] = 12; /* EXP_PDU_TAG_PROTO_NAME */
+	packet_buf[1] = EXP_PDU_TAG_PROTO_NAME;
 	packet_buf[2] = 0;
 	packet_buf[3] = 4;
-	packet_buf[4] = 0x78; /* "x" */
-	packet_buf[5] = 0x6d; /* "m" */
-	packet_buf[6] = 0x6c; /* "l" */
+	packet_buf[4] = 'x';
+	packet_buf[5] = 'm';
+	packet_buf[6] = 'l';
 	packet_buf[7] = 0;
 	/* End of options */
 	packet_buf[8] = 0;
@@ -741,11 +739,13 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	packet_buf[10] = 0;
 	packet_buf[11] = 0;
 
-
 	if (!wtap_read_bytes(wth->fh, packet_buf + 12, packet_size, &wrt_err, &wrt_err_info)){
 		result = WTAP_OPEN_ERROR;
 		goto end;
 	}
+
+	/* Null-terminate buffer; we'll be processing it as a string. */
+	packet_buf[packet_size + 12] = '\0';
 
 	/* Create the packet header */
 	memset(&phdr, 0, sizeof(struct wtap_pkthdr));
@@ -772,7 +772,6 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	phdr.caplen = packet_size + 12;
 	phdr.len = packet_size + 12;
 
-
 	/* XXX: report errors! */
 	if (!wtap_dump(wdh_exp_pdu, &phdr, packet_buf, &wrt_err, &wrt_err_info)) {
 		switch (wrt_err) {
@@ -788,7 +787,6 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		result = WTAP_OPEN_ERROR;
 		goto end;
 	}
-
 
 	/* Lets add the raw messages as packets after the main "packet" with the whole file */
 	while ((curr_pos = strstr(curr_pos, "<msg")) != NULL){
@@ -964,7 +962,7 @@ end:
 wtap_open_return_val
 nettrace_3gpp_32_423_file_open(wtap *wth, int *err, gchar **err_info)
 {
-	char magic_buf[512]; /* increase buffer size when needed */
+	char magic_buf[512+1]; /* increase buffer size when needed */
 	int bytes_read;
 	char *curr_pos;
 	nettrace_3gpp_32_423_file_info_t *file_info;
@@ -984,8 +982,10 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err, gchar **err_info)
 	if (memcmp(magic_buf, xml_magic, sizeof(xml_magic)) != 0){
 		return WTAP_OPEN_NOT_MINE;
 	}
-	/* Protect from overrunning the buffer*/
-	magic_buf[512 - 1] = 0;
+
+	/* Null-terminate buffer; we'll be processing it as a string. */
+	magic_buf[512] = '\0';
+
 	/* File header should contain something like fileFormatVersion="32.423 V8.1.0" */
 	curr_pos = strstr(magic_buf, "fileFormatVersion");
 
