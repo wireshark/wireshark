@@ -133,6 +133,7 @@ SysInfoType21                @si.sib21
 SysInfoType22                @si.sib22
 SysInfoType23                @si.sib23
 SysInfoType24                @si.sib24
+SysInfoType25                @si.sib25
 SysInfoTypeSB1               @si.sb1
 SysInfoTypeSB2               @si.sb2
 SysInfoTypeSB3               @si.sb3
