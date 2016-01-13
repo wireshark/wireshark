@@ -92,7 +92,7 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
   erf_timestamp_t  prevts,ts;
   erf_header_t     header;
   guint32          mc_hdr;
-  guint16          eth_hdr;
+  struct erf_eth_hdr eth_hdr;
   guint32          packet_size;
   guint16          rlen;
   guint64          erf_ext_header;
@@ -338,12 +338,12 @@ static gboolean erf_read_header(FILE_T fh,
                                 guint32 *packet_size)
 {
   union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
-  guint32 mc_hdr;
-  guint32 aal2_hdr;
   guint8  erf_exhdr[8];
   guint64 erf_exhdr_sw;
   guint8  type    = 0;
-  guint16 eth_hdr;
+  guint32 mc_hdr;
+  guint32 aal2_hdr;
+  struct wtap_erf_eth_hdr eth_hdr;
   guint32 skiplen = 0;
   int     i       = 0;
   int     max     = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
@@ -454,7 +454,12 @@ static gboolean erf_read_header(FILE_T fh,
         *bytes_read += (guint32)sizeof(eth_hdr);
       *packet_size -=  (guint32)sizeof(eth_hdr);
       skiplen += (guint32)sizeof(eth_hdr);
-      pseudo_header->erf.subhdr.eth_hdr = g_ntohs(eth_hdr);
+      pseudo_header->erf.subhdr.eth_hdr = eth_hdr;
+      {
+      	guint8 bytes[2];
+      	memcpy(bytes, &eth_hdr, 2);
+      	fprintf(stderr, "offset %u, pad %u\n", bytes[0], bytes[1]);
+      }
       break;
 
     case ERF_TYPE_MC_HDLC:
@@ -526,8 +531,7 @@ static int wtap_wtap_encap_to_erf_encap(int encap)
 static gboolean erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pseudo_header, int * err)
 {
   guint8 erf_hdr[sizeof(struct erf_mc_phdr)];
-  guint8 erf_subhdr[((sizeof(struct erf_mc_hdr) > sizeof(struct erf_eth_hdr))?
-    sizeof(struct erf_mc_hdr) : sizeof(struct erf_eth_hdr))];
+  guint8 erf_subhdr[sizeof(union erf_subhdr)];
   guint8 ehdr[8*MAX_ERF_EHDR];
   size_t size        = 0;
   size_t subhdr_size = 0;
@@ -564,7 +568,7 @@ static gboolean erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pse
         case ERF_TYPE_COLOR_ETH:
         case ERF_TYPE_DSM_COLOR_ETH:
         case ERF_TYPE_COLOR_HASH_ETH:
-          phtons(&erf_subhdr[0], pseudo_header->erf.subhdr.eth_hdr);
+          memcpy(&erf_subhdr[0], &pseudo_header->erf.subhdr.eth_hdr, sizeof pseudo_header->erf.subhdr.eth_hdr);
           subhdr_size += (int)sizeof(struct erf_eth_hdr);
           break;
         default:

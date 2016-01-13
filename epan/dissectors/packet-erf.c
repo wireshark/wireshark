@@ -41,11 +41,6 @@ void proto_reg_handoff_erf(void);
 #define EXT_HDR_TYPE_CHANNELISED    12
 #define EXT_HDR_TYPE_SIGNATURE      14
 
-struct erf_eth_hdrx {
-  guint8 byte0;
-  guint8 byte1;
-};
-
 #define DECHAN_MAX_LINE_RATE 5
 #define DECHAN_MAX_VC_SIZE 5
 #define DECHAN_MAX_AUG_INDEX 4
@@ -214,7 +209,7 @@ static int hf_erf_aal2_res1   = -1;
 /* ERF Ethernet header/pad */
 static int hf_erf_eth      = -1;
 static int hf_erf_eth_off  = -1;
-static int hf_erf_eth_res1 = -1;
+static int hf_erf_eth_pad  = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_erf            = -1;
@@ -990,15 +985,16 @@ dissect_eth_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     proto_item          *eth_item;
     proto_tree          *eth_tree;
-    struct erf_eth_hdrx *eth_hdr;
+    guint8               eth_offset, eth_pad;
 
     eth_item = proto_tree_add_item(tree, hf_erf_eth, tvb, 0, 0, ENC_NA);
 
     eth_tree = proto_item_add_subtree(eth_item, ett_erf_eth);
-    eth_hdr  = (struct erf_eth_hdrx *) (&pinfo->pseudo_header->erf.subhdr.eth_hdr);
+    eth_offset = pinfo->pseudo_header->erf.subhdr.eth_hdr.offset;
+    eth_pad = pinfo->pseudo_header->erf.subhdr.eth_hdr.pad;
 
-    proto_tree_add_uint(eth_tree, hf_erf_eth_off, tvb, 0, 0, eth_hdr->byte0);
-    proto_tree_add_uint(eth_tree, hf_erf_eth_res1, tvb, 0, 0, eth_hdr->byte1);
+    proto_tree_add_uint(eth_tree, hf_erf_eth_off, tvb, 0, 0, eth_offset);
+    proto_tree_add_uint(eth_tree, hf_erf_eth_pad, tvb, 0, 0, eth_pad);
   }
 }
 
@@ -1811,11 +1807,10 @@ proto_register_erf(void)
         FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     { &hf_erf_eth_off,
       { "Offset", "erf.eth.off",
-        FT_UINT8, BASE_DEC, NULL, ETH_OFF_MASK, NULL, HFILL } },
-    { &hf_erf_eth_res1,
-      { "Reserved", "erf.eth.res1",
-        FT_UINT8, BASE_HEX, NULL, ETH_RES1_MASK, NULL, HFILL } },
-
+        FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_erf_eth_pad,
+      { "Padding", "erf.eth.pad",
+        FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
   };
 
   static gint *ett[] = {

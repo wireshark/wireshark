@@ -120,11 +120,13 @@ typedef struct erf_aal2_hdr {
 } erf_aal2_header_t;
 
 typedef struct erf_eth_hdr {
-	guint16	eth;
+	guint8 offset;
+	guint8 pad;
 } erf_eth_header_t;
 
 union erf_subhdr {
   struct erf_mc_hdr mc_hdr;
+  struct erf_aal2_hdr aal2_hdr;
   struct erf_eth_hdr eth_hdr;
 };
 

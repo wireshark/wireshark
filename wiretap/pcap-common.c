@@ -1485,7 +1485,6 @@ pcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	case ERF_TYPE_MC_ATM:
 	case ERF_TYPE_MC_RAW_CHANNEL:
 	case ERF_TYPE_MC_AAL5:
-	case ERF_TYPE_MC_AAL2:
 	case ERF_TYPE_COLOR_MC_HDLC_POS:
 		/* Extract the Multi Channel header to include it in the pseudo header part */
 		if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_mc_header_t), err, err_info))
@@ -1493,13 +1492,20 @@ pcap_read_erf_subheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 		pseudo_header->erf.subhdr.mc_hdr = pntoh32(&erf_subhdr[0]);
 		*psize = sizeof(erf_mc_header_t);
 		break;
+	case ERF_TYPE_MC_AAL2:
+		/* Extract the AAL2 header to include it in the pseudo header part */
+		if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_aal2_header_t), err, err_info))
+			return FALSE;
+		pseudo_header->erf.subhdr.aal2_hdr = pntoh32(&erf_subhdr[0]);
+		*psize = sizeof(erf_aal2_header_t);
+		break;
 	case ERF_TYPE_ETH:
 	case ERF_TYPE_COLOR_ETH:
 	case ERF_TYPE_DSM_COLOR_ETH:
 		/* Extract the Ethernet additional header to include it in the pseudo header part */
 		if (!wtap_read_bytes(fh, erf_subhdr, sizeof(erf_eth_header_t), err, err_info))
 			return FALSE;
-		pseudo_header->erf.subhdr.eth_hdr = pntoh16(&erf_subhdr[0]);
+		memcpy(&pseudo_header->erf.subhdr.eth_hdr, erf_subhdr, sizeof pseudo_header->erf.subhdr.eth_hdr);
 		*psize = sizeof(erf_eth_header_t);
 		break;
 	default:
@@ -2116,15 +2122,18 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		case ERF_TYPE_MC_ATM:
 		case ERF_TYPE_MC_RAW_CHANNEL:
 		case ERF_TYPE_MC_AAL5:
-		case ERF_TYPE_MC_AAL2:
 		case ERF_TYPE_COLOR_MC_HDLC_POS:
 			phtonl(&erf_hdr[16], pseudo_header->erf.subhdr.mc_hdr);
 			size += (int)sizeof(struct erf_mc_hdr);
 			break;
+		case ERF_TYPE_MC_AAL2:
+			phtonl(&erf_hdr[16], pseudo_header->erf.subhdr.aal2_hdr);
+			size += (int)sizeof(struct erf_aal2_hdr);
+			break;
 		case ERF_TYPE_ETH:
 		case ERF_TYPE_COLOR_ETH:
 		case ERF_TYPE_DSM_COLOR_ETH:
-			phtons(&erf_hdr[16], pseudo_header->erf.subhdr.eth_hdr);
+			memcpy(&erf_hdr[16], &pseudo_header->erf.subhdr.eth_hdr, sizeof pseudo_header->erf.subhdr.eth_hdr);
 			size += (int)sizeof(struct erf_eth_hdr);
 			break;
 		default:

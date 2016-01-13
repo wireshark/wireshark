@@ -938,7 +938,10 @@ struct erf_mc_phdr {
     struct erf_ehdr ehdr_list[MAX_ERF_EHDR];
     union
     {
-        guint16 eth_hdr;
+        struct wtap_erf_eth_hdr {
+            guint8 offset;
+            guint8 pad;
+        } eth_hdr;
         guint32 mc_hdr;
         guint32 aal2_hdr;
     } subhdr;
