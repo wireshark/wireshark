@@ -121,7 +121,7 @@ export MallocCheckHeapAbort=1
 export MallocBadFreeAbort=1
 
 # Address Sanitizer options
-export ASAN_OPTIONS=detect_leaks=0:detect_odr_violation=0
+export ASAN_OPTIONS=detect_leaks=0
 
 # Create an error report
 function ws_exit_error() {

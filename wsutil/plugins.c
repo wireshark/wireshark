@@ -172,7 +172,7 @@ plugins_scan_dir(const char *dirname)
 
             g_snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
                        dirname, name);
-            if ((handle = g_module_open(filename, (GModuleFlags)0)) == NULL)
+            if ((handle = g_module_open(filename, G_MODULE_BIND_LOCAL)) == NULL)
             {
                 report_failure("Couldn't load module %s: %s", filename,
                                g_module_error());
