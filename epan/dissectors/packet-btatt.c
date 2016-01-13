@@ -58,6 +58,22 @@ static int hf_btatt_value = -1;
 static int hf_btatt_req_opcode_in_error = -1;
 static int hf_btatt_handle_in_error = -1;
 static int hf_btatt_error_code = -1;
+static int hf_btatt_error_code_aios = -1;
+static int hf_btatt_error_code_ans = -1;
+static int hf_btatt_error_code_bms = -1;
+static int hf_btatt_error_code_cgms = -1;
+static int hf_btatt_error_code_cps = -1;
+static int hf_btatt_error_code_cscs = -1;
+static int hf_btatt_error_code_cts = -1;
+static int hf_btatt_error_code_ess = -1;
+static int hf_btatt_error_code_gls = -1;
+static int hf_btatt_error_code_hps = -1;
+static int hf_btatt_error_code_hrs = -1;
+static int hf_btatt_error_code_hts = -1;
+static int hf_btatt_error_code_ips = -1;
+static int hf_btatt_error_code_ots = -1;
+static int hf_btatt_error_code_rscs = -1;
+static int hf_btatt_error_code_uds = -1;
 static int hf_btatt_service_uuid16 = -1;
 static int hf_btatt_service_uuid128 = -1;
 static int hf_btatt_characteristic_uuid16 = -1;
@@ -1890,7 +1906,7 @@ static const value_string opcode_vals[] = {
 #define GATT_SERVICE_OBJECT_TRANSFER                0x1825
 
 /* Error codes */
-static const value_string error_vals[] = {
+static const value_string error_code_vals[] = {
     {0x01, "Invalid Handle"},
     {0x02, "Read Not Permitted"},
     {0x03, "Write Not Permitted"},
@@ -1900,18 +1916,139 @@ static const value_string error_vals[] = {
     {0x07, "Invalid Offset"},
     {0x08, "Insufficient Authorization"},
     {0x09, "Prepare Queue Full"},
-    {0x0a, "Attribute Not Found"},
-    {0x0b, "Attribute Not Long"},
-    {0x0c, "Insufficient Encryption Key Size"},
-    {0x0d, "Invalid Attribute Value Length"},
-    {0x0e, "Unlikely Error"},
-    {0x0f, "Insufficient Encryption"},
+    {0x0A, "Attribute Not Found"},
+    {0x0B, "Attribute Not Long"},
+    {0x0C, "Insufficient Encryption Key Size"},
+    {0x0D, "Invalid Attribute Value Length"},
+    {0x0E, "Unlikely Error"},
+    {0x0F, "Insufficient Encryption"},
     {0x10, "Unsupported Group Type"},
     {0x11, "Insufficient Resources"},
-    {0x80, "Application Error"},
-    {0xfd, "Improper Client Characteristic Configuration Descriptor"},
-    {0xfe, "Procedure Already In Progress"},
-    {0xff, "Out of Range"},
+    {0x80, "Application Error 0x80"},
+    {0x81, "Application Error 0x81"},
+    {0x82, "Application Error 0x82"},
+    {0x83, "Application Error 0x83"},
+    {0x84, "Application Error 0x84"},
+    {0x85, "Application Error 0x85"},
+    {0x86, "Application Error 0x86"},
+    {0x87, "Application Error 0x87"},
+    {0x88, "Application Error 0x88"},
+    {0x89, "Application Error 0x89"},
+    {0x8A, "Application Error 0x8A"},
+    {0x8B, "Application Error 0x8B"},
+    {0x8C, "Application Error 0x8C"},
+    {0x8D, "Application Error 0x8D"},
+    {0x8E, "Application Error 0x8E"},
+    {0x8F, "Application Error 0x8F"},
+    {0x90, "Application Error 0x90"},
+    {0x91, "Application Error 0x91"},
+    {0x92, "Application Error 0x92"},
+    {0x93, "Application Error 0x93"},
+    {0x94, "Application Error 0x94"},
+    {0x95, "Application Error 0x95"},
+    {0x96, "Application Error 0x96"},
+    {0x97, "Application Error 0x97"},
+    {0x98, "Application Error 0x98"},
+    {0x99, "Application Error 0x99"},
+    {0x9A, "Application Error 0x9A"},
+    {0x9B, "Application Error 0x9B"},
+    {0x9C, "Application Error 0x9C"},
+    {0x9D, "Application Error 0x9D"},
+    {0x9E, "Application Error 0x9E"},
+    {0x9F, "Application Error 0x9F"},
+    {0xFD, "Improper Client Characteristic Configuration Descriptor"},
+    {0xFE, "Procedure Already In Progress"},
+    {0xFF, "Out of Range"},
+    {0x0, NULL}
+};
+
+static const value_string error_code_aios_vals[] = {
+    {0x80, "Trigger Condition Value not Supported"},
+    {0x0, NULL}
+};
+
+static const value_string error_code_ans_vals[] = {
+    {0xA0, "Command not Supported"},
+    {0x0, NULL}
+};
+
+static const value_string error_code_bms_vals[] = {
+    {0x80, "Opcode not Supported"},
+    {0x81, "Operation Failed"},
+    {0x0, NULL}
+};
+
+static const value_string error_code_cgms_vals[] = {
+    {0x80, "Missing CRC"},
+    {0x81, "Invalid CRC"},
+    {0x0, NULL}
+};
+
+static const value_string error_code_cps_vals[] = {
+    {0x80, "Inappropriate Connection Parameters"},
+    {0x0, NULL}
+};
+
+static const value_string error_code_cscs_vals[] = {
+    {0x80, "Procedure Already in Progress"},
+    {0x81, "Client Characteristic Configuration Descriptor Improperly Configured"},
+    {0x0, NULL}
+};
+
+static const value_string error_code_cts_vals[] = {
+    {0x80, "Data Field Ignored"},
+    {0x0, NULL}
+};
+
+static const value_string error_code_ess_vals[] = {
+    {0x80, "Write Request Rejected"},
+    {0x81, "Condition not Supported"},
+    {0x0, NULL}
+};
+
+static const value_string error_code_gls_vals[] = {
+    {0x80, "Procedure Already in Progress"},
+    {0x81, "Client Characteristic Configuration Descriptor Improperly Configured"},
+    {0x0, NULL}
+};
+
+static const value_string error_code_hps_vals[] = {
+    {0x81, "Invalid Request"},
+    {0x82, "Network not Available"},
+    {0x0, NULL}
+};
+
+static const value_string error_code_hrs_vals[] = {
+    {0x80, "Control Point not Supported"},
+    {0x0, NULL}
+};
+
+static const value_string error_code_hts_vals[] = {
+    {0x80, "Out of Range"},
+    {0x0, NULL}
+};
+
+static const value_string error_code_ips_vals[] = {
+    {0x80, "Invalid Value"},
+    {0x0, NULL}
+};
+
+static const value_string error_code_ots_vals[] = {
+    {0x80, "Write Request Rejected"},
+    {0x81, "Object not Selected"},
+    {0x82, "Concurrency Limit Exceeded"},
+    {0x83, "Object Name Already Exists"},
+    {0x0, NULL}
+};
+
+static const value_string error_code_rscs_vals[] = {
+    {0x80, "Procedure Already in Progress"},
+    {0x81, "Client Characteristic Configuration Descriptor Improperly Configured"},
+    {0x0, NULL}
+};
+
+static const value_string error_code_uds_vals[] = {
+    {0x80, "User Data Access not Permitted"},
     {0x0, NULL}
 };
 
@@ -9226,6 +9363,12 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     switch (opcode) {
     case 0x01: /* Error Response */
+        {
+        guint8               error_code;
+        bluetooth_uuid_t     service_uuid;
+        const value_string  *error_vals = error_code_vals;
+        gint                 hfx_btatt_error_code = hf_btatt_error_code;
+
         proto_tree_add_bitmask_with_flags(main_tree, tvb, offset, hf_btatt_req_opcode_in_error, ett_btatt_opcode,  hfx_btatt_opcode, ENC_NA, BMT_NO_APPEND);
         request_opcode = tvb_get_guint8(tvb, offset);
         offset += 1;
@@ -9233,20 +9376,111 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         offset = dissect_handle(main_tree, pinfo, hf_btatt_handle_in_error, tvb, offset, bluetooth_data, NULL, HANDLE_TVB);
         handle = tvb_get_letohs(tvb, offset - 2);
 
+        error_code = tvb_get_guint8(tvb, offset);
+
+        if (error_code >= 0x80 && error_code <= 0x9F) {
+            service_uuid = get_service_uuid_from_handle(pinfo, handle, bluetooth_data);
+
+            switch (service_uuid.bt_uuid) {
+            case GATT_SERVICE_AUTOMATION_IO:
+                error_vals = error_code_aios_vals;
+                hfx_btatt_error_code = hf_btatt_error_code_aios;
+
+                break;
+            case GATT_SERVICE_ALERT_NOTIFICATION_SERVICE:
+                error_vals = error_code_ans_vals;
+                hfx_btatt_error_code = hf_btatt_error_code_ans;
+
+                break;
+            case GATT_SERVICE_BOND_MANAGEMENT:
+                error_vals = error_code_bms_vals;
+                hfx_btatt_error_code = hf_btatt_error_code_bms;
+
+                break;
+            case GATT_SERVICE_CONTINUOUS_GLUCOSE_MONITORING:
+                error_vals = error_code_cgms_vals;
+                hfx_btatt_error_code = hf_btatt_error_code_cgms;
+
+                break;
+            case GATT_SERVICE_CYCLING_POWER:
+                error_vals = error_code_cps_vals;
+                hfx_btatt_error_code = hf_btatt_error_code_cps;
+
+                break;
+            case GATT_SERVICE_CYCLING_SPEED_AND_CADENCE:
+                error_vals = error_code_cscs_vals;
+                hfx_btatt_error_code = hf_btatt_error_code_cscs;
+
+                break;
+            case GATT_SERVICE_CURRENT_TIME_SERVICE:
+                error_vals = error_code_cts_vals;
+                hfx_btatt_error_code = hf_btatt_error_code_cts;
+
+                break;
+            case GATT_SERVICE_ENVIRONMENTAL_SENSING:
+                error_vals = error_code_ess_vals;
+                hfx_btatt_error_code = hf_btatt_error_code_ess;
+
+                break;
+            case GATT_SERVICE_GLUCOSE:
+                error_vals = error_code_gls_vals;
+                hfx_btatt_error_code = hf_btatt_error_code_gls;
+
+                break;
+            case GATT_SERVICE_HTTP_PROXY:
+                error_vals = error_code_hps_vals;
+                hfx_btatt_error_code = hf_btatt_error_code_hps;
+
+                break;
+            case GATT_SERVICE_HEART_RATE:
+                error_vals = error_code_hrs_vals;
+                hfx_btatt_error_code = hf_btatt_error_code_hrs;
+
+                break;
+            case GATT_SERVICE_HEALTH_THERMOMETER:
+                error_vals = error_code_hts_vals;
+                hfx_btatt_error_code = hf_btatt_error_code_hts;
+
+                break;
+            case GATT_SERVICE_INDOOR_POSITIONING:
+                error_vals = error_code_ips_vals;
+                hfx_btatt_error_code = hf_btatt_error_code_ips;
+
+                break;
+            case GATT_SERVICE_OBJECT_TRANSFER:
+                error_vals = error_code_ots_vals;
+                hfx_btatt_error_code = hf_btatt_error_code_ots;
+
+                break;
+            case GATT_SERVICE_RUNNING_SPEED_AND_CADENCE:
+                error_vals = error_code_rscs_vals;
+                hfx_btatt_error_code = hf_btatt_error_code_rscs;
+
+                break;
+            case GATT_SERVICE_USER_DATA:
+                error_vals = error_code_uds_vals;
+                hfx_btatt_error_code = hf_btatt_error_code_uds;
+
+                break;
+            default:
+                error_vals = error_code_vals;
+                hfx_btatt_error_code = hf_btatt_error_code;
+            }
+        }
         col_append_fstr(pinfo->cinfo, COL_INFO, " - %s, Handle: 0x%04x",
-                        val_to_str_const(tvb_get_guint8(tvb, offset), error_vals, "<unknown>"),
+                        val_to_str_const(error_code, error_vals, "<unknown>"),
                         handle);
 
         col_append_info_by_handle(pinfo, handle, bluetooth_data);
 
-        proto_tree_add_item(main_tree, hf_btatt_error_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(main_tree, hfx_btatt_error_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
         if (request_data && (request_opcode == 0x08 || request_opcode == 0x10)) {
             sub_item = proto_tree_add_uint(main_tree, hf_btatt_uuid16, tvb, 0, 0, request_data->parameters.read_by_type.uuid.bt_uuid);
             PROTO_ITEM_SET_GENERATED(sub_item);
         }
-
+        }
         break;
 
     case 0x02: /* Exchange MTU Request */
@@ -10024,7 +10258,87 @@ proto_register_btatt(void)
         },
         {&hf_btatt_error_code,
             {"Error Code", "btatt.error_code",
-            FT_UINT8, BASE_HEX, VALS(error_vals), 0x0,
+            FT_UINT8, BASE_HEX, VALS(error_code_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_error_code_aios,
+            {"Error Code", "btatt.error_code",
+            FT_UINT8, BASE_HEX, VALS(error_code_aios_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_error_code_ans,
+            {"Error Code", "btatt.error_code",
+            FT_UINT8, BASE_HEX, VALS(error_code_ans_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_error_code_bms,
+            {"Error Code", "btatt.error_code",
+            FT_UINT8, BASE_HEX, VALS(error_code_bms_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_error_code_cgms,
+            {"Error Code", "btatt.error_code",
+            FT_UINT8, BASE_HEX, VALS(error_code_cgms_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_error_code_cps,
+            {"Error Code", "btatt.error_code",
+            FT_UINT8, BASE_HEX, VALS(error_code_cps_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_error_code_cscs,
+            {"Error Code", "btatt.error_code",
+            FT_UINT8, BASE_HEX, VALS(error_code_cscs_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_error_code_cts,
+            {"Error Code", "btatt.error_code",
+            FT_UINT8, BASE_HEX, VALS(error_code_cts_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_error_code_ess,
+            {"Error Code", "btatt.error_code",
+            FT_UINT8, BASE_HEX, VALS(error_code_ess_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_error_code_gls,
+            {"Error Code", "btatt.error_code",
+            FT_UINT8, BASE_HEX, VALS(error_code_gls_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_error_code_hps,
+            {"Error Code", "btatt.error_code",
+            FT_UINT8, BASE_HEX, VALS(error_code_hps_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_error_code_hrs,
+            {"Error Code", "btatt.error_code",
+            FT_UINT8, BASE_HEX, VALS(error_code_hrs_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_error_code_hts,
+            {"Error Code", "btatt.error_code",
+            FT_UINT8, BASE_HEX, VALS(error_code_hts_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_error_code_ips,
+            {"Error Code", "btatt.error_code",
+            FT_UINT8, BASE_HEX, VALS(error_code_ips_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_error_code_ots,
+            {"Error Code", "btatt.error_code",
+            FT_UINT8, BASE_HEX, VALS(error_code_ots_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_error_code_rscs,
+            {"Error Code", "btatt.error_code",
+            FT_UINT8, BASE_HEX, VALS(error_code_rscs_vals), 0x0,
+            NULL, HFILL}
+        },
+        {&hf_btatt_error_code_uds,
+            {"Error Code", "btatt.error_code",
+            FT_UINT8, BASE_HEX, VALS(error_code_uds_vals), 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_service_uuid16,
