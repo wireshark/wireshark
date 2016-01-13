@@ -1,6 +1,6 @@
 -- RNSAP-Containers.asn
 --
--- Taken from 3GPP TS 25.423 V9.2.3 (2010-03)
+-- Taken from 3GPP TS 25.423 V13.1.0 (2015-12)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-790.zip/25423-790.DOC
 --
 -- 9.3.7	Container Definitions
@@ -14,7 +14,7 @@
 
 RNSAP-Containers {
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
-umts-Access (20) modules (3) rnsap (1) version1 (1) rnsap-Containers (5)  }
+umts-Access (20) modules (3) rnsap (1) version1 (1) rnsap-Containers (5) }
 
 DEFINITIONS AUTOMATIC TAGS ::= 
 
@@ -57,25 +57,25 @@ WITH SYNTAX {
 
 -- **************************************************************
 --
--- Class Definition for Protocol IEs
+-- Class Definition for Protocol IE Pairs
 --
 -- **************************************************************
 
 RNSAP-PROTOCOL-IES-PAIR ::= CLASS {
-	&id				ProtocolIE-ID 					UNIQUE,
+	&id						ProtocolIE-ID 			UNIQUE,
 	&firstCriticality		Criticality,
 	&FirstValue,
 	&secondCriticality		Criticality,
 	&SecondValue,
-	&presence			Presence
+	&presence				Presence
 }
 WITH SYNTAX {
-	ID				&id
+	ID						&id
 	FIRST CRITICALITY 		&firstCriticality
-	FIRST TYPE			&FirstValue
+	FIRST TYPE				&FirstValue
 	SECOND CRITICALITY 		&secondCriticality
-	SECOND TYPE			&SecondValue
-	PRESENCE			&presence
+	SECOND TYPE				&SecondValue
+	PRESENCE				&presence
 }
 
 -- **************************************************************
@@ -85,13 +85,13 @@ WITH SYNTAX {
 -- **************************************************************
 
 RNSAP-PROTOCOL-EXTENSION ::= CLASS {
-	&id				ProtocolIE-ID 				UNIQUE,
-	&criticality			Criticality,
+	&id					ProtocolIE-ID 		UNIQUE,
+	&criticality		Criticality,
 	&Extension,
-	&presence		Presence
+	&presence			Presence
 }
 WITH SYNTAX {
-	ID				&id
+	ID					&id
 	CRITICALITY			&criticality
 	EXTENSION			&Extension
 	PRESENCE			&presence
@@ -105,15 +105,15 @@ WITH SYNTAX {
 
 RNSAP-PRIVATE-IES ::= CLASS {
 	&id				PrivateIE-ID,
-	&criticality			Criticality,
+	&criticality	Criticality,
 	&Value,
 	&presence		Presence
 }
 WITH SYNTAX {
 	ID				&id
-	CRITICALITY			&criticality
+	CRITICALITY		&criticality
 	TYPE			&Value
-	PRESENCE			&presence
+	PRESENCE		&presence
 }
 
 -- **************************************************************
@@ -130,9 +130,9 @@ ProtocolIE-Single-Container {RNSAP-PROTOCOL-IES : IesSetParam} ::=
 	ProtocolIE-Field {{IesSetParam}}
 
 ProtocolIE-Field {RNSAP-PROTOCOL-IES : IesSetParam} ::= SEQUENCE {
-	id				RNSAP-PROTOCOL-IES.&id				({IesSetParam}),
-	criticality			RNSAP-PROTOCOL-IES.&criticality			({IesSetParam}{@id}),
-	value				RNSAP-PROTOCOL-IES.&Value	        	({IesSetParam}{@id})
+	id					RNSAP-PROTOCOL-IES.&id				({IesSetParam}),
+	criticality			RNSAP-PROTOCOL-IES.&criticality		({IesSetParam}{@id}),
+	value				RNSAP-PROTOCOL-IES.&Value			({IesSetParam}{@id})
 }
 
 -- **************************************************************
@@ -146,11 +146,11 @@ ProtocolIE-ContainerPair {RNSAP-PROTOCOL-IES-PAIR : IesSetParam} ::=
 	ProtocolIE-FieldPair {{IesSetParam}}
 
 ProtocolIE-FieldPair {RNSAP-PROTOCOL-IES-PAIR : IesSetParam} ::= SEQUENCE {
-	id				RNSAP-PROTOCOL-IES-PAIR.&id			({IesSetParam}),
+	id						RNSAP-PROTOCOL-IES-PAIR.&id					({IesSetParam}),
 	firstCriticality		RNSAP-PROTOCOL-IES-PAIR.&firstCriticality	({IesSetParam}{@id}),
-	firstValue			RNSAP-PROTOCOL-IES-PAIR.&FirstValue	        ({IesSetParam}{@id}),
+	firstValue				RNSAP-PROTOCOL-IES-PAIR.&FirstValue			({IesSetParam}{@id}),
 	secondCriticality		RNSAP-PROTOCOL-IES-PAIR.&secondCriticality	({IesSetParam}{@id}),
-	secondValue			RNSAP-PROTOCOL-IES-PAIR.&SecondValue	        ({IesSetParam}{@id})
+	secondValue				RNSAP-PROTOCOL-IES-PAIR.&SecondValue		({IesSetParam}{@id})
 }
 
 -- **************************************************************
@@ -178,8 +178,8 @@ ProtocolExtensionContainer {RNSAP-PROTOCOL-EXTENSION : ExtensionSetParam} ::=
 	ProtocolExtensionField {{ExtensionSetParam}}
 
 ProtocolExtensionField {RNSAP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENCE {
-	id				RNSAP-PROTOCOL-EXTENSION.&id			({ExtensionSetParam}),
-	criticality			RNSAP-PROTOCOL-EXTENSION.&criticality		({ExtensionSetParam}{@id}),
+	id						RNSAP-PROTOCOL-EXTENSION.&id			({ExtensionSetParam}),
+	criticality				RNSAP-PROTOCOL-EXTENSION.&criticality	({ExtensionSetParam}{@id}),
 	extensionValue			RNSAP-PROTOCOL-EXTENSION.&Extension		({ExtensionSetParam}{@id})
 }
 
@@ -194,10 +194,9 @@ PrivateIE-Container {RNSAP-PRIVATE-IES : IesSetParam} ::=
 	PrivateIE-Field {{IesSetParam}}
 
 PrivateIE-Field {RNSAP-PRIVATE-IES : IesSetParam} ::= SEQUENCE {
-	id				RNSAP-PRIVATE-IES.&id			({IesSetParam}),
-	criticality			RNSAP-PRIVATE-IES.&criticality		({IesSetParam}{@id}),
-	value			RNSAP-PRIVATE-IES.&Value		({IesSetParam}{@id})
+	id				RNSAP-PRIVATE-IES.&id				({IesSetParam}),
+	criticality		RNSAP-PRIVATE-IES.&criticality		({IesSetParam}{@id}),
+	value			RNSAP-PRIVATE-IES.&Value			({IesSetParam}{@id})
 }
 
 END
-

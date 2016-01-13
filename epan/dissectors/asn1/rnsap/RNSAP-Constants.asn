@@ -1,6 +1,6 @@
 -- RNSAP-Constants.asn
 --
--- Taken from 3GPP TS 25.423 V9.4.0 (2010-09)
+-- Taken from 3GPP TS 25.423 V13.1.0 (2015-12)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-790.zip/25423-790.DOC
 --
 -- 9.3.6	Constant Definitions
@@ -13,10 +13,10 @@
 -- **************************************************************
 
 RNSAP-Constants {
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 umts-Access (20) modules (3) rnsap (1) version1 (1) rnsap-Constants (4) }
 
-DEFINITIONS AUTOMATIC TAGS ::=
+DEFINITIONS AUTOMATIC TAGS ::= 
 
 BEGIN
 
@@ -88,6 +88,13 @@ id-enhancedRelocationRelease								ProcedureCode ::= 52
 id-mBSFNMCCHInformation										ProcedureCode ::= 53
 id-secondaryULFrequencyReporting							ProcedureCode ::= 54
 id-secondaryULFrequencyUpdate								ProcedureCode ::= 55
+id-informationTransferControl								ProcedureCode ::= 56
+--WS extension
+id-Not-used-57												ProcedureCode ::= 57
+id-Not-used-58												ProcedureCode ::= 58
+id-Not-used-59												ProcedureCode ::= 59
+id-enhancedRelocationResourceAllocation						ProcedureCode ::= 60
+id-enhancedRelocationResourceRelease						ProcedureCode ::= 61
 
 -- **************************************************************
 --
@@ -96,6 +103,8 @@ id-secondaryULFrequencyUpdate								ProcedureCode ::= 55
 -- **************************************************************
 
 maxCellSIB11OrSIB12						INTEGER ::= 32
+maxCellSIB11ter-ext						INTEGER ::= 48
+maxCellSIB11ter-1						INTEGER ::= 79
 maxCellsMeas							INTEGER ::= 8
 maxRateMatching							INTEGER ::= 256
 maxNoOfDSCHs							INTEGER ::= 10
@@ -110,9 +119,9 @@ maxNrOfCCTrCHsLCR						INTEGER ::= 16
 maxNrOfDCHs								INTEGER ::= 128
 maxNrOfDL-Codes							INTEGER ::= 8
 maxNrOfDPCHs							INTEGER ::= 240
-maxNrOfDPCHsPerRL-1						INTEGER ::= 239 -- maxNrofCCTrCH*maxNrOfULTs-1
+maxNrOfDPCHsPerRL-1						INTEGER ::= 239	-- maxNrofCCTrCH*maxNrOfULTs-1
 maxNrOfDPCHsLCR							INTEGER ::= 240
-maxNrOfDPCHsLCRPerRL-1					INTEGER ::= 95  -- maxNrofCCTrCH*maxNrOfULTsLCR-1
+maxNrOfDPCHsLCRPerRL-1					INTEGER ::= 95	-- maxNrofCCTrCH*maxNrOfULTsLCR-1
 maxNrOfDPCHs768							INTEGER ::= 480
 maxNrOfDPCHs768PerRL-1					INTEGER ::= 479
 maxNrOfErrors							INTEGER ::= 256
@@ -122,9 +131,9 @@ maxNrOfActiveMBMSServices				INTEGER ::= 256
 maxNrOfPoints							INTEGER ::= 15
 maxNrOfRLs								INTEGER ::= 16
 maxNrOfRLSets							INTEGER ::= maxNrOfRLs
-maxNrOfRLSets-1						INTEGER ::= 15	-- maxNrOfRLSets - 1
-maxNrOfRLs-1							INTEGER ::= 15	-- maxNrOfRLs - 1
-maxNrOfRLs-2							INTEGER ::= 14	-- maxNrOfRLs - 2
+maxNrOfRLSets-1						INTEGER ::= 15	-- maxNrOfRLSets – 1
+maxNrOfRLs-1							INTEGER ::= 15	-- maxNrOfRLs – 1
+maxNrOfRLs-2							INTEGER ::= 14	-- maxNrOfRLs – 2
 maxNrOfUEs								INTEGER ::= 4096
 maxNrOfULTs								INTEGER ::= 15
 maxNrOfULTsLCR							INTEGER ::= 6
@@ -149,7 +158,7 @@ maxNrOfTsLCR							INTEGER ::= 6
 maxNoSat								INTEGER ::= 16
 maxNoGPSTypes							INTEGER ::= 8
 maxNrOfMeasNCell						INTEGER ::= 96
-maxNrOfMeasNCell-1						INTEGER ::= 95	-- maxNrOfMeasNCell - 1
+maxNrOfMeasNCell-1						INTEGER ::= 95	-- maxNrOfMeasNCell – 1
 maxResetContext							INTEGER ::= 250
 maxResetContextGroup					INTEGER ::= 32
 maxNrOfHARQProc							INTEGER ::= 8
@@ -157,12 +166,12 @@ maxNrOfHSSCCHCodes						INTEGER ::= 4
 maxNrOfHSSICHs							INTEGER ::= 4
 maxNrOfHSSICHs-1						INTEGER ::= 3
 maxNrOfMACdFlows						INTEGER ::= 8
-maxNrOfMACdFlows-1						INTEGER ::= 7	-- maxNrOfMACdFlows - 1
+maxNrOfMACdFlows-1						INTEGER ::= 7	-- maxNrOfMACdFlows – 1
 maxNrOfMACdPDUSize						INTEGER ::= 32
 maxNrOfPDUIndexes						INTEGER ::= 8
-maxNrOfPDUIndexes-1						INTEGER ::= 7	-- maxNrOfPDUIndexes - 1
+maxNrOfPDUIndexes-1						INTEGER ::= 7	-- maxNrOfPDUIndexes – 1
 maxNrOfPrioQueues						INTEGER ::= 8
-maxNrOfPrioQueues-1						INTEGER ::= 7	-- maxNrOfPrioQueues - 1
+maxNrOfPrioQueues-1						INTEGER ::= 7	-- maxNrOfPrioQueues – 1
 maxNrOfSNAs								INTEGER ::= 65536
 maxNrOfSatAlmanac-maxNoSat				INTEGER ::= 16
 maxNrOfGERANSI 							INTEGER ::= 8
@@ -198,6 +207,7 @@ maxGANSSSatAlmanac						INTEGER ::= 36
 maxGANSSClockMod						INTEGER ::= 4
 maxNrOfEDCHRLs							INTEGER ::= 4
 maxEARFCN								INTEGER ::= 65535
+maxEARFCN-Extended						INTEGER ::= 262143
 maxNrOfEUTRANeighboursPerRNC			INTEGER ::= 256
 maxNrOfMCCHMessages						INTEGER ::= 5
 maxNrOfMBMSL3							INTEGER ::= 64
@@ -218,8 +228,21 @@ maxNoOf-HS-SICH-SPS-1					INTEGER ::= 3
 maxNoOfNon-HS-SCCH-Assosiated-HS-SICH	INTEGER ::= 4
 maxNrOfEDCH-1							INTEGER ::= 32
 maxNrOfDCHMeasurementOccasionPatternSequence	INTEGER ::= 6
-
-
+maxNrOfULCarriersLCR-1					INTEGER ::= 5
+maxNrOfCellIds							INTEGER ::= 32
+maxNrOfRAIs								INTEGER ::= 8
+maxNrOfLAIs								INTEGER ::= 8
+maxNrOfExtendedNeighbouringRNCs			INTEGER ::= 64
+maxNoOfGsmCell							INTEGER ::= 128
+maxNrOfANRCells							INTEGER ::= 256
+maxFreqBandsTDD							INTEGER ::= 16
+maxSCPICHCell							INTEGER ::= 32
+maxSCPICHCell-1							INTEGER ::= 31
+maxNoOfCommonRGCells					INTEGER ::= 256
+maxIGPInfo								INTEGER ::= 320
+maxNrofConcatenatedDCH					INTEGER ::= 3
+maxMultipleFrequencyBands				INTEGER ::= 8
+maxMultipleFrequencyBandsEUTRA			INTEGER ::= 8
 
 -- **************************************************************
 --
@@ -470,7 +493,7 @@ id-UL-Physical-Channel-Information-RL-SetupRqstTDD							ProtocolIE-ID ::= 275
 id-ClosedLoopMode1-SupportIndicator											ProtocolIE-ID ::= 276
 id-Unused-ProtocolIE-ID-277													ProtocolIE-ID ::= 277
 id-STTD-SupportIndicator													ProtocolIE-ID ::= 279
-id-CFNReportingIndicator             										ProtocolIE-ID ::= 14
+id-CFNReportingIndicator													ProtocolIE-ID ::= 14
 id-CNOriginatedPage-PagingRqst												ProtocolIE-ID ::= 23
 id-InnerLoopDLPCStatus														ProtocolIE-ID ::= 24
 id-PropagationDelay															ProtocolIE-ID ::= 25
@@ -532,10 +555,10 @@ id-TUTRANGPSMeasurementThresholdInformation									ProtocolIE-ID ::= 241
 id-UL-Timeslot-ISCP-Value													ProtocolIE-ID ::= 242
 id-UL-Timeslot-ISCP-Value-IncrDecrThres										ProtocolIE-ID ::= 243
 id-Rx-Timing-Deviation-Value-LCR											ProtocolIE-ID ::= 293
---WS extension
-id-Unknown-294																ProtocolIE-ID ::= 294
 id-DPC-Mode-Change-SupportIndicator											ProtocolIE-ID ::= 19
 id-Unused-ProtocolIE-ID-247													ProtocolIE-ID ::= 247
+--WS extension
+id-Unknown-294																ProtocolIE-ID ::= 294
 id-Unused-ProtocolIE-ID-295													ProtocolIE-ID ::= 295
 id-PrimaryCCPCH-RSCP-RL-ReconfPrepTDD										ProtocolIE-ID ::= 202
 id-DL-TimeSlot-ISCP-Info-RL-ReconfPrepTDD									ProtocolIE-ID ::= 203
@@ -832,7 +855,7 @@ id-EDCH-MACdFlows-To-Delete													ProtocolIE-ID ::= 584
 id-EDPCH-Information-RLReconfRequest-FDD									ProtocolIE-ID ::= 585
 id-EDCH-MacdFlowSpecificInformationList-RL-PreemptRequiredInd				ProtocolIE-ID ::= 586
 id-EDCH-MacdFlowSpecificInformationItem-RL-PreemptRequiredInd				ProtocolIE-ID ::= 587
-id-EDCH-MacdFlowSpecificInformationList-RL-CongestInd  						ProtocolIE-ID ::= 588
+id-EDCH-MacdFlowSpecificInformationList-RL-CongestInd						ProtocolIE-ID ::= 588
 id-EDCH-MacdFlowSpecificInformationItem-RL-CongestInd						ProtocolIE-ID ::= 589
 id-MBMS-Bearer-Service-Full-Address											ProtocolIE-ID ::= 590
 id-Initial-DL-DPCH-TimingAdjustment											ProtocolIE-ID ::= 591
@@ -856,7 +879,7 @@ id-Inter-Frequency-Cell-Information											ProtocolIE-ID ::= 608
 id-multiple-HSSICHMeasurementValueList-TDD-DM-Rsp							ProtocolIE-ID ::= 609
 id-TDD-Support-PLCCH														ProtocolIE-ID ::= 610
 id-PLCCH-Information-UL-TimeslotLCR-Info									ProtocolIE-ID ::= 611
-id-PLCCH-Information-PhyChReconfRqstTDD 									ProtocolIE-ID ::= 612
+id-PLCCH-Information-PhyChReconfRqstTDD										ProtocolIE-ID ::= 612
 id-TDD768-maxNrDLPhysicalchannelsTS											ProtocolIE-ID ::= 613
 id-RL-InformationResponse-RL-AdditionRspTDD768								ProtocolIE-ID ::= 614
 id-UL-CCTrCH-InformationListIE-RL-AdditionRspTDD768							ProtocolIE-ID ::= 615
@@ -868,8 +891,8 @@ id-UL-Timeslot-InformationModifyList-RL-ReconfReadyTDD768					ProtocolIE-ID ::= 
 id-DL-DPCH-InformationAddListIE-RL-ReconfReadyTDD768						ProtocolIE-ID ::= 621
 id-DL-Timeslot-InformationModifyList-RL-ReconfReadyTDD768					ProtocolIE-ID ::= 622
 id-secondary-CCPCH-Info-RL-ReconfReadyTDD768								ProtocolIE-ID ::= 623
-id-hSSCCH-TDD-Specific-InfoList-Response768 								ProtocolIE-ID ::= 624
-id-hSPDSCH-TDD-Specific-InfoList-Response768 								ProtocolIE-ID ::= 625
+id-hSSCCH-TDD-Specific-InfoList-Response768									ProtocolIE-ID ::= 624
+id-hSPDSCH-TDD-Specific-InfoList-Response768								ProtocolIE-ID ::= 625
 id-HSPDSCH-Timeslot-InformationList-PhyChReconfRqstTDD768					ProtocolIE-ID ::= 626
 id-UL-Timeslot-InformationList-PhyChReconfRqstTDD768						ProtocolIE-ID ::= 627
 id-DL-Timeslot-InformationList-PhyChReconfRqstTDD768						ProtocolIE-ID ::= 628
@@ -1130,5 +1153,128 @@ id-Non-Serving-RL-Preconfig-Removal											ProtocolIE-ID ::= 874
 id-Additional-E-DCH-Non-Serving-RL-Preconfiguration-Setup					ProtocolIE-ID ::= 875
 id-Additional-E-DCH-New-non-serving-RL-E-DCH-FDD-DL-Control-Channel-InfoList	ProtocolIE-ID ::= 876
 id-CellListValidityIndicator												ProtocolIE-ID ::= 877
-
+id-completeAlmanacProvided													ProtocolIE-ID ::= 878
+id-ganss-Delta-T															ProtocolIE-ID ::= 879
+id-OrdinalNumberOfFrequency													ProtocolIE-ID ::= 880
+id-Multicell-EDCH-Restriction												ProtocolIE-ID ::= 882
+id-CellCapabilityContainerExtension-TDD-LCR									ProtocolIE-ID ::= 883
+id-Multi-Carrier-EDCH-Setup													ProtocolIE-ID ::= 884
+id-Multi-Carrier-EDCH-Reconfigure											ProtocolIE-ID ::= 885
+id-Multi-Carrier-EDCH-Response												ProtocolIE-ID ::= 886
+id-SNPL-Carrier-Group-Indicator												ProtocolIE-ID ::= 887
+id-MU-MIMO-InformationLCR													ProtocolIE-ID ::= 888
+id-MU-MIMO-Indicator														ProtocolIE-ID ::= 889
+id-HS-SCCH-Inactivity-Threshold-for-UE-DRX-Cycle-LCR-Ext					ProtocolIE-ID ::= 890
+id-Usefulness-Of-Battery-Optimization										ProtocolIE-ID ::= 891
+id-Multi-Carrier-E-DCH-LCRTDD-PhysicalLayerCategory							ProtocolIE-ID ::= 892
+id-Measurement-Power-Offset													ProtocolIE-ID ::= 893
+id-MDT-Configuration														ProtocolIE-ID ::= 894
+id-Neighbouring-UMTS-CellInformation-Ext									ProtocolIE-ID ::= 895
+id-Neighbouring-UMTS-CellInformationExtensionItem							ProtocolIE-ID ::= 896
+id-Control-Type-InformationTransferControlReq								ProtocolIE-ID ::= 897
+id-UMTS-Cells-Info															ProtocolIE-ID ::= 898
+id-ANRReportIndication														ProtocolIE-ID ::= 899
+id-ANR-Cell-InfEx-Rqst														ProtocolIE-ID ::= 900
+id-ANR-Cell-InfEx-Rsp														ProtocolIE-ID ::= 901
+id-ANR-Cell-Information														ProtocolIE-ID ::= 902
+id-Trace-Collection-Entity-IP-Address										ProtocolIE-ID ::= 904
+id-Affected-HSDSCH-Serving-Cell-List										ProtocolIE-ID ::= 905
+id-UL-CLTD-Information														ProtocolIE-ID ::= 906
+id-UL-CLTD-Information-Reconf												ProtocolIE-ID ::= 907
+id-UL-CLTD-State-Update-Information											ProtocolIE-ID ::= 908
+id-Support-of-Dynamic-DTXDRX-Related-HS-SCCH-Order							ProtocolIE-ID ::= 909
+id-CPC-RecoveryReport														ProtocolIE-ID ::= 910
+id-FTPICH-Information														ProtocolIE-ID ::= 911
+id-FTPICH-Information-Reconf												ProtocolIE-ID ::= 912
+id-UE-RF-Band-CapabilityLCR													ProtocolIE-ID ::= 913
+id-Extended-S-RNTI															ProtocolIE-ID ::= 914
+id-ExtendedAffectedUEInformationForMBMS										ProtocolIE-ID ::= 915
+id-Extended-S-RNTI-Group													ProtocolIE-ID ::= 916
+id-FTPICH-Information-Response												ProtocolIE-ID ::= 917
+id-FTPICH-Reconfiguration-Information										ProtocolIE-ID ::= 918
+id-MIMO-withfourtransmitantennas-ActivationIndicator						ProtocolIE-ID ::= 919
+id-MIMO-withfourtransmitantennas-ModeIndicator								ProtocolIE-ID ::= 920
+id-power-offset-for-S-CPICH-for-MIMO-withfourtransmitantennas				ProtocolIE-ID ::= 921
+id-power-offset-for-S-CPICH-for-MIMO-withfourtransmitantennas-Request-Indicator ProtocolIE-ID ::= 922
+id-DualStream-MIMO-withfourtransmitantennas-ActivationIndicator				ProtocolIE-ID ::= 923
+id-DualStream-MIMO-withfourtransmitantennas-ModeIndicator					ProtocolIE-ID ::= 924
+id-Additional-Associated-Secondary-CPICH									ProtocolIE-ID ::= 925
+id-UE-transmission-power-headroom											ProtocolIE-ID ::= 926
+id-Multiflow-Information													ProtocolIE-ID ::= 927
+id-Multiflow-Reconfiguration												ProtocolIE-ID ::= 928
+id-Multiflow-OrdinalNumberOfFrequency										ProtocolIE-ID ::= 929
+id-UL-MIMO-Information														ProtocolIE-ID ::= 930
+id-UL-MIMO-Reconfiguration													ProtocolIE-ID ::= 931
+id-UL-MIMO-DL-Control-Channel-Information									ProtocolIE-ID ::= 932
+id-SixtyfourQAM-UL-Operation-Indicator										ProtocolIE-ID ::= 933
+id-Common-E-RGCH-Cell-InfEx-Rqst											ProtocolIE-ID ::= 935
+id-Common-E-RGCH-Cell-InfEx-Rsp												ProtocolIE-ID ::= 936
+id-Common-E-RGCH-Cell-InfEx-Rprt											ProtocolIE-ID ::= 937
+id-Common-E-RGCH-Cell-Information											ProtocolIE-ID ::= 938
+id-PCI																		ProtocolIE-ID ::= 939
+id-TAC																		ProtocolIE-ID ::= 940
+id-PLMN-List																ProtocolIE-ID ::= 941
+id-PrecoderWeightSetRestriction												ProtocolIE-ID ::= 942
+id-EARFCN-FDD-Extended														ProtocolIE-ID ::= 943
+id-EARFCN-TDD-Extended														ProtocolIE-ID ::= 944
+id-Non-rectangular-resource-allocation-indicator							ProtocolIE-ID ::= 945
+id-Non-rectangular-resource-timeslot-set									ProtocolIE-ID ::= 946
+id-UE-Support-of-non-rectangular-resource-allocation						ProtocolIE-ID ::= 947
+id-DBDS-CorrectionsReq														ProtocolIE-ID ::= 948
+id-DBDS-Corrections															ProtocolIE-ID ::= 949
+id-BDS-IonosphericGridModelReq												ProtocolIE-ID ::= 950
+id-BDS-Ionospheric-Grid-Model												ProtocolIE-ID ::= 951
+id-GANSS-alm-keplerianBDSAlmanac											ProtocolIE-ID ::= 952
+id-Assisting-RepetitionFactors												ProtocolIE-ID ::= 953
+id-E-DCH-Decoupling-Indication												ProtocolIE-ID ::= 954
+id-UE-Measurement-Forwarding												ProtocolIE-ID ::= 955
+id-UPH-Filtering-Measurement-Forwarding-Request								ProtocolIE-ID ::= 956
+id-TTI-Update-Indicator														ProtocolIE-ID ::= 957
+id-CQI-Feedback-Cycle2-k													ProtocolIE-ID ::= 958
+id-CQI-Cycle-Switch-Timer													ProtocolIE-ID ::= 959
+id-UE-DRX-Cycle2															ProtocolIE-ID ::= 960
+id-Inactivity-Threshold-for-UE-DRX-Cycle2									ProtocolIE-ID ::= 961
+id-DTX-Information2															ProtocolIE-ID ::= 962
+id-DCH-ENH-Information														ProtocolIE-ID ::= 964
+id-DCH-ENH-Information-Reconf												ProtocolIE-ID ::= 965
+id-Gainfactors-10ms-mode													ProtocolIE-ID ::= 966
+id-Radio-Links-without-DPCH-FDPCH-Indication								ProtocolIE-ID ::= 967
+id-UL-DPCCH2-Information													ProtocolIE-ID ::= 968
+id-UL-DPCCH2-Information-Reconf												ProtocolIE-ID ::= 969
+id-ImplicitGrantHandling													ProtocolIE-ID ::= 970
+id-MinimumTEBSthreshold														ProtocolIE-ID ::= 971
+id-MultipleFrequencyBandsIndicatorList-EUTRA								ProtocolIE-ID ::= 972
+id-MultipleFrequencyBandsIndicatorList										ProtocolIE-ID ::= 973
+id-ActivationDelay															ProtocolIE-ID ::= 974
+id-Fast-TTI-switching-Mode-synchronized										ProtocolIE-ID ::= 975
+id-Fast-TTI-switching-Mode-unsynchronized									ProtocolIE-ID ::= 976
+id-Fast-TTI-switching-Mode-Supported										ProtocolIE-ID ::= 977
+id-GANSS-BDSclockModel														ProtocolIE-ID ::= 978
+id-GANSS-NavModel-BDSKeplerianSet											ProtocolIE-ID ::= 979
+id-GANSS-UTCmodelSet4														ProtocolIE-ID ::= 980
+id-Inter-Frequency-Cell-Information-SIB11ter								ProtocolIE-ID ::= 981
+id-Improved-Synchronized-Indicator											ProtocolIE-ID ::= 982
+id-Downlink-TPC-enhancements-Information									ProtocolIE-ID ::= 983
+id-Downlink-TPC-enhancements-Reconf											ProtocolIE-ID ::= 984
+id-TPC-slot-position														ProtocolIE-ID ::= 985
+id-DL-TBS																	ProtocolIE-ID ::= 986
+id-Selected-PLMN-Identity													ProtocolIE-ID ::= 987
+id-SpeechVersion															ProtocolIE-ID ::= 2048
+id-SourceID																	ProtocolIE-ID ::= 2049
+id-TargetID																	ProtocolIE-ID ::= 2050
+id-ClassmarkInformation2													ProtocolIE-ID ::= 2051
+id-ClassmarkInformation3													ProtocolIE-ID ::= 2052
+id-GSM-Cell-CM-Rqst															ProtocolIE-ID ::= 2053
+id-Extension-CommonMeasurementObjectType-CM-Rprt							ProtocolIE-ID ::= 2054
+id-Extension-CommonMeasurementObjectType-CM-Rqst							ProtocolIE-ID ::= 2055
+id-Extension-CommonMeasurementObjectType-CM-Rsp								ProtocolIE-ID ::= 2056
+id-Extension-FailureIndicationMeasurementList								ProtocolIE-ID ::= 2057
+id-Extension-FailureMeasurementList											ProtocolIE-ID ::= 2058
+id-Extension-TerminationMeasurementList										ProtocolIE-ID ::= 2059
+id-GsmCellList-CM-Rprt														ProtocolIE-ID ::= 2060
+id-GsmCellList-CM-Rqst														ProtocolIE-ID ::= 2061
+id-GsmCellList-CM-Rsp														ProtocolIE-ID ::= 2062
+id-LoadValue																ProtocolIE-ID ::= 2063
+id-EventH																	ProtocolIE-ID ::= 2064
 END
+

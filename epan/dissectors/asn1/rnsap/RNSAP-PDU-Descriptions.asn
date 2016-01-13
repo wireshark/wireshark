@@ -1,6 +1,6 @@
 -- RNSAP-PDU-Descriptions.asn
 --
--- Taken from 3GPP TS 25.423 V9.4.0 (2010-09)
+-- Taken from 3GPP TS 25.423 V13.1.0 (2015-12)
 -- http://www.3gpp.org/ftp/Specs/archive/25_series/25.423/25423-790.zip/25423-790.DOC
 --
 -- 9.3.2	Elementary Procedure Definitions
@@ -61,12 +61,18 @@ FROM RNSAP-CommonDataTypes
 	EnhancedRelocationResponse,
 	EnhancedRelocationSignallingTransfer,
 	EnhancedRelocationRelease,
+	EnhancedRelocationResourceRequest,
+	EnhancedRelocationResourceResponse,
+	EnhancedRelocationResourceFailure,
+	EnhancedRelocationResourceReleaseCommand,
+	EnhancedRelocationResourceReleaseComplete,
 	InformationExchangeFailureIndication,
 	InformationExchangeInitiationFailure,
 	InformationExchangeInitiationRequest,
 	InformationExchangeInitiationResponse,
 	InformationExchangeTerminationRequest,
 	InformationReport,
+	InformationTransferControlRequest,
 	IurDeactivateTrace,
 	IurInvokeTrace,
 	MBMSAttachCommand,
@@ -146,6 +152,7 @@ FROM RNSAP-PDU-Contents
 	id-informationExchangeInitiation,
 	id-informationReporting,
 	id-informationExchangeTermination,
+	id-informationTransferControl,
 	id-iurDeactivateTrace,
 	id-iurInvokeTrace,
 	id-dedicatedMeasurementFailure,
@@ -181,7 +188,10 @@ FROM RNSAP-PDU-Contents
 	id-secondaryULFrequencyUpdate,
 	id-unSynchronisedRadioLinkReconfiguration,
 	id-uplinkSignallingTransfer,
-	id-gERANuplinkSignallingTransfer
+	id-gERANuplinkSignallingTransfer,
+	id-enhancedRelocationResourceAllocation,
+	id-enhancedRelocationResourceRelease
+
 FROM RNSAP-Constants;
 
 -- **************************************************************
@@ -282,7 +292,9 @@ RNSAP-ELEMENTARY-PROCEDURES-CLASS-1 RNSAP-ELEMENTARY-PROCEDURE ::= {
 	informationExchangeInitiation							|
 	reset													|
 	uEMeasurementInitiation									|
-	enhancedRelocation
+	enhancedRelocation										|
+	enhancedRelocationResourceAllocation					|
+	enhancedRelocationResourceRelease
 }
 
 RNSAP-ELEMENTARY-PROCEDURES-CLASS-2 RNSAP-ELEMENTARY-PROCEDURE ::= {
@@ -331,8 +343,9 @@ RNSAP-ELEMENTARY-PROCEDURES-CLASS-2 RNSAP-ELEMENTARY-PROCEDURE ::= {
 	enhancedRelocationRelease							|
 	mBSFNMCCHInformation								|
 	secondaryULFrequencyReportingFDD					|
-	secondaryULFrequencyUpdateFDD
-								
+	secondaryULFrequencyUpdateFDD						|
+	informationTransferControl
+
 
 
 
@@ -766,6 +779,26 @@ secondaryULFrequencyUpdateFDD RNSAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		SecondaryULFrequencyUpdateIndication
 	PROCEDURE ID 			{ procedureCode id-secondaryULFrequencyUpdate, ddMode fdd }
 	CRITICALITY 			ignore
+}
+enhancedRelocationResourceAllocation RNSAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		EnhancedRelocationResourceRequest
+	SUCCESSFUL OUTCOME		EnhancedRelocationResourceResponse
+	UNSUCCESSFUL OUTCOME	EnhancedRelocationResourceFailure
+	PROCEDURE ID			{ procedureCode id-enhancedRelocationResourceAllocation, ddMode tdd }
+	CRITICALITY				reject
+}
+
+enhancedRelocationResourceRelease RNSAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		EnhancedRelocationResourceReleaseCommand
+	SUCCESSFUL OUTCOME		EnhancedRelocationResourceReleaseComplete
+	PROCEDURE ID			{ procedureCode id-enhancedRelocationResourceRelease, ddMode tdd }
+	CRITICALITY				reject
+}
+
+informationTransferControl RNSAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		InformationTransferControlRequest
+	PROCEDURE ID			{ procedureCode id-informationTransferControl, ddMode common }
+	CRITICALITY				ignore
 }
 
 END
