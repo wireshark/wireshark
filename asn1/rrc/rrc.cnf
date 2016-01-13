@@ -81,6 +81,7 @@ DL-SHCCH-Message             @dl.shcch
 UL-SHCCH-Message             @ul.shcch
 BCCH-FACH-Message            @bcch.fach
 BCCH-BCH-Message             @bcch.bch
+BCCH-BCH2-Message            @bcch.bch2
 MCCH-Message                 @mcch
 MSCH-Message                 @msch
 SystemInformation-BCH        @sysinfo

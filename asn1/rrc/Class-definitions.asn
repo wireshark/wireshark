@@ -1,4 +1,6 @@
--- 3GPP TS 25.331 V12.6.0 (2015-06)
+-- 3GPP TS 25.331 V13.1.0 (2015-12)
+--
+-- 11.1	General message structure
 --
 Class-definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -8,7 +10,7 @@ IMPORTS
 
 	ActiveSetUpdate,
 	ActiveSetUpdateComplete,
-	ActiveSetUpdateFailure,
+	ActiveSetUpdateFailure,	
 	AssistanceDataDelivery,
 	CellChangeOrderFromUTRAN,
 	CellChangeOrderFromUTRANFailure,
@@ -70,6 +72,7 @@ IMPORTS
 	SignallingConnectionRelease,
 	SignallingConnectionReleaseIndication,
 	SystemInformation-BCH,
+	SystemInformation2-BCH,
 	SystemInformation-FACH,
 	SystemInformationChangeIndication,
 	TransportChannelReconfiguration,
@@ -230,7 +233,7 @@ DL-CCCH-MessageType ::= CHOICE {
 	rrcConnectionRelease				RRCConnectionRelease-CCCH,
 	rrcConnectionSetup					RRCConnectionSetup,
 	uraUpdateConfirm					URAUpdateConfirm-CCCH,
-	-- dummy is not used in the specification. If received it is ignored by the UE.
+	-- dummy is not used in the specification. If received it is ignored by the UE. 
 	-- See TS 23.041 for handling of warning security information by Cell Broadcast Center.
 	dummy							ETWSPrimaryNotificationWithSecurity,
 	spare2								NULL,
@@ -335,6 +338,16 @@ BCCH-FACH-MessageType ::= CHOICE {
 
 BCCH-BCH-Message ::= SEQUENCE {
 	message				SystemInformation-BCH
+}
+
+--**************************************************************
+--
+-- BCCH messages sent on BCH2
+--
+--**************************************************************
+
+BCCH-BCH2-Message ::= SEQUENCE {
+	message				SystemInformation2-BCH
 }
 
 --**************************************************************
