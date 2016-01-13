@@ -1162,7 +1162,7 @@ set( prefix "${CMAKE_INSTALL_PREFIX}" )
 set( exec_prefix "\${prefix}" )
 set( libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}" )
 set( includedir  "\${prefix}/include" )
-set( plugindir "\${libdir}/${PLUGIN_INSTALL_DIR}" )
+set( plugindir "\${libdir}/wireshark/plugins/${CPACK_PACKAGE_VERSION}" )
 
 set(ICON_PATH "${CMAKE_SOURCE_DIR}/image/")
 set( IN_FILES
