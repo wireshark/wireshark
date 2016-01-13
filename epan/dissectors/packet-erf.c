@@ -41,48 +41,6 @@ void proto_reg_handoff_erf(void);
 #define EXT_HDR_TYPE_CHANNELISED    12
 #define EXT_HDR_TYPE_SIGNATURE      14
 
-struct erf_mc_hdlc_hdrx {
-  guint16 byte01;
-  guint8 byte2;
-  guint8 byte3;
-};
-
-struct erf_mc_raw_hdrx {
-  guint8 byte0;
-  guint16 byte12;
-  guint8 byte3;
-};
-
-struct erf_mc_atm_hdrx {
-  guint16 byte01;
-  guint8 byte2;
-  guint8 byte3;
-};
-
-struct erf_mc_aal5_hdrx {
-  guint16 byte01;
-  guint8 byte2;
-  guint8 byte3;
-};
-
-struct erf_mc_aal2_hdrx {
-  guint16 byte01;
-  guint8 byte2;
-  guint8 byte3;
-};
-
-struct erf_aal2_hdrx {
-  guint8 byte0;
-  guint8 byte1;
-  guint16 byte23;
-};
-
-struct erf_mc_rawl_hdrx {
-  guint16 byte01;
-  guint8 byte2;
-  guint8 byte3;
-};
-
 struct erf_eth_hdrx {
   guint8 byte0;
   guint8 byte1;
@@ -191,14 +149,12 @@ static int hf_erf_mc_hdlc_res3   = -1;
 static int hf_erf_mc_raw       = -1;
 static int hf_erf_mc_raw_int   = -1;
 static int hf_erf_mc_raw_res1  = -1;
-static int hf_erf_mc_raw_res2  = -1;
-static int hf_erf_mc_raw_res3  = -1;
 static int hf_erf_mc_raw_sre   = -1;
 static int hf_erf_mc_raw_lre   = -1;
-static int hf_erf_mc_raw_res4  = -1;
+static int hf_erf_mc_raw_res2  = -1;
 static int hf_erf_mc_raw_lbe   = -1;
 static int hf_erf_mc_raw_first = -1;
-static int hf_erf_mc_raw_res5  = -1;
+static int hf_erf_mc_raw_res3  = -1;
 
 /* MC ATM Header */
 static int hf_erf_mc_atm         = -1;
@@ -217,10 +173,10 @@ static int hf_erf_mc_atm_res3    = -1;
 /* MC Raw link Header */
 static int hf_erf_mc_rawl       = -1;
 static int hf_erf_mc_rawl_cn    = -1;
-static int hf_erf_mc_rawl_res2  = -1;
+static int hf_erf_mc_rawl_res1  = -1;
 static int hf_erf_mc_rawl_lbe   = -1;
 static int hf_erf_mc_rawl_first = -1;
-static int hf_erf_mc_rawl_res3  = -1;
+static int hf_erf_mc_rawl_res2  = -1;
 
 /* MC AAL5 Header */
 static int hf_erf_mc_aal5       = -1;
@@ -333,80 +289,78 @@ static dissector_handle_t sdh_handle;
 #define ATM_HDR_LENGTH 4
 
 /* Multi Channel HDLC */
-#define MC_HDLC_CN_MASK    0x03ff
-#define MC_HDLC_RES1_MASK  0xfc00
-#define MC_HDLC_RES2_MASK  0x00
-#define MC_HDLC_FCSE_MASK  0x01
-#define MC_HDLC_SRE_MASK   0x02
-#define MC_HDLC_LRE_MASK   0x04
-#define MC_HDLC_AFE_MASK   0x08
-#define MC_HDLC_OE_MASK    0x10
-#define MC_HDLC_LBE_MASK   0x20
-#define MC_HDLC_FIRST_MASK 0x40
-#define MC_HDLC_RES3_MASK  0x80
+#define MC_HDLC_CN_MASK    0x000003ff
+#define MC_HDLC_RES1_MASK  0x0000fc00
+#define MC_HDLC_RES2_MASK  0x00ff0000
+#define MC_HDLC_FCSE_MASK  0x01000000
+#define MC_HDLC_SRE_MASK   0x02000000
+#define MC_HDLC_LRE_MASK   0x04000000
+#define MC_HDLC_AFE_MASK   0x08000000
+#define MC_HDLC_OE_MASK    0x10000000
+#define MC_HDLC_LBE_MASK   0x20000000
+#define MC_HDLC_FIRST_MASK 0x40000000
+#define MC_HDLC_RES3_MASK  0x80000000
 
 /* Multi Channel RAW */
-#define MC_RAW_INT_MASK   0x0f
-#define MC_RAW_RES1_MASK  0xf0
-#define MC_RAW_RES2_MASK  0xffff
-#define MC_RAW_RES3_MASK  0x01
-#define MC_RAW_SRE_MASK   0x02
-#define MC_RAW_LRE_MASK   0x04
-#define MC_RAW_RES4_MASK  0x18
-#define MC_RAW_LBE_MASK   0x20
-#define MC_RAW_FIRST_MASK 0x40
-#define MC_RAW_RES5_MASK  0x80
+#define MC_RAW_INT_MASK   0x0000000f
+#define MC_RAW_RES1_MASK  0x01fffff0
+#define MC_RAW_SRE_MASK   0x02000000
+#define MC_RAW_LRE_MASK   0x04000000
+#define MC_RAW_RES2_MASK  0x18000000
+#define MC_RAW_LBE_MASK   0x20000000
+#define MC_RAW_FIRST_MASK 0x40000000
+#define MC_RAW_RES3_MASK  0x80000000
 
 /* Multi Channel ATM */
-#define MC_ATM_CN_MASK      0x03ff
-#define MC_ATM_RES1_MASK    0x7c00
-#define MC_ATM_MUL_MASK     0x8000
-#define MC_ATM_PORT_MASK    0x0f
-#define MC_ATM_RES2_MASK    0xf0
-#define MC_ATM_LBE_MASK     0x01
-#define MC_ATM_HEC_MASK     0x02
-#define MC_ATM_CRC10_MASK   0x04
-#define MC_ATM_OAMCELL_MASK 0x08
-#define MC_ATM_FIRST_MASK   0x10
-#define MC_ATM_RES3_MASK    0xe0
+#define MC_ATM_CN_MASK      0x000003ff
+#define MC_ATM_RES1_MASK    0x00007c00
+#define MC_ATM_MUL_MASK     0x00008000
+#define MC_ATM_PORT_MASK    0x000f0000
+#define MC_ATM_RES2_MASK    0x00f00000
+#define MC_ATM_LBE_MASK     0x01000000
+#define MC_ATM_HEC_MASK     0x02000000
+#define MC_ATM_CRC10_MASK   0x04000000
+#define MC_ATM_OAMCELL_MASK 0x08000000
+#define MC_ATM_FIRST_MASK   0x10000000
+#define MC_ATM_RES3_MASK    0xe0000000
 
 /* Multi Channel RAW Link */
-#define MC_RAWL_CN_MASK    0x03ff
-#define MC_RAWL_RES1_MASK  0xfffc
-#define MC_RAWL_RES2_MASK  0x1f
-#define MC_RAWL_LBE_MASK   0x20
-#define MC_RAWL_FIRST_MASK 0x40
-#define MC_RAWL_RES3_MASK  0x80
+#define MC_RAWL_CN_MASK    0x000003ff
+#define MC_RAWL_RES1_MASK  0x1ffffc00
+#define MC_RAWL_LBE_MASK   0x20000000
+#define MC_RAWL_FIRST_MASK 0x40000000
+#define MC_RAWL_RES2_MASK  0x80000000
 
 /* Multi Channel AAL5 */
-#define MC_AAL5_CN_MASK    0x03ff
-#define MC_AAL5_RES1_MASK  0xfc00
-#define MC_AAL5_PORT_MASK  0x0f
-#define MC_AAL5_CRCCK_MASK 0x10
-#define MC_AAL5_CRCE_MASK  0x20
-#define MC_AAL5_LENCK_MASK 0x40
-#define MC_AAL5_LENE_MASK  0x80
-#define MC_AAL5_RES2_MASK  0x0f
-#define MC_AAL5_FIRST_MASK 0x10
-#define MC_AAL5_RES3_MASK  0xe0
+#define MC_AAL5_CN_MASK    0x000003ff
+#define MC_AAL5_RES1_MASK  0x0000fc00
+#define MC_AAL5_PORT_MASK  0x000f0000
+#define MC_AAL5_CRCCK_MASK 0x00100000
+#define MC_AAL5_CRCE_MASK  0x00200000
+#define MC_AAL5_LENCK_MASK 0x00400000
+#define MC_AAL5_LENE_MASK  0x00800000
+#define MC_AAL5_RES2_MASK  0x0f000000
+#define MC_AAL5_FIRST_MASK 0x10000000
+#define MC_AAL5_RES3_MASK  0xe0000000
 
 /* Multi Channel AAL2 */
-#define MC_AAL2_CN_MASK    0x03ff
-#define MC_AAL2_RES1_MASK  0x1c00
-#define MC_AAL2_RES2_MASK  0xe000
-#define MC_AAL2_PORT_MASK  0x0f
-#define MC_AAL2_RES3_MASK  0x10
-#define MC_AAL2_FIRST_MASK 0x20
-#define MC_AAL2_MAALE_MASK 0x40
-#define MC_AAL2_LENE_MASK  0x80
-#define MC_AAL2_CID_MASK   0x00
+#define MC_AAL2_CN_MASK    0x000003ff
+#define MC_AAL2_RES1_MASK  0x00001c00
+#define MC_AAL2_RES2_MASK  0x0000e000
+#define MC_AAL2_PORT_MASK  0x000f0000
+#define MC_AAL2_RES3_MASK  0x00100000
+#define MC_AAL2_FIRST_MASK 0x00200000
+#define MC_AAL2_MAALE_MASK 0x00400000
+#define MC_AAL2_LENE_MASK  0x00800000
+#define MC_AAL2_CID_MASK   0xff000000
+#define MC_AAL2_CID_SHIFT  24
 
 /* AAL2 */
-#define AAL2_CID_MASK    0x00
-#define AAL2_MAALE_MASK  0x00
-#define AAL2_MAALEI_MASK 0x0001
-#define AAL2_FIRST_MASK  0x0002
-#define AAL2_RES1_MASK   0xfffc
+#define AAL2_CID_MASK    0x000000ff
+#define AAL2_MAALE_MASK  0x0000ff00
+#define AAL2_MAALEI_MASK 0x00010000
+#define AAL2_FIRST_MASK  0x00020000
+#define AAL2_RES1_MASK   0xfffc0000
 
 /* ETH */
 #define ETH_OFF_MASK  0x00
@@ -836,46 +790,45 @@ static void
 dissect_mc_hdlc_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
 {
   if (tree) {
-    proto_item              *mc_hdlc_item;
-    proto_tree              *mc_hdlc_tree;
-    struct erf_mc_hdlc_hdrx *mc_hdlc;
-    proto_item              *pi;
+    proto_item *mc_hdlc_item;
+    proto_tree *mc_hdlc_tree;
+    guint32     mc_hdlc;
+    proto_item *pi;
 
     /* Multi Channel HDLC Header */
     mc_hdlc_item = proto_tree_add_uint(tree, hf_erf_mc_hdlc, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
     mc_hdlc_tree = proto_item_add_subtree(mc_hdlc_item, ett_erf_mc_hdlc);
-    mc_hdlc = (struct erf_mc_hdlc_hdrx *) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
+    mc_hdlc = pinfo->pseudo_header->erf.subhdr.mc_hdr;
 
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_cn, tvb, 0, 0,  mc_hdlc->byte01);
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res1, tvb, 0, 0,  mc_hdlc->byte01);
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res2, tvb, 0, 0,  mc_hdlc->byte2);
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_fcse, tvb, 0, 0,  mc_hdlc->byte3);
-    if (mc_hdlc->byte3 & MC_HDLC_FCSE_MASK)
+    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_cn, tvb, 0, 0,  mc_hdlc);
+    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res1, tvb, 0, 0,  mc_hdlc);
+    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res2, tvb, 0, 0,  mc_hdlc);
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_fcse, tvb, 0, 0,  mc_hdlc);
+    if (mc_hdlc & MC_HDLC_FCSE_MASK)
       expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC FCS Error");
 
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_sre,  tvb, 0, 0,  mc_hdlc->byte3);
-    if (mc_hdlc->byte3 & MC_HDLC_SRE_MASK)
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_sre,  tvb, 0, 0,  mc_hdlc);
+    if (mc_hdlc & MC_HDLC_SRE_MASK)
       expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC Short Record Error, <5 bytes");
 
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_lre,  tvb, 0, 0,  mc_hdlc->byte3);
-    if (mc_hdlc->byte3 & MC_HDLC_LRE_MASK)
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_lre,  tvb, 0, 0,  mc_hdlc);
+    if (mc_hdlc & MC_HDLC_LRE_MASK)
       expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC Long Record Error, >2047 bytes");
 
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_afe,  tvb, 0, 0,  mc_hdlc->byte3);
-    if (mc_hdlc->byte3 & MC_HDLC_AFE_MASK)
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_afe,  tvb, 0, 0,  mc_hdlc);
+    if (mc_hdlc & MC_HDLC_AFE_MASK)
       expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC Aborted Frame Error");
 
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_oe,   tvb, 0, 0,  mc_hdlc->byte3);
-    if (mc_hdlc->byte3 & MC_HDLC_OE_MASK)
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_oe,   tvb, 0, 0,  mc_hdlc);
+    if (mc_hdlc & MC_HDLC_OE_MASK)
       expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC Octet Error, the closing flag was not octet aligned after bit unstuffing");
 
-    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_lbe,  tvb, 0, 0,  mc_hdlc->byte3);
-    if (mc_hdlc->byte3 & MC_HDLC_LBE_MASK)
+    pi=proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_lbe,  tvb, 0, 0,  mc_hdlc);
+    if (mc_hdlc & MC_HDLC_LBE_MASK)
       expert_add_info_format(pinfo, pi, &ei_erf_checksum_error, "ERF MC Lost Byte Error");
 
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_first, tvb, 0, 0,  mc_hdlc->byte3);
-    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res3,  tvb, 0, 0,  mc_hdlc->byte3);
-
+    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_first, tvb, 0, 0,  mc_hdlc);
+    proto_tree_add_uint(mc_hdlc_tree, hf_erf_mc_hdlc_res3,  tvb, 0, 0,  mc_hdlc);
   }
 }
 
@@ -883,25 +836,23 @@ static void
 dissect_mc_raw_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
 {
   if (tree) {
-    proto_item             *mc_raw_item;
-    proto_tree             *mc_raw_tree;
-    struct erf_mc_raw_hdrx *mc_raw;
+    proto_item *mc_raw_item;
+    proto_tree *mc_raw_tree;
+    guint32     mc_raw;
 
     /* Multi Channel RAW Header */
     mc_raw_item = proto_tree_add_uint(tree, hf_erf_mc_raw, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
     mc_raw_tree = proto_item_add_subtree(mc_raw_item, ett_erf_mc_raw);
-    mc_raw = (struct erf_mc_raw_hdrx *) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
+    mc_raw = pinfo->pseudo_header->erf.subhdr.mc_hdr;
 
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_int,   tvb, 0, 0, mc_raw->byte0);
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_res1,  tvb, 0, 0, mc_raw->byte0);
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_res2,  tvb, 0, 0, mc_raw->byte12);
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_res3,  tvb, 0, 0, mc_raw->byte3);
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_sre,   tvb, 0, 0, mc_raw->byte3);
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_lre,   tvb, 0, 0, mc_raw->byte3);
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_res4,  tvb, 0, 0, mc_raw->byte3);
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_lbe,   tvb, 0, 0, mc_raw->byte3);
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_first, tvb, 0, 0, mc_raw->byte3);
-    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_res5,  tvb, 0, 0, mc_raw->byte3);
+    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_int,   tvb, 0, 0, mc_raw);
+    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_res1,  tvb, 0, 0, mc_raw);
+    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_sre,   tvb, 0, 0, mc_raw);
+    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_lre,   tvb, 0, 0, mc_raw);
+    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_res2,  tvb, 0, 0, mc_raw);
+    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_lbe,   tvb, 0, 0, mc_raw);
+    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_first, tvb, 0, 0, mc_raw);
+    proto_tree_add_uint(mc_raw_tree, hf_erf_mc_raw_res3,  tvb, 0, 0, mc_raw);
   }
 }
 
@@ -909,28 +860,28 @@ static void
 dissect_mc_atm_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *tree)
 {
   if (tree) {
-    proto_item             *mc_atm_item;
-    proto_tree             *mc_atm_tree;
-    struct erf_mc_atm_hdrx *mc_atm;
+    proto_item *mc_atm_item;
+    proto_tree *mc_atm_tree;
+    guint32     mc_atm;
 
     /*"Multi Channel ATM Header"*/
     mc_atm_item = proto_tree_add_uint(tree, hf_erf_mc_atm, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
     mc_atm_tree = proto_item_add_subtree(mc_atm_item, ett_erf_mc_atm);
-    mc_atm = (struct erf_mc_atm_hdrx *) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
+    mc_atm = pinfo->pseudo_header->erf.subhdr.mc_hdr;
 
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_cn,      tvb, 0, 0, mc_atm->byte01);
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_res1,    tvb, 0, 0, mc_atm->byte01);
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_mul,     tvb, 0, 0, mc_atm->byte01);
+    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_cn,      tvb, 0, 0, mc_atm);
+    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_res1,    tvb, 0, 0, mc_atm);
+    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_mul,     tvb, 0, 0, mc_atm);
 
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_port,    tvb, 0, 0, mc_atm->byte2);
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_res2,    tvb, 0, 0, mc_atm->byte2);
+    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_port,    tvb, 0, 0, mc_atm);
+    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_res2,    tvb, 0, 0, mc_atm);
 
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_lbe,     tvb, 0, 0, mc_atm->byte3);
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_hec,     tvb, 0, 0, mc_atm->byte3);
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_crc10,   tvb, 0, 0, mc_atm->byte3);
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_oamcell, tvb, 0, 0, mc_atm->byte3);
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_first,   tvb, 0, 0, mc_atm->byte3);
-    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_res3,    tvb, 0, 0, mc_atm->byte3);
+    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_lbe,     tvb, 0, 0, mc_atm);
+    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_hec,     tvb, 0, 0, mc_atm);
+    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_crc10,   tvb, 0, 0, mc_atm);
+    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_oamcell, tvb, 0, 0, mc_atm);
+    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_first,   tvb, 0, 0, mc_atm);
+    proto_tree_add_uint(mc_atm_tree, hf_erf_mc_atm_res3,    tvb, 0, 0, mc_atm);
   }
 }
 
@@ -938,20 +889,20 @@ static void
 dissect_mc_rawlink_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   if (tree) {
-    proto_item              *mc_rawl_item;
-    proto_tree              *mc_rawl_tree;
-    struct erf_mc_rawl_hdrx *mc_rawl;
+    proto_item *mc_rawl_item;
+    proto_tree *mc_rawl_tree;
+    guint32     mc_rawl;
 
     /* Multi Channel RAW Link Header */
     mc_rawl_item = proto_tree_add_uint(tree, hf_erf_mc_rawl, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
     mc_rawl_tree = proto_item_add_subtree(mc_rawl_item, ett_erf_mc_rawlink);
-    mc_rawl = (struct erf_mc_rawl_hdrx *) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
+    mc_rawl = pinfo->pseudo_header->erf.subhdr.mc_hdr;
 
-    proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_cn,    tvb, 0, 0, mc_rawl->byte01);
-    proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_res2,  tvb, 0, 0, mc_rawl->byte3);
-    proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_lbe,   tvb, 0, 0, mc_rawl->byte3);
-    proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_first, tvb, 0, 0, mc_rawl->byte3);
-    proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_res3,  tvb, 0, 0, mc_rawl->byte3);
+    proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_cn,    tvb, 0, 0, mc_rawl);
+    proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_res1,  tvb, 0, 0, mc_rawl);
+    proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_lbe,   tvb, 0, 0, mc_rawl);
+    proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_first, tvb, 0, 0, mc_rawl);
+    proto_tree_add_uint(mc_rawl_tree, hf_erf_mc_rawl_res2,  tvb, 0, 0, mc_rawl);
   }
 }
 
@@ -959,27 +910,27 @@ static void
 dissect_mc_aal5_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   if (tree) {
-    proto_item              *mc_aal5_item;
-    proto_tree              *mc_aal5_tree;
-    struct erf_mc_aal5_hdrx *mc_aal5;
+    proto_item *mc_aal5_item;
+    proto_tree *mc_aal5_tree;
+    guint32     mc_aal5;
 
     /* Multi Channel AAL5 Header */
     mc_aal5_item = proto_tree_add_uint(tree, hf_erf_mc_aal5, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
     mc_aal5_tree = proto_item_add_subtree(mc_aal5_item, ett_erf_mc_aal5);
-    mc_aal5 = (struct erf_mc_aal5_hdrx *) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
+    mc_aal5 = pinfo->pseudo_header->erf.subhdr.mc_hdr;
 
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_cn,    tvb, 0, 0, mc_aal5->byte01);
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_res1,  tvb, 0, 0, mc_aal5->byte01);
+    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_cn,    tvb, 0, 0, mc_aal5);
+    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_res1,  tvb, 0, 0, mc_aal5);
 
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_port,  tvb, 0, 0, mc_aal5->byte2);
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_crcck, tvb, 0, 0, mc_aal5->byte2);
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_crce,  tvb, 0, 0, mc_aal5->byte2);
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_lenck, tvb, 0, 0, mc_aal5->byte2);
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_lene,  tvb, 0, 0, mc_aal5->byte2);
+    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_port,  tvb, 0, 0, mc_aal5);
+    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_crcck, tvb, 0, 0, mc_aal5);
+    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_crce,  tvb, 0, 0, mc_aal5);
+    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_lenck, tvb, 0, 0, mc_aal5);
+    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_lene,  tvb, 0, 0, mc_aal5);
 
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_res2,  tvb, 0, 0, mc_aal5->byte3);
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_first, tvb, 0, 0, mc_aal5->byte3);
-    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_res3,  tvb, 0, 0, mc_aal5->byte3);
+    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_res2,  tvb, 0, 0, mc_aal5);
+    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_first, tvb, 0, 0, mc_aal5);
+    proto_tree_add_uint(mc_aal5_tree, hf_erf_mc_aal5_res3,  tvb, 0, 0, mc_aal5);
   }
 }
 
@@ -987,26 +938,26 @@ static void
 dissect_mc_aal2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   if (tree) {
-    proto_item              *mc_aal2_item;
-    proto_tree              *mc_aal2_tree;
-    struct erf_mc_aal2_hdrx *mc_aal2;
+    proto_item *mc_aal2_item;
+    proto_tree *mc_aal2_tree;
+    guint32     mc_aal2;
 
     /* Multi Channel AAL2 Header */
     mc_aal2_item = proto_tree_add_uint(tree, hf_erf_mc_aal2, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
     mc_aal2_tree = proto_item_add_subtree(mc_aal2_item, ett_erf_mc_aal2);
-    mc_aal2 = (struct erf_mc_aal2_hdrx *) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
+    mc_aal2 = pinfo->pseudo_header->erf.subhdr.mc_hdr;
 
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_cn,    tvb, 0, 0, mc_aal2->byte01);
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_res1,  tvb, 0, 0, mc_aal2->byte01);
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_res2,  tvb, 0, 0, mc_aal2->byte01);
+    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_cn,    tvb, 0, 0, mc_aal2);
+    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_res1,  tvb, 0, 0, mc_aal2);
+    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_res2,  tvb, 0, 0, mc_aal2);
 
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_port,  tvb, 0, 0, mc_aal2->byte2);
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_res3,  tvb, 0, 0, mc_aal2->byte2);
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_first, tvb, 0, 0, mc_aal2->byte2);
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_maale, tvb, 0, 0, mc_aal2->byte2);
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_lene,  tvb, 0, 0, mc_aal2->byte2);
+    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_port,  tvb, 0, 0, mc_aal2);
+    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_res3,  tvb, 0, 0, mc_aal2);
+    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_first, tvb, 0, 0, mc_aal2);
+    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_maale, tvb, 0, 0, mc_aal2);
+    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_lene,  tvb, 0, 0, mc_aal2);
 
-    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_cid,    tvb, 0, 0, mc_aal2->byte3);
+    proto_tree_add_uint(mc_aal2_tree, hf_erf_mc_aal2_cid,   tvb, 0, 0, mc_aal2);
   }
 }
 
@@ -1014,23 +965,22 @@ static void
 dissect_aal2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   if (tree) {
-    proto_item           *aal2_item;
-    proto_tree           *aal2_tree;
-    struct erf_aal2_hdrx *aal2;
+    proto_item *aal2_item;
+    proto_tree *aal2_tree;
+    guint32     aal2;
 
     /* AAL2 Header */
     aal2_item = proto_tree_add_uint(tree, hf_erf_aal2, tvb, 0, 0, pinfo->pseudo_header->erf.subhdr.mc_hdr);
     aal2_tree = proto_item_add_subtree(aal2_item, ett_erf_aal2);
-    aal2 = (struct erf_aal2_hdrx*) (&pinfo->pseudo_header->erf.subhdr.mc_hdr);
+    aal2 = pinfo->pseudo_header->erf.subhdr.aal2_hdr;
 
-    proto_tree_add_uint(aal2_tree, hf_erf_aal2_cid,    tvb, 0, 0, aal2->byte0);
+    proto_tree_add_uint(aal2_tree, hf_erf_aal2_cid,    tvb, 0, 0, aal2);
 
-    proto_tree_add_uint(aal2_tree, hf_erf_aal2_maale,  tvb, 0, 0, aal2->byte1);
+    proto_tree_add_uint(aal2_tree, hf_erf_aal2_maale,  tvb, 0, 0, aal2);
 
-    proto_tree_add_uint(aal2_tree, hf_erf_aal2_maalei, tvb, 0, 0, aal2->byte23);
-    proto_tree_add_uint(aal2_tree, hf_erf_aal2_first,  tvb, 0, 0, aal2->byte23);
-    proto_tree_add_uint(aal2_tree, hf_erf_aal2_res1,   tvb, 0, 0, aal2->byte23);
-
+    proto_tree_add_uint(aal2_tree, hf_erf_aal2_maalei, tvb, 0, 0, aal2);
+    proto_tree_add_uint(aal2_tree, hf_erf_aal2_first,  tvb, 0, 0, aal2);
+    proto_tree_add_uint(aal2_tree, hf_erf_aal2_res1,   tvb, 0, 0, aal2);
   }
 }
 
@@ -1365,17 +1315,29 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     dissect_mc_aal2_header(tvb, pinfo, erf_tree);
 
     /*
+     * The channel identification number is in the MC header, so it's
+     * in the pseudo-header, not in the packet data.
+     *
+     * We'll be overwriting the pseudo-header, so fetch it first.
+     *
+     * XXX - we should be passing a newly-constructed pseudo-header as
+     * an argument to the ATM dissector.
+     */
+    aal2_cid = (pinfo->pseudo_header->erf.subhdr.mc_hdr & MC_AAL2_CID_MASK) >> MC_AAL2_CID_SHIFT;
+
+    /*
      * ERF_TYPE_MC_AAL2 MC pseudoheader is not included in tvb,
      * and we do not supply 'dct2000' pseudoheader.
      */
 
-    atm_hdr = tvb_get_ntohl(tvb, 0);
-    aal2_cid = ((struct erf_mc_aal2_hdrx *)(&pinfo->pseudo_header->erf.subhdr.mc_hdr))->byte3;
-
-    /* Change wtap pseudo_header from erf to atm for atm dissector */
+    /*
+     * Overwrite the wtap pseudo_header with an ATM pseudo-header.
+     * Zero it out, and fill it in.
+     */
     memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
 
-    /* fill in atm pseudo header */
+    atm_hdr = tvb_get_ntohl(tvb, 0);
+
     pinfo->pseudo_header->atm.aal = AAL_2;
     pinfo->pseudo_header->atm.flags |= ATM_AAL2_NOPHDR;
     pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
@@ -1637,37 +1599,37 @@ proto_register_erf(void)
         FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_erf_mc_hdlc_cn,
       { "Connection number", "erf.mchdlc.cn",
-        FT_UINT16, BASE_DEC, NULL, MC_HDLC_CN_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_HDLC_CN_MASK, NULL, HFILL } },
     { &hf_erf_mc_hdlc_res1,
       { "Reserved", "erf.mchdlc.res1",
-        FT_UINT16, BASE_HEX, NULL, MC_HDLC_RES1_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_HEX, NULL, MC_HDLC_RES1_MASK, NULL, HFILL } },
     { &hf_erf_mc_hdlc_res2,
       { "Reserved", "erf.mchdlc.res2",
-        FT_UINT8, BASE_HEX, NULL, MC_HDLC_RES2_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_HEX, NULL, MC_HDLC_RES2_MASK, NULL, HFILL } },
     { &hf_erf_mc_hdlc_fcse,
       { "FCS error", "erf.mchdlc.fcse",
-        FT_UINT8, BASE_DEC, NULL, MC_HDLC_FCSE_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_HDLC_FCSE_MASK, NULL, HFILL } },
     { &hf_erf_mc_hdlc_sre,
       { "Short record error", "erf.mchdlc.sre",
-        FT_UINT8, BASE_DEC, NULL, MC_HDLC_SRE_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_HDLC_SRE_MASK, NULL, HFILL } },
     { &hf_erf_mc_hdlc_lre,
       { "Long record error", "erf.mchdlc.lre",
-        FT_UINT8, BASE_DEC, NULL, MC_HDLC_LRE_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_HDLC_LRE_MASK, NULL, HFILL } },
     { &hf_erf_mc_hdlc_afe,
       { "Aborted frame error", "erf.mchdlc.afe",
-        FT_UINT8, BASE_DEC, NULL, MC_HDLC_AFE_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_HDLC_AFE_MASK, NULL, HFILL } },
     { &hf_erf_mc_hdlc_oe,
       { "Octet error", "erf.mchdlc.oe",
-        FT_UINT8, BASE_DEC, NULL, MC_HDLC_OE_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_HDLC_OE_MASK, NULL, HFILL } },
     { &hf_erf_mc_hdlc_lbe,
       { "Lost byte error", "erf.mchdlc.lbe",
-        FT_UINT8, BASE_DEC, NULL, MC_HDLC_LBE_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_HDLC_LBE_MASK, NULL, HFILL } },
     { &hf_erf_mc_hdlc_first,
       { "First record", "erf.mchdlc.first",
-        FT_UINT8, BASE_DEC, NULL, MC_HDLC_FIRST_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_HDLC_FIRST_MASK, NULL, HFILL } },
     { &hf_erf_mc_hdlc_res3,
       { "Reserved", "erf.mchdlc.res3",
-        FT_UINT8, BASE_HEX, NULL, MC_HDLC_RES3_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_HEX, NULL, MC_HDLC_RES3_MASK, NULL, HFILL } },
 
     /* MC RAW Header */
     { &hf_erf_mc_raw,
@@ -1675,34 +1637,28 @@ proto_register_erf(void)
         FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_erf_mc_raw_int,
       { "Physical interface", "erf.mcraw.int",
-        FT_UINT8, BASE_DEC, NULL, MC_RAW_INT_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_RAW_INT_MASK, NULL, HFILL } },
     { &hf_erf_mc_raw_res1,
       { "Reserved", "erf.mcraw.res1",
-        FT_UINT8, BASE_HEX, NULL, MC_RAW_RES1_MASK, NULL, HFILL } },
-    { &hf_erf_mc_raw_res2,
-      { "Reserved", "erf.mcraw.res2",
-        FT_UINT16, BASE_HEX, NULL, MC_RAW_RES2_MASK, NULL, HFILL } },
-    { &hf_erf_mc_raw_res3,
-      { "Reserved", "erf.mcraw.res3",
-        FT_UINT8, BASE_HEX, NULL, MC_RAW_RES3_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_HEX, NULL, MC_RAW_RES1_MASK, NULL, HFILL } },
     { &hf_erf_mc_raw_sre,
       { "Short record error", "erf.mcraw.sre",
-        FT_UINT8, BASE_DEC, NULL, MC_RAW_SRE_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_RAW_SRE_MASK, NULL, HFILL } },
     { &hf_erf_mc_raw_lre,
       { "Long record error", "erf.mcraw.lre",
-        FT_UINT8, BASE_DEC, NULL, MC_RAW_LRE_MASK, NULL, HFILL } },
-    { &hf_erf_mc_raw_res4,
-      { "Reserved", "erf.mcraw.res4",
-        FT_UINT8, BASE_HEX, NULL, MC_RAW_RES4_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_RAW_LRE_MASK, NULL, HFILL } },
+    { &hf_erf_mc_raw_res2,
+      { "Reserved", "erf.mcraw.res2",
+        FT_UINT32, BASE_HEX, NULL, MC_RAW_RES2_MASK, NULL, HFILL } },
     { &hf_erf_mc_raw_lbe,
       { "Lost byte error", "erf.mcraw.lbe",
-        FT_UINT8, BASE_DEC, NULL, MC_RAW_LBE_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_RAW_LBE_MASK, NULL, HFILL } },
     { &hf_erf_mc_raw_first,
       { "First record", "erf.mcraw.first",
-        FT_UINT8, BASE_DEC, NULL, MC_RAW_FIRST_MASK, NULL, HFILL } },
-    { &hf_erf_mc_raw_res5,
-      { "Reserved", "erf.mcraw.res5",
-        FT_UINT8, BASE_HEX, NULL, MC_RAW_RES5_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_RAW_FIRST_MASK, NULL, HFILL } },
+    { &hf_erf_mc_raw_res3,
+      { "Reserved", "erf.mcraw.res3",
+        FT_UINT32, BASE_HEX, NULL, MC_RAW_RES3_MASK, NULL, HFILL } },
 
     /* MC ATM Header */
     { &hf_erf_mc_atm,
@@ -1710,37 +1666,37 @@ proto_register_erf(void)
         FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL } },
     { &hf_erf_mc_atm_cn,
       { "Connection number", "erf.mcatm.cn",
-        FT_UINT16, BASE_DEC, NULL, MC_ATM_CN_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_ATM_CN_MASK, NULL, HFILL } },
     { &hf_erf_mc_atm_res1,
       { "Reserved", "erf.mcatm.res1",
-        FT_UINT16, BASE_HEX, NULL, MC_ATM_RES1_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_HEX, NULL, MC_ATM_RES1_MASK, NULL, HFILL } },
     { &hf_erf_mc_atm_mul,
       { "Multiplexed", "erf.mcatm.mul",
-        FT_UINT16, BASE_DEC, NULL, MC_ATM_MUL_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_ATM_MUL_MASK, NULL, HFILL } },
     { &hf_erf_mc_atm_port,
       { "Physical port", "erf.mcatm.port",
-        FT_UINT8, BASE_DEC, NULL, MC_ATM_PORT_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_ATM_PORT_MASK, NULL, HFILL } },
     { &hf_erf_mc_atm_res2,
       { "Reserved", "erf.mcatm.res2",
-        FT_UINT8, BASE_HEX, NULL, MC_ATM_RES2_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_HEX, NULL, MC_ATM_RES2_MASK, NULL, HFILL } },
     { &hf_erf_mc_atm_lbe,
       { "Lost Byte Error", "erf.mcatm.lbe",
-        FT_UINT8, BASE_DEC, NULL, MC_ATM_LBE_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_ATM_LBE_MASK, NULL, HFILL } },
     { &hf_erf_mc_atm_hec,
       { "HEC corrected", "erf.mcatm.hec",
-        FT_UINT8, BASE_DEC, NULL, MC_ATM_HEC_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_ATM_HEC_MASK, NULL, HFILL } },
     { &hf_erf_mc_atm_crc10,
       { "OAM Cell CRC10 Error (not implemented)", "erf.mcatm.crc10",
-        FT_UINT8, BASE_DEC, NULL, MC_ATM_CRC10_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_ATM_CRC10_MASK, NULL, HFILL } },
     { &hf_erf_mc_atm_oamcell,
       { "OAM Cell", "erf.mcatm.oamcell",
-        FT_UINT8, BASE_DEC, NULL, MC_ATM_OAMCELL_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_ATM_OAMCELL_MASK, NULL, HFILL } },
     { &hf_erf_mc_atm_first,
       { "First record", "erf.mcatm.first",
-        FT_UINT8, BASE_DEC, NULL, MC_ATM_FIRST_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_ATM_FIRST_MASK, NULL, HFILL } },
     { &hf_erf_mc_atm_res3,
       { "Reserved", "erf.mcatm.res3",
-        FT_UINT8, BASE_HEX, NULL, MC_ATM_RES3_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_HEX, NULL, MC_ATM_RES3_MASK, NULL, HFILL } },
 
     /* MC RAW Link Header */
     { &hf_erf_mc_rawl,
@@ -1748,19 +1704,19 @@ proto_register_erf(void)
         FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_erf_mc_rawl_cn,
       { "Connection number", "erf.mcrawl.cn",
-        FT_UINT8, BASE_DEC, NULL, MC_RAWL_CN_MASK, NULL, HFILL } },
-    { &hf_erf_mc_rawl_res2,
-      { "Reserved", "erf.mcrawl.res2",
-        FT_UINT8, BASE_HEX, NULL, MC_RAWL_RES2_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_RAWL_CN_MASK, NULL, HFILL } },
+    { &hf_erf_mc_rawl_res1,
+      { "Reserved", "erf.mcrawl.res1",
+        FT_UINT32, BASE_HEX, NULL, MC_RAWL_RES2_MASK, NULL, HFILL } },
     { &hf_erf_mc_rawl_lbe,
       { "Lost byte error", "erf.mcrawl.lbe",
-        FT_UINT8, BASE_DEC, NULL, MC_RAWL_LBE_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_RAWL_LBE_MASK, NULL, HFILL } },
     { &hf_erf_mc_rawl_first,
       { "First record", "erf.mcrawl.first",
-        FT_UINT8, BASE_DEC, NULL, MC_RAWL_FIRST_MASK, NULL, HFILL } },
-    { &hf_erf_mc_rawl_res3,
-      { "Reserved", "erf.mcrawl.res5",
-        FT_UINT8, BASE_HEX, NULL, MC_RAWL_RES3_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_RAWL_FIRST_MASK, NULL, HFILL } },
+    { &hf_erf_mc_rawl_res2,
+      { "Reserved", "erf.mcrawl.res2",
+        FT_UINT32, BASE_HEX, NULL, MC_RAWL_RES2_MASK, NULL, HFILL } },
 
     /* MC AAL5 Header */
     { &hf_erf_mc_aal5,
@@ -1768,34 +1724,34 @@ proto_register_erf(void)
         FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_erf_mc_aal5_cn,
       { "Connection number", "erf.mcaal5.cn",
-        FT_UINT16, BASE_DEC, NULL, MC_AAL5_CN_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_AAL5_CN_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal5_res1,
       { "Reserved", "erf.mcaal5.res1",
-        FT_UINT16, BASE_HEX, NULL, MC_AAL5_RES1_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_HEX, NULL, MC_AAL5_RES1_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal5_port,
       { "Physical port", "erf.mcaal5.port",
-        FT_UINT8, BASE_DEC, NULL, MC_AAL5_PORT_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_AAL5_PORT_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal5_crcck,
       { "CRC checked", "erf.mcaal5.crcck",
-        FT_UINT8, BASE_DEC, NULL, MC_AAL5_CRCCK_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_AAL5_CRCCK_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal5_crce,
       { "CRC error", "erf.mcaal5.crce",
-        FT_UINT8, BASE_DEC, NULL, MC_AAL5_CRCE_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_AAL5_CRCE_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal5_lenck,
       { "Length checked", "erf.mcaal5.lenck",
-        FT_UINT8, BASE_DEC, NULL, MC_AAL5_LENCK_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_AAL5_LENCK_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal5_lene,
       { "Length error", "erf.mcaal5.lene",
-        FT_UINT8, BASE_DEC, NULL, MC_AAL5_LENE_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_AAL5_LENE_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal5_res2,
       { "Reserved", "erf.mcaal5.res2",
-        FT_UINT8, BASE_HEX, NULL, MC_AAL5_RES2_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_HEX, NULL, MC_AAL5_RES2_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal5_first,
       { "First record", "erf.mcaal5.first",
-        FT_UINT8, BASE_DEC, NULL, MC_AAL5_FIRST_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_AAL5_FIRST_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal5_res3,
       { "Reserved", "erf.mcaal5.res3",
-        FT_UINT8, BASE_HEX, NULL, MC_AAL5_RES3_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_HEX, NULL, MC_AAL5_RES3_MASK, NULL, HFILL } },
 
     /* MC AAL2 Header */
     { &hf_erf_mc_aal2,
@@ -1803,31 +1759,31 @@ proto_register_erf(void)
         FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_erf_mc_aal2_cn,
       { "Connection number", "erf.mcaal2.cn",
-        FT_UINT16, BASE_DEC, NULL, MC_AAL2_CN_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_AAL2_CN_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal2_res1,
       { "Reserved for extra connection", "erf.mcaal2.res1",
-        FT_UINT16, BASE_HEX, NULL, MC_AAL2_RES1_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_HEX, NULL, MC_AAL2_RES1_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal2_res2,
       { "Reserved for type", "erf.mcaal2.mul",
-        FT_UINT16, BASE_HEX, NULL, MC_AAL2_RES2_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_HEX, NULL, MC_AAL2_RES2_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal2_port,
       { "Physical port", "erf.mcaal2.port",
-        FT_UINT8, BASE_DEC, NULL, MC_AAL2_PORT_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_AAL2_PORT_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal2_res3,
       { "Reserved", "erf.mcaal2.res2",
-        FT_UINT8, BASE_HEX, NULL, MC_AAL2_RES3_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_HEX, NULL, MC_AAL2_RES3_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal2_first,
       { "First cell received", "erf.mcaal2.lbe",
-        FT_UINT8, BASE_DEC, NULL, MC_AAL2_FIRST_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_AAL2_FIRST_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal2_maale,
       { "MAAL error", "erf.mcaal2.hec",
-        FT_UINT8, BASE_DEC, NULL, MC_AAL2_MAALE_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_AAL2_MAALE_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal2_lene,
       { "Length error", "erf.mcaal2.crc10",
-        FT_UINT8, BASE_DEC, NULL, MC_AAL2_LENE_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_AAL2_LENE_MASK, NULL, HFILL } },
     { &hf_erf_mc_aal2_cid,
       { "Channel Identification Number", "erf.mcaal2.cid",
-        FT_UINT8, BASE_DEC, NULL, MC_AAL2_CID_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, MC_AAL2_CID_MASK, NULL, HFILL } },
 
     /* AAL2 Header */
     { &hf_erf_aal2,
@@ -1835,19 +1791,19 @@ proto_register_erf(void)
         FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_erf_aal2_cid,
       { "Channel Identification Number", "erf.aal2.cid",
-        FT_UINT8, BASE_DEC, NULL, AAL2_CID_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, AAL2_CID_MASK, NULL, HFILL } },
     { &hf_erf_aal2_maale,
       { "MAAL error number", "erf.aal2.maale",
-        FT_UINT8, BASE_DEC, NULL, AAL2_MAALE_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, AAL2_MAALE_MASK, NULL, HFILL } },
     { &hf_erf_aal2_maalei,
       { "MAAL error", "erf.aal2.hec",
-        FT_UINT16, BASE_DEC, NULL, AAL2_MAALEI_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, AAL2_MAALEI_MASK, NULL, HFILL } },
     { &hf_erf_aal2_first,
       { "First cell received", "erf.aal2.lbe",
-        FT_UINT16, BASE_DEC, NULL, AAL2_FIRST_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_DEC, NULL, AAL2_FIRST_MASK, NULL, HFILL } },
     { &hf_erf_aal2_res1,
       { "Reserved", "erf.aal2.res1",
-        FT_UINT16, BASE_HEX, NULL, AAL2_RES1_MASK, NULL, HFILL } },
+        FT_UINT32, BASE_HEX, NULL, AAL2_RES1_MASK, NULL, HFILL } },
 
     /* ETH Header */
     { &hf_erf_eth,

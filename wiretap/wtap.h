@@ -940,6 +940,7 @@ struct erf_mc_phdr {
     {
         guint16 eth_hdr;
         guint32 mc_hdr;
+        guint32 aal2_hdr;
     } subhdr;
 };
 

@@ -339,6 +339,7 @@ static gboolean erf_read_header(FILE_T fh,
 {
   union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
   guint32 mc_hdr;
+  guint32 aal2_hdr;
   guint8  erf_exhdr[8];
   guint64 erf_exhdr_sw;
   guint8  type    = 0;
@@ -463,7 +464,6 @@ static gboolean erf_read_header(FILE_T fh,
     case ERF_TYPE_MC_AAL5:
     case ERF_TYPE_MC_AAL2:
     case ERF_TYPE_COLOR_MC_HDLC_POS:
-    case ERF_TYPE_AAL2: /* not an MC type but has a similar 'AAL2 ext' header */
       if (!wtap_read_bytes(fh, &mc_hdr, sizeof(mc_hdr), err, err_info))
         return FALSE;
       if (bytes_read != NULL)
@@ -471,6 +471,16 @@ static gboolean erf_read_header(FILE_T fh,
       *packet_size -=  (guint32)sizeof(mc_hdr);
       skiplen += (guint32)sizeof(mc_hdr);
       pseudo_header->erf.subhdr.mc_hdr = g_ntohl(mc_hdr);
+      break;
+
+    case ERF_TYPE_AAL2:
+      if (!wtap_read_bytes(fh, &aal2_hdr, sizeof(aal2_hdr), err, err_info))
+        return FALSE;
+      if (bytes_read != NULL)
+        *bytes_read += (guint32)sizeof(aal2_hdr);
+      *packet_size -=  (guint32)sizeof(aal2_hdr);
+      skiplen += (guint32)sizeof(aal2_hdr);
+      pseudo_header->erf.subhdr.aal2_hdr = g_ntohl(aal2_hdr);
       break;
 
     case ERF_TYPE_IP_COUNTER:
@@ -545,6 +555,10 @@ static gboolean erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pse
         case ERF_TYPE_COLOR_MC_HDLC_POS:
           phtonl(&erf_subhdr[0], pseudo_header->erf.subhdr.mc_hdr);
           subhdr_size += (int)sizeof(struct erf_mc_hdr);
+          break;
+        case ERF_TYPE_AAL2:
+          phtonl(&erf_subhdr[0], pseudo_header->erf.subhdr.aal2_hdr);
+          subhdr_size += (int)sizeof(struct erf_aal2_hdr);
           break;
         case ERF_TYPE_ETH:
         case ERF_TYPE_COLOR_ETH:

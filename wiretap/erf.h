@@ -115,6 +115,10 @@ typedef struct erf_mc_hdr {
 	guint32	mc;
 } erf_mc_header_t;
 
+typedef struct erf_aal2_hdr {
+	guint32	aal2;
+} erf_aal2_header_t;
+
 typedef struct erf_eth_hdr {
 	guint16	eth;
 } erf_eth_header_t;
