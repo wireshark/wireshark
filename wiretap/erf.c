@@ -453,7 +453,7 @@ static gboolean erf_read_header(FILE_T fh,
         *bytes_read += (guint32)sizeof(eth_hdr);
       *packet_size -=  (guint32)sizeof(eth_hdr);
       skiplen += (guint32)sizeof(eth_hdr);
-      pseudo_header->erf.subhdr.eth_hdr = g_htons(eth_hdr);
+      pseudo_header->erf.subhdr.eth_hdr = g_ntohs(eth_hdr);
       break;
 
     case ERF_TYPE_MC_HDLC:
@@ -470,7 +470,7 @@ static gboolean erf_read_header(FILE_T fh,
         *bytes_read += (guint32)sizeof(mc_hdr);
       *packet_size -=  (guint32)sizeof(mc_hdr);
       skiplen += (guint32)sizeof(mc_hdr);
-      pseudo_header->erf.subhdr.mc_hdr = g_htonl(mc_hdr);
+      pseudo_header->erf.subhdr.mc_hdr = g_ntohl(mc_hdr);
       break;
 
     case ERF_TYPE_IP_COUNTER:
@@ -484,9 +484,9 @@ static gboolean erf_read_header(FILE_T fh,
   }
 
   {
-    phdr->len = g_htons(erf_header->wlen);
-    phdr->caplen = MIN( g_htons(erf_header->wlen),
-                        g_htons(erf_header->rlen) - (guint32)sizeof(*erf_header) - skiplen );
+    phdr->len = g_ntohs(erf_header->wlen);
+    phdr->caplen = MIN( g_ntohs(erf_header->wlen),
+                        g_ntohs(erf_header->rlen) - (guint32)sizeof(*erf_header) - skiplen );
   }
 
   if (*packet_size > WTAP_MAX_PACKET_SIZE) {
