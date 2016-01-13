@@ -147,6 +147,10 @@ CaptureInterfacesDialog::CaptureInterfacesDialog(QWidget *parent) :
     interface_item_delegate_.setTree(ui->interfaceTree);
     ui->interfaceTree->setColumnWidth(col_link_, 100);
 
+#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
+    ui->filenameLineEdit->setPlaceholderText(tr("Leave blank to use a temporary file"));
+#endif
+
     connect(ui->interfaceTree,SIGNAL(itemClicked(QTreeWidgetItem*,int)),this,SLOT(interfaceClicked(QTreeWidgetItem*,int)));
     connect(ui->interfaceTree, SIGNAL(itemSelectionChanged()), this, SLOT(interfaceSelected()));
     connect(ui->allFilterComboBox, SIGNAL(captureFilterSyntaxChanged(bool)), this, SLOT(allFilterChanged()));
@@ -277,7 +281,7 @@ void CaptureInterfacesDialog::browseButtonClicked()
         break;
     }
     QString file_name = QFileDialog::getSaveFileName(this, tr("Specify a Capture File"), open_dir);
-    ui->lineEdit->setText(file_name);
+    ui->filenameLineEdit->setText(file_name);
 }
 
 void CaptureInterfacesDialog::on_gbStopCaptureAuto_toggled(bool checked)
@@ -357,12 +361,12 @@ void CaptureInterfacesDialog::updateInterfaces()
     ui->capturePromModeCheckBox->setChecked(prefs.capture_prom_mode);
 
     if (global_capture_opts.saving_to_file) {
-        ui->lineEdit->setText(QString(global_capture_opts.orig_save_file));
+        ui->filenameLineEdit->setText(QString(global_capture_opts.orig_save_file));
     }
 
     ui->gbNewFileAuto->setChecked(global_capture_opts.multi_files_on);
-    ui->MBRadioButton->setChecked(global_capture_opts.has_autostop_filesize);
-    ui->SecsRadioButton->setChecked(global_capture_opts.has_file_duration);
+    ui->MBCheckBox->setChecked(global_capture_opts.has_autostop_filesize);
+    ui->SecsCheckBox->setChecked(global_capture_opts.has_file_duration);
     if (global_capture_opts.has_autostop_filesize) {
         int value = global_capture_opts.autostop_filesize;
         if (value > 1000000) {
@@ -637,7 +641,7 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
         prefs.capture_pcap_ng = false;
     }
 
-    QString filename = ui->lineEdit->text();
+    QString filename = ui->filenameLineEdit->text();
     if (filename.length() > 0) {
         /* User specified a file to which the capture should be written. */
         global_capture_opts.saving_to_file = true;
@@ -663,7 +667,7 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
     }
     global_capture_opts.multi_files_on = ui->gbNewFileAuto->isChecked();
     if (global_capture_opts.multi_files_on) {
-        global_capture_opts.has_file_duration = ui->SecsRadioButton->isChecked();
+        global_capture_opts.has_file_duration = ui->SecsCheckBox->isChecked();
         if (global_capture_opts.has_file_duration) {
             global_capture_opts.file_duration = ui->SecsSpinBox->value();
             int index = ui->SecsComboBox->currentIndex();
@@ -674,7 +678,7 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
                 break;
             }
          }
-         global_capture_opts.has_autostop_filesize = ui->MBRadioButton->isChecked();
+         global_capture_opts.has_autostop_filesize = ui->MBCheckBox->isChecked();
          if (global_capture_opts.has_autostop_filesize) {
              global_capture_opts.autostop_filesize = ui->MBSpinBox->value();
              int index = ui->MBComboBox->currentIndex();
