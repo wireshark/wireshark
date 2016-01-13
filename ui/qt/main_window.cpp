@@ -1857,13 +1857,17 @@ void MainWindow::setTitlebarForCaptureFile()
 
 void MainWindow::setWSWindowTitle(QString title)
 {
-
-    if(title.isEmpty()) {
+    if (title.isEmpty()) {
         title = tr("The Wireshark Network Analyzer");
     }
 
-    if((prefs.gui_window_title != NULL) && (*prefs.gui_window_title != '\0')) {
+    if (prefs.gui_window_title && prefs.gui_window_title[0]) {
+#ifdef __APPLE__
+        // On OS X we separate the titles with a unicode em dash
+        title.append(QString(" %1 %2").arg(UTF8_EM_DASH).arg(prefs.gui_window_title));
+#else
         title.append(QString(" [%1]").arg(prefs.gui_window_title));
+#endif
     }
 
     setWindowTitle(title);
