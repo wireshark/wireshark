@@ -455,11 +455,6 @@ static gboolean erf_read_header(FILE_T fh,
       *packet_size -=  (guint32)sizeof(eth_hdr);
       skiplen += (guint32)sizeof(eth_hdr);
       pseudo_header->erf.subhdr.eth_hdr = eth_hdr;
-      {
-      	guint8 bytes[2];
-      	memcpy(bytes, &eth_hdr, 2);
-      	fprintf(stderr, "offset %u, pad %u\n", bytes[0], bytes[1]);
-      }
       break;
 
     case ERF_TYPE_MC_HDLC:
