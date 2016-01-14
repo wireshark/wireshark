@@ -840,14 +840,17 @@ list_encap_types(void) {
     g_free(encaps);
 }
 
-/* TODO: is there the equivalent of g_direct_equal? */
 static int
-framenum_equal(gconstpointer a, gconstpointer b, gpointer user_data _U_)
+framenum_compare(gconstpointer a, gconstpointer b, gpointer user_data _U_)
 {
-    return (a != b);
+    if (GPOINTER_TO_UINT(a) < GPOINTER_TO_UINT(b))
+        return -1;
+
+    if (GPOINTER_TO_UINT(a) > GPOINTER_TO_UINT(b))
+        return 1;
+
+    return 0;
 }
-
-
 
 #ifdef HAVE_PLUGINS
 /*
@@ -1020,7 +1023,7 @@ DIAG_ON(cast-qual)
 
             /* Lazily create the table */
             if (!frames_user_comments) {
-                frames_user_comments = g_tree_new_full(framenum_equal, NULL, NULL, g_free);
+                frames_user_comments = g_tree_new_full(framenum_compare, NULL, NULL, g_free);
             }
 
             /* Insert this entry (framenum -> comment) */
