@@ -188,6 +188,7 @@ static expert_field ei_ber_illegal_padding = EI_INIT;
 static expert_field ei_ber_invalid_format_generalized_time = EI_INIT;
 static expert_field ei_ber_invalid_format_utctime = EI_INIT;
 static expert_field ei_hf_field_not_integer_type = EI_INIT;
+static expert_field ei_ber_constr_bitstr = EI_INIT;
 
 static dissector_handle_t ber_handle;
 
@@ -3933,7 +3934,13 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
         len = tvb_reported_length_remaining(tvb, offset);
         end_offset = offset+len;
     }
-
+    if (len == 0) {
+        proto_tree_add_expert_format(
+            parent_tree, actx->pinfo, &ei_ber_constr_bitstr, tvb, offset, len,
+            "dissect_ber_constrained_bitstring(): frame:%u offset:%d Was passed an illegal length of 0",
+            actx->pinfo->fd->num, offset);
+        return offset;
+    }
     actx->created_item = NULL;
 
     if (pc) {
@@ -4499,6 +4506,7 @@ proto_register_ber(void)
         { &ei_ber_invalid_format_generalized_time, { "ber.error.invalid_format.generalized_time", PI_MALFORMED, PI_WARN, "BER Error: GeneralizedTime invalid format", EXPFILL }},
         { &ei_ber_invalid_format_utctime, { "ber.error.invalid_format.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding", EXPFILL }},
         { &ei_hf_field_not_integer_type, { "ber.error.hf_field_not_integer_type", PI_PROTOCOL, PI_ERROR, "Was passed a HF field that was not integer type", EXPFILL }},
+        { &ei_ber_constr_bitstr,{ "ber.error.constr_bitstr.len", PI_MALFORMED, PI_WARN, "BER Error: malformed Bitstring encoding", EXPFILL } },
     };
 
     /* Decode As handling */
