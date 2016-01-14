@@ -18581,11 +18581,11 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   proto_tree *keyinfo_tree = NULL;
   proto_tree *keydes_tree;
   proto_tree *ti = NULL;
-  guint32     start_nonce;
 
   /*
    * RSNA key descriptors.
    */
+  eapol_data_len = tvb_get_ntohs(tvb, offset+92);
   keyinfo = tvb_get_ntohs(tvb, offset);
   if (keyinfo & KEY_INFO_REQUEST_MASK) {
     col_set_str(pinfo->cinfo, COL_INFO, "Key (Request)");
@@ -18593,8 +18593,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Request, Error)");
   } else if (keyinfo & KEY_INFO_KEY_TYPE_MASK) {
     guint16 masked;
-    /* At least Windows is incorrectly setting Secure bit on message 2 when rekeying
-     * we'll ignore the secure bit also for RSN and use the key nonce to differentiate between message 2 and 4 */
+    /* Windows is setting the Secure Bit on message 2 when rekeying, so we'll ignore it */
     masked = keyinfo &
       (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK | KEY_INFO_KEY_MIC_MASK);
 
@@ -18604,13 +18603,13 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       break;
 
     case KEY_INFO_KEY_MIC_MASK:
-      /* Check start of nonce for check if it is message 2 or 4
-      According to the IEEE specification, sections 11.6.6.3 and 11.6.6.5
-      define the value for the WPA Key Nonce as following:
-      Message #2, Key Nonce = SNonce (Supplicant Nonce)
-      Message #4, Key Nonce = 0 */
-      start_nonce = tvb_get_ntohl(tvb, offset+12);
-      if (start_nonce)
+      /* We check the key length to differentiate between message 2 and 4 and just hope that
+      there are no strange implementations with key data and non-zero key length in message 4.
+      According to the IEEE specification, sections 11.6.6.3 and 11.6.6.5 we should
+      use the Secure Bit and/or the Nonce, but there are implementations ignoring the spec.
+      The Secure Bit is incorrectly set on rekeys for Windows clients for Message 2 and the Nonce is non-zero
+      in Message 4 in Bug 11994 (Apple?) */
+      if (eapol_data_len)
         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
       else
         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 4 of 4)");
@@ -18665,7 +18664,6 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_mic, tvb, offset,
                       16, ENC_NA);
   offset += 16;
-  eapol_data_len = tvb_get_ntohs(tvb, offset);
   proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_data_len, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
   offset += 2;

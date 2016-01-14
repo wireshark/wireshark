@@ -1255,10 +1255,8 @@ AirPDcapRsna4WHandshake(
         AIRPDCAP_EAP_ACK(data[offset+1])==0 &&
         AIRPDCAP_EAP_MIC(data[offset])==1)
     {
-         /* Check nonce to differentiate between message 2 or 4
-          * nonce will be non zero for message 2 and zero for message 4.
-          * At least needed for Windows, since it is setting the secure bit on message 2 when rekeying */
-        if (!memiszero(data+offset+12, 32)) {
+        /* Check key data length to differentiate between message 2 or 4, same as in epan/dissectors/packet-ieee80211.c */
+        if (pntoh16(data+offset+92)) {
             /* message 2 */
             AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "4-way handshake message 2", AIRPDCAP_DEBUG_LEVEL_3);
 
