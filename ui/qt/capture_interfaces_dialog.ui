@@ -449,7 +449,6 @@ PLEASE NOTE: One option MUST be selected.</string>
       </layout>
       <zorder>gbNewFileAuto</zorder>
       <zorder>gbCaptureToFile</zorder>
-      <zorder></zorder>
      </widget>
      <widget class="QWidget" name="optionsTab">
       <attribute name="title">
