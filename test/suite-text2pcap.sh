@@ -82,6 +82,12 @@ text2pcap_common_check() {
 		test_step_failed "text2pcap didn't complete"
 	fi
 
+	grep -q "Inconsistent offset" testout.txt
+	if [ $? -eq 0 ]; then
+		cat ./testout.txt
+		test_step_failed "text2pcap detected inconsistent offset"
+	fi
+
 	text2pcap_capinfos "./testout.pcap"
 	if [ ! $? -eq $EXIT_OK ]; then
 		test_step_failed "text2pcap_capinfos return error"
@@ -284,6 +290,28 @@ text2pcap_sip_pcapng_test() {
 	text2pcap_basic_test "sip.pcapng"
 }
 
+text2pcap_step_hash_at_eol() {
+	$TEXT2PCAP -n -d -t "%Y-%m-%d %H:%M:%S."\
+		"${CAPTURE_DIR}/text2pcap_hash_eol.txt" testout.pcap > testout.txt 2>&1
+	RETURNVALUE=$?
+
+	grep -q "Inconsistent offset" testout.txt
+	if [ $? -eq 0 ]; then
+		cat ./testout.txt
+		test_step_failed "text2pcap failed to parse the hash sign at the end of the line"
+	fi
+
+	#Check that #TEXT2PCAP is not prased as a comment
+	grep -q "Directive \[ test_directive" testout.txt
+	if [ $? -ne 0 ]; then
+		cat ./testout.txt
+		test_step_failed "text2pcap failed to parse #TEXT2PCAP test_directive"
+	fi
+
+	text2pcap_common_pcapng_check $RETURNVALUE "Ethernet" 1 96
+	test_step_ok
+}
+
 text2pcap_cleanup_step() {
 	rm -f ./testin.txt
 	rm -f ./testout.txt
@@ -315,6 +343,7 @@ text2pcap_suite() {
 	test_step_add "testing with dns+icmp.pcapng.gz" text2pcap_dns_icmp_pcapng_gz_test
 	test_step_add "testing with packet-h2-14_headers.pcapng" text2pcap_packet_h2_14_headers_pcapng_test
 	test_step_add "testing with sip.pcapng" text2pcap_sip_pcapng_test
+	test_step_add "hash sign at the end of the line" text2pcap_step_hash_at_eol
 }
 
 #
