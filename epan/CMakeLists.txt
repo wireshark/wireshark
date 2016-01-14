@@ -858,6 +858,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ipmi-vita.c
 	dissectors/packet-ipnet.c
 	dissectors/packet-ipoib.c
+	dissectors/packet-ipos.c
 	dissectors/packet-ipp.c
 	dissectors/packet-ipsec-tcp.c
 	dissectors/packet-ipsec-udp.c

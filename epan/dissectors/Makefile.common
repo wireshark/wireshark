@@ -779,6 +779,7 @@ DISSECTOR_SRC = \
 	packet-ipmi-vita.c	\
 	packet-ipnet.c		\
 	packet-ipoib.c		\
+	packet-ipos.c		\
 	packet-ipp.c		\
 	packet-ipsec-tcp.c	\
 	packet-ipsec-udp.c	\
