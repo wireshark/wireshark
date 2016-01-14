@@ -95,8 +95,8 @@
  */
 
 struct select_item {
-    int inclusive;
-    int first, second;
+    gboolean inclusive;
+    guint first, second;
 };
 
 /*
@@ -152,7 +152,7 @@ GTree *frames_user_comments = NULL;
 
 #define MAX_SELECTIONS 512
 static struct select_item     selectfrm[MAX_SELECTIONS];
-static int                    max_selected              = -1;
+static guint                  max_selected              = 0;
 static int                    keep_em                   = 0;
 #ifdef PCAP_NG_DEFAULT
 static int                    out_file_type_subtype     = WTAP_FILE_TYPE_SUBTYPE_PCAPNG; /* default to pcapng   */
@@ -262,12 +262,12 @@ fileset_extract_prefix_suffix(const char *fname, gchar **fprefix, gchar **fsuffi
 
 /* Add a selection item, a simple parser for now */
 static gboolean
-add_selection(char *sel)
+add_selection(char *sel, guint* max_selection)
 {
     char *locn;
     char *next;
 
-    if (++max_selected >= MAX_SELECTIONS) {
+    if (max_selected >= MAX_SELECTIONS) {
         /* Let the user know we stopped selecting */
         fprintf(stderr, "Out of room for packet selections!\n");
         return(FALSE);
@@ -280,8 +280,10 @@ add_selection(char *sel)
         if (verbose)
             fprintf(stderr, "Not inclusive ...");
 
-        selectfrm[max_selected].inclusive = 0;
-        selectfrm[max_selected].first = atoi(sel);
+        selectfrm[max_selected].inclusive = FALSE;
+        selectfrm[max_selected].first = strtoul(sel, NULL, 10);
+        if (selectfrm[max_selected].first < *max_selection)
+            *max_selection = selectfrm[max_selected].first;
 
         if (verbose)
             fprintf(stderr, " %i\n", selectfrm[max_selected].first);
@@ -290,26 +292,35 @@ add_selection(char *sel)
             fprintf(stderr, "Inclusive ...");
 
         next = locn + 1;
-        selectfrm[max_selected].inclusive = 1;
-        selectfrm[max_selected].first = atoi(sel);
-        selectfrm[max_selected].second = atoi(next);
+        selectfrm[max_selected].inclusive = TRUE;
+        selectfrm[max_selected].first = strtoul(sel, NULL, 10);
+        selectfrm[max_selected].second = strtoul(next, NULL, 10);
+
+        if (selectfrm[max_selected].second == 0)
+        {
+            /* Not a valid number, presume all */
+            selectfrm[max_selected].second = *max_selection = G_MAXUINT;
+        }
+        else if (selectfrm[max_selected].second < *max_selection)
+            *max_selection = selectfrm[max_selected].second;
 
         if (verbose)
             fprintf(stderr, " %i, %i\n", selectfrm[max_selected].first,
                    selectfrm[max_selected].second);
     }
 
+    max_selected++;
     return(TRUE);
 }
 
 /* Was the packet selected? */
 
 static int
-selected(int recno)
+selected(guint recno)
 {
-    int i;
+    guint i;
 
-    for (i = 0; i <= max_selected; i++) {
+    for (i = 0; i < max_selected; i++) {
         if (selectfrm[i].inclusive) {
             if (selectfrm[i].first <= recno && selectfrm[i].second >= recno)
                 return 1;
@@ -950,7 +961,7 @@ main(int argc, char *argv[])
     gchar        *fprefix            = NULL;
     gchar        *fsuffix            = NULL;
     guint32       change_offset      = 0;
-
+    guint         max_packet_number  = G_MAXUINT;
     const struct wtap_pkthdr    *phdr;
     struct wtap_pkthdr           temp_phdr;
     wtapng_iface_descriptions_t *idb_inf = NULL;
@@ -1324,8 +1335,11 @@ main(int argc, char *argv[])
             out_frame_type = wtap_file_encap(wth);
 
         for (i = optind + 2; i < argc; i++)
-            if (add_selection(argv[i]) == FALSE)
+            if (add_selection(argv[i], &max_packet_number) == FALSE)
                 break;
+
+        if (keep_em == FALSE)
+            max_packet_number = G_MAXUINT;
 
         if (dup_detect || dup_detect_by_time) {
             for (i = 0; i < dup_window; i++) {
@@ -1337,6 +1351,9 @@ main(int argc, char *argv[])
 
         /* Read all of the packets in turn */
         while (wtap_read(wth, &read_err, &read_err_info, &data_offset)) {
+            if (max_packet_number <= read_count)
+                break;
+
             read_count++;
 
             phdr = wtap_phdr(wth);
