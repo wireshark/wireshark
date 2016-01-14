@@ -97,6 +97,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  capture_dissector_get_count@Base 2.1.0
  capture_dissector_increment_count@Base 2.1.0
  check_xdlc_control@Base 1.9.1
+ chunk_type_values@Base 2.1.0
  circuit_add_proto_data@Base 1.9.1
  circuit_get_proto_data@Base 1.9.1
  circuit_new@Base 1.9.1
@@ -447,6 +448,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dvb_add_chartbl@Base 1.12.0~rc1
  dvb_analyze_string_charset@Base 1.12.0~rc1
  dvb_enc_to_item_enc@Base 1.12.0~rc1
+ dvbci_event@Base 2.1.0
  dword_to_hex@Base 2.1.0
  eap_aka_subtype_vals@Base 1.9.1
  eap_code_vals@Base 1.9.1
@@ -544,6 +546,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  find_sid_name@Base 1.9.1
  find_stream_circ@Base 1.9.1
  find_tap_id@Base 1.9.1
+ follow_get_stat_tap_string@Base 2.1.0
  follow_iterate_followers@Base 2.1.0
  follow_reset_stream@Base 2.1.0
  follow_tvb_tap_listener@Base 2.1.0
@@ -815,9 +818,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  mtp3_network_indicator_vals@Base 1.9.1
  mtp3_service_indicator_code_short_vals@Base 1.9.1
  mtp3_standard_vals@Base 1.9.1
+ ncp_nds_verb_vals@Base 2.1.0
  new_frame_data_sequence@Base 1.12.0~rc1
  new_page@Base 1.12.0~rc1
- new_register_per_oid_dissector@Base 1.99.1
  new_stat_tap_add_table@Base 1.99.8
  new_stat_tap_get_field_data@Base 1.99.8
  new_stat_tap_get_filter@Base 1.99.8
@@ -830,6 +833,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  next_tvb_add_uint@Base 1.9.1
  next_tvb_call@Base 1.9.1
  next_tvb_init@Base 1.9.1
+ nmas_subverb_enum@Base 2.1.0
  nt_cmd_vals_ext@Base 1.9.1
  num_tree_types@Base 1.9.1
  oid_add@Base 1.9.1
@@ -1149,6 +1153,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  register_giop_user_module@Base 1.9.1
  register_heur_dissector_list@Base 1.9.1
  register_init_routine@Base 1.9.1
+ register_per_oid_dissector@Base 2.1.0
  register_postdissector@Base 1.9.1
  register_postseq_cleanup_routine@Base 1.9.1
  register_rtd_table@Base 1.99.8
@@ -1252,6 +1257,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ssl_session_hash@Base 1.9.1
  ssl_crandom_hash@Base 1.99.4
  ssl_set_master_secret@Base 1.9.1
+ sss_verb_enum@Base 2.1.0
  start_requested_stats@Base 1.9.1
  stat_node_array_sortcmp@Base 1.12.0~rc1
  stats_tree_branch_max_namelen@Base 1.9.1
