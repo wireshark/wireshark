@@ -961,7 +961,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!(atm_info->flags & ATM_REASSEMBLY_ERROR)) {
       if (dissector_try_uint_new(atm_type_aal5_table, atm_info->type, next_tvb, pinfo, tree, TRUE, atm_info))
       {
-          decoded = TRUE;
+        decoded = TRUE;
       }
       else
       {
@@ -1044,7 +1044,7 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       if (dissector_try_uint(atm_type_aal2_table, atm_info->type, next_tvb, pinfo, tree))
       {
-          decoded = TRUE;
+        decoded = TRUE;
       }
     }
     break;
@@ -1055,8 +1055,8 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   if (!decoded) {
-      /* Dump it as raw data. */
-      call_dissector(data_handle, next_tvb, pinfo, tree);
+    /* Dump it as raw data. */
+    call_dissector(data_handle, next_tvb, pinfo, tree);
   }
 }
 
