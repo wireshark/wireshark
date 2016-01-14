@@ -359,7 +359,7 @@ col_append_pw_info(packet_info * pinfo
 
 static void
 prepare_pseudo_header_atm(
-	union wtap_pseudo_header * const ph,
+	struct atm_phdr *ph,
 	const pwatm_private_data_t * const pdata,
 	const guint aal)
 {
@@ -367,23 +367,23 @@ prepare_pseudo_header_atm(
 	DISSECTOR_ASSERT(NULL != ph);
 
 	memset(ph, 0 , sizeof(*ph));  /* it is OK to clear unknown values */
-	ph->atm.flags		= 0; /* status flags */
-	ph->atm.aal		= aal;
-	ph->atm.type		= TRAF_UNKNOWN;
-	ph->atm.subtype		= TRAF_ST_UNKNOWN;
-	ph->atm.vpi		= (pdata->vpi >= 0) ? pdata->vpi : 0 /*unknown*/;
-	ph->atm.vci		= (pdata->vci >= 0) ? pdata->vci : 0 /*unknown*/;
-	ph->atm.aal2_cid	= 0; /*not applicable*//* channel id */
-	ph->atm.channel		= 0; /*unknown*//* link: 0 for DTE->DCE, 1 for DCE->DTE */
-	ph->atm.cells		= 0; /*zero indicates that we do not have trailer info*/
+	ph->flags		= 0; /* status flags */
+	ph->aal			= aal;
+	ph->type		= TRAF_UNKNOWN;
+	ph->subtype		= TRAF_ST_UNKNOWN;
+	ph->vpi			= (pdata->vpi >= 0) ? pdata->vpi : 0 /*unknown*/;
+	ph->vci			= (pdata->vci >= 0) ? pdata->vci : 0 /*unknown*/;
+	ph->aal2_cid		= 0; /*not applicable*//* channel id */
+	ph->channel		= 0; /*unknown*//* link: 0 for DTE->DCE, 1 for DCE->DTE */
+	ph->cells		= 0; /*zero indicates that we do not have trailer info*/
 	/*user-to-user indicator & CPI*/
-	ph->atm.aal5t_u2u	= 0; /* all bits unknown except lsb of UU */
+	ph->aal5t_u2u		= 0; /* all bits unknown except lsb of UU */
 	if (pdata->aal5_sdu_frame_relay_cr_bit)
 	{ /* Let's give Frame Relay C/R bit to ATM dissector.*/
-		ph->atm.aal5t_u2u |= (1<<8); /*UU octet is at << 8 in aal5t_u2u*/
+		ph->aal5t_u2u |= (1<<8); /*UU octet is at << 8 in aal5t_u2u*/
 	}
-	ph->atm.aal5t_len	= 0; /*unknown*//* length of the packet from trailer*/
-	ph->atm.aal5t_chksum	= 0; /*unknown*//* checksum for AAL5 packet from trailer */
+	ph->aal5t_len		= 0; /*unknown*//* length of the packet from trailer*/
+	ph->aal5t_chksum	= 0; /*unknown*//* checksum for AAL5 packet from trailer */
 	return;
 }
 
@@ -420,8 +420,7 @@ dissect_payload_and_padding(
 
 		if (pd->cell_mode_oam)
 		{
-			union wtap_pseudo_header * pseudo_header_save;
-			union wtap_pseudo_header   ph;
+			struct atm_phdr ph;
 			tvbuff_t* tvb_3;
 			int bytes_to_dissect;
 			/* prepare buffer for old-style dissector */
@@ -436,15 +435,11 @@ dissect_payload_and_padding(
 			{
 				pd->enable_fill_columns_by_atm_dissector = FALSE;
 			}
-			/* save & prepare new pseudo header for atm aal5 decoding */
-			pseudo_header_save = pinfo->pseudo_header;
-			pinfo->pseudo_header = &ph;
+			/* prepare atm pseudo header for atm OAM cell decoding */
 			prepare_pseudo_header_atm(&ph, pd, AAL_OAMCELL);
 
-			call_dissector_with_data(dh_atm_oam_cell, tvb_3, pinfo, tree, pd);
+			call_dissector_with_data(dh_atm_oam_cell, tvb_3, pinfo, tree, &pd);
 			dissected += bytes_to_dissect;
-			/* restore pseudo header */
-			pinfo->pseudo_header = pseudo_header_save;
 		}
 		else
 		{
@@ -665,17 +660,12 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 			if (payload_size != 0)
 			{
 				tvbuff_t* tvb_3;
-				union wtap_pseudo_header* pseudo_header_save;
-				union wtap_pseudo_header ph;
+				struct atm_phdr ph;
 
 				tvb_3 = tvb_new_subset_remaining(tvb_2, 1);
-				/* prepare pseudo header for atm aal5 decoding */
-				pseudo_header_save = pinfo->pseudo_header;
-				pinfo->pseudo_header = &ph;
+				/* prepare atm pseudo header for atm aal5 decoding */
 				prepare_pseudo_header_atm(&ph, &pd, AAL_5);
-				call_dissector_with_data(dh_atm_untruncated, tvb_3, pinfo, tree, &pd);
-				/* restore pseudo header */
-				pinfo->pseudo_header = pseudo_header_save;
+				call_dissector_with_data(dh_atm_untruncated, tvb_3, pinfo, tree, &ph);
 			}
 		}
 	}
@@ -873,17 +863,12 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
 			if (payload_size != 0)
 			{
 				tvbuff_t* tvb_3;
-				union wtap_pseudo_header* pseudo_header_save;
-				union wtap_pseudo_header ph;
+				struct atm_phdr ph;
 
 				tvb_3 = tvb_new_subset_length(tvb_2, 0, payload_size);
-				/* prepare pseudo header for atm aal5 decoding */
-				pseudo_header_save = pinfo->pseudo_header;
-				pinfo->pseudo_header = &ph;
+				/* prepare atm pseudo header for atm aal5 decoding */
 				prepare_pseudo_header_atm(&ph, &pd, AAL_5);
-				call_dissector_with_data(dh_atm_truncated, tvb_3, pinfo, tree, &pd); /* no PAD and trailer */
-				/* restore pseudo header */
-				pinfo->pseudo_header = pseudo_header_save;
+				call_dissector_with_data(dh_atm_truncated, tvb_3, pinfo, tree, &ph); /* no PAD and trailer */
 			}
 			if (padding_size != 0)
 			{

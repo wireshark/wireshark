@@ -352,6 +352,7 @@ static dissector_handle_t sdh_handle;
 
 /* AAL2 */
 #define AAL2_CID_MASK    0x000000ff
+#define AAL2_CID_SHIFT   0
 #define AAL2_MAALE_MASK  0x0000ff00
 #define AAL2_MAALEI_MASK 0x00010000
 #define AAL2_FIRST_MASK  0x00020000
@@ -464,14 +465,14 @@ static const value_string channelised_type[] = {
 /* Copy of atm_guess_traffic_type from atm.c in /wiretap */
 static void
 erf_atm_guess_lane_type(tvbuff_t *tvb, int offset, guint len,
-    union wtap_pseudo_header *pseudo_header)
+    struct atm_phdr *atm_info)
 {
   if (len >= 2) {
     if (tvb_get_ntohs(tvb, offset) == 0xFF00) {
       /*
        * Looks like LE Control traffic.
        */
-      pseudo_header->atm.subtype = TRAF_ST_LANE_LE_CTRL;
+      atm_info->subtype = TRAF_ST_LANE_LE_CTRL;
     } else {
       /*
        * XXX - Ethernet, or Token Ring?
@@ -481,41 +482,41 @@ erf_atm_guess_lane_type(tvbuff_t *tvb, int offset, guint len,
        * still be situations where the user has to
        * tell us.
        */
-      pseudo_header->atm.subtype = TRAF_ST_LANE_802_3;
+      atm_info->subtype = TRAF_ST_LANE_802_3;
     }
   }
 }
 
 static void
 erf_atm_guess_traffic_type(tvbuff_t *tvb, int offset, guint len,
-    union wtap_pseudo_header *pseudo_header)
+    struct atm_phdr *atm_info)
 {
   /*
    * Start out assuming nothing other than that it's AAL5.
    */
-  pseudo_header->atm.aal     = AAL_5;
-  pseudo_header->atm.type    = TRAF_UNKNOWN;
-  pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+  atm_info->aal     = AAL_5;
+  atm_info->type    = TRAF_UNKNOWN;
+  atm_info->subtype = TRAF_ST_UNKNOWN;
 
-  if (pseudo_header->atm.vpi == 0) {
+  if (atm_info->vpi == 0) {
     /*
      * Traffic on some PVCs with a VPI of 0 and certain
      * VCIs is of particular types.
      */
-    switch (pseudo_header->atm.vci) {
+    switch (atm_info->vci) {
 
     case 5:
       /*
        * Signalling AAL.
        */
-      pseudo_header->atm.aal = AAL_SIGNALLING;
+      atm_info->aal = AAL_SIGNALLING;
       return;
 
     case 16:
       /*
        * ILMI.
        */
-      pseudo_header->atm.type = TRAF_ILMI;
+      atm_info->type = TRAF_ILMI;
       return;
     }
   }
@@ -533,15 +534,15 @@ erf_atm_guess_traffic_type(tvbuff_t *tvb, int offset, guint len,
        * Looks like a SNAP header; assume it's LLC
        * multiplexed RFC 1483 traffic.
        */
-      pseudo_header->atm.type = TRAF_LLCMX;
-    } else if ((pseudo_header->atm.aal5t_len &&
-                pseudo_header->atm.aal5t_len < 16) || len<16) {
+      atm_info->type = TRAF_LLCMX;
+    } else if ((atm_info->aal5t_len &&
+                atm_info->aal5t_len < 16) || len<16) {
       /*
        * As this cannot be a LANE Ethernet frame (less
        * than 2 bytes of LANE header + 14 bytes of
        * Ethernet header) we can try it as a SSCOP frame.
        */
-      pseudo_header->atm.aal = AAL_SIGNALLING;
+      atm_info->aal = AAL_SIGNALLING;
     } else if (((mtp3b = tvb_get_guint8(tvb, offset)) == 0x83) || (mtp3b == 0x81)) {
       /*
        * MTP3b headers often encapsulate
@@ -549,20 +550,20 @@ erf_atm_guess_traffic_type(tvbuff_t *tvb, int offset, guint len,
        * This should cause 0x83 or 0x81
        * in the first byte.
        */
-      pseudo_header->atm.aal = AAL_SIGNALLING;
+      atm_info->aal = AAL_SIGNALLING;
     } else {
       /*
        * Assume it's LANE.
        */
-      pseudo_header->atm.type = TRAF_LANE;
-      erf_atm_guess_lane_type(tvb, offset, len, pseudo_header);
+      atm_info->type = TRAF_LANE;
+      erf_atm_guess_lane_type(tvb, offset, len, atm_info);
     }
   } else {
     /*
      * Not only VCI 5 is used for signaling. It might be
      * one of these VCIs.
      */
-    pseudo_header->atm.aal = AAL_SIGNALLING;
+    atm_info->aal = AAL_SIGNALLING;
   }
 }
 
@@ -1145,6 +1146,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   guint8              first_byte;
   tvbuff_t           *new_tvb;
   guint8              aal2_cid;
+  struct atm_phdr     atm_info;
 
   erf_type=pinfo->pseudo_header->erf.phdr.type & 0x7F;
 
@@ -1226,46 +1228,48 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     /* continue with type ATM */
 
   case ERF_TYPE_ATM:
-    memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
+    memset(&atm_info, 0, sizeof(atm_info));
     atm_hdr = tvb_get_ntohl(tvb, 0);
-    pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
-    pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
-    pinfo->pseudo_header->atm.channel = (flags & 0x03);
+    atm_info.vpi = ((atm_hdr & 0x0ff00000) >> 20);
+    atm_info.vci = ((atm_hdr & 0x000ffff0) >>  4);
+    atm_info.channel = (flags & 0x03);
 
     /* Work around to have decoding working */
     if (erf_rawcell_first) {
       new_tvb = tvb_new_subset_remaining(tvb, ATM_HDR_LENGTH);
       /* Treat this as a (short) ATM AAL5 PDU */
-      pinfo->pseudo_header->atm.aal = AAL_5;
+      atm_info.aal = AAL_5;
       switch (erf_aal5_type) {
 
       case ERF_AAL5_GUESS:
-        pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
-        pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+        atm_info.type = TRAF_UNKNOWN;
+        atm_info.subtype = TRAF_ST_UNKNOWN;
         /* Try to guess the type according to the first bytes */
-        erf_atm_guess_traffic_type(new_tvb, 0, tvb_captured_length(new_tvb), pinfo->pseudo_header);
+        erf_atm_guess_traffic_type(new_tvb, 0, tvb_captured_length(new_tvb), &atm_info);
         break;
 
       case ERF_AAL5_LLC:
-        pinfo->pseudo_header->atm.type = TRAF_LLCMX;
-        pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+        atm_info.type = TRAF_LLCMX;
+        atm_info.subtype = TRAF_ST_UNKNOWN;
         break;
 
       case ERF_AAL5_UNSPEC:
-        pinfo->pseudo_header->atm.aal = AAL_5;
-        pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
-        pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+        atm_info.aal = AAL_5;
+        atm_info.type = TRAF_UNKNOWN;
+        atm_info.subtype = TRAF_ST_UNKNOWN;
         break;
       }
 
-      call_dissector(atm_untruncated_handle, new_tvb, pinfo, tree);
+      call_dissector_with_data(atm_untruncated_handle, new_tvb, pinfo, tree,
+                               &atm_info);
     } else {
       /* Treat this as a raw cell */
-      pinfo->pseudo_header->atm.flags |= ATM_RAW_CELL;
-      pinfo->pseudo_header->atm.flags |= ATM_NO_HEC;
-      pinfo->pseudo_header->atm.aal = AAL_UNKNOWN;
+      atm_info.flags |= ATM_RAW_CELL;
+      atm_info.flags |= ATM_NO_HEC;
+      atm_info.aal = AAL_UNKNOWN;
       /* can call atm_untruncated because we set ATM_RAW_CELL flag */
-      call_dissector(atm_untruncated_handle, tvb, pinfo, tree);
+      call_dissector_with_data(atm_untruncated_handle, tvb, pinfo, tree,
+                               &atm_info);
     }
     break;
 
@@ -1275,104 +1279,98 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   case ERF_TYPE_AAL5:
     atm_hdr = tvb_get_ntohl(tvb, 0);
-    memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
-    pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
-    pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
-    pinfo->pseudo_header->atm.channel = (flags & 0x03);
+    memset(&atm_info, 0, sizeof(atm_info));
+    atm_info.vpi = ((atm_hdr & 0x0ff00000) >> 20);
+    atm_info.vci = ((atm_hdr & 0x000ffff0) >>  4);
+    atm_info.channel = (flags & 0x03);
 
     new_tvb = tvb_new_subset_remaining(tvb, ATM_HDR_LENGTH);
     /* Work around to have decoding working */
-    pinfo->pseudo_header->atm.aal = AAL_5;
+    atm_info.aal = AAL_5;
     switch (erf_aal5_type) {
 
     case ERF_AAL5_GUESS:
-      pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
-      pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+      atm_info.type = TRAF_UNKNOWN;
+      atm_info.subtype = TRAF_ST_UNKNOWN;
       /* Try to guess the type according to the first bytes */
-      erf_atm_guess_traffic_type(new_tvb, 0, tvb_captured_length(new_tvb), pinfo->pseudo_header);
+      erf_atm_guess_traffic_type(new_tvb, 0, tvb_captured_length(new_tvb), &atm_info);
       break;
 
     case ERF_AAL5_LLC:
-      pinfo->pseudo_header->atm.type = TRAF_LLCMX;
-      pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+      atm_info.type = TRAF_LLCMX;
+      atm_info.subtype = TRAF_ST_UNKNOWN;
       break;
 
     case ERF_AAL5_UNSPEC:
-      pinfo->pseudo_header->atm.aal = AAL_5;
-      pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
-      pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+      atm_info.aal = AAL_5;
+      atm_info.type = TRAF_UNKNOWN;
+      atm_info.subtype = TRAF_ST_UNKNOWN;
       break;
     }
 
-    call_dissector(atm_untruncated_handle, new_tvb, pinfo, tree);
+    call_dissector_with_data(atm_untruncated_handle, new_tvb, pinfo, tree,
+                             &atm_info);
     break;
 
   case ERF_TYPE_MC_AAL2:
     dissect_mc_aal2_header(tvb, pinfo, erf_tree);
 
     /*
+     * Most of the information is in the ATM header; fetch it.
+     */
+    atm_hdr = tvb_get_ntohl(tvb, 0);
+
+    /*
      * The channel identification number is in the MC header, so it's
      * in the pseudo-header, not in the packet data.
-     *
-     * We'll be overwriting the pseudo-header, so fetch it first.
-     *
-     * XXX - we should be passing a newly-constructed pseudo-header as
-     * an argument to the ATM dissector.
      */
     aal2_cid = (pinfo->pseudo_header->erf.subhdr.mc_hdr & MC_AAL2_CID_MASK) >> MC_AAL2_CID_SHIFT;
 
-    /*
-     * ERF_TYPE_MC_AAL2 MC pseudoheader is not included in tvb,
-     * and we do not supply 'dct2000' pseudoheader.
-     */
-
-    /*
-     * Overwrite the wtap pseudo_header with an ATM pseudo-header.
-     * Zero it out, and fill it in.
-     */
-    memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
-
-    atm_hdr = tvb_get_ntohl(tvb, 0);
-
-    pinfo->pseudo_header->atm.aal = AAL_2;
-    pinfo->pseudo_header->atm.flags |= ATM_AAL2_NOPHDR;
-    pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
-    pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
-    pinfo->pseudo_header->atm.channel = (flags & 0x03);
-    pinfo->pseudo_header->atm.aal2_cid = aal2_cid;
-    pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
-    pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+    /* Zero out and fill in the ATM pseudo-header. */
+    memset(&atm_info, 0, sizeof(atm_info));
+    atm_info.aal = AAL_2;
+    atm_info.flags |= ATM_AAL2_NOPHDR;
+    atm_info.vpi = ((atm_hdr & 0x0ff00000) >> 20);
+    atm_info.vci = ((atm_hdr & 0x000ffff0) >>  4);
+    atm_info.channel = (flags & 0x03);
+    atm_info.aal2_cid = aal2_cid;
+    atm_info.type = TRAF_UNKNOWN;
+    atm_info.subtype = TRAF_ST_UNKNOWN;
 
     /* remove ATM cell header from tvb */
     new_tvb = tvb_new_subset_remaining(tvb, ATM_HDR_LENGTH);
-    call_dissector(atm_untruncated_handle, new_tvb, pinfo, tree);
+    call_dissector_with_data(atm_untruncated_handle, new_tvb, pinfo, tree,
+                             &atm_info);
     break;
 
   case ERF_TYPE_AAL2:
     dissect_aal2_header(tvb, pinfo, erf_tree);
 
     /*
-     * We removed the ERF_TYPE_AAL2 'ext' pseudoheader in wtap,
-     * and do not supply the 'dct2000' pseudoheader.
+     * Most of the information is in the ATM header; fetch it.
      */
-
     atm_hdr = tvb_get_ntohl(tvb, 0);
 
-    /* Change wtap pseudo_header from erf to atm for atm dissector */
-    memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
+    /*
+     * The channel identification number is in the AAL2 header, so it's
+     * in the pseudo-header, not in the packet data.
+     */
+    aal2_cid = (pinfo->pseudo_header->erf.subhdr.aal2_hdr & AAL2_CID_MASK) >> AAL2_CID_SHIFT;
 
-    /* fill in atm pseudo header */
-    pinfo->pseudo_header->atm.aal = AAL_2;
-    pinfo->pseudo_header->atm.flags |= ATM_AAL2_NOPHDR;
-    pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
-    pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
-    pinfo->pseudo_header->atm.channel = (flags & 0x03);
-    pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
-    pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+    /* Zero out and fill in the ATM pseudo-header. */
+    memset(&atm_info, 0, sizeof(atm_info));
+    atm_info.aal = AAL_2;
+    atm_info.flags |= ATM_AAL2_NOPHDR;
+    atm_info.vpi = ((atm_hdr & 0x0ff00000) >> 20);
+    atm_info.vci = ((atm_hdr & 0x000ffff0) >>  4);
+    atm_info.channel = (flags & 0x03);
+    atm_info.type = TRAF_UNKNOWN;
+    atm_info.subtype = TRAF_ST_UNKNOWN;
 
     /* remove ATM cell header from tvb */
     new_tvb = tvb_new_subset_remaining(tvb, ATM_HDR_LENGTH);
-    call_dissector(atm_untruncated_handle, new_tvb, pinfo, tree);
+    call_dissector_with_data(atm_untruncated_handle, new_tvb, pinfo, tree,
+                             &atm_info);
     break;
 
   case ERF_TYPE_MC_HDLC:

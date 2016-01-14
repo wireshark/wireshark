@@ -2091,6 +2091,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     int                 encap;
     dissector_handle_t  protocol_handle = 0;
     dissector_handle_t  heur_protocol_handle = 0;
+    void               *protocol_data = 0;
     int                 sub_dissector_result = 0;
     const char         *protocol_name;
     gboolean            is_comment, is_sprint = FALSE;
@@ -2349,6 +2350,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             break;
         case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
             protocol_handle = find_dissector("atm_untruncated");
+            protocol_data = &pinfo->pseudo_header->dct2000.inner_pseudo_header.atm;
             break;
         case WTAP_ENCAP_PPP:
             protocol_handle = find_dissector("ppp_hdlc");
@@ -2804,7 +2806,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     if (protocol_handle != 0) {
         /* Dissect the remainder of the frame using chosen protocol handle */
         next_tvb = tvb_new_subset_remaining(tvb, offset);
-        sub_dissector_result = call_dissector_only(protocol_handle, next_tvb, pinfo, tree, NULL);
+        sub_dissector_result = call_dissector_only(protocol_handle, next_tvb, pinfo, tree, protocol_data);
     }
 
 

@@ -493,8 +493,10 @@ static int dissect_fp_hint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     guint32 atm_hdr, aal2_ext;
     tvbuff_t *next_tvb;
     dissector_handle_t next_dissector;
+    void *next_dissector_data;
     proto_item *ti;
     proto_tree *fph_tree = NULL;
+    struct atm_phdr atm_info;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FP Hint");
 
@@ -515,25 +517,30 @@ static int dissect_fp_hint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         case FPH_FRAME_ATM_AAL2:
             aal2_ext = tvb_get_ntohl(tvb, hdrlen); hdrlen += 4;
             atm_hdr = tvb_get_ntohl(tvb, hdrlen); hdrlen += 4;
-            memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
-            pinfo->pseudo_header->atm.aal = AAL_2;
-            /* pinfo->pseudo_header->atm.flags = pinfo->p2p_dir; */
-            pinfo->pseudo_header->atm.flags = ATM_AAL2_NOPHDR;
-            pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
-            pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
-            pinfo->pseudo_header->atm.aal2_cid = aal2_ext & 0x000000ff;
-            pinfo->pseudo_header->atm.type = TRAF_UMTS_FP;
+            memset(&atm_info, 0, sizeof(atm_info));
+            atm_info.aal = AAL_2;
+            /* atm_info.flags = pinfo->p2p_dir; */
+            atm_info.flags = ATM_AAL2_NOPHDR;
+            atm_info.vpi = ((atm_hdr & 0x0ff00000) >> 20);
+            atm_info.vci = ((atm_hdr & 0x000ffff0) >>  4);
+            atm_info.aal2_cid = aal2_ext & 0x000000ff;
+            atm_info.type = TRAF_UMTS_FP;
             next_dissector = atm_untrunc_handle;
+            next_dissector_data = &atm_info;
             break;
         case FPH_FRAME_ETHERNET:
             next_dissector = ethwithfcs_handle;
+            next_dissector_data = NULL;
             break;
         default:
             next_dissector = data_handle;
+            next_dissector_data = NULL;
+            break;
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, hdrlen);
-    call_dissector(next_dissector, next_tvb, pinfo, tree);
+    call_dissector_with_data(next_dissector, next_tvb, pinfo, tree,
+                             next_dissector_data);
     return tvb_captured_length(tvb);
 }
 

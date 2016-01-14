@@ -308,7 +308,7 @@ static guint16 evaluate_meta_item_pcap(proto_tree *meta_tree, tvbuff_t *tvb, pac
 /*
 * offs: current offset in tvb
 */
-static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, packet_info *pinfo, guint16 offs)
+static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, packet_info *pinfo, guint16 offs, struct atm_phdr *atm_info)
 {
     guint16             id;
     guint8              type;
@@ -410,8 +410,8 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
                 case META_AAL5PROTO_MTP3:
                     p_sscop_info->subdissector = sscf_nni_handle;
                     /* hint for ATM dissector that this frame contains SSCOP */
-                    memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
-                    pinfo->pseudo_header->atm.type = TRAF_SSCOP;
+                    memset(atm_info, 0, sizeof(*atm_info));
+                    atm_info->type = TRAF_SSCOP;
                     break;
                 case META_AAL5PROTO_ALCAP:
                     p_sscop_info->subdissector = alcap_handle;
@@ -421,8 +421,8 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
                     break;
                 case META_AAL5PROTO_NS:
                     /* hint for ATM dissector that this frame contains GPRS NS */
-                    memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
-                    pinfo->pseudo_header->atm.type = TRAF_GPRS_NS;
+                    memset(atm_info, 0, sizeof(*atm_info));
+                    atm_info->type = TRAF_GPRS_NS;
                     break;
                 /* TODO: check for additional protos on Iu 802 LLC/SNAP ... */
                 default:
@@ -480,7 +480,8 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
  * header_length: length of meta header
  */
 static gint32 evaluate_meta_items(guint16 schema, tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *meta_tree, guint16 offs, gint32 header_length)
+    proto_tree *meta_tree, guint16 offs, gint32 header_length,
+    struct atm_phdr *atm_info)
 {
     gint16 item_len;
     gint32 total_len = 0;
@@ -488,7 +489,7 @@ static gint32 evaluate_meta_items(guint16 schema, tvbuff_t *tvb, packet_info *pi
     while (total_len < header_length) {
         switch (schema) {
             case META_SCHEMA_DXT:
-                item_len = evaluate_meta_item_dxt(meta_tree, tvb, pinfo, offs + total_len);
+                item_len = evaluate_meta_item_dxt(meta_tree, tvb, pinfo, offs + total_len, atm_info);
                 break;
             case META_SCHEMA_PCAP:
                 item_len = evaluate_meta_item_pcap(meta_tree, tvb, pinfo, offs + total_len);
@@ -516,7 +517,9 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree         *meta_tree      = NULL;
     proto_item         *ti             = NULL;
     tvbuff_t           *next_tvb       = NULL;
-    dissector_handle_t  next_dissector = NULL;
+    dissector_handle_t  next_dissector = data_handle;
+    void               *next_dissector_data = NULL;
+    struct atm_phdr     atm_info;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "META");
 
@@ -533,7 +536,7 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         proto_tree_add_uint(meta_tree, hf_meta_proto, tvb, 4, 2, proto);
         proto_tree_add_uint(meta_tree, hf_meta_reserved, tvb, 6, 2, reserved);
     }
-    item_len = evaluate_meta_items(schema, tvb, pinfo, meta_tree, META_HEADER_SIZE, hdrlen);
+    item_len = evaluate_meta_items(schema, tvb, pinfo, meta_tree, META_HEADER_SIZE, hdrlen, &atm_info);
 
     if (item_len < 0) {
         /* evaluate_meta_items signalled an error */
@@ -562,28 +565,32 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     next_dissector = fphint_handle;
                     break;
                 case META_PROTO_DXT_ATM:
+                    memset(&atm_info, 0, sizeof atm_info);
+                    atm_info.aal  = AAL_OAMCELL;
+                    atm_info.type = TRAF_UNKNOWN;
                     next_dissector = atm_untrunc_handle;
-                    pinfo->pseudo_header->atm.aal  = AAL_OAMCELL;
-                    pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
+                    next_dissector_data = &atm_info;
                     break;
                 case META_PROTO_DXT_ATM_AAL2:
                     aal2_ext = tvb_get_ntohl(tvb, item_len + META_HEADER_SIZE); item_len += 4;
                     atm_hdr  = tvb_get_ntohl(tvb, item_len + META_HEADER_SIZE); item_len += 4;
-                    memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
-                    pinfo->pseudo_header->atm.aal = AAL_2;
-                    /* pinfo->pseudo_header->atm.flags = pinfo->p2p_dir; */
-                    pinfo->pseudo_header->atm.vpi  = ((atm_hdr & 0x0ff00000) >> 20);
-                    pinfo->pseudo_header->atm.vci  = ((atm_hdr & 0x000ffff0) >>  4);
-                    pinfo->pseudo_header->atm.aal2_cid = aal2_ext & 0x000000ff;
-                    pinfo->pseudo_header->atm.type = TRAF_UMTS_FP;
+                    memset(&atm_info, 0, sizeof(atm_info));
+                    atm_info.aal = AAL_2;
+                    /* atm_info.flags = pinfo->p2p_dir; */
+                    atm_info.vpi  = ((atm_hdr & 0x0ff00000) >> 20);
+                    atm_info.vci  = ((atm_hdr & 0x000ffff0) >>  4);
+                    atm_info.aal2_cid = aal2_ext & 0x000000ff;
+                    atm_info.type = TRAF_UMTS_FP;
                     next_dissector = atm_untrunc_handle;
+                    next_dissector_data = &atm_info;
                     break;
                 case META_PROTO_DXT_ERF_AAL5:
                     atm_hdr = tvb_get_ntohl(tvb, item_len + META_HEADER_SIZE); item_len += 4;
-                    pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
-                    pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
-                    pinfo->pseudo_header->atm.aal = AAL_5;
+                    atm_info.vpi = ((atm_hdr & 0x0ff00000) >> 20);
+                    atm_info.vci = ((atm_hdr & 0x000ffff0) >>  4);
+                    atm_info.aal = AAL_5;
                     next_dissector = atm_untrunc_handle;
+                    next_dissector_data = &atm_info;
                     break;
                 case META_PROTO_DXT_HDLC:
                     next_dissector = mtp2_handle;
@@ -598,8 +605,8 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     if (!next_tvb)
         next_tvb = tvb_new_subset_remaining(tvb, item_len + META_HEADER_SIZE);
 
-    call_dissector(next_dissector ? next_dissector : data_handle,
-        next_tvb, pinfo, tree);
+    call_dissector_with_data(next_dissector, next_tvb, pinfo, tree,
+                             next_dissector_data);
     return tvb_captured_length(tvb);
 }
 
