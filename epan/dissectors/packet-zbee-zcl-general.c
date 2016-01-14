@@ -863,6 +863,236 @@ proto_reg_handoff_zbee_zcl_power_config(void)
 } /*proto_reg_handoff_zbee_zcl_power_config*/
 
 
+/* ########################################################################## */
+/* #### (0x0002) DEVICE TEMPERATURE CONFIGURATION CLUSTER ################### */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+/*Attributes*/
+#define ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_CURRENT_TEMP                  0x0000  /*Current Temperature*/
+#define ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_MIN_TEMP_EXP                  0x0001  /*Min Temperature Experienced*/
+#define ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_MAX_TEMP_EXP                  0x0002  /*Max Temperature Experienced*/
+#define ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_OVER_TEMP_TOTAL_DWELL         0x0003  /*Over Temperature Total Dwell*/
+
+#define ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_DEVICE_TEMP_ALARM_MASK        0x0010  /*Device Temperature Alarm Mask*/
+#define ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_LOW_TEMP_THRESHOLD            0x0011  /*Low Temperature Threshold*/
+#define ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_HIGH_TEMP_THRESHOLD           0x0012  /*High Temperature Threshold*/
+#define ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_LOW_TEMP_DWELL_TRIP_POINT     0x0013  /*Low Temperature Dwell Trip Point*/
+#define ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_HIGH_TEMP_DWELL_TRIP_POINT    0x0014  /*High Temperature Dwell Trip Point*/
+
+/*Server commands received - none*/
+
+/*Server commands generated - none*/
+
+/*Device Temperature Alarm Mask Value*/
+#define ZBEE_ZCL_DEVICE_TEMPERATURE_CONFIGURATION_DEVICE_TEMP_ALARM_MASK_TOO_LOW        0x01    /*Mains Voltage too low*/
+#define ZBEE_ZCL_DEVICE_TEMPERATURE_CONFIGURATION_DEVICE_TEMP_ALARM_MASK_TOO_HIGH       0x02    /*Mains Voltage too high*/
+#define ZBEE_ZCL_DEVICE_TEMPERATURE_CONFIGURATION_DEVICE_TEMP_ALARM_MASK_RESERVED       0xfc    /*Mains Voltage reserved*/
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+void proto_register_zbee_zcl_device_temperature_configuration(void);
+void proto_reg_handoff_zbee_zcl_device_temperature_configuration(void);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_device_temperature_configuration_attr_data      (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Private functions prototype */
+
+/*************************/
+/* Global Variables      */
+/*************************/
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_device_temperature_configuration = -1;
+
+static int hf_zbee_zcl_device_temperature_configuration_attr_id = -1;
+static int hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask = -1;
+static int hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_too_low = -1;
+static int hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_too_high = -1;
+static int hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_reserved = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_device_temperature_configuration = -1;
+static gint ett_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask = -1;
+
+/* Attributes */
+static const value_string zbee_zcl_device_temperature_configuration_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_CURRENT_TEMP,                   "Current Temperature" },
+    { ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_MIN_TEMP_EXP,                   "Min Temperature Experienced" },
+    { ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_MAX_TEMP_EXP,                   "Max Temperature Experienced" },
+    { ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_OVER_TEMP_TOTAL_DWELL,          "Over Temperature Total Dwell" },
+    { ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_DEVICE_TEMP_ALARM_MASK,         "Device Temperature Alarm Mask" },
+    { ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_LOW_TEMP_THRESHOLD,             "Low Temperature Threshold" },
+    { ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_HIGH_TEMP_THRESHOLD,            "High Temperature Threshold" },
+    { ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_LOW_TEMP_DWELL_TRIP_POINT,      "Low Temperature Dwell Trip Point" },
+    { ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_HIGH_TEMP_DWELL_TRIP_POINT,     "High Temperature Dwell Trip Point" },
+    { 0, NULL }
+};
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_device_temperature_configuration
+ *  DESCRIPTION
+ *      ZigBee ZCL Device Temperature Configuration cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      int                 - length of parsed data.
+ *---------------------------------------------------------------
+ */
+
+static int
+dissect_zbee_zcl_device_temperature_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
+{
+	return tvb_captured_length(tvb);;
+} /*dissect_zbee_zcl_device_temperature_configuration*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_device_temperature_configuration_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+dissect_zcl_device_temperature_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    static const int * device_temp_alarm_mask[] = {
+        &hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_too_low,
+        &hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_too_high,
+        &hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_reserved,
+        NULL
+    };
+
+    /* Dissect attribute data type and data */
+    switch (attr_id) {
+
+        case ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_DEVICE_TEMP_ALARM_MASK:
+            proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask, ett_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask, device_temp_alarm_mask, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_CURRENT_TEMP:
+        case ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_MIN_TEMP_EXP:
+        case ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_MAX_TEMP_EXP:
+        case ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_OVER_TEMP_TOTAL_DWELL:
+        case ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_LOW_TEMP_THRESHOLD:
+        case ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_HIGH_TEMP_THRESHOLD:
+        case ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_LOW_TEMP_DWELL_TRIP_POINT:
+        case ZBEE_ZCL_ATTR_ID_DEVICE_TEMPERATURE_CONFIGURATION_HIGH_TEMP_DWELL_TRIP_POINT:
+        default:
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+
+} /*dissect_zcl_device_temperature_configuration_attr_data*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_device_temperature_configuration
+ *  DESCRIPTION
+ *      ZigBee ZCL Device Temperature Configuration cluster protocol registration routine.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_register_zbee_zcl_device_temperature_configuration(void)
+{
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_device_temperature_configuration_attr_id,
+            { "Attribute", "zbee_zcl_general.device_temperature_configuration.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_device_temperature_configuration_attr_names),
+            0x00, NULL, HFILL } },
+
+        /* start Device Temperature Alarm Mask fields */
+        { &hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask,
+            { "Device Temperature Alarm Mask", "zbee_zcl_general.device_temperature_configuration.attr.device_temp_alarm_mask", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_too_low,
+            { "Device Temperature too low", "zbee_zcl_general.device_temperature_configuration.attr.device_temp_alarm_mask.too_low", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_DEVICE_TEMPERATURE_CONFIGURATION_DEVICE_TEMP_ALARM_MASK_TOO_LOW, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_too_high,
+            { "Device Temperature too high", "zbee_zcl_general.device_temperature_configuration.attr.device_temp_alarm_mask.too_high", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_DEVICE_TEMPERATURE_CONFIGURATION_DEVICE_TEMP_ALARM_MASK_TOO_HIGH, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask_reserved,
+            { "Reserved", "zbee_zcl_general.device_temperature_configuration.attr.device_temp_alarm_mask.reserved", FT_UINT8, BASE_DEC, NULL,
+            ZBEE_ZCL_DEVICE_TEMPERATURE_CONFIGURATION_DEVICE_TEMP_ALARM_MASK_RESERVED, NULL, HFILL } }
+        /* end Device Temperature Alarm Mask fields */
+    };
+
+    /* ZCL Device Temperature Configuration subtrees */
+    static gint *ett[]={
+        &ett_zbee_zcl_device_temperature_configuration,
+        &ett_zbee_zcl_device_temperature_configuration_device_temp_alarm_mask
+    };
+
+    /* Register the ZigBee ZCL Device Temperature Configuration cluster protocol name and description */
+    proto_zbee_zcl_device_temperature_configuration = proto_register_protocol("ZigBee ZCL Device Temperature Configuration", "ZCL Device Temperature Configuration", ZBEE_PROTOABBREV_ZCL_DEVICE_TEMP_CONFIG);
+    proto_register_field_array(proto_zbee_zcl_device_temperature_configuration, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL Device Temperature Configuration dissector. */
+    register_dissector(ZBEE_PROTOABBREV_ZCL_DEVICE_TEMP_CONFIG, dissect_zbee_zcl_device_temperature_configuration, proto_zbee_zcl_device_temperature_configuration);
+} /*proto_register_zbee_zcl_device_temperature_configuration*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_device_temperature_configuration
+ *  DESCRIPTION
+ *      Hands off the ZCL Device Temperature Configuration dissector.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_reg_handoff_zbee_zcl_device_temperature_configuration(void)
+{
+    dissector_handle_t device_temperature_config_handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    device_temperature_config_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_DEVICE_TEMP_CONFIG);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_DEVICE_TEMP_CONFIG, device_temperature_config_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_device_temperature_configuration,
+                            ett_zbee_zcl_device_temperature_configuration,
+                            ZBEE_ZCL_CID_DEVICE_TEMP_CONFIG,
+                            hf_zbee_zcl_device_temperature_configuration_attr_id,
+                            -1, -1,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_device_temperature_configuration_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_device_temperature_configuration*/
+
 
 /* ########################################################################## */
 /* #### (0x0003) IDENTIFY CLUSTER ########################################### */

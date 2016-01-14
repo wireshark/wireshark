@@ -1122,6 +1122,7 @@
 #define ZBEE_PROTOABBREV_ZCL_APPLCTRL       "zbee_zcl_general.applctrl"
 #define ZBEE_PROTOABBREV_ZCL_BASIC          "zbee_zcl_general.basic"
 #define ZBEE_PROTOABBREV_ZCL_POWER_CONFIG   "zbee_zcl_general.power_config"
+#define ZBEE_PROTOABBREV_ZCL_DEVICE_TEMP_CONFIG   "zbee_zcl_general.device_temperature_config"
 #define ZBEE_PROTOABBREV_ZCL_IDENTIFY       "zbee_zcl_general.identify"
 #define ZBEE_PROTOABBREV_ZCL_GROUPS         "zbee_zcl_general.groups"
 #define ZBEE_PROTOABBREV_ZCL_SCENES         "zbee_zcl_general.scenes"
