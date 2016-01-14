@@ -1655,12 +1655,6 @@ if test "x$enable_wireshark" = "xyes"; then
 			GUI_CONFIGURE_FLAGS="$GUI_CONFIGURE_FLAGS --with-qt"
 
 			#
-			# XXX - greasy hack to make ui/gtk/recent.c
-			# compile.
-			#
-			CPPFLAGS="-DQT_GUI_LIB"
-
-			#
 			# We're building with Qt, so we need the Qt build
 			# tools in order to build the Wireshark GUI.
 			# We've found a particular major version of Qt,
