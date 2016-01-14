@@ -2698,6 +2698,205 @@ proto_reg_handoff_zbee_zcl_on_off(void)
                          );
 } /*proto_reg_handoff_zbee_zcl_on_off*/
 
+/* ############################################################################################### */
+/* #### (0x0007) ON/OFF SWITCH CONFIGURATION CLUSTER ############################################# */
+/* ############################################################################################### */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+/* Attributes */
+#define ZBEE_ZCL_ON_OFF_SWITCH_CONFIGURATION_ATTR_ID_SWITCH_TYPE     0x0000     /* Switch Type */
+#define ZBEE_ZCL_ON_OFF_SWITCH_CONFIGURATION_ATTR_ID_SWITCH_ACTIONS  0x0010  /* Switch Actions */
+
+/* No Server Commands Received */
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+void proto_register_zbee_zcl_on_off_switch_configuration(void);
+void proto_reg_handoff_zbee_zcl_on_off_switch_configuration(void);
+
+/* Command Dissector Helpers */
+static void dissect_zcl_on_off_switch_configuration_attr_data     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type);
+
+/* Private functions prototype */
+
+/*************************/
+/* Global Variables      */
+/*************************/
+
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_on_off_switch_configuration = -1;
+
+static int hf_zbee_zcl_on_off_switch_configuration_attr_id = -1;
+static int hf_zbee_zcl_on_off_switch_configuration_attr_switch_type = -1;
+static int hf_zbee_zcl_on_off_switch_configuration_attr_switch_actions = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_on_off_switch_configuration = -1;
+
+/* Attributes */
+static const value_string zbee_zcl_on_off_switch_configuration_attr_names[] = {
+    { ZBEE_ZCL_ON_OFF_SWITCH_CONFIGURATION_ATTR_ID_SWITCH_TYPE,     "Switch Type" },
+    { ZBEE_ZCL_ON_OFF_SWITCH_CONFIGURATION_ATTR_ID_SWITCH_ACTIONS,  "Switch Actions" },
+    { 0, NULL }
+};
+
+/* Switch Type Names */
+static const value_string zbee_zcl_on_off_switch_configuration_switch_type_names[] = {
+    { 0x00, "Toggle" },
+    { 0x01, "Momentary" },
+    { 0, NULL }
+};
+
+/* Switch Actions Names */
+static const value_string zbee_zcl_on_off_switch_configuration_switch_actions_names[] = {
+    { 0x00, "On" },
+    { 0x01, "Off" },
+    { 0x02, "Toggle" },
+    { 0, NULL }
+};
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_on_off_switch_configuration
+ *  DESCRIPTION
+ *      ZigBee ZCL OnOff Switch Configuration cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      int                 - length of parsed data.
+ *---------------------------------------------------------------
+ */
+static int
+dissect_zbee_zcl_on_off_switch_configuration(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data _U_)
+{
+    return tvb_captured_length(tvb);
+} /*dissect_zbee_zcl_on_off_switch_configuration*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_on_off_switch_configuration_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+dissect_zcl_on_off_switch_configuration_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    /* Dissect attribute data type and data */
+    switch (attr_id) {
+
+        case ZBEE_ZCL_ON_OFF_SWITCH_CONFIGURATION_ATTR_ID_SWITCH_TYPE:
+            proto_tree_add_item(tree, hf_zbee_zcl_on_off_switch_configuration_attr_switch_type, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        case ZBEE_ZCL_ON_OFF_SWITCH_CONFIGURATION_ATTR_ID_SWITCH_ACTIONS:
+            proto_tree_add_item(tree, hf_zbee_zcl_on_off_switch_configuration_attr_switch_actions, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+
+        default:
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+
+} /*dissect_zcl_on_off_switch_configuration_attr_data*/
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_on_off_switch_configuration
+ *  DESCRIPTION
+ *      ZigBee ZCL OnOff cluster protocol registration routine.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+void
+proto_register_zbee_zcl_on_off_switch_configuration(void)
+{
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_on_off_switch_configuration_attr_id,
+            { "Attribute", "zbee_zcl_general.onoff_switch_configuration.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_on_off_switch_configuration_attr_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_on_off_switch_configuration_attr_switch_type,
+            { "Switch Type", "zbee_zcl_general.onoff.attr.switch_type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_on_off_switch_configuration_switch_type_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_on_off_switch_configuration_attr_switch_actions,
+            { "Switch Action", "zbee_zcl_general.onoff.attr.switch_actions", FT_UINT8, BASE_HEX, VALS(zbee_zcl_on_off_switch_configuration_switch_actions_names),
+            0x00, NULL, HFILL } }
+
+    };
+
+    /* ZCL Identify subtrees */
+    static gint *ett[]={
+        &ett_zbee_zcl_on_off_switch_configuration
+    };
+
+    /* Register the ZigBee ZCL OnOff Switch Configuration cluster protocol name and description */
+    proto_zbee_zcl_on_off_switch_configuration = proto_register_protocol("ZigBee ZCL OnOff Switch Configuration", "ZCL OnOff Switch Configuration", ZBEE_PROTOABBREV_ZCL_ONOFF_SWITCH_CONFIG);
+    proto_register_field_array(proto_zbee_zcl_on_off_switch_configuration, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL OnOff dissector. */
+    register_dissector(ZBEE_PROTOABBREV_ZCL_ONOFF_SWITCH_CONFIG, dissect_zbee_zcl_on_off_switch_configuration, proto_zbee_zcl_on_off_switch_configuration);
+} /* proto_register_zbee_zcl_on_off_switch_configuration */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_on_off_switch_configuration
+ *  DESCRIPTION
+ *      Hands off the Zcl OnOff cluster dissector.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void
+proto_reg_handoff_zbee_zcl_on_off_switch_configuration(void)
+{
+    dissector_handle_t on_off_switch_configuration_handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    on_off_switch_configuration_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_ONOFF_SWITCH_CONFIG);
+
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_ON_OFF_SWITCH_CONFIG, on_off_switch_configuration_handle);
+    zbee_zcl_init_cluster(  proto_zbee_zcl_on_off_switch_configuration,
+                            ett_zbee_zcl_on_off_switch_configuration,
+                            ZBEE_ZCL_CID_ON_OFF_SWITCH_CONFIG,
+                            hf_zbee_zcl_on_off_switch_configuration_attr_id,
+                            -1, -1,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_on_off_switch_configuration_attr_data
+                         );
+} /*proto_reg_handoff_zbee_zcl_on_off_switch_configuration*/
 
 /* ########################################################################## */
 /* #### (0x0009) ALARMS CLUSTER ############################################# */
