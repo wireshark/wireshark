@@ -26,7 +26,8 @@
 #include "frame_tvbuff.h"
 #include "ui/proto_hier_stats.h"
 #include "ui/progress_dlg.h"
-#include <epan/epan_dissect.h>
+#include "epan/epan_dissect.h"
+#include "epan/proto.h"
 
 #include <string.h>
 
@@ -36,6 +37,7 @@
 #define STAT_NODE_STATS(n)   ((ph_stats_node_t*)(n)->data)
 #define STAT_NODE_HFINFO(n)  (STAT_NODE_STATS(n)->hfinfo)
 
+static int pc_proto_id = -1;
 
 static GNode*
 find_stat_node(GNode *parent_stat_node, header_field_info *needle_hfinfo)
@@ -122,7 +124,16 @@ process_tree(proto_tree *protocol_tree, ph_stats_t* ps, guint pkt_len)
 {
 	proto_node	*ptree_node;
 
+	/*
+	 * If our first item is a comment, skip over it. This keeps
+	 * us from having a top-level "Packet comments" item that
+	 * steals items from "Frame".
+	 */
 	ptree_node = ((proto_node *)protocol_tree)->first_child;
+	if (ptree_node && ptree_node->finfo->hfinfo->id == pc_proto_id) {
+		ptree_node = ptree_node->next;
+	}
+
 	if (!ptree_node) {
 		return;
 	}
@@ -188,6 +199,8 @@ ph_stats_new(capture_file *cf)
 	int		progbar_quantum;
 
 	if (!cf) return NULL;
+
+	pc_proto_id = proto_get_id_by_filter_name("pkt_comment");
 
 	/* Initialize the data */
 	ps = g_new(ph_stats_t, 1);
