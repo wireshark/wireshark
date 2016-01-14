@@ -5988,7 +5988,7 @@ dcm_tag_lookup(guint16 grp, guint16 elm)
     static dcm_tag_t tag_grp_length      = { 0x00000000, "Group Length", "UL", "1", 0, 0 };
 
     /* Try a direct hit first before doing a masked search */
-    tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER((grp << 16) | elm));
+    tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | elm));
 
     if (tag_def == NULL) {
 
@@ -6006,23 +6006,23 @@ dcm_tag_lookup(guint16 grp, guint16 elm)
         /* There are a few tags that require a mask to be found */
         else if (((grp & 0xFF00) == 0x5000) || ((grp & 0xFF00) == 0x6000) || ((grp & 0xFF00) == 0x7F00)) {
             /* Do a special for groups 0x50xx, 0x60xx and 0x7Fxx */
-            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER(((grp & 0xFF00) << 16) | elm));
+            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER((((guint32)grp & 0xFF00) << 16) | elm));
         }
         else if ((grp == 0x0020) && ((elm & 0xFF00) == 0x3100)) {
-            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER((grp << 16) | (elm & 0xFF00)));
+            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0xFF00)));
         }
         else if ((grp == 0x0028) && ((elm & 0xFF00) == 0x0400)) {
             /* This map was done to 0x041x */
-            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER((grp << 16) | (elm & 0xFF0F) | 0x0010));
+            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0xFF0F) | 0x0010));
         }
         else if ((grp == 0x0028) && ((elm & 0xFF00) == 0x0800)) {
-            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER((grp << 16) | (elm & 0xFF0F)));
+            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0xFF0F)));
         }
         else if (grp == 0x1000) {
-            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER((grp << 16) | (elm & 0x000F)));
+            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0x000F)));
         }
         else if (grp == 0x1010) {
-            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER((grp << 16) | (elm & 0x0000)));
+            tag_def = (dcm_tag_t *)g_hash_table_lookup(dcm_tag_table, GUINT_TO_POINTER(((guint32)grp << 16) | (elm & 0x0000)));
         }
 
         if (tag_def == NULL) {
@@ -6078,6 +6078,8 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     proto_item  *tag_pitem = NULL;
     dcm_tag_t   *tag_def   = NULL;
+
+    gint ett;
 
     const gchar *vr = NULL;
     gchar       *tag_value = NULL;      /* Tag Value converted to a string      */
@@ -6281,22 +6283,28 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     is_sequence = (strcmp(vr, "SQ") == 0) || (vl == 0xFFFFFFFF);
     is_item = ((grp == 0xFFFE) && (elm == 0xE000));
 
+    if ((is_sequence | is_item) &&  global_dcm_seq_subtree) {
+        ett = is_sequence ? ett_dcm_data_seq : ett_dcm_data_item;
+    } else {
+        ett = ett_dcm_data_tag;
+    }
+
         if (vl == 0xFFFFFFFF) {
                 /* 'Just' mark header as the length of the item */
                 tag_ptree = proto_tree_add_subtree(tree, tvb, offset_tag, offset - offset_tag,
-                                is_item ? ett_dcm_data_item : ett_dcm_data_seq, &tag_pitem, tag_summary);
+                                ett, &tag_pitem, tag_summary);
                 vl_max = 0;         /* We don't know who long this sequence/item is */
         }
         else if (offset + vl <= endpos) {
                 /* Show real length of item */
                 tag_ptree = proto_tree_add_subtree(tree, tvb, offset_tag, offset + vl - offset_tag,
-                                is_item ? ett_dcm_data_item : ett_dcm_data_seq, &tag_pitem, tag_summary);
+                                ett, &tag_pitem, tag_summary);
                 vl_max = vl;
         }
         else {
                 /* Value is longer than what we have in the PDV, -> we do have a OPEN tag */
                 tag_ptree = proto_tree_add_subtree(tree, tvb, offset_tag, endpos - offset_tag,
-                                is_item ? ett_dcm_data_item : ett_dcm_data_seq, &tag_pitem, tag_summary);
+                                ett, &tag_pitem, tag_summary);
                 vl_max = endpos - offset;
         }
 
@@ -6306,6 +6314,8 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (is_sequence | is_item) {
 
                 if (global_dcm_seq_subtree) {
+                        /* Use different ett_ for Sequences & Items, so that fold/unfold state makes sense */
+                        seq_ptree = tag_ptree;
                         if (!global_dcm_tag_subtree)
                                 tag_ptree = NULL;
                 }
