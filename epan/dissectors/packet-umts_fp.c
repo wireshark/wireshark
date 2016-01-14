@@ -5578,7 +5578,7 @@ void proto_register_fp(void)
     expert_register_field_array(expert_fp, ei, array_length(ei));
 
     /* Allow other dissectors to find this one by name. */
-    register_dissector("fp", dissect_fp, proto_fp);
+    fp_handle = register_dissector("fp", dissect_fp, proto_fp);
 
     /* Preferences */
     fp_module = prefs_register_protocol(proto_fp, NULL);
@@ -5644,7 +5644,6 @@ void proto_reg_handoff_fp(void)
     mac_fdd_edch_handle       = find_dissector("mac.fdd.edch");
     mac_fdd_edch_type2_handle = find_dissector("mac.fdd.edch.type2");
     mac_fdd_hsdsch_handle     = find_dissector("mac.fdd.hsdsch");
-    fp_handle                 = find_dissector("fp");
 
     heur_dissector_add("udp", heur_dissect_fp, "FP over UDP", "fp_udp", proto_fp, HEURISTIC_DISABLE);
     dissector_add_uint("atm.aal2.type", TRAF_UMTS_FP, fp_handle);
