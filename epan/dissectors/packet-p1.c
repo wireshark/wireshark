@@ -8413,7 +8413,7 @@ static const ros_opr_t p3_opr_tab[] = {
   { op_register              ,	dissect_RegisterArgument_PDU,	dissect_RegisterResult_PDU },
   /* change-credentials */
   { op_change_credentials    ,	dissect_ChangeCredentialsArgument_PDU,	dissect_RES_change_credentials_PDU },
-  { 0,				(new_dissector_t)(-1),	(new_dissector_t)(-1) },
+  { 0,				(dissector_t)(-1),	(dissector_t)(-1) },
 };
 
 
@@ -8458,7 +8458,7 @@ static const ros_err_t p3_err_tab[] = {
   { err_new_credentials_unacceptable,	dissect_PAR_new_credentials_unacceptable_PDU },
   /* old-credentials-incorrectly-specified*/
   { err_old_credentials_incorrectly_specified,	dissect_PAR_old_credentials_incorrectly_specified_PDU },
-  { 0,	(new_dissector_t)(-1) },
+  { 0,	(dissector_t)(-1) },
 };
 
 

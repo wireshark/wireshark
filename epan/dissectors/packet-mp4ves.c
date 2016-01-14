@@ -851,7 +851,7 @@ dissect_mp4ves_par_decoderConfigurationInformation(tvbuff_t *tvb, packet_info *p
 typedef struct _mp4ves_capability_t {
 	const gchar *id;
 	const gchar *name;
-	new_dissector_t content_pdu;
+	dissector_t content_pdu;
 } mp4ves_capability_t;
 
 static mp4ves_capability_t mp4ves_capability_tab[] = {

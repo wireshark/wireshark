@@ -71,13 +71,13 @@ int dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 typedef struct _ros_opr_t {
   gint32 opcode;
-  new_dissector_t arg_pdu;
-  new_dissector_t res_pdu;
+  dissector_t arg_pdu;
+  dissector_t res_pdu;
 } ros_opr_t;
 
 typedef struct _ros_err_t {
   gint32 errcode;
-  new_dissector_t err_pdu;
+  dissector_t err_pdu;
 } ros_err_t;
 
 typedef struct _ros_info_t {

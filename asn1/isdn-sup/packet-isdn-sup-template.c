@@ -53,20 +53,20 @@ static rose_ctx_t isdn_sup_rose_ctx;
 
 typedef struct _isdn_sup_op_t {
   gint32 opcode;
-  new_dissector_t arg_pdu;
-  new_dissector_t res_pdu;
+  dissector_t arg_pdu;
+  dissector_t res_pdu;
 } isdn_sup_op_t;
 
 typedef struct _isdn_global_sup_op_t {
   const char*  oid;
-  new_dissector_t arg_pdu;
-  new_dissector_t res_pdu;
+  dissector_t arg_pdu;
+  dissector_t res_pdu;
 } isdn_sup_global_op_t;
 
 
 typedef struct isdn_sup_err_t {
   gint32 errcode;
-  new_dissector_t err_pdu;
+  dissector_t err_pdu;
 } isdn_sup_err_t;
 
 static const value_string isdn_sup_str_operation[] = {

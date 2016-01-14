@@ -588,7 +588,7 @@ dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
  */
 struct dissector_handle {
 	const char	*name;		/* dissector name */
-	new_dissector_t	dissector;
+	dissector_t	dissector;
 	protocol_t	*protocol;
 };
 
@@ -2585,7 +2585,7 @@ dissector_handle_get_dissector_name(const dissector_handle_t handle)
 
 /* Create an anonymous handle for a new dissector. */
 dissector_handle_t
-create_dissector_handle(new_dissector_t dissector, const int proto)
+create_dissector_handle(dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
 
@@ -2597,7 +2597,7 @@ create_dissector_handle(new_dissector_t dissector, const int proto)
 	return handle;
 }
 
-dissector_handle_t create_dissector_handle_with_name(new_dissector_t dissector,
+dissector_handle_t create_dissector_handle_with_name(dissector_t dissector,
     const int proto, const char* name)
 {
 	struct dissector_handle *handle;
@@ -2623,7 +2623,7 @@ destroy_dissector_handle(dissector_handle_t handle)
 
 /* Register a new dissector by name. */
 dissector_handle_t
-register_dissector(const char *name, new_dissector_t dissector, const int proto)
+register_dissector(const char *name, dissector_t dissector, const int proto)
 {
 	struct dissector_handle *handle;
 

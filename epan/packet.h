@@ -86,7 +86,7 @@ typedef struct dissector_table *dissector_table_t;
  *	we need more data (e.g., from subsequent TCP segments) to
  *	dissect the entire PDU.
  */
-typedef int (*new_dissector_t)(tvbuff_t *, packet_info *, proto_tree *, void *);
+typedef int (*dissector_t)(tvbuff_t *, packet_info *, proto_tree *, void *);
 
 /** Type of a heuristic dissector, used in heur_dissector_add().
  *
@@ -495,7 +495,7 @@ WS_DLL_PUBLIC void heur_dissector_add(const char *name, heur_dissector_t dissect
 WS_DLL_PUBLIC void heur_dissector_delete(const char *name, heur_dissector_t dissector, const int proto);
 
 /** Register a new dissector. */
-WS_DLL_PUBLIC dissector_handle_t register_dissector(const char *name, new_dissector_t dissector, const int proto);
+WS_DLL_PUBLIC dissector_handle_t register_dissector(const char *name, dissector_t dissector, const int proto);
 
 /** Deregister a dissector. */
 void deregister_dissector(const char *name);
@@ -519,9 +519,9 @@ WS_DLL_PUBLIC dissector_handle_t find_dissector(const char *name);
 WS_DLL_PUBLIC const char *dissector_handle_get_dissector_name(const dissector_handle_t handle);
 
 /** Create an anonymous handle for a dissector. */
-WS_DLL_PUBLIC dissector_handle_t create_dissector_handle(new_dissector_t dissector,
+WS_DLL_PUBLIC dissector_handle_t create_dissector_handle(dissector_t dissector,
     const int proto);
-WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_name(new_dissector_t dissector,
+WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_name(dissector_t dissector,
     const int proto, const char* name);
 
 /** Call a dissector through a handle and if no dissector was found

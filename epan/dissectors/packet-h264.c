@@ -2650,7 +2650,7 @@ dissect_h264_par_DecoderConfigurationInformation(tvbuff_t *tvb, packet_info *pin
 typedef struct _h264_capability_t {
     const gchar *id;
     const gchar *name;
-    new_dissector_t content_pdu;
+    dissector_t content_pdu;
 } h264_capability_t;
 
 static h264_capability_t h264_capability_tab[] = {

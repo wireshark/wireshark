@@ -81,7 +81,7 @@ static proto_tree *init_raknet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 struct raknet_handler_entry {
     value_string vs;
-    new_dissector_t dissector_fp;
+    dissector_t dissector_fp;
 };
 
 static int

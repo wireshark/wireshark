@@ -131,7 +131,7 @@ WS_DLL_PUBLIC int
 udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 guint fixed_len, gboolean (*heuristic_check)(packet_info *, tvbuff_t *, int, void*),
 		 guint (*get_pdu_len)(packet_info *, tvbuff_t *, int, void*),
-		 new_dissector_t dissect_pdu, void* dissector_data);
+		 dissector_t dissect_pdu, void* dissector_data);
 
 #ifdef __cplusplus
 }

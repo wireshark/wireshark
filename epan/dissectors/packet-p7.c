@@ -4150,7 +4150,7 @@ static const ros_opr_t p7_opr_tab[] = {
   { op_ms_message_submission ,	dissect_MSMessageSubmissionArgument_PDU,	dissect_MSMessageSubmissionResult_PDU },
   /* ms-probe-submission */
   { op_ms_probe_submission   ,	dissect_MSProbeSubmissionArgument_PDU,	dissect_MSProbeSubmissionResult_PDU },
-  { 0,				(new_dissector_t)(-1),	(new_dissector_t)(-1) },
+  { 0,				(dissector_t)(-1),	(dissector_t)(-1) },
 };
 
 
@@ -4189,7 +4189,7 @@ static const ros_err_t p7_err_tab[] = {
   { err_modify_error,	dissect_ModifyErrorParameter_PDU },
   /* entry-class-error*/
   { err_entry_class_error,	dissect_EntryClassErrorParameter_PDU },
-  { 0,	(new_dissector_t)(-1) },
+  { 0,	(dissector_t)(-1) },
 };
 
 

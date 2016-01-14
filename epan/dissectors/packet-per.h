@@ -109,17 +109,17 @@ WS_DLL_PUBLIC guint32 dissect_per_sequence(tvbuff_t *tvb, guint32 offset, asn1_c
 WS_DLL_PUBLIC guint32 dissect_per_sequence_eag(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, const per_sequence_t *sequence);
 
 WS_DLL_PUBLIC guint32 dissect_per_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb);
-WS_DLL_PUBLIC guint32 dissect_per_octet_string_containing_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, new_dissector_t type_cb);
+WS_DLL_PUBLIC guint32 dissect_per_octet_string_containing_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, dissector_t type_cb);
 
 WS_DLL_PUBLIC guint32 dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb, int *len);
-WS_DLL_PUBLIC guint32 dissect_per_bit_string_containing_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, new_dissector_t type_cb);
+WS_DLL_PUBLIC guint32 dissect_per_bit_string_containing_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, dissector_t type_cb);
 
 WS_DLL_PUBLIC guint32 dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len,  gboolean has_extension, const char *alphabet, int alphabet_length, tvbuff_t **value_tvb);
 
 WS_DLL_PUBLIC guint32 dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint32 root_num, guint32 *value, gboolean has_extension, guint32 ext_num, guint32 *value_map);
 
 WS_DLL_PUBLIC guint32 dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type_cb);
-WS_DLL_PUBLIC guint32 dissect_per_open_type_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, new_dissector_t type_cb);
+WS_DLL_PUBLIC guint32 dissect_per_open_type_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, dissector_t type_cb);
 
 WS_DLL_PUBLIC guint32 dissect_per_external_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type_cb);
 
@@ -129,6 +129,6 @@ extern gboolean get_size_constraint_from_stack(asn1_ctx_t *actx, const gchar *na
 extern guint32 dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length);
 
 WS_DLL_PUBLIC int call_per_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, asn1_ctx_t *actx, int hf_index);
-WS_DLL_PUBLIC void new_register_per_oid_dissector(const char *oid, new_dissector_t dissector, int proto, const char *name);
+WS_DLL_PUBLIC void new_register_per_oid_dissector(const char *oid, dissector_t dissector, int proto, const char *name);
 
 #endif  /* __PACKET_PER_H__ */

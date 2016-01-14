@@ -142,8 +142,8 @@ typedef int (dissect_function_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 typedef struct _vsff {
 	guint32	value;
 	const gchar   *strptr;
-	new_dissector_t dissect_call;
-	new_dissector_t dissect_reply;
+	dissector_t dissect_call;
+	dissector_t dissect_reply;
 } vsff;
 
 typedef struct _rpc_proc_list {

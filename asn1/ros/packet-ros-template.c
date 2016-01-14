@@ -114,11 +114,11 @@ register_ros_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _
 	  register_ber_oid_dissector_handle(oid, ros_handle, proto, name);
 }
 
-static new_dissector_t ros_lookup_opr_dissector(gint32 opcode_lcl, const ros_opr_t *operations, gboolean argument)
+static dissector_t ros_lookup_opr_dissector(gint32 opcode_lcl, const ros_opr_t *operations, gboolean argument)
 {
 	/* we don't know what order asn2wrs/module definition is, so ... */
 	if(operations) {
-		for(;operations->arg_pdu != (new_dissector_t)(-1); operations++)
+		for(;operations->arg_pdu != (dissector_t)(-1); operations++)
 			if(operations->opcode == opcode_lcl)
 				return argument ? operations->arg_pdu : operations->res_pdu;
 
@@ -126,11 +126,11 @@ static new_dissector_t ros_lookup_opr_dissector(gint32 opcode_lcl, const ros_opr
 	return NULL;
 }
 
-static new_dissector_t ros_lookup_err_dissector(gint32 errcode, const ros_err_t *errors)
+static dissector_t ros_lookup_err_dissector(gint32 errcode, const ros_err_t *errors)
 {
 	/* we don't know what order asn2wrs/module definition is, so ... */
 	if(errors) {
-		for(;errors->err_pdu != (new_dissector_t) (-1); errors++) {
+		for(;errors->err_pdu != (dissector_t) (-1); errors++) {
 			if(errors->errcode == errcode)
 				return errors->err_pdu;
 		}
@@ -146,7 +146,7 @@ ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	gint32     opcode_lcl = 0;
 	const gchar *opname = NULL;
 	const gchar *suffix = NULL;
-	new_dissector_t opdissector = NULL;
+	dissector_t opdissector = NULL;
 	const value_string *lookup;
 	proto_item *item=NULL;
 	proto_tree *ros_tree=NULL;

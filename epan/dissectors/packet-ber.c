@@ -27,7 +27,7 @@
  *     Specification of Basic Encoding Rules (BER), Canonical Encoding Rules (CER) and Distinguished Encoding Rules (DER)
  *
  */
-/* TODO: change #.REGISTER signature to new_dissector_t and
+/* TODO: change #.REGISTER signature to dissector_t and
  * update call_ber_oid_callback() accordingly.
  *
  * Since we don't pass the TAG/LENGTH from the CHOICE/SEQUENCE/SEQUENCE OF/
@@ -432,7 +432,7 @@ register_ber_oid_dissector_handle(const char *oid, dissector_handle_t dissector,
 }
 
 void
-register_ber_oid_dissector(const char *oid, new_dissector_t dissector, int proto, const char *name)
+register_ber_oid_dissector(const char *oid, dissector_t dissector, int proto, const char *name)
 {
     dissector_handle_t dissector_handle;
 
@@ -442,7 +442,7 @@ register_ber_oid_dissector(const char *oid, new_dissector_t dissector, int proto
 }
 
 void
-register_ber_syntax_dissector(const char *syntax, int proto, new_dissector_t dissector)
+register_ber_syntax_dissector(const char *syntax, int proto, dissector_t dissector)
 {
     dissector_handle_t dissector_handle;
 

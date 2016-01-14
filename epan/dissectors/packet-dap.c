@@ -4801,7 +4801,7 @@ static const ros_opr_t dap_opr_tab[] = {
   { id_opcode_modifyEntry    ,	dissect_ModifyEntryArgument_PDU,	dissect_ModifyEntryResult_PDU },
   /* modifyDN */
   { id_opcode_modifyDN       ,	dissect_ModifyDNArgument_PDU,	dissect_ModifyDNResult_PDU },
-  { 0,				(new_dissector_t)(-1),	(new_dissector_t)(-1) },
+  { 0,				(dissector_t)(-1),	(dissector_t)(-1) },
 };
 
 
@@ -4830,7 +4830,7 @@ static const ros_err_t dap_err_tab[] = {
   { id_errcode_serviceError,	dissect_ServiceError_PDU },
   /* updateError*/
   { id_errcode_updateError,	dissect_UpdateError_PDU },
-  { 0,	(new_dissector_t)(-1) },
+  { 0,	(dissector_t)(-1) },
 };
 
 

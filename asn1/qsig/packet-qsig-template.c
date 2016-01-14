@@ -330,8 +330,8 @@ static dissector_table_t extension_dissector_table;
 
 typedef struct _qsig_op_t {
   gint32 opcode;
-  new_dissector_t arg_pdu;
-  new_dissector_t res_pdu;
+  dissector_t arg_pdu;
+  dissector_t res_pdu;
 } qsig_op_t;
 
 static const qsig_op_t qsig_op_tab[] = {
@@ -340,7 +340,7 @@ static const qsig_op_t qsig_op_tab[] = {
 
 typedef struct _qsig_err_t {
   gint32 errcode;
-  new_dissector_t err_pdu;
+  dissector_t err_pdu;
 } qsig_err_t;
 
 static const qsig_err_t qsig_err_tab[] = {

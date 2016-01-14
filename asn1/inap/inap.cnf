@@ -125,8 +125,8 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 #.TABLE11_HDR
 typedef struct _inap_op_t {
   gint32 opcode;
-  new_dissector_t arg_pdu;
-  new_dissector_t res_pdu;
+  dissector_t arg_pdu;
+  dissector_t res_pdu;
 } inap_op_t;
 
 static const inap_op_t inap_op_tab[] = {
@@ -139,7 +139,7 @@ static const inap_op_t inap_op_tab[] = {
 #.TABLE11_HDR
 typedef struct _inap_err_t {
   gint32 errcode;
-  new_dissector_t err_pdu;
+  dissector_t err_pdu;
 } inap_err_t;
 
 static const inap_err_t inap_err_tab[] = {

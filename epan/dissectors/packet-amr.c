@@ -559,7 +559,7 @@ dissect_amr_wb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 typedef struct _amr_capability_t {
     const gchar     *id;
     const gchar     *name;
-    new_dissector_t  content_pdu;
+    dissector_t  content_pdu;
 } amr_capability_t;
 
 static amr_capability_t amr_capability_tab[] = {

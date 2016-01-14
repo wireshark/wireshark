@@ -239,7 +239,7 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 				((per_type_fn)type_cb)(tvb, offset, actx, tree, hf_index);
 				break;
 			case CB_NEW_DISSECTOR:
-				((new_dissector_t)type_cb)(val_tvb, actx->pinfo, subtree, NULL);
+				((dissector_t)type_cb)(val_tvb, actx->pinfo, subtree, NULL);
 				break;
 			case CB_DISSECTOR_HANDLE:
 				break;
@@ -258,7 +258,7 @@ dissect_per_open_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tre
 }
 
 guint32
-dissect_per_open_type_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, new_dissector_t type_cb)
+dissect_per_open_type_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, dissector_t type_cb)
 {
 	return dissect_per_open_type_internal(tvb, offset, actx, tree, hf_index, (void*)type_cb, CB_NEW_DISSECTOR);
 }
@@ -2201,7 +2201,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	return offset;
 }
 
-guint32 dissect_per_bit_string_containing_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, new_dissector_t type_cb)
+guint32 dissect_per_bit_string_containing_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, dissector_t type_cb)
 {
 	tvbuff_t *val_tvb = NULL;
 	proto_tree *subtree = tree;
@@ -2326,7 +2326,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 	return offset;
 }
 
-guint32 dissect_per_octet_string_containing_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, new_dissector_t type_cb)
+guint32 dissect_per_octet_string_containing_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, dissector_t type_cb)
 {
 	tvbuff_t *val_tvb = NULL;
 	proto_tree *subtree = tree;
@@ -2551,7 +2551,7 @@ call_per_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_
 }
 
 void
-new_register_per_oid_dissector(const char *oid, new_dissector_t dissector, int proto, const char *name)
+new_register_per_oid_dissector(const char *oid, dissector_t dissector, int proto, const char *name)
 {
 	dissector_handle_t dissector_handle;
 

@@ -78,7 +78,7 @@ typedef struct _h460_feature_t {
   guint32 opt;
   const gchar *id;
   const gchar *name;
-  new_dissector_t content_pdu;
+  dissector_t content_pdu;
   /*---*/
   const gchar *key_gd;
   const gchar *key_fd;

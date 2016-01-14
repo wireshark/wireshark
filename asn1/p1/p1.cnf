@@ -326,7 +326,7 @@ static const ros_opr_t p3_opr_tab[] = {
   /* %(_name)s */
   { %(&operationCode)-25s,	%(_argument_pdu)s,	%(_result_pdu)s },
 #.TABLE11_FTR
-  { 0,				(new_dissector_t)(-1),	(new_dissector_t)(-1) },
+  { 0,				(dissector_t)(-1),	(dissector_t)(-1) },
 };
 #.END
 
@@ -336,7 +336,7 @@ static const ros_err_t p3_err_tab[] = {
   /* %(_name)s*/
   { %(&errorCode)s,	%(_parameter_pdu)s },
 #.TABLE21_FTR
-  { 0,	(new_dissector_t)(-1) },
+  { 0,	(dissector_t)(-1) },
 };
 #.END
 

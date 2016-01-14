@@ -4489,8 +4489,8 @@ static int dissect_h450_12_CmnArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 typedef struct _h450_op_t {
   gint32 opcode;
-  new_dissector_t arg_pdu;
-  new_dissector_t res_pdu;
+  dissector_t arg_pdu;
+  dissector_t res_pdu;
 } h450_op_t;
 
 static const h450_op_t h450_op_tab[] = {
@@ -4599,7 +4599,7 @@ static const h450_op_t h450_op_tab[] = {
 
 typedef struct _h450_err_t {
   gint32 errcode;
-  new_dissector_t err_pdu;
+  dissector_t err_pdu;
 } h450_err_t;
 
 static const h450_err_t h450_err_tab[] = {
