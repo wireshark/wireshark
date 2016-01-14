@@ -598,6 +598,9 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
     int                    api_level;
     int                    disable_interface;
 
+    /* This is done here, so that androiddump get's listed in the about dialog */
+    printf ( "extcap {version=%u.%u.%u}\n", ANDROIDDUMP_VERSION_MAJOR, ANDROIDDUMP_VERSION_MINOR, ANDROIDDUMP_VERSION_RELEASE );
+
 /* NOTE: It seems that "adb devices" and "adb shell" closed connection
          so cannot send next command after them, there is need to reconnect */
 
@@ -2532,7 +2535,10 @@ int main(int argc, char **argv) {
 #endif  /* _WIN32 */
 
     if (do_list_interfaces)
-        return list_interfaces(adb_server_ip, adb_server_tcp_port);
+    {
+        list_interfaces(adb_server_ip, adb_server_tcp_port);
+        return 0;
+    }
 
     if (fifo == NULL) {
         printf("ERROR: No FIFO or file specified\n");
