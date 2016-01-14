@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V12.7.0 (2015-09)
+-- 3GPP TS 36.331 V13.0.0 (2015-12)
 --
 EUTRA-Sidelink-Preconf DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -9,12 +9,18 @@ IMPORTS
 	ARFCN-ValueEUTRA-r9,
 	FilterCoefficient,
 	maxSL-TxPool-r12,
+	maxSL-CommRxPoolPreconf-v13x0,
+	maxSL-CommTxPoolPreconf-v13x0,
+	maxSL-DiscRxPoolPreconf-r13,
+	maxSL-DiscTxPoolPreconf-r13,
 	P-Max,
+	ReselectionInfoRelay-r13,
 	SL-CP-Len-r12,
 	SL-HoppingConfigComm-r12,
 	SL-OffsetIndicatorSync-r12,
 	SL-PeriodComm-r12,
 	RSRP-RangeSL3-r12,
+	SL-PriorityList-r13,
 	SL-TF-ResourceConfig-r12,
 	SL-TRPT-Subset-r12,
 	P0-SL-r12,
@@ -26,7 +32,18 @@ SL-Preconfiguration-r12 ::=		SEQUENCE {
 	preconfigGeneral-r12				SL-PreconfigGeneral-r12,
 	preconfigSync-r12					SL-PreconfigSync-r12,
 	preconfigComm-r12					SL-PreconfigCommPoolList4-r12,
-	...
+	...,
+	[[	preconfigComm-v13x0				SEQUENCE {
+			commRxPoolListExt-r13			SL-PreconfigCommRxPoolListExt-r13,
+			commTxPoolListExt-r13			SL-PreconfigCommTxPoolListExt-r13		OPTIONAL
+		}																		OPTIONAL,
+		preconfigDisc-r13				SEQUENCE {
+			discRxPoolList-r13				SL-PreconfigDiscRxPoolList-r13,
+			discTxPoolList-r13				SL-PreconfigDiscTxPoolList-r13		OPTIONAL
+		}																		OPTIONAL,
+		preconfigRelay-r13				SL-PreconfigRelay-r13				OPTIONAL
+	]]
+
 }
 
 SL-PreconfigGeneral-r12 ::=		SEQUENCE {
@@ -59,10 +76,16 @@ SL-PreconfigSync-r12 ::=	SEQUENCE {
 	filterCoefficient-r12				FilterCoefficient,
 	syncRefMinHyst-r12					ENUMERATED {dB0, dB3, dB6, dB9, dB12},
 	syncRefDiffHyst-r12					ENUMERATED {dB0, dB3, dB6, dB9, dB12, dBinf},
-	...
+	...,
+	[[	syncTxPeriodic-r13					ENUMERATED {true}			OPTIONAL	-- Need OR
+	]]
 }
 
 SL-PreconfigCommPoolList4-r12 ::=	SEQUENCE (SIZE (1..maxSL-TxPool-r12)) OF SL-PreconfigCommPool-r12
+
+SL-PreconfigCommRxPoolListExt-r13 ::=	SEQUENCE (SIZE (1..maxSL-CommRxPoolPreconf-v13x0)) OF SL-PreconfigCommPool-r12
+
+SL-PreconfigCommTxPoolListExt-r13 ::=	SEQUENCE (SIZE (1..maxSL-CommTxPoolPreconf-v13x0)) OF SL-PreconfigCommPool-r12
 
 SL-PreconfigCommPool-r12 ::=		SEQUENCE {
 -- This IE is same as SL-CommResourcePool with rxParametersNCell absent
@@ -75,7 +98,33 @@ SL-PreconfigCommPool-r12 ::=		SEQUENCE {
 	dataHoppingConfig-r12				SL-HoppingConfigComm-r12,
 	dataTxParameters-r12				P0-SL-r12,
 	trpt-Subset-r12						SL-TRPT-Subset-r12,
+	...,
+	[[	priorityList-r13				SL-PriorityList-r13			OPTIONAL	-- For Tx
+	]]
+}
+
+SL-PreconfigDiscRxPoolList-r13 ::=	SEQUENCE (SIZE (1..maxSL-DiscRxPoolPreconf-r13)) OF SL-PreconfigDiscPool-r13
+
+SL-PreconfigDiscTxPoolList-r13 ::=	SEQUENCE (SIZE (1..maxSL-DiscTxPoolPreconf-r13)) OF SL-PreconfigDiscPool-r13
+
+SL-PreconfigDiscPool-r13 ::=		SEQUENCE {
+-- This IE is same as SL-DiscResourcePool with rxParameters absent
+	cp-Len-r13						SL-CP-Len-r12,
+	discPeriod-r13				ENUMERATED {rf4, rf7, rf8, rf14, rf16, rf28, rf32, rf64,
+										 rf128, rf256, rf512, rf1024, spare4, spare3,
+										 spare2, spare},
+	numRetx-r13					INTEGER (0..3),
+	numRepetition-r13				INTEGER (1..50),
+	tf-ResourceConfig-r13			SL-TF-ResourceConfig-r12,
+	txParameters-r13				SEQUENCE {
+		txParametersGeneral-r13		P0-SL-r12,
+		txProbability-r13			ENUMERATED {p25, p50, p75, p100}
+	}																OPTIONAL,
 	...
+}
+
+SL-PreconfigRelay-r13 ::=	SEQUENCE {
+	reselectionInfoRemoteUE-OoC-r13			ReselectionInfoRelay-r13
 }
 
 END

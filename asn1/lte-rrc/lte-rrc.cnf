@@ -1,6 +1,6 @@
 # lte-rrc.cnf
 # lte-rrc conformation file
-# Copyright 2008 Vincent Helfre, 2009-2015 Pascal Quantin
+# Copyright 2008 Vincent Helfre, 2009-2016 Pascal Quantin
 
 #.OPT
 PER
@@ -44,6 +44,7 @@ DL-CCCH-Message              @dl.ccch
 DL-DCCH-Message              @dl.dcch
 UL-CCCH-Message              @ul.ccch
 UL-DCCH-Message              @ul.dcch
+SC-MCCH-Message              @sc.mcch
 UECapabilityInformation      @ue_cap_info
 UE-EUTRA-Capability          @ue_eutra_cap
 SBCCH-SL-BCH-Message         @sbcch.sl.bch
@@ -53,24 +54,38 @@ SBCCH-SL-BCH-Message         @sbcch.sl.bch
 # Get rid of unused code warnings
 Cell-ToAddMod-r12
 CellsTriggeredList
+CQI-ReportConfigSCell-v13x0
 CSI-RS-TriggeredList-r12
 DRB-InfoListSCG-r12
 DRB-InfoSCG-r12
 LogMeasInfoList2-r10
 MeasResultServCellListSCG-r12
+MeasResultServCellListSCG-Ext-r13
 MeasResultServCellSCG-r12
 RSRP-RangeSL3-r12
 SCellToAddModListSCG-r12
+SCellToAddModListSCG-Ext-r13
 SCG-ConfigInfo-r12
 SCG-ConfigInfo-r12-IEs
+SCG-ConfigInfo-v13x0-IEs
 SCG-ConfigRestrictInfo-r12
+ServCellIndex-v13xy
+SL-CommTxPoolIdentity-r13
 SL-PreconfigCommPool-r12
 SL-PreconfigCommPoolList4-r12
+SL-PreconfigCommRxPoolListExt-r13
+SL-PreconfigCommTxPoolListExt-r13
+SL-PreconfigDiscPool-r13
+SL-PreconfigDiscRxPoolList-r13
+SL-PreconfigDiscTxPoolList-r13
 SL-PreconfigGeneral-r12
+SL-PreconfigRelay-r13
 SL-PreconfigSync-r12
 SL-Preconfiguration-r12
 UERadioPagingInformation
 UERadioPagingInformation-r12-IEs
+UERadioPagingInformation-v13xy-IEs
+UplinkPowerControlCommonPSCell-v13xy
 VarConnEstFailReport-r11
 VarLogMeasConfig-r10
 VarLogMeasConfig-r11
@@ -269,6 +284,16 @@ if(ue_cap_tvb){
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_tdd_FDD_CA_PCellDuplex_r12);
     proto_tree_add_bits_item(subtree, hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit1, pcellduplex_tvb, 0, 1, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(subtree, hf_lte_rrc_tdd_FDD_CA_PCellDuplex_r12_bit2, pcellduplex_tvb, 1, 1, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY PhyLayerParameters-v13x0/codebook-HARQ-ACK-r13 VAL_PTR = &codebook_tvb
+  tvbuff_t *codebook_tvb=NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (codebook_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_codebook_HARQ_ACK_r13);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_codebook_HARQ_ACK_r13_bit1, codebook_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_codebook_HARQ_ACK_r13_bit2, codebook_tvb, 1, 1, ENC_BIG_ENDIAN);
   }
 
 #.FN_BODY RF-Parameters-v10f0/modifiedMPR-Behavior-r10 VAL_PTR = &modifiedMPR_Behavior_r10_tvb
@@ -828,6 +853,9 @@ WLAN-Identifiers-r12/bssid-r12 TYPE=FT_ETHER
 #.TYPE_ATTR
 WLAN-Identifiers-r12/hessid-r12 TYPE=FT_ETHER
 
+#.TYPE_ATTR
+CellSelectionInfoNFreq-r13/q-RxLevMinOffset STRINGS=VALS(lte_rrc_q_RxLevMinOffset_vals)
+
 #.FN_BODY RRCConnectionReject-r8-IEs/waitTime
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "s");
@@ -932,6 +960,18 @@ CQI-ReportConfig-r10/nomPDSCH-RS-EPRE-Offset STRINGS=VALS(lte_rrc_nomPDSCH_RS_EP
 
 #.TYPE_ATTR
 CQI-ReportConfigSCell-r10/nomPDSCH-RS-EPRE-Offset-r10 STRINGS=VALS(lte_rrc_nomPDSCH_RS_EPRE_Offset_vals)
+
+#.FN_BODY P-C-AndCBSR-r11/p-C-r11
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
+
+#.FN_BODY P-C-AndCBSR-r13/legacySet/p-C-r11
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
+
+#.FN_BODY CSI-RS-Config-r10/csi-RS-r10/setup/p-C-r10
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dB");
 
 #.FN_BODY MAC-MainConfig
   /* Accumulate values in drx_config while dissecting DRX config.
@@ -1142,7 +1182,26 @@ RSRQ-Range DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_RSRQ_Range_vals_ext
 RSRQ-Range-v1250 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_RSRQ_Range_vals_ext
 
 #.TYPE_ATTR
+RSRQ-Range-v13xx DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_RSRQ_Range_vals_ext
+
+#.TYPE_ATTR
+RS-SINR-Range-r13 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_RS_SINR_Range_r13_fmt)
+
+#.TYPE_ATTR
+RSSI-Range-r13 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_RSSI_Range_r13_fmt)
+
+#.TYPE_ATTR
 MeasResultForECID-r9/ue-RxTxTimeDiffResult-r9 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_ue_RxTxTimeDiffResult_fmt)
+
+#.FN_BODY MeasResultForRSSI-r13/channelOccupancy-r13
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, " percents");
+
+#.TYPE_ATTR
+UL-PDCP-DelayResult-r13/excessDelay-r13 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_excessDelay_r13_vals_ext
+
+#.TYPE_ATTR
+MeasResultSSTD-r13/subframeBoundaryOffsetResult-r13 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lte_rrc_subframeBoundaryOffsetResult_r13_fmt)
 
 #.FN_BODY SoundingRS-UL-ConfigDedicated/setup/duration
   actx->created_item = proto_tree_add_bits_item(tree, hf_index, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1239,6 +1298,10 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 #.FN_HDR SystemInformationBlockType19-r12
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB19 ");
+
+#.FN_HDR SystemInformationBlockType20-r13
+
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SIB20 ");
 
 #.FN_HDR MBSFNAreaConfiguration-r9
 
@@ -1632,6 +1695,9 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     set_mac_lte_simult_pucch_pusch(p_mac_lte_info->ueid, private_data_get_simult_pucch_pusch_cell_type(actx), TRUE, actx->pinfo);
   }
 
+#.TYPE_ATTR
+PUCCH-ConfigDedicated-v13xy/codebooksizeDetermination-r13 DISPLAY=BASE_DEC STRINGS=VALS(lte_rrc_codebooksizeDetermination_r13_vals)
+
 #.FN_BODY RACH-ConfigCommon/preambleInfo
 %(DEFAULT_BODY)s
   /* Initialise to invalid value */
@@ -1965,6 +2031,17 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 #.FN_BODY WLAN-backhaulRate-r12
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, " Kbps");
+
+#.FN_BODY SL-DiscResourcePool-r12/eag_1/txParamsAddNeighFreq-r13/referenceSignalPower
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
+
+#.TYPE_ATTR
+SL-SysInfoReport-r13/cellSelectionInfo-r13/q-RxLevMinOffset-r13 STRINGS=VALS(lte_rrc_q_RxLevMinOffset_vals)
+
+#.FN_BODY SL-SysInfoReport-r13/referenceSignalPower-r13
+%(DEFAULT_BODY)s
+  proto_item_append_text(actx->created_item, "dBm");
 
 #.FN_BODY P0-SL-r12
 %(DEFAULT_BODY)s

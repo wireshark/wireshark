@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V12.7.0 (2015-09)
+-- 3GPP TS 36.331 V13.0.0 (2015-12)
 --
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -42,7 +42,8 @@ IMPORTS
 	maxCellMeas,
 	maxCSI-RS-Meas-r12,
 	maxMeasId,
-	maxMeasId-r12
+	maxMeasId-r12,
+	UL-DelayConfig-r13
 FROM EUTRA-RRC-Definitions;
 
 

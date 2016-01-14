@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V12.7.0 (2015-09)
+-- 3GPP TS 36.331 V13.0.0 (2015-12)
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -144,6 +144,19 @@ UL-DCCH-MessageType ::= CHOICE {
 		},
 		messageClassExtensionFuture-r11	SEQUENCE {}
 	}
+}
+
+
+SC-MCCH-Message ::= SEQUENCE {
+	message					SC-MCCH-MessageType
+}
+
+
+SC-MCCH-MessageType ::= CHOICE {
+	c1						CHOICE {
+		scptmConfiguration-r13						SCPTMConfiguration-r13
+	},
+	messageClassExtension	SEQUENCE {}
 }
 
 
@@ -515,6 +528,11 @@ MBMSInterestIndication-r11-IEs ::=	SEQUENCE {
 	mbms-FreqList-r11					CarrierFreqListMBMS-r11			OPTIONAL,
 	mbms-Priority-r11					ENUMERATED {true}				OPTIONAL,
 	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
+	nonCriticalExtension				MBMSInterestIndication-r13-IEs	OPTIONAL
+}
+
+MBMSInterestIndication-r13-IEs ::=	SEQUENCE {
+	mbms-Services-r13					MBMSServiceList-r13				OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
@@ -673,6 +691,12 @@ Paging-v920-IEs ::=			SEQUENCE {
 
 Paging-v1130-IEs ::=			SEQUENCE {
 	eab-ParamModification-r11		ENUMERATED {true}					OPTIONAL,	-- Need ON
+	nonCriticalExtension			Paging-v13xx-IEs					OPTIONAL
+}
+
+Paging-v13xx-IEs ::=			SEQUENCE {
+	redistributionIndication-r13	ENUMERATED {true}					OPTIONAL,	--Need ON
+	systemInfoModification-eDRX-r13	ENUMERATED {true}					OPTIONAL,	-- Need ON
 	nonCriticalExtension			SEQUENCE {}							OPTIONAL
 }
 
@@ -836,6 +860,12 @@ RRCConnectionReconfiguration-v1250-IEs ::= SEQUENCE {
 	sl-SyncTxControl-r12				SL-SyncTxControl-r12			OPTIONAL,	-- Need ON
 	sl-DiscConfig-r12					SL-DiscConfig-r12				OPTIONAL,	-- Need ON
 	sl-CommConfig-r12					SL-CommConfig-r12				OPTIONAL,	-- Need ON
+	nonCriticalExtension				RRCConnectionReconfiguration-v13xy-IEs	OPTIONAL
+}
+
+RRCConnectionReconfiguration-v13xy-IEs ::= SEQUENCE {
+	sCellToReleaseListExt-r13			SCellToReleaseListExt-r13		OPTIONAL,	-- Need ON
+	sCellToAddModListExt-r13			SCellToAddModListExt-r13		OPTIONAL,	-- Need ON
 	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
@@ -852,7 +882,9 @@ PSCellToAddMod-r12 ::=				SEQUENCE {
 	radioResourceConfigCommonPSCell-r12		RadioResourceConfigCommonPSCell-r12	OPTIONAL,	-- Cond SCellAdd
 	radioResourceConfigDedicatedPSCell-r12	RadioResourceConfigDedicatedPSCell-r12	OPTIONAL,	-- Cond SCellAdd2
 	...,
-	[[	antennaInfoDedicatedPSCell-v10i0		AntennaInfoDedicated-v10i0	OPTIONAL	-- Need ON
+	[[	antennaInfoDedicatedPSCell-v1280		AntennaInfoDedicated-v10i0	OPTIONAL	-- Need ON
+	]],
+	[[	sCellIndex-r13					SCellIndex-r13	OPTIONAL		-- Need ON
 	]]
 }
 
@@ -863,6 +895,8 @@ PowerCoordinationInfo-r12 ::= SEQUENCE {
 }
 
 SCellToAddModList-r10 ::=		SEQUENCE (SIZE (1..maxSCell-r10)) OF SCellToAddMod-r10
+
+SCellToAddModListExt-r13 ::=	SEQUENCE (SIZE (maxSCell-Plus1..maxSCell-r13)) OF SCellToAddMod-r13
 
 SCellToAddMod-r10 ::=			SEQUENCE {
 	sCellIndex-r10						SCellIndex-r10,
@@ -879,7 +913,19 @@ SCellToAddMod-r10 ::=			SEQUENCE {
 	]]
 }
 
+SCellToAddMod-r13 ::=			SEQUENCE {
+	sCellIndex-v13xy						SCellIndex-v13xy,
+	cellIdentification-r13				SEQUENCE {
+		physCellId-r13						PhysCellId,
+		dl-CarrierFreq-r13					ARFCN-ValueEUTRA-r9
+	}																OPTIONAL,	-- Cond SCellAdd
+	radioResourceConfigCommonSCell-r13		RadioResourceConfigCommonSCell-r10	OPTIONAL,	-- Cond SCellAdd
+	radioResourceConfigDedicatedSCell-r13	RadioResourceConfigDedicatedSCell-r10	OPTIONAL	-- Cond SCellAdd2
+}
+
 SCellToReleaseList-r10 ::=			SEQUENCE (SIZE (1..maxSCell-r10)) OF SCellIndex-r10
+
+SCellToReleaseListExt-r13 ::=			SEQUENCE (SIZE (maxSCell-Plus1..maxSCell-r13)) OF SCellIndex-v13xy
 
 SCG-Configuration-r12 ::=			CHOICE {
 	release								NULL,
@@ -899,7 +945,11 @@ SCG-ConfigPartSCG-r12 ::=			SEQUENCE {
 	pSCellToAddMod-r12					PSCellToAddMod-r12			OPTIONAL,	-- Need ON
 	sCellToAddModListSCG-r12			SCellToAddModList-r10		OPTIONAL,	-- Need ON
 	mobilityControlInfoSCG-r12			MobilityControlInfoSCG-r12	OPTIONAL,	-- Need ON
-	...
+	...,
+	[[
+	sCellToReleaseListSCG-Ext-r13			SCellToReleaseListExt-r13		OPTIONAL,	-- Need ON
+	sCellToAddModListSCG-Ext-r13				SCellToAddModListExt-r13	OPTIONAL	-- Need ON
+	]]
 }
 
 SecurityConfigHO ::=				SEQUENCE {
@@ -1174,6 +1224,9 @@ IdleModeMobilityControlInfo ::=		SEQUENCE {
 											spare1}						OPTIONAL,		-- Need OR
 	...,
 	[[	freqPriorityListExtEUTRA-r12		FreqPriorityListExtEUTRA-r12		OPTIONAL		-- Need ON
+	]],
+	[[	freqPriorityListEUTRA-v13xy			FreqPriorityListEUTRA-v13xy			OPTIONAL,		-- Need ON
+		freqPriorityListExtEUTRA-v13xy		FreqPriorityListExtEUTRA-v13xy		OPTIONAL		-- Need ON
 	]]
 }
 
@@ -1184,6 +1237,10 @@ IdleModeMobilityControlInfo-v9e0 ::=	SEQUENCE {
 FreqPriorityListEUTRA ::=			SEQUENCE (SIZE (1..maxFreq)) OF FreqPriorityEUTRA
 
 FreqPriorityListExtEUTRA-r12 ::=		SEQUENCE (SIZE (1..maxFreq)) OF FreqPriorityEUTRA-r12
+
+FreqPriorityListEUTRA-v13xy ::=			SEQUENCE (SIZE (1..maxFreq)) OF FreqPriorityEUTRA-v13xy
+
+FreqPriorityListExtEUTRA-v13xy ::=		SEQUENCE (SIZE (1..maxFreq)) OF FreqPriorityEUTRA-v13xy
 
 FreqPriorityEUTRA ::=				SEQUENCE {
 	carrierFreq							ARFCN-ValueEUTRA,
@@ -1197,6 +1254,10 @@ FreqPriorityEUTRA-v9e0 ::=			SEQUENCE {
 FreqPriorityEUTRA-r12 ::=				SEQUENCE {
 	carrierFreq-r12							ARFCN-ValueEUTRA-r9,
 	cellReselectionPriority-r12				CellReselectionPriority
+}
+
+FreqPriorityEUTRA-v13xy ::=				SEQUENCE {
+	cellReselectionSubPriority-r13				CellReselectionSubPriority-r13 		OPTIONAL		-- Need ON
 }
 
 FreqsPriorityListGERAN ::=			SEQUENCE (SIZE (1..maxGNFG)) OF FreqsPriorityGERAN
@@ -1285,7 +1346,7 @@ InitialUE-Identity ::=				CHOICE {
 
 EstablishmentCause ::=				ENUMERATED {
 										emergency, highPriorityAccess, mt-Access, mo-Signalling,
-										mo-Data, delayTolerantAccess-v1020, spare2, spare1}
+										mo-Data, delayTolerantAccess-v1020, mo-VoiceCall-v1280, spare1}
 
 
 RRCConnectionSetup ::=				SEQUENCE {
@@ -1382,6 +1443,16 @@ FailureReportSCG-r12 ::= 			SEQUENCE {
 												rlc-MaxNumRetx, scg-ChangeFailure },
 	measResultServFreqList-r12			MeasResultServFreqList-r10		OPTIONAL,
 	measResultNeighCells-r12			MeasResultList2EUTRA-r9			OPTIONAL,
+	...,
+	[[
+	measResultServFreqListExt-r13			MeasResultServFreqListExt-r13		OPTIONAL
+	]]
+}
+
+
+SCPTMConfiguration-r13 ::=		SEQUENCE {
+	sc-mtch-InfoList-r13			SC-MTCH-InfoList-r13,
+	scptmNeighbourCellList-r13		SCPTMNeighbourCellList-r13			OPTIONAL,
 	...
 }
 
@@ -1465,6 +1536,23 @@ SidelinkUEInformation-r12-IEs ::=	SEQUENCE {
 	discRxInterest-r12				ENUMERATED {true}			OPTIONAL,
 	discTxResourceReq-r12			INTEGER (1..63)				OPTIONAL,
 	lateNonCriticalExtension		OCTET STRING				OPTIONAL,
+	nonCriticalExtension			SidelinkUEInformation-v13x0-IEs	OPTIONAL
+}
+
+SidelinkUEInformation-v13x0-IEs ::=	SEQUENCE {
+	commTxResourceReq121-r13		SL-CommTxResourceReqUC-r13	OPTIONAL,
+	commTxResourceInfoReqRelay-r13		SEQUENCE {
+		commTxResourceReqRelay-r13		SL-CommTxResourceReqUC-r13,
+		ue-Type-r13						ENUMERATED {relayUE, remoteUE}
+	}															OPTIONAL,
+	discTxResourceReq-v13x0			SEQUENCE {
+		carrierFreqDiscTx-r13			INTEGER (1..maxFreq),
+		discTxResourceReqAddFreq-r13	SL-DiscTxResourceReqPerFreqList-r13	OPTIONAL
+	}															OPTIONAL,
+	discTxResourceReqPS-r13			SL-DiscTxResourceReq-r13	OPTIONAL,
+	discRxGapReq-r13					SL-GapRequest-r13			OPTIONAL,
+	discTxGapReq-r13					SL-GapRequest-r13			OPTIONAL,
+	discSysInfoReportList-r13			SL-SysInfoReportList-r13	OPTIONAL,
 	nonCriticalExtension			SEQUENCE {}					OPTIONAL
 }
 
@@ -1473,9 +1561,25 @@ SL-CommTxResourceReq-r12 ::=		SEQUENCE {
 	destinationInfoList-r12			SL-DestinationInfoList-r12
 }
 
+SL-CommTxResourceReqUC-r13 ::=		SEQUENCE {
+	carrierFreq-r13					ARFCN-ValueEUTRA-r9			OPTIONAL,
+	destinationInfoListUC-r13			SL-DestinationInfoListUC-r13
+}
+
+SL-DiscTxResourceReqPerFreqList-r13 ::=	SEQUENCE (SIZE (1..maxFreq)) OF SL-DiscTxResourceReq-r13
+
+SL-DiscTxResourceReq-r13 ::=		SEQUENCE {
+	carrierFreq-r13					ARFCN-ValueEUTRA-r9			OPTIONAL,
+	discTxResourceReq-r13			INTEGER (1..63)
+}
+
 SL-DestinationInfoList-r12 ::=	SEQUENCE (SIZE (1..maxSL-Dest-r12)) OF SL-DestinationIdentity-r12
 
 SL-DestinationIdentity-r12 ::=	BIT STRING (SIZE (24))
+
+SL-DestinationInfoListUC-r13 ::=	SL-DestinationInfoList-r12
+
+SL-SysInfoReportList-r13 ::=	SEQUENCE (SIZE (1.. maxSL-DiscSysInfoReportFreq-r13)) OF SL-SysInfoReport-r13
 
 
 SystemInformation ::=				SEQUENCE {
@@ -1504,7 +1608,8 @@ SystemInformation-r8-IEs ::=		SEQUENCE {
 		sib16-v1130							SystemInformationBlockType16-r11,
 		sib17-v1250							SystemInformationBlockType17-r12,
 		sib18-v1250							SystemInformationBlockType18-r12,
-		sib19-v1250							SystemInformationBlockType19-r12
+		sib19-v1250							SystemInformationBlockType19-r12,
+		sib20-v13x0							SystemInformationBlockType20-r13
 	},
 	nonCriticalExtension				SystemInformation-v8a0-IEs			OPTIONAL
 }
@@ -1554,6 +1659,12 @@ SystemInformationBlockType1-v8h0-IEs ::=	SEQUENCE {
 SystemInformationBlockType1-v9e0-IEs ::= SEQUENCE {
 	freqBandIndicator-v9e0				FreqBandIndicator-v9e0		OPTIONAL,	-- Cond FBI-max
 	multiBandInfoList-v9e0				MultiBandInfoList-v9e0		OPTIONAL,	-- Cond mFBI-max
+	nonCriticalExtension				SystemInformationBlockType1-v10j0-IEs	OPTIONAL
+}
+
+SystemInformationBlockType1-v10j0-IEs ::= SEQUENCE {
+	freqBandInfo-r10					NS-PmaxList-r10				OPTIONAL,	-- Need OR
+	multiBandInfoList-v10j0				MultiBandInfoList-v10j0		OPTIONAL,	-- Need OR
 	nonCriticalExtension				SEQUENCE {}					OPTIONAL
 }
 
@@ -1576,6 +1687,12 @@ SystemInformationBlockType1-v1250-IEs ::=	SEQUENCE {
 	},
 	cellSelectionInfo-v1250					CellSelectionInfo-v1250		OPTIONAL,	-- Cond RSRQ2
 	freqBandIndicatorPriority-r12			ENUMERATED {true}			OPTIONAL,	-- Cond mFBI
+	nonCriticalExtension			SystemInformationBlockType1-v13xy-IEs	OPTIONAL
+}
+
+SystemInformationBlockType1-v13xy-IEs ::=	SEQUENCE {
+	hyperSFN						BIT STRING (SIZE (10))		OPTIONAL,
+	eDRXAllowed			ENUMERATED {true}		OPTIONAL,
 	nonCriticalExtension			SEQUENCE {}					OPTIONAL
 }
 
@@ -1602,7 +1719,7 @@ SIB-Type ::=						ENUMERATED {
 										sibType11, sibType12-v920, sibType13-v920,
 										sibType14-v1130, sibType15-v1130,
 										sibType16-v1130, sibType17-v1250, sibType18-v1250,
-										..., sibType19-v1250}
+										..., sibType19-v1250, sibType20-v13xy}
 
 CellSelectionInfo-v920 ::=			SEQUENCE {
 	q-QualMin-r9						Q-QualMin-r9,
@@ -1658,6 +1775,14 @@ UECapabilityEnquiry-v8a0-IEs ::= SEQUENCE {
 
 UECapabilityEnquiry-v1180-IEs ::= SEQUENCE {
 	requestedFrequencyBands-r11			SEQUENCE (SIZE (1..16)) OF FreqBandIndicator-r11							OPTIONAL,
+	nonCriticalExtension				UECapabilityEnquiry-v13xy-IEs 							OPTIONAL
+}
+
+UECapabilityEnquiry-v13xy-IEs ::= SEQUENCE {
+	requestReducedFormat-r13			ENUMERATED {true}					OPTIONAL,
+	skipFallbackCombinations-r13		ENUMERATED {true}					OPTIONAL,
+	requestedMaxCCsDL-r13			INTEGER (2..32)						OPTIONAL,
+	requestedMaxCCsUL-r13			INTEGER (2..32)						OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}							OPTIONAL
 }
 
@@ -1836,8 +1961,9 @@ RLF-Report-r9 ::= 					SEQUENCE {
 		measResultLastServCell-v1250	RSRQ-Range-v1250				OPTIONAL,
 		lastServCellRSRQ-Type-r12		RSRQ-Type-r12					OPTIONAL,
 		measResultListEUTRA-v1250		MeasResultList2EUTRA-v1250		OPTIONAL
+	]],
+	[[	droppedQCI-r13					ENUMERATED {qci1}				OPTIONAL
 	]]
-
 }
 
 RLF-Report-v9e0 ::= 				SEQUENCE {
@@ -1910,8 +2036,9 @@ LogMeasInfo-r10 ::= 		SEQUENCE {
 		measResultServCell-v1250			RSRQ-Range-v1250			OPTIONAL,
 		servCellRSRQ-Type-r12				RSRQ-Type-r12				OPTIONAL,
 		measResultListEUTRA-v1250			MeasResultList2EUTRA-v1250	OPTIONAL
+	]],
+	[[	inDeviceCoexDetected-r13			ENUMERATED {true}			OPTIONAL
 	]]
-
 }
 
 MeasResultListMBSFN-r12 ::= 			SEQUENCE (SIZE (1..maxMBSFN-Area)) OF MeasResultMBSFN-r12
@@ -2054,6 +2181,11 @@ SystemInformationBlockType2 ::=		SEQUENCE {
 		ac-BarringSkipForMMTELVideo-r12		ENUMERATED {true}			OPTIONAL,	 -- Need OP
 		ac-BarringSkipForSMS-r12			ENUMERATED {true}			OPTIONAL,	 -- Need OP
 		ac-BarringPerPLMN-List-r12			AC-BarringPerPLMN-List-r12	OPTIONAL	-- Need OP
+	]],
+	[[	voiceServiceCauseIndication-r12		ENUMERATED {true}			OPTIONAL	-- Need OP
+	]],
+	[[	acdc-BarringForCommon-r13			ACDC-BarringForCommon-r13		OPTIONAL,	-- Need OP
+		acdc-BarringPerPLMN-List-r13		ACDC-BarringPerPLMN-List-r13	OPTIONAL	-- Need OP
 	]]
 }
 
@@ -2094,6 +2226,31 @@ AC-BarringPerPLMN-r12 ::=			SEQUENCE {
 	ssac-BarringForMMTEL-Video-r12		AC-BarringConfig		OPTIONAL	-- Need OP
 }
 
+ACDC-BarringForCommon-r13 ::=			SEQUENCE {
+	acdc-HPLMNonly-r13					BOOLEAN,
+	barringPerACDC-CategoryList-r13				BarringPerACDC-CategoryList-r13
+}
+
+ACDC-BarringPerPLMN-List-r13 ::= 		SEQUENCE (SIZE (1.. maxPLMN-r11)) OF ACDC-BarringPerPLMN-r13
+
+ACDC-BarringPerPLMN-r13 ::=			SEQUENCE {
+	plmn-IdentityIndex-r13				INTEGER (1..maxPLMN-r11),
+	acdc-HPLMNonly-r13					BOOLEAN,
+	barringPerACDC-CategoryList-r13				BarringPerACDC-CategoryList-r13
+}
+
+BarringPerACDC-CategoryList-r13 ::= SEQUENCE (SIZE (1..maxACDC-Cat-r13)) OF BarringPerACDC-Category-r13
+
+BarringPerACDC-Category-r13 ::= SEQUENCE {
+	acdc-CatValue-r13				INTEGER (1..maxACDC-Cat-r13),
+	acdc-BarringConfig-r13			SEQUENCE {
+		ac-BarringFactor-r13			ENUMERATED {
+											p00, p05, p10, p15, p20, p25, p30, p40,
+											p50, p60, p70, p75, p80, p85, p90, p95},
+		ac-BarringTime-r13				ENUMERATED {s4, s8, s16, s32, s64, s128, s256, s512}
+	}										OPTIONAL
+}
+
 
 SystemInformationBlockType3 ::=		SEQUENCE {
 	cellReselectionInfoCommon			SEQUENCE {
@@ -2126,7 +2283,7 @@ SystemInformationBlockType3 ::=		SEQUENCE {
 		t-ReselectionEUTRA-SF				SpeedStateScaleFactors		OPTIONAL		-- Need OP
 	},
 	...,
-	lateNonCriticalExtension				OCTET STRING			OPTIONAL,
+	lateNonCriticalExtension				OCTET STRING (CONTAINING SystemInformationBlockType3-v10j0-IEs)	OPTIONAL,
 	[[	s-IntraSearch-v920					SEQUENCE {
 			s-IntraSearchP-r9					ReselectionThreshold,
 			s-IntraSearchQ-r9					ReselectionThresholdQ-r9
@@ -2141,7 +2298,29 @@ SystemInformationBlockType3 ::=		SEQUENCE {
 	[[	q-QualMinWB-r11						Q-QualMin-r9				OPTIONAL	-- Cond WB-RSRQ
 	]],
 	[[	q-QualMinRSRQ-OnAllSymbols-r12			Q-QualMin-r9				OPTIONAL			-- Cond RSRQ
+	]],
+	[[	cellReselectionServingFreqInfo-v13xy CellReselectionServingFreqInfo-v13xy 	OPTIONAL,		-- Need OP
+		redistributionServingInfo-r13			RedistributionServingInfo-r13 OPTIONAL	--Need OR
 	]]
+}
+
+RedistributionServingInfo-r13 ::=		SEQUENCE {
+	redistributionFactorServing-r13		INTEGER(0..10),
+	redistributionFactorCell-r13		ENUMERATED{true}				OPTIONAL,	--Need OP
+	t360-r13							ENUMERATED {min4, min8, min16, min32,infinity,
+											spare3,spare2,spare1},
+	redistrOnPagingOnly-r13				ENUMERATED {true}		OPTIONAL	--Need OP
+}
+
+CellReselectionServingFreqInfo-v13xy ::=	SEQUENCE {
+	cellReselectionSubPriority-r13				CellReselectionSubPriority-r13
+}
+
+-- Late non critical extensions
+SystemInformationBlockType3-v10j0-IEs ::= SEQUENCE {
+	freqBandInfo-r10					NS-PmaxList-r10				OPTIONAL,	-- Need OR
+	multiBandInfoList-v10j0				MultiBandInfoList-v10j0		OPTIONAL,	-- Need OR
+	nonCriticalExtension				SEQUENCE {}					OPTIONAL
 }
 
 
@@ -2170,18 +2349,27 @@ SystemInformationBlockType5 ::=		SEQUENCE {
 	lateNonCriticalExtension				OCTET STRING	(CONTAINING SystemInformationBlockType5-v8h0-IEs)				OPTIONAL,
 	[[	interFreqCarrierFreqList-v1250	InterFreqCarrierFreqList-v1250		OPTIONAL,	-- Need OR
 		interFreqCarrierFreqListExt-r12	InterFreqCarrierFreqListExt-r12 	OPTIONAL	-- Need OR
+	]],
+	[[	interFreqCarrierFreqListExt-v1280	InterFreqCarrierFreqListExt-v1280 	OPTIONAL	-- Need OR
+	]],
+	[[	interFreqCarrierFreqList-v13xy		InterFreqCarrierFreqList-v13xy		OPTIONAL,	-- Need OR
+		interFreqCarrierFreqListExt-v13xy	InterFreqCarrierFreqListExt-v13xy 	OPTIONAL	-- Need OR
 	]]
 }
 
 SystemInformationBlockType5-v8h0-IEs ::=	SEQUENCE {
 	interFreqCarrierFreqList-v8h0 SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-v8h0				 OPTIONAL,	-- Need OP
-	nonCriticalExtension			SystemInformationBlockType5-v9e0-IEs	OPTIONAL
+	nonCriticalExtension			SystemInformationBlockType5-v9e0-IEs							OPTIONAL
 }
 
 SystemInformationBlockType5-v9e0-IEs ::=	SEQUENCE {
 	interFreqCarrierFreqList-v9e0	SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-v9e0				OPTIONAL,	-- Need OR
-	nonCriticalExtension
-SEQUENCE {}							OPTIONAL
+	nonCriticalExtension			SystemInformationBlockType5-v10j0-IEs	OPTIONAL
+}
+
+SystemInformationBlockType5-v10j0-IEs ::=	SEQUENCE {
+	interFreqCarrierFreqList-v10j0	SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo-v10j0				OPTIONAL,	-- Need OR
+	nonCriticalExtension			SEQUENCE {}						OPTIONAL
 }
 
 InterFreqCarrierFreqList ::=		SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFreqInfo
@@ -2189,6 +2377,12 @@ InterFreqCarrierFreqList ::=		SEQUENCE (SIZE (1..maxFreq)) OF InterFreqCarrierFr
 InterFreqCarrierFreqList-v1250 ::=	SEQUENCE (SIZE (1.. maxFreq)) OF InterFreqCarrierFreqInfo-v1250
 
 InterFreqCarrierFreqListExt-r12 ::=	SEQUENCE (SIZE (1.. maxFreq)) OF InterFreqCarrierFreqInfo-r12
+
+InterFreqCarrierFreqListExt-v1280 ::=	SEQUENCE (SIZE (1.. maxFreq)) OF InterFreqCarrierFreqInfo-v10j0
+
+InterFreqCarrierFreqList-v13xy ::=	SEQUENCE (SIZE (1.. maxFreq)) OF InterFreqCarrierFreqInfo-v13xy
+
+InterFreqCarrierFreqListExt-v13xy ::=	SEQUENCE (SIZE (1.. maxFreq)) OF InterFreqCarrierFreqInfo-v13xy
 
 InterFreqCarrierFreqInfo ::=	SEQUENCE {
 	dl-CarrierFreq						ARFCN-ValueEUTRA,
@@ -2225,6 +2419,11 @@ InterFreqCarrierFreqInfo-v9e0 ::=	SEQUENCE {
 	multiBandInfoList-v9e0				MultiBandInfoList-v9e0	OPTIONAL	-- Need OR
 }
 
+InterFreqCarrierFreqInfo-v10j0 ::=	SEQUENCE {
+	freqBandInfo-r10					NS-PmaxList-r10				OPTIONAL,	-- Need OR
+	multiBandInfoList-v10j0				MultiBandInfoList-v10j0		OPTIONAL	-- Need OR
+}
+
 InterFreqCarrierFreqInfo-v1250 ::=		SEQUENCE {
 	reducedMeasPerformance-r12		ENUMERATED {true}		OPTIONAL,		-- Need OP
 	q-QualMinRSRQ-OnAllSymbols-r12	Q-QualMin-r9					OPTIONAL	-- Cond RSRQ2
@@ -2257,6 +2456,11 @@ InterFreqCarrierFreqInfo-r12 ::=		SEQUENCE {
 ...
 }
 
+InterFreqCarrierFreqInfo-v13xy	::=	SEQUENCE {
+	cellReselectionSubPriority-r13		CellReselectionSubPriority-r13		OPTIONAL,		-- Need OP
+	redistributionInterFreqInfo-r13		RedistributionInterFreqInfo-r13		OPTIONAL --Need OP
+}
+
 InterFreqNeighCellList ::=			SEQUENCE (SIZE (1..maxCellInter)) OF InterFreqNeighCellInfo
 
 InterFreqNeighCellInfo ::=			SEQUENCE {
@@ -2265,6 +2469,20 @@ InterFreqNeighCellInfo ::=			SEQUENCE {
 }
 
 InterFreqBlackCellList ::=			SEQUENCE (SIZE (1..maxCellBlack)) OF PhysCellIdRange
+
+RedistributionInterFreqInfo-r13 ::=		SEQUENCE {
+	redistributionFactorFreq-r13			RedistributionFactor-r13	OPTIONAL,	--Need OP
+	redistributionNeighCellList-r13			RedistributionNeighCellList-r13		OPTIONAL	--Need OP
+}
+
+RedistributionNeighCellList-r13 ::=		SEQUENCE (SIZE (1..maxCellInter)) OF RedistributionNeighCell-r13
+
+RedistributionNeighCell-r13 ::=		SEQUENCE {
+	physCellId										PhysCellId,
+	redistributionFactorCell-r13					RedistributionFactor-r13
+}
+
+RedistributionFactor-r13 ::=	INTEGER(1..10)
 
 
 SystemInformationBlockType6 ::=		SEQUENCE {
@@ -2644,7 +2862,7 @@ SystemInformationBlockType17-r12 ::=	SEQUENCE {
 }
 
 WLAN-OffloadInfoPerPLMN-r12 ::= 			SEQUENCE {
-		wlan-OffloadConfigCommon-r12		WLAN-OffloadConfig-r12		OPTIONAL,	-- Need OR
+		wlan-OffloadConfigCommon-r12		WLAN-OffloadConfig-r12		OPTIONAL, 	-- Need OR
 		wlan-Id-List-r12					WLAN-Id-List-r12			OPTIONAL,	-- Need OR
 		...
 }
@@ -2667,7 +2885,10 @@ SystemInformationBlockType18-r12 ::= SEQUENCE {
 		commSyncConfig-r12					SL-SyncConfigList-r12		OPTIONAL	-- Need OR
 	}																		OPTIONAL,	-- Need OR
 	lateNonCriticalExtension			OCTET STRING						OPTIONAL,
-	...
+	...,
+	[[	commTxPoolNormalCommonExt-r13			SL-CommTxPoolListExt-r13	OPTIONAL,	-- Need OR
+		commTxAllowRelayCommon-r13				ENUMERATED {true}			OPTIONAL	-- Need OR
+	]]
 }
 
 
@@ -2680,14 +2901,68 @@ SystemInformationBlockType19-r12 ::= SEQUENCE {
 	}																		OPTIONAL,	-- Need OR
 	discInterFreqList-r12				SL-CarrierFreqInfoList-r12		OPTIONAL,	-- Need OR
 	lateNonCriticalExtension			OCTET STRING						OPTIONAL,
-	...
+	...,
+	[[	discConfig-v13x0				SEQUENCE {
+			discInterFreqList-v13x0			SL-CarrierFreqInfoList-v13x0	OPTIONAL,	-- Need OR
+			gapRequestsAllowedCommon		ENUMERATED {true}			OPTIONAL	-- Need OR
+		}																OPTIONAL,	-- Need OR
+		discConfigRelay-r13				SEQUENCE {
+			discThreshHiRelayUE-r13			RSRP-Range					OPTIONAL,	-- Need OR
+			discThreshLoRelayUE-r13			RSRP-Range					OPTIONAL,	-- Need OR
+			discHystMaxRelayUE-r13			ENUMERATED {dB0, dB3, dB6, dB9, dB12, dBinf},
+			discHystMinRelayUE-r13			ENUMERATED {dB0, dB3, dB6, dB9, dB12},
+				-- Uu threshold
+			discThreshHiRemoteUE-r13		RSRP-Range					OPTIONAL,	-- Need OR
+			discHystMaxRemoteUE-r13			ENUMERATED {dB0, dB3, dB6, dB9, dB12},
+				-- Uu threshold
+			reselectionInfoRemoteUE-IC-r13	ReselectionInfoRelay-r13
+		}																OPTIONAL,	-- Need OR
+		discConfigPS-13					SEQUENCE {
+			discRxPoolPS-r13				SL-DiscRxPoolList-r12,
+			discTxPoolPS-Common-r13			SL-DiscTxPoolList-r12		OPTIONAL	-- Need OR
+		}																OPTIONAL	-- Need OR
+	]]
 }
 
 SL-CarrierFreqInfoList-r12 ::=	SEQUENCE (SIZE (1..maxFreq)) OF SL-CarrierFreqInfo-r12
 
+SL-CarrierFreqInfoList-v13x0 ::=	SEQUENCE (SIZE (1..maxFreq)) OF SL-CarrierFreqInfo-v13x0
+
 SL-CarrierFreqInfo-r12::= 		SEQUENCE {
 	carrierFreq-r12 					ARFCN-ValueEUTRA-r9,
 	plmn-IdentityList-r12			PLMN-IdentityList4-r12			OPTIONAL	-- Need OP
+}
+
+ReselectionInfoRelay-r13 ::=	SEQUENCE {
+	q-RxLevMin-r13					Q-RxLevMin,
+	-- Note that the mapping of invidual values may be different for PC5, but the granularity/
+	-- number of values is same as for Uu
+	filterCoefficient-r13			FilterCoefficient,
+	minHyst-r13					ENUMERATED {dB0, dB3,
+										dB6, dB9, dB12, dBinf}	OPTIONAL	-- Need OR
+}
+
+CellSelectionInfoNFreq-r13 ::=	SEQUENCE {
+	-- Cell selection information as in SIB1
+	q-RxLevMin-r13					Q-RxLevMin,
+	q-RxLevMinOffset					INTEGER (1..8)			OPTIONAL,	-- Need OP
+	-- Cell re-selection information as in SIB3
+	q-Hyst-r13							ENUMERATED {
+											dB0, dB1, dB2, dB3, dB4, dB5, dB6, dB8, dB10,
+											dB12, dB14, dB16, dB18, dB20, dB22, dB24},
+	q-RxLevMinReselection-r13			Q-RxLevMin			OPTIONAL,	-- Need OP
+	t-ReselectionEUTRA-r13				T-Reselection
+}
+
+SL-CarrierFreqInfo-v13x0::= 	SEQUENCE {
+	discRxResources-r13				SL-DiscRxPoolList-r12				OPTIONAL,	-- Need OR
+	discRxResourcesPS-r13			SL-DiscRxPoolList-r12				OPTIONAL,	-- Need OR
+	discTxResources-r13				SL-DiscTxResourcesInterFreq-r13		OPTIONAL,	-- Need OR
+	discTxResourcesPS-r13			SL-DiscTxResourcesInterFreq-r13		OPTIONAL,	-- Need OR
+	discTxPowerInfo-r13				SL-DiscTxPowerInfoList-r12 			OPTIONAL,	-- Cond Tx
+	discTxRefCarrierCommon-r13		ENUMERATED {pCell}					OPTIONAL,	-- Need OR
+	discSyncConfig-r13				SL-SyncConfigListNFreq-r12				OPTIONAL,	-- Need OR
+	cellSelectionInfo-r13			CellSelectionInfoNFreq-r13			OPTIONAL	-- Need OR
 }
 
 PLMN-IdentityList4-r12 ::=	SEQUENCE (SIZE (1..maxPLMN-r11)) OF	PLMN-IdentityInfo2-r12
@@ -2695,6 +2970,24 @@ PLMN-IdentityList4-r12 ::=	SEQUENCE (SIZE (1..maxPLMN-r11)) OF	PLMN-IdentityInfo
 PLMN-IdentityInfo2-r12 ::=		CHOICE	{
 	plmn-Index-r12					INTEGER (1..maxPLMN-r11),
 	plmnIdentity-r12				PLMN-Identity
+}
+
+SL-DiscTxResourcesInterFreq-r13 ::=	CHOICE {
+	acquireSI-FromCarrier-r13		NULL,
+	discTxPoolCommon-r13			SL-DiscTxPoolList-r12,
+	requestDedicated-r13			NULL,
+	noTxOnCarrier-r13				NULL
+}
+
+
+SystemInformationBlockType20-r13 ::=	SEQUENCE {
+	sc-mcch-RepetionPeriod-r13		ENUMERATED {rf2, rf4, rf8, rf16, rf32, rf64, rf128, rf256},
+	sc-mcch-Offset-r13				INTEGER (0..10),
+	sc-mcch-Subframe-r13			INTEGER (0..9),
+	sc-mcch-ModificationPeriod-r13	ENUMERATED {rf2, rf4, rf8, rf16, rf32, rf64, rf128, rf256,
+										 rf512, rf1024},
+	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
+	...
 }
 
 
@@ -2801,11 +3094,20 @@ CQI-ReportConfig-v1250 ::=		SEQUENCE {
 									csi-SubframeSet2, spare1}		OPTIONAL		-- Need OP
 }
 
+CQI-ReportConfig-v13xy ::=			SEQUENCE {
+	cqi-ReportAperiodic-v13xy			CQI-ReportAperiodic-v13xy	OPTIONAL,		-- Need ON
+	cqi-ReportPeriodic-v13xy			CQI-ReportPeriodic-v13xy 		OPTIONAL		-- Need ON
+}
+
 CQI-ReportConfigSCell-r10 ::=				SEQUENCE {
 	cqi-ReportModeAperiodic-r10			CQI-ReportModeAperiodic OPTIONAL,			-- Need OR
 	nomPDSCH-RS-EPRE-Offset-r10				INTEGER (-1..6),
 	cqi-ReportPeriodicSCell-r10			CQI-ReportPeriodic-r10			OPTIONAL,	-- Need ON
 	pmi-RI-Report-r10					ENUMERATED {setup}				OPTIONAL	-- Cond PMIRISCell
+}
+
+CQI-ReportConfigSCell-v13x0 ::=		SEQUENCE {
+	cqi-ReportPeriodicSCell-v13x0			CQI-ReportPeriodic-v13xy
 }
 
 CQI-ReportPeriodic ::=		CHOICE {
@@ -2852,11 +3154,18 @@ CQI-ReportPeriodic-r10 ::=		CHOICE {
 	}
 }
 
+
 CQI-ReportPeriodic-v1130 ::=	SEQUENCE {
 	simultaneousAckNackAndCQI-Format3-r11		ENUMERATED {setup}		OPTIONAL,	-- Need OR
 	cqi-ReportPeriodicProcExtToReleaseList-r11	CQI-ReportPeriodicProcExtToReleaseList-r11	OPTIONAL,	-- Need ON
 	cqi-ReportPeriodicProcExtToAddModList-r11	CQI-ReportPeriodicProcExtToAddModList-r11	OPTIONAL	-- Need ON
 }
+
+CQI-ReportPeriodic-v13xy ::=	SEQUENCE {
+	cri-ReportConfig-r13			CRI-ReportConfig-r13				OPTIONAL,	-- Need ON
+	simultaneousAckNackAndCQI-Format4-Format5-r13		ENUMERATED {setup}		OPTIONAL-- Need OR
+}
+
 
 CQI-ReportPeriodicProcExtToAddModList-r11 ::=		SEQUENCE (SIZE (1..maxCQI-ProcExt-r11)) OF CQI-ReportPeriodicProcExt-r11
 
@@ -2882,7 +3191,9 @@ CQI-ReportPeriodicProcExt-r11 ::=		SEQUENCE {
 			ri-ConfigIndex2-r11				INTEGER (0..1023)		OPTIONAL		-- Need OR
 		}
 	}																OPTIONAL,		-- Need ON
-	...
+	...,
+	[[	cri-ReportConfig-r13			CRI-ReportConfig-r13				OPTIONAL	-- Need ON
+	]]
 }
 
 CQI-ReportAperiodic-r10	::=		CHOICE {
@@ -2907,6 +3218,29 @@ CQI-ReportAperiodic-v1250	::=		CHOICE {
 	}
 }
 
+CQI-ReportAperiodic-v13xy  	::=		CHOICE {
+	release								NULL,
+	setup								SEQUENCE {
+		cqi-ReportModeAperiodic-r13		CQI-ReportModeAperiodic,
+		aperiodicCSI-Trigger-v13xy			SEQUENCE {
+			trigger1-r13					BIT STRING (SIZE (32)),
+			trigger2-r13					BIT STRING (SIZE (32)),
+			trigger3-r13					BIT STRING (SIZE (32)),
+			trigger4-r13					BIT STRING (SIZE (32)),
+			trigger5-r13					BIT STRING (SIZE (32)),
+			trigger6-r13					BIT STRING (SIZE (32))
+		}																	 OPTIONAL,	-- Need OR
+		aperiodicCSI-Trigger2-r13		SEQUENCE {
+			trigger1-SubframeSetIndicator-r13	BIT STRING (SIZE (32)),
+			trigger2-SubframeSetIndicator-r13	BIT STRING (SIZE (32)),
+			trigger3-SubframeSetIndicator-r13	BIT STRING (SIZE (32)),
+			trigger4-SubframeSetIndicator-r13	BIT STRING (SIZE (32)),
+			trigger5-SubframeSetIndicator-r13	BIT STRING (SIZE (32)),
+			trigger6-SubframeSetIndicator-r13	BIT STRING (SIZE (32))
+		}																	 OPTIONAL	-- Need OR
+	}
+}
+
 CQI-ReportAperiodicProc-r11	::=		SEQUENCE {
 	cqi-ReportModeAperiodic-r11			CQI-ReportModeAperiodic,
 	trigger01-r11						BOOLEAN,
@@ -2914,9 +3248,18 @@ CQI-ReportAperiodicProc-r11	::=		SEQUENCE {
 	trigger11-r11						BOOLEAN
 }
 
+CQI-ReportAperiodicProc-r13	::=		SEQUENCE {
+	trigger001-r13						BOOLEAN,
+	trigger010-r13						BOOLEAN,
+	trigger011-r13						BOOLEAN,
+	trigger100-r13						BOOLEAN,
+	trigger101-r13						BOOLEAN,
+	trigger110-r13						BOOLEAN,
+	trigger111-r13						BOOLEAN}
+
 CQI-ReportModeAperiodic ::=				ENUMERATED {
 											rm12, rm20, rm22, rm30, rm31,
-											rm32-v1250, spare2, spare1
+											rm32-v1250, rm10-v13xy, rm11-v13xx
 }
 
 CQI-ReportBoth-r11 ::=			SEQUENCE {
@@ -2944,6 +3287,13 @@ CQI-ReportBothProc-r11 ::=			SEQUENCE {
 	pmi-RI-Report-r11					ENUMERATED {setup}				OPTIONAL		-- Need OR
 }
 
+CRI-ReportConfig-r13 ::=			CHOICE {
+	release								NULL,
+	setup								SEQUENCE {
+		cri-ConfigIndex-r13					ENUMERATED {n1, n2, n4, n8, n16, n32},
+		cri-ConfigIndex2-r13				ENUMERATED {n1, n2, n4, n8, n16, n32}	OPTIONAL	-- Need OR
+	}
+}
 
 
 CQI-ReportPeriodicProcExtId-r11 ::=					INTEGER (1..maxCQI-ProcExt-r11)
@@ -2957,6 +3307,19 @@ CrossCarrierSchedulingConfig-r10 ::=		SEQUENCE {
 		other-r10								SEQUENCE {					-- Cross carrier scheduling
 			schedulingCellId-r10				ServCellIndex-r10,
 			pdsch-Start-r10						INTEGER (1..4)
+		}
+	}
+}
+
+CrossCarrierSchedulingConfig-r13 ::=		SEQUENCE {
+	schedulingCellInfo-r13				CHOICE {
+		own-r13								SEQUENCE {					-- No cross carrier scheduling
+			cif-Presence-r13						BOOLEAN
+		},
+		other-r13							SEQUENCE {					-- Cross carrier scheduling
+			schedulingCellId-r13				ServCellIndexFull-r13,
+			pdsch-Start-r13						INTEGER (1..4),
+			cif-InSchedulingCell-r13				INTEGER (1..7)
 		}
 	}
 }
@@ -3000,6 +3363,19 @@ CSI-Process-r11 ::=		SEQUENCE {
 			release						NULL,
 			setup						CQI-ReportAperiodicProc-r11
 		}														OPTIONAL	-- Need ON
+	]],
+	[[	cqi-ReportAperiodicProc-r13		CQI-ReportAperiodicProc-r13		OPTIONAL,		-- Need ON
+		cqi-ReportAperiodicProc2-r13		CHOICE {
+			release						NULL,
+			setup						CQI-ReportAperiodicProc-r13
+		}														OPTIONAL,		-- Need ON
+		eMIMO-Type-r13				CHOICE {
+			release						NULL,
+			setup						CHOICE {
+				nonPrecoded-r13				CSI-RS-InfoNonPrecoded-r13,
+				beamformed-r13				CSI-RS-InfoBeamformed-r13
+			}
+		}														OPTIONAL	-- Need ON
 	]]
 }
 
@@ -3007,6 +3383,17 @@ P-C-AndCBSR-r11 ::=	SEQUENCE {
 	p-C-r11						INTEGER (-8..15),
 	codebookSubsetRestriction-r11	BIT STRING
 }
+
+P-C-AndCBSR-r13 ::=	SEQUENCE {
+	legacySet						SEQUENCE {
+		p-C-r11						INTEGER (-8..15),
+		codebookSubsetRestriction1-r13	BIT STRING
+	}												OPTIONAL,	-- Cond BeamformedKna
+	codebookSubsetRestriction2-r13	BIT STRING		OPTIONAL,	-- Cond NonPreCoded
+	codebookSubsetRestriction3-r13	BIT STRING		OPTIONAL	-- Cond BeamformedK1a
+}
+
+P-C-AndCBSR-PerResourceConfig-r13 ::=	SEQUENCE (SIZE (1..2)) OF P-C-AndCBSR-r13
 
 
 CSI-ProcessId-r11 ::=		INTEGER (1..maxCSI-Proc-r11)
@@ -3033,6 +3420,16 @@ CSI-RS-Config-v1250 ::=		SEQUENCE {
 			zeroTxPowerCSI-RS-List-r12		SEQUENCE (SIZE (1..maxDS-ZTP-CSI-RS-r12)) OF ZeroTxPowerCSI-RS-r12
 		}
 	}																OPTIONAL				-- Need ON
+}
+
+CSI-RS-Config-v13x0 ::=		SEQUENCE {
+	eMIMO-Type-r13				CHOICE {
+		release						NULL,
+		setup						CHOICE {
+			nonPrecoded-r13				CSI-RS-InfoNonPrecoded-r13,
+			beamformed-r13				CSI-RS-InfoBeamformed-r13
+		}
+	}														OPTIONAL	-- Need ON
 }
 
 ZeroTxPowerCSI-RS-Conf-r12 ::=	CHOICE {
@@ -3062,8 +3459,18 @@ CSI-RS-ConfigNZP-r11 ::=		SEQUENCE {
 				}
 		}																OPTIONAL	-- Need ON
 	}																	OPTIONAL,	-- Need OR
-	...
+	...,
+	[[	eMIMO-Info-r13					CHOICE {
+			release						NULL,
+			setup						SEQUENCE {
+				nzp-resourceConfigList-r13		SEQUENCE (SIZE (2..8)) OF ResourceConfig-r13,
+				cdmType							ENUMERATED {cdm2, cdm4}	OPTIONAL	-- Need OR
+			}
+		}																OPTIONAL	-- Need ON
+	]]
 }
+
+ResourceConfig-r13 ::=				INTEGER (0..31)
 
 
 CSI-RS-ConfigNZPId-r11 ::=					INTEGER (1..maxCSI-RS-NZP-r11)
@@ -3080,12 +3487,39 @@ CSI-RS-ConfigZP-r11 ::=		SEQUENCE {
 CSI-RS-ConfigZPId-r11 ::=					INTEGER (1..maxCSI-RS-ZP-r11)
 
 
+CSI-RS-InfoNonPrecoded-r13 ::=			SEQUENCE {
+	p-C-AndCBSRList-r13						SEQUENCE (SIZE (1..2)) OF P-C-AndCBSR-r13	OPTIONAL,	-- Need OR
+	codebookConfigN1-r13					ENUMERATED {an1, an2, an3, an4, an8},
+	codebookConfigN2-r13					ENUMERATED {an1, an2, an3, an4, an8},
+	codebookOverSamplingRateConfig-O1-r13	ENUMERATED {na,an4,an8},
+	codebookOverSamplingRateConfig-O2-r13	ENUMERATED {na,an4,an8},
+	codebookConfig-r13						ENUMERATED {an1, an2, an3, an4},
+	interferenceMeasRestriction-r13			ENUMERATED {on}			OPTIONAL	-- Need OR
+}
+
+CSI-RS-InfoBeamformed-r13::=			SEQUENCE	{
+	csi-RS-ConfigNZPIdListExt-r13 			SEQUENCE (SIZE (1..7)) OF CSI-RS-ConfigNZPId-r11	OPTIONAL,	-- Need OR
+	csi-IM-ConfigIdListExt-r13				SEQUENCE (SIZE (1..7)) OF CSI-IM-ConfigIdInfo-r13	OPTIONAL,	-- Need OR
+	p-C-AndCBSR-PerResourceConfigList-r13	SEQUENCE (SIZE (1..7)) OF P-C-AndCBSR-PerResourceConfig-r13	OPTIONAL,	-- Need OR
+	alternativeCodebookEnabledBeamformed-r13	ENUMERATED {true}	OPTIONAL,	-- Need OR
+	channelMeasRestriction-r13				ENUMERATED {on}			OPTIONAL	-- Need OR
+}
+
+CSI-IM-ConfigIdInfo-r13 ::=	SEQUENCE {
+	csi-IM-ConfigId-r13					CSI-IM-ConfigId-r11		OPTIONAL,
+	interferenceMeasRestriction-r13			ENUMERATED {on} 		OPTIONAL	-- Need OR
+}
+
+
 DMRS-Config-r11 ::=		CHOICE {
 	release						NULL,
 	setup						SEQUENCE {
 		scramblingIdentity-r11		INTEGER (0..503),
 		scramblingIdentity2-r11		INTEGER (0..503)
 	}
+}
+DMRS-Config-v13x0 ::=			SEQUENCE {
+		dmrs-tableAlt-r13				ENUMERATED {true}			OPTIONAL	-- Need OR
 }
 
 
@@ -3227,7 +3661,17 @@ MAC-MainConfig ::=					SEQUENCE {
 			setup								SEQUENCE {
 				logicalChannelSR-ProhibitTimer-r12		ENUMERATED {sf20, sf40, sf64, sf128, sf512, sf1024, sf2560, spare1}
 			}
-		}															OPTIONAL	-- Need ON
+		}															OPTIONAL		-- Need ON
+	]],
+	[[	extendedPHR2-r13					ENUMERATED {setup}		OPTIONAL,		-- Need ON
+		eDRX-Config-CycleStartOffset-r13 	CHOICE {
+			release							NULL,
+			setup
+											CHOICE {
+			sf5120									INTEGER(0..1),
+			sf10240									INTEGER(0..3)
+			}
+		}										OPTIONAL	-- Need ON
 	]]
 }
 
@@ -3315,6 +3759,22 @@ STAG-ToAddMod-r11 ::=		SEQUENCE {
 STAG-Id-r11::=				INTEGER (1..maxSTAG-r11)
 
 
+PDCCH-ConfigSCell-r13 ::=		SEQUENCE {
+	skipMonitoringDCI-format0-1A-r13	ENUMERATED {true}				OPTIONAL,	-- Need OR
+	pdcch-candidateReductions-r13		PDCCH-CandidateReductions-r13		OPTIONAL 	-- Need OR
+}
+
+PDCCH-CandidateReductionValue-r13 ::= ENUMERATED {n0, n33, n66, n100}
+
+PDCCH-CandidateReductions-r13 ::= SEQUENCE {
+	pdcch-candidateReductionAL1		PDCCH-CandidateReductionValue-r13,
+	pdcch-candidateReductionAL2		PDCCH-CandidateReductionValue-r13,
+	pdcch-candidateReductionAL3		PDCCH-CandidateReductionValue-r13,
+	pdcch-candidateReductionAL4		PDCCH-CandidateReductionValue-r13,
+	pdcch-candidateReductionAL5		PDCCH-CandidateReductionValue-r13
+}
+
+
 PDCP-Config ::=						SEQUENCE {
 	discardTimer						ENUMERATED {
 											ms50, ms100, ms150, ms300, ms500,
@@ -3356,7 +3816,17 @@ PDCP-Config ::=						SEQUENCE {
 										ms500, ms750, spare14, spare13, spare12, spare11, spare10,
 										spare9, spare8, spare7, spare6, spare5, spare4, spare3,
 										spare2, spare1}					OPTIONAL	-- Cond SetupS
+	]],
+	[[	ul-DataSplitThreshold-r13		CHOICE {
+			release						NULL,
+			setup						ENUMERATED {
+										b0, b100, b200, b400, b800, b1600, b3200, b6400, b12800,
+										b25600, b51200, b102400, b204800, b409600, b819200,
+										spare1}
+		}																OPTIONAL,	-- Need ON
+		pdcp-SN-Size-v13xx				ENUMERATED {len18bits}	OPTIONAL	-- Cond Rlc-AM3
 	]]
+
 }
 
 
@@ -3376,6 +3846,14 @@ PDSCH-ConfigDedicated-v1130 ::=		SEQUENCE {
 	qcl-Operation						ENUMERATED {typeA, typeB}			OPTIONAL,	-- Need OR
 	re-MappingQCLConfigToReleaseList-r11	RE-MappingQCLConfigToReleaseList-r11	OPTIONAL,	-- Need ON
 	re-MappingQCLConfigToAddModList-r11		RE-MappingQCLConfigToAddModList-r11		OPTIONAL	-- Need ON
+}
+
+PDSCH-ConfigDedicated-v1280 ::=		SEQUENCE {
+	tbsIndexAlt-r12						ENUMERATED {a26, a33}				OPTIONAL	-- Need OR
+}
+
+PDSCH-ConfigDedicated-v13x0 ::=		SEQUENCE {
+	dmrs-ConfigPDSCH-v13x0				DMRS-Config-v13x0					OPTIONAL	-- Need ON
 }
 
 RE-MappingQCLConfigToAddModList-r11 ::=		SEQUENCE (SIZE (1..maxRE-MapQCL-r11)) OF PDSCH-RE-MappingQCL-Config-r11
@@ -3473,6 +3951,23 @@ PhysicalConfigDedicated ::=		SEQUENCE {
 		uplinkPowerControlDedicated-v1250	UplinkPowerControlDedicated-v1250	OPTIONAL,	-- Need ON
 		pusch-ConfigDedicated-v1250		PUSCH-ConfigDedicated-v1250		OPTIONAL,	-- Need ON
 		csi-RS-Config-v1250					CSI-RS-Config-v1250				OPTIONAL	-- Need ON
+	]],
+	[[	pdsch-ConfigDedicated-v1280			PDSCH-ConfigDedicated-v1280		OPTIONAL	-- Need ON
+	]],
+	[[	pdsch-ConfigDedicated-v13x0			PDSCH-ConfigDedicated-v13x0		OPTIONAL,	-- Need ON
+		pucch-ConfigDedicated-r13			PUCCH-ConfigDedicated-v13xy		OPTIONAL,	-- Need ON
+		pusch-ConfigDedicated-r13			PUSCH-ConfigDedicated-v13xy		OPTIONAL,	-- Need ON
+		cqi-ReportConfig-v13xy					CQI-ReportConfig-v13xy		OPTIONAL,	-- Need ON
+		soundingRS-UL-ConfigDedicated-v13x0
+								SoundingRS-UL-ConfigDedicated-v13x0		OPTIONAL,		-- Need ON
+		soundingRS-UL-ConfigDedicatedUpPTsExt-r13
+								SoundingRS-UL-ConfigDedicatedUpPTsExt-r13		OPTIONAL,		-- Need ON
+		soundingRS-UL-ConfigDedicatedAperiodic-v13x0
+								SoundingRS-UL-ConfigDedicatedAperiodic-v13x0	OPTIONAL,	-- Need ON
+		soundingRS-UL-ConfigDedicatedAperiodicUpPTsExt-r13
+								SoundingRS-UL-ConfigDedicatedAperiodicUpPTsExt-r13		OPTIONAL,		-- Need ON
+		cqi-ReportConfigPCell-v13x0			CQI-ReportConfig-v13xy			OPTIONAL,	-- Need ON
+		csi-RS-Config-v13x0					CSI-RS-Config-v13x0				OPTIONAL	-- Need ON
 	]]
 }
 
@@ -3514,7 +4009,43 @@ PhysicalConfigDedicatedSCell-r10 ::=		SEQUENCE {
 		cqi-ReportConfigSCell-v1250			CQI-ReportConfig-v1250			OPTIONAL,	-- Need ON
 		uplinkPowerControlDedicatedSCell-v1250	UplinkPowerControlDedicated-v1250	OPTIONAL,	-- Need ON
 		csi-RS-Config-v1250					CSI-RS-Config-v1250				OPTIONAL	-- Need ON
+	]],
+	[[	pdsch-ConfigDedicated-v1280			PDSCH-ConfigDedicated-v1280		OPTIONAL	-- Need ON
+	]],
+	[[	pucch-ConfigDedicated-r13			PUCCH-ConfigDedicated		OPTIONAL,	-- Need ON
+		pucch-ConfigDedicatedExt1-r13		PUCCH-ConfigDedicated-v1020	OPTIONAL,	-- Need ON
+		pucch-ConfigDedicatedExt2-r13		PUCCH-ConfigDedicated-v1130	OPTIONAL,	-- Need ON
+		pucch-ConfigDedicatedExt3-r13		PUCCH-ConfigDedicated-v1250	OPTIONAL,	-- Cond eimta
+		pucch-ConfigDedicatedExt4-r13		PUCCH-ConfigDedicated-v13xy	OPTIONAL,	-- Need ON
+		pucch-Cell-r13						ENUMERATED {true}			OPTIONAL,	-- Cond PUCCH_SCell
+		crossCarrierSchedulingConfig-r13	CrossCarrierSchedulingConfig-r13	 OPTIONAL,	-- Cond Cross-Carrier-Config
+		schedulingRequestConfig-r13			SchedulingRequestConfig		OPTIONAL,		-- Need ON
+		schedulingRequestConfigExt-r13		SchedulingRequestConfig-v1020	OPTIONAL,	-- Need ON
+		tpc-PDCCH-ConfigPUCCH-SCell-r13		TPC-PDCCH-ConfigSCell		OPTIONAL,	-- Cond PUCCH-SCell
+		pusch-ConfigDedicated-r13			PUSCH-ConfigDedicated		OPTIONAL,	-- Cond PUSCH-SCell
+		pusch-ConfigDedicatedExt-r13		PUSCH-ConfigDedicated-v1020	OPTIONAL,	-- Cond PUSCH-SCell
+		pusch-ConfigDedicatedExt2-r13		PUSCH-ConfigDedicated-v13xy	OPTIONAL,	-- Cond PUSCH-SCell
+		uplinkPowerControlDedicated-r13		UplinkPowerControlDedicated	OPTIONAL,	-- Cond UL-Power-SCell
+		uplinkPowerControlDedicatedExt-r13	UplinkPowerControlDedicated-v1020	OPTIONAL,	-- Cond UL-Power-SCell
+		pdcch-ConfigSCell-r13				PDCCH-ConfigSCell-r13		OPTIONAL,	-- Need ON
+		cqi-ReportConfig-v13xy					CQI-ReportConfig-v13xy				OPTIONAL,	-- Need ON
+		pdsch-ConfigDedicated-v13x0			PDSCH-ConfigDedicated-v13x0		OPTIONAL,	-- Need ON
+		soundingRS-UL-ConfigDedicated-v13x0
+								SoundingRS-UL-ConfigDedicated-v13x0		OPTIONAL,		-- Need ON
+		soundingRS-UL-ConfigDedicatedUpPTsExt-r13
+								SoundingRS-UL-ConfigDedicatedUpPTsExt-r13		OPTIONAL,		-- Need ON
+		soundingRS-UL-ConfigDedicatedAperiodic-v13x0
+								SoundingRS-UL-ConfigDedicatedAperiodic-v13x0	OPTIONAL,	-- Need ON
+		soundingRS-UL-ConfigDedicatedAperiodicUpPTsExt-r13
+								SoundingRS-UL-ConfigDedicatedAperiodicUpPTsExt-r13		OPTIONAL,		-- Need ON
+		csi-RS-Config-v13x0					CSI-RS-Config-v13x0				OPTIONAL,	-- Need ON
+		laa-SCellConfiguration-r13		LAA-SCellConfiguration-r13		OPTIONAL	-- Need ON
 	]]
+}
+
+LAA-SCellConfiguration-r13 ::=			SEQUENCE {
+	subframeStartPosition				ENUMERATED {s0, s07},
+	laa-SCellSubframeConfig				BIT STRING (SIZE(8))
 }
 
 CSI-RS-ConfigNZPToAddModList-r11 ::=	SEQUENCE (SIZE (1..maxCSI-RS-NZP-r11)) OF CSI-RS-ConfigNZP-r11
@@ -3622,6 +4153,37 @@ PUCCH-ConfigDedicated-v1250 ::=		SEQUENCE {
 	}
 }
 
+PUCCH-ConfigDedicated-v13xy ::=		SEQUENCE {
+	spatialBundlingPUCCH				BOOLEAN,
+	spatialBundlingPUSCH				BOOLEAN,
+	harq-TimingTDD						BOOLEAN,
+	codebooksizeDetermination-r13		INTEGER(0..1),
+	maximumPayloadCoderate-r13			INTEGER (0..7),
+	pucch-Format-r13					CHOICE {
+		format4-r13							SEQUENCE {
+			format4-resourceConfiguration			SEQUENCE (SIZE (4)) OF Format4-resource-r13,
+			format4-MultiCSI-resourceConfiguration	SEQUENCE (SIZE (1..2)) OF Format4-resource-r13 OPTIONAL 	-- Need OR
+		},
+		format5-r13				SEQUENCE {
+			format5-resourceConfiguration			SEQUENCE (SIZE (4)) OF Format5-resource-r13,
+			format5-MultiCSI-resourceConfiguration	SEQUENCE (SIZE (1..2)) OF Format5-resource-r13 OPTIONAL 	-- Need OR
+
+		}
+	}															OPTIONAL	-- Need OR
+}
+
+Format4-resource-r13	::=				SEQUENCE {
+	startingPRB-format4-r13	  					INTEGER (0..109),
+	numberOfPRB-format4-r13  					INTEGER (0..7)
+}
+
+Format5-resource-r13	::=				SEQUENCE {
+	startingPRB-format5-r13	  					INTEGER (0..109),
+	cdm-index-format5-r13  						INTEGER (0..1)
+}
+
+
+
 N1PUCCH-AN-CS-r10	::= SEQUENCE (SIZE (1..4)) OF INTEGER (0..2047)
 
 
@@ -3679,6 +4241,25 @@ PUSCH-ConfigDedicated-v1250::=			SEQUENCE {
 			}																OPTIONAL	-- Need OR
 		}
 	}
+}
+
+PUSCH-ConfigDedicated-v13xy ::=			SEQUENCE {
+	betaOffset-r13								SEQUENCE {
+		betaOffset-ACK-Index-r13					INTEGER (0..15),
+		betaOffset2-ACK-Index-r13					INTEGER (0..15)
+	}																	OPTIONAL,	-- Need OR
+	betaOffsetMC-r13							SEQUENCE {
+		betaOffset-ACK-Index-MC-r13					INTEGER (0..15),
+		betaOffset2-ACK-Index-MC-r13				INTEGER (0..15)
+	}																	OPTIONAL,	-- Need OR
+	betaOffset-Subframeset2-r13					SEQUENCE {
+		betaOffset-ACK-Index-SubframeSet2-r13		INTEGER (0..15),
+		betaOffset2-ACK-Index-SubframeSet2-r13		INTEGER (0..15)
+	}																	OPTIONAL,	-- Need OR
+	betaOffset-Subframeset2-MC-r13				SEQUENCE {
+		betaOffset-ACK-Index-MC-SubframeSet2-r13	INTEGER (0..15),
+		betaOffset2-ACK-Index-MC-SubframeSet2-r13	INTEGER (0..15)
+	}																	OPTIONAL	-- Need OR
 }
 
 PUSCH-ConfigDedicatedSCell-r10 ::=		SEQUENCE {
@@ -3802,6 +4383,8 @@ RadioResourceConfigCommon ::=		SEQUENCE {
 	[[	tdd-Config-v1130				TDD-Config-v1130				OPTIONAL	-- Cond TDD3
 	]],
 	[[	pusch-ConfigCommon-v1270		PUSCH-ConfigCommon-v1270		OPTIONAL		-- Need OR
+	]],
+	[[	uplinkPowerControlCommon-v13xy	UplinkPowerControlCommon-v13xy		OPTIONAL	-- Need ON
 	]]
 }
 
@@ -3810,7 +4393,9 @@ RadioResourceConfigCommonPSCell-r12 ::=	SEQUENCE {
 	pucch-ConfigCommon-r12				PUCCH-ConfigCommon,
 	rach-ConfigCommon-r12				RACH-ConfigCommon,
 	uplinkPowerControlCommonPSCell-r12	UplinkPowerControlCommonPSCell-r12,
-	...
+	...,
+	[[	uplinkPowerControlCommon-v13xy	UplinkPowerControlCommon-v13xy		OPTIONAL	-- Need ON
+	]]
 }
 
 RadioResourceConfigCommonSCell-r10 ::=	SEQUENCE {
@@ -3855,6 +4440,9 @@ RadioResourceConfigCommonSCell-r10 ::=	SEQUENCE {
 								UplinkPowerControlCommonSCell-v1130	OPTIONAL	-- Cond UL
 	]],
 	[[	pusch-ConfigCommon-v1270		PUSCH-ConfigCommon-v1270		OPTIONAL		-- Need OR
+	]],
+	[[	pucch-ConfigCommon-r13				PUCCH-ConfigCommon		OPTIONAL,	-- Cond UL
+		uplinkPowerControlCommonSCell-v13xx	UplinkPowerControlCommonPSCell-r12	OPTIONAL	-- Cond UL
 	]]
 }
 
@@ -3891,14 +4479,19 @@ RadioResourceConfigDedicated ::=		SEQUENCE {
 	[[	neighCellsCRS-Info-r11			NeighCellsCRS-Info-r11				OPTIONAL	-- Need ON
 	]],
 	[[	naics-Info-r12				NAICS-AssistanceInfo-r12			OPTIONAL	-- Need ON
-	]]}
+	]],
+	[[	neighCellsCRS-Info-r13			NeighCellsCRS-Info-r13				OPTIONAL	-- Cond CRSIM
+	]]
+}
 
 RadioResourceConfigDedicatedPSCell-r12 ::=		SEQUENCE {
 	-- UE specific configuration extensions applicable for an PSCell
 	physicalConfigDedicatedPSCell-r12		PhysicalConfigDedicated		OPTIONAL,	-- Need ON
-	sps-Config-r12							SPS-Config 					OPTIONAL,	-- Need ON
-	naics-Info-r12			  	    		   NAICS-AssistanceInfo-r12	OPTIONAL,	-- Need ON
-	...
+	sps-Config-r12							SPS-Config					OPTIONAL,	-- Need ON
+	naics-Info-r12							NAICS-AssistanceInfo-r12	OPTIONAL,	-- Need ON
+	...,
+	[[	neighCellsCRS-InfoPSCell-r13		NeighCellsCRS-Info-r13		OPTIONAL	-- Need ON
+	]]
 }
 
 RadioResourceConfigDedicatedSCG-r12 ::=		SEQUENCE {
@@ -3915,7 +4508,10 @@ RadioResourceConfigDedicatedSCell-r10 ::=	SEQUENCE {
 	[[	mac-MainConfigSCell-r11			MAC-MainConfigSCell-r11			OPTIONAL	-- Cond SCellAdd
 	]],
 	[[	naics-Info-r12				NAICS-AssistanceInfo-r12		OPTIONAL	-- Need ON
+	]],
+	[[	neighCellsCRS-InfoSCell-r13			NeighCellsCRS-Info-r13		OPTIONAL	-- Need ON
 	]]
+
 }
 
 SRB-ToAddModList ::=				SEQUENCE (SIZE (1..2)) OF SRB-ToAddMod
@@ -3947,6 +4543,8 @@ DRB-ToAddMod ::=	SEQUENCE {
 	...,
 	[[	drb-TypeChange-r12						ENUMERATED {toMCG}	OPTIONAL,		-- Need OP
 		rlc-Config-v1250					RLC-Config-v1250		OPTIONAL		-- Need ON
+	]],
+	[[	rlc-Config-v13xx					RLC-Config-v13xx		OPTIONAL		-- Need ON
 	]]
 }
 
@@ -3984,6 +4582,20 @@ CRS-AssistanceInfo-r11 ::= SEQUENCE {
 	physCellId-r11						PhysCellId,
 	antennaPortsCount-r11				ENUMERATED {an1, an2, an4, spare1},
 	mbsfn-SubframeConfigList-r11		MBSFN-SubframeConfigList,
+	...
+}
+
+NeighCellsCRS-Info-r13 ::=		CHOICE {
+	release							NULL,
+	setup							CRS-AssistanceInfoList-r13
+}
+
+CRS-AssistanceInfoList-r13 ::=	SEQUENCE (SIZE (1..maxCellReport)) OF CRS-AssistanceInfo-r13
+
+CRS-AssistanceInfo-r13 ::= SEQUENCE {
+	physCellId-r13						PhysCellId,
+	antennaPortsCount-r13				ENUMERATED {an1, an2, an4, spare1},
+	mbsfn-SubframeConfigList-r13		MBSFN-SubframeConfigList	OPTIONAL,	-- Need ON
 	...
 }
 
@@ -4037,6 +4649,12 @@ RLC-Config-v1250 ::=				SEQUENCE {
 	dl-extended-RLC-LI-Field-r12			BOOLEAN
 }
 
+RLC-Config-v13xx ::=				SEQUENCE {
+	ul-extended-RLC-AM-SN-r13 					BOOLEAN,
+	dl-extended-RLC-AM-SN-r13 					BOOLEAN,
+	pollPDU-v13xy								PollPDU-v13xy		OPTIONAL   -- Need OR
+}
+
 UL-AM-RLC ::=						SEQUENCE {
 	t-PollRetransmit					T-PollRetransmit,
 	pollPDU								PollPDU,
@@ -4076,6 +4694,9 @@ T-PollRetransmit ::=				ENUMERATED {
 
 PollPDU ::=							ENUMERATED {
 										p4, p8, p16, p32, p64, p128, p256, pInfinity}
+
+PollPDU-v13xy ::=					ENUMERATED {
+										p512, p1024, p2048, p4096, p6144, p8192, p12288, p16384}
 
 PollByte ::=						ENUMERATED {
 										kB25, kB50, kB75, kB100, kB125, kB250, kB375,
@@ -4233,6 +4854,32 @@ SoundingRS-UL-ConfigDedicated-v1020 ::=	SEQUENCE {
 	srs-AntennaPort-r10					SRS-AntennaPort
 }
 
+SoundingRS-UL-ConfigDedicated-v13x0 ::=	CHOICE{
+	release								NULL,
+	setup								SEQUENCE {
+		transmissionComb-v13x0				INTEGER (2..3)				OPTIONAL,	-- Need OR
+		cyclicShift-v13x0					ENUMERATED {cs8, cs9, cs10, cs11}	OPTIONAL,	-- Need OR
+		transmissionCombNum-r13				ENUMERATED {n2, n4}		OPTIONAL	-- Need OR
+	}
+}
+
+SoundingRS-UL-ConfigDedicatedUpPTsExt-r13 ::=	CHOICE{
+	release								NULL,
+	setup								SEQUENCE {
+		srs-UpPtsAdd						ENUMERATED {sym2, sym4},
+		srs-Bandwidth-r13					ENUMERATED {bw0, bw1, bw2, bw3},
+		srs-HoppingBandwidth-r13			ENUMERATED {hbw0, hbw1, hbw2, hbw3},
+		freqDomainPosition-r13				INTEGER (0..23),
+		duration-r13						BOOLEAN,
+		srs-ConfigIndex-r13					INTEGER (0..1023),
+		transmissionComb-r13				INTEGER (0..3),
+		cyclicShift-r13						ENUMERATED {cs0, cs1, cs2, cs3, cs4, cs5, cs6, cs7,
+														cs8, cs9, cs10, cs11},
+		srs-AntennaPort-r13					SRS-AntennaPort,
+		transmissionCombNum-r13				ENUMERATED {n2, n4}
+	}
+}
+
 SoundingRS-UL-ConfigDedicatedAperiodic-r10 ::=	CHOICE{
 	release								NULL,
 	setup								SEQUENCE {
@@ -4249,12 +4896,60 @@ SoundingRS-UL-ConfigDedicatedAperiodic-r10 ::=	CHOICE{
 	}
 }
 
+SoundingRS-UL-ConfigDedicatedAperiodic-v13x0 ::=	CHOICE{
+	release								NULL,
+	setup								SEQUENCE {
+		srs-ConfigApDCI-Format4-v13x0		SEQUENCE (SIZE (1..3)) OF SRS-ConfigAp-v13x0	OPTIONAL,--Need ON
+		srs-ActivateAp-v13x0				CHOICE {
+				release							NULL,
+				setup							SEQUENCE {
+					srs-ConfigApDCI-Format0-v13x0		SRS-ConfigAp-v13x0	OPTIONAL,	-- Need ON
+					srs-ConfigApDCI-Format1a2b2c-v13x0	SRS-ConfigAp-v13x0	OPTIONAL,	-- Need ON
+					...
+				}
+		}																	OPTIONAL	-- Need ON
+	}
+}
+
+SoundingRS-UL-ConfigDedicatedAperiodicUpPTsExt-r13 ::=	CHOICE{
+	release								NULL,
+	setup								SEQUENCE {
+		srs-UpPtsAdd						ENUMERATED {sym2, sym4},
+		srs-ConfigIndexAp-r13				INTEGER (0..31),
+		srs-ConfigApDCI-Format4-r13			SEQUENCE (SIZE (1..3)) OF SRS-ConfigAp-r13	OPTIONAL,--Need ON
+		srs-ActivateAp-r13					CHOICE {
+				release							NULL,
+				setup							SEQUENCE {
+					srs-ConfigApDCI-Format0-r13			SRS-ConfigAp-r13,
+					srs-ConfigApDCI-Format1a2b2c-r13		SRS-ConfigAp-r13,
+					...
+				}
+		}																	OPTIONAL	-- Need ON
+	}
+}
+
 SRS-ConfigAp-r10 ::= SEQUENCE {
 	srs-AntennaPortAp-r10				SRS-AntennaPort,
 	srs-BandwidthAp-r10					ENUMERATED {bw0, bw1, bw2, bw3},
 	freqDomainPositionAp-r10			INTEGER (0..23),
 	transmissionCombAp-r10				INTEGER (0..1),
 	cyclicShiftAp-r10					ENUMERATED {cs0, cs1, cs2, cs3, cs4, cs5, cs6, cs7}
+}
+
+SRS-ConfigAp-v13x0 ::= SEQUENCE {
+	transmissionCombAp-v13x0			INTEGER (2..3)						OPTIONAL,	-- Need OR
+	cyclicShiftAp-v13x0					ENUMERATED {cs8, cs9, cs10, cs11}	OPTIONAL,	-- Need OR
+	transmissionCombNum-r13				ENUMERATED {n2, n4}			OPTIONAL	-- Need OR
+}
+
+SRS-ConfigAp-r13 ::= SEQUENCE {
+	srs-AntennaPortAp-r10				SRS-AntennaPort,
+	srs-BandwidthAp-r10					ENUMERATED {bw0, bw1, bw2, bw3},
+	freqDomainPositionAp-r10			INTEGER (0..23),
+	transmissionCombAp-r10				INTEGER (0..3),
+	cyclicShiftAp-r10					ENUMERATED {cs0, cs1, cs2, cs3, cs4, cs5, cs6, cs7,
+											cs8, cs9, cs10, cs11},
+	transmissionCombNum-r13				ENUMERATED {n2, n4}
 }
 
 SRS-AntennaPort ::=					ENUMERATED {an1, an2, an4, spare1}
@@ -4346,6 +5041,13 @@ TPC-PDCCH-Config ::=					CHOICE {
 	}
 }
 
+TPC-PDCCH-ConfigSCell ::=					CHOICE {
+	release								NULL,
+	setup								SEQUENCE {
+		tpc-Index-PUCCH-SCell-r13		TPC-Index
+	}
+}
+
 TPC-Index ::=							CHOICE {
 	indexOfFormat3							INTEGER (1..15),
 	indexOfFormat3A							INTEGER (1..31)
@@ -4366,6 +5068,11 @@ UplinkPowerControlCommon-v1020 ::=	SEQUENCE {
 	deltaF-PUCCH-Format1bCS-r10				ENUMERATED {deltaF1, deltaF2, spare2, spare1}
 }
 
+UplinkPowerControlCommon-v13xy ::=	SEQUENCE {
+	deltaF-PUCCH-Format4				ENUMERATED {deltaFX, deltaFX1, deltaFX2,deltaFX3, deltaFX4, deltaFX5, deltaFX6, deltaFX7}		OPTIONAL,		-- Need OR
+	deltaF-PUCCH-Format5				ENUMERATED { deltaFX, deltaFX1, deltaFX2, deltaFX3, deltaFX4, deltaFX5, deltaFX6, deltaFX7}		OPTIONAL			-- Need OR
+}
+
 UplinkPowerControlCommonPSCell-r12 ::=		SEQUENCE {
 -- For uplink power control the additional/ missing fields are signalled (compared to SCell)
 	deltaF-PUCCH-Format3-r12				ENUMERATED {deltaF-1, deltaF0, deltaF1, deltaF2,
@@ -4373,6 +5080,12 @@ UplinkPowerControlCommonPSCell-r12 ::=		SEQUENCE {
 	deltaF-PUCCH-Format1bCS-r12				ENUMERATED {deltaF1, deltaF2, spare2, spare1},
 	p0-NominalPUCCH-r12						INTEGER (-127..-96),
 	deltaFList-PUCCH-r12					DeltaFList-PUCCH
+}
+
+UplinkPowerControlCommonPSCell-v13xy ::=		SEQUENCE {
+-- For uplink power control the additional/ missing fields are signalled (compared to SCell)
+	deltaF-PUCCH-Format4				ENUMERATED {deltaFX, deltaFX1, deltaFX2,deltaFX3, deltaFX4, deltaFX5, deltaFX6, deltaFX7}		OPTIONAL,		-- Need OR
+	deltaF-PUCCH-Format5				ENUMERATED { deltaFX, deltaFX1, deltaFX2,deltaFX3, deltaFX4, deltaFX5, deltaFX6, deltaFX7}		OPTIONAL		-- Need OR
 }
 
 UplinkPowerControlCommonSCell-r10 ::=	SEQUENCE {
@@ -4542,6 +5255,9 @@ CellIndex ::=							INTEGER (1..maxCellMeas)
 CellReselectionPriority ::=				INTEGER (0..7)
 
 
+CellReselectionSubPriority-r13 ::=			ENUMERATED {oDot2, oDot4, oDot6, oDot8}
+
+
 CSFB-RegistrationParam1XRTT ::=		SEQUENCE {
 	sid									BIT STRING (SIZE (15)),
 	nid									BIT STRING (SIZE (16)),
@@ -4665,10 +5381,20 @@ MultiBandInfoList ::=	SEQUENCE (SIZE (1..maxMultiBands)) OF FreqBandIndicator
 
 MultiBandInfoList-v9e0 ::=	SEQUENCE (SIZE (1..maxMultiBands)) OF MultiBandInfo-v9e0
 
+MultiBandInfoList-v10j0 ::=	SEQUENCE (SIZE (1..maxMultiBands)) OF NS-PmaxList-r10
+
 MultiBandInfoList-r11 ::=	SEQUENCE (SIZE (1..maxMultiBands)) OF FreqBandIndicator-r11
 
 MultiBandInfo-v9e0 ::=		SEQUENCE {
 	freqBandIndicator-v9e0				FreqBandIndicator-v9e0		OPTIONAL	-- Need OP
+}
+
+
+NS-PmaxList-r10 ::=				SEQUENCE (SIZE (1..maxNS-Pmax-r10)) OF NS-PmaxValue-r10
+
+NS-PmaxValue-r10 ::=			SEQUENCE {
+	additionalPmax-r10					P-Max							OPTIONAL,	-- Need OP
+	additionalSpectrumEmission			AdditionalSpectrumEmission
 }
 
 
@@ -4760,9 +5486,13 @@ ReselectionThresholdQ-r9 ::=			INTEGER (0..31)
 
 
 SCellIndex-r10 ::=						INTEGER (1..7)
+SCellIndex-v13xy ::=					INTEGER (8..31)
+SCellIndex-r13 ::=						INTEGER (1..31)
 
 
 ServCellIndex-r10 ::=					INTEGER (0..7)
+ServCellIndex-v13xy ::=					INTEGER (8..31)
+ServCellIndexFull-r13 ::=				INTEGER (0..31)
 
 
 SpeedStateScaleFactors ::=			SEQUENCE {
@@ -4851,6 +5581,8 @@ MeasConfig ::=						SEQUENCE {
 		measIdToRemoveListExt-r12			MeasIdToRemoveListExt-r12		OPTIONAL,	-- Need ON
 		measIdToAddModListExt-r12			MeasIdToAddModListExt-r12		OPTIONAL,	-- Need ON
 		measRSRQ-OnAllSymbols-r12		BOOLEAN							OPTIONAL	-- Need ON
+	]],
+	[[	ul-DelayConfig-r13			UL-DelayConfig-r13		OPTIONAL		-- Need ON
 	]]
 }
 
@@ -4980,6 +5712,11 @@ MeasObjectEUTRA ::=					SEQUENCE {
 		}														OPTIONAL,		-- Need ON
 		reducedMeasPerformance-r12		BOOLEAN 					OPTIONAL,	 	-- Need ON
 		measDS-Config-r12				MeasDS-Config-r12			OPTIONAL		-- Need ON
+	]],
+	[[
+		whiteCellsToRemoveList-r13		CellIndexList				OPTIONAL,		-- Need ON
+		whiteCellsToAddModList-r13		WhiteCellsToAddModList-r13	OPTIONAL,		-- Need ON
+		measRSSI-Config-r13				MeasRSSI-Config-r13			OPTIONAL		-- Need ON
 	]]
 }
 
@@ -5020,6 +5757,22 @@ AltTTT-CellsToAddModList-r12 ::=	SEQUENCE (SIZE (1..maxCellMeas)) OF AltTTT-Cell
 AltTTT-CellsToAddMod-r12 ::=	SEQUENCE {
 	cellIndex-r12							INTEGER (1..maxCellMeas),
 	physCellIdRange-r12						PhysCellIdRange
+}
+
+WhiteCellsToAddModList-r13 ::=			SEQUENCE (SIZE (1..maxCellMeas)) OF WhiteCellsToAddMod-r13
+
+WhiteCellsToAddMod-r13 ::=	SEQUENCE {
+	cellIndex-r13							INTEGER (1..maxCellMeas),
+	physCellIdRange-r13						PhysCellIdRange
+}
+
+MeasRSSI-Config-r13 ::=	CHOICE {
+	release								NULL,
+	setup								SEQUENCE {
+		rmtc-Period-r13					ENUMERATED {ms40, ms80, ms160, ms320, ms640},
+		rmtc-SubframeOffset-r13			INTEGER(0..639)					OPTIONAL, 		-- Need ON
+		measDuration-r13				ENUMERATED {sym1, sym14, sym28, sym42, sym70}
+	}
 }
 
 
@@ -5114,7 +5867,16 @@ MeasResults ::=						SEQUENCE {
 	[[	measId-v1250						MeasId-v1250					OPTIONAL,
 		measResultPCell-v1250				RSRQ-Range-v1250				OPTIONAL,
 		measResultCSI-RS-List-r12			MeasResultCSI-RS-List-r12		OPTIONAL
+	]],
+	[[	measResultForRSSI-r13				MeasResultForRSSI-r13			OPTIONAL,
+		measResultServFreqListExt-r13		MeasResultServFreqListExt-r13		OPTIONAL,
+		measResultSSTD-r13					MeasResultSSTD-r13				OPTIONAL,
+		measResultPCell-v13xy				SEQUENCE {
+			rs-sinrResult-r13					RS-SINR-Range-r13
+		}																	OPTIONAL,
+		ul-PDCP-DelayResultList-r13			UL-PDCP-DelayResultList-r13		OPTIONAL
 	]]
+
 }
 
 MeasResultListEUTRA ::=				SEQUENCE (SIZE (1..maxCellReport)) OF MeasResultEUTRA
@@ -5134,11 +5896,15 @@ MeasResultEUTRA ::=	SEQUENCE {
 		]],
 		[[	primaryPLMN-Suitable-r12			ENUMERATED {true}			OPTIONAL,
 			measResult-v1250					RSRQ-Range-v1250			OPTIONAL
+		]],
+		[[	rs-sinrResult-r13					RS-SINR-Range-r13			OPTIONAL
 		]]
 	}
 }
 
 MeasResultServFreqList-r10 ::=	SEQUENCE (SIZE (1..maxServCell-r10)) OF MeasResultServFreq-r10
+
+MeasResultServFreqListExt-r13 ::=	SEQUENCE (SIZE (maxServCell-Plus1..maxServCell-r13)) OF MeasResultServFreq-r13
 
 MeasResultServFreq-r10 ::=			SEQUENCE {
 	servFreqId-r10						ServCellIndex-r10,
@@ -5154,7 +5920,30 @@ MeasResultServFreq-r10 ::=			SEQUENCE {
 	...,
 	[[	measResultSCell-v1250				RSRQ-Range-v1250	OPTIONAL,
 		measResultBestNeighCell-v1250		RSRQ-Range-v1250	OPTIONAL
+	]],
+	[[	measResultSCell-v13xy				SEQUENCE {
+			rs-sinrResult-r13					RS-SINR-Range-r13
+		}		OPTIONAL,
+		measResultBestNeighCell-v13xy		SEQUENCE {
+			rs-sinrResult-r13					RS-SINR-Range-r13
+		}		OPTIONAL
 	]]
+}
+
+MeasResultServFreq-r13 ::=			SEQUENCE {
+	servFreqId-r13						ServCellIndexFull-r13,
+	measResultSCell-r13					SEQUENCE {
+		rsrpResultSCell-r13					RSRP-Range,
+		rsrqResultSCell-r13					RSRQ-Range-v13xx,
+		rs-sinrResult-r13					RS-SINR-Range-r13	OPTIONAL
+	}															OPTIONAL,
+	measResultBestNeighCell-r13			SEQUENCE {
+		physCellId-r13						PhysCellId,
+		rsrpResultNCell-r10					RSRP-Range,
+		rsrqResultNCell-r13					RSRQ-Range-v13xx,
+		rs-sinrResult-r13					RS-SINR-Range-r13	OPTIONAL
+	}															OPTIONAL,
+	...
 }
 
 MeasResultCSI-RS-List-r12 ::=	SEQUENCE (SIZE (1..maxCellReport)) OF MeasResultCSI-RS-r12
@@ -5232,6 +6021,25 @@ AdditionalSI-Info-r9 ::=			SEQUENCE {
 	csg-MemberStatus-r9				ENUMERATED {member}				OPTIONAL,
 	csg-Identity-r9						CSG-Identity						OPTIONAL
 }
+MeasResultForRSSI-r13 ::=			SEQUENCE {
+	rssi-Result-r13							RSSI-Range-r13,
+	channelOccupancy-r13					INTEGER (0..100)
+}
+
+UL-PDCP-DelayResultList-r13 ::=		SEQUENCE (SIZE (1..maxQCI-r13)) OF UL-PDCP-DelayResult-r13
+
+
+UL-PDCP-DelayResult-r13 ::=			SEQUENCE {
+	qci-Id-r13							ENUMERATED {qci1, qci2, qci3, qci4, spare4, spare3, spare2, spare1},
+	excessDelay-r13						INTEGER (0..31)
+}
+
+
+MeasResultSSTD-r13 ::=						SEQUENCE {
+	sfn-OffsetResult-r13						INTEGER (0..1023),
+	frameBoundaryOffsetResult-r13				INTEGER (-4..5),
+	subframeBoundaryOffsetResult-r13			INTEGER (0..63)
+}
 
 
 MeasScaleFactor-r12 ::=			ENUMERATED {sf-EUTRA-cf1, sf-EUTRA-cf2}
@@ -5246,6 +6054,8 @@ QuantityConfig ::=					SEQUENCE {
 	[[	quantityConfigUTRA-v1020		QuantityConfigUTRA-v1020			OPTIONAL	-- Need ON
 	]],
 	[[	quantityConfigEUTRA-v1250		QuantityConfigEUTRA-v1250			OPTIONAL	-- Need ON
+	]],
+	[[	quantityConfigEUTRA-v13xy		QuantityConfigEUTRA-v13xy			OPTIONAL	-- Need ON
 	]]
 }
 
@@ -5256,6 +6066,10 @@ QuantityConfigEUTRA ::=				SEQUENCE {
 
 QuantityConfigEUTRA-v1250 ::=		SEQUENCE {
 	filterCoefficientCSI-RSRP-r12		FilterCoefficient					OPTIONAL		-- Need OR
+}
+
+QuantityConfigEUTRA-v13xy ::=		SEQUENCE {
+	filterCoefficientRS-SINR-r13		FilterCoefficient					DEFAULT fc4
 }
 
 QuantityConfigUTRA ::=				SEQUENCE {
@@ -5345,6 +6159,25 @@ ReportConfigEUTRA ::=				SEQUENCE {
 		reportStrongestCSI-RSs-r12			BOOLEAN		OPTIONAL,	-- Need ON
 		reportCRS-Meas-r12					BOOLEAN		OPTIONAL,	-- Need ON
 		triggerQuantityCSI-RS-r12			BOOLEAN			OPTIONAL		-- Need ON
+	]],
+	[[	reportSSTD-Meas-r13					BOOLEAN			OPTIONAL,		-- Need ON
+		triggerQuantity-v13xy			CHOICE {
+			release							NULL,
+			setup							ENUMERATED {sinr}
+		}													OPTIONAL,	-- Need ON
+		aN-ThresholdSINR-r13			CHOICE {
+			release							NULL,
+			setup							SEQUENCE {
+				threshold1-r13					ThresholdEUTRA-v13xy		OPTIONAL, 	-- Need ON
+				threshold2-r13					ThresholdEUTRA-v13xy		OPTIONAL 	-- Need ON
+			}
+		}													OPTIONAL,	-- Cond SINR
+		reportQuantity-v13xy			CHOICE {
+			release							NULL,
+			setup							ENUMERATED {rsrpANDsinr, rsrqANDsinr, all}
+		}													OPTIONAL,	-- Need ON
+		useWhiteCellList-r13				BOOLEAN			OPTIONAL,	-- Need ON
+		measRSSI-ReportConfig-r13			MeasRSSI-ReportConfig-r13	OPTIONAL	-- Need OR
 	]]
 }
 
@@ -5359,6 +6192,12 @@ ThresholdEUTRA ::=					CHOICE{
 }
 
 ThresholdEUTRA-v1250 ::=			CSI-RSRP-Range-r12
+
+ThresholdEUTRA-v13xy ::=			RS-SINR-Range-r13
+
+MeasRSSI-ReportConfig-r13 ::=	SEQUENCE {
+	channelOccupancyThreshold-r13			RSSI-Range-r13
+}
 
 
 ReportConfigId ::=					INTEGER (1..maxReportConfigId)
@@ -5452,6 +6291,7 @@ RSRQ-Range ::=						INTEGER(0..34)
 
 RSRQ-Range-v1250 ::=				INTEGER(-30..46)
 
+RSRQ-Range-v13xx ::=				INTEGER(-30..46)
 
 
 RSRQ-Type-r12 ::=					SEQUENCE {
@@ -5460,10 +6300,28 @@ RSRQ-Type-r12 ::=					SEQUENCE {
 }
 
 
+RS-SINR-Range-r13 ::=						INTEGER(0..127)
+
+
+RSSI-Range-r13 ::=						INTEGER(0..76)
+
+
 TimeToTrigger ::=					ENUMERATED {
 										ms0, ms40, ms64, ms80, ms100, ms128, ms160, ms256,
 										ms320, ms480, ms512, ms640, ms1024, ms1280, ms2560,
 										ms5120}
+
+
+UL-DelayConfig-r13 ::=					CHOICE {
+		release								NULL,
+		setup								SEQUENCE {
+			delayThreshold-r13							ENUMERATED {
+												ms30, ms40, ms50, ms60, ms70, ms80,
+												ms90,ms100, ms150, ms300, ms500, ms750, spare4,												spare3, spare2, spare1},
+			delayReportInterval-r13						ENUMERATED {
+												ms1024, ms2048, ms5120, ms10240}
+		}
+}
 
 
 AbsoluteTimeInfo-r10 ::=				BIT STRING (SIZE (48))
@@ -5665,8 +6523,13 @@ UE-EUTRA-Capability-v10f0-IEs ::=	SEQUENCE {
 UE-EUTRA-Capability-v10i0-IEs ::=	SEQUENCE {
 	rf-Parameters-v10i0					RF-Parameters-v10i0						OPTIONAL,
 	-- Following field is only to be used for late REL-10 extensions
-	lateNonCriticalExtension			OCTET STRING							OPTIONAL,
+	lateNonCriticalExtension			OCTET STRING (CONTAINING UE-EUTRA-Capability-v10j0-IEs)	OPTIONAL,
 	nonCriticalExtension				UE-EUTRA-Capability-v11d0-IEs			OPTIONAL
+}
+
+UE-EUTRA-Capability-v10j0-IEs ::=	SEQUENCE {
+	rf-Parameters-v10j0					RF-Parameters-v10j0						OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}								OPTIONAL
 }
 
 UE-EUTRA-Capability-v11d0-IEs ::=	SEQUENCE {
@@ -5776,7 +6639,28 @@ UE-EUTRA-Capability-v1260-IEs ::=	SEQUENCE {
 
 UE-EUTRA-Capability-v1270-IEs ::= SEQUENCE {
 	rf-Parameters-v1270					RF-Parameters-v1270						OPTIONAL,
-	nonCriticalExtension				SEQUENCE {}								OPTIONAL
+	nonCriticalExtension				UE-EUTRA-Capability-v1280-IEs			OPTIONAL
+}
+
+UE-EUTRA-Capability-v1280-IEs ::= SEQUENCE {
+	phyLayerParameters-v1280			PhyLayerParameters-v1280				OPTIONAL,
+	nonCriticalExtension				UE-EUTRA-Capability-v13x0-IEs 			OPTIONAL
+}
+
+UE-EUTRA-Capability-v13x0-IEs ::= SEQUENCE {
+	dc-Parameters-v13x0					DC-Parameters-v13x0						OPTIONAL,
+	measParameters-v13xy				MeasParameters-v13xy					OPTIONAL,
+	mac-Parameters-v13x0				MAC-Parameters-v13x0					OPTIONAL,
+	pdcp-Parameters-v13x0			PDCP-Parameters-v13x0				OPTIONAL,
+	phyLayerParameters-v13x0			PhyLayerParameters-v13x0				OPTIONAL,
+	rf-Parameters-v13x0				RF-Parameters-v13x0					OPTIONAL,
+	rlc-Parameters-v13x0				RLC-Parameters-v13x0					OPTIONAL,
+	ue-CategoryDL-v13x0				INTEGER (17)							OPTIONAL,
+	ue-CategoryUL-v13x0				INTEGER (14)							OPTIONAL,
+	scptm-Parameters-v13x0				SCPTM-Parameters-v13x0					OPTIONAL,
+	sl-Parameters-r13				SL-Parameters-r13					OPTIONAL,
+	supportOfLAA-r13					ENUMERATED {supported}					OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}							OPTIONAL
 }
 
 UE-EUTRA-CapabilityAddXDD-Mode-r9 ::=	SEQUENCE {
@@ -5825,13 +6709,27 @@ DC-Parameters-r12 ::=			SEQUENCE {
 	drb-TypeSCG-r12							ENUMERATED {supported}			OPTIONAL
 }
 
+DC-Parameters-v13x0 ::=			SEQUENCE {
+	pdcp-TransferSplitUL-r13				ENUMERATED {supported}			OPTIONAL,
+	ue-SSTD-Meas-r13						ENUMERATED {supported}			OPTIONAL
+}
+
 MAC-Parameters-r12 ::=				SEQUENCE {
 	logicalChannelSR-ProhibitTimer-r12	ENUMERATED {supported}				OPTIONAL,
 	longDRX-Command-r12				ENUMERATED {supported}					OPTIONAL
 }
 
+MAC-Parameters-v13x0 ::=				SEQUENCE {
+	extendedMAC-LengthField-r13		ENUMERATED {supported}				OPTIONAL,
+	extendedLongDRX-r13				ENUMERATED {supported}				OPTIONAL
+}
+
 RLC-Parameters-r12 ::=				SEQUENCE {
 	extended-RLC-LI-Field-r12			ENUMERATED {supported}
+}
+
+RLC-Parameters-v13x0 ::=				SEQUENCE {
+	extendedRLC-SN-SO-Field-r13				ENUMERATED {supported}
 }
 
 PDCP-Parameters ::=				SEQUENCE {
@@ -5856,6 +6754,10 @@ PDCP-Parameters ::=				SEQUENCE {
 PDCP-Parameters-v1130 ::=		SEQUENCE {
 	pdcp-SN-Extension-r11					ENUMERATED {supported}			OPTIONAL,
 	supportRohcContextContinue-r11			ENUMERATED {supported}			OPTIONAL
+}
+
+PDCP-Parameters-v13x0 ::=				SEQUENCE {
+	pdcp-SN-Extension-18bits-r13			ENUMERATED {supported}
 }
 
 PhyLayerParameters ::=				SEQUENCE {
@@ -5911,6 +6813,17 @@ PhyLayerParameters-v1250 ::=			SEQUENCE {
 	naics-Capability-List-r12				NAICS-Capability-List-r12		OPTIONAL
 }
 
+PhyLayerParameters-v1280 ::=			SEQUENCE {
+	alternativeTBS-Indices-r12				ENUMERATED {supported}			OPTIONAL
+}
+PhyLayerParameters-v13x0 ::=			SEQUENCE {
+	codebook-HARQ-ACK-r13					BIT STRING (SIZE (2))			OPTIONAL,
+	fdd-Harq-TimingTDD-r13					ENUMERATED {supported}			OPTIONAL,	maxNumberUpdatedCSI-Proc-r13				INTEGER(5..32)					OPTIONAL,
+	supportedBlindDecoding-r13				INTEGER(1..32)					OPTIONAL,
+	pucch-Format4-r13						ENUMERATED {supported}			OPTIONAL,
+	pucch-Format5-r13						ENUMERATED {supported}			OPTIONAL,
+	pucch-SCell-r13							ENUMERATED {supported}			OPTIONAL
+}
 
 NonContiguousUL-RA-WithinCC-List-r10 ::= SEQUENCE (SIZE (1..maxBands)) OF NonContiguousUL-RA-WithinCC-r10
 
@@ -5946,6 +6859,10 @@ RF-Parameters-v10i0 ::=					SEQUENCE {
 	supportedBandCombination-v10i0			SupportedBandCombination-v10i0			OPTIONAL
 }
 
+RF-Parameters-v10j0 ::=					SEQUENCE {
+	multiNS-Pmax-r10						ENUMERATED {supported}					OPTIONAL
+}
+
 RF-Parameters-v1130 ::=				SEQUENCE {
 	supportedBandCombination-v1130			SupportedBandCombination-v1130			OPTIONAL
 }
@@ -5972,6 +6889,13 @@ RF-Parameters-v1270 ::=				SEQUENCE {
 	supportedBandCombinationAdd-v1270		SupportedBandCombinationAdd-v1270		OPTIONAL
 }
 
+RF-Parameters-v13x0 ::=				SEQUENCE {
+	requestedMaximumCCs-r13					ENUMERATED {supported, includedUL,
+													includedDL, includedBoth}		OPTIONAL,
+	skipFallbackCombinations-r13				ENUMERATED {supported, included}				OPTIONAL,
+	supportedBandCombinations-r13		SupportedBandCombinations-r13				OPTIONAL,
+	supportedMIMO-CapabilityDL-r13		MIMO-CapabilityDL-r10						OPTIONAL
+}
 SupportedBandCombination-r10 ::= SEQUENCE (SIZE (1..maxBandComb-r10)) OF BandCombinationParameters-r10
 
 SupportedBandCombinationExt-r10 ::= SEQUENCE (SIZE (1..maxBandComb-r10)) OF BandCombinationParametersExt-r10
@@ -5993,6 +6917,38 @@ SupportedBandCombinationAdd-v11d0 ::= SEQUENCE (SIZE (1..maxBandComb-r11)) OF Ba
 SupportedBandCombinationAdd-v1250 ::= SEQUENCE (SIZE (1..maxBandComb-r11)) OF BandCombinationParameters-v1250
 
 SupportedBandCombinationAdd-v1270 ::= SEQUENCE (SIZE (1..maxBandComb-r11)) OF BandCombinationParameters-v1270
+
+
+
+SupportedBandCombinations-r13 ::=	SEQUENCE {
+	bandCombinationList-r13						BandCombinationList-r13
+}
+
+BandCombinationList-r13 ::= SEQUENCE (SIZE (maxBandComb-r13)) OF BandCombination-r13
+
+BandCombination-r13 ::=		SEQUENCE {
+	additionalFallbackSupported-r13		ENUMERATED {true}				OPTIONAL,
+	bandCombinationParameters-r13		BandCombinationParametersCommon-r13
+}
+
+BandCombinationParametersCommon-r13 ::= SEQUENCE {
+	bandParameterList-r13			SEQUENCE (SIZE (1..maxSimultaneousBands-r10)) OF BandParameters-r13,
+	supportedBandwidthCombinationSet-r13		SupportedBandwidthCombinationSet-r10		OPTIONAL,
+	multipleTimingAdvance-r13		ENUMERATED {supported}					OPTIONAL,
+	simultaneousRx-Tx-r13			ENUMERATED {supported}					OPTIONAL,
+	bandInfoEUTRA-r13				BandInfoEUTRA,
+	dc-Support-r13					SEQUENCE {
+		asynchronous-r13			ENUMERATED {supported}			OPTIONAL,
+		supportedCellGrouping-r13		CHOICE {
+				threeEntries-r13				BIT STRING (SIZE(3)),
+				fourEntries-r13					BIT STRING (SIZE(7)),
+				fiveEntries-r13					BIT STRING (SIZE(15))
+		}																OPTIONAL
+	}																	OPTIONAL,
+	supportedNAICS-2CRS-AP-r13		BIT STRING (SIZE (1..maxNAICS-Entries-r12))		OPTIONAL,
+	commSupportedBandsPerBC-r13		BIT STRING (SIZE (1.. maxBands))		OPTIONAL
+}
+
 
 BandCombinationParameters-r10 ::= SEQUENCE (SIZE (1..maxSimultaneousBands-r10)) OF BandParameters-r10
 
@@ -6043,6 +6999,7 @@ BandCombinationParameters-v1270 ::= SEQUENCE {
 			BandParameters-v1270		OPTIONAL
 }
 
+
 SupportedBandwidthCombinationSet-r10 ::=	BIT STRING (SIZE (1..maxBandwidthCombSet-r10))
 
 BandParameters-r10 ::= SEQUENCE {
@@ -6075,7 +7032,17 @@ BandParameters-v1270 ::= SEQUENCE {
 	bandParametersDL-v1270			SEQUENCE (SIZE (1..maxBandwidthClass-r10)) OF CA-MIMO-ParametersDL-v1270
 }
 
+BandParameters-r13 ::= SEQUENCE {
+	bandEUTRA-r13					FreqBandIndicator-r11,
+	bandParametersUL-r13				BandParametersUL-r13				OPTIONAL,
+	bandParametersDL-r13				BandParametersDL-r13				OPTIONAL,
+	supportedCSI-Proc-r13			ENUMERATED {n1, n3, n4}			OPTIONAL
+}
+
 BandParametersUL-r10 ::= SEQUENCE (SIZE (1..maxBandwidthClass-r10)) OF CA-MIMO-ParametersUL-r10
+
+BandParametersUL-r13 ::= SEQUENCE OF CA-MIMO-ParametersUL-r10
+
 
 CA-MIMO-ParametersUL-r10 ::= SEQUENCE {
 	ca-BandwidthClassUL-r10				CA-BandwidthClass-r10,
@@ -6083,6 +7050,8 @@ CA-MIMO-ParametersUL-r10 ::= SEQUENCE {
 }
 
 BandParametersDL-r10 ::= SEQUENCE (SIZE (1..maxBandwidthClass-r10)) OF CA-MIMO-ParametersDL-r10
+
+BandParametersDL-r13 ::= SEQUENCE OF CA-MIMO-ParametersDL-r13
 
 CA-MIMO-ParametersDL-r10 ::= SEQUENCE {
 	ca-BandwidthClassDL-r10				CA-BandwidthClass-r10,
@@ -6095,6 +7064,13 @@ CA-MIMO-ParametersDL-v10i0 ::= SEQUENCE {
 
 CA-MIMO-ParametersDL-v1270 ::= SEQUENCE {
 	intraBandContiguousCC-InfoList-r12			SEQUENCE (SIZE (1..maxServCell-r10)) OF IntraBandContiguousCC-Info-r12
+}
+
+CA-MIMO-ParametersDL-r13 ::= SEQUENCE {
+	ca-BandwidthClassDL-r13					CA-BandwidthClass-r10,
+	supportedMIMO-CapabilityDL-r13			MIMO-CapabilityDL-r10				OPTIONAL,
+	fourLayerTM3-TM4-r13						ENUMERATED {supported}				OPTIONAL,
+	intraBandContiguousCC-InfoList-r13		SEQUENCE (SIZE (1..maxServCell-r13)) OF IntraBandContiguousCC-Info-r12
 }
 
 IntraBandContiguousCC-Info-r12 ::= SEQUENCE {
@@ -6155,6 +7131,11 @@ MeasParameters-v1250 ::=			SEQUENCE {
 	rsrq-OnAllSymbols-r12				ENUMERATED {supported}		OPTIONAL,
 	crs-DiscoverySignalsMeas-r12		ENUMERATED {supported}		OPTIONAL,
 	csi-RS-DiscoverySignalsMeas-r12		ENUMERATED {supported}		OPTIONAL
+}
+
+MeasParameters-v13xy ::=			SEQUENCE {
+	rs-SINR-Meas-r13					ENUMERATED {supported}		OPTIONAL,
+	whiteCellList-r13		ENUMERATED {supported}		OPTIONAL
 }
 
 BandListEUTRA ::=					SEQUENCE (SIZE (1..maxBands)) OF BandInfoEUTRA
@@ -6339,6 +7320,10 @@ MBMS-Parameters-v1250 ::=				SEQUENCE {
 	mbms-AsyncDC-r12						ENUMERATED {supported}		OPTIONAL
 }
 
+SCPTM-Parameters-v13x0 ::=				SEQUENCE {
+	scptm-ParallelReception-r13					ENUMERATED {supported}		OPTIONAL
+}
+
 WLAN-IW-Parameters-r12 ::=	SEQUENCE {
 	wlan-IW-RAN-Rules-r12					ENUMERATED {supported}		OPTIONAL,
 	wlan-IW-ANDSF-Policies-r12						ENUMERATED {supported}		OPTIONAL
@@ -6366,13 +7351,17 @@ SL-Parameters-r12 ::=				SEQUENCE {
 	discSupportedProc-r12					ENUMERATED {n50, n400}		OPTIONAL
 }
 
+SL-Parameters-r13 ::=				SEQUENCE {
+	discSysInfoReporting-r13					ENUMERATED {supported}		OPTIONAL
+}
+
 SupportedBandInfoList-r12 ::=		SEQUENCE (SIZE (1..maxBands)) OF SupportedBandInfo-r12
 
 SupportedBandInfo-r12 ::=			SEQUENCE {
 	support-r12								ENUMERATED {supported}	OPTIONAL
 }
 
-FreqBandIndicatorListEUTRA-r12  ::=		SEQUENCE (SIZE (1..maxBands)) OF FreqBandIndicator-r11
+FreqBandIndicatorListEUTRA-r12 ::=		SEQUENCE (SIZE (1..maxBands)) OF FreqBandIndicator-r11
 
 
 UE-RadioPagingInfo-r12 ::=				SEQUENCE {
@@ -6472,6 +7461,13 @@ MBMS-NotificationConfig-r9 ::=				SEQUENCE {
 }
 
 
+MBMSServiceList-r13 ::=			SEQUENCE (SIZE (0..maxMBMSServiceListPerUE-r13)) OF MBMSServiceInfo-r13
+
+MBMSServiceInfo-r13 ::= 				SEQUENCE	{
+	tmgi-r13							TMGI-r9
+}
+
+
 MBSFN-AreaId-r12 ::=					INTEGER (0..255)
 
 
@@ -6555,6 +7551,55 @@ TMGI-r9 ::=						SEQUENCE {
 
 
 
+SC-MTCH-InfoList-r13 ::=			SEQUENCE (SIZE (0..maxSC-MTCH-r13)) OF SC-MTCH-Info-r13
+
+SC-MTCH-Info-r13 ::= 				SEQUENCE	{
+	mbmsSessionInfo-r13						MBMSSessionInfo-r13,
+	g-RNTI-r13								C-RNTI,
+	sc-mtch-schedulingInfo-r13				SC-MTCH-SchedulingInfo-r13			OPTIONAL,
+	sc-mtch-neighbourCell-r13				BIT STRING (SIZE(maxNeighCellSCPTM-r13))	OPTIONAL,
+	...
+}
+
+MBMSSessionInfo-r13 ::=				SEQUENCE	{
+	tmgi-r13								TMGI-r9,
+	sessionId-r13							OCTET STRING (SIZE (1))		OPTIONAL 	-- Need OR
+}
+
+SC-MTCH-SchedulingInfo-r13::=		SEQUENCE	{
+	onDurationTimerSCPTM-r13				ENUMERATED {
+												psf1, psf2, psf3, psf4, psf5, psf6,
+												psf8, psf10, psf20, psf30, psf40,
+												psf50, psf60, psf80, psf100,
+												psf200},
+	drx-InactivityTimerSCPTM-r13			ENUMERATED {
+												psf0, psf1, psf2, psf4, psf8,
+												psf10, psf20, psf40,
+												psf80, psf160, ps320,
+												psf640, psf960,
+												psf1280, psf1920, psf2560},
+	schedulingPeriodStartOffsetSCPTM-r13	CHOICE {
+		sf10									INTEGER(0..9),
+		sf20									INTEGER(0..19),
+		sf32									INTEGER(0..31),
+		sf40									INTEGER(0..39),
+		sf64									INTEGER(0..63),
+		sf80									INTEGER(0..79),
+		sf128									INTEGER(0..127),
+		sf160									INTEGER(0..159),
+		sf256									INTEGER(0..255),
+		sf320									INTEGER(0..319),
+		sf512									INTEGER(0..511),
+		sf640									INTEGER(0..639),
+		sf1024									INTEGER(0..1023)
+	},
+	...
+}
+
+
+SCPTMNeighbourCellList-r13 ::=		SEQUENCE (SIZE (1..maxNeighCellSCPTM-r13)) OF CellIdentity
+
+
 SL-CommConfig-r12 ::= 				SEQUENCE	{
 	commTxResources-r12					CHOICE {
 		release								NULL,
@@ -6573,15 +7618,38 @@ SL-CommConfig-r12 ::= 				SEQUENCE	{
 				}
 			}
 		}
-	} 																		OPTIONAL,	-- Need ON
-	...
-}
+	}																		OPTIONAL,	-- Need ON
+	...,
+	[[	scheduled-r13x0						CHOICE {
+			release								NULL,
+			setup								SEQUENCE {
+				logicalChGroupInfoList-r13			LogicalChGroupInfoList-r13,
+				multipleTxAllowed-r13				BOOLEAN
+			}
+		}																	OPTIONAL,	-- Need ON
+		ue-Selected-r13x0					SEQUENCE {
+			commTxPoolNormalDedicatedExt-r13	SEQUENCE {
+				poolToReleaseListExt-r13			SL-TxPoolToReleaseListExt-r13 OPTIONAL,	-- Need ON
+				poolToAddModListExt-r13				SL-CommTxPoolToAddModListExt-r13	OPTIONAL	-- Need ON
+			}
+		}																OPTIONAL,	-- Need ON
+		commTxAllowRelayDedicated-r13		BOOLEAN			OPTIONAL	-- Need ON
+	]]}
+
+LogicalChGroupInfoList-r13 ::=		SEQUENCE (SIZE (1..maxLCG-r13)) OF SL-PriorityList-r13
 
 SL-CommTxPoolToAddModList-r12 ::=		SEQUENCE (SIZE (1..maxSL-TxPool-r12)) OF SL-CommTxPoolToAddMod-r12
+
+SL-CommTxPoolToAddModListExt-r13 ::=	SEQUENCE (SIZE (1..maxSL-CommTxPool-v13x0)) OF SL-CommTxPoolToAddModExt-r13
 
 SL-CommTxPoolToAddMod-r12 ::=		SEQUENCE	{
 	poolIdentity-r12					SL-TxPoolIdentity-r12,
 	pool-r12							SL-CommResourcePool-r12
+}
+
+SL-CommTxPoolToAddModExt-r13 ::=		SEQUENCE	{
+	poolIdentity-v13x0					SL-CommTxPoolIdentity-v13x0,
+	pool-r13							SL-CommResourcePool-r12
 }
 
 MAC-MainConfigSL-r12 ::= 		SEQUENCE	{
@@ -6591,6 +7659,8 @@ MAC-MainConfigSL-r12 ::= 		SEQUENCE	{
 
 
 SL-CommTxPoolList-r12 ::=		SEQUENCE (SIZE (1..maxSL-TxPool-r12)) OF SL-CommResourcePool-r12
+
+SL-CommTxPoolListExt-r13 ::=	SEQUENCE (SIZE (1..maxSL-CommTxPool-v13x0)) OF SL-CommResourcePool-r12
 
 SL-CommRxPoolList-r12 ::=		SEQUENCE (SIZE (1..maxSL-RxPool-r12)) OF SL-CommResourcePool-r12
 
@@ -6612,7 +7682,10 @@ SL-CommResourcePool-r12 ::=		SEQUENCE {
 		sc-TxParameters-r12				SL-TxParameters-r12,
 		dataTxParameters-r12			SL-TxParameters-r12
 	} 																OPTIONAL, 	-- Cond Tx
-	...
+	...,
+	[[	priorityList-r13				SL-PriorityList-r13			OPTIONAL 	-- Cond Tx
+	]]
+
 }
 
 SL-TRPT-Subset-r12 ::=			BIT STRING (SIZE (3..5))
@@ -6646,7 +7719,71 @@ SL-DiscConfig-r12 ::=					SEQUENCE {
 				discTF-IndexList-r12b				SL-TF-IndexPairList-r12b
 			}
 		}															OPTIONAL	-- Need ON
+	]],
+	[[	discTxResourcesPS-r13			CHOICE {
+			release								NULL,
+			setup								CHOICE {
+				scheduled-r13						SL-DiscTxConfigScheduled-r13,
+				ue-Selected-r13						SEQUENCE {
+					discTxPoolPS-Dedicated-r13			SL-DiscTxPoolDedicated-r13
+				}
+			}
+		}															OPTIONAL,	-- Need ON
+		discTxInterFreqInfo-r13			CHOICE {
+			release								NULL,
+			setup								SEQUENCE {
+				discTxCarrierFreq-r13				ARFCN-ValueEUTRA-r9			OPTIONAL,	-- Need OR
+				discTxRefCarrierDedicated-r13		SL-DiscTxRefCarrierDedicated-r13	OPTIONAL,	-- Need OR
+				discTxInfoInterFreqListExt-r13			SL-DiscTxInfoInterFreqListExt-r13	OPTIONAL	-- Need ON
+			}
+		}															OPTIONAL,	-- Need ON
+		gapRequestsAllowedDedicated-r13		ENUMERATED {false, true}	OPTIONAL,	-- Need ON
+		discRxGapConfig-r13					CHOICE {
+			release								NULL,
+			setup								SL-GapConfig-r13
+		}															OPTIONAL,	-- Need ON
+		discTxGapConfig-r13					CHOICE {
+			release								NULL,
+			setup								SL-GapConfig-r13
+		}															OPTIONAL,	-- Need ON
+		discSysInfoReportConfig-r13			CHOICE {
+			release								NULL,
+			setup								SL-DiscSysInfoReportFreqList-r13
+		}															OPTIONAL	-- Need ON
 	]]
+}
+
+SL-DiscSysInfoReportFreqList-r13 ::= SEQUENCE (SIZE (1..maxFreq)) OF ARFCN-ValueEUTRA-r9
+
+SL-DiscTxInfoInterFreqListExt-r13 ::=	SEQUENCE {
+	discTxFreqToAddModList-r13				SEQUENCE (SIZE (1..maxFreq)) OF SL-DiscTxResourceInfoPerFreq-r13	OPTIONAL,	-- Need ON
+	discTxFreqToReleaseList-r13				SEQUENCE (SIZE (1..maxFreq)) OF ARFCN-ValueEUTRA-r9	OPTIONAL	-- Need ON
+}
+
+SL-DiscTxResourceInfoPerFreq-r13 ::=	SEQUENCE	{
+	discTxCarrierFreq-r13					ARFCN-ValueEUTRA-r9,
+	discTxResources-r13						SL-DiscTxResource-r13	OPTIONAL,	-- Need OR
+	discTxResourcesPS-r13					SL-DiscTxResource-r13	OPTIONAL,	-- Need OR
+	discTxRefCarrierDedicated-r13			SL-DiscTxRefCarrierDedicated-r13	OPTIONAL,	-- Need OR
+	cellSelectionInfo-r13					CellSelectionInfoNFreq-r13			OPTIONAL	-- Need OR
+}
+
+SL-DiscTxResource-r13 ::=				CHOICE {
+	release								NULL,
+	setup								CHOICE {
+		scheduled-r13					SEQUENCE {
+			discTxConfig-r13					SL-DiscResourcePool-r12	OPTIONAL, -- Need ON
+			discTF-IndexList-r13				SL-TF-IndexPairList-r12b	OPTIONAL, -- Need ON
+			discHoppingConfig-r13				SL-HoppingConfigDisc-r12
+													OPTIONAL	-- Need ON
+		},
+		ue-Selected-r13					SEQUENCE {
+			discTxPoolDedicated-r13			SEQUENCE {
+				poolToReleaseList-r13			SL-TxPoolToReleaseList-r12 OPTIONAL,	-- Need ON
+				poolToAddModList-r13			SL-DiscTxPoolToAddModList-r12 OPTIONAL	-- Need ON
+			} 													OPTIONAL	-- Need ON
+		}
+	}
 }
 
 SL-DiscTxPoolToAddModList-r12 ::=		SEQUENCE (SIZE (1..maxSL-TxPool-r12)) OF SL-DiscTxPoolToAddMod-r12
@@ -6654,6 +7791,17 @@ SL-DiscTxPoolToAddModList-r12 ::=		SEQUENCE (SIZE (1..maxSL-TxPool-r12)) OF SL-D
 SL-DiscTxPoolToAddMod-r12 ::=		SEQUENCE	{
 	poolIdentity-r12					SL-TxPoolIdentity-r12,
 	pool-r12							SL-DiscResourcePool-r12
+}
+
+SL-DiscTxConfigScheduled-r13 ::=			SEQUENCE {
+	discTxConfig-r12					SL-DiscResourcePool-r12	OPTIONAL, -- Need ON
+	discTF-IndexList-r12				SL-TF-IndexPairList-r12 	OPTIONAL, -- Need ON
+	discHoppingConfig-r12				SL-HoppingConfigDisc-r12
+}
+
+SL-DiscTxPoolDedicated-r13 ::=			SEQUENCE {
+	poolToReleaseList-r12			SL-TxPoolToReleaseList-r12 OPTIONAL,	-- Need ON
+	poolToAddModList-r12			SL-DiscTxPoolToAddModList-r12 OPTIONAL	-- Need ON
 }
 
 SL-TF-IndexPairList-r12 ::=		SEQUENCE (SIZE (1..maxSL-TF-IndexPair-r12)) OF SL-TF-IndexPair-r12
@@ -6670,6 +7818,11 @@ SL-TF-IndexPair-r12b ::=		SEQUENCE	{
 	discPRB-Index-r12b					INTEGER (0..49)			OPTIONAL	 -- Need ON
 }
 
+SL-DiscTxRefCarrierDedicated-r13 ::=	CHOICE {
+	pCell								NULL,
+	sCell								SCellIndex-r10
+}
+
 
 SL-DiscTxPoolList-r12 ::=		SEQUENCE (SIZE (1..maxSL-TxPool-r12)) OF SL-DiscResourcePool-r12
 
@@ -6678,7 +7831,7 @@ SL-DiscRxPoolList-r12 ::=		SEQUENCE (SIZE (1..maxSL-RxPool-r12)) OF SL-DiscResou
 SL-DiscResourcePool-r12 ::=		SEQUENCE	{
 	cp-Len-r12						SL-CP-Len-r12,
 	discPeriod-r12				ENUMERATED {rf32, rf64, rf128,
-											rf256, rf512, rf1024, spare2, spare},
+											rf256, rf512, rf1024, rf16-v13x0, spare},
 	numRetx-r12					INTEGER (0..3),
 	numRepetition-r12				INTEGER (1..50),
 	tf-ResourceConfig-r12			SL-TF-ResourceConfig-r12,
@@ -6696,7 +7849,32 @@ SL-DiscResourcePool-r12 ::=		SEQUENCE	{
 		tdd-Config-r12					TDD-Config					OPTIONAL, 	-- Need OR
 		syncConfigIndex-r12			INTEGER (0..15)
 	}																OPTIONAL, 	-- Need OR
-	...
+	...,
+	[[	discPeriod-v13x0				CHOICE {
+			release								NULL,
+			setup								ENUMERATED {rf4, rf7, rf8, rf14, rf28,
+													spare3, spare2, spare}
+			}														OPTIONAL,	-- Need ON
+	-- Note: Extended values apply for PS discovery (not only for relay). E-UTRAN sets original
+	-- field to spare value to ensure legacy UEs ignore the concerned entry
+		rxParamsAddNeighFreq-r13		SEQUENCE {
+			physCellId-r13					PhysCellId
+		}															OPTIONAL,	-- Need ON
+		txParamsAddNeighFreq-r13		SEQUENCE {
+			physCellId-r13					PhysCellId,
+			p-Max							P-Max					OPTIONAL,	-- Need OP
+			tdd-Config-r13					TDD-Config				OPTIONAL,	-- Need OR
+			tdd-Config-v1130				TDD-Config-v1130		OPTIONAL,	-- Cond TDD-OR
+			freqInfo							SEQUENCE {
+				ul-CarrierFreq						ARFCN-ValueEUTRA	OPTIONAL,	-- Need OP
+				ul-Bandwidth						ENUMERATED {n6, n15, n25, n50, n75, n100}
+																			OPTIONAL,	-- Need OP
+			additionalSpectrumEmission			AdditionalSpectrumEmission
+			},
+			referenceSignalPower				INTEGER (-60..50),
+			syncConfigIndex-r13				INTEGER (0..15)			OPTIONAL	-- Need OR
+		}															OPTIONAL	-- Need ON
+	]]
 }
 
 SL-PoolSelectionConfig-r12 ::=		SEQUENCE {
@@ -6710,6 +7888,28 @@ SL-DiscTxPowerInfoList-r12 ::= 	SEQUENCE (SIZE (maxSL-DiscPowerClass-r12)) OF SL
 SL-DiscTxPowerInfo-r12 ::= 				SEQUENCE	{
 	discMaxTxPower-r12							P-Max,
 	...
+}
+
+
+SL-GapConfig-r13 ::=				SEQUENCE {
+	gapPatternList-r13				SL-GapPatternList-r13
+}
+
+SL-GapPatternList-r13 ::=	SEQUENCE (SIZE (1..maxSL-GP-r13)) OF SL-GapPattern-r13
+
+SL-GapPattern-r13 ::=				SEQUENCE {
+	gapPeriod-r13						ENUMERATED {rf4, rf7, rf8, rf14, rf16, rf28, rf32,
+											 rf64, rf128, rf256, rf512, rf1024, spare},
+	gapOffset-r12						SL-OffsetIndicator-r12,
+	gapSubframeBitmap-r13 				BIT STRING (SIZE (1..10240))
+}
+
+
+SL-GapRequest-r13 ::=				SEQUENCE (SIZE (1..maxFreq)) OF SL-GapFreqInfo-r13
+
+SL-GapFreqInfo-r13 ::=				SEQUENCE {
+	carrierFreq-r13					ARFCN-ValueEUTRA-r9					OPTIONAL,
+	gapPatternList-r13				SL-GapPatternList-r13
 }
 
 
@@ -6739,6 +7939,11 @@ SL-PeriodComm-r12 ::=					ENUMERATED {sf40, sf60, sf70, sf80, sf120, sf140,
 												 spare4, spare3, spare2, spare}
 
 
+SL-PriorityList-r13 ::=		SEQUENCE (SIZE (1..maxSL-Prio-r13)) OF SL-Priority-r13
+
+SL-Priority-r13 ::=			INTEGER (1..8)
+
+
 SLSSID-r12 ::=					INTEGER (0..167)
 
 
@@ -6751,13 +7956,76 @@ SL-SyncConfig-r12 ::=					SEQUENCE {
 	txParameters-r12							SEQUENCE {
 		syncTxParameters-r12					SL-TxParameters-r12,
 		syncTxThreshIC-r12						RSRP-RangeSL-r12,
-		syncInfoReserved-r12						BIT STRING (SIZE (19)) 	OPTIONAL 	-- Need OR
+		syncInfoReserved-r12						BIT STRING (SIZE (19))	OPTIONAL 	-- Need OR
 	}																	OPTIONAL, 	-- Need OR
 	rxParamsNCell-r12						SEQUENCE {
 		physCellId-r12							PhysCellId,
 		discSyncWindow-r12				ENUMERATED {w1, w2}
 	}																	OPTIONAL, 	-- Need OR
+	...,
+	[[	syncTxPeriodic-r13					ENUMERATED {true}			OPTIONAL	-- Need OR
+	]]
+}
+
+SL-SyncConfigListNFreq-r12 ::=		SEQUENCE (SIZE (1..maxSL-SyncConfig-r12)) OF SL-SyncConfigNFreq-r13
+
+SL-SyncConfigNFreq-r13 ::=			SEQUENCE {
+	asyncParameters-r13					SEQUENCE {
+		syncCP-Len-r13						SL-CP-Len-r12,
+		syncOffsetIndicator-r13				SL-OffsetIndicatorSync-r12,
+		slssid-r13							SLSSID-r12
+	}																OPTIONAL,	-- Need OR
+	txParameters-r13					SEQUENCE {
+		syncTxParameters-r13				SL-TxParameters-r12,
+		syncTxThreshIC-r13					RSRP-RangeSL-r12,
+		syncInfoReserved-r13					BIT STRING (SIZE (19))	OPTIONAL,	-- Need OR
+		syncTxPeriodic-r13					ENUMERATED {true}		OPTIONAL	-- Need OR
+	}																OPTIONAL,	-- Need OR
+	rxParameters-r1s					SEQUENCE {
+		discSyncWindow-r13					ENUMERATED {w1, w2}
+	}																	OPTIONAL, 	-- Need OR
 	...
+}
+
+SL-SysInfoReport-r13 ::=			SEQUENCE {
+	plmn-IdentityList-r13				PLMN-IdentityList			OPTIONAL,
+	cellIdentity-13						CellIdentity				OPTIONAL,
+	carrierFreqInfo-13					ARFCN-ValueEUTRA-r9			OPTIONAL,
+	discRxResources-r13					SL-DiscRxPoolList-r12		OPTIONAL,
+	discTxPoolCommon-r13				SL-DiscTxPoolList-r12 		OPTIONAL,
+	discTxPowerInfo-r13					SL-DiscTxPowerInfoList-r12	OPTIONAL,
+	discSyncConfig-r13				SEQUENCE {
+		asyncParameters-r13					SEQUENCE {
+			syncCP-Len-r13						SL-CP-Len-r12,
+			syncOffsetIndicator-r13				SL-OffsetIndicatorSync-r12,
+			slssid-r13							SLSSID-r12
+		}															OPTIONAL,
+		txParameters-r13					SEQUENCE {
+			syncTxParameters-r13				SL-TxParameters-r12,
+			syncTxThreshIC-r13					RSRP-RangeSL-r12,
+			syncInfoReserved-r13				BIT STRING (SIZE (19))	OPTIONAL,
+			syncTxPeriodic-r13					ENUMERATED {true}		OPTIONAL
+		}																OPTIONAL
+	}																OPTIONAL,
+	cellSelectionInfo-r13			SEQUENCE {
+		q-RxLevMin-r13					Q-RxLevMin,
+		q-RxLevMinOffset-r13			INTEGER (1..8)				OPTIONAL
+	}	OPTIONAL,
+	q-Hyst-r13						ENUMERATED {
+												dB0, dB1, dB2, dB3, dB4, dB5, dB6, dB8, dB10,
+												dB12, dB14, dB16, dB18, dB20, dB22, dB24}
+																	OPTIONAL,
+	q-RxLevMin-r13					Q-RxLevMin	OPTIONAL,
+	t-ReselectionEUTRA-r13			T-Reselection	OPTIONAL,
+	tdd-Config-r13					TDD-Config		OPTIONAL,
+	freqInfo-r13					SEQUENCE {
+		ul-CarrierFreq-r13				ARFCN-ValueEUTRA				OPTIONAL,
+		ul-Bandwidth-r13				ENUMERATED {n6, n15, n25, n50, n75, n100}
+																		OPTIONAL,
+		additionalSpectrumEmission-r13	AdditionalSpectrumEmission		OPTIONAL
+	}																OPTIONAL,
+	p-Max-r13						P-Max	OPTIONAL,
+	referenceSignalPower-r13		INTEGER (-60..50)	OPTIONAL
 }
 
 
@@ -6790,12 +8058,19 @@ P0-SL-r12 ::=							INTEGER (-126..31)
 
 SL-TxPoolIdentity-r12 ::=			INTEGER (1.. maxSL-TxPool-r12)
 
+SL-CommTxPoolIdentity-v13x0 ::=		INTEGER (maxSL-CommTxPool-r12Plus1-r13.. maxSL-CommTxPool-r13)
+
+SL-CommTxPoolIdentity-r13 ::=		INTEGER (1.. maxSL-CommTxPool-r13)
+
 
 SL-TxPoolToReleaseList-r12 ::=	SEQUENCE (SIZE (1..maxSL-TxPool-r12)) OF SL-TxPoolIdentity-r12
 
+SL-TxPoolToReleaseListExt-r13 ::=	SEQUENCE (SIZE (1..maxSL-CommTxPool-v13x0)) OF SL-CommTxPoolIdentity-v13x0
 
+maxACDC-Cat-r13				INTEGER ::=	16	-- Maximum number of ACDC categories (per PLMN)
 maxBandComb-r10				INTEGER ::=	128	-- Maximum number of band combinations.
 maxBandComb-r11				INTEGER ::=	256	-- Maximum number of additional band combinations.
+maxBandComb-r13				INTEGER ::=	384 -- Maximum number of band combinations in Rel-13
 maxBands					INTEGER ::= 64	-- Maximum number of bands listed in EUTRA UE caps
 maxBandwidthClass-r10		INTEGER ::=	16	-- Maximum number of supported CA BW classes per band
 maxBandwidthCombSet-r10		INTEGER ::=	32	-- Maximum number of bandwidth combination sets per
@@ -6857,20 +8132,25 @@ maxFreqMBMS-r11				INTEGER ::= 5	-- Maximum number of carrier frequencies for wh
 maxGERAN-SI					INTEGER ::= 10	-- Maximum number of GERAN SI blocks that can be
 											-- provided as part of NACC information
 maxGNFG						INTEGER ::= 16	-- Maximum number of GERAN neighbour freq groups
+maxLCG-r13					INTEGER ::= 4	-- Maximum number of logical channel groups
 maxLogMeasReport-r10		INTEGER ::= 520	-- Maximum number of logged measurement entries
 											--  that can be reported by the UE in one message
 maxMBSFN-Allocations		INTEGER ::= 8	-- Maximum number of MBSFN frame allocations with
 											-- different offset
 maxMBSFN-Area				INTEGER ::= 8
 maxMBSFN-Area-1				INTEGER ::= 7
+maxMBMSServiceListPerUE-r13		INTEGER ::= 16	-- Maximum number of services which the UE can
+										-- include in the MBMS interest indication
 maxMeasId					INTEGER ::= 32
 maxMeasId-Plus1 			INTEGER ::= 33
 maxMeasId-r12				INTEGER ::= 64
 maxMultiBands				INTEGER ::= 8	-- Maximum number of additional frequency bands
 											-- that a cell belongs to
+maxNS-Pmax-r10				INTEGER ::= 8	-- Maximum number of NS and P-Max values per band
 maxNAICS-Entries-r12			INTEGER ::= 8	-- Maximum number of supported NAICS combination(s)
 maxNeighCell-r12				INTEGER ::= 8	-- Maximum number of neighbouring cells in NAICS
 											-- configuration (per carrier frequency)
+maxNeighCellSCPTM-r13		INTEGER ::=	8	-- Maximum number of SCPTM neighbour cells
 maxObjectId					INTEGER ::= 32
 maxP-a-PerNeighCell-r12		INTEGER ::= 3	-- Maximum number of power offsets for a neighbour cell
 											-- in NAICS configuration
@@ -6879,6 +8159,7 @@ maxPhysCellIdRange-r9 		INTEGER ::= 4	-- Maximum number of physical cell identit
 maxPLMN-r11					INTEGER ::=	6	-- Maximum number of PLMNs
 maxPNOffset					INTEGER ::=	511	-- Maximum number of CDMA2000 PNOffsets
 maxPMCH-PerMBSFN			INTEGER ::= 15
+maxQCI-r13					INTEGER ::= 6   -- Maximum number of QCIs
 maxRAT-Capabilities			INTEGER ::= 8	-- Maximum number of interworking RATs (incl EUTRA)
 maxRE-MapQCL-r11			INTEGER ::= 4	-- Maximum number of PDSCH RE Mapping configurations
 											--  (per carrier frequency)
@@ -6888,8 +8169,32 @@ maxRSTD-Freq-r10			INTEGER ::= 3	-- Maximum number of frequency layers for RSTD
 maxSAI-MBMS-r11				INTEGER ::= 64	-- Maximum number of MBMS service area identities
 											-- broadcast per carrier frequency
 maxSCell-r10				INTEGER ::= 4	-- Maximum number of SCells
+maxSCell-r13				INTEGER ::= 31	-- Highest value of extended number range of SCells
+maxSCell-Plus1				INTEGER ::= 5	-- Lowest value of extended number range of SCells
+maxSC-MTCH-r13				INTEGER ::= 1024	-- Maximum number of SC-MTCHs in one cell
+maxSL-CommRxPoolNFreq-r13	INTEGER ::= 32	-- Maximum number of individual sidelink communication
+											-- Rx resource pools on neighbouring freq
+maxSL-CommRxPoolPreconf-v13x0	INTEGER ::= 12	-- Maximum number of additional preconfigured
+												-- sidelink communication Rx resource pool entries
+maxSL-CommTxPool-r12Plus1-r13	INTEGER ::= 5	-- First additional individual sidelink
+											-- communication Tx resource pool
+maxSL-CommTxPool-v13x0			INTEGER ::= 4	-- Maximum number of additional sidelink
+												-- communication Tx resource pool entries
+maxSL-CommTxPool-r13			INTEGER ::= 8	-- Maximum number of individual sidelink
+												-- communication Tx resource pools
+maxSL-CommTxPoolPreconf-v13x0	INTEGER ::= 7	-- Maximum number of additional preconfigured
+												-- sidelink communication Tx resource pool entries
 maxSL-Dest-r12			INTEGER ::= 16	-- Maximum number of sidelink destinations
 maxSL-DiscPowerClass-r12	INTEGER ::= 3	-- Maximum number of sidelink power classes
+maxSL-DiscRxPoolPreconf-r13		INTEGER ::= 4	-- Maximum number of preconfigured sidelink
+												-- discovery Rx resource pool entries
+maxSL-DiscSysInfoReportFreq-r13	INTEGER ::= 8	-- Maximum number of frequencies to include in a
+												-- UESidelinkInformation for SI reporting
+maxSL-DiscTxPoolPreconf-r13		INTEGER ::= 1	-- Maximum number of preconfigured sidelink
+												-- discovery Tx resource pool entries
+maxSL-GP-r13			INTEGER ::= 8	-- Maximum number of gap patterns that can be requested
+										-- for a frequency or assigned
+maxSL-Prio-r13			INTEGER ::= 8	-- Maximum number of entries in sidelink priority list
 maxSL-RxPool-r12			INTEGER ::= 16	-- Maximum number of individual sidelink Rx resource pools
 maxSL-SyncConfig-r12		INTEGER ::= 16	-- Maximum number of sidelink Sync configurations
 maxSL-TF-IndexPair-r12	INTEGER ::= 64	-- Maximum number of sidelink Time Freq resource index
@@ -6897,6 +8202,8 @@ maxSL-TF-IndexPair-r12	INTEGER ::= 64	-- Maximum number of sidelink Time Freq re
 maxSL-TxPool-r12			INTEGER ::= 4	-- Maximum number of individual sidelink Tx resource pools
 maxSTAG-r11					INTEGER ::= 3	-- Maximum number of STAGs
 maxServCell-r10				INTEGER ::= 5	-- Maximum number of Serving cells
+maxServCell-r13				INTEGER ::= 32	-- Highest value of extended number range of Serving cells
+maxServCell-Plus1			INTEGER ::= 6	-- Lowest value of extended number range of Serving cells
 maxServiceCount 			INTEGER ::= 16	-- Maximum number of MBMS services that can be included
 											--  in an MBMS counting request and response
 maxServiceCount-1			INTEGER ::= 15
