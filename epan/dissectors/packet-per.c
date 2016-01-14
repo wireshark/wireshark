@@ -2521,7 +2521,7 @@ dissect_per_external_type(tvbuff_t *tvb _U_, guint32 offset, asn1_ctx_t *actx, p
 }
 
 /*
- * Calls the callback defined with new_register_per_oid_dissector() if found.
+ * Calls the callback defined with register_per_oid_dissector() if found.
  * Offset is in bits.
  */
 
@@ -2551,7 +2551,7 @@ call_per_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_
 }
 
 void
-new_register_per_oid_dissector(const char *oid, dissector_t dissector, int proto, const char *name)
+register_per_oid_dissector(const char *oid, dissector_t dissector, int proto, const char *name)
 {
 	dissector_handle_t dissector_handle;
 
