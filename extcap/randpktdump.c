@@ -201,6 +201,7 @@ static void help(const char* binname)
 
 static int list_interfaces(void)
 {
+	printf("extcap {version=%u.%u.%u}\n", RANDPKTDUMP_VERSION_MAJOR, RANDPKTDUMP_VERSION_MINOR, RANDPKTDUMP_VERSION_RELEASE);
 	printf("interface {value=%s}{display=Random packet generator}\n", RANDPKT_EXTCAP_INTERFACE);
 	return EXIT_SUCCESS;
 }

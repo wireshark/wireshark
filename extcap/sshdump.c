@@ -435,6 +435,7 @@ static void help(const char* binname)
 
 static int list_interfaces(void)
 {
+	printf("extcap {version=%u.%u.%u}\n", SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR, SSHDUMP_VERSION_RELEASE);
 	printf("interface {value=%s}{display=SSH remote capture}\n", SSH_EXTCAP_INTERFACE);
 	return EXIT_SUCCESS;
 }
