@@ -3102,7 +3102,7 @@ proto_register_ipv6(void)
         },
         { &hf_ipv6_fraghdr_reserved_octet,
             { "Reserved octet", "ipv6.fraghdr.reserved_octet",
-                FT_UINT16, BASE_HEX, NULL, 0x0,
+                FT_UINT8, BASE_HEX, NULL, 0x0,
                 "Should always be 0", HFILL }
         },
         { &hf_ipv6_fraghdr_offset,
