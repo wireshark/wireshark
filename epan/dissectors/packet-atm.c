@@ -144,12 +144,10 @@ static dissector_handle_t tr_handle;
 static dissector_handle_t fr_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t sscop_handle;
-static dissector_handle_t fp_handle;
 static dissector_handle_t ppp_handle;
 static dissector_handle_t eth_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t data_handle;
-static dissector_handle_t gprs_ns_handle;
 
 static gboolean dissect_lanesscop = FALSE;
 
@@ -2003,8 +2001,6 @@ proto_reg_handoff_atm(void)
   eth_handle            = find_dissector("eth");
   ip_handle             = find_dissector("ip");
   data_handle           = find_dissector("data");
-  fp_handle             = find_dissector("fp");
-  gprs_ns_handle        = find_dissector("gprs_ns");
 
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS, atm_handle);
   dissector_add_uint("atm.aal5.type", TRAF_LANE, create_dissector_handle(dissect_lane, proto_atm_lane));
