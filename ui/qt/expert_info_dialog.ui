@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>620</width>
-    <height>450</height>
+    <height>540</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,6 +25,11 @@
      <column>
       <property name="text">
        <string>Severity</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Summary</string>
       </property>
      </column>
      <column>
@@ -52,11 +57,34 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,1,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0,0,0,1,0,0">
      <item>
       <widget class="QCheckBox" name="limitCheckBox">
        <property name="text">
         <string>Limit to Display Filter</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="groupBySummaryCheckBox">
+       <property name="text">
+        <string>Group by summary</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -67,7 +95,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
+         <width>20</width>
          <height>10</height>
         </size>
        </property>

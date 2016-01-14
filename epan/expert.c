@@ -90,7 +90,7 @@ const value_string expert_group_vals[] = {
 
 const value_string expert_severity_vals[] = {
 	{ PI_ERROR,             "Error" },
-	{ PI_WARN,              "Warn" },
+	{ PI_WARN,              "Warning" },
 	{ PI_NOTE,              "Note" },
 	{ PI_CHAT,              "Chat" },
 	{ PI_COMMENT,           "Comment" },

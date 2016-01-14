@@ -50,11 +50,10 @@
 
 enum {
     severity_col_,
+    summary_col_,
     group_col_,
     protocol_col_,
-    count_col_,
-
-    packet_col_ = severity_col_
+    count_col_
 };
 
 enum { group_type_ = 1000, packet_type_ = 1001 };
@@ -64,17 +63,33 @@ static const int auto_expand_threshold_ = 20; // Arbitrary
 class ExpertGroupTreeWidgetItem : public QTreeWidgetItem
 {
 public:
-    ExpertGroupTreeWidgetItem(QTreeWidget *parent, int severity, int group, const QString &protocol) : QTreeWidgetItem (parent, group_type_) {
+    ExpertGroupTreeWidgetItem(QTreeWidget *parent, int severity, const QString &summary, int group, const QString &protocol) : QTreeWidgetItem (parent, group_type_) {
         // XXX We set text and data here, colors in addExpertInfo, and counts
         // in updateCounts.
         setData(severity_col_, Qt::UserRole, QVariant(severity));
         setData(group_col_, Qt::UserRole, QVariant(group));
 
         setText(severity_col_, val_to_str_const(severity, expert_severity_vals, "Unknown"));
+        setText(summary_col_, summary);
         setText(group_col_, val_to_str_const(group, expert_group_vals, "Unknown"));
         setText(protocol_col_, protocol);
         setText(count_col_, "0");
     }
+    void updateCounts() {
+        int tot_children = childCount();
+        int vis_children = 0;
+
+        for (int i = 0; i < tot_children; i++) {
+            if (!child(i)->isHidden()) vis_children++;
+        }
+        QString count_str = QString::number(vis_children);
+        if (vis_children != tot_children) {
+            count_str += QString(" / %1").arg(tot_children);
+        }
+        setText(count_col_, count_str);
+        setHidden(vis_children < 1);
+    }
+
     bool operator< (const QTreeWidgetItem &other) const
     {
         int sort_col = treeWidget()->sortColumn();
@@ -94,24 +109,57 @@ class ExpertPacketTreeWidgetItem : public QTreeWidgetItem
 public:
     ExpertPacketTreeWidgetItem(expert_info_t *expert_info = NULL) :
         QTreeWidgetItem (packet_type_),
+        group_by_summary_(true),
         packet_num_(0),
         hf_id_(-1)
     {
         if (expert_info) {
             packet_num_ = expert_info->packet_num;
+            group_ = expert_info->group;
+            severity_ = expert_info->severity;
             hf_id_ = expert_info->hf_index;
             protocol_ = expert_info->protocol;
             summary_ = expert_info->summary;
         }
-        setFirstColumnSpanned(true);
-        setText(packet_col_, QString("%1: %2")
-                           .arg(packet_num_)
-                           .arg(summary_));
+        setTextAlignment(severity_col_, Qt::AlignRight);
+    }
+    virtual QVariant data(int column, int role) const {
+        if (role == Qt::DisplayRole) {
+            switch(column) {
+            case severity_col_:
+                return QString::number(packet_num_);
+                break;
+            case summary_col_:
+                if (!group_by_summary_) {
+                    return summary_;
+                }
+                // XXX Else we end up with a bunch of white space. Should we
+                // add extra information, e.g. the info column contents here?
+                break;
+            default:
+                break;
+            }
+        }
+        return QTreeWidgetItem::data(column, role);
     }
     guint32 packetNum() const { return packet_num_; }
+    int group() const { return group_; }
+    int severity() const { return severity_; }
     int hfId() const { return hf_id_; }
     QString protocol() const { return protocol_; }
     QString summary() const { return summary_; }
+    QString groupKey(bool group_by_summary) {
+        group_by_summary_ = group_by_summary;
+        QString key = QString("%1|%2|%3")
+                .arg(severity_)
+                .arg(group_)
+                .arg(protocol_);
+        if (group_by_summary) {
+            key += "|";
+            key += summary_;
+        }
+        return key;
+    }
     bool operator< (const QTreeWidgetItem &other) const
     {
         // Probably not needed.
@@ -125,7 +173,10 @@ public:
         }
     }
 private:
+    bool group_by_summary_;
     guint32 packet_num_;
+    int group_;
+    int severity_;
     int hf_id_;
     QString protocol_;
     QString summary_;
@@ -148,7 +199,7 @@ ExpertInfoDialog::ExpertInfoDialog(QWidget &parent, CaptureFile &capture_file) :
     loadGeometry(dlg_width, parent.height());
 
     int one_em = fontMetrics().height();
-    ui->expertInfoTreeWidget->setColumnWidth(severity_col_, one_em * 25); // Arbitrary
+    ui->expertInfoTreeWidget->setColumnWidth(summary_col_, one_em * 25); // Arbitrary
 
     severity_actions_ = QList<QAction *>() << ui->actionShowError << ui->actionShowWarning
                                            << ui->actionShowNote << ui->actionShowChat
@@ -281,65 +332,37 @@ void ExpertInfoDialog::retapFinished()
     }
 }
 
-void ExpertInfoDialog::addExpertInfo(struct expert_info_s *expert_info)
+void ExpertInfoDialog::addExpertInfo(ExpertPacketTreeWidgetItem *packet_ti)
 {
-    if (!expert_info) return;
+    if (!packet_ti) return;
+
     QTreeWidgetItem *group_ti;
 
-    QString key = QString("%1|%2|%3")
-            .arg(expert_info->severity)
-            .arg(expert_info->group)
-            .arg(expert_info->protocol);
-
-    QColor background;
-    switch(expert_info->severity) {
-    case(PI_COMMENT):
-        background = ColorUtils::expert_color_comment;
-        break;
-    case(PI_CHAT):
-        background = ColorUtils::expert_color_chat;
-        break;
-    case(PI_NOTE):
-        background = ColorUtils::expert_color_note;
-        break;
-    case(PI_WARN):
-        background = ColorUtils::expert_color_warn;
-        break;
-    case(PI_ERROR):
-        background = ColorUtils::expert_color_error;
-        break;
-    default:
-        break;
-    }
-
-    if (ei_to_ti_.contains(key)) {
-        group_ti = ei_to_ti_[key];
-    } else {
-        group_ti = new ExpertGroupTreeWidgetItem(ui->expertInfoTreeWidget, expert_info->severity, expert_info->group, expert_info->protocol);
-        if (background.isValid()) {
-            for (int i = 0; i < ui->expertInfoTreeWidget->columnCount(); i++) {
-                group_ti->setBackground(i, background);
-                group_ti->setForeground(i, ColorUtils::expert_color_foreground);
-            }
-        }
-        ei_to_ti_[key] = group_ti;
-        gti_packets_[group_ti] = QList<QTreeWidgetItem *>();
-    }
-
-    gti_packets_[group_ti] << new ExpertPacketTreeWidgetItem(expert_info);
+    group_ti = ensureGroupTreeWidgetItem(packet_ti);
+    gti_packets_[group_ti] << packet_ti;
 
     // XXX Use plain colors until our users demand to be blinded.
 //    if (background.isValid()) {
 //        packet_ti->setBackground(0, background);
 //        packet_ti->setForeground(0, ColorUtils::expert_color_foreground);
     //    }
+
+}
+
+void ExpertInfoDialog::addExpertInfo(struct expert_info_s *expert_info)
+{
+    if (!expert_info) return;
+
+    ExpertPacketTreeWidgetItem *packet_ti = new ExpertPacketTreeWidgetItem(expert_info);
+
+    addExpertInfo(packet_ti);
 }
 
 void ExpertInfoDialog::updateCounts()
 {
     for (int i = 0; i < ui->expertInfoTreeWidget->topLevelItemCount(); i++) {
-        QTreeWidgetItem *group_ti = ui->expertInfoTreeWidget->topLevelItem(i);
-        group_ti->setText(count_col_, QString::number(group_ti->childCount()));
+        ExpertGroupTreeWidgetItem *group_ti = dynamic_cast<ExpertGroupTreeWidgetItem *>(ui->expertInfoTreeWidget->topLevelItem(i));
+        if (group_ti) group_ti->updateCounts();
     }
 }
 
@@ -395,6 +418,54 @@ void ExpertInfoDialog::tapDraw(void *eid_ptr)
     if (!eid) return;
 
     eid->addPacketTreeItems();
+}
+
+QTreeWidgetItem *ExpertInfoDialog::ensureGroupTreeWidgetItem(ExpertPacketTreeWidgetItem *packet_ti)
+{
+    if (!packet_ti) return NULL;
+
+    QTreeWidgetItem *group_ti;
+    QString key = packet_ti->groupKey(ui->groupBySummaryCheckBox->isChecked());
+
+    if (ei_to_ti_.contains(key)) {
+        group_ti = ei_to_ti_[key];
+    } else {
+        QString summary;
+
+        if (ui->groupBySummaryCheckBox->isChecked()) summary = packet_ti->summary();
+        group_ti = new ExpertGroupTreeWidgetItem(ui->expertInfoTreeWidget, packet_ti->severity(), summary, packet_ti->group(), packet_ti->protocol());
+
+        QColor background;
+        switch(packet_ti->severity()) {
+        case(PI_COMMENT):
+            background = ColorUtils::expert_color_comment;
+            break;
+        case(PI_CHAT):
+            background = ColorUtils::expert_color_chat;
+            break;
+        case(PI_NOTE):
+            background = ColorUtils::expert_color_note;
+            break;
+        case(PI_WARN):
+            background = ColorUtils::expert_color_warn;
+            break;
+        case(PI_ERROR):
+            background = ColorUtils::expert_color_error;
+            break;
+        default:
+            break;
+        }
+        if (background.isValid()) {
+            for (int i = 0; i < ui->expertInfoTreeWidget->columnCount(); i++) {
+                group_ti->setBackground(i, background);
+                group_ti->setForeground(i, ColorUtils::expert_color_foreground);
+            }
+        }
+        ei_to_ti_[key] = group_ti;
+        gti_packets_[group_ti] = QList<QTreeWidgetItem *>();
+    }
+
+    return group_ti;
 }
 
 void ExpertInfoDialog::addPacketTreeItems()
@@ -553,18 +624,57 @@ void ExpertInfoDialog::on_limitCheckBox_toggled(bool)
     retapPackets();
 }
 
+void ExpertInfoDialog::on_groupBySummaryCheckBox_toggled(bool)
+{
+    QList<QTreeWidgetItem *> pending_items;
+    QList<QTreeWidgetItem *> group_items = ui->expertInfoTreeWidget->invisibleRootItem()->takeChildren();
+
+    foreach (QList<QTreeWidgetItem *> gti_list, gti_packets_.values()) {
+        pending_items.append(gti_list);
+    }
+    gti_packets_.clear();
+    ei_to_ti_.clear();
+
+    foreach (QTreeWidgetItem *ti, pending_items) {
+        ExpertPacketTreeWidgetItem *packet_ti = dynamic_cast<ExpertPacketTreeWidgetItem *>(ti);
+        addExpertInfo(packet_ti);
+    }
+    addPacketTreeItems();
+
+    foreach (QTreeWidgetItem *gti, group_items) {
+        QList<QTreeWidgetItem *> packet_items = gti->takeChildren();
+        foreach (QTreeWidgetItem *ti, packet_items) {
+            ExpertPacketTreeWidgetItem *packet_ti = dynamic_cast<ExpertPacketTreeWidgetItem *>(ti);
+            addExpertInfo(packet_ti);
+        }
+        delete gti;
+        addPacketTreeItems();
+    }
+
+    retapFinished(); // Expands tree items.
+}
+
 // Show child (packet list) items that match the contents of searchLineEdit.
 void ExpertInfoDialog::on_searchLineEdit_textChanged(const QString &search_re)
 {
-    QTreeWidgetItemIterator it(ui->expertInfoTreeWidget, QTreeWidgetItemIterator::NoChildren);
+    QTreeWidgetItemIterator it(ui->expertInfoTreeWidget,
+                               ui->groupBySummaryCheckBox->isChecked()
+                               ? QTreeWidgetItemIterator::HasChildren
+                               : QTreeWidgetItemIterator::NoChildren);
     QRegExp regex(search_re, Qt::CaseInsensitive);
+
     while (*it) {
         bool hidden = true;
-        if (search_re.isEmpty() || (*it)->text(packet_col_).contains(regex)) {
+        // XXX Check other columns as well?
+        if (search_re.isEmpty() || (*it)->text(summary_col_).contains(regex)) {
             hidden = false;
         }
         (*it)->setHidden(hidden);
         ++it;
+    }
+
+    if (!ui->groupBySummaryCheckBox->isChecked()) {
+        updateCounts();
     }
 }
 

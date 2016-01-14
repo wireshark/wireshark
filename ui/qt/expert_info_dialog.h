@@ -40,6 +40,8 @@ namespace Ui {
 class ExpertInfoDialog;
 }
 
+class ExpertPacketTreeWidgetItem;
+
 class ExpertInfoDialog : public WiresharkDialog
 {
     Q_OBJECT
@@ -75,6 +77,7 @@ private:
 
     QString display_filter_;
 
+    void addExpertInfo(ExpertPacketTreeWidgetItem *packet_ti);
     // Called from tapPacket
     void addExpertInfo(struct expert_info_s *expert_info);
     // Called from tapDraw
@@ -85,6 +88,7 @@ private:
     static gboolean tapPacket(void *eid_ptr, struct _packet_info *pinfo, struct epan_dissect *, const void *data);
     static void tapDraw(void *eid_ptr);
 
+    QTreeWidgetItem *ensureGroupTreeWidgetItem(ExpertPacketTreeWidgetItem *packet_ti);
     void addPacketTreeItems();
 
 private slots:
@@ -101,6 +105,7 @@ private slots:
 
     void on_expertInfoTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *);
     void on_limitCheckBox_toggled(bool);
+    void on_groupBySummaryCheckBox_toggled(bool);
     void on_searchLineEdit_textChanged(const QString &search_re);
     void on_buttonBox_helpRequested();
 };
