@@ -129,6 +129,7 @@ static int hf_http_time = -1;
 static int hf_http_chunk_size = -1;
 static int hf_http_chunk_boundary = -1;
 static int hf_http_chunked_trailer_part = -1;
+static int hf_http_file_data = -1;
 static int hf_http_unknown_header = -1;
 
 static gint ett_http = -1;
@@ -1290,6 +1291,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvbuff_t *next_tvb;
 		guint chunked_datalen = 0;
 		char *media_str = NULL;
+		const gchar *file_data;
 
 		/*
 		 * Create a tvbuff for the payload.
@@ -1457,6 +1459,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if(have_tap_listener(http_follow_tap)) {
 			tap_queue_packet(http_follow_tap, pinfo, next_tvb);
 		}
+		file_data = tvb_get_string_enc(wmem_packet_scope(), next_tvb, 0, tvb_reported_length(next_tvb), ENC_ASCII);
+		proto_tree_add_string_format_value(http_tree, hf_http_file_data,
+			next_tvb, 0, tvb_reported_length(next_tvb), file_data, "%u bytes", tvb_reported_length(next_tvb));
 
 		/*
 		 * Do subdissector checks.
@@ -3367,7 +3372,11 @@ proto_register_http(void)
 		NULL, HFILL }},
 	    { &hf_http_chunk_size,
 	      { "Chunk size", "http.chunk_size",
-        FT_UINT32, BASE_DEC, NULL, 0,
+		FT_UINT32, BASE_DEC, NULL, 0,
+		NULL, HFILL }},
+	    { &hf_http_file_data,
+	      { "File Data", "http.file_data",
+		FT_STRING, BASE_NONE, NULL, 0,
 		NULL, HFILL }},
 	    { &hf_http_unknown_header,
 	      { "Unknown header", "http.unknown_header",
