@@ -1644,6 +1644,10 @@ dissect_atm_truncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 {
   struct atm_phdr *atm_info = (struct atm_phdr *)data;
 
+  if (!atm_info) {
+    return 0;
+  }
+
   return dissect_atm_common(tvb, pinfo, tree, TRUE, atm_info, FALSE);
 }
 
@@ -1651,6 +1655,10 @@ static int
 dissect_atm_pw_truncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct atm_phdr *atm_info = (struct atm_phdr *)data;
+
+  if (!atm_info) {
+    return 0;
+  }
 
   return dissect_atm_common(tvb, pinfo, tree, TRUE, atm_info, TRUE);
 }
@@ -1660,6 +1668,10 @@ dissect_atm_untruncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 {
   struct atm_phdr *atm_info = (struct atm_phdr *)data;
 
+  if (!atm_info) {
+    return 0;
+  }
+
   return dissect_atm_common(tvb, pinfo, tree, FALSE, atm_info, FALSE);
 }
 
@@ -1667,6 +1679,10 @@ static int
 dissect_atm_pw_untruncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct atm_phdr *atm_info = (struct atm_phdr *)data;
+
+  if (!atm_info) {
+    return 0;
+  }
 
   return dissect_atm_common(tvb, pinfo, tree, FALSE, atm_info, TRUE);
 }
