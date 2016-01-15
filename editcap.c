@@ -281,7 +281,7 @@ add_selection(char *sel, guint* max_selection)
             fprintf(stderr, "Not inclusive ...");
 
         selectfrm[max_selected].inclusive = FALSE;
-        selectfrm[max_selected].first = strtoul(sel, NULL, 10);
+        selectfrm[max_selected].first = (guint)strtoul(sel, NULL, 10);
         if (selectfrm[max_selected].first < *max_selection)
             *max_selection = selectfrm[max_selected].first;
 
@@ -293,8 +293,8 @@ add_selection(char *sel, guint* max_selection)
 
         next = locn + 1;
         selectfrm[max_selected].inclusive = TRUE;
-        selectfrm[max_selected].first = strtoul(sel, NULL, 10);
-        selectfrm[max_selected].second = strtoul(next, NULL, 10);
+        selectfrm[max_selected].first = (guint)strtoul(sel, NULL, 10);
+        selectfrm[max_selected].second = (guint)strtoul(next, NULL, 10);
 
         if (selectfrm[max_selected].second == 0)
         {
