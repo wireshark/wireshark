@@ -78,82 +78,58 @@ static void extcap_debug_arguments ( extcap_arg *arg_iter );
 #endif
 
 static gboolean
-extcap_if_exists(const char *ifname)
+extcap_if_exists(const gchar *ifname)
 {
-    if ( ifname != NULL )
-    {
-        if ( ifaces != NULL )
-        {
-            if ( g_hash_table_size(ifaces) > 0 )
-            {
-                if ( g_hash_table_lookup(ifaces, (const gchar *)ifname) != NULL )
-                {
-                    return TRUE;
-                }
-            }
-        }
-    }
+    if ( !ifname || !ifaces )
+        return FALSE;
+
+    if ( g_hash_table_lookup(ifaces, ifname) )
+        return TRUE;
+
     return FALSE;
 }
 
 static gboolean
-extcap_if_exists_for_extcap(const char *ifname, const char *extcap)
+extcap_if_exists_for_extcap(const gchar *ifname, const gchar *extcap)
 {
-    gchar * entry = NULL;
+    gchar *entry = (gchar *)g_hash_table_lookup(ifaces, ifname);
 
-    if ( extcap_if_exists(ifname) )
-    {
-        if ( ( entry = (gchar *)g_hash_table_lookup(ifaces, (const gchar *)ifname) ) != NULL )
-        {
-            if ( strcmp(entry, extcap) == 0 )
-                return TRUE;
-        }
-    }
+    if ( entry && strcmp(entry, extcap) == 0 )
+        return TRUE;
 
     return FALSE;
 }
 
 static gchar *
-extcap_if_executable(const char *ifname)
+extcap_if_executable(const gchar *ifname)
 {
-    if ( extcap_if_exists(ifname) )
-        return (gchar *)g_hash_table_lookup(ifaces, (const gchar *)ifname);
-
-    return (gchar *)NULL;
+    return (gchar *)g_hash_table_lookup(ifaces, ifname);
 }
 
 static void
-extcap_if_add(gchar *ifname, gchar *extcap)
+extcap_if_add(const gchar *ifname, const gchar *extcap)
 {
-    if ( g_hash_table_lookup(ifaces, ifname) == NULL )
-        g_hash_table_insert(ifaces, ifname, extcap);
-    else {
-        g_free(ifname);
-        g_free(extcap);
-    }
+    if ( !g_hash_table_lookup(ifaces, ifname) )
+        g_hash_table_insert(ifaces, g_strdup(ifname), g_strdup(extcap));
 }
 
 static void
-extcap_tool_add(gchar *extcap, extcap_interface *tool)
+extcap_tool_add(const gchar *extcap, const extcap_interface *interface)
 {
-    char * toolname = NULL;
-    extcap_info * extcap_tool = NULL;
+    char *toolname;
 
-    if ( extcap == NULL )
+    if ( !extcap || !interface )
         return;
 
     toolname = g_path_get_basename(extcap);
-    extcap_tool = (extcap_info *)g_hash_table_lookup(tools, toolname);
 
-    if ( tools != NULL && extcap_tool == NULL ) {
+    if ( !g_hash_table_lookup(tools, toolname) ) {
         extcap_info * store = (extcap_info *)g_new0(extcap_info, 1);
-        store->version = g_strdup ( tool->version );
-        store->full_path = extcap;
-        store->basename = g_strdup ( toolname );
+        store->version = g_strdup(interface->version);
+        store->full_path = g_strdup(extcap);
+        store->basename = g_strdup(toolname);
 
         g_hash_table_insert(tools, g_strdup(toolname), store);
-    } else {
-        g_free(extcap);
     }
 
     g_free(toolname);
@@ -364,12 +340,12 @@ static gboolean interfaces_cb(const gchar *extcap, gchar *output, void *data,
             if_info->extcap = g_strdup(extcap);
             *il = g_list_append(*il, if_info);
 
-            extcap_if_add(g_strdup(int_iter->call), g_strdup(extcap) );
+            extcap_if_add(int_iter->call, extcap);
         }
 
         /* Call for interfaces and tools alike. Multiple calls (because a tool has multiple
          * interfaces) are handled internally */
-        extcap_tool_add(g_strdup(extcap), int_iter);
+        extcap_tool_add(extcap, int_iter);
 
         int_iter = int_iter->next_interface;
     }
@@ -406,6 +382,7 @@ extcap_free_info (gpointer data) {
     g_free (info->basename);
     g_free (info->full_path);
     g_free (info->version);
+    g_free (info);
 }
 
 GList *
