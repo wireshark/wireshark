@@ -1114,9 +1114,9 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     wtap_encap = wtap_pcap_encap_to_wtap_encap(dlt);
     if (wtap_encap == WTAP_ENCAP_UNKNOWN) {
         /*
-    	 * Nothing we know.
-    	 * Just report that and give up.
-    	 */
+         * Nothing we know.
+         * Just report that and give up.
+         */
         expert_add_info(pinfo, dlt_item, &ei_ppi_linktype_unknown);
         call_dissector(data_handle, next_tvb, pinfo, tree);
         return tvb_captured_length(tvb);
@@ -1133,10 +1133,10 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      * packet data.
      */
     if (wtap_encap_requires_phdr(wtap_encap)) {
-    	/*
-    	 * It does, but we don't yet have code to do that in
-    	 * libwireshark.  Give up for now.
-    	 */
+        /*
+         * It does, but we don't yet have code to do that in
+         * libwireshark.  Give up for now.
+         */
         expert_add_info(pinfo, dlt_item, &ei_ppi_cant_generate_phdr);
         call_dissector(data_handle, next_tvb, pinfo, tree);
         return tvb_captured_length(tvb);
