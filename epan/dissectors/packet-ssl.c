@@ -1394,9 +1394,14 @@ process_ssl_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         if (app_handle_port) {
             /* Heuristics failed, just try the port-based dissector. */
+            ssl_debug_printf("%s: no heuristics dissector, falling back to "
+                             "handle %p (%s)\n", G_STRFUNC,
+                             (void *)app_handle_port,
+                             dissector_handle_get_dissector_name(app_handle_port));
             session->app_handle = app_handle_port;
         } else {
             /* No heuristics, no port-based proto, unknown protocol. */
+            ssl_debug_printf("%s: no appdata dissector found\n", G_STRFUNC);
             return;
         }
     }
@@ -1454,7 +1459,7 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset,
         desegment_ssl(next_tvb, pinfo, 0, appl_data->seq, appl_data->nxtseq,
                       session, proto_tree_get_root(tree), tree,
                       appl_data->flow, app_handle_port);
-    } else if (session->app_handle) {
+    } else if (session->app_handle || app_handle_port) {
         /* No - just call the subdissector.
            Mark this as fragmented, so if somebody throws an exception,
            we don't report it as a malformed frame. */
@@ -1768,7 +1773,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         dissect_ssl_payload(tvb, pinfo, offset, tree, session, app_handle);
 
         /* Set app proto again in case the heuristics found a different proto. */
-        if (session->app_handle != app_handle)
+        if (session->app_handle && session->app_handle != app_handle)
             proto_item_set_text(ssl_record_tree,
                "%s Record Layer: %s Protocol: %s",
                 val_to_str_const(session->version, ssl_version_short_names, "SSL"),
