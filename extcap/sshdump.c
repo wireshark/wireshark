@@ -264,7 +264,7 @@ static ssh_session create_ssh_connection(const char* hostname, const unsigned in
 		verbose_print("failed\n");
 	}
 
-	verbose_print("Can't find a valid authentication. Disconnecting.\n");
+	errmsg_print("Can't find a valid authentication. Disconnecting.\n");
 
 	/* All authentication failed. Disconnect and return */
 	ssh_disconnect(sshs);
