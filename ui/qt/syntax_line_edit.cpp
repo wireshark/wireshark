@@ -133,11 +133,6 @@ QString SyntaxLineEdit::styleSheet() const {
     return style_sheet_;
 }
 
-QString SyntaxLineEdit::deprecatedToken()
-{
-    return deprecated_token_;
-}
-
 void SyntaxLineEdit::setStyleSheet(const QString &style_sheet) {
     style_sheet_ = style_sheet;
     QLineEdit::setStyleSheet(style_sheet_ + state_style_sheet_);
@@ -168,7 +163,6 @@ void SyntaxLineEdit::checkDisplayFilter(QString filter)
         return;
     }
 
-    deprecated_token_.clear();
     dfilter_t *dfp = NULL;
     gchar *err_msg;
     if (dfilter_compile(filter.toUtf8().constData(), &dfp, &err_msg)) {
@@ -179,7 +173,12 @@ void SyntaxLineEdit::checkDisplayFilter(QString filter)
         if (depr) {
             // You keep using that word. I do not think it means what you think it means.
             setSyntaxState(SyntaxLineEdit::Deprecated);
-            deprecated_token_ = (const char *) g_ptr_array_index(depr, 0);
+            /*
+             * We're being lazy and only printing the first "problem" token.
+             * Would it be better to print all of them?
+             */
+            syntax_error_message_ = tr("\"%1\" may have unexpected results (see the User's Guide)")
+                    .arg((const char *) g_ptr_array_index(depr, 0));
         } else {
             setSyntaxState(SyntaxLineEdit::Valid);
         }

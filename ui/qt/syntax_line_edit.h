@@ -76,7 +76,6 @@ private:
     SyntaxState syntax_state_;
     QString style_sheet_;
     QString state_style_sheet_;
-    QString deprecated_token_;
     QString syntax_error_message_;
     QString token_chars_;
     QColor busy_fg_;

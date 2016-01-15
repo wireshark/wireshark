@@ -196,7 +196,7 @@ void DisplayFilterExpressionDialog::updateWidgets()
     QPushButton *ok_bt = ui->buttonBox->button(QDialogButtonBox::Ok);
     if (ok_bt) {
         bool ok_enable = !ui->displayFilterLineEdit->text().isEmpty()
-                && (ui->displayFilterLineEdit->syntaxState() == SyntaxLineEdit::Valid);
+                && (ui->displayFilterLineEdit->syntaxState() != SyntaxLineEdit::Invalid);
         ok_bt->setEnabled(ok_enable);
     }
 }
