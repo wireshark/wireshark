@@ -310,6 +310,7 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->flags.has_ts = (phdr->presence_flags & WTAP_HAS_TS) ? 1 : 0;
   fdata->flags.has_phdr_comment = (phdr->opt_comment != NULL);
   fdata->flags.has_user_comment = 0;
+  fdata->flags.need_colorize = 0;
   fdata->tsprec = (gint16)phdr->pkt_tsprec;
   fdata->color_filter = NULL;
   fdata->abs_ts.secs = phdr->ts.secs;
