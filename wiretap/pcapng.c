@@ -472,14 +472,15 @@ register_pcapng_option_handler(guint block_type, guint option_code,
 static int
 pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
                    guint8 *content, guint len, guint to_read,
-                   int *err, gchar **err_info)
+                   int *err, gchar **err_info, gchar* block_name)
 {
     int     block_read;
 
     /* sanity check: don't run past the end of the block */
     if (to_read < sizeof (*oh)) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup("pcapng_read_option: option goes past the end of the block");
+        *err_info = g_strdup_printf("pcapng_read_option: Not enough data to read header of the %s block",
+                                    block_name);
         return -1;
     }
 
@@ -497,14 +498,16 @@ pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
     /* sanity check: don't run past the end of the block */
     if (to_read < sizeof (*oh) + oh->option_length) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup("pcapng_read_option: option goes past the end of the block");
+        *err_info = g_strdup_printf("pcapng_read_option: Not enough data to handle option length (%d) of the %s block",
+                                    oh->option_length, block_name);
         return -1;
     }
 
     /* sanity check: option length */
     if (len < oh->option_length) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup("pcapng_read_option: option goes past the end of the block");
+        *err_info = g_strdup_printf("pcapng_read_option: option length (%d) to long for %s block",
+                                    len, block_name);
         return -1;
     }
 
@@ -633,7 +636,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
        likely to be treated as bad pcap-ng files. */
     if (bh->block_total_length > MAX_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u is too large (> %u)",
+        *err_info = g_strdup_printf("pcapng_read_section_header_block: total block length %u is too large (> %u)",
                                     bh->block_total_length, MAX_BLOCK_SIZE);
         return PCAPNG_BLOCK_ERROR;
     }
@@ -641,7 +644,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     /* We currently only suport one SHB */
     if (pn->shb_read == TRUE) {
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("pcapng: multiple section header blocks not supported");
+        *err_info = g_strdup_printf("pcapng_read_section_header_block: multiple section header blocks not supported");
         return PCAPNG_BLOCK_ERROR;
     }
 
@@ -675,7 +678,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     while (to_read != 0) {
         /* read option */
         pcapng_debug("pcapng_read_section_header_block: Options %u bytes remaining", to_read);
-        bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, to_read, err, err_info);
+        bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, to_read, err, err_info, "section_header");
         if (bytes_read <= 0) {
             pcapng_debug("pcapng_read_section_header_block: failed to read option");
             return PCAPNG_BLOCK_ERROR;
@@ -775,7 +778,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
        likely to be treated as bad pcap-ng files. */
     if (bh->block_total_length > MAX_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u is too large (> %u)",
+        *err_info = g_strdup_printf("pcapng_read_if_descr_block: total block length %u is too large (> %u)",
                                     bh->block_total_length, MAX_BLOCK_SIZE);
         return FALSE;
     }
@@ -845,7 +848,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
 
     while (to_read != 0) {
         /* read option */
-        bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, to_read, err, err_info);
+        bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, to_read, err, err_info, "if_descr");
         if (bytes_read <= 0) {
             pcapng_debug("pcapng_read_if_descr_block: failed to read option");
             return FALSE;
@@ -1105,7 +1108,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
        likely to be treated as bad pcap-ng files. */
     if (bh->block_total_length > MAX_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u is too large (> %u)",
+        *err_info = g_strdup_printf("pcapng_read_packet_block: total block length %u is too large (> %u)",
                                     bh->block_total_length, MAX_BLOCK_SIZE);
         return FALSE;
     }
@@ -1242,7 +1245,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
     if (packet.interface_id >= pn->interfaces->len) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: interface index %u is not less than interface count %u",
+        *err_info = g_strdup_printf("pcapng_read_packet_block: interface index %u is not less than interface count %u",
                                     packet.interface_id, pn->interfaces->len);
         return FALSE;
     }
@@ -1326,7 +1329,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
         /* read option */
         oh = (pcapng_option_header_t *)(void *)opt_ptr;
         option_content = opt_ptr + sizeof (pcapng_option_header_t);
-        bytes_read = pcapng_read_option(fh, pn, oh, option_content, opt_cont_buf_len, to_read, err, err_info);
+        bytes_read = pcapng_read_option(fh, pn, oh, option_content, opt_cont_buf_len, to_read, err, err_info, "packet");
         if (bytes_read <= 0) {
             pcapng_debug("pcapng_read_packet_block: failed to read option");
             /* XXX - free anything? */
@@ -1356,7 +1359,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
             case(OPT_EPB_FLAGS):
                 if (oh->option_length != 4) {
                     *err = WTAP_ERR_BAD_FILE;
-                    *err_info = g_strdup_printf("pcapng: packet block flags option length %u is not 4",
+                    *err_info = g_strdup_printf("pcapng_read_packet_block: packet block flags option length %u is not 4",
                                                 oh->option_length);
                     /* XXX - free anything? */
                     return FALSE;
@@ -1384,7 +1387,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
             case(OPT_EPB_DROPCOUNT):
                 if (oh->option_length != 8) {
                     *err = WTAP_ERR_BAD_FILE;
-                    *err_info = g_strdup_printf("pcapng: packet block drop count option length %u is not 8",
+                    *err_info = g_strdup_printf("pcapng_read_packet_block: packet block drop count option length %u is not 8",
                                                 oh->option_length);
                     /* XXX - free anything? */
                     return FALSE;
@@ -1464,7 +1467,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
        likely to be treated as bad pcap-ng files. */
     if (bh->block_total_length > MAX_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u is too large (> %u)",
+        *err_info = g_strdup_printf("pcapng_read_simple_packet_block: total block length %u is too large (> %u)",
                                     bh->block_total_length, MAX_BLOCK_SIZE);
         return FALSE;
     }
@@ -1477,7 +1480,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 
     if (0 >= pn->interfaces->len) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: SPB appeared before any IDBs");
+        *err_info = g_strdup_printf("pcapng_read_simple_packet_block: SPB appeared before any IDBs");
         return FALSE;
     }
     iface_info = g_array_index(pn->interfaces, interface_info_t, 0);
@@ -1679,7 +1682,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t
        likely to be treated as bad pcap-ng files. */
     if (bh->block_total_length > MAX_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u is too large (> %u)",
+        *err_info = g_strdup_printf("pcapng_read_name_resolution_block: total block length %u is too large (> %u)",
                                     bh->block_total_length, MAX_BLOCK_SIZE);
         return FALSE;
     }
@@ -1890,7 +1893,7 @@ read_options:
 
     while (to_read != 0) {
         /* read option */
-        bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, to_read, err, err_info);
+        bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, to_read, err, err_info, "name_resolution");
         if (bytes_read <= 0) {
             pcapng_debug("pcapng_read_name_resolution_block: failed to read option");
             g_free(option_content);
@@ -1978,7 +1981,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
        likely to be treated as bad pcap-ng files. */
     if (bh->block_total_length > MAX_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("pcapng: total block length %u is too large (> %u)",
+        *err_info = g_strdup_printf("pcapng_read_interface_statistics_block: total block length %u is too large (> %u)",
                                     bh->block_total_length, MAX_BLOCK_SIZE);
         return FALSE;
     }
@@ -2022,7 +2025,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 
     while (to_read != 0) {
         /* read option */
-        bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, to_read, err, err_info);
+        bytes_read = pcapng_read_option(fh, pn, &oh, option_content, opt_cont_buf_len, to_read, err, err_info, "interface_statistics");
         if (bytes_read <= 0) {
             pcapng_debug("pcapng_read_interface_statistics_block: failed to read option");
             return FALSE;
