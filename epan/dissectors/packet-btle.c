@@ -427,10 +427,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_rx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         }
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_pdu_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_item_append_text(advertising_header_item, " (PDU Type: %s, TxAdd=%s, RxAdd=%s)",
+        proto_item_append_text(advertising_header_item, " (PDU Type: %s, RandomRxBdAddr=%s, RandomTxBdAddr=%s)",
                 val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown"),
-                (tvb_get_guint8(tvb, offset) & 0x20) ? "true" : "false",
-                (tvb_get_guint8(tvb, offset) & 0x10) ? "true" : "false");
+                (tvb_get_guint8(tvb, offset) & 0x80) ? "true" : "false",
+                (tvb_get_guint8(tvb, offset) & 0x40) ? "true" : "false");
         offset += 1;
 
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown"));
