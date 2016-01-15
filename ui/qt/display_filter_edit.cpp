@@ -318,13 +318,7 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
     switch (syntaxState()) {
     case Deprecated:
     {
-        /*
-         * We're being lazy and only printing the first "problem" token.
-         * Would it be better to print all of them?
-         */
-        QString deprecatedMsg(tr("\"%1\" may have unexpected results (see the User's Guide)")
-                .arg(deprecatedToken()));
-        emit pushFilterSyntaxWarning(deprecatedMsg);
+        emit pushFilterSyntaxWarning(syntaxErrorMessage());
         break;
     }
     case Invalid:
