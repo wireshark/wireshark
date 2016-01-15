@@ -2338,23 +2338,6 @@ else
 	AC_MSG_RESULT(no)
 fi
 
-if test "x$enable_sshdump" = "xyes" ; then
-	if  test "x$have_good_libssh" = "xyes" ; then
-		sshdump_bin="sshdump\$(EXEEXT)"
-		sshdump_man="sshdump.1"
-	else
-		echo "Can't find libssh. Disabling sshdump."
-		enable_sshdump=no
-		sshdump_bin=""
-		sshdump_man=""
-	fi
-else
-	sshdump_bin=""
-	sshdump_man=""
-fi
-AC_SUBST(sshdump_bin)
-AC_SUBST(sshdump_man)
-
 if test "x$enable_randpktdump" = "xyes" ; then
 	randpktdump_bin="randpktdump\$(EXEEXT)"
 	randpktdump_man=""
