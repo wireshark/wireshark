@@ -56,9 +56,6 @@
 #include <wsutil/pint.h>
 #include <wsutil/str_util.h>
 
-/* Needed for wtap_pcap_encap_to_wtap_encap(). */
-#include <wiretap/pcap-encap.h>
-
 /*
  * Per-Packet Information (PPI) header.
  * See the PPI Packet Header documentation at http://www.cacetech.com/documents
