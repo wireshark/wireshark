@@ -36,9 +36,9 @@
 #include <QKeyEvent>
 #include <QTreeWidgetItemIterator>
 
-const int enabled_col_    = 0;
-const int label_col_      = 1;
-const int expression_col_ = 2;
+static const int enabled_col_    = 0;
+static const int label_col_      = 1;
+static const int expression_col_ = 2;
 
 // This shouldn't exist in its current form. Instead it should be the "display filters"
 // dialog, and the "dfilters" file should support a "show in toolbar" flag.
@@ -64,9 +64,14 @@ FilterExpressionsPreferencesFrame::FilterExpressionsPreferencesFrame(QWidget *pa
     ui->expressionTreeWidget->setDropIndicatorShown(true);
     ui->expressionTreeWidget->setDragDropMode(QAbstractItemView::InternalMove);
 
-    updateWidgets();
+    ui->expressionTreeWidget->clear();
 
-    connect(wsApp, SIGNAL(filterExpressionsChanged()), this, SLOT(updateWidgets()));
+    for (struct filter_expression *fe = *pfilter_expression_head; fe != NULL; fe = fe->next) {
+        if (fe->deleted) continue;
+        addExpression(fe->enabled, fe->label, fe->expression);
+    }
+
+    updateWidgets();
 }
 
 FilterExpressionsPreferencesFrame::~FilterExpressionsPreferencesFrame()
@@ -167,12 +172,10 @@ void FilterExpressionsPreferencesFrame::addExpression(bool enabled, const QStrin
 
 void FilterExpressionsPreferencesFrame::updateWidgets()
 {
-    ui->expressionTreeWidget->clear();
+    int num_selected = ui->expressionTreeWidget->selectedItems().count();
 
-    for (struct filter_expression *fe = *pfilter_expression_head; fe != NULL; fe = fe->next) {
-        if (fe->deleted) continue;
-        addExpression(fe->enabled, fe->label, fe->expression);
-    }
+    ui->copyToolButton->setEnabled(num_selected == 1);
+    ui->deleteToolButton->setEnabled(num_selected > 0);
 }
 
 void FilterExpressionsPreferencesFrame::on_expressionTreeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous)
@@ -267,6 +270,11 @@ void FilterExpressionsPreferencesFrame::expressionEditingFinished()
     ui->expressionTreeWidget->removeItemWidget(item, expression_col_);
 }
 
+void FilterExpressionsPreferencesFrame::on_expressionTreeWidget_itemSelectionChanged()
+{
+    updateWidgets();
+}
+
 static const QString new_button_label_ = QObject::tr("My Filter");
 void FilterExpressionsPreferencesFrame::on_newToolButton_clicked()
 {
@@ -279,6 +287,15 @@ void FilterExpressionsPreferencesFrame::on_deleteToolButton_clicked()
     if (item) {
         ui->expressionTreeWidget->invisibleRootItem()->removeChild(item);
     }
+}
+
+void FilterExpressionsPreferencesFrame::on_copyToolButton_clicked()
+{
+    if (!ui->expressionTreeWidget->currentItem()) return;
+    QTreeWidgetItem *ti = ui->expressionTreeWidget->currentItem();
+
+    addExpression(ti->checkState(enabled_col_) == Qt::Checked,
+                  ti->text(label_col_), ti->text(expression_col_));
 }
 
 /*
