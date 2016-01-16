@@ -271,12 +271,12 @@ extern void plugin_if_get_ws_info(ws_info_t **ws_info_ptr)
 
     /* Initialise the ws_info structure */
 
-    ws_info->ws_info_supported = false;
-    ws_info->cf_count = 0;
-    ws_info->cf_filename = NULL;
-    ws_info->cf_framenr = 0;
-    ws_info->frame_passed_dfilter = FALSE;
-    ws_info->cf_state = FILE_CLOSED;
+    ws_info.ws_info_supported = FALSE;
+    ws_info.cf_count = 0;
+    ws_info.cf_filename = NULL;
+    ws_info.cf_framenr = 0;
+    ws_info.frame_passed_dfilter = FALSE;
+    ws_info.cf_state = FILE_CLOSED;
 
 #endif /* HAVE_LIBPCAP */
 
