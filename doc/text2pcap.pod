@@ -92,7 +92,7 @@ handle these dumps.
 
 =item -a
 
-Enables ASCII text dump identification. It allows to identify the start of
+Enables ASCII text dump identification. It allows one to identify the start of
 the ASCII text dump and not include it in the packet even if it looks like HEX.
 
 B<NOTE:> Do not enable it if the input file does not contain the ASCII text dump.

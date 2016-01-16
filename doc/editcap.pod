@@ -191,7 +191,7 @@ whether B<-L> is specified or not).  See also B<-C <choplen>> and B<-s <snaplen>
 
 =item -o  E<lt>change offsetE<gt>
 
-When used in conjuction with -E, skip some bytes from the beginning of the packet
+When used in conjunction with -E, skip some bytes from the beginning of the packet
 from being changed. In this way some headers don't get changed, and the fuzzer is
 more focused on a smaller part of the packet. Keeping a part of the packet fixed
 the same dissector is triggered, that make the fuzzing more precise.

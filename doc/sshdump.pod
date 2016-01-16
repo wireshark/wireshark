@@ -46,7 +46,7 @@ S< B<--remote-capture-bin=/usr/sbin/dumpcap> >
 
 =head1 DESCRIPTION
 
-B<Sshdump> is a extcap tool that allows to run a remote capture
+B<Sshdump> is a extcap tool that allows one to run a remote capture
 tool in a SSH connection. The requirement is that the capture
 executable must have the capabilities to capture from the wanted
 interface.
@@ -163,7 +163,7 @@ To see interface DLTs:
     sshdump --extcap-interface=ssh --extcap-dlts
 
   Output:
-    dlt {number=147}{name=ssh}{display=Remote capture dependant DLT}
+    dlt {number=147}{name=ssh}{display=Remote capture dependent DLT}
 
 To see interface configuration options:
 
