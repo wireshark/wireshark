@@ -325,13 +325,15 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             /* TODO */
         case WTAP_ENCAP_SITA:
             /* TODO */
+        case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
+            /* TODO */
+	case WTAP_ENCAP_NFC_LLCP:
+            /* TODO */
+        case WTAP_ENCAP_PPP_WITH_PHDR:
+            /* TODO */
         case WTAP_ENCAP_ERF:
             /* TODO no description for pseudoheader at http://www.tcpdump.org/linktypes.html */
         case WTAP_ENCAP_I2C:
-            /* TODO */
-        case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
-            /* TODO */
-        case WTAP_ENCAP_PPP_WITH_PHDR:
             /* TODO */
         default:
             /*

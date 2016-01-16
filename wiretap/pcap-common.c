@@ -692,19 +692,21 @@ wtap_wtap_encap_to_pcap_encap(int encap)
 }
 
 gboolean
-wtap_encap_requires_phdr(int encap) {
-	if (
-		(encap == WTAP_ENCAP_ATM_PDUS) ||
-		(encap == WTAP_ENCAP_IRDA) ||
-		(encap == WTAP_ENCAP_MTP2_WITH_PHDR) ||
-		(encap == WTAP_ENCAP_LINUX_LAPD) ||
-		(encap == WTAP_ENCAP_SITA) ||
-		(encap == WTAP_ENCAP_ERF) ||
-		(encap == WTAP_ENCAP_I2C) ||
-		(encap == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR) ||
-		(encap == WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR) ||
-		(encap == WTAP_ENCAP_PPP_WITH_PHDR)
-	) {
+wtap_encap_requires_phdr(int wtap_encap)
+{
+	switch (wtap_encap) {
+
+	case WTAP_ENCAP_ATM_PDUS:
+	case WTAP_ENCAP_IRDA:
+	case WTAP_ENCAP_MTP2_WITH_PHDR:
+	case WTAP_ENCAP_LINUX_LAPD:
+	case WTAP_ENCAP_SITA:
+	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
+	case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
+	case WTAP_ENCAP_NFC_LLCP:
+	case WTAP_ENCAP_PPP_WITH_PHDR:
+	case WTAP_ENCAP_ERF:
+	case WTAP_ENCAP_I2C:
 		return TRUE;
 	}
 	return FALSE;
