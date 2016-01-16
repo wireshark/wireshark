@@ -1364,6 +1364,7 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     atm_info.vpi = ((atm_hdr & 0x0ff00000) >> 20);
     atm_info.vci = ((atm_hdr & 0x000ffff0) >>  4);
     atm_info.channel = (flags & 0x03);
+    atm_info.aal2_cid = aal2_cid;
     atm_info.type = TRAF_UNKNOWN;
     atm_info.subtype = TRAF_ST_UNKNOWN;
 
