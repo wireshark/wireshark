@@ -43,7 +43,6 @@ static int hf_pcap_pktdata_pseudoheader_bluetooth_direction = -1;
 static int hf_pcap_pktdata_undecoded_data = -1;
 
 static gint ett_pcap_pktdata_pseudoheader = -1;
-static gint ett_pcap_pktdata_undecoded_data = -1;
 
 static expert_field ei_pcap_pktdata_linktype_unknown = EI_INIT;
 static expert_field ei_pcap_pktdata_cant_generate_phdr = EI_INIT;
@@ -258,7 +257,6 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     proto_item  *pseudoheader_item;
     proto_tree  *pseudoheader_tree = NULL;
     proto_item  *packet_item;
-    proto_tree  *packet_tree;
 
     DISSECTOR_ASSERT(data);
 
@@ -279,7 +277,6 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
          * Just report that and give up.
          */
         packet_item = proto_tree_add_item(tree, hf_pcap_pktdata_undecoded_data, tvb, offset, tvb_reported_length(tvb), ENC_NA);
-        packet_tree = proto_item_add_subtree(packet_item, ett_pcap_pktdata_undecoded_data);
         expert_add_info_format(pinfo, packet_item,
                                &ei_pcap_pktdata_linktype_unknown,
                                "Link-layer header type %u is not supported",
@@ -341,7 +338,6 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
              * No.  Give up.
              */
             packet_item = proto_tree_add_item(tree, hf_pcap_pktdata_undecoded_data, tvb, offset, tvb_reported_length(tvb), ENC_NA);
-            packet_tree = proto_item_add_subtree(packet_item, ett_pcap_pktdata_undecoded_data);
             expert_add_info_format(pinfo, packet_item,
                                    &ei_pcap_pktdata_cant_generate_phdr,
                                    "No pseudo-header can be generated for link-layer header type %u",
@@ -381,7 +377,6 @@ proto_register_pcap_pktdata(void)
 
     static gint *ett[] = {
         &ett_pcap_pktdata_pseudoheader,
-        &ett_pcap_pktdata_undecoded_data
     };
 
     static ei_register_info ei[] = {
