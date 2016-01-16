@@ -206,7 +206,6 @@ static void
 dissect_lat_start(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	dissect_lat_header(tvb, offset, tree);
-	offset += 1 + 2 + 2 + 1 + 1;
 	/* XXX - dissect the rest of it */
 }
 
@@ -214,7 +213,6 @@ static void
 dissect_lat_stop(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	dissect_lat_header(tvb, offset, tree);
-	offset += 1 + 2 + 2 + 1 + 1;
 	/* XXX - dissect the rest of it */
 }
 
