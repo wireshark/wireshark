@@ -759,8 +759,8 @@ print_usage(FILE *output)
     fprintf(output, "                         all packets to the timestamp of the first packet.\n");
     fprintf(output, "  -E <error probability> set the probability (between 0.0 and 1.0 incl.) that\n");
     fprintf(output, "                         a particular packet byte will be randomly changed.\n");
-    fprintf(output, "  -o <change offset>     When used in conjuction with -E, skip some bytes from the\n");
-    fprintf(output, "                         beginning of the packet. This allows to preserve some\n");
+    fprintf(output, "  -o <change offset>     When used in conjunction with -E, skip some bytes from the\n");
+    fprintf(output, "                         beginning of the packet. This allows one to preserve some\n");
     fprintf(output, "                         bytes, in order to have some headers untouched.\n");
     fprintf(output, "\n");
     fprintf(output, "Output File(s):\n");

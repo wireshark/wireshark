@@ -186,8 +186,8 @@ static void help(const char* binname)
 	printf("  --fifo <file>: dump data to file or fifo\n");
 	printf("  --maxbytes <bytes>: max bytes per packet");
 	printf("  --count <num>: number of packets to generate\n");
-	printf("  --random-type: one random type is choosen for all packets\n");
-	printf("  --all-random: a random type is choosen for each packet\n");
+	printf("  --random-type: one random type is chosen for all packets\n");
+	printf("  --all-random: a random type is chosen for each packet\n");
 	printf("  --type <type>: the packet type\n");
 	printf("\n\nPacket types:\n");
 	randpkt_example_list(&abbrev_list, &longname_list, &list_num);
@@ -231,10 +231,10 @@ static int list_config(char *interface)
 		"{type=long}{default=1000}{tooltip=Number of packets to generate (-1 for infinite)}\n",
 		inc++);
 	printf("arg {number=%u}{call=--random-type}{display=Random type}"
-		"{type=boolean}{default=false}{tooltip=The packets type is randomly choosen}\n",
+		"{type=boolean}{default=false}{tooltip=The packets type is randomly chosen}\n",
 		inc++);
 	printf("arg {number=%u}{call=--all-random}{display=All random packets}"
-		"{type=boolean}{default=false}{tooltip=Packet type for each packet is randomly choosen}\n",
+		"{type=boolean}{default=false}{tooltip=Packet type for each packet is randomly chosen}\n",
 		inc++);
 
 	/* Now the types */
