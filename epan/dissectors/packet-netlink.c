@@ -418,6 +418,7 @@ proto_register_netlink(void)
 		FT_UINT16,
 		BASE_HEX, DISSECTOR_TABLE_NOT_ALLOW_DUPLICATE
 	);
+	register_dissector("netlink", dissect_netlink, proto_netlink);
 }
 
 void

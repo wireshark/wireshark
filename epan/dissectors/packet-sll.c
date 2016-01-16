@@ -79,6 +79,7 @@ static const value_string ltype_vals[] = {
 
 static dissector_handle_t sll_handle;
 static dissector_handle_t ethertype_handle;
+static dissector_handle_t netlink_handle;
 
 static header_field_info *hfi_sll = NULL;
 
@@ -170,9 +171,6 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_tree *fh_tree;
 	ethertype_data_t ethertype_data;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SLL");
-	col_clear(pinfo->cinfo, COL_INFO);
-
 	pkttype = tvb_get_ntohs(tvb, 0);
 
 	/*
@@ -192,6 +190,21 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		break;
 	}
 
+	hatype = tvb_get_ntohs(tvb, 2);
+	halen = tvb_get_ntohs(tvb, 4);
+
+	/* the netlink dissector can parse our entire header, we can
+	   pass it our complete tvb
+	   XXX - are there any other protocols that use the same header
+	   format as sll? if so, we should add a dissector table
+	   sll.hatpye */
+	if (hatype == LINUX_SLL_P_NETLINK) {
+		return call_dissector(netlink_handle, tvb, pinfo, tree);
+	}
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SLL");
+	col_clear(pinfo->cinfo, COL_INFO);
+
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(pkttype, packet_type_vals, "Unknown (%u)"));
 
@@ -202,10 +215,8 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
 	/*
 	 * XXX - check the link-layer address type value?
-	 * For now, we just assume 6 means Ethernet.
+	 * For now, we just assume halen 4 is IPv4 and halen 6 is Ethernet.
 	 */
-	hatype = tvb_get_ntohs(tvb, 2);
-	halen = tvb_get_ntohs(tvb, 4);
 	proto_tree_add_uint(fh_tree, &hfi_sll_hatype, tvb, 2, 2, hatype);
 	proto_tree_add_uint(fh_tree, &hfi_sll_halen, tvb, 4, 2, halen);
 
@@ -321,6 +332,7 @@ proto_reg_handoff_sll(void)
 	gre_dissector_table = find_dissector_table("gre.proto");
 	data_handle = find_dissector("data");
 	ethertype_handle = find_dissector("ethertype");
+	netlink_handle = find_dissector("netlink");
 
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_SLL, sll_handle);
 	register_capture_dissector("wtap_encap", WTAP_ENCAP_SLL, capture_sll, hfi_sll->id);
