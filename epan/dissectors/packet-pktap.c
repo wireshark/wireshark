@@ -30,8 +30,7 @@
 
 #include "packet-eth.h"
 
-/* Needed for wtap_pcap_encap_to_wtap_encap(). */
-#include <wiretap/pcap-encap.h>
+static dissector_handle_t pcap_pktdata_handle;
 
 void proto_register_pktap(void);
 void proto_reg_handoff_pktap(void);
@@ -79,8 +78,6 @@ static gint ett_pktap = -1;
 static expert_field ei_pktap_hdrlen_too_short = EI_INIT;
 
 static dissector_handle_t pktap_handle;
-
-static dissector_table_t wtap_encap_dissector_table;
 
 /*
  * XXX - these are little-endian in the captures I've seen, but Apple
@@ -195,8 +192,8 @@ dissect_pktap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
 	if (rectype == PKT_REC_PACKET) {
 		next_tvb = tvb_new_subset_remaining(tvb, pkt_len);
-		dissector_try_uint(wtap_encap_dissector_table,
-		    wtap_pcap_encap_to_wtap_encap(dlt), next_tvb, pinfo, tree);
+		call_dissector_with_data(pcap_pktdata_handle, next_tvb,
+		    pinfo, tree, &dlt);
 	}
 	return tvb_captured_length(tvb);
 }
@@ -277,9 +274,9 @@ proto_register_pktap(void)
 void
 proto_reg_handoff_pktap(void)
 {
-	wtap_encap_dissector_table = find_dissector_table("wtap_encap");
-
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_PKTAP, pktap_handle);
+
+	pcap_pktdata_handle = find_dissector("pcap_pktdata");
 
 	/* XXX - WTAP_ENCAP_USER2 to handle Mavericks' botch wherein it
 		uses DLT_USER2 for PKTAP; if you are using DLT_USER2 for your
