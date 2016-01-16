@@ -113,7 +113,7 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     cbcs->addItem(tr("Raw"), SHOW_RAW);
     cbcs->blockSignals(false);
 
-    b_filter_out_ = ui->buttonBox->addButton(tr("Hide this stream"), QDialogButtonBox::ActionRole);
+    b_filter_out_ = ui->buttonBox->addButton(tr("Filter Out This Stream"), QDialogButtonBox::ActionRole);
     connect(b_filter_out_, SIGNAL(clicked()), this, SLOT(filterOut()));
 
     b_print_ = ui->buttonBox->addButton(tr("Print"), QDialogButtonBox::ActionRole);
