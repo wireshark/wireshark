@@ -1614,8 +1614,7 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Dissect additional management fields (when applicable) */
         if (offset < header.length) {
-            offset = dissect_mausb_mgmt_pkt_flds(&header, mausb_tree, tvb,
-                        pinfo, offset);
+            dissect_mausb_mgmt_pkt_flds(&header, mausb_tree, tvb, pinfo, offset);
         }
 
     }
