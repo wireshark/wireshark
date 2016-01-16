@@ -341,17 +341,14 @@ static gint ett_8023_extension_errors = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_ppi_invalid_length = EI_INIT;
-static expert_field ei_ppi_linktype_unknown = EI_INIT;
-static expert_field ei_ppi_cant_generate_phdr = EI_INIT;
 
 static dissector_handle_t ppi_handle;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t ieee80211_radio_handle;
+static dissector_handle_t pcap_pktdata_handle;
 static dissector_handle_t ppi_gps_handle, ppi_vector_handle, ppi_sensor_handle, ppi_antenna_handle;
 static dissector_handle_t ppi_fnet_handle;
-
-static dissector_table_t wtap_encap_dissector_table;
 
 static const true_false_string tfs_ppi_head_flag_alignment = { "32-bit aligned", "Not aligned" };
 static const true_false_string tfs_tsft_ms = { "milliseconds", "microseconds" };
@@ -830,7 +827,6 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_tree    *ppi_tree    = NULL, *ppi_flags_tree = NULL, *seg_tree = NULL, *ampdu_tree = NULL;
     proto_tree    *agg_tree    = NULL;
     proto_item    *ti          = NULL;
-    proto_item    *dlt_item    = NULL;
     tvbuff_t      *next_tvb;
     int            offset      = 0;
     guint          version, flags;
@@ -846,7 +842,6 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     gboolean       first_mpdu  = TRUE;
     guint          last_frame  = 0;
     gint len_remain, /*pad_len = 0,*/ ampdu_len = 0;
-    int            wtap_encap;
     struct ieee_802_11_phdr phdr;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPI");
@@ -879,8 +874,8 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         proto_tree_add_item(ppi_tree, hf_ppi_head_len,
                                  tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
-        dlt_item = proto_tree_add_item(ppi_tree, hf_ppi_head_dlt,
-                                       tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(ppi_tree, hf_ppi_head_dlt,
+                                 tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
     }
 
     tot_len -= PPI_V0_HEADER_LEN;
@@ -1107,65 +1102,21 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-
     /*
-     * What's the Wiretap encapsulation for this LINKTYPE_ value?
-     */
-    wtap_encap = wtap_pcap_encap_to_wtap_encap(dlt);
-    if (wtap_encap == WTAP_ENCAP_UNKNOWN) {
-        /*
-         * Nothing we know.
-         * Just report that and give up.
-         */
-        expert_add_info(pinfo, dlt_item, &ei_ppi_linktype_unknown);
-        call_dissector(data_handle, next_tvb, pinfo, tree);
-        return tvb_captured_length(tvb);
-    }
-
-    /*
-     * You can't just call an arbitrary subdissector based on a
-     * WTAP_ENCAP_ value, because they may expect a particular
-     * pseudo-header to be passed to them.
+     * Handle LINKTYPE_IEEE802_11, which is 105, specially; call the
+     * "802.11 with radio information" dissector, and pass it a pointer
+     * to the struct ieee_802_11_phdr we've constructed from the PPI data,
+     * so that it can display that information.
      *
-     * First, check whether this WTAP_ENCAP_ value corresponds
-     * to a link-layer header type where Wiretap generates a
-     * pseudo-header from the bytes at the beginning of the
-     * packet data.
+     * Handle everything else with the pcap_pktdata dissector, letting
+     * it do whatever needs to be done about pseudo-headers.
      */
-    if (wtap_encap_requires_phdr(wtap_encap)) {
-        /*
-         * It does, but we don't yet have code to do that in
-         * libwireshark.  Give up for now.
-         */
-        expert_add_info(pinfo, dlt_item, &ei_ppi_cant_generate_phdr);
-        call_dissector(data_handle, next_tvb, pinfo, tree);
-        return tvb_captured_length(tvb);
-    }
-
-    /*
-     * It doesn't.  Just call the dissector, except for
-     * some special cases.
-     */
-    switch (wtap_encap) {
-
-    case WTAP_ENCAP_IEEE_802_11:
-        /*
-         * Call the "802.11 with radio information" dissector,
-         * passing it the radio information data we've
-         * constructed, rather than directly calling the
-         * 802.11 dissector.
-         */
-        call_dissector_with_data(ieee80211_radio_handle, next_tvb,
-                                 pinfo, tree, &phdr);
-        break;
-
-    default:
-        /*
-         * Just call the dissector, passing it nothing.
-         */
-        dissector_try_uint(wtap_encap_dissector_table, wtap_encap, next_tvb,
-                           pinfo, tree);
-        break;
+    if (dlt == 105) {
+        /* LINKTYPE_IEEE802_11 */
+        call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
+    } else {
+        /* Everything else. */
+        call_dissector_with_data(pcap_pktdata_handle, next_tvb, pinfo, tree, &dlt);
     }
     return tvb_captured_length(tvb);
 }
@@ -1513,8 +1464,6 @@ proto_register_ppi(void)
 
     static ei_register_info ei[] = {
         { &ei_ppi_invalid_length, { "ppi.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
-        { &ei_ppi_linktype_unknown, { "ppi.linktype_unknown", PI_UNDECODED, PI_NOTE, "That link-layer header type is not known to Wireshark", EXPFILL }},
-        { &ei_ppi_cant_generate_phdr, { "ppi.cant_generate_phdr", PI_UNDECODED, PI_NOTE, "No pseudo-header can be generated for that link-layer header type", EXPFILL }},
     };
 
     module_t *ppi_module;
@@ -1543,10 +1492,9 @@ proto_register_ppi(void)
 void
 proto_reg_handoff_ppi(void)
 {
-    wtap_encap_dissector_table = find_dissector_table("wtap_encap");
-
     data_handle = find_dissector("data");
     ieee80211_radio_handle = find_dissector("wlan_radio");
+    pcap_pktdata_handle = find_dissector("pcap_pktdata");
     ppi_gps_handle = find_dissector("ppi_gps");
     ppi_vector_handle = find_dissector("ppi_vector");
     ppi_sensor_handle = find_dissector("ppi_sensor");
