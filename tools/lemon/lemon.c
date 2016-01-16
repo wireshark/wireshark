@@ -3185,30 +3185,33 @@ void ReportOutput(struct lemon *lemp)
   if( fp==0 ) return;
   for(i=0; i<lemp->nxstate; i++){
     stp = lemp->sorted[i];
-    fprintf(fp,"State %d:\n",stp->statenum);
-    if( lemp->basisflag ) cfp=stp->bp;
-    else                  cfp=stp->cfp;
-    while( cfp ){
-      char buf[20];
-      if( cfp->dot==cfp->rp->nrhs ){
-        lemon_sprintf(buf,"(%d)",cfp->rp->index);
-        fprintf(fp,"    %5s ",buf);
-      }else{
-        fprintf(fp,"          ");
-      }
-      ConfigPrint(fp,cfp);
-      fprintf(fp,"\n");
+    if(stp){
+      fprintf(fp,"State %d:\n",stp->statenum);
+      if( lemp->basisflag ) cfp=stp->bp;
+      else                  cfp=stp->cfp;
+      while( cfp ){
+        char buf[20];
+        if( cfp->dot==cfp->rp->nrhs ){
+          lemon_sprintf(buf,"(%d)",cfp->rp->index);
+          fprintf(fp,"    %5s ",buf);
+        }else{
+          fprintf(fp,"          ");
+        }
+        ConfigPrint(fp,cfp);
+        fprintf(fp,"\n");
 #if 0
-      SetPrint(fp,cfp->fws,lemp);
-      PlinkPrint(fp,cfp->fplp,"To  ");
-      PlinkPrint(fp,cfp->bplp,"From");
+        SetPrint(fp,cfp->fws,lemp);
+        PlinkPrint(fp,cfp->fplp,"To  ");
+        PlinkPrint(fp,cfp->bplp,"From");
 #endif
-      if( lemp->basisflag ) cfp=cfp->bp;
-      else                  cfp=cfp->next;
-    }
-    fprintf(fp,"\n");
-    for(ap=stp->ap; ap; ap=ap->next){
-      if( PrintAction(ap,fp,30) ) fprintf(fp,"\n");
+        if( lemp->basisflag ) cfp=cfp->bp;
+        else                  cfp=cfp->next;
+
+      }
+      fprintf(fp,"\n");
+      for(ap=stp->ap; ap; ap=ap->next){
+        if( PrintAction(ap,fp,30) ) fprintf(fp,"\n");
+      }
     }
     fprintf(fp,"\n");
   }
