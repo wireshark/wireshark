@@ -59,8 +59,6 @@
 /* Needed for wtap_pcap_encap_to_wtap_encap(). */
 #include <wiretap/pcap-encap.h>
 
-#include "packet-frame.h"
-
 /*
  * Per-Packet Information (PPI) header.
  * See the PPI Packet Header documentation at http://www.cacetech.com/documents
@@ -352,6 +350,8 @@ static dissector_handle_t data_handle;
 static dissector_handle_t ieee80211_radio_handle;
 static dissector_handle_t ppi_gps_handle, ppi_vector_handle, ppi_sensor_handle, ppi_antenna_handle;
 static dissector_handle_t ppi_fnet_handle;
+
+static dissector_table_t wtap_encap_dissector_table;
 
 static const true_false_string tfs_ppi_head_flag_alignment = { "32-bit aligned", "Not aligned" };
 static const true_false_string tfs_tsft_ms = { "milliseconds", "microseconds" };
@@ -1543,6 +1543,8 @@ proto_register_ppi(void)
 void
 proto_reg_handoff_ppi(void)
 {
+    wtap_encap_dissector_table = find_dissector_table("wtap_encap");
+
     data_handle = find_dissector("data");
     ieee80211_radio_handle = find_dissector("wlan_radio");
     ppi_gps_handle = find_dissector("ppi_gps");

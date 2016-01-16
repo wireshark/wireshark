@@ -148,7 +148,7 @@ static const value_string packet_word_reception_types[] = {
 	{ 0, NULL }
 };
 
-dissector_table_t wtap_encap_dissector_table;
+static dissector_table_t wtap_encap_dissector_table;
 static dissector_table_t wtap_fts_rec_dissector_table;
 
 /*

@@ -28,8 +28,6 @@
 #include <epan/expert.h>
 #include <wsutil/pint.h>
 
-
-#include "packet-frame.h"
 #include "packet-eth.h"
 
 /* Needed for wtap_pcap_encap_to_wtap_encap(). */
@@ -81,6 +79,8 @@ static gint ett_pktap = -1;
 static expert_field ei_pktap_hdrlen_too_short = EI_INIT;
 
 static dissector_handle_t pktap_handle;
+
+static dissector_table_t wtap_encap_dissector_table;
 
 /*
  * XXX - these are little-endian in the captures I've seen, but Apple
@@ -277,6 +277,8 @@ proto_register_pktap(void)
 void
 proto_reg_handoff_pktap(void)
 {
+	wtap_encap_dissector_table = find_dissector_table("wtap_encap");
+
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_PKTAP, pktap_handle);
 
 	/* XXX - WTAP_ENCAP_USER2 to handle Mavericks' botch wherein it

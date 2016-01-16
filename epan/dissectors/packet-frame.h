@@ -30,8 +30,3 @@
  */
 void
 register_frame_end_routine(packet_info *pinfo, void (*func)(void));
-
-/*
- * The frame dissector and the PPI dissector both use this
- */
-extern dissector_table_t wtap_encap_dissector_table;
