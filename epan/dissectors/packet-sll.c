@@ -72,6 +72,7 @@ static const value_string ltype_vals[] = {
 	{ LINUX_SLL_P_IRDA_LAP,	"IrDA LAP" },
 	{ LINUX_SLL_P_ISI,	"ISI" },
 	{ LINUX_SLL_P_IEEE802154,	"IEEE 802.15.4" },
+	{ LINUX_SLL_P_NETLINK,	"Netlink" },
 	{ 0,			NULL }
 };
 
@@ -166,7 +167,7 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	guint16 hatype, halen;
 	proto_item *ti;
 	tvbuff_t *next_tvb;
-	proto_tree *fh_tree = NULL;
+	proto_tree *fh_tree;
 	ethertype_data_t ethertype_data;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SLL");
@@ -194,12 +195,10 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(pkttype, packet_type_vals, "Unknown (%u)"));
 
-	if (tree) {
-		ti = proto_tree_add_protocol_format(tree, hfi_sll->id, tvb, 0,
-		    SLL_HEADER_SIZE, "Linux cooked capture");
-		fh_tree = proto_item_add_subtree(ti, ett_sll);
-		proto_tree_add_item(fh_tree, &hfi_sll_pkttype, tvb, 0, 2, ENC_BIG_ENDIAN);
-	}
+	ti = proto_tree_add_protocol_format(tree, hfi_sll->id, tvb, 0,
+			SLL_HEADER_SIZE, "Linux cooked capture");
+	fh_tree = proto_item_add_subtree(ti, ett_sll);
+	proto_tree_add_item(fh_tree, &hfi_sll_pkttype, tvb, 0, 2, ENC_BIG_ENDIAN);
 
 	/*
 	 * XXX - check the link-layer address type value?
@@ -207,10 +206,9 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	 */
 	hatype = tvb_get_ntohs(tvb, 2);
 	halen = tvb_get_ntohs(tvb, 4);
-	if (tree) {
-		proto_tree_add_uint(fh_tree, &hfi_sll_hatype, tvb, 2, 2, hatype);
-		proto_tree_add_uint(fh_tree, &hfi_sll_halen, tvb, 4, 2, halen);
-	}
+	proto_tree_add_uint(fh_tree, &hfi_sll_hatype, tvb, 2, 2, hatype);
+	proto_tree_add_uint(fh_tree, &hfi_sll_halen, tvb, 4, 2, halen);
+
 	switch (halen) {
 	case 4:
 		set_address_tvb(&pinfo->dl_src, AT_IPv4, 4, tvb, 6);
