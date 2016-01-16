@@ -26,6 +26,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 #include <wiretap/wtap.h>
 #include <wiretap/pcap-encap.h>
@@ -39,10 +40,13 @@ static int proto_pcap_pktdata = -1;
 
 static int hf_pcap_pktdata_pseudoheader = -1;
 static int hf_pcap_pktdata_pseudoheader_bluetooth_direction = -1;
-static int hf_pcap_pktdata_data = -1;
+static int hf_pcap_pktdata_undecoded_data = -1;
 
 static gint ett_pcap_pktdata_pseudoheader = -1;
-static gint ett_pcap_pktdata_data = -1;
+static gint ett_pcap_pktdata_undecoded_data = -1;
+
+static expert_field ei_pcap_pktdata_linktype_unknown = EI_INIT;
+static expert_field ei_pcap_pktdata_cant_generate_phdr = EI_INIT;
 
 static dissector_table_t wtap_encap_table;
 
@@ -250,7 +254,6 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 {
     gint         offset = 0;
     guint32     *link_type;
-    guint32      length = 0;
     tvbuff_t    *next_tvb;
     proto_item  *pseudoheader_item;
     proto_tree  *pseudoheader_tree = NULL;
@@ -260,77 +263,97 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     DISSECTOR_ASSERT(data);
 
     link_type = (guint32 *) data;
+
+    /*
+     * We're passed a pointer to a LINKTYPE_ value.
+     * Find the Wiretap encapsulation for that value.
+     */
     pinfo->phdr->pkt_encap = wtap_pcap_encap_to_wtap_encap(*link_type);
 
-    switch (*link_type) {
-    case 139:
-/* TODO no description for pseudoheader at http://www.tcpdump.org/linktypes.html */
-        break;
-    case 196:
-        length = 5;
-        break;
-    case 197:
-/* TODO no description for pseudoheader at http://www.tcpdump.org/linktypes.html */
-        break;
-    case 201:
-        length = 4;
-        break;
-    case 204:
-        length = 1;
-        break;
-    case 205:
-        length = 1;
-        break;
-    case 206:
-        length = 1;
-        break;
-    case 209:
-        length = 6;
-        break;
-    case 226:
-        length = 24;
-        break;
-    case 227:
-/* TODO no description for pseudoheader at http://www.tcpdump.org/linktypes.html */
-        break;
-    case 240:
-    case 241:
-        length = 4;
-        break;
-    case 244:
-        length = 20;
-        break;
-    case 245:
-        length = 20;
-        break;
+    /*
+     * Do we know that type?
+     */
+    if (pinfo->phdr->pkt_encap == WTAP_ENCAP_UNKNOWN) {
+        /*
+         * Nothing we know.
+         * Just report that and give up.
+         */
+        packet_item = proto_tree_add_item(tree, hf_pcap_pktdata_undecoded_data, tvb, offset, tvb_reported_length(tvb), ENC_NA);
+        packet_tree = proto_item_add_subtree(packet_item, ett_pcap_pktdata_undecoded_data);
+        expert_add_info_format(pinfo, packet_item,
+                               &ei_pcap_pktdata_linktype_unknown,
+                               "Link-layer header type %u is not supported",
+                               *link_type);
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
+        return tvb_captured_length(tvb);
     }
 
-    if (length > 0) {
-        pseudoheader_item = proto_tree_add_item(tree, hf_pcap_pktdata_pseudoheader, tvb, offset, length, ENC_NA);
-        pseudoheader_tree = proto_item_add_subtree(pseudoheader_item, ett_pcap_pktdata_pseudoheader);
-    }
+    /*
+     * You can't just call an arbitrary subdissector based on a
+     * WTAP_ENCAP_ value, because they may expect a particular
+     * pseudo-header to be passed to them, and may not accept
+     * a null pseudo-header pointer.
+     *
+     * First, check whether this WTAP_ENCAP_ value corresponds
+     * to a link-layer header type where Wiretap generates a
+     * pseudo-header from the bytes at the beginning of the
+     * packet data.
+     */
+    if (wtap_encap_requires_phdr(pinfo->phdr->pkt_encap)) {
+        /*
+         * It does.  Do we have code to do that?
+         */
+        switch (pinfo->phdr->pkt_encap) {
 
-    switch (*link_type) {
-    case 201:
-        proto_tree_add_item(pseudoheader_tree, hf_pcap_pktdata_pseudoheader_bluetooth_direction, tvb, offset, 4, ENC_BIG_ENDIAN);
-        if (tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN) == 0)
-            pinfo->p2p_dir = P2P_DIR_SENT;
-        else if (tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN) == 1)
-            pinfo->p2p_dir = P2P_DIR_RECV;
-        else
-            pinfo->p2p_dir = P2P_DIR_UNKNOWN;
-        offset += 4;
-        break;
-    default:
-        offset += length;
+        case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
+            pseudoheader_item = proto_tree_add_item(tree, hf_pcap_pktdata_pseudoheader, tvb, offset, 4, ENC_NA);
+            pseudoheader_tree = proto_item_add_subtree(pseudoheader_item, ett_pcap_pktdata_pseudoheader);
+            proto_tree_add_item(pseudoheader_tree, hf_pcap_pktdata_pseudoheader_bluetooth_direction, tvb, offset, 4, ENC_BIG_ENDIAN);
+            if (tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN) == 0)
+                pinfo->p2p_dir = P2P_DIR_SENT;
+            else if (tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN) == 1)
+                pinfo->p2p_dir = P2P_DIR_RECV;
+            else
+                pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+            offset += 4;
+            break;
+
+        case WTAP_ENCAP_ATM_PDUS:
+            /* TODO */
+        case WTAP_ENCAP_IRDA:
+            /* TODO */
+        case WTAP_ENCAP_MTP2_WITH_PHDR:
+            /* TODO no description for pseudoheader at http://www.tcpdump.org/linktypes.html */
+        case WTAP_ENCAP_LINUX_LAPD:
+            /* TODO */
+        case WTAP_ENCAP_SITA:
+            /* TODO */
+        case WTAP_ENCAP_ERF:
+            /* TODO no description for pseudoheader at http://www.tcpdump.org/linktypes.html */
+        case WTAP_ENCAP_I2C:
+            /* TODO */
+        case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
+            /* TODO */
+        case WTAP_ENCAP_PPP_WITH_PHDR:
+            /* TODO */
+        default:
+            /*
+             * No.  Give up.
+             */
+            packet_item = proto_tree_add_item(tree, hf_pcap_pktdata_undecoded_data, tvb, offset, tvb_reported_length(tvb), ENC_NA);
+            packet_tree = proto_item_add_subtree(packet_item, ett_pcap_pktdata_undecoded_data);
+            expert_add_info_format(pinfo, packet_item,
+                                   &ei_pcap_pktdata_cant_generate_phdr,
+                                   "No pseudo-header can be generated for link-layer header type %u",
+                                   *link_type);
+            next_tvb = tvb_new_subset_remaining(tvb, offset);
+            return tvb_captured_length(tvb);
+        }
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    packet_item = proto_tree_add_item(tree, hf_pcap_pktdata_data, tvb, offset, tvb_reported_length(next_tvb), ENC_NA);
-    packet_tree = proto_item_add_subtree(packet_item, ett_pcap_pktdata_data);
-
-    offset = dissector_try_uint_new(wtap_encap_table, pinfo->phdr->pkt_encap, next_tvb, pinfo, packet_tree, TRUE, NULL);
+    offset = dissector_try_uint_new(wtap_encap_table, pinfo->phdr->pkt_encap, next_tvb, pinfo, tree, TRUE, NULL);
 
     return offset;
 }
@@ -349,8 +372,8 @@ proto_register_pcap_pktdata(void)
             FT_UINT32, BASE_HEX, VALS(pseudoheader_bluetooth_direction_vals), 0x00,
             NULL, HFILL }
         },
-        { &hf_pcap_pktdata_data,
-            { "Data",                                      "pcap_pktdata.data",
+        { &hf_pcap_pktdata_undecoded_data,
+            { "Undecoded data",                            "pcap_pktdata.undecoded_data",
             FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
@@ -358,12 +381,21 @@ proto_register_pcap_pktdata(void)
 
     static gint *ett[] = {
         &ett_pcap_pktdata_pseudoheader,
-        &ett_pcap_pktdata_data
+        &ett_pcap_pktdata_undecoded_data
     };
+
+    static ei_register_info ei[] = {
+        { &ei_pcap_pktdata_linktype_unknown, { "pcap_pktdata.linktype_unknown", PI_UNDECODED, PI_NOTE, "That link-layer header type is not supported", EXPFILL }},
+        { &ei_pcap_pktdata_cant_generate_phdr, { "pcap_pktdata.cant_generate_phdr", PI_UNDECODED, PI_NOTE, "No pseudo-header can be generated for that link-layer header type", EXPFILL }},
+    };
+
+    expert_module_t *expert_pcap_pktdata;
 
     proto_pcap_pktdata = proto_register_protocol("pcap/pcapng packet data", "pcap_pktdata", "pcap_pktdata");
     proto_register_field_array(proto_pcap_pktdata, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_pcap_pktdata = expert_register_protocol(proto_pcap_pktdata);
+    expert_register_field_array(expert_pcap_pktdata, ei, array_length(ei));
 
     register_dissector("pcap_pktdata", dissect_pcap_pktdata, proto_pcap_pktdata);
 }
