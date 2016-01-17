@@ -1,7 +1,7 @@
 /* packet-vxlan.c
  *
  * Routines for Virtual eXtensible Local Area Network (VXLAN) packet dissection
- * RFC 7348 plus draft-smith-vxlan-group-policy-01
+ * RFC 7348
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
