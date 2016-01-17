@@ -25,6 +25,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-tcp.h"
 
 /*
@@ -387,6 +388,8 @@ static int hf_hiqnet_flowcontrol = -1;
 static int hf_hiqnet_devaddr = -1;
 static int hf_hiqnet_newdevaddr = -1;
 
+static expert_field ei_hiqnet_datatype = EI_INIT;
+
 static const int *hiqnet_flag_fields[] = {
     &hf_hiqnet_reqack_flag,
     &hf_hiqnet_ack_flag,
@@ -513,14 +516,18 @@ hiqnet_display_paramsub(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, gint off
 
 /* TODO: decode flags for attributes and parameters */
 static gint
-hiqnet_display_data(proto_tree *hiqnet_payload_tree, tvbuff_t *tvb, gint offset) {
+hiqnet_display_data(proto_tree *hiqnet_payload_tree, packet_info *pinfo, tvbuff_t *tvb, gint offset) {
     guint8 datatype = 0;
-    gint datalen;
+    gint datalen = 0;
+    proto_item* ti;
 
     datatype = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_datatype, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_datatype, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    datalen = hiqnet_datasize_per_type[datatype];
+    if (datatype < sizeof(hiqnet_datasize_per_type)/sizeof(int))
+        datalen = hiqnet_datasize_per_type[datatype];
+    else
+        expert_add_info(pinfo, ti, &ei_hiqnet_datatype);
     if (datalen < 0) { /* This is a string or a block */
         datalen = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(hiqnet_payload_tree, hf_hiqnet_datalen, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -697,7 +704,7 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                     proto_tree_add_item(hiqnet_parameter_tree, hf_hiqnet_paramid, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
                     if (flags & HIQNET_INFO_FLAG) { /* This is not a request */
-                        offset = hiqnet_display_data(hiqnet_parameter_tree, tvb, offset);
+                        offset = hiqnet_display_data(hiqnet_parameter_tree, pinfo, tvb, offset);
                     }
                     paramcount -= 1;
                 }
@@ -711,7 +718,7 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         hiqnet_payload_tree, tvb, offset, -1, ett_hiqnet, NULL, "Parameter");
                     proto_tree_add_item(hiqnet_parameter_tree, hf_hiqnet_paramid, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
-                    offset = hiqnet_display_data(hiqnet_parameter_tree, tvb, offset);
+                    offset = hiqnet_display_data(hiqnet_parameter_tree, pinfo, tvb, offset);
                     paramcount -= 1;
                 }
                 break;
@@ -761,7 +768,7 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                             hiqnet_payload_tree, tvb, offset, -1, ett_hiqnet, NULL, "Attribute");
                         proto_tree_add_item(hiqnet_attribute_tree, hf_hiqnet_attrid, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
-                        offset = hiqnet_display_data(hiqnet_attribute_tree, tvb, offset);
+                        offset = hiqnet_display_data(hiqnet_attribute_tree, pinfo, tvb, offset);
                         attrcount -= 1;
                     }
                 } else { /* This may be a request */
@@ -903,7 +910,7 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                             hiqnet_object_tree, tvb, offset, -1, ett_hiqnet, NULL, "Parameter");
                         proto_tree_add_item(hiqnet_parameter_tree, hf_hiqnet_paramid, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
-                        offset = hiqnet_display_data(hiqnet_parameter_tree, tvb, offset);
+                        offset = hiqnet_display_data(hiqnet_parameter_tree, pinfo, tvb, offset);
                         paramcount -= 1;
                     }
                     objcount -= 1;
@@ -973,7 +980,7 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         hiqnet_payload_tree, tvb, offset, -1, ett_hiqnet, NULL, "Attribute");
                     proto_tree_add_item(hiqnet_attribute_tree, hf_hiqnet_attrid, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
-                    offset = hiqnet_display_data(hiqnet_attribute_tree, tvb, offset);
+                    offset = hiqnet_display_data(hiqnet_attribute_tree, pinfo, tvb, offset);
                     attrcount -= 1;
                 }
                 break;
@@ -1651,14 +1658,18 @@ proto_register_hiqnet(void)
         &ett_hiqnet_cats
     };
 
-    proto_hiqnet = proto_register_protocol (
-        "Harman HiQnet", /* name       */
-        "HiQnet",        /* short name */
-        "hiqnet"         /* abbrev     */
-    );
+    static ei_register_info ei[] = {
+        { &ei_hiqnet_datatype, { "hiqnet.datatype.invalid", PI_PROTOCOL, PI_WARN, "Invalid datatype", EXPFILL }},
+    };
+
+    expert_module_t* expert_hiqnet;
+
+    proto_hiqnet = proto_register_protocol ("Harman HiQnet", "HiQnet", "hiqnet");
 
     proto_register_field_array(proto_hiqnet, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_hiqnet = expert_register_protocol(proto_hiqnet);
+    expert_register_field_array(expert_hiqnet, ei, array_length(ei));
 }
 
 
