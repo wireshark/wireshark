@@ -655,8 +655,14 @@ proto_reg_handoff_gfp(void)
      * would work, but are untested (frame mapped DVB, frame mapped Fibre
      * Channel). The transparent mode ones are trickier, since without a
      * one-to-one mapping of frames, we would have to reassemble payload
-     * packets across multiple GFP packets. */
-    dissector_add_uint("gfp.upi", 1, find_dissector("eth"));
+     * packets across multiple GFP packets.
+     *
+     * Section 7.1.1 "Ethernet MAC encapsulation" of G.7041 says
+     * "The Ethernet MAC octets from destination address through
+     * "frame check sequence, inclusive, are placed in the GFP payload
+     * "information field.", so we want the dissector for Ethernet
+     * frames including the FCS. */
+    dissector_add_uint("gfp.upi", 1, find_dissector("eth_withfcs"));
     dissector_add_uint("gfp.upi", 2, find_dissector("ppp_hdlc"));
     dissector_add_uint("gfp.upi", 12, find_dissector("mpls"));
     dissector_add_uint("gfp.upi", 13, find_dissector("mpls"));
