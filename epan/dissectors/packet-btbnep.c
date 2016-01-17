@@ -1,4 +1,4 @@
-/* packet-btsap.c
+/* packet-btbnep.c
  * Routines for Bluetooth BNEP dissection
  *
  * Copyright 2012, Michal Labedzki for Tieto Corporation
