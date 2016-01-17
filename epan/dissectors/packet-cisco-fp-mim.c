@@ -22,7 +22,9 @@
  */
 
 /*
+ * See
  *
+ *    http://www.cisco.com/c/en/us/products/collateral/switches/nexus-7000-series-switches/white_paper_c11-687554.html
  */
 
 #include "config.h"
@@ -108,7 +110,25 @@ static dissector_handle_t eth_dissector ;
 
 static int dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ );
 
-
+/*
+ * These packets are a bit strange.
+ *
+ * They run over Ethernet, but, instead of a normal 14-octet Ethernet
+ * header, they have a 16-octet header, which happens to have, in the
+ * position occupied by the Type/Length field in an Ethernet header,
+ * the Ethertype value reserved for FabricPath.
+ *
+ * The fields in the positions occupied by the destination and source
+ * MAC addresses in an Ethernet header are occupied by addresses that
+ * are parsed specially, so we want to dissect them differently from
+ * normal MAC addresses.
+ *
+ * The Ethertype field is part of a 4-octet FP tag, which includes
+ * the Ethertype and some additional information.
+ *
+ * So we register as a heuristic dissector, which gets called before
+ * the regular code that checks Ethertypes.
+ */
 static gboolean
 dissect_fp_heur (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -380,6 +400,16 @@ proto_reg_handoff_fabricpath(void)
      * before the standard ethernet dissector
      */
     heur_dissector_add ("eth", dissect_fp_heur, "Cisco FabricPath over Ethernet", "fp_eth", proto_fp, HEURISTIC_DISABLE);
+
+    /*
+     * The FCS in FabricPath frames covers the entire FabricPath frame,
+     * not the encapsulated Ethernet frame, so we don't want to treat
+     * the encapsulated frame as if it had an FCS.
+     *
+     * XXX - we probably need to do similar FCS checks to the ones done
+     * by the Ethernet dissector.  This needs more work, so we leave this
+     * as calling the "eth" dissector as a reminder.
+     */
     eth_dissector = find_dissector( "eth" );
     prefs_initialized = TRUE;
   }
