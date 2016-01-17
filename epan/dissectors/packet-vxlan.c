@@ -1,6 +1,7 @@
 /* packet-vxlan.c
  *
  * Routines for Virtual eXtensible Local Area Network (VXLAN) packet dissection
+ * RFC 7348 plus draft-smith-vxlan-group-policy-01
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -19,11 +20,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Protocol ref:
- * http://tools.ietf.org/html/draft-mahalingam-dutt-dcops-vxlan-08
  */
-
 
 #include "config.h"
 
@@ -101,7 +98,6 @@ dissect_vxlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_item(vxlan_tree, hf_vxlan_vni, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset+=3;
-
 
     proto_tree_add_item(vxlan_tree, hf_vxlan_reserved_8, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -195,7 +191,15 @@ proto_reg_handoff_vxlan(void)
 {
     dissector_handle_t vxlan_handle;
 
-    eth_handle = find_dissector("eth");
+    /*
+     * RFC 7348 Figures 1 and 2, in the Payload section, say
+     *
+     * "(Note that the original Ethernet Frame's FCS is not included)"
+     *
+     * meaning that the inner Ethernet frame does *not* include an
+     * FCS.
+     */
+    eth_handle = find_dissector("eth_withoutfcs");
 
     vxlan_handle = create_dissector_handle(dissect_vxlan, proto_vxlan);
     dissector_add_uint("udp.port", UDP_PORT_VXLAN, vxlan_handle);
