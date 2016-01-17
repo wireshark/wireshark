@@ -22,9 +22,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Protocol ref:
- * http://tools.ietf.org/html/draft-davie-stt-06
+ * http://tools.ietf.org/html/draft-davie-stt-07
  */
-
 
 #include "config.h"
 
@@ -987,7 +986,12 @@ proto_register_stt(void)
 void
 proto_reg_handoff_stt(void)
 {
-    eth_handle = find_dissector("eth");
+    /*
+     * The I-D doesn't explicity indicate that the FCS isn't present
+     * in the tunneled Ethernet frames, but it is missing from the
+     * captures attached to bug 10282.
+     */
+    eth_handle = find_dissector("eth_withoutfcs");
     data_handle = find_dissector("data");
 
     heur_dissector_add("ip", dissect_stt_heur, "Stateless Transport Tunneling over IP", "stt_ip", proto_stt, HEURISTIC_ENABLE);
