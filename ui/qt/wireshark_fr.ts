@@ -3650,17 +3650,17 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="io_graph_dialog.cpp" line="1520"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1521"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1522"/>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="1524"/>
@@ -3813,17 +3813,17 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="289"/>
         <source>CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="292"/>
         <source>Save both tables as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder les deux tables en CSV.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="297"/>
         <source>Forward Stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Transférer le flux CSV</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="300"/>
@@ -3848,7 +3848,7 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="316"/>
         <source>Save the graph image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder le graphique.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="321"/>
@@ -3858,7 +3858,7 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="324"/>
         <source>Select the corresponding packet in the packet list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner le paquet correspondant dans la liste des paquets.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.ui" line="327"/>
@@ -3913,17 +3913,17 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="565"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="566"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="567"/>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="569"/>
@@ -3968,7 +3968,7 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="885"/>
         <source>;;Raw (*.raw)</source>
-        <translation type="unfinished"></translation>
+        <translation>;;Raw (*.raw)</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="902"/>
@@ -4004,12 +4004,12 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="1150"/>
         <source>Save CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder le CSV</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="1156"/>
         <source>Comma-separated values (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>Comma-separated values (*.csv)</translation>
     </message>
 </context>
 <context>
@@ -4260,7 +4260,7 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="import_text_dialog.cpp" line="72"/>
         <source>Import</source>
-        <translation type="unfinished">Importer</translation>
+        <translation>Importer</translation>
     </message>
     <message>
         <location filename="import_text_dialog.cpp" line="291"/>
@@ -5700,17 +5700,17 @@ pour fichiers de filtre : %2.</translation>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="453"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="454"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="455"/>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
         <location filename="lbm_uimflow_dialog.cpp" line="457"/>
@@ -6222,45 +6222,45 @@ pour fichiers de filtre : %2.</translation>
         <translation>Pas d&apos;information expert</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="345"/>
+        <location filename="main_status_bar.cpp" line="353"/>
         <source>Profile: </source>
         <translation>Profil: </translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="403"/>
+        <location filename="main_status_bar.cpp" line="411"/>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
         <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
         <translation>Paquets: %1 %4 Affichés: %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="409"/>
+        <location filename="main_status_bar.cpp" line="417"/>
         <source> %1 Marked: %2 (%3%)</source>
         <oldsource> %1 Dropped: %2</oldsource>
         <translation>%1 Markés: %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="415"/>
+        <location filename="main_status_bar.cpp" line="423"/>
         <source> %1 Dropped: %2 (%3%)</source>
         <translation>%1 Perdus: %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="421"/>
+        <location filename="main_status_bar.cpp" line="429"/>
         <source> %1 Ignored: %2 (%3%)</source>
         <translation>%1 Ignorés: %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="429"/>
+        <location filename="main_status_bar.cpp" line="437"/>
         <source> %1  Load time: %2:%3.%4</source>
         <translation>%1  Temps de chargement: %2:%3.%4</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="437"/>
-        <location filename="main_status_bar.cpp" line="459"/>
+        <location filename="main_status_bar.cpp" line="445"/>
+        <location filename="main_status_bar.cpp" line="467"/>
         <source>No Packets</source>
         <translation>Pas de paquets</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="455"/>
+        <location filename="main_status_bar.cpp" line="463"/>
         <source>Packets: %1</source>
         <translation>Paquets: %1</translation>
     </message>
@@ -6369,32 +6369,32 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="204"/>
+        <location filename="main_welcome.cpp" line="209"/>
         <source>You are running Wireshark </source>
         <translation>Vous exécutez Wireshark</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="206"/>
+        <location filename="main_welcome.cpp" line="211"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="209"/>
+        <location filename="main_welcome.cpp" line="214"/>
         <source> You receive automatic updates.</source>
         <translation>Vous recevez les mises à jour automatiques.</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="211"/>
+        <location filename="main_welcome.cpp" line="216"/>
         <source> You have disabled automatic updates.</source>
         <translation>Vous avez désactivé les mises à jour automatiques</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="283"/>
+        <location filename="main_welcome.cpp" line="288"/>
         <source>not found</source>
         <translation>Non trouvé</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="356"/>
+        <location filename="main_welcome.cpp" line="361"/>
         <source>Copy file path</source>
         <translation>Copier le chemin du fichier</translation>
     </message>
@@ -7099,7 +7099,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="950"/>
         <source>Ctrl+.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="955"/>
@@ -7114,7 +7114,7 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="961"/>
         <source>Ctrl+,</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+,</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1027"/>
@@ -7273,7 +7273,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="1450"/>
-        <source>Meta+Alt+M</source>
+        <source>Ctrl+Alt+M</source>
+        <oldsource>Meta+Alt+M</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7288,7 +7289,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="1461"/>
-        <source>Meta+Shift+N</source>
+        <source>Ctrl+Shift+N</source>
+        <oldsource>Meta+Shift+N</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7303,7 +7305,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="1472"/>
-        <source>Meta+Shift+B</source>
+        <source>Ctrl+Shift+B</source>
+        <oldsource>Meta+Shift+B</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7933,47 +7936,47 @@ a:hover {
     <message>
         <location filename="main_window.ui" line="2669"/>
         <source>Ctrl+1</source>
-        <translation type="unfinished">Ctrl+1</translation>
+        <translation>Ctrl+1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2680"/>
         <source>Ctrl+2</source>
-        <translation type="unfinished">Ctrl+2</translation>
+        <translation>Ctrl+2</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2691"/>
         <source>Ctrl+3</source>
-        <translation type="unfinished">Ctrl+3</translation>
+        <translation>Ctrl+3</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2702"/>
         <source>Ctrl+4</source>
-        <translation type="unfinished">Ctrl+4</translation>
+        <translation>Ctrl+4</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2713"/>
         <source>Ctrl+5</source>
-        <translation type="unfinished">Ctrl+5</translation>
+        <translation>Ctrl+5</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2724"/>
         <source>Ctrl+6</source>
-        <translation type="unfinished">Ctrl+6</translation>
+        <translation>Ctrl+6</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2735"/>
         <source>Ctrl+7</source>
-        <translation type="unfinished">Ctrl+7</translation>
+        <translation>Ctrl+7</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2746"/>
         <source>Ctrl+8</source>
-        <translation type="unfinished">Ctrl+8</translation>
+        <translation>Ctrl+8</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2757"/>
         <source>Ctrl+9</source>
-        <translation type="unfinished">Ctrl+9</translation>
+        <translation>Ctrl+9</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2789"/>
@@ -8328,7 +8331,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2106"/>
-        <source>Meta+Alt+1</source>
+        <source>Ctrl+Alt+1</source>
+        <oldsource>Meta+Alt+1</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8348,7 +8352,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2131"/>
-        <source>Meta+Alt+2</source>
+        <source>Ctrl+Alt+2</source>
+        <oldsource>Meta+Alt+2</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8363,7 +8368,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2145"/>
-        <source>Meta+Alt+3</source>
+        <source>Ctrl+Alt+3</source>
+        <oldsource>Meta+Alt+3</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8373,7 +8379,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2159"/>
-        <source>Meta+Alt+4</source>
+        <source>Ctrl+Alt+4</source>
+        <oldsource>Meta+Alt+4</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8388,7 +8395,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2173"/>
-        <source>Meta+Alt+5</source>
+        <source>Ctrl+Alt+5</source>
+        <oldsource>Meta+Alt+5</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8403,7 +8411,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2187"/>
-        <source>Meta+Alt+6</source>
+        <source>Ctrl+Alt+6</source>
+        <oldsource>Meta+Alt+6</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8418,7 +8427,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2201"/>
-        <source>Meta+Alt+7</source>
+        <source>Ctrl+Alt+7</source>
+        <oldsource>Meta+Alt+7</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8443,7 +8453,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2226"/>
-        <source>Meta+Alt+8</source>
+        <source>Ctrl+Alt+8</source>
+        <oldsource>Meta+Alt+8</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8987,85 +8998,85 @@ a:hover {
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1533"/>
+        <location filename="main_window.cpp" line="1536"/>
         <source>You have unsaved packets</source>
         <translation>Vous avez des paquets non sauvegardés</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1534"/>
+        <location filename="main_window.cpp" line="1537"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>Ils seront perdues si vous ne les enregistrez pas.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1537"/>
-        <location filename="main_window.cpp" line="1550"/>
+        <location filename="main_window.cpp" line="1540"/>
+        <location filename="main_window.cpp" line="1553"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>
 Voulez-vous arrêter la capture et enregistrer les paquets capturés</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1539"/>
+        <location filename="main_window.cpp" line="1542"/>
         <source>Do you want to save the captured packets</source>
         <translation>Voulez-vous  enregistrer les paquets capturés</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1541"/>
-        <location filename="main_window.cpp" line="1551"/>
+        <location filename="main_window.cpp" line="1544"/>
+        <location filename="main_window.cpp" line="1554"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1553"/>
+        <location filename="main_window.cpp" line="1556"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>Votre capture de paquet sera perdu si vous ne les enregistrez pas.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1556"/>
+        <location filename="main_window.cpp" line="1559"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Voulez-vous enregistrer les modifications que vous avez apportées au fichier de capture &quot;%1&quot;%2?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1562"/>
+        <location filename="main_window.cpp" line="1565"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Vos changements seront perdus si vous ne les enregistrez pas.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1574"/>
+        <location filename="main_window.cpp" line="1577"/>
         <source>Stop and Save</source>
         <translation>Arreter et Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1582"/>
+        <location filename="main_window.cpp" line="1585"/>
         <source>Stop and Quit without Saving</source>
         <translation>Arreter et Quitter sans Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1585"/>
+        <location filename="main_window.cpp" line="1588"/>
         <source>Quit without Saving</source>
         <translation>Quitter sans Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1590"/>
+        <location filename="main_window.cpp" line="1593"/>
         <source>Stop and Continue without Saving</source>
         <translation>Arreter et Continuer sans Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1593"/>
+        <location filename="main_window.cpp" line="1596"/>
         <source>Continue &amp;without Saving</source>
         <translation>Continuer sans &amp;Sauvegarder</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1850"/>
+        <location filename="main_window.cpp" line="1848"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Nom du fichier ne peut pas être mappé à l&apos;UTF-8)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1868"/>
+        <location filename="main_window.cpp" line="1861"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>L&apos;analyseur de réseau Wireshark</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1882"/>
+        <location filename="main_window.cpp" line="1880"/>
         <source>Capturing from %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9090,88 +9101,88 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1053"/>
+        <location filename="main_window_slots.cpp" line="1083"/>
         <source>Clear Menu</source>
         <translation>Effacer les fichiers récemment ouverts</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1544"/>
+        <location filename="main_window_slots.cpp" line="1574"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1701"/>
+        <location filename="main_window_slots.cpp" line="1731"/>
         <source>Export Selected Packet Bytes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1703"/>
+        <location filename="main_window_slots.cpp" line="1733"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
         <translation>Raw data (*.bin *.dat *.raw);;Tous les fichiers (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1760"/>
+        <location filename="main_window_slots.cpp" line="1790"/>
         <source>No Keys</source>
         <translation>Aucune clés</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1761"/>
+        <location filename="main_window_slots.cpp" line="1791"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Il y a aucune clé de Session SSL à sauvegarder.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1767"/>
+        <location filename="main_window_slots.cpp" line="1797"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1772"/>
+        <location filename="main_window_slots.cpp" line="1802"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation>Clé de Session SSL (*.keys *.txt);;Tous les fichiers (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1910"/>
+        <location filename="main_window_slots.cpp" line="1940"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Impossible de copier le texte. Essayer un autre item.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2317"/>
-        <location filename="main_window_slots.cpp" line="3350"/>
+        <location filename="main_window_slots.cpp" line="2347"/>
+        <location filename="main_window_slots.cpp" line="3380"/>
         <source>Unable to build conversation filter.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2462"/>
+        <location filename="main_window_slots.cpp" line="2492"/>
         <source>No filter available. Try another </source>
         <translation>Aucun filtre disponible. Essayer un autre</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3357"/>
+        <location filename="main_window_slots.cpp" line="3387"/>
         <source>Error compiling filter for this conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3366"/>
+        <location filename="main_window_slots.cpp" line="3396"/>
         <source>No previous/next packet in conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3443"/>
+        <location filename="main_window_slots.cpp" line="3473"/>
         <source>No Interface Selected</source>
         <translation>Aucune Interface Sélectionnée</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3450"/>
+        <location filename="main_window_slots.cpp" line="3480"/>
         <source> before starting a new capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3655"/>
+        <location filename="main_window_slots.cpp" line="3685"/>
         <source>Wiki Page for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3656"/>
+        <location filename="main_window_slots.cpp" line="3686"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9564,7 +9575,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="mtp3_summary_dialog.cpp" line="284"/>
         <source>Average Bytes/s</source>
-        <translation type="unfinished"></translation>
+        <translation>Débit moyen (octets/s)</translation>
     </message>
 </context>
 <context>
@@ -9577,22 +9588,22 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="182"/>
         <source>Source Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresse Source</translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="182"/>
         <source>Source Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port Source</translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="183"/>
         <source>Destination Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresse Destination</translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="183"/>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port Destination</translation>
     </message>
     <message>
         <location filename="multicast_statistics_dialog.cpp" line="184"/>
@@ -9697,7 +9708,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="packet_comment_dialog.cpp" line="32"/>
         <source>Packet Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>Commentaire du paquet</translation>
     </message>
 </context>
 <context>
@@ -9715,7 +9726,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="packet_dialog.cpp" line="57"/>
         <source>Packet %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Paquet %1</translation>
     </message>
     <message>
         <location filename="packet_dialog.cpp" line="133"/>
@@ -9821,12 +9832,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="packet_list.cpp" line="631"/>
         <source>Column Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Préferences de la colonne</translation>
     </message>
     <message>
         <location filename="packet_list.cpp" line="632"/>
         <source>Edit Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Éditer la colonne</translation>
     </message>
     <message>
         <location filename="packet_list.cpp" line="633"/>
@@ -9836,12 +9847,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="packet_list.cpp" line="634"/>
         <source>Resolve Names</source>
-        <translation type="unfinished"></translation>
+        <translation>Résoudre les noms</translation>
     </message>
     <message>
         <location filename="packet_list.cpp" line="639"/>
         <source>Remove This Column</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer cette colonne</translation>
     </message>
     <message>
         <location filename="packet_list.cpp" line="995"/>
@@ -9945,7 +9956,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="800"/>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>Parcourir</translation>
     </message>
     <message>
         <location filename="manage_interfaces_dialog.cpp" line="853"/>
@@ -9963,7 +9974,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="preference_editor_frame.ui" line="32"/>
         <source>…</source>
-        <translation type="unfinished"></translation>
+        <translation>…</translation>
     </message>
     <message>
         <location filename="preference_editor_frame.ui" line="52"/>
@@ -10042,7 +10053,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="preferences_dialog.cpp" line="269"/>
         <source>Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Préférences</translation>
     </message>
     <message>
         <location filename="preferences_dialog.cpp" line="492"/>
@@ -10095,12 +10106,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="print_dialog.cpp" line="78"/>
         <source>&amp;Print</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Imprimer</translation>
     </message>
     <message>
         <location filename="print_dialog.cpp" line="120"/>
         <source>Page &amp;Setup</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Mise en Page</translation>
     </message>
     <message>
         <location filename="print_dialog.cpp" line="155"/>
@@ -10207,12 +10218,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="382"/>
+        <location filename="proto_tree.cpp" line="384"/>
         <source>, 1 byte</source>
         <translation>, 1 octet</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="384"/>
+        <location filename="proto_tree.cpp" line="386"/>
         <source>, %1 bytes</source>
         <translation>, %1 octets</translation>
     </message>
@@ -10642,7 +10653,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="module_preferences_scroll_area.cpp" line="217"/>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>Parcourir</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="133"/>
@@ -10687,12 +10698,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="461"/>
         <source>Pkts Sent</source>
-        <translation type="unfinished"></translation>
+        <translation>Pqts Envoyés</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="462"/>
         <source>Pkts Received</source>
-        <translation type="unfinished"></translation>
+        <translation>Pqts Reçus</translation>
     </message>
     <message>
         <location filename="wlan_statistics_dialog.cpp" line="463"/>
@@ -10702,7 +10713,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="101"/>
         <source>Wrong sequence number</source>
-        <translation type="unfinished"></translation>
+        <translation>Mauvais numéro de séquence</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="104"/>
@@ -10915,12 +10926,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="339"/>
+        <location filename="main_welcome.cpp" line="344"/>
         <source>Show in Finder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="341"/>
+        <location filename="main_welcome.cpp" line="346"/>
         <source>Show in Folder</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11510,17 +11521,17 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.ui" line="345"/>
         <source>CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="348"/>
         <source>Save both tables as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder les deux tables en CSV.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="353"/>
         <source>Forward Stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Transférer le flux CSV</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="356"/>
@@ -11545,7 +11556,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.ui" line="372"/>
         <source>Save the graph image.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder le graphique.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="377"/>
@@ -11555,7 +11566,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.ui" line="380"/>
         <source>Select the corresponding packet in the packet list.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélectionner le paquet correspondant dans la liste des paquets.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.ui" line="383"/>
@@ -11630,17 +11641,17 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="566"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="567"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="568"/>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="570"/>
@@ -11696,7 +11707,7 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1044"/>
         <source>;;Raw (*.raw)</source>
-        <translation type="unfinished"></translation>
+        <translation>;;Raw (*.raw)</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1061"/>
@@ -11738,12 +11749,12 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1319"/>
         <source>Save CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Sauvegarder le CSV</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1325"/>
         <source>Comma-separated values (*.csv)</source>
-        <translation type="unfinished"></translation>
+        <translation>Comma-separated values (*.csv)</translation>
     </message>
 </context>
 <context>
@@ -11757,22 +11768,22 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_player_dialog.ui" line="32"/>
         <source>Source Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresse Source</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="37"/>
         <source>Source Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port Source</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="42"/>
         <source>Destination Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresse Destination</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="47"/>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port Destination</translation>
     </message>
     <message>
         <location filename="rtp_player_dialog.ui" line="52"/>
@@ -12102,22 +12113,22 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="rtp_stream_dialog.ui" line="45"/>
         <source>Source Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresse Source</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="50"/>
         <source>Source Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port Source</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="55"/>
         <source>Destination Address</source>
-        <translation type="unfinished"></translation>
+        <translation>Adresse Destination</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="60"/>
         <source>Destination Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Port Destination</translation>
     </message>
     <message>
         <location filename="rtp_stream_dialog.ui" line="65"/>
@@ -13191,17 +13202,17 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="sctp_graph_dialog.cpp" line="443"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
         <location filename="sctp_graph_dialog.cpp" line="444"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
         <location filename="sctp_graph_dialog.cpp" line="445"/>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
         <location filename="sctp_graph_dialog.cpp" line="447"/>
@@ -13394,17 +13405,17 @@ Voulez-vous arrêter la capture et enregistrer les paquets capturés</translatio
     <message>
         <location filename="sequence_dialog.cpp" line="296"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
         <location filename="sequence_dialog.cpp" line="297"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
         <location filename="sequence_dialog.cpp" line="298"/>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
         <location filename="sequence_dialog.cpp" line="300"/>
@@ -14422,17 +14433,17 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <location filename="tcp_stream_dialog.cpp" line="1028"/>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="1029"/>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="1030"/>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
         <location filename="tcp_stream_dialog.cpp" line="1032"/>

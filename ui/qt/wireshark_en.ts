@@ -6145,45 +6145,45 @@ for filter files: %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="345"/>
+        <location filename="main_status_bar.cpp" line="353"/>
         <source>Profile: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="403"/>
+        <location filename="main_status_bar.cpp" line="411"/>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
         <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="409"/>
+        <location filename="main_status_bar.cpp" line="417"/>
         <source> %1 Marked: %2 (%3%)</source>
         <oldsource> %1 Dropped: %2</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="415"/>
+        <location filename="main_status_bar.cpp" line="423"/>
         <source> %1 Dropped: %2 (%3%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="421"/>
+        <location filename="main_status_bar.cpp" line="429"/>
         <source> %1 Ignored: %2 (%3%)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="429"/>
+        <location filename="main_status_bar.cpp" line="437"/>
         <source> %1  Load time: %2:%3.%4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="437"/>
-        <location filename="main_status_bar.cpp" line="459"/>
+        <location filename="main_status_bar.cpp" line="445"/>
+        <location filename="main_status_bar.cpp" line="467"/>
         <source>No Packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="455"/>
+        <location filename="main_status_bar.cpp" line="463"/>
         <source>Packets: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6292,32 +6292,32 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="204"/>
+        <location filename="main_welcome.cpp" line="209"/>
         <source>You are running Wireshark </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="206"/>
+        <location filename="main_welcome.cpp" line="211"/>
         <source>.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="209"/>
+        <location filename="main_welcome.cpp" line="214"/>
         <source> You receive automatic updates.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="211"/>
+        <location filename="main_welcome.cpp" line="216"/>
         <source> You have disabled automatic updates.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="283"/>
+        <location filename="main_welcome.cpp" line="288"/>
         <source>not found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="356"/>
+        <location filename="main_welcome.cpp" line="361"/>
         <source>Copy file path</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7196,7 +7196,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="1450"/>
-        <source>Meta+Alt+M</source>
+        <source>Ctrl+Alt+M</source>
+        <oldsource>Meta+Alt+M</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7211,7 +7212,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="1461"/>
-        <source>Meta+Shift+N</source>
+        <source>Ctrl+Shift+N</source>
+        <oldsource>Meta+Shift+N</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7226,7 +7228,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="1472"/>
-        <source>Meta+Shift+B</source>
+        <source>Ctrl+Shift+B</source>
+        <oldsource>Meta+Shift+B</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8251,7 +8254,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2106"/>
-        <source>Meta+Alt+1</source>
+        <source>Ctrl+Alt+1</source>
+        <oldsource>Meta+Alt+1</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8271,7 +8275,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2131"/>
-        <source>Meta+Alt+2</source>
+        <source>Ctrl+Alt+2</source>
+        <oldsource>Meta+Alt+2</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8286,7 +8291,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2145"/>
-        <source>Meta+Alt+3</source>
+        <source>Ctrl+Alt+3</source>
+        <oldsource>Meta+Alt+3</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8296,7 +8302,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2159"/>
-        <source>Meta+Alt+4</source>
+        <source>Ctrl+Alt+4</source>
+        <oldsource>Meta+Alt+4</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8311,7 +8318,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2173"/>
-        <source>Meta+Alt+5</source>
+        <source>Ctrl+Alt+5</source>
+        <oldsource>Meta+Alt+5</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8326,7 +8334,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2187"/>
-        <source>Meta+Alt+6</source>
+        <source>Ctrl+Alt+6</source>
+        <oldsource>Meta+Alt+6</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8341,7 +8350,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2201"/>
-        <source>Meta+Alt+7</source>
+        <source>Ctrl+Alt+7</source>
+        <oldsource>Meta+Alt+7</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8366,7 +8376,8 @@ a:hover {
     </message>
     <message>
         <location filename="main_window.ui" line="2226"/>
-        <source>Meta+Alt+8</source>
+        <source>Ctrl+Alt+8</source>
+        <oldsource>Meta+Alt+8</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8910,84 +8921,84 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1533"/>
+        <location filename="main_window.cpp" line="1536"/>
         <source>You have unsaved packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1534"/>
+        <location filename="main_window.cpp" line="1537"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1537"/>
-        <location filename="main_window.cpp" line="1550"/>
+        <location filename="main_window.cpp" line="1540"/>
+        <location filename="main_window.cpp" line="1553"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1539"/>
+        <location filename="main_window.cpp" line="1542"/>
         <source>Do you want to save the captured packets</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1541"/>
-        <location filename="main_window.cpp" line="1551"/>
+        <location filename="main_window.cpp" line="1544"/>
+        <location filename="main_window.cpp" line="1554"/>
         <source>?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1553"/>
+        <location filename="main_window.cpp" line="1556"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1556"/>
+        <location filename="main_window.cpp" line="1559"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1562"/>
+        <location filename="main_window.cpp" line="1565"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1574"/>
+        <location filename="main_window.cpp" line="1577"/>
         <source>Stop and Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1582"/>
+        <location filename="main_window.cpp" line="1585"/>
         <source>Stop and Quit without Saving</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1585"/>
+        <location filename="main_window.cpp" line="1588"/>
         <source>Quit without Saving</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1590"/>
+        <location filename="main_window.cpp" line="1593"/>
         <source>Stop and Continue without Saving</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1593"/>
+        <location filename="main_window.cpp" line="1596"/>
         <source>Continue &amp;without Saving</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1850"/>
+        <location filename="main_window.cpp" line="1848"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1868"/>
+        <location filename="main_window.cpp" line="1861"/>
         <source>The Wireshark Network Analyzer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1882"/>
+        <location filename="main_window.cpp" line="1880"/>
         <source>Capturing from %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9012,88 +9023,88 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1053"/>
+        <location filename="main_window_slots.cpp" line="1083"/>
         <source>Clear Menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1544"/>
+        <location filename="main_window_slots.cpp" line="1574"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1701"/>
+        <location filename="main_window_slots.cpp" line="1731"/>
         <source>Export Selected Packet Bytes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1703"/>
+        <location filename="main_window_slots.cpp" line="1733"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1760"/>
+        <location filename="main_window_slots.cpp" line="1790"/>
         <source>No Keys</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1761"/>
+        <location filename="main_window_slots.cpp" line="1791"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1767"/>
+        <location filename="main_window_slots.cpp" line="1797"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1772"/>
+        <location filename="main_window_slots.cpp" line="1802"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1910"/>
+        <location filename="main_window_slots.cpp" line="1940"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2317"/>
-        <location filename="main_window_slots.cpp" line="3350"/>
+        <location filename="main_window_slots.cpp" line="2347"/>
+        <location filename="main_window_slots.cpp" line="3380"/>
         <source>Unable to build conversation filter.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2462"/>
+        <location filename="main_window_slots.cpp" line="2492"/>
         <source>No filter available. Try another </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3357"/>
+        <location filename="main_window_slots.cpp" line="3387"/>
         <source>Error compiling filter for this conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3366"/>
+        <location filename="main_window_slots.cpp" line="3396"/>
         <source>No previous/next packet in conversation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3443"/>
+        <location filename="main_window_slots.cpp" line="3473"/>
         <source>No Interface Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3450"/>
+        <location filename="main_window_slots.cpp" line="3480"/>
         <source> before starting a new capture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3655"/>
+        <location filename="main_window_slots.cpp" line="3685"/>
         <source>Wiki Page for %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3656"/>
+        <location filename="main_window_slots.cpp" line="3686"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10127,12 +10138,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="382"/>
+        <location filename="proto_tree.cpp" line="384"/>
         <source>, 1 byte</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="384"/>
+        <location filename="proto_tree.cpp" line="386"/>
         <source>, %1 bytes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10835,12 +10846,12 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="339"/>
+        <location filename="main_welcome.cpp" line="344"/>
         <source>Show in Finder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="341"/>
+        <location filename="main_welcome.cpp" line="346"/>
         <source>Show in Folder</source>
         <translation type="unfinished"></translation>
     </message>
