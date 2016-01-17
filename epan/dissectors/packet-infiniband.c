@@ -7387,7 +7387,25 @@ void proto_reg_handoff_infiniband(void)
 
     ipv6_handle               = find_dissector("ipv6");
     data_handle               = find_dissector("data");
-    eth_handle                = find_dissector("eth");
+
+    /*
+     * I haven't found an official spec for EoIB, but slide 10
+     * of
+     *
+     *    http://downloads.openfabrics.org/Media/Sonoma2009/Sonoma_2009_Tues_converged-net-bridging.pdf
+     *
+     * shows the "Eth Payload" following the "Eth Header" and optional
+     * "Vlan tag", and doesn't show an FCS; "Payload" generally
+     * refers to the data transported by the protocol, which wouldn't
+     * include the FCS.
+     *
+     * In addition, the capture attached to bug 5061 includes no
+     * Ethernet FCS.
+     *
+     * So we assume the Ethernet frames carried by EoIB don't include
+     * the Ethernet FCS.
+     */
+    eth_handle                = find_dissector("eth_withoutfcs");
     ethertype_dissector_table = find_dissector_table("ethertype");
 
     /* create and announce an anonymous RoCE dissector */
