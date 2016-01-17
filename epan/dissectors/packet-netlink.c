@@ -254,7 +254,7 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 	guint16     protocol, hatype;
 	proto_item *ti;
 	tvbuff_t   *next_tvb;
-	proto_tree *fh_tree = NULL;
+	proto_tree *fh_tree;
 
 	int offset;
 
@@ -265,11 +265,9 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *_data
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Netlink");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree) {
-		ti = proto_tree_add_protocol_format(tree, hfi_netlink->id, tvb, 0,
-				SLL_HEADER_SIZE, "Linux netlink (cooked header)");
-		fh_tree = proto_item_add_subtree(ti, ett_netlink_cooked);
-	}
+	ti = proto_tree_add_protocol_format(tree, hfi_netlink->id, tvb, 0,
+			SLL_HEADER_SIZE, "Linux netlink (cooked header)");
+	fh_tree = proto_item_add_subtree(ti, ett_netlink_cooked);
 
 	/* Unused 2B */
 	offset = 2;
