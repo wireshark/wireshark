@@ -190,6 +190,8 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint32     adapter_id;
     gint        previous_proto;
 
+    interface_id = HCI_INTERFACE_DEFAULT;
+    adapter_id = HCI_ADAPTER_DEFAULT;
     previous_proto = (GPOINTER_TO_INT(wmem_list_frame_data(wmem_list_frame_prev(wmem_list_tail(pinfo->layers)))));
     if (data && previous_proto == proto_btl2cap) {
         btl2cap_data_t *l2cap_data;
@@ -199,9 +201,6 @@ dissect_btsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             interface_id = l2cap_data->interface_id;
             adapter_id = l2cap_data->adapter_id;
         }
-    } else {
-        interface_id = HCI_INTERFACE_DEFAULT;
-        adapter_id = HCI_ADAPTER_DEFAULT;
     }
 
     ti = proto_tree_add_item(tree, proto_btsmp, tvb, 0, tvb_captured_length(tvb), ENC_NA);
