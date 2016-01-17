@@ -107,6 +107,8 @@ static gint detect_version(FILE_T fh, int *err, gchar **err_info)
             entry_len = sizeof(*log_entry_v2) + payload_length;
             if (hdr_size != sizeof(*log_entry_v2))
                 continue;
+        } else {
+            continue;
         }
 
         if (!wtap_read_bytes(fh, buffer + read_sofar, entry_len - read_sofar, err, err_info)) {

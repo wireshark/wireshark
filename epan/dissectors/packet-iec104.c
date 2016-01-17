@@ -1393,6 +1393,7 @@ static int dissect_iec104apci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 	res = wmem_strbuf_new_label(wmem_packet_scope());
 
+	Start = 0;
 	for (Off = 0; Off <= TcpLen - 2; Off++) {
 		Start = tvb_get_guint8(tvb, Off);
 		if (Start == APCI_START) {

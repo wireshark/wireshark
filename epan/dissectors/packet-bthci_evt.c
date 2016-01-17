@@ -3949,7 +3949,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     wmem_list_t         *opcode_list;
     wmem_list_frame_t   *opcode_list_frame;
     bthci_cmd_data_t    *lastest_bthci_cmd_data = NULL;
-    opcode_list_data_t  *opcode_list_data;
+    opcode_list_data_t  *opcode_list_data = NULL;
     guint32              opcode = G_MAXUINT32;
 
     /* Reject the packet if data is NULL */

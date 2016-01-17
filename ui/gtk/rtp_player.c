@@ -1879,7 +1879,7 @@ play_channels(void)
 			PaHostApiIndex default_host_api_index = Pa_GetDefaultHostApi();
 
 			PaHostApiIndex host_api_index;
-			const PaHostApiInfo *host_api_info;
+			const PaHostApiInfo *host_api_info = NULL;
 
 			for (host_api_index=0; host_api_index<host_api_count; host_api_index++)
 			{
