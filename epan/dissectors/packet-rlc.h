@@ -22,6 +22,8 @@
 #ifndef PACKET_RLC_H
 #define PACKET_RLC_H
 
+#include <wiretap/wtap.h>
+
 /* Do not change enum order and append only to keep
    backward compatibility with UDP framing format */
 enum rlc_mode {
@@ -52,7 +54,7 @@ typedef struct rlc_info
 
 /* Reset the specified channel's reassembly data, useful for when a sequence
  * resets on transport channel swap. */
-void rlc_reset_channel(enum rlc_mode mode, guint8 rbid, guint8 dir, guint32 urnti);
+void rlc_reset_channel(enum rlc_mode mode, guint8 rbid, guint8 dir, guint32 urnti, struct atm_phdr *atm);
 
 /* Tells other functions if this packet is ciphered or not */
 gboolean rlc_is_ciphered(packet_info * pinfo);
