@@ -304,6 +304,7 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
 static gboolean
 iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
 {
+  gboolean   is_iseries = FALSE;
   guint      line;
   int        num_items_scanned;
   char       buf[ISERIES_LINE_LENGTH], protocol[9];
@@ -311,19 +312,19 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
 
   /* Save trace format for passing between packets */
   iseries                = (iseries_t *) g_malloc (sizeof (iseries_t));
-  wth->priv              = (void *) iseries;
   iseries->have_date     = FALSE;
   iseries->format        = format;
 
   for (line = 0; line < ISERIES_HDR_LINES_TO_CHECK; line++)
     {
+      memset(buf, 0x0, sizeof(buf));
       if (file_gets (buf, ISERIES_LINE_LENGTH, wth->fh) == NULL)
         {
           /* EOF or error. */
           *err = file_error (wth->fh, err_info);
           if (*err == WTAP_ERR_SHORT_READ)
             *err = 0;
-          return FALSE;
+          break;
         }
 
         /*
@@ -339,8 +340,11 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
                                    protocol);
         if (num_items_scanned == 1)
           {
-            if (memcmp (protocol, "ETHERNET", 8) != 0)
-              return FALSE;
+            if (memcmp (protocol, "ETHERNET", 8) == 0)
+              {
+                *err = 0;
+                is_iseries = TRUE;
+              }
           }
 
         /*
@@ -356,8 +360,13 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
             iseries->have_date = TRUE;
           }
     }
-  *err = 0;
-  return TRUE;
+
+  if (is_iseries)
+    wth->priv = (void *) iseries;
+  else
+    g_free(iseries);
+
+  return is_iseries;
 }
 
 /*
