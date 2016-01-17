@@ -245,7 +245,7 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
 
         if (file_seek (wth->fh, 0, SEEK_SET, err) == -1)
           {
-            return WTAP_OPEN_NOT_MINE;
+            return WTAP_OPEN_ERROR;
           }
         return WTAP_OPEN_MINE;
       }
