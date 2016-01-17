@@ -201,6 +201,15 @@ proto_reg_handoff_trill(void)
   trill_handle = new_create_dissector_handle(dissect_trill, proto_trill);
   dissector_add_uint("ethertype", ETHERTYPE_TRILL, trill_handle);
 
-  eth_dissector = find_dissector( "eth" ) ;
+  /*
+   * RFC 6325, section 4.1.4 "Frame Check Sequence (FCS)", says
+   *
+   * "Thus, when a frame is encapsulated, the original FCS is not
+   * included but is discarded."
+   *
+   * meaning that the inner Ethernet frame does *not* include an
+   * FCS.
+   */
+  eth_dissector = find_dissector( "eth_withoutfcs" ) ;
 }
 
