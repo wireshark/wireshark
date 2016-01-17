@@ -7828,6 +7828,9 @@ ktickets-rest    4331/tcp # ktickets REST API for event management and ticketing
 ahsp             4333/tcp # ArrowHead Service Protocol (AHSP) [QuantuMatriX_Technologies] [Matthew_Schultz] 2014-04-10
 ahsp             4333/udp # ArrowHead Service Protocol (AHSP) [QuantuMatriX_Technologies] [Matthew_Schultz] 2014-04-10
 ahsp             4333/sctp # ArrowHead Service Protocol (AHSP) [QuantuMatriX_Technologies] [Matthew_Schultz] 2014-04-10
+netconf-ch-ssh   4334/tcp # NETCONF Call Home (SSH) [IESG] [IETF_Chair] 2016-01-12 [RFC-ietf-netconf-call-home-17]
+netconf-ch-tls   4335/tcp # NETCONF Call Home (TLS) [IESG] [IETF_Chair] 2016-01-12 [RFC-ietf-netconf-call-home-17]
+restconf-ch-tls  4336/tcp # RESTCONF Call Home (TLS) [IESG] [IETF_Chair] 2016-01-12 [RFC-ietf-netconf-call-home-17]
 gaia             4340/tcp # Gaia Connector Protocol [Philippe_Detournay] [Philippe_Detournay] 2007-11-12
 gaia             4340/udp # Gaia Connector Protocol [Philippe_Detournay] [Philippe_Detournay] 2007-11-12
 lisp-data        4341/tcp # LISP Data Packets [Dino_Farinacci] [Dino_Farinacci] 2007-11-12
@@ -8815,6 +8818,7 @@ personal-agent   5555/udp # Personal Agent [Jackie_Wu] [Jackie_Wu] Known UNAUTHO
 freeciv          5556/tcp # Freeciv gameplay [Reinier_Post_and_Pau] [Reinier_Post_and_Pau] 2006-01 Known Unauthorized Use on port 5556
 freeciv          5556/udp # Freeciv gameplay [Reinier_Post_and_Pau] [Reinier_Post_and_Pau] 2006-01 Known Unauthorized Use on port 5556
 farenet          5557/tcp # Sandlab FARENET [Kay_T_Labinsky] [Kay_T_Labinsky] 2010-05-03
+hpe-dp-bura      5565/tcp # HPE Advanced BURA [Hewlett_Packard_Enterprise] [Silvia_Veronese] 2016-01-13
 westec-connect   5566/tcp # Westec Connect [Jon_Bolen] [Jon_Bolen] 2009-03-18
 dof-dps-mc-sec   5567/tcp # DOF Protocol Stack Multicast/Secure Transport [OpenDOF] [Bryant_Eastham] 2004-11 2015-04-23
 dof-dps-mc-sec   5567/udp # DOF Protocol Stack Multicast/Secure Transport [OpenDOF] [Bryant_Eastham] 2004-11 2015-04-23
@@ -10002,6 +10006,8 @@ lm-webwatcher    8208/tcp # LM Webwatcher [Chris_Flynn] [Chris_Flynn]
 lm-webwatcher    8208/udp # LM Webwatcher [Chris_Flynn] [Chris_Flynn]
 rexecj           8230/tcp # RexecJ Server [Curtiss_Howard] [Curtiss_Howard] 2004-11
 rexecj           8230/udp # RexecJ Server [Curtiss_Howard] [Curtiss_Howard] 2004-11
+hncp-udp-port    8231/udp # HNCP [IESG] [IETF_Chair] 2016-01-13 [RFC-ietf-homenet-hncp-10]
+hncp-dtls-port   8232/udp # HNCP over DTLS [IESG] [IETF_Chair] 2016-01-13 [RFC-ietf-homenet-hncp-10]
 synapse-nhttps   8243/tcp # Synapse Non Blocking HTTPS [Ruwan_Linton] [Ruwan_Linton] 2008-07-10
 synapse-nhttps   8243/udp # Synapse Non Blocking HTTPS [Ruwan_Linton] [Ruwan_Linton] 2008-07-10
 pando-sec        8276/tcp # Pando Media Controlled Distribution [Laird_Popkin] [Laird_Popkin] 2008-02-27
@@ -11435,6 +11441,7 @@ qdb2service     45825/tcp # Qpuncture Data Access Service [Michael_Yun] [Michael
 qdb2service     45825/udp # Qpuncture Data Access Service [Michael_Yun] [Michael_Yun] 2007-10-24
 ssr-servermgr   45966/tcp # SSRServerMgr [Jeremy_Gilliat] [Jeremy_Gilliat]
 ssr-servermgr   45966/udp # SSRServerMgr [Jeremy_Gilliat] [Jeremy_Gilliat]
+inedo           46336/tcp # Listen port used for Inedo agent communication [Inedo] [Steve_Dennis] 2016-01-12
 spremotetablet  46998/tcp # Connection between a desktop computer or server and a signature tablet to capture handwritten signatures [SOFTPRO_GmbH] [Christoph_Hipp] 2012-07-19 2013-08-02
 mediabox        46999/tcp # MediaBox Server [Alexander_Graef] [Alexander_Graef] 2004-11
 mediabox        46999/udp # MediaBox Server [Alexander_Graef] [Alexander_Graef] 2004-11

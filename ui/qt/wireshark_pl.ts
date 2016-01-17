@@ -1051,88 +1051,88 @@
         <translation>Wyjście</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="176"/>
+        <location filename="capture_interfaces_dialog.ui" line="217"/>
         <source>Output format:</source>
         <translation>Format wyjściowy:</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="196"/>
+        <location filename="capture_interfaces_dialog.ui" line="224"/>
         <source>pcap-ng</source>
         <translation>pcap-ng</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="203"/>
+        <location filename="capture_interfaces_dialog.ui" line="231"/>
         <source>pcap</source>
         <translation>pcap</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="259"/>
+        <location filename="capture_interfaces_dialog.ui" line="195"/>
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
         <translation>Przeglądaj…</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="266"/>
+        <location filename="capture_interfaces_dialog.ui" line="202"/>
         <source>File:</source>
         <translation>Plik:</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="295"/>
+        <location filename="capture_interfaces_dialog.ui" line="256"/>
         <source>Create a new file automatically after…</source>
         <oldsource>Create a new file automatically after...</oldsource>
         <translation>Stwórz nowy plik automatycznie po…</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="339"/>
-        <location filename="capture_interfaces_dialog.ui" line="745"/>
+        <location filename="capture_interfaces_dialog.ui" line="300"/>
+        <location filename="capture_interfaces_dialog.ui" line="693"/>
         <source>megabytes</source>
         <oldsource>Megabytes</oldsource>
         <translation>megabajty</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="334"/>
-        <location filename="capture_interfaces_dialog.ui" line="740"/>
+        <location filename="capture_interfaces_dialog.ui" line="295"/>
+        <location filename="capture_interfaces_dialog.ui" line="688"/>
         <source>kilobytes</source>
         <oldsource>Kilobytes</oldsource>
         <translation>kilobajty</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="357"/>
-        <location filename="capture_interfaces_dialog.ui" line="708"/>
+        <location filename="capture_interfaces_dialog.ui" line="318"/>
+        <location filename="capture_interfaces_dialog.ui" line="656"/>
         <source>seconds</source>
         <translation>sekundach</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="362"/>
-        <location filename="capture_interfaces_dialog.ui" line="713"/>
+        <location filename="capture_interfaces_dialog.ui" line="323"/>
+        <location filename="capture_interfaces_dialog.ui" line="661"/>
         <source>minutes</source>
         <translation>minutach</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="367"/>
-        <location filename="capture_interfaces_dialog.ui" line="718"/>
+        <location filename="capture_interfaces_dialog.ui" line="328"/>
+        <location filename="capture_interfaces_dialog.ui" line="666"/>
         <source>hours</source>
         <translation>godzin</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="645"/>
-        <location filename="capture_interfaces_dialog.ui" line="793"/>
+        <location filename="capture_interfaces_dialog.ui" line="593"/>
+        <location filename="capture_interfaces_dialog.ui" line="741"/>
         <source>Stop capturing after the specified number of packets have been captured.</source>
         <translation>Zatrzymaj przechwytywanie po przekroczeniu ustalonej liczby pakietów do przechwycenia.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="661"/>
-        <location filename="capture_interfaces_dialog.ui" line="736"/>
+        <location filename="capture_interfaces_dialog.ui" line="609"/>
+        <location filename="capture_interfaces_dialog.ui" line="684"/>
         <source>Stop capturing after the specified amount of data has been captured.</source>
         <translation>Zatrzymaj przechwytywanie po przekroczeniu ustalonego rozmiaru danych.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="677"/>
+        <location filename="capture_interfaces_dialog.ui" line="625"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zatrzymaj przechwytywanie po przekroczeniu ustalonego rozmiaru danych.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="687"/>
+        <location filename="capture_interfaces_dialog.ui" line="635"/>
         <source>packets</source>
         <translation>pakietach</translation>
     </message>
@@ -1189,152 +1189,152 @@
         <translation>Kompiluj BPF</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="241"/>
+        <location filename="capture_interfaces_dialog.ui" line="177"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the file name to which captured data will be written. By default, a temporary file will be used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wprowadź nazwę pliku do którego przechycone dane będą zapisane. Domyślnie będzie użyty plik tymczasowy.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="247"/>
+        <location filename="capture_interfaces_dialog.ui" line="183"/>
         <source>Capture to a permanent file</source>
         <translation>Przechwytuj do pliku</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="292"/>
+        <location filename="capture_interfaces_dialog.ui" line="253"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zamiast używać pojedyńczego pliku przechwytywania, wiele plików będzie tworzonych.&lt;/p&gt;&lt;p&gt;Użyte nazwy plików będą zawierać zwiększający się liczbę i czas rozpoczęcia przechwytywania.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="307"/>
+        <location filename="capture_interfaces_dialog.ui" line="268"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If the selected file size is exceeded, capturing switches to the next file.&lt;/p&gt;&lt;p&gt;PLEASE NOTE: One option MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Jeśli wybrany rozmiar pliku zostanie przekroczony to przechwytywanie będzie kontynuowane do nowego pliku.&lt;/p&gt;&lt;p&gt;UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="329"/>
-        <location filename="capture_interfaces_dialog.ui" line="352"/>
-        <location filename="capture_interfaces_dialog.ui" line="375"/>
+        <location filename="capture_interfaces_dialog.ui" line="290"/>
+        <location filename="capture_interfaces_dialog.ui" line="313"/>
+        <location filename="capture_interfaces_dialog.ui" line="336"/>
         <source>If the selected file size is exceeded, capturing switches to the next file.
 PLEASE NOTE: One option MUST be selected.</source>
         <translation>Jeśli wybrany rozmiar pliku zostanie przekroczony to  przechwytywanie będzie kontynuuowane do nowego pliku.
 UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="344"/>
-        <location filename="capture_interfaces_dialog.ui" line="750"/>
+        <location filename="capture_interfaces_dialog.ui" line="305"/>
+        <location filename="capture_interfaces_dialog.ui" line="698"/>
         <source>gigabytes</source>
         <oldsource>Gigabytes</oldsource>
         <translation>gigabajty</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="443"/>
+        <location filename="capture_interfaces_dialog.ui" line="391"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Kiedy przechwytywanie jest przekierowywane do nowego pliku i liczba plików zostanie przekroczona to skasuj najstarszy plik zostanie skasowany.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="446"/>
+        <location filename="capture_interfaces_dialog.ui" line="394"/>
         <source>Use a ring buffer with </source>
         <translation>Użyj bufora cyklicznego z </translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="469"/>
-        <location filename="capture_interfaces_dialog.ui" line="809"/>
+        <location filename="capture_interfaces_dialog.ui" line="417"/>
+        <location filename="capture_interfaces_dialog.ui" line="757"/>
         <source>files</source>
         <translation>plików</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="507"/>
+        <location filename="capture_interfaces_dialog.ui" line="455"/>
         <source>Options</source>
         <translation>Opcje</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="515"/>
+        <location filename="capture_interfaces_dialog.ui" line="463"/>
         <source>Display Options</source>
         <translation>Opcje wyświetlania</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="524"/>
+        <location filename="capture_interfaces_dialog.ui" line="472"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Using this option will show the captured packets immediately on the main screen. Please note: this will slow down capturing, so increased packet drops might appear.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Wybierając tą opcję przechwytywane pakiety będą bezpośrednio wyświetlane na ekranie. Uwaga: to może spowalniać przechwytywanie co może skutkować zwiększoną możliwością wystąpienia porzucenia pakietów.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="527"/>
+        <location filename="capture_interfaces_dialog.ui" line="475"/>
         <source>Update list of packets in real-time</source>
         <translation>Aktualizuj listę pakietów czasie rzeczywistym</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="534"/>
+        <location filename="capture_interfaces_dialog.ui" line="482"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will scroll the &amp;quot;Packet List&amp;quot; automatically to the latest captured packet, when the &amp;quot;Update list of packets in real-time&amp;quot; option is used.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ta opcja będzie powodowała automatyczne przewijanie &amp;quot;Listy Pakietów&amp;quot;, gdy opcja &amp;quot;Aktualizowania Listy Pakietów w czasie rzeczywistym&amp;quot; jest używana.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="537"/>
+        <location filename="capture_interfaces_dialog.ui" line="485"/>
         <source>Automatically scroll during live capture</source>
         <translation>Automatyczne przewijanie podczas przechwytywania</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="544"/>
+        <location filename="capture_interfaces_dialog.ui" line="492"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Pokazuj okno z informacjami przechwytywania podcas przechwytywania.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="547"/>
+        <location filename="capture_interfaces_dialog.ui" line="495"/>
         <source>Show extra capture information dialog</source>
         <translation>Pokazuj dodatkowy okno z informacjami przechwytywania</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="570"/>
+        <location filename="capture_interfaces_dialog.ui" line="518"/>
         <source>Name Resolution</source>
         <translation>Rozwiązywanie nazw</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="579"/>
+        <location filename="capture_interfaces_dialog.ui" line="527"/>
         <source>Perform MAC layer name resolution while capturing.</source>
         <translation>Rozwiązuj nazwy MAC podczas przechwytywania.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="582"/>
+        <location filename="capture_interfaces_dialog.ui" line="530"/>
         <source>Resolve MAC Addresses</source>
         <translation>Rozwiązuj adresy MAC</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="589"/>
+        <location filename="capture_interfaces_dialog.ui" line="537"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perform network layer name resolution while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rozwiązuj nazwy sieciowe podczas przechwytywanie.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="592"/>
+        <location filename="capture_interfaces_dialog.ui" line="540"/>
         <source>Resolve network names</source>
         <translation>Rozwiązuj nazwy sieciowe</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="599"/>
+        <location filename="capture_interfaces_dialog.ui" line="547"/>
         <source>Perform transport layer name resolution while capturing.</source>
         <translation>Rozwiązuj nazwy transportu podczas przechwytywania.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="602"/>
+        <location filename="capture_interfaces_dialog.ui" line="550"/>
         <source>Resolve transport names</source>
         <translation>Rozwiązuj nazwy transportu</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="630"/>
+        <location filename="capture_interfaces_dialog.ui" line="578"/>
         <source>Stop capture automatically after…</source>
         <oldsource>Stop capture automatically after...</oldsource>
         <translation>Zatrzymaj przechwytywanie automatycznie po…</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="694"/>
-        <location filename="capture_interfaces_dialog.ui" line="704"/>
-        <location filename="capture_interfaces_dialog.ui" line="758"/>
+        <location filename="capture_interfaces_dialog.ui" line="642"/>
+        <location filename="capture_interfaces_dialog.ui" line="652"/>
+        <location filename="capture_interfaces_dialog.ui" line="706"/>
         <source>Stop capturing after the specified amount of time has passed.</source>
         <translation>Zatrzymaj przechwytywanie po upływie ustalonego czasu.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="726"/>
+        <location filename="capture_interfaces_dialog.ui" line="674"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zatrzymaj przechwytywanie po przekroczeniu ustalonej liczby pakietów do przechwycenia.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.ui" line="816"/>
+        <location filename="capture_interfaces_dialog.ui" line="764"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zatrzymaj przechwytywanie po stworzeniu określonej liczby plików.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -1349,83 +1349,88 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Start</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="260"/>
-        <location filename="capture_interfaces_dialog.cpp" line="540"/>
-        <location filename="capture_interfaces_dialog.cpp" line="546"/>
+        <location filename="capture_interfaces_dialog.cpp" line="151"/>
+        <source>Leave blank to use a temporary file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="capture_interfaces_dialog.cpp" line="264"/>
+        <location filename="capture_interfaces_dialog.cpp" line="544"/>
+        <location filename="capture_interfaces_dialog.cpp" line="550"/>
         <source>enabled</source>
         <translation>włączony</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="260"/>
-        <location filename="capture_interfaces_dialog.cpp" line="540"/>
-        <location filename="capture_interfaces_dialog.cpp" line="546"/>
+        <location filename="capture_interfaces_dialog.cpp" line="264"/>
+        <location filename="capture_interfaces_dialog.cpp" line="544"/>
+        <location filename="capture_interfaces_dialog.cpp" line="550"/>
         <source>disabled</source>
         <translation>wyłączony</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="279"/>
+        <location filename="capture_interfaces_dialog.cpp" line="283"/>
         <source>Specify a Capture File</source>
         <translation>Wybierz plik przechwytywania</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="478"/>
+        <location filename="capture_interfaces_dialog.cpp" line="482"/>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="478"/>
+        <location filename="capture_interfaces_dialog.cpp" line="482"/>
         <source>Addresses</source>
         <translation>Adresy</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="478"/>
+        <location filename="capture_interfaces_dialog.cpp" line="482"/>
         <source>Address</source>
         <translation>Adres</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="488"/>
+        <location filename="capture_interfaces_dialog.cpp" line="492"/>
         <source>no addresses</source>
         <translation>brak adresu</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="539"/>
+        <location filename="capture_interfaces_dialog.cpp" line="543"/>
         <source>default</source>
         <translation>domyślny</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="529"/>
-        <location filename="capture_interfaces_dialog.cpp" line="530"/>
-        <location filename="capture_interfaces_dialog.cpp" line="532"/>
-        <location filename="capture_interfaces_dialog.cpp" line="535"/>
-        <location filename="capture_interfaces_dialog.cpp" line="546"/>
+        <location filename="capture_interfaces_dialog.cpp" line="533"/>
+        <location filename="capture_interfaces_dialog.cpp" line="534"/>
+        <location filename="capture_interfaces_dialog.cpp" line="536"/>
+        <location filename="capture_interfaces_dialog.cpp" line="539"/>
+        <location filename="capture_interfaces_dialog.cpp" line="550"/>
         <source>n/a</source>
         <translation>n/a</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="683"/>
-        <location filename="capture_interfaces_dialog.cpp" line="691"/>
-        <location filename="capture_interfaces_dialog.cpp" line="702"/>
+        <location filename="capture_interfaces_dialog.cpp" line="687"/>
+        <location filename="capture_interfaces_dialog.cpp" line="695"/>
         <location filename="capture_interfaces_dialog.cpp" line="706"/>
-        <location filename="capture_interfaces_dialog.cpp" line="719"/>
-        <location filename="capture_interfaces_dialog.cpp" line="727"/>
+        <location filename="capture_interfaces_dialog.cpp" line="710"/>
+        <location filename="capture_interfaces_dialog.cpp" line="723"/>
+        <location filename="capture_interfaces_dialog.cpp" line="731"/>
         <source>Error</source>
         <translation>Błąd</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="684"/>
-        <location filename="capture_interfaces_dialog.cpp" line="692"/>
-        <location filename="capture_interfaces_dialog.cpp" line="720"/>
-        <location filename="capture_interfaces_dialog.cpp" line="728"/>
+        <location filename="capture_interfaces_dialog.cpp" line="688"/>
+        <location filename="capture_interfaces_dialog.cpp" line="696"/>
+        <location filename="capture_interfaces_dialog.cpp" line="724"/>
+        <location filename="capture_interfaces_dialog.cpp" line="732"/>
         <source>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</source>
         <translation>Wiele plików: Żądane wielkość pliku jest zbyt duża! Wielkość pliku nie może być większa niż 2 GiB.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="703"/>
+        <location filename="capture_interfaces_dialog.cpp" line="707"/>
         <source>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</source>
         <translation>Wiele plików: Nie wprowadzono nazwy pliku! Musisz wprowadzić nazwę pliku jeśli zamierzasz używać wielu plików.</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="707"/>
+        <location filename="capture_interfaces_dialog.cpp" line="711"/>
         <source>Multiple files: No file limit given! You must specify a file size or duration at which is switched to the next capture file
  if you want to use multiple files.</source>
         <translation>Wiele plików: Nie ustalono limitu! Musisz ustalić limit wielkości pliku lub czas przechwytywania 
@@ -1688,24 +1693,24 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
 <context>
     <name>ConversationDialog</name>
     <message>
-        <location filename="conversation_dialog.cpp" line="63"/>
+        <location filename="conversation_dialog.cpp" line="64"/>
         <source>Follow Stream</source>
         <oldsource>Follow Stream...</oldsource>
         <translation>Podążaj za strumieniem</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="64"/>
+        <location filename="conversation_dialog.cpp" line="65"/>
         <source>Follow a TCP or UDP stream.</source>
         <translation>Podążaj za strumieniem TCP lub UDP.</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="67"/>
+        <location filename="conversation_dialog.cpp" line="68"/>
         <source>Graph</source>
         <oldsource>Graph...</oldsource>
         <translation>Wykres</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="68"/>
+        <location filename="conversation_dialog.cpp" line="69"/>
         <source>Graph a TCP conversation.</source>
         <translation>Wykres konwersacji TCP.</translation>
     </message>
@@ -2117,17 +2122,17 @@ po którym zostanie użyty nowy plik przechwytywania jeśli zamierzasz używać 
 <context>
     <name>EndpointDialog</name>
     <message>
-        <location filename="endpoint_dialog.cpp" line="50"/>
+        <location filename="endpoint_dialog.cpp" line="52"/>
         <source>Map</source>
         <translation>Mapuj</translation>
     </message>
     <message>
-        <location filename="endpoint_dialog.cpp" line="51"/>
+        <location filename="endpoint_dialog.cpp" line="53"/>
         <source>Draw IPv4 or IPv6 endpoints on a map.</source>
         <translation>Dodaj punkty krańcowe IPv4 lub IPv6.</translation>
     </message>
     <message>
-        <location filename="endpoint_dialog.cpp" line="189"/>
+        <location filename="endpoint_dialog.cpp" line="191"/>
         <source>Map file error</source>
         <translation>Błąd mapowania pliku</translation>
     </message>
@@ -2629,17 +2634,17 @@ dla plików filtrów: %2.</translation>
 <context>
     <name>FollowStreamDialog</name>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="99"/>
+        <location filename="follow_stream_dialog.cpp" line="116"/>
         <source>Hide this stream</source>
         <translation>Ukryj ten strumień</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="102"/>
+        <location filename="follow_stream_dialog.cpp" line="119"/>
         <source>Print</source>
         <translation>Drukuj</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="105"/>
+        <location filename="follow_stream_dialog.cpp" line="122"/>
         <source>Save as</source>
         <oldsource>Save as...</oldsource>
         <translation>Zapisz jako</translation>
@@ -2661,47 +2666,47 @@ dla plików filtrów: %2.</translation>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="90"/>
+        <location filename="follow_stream_dialog.cpp" line="107"/>
         <source>ASCII</source>
         <translation>ASCII</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="91"/>
+        <location filename="follow_stream_dialog.cpp" line="108"/>
         <source>C Arrays</source>
         <translation>Tablica w języku C</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="92"/>
+        <location filename="follow_stream_dialog.cpp" line="109"/>
         <source>EBCDIC</source>
         <translation>EBCDIC</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="93"/>
+        <location filename="follow_stream_dialog.cpp" line="110"/>
         <source>Hex Dump</source>
         <translation>Szesnastkowo</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="94"/>
+        <location filename="follow_stream_dialog.cpp" line="111"/>
         <source>UTF-8</source>
         <translation>UTF-8</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="95"/>
+        <location filename="follow_stream_dialog.cpp" line="112"/>
         <source>YAML</source>
         <translation>YAML</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="96"/>
+        <location filename="follow_stream_dialog.cpp" line="113"/>
         <source>Raw</source>
         <translation>Dane surowe</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="149"/>
+        <location filename="follow_stream_dialog.cpp" line="166"/>
         <source>Packet %1. </source>
         <translation>Pakiet %1. </translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="152"/>
+        <location filename="follow_stream_dialog.cpp" line="169"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
         <translation>
             <numerusform>%Ln pakiet &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;klienta&lt;/span&gt;, </numerusform>
@@ -2710,7 +2715,7 @@ dla plików filtrów: %2.</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="155"/>
+        <location filename="follow_stream_dialog.cpp" line="172"/>
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
         <translation>
             <numerusform>%Ln pakiet &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;serwera&lt;/span&gt;,</numerusform>
@@ -2719,7 +2724,7 @@ dla plików filtrów: %2.</translation>
         </translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="158"/>
+        <location filename="follow_stream_dialog.cpp" line="175"/>
         <source>%Ln turn(s).</source>
         <translation>
             <numerusform>%Ln prób.</numerusform>
@@ -2728,78 +2733,81 @@ dla plików filtrów: %2.</translation>
         </translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="161"/>
+        <location filename="follow_stream_dialog.cpp" line="178"/>
         <source> Click to select.</source>
         <translation>Kliknij by wybrać.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="222"/>
+        <location filename="follow_stream_dialog.cpp" line="239"/>
         <source>Save Stream Content As</source>
         <translation>Zapisz zawartość strumiania jako</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="670"/>
+        <location filename="follow_stream_dialog.cpp" line="504"/>
         <source>
 [Stream output truncated]</source>
         <translation>Obcięto dane strumiania</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="937"/>
+        <location filename="follow_stream_dialog.cpp" line="769"/>
         <source>No capture file.</source>
         <translation>Brak pliku przechwytywania.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="937"/>
+        <location filename="follow_stream_dialog.cpp" line="769"/>
         <source>Please make sure you have a capture file opened.</source>
         <translation>Proszę sprawdzić czy masz otwarty plik przechwytywania.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="943"/>
-        <location filename="follow_stream_dialog.cpp" line="954"/>
-        <location filename="follow_stream_dialog.cpp" line="960"/>
-        <location filename="follow_stream_dialog.cpp" line="968"/>
-        <location filename="follow_stream_dialog.cpp" line="976"/>
+        <location filename="follow_stream_dialog.cpp" line="775"/>
+        <location filename="follow_stream_dialog.cpp" line="781"/>
         <source>Error following stream.</source>
         <translation>Błąd śledzenia strumienia.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="943"/>
+        <location filename="follow_stream_dialog.cpp" line="775"/>
         <source>Capture file invalid.</source>
         <translation>Nieprawidłowy plik przechwytywania.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="954"/>
+        <location filename="follow_stream_dialog.cpp" line="781"/>
+        <source>Please make sure you have a %1 packet selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="follow_stream_dialog.cpp" line="897"/>
+        <source>Follow %1 Stream (%2)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Please make sure you have a TCP packet selected.</source>
-        <translation>Proszę sprawdzić czy zaznaczono pakiet TCP.</translation>
+        <translation type="vanished">Proszę sprawdzić czy zaznaczono pakiet TCP.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="960"/>
         <source>Please make sure you have a UDP packet selected.</source>
-        <translation>Proszę sprawdzić czy zaznaczono pakiet UDP.</translation>
+        <translation type="vanished">Proszę sprawdzić czy zaznaczono pakiet UDP.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="969"/>
         <source>Please make sure you have an SSL packet selected.</source>
-        <translation>Proszę sprawdzić czy zaznaczono pakiet SSL.</translation>
+        <translation type="vanished">Proszę sprawdzić czy zaznaczono pakiet SSL.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="976"/>
         <source>Please make sure you have a HTTP packet selected.</source>
-        <translation>Proszę sprawdzić czy zaznaczono pakiet HTTP.</translation>
+        <translation type="vanished">Proszę sprawdzić czy zaznaczono pakiet HTTP.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1020"/>
+        <location filename="follow_stream_dialog.cpp" line="803"/>
         <source>Error creating filter for this stream.</source>
         <translation>Błąd tworzenia filtru dla tego strumienia.</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1021"/>
+        <location filename="follow_stream_dialog.cpp" line="804"/>
         <source>A transport or network layer header is needed.</source>
         <translation>Potrzebna jest warta trasportowa lub sieciowa nagłówka.</translation>
     </message>
     <message numerus="yes">
-        <location filename="follow_stream_dialog.cpp" line="1085"/>
-        <location filename="follow_stream_dialog.cpp" line="1104"/>
+        <location filename="follow_stream_dialog.cpp" line="834"/>
+        <location filename="follow_stream_dialog.cpp" line="846"/>
         <source>%Ln total stream(s).</source>
         <translation>
             <numerusform>%Ln wszystkich strumieni.</numerusform>
@@ -2808,41 +2816,25 @@ dla plików filtrów: %2.</translation>
         </translation>
     </message>
     <message>
-        <source>Could not read from temporary file %1: %2</source>
-        <translation type="vanished">Nie można odczytać pliku tymczasowego %1: %2</translation>
-    </message>
-    <message>
-        <source>Short read from temporary file %1: expected %2, got %3</source>
-        <translation type="vanished">Odczytano za mało danych z tymczasowego pliku %1: oczekiwano %2, jest %3</translation>
-    </message>
-    <message>
-        <location filename="follow_stream_dialog.cpp" line="1222"/>
         <source>Follow TCP Stream (%1)</source>
-        <translation>Śledź strumień TCP (%1)</translation>
+        <translation type="vanished">Śledź strumień TCP (%1)</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1229"/>
         <source>Follow UDP Stream (%1)</source>
-        <translation>Śledź strumień UDP (%1)</translation>
+        <translation type="vanished">Śledź strumień UDP (%1)</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1236"/>
         <source>Follow SSL Stream (%1)</source>
-        <translation>Śledź strumień SSL (%1)</translation>
+        <translation type="vanished">Śledź strumień SSL (%1)</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1243"/>
         <source>Follow HTTP Stream (%1)</source>
-        <translation>Śledź strumień HTTP (%1)</translation>
+        <translation type="vanished">Śledź strumień HTTP (%1)</translation>
     </message>
     <message>
-        <location filename="follow_stream_dialog.cpp" line="1267"/>
+        <location filename="follow_stream_dialog.cpp" line="915"/>
         <source>File closed.</source>
         <translation>Plik zamknięty.</translation>
-    </message>
-    <message>
-        <source>Error reading temporary file</source>
-        <translation type="vanished">Błąd odczytu pliku tymczasowego</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.ui" line="20"/>
@@ -3895,17 +3887,9 @@ dla plików filtrów: %2.</translation>
         <translation>Nie można zapisać danych RTP.</translation>
     </message>
     <message>
-        <source>No IAX2 packets found</source>
-        <translation type="vanished">Nie znaleziono pakietów IAX2.</translation>
-    </message>
-    <message>
         <location filename="iax2_analysis_dialog.cpp" line="334"/>
         <source>Please select an IAX2 packet</source>
         <translation>Proszę wybrać pakiet IAX2</translation>
-    </message>
-    <message>
-        <source>Please select an IAX2 packet.</source>
-        <translation type="vanished">Proszę wybrać pakiet IAX2.</translation>
     </message>
     <message>
         <location filename="iax2_analysis_dialog.cpp" line="440"/>
@@ -4306,16 +4290,16 @@ dla plików filtrów: %2.</translation>
 <context>
     <name>InterfaceTreeDelegate</name>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="976"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1008"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1056"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1076"/>
+        <location filename="capture_interfaces_dialog.cpp" line="980"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1012"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1060"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1080"/>
         <source>enabled</source>
         <translation>włączony</translation>
     </message>
     <message>
-        <location filename="capture_interfaces_dialog.cpp" line="977"/>
-        <location filename="capture_interfaces_dialog.cpp" line="1009"/>
+        <location filename="capture_interfaces_dialog.cpp" line="981"/>
+        <location filename="capture_interfaces_dialog.cpp" line="1013"/>
         <source>disabled</source>
         <translation>wyłączony</translation>
     </message>
@@ -6351,45 +6335,45 @@ dla plików filtrów: %2.</translation>
         <translation>Brak informacji eksperckiej</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="346"/>
+        <location filename="main_status_bar.cpp" line="354"/>
         <source>Profile: </source>
         <translation>Profil: </translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="404"/>
+        <location filename="main_status_bar.cpp" line="412"/>
         <source>Packets: %1 %4 Displayed: %2 (%3%)</source>
         <oldsource>Packets: %1 %4 Displayed: %2 %4 Marked: %3</oldsource>
         <translation>Pakietów: %1 %4 Wyświetlanych: %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="410"/>
+        <location filename="main_status_bar.cpp" line="418"/>
         <source> %1 Marked: %2 (%3%)</source>
         <oldsource> %1 Dropped: %2</oldsource>
         <translation> %1 Oznaczonych: %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="416"/>
+        <location filename="main_status_bar.cpp" line="424"/>
         <source> %1 Dropped: %2 (%3%)</source>
         <translation> %1 Porzuconych: %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="422"/>
+        <location filename="main_status_bar.cpp" line="430"/>
         <source> %1 Ignored: %2 (%3%)</source>
         <translation> %1 Ignorowanych: %2 (%3%)</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="430"/>
+        <location filename="main_status_bar.cpp" line="438"/>
         <source> %1  Load time: %2:%3.%4</source>
         <translation> %1  Czas ładowania: %2:%3.%4</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="438"/>
-        <location filename="main_status_bar.cpp" line="460"/>
+        <location filename="main_status_bar.cpp" line="446"/>
+        <location filename="main_status_bar.cpp" line="468"/>
         <source>No Packets</source>
         <translation>Brak pakietów</translation>
     </message>
     <message>
-        <location filename="main_status_bar.cpp" line="456"/>
+        <location filename="main_status_bar.cpp" line="464"/>
         <source>Packets: %1</source>
         <translation>Pakiety: %1</translation>
     </message>
@@ -7438,8 +7422,9 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window.ui" line="1460"/>
-        <source>Meta+Alt+M</source>
-        <translation>Meta+Alt+M</translation>
+        <source>Ctrl+Alt+M</source>
+        <oldsource>Meta+Alt+M</oldsource>
+        <translation type="unfinished">Meta+Alt+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1465"/>
@@ -7453,8 +7438,9 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window.ui" line="1471"/>
-        <source>Meta+Shift+N</source>
-        <translation>Meta+Shift+N</translation>
+        <source>Ctrl+Shift+N</source>
+        <oldsource>Meta+Shift+N</oldsource>
+        <translation type="unfinished">Meta+Shift+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1476"/>
@@ -7468,8 +7454,9 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window.ui" line="1482"/>
-        <source>Meta+Shift+B</source>
-        <translation>Meta+Shift+B</translation>
+        <source>Ctrl+Shift+B</source>
+        <oldsource>Meta+Shift+B</oldsource>
+        <translation type="unfinished">Meta+Shift+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1487"/>
@@ -8498,8 +8485,9 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window.ui" line="2124"/>
-        <source>Meta+Alt+1</source>
-        <translation>Meta+Alt+1</translation>
+        <source>Ctrl+Alt+1</source>
+        <oldsource>Meta+Alt+1</oldsource>
+        <translation type="unfinished">Meta+Alt+1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2132"/>
@@ -8518,8 +8506,9 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window.ui" line="2149"/>
-        <source>Meta+Alt+2</source>
-        <translation>Meta+Alt+2</translation>
+        <source>Ctrl+Alt+2</source>
+        <oldsource>Meta+Alt+2</oldsource>
+        <translation type="unfinished">Meta+Alt+2</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2157"/>
@@ -8533,8 +8522,9 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window.ui" line="2163"/>
-        <source>Meta+Alt+3</source>
-        <translation>Meta+Alt+3</translation>
+        <source>Ctrl+Alt+3</source>
+        <oldsource>Meta+Alt+3</oldsource>
+        <translation type="unfinished">Meta+Alt+3</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2171"/>
@@ -8543,8 +8533,9 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window.ui" line="2177"/>
-        <source>Meta+Alt+4</source>
-        <translation>Meta+Alt+4</translation>
+        <source>Ctrl+Alt+4</source>
+        <oldsource>Meta+Alt+4</oldsource>
+        <translation type="unfinished">Meta+Alt+4</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2185"/>
@@ -8558,8 +8549,9 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window.ui" line="2191"/>
-        <source>Meta+Alt+5</source>
-        <translation>Meta+Alt+5</translation>
+        <source>Ctrl+Alt+5</source>
+        <oldsource>Meta+Alt+5</oldsource>
+        <translation type="unfinished">Meta+Alt+5</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2199"/>
@@ -8573,8 +8565,9 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window.ui" line="2205"/>
-        <source>Meta+Alt+6</source>
-        <translation>Meta+Alt+6</translation>
+        <source>Ctrl+Alt+6</source>
+        <oldsource>Meta+Alt+6</oldsource>
+        <translation type="unfinished">Meta+Alt+6</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2213"/>
@@ -8588,8 +8581,9 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window.ui" line="2219"/>
-        <source>Meta+Alt+7</source>
-        <translation>Meta+Alt+7</translation>
+        <source>Ctrl+Alt+7</source>
+        <oldsource>Meta+Alt+7</oldsource>
+        <translation type="unfinished">Meta+Alt+7</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2227"/>
@@ -8613,8 +8607,9 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window.ui" line="2244"/>
-        <source>Meta+Alt+8</source>
-        <translation>Meta+Alt+8</translation>
+        <source>Ctrl+Alt+8</source>
+        <oldsource>Meta+Alt+8</oldsource>
+        <translation type="unfinished">Meta+Alt+8</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2252"/>
@@ -8829,8 +8824,9 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window.ui" line="2788"/>
-        <source>New Conversation Rule…</source>
-        <translation>Nowa reguła konwersacji…</translation>
+        <source>New Coloring Rule…</source>
+        <oldsource>New Conversation Rule…</oldsource>
+        <translation type="unfinished">Nowa reguła konwersacji…</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2831"/>
@@ -9046,8 +9042,9 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window.ui" line="2791"/>
-        <source>Create a new coloring rule based on this conversation.</source>
-        <translation>Utwórz nową regułę kolorowania bazując na tej konwersacji.</translation>
+        <source>Create a new coloring rule based on this field.</source>
+        <oldsource>Create a new coloring rule based on this conversation.</oldsource>
+        <translation type="unfinished">Utwórz nową regułę kolorowania bazując na tej konwersacji.</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2796"/>
@@ -9090,33 +9087,33 @@ text-decoration: underline;
         <translation>Ctrl+Shift+E</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="356"/>
+        <location filename="main_window.cpp" line="411"/>
         <source>Check for Updates</source>
         <oldsource>Check for Updates...</oldsource>
         <translation>Sprawdź aktualizacje</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="739"/>
+        <location filename="main_window.cpp" line="799"/>
         <source> before quitting</source>
         <translation>przed wyjściem</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="915"/>
+        <location filename="main_window.cpp" line="975"/>
         <source>Save packets before merging?</source>
         <translation>Zapisać pakiety przed scaleniem?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="916"/>
+        <location filename="main_window.cpp" line="976"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>Tymczasowy plik przechwytywania nie może zostać scalony.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="922"/>
+        <location filename="main_window.cpp" line="982"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>Zapisać zmiany w &quot;%1&quot;  przed scaleniem?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="924"/>
+        <location filename="main_window.cpp" line="984"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>Zmiany muszą być zapisane przed próbą scalenia plików.</translation>
     </message>
@@ -9126,125 +9123,125 @@ text-decoration: underline;
         <translation>Niepoprawny filtr</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="981"/>
+        <location filename="main_window.cpp" line="1041"/>
         <source>Invalid Read Filter</source>
         <translation>Niepoprawny filtr wczytywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="982"/>
+        <location filename="main_window.cpp" line="1042"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation>Postać filtru wczytywania %1 nie jest poprawna. (%2).</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1072"/>
+        <location filename="main_window.cpp" line="1132"/>
         <source> before importing a new capture</source>
         <translation>przed zaimportowaniem nowego pliku przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1385"/>
+        <location filename="main_window.cpp" line="1445"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>Nie można wyeksportować do &quot;%1&quot;.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1386"/>
+        <location filename="main_window.cpp" line="1446"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>Nie można wyeksportować pakietów do aktualnego pliku.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1473"/>
-        <location filename="main_window.cpp" line="1498"/>
+        <location filename="main_window.cpp" line="1533"/>
+        <location filename="main_window.cpp" line="1558"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1536"/>
+        <location filename="main_window.cpp" line="1599"/>
         <source>You have unsaved packets</source>
         <translation>Masz niezapisane pakiety</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1537"/>
+        <location filename="main_window.cpp" line="1600"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>Będą utracone jeśli ich nie zapiszesz.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1540"/>
-        <location filename="main_window.cpp" line="1553"/>
+        <location filename="main_window.cpp" line="1603"/>
+        <location filename="main_window.cpp" line="1616"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>Czy chcesz zatrzymać przechwytywanie i zapisać przechwycone pakiety</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1542"/>
+        <location filename="main_window.cpp" line="1605"/>
         <source>Do you want to save the captured packets</source>
         <translation>Czy chcesz zapisać przechwycone pakiety</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1544"/>
-        <location filename="main_window.cpp" line="1554"/>
+        <location filename="main_window.cpp" line="1607"/>
+        <location filename="main_window.cpp" line="1617"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1556"/>
+        <location filename="main_window.cpp" line="1619"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>Twoje przechwycone pakiety zostaną utracone jeśli nie zapiszesz ich.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1559"/>
+        <location filename="main_window.cpp" line="1622"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>Czy chcesz zapisać zmiany, które zrobiłeś do pliku przechytywania  &quot;%1&quot;%2?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1565"/>
+        <location filename="main_window.cpp" line="1628"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Twoje zmiany zostaną utracone jeśli nie zapiszesz ich.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1578"/>
+        <location filename="main_window.cpp" line="1642"/>
         <source>Save before Continue</source>
         <translation>Zapisz przed kontynuowaniem</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1580"/>
+        <location filename="main_window.cpp" line="1644"/>
         <source>Stop and Save</source>
         <translation>Zatrzymaj i zapisz</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1589"/>
+        <location filename="main_window.cpp" line="1656"/>
         <source>Stop and Quit without Saving</source>
         <translation>Zatrzymaj i zamknij bez zapisywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1592"/>
+        <location filename="main_window.cpp" line="1668"/>
         <source>Quit without Saving</source>
         <translation>Wyjdź bez zapisywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1598"/>
+        <location filename="main_window.cpp" line="1659"/>
+        <location filename="main_window.cpp" line="1672"/>
         <source>Continue without Saving</source>
         <translation>Kontynuuj bez zapisywaniem</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1602"/>
+        <location filename="main_window.cpp" line="1662"/>
         <source>Stop and Continue without Saving</source>
         <translation>Zatrzymaj i Kontynuuj bez zapisywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1606"/>
         <source>Continue &amp;without Saving</source>
-        <translation>Kontynuuj bez zapisywania</translation>
+        <translation type="vanished">Kontynuuj bez zapisywania</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1866"/>
+        <location filename="main_window.cpp" line="1926"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>(Nazwa pliku nie może być przekonwertowana do formatu UTF-8)</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1884"/>
+        <location filename="main_window.cpp" line="1939"/>
         <source>The Wireshark Network Analyzer</source>
         <translation>Analizator Wireshark</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1902"/>
+        <location filename="main_window.cpp" line="1962"/>
         <source>Capturing from %1</source>
         <translation>Przechwytywanie z %1</translation>
     </message>
@@ -9274,103 +9271,103 @@ text-decoration: underline;
         <translation>Wyczyść Menu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1574"/>
+        <location filename="main_window_slots.cpp" line="1600"/>
         <source>Please wait while Wireshark is initializing</source>
         <translation>Proszę czekać, trwa uruchamianie Wiresharka</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1731"/>
+        <location filename="main_window_slots.cpp" line="1757"/>
         <source>Export Selected Packet Bytes</source>
         <translation>Eksportuj zaznaczony bajty pakietu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1733"/>
+        <location filename="main_window_slots.cpp" line="1759"/>
         <source>Raw data (*.bin *.dat *.raw);;Any File (*.*)</source>
         <translation>Surowe dane (*.bin *.dat *.raw);;Dowolny plik (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1790"/>
+        <location filename="main_window_slots.cpp" line="1816"/>
         <source>No Keys</source>
         <translation>Brak kluczy</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1791"/>
+        <location filename="main_window_slots.cpp" line="1817"/>
         <source>There are no SSL Session Keys to save.</source>
         <translation>Nie ma żadnych kluczy sesji SSL do zapisu.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1797"/>
+        <location filename="main_window_slots.cpp" line="1823"/>
         <source>Export SSL Session Keys (%1 key%2</source>
         <translation>Eksportuj klucze sesji SSL (%1 klucz%2</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1802"/>
+        <location filename="main_window_slots.cpp" line="1828"/>
         <source>SSL Session Keys (*.keys *.txt);;Any File (*.*)</source>
         <translation>Klucze sesji SSL (*.keys *.txt);; Dowolny plik (*.*)</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="1940"/>
+        <location filename="main_window_slots.cpp" line="1966"/>
         <source>Couldn&apos;t copy text. Try another item.</source>
         <translation>Nie można skopiować tekstu. Spróbuj inną pozycję.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2347"/>
-        <location filename="main_window_slots.cpp" line="3429"/>
+        <location filename="main_window_slots.cpp" line="2373"/>
+        <location filename="main_window_slots.cpp" line="3432"/>
         <source>Unable to build conversation filter.</source>
         <translation>Nie można stworzyć filtru konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="2517"/>
+        <location filename="main_window_slots.cpp" line="2543"/>
         <source>No filter available. Try another </source>
         <translation>Brak dostępnych filtrów. Spróbuj ponownie</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3436"/>
+        <location filename="main_window_slots.cpp" line="3439"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>Błąd kompilacji filtru dla tej konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3445"/>
+        <location filename="main_window_slots.cpp" line="3448"/>
         <source>No previous/next packet in conversation.</source>
         <translation>Brak poprzedniego i następnego pakietu w konwersacji.</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3522"/>
+        <location filename="main_window_slots.cpp" line="3525"/>
         <source>No Interface Selected</source>
         <translation>Nie wybrano interfejsu</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3529"/>
+        <location filename="main_window_slots.cpp" line="3532"/>
         <source> before starting a new capture</source>
         <translation>przed wystartowaniem nowego przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3547"/>
+        <location filename="main_window_slots.cpp" line="3550"/>
         <source> before restarting a new capture</source>
         <translation>przed restartem przechwytywania</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3738"/>
+        <location filename="main_window_slots.cpp" line="3740"/>
         <source>Wiki Page for %1</source>
         <translation>Strona Wiki dla %1</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3739"/>
+        <location filename="main_window_slots.cpp" line="3741"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Strona Wiki Wiresharka jest zarządzania przez społeczność.&lt;/p&gt;&lt;p&gt;Strona którą chcesz wczytać może być wspaniała, niekompletna, błędna lub nie istnieć.&lt;/p&gt;&lt;p&gt;Kontynuować wczytywanie strony Wiki?&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="251"/>
+        <location filename="main_window.h" line="258"/>
         <source>Loading</source>
         <translation>Wczytywanie</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="253"/>
+        <location filename="main_window.h" line="260"/>
         <source>Reloading</source>
         <translation>Przeładowanie</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="254"/>
+        <location filename="main_window.h" line="261"/>
         <source>Rescanning</source>
         <translation>Przeskanowanie</translation>
     </message>
@@ -10390,12 +10387,12 @@ text-decoration: underline;
         <translation>Koloruj z filtrem</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="383"/>
+        <location filename="proto_tree.cpp" line="385"/>
         <source>, 1 byte</source>
         <translation>, 1 bajt</translation>
     </message>
     <message>
-        <location filename="proto_tree.cpp" line="385"/>
+        <location filename="proto_tree.cpp" line="387"/>
         <source>, %1 bytes</source>
         <translation>, %1 bajtów</translation>
     </message>
@@ -10685,17 +10682,17 @@ text-decoration: underline;
         <translation>Nowa reguła kolorowania</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="59"/>
+        <location filename="conversation_dialog.cpp" line="60"/>
         <source>Conversation</source>
         <translation>Konwersacja</translation>
     </message>
     <message>
-        <location filename="conversation_dialog.cpp" line="321"/>
+        <location filename="conversation_dialog.cpp" line="322"/>
         <source>N/A</source>
         <translation>N/A</translation>
     </message>
     <message>
-        <location filename="endpoint_dialog.cpp" line="45"/>
+        <location filename="endpoint_dialog.cpp" line="47"/>
         <source>Endpoint</source>
         <translation>Punkt krańcowy</translation>
     </message>
@@ -10773,7 +10770,7 @@ text-decoration: underline;
         <translation>Każdy</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="177"/>
+        <location filename="main_window.cpp" line="232"/>
         <source>Don&apos;t show this message again.</source>
         <translation>Nie pokazuj więcej tego komunikatu.</translation>
     </message>
@@ -11789,18 +11786,6 @@ text-decoration: underline;
         <translation>Nie można zapisać danych RTP.</translation>
     </message>
     <message>
-        <source>No RTP packets found</source>
-        <translation type="vanished">Nie znaleziono pakietów RTP.</translation>
-    </message>
-    <message>
-        <source>Please select an RTP packet</source>
-        <translation type="vanished">Proszę wybrać pakiet RTP</translation>
-    </message>
-    <message>
-        <source>RTP version %1 found. Only version 2 is supported.</source>
-        <translation type="vanished">Znaleziono RTP w wersji %1. Tylko wersja 2 jest obsługiwana.</translation>
-    </message>
-    <message>
         <location filename="rtp_analysis_dialog.cpp" line="1473"/>
         <source>SSRC value not found.</source>
         <translation>Nie znaleziono wartości SSRC.</translation>
@@ -11911,7 +11896,7 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1070"/>
         <source>Can&apos;t save in a file: saving in au format supported only for alaw/ulaw streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Nie można zapisać pliku: zapis w formacie au jest dostępny tylko dla strumieni alaw/ulaw</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1086"/>
@@ -11946,12 +11931,12 @@ text-decoration: underline;
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1415"/>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation type="unfinished"></translation>
+        <translation>Brak pola &quot;rtp.ssrc&quot; w tej wersji programu Wireshark.</translation>
     </message>
     <message>
         <location filename="rtp_analysis_dialog.cpp" line="1449"/>
         <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation type="unfinished"></translation>
+        <translation>Proszę wybrać pakiet RTPv2 z polem SSRC</translation>
     </message>
 </context>
 <context>
