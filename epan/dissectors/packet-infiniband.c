@@ -2348,7 +2348,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
     /* Payload - Packet Payload */
     guint8              management_class;
     tvbuff_t *volatile  next_tvb;
-    gint                captured_length, reported_length;
+    gint                reported_length;
     guint16             etype, reserved;
     const char         *saved_proto;
     volatile gboolean   dissector_found = FALSE;
@@ -2455,13 +2455,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
          * call the appropriate dissector. If not we call the "data" dissector.
          */
         if (!dissector_found && pref_identify_iba_payload && (reserved == 0)) {
-
-            /* Get the captured length and reported length of the data
-               after the Ethernet type. */
-            captured_length = tvb_captured_length_remaining(tvb, local_offset+4);
-            reported_length = tvb_reported_length_remaining(tvb, local_offset+4);
-
-            next_tvb = tvb_new_subset(tvb, local_offset+4, captured_length, reported_length);
+            next_tvb = tvb_new_subset_remaining(tvb, local_offset+4);
 
             /* Look for sub-dissector, and call it if found.
                Catch exceptions, so that if the reported length of "next_tvb"
@@ -2511,18 +2505,12 @@ static void parse_PAYLOAD(proto_tree *parentTree,
 
         }
 
-        captured_length = tvb_captured_length_remaining(tvb, local_offset);
         reported_length = tvb_reported_length_remaining(tvb,
                                 local_offset);
 
         if (reported_length >= crclen)
             reported_length -= crclen;
-        if (captured_length > reported_length)
-            captured_length = reported_length;
-
-        next_tvb = tvb_new_subset(tvb, local_offset,
-                      captured_length,
-                      reported_length);
+        next_tvb = tvb_new_subset_length(tvb, local_offset, reported_length);
 
         /* Try any heuristic dissectors that requested a chance to try and dissect IB payloads */
         if (!dissector_found) {
@@ -2573,8 +2561,7 @@ static void parse_IPvSix(proto_tree *parentTree, tvbuff_t *tvb, gint *offset, pa
     tvbuff_t *ipv6_tvb;
 
     /* (- 2) for VCRC which lives at the end of the packet   */
-    ipv6_tvb = tvb_new_subset(tvb, *offset,
-                  tvb_captured_length_remaining(tvb, *offset) - 2,
+    ipv6_tvb = tvb_new_subset_length(tvb, *offset,
                   tvb_reported_length_remaining(tvb, *offset) - 2);
     call_dissector(ipv6_handle, ipv6_tvb, pinfo, parentTree);
     *offset = tvb_reported_length(tvb) - 2;
@@ -2624,11 +2611,9 @@ static void parse_RWH(proto_tree *ah_tree, tvbuff_t *tvb, gint *offset, packet_i
     if ((captured_length >= 0) && (reported_length >= 0)) {
         if (reported_length >= 2)
             reported_length -= 2;
-        if (captured_length > reported_length)
-            captured_length = reported_length;
     }
 
-    next_tvb = tvb_new_subset(tvb, *offset, captured_length, reported_length);
+    next_tvb = tvb_new_subset_length(tvb, *offset, reported_length);
     if (!dissector_try_uint(ethertype_dissector_table, ether_type,
             next_tvb, pinfo, top_tree))
        call_dissector(data_handle, next_tvb, pinfo, top_tree);
@@ -2660,7 +2645,7 @@ static gboolean parse_EoIB(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_
         return FALSE;
     }
 
-    encap_tvb = tvb_new_subset(tvb, offset + 4, tvb_captured_length_remaining(tvb, offset + 4), encap_size - 4);
+    encap_tvb = tvb_new_subset_length(tvb, offset + 4, encap_size - 4);
 
     header_item = proto_tree_add_item(tree, hf_infiniband_EOIB, tvb, offset, 4, ENC_NA);
     header_subtree = proto_item_add_subtree(header_item, ett_eoib);
@@ -3043,7 +3028,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
             }
 
             /* give a chance for subdissectors to analyze the private data */
-            next_tvb = tvb_new_subset(tvb, local_offset, 92, -1);
+            next_tvb = tvb_new_subset_length(tvb, local_offset, 92);
             if (! dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, &hdtbl_entry, NULL) )
                 /* if none reported success, add this as raw "data" */
                 proto_tree_add_item(CM_header_tree, hf_cm_req_private_data, tvb, local_offset, 92, ENC_NA);
@@ -3132,7 +3117,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
             }
 
             /* give a chance for subdissectors to get the private data */
-            next_tvb = tvb_new_subset(tvb, local_offset, 196, -1);
+            next_tvb = tvb_new_subset_length(tvb, local_offset, 196);
             if (! dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, &hdtbl_entry, NULL) )
                 /* if none reported success, add this as raw "data" */
                 proto_tree_add_item(CM_header_tree, hf_cm_rep_privatedata, tvb, local_offset, 196, ENC_NA);
