@@ -1142,6 +1142,8 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			proto_tree_add_item(elem_tree, hf_ctlv_tone, tvb, pos, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x13:	/* location information */
+			if (len == 0)
+				break;
 			/* MCC/MNC / LAC / CellID */
 			dissect_e212_mcc_mnc(tvb, pinfo, elem_tree, pos, E212_NONE, TRUE);
 			proto_tree_add_item(elem_tree, hf_ctlv_loci_lac, tvb, pos+3, 2, ENC_BIG_ENDIAN);
