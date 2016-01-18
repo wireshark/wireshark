@@ -5050,7 +5050,7 @@ void proto_reg_handoff_batadv(void)
 		batman_handle = create_dissector_handle(dissect_batadv_plugin, proto_batadv_plugin);
 
 		data_handle = find_dissector("data");
-		eth_handle = find_dissector("eth");
+		eth_handle = find_dissector("eth_withoutfcs");
 
 		batadv_tap = register_tap("batman");
 		batadv_follow_tap = register_tap("batman_follow");
