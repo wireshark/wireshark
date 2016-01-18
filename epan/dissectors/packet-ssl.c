@@ -928,7 +928,7 @@ desegment_ssl(tvbuff_t *tvb, packet_info *pinfo, int offset,
     gboolean       must_desegment;
     gboolean       called_dissector;
     int            another_pdu_follows;
-    gboolean       another_segment_in_frame;
+    gboolean       another_segment_in_frame = FALSE;
     int            deseg_offset;
     guint32        deseg_seq;
     gint           nbytes;
