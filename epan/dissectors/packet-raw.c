@@ -38,6 +38,7 @@ static gint ett_raw = -1;
 
 static const char zeroes[10] = {0,0,0,0,0,0,0,0,0,0};
 
+static dissector_handle_t raw_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
@@ -172,13 +173,13 @@ proto_register_raw(void)
 
   proto_raw = proto_register_protocol("Raw packet data", "Raw", "raw");
   proto_register_subtree_array(ett, array_length(ett));
+
+  raw_handle = register_dissector("raw_ip", dissect_raw, proto_raw);
 }
 
 void
 proto_reg_handoff_raw(void)
 {
-  dissector_handle_t raw_handle;
-
   /*
    * Get handles for the IP, IPv6, undissected-data, and
    * PPP-in-HDLC-like-framing dissectors.
@@ -187,7 +188,6 @@ proto_reg_handoff_raw(void)
   ipv6_handle = find_dissector("ipv6");
   data_handle = find_dissector("data");
   ppp_hdlc_handle = find_dissector("ppp_hdlc");
-  raw_handle = create_dissector_handle(dissect_raw, proto_raw);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_RAW_IP, raw_handle);
   register_capture_dissector("wtap_encap", WTAP_ENCAP_RAW_IP, capture_raw, proto_raw);
 }

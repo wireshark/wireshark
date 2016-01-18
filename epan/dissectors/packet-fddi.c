@@ -56,6 +56,8 @@ static gint ett_fddi_fc = -1;
 
 static int fddi_tap = -1;
 
+static dissector_handle_t fddi_handle, fddi_bitswapped_handle;
+
 static gboolean fddi_padding = FALSE;
 
 #define FDDI_PADDING            ((fddi_padding) ? 3 : 0)
@@ -512,7 +514,12 @@ proto_register_fddi(void)
    * Called from various dissectors for encapsulated FDDI frames.
    * We assume the MAC addresses in them aren't bitswapped.
    */
-  register_dissector("fddi", dissect_fddi_not_bitswapped, proto_fddi);
+  fddi_handle = register_dissector("fddi", dissect_fddi_not_bitswapped, proto_fddi);
+
+  /*
+   * Here, we assume they are bitswapped.
+   */
+  fddi_bitswapped_handle = register_dissector("fddi_bitswapped", dissect_fddi_bitswapped, proto_fddi);
 
   fddi_module = prefs_register_protocol(proto_fddi, NULL);
   prefs_register_bool_preference(fddi_module, "padding",
@@ -528,20 +535,12 @@ proto_register_fddi(void)
 void
 proto_reg_handoff_fddi(void)
 {
-  dissector_handle_t fddi_handle, fddi_bitswapped_handle;
-
   /*
    * Get a handle for the LLC dissector.
    */
   llc_handle = find_dissector("llc");
   data_handle = find_dissector("data");
 
-  fddi_handle = find_dissector("fddi");
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI, fddi_handle);
-  dissector_add_uint("sflow_245.header_protocol", SFLOW_245_HEADER_FDDI, fddi_handle);
-
-  fddi_bitswapped_handle =
-    create_dissector_handle(dissect_fddi_bitswapped, proto_fddi);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_FDDI_BITSWAPPED,
                      fddi_bitswapped_handle);
 

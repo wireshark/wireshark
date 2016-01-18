@@ -46,11 +46,12 @@ static int hf_nettl_uid = -1;
 
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t tr_handle;
+static dissector_handle_t fddi_bitswapped_handle;
 static dissector_handle_t lapb_handle;
 static dissector_handle_t x25_handle;
 static dissector_handle_t sctp_handle;
+static dissector_handle_t raw_ip_handle;
 static dissector_handle_t data_handle;
-static dissector_table_t wtap_dissector_table;
 static dissector_table_t ip_proto_dissector_table;
 static dissector_table_t tcp_subdissector_table;
 
@@ -237,9 +238,7 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             call_dissector(tr_handle, tvb, pinfo, tree);
             break;
         case WTAP_ENCAP_NETTL_FDDI:
-            if (!dissector_try_uint(wtap_dissector_table,
-                                    WTAP_ENCAP_FDDI_BITSWAPPED, tvb, pinfo, tree))
-                call_dissector(data_handle, tvb, pinfo, tree);
+            call_dissector(fddi_bitswapped_handle, tvb, pinfo, tree);
             break;
         case WTAP_ENCAP_NETTL_RAW_IP:
             if ( (pinfo->pseudo_header->nettl.kind & NETTL_HDR_PDU_MASK) == 0 )
@@ -247,9 +246,8 @@ dissect_nettl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                 call_dissector(data_handle, tvb, pinfo, tree);
             else if (pinfo->pseudo_header->nettl.subsys == NETTL_SUBSYS_NS_LS_SCTP )
                 call_dissector(sctp_handle, tvb, pinfo, tree);
-            else if (!dissector_try_uint(wtap_dissector_table,
-                                         WTAP_ENCAP_RAW_IP, tvb, pinfo, tree))
-                call_dissector(data_handle, tvb, pinfo, tree);
+            else
+                call_dissector(raw_ip_handle, tvb, pinfo, tree);
             break;
         case WTAP_ENCAP_NETTL_RAW_ICMP:
             if (!dissector_try_uint(ip_proto_dissector_table,
@@ -342,15 +340,16 @@ proto_reg_handoff_nettl(void)
     dissector_handle_t nettl_handle;
 
     /*
-     * Get handles for the Ethernet, Token Ring, FDDI, and RAW dissectors.
+     * Get handles for various dissectors and dissector tables.
      */
     eth_withoutfcs_handle    = find_dissector("eth_withoutfcs");
     tr_handle                = find_dissector("tr");
+    fddi_bitswapped_handle   = find_dissector("fddi_bitswapped");
     lapb_handle              = find_dissector("lapb");
     x25_handle               = find_dissector("x.25");
     sctp_handle              = find_dissector("sctp");
+    raw_ip_handle            = find_dissector("raw_ip");
     data_handle              = find_dissector("data");
-    wtap_dissector_table     = find_dissector_table("wtap_encap");
     ip_proto_dissector_table = find_dissector_table("ip.proto");
     tcp_subdissector_table   = find_dissector_table("tcp.port");
 
