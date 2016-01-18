@@ -63,7 +63,11 @@ enum {
   PV_RESTRICT_ID_PORTS2X    = 34,
   PV_RESTRICT_ID_PORTS2Y    = 35,
   PV_RESTRICT_ID_PORTS2Z    = 36,
-  PV_RESTRICT_ID3           = 50
+  PV_RESTRICT_ID3           = 50,
+  PV_VIVALDI_OPTIONAL       = 51,
+  PV_PACKET_FLAGS           = 51,
+  PV_ALT_CONTACTS           = 52,
+  PV_PACKET_FLAGS2          = 53
 };
 
 /* Type Length */
@@ -145,7 +149,9 @@ enum {
     FT_DOWNLOADING  = 0x01,
     FT_SEEDING      = 0x02,
     FT_MULTI_VALUE  = 0x04,
-    FT_STATS        = 0x08
+    FT_STATS        = 0x08,
+    FLAG_ANON       = 0x10,
+    FLAG_PRECIOUS   = 0x20
 };
 static const value_string vuze_dht_flag_type_vals[] = {
   { FT_SINGLE_VALUE, "Single value" },
@@ -153,7 +159,20 @@ static const value_string vuze_dht_flag_type_vals[] = {
   { FT_SEEDING,      "Seeding" },
   { FT_MULTI_VALUE,  "Multi value" },
   { FT_STATS,        "Stats" },
+  { FLAG_ANON,       "Anon" },
+  { FLAG_PRECIOUS,   "Precious" },
   { 0, NULL }
+};
+
+/* generic flag type */
+enum {
+  GF_NONE         = 0x00,
+  GF_DHT_SLEEPING = 0x01
+};
+static const value_string vuze_dht_generic_flag_type_vals[] = {
+  { GF_NONE, "None"},
+  { GF_DHT_SLEEPING, "DHT sleeping" },
+  {0, NULL}
 };
 
 /* error type */
@@ -202,6 +221,8 @@ static int hf_vuze_dht_network_id = -1;
 static int hf_vuze_dht_local_proto_ver = -1;
 static int hf_vuze_dht_instance_id = -1;
 static int hf_vuze_dht_time = -1;
+static int hf_vuze_dht_generic_flags = -1;
+static int hf_vuze_dht_generic_flags2 = -1;
 
 /* firstly appear in reply ping */
 static int hf_vuze_dht_network_coordinates_count = -1;
@@ -607,6 +628,8 @@ LOCAL_PROTOCOL_VERSION  byte    >=FIX_ORIGINATOR    maximum protocol version thi
 NODE_ADDRESS            address always             address of the local node
 INSTANCE_ID             int     always             application's helper number; randomly generated at the start
 TIME                    long    always             time of the local node; stored as number of milliseconds since Epoch
+FLAG                    byte    >=PACKET_FLAGS
+FLAG2                   byte    >=PACKET_FLAGS2
 
 */
 static int
@@ -633,12 +656,12 @@ dissect_vuze_dht_request_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     offset += TL_BYTE;
   }
 
-  if( *ver > PV_NETWORKS )
+  if( *ver >= PV_NETWORKS )
   {
     proto_tree_add_item(tree, hf_vuze_dht_network_id, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
     offset += TL_INT;
   }
-  if( *ver > PV_FIX_ORIGINATOR )
+  if( *ver >= PV_FIX_ORIGINATOR )
   {
     proto_tree_add_item(tree, hf_vuze_dht_local_proto_ver, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
     offset += TL_BYTE;
@@ -649,6 +672,17 @@ dissect_vuze_dht_request_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   offset += TL_INT;
   proto_tree_add_item(tree, hf_vuze_dht_time, tvb, offset, TL_LONG, ENC_BIG_ENDIAN);
   offset += TL_LONG;
+
+  if( *ver >= PV_PACKET_FLAGS )
+  {
+    proto_tree_add_item(tree, hf_vuze_dht_generic_flags, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
+    offset += TL_BYTE;
+  }
+  if( *ver >= PV_PACKET_FLAGS2 )
+  {
+    proto_tree_add_item(tree, hf_vuze_dht_generic_flags2, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
+    offset += TL_BYTE;
+  }
 
   return offset;
 }
@@ -663,6 +697,8 @@ PROTOCOL_VERSION byte   always             version of protocol used in this pack
 VENDOR_ID        byte   >=VENDOR_ID         same meaning as in the request
 NETWORK_ID       int    >=NETWORKS          same meaning as in the request
 INSTANCE_ID      int    always             instance id of the node that replies to the request
+FLAG             byte   >=PACKET_FLAGS
+FLAG2            byte   >=PACKET_FLAGS2
 
 */
 static int
@@ -689,7 +725,7 @@ dissect_vuze_dht_reply_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     offset += TL_BYTE;
   }
 
-  if( *ver > PV_NETWORKS )
+  if( *ver >= PV_NETWORKS )
   {
     proto_tree_add_item(tree, hf_vuze_dht_network_id, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
     offset += TL_INT;
@@ -697,6 +733,17 @@ dissect_vuze_dht_reply_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
   proto_tree_add_item(tree, hf_vuze_dht_instance_id, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
   offset += TL_INT;
+
+  if( *ver >= PV_PACKET_FLAGS )
+  {
+    proto_tree_add_item(tree, hf_vuze_dht_generic_flags, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
+    offset += TL_BYTE;
+  }
+  if( *ver >= PV_PACKET_FLAGS2 )
+  {
+    proto_tree_add_item(tree, hf_vuze_dht_generic_flags2, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
+    offset += TL_BYTE;
+  }
 
   return offset;
 }
@@ -1399,6 +1446,16 @@ proto_register_vuze_dht(void)
       { "Signature", "vuze-dht.signature",
       FT_BYTES, BASE_NONE,  NULL, 0x0,
       NULL, HFILL }
+    },
+    { &hf_vuze_dht_generic_flags,
+      { "Generic Flags", "vuze-dht.generic_flags",
+      FT_UINT8, BASE_DEC,  VALS(vuze_dht_generic_flag_type_vals), 0x0,
+      NULL, HFILL }
+    },
+    { &hf_vuze_dht_generic_flags2,
+      { "Generic Flags 2", "vuze-dht.generic_flags2",
+      FT_UINT8, BASE_DEC,  VALS(vuze_dht_flag_type_vals), 0x0,
+      NULL, HFILL }
     }
   };
 
@@ -1471,4 +1528,3 @@ proto_reg_handoff_vuze_dht(void)
  * ex: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */
-
