@@ -6019,6 +6019,7 @@ static expert_field ei_lbmc_analysis_no_reassembly = EI_INIT;
 static expert_field ei_lbmc_analysis_invalid_offset = EI_INIT;
 static expert_field ei_lbmc_analysis_missing_reassembly_frame = EI_INIT;
 static expert_field ei_lbmc_analysis_invalid_fragment = EI_INIT;
+static expert_field ei_lbmc_extopt_fragment_offset = EI_INIT;
 
 /* Extended option reassembly structures. */
 #define LBMC_EXTOPT_REASSEMBLED_DATA_MAX_LEN 65536
@@ -9930,7 +9931,7 @@ static int dissect_nhdr_extopt(tvbuff_t * tvb, int offset, packet_info * pinfo, 
         NULL
     };
     proto_item * ritem = NULL;
-    proto_tree * rtree = NULL;
+    proto_tree * rtree = NULL, *fragment_item;
     guint8 flags_val = 0;
     int len_dissected = 0;
     int data_len = 0;
@@ -9949,7 +9950,7 @@ static int dissect_nhdr_extopt(tvbuff_t * tvb, int offset, packet_info * pinfo, 
     proto_tree_add_bitmask(subtree, tvb, offset + O_LBMC_EXTOPT_HDR_T_FLAGS, hf_lbmc_extopt_flags, ett_lbmc_extopt_flags, flags, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_extopt_id, tvb, offset + O_LBMC_EXTOPT_HDR_T_ID, L_LBMC_EXTOPT_HDR_T_ID, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_extopt_subtype, tvb, offset + O_LBMC_EXTOPT_HDR_T_SUBTYPE, L_LBMC_EXTOPT_HDR_T_SUBTYPE, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_lbmc_extopt_fragment_offset, tvb, offset + O_LBMC_EXTOPT_HDR_T_FRAGMENT_OFFSET, L_LBMC_EXTOPT_HDR_T_FRAGMENT_OFFSET, ENC_BIG_ENDIAN);
+    fragment_item = proto_tree_add_item(subtree, hf_lbmc_extopt_fragment_offset, tvb, offset + O_LBMC_EXTOPT_HDR_T_FRAGMENT_OFFSET, L_LBMC_EXTOPT_HDR_T_FRAGMENT_OFFSET, ENC_BIG_ENDIAN);
     len_dissected = L_LBMC_EXTOPT_HDR_T;
     data_len = (int)hdrlen - len_dissected;
     data_offset = offset + len_dissected;
@@ -9963,11 +9964,19 @@ static int dissect_nhdr_extopt(tvbuff_t * tvb, int offset, packet_info * pinfo, 
             gchar * buf;
             proto_item * pi = NULL;
 
-            tvb_memcpy(tvb, reassembly->data + fragment_offset, data_offset, data_len);
-            reassembly->len += data_len;
-            buf = (gchar *) wmem_memdup(wmem_file_scope(), reassembly->data, reassembly->len);
-            reassembly_tvb = tvb_new_real_data(buf, reassembly->len, reassembly->len);
-            add_new_data_source(pinfo, reassembly_tvb, "Reassembled EXTOPT fragment data");
+            if ((reassembly->len + fragment_offset + data_len) < LBMC_EXTOPT_REASSEMBLED_DATA_MAX_LEN)
+            {
+                tvb_memcpy(tvb, reassembly->data + fragment_offset, data_offset, data_len);
+                reassembly->len += data_len;
+                buf = (gchar *) wmem_memdup(wmem_file_scope(), reassembly->data, reassembly->len);
+                reassembly_tvb = tvb_new_real_data(buf, reassembly->len, reassembly->len);
+                add_new_data_source(pinfo, reassembly_tvb, "Reassembled EXTOPT fragment data");
+            }
+            else
+            {
+                expert_add_info(pinfo, fragment_item, &ei_lbmc_extopt_fragment_offset);
+                return (len_dissected);
+            }
             proto_tree_add_item(subtree, hf_lbmc_extopt_data, tvb, data_offset, data_len, ENC_NA);
             ritem = proto_tree_add_item(tree, hf_lbmc_extopt_reassembled_data, reassembly_tvb, 0, reassembly->len, ENC_NA);
             rtree = proto_item_add_subtree(ritem, ett_lbmc_extopt_reassembled_data);
@@ -10010,9 +10019,17 @@ static int dissect_nhdr_extopt(tvbuff_t * tvb, int offset, packet_info * pinfo, 
         /* Self-contained extended option. */
         if (reassembly->reassembly_in_progress)
         {
-            tvb_memcpy(tvb, reassembly->data + fragment_offset, data_offset, data_len);
-            reassembly->len += data_len;
-            proto_tree_add_item(subtree, hf_lbmc_extopt_data, tvb, offset + len_dissected, data_len, ENC_NA);
+            if ((reassembly->len + fragment_offset + data_len) < LBMC_EXTOPT_REASSEMBLED_DATA_MAX_LEN)
+            {
+                tvb_memcpy(tvb, reassembly->data + fragment_offset, data_offset, data_len);
+                reassembly->len += data_len;
+                proto_tree_add_item(subtree, hf_lbmc_extopt_data, tvb, offset + len_dissected, data_len, ENC_NA);
+            }
+            else
+            {
+                expert_add_info(pinfo, fragment_item, &ei_lbmc_extopt_fragment_offset);
+                return (len_dissected);
+            }
         }
         else
         {
@@ -10025,8 +10042,16 @@ static int dissect_nhdr_extopt(tvbuff_t * tvb, int offset, packet_info * pinfo, 
             }
             else
             {
-                tvb_memcpy(tvb, reassembly->data + fragment_offset, data_offset, data_len);
-                reassembly->len += data_len;
+                if ((reassembly->len + fragment_offset + data_len) < LBMC_EXTOPT_REASSEMBLED_DATA_MAX_LEN)
+                {
+                    tvb_memcpy(tvb, reassembly->data + fragment_offset, data_offset, data_len);
+                    reassembly->len += data_len;
+                }
+                else
+                {
+                    expert_add_info(pinfo, fragment_item, &ei_lbmc_extopt_fragment_offset);
+                    return (len_dissected);
+                }
             }
             proto_tree_add_item(subtree, hf_lbmc_extopt_data, tvb, data_offset, data_len, ENC_NA);
         }
@@ -14156,7 +14181,9 @@ void proto_register_lbmc(void)
         { &ei_lbmc_analysis_invalid_offset, { "lbmc.analysis.invalid_offset", PI_MALFORMED, PI_ERROR, "Message property offset exceeds data length", EXPFILL } },
         { &ei_lbmc_analysis_missing_reassembly_frame, { "lbmc.analysis.missing_reassembly_frame", PI_UNDECODED, PI_WARN, "Message not reassembled - reassembly data missing from capture", EXPFILL } },
         { &ei_lbmc_analysis_invalid_fragment, { "lbmc.analysis.invalid_fragment", PI_MALFORMED, PI_ERROR, "Invalid fragment", EXPFILL } },
+        { &ei_lbmc_extopt_fragment_offset, { "lbmc.extopt.fragment_offset.invalid", PI_PROTOCOL, PI_ERROR, "Invalid fragment offset", EXPFILL } },
     };
+
     module_t * lbmc_module = NULL;
     expert_module_t * expert_lbmc;
 
