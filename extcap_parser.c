@@ -63,6 +63,7 @@ gchar *extcap_get_complex_as_string(extcap_complex *comp) {
                 comp->complex_value.bool_value ? "true" : "false");
         break;
     case EXTCAP_ARG_STRING:
+    case EXTCAP_ARG_PASSWORD:
     case EXTCAP_ARG_FILESELECT:
         g_free(ret);
         ret = g_strdup(comp->complex_value.string_value);
@@ -121,6 +122,7 @@ extcap_complex *extcap_parse_complex(extcap_arg_type complex_type,
         success = TRUE;
         break;
     case EXTCAP_ARG_STRING:
+    case EXTCAP_ARG_PASSWORD:
     case EXTCAP_ARG_FILESELECT:
         rc->complex_value.string_value = g_strdup(data);
         success = TRUE;
@@ -174,6 +176,7 @@ gboolean extcap_compare_is_default(extcap_arg *element, extcap_complex *test) {
             result = TRUE;
         break;
     case EXTCAP_ARG_STRING:
+    case EXTCAP_ARG_PASSWORD:
         if (strcmp(extcap_complex_get_string(test),
                 extcap_complex_get_string(element->default_complex)) == 0)
             result = TRUE;
@@ -188,6 +191,7 @@ gboolean extcap_compare_is_default(extcap_arg *element, extcap_complex *test) {
 
 void extcap_free_complex(extcap_complex *comp) {
     if (comp->complex_type == EXTCAP_ARG_STRING
+            || comp->complex_type == EXTCAP_ARG_PASSWORD
             || comp->complex_type == EXTCAP_ARG_FILESELECT)
         g_free(comp->complex_value.string_value);
 
@@ -627,6 +631,8 @@ extcap_arg *extcap_parse_arg_sentence(GList * args, extcap_token_sentence *s) {
             target_arg->arg_type = EXTCAP_ARG_RADIO;
         } else if (g_ascii_strcasecmp(v->value, "string") == 0) {
             target_arg->arg_type = EXTCAP_ARG_STRING;
+        } else if (g_ascii_strcasecmp(v->value, "password") == 0) {
+            target_arg->arg_type = EXTCAP_ARG_PASSWORD;
         } else if (g_ascii_strcasecmp(v->value, "fileselect") == 0) {
             target_arg->arg_type = EXTCAP_ARG_FILESELECT;
         } else if (g_ascii_strcasecmp(v->value, "multicheck") == 0) {

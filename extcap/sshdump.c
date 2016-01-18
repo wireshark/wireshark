@@ -550,7 +550,7 @@ static int list_config(char *interface, unsigned int remote_port)
 		"{type=string}{default=%s}{tooltip=The remote SSH username. If not provided, "
 		"the current user will be used}\n", inc++, g_get_user_name());
 	printf("arg {number=%u}{call=--remote-password}{display=Remote SSH server password}"
-		"{type=string}{tooltip=The SSH password, used when other methods (SSH agent "
+		"{type=password}{tooltip=The SSH password, used when other methods (SSH agent "
 		"or key files) are unavailable.}\n", inc++);
 	printf("arg {number=%u}{call=--sshkey}{display=Path to SSH private key}"
 		"{type=fileselect}{tooltip=The path on the local filesystem of the private ssh key}\n",

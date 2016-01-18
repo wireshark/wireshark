@@ -46,6 +46,7 @@ Argument type for UI filtering for raw, or UI type for selector:
     radio (display group of radio buttons with provided values, all values as strings)
     fileselect (display a dialog to select a file from the filesystem, value as string)
     multicheck (display a textbox for selecting multiple options, values as strings)
+    password (display a textbox with masked text)
 
 =item value (options)
 
@@ -78,6 +79,10 @@ Example 3:
     arg {number=0}{call=--usbdevice}{USB Device}{type=selector}
     arg {number=1}{call=--server}{display=IP address for log server}{type=string}{validation=(?:\d{1,3}\.){3}\d{1,3}}
     flag {failure=Permission denied opening Ubertooth device}
+
+Example 4:
+    arg {number=0}{call=--username}{display=Username}{type=string}
+    arg {number=1}{call=--password}{display=Password}{type=password}
 
 =head1 Security awareness
 

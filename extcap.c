@@ -894,6 +894,9 @@ void extcap_debug_arguments ( extcap_arg *arg_iter )
             case EXTCAP_ARG_STRING:
             printf ( "string\n" );
             break;
+            case EXTCAP_ARG_PASSWORD:
+            printf ( "PASSWORD\n" );
+            break;
             case EXTCAP_ARG_MULTICHECK:
             printf ( "unknown\n" );
             break;

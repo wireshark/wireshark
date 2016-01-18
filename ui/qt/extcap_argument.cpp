@@ -287,6 +287,9 @@ QWidget * ExtArgText::createEditor(QWidget * parent)
     if ( _argument->tooltip != NULL )
         textBox->setToolTip(QString().fromUtf8(_argument->tooltip));
 
+    if (_argument->arg_type == EXTCAP_ARG_PASSWORD)
+        textBox->setEchoMode(QLineEdit::Password);
+
     connect(textBox , SIGNAL(textChanged(QString)), SLOT(onStringChanged(QString)));
 
     return textBox;
@@ -568,7 +571,7 @@ ExtcapArgument * ExtcapArgument::create(extcap_arg * argument, GHashTable * devi
 
     ExtcapArgument * result = 0;
 
-    if ( argument->arg_type == EXTCAP_ARG_STRING )
+    if ( argument->arg_type == EXTCAP_ARG_STRING || argument->arg_type == EXTCAP_ARG_PASSWORD )
         result = new ExtArgText(argument);
     else if ( argument->arg_type == EXTCAP_ARG_INTEGER || argument->arg_type == EXTCAP_ARG_LONG ||
             argument->arg_type == EXTCAP_ARG_UNSIGNED || argument->arg_type == EXTCAP_ARG_DOUBLE )

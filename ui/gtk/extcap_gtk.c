@@ -157,6 +157,7 @@ GHashTable *extcap_gtk_get_state(GtkWidget *widget) {
         case EXTCAP_ARG_LONG:
         case EXTCAP_ARG_DOUBLE:
         case EXTCAP_ARG_STRING:
+        case EXTCAP_ARG_PASSWORD:
             parsed_complex = extcap_parse_complex(arg->arg_type,
                     gtk_entry_get_text(GTK_ENTRY(list_widget)));
             if (parsed_complex == NULL) {
@@ -812,6 +813,7 @@ GSList *extcap_populate_gtk_vbox(GList *arguments, GtkWidget *vbox,
             }
             break;
         case EXTCAP_ARG_STRING:
+        case EXTCAP_ARG_PASSWORD:
             label = gtk_label_new(arg_iter->display);
 
             item = gtk_entry_new();
@@ -827,6 +829,9 @@ GSList *extcap_populate_gtk_vbox(GList *arguments, GtkWidget *vbox,
                 gtk_entry_set_text(GTK_ENTRY(item), default_str);
                 g_free(default_str);
             }
+
+            if ( arg_iter->arg_type == EXTCAP_ARG_PASSWORD)
+                gtk_entry_set_visibility(GTK_ENTRY(item), FALSE);
 
             break;
         case EXTCAP_ARG_FILESELECT:

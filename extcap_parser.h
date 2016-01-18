@@ -45,6 +45,7 @@ typedef enum {
     EXTCAP_ARG_BOOLEAN,
     EXTCAP_ARG_BOOLFLAG,
     EXTCAP_ARG_STRING,
+    EXTCAP_ARG_PASSWORD,
     /* Complex GUI types which are populated with value sentences */
     EXTCAP_ARG_SELECTOR,
     EXTCAP_ARG_RADIO,

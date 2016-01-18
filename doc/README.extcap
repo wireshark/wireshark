@@ -150,6 +150,10 @@ These options do have types, for which the following types are being supported:
      the user input for validity beyond normal data type or range checks. Back-slashes
      must be escaped (as in \\b for \b)
 
+ * PASSWORD - Let the user provide a masked string to the capture
+
+   arg {number=0}{call=--password}{display=The user password}{tooltip=The password for the connection}{type=password}
+
  * BOOLEAN,BOOLFLAG - this provides the possibility to set a true/false value.
    BOOLFLAG values will only appear in the command-line if set to true, otherwise they
    will not be added to the command-line call for the extcap interface
