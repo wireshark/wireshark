@@ -283,7 +283,6 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                &ei_pcap_pktdata_linktype_unknown,
                                "Link-layer header type %u is not supported",
                                *link_type);
-        next_tvb = tvb_new_subset_remaining(tvb, offset);
         return tvb_captured_length(tvb);
     }
 
@@ -347,7 +346,6 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                    &ei_pcap_pktdata_cant_generate_phdr,
                                    "No pseudo-header can be generated for link-layer header type %u",
                                    *link_type);
-            next_tvb = tvb_new_subset_remaining(tvb, offset);
             return tvb_captured_length(tvb);
         }
     } else {
