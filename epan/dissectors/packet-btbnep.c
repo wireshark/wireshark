@@ -47,6 +47,8 @@ static int hf_btbnep_extension_type                                        = -1;
 static int hf_btbnep_extension_length                                      = -1;
 static int hf_btbnep_dst                                                   = -1;
 static int hf_btbnep_src                                                   = -1;
+static int hf_btbnep_len                                                   = -1;
+static int hf_btbnep_invalid_lentype                                       = -1;
 static int hf_btbnep_type                                                  = -1;
 static int hf_btbnep_addr                                                  = -1;
 static int hf_btbnep_lg                                                    = -1;
@@ -69,12 +71,15 @@ static gint ett_btbnep                                                     = -1;
 static gint ett_addr                                                       = -1;
 
 static expert_field ei_btbnep_src_not_group_address = EI_INIT;
+static expert_field ei_btbnep_invalid_lentype       = EI_INIT;
+static expert_field ei_btbnep_len_past_end          = EI_INIT;
 
 static dissector_handle_t btbnep_handle;
 
 static gboolean top_dissect                                              = TRUE;
 
-static dissector_handle_t eth_handle;
+static dissector_handle_t llc_handle;
+static dissector_handle_t ipx_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t ethertype_handle;
 
@@ -283,9 +288,10 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     gint          offset = 0;
     guint         bnep_type;
     guint         extension_flag;
-    guint         type = 0;
+    guint         len_type = 0;
     proto_item   *addr_item;
     proto_tree   *addr_tree = NULL;
+    proto_item   *length_ti = NULL;
 
     pi = proto_tree_add_item(tree, proto_btbnep, tvb, offset, -1, ENC_NA);
     btbnep_tree = proto_item_add_subtree(pi, ett_btbnep);
@@ -344,10 +350,35 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     }
 
     if (bnep_type != BNEP_TYPE_CONTROL) {
-        type = tvb_get_ntohs(tvb, offset);
-        if (!top_dissect) {
-            proto_tree_add_item(btbnep_tree, hf_btbnep_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " - Type: %s", val_to_str_const(type, etype_vals, "unknown"));
+        len_type = tvb_get_ntohs(tvb, offset);
+        if (len_type <= IEEE_802_3_MAX_LEN) {
+            /*
+             * The BNEP Version 1.0 spec says, for BNEP_GENERAL_ETHERNET
+             * packets, "Note: Networking Protocol Types as used in this
+             * specification SHALL be taken to include values in the range
+             * 0x0000-0x05dc, used to represent the IEEE802.3 length
+             * interpretation of the IEEE802.3 length/type field.",
+             * although it says that it's not mandatory to process
+             * those packets.
+             */
+            length_ti = proto_tree_add_item(btbnep_tree, hf_btbnep_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+        } else if (len_type < ETHERNET_II_MIN_LEN) {
+            /*
+             * Not a valid Ethernet length, not a valid Ethernet type.
+             */
+            proto_item *ti;
+
+            ti = proto_tree_add_item(btbnep_tree, hf_btbnep_invalid_lentype, tvb, offset, 2, ENC_BIG_ENDIAN);
+            expert_add_info_format(pinfo, ti, &ei_btbnep_invalid_lentype,
+                                   "Invalid length/type: 0x%04x (%u)",
+                                   len_type, len_type);
+        } else {
+            /*
+             * Ethernet type.
+             */
+            if (!top_dissect)
+                proto_tree_add_item(btbnep_tree, hf_btbnep_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " - Type: %s", val_to_str_const(len_type, etype_vals, "unknown"));
         }
         offset += 2;
     } else {
@@ -360,23 +391,86 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     if (bnep_type != BNEP_TYPE_CONTROL) {
         /* dissect normal network */
-       if (top_dissect) {
-           ethertype_data_t ethertype_data;
+        if (top_dissect) {
+            if (len_type <= IEEE_802_3_MAX_LEN) {
+                gboolean is_802_2;
+                gint reported_length;
+                tvbuff_t  *next_tvb;
 
-           ethertype_data.etype = type;
-           ethertype_data.offset_after_ethertype = offset;
-           ethertype_data.fh_tree = btbnep_tree;
-           ethertype_data.etype_id = hf_btbnep_type;
-           ethertype_data.trailer_id = 0;
-           ethertype_data.fcs_len = 0;
+                /*
+                 * The BNEP Version 1.0 spec says, for BNEP_GENERAL_ETHERNET
+                 * packets, "Note: Networking Protocol Types as used in this
+                 * specification SHALL be taken to include values in the range
+                 * 0x0000-0x05dc, used to represent the IEEE802.3 length
+                 * interpretation of the IEEE802.3 length/type field.",
+                 * although it says that it's not mandatory to process
+                 * those packets.
+                 */
 
-           call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
-       } else {
+                /*
+                 * Is there an 802.2 layer? I can tell by looking at the
+                 * first 2 bytes of the payload. If they are 0xffff, then
+                 * the payload is IPX.
+                 *
+                 * (Probably won't happen, but we might as well do this
+                 * anyway.)
+                 */
+                is_802_2 = TRUE;
+
+                /* Don't throw an exception for this check (even a BoundsError) */
+                if (tvb_bytes_exist(tvb, offset, 2)) {
+                    if (tvb_get_ntohs(tvb, offset) == 0xffff) {
+                        is_802_2 = FALSE;
+                    }
+                }
+
+                reported_length = tvb_reported_length_remaining(tvb, offset);
+
+                /*
+                 * Make sure the length doesn't go past the end of the
+                 * payload.
+                 */
+                if (reported_length >= 0 && len_type > (guint)reported_length) {
+                    len_type = reported_length;
+                    expert_add_info(pinfo, length_ti, &ei_btbnep_len_past_end);
+                }
+
+                /* Give the next dissector only 'len_type' number of bytes. */
+                next_tvb = tvb_new_subset_length(tvb, offset, len_type);
+                if (is_802_2) {
+                    call_dissector(llc_handle, next_tvb, pinfo, tree);
+                } else {
+                    call_dissector(ipx_handle, next_tvb, pinfo, tree);
+                }
+            } else if (len_type < ETHERNET_II_MIN_LEN) {
+                /*
+                 * Not a valid packet.
+                 */
+                tvbuff_t  *next_tvb;
+
+                next_tvb = tvb_new_subset_remaining(tvb, offset);
+                call_dissector(data_handle, next_tvb, pinfo, tree);
+            } else {
+                /*
+                 * Valid Ethertype.
+                 */
+                ethertype_data_t ethertype_data;
+
+                ethertype_data.etype = len_type;
+                ethertype_data.offset_after_ethertype = offset;
+                ethertype_data.fh_tree = btbnep_tree;
+                ethertype_data.etype_id = hf_btbnep_type;
+                ethertype_data.trailer_id = 0;
+                ethertype_data.fcs_len = 0;
+
+                call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
+            }
+        } else {
             tvbuff_t  *next_tvb;
 
             next_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector(data_handle, next_tvb, pinfo, tree);
-       }
+        }
     }
 
     return offset;
@@ -485,6 +579,16 @@ proto_register_btbnep(void)
             FT_ETHER, BASE_NONE, NULL, 0x0,
             "Source Hardware Address", HFILL }
         },
+        { &hf_btbnep_len,
+            { "Length",                            "btbnep.len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btbnep_invalid_lentype,
+            { "Invalid length/type",               "btbnep.invalid_lentype",
+            FT_UINT16, BASE_HEX_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_btbnep_type,
             { "Type",                              "btbnep.type",
             FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
@@ -514,6 +618,8 @@ proto_register_btbnep(void)
 
     static ei_register_info ei[] = {
         { &ei_btbnep_src_not_group_address, { "btbnep.src.not_group_address", PI_PROTOCOL, PI_WARN, "Source MAC must not be a group address: IEEE 802.3-2002, Section 3.2.3(b)", EXPFILL }},
+        { &ei_btbnep_invalid_lentype, { "btbnep.invalid_lentype.expert", PI_PROTOCOL, PI_WARN, "Invalid length/type", EXPFILL }},
+        { &ei_btbnep_len_past_end, { "btbnep.len.past_end", PI_MALFORMED, PI_ERROR, "Length field value goes past the end of the payload", EXPFILL }},
     };
 
     proto_btbnep = proto_register_protocol("Bluetooth BNEP Protocol", "BT BNEP", "btbnep");
@@ -537,7 +643,8 @@ proto_register_btbnep(void)
 void
 proto_reg_handoff_btbnep(void)
 {
-    eth_handle    = find_dissector("eth");
+    ipx_handle    = find_dissector("ipx");
+    llc_handle    = find_dissector("llc");
     data_handle   = find_dissector("data");
     ethertype_handle = find_dissector("ethertype");
 
