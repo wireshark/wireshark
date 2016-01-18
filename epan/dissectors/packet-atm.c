@@ -1018,10 +1018,22 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           }
           else if (pntoh16(octet) == 0x00)
           {
-            /* assume vc muxed bridged ethernet */
+            /*
+             * Assume VC multiplexed bridged Ethernet.
+             * Whether there's an FCS is an option negotiated
+             * over the VC, so we call the "do heuristic checks
+             * to see if there's an FCS" version of the Ethernet
+             * dissector.
+             *
+             * See RFC 2684 section 6.2 "VC Multiplexing of Bridged
+             * Protocols".
+             */
+            struct eth_phdr eth;
+
             proto_tree_add_item(tree, hf_atm_padding, tvb, 0, 2, ENC_NA);
             next_tvb = tvb_new_subset_remaining(tvb, 2);
-            call_dissector(eth_handle, next_tvb, pinfo, tree);
+            eth.fcs_len = -1;   /* We don't know whether there's an FCS */
+            call_dissector_with_data(eth_handle, next_tvb, pinfo, tree, &eth);
             decoded = TRUE;
           }
           else if (octet[2] == 0x03    && /* NLPID */

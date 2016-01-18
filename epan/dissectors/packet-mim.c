@@ -198,6 +198,7 @@ dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ 
   guint16       dlid     = 0;
   const guint8 *dst_addr = NULL;
   gboolean      dest_ig  = FALSE;
+  struct eth_phdr eth;
 
   col_set_str( pinfo->cinfo, COL_PROTOCOL, FP_PROTO_COL_NAME ) ;
   col_set_str( pinfo->cinfo, COL_INFO, FP_PROTO_COL_INFO ) ;
@@ -273,7 +274,12 @@ dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ 
   }
   /* call the eth dissector */
   next_tvb = tvb_new_subset_remaining( tvb, FP_HEADER_SIZE) ;
-  call_dissector( eth_dissector, next_tvb, pinfo, tree ) ;
+  /*
+   * For now, say we don't know whether there's an FCS in the
+   * captured data.
+   */
+  eth.fcs_len = -1;
+  call_dissector_with_data( eth_dissector, next_tvb, pinfo, tree, &eth ) ;
 
   return tvb_captured_length( tvb ) ;
 }
