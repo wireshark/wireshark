@@ -178,7 +178,7 @@ static gint ett_x509af_DSS_Params = -1;
 
 /*--- End of included file: packet-x509af-ett.c ---*/
 #line 57 "../../asn1/x509af/packet-x509af-template.c"
-static const char *algorithm_id;
+static const char *algorithm_id = NULL;
 static void
 x509af_export_publickey(tvbuff_t *tvb, asn1_ctx_t *actx, int offset, int len);
 
@@ -221,12 +221,18 @@ dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509af_algorithm_id, &actx->external.direct_reference);
 
 
-  algorithm_id = actx->external.direct_reference;
+  if (algorithm_id) {
+    wmem_free(wmem_file_scope(), (void*)algorithm_id);
+  }
 
   if(actx->external.direct_reference) {
+    algorithm_id = (const char *)wmem_strdup(wmem_file_scope(), actx->external.direct_reference);
+
     name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference);
 
     proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
+  } else {
+    algorithm_id = NULL;
   }
 
 
@@ -238,7 +244,7 @@ dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_x509af_T_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 82 "../../asn1/x509af/x509af.cnf"
+#line 88 "../../asn1/x509af/x509af.cnf"
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -329,7 +335,7 @@ static const ber_choice_t SubjectName_choice[] = {
 
 static int
 dissect_x509af_SubjectName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 141 "../../asn1/x509af/x509af.cnf"
+#line 147 "../../asn1/x509af/x509af.cnf"
 
   const char* str;
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -349,7 +355,7 @@ dissect_x509af_SubjectName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_x509af_T_subjectPublicKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 91 "../../asn1/x509af/x509af.cnf"
+#line 97 "../../asn1/x509af/x509af.cnf"
   tvbuff_t *bs_tvb = NULL;
 
   dissect_ber_bitstring(FALSE, actx, NULL, tvb, offset,
@@ -379,13 +385,13 @@ static const ber_sequence_t SubjectPublicKeyInfo_sequence[] = {
 
 int
 dissect_x509af_SubjectPublicKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 85 "../../asn1/x509af/x509af.cnf"
+#line 91 "../../asn1/x509af/x509af.cnf"
   int orig_offset = offset;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SubjectPublicKeyInfo_sequence, hf_index, ett_x509af_SubjectPublicKeyInfo);
 
-#line 87 "../../asn1/x509af/x509af.cnf"
+#line 93 "../../asn1/x509af/x509af.cnf"
   x509af_export_publickey(tvb, actx, orig_offset, offset - orig_offset);
 
   return offset;
@@ -395,7 +401,7 @@ dissect_x509af_SubjectPublicKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_x509af_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 120 "../../asn1/x509af/x509af.cnf"
+#line 126 "../../asn1/x509af/x509af.cnf"
   const char *name;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509af_extension_id, &actx->external.direct_reference);
@@ -425,7 +431,7 @@ dissect_x509af_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_x509af_T_extnValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 131 "../../asn1/x509af/x509af.cnf"
+#line 137 "../../asn1/x509af/x509af.cnf"
   gint8 ber_class;
   gboolean pc, ind;
   gint32 tag;
