@@ -7687,6 +7687,10 @@ hfinfo_numeric_value_format(const header_field_info *hfinfo, char buf[32], guint
 		display = BASE_DEC;
 	}
 
+	if (IS_BASE_PORT(display)) {
+		display = BASE_DEC;
+	}
+
 	switch (display) {
 		case BASE_NONE:
 		/* case BASE_DEC: */
