@@ -53,7 +53,7 @@ static int hf_x509af_extension_id = -1;
 /* Initialize the subtree pointers */
 static gint ett_pkix_crl = -1;
 #include "packet-x509af-ett.c"
-static const char *algorithm_id;
+static const char *algorithm_id = NULL;
 static void
 x509af_export_publickey(tvbuff_t *tvb, asn1_ctx_t *actx, int offset, int len);
 #include "packet-x509af-fn.c"

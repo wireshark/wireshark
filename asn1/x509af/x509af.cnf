@@ -70,12 +70,18 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
 
   %(DEFAULT_BODY)s
 
-  algorithm_id = actx->external.direct_reference;
+  if (algorithm_id) {
+    wmem_free(wmem_file_scope(), (void*)algorithm_id);
+  }
 
   if(actx->external.direct_reference) {
+    algorithm_id = (const char *)wmem_strdup(wmem_file_scope(), actx->external.direct_reference);
+
     name = oid_resolved_from_string(wmem_packet_scope(), actx->external.direct_reference);
 
     proto_item_append_text(tree, " (%%s)", name ? name : actx->external.direct_reference);
+  } else {
+    algorithm_id = NULL;
   }
 
 #.FN_BODY AlgorithmIdentifier/parameters
