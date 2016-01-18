@@ -1,6 +1,6 @@
 /* packet-dcm.c
  * Routines for DICOM dissection
- * Copyright 2003, Rich Coe <Richard.Coe@med.ge.com>
+ * Copyright 2003, Rich Coe <richcoe2@gmail.com>
  * Copyright 2008-2010, David Aggeler <david_aggeler@hispeed.ch>
  *
  * DICOM communication protocol
@@ -5548,7 +5548,7 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     const gchar *desc_flag = NULL;      /* Flag Description in tree */
     gchar *desc_header = NULL;          /* Used for PDV description */
 
-    guint8  flags = 0;
+    guint8  flags = 0, o_flags = 0;
     guint8  pctx_id = 0;
 
     /* 1 Byte Context */
@@ -5592,7 +5592,9 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     /* 1 Byte Flag */
-    flags = tvb_get_guint8(tvb, offset);
+    /* PS3.8 E.2  Bits 2 through 7 are always set to 0 by the sender and never checked by the receiver. */
+    o_flags = tvb_get_guint8(tvb, offset);
+    flags = 0x3 & o_flags;
 
     (*pdv)->pctx_id = pctx_id;
 
@@ -5600,7 +5602,10 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     switch (flags) {
     case 0:     /* 00 */
-        desc_flag = "Data, More Fragments";
+        if (0 != (0xfc & o_flags))
+            desc_flag = "Data, More Fragments (Warning: Invalid)";
+        else
+            desc_flag = "Data, More Fragments";
 
         (*pdv)->is_flagvalid = TRUE;
         (*pdv)->is_command = FALSE;
@@ -5609,7 +5614,10 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
 
     case 2:     /* 10 */
-        desc_flag = "Data, Last Fragment";
+        if (0 != (0xfc & o_flags))
+            desc_flag = "Data, Last Fragment (Warning: Invalid)";
+        else
+            desc_flag = "Data, Last Fragment";
 
         (*pdv)->is_flagvalid = TRUE;
         (*pdv)->is_command = FALSE;
@@ -5618,7 +5626,10 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
 
     case 1:     /* 01 */
-        desc_flag = "Command, More Fragments";
+        if (0 != (0xfc & o_flags))
+            desc_flag = "Command, More Fragments (Warning: Invalid)";
+        else
+            desc_flag = "Command, More Fragments";
         g_snprintf(desc_header, MAX_BUF_LEN, "Command");                /* Will be overwritten with real command tag */
 
         (*pdv)->is_flagvalid = TRUE;
@@ -5628,7 +5639,10 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
 
     case 3:     /* 11 */
-        desc_flag = "Command, Last Fragment";
+        if (0 != (0xfc & o_flags))
+            desc_flag = "Command, Last Fragment (Warning: Invalid)";
+        else
+            desc_flag = "Command, Last Fragment";
         g_snprintf(desc_header, MAX_BUF_LEN, "Command");
 
         (*pdv)->is_flagvalid = TRUE;
@@ -5679,9 +5693,9 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     (*pdv)->desc = desc_header;
 
     pdv_flags_pitem = proto_tree_add_uint_format(tree, hf_dcm_pdv_flags, tvb, offset, 1,
-        flags, "Flags: 0x%02x (%s)", flags, desc_flag);
+        flags, "Flags: 0x%02x (%s)", o_flags, desc_flag);
 
-    if (flags>3) {
+    if (o_flags>3) {
         expert_add_info(pinfo, pdv_flags_pitem, &ei_dcm_pdv_flags);
     }
     offset +=1;
