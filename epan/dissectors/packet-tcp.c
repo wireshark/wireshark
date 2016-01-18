@@ -4834,7 +4834,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct tcpinfo tcpinfo;
     struct tcpheader *tcph;
     proto_item *tf_syn = NULL, *tf_fin = NULL, *tf_rst = NULL, *scaled_pi;
-    conversation_t *conv=NULL;
+    conversation_t *conv=NULL, *other_conv;
+    guint32 save_last_frame = 0;
     struct tcp_analysis *tcpd=NULL;
     struct tcp_per_packet_data_t *tcppd=NULL;
     proto_item *item;
@@ -4916,8 +4917,26 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     real_window = tcph->th_win;
     tcph->th_hlen = hi_nibble(th_off_x2) * 4;  /* TCP header length, in bytes */
 
-    /* find(or create if needed) the conversation for this tcp session */
-    conv=find_or_create_conversation(pinfo);
+    /* find(or create if needed) the conversation for this tcp session
+     * This is a slight deviation from find_or_create_conversation so it's
+     * done manually.  This is done to save the last frame of the conversation
+     * in case a new conversation is found and the previous conversation needs
+     * to be adjusted,
+     */
+    if((conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+                     pinfo->ptype, pinfo->srcport,
+                     pinfo->destport, 0)) != NULL) {
+        /* Update how far the conversation reaches */
+        if (pinfo->fd->num > conv->last_frame) {
+            save_last_frame = conv->last_frame;
+            conv->last_frame = pinfo->fd->num;
+        }
+    }
+    else {
+        conv = conversation_new(pinfo->fd->num, &pinfo->src,
+                     &pinfo->dst, pinfo->ptype,
+                     pinfo->srcport, pinfo->destport, 0);
+    }
     tcpd=get_tcp_conversation_data(conv,pinfo);
 
     /* If this is a SYN packet, then check if its seq-nr is different
@@ -4932,9 +4951,41 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        (tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET) &&
        (tcph->th_seq!=tcpd->fwd->base_seq) ) {
         if (!(pinfo->fd->flags.visited)) {
+            /* Reset the last frame seen in the conversation */
+            if (save_last_frame > 0)
+                conv->last_frame = save_last_frame;
+
             conv=conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
             tcpd=get_tcp_conversation_data(conv,pinfo);
         }
+        if(!tcpd->ta)
+            tcp_analyze_get_acked_struct(pinfo->fd->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
+        tcpd->ta->flags|=TCP_A_REUSED_PORTS;
+    }
+    /* If this is a SYN/ACK packet, then check if its seq-nr is different
+     * from the base_seq of the retrieved conversation. If this is the
+     * case, try to find a conversation with the same addresses and ports
+     * and set the TA_PORTS_REUSED flag. If the seq-nr is the same as
+     * the base_seq, then do nothing so it will be marked as a retrans-
+     * mission later.
+     * XXX - Is this affected by MPTCP which can use multiple SYNs?
+     */
+    if(tcpd && ((tcph->th_flags&(TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) &&
+       (tcpd->fwd->static_flags & TCP_S_BASE_SEQ_SET) &&
+       (tcph->th_seq!=tcpd->fwd->base_seq) ) {
+        if (!(pinfo->fd->flags.visited)) {
+            /* Reset the last frame seen in the conversation */
+            if (save_last_frame > 0)
+                conv->last_frame = save_last_frame;
+        }
+
+        other_conv = find_conversation(pinfo->fd->num, &pinfo->dst, &pinfo->src, pinfo->ptype, pinfo->destport, pinfo->srcport, 0);
+        if (other_conv != NULL)
+        {
+            conv = other_conv;
+            tcpd=get_tcp_conversation_data(conv,pinfo);
+        }
+
         if(!tcpd->ta)
             tcp_analyze_get_acked_struct(pinfo->fd->num, tcph->th_seq, tcph->th_ack, TRUE, tcpd);
         tcpd->ta->flags|=TCP_A_REUSED_PORTS;
