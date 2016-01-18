@@ -1263,6 +1263,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-sflow.c
 	dissectors/packet-sgsap.c
 	dissectors/packet-sigcomp.c
+	dissectors/packet-simple.c
 	dissectors/packet-simulcrypt.c
 	dissectors/packet-sip.c
 	dissectors/packet-sipfrag.c

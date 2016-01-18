@@ -1183,6 +1183,7 @@ DISSECTOR_SRC = \
 	packet-sflow.c		\
 	packet-sgsap.c		\
 	packet-sigcomp.c	\
+	packet-simple.c		\
 	packet-simulcrypt.c	\
 	packet-sip.c		\
 	packet-sipfrag.c	\

@@ -54,6 +54,7 @@ ITU-T G.7041/Y.1303 Generic Framing Procedure (GFP)
 Zigbee Protocol Clusters Dissectors Added (Closures, Lighting, General, Measurement & Sensing, HVAC, Security & Safety)
 LAT protocol (DECNET)
 Ericsson IPOS Kernel Packet Header Dissector Added (IPOS)
+STANAG 5602 SIMPLE
 // Items in --sort-and-group-- blocks will be sorted and comma-separated.
 --sort-and-group--
 --sort-and-group--
