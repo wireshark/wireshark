@@ -115,6 +115,7 @@ static guint32  global_arp_detect_request_storm_packets = 30;
 static guint32  global_arp_detect_request_storm_period = 100;
 
 static gboolean global_arp_detect_duplicate_ip_addresses = TRUE;
+static gboolean global_arp_register_network_address_binding = TRUE;
 
 static guint32  arp_request_count = 0;
 static nstime_t time_at_start_of_count;
@@ -1496,7 +1497,10 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     mac = tvb_get_ptr(tvb, sha_offset, 6);
     if ((mac[0] & 0x01) == 0 && memcmp(mac, mac_allzero, 6) != 0 && ip != 0)
     {
-      add_ether_byip(ip, mac);
+      if (global_arp_register_network_address_binding)
+      {
+        add_ether_byip(ip, mac);
+      }
       if (global_arp_detect_duplicate_ip_addresses)
       {
         duplicate_detected =
@@ -1518,7 +1522,10 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if ((mac[0] & 0x01) == 0 && memcmp(mac, mac_allzero, 6) != 0 && ip != 0
         && ar_op != ARPOP_REQUEST)
     {
-      add_ether_byip(ip, mac);
+      if (global_arp_register_network_address_binding)
+      {
+        add_ether_byip(ip, mac);
+      }
       /* If Gratuitous, don't report duplicate for same IP address twice */
       if (global_arp_detect_duplicate_ip_addresses && (duplicate_ip!=ip))
       {
@@ -2006,6 +2013,11 @@ proto_register_arp(void)
                                  "Detect duplicate IP address configuration",
                                  "Attempt to detect duplicate use of IP addresses",
                                  &global_arp_detect_duplicate_ip_addresses);
+
+  prefs_register_bool_preference(arp_module, "register_network_address_binding",
+                                 "Register network address mappings",
+                                 "Try to resolve physical addresses to host names from ARP requests/responses",
+                                 &global_arp_register_network_address_binding);
 
   /* TODO: define a minimum time between sightings that is worth reporting? */
 
