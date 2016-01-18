@@ -1665,7 +1665,7 @@ if(LUA_FOUND AND ENABLE_LUA)
 				"${_lua_file}"
 		)
 	endforeach()
-endif(LUA_FOUND)
+endif(LUA_FOUND AND ENABLE_LUA)
 # doc/*.html handled elsewhere.
 
 # TODO shouldn't this use full (relative) paths instead of glob patterns?
