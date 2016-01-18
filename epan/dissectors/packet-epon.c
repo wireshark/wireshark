@@ -79,6 +79,7 @@ dissect_epon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint       offset = 0;
   guint       dpoe_sec_byte;
   gboolean    dpoe_encrypted = FALSE;
+  struct eth_phdr eth;
 
   /* Start_of_Packet delimiter (/S/) can either happen in byte 1 or byte 2,
    * making the captured preamble either 7 or 6 bytes in length. If the
@@ -195,7 +196,12 @@ dissect_epon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_append_str(pinfo->cinfo, COL_INFO, " [ENCRYPTED]");
   } else {
     next_tvb = tvb_new_subset_remaining(tvb, 6+offset);
-    call_dissector(eth_handle, next_tvb, pinfo, tree);
+    /*
+     * XXX - is it guaranteed whether the capture will, or won't, have
+     * an FCS?
+     */
+    eth.fcs_len = -1;
+    call_dissector_with_data(eth_handle, next_tvb, pinfo, tree, &eth);
   }
 
   return tvb_captured_length(tvb);

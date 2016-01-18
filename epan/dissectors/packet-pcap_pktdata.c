@@ -257,6 +257,8 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     proto_item  *pseudoheader_item;
     proto_tree  *pseudoheader_tree = NULL;
     proto_item  *packet_item;
+    struct eth_phdr eth;
+    void        *phdr;
 
     DISSECTOR_ASSERT(data);
 
@@ -313,6 +315,7 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             else
                 pinfo->p2p_dir = P2P_DIR_UNKNOWN;
             offset += 4;
+            phdr = NULL;
             break;
 
         case WTAP_ENCAP_ATM_PDUS:
@@ -347,11 +350,27 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             next_tvb = tvb_new_subset_remaining(tvb, offset);
             return tvb_captured_length(tvb);
         }
+    } else {
+        /*
+         * These also require a pseudo-header, but it's not constructed
+         * from packet data.
+         */
+        switch (pinfo->phdr->pkt_encap) {
+
+        case WTAP_ENCAP_ETHERNET:
+            eth.fcs_len = -1;    /* Unknown whether we have an FCS */
+            phdr = &eth;
+            break;
+
+        default:
+            phdr = NULL;
+            break;
+        }
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    offset = dissector_try_uint_new(wtap_encap_table, pinfo->phdr->pkt_encap, next_tvb, pinfo, tree, TRUE, NULL);
+    offset = dissector_try_uint_new(wtap_encap_table, pinfo->phdr->pkt_encap, next_tvb, pinfo, tree, TRUE, phdr);
 
     return offset;
 }

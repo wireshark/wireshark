@@ -795,8 +795,9 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 /* Called for the Ethernet Wiretap encapsulation type; pass the FCS length
    reported to us, or, if the "assume_fcs" preference is set, pass 4. */
 static int
-dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+  struct eth_phdr   *eth = (struct eth_phdr *)data;
   proto_tree        *fh_tree;
 
   /* Some devices slice the packet and add their own trailer before
@@ -818,9 +819,9 @@ dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     /* Now handle the ethernet trailer and optional FCS */
     next_tvb = tvb_new_subset_remaining(tvb, tvb_captured_length(tvb) - total_trailer_length);
     add_ethernet_trailer(pinfo, tree, fh_tree, hf_eth_trailer, tvb, next_tvb,
-                         eth_assume_fcs ? 4 : pinfo->pseudo_header->eth.fcs_len);
+                         eth_assume_fcs ? 4 : eth->fcs_len);
   } else {
-    dissect_eth_common(tvb, pinfo, tree, eth_assume_fcs ? 4 : pinfo->pseudo_header->eth.fcs_len);
+    dissect_eth_common(tvb, pinfo, tree, eth_assume_fcs ? 4 : eth->fcs_len);
   }
   return tvb_captured_length(tvb);
 }
