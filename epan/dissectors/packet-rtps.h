@@ -110,6 +110,12 @@ typedef enum {
     RTI_CDR_TYPE_OBJECT_TYPE_KIND_ANNOTATION_TYPE=23
 } RTICdrTypeObjectTypeKind;
 
+typedef struct _rtps_dissector_data {
+  guint16 encapsulation_id;
+  gboolean info_displayed;
+} rtps_dissector_data;
+
+
 #define RTPS_MAGIC_NUMBER   0x52545053 /* RTPS */
 #define RTPX_MAGIC_NUMBER   0x52545058 /* RTPX */
 

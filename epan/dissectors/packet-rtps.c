@@ -2863,7 +2863,8 @@ static void rtps_util_format_typename(gchar * type_name, gchar ** output) {
 }
 
 static gboolean rtps_util_show_topic_info(proto_tree *tree, packet_info *pinfo,
-        tvbuff_t *tvb, gint offset, endpoint_guid * guid) {
+        tvbuff_t *tvb, gint offset, endpoint_guid * guid,
+        rtps_dissector_data * data) {
   if (enable_topic_info) {
     type_mapping * type_mapping_object = rtps_util_get_topic_info(guid);
     if (type_mapping_object != NULL) {
@@ -2873,7 +2874,7 @@ static gboolean rtps_util_show_topic_info(proto_tree *tree, packet_info *pinfo,
       tvbuff_t *next_tvb;
 
       /* This part shows information available for the sample */
-      if (tree) {
+      if (data && !(data->info_displayed)) {
         topic_info_tree = proto_tree_add_subtree(tree, tvb, offset, 0,
                 ett_rtps_topic_info, NULL, "[Topic Information (from Discovery)]");
         ti = proto_tree_add_string(topic_info_tree, hf_rtps_param_topic_name, tvb, offset, 0,
@@ -2882,13 +2883,15 @@ static gboolean rtps_util_show_topic_info(proto_tree *tree, packet_info *pinfo,
         ti = proto_tree_add_string(topic_info_tree, hf_rtps_param_type_name, tvb, offset, 0,
             type_mapping_object->type_name);
         PROTO_ITEM_SET_GENERATED(ti);
+        col_append_sep_str(pinfo->cinfo, COL_INFO, " -> ", type_mapping_object->topic_name);
+        data->info_displayed = TRUE;
       }
-      col_append_sep_str(pinfo->cinfo, COL_INFO, " -> ", type_mapping_object->topic_name);
       /* This part tries to dissect the content using a dissector */
       next_tvb = tvb_new_subset_remaining(tvb, offset);
       /* After calling this API, we must call g_free in dissector_name */
       rtps_util_format_typename(type_mapping_object->type_name, &dissector_name);
-      if (dissector_try_string(rtps_type_name_table, dissector_name, next_tvb, pinfo, tree, NULL)) {
+      if (dissector_try_string(rtps_type_name_table, dissector_name,
+              next_tvb, pinfo, tree, data)) {
           g_free(dissector_name);
           return TRUE;
       } else {
@@ -4785,19 +4788,20 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
   proto_tree *rtps_parameter_sequence_tree;
   guint16 encapsulation_id;
   gboolean encapsulation_little_endian = FALSE;
+  rtps_dissector_data * data = NULL;
+  data = wmem_new(wmem_packet_scope(), rtps_dissector_data);
+  data->info_displayed = FALSE;
+  data->encapsulation_id = 0;
 
   /* Creates the sub-tree */
   rtps_parameter_sequence_tree = proto_tree_add_subtree(tree, tvb, offset, size,
           ett_rtps_serialized_data, &ti, label);
 
-  /* Add Topic Information if enabled (checked inside). This call attemps to dissect
-   * the sample and will return TRUE if it did. We should return in that case.*/
-  if (rtps_util_show_topic_info(rtps_parameter_sequence_tree, pinfo, tvb, offset, guid))
-      return;
-
   /* Encapsulation ID */
   encapsulation_id =  NEXT_guint16(tvb, offset, ENC_BIG_ENDIAN);   /* Always big endian */
-  proto_tree_add_uint(rtps_parameter_sequence_tree, hf_rtps_param_serialize_encap_kind, tvb, offset, 2, encapsulation_id);
+  proto_tree_add_uint(rtps_parameter_sequence_tree,
+          hf_rtps_param_serialize_encap_kind, tvb, offset, 2, encapsulation_id);
+  data->encapsulation_id = encapsulation_id;
   offset += 2;
 
   /* Sets the correct values for encapsulation_le */
@@ -4809,6 +4813,12 @@ static void dissect_serialized_data(proto_tree *tree, packet_info *pinfo, tvbuff
   /* Encapsulation length (or option) */
   proto_tree_add_item(rtps_parameter_sequence_tree, hf_rtps_param_serialize_encap_len, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
+
+  /* Add Topic Information if enabled (checked inside). This call attemps to dissect
+   * the sample and will return TRUE if it did. We should return in that case.*/
+  if (rtps_util_show_topic_info(rtps_parameter_sequence_tree, pinfo, tvb,
+          offset, guid, data))
+      return;
 
   /* The payload */
   size -= 4;
@@ -6757,7 +6767,7 @@ static void dissect_RTPS_DATA_FRAG(tvbuff_t *tvb, packet_info *pinfo, gint offse
 /* *********************************************************************** */
 static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offset,
                 guint8 flags, gboolean little_endian, int octets_to_next_header,
-                proto_tree *tree, guint16 vendor_id) {
+                proto_tree *tree, guint16 vendor_id, endpoint_guid * guid) {
   /*
    *
    * 0...2...........7...............15.............23...............31
@@ -6840,6 +6850,10 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
   gint32  sample_info_count = 0,
           sample_info_max = rtps_max_batch_samples_dissected;
   proto_item *octet_item;
+  rtps_dissector_data * data = NULL;
+  data = wmem_new(wmem_packet_scope(), rtps_dissector_data);
+  data->info_displayed = FALSE;
+  data->encapsulation_id = 0;
 
   proto_tree_add_bitmask_value(tree, tvb, offset + 1, hf_rtps_sm_flags, ett_rtps_flags, RTPS_DATA_BATCH_FLAGS, flags);
 
@@ -6875,6 +6889,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
   /* writerEntityId */
   rtps_util_add_entity_id(tree, tvb, offset, hf_rtps_sm_wrentity_id, hf_rtps_sm_wrentity_id_key,
                         hf_rtps_sm_wrentity_id_kind, ett_rtps_wrentity, "writerEntityId", &wid);
+  guid->entity_id = wid;
   offset += 4;
 
 
@@ -6998,6 +7013,7 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
   /* Encapsulation ID for the entire data sequence */
   encapsulation_id =  NEXT_guint16(tvb, offset, FALSE);   /* Always big endian */
   proto_tree_add_uint(tree, hf_rtps_encapsulation_id, tvb, offset, 2, encapsulation_id);
+  data->encapsulation_id = encapsulation_id;
   offset += 2;
 
   /* The next two bytes are ignored */
@@ -7029,9 +7045,13 @@ static void dissect_RTPS_DATA_BATCH(tvbuff_t *tvb, packet_info *pinfo, gint offs
       }
 
       if ((sample_info_flags[count] & FLAG_SAMPLE_INFO_K) != 0) {
-        proto_tree_add_bytes_format(sil_tree, hf_rtps_serialized_key, tvb, offset, sample_info_length[count], NULL, "serializedKey[%d]", count);
+        proto_tree_add_bytes_format(sil_tree, hf_rtps_serialized_key,
+                tvb, offset, sample_info_length[count], NULL, "serializedKey[%d]", count);
       } else {
-        proto_tree_add_bytes_format(sil_tree, hf_rtps_serialized_data, tvb, offset, sample_info_length[count], NULL, "serializedData[%d]", count);
+        if (!rtps_util_show_topic_info(sil_tree, pinfo, tvb, offset, guid, data)) {
+          proto_tree_add_bytes_format(sil_tree, hf_rtps_serialized_data,
+                  tvb, offset, sample_info_length[count], NULL, "serializedData[%d]", count);
+        }
       }
       offset += sample_info_length[count];
     }
@@ -7502,7 +7522,7 @@ static gboolean dissect_rtps_submessage_v2(tvbuff_t *tvb, packet_info *pinfo, gi
 
     case SUBMESSAGE_RTPS_DATA_BATCH:
       dissect_RTPS_DATA_BATCH(tvb, pinfo, offset, flags, little_endian, octets_to_next_header,
-                                rtps_submessage_tree, vendor_id);
+                                rtps_submessage_tree, vendor_id, guid);
       break;
 
     default:
