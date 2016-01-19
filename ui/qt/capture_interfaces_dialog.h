@@ -55,6 +55,9 @@ public:
     void setTree(QTreeWidget* tree) { tree_ = tree; }
     bool eventFilter(QObject *object, QEvent *event);
 
+signals:
+    void filterChanged(const QString filter);
+
 private slots:
     void pmode_changed(QString index);
 #if defined (HAVE_PCAP_CREATE)
@@ -93,9 +96,9 @@ private slots:
     void on_buttonBox_helpRequested();
     void interfaceClicked(QTreeWidgetItem *item, int column);
     void interfaceSelected();
+    void filterEdited();
     void updateWidgets();
     void updateStatistics(void);
-    void allFilterChanged();
     void refreshInterfaceList();
     void updateLocalInterfaces();
     void browseButtonClicked();
@@ -106,7 +109,7 @@ signals:
     void stopCapture();
     void getPoints(int row, PointList *pts);
     void setSelectedInterfaces();
-    void setFilterValid(bool valid);
+    void setFilterValid(bool valid, const QString capture_filter);
     void interfacesChanged();
     void ifsChanged();
     void interfaceListChanged();
@@ -120,7 +123,6 @@ private:
     if_stat_cache_t *stat_cache_;
     QTimer *stat_timer_;
     InterfaceTreeDelegate interface_item_delegate_;
-    QMap<int, int> deviceMap;
 
     bool saveOptionsToPreferences();
 };

@@ -202,7 +202,7 @@ typedef struct _e_prefs {
 #endif
   gchar       *capture_devices_snaplen;
   gchar       *capture_devices_pmode;
-  gchar       *capture_devices_filter;
+  gchar       *capture_devices_filter; /* XXX - Mostly unused. Deprecate? */
   gboolean     capture_prom_mode;
   gboolean     capture_pcap_ng;
   gboolean     capture_real_time;

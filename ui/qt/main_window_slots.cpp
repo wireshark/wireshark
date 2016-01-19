@@ -838,36 +838,6 @@ void MainWindow::startCapture() {
 
     /* XXX - we might need to init other pref data as well... */
 
-    // Set our cfilters.
-    QString capture_filter = main_welcome_->captureFilter();
-    g_free(global_capture_opts.default_options.cfilter);
-    if (capture_filter.isEmpty()) {
-        global_capture_opts.default_options.cfilter = NULL;
-    } else {
-        global_capture_opts.default_options.cfilter = qstring_strdup(capture_filter);
-    }
-
-    if (global_capture_opts.num_selected > 0) {
-        interface_t device;
-
-        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
-            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (!device.selected) {
-                continue;
-            }
-            //                if (device.active_dlt == -1) {
-            //                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The link type of interface %s was not specified.", device.name);
-            //                    continue;  /* Programming error: somehow managed to select an "unsupported" entry */
-            //                }
-            g_array_remove_index(global_capture_opts.all_ifaces, i);
-            g_free(device.cfilter);
-            device.cfilter = qstring_strdup(capture_filter);
-            g_array_insert_val(global_capture_opts.all_ifaces, i, device);
-            //                update_filter_string(device.name, filter_text);
-        }
-    }
-
-
     /* XXX - can this ever happen? */
     if (cap_session_.state != CAPTURE_STOPPED)
       return;
@@ -1418,9 +1388,12 @@ void MainWindow::captureFilterSyntaxChanged(bool valid)
     interfaceSelectionChanged();
 }
 
-void MainWindow::startInterfaceCapture(bool valid)
+void MainWindow::startInterfaceCapture(bool valid, const QString capture_filter)
 {
     capture_filter_valid_ = valid;
+    main_welcome_->setCaptureFilter(capture_filter);
+    // The interface tree will update the selected interfaces via its timer
+    // so no need to do anything here.
     startCapture();
 }
 
@@ -3608,7 +3581,8 @@ void MainWindow::on_actionStatisticsProtocolHierarchy_triggered()
 #ifdef HAVE_LIBPCAP
 void MainWindow::on_actionCaptureOptions_triggered()
 {
-    connect(&capture_interfaces_dialog_, SIGNAL(setFilterValid(bool)), this, SLOT(startInterfaceCapture(bool)));
+    connect(&capture_interfaces_dialog_, SIGNAL(setFilterValid(bool, const QString)),
+            this, SLOT(startInterfaceCapture(bool, const QString)));
     capture_interfaces_dialog_.SetTab(0);
     capture_interfaces_dialog_.updateInterfaces();
 

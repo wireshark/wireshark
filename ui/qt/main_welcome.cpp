@@ -27,6 +27,8 @@
 
 #include <epan/prefs.h>
 
+#include "ui/capture_globals.h"
+
 #include "wsutil/ws_version_info.h"
 
 #include "main_welcome.h"
@@ -171,6 +173,8 @@ MainWelcome::MainWelcome(QWidget *parent) :
 #endif
     connect(welcome_ui_->interfaceTree, SIGNAL(interfacesUpdated()),
             welcome_ui_->captureFilterComboBox, SIGNAL(interfacesChanged()));
+    connect(welcome_ui_->captureFilterComboBox->lineEdit(), SIGNAL(textEdited(QString)),
+            this, SLOT(captureFilterTextEdited(QString)));
     connect(welcome_ui_->captureFilterComboBox, SIGNAL(pushFilterSyntaxStatus(const QString&)),
             this, SIGNAL(pushFilterSyntaxStatus(const QString&)));
     connect(welcome_ui_->captureFilterComboBox, SIGNAL(popFilterSyntaxStatus()),
@@ -207,6 +211,14 @@ const QString MainWelcome::captureFilter()
     return welcome_ui_->captureFilterComboBox->currentText();
 }
 
+void MainWelcome::setCaptureFilter(const QString capture_filter)
+{
+    // capture_filter comes from the current filter in
+    // CaptureInterfacesDialog. We need to find a good way to handle
+    // multiple filters.
+    welcome_ui_->captureFilterComboBox->lineEdit()->setText(capture_filter);
+}
+
 void MainWelcome::appInitialized()
 {
     // XXX Add a "check for updates" link?
@@ -232,6 +244,37 @@ void MainWelcome::appInitialized()
 
     delete splash_overlay_;
     splash_overlay_ = NULL;
+}
+
+// Update each selected device cfilter when the user changes the contents
+// of the capture filter lineedit. We do so here so that we don't clobber
+// filters set in the Capture Options / Interfaces dialog or ones set via
+// the command line.
+void MainWelcome::captureFilterTextEdited(const QString capture_filter)
+{
+    if (global_capture_opts.num_selected > 0) {
+        interface_t device;
+
+        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (!device.selected) {
+                continue;
+            }
+            //                if (device.active_dlt == -1) {
+            //                    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The link type of interface %s was not specified.", device.name);
+            //                    continue;  /* Programming error: somehow managed to select an "unsupported" entry */
+            //                }
+            g_array_remove_index(global_capture_opts.all_ifaces, i);
+            g_free(device.cfilter);
+            if (capture_filter.isEmpty()) {
+                device.cfilter = NULL;
+            } else {
+                device.cfilter = qstring_strdup(capture_filter);
+            }
+            g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+            //                update_filter_string(device.name, filter_text);
+        }
+    }
 }
 
 void MainWelcome::interfaceDoubleClicked(QTreeWidgetItem *item, int)

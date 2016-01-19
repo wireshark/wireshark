@@ -43,6 +43,7 @@ public:
     virtual ~MainWelcome();
     InterfaceTree *getInterfaceTree();
     const QString captureFilter();
+    void setCaptureFilter(const QString capture_filter);
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -70,6 +71,7 @@ signals:
 
 private slots:
     void appInitialized();
+    void captureFilterTextEdited(const QString capture_filter);
 #if HAVE_EXTCAP
     void interfaceClicked(QTreeWidgetItem *item, int column);
 #endif
