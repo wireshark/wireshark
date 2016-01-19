@@ -186,7 +186,6 @@ private:
     void initTimePrecisionFormatMenu();
     void initFreezeActions();
 
-    void setTitlebarForCaptureFile();
     void setTitlebarForCaptureInProgress();
     void setMenusForCaptureFile(bool force_disable = false);
     void setMenusForCaptureInProgress(bool capture_in_progress = false);
@@ -235,6 +234,7 @@ public slots:
     void updatePreferenceActions();
     void updateRecentActions();
 
+    void setTitlebarForCaptureFile();
     void setWSWindowTitle(QString title = QString());
 
     void captureCapturePrepared(capture_session *);
