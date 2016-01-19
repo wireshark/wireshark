@@ -764,6 +764,9 @@ static gint dissect_rtitcp(tvbuff_t *tvb, packet_info *pinfo,
 
     gboolean desegmentation = TRUE;
 
+    if (tvb_captured_length(tvb) < 8)
+        return 0;
+
     /* Check if the RTITCP_MAGIC_NUMBER is here */
     if (tvb_get_ntohl(tvb, 4) != RTITCP_MAGIC_NUMBER)
         return 0;
