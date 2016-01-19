@@ -328,6 +328,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(layoutToolbars()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(updatePreferenceActions()));
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(zoomText()));
+    connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(setTitlebarForCaptureFile()));
 
     connect(wsApp, SIGNAL(updateRecentItemStatus(const QString &, qint64, bool)), this, SLOT(updateRecentFiles()));
     updateRecentFiles();
