@@ -753,6 +753,19 @@ fill_dummy_ip4(const guint addr, hashipv4_t* volatile tp)
     }
 }
 
+
+/* Fill in an IP6 structure with the string form of the address.
+ */
+static void
+fill_dummy_ip6(hashipv6_t* volatile tp)
+{
+    if (tp->flags & DUMMY_ADDRESS_ENTRY)
+        return; /* already done */
+
+    tp->flags |= DUMMY_ADDRESS_ENTRY; /* Overwrite if we get async DNS reply */
+    g_strlcpy(tp->name, tp->ip6, MAXNAMELEN);
+}
+
 #ifdef HAVE_C_ARES
 
 static void
@@ -807,22 +820,25 @@ new_ipv4(const guint addr)
 }
 
 static hashipv4_t *
-host_lookup(const guint addr, gboolean *found)
+host_lookup(const guint addr)
 {
     hashipv4_t * volatile tp;
 
-    *found = TRUE;
-
     tp = (hashipv4_t *)g_hash_table_lookup(ipv4_hash_table, GUINT_TO_POINTER(addr));
     if (tp == NULL) {
+        /*
+         * We don't already have an entry for this host name; create one,
+         * and then try to resolve it.
+         */
         tp = new_ipv4(addr);
         g_hash_table_insert(ipv4_hash_table, GUINT_TO_POINTER(addr), tp);
     } else {
-        if ((tp->flags & DUMMY_AND_RESOLVE_FLGS) ==  DUMMY_ADDRESS_ENTRY) {
+        if ((tp->flags & DUMMY_AND_RESOLVE_FLGS) == DUMMY_ADDRESS_ENTRY) {
+            /*
+             * This hasn't been resolved yet, and we haven't tried to
+             * resolve it already, so try.
+             */
             goto try_resolv;
-        }
-        if (tp->flags & DUMMY_ADDRESS_ENTRY) {
-            *found = FALSE;
         }
         return tp;
     }
@@ -836,9 +852,6 @@ try_resolv:
                 name_resolve_concurrency > 0 &&
                 async_dns_initialized) {
             add_async_dns_ipv4(AF_INET, addr);
-            /* XXX found is set to TRUE, which seems a bit odd, but I'm not
-             * going to risk changing the semantics.
-             */
             fill_dummy_ip4(addr, tp);
             return tp;
         }
@@ -881,7 +894,6 @@ try_resolv:
         /* unknown host or DNS timeout */
     }
 
-    *found = FALSE;
     fill_dummy_ip4(addr, tp);
     return tp;
 
@@ -901,7 +913,7 @@ new_ipv6(const struct e_in6_addr *addr)
 
 /* ------------------------------------ */
 static hashipv6_t *
-host_lookup6(const struct e_in6_addr *addr, gboolean *found)
+host_lookup6(const struct e_in6_addr *addr)
 {
     hashipv6_t * volatile tp;
 #ifdef HAVE_C_ARES
@@ -912,10 +924,12 @@ host_lookup6(const struct e_in6_addr *addr, gboolean *found)
     struct hostent *hostp;
 #endif
 
-    *found = TRUE;
-
     tp = (hashipv6_t *)g_hash_table_lookup(ipv6_hash_table, addr);
     if (tp == NULL) {
+        /*
+         * We don't already have an entry for this host name; create one,
+         * and then try to resolve it.
+         */
         struct e_in6_addr *addr_key;
 
         addr_key = g_new(struct e_in6_addr,1);
@@ -923,11 +937,12 @@ host_lookup6(const struct e_in6_addr *addr, gboolean *found)
         memcpy(addr_key, addr, 16);
         g_hash_table_insert(ipv6_hash_table, addr_key, tp);
     } else {
-        if ((tp->flags & DUMMY_AND_RESOLVE_FLGS) ==  DUMMY_ADDRESS_ENTRY) {
+        if ((tp->flags & DUMMY_AND_RESOLVE_FLGS) == DUMMY_ADDRESS_ENTRY) {
+            /*
+             * This hasn't been resolved yet, and we haven't tried to
+             * resolve it already, so try.
+             */
             goto try_resolv;
-        }
-        if (tp->flags & DUMMY_ADDRESS_ENTRY) {
-            *found = FALSE;
         }
         return tp;
     }
@@ -944,15 +959,7 @@ try_resolv:
             caqm->family = AF_INET6;
             memcpy(&caqm->addr.ip6, addr, sizeof(caqm->addr.ip6));
             async_dns_queue_head = g_list_append(async_dns_queue_head, (gpointer) caqm);
-
-            /* XXX found is set to TRUE, which seems a bit odd, but I'm not
-             * going to risk changing the semantics.
-             */
-            if ((tp->flags & DUMMY_ADDRESS_ENTRY) == 0) {
-                g_strlcpy(tp->name, tp->ip6, MAXNAMELEN);
-                ip6_to_str_buf(addr, tp->name);
-                tp->flags |= DUMMY_ADDRESS_ENTRY;
-            }
+            fill_dummy_ip6(tp);
             return tp;
         }
 #elif defined(HAVE_GETADDRINFO)
@@ -976,11 +983,7 @@ try_resolv:
     }
 
     /* unknown host or DNS timeout */
-    if ((tp->flags & DUMMY_ADDRESS_ENTRY) == 0) {
-        tp->flags |= DUMMY_ADDRESS_ENTRY;
-        g_strlcpy(tp->name, tp->ip6, MAXNAMELEN);
-    }
-    *found = FALSE;
+    fill_dummy_ip6(tp);
     return tp;
 
 } /* host_lookup6 */
@@ -2581,12 +2584,10 @@ _host_name_lookup_cleanup(void) {
 const gchar *
 get_hostname(const guint addr)
 {
-    gboolean found;
-
     /* XXX why do we call this if we're not resolving? To create hash entries?
      * Why?
      */
-    hashipv4_t *tp = host_lookup(addr, &found);
+    hashipv4_t *tp = host_lookup(addr);
 
     if (!gbl_resolv_flags.network_name)
         return tp->ip;
@@ -2601,12 +2602,10 @@ get_hostname(const guint addr)
 const gchar *
 get_hostname6(const struct e_in6_addr *addr)
 {
-    gboolean found;
-
     /* XXX why do we call this if we're not resolving? To create hash entries?
      * Why?
      */
-    hashipv6_t *tp = host_lookup6(addr, &found);
+    hashipv6_t *tp = host_lookup6(addr);
 
     if (!gbl_resolv_flags.network_name)
         return tp->ip6;
@@ -2629,7 +2628,6 @@ add_ipv4_name(const guint addr, const gchar *name)
     if (!name || name[0] == '\0')
         return;
 
-
     tp = (hashipv4_t *)g_hash_table_lookup(ipv4_hash_table, GUINT_TO_POINTER(addr));
     if (!tp) {
         tp = new_ipv4(addr);
@@ -2640,8 +2638,7 @@ add_ipv4_name(const guint addr, const gchar *name)
         g_strlcpy(tp->name, name, MAXNAMELEN);
         new_resolved_objects = TRUE;
     }
-    tp->flags |= TRIED_RESOLVE_ADDRESS;
-
+    tp->flags |= TRIED_RESOLVE_ADDRESS|NAME_RESOLVED;
 } /* add_ipv4_name */
 
 /* -------------------------- */
@@ -2671,8 +2668,7 @@ add_ipv6_name(const struct e_in6_addr *addrp, const gchar *name)
         g_strlcpy(tp->name, name, MAXNAMELEN);
         new_resolved_objects = TRUE;
     }
-    tp->flags |= TRIED_RESOLVE_ADDRESS;
-
+    tp->flags |= TRIED_RESOLVE_ADDRESS|NAME_RESOLVED;
 } /* add_ipv6_name */
 
 static void
@@ -3026,16 +3022,22 @@ get_ether_addr(const gchar *name)
 void
 add_ether_byip(const guint ip, const guint8 *eth)
 {
-    gboolean found;
     hashipv4_t *tp;
 
     /* first check that IP address can be resolved */
     if (!gbl_resolv_flags.network_name)
         return;
 
-    tp = host_lookup(ip, &found);
-    if (found) {
-        /* ok, we can add this entry in the ethers hashtable */
+    tp = host_lookup(ip);
+
+    /*
+     * Was this IP address resolved to a host name?
+     */
+    if (tp->flags & NAME_RESOLVED) {
+        /*
+         * Yes, so add an entry in the ethers hashtable resolving
+         * the MAC address to that name.
+         */
         add_eth_name(eth, tp->name);
     }
 

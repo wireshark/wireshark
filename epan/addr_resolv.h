@@ -81,11 +81,12 @@ typedef struct serv_port {
 } serv_port_t;
 
 /*
- *
+ * Flags for various IPv4/IPv6 hash table entries.
  */
-#define DUMMY_ADDRESS_ENTRY      (1U<<0)
-#define TRIED_RESOLVE_ADDRESS    (1U<<1)
-#define RESOLVED_ADDRESS_USED    (1U<<2)
+#define DUMMY_ADDRESS_ENTRY      (1U<<0)  /* XXX - what does this bit *really* mean? */
+#define TRIED_RESOLVE_ADDRESS    (1U<<1)  /* XXX - what does this bit *really* mean? */
+#define RESOLVED_ADDRESS_USED    (1U<<2)  /* a get_hostname* call returned the host name */
+#define NAME_RESOLVED            (1U<<3)  /* the name field contains a host name, not a printable address */
 
 #define DUMMY_AND_RESOLVE_FLGS   (DUMMY_ADDRESS_ENTRY | TRIED_RESOLVE_ADDRESS)
 #define USED_AND_RESOLVED_MASK   (DUMMY_ADDRESS_ENTRY | RESOLVED_ADDRESS_USED)
