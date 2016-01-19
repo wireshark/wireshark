@@ -953,6 +953,12 @@ dissect_pkix_crl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	return dissect_x509af_CertificateList(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
+static void
+x509af_cleanup_protocol(void)
+{
+  algorithm_id = NULL;
+}
+
 /*--- proto_register_x509af ----------------------------------------------*/
 void proto_register_x509af(void) {
 
@@ -1267,7 +1273,7 @@ void proto_register_x509af(void) {
         "INTEGER", HFILL }},
 
 /*--- End of included file: packet-x509af-hfarr.c ---*/
-#line 113 "../../asn1/x509af/packet-x509af-template.c"
+#line 119 "../../asn1/x509af/packet-x509af-template.c"
   };
 
   /* List of subtrees */
@@ -1310,7 +1316,7 @@ void proto_register_x509af(void) {
     &ett_x509af_DSS_Params,
 
 /*--- End of included file: packet-x509af-ettarr.c ---*/
-#line 119 "../../asn1/x509af/packet-x509af-template.c"
+#line 125 "../../asn1/x509af/packet-x509af-template.c"
   };
 
   /* Register protocol */
@@ -1320,6 +1326,7 @@ void proto_register_x509af(void) {
   proto_register_field_array(proto_x509af, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  register_cleanup_routine(&x509af_cleanup_protocol);
 
   new_register_ber_syntax_dissector("Certificate", proto_x509af, dissect_x509af_Certificate_PDU);
   new_register_ber_syntax_dissector("CertificateList", proto_x509af, dissect_CertificateList_PDU);
@@ -1353,7 +1360,7 @@ void proto_reg_handoff_x509af(void) {
 
 
 /*--- End of included file: packet-x509af-dis-tab.c ---*/
-#line 147 "../../asn1/x509af/packet-x509af-template.c"
+#line 154 "../../asn1/x509af/packet-x509af-template.c"
 
 	/*XXX these should really go to a better place but since
 	  I have not that ITU standard, I'll put it here for the time

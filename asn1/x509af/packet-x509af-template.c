@@ -96,6 +96,12 @@ dissect_pkix_crl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	return dissect_x509af_CertificateList(FALSE, tvb, 0, &asn1_ctx, tree, -1);
 }
 
+static void
+x509af_cleanup_protocol(void)
+{
+  algorithm_id = NULL;
+}
+
 /*--- proto_register_x509af ----------------------------------------------*/
 void proto_register_x509af(void) {
 
@@ -125,6 +131,7 @@ void proto_register_x509af(void) {
   proto_register_field_array(proto_x509af, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  register_cleanup_routine(&x509af_cleanup_protocol);
 
   new_register_ber_syntax_dissector("Certificate", proto_x509af, dissect_x509af_Certificate_PDU);
   new_register_ber_syntax_dissector("CertificateList", proto_x509af, dissect_CertificateList_PDU);
