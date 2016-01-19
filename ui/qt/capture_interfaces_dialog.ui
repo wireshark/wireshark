@@ -121,16 +121,16 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1,0,0">
          <item>
           <widget class="QLabel" name="label_4">
            <property name="text">
-            <string>Capture Filter for selected Interfaces:</string>
+            <string>Capture filter for selected interfaces:</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="CaptureFilterCombo" name="allFilterComboBox">
+          <widget class="CaptureFilterCombo" name="captureFilterComboBox">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>

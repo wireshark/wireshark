@@ -265,6 +265,11 @@ private slots:
     void initViewColorizeMenu();
 
     // in main_window_slots.cpp
+    /**
+     * @brief startCapture
+     * Start capturing from the selected interfaces using the capture filter
+     * shown in the main welcome screen.
+     */
     void startCapture();
     void pipeTimeout();
     void pipeActivated(int source);
@@ -292,7 +297,7 @@ private slots:
     void addExternalMenus();
     QMenu * searchSubMenu(QString objectName);
 
-    void startInterfaceCapture(bool valid);
+    void startInterfaceCapture(bool valid, const QString capture_filter);
 
     void setFeaturesEnabled(bool enabled = true);
 
