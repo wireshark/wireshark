@@ -2334,11 +2334,11 @@ prefs_register_modules(void)
                                    &prefs.gui_update_interval);
 
     register_string_like_preference(gui_module, "window_title", "Custom window title",
-        "Custom window title. (Appended to existing titles.)",
+        "Custom window title to be appended to the existing title\n%P = profile name\n%V = version info",
         &prefs.gui_window_title, PREF_STRING, NULL, TRUE);
 
     register_string_like_preference(gui_module, "prepend_window_title", "Custom window title prefix",
-        "Custom window title. (Prepended to existing titles.)",
+        "Custom window title to be prepended to the existing title\n%P = profile name\n%V = version info",
         &prefs.gui_prepend_window_title, PREF_STRING, NULL, TRUE);
 
     register_string_like_preference(gui_module, "start_title", "Custom start page title",

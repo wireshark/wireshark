@@ -25,6 +25,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/epan_dissect.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/ws_version_info.h>
 #include <epan/prefs.h>
 #include <epan/stats_tree_priv.h>
 #include <epan/plugin_if.h>
@@ -1934,6 +1935,14 @@ void MainWindow::setTitlebarForCaptureFile()
     }
 }
 
+QString MainWindow::replaceWindowTitleVariables(QString title)
+{
+    title.replace ("%P", get_profile_name());
+    title.replace ("%V", get_ws_vcs_version_info());
+
+    return title;
+}
+
 void MainWindow::setWSWindowTitle(QString title)
 {
     if (title.isEmpty()) {
@@ -1941,15 +1950,17 @@ void MainWindow::setWSWindowTitle(QString title)
     }
 
     if (prefs.gui_prepend_window_title && prefs.gui_prepend_window_title[0]) {
-        title.prepend(QString("[%1] ").arg(prefs.gui_prepend_window_title));
+        QString customTitle = replaceWindowTitleVariables(prefs.gui_prepend_window_title);
+        title.prepend(QString("[%1] ").arg(customTitle));
     }
 
     if (prefs.gui_window_title && prefs.gui_window_title[0]) {
+        QString customTitle = replaceWindowTitleVariables(prefs.gui_window_title);
 #ifdef __APPLE__
         // On OS X we separate the titles with a unicode em dash
-        title.append(QString(" %1 %2").arg(UTF8_EM_DASH).arg(prefs.gui_window_title));
+        title.append(QString(" %1 %2").arg(UTF8_EM_DASH).arg(customTitle));
 #else
-        title.append(QString(" [%1]").arg(prefs.gui_window_title));
+        title.append(QString(" [%1]").arg(customTitle));
 #endif
     }
 
