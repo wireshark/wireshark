@@ -114,9 +114,9 @@ const QString address_to_display_qstring(const _address *address)
 {
     QString address_qstr = QString();
     if (address) {
-        const gchar *address_gchar_p = address_to_display(NULL, address);
+        gchar *address_gchar_p = address_to_display(NULL, address);
         address_qstr = address_gchar_p;
-        wmem_free(NULL, (void *) address_gchar_p);
+        wmem_free(NULL, address_gchar_p);
     }
     return address_qstr;
 }
@@ -145,9 +145,9 @@ const QString range_to_qstring(const epan_range *range)
 {
     QString range_qstr = QString();
     if (range) {
-        const gchar *range_gchar_p = range_convert_range(NULL, range);
+        gchar *range_gchar_p = range_convert_range(NULL, range);
         range_qstr = range_gchar_p;
-        wmem_free(NULL, (void *) range_gchar_p);
+        wmem_free(NULL, range_gchar_p);
     }
     return range_qstr;
 }
