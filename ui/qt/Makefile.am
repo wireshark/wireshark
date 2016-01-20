@@ -96,7 +96,7 @@ am__v_UIC_0 = @echo "  UIC     " $@;
 SUFFIXES = .moc.cpp .qrc .rcc.cpp
 
 .h.moc.cpp:
-	$(AM_V_MOC)$(MOC) -I.. -I../.. -o $@ $<
+	$(AM_V_MOC)$(MOC) --no-notes -I.. -I../.. -o $@ $<
 
 .qrc.rcc.cpp:
 	$(MKDIR_P) $(@D)
