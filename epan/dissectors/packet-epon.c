@@ -54,7 +54,7 @@ static expert_field ei_epon_dpoe_bad = EI_INIT;
 static expert_field ei_epon_dpoe_encrypted_data = EI_INIT;
 static expert_field ei_epon_checksum_bad = EI_INIT;
 
-static dissector_handle_t eth_handle;
+static dissector_handle_t eth_maybefcs_handle;
 
 static gint ett_epon = -1;
 static gint ett_epon_sec = -1;
@@ -79,7 +79,6 @@ dissect_epon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint       offset = 0;
   guint       dpoe_sec_byte;
   gboolean    dpoe_encrypted = FALSE;
-  struct eth_phdr eth;
 
   /* Start_of_Packet delimiter (/S/) can either happen in byte 1 or byte 2,
    * making the captured preamble either 7 or 6 bytes in length. If the
@@ -200,8 +199,7 @@ dissect_epon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * XXX - is it guaranteed whether the capture will, or won't, have
      * an FCS?
      */
-    eth.fcs_len = -1;
-    call_dissector_with_data(eth_handle, next_tvb, pinfo, tree, &eth);
+    call_dissector(eth_maybefcs_handle, next_tvb, pinfo, tree);
   }
 
   return tvb_captured_length(tvb);
@@ -297,7 +295,7 @@ proto_reg_handoff_epon(void)
   epon_handle = create_dissector_handle(dissect_epon, proto_epon);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_EPON, epon_handle);
 
-  eth_handle = find_dissector("eth");
+  eth_maybefcs_handle = find_dissector("eth_maybefcs");
 }
 
 /*

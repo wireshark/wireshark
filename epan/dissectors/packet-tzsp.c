@@ -101,7 +101,7 @@ static const value_string tzsp_encapsulation[] = {
 static gint ett_tzsp = -1;
 static gint ett_tag = -1;
 
-static dissector_handle_t eth_handle;
+static dissector_handle_t eth_maybefcs_handle;
 static dissector_handle_t tr_handle;
 static dissector_handle_t ppp_handle;
 static dissector_handle_t fddi_handle;
@@ -289,7 +289,6 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     guint16             encapsulation = 0;
     const char         *info;
     guint8              type;
-    struct eth_phdr     eth;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TZSP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -340,8 +339,7 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         switch (encapsulation) {
 
         case TZSP_ENCAP_ETHERNET:
-            eth.fcs_len = -1;  /* not known */
-            call_dissector_with_data(eth_handle, next_tvb, pinfo, tree, &eth);
+            call_dissector(eth_maybefcs_handle, next_tvb, pinfo, tree);
             break;
 
         case TZSP_ENCAP_TOKEN_RING:
@@ -556,7 +554,7 @@ proto_reg_handoff_tzsp(void)
     dissector_add_uint("udp.port", UDP_PORT_TZSP, tzsp_handle);
 
     /* Get the data dissector for handling various encapsulation types. */
-    eth_handle = find_dissector("eth");
+    eth_maybefcs_handle = find_dissector("eth_maybefcs");
     tr_handle = find_dissector("tr");
     ppp_handle = find_dissector("ppp_hdlc");
     fddi_handle = find_dissector("fddi");
