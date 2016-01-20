@@ -2838,7 +2838,9 @@ void MainWindow::openTcpStreamDialog(int graph_type)
             packet_list_, SLOT(goToPacket(int)));
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             stream_dialog, SLOT(setCaptureFile(capture_file*)));
-    stream_dialog->show();
+    if (stream_dialog->result() == QDialog::Accepted) {
+        stream_dialog->show();
+    }
 }
 
 void MainWindow::on_actionStatisticsTcpStreamStevens_triggered()
