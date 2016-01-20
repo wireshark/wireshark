@@ -632,30 +632,30 @@ stats_tree_manip_node(manip_node_mode mode, stats_tree *st, const char *name,
 
     switch (mode) {
         case MN_INCREASE:
-                node->counter += value;
-                update_burst_calc(node, value);
-                break;
+            node->counter += value;
+            update_burst_calc(node, value);
+            break;
         case MN_SET: node->counter = value; break;
         case MN_AVERAGE:
-                node->counter++;
-                update_burst_calc(node, 1);
-                /* fall through to average code */
+            node->counter++;
+            update_burst_calc(node, 1);
+            /* fall through to average code */
         case MN_AVERAGE_NOTICK:
-                node->total += value;
-                if (node->minvalue > value) {
-                    node->minvalue = value;
-                }
-                if (node->maxvalue < value) {
-                    node->maxvalue = value;
-                }
-                node->st_flags |= ST_FLG_AVERAGE;
-                break;
+            node->total += value;
+            if (node->minvalue > value) {
+                node->minvalue = value;
+            }
+            if (node->maxvalue < value) {
+                node->maxvalue = value;
+            }
+            node->st_flags |= ST_FLG_AVERAGE;
+            break;
         case MN_SET_FLAGS:
-                node->st_flags |= value;
-                break;
+            node->st_flags |= value;
+            break;
         case MN_CLEAR_FLAGS:
-                node->st_flags &= ~value;
-                break;
+            node->st_flags &= ~value;
+            break;
     }
 
     if (node)
@@ -937,12 +937,18 @@ extern gint
 stats_tree_get_default_sort_col (stats_tree *st)
 {
     switch ((st->st_flags&ST_FLG_SRTCOL_MASK)>>ST_FLG_SRTCOL_SHIFT) {
-        case ST_SORT_COL_NAME:      return COL_NAME;
-        case ST_SORT_COL_COUNT:     return COL_COUNT;
-        case ST_SORT_COL_AVG:       return COL_AVERAGE;
-        case ST_SORT_COL_MIN:       return COL_MIN;
-        case ST_SORT_COL_MAX:       return COL_MAX;
-        case ST_SORT_COL_BURSTRATE: return COL_BURSTRATE;
+        case ST_SORT_COL_NAME:
+            return COL_NAME;
+        case ST_SORT_COL_COUNT:
+            return COL_COUNT;
+        case ST_SORT_COL_AVG:
+            return COL_AVERAGE;
+        case ST_SORT_COL_MIN:
+            return COL_MIN;
+        case ST_SORT_COL_MAX:
+            return COL_MAX;
+        case ST_SORT_COL_BURSTRATE:
+            return COL_BURSTRATE;
     }
     return COL_COUNT;   /* nothing specific set */
 }
@@ -957,16 +963,26 @@ extern const gchar*
 stats_tree_get_column_name (gint col_index)
 {
     switch (col_index) {
-        case COL_NAME:      return "Topic / Item";
-        case COL_COUNT:     return "Count";
-        case COL_AVERAGE:   return "Average";
-        case COL_MIN:       return "Min val";
-        case COL_MAX:       return "Max val";
-        case COL_RATE:      return "Rate (ms)";
-        case COL_PERCENT:   return "Percent";
-        case COL_BURSTRATE: return prefs.st_burst_showcount?"Burst count":"Burst rate";
-        case COL_BURSTTIME: return "Burst start";
-        default:        return "(Unknown)";
+        case COL_NAME:
+            return "Topic / Item";
+        case COL_COUNT:
+            return "Count";
+        case COL_AVERAGE:
+            return "Average";
+        case COL_MIN:
+            return "Min val";
+        case COL_MAX:
+            return "Max val";
+        case COL_RATE:
+            return "Rate (ms)";
+        case COL_PERCENT:
+            return "Percent";
+        case COL_BURSTRATE:
+            return prefs.st_burst_showcount?"Burst count":"Burst rate";
+        case COL_BURSTTIME:
+            return "Burst start";
+        default:
+            return "(Unknown)";
     }
 }
 
@@ -1030,52 +1046,58 @@ stats_tree_sort_compare (const stat_node *a, const stat_node *b, gint sort_colum
         return result;
     }
 
-    switch (sort_column)
-    {
-        case COL_NAME:      if  (a->rng&&b->rng) {
-                                result = a->rng->floor - b->rng->floor;
-                            }
-                            else if (prefs.st_sort_casesensitve) {
-                                result = strcmp(a->name,b->name);
-                            }
-                            else {
-                                result = g_ascii_strcasecmp(a->name,b->name);
-                            }
-                            break;
+    switch (sort_column) {
+        case COL_NAME:
+            if  (a->rng&&b->rng) {
+                result = a->rng->floor - b->rng->floor;
+            }
+            else if (prefs.st_sort_casesensitve) {
+                result = strcmp(a->name,b->name);
+            }
+            else {
+                result = g_ascii_strcasecmp(a->name,b->name);
+            }
+            break;
 
         case COL_RATE:
         case COL_PERCENT:
-        case COL_COUNT:     result = a->counter - b->counter;
-                            break;
+        case COL_COUNT:
+            result = a->counter - b->counter;
+            break;
 
-        case COL_AVERAGE:   if (a->counter) {
-                                result= 1;      /* assume a>b */
-                                if (b->counter) {
-                                    avg_a= ((float)a->total)/a->counter;
-                                    avg_b= ((float)b->total)/b->counter;
-                                    result= (avg_a>avg_b)?1:((avg_a<avg_b)?-1:0);
-                                }
-                            }
-                            else {
-                                result= -1;     /* let b>a */
-                            }
-                            break;
+        case COL_AVERAGE:
+            if (a->counter) {
+                result= 1;      /* assume a>b */
+                if (b->counter) {
+                    avg_a= ((float)a->total)/a->counter;
+                    avg_b= ((float)b->total)/b->counter;
+                    result= (avg_a>avg_b)?1:((avg_a<avg_b)?-1:0);
+                }
+            }
+            else {
+                result= -1;     /* let b>a */
+            }
+            break;
 
-        case COL_MIN:       result = a->minvalue - b->minvalue;
-                            break;
+        case COL_MIN:
+            result = a->minvalue - b->minvalue;
+            break;
 
-        case COL_MAX:       result = a->maxvalue - b->maxvalue;
-                            break;
+        case COL_MAX:
+            result = a->maxvalue - b->maxvalue;
+            break;
 
-        case COL_BURSTRATE: result = a->max_burst - b->max_burst;
-                            break;
+        case COL_BURSTRATE:
+            result = a->max_burst - b->max_burst;
+            break;
 
-        case COL_BURSTTIME: result = (a->burst_time>b->burst_time)?1:((a->burst_time<b->burst_time)?-1:0);
-                            break;
+        case COL_BURSTTIME:
+            result = (a->burst_time>b->burst_time)?1:((a->burst_time<b->burst_time)?-1:0);
+            break;
 
         default:
-                    /* no sort comparison found for column - must update this switch statement */
-                    g_assert_not_reached();
+            /* no sort comparison found for column - must update this switch statement */
+            g_assert_not_reached();
     }
 
     /* break tie between items with same primary search result */
@@ -1118,49 +1140,48 @@ stats_tree_format_as_str(const stats_tree* st, st_format_type format_type,
     int count;
     gchar *separator = NULL;
 
-    switch(format_type)
-    {
-    case ST_FORMAT_YAML:
-        s = g_string_new("---\n");
-        break;
-    case ST_FORMAT_XML:
-        s = g_string_new("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-        break;
-    case ST_FORMAT_CSV:
-        s = g_string_new("\"level\",\"parent\",");
-        for (count = 0; count<st->num_columns; count++) {
-            g_string_append_printf(s,"\"%s\",",stats_tree_get_column_name(count));
-        }
-        g_string_append (s,"\n");
-        break;
-    case ST_FORMAT_PLAIN:
+    switch(format_type) {
+        case ST_FORMAT_YAML:
+            s = g_string_new("---\n");
+            break;
+        case ST_FORMAT_XML:
+            s = g_string_new("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            break;
+        case ST_FORMAT_CSV:
+            s = g_string_new("\"level\",\"parent\",");
+            for (count = 0; count<st->num_columns; count++) {
+                g_string_append_printf(s,"\"%s\",",stats_tree_get_column_name(count));
+            }
+            g_string_append (s,"\n");
+            break;
+        case ST_FORMAT_PLAIN:
         {
-        char fmt[16];
-        int sep_length;
+            char fmt[16];
+            int sep_length;
 
-        sep_length= maxnamelen;
-        for (count = 1; count<st->num_columns; count++) {
-            sep_length += stats_tree_get_column_size(count)+2;
-        }
-        separator = (gchar *)g_malloc(sep_length+1);
-        memset (separator, '=', sep_length);
-        separator[sep_length] = 0;
+            sep_length= maxnamelen;
+            for (count = 1; count<st->num_columns; count++) {
+                sep_length += stats_tree_get_column_size(count)+2;
+            }
+            separator = (gchar *)g_malloc(sep_length+1);
+            memset (separator, '=', sep_length);
+            separator[sep_length] = 0;
 
-        s = g_string_new("\n");
-        g_string_append(s,separator);
-        g_string_append_printf(s,"\n%s:\n",st->cfg->name);
-        g_snprintf (fmt,(gulong)sizeof(fmt),"%%-%us",maxnamelen);
-        g_string_append_printf(s,fmt,stats_tree_get_column_name(0));
-        for (count = 1; count<st->num_columns; count++) {
-            g_snprintf (fmt,(gulong)sizeof(fmt)," %%-%us",stats_tree_get_column_size(count)+1);
-            g_string_append_printf(s,fmt,stats_tree_get_column_name(count));
+            s = g_string_new("\n");
+            g_string_append(s,separator);
+            g_string_append_printf(s,"\n%s:\n",st->cfg->name);
+            g_snprintf (fmt,(gulong)sizeof(fmt),"%%-%us",maxnamelen);
+            g_string_append_printf(s,fmt,stats_tree_get_column_name(0));
+            for (count = 1; count<st->num_columns; count++) {
+                g_snprintf (fmt,(gulong)sizeof(fmt)," %%-%us",stats_tree_get_column_size(count)+1);
+                g_string_append_printf(s,fmt,stats_tree_get_column_name(count));
+            }
+            memset (separator, '-', sep_length);
+            g_string_append_printf(s,"\n%s\n",separator);
+            break;
         }
-        memset (separator, '-', sep_length);
-        g_string_append_printf(s,"\n%s\n",separator);
-        }
-        break;
-    default:
-        return g_string_new("unknown format for stats_tree\n");
+        default:
+            return g_string_new("unknown format for stats_tree\n");
     }
 
     for (child = st->root.children; child; child = child->next ) {
@@ -1219,56 +1240,55 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
     gchar *full_path;
     char fmt[16] = "%s%s%s";
 
-    switch(format_type)
-    {
-    case ST_FORMAT_YAML:
-        if (indent) {
-            g_snprintf(fmt, (gulong)sizeof(fmt), "%%%ds%%s%%s", indent*4-2);
-        }
-        g_string_append_printf(s, fmt, "", indent?"- ":"", "Description");
-        g_string_append_printf(s, ": \"%s\"\n", values[0]);
-
-        for (count = 1; count<num_columns; count++) {
-            if (*values[count]) {
-                g_string_append_printf(s, fmt, "", indent?"  ":"",
-                                        stats_tree_get_column_name(count));
-                g_string_append_printf(s, ": %s\n", values[count]);
+    switch(format_type) {
+        case ST_FORMAT_YAML:
+            if (indent) {
+                g_snprintf(fmt, (gulong)sizeof(fmt), "%%%ds%%s%%s", indent*4-2);
             }
-        }
-        if (node->children) {
-            g_string_append_printf(s, fmt, "", indent?"  ":"", "Items:\n");
-        }
-        break;
-    case ST_FORMAT_XML:
+            g_string_append_printf(s, fmt, "", indent?"- ":"", "Description");
+            g_string_append_printf(s, ": \"%s\"\n", values[0]);
+
+            for (count = 1; count<num_columns; count++) {
+                if (*values[count]) {
+                    g_string_append_printf(s, fmt, "", indent?"  ":"",
+                                            stats_tree_get_column_name(count));
+                    g_string_append_printf(s, ": %s\n", values[count]);
+                }
+            }
+            if (node->children) {
+                g_string_append_printf(s, fmt, "", indent?"  ":"", "Items:\n");
+            }
+            break;
+        case ST_FORMAT_XML:
         {
-        char *itemname = xml_escape(values[0]);
-        g_string_append_printf(s,"<stat-node name=\"%s\"%s>\n",itemname,
-                node->rng?" isrange=\"true\"":"");
-        g_free(itemname);
-        for (count = 1; count<num_columns; count++) {
-            gchar *colname= g_strdup(stats_tree_get_column_name(count));
-            g_string_append_printf(s,"<%s>",clean_for_xml_tag(colname));
-            g_string_append_printf(s,"%s</%s>\n",values[count],colname);
-            g_free(colname);
+            char *itemname = xml_escape(values[0]);
+            g_string_append_printf(s,"<stat-node name=\"%s\"%s>\n",itemname,
+                    node->rng?" isrange=\"true\"":"");
+            g_free(itemname);
+            for (count = 1; count<num_columns; count++) {
+                gchar *colname= g_strdup(stats_tree_get_column_name(count));
+                g_string_append_printf(s,"<%s>",clean_for_xml_tag(colname));
+                g_string_append_printf(s,"%s</%s>\n",values[count],colname);
+                g_free(colname);
+            }
+            break;
         }
-        }
-        break;
-    case ST_FORMAT_CSV:
-        g_string_append_printf(s,"%d,\"%s\",\"%s\"",indent,path,values[0]);
-        for (count = 1; count<num_columns; count++) {
-            g_string_append_printf(s,",%s",values[count]);
-        }
-        g_string_append (s,"\n");
-        break;
-    case ST_FORMAT_PLAIN:
-        g_snprintf (fmt,(gulong)sizeof(fmt),"%%%ds%%-%us",indent,maxnamelen-indent);
-        g_string_append_printf(s,fmt,"",values[0]);
-        for (count = 1; count<num_columns; count++) {
-            g_snprintf (fmt,(gulong)sizeof(fmt)," %%-%us",stats_tree_get_column_size(count)+1);
-            g_string_append_printf(s,fmt,values[count]);
-        }
-        g_string_append (s,"\n");
-        break;
+        case ST_FORMAT_CSV:
+            g_string_append_printf(s,"%d,\"%s\",\"%s\"",indent,path,values[0]);
+            for (count = 1; count<num_columns; count++) {
+                g_string_append_printf(s,",%s",values[count]);
+            }
+            g_string_append (s,"\n");
+            break;
+        case ST_FORMAT_PLAIN:
+            g_snprintf (fmt,(gulong)sizeof(fmt),"%%%ds%%-%us",indent,maxnamelen-indent);
+            g_string_append_printf(s,fmt,"",values[0]);
+            for (count = 1; count<num_columns; count++) {
+                g_snprintf (fmt,(gulong)sizeof(fmt)," %%-%us",stats_tree_get_column_size(count)+1);
+                g_string_append_printf(s,fmt,values[count]);
+            }
+            g_string_append (s,"\n");
+            break;
     }
 
     indent++;
