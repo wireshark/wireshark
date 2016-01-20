@@ -133,6 +133,10 @@ static int hf_openflow_match_dl_type = -1;
 static int hf_openflow_ofp_match_tos = -1;
 static int hf_openflow_ofp_match_nw_proto = -1;
 static int hf_openflow_match_pad = -1;
+static int hf_openflow_ofp_source_addr = -1;
+static int hf_openflow_ofp_dest_addr = -1;
+static int hf_openflow_ofp_source_port = -1;
+static int hf_openflow_ofp_dest_port = -1;
 static int hf_openflow_idle_timeout = -1;
 static int hf_openflow_hard_timeout = -1;
 static int hf_openflow_priority = -1;
@@ -293,7 +297,7 @@ static value_string_ext openflow_1_0_type_values_ext = VALUE_STRING_EXT_INIT(ope
 #define OFPAT_VENDOR         0xffff
 
 static int
-dissect_openflow_ofp_match_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+dissect_openflow_ofp_match_v1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 {
 
     /* uint32_t wildcards; Wildcard fields. */
@@ -333,12 +337,17 @@ dissect_openflow_ofp_match_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree_add_item(tree, hf_openflow_match_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     /* uint32_t nw_src; IP source address. */
+    proto_tree_add_item(tree, hf_openflow_ofp_source_addr, tvb, offset, 4, ENC_NA);
+    offset += 4;
     /* uint32_t nw_dst; IP destination address. */
+    proto_tree_add_item(tree, hf_openflow_ofp_dest_addr, tvb, offset, 4, ENC_NA);
+    offset += 4;
     /* uint16_t tp_src; TCP/UDP source port. */
+    proto_tree_add_item(tree, hf_openflow_ofp_source_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
     /* uint16_t tp_dst; TCP/UDP destination port. */
-    proto_tree_add_expert(tree, pinfo, &ei_openflow_undecoded_data, tvb, offset, 12);
-    offset +=12;
-
+    proto_tree_add_item(tree, hf_openflow_ofp_dest_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
     return offset;
 }
 
@@ -1357,6 +1366,26 @@ proto_register_openflow_v1(void)
         },
         { &hf_openflow_match_pad,
             { "Pad", "openflow.ofp_match.pad",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_ofp_source_addr,
+            { "Source Address", "openflow.ofp_match.source_addr",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_ofp_dest_addr,
+            { "Destination Address", "openflow.ofp_match.dest_addr",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_ofp_source_port,
+            { "Source Port", "openflow.ofp_match.source_port",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_openflow_ofp_dest_port,
+            { "Destination Port", "openflow.ofp_match.dest_port",
               FT_UINT16, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
