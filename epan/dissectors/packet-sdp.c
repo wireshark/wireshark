@@ -1932,7 +1932,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
         transport_info->media_count = -1;
 
         for (n = 0; n < SDP_NO_OF_PT; n++) {
-            transport_info->encoding_name[n] = (char*)UNKNOWN_ENCODING;
+            transport_info->encoding_name[n] = wmem_strdup(wmem_packet_scope(), UNKNOWN_ENCODING);
         }
         for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++) {
             transport_info->media[n].rtp_dyn_payload = rtp_dyn_payload_new();
@@ -2301,7 +2301,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     local_transport_info.media_count = -1;
 
     for (n = 0; n < SDP_NO_OF_PT; n++) {
-        local_transport_info.encoding_name[n] = (char*)UNKNOWN_ENCODING;
+        local_transport_info.encoding_name[n] = wmem_strdup(wmem_packet_scope(), UNKNOWN_ENCODING);
     }
     for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++) {
         local_transport_info.media[n].rtp_dyn_payload = rtp_dyn_payload_new();
