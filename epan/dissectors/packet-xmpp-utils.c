@@ -958,7 +958,7 @@ xmpp_display_elems(proto_tree *tree, xmpp_element_t *parent, packet_info *pinfo,
         {
             gboolean loop = TRUE;
 
-            name_attr_t *a = (name_attr_t *)(elems[i].data);
+            const name_attr_t *a = (const name_attr_t *)(elems[i].data);
 
             while(loop && (elem = xmpp_steal_element_by_name_and_attr(parent, a->name, a->attr_name, a->attr_value))!=NULL)
             {
@@ -981,7 +981,7 @@ xmpp_display_elems(proto_tree *tree, xmpp_element_t *parent, packet_info *pinfo,
         else if(elems[i].type == ATTR)
         {
             gboolean loop = TRUE;
-            name_attr_t *attr = (name_attr_t *)(elems[i].data);
+            const name_attr_t *attr = (const name_attr_t *)(elems[i].data);
 
             while(loop && (elem = xmpp_steal_element_by_attr(parent, attr->attr_name, attr->attr_value))!=NULL)
             {
