@@ -70,15 +70,15 @@ static int proto_cip_class_cco = -1;
 static int proto_enip = -1;
 static int proto_modbus = -1;
 
-static int hf_attr_class_revision = -1;
-static int hf_attr_class_max_instance = -1;
-static int hf_attr_class_num_instance = -1;
-static int hf_attr_class_opt_attr_num = -1;
-static int hf_attr_class_attr_num = -1;
-static int hf_attr_class_opt_service_num = -1;
-static int hf_attr_class_service_code = -1;
-static int hf_attr_class_num_class_attr = -1;
-static int hf_attr_class_num_inst_attr = -1;
+int hf_attr_class_revision = -1;
+int hf_attr_class_max_instance = -1;
+int hf_attr_class_num_instance = -1;
+int hf_attr_class_opt_attr_num = -1;
+int hf_attr_class_attr_num = -1;
+int hf_attr_class_opt_service_num = -1;
+int hf_attr_class_service_code = -1;
+int hf_attr_class_num_class_attr = -1;
+int hf_attr_class_num_inst_attr = -1;
 static int hf_cip_data = -1;
 static int hf_cip_service = -1;
 static int hf_cip_service_code = -1;
@@ -314,6 +314,7 @@ static int hf_cip_reserved8 = -1;
 static int hf_cip_reserved24 = -1;
 static int hf_cip_pad8 = -1;
 
+static int hf_cip_sc_get_attr_all_attr_item = -1;
 static int hf_cip_sc_get_attr_list_attr_count = -1;
 static int hf_cip_sc_get_attr_list_attr_item = -1;
 static int hf_cip_sc_get_attr_list_attr_status = -1;
@@ -487,6 +488,7 @@ static gint ett_status_item = -1;
 static gint ett_add_status_item = -1;
 static gint ett_cmd_data = -1;
 
+static gint ett_cip_get_attributes_all_item = -1;
 static gint ett_cip_get_attribute_list = -1;
 static gint ett_cip_get_attribute_list_item = -1;
 static gint ett_cip_set_attribute_list = -1;
@@ -2530,7 +2532,7 @@ static const value_string cip_class_names_vals[] = {
    { 0xF3,     "Connection Configuration Object"       },
    { 0xF4,     "Port Object"                           },
    { 0xF5,     "TCP/IP Interface Object"               },
-   { 0xF6,     "EtherNet Link Object"                  },
+   { 0xF6,     "Ethernet Link Object"                  },
    { 0xF7,     "CompoNet Object"                       },
    { 0xF8,     "CompoNet Repeater Object"              },
 
@@ -3040,7 +3042,7 @@ static int dissect_time_sync_sys_time_and_offset(packet_info *pinfo, proto_tree 
    return 16;
 }
 
-static int dissect_optional_attr_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+int dissect_optional_attr_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
    int offset, int total_len)
 {
    guint32 i;
@@ -3062,7 +3064,7 @@ static int dissect_optional_attr_list(packet_info *pinfo, proto_tree *tree, prot
    return 2 + num_attr * 2;
 }
 
-static int dissect_optional_service_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+int dissect_optional_service_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
    int offset, int total_len)
 {
    guint32 i;
@@ -3087,61 +3089,96 @@ static int dissect_optional_service_list(packet_info *pinfo, proto_tree *tree, p
 
 static attribute_info_t cip_attribute_vals[] = {
 
-    /* Identity Object */
-   {0x01, FALSE, 1, "Vendor ID", cip_uint, &hf_id_vendor_id, NULL},
-   {0x01, FALSE, 2, "Device Type", cip_uint, &hf_id_device_type, NULL},
-   {0x01, FALSE, 3, "Product Code", cip_uint, &hf_id_produce_code, NULL},
-   {0x01, FALSE, 4, "Revision", cip_dissector_func, NULL, dissect_id_revision},
-   {0x01, FALSE, 5, "Status", cip_word, &hf_id_status, NULL},
-   {0x01, FALSE, 6, "Serial Number", cip_udint, &hf_id_serial_number, NULL},
-   {0x01, FALSE, 7, "Product Name", cip_short_string, &hf_id_product_name, NULL},
+    /* Identity Object (class attributes) */
+   {0x01, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
+   {0x01, TRUE, 2, 1, CLASS_ATTRIBUTE_2_NAME, cip_uint, &hf_attr_class_max_instance, NULL },
+   {0x01, TRUE, 3, -1, CLASS_ATTRIBUTE_3_NAME, cip_uint, &hf_attr_class_num_instance, NULL },
+   {0x01, TRUE, 4, -1, CLASS_ATTRIBUTE_4_NAME, cip_dissector_func, NULL, dissect_optional_attr_list },
+   {0x01, TRUE, 5, -1, CLASS_ATTRIBUTE_5_NAME, cip_dissector_func, NULL, dissect_optional_service_list },
+   {0x01, TRUE, 6, 2, CLASS_ATTRIBUTE_6_NAME, cip_uint, &hf_attr_class_num_class_attr, NULL },
+   {0x01, TRUE, 7, 3, CLASS_ATTRIBUTE_7_NAME, cip_uint, &hf_attr_class_num_inst_attr, NULL },
 
-    /* Message Router Object */
-   {0x02, FALSE, 1, "Object List", cip_dissector_func, NULL, dissect_msg_rout_num_classes},
-   {0x02, FALSE, 2, "Number Available", cip_uint, &hf_msg_rout_num_available, NULL},
-   {0x02, FALSE, 3, "Number Active", cip_uint, &hf_msg_rout_num_active, NULL},
-   {0x02, FALSE, 4, "Active Connections", cip_uint_array, &hf_msg_rout_active_connections, NULL},
+    /* Identity Object (instance attributes) */
+   {0x01, FALSE, 1, 0, "Vendor ID", cip_uint, &hf_id_vendor_id, NULL},
+   {0x01, FALSE, 2, 1, "Device Type", cip_uint, &hf_id_device_type, NULL},
+   {0x01, FALSE, 3, 2, "Product Code", cip_uint, &hf_id_produce_code, NULL},
+   {0x01, FALSE, 4, 3, "Revision", cip_dissector_func, NULL, dissect_id_revision},
+   {0x01, FALSE, 5, 4, "Status", cip_word, &hf_id_status, NULL},
+   {0x01, FALSE, 6, 5, "Serial Number", cip_udint, &hf_id_serial_number, NULL},
+   {0x01, FALSE, 7, 6, "Product Name", cip_short_string, &hf_id_product_name, NULL},
 
-    /* Connection Manager Object */
-   {0x06, FALSE, 1, "Open Requests", cip_uint, &hf_conn_mgr_open_requests, NULL},
-   {0x06, FALSE, 2, "Open Format Rejects", cip_uint, &hf_conn_mgr_open_format_rejects, NULL},
-   {0x06, FALSE, 3, "Open Resource Rejects", cip_uint, &hf_conn_mgr_open_resource_rejects, NULL},
-   {0x06, FALSE, 4, "Other Open Rejects", cip_uint, &hf_conn_mgr_other_open_rejects, NULL},
-   {0x06, FALSE, 5, "Close Requests", cip_uint, &hf_conn_mgr_close_requests, NULL},
-   {0x06, FALSE, 6, "Close Format Requests", cip_uint, &hf_conn_close_format_requests, NULL},
-   {0x06, FALSE, 7, "Close Other Requests", cip_uint, &hf_conn_mgr_close_other_requests, NULL},
-   {0x06, FALSE, 8, "Connection Timeouts", cip_uint, &hf_conn_mgr_conn_timouts, NULL},
+    /* Message Router Object (class attributes) */
+   {0x02, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
+   {0x02, TRUE, 2, -1, CLASS_ATTRIBUTE_2_NAME, cip_uint, &hf_attr_class_max_instance, NULL },
+   {0x02, TRUE, 3, -1, CLASS_ATTRIBUTE_3_NAME, cip_uint, &hf_attr_class_num_instance, NULL },
+   {0x02, TRUE, 4, 1, CLASS_ATTRIBUTE_4_NAME, cip_dissector_func, NULL, dissect_optional_attr_list },
+   {0x02, TRUE, 5, 2, CLASS_ATTRIBUTE_5_NAME, cip_dissector_func, NULL, dissect_optional_service_list },
+   {0x02, TRUE, 6, 3, CLASS_ATTRIBUTE_6_NAME, cip_uint, &hf_attr_class_num_class_attr, NULL },
+   {0x02, TRUE, 7, 4, CLASS_ATTRIBUTE_7_NAME, cip_uint, &hf_attr_class_num_inst_attr, NULL },
 
-    /* Time Sync Object */
-   {0x43, FALSE, 1, "PTP Enable", cip_bool, &hf_time_sync_ptp_enable, NULL},
-   {0x43, FALSE, 2, "Is Synchronized", cip_bool, &hf_time_sync_is_synchronized, NULL},
-   {0x43, FALSE, 3, "System Time (Microseconds)", cip_ulint, &hf_time_sync_sys_time_micro, NULL},
-   {0x43, FALSE, 4, "System Time (Nanoseconds)", cip_ulint, &hf_time_sync_sys_time_nano, NULL},
-   {0x43, FALSE, 5, "Offset from Master", cip_lint, &hf_time_sync_offset_from_master, NULL},
-   {0x43, FALSE, 6, "Max Offset from Master", cip_ulint, &hf_time_sync_max_offset_from_master, NULL},
-   {0x43, FALSE, 7, "Mean Path Delay To Master", cip_lint, &hf_time_sync_mean_path_delay_to_master, NULL},
-   {0x43, FALSE, 8, "Grand Master Clock Info", cip_dissector_func, NULL, dissect_time_sync_grandmaster_clock},
-   {0x43, FALSE, 9, "Parent Clock Info", cip_dissector_func, NULL, dissect_time_sync_parent_clock},
-   {0x43, FALSE, 10, "Local Clock Info", cip_dissector_func, NULL, dissect_time_sync_local_clock},
-   {0x43, FALSE, 11, "Number of Ports", cip_uint, &hf_time_sync_num_ports, NULL},
-   {0x43, FALSE, 12, "Port State Info", cip_dissector_func, NULL, dissect_time_sync_port_state_info},
-   {0x43, FALSE, 13, "Port Enable Cfg", cip_dissector_func, NULL, dissect_time_sync_port_enable_cfg},
-   {0x43, FALSE, 14, "Port Log Announcement Interval Cfg", cip_dissector_func, NULL, dissect_time_sync_port_log_announce},
-   {0x43, FALSE, 15, "Port Log Sync Interval Cfg", cip_dissector_func, NULL, dissect_time_sync_port_log_sync},
-   {0x43, FALSE, 16, "Priority1", cip_usint, &hf_time_sync_priority1, NULL},
-   {0x43, FALSE, 17, "Priority2", cip_usint, &hf_time_sync_priority2, NULL},
-   {0x43, FALSE, 18, "Domain number", cip_usint, &hf_time_sync_domain_number, NULL},
-   {0x43, FALSE, 19, "Clock Type", cip_dissector_func, NULL, dissect_time_sync_clock_type},
-   {0x43, FALSE, 20, "Manufacture Identity", cip_dissector_func, NULL, dissect_time_sync_manufacture_id},
-   {0x43, FALSE, 21, "Product Description", cip_dissector_func, NULL, dissect_time_sync_prod_desc},
-   {0x43, FALSE, 22, "Revision Data", cip_dissector_func, NULL, dissect_time_sync_revision_data},
-   {0x43, FALSE, 23, "User Description", cip_dissector_func, NULL, dissect_time_sync_user_desc},
-   {0x43, FALSE, 24, "Port Profile Identity Info", cip_dissector_func, NULL, dissect_time_sync_port_profile_id_info},
-   {0x43, FALSE, 25, "Port Physical Address Info", cip_dissector_func, NULL, dissect_time_sync_port_phys_addr_info},
-   {0x43, FALSE, 26, "Port Protocol Address Info", cip_dissector_func, NULL, dissect_time_sync_port_proto_addr_info},
-   {0x43, FALSE, 27, "Steps Removed", cip_uint, &hf_time_sync_steps_removed, NULL},
-   {0x43, FALSE, 28, "System Time and Offset", cip_dissector_func, NULL, dissect_time_sync_sys_time_and_offset},
+    /* Message Router Object (instance attributes) */
+   {0x02, FALSE, 1, 0, "Object List", cip_dissector_func, NULL, dissect_msg_rout_num_classes},
+   {0x02, FALSE, 2, 1, "Number Available", cip_uint, &hf_msg_rout_num_available, NULL},
+   {0x02, FALSE, 3, 2, "Number Active", cip_uint, &hf_msg_rout_num_active, NULL},
+   {0x02, FALSE, 4, 3, "Active Connections", cip_uint_array, &hf_msg_rout_active_connections, NULL},
 
+    /* Connection Manager Object (class attributes) */
+   {0x06, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
+   {0x06, TRUE, 2, 1, CLASS_ATTRIBUTE_2_NAME, cip_uint, &hf_attr_class_max_instance, NULL },
+   {0x06, TRUE, 3, -1, CLASS_ATTRIBUTE_3_NAME, cip_uint, &hf_attr_class_num_instance, NULL },
+   {0x06, TRUE, 4, -1, CLASS_ATTRIBUTE_4_NAME, cip_dissector_func, NULL, dissect_optional_attr_list },
+   {0x06, TRUE, 5, -1, CLASS_ATTRIBUTE_5_NAME, cip_dissector_func, NULL, dissect_optional_service_list },
+   {0x06, TRUE, 6, 2, CLASS_ATTRIBUTE_6_NAME, cip_uint, &hf_attr_class_num_class_attr, NULL },
+   {0x06, TRUE, 7, 3, CLASS_ATTRIBUTE_7_NAME, cip_uint, &hf_attr_class_num_inst_attr, NULL },
+
+    /* Connection Manager Object (instance attributes) */
+   {0x06, FALSE, 1, 0, "Open Requests", cip_uint, &hf_conn_mgr_open_requests, NULL},
+   {0x06, FALSE, 2, 1, "Open Format Rejects", cip_uint, &hf_conn_mgr_open_format_rejects, NULL},
+   {0x06, FALSE, 3, 2, "Open Resource Rejects", cip_uint, &hf_conn_mgr_open_resource_rejects, NULL},
+   {0x06, FALSE, 4, 3, "Other Open Rejects", cip_uint, &hf_conn_mgr_other_open_rejects, NULL},
+   {0x06, FALSE, 5, 4, "Close Requests", cip_uint, &hf_conn_mgr_close_requests, NULL},
+   {0x06, FALSE, 6, 5, "Close Format Requests", cip_uint, &hf_conn_close_format_requests, NULL},
+   {0x06, FALSE, 7, 6, "Close Other Requests", cip_uint, &hf_conn_mgr_close_other_requests, NULL},
+   {0x06, FALSE, 8, 7, "Connection Timeouts", cip_uint, &hf_conn_mgr_conn_timouts, NULL},
+
+    /* Time Sync Object (class attributes) */
+   {0x43, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
+   {0x43, TRUE, 2, 1, CLASS_ATTRIBUTE_2_NAME, cip_uint, &hf_attr_class_max_instance, NULL },
+   {0x43, TRUE, 3, 2, CLASS_ATTRIBUTE_3_NAME, cip_uint, &hf_attr_class_num_instance, NULL },
+   {0x43, TRUE, 4, 3, CLASS_ATTRIBUTE_4_NAME, cip_dissector_func, NULL, dissect_optional_attr_list },
+   {0x43, TRUE, 5, 4, CLASS_ATTRIBUTE_5_NAME, cip_dissector_func, NULL, dissect_optional_service_list },
+   {0x43, TRUE, 6, 5, CLASS_ATTRIBUTE_6_NAME, cip_uint, &hf_attr_class_num_class_attr, NULL },
+   {0x43, TRUE, 7, 6, CLASS_ATTRIBUTE_7_NAME, cip_uint, &hf_attr_class_num_inst_attr, NULL },
+
+    /* Time Sync Object (instance attributes) */
+   {0x43, FALSE, 1, -1, "PTP Enable", cip_bool, &hf_time_sync_ptp_enable, NULL},
+   {0x43, FALSE, 2, -1, "Is Synchronized", cip_bool, &hf_time_sync_is_synchronized, NULL},
+   {0x43, FALSE, 3, -1, "System Time (Microseconds)", cip_ulint, &hf_time_sync_sys_time_micro, NULL},
+   {0x43, FALSE, 4, -1, "System Time (Nanoseconds)", cip_ulint, &hf_time_sync_sys_time_nano, NULL},
+   {0x43, FALSE, 5, -1, "Offset from Master", cip_lint, &hf_time_sync_offset_from_master, NULL},
+   {0x43, FALSE, 6, -1, "Max Offset from Master", cip_ulint, &hf_time_sync_max_offset_from_master, NULL},
+   {0x43, FALSE, 7, -1, "Mean Path Delay To Master", cip_lint, &hf_time_sync_mean_path_delay_to_master, NULL},
+   {0x43, FALSE, 8, -1, "Grand Master Clock Info", cip_dissector_func, NULL, dissect_time_sync_grandmaster_clock},
+   {0x43, FALSE, 9, -1, "Parent Clock Info", cip_dissector_func, NULL, dissect_time_sync_parent_clock},
+   {0x43, FALSE, 10, -1, "Local Clock Info", cip_dissector_func, NULL, dissect_time_sync_local_clock},
+   {0x43, FALSE, 11, -1, "Number of Ports", cip_uint, &hf_time_sync_num_ports, NULL},
+   {0x43, FALSE, 12, -1, "Port State Info", cip_dissector_func, NULL, dissect_time_sync_port_state_info},
+   {0x43, FALSE, 13, -1, "Port Enable Cfg", cip_dissector_func, NULL, dissect_time_sync_port_enable_cfg},
+   {0x43, FALSE, 14, -1, "Port Log Announcement Interval Cfg", cip_dissector_func, NULL, dissect_time_sync_port_log_announce},
+   {0x43, FALSE, 15, -1, "Port Log Sync Interval Cfg", cip_dissector_func, NULL, dissect_time_sync_port_log_sync},
+   {0x43, FALSE, 16, -1, "Priority1", cip_usint, &hf_time_sync_priority1, NULL},
+   {0x43, FALSE, 17, -1, "Priority2", cip_usint, &hf_time_sync_priority2, NULL},
+   {0x43, FALSE, 18, -1, "Domain number", cip_usint, &hf_time_sync_domain_number, NULL},
+   {0x43, FALSE, 19, -1, "Clock Type", cip_dissector_func, NULL, dissect_time_sync_clock_type},
+   {0x43, FALSE, 20, -1, "Manufacture Identity", cip_dissector_func, NULL, dissect_time_sync_manufacture_id},
+   {0x43, FALSE, 21, -1, "Product Description", cip_dissector_func, NULL, dissect_time_sync_prod_desc},
+   {0x43, FALSE, 22, -1, "Revision Data", cip_dissector_func, NULL, dissect_time_sync_revision_data},
+   {0x43, FALSE, 23, -1, "User Description", cip_dissector_func, NULL, dissect_time_sync_user_desc},
+   {0x43, FALSE, 24, -1, "Port Profile Identity Info", cip_dissector_func, NULL, dissect_time_sync_port_profile_id_info},
+   {0x43, FALSE, 25, -1, "Port Physical Address Info", cip_dissector_func, NULL, dissect_time_sync_port_phys_addr_info},
+   {0x43, FALSE, 26, -1, "Port Protocol Address Info", cip_dissector_func, NULL, dissect_time_sync_port_proto_addr_info},
+   {0x43, FALSE, 27, -1, "Steps Removed", cip_uint, &hf_time_sync_steps_removed, NULL},
+   {0x43, FALSE, 28, -1, "System Time and Offset", cip_dissector_func, NULL, dissect_time_sync_sys_time_and_offset},
 };
 
 typedef struct attribute_val_array {
@@ -3149,20 +3186,17 @@ typedef struct attribute_val_array {
    attribute_info_t* attrs;
 } attribute_val_array_t;
 
+/* Each entry in this table (eg: cip_attribute_vals) is a list of:
+    Attribute information (class_id/class_instance/attribute) to attribute property
+
+    Note: If more items are added to the individual tables, it may make sense
+      to switch to a more efficient implementation (eg: hash table).
+*/
+
 static attribute_val_array_t all_attribute_vals[] = {
    {sizeof(cip_attribute_vals)/sizeof(attribute_info_t), cip_attribute_vals},
    {sizeof(enip_attribute_vals)/sizeof(attribute_info_t), enip_attribute_vals},
    {sizeof(cip_safety_attribute_vals)/sizeof(attribute_info_t), cip_safety_attribute_vals}
-};
-
-attribute_info_t class_attribute_vals[] = {
-    { 0, TRUE, 1, "Revision", cip_uint, &hf_attr_class_revision, NULL },
-    { 0, TRUE, 2, "Max Instance", cip_uint, &hf_attr_class_max_instance, NULL },
-    { 0, TRUE, 3, "Number of Instances", cip_uint, &hf_attr_class_num_instance, NULL },
-    { 0, TRUE, 4, "Optional Attribute List", cip_dissector_func, NULL, dissect_optional_attr_list },
-    { 0, TRUE, 5, "Optional Service List", cip_dissector_func, NULL, dissect_optional_service_list },
-    { 0, TRUE, 6, "Maximum ID Number Class Attributes", cip_uint, &hf_attr_class_num_class_attr, NULL },
-    { 0, TRUE, 7, "Maximum ID Number Instance Attributes", cip_uint, &hf_attr_class_num_inst_attr, NULL },
 };
 
 static void
@@ -3173,6 +3207,16 @@ attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attrib
    size_t i, j;
    attribute_val_array_t* att_array;
    attribute_info_t* pattr;
+
+   static attribute_info_t class_attribute_vals[] = {
+      { 0, TRUE, 1, -1, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
+      { 0, TRUE, 2, -1, CLASS_ATTRIBUTE_2_NAME, cip_uint, &hf_attr_class_max_instance, NULL },
+      { 0, TRUE, 3, -1, CLASS_ATTRIBUTE_3_NAME, cip_uint, &hf_attr_class_num_instance, NULL },
+      { 0, TRUE, 4, -1, CLASS_ATTRIBUTE_4_NAME, cip_dissector_func, NULL, dissect_optional_attr_list },
+      { 0, TRUE, 5, -1, CLASS_ATTRIBUTE_5_NAME, cip_dissector_func, NULL, dissect_optional_service_list },
+      { 0, TRUE, 6, -1, CLASS_ATTRIBUTE_6_NAME, cip_uint, &hf_attr_class_num_class_attr, NULL },
+      { 0, TRUE, 7, -1, CLASS_ATTRIBUTE_7_NAME, cip_uint, &hf_attr_class_num_inst_attr, NULL },
+   };
 
    for (i = 0; i < sizeof(all_attribute_vals)/sizeof(attribute_val_array_t); i++)
    {
@@ -4587,6 +4631,134 @@ dissect_cip_generic_service_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    return tvb_reported_length(tvb);
 }
 
+typedef struct cip_gaa_key {
+   guint32 cip_class;
+   gboolean class_instance;
+} cip_gaa_key_t;
+
+typedef struct cip_gaa_val {
+   GList *attributes;
+} cip_gaa_val_t;
+
+static wmem_map_t *cip_gaa_hashtable = NULL;
+
+static guint
+cip_gaa_hash (gconstpointer v)
+{
+   const cip_gaa_key_t *key = (const cip_gaa_key_t *)v;
+   guint val;
+
+   val = (guint)((key->cip_class << 1) & 0xFFFFFFFE);
+   val |= (key->class_instance & 1);
+
+   return val;
+}
+
+static gint
+cip_gaa_equal(gconstpointer v, gconstpointer w)
+{
+   const cip_gaa_key_t *v1 = (const cip_gaa_key_t *)v;
+   const cip_gaa_key_t *v2 = (const cip_gaa_key_t *)w;
+
+   if ((v1->cip_class == v2->cip_class) &&
+       (v1->class_instance == v2->class_instance))
+       return 1;
+
+   return 0;
+}
+
+static void build_get_attr_all_table(void)
+{
+   size_t i, j;
+   attribute_val_array_t* att_array;
+   attribute_info_t* pattr;
+   cip_gaa_key_t key;
+   cip_gaa_key_t* new_key;
+   cip_gaa_val_t *gaa_val;
+   int last_attribute_index = -1;
+
+   cip_gaa_hashtable = wmem_map_new(wmem_epan_scope(), cip_gaa_hash, cip_gaa_equal);
+
+   for (i = 0; i < sizeof(all_attribute_vals)/sizeof(attribute_val_array_t); i++)
+   {
+      att_array = &all_attribute_vals[i];
+      for (j = 0; j < att_array->size; j++)
+      {
+         pattr = &att_array->attrs[j];
+         key.cip_class = pattr->class_id;
+         key.class_instance = pattr->class_instance;
+
+         gaa_val = (cip_gaa_val_t *)wmem_map_lookup( cip_gaa_hashtable, &key );
+         if (gaa_val == NULL)
+         {
+            new_key = (cip_gaa_key_t*)wmem_memdup(wmem_epan_scope(), &key, sizeof(cip_gaa_key_t));
+            gaa_val = wmem_new0(wmem_epan_scope(), cip_gaa_val_t);
+
+            wmem_map_insert(cip_gaa_hashtable, new_key, gaa_val );
+            last_attribute_index = -1;
+         }
+
+         if ((pattr->gaa_index >= 0) && (pattr->gaa_index > last_attribute_index))
+         {
+             gaa_val->attributes = g_list_append(gaa_val->attributes, pattr);
+             last_attribute_index = pattr->gaa_index;
+         }
+      }
+   }
+}
+
+static void
+dissect_cip_get_attribute_all_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    int offset, cip_simple_request_info_t* req_data)
+{
+   int att_size;
+   gint len_remain;
+   attribute_info_t* attr;
+   proto_item *att_item;
+   proto_tree *att_tree;
+   cip_gaa_key_t key;
+   cip_gaa_val_t *gaa_val;
+   GList       *attribute_list;
+
+   key.cip_class = req_data->iClass;
+   key.class_instance = (req_data->iInstance == 0);
+
+   gaa_val = (cip_gaa_val_t *)wmem_map_lookup( cip_gaa_hashtable, &key );
+   if (gaa_val == NULL)
+   {
+      proto_tree_add_item(tree, hf_cip_sc_get_attribute_all_data, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+      return;
+   }
+
+   for (attribute_list = g_list_first(gaa_val->attributes);
+       (attribute_list != NULL);
+        attribute_list = g_list_next(attribute_list))
+   {
+      attr = (attribute_info_t *)attribute_list->data;
+      len_remain = tvb_reported_length_remaining(tvb, offset);
+
+      /* If there are no more attributes defined or there is no data left. */
+      if (attr == NULL || len_remain <= 0)
+         break;
+
+      att_item = proto_tree_add_uint_format_value(tree, hf_cip_sc_get_attr_all_attr_item,
+         tvb, offset, 0, 0, "%d (%s)", attr->attribute, attr->text);
+      att_tree = proto_item_add_subtree(att_item, ett_cip_get_attributes_all_item);
+
+      att_size = dissect_cip_attribute(pinfo, att_tree, att_item, tvb, attr, offset, len_remain);
+      offset += att_size;
+
+      proto_item_set_len(att_item, att_size);
+   }
+
+   /* Add whatever is left as raw data. */
+   len_remain = tvb_reported_length_remaining(tvb, offset);
+   if (len_remain > 0)
+   {
+      proto_tree_add_item(tree, hf_cip_sc_get_attribute_all_data, tvb, offset, len_remain, ENC_NA);
+   }
+}
+
 static void
 dissect_cip_get_attribute_list_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
                                   int offset, cip_simple_request_info_t* req_data)
@@ -4875,7 +5047,7 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    switch(service)
    {
    case SC_GET_ATT_ALL:
-      proto_tree_add_item(cmd_data_tree, hf_cip_sc_get_attribute_all_data, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
+      dissect_cip_get_attribute_all_rsp(tvb, pinfo, cmd_data_tree, offset+4+add_stat_size, &req_data);
       break;
    case SC_SET_ATT_ALL:
       proto_tree_add_item(cmd_data_tree, hf_cip_sc_set_attribute_all_data, tvb, offset+4+add_stat_size, tvb_reported_length_remaining(tvb, offset+4+add_stat_size), ENC_NA);
@@ -6663,6 +6835,7 @@ proto_register_cip(void)
       { &hf_cip_reserved24, { "Reserved", "cip.reserved", FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_pad8, { "Pad Byte", "cip.pad", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
+      { &hf_cip_sc_get_attr_all_attr_item, { "Attribute", "cip.getall.attr_item", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
       { &hf_cip_sc_get_attr_list_attr_count, { "Attribute Count", "cip.getlist.attr_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_get_attr_list_attr_item, { "Attribute", "cip.getlist.attr_item", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_sc_get_attr_list_attr_status, { "General Status", "cip.getlist.attr_status", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_gs_vals_ext, 0, NULL, HFILL }},
@@ -6986,6 +7159,7 @@ proto_register_cip(void)
       &ett_cip_seg_safety_ounid_ssn,
       &ett_status_item,
       &ett_add_status_item,
+      &ett_cip_get_attributes_all_item,
       &ett_cip_get_attribute_list,
       &ett_cip_get_attribute_list_item,
       &ett_cip_set_attribute_list,
@@ -7136,6 +7310,7 @@ proto_register_cip(void)
     * can override the dissector for common services */
    heur_subdissector_service = register_heur_dissector_list("cip.sc");
 
+   build_get_attr_all_table();
 } /* end of proto_register_cip() */
 
 

@@ -64,6 +64,6 @@ extern void dissect_cipsafety_ssn(proto_tree *tree, tvbuff_t *tvb, packet_info *
 ** Exported variables
 */
 extern const value_string cipsafety_ssn_date_vals[8];
-extern attribute_info_t cip_safety_attribute_vals[52];
+extern attribute_info_t cip_safety_attribute_vals[51];
 
 #endif /* PACKET_CIPSAFETY_H */

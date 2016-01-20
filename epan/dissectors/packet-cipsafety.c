@@ -236,10 +236,6 @@ static int hf_cip_sercosiii_link_sercos_address = -1;
 static int hf_cip_sercosiii_link_error_count_p1 = -1;
 static int hf_cip_sercosiii_link_error_count_p2 = -1;
 
-static int hf_tcpip_snn_timestamp = -1;
-static int hf_tcpip_snn_date = -1;
-static int hf_tcpip_snn_time = -1;
-
 /* Initialize the subtree pointers */
 static gint ett_cip_safety                = -1;
 static gint ett_path                      = -1;
@@ -291,7 +287,6 @@ static expert_field ei_cipsafety_tbd_not_copied = EI_INIT;
 static expert_field ei_cipsafety_run_idle_not_complemented = EI_INIT;
 static expert_field ei_mal_io = EI_INIT;
 static expert_field ei_mal_sercosiii_link_error_count_p1p2 = EI_INIT;
-static expert_field ei_mal_tcpip_ssn = EI_INIT;
 
 static expert_field ei_mal_ssupervisor_exception_detail_alarm_ced = EI_INIT;
 static expert_field ei_mal_ssupervisor_exception_detail_alarm_ded = EI_INIT;
@@ -1633,80 +1628,64 @@ static int dissect_sercosiii_link_error_count_p1p2(packet_info *pinfo, proto_tre
    return 4;
 }
 
-static int dissect_tcpip_ssn(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
-                             int offset, int total_len)
-{
-   if (total_len < 6)
-   {
-      expert_add_info(pinfo, item, &ei_mal_tcpip_ssn);
-      return total_len;
-   }
-
-   dissect_cipsafety_ssn(tree, tvb, pinfo, offset, hf_tcpip_snn_timestamp, hf_tcpip_snn_date, hf_tcpip_snn_time);
-   return 6;
-}
-
-attribute_info_t cip_safety_attribute_vals[52] = {
+attribute_info_t cip_safety_attribute_vals[51] = {
 
    /* Safety Supervisor */
-   {0x39, TRUE, 99, "Subclass", cip_uint, &hf_cip_ssupervisor_class_subclass, NULL},
-   {0x39, FALSE, 1, "Number of Attributes", cip_usint, &hf_cip_ssupervisor_num_attr, NULL},
-   {0x39, FALSE, 2, "Attribute List", cip_usint_array, &hf_cip_ssupervisor_attr_list, NULL},
-   {0x39, FALSE, 5, "Manufacturer Name", cip_short_string, &hf_cip_ssupervisor_manufacture_name, NULL},
-   {0x39, FALSE, 6, "Manufacturer Model Number", cip_short_string, &hf_cip_ssupervisor_manufacture_model_number, NULL},
-   {0x39, FALSE, 7, "Software Revision Level", cip_short_string, &hf_cip_ssupervisor_sw_rev_level, NULL},
-   {0x39, FALSE, 8, "Hardware Revision Level", cip_short_string, &hf_cip_ssupervisor_hw_rev_level, NULL},
-   {0x39, FALSE, 9, "Manufacturer Serial Number", cip_short_string, &hf_cip_ssupervisor_manufacture_serial_number, NULL},
-   {0x39, FALSE, 10, "Device Configuration", cip_short_string, &hf_cip_ssupervisor_device_config, NULL},
-   {0x39, FALSE, 11, "Device Status", cip_usint, &hf_cip_ssupervisor_device_status, NULL},
-   {0x39, FALSE, 12, "Exception Status", cip_byte, &hf_cip_ssupervisor_exception_status, NULL},
-   {0x39, FALSE, 13, "Exception Detail Alarm", cip_dissector_func, NULL, dissect_s_supervisor_exception_detail_alarm},
-   {0x39, FALSE, 14, "Exception Detail Warning", cip_dissector_func, NULL, dissect_s_supervisor_exception_detail_warning},
-   {0x39, FALSE, 15, "Alarm Enable", cip_bool, &hf_cip_ssupervisor_alarm_enable, NULL},
-   {0x39, FALSE, 16, "Warning Enable", cip_bool, &hf_cip_ssupervisor_warning_enable, NULL},
-   {0x39, FALSE, 17, "Time", cip_date_and_time, &hf_cip_ssupervisor_time, NULL},
-   {0x39, FALSE, 18, "Clock Power Cycle Behavior", cip_usint, &hf_cip_ssupervisor_clock_power_cycle_behavior, NULL},
-   {0x39, FALSE, 19, "Last Maintenance Date", cip_date, &hf_cip_ssupervisor_last_maintenance_date, NULL},
-   {0x39, FALSE, 20, "Next Scheduled Maintenance Date", cip_date, &hf_cip_ssupervisor_next_scheduled_maintenance_date, NULL},
-   {0x39, FALSE, 21, "Scheduled Maintenance Expiration Timer", cip_int, &hf_cip_ssupervisor_scheduled_maintenance_expiration_timer, NULL},
-   {0x39, FALSE, 22, "Scheduled Maintenance Expiration Warning Enable", cip_bool, &hf_cip_ssupervisor_scheduled_maintenance_expiration_warning_enable, NULL},
-   {0x39, FALSE, 23, "Run Hours", cip_udint, &hf_cip_ssupervisor_run_hours, NULL},
-   {0x39, FALSE, 24, "Configuration Lock", cip_bool, &hf_cip_ssupervisor_configuration_lock, NULL},
-   {0x39, FALSE, 25, "Configuration UNID", cip_dissector_func, NULL, dissect_s_supervisor_configuration_unid},
-   {0x39, FALSE, 26, "Safety Configuration Identifier", cip_dissector_func, NULL, dissect_s_supervisor_safety_configuration_id},
-   {0x39, FALSE, 27, "Target UNID", cip_dissector_func, NULL, dissect_s_supervisor_target_unid},
-   {0x39, FALSE, 28, "Output Connection Point Owners", cip_dissector_func, NULL, dissect_s_supervisor_output_connection_point_owners},
-   {0x39, FALSE, 29, "Proposed TUNID", cip_dissector_func, NULL, dissect_s_supervisor_proposed_tunid},
-   {0x39, FALSE, 99, "Subclass", cip_uint, &hf_cip_ssupervisor_instance_subclass, NULL},
+   {0x39, TRUE, 99, -1, "Subclass", cip_uint, &hf_cip_ssupervisor_class_subclass, NULL},
+   {0x39, FALSE, 1, -1, "Number of Attributes", cip_usint, &hf_cip_ssupervisor_num_attr, NULL},
+   {0x39, FALSE, 2, -1, "Attribute List", cip_usint_array, &hf_cip_ssupervisor_attr_list, NULL},
+   {0x39, FALSE, 5, -1, "Manufacturer Name", cip_short_string, &hf_cip_ssupervisor_manufacture_name, NULL},
+   {0x39, FALSE, 6, -1, "Manufacturer Model Number", cip_short_string, &hf_cip_ssupervisor_manufacture_model_number, NULL},
+   {0x39, FALSE, 7, -1, "Software Revision Level", cip_short_string, &hf_cip_ssupervisor_sw_rev_level, NULL},
+   {0x39, FALSE, 8, -1, "Hardware Revision Level", cip_short_string, &hf_cip_ssupervisor_hw_rev_level, NULL},
+   {0x39, FALSE, 9, -1, "Manufacturer Serial Number", cip_short_string, &hf_cip_ssupervisor_manufacture_serial_number, NULL},
+   {0x39, FALSE, 10, -1, "Device Configuration", cip_short_string, &hf_cip_ssupervisor_device_config, NULL},
+   {0x39, FALSE, 11, -1, "Device Status", cip_usint, &hf_cip_ssupervisor_device_status, NULL},
+   {0x39, FALSE, 12, -1, "Exception Status", cip_byte, &hf_cip_ssupervisor_exception_status, NULL},
+   {0x39, FALSE, 13, -1, "Exception Detail Alarm", cip_dissector_func, NULL, dissect_s_supervisor_exception_detail_alarm},
+   {0x39, FALSE, 14, -1, "Exception Detail Warning", cip_dissector_func, NULL, dissect_s_supervisor_exception_detail_warning},
+   {0x39, FALSE, 15, -1, "Alarm Enable", cip_bool, &hf_cip_ssupervisor_alarm_enable, NULL},
+   {0x39, FALSE, 16, -1, "Warning Enable", cip_bool, &hf_cip_ssupervisor_warning_enable, NULL},
+   {0x39, FALSE, 17, -1, "Time", cip_date_and_time, &hf_cip_ssupervisor_time, NULL},
+   {0x39, FALSE, 18, -1, "Clock Power Cycle Behavior", cip_usint, &hf_cip_ssupervisor_clock_power_cycle_behavior, NULL},
+   {0x39, FALSE, 19, -1, "Last Maintenance Date", cip_date, &hf_cip_ssupervisor_last_maintenance_date, NULL},
+   {0x39, FALSE, 20, -1, "Next Scheduled Maintenance Date", cip_date, &hf_cip_ssupervisor_next_scheduled_maintenance_date, NULL},
+   {0x39, FALSE, 21, -1, "Scheduled Maintenance Expiration Timer", cip_int, &hf_cip_ssupervisor_scheduled_maintenance_expiration_timer, NULL},
+   {0x39, FALSE, 22, -1, "Scheduled Maintenance Expiration Warning Enable", cip_bool, &hf_cip_ssupervisor_scheduled_maintenance_expiration_warning_enable, NULL},
+   {0x39, FALSE, 23, -1, "Run Hours", cip_udint, &hf_cip_ssupervisor_run_hours, NULL},
+   {0x39, FALSE, 24, -1, "Configuration Lock", cip_bool, &hf_cip_ssupervisor_configuration_lock, NULL},
+   {0x39, FALSE, 25, -1, "Configuration UNID", cip_dissector_func, NULL, dissect_s_supervisor_configuration_unid},
+   {0x39, FALSE, 26, -1, "Safety Configuration Identifier", cip_dissector_func, NULL, dissect_s_supervisor_safety_configuration_id},
+   {0x39, FALSE, 27, -1, "Target UNID", cip_dissector_func, NULL, dissect_s_supervisor_target_unid},
+   {0x39, FALSE, 28, -1, "Output Connection Point Owners", cip_dissector_func, NULL, dissect_s_supervisor_output_connection_point_owners},
+   {0x39, FALSE, 29, -1, "Proposed TUNID", cip_dissector_func, NULL, dissect_s_supervisor_proposed_tunid},
+   {0x39, FALSE, 99, -1, "Subclass", cip_uint, &hf_cip_ssupervisor_instance_subclass, NULL},
 
    /* Safety Validator */
-   {0x3A, TRUE, 8, "Safety Connection Fault Count", cip_uint, &hf_cip_svalidator_sconn_fault_count, NULL},
-   {0x3A, FALSE, 1, "Safety Validator State", cip_usint, &hf_cip_svalidator_state, NULL},
-   {0x3A, FALSE, 2, "Safety Validator Type", cip_dissector_func, NULL, dissect_s_validator_type},
-   {0x3A, FALSE, 3, "Ping Interval ERI Multiplier", cip_uint, &hf_cip_svalidator_ping_eri, NULL},
-   {0x3A, FALSE, 4, "Time Coord Msg Min Multiplier", cip_dissector_func, NULL, dissect_s_validator_time_coord_msg_min_mult},
-   {0x3A, FALSE, 5, "Network Time Expectation Multiplier", cip_dissector_func, NULL, dissect_s_validator_network_time_multiplier},
-   {0x3A, FALSE, 6, "Timeout Multiplier", cip_dissector_func, NULL, dissect_s_validator_timeout_multiplier},
-   {0x3A, FALSE, 7, "Max Consumer Number", cip_usint, &hf_cip_svalidator_max_consumer_num, NULL},
-   {0x3A, FALSE, 8, "Data Connection Instance", cip_uint, &hf_cip_svalidator_data_conn_inst, NULL},
-   {0x3A, FALSE, 9, "Coordination Connection Instance", cip_dissector_func, NULL, dissect_s_validator_coordination_conn_inst},
-   {0x3A, FALSE, 10, "Correction Connection Instance", cip_uint, &hf_cip_svalidator_correction_conn_inst, NULL},
-   {0x3A, FALSE, 11, "CCO Binding", cip_uint, &hf_cip_svalidator_cco_binding, NULL},
-   {0x3A, FALSE, 12, "Max Data Age", cip_uint, &hf_cip_svalidator_max_data_age, NULL},
-   {0x3A, FALSE, 13, "Application Data Path", cip_dissector_func, NULL, dissect_s_validator_app_data_path},
-   {0x3A, FALSE, 14, "Error Code", cip_uint, &hf_cip_svalidator_error_code, NULL},
-   {0x3A, FALSE, 15, "Producer/Consumer Fault Counters", cip_dissector_func, NULL, dissect_s_validator_prod_cons_fault_count},
+   {0x3A, TRUE, 8, -1, "Safety Connection Fault Count", cip_uint, &hf_cip_svalidator_sconn_fault_count, NULL},
+   {0x3A, FALSE, 1, 0, "Safety Validator State", cip_usint, &hf_cip_svalidator_state, NULL},
+   {0x3A, FALSE, 2, 1, "Safety Validator Type", cip_dissector_func, NULL, dissect_s_validator_type},
+   {0x3A, FALSE, 3, 2, "Ping Interval ERI Multiplier", cip_uint, &hf_cip_svalidator_ping_eri, NULL},
+   {0x3A, FALSE, 4, 3, "Time Coord Msg Min Multiplier", cip_dissector_func, NULL, dissect_s_validator_time_coord_msg_min_mult},
+   {0x3A, FALSE, 5, 4, "Network Time Expectation Multiplier", cip_dissector_func, NULL, dissect_s_validator_network_time_multiplier},
+   {0x3A, FALSE, 6, 5, "Timeout Multiplier", cip_dissector_func, NULL, dissect_s_validator_timeout_multiplier},
+   {0x3A, FALSE, 7, 6, "Max Consumer Number", cip_usint, &hf_cip_svalidator_max_consumer_num, NULL},
+   {0x3A, FALSE, 8, 7, "Data Connection Instance", cip_uint, &hf_cip_svalidator_data_conn_inst, NULL},
+   {0x3A, FALSE, 9, 8, "Coordination Connection Instance", cip_dissector_func, NULL, dissect_s_validator_coordination_conn_inst},
+   {0x3A, FALSE, 10, 9, "Correction Connection Instance", cip_uint, &hf_cip_svalidator_correction_conn_inst, NULL},
+   {0x3A, FALSE, 11, 10, "CCO Binding", cip_uint, &hf_cip_svalidator_cco_binding, NULL},
+   {0x3A, FALSE, 12, 11, "Max Data Age", cip_uint, &hf_cip_svalidator_max_data_age, NULL},
+   {0x3A, FALSE, 13, 12, "Application Data Path", cip_dissector_func, NULL, dissect_s_validator_app_data_path},
+   {0x3A, FALSE, 14, 13, "Error Code", cip_uint, &hf_cip_svalidator_error_code, NULL},
+   {0x3A, FALSE, 15, -1, "Producer/Consumer Fault Counters", cip_dissector_func, NULL, dissect_s_validator_prod_cons_fault_count},
 
    /* Sercos III Link */
-   {0x4C, FALSE, 1, "Safety Network Number", cip_byte_array, &hf_cip_sercosiii_link_snn, NULL},
-   {0x4C, FALSE, 2, "Communication Cycle Time", cip_dint, &hf_cip_sercosiii_link_communication_cycle_time, NULL},
-   {0x4C, FALSE, 3, "Interface Status", cip_word, &hf_cip_sercosiii_link_interface_status, NULL},
-   {0x4C, FALSE, 4, "Error counter MST-P/S", cip_int, &hf_cip_sercosiii_link_error_count_mstps, NULL},
-   {0x4C, FALSE, 5, "Error counter Port1 and Port2", cip_dissector_func, NULL, dissect_sercosiii_link_error_count_p1p2},
-   {0x4C, FALSE, 6, "SERCOS address", cip_int, &hf_cip_sercosiii_link_sercos_address, NULL},
-
-   /* TCP/IP object (CIP-Safety specific) */
-   {0xF5, FALSE, 7, "Safety Network Number", cip_dissector_func, NULL, dissect_tcpip_ssn}
+   {0x4C, FALSE, 1, -1, "Safety Network Number", cip_byte_array, &hf_cip_sercosiii_link_snn, NULL},
+   {0x4C, FALSE, 2, -1, "Communication Cycle Time", cip_dint, &hf_cip_sercosiii_link_communication_cycle_time, NULL},
+   {0x4C, FALSE, 3, -1, "Interface Status", cip_word, &hf_cip_sercosiii_link_interface_status, NULL},
+   {0x4C, FALSE, 4, -1, "Error counter MST-P/S", cip_int, &hf_cip_sercosiii_link_error_count_mstps, NULL},
+   {0x4C, FALSE, 5, -1, "Error counter Port1 and Port2", cip_dissector_func, NULL, dissect_sercosiii_link_error_count_p1p2},
+   {0x4C, FALSE, 6, -1, "SERCOS address", cip_int, &hf_cip_sercosiii_link_sercos_address, NULL},
 };
 
 /*
@@ -1898,19 +1877,6 @@ proto_register_cipsafety(void)
       { &hf_cip_sercosiii_link_sercos_address,
         { "SERCOS Address", "cipsafety.sercosiii_link.sercos_address",
           FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL }
-      },
-
-      { &hf_tcpip_snn_timestamp,
-        { "Safety Network Number (Timestamp)", "cip.tcpip.snn.timestamp",
-          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0, NULL, HFILL }
-      },
-      { &hf_tcpip_snn_date,
-        { "Safety Network Number (Manual) Date", "cip.tcpip.snn.date",
-          FT_UINT16, BASE_HEX, VALS(cipsafety_ssn_date_vals), 0, NULL, HFILL }
-      },
-      { &hf_tcpip_snn_time,
-        { "Safety Network Number (Manual) Time", "cip.tcpip.snn.time",
-          FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
       },
    };
 
@@ -2526,7 +2492,6 @@ proto_register_cipsafety(void)
       { &ei_cipsafety_run_idle_not_complemented, { "cipsafety.run_idle_not_complemented", PI_PROTOCOL, PI_WARN, "Run/Idle bit not complemented", EXPFILL }},
       { &ei_mal_io, { "cipsafety.malformed.io", PI_MALFORMED, PI_ERROR, "Malformed CIP Safety I/O packet", EXPFILL }},
       { &ei_mal_sercosiii_link_error_count_p1p2, { "cipsafety.malformed.sercosiii_link.error_count_p1p2", PI_MALFORMED, PI_ERROR, "Malformed SERCOS III Attribute 5", EXPFILL }},
-      { &ei_mal_tcpip_ssn, { "cip.malformed.tcpip.ssn", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Object Safety Network Number", EXPFILL }},
       };
 
    static ei_register_info ei_ssupervisor[] = {

@@ -28,6 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#ifndef PACKET_CIP_H
+#define PACKET_CIP_H
+
 /* CIP Service Codes */
 #define SC_GET_ATT_ALL           0x01
 #define SC_SET_ATT_ALL           0x02
@@ -191,8 +194,8 @@
 
 /* Define common services */
 #define GENERIC_SC_LIST \
-   { SC_GET_ATT_ALL,          "Get Attribute All" }, \
-   { SC_SET_ATT_ALL,          "Set Attribute All" }, \
+   { SC_GET_ATT_ALL,          "Get Attributes All" }, \
+   { SC_SET_ATT_ALL,          "Set Attributes All" }, \
    { SC_GET_ATT_LIST,         "Get Attribute List" }, \
    { SC_SET_ATT_LIST,         "Set Attribute List" }, \
    { SC_RESET,                "Reset" }, \
@@ -264,6 +267,7 @@ typedef struct attribute_info {
    guint                     class_id;
    gboolean                  class_instance;
    guint                     attribute;
+   int                       gaa_index; /* Index of attribute in GetAttributeAll response (< 0 means not in GetAttrbuteAll */
    const char               *text;
    enum cip_datatype         datatype;
    int*                      phf;
@@ -328,6 +332,31 @@ extern value_string_ext cip_vendor_vals_ext;
 extern value_string_ext cip_devtype_vals_ext;
 extern value_string_ext cip_class_names_vals_ext;
 
+/* Common class attributes and attribute dissection functions*/
+extern int hf_attr_class_revision;
+extern int hf_attr_class_max_instance;
+extern int hf_attr_class_num_instance;
+extern int hf_attr_class_opt_attr_num;
+extern int hf_attr_class_attr_num;
+extern int hf_attr_class_opt_service_num;
+extern int hf_attr_class_service_code;
+extern int hf_attr_class_num_class_attr;
+extern int hf_attr_class_num_inst_attr;
+
+#define CLASS_ATTRIBUTE_1_NAME  "Revision"
+#define CLASS_ATTRIBUTE_2_NAME  "Max Instance"
+#define CLASS_ATTRIBUTE_3_NAME  "Number of Instances"
+#define CLASS_ATTRIBUTE_4_NAME  "Optional Attribute List"
+#define CLASS_ATTRIBUTE_5_NAME  "Optional Service List"
+#define CLASS_ATTRIBUTE_6_NAME  "Maximum ID Number Class Attributes"
+#define CLASS_ATTRIBUTE_7_NAME  "Maximum ID Number Instance Attributes"
+
+extern int dissect_optional_attr_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len);
+extern int dissect_optional_service_list(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+   int offset, int total_len);
+
+
 /*
  * Editor modelines
  *
@@ -340,3 +369,5 @@ extern value_string_ext cip_class_names_vals_ext;
  * ex: set shiftwidth=3 tabstop=8 expandtab:
  * :indentSize=3:tabSize=8:noTabs=true:
  */
+
+#endif /* PACKET_CIP_H */

@@ -180,6 +180,9 @@ static int hf_tcpip_ic_name_server = -1;
 static int hf_tcpip_ic_name_server2 = -1;
 static int hf_tcpip_ic_domain_name = -1;
 static int hf_tcpip_hostname = -1;
+static int hf_tcpip_snn_timestamp = -1;
+static int hf_tcpip_snn_date = -1;
+static int hf_tcpip_snn_time = -1;
 static int hf_tcpip_ttl_value = -1;
 static int hf_tcpip_mcast_alloc = -1;
 static int hf_tcpip_mcast_reserved = -1;
@@ -190,6 +193,7 @@ static int hf_tcpip_lcd_remote_mac = -1;
 static int hf_tcpip_lcd_arp_pdu = -1;
 static int hf_tcpip_select_acd = -1;
 static int hf_tcpip_quick_connect = -1;
+static int hf_tcpip_encap_inactivity = -1;
 
 static int hf_elink_interface_flags = -1;
 static int hf_elink_iflags_link_status = -1;
@@ -303,6 +307,7 @@ static expert_field ei_mal_tcpip_physical_link_size = EI_INIT;
 static expert_field ei_mal_tcpip_interface_config = EI_INIT;
 static expert_field ei_mal_tcpip_mcast_config = EI_INIT;
 static expert_field ei_mal_tcpip_last_conflict = EI_INIT;
+static expert_field ei_mal_tcpip_ssn = EI_INIT;
 static expert_field ei_mal_elink_interface_flags = EI_INIT;
 static expert_field ei_mal_elink_physical_address = EI_INIT;
 static expert_field ei_mal_elink_interface_counters = EI_INIT;
@@ -1390,6 +1395,19 @@ dissect_tcpip_interface_config(packet_info *pinfo, proto_tree *tree, proto_item 
    return (22+domain_length);
 }
 
+static int dissect_tcpip_ssn(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+                             int offset, int total_len)
+{
+   if (total_len < 6)
+   {
+      expert_add_info(pinfo, item, &ei_mal_tcpip_ssn);
+      return total_len;
+   }
+
+   dissect_cipsafety_ssn(tree, tvb, pinfo, offset, hf_tcpip_snn_timestamp, hf_tcpip_snn_date, hf_tcpip_snn_time);
+   return 6;
+}
+
 static int
 dissect_tcpip_mcast_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                            int offset, int total_len)
@@ -1711,60 +1729,98 @@ dissect_dlr_active_gateway_address(packet_info *pinfo, proto_tree *tree, proto_i
    return 10;
 }
 
-attribute_info_t enip_attribute_vals[45] = {
+attribute_info_t enip_attribute_vals[75] = {
 
-   /* TCP/IP object */
-   {0xF5, FALSE,  1, "Status",                    cip_dissector_func,   NULL, dissect_tcpip_status},
-   {0xF5, FALSE,  2, "Configuration Capability",  cip_dissector_func,   NULL, dissect_tcpip_config_cap},
-   {0xF5, FALSE,  3, "Configuration Control",     cip_dissector_func,   NULL, dissect_tcpip_config_control},
-   {0xF5, FALSE,  4, "Physical Link Object",      cip_dissector_func,   NULL, dissect_tcpip_physical_link},
-   {0xF5, FALSE,  5, "Interface Configuration",   cip_dissector_func,   NULL, dissect_tcpip_interface_config},
-   {0xF5, FALSE,  6, "Host Name", cip_string,     &hf_tcpip_hostname,   NULL},
-   {0xF5, FALSE,  8, "TTL Value", cip_usint,      &hf_tcpip_ttl_value,  NULL},
-   {0xF5, FALSE,  9, "Multicast Configuration",   cip_dissector_func,   NULL, dissect_tcpip_mcast_config},
-   {0xF5, FALSE, 10, "Select ACD", cip_bool,      &hf_tcpip_select_acd, NULL},
-   {0xF5, FALSE, 11, "Last Conflict Detected",    cip_dissector_func,   NULL, dissect_tcpip_last_conflict},
-   {0xF5, FALSE, 12, "EtherNet/IP Quick Connect", cip_bool,             &hf_tcpip_quick_connect, NULL},
+    /* TCP/IP Object (class attributes) */
+   {0xF5, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
+   {0xF5, TRUE, 2, 1, CLASS_ATTRIBUTE_2_NAME, cip_uint, &hf_attr_class_max_instance, NULL },
+   {0xF5, TRUE, 3, 2, CLASS_ATTRIBUTE_3_NAME, cip_uint, &hf_attr_class_num_instance, NULL },
+   {0xF5, TRUE, 4, 3, CLASS_ATTRIBUTE_4_NAME, cip_dissector_func, NULL, dissect_optional_attr_list },
+   {0xF5, TRUE, 5, 4, CLASS_ATTRIBUTE_5_NAME, cip_dissector_func, NULL, dissect_optional_service_list },
+   {0xF5, TRUE, 6, 5, CLASS_ATTRIBUTE_6_NAME, cip_uint, &hf_attr_class_num_class_attr, NULL },
+   {0xF5, TRUE, 7, 6, CLASS_ATTRIBUTE_7_NAME, cip_uint, &hf_attr_class_num_inst_attr, NULL },
 
-   /* Ethernet Link object */
-   {0xF6, FALSE,  1, "Interface Speed",           cip_dword,            &hf_elink_interface_speed,  NULL},
-   {0xF6, FALSE,  2, "Interface Flags",           cip_dissector_func,   NULL, dissect_elink_interface_flags},
-   {0xF6, FALSE,  3, "Physical Address",          cip_dissector_func,   NULL, dissect_elink_physical_address },
-   {0xF6, FALSE,  4, "Interface Counters",        cip_dissector_func,   NULL, dissect_elink_interface_counters},
-   {0xF6, FALSE,  5, "Media Counters",            cip_dissector_func,   NULL, dissect_elink_media_counters},
-   {0xF6, FALSE,  6, "Interface Control",         cip_dissector_func,   NULL, dissect_elink_interface_control},
-   {0xF6, FALSE,  7, "Interface Type",            cip_usint,            &hf_elink_interface_type,  NULL},
-   {0xF6, FALSE,  8, "Interface State",           cip_usint,            &hf_elink_interface_state, NULL},
-   {0xF6, FALSE,  9, "Admin State",               cip_usint,            &hf_elink_admin_state,     NULL},
-   {0xF6, FALSE, 10, "Interface Label",           cip_short_string,     &hf_elink_interface_label, NULL},
+   /* TCP/IP object (instance attributes) */
+   {0xF5, FALSE,  1, 0, "Status",                    cip_dissector_func,   NULL, dissect_tcpip_status},
+   {0xF5, FALSE,  2, 1, "Configuration Capability",  cip_dissector_func,   NULL, dissect_tcpip_config_cap},
+   {0xF5, FALSE,  3, 2, "Configuration Control",     cip_dissector_func,   NULL, dissect_tcpip_config_control},
+   {0xF5, FALSE,  4, 3, "Physical Link Object",      cip_dissector_func,   NULL, dissect_tcpip_physical_link},
+   {0xF5, FALSE,  5, 4, "Interface Configuration",   cip_dissector_func,   NULL, dissect_tcpip_interface_config},
+   {0xF5, FALSE,  6, 5, "Host Name", cip_string,     &hf_tcpip_hostname,   NULL},
+   {0xF5, FALSE,  7, 6, "Safety Network Number", cip_dissector_func,   NULL, dissect_tcpip_ssn},
+   {0xF5, FALSE,  8, 7, "TTL Value", cip_usint,      &hf_tcpip_ttl_value,  NULL},
+   {0xF5, FALSE,  9, 8, "Multicast Configuration",   cip_dissector_func,   NULL, dissect_tcpip_mcast_config},
+   {0xF5, FALSE, 10, 9, "Select ACD", cip_bool,      &hf_tcpip_select_acd, NULL},
+   {0xF5, FALSE, 11, 10, "Last Conflict Detected",    cip_dissector_func,   NULL, dissect_tcpip_last_conflict},
+   {0xF5, FALSE, 12, 11, "EtherNet/IP Quick Connect", cip_bool,             &hf_tcpip_quick_connect, NULL},
+   {0xF5, FALSE, 13, 12, "Encapsulation Inactivity Timeout", cip_uint,      &hf_tcpip_encap_inactivity, NULL},
 
-   /* QoS object */
-   {0x48, FALSE,  1, "802.1Q Tag Enable",         cip_bool,             &hf_qos_8021q_enable,     NULL},
-   {0x48, FALSE,  2, "DSCP PTP Event",            cip_usint,            &hf_qos_dscp_ptp_event,   NULL},
-   {0x48, FALSE,  3, "DSCP PTP General",          cip_usint,            &hf_qos_dscp_ptp_general, NULL},
-   {0x48, FALSE,  4, "DSCP Urgent",               cip_usint,            &hf_qos_dscp_urgent,      NULL},
-   {0x48, FALSE,  5, "DSCP Scheduled",            cip_usint,            &hf_qos_dscp_scheduled,   NULL},
-   {0x48, FALSE,  6, "DSCP High",                 cip_usint,            &hf_qos_dscp_high,        NULL},
-   {0x48, FALSE,  7, "DSCP Low",                  cip_usint,            &hf_qos_dscp_low,         NULL},
-   {0x48, FALSE,  8, "DSCP Explicit",             cip_usint,            &hf_qos_dscp_explicit,    NULL},
+    /* Ethernet Link Object (class attributes) */
+   {0xF6, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
+   {0xF6, TRUE, 2, 1, CLASS_ATTRIBUTE_2_NAME, cip_uint, &hf_attr_class_max_instance, NULL },
+   {0xF6, TRUE, 3, 2, CLASS_ATTRIBUTE_3_NAME, cip_uint, &hf_attr_class_num_instance, NULL },
+   {0xF6, TRUE, 4, 3, CLASS_ATTRIBUTE_4_NAME, cip_dissector_func, NULL, dissect_optional_attr_list },
+   {0xF6, TRUE, 5, 4, CLASS_ATTRIBUTE_5_NAME, cip_dissector_func, NULL, dissect_optional_service_list },
+   {0xF6, TRUE, 6, 5, CLASS_ATTRIBUTE_6_NAME, cip_uint, &hf_attr_class_num_class_attr, NULL },
+   {0xF6, TRUE, 7, 6, CLASS_ATTRIBUTE_7_NAME, cip_uint, &hf_attr_class_num_inst_attr, NULL },
 
-   /* DLR object */
-   {0x47, FALSE, 1, "Network Topology",                 cip_usint, &hf_dlr_network_topology, NULL},
-   {0x47, FALSE, 2, "Network Status",                   cip_usint, &hf_dlr_network_status, NULL},
-   {0x47, FALSE, 3, "Ring Supervisor Status",           cip_usint, &hf_dlr_ring_supervisor_status, NULL},
-   {0x47, FALSE, 4, "Ring Supervisor Config",           cip_dissector_func, NULL, dissect_dlr_ring_supervisor_config},
-   {0x47, FALSE, 5, "Ring Faults Count",                cip_uint,      &hf_dlr_ring_faults_count, NULL},
-   {0x47, FALSE, 6, "Last Active Node on Port 1",       cip_dissector_func, NULL, dissect_dlr_last_active_node_on_port_1},
-   {0x47, FALSE, 7, "Last Active Node on Port 2",       cip_dissector_func, NULL, dissect_dlr_last_active_node_on_port_2},
-   {0x47, FALSE, 8, "Ring Protocol Participants Count", cip_uint, &hf_dlr_ring_protocol_participants_count, NULL},
-   {0x47, FALSE, 9, "Ring Protocol Participants List",  cip_dissector_func, NULL, dissect_dlr_ring_protocol_participants_list},
-   {0x47, FALSE, 10, "Active Supervisor Address",       cip_dissector_func, NULL, dissect_dlr_active_supervisor_address},
-   {0x47, FALSE, 11, "Active Supervisor Precedence",    cip_usint, &hf_dlr_active_supervisor_precedence, NULL},
-   {0x47, FALSE, 12, "Capability Flags",                cip_dissector_func, NULL, dissect_dlr_capability_flags},
-   {0x47, FALSE, 13, "Redundant Gateway Config",        cip_dissector_func, NULL, dissect_dlr_redundant_gateway_config},
-   {0x47, FALSE, 14, "Redundant Gateway Status",        cip_usint, &hf_dlr_redundant_gateway_status, NULL},
-   {0x47, FALSE, 15, "Active Gateway Address",          cip_dissector_func, NULL, dissect_dlr_active_gateway_address},
-   {0x47, FALSE, 16, "Active Gateway Precedence",       cip_usint, &hf_dlr_active_gateway_precedence, NULL},
+   /* Ethernet Link object (instance attributes) */
+   {0xF6, FALSE,  1, 0, "Interface Speed",           cip_dword,            &hf_elink_interface_speed,  NULL},
+   {0xF6, FALSE,  2, 1, "Interface Flags",           cip_dissector_func,   NULL, dissect_elink_interface_flags},
+   {0xF6, FALSE,  3, 2, "Physical Address",          cip_dissector_func,   NULL, dissect_elink_physical_address },
+   {0xF6, FALSE,  4, 3, "Interface Counters",        cip_dissector_func,   NULL, dissect_elink_interface_counters},
+   {0xF6, FALSE,  5, 4, "Media Counters",            cip_dissector_func,   NULL, dissect_elink_media_counters},
+   {0xF6, FALSE,  6, 5, "Interface Control",         cip_dissector_func,   NULL, dissect_elink_interface_control},
+   {0xF6, FALSE,  7, 6, "Interface Type",            cip_usint,            &hf_elink_interface_type,  NULL},
+   {0xF6, FALSE,  8, 7, "Interface State",           cip_usint,            &hf_elink_interface_state, NULL},
+   {0xF6, FALSE,  9, 8, "Admin State",               cip_usint,            &hf_elink_admin_state,     NULL},
+   {0xF6, FALSE, 10, 9, "Interface Label",           cip_short_string,     &hf_elink_interface_label, NULL},
+
+    /* QoS Object (class attributes) */
+   {0x48, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
+   {0x48, TRUE, 2, 1, CLASS_ATTRIBUTE_2_NAME, cip_uint, &hf_attr_class_max_instance, NULL },
+   {0x48, TRUE, 3, 2, CLASS_ATTRIBUTE_3_NAME, cip_uint, &hf_attr_class_num_instance, NULL },
+   {0x48, TRUE, 4, 3, CLASS_ATTRIBUTE_4_NAME, cip_dissector_func, NULL, dissect_optional_attr_list },
+   {0x48, TRUE, 5, 4, CLASS_ATTRIBUTE_5_NAME, cip_dissector_func, NULL, dissect_optional_service_list },
+   {0x48, TRUE, 6, 5, CLASS_ATTRIBUTE_6_NAME, cip_uint, &hf_attr_class_num_class_attr, NULL },
+   {0x48, TRUE, 7, 6, CLASS_ATTRIBUTE_7_NAME, cip_uint, &hf_attr_class_num_inst_attr, NULL },
+
+   /* QoS object (instance attributes) */
+   {0x48, FALSE,  1, -1, "802.1Q Tag Enable",         cip_bool,             &hf_qos_8021q_enable,     NULL},
+   {0x48, FALSE,  2, -1, "DSCP PTP Event",            cip_usint,            &hf_qos_dscp_ptp_event,   NULL},
+   {0x48, FALSE,  3, -1, "DSCP PTP General",          cip_usint,            &hf_qos_dscp_ptp_general, NULL},
+   {0x48, FALSE,  4, -1, "DSCP Urgent",               cip_usint,            &hf_qos_dscp_urgent,      NULL},
+   {0x48, FALSE,  5, -1, "DSCP Scheduled",            cip_usint,            &hf_qos_dscp_scheduled,   NULL},
+   {0x48, FALSE,  6, -1, "DSCP High",                 cip_usint,            &hf_qos_dscp_high,        NULL},
+   {0x48, FALSE,  7, -1, "DSCP Low",                  cip_usint,            &hf_qos_dscp_low,         NULL},
+   {0x48, FALSE,  8, -1, "DSCP Explicit",             cip_usint,            &hf_qos_dscp_explicit,    NULL},
+
+    /* DLR Object (class attributes) */
+   {0x47, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
+   {0x47, TRUE, 2, 1, CLASS_ATTRIBUTE_2_NAME, cip_uint, &hf_attr_class_max_instance, NULL },
+   {0x47, TRUE, 3, 2, CLASS_ATTRIBUTE_3_NAME, cip_uint, &hf_attr_class_num_instance, NULL },
+   {0x47, TRUE, 4, 3, CLASS_ATTRIBUTE_4_NAME, cip_dissector_func, NULL, dissect_optional_attr_list },
+   {0x47, TRUE, 5, 4, CLASS_ATTRIBUTE_5_NAME, cip_dissector_func, NULL, dissect_optional_service_list },
+   {0x47, TRUE, 6, 5, CLASS_ATTRIBUTE_6_NAME, cip_uint, &hf_attr_class_num_class_attr, NULL },
+   {0x47, TRUE, 7, 6, CLASS_ATTRIBUTE_7_NAME, cip_uint, &hf_attr_class_num_inst_attr, NULL },
+
+   /* DLR object (instance attributes) */
+   {0x47, FALSE, 1, 0, "Network Topology",                 cip_usint, &hf_dlr_network_topology, NULL},
+   {0x47, FALSE, 2, 1, "Network Status",                   cip_usint, &hf_dlr_network_status, NULL},
+   {0x47, FALSE, 3, -1, "Ring Supervisor Status",           cip_usint, &hf_dlr_ring_supervisor_status, NULL},
+   {0x47, FALSE, 4, -1, "Ring Supervisor Config",           cip_dissector_func, NULL, dissect_dlr_ring_supervisor_config},
+   {0x47, FALSE, 5, -1, "Ring Faults Count",                cip_uint,      &hf_dlr_ring_faults_count, NULL},
+   {0x47, FALSE, 6, -1, "Last Active Node on Port 1",       cip_dissector_func, NULL, dissect_dlr_last_active_node_on_port_1},
+   {0x47, FALSE, 7, -1, "Last Active Node on Port 2",       cip_dissector_func, NULL, dissect_dlr_last_active_node_on_port_2},
+   {0x47, FALSE, 8, -1, "Ring Protocol Participants Count", cip_uint, &hf_dlr_ring_protocol_participants_count, NULL},
+   {0x47, FALSE, 9, -1, "Ring Protocol Participants List",  cip_dissector_func, NULL, dissect_dlr_ring_protocol_participants_list},
+   {0x47, FALSE, 10, -1, "Active Supervisor Address",       cip_dissector_func, NULL, dissect_dlr_active_supervisor_address},
+   {0x47, FALSE, 11, -1, "Active Supervisor Precedence",    cip_usint, &hf_dlr_active_supervisor_precedence, NULL},
+   {0x47, FALSE, 12, -1, "Capability Flags",                cip_dissector_func, NULL, dissect_dlr_capability_flags},
+   {0x47, FALSE, 13, -1, "Redundant Gateway Config",        cip_dissector_func, NULL, dissect_dlr_redundant_gateway_config},
+   {0x47, FALSE, 14, -1, "Redundant Gateway Status",        cip_usint, &hf_dlr_redundant_gateway_status, NULL},
+   {0x47, FALSE, 15, -1, "Active Gateway Address",          cip_dissector_func, NULL, dissect_dlr_active_gateway_address},
+   {0x47, FALSE, 16, -1, "Active Gateway Precedence",       cip_usint, &hf_dlr_active_gateway_precedence, NULL},
 };
 
 
@@ -2970,6 +3026,24 @@ proto_register_enip(void)
           FT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
 
+      { &hf_tcpip_snn_timestamp,
+        { "Safety Network Number (Timestamp)", "cip.tcpip.snn.timestamp",
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0,
+          NULL, HFILL }
+      },
+
+      { &hf_tcpip_snn_date,
+        { "Safety Network Number (Manual) Date", "cip.tcpip.snn.date",
+          FT_UINT16, BASE_HEX, VALS(cipsafety_ssn_date_vals), 0,
+          NULL, HFILL }
+      },
+
+      { &hf_tcpip_snn_time,
+        { "Safety Network Number (Manual) Time", "cip.tcpip.snn.time",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          NULL, HFILL }
+      },
+
       { &hf_tcpip_ttl_value,
         { "TTL Value", "cip.tcpip.ttl_value",
           FT_UINT8, BASE_DEC, NULL, 0,
@@ -3020,6 +3094,10 @@ proto_register_enip(void)
           FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x1,
           NULL, HFILL }},
 
+      { &hf_tcpip_encap_inactivity,
+        { "Encapsulation Inactivity Timeout", "cip.tcpip.encap_inactivity",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
 
       { &hf_elink_interface_speed,
         { "Interface Speed", "cip.elink.interface_speed",
@@ -3474,6 +3552,7 @@ proto_register_enip(void)
       { &ei_mal_tcpip_config_control, { "cip.malformed.tcpip.config_control", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Configuration Control", EXPFILL }},
       { &ei_mal_tcpip_physical_link_size, { "cip.malformed.tcpip.physical_link_size", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Physical Link Object", EXPFILL }},
       { &ei_mal_tcpip_interface_config, { "cip.malformed.tcpip.interface_config", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Interface Configuration", EXPFILL }},
+      { &ei_mal_tcpip_ssn, { "cip.malformed.tcpip.ssn", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Object Safety Network Number", EXPFILL }},
       { &ei_mal_tcpip_mcast_config, { "cip.malformed.tcpip.mcast_config", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Multicast Config", EXPFILL }},
       { &ei_mal_tcpip_last_conflict, { "cip.malformed.tcpip.last_conflict", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Last Conflict Detected", EXPFILL }},
       { &ei_mal_elink_interface_flags, { "cip.malformed.elink.interface_flags", PI_MALFORMED, PI_ERROR, "Malformed Ethernet Link Interface Flags", EXPFILL }},
