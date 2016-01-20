@@ -19,6 +19,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+include $(top_srcdir)/Makefile.am.inc
+
 SUBDIRS = lemon
 
 PIDL_FILES= \
@@ -195,8 +197,9 @@ EXTRA_DIST = \
 	yacc.py
 
 noinst_SCRIPTS = setuid-root.pl
+
 setuid-root.pl: setuid-root.pl.in Makefile
-	sed \
+	$(AM_V_SED)$(SED) \
 		-e 's,@BIN_PREFIX\@,$(bindir),' \
 		-e 's,@TSHARK_BIN\@,$(tshark_bin)$(EEXT),' \
 		-e 's,@DUMPCAP_BIN\@,$(dumpcap_bin)$(EEXT),' \
