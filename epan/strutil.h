@@ -269,7 +269,7 @@ char * convert_string_case(const char *string, gboolean case_insensitive);
  *   Otherwise it returns NULL.
  */
 WS_DLL_PUBLIC
-char * epan_strcasestr(const char *haystack, const char *needle);
+const char * epan_strcasestr(const char *haystack, const char *needle);
 
 /** Guarantee a non-null string.
  *

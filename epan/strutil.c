@@ -1057,7 +1057,7 @@ convert_string_case(const char *string, gboolean case_insensitive)
     }
 }
 
-char *
+const char *
 epan_strcasestr(const char *haystack, const char *needle)
 {
     gsize hlen = strlen(haystack);
@@ -1065,7 +1065,7 @@ epan_strcasestr(const char *haystack, const char *needle)
 
     while (hlen-- >= nlen) {
         if (!g_ascii_strncasecmp(haystack, needle, nlen))
-            return (char*) haystack;
+            return haystack;
         haystack++;
     }
     return NULL;
