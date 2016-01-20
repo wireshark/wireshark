@@ -148,6 +148,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui(new Ui::AboutDialog)
 {
     ui->setupUi(this);
+    setAttribute(Qt::WA_DeleteOnClose, true);
     QFile f_authors;
     QFile f_license;
     const char *constpath;
