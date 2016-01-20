@@ -2201,8 +2201,8 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 
 proto_item *
 proto_tree_add_item_ret_int(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-const gint start, gint length, const guint encoding,
-gint32 *retval)
+                            const gint start, gint length,
+                            const guint encoding, gint32 *retval)
 {
 	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
 	field_info	  *new_fi;
@@ -2244,8 +2244,7 @@ gint32 *retval)
 
 	proto_tree_set_int(new_fi, value);
 
-	FI_SET_FLAG(new_fi,
-			(encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN);
+	new_fi->flags |= (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
 
 	return proto_tree_add_node(tree, new_fi);
 }
@@ -2295,8 +2294,7 @@ proto_tree_add_item_ret_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	proto_tree_set_uint(new_fi, value);
 
-	FI_SET_FLAG(new_fi,
-			(encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN);
+	new_fi->flags |= (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
 
 	return proto_tree_add_node(tree, new_fi);
 }
