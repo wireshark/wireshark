@@ -177,6 +177,7 @@ ResolvedAddressesDialog::ResolvedAddressesDialog(QWidget *parent, CaptureFile *c
     file_name_(tr("[no file]"))
 {
     ui->setupUi(this);
+    setAttribute(Qt::WA_DeleteOnClose, true);
 
     QStringList title_parts = QStringList() << tr("Resolved Addresses");
 
