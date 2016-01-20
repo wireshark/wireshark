@@ -1187,7 +1187,7 @@ extern gint
 stat_node_array_sortcmp (gconstpointer a, gconstpointer b, gpointer user_data)
 {
     /* user_data is *guint value to st_flags */
-    return stats_tree_sort_compare (*(const stat_node**)a,*(const stat_node**)b,
+    return stats_tree_sort_compare (*(const stat_node*const*)a,*(const stat_node*const*)b,
                     ((sortinfo*)user_data)->sort_column,((sortinfo*)user_data)->sort_descending);
 }
 
