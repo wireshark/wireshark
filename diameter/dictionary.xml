@@ -6935,7 +6935,6 @@
 	<!-- application 16777341	is defined in Nokia.xml -->
 	<application id="16777342"	name="3GPP Np"				uri="http://www.3gpp.org/ftp/Specs/html-info/29217.htm"/>
 	<application id="16777999"	name="S6b Application (One-AAA)"	uri="none"/>
-	<application id="4294967295"	name="Relay"				uri="http://tools.ietf.org/html/rfc6733"/>
   <!--
 16777341 Nokia Sdr Application [Timo_Perala]
 16777342 3GPP Np [3GPP TS 29.217][Kimmo_Kymalainen]
@@ -6946,6 +6945,7 @@
 16777347 3GPP Ns [3GPP TS 29.153][Kimmo_Kymalainen]
 16777348 3GPP Nt [3GPP TS 29.154][Kimmo_Kymalainen]
   -->
+	<application id="4294967295"	name="Relay"				uri="http://tools.ietf.org/html/rfc6733"/>
 	<!-- *********************** End Application IDs ************************** -->
 
 
