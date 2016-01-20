@@ -163,6 +163,7 @@ static int dissect_ieee802154_nonask_phy   (tvbuff_t *, packet_info *, proto_tre
 static int dissect_ieee802154              (tvbuff_t *, packet_info *, proto_tree *, void *);
 static int dissect_ieee802154_nofcs        (tvbuff_t *, packet_info *, proto_tree *, void *);
 static int dissect_ieee802154_cc24xx       (tvbuff_t *, packet_info *, proto_tree *, void *);
+static tvbuff_t *dissect_zboss_specific    (tvbuff_t *, packet_info *, proto_tree *);
 /*static void dissect_ieee802154_linux        (tvbuff_t *, packet_info *, proto_tree *);  TODO: Implement Me. */
 static void dissect_ieee802154_common       (tvbuff_t *, packet_info *, proto_tree *, guint);
 
@@ -231,6 +232,11 @@ static int hf_ieee802154_payload_ie_type = -1;
 static int hf_ieee802154_payload_ie_id = -1;
 static int hf_ieee802154_payload_ie_length = -1;
 static int hf_ieee802154_payload_ie_data = -1;
+
+static int proto_zboss = -1;
+static int zboss_direction = -1;
+static int zboss_channel = -1;
+static int zboss_trace_number = -1;
 
 static int hf_ieee802154_seqno = -1;
 static int hf_ieee802154_dst_panID = -1;
@@ -311,6 +317,7 @@ static gint ett_ieee802154_header = -1;
 static gint ett_ieee802154_header_ie = -1;
 static gint ett_ieee802154_payload = -1;
 static gint ett_ieee802154_payload_ie = -1;
+static gint ett_ieee802154_zboss = -1;
 
 static expert_field ei_ieee802154_invalid_addressing = EI_INIT;
 static expert_field ei_ieee802154_invalid_panid_compression = EI_INIT;
@@ -441,6 +448,12 @@ static const value_string ieee802154_header_ie_names[] = {
 static const value_string ieee802154_payload_ie_names[] = {
     { IEEE802154_PAYLOAD_IE_GID_TERM,     "Payload Termination IE" },
     { 0, NULL }
+};
+
+static const value_string zboss_direction_names[] = {
+  { 0, "IN" },
+  { 1, "OUT" },
+  { 0, NULL }
 };
 
 /* Preferences for 2003 security */
@@ -609,8 +622,11 @@ dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+    tvbuff_t *new_tvb = dissect_zboss_specific(tvb, pinfo, tree);
+
     /* Call the common dissector. */
-    dissect_ieee802154_common(tvb, pinfo, tree, (ieee802154_cc24xx ? DISSECT_IEEE802154_OPTION_CC24xx : 0));
+    dissect_ieee802154_common(new_tvb, pinfo, tree,
+                              ((ieee802154_cc24xx || new_tvb != tvb) ? DISSECT_IEEE802154_OPTION_CC24xx : 0));
     return tvb_captured_length(tvb);
 } /* dissect_ieee802154 */
 
@@ -640,6 +656,50 @@ dissect_ieee802154_nofcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     dissect_ieee802154_common(new_tvb, pinfo, tree, 0);
     return tvb_captured_length(tvb);
 } /* dissect_ieee802154_nofcs */
+
+/**
+ * Dissector for IEEE 802.15.4 packet dump produced by ZBOSS
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree wireshark uses to display packet.
+ *@return new tvb subset if this is really ZBOSS dump, else oririnal tvb.
+*/
+static tvbuff_t *
+dissect_zboss_specific(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    if (tvb_captured_length(tvb) > 5)
+    {
+        guint off = 0;
+        if (tvb_get_guint8(tvb, off++) == 'Z'
+            && tvb_get_guint8(tvb, off++) == 'B'
+            && tvb_get_guint8(tvb, off++) == 'O'
+            && tvb_get_guint8(tvb, off++) == 'S'
+            && tvb_get_guint8(tvb, off++) == 'S')
+        {
+            proto_tree *zboss_tree = NULL;
+            proto_item *proto_root = NULL;
+
+            /* Create the protocol tree. */
+            if (tree) {
+                proto_root = proto_tree_add_protocol_format(tree, proto_zboss, tvb, 0, tvb_captured_length(tvb), "ZBOSS dump");
+                zboss_tree = proto_item_add_subtree(proto_root, ett_ieee802154_zboss);
+            }
+
+            proto_tree_add_item(zboss_tree, zboss_direction, tvb, off, 1, ENC_NA);
+            proto_item_append_text(proto_root, ", %s", tvb_get_guint8(tvb, off) ? "OUT" : "IN");
+            off++;
+            proto_tree_add_item(zboss_tree, zboss_channel, tvb, off, 1, ENC_NA);
+            proto_item_append_text(proto_root, ", channel %u", tvb_get_guint8(tvb, off));
+            off++;
+            proto_tree_add_item(zboss_tree, zboss_trace_number, tvb, off, 4, ENC_LITTLE_ENDIAN);
+            off += 4;
+
+            return tvb_new_subset(tvb, off, tvb_captured_length(tvb) - off, tvb_captured_length(tvb) - off);
+        }
+    }
+    return tvb;
+} /* dissect_zboss_heur */
 
 /**
  *Dissector for IEEE 802.15.4 packet with a ChipCon/Texas
@@ -2930,7 +2990,20 @@ void proto_register_ieee802154(void)
 
         { &hf_ieee802154_sec_key_sequence_counter,
         { "Key Sequence Counter", "wpan.sec_key_sequence_counter", FT_UINT8, BASE_HEX, NULL, 0x0,
-            "Key Sequence counter of the originator of the protected frame (802.15.4-2003)", HFILL }}
+            "Key Sequence counter of the originator of the protected frame (802.15.4-2003)", HFILL }},
+
+        /* ZBOSS dump */
+        { &zboss_channel,
+        { "Channel", "wpan.zboss.channel", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Channel number", HFILL }},
+
+        { &zboss_direction,
+        { "ZBOSS Direction", "wpan.zboss.direction", FT_UINT8, BASE_HEX, VALS(zboss_direction_names), 0x0,
+            "ZBOSS Packet Direction", HFILL }},
+
+        { &zboss_trace_number,
+        { "Trace number", "wpan.zboss.trace", FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Trace item number", HFILL }},
     };
 
     /* Subtrees */
@@ -2953,6 +3026,7 @@ void proto_register_ieee802154(void)
         &ett_ieee802154_header_ie,
         &ett_ieee802154_payload,
         &ett_ieee802154_payload_ie,
+        &ett_ieee802154_zboss,
     };
 
     static ei_register_info ei[] = {
@@ -3007,6 +3081,8 @@ void proto_register_ieee802154(void)
            IEEE802154_PROTOABBREV_WPAN);
     proto_ieee802154_nonask_phy = proto_register_protocol("IEEE 802.15.4 Low-Rate Wireless PAN non-ASK PHY",
             "IEEE 802.15.4 non-ASK PHY", "wpan-nonask-phy");
+    proto_zboss = proto_register_protocol("ZBOSS IEEE 802.15.4 dump",
+                                          "ZBOSS dump", "wpan-zboss");
 
     /*  Register header fields and subtrees. */
     proto_register_field_array(proto_ieee802154, hf, array_length(hf));
