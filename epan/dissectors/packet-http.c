@@ -1352,7 +1352,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case HTTP_TE_COMPRESS:
 		case HTTP_TE_DEFLATE:
 		case HTTP_TE_GZIP:
-			break;
 			/*
 			 * We currently can't handle, for example, "gzip",
 			 * "compress", or "deflate" as *transfer* encodings;
