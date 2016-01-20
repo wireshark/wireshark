@@ -64,6 +64,8 @@ static int hf_ieee80211_prism_did_unknown = -1;
 static gint ett_prism = -1;
 static gint ett_prism_did = -1;
 
+static dissector_handle_t prism_handle;
+
 /*
  * Prism II-based wlan devices have a monitoring mode that sticks
  * a proprietary header on each packet with lots of good
@@ -590,13 +592,12 @@ void proto_register_ieee80211_prism(void)
                                         "prism");
   proto_register_field_array(proto_prism, hf_prism, array_length(hf_prism));
   proto_register_subtree_array(tree_array, array_length(tree_array));
+
+  prism_handle = register_dissector("prism", dissect_prism, proto_prism);
 }
 
 void proto_reg_handoff_ieee80211_prism(void)
 {
-  dissector_handle_t prism_handle;
-
-  prism_handle = create_dissector_handle(dissect_prism, proto_prism);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE_802_11_PRISM, prism_handle);
   ieee80211_handle = find_dissector("wlan");
   ieee80211_radio_handle = find_dissector("wlan_radio");
