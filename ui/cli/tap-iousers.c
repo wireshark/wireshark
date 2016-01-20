@@ -101,12 +101,12 @@ iousers_draw(void *arg)
 
 			if (tot_frames == last_frames) {
 				/* XXX - TODO: make name / port resolution configurable (through gbl_resolv_flags?) */
-				src_addr = (char*)get_conversation_address(NULL, &iui->src_address, TRUE);
-				dst_addr = (char*)get_conversation_address(NULL, &iui->dst_address, TRUE);
+				src_addr = get_conversation_address(NULL, &iui->src_address, TRUE);
+				dst_addr = get_conversation_address(NULL, &iui->dst_address, TRUE);
 				if (display_ports) {
 					char *src, *dst, *src_port, *dst_port;
-					src_port = (char*)get_conversation_port(NULL, iui->src_port, iui->ptype, TRUE);
-					dst_port = (char*)get_conversation_port(NULL, iui->dst_port, iui->ptype, TRUE);
+					src_port = get_conversation_port(NULL, iui->src_port, iui->ptype, TRUE);
+					dst_port = get_conversation_port(NULL, iui->dst_port, iui->ptype, TRUE);
 					src = wmem_strconcat(NULL, src_addr, ":", src_port, NULL);
 					dst = wmem_strconcat(NULL, dst_addr, ":", dst_port, NULL);
 					printf("%-26s <-> %-26s  %6" G_GINT64_MODIFIER "u %9" G_GINT64_MODIFIER

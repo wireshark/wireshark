@@ -78,10 +78,10 @@ endpoints_draw(void *arg)
 
 			if (tot_frames == last_frames) {
 				/* XXX - TODO: make name resolution configurable (through gbl_resolv_flags?) */
-				conversation_str = (char*)get_conversation_address(NULL, &host->myaddress, TRUE);
+				conversation_str = get_conversation_address(NULL, &host->myaddress, TRUE);
 				if (display_port) {
 					/* XXX - TODO: make port resolution configurable (through gbl_resolv_flags?) */
-					port_str = (char*)get_conversation_port(NULL, host->port, host->ptype, TRUE);
+					port_str = get_conversation_port(NULL, host->port, host->ptype, TRUE);
 					printf("%-20s      %5s     %6" G_GINT64_MODIFIER "u     %9" G_GINT64_MODIFIER
 					       "u     %6" G_GINT64_MODIFIER "u       %9" G_GINT64_MODIFIER "u      %6"
 					       G_GINT64_MODIFIER "u       %9" G_GINT64_MODIFIER "u   \n",

@@ -224,7 +224,7 @@ hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint c
     }
     host = &g_array_index(hl->hash.conv_array, hostlist_talker_t, idx);
 
-    str = (char*)get_hostlist_filter(host);
+    str = get_hostlist_filter(host);
 
     apply_selected_filter (callback_action, str);
 
@@ -481,8 +481,8 @@ draw_hostlist_table_addresses(hostlist_table *hl)
         gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, ENDP_INDEX_COLUMN, &idx, -1);
         host = &g_array_index(hl->hash.conv_array, hostlist_talker_t, idx);
 
-        addr_str = (char*)get_conversation_address(NULL, &host->myaddress, hl->resolve_names);
-        port_str = (char*)get_conversation_port(NULL, host->port, host->ptype, hl->resolve_names);
+        addr_str = get_conversation_address(NULL, &host->myaddress, hl->resolve_names);
+        port_str = get_conversation_port(NULL, host->port, host->ptype, hl->resolve_names);
         gtk_list_store_set (store, &iter,
                   ENDP_COLUMN_ADDR, addr_str,
                   ENDP_COLUMN_PORT, port_str,
@@ -601,8 +601,8 @@ draw_hostlist_table_data(hostlist_table *hl)
             }
 #endif /* HAVE_GEOIP */
 
-            addr_str = (char*)get_conversation_address(NULL, &host->myaddress, hl->resolve_names);
-            port_str = (char*)get_conversation_port(NULL, host->port, host->ptype, hl->resolve_names);
+            addr_str = get_conversation_address(NULL, &host->myaddress, hl->resolve_names);
+            port_str = get_conversation_port(NULL, host->port, host->ptype, hl->resolve_names);
             gtk_list_store_insert_with_values( store, &iter, G_MAXINT,
                   ENDP_COLUMN_ADDR, addr_str,
                   ENDP_COLUMN_PORT, port_str,

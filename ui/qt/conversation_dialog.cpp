@@ -346,10 +346,10 @@ public:
             return;
         }
 
-        src_addr = (char*)get_conversation_address(NULL, &conv_item->src_address, resolve_names);
-        dst_addr = (char*)get_conversation_address(NULL, &conv_item->dst_address, resolve_names);
-        src_port = (char*)get_conversation_port(NULL, conv_item->src_port, conv_item->ptype, resolve_names);
-        dst_port = (char*)get_conversation_port(NULL, conv_item->dst_port, conv_item->ptype, resolve_names);
+        src_addr = get_conversation_address(NULL, &conv_item->src_address, resolve_names);
+        dst_addr = get_conversation_address(NULL, &conv_item->dst_address, resolve_names);
+        src_port = get_conversation_port(NULL, conv_item->src_port, conv_item->ptype, resolve_names);
+        dst_port = get_conversation_port(NULL, conv_item->dst_port, conv_item->ptype, resolve_names);
         setText(CONV_COLUMN_SRC_ADDR, src_addr);
         setText(CONV_COLUMN_SRC_PORT, src_port);
         setText(CONV_COLUMN_DST_ADDR, dst_addr);
@@ -403,14 +403,14 @@ public:
         switch (col) {
         case CONV_COLUMN_SRC_ADDR:
             {
-            char* addr_str = (char*)get_conversation_address(NULL, &conv_item->src_address, resolve_names);
+            char* addr_str = get_conversation_address(NULL, &conv_item->src_address, resolve_names);
             QString q_addr_str(addr_str);
             wmem_free(NULL, addr_str);
             return q_addr_str;
             }
         case CONV_COLUMN_SRC_PORT:
             if (resolve_names) {
-                char* port_str = (char*)get_conversation_port(NULL, conv_item->src_port, conv_item->ptype, resolve_names);
+                char* port_str = get_conversation_port(NULL, conv_item->src_port, conv_item->ptype, resolve_names);
                 QString q_port_str(port_str);
                 wmem_free(NULL, port_str);
                 return q_port_str;
@@ -419,14 +419,14 @@ public:
             }
         case CONV_COLUMN_DST_ADDR:
             {
-            char* addr_str = (char*)get_conversation_address(NULL, &conv_item->dst_address, resolve_names);
+            char* addr_str = get_conversation_address(NULL, &conv_item->dst_address, resolve_names);
             QString q_addr_str(addr_str);
             wmem_free(NULL, addr_str);
             return q_addr_str;
             }
         case CONV_COLUMN_DST_PORT:
             if (resolve_names) {
-                char* port_str = (char*)get_conversation_port(NULL, conv_item->dst_port, conv_item->ptype, resolve_names);
+                char* port_str = get_conversation_port(NULL, conv_item->dst_port, conv_item->ptype, resolve_names);
                 QString q_port_str(port_str);
                 wmem_free(NULL, port_str);
                 return q_port_str;
@@ -707,7 +707,7 @@ void ConversationTreeWidget::filterActionTriggered()
         return;
     }
 
-    char* tmp_str = (char*)get_conversation_filter(conv_item, fad_to_cd_[fa->actionDirection()]);
+    char* tmp_str = get_conversation_filter(conv_item, fad_to_cd_[fa->actionDirection()]);
     QString filter(tmp_str);
 
     g_free(tmp_str);

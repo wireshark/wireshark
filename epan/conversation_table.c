@@ -324,7 +324,7 @@ void reset_hostlist_table_data(conv_hash_t *ch)
     ch->hashtable=NULL;
 }
 
-const char *get_conversation_address(wmem_allocator_t *allocator, address *addr, gboolean resolve_names)
+char *get_conversation_address(wmem_allocator_t *allocator, address *addr, gboolean resolve_names)
 {
     if (resolve_names) {
         return address_to_display(allocator, addr);
@@ -333,7 +333,7 @@ const char *get_conversation_address(wmem_allocator_t *allocator, address *addr,
     }
 }
 
-const char *get_conversation_port(wmem_allocator_t *allocator, guint32 port, port_type ptype, gboolean resolve_names)
+char *get_conversation_port(wmem_allocator_t *allocator, guint32 port, port_type ptype, gboolean resolve_names)
 {
 
     if(!resolve_names) ptype = PT_NONE;
@@ -396,10 +396,10 @@ ct_port_to_str(port_type ptype, guint32 port)
     return NULL;
 }
 
-const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e direction)
+char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e direction)
 {
     char *sport, *dport, *src_addr, *dst_addr;
-    const char *str = "INVALID";
+    char *str;
 
     sport = ct_port_to_str(conv_item->ptype, conv_item->src_port);
     dport = ct_port_to_str(conv_item->ptype, conv_item->dst_port);
@@ -540,6 +540,7 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
             );
         break;
     default:
+        str = wmem_strdup(NULL, "INVALID");
         break;
     }
     g_free(sport);
@@ -549,12 +550,12 @@ const char *get_conversation_filter(conv_item_t *conv_item, conv_direction_e dir
     return str;
 }
 
-const char *get_hostlist_filter(hostlist_talker_t *host)
+char *get_hostlist_filter(hostlist_talker_t *host)
 {
     char *sport, *src_addr;
-    const char *str;
+    char *str;
 
-    sport=ct_port_to_str(host->ptype, host->port);
+    sport = ct_port_to_str(host->ptype, host->port);
     src_addr = address_to_str(NULL, &host->myaddress);
     if (host->myaddress.type == AT_STRINGZ || host->myaddress.type == AT_USB) {
         char *new_addr;

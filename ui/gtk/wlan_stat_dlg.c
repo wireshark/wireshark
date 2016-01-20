@@ -516,7 +516,7 @@ wlanstat_draw_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
             f = 0.0f;
         }
 
-        addr_str = (char*)get_conversation_address(NULL, &tmp->addr, hs->resolve_names);
+        addr_str = get_conversation_address(NULL, &tmp->addr, hs->resolve_names);
 
         if (basestation_flag) {
             g_strlcpy (comment, "Base station", sizeof(comment));
@@ -581,7 +581,7 @@ wlanstat_draw(void *phs)
           tmp->type[MGT_PROBE_RESP] - tmp->type[MGT_AUTHENTICATION] - tmp->type[MGT_DEAUTHENTICATION];
         f = (float)(((float)tmp->number_of_packets * 100.0) / hs->number_of_packets);
 
-        bssid = (char*)get_conversation_address(NULL, &tmp->bssid, hs->resolve_names);
+        bssid = get_conversation_address(NULL, &tmp->bssid, hs->resolve_names);
         if (tmp->stats.channel) {
             g_snprintf (channel, sizeof(channel), "%u", tmp->stats.channel);
         } else {

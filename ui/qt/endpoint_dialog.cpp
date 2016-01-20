@@ -237,8 +237,8 @@ public:
             return;
         }
 
-        addr_str = (char*)get_conversation_address(NULL, &endp_item->myaddress, resolve_names);
-        port_str = (char*)get_conversation_port(NULL, endp_item->port, endp_item->ptype, resolve_names);
+        addr_str = get_conversation_address(NULL, &endp_item->myaddress, resolve_names);
+        port_str = get_conversation_port(NULL, endp_item->port, endp_item->ptype, resolve_names);
         setText(ENDP_COLUMN_ADDR, addr_str);
         setText(ENDP_COLUMN_PORT, port_str);
         wmem_free(NULL, addr_str);
@@ -295,14 +295,14 @@ public:
         switch (col) {
         case ENDP_COLUMN_ADDR:
             {
-            char* addr_str = (char*)get_conversation_address(NULL, &endp_item->myaddress, resolve_names);
+            char* addr_str = get_conversation_address(NULL, &endp_item->myaddress, resolve_names);
             QString q_addr_str(addr_str);
             wmem_free(NULL, addr_str);
             return q_addr_str;
             }
         case ENDP_COLUMN_PORT:
             if (resolve_names) {
-                char* port_str = (char*)get_conversation_port(NULL, endp_item->port, endp_item->ptype, resolve_names);
+                char* port_str = get_conversation_port(NULL, endp_item->port, endp_item->ptype, resolve_names);
                 QString q_port_str(port_str);
                 wmem_free(NULL, port_str);
                 return q_port_str;
