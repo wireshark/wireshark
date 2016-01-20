@@ -137,7 +137,7 @@ static int
 dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_item *ti;
-  guint16 tci;
+  guint16 tci, vlan_id;
   guint16 encap_proto;
   gboolean is_802_2;
   proto_tree *vlan_tree;
@@ -146,6 +146,11 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   col_clear(pinfo->cinfo, COL_INFO);
 
   tci = tvb_get_ntohs( tvb, 0 );
+  vlan_id = tci & 0xFFF;
+  /* Add the VLAN Id if it's the first one*/
+  if (pinfo->vlan_id == 0) {
+      pinfo->vlan_id = vlan_id;
+  }
 
   columns_set_vlan(pinfo->cinfo, tci);
 
@@ -156,7 +161,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     if (vlan_summary_in_tree) {
         proto_item_append_text(ti, ", PRI: %u, CFI: %u, ID: %u",
-                (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
+                (tci >> 13), ((tci >> 12) & 1), vlan_id);
     }
 
     vlan_tree = proto_item_add_subtree(ti, ett_vlan);
