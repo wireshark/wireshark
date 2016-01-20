@@ -459,8 +459,8 @@ ssl_follow_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _
 {
     follow_info_t *      follow_info = (follow_info_t*) tapdata;
     SslDecryptedRecord * rec = NULL;
-    SslDataInfo *        appl_data = NULL;
-    SslPacketInfo *      pi = (SslPacketInfo*)ssl;
+    const SslDataInfo *        appl_data = NULL;
+    const SslPacketInfo *      pi = (const SslPacketInfo*)ssl;
     show_stream_t        from = FROM_CLIENT;
 
     /* Skip packets without decrypted payload data. */
