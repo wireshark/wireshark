@@ -29,7 +29,7 @@
 #include <epan/funnel.h>
 
 typedef struct _funnel_menu_t {
-    const char *name;
+    char *name;
     register_stat_group_t group;
     funnel_menu_callback callback;
     gpointer callback_data;
@@ -69,7 +69,7 @@ static void funnel_remove_menu (funnel_menu_t ** menu_list, funnel_menu_t *menu)
             } else {
                 *menu_list = m->next;
             }
-            g_free((char *)m->name);
+            g_free(m->name);
             g_free(m);
             if (p) {
                 m = p->next;
@@ -90,7 +90,7 @@ static void funnel_clear_menu (funnel_menu_t** menu_list)
     while (*menu_list) {
         m = *menu_list;
         *menu_list = m->next;
-        g_free((char *)m->name);
+        g_free(m->name);
         g_free(m);
     }
     *menu_list = NULL;
