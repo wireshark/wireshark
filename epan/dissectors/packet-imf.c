@@ -150,7 +150,7 @@ static dissector_handle_t imf_handle;
 static expert_field ei_imf_unknown_param = EI_INIT;
 
 struct imf_field {
-  const char   *name;           /* field name - in lower case for matching purposes */
+  char         *name;           /* field name - in lower case for matching purposes */
   int          *hf_id;          /* wireshark field */
   void         (*subdissector)(tvbuff_t *tvb, int offset, int length, proto_item *item, packet_info *pinfo);
   gboolean     add_to_col_info; /* add field to column info */
@@ -867,7 +867,7 @@ free_imf_field (gpointer data)
 {
   struct imf_field *imffield = (struct imf_field *) data;
 
-  g_free ((char *) imffield->name);
+  g_free (imffield->name);
   g_free (imffield);
 }
 
@@ -913,7 +913,7 @@ header_fields_initialize_cb (void)
 
       imffield = (struct imf_field *)g_malloc (sizeof (struct imf_field));
       imffield->hf_id = hf_id;
-      imffield->name = ascii_strdown_inplace (g_strdup (header_name));
+      imffield->name = g_ascii_strdown(header_name, -1);
       switch (header_fields[i].header_format) {
       case FORMAT_UNSTRUCTURED:
         imffield->subdissector = NO_SUBDISSECTION;
