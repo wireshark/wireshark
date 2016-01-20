@@ -27,6 +27,7 @@
 #include "config.h"
 
 #ifdef HAVE_LIBZ
+#define ZLIB_CONST
 #include <zlib.h>
 #endif
 
@@ -2641,7 +2642,13 @@ ssl_decompress_record(SslDecompress* decomp, const guchar* in, guint inl, String
             if (out_str->data_len < 16384) {  /* maximal plain length */
                 ssl_data_realloc(out_str, 16384);
             }
-            decomp->istream.next_in = (guchar*)in;
+#ifdef z_const
+            decomp->istream.next_in = in;
+#else
+DIAG_OFF(Wcast-qual)
+            decomp->istream.next_in = (Bytef *)in;
+DIAG_ON(Wcast-qual)
+#endif
             decomp->istream.avail_in = inl;
             decomp->istream.next_out = out_str->data;
             decomp->istream.avail_out = out_str->data_len;
