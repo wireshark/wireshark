@@ -170,7 +170,7 @@ WS_DLL_PUBLIC gboolean color_filters_write(GSList *cfl, gchar** err_msg);
  * @param only_selected TRUE if only the selected filters should be saved
  * @return TRUE, if write succeeded
  */
-WS_DLL_PUBLIC gboolean color_filters_export(const gchar *path, const GSList *cfl, gboolean only_selected, gchar** err_msg);
+WS_DLL_PUBLIC gboolean color_filters_export(const gchar *path, GSList *cfl, gboolean only_selected, gchar** err_msg);
 
 /** Create a new color filter (g_malloc'ed).
  *
