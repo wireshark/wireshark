@@ -224,6 +224,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
             this, SLOT(axisClicked(QCPAxis*,QCPAxis::SelectablePart,QMouseEvent*)));
     connect(sp->yAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(transformYRange(QCPRange)));
     disconnect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    this->setResult(QDialog::Accepted);
 }
 
 TCPStreamDialog::~TCPStreamDialog()

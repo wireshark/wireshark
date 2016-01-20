@@ -330,7 +330,7 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
          * segment, as tcp_graph_selected_packet_enabled() is used
          * to determine whether to enable any of our menu items. */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "Selected packet isn't a TCP segment");
+                      "Selected packet isn't a TCP segment or is truncated");
         return NULL;
     }
     /* XXX fix this later, we should show a dialog allowing the user
