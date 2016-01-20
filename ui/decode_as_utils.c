@@ -61,7 +61,7 @@ typedef struct lookup_entry {
  */
 typedef struct dissector_delete_item {
     /* The name of the dissector table */
-    const gchar *ddi_table_name;
+    gchar *ddi_table_name;
     /* The type of the selector in that dissector table */
     ftenum_t ddi_selector_type;
     /* The selector in the dissector table */
@@ -246,7 +246,7 @@ decode_clear_all(void)
         default:
             g_assert_not_reached();
         }
-        g_free((gchar *)item->ddi_table_name);
+        g_free(item->ddi_table_name);
         g_free(item);
     }
     g_slist_free(dissector_reset_list);
