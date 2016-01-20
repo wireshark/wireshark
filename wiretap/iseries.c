@@ -327,38 +327,38 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
           break;
         }
 
-        /*
-         * Check that we are dealing with an ETHERNET trace
-         */
-        if (iseries->format == ISERIES_FORMAT_UNICODE)
-          {
-            iseries_UNICODE_to_ASCII ((guint8 *)buf, ISERIES_LINE_LENGTH);
-          }
-        ascii_strup_inplace (buf);
-        num_items_scanned = sscanf (buf,
-                                   "%*[ \n\t]OBJECT PROTOCOL%*[ .:\n\t]%8s",
-                                   protocol);
-        if (num_items_scanned == 1)
-          {
-            if (memcmp (protocol, "ETHERNET", 8) == 0)
-              {
-                *err = 0;
-                is_iseries = TRUE;
-              }
-          }
+      /*
+       * Check that we are dealing with an ETHERNET trace
+       */
+      if (iseries->format == ISERIES_FORMAT_UNICODE)
+        {
+          iseries_UNICODE_to_ASCII ((guint8 *)buf, ISERIES_LINE_LENGTH);
+        }
+      ascii_strup_inplace (buf);
+      num_items_scanned = sscanf (buf,
+                                 "%*[ \n\t]OBJECT PROTOCOL%*[ .:\n\t]%8s",
+                                 protocol);
+      if (num_items_scanned == 1)
+        {
+          if (memcmp (protocol, "ETHERNET", 8) == 0)
+            {
+              *err = 0;
+              is_iseries = TRUE;
+            }
+        }
 
-        /*
-         * The header is the only place where the date part of the timestamp is held, so
-         * extract it here and store for all packets to access
-         */
-        num_items_scanned = sscanf (buf,
-                                    "%*[ \n\t]START DATE/TIME%*[ .:\n\t]%2d/%2d/%2d",
-                                    &iseries->month, &iseries->day,
-                                    &iseries->year);
-        if (num_items_scanned == 3)
-          {
-            iseries->have_date = TRUE;
-          }
+      /*
+       * The header is the only place where the date part of the timestamp is held, so
+       * extract it here and store for all packets to access
+       */
+      num_items_scanned = sscanf (buf,
+                                  "%*[ \n\t]START DATE/TIME%*[ .:\n\t]%2d/%2d/%2d",
+                                  &iseries->month, &iseries->day,
+                                  &iseries->year);
+      if (num_items_scanned == 3)
+        {
+          iseries->have_date = TRUE;
+        }
     }
 
   if (is_iseries)
