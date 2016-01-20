@@ -191,6 +191,10 @@ static int iseries_UNICODE_to_ASCII (guint8 * buf, guint bytes);
 static gboolean iseries_parse_hex_string (const char * ascii, guint8 * buf,
                                           size_t len);
 
+/*
+ * XXX - it would probably be cleaner to use a UCS-2 flavor of file_gets(),
+ * rather than file_gets(), if we're reading a UCS-2 file.
+ */
 wtap_open_return_val
 iseries_open (wtap * wth, int *err, gchar ** err_info)
 {
