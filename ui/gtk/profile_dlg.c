@@ -726,7 +726,7 @@ profile_name_edit_ok(GtkWidget *w _U_, gpointer parent_w)
   if (strlen(new_name) == 0) {
     return;
   }
-  valid_name = (char*)profile_name_is_valid(new_name);
+  valid_name = profile_name_is_valid(new_name);
   if (valid_name != NULL) {
     g_free(valid_name);
     return;

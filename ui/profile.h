@@ -115,7 +115,7 @@ const gchar *get_profile_parent (const gchar *profilename);
  * @param name Profile name
  * @return NULL if the name is valid or an error message otherwise.
  */
-const gchar *profile_name_is_valid(const gchar *name);
+gchar *profile_name_is_valid(const gchar *name);
 
 /** Remove the current profile.
  *

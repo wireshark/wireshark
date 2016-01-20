@@ -348,7 +348,7 @@ init_profile_list(void)
     copy_profile_list ();
 }
 
-const gchar *
+gchar *
 profile_name_is_valid(const gchar *name)
 {
     gchar *reason = NULL;
