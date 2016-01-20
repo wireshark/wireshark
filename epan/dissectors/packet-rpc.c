@@ -317,7 +317,7 @@ typedef gboolean (*rec_dissector_t)(tvbuff_t *, packet_info *, proto_tree *,
 
 static void show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
 			      guint32 rpc_rm, fragment_head *ipfd_head, packet_info *pinfo);
-static const char *rpc_proc_name_internal(wmem_allocator_t *allocator, guint32 prog,
+static char *rpc_proc_name_internal(wmem_allocator_t *allocator, guint32 prog,
 	guint32 vers, guint32 proc);
 
 
@@ -367,9 +367,9 @@ rpcstat_init(struct register_srt* srt, GArray* srt_array, srt_gui_init_cb gui_ca
 	rpc_srt_table = init_srt_table(table_name, NULL, srt_array, tap_data->num_procedures, NULL, hfi->abbrev, gui_callback, gui_data, tap_data);
 	for (i = 0; i < rpc_srt_table->num_procs; i++)
 	{
-		const char *proc_name = rpc_proc_name_internal(NULL, tap_data->program, tap_data->version, i);
+		char *proc_name = rpc_proc_name_internal(NULL, tap_data->program, tap_data->version, i);
 		init_srt_table_row(rpc_srt_table, i, proc_name);
-		wmem_free(NULL, (void*)proc_name);
+		wmem_free(NULL, proc_name);
 	}
 }
 
@@ -473,12 +473,12 @@ rpc_proc_hash(gconstpointer k)
 
 
 /*	return the name associated with a previously registered procedure. */
-static const char *
+static char *
 rpc_proc_name_internal(wmem_allocator_t *allocator, guint32 prog, guint32 vers, guint32 proc)
 {
 	rpc_proc_info_key key;
 	dissector_handle_t dissect_function;
-	const char *procname;
+	char *procname;
 
 	key.prog = prog;
 	key.vers = vers;
