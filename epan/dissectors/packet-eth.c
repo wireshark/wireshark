@@ -800,7 +800,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 /* Called for the Ethernet Wiretap encapsulation type; pass the FCS length
    reported to us, or, if the "assume_fcs" preference is set, pass 4. */
 static int
-dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   struct eth_phdr   *eth = (struct eth_phdr *)data;
   proto_tree        *fh_tree;
@@ -813,6 +813,10 @@ dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     tvbuff_t *next_tvb;
     guint total_trailer_length;
 
+    /*
+     * XXX - this overrides Wiretap saying "this packet definitely has
+     * no FCS".
+     */
     total_trailer_length = eth_trailer_length + (eth_assume_fcs ? 4 : 0);
 
     /* Dissect the tvb up to, but not including the trailer */
@@ -823,9 +827,17 @@ dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     /* Now handle the ethernet trailer and optional FCS */
     next_tvb = tvb_new_subset_remaining(tvb, tvb_captured_length(tvb) - total_trailer_length);
+    /*
+     * XXX - this overrides Wiretap saying "this packet definitely has
+     * no FCS".
+     */
     add_ethernet_trailer(pinfo, tree, fh_tree, hf_eth_trailer, tvb, next_tvb,
                          eth_assume_fcs ? 4 : eth->fcs_len);
   } else {
+    /*
+     * XXX - this overrides Wiretap saying "this packet definitely has
+     * no FCS".
+     */
     dissect_eth_common(tvb, pinfo, tree, eth_assume_fcs ? 4 : eth->fcs_len);
   }
   return tvb_captured_length(tvb);
@@ -844,6 +856,13 @@ static void
 dissect_eth_withfcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect_eth_common(tvb, pinfo, tree, 4);
+}
+
+/* ...and this one's for encapsulated packets that might or might not. */
+static void
+dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  dissect_eth_common(tvb, pinfo, tree, eth_assume_fcs ? 4 : -1);
 }
 
 void
@@ -1011,7 +1030,7 @@ proto_register_eth(void)
 
   register_dissector("eth_withoutfcs", dissect_eth_withoutfcs, proto_eth);
   register_dissector("eth_withfcs", dissect_eth_withfcs, proto_eth);
-  new_register_dissector("eth", dissect_eth_maybefcs, proto_eth);
+  register_dissector("eth", dissect_eth_maybefcs, proto_eth);
   eth_tap = register_tap("eth");
 
   register_conversation_table(proto_eth, TRUE, eth_conversation_packet, eth_hostlist_packet);
@@ -1021,7 +1040,7 @@ proto_register_eth(void)
 void
 proto_reg_handoff_eth(void)
 {
-  dissector_handle_t eth_maybefcs_handle, eth_withoutfcs_handle;
+  dissector_handle_t eth_handle, eth_withoutfcs_handle;
 
   /* Get a handle for the Firewall-1 dissector. */
   fw1_handle = find_dissector("fw1");
@@ -1032,8 +1051,8 @@ proto_reg_handoff_eth(void)
   /* Get a handle for the generic data dissector. */
   data_handle = find_dissector("data");
 
-  eth_maybefcs_handle = find_dissector("eth");
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_ETHERNET, eth_maybefcs_handle);
+  eth_handle = new_create_dissector_handle(dissect_eth, proto_eth);
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_ETHERNET, eth_handle);
 
   eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
   dissector_add_uint("ethertype", ETHERTYPE_ETHBRIDGE, eth_withoutfcs_handle);

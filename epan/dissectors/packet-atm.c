@@ -145,7 +145,7 @@ static dissector_handle_t llc_handle;
 static dissector_handle_t sscop_handle;
 static dissector_handle_t fp_handle;
 static dissector_handle_t ppp_handle;
-static dissector_handle_t eth_handle;
+static dissector_handle_t eth_maybefcs_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t gprs_ns_handle;
@@ -1028,12 +1028,9 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              * See RFC 2684 section 6.2 "VC Multiplexing of Bridged
              * Protocols".
              */
-            struct eth_phdr eth;
-
             proto_tree_add_item(tree, hf_atm_padding, tvb, 0, 2, ENC_NA);
             next_tvb = tvb_new_subset_remaining(tvb, 2);
-            eth.fcs_len = -1;   /* We don't know whether there's an FCS */
-            call_dissector_with_data(eth_handle, next_tvb, pinfo, tree, &eth);
+            call_dissector(eth_maybefcs_handle, next_tvb, pinfo, tree);
             decoded = TRUE;
           }
           else if (octet[2] == 0x03    && /* NLPID */
@@ -2040,7 +2037,7 @@ proto_reg_handoff_atm(void)
   llc_handle            = find_dissector("llc");
   sscop_handle          = find_dissector("sscop");
   ppp_handle            = find_dissector("ppp");
-  eth_handle            = find_dissector("eth");
+  eth_maybefcs_handle   = find_dissector("eth");
   ip_handle             = find_dissector("ip");
   data_handle           = find_dissector("data");
   fp_handle             = find_dissector("fp");

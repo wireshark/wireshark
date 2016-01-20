@@ -72,7 +72,7 @@ static const true_false_string ooodl_tfs = {
   "Deliver in order (If DA) or Learn (If SA)"
 };
 
-static dissector_handle_t eth_dissector ;
+static dissector_handle_t eth_maybefcs_dissector ;
 
 
 #define FP_PROTO_COL_NAME "FabricPath"
@@ -218,7 +218,6 @@ dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ 
   guint16       dlid     = 0;
   const guint8 *dst_addr = NULL;
   gboolean      dest_ig  = FALSE;
-  struct eth_phdr eth;
 
   col_set_str( pinfo->cinfo, COL_PROTOCOL, FP_PROTO_COL_NAME ) ;
   col_set_str( pinfo->cinfo, COL_INFO, FP_PROTO_COL_INFO ) ;
@@ -295,11 +294,9 @@ dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ 
   /* call the eth dissector */
   next_tvb = tvb_new_subset_remaining( tvb, FP_HEADER_SIZE) ;
   /*
-   * For now, say we don't know whether there's an FCS in the
-   * captured data.
+   * For now, we don't know whether there's an FCS in the captured data.
    */
-  eth.fcs_len = -1;
-  call_dissector_with_data( eth_dissector, next_tvb, pinfo, tree, &eth ) ;
+  call_dissector( eth_maybefcs_dissector, next_tvb, pinfo, tree ) ;
 
   return tvb_captured_length( tvb ) ;
 }
@@ -416,7 +413,7 @@ proto_reg_handoff_fabricpath(void)
      * by the Ethernet dissector.  This needs more work, so we leave this
      * as calling the "eth" dissector as a reminder.
      */
-    eth_dissector = find_dissector( "eth" );
+    eth_maybefcs_dissector = find_dissector( "eth" );
     prefs_initialized = TRUE;
   }
 }
