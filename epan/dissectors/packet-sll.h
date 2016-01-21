@@ -26,6 +26,7 @@
 
 /*
  * The LINUX_SLL_ values for "sll_protocol".
+ * https://github.com/torvalds/linux/blob/master/include/uapi/linux/if_ether.h ?
  */
 #define LINUX_SLL_P_802_3	0x0001	/* Novell 802.3 frames without 802.2 LLC header */
 #define LINUX_SLL_P_ETHERNET	0x0003	/* Ethernet */
