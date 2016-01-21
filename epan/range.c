@@ -147,7 +147,7 @@ range_convert_str_work(range_t **rangep, const gchar *es, guint32 max_value,
       } else if (g_ascii_isdigit(c)) {
          /* Subrange starts with the specified number */
          errno = 0;
-         val = strtoul(p, &endp, 10);
+         val = strtoul(p, &endp, 0);
          if (p == endp) {
             /* That wasn't a valid number. */
             g_free(range);
@@ -193,7 +193,7 @@ range_convert_str_work(range_t **rangep, const gchar *es, guint32 max_value,
          } else if (g_ascii_isdigit(c)) {
             /* Subrange ends with the specified number. */
             errno = 0;
-            val = strtoul(p, &endp, 10);
+            val = strtoul(p, &endp, 0);
             if (p == endp) {
                /* That wasn't a valid number. */
                g_free(range);
