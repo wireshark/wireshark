@@ -166,6 +166,11 @@ static gint hf_gsm_sms_tp_command_type = -1;
 static gint hf_gsm_sms_tp_message_number = -1;
 static gint hf_gsm_sms_tp_command_data = -1;
 static gint hf_gsm_sms_tp_command_data_length = -1;
+static gint hf_gsm_sms_msg_ind_type_and_stor = -1;
+static gint hf_gsm_sms_msg_profile_id = -1;
+static gint hf_gsm_sms_ext_msg_ind_type = -1;
+static gint hf_gsm_sms_msg_ind_type = -1;
+static gint hf_gsm_sms_msg_count = -1;
 static gint hf_gsm_sms_destination_port8 = -1;
 static gint hf_gsm_sms_originator_port8 = -1;
 static gint hf_gsm_sms_destination_port16 = -1;
@@ -738,6 +743,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
             break;
         case 0x02:
             default_3_bits = TRUE;
+            *ucs2 = TRUE;
             break;
         case 0x03:
             default_data = TRUE;
@@ -1271,7 +1277,47 @@ dis_iei_csm8(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset
 
 }
 
-/* TODO 9.2.3.24.2 Special SMS Message Indication */
+/* 9.2.3.24.2 Special SMS Message Indication */
+static const true_false_string gsm_sms_msg_type_and_stor_value = {
+    "Store message after updating indication",
+    "Discard message after updating indication"
+};
+
+static const value_string gsm_sms_profile_id_vals[] = {
+    { 0, "Profile ID 1" },
+    { 1, "Profile ID 2" },
+    { 2, "Profile ID 3" },
+    { 3, "Profile ID 4" },
+    { 0, NULL },
+};
+
+static const range_string gsm_sms_ext_msg_ind_type_vals[] = {
+  { 0, 0, "No extended message indication type" },
+  { 1, 1, "Video Message Waiting" },
+  { 2, 7, "Reserved" },
+  { 0, 0, NULL }
+};
+
+static const value_string gsm_sms_msg_ind_type_vals[] = {
+    { 0, "Voice Message Waiting" },
+    { 1, "Fax Message Waiting" },
+    { 2, "Electronic Mail Message Waiting" },
+    { 3, "Extended Message Type Waiting" },
+    { 0, NULL },
+};
+
+static void
+dis_iei_spe_sms_msg_ind(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 offset,
+                        guint8 length, gsm_sms_udh_fields_t *p_udh_fields _U_)
+{
+    EXACT_DATA_CHECK(length, 2);
+
+    proto_tree_add_item(tree, hf_gsm_sms_msg_ind_type_and_stor, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_msg_profile_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_ext_msg_ind_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_msg_ind_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_sms_msg_count, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+}
 
 /* 9.2.3.24.3 */
 static const range_string gsm_sms_8bit_port_values[] = {
@@ -1635,6 +1681,9 @@ dis_field_ud_iei(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 of
         {
             case 0x00:
                 iei_fcn = dis_iei_csm8;
+                break;
+            case 0x01:
+                iei_fcn = dis_iei_spe_sms_msg_ind;
                 break;
             case 0x04:
                 iei_fcn = dis_iei_apa_8bit;
@@ -3002,6 +3051,31 @@ proto_register_gsm_sms(void)
             },
             { &hf_gsm_sms_tp_command_data_length,
               { "TP-Command-Data-Length", "gsm_sms.tp.command_data_length",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_gsm_sms_msg_ind_type_and_stor,
+              { "Message Indication type and Storage", "gsm_sms.msg_ind_type_and_stor",
+                FT_BOOLEAN, 8, TFS(&gsm_sms_msg_type_and_stor_value), 0x80,
+                NULL, HFILL }
+            },
+            { &hf_gsm_sms_msg_profile_id,
+              { "Multiple Subscriber Profile", "gsm_sms.profile_id",
+                FT_UINT8, BASE_DEC, VALS(gsm_sms_profile_id_vals), 0x60,
+                NULL, HFILL }
+            },
+            { &hf_gsm_sms_ext_msg_ind_type,
+              { "Extended Message Indication Type", "gsm_sms.ext_msg_ind_type",
+                FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(gsm_sms_ext_msg_ind_type_vals), 0x1c,
+                NULL, HFILL }
+            },
+            { &hf_gsm_sms_msg_ind_type,
+              { "Message Indication Type", "gsm_sms.msg_ind_type",
+                FT_UINT8, BASE_DEC, VALS(gsm_sms_msg_ind_type_vals), 0x03,
+                NULL, HFILL }
+            },
+            { &hf_gsm_sms_msg_count,
+              { "Message Count", "gsm_sms.msg_count",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
