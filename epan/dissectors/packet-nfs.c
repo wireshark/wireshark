@@ -604,6 +604,7 @@ static int hf_nfs4_fattr_change_attr_type = -1;
 static int hf_nfs4_ff_layout_flags = -1;
 static int hf_nfs4_ff_layout_flags_no_layoutcommit = -1;
 static int hf_nfs4_ff_layout_flags_no_io_thru_mds = -1;
+static int hf_nfs4_ff_stats_collect_hint = -1;
 static int hf_nfs4_ff_synthetic_owner = -1;
 static int hf_nfs4_ff_synthetic_owner_group = -1;
 static int hf_nfs4_ff_bytes_completed = -1;
@@ -9061,8 +9062,10 @@ dissect_nfs4_layoutget(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 			guint	ds_count, fh_count;
 			proto_tree *ds_tree;
 			proto_item *ds_fitem;
+			int end_offset = offset;
 
 			/* NFS Flex Files */
+			end_offset += tvb_get_ntohl(tvb, offset) + 4;
 			offset += 4; /* Skip past opaque count */
 
 			/* stripe unit */
@@ -9117,6 +9120,12 @@ dissect_nfs4_layoutget(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 			proto_tree_add_bitmask(newtree, tvb, offset, hf_nfs4_ff_layout_flags,
 						ett_nfs4_ff_layout_flags, layout_flags, ENC_BIG_ENDIAN);
+			offset += 4;
+
+			if (offset + 4 <= end_offset)
+				offset = dissect_rpc_uint32(tvb, newtree,
+						hf_nfs4_ff_stats_collect_hint,
+						offset);
 		} else {
 			offset = dissect_nfsdata(tvb, offset, newtree, hf_nfs4_layout);
 			continue;
@@ -10397,7 +10406,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_slotid, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_high_slotid, offset);
 			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs4_target_high_slotid, offset);
-			proto_tree_add_bitmask(tree, tvb, offset, hf_nfs4_sequence_status_flags, ett_nfs4_sequence_status_flags, sequence_flags, ENC_BIG_ENDIAN);
+			proto_tree_add_bitmask(newftree, tvb, offset, hf_nfs4_sequence_status_flags, ett_nfs4_sequence_status_flags, sequence_flags, ENC_BIG_ENDIAN);
 			offset += 4;
 			}
 			break;
@@ -13271,6 +13280,10 @@ proto_register_nfs(void)
 		{ &hf_nfs4_ff_layout_flags_no_io_thru_mds, {
 			"FLAG_NO_IO_THRU_MDS", "nfs.ff.layout_flags.no_io_thru_mds", FT_BOOLEAN, 32,
 			TFS(&tfs_set_notset), 0x00000002, NULL, HFILL}},
+
+		{ &hf_nfs4_ff_stats_collect_hint, {
+			"stats collect hint", "nfs.ff.stats_collect_hint", FT_UINT32, BASE_DEC,
+			NULL, 0, "Layoutstats sampling period hint, Seconds", HFILL }},
 
 		{ &hf_nfs4_fattr_clone_blocksize, {
 			"clone block size", "nfs.fattr4.clone_block_size", FT_UINT32, BASE_DEC,
