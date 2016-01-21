@@ -364,14 +364,12 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 	const char* sshkey, const char* sshkey_passphrase, const char* iface, const char* cfilter, const char* capture_bin,
 	const unsigned long int count, const char* fifo)
 {
-	ssh_session sshs;
-	ssh_channel channel;
-	int fd;
+	ssh_session sshs = NULL;
+	ssh_channel channel = NULL;
+	int fd = STDOUT_FILENO;
+	int ret = EXIT_FAILURE;
 
-	if (!g_strcmp0(fifo, "-")) {
-		/* use stdout */
-		fd = STDOUT_FILENO;
-	} else {
+	if (g_strcmp0(fifo, "-")) {
 		/* Open or create the output file */
 		fd = open(fifo, O_WRONLY);
 		if (fd == -1) {
@@ -386,19 +384,23 @@ static int ssh_open_remote_connection(const char* hostname, const unsigned int p
 	sshs = create_ssh_connection(hostname, port, username, password, sshkey, sshkey_passphrase);
 
 	if (!sshs)
-		return EXIT_FAILURE;
+		goto cleanup;
 
 	channel = run_ssh_command(sshs, capture_bin, iface, cfilter, count);
 	if (!channel)
-		return EXIT_FAILURE;
+		goto cleanup;
 
 	/* read from channel and write into fd */
 	ssh_loop_read(channel, fd);
 
+	ret = EXIT_SUCCESS;
+cleanup:
 	/* clean up and exit */
 	ssh_cleanup(sshs, channel);
 
-	return EXIT_SUCCESS;
+	if (g_strcmp0(fifo, "-"))
+		close(fd);
+	return ret;
 }
 
 static void help(const char* binname)
