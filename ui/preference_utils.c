@@ -273,8 +273,8 @@ prefs_main_write(void)
   }
 }
 
-gboolean
-prefs_store_ext(const char * module_name, const char *pref_name, const char *pref_value)
+static gboolean
+prefs_store_ext_helper(const char * module_name, const char *pref_name, const char *pref_value)
 {
   module_t * module = NULL;
   pref_t * pref = NULL;
@@ -303,6 +303,49 @@ prefs_store_ext(const char * module_name, const char *pref_name, const char *pre
       g_free(*pref->varp.string);
       *pref->varp.string = g_strdup(pref->stashed_val.string);
     }
+  }
+
+  return pref_changed;
+}
+
+gboolean
+prefs_store_ext(const char * module_name, const char *pref_name, const char *pref_value)
+{
+  if ( prefs_store_ext_helper(module_name, pref_name, pref_value) )
+  {
+    prefs_main_write();
+    prefs_apply_all();
+    prefs_to_capture_opts();
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+gboolean
+prefs_store_ext_multiple(const char * module, GHashTable * pref_values)
+{
+  gboolean pref_changed = FALSE;
+  GList * keys = NULL;
+
+  if ( ! prefs_is_registered_protocol(module))
+    return pref_changed;
+
+  keys = g_hash_table_get_keys(pref_values);
+  if ( ! keys )
+    return pref_changed;
+
+  while ( keys != NULL )
+  {
+    gchar * pref_name = (gchar *)keys->data;
+    gchar * pref_value = (gchar *) g_hash_table_lookup(pref_values, keys->data);
+
+    if ( pref_name && pref_value )
+    {
+      if ( prefs_store_ext_helper(module, pref_name, pref_value) )
+        pref_changed = TRUE;
+    }
+    keys = g_list_next(keys);
   }
 
   if ( pref_changed )

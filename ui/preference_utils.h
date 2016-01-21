@@ -82,6 +82,9 @@ extern void prefs_main_write(void);
 
 /** Convenient function for plugin_if
  *
+ * Note: The preferences must exist, it is not possible to create entries
+ * using this function
+ *
  * @param module the module for the preference
  * @param key the key for the preference
  * @param value the new value as string for the preference
@@ -89,6 +92,19 @@ extern void prefs_main_write(void);
  * @return true if the value has been stored successfully
  */
 extern gboolean prefs_store_ext(const char * module, const char * key, const char * value);
+
+/** Convenient function for the writing of multiple preferences, without
+ * explicitly having prefs_t variables.
+ *
+ * Note: The preferences must exist, it is not possible to create entries
+ * using this function
+ *
+ * @param module the module for the preference
+ * @param pref_values a hash table
+ *
+ * @return true if the value has been stored successfully
+ */
+extern gboolean prefs_store_ext_multiple(const char * module, GHashTable * pref_values);
 
 /** Add a custom column.
  *
