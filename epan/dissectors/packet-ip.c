@@ -2405,7 +2405,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
       ipsum == 0) {
     ipfd_head = fragment_add_check(&ip_reassembly_table, tvb, offset,
                                    pinfo,
-                                   iph->ip_p ^ iph->ip_id ^ src32 ^ dst32,
+                                   iph->ip_p ^ iph->ip_id ^ src32 ^ dst32 ^ pinfo->vlan_id,
                                    NULL,
                                    (iph->ip_off & IP_OFFSET) * 8,
                                    iph->ip_len - hlen,
