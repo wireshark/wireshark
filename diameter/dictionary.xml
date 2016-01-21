@@ -26,7 +26,6 @@
 	<!ENTITY NokiaSolutionsAndNetworks	SYSTEM "NokiaSolutionsAndNetworks.xml">
 	<!ENTITY HP			SYSTEM "HP.xml">
 	<!ENTITY Oracle			SYSTEM "Oracle.xml">
-	<!ENTITY Redknee		SYSTEM "Redknee.xml">
 	<!ENTITY Custom			SYSTEM "Custom.xml">
 ]>
 <dictionary>
@@ -6961,24 +6960,11 @@
 	<vendor vendor-id="Acision"			code="3830"	name="Acision"/>
 	<vendor vendor-id="SKT"				code="5806"	name="SK Telecom"/>
 	<vendor vendor-id="TGPP"			code="10415"	name="3GPP"/>
+	<vendor vendor-id="VerizonWireless"		code="12951"	name="Verizon Wireless"/>
 	<vendor vendor-id="ETSI"			code="13019"	name="ETSI"/>
 	<vendor vendor-id="Tango"			code="13421"	name="Tango Telecom Limited"/>
 	<vendor vendor-id="ChinaTelecom"		code="81000"	name="China Telecom"/>
 	<vendor vendor-id="TGPPCX"			code="16777216"	name="3GPP CX/DX"/>
-
-	<vendor vendor-id="VerizonWireless"		code="12951"	name="Verizon Wireless">
-		<avp name="Charging-Group-ID" code="6069" mandatory="must" vendor-bit="must" vendor-id="VerizonWireless">
-			<type type-name="UTF8String"/>
-		</avp>
-	</vendor>
-	<vendor vendor-id="WiMax"			code="24757"	name="WiMax">
-		<avp name="Active-Time" code="39" mandatory="must" vendor-bit="must" vendor-id="WiMax">
-			<type type-name="Unsigned32"/>
-		</avp>
-		<avp name="WiMax-BSID" code="46" mandatory="must" vendor-bit="must" vendor-id="WiMax">
-			<type type-name="UTF8String"/>
-		</avp>
-	</vendor>
 	<!-- *********************** End Vendors ************************** -->
 
 	&nasreq;
@@ -7000,6 +6986,5 @@
 	&NokiaSolutionsAndNetworks;
 	&HP;
 	&Oracle;
-	&Redknee;
 	&Custom;
 </dictionary>
