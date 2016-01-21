@@ -389,10 +389,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     else
         interface_id = HCI_INTERFACE_DEFAULT;
 
-    if (bluetooth_data)
-        adapter_id = bluetooth_data->adapter_id;
-    else if (ubertooth_data)
+    if (ubertooth_data)
         adapter_id = ubertooth_data->bus_id << 8 | ubertooth_data->device_address;
+    else if (bluetooth_data)
+        adapter_id = bluetooth_data->adapter_id;
     else
         adapter_id = HCI_ADAPTER_DEFAULT;
 

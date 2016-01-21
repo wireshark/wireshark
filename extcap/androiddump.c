@@ -752,6 +752,7 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
                 char  *data_str;
                 char   pid[16];
 
+                memset(pid, 0, sizeof(pid));
                 response[data_length] = '\0';
 
                 data_str = strchr(response, '\n');
@@ -828,6 +829,7 @@ static int list_interfaces(const char *adb_server_ip, unsigned short *adb_server
                 char  *data_str;
                 char   pid[16];
 
+                memset(pid, 0, sizeof(pid));
                 response[data_length] = '\0';
 
                 data_str = strchr(response, '\n');
@@ -2377,6 +2379,8 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
             }
         }
     }
+
+    closesocket(sock);
     return 0;
 }
 

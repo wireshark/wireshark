@@ -816,13 +816,9 @@ static void send_hci_summary_status_tap(guint8 status, packet_info *pinfo, bluet
         bluetooth_hci_summary_tap_t  *tap_hci_summary;
 
         tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
-        if (bluetooth_data) {
-            tap_hci_summary->interface_id  = bluetooth_data->interface_id;
-            tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
-        } else {
-            tap_hci_summary->interface_id  = HCI_INTERFACE_DEFAULT;
-            tap_hci_summary->adapter_id    = HCI_ADAPTER_DEFAULT;
-        }
+
+        tap_hci_summary->interface_id  = bluetooth_data->interface_id;
+        tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
 
         tap_hci_summary->type = BLUETOOTH_HCI_SUMMARY_STATUS;
         tap_hci_summary->status = status;
@@ -840,13 +836,9 @@ static void send_hci_summary_pending_tap(packet_info *pinfo, bluetooth_data_t *b
         bluetooth_hci_summary_tap_t  *tap_hci_summary;
 
         tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
-        if (bluetooth_data) {
-            tap_hci_summary->interface_id  = bluetooth_data->interface_id;
-            tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
-        } else {
-            tap_hci_summary->interface_id  = HCI_INTERFACE_DEFAULT;
-            tap_hci_summary->adapter_id    = HCI_ADAPTER_DEFAULT;
-        }
+
+        tap_hci_summary->interface_id  = bluetooth_data->interface_id;
+        tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
 
         tap_hci_summary->type = BLUETOOTH_HCI_SUMMARY_STATUS_PENDING;
         tap_hci_summary->status = 0;
@@ -861,13 +853,9 @@ static void send_hci_summary_reason_tap(guint8 reason, packet_info *pinfo, bluet
         bluetooth_hci_summary_tap_t  *tap_hci_summary;
 
         tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
-        if (bluetooth_data) {
-            tap_hci_summary->interface_id  = bluetooth_data->interface_id;
-            tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
-        } else {
-            tap_hci_summary->interface_id  = HCI_INTERFACE_DEFAULT;
-            tap_hci_summary->adapter_id    = HCI_ADAPTER_DEFAULT;
-        }
+
+        tap_hci_summary->interface_id  = bluetooth_data->interface_id;
+        tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
 
         tap_hci_summary->type = BLUETOOTH_HCI_SUMMARY_REASON;
         tap_hci_summary->reason = reason;
@@ -1522,13 +1510,9 @@ dissect_bthci_evt_hardware_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
         bluetooth_hci_summary_tap_t  *tap_hci_summary;
 
         tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
-        if (bluetooth_data) {
-            tap_hci_summary->interface_id  = bluetooth_data->interface_id;
-            tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
-        } else {
-            tap_hci_summary->interface_id  = HCI_INTERFACE_DEFAULT;
-            tap_hci_summary->adapter_id    = HCI_ADAPTER_DEFAULT;
-        }
+
+        tap_hci_summary->interface_id  = bluetooth_data->interface_id;
+        tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
 
         tap_hci_summary->type = BLUETOOTH_HCI_SUMMARY_HARDWARE_ERROR;
         tap_hci_summary->hardware_error = tvb_get_guint8(tvb, offset - 1);
@@ -1712,13 +1696,9 @@ dissect_bthci_evt_command_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
         bluetooth_hci_summary_tap_t  *tap_hci_summary;
 
         tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
-        if (bluetooth_data) {
-            tap_hci_summary->interface_id  = bluetooth_data->interface_id;
-            tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
-        } else {
-            tap_hci_summary->interface_id  = HCI_INTERFACE_DEFAULT;
-            tap_hci_summary->adapter_id    = HCI_ADAPTER_DEFAULT;
-        }
+
+        tap_hci_summary->interface_id  = bluetooth_data->interface_id;
+        tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
 
         tap_hci_summary->type = BLUETOOTH_HCI_SUMMARY_EVENT_OPCODE;
         tap_hci_summary->ogf = ogf;
@@ -4019,13 +3999,9 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         bluetooth_hci_summary_tap_t  *tap_hci_summary;
 
         tap_hci_summary = wmem_new(wmem_packet_scope(), bluetooth_hci_summary_tap_t);
-        if (bluetooth_data) {
-            tap_hci_summary->interface_id  = bluetooth_data->interface_id;
-            tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
-        } else {
-            tap_hci_summary->interface_id  = HCI_INTERFACE_DEFAULT;
-            tap_hci_summary->adapter_id    = HCI_ADAPTER_DEFAULT;
-        }
+
+        tap_hci_summary->interface_id  = bluetooth_data->interface_id;
+        tap_hci_summary->adapter_id    = bluetooth_data->adapter_id;
 
         tap_hci_summary->type = BLUETOOTH_HCI_SUMMARY_EVENT;
         tap_hci_summary->event = evt_code;
