@@ -4418,9 +4418,9 @@ static int
 dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr_type_tree, int offset, int isakmp_version, gboolean is_request)
 {
   guint optlen, cfg_attr_type, len = 0;
-  int offset_end = 0;
   proto_item *cfg_attr_type_item = NULL;
   proto_tree *sub_cfg_attr_type_tree = NULL;
+  guint i;
 
   cfg_attr_type = tvb_get_ntohs(tvb, offset);
   optlen = tvb_get_ntohs(tvb, offset+2);
@@ -4460,11 +4460,9 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr
   proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_value, tvb, offset, optlen, ENC_NA);
   switch (cfg_attr_type) {
     case INTERNAL_IP4_ADDRESS: /* 1 */
-      offset_end = offset + optlen;
-
       if (optlen%4 == 0)
       {
-        while (offset_end-offset > 0)
+        for (i = 0; i < optlen/4; i++)
         {
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_address, tvb, offset, 4, ENC_BIG_ENDIAN);
           offset += 4;
@@ -4475,11 +4473,9 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr
       proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_netmask, tvb, offset, 4, ENC_BIG_ENDIAN);
       break;
     case INTERNAL_IP4_DNS: /* 3 */
-      offset_end = offset + optlen;
-
       if (optlen%4 == 0)
       {
-        while (offset_end-offset > 0)
+        for (i = 0; i < optlen/4; i++)
         {
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_dns, tvb, offset, 4, ENC_BIG_ENDIAN);
           offset += 4;
@@ -4487,10 +4483,9 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr
       }
       break;
     case INTERNAL_IP4_NBNS: /* 4 */
-      offset_end = offset + optlen;
       if (optlen%4 == 0)
       {
-        while (offset_end-offset > 0)
+        for (i = 0; i < optlen/4; i++)
         {
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_nbns, tvb, offset, 4, ENC_BIG_ENDIAN);
           offset += 4;
@@ -4501,11 +4496,9 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr
       proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_address_expiry, tvb, offset, 4, ENC_BIG_ENDIAN);
       break;
     case INTERNAL_IP4_DHCP: /* 6 */
-      offset_end = offset + optlen;
-
       if (optlen%4 == 0)
       {
-        while (offset_end-offset > 0)
+        for (i = 0; i < optlen/4; i++)
         {
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_dhcp, tvb, offset, 4, ENC_BIG_ENDIAN);
           offset += 4;
@@ -4517,102 +4510,81 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr
       proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset,optlen, ENC_ASCII));
       break;
     case INTERNAL_IP6_ADDRESS: /* 8 */
-      offset_end = offset + optlen;
-
       if (optlen%17 == 0)
       {
-        while (offset_end-offset > 0)
+        for (i = 0; i < optlen/17; i++)
         {
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_address_ip, tvb, offset, 16, ENC_NA);
           offset += 16;
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_address_prefix, tvb, offset, 1, ENC_BIG_ENDIAN);
           offset += 1;
         }
-
       }
       break;
     case INTERNAL_IP6_NETMASK: /* 9 Only in IKEv1 */
       proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_netmask, tvb, offset, 18, ENC_NA);
       break;
     case INTERNAL_IP6_DNS: /* 10 */
-      offset_end = offset + optlen;
-
       if (optlen%16 == 0)
       {
-        while (offset_end-offset > 0)
+        for (i = 0; i < optlen/16; i++)
         {
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_dns, tvb, offset, 16, ENC_NA);
           offset += 16;
         }
-
       }
       break;
     case INTERNAL_IP6_NBNS: /* 11 */
-      offset_end = offset + optlen;
-
       if (optlen%16 == 0)
       {
-        while (offset_end-offset > 0)
+        for (i = 0; i < optlen/16; i++)
         {
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_nbns, tvb, offset, 16, ENC_NA);
           offset += 16;
         }
-
       }
       break;
     case INTERNAL_IP6_DHCP: /* 12 */
-      offset_end = offset + optlen;
-
       if (optlen%16 == 0)
       {
-        while (offset_end-offset > 0)
+        for (i = 0; i < optlen/16; i++)
         {
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_dhcp, tvb, offset, 16, ENC_NA);
           offset += 16;
         }
-
       }
       break;
     case INTERNAL_IP4_SUBNET: /* 13 */
-      offset_end = offset + optlen;
-
       if (optlen%8 == 0)
       {
-        while (offset_end-offset > 0)
+        for (i = 0; i < optlen/8; i++)
         {
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_subnet_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_subnet_netmask, tvb, offset, 4, ENC_BIG_ENDIAN);
           offset += 8;
         }
-
       }
       break;
     case SUPPORTED_ATTRIBUTES: /* 14 */
-      offset_end = offset + optlen;
-
       if (optlen%2 == 0)
       {
-        while (offset_end-offset > 0)
+        for (i = 0; i < optlen/2; i++)
         {
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_supported_attributes, tvb, offset, 2, ENC_BIG_ENDIAN);
           offset += 2;
         }
-
       }
       break;
     case INTERNAL_IP6_SUBNET: /* 15 */
-      offset_end = offset + optlen;
-
       if (optlen%17 == 0)
       {
-        while (offset_end-offset > 0)
+        for (i = 0; i < optlen/17; i++)
         {
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_subnet_ip, tvb, offset, 16, ENC_NA);
           offset += 16;
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_subnet_prefix, tvb, offset, 1, ENC_BIG_ENDIAN);
           offset += 1;
         }
-
       }
       break;
     case INTERNAL_IP6_LINK: /* 17 */
@@ -4621,26 +4593,21 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr
       proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_link_id, tvb, offset, optlen-8, ENC_NA);
       break;
     case INTERNAL_IP6_PREFIX: /* 18 */
-      offset_end = offset + optlen;
-
       if (optlen%17 == 0)
       {
-        while (offset_end-offset > 0)
+        for (i = 0; i < optlen/17; i++)
         {
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_prefix_ip, tvb, offset, 16, ENC_NA);
           offset += 16;
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
           offset += 1;
         }
-
       }
       break;
     case P_CSCF_IP4_ADDRESS: /* 20 */
-      offset_end = offset + optlen;
-
       if (optlen%4 == 0)
       {
-        while (offset_end-offset > 0)
+        for (i = 0; i < optlen/4; i++)
         {
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_p_cscf_ip4_address, tvb, offset, 4, ENC_BIG_ENDIAN);
           offset += 4;
@@ -4648,16 +4615,13 @@ dissect_config_attribute(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cfg_attr
       }
       break;
     case P_CSCF_IP6_ADDRESS: /* 21 */
-      offset_end = offset + optlen;
-
       if (optlen%16 == 0)
       {
-        while (offset_end-offset > 0)
+        for (i = 0; i < optlen/16; i++)
         {
           proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_p_cscf_ip6_address, tvb, offset, 16, ENC_NA);
           offset += 16;
         }
-
       }
       break;
     case XAUTH_TYPE: /* 16520 */
@@ -5189,16 +5153,20 @@ isakmp_equal_func(gconstpointer ic1, gconstpointer ic2) {
 
 static guint ikev2_key_hash_func(gconstpointer k) {
   const ikev2_uat_data_key_t *key = (const ikev2_uat_data_key_t*)k;
-  guint hash = 0, keychunk, i;
+  guint hash, *key_segs, key_segcount, i;
+
+  hash = 0;
 
   /* XOR our icookie down to the size of a guint */
-  for (i = 0; i < key->spii_len - (key->spii_len % (guint)sizeof(keychunk)); i += (guint)sizeof(keychunk)) {
-    memcpy(&keychunk, &key->spii[i], sizeof(keychunk));
-    hash ^= keychunk;
+  key_segcount = key->spii_len / sizeof(guint);
+  key_segs = (guint *)key->spii;
+  for (i = 0; i < key_segcount; i++) {
+    hash ^= key_segs[i];
   }
-  for (i = 0; i < key->spir_len - (key->spir_len % (guint)sizeof(keychunk)); i += (guint)sizeof(keychunk)) {
-    memcpy(&keychunk, &key->spir[i], sizeof(keychunk));
-    hash ^= keychunk;
+  key_segcount = key->spir_len / sizeof(guint);
+  key_segs = (guint *)key->spir;
+  for (i = 0; i < key_segcount; i++) {
+    hash ^= key_segs[i];
   }
 
   return hash;
