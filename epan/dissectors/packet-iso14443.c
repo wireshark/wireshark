@@ -1,6 +1,6 @@
 /* packet-iso14443.c
  * Routines for ISO14443 dissection
- * Copyright 2015, Martin Kaiser <martin@kaiser.cx>
+ * Copyright 2015-2016, Martin Kaiser <martin@kaiser.cx>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -149,6 +149,7 @@ static int ett_iso14443_hdr = -1;
 static int ett_iso14443_msg = -1;
 static int ett_iso14443_app_data = -1;
 static int ett_iso14443_prot_inf = -1;
+static int ett_iso14443_prot_type = -1;
 static int ett_iso14443_pcb = -1;
 static int ett_iso14443_inf = -1;
 
@@ -173,6 +174,8 @@ static int hf_iso14443_num_afi_apps = -1;
 static int hf_iso14443_total_num_apps = -1;
 static int hf_iso14443_prot_inf = -1;
 static int hf_iso14443_bit_rate_cap = -1;
+static int hf_iso14443_max_frame_size_code = -1;
+static int hf_iso14443_prot_type = -1;
 static int hf_iso14443_min_tr2 = -1;
 static int hf_iso14443_4_compl_atqb = -1;
 static int hf_iso14443_adc = -1;
@@ -269,8 +272,8 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree, gboolean crc_dropped)
 {
     proto_item *ti = proto_tree_get_parent(tree);
-    proto_item *app_data_it, *prot_inf_it;
-    proto_tree *app_data_tree, *prot_inf_tree;
+    proto_item *app_data_it, *prot_inf_it, *prot_type_it;
+    proto_tree *app_data_tree, *prot_inf_tree, *prot_type_tree;
     gint app_data_offset, rem_len;
     gboolean iso14443_adc;
     guint8 prot_inf_len = 0;
@@ -309,10 +312,16 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
     proto_tree_add_item(prot_inf_tree, hf_iso14443_bit_rate_cap,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    /* XXX - max_frame_size */
-    proto_tree_add_item(prot_inf_tree, hf_iso14443_min_tr2,
+    proto_tree_add_item(prot_inf_tree, hf_iso14443_max_frame_size_code,
             tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(prot_inf_tree, hf_iso14443_4_compl_atqb,
+    /* XXX - calculate max frame size and add a generated item */
+    prot_type_it = proto_tree_add_item(prot_inf_tree, hf_iso14443_prot_type,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    prot_type_tree = proto_item_add_subtree(
+            prot_type_it, ett_iso14443_prot_type);
+    proto_tree_add_item(prot_type_tree, hf_iso14443_min_tr2,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(prot_type_tree, hf_iso14443_4_compl_atqb,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* XXX - FWI */
@@ -1113,6 +1122,14 @@ proto_register_iso14443(void)
             { "Bit rate capability", "iso14443.bit_rate_cap",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
         },
+        { &hf_iso14443_max_frame_size_code,
+            { "Max frame size code", "iso14443.max_frame_size_code",
+                FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }
+        },
+        { &hf_iso14443_prot_type,
+            { "Protocol type", "iso14443.protocol_type",
+                FT_UINT8, BASE_HEX, NULL, 0x0F, NULL, HFILL }
+        },
         { &hf_iso14443_min_tr2,
             { "Minimum TR2", "iso14443.min_tr2",
                 FT_UINT8, BASE_HEX, NULL, 0x06, NULL, HFILL }
@@ -1285,6 +1302,7 @@ proto_register_iso14443(void)
         &ett_iso14443_msg,
         &ett_iso14443_app_data,
         &ett_iso14443_prot_inf,
+        &ett_iso14443_prot_type,
         &ett_iso14443_pcb,
         &ett_iso14443_inf
     };
