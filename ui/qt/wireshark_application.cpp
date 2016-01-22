@@ -1080,6 +1080,10 @@ void WiresharkApplication::loadLanguage(const QString& newLanguage)
             .arg(gchar_free_to_qstring(get_persconffile_path("languages", FALSE))).arg(localeLanguage)))
         switchTranslator(wsApp->translator,
                 QString("wireshark_%1.qm").arg(localeLanguage), gchar_free_to_qstring(get_persconffile_path("languages", FALSE)));
+    if (QFile::exists(QString("%1/qt_%2.qm")
+            .arg(get_datafile_dir()).arg(localeLanguage)))
+        switchTranslator(wsApp->translatorQt,
+                QString("qt_%1.qm").arg(localeLanguage), QString(get_datafile_dir()));
     switchTranslator(wsApp->translatorQt,
             QString("qt_%1.qm").arg(localeLanguage),
             QLibraryInfo::location(QLibraryInfo::TranslationsPath));
