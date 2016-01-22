@@ -5154,17 +5154,17 @@ isakmp_equal_func(gconstpointer ic1, gconstpointer ic2) {
 static guint ikev2_key_hash_func(gconstpointer k) {
   const ikev2_uat_data_key_t *key = (const ikev2_uat_data_key_t*)k;
   guint hash, *key_segs;
-  gsize key_segcount, i;
+  size_t key_segcount, i;
 
   hash = 0;
 
   /* XOR our icookie down to the size of a guint */
-  key_segcount = (gsize)(key->spii_len) / sizeof(guint);
+  key_segcount = ((size_t)key->spii_len) / sizeof(guint);
   key_segs = (guint *)key->spii;
   for (i = 0; i < key_segcount; i++) {
     hash ^= key_segs[i];
   }
-  key_segcount = (gsize)(key->spir_len) / sizeof(guint);
+  key_segcount = ((size_t)key->spir_len) / sizeof(guint);
   key_segs = (guint *)key->spir;
   for (i = 0; i < key_segcount; i++) {
     hash ^= key_segs[i];
