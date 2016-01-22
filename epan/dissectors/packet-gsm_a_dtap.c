@@ -2236,14 +2236,13 @@ const value_string gsm_a_dtap_screening_ind_values[] = {
 };
 
 static guint16
-de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, int header_field, gboolean *address_extracted)
+de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, int header_field, const gchar **extracted_address)
 {
     guint8      extension;
     guint32     curr_offset, num_string_len;
     proto_item *item;
-    const char *digit_str;
 
-    *address_extracted = FALSE;
+    *extracted_address = NULL;
     curr_offset = offset;
 
     extension = tvb_get_guint8(tvb, curr_offset) & 0x80;
@@ -2264,13 +2263,12 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     NO_MORE_DATA_CHECK(len);
 
     num_string_len = len - (curr_offset - offset);
-    *address_extracted = TRUE;
 
-    digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, num_string_len, &Dgt_mbcd, FALSE);
-    item = proto_tree_add_string(tree, header_field, tvb, curr_offset, num_string_len, digit_str);
+    *extracted_address = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, num_string_len, &Dgt_mbcd, FALSE);
+    item = proto_tree_add_string(tree, header_field, tvb, curr_offset, num_string_len, *extracted_address);
 
     /* Check for an end mark, which gets mapped to '?' */
-    if(strchr(digit_str,'?')){
+    if(strchr(*extracted_address,'?')){
         expert_add_info(pinfo, item, &ei_gsm_a_dtap_end_mark_unexpected);
     }
 
@@ -2362,17 +2360,17 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
 guint16
 de_cld_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    gboolean addr_extr;
+    const gchar *extr_addr;
 
-    de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_cld_party_bcd_num, &addr_extr);
+    de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_cld_party_bcd_num, &extr_addr);
 
-    if (addr_extr) {
+    if (extr_addr) {
         if (sccp_assoc && ! sccp_assoc->called_party) {
-            sccp_assoc->called_party = wmem_strdup(wmem_file_scope(), a_bigbuf);
+            sccp_assoc->called_party = wmem_strdup(wmem_file_scope(), extr_addr);
         }
 
         if (add_string)
-            g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
+            g_snprintf(add_string, string_len, " - (%s)", extr_addr);
     }
 
     return (len);
@@ -2400,12 +2398,12 @@ de_cld_party_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 static guint16
 de_clg_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    gboolean addr_extr;
+    const gchar *extr_addr;
 
-    de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_clg_party_bcd_num, &addr_extr);
+    de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_clg_party_bcd_num, &extr_addr);
 
-    if (addr_extr && add_string)
-        g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
+    if (extr_addr && add_string)
+        g_snprintf(add_string, string_len, " - (%s)", extr_addr);
 
     return (len);
 }
@@ -2610,12 +2608,12 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset
 static guint16
 de_conn_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    gboolean addr_extr;
+    const gchar *extr_addr;
 
-    de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_conn_num, &addr_extr);
+    de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_conn_num, &extr_addr);
 
-    if (addr_extr && add_string)
-        g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
+    if (extr_addr && add_string)
+        g_snprintf(add_string, string_len, " - (%s)", extr_addr);
 
     return (len);
 }
@@ -2863,12 +2861,12 @@ de_recall_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 static guint16
 de_red_party_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
-    gboolean    addr_extr;
+    const gchar *extr_addr;
 
-    de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_red_party_bcd_num, &addr_extr);
+    de_bcd_num(tvb, tree, pinfo, offset, len, hf_gsm_a_dtap_red_party_bcd_num, &extr_addr);
 
-    if (addr_extr && add_string)
-        g_snprintf(add_string, string_len, " - (%s)", a_bigbuf);
+    if (extr_addr && add_string)
+        g_snprintf(add_string, string_len, " - (%s)", extr_addr);
 
     return (len);
 }
