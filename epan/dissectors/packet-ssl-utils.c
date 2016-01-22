@@ -2645,9 +2645,9 @@ ssl_decompress_record(SslDecompress* decomp, const guchar* in, guint inl, String
 #ifdef z_const
             decomp->istream.next_in = in;
 #else
-DIAG_OFF(Wcast-qual)
+DIAG_OFF(cast-qual)
             decomp->istream.next_in = (Bytef *)in;
-DIAG_ON(Wcast-qual)
+DIAG_ON(cast-qual)
 #endif
             decomp->istream.avail_in = inl;
             decomp->istream.next_out = out_str->data;
