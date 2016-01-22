@@ -5153,7 +5153,8 @@ isakmp_equal_func(gconstpointer ic1, gconstpointer ic2) {
 
 static guint ikev2_key_hash_func(gconstpointer k) {
   const ikev2_uat_data_key_t *key = (const ikev2_uat_data_key_t*)k;
-  guint hash, *key_segs, key_segcount, i;
+  guint hash, *key_segs;
+  gsize key_segcount, i;
 
   hash = 0;
 
