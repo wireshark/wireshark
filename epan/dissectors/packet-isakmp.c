@@ -5158,13 +5158,20 @@ static guint ikev2_key_hash_func(gconstpointer k) {
 
   hash = 0;
 
-  /* XOR our icookie down to the size of a guint */
-  key_segcount = ((size_t)key->spii_len) / sizeof(guint);
+  /*
+   * XOR our icookie down to the size of a guint.
+   *
+   * The cast to guint suppresses a warning 64-bit-to-32-bit narrowing
+   * from some buggy C compilers (I'm looking at *you*,
+   * i686-apple-darwin11-llvm-gcc-4.2 (GCC) 4.2.1
+   * (Based on Apple Inc. build 5658) (LLVM build 2336.11.00).)
+   */
+  key_segcount = key->spii_len / (guint)sizeof(guint);
   key_segs = (guint *)key->spii;
   for (i = 0; i < key_segcount; i++) {
     hash ^= key_segs[i];
   }
-  key_segcount = ((size_t)key->spir_len) / sizeof(guint);
+  key_segcount = key->spir_len / (guint)sizeof(guint);
   key_segs = (guint *)key->spir;
   for (i = 0; i < key_segcount; i++) {
     hash ^= key_segs[i];
