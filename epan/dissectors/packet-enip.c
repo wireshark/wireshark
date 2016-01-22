@@ -78,6 +78,7 @@ void proto_reg_handoff_enip(void);
 #define INVALID_SESSION       0x0064
 #define INVALID_LENGTH        0x0065
 #define UNSUPPORTED_PROT_REV  0x0069
+#define ENCAP_HEADER_ERROR    0x006A
 
 /* EtherNet/IP Common Data Format Type IDs */
 #define CDF_NULL              0x0000
@@ -89,6 +90,7 @@ void proto_reg_handoff_enip(void);
 #define SOCK_ADR_INFO_OT      0x8000
 #define SOCK_ADR_INFO_TO      0x8001
 #define SEQ_ADDRESS           0x8002
+#define UNCONNECTED_MSG_DTLS  0x8003
 
 /* Decoded I/O traffic enumeration */
 #define ENIP_IO_OFF           0
@@ -148,6 +150,10 @@ static int hf_enip_cpf_cdi_32bitheader_run_idle = -1;
 static int hf_enip_cpf_cai_connid = -1;
 static int hf_enip_cpf_sai_connid = -1;
 static int hf_enip_cpf_sai_seqnum = -1;
+static int hf_enip_cpf_ucmm_request = -1;
+static int hf_enip_cpf_ucmm_msg_type = -1;
+static int hf_enip_cpf_ucmm_trans_id = -1;
+static int hf_enip_cpf_ucmm_status = -1;
 
 static int hf_enip_cpf_data = -1;
 
@@ -464,6 +470,7 @@ static const value_string encap_status_vals[] = {
    { INVALID_SESSION,      "Invalid Session Handle"        },
    { INVALID_LENGTH,       "Invalid Length"                },
    { UNSUPPORTED_PROT_REV, "Unsupported Protocol Revision" },
+   { ENCAP_HEADER_ERROR,   "Encapsulated CIP service not allowed on this port" },
 
    { 0,                    NULL }
 };
@@ -479,8 +486,16 @@ static const value_string cdf_type_vals[] = {
    { SOCK_ADR_INFO_OT,     "Socket Address Info O->T" },
    { SOCK_ADR_INFO_TO,     "Socket Address Info T->O" },
    { SEQ_ADDRESS,          "Sequenced Address Item"   },
+   { UNCONNECTED_MSG_DTLS, "Unconnected Message over UDP"   },
 
    { 0,                    NULL }
+};
+
+static const value_string unconn_msg_type_vals[] = {
+   { 0, "Reserved" },
+   { 1, "UCMM_NOACK" },
+
+   { 0, NULL }
 };
 
 /* Translate function to string - Run/Idle */
@@ -2229,6 +2244,9 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
    gboolean               FwdOpenReply = FALSE;
    enum enip_connid_type  connid_type  = ECIDT_UNKNOWN;
    cip_safety_info_t*     cip_safety;
+   guint32                trans_id, ucmm_request;
+   conversation_t        *conversation;
+
 
    /* Create item count tree */
    item_count = tvb_get_letohs( tvb, offset );
@@ -2269,6 +2287,42 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                col_append_fstr(pinfo->cinfo, COL_INFO, ", CONID: 0x%08X", tvb_get_letohl( tvb, offset+6 ) );
                break;
 
+            case UNCONNECTED_MSG_DTLS:
+               ifacehndl = ENIP_CIP_INTERFACE;
+
+               proto_tree_add_item_ret_uint(item_tree, hf_enip_cpf_ucmm_request, tvb, offset+6, 2, ENC_LITTLE_ENDIAN, &ucmm_request );
+               proto_tree_add_item(item_tree, hf_enip_cpf_ucmm_msg_type, tvb, offset+6, 2, ENC_LITTLE_ENDIAN );
+               proto_tree_add_item_ret_uint(item_tree, hf_enip_cpf_ucmm_trans_id, tvb, offset+8, 4, ENC_LITTLE_ENDIAN, &trans_id );
+               proto_tree_add_item(item_tree, hf_enip_cpf_ucmm_status, tvb, offset+12, 4, ENC_LITTLE_ENDIAN );
+               offset += 10;
+               item_length -= 10;
+
+               if ( request_key == NULL)
+               {
+                   /*
+                    * Under normal circumstances request_key should always be NULL here
+                    * Duplicating setting up a request (like is done with explicit messaging)
+                    */
+                   conversation = find_or_create_conversation(pinfo);
+
+                   /*
+                    * Attach that information to the conversation, and add
+                    * it to the list of information structures later before dissection.
+                    */
+                   request_key = wmem_new0(wmem_packet_scope(), enip_request_key_t);
+                   request_key->requesttype    = (ucmm_request & 0x8000) ? ENIP_RESPONSE_PACKET : ENIP_REQUEST_PACKET;
+                   request_key->type           = EPDT_UNKNOWN;
+
+                   /* UCMM over UDP doesn't have a session handle, so use conversation
+                    * pointer as "unique-ish ID"
+                    */
+                   request_key->session_handle = GPOINTER_TO_UINT(conversation);
+                   request_key->sender_context = trans_id;
+                   request_key->conversation   = conversation->index;
+               }
+
+
+                /* intentionally missing break */
             case UNCONNECTED_MSG:
                request_info = NULL;
                if ( request_key )
@@ -3227,6 +3281,26 @@ proto_register_enip(void)
         { "Connection ID", "enip.cpf.cai.connid",
           FT_UINT32, BASE_HEX, NULL, 0,
           "Common Packet Format: Connection Address Item, Connection Identifier", HFILL }},
+
+      { &hf_enip_cpf_ucmm_request,
+        { "Request/Response", "enip.cpf.ucmm.request",
+          FT_UINT16, BASE_DEC, VALS(cip_sc_rr), 0x8000,
+          "Common Packet Format: UCMM Request/Response", HFILL }},
+
+      { &hf_enip_cpf_ucmm_msg_type,
+        { "Unconn Msg Type", "enip.cpf.ucmm.msg_type",
+          FT_UINT16, BASE_DEC, VALS(unconn_msg_type_vals), 0x7FFF,
+          "Common Packet Format: UCMM Transaction ID", HFILL }},
+
+      { &hf_enip_cpf_ucmm_trans_id,
+        { "Transaction ID", "enip.cpf.ucmm.trans_id",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "Common Packet Format: UCMM Transaction ID", HFILL }},
+
+      { &hf_enip_cpf_ucmm_status,
+        { "UCMM Status", "enip.cpf.ucmm.status",
+          FT_UINT32, BASE_HEX, VALS(encap_status_vals), 0,
+          "Common Packet Format: UCMM Status", HFILL }},
 
       /* Sequenced Address Type */
       { &hf_enip_cpf_sai_connid,

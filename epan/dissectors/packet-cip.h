@@ -203,6 +203,8 @@
 #define CONN_TYPE_P2P               2
 #define CONN_TYPE_RESERVED          3
 
+#define ENIP_CIP_INTERFACE          0
+
 /* Define common services */
 #define GENERIC_SC_LIST \
    { SC_GET_ATT_ALL,          "Get Attributes All" }, \

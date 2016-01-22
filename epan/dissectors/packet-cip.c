@@ -46,8 +46,6 @@
 #include "packet-cipsafety.h"
 #include "packet-mbtcp.h"
 
-#define  ENIP_CIP_INTERFACE   0
-
 void proto_register_cip(void);
 void proto_reg_handoff_cip(void);
 
