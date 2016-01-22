@@ -62,6 +62,7 @@ set(WSUTIL_FILES
 	plugins.c
 	privileges.c
 	sha1.c
+	sha2.c
 	sober128.c
 	strnatcmp.c
 	str_util.c
