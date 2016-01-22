@@ -5159,12 +5159,12 @@ static guint ikev2_key_hash_func(gconstpointer k) {
   hash = 0;
 
   /* XOR our icookie down to the size of a guint */
-  key_segcount = key->spii_len / sizeof(guint);
+  key_segcount = (gsize)(key->spii_len) / sizeof(guint);
   key_segs = (guint *)key->spii;
   for (i = 0; i < key_segcount; i++) {
     hash ^= key_segs[i];
   }
-  key_segcount = key->spir_len / sizeof(guint);
+  key_segcount = (gsize)(key->spir_len) / sizeof(guint);
   key_segs = (guint *)key->spir;
   for (i = 0; i < key_segcount; i++) {
     hash ^= key_segs[i];
