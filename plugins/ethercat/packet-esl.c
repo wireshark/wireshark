@@ -230,7 +230,7 @@ static void modify_times(tvbuff_t *tvb, gint offset, packet_info *pinfo)
         ref_time_frame.esl_ts = tvb_get_letoh64(tvb, offset+8);
         ref_time_frame.fd = pinfo->fd;
         ref_time_frame.num = pinfo->fd->num;
-        ref_time_frame.abs_ts = pinfo->fd->abs_ts;
+        ref_time_frame.abs_ts = pinfo->abs_ts;
     }
     else if ( !pinfo->fd->flags.visited )
     {
@@ -247,9 +247,9 @@ static void modify_times(tvbuff_t *tvb, gint offset, packet_info *pinfo)
         }
 
         ts.secs = ref_time_frame.abs_ts.secs+(int)secs;
-        nstime_delta(&ts_delta, &ts, &pinfo->fd->abs_ts);
+        nstime_delta(&ts_delta, &ts, &pinfo->abs_ts);
 
-        pinfo->fd->abs_ts = ts;
+        pinfo->abs_ts = ts;
         nstime_add(&pinfo->rel_ts, &ts_delta);
     }
 }

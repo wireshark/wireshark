@@ -287,7 +287,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 
     /* set start time */
     if ((io->start_time.secs == 0) && (io->start_time.nsecs == 0)) {
-        nstime_delta(&io->start_time, &pinfo->fd->abs_ts, &pinfo->rel_ts);
+        nstime_delta(&io->start_time, &pinfo->abs_ts, &pinfo->rel_ts);
     }
 
     /* For ADVANCED mode we need to keep track of some more stuff than just frame and byte counts */

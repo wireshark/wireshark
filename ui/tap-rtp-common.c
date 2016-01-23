@@ -270,7 +270,7 @@ int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		if (rtp_stream_info_cmp(&new_stream_info, tapinfo->filter_stream_fwd)==0) {
 			/* XXX - what if rtpinfo->info_all_data_present is
 			   FALSE, so that we don't *have* all the data? */
-			rtpdump_info.rec_time = nstime_to_msec(&pinfo->fd->abs_ts) -
+			rtpdump_info.rec_time = nstime_to_msec(&pinfo->abs_ts) -
 				nstime_to_msec(&tapinfo->filter_stream_fwd->start_fd->abs_ts);
 			rtpdump_info.num_samples = rtpinfo->info_data_len;
 			rtpdump_info.samples = rtpinfo->info_data;

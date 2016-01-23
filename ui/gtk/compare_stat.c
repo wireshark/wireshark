@@ -213,7 +213,7 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	fInfo->id=ci->ip_id;
 	fInfo->ip_ttl=ci->ip_ttl;
 	fInfo->dl_dst=pinfo->dl_dst;
-	fInfo->abs_ts=pinfo->fd->abs_ts;
+	fInfo->abs_ts=pinfo->abs_ts;
 	/* clean memory */
 	nstime_set_zero(&fInfo->zebra_time);
 	nstime_set_zero(&fInfo->fg->predecessor_time);

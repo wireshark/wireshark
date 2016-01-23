@@ -138,7 +138,7 @@ void RtpAudioStream::addRtpPacket(const struct _packet_info *pinfo, const struct
     }
 
     if (rtp_packets_.size() < 1) { // First packet
-        start_abs_offset_ = nstime_to_sec(&pinfo->fd->abs_ts) - start_rel_time_;
+        start_abs_offset_ = nstime_to_sec(&pinfo->abs_ts) - start_rel_time_;
         start_rel_time_ = stop_rel_time_ = nstime_to_sec(&pinfo->rel_ts);
     }
     rtp_packet->frame_num = pinfo->fd->num;

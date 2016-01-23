@@ -624,19 +624,19 @@ void LBMLBTRUSourceTransportEntry::processPacket(const packet_info * pinfo, cons
 {
     if (m_first_frame_timestamp_valid)
     {
-        if (nstime_cmp(&(pinfo->fd->abs_ts), &m_first_frame_timestamp) < 0)
+        if (nstime_cmp(&(pinfo->abs_ts), &m_first_frame_timestamp) < 0)
         {
-            nstime_copy(&(m_first_frame_timestamp), &(pinfo->fd->abs_ts));
+            nstime_copy(&(m_first_frame_timestamp), &(pinfo->abs_ts));
         }
     }
     else
     {
-        nstime_copy(&(m_first_frame_timestamp), &(pinfo->fd->abs_ts));
+        nstime_copy(&(m_first_frame_timestamp), &(pinfo->abs_ts));
         m_first_frame_timestamp_valid = true;
     }
-    if (nstime_cmp(&(pinfo->fd->abs_ts), &m_last_frame_timestamp) > 0)
+    if (nstime_cmp(&(pinfo->abs_ts), &m_last_frame_timestamp) > 0)
     {
-        nstime_copy(&(m_last_frame_timestamp), &(pinfo->fd->abs_ts));
+        nstime_copy(&(m_last_frame_timestamp), &(pinfo->abs_ts));
     }
     if (tap_info->type == LBTRU_PACKET_TYPE_DATA)
     {
@@ -873,19 +873,19 @@ void LBMLBTRUSourceEntry::processPacket(const packet_info * pinfo, const lbm_lbt
 
     if (m_first_frame_timestamp_valid)
     {
-        if (nstime_cmp(&(pinfo->fd->abs_ts), &m_first_frame_timestamp) < 0)
+        if (nstime_cmp(&(pinfo->abs_ts), &m_first_frame_timestamp) < 0)
         {
-            nstime_copy(&(m_first_frame_timestamp), &(pinfo->fd->abs_ts));
+            nstime_copy(&(m_first_frame_timestamp), &(pinfo->abs_ts));
         }
     }
     else
     {
-        nstime_copy(&(m_first_frame_timestamp), &(pinfo->fd->abs_ts));
+        nstime_copy(&(m_first_frame_timestamp), &(pinfo->abs_ts));
         m_first_frame_timestamp_valid = true;
     }
-    if (nstime_cmp(&(pinfo->fd->abs_ts), &m_last_frame_timestamp) > 0)
+    if (nstime_cmp(&(pinfo->abs_ts), &m_last_frame_timestamp) > 0)
     {
-        nstime_copy(&(m_last_frame_timestamp), &(pinfo->fd->abs_ts));
+        nstime_copy(&(m_last_frame_timestamp), &(pinfo->abs_ts));
     }
     switch (tap_info->type)
     {
@@ -1068,19 +1068,19 @@ void LBMLBTRUReceiverTransportEntry::processPacket(const packet_info * pinfo, co
 {
     if (m_first_frame_timestamp_valid)
     {
-        if (nstime_cmp(&(pinfo->fd->abs_ts), &m_first_frame_timestamp) < 0)
+        if (nstime_cmp(&(pinfo->abs_ts), &m_first_frame_timestamp) < 0)
         {
-            nstime_copy(&(m_first_frame_timestamp), &(pinfo->fd->abs_ts));
+            nstime_copy(&(m_first_frame_timestamp), &(pinfo->abs_ts));
         }
     }
     else
     {
-        nstime_copy(&(m_first_frame_timestamp), &(pinfo->fd->abs_ts));
+        nstime_copy(&(m_first_frame_timestamp), &(pinfo->abs_ts));
         m_first_frame_timestamp_valid = true;
     }
-    if (nstime_cmp(&(pinfo->fd->abs_ts), &m_last_frame_timestamp) > 0)
+    if (nstime_cmp(&(pinfo->abs_ts), &m_last_frame_timestamp) > 0)
     {
-        nstime_copy(&(m_last_frame_timestamp), &(pinfo->fd->abs_ts));
+        nstime_copy(&(m_last_frame_timestamp), &(pinfo->abs_ts));
     }
     switch (tap_info->type)
     {
@@ -1260,19 +1260,19 @@ void LBMLBTRUReceiverEntry::processPacket(const packet_info * pinfo, const lbm_l
 
     if (m_first_frame_timestamp_valid)
     {
-        if (nstime_cmp(&(pinfo->fd->abs_ts), &m_first_frame_timestamp) < 0)
+        if (nstime_cmp(&(pinfo->abs_ts), &m_first_frame_timestamp) < 0)
         {
-            nstime_copy(&(m_first_frame_timestamp), &(pinfo->fd->abs_ts));
+            nstime_copy(&(m_first_frame_timestamp), &(pinfo->abs_ts));
         }
     }
     else
     {
-        nstime_copy(&(m_first_frame_timestamp), &(pinfo->fd->abs_ts));
+        nstime_copy(&(m_first_frame_timestamp), &(pinfo->abs_ts));
         m_first_frame_timestamp_valid = true;
     }
-    if (nstime_cmp(&(pinfo->fd->abs_ts), &m_last_frame_timestamp) > 0)
+    if (nstime_cmp(&(pinfo->abs_ts), &m_last_frame_timestamp) > 0)
     {
-        nstime_copy(&(m_last_frame_timestamp), &(pinfo->fd->abs_ts));
+        nstime_copy(&(m_last_frame_timestamp), &(pinfo->abs_ts));
     }
     switch (tap_info->type)
     {

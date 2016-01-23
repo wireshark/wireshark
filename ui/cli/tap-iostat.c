@@ -116,7 +116,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
     }
 
     if (mit->parent->start_time == 0) {
-        mit->parent->start_time = pinfo->fd->abs_ts.secs - pinfo->rel_ts.secs;
+        mit->parent->start_time = pinfo->abs_ts.secs - pinfo->rel_ts.secs;
     }
 
     /* The prev item is always the last interval in which we saw packets. */

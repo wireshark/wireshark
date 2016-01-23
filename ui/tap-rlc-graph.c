@@ -201,8 +201,8 @@ int rlc_lte_tap_for_graph_data(void *pct, packet_info *pinfo, epan_dissect_t *ed
         segment->num = pinfo->fd->num;
         segment->rel_secs = (guint32) pinfo->rel_ts.secs;
         segment->rel_usecs = pinfo->rel_ts.nsecs/1000;
-        segment->abs_secs = (guint32) pinfo->fd->abs_ts.secs;
-        segment->abs_usecs = pinfo->fd->abs_ts.nsecs/1000;
+        segment->abs_secs = (guint32) pinfo->abs_ts.secs;
+        segment->abs_usecs = pinfo->abs_ts.nsecs/1000;
 
         segment->ueid = rlchdr->ueid;
         segment->channelType = rlchdr->channelType;

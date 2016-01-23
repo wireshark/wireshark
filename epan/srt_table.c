@@ -298,7 +298,7 @@ add_srt_table_data(srt_stat_table *rst, int indx, const nstime_t *req_time, pack
     rp=&rst->procedures[indx];
 
     /* calculate time delta between request and reply */
-    t=pinfo->fd->abs_ts;
+    t=pinfo->abs_ts;
     nstime_delta(&delta, &t, req_time);
 
     time_stat_update(&rp->stats, &delta, pinfo);

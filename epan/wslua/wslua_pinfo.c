@@ -227,7 +227,7 @@ PINFO_NAMED_NUMBER_GETTER(len,fd->pkt_len);
 PINFO_NAMED_NUMBER_GETTER(caplen,fd->cap_len);
 
 /* WSLUA_ATTRIBUTE Pinfo_abs_ts RO When the packet was captured. */
-WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,abs_ts,lua_nstime_to_sec(&obj->ws_pinfo->fd->abs_ts));
+WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,abs_ts,lua_nstime_to_sec(&obj->ws_pinfo->abs_ts));
 
 /* WSLUA_ATTRIBUTE Pinfo_rel_ts RO Number of seconds passed since beginning of capture. */
 WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,rel_ts,lua_nstime_to_sec(&obj->ws_pinfo->rel_ts));

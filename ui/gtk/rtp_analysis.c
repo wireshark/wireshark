@@ -567,8 +567,8 @@ rtp_packet_add_info(GtkWidget *list, user_data_t * user_data,
 	gchar	   status[80];
 	gchar	   color_str[14];
 
-	then = pinfo->fd->abs_ts.secs;
-	msecs = (guint16)(pinfo->fd->abs_ts.nsecs/1000000);
+	then = pinfo->abs_ts.secs;
+	msecs = (guint16)(pinfo->abs_ts.nsecs/1000000);
 	tm_tmp = localtime(&then);
 	g_snprintf(timeStr, sizeof(timeStr), "%02d/%02d/%04d %02d:%02d:%02d.%03d",
 		tm_tmp->tm_mon + 1,

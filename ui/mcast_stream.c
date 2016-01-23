@@ -199,7 +199,7 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
         tmp_strinfo.npackets = 0;
         tmp_strinfo.apackets = 0;
         tmp_strinfo.first_frame_num = pinfo->fd->num;
-        tmp_strinfo.start_abs = pinfo->fd->abs_ts;
+        tmp_strinfo.start_abs = pinfo->abs_ts;
         tmp_strinfo.start_rel = pinfo->rel_ts;
         tmp_strinfo.vlan_id = 0;
 

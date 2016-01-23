@@ -157,7 +157,7 @@ diameteravp_packet(void *pds, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	ans_frame = dp->ans_frame;
 	if (!is_request) {
 		nstime_t ns;
-		nstime_delta(&ns, &pinfo->fd->abs_ts, &dp->req_time);
+		nstime_delta(&ns, &pinfo->abs_ts, &dp->req_time);
 		resp_time = nstime_to_sec(&ns);
 		resp_time = resp_time < 0. ? 0. : resp_time;
 	}
@@ -187,7 +187,7 @@ diameteravp_packet(void *pds, packet_info *pinfo, epan_dissect_t *edt _U_, const
 				}
 				/* Output frame data.*/
 				printf("frame='%u' time='%f' src='%s' srcport='%u' dst='%s' dstport='%u' proto='diameter' msgnr='%u' is_request='%d' cmd='%u' req_frame='%u' ans_frame='%u' resp_time='%f' ",
-				       pinfo->fd->num, nstime_to_sec(&pinfo->fd->abs_ts), address_to_str(pinfo->pool, &pinfo->src), pinfo->srcport, address_to_str(pinfo->pool, &pinfo->dst), pinfo->destport, ds->diammsg_toprocess, is_request, cmd_code, req_frame, ans_frame, resp_time);
+				       pinfo->fd->num, nstime_to_sec(&pinfo->abs_ts), address_to_str(pinfo->pool, &pinfo->src), pinfo->srcport, address_to_str(pinfo->pool, &pinfo->dst), pinfo->destport, ds->diammsg_toprocess, is_request, cmd_code, req_frame, ans_frame, resp_time);
 				/* Visit selected nodes of one diameter message.*/
 				tree_traverse_pre_order(current, diam_tree_to_csv, &ds);
 				/* End of message.*/

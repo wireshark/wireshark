@@ -4204,7 +4204,7 @@ prot_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt 
 {
     voip_calls_tapinfo_t *tapinfo = tap_id_to_base(tap_offset_ptr, tap_id_offset_prot_);
     if (callsinfo!=NULL) {
-        callsinfo->stop_abs = pinfo->fd->abs_ts;
+        callsinfo->stop_abs = pinfo->abs_ts;
         callsinfo->stop_rel = pinfo->rel_ts;
         callsinfo->last_frame_num=pinfo->fd->num;
         ++(callsinfo->npackets);

@@ -2255,7 +2255,7 @@ gboolean IOGraph::tapPacket(void *iog_ptr, packet_info *pinfo, epan_dissect_t *e
     if (iog->start_time_ == 0.0) {
         nstime_t start_nstime;
         nstime_set_zero(&start_nstime);
-        nstime_delta(&start_nstime, &pinfo->fd->abs_ts, &pinfo->rel_ts);
+        nstime_delta(&start_nstime, &pinfo->abs_ts, &pinfo->rel_ts);
         iog->start_time_ = nstime_to_sec(&start_nstime);
     }
 

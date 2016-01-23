@@ -61,8 +61,8 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
         tvb_memcpy(exp_pdu_data->pdu_tvb, packet_buf+exp_pdu_data->tlv_buffer_len, 0, exp_pdu_data->tvb_captured_length);
     }
     pkthdr.rec_type  = REC_TYPE_PACKET;
-    pkthdr.ts.secs   = pinfo->fd->abs_ts.secs;
-    pkthdr.ts.nsecs  = pinfo->fd->abs_ts.nsecs;
+    pkthdr.ts.secs   = pinfo->abs_ts.secs;
+    pkthdr.ts.nsecs  = pinfo->abs_ts.nsecs;
     pkthdr.caplen    = buffer_len;
     pkthdr.len       = exp_pdu_data->tvb_reported_length + exp_pdu_data->tlv_buffer_len;
 
