@@ -56,7 +56,7 @@ InterfaceTree::InterfaceTree(QWidget *parent) :
 {
     QTreeWidgetItem *ti;
 
-    qRegisterMetaType< PointList >( "PointList" );
+    qRegisterMetaType< PointList >("PointList");
 
     header()->setVisible(false);
     setRootIsDecorated(false);
@@ -191,19 +191,17 @@ void InterfaceTree::display()
         ti->setData(IFTREE_COL_NAME, Qt::UserRole, QString(device.name));
         ti->setData(IFTREE_COL_STATS, Qt::UserRole, qVariantFromValue(&ti->points));
 #if HAVE_EXTCAP
-        if ( device.if_info.type == IF_EXTCAP )
-        {
-            if ( extcap_has_configuration((const char *)(device.name), FALSE) )
-            {
+        if (device.if_info.type == IF_EXTCAP) {
+            if (extcap_has_configuration((const char *)(device.name), FALSE)) {
                 ti->setIcon(IFTREE_COL_EXTCAP, extcap_icon);
                 ti->setData(IFTREE_COL_EXTCAP, Qt::UserRole, QString(device.if_info.extcap));
 
-                if ( !(device.external_cap_args_settings != 0 &&
-                        g_hash_table_size(device.external_cap_args_settings ) > 0) )
+                if (!(device.external_cap_args_settings != 0 &&
+                      g_hash_table_size(device.external_cap_args_settings) > 0))
                 {
                     QFont ti_font = ti->font(IFTREE_COL_NAME);
                     ti_font.setItalic(true);
-                    ti->setFont(IFTREE_COL_NAME, ti_font );
+                    ti->setFont(IFTREE_COL_NAME, ti_font);
                 }
             }
             virt_ifaces << ti;

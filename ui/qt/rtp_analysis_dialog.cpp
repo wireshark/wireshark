@@ -743,13 +743,15 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
     /* Save the voice information */
 
     /* If there was already an error, we quit */
-    if (!tmpfile->isOpen() || tmpfile->error() != QFile::NoError) return;
+    if (!tmpfile->isOpen() || tmpfile->error() != QFile::NoError)
+        return;
 
     /* Quit if the captured length and packet length aren't equal or
      * if the RTP dissector thinks there is some information missing
      */
-    if ((pinfo->fd->pkt_len != pinfo->fd->cap_len)
-        && (!rtpinfo->info_all_data_present)) {
+    if ((pinfo->fd->pkt_len != pinfo->fd->cap_len) &&
+        (!rtpinfo->info_all_data_present))
+    {
         tmpfile->close();
         err_str_ = tr("Can't save in a file: Wrong length of captured packets.");
         return;
@@ -758,18 +760,20 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
     /* If padding bit is set but the padding count is bigger
      * then the whole RTP data - error with padding count
      */
-    if ( (rtpinfo->info_padding_set != FALSE)
-         && (rtpinfo->info_padding_count > rtpinfo->info_payload_len) ) {
+    if ((rtpinfo->info_padding_set != FALSE) &&
+        (rtpinfo->info_padding_count > rtpinfo->info_payload_len))
+    {
         tmpfile->close();
         err_str_ = tr("Can't save in a file: RTP data with padding.");
         return;
     }
 
     /* Do we need to insert some silence? */
-    if ((rtpinfo->info_marker_set)
-        && ! (statinfo->flags & STAT_FLAG_FIRST)
-        && ! (statinfo->flags & STAT_FLAG_WRONG_TIMESTAMP)
-        && (statinfo->delta_timestamp > (rtpinfo->info_payload_len - rtpinfo->info_padding_count)) )  {
+    if ((rtpinfo->info_marker_set) &&
+        !(statinfo->flags & STAT_FLAG_FIRST) &&
+        !(statinfo->flags & STAT_FLAG_WRONG_TIMESTAMP) &&
+        (statinfo->delta_timestamp > (rtpinfo->info_payload_len - rtpinfo->info_padding_count)))
+    {
         /* the amount of silence should be the difference between
         * the last timestamp and the current one minus x
         * x should equal the amount of information in the last frame
@@ -803,8 +807,8 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
     }
 
 
-    if ((rtpinfo->info_payload_type == PT_CN)
-        || (rtpinfo->info_payload_type == PT_CN_OLD)) {
+    if ((rtpinfo->info_payload_type == PT_CN) ||
+        (rtpinfo->info_payload_type == PT_CN_OLD)) {
     } else { /* All other payloads */
         const char *data;
         size_t nchars;

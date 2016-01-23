@@ -100,7 +100,7 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
     gchar* fname = uat_get_actual_filename(uat,TRUE);
     bool init = false;
 
-    if (!fname ) {
+    if (!fname) {
         init = true;
     } else {
         fp = ws_fopen(fname,"r");
@@ -192,7 +192,7 @@ void SCTPChunkStatisticsDialog::fillTable(bool all)
         fclose(fp);
 }
 
-void SCTPChunkStatisticsDialog::contextMenuEvent( QContextMenuEvent * event)
+void SCTPChunkStatisticsDialog::contextMenuEvent(QContextMenuEvent * event)
 {
     selected_point = event->pos();
     QTableWidgetItem *item = ui->tableWidget->itemAt(selected_point.x(), selected_point.y()-60);
@@ -213,7 +213,7 @@ void SCTPChunkStatisticsDialog::on_pushButton_clicked()
 
     gchar* fname = uat_get_actual_filename(uat,TRUE);
 
-    if (!fname ) {
+    if (!fname) {
         return;
     }
     fp = ws_fopen(fname,"w");

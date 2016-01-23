@@ -102,12 +102,12 @@ void SCTPGraphDialog::drawNRSACKGraph()
                 tsnumber = g_ntohl(nr_sack_header->cum_tsn_ack);
                 total_gaps = numberOf_gaps + numberOf_nr_gaps;
                 /* If the number of nr_gaps is greater than 0 */
-                if ( total_gaps > 0 ) {
+                if (total_gaps > 0) {
                     nr_gap = &nr_sack_header->gaps[0];
                     for (i = 0; i < total_gaps; i++) {
                         gap_start = g_ntohs(nr_gap->start);
                         gap_end = g_ntohs(nr_gap->end);
-                        for ( j = gap_start; j <= gap_end; j++) {
+                        for (j = gap_start; j <= gap_end; j++) {
                             if (i >= numberOf_gaps) {
                                 yn.append(j + tsnumber);
                                 xn.append(sack->secs + sack->usecs/1000000.0);

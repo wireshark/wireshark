@@ -239,7 +239,7 @@ void BluetoothHciSummaryDialog::on_actionCopy_Rows_triggered()
     clipboard->setText(copy);
 }
 
-void BluetoothHciSummaryDialog::tapReset(void *tapinfo_ptr )
+void BluetoothHciSummaryDialog::tapReset(void *tapinfo_ptr)
 {
     bluetooth_hci_summary_tapinfo_t *tapinfo = (bluetooth_hci_summary_tapinfo_t *) tapinfo_ptr;
     BluetoothHciSummaryDialog  *dialog = static_cast<BluetoothHciSummaryDialog *>(tapinfo->ui);

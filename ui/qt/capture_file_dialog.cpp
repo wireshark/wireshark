@@ -791,7 +791,7 @@ void CaptureFileDialog::preview(const QString & path)
     preview_size_.setText(QString(tr("%1 bytes")).arg(wtap_file_size(wth, &err)));
 
     time(&time_preview);
-    while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
+    while ((wtap_read(wth, &err, &err_info, &data_offset))) {
         phdr = wtap_phdr(wth);
         cur_time = nstime_to_sec(&phdr->ts);
         if(packets == 0) {
@@ -830,7 +830,7 @@ void CaptureFileDialog::preview(const QString & path)
 
     // First packet
     ti_time = (long)start_time;
-    ti_tm = localtime( &ti_time );
+    ti_tm = localtime(&ti_time);
     if(ti_tm) {
         preview_first_.setText(QString().sprintf(
                  "%04d-%02d-%02d %02d:%02d:%02d",

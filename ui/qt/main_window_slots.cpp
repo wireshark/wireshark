@@ -2369,7 +2369,7 @@ void MainWindow::colorizeConversation(bool create_rule)
             if ((color_filter != NULL) && (color_filter->is_filter_valid(pi)))
                 filter = color_filter->build_filter_string(pi);
         }
-        if( filter == NULL ) {
+        if (filter == NULL) {
             main_ui_->statusBar->pushTemporaryStatus(tr("Unable to build conversation filter."));
             return;
         }
@@ -2578,8 +2578,7 @@ void MainWindow::on_actionAnalyzeCreateAColumn_triggered()
 {
     gint colnr = 0;
 
-    if ( capture_file_.capFile() != 0 && capture_file_.capFile()->finfo_selected != 0 )
-    {
+    if (capture_file_.capFile() != 0 && capture_file_.capFile()->finfo_selected != 0) {
         colnr = column_prefs_add_custom(COL_CUSTOM, capture_file_.capFile()->finfo_selected->hfinfo->name,
                     capture_file_.capFile()->finfo_selected->hfinfo->abbrev,0);
 
@@ -3430,7 +3429,7 @@ void MainWindow::goToConversationFrame(bool go_next) {
     if ((conv_filter != NULL) && (conv_filter->is_filter_valid(pi)))
         filter = conv_filter->build_filter_string(pi);
 
-    if( filter == NULL ) {
+    if (filter == NULL) {
         main_ui_->statusBar->pushTemporaryStatus(tr("Unable to build conversation filter."));
         g_free(filter);
         return;
@@ -3624,21 +3623,16 @@ void MainWindow::externalMenuItem_triggered()
     QVariant v;
     ext_menubar_t * entry = NULL;
 
-    if ( QObject::sender() != NULL)
-    {
+    if (QObject::sender()) {
         triggerAction = (QAction *)QObject::sender();
         v = triggerAction->data();
 
-        if ( v.canConvert<void *>())
-        {
+        if (v.canConvert<void *>()) {
             entry = (ext_menubar_t *)v.value<void *>();
 
-            if ( entry->type == EXT_MENUBAR_ITEM )
-            {
+            if (entry->type == EXT_MENUBAR_ITEM) {
                 entry->callback(EXT_MENUBAR_QT_GUI, (gpointer) ((void *)main_ui_), entry->user_data);
-            }
-            else
-            {
+            } else {
                 QDesktopServices::openUrl(QUrl(QString((gchar *)entry->user_data)));
             }
         }
@@ -3647,8 +3641,7 @@ void MainWindow::externalMenuItem_triggered()
 
 void MainWindow::gotoFrame(int packet_num)
 {
-    if ( packet_num > 0 )
-    {
+    if (packet_num > 0) {
         packet_list_->goToPacket(packet_num);
     }
 }
@@ -3656,8 +3649,7 @@ void MainWindow::gotoFrame(int packet_num)
 #ifdef HAVE_EXTCAP
 void MainWindow::extcap_options_finished(int result)
 {
-    if ( result == QDialog::Accepted )
-    {
+    if (result == QDialog::Accepted) {
         startCapture();
     }
     this->main_welcome_->getInterfaceTree()->interfaceListChanged();
@@ -3667,8 +3659,7 @@ void MainWindow::showExtcapOptionsDialog(QString &device_name)
 {
     ExtcapOptionsDialog * extcap_options_dialog = ExtcapOptionsDialog::createForDevice(device_name, this);
     /* The dialog returns null, if the given device name is not a valid extcap device */
-    if ( extcap_options_dialog != NULL )
-    {
+    if (extcap_options_dialog) {
         connect(extcap_options_dialog, SIGNAL(finished(int)),
                 this, SLOT(extcap_options_finished(int)));
         extcap_options_dialog->show();

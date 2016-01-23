@@ -183,8 +183,8 @@ void StatsTreeDialog::drawTreeItems(void *st_ptr)
                 (*iter)->setText(count,valstrs[count]);
                 g_free(valstrs[count]);
             }
-            (*iter)->setExpanded( (node->parent==(&st->root)) &&
-                                  (!(node->st_flags&ST_FLG_DEF_NOEXPAND)) );
+            (*iter)->setExpanded((node->parent==(&st->root)) &&
+                                 (!(node->st_flags&ST_FLG_DEF_NOEXPAND)));
             g_free(valstrs);
         }
         node_count++;

@@ -264,7 +264,7 @@ void RtpAudioStream::decode()
             RTP_STREAM_DEBUG("Packet drop by jitter buffer exceeded %f > %d", diff*1000, jitter_buffer_size_);
 
             /* if there was a silence period (more than two packetization period) resync the source */
-            if ( (rtp_time - rtp_time_prev) > pack_period*2 ){
+            if ((rtp_time - rtp_time_prev) > pack_period*2) {
                 int silence_samples;
                 RTP_STREAM_DEBUG("Resync...");
 

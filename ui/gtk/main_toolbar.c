@@ -270,13 +270,12 @@ toolbar_auto_scroll_live_changed(gboolean auto_scroll_live_lcl) {
 static void
 plugin_if_maintoolbar_goto_frame(gconstpointer user_data)
 {
-    if ( user_data != NULL )
-    {
-        GHashTable * dataSet = (GHashTable *) user_data;
+    if (user_data) {
+        GHashTable * data_set = (GHashTable *) user_data;
         gpointer framenr;
-        if ( g_hash_table_lookup_extended(dataSet, "frame_nr", NULL, &framenr ) )
-        {
-            if ( GPOINTER_TO_UINT(framenr) != 0 )
+
+        if (g_hash_table_lookup_extended(data_set, "frame_nr", NULL, &framenr)) {
+            if (GPOINTER_TO_UINT(framenr) != 0)
                 cf_goto_frame(&cfile, GPOINTER_TO_UINT(framenr));
         }
     }
@@ -286,48 +285,41 @@ plugin_if_maintoolbar_goto_frame(gconstpointer user_data)
 
 static void plugin_if_maintoolbar_get_ws_info(gconstpointer user_data)
 {
-    GHashTable * dataSet = (GHashTable *)user_data;
+    GHashTable * data_set = (GHashTable *)user_data;
     ws_info_t *ws_info = NULL;
+    capture_file *cf;
 
-    if (g_hash_table_lookup_extended(dataSet, "ws_info", NULL, (void**)&ws_info))
-    {
-        capture_file *cf = &cfile;
+    if (!g_hash_table_lookup_extended(data_set, "ws_info", NULL, (void**)&ws_info))
+        return;
 
-        if (cf->state != FILE_CLOSED)
-        {
-            ws_info->ws_info_supported = TRUE;
-            ws_info->cf_state = cf->state;
-            ws_info->cf_count = cf->count;
+    cf = &cfile;
 
-            if (ws_info->cf_filename != NULL)
-                g_free(ws_info->cf_filename);
-            ws_info->cf_filename = g_strdup(cf->filename);
+    if (cf->state != FILE_CLOSED) {
+        ws_info->ws_info_supported = TRUE;
+        ws_info->cf_state = cf->state;
+        ws_info->cf_count = cf->count;
 
-            if (cf->state == FILE_READ_DONE)
-            {
-                ws_info->cf_framenr = (cf->current_frame)->num;
-                ws_info->frame_passed_dfilter = ((cf->current_frame)->flags.passed_dfilter) == 0 ? FALSE : TRUE;
-            }
-            else
-            {
-                ws_info->cf_framenr = 0;
-                ws_info->frame_passed_dfilter = FALSE;
-            }
-        }
-        else if (ws_info->cf_state != FILE_CLOSED)
-        {
-            /* Initialise the ws_info structure */
-            ws_info->ws_info_supported = TRUE;
-            ws_info->cf_count = 0;
+        g_free(ws_info->cf_filename);
+        ws_info->cf_filename = g_strdup(cf->filename);
 
-            if (ws_info->cf_filename != NULL)
-                g_free(ws_info->cf_filename);
-            ws_info->cf_filename = NULL;
-
+        if (cf->state == FILE_READ_DONE) {
+            ws_info->cf_framenr = cf->current_frame->num;
+            ws_info->frame_passed_dfilter = (cf->current_frame->flags.passed_dfilter == 1);
+        } else {
             ws_info->cf_framenr = 0;
             ws_info->frame_passed_dfilter = FALSE;
-            ws_info->cf_state = FILE_CLOSED;
         }
+    } else if (ws_info->cf_state != FILE_CLOSED) {
+        /* Initialise the ws_info structure */
+        ws_info->ws_info_supported = TRUE;
+        ws_info->cf_count = 0;
+
+        g_free(ws_info->cf_filename);
+        ws_info->cf_filename = NULL;
+
+        ws_info->cf_framenr = 0;
+        ws_info->frame_passed_dfilter = FALSE;
+        ws_info->cf_state = FILE_CLOSED;
     }
 }
 

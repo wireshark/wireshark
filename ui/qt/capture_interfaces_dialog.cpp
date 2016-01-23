@@ -931,7 +931,7 @@ InterfaceTreeDelegate::~InterfaceTreeDelegate()
 }
 
 
-QWidget* InterfaceTreeDelegate::createEditor( QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &index ) const
+QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &index) const
 {
     QWidget *w = NULL;
 #ifdef SHOW_BUFFER_COLUMN
@@ -1040,7 +1040,7 @@ bool InterfaceTreeDelegate::eventFilter(QObject *object, QEvent *event)
             return true;
         }
     } else {
-        return QStyledItemDelegate::eventFilter( object, event );
+        return QStyledItemDelegate::eventFilter(object, event);
     }
     return false;
 }

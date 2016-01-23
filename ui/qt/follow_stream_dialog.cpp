@@ -145,7 +145,7 @@ void FollowStreamDialog::printStream()
 #ifndef QT_NO_PRINTER
     QPrinter printer(QPrinter::HighResolution);
     QPrintDialog dialog(&printer, this);
-    if ( dialog.exec() == QDialog::Accepted)
+    if (dialog.exec() == QDialog::Accepted)
         ui->teStreamContent->print(&printer);
 #endif
 }
@@ -239,7 +239,7 @@ void FollowStreamDialog::saveAs()
     QString file_name = QFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Stream Content As" UTF8_HORIZONTAL_ELLIPSIS)));
     if (!file_name.isEmpty()) {
         file_.setFileName(file_name);
-        file_.open( QIODevice::WriteOnly );
+        file_.open(QIODevice::WriteOnly);
         QTextStream out(&file_);
 
         save_as_ = true;
@@ -640,7 +640,7 @@ FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_ser
             for (i = 0; i < 16 && current_pos + i < nchars; i++) {
                 *cur++ =
                         (g_ascii_isprint((guchar)buffer[current_pos + i]) ?
-                            buffer[current_pos + i] : '.' );
+                            buffer[current_pos + i] : '.');
                 if (i == 7) {
                     *cur++ = ' ';
                 }

@@ -218,7 +218,7 @@ void ByteViewText::resizeEvent(QResizeEvent *)
 }
 
 void ByteViewText::mousePressEvent (QMouseEvent *event) {
-    if (!tvb_ || !event || event->button() != Qt::LeftButton ) {
+    if (!tvb_ || !event || event->button() != Qt::LeftButton) {
         return;
     }
 

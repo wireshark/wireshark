@@ -89,51 +89,49 @@ void pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *chil
 
 static void plugin_if_mainwindow_apply_filter(gconstpointer user_data)
 {
-    if ( gbl_cur_main_window_ != NULL && user_data != NULL )
-    {
-        GHashTable * dataSet = (GHashTable *) user_data;
+    if (!gbl_cur_main_window_ || !user_data)
+        return;
 
-        if ( g_hash_table_lookup_extended(dataSet, "filter_string", NULL, NULL ) )
-        {
-            QString filter((const char *)g_hash_table_lookup(dataSet, "filter_string"));
-            gbl_cur_main_window_->filterPackets(filter);
-        }
+    GHashTable * data_set = (GHashTable *) user_data;
+
+    if (g_hash_table_lookup_extended(data_set, "filter_string", NULL, NULL)) {
+        QString filter((const char *)g_hash_table_lookup(data_set, "filter_string"));
+        gbl_cur_main_window_->filterPackets(filter);
     }
 }
 
 static void plugin_if_mainwindow_preference(gconstpointer user_data)
 {
-    if ( gbl_cur_main_window_ != NULL && user_data != NULL )
+    if (!gbl_cur_main_window_ || !user_data)
+        return;
+
+    GHashTable * data_set = (GHashTable *) user_data;
+    const char * module_name;
+    const char * pref_name;
+    const char * pref_value;
+
+    if (g_hash_table_lookup_extended(data_set, "pref_module", NULL, (void**)&module_name) &&
+        g_hash_table_lookup_extended(data_set, "pref_key", NULL, (void**)&pref_name) &&
+        g_hash_table_lookup_extended(data_set, "pref_value", NULL, (void**)&pref_value))
     {
-        GHashTable * dataSet = (GHashTable *) user_data;
-        const char * module_name;
-        const char * pref_name;
-        const char * pref_value;
-        if ( g_hash_table_lookup_extended(dataSet, "pref_module", NULL, (void**)&module_name ) &&
-                g_hash_table_lookup_extended(dataSet, "pref_key", NULL, (void**)&pref_name ) &&
-                g_hash_table_lookup_extended(dataSet, "pref_value", NULL, (void**)&pref_value ) )
-        {
-            if ( prefs_store_ext(module_name, pref_name, pref_value) )
-            {
-                wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
-                wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
-            }
+        if (prefs_store_ext(module_name, pref_name, pref_value)) {
+            wsApp->emitAppSignal(WiresharkApplication::PacketDissectionChanged);
+            wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
         }
     }
 }
 
 static void plugin_if_mainwindow_gotoframe(gconstpointer user_data)
 {
-    if ( gbl_cur_main_window_ != NULL && user_data != NULL )
-    {
-        GHashTable * dataSet = (GHashTable *) user_data;
-        gpointer framenr;
+    if (!gbl_cur_main_window_ || !user_data)
+        return;
 
-        if ( g_hash_table_lookup_extended(dataSet, "frame_nr", NULL, &framenr ) )
-        {
-            if ( GPOINTER_TO_UINT(framenr) != 0 )
-                gbl_cur_main_window_->gotoFrame(GPOINTER_TO_UINT(framenr));
-        }
+    GHashTable * data_set = (GHashTable *) user_data;
+    gpointer framenr;
+
+    if (g_hash_table_lookup_extended(data_set, "frame_nr", NULL, &framenr)) {
+        if (GPOINTER_TO_UINT(framenr) != 0)
+            gbl_cur_main_window_->gotoFrame(GPOINTER_TO_UINT(framenr));
     }
 }
 
@@ -141,52 +139,44 @@ static void plugin_if_mainwindow_gotoframe(gconstpointer user_data)
 
 static void plugin_if_mainwindow_get_ws_info(gconstpointer user_data)
 {
-    if (gbl_cur_main_window_ != NULL && user_data != NULL)
-    {
-        GHashTable * dataSet = (GHashTable *)user_data;
-        ws_info_t *ws_info = NULL;
+    if (!gbl_cur_main_window_ || !user_data)
+        return;
 
-        if (g_hash_table_lookup_extended(dataSet, "ws_info", NULL, (void**)&ws_info))
-        {
-            CaptureFile *cfWrap = gbl_cur_main_window_->captureFile();
-            capture_file *cf = cfWrap->capFile();
+    GHashTable * data_set = (GHashTable *)user_data;
+    ws_info_t *ws_info = NULL;
 
-            ws_info->ws_info_supported = true;
+    if (!g_hash_table_lookup_extended(data_set, "ws_info", NULL, (void**)&ws_info))
+        return;
 
-            if (cf != NULL)
-            {
-                ws_info->cf_state = cf->state;
-                ws_info->cf_count = cf->count;
+    CaptureFile *cfWrap = gbl_cur_main_window_->captureFile();
+    capture_file *cf = cfWrap->capFile();
 
-                if (ws_info->cf_filename != NULL)
-                    g_free(ws_info->cf_filename);
-                ws_info->cf_filename = g_strdup(cf->filename);
+    ws_info->ws_info_supported = true;
 
-                if (cf->state == FILE_READ_DONE)
-                {
-                    ws_info->cf_framenr = (cf->current_frame)->num;
-                    ws_info->frame_passed_dfilter = ((cf->current_frame)->flags.passed_dfilter) == 0 ? FALSE : TRUE;
-                }
-                else
-                {
-                    ws_info->cf_framenr = 0;
-                    ws_info->frame_passed_dfilter = FALSE;
-                }
-            }
-            else if (ws_info->cf_state != FILE_CLOSED)
-            {
-                /* Initialise the ws_info structure */
-                ws_info->cf_count = 0;
+    if (cf) {
+        ws_info->cf_state = cf->state;
+        ws_info->cf_count = cf->count;
 
-                if (ws_info->cf_filename != NULL)
-                    g_free(ws_info->cf_filename);
-                ws_info->cf_filename = NULL;
+        g_free(ws_info->cf_filename);
+        ws_info->cf_filename = g_strdup(cf->filename);
 
-                ws_info->cf_framenr = 0;
-                ws_info->frame_passed_dfilter = false;
-                ws_info->cf_state = FILE_CLOSED;
-            }
+        if (cf->state == FILE_READ_DONE) {
+            ws_info->cf_framenr = cf->current_frame->num;
+            ws_info->frame_passed_dfilter = (cf->current_frame->flags.passed_dfilter == 1);
+        } else {
+            ws_info->cf_framenr = 0;
+            ws_info->frame_passed_dfilter = FALSE;
         }
+    } else if (ws_info->cf_state != FILE_CLOSED) {
+        /* Initialise the ws_info structure */
+        ws_info->cf_count = 0;
+
+        g_free(ws_info->cf_filename);
+        ws_info->cf_filename = NULL;
+
+        ws_info->cf_framenr = 0;
+        ws_info->frame_passed_dfilter = FALSE;
+        ws_info->cf_state = FILE_CLOSED;
     }
 }
 
@@ -669,8 +659,8 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
     /* Create plugin_if hooks */
-    plugin_if_register_gui_cb(PLUGIN_IF_FILTER_ACTION_APPLY, plugin_if_mainwindow_apply_filter );
-    plugin_if_register_gui_cb(PLUGIN_IF_FILTER_ACTION_PREPARE, plugin_if_mainwindow_apply_filter );
+    plugin_if_register_gui_cb(PLUGIN_IF_FILTER_ACTION_APPLY, plugin_if_mainwindow_apply_filter);
+    plugin_if_register_gui_cb(PLUGIN_IF_FILTER_ACTION_PREPARE, plugin_if_mainwindow_apply_filter);
     plugin_if_register_gui_cb(PLUGIN_IF_PREFERENCE_SAVE, plugin_if_mainwindow_preference);
     plugin_if_register_gui_cb(PLUGIN_IF_GOTO_FRAME, plugin_if_mainwindow_gotoframe);
 #ifdef HAVE_LIBPCAP
@@ -1950,17 +1940,17 @@ void MainWindow::setWSWindowTitle(QString title)
     }
 
     if (prefs.gui_prepend_window_title && prefs.gui_prepend_window_title[0]) {
-        QString customTitle = replaceWindowTitleVariables(prefs.gui_prepend_window_title);
-        title.prepend(QString("[%1] ").arg(customTitle));
+        QString custom_title = replaceWindowTitleVariables(prefs.gui_prepend_window_title);
+        title.prepend(QString("[%1] ").arg(custom_title));
     }
 
     if (prefs.gui_window_title && prefs.gui_window_title[0]) {
-        QString customTitle = replaceWindowTitleVariables(prefs.gui_window_title);
+        QString custom_title = replaceWindowTitleVariables(prefs.gui_window_title);
 #ifdef __APPLE__
         // On OS X we separate the titles with a unicode em dash
-        title.append(QString(" %1 %2").arg(UTF8_EM_DASH).arg(customTitle));
+        title.append(QString(" %1 %2").arg(UTF8_EM_DASH).arg(custom_title));
 #else
-        title.append(QString(" [%1]").arg(customTitle));
+        title.append(QString(" [%1]").arg(custom_title));
 #endif
     }
 
@@ -2356,21 +2346,15 @@ void MainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint de
 
     children = menu->children;
     /* Iterate the child entries */
-    while ( children != NULL && children->data != NULL )
-    {
+    while (children && children->data) {
         item = (ext_menubar_t *) children->data;
 
-        if ( item->type == EXT_MENUBAR_MENU )
-        {
+        if (item->type == EXT_MENUBAR_MENU) {
             /* Handle Submenu entry */
-            this->externalMenuHelper(item, subMenu->addMenu(item->label), depth++ );
-        }
-        else if ( item->type == EXT_MENUBAR_SEPARATOR )
-        {
+            this->externalMenuHelper(item, subMenu->addMenu(item->label), depth++);
+        } else if (item->type == EXT_MENUBAR_SEPARATOR) {
             subMenu->addSeparator();
-        }
-        else if ( item->type == EXT_MENUBAR_ITEM || item->type == EXT_MENUBAR_URL )
-        {
+        } else if (item->type == EXT_MENUBAR_ITEM || item->type == EXT_MENUBAR_URL) {
             itemAction = subMenu->addAction(item->name);
             itemAction->setData(QVariant::fromValue((void *)item));
             itemAction->setText(item->label);
@@ -2387,14 +2371,12 @@ QMenu * MainWindow::searchSubMenu(QString objectName)
 {
     QList<QMenu*> lst;
 
-    if ( objectName.length() > 0 )
-    {
+    if (objectName.length() > 0) {
         QString searchName = QString("menu") + objectName;
 
         lst = main_ui_->menuBar->findChildren<QMenu*>();
-        foreach (QMenu* m, lst)
-        {
-            if ( QString::compare( m->objectName(), searchName ) == 0 )
+        foreach (QMenu* m, lst) {
+            if (QString::compare(m->objectName(), searchName) == 0)
                 return m;
         }
     }
@@ -2410,27 +2392,24 @@ void MainWindow::addExternalMenus()
 
     user_menu = ext_menubar_get_entries();
 
-    while ( ( user_menu != NULL ) && ( user_menu->data != NULL ) )
-    {
+    while (user_menu && user_menu->data) {
         menu = (ext_menu_t *) user_menu->data;
 
         /* On this level only menu items should exist. Not doing an assert here,
          * as it could be an honest mistake */
-        if ( menu->type != EXT_MENUBAR_MENU )
-        {
+        if (menu->type != EXT_MENUBAR_MENU) {
             user_menu = g_list_next(user_menu);
             continue;
         }
 
         /* Create main submenu and add it to the menubar */
-        if ( menu->parent_menu != NULL )
-        {
+        if (menu->parent_menu) {
             QMenu * sortUnderneath = searchSubMenu(QString(menu->parent_menu));
-            if ( sortUnderneath != NULL)
+            if (sortUnderneath)
                 subMenu = sortUnderneath->addMenu(menu->label);
         }
 
-        if ( subMenu == NULL )
+        if (!subMenu)
             subMenu = main_ui_->menuBar->addMenu(menu->label);
 
         /* This will generate the action structure for each menu. It is recursive,

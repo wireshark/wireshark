@@ -86,7 +86,7 @@ protected:
 
 protected slots:
     void rowsInserted(const QModelIndex &parent, int start, int end);
-    void drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index ) const;
+    void drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 private:
     PacketListModel *packet_list_model_;

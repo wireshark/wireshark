@@ -235,9 +235,10 @@ void ExportDissectionDialog::checkValidity()
     if (!packet_range_group_box_.isValid()) enable = false;
 
     if (export_type_ == export_type_text) {
-        if ( ! packet_format_group_box_.summaryEnabled() &&
-                ! packet_format_group_box_.detailsEnabled() &&
-                ! packet_format_group_box_.bytesEnabled() ) {
+        if (! packet_format_group_box_.summaryEnabled() &&
+            ! packet_format_group_box_.detailsEnabled() &&
+            ! packet_format_group_box_.bytesEnabled())
+        {
             enable = false;
         }
     }

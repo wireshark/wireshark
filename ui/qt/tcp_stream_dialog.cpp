@@ -766,7 +766,7 @@ void TCPStreamDialog::fillWindowScale()
         double ts = seg->rel_secs + seg->rel_usecs / 1000000.0;
         guint16 flags = seg->th_flags;
 
-        if ( (flags & (TH_SYN|TH_RST)) == 0 ) {
+        if ((flags & (TH_SYN|TH_RST)) == 0) {
             rel_time.append(ts - ts_offset_);
             win_size.append(seg->th_win);
         }

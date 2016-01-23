@@ -164,7 +164,7 @@ void BluetoothAttServerAttributesDialog::on_actionCopy_Rows_triggered()
     clipboard->setText(copy);
 }
 
-void BluetoothAttServerAttributesDialog::tapReset(void *tapinfo_ptr )
+void BluetoothAttServerAttributesDialog::tapReset(void *tapinfo_ptr)
 {
     tapinfo_t *tapinfo = (tapinfo_t *) tapinfo_ptr;
     BluetoothAttServerAttributesDialog  *bluetooth_att_server_attributes_dialog = static_cast<BluetoothAttServerAttributesDialog *>(tapinfo->ui);

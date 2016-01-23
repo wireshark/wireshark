@@ -54,7 +54,7 @@ public:
 
 protected:
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    void updateEditorGeometry ( QWidget * editor, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
+    void updateEditorGeometry (QWidget * editor, const QStyleOptionViewItem & option, const QModelIndex & index) const;
 
 private slots:
     void stopEditor();

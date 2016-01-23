@@ -55,7 +55,7 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
     }
 
     foreach (val, *points) {
-        fpoints.append(QPointF(idx, (qreal) content_h - (val * content_h / max) ));
+        fpoints.append(QPointF(idx, (qreal) content_h - (val * content_h / max)));
         idx = idx + step_w;
     }
 

@@ -182,7 +182,7 @@ void BluetoothDevicesDialog::on_actionCopy_Rows_triggered()
     clipboard->setText(copy);
 }
 
-void BluetoothDevicesDialog::tapReset(void *tapinfo_ptr )
+void BluetoothDevicesDialog::tapReset(void *tapinfo_ptr)
 {
     bluetooth_devices_tapinfo_t *tapinfo = (bluetooth_devices_tapinfo_t *) tapinfo_ptr;
     BluetoothDevicesDialog  *bluetooth_devices_dialog = static_cast<BluetoothDevicesDialog *>(tapinfo->ui);

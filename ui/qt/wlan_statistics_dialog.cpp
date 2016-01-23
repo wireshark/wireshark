@@ -269,7 +269,7 @@ public:
                 is_ssid_match = true;
             }
             if (is_bssid_match) {
-                if ((ssid_.isEmpty() || ssid_[0] == '\0') && (wlan_hdr->stats.ssid_len > 0) && (wlan_hdr->stats.ssid[0] != 0) ) {
+                if ((ssid_.isEmpty() || ssid_[0] == '\0') && (wlan_hdr->stats.ssid_len > 0) && (wlan_hdr->stats.ssid[0] != 0)) {
                     update_ssid = true;
                 }
             }

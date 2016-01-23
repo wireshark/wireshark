@@ -279,11 +279,12 @@ void PrintDialog::checkValidity()
 
     if (!pd_ui_->rangeGroupBox->isValid()) enable = false;
 
-        if ( ! pd_ui_->formatGroupBox->summaryEnabled() &&
-                ! pd_ui_->formatGroupBox->detailsEnabled() &&
-                ! pd_ui_->formatGroupBox->bytesEnabled() ) {
-            enable = false;
-        }
+    if (!pd_ui_->formatGroupBox->summaryEnabled() &&
+        !pd_ui_->formatGroupBox->detailsEnabled() &&
+        !pd_ui_->formatGroupBox->bytesEnabled())
+    {
+        enable = false;
+    }
 
     print_bt_->setEnabled(enable);
     preview_->updatePreview();
