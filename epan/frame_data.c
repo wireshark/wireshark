@@ -313,8 +313,7 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->flags.need_colorize = 0;
   fdata->tsprec = (gint16)phdr->pkt_tsprec;
   fdata->color_filter = NULL;
-  fdata->abs_ts.secs = phdr->ts.secs;
-  fdata->abs_ts.nsecs = phdr->ts.nsecs;
+  fdata->abs_ts = phdr->ts;
   fdata->shift_offset.secs = 0;
   fdata->shift_offset.nsecs = 0;
   fdata->frame_ref_num = 0;
