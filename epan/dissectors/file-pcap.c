@@ -95,7 +95,7 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_tree      *packet_data_tree;
     proto_item      *packet_data_item;
     volatile guint32 encoding;
-    guint            timestamp_scale_factor;
+    volatile guint   timestamp_scale_factor;
     const char      *magic;
     guint32          origin_length;
     guint32          length;
