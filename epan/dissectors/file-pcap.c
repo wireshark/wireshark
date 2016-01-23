@@ -54,8 +54,6 @@ static int hf_pcap_packet_included_length = -1;
 static int hf_pcap_packet_origin_length = -1;
 static int hf_pcap_packet_data = -1;
 
-static expert_field ei_unknown_encoding = EI_INIT;
-
 static gint ett_pcap = -1;
 static gint ett_pcap_header = -1;
 static gint ett_pcap_packet = -1;
@@ -215,7 +213,6 @@ void
 proto_register_file_pcap(void)
 {
     module_t         *module;
-    expert_module_t  *expert_module;
 
     static hf_register_info hf[] = {
         { &hf_pcap_header,
@@ -295,10 +292,6 @@ proto_register_file_pcap(void)
         },
     };
 
-    static ei_register_info ei[] = {
-        { &ei_unknown_encoding,      { "pcap.unknown_encoding",      PI_PROTOCOL, PI_ERROR, "Unknown Encoding", EXPFILL }}
-    };
-
     static gint *ett[] = {
         &ett_pcap,
         &ett_pcap_header,
@@ -322,9 +315,6 @@ proto_register_file_pcap(void)
             "Dissect next layer",
             "Dissect next layer",
             &pref_dissect_next_layer);
-
-    expert_module = expert_register_protocol(proto_pcap);
-    expert_register_field_array(expert_module, ei, array_length(ei));
 }
 
 void
