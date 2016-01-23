@@ -72,12 +72,6 @@ static dissector_table_t wtap_encap_table;
 
 static gboolean pref_dissect_next_layer = FALSE;
 
-static const value_string magic_number_vals[] = {
-    { 0xA1B2C3D4,  "Little-endian" },
-    { 0xD4C3B2A1,  "Big-endian" },
-    { 0, NULL }
-};
-
 static const value_string link_type_vals[] = {
     { 0,    "NULL" },
     { 1,    "ETHERNET" },
@@ -193,6 +187,8 @@ static const value_string pseudoheader_bluetooth_direction_vals[] = {
 void proto_register_file_pcap(void);
 void proto_reg_handoff_file_pcap(void);
 
+#define MAGIC_NUMBER_SIZE    4
+
 static int
 dissect_pcap_pseudoheader(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -286,13 +282,24 @@ dissect_pcap_pseudoheader(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 static int
 dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    static const guint8 pcap_magic[]           = { 0xA1, 0xB2, 0xC3, 0xD4 };
-    static const guint8 pcap_swapped_magic[]   = { 0xD4, 0xC3, 0xB2, 0xA1 };
+    static const guint8 pcap_big_endian_magic[MAGIC_NUMBER_SIZE] = {
+        0xa1, 0xb2, 0xc3, 0xd4
+    };
+    static const guint8 pcap_little_endian_magic[MAGIC_NUMBER_SIZE] = {
+        0xd4, 0xc3, 0xb2, 0xa1
+    };
+    static const guint8 pcap_nsec_big_endian_magic[MAGIC_NUMBER_SIZE] = {
+        0xa1, 0xb2, 0x3c, 0xd4
+    };
+    static const guint8 pcap_nsec_little_endian_magic[MAGIC_NUMBER_SIZE] = {
+        0xd4, 0x3c, 0xb2, 0xa1
+    };
     volatile gint    offset = 0;
     proto_tree      *main_tree;
     proto_item      *main_item;
     proto_tree      *header_tree;
     proto_item      *header_item;
+    proto_item      *magic_number_item;
     proto_tree      *packet_tree;
     proto_item      *packet_item;
     proto_tree      *timestamp_tree;
@@ -300,15 +307,37 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_tree      *packet_data_tree;
     proto_item      *packet_data_item;
     volatile guint32 encoding;
+    guint            timestamp_scale_factor;
+    const char      *magic;
     guint32          origin_length;
     guint32          length;
     guint32          link_type;
     volatile guint32 frame_number = 1;
     nstime_t         timestamp;
 
-    if (tvb_memeql(tvb, 0, pcap_magic, sizeof(pcap_magic)) &&
-            tvb_memeql(tvb, 0, pcap_swapped_magic, sizeof(pcap_swapped_magic)))
+    if (tvb_memeql(tvb, 0, pcap_big_endian_magic, MAGIC_NUMBER_SIZE) == 0) {
+        encoding = ENC_BIG_ENDIAN;
+        timestamp_scale_factor = 1000;
+        magic = "Big-endian";
+    } else if (tvb_memeql(tvb, 0, pcap_little_endian_magic, MAGIC_NUMBER_SIZE) == 0) {
+        encoding = ENC_LITTLE_ENDIAN;
+        timestamp_scale_factor = 1000;
+        magic = "Little-endian";
+    } else if (tvb_memeql(tvb, 0, pcap_nsec_big_endian_magic, MAGIC_NUMBER_SIZE) == 0) {
+        encoding = ENC_BIG_ENDIAN;
+        timestamp_scale_factor = 1;
+        magic = "Big-endian, nanosecond resolution";
+    } else if (tvb_memeql(tvb, 0, pcap_nsec_little_endian_magic, MAGIC_NUMBER_SIZE) == 0) {
+        encoding = ENC_LITTLE_ENDIAN;
+        timestamp_scale_factor = 1;
+        magic = "Little-endian, nanosecond resolution";
+    } else {
+        /*
+         * Not one of the magic numbers we recognize.
+         * XXX - add them?
+         */
         return 0;
+    }
 
     main_item = proto_tree_add_item(tree, proto_pcap, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_pcap);
@@ -316,16 +345,8 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     header_item = proto_tree_add_item(main_tree, hf_pcap_header    , tvb, offset, 24, ENC_NA);
     header_tree = proto_item_add_subtree(header_item, ett_pcap_header);
 
-    proto_tree_add_item(header_tree, hf_pcap_header_magic_number, tvb, offset, 4, ENC_HOST_ENDIAN);
-    encoding = tvb_get_guint32(tvb, offset, ENC_HOST_ENDIAN);
-    if (encoding == 0xA1B2C3D4) {
-        encoding = ENC_LITTLE_ENDIAN;
-    } else if (encoding == 0xD4C3B2A1) {
-        encoding = ENC_BIG_ENDIAN;
-    } else {
-        expert_add_info(pinfo, main_item, &ei_unknown_encoding);
-        return offset;
-    }
+    magic_number_item = proto_tree_add_item(header_tree, hf_pcap_header_magic_number, tvb, offset, 4, ENC_NA);
+    proto_item_append_text(magic_number_item, " (%s)", magic);
     offset += 4;
 
     proto_tree_add_item(header_tree, hf_pcap_header_version_major, tvb, offset, 2, encoding);
@@ -353,7 +374,7 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         proto_item_append_text(packet_item, " %u", frame_number);
 
         timestamp.secs = tvb_get_guint32(tvb, offset, encoding);
-        timestamp.nsecs = tvb_get_guint32(tvb, offset + 4, encoding) * 1000;
+        timestamp.nsecs = tvb_get_guint32(tvb, offset + 4, encoding) * timestamp_scale_factor;
 
         timestamp_item = proto_tree_add_time(packet_tree, hf_pcap_packet_timestamp, tvb, offset, 8, &timestamp);
         timestamp_tree = proto_item_add_subtree(timestamp_item, ett_pcap_timestamp);
@@ -413,8 +434,8 @@ proto_register_file_pcap(void)
             NULL, HFILL }
         },
         { &hf_pcap_header_magic_number,
-            { "Magic Bytes",                               "pcap.header.magic_bytes",
-            FT_UINT32, BASE_HEX, VALS(magic_number_vals), 0x00,
+            { "Magic Number",                              "pcap.header.magic_number",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcap_header_version_major,
