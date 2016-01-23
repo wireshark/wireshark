@@ -687,7 +687,7 @@ static void push_req(http_conv_t *conv_data, packet_info *pinfo)
 	http_req_res_t *req_res = push_req_res(conv_data);
 
 	req_res->req_framenum = pinfo->fd->num;
-	req_res->req_ts = pinfo->fd->abs_ts;
+	req_res->req_ts = pinfo->abs_ts;
 
 	p_add_proto_data(wmem_file_scope(), pinfo, proto_http, 0, req_res);
 }
@@ -1126,7 +1126,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				PROTO_ITEM_SET_GENERATED(pi);
 
 				if (! nstime_is_unset(&(curr->req_ts))) {
-					nstime_delta(&delta, &pinfo->fd->abs_ts, &(curr->req_ts));
+					nstime_delta(&delta, &pinfo->abs_ts, &(curr->req_ts));
 					pi = proto_tree_add_time(http_tree, hf_http_time, tvb, 0, 0, &delta);
 					PROTO_ITEM_SET_GENERATED(pi);
 				}

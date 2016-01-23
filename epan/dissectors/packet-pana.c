@@ -519,7 +519,7 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         pana_trans=wmem_new(wmem_file_scope(), pana_transaction_t);
                         pana_trans->req_frame=pinfo->fd->num;
                         pana_trans->rep_frame=0;
-                        pana_trans->req_time=pinfo->fd->abs_ts;
+                        pana_trans->req_time=pinfo->abs_ts;
                         wmem_map_insert(pana_info->pdus, GUINT_TO_POINTER(seq_num), (void *)pana_trans);
                 } else {
                         pana_trans=(pana_transaction_t *)wmem_map_lookup(pana_info->pdus, GUINT_TO_POINTER(seq_num));
@@ -536,7 +536,7 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 pana_trans=wmem_new(wmem_packet_scope(), pana_transaction_t);
                 pana_trans->req_frame=0;
                 pana_trans->rep_frame=0;
-                pana_trans->req_time=pinfo->fd->abs_ts;
+                pana_trans->req_time=pinfo->abs_ts;
         }
 
         /* print state tracking in the tree */
@@ -557,7 +557,7 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         it=proto_tree_add_uint(pana_tree, hf_pana_response_to, tvb, 0, 0, pana_trans->req_frame);
                         PROTO_ITEM_SET_GENERATED(it);
 
-                        nstime_delta(&ns, &pinfo->fd->abs_ts, &pana_trans->req_time);
+                        nstime_delta(&ns, &pinfo->abs_ts, &pana_trans->req_time);
                         it=proto_tree_add_time(pana_tree, hf_pana_response_time, tvb, 0, 0, &ns);
                         PROTO_ITEM_SET_GENERATED(it);
                 }

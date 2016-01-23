@@ -1026,7 +1026,7 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
   call -> n_forward_circuit_ids = 0;
   call -> n_reverse_circuit_ids = 0;
   call -> subdissector = NULL;
-  call -> start_time = pinfo->fd->abs_ts;
+  call -> start_time = pinfo->abs_ts;
   nstime_delta(&call -> start_time, &call -> start_time, &millisecond);
   init_dir_data(&call->dirdata[0]);
   init_dir_data(&call->dirdata[1]);
@@ -1582,7 +1582,7 @@ static void iax2_add_ts_fields(packet_info *pinfo, proto_tree *iax2_tree, iax_pa
 
     /* deal with short timestamps by assuming that packets are never more than
      * 16 seconds late */
-    while(abs_secs < pinfo->fd->abs_ts.secs - 16) {
+    while(abs_secs < pinfo->abs_ts.secs - 16) {
       longts += 32768;
       abs_secs = (gint32)(start_secs + longts/1000);
     }
@@ -1600,7 +1600,7 @@ static void iax2_add_ts_fields(packet_info *pinfo, proto_tree *iax2_tree, iax_pa
     item = proto_tree_add_time(iax2_tree, hf_iax2_absts, NULL, 0, 0, &iax_packet->abstime);
     PROTO_ITEM_SET_GENERATED(item);
 
-    ts  = pinfo->fd->abs_ts;
+    ts  = pinfo->abs_ts;
     nstime_delta(&ts, &ts, &iax_packet->abstime);
 
     item = proto_tree_add_time(iax2_tree, hf_iax2_lateness, NULL, 0, 0, &ts);

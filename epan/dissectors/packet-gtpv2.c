@@ -6111,7 +6111,7 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
             }
             gcrp->seq_nr = seq_nr;
             gcrp->req_frame = pinfo->fd->num;
-            gcrp->req_time = pinfo->fd->abs_ts;
+            gcrp->req_time = pinfo->abs_ts;
             gcrp->rep_frame = 0;
             gcrp->msgtype = msgtype;
             gcrp->is_request = TRUE;

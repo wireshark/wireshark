@@ -154,7 +154,7 @@ static int dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 #if 0
 /*??dat*/
     if (zep_data.ntp_time.secs && zep_data.ntp_time.nsecs) {
-        pinfo->fd->abs_ts = zep_data.ntp_time;
+        pinfo->abs_ts = zep_data.ntp_time;
     }
 #endif
 

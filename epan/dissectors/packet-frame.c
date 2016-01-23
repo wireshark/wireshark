@@ -191,7 +191,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	case REC_TYPE_PACKET:
 		pinfo->current_proto = "Frame";
 		if (pinfo->pseudo_header != NULL) {
-			switch (pinfo->fd->lnk_t) {
+			switch (pinfo->pkt_encap) {
 
 			case WTAP_ENCAP_WFLEET_HDLC:
 			case WTAP_ENCAP_CHDLC_WITH_PHDR:
@@ -270,8 +270,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	   generating any tree items.  */
 	if (!proto_field_is_referenced(tree, proto_frame)) {
 		tree=NULL;
-		if (pinfo->fd->flags.has_ts) {
-			if (pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000)
+		if (pinfo->presence_flags & PINFO_HAS_TS) {
+			if (pinfo->abs_ts.nsecs < 0 || pinfo->abs_ts.nsecs >= 1000000000)
 				expert_add_info(pinfo, NULL, &ei_arrive_time_out_of_range);
 		}
 	} else {
@@ -342,16 +342,16 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		}
 
 		if (pinfo->phdr->rec_type == REC_TYPE_PACKET)
-			proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->fd->lnk_t);
+			proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->pkt_encap);
 
-		if (pinfo->fd->flags.has_ts) {
+		if (pinfo->presence_flags & PINFO_HAS_TS) {
 			proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
-					    0, 0, &(pinfo->fd->abs_ts));
-			if (pinfo->fd->abs_ts.nsecs < 0 || pinfo->fd->abs_ts.nsecs >= 1000000000) {
+					    0, 0, &(pinfo->abs_ts));
+			if (pinfo->abs_ts.nsecs < 0 || pinfo->abs_ts.nsecs >= 1000000000) {
 				expert_add_info_format(pinfo, ti, &ei_arrive_time_out_of_range,
 								  "Arrival Time: Fractional second %09ld is invalid,"
 								  " the valid range is 0-1000000000",
-								  (long) pinfo->fd->abs_ts.nsecs);
+								  (long) pinfo->abs_ts.nsecs);
 			}
 			item = proto_tree_add_time(fh_tree, hf_frame_shift_offset, tvb,
 					    0, 0, &(pinfo->fd->shift_offset));
@@ -359,7 +359,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 			if (generate_epoch_time) {
 				proto_tree_add_time(fh_tree, hf_frame_arrival_time_epoch, tvb,
-						    0, 0, &(pinfo->fd->abs_ts));
+						    0, 0, &(pinfo->abs_ts));
 			}
 
 			if (proto_field_is_referenced(tree, hf_frame_time_delta)) {
@@ -447,7 +447,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		}
 
 		/* Check for existences of MTP2 link number */
-		if ((pinfo->pseudo_header != NULL ) && (pinfo->fd->lnk_t == WTAP_ENCAP_MTP2_WITH_PHDR)) {
+		if ((pinfo->pseudo_header != NULL ) && (pinfo->pkt_encap == WTAP_ENCAP_MTP2_WITH_PHDR)) {
 			proto_tree_add_uint(fh_tree, hf_link_number, tvb,
 					    0, 0, pinfo->link_number);
 		}
@@ -489,12 +489,12 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 					    (void *)pinfo->pseudo_header);
 				} else {
 					if (!dissector_try_uint_new(wtap_encap_dissector_table,
-					    pinfo->fd->lnk_t, tvb, pinfo,
+					    pinfo->pkt_encap, tvb, pinfo,
 					    parent_tree, TRUE,
 					    (void *)pinfo->pseudo_header)) {
 						col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
 						col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
-							     pinfo->fd->lnk_t);
+							     pinfo->pkt_encap);
 						call_dissector_with_data(data_handle,
 						    tvb, pinfo, parent_tree,
 						    (void *)pinfo->pseudo_header);

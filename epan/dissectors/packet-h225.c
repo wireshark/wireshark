@@ -7721,7 +7721,7 @@ h225ras_call_t * new_h225ras_call(h225ras_call_info_key *h225ras_call_key, packe
   h225ras_call->requestSeqNum = h225ras_call_key->reqSeqNum;
   h225ras_call->responded = FALSE;
   h225ras_call->next_call = NULL;
-  h225ras_call->req_time=pinfo->fd->abs_ts;
+  h225ras_call->req_time=pinfo->abs_ts;
   h225ras_call->guid=*guid;
   /* store it */
   g_hash_table_insert(ras_calls[category], new_h225ras_call_key, h225ras_call);
@@ -7744,7 +7744,7 @@ h225ras_call_t * append_h225ras_call(h225ras_call_t *prev_call, packet_info *pin
   h225ras_call->requestSeqNum = prev_call->requestSeqNum;
   h225ras_call->responded = FALSE;
   h225ras_call->next_call = NULL;
-  h225ras_call->req_time=pinfo->fd->abs_ts;
+  h225ras_call->req_time=pinfo->abs_ts;
   h225ras_call->guid=*guid;
 
   prev_call->next_call = h225ras_call;
@@ -11803,9 +11803,9 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
           /* if end of list is reached, exit loop and decide if request is duplicate or not. */
           if (h225ras_call->next_call == NULL) {
             if ( (pinfo->fd->num > h225ras_call->rsp_num && h225ras_call->rsp_num != 0
-               && pinfo->fd->abs_ts.secs > (h225ras_call->req_time.secs + THRESHOLD_REPEATED_RESPONDED_CALL) )
+               && pinfo->abs_ts.secs > (h225ras_call->req_time.secs + THRESHOLD_REPEATED_RESPONDED_CALL) )
                ||(pinfo->fd->num > h225ras_call->req_num && h225ras_call->rsp_num == 0
-               && pinfo->fd->abs_ts.secs > (h225ras_call->req_time.secs + THRESHOLD_REPEATED_NOT_RESPONDED_CALL) ) )
+               && pinfo->abs_ts.secs > (h225ras_call->req_time.secs + THRESHOLD_REPEATED_NOT_RESPONDED_CALL) ) )
             {
               /* if last request has been responded
                  and this request appears after last response (has bigger frame number)
@@ -11908,7 +11908,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             PROTO_ITEM_SET_GENERATED(ti);
 
             /* Calculate RAS Service Response Time */
-            nstime_delta(&delta, &pinfo->fd->abs_ts, &h225ras_call->req_time);
+            nstime_delta(&delta, &pinfo->abs_ts, &h225ras_call->req_time);
             pi->delta_time = delta; /* give it to tap */
 
             /* display Ras Service Response Time and make it filterable */

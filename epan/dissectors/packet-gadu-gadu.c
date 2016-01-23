@@ -992,7 +992,7 @@ dissect_gadu_gadu_send_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, &hfi_gadu_gadu_msg_seq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	ti = proto_tree_add_time(tree, &hfi_gadu_gadu_msg_time, tvb, 0, 0, &(pinfo->fd->abs_ts));
+	ti = proto_tree_add_time(tree, &hfi_gadu_gadu_msg_time, tvb, 0, 0, &(pinfo->abs_ts));
 	PROTO_ITEM_SET_GENERATED(ti);
 
 	proto_tree_add_item(tree, &hfi_gadu_gadu_msg_class, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1072,7 +1072,7 @@ dissect_gadu_gadu_send_msg80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree_add_item(tree, &hfi_gadu_gadu_msg_seq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	ti = proto_tree_add_time(tree, &hfi_gadu_gadu_msg_time, tvb, 0, 0, &(pinfo->fd->abs_ts));
+	ti = proto_tree_add_time(tree, &hfi_gadu_gadu_msg_time, tvb, 0, 0, &(pinfo->abs_ts));
 	PROTO_ITEM_SET_GENERATED(ti);
 
 	proto_tree_add_item(tree, &hfi_gadu_gadu_msg_class, tvb, offset, 4, ENC_LITTLE_ENDIAN);

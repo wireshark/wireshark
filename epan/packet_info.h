@@ -46,9 +46,17 @@
 #define P2P_DIR_UL  0
 #define P2P_DIR_DL  1
 
+/*
+ * Presence flags.
+ */
+#define PINFO_HAS_TS            0x00000001  /**< time stamp */
+
 typedef struct _packet_info {
   const char *current_proto;        /**< name of protocol currently being dissected */
   struct epan_column_info *cinfo;   /**< Column formatting information */
+  guint32 presence_flags;           /**< Presence flags for some items */
+  nstime_t abs_ts;                  /**< Packet absolute time stamp */
+  gint pkt_encap;                   /**< Per-packet encapsulation/data-link type */
   frame_data *fd;
   union wtap_pseudo_header *pseudo_header;
   struct wtap_pkthdr *phdr;         /**< Record metadata */

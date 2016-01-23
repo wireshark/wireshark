@@ -227,7 +227,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			nbd_trans=wmem_new(wmem_file_scope(), nbd_transaction_t);
 			nbd_trans->req_frame=pinfo->fd->num;
 			nbd_trans->rep_frame=0;
-			nbd_trans->req_time=pinfo->fd->abs_ts;
+			nbd_trans->req_time=pinfo->abs_ts;
 			nbd_trans->type=tvb_get_ntohl(tvb, offset);
 			nbd_trans->datalen=tvb_get_ntohl(tvb, offset+20);
 
@@ -284,7 +284,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		nbd_trans=wmem_new(wmem_packet_scope(), nbd_transaction_t);
 		nbd_trans->req_frame=0;
 		nbd_trans->rep_frame=0;
-		nbd_trans->req_time=pinfo->fd->abs_ts;
+		nbd_trans->req_time=pinfo->abs_ts;
 		nbd_trans->type=0xff;
 		nbd_trans->datalen=0;
 	}
@@ -307,7 +307,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			it=proto_tree_add_uint(tree, hf_nbd_response_to, tvb, 0, 0, nbd_trans->req_frame);
 			PROTO_ITEM_SET_GENERATED(it);
 
-			nstime_delta(&ns, &pinfo->fd->abs_ts, &nbd_trans->req_time);
+			nstime_delta(&ns, &pinfo->abs_ts, &nbd_trans->req_time);
 			it=proto_tree_add_time(tree, hf_nbd_time, tvb, 0, 0, &ns);
 			PROTO_ITEM_SET_GENERATED(it);
 		}

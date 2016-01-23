@@ -822,7 +822,7 @@ sctp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
   const struct _sctp_info *sctphdr=(const struct _sctp_info *)vip;
 
   add_conversation_table_data(hash, &sctphdr->ip_src, &sctphdr->ip_dst,
-        sctphdr->sport, sctphdr->dport, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts, &sctp_ct_dissector_info, PT_SCTP);
+        sctphdr->sport, sctphdr->dport, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &sctp_ct_dissector_info, PT_SCTP);
 
 
   return 1;
@@ -1080,7 +1080,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
     PROTO_ITEM_SET_GENERATED(pi);
     expert_add_info(pinfo, pi, &ei_sctp_tsn_retransmitted);
 
-    nstime_delta( &rto, &pinfo->fd->abs_ts, &(t->first_transmit.ts) );
+    nstime_delta( &rto, &pinfo->abs_ts, &(t->first_transmit.ts) );
     pi = proto_tree_add_time(pt, hf_sctp_rto, tvb, 0, 0, &rto);
     PROTO_ITEM_SET_GENERATED(pi);
 
@@ -1120,7 +1120,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
 
     r = &t->retransmit;
     while (*r) {
-      nstime_delta(&rto, &((*r)->ts), &pinfo->fd->abs_ts);
+      nstime_delta(&rto, &((*r)->ts), &pinfo->abs_ts);
       pi = proto_tree_add_uint_format(pt,
                                       hf_sctp_retransmitted,
                                       tvb, 0, 0,
@@ -1197,7 +1197,7 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
     t->tsn = tsn;
 
     t->first_transmit.framenum = framenum;
-    t->first_transmit.ts = pinfo->fd->abs_ts;
+    t->first_transmit.ts = pinfo->abs_ts;
 
     wmem_tree_insert32(h->tsns,reltsn,t);
   }
@@ -1219,7 +1219,7 @@ sctp_tsn(packet_info *pinfo,  tvbuff_t *tvb, proto_item *tsn_item,
     if (i <= MAX_RETRANS_TRACKED_PER_TSN) {
       *r = wmem_new0(wmem_file_scope(), retransmit_t);
       (*r)->framenum = framenum;
-      (*r)->ts = pinfo->fd->abs_ts;
+      (*r)->ts = pinfo->abs_ts;
     }
   }
 
@@ -1275,7 +1275,7 @@ sctp_ack(packet_info *pinfo, tvbuff_t *tvb,  proto_tree *acks_tree,
       sctp_tsn_t *t2;
 
       t->ack.framenum = framenum;
-      t->ack.ts = pinfo->fd->abs_ts;
+      t->ack.ts = pinfo->abs_ts;
 
       if (( t2 = (sctp_tsn_t *)wmem_tree_lookup32(h->peer->tsn_acks, framenum) )) {
         for(;t2->next;t2 = t2->next)

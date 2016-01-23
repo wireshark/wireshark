@@ -291,7 +291,7 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pare
             rsvd_conv_data->task->itlq->bidir_data_length = 0;
             rsvd_conv_data->task->itlq->flags = 0;
             rsvd_conv_data->task->itlq->alloc_len = 0;
-            rsvd_conv_data->task->itlq->fc_time = pinfo->fd->abs_ts;
+            rsvd_conv_data->task->itlq->fc_time = pinfo->abs_ts;
             rsvd_conv_data->task->itlq->extra_data = NULL;
         }
         if (rsvd_conv_data->task && rsvd_conv_data->task->itlq) {

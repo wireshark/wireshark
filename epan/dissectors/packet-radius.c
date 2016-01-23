@@ -380,7 +380,7 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 			rs->time_stats[RADIUS_CAT_OVERALL].open_req_num--;
 			rs->time_stats[radius_cat].open_req_num--;
 			/* calculate time delta between request and response */
-			nstime_delta(&delta, &pinfo->fd->abs_ts, &ri->req_time);
+			nstime_delta(&delta, &pinfo->abs_ts, &ri->req_time);
 
 			time_stat_update(&(rs->time_stats[RADIUS_CAT_OVERALL].rtd[0]),&delta, pinfo);
 			time_stat_update(&(rs->time_stats[radius_cat].rtd[0]),&delta, pinfo);
@@ -1817,7 +1817,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 			radius_call_key.code = rh.rh_code;
 			radius_call_key.ident = rh.rh_ident;
 			radius_call_key.conversation = conversation;
-			radius_call_key.req_time = pinfo->fd->abs_ts;
+			radius_call_key.req_time = pinfo->abs_ts;
 
 			/* Look up the request */
 			radius_call = (radius_call_t *)g_hash_table_lookup(radius_calls, &radius_call_key);
@@ -1860,7 +1860,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				radius_call->ident = rh.rh_ident;
 				radius_call->code = rh.rh_code;
 				radius_call->responded = FALSE;
-				radius_call->req_time = pinfo->fd->abs_ts;
+				radius_call->req_time = pinfo->abs_ts;
 				radius_call->rspcode = 0;
 				/* Copy request authenticator for future validation */
 				if (validate_authenticator && *shared_secret != '\0')
@@ -1934,7 +1934,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				radius_call_key.code = rh.rh_code;
 				radius_call_key.ident = rh.rh_ident;
 				radius_call_key.conversation = conversation;
-				radius_call_key.req_time = pinfo->fd->abs_ts;
+				radius_call_key.req_time = pinfo->abs_ts;
 
 				radius_call = (radius_call_t *)g_hash_table_lookup(radius_calls, &radius_call_key);
 				if (radius_call)
@@ -1956,7 +1956,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 								"This is a response to a request in frame %u",
 								radius_call->req_num);
 							PROTO_ITEM_SET_GENERATED(item);
-							nstime_delta(&delta, &pinfo->fd->abs_ts, &radius_call->req_time);
+							nstime_delta(&delta, &pinfo->abs_ts, &radius_call->req_time);
 							item = proto_tree_add_time(radius_tree, hf_radius_time, tvb, 0, 0, &delta);
 							PROTO_ITEM_SET_GENERATED(item);
 							/* Response Authenticator Validation */

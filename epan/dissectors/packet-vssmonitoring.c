@@ -137,11 +137,11 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
          * differ less than 30 days, otherwise, this might not be a VSS-Monitoring
          * timestamp
          */
-        if ( vssmonitoring_time.secs > pinfo->fd->abs_ts.secs ) {
-          if ( vssmonitoring_time.secs - pinfo->fd->abs_ts.secs > 2592000 ) /* 30 days */
+        if ( vssmonitoring_time.secs > pinfo->abs_ts.secs ) {
+          if ( vssmonitoring_time.secs - pinfo->abs_ts.secs > 2592000 ) /* 30 days */
             return 0;
         } else {
-          if ( pinfo->fd->abs_ts.secs - vssmonitoring_time.secs > 2592000 ) /* 30 days */
+          if ( pinfo->abs_ts.secs - vssmonitoring_time.secs > 2592000 ) /* 30 days */
             return 0;
         }
       }

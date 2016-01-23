@@ -446,7 +446,7 @@ rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_t
         if (is_request){
             rtpproxy_info = wmem_new0(wmem_file_scope(), rtpproxy_info_t);
             rtpproxy_info->req_frame = PINFO_FD_NUM(pinfo);
-            rtpproxy_info->req_time = pinfo->fd->abs_ts;
+            rtpproxy_info->req_time = pinfo->abs_ts;
             wmem_tree_insert_string(rtpproxy_conv->trans, cookie, rtpproxy_info, 0);
         } else {
             rtpproxy_info = (rtpproxy_info_t *)wmem_tree_lookup_string(rtpproxy_conv->trans, cookie, 0);
@@ -464,7 +464,7 @@ rtpproxy_add_tid(gboolean is_request, tvbuff_t *tvb, packet_info *pinfo, proto_t
 
             /* If not a request (so it's a reply) then calculate response time */
             if (!is_request){
-                nstime_delta(&ns, &pinfo->fd->abs_ts, &rtpproxy_info->req_time);
+                nstime_delta(&ns, &pinfo->abs_ts, &rtpproxy_info->req_time);
                 pi = proto_tree_add_time(rtpproxy_tree, hf_rtpproxy_response_time, tvb, 0, 0, &ns);
                 PROTO_ITEM_SET_GENERATED(pi);
                 if (nstime_cmp(&rtpproxy_timeout_ns, &ns) < 0)

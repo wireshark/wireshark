@@ -273,7 +273,7 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
             }
             itlq->data_length=datalen;
             itlq->bidir_data_length=0;
-            itlq->fc_time=pinfo->fd->abs_ts;
+            itlq->fc_time=pinfo->abs_ts;
             itlq->first_exchange_frame=pinfo->fd->num;
             itlq->last_exchange_frame=0;
             itlq->flags=0;

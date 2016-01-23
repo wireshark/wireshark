@@ -714,7 +714,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
               else { /*we have a conversation but this is not a retry so we store the packet info*/
                      request_val->retry_count = 0;
                      request_val->req_frame = pinfo->fd->num; /*store actual frame nr.*/
-                     request_val->req_time = pinfo->fd->abs_ts;
+                     request_val->req_time = pinfo->abs_ts;
               }
        }
        if (request_val && (sbus_attribut == SBUS_RESPONSE ||
@@ -732,7 +732,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
               request_val->cmd_code=tvb_get_guint8(tvb,10);
               request_val->retry_count=0;
               request_val->req_frame = pinfo->fd->num; /*store actual frame nr.*/
-              request_val->req_time = pinfo->fd->abs_ts;
+              request_val->req_time = pinfo->abs_ts;
               request_val->resp_frame = 0; /*response frame is not known yet*/
 
               if (((request_val->cmd_code) == SBUS_RD_USER_EEPROM_REGISTER) ||
@@ -940,7 +940,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                      offset += 1;
                      if (request_val && request_val->retry_count > 0) {/*this is a retry telegram*/
                             expert_add_info(pinfo, sbus_tree, &ei_sbus_retry);
-                            nstime_delta(&ns, &pinfo->fd->abs_ts, &request_val->req_time);
+                            nstime_delta(&ns, &pinfo->abs_ts, &request_val->req_time);
                             proto_tree_add_time(sbus_tree, hf_sbus_timeout,
                                                 tvb, 0, 0, &ns);
                             proto_tree_add_uint(sbus_tree, hf_sbus_request_in, tvb, 0, 0,
@@ -1480,7 +1480,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
               /* Response dissection*/
               if (sbus_attribut == SBUS_RESPONSE && request_val) {
                      /*add response time*/
-                     nstime_delta(&ns, &pinfo->fd->abs_ts, &request_val->req_time);
+                     nstime_delta(&ns, &pinfo->abs_ts, &request_val->req_time);
                      proto_tree_add_time(sbus_tree, hf_sbus_response_time,
                            tvb, 0, 0, &ns);
                      /*add reference to request telegram*/
@@ -1840,7 +1840,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
               if (sbus_attribut == SBUS_ACKNAK) {
                      /*Add response time if possible*/
                      if (request_val) {
-                           nstime_delta(&ns, &pinfo->fd->abs_ts, &request_val->req_time);
+                           nstime_delta(&ns, &pinfo->abs_ts, &request_val->req_time);
                            proto_tree_add_time(sbus_tree, hf_sbus_response_time,
                                                tvb, 0, 0, &ns);
                            /*add reference to request telegram*/

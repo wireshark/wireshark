@@ -86,7 +86,7 @@ dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     return -1;
                 } else {
                     finger_trans->req_frame = pinfo->fd->num;
-                    finger_trans->req_time = pinfo->fd->abs_ts;
+                    finger_trans->req_time = pinfo->abs_ts;
                 }
             } else {
                 pinfo->desegment_len = DESEGMENT_UNTIL_FIN;
@@ -96,7 +96,7 @@ dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     } else if (is_query && (finger_trans->req_frame == 0)) {
         finger_trans->req_frame = pinfo->fd->num;
-        finger_trans->req_time = pinfo->fd->abs_ts;
+        finger_trans->req_time = pinfo->abs_ts;
     }
 
     if (!is_query && (finger_trans->rep_frame == 0)) {
@@ -138,7 +138,7 @@ dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             PROTO_ITEM_SET_GENERATED(ti);
 
             if (pinfo->fd->num == finger_trans->rep_frame) {
-                nstime_delta(&ns, &pinfo->fd->abs_ts, &finger_trans->req_time);
+                nstime_delta(&ns, &pinfo->abs_ts, &finger_trans->req_time);
                 ti = proto_tree_add_time(finger_tree, hf_finger_response_time, tvb, 0, 0, &ns);
                 PROTO_ITEM_SET_GENERATED(ti);
             }

@@ -2786,7 +2786,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			request_val -> opcode = tvb_get_ntohl(tvb, offset);
 			request_val -> req_num = pinfo->fd->num;
 			request_val -> rep_num = 0;
-			request_val -> req_time = pinfo->fd->abs_ts;
+			request_val -> req_time = pinfo->abs_ts;
 
 			g_hash_table_insert(afs_request_hash, new_request_key,
 				request_val);
@@ -2953,7 +2953,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			    tvb, 0, 0, request_val->req_num,
 			    "This is a reply to a request in frame %u",
 			    request_val->req_num);
-			nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &request_val->req_time);
+			nstime_delta(&delta_ts, &pinfo->abs_ts, &request_val->req_time);
 			proto_tree_add_time(afs_tree, hf_afs_time, tvb, offset, 0,
 				&delta_ts);
 		}

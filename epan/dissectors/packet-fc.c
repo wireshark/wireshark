@@ -229,7 +229,7 @@ fc_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, c
     conv_hash_t *hash = (conv_hash_t*) pct;
     const fc_hdr *fchdr=(const fc_hdr *)vip;
 
-    add_conversation_table_data(hash, &fchdr->s_id, &fchdr->d_id, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts, &fc_ct_dissector_info, PT_NONE);
+    add_conversation_table_data(hash, &fchdr->s_id, &fchdr->d_id, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &fc_ct_dissector_info, PT_NONE);
 
     return 1;
 }
@@ -1196,7 +1196,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         fc_ex=wmem_new(wmem_file_scope(), fc_exchange_t);
         fc_ex->first_exchange_frame=0;
         fc_ex->last_exchange_frame=0;
-        fc_ex->fc_time=pinfo->fd->abs_ts;
+        fc_ex->fc_time=pinfo->abs_ts;
 
         wmem_tree_insert32(fc_conv_data->exchanges, exchange_key, fc_ex);
     }
@@ -1207,7 +1207,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     if(!pinfo->fd->flags.visited){
         if(fchdr->fctl&FC_FCTL_EXCHANGE_FIRST){
             fc_ex->first_exchange_frame=pinfo->fd->num;
-            fc_ex->fc_time = pinfo->fd->abs_ts;
+            fc_ex->fc_time = pinfo->abs_ts;
         }
         if(fchdr->fctl&FC_FCTL_EXCHANGE_LAST){
             fc_ex->last_exchange_frame=pinfo->fd->num;
@@ -1221,7 +1221,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         PROTO_ITEM_SET_GENERATED(it);
         if(fchdr->fctl&FC_FCTL_EXCHANGE_LAST){
             nstime_t delta_ts;
-            nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &fc_ex->fc_time);
+            nstime_delta(&delta_ts, &pinfo->abs_ts, &fc_ex->fc_time);
             it=proto_tree_add_time(ti, hf_fc_time, tvb, 0, 0, &delta_ts);
             PROTO_ITEM_SET_GENERATED(it);
         }

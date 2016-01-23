@@ -757,7 +757,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             cdata->itlq.task_flags = 0;
             cdata->itlq.data_length = 0;
             cdata->itlq.bidir_data_length = 0;
-            cdata->itlq.fc_time = pinfo->fd->abs_ts;
+            cdata->itlq.fc_time = pinfo->abs_ts;
             cdata->itlq.first_exchange_frame = 0;
             cdata->itlq.last_exchange_frame = 0;
             cdata->itlq.flags = 0;
@@ -788,7 +788,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         cdata->itlq.task_flags = 0;
         cdata->itlq.data_length = 0;
         cdata->itlq.bidir_data_length = 0;
-        cdata->itlq.fc_time = pinfo->fd->abs_ts;
+        cdata->itlq.fc_time = pinfo->abs_ts;
         cdata->itlq.first_exchange_frame = 0;
         cdata->itlq.last_exchange_frame = 0;
         cdata->itlq.flags = 0;
@@ -1583,7 +1583,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         if (cdata->itlq.first_exchange_frame){
             nstime_t delta_time;
             proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
-            nstime_delta(&delta_time, &pinfo->fd->abs_ts, &cdata->itlq.fc_time);
+            nstime_delta(&delta_time, &pinfo->abs_ts, &cdata->itlq.fc_time);
             proto_tree_add_time(ti, hf_iscsi_time, tvb, 0, 0, &delta_time);
         }
         if (cdata->data_in_frame)
@@ -1603,7 +1603,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
             if (cdata->itlq.first_exchange_frame){
                 nstime_t delta_time;
                 proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->itlq.first_exchange_frame);
-                nstime_delta(&delta_time, &pinfo->fd->abs_ts, &cdata->itlq.fc_time);
+                nstime_delta(&delta_time, &pinfo->abs_ts, &cdata->itlq.fc_time);
                 proto_tree_add_time(ti, hf_iscsi_time, tvb, 0, 0, &delta_time);
             }
         }

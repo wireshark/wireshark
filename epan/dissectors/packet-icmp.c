@@ -957,7 +957,7 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 		icmp_trans = wmem_new(wmem_file_scope(), icmp_transaction_t);
 		icmp_trans->rqst_frame = PINFO_FD_NUM(pinfo);
 		icmp_trans->resp_frame = 0;
-		icmp_trans->rqst_time = pinfo->fd->abs_ts;
+		icmp_trans->rqst_time = pinfo->abs_ts;
 		nstime_set_zero(&icmp_trans->resp_time);
 		wmem_tree_insert32_array(icmp_info->unmatched_pdus, icmp_key,
 				       (void *) icmp_trans);
@@ -1095,7 +1095,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 				 icmp_trans->rqst_frame);
 	PROTO_ITEM_SET_GENERATED(it);
 
-	nstime_delta(&ns, &pinfo->fd->abs_ts, &icmp_trans->rqst_time);
+	nstime_delta(&ns, &pinfo->abs_ts, &icmp_trans->rqst_time);
 	icmp_trans->resp_time = ns;
 	resp_time = nstime_to_msec(&ns);
 	it = proto_tree_add_double_format_value(tree, hf_icmp_resptime,
@@ -1522,18 +1522,18 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		 */
 		ts.secs = tvb_get_ntohl(tvb, 8);
 		ts.nsecs = tvb_get_ntohl(tvb, 8 + 4);	/* Leave at microsec resolution for now */
-		if ((guint32) (ts.secs - pinfo->fd->abs_ts.secs) >=
+		if ((guint32) (ts.secs - pinfo->abs_ts.secs) >=
 		    3600 * 24 || ts.nsecs >= 1000000) {
 			/* Timestamp does not look right in BE, try LE representation */
 			ts.secs = tvb_get_letohl(tvb, 8);
 			ts.nsecs = tvb_get_letohl(tvb, 8 + 4);	/* Leave at microsec resolution for now */
 		}
-		if ((guint32) (ts.secs - pinfo->fd->abs_ts.secs) <
+		if ((guint32) (ts.secs - pinfo->abs_ts.secs) <
 		    3600 * 24 && ts.nsecs < 1000000) {
 			ts.nsecs *= 1000;	/* Convert to nanosec resolution */
 			proto_tree_add_time(icmp_tree, hf_icmp_data_time,
 					    tvb, 8, 8, &ts);
-			nstime_delta(&time_relative, &pinfo->fd->abs_ts,
+			nstime_delta(&time_relative, &pinfo->abs_ts,
 				     &ts);
 			ti = proto_tree_add_time(icmp_tree,
 						 hf_icmp_data_time_relative,
@@ -1574,8 +1574,8 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		{
 			guint32 frame_ts, orig_ts;
 
-			frame_ts = (guint32)(((pinfo->fd->abs_ts.secs * 1000) +
-				    (pinfo->fd->abs_ts.nsecs / 1000000)) %
+			frame_ts = (guint32)(((pinfo->abs_ts.secs * 1000) +
+				    (pinfo->abs_ts.nsecs / 1000000)) %
 			    86400000);
 
 			orig_ts = get_best_guess_mstimeofday(tvb, 8, frame_ts);

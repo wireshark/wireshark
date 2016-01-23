@@ -1270,7 +1270,7 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
         seq_new = (struct rlc_seq *)element->data;
         if (seq_new->frame_num != seq_item.frame_num) {
             nstime_t delta;
-            nstime_delta(&delta, &pinfo->fd->abs_ts, &seq_new->arrival);
+            nstime_delta(&delta, &pinfo->abs_ts, &seq_new->arrival);
             if (delta.secs < RLC_RETRANSMISSION_TIMEOUT) {
                 if (original)
                     *original = seq_new->frame_num;
@@ -1282,7 +1282,7 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
     }
     seq_new = (struct rlc_seq *)wmem_alloc0(wmem_file_scope(), sizeof(struct rlc_seq));
     *seq_new = seq_item;
-    seq_new->arrival = pinfo->fd->abs_ts;
+    seq_new->arrival = pinfo->abs_ts;
     list->list = g_list_append(list->list, seq_new); /* insert in order of arrival */
     return FALSE;
 }

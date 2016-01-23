@@ -225,7 +225,7 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
       ata_info->request_frame=pinfo->fd->num;
       ata_info->response_frame=0;
       ata_info->cmd=tvb_get_guint8(tvb, offset+3);
-      ata_info->req_time=pinfo->fd->abs_ts;
+      ata_info->req_time=pinfo->abs_ts;
 
       tmp_ata_info=(ata_info_t *)g_hash_table_lookup(ata_cmd_unmatched, ata_info);
       if(tmp_ata_info){
@@ -258,7 +258,7 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
         nstime_t delta_ts;
         tmp_item=proto_tree_add_uint(tree, hf_aoe_response_to, tvb, 0, 0, ata_info->request_frame);
         PROTO_ITEM_SET_GENERATED(tmp_item);
-        nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &ata_info->req_time);
+        nstime_delta(&delta_ts, &pinfo->abs_ts, &ata_info->req_time);
         tmp_item=proto_tree_add_time(tree, hf_aoe_time, tvb, offset, 0, &delta_ts);
         PROTO_ITEM_SET_GENERATED(tmp_item);
       }

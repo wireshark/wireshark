@@ -3107,7 +3107,7 @@ static void remember_outgoing_sr(packet_info *pinfo, guint32 lsr)
     /* Update conversation data                            */
     p_conv_data->last_received_set = TRUE;
     p_conv_data->last_received_frame_number = pinfo->fd->num;
-    p_conv_data->last_received_timestamp = pinfo->fd->abs_ts;
+    p_conv_data->last_received_timestamp = pinfo->abs_ts;
     p_conv_data->last_received_ts = lsr;
 
 
@@ -3203,9 +3203,9 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
         {
             /* Look at time of since original packet was sent */
             gint seconds_between_packets = (gint)
-                  (pinfo->fd->abs_ts.secs - p_conv_data->last_received_timestamp.secs);
+                  (pinfo->abs_ts.secs - p_conv_data->last_received_timestamp.secs);
             gint nseconds_between_packets =
-                  pinfo->fd->abs_ts.nsecs - p_conv_data->last_received_timestamp.nsecs;
+                  pinfo->abs_ts.nsecs - p_conv_data->last_received_timestamp.nsecs;
 
             gint total_gap = (seconds_between_packets*1000) +
                              (nseconds_between_packets / 1000000);

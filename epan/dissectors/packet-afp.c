@@ -5143,7 +5143,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 		request_val->frame_req = pinfo->fd->num;
 		request_val->frame_res = 0;
-		request_val->req_time=pinfo->fd->abs_ts;
+		request_val->req_time=pinfo->abs_ts;
 
 		g_hash_table_insert(afp_request_hash, new_request_key,
 								request_val);
@@ -5401,7 +5401,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			ti = proto_tree_add_uint(afp_tree, hf_afp_response_to,
 			    tvb, 0, 0, request_val->frame_req);
 			PROTO_ITEM_SET_GENERATED(ti);
-			nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &request_val->req_time);
+			nstime_delta(&delta_ts, &pinfo->abs_ts, &request_val->req_time);
 			ti = proto_tree_add_time(afp_tree, hf_afp_time, tvb,
 			    0, 0, &delta_ts);
 			PROTO_ITEM_SET_GENERATED(ti);

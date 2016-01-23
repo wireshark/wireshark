@@ -461,8 +461,14 @@ dissect_record(epan_dissect_t *edt, int file_type_subtype,
 	/* edt->pi.pool created in epan_dissect_init() */
 	edt->pi.current_proto = "<Missing Protocol Name>";
 	edt->pi.cinfo = cinfo;
-	edt->pi.fd    = fd;
-	edt->pi.phdr  = phdr;
+	edt->pi.presence_flags = 0;
+	if (phdr->presence_flags & WTAP_HAS_TS) {
+		edt->pi.presence_flags |= PINFO_HAS_TS;
+		edt->pi.abs_ts = phdr->ts;
+	}
+	edt->pi.pkt_encap     = phdr->pkt_encap;
+	edt->pi.fd            = fd;
+	edt->pi.phdr          = phdr;
 	edt->pi.pseudo_header = &phdr->pseudo_header;
 	edt->pi.dl_src.type   = AT_NONE;
 	edt->pi.dl_dst.type   = AT_NONE;

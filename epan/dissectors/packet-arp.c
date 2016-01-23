@@ -668,7 +668,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
           {
             /* Same MAC as before - update existing entry */
             value->frame_num = pinfo->fd->num;
-            value->time_of_entry = pinfo->fd->abs_ts.secs;
+            value->time_of_entry = pinfo->abs_ts.secs;
           }
           else
           {
@@ -689,7 +689,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
         value = wmem_new(wmem_file_scope(), struct address_hash_value);
         memcpy(value->mac, mac, 6);
         value->frame_num = pinfo->fd->num;
-        value->time_of_entry = pinfo->fd->abs_ts.secs;
+        value->time_of_entry = pinfo->abs_ts.secs;
 
         /* Add it */
         g_hash_table_insert(address_hash_table, GUINT_TO_POINTER(ip), value);
@@ -727,7 +727,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_uint(duplicate_tree,
                              hf_arp_duplicate_ip_address_seconds_since_earlier_frame,
                              tvb, 0, 0,
-                             (guint32)(pinfo->fd->abs_ts.secs - result->time_of_entry));
+                             (guint32)(pinfo->abs_ts.secs - result->time_of_entry));
     PROTO_ITEM_SET_GENERATED(ti);
 
     /* Set out parameter */
@@ -785,8 +785,8 @@ check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   else
   {
     /* Seeing packet for first time - check against preference settings */
-    gint seconds_delta  = (gint) (pinfo->fd->abs_ts.secs - time_at_start_of_count.secs);
-    gint nseconds_delta = pinfo->fd->abs_ts.nsecs - time_at_start_of_count.nsecs;
+    gint seconds_delta  = (gint) (pinfo->abs_ts.secs - time_at_start_of_count.secs);
+    gint nseconds_delta = pinfo->abs_ts.nsecs - time_at_start_of_count.nsecs;
     gint gap = (seconds_delta*1000) + (nseconds_delta / 1000000);
 
     /* Reset if gap exceeds period or -ve gap (indicates we're rescanning from start) */
@@ -795,7 +795,7 @@ check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
       /* Time period elapsed without threshold being exceeded */
       arp_request_count = 1;
-      time_at_start_of_count = pinfo->fd->abs_ts;
+      time_at_start_of_count = pinfo->abs_ts;
       p_add_proto_data(wmem_file_scope(), pinfo, proto_arp, 0, (void*)NO_STORM);
       return;
     }
@@ -805,7 +805,7 @@ check_for_storm_count(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Storm detected, record and reset start time. */
         report_storm = TRUE;
         p_add_proto_data(wmem_file_scope(), pinfo, proto_arp, 0, (void*)STORM);
-        time_at_start_of_count = pinfo->fd->abs_ts;
+        time_at_start_of_count = pinfo->abs_ts;
       }
       else
       {

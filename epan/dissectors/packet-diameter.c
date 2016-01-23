@@ -1344,7 +1344,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 				diameter_pair->cmd_str = cmd_str;
 				diameter_pair->req_frame = PINFO_FD_NUM(pinfo);
 				diameter_pair->ans_frame = 0;
-				diameter_pair->req_time = pinfo->fd->abs_ts;
+				diameter_pair->req_time = pinfo->abs_ts;
 				wmem_tree_insert32(pdus_tree, PINFO_FD_NUM(pinfo), (void *)diameter_pair);
 			} else {
 				/* Look for a request which occurs earlier in the trace than this answer. */
@@ -1376,7 +1376,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		diameter_pair->cmd_str = cmd_str;
 		diameter_pair->req_frame = 0;
 		diameter_pair->ans_frame = 0;
-		diameter_pair->req_time = pinfo->fd->abs_ts;
+		diameter_pair->req_time = pinfo->abs_ts;
 	}
 	diameter_pair->processing_request=(flags_bits & DIAM_FLAGS_R)!= 0;
 
@@ -1395,7 +1395,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 					tvb, 0, 0, diameter_pair->req_frame);
 			PROTO_ITEM_SET_GENERATED(it);
 
-			nstime_delta(&ns, &pinfo->fd->abs_ts, &diameter_pair->req_time);
+			nstime_delta(&ns, &pinfo->abs_ts, &diameter_pair->req_time);
 			diameter_pair->srt_time = ns;
 			it = proto_tree_add_time(diam_tree, hf_diameter_answer_time, tvb, 0, 0, &ns);
 			PROTO_ITEM_SET_GENERATED(it);

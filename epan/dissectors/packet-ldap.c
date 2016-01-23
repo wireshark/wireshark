@@ -1071,7 +1071,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         }
         lcrp->messageId=messageId;
         lcrp->req_frame=pinfo->fd->num;
-        lcrp->req_time=pinfo->fd->abs_ts;
+        lcrp->req_time=pinfo->abs_ts;
         lcrp->rep_frame=0;
         lcrp->protocolOpTag=protocolOpTag;
         lcrp->is_request=TRUE;
@@ -1121,7 +1121,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         nstime_t ns;
         it=proto_tree_add_uint(tree, hf_ldap_response_to, tvb, 0, 0, lcrp->req_frame);
         PROTO_ITEM_SET_GENERATED(it);
-        nstime_delta(&ns, &pinfo->fd->abs_ts, &lcrp->req_time);
+        nstime_delta(&ns, &pinfo->abs_ts, &lcrp->req_time);
         it=proto_tree_add_time(tree, hf_ldap_time, tvb, 0, 0, &ns);
         PROTO_ITEM_SET_GENERATED(it);
       }

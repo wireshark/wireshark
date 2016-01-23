@@ -1452,7 +1452,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
         dmp_data->msg_resend_count++;
         dmp_data->prev_msg_id = pinfo->fd->num;
         dmp_data->prev_msg_time = dmp_data->msg_time;
-        dmp_data->msg_time = pinfo->fd->abs_ts;
+        dmp_data->msg_time = pinfo->abs_ts;
       }
     } else {
       /* New message */
@@ -1463,8 +1463,8 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
         /* No matching message for this ack */
         dmp_data->ack_id = pinfo->fd->num;
       } else {
-        dmp_data->first_msg_time = pinfo->fd->abs_ts;
-        dmp_data->msg_time = pinfo->fd->abs_ts;
+        dmp_data->first_msg_time = pinfo->abs_ts;
+        dmp_data->msg_time = pinfo->abs_ts;
 
         if (dmp.msg_type == REPORT) {
           dmp_data->rep_id = pinfo->fd->num;
@@ -1541,7 +1541,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                   tvb, 0, 0, dmp.id_val->msg_id);
         PROTO_ITEM_SET_GENERATED (en);
 
-        nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->rep_not_msg_time);
+        nstime_delta (&ns, &pinfo->abs_ts, &dmp.id_val->rep_not_msg_time);
         en = proto_tree_add_time (analysis_tree, hf_analysis_rep_time,
                                   tvb, 0, 0, &ns);
         PROTO_ITEM_SET_GENERATED (en);
@@ -1554,7 +1554,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                   tvb, 0, 0, dmp.id_val->msg_id);
         PROTO_ITEM_SET_GENERATED (en);
 
-        nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->rep_not_msg_time);
+        nstime_delta (&ns, &pinfo->abs_ts, &dmp.id_val->rep_not_msg_time);
         en = proto_tree_add_time (analysis_tree, hf_analysis_not_time,
                                   tvb, 0, 0, &ns);
         PROTO_ITEM_SET_GENERATED (en);
@@ -1582,12 +1582,12 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
       }
       PROTO_ITEM_SET_GENERATED (en);
 
-      nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->prev_msg_time);
+      nstime_delta (&ns, &pinfo->abs_ts, &dmp.id_val->prev_msg_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_retrans_time,
                                 tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (en);
 
-      nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->first_msg_time);
+      nstime_delta (&ns, &pinfo->abs_ts, &dmp.id_val->first_msg_time);
       eh = proto_tree_add_time (analysis_tree, hf_analysis_total_retrans_time,
                                 tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (eh);
@@ -1612,12 +1612,12 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
       }
       PROTO_ITEM_SET_GENERATED (en);
 
-      nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->msg_time);
+      nstime_delta (&ns, &pinfo->abs_ts, &dmp.id_val->msg_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_ack_time,
                                 tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (en);
 
-      nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->first_msg_time);
+      nstime_delta (&ns, &pinfo->abs_ts, &dmp.id_val->first_msg_time);
       eh = proto_tree_add_time (analysis_tree, hf_analysis_total_time,
                                 tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (eh);
@@ -2952,7 +2952,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   /* Submission Time */
   subm_time = tvb_get_ntohs (tvb, offset);
   dmp.subm_time = dmp_dec_subm_time ((guint16)(subm_time & 0x7FFF),
-                                     (gint32) pinfo->fd->abs_ts.secs);
+                                     (gint32) pinfo->abs_ts.secs);
   tf = proto_tree_add_uint_format (envelope_tree, hf_envelope_subm_time, tvb,
                                    offset, 2, subm_time,
                                    "Submission time: %s",

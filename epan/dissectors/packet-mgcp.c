@@ -329,7 +329,7 @@ mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 		else {
 			ms->time_stats[0].open_req_num--;
 			/* calculate time delta between request and response */
-			nstime_delta(&delta, &pinfo->fd->abs_ts, &mi->req_time);
+			nstime_delta(&delta, &pinfo->abs_ts, &mi->req_time);
 
 			time_stat_update(&(ms->time_stats[0].rtd[0]), &delta, pinfo);
 
@@ -1308,7 +1308,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 							                                  "This is a response to a request in frame %u",
 							                                  mgcp_call->req_num);
 							PROTO_ITEM_SET_GENERATED(item);
-							nstime_delta(&delta, &pinfo->fd->abs_ts, &mgcp_call->req_time);
+							nstime_delta(&delta, &pinfo->abs_ts, &mgcp_call->req_time);
 							item = proto_tree_add_time(tree, hf_mgcp_time, tvb, 0, 0, &delta);
 							PROTO_ITEM_SET_GENERATED(item);
 						}
@@ -1452,7 +1452,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					mgcp_call->rsp_num   = 0;
 					mgcp_call->transid   = mi->transid;
 					mgcp_call->responded = FALSE;
-					mgcp_call->req_time=pinfo->fd->abs_ts;
+					mgcp_call->req_time=pinfo->abs_ts;
 					g_strlcpy(mgcp_call->code, mi->code, 5);
 
 					/* Store it */

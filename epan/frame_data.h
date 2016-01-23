@@ -71,7 +71,6 @@ typedef struct _frame_data {
   guint32      cum_bytes;    /**< Cumulative bytes into the capture */
   gint64       file_off;     /**< File offset */
   guint16      subnum;       /**< subframe number, for protocols that require this */
-  gint16       lnk_t;        /**< Per-packet encapsulation/data-link type */
   struct {
     unsigned int passed_dfilter : 1; /**< 1 = display, 0 = no display */
     unsigned int dependent_of_displayed : 1; /**< 1 if a displayed frame depends on this frame */

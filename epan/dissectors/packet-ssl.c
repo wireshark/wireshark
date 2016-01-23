@@ -989,7 +989,7 @@ again:
 
         if (!PINFO_FD_VISITED(pinfo)) {
             msp->last_frame = pinfo->fd->num;
-            msp->last_frame_time = pinfo->fd->abs_ts;
+            msp->last_frame_time = pinfo->abs_ts;
         }
 
         /* OK, this PDU was found, which means the segment continues

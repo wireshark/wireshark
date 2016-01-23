@@ -1591,7 +1591,7 @@ update_tcaphash_begincall(struct tcaphash_begincall_t *p_tcaphash_begincall,
   p_tcaphash_begincall->context->first_frame = pinfo->fd->num;
   p_tcaphash_begincall->context->last_frame = 0;
   p_tcaphash_begincall->context->responded = FALSE;
-  p_tcaphash_begincall->context->begin_time = pinfo->fd->abs_ts;
+  p_tcaphash_begincall->context->begin_time = pinfo->abs_ts;
 }
 
 /*
@@ -1645,7 +1645,7 @@ update_tcaphash_ansicall(struct tcaphash_ansicall_t *p_tcaphash_ansicall,
   p_tcaphash_ansicall->context->first_frame = pinfo->fd->num;
   p_tcaphash_ansicall->context->last_frame = 0;
   p_tcaphash_ansicall->context->responded = FALSE;
-  p_tcaphash_ansicall->context->begin_time = pinfo->fd->abs_ts;
+  p_tcaphash_ansicall->context->begin_time = pinfo->abs_ts;
 }
 
 /*
@@ -2289,11 +2289,11 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
            and this request occurred after the timeout for message lost */
         if ( ( p_tcaphash_begincall->context->last_frame != 0
                && pinfo->fd->num > p_tcaphash_begincall->context->first_frame
-               && (guint) pinfo->fd->abs_ts.secs > (guint)(p_tcaphash_begincall->context->begin_time.secs + gtcap_RepetitionTimeout)
+               && (guint) pinfo->abs_ts.secs > (guint)(p_tcaphash_begincall->context->begin_time.secs + gtcap_RepetitionTimeout)
                ) ||
              ( p_tcaphash_begincall->context->last_frame == 0
                && pinfo->fd->num > p_tcaphash_begincall->context->first_frame
-               && (guint)pinfo->fd->abs_ts.secs > (guint)(p_tcaphash_begincall->context->begin_time.secs + gtcap_LostTimeout)
+               && (guint)pinfo->abs_ts.secs > (guint)(p_tcaphash_begincall->context->begin_time.secs + gtcap_LostTimeout)
                )
              )
           {
@@ -2668,7 +2668,7 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                       p_tcaphash_context->first_frame);
       PROTO_ITEM_SET_GENERATED(pi);
       /* Calculate Service Response Time */
-      nstime_delta(&delta, &pinfo->fd->abs_ts, &p_tcaphash_context->begin_time);
+      nstime_delta(&delta, &pinfo->abs_ts, &p_tcaphash_context->begin_time);
 
       /* display Service Response Time and make it filterable */
       pi = proto_tree_add_time(stat_tree, hf_tcapsrt_SessionTime, tvb, 0, 0, &delta);
@@ -2789,7 +2789,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                           p_tcaphash_context->first_frame);
           PROTO_ITEM_SET_GENERATED(pi);
           /* Calculate Service Response Time */
-          nstime_delta(&delta, &pinfo->fd->abs_ts, &p_tcaphash_context->begin_time);
+          nstime_delta(&delta, &pinfo->abs_ts, &p_tcaphash_context->begin_time);
 
           /* display Service Response Time and make it filterable */
           pi = proto_tree_add_time(stat_tree, hf_tcapsrt_SessionTime, tvb, 0, 0, &delta);
@@ -2811,11 +2811,11 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
            and this request occurred after the timeout for message lost */
         if ( ( p_tcaphash_ansicall->context->last_frame != 0
                && pinfo->fd->num > p_tcaphash_ansicall->context->first_frame
-               && (guint) pinfo->fd->abs_ts.secs > (guint)(p_tcaphash_ansicall->context->begin_time.secs + gtcap_RepetitionTimeout)
+               && (guint) pinfo->abs_ts.secs > (guint)(p_tcaphash_ansicall->context->begin_time.secs + gtcap_RepetitionTimeout)
                ) ||
              ( p_tcaphash_ansicall->context->last_frame == 0
                && pinfo->fd->num > p_tcaphash_ansicall->context->first_frame
-               && (guint)pinfo->fd->abs_ts.secs > (guint)(p_tcaphash_ansicall->context->begin_time.secs + gtcap_LostTimeout)
+               && (guint)pinfo->abs_ts.secs > (guint)(p_tcaphash_ansicall->context->begin_time.secs + gtcap_LostTimeout)
                )
              )
           {
@@ -2881,7 +2881,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                               p_tcaphash_context->first_frame);
               PROTO_ITEM_SET_GENERATED(pi);
               /* Calculate Service Response Time */
-              nstime_delta(&delta, &pinfo->fd->abs_ts, &p_tcaphash_context->begin_time);
+              nstime_delta(&delta, &pinfo->abs_ts, &p_tcaphash_context->begin_time);
 
               /* display Service Response Time and make it filterable */
               pi = proto_tree_add_time(stat_tree, hf_tcapsrt_SessionTime, tvb, 0, 0, &delta);
@@ -2948,7 +2948,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                         p_tcaphash_context->first_frame);
         PROTO_ITEM_SET_GENERATED(pi);
         /* Calculate Service Response Time */
-        nstime_delta(&delta, &pinfo->fd->abs_ts, &p_tcaphash_context->begin_time);
+        nstime_delta(&delta, &pinfo->abs_ts, &p_tcaphash_context->begin_time);
 
         /* display Service Response Time and make it filterable */
         pi = proto_tree_add_time(stat_tree, hf_tcapsrt_SessionTime, tvb, 0, 0, &delta);
@@ -3067,7 +3067,7 @@ tcapsrt_close(struct tcaphash_context_t *p_tcaphash_context,
   if (p_tcaphash_context) {
     p_tcaphash_context->responded=TRUE;
     p_tcaphash_context->last_frame = pinfo->fd->num;
-    p_tcaphash_context->end_time = pinfo->fd->abs_ts;
+    p_tcaphash_context->end_time = pinfo->abs_ts;
     p_tcaphash_context->closed=TRUE;
 
     /* If the endkey is present */

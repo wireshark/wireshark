@@ -299,7 +299,6 @@ frame_data_init(frame_data *fdata, guint32 num,
   fdata->subnum = 0;
   /* To save some memory, we coerce it into a gint16 */
   g_assert(phdr->pkt_encap <= G_MAXINT16);
-  fdata->lnk_t = (gint16) phdr->pkt_encap;
   fdata->flags.passed_dfilter = 0;
   fdata->flags.dependent_of_displayed = 0;
   fdata->flags.encoding = PACKET_CHAR_ENC_CHAR_ASCII;

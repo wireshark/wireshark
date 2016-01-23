@@ -549,7 +549,7 @@ static guint16 dissect_control_message(proto_tree *rtitcp_tree, tvbuff_t *tvb, p
             rtitcp_trans=wmem_new(wmem_file_scope(), rtitcp_transaction_t);
             rtitcp_trans->req_frame = pinfo->fd->num;
             rtitcp_trans->rep_frame = 0;
-            rtitcp_trans->req_time = pinfo->fd->abs_ts;
+            rtitcp_trans->req_time = pinfo->abs_ts;
             conversation_info_key = (guint64*)wmem_alloc0(wmem_file_scope(), sizeof(guint64));
             *conversation_info_key = seq_num;
             wmem_map_insert(rtitcp_info->pdus, conversation_info_key, (void *)rtitcp_trans);
@@ -569,7 +569,7 @@ static guint16 dissect_control_message(proto_tree *rtitcp_tree, tvbuff_t *tvb, p
             rtitcp_trans=wmem_new(wmem_packet_scope(), rtitcp_transaction_t);
             rtitcp_trans->req_frame = 0;
             rtitcp_trans->rep_frame = 0;
-            rtitcp_trans->req_time = pinfo->fd->abs_ts;
+            rtitcp_trans->req_time = pinfo->abs_ts;
     }
 
     /* print state tracking in the tree */
@@ -590,7 +590,7 @@ static guint16 dissect_control_message(proto_tree *rtitcp_tree, tvbuff_t *tvb, p
                             tvb, 0, 0, rtitcp_trans->req_frame);
             PROTO_ITEM_SET_GENERATED(it);
 
-            nstime_delta(&ns, &pinfo->fd->abs_ts, &rtitcp_trans->req_time);
+            nstime_delta(&ns, &pinfo->abs_ts, &rtitcp_trans->req_time);
             it = proto_tree_add_time(rtitcp_message, hf_rtitcp_response_time, tvb, 0, 0, &ns);
             PROTO_ITEM_SET_GENERATED(it);
         }

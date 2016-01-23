@@ -439,7 +439,7 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "TEI:%02u ", tei);
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
-	if (pinfo->fd->lnk_t == WTAP_ENCAP_LINUX_LAPD) {
+	if (pinfo->pkt_encap == WTAP_ENCAP_LINUX_LAPD) {
 		/* frame is captured via libpcap */
 		if (pinfo->pseudo_header->lapd.pkttype == 4 /*PACKET_OUTGOING*/) {
 			if (pinfo->pseudo_header->lapd.we_network) {

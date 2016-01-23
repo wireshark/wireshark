@@ -1241,7 +1241,7 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
         icmpv6_trans = wmem_new(wmem_file_scope(), icmp_transaction_t);
         icmpv6_trans->rqst_frame = PINFO_FD_NUM(pinfo);
         icmpv6_trans->resp_frame = 0;
-        icmpv6_trans->rqst_time = pinfo->fd->abs_ts;
+        icmpv6_trans->rqst_time = pinfo->abs_ts;
         nstime_set_zero(&icmpv6_trans->resp_time);
         wmem_tree_insert32_array(icmpv6_info->unmatched_pdus, icmpv6_key, (void *)icmpv6_trans);
     } else {
@@ -1368,7 +1368,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
         PROTO_ITEM_SET_GENERATED(it);
     }
 
-    nstime_delta(&ns, &pinfo->fd->abs_ts, &icmpv6_trans->rqst_time);
+    nstime_delta(&ns, &pinfo->abs_ts, &icmpv6_trans->rqst_time);
     icmpv6_trans->resp_time = ns;
     if (tree) {
         resp_time = nstime_to_msec(&ns);

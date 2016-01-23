@@ -249,7 +249,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       reload_frame = wmem_new(wmem_file_scope(), reload_frame_t);
       reload_frame->data_frame = 0;
       reload_frame->ack_frame  = 0;
-      reload_frame->req_time   = pinfo->fd->abs_ts;
+      reload_frame->req_time   = pinfo->abs_ts;
       wmem_tree_insert32_array(reload_framing_info->transaction_pdus, transaction_id_key, (void *)reload_frame);
     }
     transaction_id_key[2].key    = key_save;
@@ -282,7 +282,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     reload_frame = wmem_new(wmem_packet_scope(), reload_frame_t);
     reload_frame->data_frame = (type==DATA) ? pinfo->fd->num : 0;
     reload_frame->ack_frame  = (type!=DATA) ? pinfo->fd->num : 0;
-    reload_frame->req_time   = pinfo->fd->abs_ts;
+    reload_frame->req_time   = pinfo->abs_ts;
   }
 
   ti = proto_tree_add_item(tree, proto_reload_framing, tvb, 0, -1, ENC_NA);
@@ -320,7 +320,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       it = proto_tree_add_uint(reload_framing_tree, hf_reload_framing_response_to, tvb, 0, 0, reload_frame->data_frame);
       PROTO_ITEM_SET_GENERATED(it);
 
-      nstime_delta(&ns, &pinfo->fd->abs_ts, &reload_frame->req_time);
+      nstime_delta(&ns, &pinfo->abs_ts, &reload_frame->req_time);
       it = proto_tree_add_time(reload_framing_tree, hf_reload_framing_time, tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED(it);
     }

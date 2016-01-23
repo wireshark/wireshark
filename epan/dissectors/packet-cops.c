@@ -1060,7 +1060,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             cops_call->solicited = is_solicited;
             cops_call->req_num = PINFO_FD_NUM(pinfo);
             cops_call->rsp_num = 0;
-            cops_call->req_time = pinfo->fd->abs_ts;
+            cops_call->req_time = pinfo->abs_ts;
             g_ptr_array_add(pdus_array, cops_call);
         }
         else {
@@ -1086,7 +1086,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             for (i=0; i < pdus_array->len; i++) {
                 cops_call = (cops_call_t*)g_ptr_array_index(pdus_array, i);
 
-                if (nstime_cmp(&pinfo->fd->abs_ts, &cops_call->req_time) <= 0 || cops_call->rsp_num != 0)
+                if (nstime_cmp(&pinfo->abs_ts, &cops_call->req_time) <= 0 || cops_call->rsp_num != 0)
                     continue;
 
                 if (
@@ -1117,7 +1117,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                                                       "Response to a request in frame %u", cops_call->req_num);
                     PROTO_ITEM_SET_GENERATED(ti);
 
-                    nstime_delta(&delta, &pinfo->fd->abs_ts, &cops_call->req_time);
+                    nstime_delta(&delta, &pinfo->abs_ts, &cops_call->req_time);
                     ti = proto_tree_add_time(cops_tree, hf_cops_response_time, tvb, 0, 0, &delta);
                     PROTO_ITEM_SET_GENERATED(ti);
 

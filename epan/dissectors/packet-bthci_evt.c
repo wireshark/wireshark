@@ -4528,20 +4528,20 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         if (!pinfo->fd->flags.visited && opcode_list_data->command_status == COMMAND_STATUS_PENDING &&
                 lastest_bthci_cmd_data->pending_in_frame == max_disconnect_in_frame) {
             lastest_bthci_cmd_data->pending_in_frame = frame_number;
-            lastest_bthci_cmd_data->pending_abs_ts = pinfo->fd->abs_ts;
+            lastest_bthci_cmd_data->pending_abs_ts = pinfo->abs_ts;
         }
 
         if (!pinfo->fd->flags.visited && opcode_list_data->command_status == COMMAND_STATUS_NORMAL &&
                 lastest_bthci_cmd_data->response_in_frame == max_disconnect_in_frame) {
             lastest_bthci_cmd_data->response_in_frame = frame_number;
-            lastest_bthci_cmd_data->response_abs_ts = pinfo->fd->abs_ts;
+            lastest_bthci_cmd_data->response_abs_ts = pinfo->abs_ts;
         }
 
         if (!pinfo->fd->flags.visited && opcode_list_data->command_status == COMMAND_STATUS_RESULT &&
                 lastest_bthci_cmd_data->response_in_frame == max_disconnect_in_frame &&
                 lastest_bthci_cmd_data->pending_in_frame == max_disconnect_in_frame) {
             lastest_bthci_cmd_data->response_in_frame = frame_number;
-            lastest_bthci_cmd_data->response_abs_ts = pinfo->fd->abs_ts;
+            lastest_bthci_cmd_data->response_abs_ts = pinfo->abs_ts;
         }
 
         if (lastest_bthci_cmd_data->pending_in_frame == frame_number) {

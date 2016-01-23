@@ -473,7 +473,7 @@ ctdb_display_trans(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, ctdb_tra
 	if(pinfo->fd->num==ctdb_trans->response_in){
 		nstime_t ns;
 
-		nstime_delta(&ns, &pinfo->fd->abs_ts, &ctdb_trans->req_time);
+		nstime_delta(&ns, &pinfo->abs_ts, &ctdb_trans->req_time);
 		item=proto_tree_add_time(tree, hf_ctdb_time, tvb, 0, 0, &ns);
 		PROTO_ITEM_SET_GENERATED(item);
 	}
@@ -498,7 +498,7 @@ ctdb_display_control(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, ctdb_c
 	if(pinfo->fd->num==ctdb_control->response_in){
 		nstime_t ns;
 
-		nstime_delta(&ns, &pinfo->fd->abs_ts, &ctdb_control->req_time);
+		nstime_delta(&ns, &pinfo->abs_ts, &ctdb_control->req_time);
 		item=proto_tree_add_time(tree, hf_ctdb_time, tvb, 0, 0, &ns);
 		PROTO_ITEM_SET_GENERATED(item);
 	}
@@ -752,7 +752,7 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 		ctdb_control->opcode=opcode;
 		ctdb_control->request_in=pinfo->fd->num;
 		ctdb_control->response_in=0;
-		ctdb_control->req_time=pinfo->fd->abs_ts;
+		ctdb_control->req_time=pinfo->abs_ts;
 		tkey[0].length=1;
 		tkey[0].key=&reqid;
 		tkey[1].length=1;
@@ -942,7 +942,7 @@ dissect_ctdb_req_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 		ctdb_trans->key_hash=keyhash;
 		ctdb_trans->request_in=pinfo->fd->num;
 		ctdb_trans->response_in=0;
-		ctdb_trans->req_time=pinfo->fd->abs_ts;
+		ctdb_trans->req_time=pinfo->abs_ts;
 		tkey[0].length=1;
 		tkey[0].key=&reqid;
 		tkey[1].length=1;

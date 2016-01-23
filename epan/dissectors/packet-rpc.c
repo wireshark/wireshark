@@ -2194,7 +2194,7 @@ looks_like_rpc_reply(tvbuff_t *tvb, packet_info *pinfo, int offset)
 		rpc_call->rep_num = pinfo->fd->num;
 		rpc_call->xid = xid;
 		rpc_call->flavor = FLAVOR_NOT_GSSAPI;  /* total punt */
-		rpc_call->req_time = pinfo->fd->abs_ts;
+		rpc_call->req_time = pinfo->abs_ts;
 
 		/* store it */
 		wmem_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
@@ -2518,7 +2518,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			rpc_call->flavor = flavor;
 			rpc_call->gss_proc = gss_proc;
 			rpc_call->gss_svc = gss_svc;
-			rpc_call->req_time = pinfo->fd->abs_ts;
+			rpc_call->req_time = pinfo->abs_ts;
 
 			/* store it */
 			wmem_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
@@ -2647,7 +2647,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    rpc_call->req_num);
 			PROTO_ITEM_SET_GENERATED(tmp_item);
 
-			nstime_delta(&ns, &pinfo->fd->abs_ts, &rpc_call->req_time);
+			nstime_delta(&ns, &pinfo->abs_ts, &rpc_call->req_time);
 			tmp_item=proto_tree_add_time(rpc_tree, hf_rpc_time, tvb, offset, 0,
 				&ns);
 			PROTO_ITEM_SET_GENERATED(tmp_item);
@@ -4009,7 +4009,7 @@ rpc_prog_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
 	new_stat_tap_set_field_data(table, element, CALLS_COLUMN, item_data);
 
 	/* calculate time delta between request and reply */
-	nstime_delta(&delta, &pinfo->fd->abs_ts, &ri->req_time);
+	nstime_delta(&delta, &pinfo->abs_ts, &ri->req_time);
 	delta_s = nstime_to_sec(&delta);
 
 	item_data = new_stat_tap_get_field_data(table, element, MIN_SRT_COLUMN);

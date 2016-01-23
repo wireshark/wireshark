@@ -3249,7 +3249,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
             }
             gcrp->seq_nr=seq_nr;
             gcrp->req_frame = pinfo->fd->num;
-            gcrp->req_time = pinfo->fd->abs_ts;
+            gcrp->req_time = pinfo->abs_ts;
             gcrp->rep_frame = 0;
             gcrp->msgtype = msgtype;
             gcrp->is_request = TRUE;
@@ -3290,7 +3290,7 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
 
             it = proto_tree_add_uint(tree, hf_gtp_response_to, tvb, 0, 0, gcrp->req_frame);
             PROTO_ITEM_SET_GENERATED(it);
-            nstime_delta(&ns, &pinfo->fd->abs_ts, &gcrp->req_time);
+            nstime_delta(&ns, &pinfo->abs_ts, &gcrp->req_time);
             it = proto_tree_add_time(tree, hf_gtp_time, tvb, 0, 0, &ns);
             PROTO_ITEM_SET_GENERATED(it);
         }

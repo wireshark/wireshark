@@ -291,7 +291,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             classicstun_trans=wmem_new(wmem_file_scope(), classicstun_transaction_t);
             classicstun_trans->req_frame=pinfo->fd->num;
             classicstun_trans->rep_frame=0;
-            classicstun_trans->req_time=pinfo->fd->abs_ts;
+            classicstun_trans->req_time=pinfo->abs_ts;
             wmem_tree_insert32_array(classicstun_info->pdus, transaction_id_key,
                            (void *)classicstun_trans);
         } else {
@@ -309,7 +309,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         classicstun_trans=wmem_new(wmem_packet_scope(), classicstun_transaction_t);
         classicstun_trans->req_frame=0;
         classicstun_trans->rep_frame=0;
-        classicstun_trans->req_time=pinfo->fd->abs_ts;
+        classicstun_trans->req_time=pinfo->abs_ts;
     }
 
 
@@ -345,7 +345,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 it=proto_tree_add_uint(classicstun_tree, hf_classicstun_response_to, tvb, 0, 0, classicstun_trans->req_frame);
                 PROTO_ITEM_SET_GENERATED(it);
 
-                nstime_delta(&ns, &pinfo->fd->abs_ts, &classicstun_trans->req_time);
+                nstime_delta(&ns, &pinfo->abs_ts, &classicstun_trans->req_time);
                 it=proto_tree_add_time(classicstun_tree, hf_classicstun_time, tvb, 0, 0, &ns);
                 PROTO_ITEM_SET_GENERATED(it);
             }

@@ -4178,7 +4178,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       reload_trans = wmem_new(wmem_file_scope(), reload_transaction_t);
       reload_trans->req_frame = 0;
       reload_trans->rep_frame = 0;
-      reload_trans->req_time = pinfo->fd->abs_ts;
+      reload_trans->req_time = pinfo->abs_ts;
       wmem_tree_insert32_array(reload_info->transaction_pdus, transaction_id_key, (void *)reload_trans);
     }
 
@@ -4206,7 +4206,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     reload_trans = wmem_new(wmem_packet_scope(), reload_transaction_t);
     reload_trans->req_frame = 0;
     reload_trans->rep_frame = 0;
-    reload_trans->req_time = pinfo->fd->abs_ts;
+    reload_trans->req_time = pinfo->abs_ts;
   }
 
   /* Retransmission control */
@@ -4237,7 +4237,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       it = proto_tree_add_uint(reload_tree, hf_reload_response_to, tvb, 0, 0, reload_trans->req_frame);
       PROTO_ITEM_SET_GENERATED(it);
 
-      nstime_delta(&ns, &pinfo->fd->abs_ts, &reload_trans->req_time);
+      nstime_delta(&ns, &pinfo->abs_ts, &reload_trans->req_time);
       it = proto_tree_add_time(reload_tree, hf_reload_time, tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED(it);
     }

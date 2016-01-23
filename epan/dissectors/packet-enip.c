@@ -754,7 +754,7 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
          request_info = wmem_new(wmem_file_scope(), enip_request_info_t);
          request_info->req_num = pinfo->fd->num;
          request_info->rep_num = 0;
-         request_info->req_time = pinfo->fd->abs_ts;
+         request_info->req_time = pinfo->abs_ts;
          request_info->cip_info = NULL;
          wmem_tree_insert32(request_val->frames, pinfo->fd->num, (void *)request_info);
       }
@@ -802,7 +802,7 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
                      NULL, 0, 0, request_info->req_num);
                PROTO_ITEM_SET_GENERATED(it);
 
-               nstime_delta(&ns, &pinfo->fd->abs_ts, &request_info->req_time);
+               nstime_delta(&ns, &pinfo->abs_ts, &request_info->req_time);
                it = proto_tree_add_time(tree, hf_enip_time, NULL, 0, 0, &ns);
                PROTO_ITEM_SET_GENERATED(it);
             }

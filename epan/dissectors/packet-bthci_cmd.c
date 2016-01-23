@@ -3255,11 +3255,11 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         bthci_cmd_data = (bthci_cmd_data_t *) wmem_new(wmem_file_scope(), bthci_cmd_data_t);
         bthci_cmd_data->opcode = opcode;
         bthci_cmd_data->command_in_frame = frame_number;
-        bthci_cmd_data->command_abs_ts = pinfo->fd->abs_ts;
+        bthci_cmd_data->command_abs_ts = pinfo->abs_ts;
         bthci_cmd_data->pending_in_frame = max_disconnect_in_frame;
-        bthci_cmd_data->pending_abs_ts = pinfo->fd->abs_ts;
+        bthci_cmd_data->pending_abs_ts = pinfo->abs_ts;
         bthci_cmd_data->response_in_frame = max_disconnect_in_frame;
-        bthci_cmd_data->response_abs_ts = pinfo->fd->abs_ts;
+        bthci_cmd_data->response_abs_ts = pinfo->abs_ts;
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_CMD");

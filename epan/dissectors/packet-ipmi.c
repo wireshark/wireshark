@@ -491,14 +491,14 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		data->curr_frame_num = pinfo->fd->num;
 
 		/* copy frame timestamp */
-		memcpy(&data->curr_frame->ts, &pinfo->fd->abs_ts, sizeof(nstime_t));
+		memcpy(&data->curr_frame->ts, &pinfo->abs_ts, sizeof(nstime_t));
 
 		/* cache channel and direction */
 		data->curr_channel = ctx->hdr.channel;
 		data->curr_dir = ctx->hdr.dir;
 
 		/* remove requests which are too old */
-		remove_old_requests(data, &pinfo->fd->abs_ts);
+		remove_old_requests(data, &pinfo->abs_ts);
 	}
 
 	if (data->curr_level < MAX_NEST_LEVEL) {
@@ -577,7 +577,7 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					PROTO_ITEM_SET_GENERATED(ti);
 
 					/* calculate delta time */
-					nstime_delta(&ns, &pinfo->fd->abs_ts,
+					nstime_delta(&ns, &pinfo->abs_ts,
 							&get_frame_data(data,
 									rs_data->matched_frame_num)->ts);
 

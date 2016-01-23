@@ -545,7 +545,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             cmd->frame_number = pinfo->fd->num;
             cmd->status = STATUS_NO_RESPONSE;
-            cmd->time = pinfo->fd->abs_ts;
+            cmd->time = pinfo->abs_ts;
             cmd->at_command
             cmd->at_type
             cmd->first_response_in = 0;

@@ -252,7 +252,7 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (info && info->previous_media_packet_info && info->current_media_packet_info) {
         nstime_t  delta;
 
-        nstime_delta(&delta, &pinfo->fd->abs_ts, &info->previous_media_packet_info->abs_ts);
+        nstime_delta(&delta, &pinfo->abs_ts, &info->previous_media_packet_info->abs_ts);
         pitem = proto_tree_add_double(sbc_tree, hf_sbc_delta_time, tvb, offset, 0, nstime_to_msec(&delta));
         proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);
@@ -261,7 +261,7 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);
 
-        nstime_delta(&delta, &pinfo->fd->abs_ts, &info->previous_media_packet_info->first_abs_ts);
+        nstime_delta(&delta, &pinfo->abs_ts, &info->previous_media_packet_info->first_abs_ts);
         pitem = proto_tree_add_double(sbc_tree, hf_sbc_delta_time_from_the_beginning, tvb, offset, 0,  nstime_to_msec(&delta));
         proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);

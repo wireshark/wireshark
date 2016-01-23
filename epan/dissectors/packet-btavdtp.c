@@ -1517,10 +1517,10 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 } else {
                     if (avrcp_song_position == -1.0)
                         avrcp_song_position = 0.0;
-                    first_abs_ts = pinfo->fd->abs_ts;
+                    first_abs_ts = pinfo->abs_ts;
                     cumulative_frame_duration = 0.0;
                     sep_data.previous_media_packet_info = (media_packet_info_t *) wmem_new(wmem_epan_scope(), media_packet_info_t);
-                    sep_data.previous_media_packet_info->abs_ts = pinfo->fd->abs_ts;
+                    sep_data.previous_media_packet_info->abs_ts = pinfo->abs_ts;
                     sep_data.previous_media_packet_info->first_abs_ts = first_abs_ts;
                     sep_data.previous_media_packet_info->cumulative_frame_duration = cumulative_frame_duration;
                     sep_data.previous_media_packet_info->avrcp_song_position = avrcp_song_position;
@@ -1537,7 +1537,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         avrcp_song_position = 0.0;
 
                     current_media_packet_info = wmem_new(wmem_file_scope(), media_packet_info_t);
-                    current_media_packet_info->abs_ts = pinfo->fd->abs_ts;
+                    current_media_packet_info->abs_ts = pinfo->abs_ts;
                     current_media_packet_info->first_abs_ts = first_abs_ts;
                     current_media_packet_info->cumulative_frame_duration = cumulative_frame_duration;
                     current_media_packet_info->avrcp_song_position = avrcp_song_position;
@@ -2854,7 +2854,7 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (info && info->previous_media_packet_info && info->current_media_packet_info) {
             nstime_t  delta;
 
-            nstime_delta(&delta, &pinfo->fd->abs_ts, &info->previous_media_packet_info->abs_ts);
+            nstime_delta(&delta, &pinfo->abs_ts, &info->previous_media_packet_info->abs_ts);
             pitem = proto_tree_add_double(aptx_tree, hf_aptx_delta_time, tvb, 0, 0, nstime_to_msec(&delta));
             proto_item_append_text(pitem, " ms");
             PROTO_ITEM_SET_GENERATED(pitem);
@@ -2863,7 +2863,7 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_item_append_text(pitem, " ms");
             PROTO_ITEM_SET_GENERATED(pitem);
 
-            nstime_delta(&delta, &pinfo->fd->abs_ts, &info->previous_media_packet_info->first_abs_ts);
+            nstime_delta(&delta, &pinfo->abs_ts, &info->previous_media_packet_info->first_abs_ts);
             pitem = proto_tree_add_double(aptx_tree, hf_aptx_delta_time_from_the_beginning, tvb, 0, 0, nstime_to_msec(&delta));
             proto_item_append_text(pitem, " ms");
             PROTO_ITEM_SET_GENERATED(pitem);

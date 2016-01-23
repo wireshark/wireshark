@@ -127,7 +127,7 @@ request_response_handling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *djiuav_
 			djiuav_trans=wmem_new(wmem_file_scope(), djiuav_transaction_t);
 			djiuav_trans->request_frame=pinfo->fd->num;
 			djiuav_trans->reply_frame=0;
-			djiuav_trans->request_time=pinfo->fd->abs_ts;
+			djiuav_trans->request_time=pinfo->abs_ts;
 			djiuav_trans->seqno=seq_no;
 			djiuav_trans->command=packet_type;
 			wmem_map_insert(djiuav_info->pdus, GUINT_TO_POINTER((guint)seq_no), (void *)djiuav_trans);
@@ -163,7 +163,7 @@ request_response_handling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *djiuav_
 						tvb, 0, 0, djiuav_trans->request_frame);
 				PROTO_ITEM_SET_GENERATED(it);
 
-				nstime_delta(&ns, &pinfo->fd->abs_ts, &djiuav_trans->request_time);
+				nstime_delta(&ns, &pinfo->abs_ts, &djiuav_trans->request_time);
 				it = proto_tree_add_time(djiuav_tree, hf_djiuav_response_time, tvb, 0, 0, &ns);
 				PROTO_ITEM_SET_GENERATED(it);
 			}

@@ -657,7 +657,7 @@ tcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
     const struct tcpheader *tcphdr=(const struct tcpheader *)vip;
 
     add_conversation_table_data_with_conv_id(hash, &tcphdr->ip_src, &tcphdr->ip_dst, tcphdr->th_sport, tcphdr->th_dport, (conv_id_t) tcphdr->th_stream, 1, pinfo->fd->pkt_len,
-                                              &pinfo->rel_ts, &pinfo->fd->abs_ts, &tcp_ct_dissector_info, PT_TCP);
+                                              &pinfo->rel_ts, &pinfo->abs_ts, &tcp_ct_dissector_info, PT_TCP);
 
     return 1;
 }
@@ -671,7 +671,7 @@ mptcpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _
 
     add_conversation_table_data_with_conv_id(hash, &meta->ip_src, &meta->ip_dst,
         meta->sport, meta->dport, (conv_id_t) tcpd->mptcp_analysis->stream, 1, pinfo->fd->pkt_len,
-                                              &pinfo->rel_ts, &pinfo->fd->abs_ts, &tcp_ct_dissector_info, PT_TCP);
+                                              &pinfo->rel_ts, &pinfo->abs_ts, &tcp_ct_dissector_info, PT_TCP);
 
     return 1;
 }
@@ -900,12 +900,12 @@ init_tcp_conversation_data(packet_info *pinfo)
     tcpd->flow2.command = NULL;
     */
     tcpd->acked_table=wmem_tree_new(wmem_file_scope());
-    tcpd->ts_first.secs=pinfo->fd->abs_ts.secs;
-    tcpd->ts_first.nsecs=pinfo->fd->abs_ts.nsecs;
+    tcpd->ts_first.secs=pinfo->abs_ts.secs;
+    tcpd->ts_first.nsecs=pinfo->abs_ts.nsecs;
     nstime_set_zero(&tcpd->ts_mru_syn);
     nstime_set_zero(&tcpd->ts_first_rtt);
-    tcpd->ts_prev.secs=pinfo->fd->abs_ts.secs;
-    tcpd->ts_prev.nsecs=pinfo->fd->abs_ts.nsecs;
+    tcpd->ts_prev.secs=pinfo->abs_ts.secs;
+    tcpd->ts_prev.nsecs=pinfo->abs_ts.nsecs;
     tcpd->flow1.valid_bif = 1;
     tcpd->flow2.valid_bif = 1;
     tcpd->stream = tcp_stream_count++;
@@ -1045,10 +1045,10 @@ tcp_calculate_timestamps(packet_info *pinfo, struct tcp_analysis *tcpd,
     if (!tcpd)
         return;
 
-    nstime_delta(&tcppd->ts_del, &pinfo->fd->abs_ts, &tcpd->ts_prev);
+    nstime_delta(&tcppd->ts_del, &pinfo->abs_ts, &tcpd->ts_prev);
 
-    tcpd->ts_prev.secs=pinfo->fd->abs_ts.secs;
-    tcpd->ts_prev.nsecs=pinfo->fd->abs_ts.nsecs;
+    tcpd->ts_prev.secs=pinfo->abs_ts.secs;
+    tcpd->ts_prev.nsecs=pinfo->abs_ts.nsecs;
 }
 
 /* Add a subtree with the timestamps relative to this conversation */
@@ -1065,7 +1065,7 @@ tcp_print_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree,
     tree=proto_tree_add_subtree(parent_tree, tvb, 0, 0, ett_tcp_timestamps, &item, "Timestamps");
     PROTO_ITEM_SET_GENERATED(item);
 
-    nstime_delta(&ts, &pinfo->fd->abs_ts, &tcpd->ts_first);
+    nstime_delta(&ts, &pinfo->abs_ts, &tcpd->ts_first);
     item = proto_tree_add_time(tree, hf_tcp_ts_relative, tvb, 0, 0, &ts);
     PROTO_ITEM_SET_GENERATED(item);
 
@@ -1108,7 +1108,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
             */
             if(seq>msp->seq && seq<msp->nxtpdu) {
                 msp->last_frame=pinfo->fd->num;
-                msp->last_frame_time=pinfo->fd->abs_ts;
+                msp->last_frame_time=pinfo->abs_ts;
                 print_pdu_tracking_data(pinfo, tvb, tcp_tree, msp);
             }
 
@@ -1144,7 +1144,7 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
                 item=proto_tree_add_uint(tcp_tree, hf_tcp_pdu_last_frame, tvb, 0, 0, msp->last_frame);
                 PROTO_ITEM_SET_GENERATED(item);
 
-                nstime_delta(&ns, &msp->last_frame_time, &pinfo->fd->abs_ts);
+                nstime_delta(&ns, &msp->last_frame_time, &pinfo->abs_ts);
                 item = proto_tree_add_time(tcp_tree, hf_tcp_pdu_time,
                         tvb, 0, 0, &ns);
                 PROTO_ITEM_SET_GENERATED(item);
@@ -1187,7 +1187,7 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
     msp->seq=seq;
     msp->first_frame=pinfo->fd->num;
     msp->last_frame=pinfo->fd->num;
-    msp->last_frame_time=pinfo->fd->abs_ts;
+    msp->last_frame_time=pinfo->abs_ts;
     msp->flags=0;
     wmem_tree_insert32(multisegment_pdus, seq, (void *)msp);
     /*g_warning("pdu_store_sequencenumber_of_next_pdu: seq %u", seq);*/
@@ -1552,8 +1552,8 @@ finished_fwd:
          * duplicate ack
          * then this is a fast retransmission
          */
-        t=(pinfo->fd->abs_ts.secs-tcpd->rev->lastacktime.secs)*1000000000;
-        t=t+(pinfo->fd->abs_ts.nsecs)-tcpd->rev->lastacktime.nsecs;
+        t=(pinfo->abs_ts.secs-tcpd->rev->lastacktime.secs)*1000000000;
+        t=t+(pinfo->abs_ts.nsecs)-tcpd->rev->lastacktime.nsecs;
         if( tcpd->rev->dupacknum>=2
         &&  tcpd->rev->lastack==seq
         &&  t<20000000 ) {
@@ -1568,8 +1568,8 @@ finished_fwd:
          * seen sequence number and it doesn't look like a retransmission
          * then it is an OUT-OF-ORDER segment.
          */
-        t=(pinfo->fd->abs_ts.secs-tcpd->fwd->nextseqtime.secs)*1000000000;
-        t=t+(pinfo->fd->abs_ts.nsecs)-tcpd->fwd->nextseqtime.nsecs;
+        t=(pinfo->abs_ts.secs-tcpd->fwd->nextseqtime.secs)*1000000000;
+        t=t+(pinfo->abs_ts.nsecs)-tcpd->fwd->nextseqtime.nsecs;
         if( t < ooo_thres
         && tcpd->fwd->nextseq != seq + seglen ) {
             if(!tcpd->ta) {
@@ -1596,7 +1596,7 @@ finished_fwd:
             tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
         }
         tcpd->ta->flags|=TCP_A_RETRANSMISSION;
-        nstime_delta(&tcpd->ta->rto_ts, &pinfo->fd->abs_ts, &tcpd->fwd->nextseqtime);
+        nstime_delta(&tcpd->ta->rto_ts, &pinfo->abs_ts, &tcpd->fwd->nextseqtime);
         tcpd->ta->rto_frame=tcpd->fwd->nextseqframe;
     }
 
@@ -1613,7 +1613,7 @@ finished_checking_retransmission_type:
         tcpd->fwd->segment_count++;
         ual->frame=pinfo->fd->num;
         ual->seq=seq;
-        ual->ts=pinfo->fd->abs_ts;
+        ual->ts=pinfo->abs_ts;
 
         /* next sequence number is seglen bytes away, plus SYN/FIN which counts as one byte */
         if( (flags&(TH_SYN|TH_FIN)) ) {
@@ -1631,8 +1631,8 @@ finished_checking_retransmission_type:
         if( !tcpd->ta || !(tcpd->ta->flags&TCP_A_ZERO_WINDOW_PROBE) ) {
             tcpd->fwd->nextseq=nextseq;
             tcpd->fwd->nextseqframe=pinfo->fd->num;
-            tcpd->fwd->nextseqtime.secs=pinfo->fd->abs_ts.secs;
-            tcpd->fwd->nextseqtime.nsecs=pinfo->fd->abs_ts.nsecs;
+            tcpd->fwd->nextseqtime.secs=pinfo->abs_ts.secs;
+            tcpd->fwd->nextseqtime.nsecs=pinfo->abs_ts.nsecs;
         }
     }
 
@@ -1649,8 +1649,8 @@ finished_checking_retransmission_type:
     /* remember what the ack/window is so we can track window updates and retransmissions */
     tcpd->fwd->window=window;
     tcpd->fwd->lastack=ack;
-    tcpd->fwd->lastacktime.secs=pinfo->fd->abs_ts.secs;
-    tcpd->fwd->lastacktime.nsecs=pinfo->fd->abs_ts.nsecs;
+    tcpd->fwd->lastacktime.secs=pinfo->abs_ts.secs;
+    tcpd->fwd->lastacktime.nsecs=pinfo->abs_ts.nsecs;
 
 
     /* if there were any flags set for this segment we need to remember them
@@ -1675,7 +1675,7 @@ finished_checking_retransmission_type:
         if(ack==ual->nextseq) {
             tcp_analyze_get_acked_struct(pinfo->fd->num, seq, ack, TRUE, tcpd);
             tcpd->ta->frame_acked=ual->frame;
-            nstime_delta(&tcpd->ta->ts, &pinfo->fd->abs_ts, &ual->ts);
+            nstime_delta(&tcpd->ta->ts, &pinfo->abs_ts, &ual->ts);
         }
         /* If this acknowledges part of the segment, adjust the segment info for the acked part */
         else if (GT_SEQ(ack, ual->seq) && LE_SEQ(ack, ual->nextseq)) {
@@ -2260,7 +2260,7 @@ again:
 
         if (!PINFO_FD_VISITED(pinfo)) {
             msp->last_frame=pinfo->fd->num;
-            msp->last_frame_time=pinfo->fd->abs_ts;
+            msp->last_frame_time=pinfo->abs_ts;
         }
 
         /* OK, this PDU was found, which means the segment continues
@@ -5315,8 +5315,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                   "Connection establish request (SYN): server port %u", tcph->th_dport);
            /* Save the server port to help determine dissector used */
            tcpd->server_port = tcph->th_dport;
-           tcpd->ts_mru_syn.secs = pinfo->fd->abs_ts.secs;
-           tcpd->ts_mru_syn.nsecs = pinfo->fd->abs_ts.nsecs;
+           tcpd->ts_mru_syn.secs = pinfo->abs_ts.secs;
+           tcpd->ts_mru_syn.nsecs = pinfo->abs_ts.nsecs;
         }
     }
     if(tcph->th_flags & TH_FIN) {
@@ -5339,7 +5339,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          * then assume it's the last part of the handshake and store the initial
          * RTT time
          */
-        nstime_delta(&(tcpd->ts_first_rtt), &(pinfo->fd->abs_ts), &(tcpd->ts_mru_syn));
+        nstime_delta(&(tcpd->ts_first_rtt), &(pinfo->abs_ts), &(tcpd->ts_mru_syn));
     }
 
     /* Supply the sequence number of the first byte and of the first byte

@@ -7487,7 +7487,7 @@ update_camelsrt_call(struct camelsrt_call_t *p_camelsrt_call, packet_info *pinfo
   p_camelsrt_call->category[msg_category].req_num = pinfo->fd->num;
   p_camelsrt_call->category[msg_category].rsp_num = 0;
   p_camelsrt_call->category[msg_category].responded = FALSE;
-  p_camelsrt_call->category[msg_category].req_time = pinfo->fd->abs_ts;
+  p_camelsrt_call->category[msg_category].req_time = pinfo->abs_ts;
 }
 
 /*
@@ -7518,7 +7518,7 @@ camelsrt_close_call_matching(packet_info *pinfo,
     dbg(12,"Found ");
 #endif
     /* Calculate Service Response Time */
-    nstime_delta(&delta, &pinfo->fd->abs_ts, &p_camelsrt_call->category[CAMELSRT_SESSION].req_time);
+    nstime_delta(&delta, &pinfo->abs_ts, &p_camelsrt_call->category[CAMELSRT_SESSION].req_time);
     p_camelsrt_call->category[CAMELSRT_SESSION].responded = TRUE;
     p_camelsrt_info->msginfo[CAMELSRT_SESSION].request_available = TRUE;
     p_camelsrt_info->msginfo[CAMELSRT_SESSION].is_delta_time = TRUE;
@@ -7877,7 +7877,7 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
         PROTO_ITEM_SET_GENERATED(ti);
       }
       /* Calculate Service Response Time */
-      nstime_delta(&delta, &pinfo->fd->abs_ts, &p_camelsrt_call->category[srt_type].req_time);
+      nstime_delta(&delta, &pinfo->abs_ts, &p_camelsrt_call->category[srt_type].req_time);
 
       p_camelsrt_info->msginfo[srt_type].is_delta_time = TRUE;
       p_camelsrt_info->msginfo[srt_type].delta_time = delta; /* give it to tap */

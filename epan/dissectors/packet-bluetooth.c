@@ -1549,7 +1549,7 @@ bluetooth_conversation_packet(void *pct, packet_info *pinfo,
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
     add_conversation_table_data(hash, &pinfo->dl_src, &pinfo->dl_dst, 0, 0, 1,
-            pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts,
+            pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
             &bluetooth_ct_dissector_info, PT_NONE);
 
     return 1;

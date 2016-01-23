@@ -4377,7 +4377,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
             p_val->frame_number = 0;
             if (line_type == REQUEST_LINE)
             {
-                p_val->request_time = pinfo->fd->abs_ts;
+                p_val->request_time = pinfo->abs_ts;
             }
         }
     }
@@ -4405,7 +4405,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
         p_val->transaction_state = nothing_seen;
         if (line_type == REQUEST_LINE)
         {
-            p_val->request_time = pinfo->fd->abs_ts;
+            p_val->request_time = pinfo->abs_ts;
         }
 
         /* Add entry */
@@ -4589,9 +4589,9 @@ guint sip_find_request(packet_info *pinfo,
 
     /* Work out response time */
     seconds_between_packets = (gint)
-        (pinfo->fd->abs_ts.secs - p_val->request_time.secs);
+        (pinfo->abs_ts.secs - p_val->request_time.secs);
     nseconds_between_packets =
-         pinfo->fd->abs_ts.nsecs - p_val->request_time.nsecs;
+         pinfo->abs_ts.nsecs - p_val->request_time.nsecs;
     sip_frame_result->response_time = (seconds_between_packets*1000) +
                                       (nseconds_between_packets / 1000000);
     *response_time = sip_frame_result->response_time;
@@ -4708,9 +4708,9 @@ guint sip_find_invite(packet_info *pinfo,
 
     /* Work out response time */
     seconds_between_packets = (gint)
-        (pinfo->fd->abs_ts.secs - p_val->request_time.secs);
+        (pinfo->abs_ts.secs - p_val->request_time.secs);
     nseconds_between_packets =
-         pinfo->fd->abs_ts.nsecs - p_val->request_time.nsecs;
+         pinfo->abs_ts.nsecs - p_val->request_time.nsecs;
     sip_frame_result->response_time = (seconds_between_packets*1000) +
                                       (nseconds_between_packets / 1000000);
     *response_time = sip_frame_result->response_time;

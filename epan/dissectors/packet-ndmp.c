@@ -1377,7 +1377,7 @@ dissect_execute_cdb_cdb(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			ndmp_conv_data->task->itlq->bidir_data_length=0;
 			ndmp_conv_data->task->itlq->flags=0;
 			ndmp_conv_data->task->itlq->alloc_len=0;
-			ndmp_conv_data->task->itlq->fc_time=pinfo->fd->abs_ts;
+			ndmp_conv_data->task->itlq->fc_time=pinfo->abs_ts;
 			ndmp_conv_data->task->itlq->extra_data=NULL;
 		}
 		if(ndmp_conv_data->task && ndmp_conv_data->task->itlq){
@@ -3238,7 +3238,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 			ndmp_conv_data->task=wmem_new(wmem_file_scope(), ndmp_task_data_t);
 			ndmp_conv_data->task->request_frame=pinfo->fd->num;
 			ndmp_conv_data->task->response_frame=0;
-			ndmp_conv_data->task->ndmp_time=pinfo->fd->abs_ts;
+			ndmp_conv_data->task->ndmp_time=pinfo->abs_ts;
 			ndmp_conv_data->task->itlq=NULL;
 			wmem_map_insert(ndmp_conv_data->tasks, GUINT_TO_POINTER(nh.seq), ndmp_conv_data->task);
 		} else {
@@ -3268,7 +3268,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 			PROTO_ITEM_SET_GENERATED(it);
 
-			nstime_delta(&delta_ts, &pinfo->fd->abs_ts, &ndmp_conv_data->task->ndmp_time);
+			nstime_delta(&delta_ts, &pinfo->abs_ts, &ndmp_conv_data->task->ndmp_time);
 			it=proto_tree_add_time(ndmp_tree, hf_ndmp_time, new_tvb, 0, 0, &delta_ts);
 			PROTO_ITEM_SET_GENERATED(it);
 		}

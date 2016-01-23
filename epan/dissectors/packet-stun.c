@@ -685,7 +685,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             stun_trans=wmem_new(wmem_file_scope(), stun_transaction_t);
             stun_trans->req_frame=0;
             stun_trans->rep_frame=0;
-            stun_trans->req_time=pinfo->fd->abs_ts;
+            stun_trans->req_time=pinfo->abs_ts;
             wmem_tree_insert32_array(stun_info->transaction_pdus,
                                      transaction_id_key,
                                      (void *)stun_trans);
@@ -714,7 +714,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         stun_trans=wmem_new(wmem_packet_scope(), stun_transaction_t);
         stun_trans->req_frame=0;
         stun_trans->rep_frame=0;
-        stun_trans->req_time=pinfo->fd->abs_ts;
+        stun_trans->req_time=pinfo->abs_ts;
     }
 
 
@@ -768,7 +768,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                                        stun_trans->req_frame);
                 PROTO_ITEM_SET_GENERATED(it);
 
-                nstime_delta(&ns, &pinfo->fd->abs_ts, &stun_trans->req_time);
+                nstime_delta(&ns, &pinfo->abs_ts, &stun_trans->req_time);
                 it=proto_tree_add_time(stun_tree, hf_stun_time, tvb,
                                        offset, 0, &ns);
                 PROTO_ITEM_SET_GENERATED(it);

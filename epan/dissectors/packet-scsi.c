@@ -5823,7 +5823,7 @@ dissect_scsi_rsp(tvbuff_t *tvb, packet_info *pinfo,
         nstime_t delta_time;
         ti = proto_tree_add_uint(scsi_tree, hf_scsi_request_frame, tvb, 0, 0, itlq->first_exchange_frame);
         PROTO_ITEM_SET_GENERATED(ti);
-        nstime_delta(&delta_time, &pinfo->fd->abs_ts, &itlq->fc_time);
+        nstime_delta(&delta_time, &pinfo->abs_ts, &itlq->fc_time);
         ti = proto_tree_add_time(scsi_tree, hf_scsi_time, tvb, 0, 0, &delta_time);
         PROTO_ITEM_SET_GENERATED(ti);
     }

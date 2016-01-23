@@ -409,7 +409,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
 
       /* Save data for last found PDU */
       p_mul_data->prev_pdu_id = pinfo->fd->num;
-      p_mul_data->prev_pdu_time = pinfo->fd->abs_ts;
+      p_mul_data->prev_pdu_time = pinfo->abs_ts;
 
       if (pdu_type == Data_PDU && p_mul_data->msg_resend_count == 0 && last_found_pdu != seq_no - 1) {
         /* Data_PDU and missing previous PDU */
@@ -433,7 +433,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
       }
     } else if (pdu_type == Address_PDU) {
       addr_id = pinfo->fd->num;
-      addr_time = pinfo->fd->abs_ts;
+      addr_time = pinfo->abs_ts;
     }
   }
 
@@ -473,7 +473,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
         p_mul_data->msg_resend_count++;
         p_mul_data->prev_msg_id = pinfo->fd->num;
         p_mul_data->prev_msg_time = p_mul_data->pdu_time;
-        p_mul_data->pdu_time = pinfo->fd->abs_ts;
+        p_mul_data->pdu_time = pinfo->abs_ts;
 
         if (pdu_type == Data_PDU) {
           p_mul_data->prev_pdu_id = prev_id;
@@ -499,10 +499,10 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, guin
         g_hash_table_insert (p_mul_data->ack_data, GUINT_TO_POINTER(dstIP), ack_data);
       } else {
         p_mul_data->pdu_id = pinfo->fd->num;
-        p_mul_data->pdu_time = pinfo->fd->abs_ts;
+        p_mul_data->pdu_time = pinfo->abs_ts;
         p_mul_data->addr_id = addr_id;
         p_mul_data->addr_time = addr_time;
-        p_mul_data->first_msg_time = pinfo->fd->abs_ts;
+        p_mul_data->first_msg_time = pinfo->abs_ts;
 
         if (pdu_type == Data_PDU && !missing_pdu) {
           p_mul_data->prev_pdu_id = prev_id;
@@ -566,7 +566,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
                                   0, 0, pkg_data->addr_id);
         PROTO_ITEM_SET_GENERATED (en);
 
-        nstime_delta (&ns, &pinfo->fd->abs_ts, &pkg_data->addr_time);
+        nstime_delta (&ns, &pinfo->abs_ts, &pkg_data->addr_time);
         en = proto_tree_add_time (analysis_tree, hf_analysis_total_time,
                                   tvb, 0, 0, &ns);
         PROTO_ITEM_SET_GENERATED (en);
@@ -624,7 +624,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
       PROTO_ITEM_SET_GENERATED (en);
 
       if (no_missing == 0) {
-        nstime_delta (&ns, &pinfo->fd->abs_ts, &pkg_data->first_msg_time);
+        nstime_delta (&ns, &pinfo->abs_ts, &pkg_data->first_msg_time);
         en = proto_tree_add_time (analysis_tree, hf_analysis_trans_time,
                                   tvb, 0, 0, &ns);
         PROTO_ITEM_SET_GENERATED (en);
@@ -639,7 +639,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
                                 tvb, 0, 0, pkg_data->prev_pdu_id);
       PROTO_ITEM_SET_GENERATED (en);
 
-      nstime_delta (&ns, &pinfo->fd->abs_ts, &pkg_data->prev_pdu_time);
+      nstime_delta (&ns, &pinfo->abs_ts, &pkg_data->prev_pdu_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_ack_time,
                                 tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (en);
@@ -693,7 +693,7 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                 0, 0, pkg_data->addr_id);
       PROTO_ITEM_SET_GENERATED (en);
 
-      nstime_delta (&ns, &pinfo->fd->abs_ts, &pkg_data->addr_time);
+      nstime_delta (&ns, &pinfo->abs_ts, &pkg_data->addr_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_addr_pdu_time,
                                 tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (en);
@@ -718,7 +718,7 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
                                 0, 0, pkg_data->prev_pdu_id);
       PROTO_ITEM_SET_GENERATED (en);
 
-      nstime_delta (&ns, &pinfo->fd->abs_ts, &pkg_data->prev_pdu_time);
+      nstime_delta (&ns, &pinfo->abs_ts, &pkg_data->prev_pdu_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_prev_pdu_time,
                                 tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (en);
@@ -743,12 +743,12 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
 
       expert_add_info_format(pinfo, en, &ei_analysis_retrans_no, "Retransmission #%d", pkg_data->msg_resend_count);
 
-      nstime_delta (&ns, &pinfo->fd->abs_ts, &pkg_data->prev_msg_time);
+      nstime_delta (&ns, &pinfo->abs_ts, &pkg_data->prev_msg_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_retrans_time,
                                 tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (en);
 
-      nstime_delta (&ns, &pinfo->fd->abs_ts, &pkg_data->first_msg_time);
+      nstime_delta (&ns, &pinfo->abs_ts, &pkg_data->first_msg_time);
       eh = proto_tree_add_time (analysis_tree, hf_analysis_total_retrans_time,
                                 tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (eh);

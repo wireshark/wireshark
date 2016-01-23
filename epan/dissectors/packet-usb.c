@@ -1202,7 +1202,7 @@ static int
 usb_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_)
 {
     conv_hash_t *hash = (conv_hash_t*) pct;
-    add_conversation_table_data(hash, &pinfo->src, &pinfo->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts, &usb_ct_dissector_info, PT_NONE);
+    add_conversation_table_data(hash, &pinfo->src, &pinfo->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &usb_ct_dissector_info, PT_NONE);
 
     return 1;
 }
@@ -3293,7 +3293,7 @@ static usb_trans_info_t
         if (!usb_trans_info) {
             usb_trans_info              = wmem_new0(wmem_file_scope(), usb_trans_info_t);
             usb_trans_info->request_in  = pinfo->fd->num;
-            usb_trans_info->req_time    = pinfo->fd->abs_ts;
+            usb_trans_info->req_time    = pinfo->abs_ts;
             usb_trans_info->header_type = header_type;
             usb_trans_info->usb_id      = usb_id;
 
@@ -3330,7 +3330,7 @@ static usb_trans_info_t
             ti = proto_tree_add_uint(tree, hf_usb_request_in, tvb, 0, 0, usb_trans_info->request_in);
             PROTO_ITEM_SET_GENERATED(ti);
 
-            t = pinfo->fd->abs_ts;
+            t = pinfo->abs_ts;
             nstime_delta(&deltat, &t, &usb_trans_info->req_time);
             ti = proto_tree_add_time(tree, hf_usb_time, tvb, 0, 0, &deltat);
             PROTO_ITEM_SET_GENERATED(ti);

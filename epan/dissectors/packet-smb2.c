@@ -8076,7 +8076,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 					ssi                  = wmem_new0(wmem_file_scope(), smb2_saved_info_t);
 					ssi->msg_id          = ssi_key.msg_id;
 					ssi->frame_req       = pinfo->fd->num;
-					ssi->req_time        = pinfo->fd->abs_ts;
+					ssi->req_time        = pinfo->abs_ts;
 					ssi->extra_info_type = SMB2_EI_NONE;
 					g_hash_table_insert(si->conv->unmatched, ssi, ssi);
 				}
@@ -8134,7 +8134,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 
 					tmp_item = proto_tree_add_uint(header_tree, hf_smb2_response_to, tvb, 0, 0, ssi->frame_req);
 					PROTO_ITEM_SET_GENERATED(tmp_item);
-					t = pinfo->fd->abs_ts;
+					t = pinfo->abs_ts;
 					nstime_delta(&deltat, &t, &ssi->req_time);
 					tmp_item = proto_tree_add_time(header_tree, hf_smb2_time, tvb,
 					0, 0, &deltat);

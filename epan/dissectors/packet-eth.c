@@ -132,7 +132,7 @@ eth_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
   conv_hash_t *hash = (conv_hash_t*) pct;
   const eth_hdr *ehdr=(const eth_hdr *)vip;
 
-  add_conversation_table_data(hash, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts, &eth_ct_dissector_info, PT_NONE);
+  add_conversation_table_data(hash, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &eth_ct_dissector_info, PT_NONE);
 
   return 1;
 }

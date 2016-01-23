@@ -86,7 +86,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     return -1;
                 } else {
                     whois_trans->req_frame = pinfo->fd->num;
-                    whois_trans->req_time = pinfo->fd->abs_ts;
+                    whois_trans->req_time = pinfo->abs_ts;
                 }
             } else {
                 pinfo->desegment_len = DESEGMENT_UNTIL_FIN;
@@ -96,7 +96,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     } else if (is_query && (whois_trans->req_frame == 0)) {
         whois_trans->req_frame = pinfo->fd->num;
-        whois_trans->req_time = pinfo->fd->abs_ts;
+        whois_trans->req_time = pinfo->abs_ts;
     }
 
     if (!is_query && (whois_trans->rep_frame == 0)) {
@@ -139,7 +139,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             PROTO_ITEM_SET_GENERATED(ti);
 
             if (pinfo->fd->num == whois_trans->rep_frame) {
-                nstime_delta(&ns, &pinfo->fd->abs_ts, &whois_trans->req_time);
+                nstime_delta(&ns, &pinfo->abs_ts, &whois_trans->req_time);
                 ti = proto_tree_add_time(whois_tree, hf_whois_response_time, tvb, 0, 0, &ns);
                 PROTO_ITEM_SET_GENERATED(ti);
             }

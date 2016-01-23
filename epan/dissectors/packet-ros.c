@@ -379,7 +379,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
       }
       rcrp->invokeId=invokeId;
       rcrp->req_frame=pinfo->fd->num;
-      rcrp->req_time=pinfo->fd->abs_ts;
+      rcrp->req_time=pinfo->abs_ts;
       rcrp->rep_frame=0;
       rcrp->is_request=TRUE;
       g_hash_table_insert(ros_info->unmatched, rcrp, rcrp);
@@ -414,7 +414,7 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
       nstime_t ns;
       item=proto_tree_add_uint(tree, hf_ros_response_to, tvb, 0, 0, rcrp->req_frame);
       PROTO_ITEM_SET_GENERATED (item);
-      nstime_delta(&ns, &pinfo->fd->abs_ts, &rcrp->req_time);
+      nstime_delta(&ns, &pinfo->abs_ts, &rcrp->req_time);
       item=proto_tree_add_time(tree, hf_ros_time, tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (item);
     }

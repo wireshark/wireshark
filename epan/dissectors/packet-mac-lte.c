@@ -1695,7 +1695,7 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
            but much harder to get right, so loop. */
 
         /* If > ~10s since last PDU, just zero all timers (except onDuration) */
-        if ((pinfo->fd->abs_ts.secs - ue_state->state_before.currentTime.secs) >= 9) {
+        if ((pinfo->abs_ts.secs - ue_state->state_before.currentTime.secs) >= 9) {
             init_drx_ue_state(ue_state, FALSE);
         }
 
@@ -1762,7 +1762,7 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
         }
 
         /* Set current time to now */
-        ue_state->state_before.currentTime = pinfo->fd->abs_ts;
+        ue_state->state_before.currentTime = pinfo->abs_ts;
     }
 }
 
@@ -3028,9 +3028,9 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, int len
 
                     /* Work out gap between frames */
                     gint seconds_between_packets = (gint)
-                          (pinfo->fd->abs_ts.secs - lastData->received_time.secs);
+                          (pinfo->abs_ts.secs - lastData->received_time.secs);
                     gint nseconds_between_packets =
-                          pinfo->fd->abs_ts.nsecs - lastData->received_time.nsecs;
+                          pinfo->abs_ts.nsecs - lastData->received_time.nsecs;
 
                     /* Round difference to nearest millisecond */
                     gint total_gap = (seconds_between_packets*1000) +
@@ -3072,7 +3072,7 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, int len
         tvb_memcpy(tvb, thisData->data, 0, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
         thisData->ndi = p_mac_lte_info->detailed_phy_info.dl_info.ndi;
         thisData->framenum = pinfo->fd->num;
-        thisData->received_time = pinfo->fd->abs_ts;
+        thisData->received_time = pinfo->abs_ts;
     }
     else {
         /* Not first time, so just set what's already stored in result */
@@ -3175,9 +3175,9 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, int off
 
                         /* Work out gap between frames */
                         gint seconds_between_packets = (gint)
-                              (pinfo->fd->abs_ts.secs - lastData->received_time.secs);
+                              (pinfo->abs_ts.secs - lastData->received_time.secs);
                         gint nseconds_between_packets =
-                              pinfo->fd->abs_ts.nsecs - lastData->received_time.nsecs;
+                              pinfo->abs_ts.nsecs - lastData->received_time.nsecs;
 
                         /* Round to nearest ms */
                         gint total_gap = (seconds_between_packets*1000) +
@@ -3223,7 +3223,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, int off
         tvb_memcpy(tvb, thisData->data, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
         thisData->ndi = p_mac_lte_info->detailed_phy_info.ul_info.ndi;
         thisData->framenum = pinfo->fd->num;
-        thisData->received_time = pinfo->fd->abs_ts;
+        thisData->received_time = pinfo->abs_ts;
     }
     else {
         /* Not first time, so just get what's already stored in result */
@@ -3322,7 +3322,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
 
         /* Store time of request */
         if (event == SR_Request) {
-            state->requestTime = pinfo->fd->abs_ts;
+            state->requestTime = pinfo->abs_ts;
         }
 
         switch (state->status) {
@@ -3354,8 +3354,8 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                 break;
 
             case SR_Outstanding:
-                timeSinceRequest = (guint32)(((pinfo->fd->abs_ts.secs - state->requestTime.secs) * 1000) +
-                                             ((pinfo->fd->abs_ts.nsecs - state->requestTime.nsecs) / 1000000));
+                timeSinceRequest = (guint32)(((pinfo->abs_ts.secs - state->requestTime.secs) * 1000) +
+                                             ((pinfo->abs_ts.nsecs - state->requestTime.nsecs) / 1000000));
 
                 switch (event) {
                     case SR_Grant:
@@ -3549,9 +3549,9 @@ static guint16 count_ues_tti(mac_lte_info *p_mac_lte_info, packet_info *pinfo)
     /* Work out if we are still in the same tti as before */
     if (tti_info->subframe == p_mac_lte_info->subframeNumber) {
         gint seconds_between_packets = (gint)
-              (pinfo->fd->abs_ts.secs - tti_info->ttiStartTime.secs);
+              (pinfo->abs_ts.secs - tti_info->ttiStartTime.secs);
         gint nseconds_between_packets =
-              pinfo->fd->abs_ts.nsecs -  tti_info->ttiStartTime.nsecs;
+              pinfo->abs_ts.nsecs -  tti_info->ttiStartTime.nsecs;
 
         /* Round difference to nearest microsecond */
         gint total_us_gap = (seconds_between_packets*1000000) +
@@ -3565,7 +3565,7 @@ static guint16 count_ues_tti(mac_lte_info *p_mac_lte_info, packet_info *pinfo)
     /* Update global state */
     if (!same_tti) {
         tti_info->subframe = p_mac_lte_info->subframeNumber;
-        tti_info->ttiStartTime = pinfo->fd->abs_ts;
+        tti_info->ttiStartTime = pinfo->abs_ts;
         tti_info->ues_in_tti = 1;
     }
     else {
@@ -4173,8 +4173,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                             /* Compare CCCH bytes */
                             if (msg3Data != NULL) {
-                                crResult->msSinceMsg3 = (guint32)(((pinfo->fd->abs_ts.secs - msg3Data->msg3Time.secs) * 1000) +
-                                                                  ((pinfo->fd->abs_ts.nsecs - msg3Data->msg3Time.nsecs) / 1000000));
+                                crResult->msSinceMsg3 = (guint32)(((pinfo->abs_ts.secs - msg3Data->msg3Time.secs) * 1000) +
+                                                                  ((pinfo->abs_ts.nsecs - msg3Data->msg3Time.nsecs) / 1000000));
                                 crResult->msg3FrameNum = msg3Data->framenum;
 
                                 /* Compare the 6 bytes */
@@ -5043,7 +5043,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 /* Fill in data details */
                 data->framenum = pinfo->fd->num;
                 tvb_memcpy(tvb, data->data, offset, data_length);
-                data->msg3Time = pinfo->fd->abs_ts;
+                data->msg3Time = pinfo->abs_ts;
             }
         }
 
@@ -6334,7 +6334,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     tap_info->crcStatus = p_mac_lte_info->crcStatus;
     tap_info->direction = p_mac_lte_info->direction;
 
-    tap_info->mac_lte_time = pinfo->fd->abs_ts;
+    tap_info->mac_lte_time = pinfo->abs_ts;
 
     /* Add hidden item to filter on */
     if ((p_mac_lte_info->rntiType == C_RNTI) ||

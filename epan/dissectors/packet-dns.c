@@ -3738,7 +3738,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       dns_trans=wmem_new(wmem_file_scope(), dns_transaction_t);
       dns_trans->req_frame=pinfo->fd->num;
       dns_trans->rep_frame=0;
-      dns_trans->req_time=pinfo->fd->abs_ts;
+      dns_trans->req_time=pinfo->abs_ts;
       dns_trans->id = id;
       wmem_tree_insert32_array(dns_info->pdus, key, (void *)dns_trans);
     } else {
@@ -3762,7 +3762,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dns_trans=wmem_new(wmem_packet_scope(), dns_transaction_t);
     dns_trans->req_frame=0;
     dns_trans->rep_frame=0;
-    dns_trans->req_time=pinfo->fd->abs_ts;
+    dns_trans->req_time=pinfo->abs_ts;
   }
 
   /* print state tracking in the tree */
@@ -3783,7 +3783,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       it=proto_tree_add_uint(dns_tree, hf_dns_response_to, tvb, 0, 0, dns_trans->req_frame);
       PROTO_ITEM_SET_GENERATED(it);
 
-      nstime_delta(&ns, &pinfo->fd->abs_ts, &dns_trans->req_time);
+      nstime_delta(&ns, &pinfo->abs_ts, &dns_trans->req_time);
       it=proto_tree_add_time(dns_tree, hf_dns_time, tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED(it);
     }

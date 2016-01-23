@@ -409,7 +409,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Populate data from the broadcast */
 		data = wmem_new0(wmem_file_scope(), ldss_broadcast_t);
 		data->num = pinfo->fd->num;
-		data->ts = pinfo->fd->abs_ts;
+		data->ts = pinfo->abs_ts;
 		data->message_id = messageID;
 		data->message_detail = messageDetail;
 		data->port = port;
@@ -628,7 +628,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		}
 
 		transfer_info->req->num = pinfo->fd->num;
-		transfer_info->req->ts = pinfo->fd->abs_ts;
+		transfer_info->req->ts = pinfo->abs_ts;
 	}
 	/* Remaining packets are the file response */
 	else {
@@ -668,7 +668,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 		/* OK. Now we have the whole file that was transferred. */
 		transfer_info->resp_num = pinfo->fd->num;
-		transfer_info->resp_ts = pinfo->fd->abs_ts;
+		transfer_info->resp_ts = pinfo->abs_ts;
 
 		col_add_fstr(pinfo->cinfo, COL_INFO, "LDSS File Transfer (Sending file - %s)",
 				     transfer_info->broadcast->message_id == MESSAGE_ID_WILLSEND

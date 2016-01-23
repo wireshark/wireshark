@@ -2192,7 +2192,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 timing_info = wmem_new(wmem_file_scope(), timing_info_t);
                 timing_info->command_frame_number = pinfo->fd->num;
-                timing_info->command_timestamp = pinfo->fd->abs_ts;
+                timing_info->command_timestamp = pinfo->abs_ts;
                 timing_info->response_frame_number = 0;
                 timing_info->response_timestamp.secs = 0;
                 timing_info->response_timestamp.nsecs = 0;
@@ -2219,7 +2219,7 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         ((ctype == 0x0a) ? 1 : (timing_info->op_arg == op_arg)) &&
                         timing_info->used == 0) {
                     timing_info->response_frame_number = pinfo->fd->num;
-                    timing_info->response_timestamp = pinfo->fd->abs_ts;
+                    timing_info->response_timestamp = pinfo->abs_ts;
                     timing_info->used = 1;
                 }
             }
