@@ -1373,7 +1373,6 @@ static expert_field ei_ansi_a_unknown_dtap_msg = EI_INIT;
 static expert_field ei_ansi_a_unknown_bsmap_msg = EI_INIT;
 static expert_field ei_ansi_a_undecoded = EI_INIT;
 
-static char a_bigbuf[1024];
 static dissector_handle_t data_handle;
 static dissector_handle_t dtap_handle;
 static dissector_table_t is637_dissector_table; /* IS-637-A Transport Layer (SMS) */
@@ -5375,6 +5374,7 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
     guint32     value;
     guint32     curr_offset, saved_offset;
     const gchar *str;
+    gchar       *str_num;
     gint        ett_elem_idx, idx, i;
     proto_item  *item;
     proto_tree  *subtree;
@@ -5435,20 +5435,19 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 
                     curr_offset++;
 
+                    str_num = (gchar*)wmem_alloc(wmem_packet_scope(), oct_len);
                     for (i=0; i < (oct_len - 1); i++)
                     {
-                        a_bigbuf[i] = (oct & 0x01) << 7;
+                        str_num[i] = (oct & 0x01) << 7;
 
                         oct = tvb_get_guint8(tvb, curr_offset + i);
 
-                        a_bigbuf[i] |= (oct & 0xfe) >> 1;
+                        str_num[i] |= (oct & 0xfe) >> 1;
                     }
-                    a_bigbuf[i] = '\0';
+                    str_num[i] = '\0';
 
-                    proto_tree_add_string_format(subtree, hf_ansi_a_fwd_ms_info_rec_cld_pn_num, tvb, curr_offset, oct_len - 1,
-                        a_bigbuf,
-                        "Digits: %s",
-                        a_bigbuf);
+                    proto_tree_add_string_format(subtree, hf_ansi_a_fwd_ms_info_rec_cld_pn_num, tvb,
+                                                 curr_offset, oct_len - 1, str_num, "Digits: %s", str_num);
 
                     curr_offset += (oct_len - 2);
                 }
@@ -5473,20 +5472,19 @@ elem_fwd_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 
                     curr_offset += 2;
 
+                    str_num = (gchar*)wmem_alloc(wmem_packet_scope(), oct_len - 1);
                     for (i=0; i < (oct_len - 2); i++)
                     {
-                        a_bigbuf[i] = (oct & 0x1f) << 3;
+                        str_num[i] = (oct & 0x1f) << 3;
 
                         oct = tvb_get_guint8(tvb, curr_offset + i);
 
-                        a_bigbuf[i] |= (oct & 0xe0) >> 5;
+                        str_num[i] |= (oct & 0xe0) >> 5;
                     }
-                    a_bigbuf[i] = '\0';
+                    str_num[i] = '\0';
 
-                    proto_tree_add_string_format(subtree, hf_ansi_a_fwd_ms_info_rec_clg_pn_num, tvb, curr_offset, oct_len - 2,
-                        a_bigbuf,
-                        "Digits: %s",
-                        a_bigbuf);
+                    proto_tree_add_string_format(subtree, hf_ansi_a_fwd_ms_info_rec_clg_pn_num, tvb,
+                                                 curr_offset, oct_len - 2, str_num, "Digits: %s", str_num);
 
                     curr_offset += (oct_len - 3);
 
@@ -5576,6 +5574,7 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
     guint32     value;
     guint32     curr_offset, saved_offset, saved_offset2;
     const gchar *str;
+    gchar       *str_num;
     gint        ett_elem_idx, idx, i;
     proto_item  *item, *item2;
     proto_tree  *subtree, *subtree2;
@@ -5648,20 +5647,19 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 
                     curr_offset++;
 
+                    str_num = (gchar*)wmem_alloc(wmem_packet_scope(), oct_len);
                     for (i=0; i < (oct_len - 1); i++)
                     {
-                        a_bigbuf[i] = (oct & 0x01) << 7;
+                        str_num[i] = (oct & 0x01) << 7;
 
                         oct = tvb_get_guint8(tvb, curr_offset + i);
 
-                        a_bigbuf[i] |= (oct & 0xfe) >> 1;
+                        str_num[i] |= (oct & 0xfe) >> 1;
                     }
-                    a_bigbuf[i] = '\0';
+                    str_num[i] = '\0';
 
-                    proto_tree_add_string_format(subtree, hf_ansi_a_rev_ms_info_rec_cld_pn_num, tvb, curr_offset, oct_len - 1,
-                        a_bigbuf,
-                        "Digits: %s",
-                        a_bigbuf);
+                    proto_tree_add_string_format(subtree, hf_ansi_a_rev_ms_info_rec_cld_pn_num, tvb,
+                                                 curr_offset, oct_len - 1, str_num, "Digits: %s", str_num);
 
                     curr_offset += (oct_len - 2);
                 }
@@ -5687,20 +5685,19 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 
                     curr_offset += 2;
 
+                    str_num = (gchar*)wmem_alloc(wmem_packet_scope(), oct_len - 1);
                     for (i=0; i < (oct_len - 2); i++)
                     {
-                        a_bigbuf[i] = (oct & 0x1f) << 3;
+                        str_num[i] = (oct & 0x1f) << 3;
 
                         oct = tvb_get_guint8(tvb, curr_offset + i);
 
-                        a_bigbuf[i] |= (oct & 0xe0) >> 5;
+                        str_num[i] |= (oct & 0xe0) >> 5;
                     }
-                    a_bigbuf[i] = '\0';
+                    str_num[i] = '\0';
 
-                    proto_tree_add_string_format(subtree, hf_ansi_a_rev_ms_info_rec_clg_pn_num, tvb, curr_offset, oct_len - 2,
-                        a_bigbuf,
-                        "Digits: %s",
-                        a_bigbuf);
+                    proto_tree_add_string_format(subtree, hf_ansi_a_rev_ms_info_rec_clg_pn_num, tvb,
+                                                 curr_offset, oct_len - 2, str_num, "Digits: %s", str_num);
 
                     curr_offset += (oct_len - 3);
 
