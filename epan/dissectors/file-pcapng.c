@@ -135,7 +135,6 @@ static int hf_pcapng_record_padding = -1;
 
 static expert_field ei_invalid_option_length = EI_INIT;
 static expert_field ei_invalid_record_length = EI_INIT;
-static expert_field ei_unknown_encoding = EI_INIT;
 
 static gint ett_pcapng = -1;
 static gint ett_pcapng_section_header_block = -1;
@@ -215,12 +214,6 @@ static const value_string block_type_vals[] = {
     { 0x00000007,  "IRIG Timestamp Block" },
     { 0x00000008,  "Arinc 429 in AFDX Encapsulation Information Block " },
     { 0x0A0D0D0A,  "Section Header Block" },
-    { 0, NULL }
-};
-
-static const value_string byte_order_magic_vals[] = {
-    { 0x1A2B3C4D,  "Big-endian" },
-    { 0x4D3C2B1A,  "Little-endian" },
     { 0, NULL }
 };
 
@@ -927,6 +920,7 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     proto_item      *block_item;
     proto_tree      *block_data_tree;
     proto_item      *block_data_item;
+    proto_item      *byte_order_magic_item;
     proto_item      *packet_data_item;
     gint             offset = 0;
     guint32          length;
@@ -961,7 +955,11 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         info->interface_number = 0;
         info->frame_number = 1;
 
-        proto_tree_add_item(block_data_tree, hf_pcapng_section_header_byte_order_magic, tvb, offset, 4, ENC_NA);
+        byte_order_magic_item = proto_tree_add_item(block_data_tree, hf_pcapng_section_header_byte_order_magic, tvb, offset, 4, ENC_NA);
+        if (encoding == ENC_BIG_ENDIAN)
+            proto_item_append_text(byte_order_magic_item, " (Big-endian)");
+        else
+            proto_item_append_text(byte_order_magic_item, " (Little-endian)");
         offset += 4;
 
         proto_tree_add_item(block_data_tree, hf_pcapng_section_header_major_version, tvb, offset, 2, encoding);
@@ -1265,12 +1263,21 @@ static gint dissect_block(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     return offset;
 }
 
+#define BLOCK_TYPE_SIZE        4
+#define BYTE_ORDER_MAGIC_SIZE  4
+
 static int
 dissect_pcapng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    static const guint8 pcapng_premagic[]      = { 0x0A, 0x0D, 0x0D, 0x0A };
-    static const guint8 pcapng_magic[]         = { 0x1A, 0x2B, 0x3C, 0x4D };
-    static const guint8 pcapng_swapped_magic[] = { 0x4D, 0x3C, 0x2B, 0x1A };
+    static const guint8 pcapng_premagic[BLOCK_TYPE_SIZE] = {
+        0x0A, 0x0D, 0x0D, 0x0A
+    };
+    static const guint8 pcapng_big_endian_magic[BYTE_ORDER_MAGIC_SIZE] = {
+        0x1A, 0x2B, 0x3C, 0x4D
+    };
+    static const guint8 pcapng_little_endian_magic[BYTE_ORDER_MAGIC_SIZE] = {
+        0x4D, 0x3C, 0x2B, 0x1A
+    };
     gint             offset = 0;
     guint32          length;
     guint32          encoding;
@@ -1278,13 +1285,15 @@ dissect_pcapng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_item      *main_item;
     struct info      info;
 
-    if (tvb_memeql(tvb, 0, pcapng_premagic, sizeof(pcapng_premagic)) != 0)
+    if (tvb_memeql(tvb, 0, pcapng_premagic, BLOCK_TYPE_SIZE) != 0)
         return 0;
 
-    if (tvb_memeql(tvb, 8, pcapng_magic, sizeof(pcapng_magic)) != 0) {
-        if (tvb_memeql(tvb, 8, pcapng_swapped_magic, sizeof(pcapng_swapped_magic)) != 0) {
-            return 0;
-        }
+    if (tvb_memeql(tvb, 8, pcapng_big_endian_magic, BYTE_ORDER_MAGIC_SIZE) == 0) {
+        encoding = ENC_BIG_ENDIAN;
+    } else if (tvb_memeql(tvb, 8, pcapng_little_endian_magic, BYTE_ORDER_MAGIC_SIZE) == 0) {
+        encoding = ENC_LITTLE_ENDIAN;
+    } else {
+        return 0;
     }
 
     info.file_number = 1;
@@ -1294,16 +1303,6 @@ dissect_pcapng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     main_item = proto_tree_add_item(tree, proto_pcapng, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_pcapng);
-
-    encoding = tvb_get_guint32(tvb, offset + 8, ENC_HOST_ENDIAN);
-    if (encoding == 0x1A2B3C4D) {
-        encoding = ENC_LITTLE_ENDIAN;
-    } else if (encoding == 0x4D3C2B1A) {
-        encoding = ENC_BIG_ENDIAN;
-    } else {
-        expert_add_info(pinfo, main_item, &ei_unknown_encoding);
-        return offset;
-    }
 
     while (tvb_captured_length_remaining(tvb, offset)) {
         tvbuff_t  *next_tvb;
@@ -1422,7 +1421,7 @@ proto_register_pcapng(void)
         },
         { &hf_pcapng_section_header_byte_order_magic,
             { "Byte Order Magic",                          "pcapng.section_header.byte_order_magic",
-            FT_UINT32, BASE_HEX, VALS(byte_order_magic_vals), 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_section_header_major_version,
@@ -1791,7 +1790,6 @@ proto_register_pcapng(void)
     static ei_register_info ei[] = {
         { &ei_invalid_option_length, { "pcapng.invalid_option_length", PI_PROTOCOL, PI_ERROR, "Invalid Option Length", EXPFILL }},
         { &ei_invalid_record_length, { "pcapng.invalid_record_length", PI_PROTOCOL, PI_ERROR, "Invalid Record Length", EXPFILL }},
-        { &ei_unknown_encoding,      { "pcapng.unknown_encoding",      PI_PROTOCOL, PI_ERROR, "Unknown Encoding", EXPFILL }}
     };
 
     static gint *ett[] = {
