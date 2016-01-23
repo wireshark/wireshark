@@ -917,14 +917,16 @@ enum c_banner {
  *		this is generally 2*bytes.
  */
 #define C_MAKE_STRINGS(base, chars) \
-	typedef VALUE_STRING_ENUM(base##_strings) base; \
+	typedef gint base; \
+	VALUE_STRING_ENUM(base##_strings); \
 	VALUE_STRING_ARRAY(base##_strings); \
 	static const char *base##_string(base val) { \
 		return val_to_str(val, base##_strings, "Unknown (0x0"#chars"X)"); \
 	}
 
 #define C_MAKE_STRINGS_EXT(base, chars) \
-	typedef VALUE_STRING_ENUM(base##_strings) base; \
+	typedef gint base; \
+	VALUE_STRING_ENUM(base##_strings); \
 	VALUE_STRING_ARRAY(base##_strings); \
 	\
 	static value_string_ext \
@@ -938,7 +940,8 @@ enum c_banner {
 	V(C_IPv4, 0x0002, "IPv4") \
 	V(C_IPv6, 0x000A, "IPv6")
 
-typedef VALUE_STRING_ENUM(c_inet_strings) c_inet;
+typedef gint c_inet;
+VALUE_STRING_ENUM(c_inet_strings);
 VALUE_STRING_ARRAY(c_inet_strings);
 
 /** Message Tags */
@@ -959,7 +962,8 @@ VALUE_STRING_ARRAY(c_inet_strings);
 	V(C_TAG_KEEPALIVE2,	0x0E, "keepalive2")					     \
 	V(C_TAG_KEEPALIVE2_ACK, 0x0F, "keepalive2 reply")				     \
 
-typedef VALUE_STRING_ENUM(c_tag_strings) c_tag;
+typedef gint c_tag;
+VALUE_STRING_ENUM(c_tag_strings);
 VALUE_STRING_ARRAY(c_tag_strings);
 static value_string_ext c_tag_strings_ext = VALUE_STRING_EXT_INIT(c_tag_strings);
 
