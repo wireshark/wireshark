@@ -129,17 +129,17 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_tree_add_string(who_tree, hf_who_hostname, tvb, offset, 32, server_name);
 	offset += 32;
 
-	loadav_5  = (double) tvb_get_ntohl(tvb, offset) / 100.0;
+	loadav_5  = tvb_get_ntohl(tvb, offset) / 100.0;
 	proto_tree_add_double(who_tree, hf_who_loadav_5, tvb, offset,
 		    4, loadav_5);
 	offset += 4;
 
-	loadav_10 = (double) tvb_get_ntohl(tvb, offset) / 100.0;
+	loadav_10 = tvb_get_ntohl(tvb, offset) / 100.0;
 	proto_tree_add_double(who_tree, hf_who_loadav_10, tvb, offset,
 		    4, loadav_10);
 	offset += 4;
 
-	loadav_15 = (double) tvb_get_ntohl(tvb, offset) / 100.0;
+	loadav_15 = tvb_get_ntohl(tvb, offset) / 100.0;
 	proto_tree_add_double(who_tree, hf_who_loadav_15, tvb, offset,
 		    4, loadav_15);
 	offset += 4;
