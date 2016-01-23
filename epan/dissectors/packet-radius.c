@@ -2024,8 +2024,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
 	if (radius_call)
 	{
-		rad_info->req_time.secs = radius_call->req_time.secs;
-		rad_info->req_time.nsecs = radius_call->req_time.nsecs;
+		rad_info->req_time = radius_call->req_time;
 	}
 
 	if (avplength > 0)

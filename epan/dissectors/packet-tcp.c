@@ -5315,8 +5315,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                   "Connection establish request (SYN): server port %u", tcph->th_dport);
            /* Save the server port to help determine dissector used */
            tcpd->server_port = tcph->th_dport;
-           tcpd->ts_mru_syn.secs = pinfo->abs_ts.secs;
-           tcpd->ts_mru_syn.nsecs = pinfo->abs_ts.nsecs;
+           tcpd->ts_mru_syn = pinfo->abs_ts;
         }
     }
     if(tcph->th_flags & TH_FIN) {

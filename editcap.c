@@ -1395,8 +1395,7 @@ main(int argc, char *argv[])
              */
             if (phdr->presence_flags & WTAP_HAS_TS) {
                 if (nstime_is_unset(&block_start)) {
-                    block_start.secs = phdr->ts.secs;
-                    block_start.nsecs = phdr->ts.nsecs;
+                    block_start = phdr->ts;
                 }
 
                 if (secs_per_block > 0) {
@@ -1516,8 +1515,7 @@ main(int argc, char *argv[])
                                 nstime_t current;
                                 nstime_t delta;
 
-                                current.secs = phdr->ts.secs;
-                                current.nsecs = phdr->ts.nsecs;
+                                current = phdr->ts;
 
                                 nstime_delta(&delta, &current, &previous_time);
 
@@ -1561,8 +1559,7 @@ main(int argc, char *argv[])
                                 phdr = &temp_phdr;
                             }
                         }
-                        previous_time.secs = phdr->ts.secs;
-                        previous_time.nsecs = phdr->ts.nsecs;
+                        previous_time = phdr->ts;
                     }
 
                     /* assume that if the frame's tv_sec is 0, then
