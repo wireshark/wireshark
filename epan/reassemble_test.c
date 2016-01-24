@@ -1004,7 +1004,7 @@ test_fragment_add_seq_check_work(fragment_head *(*fn)(reassembly_table *,
 {
     fragment_head *fd_head;
 
-    pinfo.fd -> num = 1;
+    pinfo.num = 1;
     fd_head=fn(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
                0, 50, TRUE);
 
@@ -1233,7 +1233,7 @@ static void
 test_fragment_add_seq_check_multiple(void) {
     fragment_head *fd_head;
 
-    pinfo.fd -> num = 1;
+    pinfo.num = 1;
     fd_head=fragment_add_seq_check(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
                                    0, 50, TRUE);
 
