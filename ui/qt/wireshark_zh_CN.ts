@@ -1352,7 +1352,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="151"/>
         <source>Leave blank to use a temporary file</source>
-        <translation type="unfinished"></translation>
+        <translation>留空使用临时文件</translation>
     </message>
     <message>
         <location filename="capture_interfaces_dialog.cpp" line="264"/>
@@ -1796,17 +1796,17 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>解码</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="374"/>
+        <location filename="decode_as_dialog.cpp" line="380"/>
         <source>String</source>
         <translation>字符串</translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="376"/>
+        <location filename="decode_as_dialog.cpp" line="382"/>
         <source>Integer, base </source>
         <translation>整数，底数 </translation>
     </message>
     <message>
-        <location filename="decode_as_dialog.cpp" line="388"/>
+        <location filename="decode_as_dialog.cpp" line="394"/>
         <source>unknown</source>
         <translation>未知</translation>
     </message>
@@ -1857,32 +1857,31 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>应用此过滤器字符串进行显示。</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="347"/>
+        <location filename="display_filter_edit.cpp" line="341"/>
         <source>Save this filter</source>
         <translation>保存该过滤器</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="349"/>
+        <location filename="display_filter_edit.cpp" line="343"/>
         <source>Manage Display Filters</source>
         <translation>管理显示过滤器</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="351"/>
+        <location filename="display_filter_edit.cpp" line="345"/>
         <source>Manage Filter Expressions</source>
         <translation>管理过滤器表达式</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="377"/>
+        <location filename="display_filter_edit.cpp" line="371"/>
         <source>Remove this filter</source>
         <translation>删除该过滤器</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="325"/>
         <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
-        <translation>&quot;%1&quot;可能遇到意外的结果（参考用户手册）</translation>
+        <translation type="vanished">&quot;%1&quot;可能遇到意外的结果（参考用户手册）</translation>
     </message>
     <message>
-        <location filename="display_filter_edit.cpp" line="332"/>
+        <location filename="display_filter_edit.cpp" line="326"/>
         <source>Invalid filter: </source>
         <oldsource>Invalid filter</oldsource>
         <translation>无效的过滤器:</translation>
@@ -2630,6 +2629,11 @@ for filter files: %2.</source>
         <source>Filter Expression</source>
         <translation>过滤器表达式</translation>
     </message>
+    <message>
+        <location filename="filter_expressions_preferences_frame.ui" line="60"/>
+        <source>Copy this filter.</source>
+        <translation type="unfinished">复制此过滤器。</translation>
+    </message>
 </context>
 <context>
     <name>FollowStreamDialog</name>
@@ -2762,28 +2766,12 @@ for filter files: %2.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="781"/>
         <source>Please make sure you have a %1 packet selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>请确保您已选中一个 %1 分组。</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="897"/>
         <source>Follow %1 Stream (%2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Please make sure you have a TCP packet selected.</source>
-        <translation type="vanished">请确认您已经选中一个 TCP 分组。</translation>
-    </message>
-    <message>
-        <source>Please make sure you have a UDP packet selected.</source>
-        <translation type="vanished">请确认您已经选中一个 UDP 分组。</translation>
-    </message>
-    <message>
-        <source>Please make sure you have an SSL packet selected.</source>
-        <translation type="vanished">请确认您已经选中一个 SSL 分组。</translation>
-    </message>
-    <message>
-        <source>Please make sure you have a HTTP packet selected.</source>
-        <translation type="vanished">请确认您已经选中一个 HTTP 分组。</translation>
+        <translation>追踪 %1 流 (%2)</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="803"/>
@@ -2802,22 +2790,6 @@ for filter files: %2.</source>
         <translation>
             <numerusform>%Ln 全部流。</numerusform>
         </translation>
-    </message>
-    <message>
-        <source>Follow TCP Stream (%1)</source>
-        <translation type="vanished">追踪 TCP 流 (%1)</translation>
-    </message>
-    <message>
-        <source>Follow UDP Stream (%1)</source>
-        <translation type="vanished">追踪 UDP 流 (%1)</translation>
-    </message>
-    <message>
-        <source>Follow SSL Stream (%1)</source>
-        <translation type="vanished">追踪 SSL 流 (%1)</translation>
-    </message>
-    <message>
-        <source>Follow HTTP Stream (%1)</source>
-        <translation type="vanished">追踪 HTTP 流 (%1)</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="915"/>
@@ -3096,7 +3068,7 @@ for filter files: %2.</source>
 <context>
     <name>IOGraph</name>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1829"/>
+        <location filename="io_graph_dialog.cpp" line="1849"/>
         <source>Unknown</source>
         <translation>未知</translation>
     </message>
@@ -3534,19 +3506,16 @@ for filter files: %2.</source>
         <translation>另存为</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="208"/>
         <source>0.001 sec</source>
-        <translation>0.001秒</translation>
+        <translation type="vanished">0.001秒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="209"/>
         <source>0.01 sec</source>
-        <translation>0.01秒</translation>
+        <translation type="vanished">0.01秒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="210"/>
         <source>0.1 sec</source>
-        <translation>0.1秒</translation>
+        <translation type="vanished">0.1秒</translation>
     </message>
     <message>
         <location filename="io_graph_dialog.cpp" line="211"/>
@@ -3584,87 +3553,102 @@ for filter files: %2.</source>
         <translation>复制</translation>
     </message>
     <message>
+        <location filename="io_graph_dialog.cpp" line="208"/>
+        <source>1 ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="io_graph_dialog.cpp" line="209"/>
+        <source>10 ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="io_graph_dialog.cpp" line="210"/>
+        <source>100 ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="io_graph_dialog.cpp" line="252"/>
         <source>Wireshark IO Graphs: %1</source>
         <translation>Wireshark IO 图表: %1</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="379"/>
+        <location filename="io_graph_dialog.cpp" line="387"/>
         <source>All packets</source>
         <translation>所有分组</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="383"/>
+        <location filename="io_graph_dialog.cpp" line="391"/>
         <source>TCP errors</source>
         <translation>TCP 错误</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="870"/>
+        <location filename="io_graph_dialog.cpp" line="888"/>
         <source>Hover over the graph for details.</source>
         <translation>悬停在图片上来查看详情。</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="872"/>
+        <location filename="io_graph_dialog.cpp" line="890"/>
         <source>No packets in interval</source>
         <translation>间隔期没有分组</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="877"/>
+        <location filename="io_graph_dialog.cpp" line="895"/>
         <source>Click to select packet</source>
         <translation>点击选取分组</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="877"/>
+        <location filename="io_graph_dialog.cpp" line="895"/>
         <source>Packet</source>
         <translation>分组</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="881"/>
+        <location filename="io_graph_dialog.cpp" line="899"/>
         <source>%1 (%2s%3).</source>
         <translation>%1 (%2s%3).</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="892"/>
+        <location filename="io_graph_dialog.cpp" line="910"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>释放缩放, x = % 到 %2, y = %3 到 %4</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="898"/>
+        <location filename="io_graph_dialog.cpp" line="916"/>
         <source>Unable to select range.</source>
         <translation>无法选择范围。</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="901"/>
+        <location filename="io_graph_dialog.cpp" line="919"/>
         <source>Click to select a portion of the graph.</source>
         <translation>点击选择图形的一部分.</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1521"/>
+        <location filename="io_graph_dialog.cpp" line="1541"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>便携式文档格式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1522"/>
+        <location filename="io_graph_dialog.cpp" line="1542"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>便携式网络图形格式 (*.png)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1523"/>
+        <location filename="io_graph_dialog.cpp" line="1543"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows 位图 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1525"/>
+        <location filename="io_graph_dialog.cpp" line="1545"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG 文件交换格式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1526"/>
+        <location filename="io_graph_dialog.cpp" line="1546"/>
         <source>Comma Separated Values (*.csv)</source>
         <translation>逗号分隔值 (*.csv)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1538"/>
+        <location filename="io_graph_dialog.cpp" line="1558"/>
         <source>Save Graph As</source>
         <translation>图形保存为</translation>
     </message>
@@ -4267,12 +4251,12 @@ for filter files: %2.</source>
 <context>
     <name>InterfaceTree</name>
     <message>
-        <location filename="interface_tree.cpp" line="68"/>
+        <location filename="interface_tree.cpp" line="70"/>
         <source>Welcome screen list</source>
         <translation>欢迎屏幕列表</translation>
     </message>
     <message>
-        <location filename="interface_tree.cpp" line="74"/>
+        <location filename="interface_tree.cpp" line="76"/>
         <source>Waiting for startup%1</source>
         <translation>正在等待启动%1</translation>
     </message>
@@ -6523,12 +6507,12 @@ text-decoration: underline;
         <translation>禁止自动更新。</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="305"/>
+        <location filename="main_welcome.cpp" line="303"/>
         <source>not found</source>
         <translation>未找到</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="378"/>
+        <location filename="main_welcome.cpp" line="376"/>
         <source>Copy file path</source>
         <translation>复制文件路径</translation>
     </message>
@@ -7415,7 +7399,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1460"/>
         <source>Ctrl+Alt+M</source>
         <oldsource>Meta+Alt+M</oldsource>
-        <translation type="unfinished">Meta+Alt+M</translation>
+        <translation>Ctrl+Alt+M</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1465"/>
@@ -7431,7 +7415,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1471"/>
         <source>Ctrl+Shift+N</source>
         <oldsource>Meta+Shift+N</oldsource>
-        <translation type="unfinished">Meta+Shift+N</translation>
+        <translation>Ctrl+Shift+N</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1476"/>
@@ -7447,7 +7431,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="1482"/>
         <source>Ctrl+Shift+B</source>
         <oldsource>Meta+Shift+B</oldsource>
-        <translation type="unfinished">Meta+Shift+B</translation>
+        <translation>Ctrl+Shift+B</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="1487"/>
@@ -8478,7 +8462,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2124"/>
         <source>Ctrl+Alt+1</source>
         <oldsource>Meta+Alt+1</oldsource>
-        <translation type="unfinished">Meta+Alt+1</translation>
+        <translation>Ctrl+Alt+1</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2132"/>
@@ -8499,7 +8483,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2149"/>
         <source>Ctrl+Alt+2</source>
         <oldsource>Meta+Alt+2</oldsource>
-        <translation type="unfinished">Meta+Alt+2</translation>
+        <translation>Ctrl+Alt+2</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2157"/>
@@ -8515,7 +8499,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2163"/>
         <source>Ctrl+Alt+3</source>
         <oldsource>Meta+Alt+3</oldsource>
-        <translation type="unfinished">Meta+Alt+3</translation>
+        <translation>Ctrl+Alt+3</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2171"/>
@@ -8526,7 +8510,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2177"/>
         <source>Ctrl+Alt+4</source>
         <oldsource>Meta+Alt+4</oldsource>
-        <translation type="unfinished">Meta+Alt+4</translation>
+        <translation>Ctrl+Alt+4</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2185"/>
@@ -8542,7 +8526,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2191"/>
         <source>Ctrl+Alt+5</source>
         <oldsource>Meta+Alt+5</oldsource>
-        <translation type="unfinished">Meta+Alt+5</translation>
+        <translation>Ctrl+Alt+5</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2199"/>
@@ -8558,7 +8542,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2205"/>
         <source>Ctrl+Alt+6</source>
         <oldsource>Meta+Alt+6</oldsource>
-        <translation type="unfinished">Meta+Alt+6</translation>
+        <translation>Ctrl+Alt+6</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2213"/>
@@ -8574,7 +8558,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2219"/>
         <source>Ctrl+Alt+7</source>
         <oldsource>Meta+Alt+7</oldsource>
-        <translation type="unfinished">Meta+Alt+7</translation>
+        <translation>Ctrl+Alt+7</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2227"/>
@@ -8600,7 +8584,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2244"/>
         <source>Ctrl+Alt+8</source>
         <oldsource>Meta+Alt+8</oldsource>
-        <translation type="unfinished">Meta+Alt+8</translation>
+        <translation>Ctrl+Alt+8</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2252"/>
@@ -8817,7 +8801,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2788"/>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
-        <translation type="unfinished">新建对话规则…</translation>
+        <translation>新建着色规则…</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2831"/>
@@ -9035,7 +9019,7 @@ text-decoration: underline;
         <location filename="main_window.ui" line="2791"/>
         <source>Create a new coloring rule based on this field.</source>
         <oldsource>Create a new coloring rule based on this conversation.</oldsource>
-        <translation type="unfinished">基于此对话创建一个新的着色规则。</translation>
+        <translation>基于此栏创建一个新的着色规则。</translation>
     </message>
     <message>
         <location filename="main_window.ui" line="2796"/>
@@ -9078,33 +9062,33 @@ text-decoration: underline;
         <translation>Ctrl+Shift+E</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="411"/>
+        <location filename="main_window.cpp" line="403"/>
         <source>Check for Updates</source>
         <oldsource>Check for Updates...</oldsource>
         <translation>检查更新</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="799"/>
+        <location filename="main_window.cpp" line="791"/>
         <source> before quitting</source>
         <translation>在退出前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="975"/>
+        <location filename="main_window.cpp" line="967"/>
         <source>Save packets before merging?</source>
         <translation>是否在合并之前保存分组？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="976"/>
+        <location filename="main_window.cpp" line="968"/>
         <source>A temporary capture file can&apos;t be merged.</source>
         <translation>无法合并临时捕获文件。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="982"/>
+        <location filename="main_window.cpp" line="974"/>
         <source>Save changes in &quot;%1&quot; before merging?</source>
         <translation>是否在合并前保存对“%1”的更改？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="984"/>
+        <location filename="main_window.cpp" line="976"/>
         <source>Changes must be saved before the files can be merged.</source>
         <translation>在文件合并之前，其更改必须先保存。</translation>
     </message>
@@ -9114,115 +9098,111 @@ text-decoration: underline;
         <translation>无效显示过滤器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1041"/>
+        <location filename="main_window.cpp" line="1033"/>
         <source>Invalid Read Filter</source>
         <translation>无效读取过滤器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1042"/>
+        <location filename="main_window.cpp" line="1034"/>
         <source>The filter expression %1 isn&apos;t a valid read filter. (%2).</source>
         <translation>过滤器表达式 %1 不是有效的读取过滤器 (%2)。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1132"/>
+        <location filename="main_window.cpp" line="1124"/>
         <source> before importing a new capture</source>
         <translation> 导入新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1445"/>
+        <location filename="main_window.cpp" line="1437"/>
         <source>Unable to export to &quot;%1&quot;.</source>
         <translation>无法导出“%1”。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1446"/>
+        <location filename="main_window.cpp" line="1438"/>
         <source>You cannot export packets to the current capture file.</source>
         <translation>您不能将分组导出到当前捕获文件。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1533"/>
-        <location filename="main_window.cpp" line="1558"/>
+        <location filename="main_window.cpp" line="1525"/>
+        <location filename="main_window.cpp" line="1550"/>
         <source>.</source>
         <translation>.</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1599"/>
+        <location filename="main_window.cpp" line="1591"/>
         <source>You have unsaved packets</source>
         <translation>您有未保存的分组</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1600"/>
+        <location filename="main_window.cpp" line="1592"/>
         <source>They will be lost if you don&apos;t save them.</source>
         <translation>若不保存，这些分组将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1603"/>
-        <location filename="main_window.cpp" line="1616"/>
+        <location filename="main_window.cpp" line="1595"/>
+        <location filename="main_window.cpp" line="1608"/>
         <source>Do you want to stop the capture and save the captured packets</source>
         <translation>您是否要停止捕获，并保存已捕获的分组</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1605"/>
+        <location filename="main_window.cpp" line="1597"/>
         <source>Do you want to save the captured packets</source>
         <translation>是否希望保存已捕获的分组</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1607"/>
-        <location filename="main_window.cpp" line="1617"/>
+        <location filename="main_window.cpp" line="1599"/>
+        <location filename="main_window.cpp" line="1609"/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1619"/>
+        <location filename="main_window.cpp" line="1611"/>
         <source>Your captured packets will be lost if you don&apos;t save them.</source>
         <translation>若不保存，您已经捕获的分组将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1622"/>
+        <location filename="main_window.cpp" line="1614"/>
         <source>Do you want to save the changes you&apos;ve made to the capture file &quot;%1&quot;%2?</source>
         <translation>是否希望保存对捕获文件“%1”%2 的更改？</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1628"/>
+        <location filename="main_window.cpp" line="1620"/>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>若不保存，您的更改将会丢失。</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1642"/>
+        <location filename="main_window.cpp" line="1634"/>
         <source>Save before Continue</source>
         <translation>继续前保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1644"/>
+        <location filename="main_window.cpp" line="1636"/>
         <source>Stop and Save</source>
         <translation>停止并保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1656"/>
+        <location filename="main_window.cpp" line="1648"/>
         <source>Stop and Quit without Saving</source>
         <translation>停止并退出，不保存</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1668"/>
+        <location filename="main_window.cpp" line="1660"/>
         <source>Quit without Saving</source>
         <translation>不保存，直接退出</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1659"/>
-        <location filename="main_window.cpp" line="1672"/>
+        <location filename="main_window.cpp" line="1651"/>
+        <location filename="main_window.cpp" line="1664"/>
         <source>Continue without Saving</source>
         <translation>不保存并继续</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1662"/>
+        <location filename="main_window.cpp" line="1654"/>
         <source>Stop and Continue without Saving</source>
         <translation>停止并继续，不保存</translation>
     </message>
     <message>
-        <source>Continue &amp;without Saving</source>
-        <translation type="vanished">不保存并继续(&amp;W)</translation>
-    </message>
-    <message>
-        <location filename="main_window.cpp" line="1926"/>
+        <location filename="main_window.cpp" line="1918"/>
         <source>(File name can&apos;t be mapped to UTF-8)</source>
         <translation>文件名不能映射到UTF-8</translation>
     </message>
@@ -9232,7 +9212,7 @@ text-decoration: underline;
         <translation>Wireshark 网络分析器</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="1962"/>
+        <location filename="main_window.cpp" line="1964"/>
         <source>Capturing from %1</source>
         <translation>正在捕获 %1</translation>
     </message>
@@ -9303,7 +9283,7 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="main_window_slots.cpp" line="2373"/>
-        <location filename="main_window_slots.cpp" line="3432"/>
+        <location filename="main_window_slots.cpp" line="3433"/>
         <source>Unable to build conversation filter.</source>
         <translation>无法建立对话过滤器。</translation>
     </message>
@@ -9313,52 +9293,52 @@ text-decoration: underline;
         <translation>无过滤器可用。请尝试其他 </translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3439"/>
+        <location filename="main_window_slots.cpp" line="3440"/>
         <source>Error compiling filter for this conversation.</source>
         <translation>为此对话编译过滤器时出错。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3448"/>
+        <location filename="main_window_slots.cpp" line="3449"/>
         <source>No previous/next packet in conversation.</source>
         <translation>此对话中没有上一个/下一个分组。</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3525"/>
+        <location filename="main_window_slots.cpp" line="3526"/>
         <source>No Interface Selected</source>
         <translation>未选中接口</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3532"/>
+        <location filename="main_window_slots.cpp" line="3533"/>
         <source> before starting a new capture</source>
         <translation>在开始新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3550"/>
+        <location filename="main_window_slots.cpp" line="3551"/>
         <source> before restarting a new capture</source>
         <translation>在重启新捕获前</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3740"/>
+        <location filename="main_window_slots.cpp" line="3733"/>
         <source>Wiki Page for %1</source>
         <translation>%1 的 Wiki 页面</translation>
     </message>
     <message>
-        <location filename="main_window_slots.cpp" line="3741"/>
+        <location filename="main_window_slots.cpp" line="3734"/>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Wireshark Wiki 由社区进行维护。&lt;/p&gt;&lt;p&gt;您即将加载的页面可能是良好的、不完整的、有错误的，甚至不存在的。&lt;/p&gt;&lt;p&gt;继续访问该 Wiki？&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="258"/>
+        <location filename="main_window.h" line="259"/>
         <source>Loading</source>
         <translation>正在载入</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="260"/>
+        <location filename="main_window.h" line="261"/>
         <source>Reloading</source>
         <translation>正在重新加载</translation>
     </message>
     <message>
-        <location filename="main_window.h" line="261"/>
+        <location filename="main_window.h" line="262"/>
         <source>Rescanning</source>
         <translation>正在重新扫描</translation>
     </message>
@@ -10568,97 +10548,109 @@ text-decoration: underline;
         <translation>窗口大小 (B)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1923"/>
         <source>Packets/s</source>
-        <translation>包/秒</translation>
+        <translation type="vanished">包/秒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1924"/>
         <source>Bytes/s</source>
-        <translation>字节/秒</translation>
+        <translation type="vanished">字节/秒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1925"/>
         <source>Bits/s</source>
-        <translation>比特/秒</translation>
+        <translation type="vanished">比特/秒</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1926"/>
+        <location filename="io_graph_dialog.cpp" line="1943"/>
+        <source>Packets</source>
+        <translation type="unfinished">分组</translation>
+    </message>
+    <message>
+        <location filename="io_graph_dialog.cpp" line="1944"/>
+        <source>Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="io_graph_dialog.cpp" line="1945"/>
+        <source>Bits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="io_graph_dialog.cpp" line="1946"/>
         <source>SUM(Y Field)</source>
         <translation>总和 (Y字段)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1927"/>
+        <location filename="io_graph_dialog.cpp" line="1947"/>
         <source>COUNT FRAMES(Y Field)</source>
         <translation>COUNT FRAMES (Y字段)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1928"/>
+        <location filename="io_graph_dialog.cpp" line="1948"/>
         <source>COUNT FIELDS(Y Field)</source>
         <translation>COUNT FIELDS (Y字段)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1929"/>
+        <location filename="io_graph_dialog.cpp" line="1949"/>
         <source>MAX(Y Field)</source>
         <translation>最大值 (Y字段)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1930"/>
+        <location filename="io_graph_dialog.cpp" line="1950"/>
         <source>MIN(Y Field)</source>
         <translation>最小值 (Y字段)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1931"/>
+        <location filename="io_graph_dialog.cpp" line="1951"/>
         <source>AVG(Y Field)</source>
         <translation>平均值 (Y字段)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1932"/>
+        <location filename="io_graph_dialog.cpp" line="1952"/>
         <source>LOAD(Y Field)</source>
         <translation>星形 (Y字段)</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1941"/>
+        <location filename="io_graph_dialog.cpp" line="1961"/>
         <source>Line</source>
         <translation>折线</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1942"/>
+        <location filename="io_graph_dialog.cpp" line="1962"/>
         <source>Impulse</source>
         <translation>脉冲</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1943"/>
+        <location filename="io_graph_dialog.cpp" line="1963"/>
         <source>Bar</source>
         <translation>条形</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1944"/>
+        <location filename="io_graph_dialog.cpp" line="1964"/>
         <source>Stacked Bar</source>
         <translation>堆积条形图</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1945"/>
+        <location filename="io_graph_dialog.cpp" line="1965"/>
         <source>Dot</source>
         <translation>点</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1946"/>
+        <location filename="io_graph_dialog.cpp" line="1966"/>
         <source>Square</source>
         <translation>方形</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1947"/>
+        <location filename="io_graph_dialog.cpp" line="1967"/>
         <source>Diamond</source>
         <translation>星形</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1958"/>
+        <location filename="io_graph_dialog.cpp" line="1978"/>
         <source>None</source>
         <translation>无</translation>
     </message>
     <message>
-        <location filename="io_graph_dialog.cpp" line="1960"/>
+        <location filename="io_graph_dialog.cpp" line="1980"/>
         <source>%1 interval SMA</source>
         <translation>%1 间隔 SMA</translation>
     </message>
@@ -10761,7 +10753,7 @@ text-decoration: underline;
         <translation>任何</translation>
     </message>
     <message>
-        <location filename="main_window.cpp" line="232"/>
+        <location filename="main_window.cpp" line="223"/>
         <source>Don&apos;t show this message again.</source>
         <translation>不再显示此消息。</translation>
     </message>
@@ -11086,17 +11078,17 @@ text-decoration: underline;
         <translation>优先级</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="361"/>
+        <location filename="main_welcome.cpp" line="359"/>
         <source>Show in Finder</source>
         <translation>在 Finder 中显示</translation>
     </message>
     <message>
-        <location filename="main_welcome.cpp" line="363"/>
+        <location filename="main_welcome.cpp" line="361"/>
         <source>Show in Folder</source>
         <translation>在 Finder 中显示</translation>
     </message>
     <message>
-        <location filename="filter_expressions_preferences_frame.cpp" line="270"/>
+        <location filename="filter_expressions_preferences_frame.cpp" line="278"/>
         <source>My Filter</source>
         <translation>我的过滤器</translation>
     </message>
@@ -11341,22 +11333,22 @@ text-decoration: underline;
         <translation>[无文件]</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="181"/>
+        <location filename="resolved_addresses_dialog.cpp" line="182"/>
         <source>Resolved Addresses</source>
         <translation>解析后的地址</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="267"/>
+        <location filename="resolved_addresses_dialog.cpp" line="268"/>
         <source>Show</source>
         <translation>显示</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="296"/>
+        <location filename="resolved_addresses_dialog.cpp" line="297"/>
         <source># Resolved addresses found in %1</source>
         <translation># 在 %1 中找到的解析后的地址</translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="300"/>
+        <location filename="resolved_addresses_dialog.cpp" line="301"/>
         <source># Comments
 #
 # </source>
@@ -11365,7 +11357,7 @@ text-decoration: underline;
 # </translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="313"/>
+        <location filename="resolved_addresses_dialog.cpp" line="314"/>
         <source># Hosts
 #
 # </source>
@@ -11374,7 +11366,7 @@ text-decoration: underline;
 # </translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="326"/>
+        <location filename="resolved_addresses_dialog.cpp" line="327"/>
         <source># IPv4 Hash Table
 #
 # </source>
@@ -11383,12 +11375,12 @@ text-decoration: underline;
 # </translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="329"/>
-        <location filename="resolved_addresses_dialog.cpp" line="342"/>
-        <location filename="resolved_addresses_dialog.cpp" line="355"/>
-        <location filename="resolved_addresses_dialog.cpp" line="368"/>
-        <location filename="resolved_addresses_dialog.cpp" line="381"/>
-        <location filename="resolved_addresses_dialog.cpp" line="394"/>
+        <location filename="resolved_addresses_dialog.cpp" line="330"/>
+        <location filename="resolved_addresses_dialog.cpp" line="343"/>
+        <location filename="resolved_addresses_dialog.cpp" line="356"/>
+        <location filename="resolved_addresses_dialog.cpp" line="369"/>
+        <location filename="resolved_addresses_dialog.cpp" line="382"/>
+        <location filename="resolved_addresses_dialog.cpp" line="395"/>
         <source>
 
 </source>
@@ -11397,7 +11389,7 @@ text-decoration: underline;
 </translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="339"/>
+        <location filename="resolved_addresses_dialog.cpp" line="340"/>
         <source># IPv6 Hash Table
 #
 # </source>
@@ -11406,7 +11398,7 @@ text-decoration: underline;
 # </translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="352"/>
+        <location filename="resolved_addresses_dialog.cpp" line="353"/>
         <source># Services
 #
 # </source>
@@ -11415,7 +11407,7 @@ text-decoration: underline;
 # </translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="365"/>
+        <location filename="resolved_addresses_dialog.cpp" line="366"/>
         <source># Ethernet addresses
 #
 # </source>
@@ -11424,7 +11416,7 @@ text-decoration: underline;
 # </translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="378"/>
+        <location filename="resolved_addresses_dialog.cpp" line="379"/>
         <source># Ethernet manufacturers
 #
 # </source>
@@ -11433,7 +11425,7 @@ text-decoration: underline;
 # </translation>
     </message>
     <message>
-        <location filename="resolved_addresses_dialog.cpp" line="391"/>
+        <location filename="resolved_addresses_dialog.cpp" line="392"/>
         <source># Well known Ethernet addresses
 #
 # </source>
@@ -11777,7 +11769,7 @@ text-decoration: underline;
         <translation>无法保存 RTP 数据。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1473"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1477"/>
         <source>SSRC value not found.</source>
         <translation>未找到 SSRC 值。</translation>
     </message>
@@ -11827,105 +11819,105 @@ text-decoration: underline;
         <translation>图形保存为</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="754"/>
+        <location filename="rtp_analysis_dialog.cpp" line="756"/>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>无法保存到一个文件：捕获到的分组长度错误。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="764"/>
+        <location filename="rtp_analysis_dialog.cpp" line="767"/>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
         <translation>无法保存在一个文件中：带有填充字节的 RTP 数据。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="799"/>
-        <location filename="rtp_analysis_dialog.cpp" line="827"/>
+        <location filename="rtp_analysis_dialog.cpp" line="803"/>
+        <location filename="rtp_analysis_dialog.cpp" line="831"/>
         <source>Can&apos;t save in a file: File I/O problem.</source>
         <translation>无法保存到一个文件：文件 I/O 问题。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="815"/>
+        <location filename="rtp_analysis_dialog.cpp" line="819"/>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
         <translation>无法保存到一个文件：并非所有分组的所有数据被捕获。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1031"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1035"/>
         <source>Save forward stream audio</source>
         <translation>保存正向音频流</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1034"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1038"/>
         <source>Save reverse stream audio</source>
         <translation>保存反向音频流</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1038"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1042"/>
         <source>Save audio</source>
         <translation>保存音频</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1042"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1046"/>
         <source>Sun Audio (*.au)</source>
         <translation>Sun 音频 (*.au)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1044"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1048"/>
         <source>;;Raw (*.raw)</source>
         <translation>;;原始数据 (*.raw)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1061"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1070"/>
-        <location filename="rtp_analysis_dialog.cpp" line="1086"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1065"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1090"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1061"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1065"/>
         <source>Unable to save in that format</source>
         <translation>无法保存到该格式</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1070"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1074"/>
         <source>Can&apos;t save in a file: saving in au format supported only for alaw/ulaw streams</source>
         <translation>无法保存到文件：alaw/ulaw 流只支持保存到 au 格式。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1086"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1090"/>
         <source>Unable to save %1</source>
         <translation>无法保存 %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1090"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1094"/>
         <source>Saving %1</source>
         <translation>正在保存 %1</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1312"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1316"/>
         <source>Save forward stream CSV</source>
         <translation>保存正向流 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1315"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1319"/>
         <source>Save reverse stream CSV</source>
         <translation>保存反向流 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1319"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1323"/>
         <source>Save CSV</source>
         <translation>保存 CSV</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1325"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1329"/>
         <source>Comma-separated values (*.csv)</source>
         <translation>逗号分隔值 (*.csv)</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1415"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1419"/>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
         <translation>此版本的 Wireshark 没有 &quot;rtp.ssrc&quot; 字段。</translation>
     </message>
     <message>
-        <location filename="rtp_analysis_dialog.cpp" line="1449"/>
+        <location filename="rtp_analysis_dialog.cpp" line="1453"/>
         <source>Please select an RTPv2 packet with an SSRC value</source>
         <translation>请选择一个有 SSRC 值的 RTPv2 分组</translation>
     </message>
@@ -13985,6 +13977,14 @@ text-decoration: underline;
     </message>
 </context>
 <context>
+    <name>SyntaxLineEdit</name>
+    <message>
+        <location filename="syntax_line_edit.cpp" line="180"/>
+        <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
+        <translation type="unfinished">&quot;%1&quot;可能遇到意外的结果（参考用户手册）</translation>
+    </message>
+</context>
+<context>
     <name>TCPStreamDialog</name>
     <message>
         <location filename="tcp_stream_dialog.ui" line="14"/>
@@ -14409,7 +14409,7 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="417"/>
-        <location filename="tcp_stream_dialog.cpp" line="697"/>
+        <location filename="tcp_stream_dialog.cpp" line="699"/>
         <source>Round Trip Time</source>
         <translation>往返时间</translation>
     </message>
@@ -14425,7 +14425,7 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="428"/>
-        <location filename="tcp_stream_dialog.cpp" line="620"/>
+        <location filename="tcp_stream_dialog.cpp" line="622"/>
         <source>Throughput</source>
         <translation>吞吐量</translation>
     </message>
@@ -14456,7 +14456,7 @@ text-decoration: underline;
     </message>
     <message>
         <location filename="tcp_stream_dialog.ui" line="450"/>
-        <location filename="tcp_stream_dialog.cpp" line="751"/>
+        <location filename="tcp_stream_dialog.cpp" line="753"/>
         <source>Window Scaling</source>
         <translation>窗口尺寸</translation>
     </message>
@@ -14530,103 +14530,103 @@ text-decoration: underline;
         <translation>Shift+Y</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="215"/>
+        <location filename="tcp_stream_dialog.cpp" line="216"/>
         <source>Save As</source>
         <oldsource>Save As...</oldsource>
         <translation>另存为</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="383"/>
+        <location filename="tcp_stream_dialog.cpp" line="385"/>
         <source>No Capture Data</source>
         <translation>无捕获数据</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="439"/>
+        <location filename="tcp_stream_dialog.cpp" line="441"/>
         <source>%1 %2 pkts, %3 %4 %5 pkts, %6 </source>
         <translation>%1 %2 分组, %3 %4 %5 分组, %6</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="546"/>
+        <location filename="tcp_stream_dialog.cpp" line="548"/>
         <source>Sequence Numbers (Stevens)</source>
         <translation>序列号 (Stevens)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="571"/>
+        <location filename="tcp_stream_dialog.cpp" line="573"/>
         <source>Sequence Numbers (tcptrace)</source>
         <translation>序列号 (tcptrace)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="622"/>
+        <location filename="tcp_stream_dialog.cpp" line="624"/>
         <source> (1s MA)</source>
         <translation>(1s MA)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="624"/>
+        <location filename="tcp_stream_dialog.cpp" line="626"/>
         <source> (%1 Segment MA)</source>
         <translation>(%1 Segment MA)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="639"/>
+        <location filename="tcp_stream_dialog.cpp" line="641"/>
         <source> [not enough data]</source>
         <translation> [没有足够数据]</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="778"/>
+        <location filename="tcp_stream_dialog.cpp" line="780"/>
         <source> for %1:%2 %3 %4:%5</source>
         <translation>对于 %1:%2 %3 %4:%5</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="961"/>
+        <location filename="tcp_stream_dialog.cpp" line="963"/>
         <source>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</source>
         <translation>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="962"/>
+        <location filename="tcp_stream_dialog.cpp" line="964"/>
         <source>Click to select packet</source>
         <translation>点击选取分组</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="962"/>
+        <location filename="tcp_stream_dialog.cpp" line="964"/>
         <source>Packet</source>
         <translation>分组</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="976"/>
+        <location filename="tcp_stream_dialog.cpp" line="978"/>
         <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
         <translation>释放缩放, x = % 到 %2, y = %3 到 %4</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="982"/>
+        <location filename="tcp_stream_dialog.cpp" line="984"/>
         <source>Unable to select range.</source>
         <translation>无法选择范围。</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="985"/>
+        <location filename="tcp_stream_dialog.cpp" line="987"/>
         <source>Click to select a portion of the graph.</source>
         <translation>点击选择图形的一部分。</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1028"/>
+        <location filename="tcp_stream_dialog.cpp" line="1030"/>
         <source>Portable Document Format (*.pdf)</source>
         <translation>便携式文档格式 (*.pdf)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1029"/>
+        <location filename="tcp_stream_dialog.cpp" line="1031"/>
         <source>Portable Network Graphics (*.png)</source>
         <translation>便携式网络图形格式 (*.png)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1030"/>
+        <location filename="tcp_stream_dialog.cpp" line="1032"/>
         <source>Windows Bitmap (*.bmp)</source>
         <translation>Windows 位图 (*.bmp)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1032"/>
+        <location filename="tcp_stream_dialog.cpp" line="1034"/>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
         <translation>JPEG 文件交换格式 (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <location filename="tcp_stream_dialog.cpp" line="1039"/>
+        <location filename="tcp_stream_dialog.cpp" line="1041"/>
         <source>Save Graph As</source>
         <translation>保存图形为</translation>
     </message>
