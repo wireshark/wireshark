@@ -23,7 +23,7 @@ local lines = {
        ".000 0... .... .... = Opcode: 0",
         ".... ..0. .... .... = Truncated: False",
         ".... ...1 .... .... = Recursion desired: yes",
-        ".... .... .0.. .... = World War Z - Reserved for future use: 0x0000",
+        ".... .... .0.. .... = World War Z - Reserved for future use: 0x0",
         ".... .... ...0 .... = Checking disabled: False",
         "Number of Questions: 1",
         "Number of Answer RRs: 0",
@@ -51,7 +51,7 @@ local lines = {
         ".... .0.. .... .... = Authoritative: False",
         ".... ..0. .... .... = Truncated: False",
         ".... .... 1... .... = Recursion available: True",
-        ".... .... .0.. .... = World War Z - Reserved for future use: 0x0000",
+        ".... .... .0.. .... = World War Z - Reserved for future use: 0x0",
         ".... .... ..0. .... = Authenticated: no",
         ".... .... .... 0000 = Response code: No Error (0)",
         ".... .... ...0 .... = Checking disabled: False",
@@ -85,7 +85,7 @@ local lines = {
        ".000 0... .... .... = Opcode: 0",
         ".... ..0. .... .... = Truncated: False",
         ".... ...1 .... .... = Recursion desired: yes",
-        ".... .... .0.. .... = World War Z - Reserved for future use: 0x0000",
+        ".... .... .0.. .... = World War Z - Reserved for future use: 0x0",
         ".... .... ...0 .... = Checking disabled: False",
         "Number of Questions: 1",
         "Number of Answer RRs: 0",
@@ -113,7 +113,7 @@ local lines = {
         ".... .0.. .... .... = Authoritative: False",
         ".... ..0. .... .... = Truncated: False",
         ".... .... 1... .... = Recursion available: True",
-        ".... .... .0.. .... = World War Z - Reserved for future use: 0x0000",
+        ".... .... .0.. .... = World War Z - Reserved for future use: 0x0",
         ".... .... ..0. .... = Authenticated: no",
         ".... .... .... 0000 = Response code: No Error (0)",
         ".... .... ...0 .... = Checking disabled: False",
@@ -281,7 +281,7 @@ MyDNS Protocol
         .000 0... .... .... = Opcode: 0
         .... ..0. .... .... = Truncated: False
         .... ...1 .... .... = Recursion desired: yes
-        .... .... .0.. .... = World War Z - Reserved for future use: 0x0000
+        .... .... .0.. .... = World War Z - Reserved for future use: 0x0
         .... .... ...0 .... = Checking disabled: False
     Number of Questions: 1
     Number of Answer RRs: 0
@@ -355,7 +355,7 @@ MyDNS Protocol
         .... .0.. .... .... = Authoritative: False
         .... ..0. .... .... = Truncated: False
         .... .... 1... .... = Recursion available: True
-        .... .... .0.. .... = World War Z - Reserved for future use: 0x0000
+        .... .... .0.. .... = World War Z - Reserved for future use: 0x0
         .... .... ..0. .... = Authenticated: no
         .... .... .... 0000 = Response code: No Error (0)
         .... .... ...0 .... = Checking disabled: False
