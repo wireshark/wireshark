@@ -107,14 +107,14 @@ actual dissector.
 		if (flags&PANA_FLAG_R) {
 			/* This is a request */
 			pana_trans=wmem_new(wmem_file_scope(), pana_transaction_t);
-			pana_trans->req_frame = pinfo->fd->num;
+			pana_trans->req_frame = pinfo->num;
 			pana_trans->rep_frame = 0;
 			pana_trans->req_time = pinfo->fd->abs_ts;
 			wmem_map_insert(pana_info->pdus, GUINT_TO_POINTER(seq_num), (void *)pana_trans);
 		} else {
 			pana_trans=(pana_transaction_t *)wmem_map_lookup(pana_info->pdus, GUINT_TO_POINTER(seq_num));
 			if (pana_trans) {
-				pana_trans->rep_frame = pinfo->fd->num;
+				pana_trans->rep_frame = pinfo->num;
 			}
 		}
 	} else {

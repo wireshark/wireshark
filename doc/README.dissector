@@ -2600,7 +2600,7 @@ my_entry_t *data_ptr;
 
 /* look up the conversation */
 
-conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
         pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
 /* if conversation found get the data pointer that you stored */
@@ -2616,7 +2616,7 @@ else {
 
     /* create the conversation with your data pointer  */
 
-    conversation = conversation_new(pinfo->fd->num,  &pinfo->src, &pinfo->dst, pinfo->ptype,
+    conversation = conversation_new(pinfo->num,  &pinfo->src, &pinfo->dst, pinfo->ptype,
         pinfo->srcport, pinfo->destport, 0);
     conversation_add_proto_data(conversation, my_proto, (void *)data_ptr);
 }
@@ -2634,19 +2634,19 @@ Sometimes a dissector has determined that a new conversation is needed that
 starts at a specific frame number, when a capture session encompasses multiple
 conversation that reuse the same src/dest ip/port pairs. You can use the
 conversation->setup_frame returned by find_conversation with
-pinfo->fd->num to determine whether or not there already exists a conversation
+pinfo->num to determine whether or not there already exists a conversation
 that starts at the specific frame number.
 
 /* in the dissector routine */
 
-    conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst,
+    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
         pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-    if (conversation == NULL || (conversation->setup_frame != pinfo->fd->num)) {
+    if (conversation == NULL || (conversation->setup_frame != pinfo->num)) {
         /* It's not part of any conversation or the returned
          * conversation->setup_frame doesn't match the current frame
          * create a new one.
          */
-        conversation = conversation_new(pinfo->fd->num, &pinfo->src,
+        conversation = conversation_new(pinfo->num, &pinfo->src,
             &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport,
             NULL, 0);
     }
@@ -2751,7 +2751,7 @@ static void sub_dissector(tvbuff_t *tvb, packet_info *pinfo,
 /* First check if a conversation already exists for this
     socketpair
 */
-    conversation = find_conversation(pinfo->fd->num,
+    conversation = find_conversation(pinfo->num,
                 &pinfo->src, &pinfo->dst, protocol,
                 src_port, dst_port,  0);
 
@@ -2765,7 +2765,7 @@ static void sub_dissector(tvbuff_t *tvb, packet_info *pinfo,
         new_conv_info->data1 = value1;
 
 /* create the conversation for the dynamic port */
-            conversation = conversation_new(pinfo->fd->num,
+            conversation = conversation_new(pinfo->num,
             &pinfo->src, &pinfo->dst, protocol,
                 src_port, dst_port, new_conv_info, 0);
 
@@ -2845,7 +2845,7 @@ static dissector_handle_t sub_dissector_handle;
 /* First check if a conversation already exists for this
     IP/protocol/port
 */
-    conversation = find_conversation(pinfo->fd->num,
+    conversation = find_conversation(pinfo->num,
                 &server_src_addr, 0, protocol,
                 server_src_port, 0, NO_ADDR2 | NO_PORT_B);
 /* If there is no such conversation, or if there is one but for
@@ -2854,7 +2854,7 @@ static dissector_handle_t sub_dissector_handle;
 */
     if ( (conversation == NULL) ||
          (conversation->dissector_handle != sub_dissector_handle) ) {
-        conversation = conversation_new(pinfo->fd->num,
+        conversation = conversation_new(pinfo->num,
         &server_src_addr, 0, protocol,
         server_src_port, 0, new_conv_info, NO_ADDR2 | NO_PORT2);
 
