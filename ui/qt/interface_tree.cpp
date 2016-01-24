@@ -1,4 +1,6 @@
 /* interface_tree.cpp
+ * Display of interface names, traffic sparklines, and, if available,
+ * extcap options
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
