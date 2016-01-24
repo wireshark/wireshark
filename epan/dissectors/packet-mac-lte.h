@@ -67,6 +67,8 @@
 #define M_RNTI      6
 #define SL_BCH_RNTI 7
 #define SL_RNTI     8
+#define SC_RNTI     9
+#define G_RNTI      10
 
 typedef enum mac_lte_oob_event {
     ltemac_send_preamble,
