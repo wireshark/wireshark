@@ -7119,7 +7119,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
         }
         request_value = ncp_hash_insert(conversation, sequence, ncp_rec, pinfo->num);
         request_value->req_frame_num = pinfo->num;
-        request_value->req_frame_time = pinfo->fd->abs_ts;
+        request_value->req_frame_time = pinfo->abs_ts;
 
         /* If this is the first time we're examining the packet,
          * check to see if this NCP type uses a "request condition".
@@ -8064,7 +8064,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 
             proto_tree_add_uint(ncp_tree, hf_ncp_req_frame_num, tvb, 0, 0,
                                 request_value->req_frame_num);
-            nstime_delta(&ns, &pinfo->fd->abs_ts, &request_value->req_frame_time);
+            nstime_delta(&ns, &pinfo->abs_ts, &request_value->req_frame_time);
             proto_tree_add_time(ncp_tree, hf_ncp_req_frame_time, tvb, 0, 0, &ns);
         }
 
@@ -8268,7 +8268,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
     if (!pinfo->fd->flags.visited) {
         request_value = ncp_hash_insert(conversation, sequence, ncp_rec, pinfo->num);
         request_value->req_frame_num = pinfo->num;
-        request_value->req_frame_time=pinfo->fd->abs_ts;
+        request_value->req_frame_time=pinfo->abs_ts;
 
         /* If this is the first time we're examining the packet,
          * check to see if this NCP type uses a "request condition".
@@ -9262,7 +9262,7 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
 
         request_value = ncp_hash_insert(conversation, sequence, ncp_rec, pinfo->num);
         request_value->req_frame_num = pinfo->num;
-        request_value->req_frame_time=pinfo->fd->abs_ts;
+        request_value->req_frame_time=pinfo->abs_ts;
 
         /* If this is the first time we're examining the packet,
          * check to see if this NCP type uses a "request condition".
